@@ -1094,6 +1094,34 @@
 <div class="viewcode-block" id="set_default_plot_merge_settings">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.set_default_plot_merge_settings">[docs]</a>
 <span class="k">def</span> <span class="nf">set_default_plot_merge_settings</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set default configuration values for plotting merged image masks and overlays.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Dictionary of default settings for plotting merged masks and overlays.</span>
+
+<span class="sd">    Default Parameters:</span>
+<span class="sd">        - pathogen_limit (int): Maximum number of pathogen objects to display (default: 10).</span>
+<span class="sd">        - nuclei_limit (int): Maximum number of nuclei objects to display (default: 1).</span>
+<span class="sd">        - remove_background (bool): Whether to subtract background intensity (default: False).</span>
+<span class="sd">        - filter_min_max (tuple|None): Optional min/max filter for object values (default: None).</span>
+<span class="sd">        - channel_dims (list): Indices for raw image channels (default: [0,1,2,3]).</span>
+<span class="sd">        - backgrounds (list): Background values for each channel (default: [100,100,100,100]).</span>
+<span class="sd">        - cell_mask_dim (int): Index of cell mask channel (default: 4).</span>
+<span class="sd">        - nucleus_mask_dim (int): Index of nucleus mask channel (default: 5).</span>
+<span class="sd">        - pathogen_mask_dim (int): Index of pathogen mask channel (default: 6).</span>
+<span class="sd">        - outline_thickness (int): Thickness of outline for each object (default: 3).</span>
+<span class="sd">        - outline_color (str): Outline color in RGB channel string (default: &#39;gbr&#39;).</span>
+<span class="sd">        - overlay_chans (list): Channels to overlay on visualization (default: [1,2,3]).</span>
+<span class="sd">        - overlay (bool): Whether to show overlays (default: True).</span>
+<span class="sd">        - normalization_percentiles (list): Percentiles for image normalization (default: [2,98]).</span>
+<span class="sd">        - normalize (bool): Whether to normalize the image (default: True).</span>
+<span class="sd">        - print_object_number (bool): Print number of detected objects (default: True).</span>
+<span class="sd">        - nr (int): Number of examples to show (default: 1).</span>
+<span class="sd">        - figuresize (int): Size of output figure (default: 10).</span>
+<span class="sd">        - cmap (str): Color map to use (default: &#39;inferno&#39;).</span>
+<span class="sd">        - verbose (bool): Print debug info (default: True).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;pathogen_limit&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;nuclei_limit&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -1203,6 +1231,36 @@
 <div class="viewcode-block" id="set_default_plot_data_from_db">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.set_default_plot_data_from_db">[docs]</a>
 <span class="k">def</span> <span class="nf">set_default_plot_data_from_db</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set default plotting settings for visualizing data from an SQL database.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        settings (dict): Settings dictionary to populate.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Dictionary with default keys and values for graph plotting from database data.</span>
+
+<span class="sd">    Default Parameters:</span>
+<span class="sd">        - src (str): Path to the database directory (default: &#39;path&#39;).</span>
+<span class="sd">        - database (str): Filename of SQLite database (default: &#39;measurements.db&#39;).</span>
+<span class="sd">        - graph_name (str): Output name of the plot (default: &#39;Figure_1&#39;).</span>
+<span class="sd">        - table_names (list): Tables to include from the database (default: [&#39;cell&#39;, &#39;cytoplasm&#39;, &#39;nucleus&#39;, &#39;pathogen&#39;]).</span>
+<span class="sd">        - data_column (str): Column to plot (default: &#39;recruitment&#39;).</span>
+<span class="sd">        - grouping_column (str): Column used to group data (default: &#39;condition&#39;).</span>
+<span class="sd">        - cell_types (list): Cell types to include (default: [&#39;Hela&#39;]).</span>
+<span class="sd">        - cell_plate_metadata, pathogen_plate_metadata, treatment_plate_metadata (None): Optional metadata dictionaries.</span>
+<span class="sd">        - pathogen_types, treatments (None): Optional lists of types.</span>
+<span class="sd">        - graph_type (str): Type of plot (default: &#39;jitter&#39;).</span>
+<span class="sd">        - theme (str): Seaborn theme (default: &#39;deep&#39;).</span>
+<span class="sd">        - save (bool): Save plot to disk (default: True).</span>
+<span class="sd">        - y_lim (list): y-axis limits (default: [1, 1.5]).</span>
+<span class="sd">        - verbose (bool): Verbose output (default: False).</span>
+<span class="sd">        - channel_of_interest (int): Image channel to analyze (default: 1).</span>
+<span class="sd">        - nuclei_limit (int): Max nuclei per field (default: 2).</span>
+<span class="sd">        - pathogen_limit (int): Max pathogens per field (default: 3).</span>
+<span class="sd">        - representation (str): Plot representation (&#39;well&#39; or &#39;cell&#39;, default: &#39;well&#39;).</span>
+<span class="sd">        - uninfected (bool): Include uninfected controls (default: False).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;database&#39;</span><span class="p">,</span> <span class="s1">&#39;measurements.db&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;graph_name&#39;</span><span class="p">,</span> <span class="s1">&#39;Figure_1&#39;</span><span class="p">)</span>
@@ -1231,7 +1289,34 @@
 <div class="viewcode-block" id="set_default_settings_preprocess_img_data">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.set_default_settings_preprocess_img_data">[docs]</a>
 <span class="k">def</span> <span class="nf">set_default_settings_preprocess_img_data</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set default values for preprocessing image data before analysis.</span>
 
+<span class="sd">    Parameters:</span>
+<span class="sd">        settings (dict): Settings dictionary to populate.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Updated dictionary with image preprocessing settings.</span>
+
+<span class="sd">    Default Parameters:</span>
+<span class="sd">        - metadata_type (str): Metadata parsing type (default: &#39;cellvoyager&#39;).</span>
+<span class="sd">        - custom_regex (str|None): Regex for file parsing (default: None).</span>
+<span class="sd">        - nr (int): Number of examples to plot (default: 1).</span>
+<span class="sd">        - plot (bool): Whether to show plots (default: True).</span>
+<span class="sd">        - batch_size (int): Number of images to process per batch (default: 50).</span>
+<span class="sd">        - timelapse (bool): Whether this is a time series dataset (default: False).</span>
+<span class="sd">        - lower_percentile (int): Lower percentile for intensity clipping (default: 2).</span>
+<span class="sd">        - randomize (bool): Shuffle input file order (default: True).</span>
+<span class="sd">        - all_to_mip (bool): Convert all frames to max-intensity projection (default: False).</span>
+<span class="sd">        - cmap (str): Color map for images (default: &#39;inferno&#39;).</span>
+<span class="sd">        - figuresize (int): Figure size for plots (default: 10).</span>
+<span class="sd">        - normalize (bool): Normalize image intensities (default: True).</span>
+<span class="sd">        - save_dtype (str): Data type for saving processed files (default: &#39;uint16&#39;).</span>
+<span class="sd">        - test_mode (bool): Whether to run in test mode (default: False).</span>
+<span class="sd">        - test_images (int): Number of test images to run in test mode (default: 10).</span>
+<span class="sd">        - random_test (bool): Randomly select test images (default: True).</span>
+<span class="sd">        - fps (int): Frames per second for timelapse visualization (default: 2).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;metadata_type&#39;</span><span class="p">,</span> <span class="s1">&#39;cellvoyager&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;custom_regex&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;nr&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -1329,6 +1414,58 @@
 <div class="viewcode-block" id="set_default_umap_image_settings">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.set_default_umap_image_settings">[docs]</a>
 <span class="k">def</span> <span class="nf">set_default_umap_image_settings</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{}):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set default configuration values for UMAP-based image embedding and clustering.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        settings (dict): Optional dictionary of user-provided settings. Keys that are not present</span>
+<span class="sd">                         will be set to their default values.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Updated settings dictionary containing all necessary UMAP image analysis parameters.</span>
+
+<span class="sd">    Default Parameters Set:</span>
+<span class="sd">        - src (str): Path to input directory (default: &#39;path&#39;).</span>
+<span class="sd">        - row_limit (int): Maximum number of rows to use (default: 1000).</span>
+<span class="sd">        - tables (list): List of object types to include (default: [&#39;cell&#39;, &#39;cytoplasm&#39;, &#39;nucleus&#39;, &#39;pathogen&#39;]).</span>
+<span class="sd">        - visualize (str): Object type to visualize (default: &#39;cell&#39;).</span>
+<span class="sd">        - image_nr (int): Number of example images to display (default: 16).</span>
+<span class="sd">        - dot_size (int): Dot size in the scatter plot (default: 50).</span>
+<span class="sd">        - n_neighbors (int): UMAP parameter for local neighborhood size (default: 1000).</span>
+<span class="sd">        - min_dist (float): UMAP parameter controlling embedding compactness (default: 0.1).</span>
+<span class="sd">        - metric (str): Distance metric used in UMAP (default: &#39;euclidean&#39;).</span>
+<span class="sd">        - eps (float): DBSCAN epsilon parameter (default: 0.9).</span>
+<span class="sd">        - min_samples (int): Minimum number of samples per cluster in DBSCAN (default: 100).</span>
+<span class="sd">        - filter_by (str): Column used to filter features (default: &#39;channel_0&#39;).</span>
+<span class="sd">        - img_zoom (float): Zoom level for image thumbnails (default: 0.5).</span>
+<span class="sd">        - plot_by_cluster (bool): Whether to color plot by cluster ID (default: True).</span>
+<span class="sd">        - plot_cluster_grids (bool): Whether to plot grid of cluster example images (default: True).</span>
+<span class="sd">        - remove_cluster_noise (bool): Remove outliers/noise clusters (default: True).</span>
+<span class="sd">        - remove_highly_correlated (bool): Remove highly correlated features (default: True).</span>
+<span class="sd">        - log_data (bool): Log-transform input features (default: False).</span>
+<span class="sd">        - figuresize (int): Size of output figure (default: 10).</span>
+<span class="sd">        - black_background (bool): Whether to use a black background in plots (default: True).</span>
+<span class="sd">        - remove_image_canvas (bool): Crop out canvas margins in image plots (default: False).</span>
+<span class="sd">        - plot_outlines (bool): Overlay object outlines on image thumbnails (default: True).</span>
+<span class="sd">        - plot_points (bool): Plot UMAP/TSNE scatter points (default: True).</span>
+<span class="sd">        - smooth_lines (bool): Use smoothed lines in plots (default: True).</span>
+<span class="sd">        - clustering (str): Clustering method, e.g. &#39;dbscan&#39; (default: &#39;dbscan&#39;).</span>
+<span class="sd">        - exclude (list|None): List of object classes or conditions to exclude (default: None).</span>
+<span class="sd">        - col_to_compare (str): Column used to compare conditions (default: &#39;columnID&#39;).</span>
+<span class="sd">        - pos (str): Label for positive control column (default: &#39;c1&#39;).</span>
+<span class="sd">        - neg (str): Label for negative control column (default: &#39;c2&#39;).</span>
+<span class="sd">        - mix (str): Label for mixed/experimental column (default: &#39;c3&#39;).</span>
+<span class="sd">        - embedding_by_controls (bool): Fit UMAP only on control samples (default: False).</span>
+<span class="sd">        - plot_images (bool): Whether to include image overlays in plot (default: True).</span>
+<span class="sd">        - reduction_method (str): Dimensionality reduction method (default: &#39;umap&#39;).</span>
+<span class="sd">        - save_figure (bool): Save output figure to disk (default: False).</span>
+<span class="sd">        - n_jobs (int): Number of parallel jobs to use (default: -1, i.e., all cores).</span>
+<span class="sd">        - color_by (str|None): Column name to use for color-coding scatter points (default: None).</span>
+<span class="sd">        - exclude_conditions (list|None): List of conditions to exclude from embedding (default: None).</span>
+<span class="sd">        - analyze_clusters (bool): Perform further statistical analysis on clusters (default: False).</span>
+<span class="sd">        - resnet_features (bool): Use pretrained ResNet features (default: False).</span>
+<span class="sd">        - verbose (bool): Print status messages (default: True).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;row_limit&#39;</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;tables&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;cell&#39;</span><span class="p">,</span> <span class="s1">&#39;cytoplasm&#39;</span><span class="p">,</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen&#39;</span><span class="p">])</span>

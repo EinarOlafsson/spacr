@@ -1103,7 +1103,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Selects the most appropriate p-value adjustment method based on data characteristics.</span>
 <span class="sd">    </span>
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    - num_groups: Number of unique groups being compared</span>
 <span class="sd">    - num_data_points: Number of data points per group (assuming balanced groups)</span>
 <span class="sd">    </span>
@@ -1126,7 +1126,25 @@
 <div class="viewcode-block" id="perform_normality_tests">
 <a class="viewcode-back" href="../../api/spacr/sp_stats/index.html#spacr.sp_stats.perform_normality_tests">[docs]</a>
 <span class="k">def</span> <span class="nf">perform_normality_tests</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">grouping_column</span><span class="p">,</span> <span class="n">data_columns</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Perform normality tests for each group and data column.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform normality tests (Shapiro-Wilk or D&#39;Agostino-Pearson) on grouped data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (pd.DataFrame): Input DataFrame containing the data to test.</span>
+<span class="sd">        grouping_column (str): Column name to group data by (e.g., condition or treatment).</span>
+<span class="sd">        data_columns (list of str): List of column names containing numeric data to test for normality.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple:</span>
+<span class="sd">            - is_normal (bool): True if all group-column combinations pass the normality test (p &gt; 0.05), else False.</span>
+<span class="sd">            - normality_results (list of dict): List of results for each group-column combination including:</span>
+<span class="sd">                - &#39;Comparison&#39;: Description of the test</span>
+<span class="sd">                - &#39;Test Statistic&#39;: Computed test statistic (None if skipped)</span>
+<span class="sd">                - &#39;p-value&#39;: P-value of the test (None if skipped)</span>
+<span class="sd">                - &#39;Test Name&#39;: Name of the test used or &#39;Skipped&#39;</span>
+<span class="sd">                - &#39;Column&#39;: The data column tested</span>
+<span class="sd">                - &#39;n&#39;: Sample size</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">unique_groups</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">grouping_column</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
     <span class="n">normality_results</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -1176,7 +1194,17 @@
 <div class="viewcode-block" id="perform_levene_test">
 <a class="viewcode-back" href="../../api/spacr/sp_stats/index.html#spacr.sp_stats.perform_levene_test">[docs]</a>
 <span class="k">def</span> <span class="nf">perform_levene_test</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">grouping_column</span><span class="p">,</span> <span class="n">data_column</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Perform Levene&#39;s test for equal variance.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform Levene’s test for equal variances across groups.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        df (pd.DataFrame): The DataFrame containing the data.</span>
+<span class="sd">        grouping_column (str): The column indicating group membership.</span>
+<span class="sd">        data_column (str): The column containing the numeric data.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: (statistic, p-value) from Levene’s test.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">unique_groups</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">grouping_column</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
     <span class="n">grouped_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">grouping_column</span><span class="p">]</span> <span class="o">==</span> <span class="n">group</span><span class="p">,</span> <span class="n">data_column</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span> <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">unique_groups</span><span class="p">]</span>
     <span class="n">stat</span><span class="p">,</span> <span class="n">p_value</span> <span class="o">=</span> <span class="n">levene</span><span class="p">(</span><span class="o">*</span><span class="n">grouped_data</span><span class="p">)</span>
@@ -1186,7 +1214,23 @@
 <div class="viewcode-block" id="perform_statistical_tests">
 <a class="viewcode-back" href="../../api/spacr/sp_stats/index.html#spacr.sp_stats.perform_statistical_tests">[docs]</a>
 <span class="k">def</span> <span class="nf">perform_statistical_tests</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">grouping_column</span><span class="p">,</span> <span class="n">data_columns</span><span class="p">,</span> <span class="n">paired</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Perform statistical tests for each data column.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform statistical tests to compare groups for each specified data column.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        df (pd.DataFrame): The DataFrame containing the data.</span>
+<span class="sd">        grouping_column (str): The column indicating group membership.</span>
+<span class="sd">        data_columns (list): List of column names to perform tests on.</span>
+<span class="sd">        paired (bool): Whether to use paired tests (only for two-group comparisons).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list of dict: Each dict contains:</span>
+<span class="sd">            - &#39;Column&#39;: Name of the column tested.</span>
+<span class="sd">            - &#39;Test Name&#39;: Statistical test used.</span>
+<span class="sd">            - &#39;Test Statistic&#39;: Test statistic value.</span>
+<span class="sd">            - &#39;p-value&#39;: P-value of the test.</span>
+<span class="sd">            - &#39;Groups&#39;: Number of groups compared.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">unique_groups</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">grouping_column</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
     <span class="n">test_results</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -1230,7 +1274,24 @@
 <div class="viewcode-block" id="perform_posthoc_tests">
 <a class="viewcode-back" href="../../api/spacr/sp_stats/index.html#spacr.sp_stats.perform_posthoc_tests">[docs]</a>
 <span class="k">def</span> <span class="nf">perform_posthoc_tests</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">grouping_column</span><span class="p">,</span> <span class="n">data_column</span><span class="p">,</span> <span class="n">is_normal</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Perform post-hoc tests for multiple groups with both original and adjusted p-values.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform post-hoc pairwise comparisons between groups after a significant overall test (e.g., ANOVA or Kruskal-Wallis).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (pd.DataFrame): Input DataFrame containing the data to analyze.</span>
+<span class="sd">        grouping_column (str): Column name representing group membership.</span>
+<span class="sd">        data_column (str): Column name with the continuous variable to compare.</span>
+<span class="sd">        is_normal (bool): Indicator of whether the data meets normality assumptions </span>
+<span class="sd">                          (determines test type: Tukey HSD if True, Dunn&#39;s test if False).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list of dict: List of dictionaries summarizing pairwise comparisons, each including:</span>
+<span class="sd">            - &#39;Comparison&#39;: Description of the group pair.</span>
+<span class="sd">            - &#39;Original p-value&#39;: Raw p-value (None for Tukey HSD).</span>
+<span class="sd">            - &#39;Adjusted p-value&#39;: Corrected p-value for multiple testing.</span>
+<span class="sd">            - &#39;Adjusted Method&#39;: Method used for p-value adjustment.</span>
+<span class="sd">            - &#39;Test Name&#39;: The post-hoc test performed (&quot;Tukey HSD&quot; or &quot;Dunn&#39;s Post-hoc&quot;).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">unique_groups</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">grouping_column</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
     <span class="n">posthoc_results</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -1272,16 +1333,23 @@
 <a class="viewcode-back" href="../../api/spacr/sp_stats/index.html#spacr.sp_stats.chi_pairwise">[docs]</a>
 <span class="k">def</span> <span class="nf">chi_pairwise</span><span class="p">(</span><span class="n">raw_counts</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Perform pairwise chi-square or Fisher&#39;s exact tests between all unique group pairs</span>
-<span class="sd">    and apply p-value correction.</span>
+<span class="sd">    Perform pairwise statistical tests (Chi-Square or Fisher&#39;s Exact) on contingency tables </span>
+<span class="sd">    derived from count data, and apply multiple testing correction.</span>
 
-<span class="sd">    Parameters:</span>
-<span class="sd">    - raw_counts (DataFrame): Contingency table with group-wise counts.</span>
-<span class="sd">    - verbose (bool): Whether to print results for each pair.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        raw_counts (pd.DataFrame): A DataFrame where rows represent groups and columns represent categories.</span>
+<span class="sd">                                   The values are raw counts.</span>
+<span class="sd">        verbose (bool): If True, prints the resulting pairwise test summary.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">    - pairwise_df (DataFrame): DataFrame with pairwise test results, including corrected p-values.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        pd.DataFrame: A DataFrame with pairwise comparisons including:</span>
+<span class="sd">            - &#39;Group 1&#39;: First group in the comparison</span>
+<span class="sd">            - &#39;Group 2&#39;: Second group in the comparison</span>
+<span class="sd">            - &#39;Test Name&#39;: Type of statistical test used (&#39;Chi-Square&#39; or &#39;Fisher&#39;s Exact&#39;)</span>
+<span class="sd">            - &#39;p-value&#39;: Raw p-value for the test</span>
+<span class="sd">            - &#39;p-value_adj&#39;: Adjusted p-value after multiple testing correction</span>
+<span class="sd">            - &#39;adj&#39;: Name of the correction method used</span>
+<span class="sd">    &quot;&quot;&quot;</span> 
     <span class="n">pairwise_results</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">groups</span> <span class="o">=</span> <span class="n">raw_counts</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>  <span class="c1"># Use index from raw_counts for group pairs</span>
     <span class="n">raw_p_values</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Store raw p-values for correction later</span>

@@ -1098,7 +1098,41 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.settings.set_default_plot_merge_settings">
 <span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">set_default_plot_merge_settings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/settings.html#set_default_plot_merge_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.set_default_plot_merge_settings" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Set default configuration values for plotting merged image masks and overlays.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary of default settings for plotting merged masks and overlays.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Default Parameters:</dt><dd><ul class="simple">
+<li><p>pathogen_limit (int): Maximum number of pathogen objects to display (default: 10).</p></li>
+<li><p>nuclei_limit (int): Maximum number of nuclei objects to display (default: 1).</p></li>
+<li><p>remove_background (bool): Whether to subtract background intensity (default: False).</p></li>
+<li><p>filter_min_max (tuple|None): Optional min/max filter for object values (default: None).</p></li>
+<li><p>channel_dims (list): Indices for raw image channels (default: [0,1,2,3]).</p></li>
+<li><p>backgrounds (list): Background values for each channel (default: [100,100,100,100]).</p></li>
+<li><p>cell_mask_dim (int): Index of cell mask channel (default: 4).</p></li>
+<li><p>nucleus_mask_dim (int): Index of nucleus mask channel (default: 5).</p></li>
+<li><p>pathogen_mask_dim (int): Index of pathogen mask channel (default: 6).</p></li>
+<li><p>outline_thickness (int): Thickness of outline for each object (default: 3).</p></li>
+<li><p>outline_color (str): Outline color in RGB channel string (default: ‘gbr’).</p></li>
+<li><p>overlay_chans (list): Channels to overlay on visualization (default: [1,2,3]).</p></li>
+<li><p>overlay (bool): Whether to show overlays (default: True).</p></li>
+<li><p>normalization_percentiles (list): Percentiles for image normalization (default: [2,98]).</p></li>
+<li><p>normalize (bool): Whether to normalize the image (default: True).</p></li>
+<li><p>print_object_number (bool): Print number of detected objects (default: True).</p></li>
+<li><p>nr (int): Number of examples to show (default: 1).</p></li>
+<li><p>figuresize (int): Size of output figure (default: 10).</p></li>
+<li><p>cmap (str): Color map to use (default: ‘inferno’).</p></li>
+<li><p>verbose (bool): Print debug info (default: True).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.settings.set_default_settings_preprocess_generate_masks">
@@ -1108,17 +1142,145 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.settings.set_default_plot_data_from_db">
 <span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">set_default_plot_data_from_db</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/settings.html#set_default_plot_data_from_db"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.set_default_plot_data_from_db" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Set default plotting settings for visualizing data from an SQL database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Settings dictionary to populate.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary with default keys and values for graph plotting from database data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Default Parameters:</dt><dd><ul class="simple">
+<li><p>src (str): Path to the database directory (default: ‘path’).</p></li>
+<li><p>database (str): Filename of SQLite database (default: ‘measurements.db’).</p></li>
+<li><p>graph_name (str): Output name of the plot (default: ‘Figure_1’).</p></li>
+<li><p>table_names (list): Tables to include from the database (default: [‘cell’, ‘cytoplasm’, ‘nucleus’, ‘pathogen’]).</p></li>
+<li><p>data_column (str): Column to plot (default: ‘recruitment’).</p></li>
+<li><p>grouping_column (str): Column used to group data (default: ‘condition’).</p></li>
+<li><p>cell_types (list): Cell types to include (default: [‘Hela’]).</p></li>
+<li><p>cell_plate_metadata, pathogen_plate_metadata, treatment_plate_metadata (None): Optional metadata dictionaries.</p></li>
+<li><p>pathogen_types, treatments (None): Optional lists of types.</p></li>
+<li><p>graph_type (str): Type of plot (default: ‘jitter’).</p></li>
+<li><p>theme (str): Seaborn theme (default: ‘deep’).</p></li>
+<li><p>save (bool): Save plot to disk (default: True).</p></li>
+<li><p>y_lim (list): y-axis limits (default: [1, 1.5]).</p></li>
+<li><p>verbose (bool): Verbose output (default: False).</p></li>
+<li><p>channel_of_interest (int): Image channel to analyze (default: 1).</p></li>
+<li><p>nuclei_limit (int): Max nuclei per field (default: 2).</p></li>
+<li><p>pathogen_limit (int): Max pathogens per field (default: 3).</p></li>
+<li><p>representation (str): Plot representation (‘well’ or ‘cell’, default: ‘well’).</p></li>
+<li><p>uninfected (bool): Include uninfected controls (default: False).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.settings.set_default_settings_preprocess_img_data">
 <span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">set_default_settings_preprocess_img_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/settings.html#set_default_settings_preprocess_img_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.set_default_settings_preprocess_img_data" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Set default values for preprocessing image data before analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Settings dictionary to populate.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Updated dictionary with image preprocessing settings.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Default Parameters:</dt><dd><ul class="simple">
+<li><p>metadata_type (str): Metadata parsing type (default: ‘cellvoyager’).</p></li>
+<li><p>custom_regex (str|None): Regex for file parsing (default: None).</p></li>
+<li><p>nr (int): Number of examples to plot (default: 1).</p></li>
+<li><p>plot (bool): Whether to show plots (default: True).</p></li>
+<li><p>batch_size (int): Number of images to process per batch (default: 50).</p></li>
+<li><p>timelapse (bool): Whether this is a time series dataset (default: False).</p></li>
+<li><p>lower_percentile (int): Lower percentile for intensity clipping (default: 2).</p></li>
+<li><p>randomize (bool): Shuffle input file order (default: True).</p></li>
+<li><p>all_to_mip (bool): Convert all frames to max-intensity projection (default: False).</p></li>
+<li><p>cmap (str): Color map for images (default: ‘inferno’).</p></li>
+<li><p>figuresize (int): Figure size for plots (default: 10).</p></li>
+<li><p>normalize (bool): Normalize image intensities (default: True).</p></li>
+<li><p>save_dtype (str): Data type for saving processed files (default: ‘uint16’).</p></li>
+<li><p>test_mode (bool): Whether to run in test mode (default: False).</p></li>
+<li><p>test_images (int): Number of test images to run in test mode (default: 10).</p></li>
+<li><p>random_test (bool): Randomly select test images (default: True).</p></li>
+<li><p>fps (int): Frames per second for timelapse visualization (default: 2).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.settings.set_default_umap_image_settings">
 <span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">set_default_umap_image_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/settings.html#set_default_umap_image_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.set_default_umap_image_settings" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Set default configuration values for UMAP-based image embedding and clustering.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Optional dictionary of user-provided settings. Keys that are not present
+will be set to their default values.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Updated settings dictionary containing all necessary UMAP image analysis parameters.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Default Parameters Set:</dt><dd><ul class="simple">
+<li><p>src (str): Path to input directory (default: ‘path’).</p></li>
+<li><p>row_limit (int): Maximum number of rows to use (default: 1000).</p></li>
+<li><p>tables (list): List of object types to include (default: [‘cell’, ‘cytoplasm’, ‘nucleus’, ‘pathogen’]).</p></li>
+<li><p>visualize (str): Object type to visualize (default: ‘cell’).</p></li>
+<li><p>image_nr (int): Number of example images to display (default: 16).</p></li>
+<li><p>dot_size (int): Dot size in the scatter plot (default: 50).</p></li>
+<li><p>n_neighbors (int): UMAP parameter for local neighborhood size (default: 1000).</p></li>
+<li><p>min_dist (float): UMAP parameter controlling embedding compactness (default: 0.1).</p></li>
+<li><p>metric (str): Distance metric used in UMAP (default: ‘euclidean’).</p></li>
+<li><p>eps (float): DBSCAN epsilon parameter (default: 0.9).</p></li>
+<li><p>min_samples (int): Minimum number of samples per cluster in DBSCAN (default: 100).</p></li>
+<li><p>filter_by (str): Column used to filter features (default: ‘channel_0’).</p></li>
+<li><p>img_zoom (float): Zoom level for image thumbnails (default: 0.5).</p></li>
+<li><p>plot_by_cluster (bool): Whether to color plot by cluster ID (default: True).</p></li>
+<li><p>plot_cluster_grids (bool): Whether to plot grid of cluster example images (default: True).</p></li>
+<li><p>remove_cluster_noise (bool): Remove outliers/noise clusters (default: True).</p></li>
+<li><p>remove_highly_correlated (bool): Remove highly correlated features (default: True).</p></li>
+<li><p>log_data (bool): Log-transform input features (default: False).</p></li>
+<li><p>figuresize (int): Size of output figure (default: 10).</p></li>
+<li><p>black_background (bool): Whether to use a black background in plots (default: True).</p></li>
+<li><p>remove_image_canvas (bool): Crop out canvas margins in image plots (default: False).</p></li>
+<li><p>plot_outlines (bool): Overlay object outlines on image thumbnails (default: True).</p></li>
+<li><p>plot_points (bool): Plot UMAP/TSNE scatter points (default: True).</p></li>
+<li><p>smooth_lines (bool): Use smoothed lines in plots (default: True).</p></li>
+<li><p>clustering (str): Clustering method, e.g. ‘dbscan’ (default: ‘dbscan’).</p></li>
+<li><p>exclude (list|None): List of object classes or conditions to exclude (default: None).</p></li>
+<li><p>col_to_compare (str): Column used to compare conditions (default: ‘columnID’).</p></li>
+<li><p>pos (str): Label for positive control column (default: ‘c1’).</p></li>
+<li><p>neg (str): Label for negative control column (default: ‘c2’).</p></li>
+<li><p>mix (str): Label for mixed/experimental column (default: ‘c3’).</p></li>
+<li><p>embedding_by_controls (bool): Fit UMAP only on control samples (default: False).</p></li>
+<li><p>plot_images (bool): Whether to include image overlays in plot (default: True).</p></li>
+<li><p>reduction_method (str): Dimensionality reduction method (default: ‘umap’).</p></li>
+<li><p>save_figure (bool): Save output figure to disk (default: False).</p></li>
+<li><p>n_jobs (int): Number of parallel jobs to use (default: -1, i.e., all cores).</p></li>
+<li><p>color_by (str|None): Column name to use for color-coding scatter points (default: None).</p></li>
+<li><p>exclude_conditions (list|None): List of conditions to exclude from embedding (default: None).</p></li>
+<li><p>analyze_clusters (bool): Perform further statistical analysis on clusters (default: False).</p></li>
+<li><p>resnet_features (bool): Use pretrained ResNet features (default: False).</p></li>
+<li><p>verbose (bool): Print status messages (default: True).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.settings.get_measure_crop_settings">

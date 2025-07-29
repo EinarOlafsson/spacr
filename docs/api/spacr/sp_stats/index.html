@@ -1099,7 +1099,7 @@
 <dt class="sig sig-object py" id="spacr.sp_stats.choose_p_adjust_method">
 <span class="sig-prename descclassname"><span class="pre">spacr.sp_stats.</span></span><span class="sig-name descname"><span class="pre">choose_p_adjust_method</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_data_points</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sp_stats.html#choose_p_adjust_method"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sp_stats.choose_p_adjust_method" title="Link to this definition"></a></dt>
 <dd><p>Selects the most appropriate p-value adjustment method based on data characteristics.</p>
-<p>Parameters:
+<p>Args:
 - num_groups: Number of unique groups being compared
 - num_data_points: Number of data points per group (assuming balanced groups)</p>
 <p>Returns:
@@ -1109,37 +1109,156 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.sp_stats.perform_normality_tests">
 <span class="sig-prename descclassname"><span class="pre">spacr.sp_stats.</span></span><span class="sig-name descname"><span class="pre">perform_normality_tests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouping_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_columns</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sp_stats.html#perform_normality_tests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sp_stats.perform_normality_tests" title="Link to this definition"></a></dt>
-<dd><p>Perform normality tests for each group and data column.</p>
+<dd><p>Perform normality tests (Shapiro-Wilk or D’Agostino-Pearson) on grouped data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input DataFrame containing the data to test.</p></li>
+<li><p><strong>grouping_column</strong> (<em>str</em>) – Column name to group data by (e.g., condition or treatment).</p></li>
+<li><p><strong>data_columns</strong> (<em>list</em><em> of </em><em>str</em>) – List of column names containing numeric data to test for normality.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>is_normal (bool): True if all group-column combinations pass the normality test (p &gt; 0.05), else False.</p></li>
+<li><dl class="simple">
+<dt>normality_results (list of dict): List of results for each group-column combination including:</dt><dd><ul>
+<li><p>’Comparison’: Description of the test</p></li>
+<li><p>’Test Statistic’: Computed test statistic (None if skipped)</p></li>
+<li><p>’p-value’: P-value of the test (None if skipped)</p></li>
+<li><p>’Test Name’: Name of the test used or ‘Skipped’</p></li>
+<li><p>’Column’: The data column tested</p></li>
+<li><p>’n’: Sample size</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.sp_stats.perform_levene_test">
 <span class="sig-prename descclassname"><span class="pre">spacr.sp_stats.</span></span><span class="sig-name descname"><span class="pre">perform_levene_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouping_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sp_stats.html#perform_levene_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sp_stats.perform_levene_test" title="Link to this definition"></a></dt>
-<dd><p>Perform Levene’s test for equal variance.</p>
+<dd><p>Perform Levene’s test for equal variances across groups.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The DataFrame containing the data.</p></li>
+<li><p><strong>grouping_column</strong> (<em>str</em>) – The column indicating group membership.</p></li>
+<li><p><strong>data_column</strong> (<em>str</em>) – The column containing the numeric data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(statistic, p-value) from Levene’s test.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.sp_stats.perform_statistical_tests">
 <span class="sig-prename descclassname"><span class="pre">spacr.sp_stats.</span></span><span class="sig-name descname"><span class="pre">perform_statistical_tests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouping_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paired</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sp_stats.html#perform_statistical_tests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sp_stats.perform_statistical_tests" title="Link to this definition"></a></dt>
-<dd><p>Perform statistical tests for each data column.</p>
+<dd><p>Perform statistical tests to compare groups for each specified data column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The DataFrame containing the data.</p></li>
+<li><p><strong>grouping_column</strong> (<em>str</em>) – The column indicating group membership.</p></li>
+<li><p><strong>data_columns</strong> (<em>list</em>) – List of column names to perform tests on.</p></li>
+<li><p><strong>paired</strong> (<em>bool</em>) – Whether to use paired tests (only for two-group comparisons).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Each dict contains:</dt><dd><ul class="simple">
+<li><p>’Column’: Name of the column tested.</p></li>
+<li><p>’Test Name’: Statistical test used.</p></li>
+<li><p>’Test Statistic’: Test statistic value.</p></li>
+<li><p>’p-value’: P-value of the test.</p></li>
+<li><p>’Groups’: Number of groups compared.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.sp_stats.perform_posthoc_tests">
 <span class="sig-prename descclassname"><span class="pre">spacr.sp_stats.</span></span><span class="sig-name descname"><span class="pre">perform_posthoc_tests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouping_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_normal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sp_stats.html#perform_posthoc_tests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sp_stats.perform_posthoc_tests" title="Link to this definition"></a></dt>
-<dd><p>Perform post-hoc tests for multiple groups with both original and adjusted p-values.</p>
+<dd><p>Perform post-hoc pairwise comparisons between groups after a significant overall test (e.g., ANOVA or Kruskal-Wallis).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input DataFrame containing the data to analyze.</p></li>
+<li><p><strong>grouping_column</strong> (<em>str</em>) – Column name representing group membership.</p></li>
+<li><p><strong>data_column</strong> (<em>str</em>) – Column name with the continuous variable to compare.</p></li>
+<li><p><strong>is_normal</strong> (<em>bool</em>) – Indicator of whether the data meets normality assumptions
+(determines test type: Tukey HSD if True, Dunn’s test if False).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>List of dictionaries summarizing pairwise comparisons, each including:</dt><dd><ul class="simple">
+<li><p>’Comparison’: Description of the group pair.</p></li>
+<li><p>’Original p-value’: Raw p-value (None for Tukey HSD).</p></li>
+<li><p>’Adjusted p-value’: Corrected p-value for multiple testing.</p></li>
+<li><p>’Adjusted Method’: Method used for p-value adjustment.</p></li>
+<li><p>’Test Name’: The post-hoc test performed (“Tukey HSD” or “Dunn’s Post-hoc”).</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.sp_stats.chi_pairwise">
 <span class="sig-prename descclassname"><span class="pre">spacr.sp_stats.</span></span><span class="sig-name descname"><span class="pre">chi_pairwise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sp_stats.html#chi_pairwise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sp_stats.chi_pairwise" title="Link to this definition"></a></dt>
-<dd><p>Perform pairwise chi-square or Fisher’s exact tests between all unique group pairs
-and apply p-value correction.</p>
-<p>Parameters:
-- raw_counts (DataFrame): Contingency table with group-wise counts.
-- verbose (bool): Whether to print results for each pair.</p>
-<p>Returns:
-- pairwise_df (DataFrame): DataFrame with pairwise test results, including corrected p-values.</p>
+<dd><p>Perform pairwise statistical tests (Chi-Square or Fisher’s Exact) on contingency tables
+derived from count data, and apply multiple testing correction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>raw_counts</strong> (<em>pd.DataFrame</em>) – A DataFrame where rows represent groups and columns represent categories.
+The values are raw counts.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If True, prints the resulting pairwise test summary.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A DataFrame with pairwise comparisons including:</dt><dd><ul class="simple">
+<li><p>’Group 1’: First group in the comparison</p></li>
+<li><p>’Group 2’: Second group in the comparison</p></li>
+<li><p>’Test Name’: Type of statistical test used (‘Chi-Square’ or ‘Fisher’s Exact’)</p></li>
+<li><p>’p-value’: Raw p-value for the test</p></li>
+<li><p>’p-value_adj’: Adjusted p-value after multiple testing correction</p></li>
+<li><p>’adj’: Name of the correction method used</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

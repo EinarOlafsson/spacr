@@ -1108,32 +1108,160 @@ Handles:
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.spacr_cellpose.identify_masks_finetune">
 <span class="sig-prename descclassname"><span class="pre">spacr.spacr_cellpose.</span></span><span class="sig-name descname"><span class="pre">identify_masks_finetune</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/spacr_cellpose.html#identify_masks_finetune"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.spacr_cellpose.identify_masks_finetune" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Generate Cellpose segmentation masks for a batch of images using a pretrained or custom model.</p>
+<p>This function loads a set of images from the provided source directory, applies optional
+preprocessing (normalization, resizing), and uses a Cellpose model to generate segmentation masks.
+Masks are optionally visualized and saved to disk. The model, channels, and other parameters are
+defined in the <cite>settings</cite> dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Dictionary containing configuration parameters. Must include:
+- ‘src’ (str): Source folder with <cite>.tif</cite> images.
+- ‘model_name’ (str): Name of Cellpose model to use (e.g., ‘cyto2’, ‘nucleus’).
+- ‘custom_model’ (str or None): Path to custom model file (.pt), if used.
+- ‘channels’ (list): List of image channel indices to use for segmentation.
+- ‘grayscale’ (bool): Whether input images are single-channel.
+- ‘diameter’ (float): Estimated diameter of objects in pixels.
+- ‘flow_threshold’ (float): Threshold for mask acceptance based on flow prediction.
+- ‘CP_prob’ (float): Cell probability threshold for segmentation.
+- ‘rescale’ (float): Rescaling factor.
+- ‘resample’ (bool): Whether to resample the image during preprocessing.
+- ‘normalize’ (bool): Whether to normalize pixel intensities.
+- ‘percentiles’ (list): Lower and upper percentiles for normalization.
+- ‘invert’ (bool): Whether to invert image intensities.
+- ‘remove_background’ (bool): Whether to subtract background value.
+- ‘background’ (list): Background pixel intensity values to subtract per channel.
+- ‘Signal_to_noise’ (float): Threshold for signal-to-noise filtering.
+- ‘resize’ (bool): Whether to resize to fixed target dimensions.
+- ‘target_height’ (int): Height for resizing.
+- ‘target_width’ (int): Width for resizing.
+- ‘batch_size’ (int): Number of images to process per batch.
+- ‘fill_in’ (bool): Whether to fill holes in masks.
+- ‘save’ (bool): Whether to save the masks to disk.
+- ‘verbose’ (bool): Whether to print detailed progress and visualization output.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None. Masks are optionally saved to the ‘masks’ subdirectory in the source folder.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.spacr_cellpose.generate_masks_from_imgs">
 <span class="sig-prename descclassname"><span class="pre">spacr.spacr_cellpose.</span></span><span class="sig-name descname"><span class="pre">generate_masks_from_imgs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cellprob_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grayscale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percentiles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invert</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_background</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Signal_to_noise</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/spacr_cellpose.html#generate_masks_from_imgs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.spacr_cellpose.generate_masks_from_imgs" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Apply a Cellpose model to a batch of images and generate segmentation masks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src</strong> (<em>str</em>) – Directory containing input .tif images.</p></li>
+<li><p><strong>model</strong> (<em>CellposeModel</em>) – Initialized Cellpose model.</p></li>
+<li><p><strong>model_name</strong> (<em>str</em>) – Model identifier (e.g., ‘cyto2’, ‘nucleus’).</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em>) – Number of images processed in each batch.</p></li>
+<li><p><strong>diameter</strong> (<em>float</em>) – Estimated object diameter in pixels.</p></li>
+<li><p><strong>cellprob_threshold</strong> (<em>float</em>) – Cell probability threshold.</p></li>
+<li><p><strong>flow_threshold</strong> (<em>float</em>) – Flow threshold for mask acceptance.</p></li>
+<li><p><strong>grayscale</strong> (<em>bool</em>) – If True, treat images as single-channel.</p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – Whether to save output masks.</p></li>
+<li><p><strong>normalize</strong> (<em>bool</em>) – Whether to normalize input images.</p></li>
+<li><p><strong>channels</strong> (<em>list</em>) – Channels to use for processing (e.g., [0, 1]).</p></li>
+<li><p><strong>percentiles</strong> (<em>list</em>) – Percentiles for normalization (e.g., [2, 99]).</p></li>
+<li><p><strong>invert</strong> (<em>bool</em>) – If True, invert image intensity.</p></li>
+<li><p><strong>plot</strong> (<em>bool</em>) – If True, display masks and flows.</p></li>
+<li><p><strong>resize</strong> (<em>bool</em>) – Whether to resize images to fixed target dimensions.</p></li>
+<li><p><strong>target_height</strong> (<em>int</em>) – Height after resizing.</p></li>
+<li><p><strong>target_width</strong> (<em>int</em>) – Width after resizing.</p></li>
+<li><p><strong>remove_background</strong> (<em>bool</em>) – Whether to subtract background intensity.</p></li>
+<li><p><strong>background</strong> (<em>list</em>) – Background intensity values for subtraction.</p></li>
+<li><p><strong>Signal_to_noise</strong> (<em>float</em>) – Minimum SNR threshold.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If True, print detailed status messages.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None. Saves masks to disk if <cite>save=True</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.spacr_cellpose.check_cellpose_models">
 <span class="sig-prename descclassname"><span class="pre">spacr.spacr_cellpose.</span></span><span class="sig-name descname"><span class="pre">check_cellpose_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/spacr_cellpose.html#check_cellpose_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.spacr_cellpose.check_cellpose_models" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Evaluate multiple pretrained Cellpose models (‘cyto’, ‘nuclei’, ‘cyto2’, ‘cyto3’)
+on a given dataset using standardized settings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Dictionary of parameters controlling input source, model parameters,
+image preprocessing, and save/visualization options.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None. Runs <cite>generate_masks_from_imgs()</cite> for each model and displays results.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.spacr_cellpose.save_results_and_figure">
 <span class="sig-prename descclassname"><span class="pre">spacr.spacr_cellpose.</span></span><span class="sig-name descname"><span class="pre">save_results_and_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/spacr_cellpose.html#save_results_and_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.spacr_cellpose.save_results_and_figure" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Save a results DataFrame and associated figure to disk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src</strong> (<em>str</em>) – Path to the source directory where the ‘results’ subfolder will be created.</p></li>
+<li><p><strong>fig</strong> (<em>matplotlib.figure.Figure</em>) – The figure object to be saved as a PDF.</p></li>
+<li><p><strong>results</strong> (<em>pd.DataFrame</em><em> or </em><em>dict</em><em> or </em><em>list</em>) – Results to be saved. If not a DataFrame,
+it will be converted to one.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None. Writes results to ‘results.csv’ and the figure to ‘model_comparison_plot.pdf’.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.spacr_cellpose.compare_mask">
 <span class="sig-prename descclassname"><span class="pre">spacr.spacr_cellpose.</span></span><span class="sig-name descname"><span class="pre">compare_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/spacr_cellpose.html#compare_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.spacr_cellpose.compare_mask" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Compare segmentation masks across different directories for a given filename
+using multiple evaluation metrics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>tuple</em>) – A tuple containing:
+- src (str): Not used directly, reserved for future use.
+- filename (str): Name of the mask file to compare across directories.
+- dirs (list of str): List of directory paths where mask files are located.
+- conditions (list of str): Labels corresponding to each directory for result naming.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A dictionary containing comparison metrics (Jaccard index, boundary F1 score,</dt><dd><p>and average precision) for all pairwise combinations of masks.
+Returns None if any mask file is missing.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict or None</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.spacr_cellpose.compare_cellpose_masks">
 <span class="sig-prename descclassname"><span class="pre">spacr.spacr_cellpose.</span></span><span class="sig-name descname"><span class="pre">compare_cellpose_masks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/spacr_cellpose.html#compare_cellpose_masks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.spacr_cellpose.compare_cellpose_masks" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Compare Cellpose segmentation masks across multiple model output folders.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src</strong> (<em>str</em>) – Path to the parent directory containing subdirectories for each model condition.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If True, visualize each mask comparison using matplotlib.</p></li>
+<li><p><strong>processes</strong> (<em>int</em><em> or </em><em>None</em>) – Number of parallel processes to use. If None, uses os.cpu_count().</p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – Whether to save the visualization outputs and results to disk.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None. Results are printed, plotted, and optionally saved to disk.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 </section>

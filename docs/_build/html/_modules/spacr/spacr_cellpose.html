@@ -1162,7 +1162,43 @@
 <div class="viewcode-block" id="identify_masks_finetune">
 <a class="viewcode-back" href="../../api/spacr/spacr_cellpose/index.html#spacr.spacr_cellpose.identify_masks_finetune">[docs]</a>
 <span class="k">def</span> <span class="nf">identify_masks_finetune</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate Cellpose segmentation masks for a batch of images using a pretrained or custom model.</span>
+
+<span class="sd">    This function loads a set of images from the provided source directory, applies optional</span>
+<span class="sd">    preprocessing (normalization, resizing), and uses a Cellpose model to generate segmentation masks.</span>
+<span class="sd">    Masks are optionally visualized and saved to disk. The model, channels, and other parameters are </span>
+<span class="sd">    defined in the `settings` dictionary.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary containing configuration parameters. Must include:</span>
+<span class="sd">            - &#39;src&#39; (str): Source folder with `.tif` images.</span>
+<span class="sd">            - &#39;model_name&#39; (str): Name of Cellpose model to use (e.g., &#39;cyto2&#39;, &#39;nucleus&#39;).</span>
+<span class="sd">            - &#39;custom_model&#39; (str or None): Path to custom model file (.pt), if used.</span>
+<span class="sd">            - &#39;channels&#39; (list): List of image channel indices to use for segmentation.</span>
+<span class="sd">            - &#39;grayscale&#39; (bool): Whether input images are single-channel.</span>
+<span class="sd">            - &#39;diameter&#39; (float): Estimated diameter of objects in pixels.</span>
+<span class="sd">            - &#39;flow_threshold&#39; (float): Threshold for mask acceptance based on flow prediction.</span>
+<span class="sd">            - &#39;CP_prob&#39; (float): Cell probability threshold for segmentation.</span>
+<span class="sd">            - &#39;rescale&#39; (float): Rescaling factor.</span>
+<span class="sd">            - &#39;resample&#39; (bool): Whether to resample the image during preprocessing.</span>
+<span class="sd">            - &#39;normalize&#39; (bool): Whether to normalize pixel intensities.</span>
+<span class="sd">            - &#39;percentiles&#39; (list): Lower and upper percentiles for normalization.</span>
+<span class="sd">            - &#39;invert&#39; (bool): Whether to invert image intensities.</span>
+<span class="sd">            - &#39;remove_background&#39; (bool): Whether to subtract background value.</span>
+<span class="sd">            - &#39;background&#39; (list): Background pixel intensity values to subtract per channel.</span>
+<span class="sd">            - &#39;Signal_to_noise&#39; (float): Threshold for signal-to-noise filtering.</span>
+<span class="sd">            - &#39;resize&#39; (bool): Whether to resize to fixed target dimensions.</span>
+<span class="sd">            - &#39;target_height&#39; (int): Height for resizing.</span>
+<span class="sd">            - &#39;target_width&#39; (int): Width for resizing.</span>
+<span class="sd">            - &#39;batch_size&#39; (int): Number of images to process per batch.</span>
+<span class="sd">            - &#39;fill_in&#39; (bool): Whether to fill holes in masks.</span>
+<span class="sd">            - &#39;save&#39; (bool): Whether to save the masks to disk.</span>
+<span class="sd">            - &#39;verbose&#39; (bool): Whether to print detailed progress and visualization output.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. Masks are optionally saved to the &#39;masks&#39; subdirectory in the source folder.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">print_mask_and_flows</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">resize_images_and_labels</span><span class="p">,</span> <span class="n">print_progress</span><span class="p">,</span> <span class="n">save_settings</span><span class="p">,</span> <span class="n">fill_holes_in_mask</span>
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_load_normalized_images_and_labels</span><span class="p">,</span> <span class="n">_load_images_and_labels</span>
@@ -1288,7 +1324,35 @@
 <div class="viewcode-block" id="generate_masks_from_imgs">
 <a class="viewcode-back" href="../../api/spacr/spacr_cellpose/index.html#spacr.spacr_cellpose.generate_masks_from_imgs">[docs]</a>
 <span class="k">def</span> <span class="nf">generate_masks_from_imgs</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">cellprob_threshold</span><span class="p">,</span> <span class="n">flow_threshold</span><span class="p">,</span> <span class="n">grayscale</span><span class="p">,</span> <span class="n">save</span><span class="p">,</span> <span class="n">normalize</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">percentiles</span><span class="p">,</span> <span class="n">invert</span><span class="p">,</span> <span class="n">plot</span><span class="p">,</span> <span class="n">resize</span><span class="p">,</span> <span class="n">target_height</span><span class="p">,</span> <span class="n">target_width</span><span class="p">,</span> <span class="n">remove_background</span><span class="p">,</span> <span class="n">background</span><span class="p">,</span> <span class="n">Signal_to_noise</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply a Cellpose model to a batch of images and generate segmentation masks.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        src (str): Directory containing input .tif images.</span>
+<span class="sd">        model (CellposeModel): Initialized Cellpose model.</span>
+<span class="sd">        model_name (str): Model identifier (e.g., &#39;cyto2&#39;, &#39;nucleus&#39;).</span>
+<span class="sd">        batch_size (int): Number of images processed in each batch.</span>
+<span class="sd">        diameter (float): Estimated object diameter in pixels.</span>
+<span class="sd">        cellprob_threshold (float): Cell probability threshold.</span>
+<span class="sd">        flow_threshold (float): Flow threshold for mask acceptance.</span>
+<span class="sd">        grayscale (bool): If True, treat images as single-channel.</span>
+<span class="sd">        save (bool): Whether to save output masks.</span>
+<span class="sd">        normalize (bool): Whether to normalize input images.</span>
+<span class="sd">        channels (list): Channels to use for processing (e.g., [0, 1]).</span>
+<span class="sd">        percentiles (list): Percentiles for normalization (e.g., [2, 99]).</span>
+<span class="sd">        invert (bool): If True, invert image intensity.</span>
+<span class="sd">        plot (bool): If True, display masks and flows.</span>
+<span class="sd">        resize (bool): Whether to resize images to fixed target dimensions.</span>
+<span class="sd">        target_height (int): Height after resizing.</span>
+<span class="sd">        target_width (int): Width after resizing.</span>
+<span class="sd">        remove_background (bool): Whether to subtract background intensity.</span>
+<span class="sd">        background (list): Background intensity values for subtraction.</span>
+<span class="sd">        Signal_to_noise (float): Minimum SNR threshold.</span>
+<span class="sd">        verbose (bool): If True, print detailed status messages.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. Saves masks to disk if `save=True`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_load_images_and_labels</span><span class="p">,</span> <span class="n">_load_normalized_images_and_labels</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">resize_images_and_labels</span><span class="p">,</span> <span class="n">resizescikit</span><span class="p">,</span> <span class="n">print_progress</span>
     <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">print_mask_and_flows</span>
@@ -1366,7 +1430,17 @@
 <div class="viewcode-block" id="check_cellpose_models">
 <a class="viewcode-back" href="../../api/spacr/spacr_cellpose/index.html#spacr.spacr_cellpose.check_cellpose_models">[docs]</a>
 <span class="k">def</span> <span class="nf">check_cellpose_models</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluate multiple pretrained Cellpose models (&#39;cyto&#39;, &#39;nuclei&#39;, &#39;cyto2&#39;, &#39;cyto3&#39;) </span>
+<span class="sd">    on a given dataset using standardized settings.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary of parameters controlling input source, model parameters,</span>
+<span class="sd">                         image preprocessing, and save/visualization options.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. Runs `generate_masks_from_imgs()` for each model and displays results.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">get_check_cellpose_models_default_settings</span>
     
     <span class="n">settings</span> <span class="o">=</span> <span class="n">get_check_cellpose_models_default_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
@@ -1391,7 +1465,18 @@
 <div class="viewcode-block" id="save_results_and_figure">
 <a class="viewcode-back" href="../../api/spacr/spacr_cellpose/index.html#spacr.spacr_cellpose.save_results_and_figure">[docs]</a>
 <span class="k">def</span> <span class="nf">save_results_and_figure</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="n">results</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save a results DataFrame and associated figure to disk.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        src (str): Path to the source directory where the &#39;results&#39; subfolder will be created.</span>
+<span class="sd">        fig (matplotlib.figure.Figure): The figure object to be saved as a PDF.</span>
+<span class="sd">        results (pd.DataFrame or dict or list): Results to be saved. If not a DataFrame, </span>
+<span class="sd">                                                it will be converted to one.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. Writes results to &#39;results.csv&#39; and the figure to &#39;model_comparison_plot.pdf&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
         <span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
 
@@ -1407,6 +1492,22 @@
 <div class="viewcode-block" id="compare_mask">
 <a class="viewcode-back" href="../../api/spacr/spacr_cellpose/index.html#spacr.spacr_cellpose.compare_mask">[docs]</a>
 <span class="k">def</span> <span class="nf">compare_mask</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compare segmentation masks across different directories for a given filename </span>
+<span class="sd">    using multiple evaluation metrics.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        args (tuple): A tuple containing:</span>
+<span class="sd">            - src (str): Not used directly, reserved for future use.</span>
+<span class="sd">            - filename (str): Name of the mask file to compare across directories.</span>
+<span class="sd">            - dirs (list of str): List of directory paths where mask files are located.</span>
+<span class="sd">            - conditions (list of str): Labels corresponding to each directory for result naming.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict or None: A dictionary containing comparison metrics (Jaccard index, boundary F1 score,</span>
+<span class="sd">                      and average precision) for all pairwise combinations of masks. </span>
+<span class="sd">                      Returns None if any mask file is missing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">src</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">conditions</span> <span class="o">=</span> <span class="n">args</span>
     <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">]</span>
 
@@ -1438,6 +1539,18 @@
 <div class="viewcode-block" id="compare_cellpose_masks">
 <a class="viewcode-back" href="../../api/spacr/spacr_cellpose/index.html#spacr.spacr_cellpose.compare_cellpose_masks">[docs]</a>
 <span class="k">def</span> <span class="nf">compare_cellpose_masks</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">processes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compare Cellpose segmentation masks across multiple model output folders.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        src (str): Path to the parent directory containing subdirectories for each model condition.</span>
+<span class="sd">        verbose (bool): If True, visualize each mask comparison using matplotlib.</span>
+<span class="sd">        processes (int or None): Number of parallel processes to use. If None, uses os.cpu_count().</span>
+<span class="sd">        save (bool): Whether to save the visualization outputs and results to disk.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. Results are printed, plotted, and optionally saved to disk.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">visualize_cellpose_masks</span><span class="p">,</span> <span class="n">plot_comparison_results</span>
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_read_mask</span>
 

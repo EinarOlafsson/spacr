@@ -13,13 +13,151 @@ Module Contents
 
 .. py:function:: set_default_plot_merge_settings()
 
+   Set default configuration values for plotting merged image masks and overlays.
+
+   :returns: Dictionary of default settings for plotting merged masks and overlays.
+   :rtype: dict
+
+   Default Parameters:
+       - pathogen_limit (int): Maximum number of pathogen objects to display (default: 10).
+       - nuclei_limit (int): Maximum number of nuclei objects to display (default: 1).
+       - remove_background (bool): Whether to subtract background intensity (default: False).
+       - filter_min_max (tuple|None): Optional min/max filter for object values (default: None).
+       - channel_dims (list): Indices for raw image channels (default: [0,1,2,3]).
+       - backgrounds (list): Background values for each channel (default: [100,100,100,100]).
+       - cell_mask_dim (int): Index of cell mask channel (default: 4).
+       - nucleus_mask_dim (int): Index of nucleus mask channel (default: 5).
+       - pathogen_mask_dim (int): Index of pathogen mask channel (default: 6).
+       - outline_thickness (int): Thickness of outline for each object (default: 3).
+       - outline_color (str): Outline color in RGB channel string (default: 'gbr').
+       - overlay_chans (list): Channels to overlay on visualization (default: [1,2,3]).
+       - overlay (bool): Whether to show overlays (default: True).
+       - normalization_percentiles (list): Percentiles for image normalization (default: [2,98]).
+       - normalize (bool): Whether to normalize the image (default: True).
+       - print_object_number (bool): Print number of detected objects (default: True).
+       - nr (int): Number of examples to show (default: 1).
+       - figuresize (int): Size of output figure (default: 10).
+       - cmap (str): Color map to use (default: 'inferno').
+       - verbose (bool): Print debug info (default: True).
+
+
 .. py:function:: set_default_settings_preprocess_generate_masks(settings={})
 
 .. py:function:: set_default_plot_data_from_db(settings)
 
+   Set default plotting settings for visualizing data from an SQL database.
+
+   :param settings: Settings dictionary to populate.
+   :type settings: dict
+
+   :returns: Dictionary with default keys and values for graph plotting from database data.
+   :rtype: dict
+
+   Default Parameters:
+       - src (str): Path to the database directory (default: 'path').
+       - database (str): Filename of SQLite database (default: 'measurements.db').
+       - graph_name (str): Output name of the plot (default: 'Figure_1').
+       - table_names (list): Tables to include from the database (default: ['cell', 'cytoplasm', 'nucleus', 'pathogen']).
+       - data_column (str): Column to plot (default: 'recruitment').
+       - grouping_column (str): Column used to group data (default: 'condition').
+       - cell_types (list): Cell types to include (default: ['Hela']).
+       - cell_plate_metadata, pathogen_plate_metadata, treatment_plate_metadata (None): Optional metadata dictionaries.
+       - pathogen_types, treatments (None): Optional lists of types.
+       - graph_type (str): Type of plot (default: 'jitter').
+       - theme (str): Seaborn theme (default: 'deep').
+       - save (bool): Save plot to disk (default: True).
+       - y_lim (list): y-axis limits (default: [1, 1.5]).
+       - verbose (bool): Verbose output (default: False).
+       - channel_of_interest (int): Image channel to analyze (default: 1).
+       - nuclei_limit (int): Max nuclei per field (default: 2).
+       - pathogen_limit (int): Max pathogens per field (default: 3).
+       - representation (str): Plot representation ('well' or 'cell', default: 'well').
+       - uninfected (bool): Include uninfected controls (default: False).
+
+
 .. py:function:: set_default_settings_preprocess_img_data(settings)
 
+   Set default values for preprocessing image data before analysis.
+
+   :param settings: Settings dictionary to populate.
+   :type settings: dict
+
+   :returns: Updated dictionary with image preprocessing settings.
+   :rtype: dict
+
+   Default Parameters:
+       - metadata_type (str): Metadata parsing type (default: 'cellvoyager').
+       - custom_regex (str|None): Regex for file parsing (default: None).
+       - nr (int): Number of examples to plot (default: 1).
+       - plot (bool): Whether to show plots (default: True).
+       - batch_size (int): Number of images to process per batch (default: 50).
+       - timelapse (bool): Whether this is a time series dataset (default: False).
+       - lower_percentile (int): Lower percentile for intensity clipping (default: 2).
+       - randomize (bool): Shuffle input file order (default: True).
+       - all_to_mip (bool): Convert all frames to max-intensity projection (default: False).
+       - cmap (str): Color map for images (default: 'inferno').
+       - figuresize (int): Figure size for plots (default: 10).
+       - normalize (bool): Normalize image intensities (default: True).
+       - save_dtype (str): Data type for saving processed files (default: 'uint16').
+       - test_mode (bool): Whether to run in test mode (default: False).
+       - test_images (int): Number of test images to run in test mode (default: 10).
+       - random_test (bool): Randomly select test images (default: True).
+       - fps (int): Frames per second for timelapse visualization (default: 2).
+
+
 .. py:function:: set_default_umap_image_settings(settings={})
+
+   Set default configuration values for UMAP-based image embedding and clustering.
+
+   :param settings: Optional dictionary of user-provided settings. Keys that are not present
+                    will be set to their default values.
+   :type settings: dict
+
+   :returns: Updated settings dictionary containing all necessary UMAP image analysis parameters.
+   :rtype: dict
+
+   Default Parameters Set:
+       - src (str): Path to input directory (default: 'path').
+       - row_limit (int): Maximum number of rows to use (default: 1000).
+       - tables (list): List of object types to include (default: ['cell', 'cytoplasm', 'nucleus', 'pathogen']).
+       - visualize (str): Object type to visualize (default: 'cell').
+       - image_nr (int): Number of example images to display (default: 16).
+       - dot_size (int): Dot size in the scatter plot (default: 50).
+       - n_neighbors (int): UMAP parameter for local neighborhood size (default: 1000).
+       - min_dist (float): UMAP parameter controlling embedding compactness (default: 0.1).
+       - metric (str): Distance metric used in UMAP (default: 'euclidean').
+       - eps (float): DBSCAN epsilon parameter (default: 0.9).
+       - min_samples (int): Minimum number of samples per cluster in DBSCAN (default: 100).
+       - filter_by (str): Column used to filter features (default: 'channel_0').
+       - img_zoom (float): Zoom level for image thumbnails (default: 0.5).
+       - plot_by_cluster (bool): Whether to color plot by cluster ID (default: True).
+       - plot_cluster_grids (bool): Whether to plot grid of cluster example images (default: True).
+       - remove_cluster_noise (bool): Remove outliers/noise clusters (default: True).
+       - remove_highly_correlated (bool): Remove highly correlated features (default: True).
+       - log_data (bool): Log-transform input features (default: False).
+       - figuresize (int): Size of output figure (default: 10).
+       - black_background (bool): Whether to use a black background in plots (default: True).
+       - remove_image_canvas (bool): Crop out canvas margins in image plots (default: False).
+       - plot_outlines (bool): Overlay object outlines on image thumbnails (default: True).
+       - plot_points (bool): Plot UMAP/TSNE scatter points (default: True).
+       - smooth_lines (bool): Use smoothed lines in plots (default: True).
+       - clustering (str): Clustering method, e.g. 'dbscan' (default: 'dbscan').
+       - exclude (list|None): List of object classes or conditions to exclude (default: None).
+       - col_to_compare (str): Column used to compare conditions (default: 'columnID').
+       - pos (str): Label for positive control column (default: 'c1').
+       - neg (str): Label for negative control column (default: 'c2').
+       - mix (str): Label for mixed/experimental column (default: 'c3').
+       - embedding_by_controls (bool): Fit UMAP only on control samples (default: False).
+       - plot_images (bool): Whether to include image overlays in plot (default: True).
+       - reduction_method (str): Dimensionality reduction method (default: 'umap').
+       - save_figure (bool): Save output figure to disk (default: False).
+       - n_jobs (int): Number of parallel jobs to use (default: -1, i.e., all cores).
+       - color_by (str|None): Column name to use for color-coding scatter points (default: None).
+       - exclude_conditions (list|None): List of conditions to exclude from embedding (default: None).
+       - analyze_clusters (bool): Perform further statistical analysis on clusters (default: False).
+       - resnet_features (bool): Use pretrained ResNet features (default: False).
+       - verbose (bool): Print status messages (default: True).
+
 
 .. py:function:: get_measure_crop_settings(settings={})
 

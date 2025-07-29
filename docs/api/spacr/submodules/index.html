@@ -1249,72 +1249,530 @@ Training progress is visualized (if possible), and the model is saved in <cite>m
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.submodules.test_cellpose_model">
 <span class="sig-prename descclassname"><span class="pre">spacr.submodules.</span></span><span class="sig-name descname"><span class="pre">test_cellpose_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/submodules.html#test_cellpose_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.test_cellpose_model" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Evaluate a pretrained Cellpose model on a test dataset and report segmentation performance.</p>
+<p>This function loads test images and ground-truth masks from a specified directory structure,
+applies the Cellpose model to predict masks, and compares them to the ground truth using
+object-level metrics and Jaccard index. Results are saved and visualized if specified.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Dictionary with the following keys:
+- ‘src’ (str): Root directory containing <cite>test/images</cite> and <cite>test/masks</cite>.
+- ‘model_path’ (str): Path to the pretrained Cellpose model.
+- ‘batch_size’ (int): Number of images per inference batch.
+- ‘FT’ (float): Flow threshold for Cellpose segmentation.
+- ‘CP_probability’ (float): Cell probability threshold for segmentation.
+- ‘target_size’ (int): Size to which input images are resized.
+- ‘save’ (bool): Whether to save segmentation visualizations and results.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Side Effects:</dt><dd><ul class="simple">
+<li><p>Loads and processes image and mask files from <cite>test/images</cite> and <cite>test/masks</cite>.</p></li>
+<li><dl class="simple">
+<dt>Evaluates segmentation and computes the following metrics per image:</dt><dd><ul>
+<li><p>Jaccard index</p></li>
+<li><p>Number of predicted and ground-truth objects</p></li>
+<li><p>Mean object area (true and predicted)</p></li>
+<li><p>True positives, false positives, false negatives</p></li>
+<li><p>Precision, recall, F1-score, accuracy</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Saves figures showing input, true mask, predicted mask, probability map, and flow.</p></li>
+<li><p>Optionally saves results to <cite>results/test_results.csv</cite>.</p></li>
+<li><p>Prints performance summary to stdout.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.submodules.apply_cellpose_model">
 <span class="sig-prename descclassname"><span class="pre">spacr.submodules.</span></span><span class="sig-name descname"><span class="pre">apply_cellpose_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/submodules.html#apply_cellpose_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.apply_cellpose_model" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Apply a pretrained Cellpose model to a folder of images and extract object-level measurements.</p>
+<p>This function processes all <cite>.tif</cite> images in the specified source directory using a pretrained
+Cellpose model, generates segmentation masks, and computes region properties (e.g., area) for each
+detected object. It optionally applies circular masking to limit the field of view and saves results
+and figures if enabled.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Dictionary with the following required keys:
+- ‘src’ (str): Directory containing the input <cite>.tif</cite> images.
+- ‘model_path’ (str): Path to the pretrained Cellpose model file.
+- ‘batch_size’ (int): Number of images processed per batch.
+- ‘FT’ (float): Flow threshold for Cellpose segmentation.
+- ‘CP_probability’ (float): Cell probability threshold for segmentation.
+- ‘target_size’ (int): Resize target for input images.
+- ‘save’ (bool): If True, saves visualizations and CSV results.
+- ‘circularize’ (bool, optional): If True, applies a circular mask to each prediction.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Side Effects:</dt><dd><ul class="simple">
+<li><p>Generates and saves segmented mask visualizations (if <cite>save=True</cite>) to <cite>results/</cite>.</p></li>
+<li><dl class="simple">
+<dt>Extracts per-object measurements (area) and saves:</dt><dd><ul>
+<li><p><cite>results/measurements.csv</cite>: one row per object.</p></li>
+<li><p><cite>results/summary.csv</cite>: average object area and count per image.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Displays progress and timing for each batch.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.submodules.plot_cellpose_batch">
 <span class="sig-prename descclassname"><span class="pre">spacr.submodules.</span></span><span class="sig-name descname"><span class="pre">plot_cellpose_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/submodules.html#plot_cellpose_batch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.plot_cellpose_batch" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Display a batch of input images and their corresponding label masks.</p>
+<dl class="simple">
+<dt>This function plots two rows of subplots:</dt><dd><ul class="simple">
+<li><p>Top row: grayscale input images.</p></li>
+<li><p>Bottom row: corresponding label masks with randomly colored regions.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>images</strong> (<em>list</em><em> of </em><em>np.ndarray</em>) – List of 2D grayscale input images.</p></li>
+<li><p><strong>labels</strong> (<em>list</em><em> of </em><em>np.ndarray</em>) – List of 2D label masks corresponding to the images.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.submodules.analyze_percent_positive">
 <span class="sig-prename descclassname"><span class="pre">spacr.submodules.</span></span><span class="sig-name descname"><span class="pre">analyze_percent_positive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/submodules.html#analyze_percent_positive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.analyze_percent_positive" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Analyze the fraction of objects above a threshold per well and annotate them accordingly.</p>
+<p>This function loads merged object-level measurements from a SQLite database, applies optional
+filtering, and annotates each object as ‘above’ or ‘below’ a specified threshold on a value column.
+It then summarizes the number and fraction of above-threshold objects per condition and well.
+Results are merged with well metadata and saved as a CSV.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Dictionary with the following required keys:
+- ‘src’ (str): Root directory containing <cite>measurements.db</cite> and <cite>rename_log.csv</cite>.
+- ‘tables’ (list of str): Table names to extract from the SQLite database.
+- ‘value_col’ (str): Column to apply the threshold to.
+- ‘threshold’ (float): Threshold value to classify objects.
+- ‘filter_1’ (tuple or None): Optional filter in the form (column, min_value), or None.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Merged DataFrame with annotation summary and metadata, also saved to <cite>result.csv</cite>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Side Effects:</dt><dd><ul class="simple">
+<li><p>Reads measurement data from <cite>measurements/measurements.db</cite>.</p></li>
+<li><p>Reads well metadata from <cite>rename_log.csv</cite>.</p></li>
+<li><p>Writes annotated results to <cite>result.csv</cite> in the same directory.</p></li>
+<li><p>Displays the final DataFrame in notebook or console.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.submodules.analyze_recruitment">
 <span class="sig-prename descclassname"><span class="pre">spacr.submodules.</span></span><span class="sig-name descname"><span class="pre">analyze_recruitment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/submodules.html#analyze_recruitment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.analyze_recruitment" title="Link to this definition"></a></dt>
-<dd><p>Analyze recruitment data by grouping the DataFrame by well coordinates and plotting controls and recruitment data.</p>
-<p>Parameters:
-settings (dict): settings.</p>
-<p>Returns:
-None</p>
+<dd><p>Analyze host protein recruitment to the pathogen vacuole across experimental conditions.</p>
+<p>This function loads object-level measurements, applies size and intensity-based filtering, computes
+recruitment scores as the ratio of pathogen-to-cytoplasm intensities, and aggregates results at the
+cell and well level. Recruitment is annotated and visualized, and filtered results are saved.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Dictionary with the following required keys:
+- ‘src’ (str): Path to the root folder or <cite>measurements.db</cite> file.
+- ‘cell_types’, ‘pathogen_types’, ‘treatments’ (list of str): Experimental conditions to annotate.
+- ‘cell_plate_metadata’, ‘pathogen_plate_metadata’, ‘treatment_plate_metadata’ (str): Metadata sources.
+- ‘channel_of_interest’ (int): Channel index for recruitment quantification.
+- ‘channel_dims’ (list of int): Channels to calculate recruitment for.
+- ‘cell_chann_dim’, ‘nucleus_chann_dim’, ‘pathogen_chann_dim’ (int or None): Mask channel assignments.
+- ‘cell_size_range’, ‘nucleus_size_range’, ‘pathogen_size_range’ (list): Min/max object size filters.
+- ‘cell_intensity_range’, etc. (list): Intensity-based object filters.
+- ‘target_intensity_min’ (float): Minimum required target channel intensity in cell.
+- ‘nuclei_limit’, ‘pathogen_limit’ (int or None): Max number of nuclei/pathogens to load.
+- ‘cells_per_well’ (int): Minimum number of cells per well to retain.
+- ‘plot’ (bool): Whether to plot cell outlines on merged images.
+- ‘plot_control’ (bool): Whether to plot control comparisons.
+- ‘plot_nr’ (int): Maximum number of outlines to plot.
+- ‘figuresize’ (float): Size of recruitment plots in inches.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>[cell-level DataFrame, well-level DataFrame] after filtering and recruitment analysis.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Side Effects:</dt><dd><ul class="simple">
+<li><p>Reads from and writes to files in the source directory.</p></li>
+<li><p>Plots recruitment distributions and controls.</p></li>
+<li><p>Saves <cite>cell_level_results.csv</cite> and <cite>well_level_results.csv</cite> via <cite>_results_to_csv</cite>.</p></li>
+<li><p>Displays status messages and summary statistics.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.submodules.analyze_plaques">
 <span class="sig-prename descclassname"><span class="pre">spacr.submodules.</span></span><span class="sig-name descname"><span class="pre">analyze_plaques</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/submodules.html#analyze_plaques"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.analyze_plaques" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Analyze plaque-like structures from microscopy images using a pretrained Cellpose model.</p>
+<p>This function applies a custom-trained Cellpose model to identify and segment plaques in <cite>.tif</cite> images.
+It calculates object-level statistics including object count and area, and saves the results into a
+SQLite database with three tables: <cite>summary</cite>, <cite>details</cite>, and <cite>stats</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Dictionary with the following keys:
+- ‘src’ (str): Source folder containing input <cite>.tif</cite> images.
+- ‘masks’ (bool): If True, (re)generate segmentation masks using Cellpose.
+- ‘custom_model’ (str, optional): Will be set internally to the plaque model path.
+- Any keys required by <cite>get_analyze_plaque_settings()</cite> or <cite>identify_masks_finetune()</cite>.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Side Effects:</dt><dd><ul class="simple">
+<li><p>Downloads pretrained plaque segmentation model if not available.</p></li>
+<li><p>Saves generated masks (if <cite>masks=True</cite>) to <cite>src/masks/</cite>.</p></li>
+<li><p>Analyzes all <cite>.tif</cite> masks in the folder.</p></li>
+<li><dl class="simple">
+<dt>Creates and saves the following tables to <cite>plaques_analysis.db</cite>:</dt><dd><ul>
+<li><p><cite>summary</cite>: file name, number of plaques, average size</p></li>
+<li><p><cite>details</cite>: file name, individual plaque sizes</p></li>
+<li><p><cite>stats</cite>: file name, plaque count, average size, and standard deviation</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Prints progress and completion messages.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.submodules.count_phenotypes">
 <span class="sig-prename descclassname"><span class="pre">spacr.submodules.</span></span><span class="sig-name descname"><span class="pre">count_phenotypes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/submodules.html#count_phenotypes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.count_phenotypes" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Count and summarize annotated phenotypes in a measurement database.</p>
+<dl class="simple">
+<dt>This function reads annotation data from the <cite>measurements.db</cite> database and performs the following:</dt><dd><ul class="simple">
+<li><p>Counts the number of unique phenotype labels in the specified annotation column.</p></li>
+<li><p>Computes how many unique labels occur per well (defined by plateID, rowID, columnID).</p></li>
+<li><p>Computes the count of each phenotype value per well.</p></li>
+<li><p>Outputs a CSV file with the per-well phenotype counts.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Dictionary with the following keys:
+- ‘src’ (str): Path to a measurement database or directory containing it.
+- ‘annotation_column’ (str): Column name containing the phenotype annotations.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Side Effects:</dt><dd><ul class="simple">
+<li><p>Displays number of unique phenotype values.</p></li>
+<li><p>Displays a table of unique value counts per well.</p></li>
+<li><p>Saves a CSV file <cite>phenotype_counts.csv</cite> summarizing value counts per well
+(one row per well, one column per phenotype).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.submodules.compare_reads_to_scores">
 <span class="sig-prename descclassname"><span class="pre">spacr.submodules.</span></span><span class="sig-name descname"><span class="pre">compare_reads_to_scores</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reads_csv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scores_csv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">empirical_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'r1':</span> <span class="pre">(90,</span> <span class="pre">10),</span> <span class="pre">'r2':</span> <span class="pre">(90,</span> <span class="pre">10),</span> <span class="pre">'r3':</span> <span class="pre">(80,</span> <span class="pre">20),</span> <span class="pre">'r4':</span> <span class="pre">(80,</span> <span class="pre">20),</span> <span class="pre">'r5':</span> <span class="pre">(70,</span> <span class="pre">30),</span> <span class="pre">'r6':</span> <span class="pre">(70,</span> <span class="pre">30),</span> <span class="pre">'r7':</span> <span class="pre">(60,</span> <span class="pre">40),</span> <span class="pre">'r8':</span> <span class="pre">(60,</span> <span class="pre">40),</span> <span class="pre">'r9':</span> <span class="pre">(50,</span> <span class="pre">50),</span> <span class="pre">'r10':</span> <span class="pre">(50,</span> <span class="pre">50),</span> <span class="pre">'r11':</span> <span class="pre">(40,</span> <span class="pre">60),</span> <span class="pre">'r12':</span> <span class="pre">(40,</span> <span class="pre">60),</span> <span class="pre">'r13':</span> <span class="pre">(30,</span> <span class="pre">70),</span> <span class="pre">'r14':</span> <span class="pre">(30,</span> <span class="pre">70),</span> <span class="pre">'r15':</span> <span class="pre">(20,</span> <span class="pre">80),</span> <span class="pre">'r16':</span> <span class="pre">(20,</span> <span class="pre">80)}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pc_grna</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'TGGT1_220950_1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nc_grna</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'TGGT1_233460_4'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['class_1_fraction',</span> <span class="pre">'TGGT1_220950_1_fraction',</span> <span class="pre">'nc_fraction']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'columnID'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'c3'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/submodules.html#compare_reads_to_scores"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.compare_reads_to_scores" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Compare Cellpose-based phenotypic classification scores with sequencing read distributions
+from positive and negative control gRNAs across plate wells.</p>
+<p>This function merges phenotype classification scores and read count data, calculates gRNA
+fractions and class predictions per well, and overlays empirical expectations for controls
+to assess model calibration. It generates and saves line plots for selected y-axis columns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reads_csv</strong> (<em>str</em><em> or </em><em>list</em><em> of </em><em>str</em>) – Path(s) to CSV file(s) containing read counts and gRNA names.</p></li>
+<li><p><strong>scores_csv</strong> (<em>str</em><em> or </em><em>list</em><em> of </em><em>str</em>) – Path(s) to CSV file(s) with classification results per object.</p></li>
+<li><p><strong>empirical_dict</strong> (<em>dict</em>) – Mapping of rowID to (positive, negative) control counts.</p></li>
+<li><p><strong>pc_grna</strong> (<em>str</em>) – Name of the positive control gRNA.</p></li>
+<li><p><strong>nc_grna</strong> (<em>str</em>) – Name of the negative control gRNA.</p></li>
+<li><p><strong>y_columns</strong> (<em>list</em><em> of </em><em>str</em>) – Columns in the merged dataframe to plot on y-axis.</p></li>
+<li><p><strong>column</strong> (<em>str</em>) – Column to subset on (e.g., ‘columnID’).</p></li>
+<li><p><strong>value</strong> (<em>str</em>) – Value to filter the column on (e.g., ‘c3’).</p></li>
+<li><p><strong>plate</strong> (<em>str</em><em>, </em><em>optional</em>) – Plate name to assign if not present in the CSVs.</p></li>
+<li><p><strong>save_paths</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – List of two paths to save the plots as PDF.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Two matplotlib Figure objects, one for pc_fraction and one for nc_fraction x-axis plots.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Side Effects:</dt><dd><ul class="simple">
+<li><p>Reads and merges input CSVs.</p></li>
+<li><p>Computes gRNA read fractions and classification fractions per well.</p></li>
+<li><p>Merges empirical expectations based on rowID.</p></li>
+<li><p>Displays merged DataFrame.</p></li>
+<li><p>Saves two line plots (if <cite>save_paths</cite> is specified).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.submodules.interperate_vision_model">
 <span class="sig-prename descclassname"><span class="pre">spacr.submodules.</span></span><span class="sig-name descname"><span class="pre">interperate_vision_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/submodules.html#interperate_vision_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.interperate_vision_model" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Interpret a vision-based machine learning model using multiple feature attribution strategies.</p>
+<dl class="simple">
+<dt>This function reads merged object-level data and model scores, engineers relative features, and applies:</dt><dd><ul class="simple">
+<li><p>Random Forest feature importance</p></li>
+<li><p>Permutation importance</p></li>
+<li><p>SHAP (SHapley Additive exPlanations) values</p></li>
+</ul>
+</dd>
+</dl>
+<p>The model interpretation is performed across cellular compartments and imaging channels, and
+results can be visualized or saved for downstream analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Dictionary of configuration parameters including:
+- ‘src’ (str): Path to the data directory.
+- ‘scores’ (str): Path to the score CSV file.
+- ‘tables’ (list of str): Feature group keywords for compartmental grouping.
+- ‘channels’ (list of str): Feature group keywords for channel grouping.
+- ‘score_column’ (str): Column name for predicted class scores.
+- ‘nuclei_limit’ (int): Optional filter on number of nuclei to load.
+- ‘pathogen_limit’ (int): Optional filter on number of pathogens to load.
+- ‘feature_importance’ (bool): Whether to compute Random Forest feature importances.
+- ‘permutation_importance’ (bool): Whether to compute permutation-based importances.
+- ‘shap’ (bool): Whether to compute SHAP values.
+- ‘shap_sample’ (bool): Whether to subsample SHAP input for speed.
+- ‘top_features’ (int): Number of top features to plot.
+- ‘include_all’ (bool): Whether to include a row summing all feature groups.
+- ‘n_jobs’ (int): Number of parallel jobs to use for model training or SHAP.
+- ‘save’ (bool): Whether to save output CSV files.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A dictionary of interpretation outputs with the following possible keys:</dt><dd><ul class="simple">
+<li><p>’feature_importance’: Raw feature importances (Random Forest)</p></li>
+<li><p>’feature_importance_compartment’: Grouped by compartment</p></li>
+<li><p>’feature_importance_channel’: Grouped by imaging channel</p></li>
+<li><p>’permutation_importance’: Permutation importance values</p></li>
+<li><p>’shap’: SHAP values for each object-feature pair</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Side Effects:</dt><dd><ul class="simple">
+<li><p>Displays importance plots.</p></li>
+<li><p>Optionally saves CSVs to <cite>&lt;src&gt;/results/</cite>.</p></li>
+<li><p>Merges and preprocesses input data, including relative feature construction.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.submodules.analyze_endodyogeny">
 <span class="sig-prename descclassname"><span class="pre">spacr.submodules.</span></span><span class="sig-name descname"><span class="pre">analyze_endodyogeny</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/submodules.html#analyze_endodyogeny"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.analyze_endodyogeny" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Analyze intracellular pathogen replication (endodyogeny) based on compartment volume measurements.</p>
+<p>This function bins single-cell or single-object volume estimates (e.g., pathogen area^1.5) into
+discrete categories, annotates experimental conditions, and visualizes the volume distribution
+across groups as a stacked bar plot. It also performs a chi-squared test to assess whether the
+volume distribution is significantly different between groups.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Configuration dictionary with required keys:
+- ‘src’ (str or list): Path(s) to directories containing measurements.db.
+- ‘tables’ (list of str): Tables to extract from the SQLite database.
+- ‘compartment’ (str): Compartment to analyze (e.g., ‘pathogen’).
+- ‘min_area_bin’ (float): Minimum 2D area threshold to consider (in px² or µm²).
+- ‘max_bins’ (int or None): Maximum number of volume bins to display.
+- ‘group_column’ (str): Column defining experimental groups (e.g., genotype or treatment).
+- ‘cell_types’, ‘pathogen_types’, ‘treatments’ (list): Experimental groups for annotation.
+- ‘cell_plate_metadata’, ‘pathogen_plate_metadata’, ‘treatment_plate_metadata’ (str): Metadata source paths.
+- ‘nuclei_limit’, ‘pathogen_limit’ (int or None): Max number of objects to load per type.
+- ‘change_plate’ (bool): Whether to modify plate names for uniqueness.
+- ‘verbose’ (bool): Whether to print debug output.
+- ‘um_per_px’ (float or None): Pixel-to-micrometer conversion (if None, volume remains in px³).
+- ‘level’ (str): Either ‘object’ or ‘well’ for aggregation level.
+- ‘cmap’ (str): Colormap to use in the plot.
+- ‘save’ (bool): Whether to save results and figures.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A dictionary with:</dt><dd><ul class="simple">
+<li><p>’data’: Annotated and binned DataFrame.</p></li>
+<li><p>’chi_squared’: Chi-squared test summary DataFrame.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Side Effects:</dt><dd><ul class="simple">
+<li><p>Displays a stacked bar plot showing volume bin proportions by group.</p></li>
+<li><p>Performs chi-squared test and prints p-value.</p></li>
+<li><p>Saves data and plots to <cite>results/analyze_endodyogeny/</cite> if <cite>save=True</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.submodules.analyze_class_proportion">
 <span class="sig-prename descclassname"><span class="pre">spacr.submodules.</span></span><span class="sig-name descname"><span class="pre">analyze_class_proportion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/submodules.html#analyze_class_proportion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.analyze_class_proportion" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Analyze class frequency distributions across experimental groups and perform statistical tests.</p>
+<p>This function compares the proportion of classification outcomes (e.g., phenotypic classes)
+across specified experimental groups. It generates stacked bar plots, performs chi-squared
+and parametric/non-parametric statistical tests, and saves annotated data and results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Dictionary of parameters, including:
+- ‘src’ (str or list): Path(s) to measurement directories.
+- ‘tables’ (list): Tables to load from measurements.db.
+- ‘class_column’ (str): Column indicating class or category.
+- ‘group_column’ (str): Column indicating grouping variable (e.g., genotype or treatment).
+- ‘cell_types’, ‘pathogen_types’, ‘treatments’ (list): Experimental group values.
+- ‘cell_plate_metadata’, ‘pathogen_plate_metadata’, ‘treatment_plate_metadata’ (str): Metadata paths.
+- ‘nuclei_limit’, ‘pathogen_limit’ (int or None): Optional load limits.
+- ‘verbose’ (bool): Whether to print debug information.
+- ‘level’ (str): Aggregation level for chi-squared test (‘object’ or ‘well’).
+- ‘save’ (bool): Whether to save results and figures.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A dictionary containing:</dt><dd><ul class="simple">
+<li><p>’data’: Annotated DataFrame.</p></li>
+<li><p>’chi_squared’: Chi-squared summary results.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Side Effects:</dt><dd><ul class="simple">
+<li><p>Annotates DataFrame with experimental conditions.</p></li>
+<li><p>Performs chi-squared test on class distribution and plots stacked bars.</p></li>
+<li><p>Plots class heatmap across plates.</p></li>
+<li><dl class="simple">
+<dt>Performs and prints:</dt><dd><ul>
+<li><p>Shapiro-Wilk normality test</p></li>
+<li><p>Levene’s test for equal variances</p></li>
+<li><p>ANOVA or Kruskal-Wallis test</p></li>
+<li><p>Post hoc pairwise comparisons</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Optionally saves all results and figures in a <cite>results/analyze_class_proportion/</cite> subfolder.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.submodules.generate_score_heatmap">
 <span class="sig-prename descclassname"><span class="pre">spacr.submodules.</span></span><span class="sig-name descname"><span class="pre">generate_score_heatmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/submodules.html#generate_score_heatmap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.generate_score_heatmap" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Generate a heatmap comparing predicted classification scores from multiple models
+with empirical gRNA-based fraction measurements across wells.</p>
+<dl class="simple">
+<dt>This function:</dt><dd><ul class="simple">
+<li><p>Aggregates prediction scores from subfolders.</p></li>
+<li><p>Calculates the gRNA-based empirical fraction from sequencing data.</p></li>
+<li><p>Merges predictions with empirical scores and computes MAE (mean absolute error).</p></li>
+<li><p>Displays and optionally saves a multi-channel heatmap and the corresponding MAE results.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Configuration dictionary with the following keys:
+- ‘folders’ (list or str): Folder(s) containing model output subfolders with CSVs.
+- ‘csv_name’ (str): Name of the CSV file to search for in each model output subfolder.
+- ‘data_column’ (str): Column in CSVs containing the prediction scores.
+- ‘cv_csv’ (str): CSV with cross-validated model scores.
+- ‘data_column_cv’ (str): Column in <cite>cv_csv</cite> with scores to merge.
+- ‘csv’ (str): CSV with gRNA counts used for computing empirical fractions.
+- ‘control_sgrnas’ (list): List of two control gRNA names used to compute the fraction.
+- ‘fraction_grna’ (str): One of the control gRNAs to extract the empirical fraction from.
+- ‘plateID’ (int or str): Plate ID used for labeling and filtering.
+- ‘columnID’ (str): Column ID to filter on (e.g., ‘c3’).
+- ‘cmap’ (str): Colormap to use for the heatmap.
+- ‘dst’ (str or None): If provided, save outputs to this directory.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Merged DataFrame containing all prediction and empirical score columns.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Side Effects:</dt><dd><ul class="simple">
+<li><p>Displays a multi-channel heatmap of prediction scores.</p></li>
+<li><p>Computes and prints MAE per well per channel.</p></li>
+<li><p>Saves merged data, MAE scores, and the heatmap as PDF/CSV if <cite>dst</cite> is set.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.submodules.post_regression_analysis">
 <span class="sig-prename descclassname"><span class="pre">spacr.submodules.</span></span><span class="sig-name descname"><span class="pre">post_regression_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grna_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grna_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/submodules.html#post_regression_analysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.post_regression_analysis" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Perform post-regression analysis to assess gRNA correlation and infer relative effect sizes.</p>
+<p>This function loads a CSV file containing gRNA abundance data (with columns including
+‘grna’, ‘fraction’, and ‘prc’), filters it to the specified gRNAs of interest, computes
+a correlation matrix, visualizes it, and estimates inferred effect sizes for all gRNAs
+based on a subset of known fixed effect sizes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>csv_file</strong> (<em>str</em>) – Path to the CSV file containing gRNA data with columns [‘grna’, ‘fraction’, ‘prc’].</p></li>
+<li><p><strong>grna_dict</strong> (<em>dict</em>) – Dictionary mapping selected gRNAs to their known effect sizes.</p></li>
+<li><p><strong>grna_list</strong> (<em>list</em>) – List of gRNAs to include in correlation and effect size inference.</p></li>
+<li><p><strong>save</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to save outputs including figures and CSVs. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None. Saves plots and results if <cite>save=True</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 </section>
