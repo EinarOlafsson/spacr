@@ -264,7 +264,7 @@ Module Contents
 
    Counts the number of objects in a given mask.
 
-   Parameters:
+   Args:
    - mask: numpy.ndarray. The mask containing object labels.
 
    Returns:
@@ -277,7 +277,7 @@ Module Contents
 
    Normalize each image in the stack to its own percentiles.
 
-   Parameters:
+   Args:
    - array: numpy array
    The input stack to be normalized.
    - p1: int, optional
@@ -915,7 +915,7 @@ Module Contents
 
    Calculate classification metrics for binary classification.
 
-   Parameters:
+   Args:
    - all_labels (list): List of true labels.
    - prediction_pos_probs (list): List of predicted positive probabilities.
    - loader_name (str): Name of the data loader.
@@ -1198,7 +1198,7 @@ Module Contents
 
    Calculate and display additional metrics and generate diagnostic plots for a given model.
 
-   Parameters:
+   Args:
    -----------
    model : statsmodels.regression.linear_model.RegressionResultsWrapper
        A fitted regression model object from the statsmodels library.
@@ -2170,7 +2170,7 @@ Module Contents
 
    Perform dimensionality reduction and clustering on the given data.
 
-   Parameters:
+   Args:
    numeric_data (np.ndarray): Numeric data for embedding and clustering.
    n_neighbors (int or float): Number of neighbors for UMAP or perplexity for t-SNE.
    min_dist (float): Minimum distance for UMAP.
@@ -2611,7 +2611,7 @@ Module Contents
 
    Removes columns from the dataframe that have low variance.
 
-   Parameters:
+   Args:
    df (pandas.DataFrame): The DataFrame containing the data.
    threshold (float): The variance threshold below which columns will be removed.
 
@@ -2623,7 +2623,7 @@ Module Contents
 
    Removes columns from the dataframe that are highly correlated with one another.
 
-   Parameters:
+   Args:
    df (pandas.DataFrame): The DataFrame containing the data.
    threshold (float): The correlation threshold above which columns will be removed.
 
@@ -2635,7 +2635,7 @@ Module Contents
 
    Filter the dataframe `df` based on the specified `channel_of_interest` and `exclude` parameters.
 
-   Parameters:
+   Args:
    - df (pandas.DataFrame): The input dataframe to be filtered.
    - channel_of_interest (str, int, list, None): The channel(s) of interest to filter the dataframe. If None, no filtering is applied. If 'morphology', only morphology features are included.If an integer, only the specified channel is included. If a list, only the specified channels are included.If a string, only the specified channel is included.
    - exclude (str, list, None): The feature(s) to exclude from the filtered dataframe. If None, no features are excluded. If a string, the specified feature is excluded.If a list, the specified features are excluded.
@@ -2695,7 +2695,7 @@ Module Contents
 
    Perform dimensionality reduction and clustering on the given data.
 
-   Parameters:
+   Args:
    numeric_data (np.array): Numeric data to process.
    n_neighbors (int): Number of neighbors for UMAP or perplexity for tSNE.
    min_dist (float): Minimum distance for UMAP.
@@ -3061,7 +3061,7 @@ Module Contents
 
    Perform data augmentation by rotating and reflecting the image.
 
-   Parameters:
+   Args:
    - image (PIL Image or numpy array): The input image.
 
    Returns:
@@ -3072,7 +3072,7 @@ Module Contents
 
    Perform data augmentation on the entire dataset by rotating and reflecting the images.
 
-   Parameters:
+   Args:
    - dataset (list of tuples): The input dataset, each entry is a tuple (image, label, filename).
    - is_grayscale (bool): Flag indicating if the images are grayscale.
 
@@ -3084,7 +3084,7 @@ Module Contents
 
    Converts all int64 npy masks in a folder to uint16 with relabeling to ensure all labels are retained.
 
-   Parameters:
+   Args:
    - folder_path (str): The path to the folder containing int64 npy mask files.
 
    Returns:
@@ -3231,7 +3231,7 @@ Module Contents
 
    Generates a cytoplasm mask from nucleus and cell masks.
 
-   Parameters:
+   Args:
    - nucleus_mask (np.array): Binary or segmented mask of the nucleus (non-zero values represent nucleus).
    - cell_mask (np.array): Binary or segmented mask of the whole cell (non-zero values represent cell).
 
@@ -3411,7 +3411,7 @@ Module Contents
 
    Calculate the shortest edge-to-edge distance between two objects (e.g., pathogen and nucleus).
 
-   Parameters:
+   Args:
    - df: Pandas DataFrame containing measurements
    - object1: String, name of the first object (e.g., "pathogen")
    - object2: String, name of the second object (e.g., "nucleus")

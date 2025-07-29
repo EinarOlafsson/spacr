@@ -1409,7 +1409,7 @@ the coordinates of the points in the cluster.</p>
 <dt class="sig sig-object py" id="spacr.utils.mask_object_count">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">mask_object_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#mask_object_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.mask_object_count" title="Link to this definition"></a></dt>
 <dd><p>Counts the number of objects in a given mask.</p>
-<p>Parameters:
+<p>Args:
 - mask: numpy.ndarray. The mask containing object labels.</p>
 <p>Returns:
 - int. The number of objects in the mask.</p>
@@ -1424,7 +1424,7 @@ the coordinates of the points in the cluster.</p>
 <dt class="sig sig-object py" id="spacr.utils.normalize_to_dtype">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">normalize_to_dtype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">98</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percentile_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#normalize_to_dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.normalize_to_dtype" title="Link to this definition"></a></dt>
 <dd><p>Normalize each image in the stack to its own percentiles.</p>
-<p>Parameters:
+<p>Args:
 - array: numpy array
 The input stack to be normalized.
 - p1: int, optional
@@ -2210,7 +2210,7 @@ and a custom classifier head.</p>
 <dt class="sig sig-object py" id="spacr.utils.classification_metrics">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">classification_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prediction_pos_probs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#classification_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.classification_metrics" title="Link to this definition"></a></dt>
 <dd><p>Calculate classification metrics for binary classification.</p>
-<p>Parameters:
+<p>Args:
 - all_labels (list): List of true labels.
 - prediction_pos_probs (list): List of predicted positive probabilities.
 - loader_name (str): Name of the data loader.
@@ -2560,8 +2560,8 @@ missing values are filled with 0.0.</p>
 <dt class="sig sig-object py" id="spacr.utils.model_metrics">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">model_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#model_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.model_metrics" title="Link to this definition"></a></dt>
 <dd><p>Calculate and display additional metrics and generate diagnostic plots for a given model.</p>
-<section id="parameters">
-<h3>Parameters:<a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
+<section id="args">
+<h3>Args:<a class="headerlink" href="#args" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>model<span class="classifier">statsmodels.regression.linear_model.RegressionResultsWrapper</span></dt><dd><p>A fitted regression model object from the statsmodels library.</p>
 </dd>
@@ -3863,7 +3863,7 @@ are included.</p></li>
 <dt class="sig sig-object py" id="spacr.utils.reduction_and_clustering">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">reduction_and_clustering</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">numeric_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_neighbors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clustering</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduction_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'umap'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fit'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#reduction_and_clustering"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.reduction_and_clustering" title="Link to this definition"></a></dt>
 <dd><p>Perform dimensionality reduction and clustering on the given data.</p>
-<p>Parameters:
+<p>Args:
 numeric_data (np.ndarray): Numeric data for embedding and clustering.
 n_neighbors (int or float): Number of neighbors for UMAP or perplexity for t-SNE.
 min_dist (float): Minimum distance for UMAP.
@@ -4356,7 +4356,7 @@ ValueError: If no numeric columns are available after filtering.</p>
 <dt class="sig sig-object py" id="spacr.utils.remove_low_variance_columns">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">remove_low_variance_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#remove_low_variance_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.remove_low_variance_columns" title="Link to this definition"></a></dt>
 <dd><p>Removes columns from the dataframe that have low variance.</p>
-<p>Parameters:
+<p>Args:
 df (pandas.DataFrame): The DataFrame containing the data.
 threshold (float): The variance threshold below which columns will be removed.</p>
 <p>Returns:
@@ -4367,7 +4367,7 @@ pandas.DataFrame: The DataFrame with low variance columns removed.</p>
 <dt class="sig sig-object py" id="spacr.utils.remove_highly_correlated_columns">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">remove_highly_correlated_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#remove_highly_correlated_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.remove_highly_correlated_columns" title="Link to this definition"></a></dt>
 <dd><p>Removes columns from the dataframe that are highly correlated with one another.</p>
-<p>Parameters:
+<p>Args:
 df (pandas.DataFrame): The DataFrame containing the data.
 threshold (float): The correlation threshold above which columns will be removed.</p>
 <p>Returns:
@@ -4378,7 +4378,7 @@ pandas.DataFrame: The DataFrame with highly correlated columns removed.</p>
 <dt class="sig sig-object py" id="spacr.utils.filter_dataframe_features">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">filter_dataframe_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_of_interest</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_low_variance_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_highly_correlated_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#filter_dataframe_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.filter_dataframe_features" title="Link to this definition"></a></dt>
 <dd><p>Filter the dataframe <cite>df</cite> based on the specified <cite>channel_of_interest</cite> and <cite>exclude</cite> parameters.</p>
-<p>Parameters:
+<p>Args:
 - df (pandas.DataFrame): The input dataframe to be filtered.
 - channel_of_interest (str, int, list, None): The channel(s) of interest to filter the dataframe. If None, no filtering is applied. If ‘morphology’, only morphology features are included.If an integer, only the specified channel is included. If a list, only the specified channels are included.If a string, only the specified channel is included.
 - exclude (str, list, None): The feature(s) to exclude from the filtered dataframe. If None, no features are excluded. If a string, the specified feature is excluded.If a list, the specified features are excluded.</p>
@@ -4447,7 +4447,7 @@ the original position (x, y) is returned.</p>
 <dt class="sig sig-object py" id="spacr.utils.search_reduction_and_clustering">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">search_reduction_and_clustering</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">numeric_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_neighbors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clustering</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduction_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduction_param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#search_reduction_and_clustering"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.search_reduction_and_clustering" title="Link to this definition"></a></dt>
 <dd><p>Perform dimensionality reduction and clustering on the given data.</p>
-<p>Parameters:
+<p>Args:
 numeric_data (np.array): Numeric data to process.
 n_neighbors (int): Number of neighbors for UMAP or perplexity for tSNE.
 min_dist (float): Minimum distance for UMAP.
@@ -4898,7 +4898,7 @@ Defaults to 1.</p></li>
 <dt class="sig sig-object py" id="spacr.utils.augment_image">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">augment_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#augment_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.augment_image" title="Link to this definition"></a></dt>
 <dd><p>Perform data augmentation by rotating and reflecting the image.</p>
-<p>Parameters:
+<p>Args:
 - image (PIL Image or numpy array): The input image.</p>
 <p>Returns:
 - augmented_images (list): A list of augmented images.</p>
@@ -4908,7 +4908,7 @@ Defaults to 1.</p></li>
 <dt class="sig sig-object py" id="spacr.utils.augment_dataset">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">augment_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_grayscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#augment_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.augment_dataset" title="Link to this definition"></a></dt>
 <dd><p>Perform data augmentation on the entire dataset by rotating and reflecting the images.</p>
-<p>Parameters:
+<p>Args:
 - dataset (list of tuples): The input dataset, each entry is a tuple (image, label, filename).
 - is_grayscale (bool): Flag indicating if the images are grayscale.</p>
 <p>Returns:
@@ -4919,7 +4919,7 @@ Defaults to 1.</p></li>
 <dt class="sig sig-object py" id="spacr.utils.convert_and_relabel_masks">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">convert_and_relabel_masks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#convert_and_relabel_masks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.convert_and_relabel_masks" title="Link to this definition"></a></dt>
 <dd><p>Converts all int64 npy masks in a folder to uint16 with relabeling to ensure all labels are retained.</p>
-<p>Parameters:
+<p>Args:
 - folder_path (str): The path to the folder containing int64 npy mask files.</p>
 <p>Returns:
 - None</p>
@@ -5111,7 +5111,7 @@ within the installed <cite>spacr</cite> package.</p>
 <dt class="sig sig-object py" id="spacr.utils.generate_cytoplasm_mask">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">generate_cytoplasm_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nucleus_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_mask</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#generate_cytoplasm_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.generate_cytoplasm_mask" title="Link to this definition"></a></dt>
 <dd><p>Generates a cytoplasm mask from nucleus and cell masks.</p>
-<p>Parameters:
+<p>Args:
 - nucleus_mask (np.array): Binary or segmented mask of the nucleus (non-zero values represent nucleus).
 - cell_mask (np.array): Binary or segmented mask of the whole cell (non-zero values represent cell).</p>
 <p>Returns:
@@ -5340,7 +5340,7 @@ and saves the filtered DataFrame to a new CSV file.</p>
 <dt class="sig sig-object py" id="spacr.utils.calculate_shortest_distance">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">calculate_shortest_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#calculate_shortest_distance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.calculate_shortest_distance" title="Link to this definition"></a></dt>
 <dd><p>Calculate the shortest edge-to-edge distance between two objects (e.g., pathogen and nucleus).</p>
-<p>Parameters:
+<p>Args:
 - df: Pandas DataFrame containing measurements
 - object1: String, name of the first object (e.g., “pathogen”)
 - object2: String, name of the second object (e.g., “nucleus”)</p>

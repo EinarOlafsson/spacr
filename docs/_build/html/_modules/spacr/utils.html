@@ -1171,7 +1171,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate a random colormap based on the unique labels in the given mask.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    mask (ndarray): The mask array containing unique labels.</span>
 
 <span class="sd">    Returns:</span>
@@ -1786,7 +1786,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Smooths the convex hull of a set of 2D points using spline interpolation.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        cluster_data (numpy.ndarray): A 2D array of shape (n_points, 2) representing </span>
 <span class="sd">                                       the coordinates of the points in the cluster.</span>
 
@@ -2024,7 +2024,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Counts the number of objects in a given mask.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    - mask: numpy.ndarray. The mask containing object labels.</span>
 
 <span class="sd">    Returns:</span>
@@ -2172,7 +2172,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Normalize each image in the stack to its own percentiles.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    - array: numpy array</span>
 <span class="sd">    The input stack to be normalized.</span>
 <span class="sd">    - p1: int, optional</span>
@@ -2291,7 +2291,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Find the bounding box coordinates for a given object ID in a crop mask.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    crop_mask (ndarray): The crop mask containing object IDs.</span>
 <span class="sd">    _id (int): The object ID to find the bounding box for.</span>
 <span class="sd">    buffer (int, optional): The buffer size to add to the bounding box coordinates. Defaults to 10.</span>
@@ -2489,7 +2489,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the percentiles of each image in the given array.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    - array: numpy.ndarray</span>
 <span class="sd">        The input array containing the images.</span>
 <span class="sd">    - q1: float, optional</span>
@@ -2521,7 +2521,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Crop the image around the center of the cell mask.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    - img: numpy.ndarray</span>
 <span class="sd">        The input image.</span>
 <span class="sd">    - cell_mask: numpy.ndarray</span>
@@ -2667,7 +2667,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read a table from an SQLite database into a pandas DataFrame.</span>
 
-<span class="sd">        Parameters:</span>
+<span class="sd">        Args:</span>
 <span class="sd">        - db_path (str): The path to the SQLite database file.</span>
 <span class="sd">        - table_name (str): The name of the table to read. Default is &#39;object_counts&#39;.</span>
 
@@ -2989,7 +2989,7 @@
 <span class="sd">    Splits the input dataframe into numeric and non-numeric parts, groups them by the specified column,</span>
 <span class="sd">    and returns the grouped dataframes with conditional aggregation.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    df (pandas.DataFrame): The input dataframe.</span>
 <span class="sd">    group_by (str): The column name to group the dataframes by.</span>
 <span class="sd">    object_type (str): The column name to concatenate with &#39;prcf&#39; to create a new column &#39;prcfo&#39;.</span>
@@ -3089,7 +3089,7 @@
 <span class="sd">    Group the DataFrame by well coordinates (plate, row, col) and apply mean function to numeric columns</span>
 <span class="sd">    and select the first value for non-numeric columns.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    df (DataFrame): The input DataFrame to be grouped.</span>
 
 <span class="sd">    Returns:</span>
@@ -3872,7 +3872,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate classification metrics for binary classification.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    - all_labels (list): List of true labels.</span>
 <span class="sd">    - prediction_pos_probs (list): List of predicted positive probabilities.</span>
 <span class="sd">    - loader_name (str): Name of the data loader.</span>
@@ -4201,7 +4201,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Augments and organizes image datasets into training and testing directories.</span>
 
-<span class="sd">        Parameters:</span>
+<span class="sd">        Args:</span>
 <span class="sd">        -----------</span>
 <span class="sd">        dst : str</span>
 <span class="sd">            The destination directory where augmented data will be stored.</span>
@@ -4508,7 +4508,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate and display additional metrics and generate diagnostic plots for a given model.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    -----------</span>
 <span class="sd">    model : statsmodels.regression.linear_model.RegressionResultsWrapper</span>
 <span class="sd">        A fitted regression model object from the statsmodels library.</span>
@@ -4583,7 +4583,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Checks multicollinearity of the predictors by computing the Variance Inflation Factor (VIF).</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        x (pd.DataFrame): A DataFrame containing the predictor variables.</span>
 
 <span class="sd">    Returns:</span>
@@ -4730,7 +4730,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates a circular mask for a 2D array with the specified dimensions.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        h (int): The height of the 2D array.</span>
 <span class="sd">        w (int): The width of the 2D array.</span>
 <span class="sd">        center (tuple, optional): The (x, y) coordinates of the circle&#39;s center. </span>
@@ -4789,7 +4789,7 @@
 <span class="sd">    from the maximum possible value for the image&#39;s data type. For example, </span>
 <span class="sd">    for an image with dtype `uint8`, the maximum value is 255.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        image (numpy.ndarray): The input image to be inverted. The image should </span>
 <span class="sd">        be a NumPy array with a valid integer data type (e.g., uint8, uint16).</span>
 
@@ -4891,7 +4891,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Resize a list of label arrays back to their original dimensions.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        labels (list of numpy.ndarray): A list of label arrays to be resized.</span>
 <span class="sd">        orig_dims (list of tuple): A list of tuples where each tuple contains </span>
 <span class="sd">            two integers representing the original dimensions (width, height) </span>
@@ -5009,7 +5009,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Pads two 2D arrays (masks) to the same shape by adding zero-padding to the </span>
 <span class="sd">    right and bottom of each array as needed.</span>
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        mask1 (numpy.ndarray): The first 2D array to be padded.</span>
 <span class="sd">        mask2 (numpy.ndarray): The second 2D array to be padded.</span>
 <span class="sd">    Returns:</span>
@@ -5107,7 +5107,7 @@
 <span class="sd">    The Jaccard Index is a measure of similarity between two sets, defined as the size</span>
 <span class="sd">    of the intersection divided by the size of the union of the sets.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        mask1 (numpy.ndarray): A binary mask (e.g., a 2D array of boolean or 0/1 values).</span>
 <span class="sd">        mask2 (numpy.ndarray): Another binary mask of the same shape as `mask1`.</span>
 
@@ -5163,7 +5163,7 @@
 <span class="sd">    Extracts the boundaries of a binary mask by applying morphological dilation </span>
 <span class="sd">    and erosion operations and computing their difference.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        mask (numpy.ndarray): A 2D array representing the input mask. Non-zero </span>
 <span class="sd">                              values are considered part of the mask.</span>
 <span class="sd">        dilation_radius (int, optional): The radius of the structuring element </span>
@@ -5807,7 +5807,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Selects and initializes a model based on the provided parameters.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    -----------</span>
 <span class="sd">    model_name : str</span>
 <span class="sd">        The name of the model to use. Supported values include:</span>
@@ -6887,7 +6887,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Filters the columns of a DataFrame based on a specified criterion.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        df (pandas.DataFrame): The input DataFrame whose columns are to be filtered.</span>
 <span class="sd">        filter_by (str): The criterion for filtering columns. If &#39;morphology&#39;, </span>
 <span class="sd">                         columns containing &#39;channel&#39; in their names are excluded. </span>
@@ -6911,7 +6911,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Perform dimensionality reduction and clustering on the given data.</span>
 <span class="sd">    </span>
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    numeric_data (np.ndarray): Numeric data for embedding and clustering.</span>
 <span class="sd">    n_neighbors (int or float): Number of neighbors for UMAP or perplexity for t-SNE.</span>
 <span class="sd">    min_dist (float): Minimum distance for UMAP.</span>
@@ -7138,7 +7138,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Sets up a matplotlib plot with specified figure size and background color.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        figuresize (float): The size of the figure in inches (used for both width and height).</span>
 <span class="sd">        black_background (bool): If True, sets the plot to have a black background with white text and labels.</span>
 <span class="sd">                                 If False, sets the plot to have a white background with black text and labels.</span>
@@ -7212,7 +7212,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plots UMAP embeddings with associated images on a given matplotlib axis.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        ax (matplotlib.axes.Axes): The matplotlib axis on which to plot the images.</span>
 <span class="sd">        image_paths (list of str): List of file paths to the images to be plotted.</span>
 <span class="sd">        embedding (numpy.ndarray): 2D array of UMAP embeddings with shape (n_samples, 2).</span>
@@ -7711,7 +7711,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Removes columns from the dataframe that have low variance.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    df (pandas.DataFrame): The DataFrame containing the data.</span>
 <span class="sd">    threshold (float): The variance threshold below which columns will be removed.</span>
 
@@ -7736,7 +7736,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Removes columns from the dataframe that are highly correlated with one another.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    df (pandas.DataFrame): The DataFrame containing the data.</span>
 <span class="sd">    threshold (float): The correlation threshold above which columns will be removed.</span>
 
@@ -7767,7 +7767,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Filter the dataframe `df` based on the specified `channel_of_interest` and `exclude` parameters.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    - df (pandas.DataFrame): The input dataframe to be filtered.</span>
 <span class="sd">    - channel_of_interest (str, int, list, None): The channel(s) of interest to filter the dataframe. If None, no filtering is applied. If &#39;morphology&#39;, only morphology features are included.If an integer, only the specified channel is included. If a list, only the specified channels are included.If a string, only the specified channel is included.</span>
 <span class="sd">    - exclude (str, list, None): The feature(s) to exclude from the filtered dataframe. If None, no features are excluded. If a string, the specified feature is excluded.If a list, the specified features are excluded.</span>
@@ -7913,7 +7913,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Perform dimensionality reduction and clustering on the given data.</span>
 <span class="sd">    </span>
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    numeric_data (np.array): Numeric data to process.</span>
 <span class="sd">    n_neighbors (int): Number of neighbors for UMAP or perplexity for tSNE.</span>
 <span class="sd">    min_dist (float): Minimum distance for UMAP.</span>
@@ -8028,7 +8028,7 @@
 <span class="sd">    hypothesis that the data comes from a normal distribution. If the p-value </span>
 <span class="sd">    is less than the significance level (alpha), the null hypothesis is rejected.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        series (array-like): The data series to test for normality.</span>
 
 <span class="sd">    Returns:</span>
@@ -8151,7 +8151,7 @@
 <span class="sd">    all features from `rf_df` and their corresponding data from `anova_df` and </span>
 <span class="sd">    `kruskal_df` where available.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        rf_df (pd.DataFrame): A DataFrame containing features and their associated </span>
 <span class="sd">                              data from a random forest analysis.</span>
 <span class="sd">        anova_df (pd.DataFrame): A DataFrame containing features and their associated </span>
@@ -8297,7 +8297,7 @@
 <span class="sd">    Relabel any cell that lacks a nucleus to the ID of an adjacent</span>
 <span class="sd">    cell that *does* contain a nucleus.</span>
 
-<span class="sd">    Parameters</span>
+<span class="sd">    Args</span>
 <span class="sd">    ----------</span>
 <span class="sd">    adj_cell_mask : np.ndarray</span>
 <span class="sd">        Labelled (0 = background) cell mask after all other merging steps.</span>
@@ -8780,7 +8780,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Perform data augmentation by rotating and reflecting the image.</span>
 <span class="sd">    </span>
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    - image (PIL Image or numpy array): The input image.</span>
 
 <span class="sd">    Returns:</span>
@@ -8827,7 +8827,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Perform data augmentation on the entire dataset by rotating and reflecting the images.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    - dataset (list of tuples): The input dataset, each entry is a tuple (image, label, filename).</span>
 <span class="sd">    - is_grayscale (bool): Flag indicating if the images are grayscale.</span>
 
@@ -8868,7 +8868,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Converts all int64 npy masks in a folder to uint16 with relabeling to ensure all labels are retained.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    - folder_path (str): The path to the folder containing int64 npy mask files.</span>
 
 <span class="sd">    Returns:</span>
@@ -9066,7 +9066,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Maps a given column value to a specific condition label.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        col_value (str): The value to be mapped.</span>
 <span class="sd">        neg (str, optional): The value representing the &#39;neg&#39; condition. Defaults to &#39;c1&#39;.</span>
 <span class="sd">        pos (str, optional): The value representing the &#39;pos&#39; condition. Defaults to &#39;c2&#39;.</span>
@@ -9163,7 +9163,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generates a cytoplasm mask from nucleus and cell masks.</span>
 <span class="sd">    </span>
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    - nucleus_mask (np.array): Binary or segmented mask of the nucleus (non-zero values represent nucleus).</span>
 <span class="sd">    - cell_mask (np.array): Binary or segmented mask of the whole cell (non-zero values represent cell).</span>
 <span class="sd">    </span>
@@ -9189,7 +9189,7 @@
 <span class="sd">    If the column already exists in the database, it adds the column with a suffix.</span>
 <span class="sd">    NaN values will remain as NULL in the database.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        settings (dict): A dictionary containing the following keys:</span>
 <span class="sd">            csv_path (str): Path to the CSV file with the data to be added.</span>
 <span class="sd">            db_path (str): Path to the SQLite database (or connection string for other databases).</span>
@@ -9552,7 +9552,7 @@
 <span class="sd">    Reads a CSV into a DataFrame, filters rows based on a column for values &gt; upper_threshold and &lt; lower_threshold,</span>
 <span class="sd">    and saves the filtered DataFrame to a new CSV file.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        input_csv (str): Path to the input CSV file.</span>
 <span class="sd">        output_csv (str): Path to save the filtered CSV file.</span>
 <span class="sd">        column_name (str): Column name to apply the filters on.</span>
@@ -9581,7 +9581,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extracts all .tar.bz2 files in the given folder into subfolders with the same name as the tar file.</span>
 <span class="sd">    </span>
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        folder_path (str): Path to the folder containing .tar.bz2 files.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">folder_path</span><span class="p">):</span>
@@ -9612,7 +9612,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the shortest edge-to-edge distance between two objects (e.g., pathogen and nucleus).</span>
 <span class="sd">    </span>
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    - df: Pandas DataFrame containing measurements</span>
 <span class="sd">    - object1: String, name of the first object (e.g., &quot;pathogen&quot;)</span>
 <span class="sd">    - object2: String, name of the second object (e.g., &quot;nucleus&quot;)</span>
@@ -9793,7 +9793,7 @@
 <span class="sd">    - If &#39;row&#39; or &#39;row_name&#39; exists, they are renamed to &#39;rowID&#39;.</span>
 <span class="sd">    - If &#39;col&#39;, &#39;column&#39;, or &#39;column_name&#39; exists, they are renamed to &#39;columnID&#39;.</span>
 <span class="sd">    - If &#39;field&#39; or &#39;field_name&#39; exists, they are renamed to &#39;fieldID&#39;.</span>
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        df (pandas.DataFrame): The input DataFrame containing metadata columns.</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        pandas.DataFrame: The DataFrame with standardized metadata column names.</span>
@@ -9844,7 +9844,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Removes outliers from `value_col` within each group defined by `group_col`.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        df (pd.DataFrame): The input DataFrame.</span>
 <span class="sd">        group_col (str): Column name to group by.</span>
 <span class="sd">        value_col (str): Column containing values to check for outliers.</span>
