@@ -289,7 +289,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#spacr.utils.remove_intensity_objects"><code class="docutils literal notranslate"><span class="pre">remove_intensity_objects()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#spacr.utils.SelectChannels"><code class="docutils literal notranslate"><span class="pre">SelectChannels</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.SelectChannels.channels"><code class="docutils literal notranslate"><span class="pre">SelectChannels.channels</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">SelectChannels.channels</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.SelectChannels.__call__"><code class="docutils literal notranslate"><span class="pre">SelectChannels.__call__()</span></code></a></li>
 </ul>
 </li>
@@ -332,7 +331,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#spacr.utils.recommend_target_layers"><code class="docutils literal notranslate"><span class="pre">recommend_target_layers()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#spacr.utils.IntegratedGradients"><code class="docutils literal notranslate"><span class="pre">IntegratedGradients</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.IntegratedGradients.model"><code class="docutils literal notranslate"><span class="pre">IntegratedGradients.model</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id1"><code class="docutils literal notranslate"><span class="pre">IntegratedGradients.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">IntegratedGradients.model</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.utils.IntegratedGradients.generate_integrated_gradients"><code class="docutils literal notranslate"><span class="pre">IntegratedGradients.generate_integrated_gradients()</span></code></a></li>
 </ul>
 </li>
@@ -3034,11 +3033,11 @@ of the intersection divided by the size of the union of the sets.</p>
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">dice_coefficient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#dice_coefficient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.dice_coefficient" title="Link to this definition"></a></dt>
 <dd><p>Compute the Dice coefficient, a measure of overlap between two binary masks.</p>
 <dl class="simple">
-<dt>The Dice coefficient is defined as:</dt><dd><p>2 * <a href="#id4"><span class="problematic" id="id5">|A ∩ B|</span></a> / (<a href="#id6"><span class="problematic" id="id7">|A|</span></a> + <a href="#id8"><span class="problematic" id="id9">|B|</span></a>)</p>
+<dt>The Dice coefficient is defined as:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">*</span> <span class="pre">|A</span> <span class="pre">∩</span> <span class="pre">B|</span> <span class="pre">/</span> <span class="pre">(|A|</span> <span class="pre">+</span> <span class="pre">|B|)</span></code></p>
 </dd>
 </dl>
-<p>where A and B are binary masks, <a href="#id10"><span class="problematic" id="id11">|A ∩ B|</span></a> is the number of overlapping non-zero elements,
-and <a href="#id12"><span class="problematic" id="id13">|A|</span></a> + <a href="#id14"><span class="problematic" id="id15">|B|</span></a> is the total number of non-zero elements in both masks.</p>
+<p>where A and B are binary masks, <code class="docutils literal notranslate"><span class="pre">|A</span> <span class="pre">∩</span> <span class="pre">B|</span></code> is the number of overlapping non-zero elements,
+and <code class="docutils literal notranslate"><span class="pre">|A|</span> <span class="pre">+</span> <span class="pre">|B|</span></code> is the total number of non-zero elements in both masks.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -3157,49 +3156,48 @@ precision and recall after dilating the boundaries.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="spacr.utils.SelectChannels">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">SelectChannels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#SelectChannels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.SelectChannels" title="Link to this definition"></a></dt>
-<dd><p>Selectively retain specific color channels in an image tensor.</p>
-<p>This class zeroes out undesired color channels in a 3-channel image tensor,
-based on the specified list of channels to retain.</p>
+<dd><p>Selectively retain specific color channels in a 3-channel image tensor.</p>
+<p>This transformation zeros out unselected channels based on a list of 1-based
+indices corresponding to RGB channels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>channels</strong> (<em>list</em><em> of </em><em>int</em>) – List of 1-based indices for channels to retain.
+Valid values are:
+- 1: Red
+- 2: Green
+- 3: Blue</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">select_channels</span> <span class="o">=</span> <span class="n">SelectChannels</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">modified_img</span> <span class="o">=</span> <span class="n">select_channels</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The input image must be a PyTorch tensor with shape (3, H, W).</p>
+</div>
+<p>Initialize the SelectChannels instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>channels</strong> (<em>list</em><em> of </em><em>int</em>) – Channels (1-based) to retain.</p>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.utils.SelectChannels.channels">
 <span class="sig-name descname"><span class="pre">channels</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#SelectChannels.channels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.SelectChannels.channels" title="Link to this definition"></a></dt>
-<dd><p>List of 1-based indices for channels to retain.
-- 1: Red channel
-- 2: Green channel
-- 3: Blue channel</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list of int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">select_channels</span> <span class="o">=</span> <span class="n">SelectChannels</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>  <span class="c1"># Retain red and blue channels</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">modified_img</span> <span class="o">=</span> <span class="n">select_channels</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>      <span class="c1"># Apply the transformation</span>
-</pre></div>
-</div>
-<p>Initialize the channel selector.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>channels</strong> (<em>list</em><em> of </em><em>int</em>) – List of 1-based channel indices to retain.</p>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="id0">
-<span class="sig-name descname"><span class="pre">channels</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#SelectChannels.channels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.utils.SelectChannels.__call__">
 <span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#SelectChannels.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.SelectChannels.__call__" title="Link to this definition"></a></dt>
-<dd><p>Apply channel selection to the image.</p>
+<dd><p>Apply the channel selection to the input image tensor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>img</strong> (<em>torch.Tensor</em>) – A 3-channel image tensor of shape (3, H, W).</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Image tensor with non-selected channels zeroed out.</p>
+<dd class="field-even"><p>A tensor where unselected channels are set to zero.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>torch.Tensor</p>
@@ -3498,31 +3496,24 @@ from the specified target layer during inference and backpropagation.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.utils.preprocess_image">
 <span class="sig-prename descclassname"><span class="pre">spacr.utils.</span></span><span class="sig-name descname"><span class="pre">preprocess_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">224</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">3]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/utils.html#preprocess_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.utils.preprocess_image" title="Link to this definition"></a></dt>
-<dd><p>Preprocesses an image for input into a machine learning model.
-:param image_path: The file path to the image to be processed.
-:type image_path: str
-:param normalize: Whether to normalize the image using</p>
-<blockquote>
-<div><p>standard ImageNet mean and standard deviation. Defaults to True.</p>
-</div></blockquote>
+<dd><p>Preprocess an image for input into a machine learning model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>image_size</strong> (<em>int</em><em>, </em><em>optional</em>) – The size to which the image will be resized
-(both width and height). Defaults to 224.</p></li>
-<li><p><strong>channels</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of channel indices to process.
-Defaults to [1, 2, 3].</p></li>
+<li><p><strong>image_path</strong> (<em>str</em>) – Path to the input image file.</p></li>
+<li><p><strong>normalize</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, apply ImageNet normalization
+(mean and std). Defaults to True.</p></li>
+<li><p><strong>image_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Target size (height and width) for resizing.
+Defaults to 224.</p></li>
+<li><p><strong>channels</strong> (<em>list</em><em> of </em><em>int</em><em>, </em><em>optional</em>) – 1-based channel indices to retain (e.g., [1, 2, 3]
+for RGB). Defaults to [1, 2, 3].</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>A tuple containing:</dt><dd><ul class="simple">
-<li><p>image (PIL.Image.Image): The original image loaded as a PIL Image.</p></li>
-<li><p>input_tensor (torch.Tensor): The preprocessed image as a tensor,
-ready for input into a model.</p></li>
+<dd class="field-even"><p><ul class="simple">
+<li><p>PIL.Image.Image: The original image.</p></li>
+<li><p>torch.Tensor: The processed image tensor suitable for model input.</p></li>
 </ul>
-</dd>
-</dl>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -3704,8 +3695,8 @@ along a straight path from a baseline to the input.</p>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id1">
-<span class="sig-name descname"><span class="pre">model</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#IntegratedGradients.model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="reference internal" href="../../../_modules/spacr/utils.html#IntegratedGradients.model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -4298,8 +4289,8 @@ already contain it.</p>
 <dt>folder<span class="classifier">str, optional</span></dt><dd><p>The folder name to include in the adjusted paths (default is ‘data’).</p>
 </dd>
 </dl>
-<section id="id2">
-<h3>Returns:<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<section id="id1">
+<h3>Returns:<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>tuple or list</dt><dd><p>If <cite>df</cite> is a DataFrame, returns a tuple containing the updated
 DataFrame and a list of adjusted file paths. If <cite>df</cite> is a list,
@@ -4307,8 +4298,8 @@ returns only the list of adjusted file paths.</p>
 </dd>
 </dl>
 </section>
-<section id="id3">
-<h3>Notes:<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<section id="id2">
+<h3>Notes:<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>If the input is a DataFrame and the ‘png_path’ column is missing, the
 function prints a message and returns the original DataFrame and None.</p></li>

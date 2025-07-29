@@ -1544,10 +1544,10 @@ Module Contents
    Compute the Dice coefficient, a measure of overlap between two binary masks.
 
    The Dice coefficient is defined as:
-       2 * |A ∩ B| / (|A| + |B|)
+       ``2 * |A ∩ B| / (|A| + |B|)``
 
-   where A and B are binary masks, |A ∩ B| is the number of overlapping non-zero elements,
-   and |A| + |B| is the total number of non-zero elements in both masks.
+   where A and B are binary masks, ``|A ∩ B|`` is the number of overlapping non-zero elements,
+   and ``|A| + |B|`` is the total number of non-zero elements in both masks.
 
    :param mask1: First binary mask.
    :type mask1: numpy.ndarray
@@ -1633,28 +1633,28 @@ Module Contents
 
 .. py:class:: SelectChannels(channels)
 
-   Selectively retain specific color channels in an image tensor.
+   Selectively retain specific color channels in a 3-channel image tensor.
 
-   This class zeroes out undesired color channels in a 3-channel image tensor,
-   based on the specified list of channels to retain.
+   This transformation zeros out unselected channels based on a list of 1-based
+   indices corresponding to RGB channels.
 
-   .. attribute:: channels
-
-      List of 1-based indices for channels to retain.
-      - 1: Red channel
-      - 2: Green channel
-      - 3: Blue channel
-
-      :type: list of int
+   :param channels: List of 1-based indices for channels to retain.
+                    Valid values are:
+                    - 1: Red
+                    - 2: Green
+                    - 3: Blue
+   :type channels: list of int
 
    .. rubric:: Example
 
-   >>> select_channels = SelectChannels([1, 3])  # Retain red and blue channels
-   >>> modified_img = select_channels(img)      # Apply the transformation
+   >>> select_channels = SelectChannels([1, 3])
+   >>> modified_img = select_channels(img)
 
-   Initialize the channel selector.
+   .. note:: The input image must be a PyTorch tensor with shape (3, H, W).
 
-   :param channels: List of 1-based channel indices to retain.
+   Initialize the SelectChannels instance.
+
+   :param channels: Channels (1-based) to retain.
    :type channels: list of int
 
 
@@ -1663,12 +1663,12 @@ Module Contents
 
    .. py:method:: __call__(img)
 
-      Apply channel selection to the image.
+      Apply the channel selection to the input image tensor.
 
       :param img: A 3-channel image tensor of shape (3, H, W).
       :type img: torch.Tensor
 
-      :returns: Image tensor with non-selected channels zeroed out.
+      :returns: A tensor where unselected channels are set to zero.
       :rtype: torch.Tensor
 
 
@@ -1893,25 +1893,22 @@ Module Contents
 
 .. py:function:: preprocess_image(image_path, normalize=True, image_size=224, channels=[1, 2, 3])
 
-   Preprocesses an image for input into a machine learning model.
-   :param image_path: The file path to the image to be processed.
+   Preprocess an image for input into a machine learning model.
+
+   :param image_path: Path to the input image file.
    :type image_path: str
-   :param normalize: Whether to normalize the image using
-                     standard ImageNet mean and standard deviation. Defaults to True.
+   :param normalize: If True, apply ImageNet normalization
+                     (mean and std). Defaults to True.
    :type normalize: bool, optional
-   :param image_size: The size to which the image will be resized
-                      (both width and height). Defaults to 224.
+   :param image_size: Target size (height and width) for resizing.
+                      Defaults to 224.
    :type image_size: int, optional
-   :param channels: A list of channel indices to process.
-                    Defaults to [1, 2, 3].
-   :type channels: list, optional
+   :param channels: 1-based channel indices to retain (e.g., [1, 2, 3]
+                    for RGB). Defaults to [1, 2, 3].
+   :type channels: list of int, optional
 
-   :returns:
-
-             A tuple containing:
-                 - image (PIL.Image.Image): The original image loaded as a PIL Image.
-                 - input_tensor (torch.Tensor): The preprocessed image as a tensor,
-                   ready for input into a model.
+   :returns:     - PIL.Image.Image: The original image.
+                 - torch.Tensor: The processed image tensor suitable for model input.
    :rtype: tuple
 
 

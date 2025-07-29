@@ -286,7 +286,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/spacr/utils/index.html#spacr.utils.remove_intensity_objects"><code class="docutils literal notranslate"><span class="pre">remove_intensity_objects()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/spacr/utils/index.html#spacr.utils.SelectChannels"><code class="docutils literal notranslate"><span class="pre">SelectChannels</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/utils/index.html#spacr.utils.SelectChannels.channels"><code class="docutils literal notranslate"><span class="pre">SelectChannels.channels</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/utils/index.html#id0"><code class="docutils literal notranslate"><span class="pre">SelectChannels.channels</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/utils/index.html#spacr.utils.SelectChannels.__call__"><code class="docutils literal notranslate"><span class="pre">SelectChannels.__call__()</span></code></a></li>
 </ul>
 </li>
@@ -329,7 +328,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/spacr/utils/index.html#spacr.utils.recommend_target_layers"><code class="docutils literal notranslate"><span class="pre">recommend_target_layers()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/spacr/utils/index.html#spacr.utils.IntegratedGradients"><code class="docutils literal notranslate"><span class="pre">IntegratedGradients</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/utils/index.html#spacr.utils.IntegratedGradients.model"><code class="docutils literal notranslate"><span class="pre">IntegratedGradients.model</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/utils/index.html#id1"><code class="docutils literal notranslate"><span class="pre">IntegratedGradients.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/utils/index.html#id0"><code class="docutils literal notranslate"><span class="pre">IntegratedGradients.model</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/utils/index.html#spacr.utils.IntegratedGradients.generate_integrated_gradients"><code class="docutils literal notranslate"><span class="pre">IntegratedGradients.generate_integrated_gradients()</span></code></a></li>
 </ul>
 </li>
@@ -5129,10 +5128,10 @@
 <span class="sd">    Compute the Dice coefficient, a measure of overlap between two binary masks.</span>
 
 <span class="sd">    The Dice coefficient is defined as:</span>
-<span class="sd">        2 * |A ∩ B| / (|A| + |B|)</span>
+<span class="sd">        ``2 * |A ∩ B| / (|A| + |B|)``</span>
 
-<span class="sd">    where A and B are binary masks, |A ∩ B| is the number of overlapping non-zero elements,</span>
-<span class="sd">    and |A| + |B| is the total number of non-zero elements in both masks.</span>
+<span class="sd">    where A and B are binary masks, ``|A ∩ B|`` is the number of overlapping non-zero elements,</span>
+<span class="sd">    and ``|A| + |B|`` is the total number of non-zero elements in both masks.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        mask1 (numpy.ndarray): First binary mask.</span>
@@ -5906,27 +5905,31 @@
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.SelectChannels">[docs]</a>
 <span class="k">class</span> <span class="nc">SelectChannels</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Selectively retain specific color channels in an image tensor.</span>
+<span class="sd">    Selectively retain specific color channels in a 3-channel image tensor.</span>
 
-<span class="sd">    This class zeroes out undesired color channels in a 3-channel image tensor,</span>
-<span class="sd">    based on the specified list of channels to retain.</span>
+<span class="sd">    This transformation zeros out unselected channels based on a list of 1-based</span>
+<span class="sd">    indices corresponding to RGB channels.</span>
 
-<span class="sd">    Attributes:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        channels (list of int): List of 1-based indices for channels to retain.</span>
-<span class="sd">            - 1: Red channel</span>
-<span class="sd">            - 2: Green channel</span>
-<span class="sd">            - 3: Blue channel</span>
+<span class="sd">                                Valid values are:</span>
+<span class="sd">                                - 1: Red</span>
+<span class="sd">                                - 2: Green</span>
+<span class="sd">                                - 3: Blue</span>
 
 <span class="sd">    Example:</span>
-<span class="sd">        &gt;&gt;&gt; select_channels = SelectChannels([1, 3])  # Retain red and blue channels</span>
-<span class="sd">        &gt;&gt;&gt; modified_img = select_channels(img)      # Apply the transformation</span>
+<span class="sd">        &gt;&gt;&gt; select_channels = SelectChannels([1, 3])</span>
+<span class="sd">        &gt;&gt;&gt; modified_img = select_channels(img)</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        The input image must be a PyTorch tensor with shape (3, H, W).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channels</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Initialize the channel selector.</span>
+<span class="sd">        Initialize the SelectChannels instance.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            channels (list of int): List of 1-based channel indices to retain.</span>
+<span class="sd">            channels (list of int): Channels (1-based) to retain.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="SelectChannels.channels">
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.SelectChannels.channels">[docs]</a>
@@ -5937,13 +5940,13 @@
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.SelectChannels.__call__">[docs]</a>
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Apply channel selection to the image.</span>
+<span class="sd">        Apply the channel selection to the input image tensor.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            img (torch.Tensor): A 3-channel image tensor of shape (3, H, W).</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            torch.Tensor: Image tensor with non-selected channels zeroed out.</span>
+<span class="sd">            torch.Tensor: A tensor where unselected channels are set to zero.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
         <span class="k">if</span> <span class="mi">1</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">:</span>
@@ -6365,20 +6368,21 @@
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.preprocess_image">[docs]</a>
 <span class="k">def</span> <span class="nf">preprocess_image</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="mi">224</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Preprocesses an image for input into a machine learning model.</span>
+<span class="sd">    Preprocess an image for input into a machine learning model.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        image_path (str): The file path to the image to be processed.</span>
-<span class="sd">        normalize (bool, optional): Whether to normalize the image using </span>
-<span class="sd">            standard ImageNet mean and standard deviation. Defaults to True.</span>
-<span class="sd">        image_size (int, optional): The size to which the image will be resized </span>
-<span class="sd">            (both width and height). Defaults to 224.</span>
-<span class="sd">        channels (list, optional): A list of channel indices to process. </span>
-<span class="sd">            Defaults to [1, 2, 3].</span>
+<span class="sd">        image_path (str): Path to the input image file.</span>
+<span class="sd">        normalize (bool, optional): If True, apply ImageNet normalization </span>
+<span class="sd">            (mean and std). Defaults to True.</span>
+<span class="sd">        image_size (int, optional): Target size (height and width) for resizing. </span>
+<span class="sd">            Defaults to 224.</span>
+<span class="sd">        channels (list of int, optional): 1-based channel indices to retain (e.g., [1, 2, 3] </span>
+<span class="sd">            for RGB). Defaults to [1, 2, 3].</span>
+
 <span class="sd">    Returns:</span>
-<span class="sd">        tuple: A tuple containing:</span>
-<span class="sd">            - image (PIL.Image.Image): The original image loaded as a PIL Image.</span>
-<span class="sd">            - input_tensor (torch.Tensor): The preprocessed image as a tensor, </span>
-<span class="sd">              ready for input into a model.</span>
+<span class="sd">        tuple:</span>
+<span class="sd">            - PIL.Image.Image: The original image.</span>
+<span class="sd">            - torch.Tensor: The processed image tensor suitable for model input.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">preprocess</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
         <span class="n">transforms</span><span class="o">.</span><span class="n">Resize</span><span class="p">((</span><span class="n">image_size</span><span class="p">,</span> <span class="n">image_size</span><span class="p">)),</span>
