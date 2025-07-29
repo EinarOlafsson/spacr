@@ -875,6 +875,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrScrollbarStyle"><code class="docutils literal notranslate"><span class="pre">spacrScrollbarStyle()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrFrame"><code class="docutils literal notranslate"><span class="pre">spacrFrame</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrFrame.scrollable_frame"><code class="docutils literal notranslate"><span class="pre">spacrFrame.scrollable_frame</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrFrame.inactive_color"><code class="docutils literal notranslate"><span class="pre">spacrFrame.inactive_color</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrFrame.active_color"><code class="docutils literal notranslate"><span class="pre">spacrFrame.active_color</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrFrame.fg_color"><code class="docutils literal notranslate"><span class="pre">spacrFrame.fg_color</span></code></a></li>
@@ -2307,11 +2308,20 @@
 <a class="viewcode-back" href="../../api/spacr/gui_core/index.html#spacr.gui_core.check_src_folders_files">[docs]</a>
 <span class="k">def</span> <span class="nf">check_src_folders_files</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">settings_type</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Checks if &#39;src&#39; is a key in the settings dictionary and if it exists as a valid path.</span>
-<span class="sd">    If &#39;src&#39; is a list, iterates through the list and checks each path.</span>
-<span class="sd">    If any path is missing, prompts the user to edit or remove invalid paths.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    Verifies that source folder paths exist and contain the necessary subfolders and/or image files</span>
+<span class="sd">    depending on the selected processing `settings_type`.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): A dictionary containing at least the key `&quot;src&quot;` with either a string path or a list of paths.</span>
+<span class="sd">        settings_type (str): Type of operation. Supported values include:</span>
+<span class="sd">            - &#39;mask&#39;: Requires image-containing subfolders or raw image files.</span>
+<span class="sd">            - &#39;measure&#39;: Requires &#39;merged&#39; subfolder containing `.npy` files.</span>
+<span class="sd">            (Other types like &#39;regression&#39;, &#39;umap&#39;, &#39;classify&#39; are commented out.)</span>
+<span class="sd">        q (queue.Queue): A thread-safe queue to which error messages are pushed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: `True` if validation fails (request should stop), `False` if all required paths and files exist.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">request_stop</span> <span class="o">=</span> <span class="kc">False</span>
         
     <span class="k">def</span> <span class="nf">_folder_has_images</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">image_extensions</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.png&quot;</span><span class="p">,</span> <span class="s2">&quot;.jpg&quot;</span><span class="p">,</span> <span class="s2">&quot;.jpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;.bmp&quot;</span><span class="p">,</span> <span class="s2">&quot;.gif&quot;</span><span class="p">,</span> <span class="s2">&quot;.tiff&quot;</span><span class="p">,</span> <span class="s2">&quot;.tif&quot;</span><span class="p">,</span> <span class="s2">&quot;.webp&quot;</span><span class="p">,</span> <span class="s2">&quot;.npy&quot;</span><span class="p">,</span> <span class="s2">&quot;.npz&quot;</span><span class="p">,</span> <span class="s2">&quot;nd2&quot;</span><span class="p">,</span> <span class="s2">&quot;czi&quot;</span><span class="p">,</span> <span class="s2">&quot;lif&quot;</span><span class="p">}):</span>

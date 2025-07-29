@@ -357,9 +357,21 @@ Module Contents
 
 .. py:function:: check_src_folders_files(settings, settings_type, q)
 
-   Checks if 'src' is a key in the settings dictionary and if it exists as a valid path.
-   If 'src' is a list, iterates through the list and checks each path.
-   If any path is missing, prompts the user to edit or remove invalid paths.
+   Verifies that source folder paths exist and contain the necessary subfolders and/or image files
+   depending on the selected processing `settings_type`.
+
+   :param settings: A dictionary containing at least the key `"src"` with either a string path or a list of paths.
+   :type settings: dict
+   :param settings_type: Type of operation. Supported values include:
+                         - 'mask': Requires image-containing subfolders or raw image files.
+                         - 'measure': Requires 'merged' subfolder containing `.npy` files.
+                         (Other types like 'regression', 'umap', 'classify' are commented out.)
+   :type settings_type: str
+   :param q: A thread-safe queue to which error messages are pushed.
+   :type q: queue.Queue
+
+   :returns: `True` if validation fails (request should stop), `False` if all required paths and files exist.
+   :rtype: bool
 
 
 .. py:function:: start_process(q=None, fig_queue=None, settings_type='mask')

@@ -1192,18 +1192,32 @@ Module Contents
    Bases: :py:obj:`tkinter.ttk.Frame`
 
 
-   Ttk Frame widget is a container, used to group other widgets
-   together.
+   A styled frame with optional rounded background, vertical scrollbar, and embedded content area (text or widgets).
 
-   Construct a Ttk Frame with parent master.
+   This frame supports both scrollable `ttk.Frame` containers and scrollable `tk.Text` areas, with a dark custom theme.
 
-   STANDARD OPTIONS
+   .. attribute:: scrollable_frame
 
-       class, cursor, style, takefocus
+      The inner content widget.
 
-   WIDGET-SPECIFIC OPTIONS
+      :type: Union[ttk.Frame, tk.Text]
 
-       borderwidth, relief, padding, width, height
+   Initialize the spacrFrame.
+
+   :param container: The parent container for this frame.
+   :type container: tk.Widget
+   :param width: Width of the frame in pixels. Defaults to 1/4 of screen width if None.
+   :type width: int, optional
+   :param \*args: Additional positional arguments for ttk.Frame.
+   :param bg: Background color of the frame. Defaults to 'black'.
+   :type bg: str
+   :param radius: Radius of the rounded rectangle background. Defaults to 20.
+   :type radius: int
+   :param scrollbar: Whether to include a vertical scrollbar. Defaults to True.
+   :type scrollbar: bool
+   :param textbox: If True, use a scrollable `tk.Text` widget. Otherwise, use a `ttk.Frame`. Defaults to False.
+   :type textbox: bool
+   :param \*\*kwargs: Additional keyword arguments for ttk.Frame.
 
 
    .. py:attribute:: inactive_color
@@ -1223,19 +1237,51 @@ Module Contents
 
    .. py:method:: rounded_rectangle(canvas, x1, y1, x2, y2, radius=20, **kwargs)
 
+      Draw a rounded rectangle on a canvas.
+
+      :param canvas: The canvas to draw on.
+      :type canvas: tk.Canvas
+      :param x1: Left coordinate.
+      :type x1: int
+      :param y1: Top coordinate.
+      :type y1: int
+      :param x2: Right coordinate.
+      :type x2: int
+      :param y2: Bottom coordinate.
+      :type y2: int
+      :param radius: Radius of the rounded corners. Defaults to 20.
+      :type radius: int
+      :param \*\*kwargs: Options passed to the canvas `create_polygon` method.
+
+      :returns: ID of the created polygon.
+      :rtype: int
+
+
 
 .. py:class:: spacrLabel(parent, text='', font=None, style=None, align='right', height=None, **kwargs)
 
    Bases: :py:obj:`tkinter.Frame`
 
 
-   Frame widget which may contain other widgets and can have a 3D border.
+   A custom label widget with optional dark styling, alignment options, and support for both `ttk.Label` and `Canvas`-rendered text.
 
-   Construct a frame widget with the parent MASTER.
+   The label adapts to screen size or a given height, and can display text either centered or right-aligned.
 
-   Valid resource names: background, bd, bg, borderwidth, class,
-   colormap, container, cursor, height, highlightbackground,
-   highlightcolor, highlightthickness, relief, takefocus, visual, width.
+   Initialize the spacrLabel widget.
+
+   :param parent: The parent widget.
+   :type parent: tk.Widget
+   :param text: The text to display on the label. Defaults to "".
+   :type text: str
+   :param font: A custom font to use if not using the default style. Defaults to None.
+   :type font: tkFont.Font, optional
+   :param style: A ttk style name to apply to the label. If set, uses a `ttk.Label` instead of `Canvas` text.
+   :type style: str, optional
+   :param align: Text alignment, either "right" or "center". Defaults to "right".
+   :type align: str
+   :param height: Height of the label. If None, scales based on screen height.
+   :type height: int, optional
+   :param \*\*kwargs: Additional keyword arguments for the outer frame (excluding font/background/anchor-specific ones).
 
 
    .. py:attribute:: text
@@ -1279,19 +1325,45 @@ Module Contents
 
    .. py:method:: set_text(text)
 
+      Update the label text.
+
+      :param text: The new text to display.
+      :type text: str
+
+
 
 .. py:class:: spacrButton(parent, text='', command=None, font=None, icon_name=None, size=50, show_text=True, outline=False, animation=True, *args, **kwargs)
 
    Bases: :py:obj:`tkinter.Frame`
 
 
-   Frame widget which may contain other widgets and can have a 3D border.
+   A custom animated button widget with icon and optional text, styled with dark mode and zoom animation on hover.
 
-   Construct a frame widget with the parent MASTER.
+   The button is rendered using a Canvas to support rounded corners and icon embedding. Optional description
+   display is supported via parent methods `show_description` and `clear_description`.
 
-   Valid resource names: background, bd, bg, borderwidth, class,
-   colormap, container, cursor, height, highlightbackground,
-   highlightcolor, highlightthickness, relief, takefocus, visual, width.
+   Initialize the spacrButton.
+
+   :param parent: The parent container.
+   :type parent: tk.Widget
+   :param text: Button text to display.
+   :type text: str
+   :param command: Function to call when button is clicked.
+   :type command: callable, optional
+   :param font: Font to use if font loader is unavailable.
+   :type font: tkFont.Font or tuple, optional
+   :param icon_name: Name of icon (without extension) to load from resources/icons.
+   :type icon_name: str, optional
+   :param size: Button height (and icon size reference). Defaults to 50.
+   :type size: int
+   :param show_text: Whether to show text next to the icon. Defaults to True.
+   :type show_text: bool
+   :param outline: Whether to draw a border around the button. Defaults to False.
+   :type outline: bool
+   :param animation: Whether to animate the icon on hover. Defaults to True.
+   :type animation: bool
+   :param \*args: Additional positional arguments for the Frame.
+   :param \*\*kwargs: Additional keyword arguments for the Frame.
 
 
    .. py:attribute:: text
@@ -1367,32 +1439,100 @@ Module Contents
 
    .. py:method:: load_icon()
 
+      Load and resize the icon from the icon folder.
+
+      Falls back to 'default.png' if the specified icon cannot be found.
+
+
 
    .. py:method:: get_icon_path(icon_name)
+
+      Get the full path to the icon file.
+
+      :param icon_name: Icon name without extension.
+      :type icon_name: str
+
+      :returns: Full path to the icon file.
+      :rtype: str
+
 
 
    .. py:method:: on_enter(event=None)
 
+      Handle mouse hover enter event.
+
+      Changes button color, shows description, and animates zoom-in if enabled.
+
+
 
    .. py:method:: on_leave(event=None)
+
+      Handle mouse hover leave event.
+
+      Resets button color, clears description, and animates zoom-out if enabled.
+
 
 
    .. py:method:: on_click(event=None)
 
+      Trigger the button's command callback when clicked.
+
+
 
    .. py:method:: create_rounded_rectangle(x1, y1, x2, y2, radius=20, **kwargs)
+
+      Create a rounded rectangle on the canvas.
+
+      :param x1: Coordinates of the rectangle.
+      :type x1: int
+      :param y1: Coordinates of the rectangle.
+      :type y1: int
+      :param x2: Coordinates of the rectangle.
+      :type x2: int
+      :param y2: Coordinates of the rectangle.
+      :type y2: int
+      :param radius: Radius of the corners.
+      :type radius: int
+      :param \*\*kwargs: Passed to `create_polygon`.
+
+      :returns: Canvas item ID of the rounded rectangle.
+      :rtype: int
+
 
 
    .. py:method:: update_description(event)
 
+      Call parent container’s `show_description()` if available,
+      passing the description based on `main_buttons` or `additional_buttons` maps.
+
+
 
    .. py:method:: clear_description(event)
+
+      Call parent container’s `clear_description()` if available.
+
 
 
    .. py:method:: animate_zoom(target_scale, steps=10, delay=10)
 
+      Animate zoom effect by resizing icon incrementally.
+
+      :param target_scale: Final scale factor relative to base icon size.
+      :type target_scale: float
+      :param steps: Number of animation steps. Defaults to 10.
+      :type steps: int
+      :param delay: Delay between steps in milliseconds. Defaults to 10.
+      :type delay: int
+
+
 
    .. py:method:: zoom_icon(scale_factor)
+
+      Resize and update the icon image on the canvas.
+
+      :param scale_factor: Scaling factor relative to base icon size.
+      :type scale_factor: float
+
 
 
 .. py:class:: spacrSwitch(parent, text='', variable=None, command=None, *args, **kwargs)
@@ -1400,18 +1540,22 @@ Module Contents
    Bases: :py:obj:`tkinter.ttk.Frame`
 
 
-   Ttk Frame widget is a container, used to group other widgets
-   together.
+   A custom toggle switch widget with animated transitions and label, styled using the spacr dark theme.
 
-   Construct a Ttk Frame with parent master.
+   This switch mimics a physical toggle with animated motion of the switch knob and changes in color.
 
-   STANDARD OPTIONS
+   Initialize the spacrSwitch widget.
 
-       class, cursor, style, takefocus
-
-   WIDGET-SPECIFIC OPTIONS
-
-       borderwidth, relief, padding, width, height
+   :param parent: Parent container.
+   :type parent: tk.Widget
+   :param text: Label displayed to the left of the switch.
+   :type text: str
+   :param variable: Tkinter BooleanVar linked to the switch state.
+   :type variable: tk.BooleanVar, optional
+   :param command: Function to call when the switch is toggled.
+   :type command: callable, optional
+   :param \*args: Additional positional arguments for the Frame.
+   :param \*\*kwargs: Additional keyword arguments for the Frame.
 
 
    .. py:attribute:: text
@@ -1441,26 +1585,87 @@ Module Contents
 
    .. py:method:: toggle(event=None)
 
+      Toggle the state of the switch.
+
+      Updates the linked variable, animates the movement, and calls the `command` callback if defined.
+
+
 
    .. py:method:: update_switch()
+
+      Immediately update the switch position and color based on the current value of the variable.
+
 
 
    .. py:method:: animate_switch()
 
+      Trigger an animated transition of the switch knob between on and off states.
+
+
 
    .. py:method:: animate_movement(start_x, end_x, final_color)
+
+      Animate the horizontal movement of the switch knob.
+
+      :param start_x: Starting x-coordinate of the knob.
+      :type start_x: int
+      :param end_x: Ending x-coordinate of the knob.
+      :type end_x: int
+      :param final_color: Fill color of the knob at the end of the animation.
+      :type final_color: str
+
 
 
    .. py:method:: get()
 
+      Get the current Boolean value of the switch.
+
+      :returns: True if switch is on, False otherwise.
+      :rtype: bool
+
+
 
    .. py:method:: set(value)
+
+      Set the switch to a given Boolean value.
+
+      :param value: New state for the switch.
+      :type value: bool
+
 
 
    .. py:method:: create_rounded_rectangle(x1, y1, x2, y2, radius=9, **kwargs)
 
+      Draw a rounded rectangle polygon on the canvas.
+
+      :param x1: Coordinates of the rectangle bounds.
+      :type x1: int
+      :param y1: Coordinates of the rectangle bounds.
+      :type y1: int
+      :param x2: Coordinates of the rectangle bounds.
+      :type x2: int
+      :param y2: Coordinates of the rectangle bounds.
+      :type y2: int
+      :param radius: Radius of corner curvature.
+      :type radius: int
+      :param \*\*kwargs: Options passed to `create_polygon`.
+
+      :returns: ID of the created polygon item on the canvas.
+      :rtype: int
+
+
 
 .. py:class:: spacrToolTip(widget, text)
+
+   A simple tooltip widget for displaying hover text in a Tkinter application using spacr dark styling.
+
+   Initialize the tooltip for a given widget.
+
+   :param widget: The widget to attach the tooltip to.
+   :type widget: tk.Widget
+   :param text: The text to display in the tooltip.
+   :type text: str
+
 
    .. py:attribute:: widget
 
@@ -1475,11 +1680,34 @@ Module Contents
 
    .. py:method:: show_tooltip(event)
 
+      Display the tooltip near the cursor when mouse enters the widget.
+
+
 
    .. py:method:: hide_tooltip(event)
 
+      Hide and destroy the tooltip when mouse leaves the widget.
+
+
 
 .. py:function:: standardize_figure(fig)
+
+   Apply standardized appearance settings to a matplotlib figure using spaCR GUI style preferences.
+
+   This includes:
+   - Setting font size and font family based on spaCR's theme
+   - Setting text and spine colors to match spaCR foreground color
+   - Applying OpenSans font via `font_loader`
+   - Removing top and right spines
+   - Setting line and spine widths
+   - Adjusting background and grid colors
+
+   :param fig: The matplotlib figure to standardize.
+   :type fig: matplotlib.figure.Figure
+
+   :returns: The updated figure with standardized style.
+   :rtype: matplotlib.figure.Figure
+
 
 .. py:function:: modify_figure_properties(fig, scale_x=None, scale_y=None, line_width=None, font_size=None, x_lim=None, y_lim=None, grid=False, legend=None, title=None, x_label_rotation=None, remove_axes=False, bg_color=None, text_color=None, line_color=None)
 
@@ -1505,10 +1733,69 @@ Module Contents
 
 .. py:function:: save_figure_as_format(fig, file_format)
 
+   Opens a file dialog to save a matplotlib figure in the specified format.
+
+   Prompts the user to choose a save location and filename using a file dialog.
+   The figure is saved using the provided format if a valid path is selected.
+
+   :param fig: The figure to save.
+   :type fig: matplotlib.figure.Figure
+   :param file_format: The file format to save as (e.g., 'png', 'pdf', 'svg').
+   :type file_format: str
+
+   :returns: None
+
+
 .. py:function:: modify_figure(fig)
+
+   Opens a GUI window for interactively modifying various properties of a matplotlib figure.
+
+   This function allows users to:
+   - Rescale the X and Y axes
+   - Change line width and font size
+   - Set axis limits and title
+   - Customize colors (background, text, line)
+   - Rotate x-axis labels
+   - Enable/disable grid, legend, and axes
+   - Toggle spine visibility ("spleens")
+
+   Once modifications are entered and applied, the figure is updated and re-rendered via `display_figure`.
+
+   :param fig: The matplotlib figure to modify.
+   :type fig: matplotlib.figure.Figure
+
+   :returns: None
+
 
 .. py:function:: generate_dna_matrix(output_path='dna_matrix.gif', canvas_width=1500, canvas_height=1000, duration=30, fps=20, base_size=20, transition_frames=30, font_type='arial.ttf', enhance=[1.1, 1.5, 1.2, 1.5], lowercase_prob=0.3)
 
-   Generate a DNA matrix animation and save it as GIF, MP4, or AVI using OpenCV for videos.
+   Generates an animated matrix-style DNA sequence visual and saves it as a GIF or video.
+
+   The animation simulates vertical streams of random DNA bases ('A', 'T', 'C', 'G') cascading down the screen.
+   Each column has independently scrolling strings of bases. The latest base in each stream is highlighted,
+   and fading effects, coloring, and random lowercase transformations are applied for visual flair.
+
+   :param output_path: Path to the output file (should end in .gif, .mp4, or .avi).
+   :type output_path: str
+   :param canvas_width: Width of the canvas in pixels.
+   :type canvas_width: int
+   :param canvas_height: Height of the canvas in pixels.
+   :type canvas_height: int
+   :param duration: Duration of the animation in seconds.
+   :type duration: int
+   :param fps: Frames per second of the animation.
+   :type fps: int
+   :param base_size: Font size (in pixels) for the bases.
+   :type base_size: int
+   :param transition_frames: Number of frames for the looping transition.
+   :type transition_frames: int
+   :param font_type: Path to a .ttf font to use. Defaults to Arial.
+   :type font_type: str
+   :param enhance: List of four enhancement multipliers for [brightness, sharpness, contrast, saturation].
+   :type enhance: list
+   :param lowercase_prob: Probability that a given base will be drawn in lowercase.
+   :type lowercase_prob: float
+
+   :returns: None
 
 

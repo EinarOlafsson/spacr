@@ -878,6 +878,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../gui_elements/index.html#spacr.gui_elements.spacrScrollbarStyle"><code class="docutils literal notranslate"><span class="pre">spacrScrollbarStyle()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../gui_elements/index.html#spacr.gui_elements.spacrFrame"><code class="docutils literal notranslate"><span class="pre">spacrFrame</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../gui_elements/index.html#spacr.gui_elements.spacrFrame.scrollable_frame"><code class="docutils literal notranslate"><span class="pre">spacrFrame.scrollable_frame</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../gui_elements/index.html#spacr.gui_elements.spacrFrame.inactive_color"><code class="docutils literal notranslate"><span class="pre">spacrFrame.inactive_color</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../gui_elements/index.html#spacr.gui_elements.spacrFrame.active_color"><code class="docutils literal notranslate"><span class="pre">spacrFrame.active_color</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../gui_elements/index.html#spacr.gui_elements.spacrFrame.fg_color"><code class="docutils literal notranslate"><span class="pre">spacrFrame.fg_color</span></code></a></li>
@@ -1540,9 +1541,26 @@ parent_frame: Not used directly, but kept for potential extension.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_core.check_src_folders_files">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_core.</span></span><span class="sig-name descname"><span class="pre">check_src_folders_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_core.html#check_src_folders_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_core.check_src_folders_files" title="Link to this definition"></a></dt>
-<dd><p>Checks if ‘src’ is a key in the settings dictionary and if it exists as a valid path.
-If ‘src’ is a list, iterates through the list and checks each path.
-If any path is missing, prompts the user to edit or remove invalid paths.</p>
+<dd><p>Verifies that source folder paths exist and contain the necessary subfolders and/or image files
+depending on the selected processing <cite>settings_type</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>settings</strong> (<em>dict</em>) – A dictionary containing at least the key <cite>“src”</cite> with either a string path or a list of paths.</p></li>
+<li><p><strong>settings_type</strong> (<em>str</em>) – Type of operation. Supported values include:
+- ‘mask’: Requires image-containing subfolders or raw image files.
+- ‘measure’: Requires ‘merged’ subfolder containing <cite>.npy</cite> files.
+(Other types like ‘regression’, ‘umap’, ‘classify’ are commented out.)</p></li>
+<li><p><strong>q</strong> (<em>queue.Queue</em>) – A thread-safe queue to which error messages are pushed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><cite>True</cite> if validation fails (request should stop), <cite>False</cite> if all required paths and files exist.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">

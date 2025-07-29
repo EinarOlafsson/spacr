@@ -878,6 +878,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#spacr.gui_elements.spacrScrollbarStyle"><code class="docutils literal notranslate"><span class="pre">spacrScrollbarStyle()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#spacr.gui_elements.spacrFrame"><code class="docutils literal notranslate"><span class="pre">spacrFrame</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.spacrFrame.scrollable_frame"><code class="docutils literal notranslate"><span class="pre">spacrFrame.scrollable_frame</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.spacrFrame.inactive_color"><code class="docutils literal notranslate"><span class="pre">spacrFrame.inactive_color</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.spacrFrame.active_color"><code class="docutils literal notranslate"><span class="pre">spacrFrame.active_color</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spacr.gui_elements.spacrFrame.fg_color"><code class="docutils literal notranslate"><span class="pre">spacrFrame.fg_color</span></code></a></li>
@@ -2385,17 +2386,34 @@ them from the base theme.</p>
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrFrame">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">spacrFrame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'black'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scrollbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">textbox</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrFrame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrFrame" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">tkinter.ttk.Frame</span></code></p>
-<p>Ttk Frame widget is a container, used to group other widgets
-together.</p>
-<p>Construct a Ttk Frame with parent master.</p>
-<p>STANDARD OPTIONS</p>
-<blockquote>
-<div><p>class, cursor, style, takefocus</p>
-</div></blockquote>
-<p>WIDGET-SPECIFIC OPTIONS</p>
-<blockquote>
-<div><p>borderwidth, relief, padding, width, height</p>
-</div></blockquote>
+<p>A styled frame with optional rounded background, vertical scrollbar, and embedded content area (text or widgets).</p>
+<p>This frame supports both scrollable <cite>ttk.Frame</cite> containers and scrollable <cite>tk.Text</cite> areas, with a dark custom theme.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.gui_elements.spacrFrame.scrollable_frame">
+<span class="sig-name descname"><span class="pre">scrollable_frame</span></span><a class="headerlink" href="#spacr.gui_elements.spacrFrame.scrollable_frame" title="Link to this definition"></a></dt>
+<dd><p>The inner content widget.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Union[ttk.Frame, tk.Text]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Initialize the spacrFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>container</strong> (<em>tk.Widget</em>) – The parent container for this frame.</p></li>
+<li><p><strong>width</strong> (<em>int</em><em>, </em><em>optional</em>) – Width of the frame in pixels. Defaults to 1/4 of screen width if None.</p></li>
+<li><p><strong>*args</strong> – Additional positional arguments for ttk.Frame.</p></li>
+<li><p><strong>bg</strong> (<em>str</em>) – Background color of the frame. Defaults to ‘black’.</p></li>
+<li><p><strong>radius</strong> (<em>int</em>) – Radius of the rounded rectangle background. Defaults to 20.</p></li>
+<li><p><strong>scrollbar</strong> (<em>bool</em>) – Whether to include a vertical scrollbar. Defaults to True.</p></li>
+<li><p><strong>textbox</strong> (<em>bool</em>) – If True, use a scrollable <cite>tk.Text</cite> widget. Otherwise, use a <cite>ttk.Frame</cite>. Defaults to False.</p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments for ttk.Frame.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrFrame.inactive_color">
 <span class="sig-name descname"><span class="pre">inactive_color</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'dark_gray'</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrFrame.inactive_color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrFrame.inactive_color" title="Link to this definition"></a></dt>
@@ -2414,7 +2432,27 @@ together.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrFrame.rounded_rectangle">
 <span class="sig-name descname"><span class="pre">rounded_rectangle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">canvas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrFrame.rounded_rectangle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrFrame.rounded_rectangle" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Draw a rounded rectangle on a canvas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>canvas</strong> (<em>tk.Canvas</em>) – The canvas to draw on.</p></li>
+<li><p><strong>x1</strong> (<em>int</em>) – Left coordinate.</p></li>
+<li><p><strong>y1</strong> (<em>int</em>) – Top coordinate.</p></li>
+<li><p><strong>x2</strong> (<em>int</em>) – Right coordinate.</p></li>
+<li><p><strong>y2</strong> (<em>int</em>) – Bottom coordinate.</p></li>
+<li><p><strong>radius</strong> (<em>int</em>) – Radius of the rounded corners. Defaults to 20.</p></li>
+<li><p><strong>**kwargs</strong> – Options passed to the canvas <cite>create_polygon</cite> method.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>ID of the created polygon.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -2422,11 +2460,22 @@ together.</p>
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrLabel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">spacrLabel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">align</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'right'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrLabel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrLabel" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">tkinter.Frame</span></code></p>
-<p>Frame widget which may contain other widgets and can have a 3D border.</p>
-<p>Construct a frame widget with the parent MASTER.</p>
-<p>Valid resource names: background, bd, bg, borderwidth, class,
-colormap, container, cursor, height, highlightbackground,
-highlightcolor, highlightthickness, relief, takefocus, visual, width.</p>
+<p>A custom label widget with optional dark styling, alignment options, and support for both <cite>ttk.Label</cite> and <cite>Canvas</cite>-rendered text.</p>
+<p>The label adapts to screen size or a given height, and can display text either centered or right-aligned.</p>
+<p>Initialize the spacrLabel widget.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parent</strong> (<em>tk.Widget</em>) – The parent widget.</p></li>
+<li><p><strong>text</strong> (<em>str</em>) – The text to display on the label. Defaults to “”.</p></li>
+<li><p><strong>font</strong> (<em>tkFont.Font</em><em>, </em><em>optional</em>) – A custom font to use if not using the default style. Defaults to None.</p></li>
+<li><p><strong>style</strong> (<em>str</em><em>, </em><em>optional</em>) – A ttk style name to apply to the label. If set, uses a <cite>ttk.Label</cite> instead of <cite>Canvas</cite> text.</p></li>
+<li><p><strong>align</strong> (<em>str</em>) – Text alignment, either “right” or “center”. Defaults to “right”.</p></li>
+<li><p><strong>height</strong> (<em>int</em><em>, </em><em>optional</em>) – Height of the label. If None, scales based on screen height.</p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments for the outer frame (excluding font/background/anchor-specific ones).</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrLabel.text">
 <span class="sig-name descname"><span class="pre">text</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrLabel.text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrLabel.text" title="Link to this definition"></a></dt>
@@ -2475,7 +2524,13 @@ highlightcolor, highlightthickness, relief, takefocus, visual, width.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrLabel.set_text">
 <span class="sig-name descname"><span class="pre">set_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrLabel.set_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrLabel.set_text" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Update the label text.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>text</strong> (<em>str</em>) – The new text to display.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -2483,11 +2538,27 @@ highlightcolor, highlightthickness, relief, takefocus, visual, width.</p>
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrButton">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">spacrButton</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">icon_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">animation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrButton"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrButton" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">tkinter.Frame</span></code></p>
-<p>Frame widget which may contain other widgets and can have a 3D border.</p>
-<p>Construct a frame widget with the parent MASTER.</p>
-<p>Valid resource names: background, bd, bg, borderwidth, class,
-colormap, container, cursor, height, highlightbackground,
-highlightcolor, highlightthickness, relief, takefocus, visual, width.</p>
+<p>A custom animated button widget with icon and optional text, styled with dark mode and zoom animation on hover.</p>
+<p>The button is rendered using a Canvas to support rounded corners and icon embedding. Optional description
+display is supported via parent methods <cite>show_description</cite> and <cite>clear_description</cite>.</p>
+<p>Initialize the spacrButton.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parent</strong> (<em>tk.Widget</em>) – The parent container.</p></li>
+<li><p><strong>text</strong> (<em>str</em>) – Button text to display.</p></li>
+<li><p><strong>command</strong> (<em>callable</em><em>, </em><em>optional</em>) – Function to call when button is clicked.</p></li>
+<li><p><strong>font</strong> (<em>tkFont.Font</em><em> or </em><em>tuple</em><em>, </em><em>optional</em>) – Font to use if font loader is unavailable.</p></li>
+<li><p><strong>icon_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of icon (without extension) to load from resources/icons.</p></li>
+<li><p><strong>size</strong> (<em>int</em>) – Button height (and icon size reference). Defaults to 50.</p></li>
+<li><p><strong>show_text</strong> (<em>bool</em>) – Whether to show text next to the icon. Defaults to True.</p></li>
+<li><p><strong>outline</strong> (<em>bool</em>) – Whether to draw a border around the button. Defaults to False.</p></li>
+<li><p><strong>animation</strong> (<em>bool</em>) – Whether to animate the icon on hover. Defaults to True.</p></li>
+<li><p><strong>*args</strong> – Additional positional arguments for the Frame.</p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments for the Frame.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrButton.text">
 <span class="sig-name descname"><span class="pre">text</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrButton.text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrButton.text" title="Link to this definition"></a></dt>
@@ -2566,52 +2637,109 @@ highlightcolor, highlightthickness, relief, takefocus, visual, width.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrButton.load_icon">
 <span class="sig-name descname"><span class="pre">load_icon</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrButton.load_icon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrButton.load_icon" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Load and resize the icon from the icon folder.</p>
+<p>Falls back to ‘default.png’ if the specified icon cannot be found.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrButton.get_icon_path">
 <span class="sig-name descname"><span class="pre">get_icon_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">icon_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrButton.get_icon_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrButton.get_icon_path" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Get the full path to the icon file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>icon_name</strong> (<em>str</em>) – Icon name without extension.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Full path to the icon file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrButton.on_enter">
 <span class="sig-name descname"><span class="pre">on_enter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrButton.on_enter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrButton.on_enter" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Handle mouse hover enter event.</p>
+<p>Changes button color, shows description, and animates zoom-in if enabled.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrButton.on_leave">
 <span class="sig-name descname"><span class="pre">on_leave</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrButton.on_leave"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrButton.on_leave" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Handle mouse hover leave event.</p>
+<p>Resets button color, clears description, and animates zoom-out if enabled.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrButton.on_click">
 <span class="sig-name descname"><span class="pre">on_click</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrButton.on_click"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrButton.on_click" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Trigger the button’s command callback when clicked.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrButton.create_rounded_rectangle">
 <span class="sig-name descname"><span class="pre">create_rounded_rectangle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrButton.create_rounded_rectangle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrButton.create_rounded_rectangle" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Create a rounded rectangle on the canvas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x1</strong> (<em>int</em>) – Coordinates of the rectangle.</p></li>
+<li><p><strong>y1</strong> (<em>int</em>) – Coordinates of the rectangle.</p></li>
+<li><p><strong>x2</strong> (<em>int</em>) – Coordinates of the rectangle.</p></li>
+<li><p><strong>y2</strong> (<em>int</em>) – Coordinates of the rectangle.</p></li>
+<li><p><strong>radius</strong> (<em>int</em>) – Radius of the corners.</p></li>
+<li><p><strong>**kwargs</strong> – Passed to <cite>create_polygon</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Canvas item ID of the rounded rectangle.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrButton.update_description">
 <span class="sig-name descname"><span class="pre">update_description</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrButton.update_description"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrButton.update_description" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Call parent container’s <cite>show_description()</cite> if available,
+passing the description based on <cite>main_buttons</cite> or <cite>additional_buttons</cite> maps.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrButton.clear_description">
 <span class="sig-name descname"><span class="pre">clear_description</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrButton.clear_description"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrButton.clear_description" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Call parent container’s <cite>clear_description()</cite> if available.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrButton.animate_zoom">
 <span class="sig-name descname"><span class="pre">animate_zoom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrButton.animate_zoom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrButton.animate_zoom" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Animate zoom effect by resizing icon incrementally.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_scale</strong> (<em>float</em>) – Final scale factor relative to base icon size.</p></li>
+<li><p><strong>steps</strong> (<em>int</em>) – Number of animation steps. Defaults to 10.</p></li>
+<li><p><strong>delay</strong> (<em>int</em>) – Delay between steps in milliseconds. Defaults to 10.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrButton.zoom_icon">
 <span class="sig-name descname"><span class="pre">zoom_icon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrButton.zoom_icon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrButton.zoom_icon" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Resize and update the icon image on the canvas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>scale_factor</strong> (<em>float</em>) – Scaling factor relative to base icon size.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -2619,17 +2747,21 @@ highlightcolor, highlightthickness, relief, takefocus, visual, width.</p>
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrSwitch">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">spacrSwitch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrSwitch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrSwitch" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">tkinter.ttk.Frame</span></code></p>
-<p>Ttk Frame widget is a container, used to group other widgets
-together.</p>
-<p>Construct a Ttk Frame with parent master.</p>
-<p>STANDARD OPTIONS</p>
-<blockquote>
-<div><p>class, cursor, style, takefocus</p>
-</div></blockquote>
-<p>WIDGET-SPECIFIC OPTIONS</p>
-<blockquote>
-<div><p>borderwidth, relief, padding, width, height</p>
-</div></blockquote>
+<p>A custom toggle switch widget with animated transitions and label, styled using the spacr dark theme.</p>
+<p>This switch mimics a physical toggle with animated motion of the switch knob and changes in color.</p>
+<p>Initialize the spacrSwitch widget.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parent</strong> (<em>tk.Widget</em>) – Parent container.</p></li>
+<li><p><strong>text</strong> (<em>str</em>) – Label displayed to the left of the switch.</p></li>
+<li><p><strong>variable</strong> (<em>tk.BooleanVar</em><em>, </em><em>optional</em>) – Tkinter BooleanVar linked to the switch state.</p></li>
+<li><p><strong>command</strong> (<em>callable</em><em>, </em><em>optional</em>) – Function to call when the switch is toggled.</p></li>
+<li><p><strong>*args</strong> – Additional positional arguments for the Frame.</p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments for the Frame.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrSwitch.text">
 <span class="sig-name descname"><span class="pre">text</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrSwitch.text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrSwitch.text" title="Link to this definition"></a></dt>
@@ -2668,44 +2800,102 @@ together.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrSwitch.toggle">
 <span class="sig-name descname"><span class="pre">toggle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrSwitch.toggle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrSwitch.toggle" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Toggle the state of the switch.</p>
+<p>Updates the linked variable, animates the movement, and calls the <cite>command</cite> callback if defined.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrSwitch.update_switch">
 <span class="sig-name descname"><span class="pre">update_switch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrSwitch.update_switch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrSwitch.update_switch" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Immediately update the switch position and color based on the current value of the variable.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrSwitch.animate_switch">
 <span class="sig-name descname"><span class="pre">animate_switch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrSwitch.animate_switch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrSwitch.animate_switch" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Trigger an animated transition of the switch knob between on and off states.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrSwitch.animate_movement">
 <span class="sig-name descname"><span class="pre">animate_movement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_color</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrSwitch.animate_movement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrSwitch.animate_movement" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Animate the horizontal movement of the switch knob.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start_x</strong> (<em>int</em>) – Starting x-coordinate of the knob.</p></li>
+<li><p><strong>end_x</strong> (<em>int</em>) – Ending x-coordinate of the knob.</p></li>
+<li><p><strong>final_color</strong> (<em>str</em>) – Fill color of the knob at the end of the animation.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrSwitch.get">
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrSwitch.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrSwitch.get" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Get the current Boolean value of the switch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if switch is on, False otherwise.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrSwitch.set">
 <span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrSwitch.set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrSwitch.set" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Set the switch to a given Boolean value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>bool</em>) – New state for the switch.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrSwitch.create_rounded_rectangle">
 <span class="sig-name descname"><span class="pre">create_rounded_rectangle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">9</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrSwitch.create_rounded_rectangle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrSwitch.create_rounded_rectangle" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Draw a rounded rectangle polygon on the canvas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x1</strong> (<em>int</em>) – Coordinates of the rectangle bounds.</p></li>
+<li><p><strong>y1</strong> (<em>int</em>) – Coordinates of the rectangle bounds.</p></li>
+<li><p><strong>x2</strong> (<em>int</em>) – Coordinates of the rectangle bounds.</p></li>
+<li><p><strong>y2</strong> (<em>int</em>) – Coordinates of the rectangle bounds.</p></li>
+<li><p><strong>radius</strong> (<em>int</em>) – Radius of corner curvature.</p></li>
+<li><p><strong>**kwargs</strong> – Options passed to <cite>create_polygon</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>ID of the created polygon item on the canvas.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrToolTip">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">spacrToolTip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">widget</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrToolTip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrToolTip" title="Link to this definition"></a></dt>
-<dd><dl class="py attribute">
+<dd><p>A simple tooltip widget for displaying hover text in a Tkinter application using spacr dark styling.</p>
+<p>Initialize the tooltip for a given widget.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>widget</strong> (<em>tk.Widget</em>) – The widget to attach the tooltip to.</p></li>
+<li><p><strong>text</strong> (<em>str</em>) – The text to display in the tooltip.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrToolTip.widget">
 <span class="sig-name descname"><span class="pre">widget</span></span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrToolTip.widget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrToolTip.widget" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -2723,19 +2913,40 @@ together.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrToolTip.show_tooltip">
 <span class="sig-name descname"><span class="pre">show_tooltip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrToolTip.show_tooltip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrToolTip.show_tooltip" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Display the tooltip near the cursor when mouse enters the widget.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.spacrToolTip.hide_tooltip">
 <span class="sig-name descname"><span class="pre">hide_tooltip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#spacrToolTip.hide_tooltip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.spacrToolTip.hide_tooltip" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Hide and destroy the tooltip when mouse leaves the widget.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_elements.standardize_figure">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">standardize_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#standardize_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.standardize_figure" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Apply standardized appearance settings to a matplotlib figure using spaCR GUI style preferences.</p>
+<p>This includes:
+- Setting font size and font family based on spaCR’s theme
+- Setting text and spine colors to match spaCR foreground color
+- Applying OpenSans font via <cite>font_loader</cite>
+- Removing top and right spines
+- Setting line and spine widths
+- Adjusting background and grid colors</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fig</strong> (<em>matplotlib.figure.Figure</em>) – The matplotlib figure to standardize.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The updated figure with standardized style.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>matplotlib.figure.Figure</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_elements.modify_figure_properties">
@@ -2762,17 +2973,71 @@ together.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_elements.save_figure_as_format">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">save_figure_as_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_format</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#save_figure_as_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.save_figure_as_format" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Opens a file dialog to save a matplotlib figure in the specified format.</p>
+<p>Prompts the user to choose a save location and filename using a file dialog.
+The figure is saved using the provided format if a valid path is selected.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fig</strong> (<em>matplotlib.figure.Figure</em>) – The figure to save.</p></li>
+<li><p><strong>file_format</strong> (<em>str</em>) – The file format to save as (e.g., ‘png’, ‘pdf’, ‘svg’).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_elements.modify_figure">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">modify_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#modify_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.modify_figure" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Opens a GUI window for interactively modifying various properties of a matplotlib figure.</p>
+<p>This function allows users to:
+- Rescale the X and Y axes
+- Change line width and font size
+- Set axis limits and title
+- Customize colors (background, text, line)
+- Rotate x-axis labels
+- Enable/disable grid, legend, and axes
+- Toggle spine visibility (“spleens”)</p>
+<p>Once modifications are entered and applied, the figure is updated and re-rendered via <cite>display_figure</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fig</strong> (<em>matplotlib.figure.Figure</em>) – The matplotlib figure to modify.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.gui_elements.generate_dna_matrix">
 <span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">generate_dna_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dna_matrix.gif'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">canvas_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">canvas_height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_frames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'arial.ttf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enhance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1.1,</span> <span class="pre">1.5,</span> <span class="pre">1.2,</span> <span class="pre">1.5]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lowercase_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#generate_dna_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.generate_dna_matrix" title="Link to this definition"></a></dt>
-<dd><p>Generate a DNA matrix animation and save it as GIF, MP4, or AVI using OpenCV for videos.</p>
+<dd><p>Generates an animated matrix-style DNA sequence visual and saves it as a GIF or video.</p>
+<p>The animation simulates vertical streams of random DNA bases (‘A’, ‘T’, ‘C’, ‘G’) cascading down the screen.
+Each column has independently scrolling strings of bases. The latest base in each stream is highlighted,
+and fading effects, coloring, and random lowercase transformations are applied for visual flair.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output_path</strong> (<em>str</em>) – Path to the output file (should end in .gif, .mp4, or .avi).</p></li>
+<li><p><strong>canvas_width</strong> (<em>int</em>) – Width of the canvas in pixels.</p></li>
+<li><p><strong>canvas_height</strong> (<em>int</em>) – Height of the canvas in pixels.</p></li>
+<li><p><strong>duration</strong> (<em>int</em>) – Duration of the animation in seconds.</p></li>
+<li><p><strong>fps</strong> (<em>int</em>) – Frames per second of the animation.</p></li>
+<li><p><strong>base_size</strong> (<em>int</em>) – Font size (in pixels) for the bases.</p></li>
+<li><p><strong>transition_frames</strong> (<em>int</em>) – Number of frames for the looping transition.</p></li>
+<li><p><strong>font_type</strong> (<em>str</em>) – Path to a .ttf font to use. Defaults to Arial.</p></li>
+<li><p><strong>enhance</strong> (<em>list</em>) – List of four enhancement multipliers for [brightness, sharpness, contrast, saturation].</p></li>
+<li><p><strong>lowercase_prob</strong> (<em>float</em>) – Probability that a given base will be drawn in lowercase.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

@@ -875,6 +875,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrScrollbarStyle"><code class="docutils literal notranslate"><span class="pre">spacrScrollbarStyle()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrFrame"><code class="docutils literal notranslate"><span class="pre">spacrFrame</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrFrame.scrollable_frame"><code class="docutils literal notranslate"><span class="pre">spacrFrame.scrollable_frame</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrFrame.inactive_color"><code class="docutils literal notranslate"><span class="pre">spacrFrame.inactive_color</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrFrame.active_color"><code class="docutils literal notranslate"><span class="pre">spacrFrame.active_color</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrFrame.fg_color"><code class="docutils literal notranslate"><span class="pre">spacrFrame.fg_color</span></code></a></li>
@@ -2928,7 +2929,28 @@
 <div class="viewcode-block" id="spacrFrame">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrFrame">[docs]</a>
 <span class="k">class</span> <span class="nc">spacrFrame</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Frame</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A styled frame with optional rounded background, vertical scrollbar, and embedded content area (text or widgets).</span>
+<span class="sd">    </span>
+<span class="sd">    This frame supports both scrollable `ttk.Frame` containers and scrollable `tk.Text` areas, with a dark custom theme.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        scrollable_frame (Union[ttk.Frame, tk.Text]): The inner content widget.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">container</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">scrollbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">textbox</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the spacrFrame.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            container (tk.Widget): The parent container for this frame.</span>
+<span class="sd">            width (int, optional): Width of the frame in pixels. Defaults to 1/4 of screen width if None.</span>
+<span class="sd">            *args: Additional positional arguments for ttk.Frame.</span>
+<span class="sd">            bg (str): Background color of the frame. Defaults to &#39;black&#39;.</span>
+<span class="sd">            radius (int): Radius of the rounded rectangle background. Defaults to 20.</span>
+<span class="sd">            scrollbar (bool): Whether to include a vertical scrollbar. Defaults to True.</span>
+<span class="sd">            textbox (bool): If True, use a scrollable `tk.Text` widget. Otherwise, use a `ttk.Frame`. Defaults to False.</span>
+<span class="sd">            **kwargs: Additional keyword arguments for ttk.Frame.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;TFrame&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">width</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -2991,6 +3013,21 @@
 <div class="viewcode-block" id="spacrFrame.rounded_rectangle">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrFrame.rounded_rectangle">[docs]</a>
     <span class="k">def</span> <span class="nf">rounded_rectangle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Draw a rounded rectangle on a canvas.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            canvas (tk.Canvas): The canvas to draw on.</span>
+<span class="sd">            x1 (int): Left coordinate.</span>
+<span class="sd">            y1 (int): Top coordinate.</span>
+<span class="sd">            x2 (int): Right coordinate.</span>
+<span class="sd">            y2 (int): Bottom coordinate.</span>
+<span class="sd">            radius (int): Radius of the rounded corners. Defaults to 20.</span>
+<span class="sd">            **kwargs: Options passed to the canvas `create_polygon` method.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: ID of the created polygon.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">points</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">x1</span> <span class="o">+</span> <span class="n">radius</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span>
             <span class="n">x2</span> <span class="o">-</span> <span class="n">radius</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span>
@@ -3017,7 +3054,24 @@
 <div class="viewcode-block" id="spacrLabel">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrLabel">[docs]</a>
 <span class="k">class</span> <span class="nc">spacrLabel</span><span class="p">(</span><span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A custom label widget with optional dark styling, alignment options, and support for both `ttk.Label` and `Canvas`-rendered text.</span>
+<span class="sd">    </span>
+<span class="sd">    The label adapts to screen size or a given height, and can display text either centered or right-aligned.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the spacrLabel widget.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            parent (tk.Widget): The parent widget.</span>
+<span class="sd">            text (str): The text to display on the label. Defaults to &quot;&quot;.</span>
+<span class="sd">            font (tkFont.Font, optional): A custom font to use if not using the default style. Defaults to None.</span>
+<span class="sd">            style (str, optional): A ttk style name to apply to the label. If set, uses a `ttk.Label` instead of `Canvas` text.</span>
+<span class="sd">            align (str): Text alignment, either &quot;right&quot; or &quot;center&quot;. Defaults to &quot;right&quot;.</span>
+<span class="sd">            height (int, optional): Height of the label. If None, scales based on screen height.</span>
+<span class="sd">            **kwargs: Additional keyword arguments for the outer frame (excluding font/background/anchor-specific ones).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">valid_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;foreground&#39;</span><span class="p">,</span> <span class="s1">&#39;background&#39;</span><span class="p">,</span> <span class="s1">&#39;font&#39;</span><span class="p">,</span> <span class="s1">&#39;anchor&#39;</span><span class="p">,</span> <span class="s1">&#39;justify&#39;</span><span class="p">,</span> <span class="s1">&#39;wraplength&#39;</span><span class="p">]}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="o">**</span><span class="n">valid_kwargs</span><span class="p">)</span>
         
@@ -3101,6 +3155,12 @@
 <div class="viewcode-block" id="spacrLabel.set_text">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrLabel.set_text">[docs]</a>
     <span class="k">def</span> <span class="nf">set_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the label text.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            text (str): The new text to display.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">label_text</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -3111,8 +3171,31 @@
 <div class="viewcode-block" id="spacrButton">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrButton">[docs]</a>
 <span class="k">class</span> <span class="nc">spacrButton</span><span class="p">(</span><span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A custom animated button widget with icon and optional text, styled with dark mode and zoom animation on hover.</span>
+
+<span class="sd">    The button is rendered using a Canvas to support rounded corners and icon embedding. Optional description</span>
+<span class="sd">    display is supported via parent methods `show_description` and `clear_description`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">icon_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">show_text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">outline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">animation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the spacrButton.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            parent (tk.Widget): The parent container.</span>
+<span class="sd">            text (str): Button text to display.</span>
+<span class="sd">            command (callable, optional): Function to call when button is clicked.</span>
+<span class="sd">            font (tkFont.Font or tuple, optional): Font to use if font loader is unavailable.</span>
+<span class="sd">            icon_name (str, optional): Name of icon (without extension) to load from resources/icons.</span>
+<span class="sd">            size (int): Button height (and icon size reference). Defaults to 50.</span>
+<span class="sd">            show_text (bool): Whether to show text next to the icon. Defaults to True.</span>
+<span class="sd">            outline (bool): Whether to draw a border around the button. Defaults to False.</span>
+<span class="sd">            animation (bool): Whether to animate the icon on hover. Defaults to True.</span>
+<span class="sd">            *args: Additional positional arguments for the Frame.</span>
+<span class="sd">            **kwargs: Additional keyword arguments for the Frame.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
         
 <div class="viewcode-block" id="spacrButton.text">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrButton.text">[docs]</a>
@@ -3214,6 +3297,11 @@
 <div class="viewcode-block" id="spacrButton.load_icon">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrButton.load_icon">[docs]</a>
     <span class="k">def</span> <span class="nf">load_icon</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load and resize the icon from the icon folder.</span>
+
+<span class="sd">        Falls back to &#39;default.png&#39; if the specified icon cannot be found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">icon_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_icon_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">icon_name</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">icon_image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">icon_path</span><span class="p">)</span>
@@ -3236,6 +3324,15 @@
 <div class="viewcode-block" id="spacrButton.get_icon_path">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrButton.get_icon_path">[docs]</a>
     <span class="k">def</span> <span class="nf">get_icon_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">icon_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the full path to the icon file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            icon_name (str): Icon name without extension.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Full path to the icon file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">icon_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;resources&#39;</span><span class="p">,</span> <span class="s1">&#39;icons&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">icon_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">icon_name</span><span class="si">}</span><span class="s2">.png&quot;</span><span class="p">)</span></div>
 
@@ -3243,6 +3340,11 @@
 <div class="viewcode-block" id="spacrButton.on_enter">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrButton.on_enter">[docs]</a>
     <span class="k">def</span> <span class="nf">on_enter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle mouse hover enter event.</span>
+
+<span class="sd">        Changes button color, shows description, and animates zoom-in if enabled.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">itemconfig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">button_bg</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">active_color</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_description</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">animation</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_zoomed_in</span><span class="p">:</span>
@@ -3252,6 +3354,11 @@
 <div class="viewcode-block" id="spacrButton.on_leave">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrButton.on_leave">[docs]</a>
     <span class="k">def</span> <span class="nf">on_leave</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle mouse hover leave event.</span>
+
+<span class="sd">        Resets button color, clears description, and animates zoom-out if enabled.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">itemconfig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">button_bg</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inactive_color</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">clear_description</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">animation</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_zoomed_in</span><span class="p">:</span>
@@ -3261,6 +3368,9 @@
 <div class="viewcode-block" id="spacrButton.on_click">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrButton.on_click">[docs]</a>
     <span class="k">def</span> <span class="nf">on_click</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Trigger the button&#39;s command callback when clicked.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">()</span></div>
 
@@ -3268,6 +3378,17 @@
 <div class="viewcode-block" id="spacrButton.create_rounded_rectangle">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrButton.create_rounded_rectangle">[docs]</a>
     <span class="k">def</span> <span class="nf">create_rounded_rectangle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a rounded rectangle on the canvas.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x1, y1, x2, y2 (int): Coordinates of the rectangle.</span>
+<span class="sd">            radius (int): Radius of the corners.</span>
+<span class="sd">            **kwargs: Passed to `create_polygon`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Canvas item ID of the rounded rectangle.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">points</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">x1</span> <span class="o">+</span> <span class="n">radius</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span>
             <span class="n">x2</span> <span class="o">-</span> <span class="n">radius</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span>
@@ -3293,6 +3414,10 @@
 <div class="viewcode-block" id="spacrButton.update_description">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrButton.update_description">[docs]</a>
     <span class="k">def</span> <span class="nf">update_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Call parent container’s `show_description()` if available,</span>
+<span class="sd">        passing the description based on `main_buttons` or `additional_buttons` maps.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">master</span>
         <span class="k">while</span> <span class="n">parent</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="s1">&#39;show_description&#39;</span><span class="p">):</span>
@@ -3304,6 +3429,9 @@
 <div class="viewcode-block" id="spacrButton.clear_description">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrButton.clear_description">[docs]</a>
     <span class="k">def</span> <span class="nf">clear_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Call parent container’s `clear_description()` if available.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">master</span>
         <span class="k">while</span> <span class="n">parent</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="s1">&#39;clear_description&#39;</span><span class="p">):</span>
@@ -3315,12 +3443,29 @@
 <div class="viewcode-block" id="spacrButton.animate_zoom">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrButton.animate_zoom">[docs]</a>
     <span class="k">def</span> <span class="nf">animate_zoom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_scale</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Animate zoom effect by resizing icon incrementally.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            target_scale (float): Final scale factor relative to base icon size.</span>
+<span class="sd">            steps (int): Number of animation steps. Defaults to 10.</span>
+<span class="sd">            delay (int): Delay between steps in milliseconds. Defaults to 10.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">current_scale</span> <span class="o">=</span> <span class="mf">0.85</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_zoomed_in</span> <span class="k">else</span> <span class="mf">0.65</span>
         <span class="n">step_scale</span> <span class="o">=</span> <span class="p">(</span><span class="n">target_scale</span> <span class="o">-</span> <span class="n">current_scale</span><span class="p">)</span> <span class="o">/</span> <span class="n">steps</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_animate_step</span><span class="p">(</span><span class="n">current_scale</span><span class="p">,</span> <span class="n">step_scale</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span></div>
 
 
     <span class="k">def</span> <span class="nf">_animate_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_scale</span><span class="p">,</span> <span class="n">step_scale</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="n">delay</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper method to perform recursive icon zoom animation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            current_scale (float): Current zoom scale.</span>
+<span class="sd">            step_scale (float): Incremental change per step.</span>
+<span class="sd">            steps (int): Steps remaining.</span>
+<span class="sd">            delay (int): Delay per step in ms.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">steps</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">new_scale</span> <span class="o">=</span> <span class="n">current_scale</span> <span class="o">+</span> <span class="n">step_scale</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">zoom_icon</span><span class="p">(</span><span class="n">new_scale</span><span class="p">)</span>
@@ -3331,6 +3476,12 @@
 <div class="viewcode-block" id="spacrButton.zoom_icon">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrButton.zoom_icon">[docs]</a>
     <span class="k">def</span> <span class="nf">zoom_icon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Resize and update the icon image on the canvas.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            scale_factor (float): Scaling factor relative to base icon size.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Resize the original icon image</span>
         <span class="n">new_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">*</span> <span class="n">scale_factor</span><span class="p">)</span>
         <span class="n">resized_icon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_icon_image</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="n">new_size</span><span class="p">,</span> <span class="n">new_size</span><span class="p">),</span> <span class="n">Image</span><span class="o">.</span><span class="n">Resampling</span><span class="o">.</span><span class="n">LANCZOS</span><span class="p">)</span>
@@ -3345,7 +3496,23 @@
 <div class="viewcode-block" id="spacrSwitch">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSwitch">[docs]</a>
 <span class="k">class</span> <span class="nc">spacrSwitch</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Frame</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A custom toggle switch widget with animated transitions and label, styled using the spacr dark theme.</span>
+
+<span class="sd">    This switch mimics a physical toggle with animated motion of the switch knob and changes in color.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the spacrSwitch widget.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            parent (tk.Widget): Parent container.</span>
+<span class="sd">            text (str): Label displayed to the left of the switch.</span>
+<span class="sd">            variable (tk.BooleanVar, optional): Tkinter BooleanVar linked to the switch state.</span>
+<span class="sd">            command (callable, optional): Function to call when the switch is toggled.</span>
+<span class="sd">            *args: Additional positional arguments for the Frame.</span>
+<span class="sd">            **kwargs: Additional keyword arguments for the Frame.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 <div class="viewcode-block" id="spacrSwitch.text">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSwitch.text">[docs]</a>
@@ -3388,6 +3555,11 @@
 <div class="viewcode-block" id="spacrSwitch.toggle">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSwitch.toggle">[docs]</a>
     <span class="k">def</span> <span class="nf">toggle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Toggle the state of the switch.</span>
+
+<span class="sd">        Updates the linked variable, animates the movement, and calls the `command` callback if defined.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">animate_switch</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">:</span>
@@ -3397,6 +3569,9 @@
 <div class="viewcode-block" id="spacrSwitch.update_switch">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSwitch.update_switch">[docs]</a>
     <span class="k">def</span> <span class="nf">update_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Immediately update the switch position and color based on the current value of the variable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">itemconfig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">switch</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s2">&quot;#008080&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">coords</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">switch</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">36</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
@@ -3408,6 +3583,9 @@
 <div class="viewcode-block" id="spacrSwitch.animate_switch">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSwitch.animate_switch">[docs]</a>
     <span class="k">def</span> <span class="nf">animate_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Trigger an animated transition of the switch knob between on and off states.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
             <span class="n">start_x</span><span class="p">,</span> <span class="n">end_x</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">24</span>
             <span class="n">final_color</span> <span class="o">=</span> <span class="s2">&quot;#008080&quot;</span>
@@ -3421,6 +3599,14 @@
 <div class="viewcode-block" id="spacrSwitch.animate_movement">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSwitch.animate_movement">[docs]</a>
     <span class="k">def</span> <span class="nf">animate_movement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_x</span><span class="p">,</span> <span class="n">end_x</span><span class="p">,</span> <span class="n">final_color</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Animate the horizontal movement of the switch knob.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            start_x (int): Starting x-coordinate of the knob.</span>
+<span class="sd">            end_x (int): Ending x-coordinate of the knob.</span>
+<span class="sd">            final_color (str): Fill color of the knob at the end of the animation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">step</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">start_x</span> <span class="o">&lt;</span> <span class="n">end_x</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_x</span><span class="p">,</span> <span class="n">end_x</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">coords</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">switch</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
@@ -3432,12 +3618,24 @@
 <div class="viewcode-block" id="spacrSwitch.get">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSwitch.get">[docs]</a>
     <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the current Boolean value of the switch.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if switch is on, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">get</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="spacrSwitch.set">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSwitch.set">[docs]</a>
     <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the switch to a given Boolean value.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value (bool): New state for the switch.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_switch</span><span class="p">()</span></div>
 
@@ -3445,6 +3643,17 @@
 <div class="viewcode-block" id="spacrSwitch.create_rounded_rectangle">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSwitch.create_rounded_rectangle">[docs]</a>
     <span class="k">def</span> <span class="nf">create_rounded_rectangle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Draw a rounded rectangle polygon on the canvas.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x1, y1, x2, y2 (int): Coordinates of the rectangle bounds.</span>
+<span class="sd">            radius (int): Radius of corner curvature.</span>
+<span class="sd">            **kwargs: Options passed to `create_polygon`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: ID of the created polygon item on the canvas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">points</span> <span class="o">=</span> <span class="p">[</span><span class="n">x1</span> <span class="o">+</span> <span class="n">radius</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span>
                   <span class="n">x1</span> <span class="o">+</span> <span class="n">radius</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span>
                   <span class="n">x2</span> <span class="o">-</span> <span class="n">radius</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span>
@@ -3473,7 +3682,17 @@
 <div class="viewcode-block" id="spacrToolTip">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrToolTip">[docs]</a>
 <span class="k">class</span> <span class="nc">spacrToolTip</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A simple tooltip widget for displaying hover text in a Tkinter application using spacr dark styling.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the tooltip for a given widget.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            widget (tk.Widget): The widget to attach the tooltip to.</span>
+<span class="sd">            text (str): The text to display in the tooltip.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="spacrToolTip.widget">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrToolTip.widget">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">widget</span> <span class="o">=</span> <span class="n">widget</span></div>
@@ -3492,6 +3711,9 @@
 <div class="viewcode-block" id="spacrToolTip.show_tooltip">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrToolTip.show_tooltip">[docs]</a>
     <span class="k">def</span> <span class="nf">show_tooltip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Display the tooltip near the cursor when mouse enters the widget.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">x_root</span> <span class="o">+</span> <span class="mi">20</span>
         <span class="n">y</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">y_root</span> <span class="o">+</span> <span class="mi">10</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tooltip_window</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Toplevel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="p">)</span>
@@ -3507,6 +3729,9 @@
 <div class="viewcode-block" id="spacrToolTip.hide_tooltip">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.spacrToolTip.hide_tooltip">[docs]</a>
     <span class="k">def</span> <span class="nf">hide_tooltip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Hide and destroy the tooltip when mouse leaves the widget.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tooltip_window</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">tooltip_window</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tooltip_window</span> <span class="o">=</span> <span class="kc">None</span></div>
@@ -3516,6 +3741,23 @@
 <div class="viewcode-block" id="standardize_figure">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.standardize_figure">[docs]</a>
 <span class="k">def</span> <span class="nf">standardize_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply standardized appearance settings to a matplotlib figure using spaCR GUI style preferences.</span>
+
+<span class="sd">    This includes:</span>
+<span class="sd">    - Setting font size and font family based on spaCR&#39;s theme</span>
+<span class="sd">    - Setting text and spine colors to match spaCR foreground color</span>
+<span class="sd">    - Applying OpenSans font via `font_loader`</span>
+<span class="sd">    - Removing top and right spines</span>
+<span class="sd">    - Setting line and spine widths</span>
+<span class="sd">    - Adjusting background and grid colors</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        fig (matplotlib.figure.Figure): The matplotlib figure to standardize.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        matplotlib.figure.Figure: The updated figure with standardized style.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">set_dark_style</span>
     <span class="kn">from</span> <span class="nn">matplotlib.font_manager</span> <span class="kn">import</span> <span class="n">FontProperties</span>
 
@@ -3699,6 +3941,19 @@
 <div class="viewcode-block" id="save_figure_as_format">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.save_figure_as_format">[docs]</a>
 <span class="k">def</span> <span class="nf">save_figure_as_format</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">file_format</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Opens a file dialog to save a matplotlib figure in the specified format.</span>
+
+<span class="sd">    Prompts the user to choose a save location and filename using a file dialog.</span>
+<span class="sd">    The figure is saved using the provided format if a valid path is selected.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        fig (matplotlib.figure.Figure): The figure to save.</span>
+<span class="sd">        file_format (str): The file format to save as (e.g., &#39;png&#39;, &#39;pdf&#39;, &#39;svg&#39;).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>     
     <span class="n">file_path</span> <span class="o">=</span> <span class="n">filedialog</span><span class="o">.</span><span class="n">asksaveasfilename</span><span class="p">(</span><span class="n">defaultextension</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">file_format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">filetypes</span><span class="o">=</span><span class="p">[(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_format</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> files&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;*.</span><span class="si">{</span><span class="n">file_format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;All files&quot;</span><span class="p">,</span> <span class="s2">&quot;*.*&quot;</span><span class="p">)])</span>
     <span class="k">if</span> <span class="n">file_path</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
@@ -3711,6 +3966,26 @@
 <div class="viewcode-block" id="modify_figure">
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.modify_figure">[docs]</a>
 <span class="k">def</span> <span class="nf">modify_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Opens a GUI window for interactively modifying various properties of a matplotlib figure.</span>
+
+<span class="sd">    This function allows users to:</span>
+<span class="sd">    - Rescale the X and Y axes</span>
+<span class="sd">    - Change line width and font size</span>
+<span class="sd">    - Set axis limits and title</span>
+<span class="sd">    - Customize colors (background, text, line)</span>
+<span class="sd">    - Rotate x-axis labels</span>
+<span class="sd">    - Enable/disable grid, legend, and axes</span>
+<span class="sd">    - Toggle spine visibility (&quot;spleens&quot;)</span>
+
+<span class="sd">    Once modifications are entered and applied, the figure is updated and re-rendered via `display_figure`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        fig (matplotlib.figure.Figure): The matplotlib figure to modify.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.gui_core</span> <span class="kn">import</span> <span class="n">display_figure</span>
     <span class="k">def</span> <span class="nf">apply_modifications</span><span class="p">():</span>
         <span class="k">try</span><span class="p">:</span>
@@ -3828,9 +4103,27 @@
 <a class="viewcode-back" href="../../api/spacr/gui_elements/index.html#spacr.gui_elements.generate_dna_matrix">[docs]</a>
 <span class="k">def</span> <span class="nf">generate_dna_matrix</span><span class="p">(</span><span class="n">output_path</span><span class="o">=</span><span class="s1">&#39;dna_matrix.gif&#39;</span><span class="p">,</span> <span class="n">canvas_width</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">canvas_height</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">base_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">transition_frames</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">font_type</span><span class="o">=</span><span class="s1">&#39;arial.ttf&#39;</span><span class="p">,</span> <span class="n">enhance</span><span class="o">=</span><span class="p">[</span><span class="mf">1.1</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],</span> <span class="n">lowercase_prob</span><span class="o">=</span><span class="mf">0.3</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Generate a DNA matrix animation and save it as GIF, MP4, or AVI using OpenCV for videos.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    Generates an animated matrix-style DNA sequence visual and saves it as a GIF or video.</span>
 
+<span class="sd">    The animation simulates vertical streams of random DNA bases (&#39;A&#39;, &#39;T&#39;, &#39;C&#39;, &#39;G&#39;) cascading down the screen.</span>
+<span class="sd">    Each column has independently scrolling strings of bases. The latest base in each stream is highlighted,</span>
+<span class="sd">    and fading effects, coloring, and random lowercase transformations are applied for visual flair.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        output_path (str): Path to the output file (should end in .gif, .mp4, or .avi).</span>
+<span class="sd">        canvas_width (int): Width of the canvas in pixels.</span>
+<span class="sd">        canvas_height (int): Height of the canvas in pixels.</span>
+<span class="sd">        duration (int): Duration of the animation in seconds.</span>
+<span class="sd">        fps (int): Frames per second of the animation.</span>
+<span class="sd">        base_size (int): Font size (in pixels) for the bases.</span>
+<span class="sd">        transition_frames (int): Number of frames for the looping transition.</span>
+<span class="sd">        font_type (str): Path to a .ttf font to use. Defaults to Arial.</span>
+<span class="sd">        enhance (list): List of four enhancement multipliers for [brightness, sharpness, contrast, saturation].</span>
+<span class="sd">        lowercase_prob (float): Probability that a given base will be drawn in lowercase.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">save_output</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">fps</span><span class="p">,</span> <span class="n">output_format</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save the animation based on output format.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">output_format</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;.mp4&#39;</span><span class="p">,</span> <span class="s1">&#39;.avi&#39;</span><span class="p">]:</span>
