@@ -2300,42 +2300,296 @@ fill_in (bool): Fill in holes in masks.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.settings.set_default_generate_barecode_mapping">
 <span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">set_default_generate_barecode_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/settings.html#set_default_generate_barecode_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.set_default_generate_barecode_mapping" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Sets default settings for barcode mapping from sequencing data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – A dictionary to populate with default parameters if keys are missing.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The updated settings dictionary with default values applied.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Default Settings:</dt><dd><ul class="simple">
+<li><p>src (str): Path to input FASTQ files.</p></li>
+<li><p>regex (str): Regular expression to extract column, grna, and row barcodes.</p></li>
+<li><p>target_sequence (str): Sequence to locate for alignment.</p></li>
+<li><p>offset_start (int): Offset to start looking for target sequence.</p></li>
+<li><p>expected_end (int): Expected ending position of the barcode pattern.</p></li>
+<li><p>column_csv (str): Path to CSV with column barcodes.</p></li>
+<li><p>grna_csv (str): Path to CSV with grna barcodes.</p></li>
+<li><p>row_csv (str): Path to CSV with row barcodes.</p></li>
+<li><p>save_h5 (bool): Whether to save output in HDF5 format.</p></li>
+<li><p>comp_type (str): Compression type for HDF5 (‘zlib’, ‘lzf’, etc.).</p></li>
+<li><p>comp_level (int): Compression level if using zlib (0–9).</p></li>
+<li><p>chunk_size (int): Number of reads to process per chunk.</p></li>
+<li><p>n_jobs (int or None): Number of parallel jobs to use.</p></li>
+<li><p>mode (str): ‘paired’ for paired-end, ‘single’ for single-end.</p></li>
+<li><p>single_direction (str): ‘R1’ or ‘R2’ for direction if mode is ‘single’.</p></li>
+<li><p>test (bool): Whether to run in test mode.</p></li>
+<li><p>fill_na (bool): If True, fill missing barcodes with ‘NA’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.settings.get_default_generate_activation_map_settings">
 <span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">get_default_generate_activation_map_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/settings.html#get_default_generate_activation_map_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.get_default_generate_activation_map_settings" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Sets default settings for generating activation maps (e.g., Grad-CAM) from a trained deep learning model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – A dictionary to populate with default parameters if keys are missing.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The updated settings dictionary with default values applied.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Default Settings:</dt><dd><ul class="simple">
+<li><p>dataset (str): Path to dataset directory containing images.</p></li>
+<li><p>model_type (str): Type of model architecture used (‘maxvit’, ‘resnet’, etc.).</p></li>
+<li><p>model_path (str): Path to the trained model checkpoint.</p></li>
+<li><p>image_size (int): Size to which input images will be resized.</p></li>
+<li><p>batch_size (int): Number of images processed per batch.</p></li>
+<li><p>normalize (bool): Whether to normalize input images.</p></li>
+<li><p>cam_type (str): Class activation map type (‘gradcam’, ‘gradcam++’, etc.).</p></li>
+<li><p>target_layer (str or None): Specific layer to target for activation visualization.</p></li>
+<li><p>plot (bool): If True, display the activation maps during processing.</p></li>
+<li><p>save (bool): If True, save activation map outputs to disk.</p></li>
+<li><p>normalize_input (bool): Whether to normalize input images before model inference.</p></li>
+<li><p>channels (list): List of channel indices to include in model input.</p></li>
+<li><p>overlay (bool): Whether to overlay activation maps on the original images.</p></li>
+<li><p>shuffle (bool): If True, shuffle the dataset before processing.</p></li>
+<li><p>correlation (bool): If True, compute correlation between channels and activation maps.</p></li>
+<li><p>manders_thresholds (list): List of thresholds for Manders’ overlap coefficient.</p></li>
+<li><p>n_jobs (int or None): Number of parallel workers to use for processing.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.settings.get_analyze_plaque_settings">
 <span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">get_analyze_plaque_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/settings.html#get_analyze_plaque_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.get_analyze_plaque_settings" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Sets default settings for analyzing plaque formation using Cellpose segmentation and related image processing tools.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – A dictionary to populate with default parameters if keys are missing.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The updated settings dictionary with default values applied.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Default Settings:</dt><dd><ul class="simple">
+<li><p>src (str): Path to the directory containing input images.</p></li>
+<li><p>masks (bool): Whether to use precomputed masks or generate new ones.</p></li>
+<li><p>background (int): Background intensity value to subtract during preprocessing.</p></li>
+<li><p>Signal_to_noise (int): Minimum signal-to-noise ratio required for valid segmentation.</p></li>
+<li><p>CP_prob (float): Minimum Cellpose probability threshold for mask acceptance.</p></li>
+<li><p>diameter (int): Expected object diameter (in pixels) for Cellpose segmentation.</p></li>
+<li><p>batch_size (int): Number of images to process per batch.</p></li>
+<li><p>flow_threshold (float): Flow error threshold for accepting Cellpose masks.</p></li>
+<li><p>save (bool): If True, save the segmentation and analysis outputs to disk.</p></li>
+<li><p>verbose (bool): If True, print detailed processing logs.</p></li>
+<li><p>resize (bool): Whether to resize images before processing.</p></li>
+<li><p>target_height (int): Height to which images should be resized (if <cite>resize</cite> is True).</p></li>
+<li><p>target_width (int): Width to which images should be resized (if <cite>resize</cite> is True).</p></li>
+<li><p>rescale (bool): Whether to apply rescaling of image intensity values.</p></li>
+<li><p>resample (bool): If True, resample images using interpolation methods.</p></li>
+<li><p>fill_in (bool): Whether to fill in holes or small gaps in detected masks.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.settings.set_graph_importance_defaults">
 <span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">set_graph_importance_defaults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/settings.html#set_graph_importance_defaults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.set_graph_importance_defaults" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Sets default parameters for plotting graph-based feature importance across groups.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Dictionary to be populated with default values if keys are missing.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Updated settings dictionary.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Default Settings:</dt><dd><ul class="simple">
+<li><p>csvs (str or list of str): Path(s) to CSV files containing importance scores.</p></li>
+<li><p>grouping_column (str): Column name used to group features for plotting (e.g., ‘compartment’).</p></li>
+<li><p>data_column (str): Column name containing the importance values to be plotted.</p></li>
+<li><p>graph_type (str): Type of graph to plot. Options may include ‘jitter_bar’, ‘violin’, etc.</p></li>
+<li><p>save (bool): Whether to save the plot to disk.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.settings.set_interperate_vision_model_defaults">
 <span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">set_interperate_vision_model_defaults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/settings.html#set_interperate_vision_model_defaults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.set_interperate_vision_model_defaults" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Sets default parameters for interpreting vision model outputs using feature importance methods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Dictionary to populate with default values for any missing keys.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Updated settings dictionary with default interpretation parameters.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Default Settings:</dt><dd><ul class="simple">
+<li><p>src (str): Path to input data directory.</p></li>
+<li><p>scores (str): Path to model output scores (e.g., predictions or classification results).</p></li>
+<li><p>tables (list): List of tables to include in interpretation (e.g., [‘cell’, ‘nucleus’, …]).</p></li>
+<li><p>feature_importance (bool): Whether to compute standard feature importance.</p></li>
+<li><p>permutation_importance (bool): Whether to compute permutation importance.</p></li>
+<li><p>shap (bool): Whether to compute SHAP values for model interpretability.</p></li>
+<li><p>save (bool): Whether to save the results to disk.</p></li>
+<li><p>nuclei_limit (int): Maximum number of nuclei objects to use for interpretation.</p></li>
+<li><p>pathogen_limit (int): Maximum number of pathogen objects to use.</p></li>
+<li><p>top_features (int): Number of top features to include in interpretation output.</p></li>
+<li><p>shap_sample (bool): Whether to subsample data for SHAP computation.</p></li>
+<li><p>n_jobs (int): Number of parallel jobs to use (-1 means all cores).</p></li>
+<li><p>shap_approximate (bool): Use approximate SHAP computations for speed.</p></li>
+<li><p>score_column (str): Column name from the scores file to use for interpretation.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.settings.set_analyze_endodyogeny_defaults">
 <span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">set_analyze_endodyogeny_defaults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/settings.html#set_analyze_endodyogeny_defaults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.set_analyze_endodyogeny_defaults" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Sets default parameters for analyzing endodyogeny (intracellular replication) from segmented object tables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Dictionary to populate with default values for any missing keys.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Updated settings dictionary with defaults for endodyogeny analysis.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Default Settings:</dt><dd><ul class="simple">
+<li><p>src (str): Path to the input directory containing segmentation tables.</p></li>
+<li><p>tables (list): List of tables to analyze, typically [‘cell’, ‘nucleus’, ‘pathogen’, ‘cytoplasm’].</p></li>
+<li><p>cell_types (list): Cell types to include in the analysis, e.g., [‘Hela’].</p></li>
+<li><p>cell_plate_metadata (list or None): Metadata mapping for cell plates.</p></li>
+<li><p>pathogen_types (list): Pathogen class labels, e.g., [‘nc’, ‘pc’].</p></li>
+<li><p>pathogen_plate_metadata (list): Metadata defining pathogen class plate layout.</p></li>
+<li><p>treatments (list or None): List of treatments or conditions to group by.</p></li>
+<li><p>treatment_plate_metadata (list or None): Metadata for treatment layout per plate.</p></li>
+<li><p>min_area_bin (int): Minimum object area (in pixels) to consider in binning.</p></li>
+<li><p>group_column (str): Column to use for grouping, e.g., ‘pathogen’.</p></li>
+<li><p>compartment (str): Compartment to analyze, typically ‘pathogen’.</p></li>
+<li><p>pathogen_limit (int): Max number of pathogens per group for subsampling.</p></li>
+<li><p>nuclei_limit (int): Max number of nuclei per group for subsampling.</p></li>
+<li><p>level (str): Aggregation level, either ‘object’ or ‘well’.</p></li>
+<li><p>um_per_px (float): Microns per pixel for conversion to physical units.</p></li>
+<li><p>max_bins (int or None): Optional cap on number of histogram bins.</p></li>
+<li><p>save (bool): Whether to save analysis results to file.</p></li>
+<li><p>change_plate (bool): Whether to apply plate renaming or normalization.</p></li>
+<li><p>cmap (str): Colormap to use for visualization.</p></li>
+<li><p>verbose (bool): Whether to print additional processing info.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.settings.set_analyze_class_proportion_defaults">
 <span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">set_analyze_class_proportion_defaults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/settings.html#set_analyze_class_proportion_defaults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.set_analyze_class_proportion_defaults" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Sets default parameters for analyzing the proportion of classification labels
+across experimental conditions or cell types.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Dictionary to populate with default values for any missing keys.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Updated settings dictionary with defaults for class proportion analysis.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Default Settings:</dt><dd><ul class="simple">
+<li><p>src (str): Path to the input directory containing measurement tables.</p></li>
+<li><p>tables (list): List of object tables to analyze (e.g., [‘cell’, ‘nucleus’, ‘pathogen’, ‘cytoplasm’]).</p></li>
+<li><p>cell_types (list): List of cell types to include, e.g., [‘Hela’].</p></li>
+<li><p>cell_plate_metadata (list or None): Metadata describing layout of cell types on plates.</p></li>
+<li><p>pathogen_types (list): List of pathogen labels, typically [‘nc’, ‘pc’].</p></li>
+<li><p>pathogen_plate_metadata (list): Metadata describing layout of pathogen classes on plates.</p></li>
+<li><p>treatments (list or None): Experimental treatments to group by.</p></li>
+<li><p>treatment_plate_metadata (list or None): Metadata describing treatment layouts on plates.</p></li>
+<li><p>group_column (str): Metadata column to group by, typically ‘condition’.</p></li>
+<li><p>class_column (str): Column containing predicted or manual class labels.</p></li>
+<li><p>pathogen_limit (int): Max number of pathogen objects to include per group.</p></li>
+<li><p>nuclei_limit (int): Max number of nuclei objects to include per group.</p></li>
+<li><p>level (str): Aggregation level, e.g., ‘well’ or ‘object’.</p></li>
+<li><p>save (bool): Whether to save results to disk.</p></li>
+<li><p>verbose (bool): Whether to print processing steps and warnings.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.settings.get_plot_data_from_csv_default_settings">
 <span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">get_plot_data_from_csv_default_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/settings.html#get_plot_data_from_csv_default_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.get_plot_data_from_csv_default_settings" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Sets default parameters for plotting data from a CSV file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Dictionary to populate with default values for any missing keys.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Updated settings dictionary with default plotting parameters.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Default Settings:</dt><dd><ul class="simple">
+<li><p>src (str): Path to the CSV file to be plotted.</p></li>
+<li><p>data_column (str): Name of the column containing the data to plot.</p></li>
+<li><p>grouping_column (str): Column to group the data by (e.g., experimental condition).</p></li>
+<li><p>graph_type (str): Type of plot to generate, e.g., ‘violin’, ‘box’, ‘bar’, or ‘strip’.</p></li>
+<li><p>save (bool): Whether to save the plot to disk.</p></li>
+<li><p>y_lim (tuple or None): Y-axis limits as (min, max), or None for automatic scaling.</p></li>
+<li><p>log_y (bool): Whether to use a logarithmic scale on the Y-axis.</p></li>
+<li><p>log_x (bool): Whether to use a logarithmic scale on the X-axis.</p></li>
+<li><p>keep_groups (list or None): Specific groups to retain in the plot; others will be excluded.</p></li>
+<li><p>representation (str): Level of data aggregation, typically ‘well’ or ‘object’.</p></li>
+<li><p>theme (str): Visual theme for the plot, e.g., ‘dark’ or ‘light’.</p></li>
+<li><p>remove_outliers (bool): Whether to exclude statistical outliers from the plot.</p></li>
+<li><p>verbose (bool): Whether to print status messages during plotting.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 </section>

@@ -973,17 +973,223 @@ Module Contents
 
 .. py:function:: set_default_generate_barecode_mapping(settings={})
 
+   Sets default settings for barcode mapping from sequencing data.
+
+   :param settings: A dictionary to populate with default parameters if keys are missing.
+   :type settings: dict
+
+   :returns: The updated settings dictionary with default values applied.
+   :rtype: dict
+
+   Default Settings:
+       - src (str): Path to input FASTQ files.
+       - regex (str): Regular expression to extract column, grna, and row barcodes.
+       - target_sequence (str): Sequence to locate for alignment.
+       - offset_start (int): Offset to start looking for target sequence.
+       - expected_end (int): Expected ending position of the barcode pattern.
+       - column_csv (str): Path to CSV with column barcodes.
+       - grna_csv (str): Path to CSV with grna barcodes.
+       - row_csv (str): Path to CSV with row barcodes.
+       - save_h5 (bool): Whether to save output in HDF5 format.
+       - comp_type (str): Compression type for HDF5 ('zlib', 'lzf', etc.).
+       - comp_level (int): Compression level if using zlib (0–9).
+       - chunk_size (int): Number of reads to process per chunk.
+       - n_jobs (int or None): Number of parallel jobs to use.
+       - mode (str): 'paired' for paired-end, 'single' for single-end.
+       - single_direction (str): 'R1' or 'R2' for direction if mode is 'single'.
+       - test (bool): Whether to run in test mode.
+       - fill_na (bool): If True, fill missing barcodes with 'NA'.
+
+
 .. py:function:: get_default_generate_activation_map_settings(settings)
+
+   Sets default settings for generating activation maps (e.g., Grad-CAM) from a trained deep learning model.
+
+   :param settings: A dictionary to populate with default parameters if keys are missing.
+   :type settings: dict
+
+   :returns: The updated settings dictionary with default values applied.
+   :rtype: dict
+
+   Default Settings:
+       - dataset (str): Path to dataset directory containing images.
+       - model_type (str): Type of model architecture used ('maxvit', 'resnet', etc.).
+       - model_path (str): Path to the trained model checkpoint.
+       - image_size (int): Size to which input images will be resized.
+       - batch_size (int): Number of images processed per batch.
+       - normalize (bool): Whether to normalize input images.
+       - cam_type (str): Class activation map type ('gradcam', 'gradcam++', etc.).
+       - target_layer (str or None): Specific layer to target for activation visualization.
+       - plot (bool): If True, display the activation maps during processing.
+       - save (bool): If True, save activation map outputs to disk.
+       - normalize_input (bool): Whether to normalize input images before model inference.
+       - channels (list): List of channel indices to include in model input.
+       - overlay (bool): Whether to overlay activation maps on the original images.
+       - shuffle (bool): If True, shuffle the dataset before processing.
+       - correlation (bool): If True, compute correlation between channels and activation maps.
+       - manders_thresholds (list): List of thresholds for Manders’ overlap coefficient.
+       - n_jobs (int or None): Number of parallel workers to use for processing.
+
 
 .. py:function:: get_analyze_plaque_settings(settings)
 
+   Sets default settings for analyzing plaque formation using Cellpose segmentation and related image processing tools.
+
+   :param settings: A dictionary to populate with default parameters if keys are missing.
+   :type settings: dict
+
+   :returns: The updated settings dictionary with default values applied.
+   :rtype: dict
+
+   Default Settings:
+       - src (str): Path to the directory containing input images.
+       - masks (bool): Whether to use precomputed masks or generate new ones.
+       - background (int): Background intensity value to subtract during preprocessing.
+       - Signal_to_noise (int): Minimum signal-to-noise ratio required for valid segmentation.
+       - CP_prob (float): Minimum Cellpose probability threshold for mask acceptance.
+       - diameter (int): Expected object diameter (in pixels) for Cellpose segmentation.
+       - batch_size (int): Number of images to process per batch.
+       - flow_threshold (float): Flow error threshold for accepting Cellpose masks.
+       - save (bool): If True, save the segmentation and analysis outputs to disk.
+       - verbose (bool): If True, print detailed processing logs.
+       - resize (bool): Whether to resize images before processing.
+       - target_height (int): Height to which images should be resized (if `resize` is True).
+       - target_width (int): Width to which images should be resized (if `resize` is True).
+       - rescale (bool): Whether to apply rescaling of image intensity values.
+       - resample (bool): If True, resample images using interpolation methods.
+       - fill_in (bool): Whether to fill in holes or small gaps in detected masks.
+
+
 .. py:function:: set_graph_importance_defaults(settings)
+
+   Sets default parameters for plotting graph-based feature importance across groups.
+
+   :param settings: Dictionary to be populated with default values if keys are missing.
+   :type settings: dict
+
+   :returns: Updated settings dictionary.
+   :rtype: dict
+
+   Default Settings:
+       - csvs (str or list of str): Path(s) to CSV files containing importance scores.
+       - grouping_column (str): Column name used to group features for plotting (e.g., 'compartment').
+       - data_column (str): Column name containing the importance values to be plotted.
+       - graph_type (str): Type of graph to plot. Options may include 'jitter_bar', 'violin', etc.
+       - save (bool): Whether to save the plot to disk.
+
 
 .. py:function:: set_interperate_vision_model_defaults(settings)
 
+   Sets default parameters for interpreting vision model outputs using feature importance methods.
+
+   :param settings: Dictionary to populate with default values for any missing keys.
+   :type settings: dict
+
+   :returns: Updated settings dictionary with default interpretation parameters.
+   :rtype: dict
+
+   Default Settings:
+       - src (str): Path to input data directory.
+       - scores (str): Path to model output scores (e.g., predictions or classification results).
+       - tables (list): List of tables to include in interpretation (e.g., ['cell', 'nucleus', ...]).
+       - feature_importance (bool): Whether to compute standard feature importance.
+       - permutation_importance (bool): Whether to compute permutation importance.
+       - shap (bool): Whether to compute SHAP values for model interpretability.
+       - save (bool): Whether to save the results to disk.
+       - nuclei_limit (int): Maximum number of nuclei objects to use for interpretation.
+       - pathogen_limit (int): Maximum number of pathogen objects to use.
+       - top_features (int): Number of top features to include in interpretation output.
+       - shap_sample (bool): Whether to subsample data for SHAP computation.
+       - n_jobs (int): Number of parallel jobs to use (-1 means all cores).
+       - shap_approximate (bool): Use approximate SHAP computations for speed.
+       - score_column (str): Column name from the scores file to use for interpretation.
+
+
 .. py:function:: set_analyze_endodyogeny_defaults(settings)
+
+   Sets default parameters for analyzing endodyogeny (intracellular replication) from segmented object tables.
+
+   :param settings: Dictionary to populate with default values for any missing keys.
+   :type settings: dict
+
+   :returns: Updated settings dictionary with defaults for endodyogeny analysis.
+   :rtype: dict
+
+   Default Settings:
+       - src (str): Path to the input directory containing segmentation tables.
+       - tables (list): List of tables to analyze, typically ['cell', 'nucleus', 'pathogen', 'cytoplasm'].
+       - cell_types (list): Cell types to include in the analysis, e.g., ['Hela'].
+       - cell_plate_metadata (list or None): Metadata mapping for cell plates.
+       - pathogen_types (list): Pathogen class labels, e.g., ['nc', 'pc'].
+       - pathogen_plate_metadata (list): Metadata defining pathogen class plate layout.
+       - treatments (list or None): List of treatments or conditions to group by.
+       - treatment_plate_metadata (list or None): Metadata for treatment layout per plate.
+       - min_area_bin (int): Minimum object area (in pixels) to consider in binning.
+       - group_column (str): Column to use for grouping, e.g., 'pathogen'.
+       - compartment (str): Compartment to analyze, typically 'pathogen'.
+       - pathogen_limit (int): Max number of pathogens per group for subsampling.
+       - nuclei_limit (int): Max number of nuclei per group for subsampling.
+       - level (str): Aggregation level, either 'object' or 'well'.
+       - um_per_px (float): Microns per pixel for conversion to physical units.
+       - max_bins (int or None): Optional cap on number of histogram bins.
+       - save (bool): Whether to save analysis results to file.
+       - change_plate (bool): Whether to apply plate renaming or normalization.
+       - cmap (str): Colormap to use for visualization.
+       - verbose (bool): Whether to print additional processing info.
+
 
 .. py:function:: set_analyze_class_proportion_defaults(settings)
 
+   Sets default parameters for analyzing the proportion of classification labels
+   across experimental conditions or cell types.
+
+   :param settings: Dictionary to populate with default values for any missing keys.
+   :type settings: dict
+
+   :returns: Updated settings dictionary with defaults for class proportion analysis.
+   :rtype: dict
+
+   Default Settings:
+       - src (str): Path to the input directory containing measurement tables.
+       - tables (list): List of object tables to analyze (e.g., ['cell', 'nucleus', 'pathogen', 'cytoplasm']).
+       - cell_types (list): List of cell types to include, e.g., ['Hela'].
+       - cell_plate_metadata (list or None): Metadata describing layout of cell types on plates.
+       - pathogen_types (list): List of pathogen labels, typically ['nc', 'pc'].
+       - pathogen_plate_metadata (list): Metadata describing layout of pathogen classes on plates.
+       - treatments (list or None): Experimental treatments to group by.
+       - treatment_plate_metadata (list or None): Metadata describing treatment layouts on plates.
+       - group_column (str): Metadata column to group by, typically 'condition'.
+       - class_column (str): Column containing predicted or manual class labels.
+       - pathogen_limit (int): Max number of pathogen objects to include per group.
+       - nuclei_limit (int): Max number of nuclei objects to include per group.
+       - level (str): Aggregation level, e.g., 'well' or 'object'.
+       - save (bool): Whether to save results to disk.
+       - verbose (bool): Whether to print processing steps and warnings.
+
+
 .. py:function:: get_plot_data_from_csv_default_settings(settings)
+
+   Sets default parameters for plotting data from a CSV file.
+
+   :param settings: Dictionary to populate with default values for any missing keys.
+   :type settings: dict
+
+   :returns: Updated settings dictionary with default plotting parameters.
+   :rtype: dict
+
+   Default Settings:
+       - src (str): Path to the CSV file to be plotted.
+       - data_column (str): Name of the column containing the data to plot.
+       - grouping_column (str): Column to group the data by (e.g., experimental condition).
+       - graph_type (str): Type of plot to generate, e.g., 'violin', 'box', 'bar', or 'strip'.
+       - save (bool): Whether to save the plot to disk.
+       - y_lim (tuple or None): Y-axis limits as (min, max), or None for automatic scaling.
+       - log_y (bool): Whether to use a logarithmic scale on the Y-axis.
+       - log_x (bool): Whether to use a logarithmic scale on the X-axis.
+       - keep_groups (list or None): Specific groups to retain in the plot; others will be excluded.
+       - representation (str): Level of data aggregation, typically 'well' or 'object'.
+       - theme (str): Visual theme for the plot, e.g., 'dark' or 'light'.
+       - remove_outliers (bool): Whether to exclude statistical outliers from the plot.
+       - verbose (bool): Whether to print status messages during plotting.
+
 

@@ -1155,25 +1155,7 @@
         <span class="n">cmap</span> <span class="o">=</span> <span class="n">ListedColormap</span><span class="p">(</span><span class="n">rand_colors</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cmap</span>
 
-    <span class="k">def</span> <span class="nf">_plot_merged_plot</span><span class="p">(</span>
-        <span class="n">image</span><span class="p">,</span>
-        <span class="n">outlines</span><span class="p">,</span>
-        <span class="n">outline_colors</span><span class="p">,</span>
-        <span class="n">figuresize</span><span class="p">,</span>
-        <span class="n">thickness</span><span class="p">,</span>
-        <span class="n">percentiles</span><span class="p">,</span>
-        <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;outlines&#39;</span><span class="p">,</span>
-        <span class="n">all_on_all</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">all_outlines</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">channels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">cell_channel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">nucleus_channel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">pathogen_channel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">cell_outlines</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">nucleus_outlines</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">pathogen_outlines</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">save_pdf</span><span class="o">=</span><span class="kc">True</span>
-    <span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_plot_merged_plot</span><span class="p">(</span><span class="n">image</span><span class="p">,</span><span class="n">outlines</span><span class="p">,</span><span class="n">outline_colors</span><span class="p">,</span><span class="n">figuresize</span><span class="p">,</span><span class="n">thickness</span><span class="p">,</span><span class="n">percentiles</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;outlines&#39;</span><span class="p">,</span><span class="n">all_on_all</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">all_outlines</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">channels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">cell_channel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">nucleus_channel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">pathogen_channel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">cell_outlines</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">nucleus_outlines</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">pathogen_outlines</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">save_pdf</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot the merged plot with overlay, image channels, and masks.&quot;&quot;&quot;</span>
 
         <span class="k">def</span> <span class="nf">_generate_colored_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">cmap</span><span class="p">):</span>
@@ -1617,7 +1599,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate a random colormap based on the unique labels in the given mask.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    mask (numpy.ndarray): The input mask array.</span>
 
 <span class="sd">    Returns:</span>
@@ -1638,7 +1620,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate a random colormap.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    num_objects (int): The number of objects to generate colors for. Default is 100.</span>
 
 <span class="sd">    Returns:</span>
@@ -1655,7 +1637,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate a random colormap based on the unique labels in the given mask.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    mask (ndarray): The mask array containing unique labels.</span>
 
 <span class="sd">    Returns:</span>
@@ -1674,7 +1656,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the merged outline colors based on the specified outline color format.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    outline_color (str): The outline color format. Can be one of &#39;rgb&#39;, &#39;bgr&#39;, &#39;gbr&#39;, or &#39;rbg&#39;.</span>
 
 <span class="sd">    Returns:</span>
@@ -1885,7 +1867,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot randomly selected arrays from a given directory or a single .npz/.npy file.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    - src (str): The directory path or file path containing the arrays.</span>
 <span class="sd">    - figuresize (int): The size of the figure (default: 10).</span>
 <span class="sd">    - cmap (str): The colormap to use for displaying the arrays (default: &#39;inferno&#39;).</span>
@@ -1943,7 +1925,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot randomly selected arrays from a given directory.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    - src (str): The directory path containing the arrays.</span>
 <span class="sd">    - figuresize (int): The size of the figure (default: 50).</span>
 <span class="sd">    - cmap (str): The colormap to use for displaying the arrays (default: &#39;inferno&#39;).</span>
@@ -2413,7 +2395,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Display the frame with tracks overlaid.</span>
 
-<span class="sd">        Parameters:</span>
+<span class="sd">        Args:</span>
 <span class="sd">        frame (int): The frame number to display.</span>
 
 <span class="sd">        Returns:</span>
@@ -2456,7 +2438,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Display a GIF image from the given path.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    path (str): The path to the GIF image file.</span>
 
 <span class="sd">    Returns:</span>
@@ -2699,6 +2681,26 @@
     <span class="k">return</span> <span class="n">fig</span>
     
 <span class="k">def</span> <span class="nf">_plot_histograms_and_stats</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot histograms and print summary statistics for prediction values grouped by condition.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (pd.DataFrame): DataFrame containing at least two columns:</span>
+<span class="sd">            - &#39;condition&#39;: categorical variable indicating group labels.</span>
+<span class="sd">            - &#39;pred&#39;: continuous prediction scores (e.g., probabilities).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. Displays histograms and prints statistics for each condition.</span>
+
+<span class="sd">    Printed Statistics per Condition:</span>
+<span class="sd">        - Number of rows</span>
+<span class="sd">        - Mean of &#39;pred&#39; values</span>
+<span class="sd">        - Count and percentage of &#39;pred&#39; &gt; 0.5 (positive)</span>
+<span class="sd">        - Count and percentage of &#39;pred&#39; &lt;= 0.5 (negative)</span>
+
+<span class="sd">    Plots:</span>
+<span class="sd">        - Histogram of &#39;pred&#39; values with mean indicated by a dashed red line.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">conditions</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;condition&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
     
     <span class="k">for</span> <span class="n">condition</span> <span class="ow">in</span> <span class="n">conditions</span><span class="p">:</span>
@@ -2730,7 +2732,22 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
 <span class="k">def</span> <span class="nf">_show_residules</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Display diagnostic plots and test for residuals of a fitted regression model.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        model (statsmodels.regression.linear_model.RegressionResultsWrapper): </span>
+<span class="sd">            A fitted statsmodels regression model with `.resid` and `.fittedvalues` attributes.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. Displays plots and prints Shapiro-Wilk test results.</span>
+
+<span class="sd">    Diagnostics:</span>
+<span class="sd">        - Histogram of residuals</span>
+<span class="sd">        - QQ plot for normality</span>
+<span class="sd">        - Residuals vs. Fitted values plot</span>
+<span class="sd">        - Shapiro-Wilk test for normality (prints W-statistic and p-value)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Get the residuals</span>
     <span class="n">residuals</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">resid</span>
 
@@ -2759,6 +2776,23 @@
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Shapiro-Wilk Test W-statistic: </span><span class="si">{</span><span class="n">W</span><span class="si">}</span><span class="s1">, p-value: </span><span class="si">{</span><span class="n">p_value</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     
 <span class="k">def</span> <span class="nf">_reg_v_plot</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">grouping</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">plate_number</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a volcano plot for visualizing effect size versus significance.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (pd.DataFrame): DataFrame containing regression results with &#39;effect&#39; and &#39;p&#39; columns.</span>
+<span class="sd">        grouping (str): Unused in current function but reserved for grouping logic.</span>
+<span class="sd">        variable (str): Unused in current function but could annotate variable of interest.</span>
+<span class="sd">        plate_number (str or int): Unused in current function but could title or segregate plots.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. Displays a volcano plot using matplotlib.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Points with p &lt; 0.05 are labeled by index.</span>
+<span class="sd">        - Color indicates direction of effect (positive or negative).</span>
+<span class="sd">        - Dashed line marks significance threshold (p = 0.05).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">df</span><span class="p">[</span><span class="s1">&#39;-log10(p)&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">])</span>
 
     <span class="c1"># Create the volcano plot</span>
@@ -2779,7 +2813,27 @@
 <div class="viewcode-block" id="generate_plate_heatmap">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.generate_plate_heatmap">[docs]</a>
 <span class="k">def</span> <span class="nf">generate_plate_heatmap</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">plate_number</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">grouping</span><span class="p">,</span> <span class="n">min_max</span><span class="p">,</span> <span class="n">min_count</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a heatmap matrix for a specific plate based on the specified variable.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        df (pd.DataFrame): Input DataFrame containing &#39;prc&#39; and variable to plot.</span>
+<span class="sd">        plate_number (str): Identifier of the plate to generate the heatmap for.</span>
+<span class="sd">        variable (str): Column name to be visualized.</span>
+<span class="sd">        grouping (str): Aggregation method: &#39;mean&#39;, &#39;sum&#39;, or &#39;count&#39;.</span>
+<span class="sd">        min_max (str or tuple): Controls the colormap scaling:</span>
+<span class="sd">            - &#39;all&#39;: use full data min/max</span>
+<span class="sd">            - &#39;allq&#39;: use 2nd to 98th percentile</span>
+<span class="sd">            - (low, high): percentiles (float) or fixed values (int)</span>
+<span class="sd">        min_count (int or float): Minimum number of entries per well to be included.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        plate_map (pd.DataFrame): Pivoted heatmap matrix indexed by row and column.</span>
+<span class="sd">        min_max (list): The computed min/max values for the heatmap color scale.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If `grouping` is not one of [&#39;mean&#39;, &#39;sum&#39;, &#39;count&#39;].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">min_count</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
         <span class="n">min_count</span> <span class="o">=</span> <span class="mi">0</span>
 
@@ -2845,6 +2899,27 @@
 <div class="viewcode-block" id="plot_plates">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.plot_plates">[docs]</a>
 <span class="k">def</span> <span class="nf">plot_plates</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">grouping</span><span class="p">,</span> <span class="n">min_max</span><span class="p">,</span> <span class="n">cmap</span><span class="p">,</span> <span class="n">min_count</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dst</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate and optionally save heatmaps for one or more plates, showing the spatial distribution </span>
+<span class="sd">    of a specified variable (e.g., unique_counts or signal intensity).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (pd.DataFrame): Input DataFrame containing &#39;prc&#39; in the format &#39;plate_row_col&#39; and the variable to plot.</span>
+<span class="sd">        variable (str): Name of the column to visualize.</span>
+<span class="sd">        grouping (str): Aggregation method for replicates (e.g., &#39;mean&#39;, &#39;median&#39;).</span>
+<span class="sd">        min_max (str): Method to determine color scaling. One of {&#39;global&#39;, &#39;local&#39;, &#39;allq&#39;}.</span>
+<span class="sd">        cmap (str or Colormap): Colormap to use for heatmap visualization.</span>
+<span class="sd">        min_count (int, optional): Minimum count threshold for inclusion in the heatmap. Default is 0.</span>
+<span class="sd">        verbose (bool, optional): If True, displays the heatmap(s) in an interactive window. Default is True.</span>
+<span class="sd">        dst (str, optional): Directory to save the heatmaps. If None, the heatmaps are not saved.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        matplotlib.figure.Figure: The figure containing the plotted heatmaps.</span>
+
+<span class="sd">    Side Effects:</span>
+<span class="sd">        - Displays plate heatmaps using matplotlib/seaborn.</span>
+<span class="sd">        - Saves the heatmap figure as &#39;plate_heatmap_#.pdf&#39; in `dst` if provided and writable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">plates</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;prc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
     <span class="n">n_rows</span><span class="p">,</span> <span class="n">n_cols</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">plates</span><span class="p">)</span> <span class="o">+</span> <span class="mi">3</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span>
     <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">n_rows</span><span class="p">,</span> <span class="n">n_cols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">n_rows</span><span class="p">))</span>
@@ -2981,6 +3056,27 @@
 <div class="viewcode-block" id="plot_resize">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.plot_resize">[docs]</a>
 <span class="k">def</span> <span class="nf">plot_resize</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">resized_images</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">resized_labels</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot original and resized images along with their corresponding labels for visual comparison.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        images (list or np.ndarray): List or array of original input images. Each image can be 2D (grayscale)</span>
+<span class="sd">                                     or 3D (with 1, 3, or 4 channels).</span>
+<span class="sd">        resized_images (list or np.ndarray): Corresponding resized input images.</span>
+<span class="sd">        labels (list or np.ndarray): List or array of original label masks.</span>
+<span class="sd">        resized_labels (list or np.ndarray): Corresponding resized label masks.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. Displays a 2x2 grid of plots:</span>
+<span class="sd">            - Top-left: Original image</span>
+<span class="sd">            - Top-right: Resized image</span>
+<span class="sd">            - Bottom-left: Original label</span>
+<span class="sd">            - Bottom-right: Resized label</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Images with 1, 3, or 4 channels are supported.</span>
+<span class="sd">        - Other channel numbers will be visualized by averaging across channels (grayscale fallback).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">prepare_image</span><span class="p">(</span><span class="n">img</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">img</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">img</span><span class="p">,</span> <span class="s1">&#39;gray&#39;</span>
@@ -3025,7 +3121,23 @@
 <div class="viewcode-block" id="normalize_and_visualize">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.normalize_and_visualize">[docs]</a>
 <span class="k">def</span> <span class="nf">normalize_and_visualize</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">normalized_image</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Utility function for visualization&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Display a side-by-side comparison of an original image and its normalized version.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        image (np.ndarray): The original image. Can be 2D (grayscale) or 3D (multi-channel).</span>
+<span class="sd">        normalized_image (np.ndarray): The normalized image. Should have the same dimensions as `image`.</span>
+<span class="sd">        title (str, optional): Optional string to append to the plot titles. Defaults to &quot;&quot;.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. Displays a matplotlib figure with two subplots:</span>
+<span class="sd">            - Left: Original image</span>
+<span class="sd">            - Right: Normalized image</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - For multi-channel images, the mean across channels is visualized.</span>
+<span class="sd">        - Axes are hidden for clarity.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">image</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># Multi-channel image</span>
         <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>  <span class="c1"># Display the average over channels for visualization</span>
@@ -3047,6 +3159,25 @@
 <div class="viewcode-block" id="visualize_masks">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.visualize_masks">[docs]</a>
 <span class="k">def</span> <span class="nf">visualize_masks</span><span class="p">(</span><span class="n">mask1</span><span class="p">,</span> <span class="n">mask2</span><span class="p">,</span> <span class="n">mask3</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Masks Comparison&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Display three segmentation masks side-by-side for visual comparison.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mask1 (np.ndarray): First mask array (2D).</span>
+<span class="sd">        mask2 (np.ndarray): Second mask array (2D).</span>
+<span class="sd">        mask3 (np.ndarray): Third mask array (2D).</span>
+<span class="sd">        title (str, optional): Title for the entire figure. Defaults to &quot;Masks Comparison&quot;.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. Displays a matplotlib figure with three subplots:</span>
+<span class="sd">            - Each subplot corresponds to one of the input masks.</span>
+<span class="sd">            - Masks are visualized using a randomly generated colormap.</span>
+<span class="sd">            - If a mask is binary (0 and 1 only), no normalization is applied.</span>
+<span class="sd">            - Otherwise, intensity values are normalized to [0, max(mask)].</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        Requires the function `generate_mask_random_cmap(mask)` to generate a colormap.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">title</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axs</span><span class="p">,</span> <span class="p">[</span><span class="n">mask1</span><span class="p">,</span> <span class="n">mask2</span><span class="p">,</span> <span class="n">mask3</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;Mask 1&#39;</span><span class="p">,</span> <span class="s1">&#39;Mask 2&#39;</span><span class="p">,</span> <span class="s1">&#39;Mask 3&#39;</span><span class="p">]):</span>
         <span class="n">cmap</span> <span class="o">=</span> <span class="n">generate_mask_random_cmap</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
@@ -3069,7 +3200,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Visualize multiple masks with optional titles.</span>
 <span class="sd">    </span>
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        masks (list of np.ndarray): A list of masks to visualize.</span>
 <span class="sd">        titles (list of str, optional): A list of titles for the masks. If None, default titles will be used.</span>
 <span class="sd">        comparison_title (str): Title for the entire figure.</span>
@@ -3112,6 +3243,26 @@
 <div class="viewcode-block" id="plot_comparison_results">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.plot_comparison_results">[docs]</a>
 <span class="k">def</span> <span class="nf">plot_comparison_results</span><span class="p">(</span><span class="n">comparison_results</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Visualize segmentation comparison metrics using boxplots with overlaid strip plots.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        comparison_results (list of dict): Each dictionary represents one sample, with keys:</span>
+<span class="sd">            - &#39;filename&#39;: Name of the sample.</span>
+<span class="sd">            - Metric keys such as &#39;jaccard_*&#39;, &#39;dice_*&#39;, &#39;boundary_f1_*&#39;, &#39;average_precision_*&#39;.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        matplotlib.figure.Figure: The resulting figure with 4 subplots:</span>
+<span class="sd">            - Jaccard Index</span>
+<span class="sd">            - Dice Coefficient</span>
+<span class="sd">            - Boundary F1 Score</span>
+<span class="sd">            - Average Precision</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Metrics are grouped by type using substring matching in column names.</span>
+<span class="sd">        - Outliers and individual sample values are shown with strip plots.</span>
+<span class="sd">        - Assumes that all metric columns contain numeric values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">comparison_results</span><span class="p">)</span>
     <span class="n">df_melted</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">id_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">],</span> <span class="n">var_name</span><span class="o">=</span><span class="s1">&#39;metric&#39;</span><span class="p">,</span> <span class="n">value_name</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
     <span class="n">df_jaccard</span> <span class="o">=</span> <span class="n">df_melted</span><span class="p">[</span><span class="n">df_melted</span><span class="p">[</span><span class="s1">&#39;metric&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s1">&#39;jaccard&#39;</span><span class="p">)]</span>
@@ -3157,7 +3308,25 @@
 <div class="viewcode-block" id="plot_object_outlines">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.plot_object_outlines">[docs]</a>
 <span class="k">def</span> <span class="nf">plot_object_outlines</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">objects</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nucleus&#39;</span><span class="p">,</span><span class="s1">&#39;cell&#39;</span><span class="p">,</span><span class="s1">&#39;pathogen&#39;</span><span class="p">],</span> <span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">max_nr</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Overlay mask outlines on image channels for visual inspection of segmentation quality.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        src (str): Source directory containing the &#39;masks&#39; folder and image channels.</span>
+<span class="sd">        objects (list of str): List of object names (e.g., &#39;nucleus&#39;, &#39;cell&#39;, &#39;pathogen&#39;) whose masks to visualize.</span>
+<span class="sd">        channels (list of int): Corresponding channel indices (0-based) for each object.</span>
+<span class="sd">        max_nr (int): Maximum number of overlays to display.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. Displays overlays using `plot_images_and_arrays()`.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - For each object/channel pair, attempts to load:</span>
+<span class="sd">            - The mask from &#39;masks/{object}_mask_stack&#39;</span>
+<span class="sd">            - The image from &#39;{channel+1}&#39; subfolder (1-based indexing)</span>
+<span class="sd">        - Assumes `plot_images_and_arrays()` can handle paired overlay inputs.</span>
+<span class="sd">        - Random selection and percentile contrast stretching applied for visualization.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">object_</span><span class="p">,</span> <span class="n">channel</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">objects</span><span class="p">,</span> <span class="n">channels</span><span class="p">):</span>
         <span class="n">folders</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="s1">&#39;masks&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">object_</span><span class="si">}</span><span class="s1">_mask_stack&#39;</span><span class="p">),</span>
                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">channel</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)]</span>
@@ -3175,6 +3344,24 @@
 <div class="viewcode-block" id="volcano_plot">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.volcano_plot">[docs]</a>
 <span class="k">def</span> <span class="nf">volcano_plot</span><span class="p">(</span><span class="n">coef_df</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;volcano_plot.pdf&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate and save a volcano plot based on coefficient and p-value data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        coef_df (pd.DataFrame): DataFrame containing columns:</span>
+<span class="sd">            - &#39;coefficient&#39;: effect size for each term.</span>
+<span class="sd">            - &#39;p_value&#39;: p-value for each coefficient.</span>
+<span class="sd">            - &#39;condition&#39;: category for coloring (e.g., &#39;pc&#39;, &#39;nc&#39;, &#39;control&#39;, &#39;other&#39;).</span>
+<span class="sd">        filename (str): File path for saving the plot as a PDF.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. Displays the volcano plot and saves it to the specified file.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Highlights p-value threshold at 0.05 with a horizontal dashed red line.</span>
+<span class="sd">        - Uses pre-defined color palette for conditions.</span>
+<span class="sd">        - Legend is removed for clarity.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">palette</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;pc&#39;</span><span class="p">:</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span>
         <span class="s1">&#39;nc&#39;</span><span class="p">:</span> <span class="s1">&#39;green&#39;</span><span class="p">,</span>
@@ -3205,6 +3392,21 @@
 <div class="viewcode-block" id="plot_histogram">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.plot_histogram">[docs]</a>
 <span class="k">def</span> <span class="nf">plot_histogram</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">dst</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot and optionally save a histogram for a specified column in a DataFrame.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (pd.DataFrame): DataFrame containing the data.</span>
+<span class="sd">        column (str): Name of the column to plot.</span>
+<span class="sd">        dst (str or None): Directory to save the figure as a PDF. If None, the figure is not saved.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. Displays the histogram and optionally saves it to disk.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - The histogram uses a fixed turquoise bar color (RGB: 0,155,155).</span>
+<span class="sd">        - Saved file is named &#39;{column}_histogram.pdf&#39; and placed in the specified `dst` directory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Plot histogram of the dependent variable</span>
     <span class="n">bar_color</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="o">/</span><span class="mi">255</span><span class="p">,</span> <span class="mi">155</span><span class="o">/</span><span class="mi">255</span><span class="p">,</span> <span class="mi">155</span><span class="o">/</span><span class="mi">255</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
@@ -3223,10 +3425,28 @@
 
 <div class="viewcode-block" id="plot_lorenz_curves">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.plot_lorenz_curves">[docs]</a>
-<span class="k">def</span> <span class="nf">plot_lorenz_curves</span><span class="p">(</span><span class="n">csv_files</span><span class="p">,</span> <span class="n">name_column</span><span class="o">=</span><span class="s1">&#39;grna_name&#39;</span><span class="p">,</span> <span class="n">value_column</span><span class="o">=</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> 
-                       <span class="n">remove_keys</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
-                       <span class="n">x_lim</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">y_lim</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">remove_outliers</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    
+<span class="k">def</span> <span class="nf">plot_lorenz_curves</span><span class="p">(</span><span class="n">csv_files</span><span class="p">,</span> <span class="n">name_column</span><span class="o">=</span><span class="s1">&#39;grna_name&#39;</span><span class="p">,</span> <span class="n">value_column</span><span class="o">=</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="n">remove_keys</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x_lim</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">y_lim</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">remove_outliers</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot Lorenz curves and compute Gini coefficients for a set of CSV files.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        csv_files (list of str): Paths to CSV files containing count data.</span>
+<span class="sd">        name_column (str): Column name containing the gRNA or entity names.</span>
+<span class="sd">        value_column (str): Column name with the numerical values (e.g., counts).</span>
+<span class="sd">        remove_keys (list or None): List of names to exclude from analysis.</span>
+<span class="sd">        x_lim (list): X-axis limits for the plot.</span>
+<span class="sd">        y_lim (list): Y-axis limits for the plot.</span>
+<span class="sd">        remove_outliers (bool): Whether to remove outlier entities by well counts.</span>
+<span class="sd">        save (bool): If True, saves the plot to a PDF.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. Displays the plot and prints Gini coefficients.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Gini coefficient is a measure of inequality (0 = perfect equality, 1 = maximal inequality).</span>
+<span class="sd">        - Outlier removal is based on IQR of well counts per entity name.</span>
+<span class="sd">        - Saves to &#39;lorenz_curve_with_gini.pdf&#39; under a &#39;results&#39; folder next to the first input CSV.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">lorenz_curve</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate Lorenz curve.&quot;&quot;&quot;</span>
         <span class="n">sorted_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -3318,6 +3538,23 @@
 <div class="viewcode-block" id="plot_permutation">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.plot_permutation">[docs]</a>
 <span class="k">def</span> <span class="nf">plot_permutation</span><span class="p">(</span><span class="n">permutation_df</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot permutation feature importance as a horizontal bar chart.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        permutation_df (pd.DataFrame): DataFrame with columns:</span>
+<span class="sd">            - &#39;feature&#39;: Feature names.</span>
+<span class="sd">            - &#39;importance_mean&#39;: Mean permutation importance.</span>
+<span class="sd">            - &#39;importance_std&#39;: Standard deviation of permutation importance.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        matplotlib.figure.Figure: The resulting plot figure object.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Dynamically adjusts figure size and font size based on number of features.</span>
+<span class="sd">        - Error bars represent the standard deviation across permutation runs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">num_features</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">permutation_df</span><span class="p">)</span>
     <span class="n">fig_height</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">num_features</span> <span class="o">*</span> <span class="mf">0.3</span><span class="p">)</span>  <span class="c1"># Set a minimum height of 8 and adjust height based on number of features</span>
     <span class="n">fig_width</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># Width can be fixed or adjusted similarly</span>
@@ -3334,6 +3571,21 @@
 <div class="viewcode-block" id="plot_feature_importance">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.plot_feature_importance">[docs]</a>
 <span class="k">def</span> <span class="nf">plot_feature_importance</span><span class="p">(</span><span class="n">feature_importance_df</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot feature importance as a horizontal bar chart.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        feature_importance_df (pd.DataFrame): DataFrame with columns:</span>
+<span class="sd">            - &#39;feature&#39;: Feature names.</span>
+<span class="sd">            - &#39;importance&#39;: Importance scores for each feature.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        matplotlib.figure.Figure: The resulting plot figure object.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Dynamically adjusts figure size and font size based on number of features.</span>
+<span class="sd">        - Use for visualizing static (e.g., model-based) feature importance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">num_features</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">feature_importance_df</span><span class="p">)</span>
     <span class="n">fig_height</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">num_features</span> <span class="o">*</span> <span class="mf">0.3</span><span class="p">)</span>  <span class="c1"># Set a minimum height of 8 and adjust height based on number of features</span>
     <span class="n">fig_width</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># Width can be fixed or adjusted similarly</span>
@@ -3350,6 +3602,23 @@
 <div class="viewcode-block" id="read_and_plot__vision_results">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.read_and_plot__vision_results">[docs]</a>
 <span class="k">def</span> <span class="nf">read_and_plot__vision_results</span><span class="p">(</span><span class="n">base_dir</span><span class="p">,</span> <span class="n">y_axis</span><span class="o">=</span><span class="s1">&#39;accuracy&#39;</span><span class="p">,</span> <span class="n">name_split</span><span class="o">=</span><span class="s1">&#39;_time&#39;</span><span class="p">,</span> <span class="n">y_lim</span><span class="o">=</span><span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read multiple vision model test result CSV files and generate a bar plot of average performance.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        base_dir (str): Base directory to recursively search for files ending in &#39;_test_result.csv&#39;.</span>
+<span class="sd">        y_axis (str): The performance metric to plot (must be a column in each CSV). Default is &#39;accuracy&#39;.</span>
+<span class="sd">        name_split (str): String delimiter used to extract the model name from the filename. Default is &#39;_time&#39;.</span>
+<span class="sd">        y_lim (list or tuple): Optional y-axis limits for the plot. Default is [0.8, 0.9].</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. Displays a matplotlib bar plot of average `y_axis` for each model.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Assumes each file is named with format: &#39;&lt;model&gt;_time&lt;timestamp&gt;_test_result.csv&#39;.</span>
+<span class="sd">        - Extracts &#39;model&#39; and &#39;epoch&#39; metadata from the path and filename.</span>
+<span class="sd">        - Saves results to a &#39;result&#39; folder inside `base_dir` (created if not present).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># List to store data from all CSV files</span>
     <span class="n">data_frames</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -3498,7 +3767,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a grouped plot, perform statistical tests, and optionally export the results along with the plot.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    - df: DataFrame containing the data.</span>
 <span class="sd">    - grouping_column: Column name for the categorical grouping.</span>
 <span class="sd">    - data_column: Column name for the data to be grouped and plotted.</span>
@@ -3659,15 +3928,66 @@
 <div class="viewcode-block" id="spacrGraph">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.spacrGraph">[docs]</a>
 <span class="k">class</span> <span class="nc">spacrGraph</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for generating grouped plots with optional data preprocessing, </span>
+<span class="sd">    statistical comparisons, theming, and output control.</span>
+
+<span class="sd">    This class is designed to support common grouped plotting tasks for CRISPR screens, </span>
+<span class="sd">    enabling flexible summarization across different experimental representations </span>
+<span class="sd">    (e.g., object-level, well-level, or plate-level).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (pd.DataFrame): Input DataFrame containing data to plot.</span>
+<span class="sd">        grouping_column (str): Column to group by on the x-axis.</span>
+<span class="sd">        data_column (str or list): One or more numeric columns to summarize and plot.</span>
+<span class="sd">        graph_type (str): Type of plot to create (e.g., &#39;bar&#39;, &#39;box&#39;).</span>
+<span class="sd">        summary_func (str or callable): Function used to summarize data (e.g., &#39;mean&#39;, &#39;median&#39;).</span>
+<span class="sd">        order (list): Optional list to define the order of categories on the x-axis.</span>
+<span class="sd">        colors (list): Optional custom list of colors for plotting.</span>
+<span class="sd">        output_dir (str): Path to directory where output will be saved.</span>
+<span class="sd">        save (bool): Whether to save the plot as a PDF.</span>
+<span class="sd">        y_lim (tuple): Tuple defining y-axis limits.</span>
+<span class="sd">        log_y (bool): If True, applies log scaling to y-axis.</span>
+<span class="sd">        log_x (bool): If True, applies log scaling to x-axis.</span>
+<span class="sd">        error_bar_type (str): Error bar type to display (&#39;std&#39; or &#39;sem&#39;).</span>
+<span class="sd">        remove_outliers (bool): Whether to exclude statistical outliers (not implemented here).</span>
+<span class="sd">        theme (str): Seaborn theme to use for the plot.</span>
+<span class="sd">        representation (str): Level of summarization; one of {&#39;object&#39;, &#39;well&#39;, &#39;plate&#39;}.</span>
+<span class="sd">        paired (bool): If True, assumes samples are paired for statistical tests.</span>
+<span class="sd">        all_to_all (bool): If True, performs all-to-all comparisons.</span>
+<span class="sd">        compare_group (str): Optional group to compare all others against.</span>
+<span class="sd">        graph_name (str): Optional name used in output file naming.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">grouping_column</span><span class="p">,</span> <span class="n">data_column</span><span class="p">,</span> <span class="n">graph_type</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="n">summary_func</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> 
                  <span class="n">order</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s1">&#39;./output&#39;</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">y_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">log_y</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">log_x</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">error_bar_type</span><span class="o">=</span><span class="s1">&#39;std&#39;</span><span class="p">,</span> <span class="n">remove_outliers</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">theme</span><span class="o">=</span><span class="s1">&#39;pastel&#39;</span><span class="p">,</span> <span class="n">representation</span><span class="o">=</span><span class="s1">&#39;object&#39;</span><span class="p">,</span>
                  <span class="n">paired</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">all_to_all</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">compare_group</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">graph_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Class for creating grouped plots with optional statistical tests and data preprocessing.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        Initialize a spacrGraph instance for grouped data visualization.</span>
 
+<span class="sd">        Args:</span>
+<span class="sd">            df (pd.DataFrame): Input dataframe containing data to be plotted.</span>
+<span class="sd">            grouping_column (str): Column name to group data along the x-axis.</span>
+<span class="sd">            data_column (str or list): Column(s) containing values to summarize and plot.</span>
+<span class="sd">            graph_type (str): Type of plot to generate (&#39;bar&#39;, &#39;box&#39;, etc.). Default is &#39;bar&#39;.</span>
+<span class="sd">            summary_func (str or callable): Summary statistic to apply per group (e.g., &#39;mean&#39;, &#39;median&#39;).</span>
+<span class="sd">            order (list or None): Optional order of groups on the x-axis. If None, will be inferred from the data.</span>
+<span class="sd">            colors (list or None): List of colors to use for plotting. Defaults to seaborn palette.</span>
+<span class="sd">            output_dir (str): Directory where plot will be saved if `save=True`.</span>
+<span class="sd">            save (bool): Whether to save the plot as a PDF.</span>
+<span class="sd">            y_lim (tuple or None): Y-axis limits. If None, determined automatically.</span>
+<span class="sd">            log_y (bool): If True, use logarithmic scale on the y-axis.</span>
+<span class="sd">            log_x (bool): If True, use logarithmic scale on the x-axis.</span>
+<span class="sd">            error_bar_type (str): Type of error bars to include (&#39;std&#39; or &#39;sem&#39;).</span>
+<span class="sd">            remove_outliers (bool): Whether to remove outliers from the data before plotting.</span>
+<span class="sd">            theme (str): Seaborn color theme for plotting.</span>
+<span class="sd">            representation (str): Level of summarization: &#39;object&#39;, &#39;well&#39;, or &#39;plate&#39;.</span>
+<span class="sd">            paired (bool): Whether samples are paired for statistical testing.</span>
+<span class="sd">            all_to_all (bool): If True, perform all pairwise comparisons.</span>
+<span class="sd">            compare_group (str or None): If provided, compares all groups against this one.</span>
+<span class="sd">            graph_name (str or None): Optional string to include in saved file names.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
 <div class="viewcode-block" id="spacrGraph.df">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.spacrGraph.df">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">df</span></div>
@@ -3777,13 +4097,29 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocess_data</span><span class="p">()</span>
         
     <span class="k">def</span> <span class="nf">_set_theme</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the Seaborn theme and reorder colors if necessary.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the Seaborn color theme and define the plotting color order.</span>
+
+<span class="sd">        This method initializes the `sns_palette` using a reordered set of colors</span>
+<span class="sd">        from the selected theme.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">integer_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">81</span><span class="p">))</span>
         <span class="n">color_order</span> <span class="o">=</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">integer_list</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sns_palette</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_reordered_theme</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theme</span><span class="p">,</span> <span class="n">color_order</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_set_reordered_theme</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">theme</span><span class="o">=</span><span class="s1">&#39;deep&#39;</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_colors</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">show_theme</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set and reorder the Seaborn color palette.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a Seaborn color palette with an optional reordering.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            theme (str): Seaborn palette name (e.g., &#39;deep&#39;, &#39;pastel&#39;).</span>
+<span class="sd">            order (list): List of integer indices defining color reorder.</span>
+<span class="sd">            n_colors (int): Number of colors to include in the palette.</span>
+<span class="sd">            show_theme (bool): If True, displays the palette visually.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: Reordered color palette.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">palette</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="n">theme</span><span class="p">,</span> <span class="n">n_colors</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">order</span><span class="p">:</span>
             <span class="n">reordered_palette</span> <span class="o">=</span> <span class="p">[</span><span class="n">palette</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">order</span><span class="p">]</span>
@@ -3794,27 +4130,23 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">reordered_palette</span>
 
-    <span class="c1">#def preprocess_data(self):</span>
-    <span class="c1">#    &quot;&quot;&quot;Preprocess the data: remove NaNs, sort/order the grouping column, and optionally group by &#39;prc&#39;.&quot;&quot;&quot;</span>
-    <span class="c1">#    # Remove NaNs in both the grouping column and each data column</span>
-    <span class="c1">#    df = self.df.dropna(subset=[self.grouping_column] + self.data_column)</span>
-    <span class="c1">#    # Group by &#39;prc&#39; column if representation is &#39;well&#39;</span>
-    <span class="c1">#    if self.representation == &#39;well&#39;:</span>
-    <span class="c1">#        df = df.groupby([&#39;prc&#39;, self.grouping_column])[self.data_column].agg(self.summary_func).reset_index()</span>
-    <span class="c1">#    if self.representation == &#39;plateID&#39;:</span>
-    <span class="c1">#        df = df.groupby([&#39;plateID&#39;, self.grouping_column])[self.data_column].agg(self.summary_func).reset_index()</span>
-    <span class="c1">#    if self.order:</span>
-    <span class="c1">#        df[self.grouping_column] = pd.Categorical(df[self.grouping_column], categories=self.order, ordered=True)</span>
-    <span class="c1">#    else:</span>
-    <span class="c1">#        df[self.grouping_column] = pd.Categorical(df[self.grouping_column], categories=sorted(df[self.grouping_column].unique()), ordered=True)</span>
-    <span class="c1">#    return df</span>
-  
 <div class="viewcode-block" id="spacrGraph.preprocess_data">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.spacrGraph.preprocess_data">[docs]</a>
     <span class="k">def</span> <span class="nf">preprocess_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Preprocess the data: remove NaNs, optionally ensure &#39;plateID&#39; column is created,</span>
-<span class="sd">        then group by either &#39;prc&#39;, &#39;plateID&#39;, or do no grouping at all if representation == &#39;object&#39;.</span>
+<span class="sd">        Preprocess the input DataFrame by removing NaNs and optionally aggregating data.</span>
+
+<span class="sd">        Aggregation is controlled by the `representation` parameter:</span>
+<span class="sd">            - &#39;object&#39;: No aggregation; raw data is retained.</span>
+<span class="sd">            - &#39;well&#39;: Data is grouped by [&#39;prc&#39;, grouping_column].</span>
+<span class="sd">            - &#39;plate&#39;: Data is grouped by [&#39;plateID&#39;, grouping_column], </span>
+<span class="sd">                    extracting plateID from the &#39;prc&#39; column if needed.</span>
+
+<span class="sd">        Ordering of the x-axis categories is set using the `order` parameter</span>
+<span class="sd">        or automatically sorted if not provided.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pd.DataFrame: Cleaned and optionally aggregated DataFrame.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># 1) Remove NaNs in both the grouping column and each data column</span>
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">grouping_column</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_column</span><span class="p">)</span>
@@ -3873,7 +4205,13 @@
 <div class="viewcode-block" id="spacrGraph.remove_outliers_from_plot">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.spacrGraph.remove_outliers_from_plot">[docs]</a>
     <span class="k">def</span> <span class="nf">remove_outliers_from_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove outliers from the plot but keep them in the data.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove outliers from each group in the dataset for plotting purposes.</span>
+<span class="sd">        This method applies the IQR method to filter extreme values per group.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            pd.DataFrame: Filtered dataframe with outliers removed for plotting.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">filtered_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">unique_groups</span> <span class="o">=</span> <span class="n">filtered_df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">grouping_column</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">unique_groups</span><span class="p">:</span>
@@ -3890,7 +4228,18 @@
 <div class="viewcode-block" id="spacrGraph.perform_normality_tests">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.spacrGraph.perform_normality_tests">[docs]</a>
     <span class="k">def</span> <span class="nf">perform_normality_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform normality tests for each group and data column.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform normality tests on each group and data column in the dataframe.</span>
+
+<span class="sd">        Uses:</span>
+<span class="sd">            - Shapiro-Wilk test for sample sizes &lt; 8</span>
+<span class="sd">            - D&#39;Agostino-Pearson test for sample sizes ≥ 8</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple:</span>
+<span class="sd">                - is_normal (bool): True if all groups pass normality test (p &gt; 0.05)</span>
+<span class="sd">                - normality_results (list): List of dictionaries with test results</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">unique_groups</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">grouping_column</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
         <span class="n">normality_results</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -3940,7 +4289,17 @@
 <div class="viewcode-block" id="spacrGraph.perform_levene_test">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.spacrGraph.perform_levene_test">[docs]</a>
     <span class="k">def</span> <span class="nf">perform_levene_test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unique_groups</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform Levene&#39;s test for equal variance.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform Levene’s test for homogeneity of variance across groups.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            unique_groups (list): List of group identifiers to compare.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple:</span>
+<span class="sd">                - stat (float): Levene test statistic</span>
+<span class="sd">                - p_value (float): p-value for the test</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">grouped_data</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">grouping_column</span><span class="p">]</span> <span class="o">==</span> <span class="n">group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_column</span><span class="p">]</span> <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">unique_groups</span><span class="p">]</span>
         <span class="n">stat</span><span class="p">,</span> <span class="n">p_value</span> <span class="o">=</span> <span class="n">levene</span><span class="p">(</span><span class="o">*</span><span class="n">grouped_data</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">stat</span><span class="p">,</span> <span class="n">p_value</span></div>
@@ -3949,7 +4308,24 @@
 <div class="viewcode-block" id="spacrGraph.perform_statistical_tests">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.spacrGraph.perform_statistical_tests">[docs]</a>
     <span class="k">def</span> <span class="nf">perform_statistical_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unique_groups</span><span class="p">,</span> <span class="n">is_normal</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform statistical tests separately for each data column.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform appropriate statistical tests based on normality and group count.</span>
+
+<span class="sd">        If 2 groups:</span>
+<span class="sd">            - Paired or unpaired t-test (if normal)</span>
+<span class="sd">            - Wilcoxon or Mann-Whitney U test (if non-normal)</span>
+
+<span class="sd">        If &gt;2 groups:</span>
+<span class="sd">            - ANOVA (if normal)</span>
+<span class="sd">            - Kruskal-Wallis test (if non-normal)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            unique_groups (list): List of unique group names.</span>
+<span class="sd">            is_normal (bool): Whether the data passes normality tests.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: List of dictionaries with test results for each data column.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">test_results</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_column</span><span class="p">:</span>  <span class="c1"># Iterate over each data column</span>
             <span class="n">grouped_data</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">grouping_column</span><span class="p">]</span> <span class="o">==</span> <span class="n">group</span><span class="p">,</span> <span class="n">column</span><span class="p">]</span> <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">unique_groups</span><span class="p">]</span>
@@ -3992,8 +4368,22 @@
 <div class="viewcode-block" id="spacrGraph.perform_posthoc_tests">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.spacrGraph.perform_posthoc_tests">[docs]</a>
     <span class="k">def</span> <span class="nf">perform_posthoc_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_normal</span><span class="p">,</span> <span class="n">unique_groups</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform post-hoc tests for multiple groups based on all_to_all flag.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform post-hoc tests for multiple groups, depending on normality and group count.</span>
 
+<span class="sd">        If data are normally distributed and `all_to_all` is True:</span>
+<span class="sd">            - Tukey HSD test is performed for pairwise comparisons.</span>
+
+<span class="sd">        If not normal and `all_to_all` is True:</span>
+<span class="sd">            - Dunn&#39;s test is performed using appropriate p-value adjustment.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            is_normal (bool): Whether the data passed normality tests.</span>
+<span class="sd">            unique_groups (list): List of group identifiers.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: List of dictionaries with post-hoc test results per pairwise comparison.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">.sp_stats</span> <span class="kn">import</span> <span class="n">choose_p_adjust_method</span>
 
         <span class="n">posthoc_results</span> <span class="o">=</span> <span class="p">[]</span>
@@ -4051,10 +4441,32 @@
 <div class="viewcode-block" id="spacrGraph.create_plot">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.spacrGraph.create_plot">[docs]</a>
     <span class="k">def</span> <span class="nf">create_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create and display the plot based on the chosen graph type.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create the plot based on the selected `graph_type`.</span>
 
+<span class="sd">        If `graph_type` supports it and multiple `data_column` values are used,</span>
+<span class="sd">        symbols can be placed below the plot to indicate groupings and correspondence.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ax (matplotlib.axes.Axes, optional): An existing axis to draw the plot on. </span>
+<span class="sd">                                                If None, a new figure and axis are created.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            matplotlib.figure.Figure: The resulting figure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">def</span> <span class="nf">_generate_tabels</span><span class="p">(</span><span class="n">unique_groups</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Generate row labels and a symbol table for multi-level grouping.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Generate symbolic representation of the grouping and data columns </span>
+<span class="sd">            for annotation under plots (used internally by create_plot).</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                unique_groups (list): List of group identifiers.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                tuple:</span>
+<span class="sd">                    - row_labels (list): List of label strings for each row.</span>
+<span class="sd">                    - transposed_table (list of lists): Symbolic table aligned with x-axis.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
             <span class="c1"># Create row labels: Include the grouping column and data columns</span>
             <span class="n">row_labels</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">grouping_column</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_column</span>
 
@@ -4087,13 +4499,14 @@
 
         <span class="k">def</span> <span class="nf">_place_symbols</span><span class="p">(</span><span class="n">row_labels</span><span class="p">,</span> <span class="n">transposed_table</span><span class="p">,</span> <span class="n">x_positions</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Places symbols and row labels aligned under the bars or jitter points on the graph.</span>
-<span class="sd">            </span>
-<span class="sd">            Parameters:</span>
-<span class="sd">            - row_labels: List of row titles to be displayed along the y-axis.</span>
-<span class="sd">            - transposed_table: Data to be placed under each bar/jitter as symbols.</span>
-<span class="sd">            - x_positions: X-axis positions for each group to align the symbols.</span>
-<span class="sd">            - ax: The matplotlib Axes object where the plot is drawn.</span>
+<span class="sd">            Place text-based symbols under plot elements to annotate categories </span>
+<span class="sd">            and features in multi-group, multi-feature plots.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                row_labels (list): Row label names.</span>
+<span class="sd">                transposed_table (list of lists): Symbolic table to annotate.</span>
+<span class="sd">                x_positions (list of float): X-coordinates for symbol placement.</span>
+<span class="sd">                ax (matplotlib.axes.Axes): Axis object where symbols are placed.</span>
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="c1"># Get plot dimensions and adjust for different plot sizes</span>
             <span class="n">y_axis_min</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Minimum y-axis value (usually 0)</span>
@@ -4120,6 +4533,17 @@
             <span class="n">ax</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
                     
         <span class="k">def</span> <span class="nf">_get_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Get x-axis positions of plotted elements depending on graph type.</span>
+
+<span class="sd">            Used to align symbols and annotations below plot elements.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                ax (matplotlib.axes.Axes): Axis object from which positions are extracted.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                list of float: X-axis coordinates for each group/data element.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span><span class="s1">&#39;jitter_bar&#39;</span><span class="p">]:</span> 
                 <span class="n">x_positions</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">bar</span><span class="o">.</span><span class="n">get_paths</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">vertices</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">bar</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">collections</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">bar</span><span class="p">,</span> <span class="s1">&#39;get_paths&#39;</span><span class="p">)]</span>
 
@@ -4138,7 +4562,24 @@
             <span class="k">return</span> <span class="n">x_positions</span>
         
         <span class="k">def</span> <span class="nf">_draw_comparison_lines</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">x_positions</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Draw comparison lines and annotate significance based on results_df.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Draw horizontal lines between group pairs to indicate statistical comparisons and significance.</span>
+
+<span class="sd">            This function annotates the plot using entries from `self.results_df`, which must contain</span>
+<span class="sd">            a &#39;Comparison&#39; column with group pair strings formatted as &#39;group1 vs group2&#39; and a &#39;p-value&#39; column.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                ax (matplotlib.axes.Axes): The axis on which to draw the lines and annotations.</span>
+<span class="sd">                x_positions (list of float): The x-axis positions of each group, in order matching `unique_groups`.</span>
+
+<span class="sd">            Notes:</span>
+<span class="sd">                - Significance markers:</span>
+<span class="sd">                    &#39;***&#39; for p ≤ 0.001  </span>
+<span class="sd">                    &#39;**&#39;  for p ≤ 0.01  </span>
+<span class="sd">                    &#39;*&#39;   for p ≤ 0.05  </span>
+<span class="sd">                    &#39;ns&#39;  for p &gt; 0.05</span>
+<span class="sd">                - Lines are staggered vertically to avoid overlap.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">results_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No comparisons available to annotate.&quot;</span><span class="p">)</span>
                 <span class="k">return</span>
@@ -4272,15 +4713,18 @@
 
     <span class="k">def</span> <span class="nf">_standerdize_figure_format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">num_groups</span><span class="p">,</span> <span class="n">graph_type</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Adjusts the figure layout (size, bar width, jitter, and spacing) based on the number of groups.</span>
+<span class="sd">        Standardize and adjust the visual format of the plot based on the number of groups and plot type.</span>
 
-<span class="sd">        Parameters:</span>
-<span class="sd">        - ax: The matplotlib Axes object.</span>
-<span class="sd">        - num_groups: Number of unique groups.</span>
-<span class="sd">        - graph_type: The type of graph (e.g., &#39;bar&#39;, &#39;jitter&#39;, &#39;box&#39;, etc.).</span>
+<span class="sd">        Args:</span>
+<span class="sd">            ax (matplotlib.axes.Axes): The axis object of the plot.</span>
+<span class="sd">            num_groups (int): Number of groups/categories on the x-axis.</span>
+<span class="sd">            graph_type (str): Type of plot, e.g., &#39;bar&#39;, &#39;jitter&#39;, &#39;box&#39;, &#39;line&#39;, etc.</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">        - None. Modifies the figure and Axes in place.</span>
+<span class="sd">        Notes:</span>
+<span class="sd">            - Dynamically sets figure size based on group count.</span>
+<span class="sd">            - Adjusts bar widths, jitter offsets, and legend font sizes.</span>
+<span class="sd">            - Skips formatting for line plots.</span>
+<span class="sd">            - Intended to maintain a visually consistent appearance across graphs.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">graph_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;line&#39;</span><span class="p">,</span> <span class="s1">&#39;line_std&#39;</span><span class="p">]:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Skipping layout adjustment for line graphs.&quot;</span><span class="p">)</span>
@@ -4344,7 +4788,19 @@
         <span class="n">ax</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
         
     <span class="k">def</span> <span class="nf">_create_bar_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper method to create a bar plot with consistent bar thickness and centered error bars.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a bar plot using seaborn, with error bars and standardized layout.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ax (matplotlib.axes.Axes): Axis object to draw the bar plot.</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">            - Supports multiple or single data columns.</span>
+<span class="sd">            - Uses melted DataFrame (self.df_melted).</span>
+<span class="sd">            - Adds error bars based on `self.error_bar_type` (std or sem).</span>
+<span class="sd">            - Bar width and position are adjusted manually.</span>
+<span class="sd">            - Log scaling is applied if enabled.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Flatten DataFrame: Combine grouping column and data column into one group if needed</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_column</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">df_melted</span><span class="p">[</span><span class="s1">&#39;Combined Group&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df_melted</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">grouping_column</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; - &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">df_melted</span><span class="p">[</span><span class="s1">&#39;Data Column&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span>
@@ -4385,7 +4841,19 @@
             <span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_create_jitter_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper method to create a jitter plot (strip plot) with consistent spacing.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a jitter (strip) plot using seaborn with consistent spacing.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ax (matplotlib.axes.Axes): Axis object to draw the jitter plot.</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">            - Supports multiple or single data columns.</span>
+<span class="sd">            - Uses melted DataFrame (self.df_melted).</span>
+<span class="sd">            - Point size and jitter are controlled via class attributes.</span>
+<span class="sd">            - Legend is deduplicated and managed manually.</span>
+<span class="sd">            - Log scaling is applied if enabled.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Combine grouping column and data column if needed</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_column</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">df_melted</span><span class="p">[</span><span class="s1">&#39;Combined Group&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df_melted</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">grouping_column</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>  <span class="o">+</span> <span class="s2">&quot; - &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">df_melted</span><span class="p">[</span><span class="s1">&#39;Data Column&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span>
@@ -4414,7 +4882,18 @@
             <span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_create_line_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper method to create a line graph with one line per group based on epochs and accuracy.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a line plot where each group is represented by a separate line.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ax (matplotlib.axes.Axes): Axis object to draw the line graph.</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">            - Expects `self.data_column` to contain two columns: x and y axes.</span>
+<span class="sd">            - One line per group in `self.grouping_column`.</span>
+<span class="sd">            - Log scaling applied as specified.</span>
+<span class="sd">            - Raises ValueError if required columns are missing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1">#display(self.df)</span>
         <span class="c1"># Ensure epoch is used on the x-axis and accuracy on the y-axis</span>
         <span class="n">x_axis_column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_column</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -4443,7 +4922,18 @@
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">y_axis_column</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_create_line_with_std_area</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper method to create a line graph with shaded area representing standard deviation.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a line plot with shaded standard deviation region around the mean.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ax (matplotlib.axes.Axes): Axis object to draw the plot.</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">            - Expects `self.data_column = [x_column, y_column]`.</span>
+<span class="sd">            - Computes mean and std of `y_column` per `x_column`.</span>
+<span class="sd">            - Plots the mean as a line and ±1 std as a shaded region.</span>
+<span class="sd">            - Applies log scaling if enabled.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">x_axis_column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_column</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">y_axis_column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_column</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -4474,7 +4964,18 @@
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">y_axis_column</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         
     <span class="k">def</span> <span class="nf">_create_box_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper method to create a box plot with consistent spacing.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a box plot for each group with optional grouping by multiple columns.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ax (matplotlib.axes.Axes): Axis object to draw the box plot.</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">            - Supports multiple data columns by combining into &#39;Combined Group&#39;.</span>
+<span class="sd">            - Uses `self.df_melted`.</span>
+<span class="sd">            - Log scaling applied if enabled.</span>
+<span class="sd">            - Legend is deduplicated.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Combine grouping column and data column if needed</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_column</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">df_melted</span><span class="p">[</span><span class="s1">&#39;Combined Group&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df_melted</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">grouping_column</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; - &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">df_melted</span><span class="p">[</span><span class="s1">&#39;Data Column&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span>
@@ -4503,7 +5004,18 @@
             <span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
     
     <span class="k">def</span> <span class="nf">_create_violin_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper method to create a violin plot with consistent spacing.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a violin plot for each group, showing data distribution.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ax (matplotlib.axes.Axes): Axis object to draw the violin plot.</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">            - Supports multiple data columns via combined group label.</span>
+<span class="sd">            - Uses `self.df_melted`.</span>
+<span class="sd">            - Log scaling applied if enabled.</span>
+<span class="sd">            - Legend is deduplicated.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Combine grouping column and data column if needed</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_column</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">df_melted</span><span class="p">[</span><span class="s1">&#39;Combined Group&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df_melted</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">grouping_column</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; - &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">df_melted</span><span class="p">[</span><span class="s1">&#39;Data Column&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span>
@@ -4533,7 +5045,19 @@
             <span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_create_jitter_bar_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper method to create a bar plot with consistent bar thickness and centered error bars.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a combined jitter and bar plot with optional error bars.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ax (matplotlib.axes.Axes): Axis object to draw the plot.</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">            - Bars show central tendency; jitter adds point-level detail.</span>
+<span class="sd">            - Supports multiple data columns via combined group label.</span>
+<span class="sd">            - Uses `self.df_melted` and `self.error_bar_type`.</span>
+<span class="sd">            - Log scaling applied if enabled.</span>
+<span class="sd">            - Error bars currently commented out; customize if needed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Flatten DataFrame: Combine grouping column and data column into one group if needed</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_column</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">df_melted</span><span class="p">[</span><span class="s1">&#39;Combined Group&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df_melted</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">grouping_column</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; - &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">df_melted</span><span class="p">[</span><span class="s1">&#39;Data Column&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span>
@@ -4575,7 +5099,19 @@
             <span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_create_jitter_box_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper method to create a box plot with consistent spacing.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a combined jitter and box plot.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ax (matplotlib.axes.Axes): Axis object to draw the plot.</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">            - Uses seaborn `boxplot` and overlays `stripplot`.</span>
+<span class="sd">            - Supports multiple data columns via combined group label.</span>
+<span class="sd">            - Uses `self.df_melted`.</span>
+<span class="sd">            - Legend is deduplicated.</span>
+<span class="sd">            - Log scaling applied if enabled.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Combine grouping column and data column if needed</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_column</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">df_melted</span><span class="p">[</span><span class="s1">&#39;Combined Group&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df_melted</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">grouping_column</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; - &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">df_melted</span><span class="p">[</span><span class="s1">&#39;Data Column&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span>
@@ -4605,7 +5141,14 @@
             <span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_save_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper method to save the plot and results.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the figure and results DataFrame to disk.</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">            - PDF saved to `self.output_dir` with name based on `self.results_name`.</span>
+<span class="sd">            - CSV of results saved in the same directory.</span>
+<span class="sd">            - Ensures output directory exists.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">plot_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">results_name</span><span class="si">}</span><span class="s2">.pdf&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">plot_path</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">transparent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">)</span>
@@ -4617,14 +5160,24 @@
 <div class="viewcode-block" id="spacrGraph.get_results">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.spacrGraph.get_results">[docs]</a>
     <span class="k">def</span> <span class="nf">get_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the results dataframe.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the internal results DataFrame with computed statistics or comparisons.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pd.DataFrame: Results table.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">results_df</span></div>
 
     
 <div class="viewcode-block" id="spacrGraph.get_figure">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.spacrGraph.get_figure">[docs]</a>
     <span class="k">def</span> <span class="nf">get_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the generated figure.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the Matplotlib figure associated with the most recent plot.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            matplotlib.figure.Figure: The plot figure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fig</span></div>
 </div>
 
@@ -4632,22 +5185,47 @@
 <div class="viewcode-block" id="plot_data_from_db">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.plot_data_from_db">[docs]</a>
 <span class="k">def</span> <span class="nf">plot_data_from_db</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load measurement data from SQL databases, annotate with experimental conditions,</span>
+<span class="sd">    and generate grouped plots using spacrGraph.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): A dictionary containing the following keys:</span>
+<span class="sd">            - &#39;src&#39; (str or list of str): Source directories containing measurement databases.</span>
+<span class="sd">            - &#39;database&#39; (str or list of str): Corresponding database filenames.</span>
+<span class="sd">            - &#39;table_names&#39; (str): Name of the SQL table to extract data from.</span>
+<span class="sd">            - &#39;graph_name&#39; (str): Name for saving the output plot and settings.</span>
+<span class="sd">            - &#39;grouping_column&#39; (str): Column to group by on the x-axis.</span>
+<span class="sd">            - &#39;data_column&#39; (str): Column to plot on the y-axis.</span>
+<span class="sd">            - &#39;channel_of_interest&#39; (int): Channel number for recruitment calculation (if applicable).</span>
+<span class="sd">            - &#39;cell_types&#39; (list): List of expected host cell types.</span>
+<span class="sd">            - &#39;pathogen_types&#39; (list): List of expected pathogen types.</span>
+<span class="sd">            - &#39;treatments&#39; (list): List of expected treatments.</span>
+<span class="sd">            - &#39;cell_plate_metadata&#39; (str or None): Path to metadata for host cells.</span>
+<span class="sd">            - &#39;pathogen_plate_metadata&#39; (str or None): Path to metadata for pathogens.</span>
+<span class="sd">            - &#39;treatment_plate_metadata&#39; (str or None): Path to metadata for treatments.</span>
+<span class="sd">            - &#39;nuclei_limit&#39; (int): Max number of nuclei to load per plate (optional).</span>
+<span class="sd">            - &#39;pathogen_limit&#39; (int): Max number of pathogens to load per plate (optional).</span>
+<span class="sd">            - &#39;verbose&#39; (bool): Whether to print loading information.</span>
+<span class="sd">            - &#39;graph_type&#39; (str): Type of plot to create (e.g., &#39;bar&#39;, &#39;box&#39;, &#39;jitter&#39;, etc.).</span>
+<span class="sd">            - &#39;representation&#39; (str): Data representation style for plotting (optional).</span>
+<span class="sd">            - &#39;theme&#39; (str): Seaborn color palette theme.</span>
+<span class="sd">            - &#39;y_lim&#39; (tuple or None): Limits for y-axis scaling.</span>
+<span class="sd">            - &#39;save&#39; (bool): Whether to save the plot and results to disk.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        fig (matplotlib.figure.Figure): The plotted figure.</span>
+<span class="sd">        results_df (pd.DataFrame): Statistical results or summary data used in the plot.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Automatically handles multi-source input.</span>
+<span class="sd">        - Computes recruitment ratio if specified.</span>
+<span class="sd">        - Drops rows with missing grouping or data values.</span>
+<span class="sd">        - Creates and saves plot and settings to disk if &#39;save&#39; is True.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_read_db</span><span class="p">,</span> <span class="n">_read_and_merge_data</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">annotate_conditions</span><span class="p">,</span> <span class="n">save_settings</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">set_default_plot_data_from_db</span>
-<span class="w">    </span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Extracts the specified table from the SQLite database and plots a specified column.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        db_path (str): The path to the SQLite database.</span>
-<span class="sd">        table_names (str): The name of the table to extract.</span>
-<span class="sd">        data_column (str): The column to plot from the table.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        df (pd.DataFrame): The extracted table as a DataFrame.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_plot_data_from_db</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
     
@@ -4760,21 +5338,40 @@
 <div class="viewcode-block" id="plot_data_from_csv">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.plot_data_from_csv">[docs]</a>
 <span class="k">def</span> <span class="nf">plot_data_from_csv</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load measurement data from one or more CSV files, optionally filter and clean the data,</span>
+<span class="sd">    and generate grouped plots using spacrGraph.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): A dictionary containing the following keys:</span>
+<span class="sd">            - &#39;src&#39; (str or list of str): Path(s) to the CSV file(s) containing measurement data.</span>
+<span class="sd">            - &#39;grouping_column&#39; (str): Column to group by on the x-axis.</span>
+<span class="sd">            - &#39;data_column&#39; (str): Column to plot on the y-axis.</span>
+<span class="sd">            - &#39;graph_name&#39; (str): Name for saving the output plot and settings.</span>
+<span class="sd">            - &#39;graph_type&#39; (str): Type of plot to create (e.g., &#39;bar&#39;, &#39;box&#39;, &#39;violin&#39;, &#39;jitter&#39;).</span>
+<span class="sd">            - &#39;theme&#39; (str): Seaborn color palette theme.</span>
+<span class="sd">            - &#39;log_y&#39; (bool): Whether to log-transform the y-axis.</span>
+<span class="sd">            - &#39;log_x&#39; (bool): Whether to log-transform the x-axis.</span>
+<span class="sd">            - &#39;y_lim&#39; (tuple or None): Limits for y-axis scaling (optional).</span>
+<span class="sd">            - &#39;save&#39; (bool): Whether to save the plot and results to disk.</span>
+<span class="sd">            - &#39;verbose&#39; (bool): Whether to print and display the DataFrame before plotting.</span>
+<span class="sd">            - &#39;representation&#39; (str): Plot style to use (e.g., &#39;jitter_box&#39;, &#39;violin&#39;, etc.).</span>
+<span class="sd">            - &#39;keep_groups&#39; (list or str, optional): Restrict plot to a subset of group labels.</span>
+<span class="sd">            - &#39;remove_outliers&#39; (bool): Whether to remove outliers using IQR filtering.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        fig (matplotlib.figure.Figure): The plotted figure.</span>
+<span class="sd">        results_df (pd.DataFrame): DataFrame with statistical results or plot summary.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Merges multiple CSVs and tags them with a default &#39;plateID&#39; if not provided.</span>
+<span class="sd">        - Attempts to split &#39;prc&#39; column into &#39;plateID&#39;, &#39;rowID&#39;, and &#39;columnID&#39; if applicable.</span>
+<span class="sd">        - Handles missing values in the grouping and data columns by dropping those rows.</span>
+<span class="sd">        - Automatically creates the output directory and saves results if `save` is True.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_read_db</span><span class="p">,</span> <span class="n">_read_and_merge_data</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">annotate_conditions</span><span class="p">,</span> <span class="n">save_settings</span><span class="p">,</span> <span class="n">remove_outliers_by_group</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">get_plot_data_from_csv_default_settings</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Extracts the specified table from the SQLite database and plots a specified column.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        db_path (str): The path to the SQLite database.</span>
-<span class="sd">        table_names (str): The name of the table to extract.</span>
-<span class="sd">        data_column (str): The column to plot from the table.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        df (pd.DataFrame): The extracted table as a DataFrame.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    
 
     <span class="k">def</span> <span class="nf">filter_rows_by_column_values</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a filtered DataFrame where only rows with the column value in the list are kept.&quot;&quot;&quot;</span>
@@ -4860,7 +5457,41 @@
 <div class="viewcode-block" id="plot_region">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.plot_region">[docs]</a>
 <span class="k">def</span> <span class="nf">plot_region</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate and save region-specific plots including: mask overlay, raw PNG grid, and activation map grid.</span>
 
+<span class="sd">    This function loads image paths and metadata from database tables, filters for the specified region (field of view),</span>
+<span class="sd">    and plots:</span>
+<span class="sd">        - a mask overlay of the full field image with Cellpose masks</span>
+<span class="sd">        - a grid of raw cropped PNGs corresponding to the region</span>
+<span class="sd">        - a grid of activation maps (e.g., saliency, Grad-CAM) for the same region</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): A dictionary containing the following keys:</span>
+<span class="sd">            - &#39;src&#39; (str): Source folder containing subfolders like &#39;merged&#39;, &#39;measurements&#39;, and &#39;datasets&#39;.</span>
+<span class="sd">            - &#39;name&#39; (str): Filename (e.g., &#39;plate1_A01_01.tif&#39;) identifying the region/FOV of interest.</span>
+<span class="sd">            - &#39;activation_db&#39; (str): Filename of the activation measurement database (e.g., &#39;activations.db&#39;).</span>
+<span class="sd">            - &#39;activation_mode&#39; (str): Mode of activation (&#39;saliency&#39;, &#39;gradcam&#39;, etc.); used to find the correct table.</span>
+<span class="sd">            - &#39;channels&#39; (list of int): Indices of input channels to use for the mask overlay.</span>
+<span class="sd">            - &#39;cell_channel&#39; (int): Channel index used to generate the cell mask.</span>
+<span class="sd">            - &#39;nucleus_channel&#39; (int): Channel index used to generate the nucleus mask.</span>
+<span class="sd">            - &#39;pathogen_channel&#39; (int): Channel index used to generate the pathogen mask.</span>
+<span class="sd">            - &#39;percentiles&#39; (list): Two-element list (e.g., [2, 99]) specifying intensity percentiles for contrast scaling.</span>
+<span class="sd">            - &#39;mode&#39; (str): Image display mode for overlay (&#39;rgb&#39;, &#39;stack&#39;, etc.).</span>
+<span class="sd">            - &#39;export_tiffs&#39; (bool): Whether to export TIFF images alongside overlays.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple:</span>
+<span class="sd">            - fig_1 (matplotlib.figure.Figure or None): Mask overlay figure.</span>
+<span class="sd">            - fig_2 (matplotlib.figure.Figure or None): Grid of raw cropped PNGs.</span>
+<span class="sd">            - fig_3 (matplotlib.figure.Figure or None): Grid of activation maps.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Figures are saved as PDFs under `src/results/&lt;name&gt;/`.</span>
+<span class="sd">        - If no relevant PNGs or activations are found, the corresponding figure will be `None`.</span>
+<span class="sd">        - Paths are automatically corrected using `correct_paths`.</span>
+<span class="sd">        - The figure layout uses `plot_image_grid` and `plot_image_mask_overlay`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">_sort_paths_by_basename</span><span class="p">(</span><span class="n">paths</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">paths</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">path</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
     
@@ -4934,7 +5565,7 @@
 <span class="sd">    Plots a square grid of images from a list of image paths. </span>
 <span class="sd">    Unused subplots are filled with black, and padding is minimized.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    - image_paths: List of paths to images to be displayed.</span>
 
 <span class="sd">    Returns:</span>
@@ -5098,7 +5729,30 @@
 <div class="viewcode-block" id="graph_importance">
 <a class="viewcode-back" href="../../api/spacr/plot/index.html#spacr.plot.graph_importance">[docs]</a>
 <span class="k">def</span> <span class="nf">graph_importance</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate and display a bar, box, or violin plot of importance values across grouped categories.</span>
+
+<span class="sd">    This function reads one or more CSV files containing importance scores (e.g., feature importances, </span>
+<span class="sd">    saliency values, or other metrics) and visualizes them grouped by a specified column. It wraps </span>
+<span class="sd">    the `spacrGraph` plotting class to create the plot and saves the settings used.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): A dictionary containing the following keys:</span>
+<span class="sd">            - &#39;csvs&#39; (str or list of str): Path(s) to CSV file(s) containing importance data.</span>
+<span class="sd">            - &#39;grouping_column&#39; (str): Column name used for grouping on the x-axis.</span>
+<span class="sd">            - &#39;data_column&#39; (str): Column name containing the data values to be plotted (e.g., importance scores).</span>
+<span class="sd">            - &#39;graph_type&#39; (str): Type of plot to generate (&#39;bar&#39;, &#39;box&#39;, or &#39;violin&#39;).</span>
+<span class="sd">            - &#39;save&#39; (bool): Whether to save the plot as a PDF in the same directory as the input CSVs.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - If the required columns are missing from the input data, the function will print a warning and exit.</span>
+<span class="sd">        - The plot is created using the `spacrGraph` class and is shown with `matplotlib.pyplot.show()`.</span>
+<span class="sd">        - All input CSVs are concatenated before plotting.</span>
+<span class="sd">        - Settings are saved to disk using `save_settings`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">set_graph_importance_defaults</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">save_settings</span>
     
@@ -5153,7 +5807,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate a stacked bar plot for proportions and perform chi-squared and pairwise tests.</span>
 <span class="sd">    </span>
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">    - settings (dict): Analysis settings.</span>
 <span class="sd">    - df (DataFrame): Input data.</span>
 <span class="sd">    - group_column (str): Column indicating the groups.</span>
@@ -5233,7 +5887,7 @@
 <span class="sd">    Reads two CSV files, extracts the `gene` column, and creates a Venn diagram</span>
 <span class="sd">    to show overlapping and non-overlapping genes.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Args:</span>
 <span class="sd">        file1 (str): Path to the first CSV file.</span>
 <span class="sd">        file2 (str): Path to the second CSV file.</span>
 <span class="sd">        gene_column (str): Name of the column containing gene data (default: &quot;gene&quot;).</span>

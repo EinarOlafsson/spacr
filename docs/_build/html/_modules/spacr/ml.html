@@ -1142,8 +1142,23 @@
 <div class="viewcode-block" id="QuasiBinomial">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.QuasiBinomial">[docs]</a>
 <span class="k">class</span> <span class="nc">QuasiBinomial</span><span class="p">(</span><span class="n">Binomial</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Custom Quasi-Binomial family with adjustable variance.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Quasi-Binomial family for generalized linear models with adjustable dispersion.</span>
+
+<span class="sd">    Extends the standard Binomial family from `statsmodels` to allow for modeling overdispersion</span>
+<span class="sd">    in binomial data, where the observed variance exceeds the nominal binomial variance.</span>
+
+<span class="sd">    This is often used in biological and ecological count data where extra-binomial variation is common.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">logit</span><span class="p">(),</span> <span class="n">dispersion</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the Quasi-Binomial family with a specified link function and dispersion factor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            link (statsmodels.genmod.families.links): The link function to use. Defaults to logit().</span>
+<span class="sd">            dispersion (float): A positive float to scale the variance. </span>
+<span class="sd">                Use values &gt;1 to model overdispersion. Defaults to 1.0.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">link</span><span class="o">=</span><span class="n">link</span><span class="p">)</span>
 <div class="viewcode-block" id="QuasiBinomial.dispersion">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.QuasiBinomial.dispersion">[docs]</a>
@@ -1153,7 +1168,15 @@
 <div class="viewcode-block" id="QuasiBinomial.variance">
 <a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.QuasiBinomial.variance">[docs]</a>
     <span class="k">def</span> <span class="nf">variance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mu</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adjust the variance with the dispersion parameter.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the variance function for the quasi-binomial model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mu (array-like): The mean response values.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like: Variance scaled by the dispersion parameter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispersion</span> <span class="o">*</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">variance</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span></div>
 </div>
 
@@ -1164,7 +1187,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate p-values for model coefficients using residuals and t-statistics.</span>
 
-<span class="sd">    Parameters</span>
+<span class="sd">    Args</span>
 <span class="sd">    ----------</span>
 <span class="sd">    X : np.ndarray</span>
 <span class="sd">        The input feature matrix used for fitting the model.</span>
@@ -1203,7 +1226,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Perform mixed effects regression and return the fitted model.</span>
 
-<span class="sd">    Parameters</span>
+<span class="sd">    Args</span>
 <span class="sd">    ----------</span>
 <span class="sd">    y : pd.Series or np.ndarray</span>
 <span class="sd">        Target variable.</span>
@@ -1246,7 +1269,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Construct the file name for saving the volcano plot.</span>
 
-<span class="sd">    Parameters</span>
+<span class="sd">    Args</span>
 <span class="sd">    ----------</span>
 <span class="sd">    csv_path : str</span>
 <span class="sd">        Path to the CSV file containing model results.</span>
@@ -1276,7 +1299,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Min-max scale both independent and dependent variables.</span>
 
-<span class="sd">    Parameters</span>
+<span class="sd">    Args</span>
 <span class="sd">    ----------</span>
 <span class="sd">    X : pd.DataFrame</span>
 <span class="sd">        Feature matrix.</span>
@@ -1305,7 +1328,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Automatically select a GLM family based on the nature of the dependent variable.</span>
 
-<span class="sd">    Parameters</span>
+<span class="sd">    Args</span>
 <span class="sd">    ----------</span>
 <span class="sd">    y : np.ndarray</span>
 <span class="sd">        Target variable.</span>
@@ -1335,7 +1358,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Prepare the formula for regression modeling based on model design.</span>
 
-<span class="sd">    Parameters</span>
+<span class="sd">    Args</span>
 <span class="sd">    ----------</span>
 <span class="sd">    dependent_variable : str</span>
 <span class="sd">        Name of the dependent variable.</span>
@@ -1359,7 +1382,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fit a mixed linear model with random effects for plate, row, and column.</span>
 
-<span class="sd">    Parameters</span>
+<span class="sd">    Args</span>
 <span class="sd">    ----------</span>
 <span class="sd">    df : pd.DataFrame</span>
 <span class="sd">        Input data.</span>
@@ -1408,7 +1431,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Validate and preprocess a DataFrame before model fitting.</span>
 
-<span class="sd">    Parameters</span>
+<span class="sd">    Args</span>
 <span class="sd">    ----------</span>
 <span class="sd">    df : pd.DataFrame</span>
 <span class="sd">        Input data.</span>
@@ -2233,7 +2256,7 @@
 <span class="sd">        Detect outliers in &#39;outlier_col&#39; of &#39;df&#39; using the 1.5 × IQR rule,</span>
 <span class="sd">        and return values from &#39;return_col&#39; that correspond to those outliers.</span>
 <span class="sd">        </span>
-<span class="sd">        Parameters:</span>
+<span class="sd">        Args:</span>
 <span class="sd">        -----------</span>
 <span class="sd">        df : pd.DataFrame</span>
 <span class="sd">            Input DataFrame.</span>

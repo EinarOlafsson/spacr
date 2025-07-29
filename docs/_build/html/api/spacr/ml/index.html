@@ -1099,7 +1099,20 @@
 <dt class="sig sig-object py" id="spacr.ml.QuasiBinomial">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">QuasiBinomial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">link</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">logit()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dispersion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#QuasiBinomial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.QuasiBinomial" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">statsmodels.genmod.families.Binomial</span></code></p>
-<p>Custom Quasi-Binomial family with adjustable variance.</p>
+<p>Quasi-Binomial family for generalized linear models with adjustable dispersion.</p>
+<p>Extends the standard Binomial family from <cite>statsmodels</cite> to allow for modeling overdispersion
+in binomial data, where the observed variance exceeds the nominal binomial variance.</p>
+<p>This is often used in biological and ecological count data where extra-binomial variation is common.</p>
+<p>Initialize the Quasi-Binomial family with a specified link function and dispersion factor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>link</strong> (<em>statsmodels.genmod.families.links</em>) – The link function to use. Defaults to logit().</p></li>
+<li><p><strong>dispersion</strong> (<em>float</em>) – A positive float to scale the variance.
+Use values &gt;1 to model overdispersion. Defaults to 1.0.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.ml.QuasiBinomial.dispersion">
 <span class="sig-name descname"><span class="pre">dispersion</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.0</span></em><a class="reference internal" href="../../../_modules/spacr/ml.html#QuasiBinomial.dispersion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.QuasiBinomial.dispersion" title="Link to this definition"></a></dt>
@@ -1108,7 +1121,18 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.ml.QuasiBinomial.variance">
 <span class="sig-name descname"><span class="pre">variance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mu</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#QuasiBinomial.variance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.QuasiBinomial.variance" title="Link to this definition"></a></dt>
-<dd><p>Adjust the variance with the dispersion parameter.</p>
+<dd><p>Compute the variance function for the quasi-binomial model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mu</strong> (<em>array-like</em>) – The mean response values.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Variance scaled by the dispersion parameter.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array-like</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

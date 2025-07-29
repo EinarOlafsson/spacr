@@ -16,7 +16,20 @@ Module Contents
    Bases: :py:obj:`statsmodels.genmod.families.Binomial`
 
 
-   Custom Quasi-Binomial family with adjustable variance.
+   Quasi-Binomial family for generalized linear models with adjustable dispersion.
+
+   Extends the standard Binomial family from `statsmodels` to allow for modeling overdispersion
+   in binomial data, where the observed variance exceeds the nominal binomial variance.
+
+   This is often used in biological and ecological count data where extra-binomial variation is common.
+
+   Initialize the Quasi-Binomial family with a specified link function and dispersion factor.
+
+   :param link: The link function to use. Defaults to logit().
+   :type link: statsmodels.genmod.families.links
+   :param dispersion: A positive float to scale the variance.
+                      Use values >1 to model overdispersion. Defaults to 1.0.
+   :type dispersion: float
 
 
    .. py:attribute:: dispersion
@@ -26,7 +39,13 @@ Module Contents
 
    .. py:method:: variance(mu)
 
-      Adjust the variance with the dispersion parameter.
+      Compute the variance function for the quasi-binomial model.
+
+      :param mu: The mean response values.
+      :type mu: array-like
+
+      :returns: Variance scaled by the dispersion parameter.
+      :rtype: array-like
 
 
 

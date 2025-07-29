@@ -1098,77 +1098,435 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.sequencing.map_sequences_to_names">
 <span class="sig-prename descclassname"><span class="pre">spacr.sequencing.</span></span><span class="sig-name descname"><span class="pre">map_sequences_to_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequences</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sequencing.html#map_sequences_to_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sequencing.map_sequences_to_names" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Maps DNA sequences to their corresponding names based on a CSV file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>csv_file</strong> (<em>str</em>) – Path to the CSV file containing ‘sequence’ and ‘name’ columns.</p></li>
+<li><p><strong>sequences</strong> (<em>list</em><em> of </em><em>str</em>) – List of DNA sequences to map.</p></li>
+<li><p><strong>rc</strong> (<em>bool</em>) – If True, reverse complement the sequences in the CSV before mapping.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A list of names corresponding to the input sequences. If a sequence is not found,</dt><dd><p><cite>pd.NA</cite> is returned in its place.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The CSV file must contain columns named ‘sequence’ and ‘name’.</p></li>
+<li><p>If <cite>rc</cite> is True, sequences in the CSV will be reverse complemented prior to mapping.</p></li>
+<li><p>Sequences in <cite>sequences</cite> are not altered—only sequences in the CSV are reverse complemented.</p></li>
+</ul>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.sequencing.save_df_to_hdf5">
 <span class="sig-prename descclassname"><span class="pre">spacr.sequencing.</span></span><span class="sig-name descname"><span class="pre">save_df_to_hdf5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hdf5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'df'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comp_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'zlib'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comp_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sequencing.html#save_df_to_hdf5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sequencing.save_df_to_hdf5" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Saves a pandas DataFrame to an HDF5 file, optionally appending to an existing dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The DataFrame to save.</p></li>
+<li><p><strong>hdf5_file</strong> (<em>str</em>) – Path to the target HDF5 file.</p></li>
+<li><p><strong>key</strong> (<em>str</em><em>, </em><em>optional</em>) – Key under which to store the DataFrame. Defaults to ‘df’.</p></li>
+<li><p><strong>comp_type</strong> (<em>str</em><em>, </em><em>optional</em>) – Compression algorithm to use (e.g., ‘zlib’, ‘bzip2’, ‘blosc’). Defaults to ‘zlib’.</p></li>
+<li><p><strong>comp_level</strong> (<em>int</em><em>, </em><em>optional</em>) – Compression level (0–9). Higher values yield better compression at the cost of speed. Defaults to 5.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>If the specified key already exists in the HDF5 file, the new DataFrame is appended to it.</p></li>
+<li><p>The combined DataFrame is saved in ‘table’ format to support appending and querying.</p></li>
+<li><p>Errors encountered during saving are printed to standard output.</p></li>
+</ul>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.sequencing.save_unique_combinations_to_csv">
 <span class="sig-prename descclassname"><span class="pre">spacr.sequencing.</span></span><span class="sig-name descname"><span class="pre">save_unique_combinations_to_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unique_combinations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csv_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sequencing.html#save_unique_combinations_to_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sequencing.save_unique_combinations_to_csv" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Saves or appends a DataFrame of unique gRNA combinations to a CSV file, aggregating duplicates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unique_combinations</strong> (<em>pd.DataFrame</em>) – DataFrame containing ‘rowID’, ‘columnID’, and ‘grna_name’ columns,
+along with associated count or metric columns.</p></li>
+<li><p><strong>csv_file</strong> (<em>str</em>) – Path to the CSV file where data will be saved.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>If the file exists, it reads the existing contents and appends the new data.</p></li>
+<li><p>Duplicate combinations (same ‘rowID’, ‘columnID’, ‘grna_name’) are summed.</p></li>
+<li><p>The resulting DataFrame is saved with index included.</p></li>
+<li><p>Any exception during the process is caught and printed to stdout.</p></li>
+</ul>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.sequencing.save_qc_df_to_csv">
 <span class="sig-prename descclassname"><span class="pre">spacr.sequencing.</span></span><span class="sig-name descname"><span class="pre">save_qc_df_to_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qc_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qc_csv_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sequencing.html#save_qc_df_to_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sequencing.save_qc_df_to_csv" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Saves or appends a QC (quality control) DataFrame to a CSV file by summing overlapping entries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qc_df</strong> (<em>pd.DataFrame</em>) – DataFrame containing numeric QC metrics (e.g., counts, read stats).</p></li>
+<li><p><strong>qc_csv_file</strong> (<em>str</em>) – Path to the CSV file where the QC data will be saved.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>If the file exists, it reads the existing QC data and adds the new values to it (element-wise).</p></li>
+<li><p>If the file doesn’t exist, it creates a new one.</p></li>
+<li><p>The final DataFrame is saved without including the index.</p></li>
+<li><p>Any exception is caught and logged to stdout.</p></li>
+</ul>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.sequencing.extract_sequence_and_quality">
 <span class="sig-prename descclassname"><span class="pre">spacr.sequencing.</span></span><span class="sig-name descname"><span class="pre">extract_sequence_and_quality</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequence</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quality</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sequencing.html#extract_sequence_and_quality"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sequencing.extract_sequence_and_quality" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Extracts a subsequence and its corresponding quality scores.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sequence</strong> (<em>str</em>) – DNA sequence string.</p></li>
+<li><p><strong>quality</strong> (<em>str</em>) – Quality string corresponding to the sequence.</p></li>
+<li><p><strong>start</strong> (<em>int</em>) – Start index of the region to extract.</p></li>
+<li><p><strong>end</strong> (<em>int</em>) – End index of the region to extract (exclusive).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(subsequence, subquality) as strings.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.sequencing.create_consensus">
 <span class="sig-prename descclassname"><span class="pre">spacr.sequencing.</span></span><span class="sig-name descname"><span class="pre">create_consensus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seq1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qual1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qual2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sequencing.html#create_consensus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sequencing.create_consensus" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Constructs a consensus DNA sequence from two reads with associated quality scores.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>seq1</strong> (<em>str</em>) – First DNA sequence.</p></li>
+<li><p><strong>qual1</strong> (<em>str</em>) – Quality scores for <cite>seq1</cite> (as ASCII characters or integer-encoded).</p></li>
+<li><p><strong>seq2</strong> (<em>str</em>) – Second DNA sequence.</p></li>
+<li><p><strong>qual2</strong> (<em>str</em>) – Quality scores for <cite>seq2</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Consensus sequence, selecting the base with the highest quality at each position.</dt><dd><p>If one base is ‘N’, the non-‘N’ base is chosen regardless of quality.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.sequencing.get_consensus_base">
 <span class="sig-prename descclassname"><span class="pre">spacr.sequencing.</span></span><span class="sig-name descname"><span class="pre">get_consensus_base</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bases</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sequencing.html#get_consensus_base"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sequencing.get_consensus_base" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Selects the most reliable base from a list of two base-quality pairs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bases</strong> (<em>list</em><em> of </em><em>tuples</em>) – Each tuple contains (base, quality_score), expected length is 2.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The consensus base. Prefers non-‘N’ bases and higher quality scores.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.sequencing.reverse_complement">
 <span class="sig-prename descclassname"><span class="pre">spacr.sequencing.</span></span><span class="sig-name descname"><span class="pre">reverse_complement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seq</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sequencing.html#reverse_complement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sequencing.reverse_complement" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Computes the reverse complement of a DNA sequence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>seq</strong> (<em>str</em>) – Input DNA sequence.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Reverse complement of the input sequence.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.sequencing.process_chunk">
 <span class="sig-prename descclassname"><span class="pre">spacr.sequencing.</span></span><span class="sig-name descname"><span class="pre">process_chunk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chunk_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sequencing.html#process_chunk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sequencing.process_chunk" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Processes a chunk of sequencing reads to extract and map barcode sequences to corresponding names.</p>
+<p>This function handles both single-end and paired-end FASTQ data. It searches for a target barcode
+sequence in each read, extracts a consensus region around it, applies a regex to extract barcodes,
+and maps those to known IDs using reference CSVs. Quality control data and unique combinations are
+also computed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>chunk_data</strong> (<em>tuple</em>) – <p>Contains either 9 or 10 elements:
+For paired-end mode (10 elements):</p>
+<blockquote>
+<div><p>r1_chunk (list): List of strings, each 4-line block from R1 FASTQ.
+r2_chunk (list): List of strings, each 4-line block from R2 FASTQ.
+regex (str): Regex pattern with named groups (‘rowID’, ‘columnID’, ‘grna’).
+target_sequence (str): Sequence to anchor barcode extraction.
+offset_start (int): Offset from target_sequence to start consensus extraction.
+expected_end (int): Length of the region to extract.
+column_csv (str): Path to column barcode reference CSV.
+grna_csv (str): Path to gRNA barcode reference CSV.
+row_csv (str): Path to row barcode reference CSV.
+fill_na (bool): Whether to fill unmapped names with raw barcode sequences.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>For single-end mode (9 elements):</dt><dd><p>Same as above, but r2_chunk is omitted.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>df (pd.DataFrame): Full dataframe with columns:</dt><dd><dl class="simple">
+<dt>[‘read’, ‘column_sequence’, ‘columnID’, ‘row_sequence’, ‘rowID’,</dt><dd><p>’grna_sequence’, ‘grna_name’]</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>unique_combinations (pd.DataFrame): Count of each unique (rowID, columnID, grna_name) triplet.
+qc_df (pd.DataFrame): Summary of missing values and total reads.</p>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.sequencing.saver_process">
 <span class="sig-prename descclassname"><span class="pre">spacr.sequencing.</span></span><span class="sig-name descname"><span class="pre">saver_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hdf5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_h5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unique_combinations_csv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qc_csv_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comp_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comp_level</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sequencing.html#saver_process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sequencing.saver_process" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Continuously reads data from a multiprocessing queue and saves it to disk in various formats.</p>
+<p>This function is intended to run in a separate process. It terminates when it receives the “STOP” sentinel value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>save_queue</strong> (<em>multiprocessing.Queue</em>) – Queue containing tuples of (df, unique_combinations, qc_df).</p></li>
+<li><p><strong>hdf5_file</strong> (<em>str</em>) – Path to the HDF5 file to store full reads (only used if save_h5 is True).</p></li>
+<li><p><strong>save_h5</strong> (<em>bool</em>) – Whether to save the full reads DataFrame to HDF5.</p></li>
+<li><p><strong>unique_combinations_csv</strong> (<em>str</em>) – Path to the CSV file for aggregated barcode combinations.</p></li>
+<li><p><strong>qc_csv_file</strong> (<em>str</em>) – Path to the CSV file for quality control statistics.</p></li>
+<li><p><strong>comp_type</strong> (<em>str</em>) – Compression algorithm for HDF5 (e.g., ‘zlib’).</p></li>
+<li><p><strong>comp_level</strong> (<em>int</em>) – Compression level for HDF5.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.sequencing.paired_read_chunked_processing">
 <span class="sig-prename descclassname"><span class="pre">spacr.sequencing.</span></span><span class="sig-name descname"><span class="pre">paired_read_chunked_processing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r1_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r2_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regex</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_sequence</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_csv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grna_csv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_csv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_h5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comp_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comp_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hdf5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unique_combinations_csv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qc_csv_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_na</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sequencing.html#paired_read_chunked_processing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sequencing.paired_read_chunked_processing" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Processes paired-end FASTQ files in chunks to extract barcoded sequences and generate consensus reads.</p>
+<p>This function identifies sequences matching a regular expression in both R1 and R2 reads, extracts barcodes,
+and maps them to user-defined identifiers. Processed data is saved incrementally using a separate process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r1_file</strong> (<em>str</em>) – Path to the gzipped R1 FASTQ file.</p></li>
+<li><p><strong>r2_file</strong> (<em>str</em>) – Path to the gzipped R2 FASTQ file.</p></li>
+<li><p><strong>regex</strong> (<em>str</em>) – Regular expression with named capture groups: ‘rowID’, ‘columnID’, and ‘grna’.</p></li>
+<li><p><strong>target_sequence</strong> (<em>str</em>) – Anchor sequence to align from.</p></li>
+<li><p><strong>offset_start</strong> (<em>int</em>) – Offset from anchor to start consensus extraction.</p></li>
+<li><p><strong>expected_end</strong> (<em>int</em>) – Length of the consensus region to extract.</p></li>
+<li><p><strong>column_csv</strong> (<em>str</em>) – Path to CSV file mapping column barcode sequences to IDs.</p></li>
+<li><p><strong>grna_csv</strong> (<em>str</em>) – Path to CSV file mapping gRNA barcode sequences to names.</p></li>
+<li><p><strong>row_csv</strong> (<em>str</em>) – Path to CSV file mapping row barcode sequences to IDs.</p></li>
+<li><p><strong>save_h5</strong> (<em>bool</em>) – Whether to save the full reads DataFrame to HDF5.</p></li>
+<li><p><strong>comp_type</strong> (<em>str</em>) – Compression algorithm for HDF5 (e.g., ‘zlib’).</p></li>
+<li><p><strong>comp_level</strong> (<em>int</em>) – Compression level for HDF5.</p></li>
+<li><p><strong>hdf5_file</strong> (<em>str</em>) – Path to the HDF5 output file.</p></li>
+<li><p><strong>unique_combinations_csv</strong> (<em>str</em>) – Path to CSV file for saving unique row/column/gRNA combinations.</p></li>
+<li><p><strong>qc_csv_file</strong> (<em>str</em>) – Path to CSV file for saving QC summary (e.g., NaN counts).</p></li>
+<li><p><strong>chunk_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of reads per batch. Defaults to 10000.</p></li>
+<li><p><strong>n_jobs</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel workers. Defaults to cpu_count() - 3.</p></li>
+<li><p><strong>test</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, processes only a single chunk and prints the result. Defaults to False.</p></li>
+<li><p><strong>fill_na</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, fills unmapped IDs with raw barcode sequences. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.sequencing.single_read_chunked_processing">
 <span class="sig-prename descclassname"><span class="pre">spacr.sequencing.</span></span><span class="sig-name descname"><span class="pre">single_read_chunked_processing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r1_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r2_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regex</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_sequence</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_csv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grna_csv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_csv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_h5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comp_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comp_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hdf5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unique_combinations_csv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qc_csv_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_na</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sequencing.html#single_read_chunked_processing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sequencing.single_read_chunked_processing" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Processes single-end FASTQ data in chunks to extract barcoded sequences and map them to identifiers.</p>
+<p>This function reads gzipped R1 FASTQ data, detects barcode-containing sequences using a target anchor and regex,
+and maps row, column, and gRNA barcodes to user-defined identifiers. Results are processed in parallel
+and saved incrementally via a background process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r1_file</strong> (<em>str</em>) – Path to gzipped R1 FASTQ file.</p></li>
+<li><p><strong>r2_file</strong> (<em>str</em>) – Placeholder for interface consistency; not used in single-end mode.</p></li>
+<li><p><strong>regex</strong> (<em>str</em>) – Regular expression with named capture groups: ‘rowID’, ‘columnID’, and ‘grna’.</p></li>
+<li><p><strong>target_sequence</strong> (<em>str</em>) – Anchor sequence used to locate barcode region.</p></li>
+<li><p><strong>offset_start</strong> (<em>int</em>) – Offset from anchor to start barcode parsing.</p></li>
+<li><p><strong>expected_end</strong> (<em>int</em>) – Length of the barcode region to extract.</p></li>
+<li><p><strong>column_csv</strong> (<em>str</em>) – Path to CSV file mapping column barcode sequences to IDs.</p></li>
+<li><p><strong>grna_csv</strong> (<em>str</em>) – Path to CSV file mapping gRNA barcode sequences to names.</p></li>
+<li><p><strong>row_csv</strong> (<em>str</em>) – Path to CSV file mapping row barcode sequences to IDs.</p></li>
+<li><p><strong>save_h5</strong> (<em>bool</em>) – Whether to save the full reads DataFrame to HDF5 format.</p></li>
+<li><p><strong>comp_type</strong> (<em>str</em>) – Compression algorithm for HDF5 (e.g., ‘zlib’).</p></li>
+<li><p><strong>comp_level</strong> (<em>int</em>) – Compression level for HDF5.</p></li>
+<li><p><strong>hdf5_file</strong> (<em>str</em>) – Output HDF5 file path.</p></li>
+<li><p><strong>unique_combinations_csv</strong> (<em>str</em>) – Output path for CSV summarizing row/column/gRNA combinations.</p></li>
+<li><p><strong>qc_csv_file</strong> (<em>str</em>) – Output path for CSV summarizing missing values and total reads.</p></li>
+<li><p><strong>chunk_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of reads per batch. Defaults to 10,000.</p></li>
+<li><p><strong>n_jobs</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel worker processes. Defaults to cpu_count() - 3.</p></li>
+<li><p><strong>test</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, processes only the first chunk and prints its result. Defaults to False.</p></li>
+<li><p><strong>fill_na</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, fills missing mapped IDs with their corresponding barcode sequences. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.sequencing.generate_barecode_mapping">
 <span class="sig-prename descclassname"><span class="pre">spacr.sequencing.</span></span><span class="sig-name descname"><span class="pre">generate_barecode_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sequencing.html#generate_barecode_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sequencing.generate_barecode_mapping" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Orchestrates barcode extraction and mapping from gzipped sequencing data using user-defined or default settings.</p>
+<p>This function parses sequencing reads from single-end or paired-end FASTQ (.gz) files, extracts barcode regions
+using a regular expression, maps them to row, column, and gRNA identifiers, and saves the results to disk.
+Results include the full annotated reads (optional), barcode combination counts, and a QC summary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em><em>, </em><em>optional</em>) – <dl class="simple">
+<dt>Dictionary containing parameters required for barcode mapping. If not provided,</dt><dd><p>default values will be applied. Important keys include:</p>
+</dd>
+</dl>
+<ul class="simple">
+<li><p>’src’ (str): Source directory containing gzipped FASTQ files.</p></li>
+<li><p>’mode’ (str): Either ‘single’ or ‘paired’ for single-end or paired-end processing.</p></li>
+<li><p>’single_direction’ (str): If ‘single’, specifies which read to use (‘R1’ or ‘R2’).</p></li>
+<li><p>’regex’ (str): Regular expression with capture groups ‘rowID’, ‘columnID’, and ‘grna’.</p></li>
+<li><p>’target_sequence’ (str): Anchor sequence to locate barcode start position.</p></li>
+<li><p>’offset_start’ (int): Offset from the anchor to the barcode start.</p></li>
+<li><p>’expected_end’ (int): Expected barcode region length.</p></li>
+<li><p>’column_csv’, ‘grna_csv’, ‘row_csv’ (str): CSV files mapping sequences to names or IDs.</p></li>
+<li><p>’save_h5’ (bool): Whether to save annotated reads to HDF5.</p></li>
+<li><p>’comp_type’ (str): Compression algorithm for HDF5.</p></li>
+<li><p>’comp_level’ (int): Compression level for HDF5.</p></li>
+<li><p>’chunk_size’ (int): Number of reads to process per batch.</p></li>
+<li><p>’n_jobs’ (int): Number of parallel processes for barcode mapping.</p></li>
+<li><p>’test’ (bool): If True, only processes the first chunk for testing.</p></li>
+<li><p>’fill_na’ (bool): If True, fills unmapped barcodes with raw sequence instead of NaN.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Side Effects:</dt><dd><ul class="simple">
+<li><p>Saves settings to file.</p></li>
+<li><dl class="simple">
+<dt>Processes reads and saves outputs:</dt><dd><ul>
+<li><p>annotated_reads.h5 (optional),</p></li>
+<li><p>unique_combinations.csv,</p></li>
+<li><p>qc.csv (missing value counts).</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.sequencing.barecodes_reverse_complement">
 <span class="sig-prename descclassname"><span class="pre">spacr.sequencing.</span></span><span class="sig-name descname"><span class="pre">barecodes_reverse_complement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sequencing.html#barecodes_reverse_complement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sequencing.barecodes_reverse_complement" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Reads a barcode CSV file, computes the reverse complement of each sequence, and saves the result to a new CSV.</p>
+<p>This function assumes the input CSV contains a column named ‘sequence’ with DNA barcodes. It computes the
+reverse complement for each sequence and saves the modified DataFrame to a new file with ‘_RC’ appended
+to the original filename.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>csv_file</strong> (<em>str</em>) – Path to the input CSV file. Must contain a column named ‘sequence’.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Side Effects:</dt><dd><ul class="simple">
+<li><p>Saves a new CSV file in the same directory with reverse-complemented sequences.</p></li>
+<li><p>Prints the path of the saved file.</p></li>
+</ul>
+</dd>
+<dt>Output:</dt><dd><p>New file path format: &lt;original_filename&gt;_RC.csv</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.sequencing.graph_sequencing_stats">
 <span class="sig-prename descclassname"><span class="pre">spacr.sequencing.</span></span><span class="sig-name descname"><span class="pre">graph_sequencing_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sequencing.html#graph_sequencing_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sequencing.graph_sequencing_stats" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Analyze and visualize sequencing quality metrics to determine an optimal fraction threshold
+that maximizes unique gRNA representation per well across plates.</p>
+<p>This function reads one or more CSV files containing count data, filters out control wells,
+calculates the fraction of reads per gRNA in each well, and identifies the minimum fraction
+required to recover a target average number of unique gRNAs per well. It generates plots to
+help visualize the chosen threshold and spatial distribution of unique gRNA counts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Dictionary containing the following keys:
+- ‘count_data’ (str or list of str): Paths to CSV file(s) with ‘grna’, ‘count’, ‘rowID’, ‘columnID’ columns.
+- ‘target_unique_count’ (int): Target number of unique gRNAs per well to recover.
+- ‘filter_column’ (str): Column name to filter out control wells.
+- ‘control_wells’ (list): List of control well labels to exclude.
+- ‘log_x’ (bool): Whether to log-scale the x-axis in the threshold plot.
+- ‘log_y’ (bool): Whether to log-scale the y-axis in the threshold plot.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Closest fraction threshold that approximates the target unique gRNA count per well.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Side Effects:</dt><dd><ul class="simple">
+<li><p>Saves a PDF plot of unique gRNA count vs fraction threshold.</p></li>
+<li><p>Saves a spatial plate map of unique gRNA counts.</p></li>
+<li><p>Prints threshold and summary statistics.</p></li>
+<li><p>Displays intermediate DataFrames for inspection.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 </section>

@@ -18,7 +18,7 @@ Welcome to SpaCr
 
 **spaCR** (Spatial Phenotype Analysis of CRISPR Screens) is a Python toolkit for analyzing pooled CRISPR-Cas9 imaging screens. It integrates high-content imaging data with sequencing-based mutant identification to enable genotype-to-phenotype mapping at the single-cell level.
 
-spaCR provides a modular and extensible framework that supports:
+spaCR supports:
 
 - **Segmentation** of microscopy images using models like Cellpose.
 - **Single-cell feature extraction** and image cropping.

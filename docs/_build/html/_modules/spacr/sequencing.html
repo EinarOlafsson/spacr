@@ -1103,6 +1103,23 @@
 <div class="viewcode-block" id="map_sequences_to_names">
 <a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.map_sequences_to_names">[docs]</a>
 <span class="k">def</span> <span class="nf">map_sequences_to_names</span><span class="p">(</span><span class="n">csv_file</span><span class="p">,</span> <span class="n">sequences</span><span class="p">,</span> <span class="n">rc</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Maps DNA sequences to their corresponding names based on a CSV file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        csv_file (str): Path to the CSV file containing &#39;sequence&#39; and &#39;name&#39; columns.</span>
+<span class="sd">        sequences (list of str): List of DNA sequences to map.</span>
+<span class="sd">        rc (bool): If True, reverse complement the sequences in the CSV before mapping.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list: A list of names corresponding to the input sequences. If a sequence is not found,</span>
+<span class="sd">              `pd.NA` is returned in its place.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - The CSV file must contain columns named &#39;sequence&#39; and &#39;name&#39;.</span>
+<span class="sd">        - If `rc` is True, sequences in the CSV will be reverse complemented prior to mapping.</span>
+<span class="sd">        - Sequences in `sequences` are not altered—only sequences in the CSV are reverse complemented.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">rev_comp</span><span class="p">(</span><span class="n">dna_sequence</span><span class="p">):</span>
         <span class="n">complement_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="s1">&#39;T&#39;</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">:</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="s1">&#39;G&#39;</span><span class="p">,</span> <span class="s1">&#39;G&#39;</span><span class="p">:</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;N&#39;</span><span class="p">:</span> <span class="s1">&#39;N&#39;</span><span class="p">}</span>
         <span class="n">reverse_seq</span> <span class="o">=</span> <span class="n">dna_sequence</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -1120,6 +1137,24 @@
 <div class="viewcode-block" id="save_df_to_hdf5">
 <a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.save_df_to_hdf5">[docs]</a>
 <span class="k">def</span> <span class="nf">save_df_to_hdf5</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">hdf5_file</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s1">&#39;df&#39;</span><span class="p">,</span> <span class="n">comp_type</span><span class="o">=</span><span class="s1">&#39;zlib&#39;</span><span class="p">,</span> <span class="n">comp_level</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Saves a pandas DataFrame to an HDF5 file, optionally appending to an existing dataset.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (pd.DataFrame): The DataFrame to save.</span>
+<span class="sd">        hdf5_file (str): Path to the target HDF5 file.</span>
+<span class="sd">        key (str, optional): Key under which to store the DataFrame. Defaults to &#39;df&#39;.</span>
+<span class="sd">        comp_type (str, optional): Compression algorithm to use (e.g., &#39;zlib&#39;, &#39;bzip2&#39;, &#39;blosc&#39;). Defaults to &#39;zlib&#39;.</span>
+<span class="sd">        comp_level (int, optional): Compression level (0–9). Higher values yield better compression at the cost of speed. Defaults to 5.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - If the specified key already exists in the HDF5 file, the new DataFrame is appended to it.</span>
+<span class="sd">        - The combined DataFrame is saved in &#39;table&#39; format to support appending and querying.</span>
+<span class="sd">        - Errors encountered during saving are printed to standard output.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">pd</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="n">hdf5_file</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">complib</span><span class="o">=</span><span class="n">comp_type</span><span class="p">,</span> <span class="n">complevel</span><span class="o">=</span><span class="n">comp_level</span><span class="p">)</span> <span class="k">as</span> <span class="n">store</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">store</span><span class="p">:</span>
@@ -1133,6 +1168,23 @@
 <div class="viewcode-block" id="save_unique_combinations_to_csv">
 <a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.save_unique_combinations_to_csv">[docs]</a>
 <span class="k">def</span> <span class="nf">save_unique_combinations_to_csv</span><span class="p">(</span><span class="n">unique_combinations</span><span class="p">,</span> <span class="n">csv_file</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Saves or appends a DataFrame of unique gRNA combinations to a CSV file, aggregating duplicates.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        unique_combinations (pd.DataFrame): DataFrame containing &#39;rowID&#39;, &#39;columnID&#39;, and &#39;grna_name&#39; columns,</span>
+<span class="sd">                                            along with associated count or metric columns.</span>
+<span class="sd">        csv_file (str): Path to the CSV file where data will be saved.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - If the file exists, it reads the existing contents and appends the new data.</span>
+<span class="sd">        - Duplicate combinations (same &#39;rowID&#39;, &#39;columnID&#39;, &#39;grna_name&#39;) are summed.</span>
+<span class="sd">        - The resulting DataFrame is saved with index included.</span>
+<span class="sd">        - Any exception during the process is caught and printed to stdout.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">existing_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
@@ -1152,6 +1204,22 @@
 <div class="viewcode-block" id="save_qc_df_to_csv">
 <a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.save_qc_df_to_csv">[docs]</a>
 <span class="k">def</span> <span class="nf">save_qc_df_to_csv</span><span class="p">(</span><span class="n">qc_df</span><span class="p">,</span> <span class="n">qc_csv_file</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Saves or appends a QC (quality control) DataFrame to a CSV file by summing overlapping entries.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        qc_df (pd.DataFrame): DataFrame containing numeric QC metrics (e.g., counts, read stats).</span>
+<span class="sd">        qc_csv_file (str): Path to the CSV file where the QC data will be saved.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - If the file exists, it reads the existing QC data and adds the new values to it (element-wise).</span>
+<span class="sd">        - If the file doesn&#39;t exist, it creates a new one.</span>
+<span class="sd">        - The final DataFrame is saved without including the index.</span>
+<span class="sd">        - Any exception is caught and logged to stdout.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">existing_qc_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">qc_csv_file</span><span class="p">)</span>
@@ -1169,12 +1237,37 @@
 <div class="viewcode-block" id="extract_sequence_and_quality">
 <a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.extract_sequence_and_quality">[docs]</a>
 <span class="k">def</span> <span class="nf">extract_sequence_and_quality</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">quality</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts a subsequence and its corresponding quality scores.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sequence (str): DNA sequence string.</span>
+<span class="sd">        quality (str): Quality string corresponding to the sequence.</span>
+<span class="sd">        start (int): Start index of the region to extract.</span>
+<span class="sd">        end (int): End index of the region to extract (exclusive).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: (subsequence, subquality) as strings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">sequence</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">],</span> <span class="n">quality</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="create_consensus">
 <a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.create_consensus">[docs]</a>
 <span class="k">def</span> <span class="nf">create_consensus</span><span class="p">(</span><span class="n">seq1</span><span class="p">,</span> <span class="n">qual1</span><span class="p">,</span> <span class="n">seq2</span><span class="p">,</span> <span class="n">qual2</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Constructs a consensus DNA sequence from two reads with associated quality scores.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        seq1 (str): First DNA sequence.</span>
+<span class="sd">        qual1 (str): Quality scores for `seq1` (as ASCII characters or integer-encoded).</span>
+<span class="sd">        seq2 (str): Second DNA sequence.</span>
+<span class="sd">        qual2 (str): Quality scores for `seq2`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: Consensus sequence, selecting the base with the highest quality at each position.</span>
+<span class="sd">             If one base is &#39;N&#39;, the non-&#39;N&#39; base is chosen regardless of quality.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">consensus_seq</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">seq1</span><span class="p">)):</span>
         <span class="n">bases</span> <span class="o">=</span> <span class="p">[(</span><span class="n">seq1</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">qual1</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="p">(</span><span class="n">seq2</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">qual2</span><span class="p">[</span><span class="n">i</span><span class="p">])]</span>
@@ -1185,6 +1278,15 @@
 <div class="viewcode-block" id="get_consensus_base">
 <a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.get_consensus_base">[docs]</a>
 <span class="k">def</span> <span class="nf">get_consensus_base</span><span class="p">(</span><span class="n">bases</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Selects the most reliable base from a list of two base-quality pairs.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        bases (list of tuples): Each tuple contains (base, quality_score), expected length is 2.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: The consensus base. Prefers non-&#39;N&#39; bases and higher quality scores.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Prefer non-&#39;N&#39; bases, if &#39;N&#39; exists, pick the other one.</span>
     <span class="k">if</span> <span class="n">bases</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;N&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">bases</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
@@ -1198,6 +1300,15 @@
 <div class="viewcode-block" id="reverse_complement">
 <a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.reverse_complement">[docs]</a>
 <span class="k">def</span> <span class="nf">reverse_complement</span><span class="p">(</span><span class="n">seq</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the reverse complement of a DNA sequence.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        seq (str): Input DNA sequence.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: Reverse complement of the input sequence.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">Seq</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span><span class="o">.</span><span class="n">reverse_complement</span><span class="p">())</span></div>
 
 
@@ -1205,9 +1316,64 @@
 <div class="viewcode-block" id="process_chunk">
 <a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.process_chunk">[docs]</a>
 <span class="k">def</span> <span class="nf">process_chunk</span><span class="p">(</span><span class="n">chunk_data</span><span class="p">):</span>
-    
-    <span class="k">def</span> <span class="nf">paired_find_sequence_in_chunk_reads</span><span class="p">(</span><span class="n">r1_chunk</span><span class="p">,</span> <span class="n">r2_chunk</span><span class="p">,</span> <span class="n">target_sequence</span><span class="p">,</span> <span class="n">offset_start</span><span class="p">,</span> <span class="n">expected_end</span><span class="p">,</span> <span class="n">regex</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Processes a chunk of sequencing reads to extract and map barcode sequences to corresponding names.</span>
 
+<span class="sd">    This function handles both single-end and paired-end FASTQ data. It searches for a target barcode</span>
+<span class="sd">    sequence in each read, extracts a consensus region around it, applies a regex to extract barcodes,</span>
+<span class="sd">    and maps those to known IDs using reference CSVs. Quality control data and unique combinations are</span>
+<span class="sd">    also computed.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        chunk_data (tuple): Contains either 9 or 10 elements:</span>
+<span class="sd">            For paired-end mode (10 elements):</span>
+<span class="sd">                r1_chunk (list): List of strings, each 4-line block from R1 FASTQ.</span>
+<span class="sd">                r2_chunk (list): List of strings, each 4-line block from R2 FASTQ.</span>
+<span class="sd">                regex (str): Regex pattern with named groups (&#39;rowID&#39;, &#39;columnID&#39;, &#39;grna&#39;).</span>
+<span class="sd">                target_sequence (str): Sequence to anchor barcode extraction.</span>
+<span class="sd">                offset_start (int): Offset from target_sequence to start consensus extraction.</span>
+<span class="sd">                expected_end (int): Length of the region to extract.</span>
+<span class="sd">                column_csv (str): Path to column barcode reference CSV.</span>
+<span class="sd">                grna_csv (str): Path to gRNA barcode reference CSV.</span>
+<span class="sd">                row_csv (str): Path to row barcode reference CSV.</span>
+<span class="sd">                fill_na (bool): Whether to fill unmapped names with raw barcode sequences.</span>
+
+<span class="sd">            For single-end mode (9 elements):</span>
+<span class="sd">                Same as above, but r2_chunk is omitted.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple:</span>
+<span class="sd">            df (pd.DataFrame): Full dataframe with columns:</span>
+<span class="sd">                [&#39;read&#39;, &#39;column_sequence&#39;, &#39;columnID&#39;, &#39;row_sequence&#39;, &#39;rowID&#39;,</span>
+<span class="sd">                 &#39;grna_sequence&#39;, &#39;grna_name&#39;]</span>
+<span class="sd">            unique_combinations (pd.DataFrame): Count of each unique (rowID, columnID, grna_name) triplet.</span>
+<span class="sd">            qc_df (pd.DataFrame): Summary of missing values and total reads.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">paired_find_sequence_in_chunk_reads</span><span class="p">(</span><span class="n">r1_chunk</span><span class="p">,</span> <span class="n">r2_chunk</span><span class="p">,</span> <span class="n">target_sequence</span><span class="p">,</span> <span class="n">offset_start</span><span class="p">,</span> <span class="n">expected_end</span><span class="p">,</span> <span class="n">regex</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Processes paired-end FASTQ read chunks to extract consensus barcode sequences and decode them</span>
+<span class="sd">        using a regex pattern.</span>
+
+<span class="sd">        For each R1–R2 read pair, this function identifies the `target_sequence`, extracts a window of </span>
+<span class="sd">        defined length with an offset, computes a consensus sequence using base quality scores, and </span>
+<span class="sd">        applies a regex to extract barcode components.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            r1_chunk (list of str): List of 4-line strings for each R1 read in the chunk.</span>
+<span class="sd">            r2_chunk (list of str): List of 4-line strings for each R2 read in the chunk.</span>
+<span class="sd">            target_sequence (str): Nucleotide sequence used as anchor for barcode extraction.</span>
+<span class="sd">            offset_start (int): Position offset from `target_sequence` to begin extracting barcode.</span>
+<span class="sd">            expected_end (int): Total length of region to extract after offset.</span>
+<span class="sd">            regex (str): Regular expression with named groups (&#39;rowID&#39;, &#39;columnID&#39;, &#39;grna&#39;) </span>
+<span class="sd">                        to parse barcodes from the extracted consensus sequence.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple:</span>
+<span class="sd">                consensus_sequences (list of str): Consensus DNA sequences extracted from read pairs.</span>
+<span class="sd">                columns (list of str): Extracted column barcode sequences.</span>
+<span class="sd">                grnas (list of str): Extracted gRNA barcode sequences.</span>
+<span class="sd">                rows (list of str): Extracted row barcode sequences.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">consensus_sequences</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">grnas</span><span class="p">,</span> <span class="n">rows</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
         <span class="n">consensus_seq</span> <span class="o">=</span> <span class="kc">None</span>
         
@@ -1271,6 +1437,26 @@
         <span class="k">return</span> <span class="n">consensus_sequences</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">grnas</span><span class="p">,</span> <span class="n">rows</span>
     
     <span class="k">def</span> <span class="nf">single_find_sequence_in_chunk_reads</span><span class="p">(</span><span class="n">r1_chunk</span><span class="p">,</span> <span class="n">target_sequence</span><span class="p">,</span> <span class="n">offset_start</span><span class="p">,</span> <span class="n">expected_end</span><span class="p">,</span> <span class="n">regex</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Processes single-end FASTQ read chunks to extract barcode sequences using a target motif and regex pattern.</span>
+
+<span class="sd">        For each R1 read, the function identifies the `target_sequence`, extracts a region starting at an offset </span>
+<span class="sd">        and of fixed length, pads if necessary, and applies a regex with named groups to decode barcodes.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            r1_chunk (list of str): List of 4-line strings for each R1 read in the chunk.</span>
+<span class="sd">            target_sequence (str): Anchor sequence to locate the barcode region in R1.</span>
+<span class="sd">            offset_start (int): Position offset from the end of `target_sequence` to start barcode extraction.</span>
+<span class="sd">            expected_end (int): Total length of the barcode region to extract.</span>
+<span class="sd">            regex (str): Regular expression with named groups (&#39;rowID&#39;, &#39;columnID&#39;, &#39;grna&#39;) to extract barcodes.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple:</span>
+<span class="sd">                consensus_sequences (list of str): Extracted sequences used as barcode consensus (R1 only).</span>
+<span class="sd">                columns (list of str): Extracted column barcode subsequences.</span>
+<span class="sd">                grnas (list of str): Extracted gRNA barcode subsequences.</span>
+<span class="sd">                rows (list of str): Extracted row barcode subsequences.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">consensus_sequences</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">grnas</span><span class="p">,</span> <span class="n">rows</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
 
@@ -1371,6 +1557,20 @@
 <div class="viewcode-block" id="saver_process">
 <a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.saver_process">[docs]</a>
 <span class="k">def</span> <span class="nf">saver_process</span><span class="p">(</span><span class="n">save_queue</span><span class="p">,</span> <span class="n">hdf5_file</span><span class="p">,</span> <span class="n">save_h5</span><span class="p">,</span> <span class="n">unique_combinations_csv</span><span class="p">,</span> <span class="n">qc_csv_file</span><span class="p">,</span> <span class="n">comp_type</span><span class="p">,</span> <span class="n">comp_level</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Continuously reads data from a multiprocessing queue and saves it to disk in various formats.</span>
+
+<span class="sd">    This function is intended to run in a separate process. It terminates when it receives the &quot;STOP&quot; sentinel value.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        save_queue (multiprocessing.Queue): Queue containing tuples of (df, unique_combinations, qc_df).</span>
+<span class="sd">        hdf5_file (str): Path to the HDF5 file to store full reads (only used if save_h5 is True).</span>
+<span class="sd">        save_h5 (bool): Whether to save the full reads DataFrame to HDF5.</span>
+<span class="sd">        unique_combinations_csv (str): Path to the CSV file for aggregated barcode combinations.</span>
+<span class="sd">        qc_csv_file (str): Path to the CSV file for quality control statistics.</span>
+<span class="sd">        comp_type (str): Compression algorithm for HDF5 (e.g., &#39;zlib&#39;).</span>
+<span class="sd">        comp_level (int): Compression level for HDF5.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="n">item</span> <span class="o">=</span> <span class="n">save_queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">item</span> <span class="o">==</span> <span class="s2">&quot;STOP&quot;</span><span class="p">:</span>
@@ -1385,7 +1585,33 @@
 <div class="viewcode-block" id="paired_read_chunked_processing">
 <a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.paired_read_chunked_processing">[docs]</a>
 <span class="k">def</span> <span class="nf">paired_read_chunked_processing</span><span class="p">(</span><span class="n">r1_file</span><span class="p">,</span> <span class="n">r2_file</span><span class="p">,</span> <span class="n">regex</span><span class="p">,</span> <span class="n">target_sequence</span><span class="p">,</span> <span class="n">offset_start</span><span class="p">,</span> <span class="n">expected_end</span><span class="p">,</span> <span class="n">column_csv</span><span class="p">,</span> <span class="n">grna_csv</span><span class="p">,</span> <span class="n">row_csv</span><span class="p">,</span> <span class="n">save_h5</span><span class="p">,</span> <span class="n">comp_type</span><span class="p">,</span> <span class="n">comp_level</span><span class="p">,</span> <span class="n">hdf5_file</span><span class="p">,</span> <span class="n">unique_combinations_csv</span><span class="p">,</span> <span class="n">qc_csv_file</span><span class="p">,</span> <span class="n">chunk_size</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_na</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Processes paired-end FASTQ files in chunks to extract barcoded sequences and generate consensus reads.</span>
 
+<span class="sd">    This function identifies sequences matching a regular expression in both R1 and R2 reads, extracts barcodes,</span>
+<span class="sd">    and maps them to user-defined identifiers. Processed data is saved incrementally using a separate process.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        r1_file (str): Path to the gzipped R1 FASTQ file.</span>
+<span class="sd">        r2_file (str): Path to the gzipped R2 FASTQ file.</span>
+<span class="sd">        regex (str): Regular expression with named capture groups: &#39;rowID&#39;, &#39;columnID&#39;, and &#39;grna&#39;.</span>
+<span class="sd">        target_sequence (str): Anchor sequence to align from.</span>
+<span class="sd">        offset_start (int): Offset from anchor to start consensus extraction.</span>
+<span class="sd">        expected_end (int): Length of the consensus region to extract.</span>
+<span class="sd">        column_csv (str): Path to CSV file mapping column barcode sequences to IDs.</span>
+<span class="sd">        grna_csv (str): Path to CSV file mapping gRNA barcode sequences to names.</span>
+<span class="sd">        row_csv (str): Path to CSV file mapping row barcode sequences to IDs.</span>
+<span class="sd">        save_h5 (bool): Whether to save the full reads DataFrame to HDF5.</span>
+<span class="sd">        comp_type (str): Compression algorithm for HDF5 (e.g., &#39;zlib&#39;).</span>
+<span class="sd">        comp_level (int): Compression level for HDF5.</span>
+<span class="sd">        hdf5_file (str): Path to the HDF5 output file.</span>
+<span class="sd">        unique_combinations_csv (str): Path to CSV file for saving unique row/column/gRNA combinations.</span>
+<span class="sd">        qc_csv_file (str): Path to CSV file for saving QC summary (e.g., NaN counts).</span>
+<span class="sd">        chunk_size (int, optional): Number of reads per batch. Defaults to 10000.</span>
+<span class="sd">        n_jobs (int, optional): Number of parallel workers. Defaults to cpu_count() - 3.</span>
+<span class="sd">        test (bool, optional): If True, processes only a single chunk and prints the result. Defaults to False.</span>
+<span class="sd">        fill_na (bool, optional): If True, fills unmapped IDs with raw barcode sequences. Defaults to False.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">count_reads_in_fastq</span><span class="p">,</span> <span class="n">print_progress</span>
 
     <span class="c1"># Use cpu_count minus 3 cores if n_jobs isn&#39;t specified</span>
@@ -1470,7 +1696,34 @@
 <div class="viewcode-block" id="single_read_chunked_processing">
 <a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.single_read_chunked_processing">[docs]</a>
 <span class="k">def</span> <span class="nf">single_read_chunked_processing</span><span class="p">(</span><span class="n">r1_file</span><span class="p">,</span> <span class="n">r2_file</span><span class="p">,</span> <span class="n">regex</span><span class="p">,</span> <span class="n">target_sequence</span><span class="p">,</span> <span class="n">offset_start</span><span class="p">,</span> <span class="n">expected_end</span><span class="p">,</span> <span class="n">column_csv</span><span class="p">,</span> <span class="n">grna_csv</span><span class="p">,</span> <span class="n">row_csv</span><span class="p">,</span> <span class="n">save_h5</span><span class="p">,</span> <span class="n">comp_type</span><span class="p">,</span> <span class="n">comp_level</span><span class="p">,</span> <span class="n">hdf5_file</span><span class="p">,</span> <span class="n">unique_combinations_csv</span><span class="p">,</span> <span class="n">qc_csv_file</span><span class="p">,</span> <span class="n">chunk_size</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_na</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Processes single-end FASTQ data in chunks to extract barcoded sequences and map them to identifiers.</span>
 
+<span class="sd">    This function reads gzipped R1 FASTQ data, detects barcode-containing sequences using a target anchor and regex,</span>
+<span class="sd">    and maps row, column, and gRNA barcodes to user-defined identifiers. Results are processed in parallel</span>
+<span class="sd">    and saved incrementally via a background process.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        r1_file (str): Path to gzipped R1 FASTQ file.</span>
+<span class="sd">        r2_file (str): Placeholder for interface consistency; not used in single-end mode.</span>
+<span class="sd">        regex (str): Regular expression with named capture groups: &#39;rowID&#39;, &#39;columnID&#39;, and &#39;grna&#39;.</span>
+<span class="sd">        target_sequence (str): Anchor sequence used to locate barcode region.</span>
+<span class="sd">        offset_start (int): Offset from anchor to start barcode parsing.</span>
+<span class="sd">        expected_end (int): Length of the barcode region to extract.</span>
+<span class="sd">        column_csv (str): Path to CSV file mapping column barcode sequences to IDs.</span>
+<span class="sd">        grna_csv (str): Path to CSV file mapping gRNA barcode sequences to names.</span>
+<span class="sd">        row_csv (str): Path to CSV file mapping row barcode sequences to IDs.</span>
+<span class="sd">        save_h5 (bool): Whether to save the full reads DataFrame to HDF5 format.</span>
+<span class="sd">        comp_type (str): Compression algorithm for HDF5 (e.g., &#39;zlib&#39;).</span>
+<span class="sd">        comp_level (int): Compression level for HDF5.</span>
+<span class="sd">        hdf5_file (str): Output HDF5 file path.</span>
+<span class="sd">        unique_combinations_csv (str): Output path for CSV summarizing row/column/gRNA combinations.</span>
+<span class="sd">        qc_csv_file (str): Output path for CSV summarizing missing values and total reads.</span>
+<span class="sd">        chunk_size (int, optional): Number of reads per batch. Defaults to 10,000.</span>
+<span class="sd">        n_jobs (int, optional): Number of parallel worker processes. Defaults to cpu_count() - 3.</span>
+<span class="sd">        test (bool, optional): If True, processes only the first chunk and prints its result. Defaults to False.</span>
+<span class="sd">        fill_na (bool, optional): If True, fills missing mapped IDs with their corresponding barcode sequences. Defaults to False.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">count_reads_in_fastq</span><span class="p">,</span> <span class="n">print_progress</span>
 
     <span class="c1"># Use cpu_count minus 3 cores if n_jobs isn&#39;t specified</span>
@@ -1551,7 +1804,40 @@
 <div class="viewcode-block" id="generate_barecode_mapping">
 <a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.generate_barecode_mapping">[docs]</a>
 <span class="k">def</span> <span class="nf">generate_barecode_mapping</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{}):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Orchestrates barcode extraction and mapping from gzipped sequencing data using user-defined or default settings.</span>
 
+<span class="sd">    This function parses sequencing reads from single-end or paired-end FASTQ (.gz) files, extracts barcode regions</span>
+<span class="sd">    using a regular expression, maps them to row, column, and gRNA identifiers, and saves the results to disk.</span>
+<span class="sd">    Results include the full annotated reads (optional), barcode combination counts, and a QC summary.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict, optional): Dictionary containing parameters required for barcode mapping. If not provided,</span>
+<span class="sd">                                   default values will be applied. Important keys include:</span>
+<span class="sd">            - &#39;src&#39; (str): Source directory containing gzipped FASTQ files.</span>
+<span class="sd">            - &#39;mode&#39; (str): Either &#39;single&#39; or &#39;paired&#39; for single-end or paired-end processing.</span>
+<span class="sd">            - &#39;single_direction&#39; (str): If &#39;single&#39;, specifies which read to use (&#39;R1&#39; or &#39;R2&#39;).</span>
+<span class="sd">            - &#39;regex&#39; (str): Regular expression with capture groups &#39;rowID&#39;, &#39;columnID&#39;, and &#39;grna&#39;.</span>
+<span class="sd">            - &#39;target_sequence&#39; (str): Anchor sequence to locate barcode start position.</span>
+<span class="sd">            - &#39;offset_start&#39; (int): Offset from the anchor to the barcode start.</span>
+<span class="sd">            - &#39;expected_end&#39; (int): Expected barcode region length.</span>
+<span class="sd">            - &#39;column_csv&#39;, &#39;grna_csv&#39;, &#39;row_csv&#39; (str): CSV files mapping sequences to names or IDs.</span>
+<span class="sd">            - &#39;save_h5&#39; (bool): Whether to save annotated reads to HDF5.</span>
+<span class="sd">            - &#39;comp_type&#39; (str): Compression algorithm for HDF5.</span>
+<span class="sd">            - &#39;comp_level&#39; (int): Compression level for HDF5.</span>
+<span class="sd">            - &#39;chunk_size&#39; (int): Number of reads to process per batch.</span>
+<span class="sd">            - &#39;n_jobs&#39; (int): Number of parallel processes for barcode mapping.</span>
+<span class="sd">            - &#39;test&#39; (bool): If True, only processes the first chunk for testing.</span>
+<span class="sd">            - &#39;fill_na&#39; (bool): If True, fills unmapped barcodes with raw sequence instead of NaN.</span>
+
+<span class="sd">    Side Effects:</span>
+<span class="sd">        - Saves settings to file.</span>
+<span class="sd">        - Processes reads and saves outputs:</span>
+<span class="sd">            * annotated_reads.h5 (optional),</span>
+<span class="sd">            * unique_combinations.csv,</span>
+<span class="sd">            * qc.csv (missing value counts).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">set_default_generate_barecode_mapping</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">save_settings</span>
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">parse_gz_files</span>
@@ -1622,7 +1908,23 @@
 <div class="viewcode-block" id="barecodes_reverse_complement">
 <a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.barecodes_reverse_complement">[docs]</a>
 <span class="k">def</span> <span class="nf">barecodes_reverse_complement</span><span class="p">(</span><span class="n">csv_file</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reads a barcode CSV file, computes the reverse complement of each sequence, and saves the result to a new CSV.</span>
 
+<span class="sd">    This function assumes the input CSV contains a column named &#39;sequence&#39; with DNA barcodes. It computes the</span>
+<span class="sd">    reverse complement for each sequence and saves the modified DataFrame to a new file with &#39;_RC&#39; appended</span>
+<span class="sd">    to the original filename.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        csv_file (str): Path to the input CSV file. Must contain a column named &#39;sequence&#39;.</span>
+
+<span class="sd">    Side Effects:</span>
+<span class="sd">        - Saves a new CSV file in the same directory with reverse-complemented sequences.</span>
+<span class="sd">        - Prints the path of the saved file.</span>
+
+<span class="sd">    Output:</span>
+<span class="sd">        New file path format: &lt;original_filename&gt;_RC.csv</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">reverse_complement</span><span class="p">(</span><span class="n">sequence</span><span class="p">):</span>
         <span class="n">complement</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="s1">&#39;T&#39;</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">:</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;G&#39;</span><span class="p">:</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="s1">&#39;G&#39;</span><span class="p">,</span> <span class="s1">&#39;N&#39;</span><span class="p">:</span> <span class="s1">&#39;N&#39;</span><span class="p">}</span>
         <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">complement</span><span class="p">[</span><span class="n">base</span><span class="p">]</span> <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">sequence</span><span class="p">))</span>
@@ -1647,10 +1949,48 @@
 <div class="viewcode-block" id="graph_sequencing_stats">
 <a class="viewcode-back" href="../../api/spacr/sequencing/index.html#spacr.sequencing.graph_sequencing_stats">[docs]</a>
 <span class="k">def</span> <span class="nf">graph_sequencing_stats</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Analyze and visualize sequencing quality metrics to determine an optimal fraction threshold</span>
+<span class="sd">    that maximizes unique gRNA representation per well across plates.</span>
 
+<span class="sd">    This function reads one or more CSV files containing count data, filters out control wells,</span>
+<span class="sd">    calculates the fraction of reads per gRNA in each well, and identifies the minimum fraction </span>
+<span class="sd">    required to recover a target average number of unique gRNAs per well. It generates plots to </span>
+<span class="sd">    help visualize the chosen threshold and spatial distribution of unique gRNA counts.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary containing the following keys:</span>
+<span class="sd">            - &#39;count_data&#39; (str or list of str): Paths to CSV file(s) with &#39;grna&#39;, &#39;count&#39;, &#39;rowID&#39;, &#39;columnID&#39; columns.</span>
+<span class="sd">            - &#39;target_unique_count&#39; (int): Target number of unique gRNAs per well to recover.</span>
+<span class="sd">            - &#39;filter_column&#39; (str): Column name to filter out control wells.</span>
+<span class="sd">            - &#39;control_wells&#39; (list): List of control well labels to exclude.</span>
+<span class="sd">            - &#39;log_x&#39; (bool): Whether to log-scale the x-axis in the threshold plot.</span>
+<span class="sd">            - &#39;log_y&#39; (bool): Whether to log-scale the y-axis in the threshold plot.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: Closest fraction threshold that approximates the target unique gRNA count per well.</span>
+
+<span class="sd">    Side Effects:</span>
+<span class="sd">        - Saves a PDF plot of unique gRNA count vs fraction threshold.</span>
+<span class="sd">        - Saves a spatial plate map of unique gRNA counts.</span>
+<span class="sd">        - Prints threshold and summary statistics.</span>
+<span class="sd">        - Displays intermediate DataFrames for inspection.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">correct_metadata_column_names</span><span class="p">,</span> <span class="n">correct_metadata</span>
 
     <span class="k">def</span> <span class="nf">_plot_density</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">dependent_variable</span><span class="p">,</span> <span class="n">dst</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot a kernel density estimate (KDE) of a specified variable from a DataFrame.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            df (pd.DataFrame): DataFrame containing the data.</span>
+<span class="sd">            dependent_variable (str): Name of the column to plot.</span>
+<span class="sd">            dst (str, optional): Directory to save the plot. If None, the plot is not saved.</span>
+
+<span class="sd">        Side Effects:</span>
+<span class="sd">            - Displays the KDE plot.</span>
+<span class="sd">            - Saves the plot as &#39;dependent_variable_density.pdf&#39; in the specified directory if dst is provided.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot a density plot of the dependent variable.&quot;&quot;&quot;</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
         <span class="n">sns</span><span class="o">.</span><span class="n">kdeplot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">dependent_variable</span><span class="p">],</span> <span class="n">fill</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
@@ -1665,8 +2005,22 @@
 
     <span class="k">def</span> <span class="nf">find_and_visualize_fraction_threshold</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">target_unique_count</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">log_x</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">log_y</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dst</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Find the fraction threshold where the recalculated unique count matches the target value,</span>
-<span class="sd">        and visualize the relationship between fraction thresholds and unique counts.</span>
+<span class="sd">        Identify the optimal fraction threshold that yields an average number of unique gRNAs per well </span>
+<span class="sd">        closest to a specified target, and visualize the relationship between threshold and unique count.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            df (pd.DataFrame): Input DataFrame containing &#39;fraction&#39;, &#39;plateID&#39;, &#39;rowID&#39;, &#39;columnID&#39;, and &#39;grna&#39; columns.</span>
+<span class="sd">            target_unique_count (int, optional): Desired average number of unique gRNAs per well. Default is 5.</span>
+<span class="sd">            log_x (bool, optional): Whether to apply a log scale to the x-axis in the plot.</span>
+<span class="sd">            log_y (bool, optional): Whether to apply a log scale to the y-axis in the plot.</span>
+<span class="sd">            dst (str, optional): Directory where the plot will be saved. If None, the plot is not saved.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: The fraction threshold value closest to achieving the target_unique_count.</span>
+
+<span class="sd">        Side Effects:</span>
+<span class="sd">            - Displays a line plot of unique gRNA counts vs. fraction thresholds.</span>
+<span class="sd">            - Saves the plot as &#39;fraction_threshold.pdf&#39; in a subdirectory &#39;results/&#39; under `dst` if provided.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span> <span class="nf">_line_plot</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;fraction_threshold&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;unique_count&#39;</span><span class="p">,</span> <span class="n">log_x</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">log_y</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>

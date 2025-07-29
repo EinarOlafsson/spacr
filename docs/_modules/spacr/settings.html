@@ -3590,6 +3590,34 @@
 <div class="viewcode-block" id="set_default_generate_barecode_mapping">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.set_default_generate_barecode_mapping">[docs]</a>
 <span class="k">def</span> <span class="nf">set_default_generate_barecode_mapping</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{}):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets default settings for barcode mapping from sequencing data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): A dictionary to populate with default parameters if keys are missing.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: The updated settings dictionary with default values applied.</span>
+
+<span class="sd">    Default Settings:</span>
+<span class="sd">        - src (str): Path to input FASTQ files.</span>
+<span class="sd">        - regex (str): Regular expression to extract column, grna, and row barcodes.</span>
+<span class="sd">        - target_sequence (str): Sequence to locate for alignment.</span>
+<span class="sd">        - offset_start (int): Offset to start looking for target sequence.</span>
+<span class="sd">        - expected_end (int): Expected ending position of the barcode pattern.</span>
+<span class="sd">        - column_csv (str): Path to CSV with column barcodes.</span>
+<span class="sd">        - grna_csv (str): Path to CSV with grna barcodes.</span>
+<span class="sd">        - row_csv (str): Path to CSV with row barcodes.</span>
+<span class="sd">        - save_h5 (bool): Whether to save output in HDF5 format.</span>
+<span class="sd">        - comp_type (str): Compression type for HDF5 (&#39;zlib&#39;, &#39;lzf&#39;, etc.).</span>
+<span class="sd">        - comp_level (int): Compression level if using zlib (0–9).</span>
+<span class="sd">        - chunk_size (int): Number of reads to process per chunk.</span>
+<span class="sd">        - n_jobs (int or None): Number of parallel jobs to use.</span>
+<span class="sd">        - mode (str): &#39;paired&#39; for paired-end, &#39;single&#39; for single-end.</span>
+<span class="sd">        - single_direction (str): &#39;R1&#39; or &#39;R2&#39; for direction if mode is &#39;single&#39;.</span>
+<span class="sd">        - test (bool): Whether to run in test mode.</span>
+<span class="sd">        - fill_na (bool): If True, fill missing barcodes with &#39;NA&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;regex&#39;</span><span class="p">,</span> <span class="s1">&#39;^(?P&lt;column&gt;.</span><span class="si">{8}</span><span class="s1">)TGCTG.*TAAAC(?P&lt;grna&gt;.{20,21})AACTT.*AGAAG(?P&lt;row&gt;.</span><span class="si">{8}</span><span class="s1">).*&#39;</span><span class="p">),</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;target_sequence&#39;</span><span class="p">,</span> <span class="s1">&#39;TGCTGTTTCCAGCATAGCTCTTAAAC&#39;</span><span class="p">)</span>
@@ -3613,6 +3641,34 @@
 <div class="viewcode-block" id="get_default_generate_activation_map_settings">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.get_default_generate_activation_map_settings">[docs]</a>
 <span class="k">def</span> <span class="nf">get_default_generate_activation_map_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets default settings for generating activation maps (e.g., Grad-CAM) from a trained deep learning model.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): A dictionary to populate with default parameters if keys are missing.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: The updated settings dictionary with default values applied.</span>
+
+<span class="sd">    Default Settings:</span>
+<span class="sd">        - dataset (str): Path to dataset directory containing images.</span>
+<span class="sd">        - model_type (str): Type of model architecture used (&#39;maxvit&#39;, &#39;resnet&#39;, etc.).</span>
+<span class="sd">        - model_path (str): Path to the trained model checkpoint.</span>
+<span class="sd">        - image_size (int): Size to which input images will be resized.</span>
+<span class="sd">        - batch_size (int): Number of images processed per batch.</span>
+<span class="sd">        - normalize (bool): Whether to normalize input images.</span>
+<span class="sd">        - cam_type (str): Class activation map type (&#39;gradcam&#39;, &#39;gradcam++&#39;, etc.).</span>
+<span class="sd">        - target_layer (str or None): Specific layer to target for activation visualization.</span>
+<span class="sd">        - plot (bool): If True, display the activation maps during processing.</span>
+<span class="sd">        - save (bool): If True, save activation map outputs to disk.</span>
+<span class="sd">        - normalize_input (bool): Whether to normalize input images before model inference.</span>
+<span class="sd">        - channels (list): List of channel indices to include in model input.</span>
+<span class="sd">        - overlay (bool): Whether to overlay activation maps on the original images.</span>
+<span class="sd">        - shuffle (bool): If True, shuffle the dataset before processing.</span>
+<span class="sd">        - correlation (bool): If True, compute correlation between channels and activation maps.</span>
+<span class="sd">        - manders_thresholds (list): List of thresholds for Manders’ overlap coefficient.</span>
+<span class="sd">        - n_jobs (int or None): Number of parallel workers to use for processing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;dataset&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;model_type&#39;</span><span class="p">,</span> <span class="s1">&#39;maxvit&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;model_path&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">)</span>
@@ -3636,6 +3692,33 @@
 <div class="viewcode-block" id="get_analyze_plaque_settings">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.get_analyze_plaque_settings">[docs]</a>
 <span class="k">def</span> <span class="nf">get_analyze_plaque_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets default settings for analyzing plaque formation using Cellpose segmentation and related image processing tools.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): A dictionary to populate with default parameters if keys are missing.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: The updated settings dictionary with default values applied.</span>
+
+<span class="sd">    Default Settings:</span>
+<span class="sd">        - src (str): Path to the directory containing input images.</span>
+<span class="sd">        - masks (bool): Whether to use precomputed masks or generate new ones.</span>
+<span class="sd">        - background (int): Background intensity value to subtract during preprocessing.</span>
+<span class="sd">        - Signal_to_noise (int): Minimum signal-to-noise ratio required for valid segmentation.</span>
+<span class="sd">        - CP_prob (float): Minimum Cellpose probability threshold for mask acceptance.</span>
+<span class="sd">        - diameter (int): Expected object diameter (in pixels) for Cellpose segmentation.</span>
+<span class="sd">        - batch_size (int): Number of images to process per batch.</span>
+<span class="sd">        - flow_threshold (float): Flow error threshold for accepting Cellpose masks.</span>
+<span class="sd">        - save (bool): If True, save the segmentation and analysis outputs to disk.</span>
+<span class="sd">        - verbose (bool): If True, print detailed processing logs.</span>
+<span class="sd">        - resize (bool): Whether to resize images before processing.</span>
+<span class="sd">        - target_height (int): Height to which images should be resized (if `resize` is True).</span>
+<span class="sd">        - target_width (int): Width to which images should be resized (if `resize` is True).</span>
+<span class="sd">        - rescale (bool): Whether to apply rescaling of image intensity values.</span>
+<span class="sd">        - resample (bool): If True, resample images using interpolation methods.</span>
+<span class="sd">        - fill_in (bool): Whether to fill in holes or small gaps in detected masks.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;masks&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;background&#39;</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
@@ -3658,6 +3741,22 @@
 <div class="viewcode-block" id="set_graph_importance_defaults">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.set_graph_importance_defaults">[docs]</a>
 <span class="k">def</span> <span class="nf">set_graph_importance_defaults</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets default parameters for plotting graph-based feature importance across groups.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary to be populated with default values if keys are missing.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Updated settings dictionary.</span>
+
+<span class="sd">    Default Settings:</span>
+<span class="sd">        - csvs (str or list of str): Path(s) to CSV files containing importance scores.</span>
+<span class="sd">        - grouping_column (str): Column name used to group features for plotting (e.g., &#39;compartment&#39;).</span>
+<span class="sd">        - data_column (str): Column name containing the importance values to be plotted.</span>
+<span class="sd">        - graph_type (str): Type of graph to plot. Options may include &#39;jitter_bar&#39;, &#39;violin&#39;, etc.</span>
+<span class="sd">        - save (bool): Whether to save the plot to disk.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;csvs&#39;</span><span class="p">,</span><span class="s1">&#39;list of paths&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;grouping_column&#39;</span><span class="p">,</span><span class="s1">&#39;compartment&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;data_column&#39;</span><span class="p">,</span><span class="s1">&#39;compartment_importance_sum&#39;</span><span class="p">)</span>
@@ -3669,6 +3768,31 @@
 <div class="viewcode-block" id="set_interperate_vision_model_defaults">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.set_interperate_vision_model_defaults">[docs]</a>
 <span class="k">def</span> <span class="nf">set_interperate_vision_model_defaults</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets default parameters for interpreting vision model outputs using feature importance methods.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary to populate with default values for any missing keys.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Updated settings dictionary with default interpretation parameters.</span>
+
+<span class="sd">    Default Settings:</span>
+<span class="sd">        - src (str): Path to input data directory.</span>
+<span class="sd">        - scores (str): Path to model output scores (e.g., predictions or classification results).</span>
+<span class="sd">        - tables (list): List of tables to include in interpretation (e.g., [&#39;cell&#39;, &#39;nucleus&#39;, ...]).</span>
+<span class="sd">        - feature_importance (bool): Whether to compute standard feature importance.</span>
+<span class="sd">        - permutation_importance (bool): Whether to compute permutation importance.</span>
+<span class="sd">        - shap (bool): Whether to compute SHAP values for model interpretability.</span>
+<span class="sd">        - save (bool): Whether to save the results to disk.</span>
+<span class="sd">        - nuclei_limit (int): Maximum number of nuclei objects to use for interpretation.</span>
+<span class="sd">        - pathogen_limit (int): Maximum number of pathogen objects to use.</span>
+<span class="sd">        - top_features (int): Number of top features to include in interpretation output.</span>
+<span class="sd">        - shap_sample (bool): Whether to subsample data for SHAP computation.</span>
+<span class="sd">        - n_jobs (int): Number of parallel jobs to use (-1 means all cores).</span>
+<span class="sd">        - shap_approximate (bool): Use approximate SHAP computations for speed.</span>
+<span class="sd">        - score_column (str): Column name from the scores file to use for interpretation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span><span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;scores&#39;</span><span class="p">,</span><span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;tables&#39;</span><span class="p">,[</span><span class="s1">&#39;cell&#39;</span><span class="p">,</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen&#39;</span><span class="p">,</span><span class="s1">&#39;cytoplasm&#39;</span><span class="p">])</span>
@@ -3689,6 +3813,37 @@
 <div class="viewcode-block" id="set_analyze_endodyogeny_defaults">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.set_analyze_endodyogeny_defaults">[docs]</a>
 <span class="k">def</span> <span class="nf">set_analyze_endodyogeny_defaults</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets default parameters for analyzing endodyogeny (intracellular replication) from segmented object tables.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary to populate with default values for any missing keys.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Updated settings dictionary with defaults for endodyogeny analysis.</span>
+
+<span class="sd">    Default Settings:</span>
+<span class="sd">        - src (str): Path to the input directory containing segmentation tables.</span>
+<span class="sd">        - tables (list): List of tables to analyze, typically [&#39;cell&#39;, &#39;nucleus&#39;, &#39;pathogen&#39;, &#39;cytoplasm&#39;].</span>
+<span class="sd">        - cell_types (list): Cell types to include in the analysis, e.g., [&#39;Hela&#39;].</span>
+<span class="sd">        - cell_plate_metadata (list or None): Metadata mapping for cell plates.</span>
+<span class="sd">        - pathogen_types (list): Pathogen class labels, e.g., [&#39;nc&#39;, &#39;pc&#39;].</span>
+<span class="sd">        - pathogen_plate_metadata (list): Metadata defining pathogen class plate layout.</span>
+<span class="sd">        - treatments (list or None): List of treatments or conditions to group by.</span>
+<span class="sd">        - treatment_plate_metadata (list or None): Metadata for treatment layout per plate.</span>
+<span class="sd">        - min_area_bin (int): Minimum object area (in pixels) to consider in binning.</span>
+<span class="sd">        - group_column (str): Column to use for grouping, e.g., &#39;pathogen&#39;.</span>
+<span class="sd">        - compartment (str): Compartment to analyze, typically &#39;pathogen&#39;.</span>
+<span class="sd">        - pathogen_limit (int): Max number of pathogens per group for subsampling.</span>
+<span class="sd">        - nuclei_limit (int): Max number of nuclei per group for subsampling.</span>
+<span class="sd">        - level (str): Aggregation level, either &#39;object&#39; or &#39;well&#39;.</span>
+<span class="sd">        - um_per_px (float): Microns per pixel for conversion to physical units.</span>
+<span class="sd">        - max_bins (int or None): Optional cap on number of histogram bins.</span>
+<span class="sd">        - save (bool): Whether to save analysis results to file.</span>
+<span class="sd">        - change_plate (bool): Whether to apply plate renaming or normalization.</span>
+<span class="sd">        - cmap (str): Colormap to use for visualization.</span>
+<span class="sd">        - verbose (bool): Whether to print additional processing info.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span><span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;tables&#39;</span><span class="p">,[</span><span class="s1">&#39;cell&#39;</span><span class="p">,</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen&#39;</span><span class="p">,</span> <span class="s1">&#39;cytoplasm&#39;</span><span class="p">])</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cell_types&#39;</span><span class="p">,[</span><span class="s1">&#39;Hela&#39;</span><span class="p">])</span>
@@ -3715,6 +3870,33 @@
 <div class="viewcode-block" id="set_analyze_class_proportion_defaults">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.set_analyze_class_proportion_defaults">[docs]</a>
 <span class="k">def</span> <span class="nf">set_analyze_class_proportion_defaults</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets default parameters for analyzing the proportion of classification labels</span>
+<span class="sd">    across experimental conditions or cell types.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary to populate with default values for any missing keys.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Updated settings dictionary with defaults for class proportion analysis.</span>
+
+<span class="sd">    Default Settings:</span>
+<span class="sd">        - src (str): Path to the input directory containing measurement tables.</span>
+<span class="sd">        - tables (list): List of object tables to analyze (e.g., [&#39;cell&#39;, &#39;nucleus&#39;, &#39;pathogen&#39;, &#39;cytoplasm&#39;]).</span>
+<span class="sd">        - cell_types (list): List of cell types to include, e.g., [&#39;Hela&#39;].</span>
+<span class="sd">        - cell_plate_metadata (list or None): Metadata describing layout of cell types on plates.</span>
+<span class="sd">        - pathogen_types (list): List of pathogen labels, typically [&#39;nc&#39;, &#39;pc&#39;].</span>
+<span class="sd">        - pathogen_plate_metadata (list): Metadata describing layout of pathogen classes on plates.</span>
+<span class="sd">        - treatments (list or None): Experimental treatments to group by.</span>
+<span class="sd">        - treatment_plate_metadata (list or None): Metadata describing treatment layouts on plates.</span>
+<span class="sd">        - group_column (str): Metadata column to group by, typically &#39;condition&#39;.</span>
+<span class="sd">        - class_column (str): Column containing predicted or manual class labels.</span>
+<span class="sd">        - pathogen_limit (int): Max number of pathogen objects to include per group.</span>
+<span class="sd">        - nuclei_limit (int): Max number of nuclei objects to include per group.</span>
+<span class="sd">        - level (str): Aggregation level, e.g., &#39;well&#39; or &#39;object&#39;.</span>
+<span class="sd">        - save (bool): Whether to save results to disk.</span>
+<span class="sd">        - verbose (bool): Whether to print processing steps and warnings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span><span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;tables&#39;</span><span class="p">,[</span><span class="s1">&#39;cell&#39;</span><span class="p">,</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen&#39;</span><span class="p">,</span> <span class="s1">&#39;cytoplasm&#39;</span><span class="p">])</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cell_types&#39;</span><span class="p">,[</span><span class="s1">&#39;Hela&#39;</span><span class="p">])</span>
@@ -3736,6 +3918,30 @@
 <div class="viewcode-block" id="get_plot_data_from_csv_default_settings">
 <a class="viewcode-back" href="../../api/spacr/settings/index.html#spacr.settings.get_plot_data_from_csv_default_settings">[docs]</a>
 <span class="k">def</span> <span class="nf">get_plot_data_from_csv_default_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets default parameters for plotting data from a CSV file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary to populate with default values for any missing keys.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Updated settings dictionary with default plotting parameters.</span>
+
+<span class="sd">    Default Settings:</span>
+<span class="sd">        - src (str): Path to the CSV file to be plotted.</span>
+<span class="sd">        - data_column (str): Name of the column containing the data to plot.</span>
+<span class="sd">        - grouping_column (str): Column to group the data by (e.g., experimental condition).</span>
+<span class="sd">        - graph_type (str): Type of plot to generate, e.g., &#39;violin&#39;, &#39;box&#39;, &#39;bar&#39;, or &#39;strip&#39;.</span>
+<span class="sd">        - save (bool): Whether to save the plot to disk.</span>
+<span class="sd">        - y_lim (tuple or None): Y-axis limits as (min, max), or None for automatic scaling.</span>
+<span class="sd">        - log_y (bool): Whether to use a logarithmic scale on the Y-axis.</span>
+<span class="sd">        - log_x (bool): Whether to use a logarithmic scale on the X-axis.</span>
+<span class="sd">        - keep_groups (list or None): Specific groups to retain in the plot; others will be excluded.</span>
+<span class="sd">        - representation (str): Level of data aggregation, typically &#39;well&#39; or &#39;object&#39;.</span>
+<span class="sd">        - theme (str): Visual theme for the plot, e.g., &#39;dark&#39; or &#39;light&#39;.</span>
+<span class="sd">        - remove_outliers (bool): Whether to exclude statistical outliers from the plot.</span>
+<span class="sd">        - verbose (bool): Whether to print status messages during plotting.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span><span class="s1">&#39;path&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;data_column&#39;</span><span class="p">,</span><span class="s1">&#39;choose column&#39;</span><span class="p">)</span>
     <span class="n">settings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;grouping_column&#39;</span><span class="p">,</span><span class="s1">&#39;choose column&#39;</span><span class="p">)</span>
