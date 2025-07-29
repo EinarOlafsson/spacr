@@ -33,6 +33,7 @@ autoapi_root               = 'api'
 autoapi_add_toctree_entry  = True
 autoapi_options = [
     'members',
+    'undoc-members',
     'show-inheritance',
     'special-members',
 ]
