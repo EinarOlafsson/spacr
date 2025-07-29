@@ -5462,36 +5462,39 @@
 <span class="sd">    Generate and save region-specific plots including: mask overlay, raw PNG grid, and activation map grid.</span>
 
 <span class="sd">    This function loads image paths and metadata from database tables, filters for the specified region (field of view),</span>
-<span class="sd">    and plots:</span>
-<span class="sd">        - a mask overlay of the full field image with Cellpose masks</span>
-<span class="sd">        - a grid of raw cropped PNGs corresponding to the region</span>
-<span class="sd">        - a grid of activation maps (e.g., saliency, Grad-CAM) for the same region</span>
+<span class="sd">    and plots the following:</span>
+<span class="sd">    </span>
+<span class="sd">    - A mask overlay of the full field image with Cellpose masks.</span>
+<span class="sd">    - A grid of raw cropped PNGs corresponding to the region.</span>
+<span class="sd">    - A grid of activation maps (e.g., saliency, Grad-CAM) for the same region.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        settings (dict): A dictionary containing the following keys:</span>
-<span class="sd">            &#39;src&#39; (str): Source folder containing subfolders like &#39;merged&#39;, &#39;measurements&#39;, and &#39;datasets&#39;.</span>
-<span class="sd">            &#39;name&#39; (str): Filename (e.g., &#39;plate1_A01_01.tif&#39;) identifying the region/FOV of interest.</span>
-<span class="sd">            &#39;activation_db&#39; (str): Filename of the activation measurement database (e.g., &#39;activations.db&#39;).</span>
-<span class="sd">            &#39;activation_mode&#39; (str): Mode of activation (&#39;saliency&#39;, &#39;gradcam&#39;, etc.); used to find the correct table.</span>
-<span class="sd">            &#39;channels&#39; (list of int): Indices of input channels to use for the mask overlay.</span>
-<span class="sd">            &#39;cell_channel&#39; (int): Channel index used to generate the cell mask.</span>
-<span class="sd">            &#39;nucleus_channel&#39; (int): Channel index used to generate the nucleus mask.</span>
-<span class="sd">            &#39;pathogen_channel&#39; (int): Channel index used to generate the pathogen mask.</span>
-<span class="sd">            &#39;percentiles&#39; (list): Two-element list (e.g., [2, 99]) specifying intensity percentiles for contrast scaling.</span>
-<span class="sd">            &#39;mode&#39; (str): Image display mode for overlay (&#39;rgb&#39;, &#39;stack&#39;, etc.).</span>
-<span class="sd">            &#39;export_tiffs&#39; (bool): Whether to export TIFF images alongside overlays.</span>
+
+<span class="sd">            - &#39;src&#39; (str): Source folder containing subfolders like &#39;merged&#39;, &#39;measurements&#39;, and &#39;datasets&#39;.</span>
+<span class="sd">            - &#39;name&#39; (str): Filename (e.g., &#39;plate1_A01_01.tif&#39;) identifying the region/FOV of interest.</span>
+<span class="sd">            - &#39;activation_db&#39; (str): Filename of the activation measurement database (e.g., &#39;activations.db&#39;).</span>
+<span class="sd">            - &#39;activation_mode&#39; (str): Mode of activation (&#39;saliency&#39;, &#39;gradcam&#39;, etc.); used to find the correct table.</span>
+<span class="sd">            - &#39;channels&#39; (list of int): Indices of input channels to use for the mask overlay.</span>
+<span class="sd">            - &#39;cell_channel&#39; (int): Channel index used to generate the cell mask.</span>
+<span class="sd">            - &#39;nucleus_channel&#39; (int): Channel index used to generate the nucleus mask.</span>
+<span class="sd">            - &#39;pathogen_channel&#39; (int): Channel index used to generate the pathogen mask.</span>
+<span class="sd">            - &#39;percentiles&#39; (list): Two-element list (e.g., [2, 99]) specifying intensity percentiles for contrast scaling.</span>
+<span class="sd">            - &#39;mode&#39; (str): Image display mode for overlay (&#39;rgb&#39;, &#39;stack&#39;, etc.).</span>
+<span class="sd">            - &#39;export_tiffs&#39; (bool): Whether to export TIFF images alongside overlays.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        tuple:</span>
-<span class="sd">            fig_1 (matplotlib.figure.Figure or None): Mask overlay figure.</span>
-<span class="sd">            fig_2 (matplotlib.figure.Figure or None): Grid of raw cropped PNGs.</span>
-<span class="sd">            fig_3 (matplotlib.figure.Figure or None): Grid of activation maps.</span>
+<span class="sd">        tuple: A 3-element tuple of matplotlib Figure objects or None</span>
+
+<span class="sd">            - fig_1 (matplotlib.figure.Figure or None): Mask overlay figure.</span>
+<span class="sd">            - fig_2 (matplotlib.figure.Figure or None): Grid of raw cropped PNGs.</span>
+<span class="sd">            - fig_3 (matplotlib.figure.Figure or None): Grid of activation maps.</span>
 
 <span class="sd">    Notes:</span>
-<span class="sd">        - Figures are saved as PDFs under `src/results/&lt;name&gt;/`.</span>
-<span class="sd">        - If no relevant PNGs or activations are found, the corresponding figure will be `None`.</span>
-<span class="sd">        - Paths are automatically corrected using `correct_paths`.</span>
-<span class="sd">        - The figure layout uses `plot_image_grid` and `plot_image_mask_overlay`.</span>
+<span class="sd">        - Figures are saved as PDFs under ``&lt;src&gt;/results/&lt;name&gt;/``.</span>
+<span class="sd">        - If no relevant PNGs or activations are found, the corresponding figure will be ``None``.</span>
+<span class="sd">        - Paths are automatically corrected using ``correct_paths``.</span>
+<span class="sd">        - The figure layout uses ``plot_image_grid`` and ``plot_image_mask_overlay``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">_sort_paths_by_basename</span><span class="p">(</span><span class="n">paths</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">paths</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">path</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>

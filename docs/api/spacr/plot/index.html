@@ -2186,33 +2186,40 @@ results_df (pd.DataFrame): DataFrame with statistical results or plot summary.</
 <span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#plot_region"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_region" title="Link to this definition"></a></dt>
 <dd><p>Generate and save region-specific plots including: mask overlay, raw PNG grid, and activation map grid.</p>
 <p>This function loads image paths and metadata from database tables, filters for the specified region (field of view),
-and plots:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>a mask overlay of the full field image with Cellpose masks</p></li>
-<li><p>a grid of raw cropped PNGs corresponding to the region</p></li>
-<li><p>a grid of activation maps (e.g., saliency, Grad-CAM) for the same region</p></li>
+and plots the following:</p>
+<ul class="simple">
+<li><p>A mask overlay of the full field image with Cellpose masks.</p></li>
+<li><p>A grid of raw cropped PNGs corresponding to the region.</p></li>
+<li><p>A grid of activation maps (e.g., saliency, Grad-CAM) for the same region.</p></li>
 </ul>
-</div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – A dictionary containing the following keys:
-‘src’ (str): Source folder containing subfolders like ‘merged’, ‘measurements’, and ‘datasets’.
-‘name’ (str): Filename (e.g., ‘plate1_A01_01.tif’) identifying the region/FOV of interest.
-‘activation_db’ (str): Filename of the activation measurement database (e.g., ‘activations.db’).
-‘activation_mode’ (str): Mode of activation (‘saliency’, ‘gradcam’, etc.); used to find the correct table.
-‘channels’ (list of int): Indices of input channels to use for the mask overlay.
-‘cell_channel’ (int): Channel index used to generate the cell mask.
-‘nucleus_channel’ (int): Channel index used to generate the nucleus mask.
-‘pathogen_channel’ (int): Channel index used to generate the pathogen mask.
-‘percentiles’ (list): Two-element list (e.g., [2, 99]) specifying intensity percentiles for contrast scaling.
-‘mode’ (str): Image display mode for overlay (‘rgb’, ‘stack’, etc.).
-‘export_tiffs’ (bool): Whether to export TIFF images alongside overlays.</p>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – <p>A dictionary containing the following keys:</p>
+<ul class="simple">
+<li><p>’src’ (str): Source folder containing subfolders like ‘merged’, ‘measurements’, and ‘datasets’.</p></li>
+<li><p>’name’ (str): Filename (e.g., ‘plate1_A01_01.tif’) identifying the region/FOV of interest.</p></li>
+<li><p>’activation_db’ (str): Filename of the activation measurement database (e.g., ‘activations.db’).</p></li>
+<li><p>’activation_mode’ (str): Mode of activation (‘saliency’, ‘gradcam’, etc.); used to find the correct table.</p></li>
+<li><p>’channels’ (list of int): Indices of input channels to use for the mask overlay.</p></li>
+<li><p>’cell_channel’ (int): Channel index used to generate the cell mask.</p></li>
+<li><p>’nucleus_channel’ (int): Channel index used to generate the nucleus mask.</p></li>
+<li><p>’pathogen_channel’ (int): Channel index used to generate the pathogen mask.</p></li>
+<li><p>’percentiles’ (list): Two-element list (e.g., [2, 99]) specifying intensity percentiles for contrast scaling.</p></li>
+<li><p>’mode’ (str): Image display mode for overlay (‘rgb’, ‘stack’, etc.).</p></li>
+<li><p>’export_tiffs’ (bool): Whether to export TIFF images alongside overlays.</p></li>
+</ul>
+</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>fig_1 (matplotlib.figure.Figure or None): Mask overlay figure.
-fig_2 (matplotlib.figure.Figure or None): Grid of raw cropped PNGs.
-fig_3 (matplotlib.figure.Figure or None): Grid of activation maps.</p>
+<dd class="field-even"><p><p>A 3-element tuple of matplotlib Figure objects or None</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>fig_1 (matplotlib.figure.Figure or None): Mask overlay figure.</p></li>
+<li><p>fig_2 (matplotlib.figure.Figure or None): Grid of raw cropped PNGs.</p></li>
+<li><p>fig_3 (matplotlib.figure.Figure or None): Grid of activation maps.</p></li>
+</ul>
+</div></blockquote>
+</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>tuple</p>
@@ -2220,10 +2227,10 @@ fig_3 (matplotlib.figure.Figure or None): Grid of activation maps.</p>
 </dl>
 <p class="rubric">Notes</p>
 <ul class="simple">
-<li><p>Figures are saved as PDFs under <cite>src/results/&lt;name&gt;/</cite>.</p></li>
-<li><p>If no relevant PNGs or activations are found, the corresponding figure will be <cite>None</cite>.</p></li>
-<li><p>Paths are automatically corrected using <cite>correct_paths</cite>.</p></li>
-<li><p>The figure layout uses <cite>plot_image_grid</cite> and <cite>plot_image_mask_overlay</cite>.</p></li>
+<li><p>Figures are saved as PDFs under <code class="docutils literal notranslate"><span class="pre">&lt;src&gt;/results/&lt;name&gt;/</span></code>.</p></li>
+<li><p>If no relevant PNGs or activations are found, the corresponding figure will be <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p>Paths are automatically corrected using <code class="docutils literal notranslate"><span class="pre">correct_paths</span></code>.</p></li>
+<li><p>The figure layout uses <code class="docutils literal notranslate"><span class="pre">plot_image_grid</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_image_mask_overlay</span></code>.</p></li>
 </ul>
 </dd></dl>
 
