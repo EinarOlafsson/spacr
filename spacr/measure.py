@@ -90,7 +90,7 @@ def _analyze_cytoskeleton(array, mask, channel):
     """
     Analyzes and extracts skeleton properties from labeled objects in a masked image based on microtubule staining intensities.
 
-    Parameters:
+    Args:
     image : numpy array
         Intensity image where the microtubules are stained.
     mask : numpy array
@@ -229,7 +229,7 @@ def _create_dataframe(radial_distributions, object_type):
         """
         Create a pandas DataFrame from the given radial distributions.
 
-        Parameters:
+        Args:
         - radial_distributions (dict): A dictionary containing the radial distributions.
         - object_type (str): The type of object.
 
@@ -249,9 +249,38 @@ def _create_dataframe(radial_distributions, object_type):
 
 def _extended_regionprops_table(labels, image, intensity_props):
     """
-    Calculate extended region properties table, adding a suite of advanced quantitative features.
+    Compute extended region properties for labeled objects in an image.
+
+    In addition to standard `regionprops_table` features, this function computes 
+    a comprehensive set of intensity-based statistics for each labeled object, 
+    including Gini coefficient, entropy, skewness, kurtosis, percentiles, and 
+    fraction of pixels in the tails of the intensity distribution.
+
+    Args:
+        labels (ndarray): Labeled array of connected components.
+        image (ndarray): Intensity image used to compute intensity-based features.
+        intensity_props (list): List of region properties to compute using 
+            `regionprops_table` (e.g., ['label', 'area', 'mean_intensity']).
+
+    Returns:
+        pd.DataFrame: DataFrame with standard and extended intensity features for each region.
+
+    Extended features include:
+        - integrated_intensity: Sum of pixel values.
+        - std_intensity: Standard deviation.
+        - median_intensity: Median pixel intensity.
+        - skew_intensity: Skewness of pixel intensity distribution.
+        - kurtosis_intensity: Kurtosis of pixel intensity distribution.
+        - mode_intensity: Most frequent pixel intensity.
+        - range_intensity: Peak-to-peak range (max - min).
+        - iqr_intensity: Interquartile range (75th - 25th percentile).
+        - cv_intensity: Coefficient of variation (std / mean).
+        - gini_intensity: Gini coefficient of intensity distribution.
+        - frac_high90: Fraction of pixels above 90th percentile.
+        - frac_low10: Fraction of pixels below 10th percentile.
+        - entropy_intensity: Shannon entropy of intensity distribution.
+        - percentile_X: Percentile value of pixel intensity for X ∈ {5, 10, 25, 75, 85, 95}.
     """
-    
     def _gini(array):
         # Compute Gini coefficient (nan safe)
         array = np.abs(array[~np.isnan(array)])
@@ -343,7 +372,7 @@ def _calculate_homogeneity(label, channel, distances=[2,4,8,16,32,64]):
         """
         Calculate the homogeneity values for each region in the label mask.
 
-        Parameters:
+        Args:
         - label (ndarray): The label mask containing the regions.
         - channel (ndarray): The image channel corresponding to the label mask.
         - distances (list): The distances to calculate the homogeneity for.
@@ -545,7 +574,7 @@ def _estimate_blur(image):
     """
     Estimates the blur of an image by computing the variance of its Laplacian.
 
-    Parameters:
+    Args:
     image (numpy.ndarray): The input image.
 
     Returns:
@@ -565,9 +594,32 @@ def _estimate_blur(image):
 
 def _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_arrays, settings):
     """
-    Compute Gaussian-smoothed intensity-weighted centroid distances for each cell object.
-    """
+    Measure the distance from the intensity-weighted center of mass (COM) of each cell to the nucleus and pathogen.
 
+    For each labeled cell in the `cell_mask`, the function computes:
+      - A Gaussian-blurred version of each channel in `channel_arrays`
+      - The center of mass (COM) of intensity within the cell
+      - The Euclidean distance from the COM to the nearest nucleus and pathogen pixels
+    The distances are calculated using distance transforms of the inverse masks.
+
+    Args:
+        cell_mask (ndarray): 2D array with labeled cells (0 = background, 1..N = cell labels).
+        nucleus_mask (ndarray): 2D binary mask (non-zero = nucleus pixels).
+        pathogen_mask (ndarray): 2D binary mask (non-zero = pathogen pixels).
+        channel_arrays (ndarray): 3D array (H, W, C) of image intensities.
+        settings (dict): Dictionary containing configuration. Expected key:
+            - 'distance_gaussian_sigma' (float): Sigma for Gaussian blur (default: 1.0).
+
+    Returns:
+        pd.DataFrame: DataFrame with one row per cell and columns:
+            - 'label': Cell label
+            - 'cell_channel_X_distance_to_nucleus': Distance from cell COM in channel X to nucleus
+            - 'cell_channel_X_distance_to_pathogen': Distance from cell COM in channel X to pathogen
+
+    Notes:
+        - If the COM is outside image bounds or undefined, NaNs are returned.
+        - Multiple channels are supported and processed independently.
+    """
     sigma = settings.get('distance_gaussian_sigma', 1.0)
     cell_labels = np.unique(cell_mask)
     cell_labels = cell_labels[cell_labels > 0]
@@ -797,25 +849,58 @@ def img_list_to_grid(grid, titles=None):
 
 #@log_function_call
 def _measure_crop_core(index, time_ls, file, settings):
-
     """
-    Measure and crop the images based on specified settings.
+    Core function for processing a single `.npy` image file containing multichannel image data and object masks.
+    Performs filtering, mask refinement, measurement extraction, image cropping, and optional saving of
+    processed masks, PNGs, and cropped arrays.
 
-    Parameters:
-    - index: int
-        The index of the image.
-    - time_ls: list
-        The list of time points.
-    - file: str
-        The file path of the image.
-    - settings: dict
-        The dictionary containing the settings for measurement and cropping.
+    Args:
+        index (int): Index of the image being processed (used for tracking).
+        time_ls (list): List used to record processing duration per file for average timing.
+        file (str): Filename of the `.npy` stack to process (must exist in `settings['src']`).
+        settings (dict): Dictionary of processing options as defined in `get_measure_crop_settings()`. Key options include:
+
+            - src (str): Source folder containing `.npy` files.
+            - experiment (str): Experiment name for saving to database.
+            - verbose (bool): If True, print conversion and processing info.
+            - plot (bool): If True, generate matplotlib figures and return them.
+            - channels (list[int]): List of channel indices to extract for measurements.
+            - cell_mask_dim, nucleus_mask_dim, pathogen_mask_dim (int or None): Indices for masks.
+            - cytoplasm (bool): If True, generate and process cytoplasm masks.
+            - uninfected (bool): If True, include only uninfected cells.
+            - *_min_size (int): Minimum object size in pixels for cell, nucleus, pathogen, cytoplasm.
+            - save_measurements (bool): If True, compute and save morphology and intensity metrics to database.
+            - radial_dist, manders_thresholds, homogeneity, homogeneity_distances (various): Parameters for advanced measurements.
+            - save_png, save_arrays (bool): If True, save PNGs and cropped arrays for each object.
+            - png_dims (list[int]): Channel indices to use for PNG image generation.
+            - normalize (list[int] or False): Percentiles for normalization or False to skip.
+            - normalize_by (str): 'png' or 'fov' for normalization reference.
+            - png_size (list or list[list]): Size(s) of cropped PNGs, e.g., [224, 224] or [[224, 224], ...].
+            - crop_mode (list[str]): Which objects to crop ('cell', 'nucleus', 'pathogen', 'cytoplasm').
+            - dialate_pngs (bool or list[bool]): Whether to dilate cropped region for PNG.
+            - dialate_png_ratios (float or list[float]): Dilation radius as fraction of diameter.
+            - use_bounding_box (bool): If True, crop bounding box around each object with padding.
+            - timelapse (bool): If True, handle relabeling for timelapse data.
+            - timelapse_objects (str): Which objects to track over time ('cell', 'nucleus').
+            - n_jobs (int): Number of parallel jobs.
+            - test_mode (bool): If True, limit number of images and enable plotting.
 
     Returns:
-    - cropped_images: list
-        A list of cropped images.
+        tuple:
+            - index (int): Same as input, used for indexing.
+            - average_time (float): Average time per file across all calls.
+            - cells (int): Number of cells processed (or 0 if error).
+            - figs (dict): Dictionary of matplotlib figures, if plotting is enabled.
+                Keys are labeled with file names and processing stages.
+
+    Notes:
+        - Saves measurement data into SQLite databases using `_merge_and_save_to_database`.
+        - Supports dilation of PNG crops and flexible normalization strategies.
+        - Designed for batch use in multiprocessing workflows.
+        - All intermediate object masks are optionally filtered by size and merged with overlaps.
+        - Relabeling ensures parent-child consistency when necessary (e.g., nucleus within cells).
+        - Errors during processing are caught and traceback printed; the image is skipped.
     """
-    
     from .plot import _plot_cropped_arrays
     from .utils import _merge_overlapping_objects, _filter_object, _relabel_parent_with_child_labels, _exclude_objects, normalize_to_dtype, filepaths_to_database
     from .utils import _merge_and_save_to_database, _crop_center, _find_bounding_box, _generate_names, _get_percentiles
@@ -1075,17 +1160,60 @@ def _measure_crop_core(index, time_ls, file, settings):
 
 #@log_function_call
 def measure_crop(settings):
-    
     """
-    Measure the crop of an image based on the provided settings.
+    Main driver function to process `.npy` image stacks in a given folder or list of folders.
+    Applies morphological measurements, generates cropped images (PNGs), and saves object-level 
+    metrics and optional visuals using multiprocessing for speed.
 
     Args:
-        settings (dict): The settings for measuring the crop.
+        settings (dict): Dictionary of processing parameters. Use `get_measure_crop_settings()` to populate defaults.
+        Key settings include:
+
+            - src (str or list[str]): Path(s) to folder(s) containing `.npy` stacks.
+            - experiment (str): Experiment name to store alongside outputs in the database.
+            - test_mode (bool): If True, limit number of images and enable plotting.
+            - verbose (bool): Print processing info.
+            - channels (list[int]): Channels to use for intensity measurements and PNG generation.
+            - plot (bool): If True, save figures to memory and optionally to disk.
+            - n_jobs (int): Number of parallel processes (defaults to CPU count minus 2).
+            - cell_mask_dim, nucleus_mask_dim, pathogen_mask_dim (int or None): Indices of object masks in the stack.
+            - cytoplasm (bool): If True, derive cytoplasmic mask.
+            - _min_size (int): Minimum pixel size thresholds for object filtering.
+            - merge_edge_pathogen_cells (bool): If True, merge pathogen/cell masks at edges.
+            - timelapse (bool): If True, enable temporal relabeling and GIF generation.
+            - timelapse_objects (str): Which object type to track temporally ("nucleus" or "cell").
+            - save_measurements (bool): Save morphology and intensity features to SQLite DB.
+            - save_png, save_arrays (bool): Save per-object cropped PNGs and/or subarrays.
+            - png_dims (list[int]): Channel indices to render in PNG.
+            - png_size (list[int] or list[list[int]]): PNG crop size in pixels (width, height).
+            - crop_mode (list[str]): Which objects to crop (e.g., ['cell', 'nucleus']).
+            - normalize (list[int] or False): Percentiles for intensity normalization or False to skip.
+            - normalize_by (str): 'png' or 'fov'—reference frame for normalization.
+            - dialate_pngs (bool or list[bool]): Whether to dilate PNG masks before cropping.
+            - dialate_png_ratios (float or list[float]): Dilation factor relative to object size.
+            - use_bounding_box (bool): Use bounding box rather than minimal crop.
+            - delete_intermediate (bool): If True, delete original input arrays after processing.
+
+    Workflow:
+        - Validates and normalizes input settings.
+        - Applies multiprocessing to process each `.npy` file using `_measure_crop_core()`.
+        - Saves measurement outputs (morphology, intensity) to database.
+        - Generates per-object crops as PNGs or arrays, optionally normalized and resized.
+        - If `timelapse=True`, generates summary mask GIFs across timepoints.
+        - Reports progress and CPU usage throughout execution.
 
     Returns:
-        None
-    """
+        None. Results are written to disk and/or SQLite DBs. Completion is reported via print statements.
 
+    Raises:
+        ValueError: For invalid or missing keys in `settings`.
+        Warnings are printed to console for most incorrect parameter combinations.
+
+    Notes:
+        - The `settings['src']` directory is expected to contain `.npy` files and typically ends with `/merged`.
+        - Processing uses up to `settings['n_jobs']` CPU cores but reserves 6 cores by default.
+        - Errors during file processing are handled per file; execution continues for remaining files.
+    """
     from .io import _save_settings_to_db
     from .timelapse import _timelapse_masks_to_gif
     from .utils import measure_test_mode, print_progress, delete_intermedeate_files, save_settings, format_path_for_system, normalize_src_path
@@ -1240,6 +1368,34 @@ def process_meassure_crop_results(partial_results, settings):
             result = (index, None, None, None)
             
 def generate_cellpose_train_set(folders, dst, min_objects=5):
+    """
+    Prepares a Cellpose training dataset by extracting images and corresponding masks 
+    from one or more processed spaCR folders. Filters objects by minimum count per mask.
+
+    Args:
+        folders (list[str]): List of source directories. Each must contain:
+                             - a `masks/` folder with segmentation masks
+                             - the corresponding raw images at the top level.
+        dst (str): Destination folder where the training dataset will be saved.
+                   Two subfolders will be created: `dst/masks` and `dst/imgs`.
+        min_objects (int): Minimum number of objects (excluding background) required
+                           in a mask to be included in the training set.
+
+    Workflow:
+        - Iterates through each folder and its `masks/` subfolder.
+        - For each `.tif` or `.png` mask, counts the number of unique objects.
+        - If `nr_of_objects >= min_objects`, the mask and corresponding image are copied
+          to `dst/masks` and `dst/imgs`, respectively.
+        - Output files are renamed using `experiment_id + '_' + original_filename` to avoid collisions.
+
+    Returns:
+        None. Selected images and masks are copied to the target location.
+
+    Notes:
+        - Skips any unreadable or malformed mask files.
+        - Assumes mask files use 0 for background and positive integers for labeled objects.
+        - This function does not validate image-mask alignment—ensure file naming is consistent.
+    """
     os.makedirs(dst, exist_ok=True)
     os.makedirs(os.path.join(dst,'masks'), exist_ok=True)
     os.makedirs(os.path.join(dst,'imgs'), exist_ok=True)
@@ -1268,6 +1424,28 @@ def generate_cellpose_train_set(folders, dst, min_objects=5):
                     print(f"Error copying {path} to {new_mask}: {e}")
 
 def get_object_counts(src):
+    """
+    Reads the object count summary from the SQLite database and returns aggregated statistics.
+
+    Args:
+        src (str): Source directory containing a `measurements/measurements.db` file 
+                   generated by the `measure_crop()` pipeline.
+
+    Returns:
+        pandas.DataFrame: A summary table with one row per `count_type`, including:
+            - total_object_count: Sum of object counts across all files for that type.
+            - avg_object_count_per_file_name: Mean object count per file.
+
+    Example Output:
+        count_type      total_object_count   avg_object_count_per_file_name
+        -----------     -------------------  -------------------------------
+        nucleus         10500                87.5
+        cell            10892                90.77
+
+    Notes:
+        - Requires the presence of an `object_counts` table in the database.
+        - Fails with an exception if the table does not exist or database is missing.
+    """
     database_path = os.path.join(src, 'measurements/measurements.db')
     # Connect to the SQLite database
     conn = sqlite3.connect(database_path)

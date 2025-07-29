@@ -9,6 +9,44 @@ from sklearn.metrics import mean_absolute_error
 from matplotlib.gridspec import GridSpec
 
 def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location',point_size=50, figsize=20, threshold=0,save_path=None, x_lim=[-0.5, 0.5], y_lims=[[0, 6], [9, 20]]):
+    def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location', point_size=50, figsize=20, threshold=0, save_path=None, x_lim=[-0.5, 0.5], y_lims=[[0, 6], [9, 20]]):
+        """
+        Creates a custom volcano plot with two subplots (upper and lower) sharing the x-axis, 
+        where points are colored based on metadata categories.
+        Parameters:
+        -----------
+        data_path : str or pandas.DataFrame
+            Path to the CSV file containing the data or a pandas DataFrame. The data should 
+            include columns 'feature', 'p_value', and 'coefficient'.
+        metadata_path : str or pandas.DataFrame
+            Path to the CSV file containing metadata or a pandas DataFrame. The metadata 
+            should include a column matching `metadata_column` and 'gene_nr'.
+        metadata_column : str, optional
+            The column in the metadata file used to categorize and color points (default is 'tagm_location').
+        point_size : int, optional
+            Size of the scatter plot points (default is 50).
+        figsize : int, optional
+            Size of the figure (default is 20).
+        threshold : float, optional
+            Threshold for the absolute value of the coefficient to consider a point significant (default is 0).
+        save_path : str, optional
+            Path to save the plot as a PDF. If None, the plot is not saved (default is None).
+        x_lim : list of float, optional
+            Limits for the x-axis (default is [-0.5, 0.5]).
+        y_lims : list of lists, optional
+            Limits for the y-axis for the lower and upper subplots (default is [[0, 6], [9, 20]]).
+        Returns:
+        --------
+        hit_list : list of str
+            List of variables (hits) that meet the significance thresholds for p-value and coefficient.
+        Notes:
+        ------
+        - The function uses a color dictionary to assign colors to points based on the `metadata_column` values.
+        - Points with p-value <= 0.05 and absolute coefficient >= `threshold` are considered significant.
+        - Significant points are annotated with their variable names, and overlapping annotations are adjusted.
+        - A legend is optionally added to indicate the mapping of metadata categories to colors.
+        - The plot is divided into two subplots to handle a wide range of p-values effectively.
+        """
 
     # Dictionary mapping compartment to color
     
@@ -326,12 +364,20 @@ def go_term_enrichment_by_column(significant_df, metadata_path, go_term_columns=
 
 def plot_gene_phenotypes(data, gene_list, x_column='Gene ID', data_column='T.gondii GT1 CRISPR Phenotype - Mean Phenotype',error_column='T.gondii GT1 CRISPR Phenotype - Standard Error', save_path=None):
     """
-    Plot a line graph for the mean phenotype with standard error shading and highlighted genes.
-    
+    Plot gene phenotype means with error bars, highlighting selected genes.
+
     Args:
-        data (pd.DataFrame): The input DataFrame containing gene data.
-        gene_list (list): A list of gene names to highlight on the plot.
+        data (pd.DataFrame): DataFrame with phenotype data.
+        gene_list (list of str): List of gene identifiers to highlight.
+        x_column (str, optional): Column with gene identifiers. Default: 'Gene ID'.
+        data_column (str, optional): Column with mean phenotype values.
+        error_column (str, optional): Column with standard error values.
+        save_path (str or None, optional): Path to save PDF. If None, plot is not saved.
+
+    Returns:
+        None
     """
+
     # Ensure x_column is properly processed
     def extract_gene_id(gene):
         if isinstance(gene, str) and '_' in gene:
@@ -471,9 +517,48 @@ def plot_gene_heatmaps(data, gene_list, columns, x_column='Gene ID', normalize=F
     plt.show()
 
 def generate_score_heatmap(settings):
+    """
+    Generates a score comparison heatmap and calculates MAE between classification scores and a reference fraction.
     
+    This function:
+    - Combines classification scores from multiple folders.
+    - Calculates the control gRNA fractions for a specific gRNA.
+    - Merges the fraction data with classification and cross-validation scores.
+    - Plots a heatmap of scores.
+    - Calculates Mean Absolute Error (MAE) between the prediction scores and the true fraction.
+    - Optionally saves the resulting data and figure to disk.
+
+    Args:
+        settings (dict): A dictionary containing:
+            - 'folders': List of folders to search for classification CSVs.
+            - 'csv_name': Name of the classification CSV file in each folder.
+            - 'data_column': Column with predicted values to be compared.
+            - 'plateID': Plate identifier (e.g., 1).
+            - 'columnID': Column identifier (e.g., 'c3').
+            - 'csv': Path to the control gRNA CSV file.
+            - 'control_sgrnas': List of two control gRNA names.
+            - 'fraction_grna': gRNA name for which the true fraction will be extracted.
+            - 'cv_csv': Path to the CSV file with cross-validation predictions.
+            - 'data_column_cv': Column name for cross-validation predictions.
+            - 'dst': Output directory path (or None to disable saving).
+
+    Returns:
+        pandas.DataFrame: The merged DataFrame with 'fraction', predicted scores, and cross-validation scores.
+    """
+
     def group_cv_score(csv, plate=1, column='c3', data_column='pred'):
-        
+        """
+        Group and average cross-validation scores (or other predictions) for each well.
+
+        Args:
+            csv (str): Path to the input CSV file.
+            plate (int, optional): Plate number to assign if not present in the file. Defaults to 1.
+            column (str, optional): Column (well) to filter on, e.g., 'c3'. Defaults to 'c3'.
+            data_column (str, optional): Column to average, e.g., prediction or score column. Defaults to 'pred'.
+
+        Returns:
+            pandas.DataFrame: DataFrame with grouped average values and a 'prc' identifier (plate_row_column).
+        """
         df = pd.read_csv(csv)
         if 'column_name' in df.columns:
             df = df[df['column_name']==column]
@@ -487,6 +572,21 @@ def generate_score_heatmap(settings):
         return grouped_df
 
     def calculate_fraction_mixed_condition(csv, plate=1, column='c3', control_sgrnas = ['TGGT1_220950_1', 'TGGT1_233460_4']):
+        """
+        Calculate the fraction of control_sgrnas in a specified column and plate.
+
+        Args:
+            csv (str): Path to the input CSV file.
+            plate (int, optional): Plate number to filter on. Defaults to 1.
+            column (str, optional): Column name (e.g., 'c3') to filter on. Defaults to 'c3'.
+            control_sgrnas (list of str, optional): List of two gRNA identifiers to include in the fraction calculation.
+                                                    Defaults to ['TGGT1_220950_1', 'TGGT1_233460_4'].
+
+        Returns:
+            pandas.DataFrame: DataFrame with columns including:
+                - 'fraction': Fraction of each control_sgrna in its well.
+                - 'prc': Plate-row-column identifier.
+        """
         df = pd.read_csv(csv)  
         df = df[df['column_name']==column]
         if plate not in df.columns:
@@ -549,6 +649,22 @@ def generate_score_heatmap(settings):
 
 
     def combine_classification_scores(folders, csv_name, data_column, plate=1, column='c3'):
+        """
+        Combines classification scores from multiple CSV files across subfolders.
+
+        Args:
+            folders (str or list of str): A folder or list of folders containing subdirectories 
+                with CSV files named `csv_name`.
+            csv_name (str): The name of the CSV file to search for in each subdirectory.
+            data_column (str): The column name in the CSV to extract and average.
+            plate (int, optional): Plate number to assign to all rows. Defaults to 1.
+            column (str, optional): Column name to filter on, e.g., 'c3'. Defaults to 'c3'.
+
+        Returns:
+            pandas.DataFrame: Combined DataFrame with averaged `data_column` values from each source file.
+                            Each source contributes a uniquely named column, and the result includes a
+                            'prc' column (plate_row_column identifier).
+        """
         # Ensure `folders` is a list
         if isinstance(folders, str):
             folders = [folders]
@@ -596,7 +712,17 @@ def generate_score_heatmap(settings):
     
     def calculate_mae(df):
         """
-        Calculate the MAE between each channel's predictions and the fraction column for all rows.
+        Calculates the Mean Absolute Error (MAE) between the 'fraction' column and all other numeric columns
+        (excluding 'fraction' and 'prc') for each row in the DataFrame.
+
+        Args:
+            df (pandas.DataFrame): Input DataFrame containing a 'fraction' column and prediction columns to compare.
+
+        Returns:
+            pandas.DataFrame: A DataFrame with columns ['Channel', 'MAE', 'Row'], where:
+                - 'Channel' indicates the compared prediction column,
+                - 'MAE' is the mean absolute error between that column and 'fraction',
+                - 'Row' contains the 'prc' identifier for the row.
         """
         # Extract numeric columns excluding 'fraction' and 'prc'
         channels = df.drop(columns=['fraction', 'prc']).select_dtypes(include=[float, int])

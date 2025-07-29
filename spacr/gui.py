@@ -7,7 +7,24 @@ from screeninfo import get_monitors
 import webbrowser
 
 class MainApp(tk.Tk):
+    """
+    The main graphical user interface (GUI) window for launching various SpaCr modules.
+
+    This class creates a full-screen, themed Tkinter application with buttons to launch
+    sub-GUIs for image mask generation, measurement, classification, and advanced analysis
+    tools like regression, barcode mapping, and model activation visualization.
+    """
     def __init__(self, default_app=None):
+        """
+        Initialize the SpaCr main application window.
+
+        Sets up the full-screen GUI, applies dark theme styling, registers available
+        sub-applications, and optionally launches a specific sub-application.
+
+        Args:
+            default_app (str, optional): If specified, directly launches the corresponding
+                application view. Should match a key in `main_gui_apps` or `additional_gui_apps`.
+        """
         super().__init__()
 
         # Initialize the window
@@ -64,6 +81,12 @@ class MainApp(tk.Tk):
             self.load_app(default_app, self.additional_gui_apps[default_app][0])
 
     def create_widgets(self):
+        """
+        Create and place all GUI widgets and layout frames.
+
+        This includes the content and inner frames, sets dark style themes,
+        and triggers the startup screen.
+        """
         create_menu_bar(self)
 
         # Use a grid layout for centering
@@ -85,6 +108,12 @@ class MainApp(tk.Tk):
         self.create_startup_screen()
         
     def _update_wraplength(self, event):
+        """
+        Update the wrap length of the description label based on current frame width.
+
+        Args:
+            event (tk.Event): The event triggering the resize (usually <Configure>).
+        """
         if self.description_label.winfo_exists():
             # Use the actual width of the inner_frame as a proxy for full width
             available_width = self.inner_frame.winfo_width()
@@ -92,6 +121,12 @@ class MainApp(tk.Tk):
                 self.description_label.config(wraplength=int(available_width * 0.9))  # or 0.9
 
     def create_startup_screen(self):
+        """
+        Create the initial screen with buttons to launch different SpaCr modules.
+
+        This function generates main and additional app buttons with tooltips and
+        handles layout and styling.
+        """
         self.clear_frame(self.inner_frame)
 
         main_buttons_frame = tk.Frame(self.inner_frame)
@@ -142,6 +177,11 @@ class MainApp(tk.Tk):
         self.inner_frame.bind("<Configure>", self._update_wraplength)
 
     def update_description(self):
+        """
+        Update the description label based on the currently active (highlighted) button.
+
+        If no button is active, the label is cleared.
+        """
         for button, desc in {**self.main_buttons, **self.additional_buttons}.items():
             if button.canvas.itemcget(button.button_bg, "fill") == self.color_settings['active_color']:
                 self.show_description(desc)
@@ -149,16 +189,32 @@ class MainApp(tk.Tk):
         self.clear_description()
 
     def show_description(self, description):
+        """
+        Show a specific description text in the description label.
+
+        Args:
+            description (str): The text to be displayed.
+        """
         if self.description_label.winfo_exists():
             self.description_label.config(text=description)
             self.description_label.update_idletasks()
 
     def clear_description(self):
+        """
+        Clear the content of the description label.
+        """
         if self.description_label.winfo_exists():
             self.description_label.config(text="")
             self.description_label.update_idletasks()
 
     def load_app(self, app_name, app_func):
+        """
+        Load and display the selected application GUI in a new frame.
+
+        Args:
+            app_name (str): The name of the app being loaded.
+            app_func (Callable): The function that initializes the app.
+        """
         self.clear_frame(self.inner_frame)
 
         app_frame = tk.Frame(self.inner_frame)
@@ -167,10 +223,22 @@ class MainApp(tk.Tk):
         app_func(app_frame)
 
     def clear_frame(self, frame):
+        """
+        Remove all widgets from a given Tkinter frame.
+
+        Args:
+            frame (tk.Frame): The frame to clear.
+        """
         for widget in frame.winfo_children():
             widget.destroy()
 
 def gui_app():
+    """
+    Launch the main SpaCr GUI.
+
+    This function initializes and runs the `MainApp` class with no default app specified,
+    allowing users to select functionality from the startup screen.
+    """
     app = MainApp()
     app.mainloop()
 

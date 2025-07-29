@@ -49,16 +49,56 @@ warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0
 
 
 class QuasiBinomial(Binomial):
-    """Custom Quasi-Binomial family with adjustable variance."""
+    """
+    Quasi-Binomial family for generalized linear models with adjustable dispersion.
+
+    Extends the standard Binomial family from `statsmodels` to allow for modeling overdispersion
+    in binomial data, where the observed variance exceeds the nominal binomial variance.
+
+    This is often used in biological and ecological count data where extra-binomial variation is common.
+    """
     def __init__(self, link=logit(), dispersion=1.0):
+        """
+        Initialize the Quasi-Binomial family with a specified link function and dispersion factor.
+
+        Args:
+            link (statsmodels.genmod.families.links): The link function to use. Defaults to logit().
+            dispersion (float): A positive float to scale the variance. 
+                Use values >1 to model overdispersion. Defaults to 1.0.
+        """
         super().__init__(link=link)
         self.dispersion = dispersion
 
     def variance(self, mu):
-        """Adjust the variance with the dispersion parameter."""
+        """
+        Compute the variance function for the quasi-binomial model.
+
+        Args:
+            mu (array-like): The mean response values.
+
+        Returns:
+            array-like: Variance scaled by the dispersion parameter.
+        """
         return self.dispersion * super().variance(mu)
     
 def calculate_p_values(X, y, model):
+    """
+    Calculate p-values for model coefficients using residuals and t-statistics.
+
+    Args
+    ----------
+    X : np.ndarray
+        The input feature matrix used for fitting the model.
+    y : np.ndarray
+        The target variable.
+    model : object
+        A fitted sklearn linear model (must have `.predict` and `.coef_` attributes).
+
+    Returns
+    -------
+    np.ndarray
+        An array of p-values corresponding to each coefficient in the model.
+    """
     # Predict y values
     y_pred = model.predict(X)
     # Calculate residuals
@@ -78,6 +118,25 @@ def calculate_p_values(X, y, model):
     return np.array(p_values)  # Ensure p_values is a 1-dimensional array
 
 def perform_mixed_model(y, X, groups, alpha=1.0):
+    """
+    Perform mixed effects regression and return the fitted model.
+
+    Args
+    ----------
+    y : pd.Series or np.ndarray
+        Target variable.
+    X : pd.DataFrame
+        Feature matrix.
+    groups : pd.Series or np.ndarray
+        Grouping variable for mixed model.
+    alpha : float, optional
+        Regularization strength for Ridge regression when multicollinearity is detected.
+
+    Returns
+    -------
+    statsmodels.regression.mixed_linear_model.MixedLMResults
+        Fitted mixed model results.
+    """
     # Ensure groups are defined correctly and check for multicollinearity
     if groups is None:
         raise ValueError("Groups must be defined for mixed model regression")
@@ -99,7 +158,25 @@ def perform_mixed_model(y, X, groups, alpha=1.0):
     return result
 
 def create_volcano_filename(csv_path, regression_type, alpha, dst):
-    """Create and return the volcano plot filename based on regression type and alpha."""
+    """
+    Construct the file name for saving the volcano plot.
+
+    Args
+    ----------
+    csv_path : str
+        Path to the CSV file containing model results.
+    regression_type : str
+        Type of regression performed.
+    alpha : float
+        Alpha value (used for quantile regression naming).
+    dst : str or None
+        Destination directory to save the file.
+
+    Returns
+    -------
+    str
+        Full path for the output volcano plot PDF file.
+    """
     volcano_filename = os.path.splitext(os.path.basename(csv_path))[0] + '_volcano_plot.pdf'
     volcano_filename = f"{regression_type}_{volcano_filename}" if regression_type != 'quantile' else f"{alpha}_{volcano_filename}"
 
@@ -108,7 +185,23 @@ def create_volcano_filename(csv_path, regression_type, alpha, dst):
     return os.path.join(os.path.dirname(csv_path), volcano_filename)
 
 def scale_variables(X, y):
-    """Scale independent (X) and dependent (y) variables using MinMaxScaler."""
+    """
+    Min-max scale both independent and dependent variables.
+
+    Args
+    ----------
+    X : pd.DataFrame
+        Feature matrix.
+    y : np.ndarray
+        Target variable.
+
+    Returns
+    -------
+    X_scaled : pd.DataFrame
+        Scaled feature matrix.
+    y_scaled : np.ndarray
+        Scaled target variable.
+    """
     scaler_X = MinMaxScaler()
     scaler_y = MinMaxScaler()
     
@@ -117,63 +210,20 @@ def scale_variables(X, y):
     
     return X_scaled, y_scaled
 
-def process_model_coefficients_v1(model, regression_type, X, y, nc, pc, controls):
-    """Return DataFrame of model coefficients and p-values."""
-    if regression_type in ['ols', 'gls', 'wls', 'rlm', 'glm', 'mixed', 'quantile', 'logit', 'probit', 'poisson']:
-        coefs = model.params
-        p_values = model.pvalues
-
-        coef_df = pd.DataFrame({
-            'feature': coefs.index,
-            'coefficient': coefs.values,
-            'p_value': p_values.values
-        })
-
-    elif regression_type in ['ridge', 'lasso']:
-        coefs = model.coef_.flatten()
-        p_values = calculate_p_values(X, y, model)
-
-        coef_df = pd.DataFrame({
-            'feature': X.columns,
-            'coefficient': coefs,
-            'p_value': p_values
-        })
-        
-    else:
-        coefs = model.coef_
-        intercept = model.intercept_
-        feature_names = X.design_info.column_names
-
-        coef_df = pd.DataFrame({
-            'feature': feature_names,
-            'coefficient': coefs
-        })
-        coef_df.loc[0, 'coefficient'] += intercept
-        coef_df['p_value'] = np.nan  # Placeholder since sklearn doesn't provide p-values
-
-    coef_df['-log10(p_value)'] = -np.log10(coef_df['p_value'])
-    coef_df['grna'] = coef_df['feature'].str.extract(r'\[(.*?)\]')[0]
-    coef_df['condition'] = coef_df.apply(lambda row: 'nc' if nc in row['feature'] else 'pc' if pc in row['feature'] else ('control' if row['grna'] in controls else 'other'),axis=1)
-    return coef_df[~coef_df['feature'].str.contains('row|column')]
-
-def check_distribution_v1(y):
-    """Check the type of distribution to recommend a model."""
-    if np.all((y == 0) | (y == 1)):
-        print("Detected binary data.")
-        return 'logit'
-    elif (y > 0).all() and (y < 1).all():
-        print("Detected continuous data between 0 and 1 (excluding 0 and 1).")
-        return 'beta'
-    elif (y >= 0).all() and (y <= 1).all():
-        print("Detected continuous data between 0 and 1 (including 0 or 1).")
-        # Consider quasi-binomial regression
-        return 'quasi_binomial'
-    else:
-        print("Using OLS as a fallback.")
-        return 'ols'
-
 def select_glm_family(y):
-    """Select the appropriate GLM family based on the data."""
+    """
+    Automatically select a GLM family based on the nature of the dependent variable.
+
+    Args
+    ----------
+    y : np.ndarray
+        Target variable.
+
+    Returns
+    -------
+    sm.families.Family
+        GLM family appropriate for the data.
+    """
     if np.all((y == 0) | (y == 1)):
         print("Using Binomial family (for binary data).")
         return sm.families.Binomial()
@@ -188,16 +238,47 @@ def select_glm_family(y):
         return sm.families.Gaussian()
 
 def prepare_formula(dependent_variable, random_row_column_effects=False):
-    """Return the regression formula using random effects for plate, row, and column."""
+    """
+    Prepare the formula for regression modeling based on model design.
+
+    Args
+    ----------
+    dependent_variable : str
+        Name of the dependent variable.
+    random_row_column_effects : bool, optional
+        Whether to include row and column IDs as random effects.
+
+    Returns
+    -------
+    str
+        Regression formula string.
+    """
     if random_row_column_effects:
         # Random effects for row and column + gene weighted by gene_fraction + grna weighted by fraction
         return f'{dependent_variable} ~ fraction:grna + gene_fraction:gene'
     return f'{dependent_variable} ~ fraction:grna + gene_fraction:gene + rowID + columnID'
 
 def fit_mixed_model(df, formula, dst):
-    from .plot import plot_histogram
+    """
+    Fit a mixed linear model with random effects for plate, row, and column.
 
-    """Fit the mixed model with plate, row_name, and columnID as random effects and return results."""
+    Args
+    ----------
+    df : pd.DataFrame
+        Input data.
+    formula : str
+        Regression formula.
+    dst : str
+        Output folder to save diagnostic plots.
+
+    Returns
+    -------
+    mixed_model : statsmodels.regression.mixed_linear_model.MixedLMResults
+        Fitted model.
+    coef_df : pd.DataFrame
+        DataFrame of coefficients and p-values.
+    """
+    from .plot import plot_histogram
     # Specify random effects for plate, row, and column
     model = smf.mixedlm(formula, 
                         data=df, 
@@ -224,8 +305,21 @@ def fit_mixed_model(df, formula, dst):
     return mixed_model, coef_df
 
 def check_and_clean_data(df, dependent_variable):
-    """Check for collinearity, missing values, or invalid types in relevant columns. Clean data accordingly."""
-    
+    """
+    Validate and preprocess a DataFrame before model fitting.
+
+    Args
+    ----------
+    df : pd.DataFrame
+        Input data.
+    dependent_variable : str
+        Name of the dependent variable column.
+
+    Returns
+    -------
+    pd.DataFrame
+        Cleaned and validated DataFrame, ready for model fitting.
+    """
     def handle_missing_values(df, columns):
         """Handle missing values in specified columns."""
         missing_summary = df[columns].isnull().sum()
@@ -304,25 +398,31 @@ def check_and_clean_data(df, dependent_variable):
     print("Data is ready for model fitting.")
     return df_cleaned
 
-def check_normality_v1(y, variable_name):
-    """Check if the data is normally distributed using the Shapiro-Wilk test."""
-    from scipy.stats import shapiro
-
-    stat, p = shapiro(y)
-    alpha = 0.05
-    if p > alpha:
-        print(f"{variable_name} is normally distributed (fail to reject H0)")
-        return True
-    else:
-        print(f"{variable_name} is not normally distributed (reject H0)")
-        return False
-
 def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance=0.02, smoothing=10, increment=10):
     """
-    Plot the mean absolute difference with standard deviation as shaded area vs. sample size.
-    Detect and mark the elbow point (inflection) with smoothing and tolerance control.
-    """
+    Estimate the minimum number of cells required per well to stabilize phenotype measurements.
 
+    This function simulates phenotype score stability by repeatedly subsampling increasing numbers
+    of cells per well, calculating the mean absolute difference from the full-well mean. It identifies
+    the minimal sample size (elbow point) at which the average difference drops below a user-defined
+    tolerance, smoothed across wells.
+
+    Args:
+        settings (dict): A dictionary with keys:
+            - 'score_data' (list or str): CSV path(s) with cell-level data.
+            - 'score_column' (str): Column name of the phenotype score.
+            - 'tolerance' (float or int): Allowed deviation from true mean (e.g. 0.02 for 2%).
+            - 'min_cell_count' (int or None): Optional fixed value for annotation.
+            - 'count_data' (list): Used to define the output folder for figure saving.
+        num_repeats (int, optional): Number of times to resample for each sample size. Default is 10.
+        sample_size (int, optional): Number of top wells to simulate (by cell count). Default is 100.
+        tolerance (float or int, optional): Tolerance threshold to define the elbow point. Default is 0.02.
+        smoothing (int, optional): Window size for smoothing the mean absolute difference curve. Default is 10.
+        increment (int, optional): Step size between tested sample sizes. Default is 10.
+
+    Returns:
+        int: Estimated minimal required number of cells (elbow point).
+    """
     from .utils import correct_metadata_column_names
 
     # Load and process data
@@ -451,7 +551,24 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
     return elbow_point['sample_size']
 
 def process_model_coefficients(model, regression_type, X, y, nc, pc, controls):
-    """Return DataFrame of model coefficients, standard errors, and p-values."""
+    """
+    Extract model coefficients, standard errors, and p-values into a DataFrame with annotations.
+
+    Supports various regression types including beta, OLS, GLM, ridge, lasso, and quasi-binomial.
+    Adds classification labels (nc, pc, control, other) and computes -log10(p-values).
+
+    Args:
+        model: Fitted regression model object.
+        regression_type (str): Type of regression (e.g., 'beta', 'ols', 'glm', 'ridge', 'lasso').
+        X (pd.DataFrame): Feature matrix used for fitting the model.
+        y (np.ndarray): Target values used in model fitting.
+        nc (str): Identifier for negative control features.
+        pc (str): Identifier for positive control features.
+        controls (list): List of gRNAs used as general controls.
+
+    Returns:
+        pd.DataFrame: Table of coefficients, p-values, and annotations.
+    """
     
     if regression_type == 'beta':
         # Extract coefficients and standard errors
@@ -508,7 +625,24 @@ def process_model_coefficients(model, regression_type, X, y, nc, pc, controls):
     return coef_df[~coef_df['feature'].str.contains('row|column')]
 
 def check_distribution(y, epsilon=1e-6):
-    """Check the distribution of y and recommend an appropriate model."""
+    """
+    Analyze distribution of the target variable and recommend appropriate regression model.
+
+    Checks for:
+    - Binary data (logit)
+    - Continuous [0, 1) data (beta)
+    - Continuous [0, 1] data (quasi-binomial)
+    - Normal distribution (OLS)
+    - Beta distribution fit
+    - Default to GLM otherwise
+
+    Args:
+        y (np.ndarray): Dependent variable values.
+        epsilon (float, optional): Threshold for boundary proximity detection. Default is 1e-6.
+
+    Returns:
+        str: Suggested regression model name (e.g., 'logit', 'beta', 'ols', 'glm').
+    """
     
     # Check if the dependent variable is binary (only 0 and 1)
     if np.all((y == 0) | (y == 1)):
@@ -552,7 +686,25 @@ def check_distribution(y, epsilon=1e-6):
     return 'glm'
 
 def pick_glm_family_and_link(y):
-    """Select the appropriate GLM family and link function based on data."""
+    """
+    Select the appropriate GLM family and link function based on distribution of y.
+
+    Inspects binary, count, proportion, normal, and overdispersed data and maps to:
+    - Binomial with Logit link
+    - Gaussian with Identity link
+    - Poisson with Log link
+    - Inverse Gaussian with Log link
+    - Negative Binomial with Log link
+
+    Args:
+        y (np.ndarray): Response variable to inspect.
+
+    Returns:
+        sm.families.Family: GLM family object with appropriate link function.
+
+    Raises:
+        ValueError: If data is suitable for Beta regression, which GLM cannot handle.
+    """
     if np.all((y == 0) | (y == 1)):
         print("Binary data detected. Using Binomial family with Logit link.")
         return sm.families.Binomial(link=sm.families.links.Logit())
@@ -587,6 +739,24 @@ def pick_glm_family_and_link(y):
     return sm.families.Gaussian(link=sm.families.links.Identity())
 
 def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0, cov_type=None):
+    """
+    Fit a regression model of the specified type to the data.
+
+    Supports multiple regression types: OLS, GLM, beta, logit, probit, ridge, lasso, and mixed models.
+    Automatically performs hyperparameter tuning (alpha) for lasso and ridge if alpha is 0 or None.
+    For GLMs, prints McFadden's pseudo R². For regularized models, prints MSE and coefficient table.
+
+    Args:
+        X (pd.DataFrame): Design matrix of independent variables.
+        y (pd.Series or np.ndarray): Dependent variable.
+        regression_type (str): Type of regression ('ols', 'glm', 'beta', 'logit', 'probit', 'lasso', 'ridge', 'mixed').
+        groups (array-like, optional): Grouping variable for mixed models.
+        alpha (float): Regularization strength for lasso and ridge.
+        cov_type (str, optional): Covariance estimator type for OLS (e.g., 'HC3').
+
+    Returns:
+        model: Fitted model object (statsmodels or sklearn estimator).
+    """
     def plot_regression_line(X, y, model):
         """Helper to plot regression line for lasso and ridge models."""
         y_pred = model.predict(X)
@@ -655,7 +825,29 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0, cov_ty
 def regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0,
                random_row_column_effects=False, nc='233460', pc='220950', controls=[''],
                dst=None, cov_type=None, plot=False):
-    
+    """
+    Perform regression analysis on a DataFrame with optional plotting and mixed effects support.
+
+    Handles data cleaning, formula preparation, scaling, model fitting, and coefficient extraction.
+    Automatically determines appropriate regression type if not specified.
+
+    Args:
+        df (pd.DataFrame): Input data.
+        csv_path (str): Path to input CSV used for labeling plots/files.
+        dependent_variable (str): Name of column to regress against.
+        regression_type (str, optional): Type of regression (auto-detected if None).
+        alpha (float): Regularization parameter for lasso/ridge.
+        random_row_column_effects (bool): Whether to model row/column as random effects.
+        nc (str): Identifier for negative controls.
+        pc (str): Identifier for positive controls.
+        controls (list): List of general control gRNAs.
+        dst (str, optional): Destination folder for output files.
+        cov_type (str, optional): Covariance estimator for OLS.
+        plot (bool): Whether to generate volcano plot.
+
+    Returns:
+        tuple: (fitted model, coefficients DataFrame, regression type used)
+    """
     from .plot import volcano_plot, plot_histogram
     #from .ml import create_volcano_filename, check_and_clean_data, prepare_formula, scale_variables
         
@@ -707,7 +899,14 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
 
 def save_summary_to_file(model, file_path='summary.csv'):
     """
-    Save the model's summary output to a CSV or text file.
+    Save the model's summary output to a text or CSV file.
+
+    Args:
+        model: Fitted statsmodels model with a `.summary()` method.
+        file_path (str): Output path to save the summary (e.g., 'summary.txt').
+
+    Returns:
+        None
     """
     # Get the summary as a string
     summary_str = model.summary().as_text()
@@ -717,7 +916,58 @@ def save_summary_to_file(model, file_path='summary.csv'):
         f.write(summary_str)
 
 def perform_regression(settings):
-    
+    """
+    Perform full regression analysis pipeline for pooled CRISPR-Cas9 screens.
+
+    This function integrates data loading, filtering, transformation, regression modeling, 
+    statistical significance assessment, visualization, and optional downstream Toxoplasma-specific analysis. 
+    It handles both grna-level and gene-level aggregation and outputs results with optional metadata integration.
+
+    Args:
+        settings (dict): Dictionary containing regression settings. Recommended to start with 
+                         `get_perform_regression_default_settings()` to initialize.
+
+    Required Keys in `settings`:
+        - score_data (str or list): Path(s) to CSV(s) containing phenotypic scores.
+        - count_data (str or list): Path(s) to CSV(s) containing barcode abundance counts.
+        - dependent_variable (str): Column name in `score_data` to use as dependent variable.
+        - regression_type (str or None): Type of regression model to use ('ols', 'glm', 'lasso', etc.).
+        - filter_value (list): Values to exclude from `filter_column`.
+        - filter_column (str): Column in data to apply exclusion filter.
+        - plateID (str): Identifier to use when reconstructing `prc` labels.
+        - alpha (float): Regularization strength for lasso/ridge regressions.
+        - random_row_column_effects (bool): If True, treat row/column as random effects.
+        - negative_control (str): Label for negative controls.
+        - positive_control (str): Label for positive controls.
+        - controls (list): List of control gRNAs for estimating coefficient threshold.
+        - volcano (str): Type of volcano plot to generate ('all', 'gene', 'grna').
+        - transform (bool): Whether to transform dependent variable.
+        - agg_type (str): Aggregation method for per-well phenotypes ('mean', 'median', etc.).
+        - metadata_files (str or list): Metadata CSV(s) to merge with regression results.
+        - toxo (bool): If True, generate Toxoplasma-specific downstream plots.
+        - threshold_method (str): Method to calculate effect size threshold ('std' or 'var').
+        - threshold_multiplier (float): Multiplier for threshold method.
+        - outlier_detection (bool): Whether to remove grnas with outlier well counts.
+        - cov_type (str or None): Covariance type for OLS (e.g., 'HC3').
+        - verbose (bool): Whether to print verbose output.
+        - x_lim, y_lims: Optional axes limits for volcano plots.
+        - tolerance (float): Tolerance for determining minimal cell count via simulation.
+        - min_cell_count (int or None): Minimum number of cells per well for inclusion.
+        - min_n (int): Minimum number of replicates for inclusion in filtered results.
+
+    Returns:
+        dict: 
+            'results': Full coefficient table (pandas DataFrame).
+            'significant': Filtered table of statistically significant hits (pandas DataFrame).
+
+    Side Effects:
+        - Saves regression results, metadata-merged results, volcano plots, and phenotype plots to disk.
+        - Optionally generates publication-ready plots for Toxoplasma gene expression and phenotype scores.
+        - Writes cell count, well-grna, and well-gene plots to disk.
+
+    Raises:
+        ValueError: If required keys are missing or regression type is invalid.
+    """
     from .plot import plot_plates, plot_data_from_csv
     from .utils import merge_regression_res_with_metadata, save_settings, calculate_shortest_distance, correct_metadata
     from .settings import get_perform_regression_default_settings
@@ -859,7 +1109,7 @@ def perform_regression(settings):
         Detect outliers in 'outlier_col' of 'df' using the 1.5 × IQR rule,
         and return values from 'return_col' that correspond to those outliers.
         
-        Parameters:
+        Args:
         -----------
         df : pd.DataFrame
             Input DataFrame.
@@ -1157,7 +1407,27 @@ def perform_regression(settings):
     return output
 
 def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filter_value=None):
-    
+    """
+    Process barcode count data and compute fractional abundance of each gRNA per well.
+
+    This function loads a count table, standardizes metadata columns, computes the 
+    relative abundance of each gRNA in a well (`fraction`), and filters based on a 
+    minimum threshold. It also parses `grna` strings into gene-level information if 
+    applicable.
+
+    Args:
+        csv_path (str or pd.DataFrame): Path to CSV file or preloaded DataFrame with count data.
+        fraction_threshold (float): Minimum fraction of reads per well for inclusion.
+        plate (str): Plate identifier to use if not present in metadata.
+        filter_column (str or list, optional): Columns to filter values from.
+        filter_value (str or list, optional): Values to exclude from filter_column(s).
+
+    Returns:
+        pd.DataFrame: Filtered DataFrame with columns ['prc', 'grna', 'fraction'].
+
+    Raises:
+        ValueError: If required metadata columns are missing.
+    """
     from .utils import correct_metadata
 
     if isinstance(csv_path, pd.DataFrame):
@@ -1229,6 +1499,18 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filte
     return merged_df
 
 def apply_transformation(X, transform):
+    """
+    Apply a mathematical transformation to a variable.
+
+    Supported transformations include logarithm, square root, and square.
+
+    Args:
+        X (array-like): Input variable or DataFrame column.
+        transform (str): Type of transformation ('log', 'sqrt', or 'square').
+
+    Returns:
+        FunctionTransformer or None: Transformer object, or None if transform is unrecognized.
+    """
     if transform == 'log':
         transformer = FunctionTransformer(np.log1p, validate=True)
     elif transform == 'sqrt':
@@ -1240,7 +1522,17 @@ def apply_transformation(X, transform):
     return transformer
 
 def check_normality(data, variable_name, verbose=False):
-    """Check if the data is normally distributed using the Shapiro-Wilk test."""
+    """
+    Check if data follows a normal distribution using the Shapiro-Wilk test.
+
+    Args:
+        data (array-like): Data to test for normality.
+        variable_name (str): Name of the variable (used in print statements).
+        verbose (bool): Whether to print test results and interpretation.
+
+    Returns:
+        bool: True if data is normally distributed (p > 0.05), False otherwise.
+    """
     stat, p_value = shapiro(data)
     if verbose:
         print(f"Shapiro-Wilk Test for {variable_name}:\nStatistic: {stat}, P-value: {p_value}")
@@ -1254,6 +1546,17 @@ def check_normality(data, variable_name, verbose=False):
         return False
 
 def clean_controls(df,values, column):
+    """
+    Remove rows from a DataFrame based on specified control values in a given column.
+
+    Args:
+        df (pd.DataFrame): Input DataFrame.
+        values (list): List of control values to remove.
+        column (str): Column from which to remove control values.
+
+    Returns:
+        pd.DataFrame: Filtered DataFrame with control rows removed.
+    """
     if column in df.columns:
         if isinstance(values, list):
             for value in values:
@@ -1262,6 +1565,30 @@ def clean_controls(df,values, column):
     return df
 
 def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='mean', transform=None, regression_type='ols'):
+    """
+    Aggregate and transform single-cell phenotype scores for regression input.
+
+    Groups phenotypic measurements by well (`prc`) and applies optional aggregation 
+    (mean, median, quantile). Filters out wells with low cell counts. Optionally applies 
+    mathematical transformation and checks for normality of the dependent variable.
+
+    Args:
+        df (pd.DataFrame): Input DataFrame with single-cell phenotype scores.
+        dependent_variable (str): Name of the phenotype column to model.
+        plate (str): Plate ID to assign if not present in metadata.
+        min_cell_count (int): Minimum number of cells per well to retain.
+        agg_type (str): Aggregation method ('mean', 'median', 'quantile', None).
+        transform (str or None): Optional transformation ('log', 'sqrt', or 'square').
+        regression_type (str): Type of regression (affects aggregation logic for 'poisson').
+
+    Returns:
+        tuple: (aggregated_df, dependent_variable_name)
+            - aggregated_df: Aggregated and filtered phenotype DataFrame.
+            - dependent_variable_name: Possibly transformed column name used for modeling.
+
+    Raises:
+        ValueError: If required metadata columns are missing or aggregation type is invalid.
+    """
     from .utils import calculate_shortest_distance, correct_metadata
     df = df.reset_index(drop=True)
     if 'prcfo' in df.columns:
@@ -1339,7 +1666,51 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
     return dependent_df, dependent_variable
 
 def generate_ml_scores(settings):
-    
+    """
+    Perform machine learning analysis on single-cell measurement data from one or more screen sources.
+
+    This function loads and merges measurement databases, computes additional features (e.g., recruitment
+    scores, shortest distance between compartments), handles annotations (for supervised classification),
+    trains a machine learning model (e.g., XGBoost), computes SHAP values, and generates output files 
+    including predictions, importance scores, SHAP plots, and well-level heatmaps.
+
+    Args:
+        settings (dict): Dictionary of analysis parameters and options. Required keys include:
+            - 'src' (str or list): Path(s) to screen folders with measurement databases.
+            - 'channel_of_interest' (int): Channel index used for computing recruitment scores.
+            - 'location_column' (str): Column used to group wells for training (e.g., 'columnID').
+            - 'positive_control' (str): Value of `location_column` representing positive control wells.
+            - 'negative_control' (str): Value of `location_column` representing negative control wells.
+            - 'exclude' (list): List of feature names to exclude.
+            - 'n_repeats' (int): Number of repetitions for permutation importance.
+            - 'top_features' (int): Number of top features to keep and plot.
+            - 'reg_alpha', 'reg_lambda' (float): Regularization strength for XGBoost.
+            - 'learning_rate' (float): Learning rate for XGBoost.
+            - 'n_estimators' (int): Number of boosting rounds for the model.
+            - 'test_size' (float): Fraction of labeled data to use for testing.
+            - 'model_type_ml' (str): Type of model to use ('xgboost', 'random_forest', etc.).
+            - 'n_jobs' (int): Number of parallel jobs.
+            - 'remove_low_variance_features' (bool): Whether to drop near-constant features.
+            - 'remove_highly_correlated_features' (bool): Whether to drop redundant features.
+            - 'prune_features' (bool): Whether to perform SelectKBest-based pruning.
+            - 'cross_validation' (bool): Whether to use 5-fold cross-validation.
+            - 'heatmap_feature' (str): Feature to plot as a plate heatmap.
+            - 'grouping' (str): Column used to group wells in the heatmap (e.g., 'prc').
+            - 'min_max' (tuple): Min/max range for heatmap normalization.
+            - 'minimum_cell_count' (int): Minimum number of cells per well for heatmap inclusion.
+            - 'cmap' (str): Colormap for the heatmap.
+            - 'save_to_db' (bool): If True, update the database with prediction column.
+            - 'verbose' (bool): If True, print detailed logs.
+            - 'annotation_column' (str or None): If provided, annotate data from the `png_list` table.
+
+    Returns:
+        list: 
+            - output (list): Includes DataFrames and model objects from the `ml_analysis` function.
+            - plate_heatmap (matplotlib.Figure): Plate-level heatmap of the selected feature.
+
+    Raises:
+        ValueError: If required columns are missing or specified features are not found.
+    """
     from .io import _read_and_merge_data, _read_db
     from .plot import plot_plates
     from .utils import get_ml_results_paths, add_column_to_database, calculate_shortest_distance
@@ -1475,31 +1846,53 @@ def generate_ml_scores(settings):
     return [output, plate_heatmap]
 
 def ml_analysis(df, channel_of_interest=3, location_column='columnID', positive_control='c2', negative_control='c1', exclude=None, n_repeats=10, top_features=30, reg_alpha=0.1, reg_lambda=1.0, learning_rate=0.00001, n_estimators=1000, test_size=0.2, model_type='xgboost', n_jobs=-1, remove_low_variance_features=True, remove_highly_correlated_features=True, prune_features=False, cross_validation=False, verbose=False):
-    
     """
-    Calculates permutation importance for numerical features in the dataframe,
-    comparing groups based on specified column values and uses the model to predict 
-    the class for all other rows in the dataframe.
+    Train a machine learning classifier to distinguish between positive and negative control wells,
+    compute feature importance via permutation and model-based methods, and assign predictions to all rows.
+
+    This function supports several classifier types (XGBoost, random forest, logistic regression, etc.),
+    with options for feature selection, cross-validation, and SHAP-ready output. It returns predictions,
+    probability estimates, and feature importances, and computes classification metrics.
 
     Args:
-    df (pandas.DataFrame): The DataFrame containing the data.
-    feature_string (str): String to filter features that contain this substring.
-    location_column (str): Column name to use for comparing groups.
-    positive_control, negative_control (str): Values in location_column to create subsets for comparison.
-    exclude (list or str, optional): Columns to exclude from features.
-    n_repeats (int): Number of repeats for permutation importance.
-    top_features (int): Number of top features to plot based on permutation importance.
-    n_estimators (int): Number of trees in the random forest, gradient boosting, or XGBoost model.
-    test_size (float): Proportion of the dataset to include in the test split.
-    random_state (int): Random seed for reproducibility.
-    model_type (str): Type of model to use ('random_forest', 'logistic_regression', 'gradient_boosting', 'xgboost').
-    n_jobs (int): Number of jobs to run in parallel for applicable models.
+        df (pd.DataFrame): Input DataFrame with features and metadata.
+        channel_of_interest (int): Channel index used for filtering relevant features.
+        location_column (str): Column that defines grouping (e.g., 'columnID') to select control wells.
+        positive_control (str or list): Identifier(s) in `location_column` for positive control group.
+        negative_control (str or list): Identifier(s) in `location_column` for negative control group.
+        exclude (list or str, optional): Feature names or substrings to exclude from analysis.
+        n_repeats (int): Number of repetitions for permutation importance calculation.
+        top_features (int): Number of top features to retain and visualize.
+        reg_alpha (float): L1 regularization term (only for XGBoost).
+        reg_lambda (float): L2 regularization term (only for XGBoost).
+        learning_rate (float): Learning rate for gradient-based models (e.g., XGBoost).
+        n_estimators (int): Number of trees or boosting iterations.
+        test_size (float): Fraction of labeled data used for testing.
+        model_type (str): Model type to train: 'xgboost', 'random_forest', 'logistic_regression', or 'gradient_boosting'.
+        n_jobs (int): Number of CPU cores to use (where supported).
+        remove_low_variance_features (bool): If True, drop near-constant features.
+        remove_highly_correlated_features (bool): If True, drop features with high pairwise correlation.
+        prune_features (bool): If True, apply SelectKBest to reduce features before training.
+        cross_validation (bool): If True, use 5-fold stratified cross-validation instead of single split.
+        verbose (bool): If True, print detailed logs and show diagnostic plots.
 
     Returns:
-    pandas.DataFrame: The original dataframe with added prediction and data usage columns.
-    pandas.DataFrame: DataFrame containing the importances and standard deviations.
-    """
+        list:
+            - [0] df (pd.DataFrame): Original DataFrame with added predictions, probabilities, and metadata.
+            - [1] permutation_df (pd.DataFrame): Permutation importance for top features.
+            - [2] feature_importance_df (pd.DataFrame): Model-based feature importance scores (if supported).
+            - [3] model (sklearn-compatible): Trained model object.
+            - [4] X_train (pd.DataFrame): Training feature matrix.
+            - [5] X_test (pd.DataFrame): Test feature matrix.
+            - [6] y_train (pd.Series): Training target labels.
+            - [7] y_test (pd.Series): Test target labels.
+            - [8] metrics_df (pd.DataFrame): Summary classification metrics (precision, recall, f1).
+            - [9] features (list): Final list of features used in training.
 
+        list:
+            - [0] permutation_fig (matplotlib.Figure): Bar plot of permutation importances.
+            - [1] feature_importance_fig (matplotlib.Figure): Bar plot of model importances.
+    """
     from .utils import filter_dataframe_features
     from .plot import plot_permutation, plot_feature_importance
 
@@ -1709,18 +2102,17 @@ def ml_analysis(df, channel_of_interest=3, location_column='columnID', positive_
     return [df, permutation_df, feature_importance_df, model, X_train, X_test, y_train, y_test, metrics_df, features], [permutation_fig, feature_importance_fig]
 
 def shap_analysis(model, X_train, X_test):
-    
     """
-    Performs SHAP analysis on the given model and data.
+    Compute and return a SHAP summary plot figure for a trained model.
 
     Args:
-    model: The trained model.
-    X_train (pandas.DataFrame): Training feature set.
-    X_test (pandas.DataFrame): Testing feature set.
+        model: A trained machine learning model compatible with SHAP.
+        X_train (pd.DataFrame): Training features used to initialize the SHAP explainer.
+        X_test (pd.DataFrame): Test features for which SHAP values will be computed.
+
     Returns:
-    fig: Matplotlib figure object containing the SHAP summary plot.
+        matplotlib.figure.Figure: SHAP summary plot figure.
     """
-    
     explainer = shap.Explainer(model, X_train)
     shap_values = explainer(X_test)
     # Create a new figure
@@ -1734,14 +2126,15 @@ def shap_analysis(model, X_train, X_test):
 
 def find_optimal_threshold(y_true, y_pred_proba):
     """
-    Find the optimal threshold for binary classification based on the F1-score.
+    Determine the optimal decision threshold that maximizes the F1-score 
+    based on predicted probabilities.
 
     Args:
-    y_true (array-like): True binary labels.
-    y_pred_proba (array-like): Predicted probabilities for the positive class.
+        y_true (array-like): Ground-truth binary labels.
+        y_pred_proba (array-like): Predicted class probabilities (positive class).
 
     Returns:
-    float: The optimal threshold.
+        float: Threshold that yields the highest F1-score.
     """
     precision, recall, thresholds = precision_recall_curve(y_true, y_pred_proba)
     f1_scores = 2 * (precision * recall) / (precision + recall)
@@ -1751,17 +2144,19 @@ def find_optimal_threshold(y_true, y_pred_proba):
 
 def _calculate_similarity(df, features, col_to_compare, val1, val2):
     """
-    Calculate similarity scores of each well to the positive and negative controls using various metrics.
-    
+    Calculate similarity scores between each sample and the mean profile of two control groups 
+    using multiple distance metrics (Euclidean, Cosine, Mahalanobis, Manhattan, Minkowski, Chebyshev, Bray-Curtis).
+
     Args:
-    df (pandas.DataFrame): DataFrame containing the data.
-    features (list): List of feature columns to use for similarity calculation.
-    col_to_compare (str): Column name to use for comparing groups.
-    val1, val2 (str): Values in col_to_compare to create subsets for comparison.
+        df (pd.DataFrame): DataFrame containing feature data and control labels.
+        features (list of str): Feature columns to use in similarity calculations.
+        col_to_compare (str): Column name used to identify control group membership.
+        val1 (str or list): Value(s) indicating the positive control group.
+        val2 (str or list): Value(s) indicating the negative control group.
 
     Returns:
-    pandas.DataFrame: DataFrame with similarity scores.
-    """
+        pd.DataFrame: Input DataFrame with appended similarity score columns.
+    """ 
     # Separate positive and negative control wells
     if isinstance(val1, str):
         pos_control = df[df[col_to_compare] == val1][features].mean()
@@ -1814,7 +2209,33 @@ def _calculate_similarity(df, features, col_to_compare, val1, val2):
     return df
 
 def interperate_vision_model(settings={}):
-    
+    """
+    Perform feature interpretation on vision model predictions using feature importance, 
+    permutation importance, and SHAP analysis.
+
+    Steps:
+        1. Loads and merges measurement and score data.
+        2. Computes Random Forest feature importances.
+        3. Computes permutation-based feature importances.
+        4. Runs SHAP analysis on selected features.
+        5. Aggregates SHAP values by compartment and channel and visualizes them using radar plots.
+
+    Args:
+        settings (dict): Dictionary containing configuration options, including:
+            - src (str): Path to measurement database.
+            - tables (list): List of tables to include.
+            - score_column (str): Column with predicted or measured scores.
+            - top_features (int): Number of features to retain and plot.
+            - shap (bool): Whether to perform SHAP analysis.
+            - shap_sample (bool): Whether to subsample data before SHAP.
+            - feature_importance (bool): Whether to compute Random Forest importance.
+            - permutation_importance (bool): Whether to compute permutation importance.
+            - n_jobs (int): Number of parallel jobs for model training and permutation.
+            - save (bool): Whether to save result CSVs.
+
+    Returns:
+        pd.DataFrame: Merged and scored dataset used for interpretation.
+    """
     from .io import _read_and_merge_data, _results_to_csv
     from .settings import set_interperate_vision_model_defaults
     from .utils import save_settings

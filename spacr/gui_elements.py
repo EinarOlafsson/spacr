@@ -12,8 +12,14 @@ fig = None
 
 def restart_gui_app(root):
     """
-    Restarts the GUI application by destroying the current instance
-    and launching a fresh one.
+    Restarts the SpaCr GUI application by destroying the current root window 
+    and launching a fresh instance.
+
+    Args:
+        root (tk.Tk): The current Tkinter root window to be destroyed.
+    
+    Note:
+        The new instance is launched by importing and invoking `gui_app()`.
     """
     try:
         # Destroy the current root window
@@ -27,6 +33,20 @@ def restart_gui_app(root):
         print(f"Error restarting GUI application: {e}")
 
 def create_menu_bar(root):
+    """
+    Creates a top-level menu bar for the SpaCr GUI containing shortcuts to all
+    major application modules and help resources.
+
+    Args:
+        root (tk.Tk): The root window where the menu bar will be attached.
+
+    Adds:
+        - A 'SpaCr Applications' menu with links to:
+          'Mask', 'Measure', 'Classify', 'ML Analyze', 'Map Barcodes',
+          'Regression', 'Activation', and 'Recruitment'.
+        - A Help option linking to the online documentation.
+        - An Exit option to quit the application.
+    """
     from .gui import initiate_root
     gui_apps = {
         "Mask": lambda: initiate_root(root, settings_type='mask'),
@@ -63,7 +83,18 @@ def create_menu_bar(root):
     root.config(menu=menu_bar)
 
 def set_element_size():
+    """
+    Calculates and returns standardized UI element dimensions 
+    based on the current screen size.
 
+    Returns:
+        dict: A dictionary with element dimensions including:
+            - 'btn_size' (int): Size of buttons.
+            - 'bar_size' (int): Height of progress bars.
+            - 'settings_width' (int): Width of the settings panel.
+            - 'panel_width' (int): Width of the plotting panel.
+            - 'panel_height' (int): Height of the bottom control panel.
+    """
     screen_width, screen_height = pyautogui.size()
     screen_area = screen_width * screen_height
     
@@ -84,7 +115,24 @@ def set_element_size():
     return size_dict
     
 def set_dark_style(style, parent_frame=None, containers=None, widgets=None, font_family="OpenSans", font_size=12, bg_color='black', fg_color='white', active_color='blue', inactive_color='dark_gray'):
+    """
+    Applies a dark theme to the SpaCr GUI using the provided styling options.
 
+    Args:
+        style (ttk.Style): The ttk style instance to configure.
+        parent_frame (tk.Widget, optional): The top-level container to apply styles to.
+        containers (list, optional): Additional containers (ttk.Frame or tk.Frame) to style.
+        widgets (list, optional): List of individual widgets to apply colors and fonts.
+        font_family (str): Font family for all labels and buttons.
+        font_size (int): Font size for all text elements.
+        bg_color (str): Background color.
+        fg_color (str): Foreground/text color.
+        active_color (str): Highlight or selected color.
+        inactive_color (str): Secondary background color.
+
+    Returns:
+        dict: Style parameters used, including resolved font and color values.
+    """
     if active_color == 'teal':
         active_color = '#008080'
     if inactive_color == 'dark_gray':
@@ -163,7 +211,7 @@ class spacrFont:
         """
         Initializes the FontLoader class.
 
-        Parameters:
+        Args:
         - font_name: str, the name of the font (e.g., 'OpenSans').
         - font_style: str, the style of the font (e.g., 'Regular', 'Bold').
         - font_size: int, the size of the font (default: 12).
@@ -182,7 +230,7 @@ class spacrFont:
         """
         Returns the font path based on the font name and style.
 
-        Parameters:
+        Args:
         - font_name: str, the name of the font.
         - font_style: str, the style of the font.
 
@@ -221,7 +269,7 @@ class spacrFont:
         """
         Returns the font in the specified size.
 
-        Parameters:
+        Args:
         - size: int, the size of the font (optional).
 
         Returns:
@@ -232,7 +280,24 @@ class spacrFont:
         return font.Font(family=self.font_name, size=size)
 
 class spacrContainer(tk.Frame):
+    """
+    A custom container widget that manages multiple resizable panes arranged 
+    either vertically or horizontally, separated by draggable sashes.
+
+    Args:
+        parent (tk.Widget): The parent widget.
+        orient (str): Orientation of the layout ('tk.VERTICAL' or 'tk.HORIZONTAL'). Default is vertical.
+        bg (str): Background color of the container and sashes. Defaults to 'lightgrey'.
+    """
     def __init__(self, parent, orient=tk.VERTICAL, bg=None, *args, **kwargs):
+        """
+        Initialize the spacrContainer with the specified orientation and background color.
+
+        Args:
+            parent (tk.Widget): Parent widget.
+            orient (str): Layout orientation (tk.VERTICAL or tk.HORIZONTAL).
+            bg (str, optional): Background color. Defaults to 'lightgrey'.
+        """
         super().__init__(parent, *args, **kwargs)
         self.orient = orient
         self.bg = bg if bg else 'lightgrey'
@@ -246,6 +311,13 @@ class spacrContainer(tk.Frame):
         self.grid_columnconfigure(0, weight=1)
 
     def add(self, widget, stretch='always'):
+        """
+        Add a new widget as a pane to the container.
+
+        Args:
+            widget (tk.Widget): Widget to add.
+            stretch (str): Stretch policy (currently unused).
+        """
         print(f"Adding widget: {widget} with stretch: {stretch}")
         pane = tk.Frame(self, bg=self.bg)
         pane.grid_propagate(False)
@@ -258,6 +330,9 @@ class spacrContainer(tk.Frame):
         self.reposition_panes()
 
     def create_sash(self):
+        """
+        Create a draggable sash between panes.
+        """
         sash = tk.Frame(self, bg=self.bg, cursor='sb_v_double_arrow' if self.orient == tk.VERTICAL else 'sb_h_double_arrow', height=self.sash_thickness, width=self.sash_thickness)
         sash.bind("<Enter>", self.on_enter_sash)
         sash.bind("<Leave>", self.on_leave_sash)
@@ -265,6 +340,9 @@ class spacrContainer(tk.Frame):
         self.sashes.append(sash)
 
     def reposition_panes(self):
+        """
+        Reposition panes and sashes within the container based on orientation.
+        """
         if not self.panes:
             return
 
@@ -286,22 +364,52 @@ class spacrContainer(tk.Frame):
                 sash.grid(row=0, column=(i * 2) + 1, sticky="ns")
 
     def on_configure(self, event):
+        """
+        Event handler triggered on container resize.
+
+        Args:
+            event (tk.Event): Tkinter event object.
+        """
         print(f"Configuring container: {self}")
         self.reposition_panes()
 
     def on_enter_sash(self, event):
+        """
+        Change sash color on mouse enter.
+
+        Args:
+            event (tk.Event): Tkinter event object.
+        """
         event.widget.config(bg='blue')
 
     def on_leave_sash(self, event):
+        """
+        Reset sash color on mouse leave.
+
+        Args:
+            event (tk.Event): Tkinter event object.
+        """
         event.widget.config(bg=self.bg)
 
     def start_resize(self, event):
+        """
+        Initiate resizing behavior when mouse press begins on a sash.
+
+        Args:
+            event (tk.Event): Tkinter event object.
+        """
         sash = event.widget
         self.start_pos = event.y_root if self.orient == tk.VERTICAL else event.x_root
         self.start_size = sash.winfo_y() if self.orient == tk.VERTICAL else sash.winfo_x()
         sash.bind("<B1-Motion>", self.perform_resize)
 
     def perform_resize(self, event):
+        """
+        Adjust pane sizes during mouse drag on a sash.
+
+        Args:
+            event (tk.Event): Tkinter event object.
+        """
         sash = event.widget
         delta = (event.y_root - self.start_pos) if self.orient == tk.VERTICAL else (event.x_root - self.start_pos)
         new_size = self.start_size + delta
@@ -325,7 +433,20 @@ class spacrContainer(tk.Frame):
         self.reposition_panes()
 
 class spacrEntry(tk.Frame):
+    """
+    A custom Tkinter entry widget with rounded corners, dark theme styling, and active/inactive color handling.
+
+    Args:
+        parent (tk.Widget): Parent widget.
+        textvariable (tk.StringVar, optional): Tkinter textvariable to bind to the entry.
+        outline (bool, optional): Whether to show an outline. Currently unused. Defaults to False.
+        width (int, optional): Width of the entry widget. Defaults to 220 if not provided.
+        \*args, \*\*kwargs: Additional arguments passed to the parent Frame.
+    """
     def __init__(self, parent, textvariable=None, outline=False, width=None, *args, **kwargs):
+        """
+        Initialize the custom entry widget with dark theme and rounded styling.
+        """
         super().__init__(parent, *args, **kwargs)
         
         # Set dark style
@@ -364,6 +485,12 @@ class spacrEntry(tk.Frame):
         self.draw_rounded_rectangle(self.bg_color)
 
     def draw_rounded_rectangle(self, color):
+        """
+        Draws a rounded rectangle with the given color as background.
+        
+        Args:
+            color (str): Fill color for the rounded rectangle.
+        """
         radius = 15  # Increased radius for more rounded corners
         x0, y0 = 10, 5
         x1, y1 = self.canvas_width - 10, self.canvas_height - 5
@@ -376,15 +503,33 @@ class spacrEntry(tk.Frame):
         self.canvas.create_rectangle((x0, y0 + radius / 2, x1, y1 - radius / 2), fill=color, outline=color)
     
     def on_focus_in(self, event):
+        """
+        Event handler for focus in. Changes the background to the active color.
+        """
         self.draw_rounded_rectangle(self.active_color)
         self.entry.config(bg=self.active_color)
     
     def on_focus_out(self, event):
+        """
+        Event handler for focus out. Reverts the background to the inactive color.
+        """
         self.draw_rounded_rectangle(self.bg_color)
         self.entry.config(bg=self.bg_color)
 
 class spacrCheck(tk.Frame):
+    """
+    A custom checkbox widget with rounded square appearance and dark style.
+
+    Args:
+        parent (tk.Widget): Parent widget.
+        text (str, optional): Label text (currently unused).
+        variable (tk.BooleanVar): Tkinter variable to bind the checkbox state.
+        \*args, \*\*kwargs: Additional arguments passed to the parent Frame.
+    """
     def __init__(self, parent, text="", variable=None, *args, **kwargs):
+        """
+        Initializes the custom checkbox widget and binds visual updates to variable state.
+        """
         super().__init__(parent, *args, **kwargs)
         
         style_out = set_dark_style(ttk.Style())
@@ -412,6 +557,12 @@ class spacrCheck(tk.Frame):
         self.canvas.bind("<Button-1>", self.toggle_variable)
 
     def draw_rounded_square(self, color):
+        """
+        Draws a rounded square with border and fill.
+
+        Args:
+            color (str): The fill color based on the current checkbox state.
+        """
         radius = 5  # Adjust the radius for more rounded corners
         x0, y0 = 2, 2
         x1, y1 = 18, 18
@@ -428,13 +579,43 @@ class spacrCheck(tk.Frame):
         self.canvas.create_line(x1, y0 + radius / 2, x1, y1 - radius / 2, fill=self.fg_color)
 
     def update_check(self, *args):
+        """
+        Redraws the checkbox based on the current value of the associated variable.
+        """
         self.draw_rounded_square(self.active_color if self.variable.get() else self.inactive_color)
 
     def toggle_variable(self, event):
+        """
+        Toggles the value of the associated variable when the checkbox is clicked.
+
+        Args:
+            event (tk.Event): The mouse click event.
+        """
         self.variable.set(not self.variable.get())
 
 class spacrCombo(tk.Frame):
+    """
+    A custom styled combo box widget with rounded edges and dropdown functionality.
+
+    This widget mimics a modern dropdown menu with dark-themed styling, allowing
+    users to select from a list of values in a visually appealing interface.
+    
+    Args:
+        parent (tk.Widget): Parent widget.
+        textvariable (tk.StringVar, optional): Variable linked to the combo box selection.
+        values (list, optional): List of selectable values. Defaults to empty list.
+        width (int, optional): Width of the combo box in pixels. Defaults to 220.
+    """
     def __init__(self, parent, textvariable=None, values=None, width=None, *args, **kwargs):
+        """
+        Initialize the combo box UI and style settings.
+
+        Args:
+            parent (tk.Widget): The parent widget.
+            textvariable (tk.StringVar, optional): A Tkinter StringVar linked to the selected value.
+            values (list, optional): List of values to populate the dropdown.
+            width (int, optional): Width of the combo box. Defaults to 220 pixels.
+        """
         super().__init__(parent, *args, **kwargs)
         
         # Set dark style
@@ -474,6 +655,12 @@ class spacrCombo(tk.Frame):
         self.dropdown_menu = None
 
     def draw_rounded_rectangle(self, color):
+        """
+        Draw a rounded rectangle on the canvas with the specified background color.
+
+        Args:
+            color (str): The fill color for the rounded rectangle.
+        """
         radius = 15  # Increased radius for more rounded corners
         x0, y0 = 10, 5
         x1, y1 = self.canvas_width - 10, self.canvas_height - 5
@@ -487,12 +674,21 @@ class spacrCombo(tk.Frame):
         self.label.config(bg=color)  # Update label background to match rectangle color
 
     def on_click(self, event):
+        """
+        Handle click event on the combo box to toggle the dropdown menu.
+
+        Args:
+            event (tk.Event): The mouse click event.
+        """
         if self.dropdown_menu is None:
             self.open_dropdown()
         else:
             self.close_dropdown()
 
     def open_dropdown(self):
+        """
+        Display the dropdown menu with available values.
+        """
         self.draw_rounded_rectangle(self.active_color)
         
         self.dropdown_menu = tk.Toplevel(self)
@@ -513,6 +709,9 @@ class spacrCombo(tk.Frame):
             item.bind("<Leave>", lambda e, w=item: w.config(bg=self.inactive_color))
 
     def close_dropdown(self):
+        """
+        Close the dropdown menu if it is open.
+        """
         self.draw_rounded_rectangle(self.inactive_color)
         
         if self.dropdown_menu:
@@ -520,6 +719,12 @@ class spacrCombo(tk.Frame):
             self.dropdown_menu = None
 
     def on_select(self, value):
+        """
+        Update the displayed label and internal variable when a value is selected.
+
+        Args:
+            value (str): The selected value from the dropdown.
+        """
         display_text = value if value is not None else 'None'
         self.var.set(value)
         self.label.config(text=display_text)
@@ -527,14 +732,50 @@ class spacrCombo(tk.Frame):
         self.close_dropdown()
 
     def set(self, value):
+        """
+        Programmatically set the combo box selection to the specified value.
+
+        Args:
+            value (str): The value to set in the combo box.
+        """
         display_text = value if value is not None else 'None'
         self.var.set(value)
         self.label.config(text=display_text)
         self.selected_value = value
 
 class spacrDropdownMenu(tk.Frame):
+    """
+    A custom dark-themed dropdown menu widget with rounded edges and hover interaction.
 
+    This widget displays a labeled button that reveals a menu of selectable options
+    when clicked. It supports external callback functions, styling updates, and dynamic
+    highlighting of active menu items.
+
+    Args:
+        parent (tk.Widget): Parent widget in which the dropdown menu is placed.
+        variable (tk.StringVar): A Tkinter variable to store the selected option.
+        options (list): A list of option labels to populate the dropdown menu.
+        command (callable, optional): A function to call when an option is selected.
+        font (tuple or tk.Font, optional): Font used for the button label.
+        size (int, optional): Height of the button in pixels. Defaults to 50.
+        **kwargs: Additional keyword arguments passed to the `tk.Frame` base class.
+    """
     def __init__(self, parent, variable, options, command=None, font=None, size=50, **kwargs):
+        """
+        Initialize the spacrDropdownMenu with a canvas-based button and popup menu.
+
+        Sets up the button appearance, binds mouse interaction events,
+        and constructs the dropdown menu with the given options.
+
+        Args:
+            parent (tk.Widget): Parent container.
+            variable (tk.StringVar): Variable that stores the selected option.
+            options (list): List of strings representing the dropdown options.
+            command (callable, optional): Callback function when an option is selected.
+            font (tk.Font or tuple, optional): Font used for the button text.
+            size (int, optional): Button height in pixels. Defaults to 50.
+            **kwargs: Additional keyword arguments for the Frame.
+        """
         super().__init__(parent, **kwargs)
         self.variable = variable
         self.options = options
@@ -588,6 +829,20 @@ class spacrDropdownMenu(tk.Frame):
             self.menu.add_command(label=option, command=lambda opt=option: self.on_select(opt))
 
     def create_rounded_rectangle(self, x1, y1, x2, y2, radius=20, **kwargs):
+        """
+        Draw a rounded rectangle polygon on the internal canvas.
+
+        Args:
+            x1 (int): Top-left x coordinate.
+            y1 (int): Top-left y coordinate.
+            x2 (int): Bottom-right x coordinate.
+            y2 (int): Bottom-right y coordinate.
+            radius (int, optional): Radius of the corners. Defaults to 20.
+            **kwargs: Canvas polygon configuration options (fill, outline, etc.).
+
+        Returns:
+            int: Canvas item ID of the created polygon.
+        """
         points = [
             x1 + radius, y1,
             x2 - radius, y1,
@@ -610,23 +865,57 @@ class spacrDropdownMenu(tk.Frame):
         return self.canvas.create_polygon(points, **kwargs, smooth=True)
 
     def on_enter(self, event=None):
+        """
+        Handle mouse enter event by updating the button's background color.
+
+        Args:
+            event (tk.Event, optional): The event object. Defaults to None.
+        """
         self.canvas.itemconfig(self.button_bg, fill=self.active_color)
 
     def on_leave(self, event=None):
+        """
+        Handle mouse leave event by resetting the button's background color.
+
+        Args:
+            event (tk.Event, optional): The event object. Defaults to None.
+        """
         self.canvas.itemconfig(self.button_bg, fill=self.inactive_color)
 
     def on_click(self, event=None):
+        """
+        Handle button click event to display the dropdown menu.
+
+        Args:
+            event (tk.Event, optional): The event object. Defaults to None.
+        """
         self.post_menu()
 
     def post_menu(self):
+        """
+        Display the dropdown menu below the button using screen coordinates.
+        """
         x, y, width, height = self.winfo_rootx(), self.winfo_rooty(), self.winfo_width(), self.winfo_height()
         self.menu.post(x, y + height)
 
     def on_select(self, option):
+        """
+        Callback when an option is selected from the dropdown menu.
+
+        Args:
+            option (str): The selected option label.
+        """
         if self.command:
             self.command(option)
 
     def update_styles(self, active_categories=None):
+        """
+        Update the styles of the dropdown menu entries based on active categories.
+
+        Args:
+            active_categories (list or None): List of option labels to highlight
+                with the active color. If None, all entries are styled as inactive.
+        """
         style_out = set_dark_style(ttk.Style(), widgets=[self.menu])
 
         if active_categories is not None:
@@ -638,6 +927,21 @@ class spacrDropdownMenu(tk.Frame):
                     self.menu.entryconfig(idx, background=style_out['bg_color'], foreground=style_out['fg_color'])
 
 class spacrCheckbutton(ttk.Checkbutton):
+    """
+    A dark-themed styled Checkbutton widget for use in the SpaCr GUI.
+
+    This class wraps a `ttk.Checkbutton` with a custom style and binds it to a
+    `BooleanVar`, allowing it to integrate seamlessly into dark-themed interfaces.
+
+    Args:
+        parent (tk.Widget): The parent widget in which to place the checkbutton.
+        text (str, optional): The label text displayed next to the checkbutton.
+        variable (tk.BooleanVar, optional): Variable linked to the checkbutton's state.
+            If None, a new `BooleanVar` is created.
+        command (callable, optional): A callback function to execute when the checkbutton is toggled.
+        *args: Additional positional arguments passed to `ttk.Checkbutton`.
+        **kwargs: Additional keyword arguments passed to `ttk.Checkbutton`.
+    """
     def __init__(self, parent, text="", variable=None, command=None, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.text = text
@@ -648,7 +952,30 @@ class spacrCheckbutton(ttk.Checkbutton):
         _ = set_dark_style(style, widgets=[self])
 
 class spacrProgressBar(ttk.Progressbar):
+    """
+    A dark-themed progress bar widget with optional progress label display.
+
+    This class extends `ttk.Progressbar` and applies a dark visual theme consistent
+    with SpaCr GUI styling. It also provides an optional label that displays real-time
+    progress, operation type, and additional information.
+
+    Args:
+        parent (tk.Widget): The parent widget in which to place the progress bar.
+        label (bool, optional): Whether to show a label below the progress bar. Defaults to True.
+        *args: Additional positional arguments passed to `ttk.Progressbar`.
+        **kwargs: Additional keyword arguments passed to `ttk.Progressbar`.
+    """
     def __init__(self, parent, label=True, *args, **kwargs):
+        """
+        Initialize the progress bar and optional label with dark theme styling.
+
+        Sets the initial value to 0, applies custom style attributes, and creates
+        a label for displaying progress information.
+
+        Args:
+            parent (tk.Widget): Parent container for the widget.
+            label (bool, optional): Whether to show a label for progress updates. Defaults to True.
+        """
         super().__init__(parent, *args, **kwargs)
 
         # Get the style colors
@@ -705,6 +1032,11 @@ class spacrProgressBar(ttk.Progressbar):
         self.additional_info = None
 
     def set_label_position(self):
+        """
+        Place the progress label one row below the progress bar in the grid layout.
+
+        Should be called after the progress bar has been placed with `.grid(...)`.
+        """
         if self.label and self.progress_label:
             row_info = self.grid_info().get('rowID', 0)
             col_info = self.grid_info().get('columnID', 0)
@@ -712,6 +1044,14 @@ class spacrProgressBar(ttk.Progressbar):
             self.progress_label.grid(row=row_info + 1, column=col_info, columnspan=col_span, pady=5, padx=5, sticky='ew')
 
     def update_label(self):
+        """
+        Update the progress label with current progress, operation type, and extra info.
+
+        Constructs a single-line status message with:
+        - Current progress value
+        - Operation type (if set)
+        - Additional info (if set)
+        """
         if self.label and self.progress_label:
             # Start with the base progress information
             label_text = f"Processing: {self['value']}/{self['maximum']}"
@@ -733,7 +1073,45 @@ class spacrProgressBar(ttk.Progressbar):
             self.progress_label.config(text=label_text)
 
 class spacrSlider(tk.Frame):
+    """
+    A custom slider widget with dark-themed styling, optional numeric entry, and mouse interaction.
+
+    This slider is designed for GUI applications where numeric control is needed,
+    supporting dynamic resizing, labeled value entry, and a callback on release.
+
+    Args:
+        master (tk.Widget): Parent widget.
+        length (int, optional): Fixed pixel length of the slider. If None, adapts to canvas width.
+        thickness (int, optional): Thickness of the slider bar in pixels. Defaults to 2.
+        knob_radius (int, optional): Radius of the slider knob in pixels. Defaults to 10.
+        position (str, optional): Alignment of slider within the frame. One of "left", "center", "right".
+        from_ (float): Minimum slider value.
+        to (float): Maximum slider value.
+        value (float, optional): Initial value. Defaults to `from_`.
+        show_index (bool, optional): Whether to show an entry for numeric value. Defaults to False.
+        command (Callable, optional): Function to call with the final value upon knob release.
+        **kwargs: Additional options passed to `tk.Frame`.
+    """
     def __init__(self, master=None, length=None, thickness=2, knob_radius=10, position="center", from_=0, to=100, value=None, show_index=False, command=None, **kwargs):
+        """
+        Initialize a custom dark-themed slider widget.
+
+        This slider supports mouse interaction, optional direct numeric input via an Entry,
+        and dynamically adapts its layout based on container resizing unless a fixed `length` is specified.
+
+        Args:
+            master (tk.Widget, optional): Parent widget.
+            length (int, optional): Fixed length of the slider in pixels. If None, dynamically resizes with the container.
+            thickness (int, optional): Thickness of the slider bar in pixels. Default is 2.
+            knob_radius (int, optional): Radius of the draggable knob in pixels. Default is 10.
+            position (str, optional): Alignment of the slider within the frame. One of {"left", "center", "right"}. Default is "center".
+            from_ (float): Minimum value of the slider.
+            to (float): Maximum value of the slider.
+            value (float, optional): Initial value of the slider. Defaults to `from_` if not specified.
+            show_index (bool, optional): If True, displays a text entry box to manually input the slider value. Default is False.
+            command (Callable, optional): Optional function to be called with the final value when the knob is released.
+            **kwargs: Additional keyword arguments passed to the `tk.Frame` initializer.
+        """
         super().__init__(master, **kwargs)
 
         self.specified_length = length  # Store the specified length, if any
@@ -793,6 +1171,12 @@ class spacrSlider(tk.Frame):
         self.canvas.bind("<ButtonRelease-1>", self.release_knob)  # Trigger command on release
 
     def resize_slider(self, event):
+        """
+        Recalculate slider dimensions and redraw upon resizing.
+        
+        Args:
+            event (tk.Event): Resize event.
+        """
         if self.specified_length is not None:
             self.length = self.specified_length
         else:
@@ -811,18 +1195,42 @@ class spacrSlider(tk.Frame):
         self.draw_slider(inactive=True)
 
     def value_to_position(self, value):
+        """
+        Convert a numerical slider value to a pixel position on the canvas.
+
+        Args:
+            value (float): The numerical value to convert.
+
+        Returns:
+            float: Corresponding position in pixels on the slider.
+        """
         if self.to == self.from_:
             return self.knob_radius
         relative_value = (value - self.from_) / (self.to - self.from_)
         return self.knob_radius + relative_value * (self.length - 2 * self.knob_radius)
 
     def position_to_value(self, position):
+        """
+        Convert a pixel position on the slider to a numerical value.
+
+        Args:
+            position (float): Pixel position on the slider.
+
+        Returns:
+            float: Corresponding numerical slider value.
+        """ 
         if self.to == self.from_:
             return self.from_
         relative_position = (position - self.knob_radius) / (self.length - 2 * self.knob_radius)
         return self.from_ + relative_position * (self.to - self.from_)
 
     def draw_slider(self, inactive=False):
+        """
+        Draw the slider bar and knob on the canvas.
+
+        Args:
+            inactive (bool): If True, draw knob in inactive color. Otherwise, use active color.
+        """
         self.canvas.delete("all")
 
         self.slider_line = self.canvas.create_line(
@@ -845,6 +1253,12 @@ class spacrSlider(tk.Frame):
         )
 
     def move_knob(self, event):
+        """
+        Move the knob in response to mouse drag, updating internal value and position.
+
+        Args:
+            event (tk.Event): Motion event.
+        """
         new_position = min(max(event.x - self.offset, self.knob_radius), self.length - self.knob_radius)
         self.knob_position = new_position
         self.value = self.position_to_value(self.knob_position)
@@ -859,24 +1273,53 @@ class spacrSlider(tk.Frame):
             self.index_var.set(str(int(self.value)))
 
     def activate_knob(self, event):
+        """
+        Highlight knob and respond to click by positioning knob at mouse location.
+
+        Args:
+            event (tk.Event): Click event.
+        """
         self.draw_slider(inactive=False)
         self.move_knob(event)
 
     def release_knob(self, event):
+        """
+        Finalize knob movement and call the `command` callback with final value.
+
+        Args:
+            event (tk.Event): Mouse release event.
+        """
         self.draw_slider(inactive=True)
         if self.command:
             self.command(self.value)  # Call the command with the final value when the knob is released
 
     def set_to(self, new_to):
+        """
+        Change the maximum value (`to`) of the slider.
+
+        Args:
+            new_to (float): New upper bound of the slider.
+        """
         self.to = new_to
         self.knob_position = self.value_to_position(self.value)
         self.draw_slider(inactive=False)
 
     def get(self):
+        """
+        Get the current slider value.
+
+        Returns:
+            float: Current value of the slider.
+        """ 
         return self.value
 
     def set(self, value):
-        """Set the slider's value and update the knob position."""
+        """
+        Set the slider to a specific value and redraw.
+
+        Args:
+            value (float): New value to set (clipped to bounds).
+        """
         self.value = max(self.from_, min(value, self.to))  # Ensure the value is within bounds
         self.knob_position = self.value_to_position(self.value)
         self.draw_slider(inactive=False)
@@ -884,10 +1327,21 @@ class spacrSlider(tk.Frame):
             self.index_var.set(str(int(self.value)))
 
     def jump_to_click(self, event):
+        """
+        Move the knob directly to the mouse click position.
+
+        Args:
+            event (tk.Event): Click event.
+        """
         self.activate_knob(event)
 
     def update_slider_from_entry(self, event):
-        """Update the slider's value from the entry."""
+        """
+        Update the slider from a value entered manually in the index entry.
+
+        Args:
+            event (tk.Event): Return key press event.
+        """
         try:
             index = int(self.index_var.get())
             self.set(index)
@@ -897,6 +1351,19 @@ class spacrSlider(tk.Frame):
             pass
 
 def spacrScrollbarStyle(style, inactive_color, active_color):
+    """
+    Applies a custom vertical scrollbar style using the given colors.
+
+    This function defines a new ttk scrollbar style named 'Custom.Vertical.TScrollbar'.
+    It reuses the base elements from the 'clam' theme and sets the colors for active 
+    and inactive states accordingly. If the required elements do not exist, it creates 
+    them from the base theme.
+
+    Args:
+        style (ttk.Style): The ttk Style object to configure.
+        inactive_color (str): Hex or color name for the scrollbar in its default (inactive) state.
+        active_color (str): Hex or color name for the scrollbar when hovered or active.
+    """
     # Check if custom elements already exist to avoid duplication
     if not style.element_names().count('custom.Vertical.Scrollbar.trough'):
         style.element_create('custom.Vertical.Scrollbar.trough', 'from', 'clam')
@@ -921,7 +1388,28 @@ def spacrScrollbarStyle(style, inactive_color, active_color):
               darkcolor=[('!active', inactive_color), ('active', active_color)])
 
 class spacrFrame(ttk.Frame):
+    """
+    A styled frame with optional rounded background, vertical scrollbar, and embedded content area (text or widgets).
+    
+    This frame supports both scrollable `ttk.Frame` containers and scrollable `tk.Text` areas, with a dark custom theme.
+
+    Attributes:
+        scrollable_frame (Union[ttk.Frame, tk.Text]): The inner content widget.
+    """
     def __init__(self, container, width=None, *args, bg='black', radius=20, scrollbar=True, textbox=False, **kwargs):
+        """
+        Initialize the spacrFrame.
+
+        Args:
+            container (tk.Widget): The parent container for this frame.
+            width (int, optional): Width of the frame in pixels. Defaults to 1/4 of screen width if None.
+            *args: Additional positional arguments for ttk.Frame.
+            bg (str): Background color of the frame. Defaults to 'black'.
+            radius (int): Radius of the rounded rectangle background. Defaults to 20.
+            scrollbar (bool): Whether to include a vertical scrollbar. Defaults to True.
+            textbox (bool): If True, use a scrollable `tk.Text` widget. Otherwise, use a `ttk.Frame`. Defaults to False.
+            **kwargs: Additional keyword arguments for ttk.Frame.
+        """
         super().__init__(container, *args, **kwargs)
         self.configure(style='TFrame')
         if width is None:
@@ -973,6 +1461,21 @@ class spacrFrame(ttk.Frame):
             _ = set_dark_style(style, widgets=[scrollbar_widget])
 
     def rounded_rectangle(self, canvas, x1, y1, x2, y2, radius=20, **kwargs):
+        """
+        Draw a rounded rectangle on a canvas.
+
+        Args:
+            canvas (tk.Canvas): The canvas to draw on.
+            x1 (int): Left coordinate.
+            y1 (int): Top coordinate.
+            x2 (int): Right coordinate.
+            y2 (int): Bottom coordinate.
+            radius (int): Radius of the rounded corners. Defaults to 20.
+            **kwargs: Options passed to the canvas `create_polygon` method.
+
+        Returns:
+            int: ID of the created polygon.
+        """
         points = [
             x1 + radius, y1,
             x2 - radius, y1,
@@ -995,7 +1498,24 @@ class spacrFrame(ttk.Frame):
         return canvas.create_polygon(points, **kwargs, smooth=True)
 
 class spacrLabel(tk.Frame):
+    """
+    A custom label widget with optional dark styling, alignment options, and support for both `ttk.Label` and `Canvas`-rendered text.
+    
+    The label adapts to screen size or a given height, and can display text either centered or right-aligned.
+    """
     def __init__(self, parent, text="", font=None, style=None, align="right", height=None, **kwargs):
+        """
+        Initialize the spacrLabel widget.
+
+        Args:
+            parent (tk.Widget): The parent widget.
+            text (str): The text to display on the label. Defaults to "".
+            font (tkFont.Font, optional): A custom font to use if not using the default style. Defaults to None.
+            style (str, optional): A ttk style name to apply to the label. If set, uses a `ttk.Label` instead of `Canvas` text.
+            align (str): Text alignment, either "right" or "center". Defaults to "right".
+            height (int, optional): Height of the label. If None, scales based on screen height.
+            **kwargs: Additional keyword arguments for the outer frame (excluding font/background/anchor-specific ones).
+        """
         valid_kwargs = {k: v for k, v in kwargs.items() if k not in ['foreground', 'background', 'font', 'anchor', 'justify', 'wraplength']}
         super().__init__(parent, **valid_kwargs)
         
@@ -1050,14 +1570,43 @@ class spacrLabel(tk.Frame):
         _ = set_dark_style(ttk.Style(), containers=[self], widgets=[self.canvas])
 
     def set_text(self, text):
+        """
+        Update the label text.
+
+        Args:
+            text (str): The new text to display.
+        """
         if self.style:
             self.label_text.config(text=text)
         else:
             self.canvas.itemconfig(self.label_text, text=text)
 
 class spacrButton(tk.Frame):
+    """
+    A custom animated button widget with icon and optional text, styled with dark mode and zoom animation on hover.
+
+    The button is rendered using a Canvas to support rounded corners and icon embedding. Optional description
+    display is supported via parent methods `show_description` and `clear_description`.
+    """
     def __init__(self, parent, text="", command=None, font=None, icon_name=None, size=50, show_text=True, outline=False, animation=True, *args, **kwargs):
+        """
+        Initialize the spacrButton.
+
+        Args:
+            parent (tk.Widget): The parent container.
+            text (str): Button text to display.
+            command (callable, optional): Function to call when button is clicked.
+            font (tkFont.Font or tuple, optional): Font to use if font loader is unavailable.
+            icon_name (str, optional): Name of icon (without extension) to load from resources/icons.
+            size (int): Button height (and icon size reference). Defaults to 50.
+            show_text (bool): Whether to show text next to the icon. Defaults to True.
+            outline (bool): Whether to draw a border around the button. Defaults to False.
+            animation (bool): Whether to animate the icon on hover. Defaults to True.
+            *args: Additional positional arguments for the Frame.
+            **kwargs: Additional keyword arguments for the Frame.
+        """
         super().__init__(parent, *args, **kwargs)
+
         
         self.text = text.capitalize()  # Capitalize only the first letter of the text
         self.command = command
@@ -1112,6 +1661,11 @@ class spacrButton(tk.Frame):
         self.is_zoomed_in = False  # Track zoom state for smooth transitions
 
     def load_icon(self):
+        """
+        Load and resize the icon from the icon folder.
+
+        Falls back to 'default.png' if the specified icon cannot be found.
+        """
         icon_path = self.get_icon_path(self.icon_name)
         try:
             icon_image = Image.open(icon_path)
@@ -1131,26 +1685,59 @@ class spacrButton(tk.Frame):
         self.canvas.image = self.icon_photo  # Keep a reference to avoid garbage collection
 
     def get_icon_path(self, icon_name):
+        """
+        Get the full path to the icon file.
+
+        Args:
+            icon_name (str): Icon name without extension.
+
+        Returns:
+            str: Full path to the icon file.
+        """
         icon_dir = os.path.join(os.path.dirname(__file__), 'resources', 'icons')
         return os.path.join(icon_dir, f"{icon_name}.png")
 
     def on_enter(self, event=None):
+        """
+        Handle mouse hover enter event.
+
+        Changes button color, shows description, and animates zoom-in if enabled.
+        """
         self.canvas.itemconfig(self.button_bg, fill=self.active_color)
         self.update_description(event)
         if self.animation and not self.is_zoomed_in:
             self.animate_zoom(0.85)  # Zoom in the icon to 85% of button size
 
     def on_leave(self, event=None):
+        """
+        Handle mouse hover leave event.
+
+        Resets button color, clears description, and animates zoom-out if enabled.
+        """
         self.canvas.itemconfig(self.button_bg, fill=self.inactive_color)
         self.clear_description(event)
         if self.animation and self.is_zoomed_in:
             self.animate_zoom(0.65)  # Reset the icon size to 65% of button size
 
     def on_click(self, event=None):
+        """
+        Trigger the button's command callback when clicked.
+        """
         if self.command:
             self.command()
 
     def create_rounded_rectangle(self, x1, y1, x2, y2, radius=20, **kwargs):
+        """
+        Create a rounded rectangle on the canvas.
+
+        Args:
+            x1, y1, x2, y2 (int): Coordinates of the rectangle.
+            radius (int): Radius of the corners.
+            **kwargs: Passed to `create_polygon`.
+
+        Returns:
+            int: Canvas item ID of the rounded rectangle.
+        """
         points = [
             x1 + radius, y1,
             x2 - radius, y1,
@@ -1173,6 +1760,10 @@ class spacrButton(tk.Frame):
         return self.canvas.create_polygon(points, **kwargs, smooth=True)
     
     def update_description(self, event):
+        """
+        Call parent container’s `show_description()` if available,
+        passing the description based on `main_buttons` or `additional_buttons` maps.
+        """
         parent = self.master
         while parent:
             if hasattr(parent, 'show_description'):
@@ -1181,6 +1772,9 @@ class spacrButton(tk.Frame):
             parent = parent.master
 
     def clear_description(self, event):
+        """
+        Call parent container’s `clear_description()` if available.
+        """
         parent = self.master
         while parent:
             if hasattr(parent, 'clear_description'):
@@ -1189,11 +1783,28 @@ class spacrButton(tk.Frame):
             parent = parent.master
 
     def animate_zoom(self, target_scale, steps=10, delay=10):
+        """
+        Animate zoom effect by resizing icon incrementally.
+
+        Args:
+            target_scale (float): Final scale factor relative to base icon size.
+            steps (int): Number of animation steps. Defaults to 10.
+            delay (int): Delay between steps in milliseconds. Defaults to 10.
+        """
         current_scale = 0.85 if self.is_zoomed_in else 0.65
         step_scale = (target_scale - current_scale) / steps
         self._animate_step(current_scale, step_scale, steps, delay)
 
     def _animate_step(self, current_scale, step_scale, steps, delay):
+        """
+        Helper method to perform recursive icon zoom animation.
+
+        Args:
+            current_scale (float): Current zoom scale.
+            step_scale (float): Incremental change per step.
+            steps (int): Steps remaining.
+            delay (int): Delay per step in ms.
+        """
         if steps > 0:
             new_scale = current_scale + step_scale
             self.zoom_icon(new_scale)
@@ -1202,6 +1813,12 @@ class spacrButton(tk.Frame):
             self.is_zoomed_in = not self.is_zoomed_in
 
     def zoom_icon(self, scale_factor):
+        """
+        Resize and update the icon image on the canvas.
+
+        Args:
+            scale_factor (float): Scaling factor relative to base icon size.
+        """
         # Resize the original icon image
         new_size = int(self.size * scale_factor)
         resized_icon = self.original_icon_image.resize((new_size, new_size), Image.Resampling.LANCZOS)
@@ -1212,7 +1829,23 @@ class spacrButton(tk.Frame):
         self.canvas.image = self.icon_photo
 
 class spacrSwitch(ttk.Frame):
+    """
+    A custom toggle switch widget with animated transitions and label, styled using the spacr dark theme.
+
+    This switch mimics a physical toggle with animated motion of the switch knob and changes in color.
+    """
     def __init__(self, parent, text="", variable=None, command=None, *args, **kwargs):
+        """
+        Initialize the spacrSwitch widget.
+
+        Args:
+            parent (tk.Widget): Parent container.
+            text (str): Label displayed to the left of the switch.
+            variable (tk.BooleanVar, optional): Tkinter BooleanVar linked to the switch state.
+            command (callable, optional): Function to call when the switch is toggled.
+            *args: Additional positional arguments for the Frame.
+            **kwargs: Additional keyword arguments for the Frame.
+        """
         super().__init__(parent, *args, **kwargs)
         self.text = text
         self.variable = variable if variable else tk.BooleanVar()
@@ -1232,12 +1865,20 @@ class spacrSwitch(ttk.Frame):
         _ = set_dark_style(style, containers=[self], widgets=[self.canvas, self.label])
 
     def toggle(self, event=None):
+        """
+        Toggle the state of the switch.
+
+        Updates the linked variable, animates the movement, and calls the `command` callback if defined.
+        """
         self.variable.set(not self.variable.get())
         self.animate_switch()
         if self.command:
             self.command()
 
     def update_switch(self):
+        """
+        Immediately update the switch position and color based on the current value of the variable.
+        """
         if self.variable.get():
             self.canvas.itemconfig(self.switch, fill="#008080")
             self.canvas.coords(self.switch, 24, 4, 36, 16)
@@ -1246,6 +1887,9 @@ class spacrSwitch(ttk.Frame):
             self.canvas.coords(self.switch, 4, 4, 16, 16)
 
     def animate_switch(self):
+        """
+        Trigger an animated transition of the switch knob between on and off states.
+        """
         if self.variable.get():
             start_x, end_x = 4, 24
             final_color = "#008080"
@@ -1256,6 +1900,14 @@ class spacrSwitch(ttk.Frame):
         self.animate_movement(start_x, end_x, final_color)
 
     def animate_movement(self, start_x, end_x, final_color):
+        """
+        Animate the horizontal movement of the switch knob.
+
+        Args:
+            start_x (int): Starting x-coordinate of the knob.
+            end_x (int): Ending x-coordinate of the knob.
+            final_color (str): Fill color of the knob at the end of the animation.
+        """
         step = 1 if start_x < end_x else -1
         for i in range(start_x, end_x, step):
             self.canvas.coords(self.switch, i, 4, i + 12, 16)
@@ -1264,13 +1916,36 @@ class spacrSwitch(ttk.Frame):
         self.canvas.itemconfig(self.switch, fill=final_color)
 
     def get(self):
+        """
+        Get the current Boolean value of the switch.
+
+        Returns:
+            bool: True if switch is on, False otherwise.
+        """
         return self.variable.get()
 
     def set(self, value):
+        """
+        Set the switch to a given Boolean value.
+
+        Args:
+            value (bool): New state for the switch.
+        """
         self.variable.set(value)
         self.update_switch()
 
     def create_rounded_rectangle(self, x1, y1, x2, y2, radius=9, **kwargs):
+        """
+        Draw a rounded rectangle polygon on the canvas.
+
+        Args:
+            x1, y1, x2, y2 (int): Coordinates of the rectangle bounds.
+            radius (int): Radius of corner curvature.
+            **kwargs: Options passed to `create_polygon`.
+
+        Returns:
+            int: ID of the created polygon item on the canvas.
+        """
         points = [x1 + radius, y1,
                   x1 + radius, y1,
                   x2 - radius, y1,
@@ -1295,7 +1970,17 @@ class spacrSwitch(ttk.Frame):
         return self.canvas.create_polygon(points, **kwargs, smooth=True)
 
 class spacrToolTip:
+    """
+    A simple tooltip widget for displaying hover text in a Tkinter application using spacr dark styling.
+    """
     def __init__(self, widget, text):
+        """
+        Initialize the tooltip for a given widget.
+
+        Args:
+            widget (tk.Widget): The widget to attach the tooltip to.
+            text (str): The text to display in the tooltip.
+        """
         self.widget = widget
         self.text = text
         self.tooltip_window = None
@@ -1303,6 +1988,9 @@ class spacrToolTip:
         widget.bind("<Leave>", self.hide_tooltip)
 
     def show_tooltip(self, event):
+        """
+        Display the tooltip near the cursor when mouse enters the widget.
+        """
         x = event.x_root + 20
         y = event.y_root + 10
         self.tooltip_window = tk.Toplevel(self.widget)
@@ -1315,11 +2003,31 @@ class spacrToolTip:
         _ = set_dark_style(style, containers=[self.tooltip_window], widgets=[label])
 
     def hide_tooltip(self, event):
+        """
+        Hide and destroy the tooltip when mouse leaves the widget.
+        """
         if self.tooltip_window:
             self.tooltip_window.destroy()
         self.tooltip_window = None
 
 def standardize_figure(fig):
+    """
+    Apply standardized appearance settings to a matplotlib figure using spaCR GUI style preferences.
+
+    This includes:
+    - Setting font size and font family based on spaCR's theme
+    - Setting text and spine colors to match spaCR foreground color
+    - Applying OpenSans font via `font_loader`
+    - Removing top and right spines
+    - Setting line and spine widths
+    - Adjusting background and grid colors
+
+    Args:
+        fig (matplotlib.figure.Figure): The matplotlib figure to standardize.
+
+    Returns:
+        matplotlib.figure.Figure: The updated figure with standardized style.
+    """
     from .gui_elements import set_dark_style
     from matplotlib.font_manager import FontProperties
 
@@ -1398,7 +2106,7 @@ def modify_figure_properties(fig, scale_x=None, scale_y=None, line_width=None, f
     """
     Modifies the properties of the figure, including scaling, line widths, font sizes, axis limits, x-axis label rotation, background color, text color, line color, and other common options.
 
-    Parameters:
+    Args:
     - fig: The Matplotlib figure object to modify.
     - scale_x: Scaling factor for the width of subplots (optional).
     - scale_y: Scaling factor for the height of subplots (optional).
@@ -1497,6 +2205,19 @@ def modify_figure_properties(fig, scale_x=None, scale_y=None, line_width=None, f
     fig.canvas.draw_idle()
 
 def save_figure_as_format(fig, file_format):
+    """
+    Opens a file dialog to save a matplotlib figure in the specified format.
+
+    Prompts the user to choose a save location and filename using a file dialog.
+    The figure is saved using the provided format if a valid path is selected.
+
+    Args:
+        fig (matplotlib.figure.Figure): The figure to save.
+        file_format (str): The file format to save as (e.g., 'png', 'pdf', 'svg').
+
+    Returns:
+        None
+    """     
     file_path = filedialog.asksaveasfilename(defaultextension=f".{file_format}", filetypes=[(f"{file_format.upper()} files", f"*.{file_format}"), ("All files", "*.*")])
     if file_path:
         try:
@@ -1506,6 +2227,26 @@ def save_figure_as_format(fig, file_format):
             print(f"Error saving figure: {e}")
 
 def modify_figure(fig):
+    """
+    Opens a GUI window for interactively modifying various properties of a matplotlib figure.
+
+    This function allows users to:
+    - Rescale the X and Y axes
+    - Change line width and font size
+    - Set axis limits and title
+    - Customize colors (background, text, line)
+    - Rotate x-axis labels
+    - Enable/disable grid, legend, and axes
+    - Toggle spine visibility ("spleens")
+
+    Once modifications are entered and applied, the figure is updated and re-rendered via `display_figure`.
+
+    Args:
+        fig (matplotlib.figure.Figure): The matplotlib figure to modify.
+
+    Returns:
+        None
+    """
     from .gui_core import display_figure
     def apply_modifications():
         try:
@@ -1620,9 +2361,27 @@ def modify_figure(fig):
 
 def generate_dna_matrix(output_path='dna_matrix.gif', canvas_width=1500, canvas_height=1000, duration=30, fps=20, base_size=20, transition_frames=30, font_type='arial.ttf', enhance=[1.1, 1.5, 1.2, 1.5], lowercase_prob=0.3):
     """
-    Generate a DNA matrix animation and save it as GIF, MP4, or AVI using OpenCV for videos.
-    """
+    Generates an animated matrix-style DNA sequence visual and saves it as a GIF or video.
 
+    The animation simulates vertical streams of random DNA bases ('A', 'T', 'C', 'G') cascading down the screen.
+    Each column has independently scrolling strings of bases. The latest base in each stream is highlighted,
+    and fading effects, coloring, and random lowercase transformations are applied for visual flair.
+
+    Args:
+        output_path (str): Path to the output file (should end in .gif, .mp4, or .avi).
+        canvas_width (int): Width of the canvas in pixels.
+        canvas_height (int): Height of the canvas in pixels.
+        duration (int): Duration of the animation in seconds.
+        fps (int): Frames per second of the animation.
+        base_size (int): Font size (in pixels) for the bases.
+        transition_frames (int): Number of frames for the looping transition.
+        font_type (str): Path to a .ttf font to use. Defaults to Arial.
+        enhance (list): List of four enhancement multipliers for [brightness, sharpness, contrast, saturation].
+        lowercase_prob (float): Probability that a given base will be drawn in lowercase.
+
+    Returns:
+        None
+    """
     def save_output(frames, output_path, fps, output_format):
         """Save the animation based on output format."""
         if output_format in ['.mp4', '.avi']:

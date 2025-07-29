@@ -4,6 +4,23 @@ import os
 
 # Automatically configure logging
 def configure_logger(log_file_name='spacr.log'):
+    """
+    Configure the global logging system to log INFO-level messages to a file.
+
+    This function sets up logging to write messages to a file located in the user's
+    home directory. The log format includes timestamp, module name, log level, and message.
+
+    Args:
+        log_file_name (str): Name of the log file. The file will be saved in the user's
+                             home directory. Default is 'spacr.log'.
+
+    Example:
+        >>> configure_logger()
+        # Logs will be saved to ~/spacr.log
+
+        >>> configure_logger('custom.log')
+        # Logs will be saved to ~/custom.log
+    """
     # Determine a safe location for the log file
     home_dir = os.path.expanduser("~")  # Get the user's home directory
     log_file_path = os.path.join(home_dir, log_file_name)  # Save log file in home directory
@@ -23,6 +40,25 @@ logger = logging.getLogger(__name__)
 
 # Decorator to log function calls
 def log_function_call(func):
+    """
+    Decorator that logs the function call, its arguments, return value, and any exceptions.
+
+    Logs:
+        - Function name and arguments on call
+        - Return value on successful completion
+        - Exception traceback if an error is raised
+
+    Args:
+        func (Callable): The target function to decorate.
+
+    Returns:
+        Callable: The wrapped function with logging enabled.
+
+    Example:
+        >>> @log_function_call
+        ... def multiply(a, b):
+        ...     return a * b
+    """
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         args_repr = [repr(a) for a in args]  # Arguments passed to the function

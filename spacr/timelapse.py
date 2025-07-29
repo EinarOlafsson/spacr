@@ -18,7 +18,6 @@ except ImportError:
     
 import matplotlib.pyplot as plt
 
-
 def _npz_to_movie(arrays, filenames, save_path, fps=10):
     """
     Convert a list of numpy arrays to a movie file.
@@ -76,55 +75,55 @@ def _npz_to_movie(arrays, filenames, save_path, fps=10):
     print(f"Movie saved to {save_path}")
     
 def _scmovie(folder_paths):
-        """
-        Generate movies from a collection of PNG images in the given folder paths.
+    """
+    Generate movies from a collection of PNG images in the given folder paths.
 
-        Args:
-            folder_paths (list): List of folder paths containing PNG images.
+    Args:
+        folder_paths (list): List of folder paths containing PNG images.
 
-        Returns:
-            None
-        """
-        folder_paths = list(set(folder_paths))
-        for folder_path in folder_paths:
-            movie_path = os.path.join(folder_path, 'movies')
-            os.makedirs(movie_path, exist_ok=True)
-            # Regular expression to parse the filename
-            filename_regex = re.compile(r'(\w+)_(\w+)_(\w+)_(\d+)_(\d+).png')
-            # Dictionary to hold lists of images by plate, well, field, and object number
-            grouped_images = defaultdict(list)
-            # Iterate over all PNG files in the folder
-            for filename in os.listdir(folder_path):
-                if filename.endswith('.png'):
-                    match = filename_regex.match(filename)
-                    if match:
-                        plate, well, field, time, object_number = match.groups()
-                        key = (plate, well, field, object_number)
-                        grouped_images[key].append((int(time), os.path.join(folder_path, filename)))
-            for key, images in grouped_images.items():
-                # Sort images by time using sorted and lambda function for custom sort key
-                images = sorted(images, key=lambda x: x[0])
-                _, image_paths = zip(*images)
-                # Determine the size to which all images should be padded
-                max_height = max_width = 0
-                for image_path in image_paths:
-                    image = cv2.imread(image_path)
-                    h, w, _ = image.shape
-                    max_height, max_width = max(max_height, h), max(max_width, w)
-                # Initialize VideoWriter
-                plate, well, field, object_number = key
-                output_filename = f"{plate}_{well}_{field}_{object_number}.mp4"
-                output_path = os.path.join(movie_path, output_filename)
-                fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-                video = cv2.VideoWriter(output_path, fourcc, 10, (max_width, max_height))
-                # Process each image
-                for image_path in image_paths:
-                    image = cv2.imread(image_path)
-                    h, w, _ = image.shape
-                    padded_image = np.zeros((max_height, max_width, 3), dtype=np.uint8)
-                    padded_image[:h, :w, :] = image
-                    video.write(padded_image)
-                video.release()
+    Returns:
+        None
+    """
+    folder_paths = list(set(folder_paths))
+    for folder_path in folder_paths:
+        movie_path = os.path.join(folder_path, 'movies')
+        os.makedirs(movie_path, exist_ok=True)
+        # Regular expression to parse the filename
+        filename_regex = re.compile(r'(\w+)_(\w+)_(\w+)_(\d+)_(\d+).png')
+        # Dictionary to hold lists of images by plate, well, field, and object number
+        grouped_images = defaultdict(list)
+        # Iterate over all PNG files in the folder
+        for filename in os.listdir(folder_path):
+            if filename.endswith('.png'):
+                match = filename_regex.match(filename)
+                if match:
+                    plate, well, field, time, object_number = match.groups()
+                    key = (plate, well, field, object_number)
+                    grouped_images[key].append((int(time), os.path.join(folder_path, filename)))
+        for key, images in grouped_images.items():
+            # Sort images by time using sorted and lambda function for custom sort key
+            images = sorted(images, key=lambda x: x[0])
+            _, image_paths = zip(*images)
+            # Determine the size to which all images should be padded
+            max_height = max_width = 0
+            for image_path in image_paths:
+                image = cv2.imread(image_path)
+                h, w, _ = image.shape
+                max_height, max_width = max(max_height, h), max(max_width, w)
+            # Initialize VideoWriter
+            plate, well, field, object_number = key
+            output_filename = f"{plate}_{well}_{field}_{object_number}.mp4"
+            output_path = os.path.join(movie_path, output_filename)
+            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+            video = cv2.VideoWriter(output_path, fourcc, 10, (max_width, max_height))
+            # Process each image
+            for image_path in image_paths:
+                image = cv2.imread(image_path)
+                h, w, _ = image.shape
+                padded_image = np.zeros((max_height, max_width, 3), dtype=np.uint8)
+                padded_image[:h, :w, :] = image
+                video.write(padded_image)
+            video.release()
                 
                 
 def _sort_key(file_path):
@@ -262,6 +261,25 @@ def _relabel_masks_based_on_tracks(masks, tracks, mode='btrack'):
     return relabeled_masks
 
 def _prepare_for_tracking(mask_array):
+    """
+    Prepares object data from a sequence of labeled masks for object tracking.
+
+    This function extracts region properties from each timepoint in a 3D mask array,
+    reformats the data for tracking, and returns a concatenated DataFrame.
+
+    Args:
+        mask_array (numpy.ndarray): A 3D array of shape (T, H, W), where each 2D slice at time t
+            contains labeled objects for that frame.
+
+    Returns:
+        pandas.DataFrame: A DataFrame with one row per object per frame, including:
+            - 'frame': Time index.
+            - 'y', 'x': Object centroid coordinates.
+            - 'mass': Object area.
+            - 'original_label': Label ID in the input mask.
+            - 'bbox-0', 'bbox-1', 'bbox-2', 'bbox-3': Bounding box coordinates (min_row, min_col, max_row, max_col).
+            - 'eccentricity': Shape eccentricity of the object.
+    """
     frames = []
     for t, frame in enumerate(mask_array):
         props = regionprops_table(
@@ -282,8 +300,21 @@ def _prepare_for_tracking(mask_array):
 
 def _track_by_iou(masks, iou_threshold=0.1):
     """
-    Build a track table by linking masks frame→frame via IoU.
-    Returns a DataFrame with columns [frame, original_label, track_id].
+    Assigns track IDs to labeled objects across frames by linking objects using Intersection-over-Union (IoU).
+
+    Each unique object label in frame 0 is assigned a unique track ID. Objects in subsequent frames are linked
+    to previous objects if their IoU exceeds the given threshold. Unmatched objects start new tracks.
+
+    Args:
+        masks (np.ndarray): A 3D array of shape (T, H, W) with integer labels in each 2D frame.
+                            Background must be labeled as 0.
+        iou_threshold (float): Minimum IoU required to link objects between consecutive frames. Defaults to 0.1.
+
+    Returns:
+        pd.DataFrame: A DataFrame with columns:
+            - 'frame': Frame index.
+            - 'original_label': Label value in the input mask.
+            - 'track_id': Assigned unique track ID.
     """
     n_frames = masks.shape[0]
     # 1) initialize: every label in frame 0 starts its own track
@@ -317,6 +348,17 @@ def _track_by_iou(masks, iou_threshold=0.1):
     return pd.DataFrame(records)
 
 def link_by_iou(mask_prev, mask_next, iou_threshold=0.1):
+    """
+    Matches labeled objects between two frames based on Intersection-over-Union (IoU).
+
+    Args:
+        mask_prev (np.ndarray): 2D array of integer labels from the previous frame.
+        mask_next (np.ndarray): 2D array of integer labels from the next frame.
+        iou_threshold (float, optional): Minimum IoU required to consider a match. Defaults to 0.1.
+
+    Returns:
+        list of tuple: List of (label_prev, label_next) pairs for matched objects.
+    """
     # Get labels
     labels_prev = np.unique(mask_prev)[1:]
     labels_next = np.unique(mask_next)[1:]
@@ -393,8 +435,17 @@ def _remove_objects_from_first_frame(masks, percentage=10):
 
 def _track_by_iou(masks, iou_threshold=0.1):
     """
-    Build a track table by linking masks frame→frame via IoU.
-    Returns a DataFrame with columns [frame, original_label, track_id].
+    Assigns consistent track IDs to labeled objects across time-lapse mask frames based on IoU matching.
+
+    Args:
+        masks (np.ndarray): 3D array of shape (T, H, W), where T is the number of time frames,
+                            and each frame contains labeled segmentation masks.
+        iou_threshold (float, optional): The minimum Intersection-over-Union required to consider
+                                         two labels as matching. Defaults to 0.1.
+
+    Returns:
+        pd.DataFrame: A DataFrame with columns ['frame', 'original_label', 'track_id'], mapping
+                      each original label in every frame to a track ID.
     """
     n_frames = masks.shape[0]
     # 1) initialize: every label in frame 0 starts its own track
@@ -426,7 +477,6 @@ def _track_by_iou(masks, iou_threshold=0.1):
     for (frame, label), tid in track_map.items():
         records.append({'frame': frame, 'original_label': label, 'track_id': tid})
     return pd.DataFrame(records)
-
 
 def _facilitate_trackin_with_adaptive_removal(masks, search_range=None, max_attempts=5, memory=3, min_mass=50, track_by_iou=False):
     """
@@ -631,9 +681,36 @@ def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, mas
     return mask_stack
 
 def exponential_decay(x, a, b, c):
+    """
+    Computes the exponential decay function.
+
+    Args:
+        x (float or np.ndarray): Input value(s).
+        a (float): Initial amplitude.
+        b (float): Decay rate.
+        c (float): Offset.
+
+    Returns:
+        float or np.ndarray: The result of a * exp(-b * x) + c.
+    """
     return a * np.exp(-b * x) + c
 
 def preprocess_pathogen_data(pathogen_df):
+    """
+    Preprocesses pathogen data by aggregating measurements per host cell and counting parasites.
+
+    Args:
+        pathogen_df (pd.DataFrame): Input DataFrame containing pathogen-level measurements. 
+            Must include 'plateID', 'rowID', 'column_name', 'fieldID', 'timeid', and 'pathogen_cell_id' columns.
+
+    Returns:
+        pd.DataFrame: Aggregated DataFrame with one row per pathogen-hosting cell, including:
+            - Mean of numeric features,
+            - First value of non-numeric features,
+            - Count of parasites per cell,
+            - Renamed 'pathogen_cell_id' to 'object_label',
+            - Removal of 'object_label' if originally present.
+    """
     # Group by identifiers and count the number of parasites
     parasite_counts = pathogen_df.groupby(['plateID', 'rowID', 'column_name', 'fieldID', 'timeid', 'pathogen_cell_id']).size().reset_index(name='parasite_count')
 
@@ -654,9 +731,41 @@ def preprocess_pathogen_data(pathogen_df):
     return pathogen_agg
 
 def plot_data(measurement, group, ax, label, marker='o', linestyle='-'):
+    """
+    Plots a time series of delta measurements on a given Axes object.
+
+    Args:
+        measurement (str): The name of the measurement to plot (e.g., 'intensity').
+        group (pd.DataFrame): A DataFrame containing time series data with a 'time' column and 
+            a 'delta_<measurement>' column.
+        ax (matplotlib.axes.Axes): The Axes object to plot on.
+        label (str): The label for the plotted line (used in the legend).
+        marker (str, optional): Marker style for the plot. Defaults to 'o'.
+        linestyle (str, optional): Line style for the plot. Defaults to '-'.
+
+    Returns:
+        None
+    """
     ax.plot(group['time'], group['delta_' + measurement], marker=marker, linestyle=linestyle, label=label)
 
 def infected_vs_noninfected(result_df, measurement):
+    """
+    Plots time series data comparing infected and uninfected cells based on a specified measurement.
+
+    Args:
+        result_df (pd.DataFrame): DataFrame containing cell tracking data including 
+            'parasite_count', 'plate_row_column_field_object', and 'time' columns.
+        measurement (str): Name of the measurement to be visualized. Assumes a 
+            'delta_<measurement>' column exists in the DataFrame.
+
+    Returns:
+        None
+
+    Notes:
+        - Cells are considered infected if their maximum parasite count across all time points is > 0.
+        - Two subplots are generated: one for infected cells and one for uninfected cells.
+        - Time series are plotted for each unique cell using `plot_data()`.
+    """
     # Separate the merged dataframe into two groups based on pathogen_count
     infected_cells_df = result_df[result_df.groupby('plate_row_column_field_object')['parasite_count'].transform('max') > 0]
     uninfected_cells_df = result_df[result_df.groupby('plate_row_column_field_object')['parasite_count'].transform('max') == 0]
@@ -688,6 +797,17 @@ def infected_vs_noninfected(result_df, measurement):
     plt.show()
 
 def save_figure(fig, src, figure_number):
+    """
+    Saves a figure as a PDF in the 'results' directory relative to the given source path.
+
+    Args:
+        fig (matplotlib.figure.Figure): The figure object to be saved.
+        src (str): Path to a file or directory used to determine the save location.
+        figure_number (int or str): Identifier number for the figure file name.
+
+    Returns:
+        None
+    """
     source = os.path.dirname(src)
     results_fldr = os.path.join(source,'results')
     os.makedirs(results_fldr, exist_ok=True)
@@ -696,6 +816,17 @@ def save_figure(fig, src, figure_number):
     print(f'Saved figure:{fig_loc}')
 
 def save_results_dataframe(df, src, results_name):
+    """
+    Saves a DataFrame as a CSV file in the 'results' directory relative to the given source path.
+
+    Args:
+        df (pandas.DataFrame): The DataFrame to save.
+        src (str): Path used to determine the base directory for saving results.
+        results_name (str): Name of the CSV file (without extension).
+
+    Returns:
+        None
+    """
     source = os.path.dirname(src)
     results_fldr = os.path.join(source,'results')
     os.makedirs(results_fldr, exist_ok=True)
@@ -704,6 +835,22 @@ def save_results_dataframe(df, src, results_name):
     print(f'Saved results:{csv_loc}')
 
 def summarize_per_well(peak_details_df):
+    """
+    Summarizes peak data per well by extracting metadata, filtering valid entries, and computing statistics.
+
+    Args:
+        peak_details_df (pandas.DataFrame): DataFrame containing a column 'ID' and numeric measurement columns, 
+            including 'amplitude'.
+
+    Returns:
+        pandas.DataFrame: Summary DataFrame with the following columns:
+            - 'well_ID': Unique well identifier ('rowID_columnID').
+            - 'peaks_per_well': Total number of peaks per well.
+            - 'unique_IDs_with_amplitude': Number of unique object IDs with valid amplitude.
+            - 'cells_per_well': Number of unique objects per well.
+            - 'peaks_per_cell': Ratio of peaks to cells per well.
+            - Mean values of all numeric columns (excluding ID components) aggregated per well.
+    """
     # Step 1: Split the 'ID' column
     split_columns = peak_details_df['ID'].str.split('_', expand=True)
     peak_details_df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_number']] = split_columns
@@ -735,6 +882,21 @@ def summarize_per_well(peak_details_df):
     return summary_df
 
 def summarize_per_well_inf_non_inf(peak_details_df):
+    """
+    Summarizes peak data per well stratified by infection status.
+
+    Args:
+        peak_details_df (pandas.DataFrame): DataFrame containing peak data with the following required columns:
+            - 'ID': Composite string identifier ('plateID_rowID_columnID_fieldID_object_number').
+            - 'infected': Integer or boolean indicator (values > 0 denote infection).
+
+    Returns:
+        pandas.DataFrame: Summary statistics grouped by 'well_ID' and 'infected_status', including:
+            - 'cells_per_well': Unique cell count per group.
+            - 'peaks_per_well': Total number of peaks per group.
+            - 'peaks_per_cell': Ratio of peaks to cells.
+            - Mean of all numeric columns aggregated per group.
+    """
     # Step 1: Split the 'ID' column
     split_columns = peak_details_df['ID'].str.split('_', expand=True)
     peak_details_df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_number']] = split_columns
@@ -762,6 +924,28 @@ def summarize_per_well_inf_non_inf(peak_details_df):
     return summary_df
 
 def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intensity', size_filter='cell_area', fluctuation_threshold=0.25, num_lines=None, peak_height=0.01, pathogen=None, cytoplasm=None, remove_transient=True, verbose=False, transience_threshold=0.9):
+    """
+    Analyze calcium oscillations in single-cell time-lapse data by detecting peaks in fluorescence intensity changes.
+
+    Args:
+        db_loc (str): Path to the SQLite database containing 'cell', optionally 'pathogen' and/or 'cytoplasm' tables.
+        measurement (str): Column name in the 'cell' table to analyze (default: 'cell_channel_1_mean_intensity').
+        size_filter (str): Column used to filter out unstable cells by size fluctuation (default: 'cell_area').
+        fluctuation_threshold (float): Relative threshold for cell size fluctuation (std/mean) to retain cells (default: 0.25).
+        num_lines (int or None): Number of single-cell traces to show in the output plot. If None, plot all (default: None).
+        peak_height (float): Minimum peak height in delta-fluorescence for peak detection (default: 0.01).
+        pathogen (bool or None): If True, merge with 'pathogen' table and use parasite counts to annotate infection (default: None).
+        cytoplasm (bool or None): If True, merge with 'cytoplasm' table (default: None).
+        remove_transient (bool): Whether to discard cells tracked in less than a fraction of total timepoints (default: True).
+        verbose (bool): Print detailed progress and filtering info (default: False).
+        transience_threshold (float): Minimum fraction of timepoints a cell must be tracked (default: 0.9).
+
+    Returns:
+        tuple: (result_df, peak_details_df, fig)
+            - result_df (DataFrame): All analyzed per-frame data with delta fluorescence.
+            - peak_details_df (DataFrame): Detected peaks and derived features per peak.
+            - fig (Matplotlib figure): Line plot of normalized fluorescence deltas over time.
+    """
     # Load data
     conn = sqlite3.connect(db_loc)
     # Load cell table

@@ -26,24 +26,33 @@ from ipywidgets import IntSlider, interact
 from IPython.display import Image as ipyimage
 from matplotlib_venn import venn2
 
-def plot_image_mask_overlay(
-    file,
-    channels,
-    cell_channel,
-    nucleus_channel,
-    pathogen_channel,
-    figuresize=10,
-    percentiles=(2, 98),
-    thickness=3,
-    save_pdf=True,
-    mode='outlines',
-    export_tiffs=False,
-    all_on_all=False,
-    all_outlines=False,
-    filter_dict=None
-):
-    """Plot image and mask overlays."""
+def plot_image_mask_overlay(file,channels,cell_channel,nucleus_channel,pathogen_channel,figuresize=10,percentiles=(2, 98),thickness=3,save_pdf=True,mode='outlines',export_tiffs=False,all_on_all=False,all_outlines=False,filter_dict=None):
+    """
+    Plot multi-channel microscopy image overlays with cell, nucleus, and pathogen masks.
 
+    This function visualizes microscopy images with optional mask overlays for different object types.
+    It supports contour and filled mask modes, object filtering based on size and intensity, and saving output.
+
+    Args:
+        file (str): Path to the `.npy` image stack (H x W x C).
+        channels (list): Indices of the image channels to display.
+        cell_channel (int or None): Channel index for the cell mask intensity.
+        nucleus_channel (int or None): Channel index for the nucleus mask intensity.
+        pathogen_channel (int or None): Channel index for the pathogen mask intensity.
+        figuresize (int): Base figure size for each subplot. Default is 10.
+        percentiles (tuple): Percentile range for image normalization. Default is (2, 98).
+        thickness (int): Thickness of mask contour outlines. Default is 3.
+        save_pdf (bool): If True, saves a PDF of the overlaid image. Default is True.
+        mode (str): 'outlines' or 'filled'. Determines how masks are rendered. Default is 'outlines'.
+        export_tiffs (bool): If True, exports grayscale TIFFs for each image channel. Default is False.
+        all_on_all (bool): If True, overlays all outlines on all channels. Default is False.
+        all_outlines (bool): If True, overlays all outlines on non-matching channels. Default is False.
+        filter_dict (dict or None): Dictionary of filtering thresholds for each object type. 
+            For example: {"cell": [(min_area, max_area), (min_intensity, max_intensity)]}
+
+    Returns:
+        matplotlib.figure.Figure: The generated overlay figure.
+    """
     def random_color_cmap(n_labels, seed=None):
         """Generates a random color map for a given number of labels."""
         if seed is not None:
@@ -53,25 +62,7 @@ def plot_image_mask_overlay(
         cmap = ListedColormap(rand_colors)
         return cmap
 
-    def _plot_merged_plot(
-        image,
-        outlines,
-        outline_colors,
-        figuresize,
-        thickness,
-        percentiles,
-        mode='outlines',
-        all_on_all=False,
-        all_outlines=False,
-        channels=None,
-        cell_channel=None,
-        nucleus_channel=None,
-        pathogen_channel=None,
-        cell_outlines=None,
-        nucleus_outlines=None,
-        pathogen_outlines=None,
-        save_pdf=True
-    ):
+    def _plot_merged_plot(image,outlines,outline_colors,figuresize,thickness,percentiles,mode='outlines',all_on_all=False,all_outlines=False,channels=None,cell_channel=None,nucleus_channel=None,pathogen_channel=None,cell_outlines=None,nucleus_outlines=None,pathogen_outlines=None,save_pdf=True):
         """Plot the merged plot with overlay, image channels, and masks."""
 
         def _generate_colored_mask(mask, cmap):
@@ -506,7 +497,7 @@ def generate_mask_random_cmap(mask):
     """
     Generate a random colormap based on the unique labels in the given mask.
 
-    Parameters:
+    Args:
     mask (numpy.ndarray): The input mask array.
 
     Returns:
@@ -524,7 +515,7 @@ def random_cmap(num_objects=100):
     """
     Generate a random colormap.
 
-    Parameters:
+    Args:
     num_objects (int): The number of objects to generate colors for. Default is 100.
 
     Returns:
@@ -540,7 +531,7 @@ def _generate_mask_random_cmap(mask):
     """
     Generate a random colormap based on the unique labels in the given mask.
 
-    Parameters:
+    Args:
     mask (ndarray): The mask array containing unique labels.
 
     Returns:
@@ -559,7 +550,7 @@ def _get_colours_merged(outline_color):
     """
     Get the merged outline colors based on the specified outline color format.
 
-    Parameters:
+    Args:
     outline_color (str): The outline color format. Can be one of 'rgb', 'bgr', 'gbr', or 'rbg'.
 
     Returns:
@@ -765,7 +756,7 @@ def plot_arrays(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=1, 
     """
     Plot randomly selected arrays from a given directory or a single .npz/.npy file.
 
-    Parameters:
+    Args:
     - src (str): The directory path or file path containing the arrays.
     - figuresize (int): The size of the figure (default: 10).
     - cmap (str): The colormap to use for displaying the arrays (default: 'inferno').
@@ -820,7 +811,7 @@ def plot_arrays_v1(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=
     """
     Plot randomly selected arrays from a given directory.
 
-    Parameters:
+    Args:
     - src (str): The directory path containing the arrays.
     - figuresize (int): The size of the figure (default: 50).
     - cmap (str): The colormap to use for displaying the arrays (default: 'inferno').
@@ -1286,7 +1277,7 @@ def _visualize_and_save_timelapse_stack_with_tracks(masks, tracks_df, save, src,
         """
         Display the frame with tracks overlaid.
 
-        Parameters:
+        Args:
         frame (int): The frame number to display.
 
         Returns:
@@ -1329,7 +1320,7 @@ def _display_gif(path):
     """
     Display a GIF image from the given path.
 
-    Parameters:
+    Args:
     path (str): The path to the GIF image file.
 
     Returns:
@@ -1572,6 +1563,26 @@ def _imshow_gpu(img, labels, nrow=20, color='white', fontsize=12):
     return fig
     
 def _plot_histograms_and_stats(df):
+    """
+    Plot histograms and print summary statistics for prediction values grouped by condition.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing at least two columns:
+            - 'condition': categorical variable indicating group labels.
+            - 'pred': continuous prediction scores (e.g., probabilities).
+
+    Returns:
+        None. Displays histograms and prints statistics for each condition.
+
+    Printed Statistics per Condition:
+        - Number of rows
+        - Mean of 'pred' values
+        - Count and percentage of 'pred' > 0.5 (positive)
+        - Count and percentage of 'pred' <= 0.5 (negative)
+
+    Plots:
+        - Histogram of 'pred' values with mean indicated by a dashed red line.
+    """
     conditions = df['condition'].unique()
     
     for condition in conditions:
@@ -1603,7 +1614,22 @@ def _plot_histograms_and_stats(df):
         plt.show()
 
 def _show_residules(model):
+    """
+    Display diagnostic plots and test for residuals of a fitted regression model.
 
+    Args:
+        model (statsmodels.regression.linear_model.RegressionResultsWrapper): 
+            A fitted statsmodels regression model with `.resid` and `.fittedvalues` attributes.
+
+    Returns:
+        None. Displays plots and prints Shapiro-Wilk test results.
+
+    Diagnostics:
+        - Histogram of residuals
+        - QQ plot for normality
+        - Residuals vs. Fitted values plot
+        - Shapiro-Wilk test for normality (prints W-statistic and p-value)
+    """
     # Get the residuals
     residuals = model.resid
 
@@ -1632,6 +1658,23 @@ def _show_residules(model):
     print(f'Shapiro-Wilk Test W-statistic: {W}, p-value: {p_value}')
     
 def _reg_v_plot(df, grouping, variable, plate_number):
+    """
+    Generate a volcano plot for visualizing effect size versus significance.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing regression results with 'effect' and 'p' columns.
+        grouping (str): Unused in current function but reserved for grouping logic.
+        variable (str): Unused in current function but could annotate variable of interest.
+        plate_number (str or int): Unused in current function but could title or segregate plots.
+
+    Returns:
+        None. Displays a volcano plot using matplotlib.
+
+    Notes:
+        - Points with p < 0.05 are labeled by index.
+        - Color indicates direction of effect (positive or negative).
+        - Dashed line marks significance threshold (p = 0.05).
+    """
     df['-log10(p)'] = -np.log10(df['p'])
 
     # Create the volcano plot
@@ -1650,7 +1693,27 @@ def _reg_v_plot(df, grouping, variable, plate_number):
     plt.show()
     
 def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_count):
+    """
+    Generate a heatmap matrix for a specific plate based on the specified variable.
 
+    Args:
+        df (pd.DataFrame): Input DataFrame containing 'prc' and variable to plot.
+        plate_number (str): Identifier of the plate to generate the heatmap for.
+        variable (str): Column name to be visualized.
+        grouping (str): Aggregation method: 'mean', 'sum', or 'count'.
+        min_max (str or tuple): Controls the colormap scaling:
+            - 'all': use full data min/max
+            - 'allq': use 2nd to 98th percentile
+            - (low, high): percentiles (float) or fixed values (int)
+        min_count (int or float): Minimum number of entries per well to be included.
+
+    Returns:
+        plate_map (pd.DataFrame): Pivoted heatmap matrix indexed by row and column.
+        min_max (list): The computed min/max values for the heatmap color scale.
+
+    Raises:
+        ValueError: If `grouping` is not one of ['mean', 'sum', 'count'].
+    """
     if not isinstance(min_count, (int, float)):
         min_count = 0
 
@@ -1713,6 +1776,27 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
     return plate_map, min_max
 
 def plot_plates(df, variable, grouping, min_max, cmap, min_count=0, verbose=True, dst=None):
+    """
+    Generate and optionally save heatmaps for one or more plates, showing the spatial distribution 
+    of a specified variable (e.g., unique_counts or signal intensity).
+
+    Args:
+        df (pd.DataFrame): Input DataFrame containing 'prc' in the format 'plate_row_col' and the variable to plot.
+        variable (str): Name of the column to visualize.
+        grouping (str): Aggregation method for replicates (e.g., 'mean', 'median').
+        min_max (str): Method to determine color scaling. One of {'global', 'local', 'allq'}.
+        cmap (str or Colormap): Colormap to use for heatmap visualization.
+        min_count (int, optional): Minimum count threshold for inclusion in the heatmap. Default is 0.
+        verbose (bool, optional): If True, displays the heatmap(s) in an interactive window. Default is True.
+        dst (str, optional): Directory to save the heatmaps. If None, the heatmaps are not saved.
+
+    Returns:
+        matplotlib.figure.Figure: The figure containing the plotted heatmaps.
+
+    Side Effects:
+        - Displays plate heatmaps using matplotlib/seaborn.
+        - Saves the heatmap figure as 'plate_heatmap_#.pdf' in `dst` if provided and writable.
+    """
     plates = df['prc'].str.split('_', expand=True)[0].unique()
     n_rows, n_cols = (len(plates) + 3) // 4, 4
     fig, ax = plt.subplots(n_rows, n_cols, figsize=(40, 5 * n_rows))
@@ -1843,6 +1927,27 @@ def print_mask_and_flows(stack, mask, flows, overlay=True, max_size=1000, thickn
     plt.show()
     
 def plot_resize(images, resized_images, labels, resized_labels):
+    """
+    Plot original and resized images along with their corresponding labels for visual comparison.
+
+    Args:
+        images (list or np.ndarray): List or array of original input images. Each image can be 2D (grayscale)
+                                     or 3D (with 1, 3, or 4 channels).
+        resized_images (list or np.ndarray): Corresponding resized input images.
+        labels (list or np.ndarray): List or array of original label masks.
+        resized_labels (list or np.ndarray): Corresponding resized label masks.
+
+    Returns:
+        None. Displays a 2x2 grid of plots:
+            - Top-left: Original image
+            - Top-right: Resized image
+            - Bottom-left: Original label
+            - Bottom-right: Resized label
+
+    Notes:
+        - Images with 1, 3, or 4 channels are supported.
+        - Other channel numbers will be visualized by averaging across channels (grayscale fallback).
+    """
     def prepare_image(img):
         if img.ndim == 2:
             return img, 'gray'
@@ -1884,7 +1989,23 @@ def plot_resize(images, resized_images, labels, resized_labels):
     plt.show()
     
 def normalize_and_visualize(image, normalized_image, title=""):
-    """Utility function for visualization"""
+    """
+    Display a side-by-side comparison of an original image and its normalized version.
+
+    Args:
+        image (np.ndarray): The original image. Can be 2D (grayscale) or 3D (multi-channel).
+        normalized_image (np.ndarray): The normalized image. Should have the same dimensions as `image`.
+        title (str, optional): Optional string to append to the plot titles. Defaults to "".
+
+    Returns:
+        None. Displays a matplotlib figure with two subplots:
+            - Left: Original image
+            - Right: Normalized image
+
+    Notes:
+        - For multi-channel images, the mean across channels is visualized.
+        - Axes are hidden for clarity.
+    """
     fig, ax = plt.subplots(1, 2, figsize=(12, 6))
     if image.ndim == 3:  # Multi-channel image
         ax[0].imshow(np.mean(image, axis=-1), cmap='gray')  # Display the average over channels for visualization
@@ -1903,6 +2024,25 @@ def normalize_and_visualize(image, normalized_image, title=""):
     plt.show()
     
 def visualize_masks(mask1, mask2, mask3, title="Masks Comparison"):
+    """
+    Display three segmentation masks side-by-side for visual comparison.
+
+    Args:
+        mask1 (np.ndarray): First mask array (2D).
+        mask2 (np.ndarray): Second mask array (2D).
+        mask3 (np.ndarray): Third mask array (2D).
+        title (str, optional): Title for the entire figure. Defaults to "Masks Comparison".
+
+    Returns:
+        None. Displays a matplotlib figure with three subplots:
+            - Each subplot corresponds to one of the input masks.
+            - Masks are visualized using a randomly generated colormap.
+            - If a mask is binary (0 and 1 only), no normalization is applied.
+            - Otherwise, intensity values are normalized to [0, max(mask)].
+
+    Notes:
+        Requires the function `generate_mask_random_cmap(mask)` to generate a colormap.
+    """
     fig, axs = plt.subplots(1, 3, figsize=(30, 10))
     for ax, mask, title in zip(axs, [mask1, mask2, mask3], ['Mask 1', 'Mask 2', 'Mask 3']):
         cmap = generate_mask_random_cmap(mask)
@@ -1922,7 +2062,7 @@ def visualize_cellpose_masks(masks, titles=None, filename=None, save=False, src=
     """
     Visualize multiple masks with optional titles.
     
-    Parameters:
+    Args:
         masks (list of np.ndarray): A list of masks to visualize.
         titles (list of str, optional): A list of titles for the masks. If None, default titles will be used.
         comparison_title (str): Title for the entire figure.
@@ -1962,6 +2102,26 @@ def visualize_cellpose_masks(masks, titles=None, filename=None, save=False, src=
 
     
 def plot_comparison_results(comparison_results):
+    """
+    Visualize segmentation comparison metrics using boxplots with overlaid strip plots.
+
+    Args:
+        comparison_results (list of dict): Each dictionary represents one sample, with keys:
+            - 'filename': Name of the sample.
+            - Metric keys such as 'jaccard_*', 'dice_*', 'boundary_f1_*', 'average_precision_*'.
+
+    Returns:
+        matplotlib.figure.Figure: The resulting figure with 4 subplots:
+            - Jaccard Index
+            - Dice Coefficient
+            - Boundary F1 Score
+            - Average Precision
+
+    Notes:
+        - Metrics are grouped by type using substring matching in column names.
+        - Outliers and individual sample values are shown with strip plots.
+        - Assumes that all metric columns contain numeric values.
+    """
     df = pd.DataFrame(comparison_results)
     df_melted = pd.melt(df, id_vars=['filename'], var_name='metric', value_name='value')
     df_jaccard = df_melted[df_melted['metric'].str.contains('jaccard')]
@@ -2004,7 +2164,25 @@ def plot_comparison_results(comparison_results):
     return fig
 
 def plot_object_outlines(src, objects=['nucleus','cell','pathogen'], channels=[0,1,2], max_nr=10):
-    
+    """
+    Overlay mask outlines on image channels for visual inspection of segmentation quality.
+
+    Args:
+        src (str): Source directory containing the 'masks' folder and image channels.
+        objects (list of str): List of object names (e.g., 'nucleus', 'cell', 'pathogen') whose masks to visualize.
+        channels (list of int): Corresponding channel indices (0-based) for each object.
+        max_nr (int): Maximum number of overlays to display.
+
+    Returns:
+        None. Displays overlays using `plot_images_and_arrays()`.
+
+    Notes:
+        - For each object/channel pair, attempts to load:
+            - The mask from 'masks/{object}_mask_stack'
+            - The image from '{channel+1}' subfolder (1-based indexing)
+        - Assumes `plot_images_and_arrays()` can handle paired overlay inputs.
+        - Random selection and percentile contrast stretching applied for visualization.
+    """
     for object_, channel in zip(objects, channels):
         folders = [os.path.join(src, 'masks', f'{object_}_mask_stack'),
                    os.path.join(src,f'{channel+1}')]
@@ -2019,6 +2197,24 @@ def plot_object_outlines(src, objects=['nucleus','cell','pathogen'], channels=[0
                                randomize=True)
                 
 def volcano_plot(coef_df, filename='volcano_plot.pdf'):
+    """
+    Generate and save a volcano plot based on coefficient and p-value data.
+
+    Args:
+        coef_df (pd.DataFrame): DataFrame containing columns:
+            - 'coefficient': effect size for each term.
+            - 'p_value': p-value for each coefficient.
+            - 'condition': category for coloring (e.g., 'pc', 'nc', 'control', 'other').
+        filename (str): File path for saving the plot as a PDF.
+
+    Returns:
+        None. Displays the volcano plot and saves it to the specified file.
+
+    Notes:
+        - Highlights p-value threshold at 0.05 with a horizontal dashed red line.
+        - Uses pre-defined color palette for conditions.
+        - Legend is removed for clarity.
+    """
     palette = {
         'pc': 'red',
         'nc': 'green',
@@ -2046,6 +2242,21 @@ def volcano_plot(coef_df, filename='volcano_plot.pdf'):
     plt.show()
 
 def plot_histogram(df, column, dst=None):
+    """
+    Plot and optionally save a histogram for a specified column in a DataFrame.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing the data.
+        column (str): Name of the column to plot.
+        dst (str or None): Directory to save the figure as a PDF. If None, the figure is not saved.
+
+    Returns:
+        None. Displays the histogram and optionally saves it to disk.
+
+    Notes:
+        - The histogram uses a fixed turquoise bar color (RGB: 0,155,155).
+        - Saved file is named '{column}_histogram.pdf' and placed in the specified `dst` directory.
+    """
     # Plot histogram of the dependent variable
     bar_color = (0/255, 155/255, 155/255)
     plt.figure(figsize=(10, 10))
@@ -2061,10 +2272,28 @@ def plot_histogram(df, column, dst=None):
 
     plt.show()
 
-def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count', 
-                       remove_keys=None, 
-                       x_lim=[0.0, 1], y_lim=[0, 1], remove_outliers=False, save=True):
-    
+def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count', remove_keys=None, x_lim=[0.0, 1], y_lim=[0, 1], remove_outliers=False, save=True):
+    """
+    Plot Lorenz curves and compute Gini coefficients for a set of CSV files.
+
+    Args:
+        csv_files (list of str): Paths to CSV files containing count data.
+        name_column (str): Column name containing the gRNA or entity names.
+        value_column (str): Column name with the numerical values (e.g., counts).
+        remove_keys (list or None): List of names to exclude from analysis.
+        x_lim (list): X-axis limits for the plot.
+        y_lim (list): Y-axis limits for the plot.
+        remove_outliers (bool): Whether to remove outlier entities by well counts.
+        save (bool): If True, saves the plot to a PDF.
+
+    Returns:
+        None. Displays the plot and prints Gini coefficients.
+
+    Notes:
+        - Gini coefficient is a measure of inequality (0 = perfect equality, 1 = maximal inequality).
+        - Outlier removal is based on IQR of well counts per entity name.
+        - Saves to 'lorenz_curve_with_gini.pdf' under a 'results' folder next to the first input CSV.
+    """
     def lorenz_curve(data):
         """Calculate Lorenz curve."""
         sorted_data = np.sort(data)
@@ -2153,6 +2382,23 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
         print(f"{plate}: Gini Coefficient = {gini:.4f}")
 
 def plot_permutation(permutation_df):
+    """
+    Plot permutation feature importance as a horizontal bar chart.
+
+    Args:
+        permutation_df (pd.DataFrame): DataFrame with columns:
+            - 'feature': Feature names.
+            - 'importance_mean': Mean permutation importance.
+            - 'importance_std': Standard deviation of permutation importance.
+
+    Returns:
+        matplotlib.figure.Figure: The resulting plot figure object.
+
+    Notes:
+        - Dynamically adjusts figure size and font size based on number of features.
+        - Error bars represent the standard deviation across permutation runs.
+    """
+
     num_features = len(permutation_df)
     fig_height = max(8, num_features * 0.3)  # Set a minimum height of 8 and adjust height based on number of features
     fig_width = 10  # Width can be fixed or adjusted similarly
@@ -2166,6 +2412,21 @@ def plot_permutation(permutation_df):
     return fig
 
 def plot_feature_importance(feature_importance_df):
+    """
+    Plot feature importance as a horizontal bar chart.
+
+    Args:
+        feature_importance_df (pd.DataFrame): DataFrame with columns:
+            - 'feature': Feature names.
+            - 'importance': Importance scores for each feature.
+
+    Returns:
+        matplotlib.figure.Figure: The resulting plot figure object.
+
+    Notes:
+        - Dynamically adjusts figure size and font size based on number of features.
+        - Use for visualizing static (e.g., model-based) feature importance.
+    """
     num_features = len(feature_importance_df)
     fig_height = max(8, num_features * 0.3)  # Set a minimum height of 8 and adjust height based on number of features
     fig_width = 10  # Width can be fixed or adjusted similarly
@@ -2179,6 +2440,23 @@ def plot_feature_importance(feature_importance_df):
     return fig
 
 def read_and_plot__vision_results(base_dir, y_axis='accuracy', name_split='_time', y_lim=[0.8, 0.9]):
+    """
+    Read multiple vision model test result CSV files and generate a bar plot of average performance.
+
+    Args:
+        base_dir (str): Base directory to recursively search for files ending in '_test_result.csv'.
+        y_axis (str): The performance metric to plot (must be a column in each CSV). Default is 'accuracy'.
+        name_split (str): String delimiter used to extract the model name from the filename. Default is '_time'.
+        y_lim (list or tuple): Optional y-axis limits for the plot. Default is [0.8, 0.9].
+
+    Returns:
+        None. Displays a matplotlib bar plot of average `y_axis` for each model.
+
+    Notes:
+        - Assumes each file is named with format: '<model>_time<timestamp>_test_result.csv'.
+        - Extracts 'model' and 'epoch' metadata from the path and filename.
+        - Saves results to a 'result' folder inside `base_dir` (created if not present).
+    """
     # List to store data from all CSV files
     data_frames = []
 
@@ -2321,7 +2599,7 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
     """
     Create a grouped plot, perform statistical tests, and optionally export the results along with the plot.
 
-    Parameters:
+    Args:
     - df: DataFrame containing the data.
     - grouping_column: Column name for the categorical grouping.
     - data_column: Column name for the data to be grouped and plotted.
@@ -2479,15 +2757,66 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
     return plt.gcf(), results_df
     
 class spacrGraph:
+    """
+    Class for generating grouped plots with optional data preprocessing, 
+    statistical comparisons, theming, and output control.
+
+    This class is designed to support common grouped plotting tasks for CRISPR screens, 
+    enabling flexible summarization across different experimental representations 
+    (e.g., object-level, well-level, or plate-level).
+
+    Args:
+        df (pd.DataFrame): Input DataFrame containing data to plot.
+        grouping_column (str): Column to group by on the x-axis.
+        data_column (str or list): One or more numeric columns to summarize and plot.
+        graph_type (str): Type of plot to create (e.g., 'bar', 'box').
+        summary_func (str or callable): Function used to summarize data (e.g., 'mean', 'median').
+        order (list): Optional list to define the order of categories on the x-axis.
+        colors (list): Optional custom list of colors for plotting.
+        output_dir (str): Path to directory where output will be saved.
+        save (bool): Whether to save the plot as a PDF.
+        y_lim (tuple): Tuple defining y-axis limits.
+        log_y (bool): If True, applies log scaling to y-axis.
+        log_x (bool): If True, applies log scaling to x-axis.
+        error_bar_type (str): Error bar type to display ('std' or 'sem').
+        remove_outliers (bool): Whether to exclude statistical outliers (not implemented here).
+        theme (str): Seaborn theme to use for the plot.
+        representation (str): Level of summarization; one of {'object', 'well', 'plate'}.
+        paired (bool): If True, assumes samples are paired for statistical tests.
+        all_to_all (bool): If True, performs all-to-all comparisons.
+        compare_group (str): Optional group to compare all others against.
+        graph_name (str): Optional name used in output file naming.
+    """
     def __init__(self, df, grouping_column, data_column, graph_type='bar', summary_func='mean', 
                  order=None, colors=None, output_dir='./output', save=False, y_lim=None, log_y=False,
                  log_x=False, error_bar_type='std', remove_outliers=False, theme='pastel', representation='object',
                  paired=False, all_to_all=True, compare_group=None, graph_name=None):
-        
         """
-        Class for creating grouped plots with optional statistical tests and data preprocessing.
-        """
+        Initialize a spacrGraph instance for grouped data visualization.
 
+        Args:
+            df (pd.DataFrame): Input dataframe containing data to be plotted.
+            grouping_column (str): Column name to group data along the x-axis.
+            data_column (str or list): Column(s) containing values to summarize and plot.
+            graph_type (str): Type of plot to generate ('bar', 'box', etc.). Default is 'bar'.
+            summary_func (str or callable): Summary statistic to apply per group (e.g., 'mean', 'median').
+            order (list or None): Optional order of groups on the x-axis. If None, will be inferred from the data.
+            colors (list or None): List of colors to use for plotting. Defaults to seaborn palette.
+            output_dir (str): Directory where plot will be saved if `save=True`.
+            save (bool): Whether to save the plot as a PDF.
+            y_lim (tuple or None): Y-axis limits. If None, determined automatically.
+            log_y (bool): If True, use logarithmic scale on the y-axis.
+            log_x (bool): If True, use logarithmic scale on the x-axis.
+            error_bar_type (str): Type of error bars to include ('std' or 'sem').
+            remove_outliers (bool): Whether to remove outliers from the data before plotting.
+            theme (str): Seaborn color theme for plotting.
+            representation (str): Level of summarization: 'object', 'well', or 'plate'.
+            paired (bool): Whether samples are paired for statistical testing.
+            all_to_all (bool): If True, perform all pairwise comparisons.
+            compare_group (str or None): If provided, compares all groups against this one.
+            graph_name (str or None): Optional string to include in saved file names.
+        """
+        
         self.df = df
         self.grouping_column = grouping_column
         self.order = sorted(df[self.grouping_column].unique().tolist())
@@ -2522,13 +2851,29 @@ class spacrGraph:
         self.df = self.preprocess_data()
         
     def _set_theme(self):
-        """Set the Seaborn theme and reorder colors if necessary."""
+        """
+        Set the Seaborn color theme and define the plotting color order.
+
+        This method initializes the `sns_palette` using a reordered set of colors
+        from the selected theme.
+        """
         integer_list = list(range(1, 81))
         color_order = [7,9,4,0,3,6,2] + integer_list
         self.sns_palette = self._set_reordered_theme(self.theme, color_order, 100)
 
     def _set_reordered_theme(self, theme='deep', order=None, n_colors=100, show_theme=False):
-        """Set and reorder the Seaborn color palette."""
+        """
+        Generate a Seaborn color palette with an optional reordering.
+
+        Parameters:
+            theme (str): Seaborn palette name (e.g., 'deep', 'pastel').
+            order (list): List of integer indices defining color reorder.
+            n_colors (int): Number of colors to include in the palette.
+            show_theme (bool): If True, displays the palette visually.
+
+        Returns:
+            list: Reordered color palette.
+        """
         palette = sns.color_palette(theme, n_colors)
         if order:
             reordered_palette = [palette[i] for i in order]
@@ -2539,25 +2884,21 @@ class spacrGraph:
             plt.show()
         return reordered_palette
 
-    #def preprocess_data(self):
-    #    """Preprocess the data: remove NaNs, sort/order the grouping column, and optionally group by 'prc'."""
-    #    # Remove NaNs in both the grouping column and each data column
-    #    df = self.df.dropna(subset=[self.grouping_column] + self.data_column)
-    #    # Group by 'prc' column if representation is 'well'
-    #    if self.representation == 'well':
-    #        df = df.groupby(['prc', self.grouping_column])[self.data_column].agg(self.summary_func).reset_index()
-    #    if self.representation == 'plateID':
-    #        df = df.groupby(['plateID', self.grouping_column])[self.data_column].agg(self.summary_func).reset_index()
-    #    if self.order:
-    #        df[self.grouping_column] = pd.Categorical(df[self.grouping_column], categories=self.order, ordered=True)
-    #    else:
-    #        df[self.grouping_column] = pd.Categorical(df[self.grouping_column], categories=sorted(df[self.grouping_column].unique()), ordered=True)
-    #    return df
-  
     def preprocess_data(self):
         """
-        Preprocess the data: remove NaNs, optionally ensure 'plateID' column is created,
-        then group by either 'prc', 'plateID', or do no grouping at all if representation == 'object'.
+        Preprocess the input DataFrame by removing NaNs and optionally aggregating data.
+
+        Aggregation is controlled by the `representation` parameter:
+            - 'object': No aggregation; raw data is retained.
+            - 'well': Data is grouped by ['prc', grouping_column].
+            - 'plate': Data is grouped by ['plateID', grouping_column], 
+                    extracting plateID from the 'prc' column if needed.
+
+        Ordering of the x-axis categories is set using the `order` parameter
+        or automatically sorted if not provided.
+
+        Returns:
+            pd.DataFrame: Cleaned and optionally aggregated DataFrame.
         """
         # 1) Remove NaNs in both the grouping column and each data column
         df = self.df.dropna(subset=[self.grouping_column] + self.data_column)
@@ -2613,7 +2954,13 @@ class spacrGraph:
         return df
    
     def remove_outliers_from_plot(self):
-        """Remove outliers from the plot but keep them in the data."""
+        """
+        Remove outliers from each group in the dataset for plotting purposes.
+        This method applies the IQR method to filter extreme values per group.
+        
+        Returns:
+            pd.DataFrame: Filtered dataframe with outliers removed for plotting.
+        """
         filtered_df = self.df.copy()
         unique_groups = filtered_df[self.grouping_column].unique()
         for group in unique_groups:
@@ -2627,7 +2974,18 @@ class spacrGraph:
         return filtered_df
 
     def perform_normality_tests(self):
-        """Perform normality tests for each group and data column."""
+        """
+        Perform normality tests on each group and data column in the dataframe.
+
+        Uses:
+            - Shapiro-Wilk test for sample sizes < 8
+            - D'Agostino-Pearson test for sample sizes ≥ 8
+
+        Returns:
+            tuple:
+                - is_normal (bool): True if all groups pass normality test (p > 0.05)
+                - normality_results (list): List of dictionaries with test results
+        """
         unique_groups = self.df[self.grouping_column].unique()
         normality_results = []
 
@@ -2674,13 +3032,40 @@ class spacrGraph:
         return is_normal, normality_results
 
     def perform_levene_test(self, unique_groups):
-        """Perform Levene's test for equal variance."""
+        """
+        Perform Levene’s test for homogeneity of variance across groups.
+
+        Args:
+            unique_groups (list): List of group identifiers to compare.
+
+        Returns:
+            tuple:
+                - stat (float): Levene test statistic
+                - p_value (float): p-value for the test
+        """
         grouped_data = [self.df.loc[self.df[self.grouping_column] == group, self.data_column] for group in unique_groups]
         stat, p_value = levene(*grouped_data)
         return stat, p_value
 
     def perform_statistical_tests(self, unique_groups, is_normal):
-        """Perform statistical tests separately for each data column."""
+        """
+        Perform appropriate statistical tests based on normality and group count.
+
+        If 2 groups:
+            - Paired or unpaired t-test (if normal)
+            - Wilcoxon or Mann-Whitney U test (if non-normal)
+
+        If >2 groups:
+            - ANOVA (if normal)
+            - Kruskal-Wallis test (if non-normal)
+
+        Args:
+            unique_groups (list): List of unique group names.
+            is_normal (bool): Whether the data passes normality tests.
+
+        Returns:
+            list: List of dictionaries with test results for each data column.
+        """
         test_results = []
         for column in self.data_column:  # Iterate over each data column
             grouped_data = [self.df.loc[self.df[self.grouping_column] == group, column] for group in unique_groups]
@@ -2720,8 +3105,22 @@ class spacrGraph:
         return test_results
     
     def perform_posthoc_tests(self, is_normal, unique_groups):
-        """Perform post-hoc tests for multiple groups based on all_to_all flag."""
+        """
+        Perform post-hoc tests for multiple groups, depending on normality and group count.
 
+        If data are normally distributed and `all_to_all` is True:
+            - Tukey HSD test is performed for pairwise comparisons.
+
+        If not normal and `all_to_all` is True:
+            - Dunn's test is performed using appropriate p-value adjustment.
+
+        Args:
+            is_normal (bool): Whether the data passed normality tests.
+            unique_groups (list): List of group identifiers.
+
+        Returns:
+            list: List of dictionaries with post-hoc test results per pairwise comparison.
+        """
         from .sp_stats import choose_p_adjust_method
 
         posthoc_results = []
@@ -2776,10 +3175,32 @@ class spacrGraph:
         return posthoc_results
     
     def create_plot(self, ax=None):
-        """Create and display the plot based on the chosen graph type."""
+        """
+        Create the plot based on the selected `graph_type`.
 
+        If `graph_type` supports it and multiple `data_column` values are used,
+        symbols can be placed below the plot to indicate groupings and correspondence.
+
+        Args:
+            ax (matplotlib.axes.Axes, optional): An existing axis to draw the plot on. 
+                                                If None, a new figure and axis are created.
+
+        Returns:
+            matplotlib.figure.Figure: The resulting figure.
+        """
         def _generate_tabels(unique_groups):
-            """Generate row labels and a symbol table for multi-level grouping."""
+            """
+            Generate symbolic representation of the grouping and data columns 
+            for annotation under plots (used internally by create_plot).
+
+            Args:
+                unique_groups (list): List of group identifiers.
+
+            Returns:
+                tuple:
+                    - row_labels (list): List of label strings for each row.
+                    - transposed_table (list of lists): Symbolic table aligned with x-axis.
+            """
             # Create row labels: Include the grouping column and data columns
             row_labels = [self.grouping_column] + self.data_column
 
@@ -2812,13 +3233,14 @@ class spacrGraph:
 
         def _place_symbols(row_labels, transposed_table, x_positions, ax):
             """
-            Places symbols and row labels aligned under the bars or jitter points on the graph.
-            
-            Parameters:
-            - row_labels: List of row titles to be displayed along the y-axis.
-            - transposed_table: Data to be placed under each bar/jitter as symbols.
-            - x_positions: X-axis positions for each group to align the symbols.
-            - ax: The matplotlib Axes object where the plot is drawn.
+            Place text-based symbols under plot elements to annotate categories 
+            and features in multi-group, multi-feature plots.
+
+            Args:
+                row_labels (list): Row label names.
+                transposed_table (list of lists): Symbolic table to annotate.
+                x_positions (list of float): X-coordinates for symbol placement.
+                ax (matplotlib.axes.Axes): Axis object where symbols are placed.
             """
             # Get plot dimensions and adjust for different plot sizes
             y_axis_min = ax.get_ylim()[0]  # Minimum y-axis value (usually 0)
@@ -2845,6 +3267,17 @@ class spacrGraph:
             ax.figure.canvas.draw()
                     
         def _get_positions(self, ax):
+            """
+            Get x-axis positions of plotted elements depending on graph type.
+
+            Used to align symbols and annotations below plot elements.
+
+            Args:
+                ax (matplotlib.axes.Axes): Axis object from which positions are extracted.
+
+            Returns:
+                list of float: X-axis coordinates for each group/data element.
+            """
             if self.graph_type in ['bar','jitter_bar']: 
                 x_positions = [np.mean(bar.get_paths()[0].vertices[:, 0]) for bar in ax.collections if hasattr(bar, 'get_paths')]
 
@@ -2863,7 +3296,24 @@ class spacrGraph:
             return x_positions
         
         def _draw_comparison_lines(ax, x_positions):
-            """Draw comparison lines and annotate significance based on results_df."""
+            """
+            Draw horizontal lines between group pairs to indicate statistical comparisons and significance.
+
+            This function annotates the plot using entries from `self.results_df`, which must contain
+            a 'Comparison' column with group pair strings formatted as 'group1 vs group2' and a 'p-value' column.
+
+            Args:
+                ax (matplotlib.axes.Axes): The axis on which to draw the lines and annotations.
+                x_positions (list of float): The x-axis positions of each group, in order matching `unique_groups`.
+
+            Notes:
+                - Significance markers:
+                    '***' for p ≤ 0.001  
+                    '**'  for p ≤ 0.01  
+                    '*'   for p ≤ 0.05  
+                    'ns'  for p > 0.05
+                - Lines are staggered vertically to avoid overlap.
+            """
             if self.results_df.empty:
                 print("No comparisons available to annotate.")
                 return
@@ -2996,15 +3446,18 @@ class spacrGraph:
 
     def _standerdize_figure_format(self, ax, num_groups, graph_type):
         """
-        Adjusts the figure layout (size, bar width, jitter, and spacing) based on the number of groups.
+        Standardize and adjust the visual format of the plot based on the number of groups and plot type.
 
-        Parameters:
-        - ax: The matplotlib Axes object.
-        - num_groups: Number of unique groups.
-        - graph_type: The type of graph (e.g., 'bar', 'jitter', 'box', etc.).
+        Args:
+            ax (matplotlib.axes.Axes): The axis object of the plot.
+            num_groups (int): Number of groups/categories on the x-axis.
+            graph_type (str): Type of plot, e.g., 'bar', 'jitter', 'box', 'line', etc.
 
-        Returns:
-        - None. Modifies the figure and Axes in place.
+        Notes:
+            - Dynamically sets figure size based on group count.
+            - Adjusts bar widths, jitter offsets, and legend font sizes.
+            - Skips formatting for line plots.
+            - Intended to maintain a visually consistent appearance across graphs.
         """
         if graph_type in ['line', 'line_std']:
             print("Skipping layout adjustment for line graphs.")
@@ -3068,7 +3521,19 @@ class spacrGraph:
         ax.figure.canvas.draw()
         
     def _create_bar_plot(self, ax):
-        """Helper method to create a bar plot with consistent bar thickness and centered error bars."""
+        """
+        Create a bar plot using seaborn, with error bars and standardized layout.
+
+        Args:
+            ax (matplotlib.axes.Axes): Axis object to draw the bar plot.
+
+        Notes:
+            - Supports multiple or single data columns.
+            - Uses melted DataFrame (self.df_melted).
+            - Adds error bars based on `self.error_bar_type` (std or sem).
+            - Bar width and position are adjusted manually.
+            - Log scaling is applied if enabled.
+        """
         # Flatten DataFrame: Combine grouping column and data column into one group if needed
         if len(self.data_column) > 1:
             self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
@@ -3109,7 +3574,19 @@ class spacrGraph:
             ax.set_xscale('log')
 
     def _create_jitter_plot(self, ax):
-        """Helper method to create a jitter plot (strip plot) with consistent spacing."""
+        """
+        Create a jitter (strip) plot using seaborn with consistent spacing.
+
+        Args:
+            ax (matplotlib.axes.Axes): Axis object to draw the jitter plot.
+
+        Notes:
+            - Supports multiple or single data columns.
+            - Uses melted DataFrame (self.df_melted).
+            - Point size and jitter are controlled via class attributes.
+            - Legend is deduplicated and managed manually.
+            - Log scaling is applied if enabled.
+        """
         # Combine grouping column and data column if needed
         if len(self.data_column) > 1:
             self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str)  + " - " + self.df_melted['Data Column'].astype(str))
@@ -3138,7 +3615,18 @@ class spacrGraph:
             ax.set_xscale('log')
 
     def _create_line_graph(self, ax):
-        """Helper method to create a line graph with one line per group based on epochs and accuracy."""
+        """
+        Create a line plot where each group is represented by a separate line.
+
+        Args:
+            ax (matplotlib.axes.Axes): Axis object to draw the line graph.
+
+        Notes:
+            - Expects `self.data_column` to contain two columns: x and y axes.
+            - One line per group in `self.grouping_column`.
+            - Log scaling applied as specified.
+            - Raises ValueError if required columns are missing.
+        """
         #display(self.df)
         # Ensure epoch is used on the x-axis and accuracy on the y-axis
         x_axis_column = self.data_column[0]
@@ -3167,7 +3655,18 @@ class spacrGraph:
         ax.set_ylabel(f"{y_axis_column}")
 
     def _create_line_with_std_area(self, ax):
-        """Helper method to create a line graph with shaded area representing standard deviation."""
+        """
+        Create a line plot with shaded standard deviation region around the mean.
+
+        Args:
+            ax (matplotlib.axes.Axes): Axis object to draw the plot.
+
+        Notes:
+            - Expects `self.data_column = [x_column, y_column]`.
+            - Computes mean and std of `y_column` per `x_column`.
+            - Plots the mean as a line and ±1 std as a shaded region.
+            - Applies log scaling if enabled.
+        """
 
         x_axis_column = self.data_column[0]
         y_axis_column = self.data_column[1]
@@ -3198,7 +3697,18 @@ class spacrGraph:
         ax.set_ylabel(f"{y_axis_column}")
         
     def _create_box_plot(self, ax):
-        """Helper method to create a box plot with consistent spacing."""
+        """
+        Create a box plot for each group with optional grouping by multiple columns.
+
+        Args:
+            ax (matplotlib.axes.Axes): Axis object to draw the box plot.
+
+        Notes:
+            - Supports multiple data columns by combining into 'Combined Group'.
+            - Uses `self.df_melted`.
+            - Log scaling applied if enabled.
+            - Legend is deduplicated.
+        """
         # Combine grouping column and data column if needed
         if len(self.data_column) > 1:
             self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
@@ -3227,7 +3737,18 @@ class spacrGraph:
             ax.set_xscale('log')
     
     def _create_violin_plot(self, ax):
-        """Helper method to create a violin plot with consistent spacing."""
+        """
+        Create a violin plot for each group, showing data distribution.
+
+        Args:
+            ax (matplotlib.axes.Axes): Axis object to draw the violin plot.
+
+        Notes:
+            - Supports multiple data columns via combined group label.
+            - Uses `self.df_melted`.
+            - Log scaling applied if enabled.
+            - Legend is deduplicated.
+        """
         # Combine grouping column and data column if needed
         if len(self.data_column) > 1:
             self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
@@ -3257,7 +3778,19 @@ class spacrGraph:
             ax.set_xscale('log')
 
     def _create_jitter_bar_plot(self, ax):
-        """Helper method to create a bar plot with consistent bar thickness and centered error bars."""
+        """
+        Create a combined jitter and bar plot with optional error bars.
+
+        Args:
+            ax (matplotlib.axes.Axes): Axis object to draw the plot.
+
+        Notes:
+            - Bars show central tendency; jitter adds point-level detail.
+            - Supports multiple data columns via combined group label.
+            - Uses `self.df_melted` and `self.error_bar_type`.
+            - Log scaling applied if enabled.
+            - Error bars currently commented out; customize if needed.
+        """
         # Flatten DataFrame: Combine grouping column and data column into one group if needed
         if len(self.data_column) > 1:
             self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
@@ -3299,7 +3832,19 @@ class spacrGraph:
             ax.set_xscale('log')
 
     def _create_jitter_box_plot(self, ax):
-        """Helper method to create a box plot with consistent spacing."""
+        """
+        Create a combined jitter and box plot.
+
+        Args:
+            ax (matplotlib.axes.Axes): Axis object to draw the plot.
+
+        Notes:
+            - Uses seaborn `boxplot` and overlays `stripplot`.
+            - Supports multiple data columns via combined group label.
+            - Uses `self.df_melted`.
+            - Legend is deduplicated.
+            - Log scaling applied if enabled.
+        """
         # Combine grouping column and data column if needed
         if len(self.data_column) > 1:
             self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
@@ -3329,7 +3874,14 @@ class spacrGraph:
             ax.set_xscale('log')
 
     def _save_results(self):
-        """Helper method to save the plot and results."""
+        """
+        Save the figure and results DataFrame to disk.
+
+        Notes:
+            - PDF saved to `self.output_dir` with name based on `self.results_name`.
+            - CSV of results saved in the same directory.
+            - Ensures output directory exists.
+        """
         os.makedirs(self.output_dir, exist_ok=True)
         plot_path = os.path.join(self.output_dir, f"{self.results_name}.pdf")
         self.fig.savefig(plot_path, bbox_inches='tight', dpi=600, transparent=True, format='pdf')
@@ -3339,30 +3891,65 @@ class spacrGraph:
         print(f"Test results saved to {results_path}")
 
     def get_results(self):
-        """Return the results dataframe."""
+        """
+        Return the internal results DataFrame with computed statistics or comparisons.
+
+        Returns:
+            pd.DataFrame: Results table.
+        """
         return self.results_df
     
     def get_figure(self):
-        """Return the generated figure."""
+        """
+        Return the Matplotlib figure associated with the most recent plot.
+
+        Returns:
+            matplotlib.figure.Figure: The plot figure.
+        """
         return self.fig
 
 def plot_data_from_db(settings):
-    
+    """
+    Load measurement data from SQL databases, annotate with experimental conditions,
+    and generate grouped plots using spacrGraph.
+
+    Args:
+        settings (dict): A dictionary containing the following keys:
+            - 'src' (str or list of str): Source directories containing measurement databases.
+            - 'database' (str or list of str): Corresponding database filenames.
+            - 'table_names' (str): Name of the SQL table to extract data from.
+            - 'graph_name' (str): Name for saving the output plot and settings.
+            - 'grouping_column' (str): Column to group by on the x-axis.
+            - 'data_column' (str): Column to plot on the y-axis.
+            - 'channel_of_interest' (int): Channel number for recruitment calculation (if applicable).
+            - 'cell_types' (list): List of expected host cell types.
+            - 'pathogen_types' (list): List of expected pathogen types.
+            - 'treatments' (list): List of expected treatments.
+            - 'cell_plate_metadata' (str or None): Path to metadata for host cells.
+            - 'pathogen_plate_metadata' (str or None): Path to metadata for pathogens.
+            - 'treatment_plate_metadata' (str or None): Path to metadata for treatments.
+            - 'nuclei_limit' (int): Max number of nuclei to load per plate (optional).
+            - 'pathogen_limit' (int): Max number of pathogens to load per plate (optional).
+            - 'verbose' (bool): Whether to print loading information.
+            - 'graph_type' (str): Type of plot to create (e.g., 'bar', 'box', 'jitter', etc.).
+            - 'representation' (str): Data representation style for plotting (optional).
+            - 'theme' (str): Seaborn color palette theme.
+            - 'y_lim' (tuple or None): Limits for y-axis scaling.
+            - 'save' (bool): Whether to save the plot and results to disk.
+
+    Returns:
+        fig (matplotlib.figure.Figure): The plotted figure.
+        results_df (pd.DataFrame): Statistical results or summary data used in the plot.
+
+    Notes:
+        - Automatically handles multi-source input.
+        - Computes recruitment ratio if specified.
+        - Drops rows with missing grouping or data values.
+        - Creates and saves plot and settings to disk if 'save' is True.
+    """
     from .io import _read_db, _read_and_merge_data
     from .utils import annotate_conditions, save_settings
     from .settings import set_default_plot_data_from_db
-    
-    """
-    Extracts the specified table from the SQLite database and plots a specified column.
-
-    Args:
-        db_path (str): The path to the SQLite database.
-        table_names (str): The name of the table to extract.
-        data_column (str): The column to plot from the table.
-
-    Returns:
-        df (pd.DataFrame): The extracted table as a DataFrame.
-    """
 
     settings = set_default_plot_data_from_db(settings)
     
@@ -3472,21 +4059,40 @@ def plot_data_from_db(settings):
     return fig, results_df
 
 def plot_data_from_csv(settings):
+    """
+    Load measurement data from one or more CSV files, optionally filter and clean the data,
+    and generate grouped plots using spacrGraph.
+
+    Args:
+        settings (dict): A dictionary containing the following keys:
+            - 'src' (str or list of str): Path(s) to the CSV file(s) containing measurement data.
+            - 'grouping_column' (str): Column to group by on the x-axis.
+            - 'data_column' (str): Column to plot on the y-axis.
+            - 'graph_name' (str): Name for saving the output plot and settings.
+            - 'graph_type' (str): Type of plot to create (e.g., 'bar', 'box', 'violin', 'jitter').
+            - 'theme' (str): Seaborn color palette theme.
+            - 'log_y' (bool): Whether to log-transform the y-axis.
+            - 'log_x' (bool): Whether to log-transform the x-axis.
+            - 'y_lim' (tuple or None): Limits for y-axis scaling (optional).
+            - 'save' (bool): Whether to save the plot and results to disk.
+            - 'verbose' (bool): Whether to print and display the DataFrame before plotting.
+            - 'representation' (str): Plot style to use (e.g., 'jitter_box', 'violin', etc.).
+            - 'keep_groups' (list or str, optional): Restrict plot to a subset of group labels.
+            - 'remove_outliers' (bool): Whether to remove outliers using IQR filtering.
+
+    Returns:
+        fig (matplotlib.figure.Figure): The plotted figure.
+        results_df (pd.DataFrame): DataFrame with statistical results or plot summary.
+
+    Notes:
+        - Merges multiple CSVs and tags them with a default 'plateID' if not provided.
+        - Attempts to split 'prc' column into 'plateID', 'rowID', and 'columnID' if applicable.
+        - Handles missing values in the grouping and data columns by dropping those rows.
+        - Automatically creates the output directory and saves results if `save` is True.
+    """
     from .io import _read_db, _read_and_merge_data
     from .utils import annotate_conditions, save_settings, remove_outliers_by_group
     from .settings import get_plot_data_from_csv_default_settings
-    """
-    Extracts the specified table from the SQLite database and plots a specified column.
-
-    Args:
-        db_path (str): The path to the SQLite database.
-        table_names (str): The name of the table to extract.
-        data_column (str): The column to plot from the table.
-
-    Returns:
-        df (pd.DataFrame): The extracted table as a DataFrame.
-    """
-    
 
     def filter_rows_by_column_values(df: pd.DataFrame, column: str, values: list) -> pd.DataFrame:
         """Return a filtered DataFrame where only rows with the column value in the list are kept."""
@@ -3569,7 +4175,44 @@ def plot_data_from_csv(settings):
     return fig, results_df
 
 def plot_region(settings):
+    """
+    Generate and save region-specific plots including: mask overlay, raw PNG grid, and activation map grid.
 
+    This function loads image paths and metadata from database tables, filters for the specified region (field of view),
+    and plots the following:
+    
+    - A mask overlay of the full field image with Cellpose masks.
+    - A grid of raw cropped PNGs corresponding to the region.
+    - A grid of activation maps (e.g., saliency, Grad-CAM) for the same region.
+
+    Args:
+        settings (dict): A dictionary containing the following keys:
+
+            - 'src' (str): Source folder containing subfolders like 'merged', 'measurements', and 'datasets'.
+            - 'name' (str): Filename (e.g., 'plate1_A01_01.tif') identifying the region/FOV of interest.
+            - 'activation_db' (str): Filename of the activation measurement database (e.g., 'activations.db').
+            - 'activation_mode' (str): Mode of activation ('saliency', 'gradcam', etc.); used to find the correct table.
+            - 'channels' (list of int): Indices of input channels to use for the mask overlay.
+            - 'cell_channel' (int): Channel index used to generate the cell mask.
+            - 'nucleus_channel' (int): Channel index used to generate the nucleus mask.
+            - 'pathogen_channel' (int): Channel index used to generate the pathogen mask.
+            - 'percentiles' (list): Two-element list (e.g., [2, 99]) specifying intensity percentiles for contrast scaling.
+            - 'mode' (str): Image display mode for overlay ('rgb', 'stack', etc.).
+            - 'export_tiffs' (bool): Whether to export TIFF images alongside overlays.
+
+    Returns:
+        tuple: A 3-element tuple of matplotlib Figure objects or None
+
+            - fig_1 (matplotlib.figure.Figure or None): Mask overlay figure.
+            - fig_2 (matplotlib.figure.Figure or None): Grid of raw cropped PNGs.
+            - fig_3 (matplotlib.figure.Figure or None): Grid of activation maps.
+
+    Notes:
+        - Figures are saved as PDFs under ``<src>/results/<name>/``.
+        - If no relevant PNGs or activations are found, the corresponding figure will be ``None``.
+        - Paths are automatically corrected using ``correct_paths``.
+        - The figure layout uses ``plot_image_grid`` and ``plot_image_mask_overlay``.
+    """
     def _sort_paths_by_basename(paths):
         return sorted(paths, key=lambda path: os.path.basename(path))
     
@@ -3640,7 +4283,7 @@ def plot_image_grid(image_paths, percentiles):
     Plots a square grid of images from a list of image paths. 
     Unused subplots are filled with black, and padding is minimized.
 
-    Parameters:
+    Args:
     - image_paths: List of paths to images to be displayed.
 
     Returns:
@@ -3798,7 +4441,30 @@ def overlay_masks_on_images(img_folder, normalize=True, resize=True, save=False,
             plt.show()
 
 def graph_importance(settings):
-    
+    """
+    Generate and display a bar, box, or violin plot of importance values across grouped categories.
+
+    This function reads one or more CSV files containing importance scores (e.g., feature importances, 
+    saliency values, or other metrics) and visualizes them grouped by a specified column. It wraps 
+    the `spacrGraph` plotting class to create the plot and saves the settings used.
+
+    Args:
+        settings (dict): A dictionary containing the following keys:
+            - 'csvs' (str or list of str): Path(s) to CSV file(s) containing importance data.
+            - 'grouping_column' (str): Column name used for grouping on the x-axis.
+            - 'data_column' (str): Column name containing the data values to be plotted (e.g., importance scores).
+            - 'graph_type' (str): Type of plot to generate ('bar', 'box', or 'violin').
+            - 'save' (bool): Whether to save the plot as a PDF in the same directory as the input CSVs.
+
+    Returns:
+        None
+
+    Notes:
+        - If the required columns are missing from the input data, the function will print a warning and exit.
+        - The plot is created using the `spacrGraph` class and is shown with `matplotlib.pyplot.show()`.
+        - All input CSVs are concatenated before plotting.
+        - Settings are saved to disk using `save_settings`.
+    """
     from .settings import set_graph_importance_defaults
     from .utils import save_settings
     
@@ -3850,7 +4516,7 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
     """
     Generate a stacked bar plot for proportions and perform chi-squared and pairwise tests.
     
-    Parameters:
+    Args:
     - settings (dict): Analysis settings.
     - df (DataFrame): Input data.
     - group_column (str): Column indicating the groups.
@@ -3927,7 +4593,7 @@ def create_venn_diagram(file1, file2, gene_column="gene", filter_coeff=0.1, save
     Reads two CSV files, extracts the `gene` column, and creates a Venn diagram
     to show overlapping and non-overlapping genes.
 
-    Parameters:
+    Args:
         file1 (str): Path to the first CSV file.
         file2 (str): Path to the second CSV file.
         gene_column (str): Name of the column containing gene data (default: "gene").

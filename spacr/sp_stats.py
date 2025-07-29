@@ -10,7 +10,7 @@ def choose_p_adjust_method(num_groups, num_data_points):
     """
     Selects the most appropriate p-value adjustment method based on data characteristics.
     
-    Parameters:
+    Args:
     - num_groups: Number of unique groups being compared
     - num_data_points: Number of data points per group (assuming balanced groups)
     
@@ -30,7 +30,25 @@ def choose_p_adjust_method(num_groups, num_data_points):
         return 'bonferroni'  # Very conservative, use for strict control of Type I errors
 
 def perform_normality_tests(df, grouping_column, data_columns):
-    """Perform normality tests for each group and data column."""
+    """
+    Perform normality tests (Shapiro-Wilk or D'Agostino-Pearson) on grouped data.
+
+    Args:
+        df (pd.DataFrame): Input DataFrame containing the data to test.
+        grouping_column (str): Column name to group data by (e.g., condition or treatment).
+        data_columns (list of str): List of column names containing numeric data to test for normality.
+
+    Returns:
+        tuple:
+            - is_normal (bool): True if all group-column combinations pass the normality test (p > 0.05), else False.
+            - normality_results (list of dict): List of results for each group-column combination including:
+                - 'Comparison': Description of the test
+                - 'Test Statistic': Computed test statistic (None if skipped)
+                - 'p-value': P-value of the test (None if skipped)
+                - 'Test Name': Name of the test used or 'Skipped'
+                - 'Column': The data column tested
+                - 'n': Sample size
+    """
     unique_groups = df[grouping_column].unique()
     normality_results = []
 
@@ -77,14 +95,40 @@ def perform_normality_tests(df, grouping_column, data_columns):
 
 
 def perform_levene_test(df, grouping_column, data_column):
-    """Perform Levene's test for equal variance."""
+    """
+    Perform Levene’s test for equal variances across groups.
+
+    Parameters:
+        df (pd.DataFrame): The DataFrame containing the data.
+        grouping_column (str): The column indicating group membership.
+        data_column (str): The column containing the numeric data.
+
+    Returns:
+        tuple: (statistic, p-value) from Levene’s test.
+    """
     unique_groups = df[grouping_column].unique()
     grouped_data = [df.loc[df[grouping_column] == group, data_column].dropna() for group in unique_groups]
     stat, p_value = levene(*grouped_data)
     return stat, p_value
 
 def perform_statistical_tests(df, grouping_column, data_columns, paired=False):
-    """Perform statistical tests for each data column."""
+    """
+    Perform statistical tests to compare groups for each specified data column.
+
+    Parameters:
+        df (pd.DataFrame): The DataFrame containing the data.
+        grouping_column (str): The column indicating group membership.
+        data_columns (list): List of column names to perform tests on.
+        paired (bool): Whether to use paired tests (only for two-group comparisons).
+
+    Returns:
+        list of dict: Each dict contains:
+            - 'Column': Name of the column tested.
+            - 'Test Name': Statistical test used.
+            - 'Test Statistic': Test statistic value.
+            - 'p-value': P-value of the test.
+            - 'Groups': Number of groups compared.
+    """
     unique_groups = df[grouping_column].unique()
     test_results = []
 
@@ -125,7 +169,24 @@ def perform_statistical_tests(df, grouping_column, data_columns, paired=False):
 
 
 def perform_posthoc_tests(df, grouping_column, data_column, is_normal):
-    """Perform post-hoc tests for multiple groups with both original and adjusted p-values."""
+    """
+    Perform post-hoc pairwise comparisons between groups after a significant overall test (e.g., ANOVA or Kruskal-Wallis).
+
+    Args:
+        df (pd.DataFrame): Input DataFrame containing the data to analyze.
+        grouping_column (str): Column name representing group membership.
+        data_column (str): Column name with the continuous variable to compare.
+        is_normal (bool): Indicator of whether the data meets normality assumptions 
+                          (determines test type: Tukey HSD if True, Dunn's test if False).
+
+    Returns:
+        list of dict: List of dictionaries summarizing pairwise comparisons, each including:
+            - 'Comparison': Description of the group pair.
+            - 'Original p-value': Raw p-value (None for Tukey HSD).
+            - 'Adjusted p-value': Corrected p-value for multiple testing.
+            - 'Adjusted Method': Method used for p-value adjustment.
+            - 'Test Name': The post-hoc test performed ("Tukey HSD" or "Dunn's Post-hoc").
+    """
     unique_groups = df[grouping_column].unique()
     posthoc_results = []
 
@@ -164,16 +225,23 @@ def perform_posthoc_tests(df, grouping_column, data_column, is_normal):
 
 def chi_pairwise(raw_counts, verbose=False):
     """
-    Perform pairwise chi-square or Fisher's exact tests between all unique group pairs
-    and apply p-value correction.
+    Perform pairwise statistical tests (Chi-Square or Fisher's Exact) on contingency tables 
+    derived from count data, and apply multiple testing correction.
 
-    Parameters:
-    - raw_counts (DataFrame): Contingency table with group-wise counts.
-    - verbose (bool): Whether to print results for each pair.
+    Args:
+        raw_counts (pd.DataFrame): A DataFrame where rows represent groups and columns represent categories.
+                                   The values are raw counts.
+        verbose (bool): If True, prints the resulting pairwise test summary.
 
     Returns:
-    - pairwise_df (DataFrame): DataFrame with pairwise test results, including corrected p-values.
-    """
+        pd.DataFrame: A DataFrame with pairwise comparisons including:
+            - 'Group 1': First group in the comparison
+            - 'Group 2': Second group in the comparison
+            - 'Test Name': Type of statistical test used ('Chi-Square' or 'Fisher's Exact')
+            - 'p-value': Raw p-value for the test
+            - 'p-value_adj': Adjusted p-value after multiple testing correction
+            - 'adj': Name of the correction method used
+    """ 
     pairwise_results = []
     groups = raw_counts.index.unique()  # Use index from raw_counts for group pairs
     raw_p_values = []  # Store raw p-values for correction later

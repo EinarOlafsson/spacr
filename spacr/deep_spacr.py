@@ -16,7 +16,34 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 
 def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, n_jobs=10):
-    
+    """
+    Apply a trained binary classification model to a folder of images.
+
+    Loads a PyTorch model and applies it to images in the specified folder using batch inference.
+    Supports optional normalization and GPU acceleration. Outputs prediction probabilities and
+    saves results as a CSV file alongside the model.
+
+    Args:
+        src (str): Path to a folder containing input images (e.g., PNG, JPG).
+        model_path (str): Path to a trained PyTorch model file (.pt or .pth).
+        image_size (int, optional): Size to center-crop input images to. Default is 224.
+        batch_size (int, optional): Number of images to process per batch. Default is 64.
+        normalize (bool, optional): If True, normalize images to [-1, 1] using ImageNet-style transform. Default is True.
+        n_jobs (int, optional): Number of subprocesses to use for data loading. Default is 10.
+
+    Returns:
+        pandas.DataFrame: A DataFrame with two columns:
+            - "path": Filenames of processed images.
+            - "pred": Model output probabilities (sigmoid of logits).
+
+    Saves:
+        A CSV file named like <model_path><YYMMDD>_<ext>_test_result.csv, containing the prediction results.
+
+    Notes:
+        - Uses GPU if available, otherwise runs on CPU.
+        - Assumes model outputs raw logits for binary classification (sigmoid is applied).
+        - The input folder must contain only images readable by `PIL.Image.open`.
+    """
     from .io import NoClassDataset
     from .utils import print_progress
     
@@ -71,7 +98,31 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, 
     return df
 
 def apply_model_to_tar(settings={}):
-    
+    """
+    Apply a trained model to images stored inside a tar archive.
+
+    Loads a model and applies it to images within a `.tar` archive using batch inference. Results are
+    filtered by a probability threshold and saved to a CSV. Supports GPU acceleration and normalization.
+
+    Args:
+        settings (dict): Dictionary with the following keys:
+            - tar_path (str): Path to the tar archive with input images.
+            - model_path (str): Path to the trained PyTorch model (.pt/.pth).
+            - image_size (int): Center crop size for input images. Default is 224.
+            - batch_size (int): Batch size for DataLoader. Default is 64.
+            - normalize (bool): Apply normalization to [-1, 1]. Default is True.
+            - n_jobs (int): Number of workers for data loading. Default is system CPU count - 4.
+            - verbose (bool): If True, print progress and model details.
+            - score_threshold (float): Probability threshold for positive classification (used in result filtering).
+
+    Returns:
+        pandas.DataFrame: DataFrame with:
+            - "path": Filenames inside the tar archive.
+            - "pred": Model prediction scores (sigmoid output).
+
+    Saves:
+        A CSV file with prediction results to the same directory as the tar file.
+    """
     from .io import TarImageDataset
     from .utils import process_vision_results, print_progress
 
@@ -172,7 +223,7 @@ def evaluate_model_performance(model, loader, epoch, loss_type):
         """
         Calculate classification metrics for binary classification.
 
-        Parameters:
+        Args:
         - all_labels (list): List of true labels.
         - prediction_pos_probs (list): List of predicted positive probabilities.
         - loader_name (str): Name of the data loader.
@@ -256,7 +307,27 @@ def evaluate_model_performance(model, loader, epoch, loss_type):
     return data_dict, [prediction_pos_probs, all_labels]
 
 def test_model_core(model, loader, loader_name, epoch, loss_type):
-    
+    """
+    Evaluate a trained model on a test DataLoader and return performance metrics and predictions.
+
+    This function evaluates a binary classification model using a specified loss function, computes
+    classification metrics, and logs predictions, targets, and file-level results.
+
+    Args:
+        model (torch.nn.Module): The trained PyTorch model to evaluate.
+        loader (torch.utils.data.DataLoader): DataLoader providing test data and labels.
+        loader_name (str): Identifier name for the loader (used for logging/debugging).
+        epoch (int): Current epoch number (used for metric tracking).
+        loss_type (str): Type of loss function to use for reporting (e.g., 'bce', 'focal').
+
+    Returns:
+        tuple:
+            - data_df (pd.DataFrame): DataFrame containing classification metrics for the test set.
+            - prediction_pos_probs (list): List of predicted probabilities for the positive class.
+            - all_labels (list): Ground truth binary labels.
+            - results_df (pd.DataFrame): Per-sample results, including filename, true label, predicted label,
+              and probability for class 1.
+    """
     from .utils import calculate_loss, classification_metrics
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.eval()
@@ -612,7 +683,50 @@ def train_model(dst, model_type, train_loaders, epochs=100, learning_rate=0.0001
     return model, model_path
 
 def generate_activation_map(settings):
-    
+    """
+    Generate activation maps (Grad-CAM or saliency) from a trained model applied to a dataset stored in a tar archive.
+
+    This function loads a model, computes class activation maps or saliency maps for each input image, and saves the
+    results as images. Optionally, it plots batch-wise grids of maps and stores correlation results and image metadata 
+    into an SQL database.
+
+    Args:
+        settings (dict): Dictionary of parameters controlling activation map generation. Key fields include:
+
+            Required paths:
+                - dataset (str): Path to the `.tar` archive containing images.
+                - model_path (str): Path to the trained PyTorch model (.pt or .pth).
+
+            Model and method:
+                - model_type (str): Model architecture used (e.g., 'maxvit').
+                - cam_type (str): One of ['gradcam', 'gradcam_pp', 'saliency_image', 'saliency_channel'].
+                - target_layer (str or None): Name of the target layer for Grad-CAM (optional, required for Grad-CAM variants).
+
+            Input transforms:
+                - image_size (int): Size to center-crop images to (e.g., 224).
+                - normalize_input (bool): Whether to normalize images to [-1, 1] range.
+                - channels (list): Channel indices to select from input data (e.g., [0,1,2]).
+
+            Inference:
+                - batch_size (int): Number of images per inference batch.
+                - shuffle (bool): Whether to shuffle image order in DataLoader.
+                - n_jobs (int): Number of parallel DataLoader workers (default is CPU count - 4).
+
+            Output control:
+                - save (bool): If True, saves individual activation maps to disk.
+                - plot (bool): If True, generates and saves batch-wise PDF grid plots.
+                - overlay (bool): If True, overlays activation maps on input images.
+                - correlation (bool): If True, computes activation correlation features (e.g., Manders').
+
+            Correlation-specific:
+                - manders_thresholds (list or float): Threshold(s) for calculating Manders' coefficients.
+
+    Returns:
+        None. The following outputs are saved:
+            - PNG or JPEG activation maps organized by predicted class and well.
+            - PDF files with batch-wise overlay plots if `plot=True`.
+            - Activation image metadata and correlations saved to SQL database if `save=True`.
+    """
     from .utils import SaliencyMapGenerator, GradCAMGenerator, SelectChannels, activation_maps_to_database, activation_correlations_to_database
     from .utils import print_progress, save_settings, calculate_activation_correlations
     from .io import TarImageDataset
@@ -771,7 +885,18 @@ def generate_activation_map(settings):
     print("Activation map generation complete.")
 
 def visualize_classes(model, dtype, class_names, **kwargs):
+    """
+    Visualize synthetic input images that maximize class activation.
 
+    Args:
+        model (torch.nn.Module): The trained classification model.
+        dtype (str): Data type or domain tag used for visualization.
+        class_names (list): List of class names (length 2 assumed for binary classification).
+        **kwargs: Additional keyword arguments passed to `class_visualization()`.
+
+    Returns:
+        None. Displays matplotlib plots of class visualizations.
+    """
     from .utils import class_visualization
 
     for target_y in range(2):  # Assuming binary classification
@@ -783,7 +908,22 @@ def visualize_classes(model, dtype, class_names, **kwargs):
         plt.show()
 
 def visualize_integrated_gradients(src, model_path, target_label_idx=0, image_size=224, channels=[1,2,3], normalize=True, save_integrated_grads=False, save_dir='integrated_grads'):
+    """
+    Visualize integrated gradients for PNG images in a directory.
 
+    Args:
+        src (str): Directory containing `.png` images.
+        model_path (str): Path to the trained PyTorch model.
+        target_label_idx (int): Index of the target class label.
+        image_size (int): Image size after preprocessing (center crop).
+        channels (list): List of channels to extract (1-indexed).
+        normalize (bool): Whether to normalize image input to [-1, 1].
+        save_integrated_grads (bool): Whether to save integrated gradient maps.
+        save_dir (str): Directory to save integrated gradient outputs.
+
+    Returns:
+        None. Displays overlays and optionally saves saliency maps.
+    """
     from .utils import IntegratedGradients, preprocess_image
 
     use_cuda = torch.cuda.is_available()
@@ -832,6 +972,15 @@ def visualize_integrated_gradients(src, model_path, target_label_idx=0, image_si
             integrated_grads_image.save(os.path.join(save_dir, f'integrated_grads_{file}'))
 
 class SmoothGrad:
+    """
+    Compute SmoothGrad saliency maps from a trained model.
+
+    Args:
+        model (torch.nn.Module): Trained classification model.
+        n_samples (int): Number of noise samples to average.
+        stdev_spread (float): Standard deviation of noise relative to input range.
+    """
+
     def __init__(self, model, n_samples=50, stdev_spread=0.15):
         self.model = model
         self.n_samples = n_samples
@@ -855,7 +1004,22 @@ class SmoothGrad:
         return avg_gradients.abs()
 
 def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, channels=[1,2,3], normalize=True, save_smooth_grad=False, save_dir='smooth_grad'):
+    """
+    Visualize SmoothGrad maps for PNG images in a folder.
 
+    Args:
+        src (str): Path to directory containing `.png` images.
+        model_path (str): Path to trained PyTorch model file.
+        target_label_idx (int): Index of the class to explain.
+        image_size (int): Size for center cropping during preprocessing.
+        channels (list): Channel indices to extract from images.
+        normalize (bool): Whether to normalize inputs to [-1, 1].
+        save_smooth_grad (bool): If True, saves saliency maps to disk.
+        save_dir (str): Folder where smooth grad maps are saved.
+
+    Returns:
+        None. Displays overlay figures and optionally saves maps to disk.
+    """
     from .utils import preprocess_image
 
     use_cuda = torch.cuda.is_available()
@@ -904,6 +1068,78 @@ def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, cha
             smooth_grad_image.save(os.path.join(save_dir, f'smooth_grad_{file}'))
 
 def deep_spacr(settings={}):
+    """
+    Run deep learning-based classification workflow on microscopy data using SpaCr.
+
+    This function handles dataset generation, model training, and inference using a trained model on tar-archived image datasets. 
+    Settings are filled using `deep_spacr_defaults`.
+
+    Args:
+        settings (dict): Dictionary of settings with the following keys:
+
+            General:
+                - src (str): Path to the input dataset.
+                - dataset (str): Path to a dataset archive.
+                - dataset_mode (str): Dataset generation mode. Typically 'metadata'.
+                - file_type (str): Type of input files (e.g., 'cell_png').
+                - file_metadata (str or None): Path to file-level metadata, if available.
+                - sample (int or None): Limit to N random samples for development/testing.
+                - experiment (str): Experiment name prefix. Default is 'exp.'.
+
+            Annotation and class mapping:
+                - annotation_column (str): Metadata column containing class annotations.
+                - annotated_classes (list): List of class IDs used for training (e.g., [1, 2]).
+                - classes (list): Class labels (e.g., ['nc', 'pc']).
+                - class_metadata (list of lists): Mapping of classes to metadata terms (e.g., [['c1'], ['c2']]).
+                - metadata_type_by (str): How to interpret metadata structure. Typically 'columnID'.
+
+            Image processing:
+                - channel_of_interest (int): Channel index to use for classification.
+                - png_type (str): Type of image format (e.g., 'cell_png').
+                - image_size (int): Input size (e.g., 224 for 224x224 crop).
+                - train_channels (list): Channels to use for training (e.g., ['r', 'g', 'b']).
+                - normalize (bool): Whether to normalize input images. Default is True.
+                - augment (bool): Whether to apply data augmentation.
+
+            Model and training:
+                - model_type (str): Model architecture (e.g., 'maxvit_t').
+                - optimizer_type (str): Optimizer (e.g., 'adamw').
+                - schedule (str): Learning rate scheduler ('reduce_lr_on_plateau' or 'step_lr').
+                - loss_type (str): Loss function ('focal_loss' or 'binary_cross_entropy_with_logits').
+                - dropout_rate (float): Dropout probability.
+                - init_weights (bool): Initialize model with pretrained weights.
+                - amsgrad (bool): Use AMSGrad variant of AdamW optimizer.
+                - use_checkpoint (bool): Enable checkpointing.
+                - intermedeate_save (bool): Save intermediate models during training.
+
+            Training control:
+                - train (bool): Enable training phase.
+                - test (bool): Enable evaluation on test set.
+                - train_DL_model (bool): Enable deep learning model training.
+                - generate_training_dataset (bool): Enable generation of train/test splits.
+                - test_split (float): Proportion of data used for testing.
+                - val_split (float): Fraction of training set used for validation.
+                - epochs (int): Number of training epochs.
+                - batch_size (int): Batch size for training and inference.
+                - learning_rate (float): Learning rate.
+                - weight_decay (float): L2 regularization strength.
+                - gradient_accumulation (bool): Accumulate gradients over multiple steps.
+                - gradient_accumulation_steps (int): Number of steps per gradient update.
+
+            Inference:
+                - apply_model_to_dataset (bool): Run prediction on tar dataset.
+                - tar_path (str): Path to tar file for inference input.
+                - model_path (str): Path to trained model file.
+                - score_threshold (float): Probability threshold for binary classification.
+
+            Execution:
+                - n_jobs (int): Number of parallel workers.
+                - pin_memory (bool): Whether to use pinned memory in DataLoader.
+                - verbose (bool): Print training and evaluation progress.
+
+    Returns:
+        None. All outputs (trained models, predictions, settings) are saved to disk.
+    """
     from .settings import deep_spacr_defaults
     from .io import generate_training_dataset, generate_dataset
     from .utils import save_settings
@@ -937,7 +1173,26 @@ def deep_spacr(settings={}):
             apply_model_to_tar(settings)
             
 def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, device='cpu', student_model_name='maxvit_t', pretrained=True, dropout_rate=None, use_checkpoint=False, alpha=0.5, temperature=2.0, lr=1e-4, epochs=10):
+    """
+    Perform knowledge distillation from one or more teacher models to a student model.
 
+    Args:
+        teacher_paths (list of str): Paths to pretrained teacher model files (.pth).
+        student_save_path (str): Output path for the saved student model.
+        data_loader (torch.utils.data.DataLoader): DataLoader for training data.
+        device (str): Device to use ('cpu' or 'cuda').
+        student_model_name (str): Name of the student model architecture (e.g., 'maxvit_t').
+        pretrained (bool): Whether to initialize the student model with ImageNet weights.
+        dropout_rate (float or None): Dropout rate for the student model.
+        use_checkpoint (bool): Whether to use gradient checkpointing.
+        alpha (float): Weighting factor between cross-entropy and distillation loss.
+        temperature (float): Temperature scaling for soft targets.
+        lr (float): Learning rate for optimizer.
+        epochs (int): Number of training epochs.
+
+    Returns:
+        TorchModel: The trained student model after knowledge distillation.
+    """
     from .utils import TorchModel
 
     # Adjust filename to reflect knowledge-distillation if desired
@@ -1041,7 +1296,22 @@ def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, devi
     return student_model
             
 def model_fusion(model_paths,save_path,device='cpu',model_name='maxvit_t',pretrained=True,dropout_rate=None,use_checkpoint=False,aggregator='mean'):
+    """
+    Fuse multiple trained models by combining their parameters using a specified aggregation method.
 
+    Args:
+        model_paths (list of str): List of paths to model checkpoints to be fused.
+        save_path (str): Path where the fused model will be saved.
+        device (str): Device to use ('cpu' or 'cuda').
+        model_name (str): Model architecture to use when initializing.
+        pretrained (bool): Whether to initialize with pretrained weights.
+        dropout_rate (float or None): Dropout rate to apply to the model.
+        use_checkpoint (bool): Whether to use gradient checkpointing.
+        aggregator (str): Aggregation strategy to combine weights. One of {'mean', 'geomean', 'median', 'sum', 'max', 'min'}.
+
+    Returns:
+        TorchModel: The fused model with combined weights.
+    """
     from .utils import TorchModel
     
     if save_path.endswith('.pth'):
@@ -1141,14 +1411,33 @@ def model_fusion(model_paths,save_path,device='cpu',model_name='maxvit_t',pretra
     return fused_model
 
 def annotate_filter_vision(settings):
-    
+    """
+    Annotate and filter a CSV file with experimental metadata and optionally remove training samples.
+
+    Args:
+        settings (dict): Configuration dictionary with keys:
+            - 'src' (str or list): Paths to CSV annotation files.
+            - 'cells' (dict): Mapping of cell types to annotation labels.
+            - 'cell_loc' (str): Column name for cell type annotations.
+            - 'pathogens' (dict): Mapping of pathogens to annotation labels.
+            - 'pathogen_loc' (str): Column name for pathogen annotations.
+            - 'treatments' (dict): Mapping of treatments to annotation labels.
+            - 'treatment_loc' (str): Column name for treatment annotations.
+            - 'filter_column' (str or None): Column to filter on.
+            - 'upper_threshold' (float): Upper bound for filtering.
+            - 'lower_threshold' (float): Lower bound for filtering.
+            - 'remove_train' (bool): If True, removes rows present in training folders.
+
+    Returns:
+        None. Saves filtered and annotated CSVs to disk.
+    """
     from .utils import annotate_conditions, correct_metadata
     
     def filter_csv_by_png(csv_file):
         """
         Filters a DataFrame by removing rows that match PNG filenames in a folder.
 
-        Parameters:
+        Args:
             csv_file (str): Path to the CSV file.
 
         Returns:

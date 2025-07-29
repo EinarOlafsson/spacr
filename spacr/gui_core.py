@@ -39,6 +39,25 @@ index_control = None
 thread_control = {"run_thread": None, "stop_requested": False}
 
 def toggle_settings(button_scrollable_frame):
+    """
+    Initializes and displays a dropdown menu to toggle visibility of categorized GUI settings.
+
+    Args:
+        button_scrollable_frame (tk.Widget): A scrollable frame where the dropdown menu will be placed.
+    
+    Raises:
+        ValueError: If `vars_dict` is not initialized.
+
+    Behavior:
+        - Imports setting categories and hides all setting widgets initially.
+        - Adds a dropdown menu that lets users toggle the visibility of settings belonging to each category.
+        - When a category is selected, it toggles visibility for all settings in that category.
+        - Updates the dropdown appearance based on which categories are currently active.
+
+    Globals:
+        vars_dict (dict): A dictionary mapping setting keys to (label, widget, _, frame) tuples.
+            Must be initialized before calling this function.
+    """
     global vars_dict
     from .settings import categories
     from .gui_utils import hide_all_settings
@@ -79,6 +98,37 @@ def toggle_settings(button_scrollable_frame):
     vars_dict = hide_all_settings(vars_dict, categories)
 
 def display_figure(fig):
+    """
+    Displays a matplotlib figure within a Tkinter GUI canvas, enabling interactive features such as:
+    - Zooming with mouse scroll
+    - Navigation via left/right click
+    - Context menu for saving or modifying the figure
+    - Dynamic annotation visibility based on zoom level
+
+    Args:
+        fig (matplotlib.figure.Figure): The figure to display in the GUI.
+
+    Global Variables:
+        canvas (FigureCanvasTkAgg): The current canvas used for displaying the figure.
+        canvas_widget (tk.Widget): The widget associated with the canvas.
+
+    Behavior:
+        - Destroys any existing canvas before rendering the new figure.
+        - Initializes zooming around cursor position using scroll wheel.
+        - Binds left/right clicks to navigate between figures (via show_previous_figure / show_next_figure).
+        - Adds a right-click context menu to save as PNG/PDF, modify figure, or reset zoom.
+        - Preserves original axis limits for reset functionality.
+        - Dynamically toggles text label visibility depending on zoom.
+        - Applies consistent dark theme styling for background and context menu.
+
+    Notes:
+        - Assumes `show_previous_figure()`, `show_next_figure()`, `set_dark_style()`, 
+          `save_figure_as_format()`, `modify_figure()`, and `process_fig_queue()` are defined elsewhere.
+        - Should be called after global `canvas` and `canvas_widget` have been initialized.
+
+    Raises:
+        RuntimeError: If canvas_widget is not properly initialized prior to calling this function.
+    """
     global canvas, canvas_widget
 
     from .gui_elements import save_figure_as_format, modify_figure
@@ -290,6 +340,18 @@ def display_figure(fig):
     process_fig_queue()
 
 def clear_unused_figures():
+    """
+    Clears figures from memory that are not within ±20 of the current figure index to reduce memory usage.
+
+    Globals:
+        figures (collections.deque): A deque of currently stored matplotlib figures.
+        figure_index (int): Index of the currently displayed figure.
+
+    Behavior:
+        - Retains only figures within 20 indices before and after the current figure_index.
+        - Updates the figure_index to remain within valid bounds of the updated figures deque.
+    """
+
     global figures, figure_index
 
     lower_bound = max(0, figure_index - 20)
@@ -300,6 +362,20 @@ def clear_unused_figures():
     figure_index = min(max(figure_index, 0), len(figures) - 1)
 
 def show_previous_figure():
+    """
+    Displays the previous figure in the global figures list, if available.
+
+    Globals:
+        figure_index (int): Current index of the displayed figure.
+        figures (list): List of matplotlib figures.
+        fig_queue (queue.Queue): Queue of figures to be displayed later (unused here).
+        index_control (tk.IntVar or custom object): UI controller for setting and tracking current index.
+
+    Behavior:
+        - Decrements figure_index.
+        - Standardizes and displays the previous figure.
+        - Updates index_control to reflect the new figure index.
+    """
     from .gui_elements import standardize_figure
     global figure_index, figures, fig_queue, index_control
     
@@ -311,6 +387,20 @@ def show_previous_figure():
         #clear_unused_figures()
 
 def show_next_figure():
+    """
+    Displays the next figure in the figures list or loads one from the queue if at the end.
+
+    Globals:
+        figure_index (int): Current index of the displayed figure.
+        figures (list): List of existing matplotlib figures.
+        fig_queue (queue.Queue): Queue of figures to display when user navigates forward.
+        index_control (tk.IntVar or custom object): UI control to sync figure index display.
+
+    Behavior:
+        - If not at the end of figures list, increments index and displays the next figure.
+        - If at the end and the figure queue is not empty, loads and displays the next figure from the queue.
+        - Updates index_control to reflect the current position.
+    """
     from .gui_elements import standardize_figure
     global figure_index, figures, fig_queue, index_control
     if figure_index is not None and figure_index < len(figures) - 1:
@@ -330,6 +420,27 @@ def show_next_figure():
         display_figure(fig)
         
 def process_fig_queue():
+    """
+    Processes the figure queue and updates the GUI with new figures as they arrive.
+
+    Globals:
+        canvas (FigureCanvasTkAgg): The current canvas displaying the figure.
+        fig_queue (queue.Queue): Queue containing matplotlib figures to be displayed.
+        canvas_widget (tk.Widget): The widget holding the canvas.
+        parent_frame (tk.Frame): Parent frame that manages periodic GUI updates.
+        uppdate_frequency (int): Delay in milliseconds between re-checking the queue.
+        figures (collections.deque): A deque holding all currently active figures.
+        figure_index (int): Index of the currently displayed figure.
+        index_control (tk.IntVar or similar): Control object for syncing figure index in GUI.
+
+    Behavior:
+        - Retrieves and displays figures from fig_queue.
+        - Standardizes figure appearance using `standardize_figure`.
+        - Maintains a fixed-size deque (max 100) by discarding oldest figures.
+        - If no figure is currently displayed, it displays the first one.
+        - Sets slider/index control to match the latest figure.
+        - Reschedules itself using `after()` to poll for new figures continuously.
+    """
     global canvas, fig_queue, canvas_widget, parent_frame, uppdate_frequency, figures, figure_index, index_control
     from .gui_elements import standardize_figure
 
@@ -370,8 +481,23 @@ def process_fig_queue():
         after_id = canvas_widget.after(uppdate_frequency, process_fig_queue)
         parent_frame.after_tasks.append(after_id)
 
-
 def update_figure(value):
+    """
+    Updates the currently displayed figure based on slider value.
+
+    Args:
+        value (str or int): Index of the figure to display.
+    
+    Globals:
+        figure_index (int): Index of the current figure.
+        figures (deque): Deque of matplotlib figures.
+        index_control (spacrSlider): Slider control for index selection.
+
+    Effects:
+        - Updates the canvas with the selected figure.
+        - Applies standard formatting to the figure.
+        - Sets the slider and index state accordingly.
+    """
     from .gui_elements import standardize_figure
     global figure_index, figures, index_control
     
@@ -388,6 +514,28 @@ def update_figure(value):
         index_control.set_to(len(figures) - 1)
         
 def setup_plot_section(vertical_container, settings_type):
+    """
+    Initializes the figure display section and associated slider for navigating figures.
+
+    Args:
+        vertical_container (tk.PanedWindow or tk.Frame): Parent container.
+        settings_type (str): Mode to configure specific behaviors (e.g. 'map_barcodes').
+
+    Returns:
+        tuple: (canvas, canvas_widget)
+
+    Globals:
+        canvas, canvas_widget: For figure rendering.
+        figures (deque): Storage of figures.
+        figure_index (int): Current index.
+        index_control (spacrSlider): Slider widget for navigating figure list.
+
+    Behavior:
+        - Displays initial blank figure.
+        - Adds slider for figure navigation.
+        - Applies dark style.
+        - Optionally shows media for 'map_barcodes'.
+    """
     global canvas, canvas_widget, figures, figure_index, index_control
     from .gui_utils import display_media_in_plot_frame
 
@@ -462,6 +610,17 @@ def setup_plot_section(vertical_container, settings_type):
     return canvas, canvas_widget
 
 def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var, vars_dict_var, canvas_var, canvas_widget_var, scrollable_frame_var, fig_queue_var, progress_bar_var, usage_bars_var):
+    """
+    Assigns external references to global variables for use throughout the GUI.
+
+    Args:
+        *_var: Various widget and control object references.
+
+    Globals Set:
+        thread_control, q, console_output, parent_frame, vars_dict,
+        canvas, canvas_widget, scrollable_frame, fig_queue,
+        progress_bar, usage_bars
+    """
     global thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar, usage_bars
     thread_control = thread_control_var
     q = q_var
@@ -479,6 +638,21 @@ def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var,
     usage_bars = usage_bars_var
 
 def import_settings(settings_type='mask'):
+    """
+    Imports a settings CSV and applies it to the GUI panel for a specific mode.
+
+    Args:
+        settings_type (str): Type of settings to load ('mask', 'measure', 'classify', etc.)
+
+    Globals:
+        vars_dict: Dictionary of GUI widget references.
+        scrollable_frame: Frame that holds the settings widgets.
+
+    Behavior:
+        - Reads key-value settings from CSV.
+        - Applies them to the current settings panel.
+        - Updates `vars_dict` accordingly.
+    """
     global vars_dict, scrollable_frame, button_scrollable_frame
 
     from .gui_utils import convert_settings_dict_for_gui, hide_all_settings
@@ -540,6 +714,25 @@ def import_settings(settings_type='mask'):
     vars_dict = hide_all_settings(vars_dict, categories=None)
 
 def setup_settings_panel(vertical_container, settings_type='mask'):
+    """
+    Creates the scrollable settings panel for a given analysis type.
+
+    Args:
+        vertical_container (tk.PanedWindow or tk.Frame): Parent container.
+        settings_type (str): One of the predefined modes such as 'mask', 'classify', etc.
+
+    Returns:
+        tuple: (scrollable_frame, vars_dict)
+
+    Globals:
+        vars_dict: Dict mapping setting names to widget metadata.
+        scrollable_frame: Frame containing all input widgets.
+
+    Behavior:
+        - Initializes and populates settings UI.
+        - Loads defaults depending on `settings_type`.
+        - Applies theme and layout configuration.
+    """
     global vars_dict, scrollable_frame
     from .settings import get_identify_masks_finetune_default_settings, set_default_analyze_screen, set_default_settings_preprocess_generate_masks
     from .settings import get_measure_crop_settings, deep_spacr_defaults, set_default_generate_barecode_mapping, set_default_umap_image_settings
@@ -612,6 +805,20 @@ def setup_settings_panel(vertical_container, settings_type='mask'):
     return scrollable_frame, vars_dict
 
 def setup_console(vertical_container):
+    """
+    Sets up a scrollable console output section with hover effect and dark theme styling.
+
+    Args:
+        vertical_container (tk.PanedWindow or tk.Frame): Parent container to attach the console.
+
+    Returns:
+        tuple:
+            console_output (tk.Text): The text widget for console output.
+            console_frame (tk.Frame): The frame containing the console.
+
+    Globals Set:
+        console_output: Reference to the console's text widget.
+    """
     global console_output
     from .gui_elements import set_dark_style
     
@@ -669,6 +876,26 @@ def setup_console(vertical_container):
     return console_output, console_frame
 
 def setup_button_section(horizontal_container, settings_type='mask', run=True, abort=True, download=True, import_btn=True):
+    """
+    Creates the button section with control buttons (run, abort, download, import) and a progress bar.
+
+    Args:
+        horizontal_container (tk.PanedWindow or tk.Frame): Container to add the button section.
+        settings_type (str): Workflow type to adjust button behavior.
+        run (bool): Whether to include a "Run" button.
+        abort (bool): Whether to include an "Abort" button.
+        download (bool): Whether to include a "Download" button.
+        import_btn (bool): Whether to include a "Settings Import" button.
+
+    Returns:
+        tuple:
+            button_scrollable_frame (spacrFrame): The frame holding the buttons.
+            btn_col (int): Final column index after placing buttons.
+
+    Globals Set:
+        run_button, abort_button, download_dataset_button, import_button, progress_bar
+        button_frame, button_scrollable_frame, thread_control, q, fig_queue, vars_dict
+    """
     global thread_control, parent_frame, button_frame, button_scrollable_frame, run_button, abort_button, download_dataset_button, import_button, q, fig_queue, vars_dict, progress_bar
     from .gui_utils import download_hug_dataset
     from .gui_elements import set_element_size
@@ -725,6 +952,23 @@ def setup_button_section(horizontal_container, settings_type='mask', run=True, a
     return button_scrollable_frame, btn_col
 
 def setup_usage_panel(horizontal_container, btn_col, uppdate_frequency):
+    """
+    Creates the system usage panel displaying RAM, VRAM, GPU, and CPU core usage as progress bars.
+
+    Args:
+        horizontal_container (tk.PanedWindow or tk.Frame): Container for the usage panel.
+        btn_col (int): Starting column index from button section (not used directly here).
+        uppdate_frequency (int): Update interval for usage stats in milliseconds.
+
+    Returns:
+        tuple:
+            usage_scrollable_frame (spacrFrame): Frame containing the usage bars.
+            usage_bars (list): List of spacrProgressBar widgets for RAM, VRAM, GPU, and CPU cores.
+            usg_col (int): Column index used for placement in the parent container.
+
+    Globals Set:
+        usage_bars: List of progress bars used to update usage statistics.
+    """
     global usage_bars
     from .gui_elements import set_dark_style, set_element_size
 
@@ -858,6 +1102,14 @@ def setup_usage_panel(horizontal_container, btn_col, uppdate_frequency):
     return usage_scrollable_frame, usage_bars, usg_col
 
 def initiate_abort():
+    """
+    Terminates the currently running threaded process if any, and resets the control flags.
+
+    Globals:
+        thread_control (dict): Holds the active thread and abort flag.
+        q (queue.Queue): Message queue for status updates.
+        parent_frame: Not used directly, but kept for potential extension.
+    """
     global thread_control, q, parent_frame
     if thread_control.get("run_thread") is not None:
         try:
@@ -872,11 +1124,20 @@ def initiate_abort():
     
 def check_src_folders_files(settings, settings_type, q):
     """
-    Checks if 'src' is a key in the settings dictionary and if it exists as a valid path.
-    If 'src' is a list, iterates through the list and checks each path.
-    If any path is missing, prompts the user to edit or remove invalid paths.
-    """
+    Verifies that source folder paths exist and contain the necessary subfolders and/or image files
+    depending on the selected processing `settings_type`.
 
+    Args:
+        settings (dict): A dictionary containing at least the key `"src"` with either a string path or a list of paths.
+        settings_type (str): Type of operation. Supported values include:
+            - 'mask': Requires image-containing subfolders or raw image files.
+            - 'measure': Requires 'merged' subfolder containing `.npy` files.
+            (Other types like 'regression', 'umap', 'classify' are commented out.)
+        q (queue.Queue): A thread-safe queue to which error messages are pushed.
+
+    Returns:
+        bool: `True` if validation fails (request should stop), `False` if all required paths and files exist.
+    """
     request_stop = False
         
     def _folder_has_images(folder_path, image_extensions = {".png", ".jpg", ".jpeg", ".bmp", ".gif", ".tiff", ".tif", ".webp", ".npy", ".npz", "nd2", "czi", "lif"}):
@@ -1006,6 +1267,19 @@ def check_src_folders_files(settings, settings_type, q):
     return request_stop
 
 def start_process(q=None, fig_queue=None, settings_type='mask'):
+    """
+    Starts a multiprocessing task based on the provided settings type and GUI settings.
+
+    Args:
+        q (multiprocessing.Queue, optional): Queue for logging or progress updates.
+        fig_queue (multiprocessing.Queue, optional): Queue for passing figures or plot data.
+        settings_type (str): Type of processing task to run (e.g., 'mask', 'measure').
+
+    Globals Used:
+        thread_control (dict): Controls the running thread and abort flags.
+        vars_dict (dict): Holds current GUI settings.
+        parent_frame (tk.Frame): Main parent GUI frame.
+    """
     global thread_control, vars_dict, parent_frame
     from .settings import check_settings, expected_types
     from .gui_utils import run_function_gui, set_cpu_affinity, initialize_cuda, display_gif_in_plot_frame, print_widget_structure
@@ -1057,6 +1331,17 @@ def start_process(q=None, fig_queue=None, settings_type='mask'):
         return
     
 def process_console_queue():
+    """
+    Periodically reads from the message queue and updates the console widget with formatted messages.
+    Supports special formatting for errors, warnings, and progress updates.
+
+    Globals Used:
+        q (Queue): Queue for status and log messages.
+        console_output (tk.Text): The console widget.
+        parent_frame (tk.Frame): The main GUI frame containing the console.
+        progress_bar (spacrProgressBar): Progress bar updated with progress information.
+        uppdate_frequency (int): Refresh rate in milliseconds.
+    """
     global q, console_output, parent_frame, progress_bar, process_console_queue
 
     # Initialize function attribute if it doesn't exist
@@ -1144,6 +1429,18 @@ def process_console_queue():
     parent_frame.after_tasks.append(after_id)
 
 def main_thread_update_function(root, q, fig_queue, canvas_widget):
+    """
+    Periodically triggers updates on the GUI's canvas or figures from a queue.
+
+    Args:
+        root (tk.Tk): Root GUI window.
+        q (Queue): Message queue (currently unused inside function).
+        fig_queue (Queue): Queue for figure data (currently unused inside function).
+        canvas_widget (tk.Widget): Canvas widget to refresh.
+
+    Globals Used:
+        uppdate_frequency (int): Interval for update scheduling.
+    """
     global uppdate_frequency
     try:
         while not q.empty():
@@ -1155,7 +1452,12 @@ def main_thread_update_function(root, q, fig_queue, canvas_widget):
         
 def cleanup_previous_instance():
     """
-    Cleans up resources from the previous application instance.
+    Cleans up any remnants of the previous application run, including GUI widgets,
+    background tasks, queues, threads, and canvas elements.
+
+    Globals Modified:
+        parent_frame, usage_bars, figures, figure_index, thread_control,
+        canvas, q, fig_queue
     """
     global parent_frame, usage_bars, figures, figure_index, thread_control, canvas, q, fig_queue
 
@@ -1215,14 +1517,21 @@ def cleanup_previous_instance():
     
 def initiate_root(parent, settings_type='mask'):
     """
-    Initializes the root window and sets up the GUI components based on the specified settings type.
+    Initializes and builds the GUI based on the selected settings type.
 
     Args:
-        parent (tkinter.Tk or tkinter.Toplevel): The parent window for the GUI.
-        settings_type (str, optional): The type of settings to be displayed in the GUI. Defaults to 'mask'.
+        parent (tk.Tk or tk.Toplevel): Root window for the GUI.
+        settings_type (str): Type of settings to configure (e.g., 'mask', 'measure').
 
     Returns:
-        tuple: A tuple containing the parent frame and the dictionary of variables used in the GUI.
+        tuple:
+            parent_frame (tk.Frame): The root GUI container.
+            vars_dict (dict): Dictionary of user-configurable variables.
+
+    Globals Set:
+        q, fig_queue, thread_control, parent_frame, scrollable_frame, 
+        button_frame, vars_dict, canvas, canvas_widget, button_scrollable_frame, 
+        progress_bar, uppdate_frequency, figures, figure_index, index_control, usage_bars
     """
     
     global q, fig_queue, thread_control, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, button_scrollable_frame, progress_bar, uppdate_frequency, figures, figure_index, index_control, usage_bars

@@ -66,7 +66,43 @@ def parse_cellpose4_output(output):
     raise ValueError(f"Unrecognized Cellpose flows format: type={type(flows)}, len={len(flows) if hasattr(flows,'__len__') else 'unknown'}")
 
 def identify_masks_finetune(settings):
-    
+    """
+    Generate Cellpose segmentation masks for a batch of images using a pretrained or custom model.
+
+    This function loads a set of images from the provided source directory, applies optional
+    preprocessing (normalization, resizing), and uses a Cellpose model to generate segmentation masks.
+    Masks are optionally visualized and saved to disk. The model, channels, and other parameters are 
+    defined in the `settings` dictionary.
+
+    Args:
+        settings (dict): Dictionary containing configuration parameters. Must include:
+            - 'src' (str): Source folder with `.tif` images.
+            - 'model_name' (str): Name of Cellpose model to use (e.g., 'cyto2', 'nucleus').
+            - 'custom_model' (str or None): Path to custom model file (.pt), if used.
+            - 'channels' (list): List of image channel indices to use for segmentation.
+            - 'grayscale' (bool): Whether input images are single-channel.
+            - 'diameter' (float): Estimated diameter of objects in pixels.
+            - 'flow_threshold' (float): Threshold for mask acceptance based on flow prediction.
+            - 'CP_prob' (float): Cell probability threshold for segmentation.
+            - 'rescale' (float): Rescaling factor.
+            - 'resample' (bool): Whether to resample the image during preprocessing.
+            - 'normalize' (bool): Whether to normalize pixel intensities.
+            - 'percentiles' (list): Lower and upper percentiles for normalization.
+            - 'invert' (bool): Whether to invert image intensities.
+            - 'remove_background' (bool): Whether to subtract background value.
+            - 'background' (list): Background pixel intensity values to subtract per channel.
+            - 'Signal_to_noise' (float): Threshold for signal-to-noise filtering.
+            - 'resize' (bool): Whether to resize to fixed target dimensions.
+            - 'target_height' (int): Height for resizing.
+            - 'target_width' (int): Width for resizing.
+            - 'batch_size' (int): Number of images to process per batch.
+            - 'fill_in' (bool): Whether to fill holes in masks.
+            - 'save' (bool): Whether to save the masks to disk.
+            - 'verbose' (bool): Whether to print detailed progress and visualization output.
+
+    Returns:
+        None. Masks are optionally saved to the 'masks' subdirectory in the source folder.
+    """
     from .plot import print_mask_and_flows
     from .utils import resize_images_and_labels, print_progress, save_settings, fill_holes_in_mask
     from .io import _load_normalized_images_and_labels, _load_images_and_labels
@@ -189,7 +225,35 @@ def identify_masks_finetune(settings):
     return
 
 def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellprob_threshold, flow_threshold, grayscale, save, normalize, channels, percentiles, invert, plot, resize, target_height, target_width, remove_background, background, Signal_to_noise, verbose):
-    
+    """
+    Apply a Cellpose model to a batch of images and generate segmentation masks.
+
+    Args:
+        src (str): Directory containing input .tif images.
+        model (CellposeModel): Initialized Cellpose model.
+        model_name (str): Model identifier (e.g., 'cyto2', 'nucleus').
+        batch_size (int): Number of images processed in each batch.
+        diameter (float): Estimated object diameter in pixels.
+        cellprob_threshold (float): Cell probability threshold.
+        flow_threshold (float): Flow threshold for mask acceptance.
+        grayscale (bool): If True, treat images as single-channel.
+        save (bool): Whether to save output masks.
+        normalize (bool): Whether to normalize input images.
+        channels (list): Channels to use for processing (e.g., [0, 1]).
+        percentiles (list): Percentiles for normalization (e.g., [2, 99]).
+        invert (bool): If True, invert image intensity.
+        plot (bool): If True, display masks and flows.
+        resize (bool): Whether to resize images to fixed target dimensions.
+        target_height (int): Height after resizing.
+        target_width (int): Width after resizing.
+        remove_background (bool): Whether to subtract background intensity.
+        background (list): Background intensity values for subtraction.
+        Signal_to_noise (float): Minimum SNR threshold.
+        verbose (bool): If True, print detailed status messages.
+
+    Returns:
+        None. Saves masks to disk if `save=True`.
+    """
     from .io import _load_images_and_labels, _load_normalized_images_and_labels
     from .utils import resize_images_and_labels, resizescikit, print_progress
     from .plot import print_mask_and_flows
@@ -264,7 +328,17 @@ def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellp
                 cv2.imwrite(output_filename, mask)
 
 def check_cellpose_models(settings):
+    """
+    Evaluate multiple pretrained Cellpose models ('cyto', 'nuclei', 'cyto2', 'cyto3') 
+    on a given dataset using standardized settings.
 
+    Args:
+        settings (dict): Dictionary of parameters controlling input source, model parameters,
+                         image preprocessing, and save/visualization options.
+
+    Returns:
+        None. Runs `generate_masks_from_imgs()` for each model and displays results.
+    """
     from .settings import get_check_cellpose_models_default_settings
     
     settings = get_check_cellpose_models_default_settings(settings)
@@ -286,7 +360,18 @@ def check_cellpose_models(settings):
     return
 
 def save_results_and_figure(src, fig, results):
+    """
+    Save a results DataFrame and associated figure to disk.
 
+    Args:
+        src (str): Path to the source directory where the 'results' subfolder will be created.
+        fig (matplotlib.figure.Figure): The figure object to be saved as a PDF.
+        results (pd.DataFrame or dict or list): Results to be saved. If not a DataFrame, 
+                                                it will be converted to one.
+
+    Returns:
+        None. Writes results to 'results.csv' and the figure to 'model_comparison_plot.pdf'.
+    """
     if not isinstance(results, pd.DataFrame):
         results = pd.DataFrame(results)
 
@@ -299,6 +384,22 @@ def save_results_and_figure(src, fig, results):
     print(f'Saved figure to {fig_path} and results to {results_path}')
 
 def compare_mask(args):
+    """
+    Compare segmentation masks across different directories for a given filename 
+    using multiple evaluation metrics.
+
+    Args:
+        args (tuple): A tuple containing:
+            - src (str): Not used directly, reserved for future use.
+            - filename (str): Name of the mask file to compare across directories.
+            - dirs (list of str): List of directory paths where mask files are located.
+            - conditions (list of str): Labels corresponding to each directory for result naming.
+
+    Returns:
+        dict or None: A dictionary containing comparison metrics (Jaccard index, boundary F1 score,
+                      and average precision) for all pairwise combinations of masks. 
+                      Returns None if any mask file is missing.
+    """
     src, filename, dirs, conditions = args
     paths = [os.path.join(d, filename) for d in dirs]
 
@@ -327,6 +428,18 @@ def compare_mask(args):
     return file_results
 
 def compare_cellpose_masks(src, verbose=False, processes=None, save=True):
+    """
+    Compare Cellpose segmentation masks across multiple model output folders.
+
+    Args:
+        src (str): Path to the parent directory containing subdirectories for each model condition.
+        verbose (bool): If True, visualize each mask comparison using matplotlib.
+        processes (int or None): Number of parallel processes to use. If None, uses os.cpu_count().
+        save (bool): Whether to save the visualization outputs and results to disk.
+
+    Returns:
+        None. Results are printed, plotted, and optionally saved to disk.
+    """
     from .plot import visualize_cellpose_masks, plot_comparison_results
     from .io import _read_mask
 

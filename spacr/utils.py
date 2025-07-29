@@ -77,7 +77,7 @@ def _generate_mask_random_cmap(mask):
     """
     Generate a random colormap based on the unique labels in the given mask.
 
-    Parameters:
+    Args:
     mask (ndarray): The mask array containing unique labels.
 
     Returns:
@@ -92,7 +92,18 @@ def _generate_mask_random_cmap(mask):
     return random_cmap
 
 def filepaths_to_database(img_paths, settings, source_folder, crop_mode):
+    """
+    Insert image paths and metadata into a SQLite database.
 
+    Args:
+        img_paths (list of str): Image file paths to insert.
+        settings (dict): Configuration dictionary. Must contain a 'timelapse' key (bool).
+        source_folder (str): Folder containing the SQLite database.
+        crop_mode (str): One of 'cell', 'nucleus', 'pathogen', or 'cytoplasm'.
+
+    Raises:
+        sqlite3.OperationalError: On database connection or write errors.
+    """
     png_df = pd.DataFrame(img_paths, columns=['png_path'])
 
     png_df['file_name'] = png_df['png_path'].apply(lambda x: os.path.basename(x))
@@ -129,6 +140,17 @@ def filepaths_to_database(img_paths, settings, source_folder, crop_mode):
         traceback.print_exc()
 
 def activation_maps_to_database(img_paths, source_folder, settings):
+    """
+    Store image paths and metadata in a SQLite database.
+
+    Args:
+        img_paths (list of str): Paths to image files.
+        source_folder (str): Folder where the database is stored.
+        settings (dict): Must include 'dataset' and 'cam_type' keys.
+
+    Raises:
+        sqlite3.OperationalError: On database errors.
+    """
     from .io import _create_database
 
     png_df = pd.DataFrame(img_paths, columns=['png_path'])
@@ -152,6 +174,18 @@ def activation_maps_to_database(img_paths, source_folder, settings):
         traceback.print_exc()
 
 def activation_correlations_to_database(df, img_paths, source_folder, settings):
+    """
+    Save activation correlation data to a SQLite database.
+
+    Args:
+        df (pd.DataFrame): DataFrame with correlation data. Must include 'file_name'.
+        img_paths (list): List of image file paths.
+        source_folder (str): Folder where the database is stored.
+        settings (dict): Must include 'dataset' and 'cam_type' keys.
+
+    Raises:
+        sqlite3.OperationalError: On database errors.
+    """
     from .io import _create_database
 
     png_df = pd.DataFrame(img_paths, columns=['png_path'])
@@ -341,6 +375,39 @@ def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_
     return result_dict
 
 def save_settings(settings, name='settings', show=False):
+    """
+    Save a dictionary of settings to a CSV file.
+
+    This function takes a dictionary of settings, processes it, and saves it 
+    as a CSV file in a specified directory. It also provides an option to 
+    display the settings as a DataFrame.
+
+    Args:
+        settings (dict): A dictionary containing the settings to be saved.
+        name (str, optional): The base name for the output CSV file. Defaults to 'settings'.
+        show (bool, optional): If True, displays the settings as a DataFrame. Defaults to False.
+
+    Raises:
+        KeyError: If the 'src' key is not present in the settings dictionary.
+
+    Notes:
+        - If the 'src' key in the settings dictionary is a list, the first element 
+          is used as the source directory, and the file name is appended with '_list'.
+        - If the 'test_mode' key exists in the settings dictionary, it is set to False.
+        - If the 'plot' key exists in the settings dictionary, it is set to False.
+        - A directory named 'settings' is created inside the source directory if it does not exist.
+        - The settings are saved as a CSV file in the 'settings' directory.
+        - The file path where the settings are saved is printed.
+
+    Example:
+        >>> settings = {
+        ...     'src': '/path/to/source',
+        ...     'test_mode': True,
+        ...     'plot': True,
+        ...     'param1': 42
+        ... }
+        >>> save_settings(settings, name='experiment1', show=True)
+    """
     
     settings_2 = settings.copy()
     
@@ -367,6 +434,33 @@ def save_settings(settings, name='settings', show=False):
     settings_df.to_csv(settings_csv, index=False)
 
 def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batch_size=None, operation_type=""):
+    """
+    Prints the progress of a file processing operation along with estimated time information.
+
+    Args:
+        files_processed (int or list): The number of files processed so far. If a list is provided, 
+            its unique length will be used.
+        files_to_process (int or list): The total number of files to process. If a list is provided, 
+            its unique length will be used.
+        n_jobs (int): The number of parallel jobs being used for processing.
+        time_ls (list, optional): A list of time durations for processing batches or files. Used to 
+            calculate average time and estimated time left. Defaults to None.
+        batch_size (int or list, optional): The size of each batch being processed. If a list is 
+            provided, its length will be used. Defaults to None.
+        operation_type (str, optional): A string describing the type of operation being performed. 
+            Defaults to an empty string.
+
+    Returns:
+        None: This function prints the progress and time information to the console.
+
+    Notes:
+        - If `time_ls` is provided, the function calculates the average time per batch or file and 
+          estimates the time remaining for the operation.
+        - If `batch_size` is provided, the function calculates the average time per image within 
+          a batch.
+        - Handles cases where inputs are lists or non-integer types by converting them to integers 
+          or calculating their lengths.
+    """
     if isinstance(files_processed, list):
         files_processed = len(set(files_processed))
     if isinstance(files_to_process, list):
@@ -399,6 +493,20 @@ def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batc
     print(f'Progress: {files_processed}/{files_to_process}, operation_type: {operation_type}, {time_info}')
 
 def reset_mp():
+    """
+    Resets the multiprocessing start method based on the operating system.
+    On Windows, the start method is set to 'spawn' if it is not already set.
+    On Linux and macOS (Darwin), the start method is set to 'fork' if it is not already set.
+    This function ensures compatibility with the multiprocessing module by
+    enforcing the appropriate start method for the current platform.
+    Note:
+        - The function uses `get_start_method` to retrieve the current start method.
+        - The `set_start_method` function is called with `force=True` to override
+          the existing start method if necessary.
+    Raises:
+        ValueError: If an invalid start method is encountered or if the start
+                    method cannot be set for some reason.
+    """
     current_method = get_start_method()
     system = platform.system()
     
@@ -410,6 +518,23 @@ def reset_mp():
             set_start_method('fork', force=True)
 
 def is_multiprocessing_process(process):
+    """
+    Check if the given process is a multiprocessing process.
+
+    This function examines the command-line arguments of the provided process
+    to determine if it is associated with Python's multiprocessing module.
+
+    Args:
+        process (psutil.Process): A psutil Process object representing the process to check.
+
+    Returns:
+        bool: True if the process is a multiprocessing process, False otherwise.
+
+    Raises:
+        psutil.NoSuchProcess: If the process no longer exists.
+        psutil.AccessDenied: If access to the process information is denied.
+        psutil.ZombieProcess: If the process is a zombie process.
+    """
     """ Check if the process is a multiprocessing process. """
     try:
         for cmd in process.cmdline():
@@ -420,6 +545,24 @@ def is_multiprocessing_process(process):
     return False
 
 def close_file_descriptors():
+    """
+    Closes all open file descriptors starting from 3 up to the soft limit 
+    of the maximum number of file descriptors allowed for the process.
+
+    This function is useful for cleaning up resources by ensuring that 
+    no unnecessary file descriptors remain open. It skips standard input, 
+    output, and error (file descriptors 0, 1, and 2).
+
+    Exceptions during the closing of file descriptors are caught and ignored.
+
+    Note:
+        The function uses the `resource` module to retrieve the soft limit 
+        for the maximum number of file descriptors.
+
+    Raises:
+        OSError: If an error occurs while closing a file descriptor, it is 
+        caught and ignored.
+    """
     """ Close file descriptors and shared memory objects. """
     import resource
 
@@ -431,6 +574,23 @@ def close_file_descriptors():
             pass
 
 def close_multiprocessing_processes():
+    """
+    Close all multiprocessing processes and clean up associated resources.
+    This function iterates through all running processes and terminates any
+    that are identified as multiprocessing processes, excluding the current
+    process. It waits for up to 5 seconds for each process to terminate and
+    logs the termination status. Additionally, it handles exceptions that may
+    occur during the termination process, such as access denial or the process
+    no longer existing.
+    After terminating the processes, it ensures that any open file descriptors
+    are properly closed.
+    Note:
+        This function relies on the `psutil` library to inspect and manage
+        processes, and assumes the existence of helper functions:
+        - `is_multiprocessing_process(proc)`: Determines if a process is a
+          multiprocessing process.
+        - `close_file_descriptors()`: Closes any open file descriptors.
+    """
     """ Close all multiprocessing processes. """
     current_pid = os.getpid()
     for proc in psutil.process_iter(['pid', 'cmdline']):
@@ -452,6 +612,28 @@ def close_multiprocessing_processes():
     close_file_descriptors()
 
 def check_mask_folder(src,mask_fldr):
+    def check_mask_folder(src, mask_fldr):
+        """
+        Checks the status of a mask folder within a given source directory.
+        This function verifies whether the specified mask folder exists and 
+        whether the number of mask files matches the number of stack files 
+        in the corresponding stack folder. It returns a boolean indicating 
+        whether further processing is needed.
+        Args:
+            src (str): The source directory containing the 'masks' and 'stack' subdirectories.
+            mask_fldr (str): The name of the mask folder to check within the 'masks' directory.
+        Returns:
+            bool: 
+                - True if the mask folder does not exist or if the number of mask files 
+                  does not match the number of stack files.
+                - False if the mask folder exists and all masks have been generated.
+        Side Effects:
+            Prints a message if all masks have been generated for the specified mask folder.
+        Example:
+            >>> check_mask_folder('/home/user/data', 'experiment1')
+            All masks have been generated for experiment1
+            False
+        """
     
     mask_folder = os.path.join(src,'masks',mask_fldr)
     stack_folder = os.path.join(src,'stack')
@@ -469,6 +651,17 @@ def check_mask_folder(src,mask_fldr):
         return True
 
 def smooth_hull_lines(cluster_data):
+    """
+    Smooths the convex hull of a set of 2D points using spline interpolation.
+
+    Args:
+        cluster_data (numpy.ndarray): A 2D array of shape (n_points, 2) representing 
+                                       the coordinates of the points in the cluster.
+
+    Returns:
+        tuple: Two 1D numpy arrays representing the x and y coordinates of the smoothed 
+               convex hull, respectively. Each array contains 100 points.
+    """
     hull = ConvexHull(cluster_data)
     # Extract vertices of the hull
     vertices = hull.points[hull.vertices]
@@ -498,6 +691,27 @@ def _gen_rgb_image(image, channels):
     return rgb_image
 
 def _outline_and_overlay(image, rgb_image, mask_dims, outline_colors, outline_thickness):
+    """
+    Generate outlines for specified mask dimensions and overlay them onto an RGB image.
+
+    This function processes a multi-dimensional mask to extract contours for each specified
+    dimension, creates outlines with specified thickness, and overlays these outlines onto
+    the provided RGB image using the given colors.
+
+    Args:
+        image (numpy.ndarray): The input image containing multi-dimensional masks.
+        rgb_image (numpy.ndarray): The RGB image onto which the outlines will be overlaid.
+        mask_dims (list[int]): A list of dimensions (indices) in the mask to process.
+        outline_colors (list[tuple[int, int, int]]): A list of RGB color tuples for the outlines.
+        outline_thickness (int): The thickness of the outlines to be drawn.
+
+    Returns:
+        tuple:
+            - overlayed_image (numpy.ndarray): The RGB image with outlines overlaid.
+            - outlines (list[numpy.ndarray]): A list of binary masks representing the outlines
+              for each processed dimension.
+            - image (numpy.ndarray): The original input image (unchanged).
+    """
     outlines = []
     overlayed_image = rgb_image.copy()
 
@@ -554,6 +768,20 @@ def _convert_cq1_well_id(well_id):
     return well_format
 
 def _get_cellpose_batch_size():
+    """
+    Determines the appropriate batch size for Cellpose based on the available GPU's VRAM.
+
+    This function checks if CUDA is available and retrieves the VRAM (Video RAM) of the first GPU device.
+    Based on the VRAM size, it assigns a batch size for Cellpose processing. If CUDA is not available
+    or an error occurs, a default batch size of 8 is returned.
+
+    Returns:
+        int: The batch size for Cellpose. Possible values are:
+             - 8 (default or if VRAM < 8 GB)
+             - 16 (if 8 GB <= VRAM < 12 GB)
+             - 48 (if 12 GB <= VRAM < 24 GB)
+             - 96 (if VRAM >= 24 GB)
+    """
     try:
         # Check if CUDA is available
         if torch.cuda.is_available():
@@ -576,6 +804,32 @@ def _get_cellpose_batch_size():
         return 8
 
 def _extract_filename_metadata(filenames, src, regular_expression, metadata_type='cellvoyager'):
+    """
+    Extracts metadata from a list of filenames based on a provided regular expression
+    and organizes the files into a dictionary grouped by metadata keys.
+    Args:
+        filenames (list of str): A list of filenames to process.
+        src (str): The source directory containing the files.
+        regular_expression (re.Pattern): A compiled regular expression used to extract metadata
+            from the filenames. The regex should define named groups such as 'plateID', 'wellID',
+            'fieldID', 'chanID', 'timeID', and 'sliceID' as applicable.
+        metadata_type (str, optional): The type of metadata to process. Defaults to 'cellvoyager'.
+            If set to 'cq1', well IDs will be converted using `_convert_cq1_well_id`.
+    Returns:
+        defaultdict: A dictionary where keys are tuples of metadata values 
+        (plate, well, field, channel, timeID, sliceID), and values are lists of file paths
+        corresponding to those metadata keys.
+    Raises:
+        IndexError: If the filename matches the regex but does not contain the expected groups.
+        Prints warnings for filenames that do not match the regex or fail to extract metadata.
+    Notes:
+        - The function assumes that the provided regular expression includes named groups
+          for extracting metadata.
+        - If a metadata group (e.g., 'timeID' or 'sliceID') is not present in the regex,
+          its value will be set to `None`.
+        - The function handles numeric metadata values by converting them to integers
+          where applicable.
+    """
     
     images_by_key = defaultdict(list)
 
@@ -635,7 +889,7 @@ def mask_object_count(mask):
     """
     Counts the number of objects in a given mask.
 
-    Parameters:
+    Args:
     - mask: numpy.ndarray. The mask containing object labels.
 
     Returns:
@@ -777,7 +1031,7 @@ def normalize_to_dtype(array, p1=2, p2=98, percentile_list=None, new_dtype=None)
     """
     Normalize each image in the stack to its own percentiles.
 
-    Parameters:
+    Args:
     - array: numpy array
     The input stack to be normalized.
     - p1: int, optional
@@ -895,7 +1149,7 @@ def _find_bounding_box(crop_mask, _id, buffer=10):
     """
     Find the bounding box coordinates for a given object ID in a crop mask.
 
-    Parameters:
+    Args:
     crop_mask (ndarray): The crop mask containing object IDs.
     _id (int): The object ID to find the bounding box for.
     buffer (int, optional): The buffer size to add to the bounding box coordinates. Defaults to 10.
@@ -1093,7 +1347,7 @@ def _get_percentiles(array, p1=2, p2=98):
     """
     Calculate the percentiles of each image in the given array.
 
-    Parameters:
+    Args:
     - array: numpy.ndarray
         The input array containing the images.
     - q1: float, optional
@@ -1125,7 +1379,7 @@ def _crop_center(img, cell_mask, new_width, new_height):
     """
     Crop the image around the center of the cell mask.
 
-    Parameters:
+    Args:
     - img: numpy.ndarray
         The input image.
     - cell_mask: numpy.ndarray
@@ -1195,6 +1449,35 @@ def _get_diam(mag, obj):
     return int(diamiter)
 
 def _get_object_settings(object_type, settings):
+    """
+    Generate and return a dictionary of settings for a specific object type.
+    This function configures object-specific settings based on the provided
+    `object_type` and `settings`. It supports three object types: 'cell',
+    'nucleus', and 'pathogen'. If an unsupported object type is provided, 
+    a message is printed, and no settings are returned.
+    Args:
+        object_type (str): The type of object to configure settings for. 
+                           Supported values are 'cell', 'nucleus', and 'pathogen'.
+        settings (dict): A dictionary containing global settings, which may include:
+            - 'magnification' (float): Magnification level used to calculate diameter.
+            - 'nucleus_channel' (optional): Specifies if a nucleus channel is present.
+            - 'cell_restore_type' (optional): Restore type for cell objects.
+            - 'nucleus_restore_type' (optional): Restore type for nucleus objects.
+            - 'pathogen_restore_type' (optional): Restore type for pathogen objects.
+            - 'merge_pathogens' (bool): Whether to merge pathogens.
+            - 'verbose' (bool): Whether to print the generated settings.
+    Returns:
+        dict: A dictionary containing the configured settings for the specified object type.
+              The dictionary includes keys such as 'diameter', 'minimum_size', 'maximum_size',
+              'merge', 'resample', 'remove_border_objects', 'model_name', 'filter_size',
+              'filter_intensity', and 'restore_type'.
+    Notes:
+        - The 'diameter' is calculated using the `_get_diam` function based on the 
+          magnification level and object type.
+        - The 'minimum_size' and 'maximum_size' are derived from the diameter.
+        - The 'model_name' varies depending on the object type and other settings.
+        - If `settings['verbose']` is True, the generated settings are printed.
+    """
     object_settings = {}
 
     object_settings['diameter'] = _get_diam(settings['magnification'], obj=object_type)
@@ -1242,7 +1525,7 @@ def _pivot_counts_table(db_path):
         """
         Read a table from an SQLite database into a pandas DataFrame.
 
-        Parameters:
+        Args:
         - db_path (str): The path to the SQLite database file.
         - table_name (str): The name of the table to read. Default is 'object_counts'.
 
@@ -1287,6 +1570,38 @@ def _pivot_counts_table(db_path):
     conn.close()
     
 def _get_cellpose_channels_v2(src, nucleus_channel, pathogen_channel, cell_channel):
+    """
+    Generate a dictionary of Cellpose channels based on the provided input channels.
+
+    This function constructs a mapping of Cellpose channels for nucleus, pathogen, 
+    and cell segmentation. It also checks for the existence of precomputed mask 
+    files and issues a warning if any channel is `None` while masks already exist.
+
+    Args:
+        src (str): The source directory containing the 'masks' folder with precomputed 
+                   mask files ('cell_mask_stack', 'nucleus_mask_stack', 'pathogen_mask_stack').
+        nucleus_channel (int or None): The channel index for the nucleus. If `None`, 
+                                       the nucleus channel is not included.
+        pathogen_channel (int or None): The channel index for the pathogen. If `None`, 
+                                        the pathogen channel is not included.
+        cell_channel (int or None): The channel index for the cell. If `None`, the cell 
+                                    channel is not included.
+
+    Returns:
+        dict: A dictionary where keys are 'nucleus', 'pathogen', and 'cell', and values 
+              are lists of two integers representing the channels to be used for each 
+              type. If a channel is not provided (`None`), it is excluded from the dictionary.
+
+    Warnings:
+        Prints a warning if any of the channels (`nucleus_channel`, `pathogen_channel`, 
+        `cell_channel`) is `None` while precomputed mask files already exist in the 
+        specified source directory.
+
+    Notes:
+        - The nucleus and pathogen channels are always duplicated as [channel, channel].
+        - The cell channel prefers the nucleus channel as the first channel if available; 
+          otherwise, it duplicates the cell channel as [cell_channel, cell_channel].
+    """
     cell_mask_path = os.path.join(src, 'masks', 'cell_mask_stack')
     nucleus_mask_path = os.path.join(src, 'masks', 'nucleus_mask_stack')
     pathogen_mask_path = os.path.join(src, 'masks', 'pathogen_mask_stack')
@@ -1315,6 +1630,34 @@ def _get_cellpose_channels_v2(src, nucleus_channel, pathogen_channel, cell_chann
     return cellpose_channels
     
 def _get_cellpose_channels_v1(src, nucleus_channel, pathogen_channel, cell_channel):
+    """
+    Generates a dictionary mapping object types (nucleus, pathogen, cell) to their respective 
+    Cellpose channel configurations based on the provided input channels.
+    This function checks for the existence of pre-generated Cellpose masks in the specified 
+    source directory and warns the user if any of the input channels are set to None while 
+    masks already exist. The function then constructs a dictionary of Cellpose channel 
+    configurations for the specified object types.
+    Args:
+        src (str): The source directory path where the Cellpose masks are stored.
+        nucleus_channel (int or None): The channel index for the nucleus. If None, the nucleus 
+            is not included in the configuration.
+        pathogen_channel (int or None): The channel index for the pathogen. If None, the pathogen 
+            is not included in the configuration.
+        cell_channel (int or None): The channel index for the cell. If None, the cell is not 
+            included in the configuration.
+    Returns:
+        dict: A dictionary where keys are object types ('nucleus', 'pathogen', 'cell') and 
+        values are lists specifying the Cellpose channel configuration for each object type.
+    Warnings:
+        Prints a warning if any of the input channels are set to None while Cellpose masks 
+        already exist in the specified source directory.
+    Notes:
+        - The function assumes that the Cellpose masks are stored in subdirectories named 
+          'masks/cell_mask_stack', 'masks/nucleus_mask_stack', and 'masks/pathogen_mask_stack' 
+          within the source directory.
+        - The channel configuration is represented as a list of two integers, where the first 
+          integer is always 0, and the second integer depends on the presence of other channels.
+    """
 
     cell_mask_path = os.path.join(src, 'masks', 'cell_mask_stack')
     nucleus_mask_path = os.path.join(src, 'masks', 'nucleus_mask_stack')
@@ -1347,6 +1690,33 @@ def _get_cellpose_channels_v1(src, nucleus_channel, pathogen_channel, cell_chann
     return cellpose_channels
 
 def _get_cellpose_channels(src, nucleus_channel, pathogen_channel, cell_channel):
+    """
+    Generate a mapping of channels for Cellpose segmentation based on the provided input channels.
+
+    This function determines the logical order of channels for nucleus, cell, and pathogen,
+    removes duplicates while preserving the first occurrence, and maps the channels to indices
+    capped at a maximum value of 2. It then assigns these indices to the respective Cellpose
+    segmentation categories.
+
+    Args:
+        src (str): The source directory containing the mask files.
+        nucleus_channel (int or None): The channel index for the nucleus. If None, the nucleus
+            is not included in the mapping.
+        pathogen_channel (int or None): The channel index for the pathogen. If None, the pathogen
+            is not included in the mapping.
+        cell_channel (int or None): The channel index for the cell. If None, the cell is not
+            included in the mapping.
+
+    Returns:
+        dict: A dictionary mapping segmentation categories ('nucleus', 'cell', 'pathogen') to
+        their respective channel indices. Each category is assigned a list of two indices,
+        which are either identical or derived from the logical order of the input channels.
+
+    Warnings:
+        If any of the mask files already exist in the `src` directory and any of the input
+        channels (`nucleus_channel`, `pathogen_channel`, `cell_channel`) are None, a warning
+        is printed indicating potential unexpected behavior.
+    """
     cell_mask_path = os.path.join(src, 'masks', 'cell_mask_stack')
     nucleus_mask_path = os.path.join(src, 'masks', 'nucleus_mask_stack')
     pathogen_mask_path = os.path.join(src, 'masks', 'pathogen_mask_stack')
@@ -1474,7 +1844,7 @@ def _split_data(df, group_by, object_type):
     Splits the input dataframe into numeric and non-numeric parts, groups them by the specified column,
     and returns the grouped dataframes with conditional aggregation.
 
-    Parameters:
+    Args:
     df (pandas.DataFrame): The input dataframe.
     group_by (str): The column name to group the dataframes by.
     object_type (str): The column name to concatenate with 'prcf' to create a new column 'prcfo'.
@@ -1574,7 +1944,7 @@ def _group_by_well(df):
     Group the DataFrame by well coordinates (plate, row, col) and apply mean function to numeric columns
     and select the first value for non-numeric columns.
 
-    Parameters:
+    Args:
     df (DataFrame): The input DataFrame to be grouped.
 
     Returns:
@@ -1792,22 +2162,68 @@ class SpatialAttention(nn.Module):
     
 # Multi-Scale Block with Attention
 class MultiScaleBlockWithAttention(nn.Module):
+    """
+    A PyTorch module implementing a multi-scale convolutional block with spatial attention.
+
+    This module applies a dilated convolution followed by a spatial attention mechanism
+    to enhance input feature maps.
+    """
     def __init__(self, in_channels, out_channels):
+        """
+        Initialize the MultiScaleBlockWithAttention module.
+
+        Args:
+            in_channels (int): Number of input channels.
+            out_channels (int): Number of output channels after convolution.
+        """
         super(MultiScaleBlockWithAttention, self).__init__()
         self.dilated_conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, dilation=1, padding=1)
         self.spatial_attention = nn.Conv2d(out_channels, out_channels, kernel_size=1)
         
     def custom_forward(self, x):
+        """
+        Apply dilated convolution followed by spatial attention.
+
+        Args:
+            x (torch.Tensor): Input tensor of shape (N, C, H, W).
+
+        Returns:
+            torch.Tensor: Output tensor after attention-enhanced feature transformation.
+        """
         x1 = F.relu(self.dilated_conv1(x), inplace=True)
         x = self.spatial_attention(x1)
         return x
 
     def forward(self, x):
+        """
+        Standard forward pass that delegates to `custom_forward`.
+
+        Args:
+            x (torch.Tensor): Input tensor.
+
+        Returns:
+            torch.Tensor: Output tensor.
+        """
         return self.custom_forward(x)
 
 # Final Classifier
 class CustomCellClassifier(nn.Module):
+    """
+    A custom neural network module for single-cell classification using early fusion and multi-scale attention.
+
+    This architecture supports optional gradient checkpointing for reduced memory usage during training.
+    """
     def __init__(self, num_classes, pathogen_channel, use_attention, use_checkpoint, dropout_rate):
+        """
+        Initialize the classifier with early fusion and attention blocks.
+
+        Args:
+            num_classes (int): Number of classification categories.
+            pathogen_channel (int): Unused; reserved for future feature fusion.
+            use_attention (bool): Unused; reserved for attention gating.
+            use_checkpoint (bool): Whether to use checkpointing to reduce memory.
+            dropout_rate (float): Unused; reserved for future regularization.
+        """
         super(CustomCellClassifier, self).__init__()
         self.early_fusion = EarlyFusion(in_channels=3)
         
@@ -1820,6 +2236,15 @@ class CustomCellClassifier(nn.Module):
             param.requires_grad = True
         
     def custom_forward(self, x):
+        """
+        Perform a standard forward pass without gradient checkpointing.
+
+        Args:
+            x (torch.Tensor): Input tensor of shape (N, C, H, W).
+
+        Returns:
+            torch.Tensor: Logits for each class.
+        """
         x.requires_grad = True 
         x = self.early_fusion(x)
         x = self.multi_scale_block_1(x)
@@ -1828,6 +2253,15 @@ class CustomCellClassifier(nn.Module):
         return x
 
     def forward(self, x):
+        """
+        Forward pass with optional gradient checkpointing.
+
+        Args:
+            x (torch.Tensor): Input tensor.
+
+        Returns:
+            torch.Tensor: Output logits.
+        """
         if self.use_checkpoint:
             x.requires_grad = True 
             return checkpoint(self.custom_forward, x)
@@ -1836,7 +2270,22 @@ class CustomCellClassifier(nn.Module):
 
 #CNN and Transformer class, pick any Torch model.
 class TorchModel(nn.Module):
+    """
+    A PyTorch wrapper for pretrained torchvision models with a custom SPACR classifier head.
+
+    This class supports custom dropout insertion and optional gradient checkpointing
+    for memory efficiency during training.
+    """
     def __init__(self, model_name='resnet50', pretrained=True, dropout_rate=None, use_checkpoint=False):
+        """
+        Initialize the TorchModel with optional dropout and checkpointing.
+
+        Args:
+            model_name (str): The model architecture to load from torchvision.models.
+            pretrained (bool): Whether to initialize with pretrained weights.
+            dropout_rate (float or None): Dropout rate for the classifier head.
+            use_checkpoint (bool): Whether to enable gradient checkpointing.
+        """
         super(TorchModel, self).__init__()
         self.model_name = model_name
         self.use_checkpoint = use_checkpoint
@@ -1853,13 +2302,27 @@ class TorchModel(nn.Module):
         self.init_spacr_classifier(dropout_rate)
 
     def apply_dropout_rate(self, model, dropout_rate):
-        """Apply dropout rate to all dropout layers in the model."""
+        """
+        Recursively set dropout probability for all nn.Dropout layers in the model.
+
+        Args:
+            model (nn.Module): The model to modify.
+            dropout_rate (float): New dropout probability.
+        """
         for module in model.modules():
             if isinstance(module, nn.Dropout):
                 module.p = dropout_rate
 
     def init_base_model(self, pretrained):
-        """Initialize the base model from torchvision.models."""
+        """
+        Load the base model from torchvision.models.
+
+        Args:
+            pretrained (bool): Whether to load pretrained weights.
+
+        Returns:
+            nn.Module: The base feature extractor.
+        """
         model_func = models.__dict__.get(self.model_name, None)
         if not model_func:
             raise ValueError(f"Model {self.model_name} is not recognized.")
@@ -1870,7 +2333,12 @@ class TorchModel(nn.Module):
             return model_func(pretrained=pretrained)
 
     def get_weight_choice(self):
-        """Get weight choice if it exists for the model."""
+        """
+        Get the default weights enum for the selected model.
+
+        Returns:
+            Optional[torchvision.models.WeightsEnum]: Default weights or None.
+        """
         weight_enum = None
         for attr_name in dir(models):
             if attr_name.lower() == f"{self.model_name}_weights".lower():
@@ -1879,7 +2347,12 @@ class TorchModel(nn.Module):
         return weight_enum.DEFAULT if weight_enum else None
 
     def get_num_ftrs(self):
-        """Determine the number of features output by the base model."""
+        """
+        Determine output feature dimensionality from the base model.
+
+        Returns:
+            int: Feature vector size.
+        """
         if hasattr(self.base_model, 'fc'):
             self.base_model.fc = nn.Identity()
         elif hasattr(self.base_model, 'classifier'):
@@ -1892,14 +2365,27 @@ class TorchModel(nn.Module):
         return output.size(1)
 
     def init_spacr_classifier(self, dropout_rate):
-        """Initialize the SPACR classifier."""
+        """
+        Create the final classification layer and optional dropout.
+
+        Args:
+            dropout_rate (float or None): Dropout probability. If None, dropout is skipped.
+        """
         self.use_dropout = dropout_rate is not None
         if self.use_dropout:
             self.dropout = nn.Dropout(dropout_rate)
         self.spacr_classifier = nn.Linear(self.num_ftrs, 1)
 
     def forward(self, x):
-        """Define the forward pass of the model."""
+        """
+        Forward pass through base model, optional dropout, and final classifier.
+
+        Args:
+            x (torch.Tensor): Input image tensor of shape (N, 3, H, W).
+
+        Returns:
+            torch.Tensor: Output logits of shape (N,).
+        """
         if self.use_checkpoint:
             x = checkpoint(self.base_model, x)
         else:
@@ -1910,19 +2396,62 @@ class TorchModel(nn.Module):
         return logits
 
 class FocalLossWithLogits(nn.Module):
+    """
+    Focal Loss with logits for binary classification.
+
+    This loss function is especially useful for addressing class imbalance by focusing more
+    on hard-to-classify examples.
+
+    Args:
+        alpha (float): Balancing factor for positive/negative examples. Default is 1.
+        gamma (float): Focusing parameter that down-weights easy examples. Default is 2.
+    """
+
     def __init__(self, alpha=1, gamma=2):
+        """
+        Initialize the focal loss.
+
+        Args:
+            alpha (float): Balancing factor for positive/negative examples. Default is 1.
+            gamma (float): Focusing parameter to down-weight well-classified examples. Default is 2.
+        """
         super(FocalLossWithLogits, self).__init__()
         self.alpha = alpha
         self.gamma = gamma
 
     def forward(self, logits, target):
+        """
+        Compute the focal loss between logits and targets.
+
+        Args:
+            logits (torch.Tensor): Predicted unnormalized scores (logits).
+            target (torch.Tensor): Ground truth binary labels (same shape as logits).
+
+        Returns:
+            torch.Tensor: Scalar focal loss value.
+        """
         BCE_loss = F.binary_cross_entropy_with_logits(logits, target, reduction='none')
         pt = torch.exp(-BCE_loss)
         focal_loss = self.alpha * (1-pt)**self.gamma * BCE_loss
         return focal_loss.mean()
     
 class ResNet(nn.Module):
+    """
+    A wrapper around torchvision ResNet models with optional dropout, checkpointing, 
+    and a custom classifier head.
+
+    Supported ResNet variants: resnet18, resnet34, resnet50, resnet101, resnet152.
+    """
     def __init__(self, resnet_type='resnet50', dropout_rate=None, use_checkpoint=False, init_weights='imagenet'):
+        """
+        Initialize the ResNet model wrapper.
+
+        Args:
+            resnet_type (str): Which ResNet variant to use. Options: 'resnet18', 'resnet34', etc.
+            dropout_rate (float or None): Dropout rate to apply before the final layer.
+            use_checkpoint (bool): Whether to enable gradient checkpointing.
+            init_weights (str): Either 'imagenet' to load pretrained weights or 'none'.
+        """
         super(ResNet, self).__init__()
 
         resnet_map = {
@@ -1939,6 +2468,15 @@ class ResNet(nn.Module):
         self.initialize_base(resnet_map[resnet_type], dropout_rate, use_checkpoint, init_weights)
 
     def initialize_base(self, base_model_dict, dropout_rate, use_checkpoint, init_weights):
+        """
+        Initialize the base model and classifier layers.
+
+        Args:
+            base_model_dict (dict): Contains model constructor and weight enum.
+            dropout_rate (float or None): Dropout rate to use.
+            use_checkpoint (bool): Whether to use gradient checkpointing.
+            init_weights (str): Weight initialization mode.
+        """
         if init_weights == 'imagenet':
             self.resnet = base_model_dict['func'](weights=base_model_dict['weights'])
         elif init_weights == 'none':
@@ -1956,6 +2494,15 @@ class ResNet(nn.Module):
         self.fc2 = nn.Linear(500, 1)
 
     def forward(self, x):
+        """
+        Forward pass through ResNet and classification layers.
+
+        Args:
+            x (torch.Tensor): Input tensor of shape (N, 3, H, W).
+
+        Returns:
+            torch.Tensor: Logits of shape (N,).
+        """
         x.requires_grad = True  # Ensure that the tensor has requires_grad set to True
 
         if self.use_checkpoint:
@@ -1995,7 +2542,7 @@ def classification_metrics(all_labels, prediction_pos_probs, loss, epoch):
     """
     Calculate classification metrics for binary classification.
 
-    Parameters:
+    Args:
     - all_labels (list): List of true labels.
     - prediction_pos_probs (list): List of predicted positive probabilities.
     - loader_name (str): Name of the data loader.
@@ -2129,6 +2676,23 @@ def choose_model(model_type, device, init_weights=True, dropout_rate=0, use_chec
     return base_model
 
 def calculate_loss(output, target, loss_type='binary_cross_entropy_with_logits'):
+    """
+    Calculates the loss between the model output and the target based on the specified loss type.
+
+    Args:
+        output (Tensor): The predicted output from the model.
+        target (Tensor): The ground truth target values.
+        loss_type (str, optional): The type of loss function to use. 
+            Supported values are:
+            - 'binary_cross_entropy_with_logits': Uses binary cross-entropy loss with logits.
+            - 'focal_loss': Uses focal loss with logits. Defaults to 'binary_cross_entropy_with_logits'.
+
+    Returns:
+        Tensor: The computed loss value.
+
+    Raises:
+        ValueError: If an unsupported loss_type is provided.
+    """
     if loss_type == 'binary_cross_entropy_with_logits':
         loss = F.binary_cross_entropy_with_logits(output, target)
     elif loss_type == 'focal_loss':
@@ -2137,6 +2701,22 @@ def calculate_loss(output, target, loss_type='binary_cross_entropy_with_logits')
     return loss
 
 def pick_best_model(src):
+    """
+    Selects the best model file from a given directory based on accuracy and epoch.
+    This function scans the specified directory for files with a `.pth` extension,
+    extracts accuracy and epoch information from their filenames using a predefined
+    pattern, and selects the file with the highest accuracy. If multiple files have
+    the same accuracy, the one with the highest epoch is selected.
+    Args:
+        src (str): The path to the directory containing the model files.
+    Returns:
+        str: The full path to the best model file based on accuracy and epoch.
+    Notes:
+        - The filenames are expected to follow the pattern `_epoch_<epoch>_acc_<accuracy>.pth`,
+          where `<epoch>` is an integer and `<accuracy>` is a float.
+        - If no files match the pattern, the function may raise an IndexError when
+          attempting to access the first element of the sorted list.
+    """
     all_files = os.listdir(src)
     pth_files = [f for f in all_files if f.endswith('.pth')]
     pattern = re.compile(r'_epoch_(\d+)_acc_(\d+(?:\.\d+)?)')
@@ -2153,16 +2733,65 @@ def pick_best_model(src):
     return os.path.join(src, best_model)
 
 def get_paths_from_db(df, png_df, image_type='cell_png'):
+    """
+    Filters and retrieves paths from a DataFrame based on specified criteria.
+
+    Args:
+        df (pd.DataFrame): A DataFrame whose index contains the objects of interest.
+        png_df (pd.DataFrame): A DataFrame containing a 'png_path' column and a 'prcfo' column.
+        image_type (str, optional): A string to filter the 'png_path' column. Defaults to 'cell_png'.
+
+    Returns:
+        pd.DataFrame: A filtered DataFrame containing rows from `png_df` where the 'png_path' 
+                      column contains the `image_type` string and the 'prcfo' column matches 
+                      the index of `df`.
+    """
     objects = df.index.tolist()
     filtered_df = png_df[png_df['png_path'].str.contains(image_type) & png_df['prcfo'].isin(objects)]
     return filtered_df
 
 def save_file_lists(dst, data_set, ls):
+    """
+    Saves a list of file paths or data entries to a CSV file.
+
+    Args:
+        dst (str): The destination directory where the CSV file will be saved.
+        data_set (str): The name of the dataset, which will also be used as the column name in the CSV file and the filename.
+        ls (list): A list of file paths or data entries to be saved.
+
+    Returns:
+        None
+    """
     df = pd.DataFrame(ls, columns=[data_set])  
     df.to_csv(f'{dst}/{data_set}.csv', index=False)
     return
 
 def augment_single_image(args):
+    """
+    Augment a single image by applying various transformations and saving the results.
+
+    This function reads an image from the specified file path, applies a series of 
+    transformations (original, rotations, and flips), and saves the transformed images 
+    to the destination directory with appropriate filenames.
+
+    Args:
+        args (tuple): A tuple containing:
+            img_path (str): The file path to the input image.
+            dst (str): The destination directory where the augmented images will be saved.
+
+    Notes:
+        The following transformations are applied to the input image:
+        - Original image (no transformation)
+        - 90-degree clockwise rotation
+        - 180-degree rotation
+        - 270-degree clockwise rotation
+        - Horizontal flip
+        - Vertical flip
+
+    Side Effects:
+        Saves the augmented images to the specified destination directory.
+        Filenames indicate the type of transformation applied.
+    """
     img_path, dst = args
     img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
     filename = os.path.basename(img_path).split('.')[0]
@@ -2191,6 +2820,17 @@ def augment_single_image(args):
     cv2.imwrite(os.path.join(dst, f"{filename}_flip_ver.png"), img_flip_ver)
 
 def augment_images(file_paths, dst):
+    """
+    Augments a list of images and saves the augmented images to the specified destination directory.
+
+    Args:
+        file_paths (list of str): A list of file paths to the images to be augmented.
+        dst (str): The destination directory where the augmented images will be saved. 
+                   If the directory does not exist, it will be created.
+
+    Returns:
+        None
+    """
     if not os.path.exists(dst):
         os.makedirs(dst)
 
@@ -2200,6 +2840,52 @@ def augment_images(file_paths, dst):
         pool.map(augment_single_image, args_list)
 
 def augment_classes(dst, nc, pc, generate=True,move=True):
+    def augment_classes(dst, nc, pc, generate=True, move=True):
+        """
+        Augments and organizes image datasets into training and testing directories.
+
+        Args:
+        -----------
+        dst : str
+            The destination directory where augmented data will be stored.
+        nc : list
+            List of file paths for the "negative class" images to be augmented.
+        pc : list
+            List of file paths for the "positive class" images to be augmented.
+        generate : bool, optional
+            If True, generates augmented images for both classes and saves them in 
+            separate directories (`aug_nc` for negative class and `aug_pc` for positive class).
+            Default is True.
+        move : bool, optional
+            If True, splits the augmented images into training and testing datasets, 
+            and organizes them into subdirectories under `aug/train` and `aug/test`.
+            Default is True.
+
+        Returns:
+        --------
+        None
+
+        Notes:
+        ------
+        - The function uses `train_test_split` to split the augmented images into 
+          training (90%) and testing (10%) datasets.
+        - The progress of moving files is displayed in the console.
+        - The final counts of training and testing images for each class are printed.
+
+        Example Directory Structure:
+        ----------------------------
+        After execution, the directory structure will look like this:
+        dst/
+        ├── aug_nc/       # Augmented negative class images
+        ├── aug_pc/       # Augmented positive class images
+        ├── aug/
+            ├── train/
+                ├── nc/  # Training negative class images
+                ├── pc/  # Training positive class images
+            ├── test/
+                ├── nc/  # Testing negative class images
+                ├── pc/  # Testing positive class images
+        """
     aug_nc = os.path.join(dst,'aug_nc')
     aug_pc = os.path.join(dst,'aug_pc')
     all_ = len(nc)+len(pc)
@@ -2251,6 +2937,21 @@ def augment_classes(dst, nc, pc, generate=True,move=True):
         return
 
 def annotate_predictions(csv_loc):
+    """
+    Reads a CSV file containing image metadata, processes the data to extract
+    additional information, and assigns a condition label to each row based on
+    specific rules.
+    Args:
+        csv_loc (str): The file path to the CSV file containing the metadata.
+    Returns:
+        pandas.DataFrame: A DataFrame with the following additional columns:
+            - 'filename': Extracted filename from the 'path' column.
+            - 'plateID': Plate ID extracted from the filename.
+            - 'well': Well information extracted from the filename.
+            - 'fieldID': Field ID extracted from the filename.
+            - 'object': Object ID extracted from the filename (with '.png' removed).
+            - 'cond': Assigned condition label ('screen', 'pc', 'nc', or '') based on rules.
+    """
     df = pd.read_csv(csv_loc)
     df['filename'] = df['path'].apply(lambda x: x.split('/')[-1])
     df[['plateID', 'well', 'fieldID', 'object']] = df['filename'].str.split('_', expand=True)
@@ -2274,11 +2975,47 @@ def annotate_predictions(csv_loc):
     return df
 
 def initiate_counter(counter_, lock_):
+    """
+    Initializes global variables `counter` and `lock` with the provided arguments.
+
+    This function sets the global variables `counter` and `lock` to the values
+    passed as `counter_` and `lock_`, respectively. It is typically used to
+    share a counter and a lock object across multiple threads or processes.
+
+    Args:
+        counter_ (Any): The counter object to be assigned to the global `counter`.
+        lock_ (Any): The lock object to be assigned to the global `lock`.
+    """
     global counter, lock
     counter = counter_
     lock = lock_
 
 def add_images_to_tar(paths_chunk, tar_path, total_images):
+    """
+    Adds a chunk of image files to a tar archive.
+
+    Args:
+        paths_chunk (list of str): A list of file paths to the images to be added to the tar archive.
+        tar_path (str): The path where the tar archive will be created or overwritten.
+        total_images (int): The total number of images being processed, used for progress tracking.
+
+    Behavior:
+        - Opens a tar archive at the specified `tar_path` in write mode.
+        - Iterates through the provided `paths_chunk` and adds each image to the tar archive.
+        - Tracks progress using a shared counter and prints progress updates every 10 images.
+        - Handles missing files gracefully by printing a warning message if a file is not found.
+
+    Notes:
+        - This function assumes the existence of a global `lock` object for thread-safe counter updates.
+        - The `counter` object is expected to be a shared multiprocessing.Value or similar.
+        - The `print_progress` function is used to display progress updates.
+
+    Exceptions:
+        - Prints a warning message if a file in `paths_chunk` is not found, but continues processing other files.
+
+    Example:
+        add_images_to_tar(['/path/to/image1.jpg', '/path/to/image2.jpg'], '/path/to/archive.tar', 100)
+    """
     with tarfile.open(tar_path, 'w') as tar:
         for i, img_path in enumerate(paths_chunk):
             arcname = os.path.basename(img_path)
@@ -2294,6 +3031,29 @@ def add_images_to_tar(paths_chunk, tar_path, total_images):
                 print(f"File not found: {img_path}")
 
 def generate_fraction_map(df, gene_column, min_frequency=0.0):
+    """
+    Generates a fraction map from a given DataFrame and writes it to a CSV file.
+
+    This function calculates the fraction of counts for each gene and well, 
+    organizes the data into a pivot table-like structure, and filters out 
+    columns based on a minimum frequency threshold. The resulting DataFrame 
+    is saved as a CSV file.
+
+    Args:
+        df (pd.DataFrame): Input DataFrame containing the data. It must include 
+            the columns 'count', 'well_read_sum', 'prc', and the specified 
+            `gene_column`.
+        gene_column (str): The name of the column in `df` that contains gene 
+            identifiers.
+        min_frequency (float, optional): The minimum frequency threshold for 
+            filtering columns. Columns with a maximum value below this 
+            threshold are dropped. Defaults to 0.0.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the fraction map, with wells as 
+        rows and genes as columns. Cells contain the fraction values, and 
+        missing values are filled with 0.0.
+    """
     df['fraction'] = df['count']/df['well_read_sum']
     genes = df[gene_column].unique().tolist()
     wells = df['prc'].unique().tolist()
@@ -2319,6 +3079,17 @@ def generate_fraction_map(df, gene_column, min_frequency=0.0):
     return independent_variables
 
 def fishers_odds(df, threshold=0.5, phenotyp_col='mean_pred'):
+    """
+    Perform Fisher's exact test to evaluate the association between mutants and a binned phenotype score.
+
+    Args:
+        df (pandas.DataFrame): DataFrame containing binary mutant indicators and a phenotype score column.
+        threshold (float, optional): Threshold to bin the phenotype score. Defaults to 0.5.
+        phenotyp_col (str, optional): Name of the column containing phenotype scores. Defaults to 'mean_pred'.
+
+    Returns:
+        pandas.DataFrame: DataFrame with columns 'Mutant', 'OddsRatio', 'PValue', and 'AdjustedPValue'.
+    """
     # Binning based on phenotype score (e.g., above 0.8 as high)
     df['high_phenotype'] = df[phenotyp_col] < threshold
 
@@ -2359,6 +3130,37 @@ def fishers_odds(df, threshold=0.5, phenotyp_col='mean_pred'):
     return filtered_results_df
 
 def model_metrics(model):
+    """
+    Calculate and display additional metrics and generate diagnostic plots for a given model.
+
+    Args:
+    -----------
+    model : statsmodels.regression.linear_model.RegressionResultsWrapper
+        A fitted regression model object from the statsmodels library.
+
+    Metrics Calculated:
+    --------------------
+    - Root Mean Squared Error (RMSE): Measures the standard deviation of residuals.
+    - Mean Absolute Error (MAE): Measures the average magnitude of residuals.
+    - Durbin-Watson: Tests for the presence of autocorrelation in residuals.
+
+    Diagnostic Plots:
+    ------------------
+    1. Residuals vs. Fitted: Scatter plot to check for non-linearity or unequal error variance.
+    2. Histogram of Residuals: Distribution of residuals to check for normality.
+    3. QQ Plot: Quantile-Quantile plot to assess if residuals follow a normal distribution.
+    4. Scale-Location: Scatter plot of standardized residuals to check for homoscedasticity.
+
+    Notes:
+    ------
+    - This function uses matplotlib and seaborn for plotting.
+    - Ensure that the input model is fitted and contains the necessary attributes like `resid`, 
+      `fittedvalues`, and `mse_resid`.
+
+    Returns:
+    --------
+    None
+    """
 
     # Calculate additional metrics
     rmse = np.sqrt(model.mse_resid)
@@ -2400,6 +3202,18 @@ def model_metrics(model):
     plt.show()
 
 def check_multicollinearity(x):
+    """
+    Checks multicollinearity of the predictors by computing the Variance Inflation Factor (VIF).
+
+    Args:
+        x (pd.DataFrame): A DataFrame containing the predictor variables.
+
+    Returns:
+        pd.DataFrame: A DataFrame with two columns:
+            - 'Variable': The names of the predictor variables.
+            - 'VIF': The Variance Inflation Factor for each predictor variable.
+              A VIF value greater than 10 indicates high multicollinearity.
+    """
     """Checks multicollinearity of the predictors by computing the VIF."""
     vif_data = pd.DataFrame()
     vif_data["Variable"] = x.columns
@@ -2407,6 +3221,17 @@ def check_multicollinearity(x):
     return vif_data
 
 def lasso_reg(merged_df, alpha_value=0.01, reg_type='lasso'):
+    """
+    Perform Lasso or Ridge regression on the input DataFrame.
+
+    Args:
+        merged_df (pandas.DataFrame): DataFrame with columns 'gene', 'grna', 'plateID', 'rowID', 'columnID', and 'pred'.
+        alpha_value (float, optional): Regularization strength. Defaults to 0.01.
+        reg_type (str, optional): Type of regression to perform, either 'lasso' or 'ridge'. Defaults to 'lasso'.
+
+    Returns:
+        pandas.DataFrame: DataFrame with 'Feature' and 'Coefficient' columns.
+    """
     # Separate predictors and response
     X = merged_df[['gene', 'grna', 'plateID', 'rowID', 'columnID']]
     y = merged_df['pred']
@@ -2433,7 +3258,20 @@ def lasso_reg(merged_df, alpha_value=0.01, reg_type='lasso'):
     return coeff_df
 
 def MLR(merged_df, refine_model):
-    
+    """
+    Perform multiple linear regression (MLR) and extract interaction coefficients.
+
+    Args:
+        merged_df (pd.DataFrame): Input DataFrame with data for regression analysis.
+        refine_model (bool): Whether to remove outliers before refitting the model.
+
+    Returns:
+        tuple: Contains:
+            - max_effects (dict): Maximum interaction effect size per gene.
+            - max_effects_pvalues (dict): Corresponding p-values.
+            - model (statsmodels.regression.linear_model.RegressionResultsWrapper): Fitted regression model.
+            - df (pd.DataFrame): DataFrame with sorted interaction effects and p-values.
+    """
     from .plot import _reg_v_plot
     
     #model = smf.ols("pred ~ gene + grna + gene:grna + plate + row + column", merged_df).fit()
@@ -2485,9 +3323,35 @@ def MLR(merged_df, refine_model):
     return max_effects, max_effects_pvalues, model, df
 
 def get_files_from_dir(dir_path, file_extension="*"):
+    """
+    Retrieves a list of files from the specified directory that match the given file extension.
+
+    Args:
+        dir_path (str): The path to the directory from which to retrieve files.
+        file_extension (str, optional): The file extension to filter files by. Defaults to "*" 
+                                         (matches all files).
+
+    Returns:
+        list: A list of file paths matching the specified file extension in the given directory.
+    """
     return glob(os.path.join(dir_path, file_extension))
     
 def create_circular_mask(h, w, center=None, radius=None):
+    """
+    Creates a circular mask for a 2D array with the specified dimensions.
+
+    Args:
+        h (int): The height of the 2D array.
+        w (int): The width of the 2D array.
+        center (tuple, optional): The (x, y) coordinates of the circle's center. 
+                                  Defaults to the center of the array.
+        radius (int, optional): The radius of the circle. Defaults to the smallest 
+                                distance from the center to the array's edges.
+
+    Returns:
+        numpy.ndarray: A boolean 2D array where `True` represents the pixels 
+                       inside the circle and `False` represents the pixels outside.
+    """
     if center is None:  # use the middle of the image
         center = (int(w/2), int(h/2))
     if radius is None:  # use the smallest distance between the center and image walls
@@ -2500,6 +3364,16 @@ def create_circular_mask(h, w, center=None, radius=None):
     return mask
     
 def apply_mask(image, output_value=0):
+    """
+    Apply a circular mask to an image, setting pixels outside the mask to a specified value.
+
+    Args:
+        image (np.ndarray): Input image (2D grayscale or 3D RGB array).
+        output_value (int, optional): Value for pixels outside the mask. Defaults to 0.
+
+    Returns:
+        np.ndarray: Image with circular mask applied.
+    """
     h, w = image.shape[:2]  # Assuming image is grayscale or RGB
     mask = create_circular_mask(h, w)
     
@@ -2512,12 +3386,53 @@ def apply_mask(image, output_value=0):
     return masked_image
     
 def invert_image(image):
+    """
+    Inverts the pixel values of an image.
+
+    The function calculates the inverted image by subtracting each pixel value 
+    from the maximum possible value for the image's data type. For example, 
+    for an image with dtype `uint8`, the maximum value is 255.
+
+    Args:
+        image (numpy.ndarray): The input image to be inverted. The image should 
+        be a NumPy array with a valid integer data type (e.g., uint8, uint16).
+
+    Returns:
+        numpy.ndarray: The inverted image, with the same shape and dtype as the input.
+    """
     # The maximum value depends on the image dtype (e.g., 255 for uint8)
     max_value = np.iinfo(image.dtype).max
     inverted_image = max_value - image
     return inverted_image  
 
 def resize_images_and_labels(images, labels, target_height, target_width, show_example=True):
+    """
+    Resize images and labels to the specified target dimensions.
+
+    Args:
+        images (list or None): List of 2D or 3D numpy arrays representing input images.
+                               If None, only labels will be resized.
+        labels (list or None): List of 2D numpy arrays representing label masks.
+                               If None, only images will be resized.
+        target_height (int): Desired height of output arrays.
+        target_width (int): Desired width of output arrays.
+        show_example (bool, optional): Whether to display an example of original vs resized output.
+                                       Defaults to True.
+
+    Returns:
+        tuple: A tuple (resized_images, resized_labels), where:
+            - resized_images (list): List of resized image arrays. Empty if `images` is None.
+            - resized_labels (list): List of resized label arrays. Empty if `labels` is None.
+
+    Raises:
+        ValueError: If both `images` and `labels` are None.
+
+    Notes:
+        - Uses `resizescikit` for resizing.
+        - Applies anti-aliasing when resizing images.
+        - Uses nearest-neighbor interpolation (`order=0`) for labels to preserve class values.
+        - Visualization of the resizing process is shown using `plot_resize` if `show_example` is True.
+    """
     
     from .plot import plot_resize
     
@@ -2571,6 +3486,29 @@ def resize_images_and_labels(images, labels, target_height, target_width, show_e
     return resized_images, resized_labels
 
 def resize_labels_back(labels, orig_dims):
+    """
+    Resize a list of label arrays back to their original dimensions.
+
+    Args:
+        labels (list of numpy.ndarray): A list of label arrays to be resized.
+        orig_dims (list of tuple): A list of tuples where each tuple contains 
+            two integers representing the original dimensions (width, height) 
+            of the corresponding label array.
+
+    Returns:
+        list of numpy.ndarray: A list of resized label arrays with dimensions 
+        matching the corresponding tuples in `orig_dims`.
+
+    Raises:
+        ValueError: If the length of `labels` and `orig_dims` do not match.
+        ValueError: If any element in `orig_dims` is not a tuple of two integers.
+
+    Notes:
+        - The resizing operation uses nearest-neighbor interpolation (order=0).
+        - The `preserve_range` parameter ensures that the data range of the 
+          input is preserved during resizing.
+        - Anti-aliasing is disabled for this operation.
+    """
     resized_labels = []
 
     if len(labels) != len(orig_dims):
@@ -2587,12 +3525,37 @@ def resize_labels_back(labels, orig_dims):
     return resized_labels
 
 def calculate_iou(mask1, mask2):
+    """
+    Calculate the Intersection over Union (IoU) between two binary masks.
+
+    The IoU is a measure of the overlap between two binary masks, defined as the 
+    ratio of the intersection area to the union area of the masks.
+
+    Args:
+        mask1 (numpy.ndarray): The first binary mask. Must be a 2D array.
+        mask2 (numpy.ndarray): The second binary mask. Must be a 2D array.
+
+    Returns:
+        float: The IoU value, ranging from 0 to 1. Returns 0 if the union of the 
+        masks is empty.
+    """
     mask1, mask2 = pad_to_same_shape(mask1, mask2)
     intersection = np.logical_and(mask1, mask2).sum()
     union = np.logical_or(mask1, mask2).sum()
     return intersection / union if union != 0 else 0
     
 def match_masks(true_masks, pred_masks, iou_threshold):
+    """
+    Matches predicted masks to ground truth masks based on Intersection over Union (IoU) threshold.
+
+    Args:
+        true_masks (list): A list of ground truth masks.
+        pred_masks (list): A list of predicted masks.
+        iou_threshold (float): The IoU threshold for determining a match between a true mask and a predicted mask.
+
+    Returns:
+        list: A list of tuples where each tuple contains a matched pair of (true_mask, pred_mask).
+    """
     matches = []
     matched_true_masks_indices = set()  # Use set to store indices of matched true masks
 
@@ -2607,6 +3570,20 @@ def match_masks(true_masks, pred_masks, iou_threshold):
     return matches
     
 def compute_average_precision(matches, num_true_masks, num_pred_masks):
+    """
+    Computes the precision and recall based on the provided matches, number of true masks, 
+    and number of predicted masks.
+
+    Args:
+        matches (list): A list of matched predictions to ground truth masks.
+        num_true_masks (int): The total number of ground truth masks.
+        num_pred_masks (int): The total number of predicted masks.
+
+    Returns:
+        tuple: A tuple containing:
+            - precision (float): The precision value, calculated as TP / (TP + FP).
+            - recall (float): The recall value, calculated as TP / (TP + FN).
+    """
     TP = len(matches)
     FP = num_pred_masks - TP
     FN = num_true_masks - TP
@@ -2615,6 +3592,20 @@ def compute_average_precision(matches, num_true_masks, num_pred_masks):
     return precision, recall
 
 def pad_to_same_shape(mask1, mask2):
+    """
+    Pads two 2D arrays (masks) to the same shape by adding zero-padding to the 
+    right and bottom of each array as needed.
+    Args:
+        mask1 (numpy.ndarray): The first 2D array to be padded.
+        mask2 (numpy.ndarray): The second 2D array to be padded.
+    Returns:
+        tuple: A tuple containing two 2D numpy arrays:
+            - padded_mask1 (numpy.ndarray): The first array padded to match the shape of the larger array.
+            - padded_mask2 (numpy.ndarray): The second array padded to match the shape of the larger array.
+    Notes:
+        - The padding is applied with constant values of 0.
+        - The function assumes that both inputs are 2D arrays.
+    """
     # Find the shape differences
     shape_diff = np.array([max(mask1.shape[0], mask2.shape[0]) - mask1.shape[0], 
                            max(mask1.shape[1], mask2.shape[1]) - mask1.shape[1]])
@@ -2629,6 +3620,24 @@ def pad_to_same_shape(mask1, mask2):
     return padded_mask1, padded_mask2
     
 def compute_ap_over_iou_thresholds(true_masks, pred_masks, iou_thresholds):
+    """
+    Compute the Average Precision (AP) over a range of Intersection over Union (IoU) thresholds.
+
+    This function calculates the precision-recall pairs for each IoU threshold, validates that
+    precision and recall values are within the range [0, 1], and computes the Average Precision
+    by integrating the precision-recall curve using the trapezoidal rule.
+
+    Args:
+        true_masks (list or array-like): Ground truth masks.
+        pred_masks (list or array-like): Predicted masks.
+        iou_thresholds (list or array-like): A list of IoU thresholds to evaluate.
+
+    Returns:
+        float: The computed Average Precision (AP) over the specified IoU thresholds.
+
+    Raises:
+        ValueError: If precision or recall values are out of the valid range [0, 1].
+    """
     precision_recall_pairs = []
     for iou_threshold in iou_thresholds:
         matches = match_masks(true_masks, pred_masks, iou_threshold)
@@ -2645,6 +3654,23 @@ def compute_ap_over_iou_thresholds(true_masks, pred_masks, iou_thresholds):
     return np.trapz(sorted_precisions, x=sorted_recalls)
     
 def compute_segmentation_ap(true_masks, pred_masks, iou_thresholds=np.linspace(0.5, 0.95, 10)):
+    """
+    Compute the Average Precision (AP) for segmentation masks over a range of IoU thresholds.
+
+    This function calculates the AP by comparing the ground truth masks (`true_masks`) with the
+    predicted masks (`pred_masks`) across multiple Intersection over Union (IoU) thresholds.
+
+    Args:
+        true_masks (ndarray): A binary array representing the ground truth segmentation masks.
+                              Each connected component is treated as a separate object.
+        pred_masks (ndarray): A binary array representing the predicted segmentation masks.
+                              Each connected component is treated as a separate object.
+        iou_thresholds (ndarray, optional): A 1D array of IoU thresholds to evaluate AP over.
+                                            Defaults to `np.linspace(0.5, 0.95, 10)`.
+
+    Returns:
+        float: The computed Average Precision (AP) over the specified IoU thresholds.
+    """
     true_mask_labels = label(true_masks)
     pred_mask_labels = label(pred_masks)
     true_mask_regions = [region.image for region in regionprops(true_mask_labels)]
@@ -2652,11 +3678,42 @@ def compute_segmentation_ap(true_masks, pred_masks, iou_thresholds=np.linspace(0
     return compute_ap_over_iou_thresholds(true_mask_regions, pred_mask_regions, iou_thresholds)
 
 def jaccard_index(mask1, mask2):
+    """
+    Computes the Jaccard Index (Intersection over Union) between two binary masks.
+
+    The Jaccard Index is a measure of similarity between two sets, defined as the size
+    of the intersection divided by the size of the union of the sets.
+
+    Args:
+        mask1 (numpy.ndarray): A binary mask (e.g., a 2D array of boolean or 0/1 values).
+        mask2 (numpy.ndarray): Another binary mask of the same shape as `mask1`.
+
+    Returns:
+        float: The Jaccard Index, a value between 0 and 1, where 1 indicates perfect overlap
+               and 0 indicates no overlap.
+    """
     intersection = np.logical_and(mask1, mask2)
     union = np.logical_or(mask1, mask2)
     return np.sum(intersection) / np.sum(union)
 
 def dice_coefficient(mask1, mask2):
+    """
+    Compute the Dice coefficient, a measure of overlap between two binary masks.
+
+    The Dice coefficient is defined as:
+        ``2 * |A ∩ B| / (|A| + |B|)``
+
+    where A and B are binary masks, ``|A ∩ B|`` is the number of overlapping non-zero elements,
+    and ``|A| + |B|`` is the total number of non-zero elements in both masks.
+
+    Args:
+        mask1 (numpy.ndarray): First binary mask.
+        mask2 (numpy.ndarray): Second binary mask.
+
+    Returns:
+        float: Dice coefficient between 0.0 (no overlap) and 1.0 (perfect overlap).
+               Returns 1.0 if both masks are empty.
+    """
     # Convert to binary masks
     mask1 = np.where(mask1 > 0, 1, 0)
     mask2 = np.where(mask2 > 0, 1, 0)
@@ -2673,6 +3730,22 @@ def dice_coefficient(mask1, mask2):
     return 2.0 * intersection / total
 
 def extract_boundaries(mask, dilation_radius=1):
+    """
+    Extracts the boundaries of a binary mask by applying morphological dilation 
+    and erosion operations and computing their difference.
+
+    Args:
+        mask (numpy.ndarray): A 2D array representing the input mask. Non-zero 
+                              values are considered part of the mask.
+        dilation_radius (int, optional): The radius of the structuring element 
+                                         used for dilation and erosion. 
+                                         Defaults to 1.
+
+    Returns:
+        numpy.ndarray: A binary array of the same shape as the input mask, 
+                       where the boundary pixels are marked as 1 and all 
+                       other pixels are 0.
+    """
     binary_mask = (mask > 0).astype(np.uint8)
     struct_elem = np.ones((dilation_radius*2+1, dilation_radius*2+1))
     dilated = morphology.binary_dilation(binary_mask, footprint=struct_elem)
@@ -2681,6 +3754,21 @@ def extract_boundaries(mask, dilation_radius=1):
     return boundary
 
 def boundary_f1_score(mask_true, mask_pred, dilation_radius=1):
+    """
+    Calculate the boundary F1 score between two binary masks.
+
+    The boundary F1 score evaluates the alignment of object boundaries between
+    predicted and ground truth masks. It computes the harmonic mean of boundary
+    precision and recall after dilating the boundaries.
+
+    Args:
+        mask_true (np.ndarray): Ground truth binary mask. Non-zero values are considered foreground.
+        mask_pred (np.ndarray): Predicted binary mask. Non-zero values are considered foreground.
+        dilation_radius (int, optional): Radius used for boundary dilation to allow tolerance in matching. Defaults to 1.
+
+    Returns:
+        float: Boundary F1 score between 0 (no boundary match) and 1 (perfect boundary alignment).
+    """
     # Assume extract_boundaries is defined to extract object boundaries with given dilation_radius
     boundary_true = extract_boundaries(mask_true, dilation_radius)
     boundary_pred = extract_boundaries(mask_pred, dilation_radius)
@@ -2696,8 +3784,6 @@ def boundary_f1_score(mask_true, mask_pred, dilation_radius=1):
     f1 = 2 * (precision * recall) / (precision + recall + 1e-6)
     
     return f1
-
-
 
 def _remove_noninfected(stack, cell_dim, nucleus_dim, pathogen_dim):
     """
@@ -3179,6 +4265,23 @@ def _object_filter(df, object_type, size_range, intensity_range, mask_chans, mas
     return df
 
 def _get_regex(metadata_type, img_format, custom_regex=None):
+    """
+    Generates a regex pattern based on the specified metadata type and image format.
+    Args:
+        metadata_type (str): The type of metadata to generate the regex for. 
+            Supported values are:
+            - 'cellvoyager': Generates a regex for CellVoyager metadata format.
+            - 'cq1': Generates a regex for CQ1 metadata format.
+            - 'auto': Generates a regex for automatic detection of metadata.
+            - 'custom': Uses a custom regex provided by the user.
+        img_format (str): The image file format (e.g., 'tif'). If None, defaults to 'tif'.
+        custom_regex (str, optional): A custom regex pattern to use when metadata_type is 'custom'.
+    Returns:
+        str: The generated regex pattern.
+    Notes:
+        - Prints the image format and the generated regex for debugging purposes.
+        - If `img_format` is None, it defaults to 'tif'.
+    """
     
     print(f"Image_format: {img_format}")
 
@@ -3197,6 +4300,27 @@ def _get_regex(metadata_type, img_format, custom_regex=None):
     return regex
 
 def _run_test_mode(src, regex, timelapse=False, test_images=10, random_test=True):
+    """
+    Prepares a test dataset by selecting and copying a subset of images from the source directory 
+    based on a regular expression and other criteria.
+    Args:
+        src (str): The source directory containing the images.
+        regex (str): A regular expression to match filenames. The regex should include named groups 
+                     'plateID', 'wellID', and 'fieldID' if applicable.
+        timelapse (bool, optional): If True, limits the selection to one set of images to ensure 
+                                    full sequence inclusion. Defaults to False.
+        test_images (int, optional): The number of image sets to include in the test dataset. 
+                                     Defaults to 10.
+        random_test (bool, optional): If True, randomizes the selection of image sets. Defaults to True.
+    Returns:
+        str: The path to the test folder containing the selected images.
+    Notes:
+        - If a subdirectory named 'orig' exists within the source directory, it will be used as the 
+          source for image selection.
+        - The selected images are grouped by a combination of plate, well, and field identifiers 
+          extracted from the filename using the provided regex.
+        - The function ensures the test folder is created and populated with the selected images.
+    """
     
     if timelapse:
         test_images = 1  # Use only 1 set for timelapse to ensure full sequence inclusion
@@ -3241,6 +4365,51 @@ def _run_test_mode(src, regex, timelapse=False, test_images=10, random_test=True
     return test_folder_path
 
 def _choose_model(model_name, device, object_type='cell', restore_type=None, object_settings={}):
+    """
+    Selects and initializes a model based on the provided parameters.
+
+    Args:
+    -----------
+    model_name : str
+        The name of the model to use. Supported values include:
+        - 'toxo_pv_lumen' (specific to 'pathogen' object_type)
+        - 'sam', 'cyto', 'cyto2', 'cyto3', 'nuclei' (for default models)
+    device : torch.device
+        The device on which the model will run (e.g., CPU or GPU).
+    object_type : str, optional
+        The type of object the model is intended for. Default is 'cell'.
+        Supported values:
+        - 'pathogen': Uses a specific model for Toxoplasma PV lumen.
+        - 'nucleus': Uses denoising or restoration models.
+        - 'cell': Uses default Cellpose models.
+    restore_type : str or None, optional
+        The type of restoration to apply. Supported values:
+        - 'denoise', 'deblur', 'upsample', or None (default).
+        If None, standard models are used.
+    object_settings : dict, optional
+        Additional settings for specific object types. For example:
+        - For 'pathogen', requires 'diameter' key to specify object diameter.
+
+    Returns:
+    --------
+    model : CellposeModel or CellposeDenoiseModel
+        The initialized model based on the provided parameters.
+
+    Notes:
+    ------
+    - For 'pathogen' object_type with 'toxo_pv_lumen' model_name, a custom
+      pretrained model is loaded from the 'models/cp' directory.
+    - For 'nucleus' object_type, restoration models are initialized with
+      specific restore types.
+    - If an invalid restore_type is provided, it defaults to None with a warning.
+    - GPU usage is determined automatically based on availability.
+
+    Raises:
+    -------
+    KeyError:
+        If 'diameter' is not provided in `object_settings` when using the
+        'toxo_pv_lumen' model for 'pathogen' object_type.
+    """
     if object_type == 'pathogen':
         if model_name == 'toxo_pv_lumen':
             diameter = object_settings['diameter']
@@ -3292,47 +4461,46 @@ def _choose_model(model_name, device, object_type='cell', restore_type=None, obj
             )
             return model
 
-def _choose_model_v1(model_name, device, object_type='cell', restore_type=None, object_settings={}):
-    
-    if object_type == 'pathogen':
-        if model_name == 'toxo_pv_lumen':
-            diameter = object_settings['diameter']
-            current_dir = os.path.dirname(__file__)
-            model_path = os.path.join(current_dir, 'models', 'cp', 'toxo_pv_lumen.CP_model')
-            print(model_path)
-            model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), model_type=None, pretrained_model=model_path, diam_mean=diameter, device=device)
-            print(f'Using Toxoplasma PV lumen model to generate pathogen masks')
-            return model
-    
-    restore_list = ['denoise', 'deblur', 'upsample', None]
-    if restore_type not in restore_list:
-        print(f"Invalid restore type. Choose from {restore_list} defaulting to None")
-        restore_type = None
-
-    if restore_type == None:
-        if model_name in ['cyto', 'cyto2', 'cyto3', 'nuclei']:
-            model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), model_type=model_name, device=device)
-            return model
-    else:
-        if object_type == 'nucleus':
-            restore = f'{restore_type}_nuclei'
-            model = denoise.CellposeDenoiseModel(gpu=torch.cuda.is_available(), model_type="nuclei",restore_type=restore, chan2_restore=False, device=device)
-            return model
-
-        else:
-            restore = f'{restore_type}_cyto3'
-            if model_name =='cyto2':
-                chan2_restore = True
-            if model_name =='cyto':
-                chan2_restore = False
-            model = denoise.CellposeDenoiseModel(gpu=torch.cuda.is_available(), model_type="cyto3",restore_type=restore, chan2_restore=chan2_restore, device=device)
-            return model
-
 class SelectChannels:
+    """
+    Selectively retain specific color channels in a 3-channel image tensor.
+
+    This transformation zeros out unselected channels based on a list of 1-based
+    indices corresponding to RGB channels.
+
+    Args:
+        channels (list of int): List of 1-based indices for channels to retain.
+                                Valid values are:
+                                - 1: Red
+                                - 2: Green
+                                - 3: Blue
+
+    Example:
+        >>> select_channels = SelectChannels([1, 3])
+        >>> modified_img = select_channels(img)
+
+    Note:
+        The input image must be a PyTorch tensor with shape (3, H, W).
+    """
     def __init__(self, channels):
+        """
+        Initialize the SelectChannels instance.
+
+        Args:
+            channels (list of int): Channels (1-based) to retain.
+        """
         self.channels = channels
     
     def __call__(self, img):
+        """
+        Apply the channel selection to the input image tensor.
+
+        Args:
+            img (torch.Tensor): A 3-channel image tensor of shape (3, H, W).
+
+        Returns:
+            torch.Tensor: A tensor where unselected channels are set to zero.
+        """
         img = img.clone()
         if 1 not in self.channels:
             img[0, :, :] = 0  # Zero out the red channel
@@ -3343,6 +4511,20 @@ class SelectChannels:
         return img
     
 def preprocess_image_v1(image_path, image_size=224, channels=[1,2,3], normalize=True):
+    """
+    Preprocess an image for input into a machine learning model.
+
+    Args:
+        image_path (str): The file path to the image to be processed.
+        image_size (int, optional): The size to which the image will be center-cropped. Defaults to 224.
+        channels (list, optional): A list of channel indices to select from the image. Defaults to [1, 2, 3].
+        normalize (bool, optional): Whether to normalize the image using mean and standard deviation. Defaults to True.
+
+    Returns:
+        tuple: A tuple containing:
+            - image (PIL.Image.Image): The original image loaded as a PIL Image object.
+            - input_tensor (torch.Tensor): The preprocessed image as a PyTorch tensor with an added batch dimension.
+    """
 
     if normalize:
         transform = transforms.Compose([
@@ -3361,10 +4543,27 @@ def preprocess_image_v1(image_path, image_size=224, channels=[1,2,3], normalize=
     return image, input_tensor
 
 class SaliencyMapGenerator:
+    """
+    SaliencyMapGenerator is a utility class for generating saliency maps and visualizing model predictions
+    for PyTorch models in binary classification tasks.
+    """
     def __init__(self, model):
+        """
+        Initialize the SaliencyMapGenerator.
+        """
         self.model = model
 
     def compute_saliency_maps(self, X, y):
+        """
+        Compute saliency maps for the given inputs and target labels.
+
+        Args:
+            X (torch.Tensor): Input tensor with requires_grad enabled.
+            y (torch.Tensor): Ground truth labels for the input samples.
+
+        Returns:
+            torch.Tensor: The computed saliency maps, same shape as input.
+        """
         self.model.eval()
         X.requires_grad_()
 
@@ -3381,6 +4580,17 @@ class SaliencyMapGenerator:
         return saliency
 
     def compute_saliency_and_predictions(self, X):
+        """
+        Compute saliency maps and predictions for the given input batch.
+
+        Args:
+            X (torch.Tensor): Input tensor with requires_grad enabled.
+
+        Returns:
+            tuple:
+                - torch.Tensor: Saliency maps for the input.
+                - torch.Tensor: Predicted class labels.
+        """
         self.model.eval()
         X.requires_grad_()
 
@@ -3400,6 +4610,19 @@ class SaliencyMapGenerator:
         return saliency, predictions
 
     def plot_activation_grid(self, X, saliency, predictions, overlay=True, normalize=False):
+        """
+        Plot a grid of input images with overlaid saliency maps and predicted labels.
+
+        Args:
+            X (torch.Tensor): Input tensor of images (N, C, H, W).
+            saliency (torch.Tensor): Corresponding saliency maps (N, C, H, W).
+            predictions (torch.Tensor): Predicted class labels (N,).
+            overlay (bool): Whether to overlay saliency maps on input images. Default is True.
+            normalize (bool): Whether to normalize input images by percentiles. Default is False.
+
+        Returns:
+            matplotlib.figure.Figure: A matplotlib figure object showing the grid.
+        """
         N = X.shape[0]
         rows = (N + 7) // 8 
         fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2))
@@ -3428,6 +4651,17 @@ class SaliencyMapGenerator:
         return fig
     
     def percentile_normalize(self, img, lower_percentile=2, upper_percentile=98):
+        """
+        Normalize an image's intensity per channel using percentile clipping.
+
+        Args:
+            img (np.ndarray): Image of shape (H, W, C) to be normalized.
+            lower_percentile (int): Lower percentile for intensity clipping. Default is 2.
+            upper_percentile (int): Upper percentile for intensity clipping. Default is 98.
+
+        Returns:
+            np.ndarray: Percentile-normalized image.
+        """
         img_normalized = np.zeros_like(img)
 
         for c in range(img.shape[2]):  # Iterate over each channel
@@ -3438,7 +4672,19 @@ class SaliencyMapGenerator:
         return img_normalized
 
 class GradCAMGenerator:
+    """
+    GradCAMGenerator generates Grad-CAM (Gradient-weighted Class Activation Mapping) visualizations
+    for CNN-based PyTorch models, supporting binary classification tasks.
+    """
     def __init__(self, model, target_layer, cam_type='gradcam'):
+        """
+        Initialize the GradCAMGenerator and register hooks.
+
+        Args:
+            model (torch.nn.Module): A trained PyTorch model.
+            target_layer (str): The name of the layer to compute Grad-CAM on.
+            cam_type (str): Type of CAM method (default is 'gradcam').
+        """
         self.model = model
         self.model.eval()
         self.target_layer = target_layer
@@ -3451,6 +4697,10 @@ class GradCAMGenerator:
         self.hook_layers()
 
     def hook_layers(self):
+        """
+        Register forward and backward hooks to capture activations and gradients
+        from the specified target layer during inference and backpropagation.
+        """
         # Forward hook to get activations
         def forward_hook(module, input, output):
             self.activations = output
@@ -3463,6 +4713,16 @@ class GradCAMGenerator:
         self.target_layer_module.register_backward_hook(backward_hook)
 
     def get_layer(self, model, target_layer):
+        """
+        Recursively retrieve a layer object from a nested model.
+
+        Args:
+            model (torch.nn.Module): The model containing the layer.
+            target_layer (str): Dot-separated string path to the desired layer.
+
+        Returns:
+            torch.nn.Module: The resolved layer module.
+        """
         # Recursively find the layer specified in target_layer
         modules = target_layer.split('.')
         layer = model
@@ -3471,6 +4731,16 @@ class GradCAMGenerator:
         return layer
 
     def compute_gradcam_maps(self, X, y):
+        """
+        Compute Grad-CAM heatmaps for an input batch and target labels.
+
+        Args:
+            X (torch.Tensor): Input tensor of shape (N, C, H, W).
+            y (torch.Tensor): Target labels (0 or 1) for each sample.
+
+        Returns:
+            np.ndarray: Grad-CAM heatmaps normalized to [0, 1] for each input.
+        """
         X.requires_grad_()
 
         # Forward pass
@@ -3495,6 +4765,17 @@ class GradCAMGenerator:
         return gradcam
 
     def compute_gradcam_and_predictions(self, X):
+        """
+        Compute Grad-CAM heatmaps and class predictions for a batch.
+
+        Args:
+            X (torch.Tensor): Input tensor of shape (N, C, H, W).
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]:
+                - Grad-CAM heatmaps for each sample.
+                - Predicted class labels (0 or 1).
+        """
         self.model.eval()
         X.requires_grad_()
 
@@ -3513,6 +4794,19 @@ class GradCAMGenerator:
         return torch.tensor(gradcam_maps), predictions
 
     def plot_activation_grid(self, X, gradcam, predictions, overlay=True, normalize=False):
+        """
+        Plot a grid of input images overlaid with Grad-CAM heatmaps.
+
+        Args:
+            X (torch.Tensor): Input image batch (N, C, H, W).
+            gradcam (torch.Tensor): Grad-CAM heatmaps (N, H, W).
+            predictions (torch.Tensor): Predicted class labels.
+            overlay (bool): Whether to overlay Grad-CAM on input images.
+            normalize (bool): Whether to normalize image intensities by percentiles.
+
+        Returns:
+            matplotlib.figure.Figure: The generated grid figure.
+        """
         N = X.shape[0]
         rows = (N + 7) // 8
         fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2))
@@ -3541,6 +4835,17 @@ class GradCAMGenerator:
         return fig
     
     def percentile_normalize(self, img, lower_percentile=2, upper_percentile=98):
+        """
+        Normalize each channel of the input image to the specified percentiles.
+
+        Args:
+            img (np.ndarray): Image array (H, W, C).
+            lower_percentile (int): Lower clipping percentile.
+            upper_percentile (int): Upper clipping percentile.
+
+        Returns:
+            np.ndarray: Percentile-normalized image.
+        """
         img_normalized = np.zeros_like(img)
 
         for c in range(img.shape[2]):  # Iterate over each channel
@@ -3551,6 +4856,23 @@ class GradCAMGenerator:
         return img_normalized
 
 def preprocess_image(image_path, normalize=True, image_size=224, channels=[1,2,3]):
+    """
+    Preprocess an image for input into a machine learning model.
+
+    Args:
+        image_path (str): Path to the input image file.
+        normalize (bool, optional): If True, apply ImageNet normalization 
+            (mean and std). Defaults to True.
+        image_size (int, optional): Target size (height and width) for resizing. 
+            Defaults to 224.
+        channels (list of int, optional): 1-based channel indices to retain (e.g., [1, 2, 3] 
+            for RGB). Defaults to [1, 2, 3].
+
+    Returns:
+        tuple:
+            - PIL.Image.Image: The original image.
+            - torch.Tensor: The processed image tensor suitable for model input.
+    """
     preprocess = transforms.Compose([
         transforms.Resize((image_size, image_size)),
         transforms.ToTensor(),
@@ -3565,6 +4887,29 @@ def preprocess_image(image_path, normalize=True, image_size=224, channels=[1,2,3
     return image, input_tensor
 
 def class_visualization(target_y, model_path, dtype, img_size=224, channels=[0,1,2], l2_reg=1e-3, learning_rate=25, num_iterations=100, blur_every=10, max_jitter=16, show_every=25, class_names = ['nc', 'pc']):
+    def class_visualization(target_y, model_path, dtype, img_size=224, channels=[0,1,2], l2_reg=1e-3, learning_rate=25, num_iterations=100, blur_every=10, max_jitter=16, show_every=25, class_names=['nc', 'pc']):
+        """
+        Generate a class visualization for a given target class using gradient ascent.
+        Args:
+            target_y (int): The target class index for which the visualization is generated.
+            model_path (str): Path to the pre-trained model file.
+            dtype (torch.dtype): Data type for the tensors (e.g., torch.FloatTensor or torch.cuda.FloatTensor).
+            img_size (int, optional): Size of the square input image. Default is 224.
+            channels (list, optional): List of channel indices to use in the input image. Default is [0, 1, 2].
+            l2_reg (float, optional): L2 regularization strength to prevent overfitting. Default is 1e-3.
+            learning_rate (float, optional): Learning rate for gradient ascent. Default is 25.
+            num_iterations (int, optional): Number of iterations for gradient ascent. Default is 100.
+            blur_every (int, optional): Frequency (in iterations) to apply Gaussian blur as a regularizer. Default is 10.
+            max_jitter (int, optional): Maximum pixel jitter for random image translation. Default is 16.
+            show_every (int, optional): Frequency (in iterations) to display the intermediate visualization. Default is 25.
+            class_names (list, optional): List of class names corresponding to the target indices. Default is ['nc', 'pc'].
+        Returns:
+            numpy.ndarray: The final deprocessed image as a NumPy array.
+        Notes:
+            - The function performs gradient ascent on the input image to maximize the score of the target class.
+            - Regularization techniques such as L2 regularization, clamping, and Gaussian blur are applied to improve visualization quality.
+            - The function assumes the model is compatible with the input image size and channels.
+        """
     
     def jitter(img, ox, oy):
         # Randomly jitter the image
@@ -3645,6 +4990,18 @@ def class_visualization(target_y, model_path, dtype, img_size=224, channels=[0,1
     return deprocess(img.data.cpu())
 
 def get_submodules(model, prefix=''):
+    """
+    Recursively retrieves the names of all submodules in a given model.
+
+    Args:
+        model (torch.nn.Module): The model whose submodules are to be retrieved.
+        prefix (str, optional): A prefix to prepend to the names of the submodules. 
+            Defaults to an empty string.
+
+    Returns:
+        list of str: A list of strings representing the full names of all submodules 
+        in the model, including nested submodules.
+    """
     submodules = []
     for name, module in model.named_children():
         full_name = prefix + ('.' if prefix else '') + name
@@ -3653,7 +5010,18 @@ def get_submodules(model, prefix=''):
     return submodules
 
 class GradCAM:
+    """
+    Compute Grad-CAM (Gradient-weighted Class Activation Mapping) for a given model and target layer(s).
+    """
     def __init__(self, model, target_layers=None, use_cuda=True):
+        """
+        Initialize the GradCAM object.
+
+        Args:
+            model (nn.Module): The model for which Grad-CAM will be computed.
+            target_layers (list of str): Names of layers to register hooks on.
+            use_cuda (bool): Whether to use CUDA (GPU) for computation.
+        """
         self.model = model
         self.model.eval()
         self.target_layers = target_layers
@@ -3662,9 +5030,28 @@ class GradCAM:
             self.model = model.cuda()
 
     def forward(self, input):
+        """
+        Run a forward pass through the model.
+
+        Args:
+            input (torch.Tensor): Input tensor.
+
+        Returns:
+            torch.Tensor: Model output.
+        """
         return self.model(input)
 
     def __call__(self, x, index=None):
+        """
+        Compute the Grad-CAM heatmap for an input image.
+
+        Args:
+            x (torch.Tensor): Input tensor of shape (1, C, H, W).
+            index (int or None): Class index to compute gradients for. If None, uses the predicted class.
+
+        Returns:
+            numpy.ndarray: Normalized Grad-CAM heatmap of shape (H, W).
+        """
         if self.cuda:
             x = x.cuda()
 
@@ -3711,6 +5098,23 @@ class GradCAM:
         return cam
 
 def show_cam_on_image(img, mask):
+    """
+    Overlay a heatmap generated from a mask onto an image.
+
+    This function applies a color map to the mask, combines it with the input
+    image, and normalizes the result to create a visually interpretable
+    representation of the mask overlaid on the image.
+
+    Args:
+        img (numpy.ndarray): The input image as a NumPy array with pixel values
+            normalized between 0 and 1.
+        mask (numpy.ndarray): The mask to overlay on the image, with values
+            normalized between 0 and 1.
+
+    Returns:
+        numpy.ndarray: The resulting image with the heatmap overlay, as a
+        NumPy array with pixel values in the range [0, 255].
+    """
     heatmap = cv2.applyColorMap(np.uint8(255 * mask), cv2.COLORMAP_JET)
     heatmap = np.float32(heatmap) / 255
     cam = heatmap + np.float32(img)
@@ -3718,6 +5122,24 @@ def show_cam_on_image(img, mask):
     return np.uint8(255 * cam)
 
 def recommend_target_layers(model):
+    """
+    Identifies and recommends target layers in a given model for further processing.
+
+    This function iterates through all the modules in the provided model and collects
+    the names of all 2D convolutional layers (`torch.nn.Conv2d`). It then recommends
+    the last convolutional layer as the primary target layer.
+
+    Args:
+        model (torch.nn.Module): The neural network model to analyze.
+
+    Returns:
+        tuple:
+            - list: A list containing the name of the recommended target layer (last Conv2d layer).
+            - list: A list of all Conv2d layer names found in the model.
+
+    Raises:
+        ValueError: If no convolutional layers (`torch.nn.Conv2d`) are found in the model.
+    """
     target_layers = []
     for name, module in model.named_modules():
         if isinstance(module, torch.nn.Conv2d):
@@ -3729,11 +5151,38 @@ def recommend_target_layers(model):
         raise ValueError("No convolutional layers found in the model.")
     
 class IntegratedGradients:
+    """
+    Compute Integrated Gradients for model interpretability.
+
+    This class implements the Integrated Gradients method to attribute the prediction
+    of a neural network to its input features. It approximates the integral of gradients
+    along a straight path from a baseline to the input.
+    """
+    
+
     def __init__(self, model):
+        """
+        Initialize the IntegratedGradients instance.
+
+        Args:
+            model (torch.nn.Module): A trained PyTorch model.
+        """
         self.model = model
         self.model.eval()
 
     def generate_integrated_gradients(self, input_tensor, target_label_idx, baseline=None, num_steps=50):
+        """
+        Compute the integrated gradients for a given input and target class.
+
+        Args:
+            input_tensor (torch.Tensor): The input tensor of shape (1, C, H, W) or similar.
+            target_label_idx (int): Index of the target class for which gradients are computed.
+            baseline (torch.Tensor, optional): Baseline tensor with the same shape as input. Defaults to zeros.
+            num_steps (int, optional): Number of steps in the Riemann approximation of the integral. Defaults to 50.
+
+        Returns:
+            np.ndarray: Integrated gradients as a NumPy array with the same shape as `input_tensor`.
+        """
         if baseline is None:
             baseline = torch.zeros_like(input_tensor)
         
@@ -3753,18 +5202,61 @@ class IntegratedGradients:
         return integrated_grads
 
 def get_db_paths(src):
+    """
+    Generate a list of database file paths based on the given source(s).
+
+    This function takes a single source path or a list of source paths and 
+    constructs the corresponding paths to the 'measurements.db' file located 
+    in the 'measurements' subdirectory of each source.
+
+    Args:
+        src (str or list of str): A single source path as a string or a list 
+            of source paths.
+
+    Returns:
+        list of str: A list of file paths pointing to 'measurements/measurements.db' 
+        for each source in the input.
+    """
     if isinstance(src, str):
         src = [src]
     db_paths = [os.path.join(source, 'measurements/measurements.db') for source in src]
     return db_paths
 
 def get_sequencing_paths(src):
+    """
+    Generate a list of file paths pointing to sequencing data CSV files.
+
+    This function takes a single source path or a list of source paths and 
+    constructs the full file paths to the 'sequencing/sequencing_data.csv' 
+    file located within each source directory.
+
+    Args:
+        src (str or list of str): A single source directory path as a string 
+            or a list of source directory paths.
+
+    Returns:
+        list of str: A list of full file paths to the 'sequencing_data.csv' 
+        files for each source directory.
+    """
     if isinstance(src, str):
         src = [src]
     seq_paths = [os.path.join(source, 'sequencing/sequencing_data.csv') for source in src]
     return seq_paths
 
 def load_image_paths(c, visualize):
+    """
+    Loads image paths from a database table and optionally filters them based on a visualization keyword.
+
+    Args:
+        c (sqlite3.Cursor): A database cursor object used to execute SQL queries.
+        visualize (str): A keyword to filter image paths. If provided, only rows where the 'png_path' column
+                         contains the keyword followed by '_png' will be included. If None or empty, no filtering
+                         is applied.
+
+    Returns:
+        pandas.DataFrame: A DataFrame containing the image paths and other associated data from the 'png_list' table.
+                          The DataFrame is indexed by the 'prcfo' column.
+    """
     c.execute(f'SELECT * FROM png_list')
     data = c.fetchall()
     columns_info = c.execute(f'PRAGMA table_info(png_list)').fetchall()
@@ -3777,6 +5269,18 @@ def load_image_paths(c, visualize):
     return image_paths_df
 
 def merge_dataframes(df, image_paths_df, verbose):
+    """
+    Merges two pandas DataFrames on their indices and optionally displays the result.
+
+    Parameters:
+        df (pandas.DataFrame): The main DataFrame to be merged. It must have a column named 'prcfo',
+                               which will be set as the index before merging.
+        image_paths_df (pandas.DataFrame): The DataFrame containing image paths to be merged with `df`.
+        verbose (bool): If True, the resulting merged DataFrame will be displayed.
+
+    Returns:
+        pandas.DataFrame: The merged DataFrame with the indices aligned.
+    """
     df.set_index('prcfo', inplace=True)
     df = image_paths_df.merge(df, left_index=True, right_index=True)
     if verbose:
@@ -3784,12 +5288,48 @@ def merge_dataframes(df, image_paths_df, verbose):
     return df
 
 def remove_highly_correlated_columns_v1(df, threshold):
+    """
+    Removes columns from a DataFrame that are highly correlated with other columns.
+
+    This function calculates the correlation matrix of the given DataFrame, identifies
+    columns with a correlation higher than the specified threshold, and removes them
+    to reduce multicollinearity.
+
+    Args:
+        df (pandas.DataFrame): The input DataFrame containing the data.
+        threshold (float): The correlation threshold above which columns are considered
+            highly correlated and will be removed.
+
+    Returns:
+        pandas.DataFrame: A DataFrame with highly correlated columns removed.
+
+    Example:
+        >>> import pandas as pd
+        >>> import numpy as np
+        >>> data = {'A': [1, 2, 3], 'B': [2, 4, 6], 'C': [7, 8, 9]}
+        >>> df = pd.DataFrame(data)
+        >>> remove_highly_correlated_columns_v1(df, threshold=0.9)
+           A  C
+    """
     corr_matrix = df.corr().abs()
     upper_tri = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
     to_drop = [column for column in upper_tri.columns if any(upper_tri[column] > threshold)]
     return df.drop(to_drop, axis=1)
 
 def filter_columns(df, filter_by):
+    """
+    Filters the columns of a DataFrame based on a specified criterion.
+
+    Args:
+        df (pandas.DataFrame): The input DataFrame whose columns are to be filtered.
+        filter_by (str): The criterion for filtering columns. If 'morphology', 
+                         columns containing 'channel' in their names are excluded. 
+                         Otherwise, only columns containing the specified string 
+                         are included.
+
+    Returns:
+        pandas.DataFrame: A DataFrame containing only the filtered columns.
+    """
     if filter_by != 'morphology':
         cols_to_include = [col for col in df.columns if filter_by in str(col)]
     else:
@@ -3801,7 +5341,7 @@ def reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, m
     """
     Perform dimensionality reduction and clustering on the given data.
     
-    Parameters:
+    Args:
     numeric_data (np.ndarray): Numeric data for embedding and clustering.
     n_neighbors (int or float): Number of neighbors for UMAP or perplexity for t-SNE.
     min_dist (float): Minimum distance for UMAP.
@@ -3903,12 +5443,51 @@ def reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, m
     return embedding, labels, reducer
 
 def remove_noise(embedding, labels):
+    """
+    Removes noise from the given embedding and labels by filtering out elements
+    where the corresponding label is -1.
+
+    Args:
+        embedding (numpy.ndarray): The embedding array, where each row corresponds
+            to a data point.
+        labels (numpy.ndarray): The array of labels corresponding to the embedding,
+            where a label of -1 indicates noise.
+
+    Returns:
+        tuple: A tuple containing:
+            - numpy.ndarray: The filtered embedding array with noise removed.
+            - numpy.ndarray: The filtered labels array with noise removed.
+    """
     non_noise_indices = labels != -1
     embedding = embedding[non_noise_indices]
     labels = labels[non_noise_indices]
     return embedding, labels
 
 def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors, plot_by_cluster, plot_outlines, plot_points, plot_images, smooth_lines, black_background, figuresize, dot_size, remove_image_canvas, verbose):
+    """
+    Plots a 2D embedding with optional images, clusters, and customization options.
+
+    Args:
+        embedding (np.ndarray): A 2D array of shape (n_samples, 2) representing the embedding coordinates.
+        image_paths (list or None): A list of file paths to images corresponding to the data points, or None if no images are used.
+        labels (np.ndarray): An array of cluster labels for each data point.
+        image_nr (int): The number of images to display on the plot.
+        img_zoom (float): The zoom factor for the displayed images.
+        colors (list or None): A list of colors to use for clusters, or None to use default colors.
+        plot_by_cluster (bool): Whether to plot images grouped by cluster.
+        plot_outlines (bool): Whether to draw outlines around clusters.
+        plot_points (bool): Whether to plot individual data points.
+        plot_images (bool): Whether to overlay images on the embedding.
+        smooth_lines (bool): Whether to draw smooth lines between cluster centers.
+        black_background (bool): Whether to use a black background for the plot.
+        figuresize (tuple): The size of the figure in inches (width, height).
+        dot_size (float): The size of the dots representing data points.
+        remove_image_canvas (bool): Whether to remove the canvas around the images.
+        verbose (bool): Whether to print verbose output during the plotting process.
+
+    Returns:
+        matplotlib.figure.Figure: The generated plot as a Matplotlib figure object.
+    """
     unique_labels = np.unique(labels)
     #num_clusters = len(unique_labels[unique_labels != 0])
     colors, label_to_color_index = assign_colors(unique_labels, colors)
@@ -3921,6 +5500,22 @@ def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors, p
     return fig
 
 def generate_colors(num_clusters, black_background):
+    """
+    Generate a set of RGBA colors for visualization purposes.
+
+    This function generates a list of random RGBA colors, appends specific predefined colors,
+    and optionally includes a black background color.
+
+    Args:
+        num_clusters (int): The number of clusters for which colors need to be generated.
+                            Additional random colors will be generated beyond the predefined ones.
+        black_background (bool): If True, a black background color ([0, 0, 0, 1]) will be included
+                                 at the beginning of the color list.
+
+    Returns:
+        numpy.ndarray: A 2D array of shape (num_colors, 4), where each row represents an RGBA color.
+                       The first dimension corresponds to the total number of colors generated.
+    """
     random_colors = np.random.rand(num_clusters + 1, 4)
     random_colors[:, 3] = 1
     specific_colors = [
@@ -3935,6 +5530,19 @@ def generate_colors(num_clusters, black_background):
     return random_colors
 
 def assign_colors(unique_labels, random_colors):
+    """
+    Assigns colors to unique labels and creates a mapping from labels to color indices.
+
+    Args:
+        unique_labels (list or iterable): A collection of unique labels for which colors need to be assigned.
+        random_colors (numpy.ndarray or list): An array or list of RGB color values, where each color is represented 
+            as a triplet of integers in the range [0, 255].
+
+    Returns:
+        tuple: A tuple containing:
+            - colors (list of tuple): A list of RGB color tuples in the original [0, 255] range.
+            - label_to_color_index (dict): A dictionary mapping each unique label to its corresponding color index.
+    """
     normalized_colors = random_colors / 255
     colors_img = [tuple(color) for color in normalized_colors]
     colors = [tuple(color) for color in random_colors]
@@ -3942,6 +5550,17 @@ def assign_colors(unique_labels, random_colors):
     return colors, label_to_color_index
 
 def setup_plot(figuresize, black_background):
+    """
+    Sets up a matplotlib plot with specified figure size and background color.
+
+    Args:
+        figuresize (float): The size of the figure in inches (used for both width and height).
+        black_background (bool): If True, sets the plot to have a black background with white text and labels.
+                                 If False, sets the plot to have a white background with black text and labels.
+
+    Returns:
+        tuple: A tuple containing the figure (`matplotlib.figure.Figure`) and axes (`matplotlib.axes._axes.Axes`) objects.
+    """
     if black_background:
         plt.rcParams.update({'figure.facecolor': 'black', 'axes.facecolor': 'black', 'text.color': 'white', 'xtick.color': 'white', 'ytick.color': 'white', 'axes.labelcolor': 'white'})
     else:
@@ -3950,6 +5569,30 @@ def setup_plot(figuresize, black_background):
     return fig, ax
 
 def plot_clusters(ax, embedding, labels, colors, cluster_centers, plot_outlines, plot_points, smooth_lines, figuresize=10, dot_size=50, verbose=False):
+    """
+    Plots clusters on a 2D embedding using matplotlib.
+
+    Args:
+        ax (matplotlib.axes.Axes): The matplotlib Axes object to plot on.
+        embedding (numpy.ndarray): A 2D array of shape (n_samples, 2) representing the embedding coordinates.
+        labels (numpy.ndarray): An array of cluster labels for each point in the embedding.
+        colors (list): A list of colors corresponding to each cluster.
+        cluster_centers (numpy.ndarray): A 2D array of shape (n_clusters, 2) representing the coordinates of cluster centers.
+        plot_outlines (bool): Whether to plot the outlines of clusters using convex hulls or smoothed lines.
+        plot_points (bool): Whether to plot individual points in the clusters.
+        smooth_lines (bool): Whether to use smoothed lines for cluster outlines instead of convex hulls.
+        figuresize (int, optional): The size of the figure. Defaults to 10.
+        dot_size (int, optional): The size of the points in the scatter plot. Defaults to 50.
+        verbose (bool, optional): Whether to print additional information for debugging. Defaults to False.
+
+    Returns:
+        None
+
+    Notes:
+        - This function assumes that the embedding is 2D.
+        - Cluster labels should be integers, with -1 typically representing noise.
+        - The function uses matplotlib for plotting and assumes that the required libraries (e.g., numpy, matplotlib) are imported.
+    """
     unique_labels = np.unique(labels)
     for cluster_label, color, center in zip(unique_labels, colors, cluster_centers):
         cluster_data = embedding[labels == cluster_label]
@@ -3975,6 +5618,24 @@ def plot_clusters(ax, embedding, labels, colors, cluster_centers, plot_outlines,
     plt.tick_params(axis='both', which='major', labelsize=int(figuresize * 0.75))
 
 def plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, plot_by_cluster, remove_image_canvas, verbose):
+    """
+    Plots UMAP embeddings with associated images on a given matplotlib axis.
+
+    Args:
+        ax (matplotlib.axes.Axes): The matplotlib axis on which to plot the images.
+        image_paths (list of str): List of file paths to the images to be plotted.
+        embedding (numpy.ndarray): 2D array of UMAP embeddings with shape (n_samples, 2).
+        labels (numpy.ndarray): Array of cluster labels for each embedding point.
+        image_nr (int): Number of images to plot.
+        img_zoom (float): Zoom factor for the images.
+        colors (list): List of colors for each cluster.
+        plot_by_cluster (bool): If True, plot images grouped by cluster; otherwise, plot randomly sampled images.
+        remove_image_canvas (bool): If True, remove the image canvas (background) when plotting.
+        verbose (bool): If True, print additional information during execution.
+
+    Returns:
+        None
+    """
     if plot_by_cluster:
         cluster_indices = {label: np.where(labels == label)[0] for label in np.unique(labels) if label != -1}
         plot_images_by_cluster(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, cluster_indices, remove_image_canvas, verbose)
@@ -3986,6 +5647,24 @@ def plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, col
             plot_image(ax, x, y, img, img_zoom, remove_image_canvas)
 
 def plot_images_by_cluster(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, cluster_indices, remove_image_canvas, verbose):
+    """
+    Plots images on a given axis based on their cluster assignments and embeddings.
+
+    Args:
+        ax (matplotlib.axes.Axes): The matplotlib axis on which to plot the images.
+        image_paths (list of str): List of file paths to the images to be plotted.
+        embedding (array-like): 2D array of shape (n_samples, 2) containing the x and y coordinates for each image.
+        labels (array-like): Array of cluster labels for each image. -1 indicates noise or unclustered points.
+        image_nr (int): Maximum number of images to display per cluster.
+        img_zoom (float): Zoom factor for the displayed images.
+        colors (list of str): List of colors corresponding to each cluster.
+        cluster_indices (dict): Dictionary mapping cluster labels to lists of indices of images in each cluster.
+        remove_image_canvas (bool): If True, removes the canvas (border) around the plotted images.
+        verbose (bool): If True, prints additional information during execution.
+
+    Returns:
+        None
+    """
     for cluster_label, color in zip(np.unique(labels), colors):
         if cluster_label == -1:
             continue
@@ -3998,6 +5677,22 @@ def plot_images_by_cluster(ax, image_paths, embedding, labels, image_nr, img_zoo
             plot_image(ax, x, y, img, img_zoom, remove_image_canvas)
 
 def plot_image(ax, x, y, img, img_zoom, remove_image_canvas=True):
+    """
+    Plots an image on a given matplotlib axis at specified coordinates.
+
+    Args:
+        ax (matplotlib.axes.Axes): The axis on which to plot the image.
+        x (float): The x-coordinate where the image will be placed.
+        y (float): The y-coordinate where the image will be placed.
+        img (numpy.ndarray or array-like): The image data to be plotted.
+        img_zoom (float): The zoom factor for the image.
+        remove_image_canvas (bool, optional): If True, removes the canvas 
+            (e.g., padding or borders) from the image before plotting. 
+            Defaults to True.
+
+    Returns:
+        None
+    """
     img = np.array(img)
     if remove_image_canvas:
         img = remove_canvas(img)
@@ -4006,6 +5701,26 @@ def plot_image(ax, x, y, img, img_zoom, remove_image_canvas=True):
     ax.add_artist(ab)
 
 def remove_canvas(img):
+    """
+    Converts an image to a normalized RGBA format by adding an alpha channel.
+
+    This function processes images in either grayscale ('L', 'I') or RGB ('RGB') mode.
+    For grayscale images, the pixel values are normalized, and an alpha channel is
+    created based on non-zero pixel values. For RGB images, the pixel values are
+    normalized to the range [0, 1], and an alpha channel is created based on the
+    presence of non-zero pixel values across all channels.
+
+    Args:
+        img (PIL.Image.Image): The input image to process. Must be in 'L', 'I', or 'RGB' mode.
+
+    Returns:
+        numpy.ndarray: A 4-channel RGBA image as a NumPy array, where the first three
+        channels represent the normalized RGB values, and the fourth channel represents
+        the alpha channel.
+
+    Raises:
+        ValueError: If the input image mode is not 'L', 'I', or 'RGB'.
+    """
     if img.mode in ['L', 'I']:
         img_data = np.array(img)
         img_data = img_data / np.max(img_data)
@@ -4022,6 +5737,27 @@ def remove_canvas(img):
     return img_data_with_alpha
 
 def plot_clusters_grid(embedding, labels, image_nr, image_paths, colors, figuresize, black_background, verbose):
+    """
+    Plot a grid of images for each cluster based on the given labels and embeddings.
+
+    Args:
+        embedding (np.ndarray): Embedding of data points for visualization.
+        labels (np.ndarray): Cluster labels for each data point. A value of -1 indicates noise or outliers.
+        image_nr (int): Maximum number of images to display per cluster.
+        image_paths (list of str): File paths to images corresponding to the data points.
+        colors (list of str): List of colors for each cluster.
+        figuresize (tuple): Size of the figure (width, height).
+        black_background (bool): Whether to use a black background.
+        verbose (bool): Whether to print progress information.
+
+    Returns:
+        matplotlib.figure.Figure or None: The generated figure, or None if no valid clusters are found.
+
+    Notes:
+        - Clusters larger than `image_nr` are randomly subsampled.
+        - If all labels are -1, the function returns None.
+        - Relies on an external `plot_grid` function for grid rendering.
+    """
     unique_labels = np.unique(labels)
     num_clusters = len(unique_labels[unique_labels != -1])
     if num_clusters == 0:
@@ -4043,6 +5779,24 @@ def plot_clusters_grid(embedding, labels, image_nr, image_paths, colors, figures
     return fig
 
 def plot_grid(cluster_images, colors, figuresize, black_background, verbose):
+    """
+    Plot a grid of images grouped by cluster with optional background and labels.
+
+    Args:
+        cluster_images (dict): Dictionary mapping cluster labels to lists of images.
+        colors (list): List of RGB tuples specifying colors for each cluster.
+        figuresize (float): Base figure size; actual size scales with the number of clusters.
+        black_background (bool): If True, use a black background; otherwise, use white.
+        verbose (bool): If True, print cluster labels and index info during plotting.
+
+    Returns:
+        matplotlib.figure.Figure: The generated figure containing the image grid.
+
+    Notes:
+        - Grid size is dynamically adjusted per cluster.
+        - Cluster labels are shown alongside image grids using corresponding colors.
+        - A maximum figure size limit prevents overly large plots.
+    """
     num_clusters = len(cluster_images)
     max_figsize = 200  # Set a maximum figure size
     if figuresize * num_clusters > max_figsize:
@@ -4090,6 +5844,27 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose):
     return grid_fig
 
 def generate_path_list_from_db(db_path, file_metadata):
+    """
+    Generate a list of file paths from a SQLite database using optional metadata filters.
+
+    Args:
+        db_path (str): Path to the SQLite database.
+        file_metadata (str | list[str] | None): Filter criteria for file paths.
+            - str: Only include paths containing the string.
+            - list of str: Include paths containing any of the strings.
+            - None or empty: Include all paths.
+
+    Returns:
+        list[str] or None: List of matching file paths, or None if an error occurs.
+
+    Raises:
+        sqlite3.Error: If a database operation fails.
+        Exception: For any other unexpected error.
+
+    Notes:
+        - Paths are fetched from the 'png_list' table using the 'png_path' column.
+        - Results are retrieved in batches of 1000 rows for efficiency.
+    """
     all_paths = []
 
     # Connect to the database and retrieve the image paths
@@ -4128,6 +5903,27 @@ def generate_path_list_from_db(db_path, file_metadata):
     return all_paths
 
 def correct_paths(df, base_path, folder='data'):
+    """
+    Adjust file paths to include the specified base directory and folder.
+
+    Args:
+        df (pandas.DataFrame or list): Input containing file paths.
+            - If a DataFrame, it must have a 'png_path' column.
+            - If a list, it should contain file path strings.
+        base_path (str): Base directory to prepend if not already present.
+        folder (str, optional): Folder name to insert into paths (default: 'data').
+
+    Returns:
+        tuple or list: 
+            - If input is a DataFrame: (updated DataFrame, list of adjusted paths).
+            - If input is a list: list of adjusted paths.
+
+    Raises:
+        ValueError: If the DataFrame does not contain a 'png_path' column.
+
+    Notes:
+        Paths already containing the base path are not modified.
+    """
 
     if isinstance(df, pd.DataFrame):
 
@@ -4159,6 +5955,24 @@ def correct_paths(df, base_path, folder='data'):
         return adjusted_image_paths
 
 def delete_folder(folder_path):
+    """
+    Deletes a folder and all of its contents, including subdirectories and files.
+
+    Args:
+        folder_path (str): The path to the folder to be deleted.
+
+    Behavior:
+        - If the specified folder exists and is a directory, it recursively deletes all files 
+          and subdirectories within it, and then removes the folder itself.
+        - If the folder does not exist or is not a directory, a message is printed indicating this.
+
+    Prints:
+        - A confirmation message if the folder is successfully deleted.
+        - An error message if the folder does not exist or is not a directory.
+
+    Example:
+        delete_folder('/path/to/folder')
+    """
     if os.path.exists(folder_path) and os.path.isdir(folder_path):
         for root, dirs, files in os.walk(folder_path, topdown=False):
             for name in files:
@@ -4171,6 +5985,28 @@ def delete_folder(folder_path):
         print(f"Folder '{folder_path}' does not exist or is not a directory.")
 
 def measure_test_mode(settings):    
+    """
+    Adjusts the source folder in the settings dictionary for test mode.
+
+    If `test_mode` is enabled in the `settings` dictionary, this function:
+    - Checks if the current source folder (`settings['src']`) is not already set to 'test'.
+    - Selects a random subset of files from the source folder based on `settings['test_nr']`.
+    - Copies the selected files into a new 'test/merged' directory.
+    - Updates the `settings['src']` to point to the new 'test/merged' directory.
+    - Prints a message indicating the change in the source folder.
+
+    If the source folder is already set to 'test', it simply prints a message confirming the test mode.
+
+    Args:
+        settings (dict): A dictionary containing configuration settings. 
+                        Expected keys:
+                        - 'test_mode' (bool): Whether test mode is enabled.
+                        - 'src' (str): Path to the source folder.
+                        - 'test_nr' (int): Number of files to select for test mode.
+
+    Returns:
+        dict: The updated settings dictionary with the modified source folder if test mode is enabled.
+    """
 
     if settings['test_mode']:
         if not os.path.basename(settings['src']) == 'test':
@@ -4251,7 +6087,7 @@ def remove_low_variance_columns(df, threshold=0.01, verbose=False):
     """
     Removes columns from the dataframe that have low variance.
 
-    Parameters:
+    Args:
     df (pandas.DataFrame): The DataFrame containing the data.
     threshold (float): The variance threshold below which columns will be removed.
 
@@ -4273,7 +6109,7 @@ def remove_highly_correlated_columns(df, threshold=0.95, verbose=False):
     """
     Removes columns from the dataframe that are highly correlated with one another.
 
-    Parameters:
+    Args:
     df (pandas.DataFrame): The DataFrame containing the data.
     threshold (float): The correlation threshold above which columns will be removed.
 
@@ -4301,7 +6137,7 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
     """
     Filter the dataframe `df` based on the specified `channel_of_interest` and `exclude` parameters.
 
-    Parameters:
+    Args:
     - df (pandas.DataFrame): The input dataframe to be filtered.
     - channel_of_interest (str, int, list, None): The channel(s) of interest to filter the dataframe. If None, no filtering is applied. If 'morphology', only morphology features are included.If an integer, only the specified channel is included. If a list, only the specified channels are included.If a string, only the specified channel is included.
     - exclude (str, list, None): The feature(s) to exclude from the filtered dataframe. If None, no features are excluded. If a string, the specified feature is excluded.If a list, the specified features are excluded.
@@ -4381,6 +6217,20 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
 
 # Create a function to check if images overlap
 def check_overlap(current_position, other_positions, threshold):
+    """
+    Checks if the current position overlaps with any of the other positions 
+    within a specified threshold distance.
+
+    Args:
+        current_position (iterable): The current position as a list, tuple, or array of coordinates.
+        other_positions (iterable): A collection of positions to compare against, 
+                                    where each position is a list, tuple, or array of coordinates.
+        threshold (float): The distance threshold below which two positions are considered overlapping.
+
+    Returns:
+        bool: True if the current position overlaps with any of the other positions, 
+              False otherwise.
+    """
     for other_position in other_positions:
         distance = np.linalg.norm(np.array(current_position) - np.array(other_position))
         if distance < threshold:
@@ -4389,6 +6239,25 @@ def check_overlap(current_position, other_positions, threshold):
 
 # Define a function to try random positions around a given point
 def find_non_overlapping_position(x, y, image_positions, threshold, max_attempts=100):
+    """
+    Finds a new position near the given coordinates (x, y) that does not overlap
+    with any of the positions in the provided image_positions list, based on a
+    specified threshold.
+
+    Args:
+        x (float): The x-coordinate of the initial position.
+        y (float): The y-coordinate of the initial position.
+        image_positions (list of tuples): A list of (x, y) tuples representing
+            existing positions to avoid overlapping with.
+        threshold (float): The minimum distance required to avoid overlap.
+        max_attempts (int, optional): The maximum number of attempts to find a
+            non-overlapping position. Defaults to 100.
+
+    Returns:
+        tuple: A tuple (new_x, new_y) representing the new non-overlapping
+        position. If no suitable position is found within the maximum attempts,
+        the original position (x, y) is returned.
+    """
     offset_range = 10  # Adjust the range for random offsets
     attempts = 0
     while attempts < max_attempts:
@@ -4405,7 +6274,7 @@ def search_reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric,
     """
     Perform dimensionality reduction and clustering on the given data.
     
-    Parameters:
+    Args:
     numeric_data (np.array): Numeric data to process.
     n_neighbors (int): Number of neighbors for UMAP or perplexity for tSNE.
     min_dist (float): Minimum distance for UMAP.
@@ -4457,7 +6326,18 @@ def search_reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric,
     return embedding, labels
 
 def load_image(image_path):
-    """Load and preprocess an image."""
+    """
+    Load and transform an image into a normalized tensor.
+
+    Applies resizing to 224x224, converts to a tensor, and normalizes using
+    ImageNet mean and standard deviation.
+
+    Args:
+        image_path (str): Path to the input image.
+
+    Returns:
+        torch.Tensor: Transformed image tensor with shape (1, 3, 224, 224).
+    """
     transform = transforms.Compose([
         transforms.Resize((224, 224)),
         transforms.ToTensor(),
@@ -4468,7 +6348,17 @@ def load_image(image_path):
     return image
 
 def extract_features(image_paths, resnet=resnet50):
-    """Extract features from images using a pre-trained ResNet model."""
+    """
+    Extracts features from a list of image paths using a pre-trained ResNet model.
+
+    Args:
+        image_paths (list of str): A list of file paths to the images from which features are to be extracted.
+        resnet (torchvision.models, optional): A ResNet model class to use for feature extraction. 
+            Defaults to torchvision.models.resnet50.
+
+    Returns:
+        numpy.ndarray: A 2D array where each row corresponds to the extracted features of an image.
+    """
     model = resnet(pretrained=True)
     model = model.eval()
     model = torch.nn.Sequential(*list(model.children())[:-1])  # Remove the last classification layer
@@ -4483,7 +6373,20 @@ def extract_features(image_paths, resnet=resnet50):
     return np.array(features)
 
 def check_normality(series):
-    """Helper function to check if a feature is normally distributed."""
+    """
+    Test whether a given data series follows a normal distribution.
+
+    This function uses the D'Agostino and Pearson's test to check the null 
+    hypothesis that the data comes from a normal distribution. If the p-value 
+    is less than the significance level (alpha), the null hypothesis is rejected.
+
+    Args:
+        series (array-like): The data series to test for normality.
+
+    Returns:
+        bool: True if the data follows a normal distribution (p >= alpha), 
+              False otherwise.
+    """
     k2, p = stats.normaltest(series)
     alpha = 0.05
     if p < alpha:  # null hypothesis: x comes from a normal distribution
@@ -4491,7 +6394,29 @@ def check_normality(series):
     return True
 
 def random_forest_feature_importance(all_df, cluster_col='cluster'):
-    """Random Forest feature importance."""
+    """
+    Computes feature importance using a Random Forest Classifier.
+
+    This function takes a DataFrame, selects numeric features, and computes
+    the importance of each feature in predicting the specified cluster column
+    using a Random Forest Classifier. The results are returned as a sorted
+    DataFrame of feature importances.
+
+    Args:
+        all_df (pd.DataFrame): The input DataFrame containing the data.
+        cluster_col (str, optional): The name of the column representing the 
+            target variable (cluster). Defaults to 'cluster'.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the features and their corresponding
+        importance scores, sorted in descending order of importance.
+
+    Notes:
+        - The function assumes that the target column (`cluster_col`) is numeric.
+        - Standard scaling is applied to the numeric features before fitting the model.
+        - The Random Forest Classifier is initialized with 100 estimators and a 
+          random state of 42 for reproducibility.
+    """
     numeric_features = all_df.select_dtypes(include=[np.number]).columns.tolist()
     if cluster_col in numeric_features:
         numeric_features.remove(cluster_col)
@@ -4515,7 +6440,29 @@ def random_forest_feature_importance(all_df, cluster_col='cluster'):
     return importance_df
 
 def perform_statistical_tests(all_df, cluster_col='cluster'):
-    """Perform ANOVA or Kruskal-Wallis tests depending on normality of features."""
+    """
+    Perform ANOVA and Kruskal-Wallis tests on numeric features grouped by clusters.
+
+    This function evaluates whether numeric features differ significantly across groups 
+    defined by the `cluster_col`.
+
+    Args:
+        all_df (pd.DataFrame): DataFrame containing numeric features and cluster assignments.
+        cluster_col (str, optional): Name of the column indicating cluster/group labels. Defaults to 'cluster'.
+
+    Returns:
+        tuple:
+            - anova_df (pd.DataFrame): ANOVA test results with columns 
+              ['Feature', 'ANOVA_Statistic', 'ANOVA_pValue'].
+            - kruskal_df (pd.DataFrame): Kruskal-Wallis test results with columns 
+              ['Feature', 'Kruskal_Statistic', 'Kruskal_pValue'].
+
+    Notes:
+        - Normality of each feature is assessed using `check_normality`.
+        - ANOVA is used for normally distributed features.
+        - Kruskal-Wallis is used for non-normal features.
+        - Assumes `check_normality`, `scipy.stats.f_oneway`, and `scipy.stats.kruskal` are available.
+    """
     numeric_features = all_df.select_dtypes(include=[np.number]).columns.tolist()
     if cluster_col in numeric_features:
         numeric_features.remove(cluster_col)
@@ -4539,15 +6486,47 @@ def perform_statistical_tests(all_df, cluster_col='cluster'):
     return anova_df, kruskal_df
 
 def combine_results(rf_df, anova_df, kruskal_df):
-    """Combine the results into a single DataFrame."""
+    """
+    Combines results from multiple DataFrames into a single DataFrame.
+
+    This function merges three DataFrames (`rf_df`, `anova_df`, and `kruskal_df`) 
+    on the 'Feature' column using a left join. The resulting DataFrame contains 
+    all features from `rf_df` and their corresponding data from `anova_df` and 
+    `kruskal_df` where available.
+
+    Args:
+        rf_df (pd.DataFrame): A DataFrame containing features and their associated 
+                              data from a random forest analysis.
+        anova_df (pd.DataFrame): A DataFrame containing features and their associated 
+                                 data from an ANOVA analysis.
+        kruskal_df (pd.DataFrame): A DataFrame containing features and their associated 
+                                   data from a Kruskal-Wallis analysis.
+
+    Returns:
+        pd.DataFrame: A combined DataFrame with features and their associated data 
+                      from all three input DataFrames.
+    """
     combined_df = rf_df.merge(anova_df, on='Feature', how='left')
     combined_df = combined_df.merge(kruskal_df, on='Feature', how='left')
     return combined_df
 
 def cluster_feature_analysis(all_df, cluster_col='cluster'):
     """
-    Perform Random Forest feature importance, ANOVA for normally distributed features,
-    and Kruskal-Wallis for non-normally distributed features. Combine results into a single DataFrame.
+    Perform feature analysis for clustering by combining results from 
+    random forest feature importance and statistical tests.
+
+    This function calculates feature importance using a random forest model, 
+    performs statistical tests (ANOVA and Kruskal-Wallis) to assess the 
+    significance of features, and combines the results into a single DataFrame.
+
+    Args:
+        all_df (pd.DataFrame): The input DataFrame containing features and cluster labels.
+        cluster_col (str, optional): The name of the column representing cluster labels. 
+                                     Defaults to 'cluster'.
+
+    Returns:
+        pd.DataFrame: A DataFrame combining the results of random forest feature 
+                      importance and statistical tests for feature analysis.
     """
     rf_df = random_forest_feature_importance(all_df, cluster_col)
     anova_df, kruskal_df = perform_statistical_tests(all_df, cluster_col)
@@ -4657,7 +6636,7 @@ def _merge_cells_without_nucleus(adj_cell_mask: np.ndarray, nuclei_mask: np.ndar
     Relabel any cell that lacks a nucleus to the ID of an adjacent
     cell that *does* contain a nucleus.
 
-    Parameters
+    Args
     ----------
     adj_cell_mask : np.ndarray
         Labelled (0 = background) cell mask after all other merging steps.
@@ -4723,6 +6702,26 @@ def _merge_cells_without_nucleus(adj_cell_mask: np.ndarray, nuclei_mask: np.ndar
     return out.astype(np.uint16)
 
 def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nuclei_folder, overlap_threshold, perimeter_threshold):
+    """
+    Processes and adjusts a cell mask file based on parasite overlap and perimeter thresholds.
+
+    This function loads parasite, cell, and nuclei mask files, merges cells based on parasite overlap
+    and perimeter thresholds, and saves the updated cell mask back to the file system.
+
+    Args:
+        file_name (str): The name of the mask file to process.
+        parasite_folder (str): The directory containing parasite mask files.
+        cell_folder (str): The directory containing cell mask files.
+        nuclei_folder (str): The directory containing nuclei mask files.
+        overlap_threshold (float): The threshold for parasite overlap to merge cells.
+        perimeter_threshold (float): The threshold for cell perimeter to merge cells.
+
+    Returns:
+        float: The time taken to process the mask file, in seconds.
+
+    Raises:
+        ValueError: If the corresponding cell or nuclei mask file for the given file_name is not found.
+    """
     start = time.perf_counter()
 
     parasite_path = os.path.join(parasite_folder, file_name)
@@ -4745,6 +6744,27 @@ def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nucle
     return end - start
 
 def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30, n_jobs=None):
+    """
+    Adjusts cell masks based on parasite, cell, and nuclei data files.
+    This function processes `.npy` files from the specified folders to adjust cell masks
+    by considering overlap and perimeter thresholds. It uses multiprocessing to parallelize
+    the processing of files.
+    Args:
+        parasite_folder (str): Path to the folder containing parasite `.npy` files.
+        cell_folder (str): Path to the folder containing cell `.npy` files.
+        nuclei_folder (str): Path to the folder containing nuclei `.npy` files.
+        overlap_threshold (int, optional): Threshold for overlap adjustment. Defaults to 5.
+        perimeter_threshold (int, optional): Threshold for perimeter adjustment. Defaults to 30.
+        n_jobs (int, optional): Number of parallel jobs to run. Defaults to the number of CPU cores minus 2.
+    Raises:
+        ValueError: If the number of files in the parasite, cell, and nuclei folders do not match.
+    Notes:
+        - The function assumes that the files in the folders are named in a way that allows
+          them to be sorted and matched correctly.
+        - Progress is printed to the console during processing.
+    Returns:
+        None
+    """
     
     parasite_files = sorted([f for f in os.listdir(parasite_folder) if f.endswith('.npy')])
     cell_files = sorted([f for f in os.listdir(cell_folder) if f.endswith('.npy')])
@@ -4822,6 +6842,25 @@ def adjust_cell_masks_v1(parasite_folder, cell_folder, nuclei_folder, overlap_th
         print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'adjust_cell_masks')
 
 def process_masks(mask_folder, image_folder, channel, batch_size=50, n_clusters=2, plot=False):
+    """
+    Processes mask files by measuring object properties, clustering objects, and removing objects 
+    not belonging to the largest cluster.
+    Args:
+        mask_folder (str): Path to the folder containing mask files (.npy format).
+        image_folder (str): Path to the folder containing corresponding image files (.npy format).
+        channel (int): The channel index to extract from the image files.
+        batch_size (int, optional): Number of files to process in each batch. Defaults to 50.
+        n_clusters (int, optional): Number of clusters for KMeans clustering. Defaults to 2.
+        plot (bool, optional): Whether to plot the clustering results using PCA. Defaults to False.
+    Returns:
+        None: The function modifies the mask files in place by removing objects not in the largest cluster.
+    Notes:
+        - The mask files are expected to be in .npy format and contain labeled regions.
+        - The image files are expected to be in .npy format and have the same names as the mask files.
+        - The function assumes that the mask and image files are sorted in the same order.
+        - The clustering is performed on accumulated object properties across all files.
+        - The largest cluster is determined based on the number of objects in each cluster.
+    """
     
     def read_files_in_batches(folder, batch_size=50):
         files = [f for f in os.listdir(folder) if f.endswith('.npy')]
@@ -4895,6 +6934,25 @@ def process_masks(mask_folder, image_folder, channel, batch_size=50, n_clusters=
             label_index += len(batch_properties)
 
 def merge_regression_res_with_metadata(results_file, metadata_file, name='_metadata'):
+    """
+    Merge regression results with metadata using gene identifiers.
+
+    Reads regression results and metadata from two CSV files, extracts gene identifiers,
+    merges the data on gene names, and saves the merged DataFrame.
+
+    Args:
+        results_file (str): Path to the regression results CSV. Must contain a 'feature' column.
+        metadata_file (str): Path to the metadata CSV. Must contain a 'Gene ID' column.
+        name (str, optional): Suffix for the output file name. Defaults to '_metadata'.
+
+    Returns:
+        pandas.DataFrame: Merged DataFrame with regression results and metadata.
+
+    Notes:
+        - Extracts gene names from 'feature' (format: '[gene]') and 'Gene ID' (format: 'prefix_gene').
+        - Gene extraction failures result in NaNs in the merge but are not dropped.
+        - Output CSV is saved next to the input `results_file`, with the suffix appended.
+    """
     # Read the CSV files into dataframes
     df_results = pd.read_csv(results_file)
     df_metadata = pd.read_csv(metadata_file)
@@ -4932,6 +6990,19 @@ def merge_regression_res_with_metadata(results_file, metadata_file, name='_metad
     return merged_df
 
 def process_vision_results(df, threshold=0.5):
+    """
+    Process vision results by extracting metadata from file paths and thresholding predictions.
+
+    Args:
+        df (pd.DataFrame): DataFrame with vision results. Must include 'path' and 'pred' columns.
+        threshold (float, optional): Threshold for classifying predictions. Defaults to 0.5.
+
+    Returns:
+        pd.DataFrame: Modified DataFrame with added columns:
+            - 'plateID', 'rowID', 'columnID', 'fieldID', 'object': extracted from 'path'
+            - 'prc': combination of 'plateID', 'rowID', and 'columnID'
+            - 'cv_predictions': binary classification based on `threshold`
+    """
 
     # Split the 'path' column using _map_wells function
     mapped_values = df['path'].apply(lambda x: _map_wells(x))
@@ -4947,6 +7018,50 @@ def process_vision_results(df, threshold=0.5):
     return df
 
 def get_ml_results_paths(src, model_type='xgboost', channel_of_interest=1):
+    """
+    Generate file paths for machine learning result outputs based on model type and feature selection.
+
+    Args:
+        src (str): Base directory where the results folder structure will be created.
+        model_type (str, optional): Type of ML model used (e.g., 'xgboost', 'random_forest'). Defaults to 'xgboost'.
+        channel_of_interest (int | list[int] | str | None, optional): Feature set specification:
+            - int: Single channel (e.g., 1)
+            - list[int]: Multiple channels (e.g., [1, 2, 3])
+            - 'morphology': Use only morphology features
+            - None: Use all features
+            Defaults to 1.
+
+    Returns:
+        tuple[str, ...]: Tuple of 10 file paths:
+            - data_path: CSV with predictions or main results
+            - permutation_path: CSV with permutation importances
+            - feature_importance_path: CSV with model feature importances
+            - model_metricks_path: CSV with metrics from trained model
+            - permutation_fig_path: PDF plot of permutation importances
+            - feature_importance_fig_path: PDF plot of feature importances
+            - shap_fig_path: PDF SHAP summary plot
+            - plate_heatmap_path: PDF visualization of plate layout
+            - settings_csv: CSV with ML settings and parameters
+            - ml_features: CSV with extracted feature data used for training
+
+    Raises:
+        ValueError: If `channel_of_interest` is not an int, list, None, or 'morphology'.
+
+    Example:
+        >>> get_ml_results_paths('/home/user/data', model_type='random_forest', channel_of_interest=[1, 2])
+        (
+            '/home/user/data/results/random_forest/channels_1_2/results.csv',
+            '/home/user/data/results/random_forest/channels_1_2/permutation.csv',
+            '/home/user/data/results/random_forest/channels_1_2/feature_importance.csv',
+            '/home/user/data/results/random_forest/channels_1_2/random_forest_model.csv',
+            '/home/user/data/results/random_forest/channels_1_2/permutation.pdf',
+            '/home/user/data/results/random_forest/channels_1_2/feature_importance.pdf',
+            '/home/user/data/results/random_forest/channels_1_2/shap.pdf',
+            '/home/user/data/results/random_forest/channels_1_2/plate_heatmap.pdf',
+            '/home/user/data/results/random_forest/channels_1_2/ml_settings.csv',
+            '/home/user/data/results/random_forest/channels_1_2/ml_features.csv'
+        )
+    """
     
     if isinstance(channel_of_interest, list):
         feature_string = "channels_" + "_".join(map(str, channel_of_interest))
@@ -4981,7 +7096,7 @@ def augment_image(image):
     """
     Perform data augmentation by rotating and reflecting the image.
     
-    Parameters:
+    Args:
     - image (PIL Image or numpy array): The input image.
 
     Returns:
@@ -5025,7 +7140,7 @@ def augment_dataset(dataset, is_grayscale=False):
     """
     Perform data augmentation on the entire dataset by rotating and reflecting the images.
 
-    Parameters:
+    Args:
     - dataset (list of tuples): The input dataset, each entry is a tuple (image, label, filename).
     - is_grayscale (bool): Flag indicating if the images are grayscale.
 
@@ -5063,7 +7178,7 @@ def convert_and_relabel_masks(folder_path):
     """
     Converts all int64 npy masks in a folder to uint16 with relabeling to ensure all labels are retained.
 
-    Parameters:
+    Args:
     - folder_path (str): The path to the folder containing int64 npy mask files.
 
     Returns:
@@ -5104,6 +7219,20 @@ def convert_and_relabel_masks(folder_path):
         print(f"Converted {file} and saved as uint16_{file}")
 
 def correct_masks(src):
+    """
+    Corrects and processes mask files located in the specified source directory.
+
+    This function performs the following steps:
+    1. Constructs the file path for the cell mask stack within the 'masks' subdirectory of the source.
+    2. Converts and relabels the masks using the `convert_and_relabel_masks` function.
+    3. Loads and concatenates arrays from the source directory using the `_load_and_concatenate_arrays` function.
+
+    Args:
+        src (str): The path to the source directory containing the mask files.
+
+    Returns:
+        None
+    """
 
     from .io import _load_and_concatenate_arrays
 
@@ -5112,15 +7241,35 @@ def correct_masks(src):
     _load_and_concatenate_arrays(src, [0,1,2,3], 1, 0, 2)
 
 def count_reads_in_fastq(fastq_file):
+    """
+    Counts the number of reads in a FASTQ file.
+
+    A FASTQ file contains sequencing reads, where each read is represented
+    by four lines: a header, the sequence, a separator, and the quality scores.
+    This function calculates the total number of reads by dividing the total
+    number of lines in the file by 4.
+
+    Args:
+        fastq_file (str): Path to the FASTQ file, which can be gzip-compressed.
+
+    Returns:
+        int: The number of reads in the FASTQ file.
+    """
     count = 0
     with gzip.open(fastq_file, "rt") as f:
         for _ in f:
             count += 1
     return count // 4
 
-
 # Function to determine the CUDA version
 def get_cuda_version():
+    """
+    Retrieves the installed CUDA version by invoking the `nvcc --version` command.
+
+    Returns:
+        str: The CUDA version as a string with dots removed (e.g., '110' for version 11.0),
+             or None if the `nvcc` command is not found or an error occurs.
+    """
     try:
         output = subprocess.check_output(['nvcc', '--version'], stderr=subprocess.STDOUT).decode('utf-8')
         if 'release' in output:
@@ -5129,10 +7278,36 @@ def get_cuda_version():
         return None
 
 def all_elements_match(list1, list2):
+    """
+    Check if all elements in the first list are present in the second list.
+
+    Args:
+        list1 (list): The first list containing elements to check.
+        list2 (list): The second list to check against.
+
+    Returns:
+        bool: True if all elements in list1 are found in list2, False otherwise.
+    """
     # Check if all elements in list1 are in list2
     return all(element in list2 for element in list1)
 
 def prepare_batch_for_segmentation(batch):
+    """
+    Prepare a batch of images for segmentation by ensuring correct data type and normalization.
+
+    Args:
+        batch (np.ndarray): Batch of images with shape (N, H, W, C), where:
+            - N: number of images
+            - H, W: height and width
+            - C: number of channels (e.g., 1 for grayscale, 3 for RGB)
+
+    Returns:
+        np.ndarray: Batch with dtype `float32`, normalized to [0, 1] if needed.
+
+    Notes:
+        - Converts to `float32` if not already.
+        - Each image is divided by its own maximum pixel value if that value > 1.
+    """
     # Ensure the batch is of dtype float32
     if batch.dtype != np.float32:
         batch = batch.astype(np.float32)
@@ -5145,6 +7320,25 @@ def prepare_batch_for_segmentation(batch):
     return batch
 
 def check_index(df, elements=5, split_char='_'):
+    """
+    Checks the indices of a DataFrame to ensure they can be split into a specified number of parts.
+
+    Args:
+        df (pandas.DataFrame): The DataFrame whose indices are to be checked.
+        elements (int, optional): The expected number of parts after splitting an index. Defaults to 5.
+        split_char (str, optional): The character used to split the index. Defaults to '_'.
+
+    Raises:
+        ValueError: If any index cannot be split into the specified number of parts, 
+                    a ValueError is raised listing the problematic indices.
+
+    Example:
+        >>> import pandas as pd
+        >>> data = {'col1': [1, 2, 3]}
+        >>> df = pd.DataFrame(data, index=['a_b_c_d_e', 'f_g_h_i', 'j_k_l_m_n'])
+        >>> check_index(df)
+        ValueError: Found 1 problematic indices that do not split into 5 parts.
+    """
     problematic_indices = []
     for idx in df.index:
         parts = str(idx).split(split_char)
@@ -5158,6 +7352,22 @@ def check_index(df, elements=5, split_char='_'):
     
 # Define the mapping function
 def map_condition(col_value, neg='c1', pos='c2', mix='c3'):
+    """
+    Maps a given column value to a specific condition label.
+
+    Args:
+        col_value (str): The value to be mapped.
+        neg (str, optional): The value representing the 'neg' condition. Defaults to 'c1'.
+        pos (str, optional): The value representing the 'pos' condition. Defaults to 'c2'.
+        mix (str, optional): The value representing the 'mix' condition. Defaults to 'c3'.
+
+    Returns:
+        str: A string representing the mapped condition:
+             - 'neg' if col_value matches the neg parameter.
+             - 'pos' if col_value matches the pos parameter.
+             - 'mix' if col_value matches the mix parameter.
+             - 'screen' if col_value does not match any of the above.
+    """
     if col_value == neg:
         return 'neg'
     elif col_value == pos:
@@ -5236,7 +7446,7 @@ def generate_cytoplasm_mask(nucleus_mask, cell_mask):
     """
     Generates a cytoplasm mask from nucleus and cell masks.
     
-    Parameters:
+    Args:
     - nucleus_mask (np.array): Binary or segmented mask of the nucleus (non-zero values represent nucleus).
     - cell_mask (np.array): Binary or segmented mask of the whole cell (non-zero values represent cell).
     
@@ -5259,7 +7469,7 @@ def add_column_to_database(settings):
     If the column already exists in the database, it adds the column with a suffix.
     NaN values will remain as NULL in the database.
 
-    Parameters:
+    Args:
         settings (dict): A dictionary containing the following keys:
             csv_path (str): Path to the CSV file with the data to be added.
             db_path (str): Path to the SQLite database (or connection string for other databases).
@@ -5355,6 +7565,24 @@ def fill_holes_in_mask(mask):
     return filled_mask
 
 def correct_metadata_column_names(df):
+    """
+    Standardize column names in a metadata DataFrame.
+
+    This function renames commonly used but inconsistent metadata columns to a standardized format.
+
+    Renaming rules:
+        - 'plate_name' → 'plateID'
+        - 'column_name' or 'col' → 'columnID'
+        - 'row_name' → 'rowID'
+        - 'grna_name' → 'grna'
+        - If 'plate_row' exists, it is split into 'plateID' and 'rowID' using '_' as a delimiter.
+
+    Args:
+        df (pd.DataFrame): Input DataFrame with metadata columns.
+
+    Returns:
+        pd.DataFrame: DataFrame with standardized column names.
+    """
     if 'plate_name' in df.columns:
         df = df.rename(columns={'plate_name': 'plateID'})
     if 'column_name' in df.columns:
@@ -5370,6 +7598,27 @@ def correct_metadata_column_names(df):
     return df
 
 def control_filelist(folder, mode='columnID', values=['01','02']):
+    def control_filelist(folder, mode='columnID', values=['01', '02']):
+        """
+        Filters a list of files in a given folder based on a specified mode and values.
+
+        Args:
+            folder (str): The path to the folder containing the files to be filtered.
+            mode (str, optional): The filtering mode. Can be 'columnID' or 'rowID'.
+                - 'columnID': Filters files where the second part of the filename (split by '_') 
+                  has a substring starting from the second character that matches one of the values.
+                - 'rowID': Filters files where the second part of the filename (split by '_') 
+                  has a substring starting from the first character that matches one of the values.
+                Defaults to 'columnID'.
+            values (list of str, optional): A list of string values to filter the files by. Defaults to ['01', '02'].
+
+        Returns:
+            list of str: A list of filenames that match the filtering criteria.
+
+        Raises:
+            IndexError: If the filenames in the folder do not conform to the expected format 
+                        (e.g., missing the second part after splitting by '_').
+        """
     files = os.listdir(folder)
     if mode == 'columnID':
         filtered_files = [file for file in files if file.split('_')[1][1:] in values]
@@ -5378,6 +7627,33 @@ def control_filelist(folder, mode='columnID', values=['01','02']):
     return filtered_files
     
 def rename_columns_in_db(db_path):
+    """
+    Renames specific columns in all user tables of a SQLite database based on a predefined mapping.
+
+    This function connects to the SQLite database at the given path, retrieves all user-defined tables,
+    and renames columns in those tables according to the `rename_map` dictionary. If a column with the
+    old name exists and the new name does not already exist in the same table, the column is renamed.
+
+    Args:
+        db_path (str): The file path to the SQLite database.
+
+    Behavior:
+        - Retrieves all user-defined tables in the database.
+        - For each table, checks the column names against the `rename_map`.
+        - Renames columns as specified in the `rename_map` if conditions are met.
+        - Commits the changes to the database.
+
+    Notes:
+        - The `rename_map` dictionary defines the mapping of old column names to new column names.
+        - If a column with the new name already exists in a table, the old column will not be renamed.
+        - The function uses SQLite's `ALTER TABLE ... RENAME COLUMN` syntax, which requires SQLite version 3.25.0 or higher.
+
+    Example:
+        rename_columns_in_db("/path/to/database.db")
+
+    Raises:
+        sqlite3.OperationalError: If there are issues executing SQL commands, such as unsupported SQLite versions.
+    """
     # map old column names → new names
     rename_map = {
         'row':      'rowID',
@@ -5411,6 +7687,29 @@ def rename_columns_in_db(db_path):
     con.close()    
         
 def group_feature_class(df, feature_groups=['cell', 'cytoplasm', 'nucleus', 'pathogen'], name='compartment'):
+    """
+    Classify and group features by category, then compute summed importance for each group.
+
+    This function adds a new column to the DataFrame to classify features based on regex matching 
+    against the given `feature_groups`. It then computes the total importance per group.
+
+    Args:
+        df (pd.DataFrame): Input DataFrame with at least the columns `'feature'` and `'importance'`.
+        feature_groups (list of str, optional): List of feature group identifiers (used in regex matching).
+            Defaults to ['cell', 'cytoplasm', 'nucleus', 'pathogen'].
+        name (str, optional): Name of the new column used to store group classifications. 
+            If set to `'channel'`, missing values in that column will be filled with `'morphology'`.
+            Defaults to 'compartment'.
+
+    Returns:
+        pd.DataFrame: Modified DataFrame including:
+            - A new column with group classifications (based on `name` argument).
+            - A summary with summed importance for each group and a row for total importance.
+
+    Notes:
+        - A feature matching multiple groups will have their labels joined with a hyphen (e.g., "cell-nucleus").
+        - Classification is done via regex search on the `'feature'` column.
+    """
 
     # Function to determine compartment based on multiple matches
     def find_feature_class(feature, compartments):
@@ -5441,6 +7740,33 @@ def group_feature_class(df, feature_groups=['cell', 'cytoplasm', 'nucleus', 'pat
     return df
 
 def delete_intermedeate_files(settings):
+    """
+    Delete intermediate files and directories specified in the settings dictionary.
+
+    This function removes a predefined set of subdirectories under the path given by
+    `settings['src']`. If deletion fails, an error message is printed.
+
+    Args:
+        settings (dict): Must include the key `'src'`, the base directory containing
+                         intermediate files and subdirectories.
+
+    Behavior:
+        - Verifies that `'src'` and its `orig/` subdirectory exist.
+        - Deletes the following under `src` if they exist:
+            * 'stack'
+            * 'masks'
+            * directories '1' through '10'
+        - Compares lengths of `merged_stack` and `path_stack` to decide on deletion.
+        - Prints success or error messages for each directory.
+
+    Notes:
+        - If `src` or `orig/` is missing, the function exits early.
+        - Any deletion exceptions are caught and reported; no exceptions are raised.
+
+    Example:
+        >>> settings = {'src': '/path/to/source'}
+        >>> delete_intermedeate_files(settings)
+    """
     
     path_orig = os.path.join(settings['src'], 'orig')
     path_stack = os.path.join(settings['src'], 'stack')
@@ -5485,7 +7811,7 @@ def filter_and_save_csv(input_csv, output_csv, column_name, upper_threshold, low
     Reads a CSV into a DataFrame, filters rows based on a column for values > upper_threshold and < lower_threshold,
     and saves the filtered DataFrame to a new CSV file.
 
-    Parameters:
+    Args:
         input_csv (str): Path to the input CSV file.
         output_csv (str): Path to save the filtered CSV file.
         column_name (str): Column name to apply the filters on.
@@ -5511,7 +7837,7 @@ def extract_tar_bz2_files(folder_path):
     """
     Extracts all .tar.bz2 files in the given folder into subfolders with the same name as the tar file.
     
-    Parameters:
+    Args:
         folder_path (str): Path to the folder containing .tar.bz2 files.
     """
     if not os.path.isdir(folder_path):
@@ -5539,7 +7865,7 @@ def calculate_shortest_distance(df, object1, object2):
     """
     Calculate the shortest edge-to-edge distance between two objects (e.g., pathogen and nucleus).
     
-    Parameters:
+    Args:
     - df: Pandas DataFrame containing measurements
     - object1: String, name of the first object (e.g., "pathogen")
     - object2: String, name of the second object (e.g., "nucleus")
@@ -5694,6 +8020,22 @@ def copy_images_to_consolidated(image_path_map, root_folder):
         #print(f"Copied: {original_path} -> {new_file_path}")
         
 def correct_metadata(df):
+    """
+    Corrects and standardizes the metadata column names in a DataFrame.
+    This function checks for specific column names in the input DataFrame and 
+    renames or maps them to standardized names for consistency. The following 
+    transformations are applied:
+    - If 'object_name' exists, it is mapped to 'objectID'.
+    - If 'field_name' exists, it is mapped to 'fieldID'.
+    - If 'plate' or 'plate_name' exists, they are mapped to 'plateID'.
+    - If 'row' or 'row_name' exists, they are renamed to 'rowID'.
+    - If 'col', 'column', or 'column_name' exists, they are renamed to 'columnID'.
+    - If 'field' or 'field_name' exists, they are renamed to 'fieldID'.
+    Args:
+        df (pandas.DataFrame): The input DataFrame containing metadata columns.
+    Returns:
+        pandas.DataFrame: The DataFrame with standardized metadata column names.
+    """
     
     #if 'object' in df.columns:
     #    df['objectID'] = df['object']
@@ -5737,7 +8079,7 @@ def remove_outliers_by_group(df, group_col, value_col, method='iqr', threshold=1
     """
     Removes outliers from `value_col` within each group defined by `group_col`.
 
-    Parameters:
+    Args:
         df (pd.DataFrame): The input DataFrame.
         group_col (str): Column name to group by.
         value_col (str): Column containing values to check for outliers.

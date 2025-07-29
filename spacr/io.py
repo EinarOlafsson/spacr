@@ -25,11 +25,51 @@ from sklearn.model_selection import train_test_split
 from pylibCZIrw import czi as pyczi
 
 def process_non_tif_non_2D_images(folder):
-    """Processes all images in the folder and splits them into grayscale channels, preserving bit depth."""
-    
+    """
+    Process and standardize image files in a folder by converting or splitting them into grayscale TIFFs.
+
+    This function supports various image formats (PNG, JPEG, CZI, ND2, TIFF) and ensures all output images 
+    are grayscale TIFF files saved with consistent naming based on dimensions (channel, z-plane, timepoint).
+
+    For 2D grayscale images in non-TIFF formats, it converts them to TIFF.
+    For 3D, 4D, or 5D images, it splits them into individual grayscale channels and saves them with suffixes 
+    (_C#, _Z#, _T#) to indicate channel, z-stack, and time point respectively.
+
+    Args:
+        folder (str): Path to the folder containing image files to be processed.
+
+    Supported file extensions:
+        - .tif, .tiff
+        - .png
+        - .jpg, .jpeg
+        - .czi
+        - .nd2
+
+    Output:
+        - Saves standardized grayscale TIFF images in the same folder with descriptive filenames.
+        - Prints a log message for each file processed or skipped.
+    """
     # Helper function to save grayscale images
     def save_grayscale_images(image, base_name, folder, dtype, channel=None, z=None, t=None):
-        """Save grayscale images with appropriate suffix based on channel, z, and t, preserving bit depth."""
+        """
+        Save a single grayscale image slice as a TIFF file with a descriptive filename.
+
+        The output filename is constructed from the base name and optionally includes
+        suffixes for channel (C#), z-plane (Z#), and timepoint (T#) to reflect its position
+        in a multidimensional dataset.
+
+        Args:
+            image (np.ndarray): The grayscale image array to save.
+            base_name (str): The base filename (without extension).
+            folder (str): Directory in which to save the output TIFF.
+            dtype (np.dtype): Desired data type to cast the image before saving (e.g., np.uint8, np.uint16).
+            channel (int, optional): Channel index (1-based) to include in the filename.
+            z (int, optional): Z-plane index (1-based) to include in the filename.
+            t (int, optional): Timepoint index (1-based) to include in the filename.
+
+        Output:
+            Saves the image as a `.tif` file in the specified folder with the constructed filename.
+        """
         suffix = ""
         if channel is not None:
             suffix += f"_C{channel}"
@@ -43,7 +83,27 @@ def process_non_tif_non_2D_images(folder):
 
     # Function to handle splitting of multi-dimensional images into grayscale channels
     def split_channels(image, folder, base_name, dtype):
-        """Splits the image into channels and handles 3D, 4D, and 5D image cases."""
+        """
+        Split and save multi-dimensional image data into individual grayscale TIFF files.
+
+        This function handles 3D, 4D, and 5D images by separating each channel (and optionally
+        z-slices and timepoints) and saving each as an individual grayscale image using the
+        `save_grayscale_images` function.
+
+        Args:
+            image (np.ndarray): Input image array with shape:
+                - 3D: (height, width, channels)
+                - 4D: (height, width, channels, z)
+                - 5D: (height, width, channels, z, t)
+            folder (str): Output directory where the grayscale images will be saved.
+            base_name (str): Base name used for constructing output filenames.
+            dtype (np.dtype): Desired data type to cast images before saving.
+
+        Note:
+            2D grayscale images are ignored, as they should be handled separately.
+            The output TIFF filenames will include suffixes like `_C1`, `_Z1`, `_T1` to
+            indicate channel, z-plane, and timepoint respectively.
+        """
         if image.ndim == 2:
             # Grayscale image, already processed separately
             return
@@ -68,7 +128,29 @@ def process_non_tif_non_2D_images(folder):
 
     # Function to load images in various formats
     def load_image(file_path):
-        """Loads image from various formats and returns it as a numpy array along with its dtype."""
+        """
+        Load an image file of various supported formats and return it as a NumPy array.
+
+        Supports TIFF, PNG, JPEG, CZI, and ND2 image formats. Converts the image to a NumPy array
+        and returns it along with its data type for further processing.
+
+        Args:
+            file_path (str): Path to the image file.
+
+        Returns:
+            tuple: A tuple (image, dtype) where:
+                - image (np.ndarray): Loaded image as a NumPy array.
+                - dtype: Data type of the image (e.g., np.uint16, np.float32, etc.).
+
+        Raises:
+            ValueError: If the file extension is not supported.
+
+        Supported formats:
+            - .tif, .tiff (TIFF)
+            - .png, .jpg, .jpeg (standard image formats)
+            - .czi (Zeiss CZI microscopy format)
+            - .nd2 (Nikon ND2 microscopy format)
+        """
         ext = os.path.splitext(file_path)[1].lower()
         
         if ext in ['.tif', '.tiff']:
@@ -94,7 +176,21 @@ def process_non_tif_non_2D_images(folder):
 
     # Function to check if an image is grayscale and save it as a TIFF if it isn't already
     def convert_grayscale_to_tiff(image, filename, folder, dtype):
-        """Convert grayscale images that are not in TIFF format to TIFF, preserving bit depth."""
+        """
+        Convert a grayscale image to TIFF format and save it, preserving the original bit depth.
+
+        This function is intended for grayscale (2D) images in non-TIFF formats (e.g., PNG, JPEG).
+        It converts the image to the specified dtype and saves it as a TIFF in the specified folder.
+
+        Args:
+            image (np.ndarray): Grayscale image as a NumPy array.
+            filename (str): Original filename (used to derive output name).
+            folder (str): Destination folder where the TIFF image will be saved.
+            dtype (np.dtype): Data type to cast the image before saving.
+
+        Returns:
+            None
+        """
         base_name = os.path.splitext(filename)[0]
         output_filename = os.path.join(folder, f"{base_name}.tif")
         tifffile.imwrite(output_filename, image.astype(dtype))
@@ -130,7 +226,20 @@ def process_non_tif_non_2D_images(folder):
                 print(f"Error processing {filename}: {str(e)}")
 
 def _load_images_and_labels(image_files, label_files, invert=False):
-    
+    """
+    Load image and label files from disk and optionally normalize intensity.
+
+    Args:
+        image_files (list[str]): List of paths to image files.
+        label_files (list[str]): List of paths to label (mask) files.
+        invert (bool): If True, invert the intensity of input images.
+
+    Returns:
+        images (list[np.ndarray]): List of loaded image arrays.
+        labels (list[np.ndarray]): List of loaded label arrays.
+        image_names (list[str]): List of image file names (no paths).
+        label_names (list[str]): List of label file names (no paths).
+    """ 
     from .utils import invert_image
     
     images = []
@@ -191,7 +300,29 @@ def _load_images_and_labels(image_files, label_files, invert=False):
 def _load_normalized_images_and_labels(image_files, label_files, channels=None, percentiles=None,  
                                        invert=False, visualize=False, remove_background=False, 
                                        background=0, Signal_to_noise=10, target_height=None, target_width=None):
-    
+    """
+    Load, normalize, and optionally resize images and labels for downstream analysis.
+
+    Args:
+        image_files (list[str]): List of paths to image files.
+        label_files (list[str] or None): List of paths to label (mask) files.
+        channels (list[int] or None): Indices of image channels to retain.
+        percentiles (list[int, int] or None): Percentile range for intensity normalization.
+        invert (bool): If True, invert image intensity.
+        visualize (bool): If True, display plots of raw and normalized images.
+        remove_background (bool): If True, zero pixels below `background` threshold.
+        background (float): Background intensity threshold.
+        Signal_to_noise (float): Minimum signal-to-noise ratio used to detect saturation.
+        target_height (int or None): Target height for image resizing.
+        target_width (int or None): Target width for image resizing.
+
+    Returns:
+        normalized_images (list[np.ndarray]): List of normalized image arrays.
+        labels (list[np.ndarray]): List of label arrays (resized if needed).
+        image_names (list[str]): List of image file names.
+        label_names (list[str]): List of label file names.
+        orig_dims (list[Tuple[int, int]]): Original dimensions of each image before resizing.
+    """
     from .plot import normalize_and_visualize, plot_resize
     from .utils import invert_image, apply_mask
     from skimage.transform import resize as resizescikit
@@ -297,23 +428,54 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
 
 class CombineLoaders:
     """
-    A class that combines multiple data loaders into a single iterator.
+    A class that combines multiple PyTorch data loaders into a single iterable.
+
+    This class allows iteration over a mixed sequence of batches from several
+    data loaders, yielding a tuple with the loader index and the corresponding batch.
+    Once a loader is exhausted, it is removed from the iteration pool.
 
     Args:
-        train_loaders (list): A list of data loaders.
+        train_loaders (list): A list of PyTorch DataLoader objects.
 
     Raises:
-        StopIteration: If all data loaders have been exhausted.
+        StopIteration: When all data loaders are exhausted.
     """
     
     def __init__(self, train_loaders):
+        """
+        Initialize the CombineLoaders instance.
+
+        Converts each data loader into an iterator for independent traversal.
+
+        Args:
+            train_loaders (list): List of torch.utils.data.DataLoader instances.
+        """
         self.train_loaders = train_loaders
         self.loader_iters = [iter(loader) for loader in train_loaders]
 
     def __iter__(self):
+        """
+        Return the iterator object (self).
+
+        Returns:
+            CombineLoaders: The iterator object itself.
+        """
         return self
 
     def __next__(self):
+        """
+        Return the next batch from the available data loaders.
+
+        Data loaders are shuffled at each step to randomize the batch source.
+        If a data loader is exhausted, it is removed from the pool.
+
+        Returns:
+            tuple: A tuple (i, batch) where i is the index of the originating loader,
+                   and batch is the next batch of data from that loader.
+
+        Raises:
+            StopIteration: When all loaders have been exhausted.
+        """
         while self.loader_iters:
             random.shuffle(self.loader_iters)
             for i, loader_iter in enumerate(self.loader_iters):
@@ -329,14 +491,26 @@ class CombineLoaders:
 
 class CombinedDataset(Dataset):
     """
-    A dataset that combines multiple datasets into one.
+    A dataset that combines multiple datasets into one seamless dataset.
+
+    This class supports optional shuffling across datasets and presents
+    a unified indexing interface for training or evaluation.
 
     Args:
-        datasets (list): A list of datasets to be combined.
-        shuffle (bool, optional): Whether to shuffle the combined dataset. Defaults to True.
+        datasets (list): A list of PyTorch Dataset objects to combine.
+        shuffle (bool, optional): Whether to shuffle the indices for data access. Defaults to True.
     """
 
     def __init__(self, datasets, shuffle=True):
+        """
+        Initialize the CombinedDataset.
+
+        Computes lengths of each dataset and optionally shuffles the access indices.
+
+        Args:
+            datasets (list): A list of datasets to be combined.
+            shuffle (bool, optional): Whether to shuffle the combined dataset. Defaults to True.
+        """
         self.datasets = datasets
         self.lengths = [len(dataset) for dataset in datasets]
         self.total_length = sum(self.lengths)
@@ -347,6 +521,17 @@ class CombinedDataset(Dataset):
         else:
             self.indices = None
     def __getitem__(self, index):
+        """
+        Retrieve an item from the combined dataset.
+
+        The method accounts for shuffling and maps the index to the appropriate dataset.
+
+        Args:
+            index (int): Index of the item in the combined dataset.
+
+        Returns:
+            Any: The item retrieved from the corresponding sub-dataset.
+        """
         if self.shuffle:
             index = self.indices[index]
         for dataset, length in zip(self.datasets, self.lengths):
@@ -354,6 +539,12 @@ class CombinedDataset(Dataset):
                 return dataset[index]
             index -= length
     def __len__(self):
+        """
+        Return the total length of the combined dataset.
+
+        Returns:
+            int: Total number of items across all datasets.
+        """
         return self.total_length
     
 class NoClassDataset(Dataset):
@@ -431,9 +622,38 @@ class NoClassDataset(Dataset):
             img = ToTensor()(img)
         return img, self.filenames[index]
 
-
 class spacrDataset(Dataset):
+    """
+    Custom PyTorch Dataset for loading labeled image data organized by class folders or from specified file lists.
+
+    This dataset supports loading images either from directory structures organized by class or from explicit
+    file and label lists. It supports optional preloading of all images into memory for faster access.
+
+    Args:
+        data_dir (str): Root directory containing subfolders for each class.
+        loader_classes (list[str]): List of class names corresponding to subfolder names in `data_dir`.
+        transform (callable, optional): Transform to apply to images (e.g., torchvision transforms).
+        shuffle (bool): Whether to shuffle the dataset. Default is True.
+        pin_memory (bool): If True, pre-load all images into memory using multiprocessing. Default is False.
+        specific_files (list[str], optional): Specific image file paths to load instead of scanning `data_dir`.
+        specific_labels (list[int], optional): Corresponding labels for `specific_files`.
+    """
     def __init__(self, data_dir, loader_classes, transform=None, shuffle=True, pin_memory=False, specific_files=None, specific_labels=None):
+        """
+        Initialize the spacrDataset.
+
+        Constructs the dataset either by scanning the data directory or using provided file paths and labels.
+        Optionally shuffles and preloads images into memory.
+
+        Args:
+            data_dir (str): Directory containing class subfolders.
+            loader_classes (list): List of class names.
+            transform (callable, optional): Transform function to apply to images.
+            shuffle (bool): Whether to shuffle the dataset. Default is True.
+            pin_memory (bool): Whether to preload images into memory. Default is False.
+            specific_files (list[str], optional): List of file paths to use directly.
+            specific_labels (list[int], optional): List of labels corresponding to specific files.
+        """
         self.data_dir = data_dir
         self.classes = loader_classes
         self.transform = transform
@@ -463,23 +683,59 @@ class spacrDataset(Dataset):
             self.images = None
 
     def load_image(self, img_path):
+        """
+        Load and return a single image with orientation correction.
+
+        Args:
+            img_path (str): Path to the image file.
+
+        Returns:
+            PIL.Image: Loaded RGB image.
+        """
         img = Image.open(img_path).convert('RGB')
         img = ImageOps.exif_transpose(img)  # Handle image orientation
         return img
 
     def __len__(self):
+        """
+        Return the number of samples in the dataset.
+
+        Returns:
+            int: Total number of images.
+        """
         return len(self.filenames)
 
     def shuffle_dataset(self):
+        """
+        Shuffle the dataset filenames and labels in unison.
+        """
         combined = list(zip(self.filenames, self.labels))
         random.shuffle(combined)
         self.filenames, self.labels = zip(*combined)
 
     def get_plate(self, filepath):
+        """
+        Extract the plate identifier from the filename.
+
+        Args:
+            filepath (str): Full path to the file.
+
+        Returns:
+            str: Plate ID extracted from the filename.
+        """
         filename = os.path.basename(filepath)
         return filename.split('_')[0]
 
     def __getitem__(self, index):
+        """
+        Retrieve an image, its label, and the filename.
+
+        Args:
+            index (int): Index of the image to retrieve.
+
+        Returns:
+            tuple: (image, label, filename)
+        """
         if self.pin_memory:
             img = self.images[index]
         else:
@@ -491,7 +747,29 @@ class spacrDataset(Dataset):
         return img, label, filename
     
 class spacrDataLoader(DataLoader):
+    """
+    Custom DataLoader with background batch preloading support using multiprocessing.
+
+    This class extends `torch.utils.data.DataLoader` and adds asynchronous background
+    preloading of a specified number of batches using a separate process or in-place loading
+    if `pin_memory=True`.
+
+    Args:
+        *args: Arguments passed to the base DataLoader.
+        preload_batches (int): Number of batches to preload in a background process. Default is 1.
+        **kwargs: Keyword arguments passed to the base DataLoader. Supports all standard DataLoader arguments.
+    """
     def __init__(self, *args, preload_batches=1, **kwargs):
+        """
+        Initialize the spacrDataLoader.
+
+        Sets up the queue and multiprocessing process for background preloading of batches.
+
+        Args:
+            *args: Arguments passed to torch.utils.data.DataLoader.
+            preload_batches (int): Number of batches to preload. Default is 1.
+            **kwargs: Keyword arguments passed to the base DataLoader.
+        """
         super().__init__(*args, **kwargs)
         self.preload_batches = preload_batches
         self.batch_queue = Queue(maxsize=preload_batches)
@@ -502,6 +780,12 @@ class spacrDataLoader(DataLoader):
         atexit.register(self.cleanup)
 
     def _preload_next_batches(self):
+        """
+        Internal method to fetch the next N batches and put them in the queue.
+
+        If `pin_memory` is True, batches are pinned to CUDA memory.
+        Stops if the iterator is exhausted or the stop event is set.
+        """
         try:
             for _ in range(self.preload_batches):
                 if self._stop_event:
@@ -514,6 +798,11 @@ class spacrDataLoader(DataLoader):
             pass
 
     def _start_preloading(self):
+        """
+        Start a new background process to preload batches.
+
+        If `pin_memory` is True, loading is done in the main thread instead.
+        """
         if self.process is None or not self.process.is_alive():
             self._iterator = iter(super().__iter__())
             if not self.pin_memory:
@@ -523,6 +812,15 @@ class spacrDataLoader(DataLoader):
                 self._preload_next_batches()  # Directly load if pin_memory is True
 
     def _pin_memory_batch(self, batch):
+        """
+        Recursively pin memory for all tensors in the batch.
+
+        Args:
+            batch: A batch of data, possibly a tuple, list, or tensor.
+
+        Returns:
+            The batch with pinned memory (if applicable).
+        """
         if isinstance(batch, (list, tuple)):
             return [b.pin_memory() if isinstance(b, torch.Tensor) else b for b in batch]
         elif isinstance(batch, torch.Tensor):
@@ -531,10 +829,24 @@ class spacrDataLoader(DataLoader):
             return batch
 
     def __iter__(self):
+        """
+        Return the iterator and initiate background preloading.
+
+        Returns:
+            self
+        """
         self._start_preloading()
         return self
 
     def __next__(self):
+        """
+        Return the next batch from the queue.
+
+        If the queue is empty and the process has exited, raises StopIteration.
+
+        Returns:
+            The next batch of data.
+        """
         if self.process and not self.process.is_alive() and self.batch_queue.empty():
             raise StopIteration
 
@@ -554,51 +866,45 @@ class spacrDataLoader(DataLoader):
             raise StopIteration
 
     def cleanup(self):
+        """
+        Cleanup method to terminate background preloading processes.
+
+        Ensures graceful shutdown of worker processes at exit.
+        """
         self._stop_event = True
         if self.process and self.process.is_alive():
             self.process.terminate()
             self.process.join()
 
     def __del__(self):
+        """
+        Destructor to ensure cleanup is called when the object is deleted.
+        """
         self.cleanup()
 
-class NoClassDataset_v1(Dataset):
-    def __init__(self, data_dir, transform=None, shuffle=True, load_to_memory=False):
-        self.data_dir = data_dir
-        self.transform = transform
-        self.shuffle = shuffle
-        self.load_to_memory = load_to_memory
-        self.filenames = [os.path.join(data_dir, f) for f in os.listdir(data_dir) if os.path.isfile(os.path.join(data_dir, f))]
-        if self.shuffle:
-            self.shuffle_dataset()
-        if self.load_to_memory:
-            self.images = [self.load_image(f) for f in self.filenames]
-    
-    def load_image(self, img_path):
-        img = Image.open(img_path).convert('RGB')
-        return img
-
-    def __len__(self):
-
-        return len(self.filenames)
-
-    def shuffle_dataset(self):
-        if self.shuffle:
-            random.shuffle(self.filenames)
-
-    def __getitem__(self, index):
-        if self.load_to_memory:
-            img = self.images[index]
-        else:
-            img = self.load_image(self.filenames[index])
-        if self.transform is not None:
-            img = self.transform(img)
-        else:
-            img = ToTensor()(img)
-        return img, self.filenames[index]
-
 class TarImageDataset(Dataset):
+    """
+    A PyTorch Dataset for loading images directly from a .tar archive without extraction.
+
+    This is useful for large datasets stored as compressed tar archives, enabling on-the-fly 
+    access to individual image files without unpacking the archive to disk.
+
+    Args:
+        tar_path (str): Path to the .tar archive containing image files.
+        transform (callable, optional): Optional transform to be applied on a sample.
+
+    Attributes:
+        members (List[TarInfo]): List of image members in the tar archive.
+    """
+
     def __init__(self, tar_path, transform=None):
+        """
+        Initialize the dataset and index image members from the tar archive.
+
+        Args:
+            tar_path (str): Path to the .tar file.
+            transform (callable, optional): Transform function to apply to each image.
+        """
         self.tar_path = tar_path
         self.transform = transform
 
@@ -607,9 +913,24 @@ class TarImageDataset(Dataset):
             self.members = [m for m in f.getmembers() if m.isfile()]
 
     def __len__(self):
+        """
+        Return the number of image files in the archive.
+
+        Returns:
+            int: Number of image files.
+        """
         return len(self.members)
 
     def __getitem__(self, idx):
+        """
+        Retrieve an image by index directly from the tar archive.
+
+        Args:
+            idx (int): Index of the image to retrieve.
+
+        Returns:
+            tuple: (PIL.Image.Image or transformed image, str) where the string is the file name.
+        """
         with tarfile.open(self.tar_path, 'r') as f:
             m = self.members[idx]
             img_file = f.extractfile(m)
@@ -621,8 +942,24 @@ class TarImageDataset(Dataset):
         return img, m.name
     
 def load_images_from_paths(images_by_key):
-    images_dict = {}
+    """
+    Load images from a dictionary mapping keys to lists of image file paths.
 
+    Each key in the input dictionary corresponds to a list of file paths. The function
+    loads each image as a NumPy array and returns a new dictionary with the same keys,
+    where each value is a list of loaded images.
+
+    Args:
+        images_by_key (dict): A dictionary where each key maps to a list of image file paths (str).
+
+    Returns:
+        dict: A dictionary where each key maps to a list of NumPy arrays representing the loaded images.
+
+    Notes:
+        - Images are loaded using PIL and converted to NumPy arrays.
+        - Any image that fails to load will be skipped, and an error message will be printed.
+    """
+    images_dict = {}
     for key, paths in images_by_key.items():
         images_dict[key] = []
         for path in paths:
@@ -796,7 +1133,33 @@ def _generate_time_lists(file_list):
     return sorted_file_lists
 
 def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
-    
+    """
+    Organize image files in a source directory into channel-specific subfolders 
+    based on metadata extracted from filenames using a regular expression.
+
+    This function assumes filenames contain fields like plate ID, well ID, field ID, 
+    channel ID, and time point. It parses these from the filename using the provided 
+    regex, reformats the filename, and moves the file into a subdirectory named after 
+    the channel ID.
+
+    Args:
+        src (str or Path): Path to the source directory containing image files.
+        regex (str): Regular expression to extract metadata from filenames. 
+                     Expected named groups: plateID, wellID, fieldID, chanID, timeID.
+        timelapse (bool, optional): Whether to include the timeID in the new filename. Defaults to False.
+        metadata_type (str, optional): Special handling for specific metadata types. 
+                                       If 'cq1', converts wellID to CQ1 format. Defaults to ''.
+
+    Notes:
+        - Only `.tif` and `.png` files are processed.
+        - Files are copied into folders named after their channel ID.
+        - A backup of the original files is moved to a new `orig/` folder.
+        - Skips files that do not match the regex or are missing required groups.
+        - Issues warnings if destination files already exist.
+
+    Returns:
+        None
+    """
     from .utils import _safe_int_convert, _convert_cq1_well_id
     
     src_path = src
@@ -860,9 +1223,28 @@ def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
 
 def _merge_channels(src, plot=False):
     """
-    Merge the channels in the given source directory and save the merged files in a 'stack' directory without using multiprocessing.
-    """
+    Merge single-channel image files from multiple folders into multi-channel NumPy arrays.
 
+    This function assumes the source directory `src` contains subdirectories named as channel 
+    identifiers (e.g., '0', '01', ..., '100'), each holding single-channel image files 
+    with identical filenames. It merges images with the same name across these folders 
+    into a single multi-channel `.npy` file stored in the `stack/` subdirectory.
+
+    Args:
+        src (str or Path): Path to the parent directory containing channel subfolders.
+        plot (bool, optional): If True, plot the merged arrays after processing using `plot_arrays`. Defaults to False.
+
+    Returns:
+        int: The number of matching channel folders that were merged.
+
+    Notes:
+        - Only processes if `stack/` directory is empty.
+        - Output is saved as `.npy` files in `src/stack/`.
+        - Channel folders must be named as integers or zero-padded strings from '0' to '100'.
+        - Files are matched by filename across all channel folders.
+        - Skips if a file is not present in all channels or is not a file.
+        - Uses `_merge_file` to perform the merging operation.
+    """
     from .plot import plot_arrays
     from .utils import print_progress
     
@@ -1131,9 +1513,6 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
     return normalized_stack.astype(save_dtype)
 
 def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings={}):
-    from .utils import print_progress
-    from .plot import plot_arrays
-
     """
     Concatenates and normalizes channel data from multiple files and saves the normalized data.
 
@@ -1153,7 +1532,9 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings={})
     Returns:
         str: The directory path where the concatenated and normalized channel data is saved.
     """
-
+    from .utils import print_progress
+    from .plot import plot_arrays
+    
     channels = [item for item in channels if item is not None]
     
     print(f"Generating concatenated and normalized channel data for channels: {channels}")
@@ -1528,12 +1909,7 @@ def delete_empty_subdirectories(folder_path):
                 #print(f"Skipping non-empty directory: {full_dir_path}")
 
 #@log_function_call
-def preprocess_img_data(settings):
-    
-    from .plot import plot_arrays
-    from .utils import _run_test_mode, _get_regex
-    from .settings import set_default_settings_preprocess_img_data
-    
+def preprocess_img_data(settings):    
     """
     Preprocesses image data by converting z-stack images to maximum intensity projection (MIP) images.
 
@@ -1560,6 +1936,11 @@ def preprocess_img_data(settings):
     Returns:
         None
     """
+    
+    from .plot import plot_arrays
+    from .utils import _run_test_mode, _get_regex
+    from .settings import set_default_settings_preprocess_img_data
+    
     src = settings['src']
     
     if len(os.listdir(src)) < 100:
@@ -2159,6 +2540,32 @@ def _results_to_csv(src, df, df_well):
     return cells, wells
 
 def read_plot_model_stats(train_file_path, val_file_path ,save=False):
+    def read_plot_model_stats(train_file_path, val_file_path, save=False):
+        """
+        Reads training and validation statistics from CSV files, generates plots for various metrics, 
+        and optionally saves the plots as PDF files.
+        Args:
+            train_file_path (str): Path to the CSV file containing training statistics.
+            val_file_path (str): Path to the CSV file containing validation statistics.
+            save (bool, optional): If True, saves the plots as PDF files in the same directory as 
+                the training file. If False, displays the plots interactively. Defaults to False.
+        Metrics Plotted:
+            - accuracy
+            - neg_accuracy
+            - pos_accuracy
+            - loss
+            - prauc
+            - optimal_threshold
+        Notes:
+            - The CSV files should have a column named 'epoch' and columns corresponding to the 
+              metrics listed above.
+            - The plots are saved with filenames corresponding to the metric name (e.g., 'accuracy.pdf').
+        Raises:
+            FileNotFoundError: If the specified CSV files do not exist.
+            ValueError: If the CSV files do not contain the required columns.
+        Example:
+            >>> read_plot_model_stats("train_stats.csv", "val_stats.csv", save=True)
+        """
     
     def _plot_and_save(train_df, val_df, column='accuracy', save=False, path=None, dpi=600):
         
@@ -2295,6 +2702,30 @@ def _save_progress(dst, train_df, validation_df):
     return
     
 def _copy_missclassified(df):
+    """
+    Copies misclassified images to designated folders based on their classification.
+
+    This function identifies rows in the given DataFrame where the 'true_label' 
+    does not match the 'predicted_label'. It then copies the corresponding files 
+    to a "missclassified" directory, organizing them into subdirectories 
+    ("pc" or "nc") based on the presence of "pc" in the original file path.
+
+    Args:
+        df (pandas.DataFrame): A DataFrame containing at least the following columns:
+            - 'filename': The file path of the image.
+            - 'true_label': The actual label of the image.
+            - 'predicted_label': The predicted label of the image.
+
+    Side Effects:
+        - Creates directories for storing misclassified images if they do not exist.
+        - Copies files from their original locations to the appropriate "missclassified" subdirectory.
+
+    Prints:
+        A message indicating the number of misclassified images copied.
+
+    Returns:
+        None
+    """
     misclassified = df[df['true_label'] != df['predicted_label']]
     for _, row in misclassified.iterrows():
         original_path = row['filename']
@@ -2310,6 +2741,20 @@ def _copy_missclassified(df):
     return
     
 def _read_db(db_loc, tables):
+    """
+    Reads data from specified tables in a SQLite database and applies metadata corrections.
+    Args:
+        db_loc (str): The file path to the SQLite database.
+        tables (list of str): A list of table names to read from the database.
+    Returns:
+        list of pandas.DataFrame: A list of DataFrames, each containing the data from one of the specified tables.
+    Notes:
+        - The function assumes the presence of utility functions `rename_columns_in_db` and `correct_metadata` 
+          in the `utils` module.
+        - `rename_columns_in_db` is called to preprocess the database before reading.
+        - `correct_metadata` is applied to each DataFrame after reading.
+        - The database connection is closed after all tables are read.
+    """
     
     from .utils import rename_columns_in_db, correct_metadata
     
@@ -2325,6 +2770,31 @@ def _read_db(db_loc, tables):
     return dfs
 
 def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_limit=10, change_plate=False):
+    """
+    Reads and merges data from multiple locations and tables, processes the data, and returns a merged DataFrame 
+    along with a list of object-specific DataFrames.
+    Args:
+        locs (list): List of file paths or locations containing the data to be read.
+        tables (list): List of table names to be extracted and processed.
+        verbose (bool, optional): If True, prints detailed information about the processing steps. Defaults to False.
+        nuclei_limit (int or bool, optional): Limit on the number of nuclei per cell. If False, only single nuclei 
+            per cell are retained. Defaults to 10.
+        pathogen_limit (int, float, or bool, optional): Limit on the number of pathogens per cell. If False, only 
+            single pathogens per cell are retained. Defaults to 10.
+        change_plate (bool, optional): If True, assigns unique plate IDs to each location. Defaults to False.
+    Returns:
+        tuple:
+            - pd.DataFrame: A merged DataFrame containing processed data from all specified tables.
+            - list: A list of DataFrames for individual object types (e.g., cell, cytoplasm, nucleus, pathogen) 
+              if they exist in the input data.
+    Notes:
+        - The function processes data from multiple tables such as 'cell', 'cytoplasm', 'nucleus', 'pathogen', 
+          and 'png_list', if available.
+        - Data is grouped and merged based on unique identifiers such as 'prcfo' (plate, row, column, field, object).
+        - Metadata is generated and merged with the final DataFrame.
+        - The function handles missing data and applies limits on nuclei and pathogens per cell if specified.
+        - Verbose mode provides detailed logs of the processing steps and the resulting data dimensions.
+    """
 
     from .utils import _split_data
 
@@ -2459,6 +2929,15 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_
     return merged_df, obj_df_ls
     
 def _read_mask(mask_path):
+    """
+    Reads a mask image from the specified file path and ensures it is of type uint16.
+
+    Parameters:
+        mask_path (str): The file path to the mask image.
+
+    Returns:
+        numpy.ndarray: The mask image as a NumPy array with dtype uint16.
+    """
     mask = imageio2.imread(mask_path)
     if mask.dtype != np.uint16:
         mask = img_as_uint(mask)
@@ -2466,10 +2945,24 @@ def _read_mask(mask_path):
 
 def convert_numpy_to_tiff(folder_path, limit=None):
     """
-    Converts all numpy files in a folder to TIFF format and saves them in a subdirectory 'tiff'.
-    
-    Args:
-    folder_path (str): The path to the folder containing numpy files.
+    Converts all .npy files in a folder to .tiff images and saves them in a 'tiff' subdirectory.
+
+    This function searches for `.npy` files in the specified folder, loads each as a NumPy array,
+    and writes it as a `.tiff` image using `tifffile.imwrite`. The resulting images are saved in
+    a `tiff` subdirectory within the input folder. Optionally, processing can be limited to a
+    specific number of files.
+
+    Parameters
+    ----------
+    folder_path : str
+        The path to the directory containing `.npy` files to be converted.
+    limit : int, optional
+        Maximum number of `.npy` files to convert. If None (default), all `.npy` files are converted.
+
+    Returns
+    -------
+    None
+        The function saves the converted TIFF files to disk and prints status messages.
     """
     # Create the subdirectory 'tiff' within the specified folder if it doesn't already exist
     tiff_subdir = os.path.join(folder_path, 'tiff')
@@ -2502,6 +2995,27 @@ def convert_numpy_to_tiff(folder_path, limit=None):
     return
     
 def generate_cellpose_train_test(src, test_split=0.1):
+    """
+    Splits a directory of TIFF images and corresponding Cellpose masks into training and test sets.
+
+    This function searches the `src` directory for TIFF images and ensures that corresponding
+    masks exist in the `src/masks/` folder. It then shuffles and splits the dataset into 
+    training and test sets based on the specified `test_split` ratio. The resulting subsets
+    are copied into `train/` and `test/` folders (with `masks/` subfolders) located 
+    in the parent directory of `src`.
+
+    Parameters
+    ----------
+    src : str
+        Path to the directory containing TIFF images and a subdirectory `masks/` with corresponding mask files.
+    test_split : float, optional
+        Proportion of the dataset to be used for testing (default is 0.1, i.e., 10%).
+
+    Returns
+    -------
+    None
+        Files are copied to disk and progress messages are printed.
+    """
     mask_src = os.path.join(src, 'masks')
     img_paths = glob.glob(os.path.join(src, '*.tif'))
     img_filenames = [os.path.basename(file) for file in img_paths]
@@ -2575,7 +3089,28 @@ def parse_gz_files(folder_path):
     return samples_dict
 
 def generate_dataset(settings={}):
+    """
+    Generates a tar archive containing a dataset of images collected from one or more database sources.
+
+    This function selects image paths from one or more SQLite databases, optionally samples from them,
+    and writes the images into a tar archive using multiprocessing to parallelize the process. Temporary tar
+    files are created and merged into a final tar file. The function also logs and saves dataset settings.
+
+    Parameters
+    ----------
+    settings : dict, optional
+        Dictionary of user-defined settings. The following keys are used:
+        
+        - 'src' (str or list of str): Path(s) to the source folder(s) containing the database(s).
+        - 'experiment' (str): Name of the experiment, used to name the output tar.
+        - 'sample' (int or list, optional): If int, randomly sample that many images; if list, sample per src index.
+        - 'file_metadata' (str, optional): Metadata column name used to filter/select files.
     
+    Returns
+    -------
+    str
+        Path to the final tar archive containing the dataset.
+    """
     from .utils import initiate_counter, add_images_to_tar, save_settings, generate_path_list_from_db, correct_paths
     from .settings import set_generate_dataset_defaults
 
@@ -2792,7 +3327,35 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32, classes=[
     return train_loaders, val_loaders, train_fig
 
 def generate_training_dataset(settings):
-    
+    """
+    Generate a training dataset from a SQLite database using measurement-based or annotation/metadata-based selection.
+
+    Depending on the `settings`, this function selects images corresponding to high and low phenotypes (e.g., recruitment)
+    or based on metadata or manual annotation. Selected image paths are grouped by class and returned for further use
+    (e.g., saving to folders or training models).
+
+    Parameters
+    ----------
+    settings : dict
+        Configuration dictionary with the following required keys:
+
+        - 'class_metadata' (list of str): Metadata conditions to define classes (e.g., treatment names).
+        - 'channel_of_interest' (int): Channel index used for computing recruitment scores.
+        - 'png_type' (str): Type of PNG to retrieve ('raw', 'outline', etc.).
+        - 'size' (int): Number of images to sample per class.
+        - 'nuclei_limit' (int or None): Minimum nucleus size for filtering (used in _read_and_merge_data).
+        - 'pathogen_limit' (int or None): Minimum pathogen size for filtering.
+        - 'custom_measurement' (list of str or None): If provided, defines custom numerator and denominator columns.
+        - 'classes' (list of str): Treatments to annotate using `annotate_conditions`.
+        - 'metadata_type_by' (str): Column in the DB to use for metadata classification ('columnID' or 'rowID').
+        - 'tables' (list of str): Tables to extract from database, e.g., ['cell', 'nucleus'].
+        - 'dataset_mode' (str): Either 'annotation' or 'metadata'. Controls how class sizes are determined.
+
+    Returns
+    -------
+    list of list of str
+        A list where each sublist contains paths to PNGs belonging to one class (e.g., low vs high recruitment).
+    """
     # Function to filter png_list_df by prcfo present in df without merging
     def filter_png_list(db_path, settings, tables = ['cell', 'nucleus', 'pathogen', 'cytoplasm']):
         df, _ = _read_and_merge_data(locs=[db_path],
@@ -2975,6 +3538,41 @@ def generate_training_dataset(settings):
     return train_class_dir, test_class_dir
 
 def training_dataset_from_annotation(db_path, dst, annotation_column='test', annotated_classes=(1, 2)):
+    """
+    Extracts image paths from a database and groups them into class-based lists based on annotation values.
+
+    This function reads from a SQLite database (`png_list` table), extracts image paths and corresponding
+    class annotations, and groups them by the specified `annotated_classes`. If only one class is provided,
+    it automatically generates a second class by sampling the remaining entries not in the target class
+    to create a balanced binary dataset.
+
+    Parameters
+    ----------
+    db_path : str
+        Path to the SQLite database file containing the `png_list` table.
+    
+    dst : str
+        Output path (currently unused in the function, included for compatibility with caller).
+    
+    annotation_column : str, default='test'
+        Column name in the `png_list` table that contains class annotations.
+    
+    annotated_classes : tuple of int, default=(1, 2)
+        Class labels to extract from the annotation column.
+
+    Returns
+    -------
+    class_paths : list of list of str
+        A list where each sublist contains the file paths for images belonging to one class.
+        The number of sublists equals the number of unique classes returned.
+
+    Notes
+    -----
+    - If only one annotated class is provided, the function creates a balanced second class
+      from non-annotated images.
+    - This function does not copy or move any files — it only collects and returns path lists.
+    - All path and annotation data is assumed to be stored in the `png_list` table of the SQLite DB.
+    """
     all_paths = []
 
     # Connect to the database and retrieve the image paths and annotations
@@ -3030,6 +3628,51 @@ def training_dataset_from_annotation(db_path, dst, annotation_column='test', ann
     return class_paths
 
 def training_dataset_from_annotation_metadata(db_path, dst, annotation_column='test', annotated_classes=(1, 2), metadata_type_by='columnID', class_metadata=['c1','c2']):
+    """
+    Extracts annotated image paths from a database, filtered by metadata location (row/column).
+
+    This function reads image paths and annotations from a SQLite database (`png_list` table), filters them
+    by metadata (either `row_name` or `column_name`), and organizes them into class-specific lists based on
+    annotation values. If only one class is specified, the function samples a balanced second class from 
+    remaining entries.
+
+    Parameters
+    ----------
+    db_path : str
+        Path to the SQLite database containing the `png_list` table.
+
+    dst : str
+        Output directory (unused in this function but required for compatibility).
+
+    annotation_column : str, default='test'
+        The column name in `png_list` storing the annotation labels.
+
+    annotated_classes : tuple of int, default=(1, 2)
+        Annotation values to be used for splitting data into separate class groups.
+
+    metadata_type_by : str, {'rowID', 'columnID'}, default='columnID'
+        Which metadata field to filter by — either 'rowID' (uses `row_name`) or 'columnID' (uses `column_name`).
+
+    class_metadata : list of str, default=['c1', 'c2']
+        The metadata values to include (e.g., specific row or column identifiers to filter on).
+
+    Returns
+    -------
+    class_paths : list of list of str
+        A list where each sublist contains paths to images in one class.
+
+    Raises
+    ------
+    ValueError
+        If `metadata_type_by` is not one of 'rowID' or 'columnID'.
+
+    Notes
+    -----
+    - If only one class is specified in `annotated_classes`, a second class is constructed by sampling
+      from non-target annotations in the filtered set to ensure balanced class representation.
+    - This function assumes that `png_path`, `annotation_column`, `row_name`, and `column_name` exist
+      in the `png_list` table.
+    """
     all_paths = []
 
     # Connect to the database and retrieve the image paths and annotations
@@ -3099,6 +3742,44 @@ def training_dataset_from_annotation_metadata(db_path, dst, annotation_column='t
     return class_paths
 
 def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1):
+    """
+    Generates a train/test image dataset directory structure from class-wise path lists.
+
+    This function creates `train` and `test` subdirectories under the given destination directory (`dst`)
+    and copies the image files into class-specific folders after performing a train-test split.
+
+    Parameters
+    ----------
+    dst : str
+        Destination directory where the dataset will be created. Subdirectories for each class will be made under `train/` and `test/`.
+
+    class_data : list of list of str
+        A list where each sublist contains paths to image files belonging to a specific class.
+
+    classes : list of str
+        Class names corresponding to the order of `class_data`.
+
+    test_split : float, default=0.1
+        Proportion of data to be used for the test set. The remainder is used for training.
+
+    Returns
+    -------
+    train_dir : str
+        Path to the top-level training directory.
+
+    test_dir : str
+        Path to the top-level test directory.
+
+    Raises
+    ------
+    ValueError
+        If the number of class labels does not match the number of class data lists.
+
+    Notes
+    -----
+    The train/test split is deterministic (random_state=42).
+    File copying is timed and progress is reported via `print_progress`.
+    """
     from .utils import print_progress
     # Make sure that the length of class_data matches the length of classes
     if len(class_data) != len(classes):
@@ -3146,7 +3827,38 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1):
     return os.path.join(dst, 'train'), os.path.join(dst, 'test')
 
 def convert_separate_files_to_yokogawa(folder, regex):
-    
+    """
+    Converts image files from a folder into Yokogawa-style naming format with optional MIP across Z-slices.
+
+    This function parses filenames using a provided regex, extracts metadata such as well ID, channel, field,
+    timepoint, and slice, and renames the images to the Yokogawa convention:
+    `plateX_WELL_TttttFfffL01Ccc.tif`. If multiple Z-slices exist, it computes a maximum intensity projection (MIP).
+
+    Parameters
+    ----------
+    folder : str
+        Path to the folder containing input TIFF images.
+
+    regex : str
+        Regular expression with named capture groups:
+        - 'plateID' (optional)
+        - 'wellID' (required)
+        - 'fieldID' (optional)
+        - 'timeID' (optional)
+        - 'chanID' (optional)
+        - 'sliceID' (optional)
+
+    Returns
+    -------
+    None
+        Saves renamed TIFF files and a CSV log (`rename_log.csv`) in the same folder.
+
+    Notes
+    -----
+    - Automatically assigns new well names (`plateX_WELL`) if missing or non-standard.
+    - Groups images by region (plate, well, field, time, channel) and performs MIP if multiple slices are present.
+    - Skips files that do not match the regex or are missing required metadata.
+    """
     ROWS = "ABCDEFGHIJKLMNOP"
     COLS = [f"{i:02d}" for i in range(1, 25)]
     WELLS = [f"{r}{c}" for r in ROWS for c in COLS]
@@ -3236,10 +3948,52 @@ def convert_separate_files_to_yokogawa(folder, regex):
 
 def convert_to_yokogawa(folder):
     """
-    Detects file type in the folder and converts them
-    to Yokogawa-style naming with Maximum Intensity Projection (MIP).
+    Converts microscopy image files in a folder to Yokogawa-style TIFF filenames.
+
+    This function processes raw microscopy images in various formats (ND2, CZI, LIF, TIFF, PNG, JPEG, BMP) 
+    and converts them into a standardized Yokogawa naming scheme using maximum intensity projections (MIPs).
+    Each image is assigned a unique well location (e.g., plate1_A01) across one or more 384-well plates.
+    The output files are saved in the same directory with renamed filenames. A CSV log is generated 
+    to track the mapping between original files and the renamed TIFFs.
+
+    Parameters
+    ----------
+    folder : str
+        Path to the directory containing the input microscopy files.
+
+    Supported Formats
+    -----------------
+    - `.nd2` : Nikon ND2 format (processed using ND2Reader)
+    - `.czi` : Zeiss CZI format (processed using pyczi)
+    - `.lif` : Leica LIF format (processed using readlif)
+    - `.tif`, `.tiff`, `.png`, `.jpg`, `.jpeg`, `.bmp` : Image files (processed using tifffile)
+
+    Behavior
+    --------
+    - Computes maximum intensity projections across Z-stacks.
+    - Generates Yokogawa-style filenames: `plateX_<WELL>_T####F###L01C##.tif`
+    - Handles timepoints, Z-stacks, channels, fields, and scenes depending on format.
+    - Avoids reusing well positions across multiple files and scenes.
+    - Skips malformed or incomplete image structures.
+    - Logs all renamed output files to `rename_log.csv` in the same folder.
+
+    Output
+    ------
+    - Converted TIFF images saved in the input folder with Yokogawa-style filenames.
+    - A CSV log `rename_log.csv` containing columns:
+        'Original File', 'Renamed TIFF', 'ext', 'time', 'field', 'channel', 'z', 'scene', 'slice', 'well'
+
+    Notes
+    -----
+    - Requires `ND2Reader`, `pyczi`, `readlif`, `tifffile`, and `pandas`.
+    - Handles multi-dimensional images (2D, 3D, 4D).
+    - Images with unsupported dimensions or structure are skipped with warnings.
+
+    Example
+    -------
+    >>> convert_to_yokogawa("/path/to/raw_images")
+    Processing complete. Files saved in /path/to/raw_images and rename log saved as rename_log.csv.
     """
-       
     def _get_next_well(used_wells):
         """
         Determines the next available well position across multiple 384-well plates.
@@ -3477,6 +4231,22 @@ def convert_to_yokogawa(folder):
     print(f"Processing complete. Files saved in {folder} and rename log saved as {csv_path}.")
     
 def apply_augmentation(image, method):
+    """
+    Applies the specified augmentation method to the given image.
+
+    Parameters:
+        image (numpy.ndarray): The input image to be augmented.
+        method (str): The augmentation method to apply. Supported methods are:
+            - 'rotate90': Rotates the image 90 degrees clockwise.
+            - 'rotate180': Rotates the image 180 degrees.
+            - 'rotate270': Rotates the image 90 degrees counterclockwise.
+            - 'flip_h': Flips the image horizontally.
+            - 'flip_v': Flips the image vertically.
+
+    Returns:
+        numpy.ndarray: The augmented image. If the method is not recognized, 
+        the original image is returned unchanged.
+    """
     if method == 'rotate90':
         return cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
     elif method == 'rotate180':
@@ -3490,6 +4260,24 @@ def apply_augmentation(image, method):
     return image
 
 def process_instruction(entry):
+    """
+    Processes a single image/mask entry by reading, optionally augmenting, and saving both image and mask.
+
+    Parameters
+    ----------
+    entry : dict
+        A dictionary with the following keys:
+            - 'src_img' (str): Path to the source image file.
+            - 'src_msk' (str): Path to the source mask file.
+            - 'dst_img' (str): Path to save the processed image.
+            - 'dst_msk' (str): Path to save the processed mask.
+            - 'augment' (str or None): Augmentation identifier to apply (e.g., 'rotate90', 'flip', or None).
+
+    Returns
+    -------
+    int
+        Returns 1 upon successful completion.
+    """
     img = tifffile.imread(entry["src_img"])
     msk = tifffile.imread(entry["src_msk"])
     if entry["augment"]:
@@ -3500,7 +4288,35 @@ def process_instruction(entry):
     return 1
 
 def prepare_cellpose_dataset(input_root, augment_data=False, train_fraction=0.8, n_jobs=None):
-    
+    """
+    Prepare a training and testing dataset for Cellpose from multiple subdirectories containing TIFF images and corresponding masks.
+
+    This function scans all subfolders in `input_root` that contain a "masks/" directory, finds image-mask pairs,
+    and splits them into train/test sets. Optionally, it augments data using rotation and flipping to balance dataset sizes
+    across all datasets. All output is saved in a standardized format to a new "cellpose_dataset/" folder inside `input_root`.
+
+    Parameters
+    ----------
+    input_root : str
+        Path to the folder containing one or more datasets. Each dataset should have a 'masks/' subfolder with mask files
+        matching the TIFF filenames.
+
+    augment_data : bool, optional
+        If True, perform data augmentation (rotation/flipping) to increase or equalize the number of samples per dataset. 
+        Default is False.
+
+    train_fraction : float, optional
+        Fraction of data to use for training. The rest will go to testing. Default is 0.8 (i.e., 80% train, 20% test).
+
+    n_jobs : int or None, optional
+        Number of parallel worker processes. If None, uses all available CPUs minus one.
+
+    Returns
+    -------
+    None
+        All output TIFFs are saved under `input_root/cellpose_dataset/train/` and `.../test/` folders with consistent naming.
+        A progress bar is printed to track the status of preprocessing.
+    """
     from .utils import print_progress
 
     time_ls = []
