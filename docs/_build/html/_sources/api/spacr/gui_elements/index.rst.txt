@@ -279,7 +279,7 @@ Module Contents
    :param width: Width of the entry widget. Defaults to 220 if not provided.
    :type width: int, optional
    :param \*args: Additional arguments passed to the parent Frame.
-   :param **kwargs: Additional arguments passed to the parent Frame.
+   :param \*\*kwargs: Additional arguments passed to the parent Frame.
 
    Initialize the custom entry widget with dark theme and rounded styling.
 
