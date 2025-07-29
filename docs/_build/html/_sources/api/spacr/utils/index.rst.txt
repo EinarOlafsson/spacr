@@ -3009,51 +3009,52 @@ Module Contents
 
 .. py:function:: get_ml_results_paths(src, model_type='xgboost', channel_of_interest=1)
 
-   Generate file paths for machine learning results based on the specified parameters.
-   This function creates a directory structure for storing machine learning results
-   and returns the paths to various result files.
-   :param src: The base directory where the results folder will be created.
+   Generate file paths for machine learning result outputs based on model type and feature selection.
+
+   :param src: Base directory where the results folder structure will be created.
    :type src: str
-   :param model_type: The type of machine learning model. Defaults to 'xgboost'.
+   :param model_type: Type of ML model used (e.g., 'xgboost', 'random_forest'). Defaults to 'xgboost'.
    :type model_type: str, optional
-   :param channel_of_interest: Specifies the feature set used.
-                               - If int: A single channel (e.g., 1).
-                               - If list: Multiple channels (e.g., [1, 2, 3]).
-                               - If 'morphology': Use morphology features.
-                               - If None: Use all features.
+   :param channel_of_interest: Feature set specification:
+                               - int: Single channel (e.g., 1)
+                               - list[int]: Multiple channels (e.g., [1, 2, 3])
+                               - 'morphology': Use only morphology features
+                               - None: Use all features
                                Defaults to 1.
-   :type channel_of_interest: int, list, str, or None, optional
+   :type channel_of_interest: int | list[int] | str | None, optional
 
    :returns:
 
-             A tuple containing the following file paths:
-                 - data_path (str): Path to the results CSV file.
-                 - permutation_path (str): Path to the permutation CSV file.
-                 - feature_importance_path (str): Path to the feature importance CSV file.
-                 - model_metricks_path (str): Path to the model metrics CSV file.
-                 - permutation_fig_path (str): Path to the permutation figure (PDF).
-                 - feature_importance_fig_path (str): Path to the feature importance figure (PDF).
-                 - shap_fig_path (str): Path to the SHAP figure (PDF).
-                 - plate_heatmap_path (str): Path to the plate heatmap figure (PDF).
-                 - settings_csv (str): Path to the machine learning settings CSV file.
-                 - ml_features (str): Path to the machine learning features CSV file.
-   :rtype: tuple
+             Tuple of 10 file paths:
+                 - data_path: CSV with predictions or main results
+                 - permutation_path: CSV with permutation importances
+                 - feature_importance_path: CSV with model feature importances
+                 - model_metricks_path: CSV with metrics from trained model
+                 - permutation_fig_path: PDF plot of permutation importances
+                 - feature_importance_fig_path: PDF plot of feature importances
+                 - shap_fig_path: PDF SHAP summary plot
+                 - plate_heatmap_path: PDF visualization of plate layout
+                 - settings_csv: CSV with ML settings and parameters
+                 - ml_features: CSV with extracted feature data used for training
+   :rtype: tuple[str, ...]
 
-   :raises ValueError: If `channel_of_interest` is not of type int, list, None, or 'morphology'.
+   :raises ValueError: If `channel_of_interest` is not an int, list, None, or 'morphology'.
 
    .. rubric:: Example
 
    >>> get_ml_results_paths('/home/user/data', model_type='random_forest', channel_of_interest=[1, 2])
-   ('/home/user/data/results/random_forest/channels_1_2/results.csv',
-    '/home/user/data/results/random_forest/channels_1_2/permutation.csv',
-    '/home/user/data/results/random_forest/channels_1_2/feature_importance.csv',
-    '/home/user/data/results/random_forest/channels_1_2/random_forest_model.csv',
-    '/home/user/data/results/random_forest/channels_1_2/permutation.pdf',
-    '/home/user/data/results/random_forest/channels_1_2/feature_importance.pdf',
-    '/home/user/data/results/random_forest/channels_1_2/shap.pdf',
-    '/home/user/data/results/random_forest/channels_1_2/plate_heatmap.pdf',
-    '/home/user/data/results/random_forest/channels_1_2/ml_settings.csv',
-    '/home/user/data/results/random_forest/channels_1_2/ml_features.csv')
+   (
+       '/home/user/data/results/random_forest/channels_1_2/results.csv',
+       '/home/user/data/results/random_forest/channels_1_2/permutation.csv',
+       '/home/user/data/results/random_forest/channels_1_2/feature_importance.csv',
+       '/home/user/data/results/random_forest/channels_1_2/random_forest_model.csv',
+       '/home/user/data/results/random_forest/channels_1_2/permutation.pdf',
+       '/home/user/data/results/random_forest/channels_1_2/feature_importance.pdf',
+       '/home/user/data/results/random_forest/channels_1_2/shap.pdf',
+       '/home/user/data/results/random_forest/channels_1_2/plate_heatmap.pdf',
+       '/home/user/data/results/random_forest/channels_1_2/ml_settings.csv',
+       '/home/user/data/results/random_forest/channels_1_2/ml_features.csv'
+   )
 
 
 .. py:function:: augment_image(image)
@@ -3147,25 +3148,21 @@ Module Contents
 
 .. py:function:: prepare_batch_for_segmentation(batch)
 
-   Prepares a batch of images for segmentation by ensuring the correct data type
-   and normalizing pixel values.
-   :param batch: A batch of images represented as a NumPy array.
-                 The array is expected to have a shape of (N, H, W, C), where:
-                 - N is the number of images in the batch,
-                 - H and W are the height and width of each image,
-                 - C is the number of channels (e.g., 1 for grayscale, 3 for RGB).
-   :type batch: numpy.ndarray
+   Prepare a batch of images for segmentation by ensuring correct data type and normalization.
 
-   :returns: The processed batch of images with dtype `float32` and
-             pixel values normalized to the range [0, 1] if they were not already.
-   :rtype: numpy.ndarray
+   :param batch: Batch of images with shape (N, H, W, C), where:
+                 - N: number of images
+                 - H, W: height and width
+                 - C: number of channels (e.g., 1 for grayscale, 3 for RGB)
+   :type batch: np.ndarray
+
+   :returns: Batch with dtype `float32`, normalized to [0, 1] if needed.
+   :rtype: np.ndarray
 
    .. rubric:: Notes
 
-   - If the input batch is not of dtype `float32`, it will be converted.
-   - Each image in the batch is normalized individually by dividing its
-     pixel values by the maximum pixel value in that image, if the maximum
-     value is greater than 1.
+   - Converts to `float32` if not already.
+   - Each image is divided by its own maximum pixel value if that value > 1.
 
 
 .. py:function:: check_index(df, elements=5, split_char='_')
@@ -3272,22 +3269,22 @@ Module Contents
 
 .. py:function:: correct_metadata_column_names(df)
 
-   Corrects the column names of a given DataFrame to standardize metadata naming conventions.
+   Standardize column names in a metadata DataFrame.
 
-   The function performs the following transformations:
-   - Renames 'plate_name' to 'plateID'.
-   - Renames 'column_name' to 'columnID'.
-   - Renames 'col' to 'columnID'.
-   - Renames 'row_name' to 'rowID'.
-   - Renames 'grna_name' to 'grna'.
-   - If 'plate_row' exists, splits it into two new columns: 'plateID' and 'rowID',
-     using an underscore ('_') as the delimiter.
+   This function renames commonly used but inconsistent metadata columns to a standardized format.
 
-   :param df: The input DataFrame containing metadata columns.
-   :type df: pandas.DataFrame
+   Renaming rules:
+       - 'plate_name' → 'plateID'
+       - 'column_name' or 'col' → 'columnID'
+       - 'row_name' → 'rowID'
+       - 'grna_name' → 'grna'
+       - If 'plate_row' exists, it is split into 'plateID' and 'rowID' using '_' as a delimiter.
 
-   :returns: A DataFrame with corrected column names.
-   :rtype: pandas.DataFrame
+   :param df: Input DataFrame with metadata columns.
+   :type df: pd.DataFrame
+
+   :returns: DataFrame with standardized column names.
+   :rtype: pd.DataFrame
 
 
 .. py:function:: control_filelist(folder, mode='columnID', values=['01', '02'])
@@ -3324,65 +3321,63 @@ Module Contents
 
 .. py:function:: group_feature_class(df, feature_groups=['cell', 'cytoplasm', 'nucleus', 'pathogen'], name='compartment')
 
-   Groups features in a DataFrame into specified categories and calculates the summed importance for each group.
-   :param df: The input DataFrame containing at least the columns 'feature' and 'importance'.
+   Classify and group features by category, then compute summed importance for each group.
+
+   This function adds a new column to the DataFrame to classify features based on regex matching
+   against the given `feature_groups`. It then computes the total importance per group.
+
+   :param df: Input DataFrame with at least the columns `'feature'` and `'importance'`.
    :type df: pd.DataFrame
-   :param feature_groups: A list of strings representing the feature groups to classify.
+   :param feature_groups: List of feature group identifiers (used in regex matching).
                           Defaults to ['cell', 'cytoplasm', 'nucleus', 'pathogen'].
    :type feature_groups: list of str, optional
-   :param name: The name of the new column to store the feature group classification.
+   :param name: Name of the new column used to store group classifications.
+                If set to `'channel'`, missing values in that column will be filled with `'morphology'`.
                 Defaults to 'compartment'.
    :type name: str, optional
 
    :returns:
 
-             The modified DataFrame with a new column for the feature group classification and
-                 summed importance for each group.
+             Modified DataFrame including:
+                 - A new column with group classifications (based on `name` argument).
+                 - A summary with summed importance for each group and a row for total importance.
    :rtype: pd.DataFrame
 
    .. rubric:: Notes
 
-   - The function uses regex matching to classify features into the specified groups.
-   - If a feature matches multiple groups, the groups are concatenated with a hyphen.
-   - If the `name` parameter is set to 'channel', missing values in the 'channel' column are filled with 'morphology'.
-   - A summary DataFrame is created with the summed importance for each group, including a row for the total importance.
+   - A feature matching multiple groups will have their labels joined with a hyphen (e.g., "cell-nucleus").
+   - Classification is done via regex search on the `'feature'` column.
 
 
 .. py:function:: delete_intermedeate_files(settings)
 
-   Deletes intermediate files and directories specified in the settings dictionary.
-   This function removes a set of predefined directories under the source path (`src`)
-   provided in the `settings` dictionary. It ensures that the directories exist before
-   attempting to delete them. If any directory cannot be deleted, an error message is
-   printed, and the user is advised to delete it manually.
-   :param settings: A dictionary containing configuration settings. It must include
-                    the key 'src', which specifies the base directory containing
-                    the intermediate files and directories to be deleted.
+   Delete intermediate files and directories specified in the settings dictionary.
+
+   This function removes a predefined set of subdirectories under the path given by
+   `settings['src']`. If deletion fails, an error message is printed.
+
+   :param settings: Must include the key `'src'`, the base directory containing
+                    intermediate files and subdirectories.
    :type settings: dict
 
    Behavior:
-       - Checks if the 'src' key exists in the `settings` dictionary.
-       - Verifies that the `src` directory and the `orig` subdirectory exist.
-       - Deletes the following subdirectories under `src` if they exist:
-         - 'stack'
-         - 'masks'
-         - '1', '2', ..., '10'
-       - Prints a success message for each deleted directory.
-       - Prints an error message if a directory cannot be deleted or does not exist.
+       - Verifies that `'src'` and its `orig/` subdirectory exist.
+       - Deletes the following under `src` if they exist:
+           * 'stack'
+           * 'masks'
+           * directories '1' through '10'
+       - Compares lengths of `merged_stack` and `path_stack` to decide on deletion.
+       - Prints success or error messages for each directory.
+
    .. rubric:: Notes
 
-   - The function compares the lengths of the `merged_stack` and `path_stack`
-     directories to determine whether to proceed with deletion.
-   - If the `src` directory or the `orig` subdirectory does not exist, the function
-     exits with an appropriate message.
-
-   :raises None: Any exceptions during directory deletion are caught and logged as error
-       messages.
+   - If `src` or `orig/` is missing, the function exits early.
+   - Any deletion exceptions are caught and reported; no exceptions are raised.
 
    .. rubric:: Example
 
-   settings = {'src': '/path/to/source'}
-   delete_intermedeate_files(settings)
+   >>> settings = {'src': '/path/to/source'}
+   >>> delete_intermedeate_files(settings)
 
 
 .. py:function:: filter_and_save_csv(input_csv, output_csv, column_name, upper_threshold, lower_threshold)

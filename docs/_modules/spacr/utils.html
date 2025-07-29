@@ -8700,44 +8700,48 @@
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.get_ml_results_paths">[docs]</a>
 <span class="k">def</span> <span class="nf">get_ml_results_paths</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">model_type</span><span class="o">=</span><span class="s1">&#39;xgboost&#39;</span><span class="p">,</span> <span class="n">channel_of_interest</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Generate file paths for machine learning results based on the specified parameters.</span>
-<span class="sd">    This function creates a directory structure for storing machine learning results</span>
-<span class="sd">    and returns the paths to various result files.</span>
+<span class="sd">    Generate file paths for machine learning result outputs based on model type and feature selection.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        src (str): The base directory where the results folder will be created.</span>
-<span class="sd">        model_type (str, optional): The type of machine learning model. Defaults to &#39;xgboost&#39;.</span>
-<span class="sd">        channel_of_interest (int, list, str, or None, optional): Specifies the feature set used.</span>
-<span class="sd">            - If int: A single channel (e.g., 1).</span>
-<span class="sd">            - If list: Multiple channels (e.g., [1, 2, 3]).</span>
-<span class="sd">            - If &#39;morphology&#39;: Use morphology features.</span>
-<span class="sd">            - If None: Use all features.</span>
+<span class="sd">        src (str): Base directory where the results folder structure will be created.</span>
+<span class="sd">        model_type (str, optional): Type of ML model used (e.g., &#39;xgboost&#39;, &#39;random_forest&#39;). Defaults to &#39;xgboost&#39;.</span>
+<span class="sd">        channel_of_interest (int | list[int] | str | None, optional): Feature set specification:</span>
+<span class="sd">            - int: Single channel (e.g., 1)</span>
+<span class="sd">            - list[int]: Multiple channels (e.g., [1, 2, 3])</span>
+<span class="sd">            - &#39;morphology&#39;: Use only morphology features</span>
+<span class="sd">            - None: Use all features</span>
 <span class="sd">            Defaults to 1.</span>
+
 <span class="sd">    Returns:</span>
-<span class="sd">        tuple: A tuple containing the following file paths:</span>
-<span class="sd">            - data_path (str): Path to the results CSV file.</span>
-<span class="sd">            - permutation_path (str): Path to the permutation CSV file.</span>
-<span class="sd">            - feature_importance_path (str): Path to the feature importance CSV file.</span>
-<span class="sd">            - model_metricks_path (str): Path to the model metrics CSV file.</span>
-<span class="sd">            - permutation_fig_path (str): Path to the permutation figure (PDF).</span>
-<span class="sd">            - feature_importance_fig_path (str): Path to the feature importance figure (PDF).</span>
-<span class="sd">            - shap_fig_path (str): Path to the SHAP figure (PDF).</span>
-<span class="sd">            - plate_heatmap_path (str): Path to the plate heatmap figure (PDF).</span>
-<span class="sd">            - settings_csv (str): Path to the machine learning settings CSV file.</span>
-<span class="sd">            - ml_features (str): Path to the machine learning features CSV file.</span>
+<span class="sd">        tuple[str, ...]: Tuple of 10 file paths:</span>
+<span class="sd">            - data_path: CSV with predictions or main results</span>
+<span class="sd">            - permutation_path: CSV with permutation importances</span>
+<span class="sd">            - feature_importance_path: CSV with model feature importances</span>
+<span class="sd">            - model_metricks_path: CSV with metrics from trained model</span>
+<span class="sd">            - permutation_fig_path: PDF plot of permutation importances</span>
+<span class="sd">            - feature_importance_fig_path: PDF plot of feature importances</span>
+<span class="sd">            - shap_fig_path: PDF SHAP summary plot</span>
+<span class="sd">            - plate_heatmap_path: PDF visualization of plate layout</span>
+<span class="sd">            - settings_csv: CSV with ML settings and parameters</span>
+<span class="sd">            - ml_features: CSV with extracted feature data used for training</span>
+
 <span class="sd">    Raises:</span>
-<span class="sd">        ValueError: If `channel_of_interest` is not of type int, list, None, or &#39;morphology&#39;.</span>
+<span class="sd">        ValueError: If `channel_of_interest` is not an int, list, None, or &#39;morphology&#39;.</span>
+
 <span class="sd">    Example:</span>
 <span class="sd">        &gt;&gt;&gt; get_ml_results_paths(&#39;/home/user/data&#39;, model_type=&#39;random_forest&#39;, channel_of_interest=[1, 2])</span>
-<span class="sd">        (&#39;/home/user/data/results/random_forest/channels_1_2/results.csv&#39;, </span>
-<span class="sd">         &#39;/home/user/data/results/random_forest/channels_1_2/permutation.csv&#39;, </span>
-<span class="sd">         &#39;/home/user/data/results/random_forest/channels_1_2/feature_importance.csv&#39;, </span>
-<span class="sd">         &#39;/home/user/data/results/random_forest/channels_1_2/random_forest_model.csv&#39;, </span>
-<span class="sd">         &#39;/home/user/data/results/random_forest/channels_1_2/permutation.pdf&#39;, </span>
-<span class="sd">         &#39;/home/user/data/results/random_forest/channels_1_2/feature_importance.pdf&#39;, </span>
-<span class="sd">         &#39;/home/user/data/results/random_forest/channels_1_2/shap.pdf&#39;, </span>
-<span class="sd">         &#39;/home/user/data/results/random_forest/channels_1_2/plate_heatmap.pdf&#39;, </span>
-<span class="sd">         &#39;/home/user/data/results/random_forest/channels_1_2/ml_settings.csv&#39;, </span>
-<span class="sd">         &#39;/home/user/data/results/random_forest/channels_1_2/ml_features.csv&#39;)</span>
+<span class="sd">        (</span>
+<span class="sd">            &#39;/home/user/data/results/random_forest/channels_1_2/results.csv&#39;,</span>
+<span class="sd">            &#39;/home/user/data/results/random_forest/channels_1_2/permutation.csv&#39;,</span>
+<span class="sd">            &#39;/home/user/data/results/random_forest/channels_1_2/feature_importance.csv&#39;,</span>
+<span class="sd">            &#39;/home/user/data/results/random_forest/channels_1_2/random_forest_model.csv&#39;,</span>
+<span class="sd">            &#39;/home/user/data/results/random_forest/channels_1_2/permutation.pdf&#39;,</span>
+<span class="sd">            &#39;/home/user/data/results/random_forest/channels_1_2/feature_importance.pdf&#39;,</span>
+<span class="sd">            &#39;/home/user/data/results/random_forest/channels_1_2/shap.pdf&#39;,</span>
+<span class="sd">            &#39;/home/user/data/results/random_forest/channels_1_2/plate_heatmap.pdf&#39;,</span>
+<span class="sd">            &#39;/home/user/data/results/random_forest/channels_1_2/ml_settings.csv&#39;,</span>
+<span class="sd">            &#39;/home/user/data/results/random_forest/channels_1_2/ml_features.csv&#39;</span>
+<span class="sd">        )</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channel_of_interest</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -8994,22 +8998,20 @@
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.prepare_batch_for_segmentation">[docs]</a>
 <span class="k">def</span> <span class="nf">prepare_batch_for_segmentation</span><span class="p">(</span><span class="n">batch</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Prepares a batch of images for segmentation by ensuring the correct data type </span>
-<span class="sd">    and normalizing pixel values.</span>
+<span class="sd">    Prepare a batch of images for segmentation by ensuring correct data type and normalization.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        batch (numpy.ndarray): A batch of images represented as a NumPy array. </span>
-<span class="sd">            The array is expected to have a shape of (N, H, W, C), where:</span>
-<span class="sd">            - N is the number of images in the batch,</span>
-<span class="sd">            - H and W are the height and width of each image,</span>
-<span class="sd">            - C is the number of channels (e.g., 1 for grayscale, 3 for RGB).</span>
+<span class="sd">        batch (np.ndarray): Batch of images with shape (N, H, W, C), where:</span>
+<span class="sd">            - N: number of images</span>
+<span class="sd">            - H, W: height and width</span>
+<span class="sd">            - C: number of channels (e.g., 1 for grayscale, 3 for RGB)</span>
+
 <span class="sd">    Returns:</span>
-<span class="sd">        numpy.ndarray: The processed batch of images with dtype `float32` and </span>
-<span class="sd">        pixel values normalized to the range [0, 1] if they were not already.</span>
+<span class="sd">        np.ndarray: Batch with dtype `float32`, normalized to [0, 1] if needed.</span>
+
 <span class="sd">    Notes:</span>
-<span class="sd">        - If the input batch is not of dtype `float32`, it will be converted.</span>
-<span class="sd">        - Each image in the batch is normalized individually by dividing its </span>
-<span class="sd">          pixel values by the maximum pixel value in that image, if the maximum </span>
-<span class="sd">          value is greater than 1.</span>
+<span class="sd">        - Converts to `float32` if not already.</span>
+<span class="sd">        - Each image is divided by its own maximum pixel value if that value &gt; 1.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Ensure the batch is of dtype float32</span>
     <span class="k">if</span> <span class="n">batch</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">:</span>
@@ -9290,22 +9292,22 @@
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.correct_metadata_column_names">[docs]</a>
 <span class="k">def</span> <span class="nf">correct_metadata_column_names</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Corrects the column names of a given DataFrame to standardize metadata naming conventions.</span>
+<span class="sd">    Standardize column names in a metadata DataFrame.</span>
 
-<span class="sd">    The function performs the following transformations:</span>
-<span class="sd">    - Renames &#39;plate_name&#39; to &#39;plateID&#39;.</span>
-<span class="sd">    - Renames &#39;column_name&#39; to &#39;columnID&#39;.</span>
-<span class="sd">    - Renames &#39;col&#39; to &#39;columnID&#39;.</span>
-<span class="sd">    - Renames &#39;row_name&#39; to &#39;rowID&#39;.</span>
-<span class="sd">    - Renames &#39;grna_name&#39; to &#39;grna&#39;.</span>
-<span class="sd">    - If &#39;plate_row&#39; exists, splits it into two new columns: &#39;plateID&#39; and &#39;rowID&#39;, </span>
-<span class="sd">      using an underscore (&#39;_&#39;) as the delimiter.</span>
+<span class="sd">    This function renames commonly used but inconsistent metadata columns to a standardized format.</span>
+
+<span class="sd">    Renaming rules:</span>
+<span class="sd">        - &#39;plate_name&#39; → &#39;plateID&#39;</span>
+<span class="sd">        - &#39;column_name&#39; or &#39;col&#39; → &#39;columnID&#39;</span>
+<span class="sd">        - &#39;row_name&#39; → &#39;rowID&#39;</span>
+<span class="sd">        - &#39;grna_name&#39; → &#39;grna&#39;</span>
+<span class="sd">        - If &#39;plate_row&#39; exists, it is split into &#39;plateID&#39; and &#39;rowID&#39; using &#39;_&#39; as a delimiter.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        df (pandas.DataFrame): The input DataFrame containing metadata columns.</span>
+<span class="sd">        df (pd.DataFrame): Input DataFrame with metadata columns.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        pandas.DataFrame: A DataFrame with corrected column names.</span>
+<span class="sd">        pd.DataFrame: DataFrame with standardized column names.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="s1">&#39;plate_name&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;plate_name&#39;</span><span class="p">:</span> <span class="s1">&#39;plateID&#39;</span><span class="p">})</span>
@@ -9421,21 +9423,27 @@
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.group_feature_class">[docs]</a>
 <span class="k">def</span> <span class="nf">group_feature_class</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">feature_groups</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cell&#39;</span><span class="p">,</span> <span class="s1">&#39;cytoplasm&#39;</span><span class="p">,</span> <span class="s1">&#39;nucleus&#39;</span><span class="p">,</span> <span class="s1">&#39;pathogen&#39;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;compartment&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Groups features in a DataFrame into specified categories and calculates the summed importance for each group.</span>
+<span class="sd">    Classify and group features by category, then compute summed importance for each group.</span>
+
+<span class="sd">    This function adds a new column to the DataFrame to classify features based on regex matching </span>
+<span class="sd">    against the given `feature_groups`. It then computes the total importance per group.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        df (pd.DataFrame): The input DataFrame containing at least the columns &#39;feature&#39; and &#39;importance&#39;.</span>
-<span class="sd">        feature_groups (list of str, optional): A list of strings representing the feature groups to classify.</span>
+<span class="sd">        df (pd.DataFrame): Input DataFrame with at least the columns `&#39;feature&#39;` and `&#39;importance&#39;`.</span>
+<span class="sd">        feature_groups (list of str, optional): List of feature group identifiers (used in regex matching).</span>
 <span class="sd">            Defaults to [&#39;cell&#39;, &#39;cytoplasm&#39;, &#39;nucleus&#39;, &#39;pathogen&#39;].</span>
-<span class="sd">        name (str, optional): The name of the new column to store the feature group classification.</span>
+<span class="sd">        name (str, optional): Name of the new column used to store group classifications. </span>
+<span class="sd">            If set to `&#39;channel&#39;`, missing values in that column will be filled with `&#39;morphology&#39;`.</span>
 <span class="sd">            Defaults to &#39;compartment&#39;.</span>
+
 <span class="sd">    Returns:</span>
-<span class="sd">        pd.DataFrame: The modified DataFrame with a new column for the feature group classification and</span>
-<span class="sd">            summed importance for each group.</span>
+<span class="sd">        pd.DataFrame: Modified DataFrame including:</span>
+<span class="sd">            - A new column with group classifications (based on `name` argument).</span>
+<span class="sd">            - A summary with summed importance for each group and a row for total importance.</span>
+
 <span class="sd">    Notes:</span>
-<span class="sd">        - The function uses regex matching to classify features into the specified groups.</span>
-<span class="sd">        - If a feature matches multiple groups, the groups are concatenated with a hyphen.</span>
-<span class="sd">        - If the `name` parameter is set to &#39;channel&#39;, missing values in the &#39;channel&#39; column are filled with &#39;morphology&#39;.</span>
-<span class="sd">        - A summary DataFrame is created with the summed importance for each group, including a row for the total importance.</span>
+<span class="sd">        - A feature matching multiple groups will have their labels joined with a hyphen (e.g., &quot;cell-nucleus&quot;).</span>
+<span class="sd">        - Classification is done via regex search on the `&#39;feature&#39;` column.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Function to determine compartment based on multiple matches</span>
@@ -9471,35 +9479,31 @@
 <a class="viewcode-back" href="../../api/spacr/utils/index.html#spacr.utils.delete_intermedeate_files">[docs]</a>
 <span class="k">def</span> <span class="nf">delete_intermedeate_files</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Deletes intermediate files and directories specified in the settings dictionary.</span>
-<span class="sd">    This function removes a set of predefined directories under the source path (`src`) </span>
-<span class="sd">    provided in the `settings` dictionary. It ensures that the directories exist before </span>
-<span class="sd">    attempting to delete them. If any directory cannot be deleted, an error message is </span>
-<span class="sd">    printed, and the user is advised to delete it manually.</span>
+<span class="sd">    Delete intermediate files and directories specified in the settings dictionary.</span>
+
+<span class="sd">    This function removes a predefined set of subdirectories under the path given by</span>
+<span class="sd">    `settings[&#39;src&#39;]`. If deletion fails, an error message is printed.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        settings (dict): A dictionary containing configuration settings. It must include </span>
-<span class="sd">                         the key &#39;src&#39;, which specifies the base directory containing </span>
-<span class="sd">                         the intermediate files and directories to be deleted.</span>
+<span class="sd">        settings (dict): Must include the key `&#39;src&#39;`, the base directory containing</span>
+<span class="sd">                         intermediate files and subdirectories.</span>
+
 <span class="sd">    Behavior:</span>
-<span class="sd">        - Checks if the &#39;src&#39; key exists in the `settings` dictionary.</span>
-<span class="sd">        - Verifies that the `src` directory and the `orig` subdirectory exist.</span>
-<span class="sd">        - Deletes the following subdirectories under `src` if they exist:</span>
-<span class="sd">          - &#39;stack&#39;</span>
-<span class="sd">          - &#39;masks&#39;</span>
-<span class="sd">          - &#39;1&#39;, &#39;2&#39;, ..., &#39;10&#39;</span>
-<span class="sd">        - Prints a success message for each deleted directory.</span>
-<span class="sd">        - Prints an error message if a directory cannot be deleted or does not exist.</span>
+<span class="sd">        - Verifies that `&#39;src&#39;` and its `orig/` subdirectory exist.</span>
+<span class="sd">        - Deletes the following under `src` if they exist:</span>
+<span class="sd">            * &#39;stack&#39;</span>
+<span class="sd">            * &#39;masks&#39;</span>
+<span class="sd">            * directories &#39;1&#39; through &#39;10&#39;</span>
+<span class="sd">        - Compares lengths of `merged_stack` and `path_stack` to decide on deletion.</span>
+<span class="sd">        - Prints success or error messages for each directory.</span>
+
 <span class="sd">    Notes:</span>
-<span class="sd">        - The function compares the lengths of the `merged_stack` and `path_stack` </span>
-<span class="sd">          directories to determine whether to proceed with deletion.</span>
-<span class="sd">        - If the `src` directory or the `orig` subdirectory does not exist, the function </span>
-<span class="sd">          exits with an appropriate message.</span>
-<span class="sd">    Raises:</span>
-<span class="sd">        None: Any exceptions during directory deletion are caught and logged as error </span>
-<span class="sd">              messages.</span>
+<span class="sd">        - If `src` or `orig/` is missing, the function exits early.</span>
+<span class="sd">        - Any deletion exceptions are caught and reported; no exceptions are raised.</span>
+
 <span class="sd">    Example:</span>
-<span class="sd">        settings = {&#39;src&#39;: &#39;/path/to/source&#39;}</span>
-<span class="sd">        delete_intermedeate_files(settings)</span>
+<span class="sd">        &gt;&gt;&gt; settings = {&#39;src&#39;: &#39;/path/to/source&#39;}</span>
+<span class="sd">        &gt;&gt;&gt; delete_intermedeate_files(settings)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="n">path_orig</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="s1">&#39;orig&#39;</span><span class="p">)</span>
