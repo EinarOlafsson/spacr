@@ -1099,22 +1099,39 @@
 <dt class="sig sig-object py" id="spacr.submodules.CellposeLazyDataset">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.submodules.</span></span><span class="sig-name descname"><span class="pre">CellposeLazyDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">augment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/submodules.html#CellposeLazyDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.CellposeLazyDataset" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.utils.data.Dataset</span></code></p>
-<p>An abstract class representing a <code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code>.</p>
-<p>All datasets that represent a map from keys to data samples should subclass
-it. All subclasses should overwrite <a class="reference internal" href="#spacr.submodules.CellposeLazyDataset.__getitem__" title="spacr.submodules.CellposeLazyDataset.__getitem__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__getitem__()</span></code></a>, supporting fetching a
-data sample for a given key. Subclasses could also optionally overwrite
-<a class="reference internal" href="#spacr.submodules.CellposeLazyDataset.__len__" title="spacr.submodules.CellposeLazyDataset.__len__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__len__()</span></code></a>, which is expected to return the size of the dataset by many
-<code class="xref py py-class docutils literal notranslate"><span class="pre">Sampler</span></code> implementations and the default options
-of <code class="xref py py-class docutils literal notranslate"><span class="pre">DataLoader</span></code>. Subclasses could also
-optionally implement <code class="xref py py-meth docutils literal notranslate"><span class="pre">__getitems__()</span></code>, for speedup batched samples
-loading. This method accepts list of indices of samples of batch and returns
-list of samples.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataLoader</span></code> by default constructs an index
-sampler that yields integral indices.  To make it work with a map-style
-dataset with non-integral indices/keys, a custom sampler must be provided.</p>
-</div>
+<p>A PyTorch Dataset for lazy loading and optional augmentation of images and segmentation masks
+for training Cellpose-based models.</p>
+<p>Images and labels are loaded from file paths on-the-fly, optionally normalized and resized,
+and can be augmented with basic geometric transformations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_files</strong> (<em>list</em><em> of </em><em>str</em>) – List of file paths to image files.</p></li>
+<li><p><strong>label_files</strong> (<em>list</em><em> of </em><em>str</em>) – List of file paths to corresponding label files.</p></li>
+<li><p><strong>settings</strong> (<em>dict</em>) – Dictionary containing dataset settings:
+- ‘normalize’ (bool): Whether to apply percentile-based intensity normalization.
+- ‘percentiles’ (list of int): Two-element list specifying lower and upper percentiles (default: [2, 99]).
+- ‘target_size’ (int): Desired output image size (height and width).</p></li>
+<li><p><strong>randomize</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to shuffle the dataset order. Defaults to True.</p></li>
+<li><p><strong>augment</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to apply 8-way geometric data augmentation. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Initialize the CellposeLazyDataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_files</strong> (<em>list</em><em> of </em><em>str</em>) – Paths to input image files.</p></li>
+<li><p><strong>label_files</strong> (<em>list</em><em> of </em><em>str</em>) – Paths to corresponding label files.</p></li>
+<li><p><strong>settings</strong> (<em>dict</em>) – Configuration dictionary with keys:
+- ‘normalize’ (bool)
+- ‘percentiles’ (list of int)
+- ‘target_size’ (int)</p></li>
+<li><p><strong>randomize</strong> (<em>bool</em><em>, </em><em>optional</em>) – Shuffle file order. Defaults to True.</p></li>
+<li><p><strong>augment</strong> (<em>bool</em><em>, </em><em>optional</em>) – Enable 8-fold augmentation. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.submodules.CellposeLazyDataset.normalize">
 <span class="sig-name descname"><span class="pre">normalize</span></span><a class="reference internal" href="../../../_modules/spacr/submodules.html#CellposeLazyDataset.normalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.CellposeLazyDataset.normalize" title="Link to this definition"></a></dt>
@@ -1138,24 +1155,96 @@ dataset with non-integral indices/keys, a custom sampler must be provided.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.submodules.CellposeLazyDataset.__len__">
 <span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/submodules.html#CellposeLazyDataset.__len__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.CellposeLazyDataset.__len__" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Return the number of samples in the dataset.</p>
+<p>If augmentation is enabled, each sample contributes 8 variants.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Total number of samples (augmented if applicable).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.submodules.CellposeLazyDataset.apply_augmentation">
 <span class="sig-name descname"><span class="pre">apply_augmentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aug_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/submodules.html#CellposeLazyDataset.apply_augmentation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.CellposeLazyDataset.apply_augmentation" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Apply one of 8 geometric augmentations to an image-label pair.</p>
+<p>Augmentations include rotations (90°, 180°, 270°) and horizontal/vertical flips.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ndarray</em>) – Input image array.</p></li>
+<li><p><strong>label</strong> (<em>ndarray</em>) – Corresponding label array.</p></li>
+<li><p><strong>aug_idx</strong> (<em>int</em>) – Index from 0 to 7 specifying the augmentation to apply.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Augmented (image, label) pair.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.submodules.CellposeLazyDataset.__getitem__">
 <span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/submodules.html#CellposeLazyDataset.__getitem__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.CellposeLazyDataset.__getitem__" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Retrieve a sample by index, optionally applying augmentation and preprocessing.</p>
+<p>Loads the image and label, normalizes intensity if specified, applies augmentation,
+and resizes to the target shape.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>idx</strong> (<em>int</em>) – Index of the sample to retrieve.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>image (np.ndarray): Preprocessed image, shape (target_size, target_size), dtype float32.</p></li>
+<li><p>label (np.ndarray): Resized label mask, shape (target_size, target_size), dtype uint8.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.submodules.train_cellpose">
 <span class="sig-prename descclassname"><span class="pre">spacr.submodules.</span></span><span class="sig-name descname"><span class="pre">train_cellpose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/submodules.html#train_cellpose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.submodules.train_cellpose" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Train a Cellpose model on custom images and masks using specified settings.</p>
+<p>This function prepares training data from <cite>train/images</cite> and <cite>train/masks</cite> subfolders within
+the provided <cite>settings[‘src’]</cite> directory. It constructs a model name based on training parameters,
+initializes the Cellpose model, and trains it using the specified number of epochs and hyperparameters.</p>
+<p>The dataset can be augmented up to 8-fold, and training images and masks are matched by filename.
+Training progress is visualized (if possible), and the model is saved in <cite>models/cellpose_model</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Dictionary with the following required keys:
+- ‘src’ (str): Root directory containing <cite>train/images</cite>, <cite>train/masks</cite>, and <cite>models</cite>.
+- ‘target_size’ (int): Side length to which images/masks are resized.
+- ‘model_name’ (str): Base name of the model.
+- ‘n_epochs’ (int): Number of training epochs.
+- ‘batch_size’ (int): Number of images to train per batch.
+- ‘learning_rate’ (float): Learning rate for training.
+- ‘weight_decay’ (float): Weight decay (L2 regularization).
+- ‘augment’ (bool): Whether to use 8-fold data augmentation.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Side Effects:</dt><dd><ul class="simple">
+<li><p>Trains a model and saves it to <cite>models/cellpose_model/</cite>.</p></li>
+<li><p>Writes training settings using <cite>save_settings()</cite>.</p></li>
+<li><p>Optionally visualizes a training batch using <cite>plot_cellpose_batch()</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.submodules.test_cellpose_model">

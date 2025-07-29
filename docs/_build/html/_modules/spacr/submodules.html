@@ -1123,7 +1123,37 @@
 <div class="viewcode-block" id="CellposeLazyDataset">
 <a class="viewcode-back" href="../../api/spacr/submodules/index.html#spacr.submodules.CellposeLazyDataset">[docs]</a>
 <span class="k">class</span> <span class="nc">CellposeLazyDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A PyTorch Dataset for lazy loading and optional augmentation of images and segmentation masks</span>
+<span class="sd">    for training Cellpose-based models.</span>
+
+<span class="sd">    Images and labels are loaded from file paths on-the-fly, optionally normalized and resized,</span>
+<span class="sd">    and can be augmented with basic geometric transformations.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        image_files (list of str): List of file paths to image files.</span>
+<span class="sd">        label_files (list of str): List of file paths to corresponding label files.</span>
+<span class="sd">        settings (dict): Dictionary containing dataset settings:</span>
+<span class="sd">            - &#39;normalize&#39; (bool): Whether to apply percentile-based intensity normalization.</span>
+<span class="sd">            - &#39;percentiles&#39; (list of int): Two-element list specifying lower and upper percentiles (default: [2, 99]).</span>
+<span class="sd">            - &#39;target_size&#39; (int): Desired output image size (height and width).</span>
+<span class="sd">        randomize (bool, optional): Whether to shuffle the dataset order. Defaults to True.</span>
+<span class="sd">        augment (bool, optional): Whether to apply 8-way geometric data augmentation. Defaults to False.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_files</span><span class="p">,</span> <span class="n">label_files</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">randomize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">augment</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the CellposeLazyDataset.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image_files (list of str): Paths to input image files.</span>
+<span class="sd">            label_files (list of str): Paths to corresponding label files.</span>
+<span class="sd">            settings (dict): Configuration dictionary with keys:</span>
+<span class="sd">                - &#39;normalize&#39; (bool)</span>
+<span class="sd">                - &#39;percentiles&#39; (list of int)</span>
+<span class="sd">                - &#39;target_size&#39; (int)</span>
+<span class="sd">            randomize (bool, optional): Shuffle file order. Defaults to True.</span>
+<span class="sd">            augment (bool, optional): Enable 8-fold augmentation. Defaults to False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">combined</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">image_files</span><span class="p">,</span> <span class="n">label_files</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">randomize</span><span class="p">:</span>
             <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">combined</span><span class="p">)</span>
@@ -1148,12 +1178,33 @@
 <div class="viewcode-block" id="CellposeLazyDataset.__len__">
 <a class="viewcode-back" href="../../api/spacr/submodules/index.html#spacr.submodules.CellposeLazyDataset.__len__">[docs]</a>
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the number of samples in the dataset.</span>
+
+<span class="sd">        If augmentation is enabled, each sample contributes 8 variants.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Total number of samples (augmented if applicable).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_files</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">8</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">augment</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="CellposeLazyDataset.apply_augmentation">
 <a class="viewcode-back" href="../../api/spacr/submodules/index.html#spacr.submodules.CellposeLazyDataset.apply_augmentation">[docs]</a>
     <span class="k">def</span> <span class="nf">apply_augmentation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">aug_idx</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply one of 8 geometric augmentations to an image-label pair.</span>
+
+<span class="sd">        Augmentations include rotations (90°, 180°, 270°) and horizontal/vertical flips.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image (ndarray): Input image array.</span>
+<span class="sd">            label (ndarray): Corresponding label array.</span>
+<span class="sd">            aug_idx (int): Index from 0 to 7 specifying the augmentation to apply.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: Augmented (image, label) pair.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">aug_idx</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">rotate</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="n">resize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">preserve_range</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">rotate</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="n">resize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">preserve_range</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">aug_idx</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
@@ -1174,6 +1225,20 @@
 <div class="viewcode-block" id="CellposeLazyDataset.__getitem__">
 <a class="viewcode-back" href="../../api/spacr/submodules/index.html#spacr.submodules.CellposeLazyDataset.__getitem__">[docs]</a>
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve a sample by index, optionally applying augmentation and preprocessing.</span>
+
+<span class="sd">        Loads the image and label, normalizes intensity if specified, applies augmentation,</span>
+<span class="sd">        and resizes to the target shape.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            idx (int): Index of the sample to retrieve.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple:</span>
+<span class="sd">                - image (np.ndarray): Preprocessed image, shape (target_size, target_size), dtype float32.</span>
+<span class="sd">                - label (np.ndarray): Resized label mask, shape (target_size, target_size), dtype uint8.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">base_idx</span> <span class="o">=</span> <span class="n">idx</span> <span class="o">//</span> <span class="mi">8</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">augment</span> <span class="k">else</span> <span class="n">idx</span>
         <span class="n">aug_idx</span> <span class="o">=</span> <span class="n">idx</span> <span class="o">%</span> <span class="mi">8</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">augment</span> <span class="k">else</span> <span class="mi">0</span>
 
@@ -1203,7 +1268,32 @@
 <div class="viewcode-block" id="train_cellpose">
 <a class="viewcode-back" href="../../api/spacr/submodules/index.html#spacr.submodules.train_cellpose">[docs]</a>
 <span class="k">def</span> <span class="nf">train_cellpose</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
-    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Train a Cellpose model on custom images and masks using specified settings.</span>
+
+<span class="sd">    This function prepares training data from `train/images` and `train/masks` subfolders within </span>
+<span class="sd">    the provided `settings[&#39;src&#39;]` directory. It constructs a model name based on training parameters, </span>
+<span class="sd">    initializes the Cellpose model, and trains it using the specified number of epochs and hyperparameters.</span>
+
+<span class="sd">    The dataset can be augmented up to 8-fold, and training images and masks are matched by filename. </span>
+<span class="sd">    Training progress is visualized (if possible), and the model is saved in `models/cellpose_model`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings (dict): Dictionary with the following required keys:</span>
+<span class="sd">            - &#39;src&#39; (str): Root directory containing `train/images`, `train/masks`, and `models`.</span>
+<span class="sd">            - &#39;target_size&#39; (int): Side length to which images/masks are resized.</span>
+<span class="sd">            - &#39;model_name&#39; (str): Base name of the model.</span>
+<span class="sd">            - &#39;n_epochs&#39; (int): Number of training epochs.</span>
+<span class="sd">            - &#39;batch_size&#39; (int): Number of images to train per batch.</span>
+<span class="sd">            - &#39;learning_rate&#39; (float): Learning rate for training.</span>
+<span class="sd">            - &#39;weight_decay&#39; (float): Weight decay (L2 regularization).</span>
+<span class="sd">            - &#39;augment&#39; (bool): Whether to use 8-fold data augmentation.</span>
+
+<span class="sd">    Side Effects:</span>
+<span class="sd">        - Trains a model and saves it to `models/cellpose_model/`.</span>
+<span class="sd">        - Writes training settings using `save_settings()`.</span>
+<span class="sd">        - Optionally visualizes a training batch using `plot_cellpose_batch()`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">get_train_cellpose_default_settings</span>
     <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">save_settings</span>
     

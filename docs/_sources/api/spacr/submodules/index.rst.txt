@@ -16,22 +16,41 @@ Module Contents
    Bases: :py:obj:`torch.utils.data.Dataset`
 
 
-   An abstract class representing a :class:`Dataset`.
+   A PyTorch Dataset for lazy loading and optional augmentation of images and segmentation masks
+   for training Cellpose-based models.
 
-   All datasets that represent a map from keys to data samples should subclass
-   it. All subclasses should overwrite :meth:`__getitem__`, supporting fetching a
-   data sample for a given key. Subclasses could also optionally overwrite
-   :meth:`__len__`, which is expected to return the size of the dataset by many
-   :class:`~torch.utils.data.Sampler` implementations and the default options
-   of :class:`~torch.utils.data.DataLoader`. Subclasses could also
-   optionally implement :meth:`__getitems__`, for speedup batched samples
-   loading. This method accepts list of indices of samples of batch and returns
-   list of samples.
+   Images and labels are loaded from file paths on-the-fly, optionally normalized and resized,
+   and can be augmented with basic geometric transformations.
 
-   .. note::
-     :class:`~torch.utils.data.DataLoader` by default constructs an index
-     sampler that yields integral indices.  To make it work with a map-style
-     dataset with non-integral indices/keys, a custom sampler must be provided.
+   :param image_files: List of file paths to image files.
+   :type image_files: list of str
+   :param label_files: List of file paths to corresponding label files.
+   :type label_files: list of str
+   :param settings: Dictionary containing dataset settings:
+                    - 'normalize' (bool): Whether to apply percentile-based intensity normalization.
+                    - 'percentiles' (list of int): Two-element list specifying lower and upper percentiles (default: [2, 99]).
+                    - 'target_size' (int): Desired output image size (height and width).
+   :type settings: dict
+   :param randomize: Whether to shuffle the dataset order. Defaults to True.
+   :type randomize: bool, optional
+   :param augment: Whether to apply 8-way geometric data augmentation. Defaults to False.
+   :type augment: bool, optional
+
+   Initialize the CellposeLazyDataset.
+
+   :param image_files: Paths to input image files.
+   :type image_files: list of str
+   :param label_files: Paths to corresponding label files.
+   :type label_files: list of str
+   :param settings: Configuration dictionary with keys:
+                    - 'normalize' (bool)
+                    - 'percentiles' (list of int)
+                    - 'target_size' (int)
+   :type settings: dict
+   :param randomize: Shuffle file order. Defaults to True.
+   :type randomize: bool, optional
+   :param augment: Enable 8-fold augmentation. Defaults to False.
+   :type augment: bool, optional
 
 
    .. py:attribute:: normalize
@@ -50,14 +69,76 @@ Module Contents
 
    .. py:method:: __len__()
 
+      Return the number of samples in the dataset.
+
+      If augmentation is enabled, each sample contributes 8 variants.
+
+      :returns: Total number of samples (augmented if applicable).
+      :rtype: int
+
+
 
    .. py:method:: apply_augmentation(image, label, aug_idx)
+
+      Apply one of 8 geometric augmentations to an image-label pair.
+
+      Augmentations include rotations (90°, 180°, 270°) and horizontal/vertical flips.
+
+      :param image: Input image array.
+      :type image: ndarray
+      :param label: Corresponding label array.
+      :type label: ndarray
+      :param aug_idx: Index from 0 to 7 specifying the augmentation to apply.
+      :type aug_idx: int
+
+      :returns: Augmented (image, label) pair.
+      :rtype: tuple
+
 
 
    .. py:method:: __getitem__(idx)
 
+      Retrieve a sample by index, optionally applying augmentation and preprocessing.
+
+      Loads the image and label, normalizes intensity if specified, applies augmentation,
+      and resizes to the target shape.
+
+      :param idx: Index of the sample to retrieve.
+      :type idx: int
+
+      :returns:     - image (np.ndarray): Preprocessed image, shape (target_size, target_size), dtype float32.
+                    - label (np.ndarray): Resized label mask, shape (target_size, target_size), dtype uint8.
+      :rtype: tuple
+
+
 
 .. py:function:: train_cellpose(settings)
+
+   Train a Cellpose model on custom images and masks using specified settings.
+
+   This function prepares training data from `train/images` and `train/masks` subfolders within
+   the provided `settings['src']` directory. It constructs a model name based on training parameters,
+   initializes the Cellpose model, and trains it using the specified number of epochs and hyperparameters.
+
+   The dataset can be augmented up to 8-fold, and training images and masks are matched by filename.
+   Training progress is visualized (if possible), and the model is saved in `models/cellpose_model`.
+
+   :param settings: Dictionary with the following required keys:
+                    - 'src' (str): Root directory containing `train/images`, `train/masks`, and `models`.
+                    - 'target_size' (int): Side length to which images/masks are resized.
+                    - 'model_name' (str): Base name of the model.
+                    - 'n_epochs' (int): Number of training epochs.
+                    - 'batch_size' (int): Number of images to train per batch.
+                    - 'learning_rate' (float): Learning rate for training.
+                    - 'weight_decay' (float): Weight decay (L2 regularization).
+                    - 'augment' (bool): Whether to use 8-fold data augmentation.
+   :type settings: dict
+
+   Side Effects:
+       - Trains a model and saves it to `models/cellpose_model/`.
+       - Writes training settings using `save_settings()`.
+       - Optionally visualizes a training batch using `plot_cellpose_batch()`.
+
 
 .. py:function:: test_cellpose_model(settings)
 
