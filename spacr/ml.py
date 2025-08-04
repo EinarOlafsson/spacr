@@ -237,7 +237,7 @@ def select_glm_family(y):
         print("Using Gaussian family (for continuous data).")
         return sm.families.Gaussian()
 
-def prepare_formula(dependent_variable, random_row_column_effects=False):
+def prepare_formula(dependent_variable, random_row_column_effects=False, regression_level="gene"):
     """
     Prepare the formula for regression modeling based on model design.
 
@@ -253,10 +253,39 @@ def prepare_formula(dependent_variable, random_row_column_effects=False):
     str
         Regression formula string.
     """
+    #if random_row_column_effects:
+    #    # Random effects for row and column + gene weighted by gene_fraction + grna weighted by fraction
+    #    return f'{dependent_variable} ~ fraction:grna + gene_fraction:gene'
+    #return f'{dependent_variable} ~ fraction:grna + gene_fraction:gene + rowID + columnID'
+    
     if random_row_column_effects:
-        # Random effects for row and column + gene weighted by gene_fraction + grna weighted by fraction
-        return f'{dependent_variable} ~ fraction:grna + gene_fraction:gene'
-    return f'{dependent_variable} ~ fraction:grna + gene_fraction:gene + rowID + columnID'
+        if regression_level == "gene":
+            formula = f'{dependent_variable} ~ gene_fraction:gene + plateID + rowID + columnID'
+            
+        elif regression_level == "grna":
+            formula = f'{dependent_variable} ~ fraction:grna + plateID + rowID + columnID'
+        
+        elif regression_level == "both":
+            formula = f'{dependent_variable} ~ fraction:grna + gene_fraction:gene + plateID + rowID + columnID'
+        
+        else:
+            print(f"Unknown regression_level: {regression_level}. Defaulting to gene model.")
+            formula = f'{dependent_variable} ~ gene_fraction:gene + plateID + rowID + columnID'
+    else:
+        if regression_level == "gene":
+            formula = f'{dependent_variable} ~ gene_fraction:gene'
+            
+        elif regression_level == "grna":
+            formula = f'{dependent_variable} ~ fraction:grna'
+        
+        elif regression_level == "both":
+            formula = f'{dependent_variable} ~ fraction:grna + gene_fraction:gene'
+        
+        else:
+            print(f"Unknown type: {regression_level}. Defaulting to gene model.")
+            formula = f'{dependent_variable} ~ gene_fraction:gene'
+            
+    return formula
 
 def fit_mixed_model(df, formula, dst):
     """
@@ -822,7 +851,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0, cov_ty
 
     return model
 
-def regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0,
+def regression(df, csv_path, dependent_variable='predictions', regression_type=None, regression_level = "gRNA", alpha=1.0,
                random_row_column_effects=False, nc='233460', pc='220950', controls=[''],
                dst=None, cov_type=None, plot=False):
     """
@@ -865,12 +894,12 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     # Handle mixed effects if row/column effect is treated as random
     if random_row_column_effects:
         regression_type = 'mixed'
-        formula = prepare_formula(dependent_variable, random_row_column_effects=True)
+        formula = prepare_formula(dependent_variable, random_row_column_effects=True, regression_level=regression_level)
         mixed_model, coef_df = fit_mixed_model(df, formula, dst)
         model = mixed_model
     else:
         # Prepare the formula
-        formula = prepare_formula(dependent_variable, random_row_column_effects=False)
+        formula = prepare_formula(dependent_variable, random_row_column_effects=False, regression_level=regression_level)
         y, X = dmatrices(formula, data=df, return_type='dataframe')
         
         # Plot histogram of the dependent variable
@@ -1196,7 +1225,9 @@ def perform_regression(settings):
     if settings['fraction_threshold'] is None:
         settings['fraction_threshold'] = graph_sequencing_stats(settings)
 
-    independent_df = process_reads(count_data_df, settings['fraction_threshold'], settings['plateID'], filter_column=filter_column, filter_value=filter_value)
+    independent_df = process_reads(count_data_df, settings['fraction_threshold'], settings['plateID'], filter_column=filter_column, filter_value=filter_value, pc=settings['positive_control'], nc=settings['negative_control'], remove_pc_nc=settings['remove_pc_nc'])
+    
+    
         
     independent_df, n_grna, n_gene = _count_variable_instances(independent_df, column_1='grna', column_2='gene')
     
@@ -1235,9 +1266,10 @@ def perform_regression(settings):
         _, _ = plot_data_from_csv(settings=cell_settings)
         
         final_grna_df, prc_gene_count_df = grna_metricks(merged_df)
-        
+        print("outliers",settings['outlier_detection'])
         if settings['outlier_detection']:
             outliers_grna = get_outlier_reference_values(final_grna_df,outlier_col='grna_well_count',return_col='grna')
+            print("outliers", outliers_grna)
             if len (outliers_grna) > 0:
                 merged_df = merged_df[~merged_df['grna'].isin(outliers_grna)]
                 final_grna_df, prc_gene_count_df = grna_metricks(merged_df)
@@ -1285,9 +1317,9 @@ def perform_regression(settings):
     except Exception as e:
         print(e)
         
-    _ = plot_plates(merged_df, variable=orig_dv, grouping='mean', min_max='allq', cmap='viridis', min_count=None, dst=res_folder)                
-
-    model, coef_df, regression_type = regression(merged_df, csv_path, dependent_variable, settings['regression_type'], settings['alpha'], settings['random_row_column_effects'], nc=settings['negative_control'], pc=settings['positive_control'], controls=settings['controls'], dst=res_folder, cov_type=settings['cov_type'])
+    _ = plot_plates(merged_df, variable=orig_dv, grouping='mean', min_max='allq', cmap='viridis', min_count=None, dst=res_folder)
+    
+    model, coef_df, regression_type = regression(merged_df, csv_path, dependent_variable, settings['regression_type'], settings['regression_level'], settings['alpha'], settings['random_row_column_effects'], nc=settings['negative_control'], pc=settings['positive_control'], controls=settings['controls'], dst=res_folder, cov_type=settings['cov_type'])
     
     coef_df['grna'] = coef_df['feature'].apply(lambda x: re.search(r'grna\[(.*?)\]', x).group(1) if 'grna' in x else None)
     coef_df['gene'] = coef_df['feature'].apply(lambda x: re.search(r'gene\[(.*?)\]', x).group(1) if 'gene' in x else None)
@@ -1318,6 +1350,7 @@ def perform_regression(settings):
             raise ValueError(f"Unsupported threshold method {settings['threshold_method']}. Supported methods: ['var','variance','std','standard_deveation']")
         
         reg_threshold = mean_coef + (settings['threshold_multiplier'] * coef_mes)
+        print("reg_threshold", reg_threshold)
     
     coef_df.to_csv(results_path, index=False)
     gene_coef_df.to_csv(results_path_gene, index=False)
@@ -1406,7 +1439,7 @@ def perform_regression(settings):
 
     return output
 
-def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filter_value=None):
+def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filter_value=None, pc=None, nc=None, remove_pc_nc=False):
     """
     Process barcode count data and compute fractional abundance of each gRNA per well.
 
@@ -1471,6 +1504,16 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filte
 
     # Create the prc column
     csv_df['prc'] = csv_df['plateID'] + '_' + csv_df['rowID'] + '_' + csv_df['columnID']
+    
+    display("Before",csv_df)
+    
+    if remove_pc_nc:
+        if pc is not None:
+            csv_df = csv_df[csv_df['grna'] != pc]
+        if nc is not None:
+            csv_df = csv_df[csv_df['grna'] != nc]
+            
+    display("After",csv_df)
 
     # Group by prc and calculate the sum of counts
     grouped_df = csv_df.groupby('prc')['count'].sum().reset_index()
