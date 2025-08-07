@@ -9,7 +9,7 @@ dependencies = [
     'numpy>=1.26.4,<2.0',
     'pandas>=2.2.1,<3.0',
     'scipy>=1.12.0,<2.0',
-    'cellpose>=4.0,<5.0', # changed max to 5 from 4 3.0.6
+    'cellpose>=4.0,<5.0',
     'segment-anything',
     'scikit-image>=0.22.0,<1.0',
     'scikit-learn>=1.4.1,<2.0',
