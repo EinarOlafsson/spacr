@@ -1,12 +1,14 @@
 import logging, os, builtins
 
+_original_print = builtins.print
+
 def silent_print(*args, **kwargs):
-    if "Welcome to CellposeSAM" in str(args[0]):
+    if args and "Welcome to CellposeSAM" in str(args[0]):
         return  # skip the banner
     return _original_print(*args, **kwargs)
 
-_original_print = builtins.print
 builtins.print = silent_print
+
 
 
 from . import core
