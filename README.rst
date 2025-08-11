@@ -32,9 +32,6 @@ The spatial organization of organelles and proteins within cells constitutes a k
 Features
 --------
 
-
-
-
 -  **Generate Masks:** Generate `Cellpose <https://github.com/MouseLand/cellpose>`_ masks of cell, nuclei, and pathogen objects.
 -  **Object Measurements:** Measurements for each object including `scikit-image <https://github.com/scikit-image/scikit-image>`_ regionprops, intensity percentiles, shannon-entropy, Pearson’s and Manders’ correlations, homogeneity, and radial distribution. Measurements are saved to a SQL database in object-level tables.
 -  **Crop Images:** Save objects (cells, nuclei, pathogen, cytoplasm) as images. Object image paths are saved in a SQL database.
@@ -47,7 +44,7 @@ Features
 -  **Misc (nightly):** Analyze Ca oscillation, recruitment, infection rate, plaque size/count.
 
 .. image:: https://github.com/EinarOlafsson/spacr/raw/main/spacr/resources/icons/flow_chart_v3.png
-   :alt: SpaCr workflow
+   :alt: spaCR workflow
    :align: center
 
 **Overview and data organization of spaCR**
@@ -69,7 +66,7 @@ If using Windows, switch to Linux—it's free, open-source, and better.
    brew install libomp hdf5 cmake openssl
 
 **Linux GUI requirement:**  
-SpaCr GUI requires Tkinter. 
+spaCR GUI requires Tkinter. 
 
 ::
 
@@ -125,7 +122,7 @@ The following example Jupyter notebooks illustrate common workflows using spaCR.
   *Finetune Cellpose models using your own annotated training data for improved segmentation accuracy.*
 
 .. image:: https://github.com/EinarOlafsson/spacr/raw/main/spacr/resources/icons/graphical_abstract.png
-   :alt: SpaCr workflow
+   :alt: spaCR workflow
    :align: center
 
 **Graphical abstract | Workflow for pooled CRISPR–Cas9 spatial phenotype screening**
@@ -166,12 +163,12 @@ See the `LICENSE <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ fi
 How to Cite
 -----------
 If you use spaCR in your research, please cite:  
-Olafsson EB, et al. SpaCr: Spatial phenotype analysis of CRISPR-Cas9 screens. *Manuscript in preparation*.
+Olafsson EB, et al. spaCR: Spatial phenotype analysis of CRISPR-Cas9 screens. *Manuscript in preparation*.
 
 Papers Using spaCR
 -------------------
 Below are selected publications that have used or cited spaCR:
 
-- Olafsson EB, et al. *SpaCr: Spatial phenotype analysis of CRISPR-Cas9 screens.* Manuscript in preparation.
+- Olafsson EB, et al. *spaCR: Spatial phenotype analysis of CRISPR-Cas9 screens.* Manuscript in preparation.
 - `IRE1α promotes phagosomal calcium flux to enhance macrophage fungicidal activity  <https://doi.org/10.1016/j.celrep.2025.115694>`_
 - `Metabolic adaptability and nutrient scavenging in Toxoplasma gondii: insights from ingestion pathway-deficient mutants  <https://doi.org/10.1128/msphere.01011-24>`_
