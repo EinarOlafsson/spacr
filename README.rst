@@ -35,7 +35,7 @@ Features
 -  **Generate Masks:** Generate `Cellpose <https://github.com/MouseLand/cellpose>`_ masks of cell, nuclei, and pathogen objects.
 -  **Object Measurements:** Measurements for each object including `scikit-image <https://github.com/scikit-image/scikit-image>`_ regionprops, intensity percentiles, shannon-entropy, Pearson’s and Manders’ correlations, homogeneity, and radial distribution. Measurements are saved to a SQL database in object-level tables.
 -  **Crop Images:** Save objects (cells, nuclei, pathogen, cytoplasm) as images. Object image paths are saved in a SQL database.
--  **Train CNNs or Transformers:** Train Torch models to classify single object images.
+-  **Train CNNs or Transformers:** Train `PyTorch <https://github.com/pytorch/pytorch>`_ models to classify single object images.
 -  **Manual Annotation (nightly):** Supports manual annotation of single-cell images and segmentation to refine training datasets for training CNNs/Transformers or cellpose, respectively.
 -  **Finetune Cellpose Models (nightly):** Adjust pre-existing `Cellpose <https://github.com/MouseLand/cellpose>`_ models to your specific dataset for improved performance.
 -  **Timelapse Data Support (nightly):** Track objects in timelapse image data.
