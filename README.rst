@@ -66,11 +66,11 @@ If using Windows, switch to Linux—it's free, open-source, and better.
    brew install libomp hdf5 cmake openssl
 
 **Linux GUI requirement:**  
-spaCR GUI requires Tkinter. 
+spaCR GUI requires `Tkinter <https://github.com/python/cpython/tree/main/Lib/tkinter>`_. 
 
 ::
 
-   apt install tkinter
+   sudo apt install python3-tk
 
 **Install stable version (main):**
 
