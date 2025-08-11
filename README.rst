@@ -118,6 +118,14 @@ The following example Jupyter notebooks illustrate common workflows using spaCR.
 - `Finetune cellpose models <https://github.com/EinarOlafsson/spacr/blob/main/Notebooks/5_spacr_train_cellpose.ipynb>`_  
   *Finetune Cellpose models using your own annotated training data for improved segmentation accuracy.*
 
+.. image:: https://github.com/EinarOlafsson/spacr/raw/main/spacr/resources/icons/graphical_abstract.png
+   :alt: SpaCr workflow
+   :align: center
+
+**Graphical abstract | Workflow for pooled CRISPR–Cas9 spatial phenotype screening**
+
+A pooled population of cells with perturbations (G₁…ᵢ) is distributed into wells (W₁…j) and expanded. Cells from each well (Wj) are transferred for genotyping by PCR with barcoded primers, followed by next-generation sequencing (NGS) to determine gRNA abundances (Rij). In parallel, cells are phenotyped by MaxViT-based image classification, generating an average well classification score (Cj). Multiple linear regression (MLR) uses Cj as the response variable and Rij as the predictor to estimate the effect size (βᵢ) of each gRNA.
+
 Interactive Tutorial (under construction)
 -----------------------------------------
 
