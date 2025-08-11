@@ -127,7 +127,7 @@ The following example Jupyter notebooks illustrate common workflows using spaCR.
 
 **Graphical abstract | Workflow for pooled CRISPR–Cas9 spatial phenotype screening**
 
-A pooled population of cells with perturbations (G₁…ᵢ) is distributed into wells (W₁…j) and expanded. Cells from each well (Wj) are transferred for genotyping by PCR with barcoded primers, followed by next-generation sequencing (NGS) to determine gRNA abundances (Rij). In parallel, cells are phenotyped by MaxViT-based image classification, generating an average well classification score (Cj). Multiple linear regression (MLR) uses Cj as the response variable and Rij as the predictor to estimate the effect size (βᵢ) of each gRNA.
+A pooled population of cells with perturbations (G\ :sub:`1`\ …\ :sub:`i`) is distributed into wells (W\ :sub:`1`\ …\ :sub:`j`) and expanded. Cells from each well (W\ :sub:`j`) are transferred for genotyping by PCR with barcoded primers, followed by next-generation sequencing (NGS) to determine gRNA abundances (R\ :sub:`ij`). In parallel, cells are phenotyped by MaxViT-based image classification, generating an average well classification score (C\ :sub:`j`). Multiple linear regression (MLR) uses C\ :sub:`j` as the response variable and R\ :sub:`ij` as the predictor to estimate the effect size (β\ :sub:`i`) of each gRNA.
 
 Interactive Tutorial (under construction)
 -----------------------------------------
