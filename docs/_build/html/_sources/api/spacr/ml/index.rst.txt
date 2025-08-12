@@ -122,7 +122,7 @@ Module Contents
    :rtype: sm.families.Family
 
 
-.. py:function:: prepare_formula(dependent_variable, random_row_column_effects=False)
+.. py:function:: prepare_formula(dependent_variable, random_row_column_effects=False, regression_level='gene')
 
    Prepare the formula for regression modeling based on model design.
 
@@ -285,7 +285,7 @@ Module Contents
    :rtype: model
 
 
-.. py:function:: regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0, random_row_column_effects=False, nc='233460', pc='220950', controls=[''], dst=None, cov_type=None, plot=False)
+.. py:function:: regression(df, csv_path, dependent_variable='predictions', regression_type=None, regression_level='gRNA', alpha=1.0, random_row_column_effects=False, nc='233460', pc='220950', controls=[''], dst=None, cov_type=None, plot=False)
 
    Perform regression analysis on a DataFrame with optional plotting and mixed effects support.
 
@@ -384,7 +384,7 @@ Module Contents
    :raises ValueError: If required keys are missing or regression type is invalid.
 
 
-.. py:function:: process_reads(csv_path, fraction_threshold, plate, filter_column=None, filter_value=None)
+.. py:function:: process_reads(csv_path, fraction_threshold, plate, filter_column=None, filter_value=None, pc=None, nc=None, remove_pc_nc=False)
 
    Process barcode count data and compute fractional abundance of each gRNA per well.
 
