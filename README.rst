@@ -39,7 +39,7 @@ Features
 -  **Manual Annotation (nightly):** Supports manual annotation of single-cell images and segmentation to refine training datasets for training CNNs/Transformers or cellpose, respectively.
 -  **Finetune Cellpose Models (nightly):** Adjust pre-existing `Cellpose <https://github.com/MouseLand/cellpose>`_ models to your specific dataset for improved performance.
 -  **Timelapse Data Support (nightly):** Track objects in timelapse image data.
--  **Simulations (nightly):** Simulate spatial phenotype screens.
+-  **Simulations:** Simulate spatial phenotype screens with `spaCRPower <https://github.com/maomlab/spaCRPower>`_.
 -  **Sequencing:** Map FASTQ reads to barcode and gRNA barcode metadata.
 -  **Misc (nightly):** Analyze Ca oscillation, recruitment, infection rate, plaque size/count.
 
