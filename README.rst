@@ -57,7 +57,6 @@ Installation
 ------------
 
 **Linux recommended.**  
-If using Windows, switch to Linux—it's free, open-source, and better.
 
 **macOS prerequisites (before install):**
 
@@ -139,7 +138,7 @@ Click below to explore the step-by-step GUI and Notebook tutorials for spaCR:
 spaCRPower
 ----------
 
-Power analasys of pooled perterbation spaCR screens.
+Power analysis of pooled perturbation spaCR screens.
 
 `spaCRPower <https://github.com/maomlab/spaCRPower>`_
 
