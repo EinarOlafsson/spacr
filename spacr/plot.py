@@ -3355,7 +3355,6 @@ class spacrGraph:
         self.df_melted = pd.melt(self.df, id_vars=[self.grouping_column], value_vars=self.data_column,var_name='Data Column', value_name='Value')
         unique_groups = self.df[self.grouping_column].unique()
         is_normal, normality_results = self.perform_normality_tests()
-        is_normal = True
         levene_stat, levene_p = self.perform_levene_test(unique_groups)
         test_results = self.perform_statistical_tests(unique_groups, is_normal)
         posthoc_results = self.perform_posthoc_tests(is_normal, unique_groups)
