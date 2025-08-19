@@ -168,6 +168,6 @@ Papers Using spaCR
 -------------------
 Below are selected publications that have used or cited spaCR:
 
-- Olafsson EB, et al. *spaCR: Spatial phenotype analysis of CRISPR-Cas9 screens.* Manuscript in preparation.
+- `spaCR: Spatial phenotype analysis of CRISPR-Cas9 screens.  <https://doi.org/10.21203/rs.3.rs-7368254/v1>`_
 - `IRE1α promotes phagosomal calcium flux to enhance macrophage fungicidal activity  <https://doi.org/10.1016/j.celrep.2025.115694>`_
 - `Metabolic adaptability and nutrient scavenging in Toxoplasma gondii: insights from ingestion pathway-deficient mutants  <https://doi.org/10.1128/msphere.01011-24>`_
