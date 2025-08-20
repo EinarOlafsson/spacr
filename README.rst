@@ -162,7 +162,7 @@ See the `LICENSE <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ fi
 How to Cite
 -----------
 If you use spaCR in your research, please cite:  
-Olafsson EB, et al. spaCR: Spatial phenotype analysis of CRISPR-Cas9 screens. *Manuscript in preparation*.
+`spaCR: Spatial phenotype analysis of CRISPR-Cas9 screens.  <https://doi.org/10.21203/rs.3.rs-7368254/v1>`_
 
 Papers Using spaCR
 -------------------
