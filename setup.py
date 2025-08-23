@@ -72,7 +72,7 @@ dependencies = [
     'huggingface-hub>=0.24.0,<0.25'
 ]
 
-VERSION = "1.1.2"
+VERSION = "1.1.3"
 
 setup(
     name="spacr",
