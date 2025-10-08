@@ -1365,19 +1365,19 @@ def _plot_recruitment(df, df_type, channel_of_interest, columns=[], figuresize=1
     height=figuresize/4
 
     fig, axes = plt.subplots(nrows=1, ncols=4, figsize=(width, height))
-    sns.barplot(ax=axes[0], data=df, x='condition', y=f'cell_channel_{channel_of_interest}_mean_intensity', hue='pathogen', capsize=.1, ci='sd', dodge=False)
+    sns.barplot(ax=axes[0], data=df, x='condition', y=f'cell_channel_{channel_of_interest}_mean_intensity', hue='pathogen', capsize=.1, errorbar='sd', dodge=False)
     axes[0].set_xlabel(f'pathogen {df_type}', fontsize=font)
     axes[0].set_ylabel(f'cell_channel_{channel_of_interest}_mean_intensity', fontsize=font)
 
-    sns.barplot(ax=axes[1], data=df, x='condition', y=f'nucleus_channel_{channel_of_interest}_mean_intensity', hue='pathogen', capsize=.1, ci='sd', dodge=False)
+    sns.barplot(ax=axes[1], data=df, x='condition', y=f'nucleus_channel_{channel_of_interest}_mean_intensity', hue='pathogen', capsize=.1, errorbar='sd', dodge=False)
     axes[1].set_xlabel(f'pathogen {df_type}', fontsize=font)
     axes[1].set_ylabel(f'nucleus_channel_{channel_of_interest}_mean_intensity', fontsize=font)
 
-    sns.barplot(ax=axes[2], data=df, x='condition', y=f'cytoplasm_channel_{channel_of_interest}_mean_intensity', hue='pathogen', capsize=.1, ci='sd', dodge=False)
+    sns.barplot(ax=axes[2], data=df, x='condition', y=f'cytoplasm_channel_{channel_of_interest}_mean_intensity', hue='pathogen', capsize=.1, errorbar='sd', dodge=False)
     axes[2].set_xlabel(f'pathogen {df_type}', fontsize=font)
     axes[2].set_ylabel(f'cytoplasm_channel_{channel_of_interest}_mean_intensity', fontsize=font)
 
-    sns.barplot(ax=axes[3], data=df, x='condition', y=f'pathogen_channel_{channel_of_interest}_mean_intensity', hue='pathogen', capsize=.1, ci='sd', dodge=False)
+    sns.barplot(ax=axes[3], data=df, x='condition', y=f'pathogen_channel_{channel_of_interest}_mean_intensity', hue='pathogen', capsize=.1, errorbar='sd', dodge=False)
     axes[3].set_xlabel(f'pathogen {df_type}', fontsize=font)
     axes[3].set_ylabel(f'pathogen_channel_{channel_of_interest}_mean_intensity', fontsize=font)
 
@@ -1410,7 +1410,7 @@ def _plot_recruitment(df, df_type, channel_of_interest, columns=[], figuresize=1
     for i, col in enumerate(columns):
 
         ax = axes[i]
-        sns.barplot(ax=ax, data=df, x='condition', y=f'{col}', hue='pathogen', capsize=.1, ci='sd', dodge=False)
+        sns.barplot(ax=ax, data=df, x='condition', y=f'{col}', hue='pathogen', capsize=.1, errorbar='sd', dodge=False)
         ax.set_xlabel(f'pathogen {df_type}', fontsize=font)
         ax.set_ylabel(f'{col}', fontsize=int(font*2))
         if ax.get_legend() is not None:
@@ -1649,7 +1649,7 @@ def _reg_v_plot(df, grouping, variable, plate_number):
     plt.axhline(y=-np.log10(0.05), color='gray', linestyle='--')  # line for p=0.05
     plt.show()
     
-def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_count):
+def generate_plate_heatmap_v1(df, plate_number, variable, grouping, min_max, min_count):
 
     if not isinstance(min_count, (int, float)):
         min_count = 0
@@ -1697,7 +1697,7 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
         variable = 'count'
         plate = grouped[variable].count().reset_index()
     else:
-        raise ValueError(f"Unsupported grouping: {grouping}")
+        raise ValueError(f"Unsupported grouping: {grouping}, use count, sum, or mean")
         
     plate_map = pd.pivot_table(plate, values=variable, index='rowID', columns='columnID').fillna(0)
     
@@ -1712,7 +1712,7 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
             min_max = [min_max[0], min_max[1]]
     return plate_map, min_max
 
-def plot_plates(df, variable, grouping, min_max, cmap, min_count=0, verbose=True, dst=None):
+def plot_plates_v1(df, variable, grouping, min_max, cmap, min_count=0, verbose=True, dst=None):
     plates = df['prc'].str.split('_', expand=True)[0].unique()
     n_rows, n_cols = (len(plates) + 3) // 4, 4
     fig, ax = plt.subplots(n_rows, n_cols, figsize=(40, 5 * n_rows))
@@ -1737,6 +1737,119 @@ def plot_plates(df, variable, grouping, min_max, cmap, min_count=0, verbose=True
                 fig.savefig(filename, format='pdf')
                 print(f'Saved heatmap to {filename}')
                 break
+    if verbose:
+        plt.show()
+    return fig
+
+def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_count):
+    if not isinstance(min_count, (int, float)):
+        min_count = 0
+
+    # If prc has 4 parts, rebuild it using the passed plate_number
+    num_parts = len(df['prc'].iloc[0].split('_'))
+    if num_parts == 4:
+        split = df['prc'].str.split('_', expand=True)
+        df = df.copy()
+        df['rowID'] = split[2]
+        df['prc']   = f"{plate_number}" + '_' + split[2] + '_' + split[3]
+
+    # Derive plateID,rowID,columnID from prc if not already present
+    if 'column_name' not in df.columns:
+        if 'column' in df.columns:
+            df['columnID'] = df['column']
+        elif 'column_name' in df.columns:
+            df['columnID'] = df['column_name']
+
+    if 'plateID' not in df.columns:
+        if 'plate' in df.columns:
+            df['plateID'] = df['plate']
+        elif 'plate_name' in df.columns:
+            df['plateID'] = df['plate_name']
+        else:
+            df['plateID'] = 'p1'
+
+    df['plateID'], df['rowID'], df['columnID'] = zip(*df['prc'].str.split('_'))
+
+    # Filter one plate
+    df = df[df['plateID'] == plate_number].copy()
+
+    # Order rows/cols
+    row_order = [f'r{i}' for i in range(1, 17)]
+    col_order = [f'c{i}' for i in range(1, 28)]
+    df['rowID']    = pd.Categorical(df['rowID'], categories=row_order, ordered=True)
+    df['columnID'] = pd.Categorical(df['columnID'], categories=col_order, ordered=True)
+
+    # Optional min_count filter on true per-well counts
+    df['_well_count'] = df.groupby(['rowID','columnID'], observed=True)['rowID'].transform('count')
+    if min_count > 0:
+        df = df[df['_well_count'] >= min_count]
+
+    grouped = df.groupby(['rowID','columnID'], observed=True)
+
+    # --- Aggregation ---
+    if grouping == 'count':
+        plate = grouped.size().reset_index(name='value')               # per-well row counts
+    elif grouping in ('mean', 'sum'):
+        if variable not in df.columns:
+            raise KeyError(f"variable '{variable}' not in df")
+        vals = pd.to_numeric(df[variable], errors='coerce')            # ensure numeric
+        tmp  = df.assign(__val__=vals)
+        if grouping == 'mean':
+            plate = tmp.groupby(['rowID','columnID'], observed=True)['__val__'] \
+                       .mean().reset_index(name='value')
+        else:  # sum
+            plate = tmp.groupby(['rowID','columnID'], observed=True)['__val__'] \
+                       .sum().reset_index(name='value')
+    else:
+        raise ValueError("grouping must be 'count', 'sum', or 'mean'")
+
+    plate_map = pd.pivot_table(plate, values='value', index='rowID', columns='columnID').fillna(0)
+
+    # vmin/vmax selection
+    if min_max == 'all':
+        vmin, vmax = float(np.nanmin(plate_map.values)), float(np.nanmax(plate_map.values))
+    elif min_max == 'allq':
+        vmin, vmax = np.quantile(plate_map.values, [0.02, 0.98])
+    elif isinstance(min_max, (list, tuple)) and len(min_max) == 2:
+        if all(isinstance(x, float) for x in min_max):
+            vmin, vmax = np.quantile(plate_map.values, [min_max[0], min_max[1]])
+        else:
+            vmin, vmax = float(min_max[0]), float(min_max[1])
+    else:
+        vmin, vmax = float(np.nanmin(plate_map.values)), float(np.nanmax(plate_map.values))
+
+    # avoid degenerate colormap
+    if vmin == vmax:
+        vmax = vmin + 1e-6
+
+    return plate_map, (vmin, vmax)
+
+
+def plot_plates(df, variable, grouping, min_max, cmap, min_count=0, verbose=True, dst=None):
+    plates = df['prc'].str.split('_', expand=True)[0].unique()
+    n_rows, n_cols = (len(plates) + 3) // 4, 4
+    fig, ax = plt.subplots(n_rows, n_cols, figsize=(40, 5 * n_rows))
+    ax = ax.flatten()
+
+    for index, plate in enumerate(plates):
+        plate_map, (vmin, vmax) = generate_plate_heatmap(df, plate, variable, grouping, min_max, min_count)
+        sns.heatmap(plate_map, cmap=cmap, vmin=vmin, vmax=vmax, ax=ax[index])
+        ax[index].set_title(plate)
+
+    # remove unused axes
+    for i in range(len(plates), n_rows * n_cols):
+        fig.delaxes(ax[i])
+
+    plt.subplots_adjust(wspace=0.1, hspace=0.4)
+
+    if dst is not None:
+        for i in range(0, 1000):
+            filename = os.path.join(dst, f'plate_heatmap_{i}.pdf')
+            if not os.path.exists(filename):
+                fig.savefig(filename, format='pdf')
+                print(f'Saved heatmap to {filename}')
+                break
+
     if verbose:
         plt.show()
     return fig
@@ -2436,7 +2549,7 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
         else:
             raise ValueError(f"Invalid error_bar_type: {error_bar_type}. Choose either 'std' or 'sem'.")
 
-        sns.barplot(x=grouping_column, y=summary_func, data=summary_df.reset_index(), ci=None, order=order, palette=color_palette)
+        sns.barplot(x=grouping_column, y=summary_func, data=summary_df.reset_index(), errorbar=None, order=order, palette=color_palette)
 
         # Add error bars (standard deviation or standard error of the mean)
         plt.errorbar(x=np.arange(len(summary_df)), y=summary_df[summary_func], yerr=error_bars, fmt='none', c='black', capsize=5)
@@ -2490,12 +2603,14 @@ class spacrGraph:
 
         self.df = df
         self.grouping_column = grouping_column
-        self.order = sorted(df[self.grouping_column].unique().tolist())
+        #self.order = sorted(df[self.grouping_column].unique().tolist())
+        self.order = order or sorted(df[self.grouping_column].dropna().unique().tolist())
+        
         self.data_column = data_column if isinstance(data_column, list) else [data_column]
         
         self.graph_type = graph_type
         self.summary_func = summary_func
-        self.order = order
+        #self.order = order
         self.colors = colors
         self.output_dir = output_dir
         self.save = save
@@ -2589,7 +2704,7 @@ class spacrGraph:
                 group_cols = ['plateID', self.grouping_column]
 
         else:
-            raise ValueError(f"Unknown representation: {self.representation}")
+            raise ValueError(f"Unknown representation: {self.representation}, use object, well, or plate")
 
         # 3) Perform grouping only if group_cols is set
         if group_cols is not None:
@@ -2673,10 +2788,18 @@ class spacrGraph:
 
         return is_normal, normality_results
 
-    def perform_levene_test(self, unique_groups):
+    def perform_levene_test_v1(self, unique_groups):
         """Perform Levene's test for equal variance."""
         grouped_data = [self.df.loc[self.df[self.grouping_column] == group, self.data_column] for group in unique_groups]
         stat, p_value = levene(*grouped_data)
+        return stat, p_value
+    
+    def perform_levene_test(self, unique_groups):
+        cols = self.data_column if len(self.data_column) > 1 else [self.data_column[0]]
+        # If you only support one column at a time in Levene:
+        col = cols[0]
+        grouped = [self.df.loc[self.df[self.grouping_column] == g, col].dropna() for g in unique_groups]
+        stat, p_value = levene(*grouped)
         return stat, p_value
 
     def perform_statistical_tests(self, unique_groups, is_normal):
@@ -2726,7 +2849,8 @@ class spacrGraph:
 
         posthoc_results = []
         if is_normal and len(unique_groups) > 2 and self.all_to_all:
-            tukey_result = pairwise_tukeyhsd(self.df[self.data_column], self.df[self.grouping_column], alpha=0.05)
+            #tukey_result = pairwise_tukeyhsd(self.df[self.data_column], self.df[self.grouping_column], alpha=0.05)
+            tukey_result = pairwise_tukeyhsd(self.df[self.data_column[0]], self.df[self.grouping_column], alpha=0.05)
             posthoc_results = []
             for comparison, p_value in zip(tukey_result._results_table.data[1:], tukey_result.pvalues):
                 raw_data1 = self.raw_df[self.raw_df[self.grouping_column] == comparison[0]][self.data_column]
@@ -2910,7 +3034,8 @@ class spacrGraph:
         posthoc_results = self.perform_posthoc_tests(is_normal, unique_groups)
         self.results_df = pd.DataFrame(normality_results + test_results + posthoc_results)
 
-        num_groups = len(self.data_column)*len(self.grouping_column)
+        #num_groups = len(self.data_column)*len(self.grouping_column)
+        num_groups = len(self.df[self.grouping_column].unique())
         num_data_columns = len(self.data_column)
         self.bar_width = 0.4
         spacing_between_groups = self.bar_width/0.5
@@ -3081,7 +3206,8 @@ class spacrGraph:
     
         summary_df = self.df_melted.groupby([x_axis_column]).agg(mean=('Value', 'mean'),std=('Value', 'std'),sem=('Value', 'sem')).reset_index()
         error_bars = summary_df[self.error_bar_type] if self.error_bar_type in ['std', 'sem'] else None
-        sns.barplot(data=self.df_melted, x=x_axis_column, y='Value', hue=self.hue, palette=self.sns_palette, ax=ax, dodge=self.jitter_bar_dodge, ci=None, order=self.order)
+        self.summary_df = summary_df.copy()
+        sns.barplot(data=self.df_melted, x=x_axis_column, y='Value', hue=self.hue, palette=self.sns_palette, ax=ax, dodge=self.jitter_bar_dodge, errorbar=None, order=self.order)
         
         # Adjust the bar width manually
         if len(self.data_column) > 1:
@@ -3121,6 +3247,7 @@ class spacrGraph:
             hue = None
     
         # Create the jitter plot
+        self.summary_df = self.df_melted.copy()
         sns.stripplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax, alpha=0.6, size=16, order=self.order)
     
         # Adjust legend and labels
@@ -3159,6 +3286,7 @@ class spacrGraph:
                 raise ValueError(f"Column '{col}' not found in DataFrame.")
 
         # Create the line graph with one line per group
+        self.summary_df = self.df.copy()
         sns.lineplot(data=self.df,x=x_axis_column,y=y_axis_column,hue=hue,palette=self.sns_palette,ax=ax,marker='o',linewidth=1,markersize=6)
 
         # Adjust axis labels
@@ -3186,6 +3314,7 @@ class spacrGraph:
         summary_df.columns = [x_axis_column, y_axis_column_mean, y_axis_column_std]
             
         # Plot the mean accuracy as a line
+        self.summary_df = summary_df.copy()
         sns.lineplot(data=summary_df,x=x_axis_column,y=y_axis_column_mean,ax=ax,marker='o',linewidth=1,markersize=0,color='blue',label=y_axis_column_mean)
 
 
@@ -3210,6 +3339,7 @@ class spacrGraph:
             hue = None
     
         # Create the box plot
+        self.summary_df = self.df_melted.copy()
         sns.boxplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue,palette=self.sns_palette,ax=ax, order=self.order)
     
         # Adjust legend and labels
@@ -3239,6 +3369,7 @@ class spacrGraph:
             hue = None
     
         # Create the violin plot
+        self.summary_df = self.df_melted.copy()
         sns.violinplot(data=self.df_melted,x=x_axis_column,y='Value', hue=self.hue,palette=self.sns_palette,ax=ax, order=self.order)
     
         # Adjust legend and labels
@@ -3270,7 +3401,8 @@ class spacrGraph:
     
         summary_df = self.df_melted.groupby([x_axis_column]).agg(mean=('Value', 'mean'),std=('Value', 'std'),sem=('Value', 'sem')).reset_index()
         error_bars = summary_df[self.error_bar_type] if self.error_bar_type in ['std', 'sem'] else None
-        sns.barplot(data=self.df_melted, x=x_axis_column, y='Value', hue=self.hue, palette=self.sns_palette, ax=ax, dodge=self.jitter_bar_dodge, ci=None, order=self.order)
+        self.summary_df = summary_df
+        sns.barplot(data=self.df_melted, x=x_axis_column, y='Value', hue=self.hue, palette=self.sns_palette, ax=ax, dodge=self.jitter_bar_dodge, errorbar=None, order=self.order)
         sns.stripplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,alpha=0.6, edgecolor='white',linewidth=1, size=16, order=self.order)
         
         # Adjust the bar width manually
@@ -3311,6 +3443,7 @@ class spacrGraph:
             hue = None
     
         # Create the box plot
+        self.summary_df = self.df_melted.copy()
         sns.boxplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue,palette=self.sns_palette,ax=ax, order=self.order)
         sns.stripplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,alpha=0.6, edgecolor='white',linewidth=1, size=12, order=self.order)
     
@@ -3327,7 +3460,7 @@ class spacrGraph:
         if self.log_x:
             ax.set_xscale('log')
 
-    def _save_results(self):
+    def _save_results_v1(self):
         """Helper method to save the plot and results."""
         os.makedirs(self.output_dir, exist_ok=True)
         plot_path = os.path.join(self.output_dir, f"{self.results_name}.pdf")
@@ -3336,6 +3469,33 @@ class spacrGraph:
         self.results_df.to_csv(results_path, index=False)
         print(f"Plot saved to {plot_path}")
         print(f"Test results saved to {results_path}")
+        
+    def _save_results(self):
+        """Save figure, stats, and all data used to generate the plot."""
+        os.makedirs(self.output_dir, exist_ok=True)
+
+        # Figure
+        plot_path = os.path.join(self.output_dir, f"{self.results_name}.pdf")
+        self.fig.savefig(plot_path, bbox_inches='tight', dpi=600, transparent=True, format='pdf')
+
+        # Stats
+        stats_path = os.path.join(self.output_dir, f"{self.results_name}_stats.csv")
+        self.results_df.to_csv(stats_path, index=False)
+
+        # Data: raw -> preprocessed -> melted (plot input) -> summary (if available)
+        #self.raw_df.to_csv(os.path.join(self.output_dir, f"{self.results_name}_raw.csv"), index=False)
+        #self.df.to_csv(os.path.join(self.output_dir, f"{self.results_name}_preprocessed.csv"),index=False)
+        
+        #if hasattr(self, 'df_melted') and self.df_melted is not None:
+        #    self.df_melted.to_csv(os.path.join(self.output_dir, f"{self.results_name}_plotdata.csv"),index=False)
+        
+        if hasattr(self, 'summary_df') and self.summary_df is not None:
+            data_path = os.path.join(self.output_dir, f"{self.results_name}_summary.csv")
+            self.summary_df.to_csv(data_path, index=False)
+            print(f"Data -> {data_path}")
+            
+        print(f"Plot  -> {plot_path}")
+        print(f"Stats -> {stats_path}")
 
     def get_results(self):
         """Return the results dataframe."""
