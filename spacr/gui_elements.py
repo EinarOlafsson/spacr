@@ -2271,48 +2271,52 @@ class AnnotateApp:
         self.root.geometry(f"{self.root.winfo_screenwidth()}x{self.root.winfo_screenheight()}")
         self.root.update_idletasks()
 
-        # Create the status label
-        self.status_label = Label(root, text="", font=self.font_style, bg=self.root.cget('bg'))
-        self.status_label.grid(row=2, column=0, padx=10, pady=10, sticky="w")
-
-        # Place the buttons at the bottom right
-        self.button_frame = Frame(root, bg=self.root.cget('bg'))
-        self.button_frame.grid(row=2, column=1, padx=10, pady=10, sticky="se")
-
-        self.next_button = Button(self.button_frame, text="Next", command=self.next_page, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
-        self.next_button.pack(side="right", padx=5)
-
-        self.previous_button = Button(self.button_frame, text="Back", command=self.previous_page, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
-        self.previous_button.pack(side="right", padx=5)
-
-        self.exit_button = Button(self.button_frame, text="Exit", command=self.shutdown, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
-        self.exit_button.pack(side="right", padx=5)
-        
-        self.train_button = Button(self.button_frame,text="Train & Classify (beta)",command=self.train_and_classify,bg=self.bg_color,fg=self.fg_color,highlightbackground=self.fg_color,highlightcolor=self.fg_color,highlightthickness=1)
-        self.train_button.pack(side="right", padx=5)
-        
-        self.train_button = Button(self.button_frame,text="orig.",command=self.swich_back_annotation_column,bg=self.bg_color,fg=self.fg_color,highlightbackground=self.fg_color,highlightcolor=self.fg_color,highlightthickness=1)
-        self.train_button.pack(side="right", padx=5)
-        
-        self.settings_button = Button(self.button_frame, text="Settings", command=self.open_settings_window, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color,highlightcolor=self.fg_color,highlightthickness=1)
-        self.settings_button.pack(side="right", padx=5)
-
-        # Calculate grid rows and columns based on the root window size and image size
-        self.calculate_grid_dimensions()
-
-        # Create a frame to hold the image grid
+        # grid at top
         self.grid_frame = Frame(root, bg=self.root.cget('bg'))
         self.grid_frame.grid(row=0, column=0, columnspan=2, padx=0, pady=0, sticky="nsew")
+
+        # status (left) + buttons (right) on the same bottom row
+        self.status_label = Label(root, text="", font=self.font_style, bg=self.root.cget('bg'))
+        self.status_label.grid(row=2, column=0, padx=10, pady=8, sticky="w")
+
+        self.button_frame = Frame(root, bg=self.root.cget('bg'))
+        self.button_frame.grid(row=2, column=1, padx=10, pady=8, sticky="e")  # or "ew"
+
+        # buttons
+        self.next_button = Button(self.button_frame, text="Next", command=self.next_page, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
+        self.previous_button = Button(self.button_frame, text="Back", command=self.previous_page, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
+        self.exit_button = Button(self.button_frame, text="Exit", command=self.shutdown, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
+        self.train_button = Button(self.button_frame, text="Train & Classify (beta)", command=self.train_and_classify, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
+        self.orig_button  = Button(self.button_frame, text="orig.", command=self.swich_back_annotation_column, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
+        self.settings_button = Button(self.button_frame, text="Settings", command=self.open_settings_window, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
+
+        # pack (right to left)
+        self.next_button.pack(side="right", padx=5)
+        self.previous_button.pack(side="right", padx=5)
+        self.exit_button.pack(side="right", padx=5)
+        self.train_button.pack(side="right", padx=5)
+        self.orig_button.pack(side="right", padx=5)
+        self.settings_button.pack(side="right", padx=5)
+        
+        # compute grid size (after buttons exist with real height)
+        self.button_frame.update_idletasks()
+        needed = self.button_frame.winfo_reqwidth()
+        self.root.grid_columnconfigure(1, minsize=needed + 10, weight=0)
+        self.root.grid_columnconfigure(0, weight=1)
+        
+        self.root.update_idletasks()
+        self.calculate_grid_dimensions()
 
         for i in range(self.grid_rows * self.grid_cols):
             label = Label(self.grid_frame, bg=self.root.cget('bg'))
             label.grid(row=i // self.grid_cols, column=i % self.grid_cols, padx=2, pady=2, sticky="nsew")
             self.labels.append(label)
-
-        # Make the grid frame resize with the window
-        self.root.grid_rowconfigure(0, weight=1)
-        self.root.grid_columnconfigure(0, weight=1)
-        self.root.grid_columnconfigure(1, weight=1)
+        
+        # column/row weights
+        #self.root.grid_columnconfigure(0, weight=1)
+        #self.root.grid_columnconfigure(1, weight=1)
+        self.root.grid_rowconfigure(0, weight=1)   # grid grows
+        self.root.grid_rowconfigure(2, weight=0)   # bottom fixed
 
         for row in range(self.grid_rows):
             self.grid_frame.grid_rowconfigure(row, weight=1)
@@ -2476,15 +2480,13 @@ class AnnotateApp:
         self.update_display()
             
     def calculate_grid_dimensions(self):
-        window_width = self.root.winfo_width()
-        window_height = self.root.winfo_height()
-
-        self.grid_cols = window_width // (self.image_size[0] + 4)
-        self.grid_rows = (window_height - self.button_frame.winfo_height() - 4) // (self.image_size[1] + 4)
-
-        # Update to make sure grid_rows and grid_cols are at least 1
-        self.grid_cols = max(1, self.grid_cols)
-        self.grid_rows = max(1, self.grid_rows)
+        self.root.update_idletasks()
+        w, h = self.root.winfo_width(), self.root.winfo_height()
+        status_h  = self.status_label.winfo_height()
+        buttons_h = self.button_frame.winfo_height()
+        bottom_h  = max(status_h, buttons_h) + 8  # same row => max
+        self.grid_cols = max(1, w // (self.image_size[0] + 4))
+        self.grid_rows = max(1, (h - bottom_h) // (self.image_size[1] + 4))
 
     def prefilter_paths_annotations(self):
         from .io import _read_and_join_tables, _read_db
@@ -2568,7 +2570,9 @@ class AnnotateApp:
                 before = len(df)
                 if isinstance(self.image_type, list):
                     for tpe in self.image_type:
+                        print(f"Looking for {tpe}")
                         df = df[df['png_path'].str.contains(tpe)]
+                        print(f"Found {len(df)} entries for {tpe}")
                 else:
                     df = df[df['png_path'].str.contains(self.image_type)]
                 after = len(df)
