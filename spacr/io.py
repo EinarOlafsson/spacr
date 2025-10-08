@@ -2797,16 +2797,17 @@ def generate_training_dataset(settings):
     def filter_png_list(db_path, settings, tables = ['cell', 'nucleus', 'pathogen', 'cytoplasm']):
         df, _ = _read_and_merge_data(locs=[db_path],
                                      tables=tables,
-                                     verbose=False,
+                                     verbose=True,
                                      nuclei_limit=settings['nuclei_limit'],
                                      pathogen_limit=settings['pathogen_limit'])
-                
+        
         [png_list_df] = _read_db(db_loc=db_path, tables=['png_list'])
         filtered_png_list_df = png_list_df[png_list_df['prcfo'].isin(df.index)]
         return filtered_png_list_df
 
     # Function to get the smallest class size based on the dataset mode
     def get_smallest_class_size(df, settings, dataset_mode):
+        
         if dataset_mode == 'metadata':
             sizes = [len(df[df['condition'] == c]) for c in settings['class_metadata']]
             #sizes = [len(df[df['condition'].isin(class_list)]) for class_list in settings['class_metadata']]
@@ -2865,6 +2866,13 @@ def generate_training_dataset(settings):
     def metadata_based_selection(db_path, settings):
         class_paths_ls = []
         df = filter_png_list(db_path, settings, tables=settings['tables'])
+        
+        print("if class names are generated and not allready in the database, metadata_item_1_name and/or metadata_item_2_name or their combination should match class_names.")
+        
+        if settings['metadata_item_1_name'] is None and settings['metadata_item_2_name'] is None:
+            print('Please provide at least one metadata item name for metadata-based selection.')
+            print('Set metadata_item_1_name and/or metadata_item_2_name in settings.')
+            return
                 
         df = annotate_conditions(df,
                                  cells=None,
@@ -2876,9 +2884,15 @@ def generate_training_dataset(settings):
         
         #if settings['metadata_type_by'] == 'condition':
         df = df.dropna(subset=['condition'])
+        
+        counts_classes = df['condition'].value_counts().sort_index()
+        n_classes_ = counts_classes.shape[0]
+        n_images_  = int(counts_classes.sum())
+        
+        print(f"Found {n_classes_} classes with {n_images_} images:")
+        for cls, cnt in counts_classes.items():
+            print(f"  - {cls}: {cnt}")
             
-        display(df)
-
         size = get_smallest_class_size(df, settings, 'metadata')
         
         for class_ in settings['class_metadata']:
@@ -3037,7 +3051,7 @@ def training_dataset_from_annotation_metadata(db_path, dst, annotation_column='t
     with sqlite3.connect(db_path) as conn:
         cursor = conn.cursor()
         # Retrieve all paths and annotations from the database
-        query = f"SELECT png_path, {annotation_column}, row_name, column_name FROM png_list"
+        query = f"SELECT png_path, {annotation_column}, rowID, columnID FROM png_list"
         cursor.execute(query)
         
         while True:

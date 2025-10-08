@@ -119,7 +119,7 @@ def set_default_plot_data_from_db(settings):
     settings.setdefault('graph_type', 'jitter')
     settings.setdefault('theme', 'deep')
     settings.setdefault('save', True)
-    settings.setdefault('y_lim', [1,1.5])
+    settings.setdefault('y_lim', None)
     settings.setdefault('verbose', False)
     settings.setdefault('channel_of_interest', 1)
     settings.setdefault('nuclei_limit', 2)
@@ -407,10 +407,10 @@ def set_generate_training_dataset_defaults(settings):
     settings.setdefault('annotation_column','test')
     settings.setdefault('annotated_classes',[1,2])
     settings.setdefault('class_metadata',['nc','pc'])
-    settings.setdefault('metadata_item_1_name',['nc','pc'])
-    settings.setdefault('metadata_item_1_value',[['c19','c2'],['c3','c4']])
-    settings.setdefault('metadata_item_2_name',['sample1','sample2'])
-    settings.setdefault('metadata_item_2_value',[['r1','r2'],['r3','r4']])
+    settings.setdefault('metadata_item_1_name',None) # e.g. ['nc','pc']
+    settings.setdefault('metadata_item_1_value',None) # e.g. [['c19','c2'],['c3','c4']]
+    settings.setdefault('metadata_item_2_name',None) # e.g. ['sample1','sample2']
+    settings.setdefault('metadata_item_2_value',None) #e.g. [['r1','r2'],['r3','r4']]
     settings.setdefault('size',224)
     settings.setdefault('test_split',0.1)
     settings.setdefault('class_metadata',[['c1'],['c2']])
