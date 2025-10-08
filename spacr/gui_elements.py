@@ -2219,7 +2219,11 @@ class AnnotateApp:
         self.db_path = db_path
         self.src = src
         self.index = 0
-
+        
+        #self.update_queue.put(self.SENTINEL)
+        self.SENTINEL = object()        # unique sentinel for shutdown
+        #self.update_queue = Queue()     # create the queue
+        
         if isinstance(image_size, list):
             self.image_size = (int(image_size[0]), int(image_size[0]))
         elif isinstance(image_size, int):
@@ -2229,6 +2233,7 @@ class AnnotateApp:
         
         self.orig_annotation_columns = annotation_column
         self.annotation_column = annotation_column
+        self._ensure_annotation_column()
         self.image_type = image_type
         self.channels = channels
         self.normalize = normalize
@@ -2242,7 +2247,7 @@ class AnnotateApp:
         self.measurement = measurement
         self.threshold = threshold
         self.normalize_channels = normalize_channels
-        self.outline = outline #([s.strip().lower() for s in outline.split(',') if s.strip()]if isinstance(outline, str) and outline else None)
+        self.outline = outline
         self.outline_threshold_factor = outline_threshold_factor
         self.outline_sigma = outline_sigma
         
@@ -2253,6 +2258,12 @@ class AnnotateApp:
         self.fg_color = style_out['fg_color']
         self.active_color = style_out['active_color']
         self.inactive_color = style_out['inactive_color']
+        
+        # --- save-status UI & state ---
+        self._spinner_frames = ["⠋","⠙","⠸","⠴","⠦","⠇"]  # simple TTY spinner
+        self._spinner_idx = 0
+        self.worker_busy = False        # set by the worker thread only
+        self._last_save_ts = None       # time of last successful commit
 
         if self.font_loader:
             self.font_style = self.font_loader.get_font(size=self.font_size)
@@ -2263,7 +2274,7 @@ class AnnotateApp:
 
         self.filtered_paths_annotations = []
         self.prefilter_paths_annotations()
-
+                
         self.db_update_thread = threading.Thread(target=self.update_database_worker)
         self.db_update_thread.start()
 
@@ -2276,8 +2287,11 @@ class AnnotateApp:
         self.grid_frame.grid(row=0, column=0, columnspan=2, padx=0, pady=0, sticky="nsew")
 
         # status (left) + buttons (right) on the same bottom row
-        self.status_label = Label(root, text="", font=self.font_style, bg=self.root.cget('bg'))
+        self.status_label = Label(root, text="", font=self.font_style, bg=self.bg_color, fg=self.fg_color)
         self.status_label.grid(row=2, column=0, padx=10, pady=8, sticky="w")
+        
+        # begin polling the status 6–10 times/sec
+        self._poll_save_status()        # schedules itself via .after()
 
         self.button_frame = Frame(root, bg=self.root.cget('bg'))
         self.button_frame.grid(row=2, column=1, padx=10, pady=8, sticky="e")  # or "ew"
@@ -2287,17 +2301,21 @@ class AnnotateApp:
         self.previous_button = Button(self.button_frame, text="Back", command=self.previous_page, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.exit_button = Button(self.button_frame, text="Exit", command=self.shutdown, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.train_button = Button(self.button_frame, text="Train & Classify (beta)", command=self.train_and_classify, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
-        self.orig_button  = Button(self.button_frame, text="orig.", command=self.swich_back_annotation_column, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
+        #self.orig_button  = Button(self.button_frame, text="orig.", command=self.swich_back_annotation_column, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.settings_button = Button(self.button_frame, text="Settings", command=self.open_settings_window, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
+        self.clear_button = Button(self.button_frame,text="Clear annotation",command=self.clear_current_annotation,bg=self.bg_color, fg=self.fg_color,highlightbackground=self.fg_color,highlightcolor=self.fg_color,highlightthickness=1)
+        self.count_button = Button(self.button_frame, text="Count classes", command=self.show_class_counts, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
 
         # pack (right to left)
         self.next_button.pack(side="right", padx=5)
         self.previous_button.pack(side="right", padx=5)
         self.exit_button.pack(side="right", padx=5)
         self.train_button.pack(side="right", padx=5)
-        self.orig_button.pack(side="right", padx=5)
+        #self.orig_button.pack(side="right", padx=5)
         self.settings_button.pack(side="right", padx=5)
-        
+        self.clear_button.pack(side="right", padx=5)
+        self.count_button.pack(side="right", padx=5)
+
         # compute grid size (after buttons exist with real height)
         self.button_frame.update_idletasks()
         needed = self.button_frame.winfo_reqwidth()
@@ -2322,6 +2340,34 @@ class AnnotateApp:
             self.grid_frame.grid_rowconfigure(row, weight=1)
         for col in range(self.grid_cols):
             self.grid_frame.grid_columnconfigure(col, weight=1)
+            
+    def _poll_save_status(self):
+        """
+        Main-thread UI poller: reads thread-safe flags and queue length
+        to show a 'Saving…' spinner and counts. Never called from worker.
+        """
+        try:
+            qlen = self.update_queue.qsize()
+        except NotImplementedError:
+            qlen = 0  # some platforms don't implement qsize reliably
+
+        saving = self.worker_busy or qlen > 0 or bool(self.pending_updates)
+
+        if saving:
+            self._spinner_idx = (self._spinner_idx + 1) % len(self._spinner_frames)
+            spin = self._spinner_frames[self._spinner_idx]
+            msg = f"{spin} Saving…  queue={qlen}"
+        else:
+            if self._last_save_ts:
+                msg = f"✓ All changes saved"
+            else:
+                msg = ""  # nothing saved yet, keep bar clean
+
+        # Update the status label in the main thread
+        self.status_label.config(text=msg)
+
+        # poll ~8 times per second
+        self.root.after(125, self._poll_save_status)
             
     def open_settings_window(self):
         from .gui_utils import generate_annotate_fields, convert_to_number
@@ -2412,6 +2458,21 @@ class AnnotateApp:
         apply_button = spacrButton(settings_window, text="Apply Settings", command=apply_new_settings,show_text=False)
         apply_button.pack(pady=10)
         
+    def _ensure_annotation_column(self):
+        import sqlite3
+        if not getattr(self, "annotation_column", None):
+            return
+
+        col = (self.annotation_column or "").replace('"', '""')
+        with sqlite3.connect(self.db_path, timeout=30) as conn:
+            cur = conn.cursor()
+            cur.execute('PRAGMA table_info("png_list")')
+            cols = {row[1] for row in cur.fetchall()}
+            if self.annotation_column not in cols:
+                # NULL allowed; values will be 1/2 per your app
+                cur.execute(f'ALTER TABLE "png_list" ADD COLUMN "{col}" INTEGER')
+                # commit occurs automatically on exiting the context if no exception
+        
     def update_settings(self, **kwargs):
         allowed_attributes = {
             'image_type', 'channels', 'image_size', 'annotation_column', 'src', 'db_path',
@@ -2431,7 +2492,9 @@ class AnnotateApp:
                     value = float(value)
                 setattr(self, attr, value)
                 updated = True
-
+                
+        if ('annotation_column' in kwargs and kwargs['annotation_column']) or ('db_path' in kwargs and kwargs['db_path']):
+            self._ensure_annotation_column()
 
         if 'image_size' in kwargs:
             if isinstance(self.image_size, list):
@@ -2472,10 +2535,14 @@ class AnnotateApp:
             self.grid_frame.grid_rowconfigure(row, weight=1)
         for col in range(self.grid_cols):
             self.grid_frame.grid_columnconfigure(col, weight=1)
-
+            
+    def update_display(self):
+        self.prefilter_paths_annotations()
+        self.load_images()
             
     def swich_back_annotation_column(self):
         self.annotation_column = self.orig_annotation_columns
+        self._ensure_annotation_column()
         self.prefilter_paths_annotations()
         self.update_display()
             
@@ -2491,6 +2558,8 @@ class AnnotateApp:
     def prefilter_paths_annotations(self):
         from .io import _read_and_join_tables, _read_db
         from .utils import is_list_of_lists
+        
+        self._ensure_annotation_column()
 
         if self.measurement and self.threshold is not None:
             df = _read_and_join_tables(self.db_path)
@@ -2513,7 +2582,7 @@ class AnnotateApp:
                         for idx, var in enumerate(self.measurement):
                             df = df[df[var[idx]] > self.threshold[idx]]
                         after = len(df)
-                    elif len(self.measurement) == len(self.threshold)*2:
+                    elif len(self.measurement) == len(self.threshold) * 2:
                         th_idx = 0
                         for idx, var in enumerate(self.measurement):
                             if idx % 2 != 0:
@@ -2521,21 +2590,21 @@ class AnnotateApp:
                                 thd = self.threshold
                                 if isinstance(thd, list):
                                     thd = thd[0]
-                                df[f'threshold_measurement_{idx}'] = df[self.measurement[idx]]/df[self.measurement[idx+1]]
+                                df[f'threshold_measurement_{idx}'] = df[self.measurement[idx]] / df[self.measurement[idx + 1]]
                                 print(f"mean threshold_measurement_{idx}: {np.mean(df['threshold_measurement'])}")
                                 print(f"median threshold measurement: {np.median(df[self.measurement])}")
                                 df = df[df[f'threshold_measurement_{idx}'] > thd]
                         after = len(df)
-            
+
             elif isinstance(self.measurement, list):
-                df['threshold_measurement'] = df[self.measurement[0]]/df[self.measurement[1]]
+                df['threshold_measurement'] = df[self.measurement[0]] / df[self.measurement[1]]
                 print(f"mean threshold measurement: {np.mean(df['threshold_measurement'])}")
                 print(f"median threshold measurement: {np.median(df[self.measurement])}")
                 df = df[df['threshold_measurement'] > self.threshold]
                 after = len(df)
                 self.measurement = 'threshold_measurement'
                 print(f'Removed: {before-after} rows, retained {after}')
-            
+
             else:
                 print(f"mean threshold measurement: {np.mean(df[self.measurement])}")
                 print(f"median threshold measurement: {np.median(df[self.measurement])}")
@@ -2579,15 +2648,20 @@ class AnnotateApp:
                 print(f'image_type: Removed: {before-after} rows, retained {after}')
 
             self.filtered_paths_annotations = df[['png_path', self.annotation_column]].values.tolist()
+
         else:
-            conn = sqlite3.connect(self.db_path)
-            c = conn.cursor()
-            if self.image_type:
-                c.execute(f"SELECT png_path, {self.annotation_column} FROM png_list WHERE png_path LIKE ?", (f"%{self.image_type}%",))
-            else:
-                c.execute(f"SELECT png_path, {self.annotation_column} FROM png_list")
-            self.filtered_paths_annotations = c.fetchall()
-            conn.close()
+            # simple SELECT branch -> use context manager
+            col = (self.annotation_column or "").replace('"', '""')
+            with sqlite3.connect(self.db_path, timeout=30) as conn:
+                c = conn.cursor()
+                if self.image_type:
+                    c.execute(
+                        f'SELECT png_path, "{col}" FROM "png_list" WHERE png_path LIKE ?',
+                        (f"%{self.image_type}%",)
+                    )
+                else:
+                    c.execute(f'SELECT png_path, "{col}" FROM "png_list"')
+                self.filtered_paths_annotations = c.fetchall()
 
     def load_images(self):
         for label in self.labels:
@@ -2627,6 +2701,60 @@ class AnnotateApp:
             label.bind('<Button-3>', self.get_on_image_click(path, label, img))
 
         self.root.update()
+        
+    def show_class_counts(self):
+        import sqlite3
+        import tkinter as tk
+        from tkinter import ttk, messagebox
+
+        # Make sure the column exists
+        if not self.annotation_column:
+            messagebox.showerror("Error", "No annotation column is set.")
+            return
+        self._ensure_annotation_column()
+
+        # Count classes 1 and 2
+        col = (self.annotation_column or "").replace('"', '""')
+        with sqlite3.connect(self.db_path, timeout=30) as conn:
+            cur = conn.cursor()
+            cur.execute(
+                f'SELECT "{col}" AS cls, COUNT(*) '
+                f'FROM "png_list" '
+                f'WHERE "{col}" IN (1, 2) '
+                f'GROUP BY "{col}"'
+            )
+            rows = cur.fetchall()
+
+        counts = {1: 0, 2: 0}
+        for cls, cnt in rows:
+            if cls in (1, 2):
+                counts[int(cls)] = int(cnt)
+
+        # Build popup window
+        win = tk.Toplevel(self.root)
+        win.title("Class counts")
+        win.configure(bg=self.root.cget('bg'))
+
+        # Table using Treeview
+        frame = tk.Frame(win, bg=self.root.cget('bg'))
+        frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        tree = ttk.Treeview(frame, columns=(self.annotation_column,), show='headings', height=2)
+        tree['columns'] = ('class_name', self.annotation_column)
+        tree['show'] = 'headings'
+        tree.heading('class_name', text='Class')
+        tree.column('class_name', width=120, anchor='w')
+        tree.heading(self.annotation_column, text=self.annotation_column)
+        tree.column(self.annotation_column, anchor='center', width=120)
+
+        # Insert rows
+        tree.insert('', 'end', values=('class 1', counts[1]))
+        tree.insert('', 'end', values=('class 2', counts[2]))
+        tree.pack(fill=tk.BOTH, expand=True)
+
+        # Close button
+        btn = ttk.Button(win, text="Close", command=win.destroy)
+        btn.pack(pady=8)
 
     def load_single_image(self, path_annotation_tuple):
         path, annotation = path_annotation_tuple
@@ -2777,80 +2905,171 @@ class AnnotateApp:
         document.getElementById('unique_id').innerHTML = '{text}';
         </script>
         """))
+        
+    def clear_current_annotation(self):
+        import sqlite3, queue
+        from tkinter import messagebox
 
+        # Confirm
+        if not messagebox.askyesno(
+            "Confirm",
+            f'This will clear all annotations in "{self.annotation_column}".'
+        ):
+            return  # cancel
+
+        # Ensure column exists
+        self._ensure_annotation_column()
+
+        # Null the entire column (context manager => fast close/unlock)
+        col = (self.annotation_column or "").replace('"', '""')
+        with sqlite3.connect(self.db_path, timeout=30) as conn:
+            cur = conn.cursor()
+            cur.execute(f'UPDATE "png_list" SET "{col}" = NULL')
+
+        # Clear any pending updates and drain the queue
+        self.pending_updates.clear()
+        try:
+            while True:
+                self.update_queue.get_nowait()
+        except queue.Empty:
+            pass
+
+        # Refresh UI (no borders now)
+        self.prefilter_paths_annotations()
+        self.load_images()
+        
     def update_database_worker(self):
-        conn = sqlite3.connect(self.db_path)
-        c = conn.cursor()
+        import sqlite3, queue, time
 
-        display(HTML("<div id='unique_id'>Initial Text</div>"))
-
-        while True:
-            if self.terminate:
-                conn.close()
-                break
-
-            if not self.update_queue.empty():
-                AnnotateApp.update_html("Do not exit, Updating database...")
-                self.status_label.config(text='Do not exit, Updating database...')
-
-                pending_updates = self.update_queue.get()
-                for path, new_annotation in pending_updates.items():
-                    if new_annotation is None:
-                        c.execute(f'UPDATE png_list SET {self.annotation_column} = NULL WHERE png_path = ?', (path,))
-                    else:
-                        c.execute(f'UPDATE png_list SET {self.annotation_column} = ? WHERE png_path = ?', (new_annotation, path))
+        # generous busy-timeout so short locks don't blow up under load
+        conn = sqlite3.connect(self.db_path, timeout=30)
+        cur = conn.cursor()
+        try:
+            try:
+                cur.execute("PRAGMA journal_mode=WAL;")
+                cur.execute("PRAGMA synchronous=NORMAL;")
                 conn.commit()
+            except Exception:
+                pass
 
-                AnnotateApp.update_html('')
-                self.status_label.config(text='')
-                self.root.update()
-            time.sleep(0.1)
+            while True:
+                try:
+                    item = self.update_queue.get(timeout=0.1)
+                except queue.Empty:
+                    # allow graceful exit after shutdown signal
+                    if self.terminate:
+                        break
+                    continue
 
-    def update_gui_text(self, text):
-        self.status_label.config(text=text)
-        self.root.update()
+                # --- graceful shutdown path ---
+                if item is self.SENTINEL:
+                    # mark the SENTINEL as done so update_queue.join() can finish
+                    self.update_queue.task_done()
+                    break
 
+                # --- normal batch update ---
+                pending_updates = item  # dict: {png_path: annotation or None}
+                if not pending_updates:
+                    self.update_queue.task_done()
+                    continue
+
+                self.worker_busy = True
+                col = (self.annotation_column or "").replace('"', '""')
+                to_null = [p for p, v in pending_updates.items() if v is None]
+                to_set  = [(int(v), p) for p, v in pending_updates.items() if v is not None]
+
+                try:
+                    if to_null:
+                        cur.executemany(
+                            f'UPDATE "png_list" SET "{col}" = NULL WHERE png_path = ?',
+                            [(p,) for p in to_null]
+                        )
+                    if to_set:
+                        cur.executemany(
+                            f'UPDATE "png_list" SET "{col}" = ? WHERE png_path = ?',
+                            to_set
+                        )
+                    conn.commit()
+                finally:
+                    self.worker_busy = False
+                    self._last_save_ts = time.time()
+                    self.update_queue.task_done()
+        finally:
+            try:
+                cur.close()
+            except Exception:
+                pass
+            conn.close()
+    
+    def shutdown(self):
+        # push any pending UI updates first
+        if self.pending_updates:
+            self.update_queue.put(self.pending_updates.copy())
+            self.pending_updates.clear()
+
+        # signal termination and sentinel
+        self.terminate = True
+        self.update_queue.put(self.SENTINEL)
+
+        # wait for ALL tasks (including the sentinel) to be marked done
+        self.update_queue.join()
+
+        # now the worker has exited; join without timeout
+        try:
+            self.db_update_thread.join()
+        except Exception:
+            pass
+
+        # close UI
+        try:
+            self.root.quit()
+        finally:
+            try:
+                self.root.destroy()
+            except Exception:
+                pass
+
+        print("Quit application")
+        
     def next_page(self):
         if self.pending_updates:
+            # show saving right away until worker picks it up
+            self.worker_busy = True
             self.update_queue.put(self.pending_updates.copy())
         self.pending_updates.clear()
         self.index += self.grid_rows * self.grid_cols
-        self.prefilter_paths_annotations()  # Re-fetch annotations from the database
+        self.prefilter_paths_annotations()
         self.load_images()
 
     def previous_page(self):
         if self.pending_updates:
+            self.worker_busy = True
             self.update_queue.put(self.pending_updates.copy())
         self.pending_updates.clear()
-        self.index -= self.grid_rows * self.grid_cols
-        if self.index < 0:
-            self.index = 0
-        self.prefilter_paths_annotations()  # Re-fetch annotations from the database
+        self.index = max(0, self.index - self.grid_rows * self.grid_cols)
+        self.prefilter_paths_annotations()
         self.load_images()
 
-    def shutdown(self):
-        self.terminate = True
-        self.update_queue.put(self.pending_updates.copy())
-        if not self.pending_updates:
-            self.pending_updates.clear()
-            self.db_update_thread.join()
-            self.root.quit()
-            self.root.destroy()
-            print(f'Quit application')
-        else:
-            print('Waiting for pending updates to finish before quitting')
-            
+    def update_gui_text(self, text):
+        self.status_label.config(text=text)
+        self.root.update()
+        
     def train_and_classify(self):
         """
         1) Merge data from the relevant DB tables (including png_list).
         2) Collect manual annotations from png_list.<annotation_column> => 'manual_annotation'.
-           - 1 => class=1, 2 => class=0 (for training).
+        - 1 => class=1, 2 => class=0 (for training).
         3) If only one class is present, randomly sample unannotated images as the other class.
         4) Train an XGBoost model.
         5) Classify *all* rows -> fill XGboost_score (prob of class=1) & XGboost_annotation (1 or 2 if high confidence).
-        6) Write those columns back to sqlite, so every row in png_list has a score (and possibly an annotation).
-        7) Refresh the UI (prefilter_paths_annotations + load_images).
+        6) Write those columns back to sqlite.
+        7) Refresh the UI.
         """
+        import sqlite3
+        import pandas as pd
+        from sklearn.model_selection import train_test_split
+        from sklearn.metrics import classification_report, confusion_matrix
+        from xgboost import XGBClassifier
 
         # Optionally, update your GUI status label
         self.update_gui_text("Merging data...")
@@ -2864,22 +3083,22 @@ class AnnotateApp:
             verbose=False
         )
 
-        # (2) Load manual annotations from the DB
-        conn = sqlite3.connect(self.db_path)
-        c = conn.cursor()
-        c.execute(f"SELECT png_path, {self.annotation_column} FROM png_list WHERE {self.annotation_column} IS NOT NULL")
-        annotated_rows = c.fetchall()  # e.g. [(png_path, 1 or 2), ...]
-        conn.close()
+        # (2) Load manual annotations from the DB (with context manager)
+        self._ensure_annotation_column()
+        colq = (self.annotation_column or "").replace('"', '""')
+        with sqlite3.connect(self.db_path, timeout=30) as conn:
+            c = conn.cursor()
+            c.execute(
+                f'SELECT png_path, "{colq}" FROM "png_list" '
+                f'WHERE "{colq}" IS NOT NULL'
+            )
+            annotated_rows = c.fetchall()
 
-        # dict {png_path -> 1 or 2}
         annot_dict = dict(annotated_rows)
-
-        # Add 'manual_annotation' to merged_df
         merged_df['manual_annotation'] = merged_df['png_path'].map(annot_dict)
 
         # Subset with manual labels
         annotated_df = merged_df.dropna(subset=['manual_annotation']).copy()
-        # Convert "2" => "0" for binary classification
         annotated_df['manual_annotation'] = annotated_df['manual_annotation'].replace({2: 0}).astype(int)
 
         # (3) Handle single-class scenario
@@ -2921,14 +3140,12 @@ class AnnotateApp:
         X_data = annotated_df[feature_cols].fillna(0).values
         y_data = annotated_df['manual_annotation'].values
 
-        # standard train/test
         X_train, X_test, y_train, y_test = train_test_split(
             X_data, y_data, test_size=0.1, random_state=42
         )
         model = XGBClassifier(use_label_encoder=False, eval_metric='logloss')
         model.fit(X_train, y_train)
 
-        # Evaluate
         preds = model.predict(X_test)
         print("=== Classification Report ===")
         print(classification_report(y_test, preds))
@@ -2939,62 +3156,58 @@ class AnnotateApp:
         all_df = merged_df.copy()
         X_all = all_df[feature_cols].fillna(0).values
         probs_all = model.predict_proba(X_all)[:, 1]
-        # Probability => XGboost_score
         all_df['XGboost_score'] = probs_all
 
-        # Decide XGboost_annotation
         def get_annotation_from_prob(prob):
             if prob > 0.9:
-                return 1  # class=1
+                return 1
             elif prob < 0.1:
-                return 0  # class=0
-            return None  # uncertain
+                return 0
+            return None
 
         xgb_anno_col = [get_annotation_from_prob(p) for p in probs_all]
-        # Convert 0 => 2 if your DB uses "2" for the negative class
-        xgb_anno_col = [2 if x == 0 else x for x in xgb_anno_col]
-
+        xgb_anno_col = [2 if x == 0 else x for x in xgb_anno_col]  # convert 0->2
         all_df['XGboost_annotation'] = xgb_anno_col
 
-        # (6) Write results back to png_list
+        # (6) Write results back (context manager + WAL tuning)
         self.update_gui_text("Updating the database with XGBoost predictions...")
-        conn = sqlite3.connect(self.db_path)
-        c = conn.cursor()
-        # Ensure columns exist
-        try:
-            c.execute("ALTER TABLE png_list ADD COLUMN XGboost_annotation INTEGER")
-        except sqlite3.OperationalError:
-            pass
-        try:
-            c.execute("ALTER TABLE png_list ADD COLUMN XGboost_score FLOAT")
-        except sqlite3.OperationalError:
-            pass
+        with sqlite3.connect(self.db_path, timeout=30) as conn:
+            c = conn.cursor()
+            try:
+                c.execute("ALTER TABLE png_list ADD COLUMN XGboost_annotation INTEGER")
+            except sqlite3.OperationalError:
+                pass
+            try:
+                c.execute("ALTER TABLE png_list ADD COLUMN XGboost_score FLOAT")
+            except sqlite3.OperationalError:
+                pass
 
-        # Update each row
-        for idx, row in all_df.iterrows():
-            score_val = float(row['XGboost_score'])
-            anno_val  = row['XGboost_annotation']
-            the_path  = row['png_path']
-            if pd.isna(the_path):
-                continue  # skip if no path
+            c.execute("PRAGMA journal_mode=WAL;")
+            c.execute("PRAGMA synchronous=NORMAL;")
 
-            if pd.isna(anno_val):
-                # We set annotation=NULL but do set the score
-                c.execute("""
-                    UPDATE png_list
-                       SET XGboost_annotation = NULL,
-                           XGboost_score       = ?
-                     WHERE png_path = ?
-                """, (score_val, the_path))
-            else:
-                # numeric annotation + numeric score
-                c.execute("""
-                    UPDATE png_list
-                       SET XGboost_annotation = ?,
-                           XGboost_score       = ?
-                     WHERE png_path = ?
-                """, (int(anno_val), score_val, the_path))
-                
+            for _, row in all_df.iterrows():
+                score_val = float(row['XGboost_score'])
+                anno_val  = row['XGboost_annotation']
+                the_path  = row['png_path']
+                if pd.isna(the_path):
+                    continue
+
+                if pd.isna(anno_val):
+                    c.execute("""
+                        UPDATE png_list
+                        SET XGboost_annotation = NULL,
+                            XGboost_score       = ?
+                        WHERE png_path = ?
+                    """, (score_val, the_path))
+                else:
+                    c.execute("""
+                        UPDATE png_list
+                        SET XGboost_annotation = ?,
+                            XGboost_score       = ?
+                        WHERE png_path = ?
+                    """, (int(anno_val), score_val, the_path))
+
+        # switch to the new column and (optionally) refresh the view
         self.annotation_column = 'XGboost_annotation'
 
 def standardize_figure(fig):
