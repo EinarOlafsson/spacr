@@ -2402,7 +2402,7 @@ class AnnotateApp:
             'src': self.src,
             'db_path': self.db_path,
         }
-
+        
         for key, data in vars_dict.items():
             if key in current_settings:
                 data['entry'].delete(0, tk.END)
@@ -2435,6 +2435,9 @@ class AnnotateApp:
                 elif value == '':
                     settings[key] = None
 
+            # self.db_path = os.path.join(settings.get['src'], 'measurements/measurements.db')
+            self.db_path = os.path.join(settings.get('src'), 'measurements', 'measurements.db')
+            
             # Apply these settings dynamically using update_settings method
             self.update_settings(**{
                 'image_type': settings.get('image_type'),
@@ -2449,13 +2452,13 @@ class AnnotateApp:
                 'outline': settings.get('outline'),
                 'outline_threshold_factor': settings.get('outline_threshold_factor'),
                 'outline_sigma': settings.get('outline_sigma'),
-                'src': self.src,
+                'src': settings.get('src'),   
                 'db_path': self.db_path
             })
 
             settings_window.destroy()
 
-        apply_button = spacrButton(settings_window, text="Apply Settings", command=apply_new_settings,show_text=False)
+        apply_button = spacrButton(settings_window, text="Apply Settings", command=apply_new_settings,show_text=False, icon_name="annotate")
         apply_button.pack(pady=10)
         
     def _ensure_annotation_column(self):
@@ -2474,6 +2477,80 @@ class AnnotateApp:
                 # commit occurs automatically on exiting the context if no exception
         
     def update_settings(self, **kwargs):
+        import threading  # <-- ADD
+
+        allowed_attributes = {
+            'image_type', 'channels', 'image_size', 'annotation_column', 'src', 'db_path',
+            'normalize', 'percentiles', 'measurement', 'threshold', 'normalize_channels',
+            'outline', 'outline_threshold_factor', 'outline_sigma'
+        }
+
+        # --- ADD: remember old values
+        old_db  = getattr(self, 'db_path', None)
+        old_src = getattr(self, 'src', None)
+
+        updated = False
+
+        for attr, value in kwargs.items():
+            if attr in allowed_attributes and value is not None:
+                if attr == 'outline':
+                    if isinstance(value, str):
+                        value = [s.strip().lower() for s in value.split(',') if s.strip()]
+                elif attr == 'outline_threshold_factor':
+                    value = float(value)
+                elif attr == 'outline_sigma':
+                    value = float(value)
+                setattr(self, attr, value)
+                updated = True
+
+        if ('annotation_column' in kwargs and kwargs['annotation_column']) or ('db_path' in kwargs and kwargs['db_path']):
+            self._ensure_annotation_column()
+
+        if 'image_size' in kwargs:
+            if isinstance(self.image_size, list):
+                self.image_size = (int(self.image_size[0]), int(self.image_size[0]))
+            elif isinstance(self.image_size, int):
+                self.image_size = (self.image_size, self.image_size)
+            elif isinstance(self.image_size, tuple) and len(self.image_size) == 2:
+                self.image_size = tuple(map(int, self.image_size))
+            else:
+                raise ValueError("Invalid image size")
+
+            self.calculate_grid_dimensions()
+            self.recreate_image_grid()
+
+        # --- OPTIONAL tiny safety: if src changed, clear path remaps & jump to first page
+        if self.src != old_src:
+            self.adjusted_to_original_paths.clear()
+            self.index = 0
+
+        # --- ADD: if db_path changed, restart the DB worker so writes go to the new DB
+        if self.db_path != old_db:
+            if self.pending_updates:
+                self.update_queue.put(self.pending_updates.copy())
+                self.pending_updates.clear()
+            self.update_queue.put(self.SENTINEL)
+            self.update_queue.join()
+            try:
+                if getattr(self, 'db_update_thread', None):
+                    self.db_update_thread.join()
+            except Exception:
+                pass
+            # start a fresh worker bound to new self.db_path
+            self.terminate = False
+            self.worker_busy = False
+            self._last_save_ts = None
+            self.db_update_thread = threading.Thread(target=self.update_database_worker, daemon=True)
+            self.db_update_thread.start()
+
+        if updated:
+            current_index = self.index  # Retain current index if possible
+            self.prefilter_paths_annotations()
+            max_index = len(self.filtered_paths_annotations) - 1
+            self.index = min(current_index, max(0, max(len(self.filtered_paths_annotations) - self.grid_rows * self.grid_cols, 0)))
+            self.load_images()
+        
+    def update_settings_v1(self, **kwargs):
         allowed_attributes = {
             'image_type', 'channels', 'image_size', 'annotation_column', 'src', 'db_path',
             'normalize', 'percentiles', 'measurement', 'threshold', 'normalize_channels', 'outline', 'outline_threshold_factor', 'outline_sigma'
@@ -2758,6 +2835,11 @@ class AnnotateApp:
 
     def load_single_image(self, path_annotation_tuple):
         path, annotation = path_annotation_tuple
+        if not os.path.exists(path):                # <-- add this
+            # return a blank tile instead of crashing
+            blank = Image.new('RGB', self.image_size, color=(30, 30, 30))
+            print(f"Could not find image: {path}")
+            return blank, annotation
         img = Image.open(path)
         img = self.normalize_image(img, self.normalize, self.percentiles, self.normalize_channels)
         img = img.convert('RGB')
