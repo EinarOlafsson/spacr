@@ -2214,7 +2214,7 @@ class ModifyMaskApp:
         self.update_display()
 
 class AnnotateApp:
-    def __init__(self, root, db_path, src, image_type=None, channels=None, image_size=200, annotation_column='annotate', normalize=False, percentiles=(1, 99), measurement=None, threshold=None, normalize_channels=None, outline=None, outline_threshold_factor=1, outline_sigma=1):
+    def __init__(self, root, db_path, src, image_type=None, channels=None, image_size=200, annotation_column='annotate', percentiles=(1, 99), measurement=None, threshold=None, normalize_channels=None, outline=None, outline_threshold_factor=1, outline_sigma=1, edge_thickness=1, edge_transparency=100, edge_image=False):
         self.root = root
         self.db_path = db_path
         self.src = src
@@ -2236,7 +2236,6 @@ class AnnotateApp:
         self._ensure_annotation_column()
         self.image_type = image_type
         self.channels = channels
-        self.normalize = normalize
         self.percentiles = percentiles
         self.images = {}
         self.pending_updates = {}
@@ -2250,6 +2249,9 @@ class AnnotateApp:
         self.outline = outline
         self.outline_threshold_factor = outline_threshold_factor
         self.outline_sigma = outline_sigma
+        self.edge_thickness = edge_thickness
+        self.edge_transparency = edge_transparency
+        self.edge_image = edge_image
         
         style_out = set_dark_style(ttk.Style())
         self.font_loader = style_out['font_loader']
@@ -2301,20 +2303,20 @@ class AnnotateApp:
         self.previous_button = Button(self.button_frame, text="Back", command=self.previous_page, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.exit_button = Button(self.button_frame, text="Exit", command=self.shutdown, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.train_button = Button(self.button_frame, text="Train & Classify (beta)", command=self.train_and_classify, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
-        #self.orig_button  = Button(self.button_frame, text="orig.", command=self.swich_back_annotation_column, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.settings_button = Button(self.button_frame, text="Settings", command=self.open_settings_window, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.clear_button = Button(self.button_frame,text="Clear annotation",command=self.clear_current_annotation,bg=self.bg_color, fg=self.fg_color,highlightbackground=self.fg_color,highlightcolor=self.fg_color,highlightthickness=1)
         self.count_button = Button(self.button_frame, text="Count classes", command=self.show_class_counts, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
+        #self.dl_train_button = Button(self.button_frame,text="Train (Beta)",command=self.open_dl_train_window,bg=self.bg_color,fg=self.fg_color,highlightbackground=self.fg_color,highlightcolor=self.fg_color,highlightthickness=1)
 
         # pack (right to left)
         self.next_button.pack(side="right", padx=5)
         self.previous_button.pack(side="right", padx=5)
         self.exit_button.pack(side="right", padx=5)
         self.train_button.pack(side="right", padx=5)
-        #self.orig_button.pack(side="right", padx=5)
         self.settings_button.pack(side="right", padx=5)
         self.clear_button.pack(side="right", padx=5)
         self.count_button.pack(side="right", padx=5)
+        #self.dl_train_button.pack(side="right", padx=5)
 
         # compute grid size (after buttons exist with real height)
         self.button_frame.update_idletasks()
@@ -2331,8 +2333,6 @@ class AnnotateApp:
             self.labels.append(label)
         
         # column/row weights
-        #self.root.grid_columnconfigure(0, weight=1)
-        #self.root.grid_columnconfigure(1, weight=1)
         self.root.grid_rowconfigure(0, weight=1)   # grid grows
         self.root.grid_rowconfigure(2, weight=0)   # bottom fixed
 
@@ -2391,14 +2391,16 @@ class AnnotateApp:
             'channels': ','.join(self.channels) if self.channels else '',
             'img_size': f"{self.image_size[0]},{self.image_size[1]}",
             'annotation_column': self.annotation_column or '',
-            'normalize': str(self.normalize),
             'percentiles': ','.join(map(str, self.percentiles)),
             'measurement': ','.join(self.measurement) if self.measurement else '',
             'threshold': str(self.threshold) if self.threshold is not None else '',
-            'normalize_channels': ','.join(self.normalize_channels) if self.normalize_channels else '',
+            'normalize_channels': ','.join([s for s in (self.normalize_channels or []) if isinstance(s, str) and s.strip()]),
             'outline': ','.join(self.outline) if self.outline else '',
             'outline_threshold_factor': str(self.outline_threshold_factor) if hasattr(self, 'outline_threshold_factor') else '1.0',
             'outline_sigma': str(self.outline_sigma) if hasattr(self, 'outline_sigma') else '1.0',
+            'edge_thickness': str(self.edge_thickness) if hasattr(self, 'edge_thickness') else '1',
+            'edge_transparency': str(getattr(self, 'edge_transparency', 0.0)),
+            'edge_image': str(getattr(self, 'edge_image', False)),
             'src': self.src,
             'db_path': self.db_path,
         }
@@ -2407,52 +2409,104 @@ class AnnotateApp:
             if key in current_settings:
                 data['entry'].delete(0, tk.END)
                 data['entry'].insert(0, current_settings[key])
-
+                
         def apply_new_settings():
             settings = {key: data['entry'].get() for key, data in vars_dict.items()}
-            
-            # Process settings exactly as your original initiation function does
-            settings['channels'] = settings['channels'].split(',') if settings['channels'] else None
+
+            # --- channels (comma string -> list or None) ---
+            settings['channels'] = (
+                [s.strip().lower() for s in (settings.get('channels') or '').split(',') if s.strip()]
+                or None
+            )
+
+            # --- image size & percentiles ---
             settings['img_size'] = list(map(int, settings['img_size'].split(',')))
-            settings['percentiles'] = list(map(convert_to_number, settings['percentiles'].split(','))) if settings['percentiles'] else [1, 99]
-            settings['normalize'] = settings['normalize'].lower() == 'true'
-            settings['normalize_channels'] = settings['normalize_channels'].split(',') if settings['normalize_channels'] else None
-            settings['outline'] = settings['outline'].split(',') if settings['outline'] else None
-            settings['outline_threshold_factor'] = float(settings['outline_threshold_factor'].replace(',', '.')) if settings['outline_threshold_factor'] else 1.0
-            settings['outline_sigma'] = float(settings['outline_sigma'].replace(',', '.')) if settings['outline_sigma'] else 1.0
-            
+            settings['percentiles'] = (
+                list(map(convert_to_number, settings['percentiles'].split(',')))
+                if settings['percentiles'] else [1, 99]
+            )
+
+            # --- normalize_channels: empty => [] (so update_settings will process it) ---
+            raw_nc = settings.get('normalize_channels')
+            if raw_nc is None or raw_nc.strip() == '':
+                settings['normalize_channels'] = []      
+            else:
+                nc = [s.strip().lower() for s in raw_nc.split(',') if s.strip()]
+                nc = [s for s in nc if s in {'r','g','b'}]
+                settings['normalize_channels'] = nc
+
+            raw_ol = settings.get('outline')
+            if raw_ol is None or raw_ol.strip() == '':
+                settings['outline'] = []
+            else:
+                ol = [s.strip().lower() for s in raw_ol.split(',') if s.strip()]
+                ol = [s for s in ol if s in {'r','g','b'}]
+                settings['outline'] = ol
+
+            # --- numeric fields ---
+            settings['outline_threshold_factor'] = (
+                float(settings['outline_threshold_factor'].replace(',', '.'))
+                if settings['outline_threshold_factor'] else 1.0)
+            settings['outline_sigma'] = (
+                float(settings['outline_sigma'].replace(',', '.'))
+                if settings['outline_sigma'] else 1.0)
+            settings['edge_thickness'] = (
+                float(settings['edge_thickness'].replace(',', '.'))
+                if settings['edge_thickness'] else 1)
+            et = settings.get('edge_transparency')
+            if et is None or et == '':
+                settings['edge_transparency'] = 0.0
+            else:
+                try:
+                    settings['edge_transparency'] = float(str(et).replace(',', '.'))
+                except Exception:
+                    settings['edge_transparency'] = 0.0
+                settings['edge_transparency'] = max(0.0, min(100.0, settings['edge_transparency']))
+
+            # --- edge_image (string -> bool) ---
+            ei_raw = str(settings.get('edge_image', 'true')).strip().lower()
+            settings['edge_image'] = ei_raw in ('1', 'true', 't', 'yes', 'y')
+
+            # --- measurement / threshold ---
             try:
-                settings['measurement'] = settings['measurement'].split(',') if settings['measurement'] else None
-                settings['threshold'] = None if settings['threshold'].lower() == 'none' else int(settings['threshold'])
-            except:
+                settings['measurement'] = (
+                    [s.strip() for s in settings['measurement'].split(',') if s.strip()]
+                    if settings['measurement'] else None
+                )
+                settings['threshold'] = (
+                    None if str(settings['threshold']).strip().lower() == 'none'
+                    else int(settings['threshold'])
+                )
+            except Exception:
                 settings['measurement'] = None
                 settings['threshold'] = None
 
-            # Convert empty strings to None
-            for key, value in settings.items():
-                if isinstance(value, list):
-                    settings[key] = [v if v != '' else None for v in value]
-                elif value == '':
-                    settings[key] = None
+            # --- cleanup: drop empties inside lists; only top-level '' -> None ---
+            for k, v in list(settings.items()):
+                if isinstance(v, list):
+                    settings[k] = [x for x in v if x not in (None, '')]
+                elif v == '':
+                    settings[k] = None
 
-            # self.db_path = os.path.join(settings.get['src'], 'measurements/measurements.db')
+            # db path & apply
             self.db_path = os.path.join(settings.get('src'), 'measurements', 'measurements.db')
-            
-            # Apply these settings dynamically using update_settings method
+
             self.update_settings(**{
                 'image_type': settings.get('image_type'),
                 'channels': settings.get('channels'),
                 'image_size': settings.get('img_size'),
                 'annotation_column': settings.get('annotation_column'),
-                'normalize': settings.get('normalize'),
                 'percentiles': settings.get('percentiles'),
                 'measurement': settings.get('measurement'),
                 'threshold': settings.get('threshold'),
-                'normalize_channels': settings.get('normalize_channels'),
-                'outline': settings.get('outline'),
+                'normalize_channels': settings.get('normalize_channels'),   # None => no normalization
+                'outline': settings.get('outline'),                         # None => no outlines
                 'outline_threshold_factor': settings.get('outline_threshold_factor'),
                 'outline_sigma': settings.get('outline_sigma'),
-                'src': settings.get('src'),   
+                'edge_thickness': settings.get('edge_thickness'),
+                'edge_transparency': settings.get('edge_transparency'),
+                'edge_image': settings.get('edge_image'),
+                'src': settings.get('src'),
                 'db_path': self.db_path
             })
 
@@ -2477,15 +2531,15 @@ class AnnotateApp:
                 # commit occurs automatically on exiting the context if no exception
         
     def update_settings(self, **kwargs):
-        import threading  # <-- ADD
+        import threading
 
         allowed_attributes = {
             'image_type', 'channels', 'image_size', 'annotation_column', 'src', 'db_path',
-            'normalize', 'percentiles', 'measurement', 'threshold', 'normalize_channels',
-            'outline', 'outline_threshold_factor', 'outline_sigma'
+            'percentiles', 'measurement', 'threshold', 'normalize_channels',
+            'outline', 'outline_threshold_factor', 'outline_sigma',
+            'edge_thickness', 'edge_transparency', 'edge_image'
         }
 
-        # --- ADD: remember old values
         old_db  = getattr(self, 'db_path', None)
         old_src = getattr(self, 'src', None)
 
@@ -2493,15 +2547,49 @@ class AnnotateApp:
 
         for attr, value in kwargs.items():
             if attr in allowed_attributes and value is not None:
-                if attr == 'outline':
-                    if isinstance(value, str):
+
+                # >>> remove the whole `if attr == 'normalize': ...` block <<<
+
+                if attr == 'normalize_channels':
+                    if isinstance(value, (list, tuple)):
+                        value = [str(s).strip().lower() for s in value if s is not None and str(s).strip()]
+                        value = [s for s in value if s in {'r','g','b'}]
+                        value = value or None
+                    elif isinstance(value, str):
+                        parts = [s.strip().lower() for s in value.split(',') if s.strip()]
+                        parts = [s for s in parts if s in {'r','g','b'}]
+                        value = parts or None
+                    else:
+                        value = None
+
+                elif attr == 'outline':
+                    if isinstance(value, (list, tuple)):
+                        value = [str(s).strip().lower() for s in value if s is not None and str(s).strip()]
+                    elif isinstance(value, str):
                         value = [s.strip().lower() for s in value.split(',') if s.strip()]
+                    else:
+                        value = []
+                    value = [s for s in value if s in {'r','g','b'}]
+                    value = value or None
+
                 elif attr == 'outline_threshold_factor':
                     value = float(value)
                 elif attr == 'outline_sigma':
                     value = float(value)
+                elif attr == 'edge_thickness':
+                    value = int(value)
+                elif attr == 'edge_transparency':
+                    try:
+                        value = float(value)
+                    except Exception:
+                        value = 0.0
+                    value = max(0.0, min(100.0, value))
+                elif attr == 'edge_image':
+                    value = bool(value)
+
                 setattr(self, attr, value)
                 updated = True
+
 
         if ('annotation_column' in kwargs and kwargs['annotation_column']) or ('db_path' in kwargs and kwargs['db_path']):
             self._ensure_annotation_column()
@@ -2548,51 +2636,6 @@ class AnnotateApp:
             self.prefilter_paths_annotations()
             max_index = len(self.filtered_paths_annotations) - 1
             self.index = min(current_index, max(0, max(len(self.filtered_paths_annotations) - self.grid_rows * self.grid_cols, 0)))
-            self.load_images()
-        
-    def update_settings_v1(self, **kwargs):
-        allowed_attributes = {
-            'image_type', 'channels', 'image_size', 'annotation_column', 'src', 'db_path',
-            'normalize', 'percentiles', 'measurement', 'threshold', 'normalize_channels', 'outline', 'outline_threshold_factor', 'outline_sigma'
-        }
-
-        updated = False
-                
-        for attr, value in kwargs.items():
-            if attr in allowed_attributes and value is not None:
-                if attr == 'outline':
-                    if isinstance(value, str):
-                        value = [s.strip().lower() for s in value.split(',') if s.strip()]
-                elif attr == 'outline_threshold_factor':
-                    value = float(value)
-                elif attr == 'outline_sigma':
-                    value = float(value)
-                setattr(self, attr, value)
-                updated = True
-                
-        if ('annotation_column' in kwargs and kwargs['annotation_column']) or ('db_path' in kwargs and kwargs['db_path']):
-            self._ensure_annotation_column()
-
-        if 'image_size' in kwargs:
-            if isinstance(self.image_size, list):
-                self.image_size = (int(self.image_size[0]), int(self.image_size[0]))
-            elif isinstance(self.image_size, int):
-                self.image_size = (self.image_size, self.image_size)
-            elif isinstance(self.image_size, tuple) and len(self.image_size) == 2:
-                self.image_size = tuple(map(int, self.image_size))
-            else:
-                raise ValueError("Invalid image size")
-
-            self.calculate_grid_dimensions()
-            self.recreate_image_grid()
-
-        if updated:
-            current_index = self.index  # Retain current index
-            self.prefilter_paths_annotations()
-
-            # Ensure the retained index is still valid (not out of bounds)
-            max_index = len(self.filtered_paths_annotations) - 1
-            self.index = min(current_index, max_index := max(0, max(0, max(len(self.filtered_paths_annotations) - self.grid_rows * self.grid_cols, 0))))
             self.load_images()
 
     def recreate_image_grid(self):
@@ -2835,95 +2878,135 @@ class AnnotateApp:
 
     def load_single_image(self, path_annotation_tuple):
         path, annotation = path_annotation_tuple
-        if not os.path.exists(path):                # <-- add this
-            # return a blank tile instead of crashing
+        if not os.path.exists(path):
             blank = Image.new('RGB', self.image_size, color=(30, 30, 30))
             print(f"Could not find image: {path}")
             return blank, annotation
+
         img = Image.open(path)
-        img = self.normalize_image(img, self.normalize, self.percentiles, self.normalize_channels)
+
+        # Normalize (optionally) – returns RGB ndarray-equivalent in a PIL Image
+        img = self.normalize_image(img, self.percentiles, self.normalize_channels)
+        #img = self.normalize_image(img, self.normalize, self.percentiles, self.normalize_channels)
         img = img.convert('RGB')
+
+        # Keep a copy BEFORE filtering – used for edge generation and for edge_image=True blending
+        full_img = img
+
+        # Apply channel filter for the visible base
         img = self.filter_channels(img)
-        
+
         if self.outline:
-            img = self.outline_image(img, self.outline_sigma)
-        
+            # NEW SIGNATURE: pass base img and full (pre-filter) img
+            img = self.outline_image(base_img=img,
+                                    full_img=full_img,
+                                    edge_sigma=self.outline_sigma,
+                                    edge_thickness=self.edge_thickness)
+
         img = img.resize(self.image_size)
         return img, annotation
     
-    def outline_image(self, img, edge_sigma=1, edge_thickness=1):
+    def outline_image(self, base_img, full_img, edge_sigma=1, edge_thickness=1):
         """
-        For each selected channel, compute a continuous outline from the intensity landscape
-        using Otsu threshold scaled by a correction factor. Replace only that channel.
+        Compose final image from:
+        - base_img: already filtered (visible base)
+        - full_img: normalized RGB before filtering (for edge detection and, if edge_image=True, as underlay)
+        Semantics:
+        - edge_transparency: 0 => outlines hidden; 100 => solid outlines
+        - edge_image=True:   also show the channel image for outlined channels
+        - edge_image=False:  suppress outlined channels' intensities in base; draw only outlines on top
         """
-        arr = np.asarray(img)
-        if arr.ndim != 3 or arr.shape[2] != 3:
-            return img  # not RGB
+        base_arr = np.asarray(base_img).copy()
+        full_arr = np.asarray(full_img)
 
-        out_img = arr.copy()
+        if base_arr.ndim != 3 or base_arr.shape[2] != 3:
+            return base_img  # expect RGB
+
+        out_img = base_arr  # start from visible base
+
         channel_map = {'r': 0, 'g': 1, 'b': 2}
-        factor = getattr(self, 'outline_threshold_factor', 1.0)
+        factor = float(getattr(self, 'outline_threshold_factor', 1.0))
 
-        for ch in self.outline:
-            if ch not in channel_map:
-                continue
+        # integer radius
+        try:
+            radius = int(round(edge_thickness))
+        except Exception:
+            radius = 1
+        radius = max(1, radius)
+
+        # opacity: 0 -> invisible; 100 -> fully opaque
+        transp = float(getattr(self, 'edge_transparency', 0.0))
+        opacity = max(0.0, min(1.0, transp / 100.0))
+
+        outline_channels = [ch for ch in (self.outline or []) if ch in channel_map]
+        show_underlay = bool(getattr(self, 'edge_image', True))
+
+        # *** KEY FIX: if not showing underlay, suppress intensities of outlined channels in the base ***
+        if not show_underlay and outline_channels:
+            for ch in outline_channels:
+                idx = channel_map[ch]
+                out_img[:, :, idx] = 0  # zero out intensity so only edges will be visible
+
+        # If no outlines or opacity is zero, we're done after suppression step
+        if opacity == 0.0 or not outline_channels:
+            return Image.fromarray(out_img)
+
+        # For each outlined channel:
+        for ch in outline_channels:
             idx = channel_map[ch]
-            channel_data = arr[:, :, idx]
 
+            # If showing underlay, bring in that channel's image from full_arr before drawing the edge
+            if show_underlay:
+                out_img[:, :, idx] = full_arr[:, :, idx]
+
+            # Compute edge mask from normalized full channel
             try:
-                channel_data = gaussian_filter(channel_data, sigma=edge_sigma) 
-                otsu_thresh = threshold_otsu(channel_data)
-                corrected_thresh = min(255, otsu_thresh * factor)
-                fg_mask = channel_data > corrected_thresh
+                channel_sm = gaussian_filter(full_arr[:, :, idx].astype(np.float32),
+                                            sigma=float(edge_sigma))
+                otsu_thresh = threshold_otsu(channel_sm)
+                corrected_thresh = float(min(255.0, max(0.0, otsu_thresh * factor)))
+                fg_mask = channel_sm > corrected_thresh
             except Exception:
                 continue
-            
-            edge = find_boundaries(fg_mask, mode='inner')
-            thick_edge = dilation(edge, disk(edge_thickness))
 
-            out_img[:, :, idx] = (thick_edge * 255).astype(np.uint8)
+            edge = find_boundaries(fg_mask, mode='inner').astype(bool)
+            thick_edge = dilation(edge, disk(radius)).astype(bool)
+
+            # Blend outline on top of current out_img channel
+            orig = out_img[:, :, idx].astype(np.float32)
+            blended = orig.copy()
+            blended[thick_edge] = opacity * 255.0 + (1.0 - opacity) * orig[thick_edge]
+            out_img[:, :, idx] = np.clip(blended, 0, 255).astype(np.uint8)
 
         return Image.fromarray(out_img)
 
     @staticmethod
-    def normalize_image(img, normalize=False, percentiles=(1, 99), normalize_channels=None):
+    def normalize_image(img, percentiles=(1, 99), normalize_channels=None):
         """
-        Normalize an image based on specific channels (R, G, B).
-
-        Args:
-            img (PIL.Image or np.array): Input image.
-            normalize (bool): Whether to normalize the image or not.
-            percentiles (tuple): Percentiles to use for intensity rescaling.
-            normalize_channels (list): List of channels to normalize. E.g., ['r', 'g', 'b'], ['r'], ['g'], etc.
-
-        Returns:
-            PIL.Image: Normalized image.
+        If normalize_channels is None or [], do nothing.
+        Otherwise normalize only those channels (r/g/b).
         """
         img_array = np.array(img)
+        img_array = np.clip(img_array, 0, 255)
 
-        if normalize:
-            if img_array.ndim == 2:  # Grayscale image
-                p2, p98 = np.percentile(img_array, percentiles)
-                img_array = rescale_intensity(img_array, in_range=(p2, p98), out_range=(0, 255))
-            else:  # Color image or multi-channel image
-                # Create a map for the color channels
-                channel_map = {'r': 0, 'g': 1, 'b': 2}
-                
-                # If normalize_channels is not specified, normalize all channels
-                if normalize_channels is None:
-                    normalize_channels = ['r', 'g', 'b']
-                
-                for channel_name in normalize_channels:
-                    if channel_name in channel_map:
-                        channel_idx = channel_map[channel_name]
-                        p2, p98 = np.percentile(img_array[:, :, channel_idx], percentiles)
-                        img_array[:, :, channel_idx] = rescale_intensity(img_array[:, :, channel_idx], in_range=(p2, p98), out_range=(0, 255))
+        if not normalize_channels:  # None or []
+            return Image.fromarray(img_array.astype('uint8'))
 
-        img_array = np.clip(img_array, 0, 255).astype('uint8')
+        if img_array.ndim == 2:
+            p2, p98 = np.percentile(img_array, percentiles)
+            out = rescale_intensity(img_array, in_range=(p2, p98), out_range=(0, 255))
+            return Image.fromarray(np.clip(out, 0, 255).astype('uint8'))
 
-        return Image.fromarray(img_array)
+        channel_map = {'r': 0, 'g': 1, 'b': 2}
+        out = img_array.astype(np.float32).copy()
+        for ch in normalize_channels:
+            idx = channel_map.get(str(ch).lower())
+            if idx is None: 
+                continue
+            p2, p98 = np.percentile(out[:, :, idx], percentiles)
+            out[:, :, idx] = rescale_intensity(out[:, :, idx], in_range=(p2, p98), out_range=(0, 255))
+        return Image.fromarray(np.clip(out, 0, 255).astype('uint8'))
 
-    
     def add_colored_border(self, img, border_width, border_color):
         top_border = Image.new('RGB', (img.width, border_width), color=border_color)
         bottom_border = Image.new('RGB', (img.width, border_width), color=border_color)
@@ -2941,18 +3024,19 @@ class AnnotateApp:
     
     def filter_channels(self, img):
         r, g, b = img.split()
+
         if self.channels:
-            if 'r' not in self.channels:
+            # normalize and sanitize input like ['R', ' g ', None] -> {'r','g'}
+            chset = {str(c).strip().lower() for c in self.channels if c is not None and str(c).strip()}
+
+            if 'r' not in chset:
                 r = r.point(lambda _: 0)
-            if 'g' not in self.channels:
+            if 'g' not in chset:
                 g = g.point(lambda _: 0)
-            if 'b' not in self.channels:
+            if 'b' not in chset:
                 b = b.point(lambda _: 0)
 
-            if len(self.channels) == 1:
-                channel_img = r if 'r' in self.channels else (g if 'g' in self.channels else b)
-                return ImageOps.grayscale(channel_img)
-
+        # always return RGB; never collapse to grayscale
         return Image.merge("RGB", (r, g, b))
 
     def get_on_image_click(self, path, label, img):

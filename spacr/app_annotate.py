@@ -28,7 +28,8 @@ def initiate_annotation_app(parent_frame):
         settings['channels'] = settings['channels'].split(',')
         settings['img_size'] = list(map(int, settings['img_size'].split(',')))  # Convert string to list of integers
         settings['percentiles'] = list(map(convert_to_number, settings['percentiles'].split(','))) if settings['percentiles'] else [2, 98]
-        settings['normalize'] = settings['normalize'].lower() == 'true'
+        settings['normalize'] = True
+        #settings['normalize'] = settings['normalize'].lower() == 'true'
         settings['normalize_channels'] = settings['normalize_channels'].split(',')
         settings['outline'] = settings['outline'].split(',') if settings['outline'] else None
         settings['outline_threshold_factor'] = float(settings['outline_threshold_factor']) if settings['outline_threshold_factor'] else 1.0
