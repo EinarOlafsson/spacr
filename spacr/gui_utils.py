@@ -355,7 +355,7 @@ def annotate_with_image_refs(settings, root, shutdown_callback):
     screen_height = root.winfo_screenheight()
     root.geometry(f"{screen_width}x{screen_height}")
 
-    app = AnnotateApp(root, db, src, image_type=settings['image_type'], channels=settings['channels'], image_size=settings['img_size'], annotation_column=settings['annotation_column'], normalize=settings['normalize'], percentiles=settings['percentiles'], measurement=settings['measurement'], threshold=settings['threshold'], normalize_channels=settings['normalize_channels'], outline=settings['outline'], outline_threshold_factor=settings['outline_threshold_factor'], outline_sigma=settings['outline_sigma'])
+    app = AnnotateApp(root, db, src, image_type=settings['image_type'], channels=settings['channels'], image_size=settings['img_size'], annotation_column=settings['annotation_column'], percentiles=settings['percentiles'], measurement=settings['measurement'], threshold=settings['threshold'], normalize_channels=settings['normalize_channels'], outline=settings['outline'], outline_threshold_factor=settings['outline_threshold_factor'], outline_sigma=settings['outline_sigma'])
 
     # Set the canvas background to black
     root.configure(bg='black')
