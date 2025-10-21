@@ -2306,7 +2306,7 @@ class AnnotateApp:
         self.settings_button = Button(self.button_frame, text="Settings", command=self.open_settings_window, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.clear_button = Button(self.button_frame,text="Clear annotation",command=self.clear_current_annotation,bg=self.bg_color, fg=self.fg_color,highlightbackground=self.fg_color,highlightcolor=self.fg_color,highlightthickness=1)
         self.count_button = Button(self.button_frame, text="Count classes", command=self.show_class_counts, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
-        #self.dl_train_button = Button(self.button_frame,text="Train (Beta)",command=self.open_dl_train_window,bg=self.bg_color,fg=self.fg_color,highlightbackground=self.fg_color,highlightcolor=self.fg_color,highlightthickness=1)
+        self.dl_train_button = Button(self.button_frame,text="Train (Beta)",command=self.open_deep_spacr_window,bg=self.bg_color,fg=self.fg_color,highlightbackground=self.fg_color,highlightcolor=self.fg_color,highlightthickness=1)
 
         # pack (right to left)
         self.next_button.pack(side="right", padx=5)
@@ -2316,7 +2316,7 @@ class AnnotateApp:
         self.settings_button.pack(side="right", padx=5)
         self.clear_button.pack(side="right", padx=5)
         self.count_button.pack(side="right", padx=5)
-        #self.dl_train_button.pack(side="right", padx=5)
+        self.dl_train_button.pack(side="right", padx=5)
 
         # compute grid size (after buttons exist with real height)
         self.button_frame.update_idletasks()
@@ -3375,6 +3375,252 @@ class AnnotateApp:
 
         # switch to the new column and (optionally) refresh the view
         self.annotation_column = 'XGboost_annotation'
+        
+    def _get_png_list_columns(self):
+        """Return all columns from png_list; caller can decide which are 'annotation'."""
+        import sqlite3
+        cols = []
+        with sqlite3.connect(self.db_path, timeout=30) as conn:
+            cur = conn.cursor()
+            cur.execute('PRAGMA table_info("png_list")')
+            for _, name, coltype, *_ in cur.fetchall():
+                cols.append((name, (coltype or "").upper()))
+        return cols
+
+    def _parse_field_value(self, key, raw):
+        """
+        Convert string from Entry to the right Python type using defaults as a hint.
+        Handles bools, ints, floats, lists (comma-separated), and passthrough strings.
+        """
+        if raw is None:
+            return None
+        s = str(raw).strip()
+        if s == "":
+            return None
+        low = s.lower()
+
+        # booleans
+        if low in ("true", "t", "1", "yes", "y", "on"):
+            return True
+        if low in ("false", "f", "0", "no", "n", "off"):
+            return False
+
+        # numbers
+        try:
+            if "." in s or "e" in low:
+                return float(s)
+            return int(s)
+        except Exception:
+            pass
+
+        # lists (comma-separated) for known list keys
+        listy = {
+            "classes", "annotated_classes", "class_metadata", "train_channels",
+            "tables", "file_metadata"
+        }
+        if key in listy or ("," in s):
+            # split, trim, coerce numbers if possible
+            out = []
+            for token in s.split(","):
+                token = token.strip()
+                if token == "":
+                    continue
+                try:
+                    if "." in token or "e" in token.lower():
+                        out.append(float(token))
+                    else:
+                        out.append(int(token))
+                except Exception:
+                    out.append(token)
+            return out
+
+        return s
+
+    def open_deep_spacr_window(self):
+        """
+        Build a settings window for deep_spacr. 
+        - Seeds fields from deep_spacr_defaults
+        - Optional: Use DB annotation columns as classes (multi-select)
+        - Runs deep_spacr(settings) on 'Run'
+        """
+        import tkinter as tk
+        from tkinter import ttk, messagebox
+        import threading
+
+        # --- import here to avoid heavy imports at app start
+        try:
+            from spacr.settings import deep_spacr_defaults
+        except Exception:
+            # you provided deep_spacr_defaults signature; fall back to a local import path
+            from spacr.settings import deep_spacr_defaults  # adjust if needed
+
+        # seed defaults
+        defaults = deep_spacr_defaults({}).copy()
+        # set a few sensible defaults from the current app
+        defaults["src"] = self.src
+        defaults["dataset"] = self.src
+        defaults["annotation_column"] = self.annotation_column
+        defaults["train_channels"] = ['r', 'g', 'b']  # ensure consistent type
+        # keep 'annotated_classes':[1,2] and 'metadata_type_by':'columnID' (works with 1/2 labels)
+
+        win = tk.Toplevel(self.root)
+        win.title("Deep SPACR – Train (Beta)")
+        style_out = set_dark_style(ttk.Style())
+        win.configure(bg=style_out['bg_color'])
+
+        outer = tk.Frame(win, bg=style_out['bg_color'])
+        outer.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        # --- Left: generic settings (auto-form) ---
+        form_frame = tk.LabelFrame(outer, text="Model / Training Settings", bg=style_out['bg_color'], fg=self.fg_color)
+        form_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0,10))
+
+        # keys to show prominently (order)
+        preferred_keys = [
+            "src", "dataset_mode", "annotation_column",
+            "image_size", "batch_size", "epochs", "learning_rate",
+            "weight_decay", "dropout_rate",
+            "model_type", "optimizer_type", "schedule", "loss_type",
+            "train", "test", "augment", "train_channels",
+            "val_split", "test_split", "score_threshold",
+            "apply_model_to_dataset", "generate_training_dataset", "train_DL_model",
+            "experiment", "custom_model", "custom_model_path"
+        ]
+
+        # entries dict: key -> widget
+        entries = {}
+
+        def add_row(parent, row, key, val):
+            lbl = tk.Label(parent, text=key, bg=style_out['bg_color'], fg=self.fg_color)
+            lbl.grid(row=row, column=0, sticky="w", padx=4, pady=3)
+
+            # booleans as Combobox
+            if isinstance(val, bool):
+                w = ttk.Combobox(parent, values=["True", "False"], state="readonly")
+                w.set("True" if val else "False")
+            else:
+                # simple Entry; lists show as comma-separated
+                if isinstance(val, (list, tuple)):
+                    show = ",".join(str(x) for x in val)
+                else:
+                    show = "" if val is None else str(val)
+                w = tk.Entry(parent)
+                w.insert(0, show)
+            w.grid(row=row, column=1, sticky="ew", padx=4, pady=3)
+            parent.grid_columnconfigure(1, weight=1)
+            entries[key] = w
+
+        # materialize rows
+        r = 0
+        seen = set()
+        for k in preferred_keys:
+            if k in defaults:
+                add_row(form_frame, r, k, defaults[k])
+                seen.add(k)
+                r += 1
+        # add any remaining defaults at the end (hidden behind expander would be nicer; keep it simple)
+        for k, v in defaults.items():
+            if k in seen:
+                continue
+            add_row(form_frame, r, k, v)
+            r += 1
+
+        # --- Right: DB Annotations panel ---
+        db_frame = tk.LabelFrame(outer, text="Use Annotation Columns from DB", bg=style_out['bg_color'], fg=self.fg_color)
+        db_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        use_db_var = tk.BooleanVar(value=True)
+        use_db_chk = tk.Checkbutton(db_frame, text="Use selected columns as classes", variable=use_db_var,
+                                    bg=style_out['bg_color'], fg=self.fg_color, selectcolor=style_out['bg_color'])
+        use_db_chk.pack(anchor="w", pady=(6,4), padx=6)
+
+        # load columns
+        cols = self._get_png_list_columns()
+        # Heuristic: filter out very-obvious non-annotation columns
+        ignore = {"png_path", "prcfo", "XGboost_annotation", "XGboost_score"}
+        annot_cols = [c for c,t in cols if c not in ignore]
+
+        list_label = tk.Label(db_frame, text="Select one or more annotation columns (values: 1 / 2)", 
+                            bg=style_out['bg_color'], fg=self.fg_color)
+        list_label.pack(anchor="w", padx=6)
+
+        lb = tk.Listbox(db_frame, selectmode=tk.EXTENDED, height=min(12, max(6, len(annot_cols))))
+        for c in annot_cols:
+            lb.insert(tk.END, c)
+        lb.pack(fill=tk.BOTH, expand=True, padx=6, pady=6)
+
+        note = tk.Label(
+            db_frame,
+            text="Tip: With 'metadata_type_by = columnID' and 'annotated_classes = [1, 2]',\n"
+                "each selected column contributes the classes stored as 1 or 2.",
+            bg=style_out['bg_color'], fg=self.fg_color, justify="left")
+        note.pack(anchor="w", padx=6, pady=(0,6))
+
+        # --- Buttons ---
+        btns = tk.Frame(win, bg=style_out['bg_color'])
+        btns.pack(fill=tk.X, padx=10, pady=(0,10))
+
+        def on_run():
+            # collect settings from the form
+            settings = {}
+            for k, widget in entries.items():
+                if isinstance(widget, ttk.Combobox):
+                    raw = widget.get()
+                else:
+                    raw = widget.get()
+                val = self._parse_field_value(k, raw)
+                # put booleans back as bools if they are strings "True"/"False"
+                if isinstance(val, str) and val in ("True","False"):
+                    val = (val == "True")
+                settings[k] = defaults.get(k, None) if val is None else val
+
+            # force a few from app state if left empty
+            if not settings.get("src"):
+                settings["src"] = self.src
+            if not settings.get("dataset"):
+                settings["dataset"] = self.src
+
+            # Mode from DB annotations
+            if use_db_var.get():
+                sel = [lb.get(i) for i in lb.curselection()]
+                if not sel:
+                    messagebox.showwarning("No columns selected", "Select at least one annotation column or uncheck the DB option.")
+                    return
+
+                # Use columns as classes; deep_spacr defaults: metadata_type_by='columnID', annotated_classes=[1,2]
+                settings["dataset_mode"] = "metadata"
+                settings["metadata_type_by"] = "columnID"
+                settings["classes"] = sel[:]                          # visible class names (columns)
+                settings["class_metadata"] = [[c] for c in sel]       # each class represented by one column ID
+                # keep annotated_classes as default [1,2] so 1/2 encode subclasses per column
+
+            # Light sanity
+            if "train_channels" in settings and isinstance(settings["train_channels"], list):
+                settings["train_channels"] = [str(x).lower() for x in settings["train_channels"]]
+
+            # close the window quickly so the thread can do its thing
+            win.destroy()
+
+            # Run deep_spacr in a background thread
+            def _worker():
+                try:
+                    self.update_gui_text("Deep SPACR: preparing…")
+                    # lazy import here to avoid app startup cost
+                    from spacr.deep_spacr import deep_spacr
+                    deep_spacr(settings)
+                    self.update_gui_text("Deep SPACR: done.")
+                except Exception as e:
+                    import traceback
+                    traceback.print_exc()
+                    self.update_gui_text(f"Deep SPACR error: {e}")
+
+            threading.Thread(target=_worker, daemon=True).start()
+
+        run_btn = ttk.Button(btns, text="Run", command=on_run)
+        run_btn.pack(side=tk.RIGHT, padx=6)
+        close_btn = ttk.Button(btns, text="Cancel", command=win.destroy)
+        close_btn.pack(side=tk.RIGHT, padx=6)
+
 
 def standardize_figure(fig):
     from .gui_elements import set_dark_style
