@@ -3435,177 +3435,295 @@ class AnnotateApp:
             return out
 
         return s
+    
+    @staticmethod
+    def convert_settings_dict_for_gui(settings):
+        """
+        Decide widget type per setting:
+        - 'check'  => Checkbutton (bools)
+        - 'combo'  => readonly Combobox (predefined choices)
+        - 'entry'  => Entry (free text / numbers / lists)
+        Returns: {key: (kind, options, initial)}
+        """
+        try:
+            from torchvision import models as torch_models
+            torchvision_models = sorted({name for name, obj in torch_models.__dict__.items() if callable(obj)})
+        except Exception:
+            torchvision_models = ['resnet18', 'resnet34', 'resnet50', 'densenet121', 'mobilenet_v2']
 
-    def open_deep_spacr_window(self):
-        """
-        Build a settings window for deep_spacr. 
-        - Seeds fields from deep_spacr_defaults
-        - Optional: Use DB annotation columns as classes (multi-select)
-        - Runs deep_spacr(settings) on 'Run'
-        """
+        chan_list = [
+            '[0,1,2,3,4,5,6,7,8]',
+            '[0,1,2,3,4,5,6,7]',
+            '[0,1,2,3,4,5,6]',
+            '[0,1,2,3,4,5]',
+            '[0,1,2,3,4]',
+            '[0,1,2,3]',
+            '[0,1,2]',
+            '[0,1]',
+            '[0]',
+            '[0,0]'
+        ]
+
+        variables = {}
+        special_cases = {
+            'metadata_type': ('combo', ['cellvoyager', 'cq1', 'auto', 'custom'], 'cellvoyager'),
+            'channels': ('combo', chan_list, '[0,1,2,3]'),
+            'train_channels': ('combo', ["['r','g','b']", "['r','g']", "['r','b']", "['g','b']", "['r']", "['g']", "['b']"], "['r','g','b']"),
+            'channel_dims': ('combo', chan_list, '[0,1,2,3]'),
+
+            # CHANGED: include 'measurement' instead of 'recruitment'
+            'dataset_mode': ('combo', ['annotation', 'metadata', 'measurement'], 'metadata'),
+
+            'cov_type': ('combo', ['HC0', 'HC1', 'HC2', 'HC3', None], None),
+            'crop_mode': ('combo', ["['cell']", "['nucleus']", "['pathogen']", "['cell', 'nucleus']", "['cell', 'pathogen']", "['nucleus', 'pathogen']", "['cell', 'nucleus', 'pathogen']"], "['cell']"),
+            'timelapse_mode': ('combo', ['trackpy', 'iou', 'btrack'], 'trackpy'),
+            'train_mode': ('combo', ['erm', 'irm'], 'erm'),
+            'clustering': ('combo', ['dbscan', 'kmean'], 'dbscan'),
+            'reduction_method': ('combo', ['umap', 'tsne'], 'umap'),
+            'model_name': ('combo', ['cyto', 'cyto_2', 'cyto_3', 'nuclei'], 'cyto'),
+            'regression_type': ('combo', ['ols','gls','wls','rlm','glm','mixed','quantile','logit','probit','poisson','lasso','ridge'], 'ols'),
+            'timelapse_objects': ('combo', ["['cell']", "['nucleus']", "['pathogen']", "['cell', 'nucleus']", "['cell', 'pathogen']", "['nucleus', 'pathogen']", "['cell', 'nucleus', 'pathogen']", None], None),
+            'model_type': ('combo', torchvision_models, 'resnet50'),
+            'optimizer_type': ('combo', ['adamw', 'adam'], 'adamw'),
+            'schedule': ('combo', ['reduce_lr_on_plateau', 'step_lr'], 'reduce_lr_on_plateau'),
+            'loss_type': ('combo', ['focal_loss', 'binary_cross_entropy_with_logits'], 'focal_loss'),
+            'normalize_by': ('combo', ['fov', 'png'], 'png'),
+            'agg_type': ('combo', ['mean', 'median'], 'mean'),
+            'grouping': ('combo', ['mean', 'median'], 'mean'),
+            'min_max': ('combo', ['allq', 'all'], 'allq'),
+            'transform': ('combo', ['log', 'sqrt', 'square', None], None)
+        }
+
+        for key, value in settings.items():
+            if key in special_cases:
+                variables[key] = special_cases[key]
+            elif isinstance(value, bool):
+                variables[key] = ('check', None, value)
+            elif isinstance(value, (int, float)):
+                variables[key] = ('entry', None, value)
+            elif isinstance(value, list):
+                variables[key] = ('entry', None, str(value))
+            else:  # str / None / other
+                variables[key] = ('entry', None, "" if value is None else value)
+                
+        return variables
+
+    def open_deep_spacr_window_v1(self):
         import tkinter as tk
         from tkinter import ttk, messagebox
-        import threading
+        import sqlite3, threading, ast, os
 
-        # --- import here to avoid heavy imports at app start
-        try:
-            from spacr.settings import deep_spacr_defaults
-        except Exception:
-            # you provided deep_spacr_defaults signature; fall back to a local import path
-            from spacr.settings import deep_spacr_defaults  # adjust if needed
+        from spacr.settings import deep_spacr_defaults
 
-        # seed defaults
-        defaults = deep_spacr_defaults({}).copy()
-        # set a few sensible defaults from the current app
-        defaults["src"] = self.src
-        defaults["dataset"] = self.src
-        defaults["annotation_column"] = self.annotation_column
-        defaults["train_channels"] = ['r', 'g', 'b']  # ensure consistent type
-        # keep 'annotated_classes':[1,2] and 'metadata_type_by':'columnID' (works with 1/2 labels)
+        # --- defaults & base keys
+        defaults = deep_spacr_defaults({})
+        defaults['src'] = self.src or defaults.get('src')
+        defaults['annotation_column'] = self.annotation_column or defaults.get('annotation_column')
 
+        # SHOWN ONLY IN SIMPLE MODE
+        minimal_keys = ["src", "dataset_mode", "model_type", "apply_model_to_dataset"]
+
+        # --- window
         win = tk.Toplevel(self.root)
-        win.title("Deep SPACR – Train (Beta)")
+        win.title("Deep SPACR – Training Settings")
         style_out = set_dark_style(ttk.Style())
         win.configure(bg=style_out['bg_color'])
+        win.geometry("980x620")
 
         outer = tk.Frame(win, bg=style_out['bg_color'])
         outer.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-        # --- Left: generic settings (auto-form) ---
-        form_frame = tk.LabelFrame(outer, text="Model / Training Settings", bg=style_out['bg_color'], fg=self.fg_color)
-        form_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0,10))
+        # --- Left column
+        left_col = tk.Frame(outer, bg=style_out['bg_color'])
+        left_col.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0,10))
 
-        # keys to show prominently (order)
-        preferred_keys = [
-            "src", "dataset_mode", "annotation_column",
-            "image_size", "batch_size", "epochs", "learning_rate",
-            "weight_decay", "dropout_rate",
-            "model_type", "optimizer_type", "schedule", "loss_type",
-            "train", "test", "augment", "train_channels",
-            "val_split", "test_split", "score_threshold",
-            "apply_model_to_dataset", "generate_training_dataset", "train_DL_model",
-            "experiment", "custom_model", "custom_model_path"
-        ]
+        topbar = tk.Frame(left_col, bg=style_out['bg_color'])
+        topbar.pack(fill=tk.X, pady=(0,6))
+        advanced_var = tk.BooleanVar(value=False)
+        adv_chk = tk.Checkbutton(
+            topbar, text="Advanced settings", variable=advanced_var,
+            bg=style_out['bg_color'], fg=self.fg_color, selectcolor=style_out['bg_color'],
+            command=lambda: rebuild_form(advanced_var.get())
+        )
+        adv_chk.pack(anchor="w")
 
-        # entries dict: key -> widget
-        entries = {}
+        form_frame = tk.LabelFrame(left_col, text="Model / Training Settings",
+                                bg=style_out['bg_color'], fg=self.fg_color)
+        form_frame.pack(fill=tk.BOTH, expand=True)
 
-        def add_row(parent, row, key, val):
-            lbl = tk.Label(parent, text=key, bg=style_out['bg_color'], fg=self.fg_color)
-            lbl.grid(row=row, column=0, sticky="w", padx=4, pady=3)
-
-            # booleans as Combobox
-            if isinstance(val, bool):
-                w = ttk.Combobox(parent, values=["True", "False"], state="readonly")
-                w.set("True" if val else "False")
-            else:
-                # simple Entry; lists show as comma-separated
-                if isinstance(val, (list, tuple)):
-                    show = ",".join(str(x) for x in val)
-                else:
-                    show = "" if val is None else str(val)
-                w = tk.Entry(parent)
-                w.insert(0, show)
-            w.grid(row=row, column=1, sticky="ew", padx=4, pady=3)
-            parent.grid_columnconfigure(1, weight=1)
-            entries[key] = w
-
-        # materialize rows
-        r = 0
-        seen = set()
-        for k in preferred_keys:
-            if k in defaults:
-                add_row(form_frame, r, k, defaults[k])
-                seen.add(k)
-                r += 1
-        # add any remaining defaults at the end (hidden behind expander would be nicer; keep it simple)
-        for k, v in defaults.items():
-            if k in seen:
-                continue
-            add_row(form_frame, r, k, v)
-            r += 1
-
-        # --- Right: DB Annotations panel ---
-        db_frame = tk.LabelFrame(outer, text="Use Annotation Columns from DB", bg=style_out['bg_color'], fg=self.fg_color)
-        db_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        use_db_var = tk.BooleanVar(value=True)
-        use_db_chk = tk.Checkbutton(db_frame, text="Use selected columns as classes", variable=use_db_var,
-                                    bg=style_out['bg_color'], fg=self.fg_color, selectcolor=style_out['bg_color'])
-        use_db_chk.pack(anchor="w", pady=(6,4), padx=6)
-
-        # load columns
-        cols = self._get_png_list_columns()
-        # Heuristic: filter out very-obvious non-annotation columns
-        ignore = {"png_path", "prcfo", "XGboost_annotation", "XGboost_score"}
-        annot_cols = [c for c,t in cols if c not in ignore]
-
-        list_label = tk.Label(db_frame, text="Select one or more annotation columns (values: 1 / 2)", 
+        # --- Right column: DB columns
+        right = tk.LabelFrame(outer, text="Use DB Annotation Columns",
                             bg=style_out['bg_color'], fg=self.fg_color)
-        list_label.pack(anchor="w", padx=6)
+        right.pack(side=tk.LEFT, fill=tk.BOTH, expand=False)
 
-        lb = tk.Listbox(db_frame, selectmode=tk.EXTENDED, height=min(12, max(6, len(annot_cols))))
-        for c in annot_cols:
-            lb.insert(tk.END, c)
+        use_db_var = tk.BooleanVar(value=False)
+        chk = tk.Checkbutton(
+            right, text="Use selected DB columns as classes", variable=use_db_var,
+            bg=style_out['bg_color'], fg=self.fg_color, selectcolor=style_out['bg_color']
+        )
+        chk.pack(anchor="w", padx=6, pady=(6,2))
+
+        lb = tk.Listbox(right, selectmode=tk.EXTENDED, height=18)
         lb.pack(fill=tk.BOTH, expand=True, padx=6, pady=6)
 
-        note = tk.Label(
-            db_frame,
-            text="Tip: With 'metadata_type_by = columnID' and 'annotated_classes = [1, 2]',\n"
-                "each selected column contributes the classes stored as 1 or 2.",
-            bg=style_out['bg_color'], fg=self.fg_color, justify="left")
-        note.pack(anchor="w", padx=6, pady=(0,6))
+        # populate listbox from sqlite schema (png_list)
+        try:
+            with sqlite3.connect(self.db_path, timeout=10) as conn:
+                cur = conn.cursor()
+                cur.execute('PRAGMA table_info("png_list")')
+                cols = cur.fetchall()
+                for _, name, coltype, *_ in cols:
+                    nm = str(name)
+                    if nm.lower() in ('png_path', 'prcfo'):
+                        continue
+                    if (coltype or '').upper().startswith('INT') or nm not in ('png_path',):
+                        lb.insert(tk.END, nm)
+        except Exception:
+            pass
 
-        # --- Buttons ---
+        # --- Buttons
         btns = tk.Frame(win, bg=style_out['bg_color'])
         btns.pack(fill=tk.X, padx=10, pady=(0,10))
 
+        # --- spec & form state
+        widget_specs = self.convert_settings_dict_for_gui(defaults)
+        entries, var_bools = {}, {}
+
+        def add_row(parent, row, key, spec, init_override=None):
+            kind, options, initial = spec
+            if init_override is not None:
+                initial = init_override
+
+            lbl = tk.Label(parent, text=key, bg=style_out['bg_color'], fg=self.fg_color)
+            lbl.grid(row=row, column=0, sticky="w", padx=4, pady=3)
+
+            if kind == 'check':
+                v = tk.BooleanVar(value=bool(initial))
+                w = tk.Checkbutton(parent, variable=v, bg=style_out['bg_color'],
+                                fg=self.fg_color, selectcolor=style_out['bg_color'])
+                w.grid(row=row, column=1, sticky="w", padx=4, pady=3)
+                var_bools[key] = v
+            elif kind == 'combo':
+                w = ttk.Combobox(parent, values=[str(x) for x in (options or [])], state="readonly")
+                init_val = initial if initial is not None else defaults.get(key, "")
+                if init_val is None:
+                    init_val = ""
+                w.set(str(init_val))
+                w.grid(row=row, column=1, sticky="ew", padx=4, pady=3)
+                parent.grid_columnconfigure(1, weight=1)
+            else:
+                w = tk.Entry(parent)
+                w.insert(0, "" if initial is None else str(initial))
+                w.grid(row=row, column=1, sticky="ew", padx=4, pady=3)
+                parent.grid_columnconfigure(1, weight=1)
+
+            entries[key] = w
+
+        def read_current_values():
+            current = {}
+            for k, w in entries.items():
+                spec = widget_specs.get(k, ('entry', None, None))
+                kind, _, _ = spec
+                if kind == 'check':
+                    current[k] = bool(var_bools[k].get())
+                else:
+                    current[k] = w.get()
+            return current
+
+        def rebuild_form(show_all):
+            snapshot = read_current_values()
+
+            for child in form_frame.winfo_children():
+                child.destroy()
+            entries.clear()
+            var_bools.clear()
+
+            keys_to_show = sorted(widget_specs.keys()) if show_all else [k for k in minimal_keys if k in widget_specs]
+
+            r = 0
+            for k in keys_to_show:
+                spec = widget_specs[k]
+                init_override = snapshot.get(k, None)
+                add_row(form_frame, r, k, spec, init_override=init_override)
+                r += 1
+
+        # initial build (simple)
+        rebuild_form(show_all=False)
+
+        def _parse_gui_value(key, widget, spec):
+            kind, options, _ = spec
+            if kind == 'check':
+                return bool(var_bools[key].get())
+
+            raw = widget.get()
+            s = raw.strip()
+            if s == "":
+                return None
+            try:
+                return ast.literal_eval(s)
+            except Exception:
+                pass
+            try:
+                if any(ch in s for ch in ('.', 'e', 'E')):
+                    return float(s)
+                return int(s)
+            except Exception:
+                l = s.lower()
+                if l in ('true', 'false'):
+                    return l == 'true'
+                return s
+
         def on_run():
-            # collect settings from the form
+            # collect form values
             settings = {}
             for k, widget in entries.items():
-                if isinstance(widget, ttk.Combobox):
-                    raw = widget.get()
-                else:
-                    raw = widget.get()
-                val = self._parse_field_value(k, raw)
-                # put booleans back as bools if they are strings "True"/"False"
-                if isinstance(val, str) and val in ("True","False"):
-                    val = (val == "True")
-                settings[k] = defaults.get(k, None) if val is None else val
+                spec = widget_specs.get(k, ('entry', None, None))
+                val = _parse_gui_value(k, widget, spec)
+                settings[k] = defaults.get(k) if val is None else val
 
-            # force a few from app state if left empty
+            # ensure essentials
             if not settings.get("src"):
                 settings["src"] = self.src
             if not settings.get("dataset"):
                 settings["dataset"] = self.src
 
-            # Mode from DB annotations
+            # === CHANGED BLOCK: build explicit metadata_rules from selected columns & values ===
             if use_db_var.get():
-                sel = [lb.get(i) for i in lb.curselection()]
-                if not sel:
+                sel_cols = [lb.get(i) for i in lb.curselection()]
+                if not sel_cols:
                     messagebox.showwarning("No columns selected", "Select at least one annotation column or uncheck the DB option.")
                     return
 
-                # Use columns as classes; deep_spacr defaults: metadata_type_by='columnID', annotated_classes=[1,2]
+                rules = []
+                try:
+                    with sqlite3.connect(self.db_path, timeout=30) as conn:
+                        cur = conn.cursor()
+                        for col in sel_cols:
+                            qcol = col.replace('"', '""')
+                            cur.execute(f'SELECT DISTINCT "{qcol}" FROM "png_list" WHERE "{qcol}" IN (1,2,3,4,5,6,7,8,9)')
+                            vals = sorted(int(r[0]) for r in cur.fetchall() if r[0] is not None)
+                            for v in vals:
+                                rules.append({
+                                    "name": f"{col}_{v}",        # folder/class name
+                                    "where": [{"column": col, "op": "==", "value": v}],
+                                })
+                except Exception as e:
+                    messagebox.showerror("DB error", f"Failed to read classes from DB:\n{e}")
+                    return
+
+                if not rules:
+                    messagebox.showwarning("No labels found", "No labels (1/2/…) found in the selected columns.")
+                    return
+
+                # configure settings for metadata mode using rules
                 settings["dataset_mode"] = "metadata"
-                settings["metadata_type_by"] = "columnID"
-                settings["classes"] = sel[:]                          # visible class names (columns)
-                settings["class_metadata"] = [[c] for c in sel]       # each class represented by one column ID
-                # keep annotated_classes as default [1,2] so 1/2 encode subclasses per column
+                settings["metadata_rules"] = rules
 
-            # Light sanity
-            if "train_channels" in settings and isinstance(settings["train_channels"], list):
-                settings["train_channels"] = [str(x).lower() for x in settings["train_channels"]]
-
-            # close the window quickly so the thread can do its thing
             win.destroy()
 
-            # Run deep_spacr in a background thread
             def _worker():
                 try:
                     self.update_gui_text("Deep SPACR: preparing…")
-                    # lazy import here to avoid app startup cost
                     from spacr.deep_spacr import deep_spacr
                     deep_spacr(settings)
                     self.update_gui_text("Deep SPACR: done.")
@@ -3617,10 +3735,530 @@ class AnnotateApp:
             threading.Thread(target=_worker, daemon=True).start()
 
         run_btn = ttk.Button(btns, text="Run", command=on_run)
-        run_btn.pack(side=tk.RIGHT, padx=6)
-        close_btn = ttk.Button(btns, text="Cancel", command=win.destroy)
-        close_btn.pack(side=tk.RIGHT, padx=6)
+        cancel_btn = ttk.Button(btns, text="Cancel", command=win.destroy)
+        run_btn.pack(side=tk.RIGHT, padx=5)
+        cancel_btn.pack(side=tk.RIGHT, padx=5)
+        
+    def open_deep_spacr_window(self):
+        import tkinter as tk
+        from tkinter import ttk, messagebox
+        import sqlite3, threading, ast, json, os
 
+        from spacr.settings import deep_spacr_defaults
+
+        # ---- defaults ---------------------------------------------------------
+        defaults = deep_spacr_defaults({})
+        defaults['src'] = self.src or defaults.get('src')
+        defaults['dataset'] = defaults.get('dataset', defaults['src'])
+        defaults['annotation_column'] = self.annotation_column or defaults.get('annotation_column')
+
+        style_out = set_dark_style(ttk.Style())
+
+        # ---- window -----------------------------------------------------------
+        win = tk.Toplevel(self.root)
+        win.title("Deep SPACR — Train (Beta)")
+        win.configure(bg=style_out['bg_color'])
+        win.geometry("1120x760")
+
+        outer = tk.Frame(win, bg=style_out['bg_color'])
+        outer.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        # ---- header master toggles (govern tab enablement) --------------------
+        header = tk.Frame(outer, bg=style_out['bg_color'])
+        header.pack(fill=tk.X, pady=(0,8))
+
+        gen_var   = tk.BooleanVar(value=bool(defaults.get('generate_training_dataset', True)))
+        train_var = tk.BooleanVar(value=bool(defaults.get('train_DL_model', True)))
+        apply_var = tk.BooleanVar(value=bool(defaults.get('apply_model_to_dataset', True)))
+
+        def _chk(label, var):
+            return tk.Checkbutton(
+                header, text=label, variable=var,
+                bg=style_out['bg_color'], fg=self.fg_color,
+                selectcolor=style_out['bg_color'], font=self.font_style
+            )
+
+        _chk("Generate training dataset", gen_var).pack(side=tk.LEFT, padx=(0,12))
+        _chk("Train",                        train_var).pack(side=tk.LEFT, padx=(0,12))
+        _chk("Apply model to dataset",       apply_var).pack(side=tk.LEFT, padx=(0,12))
+
+        # ---- notebook ---------------------------------------------------------
+        nb = ttk.Notebook(outer)
+        nb.pack(fill=tk.BOTH, expand=True)
+
+        # ---- helpers ----------------------------------------------------------
+        def _label(parent, text):
+            return tk.Label(parent, text=text, bg=style_out['bg_color'], fg=self.fg_color, anchor='w')
+
+        def _row(parent, r, label_text, widget):
+            _label(parent, label_text).grid(row=r, column=0, sticky="w", padx=6, pady=4)
+            widget.grid(row=r, column=1, sticky="ew", padx=6, pady=4)
+            parent.grid_columnconfigure(1, weight=1)
+
+        def _parse_list_literal(s, fallback=None):
+            if s is None or str(s).strip() == "":
+                return fallback
+            try:
+                return ast.literal_eval(str(s))
+            except Exception:
+                return fallback
+
+        def _parse_csv_list(s, fallback=None):
+            if s is None or str(s).strip() == "":
+                return fallback
+            parts = [p.strip() for p in str(s).split(",") if p.strip() != ""]
+            return parts if parts else fallback
+
+        # ======================================================================
+        # TAB 1: Generate training dataset
+        # ======================================================================
+        tab_gen = tk.Frame(nb, bg=style_out['bg_color'])
+        nb.add(tab_gen, text="Generate training dataset")
+
+        gen_split = tk.PanedWindow(tab_gen, orient=tk.HORIZONTAL, sashwidth=6, bg=style_out['bg_color'])
+        gen_split.pack(fill=tk.BOTH, expand=True)
+
+        gen_form = tk.Frame(gen_split, bg=style_out['bg_color'])
+        gen_right = tk.Frame(gen_split, bg=style_out['bg_color'])
+        gen_split.add(gen_form)
+        gen_split.add(gen_right)
+
+        # --- Left column (general) --------------------------------------------
+        r = 0
+        dataset_mode_cbx = ttk.Combobox(gen_form, values=['annotation','metadata','measurement'], state='readonly')
+        dataset_mode_cbx.set(defaults.get('dataset_mode', 'annotation'))
+        _row(gen_form, r, "dataset_mode", dataset_mode_cbx); r += 1
+
+        size_sp = ttk.Spinbox(gen_form, from_=16, to=4096, increment=16)
+        size_sp.set(int(defaults.get('size', 224)))
+        _row(gen_form, r, "size (cropped PNG side)", size_sp); r += 1
+
+        img_size_sp = ttk.Spinbox(gen_form, from_=16, to=4096, increment=16)
+        img_size_sp.set(int(defaults.get('image_size', 224)))
+        _row(gen_form, r, "image_size (model input)", img_size_sp); r += 1
+
+        test_split_sp = ttk.Spinbox(gen_form, from_=0.0, to=0.9, increment=0.01)
+        test_split_sp.set(float(defaults.get('test_split', 0.1)))
+        _row(gen_form, r, "test_split", test_split_sp); r += 1
+
+        sample_sp = ttk.Spinbox(gen_form, from_=0, to=10**9, increment=1)
+        sample_val = defaults.get('sample', None)
+        sample_sp.delete(0, tk.END)
+        sample_sp.insert(0, "" if sample_val in (None, "") else str(sample_val))
+        _row(gen_form, r, "sample (rows, optional)", sample_sp); r += 1
+
+        file_type_cbx = ttk.Combobox(gen_form, state='readonly', values=['cell_png', 'fov_png', 'other'])
+        file_type_cbx.set(defaults.get('file_type', defaults.get('png_type','cell_png')))
+        _row(gen_form, r, "file_type / png_type", file_type_cbx); r += 1
+
+        tables_entry = tk.Entry(gen_form)
+        tables_entry.insert(0, "" if defaults.get('tables') in (None, []) else ",".join(defaults.get('tables')))
+        _row(gen_form, r, "tables (csv)", tables_entry); r += 1
+
+        file_metadata_entry = tk.Entry(gen_form)
+        if defaults.get('file_metadata') not in (None, []):
+            file_metadata_entry.insert(0, ",".join(defaults['file_metadata']) if isinstance(defaults['file_metadata'], list) else str(defaults['file_metadata']))
+        _row(gen_form, r, "file_metadata (csv)", file_metadata_entry); r += 1
+
+        metadata_type_by_cbx = ttk.Combobox(gen_form, state='readonly', values=['columnID','something_else'])
+        metadata_type_by_cbx.set(defaults.get('metadata_type_by','columnID'))
+        _row(gen_form, r, "metadata_type_by", metadata_type_by_cbx); r += 1
+
+        class_metadata_entry = tk.Entry(gen_form)
+        class_metadata_entry.insert(0, str(defaults.get('class_metadata', [['c1'],['c2']])))
+        _row(gen_form, r, "class_metadata (list-of-lists)", class_metadata_entry); r += 1
+
+        classes_entry = tk.Entry(gen_form)
+        classes_entry.insert(0, str(defaults.get('classes', ['nc','pc'])))
+        _row(gen_form, r, "classes (list)", classes_entry); r += 1
+
+        annotated_classes_entry = tk.Entry(gen_form)
+        annotated_classes_entry.insert(0, str(defaults.get('annotated_classes', [1,2])))
+        _row(gen_form, r, "annotated_classes (list)", annotated_classes_entry); r += 1
+
+        ch_interest_sp = ttk.Spinbox(gen_form, from_=1, to=5, increment=1)
+        ch_interest_sp.set(int(defaults.get('channel_of_interest', 3)))
+        _row(gen_form, r, "channel_of_interest", ch_interest_sp); r += 1
+
+        custom_measurement_entry = tk.Entry(gen_form)
+        if defaults.get('custom_measurement'):
+            custom_measurement_entry.insert(0, str(defaults['custom_measurement']))
+        _row(gen_form, r, "custom_measurement (optional)", custom_measurement_entry); r += 1
+
+        balance_var = tk.BooleanVar(value=bool(defaults.get('balance_to_smallest', True)))
+        balance_chk = tk.Checkbutton(gen_form, text="Balance classes to smallest",
+                                    variable=balance_var, bg=style_out['bg_color'],
+                                    fg=self.fg_color, selectcolor=style_out['bg_color'])
+        _row(gen_form, r, "", balance_chk); r += 1
+
+        # --- Right column: Annotation columns & Metadata rules -----------------
+        # Annotation (visible for dataset_mode='annotation')
+        ann_frame = tk.LabelFrame(gen_right, text="Annotation columns", bg=style_out['bg_color'], fg=self.fg_color)
+        ann_inner = tk.Frame(ann_frame, bg=style_out['bg_color'])
+        _label(ann_inner, "Use DB Annotation Columns").grid(row=0, column=0, sticky="w", padx=6, pady=(8,2))
+        use_db_var = tk.BooleanVar(value=True)  # default checked
+        tk.Checkbutton(ann_inner, text="Use selected DB columns as classes",
+                    variable=use_db_var, bg=style_out['bg_color'], fg=self.fg_color,
+                    selectcolor=style_out['bg_color']).grid(row=1, column=0, sticky="w", padx=6, pady=(0,6))
+        lb = tk.Listbox(ann_inner, selectmode=tk.EXTENDED, height=10)
+        lb.grid(row=2, column=0, sticky="nsew", padx=6, pady=(0,8))
+        ann_inner.grid_columnconfigure(0, weight=1)
+        ann_inner.grid_rowconfigure(2, weight=1)
+
+        # Populate png_list columns
+        try:
+            with sqlite3.connect(self.db_path, timeout=10) as conn:
+                cur = conn.cursor()
+                cur.execute('PRAGMA table_info("png_list")')
+                for _, name, coltype, *_ in cur.fetchall():
+                    nm = str(name)
+                    if nm.lower() in ('png_path', 'prcfo'):
+                        continue
+                    if (coltype or '').upper().startswith('INT') or nm not in ('png_path',):
+                        lb.insert(tk.END, nm)
+        except Exception:
+            pass
+
+        ann_name_row = tk.Frame(ann_inner, bg=style_out['bg_color'])
+        _label(ann_name_row, "annotation_column").pack(side=tk.LEFT, padx=(6,2))
+        anno_entry = tk.Entry(ann_name_row)
+        anno_entry.insert(0, str(defaults.get('annotation_column','test')))
+        anno_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(6,6))
+        ann_name_row.grid(row=3, column=0, sticky="ew", padx=0, pady=(0,8))
+
+        ann_frame.pack(fill=tk.BOTH, expand=True, padx=6, pady=(0,8))
+        ann_inner.pack(fill=tk.BOTH, expand=True)
+
+        # Metadata rules (visible for dataset_mode='metadata')
+        meta_grp = tk.LabelFrame(gen_right, text="Metadata rules (JSON)", bg=style_out['bg_color'], fg=self.fg_color)
+        meta_inner = tk.Frame(meta_grp, bg=style_out['bg_color'])
+        meta_rules_entry = tk.Entry(meta_inner)
+        meta_rules_entry.pack(fill=tk.X, padx=6, pady=(6,4))
+        ex = tk.Frame(meta_inner, bg=style_out['bg_color'])
+        tk.Label(
+            ex,
+            text=("Example:\n"
+                "[\n"
+                "  {\"name\":\"test_1\",     \"where\":[{\"column\":\"test\",\"op\":\"==\",\"value\":1}]},\n"
+                "  {\"name\":\"test_2\",     \"where\":[{\"column\":\"test\",\"op\":\"==\",\"value\":2}]},\n"
+                "  {\"name\":\"parasite_1\", \"where\":[{\"column\":\"parasite\",\"op\":\"==\",\"value\":1}]}\n"
+                "]"),
+            justify='left', anchor='w', bg=style_out['bg_color'], fg=self.fg_color
+        ).pack(side=tk.LEFT, fill=tk.X, expand=True)
+        def _insert_meta_example():
+            meta_rules_entry.delete(0, tk.END)
+            meta_rules_entry.insert(
+                0,
+                '[{"name":"test_1","where":[{"column":"test","op":"==","value":1}]},'
+                ' {"name":"test_2","where":[{"column":"test","op":"==","value":2}]},'
+                ' {"name":"parasite_1","where":[{"column":"parasite","op":"==","value":1}]}]'
+            )
+        ttk.Button(ex, text="Insert example", command=_insert_meta_example).pack(side=tk.RIGHT, padx=6)
+        ex.pack(fill=tk.X, padx=6, pady=(0,6))
+        meta_inner.pack(fill=tk.BOTH, expand=True)
+        meta_grp.pack_forget()  # start hidden; toggled by mode
+
+        # mode toggle
+        def _toggle_gen_right(*_):
+            mode = dataset_mode_cbx.get().strip().lower()
+            if mode == 'annotation':
+                meta_grp.pack_forget()
+                ann_frame.pack(fill=tk.BOTH, expand=True, padx=6, pady=(0,8))
+            elif mode == 'metadata':
+                ann_frame.pack_forget()
+                meta_grp.pack(fill=tk.BOTH, expand=True, padx=6, pady=(0,8))
+            else:
+                ann_frame.pack_forget()
+                meta_grp.pack_forget()
+        dataset_mode_cbx.bind("<<ComboboxSelected>>", _toggle_gen_right)
+        _toggle_gen_right()
+
+        # ======================================================================
+        # TAB 2: Train
+        # ======================================================================
+        tab_train = tk.Frame(nb, bg=style_out['bg_color'])
+        nb.add(tab_train, text="Train")
+
+        tr_basic = tk.LabelFrame(tab_train, text="Basic", bg=style_out['bg_color'], fg=self.fg_color)
+        tr_basic.pack(fill=tk.X, padx=8, pady=(8,6))
+        rr = 0
+
+        model_cbx = ttk.Combobox(tr_basic, state='readonly',
+                                values=sorted({n for n, o in getattr(__import__('torchvision').models, '__dict__', {}).items() if callable(o)}))
+        model_cbx.set(defaults.get('model_type', 'resnet50'))
+        _row(tr_basic, rr, "model_type", model_cbx); rr += 1
+
+        epochs_sp = ttk.Spinbox(tr_basic, from_=1, to=2000, increment=1)
+        epochs_sp.set(int(defaults.get('epochs', 100)))
+        _row(tr_basic, rr, "epochs", epochs_sp); rr += 1
+
+        bs_sp = ttk.Spinbox(tr_basic, from_=1, to=4096, increment=1)
+        bs_sp.set(int(defaults.get('batch_size', 64)))
+        _row(tr_basic, rr, "batch_size", bs_sp); rr += 1
+
+        lr_sp = ttk.Spinbox(tr_basic, from_=1e-6, to=1e-1, increment=1e-6)
+        lr_sp.set(float(defaults.get('learning_rate', 1e-3)))
+        _row(tr_basic, rr, "learning_rate", lr_sp); rr += 1
+
+        val_split_sp = ttk.Spinbox(tr_basic, from_=0.0, to=0.9, increment=0.01)
+        val_split_sp.set(float(defaults.get('val_split', 0.1)))
+        _row(tr_basic, rr, "val_split", val_split_sp); rr += 1
+
+        loss_cbx = ttk.Combobox(tr_basic, state='readonly',
+                                values=['focal_loss', 'binary_cross_entropy_with_logits', 'auto'])
+        loss_cbx.set(defaults.get('loss_type', 'focal_loss'))
+        _row(tr_basic, rr, "loss_type", loss_cbx); rr += 1
+
+        train_channels_cbx = ttk.Combobox(tr_basic, state='readonly',
+                                        values=["['r','g','b']", "['r','g']", "['r','b']", "['g','b']", "['r']", "['g']", "['b']"])
+        tdef = defaults.get('train_channels', ['r','g','b'])
+        train_channels_cbx.set(str(tdef if isinstance(tdef, list) else "['r','g','b']"))
+        _row(tr_basic, rr, "train_channels", train_channels_cbx); rr += 1
+
+        # Train/Test toggles inside Train tab map to legacy flags
+        do_train_var = tk.BooleanVar(value=bool(defaults.get('train', True)))
+        do_test_var  = tk.BooleanVar(value=bool(defaults.get('test', False)))
+        _row(tr_basic, rr, "", tk.Checkbutton(tr_basic, text="train (legacy flag)",
+                                            variable=do_train_var, bg=style_out['bg_color'],
+                                            fg=self.fg_color, selectcolor=style_out['bg_color'])); rr += 1
+        _row(tr_basic, rr, "", tk.Checkbutton(tr_basic, text="test after training (legacy flag)",
+                                            variable=do_test_var, bg=style_out['bg_color'],
+                                            fg=self.fg_color, selectcolor=style_out['bg_color'])); rr += 1
+
+        adv = tk.LabelFrame(tab_train, text="Advanced", bg=style_out['bg_color'], fg=self.fg_color)
+        adv.pack(fill=tk.X, padx=8, pady=(0,8))
+        ra = 0
+
+        opt_cbx = ttk.Combobox(adv, state='readonly', values=['adamw','adagrad','adam'])
+        opt_cbx.set(defaults.get('optimizer_type', 'adamw'))
+        _row(adv, ra, "optimizer_type", opt_cbx); ra += 1
+
+        sched_cbx = ttk.Combobox(adv, state='readonly', values=['reduce_lr_on_plateau','step_lr'])
+        sched_cbx.set(defaults.get('schedule', 'reduce_lr_on_plateau'))
+        _row(adv, ra, "schedule", sched_cbx); ra += 1
+
+        wd_sp = ttk.Spinbox(adv, from_=0.0, to=1.0, increment=1e-6)
+        wd_sp.set(float(defaults.get('weight_decay', 1e-5)))
+        _row(adv, ra, "weight_decay", wd_sp); ra += 1
+
+        dr_sp = ttk.Spinbox(adv, from_=0.0, to=0.9, increment=0.01)
+        dr_sp.set(float(defaults.get('dropout_rate', 0.1)))
+        _row(adv, ra, "dropout_rate", dr_sp); ra += 1
+
+        init_w_var = tk.BooleanVar(value=bool(defaults.get('init_weights', True)))
+        _row(adv, ra, "", tk.Checkbutton(adv, text="init_weights",
+                                        variable=init_w_var, bg=style_out['bg_color'],
+                                        fg=self.fg_color, selectcolor=style_out['bg_color'])); ra += 1
+
+        use_ckpt_var = tk.BooleanVar(value=bool(defaults.get('use_checkpoint', True)))
+        _row(adv, ra, "", tk.Checkbutton(adv, text="use_checkpoint (activation checkpointing)",
+                                        variable=use_ckpt_var, bg=style_out['bg_color'],
+                                        fg=self.fg_color, selectcolor=style_out['bg_color'])); ra += 1
+
+        amsgrad_var = tk.BooleanVar(value=bool(defaults.get('amsgrad', True)))
+        _row(adv, ra, "", tk.Checkbutton(adv, text="AMSGrad",
+                                        variable=amsgrad_var, bg=style_out['bg_color'],
+                                        fg=self.fg_color, selectcolor=style_out['bg_color'])); ra += 1
+
+        intermed_var = tk.BooleanVar(value=bool(defaults.get('intermedeate_save', True)))
+        _row(adv, ra, "", tk.Checkbutton(adv, text="intermedeate_save",
+                                        variable=intermed_var, bg=style_out['bg_color'],
+                                        fg=self.fg_color, selectcolor=style_out['bg_color'])); ra += 1
+
+        jobs_sp = ttk.Spinbox(adv, from_=0, to=max(1, os.cpu_count() or 64), increment=1)
+        jobs_sp.set(int(defaults.get('n_jobs', max(1, (os.cpu_count() or 8)-4))))
+        _row(adv, ra, "n_jobs (DataLoader workers)", jobs_sp); ra += 1
+
+        pin_var = tk.BooleanVar(value=bool(defaults.get('pin_memory', False)))
+        _row(adv, ra, "", tk.Checkbutton(adv, text="pin_memory",
+                                        variable=pin_var, bg=style_out['bg_color'],
+                                        fg=self.fg_color, selectcolor=style_out['bg_color'])); ra += 1
+
+        ga_sp = ttk.Spinbox(adv, from_=1, to=64, increment=1)
+        ga_sp.set(int(defaults.get('gradient_accumulation_steps', 4)))
+        _row(adv, ra, "gradient_accumulation_steps", ga_sp); ra += 1
+
+        grad_acc_var = tk.BooleanVar(value=bool(defaults.get('gradient_accumulation', True)))
+        _row(adv, ra, "", tk.Checkbutton(adv, text="gradient_accumulation",
+                                        variable=grad_acc_var, bg=style_out['bg_color'],
+                                        fg=self.fg_color, selectcolor=style_out['bg_color'])); ra += 1
+
+        augment_var = tk.BooleanVar(value=bool(defaults.get('augment', False)))
+        _row(adv, ra, "", tk.Checkbutton(adv, text="augment",
+                                        variable=augment_var, bg=style_out['bg_color'],
+                                        fg=self.fg_color, selectcolor=style_out['bg_color'])); ra += 1
+
+        normalize_var = tk.BooleanVar(value=bool(defaults.get('normalize', True)))
+        _row(adv, ra, "", tk.Checkbutton(adv, text="normalize",
+                                        variable=normalize_var, bg=style_out['bg_color'],
+                                        fg=self.fg_color, selectcolor=style_out['bg_color'])); ra += 1
+
+        verbose_var = tk.BooleanVar(value=bool(defaults.get('verbose', True)))
+        _row(adv, ra, "", tk.Checkbutton(adv, text="verbose",
+                                        variable=verbose_var, bg=style_out['bg_color'],
+                                        fg=self.fg_color, selectcolor=style_out['bg_color'])); ra += 1
+
+        # Custom model path (read-only field unless you plan to enable it elsewhere)
+        custom_model_var = tk.BooleanVar(value=bool(defaults.get('custom_model', False)))
+        _row(adv, ra, "", tk.Checkbutton(adv, text="custom_model",
+                                        variable=custom_model_var, bg=style_out['bg_color'],
+                                        fg=self.fg_color, selectcolor=style_out['bg_color'])); ra += 1
+        custom_model_entry = tk.Entry(adv)
+        custom_model_entry.insert(0, str(defaults.get('custom_model_path','path')))
+        _row(adv, ra, "custom_model_path", custom_model_entry); ra += 1
+
+        experiment_entry = tk.Entry(adv)
+        experiment_entry.insert(0, str(defaults.get('experiment','exp.')))
+        _row(adv, ra, "experiment", experiment_entry); ra += 1
+
+        # ======================================================================
+        # TAB 3: Apply model to dataset
+        # ======================================================================
+        tab_apply = tk.Frame(nb, bg=style_out['bg_color'])
+        nb.add(tab_apply, text="Apply model")
+
+        apply_frame = tk.LabelFrame(tab_apply, text="Inference", bg=style_out['bg_color'], fg=self.fg_color)
+        apply_frame.pack(fill=tk.X, padx=8, pady=8)
+
+        rr2 = 0
+        score_sp = ttk.Spinbox(apply_frame, from_=0.0, to=1.0, increment=0.01)
+        score_sp.set(float(defaults.get('score_threshold', 0.5)))
+        _row(apply_frame, rr2, "score_threshold", score_sp); rr2 += 1
+
+        dataset_entry = tk.Entry(apply_frame)
+        dataset_entry.insert(0, str(defaults.get('dataset', defaults['src'])))
+        _row(apply_frame, rr2, "dataset (apply on this path)", dataset_entry); rr2 += 1
+
+        model_path_entry = tk.Entry(apply_frame)
+        model_path_entry.insert(0, str(defaults.get('model_path','path')))
+        _row(apply_frame, rr2, "model_path (optional override)", model_path_entry); rr2 += 1
+
+        # ---- enable/disable tabs based on header toggles ----------------------
+        def _apply_tab_state(*_):
+            nb.tab(0, state='normal' if gen_var.get() else 'disabled')
+            nb.tab(1, state='normal' if train_var.get() else 'disabled')
+            nb.tab(2, state='normal' if apply_var.get() else 'disabled')
+
+        for var in (gen_var, train_var, apply_var):
+            var.trace_add("write", _apply_tab_state)
+        _apply_tab_state()
+
+        # ---- bottom buttons ---------------------------------------------------
+        btns = tk.Frame(win, bg=style_out['bg_color'])
+        btns.pack(fill=tk.X, padx=10, pady=(0,10))
+        run_btn = ttk.Button(btns, text="Run")
+        cancel_btn = ttk.Button(btns, text="Cancel", command=win.destroy)
+        run_btn.pack(side=tk.RIGHT, padx=5)
+        cancel_btn.pack(side=tk.RIGHT, padx=5)
+
+        # ---- run handler ------------------------------------------------------
+        def on_run():
+            settings = dict(defaults)  # copy
+
+            # Master toggles
+            settings['generate_training_dataset'] = bool(gen_var.get())
+            settings['train_DL_model'] = bool(train_var.get())
+            settings['apply_model_to_dataset'] = bool(apply_var.get())
+
+            # GENERATE / DATASET
+            settings['dataset_mode'] = dataset_mode_cbx.get().strip()
+            settings['size'] = int(float(size_sp.get()))
+            settings['image_size'] = int(float(img_size_sp.get()))
+            settings['test_split'] = float(test_split_sp.get())
+            settings['sample'] = None if str(sample_sp.get()).strip() == "" else int(float(sample_sp.get()))
+            ft = file_type_cbx.get().strip()
+            settings['file_type'] = ft
+            settings['png_type'] = ft  # keep both for backward compatibility
+            settings['tables'] = _parse_csv_list(tables_entry.get(), None)
+            settings['file_metadata'] = _parse_csv_list(file_metadata_entry.get(), None)
+            settings['metadata_type_by'] = metadata_type_by_cbx.get().strip()
+            settings['class_metadata'] = _parse_list_literal(class_metadata_entry.get(), defaults.get('class_metadata'))
+            settings['classes'] = _parse_list_literal(classes_entry.get(), defaults.get('classes'))
+            settings['annotated_classes'] = _parse_list_literal(annotated_classes_entry.get(), defaults.get('annotated_classes'))
+            settings['channel_of_interest'] = int(float(ch_interest_sp.get()))
+            cm = custom_measurement_entry.get().strip()
+            settings['custom_measurement'] = (cm if cm != "" else None)
+            settings['balance_to_smallest'] = bool(balance_var.get())
+
+            if settings['dataset_mode'] == 'annotation':
+                settings['annotation_column'] = anno_entry.get().strip() or settings.get('annotation_column')
+                settings['use_db_columns'] = bool(use_db_var.get())
+                if settings['use_db_columns']:
+                    sel_cols = [lb.get(i) for i in lb.curselection()]
+                    if not sel_cols:
+                        messagebox.showwarning("No DB columns selected", "Select at least one annotation column or uncheck the DB option.")
+                        return
+                    settings['db_annotation_columns'] = sel_cols
+            elif settings['dataset_mode'] == 'metadata':
+                raw = meta_rules_entry.get().strip()
+                rules = None
+                if raw:
+                    try:
+                        rules = json.loads(raw)
+                    except Exception:
+                        rules = _parse_list_literal(raw, None)
+                if not rules:
+                    messagebox.showwarning("Metadata rules", "Provide valid JSON rules or click 'Insert example'.")
+                    return
+                settings['metadata_rules'] = rules
+
+            # TRAIN
+            settings['model_type'] = model_cbx.get().strip()
+            settings['epochs'] = int(float(epochs_sp.get()))
+            settings['batch_size'] = int(float(bs_sp.get()))
+            settings['learning_rate'] = float(lr_sp.get())
+            settings['val_split'] = float(val_split_sp.get())
+            settings['loss_type'] = loss_cbx.get().strip()
+            settings['train_channels'] = _parse_list_literal(train_channels_cbx.get(), ['r','g','b'])
+
+            settings['train'] = bool(do_train_var.get())   # legacy flag
+            settings['test']  = bool(do_test_var.get())    # legacy flag
+
+            settings['optimizer_type'] = opt_cbx.get().strip()
+            settings['schedule'] = sched_cbx.get().strip()
+            settings['weight_decay'] = float(wd_sp.get())
+            settings['dropout_rate'] = float(dr_sp.get())
+            settings['init_weights'] = bool(init_w_var.get())
+            settings['use_checkpoint'] = bool(use_ckpt_var.get())
+            settings['amsgrad'] = bool(amsgrad_var.get())
+            settings['intermedeate_save'] = bool(intermed_var.get())
+            settings['n_jobs'] = int(float(jobs_sp.get()))
+            settings['pin_memory'] = bool(pin_var.get())
+            settings['gradient_accumulation_steps'] = int(float(ga_sp.get()))
+            settings['gradient_accumulation'] = bool(grad_acc_var.get())
+            settings['augment'] = bool(augment_var.get())
+            settings['normalize'] = bool(normalize_var.get())
+            settings['verbose'] = bool(verbose_var.get())
+            settings['custom_model'] = bool(custom_model_var.get())
+            settings['custom_model_path'] = custom_model_entry.get().strip() or settings.get('custom_model_path')
+            settings['experiment'] = experiment_entry.get().strip() or settings.get('experiment')
+
+            # APPLY
+            settings['score_threshold'] = float(score_sp.get())
+            settings['dataset'] = dataset_entry.get().strip() or self.src
+            mp = model_path_entry.get().strip()
+            if mp:
+                settings['model_path'] = mp
+
+            # Essentials
+            settings['src'] = self.src
+
+            win.destroy()
+
+            def _worker():
+                try:
+                    self.update_gui_text("Deep SPACR: preparing…")
+                    from spacr.deep_spacr import deep_spacr
+                    deep_spacr(settings)
+                    self.update_gui_text("Deep SPACR: done.")
+                except Exception as e:
+                    import traceback
+                    traceback.print_exc()
+                    self.update_gui_text(f"Deep SPACR error: {e}")
+
+            threading.Thread(target=_worker, daemon=True).start()
+
+        run_btn.configure(command=on_run)
 
 def standardize_figure(fig):
     from .gui_elements import set_dark_style
