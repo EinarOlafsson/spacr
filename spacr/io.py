@@ -2666,7 +2666,86 @@ def generate_dataset(settings={}):
 
     return tar_name
 
-def generate_loaders(src, mode='train', image_size=224, batch_size=32, classes=['nc','pc'], n_jobs=None, validation_split=0.0, pin_memory=False, normalize=False, channels=[1, 2, 3], augment=False, verbose=False):
+
+def generate_loaders(src, mode='train', image_size=224, batch_size=32,
+                     classes=['nc','pc'], n_jobs=None, validation_split=0.0,
+                     pin_memory=False, normalize=False, channels=['r','g','b'],
+                     augment=False, verbose=False):
+
+    from .utils import SelectChannels, augment_dataset
+
+    chans = []
+    if 'r' in channels: chans.append(1)
+    if 'g' in channels: chans.append(2)
+    if 'b' in channels: chans.append(3)
+    channels = chans
+
+    if verbose:
+        print(f'Training a network on channels: {channels}')
+        print(f'Channel 1: Red, Channel 2: Green, Channel 3: Blue')
+
+    if mode == 'train':
+        data_dir = os.path.join(src, 'train')
+        shuffle = True
+        print('Loading Train and validation datasets')
+    elif mode == 'test':
+        data_dir = os.path.join(src, 'test')
+        validation_split = 0.0
+        shuffle = True
+        print('Loading test dataset')
+    else:
+        print(f'mode:{mode} is not valid, use mode = train or test')
+        return
+
+    # NEW: validate all requested class folders exist
+    missing = [c for c in classes if not os.path.isdir(os.path.join(data_dir, c))]
+    if missing:
+        print(f'One or more classes not found in {data_dir}')
+        print(f'Missing: {missing}')
+        print(f'Available: {sorted([d for d in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir,d))])}')
+
+    # Build dataset (handles any number of classes)
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.CenterCrop(size=(image_size, image_size)),
+        SelectChannels(channels),
+        *( [transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))] if normalize else [] )
+    ])
+
+    data = spacrDataset(data_dir, classes, transform=transform,
+                        shuffle=True, pin_memory=pin_memory)
+    num_workers = n_jobs if n_jobs is not None else 0
+
+    if validation_split > 0 and mode == 'train':
+        train_size = int((1 - validation_split) * len(data))
+        val_size = len(data) - train_size
+        if not augment:
+            print(f'Train data:{train_size}, Validation data:{val_size}')
+        train_dataset, val_dataset = random_split(data, [train_size, val_size])
+
+        if augment:
+            print(f'Data before augmentation: Train: {len(train_dataset)}, Validataion:{len(val_dataset)}')
+            train_dataset = augment_dataset(train_dataset, is_grayscale=(len(channels) == 1))
+            print(f'Data after augmentation: Train: {len(train_dataset)}')
+
+        print(f'Generating Dataloader with {n_jobs} workers')
+        train_loaders = DataLoader(train_dataset, batch_size=batch_size, shuffle=True,
+                                   num_workers=1, pin_memory=pin_memory, persistent_workers=True)
+        val_loaders = DataLoader(val_dataset, batch_size=batch_size, shuffle=True,
+                                 num_workers=1, pin_memory=pin_memory, persistent_workers=True)
+        train_fig = None
+        return train_loaders, val_loaders, train_fig
+
+    else:
+        # (test mode or no validation split)
+        train_loaders = DataLoader(data, batch_size=batch_size, shuffle=True,
+                                   num_workers=1, pin_memory=pin_memory, persistent_workers=True)
+        val_loaders = []
+        train_fig = None
+        return train_loaders, val_loaders, train_fig
+
+
+def generate_loaders_v1(src, mode='train', image_size=224, batch_size=32, classes=['nc','pc'], n_jobs=None, validation_split=0.0, pin_memory=False, normalize=False, channels=[1, 2, 3], augment=False, verbose=False):
     
     """
     Generate data loaders for training and validation/test datasets.
@@ -2792,199 +2871,340 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32, classes=[
     return train_loaders, val_loaders, train_fig
 
 def generate_training_dataset(settings):
-    
-    # Function to filter png_list_df by prcfo present in df without merging
-    def filter_png_list(db_path, settings, tables = ['cell', 'nucleus', 'pathogen', 'cytoplasm']):
-        df, _ = _read_and_merge_data(locs=[db_path],
-                                     tables=tables,
-                                     verbose=True,
-                                     nuclei_limit=settings['nuclei_limit'],
-                                     pathogen_limit=settings['pathogen_limit'])
-        
-        [png_list_df] = _read_db(db_loc=db_path, tables=['png_list'])
-        filtered_png_list_df = png_list_df[png_list_df['prcfo'].isin(df.index)]
-        return filtered_png_list_df
+    """
+    Build a balanced training/testing dataset from one of:
+      - metadata rules (exact matches or compound 'where' rules)
+      - annotation columns (each <col>_<value> is a standalone class)
+      - measurement rules (numeric ranges/bins; supports multiple conditions per class)
 
-    # Function to get the smallest class size based on the dataset mode
-    def get_smallest_class_size(df, settings, dataset_mode):
-        
-        if dataset_mode == 'metadata':
-            sizes = [len(df[df['condition'] == c]) for c in settings['class_metadata']]
-            #sizes = [len(df[df['condition'].isin(class_list)]) for class_list in settings['class_metadata']]
-            print(f'Class sizes: {sizes}')
-        elif dataset_mode == 'annotation':
-            sizes = [len(class_paths) for class_paths in df]
-        size = min(sizes)
-        print(f'Using the smallest class size: {size}')
-        return size
-    
-    # Measurement-based selection logic
-    def measurement_based_selection(settings, db_path, tables = ['cell', 'nucleus', 'pathogen', 'cytoplasm']):
-        class_paths_ls = []
-        df, _ = _read_and_merge_data(locs=[db_path],
-                                     tables=tables,
-                                     verbose=False,
-                                     nuclei_limit=settings['nuclei_limit'],
-                                     pathogen_limit=settings['pathogen_limit'])
+    New behavior (annotation mode):
+      - If a column has only one annotated value (e.g., only '1's), we add a
+        '<column>_random' class using unannotated rows for that column (same size as positives).
+      - Optional: persist that random selection into DB as a new INT column named '<column>_random' with 1's.
 
-        print('length df 1', len(df))
-        df = annotate_conditions(df, cells=['HeLa'], pathogens=['pathogen'], treatments=settings['classes'],
-                                 treatment_loc=settings['class_metadata'])#, types=settings['metadata_type_by'])
-        print('length df 2', len(df))
-        
-        png_list_df = filter_png_list(db_path, settings, tables=settings['tables'])
+    Required helpers:
+      - _read_and_merge_data, _read_db (from .io)
+      - generate_dataset_from_lists(dst, class_data, classes, test_split)
+      - save_settings (from .utils)
+    """
+    import os, random, operator, sqlite3
+    import numpy as np
 
-        if settings['custom_measurement']:
-            if isinstance(settings['custom_measurement'], list):
-                if len(settings['custom_measurement']) == 2:
-                    df['recruitment'] = df[f"{settings['custom_measurement'][0]}"] / df[f"{settings['custom_measurement'][1]}"]
-                else:
-                    df['recruitment'] = df[f"{settings['custom_measurement'][0]}"]
-            else:
-                print("custom_measurement should be a list.")
-                return
-
-        else:
-            df['recruitment'] = df[f"pathogen_channel_{settings['channel_of_interest']}_mean_intensity"] / df[f"cytoplasm_channel_{settings['channel_of_interest']}_mean_intensity"]
-
-        q25 = df['recruitment'].quantile(0.25)
-        q75 = df['recruitment'].quantile(0.75)
-        df_lower = df[df['recruitment'] <= q25]
-        df_upper = df[df['recruitment'] >= q75]
-
-        class_paths_lower = get_paths_from_db(df=df_lower, png_df=png_list_df, image_type=settings['png_type'])
-        class_paths_lower = random.sample(class_paths_lower['png_path'].tolist(), settings['size'])
-        class_paths_ls.append(class_paths_lower)
-
-        class_paths_upper = get_paths_from_db(df=df_upper, png_df=png_list_df, image_type=settings['png_type'])
-        class_paths_upper = random.sample(class_paths_upper['png_path'].tolist(), settings['size'])
-        class_paths_ls.append(class_paths_upper)
-
-        return class_paths_ls
-
-    # Metadata-based selection logic
-    def metadata_based_selection(db_path, settings):
-        class_paths_ls = []
-        df = filter_png_list(db_path, settings, tables=settings['tables'])
-        
-        print("if class names are generated and not allready in the database, metadata_item_1_name and/or metadata_item_2_name or their combination should match class_names.")
-        
-        if settings['metadata_item_1_name'] is None and settings['metadata_item_2_name'] is None:
-            print('Please provide at least one metadata item name for metadata-based selection.')
-            print('Set metadata_item_1_name and/or metadata_item_2_name in settings.')
-            return
-                
-        df = annotate_conditions(df,
-                                 cells=None,
-                                 cell_loc=None,
-                                 pathogens=settings['metadata_item_1_name'],
-                                 pathogen_loc=settings['metadata_item_1_value'],
-                                 treatments=settings['metadata_item_2_name'],
-                                 treatment_loc=settings['metadata_item_2_value'])
-        
-        #if settings['metadata_type_by'] == 'condition':
-        df = df.dropna(subset=['condition'])
-        
-        counts_classes = df['condition'].value_counts().sort_index()
-        n_classes_ = counts_classes.shape[0]
-        n_images_  = int(counts_classes.sum())
-        
-        print(f"Found {n_classes_} classes with {n_images_} images:")
-        for cls, cnt in counts_classes.items():
-            print(f"  - {cls}: {cnt}")
-            
-        size = get_smallest_class_size(df, settings, 'metadata')
-        
-        for class_ in settings['class_metadata']:
-            class_temp_df = df[df['condition'] == class_]
-            #class_temp_df = df[df['condition'].isin(class_)]
-            print(f'Found {len(class_temp_df)} images for class {class_}')
-            class_paths_temp = class_temp_df['png_path'].tolist()
-
-            # Ensure to sample `size` number of images (smallest class size)
-            if len(class_paths_temp) > size:
-                class_paths_temp = random.sample(class_paths_temp, size)
-
-            class_paths_ls.append(class_paths_temp)
-
-        return class_paths_ls
-
-    # Annotation-based selection logic
-    def annotation_based_selection(db_path, dst, settings):
-        class_paths_ls = training_dataset_from_annotation(db_path, dst, settings['annotation_column'], annotated_classes=settings['annotated_classes'])
-
-        return class_paths_ls
-    
-    # Metadata-Annotation-based selection logic
-    def metadata_annotation_based_selection(db_path, dst, settings):
-        class_paths_ls = training_dataset_from_annotation_metadata(db_path, dst, settings['annotation_column'], annotated_classes=settings['annotated_classes'], metadata_type_by=settings['metadata_type_by'], class_metadata=settings['class_metadata'])
-
-        return class_paths_ls
-    
-    from .utils import get_paths_from_db, annotate_conditions, save_settings
+    from .io import _read_and_merge_data, _read_db
+    from .utils import save_settings
     from .settings import set_generate_training_dataset_defaults
-    
-    settings = set_generate_training_dataset_defaults(settings)
 
-    if 'nucleus' not in settings['tables']:
+    # --- defaults & toggles --------------------------------------------------
+    settings = set_generate_training_dataset_defaults(settings)
+    balance_to_smallest = bool(settings.get('balance_to_smallest', True))
+    png_type = settings.get('png_type', 'cell_png')
+    tables = settings.get('tables') or ['cell', 'nucleus', 'pathogen', 'cytoplasm']
+    write_rand_col = bool(settings.get('write_random_annotation_column', False))
+
+    # Limits for merge helper
+    if 'nucleus' not in tables:
         settings['nuclei_limit'] = False
-        
-    if 'pathogen' not in settings['tables']:
+    if 'pathogen' not in tables:
         settings['pathogen_limit'] = 0
-       
-    # Set default settings and save
+
     save_settings(settings, 'cv_dataset', show=True)
 
-    class_path_list = None
-
+    # Normalize src to list
     if isinstance(settings['src'], str):
-        src = [settings['src']]
-        settings['src'] = src
+        settings['src'] = [settings['src']]
+
+    # --- helpers -------------------------------------------------------------
+    def _ensure_unique_dir(dst_base):
+        dst = dst_base
+        if os.path.exists(dst):
+            base = dst
+            for j in range(1, 100000):
+                try_dst = f"{base}_{j}"
+                if not os.path.exists(try_dst):
+                    print(f'Creating new directory for training: {try_dst}')
+                    dst = try_dst
+                    break
+        return dst
+
+    def _load_png_table(db_path):
+        # read only png_list (we don't force-meet with measurements; keep it permissive)
+        [png_df] = _read_db(db_loc=db_path, tables=['png_list'])
+        return png_df.copy()
+
+    def _fix_path_under_src(src_root, p):
+        """Make sure png_path lives under the current src root (portable absolute fix)."""
+        if not isinstance(p, str) or p.strip() == "":
+            return None
+        # already under root?
+        if os.path.isabs(p) and p.startswith(src_root):
+            return p if os.path.exists(p) else p  # keep as-is; existence checked later when copying
+        # try CV folder pattern split and rebuild
+        parts = p.split('/data/')
+        if len(parts) > 1:
+            return os.path.join(src_root, 'data', parts[1])
+        # fallback: join relative to src_root
+        if not os.path.isabs(p):
+            return os.path.join(src_root, p.lstrip('/'))
+        return p
+
+    def _apply_where(df, where):
+        """where: list of {'column','op','value'} AND-combined."""
+        if not where:
+            return df
+        OPS = {
+            '==': operator.eq,  '!=': operator.ne,
+            '<': operator.lt,   '<=': operator.le,
+            '>': operator.gt,   '>=': operator.ge,
+            'in': lambda a,b: a.isin(b) if hasattr(a, 'isin') else False,
+            'notin': lambda a,b: ~a.isin(b) if hasattr(a, 'isin') else False,
+        }
+        mask = np.ones(len(df), dtype=bool)
+        for cond in where:
+            col, op, val = cond['column'], cond['op'], cond.get('value', None)
+            if col not in df.columns or op not in OPS:
+                mask &= False
+                continue
+            series = df[col]
+            if op in ('in','notin'):
+                vals = val if isinstance(val, (list,tuple,set)) else [val]
+                mask &= OPS[op](series, vals)
+            else:
+                mask &= OPS[op](series, val)
+        return df[mask]
+
+    def _balance_lists(list_of_lists):
+        if not list_of_lists:
+            return list_of_lists
+        if not balance_to_smallest:
+            return list_of_lists
+        sizes = [len(x) for x in list_of_lists]
+        size = min(sizes) if sizes else 0
+        print(f"Class sizes: {sizes} -> balancing to {size}")
+        out = []
+        for paths in list_of_lists:
+            if len(paths) > size:
+                out.append(random.sample(paths, size))
+            else:
+                out.append(paths)
+        return out
+
+    def _annotation_classes_from_columns(png_df, ann_cols, ann_vals_filter=None, db_path=None):
+        """
+        Build classes per (column,value). If a column only has one annotated value in {1,2},
+        also create '<column>_random' from unannotated rows (same count as positives).
+        Optionally persist '<column>_random' as a new INT column with 1's for sampled rows.
+
+        Returns (names, lists) aligned.
+        """
+        names, lists = [], []
+        if not ann_cols:
+            return names, lists
+
+        # Work with numeric-ish annotations 1/2; accept strings that can be cast to int.
+        df = png_df.copy()
+        # We only care about png_path and the annotation cols
+        keep_cols = ['png_path'] + [c for c in ann_cols if c in df.columns]
+        df = df[keep_cols]
+
+        # For lookups by path when writing back random labels
+        df_idx_by_path = {p: i for i, p in enumerate(df['png_path'])}
+
+        for col in ann_cols:
+            if col not in df.columns:
+                print(f"Warning: annotation column '{col}' not in png_list; skipping.")
+                continue
+
+            # Identify annotated values present (castable to int)
+            col_series = df[col].dropna()
+            try:
+                vals = sorted(set(col_series.astype(int).tolist()))
+            except Exception:
+                # Non-numeric labels -> keep as-is
+                vals = sorted(set(col_series.tolist()))
+
+            # Optional filter: {col: [allowed_values]}
+            if ann_vals_filter and col in ann_vals_filter:
+                allow = set(ann_vals_filter[col])
+                vals = [v for v in vals if v in allow]
+
+            # Collect classes for each observed value
+            distinct_vals = []
+            for v in vals:
+                cls_name = f"{col}_{v}"
+                sel = df[df[col] == v]['png_path'].dropna().tolist()
+                distinct_vals.append((v, sel))
+                names.append(cls_name)
+                lists.append(sel)
+
+            # If only one annotated value (typical 1-only column), create <col>_random
+            if len(distinct_vals) == 1:
+                v, pos_paths = distinct_vals[0]
+                pos_n = len(pos_paths)
+
+                # Unannotated = rows where column is NULL/NaN
+                unann_paths = df[df[col].isna()]['png_path'].dropna().tolist()
+                if not unann_paths:
+                    print(f"Column '{col}': no unannotated rows available for <{col}_random>; skipping random class.")
+                    continue
+
+                if pos_n == 0:
+                    print(f"Column '{col}': only one value present but it has 0 rows; skipping random class.")
+                    continue
+
+                # Sample negatives
+                if len(unann_paths) >= pos_n:
+                    rand_paths = random.sample(unann_paths, pos_n)
+                else:
+                    # Not enough; sample all unannotated (and we’ll balance later anyway)
+                    rand_paths = unann_paths
+
+                names.append(f"{col}_random")
+                lists.append(rand_paths)
+
+                # Optionally persist a new column in DB and mark sampled as 1
+                if write_rand_col and db_path:
+                    rand_col = f"{col}_random"
+                    qcol = rand_col.replace('"', '""')
+                    with sqlite3.connect(db_path, timeout=30) as conn:
+                        cur = conn.cursor()
+                        cur.execute('PRAGMA table_info("png_list")')
+                        existing = {r[1] for r in cur.fetchall()}
+                        if rand_col not in existing:
+                            cur.execute(f'ALTER TABLE "png_list" ADD COLUMN "{qcol}" INTEGER')
+                            conn.commit()
+
+                        # write 1 for sampled paths; NULL elsewhere (default)
+                        for p in rand_paths:
+                            cur.execute(
+                                f'UPDATE "png_list" SET "{qcol}" = 1 WHERE png_path = ?',
+                                (p,)
+                            )
+                        conn.commit()
+
+        return names, lists
+
+    # --- main assembly across sources ---------------------------------------
+    class_path_list = None
+    class_names = None
+    dst_final = None  # last destination
 
     for i, src in enumerate(settings['src']):
         db_path = os.path.join(src, 'measurements', 'measurements.db')
-        
+
         if len(settings['src']) > 1 and i == 0:
             dst = os.path.join(src, 'datasets', 'training_all')
-        elif len(settings['src']) == 1:
-            dst = os.path.join(src, 'datasets', 'training')
-
-        # Create a new directory for training data if necessary
-        if os.path.exists(dst):
-            for i in range(1, 100000):
-                dst = dst + f'_{i}'
-                if not os.path.exists(dst):
-                    print(f'Creating new directory for training: {dst}')
-                    break
-
-        # Select dataset based on dataset mode
-        if settings['dataset_mode'] == 'annotation':
-            class_paths_ls = annotation_based_selection(db_path, dst, settings)
-
-        elif settings['dataset_mode'] == 'metadata':
-            class_paths_ls = metadata_based_selection(db_path, settings)
-
-        elif settings['dataset_mode'] == 'measurement':
-            class_paths_ls = measurement_based_selection(settings, db_path, tables=settings['tables'])
-            
-        elif settings['dataset_mode'] == 'metadata_annotation':
-            class_paths_ls = metadata_annotation_based_selection(db_path, dst, settings)
-            
         else:
-            print(f"Invalid dataset mode: {settings['dataset_mode']}")
-            print(f"Valid options are: 'annotation', 'metadata', 'measurement', 'metadata_annotation'")
-            return
-        
+            dst = os.path.join(src, 'datasets', 'training')
+        dst = _ensure_unique_dir(dst)
+        dst_final = dst
+
+        png_df = _load_png_table(db_path)
+
+        # Fix/normalize paths under this src
+        fixed_paths = [ _fix_path_under_src(src, p) for p in png_df['png_path'] ]
+        png_df['png_path'] = fixed_paths
+
+        # Filter by image type if requested
+        if png_type:
+            png_df = png_df[png_df['png_path'].astype(str).str.contains(png_type, na=False)]
+
+        mode = str(settings['dataset_mode']).lower()
+        this_names, this_lists = [], []
+
+        if mode == 'metadata':
+            rules = settings.get('metadata_rules')
+            if rules:
+                if all('name' in r for r in rules):
+                    for r in rules:
+                        where = r.get('where')
+                        col, op, val = r.get('column'), r.get('op'), r.get('value')
+                        if where is None and col is not None and op is not None:
+                            where = [{'column': col, 'op': op, 'value': val}]
+                        df_sel = _apply_where(png_df, where)
+                        this_names.append(r['name'])
+                        this_lists.append(df_sel['png_path'].dropna().tolist())
+                else:
+                    for r in rules:
+                        col, op, val = r['column'], r['op'], r['value']
+                        df_sel = _apply_where(png_df, [{'column': col, 'op': op, 'value': val}])
+                        name = r.get('name', f"{col}{op}{val}")
+                        this_names.append(name)
+                        this_lists.append(df_sel['png_path'].dropna().tolist())
+            else:
+                class_meta = settings.get('class_metadata') or []
+                if 'condition' not in png_df.columns:
+                    print("metadata mode (legacy): 'condition' column not found in png_list; got 0 classes.")
+                for cm in class_meta:
+                    cm_key = cm if isinstance(cm, str) else str(cm)
+                    sel = png_df[png_df['condition'] == cm_key]
+                    this_names.append(cm_key)
+                    this_lists.append(sel['png_path'].dropna().tolist())
+
+        elif mode == 'annotation':
+            ann_cols = settings.get('annotation_columns')
+            if not ann_cols:
+                # backward compatibility
+                ann_cols = [settings.get('annotation_column')]
+            ann_cols = [c for c in (ann_cols or []) if c]
+            ann_vals = settings.get('annotation_values')  # optional dict {col:[values]}
+
+            this_names, this_lists = _annotation_classes_from_columns(
+                png_df, ann_cols, ann_vals_filter=ann_vals, db_path=db_path
+            )
+
+        elif mode == 'measurement':
+            m_rules = settings.get('measurement_rules') or []
+            for r in m_rules:
+                name = r['name']
+                where = r.get('where', [])
+                df_sel = _apply_where(png_df, where)
+                this_names.append(name)
+                this_lists.append(df_sel['png_path'].dropna().tolist())
+
+        else:
+            print(f"Invalid dataset_mode: {settings['dataset_mode']}. Use 'metadata'|'annotation'|'measurement'.")
+            return None, None
+
+        # Initialize global collectors (keep class order of first source)
         if class_path_list is None:
-            class_path_list = [[] for _ in range(len(class_paths_ls))]
+            class_path_list = [[] for _ in range(len(this_lists))]
+            class_names = this_names[:]
 
-        # Extend each list in class_path_list with the corresponding list from class_paths_ls
-        for idx in range(len(class_paths_ls)):
-            class_path_list[idx].extend(class_paths_ls[idx])
+        # Warn on mismatch; align by index
+        if this_names != class_names:
+            print("Warning: class name/order mismatch across sources; aligning by index. "
+                  "Make sure your rules are identical for all 'src' roots.")
+        for idx in range(min(len(class_path_list), len(this_lists))):
+            class_path_list[idx].extend(this_lists[idx])
 
-    # Generate and return training and testing directories
-    print('class_path_list',len(class_path_list))
-    train_class_dir, test_class_dir = generate_dataset_from_lists(dst, class_data=class_path_list, classes=settings['class_metadata'], test_split=settings['test_split'])
+    # Nothing to do?
+    if not class_path_list or sum(len(x) for x in class_path_list) == 0:
+        print("No class data assembled; aborting.")
+        return None, None
+
+    # Balance to smallest (optional)
+    class_path_list = _balance_lists(class_path_list)
+
+    # Write out
+    from .io import generate_dataset_from_lists
+    final_names = class_names or [f"class_{i}" for i in range(len(class_path_list))]
+    print(f"class_path_list: {len(class_path_list)} classes")
+
+    train_class_dir, test_class_dir = generate_dataset_from_lists(
+        dst_final,
+        class_data=class_path_list,
+        classes=final_names,
+        test_split=settings['test_split']
+    )
+
+    # expose actual disk classes for downstream training
+    settings['classes'] = final_names
+    settings['nr_classes'] = len(final_names)
+    
+    try:
+        save_settings(settings, 'cv_dataset', show=False)
+    except Exception:
+        pass
 
     return train_class_dir, test_class_dir
 
