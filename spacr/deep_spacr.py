@@ -12,6 +12,9 @@ from IPython.display import display
 from multiprocessing import cpu_count
 import torch.optim as optim
 
+from sklearn.metrics import precision_recall_curve, auc, average_precision_score, confusion_matrix
+    
+
 from torchvision import transforms
 from torch.utils.data import DataLoader
 
@@ -149,189 +152,255 @@ def apply_model_to_tar(settings={}):
     torch.cuda.memory.empty_cache()
     return df
 
+def _to_numpy_labels(target: torch.Tensor) -> np.ndarray:
+    """
+    Convert targets to integer class ids:
+    - if 1D float/bool tensor -> round and cast to int
+    - if shape (N, C) one-hot -> argmax
+    - else assume already (N,) int
+    """
+    t = target.detach().cpu()
+    if t.ndim == 2 and t.size(1) > 1:
+        return t.argmax(dim=1).numpy().astype(int)
+    if t.dtype.is_floating_point:
+        return t.round().numpy().astype(int)
+    return t.numpy().astype(int)
+
+
+def _binary_metrics(y_true: np.ndarray, pos_probs: np.ndarray) -> dict:
+    """Metrics for binary classification."""
+    if y_true.ndim != 1:
+        y_true = y_true.reshape(-1)
+    # Precision-Recall AUC
+    if len(np.unique(y_true)) >= 2:
+        precision, recall, thresholds = precision_recall_curve(y_true, pos_probs, pos_label=1)
+        pr_auc = auc(recall, precision)
+        # F1-optimal threshold (optional; we still report 0.5 preds below)
+        thresholds = np.append(thresholds, 1.0)
+        with np.errstate(divide='ignore', invalid='ignore'):
+            f1 = 2 * (precision * recall) / (precision + recall)
+        opt_idx = np.nanargmax(f1)
+        opt_thr = float(thresholds[opt_idx])
+    else:
+        pr_auc = np.nan
+        opt_thr = 0.5
+
+    # Discrete preds at 0.5 threshold for stability/readability
+    pred = (pos_probs >= 0.5).astype(int)
+
+    # Accuracies
+    acc = (pred == y_true).mean() if len(y_true) else np.nan
+    neg_mask = y_true == 0
+    pos_mask = y_true == 1
+    acc_neg = (pred[neg_mask] == 0).mean() if neg_mask.any() else np.nan
+    acc_pos = (pred[pos_mask] == 1).mean() if pos_mask.any() else np.nan
+
+    return {
+        "accuracy": float(acc),
+        "neg_accuracy": float(acc_neg),
+        "pos_accuracy": float(acc_pos),
+        "prauc": float(pr_auc),
+        "optimal_threshold": float(opt_thr),
+    }
+
+def _multiclass_metrics(y_true: np.ndarray, prob_mat: np.ndarray) -> dict:
+    """
+    Metrics for multiclass (single-label):
+    - overall accuracy
+    - per-class accuracy (weighted by support)
+    - macro average precision (one-vs-rest)
+    """
+    preds = prob_mat.argmax(axis=1)
+    acc = (preds == y_true).mean() if len(y_true) else np.nan
+
+    # Per-class (diagonal / row sum)
+    cm = confusion_matrix(y_true, preds, labels=np.arange(prob_mat.shape[1]))
+    with np.errstate(divide='ignore', invalid='ignore'):
+        per_class_acc = np.diag(cm) / cm.sum(axis=1, where=(cm.sum(axis=1) != 0), initial=1)
+    # Average precision macro (one-vs-rest)
+    # Build one-hot y_true
+    C = prob_mat.shape[1]
+    y_true_oh = np.zeros((len(y_true), C), dtype=int)
+    if len(y_true):
+        y_true_oh[np.arange(len(y_true)), y_true] = 1
+    try:
+        ap_macro = average_precision_score(y_true_oh, prob_mat, average="macro")
+    except Exception:
+        ap_macro = np.nan
+
+    # For compatibility with your logging keys:
+    return {
+        "accuracy": float(acc),
+        "neg_accuracy": np.nan,  # not meaningful in multiclass
+        "pos_accuracy": np.nan,  # not meaningful in multiclass
+        "prauc": float(ap_macro),  # reuse key for macro-AP
+        "optimal_threshold": np.nan,
+        "per_class_accuracy": per_class_acc.tolist(),
+        "num_classes": int(C),
+    }
+
 def evaluate_model_performance(model, loader, epoch, loss_type):
     """
-    Evaluates the performance of a model on a given data loader.
-
-    Args:
-        model (torch.nn.Module): The model to evaluate.
-        loader (torch.utils.data.DataLoader): The data loader to evaluate the model on.
-        loader_name (str): The name of the data loader.
-        epoch (int): The current epoch number.
-        loss_type (str): The type of loss function to use.
+    Evaluates performance for binary or multiclass models.
 
     Returns:
-        data_df (pandas.DataFrame): The classification metrics data as a DataFrame.
-        prediction_pos_probs (list): The positive class probabilities for each prediction.
-        all_labels (list): The true labels for each prediction.
+        data_dict (dict): metrics + loss + epoch
+        [prediction_probs, all_labels] where:
+           - binary: prediction_probs is shape (N,) (positive class probabilities)
+           - multiclass: prediction_probs is shape (N, C) (softmax probabilities)
     """
-    
+    # lazy import to use your loss selection
     from .utils import calculate_loss
-    
-    def classification_metrics(all_labels, prediction_pos_probs):
-        """
-        Calculate classification metrics for binary classification.
 
-        Parameters:
-        - all_labels (list): List of true labels.
-        - prediction_pos_probs (list): List of predicted positive probabilities.
-        - loader_name (str): Name of the data loader.
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.eval().to(device)
 
-        Returns:
-        - data_df (DataFrame): DataFrame containing the calculated metrics.
-        """
-
-        if len(all_labels) != len(prediction_pos_probs):
-            raise ValueError(f"all_labels ({len(all_labels)}) and pred_labels ({len(prediction_pos_probs)}) have different lengths")
-
-        unique_labels = np.unique(all_labels)
-        if len(unique_labels) >= 2:
-            pr_labels = np.array(all_labels).astype(int)
-            precision, recall, thresholds = precision_recall_curve(pr_labels, prediction_pos_probs, pos_label=1)
-            pr_auc = auc(recall, precision)
-            thresholds = np.append(thresholds, 0.0)
-            f1_scores = 2 * (precision * recall) / (precision + recall)
-            optimal_idx = np.nanargmax(f1_scores)
-            optimal_threshold = thresholds[optimal_idx]
-            pred_labels = [int(p > 0.5) for p in prediction_pos_probs]
-        if len(unique_labels) < 2:
-            optimal_threshold = 0.5
-            pred_labels = [int(p > optimal_threshold) for p in prediction_pos_probs]
-            pr_auc = np.nan
-        data = {'label': all_labels, 'pred': pred_labels}
-        df = pd.DataFrame(data)
-        pc_df = df[df['label'] == 1.0]
-        nc_df = df[df['label'] == 0.0]
-        correct = df[df['label'] == df['pred']]
-        acc_all = len(correct) / len(df)
-        if len(pc_df) > 0:
-            correct_pc = pc_df[pc_df['label'] == pc_df['pred']]
-            acc_pc = len(correct_pc) / len(pc_df)
-        else:
-            acc_pc = np.nan
-        if len(nc_df) > 0:
-            correct_nc = nc_df[nc_df['label'] == nc_df['pred']]
-            acc_nc = len(correct_nc) / len(nc_df)
-        else:
-            acc_nc = np.nan
-        data_dict = {'accuracy': acc_all, 'neg_accuracy': acc_nc, 'pos_accuracy': acc_pc, 'prauc':pr_auc, 'optimal_threshold':optimal_threshold}
-        return data_dict
-    
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    model.eval()
-    loss = 0
-    correct = 0
+    total_loss = 0.0
     total_samples = 0
-    prediction_pos_probs = []
     all_labels = []
-    model = model.to(device)
+    # For binary we store a vector; for multiclass we store rows we’ll stack
+    prob_bucket = []
+
     with torch.no_grad():
-        for batch_idx, (data, target, _) in enumerate(loader, start=1):
-            start_time = time.time()
-            data, target = data.to(device), target.to(device).float()
-            output = model(data)
-            loss += F.binary_cross_entropy_with_logits(output, target, reduction='sum').item()
-            loss = calculate_loss(output, target, loss_type=loss_type)
-            loss += loss.item()
-            total_samples += data.size(0)
-            pred = torch.where(output >= 0.5,
-                               torch.Tensor([1.0]).to(device).float(),
-                               torch.Tensor([0.0]).to(device).float())
-            correct += pred.eq(target.view_as(pred)).sum().item()
-            batch_prediction_pos_prob = torch.sigmoid(output).cpu().numpy()
-            prediction_pos_probs.extend(batch_prediction_pos_prob.tolist())
-            all_labels.extend(target.cpu().numpy().tolist())
-            mean_loss = loss / total_samples
-            acc = correct / total_samples
-            end_time = time.time()
-            test_time = end_time - start_time
-            #print(f'\rTest: epoch: {epoch} Accuracy: {acc:.5f} batch: {batch_idx+1}/{len(loader)} loss: {mean_loss:.5f} loss: {mean_loss:.5f} time {test_time:.5f}', end='\r', flush=True)
-    
-    loss /= len(loader)
-    data_dict = classification_metrics(all_labels, prediction_pos_probs)
-    data_dict['loss'] = loss.item()
-    data_dict['epoch'] = epoch
-    data_dict['Accuracy'] = acc
-    
-    return data_dict, [prediction_pos_probs, all_labels]
+        for data, target, _ in loader:
+            data = data.to(device)
+            target = target.to(device)
+            logits = model(data)
+
+            # accumulate loss correctly (sum over batch; normalize later)
+            batch_size = data.size(0)
+            loss = calculate_loss(logits, target, prefer_focal=True)
+            #loss = calculate_loss(logits, target, loss_type=loss_type)
+            total_loss += float(loss.item()) * batch_size
+            total_samples += batch_size
+
+            # collect labels (as class ids)
+            all_labels.extend(_to_numpy_labels(target))
+
+            # probs
+            if logits.ndim == 1 or logits.size(-1) == 1:
+                # binary
+                probs = torch.sigmoid(logits.view(-1))
+                prob_bucket.append(probs.detach().cpu().numpy())
+            else:
+                # multiclass
+                probs = torch.softmax(logits, dim=1)
+                prob_bucket.append(probs.detach().cpu().numpy())
+
+    mean_loss = total_loss / max(1, total_samples)
+    y_true = np.asarray(all_labels, dtype=int)
+
+    # stack probabilities
+    probs_np = np.concatenate(prob_bucket, axis=0) if len(prob_bucket) else (
+        np.empty((0,)) if (logits.ndim == 1 or logits.size(-1) == 1) else np.empty((0, logits.size(-1)))
+    )
+
+    # metrics
+    if probs_np.ndim == 1:
+        metrics = _binary_metrics(y_true, probs_np)
+    else:
+        metrics = _multiclass_metrics(y_true, probs_np)
+
+    metrics["loss"] = float(mean_loss)
+    metrics["epoch"] = int(epoch)
+    # Backward-compat key casing
+    metrics["Accuracy"] = metrics["accuracy"]
+
+    return metrics, [probs_np, y_true.tolist()]
 
 def test_model_core(model, loader, loader_name, epoch, loss_type):
-    
-    from .utils import calculate_loss, classification_metrics
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    model.eval()
-    loss = 0
-    correct = 0
+    """
+    Core test loop returning both summary metrics and a row-per-image dataframe,
+    compatible with binary & multiclass.
+    """
+    from .utils import calculate_loss
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.eval().to(device)
+
+    total_loss = 0.0
     total_samples = 0
-    prediction_pos_probs = []
+
     all_labels = []
+    probs_rows = []
     filenames = []
-    true_targets = []
-    predicted_outputs = []
 
-    model = model.to(device)
     with torch.no_grad():
-        for batch_idx, (data, target, filename) in enumerate(loader, start=1):  # Assuming loader provides filenames
-            start_time = time.time()
-            data, target = data.to(device), target.to(device).float()
-            output = model(data)
-            loss += F.binary_cross_entropy_with_logits(output, target, reduction='sum').item()
-            loss = calculate_loss(output, target, loss_type=loss_type)
-            loss += loss.item()
-            total_samples += data.size(0)
-            pred = torch.where(output >= 0.5,
-                               torch.Tensor([1.0]).to(device).float(),
-                               torch.Tensor([0.0]).to(device).float())
-            correct += pred.eq(target.view_as(pred)).sum().item()
-            batch_prediction_pos_prob = torch.sigmoid(output).cpu().numpy()
-            prediction_pos_probs.extend(batch_prediction_pos_prob.tolist())
-            all_labels.extend(target.cpu().numpy().tolist())
-            
-            # Storing intermediate results in lists
-            true_targets.extend(target.cpu().numpy().tolist())
-            predicted_outputs.extend(pred.cpu().numpy().tolist())
-            filenames.extend(filename)
-            
-            mean_loss = loss / total_samples
-            acc = correct / total_samples
-            end_time = time.time()
-            test_time = end_time - start_time
-            #print(f'\rTest: epoch: {epoch} Accuracy: {acc:.5f} batch: {batch_idx}/{len(loader)} loss: {mean_loss:.5f} time {test_time:.5f}', end='\r', flush=True)
-    
-    # Constructing the DataFrame
-    results_df = pd.DataFrame({
-        'filename': filenames,
-        'true_label': true_targets,
-        'predicted_label': predicted_outputs,
-        'class_1_probability':prediction_pos_probs})
+        for data, target, batch_filenames in loader:
+            data = data.to(device)
+            target = target.to(device)
 
-    loss /= len(loader)
-    data_df = classification_metrics(all_labels, prediction_pos_probs, loss, epoch)
-    return data_df, prediction_pos_probs, all_labels, results_df
+            logits = model(data)
+            batch_size = data.size(0)
+            loss = calculate_loss(logits, target, prefer_focal=True)
+            #loss = calculate_loss(logits, target, loss_type=loss_type)
+            total_loss += float(loss.item()) * batch_size
+            total_samples += batch_size
+
+            # labels & filenames
+            y_true = _to_numpy_labels(target)
+            all_labels.extend(y_true)
+            filenames.extend(list(batch_filenames))
+
+            # probs
+            if logits.ndim == 1 or logits.size(-1) == 1:
+                probs = torch.sigmoid(logits.view(-1)).detach().cpu().numpy()
+                probs_rows.append(probs.reshape(-1, 1))  # keep 2D for uniform handling
+            else:
+                probs = torch.softmax(logits, dim=1).detach().cpu().numpy()
+                probs_rows.append(probs)
+
+    mean_loss = total_loss / max(1, total_samples)
+    y_true = np.asarray(all_labels, dtype=int)
+    prob_mat = np.vstack(probs_rows) if probs_rows else np.empty((0, 1))
+    C = prob_mat.shape[1]
+
+    # metrics
+    if C == 1:
+        metrics = _binary_metrics(y_true, prob_mat.ravel())
+    else:
+        metrics = _multiclass_metrics(y_true, prob_mat)
+    metrics["loss"] = float(mean_loss)
+    metrics["epoch"] = int(epoch)
+    metrics["Accuracy"] = metrics["accuracy"]
+
+    # Build per-file results dataframe
+    df_dict = {
+        "filename": filenames,
+        "true_label": y_true.tolist(),
+        "predicted_label": prob_mat.argmax(1).tolist() if C > 1 else (prob_mat.ravel() >= 0.5).astype(int).tolist(),
+    }
+    if C == 1:
+        df_dict["class_1_probability"] = prob_mat.ravel().tolist()
+    else:
+        # add one column per class probs: prob_class_0, prob_class_1, ...
+        for k in range(C):
+            df_dict[f"prob_class_{k}"] = prob_mat[:, k].tolist()
+
+    results_df = pd.DataFrame(df_dict)
+
+    return metrics, (prob_mat if C > 1 else prob_mat.ravel()), y_true.tolist(), results_df
 
 def test_model_performance(loaders, model, loader_name_list, epoch, loss_type):
     """
-    Test the performance of a model on given data loaders.
-
-    Args:
-        loaders (list): List of data loaders.
-        model: The model to be tested.
-        loader_name_list (list): List of names for the data loaders.
-        epoch (int): The current epoch.
-        loss_type: The type of loss function.
-
-    Returns:
-        tuple: A tuple containing the test results and the results dataframe.
+    Wrapper kept for API compatibility with your caller.
+    Returns (summary_metrics_dataframe, per_file_results_dataframe)
     """
     start_time = time.time()
-    df_list = []
 
-    result, prediction_pos_probs, all_labels, results_df = test_model_core(model, loaders, loader_name_list, epoch, loss_type)
+    data_dict, _, _, results_df = test_model_core(
+        model=model,
+        loader=loaders,
+        loader_name=loader_name_list,
+        epoch=epoch,
+        loss_type=loss_type,
+    )
 
-    return result, results_df
+    # The old function returned a DataFrame in 'result'; emulate that:
+    result_df = pd.DataFrame([data_dict])
+    return result_df, results_df
 
 def train_test_model(settings):
-    
     from .io import _copy_missclassified
     from .utils import pick_best_model, save_settings
     from .io import generate_loaders
@@ -348,12 +417,18 @@ def train_test_model(settings):
     channels_str = ''.join(settings['train_channels'])
     dst = os.path.join(src,'model', settings['model_type'], channels_str, str(f"epochs_{settings['epochs']}"))
     os.makedirs(dst, exist_ok=True)
-    settings['src'] = src
     settings['dst'] = dst
-    
-    if settings['custom_model']:
-        model = torch.load(settings['custom_model'])
-    
+
+    # NEW: number of classes
+    num_classes = len(settings.get('classes', [])) if settings.get('classes') else 0
+    if num_classes <= 0:
+        raise ValueError("No classes provided in settings['classes'].")
+
+    # NEW: pick loss automatically if desired
+    if settings.get('loss_type') in (None, 'auto'):
+        # Multiclass => cross entropy, Binary (1 class folder would be odd; 2 => CE works well)
+        settings['loss_type'] = 'cross_entropy' if num_classes > 1 else 'binary_cross_entropy_with_logits'
+
     if settings['train']:
         if settings['train'] and settings['test']:
             save_settings(settings, name=f"train_test_{settings['model_type']}_{settings['epochs']}", show=True)
@@ -363,81 +438,78 @@ def train_test_model(settings):
             save_settings(settings, name=f"test_{settings['model_type']}_{settings['epochs']}", show=True)
 
     if settings['train']:
-        train, val, train_fig  = generate_loaders(src, 
-                                                  mode='train', 
-                                                  image_size=settings['image_size'],
-                                                  batch_size=settings['batch_size'], 
-                                                  classes=settings['classes'], 
-                                                  n_jobs=settings['n_jobs'],
-                                                  validation_split=settings['val_split'],
-                                                  pin_memory=settings['pin_memory'],
-                                                  normalize=settings['normalize'],
-                                                  channels=settings['train_channels'],
-                                                  augment=settings['augment'],
-                                                  verbose=settings['verbose'])
-        
-        #train_batch_1_figure = os.path.join(dst, 'batch_1.pdf')
-        #train_fig.savefig(train_batch_1_figure, format='pdf', dpi=300)
-    
-    if settings['train']:
-        model, model_path = train_model(dst = settings['dst'],
-                                        model_type=settings['model_type'],
-                                        train_loaders = train, 
-                                        epochs = settings['epochs'], 
-                                        learning_rate = settings['learning_rate'],
-                                        init_weights = settings['init_weights'],
-                                        weight_decay = settings['weight_decay'], 
-                                        amsgrad = settings['amsgrad'], 
-                                        optimizer_type = settings['optimizer_type'], 
-                                        use_checkpoint = settings['use_checkpoint'], 
-                                        dropout_rate = settings['dropout_rate'], 
-                                        n_jobs = settings['n_jobs'], 
-                                        val_loaders = val, 
-                                        test_loaders = None, 
-                                        intermedeate_save = settings['intermedeate_save'],
-                                        schedule = settings['schedule'],
-                                        loss_type=settings['loss_type'], 
-                                        gradient_accumulation=settings['gradient_accumulation'], 
-                                        gradient_accumulation_steps=settings['gradient_accumulation_steps'],
-                                        channels=settings['train_channels'])
-        
+        train, val, _  = generate_loaders(
+            src,
+            mode='train',
+            image_size=settings['image_size'],
+            batch_size=settings['batch_size'],
+            classes=settings['classes'],
+            n_jobs=settings['n_jobs'],
+            validation_split=settings['val_split'],
+            pin_memory=settings['pin_memory'],
+            normalize=settings['normalize'],
+            channels=settings['train_channels'],
+            augment=settings['augment'],
+            verbose=settings['verbose']
+        )
+
+        model, model_path = train_model(
+            dst=settings['dst'],
+            model_type=settings['model_type'],
+            train_loaders=train,
+            epochs=settings['epochs'],
+            learning_rate=settings['learning_rate'],
+            init_weights=settings['init_weights'],
+            weight_decay=settings['weight_decay'],
+            amsgrad=settings['amsgrad'],
+            optimizer_type=settings['optimizer_type'],
+            use_checkpoint=settings['use_checkpoint'],
+            dropout_rate=settings['dropout_rate'],
+            n_jobs=settings['n_jobs'],
+            val_loaders=val,
+            test_loaders=None,
+            intermedeate_save=settings['intermedeate_save'],
+            schedule=settings['schedule'],
+            loss_type=settings['loss_type'],
+            gradient_accumulation=settings['gradient_accumulation'],
+            gradient_accumulation_steps=settings['gradient_accumulation_steps'],
+            channels=settings['train_channels'],
+            num_classes=num_classes  # <-- NEW
+        )
+
     if settings['test']:
-        test, _, train_fig = generate_loaders(src, 
-                                              mode='test', 
-                                              image_size=settings['image_size'],
-                                              batch_size=settings['batch_size'], 
-                                              classes=settings['classes'], 
-                                              n_jobs=settings['n_jobs'],
-                                              validation_split=0.0,
-                                              pin_memory=settings['pin_memory'],
-                                              normalize=settings['normalize'],
-                                              channels=settings['train_channels'],
-                                              augment=False,
-                                              verbose=settings['verbose'])
-        
-        if model == None:
+        test, _, _ = generate_loaders(
+            src,
+            mode='test',
+            image_size=settings['image_size'],
+            batch_size=settings['batch_size'],
+            classes=settings['classes'],
+            n_jobs=settings['n_jobs'],
+            validation_split=0.0,
+            pin_memory=settings['pin_memory'],
+            normalize=settings['normalize'],
+            channels=settings['train_channels'],
+            augment=False,
+            verbose=settings['verbose']
+        )
+
+        if model is None:
             model_path = pick_best_model(src+'/model')
             print(f'Best model: {model_path}')
-
             model = torch.load(model_path, map_location=lambda storage, loc: storage)
 
-            model_type = settings['model_type']
-            device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-            print(type(model))
-            print(model)
-        
         model_fldr = dst
         time_now = datetime.date.today().strftime('%y%m%d')
         result_loc = f"{model_fldr}/{settings['model_type']}_time_{time_now}_test_result.csv"
         acc_loc = f"{model_fldr}/{settings['model_type']}_time_{time_now}_test_acc.csv"
         print(f'Results wil be saved in: {result_loc}')
-        
+
         result, accuracy = test_model_performance(loaders=test,
                                                   model=model,
                                                   loader_name_list='test',
                                                   epoch=1,
                                                   loss_type=settings['loss_type'])
-        
+
         result.to_csv(result_loc, index=True, header=True, mode='w')
         accuracy.to_csv(acc_loc, index=True, header=True, mode='w')
         _copy_missclassified(accuracy)
@@ -451,54 +523,29 @@ def train_test_model(settings):
     if settings['test']:
         return result_loc
     
-def train_model(dst, model_type, train_loaders, epochs=100, learning_rate=0.0001, weight_decay=0.05, amsgrad=False, optimizer_type='adamw', use_checkpoint=False, dropout_rate=0, n_jobs=20, val_loaders=None, test_loaders=None, init_weights='imagenet', intermedeate_save=None, chan_dict=None, schedule = None, loss_type='binary_cross_entropy_with_logits', gradient_accumulation=False, gradient_accumulation_steps=4, channels=['r','g','b'], verbose=False):
+def train_model(dst, model_type, train_loaders, epochs=100, learning_rate=0.0001,
+                weight_decay=0.05, amsgrad=False, optimizer_type='adamw',
+                use_checkpoint=False, dropout_rate=0, n_jobs=20, val_loaders=None,
+                test_loaders=None, init_weights='imagenet', intermedeate_save=None,
+                chan_dict=None, schedule=None, loss_type='binary_cross_entropy_with_logits',
+                gradient_accumulation=False, gradient_accumulation_steps=4,
+                channels=['r','g','b'], verbose=False, num_classes=2):
     """
-    Trains a model using the specified parameters.
-
-    Args:
-        dst (str): The destination path to save the model and results.
-        model_type (str): The type of model to train.
-        train_loaders (list): A list of training data loaders.
-        epochs (int, optional): The number of training epochs. Defaults to 100.
-        learning_rate (float, optional): The learning rate for the optimizer. Defaults to 0.0001.
-        weight_decay (float, optional): The weight decay for the optimizer. Defaults to 0.05.
-        amsgrad (bool, optional): Whether to use AMSGrad for the optimizer. Defaults to False.
-        optimizer_type (str, optional): The type of optimizer to use. Defaults to 'adamw'.
-        use_checkpoint (bool, optional): Whether to use checkpointing during training. Defaults to False.
-        dropout_rate (float, optional): The dropout rate for the model. Defaults to 0.
-        n_jobs (int, optional): The number of n_jobs for data loading. Defaults to 20.
-        val_loaders (list, optional): A list of validation data loaders. Defaults to None.
-        test_loaders (list, optional): A list of test data loaders. Defaults to None.
-        init_weights (str, optional): The initialization weights for the model. Defaults to 'imagenet'.
-        intermedeate_save (list, optional): The intermediate save thresholds. Defaults to None.
-        chan_dict (dict, optional): The channel dictionary. Defaults to None.
-        schedule (str, optional): The learning rate schedule. Defaults to None.
-        loss_type (str, optional): The loss function type. Defaults to 'binary_cross_entropy_with_logits'.
-        gradient_accumulation (bool, optional): Whether to use gradient accumulation. Defaults to False.
-        gradient_accumulation_steps (int, optional): The number of steps for gradient accumulation. Defaults to 4.
-
-    Returns:
-        None
-    """    
-    
+    Trains a model (now supports multiclass).
+    """
     from .io import _save_model, _save_progress
     from .utils import calculate_loss, choose_model
-    
-    print(f'Train batches:{len(train_loaders)}, Validation batches:{len(val_loaders)}')
-    
-    if test_loaders != None:
+
+    print(f'Train batches:{len(train_loaders)}, Validation batches:{len(val_loaders) if val_loaders else 0}')
+    if test_loaders is not None:
         print(f'Test batches:{len(test_loaders)}')
 
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
-
     print(f'Using {device} for Torch')
-    
-    kwargs = {'n_jobs': n_jobs, 'pin_memory': True} if use_cuda else {}
-    
-    model = choose_model(model_type, device, init_weights, dropout_rate, use_checkpoint, verbose=verbose)
-    
-    
+
+    model = choose_model(model_type, device, init_weights, dropout_rate,
+                         use_checkpoint, verbose=verbose, num_classes=num_classes)  # <-- pass num_classes
     if model is None:
         print(f'Model {model_type} not found')
         return
@@ -507,26 +554,24 @@ def train_model(dst, model_type, train_loaders, epochs=100, learning_rate=0.0001
     model.to(device)
 
     if optimizer_type == 'adamw':
-        optimizer = AdamW(model.parameters(), lr=learning_rate,  betas=(0.9, 0.999), weight_decay=weight_decay, amsgrad=amsgrad)
-    
-    if optimizer_type == 'adagrad':
+        optimizer = AdamW(model.parameters(), lr=learning_rate, betas=(0.9, 0.999),
+                          weight_decay=weight_decay, amsgrad=amsgrad)
+    elif optimizer_type == 'adagrad':
         optimizer = Adagrad(model.parameters(), lr=learning_rate, eps=1e-8, weight_decay=weight_decay)
-    
+    else:
+        raise ValueError(f"Unknown optimizer_type: {optimizer_type}")
+
+    # schedulers
     if schedule == 'step_lr':
-        StepLR_step_size = int(epochs/5)
-        StepLR_gamma = 0.75
-        scheduler = StepLR(optimizer, step_size=StepLR_step_size, gamma=StepLR_gamma)
+        scheduler = StepLR(optimizer, step_size=max(1, int(epochs/5)), gamma=0.75)
     elif schedule == 'reduce_lr_on_plateau':
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=10, verbose=True)
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min',
+                                                               factor=0.1, patience=10, verbose=True)
     else:
         scheduler = None
 
     time_ls = []
-
-    # Initialize lists to accumulate results
-    accumulated_train_dicts = []
-    accumulated_val_dicts = []
-    accumulated_test_dicts = []
+    accumulated_train_dicts, accumulated_val_dicts, accumulated_test_dicts = [], [], []
 
     print(f'Training ...')
     for epoch in range(1, epochs+1):
@@ -534,82 +579,93 @@ def train_model(dst, model_type, train_loaders, epochs=100, learning_rate=0.0001
         start_time = time.time()
         running_loss = 0.0
 
-        # Initialize gradients if using gradient accumulation
         if gradient_accumulation:
             optimizer.zero_grad()
 
         for batch_idx, (data, target, filenames) in enumerate(train_loaders, start=1):
-            data, target = data.to(device), target.to(device).float()
+            data = data.to(device)
+
+            # --- target dtype per loss ---
+            if loss_type in ('cross_entropy', 'ce'):
+                # integer class indices [0..C-1]
+                target = target.to(device).long()
+            else:
+                # BCE-style: float targets; if your model outputs (N,1), squeeze for convenience
+                target = target.to(device).float()
+
             output = model(data)
-            loss = calculate_loss(output, target, loss_type=loss_type)
-            
-            # Normalize loss if using gradient accumulation
+
+            # Optional shape checks for clarity
+            if loss_type in ('cross_entropy', 'ce'):
+                # expect (N, C)
+                if output.ndim == 1:
+                    output = output.unsqueeze(1)
+                assert output.ndim == 2 and output.size(1) == num_classes, \
+                    f"Cross-entropy requires (N,{num_classes}) logits, got {tuple(output.shape)}"
+            else:
+                # BCE with logits: allow (N,) or (N,1)
+                if output.ndim == 2 and output.size(1) == 1:
+                    output = output.squeeze(1)
+
+            loss = calculate_loss(output, target, prefer_focal=True)
+            #loss = calculate_loss(output, target, loss_type=loss_type)
+
             if gradient_accumulation:
-                loss /= gradient_accumulation_steps
-            running_loss += loss.item() * gradient_accumulation_steps  # correct the running_loss
+                loss = loss / gradient_accumulation_steps
+
             loss.backward()
 
-            # Step optimizer if not using gradient accumulation or every gradient_accumulation_steps
             if not gradient_accumulation or (batch_idx % gradient_accumulation_steps == 0):
                 optimizer.step()
                 optimizer.zero_grad()
 
-            avg_loss = running_loss / batch_idx
-            batch_size = len(train_loaders)
-            duration = time.time() - start_time
-            time_ls.append(duration)
-            #print(f'Progress: {batch_idx}/{batch_size}, operation_type: DL-Batch, Epoch {epoch}/{epochs}, Loss {avg_loss}, Time {duration}')
-            
-        end_time = time.time()
-        train_time = end_time - start_time
+            running_loss += loss.item()
+
+        # Epoch end: evaluate
+        train_time = time.time() - start_time
         train_dict, _ = evaluate_model_performance(model, train_loaders, epoch, loss_type=loss_type)
         train_dict['train_time'] = train_time
         accumulated_train_dicts.append(train_dict)
-        
-        if val_loaders != None:
+
+        if val_loaders is not None and len(val_loaders) > 0:
             val_dict, _ = evaluate_model_performance(model, val_loaders, epoch, loss_type=loss_type)
             accumulated_val_dicts.append(val_dict)
-            
             if schedule == 'reduce_lr_on_plateau':
-                val_loss = val_dict['loss']
+                scheduler.step(val_dict['loss'])
 
-            print(f"Progress: {train_dict['epoch']}/{epochs}, operation_type: Training, Train Loss: {train_dict['loss']:.3f}, Val Loss: {val_dict['loss']:.3f}, Train acc.: {train_dict['accuracy']:.3f}, Val acc.: {val_dict['accuracy']:.3f}, Train NC acc.: {train_dict['neg_accuracy']:.3f}, Val NC acc.: {val_dict['neg_accuracy']:.3f}, Train PC acc.: {train_dict['pos_accuracy']:.3f}, Val PC acc.: {val_dict['pos_accuracy']:.3f}, Train PRAUC: {train_dict['prauc']:.3f}, Val PRAUC: {val_dict['prauc']:.3f}")
-       
+            # Robust printing: fall back if binary-only keys aren’t present
+            print(f"Progress: {train_dict.get('epoch', epoch)}/{epochs}, operation_type: Training, "
+                  f"Train Loss: {train_dict.get('loss', float('nan')):.3f}, "
+                  f"Val Loss: {val_dict.get('loss', float('nan')):.3f}, "
+                  f"Train acc.: {train_dict.get('accuracy', float('nan')):.3f}, "
+                  f"Val acc.: {val_dict.get('accuracy', float('nan')):.3f}, "
+                  f"Train F1(macro): {train_dict.get('f1_macro', float('nan')):.3f}, "
+                  f"Val F1(macro): {val_dict.get('f1_macro', float('nan')):.3f}")
         else:
-            print(f"Progress: {train_dict['epoch']}/{epochs}, operation_type: Training, Train Loss: {train_dict['loss']:.3f}, Train acc.: {train_dict['accuracy']:.3f}, Train NC acc.: {train_dict['neg_accuracy']:.3f}, Train PC acc.: {train_dict['pos_accuracy']:.3f}, Train PRAUC: {train_dict['prauc']:.3f}")
-        if test_loaders != None:
-            test_dict, _ = evaluate_model_performance(model, test_loaders, epoch, loss_type=loss_type)
-            accumulated_test_dicts.append(test_dict)
-            print(f"Progress: {test_dict['epoch']}/{epochs}, operation_type: Training, Train Loss: {test_dict['loss']:.3f}, Train acc.: {test_dict['accuracy']:.3f}, Train NC acc.: {test_dict['neg_accuracy']:.3f}, Train PC acc.: {test_dict['pos_accuracy']:.3f}, Train PRAUC: {test_dict['prauc']:.3f}")
+            print(f"Progress: {train_dict.get('epoch', epoch)}/{epochs}, operation_type: Training, "
+                  f"Train Loss: {train_dict.get('loss', float('nan')):.3f}, "
+                  f"Train acc.: {train_dict.get('accuracy', float('nan')):.3f}, "
+                  f"Train F1(macro): {train_dict.get('f1_macro', float('nan')):.3f}")
 
-        if scheduler:
-            if schedule == 'reduce_lr_on_plateau':
-                scheduler.step(val_loss)
-            if schedule == 'step_lr':
-                scheduler.step()
+        if scheduler and schedule == 'step_lr':
+            scheduler.step()
 
+        # Save rolling CSVs
         if accumulated_train_dicts and accumulated_val_dicts:
-            train_df = pd.DataFrame(accumulated_train_dicts)
-            validation_df = pd.DataFrame(accumulated_val_dicts)
-            _save_progress(dst, train_df, validation_df)
+            _save_progress(dst, pd.DataFrame(accumulated_train_dicts), pd.DataFrame(accumulated_val_dicts))
             accumulated_train_dicts, accumulated_val_dicts = [], []
-
         elif accumulated_train_dicts:
-            train_df = pd.DataFrame(accumulated_train_dicts)
-            _save_progress(dst, train_df, None)
+            _save_progress(dst, pd.DataFrame(accumulated_train_dicts), None)
             accumulated_train_dicts = []
         elif accumulated_test_dicts:
-            test_df = pd.DataFrame(accumulated_test_dicts)
-            _save_progress(dst, test_df, None)
+            _save_progress(dst, pd.DataFrame(accumulated_test_dicts), None)
             accumulated_test_dicts = []
-            
-        batch_size = len(train_loaders)
-        duration = time.time() - start_time
-        time_ls.append(duration)
-        
-        model_path = _save_model(model, model_type, train_dict, dst, epoch, epochs, intermedeate_save=[0.99,0.98,0.95,0.94], channels=channels)
-            
-    return model, model_path
+
+        # Save checkpoints
+        model_path = _save_model(model, model_type, train_dict, dst, epoch, epochs,
+                        intermedeate_save=[0.99,0.98,0.95,0.94], channels=channels)
+
+    return model, model_path#os.path.join(dst, 'best.pt')  # or whatever _save_model returns    
 
 def generate_activation_map(settings):
     
@@ -903,7 +959,7 @@ def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, cha
             smooth_grad_image = Image.fromarray((smooth_grad_map * 255).astype(np.uint8))
             smooth_grad_image.save(os.path.join(save_dir, f'smooth_grad_{file}'))
 
-def deep_spacr(settings={}):
+def deep_spacr_v1(settings={}):
     from .settings import deep_spacr_defaults
     from .io import generate_training_dataset, generate_dataset
     from .utils import save_settings
@@ -935,6 +991,61 @@ def deep_spacr(settings={}):
             
         if os.path.exists(settings['model_path']):
             apply_model_to_tar(settings)
+            
+def deep_spacr(settings={}):
+    import os
+    # local imports kept inside to avoid import cycles on some setups
+    from .settings import deep_spacr_defaults
+    from .io import generate_training_dataset, generate_dataset
+    from .utils import save_settings
+
+    # 1) expand defaults (now supports things like metadata_rules, annotation_columns, measurement_rules, etc.)
+    settings = deep_spacr_defaults(settings)
+    src_before = settings.get('src')
+
+    # persist a snapshot of the config for reproducibility
+    save_settings(settings, name='DL_model')
+
+    # 2) dataset generation (train/test)
+    if settings.get('train') or settings.get('test'):
+        if settings.get('generate_training_dataset'):
+            print("Generating train and test datasets ...")
+            train_path, test_path = generate_training_dataset(settings)
+            print(f'Generated Train set: {train_path}')
+            print(f'Generated Test set: {test_path}')
+            
+            if train_path:
+                settings['src'] = os.path.dirname(train_path)
+            else:
+                print("Training dataset generation failed; skipping model training step.")
+                return  # or raise RuntimeError if you prefer hard fail
+            
+            # point training to the newly created train folder by default
+            settings['src'] = os.path.dirname(train_path)
+
+    # 3) train DL model
+    if settings.get('train_DL_model'):
+        print("Training model ...")
+        model_path = train_test_model(settings)  # must exist in your codebase
+        settings['model_path'] = model_path
+        # restore original src (so later steps like apply can use the user’s dataset if needed)
+        settings['src'] = src_before
+
+    # 4) apply model to dataset/tar
+    if settings.get('apply_model_to_dataset'):
+        tar_path = settings.get('tar_path')
+
+        # FIXED: robust check — if tar_path missing OR invalid, (re)generate it
+        if not tar_path or not os.path.isabs(tar_path) or not os.path.exists(tar_path):
+            print("tar_path not valid/found; generating dataset tar ...")
+            tar_path = generate_dataset(settings)
+            settings['tar_path'] = tar_path
+
+        model_path = settings.get('model_path')
+        if model_path and os.path.exists(model_path):
+            apply_model_to_tar(settings)  # must exist in your codebase
+        else:
+            print("Model path missing or not found; skipping model application.")
             
 def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, device='cpu', student_model_name='maxvit_t', pretrained=True, dropout_rate=None, use_checkpoint=False, alpha=0.5, temperature=2.0, lr=1e-4, epochs=10):
 

@@ -1314,38 +1314,6 @@ def _get_cellpose_channels_v2(src, nucleus_channel, pathogen_channel, cell_chann
 
     return cellpose_channels
     
-def _get_cellpose_channels_v1(src, nucleus_channel, pathogen_channel, cell_channel):
-
-    cell_mask_path = os.path.join(src, 'masks', 'cell_mask_stack')
-    nucleus_mask_path = os.path.join(src, 'masks', 'nucleus_mask_stack')
-    pathogen_mask_path = os.path.join(src, 'masks', 'pathogen_mask_stack')
-
-
-    if os.path.exists(cell_mask_path) or os.path.exists(nucleus_mask_path) or os.path.exists(pathogen_mask_path):
-        if nucleus_channel is None or nucleus_channel is None or nucleus_channel is None:
-            print('Warning: Cellpose masks already exist. Unexpected behaviour when setting any object dimention to None when the object masks have been created.')
-        
-    cellpose_channels = {}
-    if not nucleus_channel is None:
-        cellpose_channels['nucleus'] = [0,0]
-        
-    if not pathogen_channel is None:
-        if not nucleus_channel is None:
-            if not pathogen_channel is None:
-                cellpose_channels['pathogen'] = [0,2]
-            else:
-                cellpose_channels['pathogen'] = [0,1]
-        else:
-            cellpose_channels['pathogen'] = [0,0]
-        
-    if not cell_channel is None:
-        if not nucleus_channel is None:
-            cellpose_channels['cell'] = [0,1]
-        else:
-            cellpose_channels['cell'] = [0,0]
-            
-    return cellpose_channels
-
 def _get_cellpose_channels(src, nucleus_channel, pathogen_channel, cell_channel):
     cell_mask_path = os.path.join(src, 'masks', 'cell_mask_stack')
     nucleus_mask_path = os.path.join(src, 'masks', 'nucleus_mask_stack')
@@ -1615,66 +1583,6 @@ class Cache:
             self.cache.popitem(last=False)
         self.cache[key] = value
 
-class ScaledDotProductAttention_v1(nn.Module):
-    """
-    Scaled Dot-Product Attention module.
-
-    Args:
-        d_k (int): The dimension of the key and query vectors.
-    """
-    def __init__(self, d_k):
-        super(ScaledDotProductAttention_v1, self).__init__()
-        self.d_k = d_k
-
-    def forward(self, Q, K, V):
-        """
-        Performs the forward pass of the attention mechanism.
-
-        Args:
-            Q (torch.Tensor): The query tensor of shape (batch_size, seq_len_q, d_k).
-            K (torch.Tensor): The key tensor of shape (batch_size, seq_len_k, d_k).
-            V (torch.Tensor): The value tensor of shape (batch_size, seq_len_v, d_k).
-
-        Returns:
-            torch.Tensor: The output tensor of shape (batch_size, seq_len_q, d_k).
-        """
-        scores = torch.matmul(Q, K.transpose(-2, -1)) / torch.sqrt(torch.tensor(self.d_k, dtype=torch.float32))
-        attention_probs = F.softmax(scores, dim=-1)
-        output = torch.matmul(attention_probs, V)
-        return output
-
-class SelfAttention_v1(nn.Module):
-    """
-    Self-Attention module that applies scaled dot-product attention mechanism.
-
-    Args:
-        in_channels (int): Number of input channels.
-        d_k (int): Dimensionality of the key and query vectors.
-    """
-
-    def __init__(self, in_channels, d_k):
-        super(SelfAttention_v1, self).__init__()
-        self.W_q = nn.Linear(in_channels, d_k)
-        self.W_k = nn.Linear(in_channels, d_k)
-        self.W_v = nn.Linear(in_channels, d_k)
-        self.attention = ScaledDotProductAttention(d_k)
-
-    def forward(self, x):
-        """
-        Forward pass of the SelfAttention module.
-
-        Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, in_channels).
-
-        Returns:
-            torch.Tensor: Output tensor of shape (batch_size, d_k).
-        """
-        Q = self.W_q(x)
-        K = self.W_k(x)
-        V = self.W_v(x)
-        output = self.attention(Q, K, V)
-        return output
-
 class ScaledDotProductAttention(nn.Module):
     def __init__(self, d_k):
         """
@@ -1834,8 +1742,114 @@ class CustomCellClassifier(nn.Module):
         else:
             return self.custom_forward(x)
 
-#CNN and Transformer class, pick any Torch model.
 class TorchModel(nn.Module):
+    def __init__(
+        self,
+        model_name: str = "resnet50",
+        pretrained: bool = True,
+        dropout_rate: float = None,
+        use_checkpoint: bool = False,
+        num_classes: int = 2,          # arbitrary classes (>=2 => multiclass; 1 => binary head)
+        multilabel: bool = False       # kept for external loss/metrics decisions (not used internally)
+    ):
+        super().__init__()
+        self.model_name = model_name
+        self.use_checkpoint = bool(use_checkpoint)
+        self.num_classes = int(num_classes)
+        self.multilabel = bool(multilabel)
+
+        # 1) init backbone
+        self.base_model = self._init_base_model(pretrained)
+
+        # 2) special-case: keep all but the last linear block for maxvit_t
+        if self.model_name == "maxvit_t" and hasattr(self.base_model, "classifier"):
+            self.base_model.classifier = nn.Sequential(
+                *list(self.base_model.classifier.children())[:-1]
+            )
+
+        # 3) apply custom dropout rate to any existing dropout modules in backbone
+        if dropout_rate is not None:
+            self._apply_dropout_rate(self.base_model, float(dropout_rate))
+
+        # 4) discover feature dim
+        self.num_ftrs = self._infer_feature_dim()
+
+        # 5) add SPACR head
+        self._init_spacr_classifier(dropout_rate)
+
+    # --------------------------------------------------------------------- #
+    # Helpers
+    # --------------------------------------------------------------------- #
+    def _apply_dropout_rate(self, module: nn.Module, p: float):
+        for m in module.modules():
+            if isinstance(m, (nn.Dropout, nn.Dropout2d, nn.Dropout3d)):
+                m.p = p
+
+    def _init_base_model(self, pretrained: bool) -> nn.Module:
+        fn = models.__dict__.get(self.model_name, None)
+        if fn is None:
+            raise ValueError(f"Unknown torchvision model: {self.model_name}")
+
+        weights = self._get_weight_choice()
+        if weights is not None:
+            # Newer torchvision API: weights=enum or None
+            return fn(weights=weights if pretrained else None)
+        else:
+            # Older API fallback: pretrained=bool
+            return fn(pretrained=bool(pretrained))
+
+    def _get_weight_choice(self):
+        # Return DEFAULT weights enum if available; else None
+        for attr in dir(models):
+            if attr.lower() == f"{self.model_name}_weights":
+                return getattr(models, attr).DEFAULT
+        return None
+
+    def _remove_head_for_features(self):
+        # Remove final classifier so backbone returns features
+        if hasattr(self.base_model, "fc"):
+            self.base_model.fc = nn.Identity()
+        elif hasattr(self.base_model, "classifier"):
+            if self.model_name != "maxvit_t":
+                self.base_model.classifier = nn.Identity()
+
+    def _infer_feature_dim(self) -> int:
+        self._remove_head_for_features()
+        self.base_model.eval()
+        with torch.no_grad():
+            out = self.base_model(torch.randn(1, 3, 224, 224))
+        # If backbone returns spatial map, flatten to (N, C*)
+        if out.ndim > 2:
+            out = torch.flatten(out, 1)
+        return int(out.size(1))
+
+    def _init_spacr_classifier(self, dropout_rate: float):
+        self.use_dropout = dropout_rate is not None
+        if self.use_dropout:
+            self.dropout = nn.Dropout(float(dropout_rate))
+        self.spacr_classifier = nn.Linear(self.num_ftrs, self.num_classes)
+
+    # --------------------------------------------------------------------- #
+    # Forward
+    # --------------------------------------------------------------------- #
+    def _run_backbone(self, x: torch.Tensor) -> torch.Tensor:
+        # Wrap for checkpoint (expects a function)
+        if self.use_checkpoint:
+            return checkpoint(lambda t: self.base_model(t), x)
+        return self.base_model(x)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        feats = self._run_backbone(x)
+        # Ensure 2D features (N, F)
+        if feats.ndim > 2:
+            feats = torch.flatten(feats, 1)
+        if self.use_dropout:
+            feats = self.dropout(feats)
+        logits = self.spacr_classifier(feats)  # (N, C) where C==num_classes
+        return logits
+
+#CNN and Transformer class, pick any Torch model.
+class TorchModel_v1(nn.Module):
     def __init__(self, model_name='resnet50', pretrained=True, dropout_rate=None, use_checkpoint=False):
         super(TorchModel, self).__init__()
         self.model_name = model_name
@@ -1909,9 +1923,9 @@ class TorchModel(nn.Module):
         logits = self.spacr_classifier(x).flatten()
         return logits
 
-class FocalLossWithLogits(nn.Module):
+class FocalLossWithLogits_v1(nn.Module):
     def __init__(self, alpha=1, gamma=2):
-        super(FocalLossWithLogits, self).__init__()
+        super(FocalLossWithLogits_v1, self).__init__()
         self.alpha = alpha
         self.gamma = gamma
 
@@ -1920,6 +1934,58 @@ class FocalLossWithLogits(nn.Module):
         pt = torch.exp(-BCE_loss)
         focal_loss = self.alpha * (1-pt)**self.gamma * BCE_loss
         return focal_loss.mean()
+    
+
+class FocalLossWithLogits(nn.Module):
+    """
+    Focal loss that works for:
+      - binary: logits shape (N,) or (N,1); target float (N,) in {0,1}
+      - multiclass (single-label): logits shape (N,C); target long (N,) in [0..C-1]
+      - multilabel: logits shape (N,C); target float (N,C) in {0,1}
+
+    Args:
+        alpha (float or Tensor): class balancing factor. If float for multiclass,
+            applied uniformly; or provide a 1D tensor of shape (C,).
+        gamma (float): focusing parameter.
+        reduction: 'mean'|'sum'|'none'
+    """
+    def __init__(self, alpha=1.0, gamma=2.0, reduction="mean"):
+        super().__init__()
+        self.gamma = float(gamma)
+        self.reduction = reduction
+        self.alpha = alpha
+
+    def forward(self, logits, target):
+        # Binary / multilabel (BCE-style)
+        if logits.ndim == 1 or logits.size(-1) == 1 or (
+            logits.ndim == 2 and target.ndim == 2 and target.size(1) == logits.size(1)
+        ):
+            logits = logits.view_as(target)
+            bce = F.binary_cross_entropy_with_logits(logits, target, reduction="none")
+            p = torch.sigmoid(logits)
+            pt = target * p + (1 - target) * (1 - p)  # pt = p if y=1 else (1-p)
+            loss = (self.alpha * (1 - pt).pow(self.gamma) * bce)
+        else:
+            # Multiclass CE-style: logits (N,C), target (N,) long
+            if target.dtype != torch.long:
+                target = target.long()
+            logp = F.log_softmax(logits, dim=1)              # (N,C)
+            p = torch.exp(logp)                              # (N,C)
+            # gather the prob of the true class
+            pt = p.gather(1, target.unsqueeze(1)).squeeze(1)  # (N,)
+            ce = F.nll_loss(logp, target, reduction="none")   # per-sample CE
+            if isinstance(self.alpha, torch.Tensor):
+                # class-wise alpha
+                alpha = self.alpha.to(logits.device)[target]   # (N,)
+            else:
+                alpha = float(self.alpha)
+            loss = alpha * (1 - pt).pow(self.gamma) * ce
+
+        if self.reduction == "mean":
+            return loss.mean()
+        if self.reduction == "sum":
+            return loss.sum()
+        return loss
     
 class ResNet(nn.Module):
     def __init__(self, resnet_type='resnet50', dropout_rate=None, use_checkpoint=False, init_weights='imagenet'):
@@ -2080,7 +2146,95 @@ def compute_irm_penalty(losses, dummy_w, device):
 #    summary(base_model, (channels, height, width))
 #    return
 
-def choose_model(model_type, device, init_weights=True, dropout_rate=0, use_checkpoint=False, channels=3, height=224, width=224, chan_dict=None, num_classes=2, verbose=False):
+def choose_model(model_type,
+                 device,
+                 init_weights=True,
+                 dropout_rate=0.0,
+                 use_checkpoint=False,
+                 channels=3,
+                 height=224,
+                 width=224,
+                 chan_dict=None,
+                 num_classes=2,
+                 verbose=False):
+    """
+    Pick and configure a model for classification (binary or multiclass).
+
+    Args:
+        model_type (str): Any torchvision model name or 'custom'.
+        device (torch.device or str): Device string (not used here; caller moves the model).
+        init_weights (bool): Load pretrained weights where supported.
+        dropout_rate (float): Dropout probability to apply inside the backbone head.
+        use_checkpoint (bool): Enable gradient checkpointing (if model supports it).
+        channels (int): Input channel count (not used by TorchVision backbones).
+        height, width (int): Nominal input size (not strictly required here).
+        chan_dict (dict|None): For 'custom' models (e.g. pathogen_channel, etc.).
+        num_classes (int): Number of output classes (>=2 for multiclass; ==1 for BCE).
+
+    Returns:
+        nn.Module
+    """
+    import torchvision
+    from torchvision import models as tv_models
+
+    # Collect available torchvision model names
+    try:
+        torch_model_types = torchvision.models.list_models(module=tv_models)
+    except Exception:
+        # Fallback for older torchvision where list_models may be absent
+        torch_model_types = [name for name, fn in tv_models.__dict__.items() if callable(fn)]
+
+    model_types = set(torch_model_types) | {'custom'}
+
+    if model_type not in model_types:
+        print(f'Invalid model_type: {model_type}. Compatible model_types: {sorted(model_types)}')
+        return None
+
+    print(
+        f'Model parameters: Architecture: {model_type} '
+        f'init_weights: {init_weights} dropout_rate: {dropout_rate} '
+        f'use_checkpoint: {use_checkpoint}', end='\r', flush=True
+    )
+
+    # --- CUSTOM MODEL BRANCH -------------------------------------------------
+    if model_type == 'custom':
+        # Safely read optional channels
+        pathogen_channel = nucleus_channel = protein_channel = None
+        if isinstance(chan_dict, dict):
+            pathogen_channel = chan_dict.get('pathogen_channel', None)
+            nucleus_channel  = chan_dict.get('nucleus_channel', None)
+            protein_channel  = chan_dict.get('protein_channel', None)
+
+        # You can adapt args below to your CustomCellClassifier signature
+        base_model = CustomCellClassifier(
+            num_classes=num_classes,
+            pathogen_channel=pathogen_channel,
+            nucleus_channel=nucleus_channel,
+            protein_channel=protein_channel,
+            use_attention=True,
+            use_checkpoint=use_checkpoint,
+            dropout_rate=dropout_rate
+        )
+
+    # --- TORCHVISION BRANCH --------------------------------------------------
+    else:
+        # TorchModel is your thin wrapper that builds the backbone and
+        # attaches a classifier with the correct output dimension.
+        # Make sure your TorchModel signature accepts `num_classes`.
+        base_model = TorchModel(
+            model_name=model_type,
+            pretrained=bool(init_weights),
+            dropout_rate=dropout_rate,
+            use_checkpoint=use_checkpoint,
+            num_classes=num_classes
+        )
+
+    if verbose:
+        print("\n", base_model)
+
+    return base_model
+
+def choose_model_v1(model_type, device, init_weights=True, dropout_rate=0, use_checkpoint=False, channels=3, height=224, width=224, chan_dict=None, num_classes=2, verbose=False):
     """
     Choose a model for classification.
 
@@ -2128,7 +2282,71 @@ def choose_model(model_type, device, init_weights=True, dropout_rate=0, use_chec
     
     return base_model
 
-def calculate_loss(output, target, loss_type='binary_cross_entropy_with_logits'):
+def calculate_loss(output, target, prefer_focal=False, gamma=2.0, alpha=1.0, reduction="mean"):
+    """
+    Auto-select loss for binary, multiclass, or multilabel based on shapes/dtypes.
+
+    - Binary: logits (N,1), float targets in {0,1}  -> BCEWithLogits / focal-BCE
+    - Multiclass: logits (N,C), long targets (N,)   -> CrossEntropy / focal-CE
+    - Multilabel: logits (N,C), float targets (N,C) -> BCEWithLogits / focal-BCE
+    """
+    # --- helpers -------------------------------------------------------------
+    def _focal_bce_with_logits(logits, y, alpha=1.0, gamma=2.0, reduction="mean"):
+        # y in {0,1}, same shape as logits
+        p = torch.sigmoid(logits)
+        ce = F.binary_cross_entropy_with_logits(logits, y, reduction="none")
+        p_t = p * y + (1 - p) * (1 - y)                # p_t = p if y=1 else 1-p
+        loss = alpha * (1 - p_t).pow(gamma) * ce
+        if reduction == "mean":
+            return loss.mean()
+        elif reduction == "sum":
+            return loss.sum()
+        return loss
+
+    def _focal_cross_entropy(logits, y_idx, alpha=1.0, gamma=2.0, reduction="mean"):
+        # y_idx is LongTensor of class indices, shape (N,)
+        log_p = F.log_softmax(logits, dim=1)
+        p = log_p.exp()
+        # Gather the log prob and prob of the true class
+        log_p_t = log_p.gather(1, y_idx.view(-1,1)).squeeze(1)
+        p_t = p.gather(1, y_idx.view(-1,1)).squeeze(1)
+        loss = -alpha * (1 - p_t).pow(gamma) * log_p_t
+        if reduction == "mean":
+            return loss.mean()
+        elif reduction == "sum":
+            return loss.sum()
+        return loss
+
+    # --- normalize shapes ----------------------------------------------------
+    if output.ndim == 1:
+        output = output.unsqueeze(1)  # (N,) -> (N,1)
+    N, C = output.shape[0], output.shape[1]
+
+    # --- binary (C=1) --------------------------------------------------------
+    if C == 1:
+        target = target.float().view(N, 1)
+        if prefer_focal:
+            return _focal_bce_with_logits(output, target, alpha=alpha, gamma=gamma, reduction=reduction)
+        return F.binary_cross_entropy_with_logits(output, target, reduction=reduction)
+
+    # --- multiclass vs multilabel -------------------------------------------
+    if target.dtype == torch.long and target.ndim == 1:
+        # Multiclass single-label with class indices (N,)
+        if prefer_focal:
+            return _focal_cross_entropy(output, target, alpha=alpha, gamma=gamma, reduction=reduction)
+        return F.cross_entropy(output, target, reduction=reduction)
+
+    # Multilabel (assume float/one-hot), ensure (N,C)
+    if target.ndim == 1:
+        target = torch.nn.functional.one_hot(target.long(), num_classes=C).float()
+    else:
+        target = target.float().view(N, C)
+
+    if prefer_focal:
+        return _focal_bce_with_logits(output, target, alpha=alpha, gamma=gamma, reduction=reduction)
+    return F.binary_cross_entropy_with_logits(output, target, reduction=reduction)
+
+def calculate_loss_v1(output, target, loss_type='binary_cross_entropy_with_logits'):
     if loss_type == 'binary_cross_entropy_with_logits':
         loss = F.binary_cross_entropy_with_logits(output, target)
     elif loss_type == 'focal_loss':

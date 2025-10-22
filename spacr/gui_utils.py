@@ -369,11 +369,8 @@ def annotate_with_image_refs(settings, root, shutdown_callback):
 def convert_settings_dict_for_gui(settings):
     from torchvision import models as torch_models
     torchvision_models = [name for name, obj in torch_models.__dict__.items() if callable(obj)]
-    chans = ['0', '1', '2', '3', '4', '5', '6', '7', '8', None]
     chan_list = ['[0,1,2,3,4,5,6,7,8]','[0,1,2,3,4,5,6,7]','[0,1,2,3,4,5,6]','[0,1,2,3,4,5]','[0,1,2,3,4]','[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]', '[0,0]']
-    chans_v2 = [0, 1, 2, 3, None]
-    chans_v3 = list(range(0, 21, 1)) + [None]
-    chans_v4 = [0, 1, 2, 3, None]
+    
     variables = {}
     special_cases = {
         'metadata_type': ('combo', ['cellvoyager', 'cq1', 'auto', 'custom'], 'cellvoyager'),
