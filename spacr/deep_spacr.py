@@ -1035,7 +1035,7 @@ def deep_spacr(settings={}):
     if settings.get('apply_model_to_dataset'):
         tar_path = settings.get('tar_path')
 
-        # FIXED: robust check — if tar_path missing OR invalid, (re)generate it
+        # if tar_path missing OR invalid, (re)generate it
         if not tar_path or not os.path.isabs(tar_path) or not os.path.exists(tar_path):
             print("tar_path not valid/found; generating dataset tar ...")
             tar_path = generate_dataset(settings)

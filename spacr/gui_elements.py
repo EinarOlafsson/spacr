@@ -3752,19 +3752,23 @@ class AnnotateApp:
         defaults['dataset'] = defaults.get('dataset', defaults['src'])
         defaults['annotation_column'] = self.annotation_column or defaults.get('annotation_column')
 
+        # keep your app-wide style usage
         style_out = set_dark_style(ttk.Style())
+        bg = self.bg_color
+        fg = self.fg_color
+        font = self.font_style
 
         # ---- window -----------------------------------------------------------
         win = tk.Toplevel(self.root)
         win.title("Deep SPACR — Train (Beta)")
-        win.configure(bg=style_out['bg_color'])
+        win.configure(bg=bg)
         win.geometry("1120x760")
 
-        outer = tk.Frame(win, bg=style_out['bg_color'])
+        outer = tk.Frame(win, bg=bg)
         outer.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
         # ---- header master toggles (govern tab enablement) --------------------
-        header = tk.Frame(outer, bg=style_out['bg_color'])
+        header = tk.Frame(outer, bg=bg)
         header.pack(fill=tk.X, pady=(0,8))
 
         gen_var   = tk.BooleanVar(value=bool(defaults.get('generate_training_dataset', True)))
@@ -3774,8 +3778,7 @@ class AnnotateApp:
         def _chk(label, var):
             return tk.Checkbutton(
                 header, text=label, variable=var,
-                bg=style_out['bg_color'], fg=self.fg_color,
-                selectcolor=style_out['bg_color'], font=self.font_style
+                bg=bg, fg=fg, selectcolor=bg, font=font, activebackground=bg, activeforeground=fg
             )
 
         _chk("Generate training dataset", gen_var).pack(side=tk.LEFT, padx=(0,12))
@@ -3788,7 +3791,7 @@ class AnnotateApp:
 
         # ---- helpers ----------------------------------------------------------
         def _label(parent, text):
-            return tk.Label(parent, text=text, bg=style_out['bg_color'], fg=self.fg_color, anchor='w')
+            return tk.Label(parent, text=text, bg=bg, fg=fg, anchor='w', font=font)
 
         def _row(parent, r, label_text, widget):
             _label(parent, label_text).grid(row=r, column=0, sticky="w", padx=6, pady=4)
@@ -3809,17 +3812,26 @@ class AnnotateApp:
             parts = [p.strip() for p in str(s).split(",") if p.strip() != ""]
             return parts if parts else fallback
 
+        def _set_disabled_state(frame, disabled=True):
+            # toggle "viability": enable/disable inputs inside the frame
+            state = tk.DISABLED if disabled else tk.NORMAL
+            for child in frame.winfo_children():
+                try:
+                    child.configure(state=state)
+                except Exception:
+                    pass
+
         # ======================================================================
         # TAB 1: Generate training dataset
         # ======================================================================
-        tab_gen = tk.Frame(nb, bg=style_out['bg_color'])
+        tab_gen = tk.Frame(nb, bg=bg)
         nb.add(tab_gen, text="Generate training dataset")
 
-        gen_split = tk.PanedWindow(tab_gen, orient=tk.HORIZONTAL, sashwidth=6, bg=style_out['bg_color'])
+        gen_split = tk.PanedWindow(tab_gen, orient=tk.HORIZONTAL, sashwidth=6, bg=bg)
         gen_split.pack(fill=tk.BOTH, expand=True)
 
-        gen_form = tk.Frame(gen_split, bg=style_out['bg_color'])
-        gen_right = tk.Frame(gen_split, bg=style_out['bg_color'])
+        gen_form  = tk.Frame(gen_split, bg=bg)
+        gen_right = tk.Frame(gen_split, bg=bg)
         gen_split.add(gen_form)
         gen_split.add(gen_right)
 
@@ -3847,9 +3859,10 @@ class AnnotateApp:
         sample_sp.insert(0, "" if sample_val in (None, "") else str(sample_val))
         _row(gen_form, r, "sample (rows, optional)", sample_sp); r += 1
 
-        file_type_cbx = ttk.Combobox(gen_form, state='readonly', values=['cell_png', 'fov_png', 'other'])
-        file_type_cbx.set(defaults.get('file_type', defaults.get('png_type','cell_png')))
-        _row(gen_form, r, "file_type / png_type", file_type_cbx); r += 1
+        # FILE TYPE: free text (any string)
+        file_type_entry = tk.Entry(gen_form)
+        file_type_entry.insert(0, str(defaults.get('file_type', defaults.get('png_type','cell_png'))))
+        _row(gen_form, r, "file_type / png_type", file_type_entry); r += 1
 
         tables_entry = tk.Entry(gen_form)
         tables_entry.insert(0, "" if defaults.get('tables') in (None, []) else ",".join(defaults.get('tables')))
@@ -3887,25 +3900,25 @@ class AnnotateApp:
 
         balance_var = tk.BooleanVar(value=bool(defaults.get('balance_to_smallest', True)))
         balance_chk = tk.Checkbutton(gen_form, text="Balance classes to smallest",
-                                    variable=balance_var, bg=style_out['bg_color'],
-                                    fg=self.fg_color, selectcolor=style_out['bg_color'])
+                                    variable=balance_var, bg=bg, fg=fg, selectcolor=bg, font=font,
+                                    activebackground=bg, activeforeground=fg)
         _row(gen_form, r, "", balance_chk); r += 1
 
-        # --- Right column: Annotation columns & Metadata rules -----------------
-        # Annotation (visible for dataset_mode='annotation')
-        ann_frame = tk.LabelFrame(gen_right, text="Annotation columns", bg=style_out['bg_color'], fg=self.fg_color)
-        ann_inner = tk.Frame(ann_frame, bg=style_out['bg_color'])
+        # --- Right column: three MODE-SPECIFIC panels -------------------------
+        # 1) Annotation panel
+        ann_frame = tk.LabelFrame(gen_right, text="Annotation columns", bg=bg, fg=fg, font=font, labelanchor='n')
+        ann_inner = tk.Frame(ann_frame, bg=bg)
         _label(ann_inner, "Use DB Annotation Columns").grid(row=0, column=0, sticky="w", padx=6, pady=(8,2))
-        use_db_var = tk.BooleanVar(value=True)  # default checked
+        use_db_var = tk.BooleanVar(value=True)
         tk.Checkbutton(ann_inner, text="Use selected DB columns as classes",
-                    variable=use_db_var, bg=style_out['bg_color'], fg=self.fg_color,
-                    selectcolor=style_out['bg_color']).grid(row=1, column=0, sticky="w", padx=6, pady=(0,6))
-        lb = tk.Listbox(ann_inner, selectmode=tk.EXTENDED, height=10)
+                    variable=use_db_var, bg=bg, fg=fg, selectcolor=bg, font=font,
+                    activebackground=bg, activeforeground=fg).grid(row=1, column=0, sticky="w", padx=6, pady=(0,6))
+        lb = tk.Listbox(ann_inner, selectmode=tk.EXTENDED, height=10,
+                        bg=self.inactive_color, fg=fg, highlightbackground=fg, selectbackground=self.active_color)
         lb.grid(row=2, column=0, sticky="nsew", padx=6, pady=(0,8))
         ann_inner.grid_columnconfigure(0, weight=1)
         ann_inner.grid_rowconfigure(2, weight=1)
 
-        # Populate png_list columns
         try:
             with sqlite3.connect(self.db_path, timeout=10) as conn:
                 cur = conn.cursor()
@@ -3919,22 +3932,20 @@ class AnnotateApp:
         except Exception:
             pass
 
-        ann_name_row = tk.Frame(ann_inner, bg=style_out['bg_color'])
-        _label(ann_name_row, "annotation_column").pack(side=tk.LEFT, padx=(6,2))
-        anno_entry = tk.Entry(ann_name_row)
-        anno_entry.insert(0, str(defaults.get('annotation_column','test')))
-        anno_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(6,6))
-        ann_name_row.grid(row=3, column=0, sticky="ew", padx=0, pady=(0,8))
-
-        ann_frame.pack(fill=tk.BOTH, expand=True, padx=6, pady=(0,8))
+        #ann_name_row = tk.Frame(ann_inner, bg=bg)
+        #_label(ann_name_row, "annotation_column").pack(side=tk.LEFT, padx=(6,2))
+        #anno_entry = tk.Entry(ann_name_row)
+        #anno_entry.insert(0, str(defaults.get('annotation_column','test')))
+        #anno_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(6,6))
+        #ann_name_row.grid(row=3, column=0, sticky="ew", padx=0, pady=(0,8))
         ann_inner.pack(fill=tk.BOTH, expand=True)
 
-        # Metadata rules (visible for dataset_mode='metadata')
-        meta_grp = tk.LabelFrame(gen_right, text="Metadata rules (JSON)", bg=style_out['bg_color'], fg=self.fg_color)
-        meta_inner = tk.Frame(meta_grp, bg=style_out['bg_color'])
+        # 2) Metadata panel
+        meta_grp = tk.LabelFrame(gen_right, text="Metadata rules (JSON)", bg=bg, fg=fg, font=font, labelanchor='n')
+        meta_inner = tk.Frame(meta_grp, bg=bg)
         meta_rules_entry = tk.Entry(meta_inner)
         meta_rules_entry.pack(fill=tk.X, padx=6, pady=(6,4))
-        ex = tk.Frame(meta_inner, bg=style_out['bg_color'])
+        ex = tk.Frame(meta_inner, bg=bg)
         tk.Label(
             ex,
             text=("Example:\n"
@@ -3943,7 +3954,7 @@ class AnnotateApp:
                 "  {\"name\":\"test_2\",     \"where\":[{\"column\":\"test\",\"op\":\"==\",\"value\":2}]},\n"
                 "  {\"name\":\"parasite_1\", \"where\":[{\"column\":\"parasite\",\"op\":\"==\",\"value\":1}]}\n"
                 "]"),
-            justify='left', anchor='w', bg=style_out['bg_color'], fg=self.fg_color
+            justify='left', anchor='w', bg=bg, fg=fg
         ).pack(side=tk.LEFT, fill=tk.X, expand=True)
         def _insert_meta_example():
             meta_rules_entry.delete(0, tk.END)
@@ -3956,35 +3967,66 @@ class AnnotateApp:
         ttk.Button(ex, text="Insert example", command=_insert_meta_example).pack(side=tk.RIGHT, padx=6)
         ex.pack(fill=tk.X, padx=6, pady=(0,6))
         meta_inner.pack(fill=tk.BOTH, expand=True)
-        meta_grp.pack_forget()  # start hidden; toggled by mode
 
-        # mode toggle
+        # 3) Measurement panel
+        meas_grp = tk.LabelFrame(gen_right, text="Measurement selection", bg=bg, fg=fg, font=font, labelanchor='n')
+        meas_inner = tk.Frame(meas_grp, bg=bg)
+        _label(meas_inner, "measurement (csv: columns)").grid(row=0, column=0, sticky="w", padx=6, pady=(8,2))
+        meas_cols_entry = tk.Entry(meas_inner)
+        meas_cols_entry.insert(0, "" if defaults.get('measurement') in (None, []) else (
+            ",".join(defaults['measurement']) if isinstance(defaults['measurement'], list) else str(defaults['measurement'])
+        ))
+        meas_cols_entry.grid(row=0, column=1, sticky="ew", padx=6, pady=(8,2))
+
+        _label(meas_inner, "threshold (float or q1..q9)").grid(row=1, column=0, sticky="w", padx=6, pady=(4,2))
+        threshold_entry = tk.Entry(meas_inner)
+        threshold_entry.insert(0, str(defaults.get('threshold', 'q8')))
+        threshold_entry.grid(row=1, column=1, sticky="ew", padx=6, pady=(4,2))
+        tk.Label(meas_inner, text="Examples: 0.42  or  q7", bg=bg, fg=fg, font=font)\
+            .grid(row=2, column=1, sticky="w", padx=6, pady=(0,6))
+        meas_inner.grid_columnconfigure(1, weight=1)
+        meas_inner.pack(fill=tk.BOTH, expand=True)
+
+        # start with correct panel visible & viable
         def _toggle_gen_right(*_):
             mode = dataset_mode_cbx.get().strip().lower()
+
+            # hide all
+            for w in (ann_frame, meta_grp, meas_grp):
+                w.pack_forget()
+                _set_disabled_state(w, disabled=True)
+
+            # show + enable chosen
             if mode == 'annotation':
-                meta_grp.pack_forget()
                 ann_frame.pack(fill=tk.BOTH, expand=True, padx=6, pady=(0,8))
+                _set_disabled_state(ann_frame, disabled=False)
             elif mode == 'metadata':
-                ann_frame.pack_forget()
                 meta_grp.pack(fill=tk.BOTH, expand=True, padx=6, pady=(0,8))
-            else:
-                ann_frame.pack_forget()
-                meta_grp.pack_forget()
+                _set_disabled_state(meta_grp, disabled=False)
+            elif mode == 'measurement':
+                meas_grp.pack(fill=tk.BOTH, expand=True, padx=6, pady=(0,8))
+                _set_disabled_state(meas_grp, disabled=False)
+
         dataset_mode_cbx.bind("<<ComboboxSelected>>", _toggle_gen_right)
         _toggle_gen_right()
 
         # ======================================================================
         # TAB 2: Train
         # ======================================================================
-        tab_train = tk.Frame(nb, bg=style_out['bg_color'])
+        tab_train = tk.Frame(nb, bg=bg)
         nb.add(tab_train, text="Train")
 
-        tr_basic = tk.LabelFrame(tab_train, text="Basic", bg=style_out['bg_color'], fg=self.fg_color)
+        tr_basic = tk.LabelFrame(tab_train, text="Basic", bg=bg, fg=fg)
         tr_basic.pack(fill=tk.X, padx=8, pady=(8,6))
         rr = 0
 
-        model_cbx = ttk.Combobox(tr_basic, state='readonly',
-                                values=sorted({n for n, o in getattr(__import__('torchvision').models, '__dict__', {}).items() if callable(o)}))
+        try:
+            import torchvision
+            model_names = sorted({n for n, o in getattr(torchvision.models, '__dict__', {}).items() if callable(o)})
+        except Exception:
+            model_names = ['resnet18','resnet34','resnet50','densenet121','mobilenet_v2']
+
+        model_cbx = ttk.Combobox(tr_basic, state='readonly', values=model_names)
         model_cbx.set(defaults.get('model_type', 'resnet50'))
         _row(tr_basic, rr, "model_type", model_cbx); rr += 1
 
@@ -4015,17 +4057,14 @@ class AnnotateApp:
         train_channels_cbx.set(str(tdef if isinstance(tdef, list) else "['r','g','b']"))
         _row(tr_basic, rr, "train_channels", train_channels_cbx); rr += 1
 
-        # Train/Test toggles inside Train tab map to legacy flags
         do_train_var = tk.BooleanVar(value=bool(defaults.get('train', True)))
         do_test_var  = tk.BooleanVar(value=bool(defaults.get('test', False)))
         _row(tr_basic, rr, "", tk.Checkbutton(tr_basic, text="train (legacy flag)",
-                                            variable=do_train_var, bg=style_out['bg_color'],
-                                            fg=self.fg_color, selectcolor=style_out['bg_color'])); rr += 1
+                                            variable=do_train_var, bg=bg, fg=fg, selectcolor=bg, font=font)); rr += 1
         _row(tr_basic, rr, "", tk.Checkbutton(tr_basic, text="test after training (legacy flag)",
-                                            variable=do_test_var, bg=style_out['bg_color'],
-                                            fg=self.fg_color, selectcolor=style_out['bg_color'])); rr += 1
+                                            variable=do_test_var, bg=bg, fg=fg, selectcolor=bg, font=font)); rr += 1
 
-        adv = tk.LabelFrame(tab_train, text="Advanced", bg=style_out['bg_color'], fg=self.fg_color)
+        adv = tk.LabelFrame(tab_train, text="Advanced", bg=bg, fg=fg)
         adv.pack(fill=tk.X, padx=8, pady=(0,8))
         ra = 0
 
@@ -4047,23 +4086,19 @@ class AnnotateApp:
 
         init_w_var = tk.BooleanVar(value=bool(defaults.get('init_weights', True)))
         _row(adv, ra, "", tk.Checkbutton(adv, text="init_weights",
-                                        variable=init_w_var, bg=style_out['bg_color'],
-                                        fg=self.fg_color, selectcolor=style_out['bg_color'])); ra += 1
+                                        variable=init_w_var, bg=bg, fg=fg, selectcolor=bg, font=font)); ra += 1
 
         use_ckpt_var = tk.BooleanVar(value=bool(defaults.get('use_checkpoint', True)))
         _row(adv, ra, "", tk.Checkbutton(adv, text="use_checkpoint (activation checkpointing)",
-                                        variable=use_ckpt_var, bg=style_out['bg_color'],
-                                        fg=self.fg_color, selectcolor=style_out['bg_color'])); ra += 1
+                                        variable=use_ckpt_var, bg=bg, fg=fg, selectcolor=bg, font=font)); ra += 1
 
         amsgrad_var = tk.BooleanVar(value=bool(defaults.get('amsgrad', True)))
         _row(adv, ra, "", tk.Checkbutton(adv, text="AMSGrad",
-                                        variable=amsgrad_var, bg=style_out['bg_color'],
-                                        fg=self.fg_color, selectcolor=style_out['bg_color'])); ra += 1
+                                        variable=amsgrad_var, bg=bg, fg=fg, selectcolor=bg, font=font)); ra += 1
 
         intermed_var = tk.BooleanVar(value=bool(defaults.get('intermedeate_save', True)))
         _row(adv, ra, "", tk.Checkbutton(adv, text="intermedeate_save",
-                                        variable=intermed_var, bg=style_out['bg_color'],
-                                        fg=self.fg_color, selectcolor=style_out['bg_color'])); ra += 1
+                                        variable=intermed_var, bg=bg, fg=fg, selectcolor=bg, font=font)); ra += 1
 
         jobs_sp = ttk.Spinbox(adv, from_=0, to=max(1, os.cpu_count() or 64), increment=1)
         jobs_sp.set(int(defaults.get('n_jobs', max(1, (os.cpu_count() or 8)-4))))
@@ -4071,8 +4106,7 @@ class AnnotateApp:
 
         pin_var = tk.BooleanVar(value=bool(defaults.get('pin_memory', False)))
         _row(adv, ra, "", tk.Checkbutton(adv, text="pin_memory",
-                                        variable=pin_var, bg=style_out['bg_color'],
-                                        fg=self.fg_color, selectcolor=style_out['bg_color'])); ra += 1
+                                        variable=pin_var, bg=bg, fg=fg, selectcolor=bg, font=font)); ra += 1
 
         ga_sp = ttk.Spinbox(adv, from_=1, to=64, increment=1)
         ga_sp.set(int(defaults.get('gradient_accumulation_steps', 4)))
@@ -4080,44 +4114,38 @@ class AnnotateApp:
 
         grad_acc_var = tk.BooleanVar(value=bool(defaults.get('gradient_accumulation', True)))
         _row(adv, ra, "", tk.Checkbutton(adv, text="gradient_accumulation",
-                                        variable=grad_acc_var, bg=style_out['bg_color'],
-                                        fg=self.fg_color, selectcolor=style_out['bg_color'])); ra += 1
+                                        variable=grad_acc_var, bg=bg, fg=fg, selectcolor=bg, font=font)); ra += 1
 
         augment_var = tk.BooleanVar(value=bool(defaults.get('augment', False)))
         _row(adv, ra, "", tk.Checkbutton(adv, text="augment",
-                                        variable=augment_var, bg=style_out['bg_color'],
-                                        fg=self.fg_color, selectcolor=style_out['bg_color'])); ra += 1
+                                        variable=augment_var, bg=bg, fg=fg, selectcolor=bg, font=font)); ra += 1
 
         normalize_var = tk.BooleanVar(value=bool(defaults.get('normalize', True)))
         _row(adv, ra, "", tk.Checkbutton(adv, text="normalize",
-                                        variable=normalize_var, bg=style_out['bg_color'],
-                                        fg=self.fg_color, selectcolor=style_out['bg_color'])); ra += 1
+                                        variable=normalize_var, bg=bg, fg=fg, selectcolor=bg, font=font)); ra += 1
 
         verbose_var = tk.BooleanVar(value=bool(defaults.get('verbose', True)))
         _row(adv, ra, "", tk.Checkbutton(adv, text="verbose",
-                                        variable=verbose_var, bg=style_out['bg_color'],
-                                        fg=self.fg_color, selectcolor=style_out['bg_color'])); ra += 1
+                                        variable=verbose_var, bg=bg, fg=fg, selectcolor=bg, font=font)); ra += 1
 
-        # Custom model path (read-only field unless you plan to enable it elsewhere)
         custom_model_var = tk.BooleanVar(value=bool(defaults.get('custom_model', False)))
         _row(adv, ra, "", tk.Checkbutton(adv, text="custom_model",
-                                        variable=custom_model_var, bg=style_out['bg_color'],
-                                        fg=self.fg_color, selectcolor=style_out['bg_color'])); ra += 1
+                                        variable=custom_model_var, bg=bg, fg=fg, selectcolor=bg, font=font)); ra += 1
         custom_model_entry = tk.Entry(adv)
         custom_model_entry.insert(0, str(defaults.get('custom_model_path','path')))
         _row(adv, ra, "custom_model_path", custom_model_entry); ra += 1
 
-        experiment_entry = tk.Entry(adv)
-        experiment_entry.insert(0, str(defaults.get('experiment','exp.')))
-        _row(adv, ra, "experiment", experiment_entry); ra += 1
+        #experiment_entry = tk.Entry(adv)
+        #experiment_entry.insert(0, str(defaults.get('experiment','exp.')))
+        #_row(adv, ra, "experiment", experiment_entry); ra += 1
 
         # ======================================================================
         # TAB 3: Apply model to dataset
         # ======================================================================
-        tab_apply = tk.Frame(nb, bg=style_out['bg_color'])
+        tab_apply = tk.Frame(nb, bg=bg)
         nb.add(tab_apply, text="Apply model")
 
-        apply_frame = tk.LabelFrame(tab_apply, text="Inference", bg=style_out['bg_color'], fg=self.fg_color)
+        apply_frame = tk.LabelFrame(tab_apply, text="Inference", bg=bg, fg=fg)
         apply_frame.pack(fill=tk.X, padx=8, pady=8)
 
         rr2 = 0
@@ -4144,7 +4172,7 @@ class AnnotateApp:
         _apply_tab_state()
 
         # ---- bottom buttons ---------------------------------------------------
-        btns = tk.Frame(win, bg=style_out['bg_color'])
+        btns = tk.Frame(win, bg=bg)
         btns.pack(fill=tk.X, padx=10, pady=(0,10))
         run_btn = ttk.Button(btns, text="Run")
         cancel_btn = ttk.Button(btns, text="Cancel", command=win.destroy)
@@ -4161,12 +4189,13 @@ class AnnotateApp:
             settings['apply_model_to_dataset'] = bool(apply_var.get())
 
             # GENERATE / DATASET
-            settings['dataset_mode'] = dataset_mode_cbx.get().strip()
+            mode = dataset_mode_cbx.get().strip()
+            settings['dataset_mode'] = mode
             settings['size'] = int(float(size_sp.get()))
             settings['image_size'] = int(float(img_size_sp.get()))
             settings['test_split'] = float(test_split_sp.get())
             settings['sample'] = None if str(sample_sp.get()).strip() == "" else int(float(sample_sp.get()))
-            ft = file_type_cbx.get().strip()
+            ft = file_type_entry.get().strip()
             settings['file_type'] = ft
             settings['png_type'] = ft  # keep both for backward compatibility
             settings['tables'] = _parse_csv_list(tables_entry.get(), None)
@@ -4180,8 +4209,9 @@ class AnnotateApp:
             settings['custom_measurement'] = (cm if cm != "" else None)
             settings['balance_to_smallest'] = bool(balance_var.get())
 
-            if settings['dataset_mode'] == 'annotation':
-                settings['annotation_column'] = anno_entry.get().strip() or settings.get('annotation_column')
+            # MODE-SPECIFIC
+            if mode == 'annotation':
+                #settings['annotation_column'] = anno_entry.get().strip() or settings.get('annotation_column')
                 settings['use_db_columns'] = bool(use_db_var.get())
                 if settings['use_db_columns']:
                     sel_cols = [lb.get(i) for i in lb.curselection()]
@@ -4189,7 +4219,11 @@ class AnnotateApp:
                         messagebox.showwarning("No DB columns selected", "Select at least one annotation column or uncheck the DB option.")
                         return
                     settings['db_annotation_columns'] = sel_cols
-            elif settings['dataset_mode'] == 'metadata':
+                settings.pop('metadata_rules', None)
+                settings.pop('measurement', None)
+                settings.pop('threshold', None)
+
+            elif mode == 'metadata':
                 raw = meta_rules_entry.get().strip()
                 rules = None
                 if raw:
@@ -4201,6 +4235,30 @@ class AnnotateApp:
                     messagebox.showwarning("Metadata rules", "Provide valid JSON rules or click 'Insert example'.")
                     return
                 settings['metadata_rules'] = rules
+                settings.pop('measurement', None)
+                settings.pop('threshold', None)
+                settings.pop('annotation_column', None)
+                settings.pop('db_annotation_columns', None)
+                settings.pop('use_db_columns', None)
+
+            elif mode == 'measurement':
+                meas_cols = _parse_csv_list(meas_cols_entry.get(), None)
+                if not meas_cols:
+                    messagebox.showwarning("Measurement", "Provide at least one measurement column (csv).")
+                    return
+                settings['measurement'] = meas_cols if len(meas_cols) > 1 else meas_cols[0]
+                th_raw = threshold_entry.get().strip()
+                if th_raw == "":
+                    messagebox.showwarning("Measurement", "Provide a threshold (number) or a quantile code q1..q9.")
+                    return
+                try:
+                    settings['threshold'] = float(th_raw)
+                except Exception:
+                    settings['threshold'] = th_raw  # e.g. "q8"
+                settings.pop('metadata_rules', None)
+                settings.pop('annotation_column', None)
+                settings.pop('db_annotation_columns', None)
+                settings.pop('use_db_columns', None)
 
             # TRAIN
             settings['model_type'] = model_cbx.get().strip()
@@ -4231,7 +4289,7 @@ class AnnotateApp:
             settings['verbose'] = bool(verbose_var.get())
             settings['custom_model'] = bool(custom_model_var.get())
             settings['custom_model_path'] = custom_model_entry.get().strip() or settings.get('custom_model_path')
-            settings['experiment'] = experiment_entry.get().strip() or settings.get('experiment')
+            #settings['experiment'] = experiment_entry.get().strip() or settings.get('experiment')
 
             # APPLY
             settings['score_threshold'] = float(score_sp.get())
