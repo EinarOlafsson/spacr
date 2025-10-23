@@ -2214,7 +2214,7 @@ class ModifyMaskApp:
         self.update_display()
 
 class AnnotateApp:
-    def __init__(self, root, db_path, src, image_type=None, channels=None, image_size=200, annotation_column='annotate', percentiles=(1, 99), measurement=None, threshold=None, normalize_channels=None, outline=None, outline_threshold_factor=1, outline_sigma=1, edge_thickness=1, edge_transparency=100, edge_image=False):
+    def __init__(self, root, db_path, src, image_type=None, channels=None, image_size=200, annotation_column='annotate', percentiles=(1, 99), measurement=None, threshold=None, normalize_channels=None, outline=None, outline_threshold_factor=1, outline_sigma=1, edge_thickness=1, edge_transparency=100, edge_image=False, object_size=(0,0)):
         self.root = root
         self.db_path = db_path
         self.src = src
@@ -2252,6 +2252,7 @@ class AnnotateApp:
         self.edge_thickness = edge_thickness
         self.edge_transparency = edge_transparency
         self.edge_image = edge_image
+        self.object_size = tuple(object_size) if object_size else (0, 0)
         
         style_out = set_dark_style(ttk.Style())
         self.font_loader = style_out['font_loader']
@@ -2306,8 +2307,9 @@ class AnnotateApp:
         self.settings_button = Button(self.button_frame, text="Settings", command=self.open_settings_window, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.clear_button = Button(self.button_frame,text="Clear annotation",command=self.clear_current_annotation,bg=self.bg_color, fg=self.fg_color,highlightbackground=self.fg_color,highlightcolor=self.fg_color,highlightthickness=1)
         self.count_button = Button(self.button_frame, text="Count classes", command=self.show_class_counts, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
-        self.dl_train_button = Button(self.button_frame,text="Train (Beta)",command=self.open_deep_spacr_window,bg=self.bg_color,fg=self.fg_color,highlightbackground=self.fg_color,highlightcolor=self.fg_color,highlightthickness=1)
-
+        self.dl_train_button = Button(self.button_frame,text="Train (Beta)", command=self.open_deep_spacr_window,bg=self.bg_color,fg=self.fg_color,highlightbackground=self.fg_color,highlightcolor=self.fg_color,highlightthickness=1)
+        #self.umap_button = Button(self.button_frame, text="Image UMAP / HParam (Beta)", command=self.open_umap_window, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
+        
         # pack (right to left)
         self.next_button.pack(side="right", padx=5)
         self.previous_button.pack(side="right", padx=5)
@@ -2317,6 +2319,7 @@ class AnnotateApp:
         self.clear_button.pack(side="right", padx=5)
         self.count_button.pack(side="right", padx=5)
         self.dl_train_button.pack(side="right", padx=5)
+        #self.umap_button.pack(side="right", padx=5)
 
         # compute grid size (after buttons exist with real height)
         self.button_frame.update_idletasks()
@@ -2340,6 +2343,230 @@ class AnnotateApp:
             self.grid_frame.grid_rowconfigure(row, weight=1)
         for col in range(self.grid_cols):
             self.grid_frame.grid_columnconfigure(col, weight=1)
+            
+    def _embed_figure_in(self, parent, fig):
+        # Clear parent
+        for w in parent.winfo_children():
+            try: w.destroy()
+            except Exception: pass
+        try:
+            from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+        except Exception as e:
+            lab = tk.Label(parent, text=f"Matplotlib not available: {e}", bg=self.bg_color, fg="red")
+            lab.pack()
+            return None
+        canvas = FigureCanvasTkAgg(fig, master=parent)
+        widget = canvas.get_tk_widget()
+        widget.pack(fill="both", expand=True)
+        canvas.draw()
+        return canvas
+    
+    def open_umap_window(self):
+        import tkinter as tk
+        from tkinter import ttk, messagebox
+        import threading
+        import ast
+
+        win = tk.Toplevel(self.root)
+        win.title("Image UMAP & Hyperparameter Search")
+        win.configure(bg=self.bg_color)
+        win.geometry("1200x800")
+
+        outer = tk.Frame(win, bg=self.bg_color)
+        outer.pack(fill=tk.BOTH, expand=True)
+
+        # Left: settings
+        left = tk.Frame(outer, bg=self.bg_color)
+        left.pack(side=tk.LEFT, fill=tk.Y, padx=10, pady=10)
+
+        # Right: live plot
+        right = tk.Frame(outer, bg=self.bg_color)
+        right.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0,10), pady=10)
+
+        # --- Settings widgets (a practical subset; add more if you like) ---
+        def _row(lbl, widget):
+            r = tk.Frame(left, bg=self.bg_color)
+            tk.Label(r, text=lbl, bg=self.bg_color, fg=self.fg_color, font=self.font_style).pack(side=tk.TOP, anchor="w")
+            widget.pack(in_=r, fill=tk.X, expand=True)
+            r.pack(fill=tk.X, pady=6)
+
+        src_entry = tk.Entry(left)
+        src_entry.insert(0, self.src)
+
+        tables_entry = tk.Entry(left)
+        tables_entry.insert(0, "cell,cytoplasm,nucleus,pathogen")  # sensible default
+
+        row_limit_entry = tk.Entry(left)
+        row_limit_entry.insert(0, "")  # blank = no limit
+
+        # UMAP params
+        n_neighbors_entry = tk.Entry(left); n_neighbors_entry.insert(0, "15")
+        min_dist_entry    = tk.Entry(left); min_dist_entry.insert(0, "0.1")
+        metric_entry      = tk.Entry(left); metric_entry.insert(0, "euclidean")
+
+        # Clustering params
+        clustering_cbx = ttk.Combobox(left, state="readonly", values=["dbscan","kmeans"])
+        clustering_cbx.set("dbscan")
+
+        eps_entry         = tk.Entry(left); eps_entry.insert(0, "0.5")     # DBSCAN
+        min_samples_entry = tk.Entry(left); min_samples_entry.insert(0, "5")
+        kmeans_k_entry    = tk.Entry(left); kmeans_k_entry.insert(0, "8")  # KMeans
+
+        color_by_entry    = tk.Entry(left); color_by_entry.insert(0, "")   # e.g. columnID or cond
+        dot_size_entry    = tk.Entry(left); dot_size_entry.insert(0, "6")
+        fig_size_entry    = tk.Entry(left); fig_size_entry.insert(0, "10") # inches
+
+        img_nr_entry      = tk.Entry(left); img_nr_entry.insert(0, "200")  # images in overlay (if plotting images)
+        plot_images_var   = tk.BooleanVar(value=False)
+        tk.Checkbutton(left, text="plot_images (heavy)", variable=plot_images_var,
+                    bg=self.bg_color, fg=self.fg_color, selectcolor=self.bg_color).pack(anchor="w", pady=(4,0))
+
+        # Hyperparam grids (comma-separated lists interpreted as Python literals)
+        # UMAP grid: list of dicts like {"n_neighbors": 10, "min_dist": 0.1}
+        red_grid_entry = tk.Entry(left)
+        red_grid_entry.insert(0, """[{"n_neighbors":10,"min_dist":0.05},{"n_neighbors":15,"min_dist":0.1},{"n_neighbors":30,"min_dist":0.3}]""")
+
+        # DBSCAN grid: list of dicts like {"eps": 0.5, "min_samples":5}
+        dbscan_grid_entry = tk.Entry(left)
+        dbscan_grid_entry.insert(0, """[{"eps":0.3,"min_samples":5},{"eps":0.5,"min_samples":5},{"eps":0.7,"min_samples":3}]""")
+
+        # KMeans grid: list of dicts like {"n_clusters": 6}
+        kmeans_grid_entry = tk.Entry(left)
+        kmeans_grid_entry.insert(0, """[{"n_clusters":6},{"n_clusters":8},{"n_clusters":10}]""")
+
+        # pack rows
+        _row("src", src_entry)
+        _row("tables (csv)", tables_entry)
+        _row("row_limit (blank = all)", row_limit_entry)
+        ttk.Separator(left, orient="horizontal").pack(fill=tk.X, pady=6)
+        _row("UMAP n_neighbors", n_neighbors_entry)
+        _row("UMAP min_dist",    min_dist_entry)
+        _row("metric",           metric_entry)
+        ttk.Separator(left, orient="horizontal").pack(fill=tk.X, pady=6)
+        _row("clustering",       clustering_cbx)
+        _row("DBSCAN eps",       eps_entry)
+        _row("DBSCAN min_samples", min_samples_entry)
+        _row("KMeans n_clusters", kmeans_k_entry)
+        ttk.Separator(left, orient="horizontal").pack(fill=tk.X, pady=6)
+        _row("color_by (optional)", color_by_entry)
+        _row("dot_size",         dot_size_entry)
+        _row("figsize (inches)", fig_size_entry)
+        _row("image_nr (if plotting images)", img_nr_entry)
+        ttk.Separator(left, orient="horizontal").pack(fill=tk.X, pady=6)
+        _row("UMAP grid (JSON list of dicts)", red_grid_entry)
+        _row("DBSCAN grid (JSON list of dicts)", dbscan_grid_entry)
+        _row("KMeans grid (JSON list of dicts)", kmeans_grid_entry)
+
+        # Status + buttons
+        status = tk.Label(left, text="", bg=self.bg_color, fg=self.fg_color, font=self.font_style)
+        status.pack(fill=tk.X, pady=(8,4))
+
+        btn_row = tk.Frame(left, bg=self.bg_color)
+        btn_row.pack(fill=tk.X, pady=(0,6))
+        run_umap_btn = ttk.Button(btn_row, text="Run UMAP")
+        run_grid_btn = ttk.Button(btn_row, text="Run Hyperparam Search")
+        run_umap_btn.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=(0,4))
+        run_grid_btn.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=(4,0))
+
+        # ----- runners -----
+        def _collect_common_settings():
+            # parse helpers
+            def _csv_list(s):
+                s = (s or "").strip()
+                if not s: return []
+                return [p.strip() for p in s.split(",") if p.strip()]
+            def _int_or_none(s):
+                s = (s or "").strip()
+                return None if s == "" else int(float(s))
+            def _float(s, default):
+                try: return float(str(s).strip())
+                except Exception: return default
+
+            tables = _csv_list(tables_entry.get())
+            row_limit = _int_or_none(row_limit_entry.get())
+
+            settings = {
+                "src": src_entry.get().strip(),
+                "tables": tables if tables else ["cell","cytoplasm","nucleus","pathogen"],
+                "row_limit": row_limit,
+                "reduction_method": "umap",
+                "n_neighbors": _int_or_none(n_neighbors_entry.get()) or 15,
+                "min_dist": _float(min_dist_entry.get(), 0.1),
+                "metric": metric_entry.get().strip() or "euclidean",
+                "clustering": clustering_cbx.get().strip().upper(),  # DBSCAN or KMEANS
+                "eps": _float(eps_entry.get(), 0.5),
+                "min_samples": _int_or_none(min_samples_entry.get()) or 5,
+                "image_nr": _int_or_none(img_nr_entry.get()) or 200,
+                "dot_size": _int_or_none(dot_size_entry.get()) or 6,
+                "figuresize": _float(fig_size_entry.get(), 10.0),
+                "plot_images": bool(plot_images_var.get()),
+                "color_by": (color_by_entry.get().strip() or None),
+                # defaults you already support in set_default_umap_image_settings:
+                "verbose": True,
+                "black_background": False,
+                "remove_image_canvas": False,
+                "plot_outlines": False,
+                "plot_points": True,
+                "smooth_lines": False,
+                "embedding_by_controls": False,
+                "exclude": [],
+                "save_figure": False,
+                "plot_cluster_grids": False,
+                "analyze_clusters": False,
+                "n_jobs": max(1, (os.cpu_count() or 8) - 2),
+                # clustering-specific extra:
+                "kmeans_k": _int_or_none(kmeans_k_entry.get()) or 8,
+            }
+            return settings
+
+        def _run_umap():
+            settings = _collect_common_settings()
+            def worker():
+                try:
+                    status.config(text="Running UMAP…")
+                    # Call your function; ask it to return a Figure (see tweak below)
+                    from spacr.core import generate_image_umap as _gen
+                    fig = _gen(settings=settings, return_fig=True)
+                    status.config(text="Done.")
+                    self._embed_figure_in(right, fig)
+                except Exception as e:
+                    status.config(text=f"Error: {e}")
+            threading.Thread(target=worker, daemon=True).start()
+
+        def _run_grid():
+            # parse JSON-ish lists safely
+            def _parse_list(s):
+                txt = (s or "").strip()
+                if not txt: return []
+                try:
+                    return ast.literal_eval(txt)
+                except Exception:
+                    return []
+            settings = _collect_common_settings()
+            red_grid    = _parse_list(red_grid_entry.get())
+            dbscan_grid = _parse_list(dbscan_grid_entry.get())
+            kmeans_grid = _parse_list(kmeans_grid_entry.get())
+
+            def worker():
+                try:
+                    status.config(text="Running hyperparameter search…")
+                    from spacr.core import reducer_hyperparameter_search as _search
+                    fig = _search(
+                        settings=settings,
+                        reduction_params=red_grid or [{"n_neighbors":15,"min_dist":0.1}],
+                        dbscan_params=dbscan_grid or [{"eps":0.5,"min_samples":5}],
+                        kmeans_params=kmeans_grid or [{"n_clusters":settings["kmeans_k"]}],
+                        show=False, return_fig=True
+                    )
+                    status.config(text="Done.")
+                    self._embed_figure_in(right, fig)
+                except Exception as e:
+                    status.config(text=f"Error: {e}")
+            threading.Thread(target=worker, daemon=True).start()
+
+        run_umap_btn.configure(command=_run_umap)
+        run_grid_btn.configure(command=_run_grid)
+
             
     def _poll_save_status(self):
         """
@@ -2401,6 +2628,7 @@ class AnnotateApp:
             'edge_thickness': str(self.edge_thickness) if hasattr(self, 'edge_thickness') else '1',
             'edge_transparency': str(getattr(self, 'edge_transparency', 0.0)),
             'edge_image': str(getattr(self, 'edge_image', False)),
+            'object_size': (f"{getattr(self, 'object_size', (0,0))[0]},{getattr(self, 'object_size', (0,0))[1]}"),
             'src': self.src,
             'db_path': self.db_path,
         }
@@ -2444,6 +2672,32 @@ class AnnotateApp:
                 settings['outline'] = ol
 
             # --- numeric fields ---
+            
+            # --- object_size: "(min,max)" where 0 disables that bound ---
+            raw_os = (settings.get('object_size') or '').strip()
+            def _parse_object_size(s):
+                if not s:
+                    return (0, 0)
+                # accept "min,max", "min , max", "min", "min," etc.
+                s = s.replace(';', ',')
+                parts = [p.strip() for p in s.split(',') if p.strip() != '']
+                nums = []
+                for p in parts[:2]:
+                    try:
+                        # allow floats in UI, cast to int; clamp negatives to 0
+                        nums.append(max(0, int(float(p))))
+                    except Exception:
+                        nums.append(0)
+                while len(nums) < 2:
+                    nums.append(0)
+                mn, mx = nums[0], nums[1]
+                # if both set and out of order, swap
+                if mn and mx and mn > mx:
+                    mn, mx = mx, mn
+                return (mn, mx)
+
+            settings['object_size'] = _parse_object_size(raw_os)
+            
             settings['outline_threshold_factor'] = (
                 float(settings['outline_threshold_factor'].replace(',', '.'))
                 if settings['outline_threshold_factor'] else 1.0)
@@ -2506,6 +2760,7 @@ class AnnotateApp:
                 'edge_thickness': settings.get('edge_thickness'),
                 'edge_transparency': settings.get('edge_transparency'),
                 'edge_image': settings.get('edge_image'),
+                'object_size': settings.get('object_size'),
                 'src': settings.get('src'),
                 'db_path': self.db_path
             })
@@ -2537,7 +2792,7 @@ class AnnotateApp:
             'image_type', 'channels', 'image_size', 'annotation_column', 'src', 'db_path',
             'percentiles', 'measurement', 'threshold', 'normalize_channels',
             'outline', 'outline_threshold_factor', 'outline_sigma',
-            'edge_thickness', 'edge_transparency', 'edge_image'
+            'edge_thickness', 'edge_transparency', 'edge_image', 'object_size'
         }
 
         old_db  = getattr(self, 'db_path', None)
@@ -2547,8 +2802,6 @@ class AnnotateApp:
 
         for attr, value in kwargs.items():
             if attr in allowed_attributes and value is not None:
-
-                # >>> remove the whole `if attr == 'normalize': ...` block <<<
 
                 if attr == 'normalize_channels':
                     if isinstance(value, (list, tuple)):
@@ -2576,8 +2829,11 @@ class AnnotateApp:
                     value = float(value)
                 elif attr == 'outline_sigma':
                     value = float(value)
+
+                # **CHANGED: keep fractional thickness**
                 elif attr == 'edge_thickness':
-                    value = int(value)
+                    value = float(value)
+
                 elif attr == 'edge_transparency':
                     try:
                         value = float(value)
@@ -2586,10 +2842,36 @@ class AnnotateApp:
                     value = max(0.0, min(100.0, value))
                 elif attr == 'edge_image':
                     value = bool(value)
+                    
+                elif attr == 'object_size':
+                    # normalize to a 2-tuple of non-negative ints; (0,0) means no bounds
+                    v = value
+                    if v in (None, '', []):
+                        v = (0, 0)
+                    elif isinstance(v, str):
+                        # reuse the same parsing logic as above, inline:
+                        s = v.replace(';', ',')
+                        parts = [p.strip() for p in s.split(',') if p.strip() != '']
+                        a = []
+                        for p in parts[:2]:
+                            try:
+                                a.append(max(0, int(float(p))))
+                            except Exception:
+                                a.append(0)
+                        while len(a) < 2:
+                            a.append(0)
+                        mn, mx = a
+                    elif isinstance(v, (list, tuple)):
+                        mn = max(0, int(v[0])) if len(v) > 0 else 0
+                        mx = max(0, int(v[1])) if len(v) > 1 else 0
+                    else:
+                        mn, mx = (0, 0)
+                    if mn and mx and mn > mx:
+                        mn, mx = mx, mn
+                    value = (mn, mx)
 
                 setattr(self, attr, value)
                 updated = True
-
 
         if ('annotation_column' in kwargs and kwargs['annotation_column']) or ('db_path' in kwargs and kwargs['db_path']):
             self._ensure_annotation_column()
@@ -2607,12 +2889,10 @@ class AnnotateApp:
             self.calculate_grid_dimensions()
             self.recreate_image_grid()
 
-        # --- OPTIONAL tiny safety: if src changed, clear path remaps & jump to first page
         if self.src != old_src:
             self.adjusted_to_original_paths.clear()
             self.index = 0
 
-        # --- ADD: if db_path changed, restart the DB worker so writes go to the new DB
         if self.db_path != old_db:
             if self.pending_updates:
                 self.update_queue.put(self.pending_updates.copy())
@@ -2624,7 +2904,6 @@ class AnnotateApp:
                     self.db_update_thread.join()
             except Exception:
                 pass
-            # start a fresh worker bound to new self.db_path
             self.terminate = False
             self.worker_busy = False
             self._last_save_ts = None
@@ -2632,7 +2911,7 @@ class AnnotateApp:
             self.db_update_thread.start()
 
         if updated:
-            current_index = self.index  # Retain current index if possible
+            current_index = self.index
             self.prefilter_paths_annotations()
             max_index = len(self.filtered_paths_annotations) - 1
             self.index = min(current_index, max(0, max(len(self.filtered_paths_annotations) - self.grid_rows * self.grid_cols, 0)))
@@ -2897,85 +3176,189 @@ class AnnotateApp:
         img = self.filter_channels(img)
 
         if self.outline:
-            # NEW SIGNATURE: pass base img and full (pre-filter) img
-            img = self.outline_image(base_img=img,
-                                    full_img=full_img,
-                                    edge_sigma=self.outline_sigma,
-                                    edge_thickness=self.edge_thickness)
+            img = self.outline_image(
+                base_img=img,
+                full_img=full_img,
+                edge_sigma=self.outline_sigma,
+                edge_thickness=self.edge_thickness,
+                fill_holes=True,
+                object_size=getattr(self, "object_size", (0, 0))
+            )
 
         img = img.resize(self.image_size)
         return img, annotation
     
-    def outline_image(self, base_img, full_img, edge_sigma=1, edge_thickness=1):
+    @staticmethod
+    def fill_holes(mask, min_size=0):
         """
-        Compose final image from:
-        - base_img: already filtered (visible base)
-        - full_img: normalized RGB before filtering (for edge detection and, if edge_image=True, as underlay)
-        Semantics:
-        - edge_transparency: 0 => outlines hidden; 100 => solid outlines
-        - edge_image=True:   also show the channel image for outlined channels
-        - edge_image=False:  suppress outlined channels' intensities in base; draw only outlines on top
+        Fill holes inside True regions of a binary mask.
+
+        Args:
+            mask (ndarray[bool]): Binary mask where True denotes foreground.
+            min_size (int): Minimum hole area to fill (in pixels).
+                - <= 0 : fill ALL internal holes.
+                -  > 0 : fill only holes smaller than min_size; reopen larger ones.
+
+        Returns:
+            ndarray[bool]: Hole-filled mask.
         """
+        import numpy as np
+        from scipy.ndimage import binary_fill_holes, label
+
+        m = mask.astype(bool)
+        filled = binary_fill_holes(m)
+
+        if min_size <= 0:
+            return filled
+
+        # Pixels that were holes and got filled
+        filled_holes = filled & ~m
+
+        # Reopen (unfill) holes whose area >= min_size
+        lbl, n = label(filled_holes)
+        if n == 0:
+            return filled
+
+        reopen = np.zeros_like(m, dtype=bool)
+        for i in range(1, n + 1):
+            if (lbl == i).sum() >= int(min_size):
+                reopen |= (lbl == i)
+
+        return filled & ~reopen
+    
+    @staticmethod
+    def _filter_objects_by_area(mask, min_size=0, max_size=0):
+        import numpy as np
+        from scipy.ndimage import label
+        m = mask.astype(bool)
+        if not m.any():
+            return m
+        lbl, n = label(m)
+        if n == 0:
+            return m
+        counts = np.bincount(lbl.ravel())
+        lo = int(min_size) if int(min_size) > 0 else 0
+        hi = int(max_size) if int(max_size) > 0 else np.iinfo(np.int64).max
+        keep = np.zeros_like(counts, dtype=bool)
+        for i in range(1, len(counts)):
+            area = counts[i]
+            if lo <= area <= hi:
+                keep[i] = True
+        return keep[lbl]
+        
+    def outline_image(self, base_img, full_img, edge_sigma=1, edge_thickness=1, fill_holes=True, object_size=(0, 0)):
+        """
+        Anti-aliased outlines with sub-pixel thickness that never get dimmer as they get thinner.
+        Uses peak normalization so outline brightness is thickness-invariant (then scaled only by edge_transparency).
+
+        Args:
+            base_img (PIL.Image): already filtered (visible base)
+            full_img (PIL.Image): normalized RGB before filtering (edge detection / underlay)
+            edge_sigma (float): Gaussian smoothing before thresholding
+            edge_thickness (float): outline thickness in output pixels (supports < 1, e.g. 0.01)
+            fill_holes (bool): fill internal holes in foreground masks before boundary extraction
+            object_size (tuple[int,int]): (min_px, max_px) connected-component area filter.
+                                        0 disables that bound.
+        """
+        import numpy as np
+        from PIL import Image
+        from scipy.ndimage import gaussian_filter, binary_closing
+        from skimage.filters import threshold_otsu
+        from skimage.segmentation import find_boundaries
+
         base_arr = np.asarray(base_img).copy()
         full_arr = np.asarray(full_img)
-
         if base_arr.ndim != 3 or base_arr.shape[2] != 3:
-            return base_img  # expect RGB
+            return base_img
 
-        out_img = base_arr  # start from visible base
-
+        out_img = base_arr
         channel_map = {'r': 0, 'g': 1, 'b': 2}
         factor = float(getattr(self, 'outline_threshold_factor', 1.0))
 
-        # integer radius
-        try:
-            radius = int(round(edge_thickness))
-        except Exception:
-            radius = 1
-        radius = max(1, radius)
-
-        # opacity: 0 -> invisible; 100 -> fully opaque
+        # global opacity 0..1 (100 => fully bright)
         transp = float(getattr(self, 'edge_transparency', 0.0))
-        opacity = max(0.0, min(1.0, transp / 100.0))
+        opacity_global = max(0.0, min(1.0, transp / 100.0))
 
         outline_channels = [ch for ch in (self.outline or []) if ch in channel_map]
         show_underlay = bool(getattr(self, 'edge_image', True))
 
-        # *** KEY FIX: if not showing underlay, suppress intensities of outlined channels in the base ***
         if not show_underlay and outline_channels:
             for ch in outline_channels:
-                idx = channel_map[ch]
-                out_img[:, :, idx] = 0  # zero out intensity so only edges will be visible
+                out_img[:, :, channel_map[ch]] = 0
 
-        # If no outlines or opacity is zero, we're done after suppression step
-        if opacity == 0.0 or not outline_channels:
-            return Image.fromarray(out_img)
+        if opacity_global == 0.0 or not outline_channels:
+            from PIL import Image as _Image
+            return _Image.fromarray(out_img)
 
-        # For each outlined channel:
+        # Supersampling factor (AA quality; does NOT widen geometry)
+        SS = 8
+        H, W = out_img.shape[:2]
+        upW, upH = W * SS, H * SS
+
+        # unpack object_size bounds
+        try:
+            min_px, max_px = object_size if object_size is not None else (0, 0)
+        except Exception:
+            min_px, max_px = (0, 0)
+
         for ch in outline_channels:
             idx = channel_map[ch]
 
-            # If showing underlay, bring in that channel's image from full_arr before drawing the edge
             if show_underlay:
                 out_img[:, :, idx] = full_arr[:, :, idx]
 
-            # Compute edge mask from normalized full channel
+            # Smooth & threshold (original grid)
+            ch_sm = gaussian_filter(full_arr[:, :, idx].astype(np.float32), sigma=float(edge_sigma))
             try:
-                channel_sm = gaussian_filter(full_arr[:, :, idx].astype(np.float32),
-                                            sigma=float(edge_sigma))
-                otsu_thresh = threshold_otsu(channel_sm)
-                corrected_thresh = float(min(255.0, max(0.0, otsu_thresh * factor)))
-                fg_mask = channel_sm > corrected_thresh
+                otsu = threshold_otsu(ch_sm)
             except Exception:
-                continue
+                otsu = np.percentile(ch_sm, 50.0)
+            thr = float(min(255.0, max(0.0, otsu * factor)))
+            fg_mask = (ch_sm > thr)
 
-            edge = find_boundaries(fg_mask, mode='inner').astype(bool)
-            thick_edge = dilation(edge, disk(radius)).astype(bool)
+            # Bridge tiny gaps + fill internal holes
+            fg_mask = binary_closing(fg_mask, structure=np.ones((3, 3), dtype=bool))
+            if fill_holes:
+                fg_mask = self.fill_holes(fg_mask, min_size=0)
 
-            # Blend outline on top of current out_img channel
+            # Area filtering (keep only sizes within [min_px, max_px], with 0 => no bound)
+            if (min_px and min_px > 0) or (max_px and max_px > 0):
+                fg_mask = self._filter_objects_by_area(fg_mask, min_size=min_px, max_size=max_px)
+
+            # 1-px boundary (original grid)
+            edge = find_boundaries(fg_mask, mode='inner').astype(np.uint8)
+
+            # Supersample WITHOUT widening: keep a crisp hi-res line
+            edge_img = Image.fromarray((edge * 255).astype(np.uint8), mode='L')
+            edge_hi = edge_img.resize((upW, upH), resample=Image.NEAREST)
+            edge_hi_arr = np.asarray(edge_hi, dtype=np.float32) / 255.0  # {0,1} in hi-res
+
+            # Thickness mapping (output px -> hi-res px); only dilate if >= 1 px
+            desired = max(0.0, float(edge_thickness))
+            hi_radius = desired * SS
+            if hi_radius >= 1.0:
+                from skimage.morphology import dilation, disk
+                r_int = int(np.floor(hi_radius))
+                if r_int >= 1:
+                    thick = dilation(edge_hi_arr > 0.5, disk(r_int)).astype(np.float32)
+                    edge_hi_arr = np.maximum(edge_hi_arr, thick)
+
+            # Downsample → anti-aliased coverage (0..1)
+            alpha_lo = Image.fromarray((edge_hi_arr * 255).astype(np.uint8), mode='L') \
+                            .resize((W, H), resample=Image.LANCZOS)
+            alpha = np.asarray(alpha_lo, dtype=np.float32) / 255.0
+
+            # NEVER-DIM: normalize to unit peak
+            peak = float(alpha.max())
+            if peak > 0:
+                alpha = alpha / peak
+
+            # Apply global opacity
+            alpha = np.clip(alpha * opacity_global, 0.0, 1.0)
+
+            # Alpha blend onto the channel
             orig = out_img[:, :, idx].astype(np.float32)
-            blended = orig.copy()
-            blended[thick_edge] = opacity * 255.0 + (1.0 - opacity) * orig[thick_edge]
+            blended = alpha * 255.0 + (1.0 - alpha) * orig
             out_img[:, :, idx] = np.clip(blended, 0, 255).astype(np.uint8)
 
         return Image.fromarray(out_img)

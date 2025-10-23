@@ -449,7 +449,7 @@ def generate_cellpose_masks(src, settings, object_type):
     torch.cuda.empty_cache()
     return
 
-def generate_image_umap(settings={}):
+def generate_image_umap(settings={}, return_fig=False):
     """
     Generate UMAP or tSNE embedding and visualize the data with clustering.
     
@@ -636,9 +636,15 @@ def generate_image_umap(settings={}):
         combined_results.to_csv(cluster_results_csv, index=False)
         print(f'Cluster results saved to {cluster_results_csv}')
 
+    fig = umap_plt.gcf() if hasattr(umap_plt, "gcf") else plt.gcf()
+
+    # (saving CSVs etc. unchanged)
+
+    if return_fig:
+        return fig
     return all_df
 
-def reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_params=None, kmeans_params=None, save=False):
+def reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_params=None, kmeans_params=None, save=False, show=True, return_fig=False):
     """
     Perform a hyperparameter search for UMAP or tSNE on the given data.
     
@@ -800,8 +806,11 @@ def reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_par
         results_dir = os.path.join(settings['src'], 'results')
         os.makedirs(results_dir, exist_ok=True)
         plt.savefig(os.path.join(results_dir, 'hyperparameter_search.pdf'))
-    else:
+    if return_fig:
+        return fig
+    if show and not save:
         plt.show()
+    return
 
     return
 
