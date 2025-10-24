@@ -2344,6 +2344,61 @@ class AnnotateApp:
         for col in range(self.grid_cols):
             self.grid_frame.grid_columnconfigure(col, weight=1)
             
+    def _int_to_color(self, k, s=0.65, v=0.95):
+        """
+        Deterministically map any non-negative integer k -> hex color using
+        the golden-ratio conjugate to distribute hues around the color wheel.
+        s,v control saturation and value (brightness).
+        """
+        import colorsys
+
+        # Golden ratio conjugate (~0.618...) spreads hues evenly
+        phi = 0.618033988749895
+        # Wrap k around the unit interval
+        h = (k * phi) % 1.0
+
+        r, g, b = colorsys.hsv_to_rgb(h, float(s), float(v))
+        return "#{:02x}{:02x}{:02x}".format(int(r * 255 + 0.5),
+                                            int(g * 255 + 0.5),
+                                            int(b * 255 + 0.5))
+
+    def _label_to_color(self, val):
+        """
+        Public helper: for an integer label return a hex color.
+        - None/0/invalid -> None (no border).
+        - 1 -> blue, 2 -> red.
+        - 3+ -> infinite distinct colors, deterministic.
+        Caches results so colors stay stable across the session.
+        """
+        # Lazy-init cache on the instance
+        if not hasattr(self, "_class_color_cache"):
+            self._class_color_cache = {}
+
+        try:
+            if val is None:
+                return None
+            iv = int(val)
+            if iv <= 0:
+                return None
+        except Exception:
+            return None
+
+        if iv in self._class_color_cache:
+            return self._class_color_cache[iv]
+
+        # Fixed starters
+        if iv == 1:
+            color = "#1f77b4"  # blue
+        elif iv == 2:
+            color = "#d62728"  # red
+        else:
+            # Map 3 -> k=0, 4 -> k=1, ... so early classes are well separated
+            k = iv - 3
+            color = self._int_to_color(k)
+
+        self._class_color_cache[iv] = color
+        return color
+            
     def _embed_figure_in(self, parent, fig):
         # Clear parent
         for w in parent.winfo_children():
@@ -3062,7 +3117,7 @@ class AnnotateApp:
                     c.execute(f'SELECT png_path, "{col}" FROM "png_list"')
                 self.filtered_paths_annotations = c.fetchall()
 
-    def load_images(self):
+    def load_images_v1(self):
         for label in self.labels:
             label.config(image='')
 
@@ -3101,7 +3156,106 @@ class AnnotateApp:
 
         self.root.update()
         
+    def load_images(self):
+        for label in self.labels:
+            label.config(image='')
+
+        self.images = {}
+        paths_annotations = self.filtered_paths_annotations[self.index:self.index + self.grid_rows * self.grid_cols]
+
+        adjusted_paths = []
+        for path, annotation in paths_annotations:
+            if not path.startswith(self.src):
+                parts = path.split('/data/')
+                if len(parts) > 1:
+                    new_path = os.path.join(self.src, 'data', parts[1])
+                    self.adjusted_to_original_paths[new_path] = path
+                    adjusted_paths.append((new_path, annotation))
+                else:
+                    adjusted_paths.append((path, annotation))
+            else:
+                adjusted_paths.append((path, annotation))
+
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor() as executor:
+            loaded_images = list(executor.map(self.load_single_image, adjusted_paths))
+
+        for i, (img, annotation) in enumerate(loaded_images):
+            # NEW: infinite palette
+            border_color = self._label_to_color(annotation)
+            if border_color:
+                img = self.add_colored_border(img, border_width=5, border_color=border_color)
+
+            from PIL import ImageTk
+            photo = ImageTk.PhotoImage(img)
+            label = self.labels[i]
+            self.images[label] = photo
+            label.config(image=photo)
+
+            path = adjusted_paths[i][0]
+            label.bind('<Button-1>', self.get_on_image_click(path, label, img))
+            label.bind('<Button-3>', self.get_on_image_click(path, label, img))
+
+        self.root.update()
+        
     def show_class_counts(self):
+        import tkinter as tk
+        from tkinter import ttk, messagebox
+
+        if not self.annotation_column:
+            messagebox.showerror("Error", "No annotation column is set.")
+            return
+        self._ensure_annotation_column()
+
+        col = (self.annotation_column or "").replace('"', '""')
+        with sqlite3.connect(self.db_path, timeout=30) as conn:
+            cur = conn.cursor()
+            cur.execute(
+                f'SELECT "{col}" AS cls, COUNT(*) '
+                f'FROM "png_list" '
+                f'WHERE "{col}" IS NOT NULL '
+                f'GROUP BY "{col}" '
+                f'ORDER BY 1'
+            )
+            rows = cur.fetchall()
+
+        win = tk.Toplevel(self.root)
+        win.title("Class counts (all)")
+        win.configure(bg=self.root.cget('bg'))
+
+        frame = tk.Frame(win, bg=self.root.cget('bg'))
+        frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        tree = ttk.Treeview(frame, columns=("cls","count","color"), show="headings", height=10)
+        for cid, text, width in (("cls","Class",80), ("count","Count",100), ("color","Color",120)):
+            tree.heading(cid, text=text)
+            tree.column(cid, anchor="center", width=width)
+        tree.pack(fill=tk.BOTH, expand=True)
+
+        # Insert rows with hex color in the last column
+        for cls, cnt in rows:
+            try:
+                cls_int = int(cls)
+            except Exception:
+                continue
+            hexcol = self._label_to_color(cls_int) or ""
+            tree.insert('', 'end', values=(cls_int, int(cnt), hexcol))
+
+        # Simple legend of colored squares
+        legend = tk.Frame(win, bg=self.root.cget('bg'))
+        legend.pack(fill=tk.X, padx=10, pady=8)
+        for cls, _ in rows[:20]:  # avoid over-long legends
+            try:
+                c = int(cls)
+            except Exception:
+                continue
+            hx = self._label_to_color(c) or "#888888"
+            sw = tk.Canvas(legend, width=18, height=18, highlightthickness=0, bg=self.root.cget('bg'))
+            sw.create_rectangle(2, 2, 16, 16, outline=hx, fill=hx)
+            tk.Label(legend, text=str(c), bg=self.root.cget('bg'), fg=self.fg_color).pack(side="left", padx=(2,8))
+            sw.pack(side="left")
+        
+    def show_class_counts_v1(self):
         import sqlite3
         import tkinter as tk
         from tkinter import ttk, messagebox
@@ -3422,7 +3576,7 @@ class AnnotateApp:
         # always return RGB; never collapse to grayscale
         return Image.merge("RGB", (r, g, b))
 
-    def get_on_image_click(self, path, label, img):
+    def get_on_image_click_v1(self, path, label, img):
         def on_image_click(event):
             new_annotation = 1 if event.num == 1 else (2 if event.num == 3 else None)
             
@@ -3439,6 +3593,37 @@ class AnnotateApp:
             img_ = img.crop((5, 5, img.width-5, img.height-5))
             border_fill = self.active_color if new_annotation == 1 else ('red' if new_annotation == 2 else None)
             img_ = ImageOps.expand(img_, border=5, fill=border_fill) if border_fill else img_
+
+            photo = ImageTk.PhotoImage(img_)
+            self.images[label] = photo
+            label.config(image=photo)
+            self.root.update()
+
+        return on_image_click
+    
+    def get_on_image_click(self, path, label, img):
+        from PIL import ImageTk, ImageOps
+        import os
+
+        def on_image_click(event):
+            new_annotation = 1 if event.num == 1 else (2 if event.num == 3 else None)
+
+            original_path = self.adjusted_to_original_paths.get(path, path)
+
+            if original_path in self.pending_updates and self.pending_updates[original_path] == new_annotation:
+                self.pending_updates[original_path] = None
+                new_annotation = None
+            else:
+                self.pending_updates[original_path] = new_annotation
+
+            print(f"Image {os.path.split(path)[1]} annotated: {new_annotation}")
+
+            # Remove existing 5px border then reapply with new color (if any)
+            img_ = img.crop((5, 5, img.width - 5, img.height - 5))
+            border_fill = self._label_to_color(new_annotation)
+
+            if border_fill:
+                img_ = ImageOps.expand(img_, border=5, fill=border_fill)
 
             photo = ImageTk.PhotoImage(img_)
             self.images[label] = photo
@@ -4122,6 +4307,114 @@ class AnnotateApp:
         run_btn.pack(side=tk.RIGHT, padx=5)
         cancel_btn.pack(side=tk.RIGHT, padx=5)
         
+    def build_multi_annotation(self, source_columns, target_column="multi_annot"):
+        """
+        Consolidate multiple {1,2,NULL} columns into a single integer code column.
+        Unique per combination. If all inputs NULL -> store NULL.
+        Sets self.annotation_column to target_column and refreshes UI.
+
+        Encoding:
+        per col: NULL->0, 1->1, 2->2
+        code = 1 + sum( digit_i * (3^i) ), i = 0..N-1
+        (all digits 0) => store NULL instead of 1
+        """
+        import sqlite3
+
+        if not source_columns or not isinstance(source_columns, (list, tuple)):
+            raise ValueError("build_multi_annotation: provide a non-empty list of source columns")
+
+        # precompute multipliers 3^i in Python (SQLite lacks POWER())
+        multipliers = [1]
+        for _ in range(1, len(source_columns)):
+            multipliers.append(multipliers[-1] * 3)
+
+        # safe identifiers
+        src_q = [f'"{c.replace(chr(34), chr(34)*2)}"' for c in source_columns]
+        tgt_q = f'"{target_column.replace(chr(34), chr(34)*2)}"'
+
+        # CASE to map each source to {0,1,2}
+        digits = [f"(CASE {c} WHEN 1 THEN 1 WHEN 2 THEN 2 ELSE 0 END)" for c in src_q]
+
+        # sum_i digit_i * 3^i
+        weighted_sum = " + ".join(f"{digits[i]} * {multipliers[i]}" for i in range(len(digits))) or "0"
+
+        # final value: NULL if all zero; else 1 + sum
+        final_expr = f"CASE WHEN ({weighted_sum}) = 0 THEN NULL ELSE (1 + {weighted_sum}) END"
+
+        with sqlite3.connect(self.db_path, timeout=30) as conn:
+            cur = conn.cursor()
+
+            # ensure all source columns exist (as INTEGER, NULL) so SQL won't fail
+            cur.execute('PRAGMA table_info("png_list")')
+            have = {row[1] for row in cur.fetchall()}
+            for col in source_columns:
+                if col not in have:
+                    cq = col.replace('"','""')
+                    cur.execute(f'ALTER TABLE "png_list" ADD COLUMN "{cq}" INTEGER')
+
+            # ensure target column exists
+            if target_column not in have:
+                tq = target_column.replace('"','""')
+                cur.execute(f'ALTER TABLE "png_list" ADD COLUMN "{tq}" INTEGER')
+
+            # compute in-place
+            cur.execute(f'UPDATE "png_list" SET {tgt_q} = {final_expr};')
+            conn.commit()
+
+        # make it the working annotation column and refresh view
+        self.annotation_column = target_column
+        self._ensure_annotation_column()
+        self.prefilter_paths_annotations()
+        self.load_images()
+        
+    def ensure_multi_annot_from_selection(self, source_columns, target_column="class_column", force_rebuild=True):
+        """
+        If one column selected -> use it directly (no consolidation).
+        If >=2 selected -> build a consolidated column. If target_column already exists,
+        auto-bump to target_column_1, target_column_2, ... and use that actual name everywhere.
+
+        Returns the effective annotation column name.
+        """
+        import sqlite3
+
+        if not source_columns or not isinstance(source_columns, (list, tuple)):
+            raise ValueError("ensure_multi_annot_from_selection: provide a non-empty list of source columns")
+
+        # Single column => just use it directly
+        if len(source_columns) == 1:
+            self.annotation_column = source_columns[0]
+            self._ensure_annotation_column()
+            self.prefilter_paths_annotations()
+            self.load_images()
+            return self.annotation_column
+
+        # Multi-column consolidation: pick a free target name (auto-bump)
+        with sqlite3.connect(self.db_path, timeout=30) as conn:
+            cur = conn.cursor()
+            cur.execute('PRAGMA table_info("png_list")')
+            existing = {row[1] for row in cur.fetchall()}
+
+        base = (str(target_column).strip() or "class_column")
+        effective = base
+        suffix = 1
+        while effective in existing:
+            effective = f"{base}_{suffix}"
+            suffix += 1
+
+        # Build / refresh the consolidated column under 'effective'
+        # (build_multi_annotation will set self.annotation_column and refresh UI)
+        if force_rebuild or self.annotation_column != effective:
+            self.build_multi_annotation(source_columns, target_column=effective)
+        else:
+            self.build_multi_annotation(source_columns, target_column=effective)
+
+        # Ensure local state reflects the chosen column name
+        self.annotation_column = effective
+        self._ensure_annotation_column()
+        self.prefilter_paths_annotations()
+        self.load_images()
+        return effective
+
     def open_deep_spacr_window(self):
         import tkinter as tk
         from tkinter import ttk, messagebox
@@ -4315,12 +4608,6 @@ class AnnotateApp:
         except Exception:
             pass
 
-        #ann_name_row = tk.Frame(ann_inner, bg=bg)
-        #_label(ann_name_row, "annotation_column").pack(side=tk.LEFT, padx=(6,2))
-        #anno_entry = tk.Entry(ann_name_row)
-        #anno_entry.insert(0, str(defaults.get('annotation_column','test')))
-        #anno_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(6,6))
-        #ann_name_row.grid(row=3, column=0, sticky="ew", padx=0, pady=(0,8))
         ann_inner.pack(fill=tk.BOTH, expand=True)
 
         # 2) Metadata panel
@@ -4518,10 +4805,6 @@ class AnnotateApp:
         custom_model_entry.insert(0, str(defaults.get('custom_model_path','path')))
         _row(adv, ra, "custom_model_path", custom_model_entry); ra += 1
 
-        #experiment_entry = tk.Entry(adv)
-        #experiment_entry.insert(0, str(defaults.get('experiment','exp.')))
-        #_row(adv, ra, "experiment", experiment_entry); ra += 1
-
         # ======================================================================
         # TAB 3: Apply model to dataset
         # ======================================================================
@@ -4571,7 +4854,7 @@ class AnnotateApp:
             settings['train_DL_model'] = bool(train_var.get())
             settings['apply_model_to_dataset'] = bool(apply_var.get())
 
-            # GENERATE / DATASET
+            # GENERATE / DATASET (shared)
             mode = dataset_mode_cbx.get().strip()
             settings['dataset_mode'] = mode
             settings['size'] = int(float(size_sp.get()))
@@ -4580,7 +4863,7 @@ class AnnotateApp:
             settings['sample'] = None if str(sample_sp.get()).strip() == "" else int(float(sample_sp.get()))
             ft = file_type_entry.get().strip()
             settings['file_type'] = ft
-            settings['png_type'] = ft  # keep both for backward compatibility
+            settings['png_type'] = ft
             settings['tables'] = _parse_csv_list(tables_entry.get(), None)
             settings['file_metadata'] = _parse_csv_list(file_metadata_entry.get(), None)
             settings['metadata_type_by'] = metadata_type_by_cbx.get().strip()
@@ -4594,14 +4877,24 @@ class AnnotateApp:
 
             # MODE-SPECIFIC
             if mode == 'annotation':
-                #settings['annotation_column'] = anno_entry.get().strip() or settings.get('annotation_column')
                 settings['use_db_columns'] = bool(use_db_var.get())
                 if settings['use_db_columns']:
                     sel_cols = [lb.get(i) for i in lb.curselection()]
                     if not sel_cols:
                         messagebox.showwarning("No DB columns selected", "Select at least one annotation column or uncheck the DB option.")
                         return
-                    settings['db_annotation_columns'] = sel_cols
+
+                    # Build/choose effective consolidated column name.
+                    # Base name is "class_column"; if it exists, you'll get class_column_1, _2, ...
+                    base_name = "class_column" if len(sel_cols) > 1 else sel_cols[0]
+                    effective_col = self.ensure_multi_annot_from_selection(
+                        sel_cols, target_column=base_name, force_rebuild=True
+                    )
+                    settings['annotation_column'] = effective_col
+                else:
+                    settings['annotation_column'] = self.annotation_column
+
+                # Remove non-annotation keys
                 settings.pop('metadata_rules', None)
                 settings.pop('measurement', None)
                 settings.pop('threshold', None)
@@ -4672,7 +4965,6 @@ class AnnotateApp:
             settings['verbose'] = bool(verbose_var.get())
             settings['custom_model'] = bool(custom_model_var.get())
             settings['custom_model_path'] = custom_model_entry.get().strip() or settings.get('custom_model_path')
-            #settings['experiment'] = experiment_entry.get().strip() or settings.get('experiment')
 
             # APPLY
             settings['score_threshold'] = float(score_sp.get())
