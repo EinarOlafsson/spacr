@@ -1482,7 +1482,6 @@ def set_annotate_default_settings(settings):
     settings.setdefault('channels', "r,g,b")
     settings.setdefault('img_size', 200)
     settings.setdefault('annotation_column', 'test')
-    #settings.setdefault('normalize', 'False')
     settings.setdefault('normalize_channels', None)
     settings.setdefault('outline', None)
     settings.setdefault('outline_threshold_factor', 1.25)
