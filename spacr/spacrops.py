@@ -2640,8 +2640,8 @@ class FOVAlignAndCropper:
                     Hf, Wf = fov_nuc.shape
     
                     # DS for FOV features *including known scale*
-                    Wfds = max(1, int(round(Wf * s * s_known)))   # FIXED name
-                    Hfds = max(1, int(round(Hf * s * s_known)))   # FIXED name
+                    WFds = max(1, int(round(Wf * s * s_known)))   # FIXED name
+                    HFds = max(1, int(round(Hf * s * s_known)))   # FIXED name
                     fov_ds = cv2.resize(fov_nuc, (WFds, HFds), interpolation=cv2.INTER_LINEAR)  # FIXED usage
                     fov_u8 = self._to_uint8(fov_ds)
     
