@@ -2575,6 +2575,120 @@ def parse_gz_files(folder_path):
     return samples_dict
 
 def generate_dataset(settings={}):
+    import os, tarfile, shutil, random, datetime
+    from multiprocessing import Pool, Value, Lock, cpu_count
+
+    from .utils import (
+        initiate_counter, add_images_to_tar, save_settings,
+        generate_path_list_from_db, correct_paths
+    )
+    from .settings import set_generate_dataset_defaults
+
+    settings = set_generate_dataset_defaults(settings)
+    save_settings(settings, 'generate_dataset', show=True)
+
+    if isinstance(settings['src'], str):
+        settings['src'] = [settings['src']]
+
+    if isinstance(settings['src'], list):
+        all_paths = []
+        dst = None
+        for i, src in enumerate(settings['src']):
+            db_path = os.path.join(src, 'measurements', 'measurements.db')
+            if i == 0:
+                dst = os.path.join(src, 'datasets')
+            paths = generate_path_list_from_db(db_path, file_metadata=settings['file_metadata'])
+            paths = correct_paths(paths, src)  # <- capture corrected paths
+            all_paths.extend(paths)
+
+        # --- sampling (guard against k > N) ---
+        if isinstance(settings['sample'], int) and settings['sample']:
+            k = min(int(settings['sample']), len(all_paths))
+            selected_paths = random.sample(all_paths, k) if k else []
+            print(f"Random selection of {len(selected_paths)} paths")
+        elif isinstance(settings['sample'], list) and settings['sample']:
+            k = min(int(settings['sample'][0]), len(all_paths))
+            selected_paths = random.sample(all_paths, k) if k else []
+            print(f"Random selection of {len(selected_paths)} paths")
+        else:
+            selected_paths = list(all_paths)
+            random.shuffle(selected_paths)
+            print(f"All paths: {len(selected_paths)} paths")
+    else:
+        raise RuntimeError("settings['src'] must be a string or list of strings.")
+
+    total_images = len(selected_paths)
+    print(f"Found {total_images} images")
+    if total_images == 0:
+        raise RuntimeError("No images selected; nothing to tar.")
+
+    # ensure destination exists
+    if dst is None:
+        raise RuntimeError("Destination folder (dst) was not set.")
+    os.makedirs(dst, exist_ok=True)
+
+    # Create a temp folder in dst
+    temp_dir = os.path.join(dst, "temp_tars")
+    os.makedirs(temp_dir, exist_ok=True)
+
+    # Chunking the data
+    # cap workers by total images so we don't spawn useless pools
+    num_procs = max(1, min(max(2, cpu_count() - 2), total_images))
+    chunk_size = total_images // num_procs
+    remainder = total_images % num_procs
+
+    paths_chunks = []
+    start = 0
+    for i in range(num_procs):
+        end = start + chunk_size + (1 if i < remainder else 0)
+        paths_chunks.append(selected_paths[start:end])
+        start = end
+
+    temp_tar_files = [os.path.join(temp_dir, f"temp_{i}.tar") for i in range(num_procs)]
+
+    print(f"Generating temporary tar files in {dst}")
+
+    # Initialize shared counter and lock
+    counter = Value('i', 0)
+    lock = Lock()
+
+    with Pool(processes=num_procs, initializer=initiate_counter, initargs=(counter, lock)) as pool:
+        pool.starmap(
+            add_images_to_tar,
+            [(paths_chunks[i], temp_tar_files[i], total_images) for i in range(num_procs)]
+        )
+
+    # Combine the temporary tar files into a final tar
+    date_name = datetime.date.today().strftime('%y%m%d')
+    if len(settings['src']) > 1:
+        date_name = f"{date_name}_combined"
+
+    tar_name = f"{date_name}_{settings['experiment']}.tar"
+    tar_name = os.path.join(dst, tar_name)
+    if os.path.exists(tar_name):
+        number = random.randint(1, 100)
+        tar_name_2 = f"{date_name}_{settings['experiment']}_{settings['file_metadata']}_{number}.tar"
+        print(f"Warning: {os.path.basename(tar_name)} exists, saving as {os.path.basename(tar_name_2)} ")
+        tar_name = os.path.join(dst, tar_name_2)
+
+    print(f"Merging temporary files")
+
+    with tarfile.open(tar_name, 'w') as final_tar:
+        for temp_tar_path in temp_tar_files:
+            with tarfile.open(temp_tar_path, 'r') as temp_tar:
+                for member in temp_tar.getmembers():
+                    if member.isfile():
+                        file_obj = temp_tar.extractfile(member)
+                        final_tar.addfile(member, file_obj)
+            os.remove(temp_tar_path)
+
+    # Delete the temp folder
+    shutil.rmtree(temp_dir)
+    print(f"\nSaved {total_images} images to {tar_name}")
+
+    return tar_name
+
+def generate_dataset_v1(settings={}):
     
     from .utils import initiate_counter, add_images_to_tar, save_settings, generate_path_list_from_db, correct_paths
     from .settings import set_generate_dataset_defaults
@@ -2591,14 +2705,17 @@ def generate_dataset(settings={}):
             if i == 0:
                 dst = os.path.join(src, 'datasets')
             paths = generate_path_list_from_db(db_path, file_metadata=settings['file_metadata'])
-            correct_paths(paths, src)
+            paths = correct_paths(paths, src)
             all_paths.extend(paths)
-        if isinstance(settings['sample'], int):
+        if isinstance(settings['sample'], int) and settings['sample']:
             selected_paths = random.sample(all_paths, settings['sample'])
             print(f"Random selection of {len(selected_paths)} paths")
-        elif isinstance(settings['sample'], list):
-            sample = settings['sample'][i]
-            selected_paths = random.sample(all_paths, settings['sample'])
+        elif isinstance(settings['sample'], list) and settings['sample']:
+            k = int(settings['sample'][0])
+            selected_paths = random.sample(all_paths, min(k, len(all_paths)))
+            
+            #sample = settings['sample'][i]
+            #selected_paths = random.sample(all_paths, settings['sample'])
             print(f"Random selection of {len(selected_paths)} paths")
         else:
             selected_paths = all_paths
@@ -2656,8 +2773,9 @@ def generate_dataset(settings={}):
         for temp_tar_path in temp_tar_files:
             with tarfile.open(temp_tar_path, 'r') as temp_tar:
                 for member in temp_tar.getmembers():
-                    file_obj = temp_tar.extractfile(member)
-                    final_tar.addfile(member, file_obj)
+                    if member.isfile():
+                        file_obj = temp_tar.extractfile(member)
+                        final_tar.addfile(member, file_obj)
             os.remove(temp_tar_path)
 
     # Delete the temp folder
@@ -2665,7 +2783,6 @@ def generate_dataset(settings={}):
     print(f"\nSaved {total_images} images to {tar_name}")
 
     return tar_name
-
 
 def generate_loaders(src, mode='train', image_size=224, batch_size=32,
                      classes=['nc','pc'], n_jobs=None, validation_split=0.0,

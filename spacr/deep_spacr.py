@@ -36,6 +36,7 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, 
             transforms.CenterCrop(size=(image_size, image_size))])
     
     model = torch.load(model_path)
+    
     print(model)
     
     print(f'Loading dataset in {src} with {len(src)} images')
@@ -74,6 +75,96 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, 
     return df
 
 def apply_model_to_tar(settings={}):
+    from .io import TarImageDataset
+    from .utils import process_vision_results, print_progress
+
+    tar_path = settings['tar_path']
+    model_path = settings['model_path']
+
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+    if settings['normalize']:
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.CenterCrop(size=(settings['image_size'], settings['image_size'])),
+            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)),
+        ])
+    else:
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.CenterCrop(size=(settings['image_size'], settings['image_size'])),
+        ])
+
+    if settings['verbose']:
+        print(f"Loading model from {model_path}")
+        print(f"Loading dataset from {tar_path}")
+
+    # <<< key change: allow unpickling of your saved model object >>>
+    model = torch.load(settings['model_path'], map_location=device, weights_only=False)
+
+    dataset = TarImageDataset(tar_path, transform=transform)
+    data_loader = DataLoader(
+        dataset,
+        batch_size=settings['batch_size'],
+        shuffle=True,  # fine for inference; set False if you want deterministic order
+        num_workers=settings['n_jobs'],
+        pin_memory=(device.type == 'cuda'),
+    )
+
+    model_name = os.path.splitext(os.path.basename(model_path))[0]
+    dataset_name = os.path.splitext(os.path.basename(settings['tar_path']))[0]
+    date_name = datetime.date.today().strftime('%y%m%d')
+    dst = os.path.dirname(tar_path)
+    result_loc = f'{dst}/{date_name}_{dataset_name}_{model_name}_result.csv'
+
+    model.eval()
+    model = model.to(device)
+
+    if settings['verbose']:
+        print(model)
+        print(f'Generated dataset with {len(dataset)} images')
+        print(f'Generating loader from {len(data_loader)} batches')
+        print(f'Results wil be saved in: {result_loc}')
+        print(f'Model is in eval mode')
+        print(f'Model loaded to device')
+
+    prediction_pos_probs = []
+    filenames_list = []
+    time_ls = []
+    gc.collect()
+    with torch.no_grad():
+        for batch_idx, (batch_images, filenames) in enumerate(data_loader, start=1):
+            start = time.time()
+            images = batch_images.to(torch.float).to(device)
+            outputs = model(images)
+
+            # robust positive-class probability handling
+            if outputs.ndim == 2 and outputs.size(1) == 2:
+                batch_prediction_pos_prob = torch.softmax(outputs, dim=1)[:, 1].cpu().numpy()
+            else:
+                # assume single-logit binary head
+                batch_prediction_pos_prob = torch.sigmoid(outputs).squeeze(-1).cpu().numpy()
+
+            prediction_pos_probs.extend(batch_prediction_pos_prob.tolist())
+            filenames_list.extend(filenames)
+
+            stop = time.time()
+            duration = stop - start
+            time_ls.append(duration)
+            files_processed = batch_idx * settings['batch_size']
+            files_to_process = len(data_loader) * settings['batch_size']
+            print_progress(files_processed, files_to_process, n_jobs=settings['n_jobs'],
+                           time_ls=time_ls, batch_size=settings['batch_size'], operation_type="Tar dataset")
+
+    df = pd.DataFrame({'path': filenames_list, 'pred': prediction_pos_probs}, index=None)
+    df = process_vision_results(df, settings['score_threshold'])
+
+    df.to_csv(result_loc, index=True, header=True, mode='w')
+    print(f"Saved results to {result_loc}")
+    torch.cuda.empty_cache()
+    return df
+
+def apply_model_to_tar_v1(settings={}):
     
     from .io import TarImageDataset
     from .utils import process_vision_results, print_progress
@@ -100,7 +191,8 @@ def apply_model_to_tar(settings={}):
         print(f"Loading model from {model_path}")
         print(f"Loading dataset from {tar_path}")
         
-    model = torch.load(settings['model_path'])
+    #model = torch.load(settings['model_path'])
+    model = torch.load(settings['model_path'], map_location=device, weights_only=False)
     
     dataset = TarImageDataset(tar_path, transform=transform)
     data_loader = DataLoader(dataset, batch_size=settings['batch_size'], shuffle=True, num_workers=settings['n_jobs'], pin_memory=True)
@@ -239,7 +331,104 @@ def _multiclass_metrics(y_true: np.ndarray, prob_mat: np.ndarray) -> dict:
         "num_classes": int(C),
     }
 
-def evaluate_model_performance(model, loader, epoch, loss_type):
+def evaluate_model_performance(model, loader, epoch, loss_type='auto',
+                               loss_fn=None, num_classes=None):
+    """
+    Evaluates performance for binary or multiclass models.
+
+    Returns:
+        data_dict (dict): metrics + loss + epoch
+        [prediction_probs, all_labels]
+          - binary: probs shape (N,)
+          - multiclass: probs shape (N, C)
+    """
+    from .utils import calculate_loss, build_loss  # build_loss only used if loss_fn is None
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.eval().to(device)
+
+    total_loss, total_samples = 0.0, 0
+    all_labels = []
+    prob_bucket = []
+    head_dim = None  # infer from first batch
+    binary_mode = None
+
+    with torch.no_grad():
+        for data, target, _ in loader:
+            data = data.to(device)
+            logits = model(data)
+
+            # infer head size/mode once
+            if head_dim is None:
+                head_dim = logits.size(1) if (logits.ndim == 2) else 1
+                binary_mode = (head_dim == 1)
+
+            # ----- target normalization for loss/metrics -----
+            if binary_mode:
+                # BCE-style targets: float {0,1}, allow (N,) or (N,1)
+                target = target.to(device).float()
+                y_true_batch = (target.view(-1) > 0.5).long().detach().cpu().numpy()
+            else:
+                # CE-style: class indices (N,)
+                if target.ndim == 2:
+                    # handle one-hot inputs robustly
+                    target = target.argmax(dim=1)
+                target = target.to(device).long()
+                y_true_batch = target.view(-1).detach().cpu().numpy()
+
+            # ----- choose loss (prefer training's loss_fn if provided) -----
+            local_loss_fn = loss_fn
+            if local_loss_fn is None:
+                # fallback: construct something reasonable matching the head
+                local_loss_fn = build_loss(loss_type or 'auto',
+                                           num_classes=head_dim,
+                                           class_counts=None,
+                                           label_smoothing=0.0,
+                                           focal_gamma=2.0,
+                                           focal_alpha=None,
+                                           logit_adjust_tau=0.0)
+
+            loss = local_loss_fn(logits, target)
+
+            batch_size = data.size(0)
+            total_loss += float(loss.item()) * batch_size
+            total_samples += batch_size
+            all_labels.extend(y_true_batch.tolist())
+
+            # ----- probabilities for metrics -----
+            if binary_mode:
+                probs = torch.sigmoid(logits.view(-1))
+                prob_bucket.append(probs.detach().cpu().numpy())
+            else:
+                probs = torch.softmax(logits, dim=1)
+                prob_bucket.append(probs.detach().cpu().numpy())
+
+    # aggregate
+    mean_loss = total_loss / max(1, total_samples)
+    y_true = np.asarray(all_labels, dtype=int)
+
+    if len(prob_bucket) == 0:
+        # empty loader: synthesize empty array with correct rank
+        if (num_classes or head_dim or 1) == 1:
+            probs_np = np.empty((0,))
+        else:
+            c = num_classes if num_classes is not None else (head_dim if head_dim is not None else 2)
+            probs_np = np.empty((0, c))
+    else:
+        probs_np = np.concatenate(prob_bucket, axis=0)
+
+    # metrics (assumes _binary_metrics / _multiclass_metrics exist)
+    if probs_np.ndim == 1:
+        metrics = _binary_metrics(y_true, probs_np)
+    else:
+        metrics = _multiclass_metrics(y_true, probs_np)
+
+    metrics["loss"] = float(mean_loss)
+    metrics["epoch"] = int(epoch)
+    metrics["Accuracy"] = metrics["accuracy"]
+    return metrics, [probs_np, y_true.tolist()]
+
+def evaluate_model_performance_v1(model, loader, epoch, loss_type):
     """
     Evaluates performance for binary or multiclass models.
 
@@ -496,7 +685,8 @@ def train_test_model(settings):
         if model is None:
             model_path = pick_best_model(src+'/model')
             print(f'Best model: {model_path}')
-            model = torch.load(model_path, map_location=lambda storage, loc: storage)
+            model = torch.load(model_path, map_location=lambda storage, loc: storage, weights_only=False)
+            #model = torch.load(model_path, map_location=device, weights_only=False)
 
         model_fldr = dst
         time_now = datetime.date.today().strftime('%y%m%d')
@@ -524,6 +714,181 @@ def train_test_model(settings):
         return result_loc
     
 def train_model(dst, model_type, train_loaders, epochs=100, learning_rate=0.0001,
+                weight_decay=0.05, amsgrad=False, optimizer_type='adamw',
+                use_checkpoint=False, dropout_rate=0, n_jobs=20, val_loaders=None,
+                test_loaders=None, init_weights='imagenet', intermedeate_save=None,
+                chan_dict=None, schedule=None, loss_type='auto',
+                gradient_accumulation=False, gradient_accumulation_steps=4,
+                channels=['r','g','b'], verbose=False, num_classes=2):
+    """
+    Trains a model (supports 2-class and >2-class via CrossEntropy; BCE only for true single-logit binary).
+    """
+    import pandas as pd  # ensure pd is available for _save_progress
+
+    from .io import _save_model, _save_progress
+    from .utils import choose_model, suggest_training_changes, build_loss, estimate_class_counts
+
+    print(f'Train batches:{len(train_loaders)}, Validation batches:{len(val_loaders) if val_loaders else 0}')
+    if test_loaders is not None:
+        print(f'Test batches:{len(test_loaders)}')
+
+    use_cuda = torch.cuda.is_available()
+    device = torch.device("cuda" if use_cuda else "cpu")
+    print(f'Using {device} for Torch')
+
+    # Head dimension equals declared num_classes (2 or >2 => softmax head)
+    head_dim = max(1, int(num_classes))
+
+    # optional: get global label stats for weighting / logit adjustment
+    counts = estimate_class_counts(train_loaders, head_dim) if head_dim >= 2 else None
+
+    loss_fn = build_loss(
+        loss_type=loss_type,            # 'auto' | 'ce' | 'ce_smooth' | 'ce_weighted' | 'focal_ce' | 'bce' | 'focal_bce' | 'logit_adjust_ce' | 'asl'
+        num_classes=head_dim,
+        class_counts=counts,            # required for ce_weighted / logit_adjust_ce
+        label_smoothing=0.1,            # only used by ce_smooth
+        focal_gamma=2.0,
+        focal_alpha=None,               # e.g. tensor of per-class weights or scalar
+        logit_adjust_tau=1.0            # >0 enables prior-aware CE
+    )
+    
+    model = choose_model(model_type, device, init_weights, dropout_rate,
+                         use_checkpoint, verbose=verbose, num_classes=head_dim)
+    if model is None:
+        print(f'Model {model_type} not found')
+        return
+
+    print(f'Loading Model to {device}...')
+    model.to(device)
+
+    if optimizer_type == 'adamw':
+        optimizer = AdamW(model.parameters(), lr=learning_rate, betas=(0.9, 0.999),
+                          weight_decay=weight_decay, amsgrad=amsgrad)
+    elif optimizer_type == 'adagrad':
+        optimizer = Adagrad(model.parameters(), lr=learning_rate, eps=1e-8, weight_decay=weight_decay)
+    else:
+        raise ValueError(f"Unknown optimizer_type: {optimizer_type}")
+
+    if schedule == 'step_lr':
+        scheduler = StepLR(optimizer, step_size=max(1, int(epochs/5)), gamma=0.75)
+    elif schedule == 'reduce_lr_on_plateau':
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min',
+                                                               factor=0.1, patience=10, verbose=True)
+    else:
+        scheduler = None
+
+    accumulated_train_dicts, accumulated_val_dicts, accumulated_test_dicts = [], [], []
+
+    print('Training ...')
+    for epoch in range(1, epochs+1):
+        model.train()
+        start_time = time.time()
+
+        if gradient_accumulation:
+            optimizer.zero_grad(set_to_none=True)
+
+        for batch_idx, (data, target, filenames) in enumerate(train_loaders, start=1):
+            data = data.to(device)
+            logits = model(data)
+
+            # Decide task type from head shape
+            is_multiclass = (logits.ndim == 2 and logits.size(1) >= 2)
+
+            # --- Normalize targets to match the chosen head/loss ---
+            if is_multiclass:
+                # If labels are one-hot (N,C), convert to indices (N,)
+                if target.ndim == 2:
+                    target = target.argmax(dim=1)
+                target = target.to(device).long()   # CE expects Long indices
+                # shape check
+                if not (logits.ndim == 2 and logits.size(1) == head_dim):
+                    raise RuntimeError(f"Expected logits (N,{head_dim}) for CE, got {tuple(logits.shape)}")
+            else:
+                target = target.to(device).float()  # BCE expects float {0,1}
+
+            loss = loss_fn(logits, target)
+            
+            if gradient_accumulation:
+                loss = loss / gradient_accumulation_steps
+
+            loss.backward()
+
+            if (not gradient_accumulation) or (batch_idx % gradient_accumulation_steps == 0):
+                optimizer.step()
+                optimizer.zero_grad(set_to_none=True)
+
+        # Epoch end: evaluate
+        train_time = time.time() - start_time
+        loop_loss_type = 'ce' if head_dim >= 2 else 'bce'  # tag for logging only
+        train_dict, _ = evaluate_model_performance(
+            model, train_loaders, epoch,
+            loss_type=loop_loss_type,
+            loss_fn=loss_fn,
+            num_classes=head_dim
+        )
+        train_dict['train_time'] = train_time
+        accumulated_train_dicts.append(train_dict)
+
+        if val_loaders is not None and len(val_loaders) > 0:
+            val_dict, _ = evaluate_model_performance(
+                model, val_loaders, epoch,
+                loss_type=loop_loss_type,
+                loss_fn=loss_fn,
+                num_classes=head_dim
+            )
+            accumulated_val_dicts.append(val_dict)
+            if schedule == 'reduce_lr_on_plateau':
+                scheduler.step(val_dict['loss'])
+
+            print(f"Progress: {train_dict.get('epoch', epoch)}/{epochs}, operation_type: Training, "
+                  f"Train Loss: {train_dict.get('loss', float('nan')):.3f}, "
+                  f"Val Loss: {val_dict.get('loss', float('nan')):.3f}, "
+                  f"Train acc.: {train_dict.get('accuracy', float('nan')):.3f}, "
+                  f"Val acc.: {val_dict.get('accuracy', float('nan')):.3f}, "
+                  f"Train F1(macro): {train_dict.get('f1_macro', float('nan')):.3f}, "
+                  f"Val F1(macro): {val_dict.get('f1_macro', float('nan')):.3f}")
+        else:
+            print(f"Progress: {train_dict.get('epoch', epoch)}/{epochs}, operation_type: Training, "
+                  f"Train Loss: {train_dict.get('loss', float('nan')):.3f}, "
+                  f"Train acc.: {train_dict.get('accuracy', float('nan')):.3f}, "
+                  f"Train F1(macro): {train_dict.get('f1_macro', float('nan')):.3f}")
+
+        if scheduler and schedule == 'step_lr':
+            scheduler.step()
+
+        # Save rolling CSVs
+        if accumulated_train_dicts and accumulated_val_dicts:
+            _save_progress(dst, pd.DataFrame(accumulated_train_dicts), pd.DataFrame(accumulated_val_dicts))
+            accumulated_train_dicts, accumulated_val_dicts = [], []
+        elif accumulated_train_dicts:
+            _save_progress(dst, pd.DataFrame(accumulated_train_dicts), None)
+            accumulated_train_dicts = []
+        elif accumulated_test_dicts:
+            _save_progress(dst, pd.DataFrame(accumulated_test_dicts), None)
+            accumulated_test_dicts = []
+
+        # Save checkpoints
+        model_path = _save_model(model, model_type, train_dict, dst, epoch, epochs,
+                                 intermedeate_save=[0.99,0.98,0.95,0.94], channels=channels)
+        
+        # ---- Periodic suggestions (every 25 epochs and final epoch) ----
+        if (epoch % 25 == 0) or (epoch == epochs):
+            try:
+                report = suggest_training_changes(dst)
+                print("== Summary ==")
+                for k, v in report["summary"].items():
+                    print(f"{k}: {v}")
+                print("\n== Flags ==")
+                print(", ".join(report["flags"]) or "none")
+                print("\n== Suggestions ==")
+                for i, s in enumerate(report["suggestions"], 1):
+                    print(f"{i}. {s}")
+            except Exception as e:
+                print(f"[suggest_training_changes] Skipped at epoch {epoch}: {e}")
+
+    return model, model_path
+
+def train_model_v1(dst, model_type, train_loaders, epochs=100, learning_rate=0.0001,
                 weight_decay=0.05, amsgrad=False, optimizer_type='adamw',
                 use_checkpoint=False, dropout_rate=0, n_jobs=20, val_loaders=None,
                 test_loaders=None, init_weights='imagenet', intermedeate_save=None,
@@ -665,7 +1030,7 @@ def train_model(dst, model_type, train_loaders, epochs=100, learning_rate=0.0001
         model_path = _save_model(model, model_type, train_dict, dst, epoch, epochs,
                         intermedeate_save=[0.99,0.98,0.95,0.94], channels=channels)
 
-    return model, model_path#os.path.join(dst, 'best.pt')  # or whatever _save_model returns    
+    return model, model_path
 
 def generate_activation_map(settings):
     
@@ -710,7 +1075,8 @@ def generate_activation_map(settings):
         return
 
     # Load the model
-    model = torch.load(settings['model_path'])
+    #model = torch.load(settings['model_path'])
+    model = torch.load(settings['model_path'], map_location=device, weights_only=False)
     model.to(device)
     model.eval()
 
@@ -845,7 +1211,8 @@ def visualize_integrated_gradients(src, model_path, target_label_idx=0, image_si
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
 
-    model = torch.load(model_path)
+    #model = torch.load(model_path)
+    model = torch.load(model_path, map_location=device, weights_only=False)
     model.to(device)
     integrated_gradients = IntegratedGradients(model)
 
@@ -917,7 +1284,8 @@ def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, cha
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
 
-    model = torch.load(model_path)
+    #model = torch.load(model_path)
+    model = torch.load(model_path, map_location=device, weights_only=False)
     model.to(device)
     smooth_grad = SmoothGrad(model)
 
@@ -1023,10 +1391,8 @@ def deep_spacr(settings={}):
             # point training to the newly created train folder by default
             settings['src'] = os.path.dirname(train_path)
 
-    # 3) train DL model
-    if settings.get('train_DL_model'):
         print("Training model ...")
-        model_path = train_test_model(settings)  # must exist in your codebase
+        model_path = train_test_model(settings)
         settings['model_path'] = model_path
         # restore original src (so later steps like apply can use the user’s dataset if needed)
         settings['src'] = src_before
@@ -1043,9 +1409,9 @@ def deep_spacr(settings={}):
 
         model_path = settings.get('model_path')
         if model_path and os.path.exists(model_path):
-            apply_model_to_tar(settings)  # must exist in your codebase
+            apply_model_to_tar(settings)  
         else:
-            print("Model path missing or not found; skipping model application.")
+            print(f"Model path {model_path} not found; skipping model application.")
             
 def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, device='cpu', student_model_name='maxvit_t', pretrained=True, dropout_rate=None, use_checkpoint=False, alpha=0.5, temperature=2.0, lr=1e-4, epochs=10):
 

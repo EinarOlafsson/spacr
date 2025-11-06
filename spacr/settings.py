@@ -447,8 +447,8 @@ def deep_spacr_defaults(settings):
     settings.setdefault('test',False)
     settings.setdefault('model_type','maxvit_t')
     settings.setdefault('optimizer_type','adamw')
-    settings.setdefault('schedule','reduce_lr_on_plateau') #reduce_lr_on_plateau, step_lr
-    settings.setdefault('loss_type','focal_loss') # binary_cross_entropy_with_logits
+    settings.setdefault('schedule','reduce_lr_on_plateau')
+    settings.setdefault('loss_type','auto') 
     settings.setdefault('normalize',True)
     settings.setdefault('image_size',224)
     settings.setdefault('batch_size',64)
@@ -477,7 +477,6 @@ def deep_spacr_defaults(settings):
     settings.setdefault('model_path','path')
     settings.setdefault('file_type','cell_png')
     settings.setdefault('generate_training_dataset', True)
-    settings.setdefault('train_DL_model', True)
     return settings
 
 def get_train_test_model_settings(settings):
@@ -967,7 +966,6 @@ expected_types = {
     "png_type":str,
     "custom_model_path":str,
     "generate_training_dataset":bool,
-    "train_DL_model":bool,
     "normalize":bool,
     "overlay":bool,
     "correlate":bool,
@@ -1021,7 +1019,7 @@ expected_types = {
 }
 
 categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset","model_path","grna_csv","row_csv","column_csv", "metadata_files", "score_data","count_data"],
-             "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel",  "test_mode", "plot", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "train_DL_model", "delete_intermediate", "uninfected", ],
+             "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel",  "test_mode", "plot", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "delete_intermediate", "uninfected", ],
              "Cellpose":["fill_in","from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
              "Cell": ["cell_diamiter","cell_intensity_range", "cell_size_range", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cytoplasm_min_size", "adjust_cells", "cells", "cell_loc"],
              "Nucleus": ["nucleus_diamiter","nucleus_intensity_range", "nucleus_size_range", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_loc"],
