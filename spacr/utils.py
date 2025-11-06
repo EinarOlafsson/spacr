@@ -26,6 +26,7 @@ from statsmodels.stats.multitest import multipletests
 from itertools import combinations
 from functools import reduce
 from IPython.display import display
+from typing import Optional, Any
 
 from multiprocessing import Pool, cpu_count, set_start_method, get_start_method
 from concurrent.futures import ThreadPoolExecutor
@@ -40,6 +41,7 @@ from torchvision import models
 from torchvision.models.resnet import ResNet18_Weights, ResNet34_Weights, ResNet50_Weights, ResNet101_Weights, ResNet152_Weights
 import torchvision.transforms as transforms
 from torchvision.models import resnet50
+from torchvision import models as tv_models
 
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -67,6 +69,10 @@ from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
 
 from huggingface_hub import list_repo_files
+
+
+
+
 
 #from spacr import __file__ as spacr_path
 spacr_path = os.path.join(os.path.dirname(__file__), '__init__.py')
@@ -1743,6 +1749,182 @@ class CustomCellClassifier(nn.Module):
             return self.custom_forward(x)
 
 class TorchModel(nn.Module):
+    """
+    Thin wrapper around TorchVision classification backbones that:
+      1) Loads a requested backbone with (optional) pretrained weights
+      2) Strips its classification head to expose features
+      3) Adds a simple Linear 'spacr' classifier with `num_classes` outputs
+      4) Optionally applies dropout before the final classifier
+      5) Supports gradient checkpointing
+    Works with most TorchVision **classification** models. Non-classification
+    (detection/segmentation) models are rejected with a clear error.
+    """
+    def __init__(
+        self,
+        model_name: str = "resnet50",
+        pretrained: bool = True,
+        dropout_rate: Optional[float] = None,
+        use_checkpoint: bool = False,
+        num_classes: int = 2,      # >=2 => multiclass head; ==1 => binary head (BCE)
+        multilabel: bool = False   # kept for external loss/metrics decisions
+    ):
+        super().__init__()
+        self.model_name = str(model_name)
+        self.use_checkpoint = bool(use_checkpoint)
+        self.num_classes = int(num_classes)
+        self.multilabel = bool(multilabel)
+        self.use_dropout = (dropout_rate is not None)
+
+        # 1) Initialize backbone
+        self.base_model = self._init_base_model(pretrained=bool(pretrained))
+
+        # 2) Special-case: keep all but last linear block for MaxViT-T
+        if self.model_name == "maxvit_t" and hasattr(self.base_model, "classifier"):
+            # remove final Linear only (keep preceding norm/dropout/etc.)
+            seq = list(self.base_model.classifier.children())
+            if len(seq) > 0:
+                self.base_model.classifier = nn.Sequential(*seq[:-1])
+
+        # 3) If a custom dropout rate is provided, push it into any existing Dropout modules
+        if dropout_rate is not None:
+            self._apply_dropout_rate(self.base_model, float(dropout_rate))
+
+        # 4) Remove the original classification head so we can infer feature dim
+        self._remove_head_for_features()
+
+        # 5) Infer flattened feature dimension with a dummy forward
+        self.num_ftrs = self._infer_feature_dim()
+
+        # 6) Build SPACR head (optional dropout + linear classifier)
+        if self.use_dropout:
+            self.dropout = nn.Dropout(float(dropout_rate))
+        self.spacr_classifier = nn.Linear(self.num_ftrs, self.num_classes)
+
+    # ------------------------------------------------------------------ #
+    # Backbone init / head removal / feature dim
+    # ------------------------------------------------------------------ #
+    def _get_weight_choice(self):
+        """
+        Return the DEFAULT weights enum if available (newer torchvision),
+        otherwise None to fall back to legacy pretrained=True/False.
+        """
+        enum_attr = f"{self.model_name}_weights"
+        for attr in dir(models):
+            if attr.lower() == enum_attr.lower():
+                enum = getattr(models, attr, None)
+                if enum is not None and hasattr(enum, "DEFAULT"):
+                    return enum.DEFAULT
+        return None
+
+    def _init_base_model(self, pretrained: bool) -> nn.Module:
+        fn = models.__dict__.get(self.model_name, None)
+        if fn is None or not callable(fn):
+            raise ValueError(f"Unknown torchvision model: {self.model_name}")
+
+        weights = self._get_weight_choice()
+        if weights is not None:
+            # Newer API
+            return fn(weights=weights if pretrained else None)
+        else:
+            # Older API fallback
+            return fn(pretrained=pretrained)
+
+    def _apply_dropout_rate(self, module: nn.Module, p: float):
+        for m in module.modules():
+            if isinstance(m, (nn.Dropout, nn.Dropout2d, nn.Dropout3d)):
+                m.p = p
+
+    def _remove_head_for_features(self):
+        """
+        Normalize a wide swath of TorchVision classification heads to Identity.
+        Also disable auxiliary logits where present (Inception/GoogLeNet).
+        """
+        # Some models (Inception/GoogLeNet) expose aux heads
+        if hasattr(self.base_model, "aux_logits"):
+            self.base_model.aux_logits = False
+
+        # Common conv backbones
+        if hasattr(self.base_model, "fc"):           # ResNet/RegNet/ResNeXt/GoogLeNet/Inception
+            self.base_model.fc = nn.Identity()
+            return
+        if hasattr(self.base_model, "classifier"):   # DenseNet/MobileNet/EfficientNet/ConvNeXt/SqueezeNet/MNASNet/MaxViT
+            # MaxViT handled earlier; here we blank the whole thing
+            if self.model_name != "maxvit_t":
+                self.base_model.classifier = nn.Identity()
+            return
+        if hasattr(self.base_model, "_fc"):          # Older EfficientNet
+            self.base_model._fc = nn.Identity()
+            return
+        # Vision Transformers
+        if hasattr(self.base_model, "heads"):        # ViT (torchvision)
+            self.base_model.heads = nn.Identity()
+            return
+        if hasattr(self.base_model, "head"):         # Swin
+            self.base_model.head = nn.Identity()
+            return
+        # If none matched, we’ll still try to forward and flatten later.
+
+    def _infer_feature_dim(self) -> int:
+        """
+        Forward a dummy tensor through the backbone and determine the flattened
+        feature size. Uses 224×224 nominal resolution.
+        """
+        self.base_model.eval()
+        with torch.no_grad():
+            x = torch.zeros(1, 3, 224, 224)
+            out = self._run_backbone_raw(x)  # raw backbone call (unwrapped)
+        # Flatten if spatial
+        if isinstance(out, torch.Tensor) and out.ndim > 2:
+            out = torch.flatten(out, 1)
+        if not isinstance(out, torch.Tensor) or out.ndim != 2:
+            raise RuntimeError(
+                f"Backbone produced unexpected shape/type for features: {type(out)} / {getattr(out, 'shape', None)}"
+            )
+        return int(out.size(1))
+
+    # ------------------------------------------------------------------ #
+    # Forward plumbing
+    # ------------------------------------------------------------------ #
+    def _run_backbone_raw(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Call the underlying backbone and unwrap common container outputs.
+        Does NOT apply the new SPACR head.
+        """
+        def forward_fn(t):
+            return self.base_model(t)
+
+        out = checkpoint(forward_fn, x) if self.use_checkpoint else forward_fn(x)
+
+        # Unwrap common container types
+        # Inception* returns namedtuple with .logits (if aux disabled we still may get a container)
+        if hasattr(out, "logits"):
+            out = out.logits
+        elif isinstance(out, (tuple, list)):
+            # e.g., some models return (logits, aux) even when aux disabled; take primary
+            out = out[0]
+        elif isinstance(out, dict):
+            # Detection/segmentation heads return dicts — not supported in this wrapper
+            raise RuntimeError(
+                "Selected backbone returned a dict (likely detection/segmentation). "
+                "Use an image-classification backbone."
+            )
+        return out
+
+    def _run_backbone(self, x: torch.Tensor) -> torch.Tensor:
+        out = self._run_backbone_raw(x)
+        # Ensure 2D features (N, F)
+        if isinstance(out, torch.Tensor) and out.ndim > 2:
+            out = torch.flatten(out, 1)
+        return out
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        feats = self._run_backbone(x)
+        if self.use_dropout:
+            feats = self.dropout(feats)
+        logits = self.spacr_classifier(feats)  # (N, num_classes)
+        return logits
+
+class TorchModel_v2(nn.Module):
     def __init__(
         self,
         model_name: str = "resnet50",
@@ -1935,7 +2117,6 @@ class FocalLossWithLogits_v1(nn.Module):
         focal_loss = self.alpha * (1-pt)**self.gamma * BCE_loss
         return focal_loss.mean()
     
-
 class FocalLossWithLogits(nn.Module):
     """
     Focal loss that works for:
@@ -2146,7 +2327,105 @@ def compute_irm_penalty(losses, dummy_w, device):
 #    summary(base_model, (channels, height, width))
 #    return
 
-def choose_model(model_type,
+def _list_torchvision_model_names() -> set[str]:
+    """Robustly collect available torchvision model factory names."""
+    names: set[str] = set()
+    # Newer API
+    try:
+        names |= set(tv_models.list_models(module=tv_models))
+    except Exception:
+        pass
+    # Fallback for older torchvision
+    for n, fn in tv_models.__dict__.items():
+        if not n.startswith("_") and callable(fn):
+            names.add(n)
+    return names
+
+
+def choose_model(model_type: str,
+                 device: torch.device,
+                 init_weights: bool = True,
+                 dropout_rate: float = 0.0,
+                 use_checkpoint: bool = False,
+                 channels: int = 3,
+                 height: int = 224,
+                 width: int = 224,
+                 chan_dict: Optional[dict[str, Any]] = None,
+                 num_classes: int = 2,
+                 verbose: bool = False) -> Optional[nn.Module]:
+    """
+    Pick and configure a model for classification (binary or multiclass).
+
+    Args:
+        model_type: TorchVision model name (e.g. 'resnet50', 'vit_b_16', 'swin_t', 'maxvit_t') or 'custom'
+        device:     Target device (caller will move the returned model)
+        init_weights: Load pretrained weights if available
+        dropout_rate: Dropout probability applied before the classifier head (None/0 to disable)
+        use_checkpoint: Enable gradient checkpointing for the backbone
+        channels:   Input channels (TorchVision pretrained assumes 3; custom handling is up to caller)
+        height,width: Nominal input size for a forward sanity-check
+        chan_dict:  Optional dict passed to a custom model (if you implement one)
+        num_classes: Number of output classes (>=2 => softmax-style head, ==1 => single-logit BCE head)
+        verbose:    If True, print the model structure
+
+    Returns:
+        nn.Module or None if invalid.
+    """
+
+    tv_names = _list_torchvision_model_names()
+    valid_names = set(tv_names) | {"custom"}
+
+    if model_type not in valid_names:
+        print(f"[choose_model] Invalid model_type '{model_type}'. "
+              f"Known TorchVision models include e.g.: {sorted(list(tv_names))[:20]} ...")
+        return None
+
+    print(
+        f"Model parameters: Architecture: {model_type} "
+        f"init_weights: {init_weights} dropout_rate: {dropout_rate} "
+        f"use_checkpoint: {use_checkpoint}", end="\r", flush=True
+    )
+
+    # --- CUSTOM BRANCH -------------------------------------------------------
+    if model_type == "custom":
+        raise NotImplementedError(
+            "Model type 'custom' selected but no CustomCellClassifier is wired. "
+            "Provide your implementation or use a TorchVision backbone."
+        )
+
+    # --- TORCHVISION CLASSIFICATION (via your TorchModel wrapper) ------------
+    head_dim = max(1, int(num_classes))
+    base_model = TorchModel(  # relies on your wrapper class being available in this module
+        model_name=model_type,
+        pretrained=bool(init_weights),
+        dropout_rate=(dropout_rate if (dropout_rate and dropout_rate > 0) else None),
+        use_checkpoint=use_checkpoint,
+        num_classes=head_dim,
+    )
+
+    # Forward sanity-check to ensure classification logits shape
+    try:
+        base_model.eval()
+        with torch.no_grad():
+            # Keep 3 channels for sanity-check; most pretrained backbones expect 3
+            dummy = torch.randn(1, 3, height, width)
+            z = base_model(dummy)
+            if isinstance(z, dict):
+                raise RuntimeError("Selected model returned a dict, not logits.")
+            if not isinstance(z, torch.Tensor) or z.ndim != 2 or z.size(1) != head_dim:
+                raise RuntimeError(
+                    f"Expected logits of shape (1,{head_dim}); got {type(z)} / {getattr(z, 'shape', None)}"
+                )
+    except Exception as e:
+        print(f"\n[choose_model] Model forward sanity-check failed: {e}")
+        return None
+
+    if verbose:
+        print("\n", base_model)
+
+    return base_model
+
+def choose_model_v2(model_type,
                  device,
                  init_weights=True,
                  dropout_rate=0.0,
@@ -2292,6 +2571,68 @@ def calculate_loss(output, target, prefer_focal=False, gamma=2.0, alpha=1.0, red
     """
     # --- helpers -------------------------------------------------------------
     def _focal_bce_with_logits(logits, y, alpha=1.0, gamma=2.0, reduction="mean"):
+        p = torch.sigmoid(logits)
+        ce = F.binary_cross_entropy_with_logits(logits, y, reduction="none")
+        p_t = p * y + (1 - p) * (1 - y)
+        loss = alpha * (1 - p_t).pow(gamma) * ce
+        if reduction == "mean":
+            return loss.mean()
+        elif reduction == "sum":
+            return loss.sum()
+        return loss
+
+    def _focal_cross_entropy(logits, y_idx, alpha=1.0, gamma=2.0, reduction="mean"):
+        log_p = F.log_softmax(logits, dim=1)
+        p = log_p.exp()
+        log_p_t = log_p.gather(1, y_idx.view(-1,1)).squeeze(1)
+        p_t = p.gather(1, y_idx.view(-1,1)).squeeze(1)
+        loss = -alpha * (1 - p_t).pow(gamma) * log_p_t
+        if reduction == "mean":
+            return loss.mean()
+        elif reduction == "sum":
+            return loss.sum()
+        return loss
+
+    # --- normalize shapes ----------------------------------------------------
+    if output.ndim == 1:
+        output = output.unsqueeze(1)  # (N,) -> (N,1)
+    N, C = output.shape[0], output.shape[1]
+
+    # --- binary (C=1) --------------------------------------------------------
+    if C == 1:
+        target = target.float().view(N, 1)
+        if prefer_focal:
+            return _focal_bce_with_logits(output, target, alpha=alpha, gamma=gamma, reduction=reduction)
+        return F.binary_cross_entropy_with_logits(output, target, reduction=reduction)
+
+    # --- multiclass vs multilabel -------------------------------------------
+    if target.dtype == torch.long and target.ndim == 1:
+        # Multiclass single-label with class indices (N,)
+        if prefer_focal:
+            return _focal_cross_entropy(output, target, alpha=alpha, gamma=gamma, reduction=reduction)
+        return F.cross_entropy(output, target, reduction=reduction)
+
+    # Multilabel (assume float/one-hot), ensure (N,C)
+    if target.ndim == 1:
+        target = torch.nn.functional.one_hot(target.long(), num_classes=C).float()
+    else:
+        target = target.float().view(N, C)
+
+    if prefer_focal:
+        return _focal_bce_with_logits(output, target, alpha=alpha, gamma=gamma, reduction=reduction)
+    return F.binary_cross_entropy_with_logits(output, target, reduction=reduction)
+
+
+def calculate_loss_v1(output, target, prefer_focal=False, gamma=2.0, alpha=1.0, reduction="mean"):
+    """
+    Auto-select loss for binary, multiclass, or multilabel based on shapes/dtypes.
+
+    - Binary: logits (N,1), float targets in {0,1}  -> BCEWithLogits / focal-BCE
+    - Multiclass: logits (N,C), long targets (N,)   -> CrossEntropy / focal-CE
+    - Multilabel: logits (N,C), float targets (N,C) -> BCEWithLogits / focal-BCE
+    """
+    # --- helpers -------------------------------------------------------------
+    def _focal_bce_with_logits(logits, y, alpha=1.0, gamma=2.0, reduction="mean"):
         # y in {0,1}, same shape as logits
         p = torch.sigmoid(logits)
         ce = F.binary_cross_entropy_with_logits(logits, y, reduction="none")
@@ -2416,6 +2757,426 @@ def augment_images(file_paths, dst):
 
     with Pool(cpu_count()) as pool:
         pool.map(augment_single_image, args_list)
+        
+def suggest_training_changes(
+    dst,
+    train_csv=None,
+    val_csv=None,
+    last_k=25,
+    min_epochs=10,
+    gap_threshold_acc=0.05,
+    plateau_eps=1e-3,
+    noisy_var_ratio=0.03,
+):
+    """
+    Analyze saved training/validation progress CSVs and propose concrete training changes.
+
+    Args:
+        dst (str): Folder where progress CSVs were saved.
+        train_csv (str|None): Optional explicit path to train CSV. Autodetected if None.
+        val_csv (str|None): Optional explicit path to val CSV. Autodetected if None.
+        last_k (int): How many recent epochs to use for trend/plateau checks.
+        min_epochs (int): Minimum epochs before issuing most suggestions.
+        gap_threshold_acc (float): Accuracy generalization gap threshold (train - val).
+        plateau_eps (float): Absolute slope threshold (|d loss / d epoch|) to call a plateau.
+        noisy_var_ratio (float): If stdev(val_loss_last_k) > noisy_var_ratio * mean(val_loss_last_k), flag instability.
+
+    Returns:
+        dict with keys:
+            - summary: dict of key scalars (best_epoch, best_val_loss, final metrics, slopes, gaps)
+            - flags: list of short machine-readable flags
+            - suggestions: list of concrete, ordered suggestions (strings)
+    """
+    import os, glob, math
+    import numpy as np
+    import pandas as pd
+
+    def _find_csv(root, hint):
+        cs = sorted(glob.glob(os.path.join(root, f"*{hint}*.csv")))
+        return cs[-1] if cs else None
+
+    def _normalize_cols(df):
+        # Lowercase and strip; map common variants
+        m = {c: c.strip().lower() for c in df.columns}
+        df = df.rename(columns=m)
+        # accepted aliases
+        aliases = {
+            "accuracy": ["acc", "accuracy", "train_acc", "val_acc"],
+            "loss": ["loss", "train_loss", "val_loss"],
+            "f1_macro": ["f1_macro", "macro_f1", "f1macro", "f1"],
+            "epoch": ["epoch", "epochs", "step"],
+            "lr": ["lr", "learning_rate"],
+        }
+        name_map = {}
+        for canon, opts in aliases.items():
+            for o in opts:
+                if o in df.columns:
+                    name_map[o] = canon
+        df = df.rename(columns=name_map)
+        return df
+
+    def _poly_slope(y):
+        if len(y) < 2 or np.allclose(y, y[0]):
+            return 0.0
+        x = np.arange(len(y), dtype=float)
+        # robust to NaNs: drop them
+        mask = np.isfinite(y)
+        if mask.sum() < 2:
+            return 0.0
+        coef = np.polyfit(x[mask], y[mask], 1)
+        return float(coef[0])
+
+    def _last_seq(series, k):
+        s = np.asarray(series, dtype=float)
+        return s[-min(k, len(s)):] if len(s) else np.array([])
+
+    # --- locate CSVs ---
+    train_csv = train_csv or _find_csv(dst, "train")
+    val_csv = val_csv or _find_csv(dst, "val")
+    out = {"summary": {}, "flags": [], "suggestions": []}
+
+    if not train_csv or not os.path.exists(train_csv):
+        out["flags"].append("missing_train_csv")
+        out["suggestions"].append("Could not locate train CSV; ensure _save_progress writes a train CSV in dst.")
+        return out
+    if not val_csv or not os.path.exists(val_csv):
+        out["flags"].append("missing_val_csv")
+        out["suggestions"].append("Could not locate val CSV; enable validation logging in _save_progress.")
+        return out
+
+    tr = pd.read_csv(train_csv)
+    va = pd.read_csv(val_csv)
+
+    tr = _normalize_cols(tr)
+    va = _normalize_cols(va)
+
+    # Required columns (soft-fail if absent)
+    for col in ("epoch", "loss"):
+        if col not in tr.columns or col not in va.columns:
+            out["flags"].append(f"missing_required_col:{col}")
+            out["suggestions"].append(f"Progress CSVs lack '{col}'. Ensure _save_progress writes epoch and loss.")
+            return out
+
+    # --- core scalars ---
+    best_val_idx = int(va["loss"].idxmin())
+    best_val_loss = float(va.loc[best_val_idx, "loss"])
+    best_epoch = int(va.loc[best_val_idx, "epoch"]) if "epoch" in va.columns else (best_val_idx + 1)
+
+    final = {
+        "train_loss": float(tr["loss"].iloc[-1]),
+        "val_loss": float(va["loss"].iloc[-1]),
+    }
+    if "accuracy" in tr.columns:
+        final["train_accuracy"] = float(tr["accuracy"].iloc[-1])
+    if "accuracy" in va.columns:
+        final["val_accuracy"] = float(va["accuracy"].iloc[-1])
+    if "f1_macro" in tr.columns:
+        final["train_f1_macro"] = float(tr["f1_macro"].iloc[-1])
+    if "f1_macro" in va.columns:
+        final["val_f1_macro"] = float(va["f1_macro"].iloc[-1])
+
+    # --- trends on last_k ---
+    tr_last = _last_seq(tr["loss"], last_k)
+    va_last = _last_seq(va["loss"], last_k)
+    slope_tr = _poly_slope(tr_last)
+    slope_va = _poly_slope(va_last)
+
+    # noise/instability
+    val_mean = float(np.nanmean(va_last)) if len(va_last) else np.nan
+    val_std = float(np.nanstd(va_last)) if len(va_last) else np.nan
+    unstable = (len(va_last) >= max(5, last_k//2)) and np.isfinite(val_mean) and (val_std > noisy_var_ratio * max(val_mean, 1e-8))
+
+    # generalization gap (accuracy)
+    gen_gap = None
+    if "accuracy" in tr.columns and "accuracy" in va.columns:
+        gen_gap = float(tr["accuracy"].iloc[-1] - va["accuracy"].iloc[-1])
+
+    # macro-F1 NaN detection (common when a split has a single label)
+    f1_nan_train = "f1_macro" in tr.columns and np.isnan(tr["f1_macro"]).mean() > 0.2
+    f1_nan_val = "f1_macro" in va.columns and np.isnan(va["f1_macro"]).mean() > 0.2
+
+    # improvement since best
+    since_best = int(tr.shape[0] - (best_val_idx + 1))
+    val_loss_delta_from_best = float(va["loss"].iloc[-1] - best_val_loss)
+
+    # --- summary ---
+    out["summary"].update(
+        dict(
+            best_epoch=best_epoch,
+            best_val_loss=best_val_loss,
+            final_metrics=final,
+            slope_train_loss_last_k=slope_tr,
+            slope_val_loss_last_k=slope_va,
+            val_loss_std_last_k=val_std,
+            epochs=len(tr),
+            since_best=since_best,
+            gen_gap_acc=gen_gap,
+        )
+    )
+
+    # --- heuristics to suggest changes ---
+    E = len(tr)
+
+    # 1) Too early to judge
+    if E < min_epochs:
+        out["flags"].append("few_epochs")
+        out["suggestions"].append(f"Only {E} epochs logged (<{min_epochs}). Consider training longer or using a warmer LR schedule.")
+        # Still continue to surface other obvious issues below.
+
+    # 2) Plateau (no meaningful val loss improvement recently)
+    if len(va_last) >= max(5, last_k//2) and abs(slope_va) < plateau_eps:
+        out["flags"].append("val_plateau")
+        out["suggestions"].extend([
+            "Validation loss plateau detected: try ReduceLROnPlateau (factor=0.1, patience=5–10) or cosine annealing with warm restarts.",
+            "Add/strengthen data augmentation; if already heavy, try stochastic depth/label smoothing=0.05–0.1.",
+            "If capacity may be limiting, consider a larger backbone or unfreezing more layers after a warmup.",
+        ])
+
+    # 3) Overfitting (train improving, val degrading, or large accuracy gap)
+    overfit_like = False
+    if slope_tr < -plateau_eps and slope_va > plateau_eps:
+        overfit_like = True
+    if gen_gap is not None and gen_gap > gap_threshold_acc:
+        overfit_like = True
+    if overfit_like:
+        out["flags"].append("overfitting")
+        out["suggestions"].extend([
+            "Overfitting signs: increase regularization (weight_decay e.g. 0.05→0.1), enable/raise dropout (e.g. 0.2–0.5).",
+            "Increase augmentation (color jitter, random crops, flips, CutMix/MixUp).",
+            "Use early stopping on val loss; keep the best checkpoint (epoch with min val loss).",
+            "Consider smaller head or freeze more backbone layers for longer warmup.",
+        ])
+
+    # 4) Underfitting (both losses high; train acc low and no decreasing trend)
+    train_acc_low = ("accuracy" in tr.columns and final.get("train_accuracy", 0.0) < 0.70)
+    losses_not_decreasing = (slope_tr > -plateau_eps and slope_va > -plateau_eps)
+    if train_acc_low and losses_not_decreasing:
+        out["flags"].append("underfitting")
+        out["suggestions"].extend([
+            "Underfitting signs: increase learning rate 2–4× or use a longer schedule (more epochs with decay).",
+            "Reduce regularization (lower weight_decay), or increase model capacity (bigger backbone).",
+            "Verify labels and channel order/normalization; large label noise or wrong preprocessing can cap accuracy.",
+        ])
+
+    # 5) Unstable training (high variance in recent val loss)
+    if unstable:
+        out["flags"].append("unstable_training")
+        out["suggestions"].extend([
+            "Validation loss is noisy: lower LR (e.g., ×0.5), increase batch size, or enable gradient clipping (clip_norm=1.0).",
+            "Ensure deterministic preprocessing and consistent image normalization.",
+        ])
+
+    # 6) F1 NaNs (often single-class in split/batch or metric bug)
+    if f1_nan_train or f1_nan_val:
+        out["flags"].append("f1_nan_detected")
+        out["suggestions"].extend([
+            "F1(macro) shows NaN—ensure each split has ≥2 classes and use stratified sampling.",
+            "If highly imbalanced, prefer class weights or focal loss (you already use focal—verify label distribution).",
+        ])
+
+    # 7) Regressed after best
+    if since_best >= max(5, last_k//2) and val_loss_delta_from_best > plateau_eps:
+        out["flags"].append("past_best_regression")
+        out["suggestions"].extend([
+            f"Validation loss has worsened by +{val_loss_delta_from_best:.4f} since best epoch {best_epoch}: adopt early stopping and keep best checkpoint.",
+            "Also try ReduceLROnPlateau triggered on val loss.",
+        ])
+
+    # 8) If accuracy present but macro-F1 << accuracy -> imbalance hint
+    if ("accuracy" in va.columns and "f1_macro" in va.columns
+        and np.isfinite(final.get("val_accuracy", np.nan))
+        and np.isfinite(final.get("val_f1_macro", np.nan))
+        and (final["val_accuracy"] - final["val_f1_macro"] > 0.10)):
+        out["flags"].append("class_imbalance_suspected")
+        out["suggestions"].extend([
+            "Accuracy ≫ macro-F1 suggests imbalance: use class weights, oversampling, or stronger focal loss (gamma 2–3, tune alpha).",
+            "Track per-class metrics/confusion matrices to verify rare classes.",
+        ])
+
+    # De-duplicate while preserving order
+    seen = set()
+    dedup = []
+    for s in out["suggestions"]:
+        if s not in seen:
+            dedup.append(s); seen.add(s)
+    out["suggestions"] = dedup
+
+    return out
+
+def _infer_indices(target: torch.Tensor, num_classes: int) -> torch.Tensor:
+    """Return class indices (N,) from target that may be long or one-hot/float."""
+    if target.dtype == torch.long:
+        return target.view(-1)
+    if target.ndim == 2 and target.size(1) == num_classes:
+        return target.argmax(dim=1).long()
+    # binary float → {0,1}
+    return (target.view(-1) > 0.5).long()
+
+def estimate_class_counts(loader, num_classes: int) -> torch.Tensor:
+    """One cheap pass on CPU over labels to get global class counts."""
+    counts = torch.zeros(num_classes, dtype=torch.long)
+    for _, y, _ in loader:
+        y = y.detach()
+        idx = _infer_indices(y, num_classes)
+        binc = torch.bincount(idx, minlength=num_classes)
+        counts[:num_classes] += binc[:num_classes]
+    return counts
+
+def build_loss(loss_type: str = "ce",
+               num_classes: int = 2,
+               class_counts: Optional[torch.Tensor] = None,
+               label_smoothing: float = 0.0,
+               focal_gamma: float = 2.0,
+               focal_alpha: Optional[float] = None,
+               logit_adjust_tau: float = 0.0,
+               asl_gamma_pos: float = 0.0,
+               asl_gamma_neg: float = 4.0,
+               asl_clip: float = 0.05):
+    """
+    Returns a closure loss_fn(logits, target).  Python 3.9+ compatible.
+    Supported loss_type:
+      'ce', 'ce_smooth', 'ce_weighted', 'focal_ce',
+      'bce', 'focal_bce', 'logit_adjust_ce', 'asl', 'auto'
+
+    Notes:
+      - num_classes==1 -> binary (BCE variants)
+      - num_classes>=2 -> multiclass (CE variants)
+    """
+    lt = (loss_type or "ce").lower()
+
+    # -------- helpers (scoped) --------
+    def _infer_indices(target: torch.Tensor, C: int) -> torch.Tensor:
+        # Accept indices (N,) or one-hot (N,C); return indices (N,)
+        if target.ndim == 2:
+            return target.argmax(dim=1).long()
+        return target.long().view(-1)
+
+    # Priors/weights from counts if provided
+    class_weights = None
+    logit_adjust = None
+    if class_counts is not None:
+        counts = class_counts.to(dtype=torch.float)
+        counts = torch.clamp(counts, min=1.0)
+        priors = counts / counts.sum()
+        inv = 1.0 / priors
+        class_weights = (inv / inv.mean()).to(dtype=torch.float)
+        # Menon et al. 2020: logit adjustment
+        if logit_adjust_tau > 0:
+            logit_adjust = (-float(logit_adjust_tau) * priors.log()).to(dtype=torch.float)
+
+    # ----- binary focal BCE -----
+    def _focal_bce(logits, y, alpha, gamma):
+        p = torch.sigmoid(logits)
+        ce = F.binary_cross_entropy_with_logits(logits, y, reduction="none")
+        pt = p * y + (1 - p) * (1 - y)
+        w = (1 - pt).pow(gamma)
+        if alpha is not None:
+            w = w * (alpha * y + (1 - alpha) * (1 - y))
+        return (w * ce).mean()
+
+    # ----- multiclass focal-CE -----
+    def _focal_ce(logits, y_idx, alpha, gamma):
+        log_p = F.log_softmax(logits, dim=1)
+        p = log_p.exp()
+        log_p_t = log_p.gather(1, y_idx.view(-1, 1)).squeeze(1)
+        p_t = p.gather(1, y_idx.view(-1, 1)).squeeze(1)
+        w = (1 - p_t).pow(gamma)
+        if alpha is not None:
+            if torch.is_tensor(alpha) and alpha.numel() > 1:
+                a = alpha.to(logits.device)[y_idx]
+            else:
+                a = float(alpha)
+            loss = -a * w * log_p_t
+        else:
+            loss = -w * log_p_t
+        return loss.mean()
+
+    # ----- Asymmetric Loss (multilabel-style one-vs-all) -----
+    def _asl(logits, y, gpos, gneg, clip):
+        x_sigmoid = torch.sigmoid(logits)
+        xs_pos = x_sigmoid
+        xs_neg = 1 - x_sigmoid
+        if clip and clip > 0:
+            xs_neg = torch.clamp(xs_neg + clip, max=1.0)
+        loss = y * torch.log(xs_pos.clamp_min(1e-8)) + (1 - y) * torch.log(xs_neg.clamp_min(1e-8))
+        pt = xs_pos * y + xs_neg * (1 - y)
+        one_sided = (1 - pt).pow(gpos * y + gneg * (1 - y))
+        return -(one_sided * loss).mean()
+
+    # Auto heuristic
+    def _auto_choice() -> str:
+        if num_classes >= 2:
+            if class_counts is not None:
+                props = (class_counts.float() / class_counts.sum().clamp_min(1))
+                if props.min() < 0.10:
+                    return "logit_adjust_ce"
+            return "ce"
+        else:
+            return "bce"
+
+    if lt == "auto":
+        lt = _auto_choice()
+
+    # -------- binary (num_classes == 1) --------
+    if num_classes == 1:
+        if lt in ("bce", "binary_cross_entropy_with_logits"):
+            def loss_fn(logits, target):
+                y = target.float().view(-1, 1)
+                return F.binary_cross_entropy_with_logits(logits, y)
+        elif lt in ("focal_bce", "focal", "focal_loss"):
+            def loss_fn(logits, target):
+                y = target.float().view(-1, 1)
+                return _focal_bce(logits, y, focal_alpha, focal_gamma)
+        else:
+            raise ValueError(f"loss_type '{loss_type}' not valid for binary (num_classes=1)")
+        return loss_fn
+
+    # -------- multiclass (num_classes >= 2) --------
+    if lt in ("ce", "cross_entropy"):
+        def loss_fn(logits, target):
+            y = _infer_indices(target, num_classes)
+            w = class_weights.to(logits.device) if class_weights is not None else None
+            return F.cross_entropy(logits, y, weight=w)
+    elif lt in ("ce_smooth", "label_smoothing"):
+        def loss_fn(logits, target):
+            y = _infer_indices(target, num_classes)
+            w = class_weights.to(logits.device) if class_weights is not None else None
+            return F.cross_entropy(logits, y, weight=w, label_smoothing=float(label_smoothing))
+    elif lt in ("ce_weighted",):
+        if class_weights is None:
+            raise ValueError("ce_weighted requires class_counts (to derive weights).")
+        def loss_fn(logits, target):
+            y = _infer_indices(target, num_classes)
+            return F.cross_entropy(logits, y, weight=class_weights.to(logits.device))
+    elif lt in ("focal_ce", "focal"):
+        alpha = None
+        if focal_alpha is not None:
+            alpha = focal_alpha if torch.is_tensor(focal_alpha) else float(focal_alpha)
+            if torch.is_tensor(alpha) and alpha.numel() == num_classes:
+                alpha = alpha.to(torch.float)
+        def loss_fn(logits, target):
+            y = _infer_indices(target, num_classes)
+            return _focal_ce(logits, y, alpha, focal_gamma)
+    elif lt in ("logit_adjust_ce", "la_ce"):
+        if class_counts is None:
+            raise ValueError("logit_adjust_ce requires class_counts.")
+        adjust = logit_adjust.to(torch.float) if logit_adjust is not None else None
+        def loss_fn(logits, target):
+            y = _infer_indices(target, num_classes)
+            z = logits if adjust is None else (logits + adjust.to(logits.device))
+            return F.cross_entropy(z, y)
+    elif lt in ("asl", "asymmetric_loss"):
+        def loss_fn(logits, target):
+            # expect one-hot/float (N,C) or indices (N,)
+            if target.ndim == 1:
+                y = F.one_hot(target.long(), num_classes=num_classes).float()
+            else:
+                y = target.float().view(-1, num_classes)
+            return _asl(logits, y, asl_gamma_pos, asl_gamma_neg, asl_clip)
+    else:
+        raise ValueError(f"Unknown loss_type '{loss_type}'")
+
+    return loss_fn
 
 def augment_classes(dst, nc, pc, generate=True,move=True):
     aug_nc = os.path.join(dst,'aug_nc')

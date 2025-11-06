@@ -4448,7 +4448,8 @@ class AnnotateApp:
         header.pack(fill=tk.X, pady=(0,8))
 
         gen_var   = tk.BooleanVar(value=bool(defaults.get('generate_training_dataset', True)))
-        train_var = tk.BooleanVar(value=bool(defaults.get('train_DL_model', True)))
+        #train_var = tk.BooleanVar(value=bool(defaults.get('train_DL_model', True)))
+        train_var = tk.BooleanVar(value=bool(defaults.get('train', False) or defaults.get('test', False)))
         apply_var = tk.BooleanVar(value=bool(defaults.get('apply_model_to_dataset', True)))
 
         def _chk(label, var):
@@ -4715,10 +4716,11 @@ class AnnotateApp:
         val_split_sp = ttk.Spinbox(tr_basic, from_=0.0, to=0.9, increment=0.01)
         val_split_sp.set(float(defaults.get('val_split', 0.1)))
         _row(tr_basic, rr, "val_split", val_split_sp); rr += 1
-
+        
         loss_cbx = ttk.Combobox(tr_basic, state='readonly',
-                                values=['focal_loss', 'binary_cross_entropy_with_logits', 'auto'])
-        loss_cbx.set(defaults.get('loss_type', 'focal_loss'))
+                        values=["auto","ce","ce_smooth","ce_weighted","focal_ce","bce","focal_bce","logit_adjust_ce", "asl"])
+        
+        loss_cbx.set(defaults.get('loss_type', 'auto'))
         _row(tr_basic, rr, "loss_type", loss_cbx); rr += 1
 
         train_channels_cbx = ttk.Combobox(tr_basic, state='readonly',
@@ -4729,6 +4731,7 @@ class AnnotateApp:
 
         do_train_var = tk.BooleanVar(value=bool(defaults.get('train', True)))
         do_test_var  = tk.BooleanVar(value=bool(defaults.get('test', False)))
+        
         _row(tr_basic, rr, "", tk.Checkbutton(tr_basic, text="train (legacy flag)",
                                             variable=do_train_var, bg=bg, fg=fg, selectcolor=bg, font=font)); rr += 1
         _row(tr_basic, rr, "", tk.Checkbutton(tr_basic, text="test after training (legacy flag)",
@@ -4851,7 +4854,7 @@ class AnnotateApp:
 
             # Master toggles
             settings['generate_training_dataset'] = bool(gen_var.get())
-            settings['train_DL_model'] = bool(train_var.get())
+            #settings['train_DL_model'] = bool(train_var.get())
             settings['apply_model_to_dataset'] = bool(apply_var.get())
 
             # GENERATE / DATASET (shared)
