@@ -1054,16 +1054,24 @@ expected_types = {
     "tracked_object": str,
     "motility_analysis": bool,
     "reuse_existing_measurements": bool,
+    'infection_pca_umap_search': bool,
+    'infection_pca_umap_n_neighbors_grid':list,
+    'infection_pca_umap_min_dist_grid':list,
+    'infection_pca_pathogen_weight':2.0,
+    'infection_pca_log_intensity':bool,
+    'infection_pca_tsne_search':bool,
+    'infection_pca_tsne_perplexity_grid':list,
+    'infection_pca_tsne_learning_rate_grid':list,
 }
 
 motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_strategy', 'seconds_per_frame', 'pixels_per_um', 'motility_ylim', 'motility_xlim']
 
 motility_advanced_settings = ['reuse_existing_measurements', 'infection_xgb_min_cells_per_class', 'infection_xgb_n_estimators', 'infection_xgb_max_depth', 'infection_xgb_learning_rate', 'infection_xgb_subsample', 'infection_xgb_colsample_bytree', 
-                     'infection_xgb_reg_lambda', 'infection_xgb_random_state', 'infection_xgb_n_jobs', 'infection_xgb_proba_threshold', 'infection_xgb_margin', 
-                     'infection_xgb_top_features', 'infection_xgb_proba_column', 'infection_xgb_proba', 'infection_xgb_drop_ambiguous', 'infection_xgb_ambiguous_low', 
-                     'infection_xgb_ambiguous_high','infection_pca_method', 'infection_pca_n_clusters', 'infection_pca_random_state', 
-                     'infection_intensity_n_bins', 'db_table_name', 'infection_intensity_qc_graphs', 'infection_intensity_qc_panel_path', 
-                     'infection_intensity_mode', 'infection_intensity_qc', 'straightness_threshold', 'straightness_filter', 'zscore_thresh', 'max_displacement']
+                     'infection_xgb_reg_lambda', 'infection_xgb_random_state', 'infection_xgb_n_jobs', 'infection_xgb_proba_threshold', 'infection_xgb_margin', 'infection_xgb_top_features', 'infection_xgb_proba_column', 'infection_xgb_proba', 
+                     'infection_xgb_drop_ambiguous', 'infection_xgb_ambiguous_low','infection_xgb_ambiguous_high','infection_pca_method', 'infection_pca_n_clusters', 'infection_pca_random_state', 'infection_intensity_n_bins', 'db_table_name', 
+                     'infection_intensity_qc_graphs', 'infection_intensity_qc_panel_path', 'infection_intensity_mode', 'infection_intensity_qc', 'straightness_threshold', 'straightness_filter', 'zscore_thresh', 'max_displacement',
+                     'infection_pca_umap_search','infection_pca_umap_n_neighbors_grid','infection_pca_umap_min_dist_grid','infection_pca_pathogen_weight', 'infection_pca_log_intensity','infection_pca_tsne_search',
+                     'infection_pca_tsne_perplexity_grid','infection_pca_tsne_learning_rate_grid', 'infection_pca_umap_n_neighbors','infection_pca_umap_min_dist','infection_pca_tsne_perplexity']
 
 categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset","model_path","grna_csv","row_csv","column_csv", "metadata_files", "score_data","count_data"],
              "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel",  "test_mode", "plot", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "delete_intermediate", "uninfected", ],
@@ -1088,7 +1096,6 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Motility (beta)": motility_settings,
              "Motility Advanced (beta)": motility_advanced_settings,
              }
-
 
 category_keys = list(categories.keys())
 
@@ -1528,6 +1535,17 @@ def generate_fields(variables, scrollable_frame):
         "tracked_object": "(str) - Type of object being tracked in the motility analysis (e.g. 'cell', 'pathogen').",
         "motility_analysis": "(bool) - Whether to run the motility-analysis module.",
         "reuse_existing_measurements": "(bool) - Whether to reuse measurements stored in the database or regenerate them.",
+        "infection_pca_umap_search": "(bool) - Whether to run a grid search over UMAP hyperparameters instead of using fixed values.",
+        "infection_pca_umap_n_neighbors_grid": "(list[int]) - Candidate UMAP n_neighbors values to evaluate when infection_pca_umap_search is True.",
+        "infection_pca_umap_min_dist_grid": "(list[float]) - Candidate UMAP min_dist values to evaluate when infection_pca_umap_search is True.",
+        "infection_pca_pathogen_weight": "(float) - Multiplicative weight applied to pathogen-channel features before embedding to emphasize infection signal.",
+        "infection_pca_log_intensity": "(bool) - Apply log1p transformation to intensity-like features before PCA/UMAP/t-SNE embedding.",
+        "infection_pca_tsne_search": "(bool) - Whether to run a grid search over t-SNE hyperparameters instead of using fixed values.",
+        "infection_pca_tsne_perplexity_grid": "(list[float]) - Candidate t-SNE perplexity values to evaluate when infection_pca_tsne_search is True.",
+        "infection_pca_tsne_learning_rate_grid": "(list[float]) - Candidate t-SNE learning-rate values to evaluate when infection_pca_tsne_search is True.",
+        "infection_pca_umap_n_neighbors": "(int) - UMAP n_neighbors value used when infection_pca_umap_search is False (fixed neighborhood size).",
+        "infection_pca_umap_min_dist": "(float) - UMAP min_dist value used when infection_pca_umap_search is False (controls embedding compactness).",
+        "infection_pca_tsne_perplexity": "(float) - t-SNE perplexity value used when infection_pca_tsne_search is False (fixed effective neighborhood size).",
 
     }
     
@@ -1801,18 +1819,16 @@ def set_default_general(settings=None):
     return settings
 
 def get_automated_motility_assay_default_settings(settings):
-    
-    settings.setdefault('motility_analysis', False)
-    settings.setdefault('reuse_existing_measurements', True)
+    if settings is None:
+        settings = {}
+
     # array settings
     settings.setdefault('channels', [0, 1, 2, 3])
     settings.setdefault('cell_channel', 2)
     settings.setdefault('nucleus_channel', 0)
     settings.setdefault('pathogen_channel', 1)
-
-    # NEW: which object type to use for infection features
-    # allowed: 'cell', 'nucleus', 'pathogen'
     settings.setdefault('tracked_object', 'cell')
+    settings.setdefault('reuse_existing_measurements', True)
 
     # filter settings
     settings.setdefault('n_jobs', -1)
@@ -1821,7 +1837,7 @@ def get_automated_motility_assay_default_settings(settings):
     settings.setdefault('straightness_filter', False)
     settings.setdefault('straightness_threshold', 0.95)
     settings.setdefault('infection_intensity_qc', True)
-    settings.setdefault('infection_intensity_strategy', 'xgboost')
+    settings.setdefault('infection_intensity_strategy', 'xgb')  # 'pca' | 'umap' | 'tsne' | 'histogram' | 'xgb'
     settings.setdefault('infection_intensity_mode', "relabel")  # or 'remove'
     settings.setdefault('infection_intensity_qc_panel_path', None)
     settings.setdefault('infection_intensity_qc_graphs', True)
@@ -1834,7 +1850,7 @@ def get_automated_motility_assay_default_settings(settings):
     settings.setdefault('motility_xlim', (100, -100))
     settings.setdefault('motility_ylim', (100, -100))
 
-    # xgboost settings    
+    # xgboost settings
     settings.setdefault('infection_xgb_n_estimators', 200)
     settings.setdefault('infection_xgb_max_depth', 3)
     settings.setdefault('infection_xgb_learning_rate', 0.1)
@@ -1852,9 +1868,28 @@ def get_automated_motility_assay_default_settings(settings):
     settings.setdefault('infection_xgb_ambiguous_high', 0.75)
     settings.setdefault('infection_xgb_min_cells_per_class', 10)
 
-    # pca settings
-    settings.setdefault('infection_pca_method', 'pca')
+    # PCA / embedding-common settings
     settings.setdefault('infection_pca_n_clusters', 2)
     settings.setdefault('infection_pca_random_state', 42)
+    settings.setdefault('infection_pca_pathogen_weight', 2.0)
+    settings.setdefault('infection_pca_log_intensity', False)
+    settings.setdefault('infection_pca_max_cells', 50000)
+    settings.setdefault('infection_pca_min_gt_separation', 0.2)
+    settings.setdefault('infection_pca_min_silhouette', 0.05)
+
+    # UMAP
+    settings.setdefault('infection_pca_umap_search', True)
+    settings.setdefault('infection_pca_umap_n_neighbors_grid', [5, 10, 15, 30])
+    settings.setdefault('infection_pca_umap_min_dist_grid', [0.0, 0.05, 0.1, 0.3])
+    # used if infection_pca_umap_search == False
+    settings.setdefault('infection_pca_umap_n_neighbors', 15)
+    settings.setdefault('infection_pca_umap_min_dist', 0.1)
+
+    # t-SNE
+    settings.setdefault('infection_pca_tsne_search', True)
+    settings.setdefault('infection_pca_tsne_perplexity_grid', [15.0, 30.0, 45.0])
+    settings.setdefault('infection_pca_tsne_learning_rate_grid', [200.0, 500.0])
+    # used if infection_pca_tsne_search == False
+    settings.setdefault('infection_pca_tsne_perplexity', 30.0)
 
     return settings
