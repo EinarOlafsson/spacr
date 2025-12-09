@@ -15,7 +15,7 @@ dependencies = [
     'scikit-learn>=1.4.1,<2.0',
     'scikit-posthocs>=0.10.0, <0.20',
     'mahotas>=1.4.13,<2.0',
-    'btrack>=0.6.5,<1.0',
+    'btrack>=0.7.0,<1.0',
     'trackpy>=0.6.2,<1.0',
     'statsmodels>=0.14.1,<1.0',
     'shap>=0.45.0,<1.0',
@@ -72,7 +72,7 @@ dependencies = [
     'huggingface-hub>=0.24.0,<0.25'
 ]
 
-VERSION = "1.1.7"
+VERSION = "1.2.1"
 
 setup(
     name="spacr-nightly",
@@ -99,7 +99,7 @@ setup(
         ],
     },
     extras_require={
-        'dev': ['pytest>=3.9,<3.12'],
+        'dev': ['pytest>=3.10,<3.12'],
         'headless': ['opencv-python-headless'],
         'full': ['opencv-python'],
     },

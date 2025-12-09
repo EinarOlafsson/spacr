@@ -562,41 +562,6 @@ class spacrDataLoader(DataLoader):
     def __del__(self):
         self.cleanup()
 
-class NoClassDataset_v1(Dataset):
-    def __init__(self, data_dir, transform=None, shuffle=True, load_to_memory=False):
-        self.data_dir = data_dir
-        self.transform = transform
-        self.shuffle = shuffle
-        self.load_to_memory = load_to_memory
-        self.filenames = [os.path.join(data_dir, f) for f in os.listdir(data_dir) if os.path.isfile(os.path.join(data_dir, f))]
-        if self.shuffle:
-            self.shuffle_dataset()
-        if self.load_to_memory:
-            self.images = [self.load_image(f) for f in self.filenames]
-    
-    def load_image(self, img_path):
-        img = Image.open(img_path).convert('RGB')
-        return img
-
-    def __len__(self):
-
-        return len(self.filenames)
-
-    def shuffle_dataset(self):
-        if self.shuffle:
-            random.shuffle(self.filenames)
-
-    def __getitem__(self, index):
-        if self.load_to_memory:
-            img = self.images[index]
-        else:
-            img = self.load_image(self.filenames[index])
-        if self.transform is not None:
-            img = self.transform(img)
-        else:
-            img = ToTensor()(img)
-        return img, self.filenames[index]
-
 class TarImageDataset(Dataset):
     def __init__(self, tar_path, transform=None):
         self.tar_path = tar_path
@@ -1734,34 +1699,6 @@ def _get_avg_object_size(masks):
         avg_object_size = 0
 
     return avg_num_objects_per_image, avg_object_size
-
-def _get_avg_object_size_v1(masks):
-    """
-    Calculate the average size of objects in a list of masks.
-
-    Parameters:
-    masks (list): A list of masks representing objects.
-
-    Returns:
-    float: The average size of objects in the masks. Returns 0 if no objects are found.
-    """
-    object_areas = []
-    for mask in masks:
-        # Check if the mask is a 2D or 3D array and is not empty
-        if mask.ndim in [2, 3] and np.any(mask):
-            properties = measure.regionprops(mask)
-            object_areas += [prop.area for prop in properties]
-        else:
-            if not np.any(mask):
-                print(f"Mask is empty. ")
-            if not mask.ndim in [2, 3]:
-                print(f"Mask is not in the correct format. dim: {mask.ndim}")
-            continue
-
-    if object_areas:
-        return sum(object_areas) / len(object_areas)
-    else:
-        return 0  # Return 0 if no objects are found
     
 def _save_figure(fig, src, text, dpi=300, i=1, all_folders=1):
     from .utils import print_progress
@@ -2328,6 +2265,9 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_
 
     from .utils import _split_data
 
+    # keep final integer counts per prcfo for pathogens
+    pathogen_counts = None
+
     # Initialize an empty dictionary to store DataFrames by table name
     data_dict = {table: [] for table in tables}
 
@@ -2336,7 +2276,11 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_
         db_dfs = _read_db(loc, tables)
         if change_plate:
             db_dfs['plateID'] = f'plate{idx+1}'
-            db_dfs['prc'] = db_dfs['plateID'].astype(str) + '_' + db_dfs['rowID'].astype(str) + '_' + db_dfs['columnID'].astype(str)
+            db_dfs['prc'] = (
+                db_dfs['plateID'].astype(str)
+                + '_' + db_dfs['rowID'].astype(str)
+                + '_' + db_dfs['columnID'].astype(str)
+            )
         for table, df in zip(tables, db_dfs):
             data_dict[table].append(df)
 
@@ -2344,7 +2288,6 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_
     for table, dfs in data_dict.items():
         if dfs:
             data_dict[table] = pd.concat(dfs, axis=0)
-            
         if verbose:
             print(f"{table}: {len(data_dict[table])}")
 
@@ -2365,17 +2308,17 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_
         cytoplasms = data_dict['cytoplasm'].copy()
         cytoplasms = cytoplasms.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
         cytoplasms = cytoplasms.assign(prcfo=lambda x: x['prcf'] + '_' + x['object_label'])
-        
-        if not 'cell' in data_dict:
+
+        if 'cell' not in data_dict:
             merged_df, metadata = _split_data(cytoplasms, 'prcfo', 'object_label')
-            
+
             if verbose:
                 print(f'nucleus: {len(cytoplasms)}, cytoplasms grouped: {len(merged_df)}')
-            
+
         else:
             cytoplasms_g_df, _ = _split_data(cytoplasms, 'prcfo', 'object_label')
             merged_df = merged_df.merge(cytoplasms_g_df, left_index=True, right_index=True)
-            
+
             if verbose:
                 print(f'cytoplasms: {len(cytoplasms)}, cytoplasms grouped: {len(cytoplasms_g_df)}')
 
@@ -2386,19 +2329,23 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_
         nucleus = nucleus.assign(cell_id=lambda x: 'o' + x['cell_id'].astype(int).astype(str))
         nucleus = nucleus.assign(prcfo=lambda x: x['prcf'] + '_' + x['cell_id'])
         nucleus['nucleus_prcfo_count'] = nucleus.groupby('prcfo')['prcfo'].transform('count')
-        if not nuclei_limit:
-            nucleus = nucleus[nucleus['nucleus_prcfo_count'] == 1]
-            
+
+        if nuclei_limit is not None:
+            if nuclei_limit is True:
+                nucleus = nucleus[nucleus['nucleus_prcfo_count'] == 1]
+            elif isinstance(nuclei_limit, (float, int)):
+                nucleus = nucleus[nucleus['nucleus_prcfo_count'] <= int(nuclei_limit)]
+
         if all(key not in data_dict for key in ['cell', 'cytoplasm']):
             merged_df, metadata = _split_data(nucleus, 'prcfo', 'cell_id')
-            
+
             if verbose:
                 print(f'nucleus: {len(nucleus)}, nucleus grouped: {len(merged_df)}')
-            
+
         else:
             nucleus_g_df, _ = _split_data(nucleus, 'prcfo', 'cell_id')
             merged_df = merged_df.merge(nucleus_g_df, left_index=True, right_index=True)
-            
+
             if verbose:
                 print(f'nucleus: {len(nucleus)}, nucleus grouped: {len(nucleus_g_df)}')
 
@@ -2410,52 +2357,84 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_
         pathogens = pathogens.assign(prcfo=lambda x: x['prcf'] + '_' + x['cell_id'])
         pathogens['pathogen_prcfo_count'] = pathogens.groupby('prcfo')['prcfo'].transform('count')
 
-        if isinstance(pathogen_limit, bool) and not pathogen_limit:
-            pathogens = pathogens[pathogens['pathogen_prcfo_count'] <= 1]
-        elif isinstance(pathogen_limit, (float, int)):
-            pathogens = pathogens[pathogens['pathogen_prcfo_count'] <= int(pathogen_limit)]
+        if pathogen_limit is not None:
+            if pathogen_limit is True:
+                pathogens = pathogens[pathogens['pathogen_prcfo_count'] <= 1]
+            elif isinstance(pathogen_limit, (float, int)):
+                pathogens = pathogens[pathogens['pathogen_prcfo_count'] <= int(pathogen_limit)]
 
         if all(key not in data_dict for key in ['cell', 'cytoplasm', 'nucleus']):
             merged_df, metadata = _split_data(pathogens, 'prcfo', 'cell_id')
-            
+
             if verbose:
                 print(f'pathogens: {len(pathogens)}, pathogens grouped: {len(merged_df)}')
-            
+
         else:
             pathogens_g_df, _ = _split_data(pathogens, 'prcfo', 'cell_id')
             merged_df = merged_df.merge(pathogens_g_df, left_index=True, right_index=True)
-        
+
             if verbose:
                 print(f'pathogens: {len(pathogens)}, pathogens grouped: {len(pathogens_g_df)}')
-            
+
+        # ---- NEW: true integer counts per prcfo after pathogen_limit filter ----
+        pathogen_counts = (
+            pathogens.groupby('prcfo')['prcfo']
+            .size()
+            .rename('pathogen_prcfo_count')
+        )
+        # -----------------------------------------------------------------------
+
     if 'png_list' in data_dict:
         png_list = data_dict['png_list'].copy()
         png_list_g_df_numeric, png_list_g_df_non_numeric = _split_data(png_list, 'prcfo', 'cell_id')
-        png_list_g_df_non_numeric.drop(columns=['plateID','rowID','columnID','fieldID','file_name','cell_id', 'prcf'], inplace=True)
+        png_list_g_df_non_numeric.drop(
+            columns=['plateID', 'rowID', 'columnID', 'fieldID', 'file_name', 'cell_id', 'prcf'],
+            inplace=True,
+            errors='ignore',
+        )
         if verbose:
             print(f'png_list: {len(png_list)}, png_list grouped: {len(png_list_g_df_numeric)}')
             print(f"Added png_list columns: {png_list_g_df_numeric.columns}, {png_list_g_df_non_numeric.columns}")
         merged_df = merged_df.merge(png_list_g_df_numeric, left_index=True, right_index=True)
         merged_df = merged_df.merge(png_list_g_df_non_numeric, left_index=True, right_index=True)
-    
+
     # Add prc (plate row column) and prcfo (plate row column field object) columns
-    metadata = metadata.assign(prc=lambda x: x['plateID'] + '_' + x['rowID'] + '_' + x['columnID'])
+    metadata = metadata.assign(
+        prc=lambda x: x['plateID'] + '_' + x['rowID'] + '_' + x['columnID']
+    )
     cells_well = metadata.groupby('prc')['object_label'].nunique().reset_index(name='cells_per_well')
     metadata = metadata.merge(cells_well, on='prc')
-    metadata = metadata.assign(prcfo=lambda x: x['plateID'] + '_' + x['rowID'] + '_' + x['columnID'] + '_' + x['fieldID'] + '_' + x['object_label'])
+
+    if 'prcf' in metadata.columns:
+        metadata = metadata.assign(prcfo=lambda x: x['prcf'] + '_' + x['object_label'])
+    else:
+        metadata = metadata.assign(
+            prcfo=lambda x: (
+                x['plateID'] + '_' + x['rowID'] + '_' + x['columnID'] + '_' + x['fieldID'] + '_' + x['object_label']
+            )
+        )
     metadata.set_index('prcfo', inplace=True)
-    
+
     # Merge metadata with final merged DataFrame
-    #merged_df = metadata.merge(merged_df, left_index=True, right_index=True).dropna(axis=1)
     merged_df = metadata.merge(merged_df, left_index=True, right_index=True)
     merged_df.drop(columns=['label_list_morphology', 'label_list_intensity'], errors='ignore', inplace=True)
-    
+
+    # ---- NEW: overwrite pathogen_prcfo_count with true integer counts ---------
+    if pathogen_counts is not None:
+        merged_df['pathogen_prcfo_count'] = (
+            merged_df.index.to_series()
+            .map(pathogen_counts)
+            .fillna(0)
+            .astype('Int64')
+        )
+    # ---------------------------------------------------------------------------
+
     if verbose:
         print(f'Generated dataframe with: {len(merged_df.columns)} columns and {len(merged_df)} rows')
-    
+
     # Prepare object DataFrames for output
     obj_df_ls = [data_dict[table] for table in ['cell', 'cytoplasm', 'nucleus', 'pathogen'] if table in data_dict]
-    
+
     return merged_df, obj_df_ls
     
 def _read_mask(mask_path):
@@ -2688,102 +2667,6 @@ def generate_dataset(settings={}):
 
     return tar_name
 
-def generate_dataset_v1(settings={}):
-    
-    from .utils import initiate_counter, add_images_to_tar, save_settings, generate_path_list_from_db, correct_paths
-    from .settings import set_generate_dataset_defaults
-
-    settings = set_generate_dataset_defaults(settings)
-    save_settings(settings, 'generate_dataset', show=True)
-
-    if isinstance(settings['src'], str):
-        settings['src'] = [settings['src']]
-    if isinstance(settings['src'], list):
-        all_paths = []
-        for i, src in enumerate(settings['src']):
-            db_path = os.path.join(src, 'measurements', 'measurements.db')
-            if i == 0:
-                dst = os.path.join(src, 'datasets')
-            paths = generate_path_list_from_db(db_path, file_metadata=settings['file_metadata'])
-            paths = correct_paths(paths, src)
-            all_paths.extend(paths)
-        if isinstance(settings['sample'], int) and settings['sample']:
-            selected_paths = random.sample(all_paths, settings['sample'])
-            print(f"Random selection of {len(selected_paths)} paths")
-        elif isinstance(settings['sample'], list) and settings['sample']:
-            k = int(settings['sample'][0])
-            selected_paths = random.sample(all_paths, min(k, len(all_paths)))
-            
-            #sample = settings['sample'][i]
-            #selected_paths = random.sample(all_paths, settings['sample'])
-            print(f"Random selection of {len(selected_paths)} paths")
-        else:
-            selected_paths = all_paths
-            random.shuffle(selected_paths)
-            print(f"All paths: {len(selected_paths)} paths")
-
-    total_images = len(selected_paths)
-    print(f"Found {total_images} images")
-
-    # Create a temp folder in dst
-    temp_dir = os.path.join(dst, "temp_tars")
-    os.makedirs(temp_dir, exist_ok=True)
-
-    # Chunking the data
-    num_procs = max(2, cpu_count() - 2)
-    chunk_size = len(selected_paths) // num_procs
-    remainder = len(selected_paths) % num_procs
-
-    paths_chunks = []
-    start = 0
-    for i in range(num_procs):
-        end = start + chunk_size + (1 if i < remainder else 0)
-        paths_chunks.append(selected_paths[start:end])
-        start = end
-
-    temp_tar_files = [os.path.join(temp_dir, f"temp_{i}.tar") for i in range(num_procs)]
-
-    print(f"Generating temporary tar files in {dst}")
-
-    # Initialize shared counter and lock
-    counter = Value('i', 0)
-    lock = Lock()
-
-    with Pool(processes=num_procs, initializer=initiate_counter, initargs=(counter, lock)) as pool:
-        pool.starmap(add_images_to_tar, [(paths_chunks[i], temp_tar_files[i], total_images) for i in range(num_procs)])
-
-    # Combine the temporary tar files into a final tar
-    date_name = datetime.date.today().strftime('%y%m%d')
-    if len(settings['src']) > 1:
-        date_name = f"{date_name}_combined"
-    #if not settings['file_metadata'] is None:
-    #    tar_name = f"{date_name}_{settings['experiment']}_{settings['file_metadata']}.tar"
-    #else:
-    tar_name = f"{date_name}_{settings['experiment']}.tar"
-    tar_name = os.path.join(dst, tar_name)
-    if os.path.exists(tar_name):
-        number = random.randint(1, 100)
-        tar_name_2 = f"{date_name}_{settings['experiment']}_{settings['file_metadata']}_{number}.tar"
-        print(f"Warning: {os.path.basename(tar_name)} exists, saving as {os.path.basename(tar_name_2)} ")
-        tar_name = os.path.join(dst, tar_name_2)
-
-    print(f"Merging temporary files")
-
-    with tarfile.open(tar_name, 'w') as final_tar:
-        for temp_tar_path in temp_tar_files:
-            with tarfile.open(temp_tar_path, 'r') as temp_tar:
-                for member in temp_tar.getmembers():
-                    if member.isfile():
-                        file_obj = temp_tar.extractfile(member)
-                        final_tar.addfile(member, file_obj)
-            os.remove(temp_tar_path)
-
-    # Delete the temp folder
-    shutil.rmtree(temp_dir)
-    print(f"\nSaved {total_images} images to {tar_name}")
-
-    return tar_name
-
 def generate_loaders(src, mode='train', image_size=224, batch_size=32,
                      classes=['nc','pc'], n_jobs=None, validation_split=0.0,
                      pin_memory=False, normalize=False, channels=['r','g','b'],
@@ -2860,132 +2743,6 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
         val_loaders = []
         train_fig = None
         return train_loaders, val_loaders, train_fig
-
-
-def generate_loaders_v1(src, mode='train', image_size=224, batch_size=32, classes=['nc','pc'], n_jobs=None, validation_split=0.0, pin_memory=False, normalize=False, channels=[1, 2, 3], augment=False, verbose=False):
-    
-    """
-    Generate data loaders for training and validation/test datasets.
-
-    Parameters:
-    - src (str): The source directory containing the data.
-    - mode (str): The mode of operation. Options are 'train' or 'test'.
-    - image_size (int): The size of the input images.
-    - batch_size (int): The batch size for the data loaders.
-    - classes (list): The list of classes to consider.
-    - n_jobs (int): The number of worker threads for data loading.
-    - validation_split (float): The fraction of data to use for validation.
-    - pin_memory (bool): Whether to pin memory for faster data transfer.
-    - normalize (bool): Whether to normalize the input images.
-    - verbose (bool): Whether to print additional information and show images.
-    - channels (list): The list of channels to retain. Options are [1, 2, 3] for all channels, [1, 2] for blue and green, etc.
-
-    Returns:
-    - train_loaders (list): List of data loaders for training datasets.
-    - val_loaders (list): List of data loaders for validation datasets.
-    """
-
-    from .utils import SelectChannels, augment_dataset
-
-    chans = []
-
-    if 'r' in channels:
-        chans.append(1)
-    if 'g' in channels:
-        chans.append(2)
-    if 'b' in channels:
-        chans.append(3)
-
-    channels = chans
-
-    if verbose:
-        print(f'Training a network on channels: {channels}')
-        print(f'Channel 1: Red, Channel 2: Green, Channel 3: Blue')
-        
-    train_loaders = []
-    val_loaders = []
-
-    if normalize:
-        transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.CenterCrop(size=(image_size, image_size)),
-            SelectChannels(channels),
-            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
-    else:
-        transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.CenterCrop(size=(image_size, image_size)),
-            SelectChannels(channels)])
-
-    if mode == 'train':
-        data_dir = os.path.join(src, 'train')
-        shuffle = True
-        print('Loading Train and validation datasets')
-    elif mode == 'test':
-        data_dir = os.path.join(src, 'test')
-        val_loaders = []
-        validation_split = 0.0
-        shuffle = True
-        print('Loading test dataset')
-    else:
-        print(f'mode:{mode} is not valid, use mode = train or test')
-        return
-    
-    class_1_path = os.path.join(data_dir, classes[0])
-    class_2_path = os.path.join(data_dir, classes[1])
-    if not os.path.exists(class_1_path) or not os.path.exists(class_2_path):
-        print(f'One or more classes not found in {data_dir}')
-        print (f'Possible class names are {os.listdir(data_dir)}')
-
-    data = spacrDataset(data_dir, classes, transform=transform, shuffle=shuffle, pin_memory=pin_memory)
-    num_workers = n_jobs if n_jobs is not None else 0
-    
-    if validation_split > 0:
-        train_size = int((1 - validation_split) * len(data))
-        val_size = len(data) - train_size
-        if not augment:
-            print(f'Train data:{train_size}, Validation data:{val_size}')
-        train_dataset, val_dataset = random_split(data, [train_size, val_size])
-
-        if augment:
-
-            print(f'Data before augmentation: Train: {len(train_dataset)}, Validataion:{len(val_dataset)}')
-            train_dataset = augment_dataset(train_dataset, is_grayscale=(len(channels) == 1))
-            print(f'Data after augmentation: Train: {len(train_dataset)}')
-            
-        print(f'Generating Dataloader with {n_jobs} workers')
-        train_loaders = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=1, pin_memory=pin_memory, persistent_workers=True)
-        val_loaders = DataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=1, pin_memory=pin_memory, persistent_workers=True)
-    else:
-        train_loaders = DataLoader(data, batch_size=batch_size, shuffle=shuffle, num_workers=1, pin_memory=pin_memory, persistent_workers=True)
-
-    #dataset (Dataset) – dataset from which to load the data.
-    #batch_size (int, optional) – how many samples per batch to load (default: 1).
-    #shuffle (bool, optional) – set to True to have the data reshuffled at every epoch (default: False).
-    #sampler (Sampler or Iterable, optional) – defines the strategy to draw samples from the dataset. Can be any Iterable with __len__ implemented. If specified, shuffle must not be specified.
-    #batch_sampler (Sampler or Iterable, optional) – like sampler, but returns a batch of indices at a time. Mutually exclusive with batch_size, shuffle, sampler, and drop_last.
-    #num_workers (int, optional) – how many subprocesses to use for data loading. 0 means that the data will be loaded in the main process. (default: 0)
-    #collate_fn (Callable, optional) – merges a list of samples to form a mini-batch of Tensor(s). Used when using batched loading from a map-style dataset.
-    #pin_memory (bool, optional) – If True, the data loader will copy Tensors into device/CUDA pinned memory before returning them. If your data elements are a custom type, or your collate_fn returns a batch that is a custom type, see the example below.
-    #drop_last (bool, optional) – set to True to drop the last incomplete batch, if the dataset size is not divisible by the batch size. If False and the size of dataset is not divisible by the batch size, then the last batch will be smaller. (default: False)
-    #timeout (numeric, optional) – if positive, the timeout value for collecting a batch from workers. Should always be non-negative. (default: 0)
-    #worker_init_fn (Callable, optional) – If not None, this will be called on each worker subprocess with the worker id (an int in [0, num_workers - 1]) as input, after seeding and before data loading. (default: None)
-    #multiprocessing_context (str or multiprocessing.context.BaseContext, optional) – If None, the default multiprocessing context of your operating system will be used. (default: None)
-    #generator (torch.Generator, optional) – If not None, this RNG will be used by RandomSampler to generate random indexes and multiprocessing to generate base_seed for workers. (default: None)
-    #prefetch_factor (int, optional, keyword-only arg) – Number of batches loaded in advance by each worker. 2 means there will be a total of 2 * num_workers batches prefetched across all workers. (default value depends on the set value for num_workers. If value of num_workers=0 default is None. Otherwise, if value of num_workers > 0 default is 2).
-    #persistent_workers (bool, optional) – If True, the data loader will not shut down the worker processes after a dataset has been consumed once. This allows to maintain the workers Dataset instances alive. (default: False)
-    #pin_memory_device (str, optional) – the device to pin_memory to if pin_memory is True.
-
-    #images, labels, filenames = next(iter(train_loaders))
-    #images = images.cpu()
-    #label_strings = [str(label.item()) for label in labels]
-    #train_fig = _imshow_gpu(images, label_strings, nrow=20, fontsize=12)
-    #if verbose:
-    #    plt.show()
-    
-    train_fig = None
-
-    return train_loaders, val_loaders, train_fig
 
 def generate_training_dataset(settings):
     """

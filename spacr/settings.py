@@ -1015,8 +1015,55 @@ expected_types = {
     'use_sam_cell':bool,
     'use_sam_nucleus':bool,
     'use_sam_pathogen':bool,
-    "distance_gaussian_sigma": (int, type(None))
+    "distance_gaussian_sigma": (int, type(None)),
+    "infection_xgb_n_estimators": int,
+    "infection_xgb_max_depth": int,
+    "infection_xgb_learning_rate": float,
+    "infection_xgb_subsample": float,
+    "infection_xgb_colsample_bytree": float,
+    "infection_xgb_reg_lambda": float,
+    "infection_xgb_random_state": int,
+    "infection_xgb_n_jobs": int,
+    "infection_xgb_proba_threshold": float,
+    "infection_xgb_margin": float,
+    "infection_xgb_top_features": int,
+    "infection_xgb_proba_column": str,
+    "infection_xgb_proba": float,
+    "infection_xgb_drop_ambiguous": bool,
+    "infection_xgb_ambiguous_low": float,
+    "infection_xgb_ambiguous_high": float,
+    "infection_xgb_min_cells_per_class": int,
+    "infection_pca_method": str,
+    "infection_pca_n_clusters": int,
+    "infection_pca_random_state": int,
+    "motility_ylim": tuple,
+    "motility_xlim": tuple,
+    "seconds_per_frame": int,
+    "pixels_per_um": float,
+    "infection_intensity_n_bins": int,
+    "db_table_name": str,
+    "infection_intensity_qc_graphs": bool,
+    "infection_intensity_qc_panel_path": str,
+    "infection_intensity_mode": str,
+    "infection_intensity_strategy": str,
+    "infection_intensity_qc": bool,
+    "straightness_threshold": float,
+    "straightness_filter": bool,
+    "zscore_thresh": float,
+    "max_displacement": float,
+    "tracked_object": str,
+    "motility_analysis": bool,
+    "reuse_existing_measurements": bool,
 }
+
+motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_strategy', 'seconds_per_frame', 'pixels_per_um', 'motility_ylim', 'motility_xlim']
+
+motility_advanced_settings = ['reuse_existing_measurements', 'infection_xgb_min_cells_per_class', 'infection_xgb_n_estimators', 'infection_xgb_max_depth', 'infection_xgb_learning_rate', 'infection_xgb_subsample', 'infection_xgb_colsample_bytree', 
+                     'infection_xgb_reg_lambda', 'infection_xgb_random_state', 'infection_xgb_n_jobs', 'infection_xgb_proba_threshold', 'infection_xgb_margin', 
+                     'infection_xgb_top_features', 'infection_xgb_proba_column', 'infection_xgb_proba', 'infection_xgb_drop_ambiguous', 'infection_xgb_ambiguous_low', 
+                     'infection_xgb_ambiguous_high','infection_pca_method', 'infection_pca_n_clusters', 'infection_pca_random_state', 
+                     'infection_intensity_n_bins', 'db_table_name', 'infection_intensity_qc_graphs', 'infection_intensity_qc_panel_path', 
+                     'infection_intensity_mode', 'infection_intensity_qc', 'straightness_threshold', 'straightness_filter', 'zscore_thresh', 'max_displacement']
 
 categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset","model_path","grna_csv","row_csv","column_csv", "metadata_files", "score_data","count_data"],
              "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel",  "test_mode", "plot", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "delete_intermediate", "uninfected", ],
@@ -1037,7 +1084,9 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Plot": ["split_axis_lims", "x_lim","log_x","log_y", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","cmap","save_figure"],
              "Timelapse": ["timelapse", "fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
              "Advanced": ["merge_edge_pathogen_cells", "test_images", "random_test", "test_nr", "test", "test_split", "normalize", "target_unique_count","threshold_multiplier", "threshold_method", "min_n","shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs"],
-             "Beta": ["all_to_mip", "upscale", "upscale_factor", "consolidate", "distance_gaussian_sigma","use_sam_pathogen","use_sam_nucleus", "use_sam_cell", "denoise"]
+             "Beta": ["all_to_mip", "upscale", "upscale_factor", "consolidate", "distance_gaussian_sigma","use_sam_pathogen","use_sam_nucleus", "use_sam_cell", "denoise"],
+             "Motility (beta)": motility_settings,
+             "Motility Advanced (beta)": motility_advanced_settings,
              }
 
 
@@ -1160,8 +1209,6 @@ def check_settings(vars_dict, expected_types, q=None):
     for error in errors:
         q.put(error)
         
-    
-
     return settings, errors
 
 def generate_fields(variables, scrollable_frame):
@@ -1432,6 +1479,56 @@ def generate_fields(variables, scrollable_frame):
         "use_sam_pathogen": "(bool) - Whether to use SAM for pathogen segmentation.",
         "normalize_input": "(bool) - Normalize the input images before passing them to the model.",
         "normalize_plots": "(bool) - Normalize images before plotting.",
+        "use_sam_cell": "(bool) - Whether to use SAM for cell segmentation.",
+        "use_sam_nucleus": "(bool) - Whether to use SAM for nucleus segmentation.",
+        "use_sam_pathogen": "(bool) - Whether to use SAM for pathogen segmentation.",
+
+        "distance_gaussian_sigma": "(int or None) - Standard deviation of the Gaussian kernel used to smooth distance-based features; set to None to disable Gaussian smoothing.",
+
+        "infection_xgb_n_estimators": "(int) - Number of trees (estimators) in the XGBoost infection classifier.",
+        "infection_xgb_max_depth": "(int) - Maximum depth of each tree in the XGBoost infection classifier.",
+        "infection_xgb_learning_rate": "(float) - Learning rate (eta) for the XGBoost infection classifier.",
+        "infection_xgb_subsample": "(float) - Fraction of samples used per tree (subsample) in the XGBoost infection classifier.",
+        "infection_xgb_colsample_bytree": "(float) - Fraction of features used per tree (colsample_bytree) in the XGBoost infection classifier.",
+        "infection_xgb_reg_lambda": "(float) - L2 regularization parameter (lambda) for the XGBoost infection classifier.",
+        "infection_xgb_random_state": "(int) - Random seed for the XGBoost infection classifier.",
+        "infection_xgb_n_jobs": "(int) - Number of parallel threads used by the XGBoost infection classifier.",
+
+        "infection_xgb_proba_threshold": "(float) - Probability threshold used to classify cells as infected vs uninfected.",
+        "infection_xgb_margin": "(float) - Half-width of the ambiguous probability interval around the infection probability threshold.",
+        "infection_xgb_top_features": "(int) - Number of top-ranked features to keep / display from the XGBoost feature-importance analysis.",
+        "infection_xgb_proba_column": "(str) - Name of the column containing predicted infection probabilities.",
+        "infection_xgb_proba": "(float) - Probability cutoff used for additional infection-based filtering or reporting.",
+        "infection_xgb_drop_ambiguous": "(bool) - Drop cells whose infection probability falls inside the ambiguous interval.",
+        "infection_xgb_ambiguous_low": "(float) - Lower bound of the ambiguous infection probability interval.",
+        "infection_xgb_ambiguous_high": "(float) - Upper bound of the ambiguous infection probability interval.",
+        "infection_xgb_min_cells_per_class": "(int) - Minimum number of cells required per infection class for downstream analyses.",
+
+        "infection_pca_method": "(str) - Method used for PCA/embedding of infection features (e.g. 'pca', 'umap').",
+        "infection_pca_n_clusters": "(int) - Number of clusters to compute in the infection feature space.",
+        "infection_pca_random_state": "(int) - Random seed used for clustering / embedding of infection features.",
+
+        "motility_ylim": "(tuple) - y-axis limits (min, max) for motility plots (e.g. velocity).",
+        "motility_xlim": "(tuple) - x-axis limits (min, max) for motility plots (e.g. time or frame index).",
+        "seconds_per_frame": "(int) - Time in seconds between consecutive frames in the timelapse.",
+        "pixels_per_um": "(float) - Conversion factor from micrometers to pixels (px/µm) used for motility measurements.",
+
+        "infection_intensity_n_bins": "(int) - Number of bins used for infection intensity histograms / radial plots.",
+        "db_table_name": "(str) - Name of the SQLite table used to store measurements.",
+        "infection_intensity_qc_graphs": "(bool) - Generate infection-intensity quality-control graphs.",
+        "infection_intensity_qc_panel_path": "(str) - Output path for saving infection-intensity QC panels.",
+        "infection_intensity_mode": "(str) - Mode for computing infection intensity (e.g. per cell, per track, per well).",
+        "infection_intensity_strategy": "(str) - Strategy for summarizing infection intensity (e.g. 'mean', 'median', 'max').",
+        "infection_intensity_qc": "(bool) - Enable additional quality-control checks for infection-intensity data.",
+
+        "straightness_threshold": "(float) - Minimum straightness value required for tracks to be kept (0–1).",
+        "straightness_filter": "(bool) - Filter tracks based on the straightness_threshold.",
+        "zscore_thresh": "(float) - Absolute z-score threshold used to flag and remove motility outliers.",
+        "max_displacement": "(float) - Maximum allowed frame-to-frame displacement; larger jumps are treated as outliers.",
+        "tracked_object": "(str) - Type of object being tracked in the motility analysis (e.g. 'cell', 'pathogen').",
+        "motility_analysis": "(bool) - Whether to run the motility-analysis module.",
+        "reuse_existing_measurements": "(bool) - Whether to reuse measurements stored in the database or regenerate them.",
+
     }
     
     for key, (var_type, options, default_value) in variables.items():
@@ -1632,4 +1729,132 @@ def get_plot_data_from_csv_default_settings(settings):
     settings.setdefault('theme','dark')
     settings.setdefault('remove_outliers',False)
     settings.setdefault('verbose',False)
+    return settings
+
+def set_default_stitch(settings=None):
+    settings = {} if settings is None else dict(settings)
+    settings.setdefault('detector', 'ORB')
+    settings.setdefault('nfeatures', 8000)
+    settings.setdefault('max_keypoints', 4000)
+    settings.setdefault('downsample', 0.5)
+    settings.setdefault('ransac_thresh_px', 3.0)
+    settings.setdefault('allow_scale', False)
+    settings.setdefault('allow_rotation', False)
+    settings.setdefault('score_threshold', 0.001)
+    settings.setdefault('all_scores', False)
+    settings.setdefault('outline_source', 'otsu')
+    settings.setdefault('save_qc', True)
+    settings.setdefault('save_stitched_default', False)
+    settings.setdefault('canny', (40, 120))
+    settings.setdefault('blur_sigma', 0.0)
+    settings.setdefault('dilate_ksize', 0)
+    settings.setdefault('line_thickness', 1)
+    settings.setdefault('outline_alpha', 1.0)
+    settings.setdefault('feature_cache_mode', 'disk')
+    settings.setdefault('feature_cache_dir', None)  # set per well by caller
+    settings.setdefault('max_ram_features', 256)
+    settings.setdefault('n_workers_features', None)
+    settings.setdefault('pair_batch_size', 8192)
+    settings.setdefault('stream_csv', True)
+    settings.setdefault('opencv_threads', 1)
+    settings.setdefault('arr_axes', 'AUTO')
+    settings.setdefault('mip', True)
+    settings.setdefault('z_index', 0)
+    settings.setdefault('t_index', 0)
+    settings.setdefault('squeeze_singleton', True)
+
+    # run_folder settings
+    settings.setdefault('n_workers', max(1, (os.cpu_count() or 8) // 2))
+    settings.setdefault('max_site_gap', 64)
+    settings.setdefault('mosaic_min_score', None)   # None => auto elbow
+    # per-well outputs are set by caller:
+    settings.setdefault('mosaic_out', None)
+    settings.setdefault('mosaic_csv_out', None)
+    return settings
+
+def set_default_multichannel(settings=None):
+    settings = {} if settings is None else dict(settings)
+    settings.setdefault('channel_indices', None)   # infer from first tile if None
+    settings.setdefault('blend', 'max')            # {'max','overwrite'}
+    settings.setdefault('preview_downsample', 8)
+    settings.setdefault('tmp_dir', None)           # set per well by caller
+    settings.setdefault('out_tif', None)           # set per well by caller
+    settings.setdefault('out_png', None)           # set per well by caller
+    return settings
+
+def set_default_general(settings=None):
+    settings = {} if settings is None else dict(settings)
+    settings.setdefault('src', '/path/to/src')
+    settings.setdefault('dst_root', settings.get('src'))
+    settings.setdefault('meta_regex', r'(?P<mag>\d+X)_c(?P<chan>\d+)_?(?P<well>[A-H]\d{1,2}).*?Site[-_](?P<site>\d+)\.(?:tif|tiff)$')
+    settings.setdefault('well_group', 'well')
+    settings.setdefault('exts', ['.tif', '.tiff', '.png'])
+    settings.setdefault('recursive', True)
+    settings.setdefault('collision', 'rename')     # {'rename','skip','overwrite'}
+    settings.setdefault('on_missing', 'error')     # {'error','skip'}
+    settings.setdefault('dry_run', False)
+    settings.setdefault('verbose', True)
+    settings.setdefault('do_organize', True)
+    settings.setdefault('do_nuc_stitch', True)
+    settings.setdefault('do_multichannel', True)
+    settings.setdefault('channel_index', 0)        # nuclei channel in each tile
+    return settings
+
+def get_automated_motility_assay_default_settings(settings):
+    
+    settings.setdefault('motility_analysis', False)
+    settings.setdefault('reuse_existing_measurements', True)
+    # array settings
+    settings.setdefault('channels', [0, 1, 2, 3])
+    settings.setdefault('cell_channel', 2)
+    settings.setdefault('nucleus_channel', 0)
+    settings.setdefault('pathogen_channel', 1)
+
+    # NEW: which object type to use for infection features
+    # allowed: 'cell', 'nucleus', 'pathogen'
+    settings.setdefault('tracked_object', 'cell')
+
+    # filter settings
+    settings.setdefault('n_jobs', -1)
+    settings.setdefault('max_displacement', 50.0)
+    settings.setdefault('zscore_thresh', 3.0)
+    settings.setdefault('straightness_filter', False)
+    settings.setdefault('straightness_threshold', 0.95)
+    settings.setdefault('infection_intensity_qc', True)
+    settings.setdefault('infection_intensity_strategy', 'xgboost')
+    settings.setdefault('infection_intensity_mode', "relabel")  # or 'remove'
+    settings.setdefault('infection_intensity_qc_panel_path', None)
+    settings.setdefault('infection_intensity_qc_graphs', True)
+    settings.setdefault('db_table_name', "timelapse_object_measurements")
+    settings.setdefault('infection_intensity_n_bins', 64)
+
+    # motility plot settings
+    settings.setdefault('pixels_per_um', 1.78)
+    settings.setdefault('seconds_per_frame', 60)
+    settings.setdefault('motility_xlim', (100, -100))
+    settings.setdefault('motility_ylim', (100, -100))
+
+    # xgboost settings    
+    settings.setdefault('infection_xgb_n_estimators', 200)
+    settings.setdefault('infection_xgb_max_depth', 3)
+    settings.setdefault('infection_xgb_learning_rate', 0.1)
+    settings.setdefault('infection_xgb_subsample', 0.8)
+    settings.setdefault('infection_xgb_colsample_bytree', 0.8)
+    settings.setdefault('infection_xgb_reg_lambda', 1.0)
+    settings.setdefault('infection_xgb_random_state', 42)
+    settings.setdefault('infection_xgb_n_jobs', -1)
+    settings.setdefault('infection_xgb_proba_threshold', 0.5)
+    settings.setdefault('infection_xgb_margin', 0.15)
+    settings.setdefault('infection_xgb_top_features', 20)
+    settings.setdefault('infection_xgb_proba_column', 'infection_xgb_proba')
+    settings.setdefault('infection_xgb_drop_ambiguous', True)
+    settings.setdefault('infection_xgb_ambiguous_low', 0.25)
+    settings.setdefault('infection_xgb_ambiguous_high', 0.75)
+    settings.setdefault('infection_xgb_min_cells_per_class', 10)
+
+    # pca settings
+    settings.setdefault('infection_pca_method', 'pca')
+    settings.setdefault('infection_pca_n_clusters', 2)
+    settings.setdefault('infection_pca_random_state', 42)
+
     return settings
