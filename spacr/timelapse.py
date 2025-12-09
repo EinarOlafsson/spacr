@@ -18,6 +18,9 @@ except ImportError:
     
 import matplotlib.pyplot as plt
 
+import logging
+from spacr.utils import debug
+
 
 def _npz_to_movie(arrays, filenames, save_path, fps=10):
     """
@@ -427,7 +430,6 @@ def _track_by_iou(masks, iou_threshold=0.1):
         records.append({'frame': frame, 'original_label': label, 'track_id': tid})
     return pd.DataFrame(records)
 
-
 def _facilitate_trackin_with_adaptive_removal(masks, search_range=None, max_attempts=5, memory=3, min_mass=50, track_by_iou=False):
     """
     Facilitates object tracking with deterministic initial filtering and
@@ -546,89 +548,331 @@ def _filter_short_tracks(df, min_length=5):
     long_tracks = track_lengths[track_lengths >= min_length].index
     return df[df['track_id'].isin(long_tracks)]
 
-def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, masks_3D, mode, timelapse_remove_transient, radius=100, workers=10):
+@debug(enabled=True)
+def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, masks_3D, mode, timelapse_remove_transient, radius=100, n_jobs=10, batch_list=None, optimizer_time_limit_s=120, optimizer_mip_gap=0.01, run_optimization=True, max_objects_for_optimization=20000):
     """
     Track cells using the btrack library.
 
     Args:
         src (str): The source file path.
-        name (str): The name of the track.
-        batch_filenames (list): List of batch filenames.
-        object_type (str): The type of object to track.
+        name (str): The name of the track (npz batch name).
+        batch_filenames (list[str]): Filenames for frames in this batch.
+        object_type (str): The type of object to track (cell, nucleus, pathogen).
         plot (bool): Whether to plot the tracks.
-        save (bool): Whether to save the tracks.
-        masks_3D (ndarray): 3D array of masks.
-        mode (str): The tracking mode.
-        timelapse_remove_transient (bool): Whether to remove transient tracks.
-        radius (int, optional): The maximum search radius. Defaults to 100.
-        workers (int, optional): The number of workers. Defaults to 10.
+        save (bool): Whether to save plots.
+        masks_3D (ndarray or list): 3D label array of masks with shape (T, Y, X),
+            or list of 2D (Y, X) label arrays (one per frame).
+        mode (str): The tracking mode (unused here but kept for API consistency).
+        timelapse_remove_transient (bool): Whether to remove short tracks.
+        radius (int or None, optional): Max search radius (pixels). If None,
+            it is set automatically to image_width / 20. Defaults to 100.
+        n_jobs (int, optional): Number of workers for object extraction. Defaults to 10.
+        batch_list (list or None, optional): List of intensity images used by Cellpose.
+            Currently not used by btrack (tracking is shape-based here), but kept
+            for API compatibility and possible future use.
+        optimizer_time_limit_s (float or None): Time limit for GLPK in seconds
+            (used only when global optimisation is actually run).
+        optimizer_mip_gap (float or None): Relative MIP gap for GLPK (0.01 = 1%).
+        run_optimization (bool): If False, skip global optimisation entirely.
+        max_objects_for_optimization (int or None): If not None, skip global
+            optimisation when the number of objects exceeds this threshold.
 
     Returns:
-        ndarray: The mask stack.
-
+        ndarray: The relabelled mask stack (same shape as masks_3D) where labels
+        are track IDs.
     """
-    
+    import os
+    import logging
+
+    import numpy as np
+    import pandas as pd
+    import btrack
+    from btrack import datasets as btrack_datasets
+    from btrack.constants import BayesianUpdates
+
     from .plot import _visualize_and_save_timelapse_stack_with_tracks
-    from .utils import _masks_to_masks_stack
-    
+    from .utils import _masks_to_masks_stack, _map_wells
+
+    logger = logging.getLogger(__name__)
+
+    logger.debug(
+        "Entering _btrack_track_cells: name=%s, object_type=%s, mode=%s",
+        name,
+        object_type,
+        mode,
+    )
+    logger.debug("src=%s", src)
+    logger.debug(
+        "timelapse_remove_transient=%s, radius=%s, n_jobs=%s, "
+        "optimizer_time_limit_s=%s, optimizer_mip_gap=%s, run_optimization=%s, "
+        "max_objects_for_optimization=%s",
+        timelapse_remove_transient,
+        radius,
+        n_jobs,
+        optimizer_time_limit_s,
+        optimizer_mip_gap,
+        run_optimization,
+        max_objects_for_optimization,
+    )
+    logger.debug("masks_3D type: %s", type(masks_3D))
+
+    # ------------------------------------------------------------------
+    # Normalise masks_3D to a 3D ndarray (T, Y, X)
+    # ------------------------------------------------------------------
+    if isinstance(masks_3D, list):
+        logger.debug("masks_3D is a list with length=%d", len(masks_3D))
+        if len(masks_3D) == 0:
+            raise ValueError("masks_3D is an empty list; nothing to track.")
+        masks_3D = [np.asarray(m) for m in masks_3D]
+        shapes = {m.shape for m in masks_3D}
+        logger.debug("Unique mask shapes in list: %s", shapes)
+        if len(shapes) != 1:
+            raise ValueError(
+                f"All masks must have the same shape; got shapes={shapes}."
+            )
+        masks_3D = np.stack(masks_3D, axis=0)
+        logger.debug("Stacked masks_3D into ndarray with shape %s", masks_3D.shape)
+    else:
+        masks_3D = np.asarray(masks_3D)
+        logger.debug("masks_3D array shape: %s", masks_3D.shape)
+
+    if masks_3D.ndim != 3:
+        raise ValueError(
+            f"masks_3D must be 3D (T, Y, X); got shape {masks_3D.shape}"
+        )
+
+    n_frames, height, width = masks_3D.shape
+    logger.debug(
+        "Parsed geometry: n_frames=%d, height=%d, width=%d",
+        n_frames,
+        height,
+        width,
+    )
+
+    # Auto radius if requested
+    if radius is None:
+        radius = max(1, width // 20)
+        logger.debug(
+            "radius was None; automatically set radius=%d (width/20)", radius
+        )
+
+    # ------------------------------------------------------------------
+    # btrack configuration and feature definition
+    # ------------------------------------------------------------------
     CONFIG_FILE = btrack_datasets.cell_config()
-    frame, width, height = masks_3D.shape
+    
+    # Shape-based features only (robust + what your config already expects)
+    FEATURES = [
+        "area",
+        "major_axis_length",
+        "minor_axis_length",
+        "orientation",
+        "solidity",
+    ]
+    TRACKING_UPDATES = ["motion", "visual"]
 
-    FEATURES = ["area", "major_axis_length", "minor_axis_length", "orientation", "solidity"]
-    objects = btrack.utils.segmentation_to_objects(masks_3D, properties=tuple(FEATURES), num_workers=workers)
+    # ------------------------------------------------------------------
+    # Convert segmentation to btrack objects
+    # ------------------------------------------------------------------
+    logger.debug("Converting segmentation to btrack objects...")
+    objects = btrack.utils.segmentation_to_objects(
+        masks_3D,
+        properties=tuple(FEATURES),
+        num_workers=n_jobs,
+    )
+    n_objects = len(objects)
+    logger.info("Extracted %d objects for tracking.", n_objects)
 
-    # initialise a tracker session using a context manager
+    # ------------------------------------------------------------------
+    # Run the Bayesian tracker
+    # ------------------------------------------------------------------
     with btrack.BayesianTracker() as tracker:
-        tracker.configure(CONFIG_FILE) # configure the tracker using a config file
-        tracker.max_search_radius = radius
-        tracker.tracking_updates = ["MOTION", "VISUAL"]
-        #tracker.tracking_updates = ["MOTION"]
-        tracker.features = FEATURES
-        tracker.append(objects) # append the objects to be tracked
-        tracker.volume=((0, height), (0, width)) # set the tracking volume
-        tracker.track(step_size=100) # track them (in interactive mode)
-        tracker.optimize() # generate hypotheses and run the global optimizer
-        #data, properties, graph = tracker.to_napari() # get the tracks in a format for napari visualization
-        tracks = tracker.tracks # store the tracks
-        #cfg = tracker.configuration # store the configuration
+        tracker.configure(CONFIG_FILE)
 
-    # Process the track data to create a DataFrame
+        # Use APPROXIMATE updates for large datasets (recommended by btrack docs)
+        tracker.update_method = BayesianUpdates.APPROXIMATE
+        tracker.max_search_radius = radius
+
+        # Features used by the visual model
+        tracker.features = FEATURES
+
+        # Append objects and define volume
+        tracker.append(objects)
+        tracker.volume = ((0, width), (0, height))
+        logger.debug(
+            "Tracker volume set to x=(0,%d), y=(0,%d); update_method=%s",
+            width,
+            height,
+            tracker.update_method,
+        )
+
+        # Tracking
+        logger.debug("Starting tracking...")
+        try:
+            tracker.track(tracking_updates=TRACKING_UPDATES)
+        except TypeError:
+            # Fallback for older btrack APIs
+            logger.debug(
+                "tracker.track(tracking_updates=...) not supported; "
+                "falling back to tracker.tracking_updates + track(step_size=100)."
+            )
+            tracker.tracking_updates = [u.upper() for u in TRACKING_UPDATES]
+            tracker.track(step_size=100)
+
+        logger.info(
+            "Tracking complete. Number of tracks before optimisation: %d",
+            len(tracker.tracks),
+        )
+
+        # ------------------------------------------------------------------
+        # Global optimisation (GLPK) – conditionally disabled for large problems
+        # ------------------------------------------------------------------
+        do_optimize = bool(run_optimization)
+
+        if max_objects_for_optimization is not None and n_objects > max_objects_for_optimization:
+            logger.warning(
+                "Skipping btrack global optimisation: %d objects > "
+                "max_objects_for_optimization=%d. Using pre-optimisation tracks.",
+                n_objects,
+                max_objects_for_optimization,
+            )
+            do_optimize = False
+
+        if do_optimize and len(tracker.tracks) > 0:
+            # Build GLPK options from user parameters
+            glpk_options = {}
+            if optimizer_time_limit_s is not None and optimizer_time_limit_s > 0:
+                # GLPK tm_lim is in milliseconds
+                glpk_options["tm_lim"] = int(optimizer_time_limit_s * 1000)
+            if optimizer_mip_gap is not None and optimizer_mip_gap > 0:
+                glpk_options["mip_gap"] = float(optimizer_mip_gap)
+
+            try:
+                if glpk_options:
+                    logger.info(
+                        "Running GLPK optimisation with options: %s", glpk_options
+                    )
+                    tracker.optimize(
+                        backend="glpk",
+                        options={"options": glpk_options},
+                    )
+                else:
+                    logger.info("Running GLPK optimisation with default options.")
+                    tracker.optimize(backend="glpk")
+
+                logger.info(
+                    "Optimisation complete. Number of tracks after optimisation: %d",
+                    len(tracker.tracks),
+                )
+            except Exception as e:
+                # If GLPK misbehaves, fall back to pre-optimisation tracks
+                logger.warning(
+                    "btrack global optimisation failed or stalled (%s). "
+                    "Using pre-optimisation tracks instead.",
+                    e,
+                    exc_info=True,
+                )
+
+        # After this point, tracker.tracks always contains the tracks we will use
+        tracks = tracker.tracks
+
+    # ------------------------------------------------------------------
+    # Convert tracks to DataFrame
+    # ------------------------------------------------------------------
     track_data = []
     for track in tracks:
         for t, x, y, z in zip(track.t, track.x, track.y, track.z):
-            track_data.append({
-                'track_id': track.ID,
-                'frame': t,
-                'x': x,
-                'y': y,
-                'z': z
-            })
-    # Convert track data to a DataFrame
+            track_data.append(
+                {
+                    "track_id": track.ID,
+                    "frame": t,
+                    "x": x,
+                    "y": y,
+                    "z": z,
+                }
+            )
+
     tracks_df = pd.DataFrame(track_data)
-    if timelapse_remove_transient:
-        tracks_df = _filter_short_tracks(tracks_df, min_length=len(masks_3D))
+    logger.debug("tracks_df shape: %s", tracks_df.shape)
 
+    # Optionally remove transient tracks (very short trajectories)
+    if timelapse_remove_transient and not tracks_df.empty:
+        logger.debug("Removing transient tracks with min_length=%d", n_frames)
+        tracks_df = _filter_short_tracks(tracks_df, min_length=n_frames)
+        logger.debug("tracks_df shape after filtering: %s", tracks_df.shape)
+
+    # ------------------------------------------------------------------
+    # Map track positions back to original labels
+    # ------------------------------------------------------------------
+    logger.debug("Preparing objects_df from masks_3D...")
     objects_df = _prepare_for_tracking(masks_3D)
+    logger.debug("objects_df shape: %s", objects_df.shape)
 
-    # Optional: If necessary, round 'x' and 'y' to ensure matching precision
-    tracks_df['x'] = tracks_df['x'].round(decimals=2)
-    tracks_df['y'] = tracks_df['y'].round(decimals=2)
-    objects_df['x'] = objects_df['x'].round(decimals=2)
-    objects_df['y'] = objects_df['y'].round(decimals=2)
+    # Harmonise precision before merge
+    tracks_df["x"] = tracks_df["x"].round(2)
+    tracks_df["y"] = tracks_df["y"].round(2)
+    objects_df["x"] = objects_df["x"].round(2)
+    objects_df["y"] = objects_df["y"].round(2)
 
-    # Merge the DataFrames on 'frame', 'x', and 'y'
-    merged_df = pd.merge(tracks_df, objects_df, on=['frame', 'x', 'y'], how='inner')
-    final_df = merged_df[['track_id', 'frame', 'x', 'y', 'original_label']]
+    logger.debug("Merging tracks_df and objects_df on ['frame', 'x', 'y']...")
+    merged_df = pd.merge(
+        tracks_df,
+        objects_df,
+        on=["frame", "x", "y"],
+        how="inner",
+    )
+    logger.debug("merged_df shape: %s", merged_df.shape)
 
+    final_df = merged_df[["track_id", "frame", "x", "y", "original_label"]]
+    
+    try:
+        final_df['file_name'] = name
+        final_df[['plateID', 'rowID', 'columnID', 'fieldID', 'prcf']] = (final_df['file_name'].apply(lambda fname: pd.Series(_map_wells(fname, timelapse=False))))
+        final_df['wellID'] = final_df['file_name'].str.split('_').str[1]
+        
+    except IndexError:
+        logger.warning("Failed to parse plate, well, field from name: %s", name)
+    
+    # ------------------------------------------------------------------
+    # Relabel masks with track IDs
+    # ------------------------------------------------------------------
+    logger.debug("Relabelling masks based on tracks...")
     masks = _relabel_masks_based_on_tracks(masks_3D, final_df)
-    tracks_path = os.path.join(os.path.dirname(src), 'tracks')
-    os.makedirs(tracks_path, exist_ok=True)
-    final_df.to_csv(os.path.join(tracks_path, f'btrack_tracks_{object_type}_{name}.csv'), index=False)
-    if plot or save:
-        _visualize_and_save_timelapse_stack_with_tracks(masks, final_df, save, src, name, plot, batch_filenames, object_type, mode)
 
+    # ------------------------------------------------------------------
+    # Save track table
+    # ------------------------------------------------------------------
+    tracks_path = os.path.join(os.path.dirname(src), "tracks")
+    os.makedirs(tracks_path, exist_ok=True)
+    out_csv = os.path.join(tracks_path, f"btrack_tracks_{object_type}_{name}.csv")
+    logger.debug("Saving track table to %s", out_csv)
+    final_df.to_csv(out_csv, index=False)
+
+    # ------------------------------------------------------------------
+    # Optional visualisation
+    # ------------------------------------------------------------------
+    if plot or save:
+        logger.debug("Generating visualisation (plot=%s, save=%s)...", plot, save)
+        _visualize_and_save_timelapse_stack_with_tracks(
+            masks,
+            final_df,
+            save,
+            src,
+            name,
+            plot,
+            batch_filenames,
+            object_type,
+            mode,
+        )
+
+    # Return in your standard mask stack format
     mask_stack = _masks_to_masks_stack(masks)
+    logger.debug(
+        "Finished _btrack_track_cells. mask_stack shape: %s",
+        getattr(mask_stack, "shape", None),
+    )
     return mask_stack
+
 
 def exponential_decay(x, a, b, c):
     return a * np.exp(-b * x) + c
@@ -643,6 +887,7 @@ def preprocess_pathogen_data(pathogen_df):
 
     # Merge the counts back into the aggregated data
     pathogen_agg = pathogen_agg.merge(parasite_counts, on=['plateID', 'rowID', 'column_name', 'fieldID', 'timeid', 'pathogen_cell_id'])
+    
 
     # Remove the object_label column as it corresponds to the pathogen ID not the cell ID
     if 'object_label' in pathogen_agg.columns:
@@ -961,3 +1206,4967 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
         print(f'Average number of peaks per non-infected cell: {avg_non_inf_peaks_per_cell:.2f}')
     print(f'done')
     return result_df, peak_details_df, fig
+
+import os
+import numpy as np
+import pandas as pd
+import sqlite3
+from multiprocessing import Pool, cpu_count
+from skimage.measure import regionprops_table
+import logging
+from matplotlib.figure import Figure
+
+from xgboost import XGBClassifier
+from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+
+import matplotlib as mpl
+
+def _generate_mask_random_cmap(mask):
+    """
+    Generate a random colormap based on the unique labels in the given mask.
+
+    Parameters
+    ----------
+    mask : ndarray
+        2D label mask. Background must be 0, objects > 0.
+
+    Returns
+    -------
+    mpl.colors.ListedColormap
+        Random colormap with a fixed black background (label 0).
+    """
+    unique_labels = np.unique(mask)
+    # Only count non-zero labels as objects
+    num_objects = np.sum(unique_labels != 0)
+    # +1 so index 0 is background
+    random_colors = np.random.rand(num_objects + 1, 4)
+    random_colors[:, 3] = 1.0  # full alpha
+    # background = black, fully opaque
+    random_colors[0, :] = [0.0, 0.0, 0.0, 1.0]
+    return mpl.colors.ListedColormap(random_colors)
+
+def create_results_figure():
+    """
+    Create a Figure with 3 subplots arranged as:
+      - PCA (top-left)
+      - XGBoost (top-right)
+      - Histogram (bottom spanning both columns)
+    Returns
+    -------
+    fig : Figure
+    ax_pca, ax_xgb, ax_hist : matplotlib.axes.Axes
+    """
+    fig = Figure(figsize=(7, 6), dpi=100)
+    gs = fig.add_gridspec(2, 2, height_ratios=[2, 1])
+
+    ax_pca = fig.add_subplot(gs[0, 0])
+    ax_xgb = fig.add_subplot(gs[0, 1])
+    ax_hist = fig.add_subplot(gs[1, :])
+
+    return fig, ax_pca, ax_xgb, ax_hist
+
+def _make_intensity_motility_panel(
+    all_df,
+    infection_col,
+    track_df,
+    per_well_tracks,
+    n_channels,
+    motility_dir,
+    pixels_per_um,
+    seconds_per_frame,
+    vel_unit,
+    settings,
+    label_tag,
+):
+    """
+    Make panels for infection and motility.
+
+    Behaviour:
+      - "mask_*" label_tag:
+            classic panel with
+                * per-channel mean intensity (infected vs uninfected)
+                * (optional) pathogen-channel p75 intensity bar
+                * (optional) pathogen/cytoplasm intensity ratio bar
+                * all-tracks motility plot (absolute FOV)
+                * motility origin plots (infected / uninfected)
+                * optional small QC image (feature importance PNG)
+
+      - "adjusted_*" label_tag:
+            same as mask panel, plus method-specific QC subplots appended:
+                * histogram (if strategy == "histogram")
+                * PCA embedding (if strategy == "pca"/"umap")
+                * XGBoost:
+                    - probability separation histogram
+                    - feature-importance barplot
+    """
+    import os
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import matplotlib.image as mpimg  # used for the small QC PNG in mask panel
+
+    if all_df.empty or track_df.empty or not per_well_tracks:
+        print(f"[_make_intensity_motility_panel] No data for panel '{label_tag}', skipping.")
+        return
+
+    os.makedirs(motility_dir, exist_ok=True)
+    key_cols = ["plateID", "wellID", "fieldID", "cellID"]
+
+    # ------------------------------------------------------------------
+    # Panel type / strategy / QC payload availability
+    # ------------------------------------------------------------------
+    label_lower = str(label_tag).lower()
+    is_mask_panel = label_lower.startswith("mask")
+    is_adjusted_panel = label_lower.startswith("adjusted")
+
+    qc_strategy = str(settings.get("infection_intensity_strategy", "none")).lower()
+    method_label = qc_strategy if qc_strategy else "none"
+    panel_label = "mask" if is_mask_panel else ("adjusted" if is_adjusted_panel else label_tag)
+
+    qc_graphs_enabled = bool(settings.get("infection_intensity_qc_graphs", True))
+    qc_panel_type = settings.get("infection_intensity_qc_panel_type", None)
+    qc_panel_path = settings.get("infection_intensity_qc_panel_path", None)
+
+    # Global QC payloads (built in QC helpers)
+    hist_data = settings.get("infection_hist_data", None)
+    pca_data = settings.get("infection_pca_data", None)
+    xgb_data = settings.get("infection_xgb_importance", None)
+
+    has_hist = hist_data is not None
+    has_pca = pca_data is not None
+    has_xgb = xgb_data is not None
+
+    # Mask panel: small embedded QC PNG if available
+    qc_panel_needed_mask = (
+        is_mask_panel
+        and qc_graphs_enabled
+        and isinstance(qc_panel_path, str)
+        and qc_panel_path
+        and os.path.exists(qc_panel_path)
+    )
+
+    # Adjusted panel: method-specific QC axes
+    qc_axes_count = 0
+    if is_adjusted_panel and qc_graphs_enabled:
+        if qc_strategy == "histogram" and has_hist:
+            qc_axes_count = 1
+        elif qc_strategy in {"pca", "umap"} and has_pca:
+            qc_axes_count = 1
+        elif qc_strategy == "xgboost" and has_xgb:
+            # probability separation + feature importance
+            qc_axes_count = 2
+
+    # Motility axis limits: driven by motility_xlim / motility_ylim
+    origin_xlim = settings.get("motility_xlim", settings.get("motility_origin_xlim"))
+    origin_ylim = settings.get("motility_ylim", settings.get("motility_origin_ylim"))
+
+    # Coordinate scaling
+    if pixels_per_um is not None and pixels_per_um > 0:
+        coord_scale = 1.0 / float(pixels_per_um)
+        coord_label_x = "x (µm)"
+        coord_label_y = "y (µm)"
+    else:
+        coord_scale = 1.0
+        coord_label_x = "x (pixels)"
+        coord_label_y = "y (pixels)"
+
+    pathogen_chan = settings.get("pathogen_channel", None)
+
+    # ------------------------------------------------------------------
+    # Helpers for QC subplots (used in adjusted panel)
+    # ------------------------------------------------------------------
+    def _plot_hist_qc(ax, hdata):
+        try:
+            intens_inf = np.asarray(hdata["intensities_inf"], dtype=float)
+            intens_uninf = np.asarray(hdata["intensities_uninf"], dtype=float)
+            bin_edges = np.asarray(hdata["bin_edges"], dtype=float)
+            thr_val = float(hdata.get("thr_val", np.nan))
+            intensity_col = hdata.get("intensity_col", "intensity")
+        except Exception as e:
+            print(f"[_make_intensity_motility_panel] Histogram payload invalid: {e}")
+            ax.set_visible(False)
+            return
+
+        ax.hist(
+            intens_uninf,
+            bins=bin_edges,
+            alpha=0.5,
+            color="green",
+            label="Uninfected",
+        )
+        ax.hist(
+            intens_inf,
+            bins=bin_edges,
+            alpha=0.5,
+            color="red",
+            label="Infected",
+        )
+        if np.isfinite(thr_val):
+            ax.axvline(thr_val, color="black", linestyle="--", linewidth=1)
+
+        ax.set_xlabel(intensity_col)
+        ax.set_ylabel("Count")
+        ax.set_title("Pathogen-channel intensity\n(adjusted labels)")
+        ax.legend(fontsize=7)
+
+    def _plot_pca_qc(ax, pdata):
+        try:
+            coords = np.asarray(pdata["coords"], dtype=float)
+            labels = np.asarray(pdata["labels"], dtype=bool)
+        except Exception as e:
+            print(f"[_make_intensity_motility_panel] PCA payload invalid: {e}")
+            ax.set_visible(False)
+            return
+
+        if coords.shape[1] < 2:
+            ax.set_visible(False)
+            return
+
+        x = coords[:, 0]
+        y = coords[:, 1]
+        ax.scatter(x[~labels], y[~labels], s=5, alpha=0.4, color="green", label="Uninfected")
+        ax.scatter(x[labels], y[labels], s=5, alpha=0.4, color="red", label="Infected")
+        ax.set_xlabel("PC1")
+        ax.set_ylabel("PC2")
+        ax.set_title("PCA of features\n(adjusted labels)")
+        ax.legend(fontsize=7)
+
+    def _plot_xgb_importance_qc(ax, xdata):
+        try:
+            feat_names = xdata["feature_names"]
+            feat_vals = xdata["feature_importances"]
+        except Exception as e:
+            print(f"[_make_intensity_motility_panel] XGB importance payload invalid: {e}")
+            ax.set_visible(False)
+            return
+
+        if not feat_names:
+            ax.set_visible(False)
+            return
+
+        y_pos = np.arange(len(feat_names))
+        ax.barh(y_pos, feat_vals)
+        ax.set_yticks(y_pos)
+        ax.set_yticklabels(feat_names, fontsize=7)
+        ax.invert_yaxis()
+        ax.set_xlabel("Importance (gain)")
+        ax.set_title("XGBoost feature importance")
+
+    def _plot_xgb_prob_qc(ax, df_prob):
+        # per-cell probability distribution by adjusted infection label
+        if "infection_prob" not in df_prob.columns:
+            ax.set_visible(False)
+            return
+
+        cell_probs = (
+            df_prob[key_cols + ["infection_prob", infection_col]]
+            .groupby(key_cols, dropna=False)
+            .agg({"infection_prob": "mean", infection_col: "max"})
+            .reset_index()
+        )
+        cell_probs = cell_probs.replace([np.inf, -np.inf], np.nan)
+        cell_probs = cell_probs.dropna(subset=["infection_prob"])
+        if cell_probs.empty:
+            ax.set_visible(False)
+            return
+
+        mask_inf = cell_probs[infection_col].astype(bool)
+        probs_inf = cell_probs.loc[mask_inf, "infection_prob"].to_numpy()
+        probs_uninf = cell_probs.loc[~mask_inf, "infection_prob"].to_numpy()
+
+        bins = np.linspace(0.0, 1.0, 21)
+        if probs_uninf.size:
+            ax.hist(
+                probs_uninf,
+                bins=bins,
+                alpha=0.5,
+                color="green",
+                label="Uninfected",
+            )
+        if probs_inf.size:
+            ax.hist(
+                probs_inf,
+                bins=bins,
+                alpha=0.5,
+                color="red",
+                label="Infected",
+            )
+        ax.set_xlabel("XGBoost infection probability")
+        ax.set_ylabel("Cells")
+        ax.set_title("Probability separation (adjusted labels)")
+        ax.legend(fontsize=7)
+
+    def _plot_inf_uninf_bar(ax, df_vals, value_col, title, ylabel):
+        """
+        Helper to plot infected vs uninfected distributions for the given column,
+        using violin plots (with mean markers) instead of barplots.
+        """
+        if value_col not in df_vals.columns:
+            ax.set_visible(False)
+            return
+
+        # Collapse to one value per cell-track
+        cell_level = (
+            df_vals[key_cols + [value_col, infection_col]]
+            .groupby(key_cols, dropna=False)
+            .agg({value_col: "mean", infection_col: "max"})
+            .reset_index()
+        )
+        cell_level = cell_level.replace([np.inf, -np.inf], np.nan)
+        cell_level = cell_level.dropna(subset=[value_col])
+
+        if cell_level.empty:
+            ax.set_visible(False)
+            return
+
+        mask_inf = cell_level[infection_col].astype(bool)
+        vals_inf = cell_level.loc[mask_inf, value_col].to_numpy()
+        vals_uninf = cell_level.loc[~mask_inf, value_col].to_numpy()
+
+        data = []
+        positions = []
+        colors = []
+        labels_xtick = []
+
+        pos = 0
+        if vals_inf.size:
+            data.append(vals_inf)
+            positions.append(pos)
+            colors.append("red")
+            labels_xtick.append("Inf")
+            pos += 1
+        if vals_uninf.size:
+            data.append(vals_uninf)
+            positions.append(pos)
+            colors.append("green")
+            labels_xtick.append("Uninf")
+
+        if not data:
+            ax.set_visible(False)
+            return
+
+        # Violin plots
+        vp = ax.violinplot(
+            data,
+            positions=positions,
+            widths=0.6,
+            showmeans=False,
+            showmedians=False,
+            showextrema=False,
+        )
+
+        # Color each violin (Inf = red, Uninf = green)
+        for body, color in zip(vp["bodies"], colors):
+            body.set_facecolor(color)
+            body.set_edgecolor("black")
+            body.set_alpha(0.6)
+
+        # Overlay means as black points
+        means = [float(np.nanmean(d)) for d in data]
+        ax.scatter(positions, means, color="black", s=10, zorder=3)
+
+        ax.set_xticks(positions)
+        ax.set_xticklabels(labels_xtick)
+        # If all values are non-negative, anchor at 0
+        flat = np.concatenate(data)
+        if np.nanmin(flat) >= 0:
+            ymin, ymax = ax.get_ylim()
+            ax.set_ylim(bottom=0, top=ymax)
+
+        ax.set_title(title)
+        ax.set_ylabel(ylabel)
+
+    # ------------------------------------------------------------------
+    # One figure per (plateID, wellID)
+    # ------------------------------------------------------------------
+    if not {"plateID", "wellID"}.issubset(all_df.columns):
+        print(
+            "[_make_intensity_motility_panel] Missing 'plateID'/'wellID' columns; "
+            "cannot make per-well panels."
+        )
+        return
+
+    unique_wells = (
+        all_df[["plateID", "wellID"]]
+        .dropna()
+        .drop_duplicates()
+        .to_records(index=False)
+    )
+
+    for plate_id, well_id in unique_wells:
+        # Subset data for this well
+        df_well = all_df[
+            (all_df["plateID"] == plate_id) & (all_df["wellID"] == well_id)
+        ]
+        track_df_well = track_df[
+            (track_df["plateID"] == plate_id) & (track_df["wellID"] == well_id)
+        ]
+
+        # Collect tracks for this well from per_well_tracks
+        well_tracks = []
+        for tracks in per_well_tracks.values():
+            for tr in tracks:
+                if tr.get("plateID") == plate_id and tr.get("wellID") == well_id:
+                    well_tracks.append(tr)
+
+        if df_well.empty or track_df_well.empty or not well_tracks:
+            print(
+                f"[_make_intensity_motility_panel] No data for plate={plate_id}, "
+                f"well={well_id}; skipping."
+            )
+            continue
+
+        # Determine which channels are available *for this well*
+        available_channels = [
+            ch
+            for ch in range(n_channels)
+            if f"cell_mean_intensity_ch{ch}" in df_well.columns
+        ]
+        if not available_channels:
+            print(
+                f"[_make_intensity_motility_panel] No cell_mean_intensity_ch* "
+                f"columns for plate={plate_id}, well={well_id}; skipping."
+            )
+            continue
+
+        # Extra intensity plots for pathogen channel
+        has_p75_path = False
+        has_rel_int = False
+        if pathogen_chan is not None:
+            p75_col = f"cell_p75_intensity_ch{pathogen_chan}"
+            if p75_col in df_well.columns:
+                has_p75_path = True
+            path_col = f"pathogen_mean_intensity_ch{pathogen_chan}"
+            cyto_col = f"cytoplasm_mean_intensity_ch{pathogen_chan}"
+            if path_col in df_well.columns and cyto_col in df_well.columns:
+                has_rel_int = True
+
+        extra_int_plots = (1 if has_p75_path else 0) + (1 if has_rel_int else 0)
+        n_int_plots = len(available_channels) + extra_int_plots
+
+        # +3 for: all-tracks motility, infected origin, uninfected origin
+        # +1 for small QC PNG in mask panel,
+        # +qc_axes_count for adjusted panel QC subplots
+        n_cols = n_int_plots + 3 + (1 if qc_panel_needed_mask else 0) + qc_axes_count
+
+        fig, axes = plt.subplots(1, n_cols, figsize=(4 * n_cols, 4))
+        if n_cols == 1:
+            axes = np.array([axes])
+        else:
+            axes = np.array(axes).ravel()
+
+        axis_idx = 0
+
+        # ----- intensity violins per channel (per well) -----
+        for ch in available_channels:
+            col_int = f"cell_mean_intensity_ch{ch}"
+            ax = axes[axis_idx]
+            axis_idx += 1
+            _plot_inf_uninf_bar(
+                ax,
+                df_well,
+                value_col=col_int,
+                title=f"Ch {ch} mean",
+                ylabel="Mean cell intensity",
+            )
+
+            # If this is the pathogen channel, append p75 and ratio plots if available
+            if pathogen_chan is not None and ch == pathogen_chan:
+                if has_p75_path:
+                    ax_p75 = axes[axis_idx]
+                    axis_idx += 1
+                    p75_col = f"cell_p75_intensity_ch{pathogen_chan}"
+                    _plot_inf_uninf_bar(
+                        ax_p75,
+                        df_well,
+                        value_col=p75_col,
+                        title=f"Ch {pathogen_chan} p75",
+                        ylabel="Cell p75 intensity",
+                    )
+                if has_rel_int:
+                    ax_rel = axes[axis_idx]
+                    axis_idx += 1
+                    path_col = f"pathogen_mean_intensity_ch{pathogen_chan}"
+                    cyto_col = f"cytoplasm_mean_intensity_ch{pathogen_chan}"
+                    df_ratio = df_well[
+                        key_cols + [path_col, cyto_col, infection_col]
+                    ].copy()
+                    df_ratio["rel_intensity"] = df_ratio[path_col] / df_ratio[
+                        cyto_col
+                    ].replace(0, np.nan)
+                    _plot_inf_uninf_bar(
+                        ax_rel,
+                        df_ratio,
+                        value_col="rel_intensity",
+                        title=f"Ch {pathogen_chan} pathogen/cytoplasm",
+                        ylabel="Intensity ratio",
+                    )
+
+        # ----- all-tracks FOV plot (absolute coordinates) -----
+        def _plot_all_tracks(ax):
+            if not well_tracks:
+                ax.set_visible(False)
+                return
+
+            xs_all = []
+            ys_all = []
+            n_inf_tr = 0
+            n_uninf_tr = 0
+
+            for tr in well_tracks:
+                x_px = np.asarray(tr["x_px"], dtype=float)
+                y_px = np.asarray(tr["y_px"], dtype=float)
+                if x_px.size < 2:
+                    continue
+                x = x_px * coord_scale
+                y = y_px * coord_scale
+                infected_tr = bool(tr.get("infected", False))
+                color = "red" if infected_tr else "green"
+                ax.plot(x, y, color=color, alpha=0.15, linewidth=0.5)
+                ax.scatter(x[-1], y[-1], color=color, s=5)
+                xs_all.append(x)
+                ys_all.append(y)
+                if infected_tr:
+                    n_inf_tr += 1
+                else:
+                    n_uninf_tr += 1
+
+            if not xs_all:
+                ax.set_visible(False)
+                return
+
+            xs_all = np.concatenate(xs_all)
+            ys_all = np.concatenate(ys_all)
+            ax.set_aspect("equal", "box")
+            ax.set_xlabel(coord_label_x)
+            ax.set_ylabel(coord_label_y)
+            # auto limits from data
+            x_margin = 0.05 * (xs_all.max() - xs_all.min() + 1e-9)
+            y_margin = 0.05 * (ys_all.max() - ys_all.min() + 1e-9)
+            ax.set_xlim(xs_all.min() - x_margin, xs_all.max() + x_margin)
+            ax.set_ylim(ys_all.min() - y_margin, ys_all.max() + y_margin)
+
+            mask_inf = track_df_well["infected"].astype(bool)
+            v_inf = track_df_well.loc[mask_inf, "velocity"].to_numpy()
+            v_uninf = track_df_well.loc[~mask_inf, "velocity"].to_numpy()
+            mean_inf_v = float(np.nanmean(v_inf)) if v_inf.size else np.nan
+            mean_uninf_v = float(np.nanmean(v_uninf)) if v_uninf.size else np.nan
+
+            txt_lines = []
+            txt_lines.append(f"Infected ({mean_inf_v:.2f} {vel_unit})")
+            txt_lines.append(f"Uninfected ({mean_uninf_v:.2f} {vel_unit})")
+            if pixels_per_um is not None and pixels_per_um > 0:
+                txt_lines.append(f"1 µm = {pixels_per_um:.2f} px")
+            if seconds_per_frame is not None:
+                txt_lines.append(f"1 frame = {seconds_per_frame:.0f} s")
+
+            txt = "\n".join(txt_lines)
+            ax.text(
+                0.98,
+                0.02,
+                txt,
+                transform=ax.transAxes,
+                ha="right",
+                va="bottom",
+                fontsize=8,
+                bbox=dict(boxstyle="round,pad=0.4", facecolor="white", alpha=0.8),
+            )
+
+        ax_all = axes[axis_idx]
+        axis_idx += 1
+        _plot_all_tracks(ax_all)
+
+        # ----- motility origin plots (infected vs uninfected) for this well -----
+        def _plot_origin(ax, want_infected: bool):
+            n_tr = 0
+            color = "red" if want_infected else "green"
+
+            for tr in well_tracks:
+                if bool(tr.get("infected", False)) != want_infected:
+                    continue
+                x_px = np.asarray(tr["x_px"], dtype=float)
+                y_px = np.asarray(tr["y_px"], dtype=float)
+                if x_px.size < 2:
+                    continue
+                x = (x_px - x_px[0]) * coord_scale
+                y = (y_px - y_px[0]) * coord_scale
+                ax.plot(x, y, color=color, alpha=0.15, linewidth=0.5)
+                ax.scatter(x[-1], y[-1], color=color, s=5)
+                n_tr += 1
+
+            ax.set_aspect("equal", "box")
+            ax.set_xlabel(coord_label_x)
+            ax.set_ylabel(coord_label_y)
+            if origin_xlim is not None and len(origin_xlim) == 2:
+                ax.set_xlim(origin_xlim)
+            if origin_ylim is not None and len(origin_ylim) == 2:
+                ax.set_ylim(origin_ylim)
+
+            mask = track_df_well["infected"].astype(bool)
+            if not want_infected:
+                mask = ~mask
+            v = track_df_well.loc[mask, "velocity"].to_numpy()
+            mean_v = float(np.nanmean(v)) if v.size else np.nan
+
+            label = "Infected" if want_infected else "Uninfected"
+            ax.set_title(f"{label}\n(n={n_tr}, v={mean_v:.2f} {vel_unit})")
+
+        # infected origin plot
+        ax_inf = axes[axis_idx]
+        axis_idx += 1
+        _plot_origin(ax_inf, True)
+
+        # uninfected origin plot
+        ax_uninf = axes[axis_idx]
+        axis_idx += 1
+        _plot_origin(ax_uninf, False)
+
+        # ----- optional small QC PNG (mask panel only) -----
+        if qc_panel_needed_mask and axis_idx < len(axes):
+            ax_qc = axes[axis_idx]
+            axis_idx += 1
+            try:
+                img = mpimg.imread(qc_panel_path)
+                ax_qc.imshow(img)
+                ax_qc.axis("off")
+
+                tmap = {
+                    "histogram": "Intensity histogram",
+                    "pca": "PCA/UMAP clustering",
+                    "xgboost": "XGBoost feature importance",
+                }
+                ttl = tmap.get(str(qc_panel_type).lower(), "Infection QC")
+                ax_qc.set_title(ttl, fontsize=9)
+            except Exception as e:
+                print(
+                    f"[_make_intensity_motility_panel] Could not embed QC plot "
+                    f"from {qc_panel_path}: {e}"
+                )
+                ax_qc.set_visible(False)
+
+        # ----- adjusted panel QC subplots: method-specific -----
+        if is_adjusted_panel and qc_graphs_enabled:
+            if qc_strategy == "histogram" and has_hist and axis_idx < len(axes):
+                ax_hist = axes[axis_idx]
+                axis_idx += 1
+                _plot_hist_qc(ax_hist, hist_data)
+
+            elif qc_strategy in {"pca", "umap"} and has_pca and axis_idx < len(axes):
+                ax_pca = axes[axis_idx]
+                axis_idx += 1
+                _plot_pca_qc(ax_pca, pca_data)
+
+            elif qc_strategy == "xgboost" and has_xgb:
+                if axis_idx < len(axes):
+                    ax_prob = axes[axis_idx]
+                    axis_idx += 1
+                    _plot_xgb_prob_qc(ax_prob, df_well)
+                if axis_idx < len(axes):
+                    ax_xgb = axes[axis_idx]
+                    axis_idx += 1
+                    _plot_xgb_importance_qc(ax_xgb, xgb_data)
+
+        # Plate/well tag for title & filename
+        meta_tag = f"{plate_id}_{well_id}"
+
+        fig.suptitle(
+            f"Infection panel – {panel_label} labels – method={method_label}\n{meta_tag}",
+            fontsize=10,
+        )
+        fig.tight_layout(rect=[0, 0, 1, 0.90])
+
+        # Filenames:
+        #   mask/original: plate1_A03.pdf
+        #   adjusted:      plate1_A03_xgboost_adjusted.pdf
+        if is_adjusted_panel:
+            out_name = f"{meta_tag}_{method_label}_adjusted.pdf"
+        elif is_mask_panel:
+            out_name = f"{meta_tag}.pdf"
+        else:
+            # fallback for any unexpected label_tag
+            out_name = f"{meta_tag}_{label_tag}_{method_label}.pdf"
+
+        out_path = os.path.join(motility_dir, out_name)
+        fig.savefig(out_path)  # PDF inferred from extension
+        plt.close(fig)
+        print(
+            f"[summarise_tracks_from_merged] Saved per-well intensity+motility panel "
+            f"({panel_label}, method={method_label}) for plate={plate_id}, well={well_id} "
+            f"to {out_path}"
+        )
+
+def _infer_plate_well_meta_tag(df):
+    """
+    Infer a compact 'plate_well' tag for filenames from a DataFrame that has
+    plateID / wellID columns.
+
+    Examples
+    --------
+    plate1 + A02   -> 'plate1_A02'
+    plate1 + many  -> 'plate1_MULTI_WELLS'
+    many  + A02    -> 'MULTI_PLATES_A02'
+    many  + many   -> 'MULTI_PLATES_MULTI_WELLS'
+    """
+    plates = sorted(df["plateID"].dropna().unique()) if "plateID" in df.columns else []
+    wells = sorted(df["wellID"].dropna().unique()) if "wellID" in df.columns else []
+
+    if len(plates) == 1 and len(wells) == 1:
+        return f"{plates[0]}_{wells[0]}"
+    elif len(plates) == 1 and len(wells) > 1:
+        return f"{plates[0]}_MULTI_WELLS"
+    elif len(plates) > 1 and len(wells) == 1:
+        return f"MULTI_PLATES_{wells[0]}"
+    else:
+        return "MULTI_PLATES_MULTI_WELLS"
+
+def _compute_cell_mean_intensity_per_channel(
+    mask_stack,
+    intensity_stack,
+    channel_index,
+):
+    """
+    Compute per-frame, per-cell mean intensity for a given channel.
+
+    Parameters
+    ----------
+    mask_stack : ndarray
+        Label image stack of shape (T, Y, X) for cells (track_id labels).
+    intensity_stack : ndarray
+        Intensity stack of shape (T, Y, X, C).
+    channel_index : int
+        Channel index in intensity_stack to use.
+
+    Returns
+    -------
+    DataFrame
+        Columns: ['frame', 'track_id', f'cell_mean_intensity_ch{channel_index}']
+    """
+    import numpy as np
+    import pandas as pd
+
+    if intensity_stack is None:
+        print(
+            f"[cell_mean_intensity] channel {channel_index}: "
+            "intensity_stack is None, skipping."
+        )
+        return pd.DataFrame(
+            columns=["frame", "track_id", f"cell_mean_intensity_ch{channel_index}"]
+        )
+
+    if channel_index is None or channel_index < 0 or channel_index >= intensity_stack.shape[-1]:
+        print(
+            f"[cell_mean_intensity] channel {channel_index}: "
+            "invalid channel index for intensity_stack, skipping."
+        )
+        return pd.DataFrame(
+            columns=["frame", "track_id", f"cell_mean_intensity_ch{channel_index}"]
+        )
+
+    T = mask_stack.shape[0]
+    dfs = []
+    col_name = f"cell_mean_intensity_ch{channel_index}"
+
+    for frame in range(T):
+        labels = mask_stack[frame]
+        if not np.any(labels):
+            continue
+
+        intensity_image = intensity_stack[frame, :, :, channel_index]
+        props_table = regionprops_table(
+            labels,
+            intensity_image=intensity_image,
+            properties=("label", "mean_intensity"),
+        )
+        frame_df = pd.DataFrame(props_table)
+        frame_df = frame_df.rename(
+            columns={
+                "label": "track_id",
+                "mean_intensity": col_name,
+            }
+        )
+        frame_df["frame"] = frame
+        dfs.append(frame_df)
+
+    if not dfs:
+        print(
+            f"[cell_mean_intensity] channel {channel_index}: "
+            f"no objects found in any of {T} frames."
+        )
+        return pd.DataFrame(columns=["frame", "track_id", col_name])
+
+    out_df = pd.concat(dfs, ignore_index=True)
+    n_rows = out_df.shape[0]
+    n_frames_detected = out_df["frame"].nunique()
+    n_objs = out_df["track_id"].nunique()
+    print(
+        f"[cell_mean_intensity] channel {channel_index}: "
+        f"frames_with_objects={n_frames_detected}/{T}, "
+        f"unique_track_id={n_objs}, rows={n_rows}"
+    )
+    return out_df
+
+
+def _reorient_merged_array(arr, n_channels, max_extra_masks=3):
+    """
+    Ensure merged array has shape (planes, H, W) with planes as the first axis.
+
+    Handles both (planes, H, W) and (H, W, planes) layouts by detecting which
+    axis likely corresponds to the small "planes" dimension (~n_channels + masks).
+    """
+    import numpy as np
+
+    if arr.ndim != 3:
+        raise ValueError(
+            f"_reorient_merged_array expected 3D array, got ndim={arr.ndim}"
+        )
+
+    target_min = n_channels
+    target_max = n_channels + max_extra_masks
+    shape = arr.shape
+
+    plane_axis = None
+    for ax, dim in enumerate(shape):
+        if target_min <= dim <= target_max:
+            plane_axis = ax
+            break
+
+    if plane_axis is None:
+        # Fallback: choose the smallest axis as planes
+        plane_axis = int(np.argmin(shape))
+
+    if plane_axis != 0:
+        arr = np.moveaxis(arr, plane_axis, 0)
+
+    planes, H, W = arr.shape
+    return arr, planes, H, W
+
+
+def _parse_merged_filename(fname):
+    """
+    Parse a merged .npy filename of the form:
+        plate_well_field_time.npy
+
+    Returns a dict with:
+        plateID, wellID, rowID, columnID, fieldID, timeID, prcf, prcft, filename
+    """
+    base = os.path.splitext(os.path.basename(fname))[0]
+    parts = base.split("_")
+
+    plateID = parts[0] if len(parts) > 0 else ""
+    wellID = parts[1] if len(parts) > 1 else ""
+    fieldID = parts[2] if len(parts) > 2 else "1"
+    time_str = parts[3] if len(parts) > 3 else "0"
+
+    # Extract numeric time index, tolerate formats like "t000"
+    digits = "".join(ch for ch in time_str if ch.isdigit())
+    timeID = int(digits) if digits else 0
+
+    rowID = wellID[0] if wellID else ""
+    col_part = "".join(ch for ch in wellID[1:] if ch.isdigit())
+    columnID = int(col_part) if col_part else 0
+
+    prcf = f"{plateID}_{wellID}_{fieldID}"
+    prcft = f"{prcf}_{timeID}"
+
+    meta = dict(
+        plateID=plateID,
+        wellID=wellID,
+        rowID=rowID,
+        columnID=columnID,
+        fieldID=fieldID,
+        timeID=timeID,
+        prcf=prcf,
+        prcft=prcft,
+        filename=os.path.basename(fname),
+    )
+    return meta
+
+def _compute_parent_child_overlaps(
+    parent_masks,
+    child_masks,
+    parent_label_col,
+    child_label_col,
+):
+    """
+    For each frame, find which child labels overlap which parent labels.
+
+    Returns columns: 'frame', parent_label_col, child_label_col
+    """
+    T = parent_masks.shape[0]
+    records = []
+
+    for frame in range(T):
+        p = parent_masks[frame]
+        c = child_masks[frame]
+        m = (p > 0) & (c > 0)
+        if not np.any(m):
+            continue
+
+        p_flat = p[m].ravel()
+        c_flat = c[m].ravel()
+        pairs = np.stack([p_flat, c_flat], axis=1)
+        unique_pairs = np.unique(pairs, axis=0)
+
+        for parent_label, child_label in unique_pairs:
+            records.append(
+                {
+                    "frame": frame,
+                    parent_label_col: int(parent_label),
+                    child_label_col: int(child_label),
+                }
+            )
+
+    if not records:
+        return pd.DataFrame(columns=["frame", parent_label_col, child_label_col])
+
+    return pd.DataFrame.from_records(records)
+
+
+def _summarise_child_features_per_parent(
+    overlaps_df,
+    child_props_df,
+    parent_label_col,
+    child_label_col,
+    count_col_name,
+):
+    """
+    Summarise child object features per parent object.
+
+    - Counts distinct children -> count_col_name
+    - Aggregates numeric child features per parent:
+
+      * '*area*'      -> sum
+      * '*intensity*' -> mean
+      * '*dist*'/'*distance*' -> min
+      * everything else -> mean
+    """
+    if overlaps_df.empty or child_props_df.empty:
+        return pd.DataFrame(columns=["frame", parent_label_col, count_col_name])
+
+    df = overlaps_df.merge(child_props_df, on=["frame", child_label_col], how="left")
+    if df.empty:
+        return pd.DataFrame(columns=["frame", parent_label_col, count_col_name])
+
+    group_cols = ["frame", parent_label_col]
+
+    counts = (
+        df.groupby(group_cols)[child_label_col]
+        .nunique()
+        .reset_index()
+        .rename(columns={child_label_col: count_col_name})
+    )
+
+    numeric_cols = [
+        c
+        for c in df.columns
+        if c not in group_cols + [child_label_col]
+        and np.issubdtype(df[c].dtype, np.number)
+    ]
+    if not numeric_cols:
+        return counts
+
+    def _agg_for_feature(col_name: str) -> str:
+        name = col_name.lower()
+        if "area" in name:
+            return "sum"
+        if "intensity" in name:
+            return "mean"
+        if "distance" in name or "dist" in name:
+            return "min"
+        return "mean"
+
+    agg_dict = {c: _agg_for_feature(c) for c in numeric_cols}
+    agg_df = df.groupby(group_cols).agg(agg_dict).reset_index()
+
+    summary = agg_df.merge(counts, on=group_cols, how="left")
+    return summary
+
+
+def _load_intensity_stack_from_merged(
+    src,
+    filenames,
+    n_channels,
+    height,
+    width,
+    dtype=np.float32,
+):
+    """
+    Load intensity channels from merged/*.npy into a (T, H, W, C) stack.
+
+    Supports merged arrays stored either as (planes, H, W) or (H, W, planes).
+    The first n_channels planes are intensities and any remaining planes are masks.
+    """
+    import os
+    import numpy as np
+
+    merged_dir = os.path.join(src, "merged")
+    T = len(filenames)
+
+    if not os.path.isdir(merged_dir) or n_channels is None or n_channels <= 0:
+        return np.zeros((T, height, width, 0), dtype=dtype)
+
+    stack = np.zeros((T, height, width, n_channels), dtype=dtype)
+
+    for t, fn in enumerate(filenames):
+        base = os.path.splitext(os.path.basename(fn))[0]
+        candidates = [
+            os.path.join(merged_dir, base + ".npy"),
+            os.path.join(merged_dir, fn),
+            os.path.join(merged_dir, fn + ".npy"),
+        ]
+        arr = None
+        for path in candidates:
+            if os.path.exists(path):
+                arr = np.load(path)
+                break
+
+        if arr is None or arr.ndim != 3:
+            continue
+
+        # Standardise to (planes, H, W)
+        try:
+            arr, planes, H_img, W_img = _reorient_merged_array(
+                arr, n_channels=n_channels
+            )
+        except ValueError:
+            continue
+
+        if H_img != height or W_img != width:
+            # Skip unexpected size
+            print(
+                f"[_load_intensity_stack_from_merged] Skipping {fn}: "
+                f"reoriented size=({planes}, {H_img}, {W_img}), "
+                f"expected H={height}, W={width}"
+            )
+            continue
+
+        use_planes = min(n_channels, planes)
+        if use_planes <= 0:
+            continue
+
+        img = arr[:use_planes].transpose(1, 2, 0)  # (H, W, C)
+        C = img.shape[2]
+        stack[t, :, :, :C] = img
+
+    return stack
+
+
+def _load_masks_from_merged(
+    src,
+    filenames,
+    n_channels,
+    height,
+    width,
+    nucleus_chan=None,
+    pathogen_chan=None,
+    dtype=None,
+):
+    """
+    Load cell / nucleus / pathogen masks from merged/*.npy.
+
+    Supports merged arrays stored either as (planes, H, W) or (H, W, planes).
+
+    Layout per merged array after reorientation (planes, H, W):
+
+        0 .. n_channels-1          → intensity channels
+        n_channels                 → cell_mask (always present)
+        n_channels + 1 (optional)  → nucleus_mask or pathogen_mask
+        n_channels + 2 (optional)  → pathogen_mask (when both nuc+pathogen exist)
+
+    The exact interpretation of mask planes depends on whether
+    `nucleus_chan` and/or `pathogen_chan` are None.
+    """
+    import os
+    import numpy as np
+
+    if dtype is None:
+        dtype = np.int32
+
+    merged_dir = os.path.join(src, "merged")
+    T = len(filenames)
+
+    cell_masks = np.zeros((T, height, width), dtype=dtype)
+    nucleus_masks = np.zeros((T, height, width), dtype=dtype)
+    pathogen_masks = np.zeros((T, height, width), dtype=dtype)
+
+    if not os.path.isdir(merged_dir):
+        return cell_masks, nucleus_masks, pathogen_masks
+
+    for t, fn in enumerate(filenames):
+        base = os.path.splitext(os.path.basename(fn))[0]
+        candidates = [
+            os.path.join(merged_dir, base + ".npy"),
+            os.path.join(merged_dir, fn),
+            os.path.join(merged_dir, fn + ".npy"),
+        ]
+        arr = None
+        for path in candidates:
+            if os.path.exists(path):
+                arr = np.load(path)
+                break
+
+        if arr is None or arr.ndim != 3:
+            continue
+
+        # Standardise to (planes, H, W)
+        try:
+            arr, planes, H_img, W_img = _reorient_merged_array(
+                arr, n_channels=n_channels
+            )
+        except ValueError:
+            continue
+
+        if H_img != height or W_img != width:
+            print(
+                f"[_load_masks_from_merged] Skipping {fn}: "
+                f"reoriented size=({planes}, {H_img}, {W_img}), "
+                f"expected H={height}, W={width}"
+            )
+            continue
+
+        if planes <= n_channels:
+            # Only intensity planes, no masks
+            continue
+
+        n_masks = planes - n_channels
+
+        # First mask plane is always cell
+        cell_masks[t] = arr[n_channels].astype(dtype)
+
+        # Second mask plane (if present) is nucleus OR pathogen depending on settings
+        if n_masks >= 2:
+            if nucleus_chan is not None and pathogen_chan is None:
+                nucleus_masks[t] = arr[n_channels + 1].astype(dtype)
+            elif nucleus_chan is None and pathogen_chan is not None:
+                pathogen_masks[t] = arr[n_channels + 1].astype(dtype)
+            elif nucleus_chan is not None and pathogen_chan is not None:
+                # both requested → expect nucleus here
+                nucleus_masks[t] = arr[n_channels + 1].astype(dtype)
+
+        # Third mask plane (if present) is pathogen when both nuc+pathogen exist
+        if n_masks >= 3 and pathogen_chan is not None:
+            pathogen_masks[t] = arr[n_channels + 2].astype(dtype)
+
+    return cell_masks, nucleus_masks, pathogen_masks
+
+def _compute_regionprops_stack(
+    mask_stack,
+    intensity_stack,
+    channel_index,
+    object_prefix,
+    label_as_track_id=False,
+):
+    """
+    Compute regionprops over a (T, Y, X) label stack.
+
+    Parameters
+    ----------
+    mask_stack : ndarray
+        Label image stack of shape (T, Y, X).
+    intensity_stack : ndarray or None
+        Intensity stack of shape (T, Y, X, C) or None.
+    channel_index : int or None
+        Channel index in intensity_stack to use for intensity props.
+    object_prefix : str
+        Prefix for column names ("cell", "nucleus", "pathogen", "cytoplasm").
+    label_as_track_id : bool
+        If True, rename 'label' to 'track_id',
+        otherwise to f"{object_prefix}_label".
+
+    Returns
+    -------
+    DataFrame
+        One row per object per frame with prefixed column names.
+    """
+    import numpy as np
+    import pandas as pd
+
+    T, H, W = mask_stack.shape
+    use_intensity = (
+        intensity_stack is not None
+        and channel_index is not None
+        and 0 <= channel_index < intensity_stack.shape[-1]
+    )
+
+    # Avoid properties that rely on normalized central moments
+    geom_props = [
+        "label",
+        "area",
+        "bbox_area",
+        "equivalent_diameter",
+        "perimeter",
+        "perimeter_crofton",
+        "solidity",
+        "centroid",
+    ]
+    intensity_props = [
+        "max_intensity",
+        "mean_intensity",
+        "min_intensity",
+    ]
+    props = geom_props + intensity_props if use_intensity else geom_props
+
+    label_col_name = "track_id" if label_as_track_id else f"{object_prefix}_label"
+
+    dfs = []
+    for frame in range(T):
+        labels = mask_stack[frame]
+        if not np.any(labels):
+            continue
+
+        if use_intensity:
+            intensity_image = intensity_stack[frame, :, :, channel_index]
+            props_table = regionprops_table(
+                labels,
+                intensity_image=intensity_image,
+                properties=props,
+            )
+        else:
+            props_table = regionprops_table(labels, properties=props)
+
+        frame_df = pd.DataFrame(props_table)
+        frame_df = frame_df.rename(columns={"label": label_col_name})
+        frame_df["frame"] = frame
+
+        feature_cols = [
+            c for c in frame_df.columns if c not in ("frame", label_col_name)
+        ]
+        frame_df = frame_df.rename(
+            columns={c: f"{object_prefix}_{c}" for c in feature_cols}
+        )
+        dfs.append(frame_df)
+
+    if not dfs:
+        print(f"[regionprops] {object_prefix}: no objects found in any of {T} frames.")
+        return pd.DataFrame(columns=["frame", label_col_name])
+
+    out_df = pd.concat(dfs, ignore_index=True)
+
+    n_rows = out_df.shape[0]
+    n_frames_detected = out_df["frame"].nunique()
+    n_objs = out_df[label_col_name].nunique()
+    print(
+        f"[regionprops] {object_prefix}: frames_with_objects="
+        f"{n_frames_detected}/{T}, unique_{label_col_name}={n_objs}, rows={n_rows}"
+    )
+
+    return out_df
+
+
+def _process_merged_group(args):
+    """
+    Worker: process one (plate, well, field) group of merged .npy files.
+
+    Returns per-cell-per-frame DataFrame with:
+      - metadata
+      - cell features
+      - aggregated nucleus / pathogen / cytoplasm features
+      - per-channel cell mean intensities (cell_mean_intensity_ch{c})
+    """
+    import numpy as np
+    import pandas as pd
+    import os
+
+    (
+        src,
+        file_basenames,
+        n_channels,
+        cell_chan,
+        nucleus_chan,
+        pathogen_chan,
+    ) = args
+
+    if not file_basenames:
+        print("[_process_merged_group] Empty file_basenames list.")
+        return pd.DataFrame()
+
+    merged_dir = os.path.join(src, "merged")
+
+    # sort filenames by timeID
+    metas = []
+    for bn in file_basenames:
+        meta = _parse_merged_filename(bn)
+        metas.append(meta)
+    metas_sorted = sorted(metas, key=lambda m: m["timeID"])
+    sorted_basenames = [m["filename"] for m in metas_sorted]
+
+    key = (
+        metas_sorted[0]["plateID"],
+        metas_sorted[0]["wellID"],
+        metas_sorted[0]["fieldID"],
+    )
+    print(f"[_process_merged_group] Start group {key}, files={len(sorted_basenames)}")
+
+    # infer size from first file (respecting orientation)
+    first_path = os.path.join(merged_dir, sorted_basenames[0])
+    first_arr_raw = np.load(first_path)
+    if first_arr_raw.ndim != 3:
+        print(
+            f"[_process_merged_group] First array for group {key} is not 3D, "
+            "skipping."
+        )
+        return pd.DataFrame()
+
+    try:
+        first_arr, planes, H, W = _reorient_merged_array(
+            first_arr_raw, n_channels=n_channels
+        )
+    except ValueError:
+        print(
+            f"[_process_merged_group] Group {key}: could not reorient first array "
+            f"with shape={first_arr_raw.shape}, skipping."
+        )
+        return pd.DataFrame()
+
+    base_dtype = first_arr.dtype
+    print(
+        f"[_process_merged_group] Group {key}: first array original_shape="
+        f"{first_arr_raw.shape}, reoriented_shape=({planes}, {H}, {W}), "
+        f"dtype={base_dtype}"
+    )
+
+    # load stacks
+    intensity_stack = _load_intensity_stack_from_merged(
+        src=src,
+        filenames=sorted_basenames,
+        n_channels=n_channels,
+        height=H,
+        width=W,
+        dtype=base_dtype,
+    )
+
+    cell_masks, nucleus_masks, pathogen_masks = _load_masks_from_merged(
+        src=src,
+        filenames=sorted_basenames,
+        n_channels=n_channels,
+        height=H,
+        width=W,
+        nucleus_chan=nucleus_chan,
+        pathogen_chan=pathogen_chan,
+        dtype=np.int32,
+    )
+
+    T = cell_masks.shape[0]
+    if T == 0 or not np.any(cell_masks):
+        print(f"[_process_merged_group] Group {key}: no cell masks found, skipping.")
+        return pd.DataFrame()
+
+    print(
+        f"[_process_merged_group] Group {key}: frames={T}, "
+        f"any_nucleus={np.any(nucleus_masks)}, any_pathogen={np.any(pathogen_masks)}"
+    )
+
+    # cytoplasm = cell minus (nucleus union pathogen)
+    has_nucleus = np.any(nucleus_masks)
+    has_pathogen = np.any(pathogen_masks)
+    cytoplasm_masks = None
+    if has_nucleus or has_pathogen:
+        cytoplasm_masks = cell_masks.copy()
+        if has_nucleus:
+            cytoplasm_masks[nucleus_masks > 0] = 0
+        if has_pathogen:
+            cytoplasm_masks[pathogen_masks > 0] = 0
+
+    # regionprops for cell geometry (+ intensities in cell_chan)
+    cell_props_df = _compute_regionprops_stack(
+        mask_stack=cell_masks,
+        intensity_stack=intensity_stack,
+        channel_index=cell_chan,
+        object_prefix="cell",
+        label_as_track_id=True,
+    )
+    nucleus_props_df = _compute_regionprops_stack(
+        mask_stack=nucleus_masks,
+        intensity_stack=intensity_stack,
+        channel_index=nucleus_chan,
+        object_prefix="nucleus",
+        label_as_track_id=False,
+    )
+    pathogen_props_df = _compute_regionprops_stack(
+        mask_stack=pathogen_masks,
+        intensity_stack=intensity_stack,
+        channel_index=pathogen_chan,
+        object_prefix="pathogen",
+        label_as_track_id=False,
+    )
+
+    cytoplasm_props_df = pd.DataFrame()
+    if cytoplasm_masks is not None and np.any(cytoplasm_masks):
+        cytoplasm_props_df = _compute_regionprops_stack(
+            mask_stack=cytoplasm_masks,
+            intensity_stack=intensity_stack,
+            channel_index=cell_chan,  # use same channel as cell by default
+            object_prefix="cytoplasm",
+            label_as_track_id=False,
+        )
+
+    # --- per-channel intensity percentiles for each compartment ---
+    percentile_dfs_cell = []
+    percentile_dfs_nucleus = []
+    percentile_dfs_pathogen = []
+    percentile_dfs_cytoplasm = []
+
+    for ch in range(n_channels):
+        # cell: track_id labels
+        df_p = _compute_intensity_percentiles_per_channel(
+            mask_stack=cell_masks,
+            intensity_stack=intensity_stack,
+            channel_index=ch,
+            object_prefix="cell",
+            label_as_track_id=True,
+        )
+        if not df_p.empty:
+            percentile_dfs_cell.append(df_p)
+
+        # nucleus
+        if np.any(nucleus_masks):
+            df_p_n = _compute_intensity_percentiles_per_channel(
+                mask_stack=nucleus_masks,
+                intensity_stack=intensity_stack,
+                channel_index=ch,
+                object_prefix="nucleus",
+                label_as_track_id=False,
+            )
+            if not df_p_n.empty:
+                percentile_dfs_nucleus.append(df_p_n)
+
+        # pathogen
+        if np.any(pathogen_masks):
+            df_p_pa = _compute_intensity_percentiles_per_channel(
+                mask_stack=pathogen_masks,
+                intensity_stack=intensity_stack,
+                channel_index=ch,
+                object_prefix="pathogen",
+                label_as_track_id=False,
+            )
+            if not df_p_pa.empty:
+                percentile_dfs_pathogen.append(df_p_pa)
+
+        # cytoplasm
+        if cytoplasm_masks is not None and np.any(cytoplasm_masks):
+            df_p_cy = _compute_intensity_percentiles_per_channel(
+                mask_stack=cytoplasm_masks,
+                intensity_stack=intensity_stack,
+                channel_index=ch,
+                object_prefix="cytoplasm",
+                label_as_track_id=False,
+            )
+            if not df_p_cy.empty:
+                percentile_dfs_cytoplasm.append(df_p_cy)
+
+    # merge percentile features into base props
+    if percentile_dfs_cell:
+        tmp = percentile_dfs_cell[0]
+        for df_p in percentile_dfs_cell[1:]:
+            tmp = tmp.merge(df_p, on=["frame", "track_id"], how="outer")
+        cell_props_df = cell_props_df.merge(
+            tmp, on=["frame", "track_id"], how="left"
+        )
+
+    if np.any(nucleus_masks) and not nucleus_props_df.empty and percentile_dfs_nucleus:
+        tmp = percentile_dfs_nucleus[0]
+        for df_p in percentile_dfs_nucleus[1:]:
+            tmp = tmp.merge(df_p, on=["frame", "nucleus_label"], how="outer")
+        nucleus_props_df = nucleus_props_df.merge(
+            tmp, on=["frame", "nucleus_label"], how="left"
+        )
+
+    if np.any(pathogen_masks) and not pathogen_props_df.empty and percentile_dfs_pathogen:
+        tmp = percentile_dfs_pathogen[0]
+        for df_p in percentile_dfs_pathogen[1:]:
+            tmp = tmp.merge(df_p, on=["frame", "pathogen_label"], how="outer")
+        pathogen_props_df = pathogen_props_df.merge(
+            tmp, on=["frame", "pathogen_label"], how="left"
+        )
+
+    if (
+        cytoplasm_masks is not None
+        and np.any(cytoplasm_masks)
+        and not cytoplasm_props_df.empty
+        and percentile_dfs_cytoplasm
+    ):
+        tmp = percentile_dfs_cytoplasm[0]
+        for df_p in percentile_dfs_cytoplasm[1:]:
+            tmp = tmp.merge(df_p, on=["frame", "cytoplasm_label"], how="outer")
+        cytoplasm_props_df = cytoplasm_props_df.merge(
+            tmp, on=["frame", "cytoplasm_label"], how="left"
+        )
+
+
+    if cell_props_df.empty:
+        print(f"[_process_merged_group] Group {key}: cell_props_df empty, skipping.")
+        return pd.DataFrame()
+
+    # --- per-channel cell mean intensities (one column per channel) ---
+    per_channel_intensity_dfs = []
+    for ch in range(n_channels):
+        df_ch = _compute_cell_mean_intensity_per_channel(
+            mask_stack=cell_masks,
+            intensity_stack=intensity_stack,
+            channel_index=ch,
+        )
+        if not df_ch.empty:
+            per_channel_intensity_dfs.append(df_ch)
+
+    cell_intensity_df = None
+    if per_channel_intensity_dfs:
+        cell_intensity_df = per_channel_intensity_dfs[0]
+        for df_ch in per_channel_intensity_dfs[1:]:
+            cell_intensity_df = cell_intensity_df.merge(
+                df_ch,
+                on=["frame", "track_id"],
+                how="outer",
+            )
+        added_cols = [
+            c
+            for c in cell_intensity_df.columns
+            if c.startswith("cell_mean_intensity_ch")
+        ]
+        print(
+            f"[_process_merged_group] Group {key}: added per-channel cell "
+            f"intensity columns: {added_cols}"
+        )
+
+    # overlaps and summaries
+    nucleus_summary = None
+    if has_nucleus:
+        overlaps_cn = _compute_parent_child_overlaps(
+            parent_masks=cell_masks,
+            child_masks=nucleus_masks,
+            parent_label_col="track_id",
+            child_label_col="nucleus_label",
+        )
+        if not overlaps_cn.empty and not nucleus_props_df.empty:
+            nucleus_summary = _summarise_child_features_per_parent(
+                overlaps_df=overlaps_cn,
+                child_props_df=nucleus_props_df,
+                parent_label_col="track_id",
+                child_label_col="nucleus_label",
+                count_col_name="n_nuclei",
+            )
+            print(
+                f"[_process_merged_group] Group {key}: nucleus_summary rows="
+                f"{len(nucleus_summary)}"
+            )
+
+    pathogen_summary = None
+    if has_pathogen:
+        overlaps_cp = _compute_parent_child_overlaps(
+            parent_masks=cell_masks,
+            child_masks=pathogen_masks,
+            parent_label_col="track_id",
+            child_label_col="pathogen_label",
+        )
+        if not overlaps_cp.empty and not pathogen_props_df.empty:
+            pathogen_summary = _summarise_child_features_per_parent(
+                overlaps_df=overlaps_cp,
+                child_props_df=pathogen_props_df,
+                parent_label_col="track_id",
+                child_label_col="pathogen_label",
+                count_col_name="n_pathogens",
+            )
+            print(
+                f"[_process_merged_group] Group {key}: pathogen_summary rows="
+                f"{len(pathogen_summary)}"
+            )
+
+    cytoplasm_summary = None
+    if (
+        cytoplasm_masks is not None
+        and np.any(cytoplasm_masks)
+        and not cytoplasm_props_df.empty
+    ):
+        overlaps_cc = _compute_parent_child_overlaps(
+            parent_masks=cell_masks,
+            child_masks=cytoplasm_masks,
+            parent_label_col="track_id",
+            child_label_col="cytoplasm_label",
+        )
+        if not overlaps_cc.empty:
+            cytoplasm_summary = _summarise_child_features_per_parent(
+                overlaps_df=overlaps_cc,
+                child_props_df=cytoplasm_props_df,
+                parent_label_col="track_id",
+                child_label_col="cytoplasm_label",
+                count_col_name="n_cytoplasm",
+            )
+            print(
+                f"[_process_merged_group] Group {key}: cytoplasm_summary rows="
+                f"{len(cytoplasm_summary)}"
+            )
+
+    enriched_df = cell_props_df.copy()
+
+    if nucleus_summary is not None and not nucleus_summary.empty:
+        enriched_df = enriched_df.merge(
+            nucleus_summary,
+            on=["frame", "track_id"],
+            how="left",
+        )
+    if pathogen_summary is not None and not pathogen_summary.empty:
+        enriched_df = enriched_df.merge(
+            pathogen_summary,
+            on=["frame", "track_id"],
+            how="left",
+        )
+    if cytoplasm_summary is not None and not cytoplasm_summary.empty:
+        enriched_df = enriched_df.merge(
+            cytoplasm_summary,
+            on=["frame", "track_id"],
+            how="left",
+        )
+
+    if cell_intensity_df is not None:
+        enriched_df = enriched_df.merge(
+            cell_intensity_df,
+            on=["frame", "track_id"],
+            how="left",
+        )
+
+    # attach metadata (plate, well, field, timeID, etc.)
+    meta_records = []
+    for local_frame_idx, meta in enumerate(metas_sorted):
+        rec = {"frame": local_frame_idx}
+        rec.update(meta)
+        meta_records.append(rec)
+    meta_df = pd.DataFrame(meta_records)
+
+    enriched_df = enriched_df.merge(meta_df, on="frame", how="left")
+    enriched_df["cellID"] = enriched_df["track_id"]
+
+    n_tracks = (
+        enriched_df[["plateID", "wellID", "fieldID", "cellID"]]
+        .drop_duplicates()
+        .shape[0]
+    )
+    print(
+        f"[_process_merged_group] Group {key}: enriched_df rows={len(enriched_df)}, "
+        f"unique_tracks={n_tracks}"
+    )
+
+    return enriched_df
+
+
+def _smooth_tracks_and_features(df, max_displacement=50.0, zscore_thresh=3.0):
+    """
+    Smooth cell tracks and a small set of scalar features.
+
+    - Fixes single-frame "teleport" glitches in centroid position.
+    - Optionally drops tracks with impossible jumps.
+    - Smooths a subset of scalar cell_* features using a z-score heuristic.
+    """
+    import numpy as np
+    import pandas as pd
+
+    if df.empty:
+        print("[_smooth_tracks_and_features] Input DataFrame is empty.")
+        return df
+
+    n_rows_before = len(df)
+    n_tracks_before = df[["plateID", "wellID", "fieldID", "cellID"]].drop_duplicates().shape[0]
+
+    df = df.sort_values(
+        ["plateID", "wellID", "fieldID", "cellID", "frame"]
+    ).reset_index(drop=True)
+
+    y_col = "cell_centroid-0"
+    x_col = "cell_centroid-1"
+    if y_col not in df.columns or x_col not in df.columns:
+        print("[_smooth_tracks_and_features] Centroid columns missing, nothing to smooth.")
+        return df
+
+    drop_indices = set()
+    updates = {}
+
+    # Only smooth scalar features with well-defined numeric dtype
+    candidate_cols = [
+        "cell_area",
+        "cell_bbox_area",
+        "cell_equivalent_diameter",
+        "cell_perimeter",
+        "cell_perimeter_crofton",
+        "cell_solidity",
+        "cell_mean_intensity",
+        "cell_max_intensity",
+        "cell_min_intensity",
+    ]
+    cell_feature_cols = [c for c in candidate_cols if c in df.columns]
+
+    # Ensure we are not writing floats into int columns (avoid FutureWarning)
+    for col in [y_col, x_col] + cell_feature_cols:
+        if col in df.columns and not np.issubdtype(df[col].dtype, np.floating):
+            df[col] = df[col].astype(float)
+
+    grouped = df.groupby(["plateID", "wellID", "fieldID", "cellID"], sort=False)
+
+    n_tracks_processed = 0
+    n_tracks_dropped = 0
+    n_glitches_fixed = 0
+
+    for (plateID, wellID, fieldID, cellID), g in grouped:
+        idx = g.index.to_numpy()
+        if len(idx) < 2:
+            continue
+
+        n_tracks_processed += 1
+
+        y = g[y_col].to_numpy(dtype=float)
+        x = g[x_col].to_numpy(dtype=float)
+        n = len(idx)
+        glitch_frames = set()
+
+        # --- 1) detect and interpolate single-frame centroid glitches ---
+        if n >= 3:
+            for i_local in range(1, n - 1):
+                y_prev, y_curr, y_next = y[i_local - 1], y[i_local], y[i_local + 1]
+                x_prev, x_curr, x_next = x[i_local - 1], x[i_local], x[i_local + 1]
+
+                d_prev = np.hypot(y_curr - y_prev, x_curr - x_prev)
+                d_next = np.hypot(y_curr - y_next, x_curr - x_next)
+                d_neigh = np.hypot(y_next - y_prev, x_next - x_prev)
+
+                if (
+                    d_prev > max_displacement
+                    and d_next > max_displacement
+                    and d_neigh <= max_displacement
+                ):
+                    glitch_frames.add(i_local)
+
+            # interpolate centroid + scalar features at glitch frames
+            for i_local in glitch_frames:
+                if i_local <= 0 or i_local >= n - 1:
+                    continue
+
+                n_glitches_fixed += 1
+
+                y_new = 0.5 * (y[i_local - 1] + y[i_local + 1])
+                x_new = 0.5 * (x[i_local - 1] + x[i_local + 1])
+                y[i_local] = y_new
+                x[i_local] = x_new
+
+                for col in cell_feature_cols:
+                    s = g[col].to_numpy(dtype=float)
+                    if len(s) < 3:
+                        continue
+                    s_new = 0.5 * (s[i_local - 1] + s[i_local + 1])
+                    updates.setdefault(col, {})[idx[i_local]] = s_new
+
+            # --- 2) drop tracks with big jumps not explainable as glitches ---
+            drop_track = False
+            for i_local in range(1, n):
+                d = np.hypot(y[i_local] - y[i_local - 1], x[i_local] - x[i_local - 1])
+                if (
+                    d > max_displacement
+                    and i_local not in glitch_frames
+                    and (i_local - 1) not in glitch_frames
+                ):
+                    drop_track = True
+                    break
+
+            if drop_track:
+                n_tracks_dropped += 1
+                drop_indices.update(idx.tolist())
+                continue
+
+        # write back smoothed centroid
+        for i_local, global_idx in enumerate(idx):
+            if y[i_local] != g[y_col].iloc[i_local]:
+                updates.setdefault(y_col, {})[global_idx] = y[i_local]
+            if x[i_local] != g[x_col].iloc[i_local]:
+                updates.setdefault(x_col, {})[global_idx] = x[i_local]
+
+        # --- 3) z-score based smoothing of scalar features ---
+        if len(idx) < 3 or not cell_feature_cols:
+            continue
+
+        for col in cell_feature_cols:
+            s = g[col].to_numpy(dtype=float)
+            if np.all(~np.isfinite(s)):
+                continue
+
+            mean = np.nanmean(s)
+            std = np.nanstd(s)
+            if not np.isfinite(std) or std == 0:
+                continue
+
+            z = (s - mean) / std
+            for i_local in range(1, n - 1):
+                if not np.isfinite(z[i_local]) or abs(z[i_local]) <= zscore_thresh:
+                    continue
+                if (
+                    abs(z[i_local - 1]) <= zscore_thresh / 2
+                    and abs(z[i_local + 1]) <= zscore_thresh / 2
+                ):
+                    new_val = 0.5 * (s[i_local - 1] + s[i_local + 1])
+                    updates.setdefault(col, {})[idx[i_local]] = new_val
+
+    # apply all updates in one go
+    for col, mapping in updates.items():
+        df.loc[list(mapping.keys()), col] = list(mapping.values())
+
+    if drop_indices:
+        df = df.drop(index=list(drop_indices)).reset_index(drop=True)
+
+    n_rows_after = len(df)
+    n_tracks_after = df[["plateID", "wellID", "fieldID", "cellID"]].drop_duplicates().shape[0]
+
+    print(
+        "[_smooth_tracks_and_features] rows_before="
+        f"{n_rows_before}, rows_after={n_rows_after}, "
+        f"tracks_before={n_tracks_before}, tracks_after={n_tracks_after}, "
+        f"tracks_processed={n_tracks_processed}, tracks_dropped={n_tracks_dropped}, "
+        f"glitches_fixed={n_glitches_fixed}"
+    )
+
+    return df
+
+def _debug_plot_merged_planes(src, sample_filename, n_channels, nucleus_chan, pathogen_chan, out_dir):
+    """
+    Debug-plot a single merged .npy file.
+
+    The plot is saved as a PDF and contains:
+      - one panel per raw intensity channel (normalized 2–98 percent)
+      - one panel per mask plane (random colormap)
+      - one panel showing merged intensity channels with all masks overlaid
+        using a random colormap with alpha=0.6.
+    """
+    import os
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import matplotlib as mpl  # needed by _generate_mask_random_cmap if defined elsewhere
+
+    merged_path = os.path.join(src, "merged", sample_filename)
+    if not os.path.isfile(merged_path):
+        print(f"[_debug_plot_merged_planes] File not found: {merged_path}")
+        return
+
+    arr = np.load(merged_path)
+    original_shape = arr.shape
+
+    # Re-orient to (planes, y, x)
+    if arr.ndim == 3:
+        # (Y, X, planes) -> (planes, Y, X)
+        if arr.shape[-1] != n_channels and arr.shape[0] == n_channels:
+            planes = arr
+        else:
+            planes = np.moveaxis(arr, -1, 0)
+    elif arr.ndim == 4:
+        # Take first timepoint; assume (T, Y, X, planes) or similar
+        if arr.shape[-1] >= n_channels:
+            planes = np.moveaxis(arr[0], -1, 0)
+        else:
+            # fallback: collapse time into planes
+            planes = arr.reshape(-1, arr.shape[-2], arr.shape[-1])
+    else:
+        # Fallback, try to interpret leading axis as planes
+        planes = arr
+
+    reoriented_shape = planes.shape
+    print(
+        f"[_debug_plot_merged_planes] Sample '{sample_filename}': "
+        f"original_shape={original_shape}, reoriented_shape={reoriented_shape}"
+    )
+
+    if planes.ndim != 3:
+        print(
+            f"[_debug_plot_merged_planes] Expected 3D array after reorientation, "
+            f"got shape={planes.shape}; skipping."
+        )
+        return
+
+    n_planes = planes.shape[0]
+    if n_planes < n_channels:
+        n_channels = n_planes
+
+    intensity_planes = planes[:n_channels].astype(float)
+    mask_planes = planes[n_channels:]
+    n_masks = mask_planes.shape[0]
+
+    # Normalize intensity channels to 2–98 percentiles
+    norm_intensity = []
+    for ch_idx in range(n_channels):
+        p = intensity_planes[ch_idx].astype(float)
+        lo = np.percentile(p, 2)
+        hi = np.percentile(p, 98)
+        if hi <= lo:
+            p_norm = np.zeros_like(p, dtype=float)
+        else:
+            p_norm = np.clip((p - lo) / (hi - lo), 0.0, 1.0)
+        norm_intensity.append(p_norm)
+    norm_intensity = np.asarray(norm_intensity)
+
+    if norm_intensity.size == 0:
+        print("[_debug_plot_merged_planes] No intensity channels to plot; skipping.")
+        return
+
+    H, W = norm_intensity[0].shape
+
+    # Build RGB merge of intensity channels (up to 3)
+    merged_rgb = np.zeros((H, W, 3), dtype=float)
+    if n_channels >= 1:
+        merged_rgb[..., 0] = norm_intensity[0]  # red
+    if n_channels >= 2:
+        merged_rgb[..., 1] = norm_intensity[1]  # green
+    if n_channels >= 3:
+        merged_rgb[..., 2] = norm_intensity[2]  # blue
+
+    # Combined mask for overlay
+    combined_mask = None
+    if n_masks > 0:
+        combined_mask = np.zeros((H, W), dtype=int)
+        offset = 0
+        for m in mask_planes:
+            m_int = m.astype(int)
+            if m_int.max() <= 0:
+                continue
+            nonzero = m_int > 0
+            combined_mask[nonzero] = m_int[nonzero] + offset
+            offset += int(m_int.max())
+        if offset == 0:
+            combined_mask = None
+
+    # Figure layout: channels + masks + merged overlay
+    extra = 1 if combined_mask is not None else 0
+    n_cols = n_channels + n_masks + extra
+
+    fig, axes = plt.subplots(
+        1,
+        n_cols,
+        figsize=(3 * n_cols, 3),
+        dpi=150,
+        squeeze=False,
+    )
+    axes = axes[0]
+
+    col_idx = 0
+
+    # Intensity channels
+    for ch_idx in range(n_channels):
+        ax = axes[col_idx]
+        col_idx += 1
+        ax.imshow(norm_intensity[ch_idx], cmap="gray")
+        ax.set_title(f"Ch {ch_idx} (2–98% norm)")
+        ax.axis("off")
+
+    # Individual mask planes with random cmap
+    for m_idx in range(n_masks):
+        ax = axes[col_idx]
+        col_idx += 1
+        mask_plane = mask_planes[m_idx]
+        try:
+            random_cmap = _generate_mask_random_cmap(mask_plane)
+        except NameError:
+            # Fallback: create a simple random colormap here
+            unique_labels = np.unique(mask_plane)
+            unique_labels = unique_labels[unique_labels != 0]
+            n_labels = len(unique_labels)
+            rng = np.random.default_rng(seed=42)
+            colors = np.ones((n_labels + 1, 4))
+            colors[1:, :3] = rng.random((n_labels, 3))
+            random_cmap = mpl.colors.ListedColormap(colors)
+        ax.imshow(mask_plane, cmap=random_cmap, interpolation="nearest")
+        ax.set_title(f"Mask {m_idx}")
+        ax.axis("off")
+
+    # Merged channels + combined masks
+    if combined_mask is not None:
+        ax = axes[col_idx]
+        try:
+            merged_cmap = _generate_mask_random_cmap(combined_mask)
+        except NameError:
+            unique_labels = np.unique(combined_mask)
+            unique_labels = unique_labels[unique_labels != 0]
+            n_labels = len(unique_labels)
+            rng = np.random.default_rng(seed=123)
+            colors = np.ones((n_labels + 1, 4))
+            colors[1:, :3] = rng.random((n_labels, 3))
+            merged_cmap = mpl.colors.ListedColormap(colors)
+        ax.imshow(merged_rgb)
+        ax.imshow(combined_mask, cmap=merged_cmap, alpha=0.6, interpolation="nearest")
+        ax.set_title("Merged channels + masks")
+        ax.axis("off")
+
+    fig.tight_layout()
+    base = os.path.splitext(sample_filename)[0]
+    out_path = os.path.join(out_dir, f"merged_planes_{base}.pdf")
+    fig.savefig(out_path, bbox_inches="tight")
+    plt.close(fig)
+    print(
+        f"[_debug_plot_merged_planes] Saved merged plane debug figure to {out_path}"
+    )
+
+def _apply_infection_intensity_qc(
+    all_df,
+    settings,
+    infection_col,
+    pathogen_chan,
+    motility_dir,
+):
+    """
+    Dispatch to different infection QC strategies based on
+    settings['infection_intensity_strategy']:
+
+        'histogram' / 'hist' / 'histagram'
+            1D intensity histogram thresholding
+
+        'pca'
+            PCA or UMAP + k-means clustering
+
+        'xgboost'
+            Supervised XGBoost classifier on extreme intensities
+
+    If settings['infection_intensity_qc'] is False or pathogen_chan is None,
+    this function is a no-op and returns the input as-is.
+
+    Returns
+    -------
+    all_df : DataFrame
+        Frame-level measurements with possibly updated 'infection_col'.
+    infection_col : str
+        Name of the column in all_df that encodes the (possibly adjusted)
+        infection status.
+    """
+    import os
+
+    # If QC is disabled or there is no pathogen channel, do nothing.
+    infection_intensity_qc = bool(settings.get("infection_intensity_qc", False))
+    if (not infection_intensity_qc) or (pathogen_chan is None):
+        print("[infection_intensity_qc] QC disabled or no pathogen channel; skipping.")
+        return all_df, infection_col
+
+    # Make sure output directory exists for plots
+    os.makedirs(motility_dir, exist_ok=True)
+
+    strategy = str(settings.get("infection_intensity_strategy", "histogram")).lower()
+
+    if strategy in {"hist", "histogram", "histagram"}:
+        return _infection_qc_histogram(
+            all_df=all_df,
+            settings=settings,
+            infection_col=infection_col,
+            pathogen_chan=pathogen_chan,
+            motility_dir=motility_dir,
+        )
+
+    if strategy == "pca":
+        return _infection_qc_pca_clustering(
+            all_df=all_df,
+            settings=settings,
+            infection_col=infection_col,
+            pathogen_chan=pathogen_chan,
+            motility_dir=motility_dir,
+        )
+
+    if strategy == "xgboost":
+        return _infection_qc_xgboost(
+            all_df=all_df,
+            settings=settings,
+            infection_col=infection_col,
+            pathogen_chan=pathogen_chan,
+            motility_dir=motility_dir,
+        )
+
+    # Fallback if unknown strategy name
+    print(
+        "[infection_intensity_qc] Unknown strategy "
+        f"{strategy!r}; falling back to 'histogram'."
+    )
+    return _infection_qc_histogram(
+        all_df=all_df,
+        settings=settings,
+        infection_col=infection_col,
+        pathogen_chan=pathogen_chan,
+        motility_dir=motility_dir,
+    )
+
+def _compute_velocities_and_well_summary(
+    all_df,
+    settings,
+    infection_col,
+    pixels_per_um,
+    seconds_per_frame,
+):
+    """
+    Compute per-track velocities, straightness and per-well motility summary.
+
+    Returns
+    -------
+    track_df : DataFrame
+    per_well_tracks : dict[(plateID, wellID) -> list of track dicts]
+    well_summary_df : DataFrame
+    vel_unit : str
+    """
+    import numpy as np
+    import pandas as pd
+
+    y_col = "cell_centroid-0"
+    x_col = "cell_centroid-1"
+
+    track_df = pd.DataFrame()
+    well_summary_df = pd.DataFrame()
+    per_well_tracks = {}
+    vel_unit = "px/frame"
+
+    if y_col not in all_df.columns or x_col not in all_df.columns:
+        print(
+            "[summarise_tracks_from_merged] Centroid columns missing; "
+            "motility summary and plots will not be generated."
+        )
+        return track_df, per_well_tracks, well_summary_df, vel_unit
+
+    gtracks = all_df.groupby(["plateID", "wellID", "fieldID", "cellID"])
+    track_records = []
+
+    for (plateID, wellID, fieldID, cellID), g in gtracks:
+        g = g.sort_values("frame")
+        x_px = g[x_col].to_numpy(dtype=float)
+        y_px = g[y_col].to_numpy(dtype=float)
+        if len(x_px) < 2:
+            continue
+
+        dx = np.diff(x_px)
+        dy = np.diff(y_px)
+        d = np.hypot(dx, dy)
+        if d.size == 0 or not np.isfinite(d).any():
+            continue
+
+        v_px = float(np.nanmean(d))
+        path_length = float(np.nansum(d))
+        net_dx = float(x_px[-1] - x_px[0])
+        net_dy = float(y_px[-1] - y_px[0])
+        net_disp = float(np.hypot(net_dx, net_dy))
+        if path_length > 0 and np.isfinite(net_disp):
+            straightness = net_disp / path_length
+        else:
+            straightness = np.nan
+
+        infected_track = bool(g[infection_col].any())
+
+        track_records.append(
+            {
+                "plateID": plateID,
+                "wellID": wellID,
+                "fieldID": fieldID,
+                "cellID": cellID,
+                "infected": infected_track,
+                "v_px_per_frame": v_px,
+                "straightness": straightness,
+            }
+        )
+
+        key_well = (plateID, wellID)
+        per_well_tracks.setdefault(key_well, []).append(
+            {
+                "plateID": plateID,
+                "wellID": wellID,
+                "fieldID": fieldID,
+                "cellID": cellID,
+                "infected": infected_track,
+                "x_px": x_px,
+                "y_px": y_px,
+                "v_px_per_frame": v_px,
+                "straightness": straightness,
+            }
+        )
+
+    if not track_records:
+        print(
+            "[summarise_tracks_from_merged] No tracks with >=2 frames; "
+            "skipping motility summary and plots."
+        )
+        return track_df, per_well_tracks, well_summary_df, vel_unit
+
+    track_df = pd.DataFrame(track_records)
+
+    use_physical_units = (
+        pixels_per_um is not None and seconds_per_frame is not None
+    )
+    if use_physical_units:
+        pixels_per_um = float(pixels_per_um)
+        seconds_per_frame = float(seconds_per_frame)
+        factor = (1.0 / pixels_per_um) * (60.0 / seconds_per_frame)
+        vel_unit = "µm/min"
+    else:
+        factor = 1.0
+        vel_unit = "px/frame"
+
+    track_df["velocity"] = track_df["v_px_per_frame"] * factor
+    track_df["velocity_unit"] = vel_unit
+
+    # Straightness-based artifact detection / filtering
+    if "straightness" in track_df.columns:
+        straightness_threshold = float(
+            settings.get("straightness_threshold", 0.95)
+        )
+        straightness_filter = bool(settings.get("straightness_filter", False))
+        n_tracks_before = track_df.shape[0]
+        n_high = int((track_df["straightness"] >= straightness_threshold).sum())
+        print(
+            "[summarise_tracks_from_merged] Straightness metric: "
+            f"{n_high} of {n_tracks_before} tracks have straightness "
+            f">= {straightness_threshold:.2f} "
+            "(net displacement / path length)."
+        )
+
+        if straightness_filter and n_high > 0:
+            drop_mask = track_df["straightness"] >= straightness_threshold
+            dropped = track_df.loc[
+                drop_mask, ["plateID", "wellID", "fieldID", "cellID"]
+            ].copy()
+            drop_keys = set(
+                zip(
+                    dropped["plateID"],
+                    dropped["wellID"],
+                    dropped["fieldID"],
+                    dropped["cellID"],
+                )
+            )
+
+            track_df = track_df.loc[~drop_mask].reset_index(drop=True)
+            print(
+                "[summarise_tracks_from_merged] Straightness filter "
+                f"removed {n_high} overly straight tracks "
+                f"(threshold={straightness_threshold:.2f})."
+            )
+
+            # Filter per_well_tracks accordingly
+            for well_key, track_list in list(per_well_tracks.items()):
+                filtered_list = [
+                    tr
+                    for tr in track_list
+                    if (
+                        tr["plateID"],
+                        tr["wellID"],
+                        tr["fieldID"],
+                        tr["cellID"],
+                    )
+                    not in drop_keys
+                ]
+                if filtered_list:
+                    per_well_tracks[well_key] = filtered_list
+                else:
+                    del per_well_tracks[well_key]
+
+    if track_df.empty:
+        print(
+            "[summarise_tracks_from_merged] No tracks left after "
+            "straightness filtering; skipping motility summary and plots."
+        )
+        return track_df, per_well_tracks, well_summary_df, vel_unit
+
+    well_records = []
+    for (plateID, wellID), g in track_df.groupby(["plateID", "wellID"]):
+        n_tracks_well = len(g)
+        n_inf_well = int(g["infected"].sum())
+        n_uninf_well = n_tracks_well - n_inf_well
+
+        mean_all = float(g["velocity"].mean()) if n_tracks_well > 0 else np.nan
+        mean_inf = (
+            float(g.loc[g["infected"], "velocity"].mean())
+            if n_inf_well > 0
+            else np.nan
+        )
+        mean_uninf = (
+            float(g.loc[~g["infected"], "velocity"].mean())
+            if n_uninf_well > 0
+            else np.nan
+        )
+
+        well_records.append(
+            dict(
+                plateID=plateID,
+                wellID=wellID,
+                n_tracks=n_tracks_well,
+                n_infected_tracks=n_inf_well,
+                n_uninfected_tracks=n_uninf_well,
+                mean_velocity_all=mean_all,
+                mean_velocity_infected=mean_inf,
+                mean_velocity_uninfected=mean_uninf,
+                velocity_unit=vel_unit,
+            )
+        )
+
+    if well_records:
+        well_summary_df = pd.DataFrame(well_records)
+
+    print(
+        "[summarise_tracks_from_merged] Computed per-track velocities "
+        f"in units: {vel_unit}"
+    )
+
+    return track_df, per_well_tracks, well_summary_df, vel_unit
+
+
+def _save_measurements_and_well_summary(
+    all_df,
+    well_summary_df,
+    src,
+    db_table_name,
+):
+    """
+    Save per-frame measurements and well-level motility summary to SQLite.
+    Returns (measurements_dir, db_path).
+    """
+    import os
+    import sqlite3
+
+    measurements_dir = os.path.join(src, "measurements")
+    os.makedirs(measurements_dir, exist_ok=True)
+    db_path = os.path.join(measurements_dir, "measurements.db")
+
+    with sqlite3.connect(db_path) as conn:
+        all_df.to_sql(db_table_name, conn, if_exists="replace", index=False)
+        print(
+            f"[summarise_tracks_from_merged] Saved measurements to "
+            f"{db_path} (table='{db_table_name}')"
+        )
+
+        if not well_summary_df.empty:
+            well_table_name = db_table_name + "_well_motility"
+            well_summary_df.to_sql(
+                well_table_name,
+                conn,
+                if_exists="replace",
+                index=False,
+            )
+            print(
+                f"[summarise_tracks_from_merged] Saved well-level motility "
+                f"summary to {db_path} (table='{well_table_name}')"
+            )
+        else:
+            print(
+                "[summarise_tracks_from_merged] No well-level motility "
+                "summary table was created."
+            )
+
+    return measurements_dir, db_path
+
+
+def _feature_velocity_correlations(all_df, track_df, measurements_dir):
+    """
+    Correlate per-track velocity with median per-track features (all / infected / uninfected).
+    Saves CSV to measurements_dir/velocity_feature_correlations.csv
+    """
+    import numpy as np
+    import os
+    import pandas as pd
+
+    if track_df.empty:
+        return
+
+    try:
+        group_cols = ["plateID", "wellID", "fieldID", "cellID"]
+
+        numeric_cols = all_df.select_dtypes(include=[np.number]).columns.tolist()
+        for col_rm in ("frame", "timeID", "cellID"):
+            if col_rm in numeric_cols:
+                numeric_cols.remove(col_rm)
+
+        if not numeric_cols:
+            print(
+                "[summarise_tracks_from_merged] No numeric feature columns "
+                "available for correlation analysis."
+            )
+            return
+
+        agg_features = (
+            all_df[group_cols + numeric_cols]
+            .groupby(group_cols, dropna=False)
+            .median()
+            .reset_index()
+        )
+
+        track_features = track_df.merge(agg_features, on=group_cols, how="left")
+
+        exclude_cols = set(
+            group_cols
+            + ["infected", "v_px_per_frame", "velocity", "velocity_unit"]
+        )
+        candidate_cols = [
+            c
+            for c in track_features.columns
+            if c not in exclude_cols
+            and np.issubdtype(track_features[c].dtype, np.number)
+        ]
+
+        if not candidate_cols:
+            print(
+                "[summarise_tracks_from_merged] No numeric feature columns "
+                "available for correlation analysis."
+            )
+            return
+
+        def _corr_subset(mask, label):
+            sub = track_features.loc[mask, candidate_cols + ["velocity"]].copy()
+            sub = sub[np.isfinite(sub["velocity"])]
+            if sub.shape[0] < 5:
+                print(
+                    "[summarise_tracks_from_merged] "
+                    f"Not enough tracks for correlation ({label})."
+                )
+                return None
+            corr_series = sub.corr(method="pearson")["velocity"].drop("velocity")
+            corr_df = (
+                corr_series.rename("pearson_r")
+                .to_frame()
+                .reset_index()
+                .rename(columns={"index": "feature"})
+            )
+            corr_df["n_tracks"] = sub.shape[0]
+            corr_df["group"] = label
+            return corr_df
+
+        mask_all = np.isfinite(track_features["velocity"])
+        results = []
+
+        res_all = _corr_subset(mask_all, "all")
+        if res_all is not None:
+            results.append(res_all)
+
+        mask_inf = track_features["infected"].astype(bool) & mask_all
+        res_inf = _corr_subset(mask_inf, "infected")
+        if res_inf is not None:
+            results.append(res_inf)
+
+        mask_uninf = (~track_features["infected"].astype(bool)) & mask_all
+        res_uninf = _corr_subset(mask_uninf, "uninfected")
+        if res_uninf is not None:
+            results.append(res_uninf)
+
+        if not results:
+            return
+
+        corr_all = pd.concat(results, ignore_index=True)
+        corr_all["abs_pearson_r"] = corr_all["pearson_r"].abs()
+        corr_all = corr_all.sort_values(
+            ["group", "abs_pearson_r"], ascending=[True, False]
+        )
+
+        corr_out = os.path.join(measurements_dir, "velocity_feature_correlations.csv")
+        corr_all.to_csv(corr_out, index=False)
+        print(
+            "[summarise_tracks_from_merged] Saved velocity–feature "
+            f"correlations to {corr_out}"
+        )
+
+    except Exception as e:
+        print(
+            "[summarise_tracks_from_merged] Feature–velocity correlation "
+            f"analysis failed with error: {e}"
+        )
+
+
+def _make_intensity_sanity_plots(all_df, infection_col, n_channels, motility_dir):
+    """
+    Per-channel intensity sanity-check plots (infected vs uninfected).
+    """
+    import numpy as np
+    import os
+    import matplotlib.pyplot as plt
+
+    if all_df.empty:
+        return
+
+    keys = ["plateID", "wellID", "fieldID", "cellID"]
+    os.makedirs(motility_dir, exist_ok=True)
+
+    for ch in range(n_channels):
+        col_int = f"cell_mean_intensity_ch{ch}"
+        if col_int not in all_df.columns:
+            continue
+
+        cell_level_int = (
+            all_df[keys + [col_int, infection_col]]
+            .groupby(keys, dropna=False)
+            .agg(
+                {
+                    col_int: "mean",
+                    infection_col: "max",
+                }
+            )
+            .reset_index()
+        )
+        cell_level_int = cell_level_int.replace([np.inf, -np.inf], np.nan)
+        cell_level_int = cell_level_int.dropna(subset=[col_int])
+
+        if cell_level_int.empty:
+            print(
+                f"[summarise_tracks_from_merged] No data for intensity "
+                f"channel {ch}, skipping sanity plot."
+            )
+            continue
+
+        mask_inf = cell_level_int[infection_col].astype(bool)
+        vals_inf = cell_level_int.loc[mask_inf, col_int].to_numpy()
+        vals_uninf = cell_level_int.loc[~mask_inf, col_int].to_numpy()
+
+        mean_inf = float(np.nanmean(vals_inf)) if vals_inf.size else np.nan
+        std_inf = (
+            float(np.nanstd(vals_inf, ddof=1)) if vals_inf.size > 1 else np.nan
+        )
+        mean_uninf = float(np.nanmean(vals_uninf)) if vals_uninf.size else np.nan
+        std_uninf = (
+            float(np.nanstd(vals_uninf, ddof=1))
+            if vals_uninf.size > 1
+            else np.nan
+        )
+
+        x_pos = np.arange(2)
+        heights = [mean_inf, mean_uninf]
+        errors = [std_inf, std_uninf]
+
+        fig_ch, ax_ch = plt.subplots(figsize=(4, 4))
+        ax_ch.bar(
+            x_pos,
+            heights,
+            yerr=errors,
+            capsize=5,
+            color=["red", "green"],
+            alpha=0.7,
+        )
+        ax_ch.set_xticks(x_pos)
+        ax_ch.set_xticklabels(["Infected", "Uninfected"])
+        ax_ch.set_ylabel(f"Mean cell intensity (channel {ch})")
+        ax_ch.set_title(f"Intensity vs infection – channel {ch}")
+        ax_ch.set_ylim(bottom=0)
+        plt.tight_layout()
+        out_ch = os.path.join(
+            motility_dir, f"intensity_channel{ch}_infected_vs_uninfected.png"
+        )
+        fig_ch.savefig(out_ch, dpi=300)
+        plt.close(fig_ch)
+        print(
+            f"[summarise_tracks_from_merged] Saved intensity sanity plot "
+            f"for channel {ch} to {out_ch}"
+        )
+
+
+def _make_motility_plots(
+    track_df,
+    per_well_tracks,
+    well_summary_df,
+    motility_dir,
+    pixels_per_um,
+    seconds_per_frame,
+    vel_unit,
+    settings,
+):
+    """
+    Motility plots (combined + per-well) with compact text box.
+
+    Axis control via settings:
+        - motility_xlim / motility_ylim: applied to absolute-coordinate plots
+        - motility_origin_xlim / motility_origin_ylim: applied to origin plots
+    """
+    import numpy as np
+    import os
+    import matplotlib.pyplot as plt
+    from matplotlib import patches
+
+    if track_df.empty or not per_well_tracks:
+        print(
+            "[summarise_tracks_from_merged] No per-track velocities available; "
+            "motility plots were not generated."
+        )
+        return
+
+    def _fmt_vel(val):
+        return "n/a" if not np.isfinite(val) else f"{val:.2f}"
+
+    def _apply_axis_limits(ax, xlim, ylim):
+        if xlim is not None and len(xlim) == 2:
+            ax.set_xlim(float(xlim[0]), float(xlim[1]))
+        if ylim is not None and len(ylim) == 2:
+            ax.set_ylim(float(ylim[0]), float(ylim[1]))
+
+    abs_xlim = settings.get("motility_xlim", None)
+    abs_ylim = settings.get("motility_ylim", None)
+    origin_xlim = settings.get("motility_origin_xlim", None)
+    origin_ylim = settings.get("motility_origin_ylim", None)
+
+    if pixels_per_um is not None:
+        unit_line1 = f"1 µm = {float(pixels_per_um):.2f} px"
+        coord_label_x = "x (µm)"
+        coord_label_y = "y (µm)"
+        coord_scale = 1.0 / float(pixels_per_um)
+    else:
+        unit_line1 = "1 µm = ? px"
+        coord_label_x = "x (pixels)"
+        coord_label_y = "y (pixels)"
+        coord_scale = 1.0
+
+    if seconds_per_frame is not None:
+        unit_line2 = f"1 frame = {float(seconds_per_frame):g} s"
+    else:
+        unit_line2 = "1 frame = ? s"
+
+    box_x0 = 0.64
+    box_y0 = 0.69
+    box_width = 0.30
+    box_height = 0.23
+    text_x = box_x0 + 0.02
+    y_top = box_y0 + box_height - 0.03
+    line_spacing = 0.07
+    fontsize_main = 8
+    fontsize_units = 7
+
+    os.makedirs(motility_dir, exist_ok=True)
+
+    # Combined plot over all wells
+    fig_all, ax_all = plt.subplots(figsize=(6, 6))
+
+    for tracks in per_well_tracks.values():
+        for tr in tracks:
+            x = tr["x_px"] * coord_scale
+            y = tr["y_px"] * coord_scale
+            infected_track = tr["infected"]
+            color = "red" if infected_track else "green"
+            ax_all.plot(x, y, color=color, alpha=0.2, linewidth=0.5)
+            ax_all.scatter(x[-1], y[-1], color=color, s=5)
+
+    vel_all = track_df["velocity"].to_numpy()
+    vel_inf = track_df.loc[track_df["infected"], "velocity"].to_numpy()
+    vel_uninf = track_df.loc[~track_df["infected"], "velocity"].to_numpy()
+
+    mean_vel_all = float(np.nanmean(vel_all)) if vel_all.size else np.nan
+    mean_vel_inf = float(np.nanmean(vel_inf)) if vel_inf.size else np.nan
+    mean_vel_uninf = float(np.nanmean(vel_uninf)) if vel_uninf.size else np.nan
+
+    print(
+        "[summarise_tracks_from_merged] Velocity stats "
+        f"({vel_unit}): all={mean_vel_all:.3f} "
+        f"(n={vel_all.size} tracks with >=2 frames), "
+        f"infected={mean_vel_inf:.3f} (n={vel_inf.size}), "
+        f"uninfected={mean_vel_uninf:.3f} (n={vel_uninf.size})"
+    )
+
+    ax_all.set_aspect("equal", "box")
+    ax_all.set_xlabel(coord_label_x)
+    ax_all.set_ylabel(coord_label_y)
+    _apply_axis_limits(ax_all, abs_xlim, abs_ylim)
+
+    bbox_all = patches.FancyBboxPatch(
+        (box_x0, box_y0),
+        box_width,
+        box_height,
+        transform=ax_all.transAxes,
+        facecolor="white",
+        edgecolor="black",
+        boxstyle="round,pad=0.02",
+        alpha=0.8,
+    )
+    ax_all.add_patch(bbox_all)
+
+    ax_all.text(
+        text_x,
+        y_top,
+        f"Infected ({_fmt_vel(mean_vel_inf)} {vel_unit})",
+        color="red",
+        transform=ax_all.transAxes,
+        fontsize=fontsize_main,
+        va="top",
+    )
+    ax_all.text(
+        text_x,
+        y_top - line_spacing,
+        f"Uninfected ({_fmt_vel(mean_vel_uninf)} {vel_unit})",
+        color="green",
+        transform=ax_all.transAxes,
+        fontsize=fontsize_main,
+        va="top",
+    )
+    ax_all.text(
+        text_x,
+        y_top - 2 * line_spacing,
+        unit_line1,
+        color="black",
+        transform=ax_all.transAxes,
+        fontsize=fontsize_units,
+        va="top",
+    )
+    ax_all.text(
+        text_x,
+        y_top - 3 * line_spacing,
+        unit_line2,
+        color="black",
+        transform=ax_all.transAxes,
+        fontsize=fontsize_units,
+        va="top",
+    )
+
+    plt.tight_layout()
+    out_png_all = os.path.join(motility_dir, "motility_all_tracks.png")
+    fig_all.savefig(out_png_all, dpi=300)
+    plt.close(fig_all)
+    print(
+        f"[summarise_tracks_from_merged] Saved combined motility plot to "
+        f"{out_png_all}"
+    )
+
+    # Per-well plots
+    well_summary_map = {}
+    if not well_summary_df.empty:
+        for _, row in well_summary_df.iterrows():
+            well_summary_map[(row["plateID"], row["wellID"])] = row
+
+    for (plateID, wellID), tracks in per_well_tracks.items():
+        fig_w, ax_w = plt.subplots(figsize=(6, 6))
+        has_infected = False
+        has_uninfected = False
+
+        for tr in tracks:
+            x = tr["x_px"] * coord_scale
+            y = tr["y_px"] * coord_scale
+            infected_track = tr["infected"]
+            color = "red" if infected_track else "green"
+            if infected_track:
+                has_infected = True
+            else:
+                has_uninfected = True
+            ax_w.plot(x, y, color=color, alpha=0.2, linewidth=0.5)
+            ax_w.scatter(x[-1], y[-1], color=color, s=5)
+
+        ax_w.set_aspect("equal", "box")
+        ax_w.set_xlabel(coord_label_x)
+        ax_w.set_ylabel(coord_label_y)
+        _apply_axis_limits(ax_w, abs_xlim, abs_ylim)
+
+        mean_inf_w = np.nan
+        mean_uninf_w = np.nan
+        summary_row = well_summary_map.get((plateID, wellID))
+        if summary_row is not None:
+            mean_inf_w = summary_row["mean_velocity_infected"]
+            mean_uninf_w = summary_row["mean_velocity_uninfected"]
+
+        bbox_w = patches.FancyBboxPatch(
+            (box_x0, box_y0),
+            box_width,
+            box_height,
+            transform=ax_w.transAxes,
+            facecolor="white",
+            edgecolor="black",
+            boxstyle="round,pad=0.02",
+            alpha=0.8,
+        )
+        ax_w.add_patch(bbox_w)
+
+        ax_w.text(
+            text_x,
+            y_top,
+            f"Infected ({_fmt_vel(mean_inf_w)} {vel_unit})",
+            color="red",
+            transform=ax_w.transAxes,
+            fontsize=fontsize_main,
+            va="top",
+        )
+        ax_w.text(
+            text_x,
+            y_top - line_spacing,
+            f"Uninfected ({_fmt_vel(mean_uninf_w)} {vel_unit})",
+            color="green",
+            transform=ax_w.transAxes,
+            fontsize=fontsize_main,
+            va="top",
+        )
+        ax_w.text(
+            text_x,
+            y_top - 2 * line_spacing,
+            unit_line1,
+            color="black",
+            transform=ax_w.transAxes,
+            fontsize=fontsize_units,
+            va="top",
+        )
+        ax_w.text(
+            text_x,
+            y_top - 3 * line_spacing,
+            unit_line2,
+            color="black",
+            transform=ax_w.transAxes,
+            fontsize=fontsize_units,
+            va="top",
+        )
+
+        plt.tight_layout()
+        out_well = os.path.join(
+            motility_dir, f"motility_{plateID}_{wellID}_all_tracks.png"
+        )
+        fig_w.savefig(out_well, dpi=300)
+        plt.close(fig_w)
+        print(
+            f"[summarise_tracks_from_merged] Saved per-well motility plot "
+            f"to {out_well}"
+        )
+
+        # infected-only, re-centred to (0,0)
+        if has_infected:
+            fig_inf, ax_inf = plt.subplots(figsize=(6, 6))
+            for tr in tracks:
+                if not tr["infected"]:
+                    continue
+                x = (tr["x_px"] - tr["x_px"][0]) * coord_scale
+                y = (tr["y_px"] - tr["y_px"][0]) * coord_scale
+                ax_inf.plot(x, y, color="red", alpha=0.2, linewidth=0.5)
+                ax_inf.scatter(x[-1], y[-1], color="red", s=5)
+            ax_inf.set_aspect("equal", "box")
+            ax_inf.set_xlabel(coord_label_x)
+            ax_inf.set_ylabel(coord_label_y)
+            _apply_axis_limits(ax_inf, origin_xlim, origin_ylim)
+            plt.tight_layout()
+            out_inf = os.path.join(
+                motility_dir, f"motility_{plateID}_{wellID}_infected_origin.png"
+            )
+            fig_inf.savefig(out_inf, dpi=300)
+            plt.close(fig_inf)
+            print(
+                f"[summarise_tracks_from_merged] Saved per-well infected "
+                f"origin plot to {out_inf}"
+            )
+
+        # uninfected-only, re-centred to (0,0)
+        if has_uninfected:
+            fig_uninf, ax_uninf = plt.subplots(figsize=(6, 6))
+            for tr in tracks:
+                if tr["infected"]:
+                    continue
+                x = (tr["x_px"] - tr["x_px"][0]) * coord_scale
+                y = (tr["y_px"] - tr["y_px"][0]) * coord_scale
+                ax_uninf.plot(x, y, color="green", alpha=0.2, linewidth=0.5)
+                ax_uninf.scatter(x[-1], y[-1], color="green", s=5)
+            ax_uninf.set_aspect("equal", "box")
+            ax_uninf.set_xlabel(coord_label_x)
+            ax_uninf.set_ylabel(coord_label_y)
+            _apply_axis_limits(ax_uninf, origin_xlim, origin_ylim)
+            plt.tight_layout()
+            out_uninf = os.path.join(
+                motility_dir, f"motility_{plateID}_{wellID}_uninfected_origin.png"
+            )
+            fig_uninf.savefig(out_uninf, dpi=300)
+            plt.close(fig_uninf)
+            print(
+                f"[summarise_tracks_from_merged] Saved per-well uninfected "
+                f"origin plot to {out_uninf}"
+            )
+
+def _select_infection_feature_columns(all_df, pathogen_chan):
+    """
+    Select numeric feature columns for infection QC:
+    - numeric columns
+    - drop obvious IDs / motility metrics
+    - drop centroid (coordinate) features
+    - keep intensity features only for the pathogen channel
+    - drop near-constant or almost-empty columns at cell level
+    """
+    import numpy as np
+
+    numeric_cols = all_df.select_dtypes(include=[np.number]).columns.tolist()
+    exclude = {
+        "frame",
+        "timeID",
+        "cellID",
+        "n_pathogens",
+        "v_px_per_frame",
+        "velocity",
+        "straightness",
+    }
+    # drop any debug / temporary numeric cols if present
+    exclude |= {c for c in numeric_cols if c.endswith("_idx")}
+
+    # drop centroid features (absolute coordinates)
+    exclude |= {c for c in numeric_cols if "centroid" in c.lower()}
+
+    # exclude intensity columns for non-pathogen channels
+    if pathogen_chan is not None:
+        for c in numeric_cols:
+            if "intensity_ch" in c:
+                try:
+                    digits = "".join(ch for ch in c.split("ch")[-1] if ch.isdigit())
+                    if digits != "":
+                        ch_idx = int(digits)
+                        if ch_idx != pathogen_chan:
+                            exclude.add(c)
+                except Exception:
+                    # if parsing fails, keep column
+                    pass
+
+    feature_cols = [c for c in numeric_cols if c not in exclude]
+    if not feature_cols:
+        return []
+
+    key_cols = ["plateID", "wellID", "fieldID", "cellID"]
+    agg_cols = [c for c in feature_cols if c in all_df.columns]
+    if not agg_cols:
+        return []
+
+    # Build per-cell table to filter out useless columns
+    cell_level = (
+        all_df[key_cols + agg_cols]
+        .groupby(key_cols, dropna=False)
+        .median()
+        .reset_index()
+    )
+
+    filtered = []
+    for c in agg_cols:
+        arr = cell_level[c].to_numpy(dtype=float)
+        finite = np.isfinite(arr)
+        if finite.sum() < 10:
+            continue
+        if np.nanstd(arr[finite]) < 1e-6:
+            continue
+        filtered.append(c)
+
+    return filtered
+
+
+def _infection_qc_histogram(
+    all_df,
+    settings,
+    infection_col,
+    pathogen_chan,
+    motility_dir,
+):
+    import matplotlib.pyplot as plt
+    import os
+    import numpy as np
+
+    # Prefer 95th percentile of pathogen channel; fall back to mean if needed
+    cand_cols = [
+        f"cell_p95_intensity_ch{pathogen_chan}",
+        f"cell_mean_intensity_ch{pathogen_chan}",
+    ]
+    intensity_col = None
+    for c in cand_cols:
+        if c in all_df.columns:
+            intensity_col = c
+            break
+
+    # Initialize payload slot
+    settings["infection_hist_data"] = None
+
+    if intensity_col is None:
+        print(f"[infection_intensity_qc] None of {cand_cols} found; "
+              f"skipping intensity-based relabelling.")
+        settings["infection_intensity_qc_panel_type"] = "histogram"
+        settings["infection_intensity_qc_panel_path"] = None
+        return all_df, infection_col
+        
+    if intensity_col not in all_df.columns:
+        print(f"[infection_intensity_qc] Column {intensity_col!r} not found; "
+              f"skipping intensity-based relabelling.")
+        settings["infection_intensity_qc_panel_type"] = "histogram"
+        settings["infection_intensity_qc_panel_path"] = None
+        return all_df, infection_col
+
+    key_cols = ["plateID", "wellID", "fieldID", "cellID"]
+    cell_level = (
+        all_df[key_cols + [intensity_col, infection_col]]
+        .groupby(key_cols, dropna=False)
+        .agg({intensity_col: "mean", infection_col: "max"})
+        .reset_index()
+    )
+
+    cell_level = cell_level.replace([np.inf, -np.inf], np.nan)
+    cell_level = cell_level.dropna(subset=[intensity_col])
+
+    if len(cell_level) < 20 or cell_level[intensity_col].nunique() < 2:
+        print("[infection_intensity_qc] Too few cells or no intensity variation; "
+              "skipping intensity-based relabelling.")
+        settings["infection_intensity_qc_panel_type"] = "histogram"
+        settings["infection_intensity_qc_panel_path"] = None
+        return all_df, infection_col
+
+    intensities = cell_level[intensity_col].to_numpy(dtype=float)
+    mask_labels = cell_level[infection_col].to_numpy(dtype=bool)
+
+    # Optional log-transform to help separate populations
+    do_log = bool(settings.get("infection_intensity_log", False))
+    if do_log:
+        eps = np.nanmax([np.nanmin(intensities[intensities > 0]) * 0.5, 1e-6])
+        intensities = np.log10(intensities + eps)
+
+    n_bins = int(settings.get("infection_intensity_n_bins", 64))
+    n_bins = max(10, min(n_bins, 256))
+
+    counts_all, bin_edges = np.histogram(intensities, bins=n_bins)
+    counts_inf, _ = np.histogram(intensities[mask_labels], bins=bin_edges)
+
+    denom = np.maximum(counts_all, 1)
+    frac_inf = counts_inf.astype(float) / denom.astype(float)
+
+    # Target fraction of infected in a bin
+    target_frac = float(settings.get("infection_intensity_frac_infected", 0.7))
+    target_frac = max(0.5, min(target_frac, 0.95))
+
+    # Fallback percentile (now default 25th)
+    hist_pct = float(settings.get("infection_hist_percentile", 25.0))
+    hist_pct = max(0.0, min(hist_pct, 100.0))
+
+    # First bin (low→high) where infected ≥ target_frac
+    thresh_idx = None
+    for i, frac in enumerate(frac_inf):
+        if frac >= target_frac:
+            thresh_idx = i
+            break
+
+    if thresh_idx is None:
+        # fallback: hist_pct percentile of all cells (after optional log)
+        thr_val = float(np.nanpercentile(intensities, hist_pct))
+        print(
+            "[infection_intensity_qc] Could not find bin with infected ≥ "
+            f"{target_frac:.2f}; using {hist_pct:.1f}th percentile of all cells "
+            f"({thr_val:.2f}) as threshold."
+        )
+    else:
+        thr_val = float(bin_edges[thresh_idx])
+        print(
+            "[infection_intensity_qc] Automatic intensity threshold at first bin "
+            f"where infected ≥ {target_frac:.2f}: {thr_val:.2f} (bin {thresh_idx})"
+        )
+
+    cell_level["intensity_positive"] = cell_level[intensity_col] >= thr_val
+
+    mode = str(settings.get("infection_intensity_mode", "relabel")).lower()
+    if mode not in {"relabel", "remove"}:
+        mode = "relabel"
+
+    removed_ids = None
+    if mode == "relabel":
+        cell_level["adjusted_infected"] = cell_level["intensity_positive"].astype(bool)
+        n_changed = int(
+            (cell_level["adjusted_infected"] != cell_level[infection_col].astype(bool)).sum()
+        )
+        print(f"[infection_intensity_qc] Adjusted infection labels for {n_changed} cells (mode=relabel).")
+    else:
+        consistent = (
+            cell_level[infection_col].astype(bool)
+            == cell_level["intensity_positive"].astype(bool)
+        )
+        removed = cell_level.loc[
+            ~consistent, ["plateID", "wellID", "fieldID", "cellID"]
+        ]
+        removed_ids = set(
+            zip(
+                removed["plateID"],
+                removed["wellID"],
+                removed["fieldID"],
+                removed["cellID"],
+            )
+        )
+        cell_level = cell_level.loc[consistent].copy()
+        cell_level["adjusted_infected"] = cell_level["intensity_positive"].astype(bool)
+        print(
+            "[infection_intensity_qc] Removed "
+            f"{len(removed_ids)} cells with conflicting mask vs intensity labels "
+            "(mode=remove)."
+        )
+
+    # merge back
+    all_df = all_df.merge(
+        cell_level[key_cols + ["adjusted_infected"]],
+        on=key_cols,
+        how="left",
+    )
+    if removed_ids:
+        mask_keep = ~all_df.apply(
+            lambda r: (r["plateID"], r["wellID"], r["fieldID"], r["cellID"])
+            in removed_ids,
+            axis=1,
+        )
+        all_df = all_df.loc[mask_keep].reset_index(drop=True)
+
+    all_df["adjusted_infected"] = all_df["adjusted_infected"].fillna(
+        all_df[infection_col]
+    )
+    infection_col = "adjusted_infected"
+
+    # Decide whether to make / save QC graph
+    make_graphs = bool(settings.get("infection_intensity_qc_graphs", True))
+    meta_tag = _infer_plate_well_meta_tag(all_df)
+    hist_path = None
+
+    # Prepare payload (even if we don't generate PNG)
+    vals_inf = intensities[mask_labels]
+    vals_uninf = intensities[~mask_labels]
+    hist_payload = {
+        "intensities_inf": vals_inf,
+        "intensities_uninf": vals_uninf,
+        "bin_edges": bin_edges,
+        "thr_val": thr_val,
+        "pathogen_chan": pathogen_chan,
+        "log_transform": do_log,
+        "intensity_col": intensity_col,
+    }
+    settings["infection_hist_data"] = hist_payload
+
+    if make_graphs:
+        # Plot histogram
+        os.makedirs(motility_dir, exist_ok=True)
+
+        fig_h, ax_h = plt.subplots(figsize=(6, 4))
+        ax_h.hist(
+            vals_uninf,
+            bins=bin_edges,
+            alpha=0.5,
+            color="green",
+            label="Uninfected (mask-based)",
+        )
+        ax_h.hist(
+            vals_inf,
+            bins=bin_edges,
+            alpha=0.5,
+            color="red",
+            label="Infected (mask-based)",
+        )
+        ax_h.axvline(
+            thr_val,
+            linestyle="--",
+            linewidth=2,
+            color="black",
+            label=f"Threshold = {thr_val:.1f}",
+        )
+        if do_log:
+            ax_h.set_xlabel(f"log10 intensity metric (channel {pathogen_chan})")
+        else:
+            ax_h.set_xlabel(f"Intensity metric (channel {pathogen_chan})")
+        ax_h.set_ylabel("Cell count")
+        ax_h.set_title(
+            f"Pathogen-channel intensity histogram (thr={thr_val:.1f}, "
+            f"{hist_pct:.1f}th pct fallback)"
+        )
+        ax_h.legend(loc="best")
+
+        hist_filename = f"infection_intensity_histogram_{meta_tag}.png"
+        hist_path = os.path.join(motility_dir, hist_filename)
+        fig_h.tight_layout()
+        fig_h.savefig(hist_path, dpi=200)
+        plt.close(fig_h)
+
+        print(f"[infection_intensity_qc] Saved histogram to: {hist_path}")
+    else:
+        print(
+            "[infection_intensity_qc] infection_intensity_qc_graphs=False; "
+            "skipping histogram plot."
+        )
+
+    # Let the panel know what QC plot to embed (if present)
+    settings["infection_intensity_qc_panel_type"] = "histogram"
+    settings["infection_intensity_qc_panel_path"] = hist_path
+
+    return all_df, infection_col
+
+def _infection_qc_pca_clustering(
+    all_df,
+    settings,
+    infection_col,
+    pathogen_chan,
+    motility_dir,
+):
+    import os
+    import matplotlib.pyplot as plt
+    from sklearn.decomposition import PCA
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.cluster import KMeans
+    import numpy as np
+
+    # Initialize payload slot
+    settings["infection_pca_data"] = None
+
+    orig_infection_col = infection_col
+
+    feature_cols = _select_infection_feature_columns(all_df, pathogen_chan)
+    if len(feature_cols) < 2:
+        print("[infection_intensity_qc:PCA] Not enough informative features; "
+              "falling back to histogram strategy.")
+        return _infection_qc_histogram(
+            all_df, settings, infection_col, pathogen_chan, motility_dir
+        )
+
+    key_cols = ["plateID", "wellID", "fieldID", "cellID"]
+    cell_level = (
+        all_df[key_cols + feature_cols + [orig_infection_col]]
+        .groupby(key_cols, dropna=False)
+        .median()
+        .reset_index()
+    )
+
+    cell_level = cell_level.replace([np.inf, -np.inf], np.nan)
+    cell_level = cell_level.dropna(subset=feature_cols, how="all")
+    if len(cell_level) < 20:
+        print("[infection_intensity_qc:PCA] Too few cells after cleaning; "
+              "falling back to histogram strategy.")
+        return _infection_qc_histogram(
+            all_df, settings, infection_col, pathogen_chan, motility_dir
+        )
+
+    X = cell_level[feature_cols].to_numpy(dtype=float)
+    # per-column median imputation
+    for j in range(X.shape[1]):
+        col = X[:, j]
+        mask = np.isfinite(col)
+        if not mask.any():
+            X[:, j] = 0.0
+        else:
+            med = np.nanmedian(col[mask])
+            col[~mask] = med
+            X[:, j] = col
+
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    method = str(settings.get("infection_pca_method", "pca")).lower()
+    coords = None
+    method_label = "PCA"
+
+    if method == "umap":
+        try:
+            import umap  # type: ignore
+            reducer = umap.UMAP(
+                n_components=2,
+                random_state=int(settings.get("infection_pca_random_state", 0)),
+                min_dist=float(settings.get("infection_umap_min_dist", 0.1)),
+            )
+            coords = reducer.fit_transform(X_scaled)
+            method_label = "UMAP"
+        except Exception as e:
+            print(f"[infection_intensity_qc:PCA] UMAP unavailable ({e}); using PCA instead.")
+            method = "pca"
+
+    if coords is None:
+        pca = PCA(
+            n_components=2,
+            random_state=int(settings.get("infection_pca_random_state", 0)),
+        )
+        coords = pca.fit_transform(X_scaled)
+        method_label = "PCA"
+
+    k = int(settings.get("infection_pca_n_clusters", 2))
+    k = max(2, min(k, 6))
+    kmeans = KMeans(
+        n_clusters=k,
+        random_state=int(settings.get("infection_pca_random_state", 0)),
+        n_init=10,
+    )
+    cluster_labels = kmeans.fit_predict(coords)
+    cell_level["cluster"] = cluster_labels
+
+    # cluster with highest fraction of mask-infected is "infected"
+    cluster_stats = (
+        cell_level.groupby("cluster")[orig_infection_col]
+        .mean()
+        .sort_values(ascending=False)
+    )
+    infected_cluster = int(cluster_stats.index[0])
+    cell_level["pred_infected"] = cell_level["cluster"] == infected_cluster
+
+    mode = str(settings.get("infection_intensity_mode", "relabel")).lower()
+    if mode not in {"relabel", "remove"}:
+        mode = "relabel"
+
+    removed_ids = None
+    if mode == "relabel":
+        cell_level["adjusted_infected"] = cell_level["pred_infected"]
+        n_changed = int(
+            (cell_level["adjusted_infected"] != cell_level[orig_infection_col]).sum()
+        )
+        print(
+            "[infection_intensity_qc:PCA] Adjusted infection labels for "
+            f"{n_changed} cells (mode=relabel)."
+        )
+    else:
+        consistent = cell_level["pred_infected"] == cell_level[orig_infection_col].astype(bool)
+        removed = cell_level.loc[~consistent, ["plateID", "wellID", "fieldID", "cellID"]]
+        removed_ids = set(
+            zip(removed["plateID"], removed["wellID"], removed["fieldID"], removed["cellID"])
+        )
+        cell_level = cell_level.loc[consistent].copy()
+        cell_level["adjusted_infected"] = cell_level["pred_infected"]
+        print(
+            "[infection_intensity_qc:PCA] Removed "
+            f"{len(removed_ids)} cells with conflicting PCA-cluster vs mask labels "
+            "(mode=remove)."
+        )
+
+    # merge back to frame-level df
+    all_df = all_df.merge(
+        cell_level[key_cols + ["adjusted_infected"]],
+        on=key_cols,
+        how="left",
+    )
+    if removed_ids:
+        mask_keep = ~all_df.apply(
+            lambda r: (r["plateID"], r["wellID"], r["fieldID"], r["cellID"]) in removed_ids,
+            axis=1,
+        )
+        all_df = all_df.loc[mask_keep].reset_index(drop=True)
+
+    all_df["adjusted_infected"] = all_df["adjusted_infected"].fillna(
+        all_df[infection_col]
+    )
+    infection_col = "adjusted_infected"
+
+    # --- store PCA payload for adjusted labels (for the combined results panel) ---
+    try:
+        mask_inf = cell_level["adjusted_infected"].astype(bool).to_numpy()
+        pca_payload = {
+            "coords": coords,
+            "labels": mask_inf,
+            "method_label": method_label,
+        }
+        settings["infection_pca_data"] = pca_payload
+    except Exception as e:
+        print(f"[infection_intensity_qc:PCA] Could not save PCA payload: {e}")
+
+    # plotting
+    make_graphs = bool(settings.get("infection_intensity_qc_graphs", True))
+    os.makedirs(motility_dir, exist_ok=True)
+    coords_x = coords[:, 0]
+    coords_y = coords[:, 1]
+
+    out_path = None
+    if make_graphs:
+        fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+        ax0, ax1 = axes
+
+        # left: mask-based labels
+        mask_inf_orig = cell_level[orig_infection_col].astype(bool)
+        ax0.scatter(
+            coords_x[~mask_inf_orig],
+            coords_y[~mask_inf_orig],
+            s=8,
+            c="green",
+            alpha=0.5,
+            label="Uninfected (mask)",
+        )
+        ax0.scatter(
+            coords_x[mask_inf_orig],
+            coords_y[mask_inf_orig],
+            s=8,
+            c="red",
+            alpha=0.5,
+            label="Infected (mask)",
+        )
+        ax0.set_title(f"{method_label} – mask labels")
+        ax0.legend(loc="best")
+
+        # right: cluster-based labels
+        pred_inf = cell_level["pred_infected"].to_numpy()
+        ax1.scatter(
+            coords_x[~pred_inf],
+            coords_y[~pred_inf],
+            s=8,
+            c="green",
+            alpha=0.5,
+            label="Uninfected (cluster)",
+        )
+        ax1.scatter(
+            coords_x[pred_inf],
+            coords_y[pred_inf],
+            s=8,
+            c="red",
+            alpha=0.5,
+            label="Infected (cluster)",
+        )
+        ax1.set_title(f"{method_label} – cluster labels")
+        ax1.legend(loc="best")
+
+        for ax in axes:
+            ax.set_xlabel("component 1")
+            ax.set_ylabel("component 2")
+
+        plt.tight_layout()
+        meta_tag = _infer_plate_well_meta_tag(all_df)
+        out_name = f"infection_pca_clustering_{meta_tag}.png"
+        out_path = os.path.join(motility_dir, out_name)
+        fig.savefig(out_path, dpi=200)
+        plt.close(fig)
+        print(f"[infection_intensity_qc:PCA] Saved PCA/UMAP clustering figure to: {out_path}")
+    else:
+        print(
+            "[infection_intensity_qc:PCA] infection_intensity_qc_graphs=False; "
+            "skipping PCA/UMAP clustering plot."
+        )
+
+    settings["infection_intensity_qc_panel_type"] = "pca"
+    settings["infection_intensity_qc_panel_path"] = out_path
+
+    return all_df, infection_col
+
+def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motility_dir):
+    """
+    Use an XGBoost classifier to refine infection calling based on per-object features.
+
+    Key behaviour
+    -------------
+    - Training:
+        * per-cell (or per-object) medians across frames
+        * {tracked_object}_* morphology + {tracked_object}_pathogen-channel intensity features
+        * training labels from pathogen-channel intensity extremes:
+            - bottom 25% of UNINFECTED → strong negatives
+            - top    25% of INFECTED   → strong positives
+        * training data curated per well:
+            - wells with both classes in the extreme set:
+                - if both classes have >= infection_xgb_min_cells_per_class examples:
+                    → balanced sampling per class within that well
+                - else (small wells with both classes):
+                    → keep all extreme examples from that well
+            - wells with only one class in the extreme set are skipped
+            - if no well has both classes in the extreme set → skip XGBoost QC
+
+    - Prediction:
+        * get P(infected) for all cells
+        * "mode":
+            - 'relabel': start from original labels, override only when model
+                         is confident; ambiguous are still dropped if requested.
+            - 'remove' : drop strong label–model disagreements AND ambiguous if
+                         requested.
+
+    - Ambiguous band removal:
+        * if infection_xgb_drop_ambiguous is True (default),
+          drop cells with proba in [infection_xgb_ambiguous_low,
+                                    infection_xgb_ambiguous_high]
+          (defaults: 0.25 and 0.75).
+
+    Additionally, this function stores three QC payloads in `settings`:
+
+        settings["infection_hist_data"]        : dict for histogram panel
+        settings["infection_pca_data"]         : dict for PCA panel
+        settings["infection_xgb_importance"]   : dict for feature-importance panel
+
+    Returns
+    -------
+    all_df, infection_col='adjusted_infected'
+    """
+    import os
+    import re
+    import numpy as np
+    import pandas as pd
+    import matplotlib.pyplot as plt
+
+    try:
+        import xgboost as xgb
+    except ImportError:
+        print("[_infection_qc_xgboost] XGBoost not installed; using histogram QC.")
+        return _infection_qc_histogram(
+            all_df=all_df,
+            settings=settings,
+            infection_col=infection_col,
+            pathogen_chan=pathogen_chan,
+            motility_dir=motility_dir,
+        )
+
+    # init payload slots
+    settings["infection_hist_data"] = None
+    settings["infection_pca_data"] = None
+    settings["infection_xgb_importance"] = None
+
+    orig_infection_col = infection_col
+
+    if pathogen_chan is None:
+        print("[_infection_qc_xgboost] pathogen_chan is None; using histogram QC.")
+        return _infection_qc_histogram(
+            all_df=all_df,
+            settings=settings,
+            infection_col=infection_col,
+            pathogen_chan=pathogen_chan,
+            motility_dir=motility_dir,
+        )
+
+    # Ensure n_pathogens exists and has 0 instead of NaN
+    if "n_pathogens" in all_df.columns:
+        all_df["n_pathogens"] = all_df["n_pathogens"].fillna(0)
+
+    # Recover infection column if missing
+    if orig_infection_col not in all_df.columns:
+        infect_like = [c for c in all_df.columns if "infect" in c.lower()]
+        if infect_like:
+            new_col = infect_like[0]
+            print(
+                f"[_infection_qc_xgboost] Column {orig_infection_col!r} not found; "
+                f"using {new_col!r} instead."
+            )
+            orig_infection_col = new_col
+        elif "n_pathogens" in all_df.columns:
+            orig_infection_col = "_infected_from_n_pathogens"
+            all_df[orig_infection_col] = (all_df["n_pathogens"] > 0).astype(int)
+            print(
+                "[_infection_qc_xgboost] Column 'infected' not found; created "
+                f"{orig_infection_col!r} from 'n_pathogens > 0'."
+            )
+        else:
+            print(
+                "[_infection_qc_xgboost] No infection label and no 'n_pathogens'; "
+                "using histogram QC instead."
+            )
+            return _infection_qc_histogram(
+                all_df=all_df,
+                settings=settings,
+                infection_col=infection_col,
+                pathogen_chan=pathogen_chan,
+                motility_dir=motility_dir,
+            )
+
+    key_cols = ["plateID", "wellID", "fieldID", "cellID"]
+    for col in key_cols:
+        if col not in all_df.columns:
+            raise KeyError(f"[_infection_qc_xgboost] Required column {col!r} not in all_df.")
+
+    # ------------------------------------------------------------------
+    # Aggregate to per-object level (median across frames)
+    # ------------------------------------------------------------------
+    agg_cols = [
+        c
+        for c in all_df.columns
+        if c not in (key_cols + ["frame", "timeID", orig_infection_col])
+    ]
+
+    group = all_df.groupby(key_cols, observed=True)
+    cell_level = group[agg_cols].median(numeric_only=True).reset_index()
+
+    infection_any = (
+        all_df.groupby(key_cols, observed=True)[orig_infection_col]
+        .max()
+        .reset_index()
+    )
+    cell_level = cell_level.merge(
+        infection_any, on=key_cols, how="left", suffixes=("", "_y")
+    )
+
+    if orig_infection_col not in cell_level.columns:
+        for cand in (f"{orig_infection_col}_y", f"{orig_infection_col}_x"):
+            if cand in cell_level.columns:
+                cell_level[orig_infection_col] = cell_level[cand]
+                break
+
+    if orig_infection_col not in cell_level.columns:
+        raise KeyError(
+            f"[_infection_qc_xgboost] Infection column {orig_infection_col!r} "
+            "missing from per-cell table after aggregation/merge."
+        )
+
+    cell_level[orig_infection_col] = (
+        cell_level[orig_infection_col]
+        .fillna(0)
+        .astype(bool)
+    )
+
+    if "n_pathogens" in cell_level.columns:
+        cell_level["n_pathogens"] = cell_level["n_pathogens"].fillna(0)
+
+    # ------------------------------------------------------------------
+    # Decide which object type's features to use (tracked_object)
+    # ------------------------------------------------------------------
+    tracked_object = str(settings.get("tracked_object", "cell")).strip().lower()
+    if tracked_object not in {"cell", "nucleus", "pathogen"}:
+        print(
+            f"[_infection_qc_xgboost] Unknown tracked_object={tracked_object!r}; "
+            "falling back to 'cell'."
+        )
+        tracked_object = "cell"
+    obj_prefix = f"{tracked_object}_"
+
+    # ------------------------------------------------------------------
+    # Decide pathogen-channel intensity column for this tracked_object
+    # ------------------------------------------------------------------
+    intensity_candidates = [
+        f"{obj_prefix}p95_intensity_ch{pathogen_chan}",
+        f"{obj_prefix}max_intensity_ch{pathogen_chan}",
+        f"{obj_prefix}mean_intensity_ch{pathogen_chan}",
+    ]
+    intensity_col = None
+    for c in intensity_candidates:
+        if c in cell_level.columns:
+            intensity_col = c
+            break
+
+    if intensity_col is None:
+        print(
+            "[_infection_qc_xgboost] No pathogen-channel intensity column found for "
+            f"tracked_object={tracked_object!r} "
+            f"(tried: {intensity_candidates}); using histogram QC."
+        )
+        return _infection_qc_histogram(
+            all_df=all_df,
+            settings=settings,
+            infection_col=infection_col,
+            pathogen_chan=pathogen_chan,
+            motility_dir=motility_dir,
+        )
+
+    # ------------------------------------------------------------------
+    # Build feature set: {tracked_object}_* only, excluding centroids,
+    # non-pathogen channels, degenerate features
+    # ------------------------------------------------------------------
+    numeric_cols = cell_level.select_dtypes(include=[np.number, "bool"]).columns.tolist()
+
+    feature_cols = []
+    pattern_obj = re.compile(rf"^{re.escape(obj_prefix)}")
+    pattern_ch = re.compile(r"ch(\d+)\b")
+
+    for c in numeric_cols:
+        if c == orig_infection_col:
+            continue
+        if c in {"frame", "timeID"}:
+            continue
+        if "centroid" in c.lower():
+            continue
+        if not pattern_obj.match(c):
+            continue
+
+        m = pattern_ch.search(c)
+        if m:
+            ch_idx = int(m.group(1))
+            if ch_idx != int(pathogen_chan):
+                continue
+            feature_cols.append(c)
+        else:
+            feature_cols.append(c)
+
+    if intensity_col in cell_level.columns and intensity_col not in feature_cols:
+        feature_cols.append(intensity_col)
+
+    # Drop degenerate features
+    clean_feature_cols = []
+    for c in feature_cols:
+        s = cell_level[c]
+        if s.notna().sum() < 10:
+            continue
+        if s.nunique(dropna=True) <= 1:
+            continue
+        clean_feature_cols.append(c)
+    feature_cols = clean_feature_cols
+
+    if not feature_cols:
+        print(
+            "[_infection_qc_xgboost] No usable "
+            f"{tracked_object}_* feature columns; using histogram QC."
+        )
+        return _infection_qc_histogram(
+            all_df=all_df,
+            settings=settings,
+            infection_col=infection_col,
+            pathogen_chan=pathogen_chan,
+            motility_dir=motility_dir,
+        )
+
+    # ------------------------------------------------------------------
+    # Global sanity check: do we even have enough infected/uninfected cells?
+    # ------------------------------------------------------------------
+    infected_cells = cell_level[cell_level[orig_infection_col]]
+    uninfected_cells = cell_level[~cell_level[orig_infection_col]]
+
+    if len(infected_cells) < 10 or len(uninfected_cells) < 10:
+        print(
+            "[_infection_qc_xgboost] Too few infected or uninfected cells overall; "
+            "using histogram QC."
+        )
+        return _infection_qc_histogram(
+            all_df=all_df,
+            settings=settings,
+            infection_col=infection_col,
+            pathogen_chan=pathogen_chan,
+            motility_dir=motility_dir,
+        )
+
+    # ------------------------------------------------------------------
+    # Define confident training sets using intensity quartiles
+    # ------------------------------------------------------------------
+    inf_int = infected_cells[intensity_col].to_numpy(dtype=float)
+    uninf_int = uninfected_cells[intensity_col].to_numpy(dtype=float)
+
+    inf_int = inf_int[np.isfinite(inf_int)]
+    uninf_int = uninf_int[np.isfinite(uninf_int)]
+
+    if inf_int.size == 0 or uninf_int.size == 0:
+        print(
+            "[_infection_qc_xgboost] No finite intensities for infected/uninfected; "
+            "using histogram QC."
+        )
+        return _infection_qc_histogram(
+            all_df=all_df,
+            settings=settings,
+            infection_col=infection_col,
+            pathogen_chan=pathogen_chan,
+            motility_dir=motility_dir,
+        )
+
+    high_thr_inf = np.nanpercentile(inf_int, 75.0)
+    low_thr_uninf = np.nanpercentile(uninf_int, 25.0)
+
+    hi_inf = infected_cells[infected_cells[intensity_col] >= high_thr_inf].copy()
+    lo_uninf = uninfected_cells[uninfected_cells[intensity_col] <= low_thr_uninf].copy()
+
+    if hi_inf.empty or lo_uninf.empty:
+        print(
+            "[_infection_qc_xgboost] Could not define confident high/low quartiles; "
+            "using histogram QC."
+        )
+        return _infection_qc_histogram(
+            all_df=all_df,
+            settings=settings,
+            infection_col=infection_col,
+            pathogen_chan=pathogen_chan,
+            motility_dir=motility_dir,
+        )
+
+    print(
+        "[_infection_qc_xgboost] Extreme-intensity candidates: "
+        f"infected={len(hi_inf)}, uninfected={len(lo_uninf)} "
+        f"(tracked_object={tracked_object}, intensity_col={intensity_col}, "
+        f"low_thr_uninf={low_thr_uninf:.3f}, high_thr_inf={high_thr_inf:.3f})"
+    )
+
+    # ------------------------------------------------------------------
+    # Curate XGBoost training data per well
+    # ------------------------------------------------------------------
+    hi_inf["xgb_label"] = 1
+    lo_uninf["xgb_label"] = 0
+    train_candidates = pd.concat([hi_inf, lo_uninf], axis=0)
+
+    min_per_class = int(settings.get("infection_xgb_min_cells_per_class", 10))
+    rng_seed = settings.get("infection_xgb_random_state", 42)
+    try:
+        rng = np.random.default_rng(int(rng_seed))
+    except Exception:
+        rng = np.random.default_rng(42)
+
+    train_idx_list = []
+    y_train_list = []
+    wells_used = set()
+    wells_single_class = []
+
+    grouped = train_candidates.groupby(["plateID", "wellID"], observed=True)
+
+    for (plate_id, well_id), df_w in grouped:
+        pos_df = df_w[df_w["xgb_label"] == 1]
+        neg_df = df_w[df_w["xgb_label"] == 0]
+        n_pos = len(pos_df)
+        n_neg = len(neg_df)
+
+        if n_pos == 0 or n_neg == 0:
+            # wells with only one class → skip for training
+            wells_single_class.append((plate_id, well_id))
+            continue
+
+        pos_idx = pos_df.index.to_numpy()
+        neg_idx = neg_df.index.to_numpy()
+
+        if n_pos >= min_per_class and n_neg >= min_per_class:
+            # wells with enough data per class → balanced sampling within well
+            n_per_class = min(n_pos, n_neg)
+            if n_pos > n_per_class:
+                pos_sel = rng.choice(pos_idx, size=n_per_class, replace=False)
+            else:
+                pos_sel = pos_idx
+            if n_neg > n_per_class:
+                neg_sel = rng.choice(neg_idx, size=n_per_class, replace=False)
+            else:
+                neg_sel = neg_idx
+        else:
+            # small wells with both classes → keep all extreme examples
+            pos_sel = pos_idx
+            neg_sel = neg_idx
+
+        if pos_sel.size == 0 or neg_sel.size == 0:
+            wells_single_class.append((plate_id, well_id))
+            continue
+
+        train_idx_list.extend(pos_sel.tolist())
+        y_train_list.extend([1] * pos_sel.size)
+        train_idx_list.extend(neg_sel.tolist())
+        y_train_list.extend([0] * neg_sel.size)
+        wells_used.add((plate_id, well_id))
+
+    if not wells_used:
+        print(
+            "[_infection_qc_xgboost] No wells with both infected and uninfected "
+            "extreme-intensity examples; skipping XGBoost QC."
+        )
+        return _infection_qc_histogram(
+            all_df=all_df,
+            settings=settings,
+            infection_col=infection_col,
+            pathogen_chan=pathogen_chan,
+            motility_dir=motility_dir,
+        )
+
+    train_idx = np.array(train_idx_list, dtype=int)
+    y_train = np.array(y_train_list, dtype=int)
+
+    n_pos_train = int((y_train == 1).sum())
+    n_neg_train = int((y_train == 0).sum())
+    print(
+        "[_infection_qc_xgboost] Training set (after per-well curation): "
+        f"wells used={len(wells_used)}, positives={n_pos_train}, "
+        f"negatives={n_neg_train}, min_per_class={min_per_class}."
+    )
+    if wells_single_class:
+        print(
+            "[_infection_qc_xgboost] Wells skipped due to single class in extreme set: "
+            + ", ".join([f"{p}_{w}" for (p, w) in wells_single_class])
+        )
+
+    # ------------------------------------------------------------------
+    # Build feature matrix + median imputation
+    # ------------------------------------------------------------------
+    X_all = cell_level[feature_cols].to_numpy(dtype=float)
+    for j in range(X_all.shape[1]):
+        col = X_all[:, j]
+        mask = np.isfinite(col)
+        if not mask.any():
+            X_all[:, j] = 0.0
+        else:
+            med = np.nanmedian(col[mask])
+            col[~mask] = med
+            X_all[:, j] = col
+
+    X_train = X_all[train_idx]
+
+    # ------------------------------------------------------------------
+    # Remove highly correlated features
+    # ------------------------------------------------------------------
+    if X_train.shape[1] > 1:
+        corr = np.corrcoef(X_train, rowvar=False)
+        corr_thr = float(settings.get("infection_xgb_corr_threshold", 0.95))
+        keep = np.ones(corr.shape[0], dtype=bool)
+
+        for i in range(corr.shape[0]):
+            if not keep[i]:
+                continue
+            for j in range(i + 1, corr.shape[0]):
+                if keep[j] and abs(corr[i, j]) >= corr_thr:
+                    keep[j] = False
+
+        if not keep.any():
+            print(
+                "[_infection_qc_xgboost] All features flagged as highly correlated; "
+                "keeping original feature set."
+            )
+        else:
+            removed = [f for f, k in zip(feature_cols, keep) if not k]
+            if removed:
+                print(
+                    "[_infection_qc_xgboost] Removing highly correlated features "
+                    f"(>|{corr_thr:.2f}|): " + ", ".join(removed)
+                )
+            feature_cols = [f for f, k in zip(feature_cols, keep) if k]
+            X_all = X_all[:, keep]
+            X_train = X_train[:, keep]
+
+    used_feature_cols = feature_cols
+
+    if X_train.shape[1] == 0:
+        print(
+            "[_infection_qc_xgboost] No usable feature columns after correlation "
+            "filtering; using histogram QC."
+        )
+        return _infection_qc_histogram(
+            all_df=all_df,
+            settings=settings,
+            infection_col=infection_col,
+            pathogen_chan=pathogen_chan,
+            motility_dir=motility_dir,
+        )
+
+    print(
+        f"[_infection_qc_xgboost] Using {len(used_feature_cols)} "
+        f"{tracked_object}_* features:"
+    )
+    print("   " + ", ".join(used_feature_cols))
+
+    # ------------------------------------------------------------------
+    # Train XGBoost
+    # ------------------------------------------------------------------
+    dtrain = xgb.DMatrix(X_train, label=y_train, feature_names=used_feature_cols)
+
+    params = {
+        "objective": "binary:logistic",
+        "eval_metric": "logloss",
+        "max_depth": int(settings.get("infection_xgb_max_depth", 3)),
+        "eta": float(settings.get("infection_xgb_learning_rate", 0.1)),
+        "subsample": float(settings.get("infection_xgb_subsample", 0.8)),
+        "colsample_bytree": float(settings.get("infection_xgb_colsample_bytree", 0.8)),
+        "lambda": float(settings.get("infection_xgb_reg_lambda", 1.0)),
+        "alpha": 0.0,
+        "verbosity": 0,
+        "nthread": int(settings.get("infection_xgb_n_jobs", -1)),
+    }
+    num_round = int(settings.get("infection_xgb_n_estimators", 200))
+    bst = xgb.train(params, dtrain, num_boost_round=num_round)
+
+    # ------------------------------------------------------------------
+    # Predict all cells
+    # ------------------------------------------------------------------
+    dall = xgb.DMatrix(X_all, feature_names=used_feature_cols)
+    probs = bst.predict(dall)
+
+    prob_thr = float(settings.get("infection_xgb_proba_threshold", 0.5))
+    margin = float(settings.get("infection_xgb_margin", 0.0))
+    margin = max(0.0, min(margin, 0.49))
+
+    orig_arr = cell_level[orig_infection_col].astype(int).to_numpy()
+    pred_arr = (probs >= prob_thr).astype(int)
+
+    mode = str(settings.get("infection_intensity_mode", "relabel")).lower()
+    if mode not in {"relabel", "remove"}:
+        mode = "relabel"
+
+    removed_ids = set()
+    ambiguous_ids = set()
+
+    if mode == "relabel":
+        adjusted = orig_arr.copy()
+        hi_conf = probs >= (prob_thr + margin)
+        lo_conf = probs <= (prob_thr - margin)
+
+        adjusted[hi_conf] = 1
+        adjusted[lo_conf] = 0
+
+        n_changed = int((adjusted != orig_arr).sum())
+        print(
+            "[_infection_qc_xgboost] Relabel mode: adjusted infection labels for "
+            f"{n_changed} cells (prob_thr={prob_thr:.2f}, margin={margin:.2f})."
+        )
+        cell_level["adjusted_infected"] = adjusted
+        cell_level["infection_prob"] = probs
+    else:
+        if margin > 0:
+            ambig = np.abs(probs - prob_thr) < margin
+        else:
+            ambig = np.zeros_like(probs, dtype=bool)
+
+        disagree = pred_arr != orig_arr
+        to_remove = disagree & ~ambig
+
+        removed = cell_level.loc[to_remove, key_cols]
+        removed_ids = {
+            (r["plateID"], r["wellID"], r["fieldID"], r["cellID"])
+            for _, r in removed.iterrows()
+        }
+
+        cell_level = cell_level.loc[~to_remove].copy()
+        kept_idx = (~to_remove).nonzero()[0]
+
+        adjusted = orig_arr[kept_idx].copy()
+        pred_kept = pred_arr[kept_idx]
+        ambig_kept = ambig[kept_idx]
+
+        adjusted[~ambig_kept] = pred_kept[~ambig_kept]
+
+        cell_level["adjusted_infected"] = adjusted
+        cell_level["infection_prob"] = probs[~to_remove]
+
+        print(
+            "[_infection_qc_xgboost] Remove mode: removed "
+            f"{len(removed_ids)} cells with strong model vs label disagreement "
+            f"(prob_thr={prob_thr:.2f}, margin={margin:.2f})."
+        )
+
+    # ------------------------------------------------------------------
+    # Drop ambiguous band (probability in [low, high])
+    # ------------------------------------------------------------------
+    drop_amb = bool(settings.get("infection_xgb_drop_ambiguous", True))
+    amb_low = float(settings.get("infection_xgb_ambiguous_low", 0.25))
+    amb_high = float(settings.get("infection_xgb_ambiguous_high", 0.75))
+    amb_low = max(0.0, min(amb_low, 1.0))
+    amb_high = max(0.0, min(amb_high, 1.0))
+    if amb_low > amb_high:
+        amb_low, amb_high = amb_high, amb_low
+
+    if drop_amb and "infection_prob" in cell_level.columns:
+        amb_mask = (
+            (cell_level["infection_prob"] >= amb_low)
+            & (cell_level["infection_prob"] <= amb_high)
+        )
+        if amb_mask.any():
+            amb = cell_level.loc[amb_mask, key_cols]
+            ambiguous_ids = {
+                (r["plateID"], r["wellID"], r["fieldID"], r["cellID"])
+                for _, r in amb.iterrows()
+            }
+            cell_level = cell_level.loc[~amb_mask].copy()
+            print(
+                "[_infection_qc_xgboost] Dropped "
+                f"{len(ambiguous_ids)} cells with ambiguous XGBoost probability "
+                f"in [{amb_low:.2f}, {amb_high:.2f}]."
+            )
+
+    # ------------------------------------------------------------------
+    # Map adjusted calls back to all_df
+    # ------------------------------------------------------------------
+    for col in key_cols:
+        all_df[col] = all_df[col].astype(cell_level[col].dtype)
+
+    if "adjusted_infected" in all_df.columns:
+        all_df = all_df.drop(columns=["adjusted_infected"])
+    if "infection_prob" in all_df.columns:
+        all_df = all_df.drop(columns=["infection_prob"])
+
+    all_df = all_df.merge(
+        cell_level[key_cols + ["adjusted_infected", "infection_prob"]],
+        on=key_cols,
+        how="left",
+        validate="m:1",
+    )
+
+    # Combine removed_sets (disagreement + ambiguous)
+    ids_to_remove = set()
+    if removed_ids:
+        ids_to_remove |= removed_ids
+    if ambiguous_ids:
+        ids_to_remove |= ambiguous_ids
+
+    if ids_to_remove:
+        mask_drop = all_df.apply(
+            lambda r: (r["plateID"], r["wellID"], r["fieldID"], r["cellID"])
+            in ids_to_remove,
+            axis=1,
+        )
+        all_df = all_df.loc[~mask_drop].reset_index(drop=True)
+
+    mask_missing = all_df["adjusted_infected"].isna()
+    if mask_missing.any():
+        all_df.loc[mask_missing, "adjusted_infected"] = (
+            all_df.loc[mask_missing, orig_infection_col].astype(int)
+        )
+    all_df["adjusted_infected"] = all_df["adjusted_infected"].astype(int)
+
+    infection_col = "adjusted_infected"
+
+    try:
+        n_inf = int(all_df[infection_col].sum())
+        n_uninf = int((1 - all_df[infection_col]).sum())
+        print(
+            f"[_infection_qc_xgboost] Final infection counts (frame-level): "
+            f"infected={n_inf}, uninfected={n_uninf}"
+        )
+    except Exception:
+        pass
+
+    # ------------------------------------------------------------------
+    # Prepare QC payloads for the combined adjusted panel
+    #   - histogram of intensity (adjusted labels)
+    #   - PCA embedding of used features (adjusted labels)
+    #   - XGBoost feature importances (gain)
+    # ------------------------------------------------------------------
+    try:
+        # --- histogram payload ---
+        if intensity_col in cell_level.columns:
+            intens = cell_level[intensity_col].to_numpy(dtype=float)
+            labels_adj = cell_level["adjusted_infected"].astype(bool).to_numpy()
+            mask_fin = np.isfinite(intens)
+            intens = intens[mask_fin]
+            labels_adj = labels_adj[mask_fin]
+            vals_inf = intens[labels_adj]
+            vals_uninf = intens[~labels_adj]
+            if intens.size >= 10:
+                n_bins = int(settings.get("infection_intensity_n_bins", 64))
+                n_bins = max(10, min(n_bins, 256))
+                _, bin_edges = np.histogram(intens, bins=n_bins)
+                # Use midpoint between training thresholds as a visual threshold
+                thr_val = float(0.5 * (low_thr_uninf + high_thr_inf))
+                hist_payload = {
+                    "intensities_inf": vals_inf,
+                    "intensities_uninf": vals_uninf,
+                    "bin_edges": bin_edges,
+                    "thr_val": thr_val,
+                    "pathogen_chan": pathogen_chan,
+                    "log_transform": False,
+                    "intensity_col": intensity_col,
+                    "tracked_object": tracked_object,
+                }
+                settings["infection_hist_data"] = hist_payload
+
+        # --- PCA payload ---
+        from sklearn.decomposition import PCA
+        from sklearn.preprocessing import StandardScaler
+
+        if used_feature_cols:
+            X_panel = cell_level[used_feature_cols].to_numpy(dtype=float)
+            for j in range(X_panel.shape[1]):
+                col = X_panel[:, j]
+                m = np.isfinite(col)
+                if not m.any():
+                    X_panel[:, j] = 0.0
+                else:
+                    med = np.nanmedian(col[m])
+                    col[~m] = med
+                    X_panel[:, j] = col
+
+            scaler = StandardScaler()
+            X_scaled_panel = scaler.fit_transform(X_panel)
+            pca = PCA(
+                n_components=2,
+                random_state=int(settings.get("infection_pca_random_state", 0)),
+            )
+            coords = pca.fit_transform(X_scaled_panel)
+            labels_adj_panel = cell_level["adjusted_infected"].astype(bool).to_numpy()
+            pca_payload = {
+                "coords": coords,
+                "labels": labels_adj_panel,
+                "method_label": "PCA",
+                "tracked_object": tracked_object,
+            }
+            settings["infection_pca_data"] = pca_payload
+    except Exception as e:
+        print(f"[_infection_qc_xgboost] Could not compute histogram/PCA payloads: {e}")
+
+    # ------------------------------------------------------------------
+    # Feature importance plot (for panel + standalone)
+    # ------------------------------------------------------------------
+    panel_type = "xgboost"
+    panel_path = None
+    make_graphs = bool(settings.get("infection_intensity_qc_graphs", True))
+
+    try:
+        importance_dict = bst.get_score(importance_type="gain") or {}
+        feat_names = used_feature_cols
+        feat_vals = [importance_dict.get(f, 0.0) for f in feat_names]
+
+        # sort and truncate
+        sorted_pairs = sorted(
+            zip(feat_names, feat_vals),
+            key=lambda x: x[1],
+            reverse=True,
+        )
+        feat_names = [p[0] for p in sorted_pairs]
+        feat_vals = [p[1] for p in sorted_pairs]
+
+        top_k = int(settings.get("infection_xgb_top_features", 20))
+        feat_names = feat_names[:top_k]
+        feat_vals = feat_vals[:top_k]
+
+        # store payload for adjusted results panel (even if we don't plot here)
+        settings["infection_xgb_importance"] = {
+            "feature_names": feat_names,
+            "feature_importances": feat_vals,
+            "tracked_object": tracked_object,
+        }
+
+        if feat_names and make_graphs:
+            fig, ax = plt.subplots(
+                figsize=(6, 0.3 * max(4, len(feat_names)))
+            )
+            y_pos = np.arange(len(feat_names))
+            ax.barh(y_pos, feat_vals)
+            ax.set_yticks(y_pos)
+            ax.set_yticklabels(feat_names)
+            ax.invert_yaxis()
+            ax.set_xlabel("Feature importance (gain)")
+            ax.set_title(
+                f"XGBoost feature importances (top features, {tracked_object})"
+            )
+
+            os.makedirs(motility_dir, exist_ok=True)
+            meta_tag = _infer_plate_well_meta_tag(all_df)
+            out_png = os.path.join(
+                motility_dir,
+                f"infection_xgb_feature_importance_{tracked_object}_{meta_tag}.png",
+            )
+            fig.tight_layout()
+            fig.savefig(out_png, dpi=200)
+            plt.close(fig)
+            panel_path = out_png
+            print(
+                f"[_infection_qc_xgboost] Saved feature-importance plot to {out_png}"
+            )
+        elif not make_graphs:
+            print(
+                "[_infection_qc_xgboost] infection_intensity_qc_graphs=False; "
+                "skipping feature-importance plot."
+            )
+    except Exception as e:
+        print(f"[_infection_qc_xgboost] Could not plot feature importances: {e}")
+
+    settings["infection_intensity_qc_panel_type"] = panel_type
+    settings["infection_intensity_qc_panel_path"] = panel_path
+
+    return all_df, infection_col
+
+def _compute_intensity_percentiles_per_channel(
+    mask_stack,
+    intensity_stack,
+    channel_index,
+    object_prefix,
+    percentiles=(1, 5, 10, 25, 75, 95, 99),
+    label_as_track_id=False,
+):
+    """
+    Compute per-frame, per-object intensity percentiles for a given channel.
+
+    Parameters
+    ----------
+    mask_stack : ndarray
+        Label image stack of shape (T, Y, X).
+    intensity_stack : ndarray
+        Intensity stack of shape (T, Y, X, C).
+    channel_index : int
+        Channel index in intensity_stack.
+    object_prefix : str
+        Prefix for column names ("cell", "nucleus", "pathogen", "cytoplasm").
+    percentiles : tuple of int
+        Percentiles to compute (0–100).
+    label_as_track_id : bool
+        If True, rename 'label' -> 'track_id'; otherwise
+        'label' -> f"{object_prefix}_label".
+
+    Returns
+    -------
+    DataFrame
+        Columns: ['frame', label_col, f'{object_prefix}_pXX_intensity_ch{channel_index}', ...]
+    """
+    import numpy as np
+    import pandas as pd
+
+    if intensity_stack is None:
+        return pd.DataFrame(
+            columns=["frame", "track_id" if label_as_track_id else f"{object_prefix}_label"]
+        )
+
+    if channel_index is None or channel_index < 0 or channel_index >= intensity_stack.shape[-1]:
+        return pd.DataFrame(
+            columns=["frame", "track_id" if label_as_track_id else f"{object_prefix}_label"]
+        )
+
+    T = mask_stack.shape[0]
+    dfs = []
+    label_col_name = "track_id" if label_as_track_id else f"{object_prefix}_label"
+
+    perc = np.array(percentiles, dtype=float)
+
+    for frame in range(T):
+        labels = mask_stack[frame]
+        if not np.any(labels):
+            continue
+
+        intensity_image = intensity_stack[frame, :, :, channel_index]
+        # unique labels > 0
+        obj_labels = np.unique(labels)
+        obj_labels = obj_labels[obj_labels > 0]
+        if obj_labels.size == 0:
+            continue
+
+        records = []
+        for lab in obj_labels:
+            mask = labels == lab
+            vals = intensity_image[mask]
+            vals = vals[np.isfinite(vals)]
+            if vals.size == 0:
+                continue
+
+            pvals = np.percentile(vals, perc)
+            rec = {"frame": frame, label_col_name: int(lab)}
+            for p, v in zip(perc, pvals):
+                col_name = f"{object_prefix}_p{int(p):02d}_intensity_ch{channel_index}"
+                rec[col_name] = float(v)
+            records.append(rec)
+
+        if records:
+            dfs.append(pd.DataFrame.from_records(records))
+
+    if not dfs:
+        return pd.DataFrame(columns=["frame", label_col_name])
+
+    out_df = pd.concat(dfs, ignore_index=True)
+    return out_df
+
+def _make_adjusted_qc_panel(
+    all_df,
+    infection_col,
+    motility_dir,
+    settings,
+    label_tag,
+):
+    """
+    Build a QC results panel for adjusted labels using 3 subplots:
+
+        - top-left: PCA (adjusted_infected)
+        - top-right: XGBoost feature importance
+        - bottom: pathogen-channel intensity histogram
+
+    Uses payloads stored in `settings` by the QC functions:
+        settings["infection_hist_data"]
+        settings["infection_pca_data"]
+        settings["infection_xgb_importance"]
+    """
+    import os
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    os.makedirs(motility_dir, exist_ok=True)
+    meta_tag = _infer_plate_well_meta_tag(all_df)
+
+    # Create figure with desired layout
+    fig, ax_pca, ax_xgb, ax_hist = create_results_figure()
+
+    # ------------------------------------------------------------------
+    # Histogram
+    # ------------------------------------------------------------------
+    hist_data = settings.get("infection_hist_data") or {}
+    vals_inf = np.asarray(hist_data.get("intensities_inf", []), dtype=float)
+    vals_uninf = np.asarray(hist_data.get("intensities_uninf", []), dtype=float)
+    bin_edges = np.asarray(hist_data.get("bin_edges", []), dtype=float)
+    thr_val = hist_data.get("thr_val", None)
+    pathogen_chan = hist_data.get("pathogen_chan", None)
+    do_log = bool(hist_data.get("log_transform", False))
+
+    if vals_inf.size + vals_uninf.size > 0 and bin_edges.size > 0:
+        ax_hist.hist(
+            vals_uninf,
+            bins=bin_edges,
+            alpha=0.5,
+            color="green",
+            label="Uninfected",
+        )
+        ax_hist.hist(
+            vals_inf,
+            bins=bin_edges,
+            alpha=0.5,
+            color="red",
+            label="Infected",
+        )
+        if thr_val is not None:
+            ax_hist.axvline(
+                thr_val,
+                linestyle="--",
+                linewidth=2,
+                color="black",
+                label=f"thr={thr_val:.2f}",
+            )
+        if pathogen_chan is not None:
+            if do_log:
+                ax_hist.set_xlabel(f"log10 intensity (channel {pathogen_chan})")
+            else:
+                ax_hist.set_xlabel(f"Intensity (channel {pathogen_chan})")
+        else:
+            ax_hist.set_xlabel("Intensity")
+        ax_hist.set_ylabel("Cell count")
+        ax_hist.set_title("Pathogen-channel intensity histogram")
+        ax_hist.legend(loc="best")
+    else:
+        ax_hist.text(
+            0.5,
+            0.5,
+            "No histogram data",
+            ha="center",
+            va="center",
+            transform=ax_hist.transAxes,
+        )
+        ax_hist.axis("off")
+
+    # ------------------------------------------------------------------
+    # PCA
+    # ------------------------------------------------------------------
+    pca_data = settings.get("infection_pca_data") or {}
+    coords = pca_data.get("coords", None)
+    labels = pca_data.get("labels", None)
+    method_label = pca_data.get("method_label", "PCA")
+
+    if coords is not None and labels is not None:
+        coords = np.asarray(coords, dtype=float)
+        labels = np.asarray(labels, dtype=bool)
+        if coords.ndim == 2 and coords.shape[0] == labels.shape[0] and coords.shape[1] >= 2:
+            x = coords[:, 0]
+            y = coords[:, 1]
+            ax_pca.scatter(
+                x[~labels],
+                y[~labels],
+                s=8,
+                c="green",
+                alpha=0.5,
+                label="Uninfected",
+            )
+            ax_pca.scatter(
+                x[labels],
+                y[labels],
+                s=8,
+                c="red",
+                alpha=0.5,
+                label="Infected",
+            )
+            ax_pca.set_xlabel("component 1")
+            ax_pca.set_ylabel("component 2")
+            ax_pca.set_title(f"{method_label} embedding")
+            ax_pca.legend(loc="best")
+        else:
+            ax_pca.text(
+                0.5,
+                0.5,
+                "No PCA data",
+                ha="center",
+                va="center",
+                transform=ax_pca.transAxes,
+            )
+            ax_pca.axis("off")
+    else:
+        ax_pca.text(
+            0.5,
+            0.5,
+            "No PCA data",
+            ha="center",
+            va="center",
+            transform=ax_pca.transAxes,
+        )
+        ax_pca.axis("off")
+
+    # ------------------------------------------------------------------
+    # XGBoost feature importance
+    # ------------------------------------------------------------------
+    xgb_data = settings.get("infection_xgb_importance") or {}
+    feat_names = xgb_data.get("feature_names") or []
+    feat_vals = xgb_data.get("feature_importances") or []
+
+    if feat_names and feat_vals and len(feat_names) == len(feat_vals):
+        feat_names = list(feat_names)
+        feat_vals = np.asarray(feat_vals, dtype=float)
+        y_pos = np.arange(len(feat_names))
+        ax_xgb.barh(y_pos, feat_vals)
+        ax_xgb.set_yticks(y_pos)
+        ax_xgb.set_yticklabels(feat_names)
+        ax_xgb.invert_yaxis()
+        ax_xgb.set_xlabel("Importance (gain)")
+        ax_xgb.set_title("XGBoost feature importance")
+    else:
+        ax_xgb.text(
+            0.5,
+            0.5,
+            "No XGBoost importance data",
+            ha="center",
+            va="center",
+            transform=ax_xgb.transAxes,
+        )
+        ax_xgb.axis("off")
+
+    fig.suptitle(
+        f"Infection QC panel – {label_tag} labels\n{meta_tag}",
+        fontsize=10,
+    )
+    fig.tight_layout(rect=[0, 0, 1, 0.94])
+
+    out_name = f"infection_qc_panel_{label_tag}_{meta_tag}.png"
+    out_path = os.path.join(motility_dir, out_name)
+    fig.savefig(out_path, dpi=300)
+    plt.close(fig)
+
+    print(
+        f"[summarise_tracks_from_merged] Saved infection QC results panel "
+        f"({label_tag}) to {out_path}"
+    )
+
+def _load_measurements_from_db(db_path, db_table_name):
+    """
+    Load per-cell measurements from an existing SQLite database.
+
+    Parameters
+    ----------
+    db_path : str
+        Path to the SQLite database file (measurements.db).
+    db_table_name : str
+        Name of the table that stores per-cell measurements.
+
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame with the measurements, or an empty DataFrame if the
+        database/table is missing or unreadable.
+    """
+    import os
+    import sqlite3
+    import pandas as pd
+
+    if not os.path.isfile(db_path):
+        return pd.DataFrame()
+
+    conn = sqlite3.connect(db_path)
+    try:
+        query = f"SELECT * FROM {db_table_name}"
+        df = pd.read_sql_query(query, conn)
+    except Exception as e:
+        print(
+            "[summarise_tracks_from_merged] Could not load existing measurements "
+            f"from {db_path} (table='{db_table_name}'): {e}"
+        )
+        df = pd.DataFrame()
+    finally:
+        conn.close()
+
+    return df
+
+
+def automated_motility_assay(settings):
+    """
+    End-to-end:
+
+    1. Read merged/*.npy (plate_well_field_time.npy)
+    2. Build intensity + cell/nucleus/pathogen masks, derive cytoplasm
+    3. Per cell & frame: metadata + cell regionprops
+    4. Aggregate child (nucleus/pathogen/cytoplasm) features per cell
+    5. Concatenate across all merged files
+    6. Clean impossible jumps + measurement glitches
+    7. Save per-cell measurements to SQLite DB
+       (measurements/measurements.db, table=db_table_name)
+    8. Compute per-track velocities (after smoothing)
+    9. Save a well-level motility summary table in the same DB
+    10. Generate *panel* plots combining intensity + motility:
+        - original (mask-based) infection labels
+        - adjusted infection labels (if QC modifies labels)
+    11. Optional infection intensity QC based on pathogen channel.
+
+    New-relevant settings (all optional):
+
+        # Infection QC / XGBoost
+        'infection_intensity_qc': True/False
+        'infection_intensity_strategy': {'xgboost', 'histogram', 'pca', ...}
+        'infection_intensity_mode': {'relabel', 'remove'}   # existing
+
+        # XGBoost ambiguous-band filtering (track-level)
+        'infection_xgb_drop_ambiguous': True/False (default True)
+        'infection_xgb_ambiguous_low': 0.25  (default)
+        'infection_xgb_ambiguous_high': 0.75 (default)
+        'infection_xgb_proba_column': 'name_of_proba_col'   # optional override
+
+        # Histogram strategy
+        'infection_hist_percentile': 25  # used inside _apply_infection_intensity_qc
+
+        # Panel toggles
+        'make_mask_panel': True/False (default True)
+        'make_adjusted_panel': True/False (default True)
+
+        # Caching of per-cell measurements
+        'reuse_existing_measurements': True/False (default True)
+            If True and a measurements DB already exists for this src,
+            per-cell measurements are loaded from the DB instead of
+            recomputing regionprops/intensities.
+
+        # Plot ranges (unchanged)
+        - 'motility_xlim', 'motility_ylim'
+        - 'motility_origin_xlim', 'motility_origin_ylim'
+    """
+    import matplotlib.pyplot as plt  # noqa: F401 (used in helpers)
+    from matplotlib import patches  # noqa: F401 (used in helpers)
+    import numpy as np
+    import pandas as pd
+    import os
+    from multiprocessing import Pool, cpu_count
+    
+    from .settings import get_automated_motility_assay_default_settings
+
+    settings = get_automated_motility_assay_default_settings(settings)
+
+    src = settings['src']
+    db_table_name = settings["db_table_name"]
+    n_jobs = settings["n_jobs"]
+    max_displacement = settings["max_displacement"]
+    zscore_thresh = settings["zscore_thresh"]
+
+    # ------------------------------------------------------------------
+    # Optional: reuse existing per-cell measurements from SQLite DB
+    # ------------------------------------------------------------------
+    measurements_dir = os.path.join(src, "measurements")
+    db_path = os.path.join(measurements_dir, "measurements.db")
+    reuse_existing = settings.get("reuse_existing_measurements", True)
+
+    loaded_from_db = False
+    all_df = None
+
+    if reuse_existing and os.path.isfile(db_path):
+        print(
+            "[summarise_tracks_from_merged] Attempting to reuse existing "
+            f"measurements from {db_path} (table='{db_table_name}')."
+        )
+        all_df = _load_measurements_from_db(db_path, db_table_name)
+        if not all_df.empty:
+            loaded_from_db = True
+            if {
+                "plateID",
+                "wellID",
+                "fieldID",
+                "cellID",
+            }.issubset(all_df.columns):
+                n_tracks_db = (
+                    all_df[["plateID", "wellID", "fieldID", "cellID"]]
+                    .drop_duplicates()
+                    .shape[0]
+                )
+            else:
+                n_tracks_db = "NA"
+            n_frames_db = all_df["frame"].nunique() if "frame" in all_df.columns else "NA"
+            print(
+                "[summarise_tracks_from_merged] Loaded measurements from DB: "
+                f"shape={all_df.shape}, frames={n_frames_db}, tracks={n_tracks_db}. "
+                "Skipping regionprops/intensity computation."
+            )
+        else:
+            print(
+                "[summarise_tracks_from_merged] Existing DB table is empty or "
+                "could not be read; falling back to full computation."
+            )
+
+    merged_dir = os.path.join(src, "merged")
+    if not os.path.isdir(merged_dir):
+        raise FileNotFoundError(f"No merged directory at: {merged_dir}")
+
+    all_files = [f for f in os.listdir(merged_dir) if f.endswith(".npy")]
+    if not all_files:
+        raise FileNotFoundError(f"No .npy files found in {merged_dir}")
+
+    print(
+        f"[summarise_tracks_from_merged] Found {len(all_files)} merged .npy files "
+        f"in {merged_dir}"
+    )
+
+    # group by (plateID, wellID, fieldID)
+    groups = {}
+    for fname in all_files:
+        meta = _parse_merged_filename(fname)
+        key = (meta["plateID"], meta["wellID"], meta["fieldID"])
+        groups.setdefault(key, []).append(fname)
+
+    print(
+        f"[summarise_tracks_from_merged] Number of (plate, well, field) groups: "
+        f"{len(groups)}"
+    )
+
+    cell_chan = settings.get("cell_channel", None)
+    nucleus_chan = settings.get("nucleus_channel", None)
+    pathogen_chan = settings.get("pathogen_channel", None)
+
+    channels_list = settings.get("channels", [])
+
+    pixels_per_um = settings.get("pixels_per_um", None)
+    seconds_per_frame = settings.get("seconds_per_frame", None)
+
+    n_channels = (
+        len(channels_list) if isinstance(channels_list, (list, tuple)) else None
+    )
+    if n_channels is None or n_channels <= 0:
+        raise ValueError(
+            "settings['channels'] must be a non-empty list of channels used "
+            "in merged arrays."
+        )
+
+    print(
+        f"[summarise_tracks_from_merged] Channels={channels_list}, "
+        f"cell_chan={cell_chan}, nucleus_chan={nucleus_chan}, "
+        f"pathogen_chan={pathogen_chan}"
+    )
+
+    motility_dir = os.path.join(src, "motility_plots")
+    os.makedirs(motility_dir, exist_ok=True)
+
+    # Debug-plot one sample merged array with channel/mask labels
+    sample_filename = sorted(all_files)[0]
+    print(
+        f"[summarise_tracks_from_merged] Debug plotting planes for sample file: "
+        f"{sample_filename}"
+    )
+    _debug_plot_merged_planes(
+        src=src,
+        sample_filename=sample_filename,
+        n_channels=n_channels,
+        nucleus_chan=nucleus_chan,
+        pathogen_chan=pathogen_chan,
+        out_dir=motility_dir,
+    )
+
+    # ------------------------------------------------------------------
+    # Per-cell measurements: either reuse from DB or compute from merged/*.npy
+    # ------------------------------------------------------------------
+    if not loaded_from_db:
+        # Build worker arguments
+        worker_args = []
+        for key, file_basenames in groups.items():
+            worker_args.append(
+                (src, file_basenames, n_channels, cell_chan, nucleus_chan, pathogen_chan)
+            )
+
+        if n_jobs is None:
+            n_jobs = max(cpu_count() - 1, 1)
+        print(f"[summarise_tracks_from_merged] Using n_jobs={n_jobs}")
+
+        if n_jobs == 1:
+            dfs = [_process_merged_group(args) for args in worker_args]
+        else:
+            with Pool(processes=n_jobs) as pool:
+                dfs = pool.map(_process_merged_group, worker_args)
+
+        all_df = (
+            pd.concat([df for df in dfs if not df.empty], ignore_index=True)
+            if dfs
+            else pd.DataFrame()
+        )
+        if all_df.empty:
+            raise RuntimeError("No measurements were produced from merged .npy files.")
+
+        print(
+            f"[summarise_tracks_from_merged] Combined raw measurements: "
+            f"shape={all_df.shape}, frames={all_df['frame'].nunique()}"
+        )
+        n_tracks_raw = (
+            all_df[["plateID", "wellID", "fieldID", "cellID"]]
+            .drop_duplicates()
+            .shape[0]
+        )
+        print(
+            f"[summarise_tracks_from_merged] Unique tracks before smoothing: "
+            f"{n_tracks_raw}"
+        )
+
+        # Clean tracks (smoothing + glitch removal)
+        all_df = _smooth_tracks_and_features(
+            all_df,
+            max_displacement=max_displacement,
+            zscore_thresh=zscore_thresh,
+        )
+
+        n_tracks_smoothed = (
+            all_df[["plateID", "wellID", "fieldID", "cellID"]]
+            .drop_duplicates()
+            .shape[0]
+        )
+        print(
+            f"[summarise_tracks_from_merged] After smoothing: shape={all_df.shape}, "
+            f"frames={all_df['frame'].nunique()}, tracks={n_tracks_smoothed}"
+        )
+    else:
+        # We are reusing already-saved, already-smoothed measurements from DB.
+        if all_df is None or all_df.empty:
+            raise RuntimeError(
+                "reuse_existing_measurements=True, but no measurements could be "
+                "loaded from the DB."
+            )
+
+        n_frames_db = all_df["frame"].nunique() if "frame" in all_df.columns else "NA"
+        if {
+            "plateID",
+            "wellID",
+            "fieldID",
+            "cellID",
+        }.issubset(all_df.columns):
+            n_tracks_db = (
+                all_df[["plateID", "wellID", "fieldID", "cellID"]]
+                .drop_duplicates()
+                .shape[0]
+            )
+        else:
+            n_tracks_db = "NA"
+
+        print(
+            "[summarise_tracks_from_merged] Reusing smoothed measurements from DB: "
+            f"shape={all_df.shape}, frames={n_frames_db}, tracks={n_tracks_db}"
+        )
+
+    # ------------------------------------------------------------------
+    # Infection status per track based on pathogen overlaps (mask-based)
+    # ------------------------------------------------------------------
+    if "n_pathogens" in all_df.columns:
+        tmp = all_df[["plateID", "wellID", "fieldID", "cellID", "n_pathogens"]].copy()
+        tmp["n_pathogens"] = tmp["n_pathogens"].fillna(0)
+        infected = (
+            tmp.groupby(["plateID", "wellID", "fieldID", "cellID"])["n_pathogens"]
+            .max()
+            .gt(0)
+        )
+        infected = infected.reset_index()
+        infected = infected.rename(columns={"n_pathogens": "infected"})
+        infected["infected"] = infected["infected"].astype(bool)
+
+        all_df = all_df.merge(
+            infected[["plateID", "wellID", "fieldID", "cellID", "infected"]],
+            on=["plateID", "wellID", "fieldID", "cellID"],
+            how="left",
+        )
+        all_df["infected"] = all_df["infected"].fillna(False)
+    else:
+        all_df["infected"] = False
+
+    n_infected_tracks = (
+        all_df[all_df["infected"]][["plateID", "wellID", "fieldID", "cellID"]]
+        .drop_duplicates()
+        .shape[0]
+    )
+    n_uninfected_tracks = (
+        all_df[~all_df["infected"]][["plateID", "wellID", "fieldID", "cellID"]]
+        .drop_duplicates()
+        .shape[0]
+    )
+    print(
+        f"[summarise_tracks_from_merged] Tracks (mask-based): "
+        f"infected={n_infected_tracks}, uninfected={n_uninfected_tracks}"
+    )
+
+    # ------------------------------------------------------------------
+    # Optional infection-intensity QC (may create 'adjusted_infected')
+    # ------------------------------------------------------------------
+    infection_col = "infected"
+    all_df, infection_col = _apply_infection_intensity_qc(
+        all_df=all_df,
+        settings=settings,
+        infection_col=infection_col,
+        motility_dir=motility_dir,
+        pathogen_chan=pathogen_chan,
+    )
+
+    # ------------------------------------------------------------------
+    # NEW: XGBoost ambiguous-band filtering (track-level)
+    #      Drop tracks with 0.25 < proba < 0.75 (defaults), if enabled.
+    # ------------------------------------------------------------------
+    if (
+        settings.get("infection_intensity_qc", False)
+        and settings.get("infection_intensity_strategy", "").lower() == "xgboost"
+        and settings.get("infection_xgb_drop_ambiguous", True)
+    ):
+        low = settings.get("infection_xgb_ambiguous_low", 0.25)
+        high = settings.get("infection_xgb_ambiguous_high", 0.75)
+
+        # Try to locate a probability column created by the QC step
+        xgb_proba_col = settings.get("infection_xgb_proba_column", None)
+        if xgb_proba_col is None:
+            cand_cols = [
+                c
+                for c in all_df.columns
+                if "xgb" in c.lower()
+                and ("proba" in c.lower() or "prob" in c.lower() or "score" in c.lower())
+            ]
+            if not cand_cols:
+                cand_cols = [
+                    c
+                    for c in all_df.columns
+                    if "infection" in c.lower()
+                    and ("proba" in c.lower() or "prob" in c.lower() or "score" in c.lower())
+                ]
+            if cand_cols:
+                xgb_proba_col = cand_cols[0]
+
+        if xgb_proba_col and xgb_proba_col in all_df.columns:
+            track_keys = ["plateID", "wellID", "fieldID", "cellID"]
+            track_scores = (
+                all_df[track_keys + [xgb_proba_col]]
+                .groupby(track_keys)[xgb_proba_col]
+                .mean()
+                .reset_index()
+            )
+
+            ambiguous = track_scores[
+                (track_scores[xgb_proba_col] > low)
+                & (track_scores[xgb_proba_col] < high)
+            ][track_keys]
+
+            if not ambiguous.empty:
+                before = all_df.shape[0]
+                all_df = all_df.merge(
+                    ambiguous.assign(_ambiguous_flag=1),
+                    on=track_keys,
+                    how="left",
+                )
+                all_df = all_df[all_df["_ambiguous_flag"].isna()].drop(
+                    columns=["_ambiguous_flag"]
+                )
+                after = all_df.shape[0]
+                print(
+                    f"[summarise_tracks_from_merged] Dropped {before - after} rows "
+                    f"from {ambiguous.shape[0]} ambiguous XGBoost tracks "
+                    f"({low} < proba < {high})."
+                )
+        else:
+            print(
+                "[summarise_tracks_from_merged] WARNING: "
+                "infection_xgb_drop_ambiguous is True, but no XGBoost "
+                "probability/score column was found. Skipping ambiguous-track filtering."
+            )
+
+    # ------------------------------------------------------------------
+    # Compute per-track velocities + per-well summary:
+    #   - once for original mask-based labels ('infected')
+    #   - once for final labels (infection_col, possibly 'adjusted_infected')
+    # ------------------------------------------------------------------
+    (
+        track_df_mask,
+        per_well_tracks_mask,
+        well_summary_mask,
+        vel_unit_mask,
+    ) = _compute_velocities_and_well_summary(
+        all_df=all_df,
+        settings=settings,
+        infection_col="infected",
+        pixels_per_um=pixels_per_um,
+        seconds_per_frame=seconds_per_frame,
+    )
+
+    (
+        track_df,
+        per_well_tracks,
+        well_summary_df,
+        vel_unit,
+    ) = _compute_velocities_and_well_summary(
+        all_df=all_df,
+        settings=settings,
+        infection_col=infection_col,
+        pixels_per_um=pixels_per_um,
+        seconds_per_frame=seconds_per_frame,
+    )
+
+    # ------------------------------------------------------------------
+    # Save to DB (use summary based on final labels)
+    # ------------------------------------------------------------------
+    if loaded_from_db:
+        # We assume the per-cell measurements are already stored in the
+        # existing DB. To avoid re-writing the large table, we skip
+        # _save_measurements_and_well_summary here. If you ever want to
+        # refresh the DB completely, set 'reuse_existing_measurements'
+        # to False for that run.
+        measurements_dir = os.path.join(src, "measurements")
+    else:
+        measurements_dir, db_path = _save_measurements_and_well_summary(
+            all_df=all_df,
+            well_summary_df=well_summary_df,
+            src=src,
+            db_table_name=db_table_name,
+        )
+
+    # Feature–velocity correlation analysis (final labels)
+    _feature_velocity_correlations(all_df, track_df, measurements_dir)
+
+    # ------------------------------------------------------------------
+    # Combined intensity + motility panels
+    # ------------------------------------------------------------------
+    qc_strategy = settings.get("infection_intensity_strategy", "none")
+
+    # Intensity + motility panel for mask-based labels
+    if settings.get("make_mask_panel", True):
+        _make_intensity_motility_panel(
+            all_df=all_df,
+            infection_col="infected",
+            track_df=track_df_mask,
+            per_well_tracks=per_well_tracks_mask,
+            n_channels=n_channels,
+            motility_dir=motility_dir,
+            pixels_per_um=pixels_per_um,
+            seconds_per_frame=seconds_per_frame,
+            vel_unit=vel_unit_mask,
+            settings=settings,
+            # encode both label type and QC strategy in the tag
+            label_tag=f"mask_{qc_strategy}",
+        )
+
+    # Intensity + motility panel for adjusted labels (if distinct)
+    if (
+        settings.get("make_adjusted_panel", True)
+        and infection_col in all_df.columns
+        and infection_col != "infected"
+    ):
+        _make_intensity_motility_panel(
+            all_df=all_df,
+            infection_col=infection_col,
+            track_df=track_df,
+            per_well_tracks=per_well_tracks,
+            n_channels=n_channels,
+            motility_dir=motility_dir,
+            pixels_per_um=pixels_per_um,
+            seconds_per_frame=seconds_per_frame,
+            vel_unit=vel_unit,
+            settings=settings,
+            label_tag=f"adjusted_{qc_strategy}",
+        )
+
+    return all_df

@@ -70,14 +70,45 @@ from sklearn.ensemble import RandomForestClassifier
 
 from huggingface_hub import list_repo_files
 
-
-
-
-
 #from spacr import __file__ as spacr_path
 spacr_path = os.path.join(os.path.dirname(__file__), '__init__.py')
 
 import umap.umap_ as umap
+
+import logging
+from functools import wraps
+
+def debug(enabled: bool = True, logger_name: str | None = None):
+    """
+    Decorator that temporarily sets the given logger to DEBUG
+    while the function runs, then restores the old level.
+
+    Args:
+        enabled (bool): If False, decorator is a no-op.
+        logger_name (str | None): Name of the logger to tweak.
+            Defaults to the function's module logger.
+    """
+    def decorator(func):
+        log = logging.getLogger(logger_name or func.__module__)
+
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            if not enabled:
+                return func(*args, **kwargs)
+
+            old_level = log.level  # may be logging.NOTSET
+            try:
+                log.setLevel(logging.DEBUG)
+                log.debug(">>> Entering %s", func.__name__)
+                result = func(*args, **kwargs)
+                log.debug("<<< Exiting %s", func.__name__)
+                return result
+            finally:
+                log.setLevel(old_level)
+
+        return wrapper
+
+    return decorator
 
 def _generate_mask_random_cmap(mask):
     """
@@ -854,7 +885,7 @@ def _list_endpoint_subdirectories(base_dir):
     endpoint_subdirectories = [path for path in endpoint_subdirectories if os.path.basename(path) != 'figure']
     return endpoint_subdirectories
     
-def _generate_names(file_name, cell_id, cell_nucleus_ids, cell_pathogen_ids, source_folder, crop_mode='cell'):
+def _generate_names(file_name, cell_id, cell_nucleus_ids, cell_pathogen_ids, source_folder, crop_mode='cell', timelapse=None):
     """
     Generate names for the image, folder, and table based on the given parameters.
 
@@ -892,7 +923,15 @@ def _generate_names(file_name, cell_id, cell_nucleus_ids, cell_pathogen_ids, sou
     parts = file_name.split('_')
     plate = parts[0]
     well = parts[1] 
-    metadata = f'{plate}_{well}'
+    
+    if timelapse:
+        #print("file_name:", file_name)
+        #print("parts:", parts)
+        timeID = parts[2]
+        metadata = f'{plate}_{well}_{timeID}'
+    else:
+        metadata = f'{plate}_{well}'
+        
     fldr = os.path.join(fldr,metadata)
     table_name = fldr.replace("/", "_")
     return img_name, fldr, table_name
@@ -955,7 +994,7 @@ def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folde
             merged_df['file_name'] = file_name
             merged_df['path_name'] = os.path.join(source_folder, file_name + '.npy')
             if timelapse:
-                merged_df[['plateID', 'rowID', 'columnID', 'fieldID', 'timeid', 'prcf']] = merged_df['file_name'].apply(lambda x: pd.Series(_map_wells(x, timelapse)))
+                merged_df[['plateID', 'rowID', 'columnID', 'fieldID', 'timeID', 'prcf']] = merged_df['file_name'].apply(lambda x: pd.Series(_map_wells(x, timelapse)))
             else:
                 merged_df[['plateID', 'rowID', 'columnID', 'fieldID', 'prcf']] = merged_df['file_name'].apply(lambda x: pd.Series(_map_wells(x, timelapse)))
             cols = merged_df.columns.tolist()  # get the list of all columns
@@ -1012,7 +1051,8 @@ def _map_wells(file_name, timelapse=False):
     """
     try:
         parts = file_name.split('_')
-        plate = 'p' + parts[0]
+        plate = parts[0]
+        #plate = 'p' + parts[0]
         well = parts[1]
         field = 'f' + str(_safe_int_convert(parts[2]))
         if timelapse:
@@ -1459,12 +1499,16 @@ def _split_data(df, group_by, object_type):
     """
     
     # Ensure 'prcf' column exists by concatenating specific columns
-    if 'prcf' not in df.columns:
-        try:
-            df['prcf'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str) + '_' + df['fieldID'].astype(str)
-        except Exception as e:
-            print(e)    
-    
+    #if 'prcf' not in df.columns:
+    try:
+        df['prcft'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str) + '_' + df['fieldID'].astype(str) + '_' + df['timeID'].astype(str)
+    except Exception as e:
+        print(e)
+    try:
+        df['prcf'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str) + '_' + df['fieldID'].astype(str)
+    except Exception as e:
+        print(e)    
+        
     # Create the 'prcfo' column
     df['prcfo'] = df['prcf'] + '_' + df[object_type]
     df = df.set_index(group_by, inplace=False)
@@ -2029,93 +2073,6 @@ class TorchModel_v2(nn.Module):
             feats = self.dropout(feats)
         logits = self.spacr_classifier(feats)  # (N, C) where C==num_classes
         return logits
-
-#CNN and Transformer class, pick any Torch model.
-class TorchModel_v1(nn.Module):
-    def __init__(self, model_name='resnet50', pretrained=True, dropout_rate=None, use_checkpoint=False):
-        super(TorchModel, self).__init__()
-        self.model_name = model_name
-        self.use_checkpoint = use_checkpoint
-        self.base_model = self.init_base_model(pretrained)
-        
-        # Retain layers up to and including the (5): Linear layer for model 'maxvit_t'
-        if model_name == 'maxvit_t':
-            self.base_model.classifier = nn.Sequential(*list(self.base_model.classifier.children())[:-1])
-        
-        if dropout_rate is not None:
-            self.apply_dropout_rate(self.base_model, dropout_rate)
-            
-        self.num_ftrs = self.get_num_ftrs()
-        self.init_spacr_classifier(dropout_rate)
-
-    def apply_dropout_rate(self, model, dropout_rate):
-        """Apply dropout rate to all dropout layers in the model."""
-        for module in model.modules():
-            if isinstance(module, nn.Dropout):
-                module.p = dropout_rate
-
-    def init_base_model(self, pretrained):
-        """Initialize the base model from torchvision.models."""
-        model_func = models.__dict__.get(self.model_name, None)
-        if not model_func:
-            raise ValueError(f"Model {self.model_name} is not recognized.")
-        weight_choice = self.get_weight_choice()
-        if weight_choice is not None:
-            return model_func(weights=weight_choice)
-        else:
-            return model_func(pretrained=pretrained)
-
-    def get_weight_choice(self):
-        """Get weight choice if it exists for the model."""
-        weight_enum = None
-        for attr_name in dir(models):
-            if attr_name.lower() == f"{self.model_name}_weights".lower():
-                weight_enum = getattr(models, attr_name)
-                break
-        return weight_enum.DEFAULT if weight_enum else None
-
-    def get_num_ftrs(self):
-        """Determine the number of features output by the base model."""
-        if hasattr(self.base_model, 'fc'):
-            self.base_model.fc = nn.Identity()
-        elif hasattr(self.base_model, 'classifier'):
-            if self.model_name != 'maxvit_t':
-                self.base_model.classifier = nn.Identity()
-
-        # Forward a dummy input and check output size
-        dummy_input = torch.randn(1, 3, 224, 224)
-        output = self.base_model(dummy_input)
-        return output.size(1)
-
-    def init_spacr_classifier(self, dropout_rate):
-        """Initialize the SPACR classifier."""
-        self.use_dropout = dropout_rate is not None
-        if self.use_dropout:
-            self.dropout = nn.Dropout(dropout_rate)
-        self.spacr_classifier = nn.Linear(self.num_ftrs, 1)
-
-    def forward(self, x):
-        """Define the forward pass of the model."""
-        if self.use_checkpoint:
-            x = checkpoint(self.base_model, x)
-        else:
-            x = self.base_model(x)
-        if self.use_dropout:
-            x = self.dropout(x)
-        logits = self.spacr_classifier(x).flatten()
-        return logits
-
-class FocalLossWithLogits_v1(nn.Module):
-    def __init__(self, alpha=1, gamma=2):
-        super(FocalLossWithLogits_v1, self).__init__()
-        self.alpha = alpha
-        self.gamma = gamma
-
-    def forward(self, logits, target):
-        BCE_loss = F.binary_cross_entropy_with_logits(logits, target, reduction='none')
-        pt = torch.exp(-BCE_loss)
-        focal_loss = self.alpha * (1-pt)**self.gamma * BCE_loss
-        return focal_loss.mean()
     
 class FocalLossWithLogits(nn.Module):
     """
@@ -2513,54 +2470,6 @@ def choose_model_v2(model_type,
 
     return base_model
 
-def choose_model_v1(model_type, device, init_weights=True, dropout_rate=0, use_checkpoint=False, channels=3, height=224, width=224, chan_dict=None, num_classes=2, verbose=False):
-    """
-    Choose a model for classification.
-
-    Args:
-        model_type (str): The type of model to choose. Can be one of the pre-defined TorchVision models or 'custom' for a custom model.
-        device (str): The device to use for model inference.
-        init_weights (bool, optional): Whether to initialize the model with pre-trained weights. Defaults to True.
-        dropout_rate (float, optional): The dropout rate to use in the model. Defaults to 0.
-        use_checkpoint (bool, optional): Whether to use checkpointing during model training. Defaults to False.
-        channels (int, optional): The number of input channels for the model. Defaults to 3.
-        height (int, optional): The height of the input images for the model. Defaults to 224.
-        width (int, optional): The width of the input images for the model. Defaults to 224.
-        chan_dict (dict, optional): A dictionary containing channel information for custom models. Defaults to None.
-        num_classes (int, optional): The number of output classes for the model. Defaults to 2.
-
-    Returns:
-        torch.nn.Module: The chosen model.
-    """
-
-    torch_model_types = torchvision.models.list_models(module=torchvision.models)
-    model_types = torch_model_types + ['custom']
-    
-    if not chan_dict is None:
-        pathogen_channel = chan_dict['pathogen_channel']
-        nucleus_channel = chan_dict['nucleus_channel']
-        protein_channel = chan_dict['protein_channel']
-    
-    if model_type not in model_types:
-        print(f'Invalid model_type: {model_type}. Compatible model_types: {model_types}')
-        return
-
-    print(f'Model parameters: Architecture: {model_type} init_weights: {init_weights} dropout_rate: {dropout_rate} use_checkpoint: {use_checkpoint}', end='\r', flush=True)
-    
-    if model_type == 'custom':
-        
-        base_model = CustomCellClassifier(num_classes, pathogen_channel=pathogen_channel, use_attention=True, use_checkpoint=use_checkpoint, dropout_rate=dropout_rate)
-        #base_model = CustomCellClassifier(num_classes=2, pathogen_channel=pathogen_channel, nucleus_channel=nucleus_channel, protein_channel=protein_channel, dropout_rate=dropout_rate, use_checkpoint=use_checkpoint)
-    elif model_type in torch_model_types:
-        base_model = TorchModel(model_name=model_type, pretrained=init_weights, dropout_rate=dropout_rate)
-    else:
-        print(f'Compatible model_types: {model_types}')
-        raise ValueError(f"Invalid model_type: {model_type}")
-    if verbose:
-        print(base_model)
-    
-    return base_model
-
 def calculate_loss(output, target, prefer_focal=False, gamma=2.0, alpha=1.0, reduction="mean"):
     """
     Auto-select loss for binary, multiclass, or multilabel based on shapes/dtypes.
@@ -2621,79 +2530,6 @@ def calculate_loss(output, target, prefer_focal=False, gamma=2.0, alpha=1.0, red
     if prefer_focal:
         return _focal_bce_with_logits(output, target, alpha=alpha, gamma=gamma, reduction=reduction)
     return F.binary_cross_entropy_with_logits(output, target, reduction=reduction)
-
-
-def calculate_loss_v1(output, target, prefer_focal=False, gamma=2.0, alpha=1.0, reduction="mean"):
-    """
-    Auto-select loss for binary, multiclass, or multilabel based on shapes/dtypes.
-
-    - Binary: logits (N,1), float targets in {0,1}  -> BCEWithLogits / focal-BCE
-    - Multiclass: logits (N,C), long targets (N,)   -> CrossEntropy / focal-CE
-    - Multilabel: logits (N,C), float targets (N,C) -> BCEWithLogits / focal-BCE
-    """
-    # --- helpers -------------------------------------------------------------
-    def _focal_bce_with_logits(logits, y, alpha=1.0, gamma=2.0, reduction="mean"):
-        # y in {0,1}, same shape as logits
-        p = torch.sigmoid(logits)
-        ce = F.binary_cross_entropy_with_logits(logits, y, reduction="none")
-        p_t = p * y + (1 - p) * (1 - y)                # p_t = p if y=1 else 1-p
-        loss = alpha * (1 - p_t).pow(gamma) * ce
-        if reduction == "mean":
-            return loss.mean()
-        elif reduction == "sum":
-            return loss.sum()
-        return loss
-
-    def _focal_cross_entropy(logits, y_idx, alpha=1.0, gamma=2.0, reduction="mean"):
-        # y_idx is LongTensor of class indices, shape (N,)
-        log_p = F.log_softmax(logits, dim=1)
-        p = log_p.exp()
-        # Gather the log prob and prob of the true class
-        log_p_t = log_p.gather(1, y_idx.view(-1,1)).squeeze(1)
-        p_t = p.gather(1, y_idx.view(-1,1)).squeeze(1)
-        loss = -alpha * (1 - p_t).pow(gamma) * log_p_t
-        if reduction == "mean":
-            return loss.mean()
-        elif reduction == "sum":
-            return loss.sum()
-        return loss
-
-    # --- normalize shapes ----------------------------------------------------
-    if output.ndim == 1:
-        output = output.unsqueeze(1)  # (N,) -> (N,1)
-    N, C = output.shape[0], output.shape[1]
-
-    # --- binary (C=1) --------------------------------------------------------
-    if C == 1:
-        target = target.float().view(N, 1)
-        if prefer_focal:
-            return _focal_bce_with_logits(output, target, alpha=alpha, gamma=gamma, reduction=reduction)
-        return F.binary_cross_entropy_with_logits(output, target, reduction=reduction)
-
-    # --- multiclass vs multilabel -------------------------------------------
-    if target.dtype == torch.long and target.ndim == 1:
-        # Multiclass single-label with class indices (N,)
-        if prefer_focal:
-            return _focal_cross_entropy(output, target, alpha=alpha, gamma=gamma, reduction=reduction)
-        return F.cross_entropy(output, target, reduction=reduction)
-
-    # Multilabel (assume float/one-hot), ensure (N,C)
-    if target.ndim == 1:
-        target = torch.nn.functional.one_hot(target.long(), num_classes=C).float()
-    else:
-        target = target.float().view(N, C)
-
-    if prefer_focal:
-        return _focal_bce_with_logits(output, target, alpha=alpha, gamma=gamma, reduction=reduction)
-    return F.binary_cross_entropy_with_logits(output, target, reduction=reduction)
-
-def calculate_loss_v1(output, target, loss_type='binary_cross_entropy_with_logits'):
-    if loss_type == 'binary_cross_entropy_with_logits':
-        loss = F.binary_cross_entropy_with_logits(output, target)
-    elif loss_type == 'focal_loss':
-        focal_loss_fn = FocalLossWithLogits(alpha=1, gamma=2)
-        loss = focal_loss_fn(output, target)
-    return loss
 
 def pick_best_model(src):
     all_files = os.listdir(src)
@@ -4271,42 +4107,6 @@ def _choose_model(model_name, device, object_type='cell', restore_type=None, obj
             )
             return model
 
-def _choose_model_v1(model_name, device, object_type='cell', restore_type=None, object_settings={}):
-    
-    if object_type == 'pathogen':
-        if model_name == 'toxo_pv_lumen':
-            diameter = object_settings['diameter']
-            current_dir = os.path.dirname(__file__)
-            model_path = os.path.join(current_dir, 'models', 'cp', 'toxo_pv_lumen.CP_model')
-            print(model_path)
-            model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), model_type=None, pretrained_model=model_path, diam_mean=diameter, device=device)
-            print(f'Using Toxoplasma PV lumen model to generate pathogen masks')
-            return model
-    
-    restore_list = ['denoise', 'deblur', 'upsample', None]
-    if restore_type not in restore_list:
-        print(f"Invalid restore type. Choose from {restore_list} defaulting to None")
-        restore_type = None
-
-    if restore_type == None:
-        if model_name in ['cyto', 'cyto2', 'cyto3', 'nuclei']:
-            model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), model_type=model_name, device=device)
-            return model
-    else:
-        if object_type == 'nucleus':
-            restore = f'{restore_type}_nuclei'
-            model = denoise.CellposeDenoiseModel(gpu=torch.cuda.is_available(), model_type="nuclei",restore_type=restore, chan2_restore=False, device=device)
-            return model
-
-        else:
-            restore = f'{restore_type}_cyto3'
-            if model_name =='cyto2':
-                chan2_restore = True
-            if model_name =='cyto':
-                chan2_restore = False
-            model = denoise.CellposeDenoiseModel(gpu=torch.cuda.is_available(), model_type="cyto3",restore_type=restore, chan2_restore=chan2_restore, device=device)
-            return model
-
 class SelectChannels:
     def __init__(self, channels):
         self.channels = channels
@@ -4320,24 +4120,6 @@ class SelectChannels:
         if 3 not in self.channels:
             img[2, :, :] = 0  # Zero out the blue channel
         return img
-    
-def preprocess_image_v1(image_path, image_size=224, channels=[1,2,3], normalize=True):
-
-    if normalize:
-        transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.CenterCrop(size=(image_size, image_size)),
-            SelectChannels(channels),
-            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
-    else:
-        transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.CenterCrop(size=(image_size, image_size)),
-            SelectChannels(channels)])
-
-    image = Image.open(image_path).convert('RGB')
-    input_tensor = transform(image).unsqueeze(0)
-    return image, input_tensor
 
 class SaliencyMapGenerator:
     def __init__(self, model):
@@ -4761,12 +4543,6 @@ def merge_dataframes(df, image_paths_df, verbose):
     if verbose:
         display(df)
     return df
-
-def remove_highly_correlated_columns_v1(df, threshold):
-    corr_matrix = df.corr().abs()
-    upper_tri = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
-    to_drop = [column for column in upper_tri.columns if any(upper_tri[column] > threshold)]
-    return df.drop(to_drop, axis=1)
 
 def filter_columns(df, filter_by):
     if filter_by != 'morphology':
@@ -5533,6 +5309,76 @@ def cluster_feature_analysis(all_df, cluster_col='cluster'):
     combined_df = combine_results(rf_df, anova_df, kruskal_df)
     return combined_df
 
+def _merge_cells_without_nucleus(adj_cell_mask: np.ndarray, nuclei_mask: np.ndarray):
+    """
+    Relabel any cell that lacks a nucleus to the ID of an adjacent
+    cell that *does* contain a nucleus.
+
+    Parameters
+    ----------
+    adj_cell_mask : np.ndarray
+        Labelled (0 = background) cell mask after all other merging steps.
+    nuclei_mask : np.ndarray
+        Labelled (0 = background) nuclei mask.
+
+    Returns
+    -------
+    np.ndarray
+        Updated cell mask with nucleus-free cells merged into
+        neighbouring nucleus-bearing cells.
+    """
+    out = adj_cell_mask.copy()
+
+    # ----------------------------------------------------------------- #
+    # 1 — Identify which cell IDs contain a nucleus
+    nuc_labels = np.unique(nuclei_mask[nuclei_mask > 0])
+
+    cells_with_nuc = set()
+    for nuc_id in nuc_labels:
+        labels, counts = np.unique(adj_cell_mask[nuclei_mask == nuc_id],
+                                   return_counts=True)
+
+        # drop background (label 0) from *both* arrays
+        keep = labels > 0
+        labels = labels[keep]
+        counts = counts[keep]
+
+        if labels.size:                     # at least one non-zero overlap
+            cells_with_nuc.add(labels[np.argmax(counts)])
+
+    # ----------------------------------------------------------------- #
+    # 2 — Build an adjacency map between neighbouring cell IDs
+    # ----------------------------------------------------------------- #
+    boundaries = find_boundaries(adj_cell_mask, mode="thick")
+    adj_map = defaultdict(set)
+
+    ys, xs = np.where(boundaries)
+    h, w = adj_cell_mask.shape
+    for y, x in zip(ys, xs):
+        src = adj_cell_mask[y, x]
+        if src == 0:
+            continue
+        for dy in (-1, 0, 1):
+            for dx in (-1, 0, 1):
+                ny, nx = y + dy, x + dx
+                if 0 <= ny < h and 0 <= nx < w:
+                    dst = adj_cell_mask[ny, nx]
+                    if dst != 0 and dst != src:
+                        adj_map[src].add(dst)
+
+    # ----------------------------------------------------------------- #
+    # 3 — Relabel nucleus-free cells that touch nucleus-bearing neighbours
+    # ----------------------------------------------------------------- #
+    cells_no_nuc = set(np.unique(adj_cell_mask)) - {0} - cells_with_nuc
+    for cell_id in cells_no_nuc:
+        neighbours = adj_map.get(cell_id, set()) & cells_with_nuc
+        if neighbours:
+            # Choose the first nucleus-bearing neighbour deterministically
+            target = sorted(neighbours)[0]
+            out[out == cell_id] = target
+
+    return out.astype(np.uint16)
+
 def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask, overlap_threshold=5, perimeter_threshold=30):
     
     """
@@ -5631,76 +5477,6 @@ def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask
     relabeled_cell_mask, _ = label(cell_mask, return_num=True)
     return relabeled_cell_mask.astype(np.uint16)
 
-def _merge_cells_without_nucleus(adj_cell_mask: np.ndarray, nuclei_mask: np.ndarray):
-    """
-    Relabel any cell that lacks a nucleus to the ID of an adjacent
-    cell that *does* contain a nucleus.
-
-    Parameters
-    ----------
-    adj_cell_mask : np.ndarray
-        Labelled (0 = background) cell mask after all other merging steps.
-    nuclei_mask : np.ndarray
-        Labelled (0 = background) nuclei mask.
-
-    Returns
-    -------
-    np.ndarray
-        Updated cell mask with nucleus-free cells merged into
-        neighbouring nucleus-bearing cells.
-    """
-    out = adj_cell_mask.copy()
-
-    # ----------------------------------------------------------------- #
-    # 1 — Identify which cell IDs contain a nucleus
-    nuc_labels = np.unique(nuclei_mask[nuclei_mask > 0])
-
-    cells_with_nuc = set()
-    for nuc_id in nuc_labels:
-        labels, counts = np.unique(adj_cell_mask[nuclei_mask == nuc_id],
-                                   return_counts=True)
-
-        # drop background (label 0) from *both* arrays
-        keep = labels > 0
-        labels = labels[keep]
-        counts = counts[keep]
-
-        if labels.size:                     # at least one non-zero overlap
-            cells_with_nuc.add(labels[np.argmax(counts)])
-
-    # ----------------------------------------------------------------- #
-    # 2 — Build an adjacency map between neighbouring cell IDs
-    # ----------------------------------------------------------------- #
-    boundaries = find_boundaries(adj_cell_mask, mode="thick")
-    adj_map = defaultdict(set)
-
-    ys, xs = np.where(boundaries)
-    h, w = adj_cell_mask.shape
-    for y, x in zip(ys, xs):
-        src = adj_cell_mask[y, x]
-        if src == 0:
-            continue
-        for dy in (-1, 0, 1):
-            for dx in (-1, 0, 1):
-                ny, nx = y + dy, x + dx
-                if 0 <= ny < h and 0 <= nx < w:
-                    dst = adj_cell_mask[ny, nx]
-                    if dst != 0 and dst != src:
-                        adj_map[src].add(dst)
-
-    # ----------------------------------------------------------------- #
-    # 3 — Relabel nucleus-free cells that touch nucleus-bearing neighbours
-    # ----------------------------------------------------------------- #
-    cells_no_nuc = set(np.unique(adj_cell_mask)) - {0} - cells_with_nuc
-    for cell_id in cells_no_nuc:
-        neighbours = adj_map.get(cell_id, set()) & cells_with_nuc
-        if neighbours:
-            # Choose the first nucleus-bearing neighbour deterministically
-            target = sorted(neighbours)[0]
-            out[out == cell_id] = target
-
-    return out.astype(np.uint16)
-
 def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nuclei_folder, overlap_threshold, perimeter_threshold):
     start = time.perf_counter()
 
@@ -5747,58 +5523,6 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_thres
         for i, duration in enumerate(pool.imap_unordered(process_fn, parasite_files), 1):
             time_ls.append(duration)
             print_progress(i, files_to_process, n_jobs=n_jobs, time_ls=time_ls, batch_size=None, operation_type='adjust_cell_masks')
-
-def adjust_cell_masks_v1(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30):
-
-    """
-    Process all npy files in the given folders. Merge and relabel cells in cell masks
-    based on parasite overlap and cell perimeter sharing conditions.
-
-    Args:
-        parasite_folder (str): Path to the folder containing parasite masks.
-        cell_folder (str): Path to the folder containing cell masks.
-        nuclei_folder (str): Path to the folder containing nuclei masks.
-        overlap_threshold (float): The percentage threshold for merging cells based on parasite overlap.
-        perimeter_threshold (float): The percentage threshold for merging cells based on shared perimeter.
-    """
-
-    parasite_files = sorted([f for f in os.listdir(parasite_folder) if f.endswith('.npy')])
-    cell_files = sorted([f for f in os.listdir(cell_folder) if f.endswith('.npy')])
-    nuclei_files = sorted([f for f in os.listdir(nuclei_folder) if f.endswith('.npy')])
-    
-    # Ensure there are matching files in all folders
-    if not (len(parasite_files) == len(cell_files) == len(nuclei_files)):
-        raise ValueError("The number of files in the folders do not match.")
-    
-    # Match files by name
-    time_ls = []
-    files_to_process = len(parasite_files)
-    for files_processed, file_name in enumerate(parasite_files):
-        start = time.time()
-        parasite_path = os.path.join(parasite_folder, file_name)
-        cell_path = os.path.join(cell_folder, file_name)
-        nuclei_path = os.path.join(nuclei_folder, file_name)
-        # Check if the corresponding cell and nuclei mask files exist
-        if not (os.path.exists(cell_path) and os.path.exists(nuclei_path)):
-            raise ValueError(f"Corresponding cell or nuclei mask file for {file_name} not found.")
-        # Load the masks
-        parasite_mask = np.load(parasite_path, allow_pickle=True)
-        cell_mask = np.load(cell_path, allow_pickle=True)
-        nuclei_mask = np.load(nuclei_path, allow_pickle=True)
-        
-        # Merge and relabel cells
-        merged_cell_mask = _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask, overlap_threshold, perimeter_threshold)
-        
-        #merged_cell_mask = _merge_cells_without_nucleus(merged_cell_mask, nuclei_mask)
-    
-        # Overwrite the original cell mask file with the merged result
-        np.save(cell_path, merged_cell_mask)
-        
-        stop = time.time()
-        duration = (stop - start)
-        time_ls.append(duration)
-        files_processed += 1
-        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'adjust_cell_masks')
 
 def process_masks(mask_folder, image_folder, channel, batch_size=50, n_clusters=2, plot=False):
     

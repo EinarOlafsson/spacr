@@ -484,7 +484,7 @@ def import_settings(settings_type='mask'):
     from .gui_utils import convert_settings_dict_for_gui, hide_all_settings
     from .settings import generate_fields, set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model
     from .settings import set_default_generate_barecode_mapping, set_default_umap_image_settings, get_analyze_recruitment_default_settings
-    from .settings import get_default_generate_activation_map_settings, get_analyze_plaque_settings
+    from .settings import get_default_generate_activation_map_settings, get_analyze_plaque_settings, get_automated_motility_assay_default_settings
 
     def read_settings_from_csv(csv_file_path):
         settings = {}
@@ -515,6 +515,7 @@ def import_settings(settings_type='mask'):
     csv_settings = read_settings_from_csv(csv_file_path)
     if settings_type == 'mask':
         settings = set_default_settings_preprocess_generate_masks(settings={})
+        settings = get_automated_motility_assay_default_settings(settings)
     elif settings_type == 'measure':
         settings = get_measure_crop_settings(settings={})
     elif settings_type == 'classify':
@@ -541,7 +542,7 @@ def import_settings(settings_type='mask'):
 
 def setup_settings_panel(vertical_container, settings_type='mask'):
     global vars_dict, scrollable_frame
-    from .settings import get_identify_masks_finetune_default_settings, set_default_analyze_screen, set_default_settings_preprocess_generate_masks
+    from .settings import get_identify_masks_finetune_default_settings, set_default_analyze_screen, set_default_settings_preprocess_generate_masks, get_automated_motility_assay_default_settings
     from .settings import get_measure_crop_settings, deep_spacr_defaults, set_default_generate_barecode_mapping, set_default_umap_image_settings
     from .settings import get_map_barcodes_default_settings, get_analyze_recruitment_default_settings, get_check_cellpose_models_default_settings, get_analyze_plaque_settings
     from .settings import generate_fields, get_perform_regression_default_settings, get_train_cellpose_default_settings, get_default_generate_activation_map_settings
@@ -570,6 +571,7 @@ def setup_settings_panel(vertical_container, settings_type='mask'):
 
     if settings_type == 'mask':
         settings = set_default_settings_preprocess_generate_masks(settings={})
+        settings = get_automated_motility_assay_default_settings(settings)
     elif settings_type == 'measure':
         settings = get_measure_crop_settings(settings={})
     elif settings_type == 'classify':

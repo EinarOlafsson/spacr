@@ -9,6 +9,7 @@ warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0
 
 def preprocess_generate_masks(settings):
 
+    from .timelapse import _summarise_object_relationships
     from .io import preprocess_img_data, _load_and_concatenate_arrays, convert_to_yokogawa, convert_separate_files_to_yokogawa
     from .plot import plot_image_mask_overlay, plot_arrays
     from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, delete_intermedeate_files, format_path_for_system, normalize_src_path, generate_image_path_map, copy_images_to_consolidated
@@ -137,24 +138,33 @@ def preprocess_generate_masks(settings):
                 #        generate_cellpose_masks(mask_src, settings, 'organelle')
 
                 if settings['adjust_cells']:
-                    if settings['pathogen_channel'] != None and settings['cell_channel'] != None and settings['nucleus_channel'] != None:
+                    if not settings['timelapse']:
+                        if settings['pathogen_channel'] != None and settings['cell_channel'] != None and settings['nucleus_channel'] != None:
 
-                        start = time.time()
-                        cell_folder = os.path.join(mask_src, 'cell_mask_stack')
-                        nuclei_folder = os.path.join(mask_src, 'nucleus_mask_stack')
-                        parasite_folder = os.path.join(mask_src, 'pathogen_mask_stack')
-                        #organelle_folder = os.path.join(mask_src, 'organelle_mask_stack')
-                        print(f'Adjusting cell masks with nuclei and pathogen masks')
-                        adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30, n_jobs=settings['n_jobs'])
-                        stop = time.time()
-                        adjust_time = (stop-start)/60
-                        print(f'Cell mask adjustment: {adjust_time} min.')
+                            start = time.time()
+                            cell_folder = os.path.join(mask_src, 'cell_mask_stack')
+                            nuclei_folder = os.path.join(mask_src, 'nucleus_mask_stack')
+                            parasite_folder = os.path.join(mask_src, 'pathogen_mask_stack')
+                            #organelle_folder = os.path.join(mask_src, 'organelle_mask_stack')
+                            print(f'Adjusting cell masks with nuclei and pathogen masks')
+                            adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30, n_jobs=settings['n_jobs'])
+                            stop = time.time()
+                            adjust_time = (stop-start)/60
+                            print(f'Cell mask adjustment: {adjust_time} min.')
                     
                 if os.path.exists(os.path.join(src,'measurements')):
                     _pivot_counts_table(db_path=os.path.join(src,'measurements', 'measurements.db'))
 
                 #Concatenate stack with masks
                 _load_and_concatenate_arrays(src, settings['channels'], settings['cell_channel'], settings['nucleus_channel'], settings['pathogen_channel'])
+                
+                # summarise nuclei & pathogen features per cell track
+                if settings.get('timelapse', True) and settings.get('cell_channel') is not None and (settings.get('nucleus_channel') is not None or settings.get('pathogen_channel') is not None):
+                    
+                    try:
+                        _summarise_object_relationships(src, settings)
+                    except Exception as e:
+                        print(f"Warning: failed to summarise cell/nucleus/pathogen relationships for {src}. Error: {e}")
                 
                 if settings['plot']:
                     if not settings['timelapse']:
@@ -196,7 +206,7 @@ def preprocess_generate_masks(settings):
 
 def generate_cellpose_masks(src, settings, object_type):
     
-    from .utils import _masks_to_masks_stack, _filter_cp_masks, _get_cellpose_batch_size, _get_cellpose_channels, _choose_model, all_elements_match, prepare_batch_for_segmentation
+    from .utils import _masks_to_masks_stack, _filter_cp_masks, _get_cellpose_channels, _choose_model, all_elements_match, prepare_batch_for_segmentation
     from .io import _create_database, _save_object_counts_to_database, _check_masks, _get_avg_object_size
     from .timelapse import _npz_to_movie, _btrack_track_cells, _trackpy_track_cells
     from .plot import plot_cellpose4_output
@@ -247,7 +257,6 @@ def generate_cellpose_masks(src, settings, object_type):
     
     channels = cellpose_channels[object_type]
 
-    #cellpose_batch_size = _get_cellpose_batch_size()
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     
     if object_type == 'pathogen' and not settings['pathogen_model'] is None:
@@ -354,7 +363,7 @@ def generate_cellpose_masks(src, settings, object_type):
                         n_jobs = os.cpu_count()-2
                         if n_jobs < 1:
                             n_jobs = 1
-
+                            
                         mask_stack = _btrack_track_cells(src=src,
                                                          name=name,
                                                          batch_filenames=batch_filenames,
@@ -365,7 +374,12 @@ def generate_cellpose_masks(src, settings, object_type):
                                                          mode=timelapse_mode,
                                                          timelapse_remove_transient=timelapse_remove_transient,
                                                          radius=radius,
-                                                         n_jobs=n_jobs)
+                                                         n_jobs=n_jobs,
+                                                         batch_list=None,
+                                                         optimizer_time_limit_s=120,
+                                                         optimizer_mip_gap=0.01,
+                                                         run_optimization=True,
+                                                         max_objects_for_optimization=20000)
                     
                     if timelapse_mode == 'trackpy' or timelapse_mode == 'iou':
                         if timelapse_mode == 'iou':
@@ -418,10 +432,11 @@ def generate_cellpose_masks(src, settings, object_type):
                     _save_object_counts_to_database(mask_stack, object_type, batch_filenames, count_loc, added_string='_after_filtration')
                 else:
                     mask_stack = _masks_to_masks_stack(masks)
-
-                    #if settings['plot']:
-                    #    plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=1, print_object_number=True)
         
+            if timelapse and settings['motility_analysis']:
+                from .timelapse import automated_motility_assay
+                _ = automated_motility_assay(settings)
+            
             if not np.any(mask_stack):
                 avg_num_objects_per_image, average_obj_size = 0, 0
             else:

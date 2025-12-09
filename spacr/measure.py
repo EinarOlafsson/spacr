@@ -1003,7 +1003,7 @@ def _measure_crop_core(index, time_ls, file, settings):
                         if settings['use_bounding_box']:
                             region = _find_bounding_box(crop_mask, _id, buffer=10)
 
-                        img_name, fldr, table_name = _generate_names(file_name=file_name, cell_id = region_cell_ids, cell_nucleus_ids=region_nucleus_ids, cell_pathogen_ids=region_pathogen_ids, source_folder=source_folder, crop_mode=crop_mode)
+                        img_name, fldr, table_name = _generate_names(file_name=file_name, cell_id = region_cell_ids, cell_nucleus_ids=region_nucleus_ids, cell_pathogen_ids=region_pathogen_ids, source_folder=source_folder, crop_mode=crop_mode, timelapse=settings['timelapse'])
 
                         if dialate_png:
                             region_area = np.sum(region)
@@ -1090,6 +1090,11 @@ def measure_crop(settings):
     from .timelapse import _timelapse_masks_to_gif
     from .utils import measure_test_mode, print_progress, delete_intermedeate_files, save_settings, format_path_for_system, normalize_src_path
     from .settings import get_measure_crop_settings
+    
+    
+    
+    if settings['timelapse']:
+        settings['save_png'] = False
 
     if not isinstance(settings['src'], (str, list)):
         ValueError(f'src must be a string or a list of strings')
@@ -1175,7 +1180,6 @@ def measure_crop(settings):
                 print(f"Converted crop_mode to list: {settings['crop_mode']}")
             
             _save_settings_to_db(settings)
-            #save_settings(settings, name='measure_crop', show=True)
 
             files = [f for f in os.listdir(settings['src']) if f.endswith('.npy')]
             n_jobs = settings['n_jobs']
