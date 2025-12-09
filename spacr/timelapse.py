@@ -4145,18 +4145,33 @@ def _infection_qc_histogram(
     settings["infection_hist_data"] = None
 
     if intensity_col is None:
-        print(f"[infection_intensity_qc] None of {cand_cols} found; "
-              f"skipping intensity-based relabelling.")
+        print(
+            f"[infection_intensity_qc] None of {cand_cols} found; "
+            f"skipping intensity-based relabelling."
+        )
         settings["infection_intensity_qc_panel_type"] = "histogram"
         settings["infection_intensity_qc_panel_path"] = None
         return all_df, infection_col
-        
+
     if intensity_col not in all_df.columns:
-        print(f"[infection_intensity_qc] Column {intensity_col!r} not found; "
-              f"skipping intensity-based relabelling.")
+        print(
+            f"[infection_intensity_qc] Column {intensity_col!r} not found; "
+            f"skipping intensity-based relabelling."
+        )
         settings["infection_intensity_qc_panel_type"] = "histogram"
         settings["infection_intensity_qc_panel_path"] = None
         return all_df, infection_col
+
+    # --- IMPORTANT: drop any existing adjusted_infected when reusing DB ---
+    # This prevents merge from creating adjusted_infected_x / adjusted_infected_y
+    # and guarantees we recompute labels fresh each run.
+    cols_to_drop = [
+        c
+        for c in all_df.columns
+        if c == "adjusted_infected" or c.startswith("adjusted_infected_")
+    ]
+    if cols_to_drop:
+        all_df = all_df.drop(columns=cols_to_drop)
 
     key_cols = ["plateID", "wellID", "fieldID", "cellID"]
     cell_level = (
@@ -4170,8 +4185,10 @@ def _infection_qc_histogram(
     cell_level = cell_level.dropna(subset=[intensity_col])
 
     if len(cell_level) < 20 or cell_level[intensity_col].nunique() < 2:
-        print("[infection_intensity_qc] Too few cells or no intensity variation; "
-              "skipping intensity-based relabelling.")
+        print(
+            "[infection_intensity_qc] Too few cells or no intensity variation; "
+            "skipping intensity-based relabelling."
+        )
         settings["infection_intensity_qc_panel_type"] = "histogram"
         settings["infection_intensity_qc_panel_path"] = None
         return all_df, infection_col
@@ -4234,9 +4251,15 @@ def _infection_qc_histogram(
     if mode == "relabel":
         cell_level["adjusted_infected"] = cell_level["intensity_positive"].astype(bool)
         n_changed = int(
-            (cell_level["adjusted_infected"] != cell_level[infection_col].astype(bool)).sum()
+            (
+                cell_level["adjusted_infected"]
+                != cell_level[infection_col].astype(bool)
+            ).sum()
         )
-        print(f"[infection_intensity_qc] Adjusted infection labels for {n_changed} cells (mode=relabel).")
+        print(
+            "[infection_intensity_qc] Adjusted infection labels for "
+            f"{n_changed} cells (mode=relabel)."
+        )
     else:
         consistent = (
             cell_level[infection_col].astype(bool)
@@ -4275,21 +4298,11 @@ def _infection_qc_histogram(
         )
         all_df = all_df.loc[mask_keep].reset_index(drop=True)
 
-    # Ensure adjusted_infected exists and is filled where we didn't explicitly set it
-    if "adjusted_infected" not in all_df.columns:
-        # First time we run QC (e.g. coming from DB without adjusted labels):
-        # start from the current infection_col (usually 'infected')
-        all_df["adjusted_infected"] = all_df[infection_col].astype(bool)
-    else:
-        # Column exists (e.g. different QC step already wrote some values);
-        # only fill the NaNs from the current infection_col
-        all_df["adjusted_infected"] = (
-            all_df["adjusted_infected"]
-            .astype("boolean")  # allow NaNs
-            .fillna(all_df[infection_col].astype(bool))
-            .astype(bool)
-        )
-    
+    # Now adjusted_infected definitely exists and comes from histogram QC;
+    # fill any NaNs (cells not in cell_level) from the original infection_col.
+    all_df["adjusted_infected"] = all_df["adjusted_infected"].fillna(
+        all_df[infection_col]
+    )
     infection_col = "adjusted_infected"
 
     # Decide whether to make / save QC graph
@@ -4367,6 +4380,7 @@ def _infection_qc_histogram(
 
     return all_df, infection_col
 
+
 def _infection_qc_pca_clustering(
     all_df,
     settings,
@@ -4388,8 +4402,10 @@ def _infection_qc_pca_clustering(
                       with the original labels (keeps infection_col name).
 
     Side effects:
-        - settings['infection_pca_data'] = {'coords': coords_2d, 'labels': labels}
+        - settings['infection_pca_data'] = {'coords': coords, 'labels': labels}
           used later by _make_intensity_motility_panel for QC plots.
+        - settings['infection_intensity_qc_panel_type'] = 'pca'
+        - settings['infection_intensity_qc_panel_path'] = None
     """
     import os
     import numpy as np
@@ -4416,6 +4432,17 @@ def _infection_qc_pca_clustering(
             "expected 'relabel' or 'remove'. Skipping PCA QC."
         )
         return all_df, infection_col
+
+    # ------------------------------------------------------------------
+    # IMPORTANT: drop any existing adjusted_infected* from DB reuse
+    # ------------------------------------------------------------------
+    cols_to_drop = [
+        c
+        for c in all_df.columns
+        if c == "adjusted_infected" or c.startswith("adjusted_infected_")
+    ]
+    if cols_to_drop:
+        all_df = all_df.drop(columns=cols_to_drop)
 
     # ------------------------------------------------------------------
     # Build feature matrix: numeric cell_* columns
@@ -4498,17 +4525,17 @@ def _infection_qc_pca_clustering(
     n_changed = 0
 
     if mode == "relabel":
-        # Always create/overwrite adjusted_infected safely
+        # Always create a fresh adjusted_infected from infection_col
         all_df["adjusted_infected"] = all_df[infection_col].astype(bool)
 
-        # Overwrite labels only for sampled cells
-        # (orig_idx are row indices into all_df)
+        # Overwrite labels only for sampled cells (orig_idx into all_df)
         all_df.loc[orig_idx, "adjusted_infected"] = cluster_infected
 
         n_changed = int(
-            (all_df.loc[orig_idx, "adjusted_infected"].to_numpy() !=
-             all_df.loc[orig_idx, infection_col].astype(bool).to_numpy()
-             ).sum()
+            (
+                all_df.loc[orig_idx, "adjusted_infected"].to_numpy()
+                != all_df.loc[orig_idx, infection_col].astype(bool).to_numpy()
+            ).sum()
         )
 
         print(
@@ -4516,7 +4543,7 @@ def _infection_qc_pca_clustering(
             f"{n_changed} cells (mode=relabel)."
         )
 
-        # Store PCA payload for QC plotting (using adjusted labels)
+        # Store PCA payload for QC plotting (using adjusted labels for sampled cells)
         settings["infection_pca_data"] = {
             "coords": coords,
             "labels": cluster_infected.astype(bool),
@@ -4547,8 +4574,12 @@ def _infection_qc_pca_clustering(
             "labels": y_inf,
         }
 
+    # Mark QC type for the panel; we do NOT embed a PNG in the mask panel
+    settings["infection_intensity_qc_panel_type"] = "pca"
+    settings["infection_intensity_qc_panel_path"] = None
+
     # ------------------------------------------------------------------
-    # Optional: save a PCA scatter PNG (not required for your panels, but harmless)
+    # Optional: save a PCA scatter PNG (debug only; not used by panels)
     # ------------------------------------------------------------------
     try:
         if motility_dir is not None:
@@ -4652,6 +4683,18 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
     settings["infection_hist_data"] = None
     settings["infection_pca_data"] = None
     settings["infection_xgb_importance"] = None
+
+    # IMPORTANT: drop any existing adjusted_* / infection_prob* from DB reuse
+    cols_to_drop = [
+        c
+        for c in all_df.columns
+        if c == "adjusted_infected"
+        or c.startswith("adjusted_infected_")
+        or c == "infection_prob"
+        or c.startswith("infection_prob_")
+    ]
+    if cols_to_drop:
+        all_df = all_df.drop(columns=cols_to_drop)
 
     orig_infection_col = infection_col
 
@@ -5190,10 +5233,7 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
     for col in key_cols:
         all_df[col] = all_df[col].astype(cell_level[col].dtype)
 
-    if "adjusted_infected" in all_df.columns:
-        all_df = all_df.drop(columns=["adjusted_infected"])
-    if "infection_prob" in all_df.columns:
-        all_df = all_df.drop(columns=["infection_prob"])
+    # (any stale adjusted_infected/infection_prob already dropped above)
 
     all_df = all_df.merge(
         cell_level[key_cols + ["adjusted_infected", "infection_prob"]],
@@ -5305,12 +5345,8 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
         print(f"[_infection_qc_xgboost] Could not compute histogram/PCA payloads: {e}")
 
     # ------------------------------------------------------------------
-    # Feature importance plot (for panel + standalone)
+    # Feature importance payload (no PNG; panels draw from this)
     # ------------------------------------------------------------------
-    panel_type = "xgboost"
-    panel_path = None
-    make_graphs = bool(settings.get("infection_intensity_qc_graphs", True))
-
     try:
         importance_dict = bst.get_score(importance_type="gain") or {}
         feat_names = used_feature_cols
@@ -5329,52 +5365,25 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
         feat_names = feat_names[:top_k]
         feat_vals = feat_vals[:top_k]
 
-        # store payload for adjusted results panel (even if we don't plot here)
         settings["infection_xgb_importance"] = {
             "feature_names": feat_names,
             "feature_importances": feat_vals,
             "tracked_object": tracked_object,
         }
 
-        if feat_names and make_graphs:
-            fig, ax = plt.subplots(
-                figsize=(6, 0.3 * max(4, len(feat_names)))
-            )
-            y_pos = np.arange(len(feat_names))
-            ax.barh(y_pos, feat_vals)
-            ax.set_yticks(y_pos)
-            ax.set_yticklabels(feat_names)
-            ax.invert_yaxis()
-            ax.set_xlabel("Feature importance (gain)")
-            ax.set_title(
-                f"XGBoost feature importances (top features, {tracked_object})"
-            )
-
-            os.makedirs(motility_dir, exist_ok=True)
-            meta_tag = _infer_plate_well_meta_tag(all_df)
-            out_png = os.path.join(
-                motility_dir,
-                f"infection_xgb_feature_importance_{tracked_object}_{meta_tag}.png",
-            )
-            fig.tight_layout()
-            fig.savefig(out_png, dpi=200)
-            plt.close(fig)
-            panel_path = out_png
-            print(
-                f"[_infection_qc_xgboost] Saved feature-importance plot to {out_png}"
-            )
-        elif not make_graphs:
-            print(
-                "[_infection_qc_xgboost] infection_intensity_qc_graphs=False; "
-                "skipping feature-importance plot."
-            )
+        if feat_names:
+            print("[_infection_qc_xgboost] Top XGBoost features (gain):")
+            for name, val in zip(feat_names, feat_vals):
+                print(f"   {name}: {val:.4g}")
     except Exception as e:
-        print(f"[_infection_qc_xgboost] Could not plot feature importances: {e}")
+        print(f"[_infection_qc_xgboost] Could not compute feature importances: {e}")
 
-    settings["infection_intensity_qc_panel_type"] = panel_type
-    settings["infection_intensity_qc_panel_path"] = panel_path
+    # Mark QC type for panels; no embedded PNG (mask panel draws nothing)
+    settings["infection_intensity_qc_panel_type"] = "xgboost"
+    settings["infection_intensity_qc_panel_path"] = None
 
     return all_df, infection_col
+
 
 def _compute_intensity_percentiles_per_channel(
     mask_stack,
