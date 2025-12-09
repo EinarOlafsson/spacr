@@ -1070,8 +1070,8 @@ motility_advanced_settings = ['reuse_existing_measurements', 'infection_xgb_min_
                      'infection_xgb_reg_lambda', 'infection_xgb_random_state', 'infection_xgb_n_jobs', 'infection_xgb_proba_threshold', 'infection_xgb_margin', 'infection_xgb_top_features', 'infection_xgb_proba_column', 'infection_xgb_proba', 
                      'infection_xgb_drop_ambiguous', 'infection_xgb_ambiguous_low','infection_xgb_ambiguous_high','infection_pca_method', 'infection_pca_n_clusters', 'infection_pca_random_state', 'infection_intensity_n_bins', 'db_table_name', 
                      'infection_intensity_qc_graphs', 'infection_intensity_qc_panel_path', 'infection_intensity_mode', 'infection_intensity_qc', 'straightness_threshold', 'straightness_filter', 'zscore_thresh', 'max_displacement',
-                     'infection_pca_umap_search','infection_pca_umap_n_neighbors_grid','infection_pca_umap_min_dist_grid','infection_pca_pathogen_weight', 'infection_pca_log_intensity','infection_pca_tsne_search',
-                     'infection_pca_tsne_perplexity_grid','infection_pca_tsne_learning_rate_grid', 'infection_pca_umap_n_neighbors','infection_pca_umap_min_dist','infection_pca_tsne_perplexity']
+                     'infection_pca_umap_search','infection_pca_umap_n_neighbors_grid','infection_pca_umap_min_dist_grid','infection_pca_pathogen_weight', 'infection_pca_log_intensity','infection_pca_tsne_search','infection_pca_tsne_perplexity_grid',
+                     'infection_pca_tsne_learning_rate_grid', 'infection_pca_umap_n_neighbors','infection_pca_umap_min_dist','infection_pca_tsne_perplexity', 'infection_pca_min_silhouette','infection_pca_min_gt_separation','infection_pca_max_cells']
 
 categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset","model_path","grna_csv","row_csv","column_csv", "metadata_files", "score_data","count_data"],
              "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel",  "test_mode", "plot", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "delete_intermediate", "uninfected", ],
@@ -1546,7 +1546,10 @@ def generate_fields(variables, scrollable_frame):
         "infection_pca_umap_n_neighbors": "(int) - UMAP n_neighbors value used when infection_pca_umap_search is False (fixed neighborhood size).",
         "infection_pca_umap_min_dist": "(float) - UMAP min_dist value used when infection_pca_umap_search is False (controls embedding compactness).",
         "infection_pca_tsne_perplexity": "(float) - t-SNE perplexity value used when infection_pca_tsne_search is False (fixed effective neighborhood size).",
-
+        "infection_pca_min_silhouette": "(float) - Minimum mean silhouette score required to accept the clustering.",
+        "infection_pca_min_gt_separation": "(float) - Minimum required separation between ground-truth infection classes in the embedding.",
+        "infection_pca_max_cells": "(int) - Maximum number of cells to subsample for PCA/UMAP/t-SNE to limit runtime and memory use.",
+        
     }
     
     for key, (var_type, options, default_value) in variables.items():
