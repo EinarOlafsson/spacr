@@ -4275,9 +4275,21 @@ def _infection_qc_histogram(
         )
         all_df = all_df.loc[mask_keep].reset_index(drop=True)
 
-    all_df["adjusted_infected"] = all_df["adjusted_infected"].fillna(
-        all_df[infection_col]
-    )
+    # Ensure adjusted_infected exists and is filled where we didn't explicitly set it
+    if "adjusted_infected" not in all_df.columns:
+        # First time we run QC (e.g. coming from DB without adjusted labels):
+        # start from the current infection_col (usually 'infected')
+        all_df["adjusted_infected"] = all_df[infection_col].astype(bool)
+    else:
+        # Column exists (e.g. different QC step already wrote some values);
+        # only fill the NaNs from the current infection_col
+        all_df["adjusted_infected"] = (
+            all_df["adjusted_infected"]
+            .astype("boolean")  # allow NaNs
+            .fillna(all_df[infection_col].astype(bool))
+            .astype(bool)
+        )
+    
     infection_col = "adjusted_infected"
 
     # Decide whether to make / save QC graph
@@ -4362,233 +4374,214 @@ def _infection_qc_pca_clustering(
     pathogen_chan,
     motility_dir,
 ):
+    """
+    PCA-based infection intensity QC.
+
+    - Builds a feature matrix from numeric cell_* measurements.
+    - Runs PCA (2D) and KMeans (2 clusters).
+    - Determines which cluster is 'infected-like' based on the original
+      infection_col labels.
+    - Depending on infection_intensity_mode:
+        * 'relabel' : creates/updates 'adjusted_infected' and returns it
+                      as the new infection_col.
+        * 'remove'  : removes cells from the cluster that is inconsistent
+                      with the original labels (keeps infection_col name).
+
+    Side effects:
+        - settings['infection_pca_data'] = {'coords': coords_2d, 'labels': labels}
+          used later by _make_intensity_motility_panel for QC plots.
+    """
     import os
-    import matplotlib.pyplot as plt
+    import numpy as np
+    import pandas as pd
     from sklearn.decomposition import PCA
     from sklearn.preprocessing import StandardScaler
     from sklearn.cluster import KMeans
-    import numpy as np
 
-    # Initialize payload slot
-    settings["infection_pca_data"] = None
+    if all_df.empty:
+        print("[infection_intensity_qc:PCA] all_df is empty; skipping PCA QC.")
+        return all_df, infection_col
 
-    orig_infection_col = infection_col
-
-    feature_cols = _select_infection_feature_columns(all_df, pathogen_chan)
-    if len(feature_cols) < 2:
-        print("[infection_intensity_qc:PCA] Not enough informative features; "
-              "falling back to histogram strategy.")
-        return _infection_qc_histogram(
-            all_df, settings, infection_col, pathogen_chan, motility_dir
+    if infection_col not in all_df.columns:
+        print(
+            f"[infection_intensity_qc:PCA] infection_col {infection_col!r} missing; "
+            "skipping PCA QC."
         )
-
-    key_cols = ["plateID", "wellID", "fieldID", "cellID"]
-    cell_level = (
-        all_df[key_cols + feature_cols + [orig_infection_col]]
-        .groupby(key_cols, dropna=False)
-        .median()
-        .reset_index()
-    )
-
-    cell_level = cell_level.replace([np.inf, -np.inf], np.nan)
-    cell_level = cell_level.dropna(subset=feature_cols, how="all")
-    if len(cell_level) < 20:
-        print("[infection_intensity_qc:PCA] Too few cells after cleaning; "
-              "falling back to histogram strategy.")
-        return _infection_qc_histogram(
-            all_df, settings, infection_col, pathogen_chan, motility_dir
-        )
-
-    X = cell_level[feature_cols].to_numpy(dtype=float)
-    # per-column median imputation
-    for j in range(X.shape[1]):
-        col = X[:, j]
-        mask = np.isfinite(col)
-        if not mask.any():
-            X[:, j] = 0.0
-        else:
-            med = np.nanmedian(col[mask])
-            col[~mask] = med
-            X[:, j] = col
-
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-
-    method = str(settings.get("infection_pca_method", "pca")).lower()
-    coords = None
-    method_label = "PCA"
-
-    if method == "umap":
-        try:
-            import umap  # type: ignore
-            reducer = umap.UMAP(
-                n_components=2,
-                random_state=int(settings.get("infection_pca_random_state", 0)),
-                min_dist=float(settings.get("infection_umap_min_dist", 0.1)),
-            )
-            coords = reducer.fit_transform(X_scaled)
-            method_label = "UMAP"
-        except Exception as e:
-            print(f"[infection_intensity_qc:PCA] UMAP unavailable ({e}); using PCA instead.")
-            method = "pca"
-
-    if coords is None:
-        pca = PCA(
-            n_components=2,
-            random_state=int(settings.get("infection_pca_random_state", 0)),
-        )
-        coords = pca.fit_transform(X_scaled)
-        method_label = "PCA"
-
-    k = int(settings.get("infection_pca_n_clusters", 2))
-    k = max(2, min(k, 6))
-    kmeans = KMeans(
-        n_clusters=k,
-        random_state=int(settings.get("infection_pca_random_state", 0)),
-        n_init=10,
-    )
-    cluster_labels = kmeans.fit_predict(coords)
-    cell_level["cluster"] = cluster_labels
-
-    # cluster with highest fraction of mask-infected is "infected"
-    cluster_stats = (
-        cell_level.groupby("cluster")[orig_infection_col]
-        .mean()
-        .sort_values(ascending=False)
-    )
-    infected_cluster = int(cluster_stats.index[0])
-    cell_level["pred_infected"] = cell_level["cluster"] == infected_cluster
+        return all_df, infection_col
 
     mode = str(settings.get("infection_intensity_mode", "relabel")).lower()
     if mode not in {"relabel", "remove"}:
-        mode = "relabel"
-
-    removed_ids = None
-    if mode == "relabel":
-        cell_level["adjusted_infected"] = cell_level["pred_infected"]
-        n_changed = int(
-            (cell_level["adjusted_infected"] != cell_level[orig_infection_col]).sum()
+        print(
+            f"[infection_intensity_qc:PCA] Unsupported mode={mode!r}; "
+            "expected 'relabel' or 'remove'. Skipping PCA QC."
         )
+        return all_df, infection_col
+
+    # ------------------------------------------------------------------
+    # Build feature matrix: numeric cell_* columns
+    # ------------------------------------------------------------------
+    numeric_cols = [
+        c
+        for c in all_df.columns
+        if c.startswith("cell_")
+        and c not in {"cellID"}
+        and pd.api.types.is_numeric_dtype(all_df[c])
+    ]
+    if not numeric_cols:
+        print(
+            "[infection_intensity_qc:PCA] No numeric cell_* features found; "
+            "skipping PCA QC."
+        )
+        return all_df, infection_col
+
+    # We work at frame level; drop rows where we cannot build features
+    feat_df = all_df[numeric_cols + [infection_col]].copy()
+    feat_df.replace([np.inf, -np.inf], np.nan, inplace=True)
+    # Require at least some finite data per row
+    row_mask = np.isfinite(feat_df[numeric_cols]).sum(axis=1) > 0
+    feat_df = feat_df.loc[row_mask].reset_index(drop=False)  # keep original index
+    if feat_df.empty:
+        print(
+            "[infection_intensity_qc:PCA] No rows with finite features; "
+            "skipping PCA QC."
+        )
+        return all_df, infection_col
+
+    # Fill NaNs with per-column medians
+    medians = feat_df[numeric_cols].median(axis=0)
+    feat_df[numeric_cols] = feat_df[numeric_cols].fillna(medians)
+
+    # Optional subsampling for speed
+    max_cells = int(settings.get("infection_pca_max_cells", 50000))
+    if feat_df.shape[0] > max_cells:
+        feat_df = feat_df.sample(n=max_cells, random_state=0).reset_index(drop=True)
+
+    X = feat_df[numeric_cols].to_numpy(dtype=float)
+    y_inf = feat_df[infection_col].astype(bool).to_numpy()
+    orig_idx = feat_df["index"].to_numpy()  # original row indices in all_df
+
+    if X.shape[0] < 10:
+        print(
+            "[infection_intensity_qc:PCA] Fewer than 10 cells after filtering; "
+            "skipping PCA QC."
+        )
+        return all_df, infection_col
+
+    # ------------------------------------------------------------------
+    # PCA (2D) + KMeans(2 clusters)
+    # ------------------------------------------------------------------
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    pca = PCA(n_components=2, random_state=0)
+    coords = pca.fit_transform(X_scaled)
+
+    kmeans = KMeans(n_clusters=2, random_state=0, n_init="auto")
+    cluster_labels = kmeans.fit_predict(coords)
+
+    # Determine which cluster is 'infected-like' based on original labels
+    infected_frac = []
+    for k in (0, 1):
+        mask_k = cluster_labels == k
+        if mask_k.sum() == 0:
+            infected_frac.append(0.0)
+        else:
+            infected_frac.append(float(y_inf[mask_k].mean()))
+
+    infected_cluster = int(np.argmax(infected_frac))
+    # New cluster-based infection call for sampled cells
+    cluster_infected = (cluster_labels == infected_cluster)
+
+    # ------------------------------------------------------------------
+    # Apply mode
+    # ------------------------------------------------------------------
+    n_changed = 0
+
+    if mode == "relabel":
+        # Always create/overwrite adjusted_infected safely
+        all_df["adjusted_infected"] = all_df[infection_col].astype(bool)
+
+        # Overwrite labels only for sampled cells
+        # (orig_idx are row indices into all_df)
+        all_df.loc[orig_idx, "adjusted_infected"] = cluster_infected
+
+        n_changed = int(
+            (all_df.loc[orig_idx, "adjusted_infected"].to_numpy() !=
+             all_df.loc[orig_idx, infection_col].astype(bool).to_numpy()
+             ).sum()
+        )
+
         print(
             "[infection_intensity_qc:PCA] Adjusted infection labels for "
             f"{n_changed} cells (mode=relabel)."
         )
-    else:
-        consistent = cell_level["pred_infected"] == cell_level[orig_infection_col].astype(bool)
-        removed = cell_level.loc[~consistent, ["plateID", "wellID", "fieldID", "cellID"]]
-        removed_ids = set(
-            zip(removed["plateID"], removed["wellID"], removed["fieldID"], removed["cellID"])
-        )
-        cell_level = cell_level.loc[consistent].copy()
-        cell_level["adjusted_infected"] = cell_level["pred_infected"]
+
+        # Store PCA payload for QC plotting (using adjusted labels)
+        settings["infection_pca_data"] = {
+            "coords": coords,
+            "labels": cluster_infected.astype(bool),
+        }
+
+        infection_col = "adjusted_infected"
+
+    elif mode == "remove":
+        # In remove mode, we drop cells belonging to the *other* cluster
+        other_cluster = 1 - infected_cluster
+        to_remove_mask = cluster_labels == other_cluster
+        remove_idx = set(orig_idx[to_remove_mask])
+
+        before = all_df.shape[0]
+        keep_mask = ~all_df.index.isin(remove_idx)
+        all_df = all_df.loc[keep_mask].reset_index(drop=True)
+        after = all_df.shape[0]
+        n_removed = before - after
+
         print(
             "[infection_intensity_qc:PCA] Removed "
-            f"{len(removed_ids)} cells with conflicting PCA-cluster vs mask labels "
-            "(mode=remove)."
+            f"{n_removed} frame-level rows (mode=remove)."
         )
 
-    # merge back to frame-level df
-    all_df = all_df.merge(
-        cell_level[key_cols + ["adjusted_infected"]],
-        on=key_cols,
-        how="left",
-    )
-    if removed_ids:
-        mask_keep = ~all_df.apply(
-            lambda r: (r["plateID"], r["wellID"], r["fieldID"], r["cellID"]) in removed_ids,
-            axis=1,
-        )
-        all_df = all_df.loc[mask_keep].reset_index(drop=True)
-
-    all_df["adjusted_infected"] = all_df["adjusted_infected"].fillna(
-        all_df[infection_col]
-    )
-    infection_col = "adjusted_infected"
-
-    # --- store PCA payload for adjusted labels (for the combined results panel) ---
-    try:
-        mask_inf = cell_level["adjusted_infected"].astype(bool).to_numpy()
-        pca_payload = {
+        # Store PCA payload based on original labels (for info)
+        settings["infection_pca_data"] = {
             "coords": coords,
-            "labels": mask_inf,
-            "method_label": method_label,
+            "labels": y_inf,
         }
-        settings["infection_pca_data"] = pca_payload
+
+    # ------------------------------------------------------------------
+    # Optional: save a PCA scatter PNG (not required for your panels, but harmless)
+    # ------------------------------------------------------------------
+    try:
+        if motility_dir is not None:
+            import matplotlib.pyplot as plt
+
+            os.makedirs(motility_dir, exist_ok=True)
+            fig, ax = plt.subplots(figsize=(4, 4))
+            ax.scatter(
+                coords[~cluster_infected, 0],
+                coords[~cluster_infected, 1],
+                s=3,
+                alpha=0.4,
+                color="green",
+                label="Uninfected-like",
+            )
+            ax.scatter(
+                coords[cluster_infected, 0],
+                coords[cluster_infected, 1],
+                s=3,
+                alpha=0.4,
+                color="red",
+                label="Infected-like",
+            )
+            ax.set_xlabel("PC1")
+            ax.set_ylabel("PC2")
+            ax.legend(fontsize=7)
+            ax.set_title("PCA infection QC")
+
+            out_png = os.path.join(motility_dir, "infection_pca_qc.png")
+            fig.savefig(out_png, dpi=150, bbox_inches="tight")
+            plt.close(fig)
     except Exception as e:
-        print(f"[infection_intensity_qc:PCA] Could not save PCA payload: {e}")
-
-    # plotting
-    make_graphs = bool(settings.get("infection_intensity_qc_graphs", True))
-    os.makedirs(motility_dir, exist_ok=True)
-    coords_x = coords[:, 0]
-    coords_y = coords[:, 1]
-
-    out_path = None
-    if make_graphs:
-        fig, axes = plt.subplots(1, 2, figsize=(10, 4))
-        ax0, ax1 = axes
-
-        # left: mask-based labels
-        mask_inf_orig = cell_level[orig_infection_col].astype(bool)
-        ax0.scatter(
-            coords_x[~mask_inf_orig],
-            coords_y[~mask_inf_orig],
-            s=8,
-            c="green",
-            alpha=0.5,
-            label="Uninfected (mask)",
-        )
-        ax0.scatter(
-            coords_x[mask_inf_orig],
-            coords_y[mask_inf_orig],
-            s=8,
-            c="red",
-            alpha=0.5,
-            label="Infected (mask)",
-        )
-        ax0.set_title(f"{method_label} – mask labels")
-        ax0.legend(loc="best")
-
-        # right: cluster-based labels
-        pred_inf = cell_level["pred_infected"].to_numpy()
-        ax1.scatter(
-            coords_x[~pred_inf],
-            coords_y[~pred_inf],
-            s=8,
-            c="green",
-            alpha=0.5,
-            label="Uninfected (cluster)",
-        )
-        ax1.scatter(
-            coords_x[pred_inf],
-            coords_y[pred_inf],
-            s=8,
-            c="red",
-            alpha=0.5,
-            label="Infected (cluster)",
-        )
-        ax1.set_title(f"{method_label} – cluster labels")
-        ax1.legend(loc="best")
-
-        for ax in axes:
-            ax.set_xlabel("component 1")
-            ax.set_ylabel("component 2")
-
-        plt.tight_layout()
-        meta_tag = _infer_plate_well_meta_tag(all_df)
-        out_name = f"infection_pca_clustering_{meta_tag}.png"
-        out_path = os.path.join(motility_dir, out_name)
-        fig.savefig(out_path, dpi=200)
-        plt.close(fig)
-        print(f"[infection_intensity_qc:PCA] Saved PCA/UMAP clustering figure to: {out_path}")
-    else:
-        print(
-            "[infection_intensity_qc:PCA] infection_intensity_qc_graphs=False; "
-            "skipping PCA/UMAP clustering plot."
-        )
-
-    settings["infection_intensity_qc_panel_type"] = "pca"
-    settings["infection_intensity_qc_panel_path"] = out_path
+        print(f"[infection_intensity_qc:PCA] Failed to save PCA QC plot: {e}")
 
     return all_df, infection_col
 
@@ -5692,7 +5685,6 @@ def _load_measurements_from_db(db_path, db_table_name):
 
     return df
 
-
 def automated_motility_assay(settings):
     """
     End-to-end:
@@ -5732,15 +5724,12 @@ def automated_motility_assay(settings):
         'make_mask_panel': True/False (default True)
         'make_adjusted_panel': True/False (default True)
 
-        # Caching of per-cell measurements
-        'reuse_existing_measurements': True/False (default True)
-            If True and a measurements DB already exists for this src,
-            per-cell measurements are loaded from the DB instead of
-            recomputing regionprops/intensities.
-
         # Plot ranges (unchanged)
         - 'motility_xlim', 'motility_ylim'
         - 'motility_origin_xlim', 'motility_origin_ylim'
+
+        # Measurements reuse
+        'reuse_existing_measurements': True/False (default True)
     """
     import matplotlib.pyplot as plt  # noqa: F401 (used in helpers)
     from matplotlib import patches  # noqa: F401 (used in helpers)
@@ -5753,55 +5742,69 @@ def automated_motility_assay(settings):
 
     settings = get_automated_motility_assay_default_settings(settings)
 
-    src = settings['src']
+    src = settings["src"]
     db_table_name = settings["db_table_name"]
     n_jobs = settings["n_jobs"]
     max_displacement = settings["max_displacement"]
     zscore_thresh = settings["zscore_thresh"]
 
     # ------------------------------------------------------------------
-    # Optional: reuse existing per-cell measurements from SQLite DB
+    # NEW: optional reuse of existing measurements from SQLite
     # ------------------------------------------------------------------
-    measurements_dir = os.path.join(src, "measurements")
-    db_path = os.path.join(measurements_dir, "measurements.db")
     reuse_existing = settings.get("reuse_existing_measurements", True)
+    measurements_dir = os.path.join(src, "measurements")
+    os.makedirs(measurements_dir, exist_ok=True)
+    db_path = os.path.join(measurements_dir, "measurements.db")
 
-    loaded_from_db = False
     all_df = None
+    loaded_from_db = False
 
-    if reuse_existing and os.path.isfile(db_path):
-        print(
-            "[summarise_tracks_from_merged] Attempting to reuse existing "
-            f"measurements from {db_path} (table='{db_table_name}')."
-        )
-        all_df = _load_measurements_from_db(db_path, db_table_name)
-        if not all_df.empty:
-            loaded_from_db = True
-            if {
-                "plateID",
-                "wellID",
-                "fieldID",
-                "cellID",
-            }.issubset(all_df.columns):
+    if reuse_existing and os.path.exists(db_path):
+        try:
+            print(
+                f"[summarise_tracks_from_merged] Attempting to reuse existing "
+                f"measurements from {db_path} (table='{db_table_name}')."
+            )
+            import sqlite3
+
+            with sqlite3.connect(db_path) as conn:
+                all_df = pd.read_sql_query(f"SELECT * FROM {db_table_name}", conn)
+
+            if (
+                all_df is not None
+                and not all_df.empty
+                and {"plateID", "wellID", "fieldID", "cellID", "frame"}.issubset(
+                    all_df.columns
+                )
+            ):
+                n_frames_db = all_df["frame"].nunique()
                 n_tracks_db = (
                     all_df[["plateID", "wellID", "fieldID", "cellID"]]
                     .drop_duplicates()
                     .shape[0]
                 )
+                print(
+                    "[summarise_tracks_from_merged] Loaded measurements from DB: "
+                    f"shape={all_df.shape}, frames={n_frames_db}, tracks={n_tracks_db}. "
+                    "Skipping regionprops/intensity computation."
+                )
+                loaded_from_db = True
             else:
-                n_tracks_db = "NA"
-            n_frames_db = all_df["frame"].nunique() if "frame" in all_df.columns else "NA"
+                print(
+                    "[summarise_tracks_from_merged] Loaded table is empty or missing "
+                    "required columns; recomputing from merged .npy files."
+                )
+                all_df = None
+        except Exception as e:
             print(
-                "[summarise_tracks_from_merged] Loaded measurements from DB: "
-                f"shape={all_df.shape}, frames={n_frames_db}, tracks={n_tracks_db}. "
-                "Skipping regionprops/intensity computation."
+                "[summarise_tracks_from_merged] Failed to reuse existing measurements "
+                f"({e}); recomputing from merged .npy files."
             )
-        else:
-            print(
-                "[summarise_tracks_from_merged] Existing DB table is empty or "
-                "could not be read; falling back to full computation."
-            )
+            all_df = None
 
+    # ------------------------------------------------------------------
+    # Read merged files & basic metadata
+    # ------------------------------------------------------------------
     merged_dir = os.path.join(src, "merged")
     if not os.path.isdir(merged_dir):
         raise FileNotFoundError(f"No merged directory at: {merged_dir}")
@@ -5823,7 +5826,7 @@ def automated_motility_assay(settings):
         groups.setdefault(key, []).append(fname)
 
     print(
-        f"[summarise_tracks_from_merged] Number of (plate, well, field) groups: "
+        "[summarise_tracks_from_merged] Number of (plate, well, field) groups: "
         f"{len(groups)}"
     )
 
@@ -5836,9 +5839,7 @@ def automated_motility_assay(settings):
     pixels_per_um = settings.get("pixels_per_um", None)
     seconds_per_frame = settings.get("seconds_per_frame", None)
 
-    n_channels = (
-        len(channels_list) if isinstance(channels_list, (list, tuple)) else None
-    )
+    n_channels = len(channels_list) if isinstance(channels_list, (list, tuple)) else None
     if n_channels is None or n_channels <= 0:
         raise ValueError(
             "settings['channels'] must be a non-empty list of channels used "
@@ -5857,7 +5858,7 @@ def automated_motility_assay(settings):
     # Debug-plot one sample merged array with channel/mask labels
     sample_filename = sorted(all_files)[0]
     print(
-        f"[summarise_tracks_from_merged] Debug plotting planes for sample file: "
+        "[summarise_tracks_from_merged] Debug plotting planes for sample file: "
         f"{sample_filename}"
     )
     _debug_plot_merged_planes(
@@ -5870,10 +5871,9 @@ def automated_motility_assay(settings):
     )
 
     # ------------------------------------------------------------------
-    # Per-cell measurements: either reuse from DB or compute from merged/*.npy
+    # Build measurements if not reusing from DB
     # ------------------------------------------------------------------
     if not loaded_from_db:
-        # Build worker arguments
         worker_args = []
         for key, file_basenames in groups.items():
             worker_args.append(
@@ -5899,7 +5899,7 @@ def automated_motility_assay(settings):
             raise RuntimeError("No measurements were produced from merged .npy files.")
 
         print(
-            f"[summarise_tracks_from_merged] Combined raw measurements: "
+            "[summarise_tracks_from_merged] Combined raw measurements: "
             f"shape={all_df.shape}, frames={all_df['frame'].nunique()}"
         )
         n_tracks_raw = (
@@ -5908,11 +5908,11 @@ def automated_motility_assay(settings):
             .shape[0]
         )
         print(
-            f"[summarise_tracks_from_merged] Unique tracks before smoothing: "
+            "[summarise_tracks_from_merged] Unique tracks before smoothing: "
             f"{n_tracks_raw}"
         )
 
-        # Clean tracks (smoothing + glitch removal)
+        # Clean tracks
         all_df = _smooth_tracks_and_features(
             all_df,
             max_displacement=max_displacement,
@@ -5925,41 +5925,33 @@ def automated_motility_assay(settings):
             .shape[0]
         )
         print(
-            f"[summarise_tracks_from_merged] After smoothing: shape={all_df.shape}, "
-            f"frames={all_df['frame'].nunique()}, tracks={n_tracks_smoothed}"
+            "[summarise_tracks_from_merged] After smoothing: "
+            f"shape={all_df.shape}, frames={all_df['frame'].nunique()}, "
+            f"tracks={n_tracks_smoothed}"
         )
     else:
-        # We are reusing already-saved, already-smoothed measurements from DB.
-        if all_df is None or all_df.empty:
-            raise RuntimeError(
-                "reuse_existing_measurements=True, but no measurements could be "
-                "loaded from the DB."
-            )
-
-        n_frames_db = all_df["frame"].nunique() if "frame" in all_df.columns else "NA"
-        if {
-            "plateID",
-            "wellID",
-            "fieldID",
-            "cellID",
-        }.issubset(all_df.columns):
-            n_tracks_db = (
-                all_df[["plateID", "wellID", "fieldID", "cellID"]]
-                .drop_duplicates()
-                .shape[0]
-            )
-        else:
-            n_tracks_db = "NA"
-
+        # Already loaded smoothed measurements from DB
+        n_frames_db = all_df["frame"].nunique()
+        n_tracks_db = (
+            all_df[["plateID", "wellID", "fieldID", "cellID"]]
+            .drop_duplicates()
+            .shape[0]
+        )
         print(
             "[summarise_tracks_from_merged] Reusing smoothed measurements from DB: "
             f"shape={all_df.shape}, frames={n_frames_db}, tracks={n_tracks_db}"
         )
 
     # ------------------------------------------------------------------
-    # Infection status per track based on pathogen overlaps (mask-based)
+    # Infection status per track
+    #   - If 'infected' already exists (e.g. reused from DB), just clean it.
+    #   - Else derive from 'n_pathogens' if available.
     # ------------------------------------------------------------------
-    if "n_pathogens" in all_df.columns:
+    if "infected" in all_df.columns:
+        # Reuse existing infection labels (DB-reused or previous run),
+        # but ensure no NaNs and correct dtype.
+        all_df["infected"] = all_df["infected"].fillna(False).astype(bool)
+    elif "n_pathogens" in all_df.columns:
         tmp = all_df[["plateID", "wellID", "fieldID", "cellID", "n_pathogens"]].copy()
         tmp["n_pathogens"] = tmp["n_pathogens"].fillna(0)
         infected = (
@@ -5976,7 +5968,7 @@ def automated_motility_assay(settings):
             on=["plateID", "wellID", "fieldID", "cellID"],
             how="left",
         )
-        all_df["infected"] = all_df["infected"].fillna(False)
+        all_df["infected"] = all_df["infected"].fillna(False).astype(bool)
     else:
         all_df["infected"] = False
 
@@ -5991,7 +5983,7 @@ def automated_motility_assay(settings):
         .shape[0]
     )
     print(
-        f"[summarise_tracks_from_merged] Tracks (mask-based): "
+        "[summarise_tracks_from_merged] Tracks (mask-based): "
         f"infected={n_infected_tracks}, uninfected={n_uninfected_tracks}"
     )
 
@@ -6008,8 +6000,7 @@ def automated_motility_assay(settings):
     )
 
     # ------------------------------------------------------------------
-    # NEW: XGBoost ambiguous-band filtering (track-level)
-    #      Drop tracks with 0.25 < proba < 0.75 (defaults), if enabled.
+    # XGBoost ambiguous-band filtering (track-level) – unchanged
     # ------------------------------------------------------------------
     if (
         settings.get("infection_intensity_qc", False)
@@ -6026,14 +6017,22 @@ def automated_motility_assay(settings):
                 c
                 for c in all_df.columns
                 if "xgb" in c.lower()
-                and ("proba" in c.lower() or "prob" in c.lower() or "score" in c.lower())
+                and (
+                    "proba" in c.lower()
+                    or "prob" in c.lower()
+                    or "score" in c.lower()
+                )
             ]
             if not cand_cols:
                 cand_cols = [
                     c
                     for c in all_df.columns
                     if "infection" in c.lower()
-                    and ("proba" in c.lower() or "prob" in c.lower() or "score" in c.lower())
+                    and (
+                        "proba" in c.lower()
+                        or "prob" in c.lower()
+                        or "score" in c.lower()
+                    )
                 ]
             if cand_cols:
                 xgb_proba_col = cand_cols[0]
@@ -6064,15 +6063,16 @@ def automated_motility_assay(settings):
                 )
                 after = all_df.shape[0]
                 print(
-                    f"[summarise_tracks_from_merged] Dropped {before - after} rows "
-                    f"from {ambiguous.shape[0]} ambiguous XGBoost tracks "
-                    f"({low} < proba < {high})."
+                    "[summarise_tracks_from_merged] Dropped "
+                    f"{before - after} rows from {ambiguous.shape[0]} ambiguous "
+                    f"XGBoost tracks ({low} < proba < {high})."
                 )
         else:
             print(
                 "[summarise_tracks_from_merged] WARNING: "
                 "infection_xgb_drop_ambiguous is True, but no XGBoost "
-                "probability/score column was found. Skipping ambiguous-track filtering."
+                "probability/score column was found. Skipping ambiguous-track "
+                "filtering."
             )
 
     # ------------------------------------------------------------------
@@ -6108,21 +6108,14 @@ def automated_motility_assay(settings):
 
     # ------------------------------------------------------------------
     # Save to DB (use summary based on final labels)
+    #   (still called even if we reused measurements; matches old behavior)
     # ------------------------------------------------------------------
-    if loaded_from_db:
-        # We assume the per-cell measurements are already stored in the
-        # existing DB. To avoid re-writing the large table, we skip
-        # _save_measurements_and_well_summary here. If you ever want to
-        # refresh the DB completely, set 'reuse_existing_measurements'
-        # to False for that run.
-        measurements_dir = os.path.join(src, "measurements")
-    else:
-        measurements_dir, db_path = _save_measurements_and_well_summary(
-            all_df=all_df,
-            well_summary_df=well_summary_df,
-            src=src,
-            db_table_name=db_table_name,
-        )
+    measurements_dir, db_path = _save_measurements_and_well_summary(
+        all_df=all_df,
+        well_summary_df=well_summary_df,
+        src=src,
+        db_table_name=db_table_name,
+    )
 
     # Feature–velocity correlation analysis (final labels)
     _feature_velocity_correlations(all_df, track_df, measurements_dir)
