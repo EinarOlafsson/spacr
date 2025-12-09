@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 from collections import defaultdict
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+import matplotlib as mpl
 from IPython.display import display
 from IPython.display import Image as ipyimage
 import trackpy as tp
@@ -10,6 +12,11 @@ from btrack import datasets as btrack_datasets
 from skimage.measure import regionprops_table
 from scipy.signal import find_peaks
 from scipy.optimize import curve_fit, linear_sum_assignment
+from xgboost import XGBClassifier
+from sklearn.model_selection import train_test_split
+
+from multiprocessing import Pool, cpu_count
+import logging
 
 try:
     from numpy import trapz
@@ -1207,21 +1214,6 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
     print(f'done')
     return result_df, peak_details_df, fig
 
-import os
-import numpy as np
-import pandas as pd
-import sqlite3
-from multiprocessing import Pool, cpu_count
-from skimage.measure import regionprops_table
-import logging
-from matplotlib.figure import Figure
-
-from xgboost import XGBClassifier
-from sklearn.model_selection import train_test_split
-import matplotlib.pyplot as plt
-
-import matplotlib as mpl
-
 def _generate_mask_random_cmap(mask):
     """
     Generate a random colormap based on the unique labels in the given mask.
@@ -1295,7 +1287,7 @@ def _make_intensity_motility_panel(
       - "adjusted_*" label_tag:
             same as mask panel, plus method-specific QC subplots appended:
                 * histogram (if strategy == "histogram")
-                * PCA embedding (if strategy == "pca"/"umap")
+                * PCA/UMAP/t-SNE embedding (if strategy == "pca"/"umap"/"tsne")
                 * XGBoost:
                     - probability separation histogram
                     - feature-importance barplot
@@ -1348,12 +1340,14 @@ def _make_intensity_motility_panel(
     # Adjusted panel: method-specific QC axes
     qc_axes_count = 0
     if is_adjusted_panel and qc_graphs_enabled:
-        if qc_strategy == "histogram" and has_hist:
+        # Histogram: we *always* allocate one QC axis and can compute from df_well
+        if qc_strategy == "histogram":
             qc_axes_count = 1
-        elif qc_strategy in {"pca", "umap"} and has_pca:
+        # PCA/UMAP/t-SNE: need pca_data for embedding
+        elif qc_strategy in {"pca", "umap", "tsne"} and has_pca:
             qc_axes_count = 1
+        # XGBoost: probability separation + feature importance
         elif qc_strategy == "xgboost" and has_xgb:
-            # probability separation + feature importance
             qc_axes_count = 2
 
     # Motility axis limits: driven by motility_xlim / motility_ylim
@@ -1375,39 +1369,113 @@ def _make_intensity_motility_panel(
     # ------------------------------------------------------------------
     # Helpers for QC subplots (used in adjusted panel)
     # ------------------------------------------------------------------
-    def _plot_hist_qc(ax, hdata):
+    def _plot_hist_qc(ax, source):
+        """
+        Draw infected vs uninfected intensity histogram.
+
+        `source` can be:
+          - a dict payload (settings['infection_hist_data']) with keys:
+                'intensities_inf', 'intensities_uninf', 'bin_edges',
+                'thr_val' (optional), 'intensity_col' (optional)
+          - or a DataFrame (df_well), in which case the histogram
+                is computed on the fly using a reasonable intensity
+                column and `infection_intensity_n_bins`.
+        """
         try:
-            intens_inf = np.asarray(hdata["intensities_inf"], dtype=float)
-            intens_uninf = np.asarray(hdata["intensities_uninf"], dtype=float)
-            bin_edges = np.asarray(hdata["bin_edges"], dtype=float)
-            thr_val = float(hdata.get("thr_val", np.nan))
-            intensity_col = hdata.get("intensity_col", "intensity")
+            # Case 1: payload dict from settings
+            if isinstance(source, dict):
+                intens_inf = np.asarray(source["intensities_inf"], dtype=float)
+                intens_uninf = np.asarray(source["intensities_uninf"], dtype=float)
+                bin_edges = np.asarray(source["bin_edges"], dtype=float)
+                thr_val = float(source.get("thr_val", np.nan))
+                intensity_col = source.get("intensity_col", "intensity")
+            else:
+                # Case 2: compute from per-well DataFrame
+                df_vals = source
+
+                # Decide which intensity column to use
+                intensity_col = settings.get("infection_hist_intensity_col", None)
+                if not intensity_col or intensity_col not in df_vals.columns:
+                    cand_cols = []
+                    if pathogen_chan is not None:
+                        cand_cols.extend(
+                            [
+                                f"cell_mean_intensity_ch{pathogen_chan}",
+                                f"cell_p75_intensity_ch{pathogen_chan}",
+                                f"pathogen_mean_intensity_ch{pathogen_chan}",
+                            ]
+                        )
+                    # Fallback: any cell_mean_intensity_ch*
+                    cand_cols.extend(
+                        [c for c in df_vals.columns if c.startswith("cell_mean_intensity_ch")]
+                    )
+                    for c in cand_cols:
+                        if c in df_vals.columns:
+                            intensity_col = c
+                            break
+
+                if not intensity_col or intensity_col not in df_vals.columns:
+                    ax.set_visible(False)
+                    return
+
+                # Collapse to one value per cell-track
+                cell_level = (
+                    df_vals[key_cols + [intensity_col, infection_col]]
+                    .groupby(key_cols, dropna=False)
+                    .agg({intensity_col: "mean", infection_col: "max"})
+                    .reset_index()
+                )
+                cell_level = cell_level.replace([np.inf, -np.inf], np.nan)
+                cell_level = cell_level.dropna(subset=[intensity_col])
+                if cell_level.empty:
+                    ax.set_visible(False)
+                    return
+
+                mask_inf = cell_level[infection_col].astype(bool)
+                intens_inf = cell_level.loc[mask_inf, intensity_col].to_numpy()
+                intens_uninf = cell_level.loc[~mask_inf, intensity_col].to_numpy()
+
+                if intens_inf.size == 0 and intens_uninf.size == 0:
+                    ax.set_visible(False)
+                    return
+
+                all_vals = np.concatenate(
+                    [arr for arr in (intens_inf, intens_uninf) if arr.size]
+                )
+                n_bins = int(settings.get("infection_intensity_n_bins", 64) or 64)
+                bin_edges = np.histogram_bin_edges(all_vals, bins=n_bins)
+
+                thr_val = settings.get(
+                    "infection_hist_thr_val",
+                    settings.get("infection_intensity_threshold", np.nan),
+                )
+                thr_val = float(thr_val) if thr_val is not None else np.nan
+
+            # Now plot
+            ax.hist(
+                intens_uninf,
+                bins=bin_edges,
+                alpha=0.5,
+                color="green",
+                label="Uninfected",
+            )
+            ax.hist(
+                intens_inf,
+                bins=bin_edges,
+                alpha=0.5,
+                color="red",
+                label="Infected",
+            )
+            if np.isfinite(thr_val):
+                ax.axvline(thr_val, color="black", linestyle="--", linewidth=1)
+
+            ax.set_xlabel(intensity_col)
+            ax.set_ylabel("Count")
+            ax.set_title("Pathogen-channel intensity\n(adjusted labels)")
+            ax.legend(fontsize=7)
         except Exception as e:
             print(f"[_make_intensity_motility_panel] Histogram payload invalid: {e}")
             ax.set_visible(False)
-            return
-
-        ax.hist(
-            intens_uninf,
-            bins=bin_edges,
-            alpha=0.5,
-            color="green",
-            label="Uninfected",
-        )
-        ax.hist(
-            intens_inf,
-            bins=bin_edges,
-            alpha=0.5,
-            color="red",
-            label="Infected",
-        )
-        if np.isfinite(thr_val):
-            ax.axvline(thr_val, color="black", linestyle="--", linewidth=1)
-
-        ax.set_xlabel(intensity_col)
-        ax.set_ylabel("Count")
-        ax.set_title("Pathogen-channel intensity\n(adjusted labels)")
-        ax.legend(fontsize=7)
 
     def _plot_pca_qc(ax, pdata):
         try:
@@ -1453,26 +1521,53 @@ def _make_intensity_motility_panel(
         ax.set_title("XGBoost feature importance")
 
     def _plot_xgb_prob_qc(ax, df_prob):
-        # per-cell probability distribution by adjusted infection label
-        if "infection_prob" not in df_prob.columns:
+        """
+        Per-cell probability distribution by adjusted infection label.
+
+        Uses settings['infection_xgb_proba_column'] if available,
+        otherwise falls back through a few common column names.
+        """
+        # Resolve probability column
+        prob_col_candidates = []
+
+        cfg_col = settings.get("infection_xgb_proba_column", None)
+        if isinstance(cfg_col, str) and cfg_col:
+            prob_col_candidates.append(cfg_col)
+
+        prob_col_candidates.extend(
+            [
+                "infection_prob",
+                "infection_xgb_proba",
+                "xgb_prob",
+            ]
+        )
+
+        prob_col = None
+        for c in prob_col_candidates:
+            if c in df_prob.columns:
+                prob_col = c
+                break
+
+        if prob_col is None:
             ax.set_visible(False)
             return
 
+        # per-cell probabilities
         cell_probs = (
-            df_prob[key_cols + ["infection_prob", infection_col]]
+            df_prob[key_cols + [prob_col, infection_col]]
             .groupby(key_cols, dropna=False)
-            .agg({"infection_prob": "mean", infection_col: "max"})
+            .agg({prob_col: "mean", infection_col: "max"})
             .reset_index()
         )
         cell_probs = cell_probs.replace([np.inf, -np.inf], np.nan)
-        cell_probs = cell_probs.dropna(subset=["infection_prob"])
+        cell_probs = cell_probs.dropna(subset=[prob_col])
         if cell_probs.empty:
             ax.set_visible(False)
             return
 
         mask_inf = cell_probs[infection_col].astype(bool)
-        probs_inf = cell_probs.loc[mask_inf, "infection_prob"].to_numpy()
-        probs_uninf = cell_probs.loc[~mask_inf, "infection_prob"].to_numpy()
+        probs_inf = cell_probs.loc[mask_inf, prob_col].to_numpy()
+        probs_uninf = cell_probs.loc[~mask_inf, prob_col].to_numpy()
 
         bins = np.linspace(0.0, 1.0, 21)
         if probs_uninf.size:
@@ -1846,12 +1941,14 @@ def _make_intensity_motility_panel(
 
         # ----- adjusted panel QC subplots: method-specific -----
         if is_adjusted_panel and qc_graphs_enabled:
-            if qc_strategy == "histogram" and has_hist and axis_idx < len(axes):
+            if qc_strategy == "histogram" and axis_idx < len(axes):
                 ax_hist = axes[axis_idx]
                 axis_idx += 1
-                _plot_hist_qc(ax_hist, hist_data)
+                # Prefer global payload if present; otherwise compute from per-well df
+                src = hist_data if hist_data is not None else df_well
+                _plot_hist_qc(ax_hist, src)
 
-            elif qc_strategy in {"pca", "umap"} and has_pca and axis_idx < len(axes):
+            elif qc_strategy in {"pca", "umap", "tsne"} and has_pca and axis_idx < len(axes):
                 ax_pca = axes[axis_idx]
                 axis_idx += 1
                 _plot_pca_qc(ax_pca, pca_data)
@@ -3248,7 +3345,7 @@ def _apply_infection_intensity_qc(
             motility_dir=motility_dir,
         )
 
-    if strategy == "pca":
+    if strategy in {"pca", "umap", "tsne"}:
         return _infection_qc_pca_clustering(
             all_df=all_df,
             settings=settings,
@@ -3256,8 +3353,7 @@ def _apply_infection_intensity_qc(
             pathogen_chan=pathogen_chan,
             motility_dir=motility_dir,
         )
-
-    if strategy == "xgboost":
+    if strategy in {"xgboost", "xgb"}:
         return _infection_qc_xgboost(
             all_df=all_df,
             settings=settings,
@@ -4118,6 +4214,315 @@ def _select_infection_feature_columns(all_df, pathogen_chan):
 
     return filtered
 
+def _compute_intensity_percentiles_per_channel(
+    mask_stack,
+    intensity_stack,
+    channel_index,
+    object_prefix,
+    percentiles=(1, 5, 10, 25, 75, 95, 99),
+    label_as_track_id=False,
+):
+    """
+    Compute per-frame, per-object intensity percentiles for a given channel.
+
+    Parameters
+    ----------
+    mask_stack : ndarray
+        Label image stack of shape (T, Y, X).
+    intensity_stack : ndarray
+        Intensity stack of shape (T, Y, X, C).
+    channel_index : int
+        Channel index in intensity_stack.
+    object_prefix : str
+        Prefix for column names ("cell", "nucleus", "pathogen", "cytoplasm").
+    percentiles : tuple of int
+        Percentiles to compute (0–100).
+    label_as_track_id : bool
+        If True, rename 'label' -> 'track_id'; otherwise
+        'label' -> f"{object_prefix}_label".
+
+    Returns
+    -------
+    DataFrame
+        Columns: ['frame', label_col, f'{object_prefix}_pXX_intensity_ch{channel_index}', ...]
+    """
+    import numpy as np
+    import pandas as pd
+
+    if intensity_stack is None:
+        return pd.DataFrame(
+            columns=["frame", "track_id" if label_as_track_id else f"{object_prefix}_label"]
+        )
+
+    if channel_index is None or channel_index < 0 or channel_index >= intensity_stack.shape[-1]:
+        return pd.DataFrame(
+            columns=["frame", "track_id" if label_as_track_id else f"{object_prefix}_label"]
+        )
+
+    T = mask_stack.shape[0]
+    dfs = []
+    label_col_name = "track_id" if label_as_track_id else f"{object_prefix}_label"
+
+    perc = np.array(percentiles, dtype=float)
+
+    for frame in range(T):
+        labels = mask_stack[frame]
+        if not np.any(labels):
+            continue
+
+        intensity_image = intensity_stack[frame, :, :, channel_index]
+        # unique labels > 0
+        obj_labels = np.unique(labels)
+        obj_labels = obj_labels[obj_labels > 0]
+        if obj_labels.size == 0:
+            continue
+
+        records = []
+        for lab in obj_labels:
+            mask = labels == lab
+            vals = intensity_image[mask]
+            vals = vals[np.isfinite(vals)]
+            if vals.size == 0:
+                continue
+
+            pvals = np.percentile(vals, perc)
+            rec = {"frame": frame, label_col_name: int(lab)}
+            for p, v in zip(perc, pvals):
+                col_name = f"{object_prefix}_p{int(p):02d}_intensity_ch{channel_index}"
+                rec[col_name] = float(v)
+            records.append(rec)
+
+        if records:
+            dfs.append(pd.DataFrame.from_records(records))
+
+    if not dfs:
+        return pd.DataFrame(columns=["frame", label_col_name])
+
+    out_df = pd.concat(dfs, ignore_index=True)
+    return out_df
+
+def _make_adjusted_qc_panel(
+    all_df,
+    infection_col,
+    motility_dir,
+    settings,
+    label_tag,
+):
+    """
+    Build a QC results panel for adjusted labels using 3 subplots:
+
+        - top-left: PCA (adjusted_infected)
+        - top-right: XGBoost feature importance
+        - bottom: pathogen-channel intensity histogram
+
+    Uses payloads stored in `settings` by the QC functions:
+        settings["infection_hist_data"]
+        settings["infection_pca_data"]
+        settings["infection_xgb_importance"]
+    """
+    import os
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    os.makedirs(motility_dir, exist_ok=True)
+    meta_tag = _infer_plate_well_meta_tag(all_df)
+
+    # Create figure with desired layout
+    fig, ax_pca, ax_xgb, ax_hist = create_results_figure()
+
+    # ------------------------------------------------------------------
+    # Histogram
+    # ------------------------------------------------------------------
+    hist_data = settings.get("infection_hist_data") or {}
+    vals_inf = np.asarray(hist_data.get("intensities_inf", []), dtype=float)
+    vals_uninf = np.asarray(hist_data.get("intensities_uninf", []), dtype=float)
+    bin_edges = np.asarray(hist_data.get("bin_edges", []), dtype=float)
+    thr_val = hist_data.get("thr_val", None)
+    pathogen_chan = hist_data.get("pathogen_chan", None)
+    do_log = bool(hist_data.get("log_transform", False))
+
+    if vals_inf.size + vals_uninf.size > 0 and bin_edges.size > 0:
+        ax_hist.hist(
+            vals_uninf,
+            bins=bin_edges,
+            alpha=0.5,
+            color="green",
+            label="Uninfected",
+        )
+        ax_hist.hist(
+            vals_inf,
+            bins=bin_edges,
+            alpha=0.5,
+            color="red",
+            label="Infected",
+        )
+        if thr_val is not None:
+            ax_hist.axvline(
+                thr_val,
+                linestyle="--",
+                linewidth=2,
+                color="black",
+                label=f"thr={thr_val:.2f}",
+            )
+        if pathogen_chan is not None:
+            if do_log:
+                ax_hist.set_xlabel(f"log10 intensity (channel {pathogen_chan})")
+            else:
+                ax_hist.set_xlabel(f"Intensity (channel {pathogen_chan})")
+        else:
+            ax_hist.set_xlabel("Intensity")
+        ax_hist.set_ylabel("Cell count")
+        ax_hist.set_title("Pathogen-channel intensity histogram")
+        ax_hist.legend(loc="best")
+    else:
+        ax_hist.text(
+            0.5,
+            0.5,
+            "No histogram data",
+            ha="center",
+            va="center",
+            transform=ax_hist.transAxes,
+        )
+        ax_hist.axis("off")
+
+    # ------------------------------------------------------------------
+    # PCA
+    # ------------------------------------------------------------------
+    pca_data = settings.get("infection_pca_data") or {}
+    coords = pca_data.get("coords", None)
+    labels = pca_data.get("labels", None)
+    method_label = pca_data.get("method_label", "PCA")
+
+    if coords is not None and labels is not None:
+        coords = np.asarray(coords, dtype=float)
+        labels = np.asarray(labels, dtype=bool)
+        if coords.ndim == 2 and coords.shape[0] == labels.shape[0] and coords.shape[1] >= 2:
+            x = coords[:, 0]
+            y = coords[:, 1]
+            ax_pca.scatter(
+                x[~labels],
+                y[~labels],
+                s=8,
+                c="green",
+                alpha=0.5,
+                label="Uninfected",
+            )
+            ax_pca.scatter(
+                x[labels],
+                y[labels],
+                s=8,
+                c="red",
+                alpha=0.5,
+                label="Infected",
+            )
+            ax_pca.set_xlabel("component 1")
+            ax_pca.set_ylabel("component 2")
+            ax_pca.set_title(f"{method_label} embedding")
+            ax_pca.legend(loc="best")
+        else:
+            ax_pca.text(
+                0.5,
+                0.5,
+                "No PCA data",
+                ha="center",
+                va="center",
+                transform=ax_pca.transAxes,
+            )
+            ax_pca.axis("off")
+    else:
+        ax_pca.text(
+            0.5,
+            0.5,
+            "No PCA data",
+            ha="center",
+            va="center",
+            transform=ax_pca.transAxes,
+        )
+        ax_pca.axis("off")
+
+    # ------------------------------------------------------------------
+    # XGBoost feature importance
+    # ------------------------------------------------------------------
+    xgb_data = settings.get("infection_xgb_importance") or {}
+    feat_names = xgb_data.get("feature_names") or []
+    feat_vals = xgb_data.get("feature_importances") or []
+
+    if feat_names and feat_vals and len(feat_names) == len(feat_vals):
+        feat_names = list(feat_names)
+        feat_vals = np.asarray(feat_vals, dtype=float)
+        y_pos = np.arange(len(feat_names))
+        ax_xgb.barh(y_pos, feat_vals)
+        ax_xgb.set_yticks(y_pos)
+        ax_xgb.set_yticklabels(feat_names)
+        ax_xgb.invert_yaxis()
+        ax_xgb.set_xlabel("Importance (gain)")
+        ax_xgb.set_title("XGBoost feature importance")
+    else:
+        ax_xgb.text(
+            0.5,
+            0.5,
+            "No XGBoost importance data",
+            ha="center",
+            va="center",
+            transform=ax_xgb.transAxes,
+        )
+        ax_xgb.axis("off")
+
+    fig.suptitle(
+        f"Infection QC panel – {label_tag} labels\n{meta_tag}",
+        fontsize=10,
+    )
+    fig.tight_layout(rect=[0, 0, 1, 0.94])
+
+    out_name = f"infection_qc_panel_{label_tag}_{meta_tag}.png"
+    out_path = os.path.join(motility_dir, out_name)
+    fig.savefig(out_path, dpi=300)
+    plt.close(fig)
+
+    print(
+        f"[summarise_tracks_from_merged] Saved infection QC results panel "
+        f"({label_tag}) to {out_path}"
+    )
+
+
+def _load_measurements_from_db(db_path, db_table_name):
+    """
+    Load per-cell measurements from an existing SQLite database.
+
+    Parameters
+    ----------
+    db_path : str
+        Path to the SQLite database file (measurements.db).
+    db_table_name : str
+        Name of the table that stores per-cell measurements.
+
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame with the measurements, or an empty DataFrame if the
+        database/table is missing or unreadable.
+    """
+    import os
+    import sqlite3
+    import pandas as pd
+
+    if not os.path.isfile(db_path):
+        return pd.DataFrame()
+
+    conn = sqlite3.connect(db_path)
+    try:
+        query = f"SELECT * FROM {db_table_name}"
+        df = pd.read_sql_query(query, conn)
+    except Exception as e:
+        print(
+            "[summarise_tracks_from_merged] Could not load existing measurements "
+            f"from {db_path} (table='{db_table_name}'): {e}"
+        )
+        df = pd.DataFrame()
+    finally:
+        conn.close()
+
+    return df
 
 def _infection_qc_histogram(
     all_df,
@@ -4377,242 +4782,6 @@ def _infection_qc_histogram(
     # Let the panel know what QC plot to embed (if present)
     settings["infection_intensity_qc_panel_type"] = "histogram"
     settings["infection_intensity_qc_panel_path"] = hist_path
-
-    return all_df, infection_col
-
-
-def _infection_qc_pca_clustering(
-    all_df,
-    settings,
-    infection_col,
-    pathogen_chan,
-    motility_dir,
-):
-    """
-    PCA-based infection intensity QC.
-
-    - Builds a feature matrix from numeric cell_* measurements.
-    - Runs PCA (2D) and KMeans (2 clusters).
-    - Determines which cluster is 'infected-like' based on the original
-      infection_col labels.
-    - Depending on infection_intensity_mode:
-        * 'relabel' : creates/updates 'adjusted_infected' and returns it
-                      as the new infection_col.
-        * 'remove'  : removes cells from the cluster that is inconsistent
-                      with the original labels (keeps infection_col name).
-
-    Side effects:
-        - settings['infection_pca_data'] = {'coords': coords, 'labels': labels}
-          used later by _make_intensity_motility_panel for QC plots.
-        - settings['infection_intensity_qc_panel_type'] = 'pca'
-        - settings['infection_intensity_qc_panel_path'] = None
-    """
-    import os
-    import numpy as np
-    import pandas as pd
-    from sklearn.decomposition import PCA
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.cluster import KMeans
-
-    if all_df.empty:
-        print("[infection_intensity_qc:PCA] all_df is empty; skipping PCA QC.")
-        return all_df, infection_col
-
-    if infection_col not in all_df.columns:
-        print(
-            f"[infection_intensity_qc:PCA] infection_col {infection_col!r} missing; "
-            "skipping PCA QC."
-        )
-        return all_df, infection_col
-
-    mode = str(settings.get("infection_intensity_mode", "relabel")).lower()
-    if mode not in {"relabel", "remove"}:
-        print(
-            f"[infection_intensity_qc:PCA] Unsupported mode={mode!r}; "
-            "expected 'relabel' or 'remove'. Skipping PCA QC."
-        )
-        return all_df, infection_col
-
-    # ------------------------------------------------------------------
-    # IMPORTANT: drop any existing adjusted_infected* from DB reuse
-    # ------------------------------------------------------------------
-    cols_to_drop = [
-        c
-        for c in all_df.columns
-        if c == "adjusted_infected" or c.startswith("adjusted_infected_")
-    ]
-    if cols_to_drop:
-        all_df = all_df.drop(columns=cols_to_drop)
-
-    # ------------------------------------------------------------------
-    # Build feature matrix: numeric cell_* columns
-    # ------------------------------------------------------------------
-    numeric_cols = [
-        c
-        for c in all_df.columns
-        if c.startswith("cell_")
-        and c not in {"cellID"}
-        and pd.api.types.is_numeric_dtype(all_df[c])
-    ]
-    if not numeric_cols:
-        print(
-            "[infection_intensity_qc:PCA] No numeric cell_* features found; "
-            "skipping PCA QC."
-        )
-        return all_df, infection_col
-
-    # We work at frame level; drop rows where we cannot build features
-    feat_df = all_df[numeric_cols + [infection_col]].copy()
-    feat_df.replace([np.inf, -np.inf], np.nan, inplace=True)
-    # Require at least some finite data per row
-    row_mask = np.isfinite(feat_df[numeric_cols]).sum(axis=1) > 0
-    feat_df = feat_df.loc[row_mask].reset_index(drop=False)  # keep original index
-    if feat_df.empty:
-        print(
-            "[infection_intensity_qc:PCA] No rows with finite features; "
-            "skipping PCA QC."
-        )
-        return all_df, infection_col
-
-    # Fill NaNs with per-column medians
-    medians = feat_df[numeric_cols].median(axis=0)
-    feat_df[numeric_cols] = feat_df[numeric_cols].fillna(medians)
-
-    # Optional subsampling for speed
-    max_cells = int(settings.get("infection_pca_max_cells", 50000))
-    if feat_df.shape[0] > max_cells:
-        feat_df = feat_df.sample(n=max_cells, random_state=0).reset_index(drop=True)
-
-    X = feat_df[numeric_cols].to_numpy(dtype=float)
-    y_inf = feat_df[infection_col].astype(bool).to_numpy()
-    orig_idx = feat_df["index"].to_numpy()  # original row indices in all_df
-
-    if X.shape[0] < 10:
-        print(
-            "[infection_intensity_qc:PCA] Fewer than 10 cells after filtering; "
-            "skipping PCA QC."
-        )
-        return all_df, infection_col
-
-    # ------------------------------------------------------------------
-    # PCA (2D) + KMeans(2 clusters)
-    # ------------------------------------------------------------------
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-
-    pca = PCA(n_components=2, random_state=0)
-    coords = pca.fit_transform(X_scaled)
-
-    kmeans = KMeans(n_clusters=2, random_state=0, n_init="auto")
-    cluster_labels = kmeans.fit_predict(coords)
-
-    # Determine which cluster is 'infected-like' based on original labels
-    infected_frac = []
-    for k in (0, 1):
-        mask_k = cluster_labels == k
-        if mask_k.sum() == 0:
-            infected_frac.append(0.0)
-        else:
-            infected_frac.append(float(y_inf[mask_k].mean()))
-
-    infected_cluster = int(np.argmax(infected_frac))
-    # New cluster-based infection call for sampled cells
-    cluster_infected = (cluster_labels == infected_cluster)
-
-    # ------------------------------------------------------------------
-    # Apply mode
-    # ------------------------------------------------------------------
-    n_changed = 0
-
-    if mode == "relabel":
-        # Always create a fresh adjusted_infected from infection_col
-        all_df["adjusted_infected"] = all_df[infection_col].astype(bool)
-
-        # Overwrite labels only for sampled cells (orig_idx into all_df)
-        all_df.loc[orig_idx, "adjusted_infected"] = cluster_infected
-
-        n_changed = int(
-            (
-                all_df.loc[orig_idx, "adjusted_infected"].to_numpy()
-                != all_df.loc[orig_idx, infection_col].astype(bool).to_numpy()
-            ).sum()
-        )
-
-        print(
-            "[infection_intensity_qc:PCA] Adjusted infection labels for "
-            f"{n_changed} cells (mode=relabel)."
-        )
-
-        # Store PCA payload for QC plotting (using adjusted labels for sampled cells)
-        settings["infection_pca_data"] = {
-            "coords": coords,
-            "labels": cluster_infected.astype(bool),
-        }
-
-        infection_col = "adjusted_infected"
-
-    elif mode == "remove":
-        # In remove mode, we drop cells belonging to the *other* cluster
-        other_cluster = 1 - infected_cluster
-        to_remove_mask = cluster_labels == other_cluster
-        remove_idx = set(orig_idx[to_remove_mask])
-
-        before = all_df.shape[0]
-        keep_mask = ~all_df.index.isin(remove_idx)
-        all_df = all_df.loc[keep_mask].reset_index(drop=True)
-        after = all_df.shape[0]
-        n_removed = before - after
-
-        print(
-            "[infection_intensity_qc:PCA] Removed "
-            f"{n_removed} frame-level rows (mode=remove)."
-        )
-
-        # Store PCA payload based on original labels (for info)
-        settings["infection_pca_data"] = {
-            "coords": coords,
-            "labels": y_inf,
-        }
-
-    # Mark QC type for the panel; we do NOT embed a PNG in the mask panel
-    settings["infection_intensity_qc_panel_type"] = "pca"
-    settings["infection_intensity_qc_panel_path"] = None
-
-    # ------------------------------------------------------------------
-    # Optional: save a PCA scatter PNG (debug only; not used by panels)
-    # ------------------------------------------------------------------
-    try:
-        if motility_dir is not None:
-            import matplotlib.pyplot as plt
-
-            os.makedirs(motility_dir, exist_ok=True)
-            fig, ax = plt.subplots(figsize=(4, 4))
-            ax.scatter(
-                coords[~cluster_infected, 0],
-                coords[~cluster_infected, 1],
-                s=3,
-                alpha=0.4,
-                color="green",
-                label="Uninfected-like",
-            )
-            ax.scatter(
-                coords[cluster_infected, 0],
-                coords[cluster_infected, 1],
-                s=3,
-                alpha=0.4,
-                color="red",
-                label="Infected-like",
-            )
-            ax.set_xlabel("PC1")
-            ax.set_ylabel("PC2")
-            ax.legend(fontsize=7)
-            ax.set_title("PCA infection QC")
-
-            out_png = os.path.join(motility_dir, "infection_pca_qc.png")
-            fig.savefig(out_png, dpi=150, bbox_inches="tight")
-            plt.close(fig)
-    except Exception as e:
-        print(f"[infection_intensity_qc:PCA] Failed to save PCA QC plot: {e}")
 
     return all_df, infection_col
 
@@ -5385,314 +5554,6 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
     return all_df, infection_col
 
 
-def _compute_intensity_percentiles_per_channel(
-    mask_stack,
-    intensity_stack,
-    channel_index,
-    object_prefix,
-    percentiles=(1, 5, 10, 25, 75, 95, 99),
-    label_as_track_id=False,
-):
-    """
-    Compute per-frame, per-object intensity percentiles for a given channel.
-
-    Parameters
-    ----------
-    mask_stack : ndarray
-        Label image stack of shape (T, Y, X).
-    intensity_stack : ndarray
-        Intensity stack of shape (T, Y, X, C).
-    channel_index : int
-        Channel index in intensity_stack.
-    object_prefix : str
-        Prefix for column names ("cell", "nucleus", "pathogen", "cytoplasm").
-    percentiles : tuple of int
-        Percentiles to compute (0–100).
-    label_as_track_id : bool
-        If True, rename 'label' -> 'track_id'; otherwise
-        'label' -> f"{object_prefix}_label".
-
-    Returns
-    -------
-    DataFrame
-        Columns: ['frame', label_col, f'{object_prefix}_pXX_intensity_ch{channel_index}', ...]
-    """
-    import numpy as np
-    import pandas as pd
-
-    if intensity_stack is None:
-        return pd.DataFrame(
-            columns=["frame", "track_id" if label_as_track_id else f"{object_prefix}_label"]
-        )
-
-    if channel_index is None or channel_index < 0 or channel_index >= intensity_stack.shape[-1]:
-        return pd.DataFrame(
-            columns=["frame", "track_id" if label_as_track_id else f"{object_prefix}_label"]
-        )
-
-    T = mask_stack.shape[0]
-    dfs = []
-    label_col_name = "track_id" if label_as_track_id else f"{object_prefix}_label"
-
-    perc = np.array(percentiles, dtype=float)
-
-    for frame in range(T):
-        labels = mask_stack[frame]
-        if not np.any(labels):
-            continue
-
-        intensity_image = intensity_stack[frame, :, :, channel_index]
-        # unique labels > 0
-        obj_labels = np.unique(labels)
-        obj_labels = obj_labels[obj_labels > 0]
-        if obj_labels.size == 0:
-            continue
-
-        records = []
-        for lab in obj_labels:
-            mask = labels == lab
-            vals = intensity_image[mask]
-            vals = vals[np.isfinite(vals)]
-            if vals.size == 0:
-                continue
-
-            pvals = np.percentile(vals, perc)
-            rec = {"frame": frame, label_col_name: int(lab)}
-            for p, v in zip(perc, pvals):
-                col_name = f"{object_prefix}_p{int(p):02d}_intensity_ch{channel_index}"
-                rec[col_name] = float(v)
-            records.append(rec)
-
-        if records:
-            dfs.append(pd.DataFrame.from_records(records))
-
-    if not dfs:
-        return pd.DataFrame(columns=["frame", label_col_name])
-
-    out_df = pd.concat(dfs, ignore_index=True)
-    return out_df
-
-def _make_adjusted_qc_panel(
-    all_df,
-    infection_col,
-    motility_dir,
-    settings,
-    label_tag,
-):
-    """
-    Build a QC results panel for adjusted labels using 3 subplots:
-
-        - top-left: PCA (adjusted_infected)
-        - top-right: XGBoost feature importance
-        - bottom: pathogen-channel intensity histogram
-
-    Uses payloads stored in `settings` by the QC functions:
-        settings["infection_hist_data"]
-        settings["infection_pca_data"]
-        settings["infection_xgb_importance"]
-    """
-    import os
-    import numpy as np
-    import matplotlib.pyplot as plt
-
-    os.makedirs(motility_dir, exist_ok=True)
-    meta_tag = _infer_plate_well_meta_tag(all_df)
-
-    # Create figure with desired layout
-    fig, ax_pca, ax_xgb, ax_hist = create_results_figure()
-
-    # ------------------------------------------------------------------
-    # Histogram
-    # ------------------------------------------------------------------
-    hist_data = settings.get("infection_hist_data") or {}
-    vals_inf = np.asarray(hist_data.get("intensities_inf", []), dtype=float)
-    vals_uninf = np.asarray(hist_data.get("intensities_uninf", []), dtype=float)
-    bin_edges = np.asarray(hist_data.get("bin_edges", []), dtype=float)
-    thr_val = hist_data.get("thr_val", None)
-    pathogen_chan = hist_data.get("pathogen_chan", None)
-    do_log = bool(hist_data.get("log_transform", False))
-
-    if vals_inf.size + vals_uninf.size > 0 and bin_edges.size > 0:
-        ax_hist.hist(
-            vals_uninf,
-            bins=bin_edges,
-            alpha=0.5,
-            color="green",
-            label="Uninfected",
-        )
-        ax_hist.hist(
-            vals_inf,
-            bins=bin_edges,
-            alpha=0.5,
-            color="red",
-            label="Infected",
-        )
-        if thr_val is not None:
-            ax_hist.axvline(
-                thr_val,
-                linestyle="--",
-                linewidth=2,
-                color="black",
-                label=f"thr={thr_val:.2f}",
-            )
-        if pathogen_chan is not None:
-            if do_log:
-                ax_hist.set_xlabel(f"log10 intensity (channel {pathogen_chan})")
-            else:
-                ax_hist.set_xlabel(f"Intensity (channel {pathogen_chan})")
-        else:
-            ax_hist.set_xlabel("Intensity")
-        ax_hist.set_ylabel("Cell count")
-        ax_hist.set_title("Pathogen-channel intensity histogram")
-        ax_hist.legend(loc="best")
-    else:
-        ax_hist.text(
-            0.5,
-            0.5,
-            "No histogram data",
-            ha="center",
-            va="center",
-            transform=ax_hist.transAxes,
-        )
-        ax_hist.axis("off")
-
-    # ------------------------------------------------------------------
-    # PCA
-    # ------------------------------------------------------------------
-    pca_data = settings.get("infection_pca_data") or {}
-    coords = pca_data.get("coords", None)
-    labels = pca_data.get("labels", None)
-    method_label = pca_data.get("method_label", "PCA")
-
-    if coords is not None and labels is not None:
-        coords = np.asarray(coords, dtype=float)
-        labels = np.asarray(labels, dtype=bool)
-        if coords.ndim == 2 and coords.shape[0] == labels.shape[0] and coords.shape[1] >= 2:
-            x = coords[:, 0]
-            y = coords[:, 1]
-            ax_pca.scatter(
-                x[~labels],
-                y[~labels],
-                s=8,
-                c="green",
-                alpha=0.5,
-                label="Uninfected",
-            )
-            ax_pca.scatter(
-                x[labels],
-                y[labels],
-                s=8,
-                c="red",
-                alpha=0.5,
-                label="Infected",
-            )
-            ax_pca.set_xlabel("component 1")
-            ax_pca.set_ylabel("component 2")
-            ax_pca.set_title(f"{method_label} embedding")
-            ax_pca.legend(loc="best")
-        else:
-            ax_pca.text(
-                0.5,
-                0.5,
-                "No PCA data",
-                ha="center",
-                va="center",
-                transform=ax_pca.transAxes,
-            )
-            ax_pca.axis("off")
-    else:
-        ax_pca.text(
-            0.5,
-            0.5,
-            "No PCA data",
-            ha="center",
-            va="center",
-            transform=ax_pca.transAxes,
-        )
-        ax_pca.axis("off")
-
-    # ------------------------------------------------------------------
-    # XGBoost feature importance
-    # ------------------------------------------------------------------
-    xgb_data = settings.get("infection_xgb_importance") or {}
-    feat_names = xgb_data.get("feature_names") or []
-    feat_vals = xgb_data.get("feature_importances") or []
-
-    if feat_names and feat_vals and len(feat_names) == len(feat_vals):
-        feat_names = list(feat_names)
-        feat_vals = np.asarray(feat_vals, dtype=float)
-        y_pos = np.arange(len(feat_names))
-        ax_xgb.barh(y_pos, feat_vals)
-        ax_xgb.set_yticks(y_pos)
-        ax_xgb.set_yticklabels(feat_names)
-        ax_xgb.invert_yaxis()
-        ax_xgb.set_xlabel("Importance (gain)")
-        ax_xgb.set_title("XGBoost feature importance")
-    else:
-        ax_xgb.text(
-            0.5,
-            0.5,
-            "No XGBoost importance data",
-            ha="center",
-            va="center",
-            transform=ax_xgb.transAxes,
-        )
-        ax_xgb.axis("off")
-
-    fig.suptitle(
-        f"Infection QC panel – {label_tag} labels\n{meta_tag}",
-        fontsize=10,
-    )
-    fig.tight_layout(rect=[0, 0, 1, 0.94])
-
-    out_name = f"infection_qc_panel_{label_tag}_{meta_tag}.png"
-    out_path = os.path.join(motility_dir, out_name)
-    fig.savefig(out_path, dpi=300)
-    plt.close(fig)
-
-    print(
-        f"[summarise_tracks_from_merged] Saved infection QC results panel "
-        f"({label_tag}) to {out_path}"
-    )
-
-def _load_measurements_from_db(db_path, db_table_name):
-    """
-    Load per-cell measurements from an existing SQLite database.
-
-    Parameters
-    ----------
-    db_path : str
-        Path to the SQLite database file (measurements.db).
-    db_table_name : str
-        Name of the table that stores per-cell measurements.
-
-    Returns
-    -------
-    pandas.DataFrame
-        DataFrame with the measurements, or an empty DataFrame if the
-        database/table is missing or unreadable.
-    """
-    import os
-    import sqlite3
-    import pandas as pd
-
-    if not os.path.isfile(db_path):
-        return pd.DataFrame()
-
-    conn = sqlite3.connect(db_path)
-    try:
-        query = f"SELECT * FROM {db_table_name}"
-        df = pd.read_sql_query(query, conn)
-    except Exception as e:
-        print(
-            "[summarise_tracks_from_merged] Could not load existing measurements "
-            f"from {db_path} (table='{db_table_name}'): {e}"
-        )
-        df = pd.DataFrame()
-    finally:
-        conn.close()
-
-    return df
 
 def automated_motility_assay(settings):
     """
@@ -5706,6 +5567,7 @@ def automated_motility_assay(settings):
     6. Clean impossible jumps + measurement glitches
     7. Save per-cell measurements to SQLite DB
        (measurements/measurements.db, table=db_table_name)
+       **This table is always the original, pre-QC measurements.**
     8. Compute per-track velocities (after smoothing)
     9. Save a well-level motility summary table in the same DB
     10. Generate *panel* plots combining intensity + motility:
@@ -5715,9 +5577,10 @@ def automated_motility_assay(settings):
 
     New-relevant settings (all optional):
 
-        # Infection QC / XGBoost
+        # Infection QC / strategy
         'infection_intensity_qc': True/False
-        'infection_intensity_strategy': {'xgboost', 'histogram', 'pca', ...}
+        'infection_intensity_strategy': one of
+            {'xgboost', 'histogram', 'pca', 'umap', 'tsne'}
         'infection_intensity_mode': {'relabel', 'remove'}   # existing
 
         # XGBoost ambiguous-band filtering (track-level)
@@ -5746,8 +5609,7 @@ def automated_motility_assay(settings):
     import pandas as pd
     import os
     from multiprocessing import Pool, cpu_count
-    
-    from .settings import get_automated_motility_assay_default_settings
+    import sqlite3
 
     settings = get_automated_motility_assay_default_settings(settings)
 
@@ -5758,7 +5620,8 @@ def automated_motility_assay(settings):
     zscore_thresh = settings["zscore_thresh"]
 
     # ------------------------------------------------------------------
-    # NEW: optional reuse of existing measurements from SQLite
+    # Optional reuse of existing measurements from SQLite
+    #   → this table is treated as the ORIGINAL, pre-QC dataset.
     # ------------------------------------------------------------------
     reuse_existing = settings.get("reuse_existing_measurements", True)
     measurements_dir = os.path.join(src, "measurements")
@@ -5774,9 +5637,9 @@ def automated_motility_assay(settings):
                 f"[summarise_tracks_from_merged] Attempting to reuse existing "
                 f"measurements from {db_path} (table='{db_table_name}')."
             )
-            import sqlite3
 
             with sqlite3.connect(db_path) as conn:
+                # If the table does not exist, this will raise and fall back to recompute
                 all_df = pd.read_sql_query(f"SELECT * FROM {db_table_name}", conn)
 
             if (
@@ -5793,9 +5656,10 @@ def automated_motility_assay(settings):
                     .shape[0]
                 )
                 print(
-                    "[summarise_tracks_from_merged] Loaded measurements from DB: "
-                    f"shape={all_df.shape}, frames={n_frames_db}, tracks={n_tracks_db}. "
-                    "Skipping regionprops/intensity computation."
+                    "[summarise_tracks_from_merged] Loaded ORIGINAL measurements "
+                    f"from DB: shape={all_df.shape}, frames={n_frames_db}, "
+                    f"tracks={n_tracks_db}. Skipping regionprops/intensity "
+                    "computation from merged .npy files."
                 )
                 loaded_from_db = True
             else:
@@ -5812,7 +5676,7 @@ def automated_motility_assay(settings):
             all_df = None
 
     # ------------------------------------------------------------------
-    # Read merged files & basic metadata
+    # Read merged files & basic metadata (if not reusing DB)
     # ------------------------------------------------------------------
     merged_dir = os.path.join(src, "merged")
     if not os.path.isdir(merged_dir):
@@ -5939,7 +5803,7 @@ def automated_motility_assay(settings):
             f"tracks={n_tracks_smoothed}"
         )
     else:
-        # Already loaded smoothed measurements from DB
+        # Already loaded smoothed measurements from DB (treated as ORIGINAL)
         n_frames_db = all_df["frame"].nunique()
         n_tracks_db = (
             all_df[["plateID", "wellID", "fieldID", "cellID"]]
@@ -5947,14 +5811,14 @@ def automated_motility_assay(settings):
             .shape[0]
         )
         print(
-            "[summarise_tracks_from_merged] Reusing smoothed measurements from DB: "
-            f"shape={all_df.shape}, frames={n_frames_db}, tracks={n_tracks_db}"
+            "[summarise_tracks_from_merged] Reusing ORIGINAL smoothed measurements "
+            f"from DB: shape={all_df.shape}, frames={n_frames_db}, "
+            f"tracks={n_tracks_db}"
         )
 
     # ------------------------------------------------------------------
-    # Infection status per track
-    #   - If 'infected' already exists (e.g. reused from DB), just clean it.
-    #   - Else derive from 'n_pathogens' if available.
+    # Infection status per track (mask-based)
+    #   - This is part of the ORIGINAL dataset.
     # ------------------------------------------------------------------
     if "infected" in all_df.columns:
         # Reuse existing infection labels (DB-reused or previous run),
@@ -5997,7 +5861,14 @@ def automated_motility_assay(settings):
     )
 
     # ------------------------------------------------------------------
+    # SNAPSHOT: ORIGINAL measurements (pre-QC) to be stored in SQLite.
+    # This copy is never overridden by adjusted/QC'd data.
+    # ------------------------------------------------------------------
+    all_df_original = all_df.copy(deep=True)
+
+    # ------------------------------------------------------------------
     # Optional infection-intensity QC (may create 'adjusted_infected')
+    #   - This operates on all_df only (not on all_df_original).
     # ------------------------------------------------------------------
     infection_col = "infected"
     all_df, infection_col = _apply_infection_intensity_qc(
@@ -6009,11 +5880,11 @@ def automated_motility_assay(settings):
     )
 
     # ------------------------------------------------------------------
-    # XGBoost ambiguous-band filtering (track-level) – unchanged
+    # XGBoost ambiguous-band filtering (track-level)
     # ------------------------------------------------------------------
     if (
         settings.get("infection_intensity_qc", False)
-        and settings.get("infection_intensity_strategy", "").lower() == "xgboost"
+        and str(settings.get("infection_intensity_strategy", "")).lower() == "xgboost"
         and settings.get("infection_xgb_drop_ambiguous", True)
     ):
         low = settings.get("infection_xgb_ambiguous_low", 0.25)
@@ -6085,9 +5956,30 @@ def automated_motility_assay(settings):
             )
 
     # ------------------------------------------------------------------
-    # Compute per-track velocities + per-well summary:
-    #   - once for original mask-based labels ('infected')
-    #   - once for final labels (infection_col, possibly 'adjusted_infected')
+    # Save ADJUSTED frame-level measurements to CSV ONLY.
+    # This NEVER overwrites the SQLite original table.
+    # ------------------------------------------------------------------
+    try:
+        qc_strategy = str(settings.get("infection_intensity_strategy", "none")).lower()
+        if qc_strategy in {"", "none", "null"}:
+            adjusted_basename = f"{db_table_name}_adjusted.csv"
+        else:
+            adjusted_basename = f"{db_table_name}_adjusted_{qc_strategy}.csv"
+
+        adjusted_csv_path = os.path.join(measurements_dir, adjusted_basename)
+        all_df.to_csv(adjusted_csv_path, index=False)
+        print(
+            "[summarise_tracks_from_merged] Saved ADJUSTED frame-level measurements "
+            f"to CSV: {adjusted_csv_path}"
+        )
+    except Exception as e:
+        print(
+            f"[summarise_tracks_from_merged] WARNING: failed to save adjusted CSV "
+            f"({e})"
+        )
+
+    # ------------------------------------------------------------------
+    # Compute per-track velocities + per-well summary
     # ------------------------------------------------------------------
     (
         track_df_mask,
@@ -6116,23 +6008,25 @@ def automated_motility_assay(settings):
     )
 
     # ------------------------------------------------------------------
-    # Save to DB (use summary based on final labels)
-    #   (still called even if we reused measurements; matches old behavior)
+    # Save to DB:
+    #   - all_df_original (pre-QC snapshot) is written to db_table_name
+    #   - well_summary_df is written as usual by _save_measurements_and_well_summary
+    #   → adjusted labels NEVER touch the canonical measurements table.
     # ------------------------------------------------------------------
     measurements_dir, db_path = _save_measurements_and_well_summary(
-        all_df=all_df,
+        all_df=all_df_original,
         well_summary_df=well_summary_df,
         src=src,
         db_table_name=db_table_name,
     )
 
-    # Feature–velocity correlation analysis (final labels)
+    # Feature–velocity correlation analysis (final labels, adjusted view)
     _feature_velocity_correlations(all_df, track_df, measurements_dir)
 
     # ------------------------------------------------------------------
     # Combined intensity + motility panels
     # ------------------------------------------------------------------
-    qc_strategy = settings.get("infection_intensity_strategy", "none")
+    qc_strategy = str(settings.get("infection_intensity_strategy", "none")).lower()
 
     # Intensity + motility panel for mask-based labels
     if settings.get("make_mask_panel", True):
