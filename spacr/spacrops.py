@@ -2744,77 +2744,7 @@ class FOVAlignAndCropper:
                     continue
     
         return csv_path
-
-
-def set_default_general(settings=None):
-    settings = {} if settings is None else dict(settings)
-    settings.setdefault('src', '/path/to/src')
-    settings.setdefault('dst_root', settings.get('src'))
-    settings.setdefault('meta_regex', r'(?P<mag>\d+X)_c(?P<chan>\d+)_?(?P<well>[A-H]\d{1,2}).*?Site[-_](?P<site>\d+)\.(?:tif|tiff)$')
-    settings.setdefault('well_group', 'well')
-    settings.setdefault('exts', ['.tif', '.tiff', '.png'])
-    settings.setdefault('recursive', True)
-    settings.setdefault('collision', 'rename')     # {'rename','skip','overwrite'}
-    settings.setdefault('on_missing', 'error')     # {'error','skip'}
-    settings.setdefault('dry_run', False)
-    settings.setdefault('verbose', True)
-    settings.setdefault('do_organize', True)
-    settings.setdefault('do_nuc_stitch', True)
-    settings.setdefault('do_multichannel', True)
-    settings.setdefault('channel_index', 0)        # nuclei channel in each tile
-    return settings
-
-def set_default_stitch(settings=None):
-    settings = {} if settings is None else dict(settings)
-    settings.setdefault('detector', 'ORB')
-    settings.setdefault('nfeatures', 8000)
-    settings.setdefault('max_keypoints', 4000)
-    settings.setdefault('downsample', 0.5)
-    settings.setdefault('ransac_thresh_px', 3.0)
-    settings.setdefault('allow_scale', False)
-    settings.setdefault('allow_rotation', False)
-    settings.setdefault('score_threshold', 0.001)
-    settings.setdefault('all_scores', False)
-    settings.setdefault('outline_source', 'otsu')
-    settings.setdefault('save_qc', True)
-    settings.setdefault('save_stitched_default', False)
-    settings.setdefault('canny', (40, 120))
-    settings.setdefault('blur_sigma', 0.0)
-    settings.setdefault('dilate_ksize', 0)
-    settings.setdefault('line_thickness', 1)
-    settings.setdefault('outline_alpha', 1.0)
-    settings.setdefault('feature_cache_mode', 'disk')
-    settings.setdefault('feature_cache_dir', None)  # set per well by caller
-    settings.setdefault('max_ram_features', 256)
-    settings.setdefault('n_workers_features', None)
-    settings.setdefault('pair_batch_size', 8192)
-    settings.setdefault('stream_csv', True)
-    settings.setdefault('opencv_threads', 1)
-    settings.setdefault('arr_axes', 'AUTO')
-    settings.setdefault('mip', True)
-    settings.setdefault('z_index', 0)
-    settings.setdefault('t_index', 0)
-    settings.setdefault('squeeze_singleton', True)
-
-    # run_folder settings
-    settings.setdefault('n_workers', max(1, (os.cpu_count() or 8) // 2))
-    settings.setdefault('max_site_gap', 64)
-    settings.setdefault('mosaic_min_score', None)   # None => auto elbow
-    # per-well outputs are set by caller:
-    settings.setdefault('mosaic_out', None)
-    settings.setdefault('mosaic_csv_out', None)
-    return settings
-
-def set_default_multichannel(settings=None):
-    settings = {} if settings is None else dict(settings)
-    settings.setdefault('channel_indices', None)   # infer from first tile if None
-    settings.setdefault('blend', 'max')            # {'max','overwrite'}
-    settings.setdefault('preview_downsample', 8)
-    settings.setdefault('tmp_dir', None)           # set per well by caller
-    settings.setdefault('out_tif', None)           # set per well by caller
-    settings.setdefault('out_png', None)           # set per well by caller
-    return settings
-
+    
 def stitch_cycle_wells(general: dict, stitch: dict, multichannel: dict) -> dict:
     """
     Organize images into well folders → nuclei stitch per well → optional multichannel mosaic.
@@ -2847,16 +2777,22 @@ def stitch_cycle_wells(general: dict, stitch: dict, multichannel: dict) -> dict:
         }
     """
     # ---- Apply defaults (supports return-or-mutate styles) ----
-    for _apply, _cfg in (
-        (globals().get("set_default_general"), general),
-        (globals().get("set_default_stitch"), stitch),
-        (globals().get("set_default_multichannel"), multichannel),
-    ):
-        if callable(_apply):
-            _maybe = _apply(_cfg)
-            if isinstance(_maybe, dict):
-                _cfg.clear()
-                _cfg.update(_maybe)
+    #for _apply, _cfg in (
+    #    (globals().get("set_default_general"), general),
+    #    (globals().get("set_default_stitch"), stitch),
+    #    (globals().get("set_default_multichannel"), multichannel),
+    #):
+    #    if callable(_apply):
+    #        _maybe = _apply(_cfg)
+    #        if isinstance(_maybe, dict):
+    #            _cfg.clear()
+    #            _cfg.update(_maybe)
+    
+    from .settings import set_default_general, set_default_multichannel, set_default_stitch, get_plot_data_from_csv_default_settings
+
+    general = set_default_general(general)
+    stitch = set_default_stitch(stitch)
+    multichannel = set_default_multichannel(multichannel)
 
     vprint = print if general.get("verbose", False) else (lambda *a, **k: None)
 

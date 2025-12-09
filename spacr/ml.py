@@ -117,61 +117,6 @@ def scale_variables(X, y):
     
     return X_scaled, y_scaled
 
-def process_model_coefficients_v1(model, regression_type, X, y, nc, pc, controls):
-    """Return DataFrame of model coefficients and p-values."""
-    if regression_type in ['ols', 'gls', 'wls', 'rlm', 'glm', 'mixed', 'quantile', 'logit', 'probit', 'poisson']:
-        coefs = model.params
-        p_values = model.pvalues
-
-        coef_df = pd.DataFrame({
-            'feature': coefs.index,
-            'coefficient': coefs.values,
-            'p_value': p_values.values
-        })
-
-    elif regression_type in ['ridge', 'lasso']:
-        coefs = model.coef_.flatten()
-        p_values = calculate_p_values(X, y, model)
-
-        coef_df = pd.DataFrame({
-            'feature': X.columns,
-            'coefficient': coefs,
-            'p_value': p_values
-        })
-        
-    else:
-        coefs = model.coef_
-        intercept = model.intercept_
-        feature_names = X.design_info.column_names
-
-        coef_df = pd.DataFrame({
-            'feature': feature_names,
-            'coefficient': coefs
-        })
-        coef_df.loc[0, 'coefficient'] += intercept
-        coef_df['p_value'] = np.nan  # Placeholder since sklearn doesn't provide p-values
-
-    coef_df['-log10(p_value)'] = -np.log10(coef_df['p_value'])
-    coef_df['grna'] = coef_df['feature'].str.extract(r'\[(.*?)\]')[0]
-    coef_df['condition'] = coef_df.apply(lambda row: 'nc' if nc in row['feature'] else 'pc' if pc in row['feature'] else ('control' if row['grna'] in controls else 'other'),axis=1)
-    return coef_df[~coef_df['feature'].str.contains('row|column')]
-
-def check_distribution_v1(y):
-    """Check the type of distribution to recommend a model."""
-    if np.all((y == 0) | (y == 1)):
-        print("Detected binary data.")
-        return 'logit'
-    elif (y > 0).all() and (y < 1).all():
-        print("Detected continuous data between 0 and 1 (excluding 0 and 1).")
-        return 'beta'
-    elif (y >= 0).all() and (y <= 1).all():
-        print("Detected continuous data between 0 and 1 (including 0 or 1).")
-        # Consider quasi-binomial regression
-        return 'quasi_binomial'
-    else:
-        print("Using OLS as a fallback.")
-        return 'ols'
-
 def select_glm_family(y):
     """Select the appropriate GLM family based on the data."""
     if np.all((y == 0) | (y == 1)):
@@ -303,19 +248,6 @@ def check_and_clean_data(df, dependent_variable):
 
     print("Data is ready for model fitting.")
     return df_cleaned
-
-def check_normality_v1(y, variable_name):
-    """Check if the data is normally distributed using the Shapiro-Wilk test."""
-    from scipy.stats import shapiro
-
-    stat, p = shapiro(y)
-    alpha = 0.05
-    if p > alpha:
-        print(f"{variable_name} is normally distributed (fail to reject H0)")
-        return True
-    else:
-        print(f"{variable_name} is not normally distributed (reject H0)")
-        return False
 
 def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance=0.02, smoothing=10, increment=10):
     """
@@ -1319,8 +1251,14 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
         dependent_df = pd.merge(dependent_df, cell_count, on='prc')
     else:
         dependent_df['cell_count'] = cell_count['cell_count']
+        
+    print("1 test")
+    display(dependent_df)
 
     dependent_df = dependent_df[dependent_df['cell_count'] >= min_cell_count]
+    
+    print("2 test")
+    display(dependent_df)
 
     is_normal = check_normality(dependent_df[dependent_variable], dependent_variable)
 
