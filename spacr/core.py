@@ -433,7 +433,7 @@ def generate_cellpose_masks(src, settings, object_type):
                 else:
                     mask_stack = _masks_to_masks_stack(masks)
         
-            if timelapse and settings['motility_analysis']:
+            if timelapse and settings.get("motility_analysis", False):
                 from .timelapse import automated_motility_assay
                 _ = automated_motility_assay(settings)
             
