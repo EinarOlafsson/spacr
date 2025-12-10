@@ -1214,21 +1214,6 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
     print(f'done')
     return result_df, peak_details_df, fig
 
-import os
-import numpy as np
-import pandas as pd
-import sqlite3
-from multiprocessing import Pool, cpu_count
-from skimage.measure import regionprops_table
-import logging
-from matplotlib.figure import Figure
-
-from xgboost import XGBClassifier
-from sklearn.model_selection import train_test_split
-import matplotlib.pyplot as plt
-
-import matplotlib as mpl
-
 def _generate_mask_random_cmap(mask):
     """
     Generate a random colormap based on the unique labels in the given mask.
