@@ -1062,9 +1062,10 @@ expected_types = {
     'infection_pca_tsne_search':bool,
     'infection_pca_tsne_perplexity_grid':list,
     'infection_pca_tsne_learning_rate_grid':list,
+    'infection_intensity_qc_scope': str,
 }
 
-motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_strategy', 'seconds_per_frame', 'pixels_per_um', 'motility_ylim', 'motility_xlim']
+motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_strategy', 'seconds_per_frame', 'pixels_per_um', 'motility_ylim', 'motility_xlim', 'infection_intensity_qc_scope']
 
 motility_advanced_settings = ['reuse_existing_measurements', 'infection_xgb_min_cells_per_class', 'infection_xgb_n_estimators', 'infection_xgb_max_depth', 'infection_xgb_learning_rate', 'infection_xgb_subsample', 'infection_xgb_colsample_bytree', 
                      'infection_xgb_reg_lambda', 'infection_xgb_random_state', 'infection_xgb_n_jobs', 'infection_xgb_proba_threshold', 'infection_xgb_margin', 'infection_xgb_top_features', 'infection_xgb_proba_column', 'infection_xgb_proba', 
@@ -1549,6 +1550,8 @@ def generate_fields(variables, scrollable_frame):
         "infection_pca_min_silhouette": "(float) - Minimum mean silhouette score required to accept the clustering.",
         "infection_pca_min_gt_separation": "(float) - Minimum required separation between ground-truth infection classes in the embedding.",
         "infection_pca_max_cells": "(int) - Maximum number of cells to subsample for PCA/UMAP/t-SNE to limit runtime and memory use.",
+        "infection_intensity_qc_scope": "(str) - Perform xgboost,pca,umap or t-sne on the global or well level.",
+        
         
     }
     
@@ -1894,5 +1897,7 @@ def get_automated_motility_assay_default_settings(settings):
     settings.setdefault('infection_pca_tsne_learning_rate_grid', [200.0, 500.0])
     # used if infection_pca_tsne_search == False
     settings.setdefault('infection_pca_tsne_perplexity', 30.0)
+    
+    settings.setdefault('infection_intensity_qc_scope', "well")
 
     return settings
