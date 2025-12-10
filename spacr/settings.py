@@ -1526,7 +1526,7 @@ def generate_fields(variables, scrollable_frame):
         "infection_intensity_qc_graphs": "(bool) - Generate infection-intensity quality-control graphs.",
         "infection_intensity_qc_panel_path": "(str) - Output path for saving infection-intensity QC panels.",
         "infection_intensity_mode": "(str) - Mode for computing infection intensity (e.g. per cell, per track, per well).",
-        "infection_intensity_strategy": "(str) - Strategy for summarizing infection intensity (e.g. 'mean', 'median', 'max').",
+        "infection_intensity_strategy": "(str) - Strategy for curating infection status (xgboost, histogram, pca, umap, tsne).",
         "infection_intensity_qc": "(bool) - Enable additional quality-control checks for infection-intensity data.",
 
         "straightness_threshold": "(float) - Minimum straightness value required for tracks to be kept (0–1).",
@@ -1550,7 +1550,7 @@ def generate_fields(variables, scrollable_frame):
         "infection_pca_min_silhouette": "(float) - Minimum mean silhouette score required to accept the clustering.",
         "infection_pca_min_gt_separation": "(float) - Minimum required separation between ground-truth infection classes in the embedding.",
         "infection_pca_max_cells": "(int) - Maximum number of cells to subsample for PCA/UMAP/t-SNE to limit runtime and memory use.",
-        "infection_intensity_qc_scope": "(str) - Perform xgboost,pca,umap or t-sne on the global or well level.",
+        "infection_intensity_qc_scope": "(str) - Perform xgboost, pca, umap or tsne on the global or well level (combined (default), plate, well, none / off).",
         
         
     }
@@ -1835,18 +1835,17 @@ def get_automated_motility_assay_default_settings(settings):
     settings.setdefault('pathogen_channel', 1)
     settings.setdefault('tracked_object', 'cell')
     settings.setdefault('reuse_existing_measurements', True)
+    settings.setdefault('infection_intensity_qc_scope', "per_well")
+    settings.setdefault('motility_analysis', True)
 
     # filter settings
-    settings.setdefault('n_jobs', -1)
+    settings.setdefault('n_jobs', 8)
     settings.setdefault('max_displacement', 50.0)
     settings.setdefault('zscore_thresh', 3.0)
     settings.setdefault('straightness_filter', False)
     settings.setdefault('straightness_threshold', 0.95)
-    settings.setdefault('infection_intensity_qc', True)
-    settings.setdefault('infection_intensity_strategy', 'xgb')  # 'pca' | 'umap' | 'tsne' | 'histogram' | 'xgb'
+    settings.setdefault('infection_intensity_strategy', 'xgboost')  # 'pca' | 'umap' | 'tsne' | 'histogram' | 'xgb'
     settings.setdefault('infection_intensity_mode', "relabel")  # or 'remove'
-    settings.setdefault('infection_intensity_qc_panel_path', None)
-    settings.setdefault('infection_intensity_qc_graphs', True)
     settings.setdefault('db_table_name', "timelapse_object_measurements")
     settings.setdefault('infection_intensity_n_bins', 64)
 
@@ -1898,6 +1897,4 @@ def get_automated_motility_assay_default_settings(settings):
     # used if infection_pca_tsne_search == False
     settings.setdefault('infection_pca_tsne_perplexity', 30.0)
     
-    settings.setdefault('infection_intensity_qc_scope', "well")
-
     return settings
