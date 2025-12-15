@@ -5,10 +5,6 @@ from typing import Optional, Tuple, Dict, Union, List, Pattern, Any
 import matplotlib.pyplot as plt
 import numpy as np
 
-# ===========================
-# Disk-backed feature storage
-# ===========================
-
 class _DiskFeatureStore:
     """
     Disk-backed feature cache with an in-RAM LRU of limited size.
@@ -79,33 +75,6 @@ class _DiskFeatureStore:
             if len(self._ram) > self.max_ram:
                 self._ram.popitem(last=False)
 
-class PlotGate:
-    """Global cap on QC plots with optional score threshold filter."""
-    def __init__(self, max_plots:int, only_above_thresh:bool, threshold:float):
-        self.max_plots = int(max_plots) if max_plots is not None else float("inf")
-        self.only_above = bool(only_above_thresh)
-        self.threshold = float(threshold)
-        self._n = 0
-        self._lock = threading.Lock()
-
-    def allow(self, score: float) -> bool:
-        # Filter by threshold first (if requested)
-        if self.only_above and score < self.threshold:
-            return False
-        with self._lock:
-            if self._n >= self.max_plots:
-                return False
-            self._n += 1
-            return True
-
-    @property
-    def count(self) -> int:
-        with self._lock:
-            return self._n
-
-# =================
-# Mosaic stitcher
-# =================
 
 class spacrStitcher:
     """
@@ -1234,7 +1203,9 @@ class spacrStitcher:
         # ---- mosaic output(s) ----
         if mosaic:
             if mosaic_out is None:
-                mosaic_out = os.path.join(self.outdir, "mosaic_full.tif")
+                if self.verbose:
+                    print(f"[run_folder] mosaic_out: {mosaic_out}, skipping masaic tif, only generating csv", flush=True)
+            #    mosaic_out = os.path.join(self.outdir, "mosaic_full.tif")
             min_sc = mosaic_min_score if mosaic_min_score is not None else float(thr)
     
             if mosaic_all_channels:
@@ -1680,7 +1651,7 @@ class spacrStitcher:
         T2: Dict[str, np.ndarray] = {k: v[:2,:] for k,v in T3.items()}
         return T2, used_edges
 
-    def mosaic_all_channels_from_csv(self,
+    def mosaic_all_channels_from_csv_v1(self,
                                      csv_path: str,
                                      out_tif: str,
                                      *,
@@ -1859,7 +1830,7 @@ class spacrStitcher:
     
         return out_tif
 
-    def render_mosaic_from_csv(self,
+    def render_mosaic_from_csv_v1(self,
                                csv_path: str,
                                out_tif: str,
                                out_png: Optional[str] = None,
@@ -2003,6 +1974,361 @@ class spacrStitcher:
                     w.writerow(r)
     
         return out_tif, out_png
+
+    def render_mosaic_from_csv(self,
+                               csv_path: str,
+                               out_tif: str,
+                               out_png: Optional[str] = None,
+                               channel_index: int = 0,
+                               min_score: Optional[float] = None,
+                               *,
+                               angle_tol_deg: float = 30.0,
+                               step_tol_frac: float = 0.25,
+                               rot_tol_deg: float = 5.0,
+                               scale_tol: float = 0.03,
+                               cap_one_per_dir: bool = True,
+                               out_csv: Optional[str] = None) -> Tuple[str, Optional[str]]:
+        # dtype helpers
+        def _series_dtype(p: str) -> np.dtype:
+            with tifffile.TiffFile(p) as tf:
+                return np.dtype(tf.series[0].dtype)
+    
+        def _cast(arr: np.ndarray, dtype: np.dtype) -> np.ndarray:
+            dtype = np.dtype(dtype)
+            if np.issubdtype(dtype, np.integer):
+                info = np.iinfo(dtype)
+                return np.clip(np.rint(arr), info.min, info.max).astype(dtype, copy=False)
+            return arr.astype(dtype, copy=False)
+    
+        # NEW: manifest-only mode (no mosaic rendering)
+        manifest_only = (out_csv is not None) and (out_tif is None)
+        if manifest_only:
+            # No point accepting a PNG target if we aren't rendering
+            out_png = None
+    
+        # Load rows
+        rows: List[Dict] = []
+        with open(csv_path, "r", newline="") as f:
+            rdr = csv.DictReader(f)
+            for r in rdr:
+                if r["score"] == "" or r["dx_px_full"] == "" or r["dy_px_full"] == "" or r["theta_deg"] == "" or r["scale"] == "":
+                    continue
+                rows.append(r)
+        if not rows:
+            raise RuntimeError("render_mosaic_from_csv: CSV has no usable rows.")
+    
+        # Threshold
+        if min_score is None:
+            scores = [float(r["score"]) for r in rows if r["score"] != ""]
+            min_score = self._auto_elbow_threshold(scores)
+            if self.verbose:
+                print(f"[mosaic] auto min_score = {min_score:.4f}", flush=True)
+    
+        # Transforms to a common root using pruned graph
+        T, used_edges = self._compute_mosaic_transforms(
+            rows, float(min_score),
+            angle_tol_deg=angle_tol_deg,
+            step_tol_frac=step_tol_frac,
+            rot_tol_deg=rot_tol_deg,
+            scale_tol=scale_tol,
+            cap_one_per_dir=cap_one_per_dir
+        )
+        kept_nodes = sorted(T.keys())
+        if self.verbose:
+            print(f"[mosaic] nodes in mosaic: {len(kept_nodes)}; edges used: {len(used_edges)}", flush=True)
+        if not kept_nodes:
+            raise RuntimeError("render_mosaic_from_csv: no nodes remained after pruning.")
+    
+        # Determine canvas bounds (+ optionally remember per-node dtype)
+        all_x, all_y = [], []
+        shapes: Dict[str, Tuple[int, int]] = {}
+        node_dtype: Dict[str, np.dtype] = {}  # only used when writing out_tif
+    
+        for p in kept_nodes:
+            I = self._read_plane(p, ch=channel_index)
+            H, W = I.shape
+            shapes[p] = (H, W)
+            if not manifest_only:
+                node_dtype[p] = _series_dtype(p)
+    
+            corners = np.array([[0, 0], [W, 0], [0, H], [W, H]], dtype=np.float32).reshape(-1, 1, 2)
+            M = T[p]
+            C = cv2.transform(corners, M).reshape(-1, 2)
+            all_x.append(C[:, 0])
+            all_y.append(C[:, 1])
+    
+        all_x = np.concatenate(all_x)
+        all_y = np.concatenate(all_y)
+        x_min, y_min = float(np.floor(all_x.min())), float(np.floor(all_y.min()))
+        x_max, y_max = float(np.ceil(all_x.max())), float(np.ceil(all_y.max()))
+        Wc, Hc = int(max(1, x_max - x_min)), int(max(1, y_max - y_min))
+        off_x, off_y = int(-x_min), int(-y_min)
+        if self.verbose:
+            print(f"[mosaic] canvas = {Wc} x {Hc}", flush=True)
+    
+        T_off3 = np.array([[1, 0, off_x],
+                           [0, 1, off_y],
+                           [0, 0,   1 ]], dtype=np.float32)
+    
+        # Only allocate + blend if we are actually rendering
+        if not manifest_only:
+            canvas = np.zeros((Hc, Wc), np.float32)
+            wgt    = np.zeros((Hc, Wc), np.float32)
+    
+        manifest_rows: List[Dict[str, Union[str, float, int]]] = []
+        best_edge_score: Dict[str, float] = {}
+        for a, b, sc in used_edges:
+            best_edge_score[a] = max(best_edge_score.get(a, float("-inf")), float(sc))
+            best_edge_score[b] = max(best_edge_score.get(b, float("-inf")), float(sc))
+    
+        for i, p in enumerate(kept_nodes, 1):
+            H, W = shapes[p]
+    
+            M3 = np.eye(3, dtype=np.float32)
+            M3[:2, :] = T[p]
+            M_can = (T_off3 @ M3)[:2, :]
+    
+            if not manifest_only:
+                I = self._read_plane(p, ch=channel_index).astype(np.float32)
+    
+                # warp image and a 1-mask (coverage)
+                warped = cv2.warpAffine(I, M_can, (Wc, Hc), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
+                cov    = cv2.warpAffine(np.ones((H, W), np.float32), M_can, (Wc, Hc),
+                                        flags=cv2.INTER_NEAREST, borderMode=cv2.BORDER_CONSTANT)
+    
+                canvas += warped
+                wgt    += cov
+    
+            # Top-left of warped bbox (for manifest)
+            corners = np.array([[0, 0], [W, 0], [0, H], [W, H]], dtype=np.float32).reshape(-1, 1, 2)
+            C = cv2.transform(corners, M_can).reshape(-1, 2)
+            x0, y0 = float(np.min(C[:, 0])), float(np.min(C[:, 1]))
+    
+            manifest_rows.append(dict(
+                path=p,
+                H=int(H), W=int(W),
+                M00=float(M_can[0, 0]), M01=float(M_can[0, 1]), M02=float(M_can[0, 2]),
+                M10=float(M_can[1, 0]), M11=float(M_can[1, 1]), M12=float(M_can[1, 2]),
+                canvas_x=float(x0), canvas_y=float(y0),
+                best_pair_score=float(best_edge_score.get(p, float("nan")))
+            ))
+    
+            if self.verbose and (i % max(1, len(kept_nodes) // 10) == 0 or i == len(kept_nodes)):
+                print(f"[mosaic] placed {i}/{len(kept_nodes)} images", flush=True)
+    
+        # Write manifest CSV (works in both modes)
+        if out_csv is not None:
+            os.makedirs(os.path.dirname(os.path.abspath(out_csv)) or ".", exist_ok=True)
+            with open(out_csv, "w", newline="") as f:
+                w = csv.DictWriter(f, fieldnames=[
+                    "path", "H", "W",
+                    "M00", "M01", "M02",
+                    "M10", "M11", "M12",
+                    "canvas_x", "canvas_y",
+                    "best_pair_score"
+                ])
+                w.writeheader()
+                for r in manifest_rows:
+                    w.writerow(r)
+    
+        # If manifest-only, stop here (no mosaic image)
+        if manifest_only:
+            return out_tif, out_png  # both None in this mode
+    
+        # Otherwise, build and save mosaic image(s)
+        out = np.divide(canvas, np.maximum(wgt, 1e-6))
+    
+        out_dtype = np.result_type(*[node_dtype[p] for p in kept_nodes])
+        tifffile.imwrite(out_tif, _cast(out, out_dtype))
+        if out_png:
+            prev = (out - out.min()) / (out.max() - out.min() + 1e-12)
+            plt.imsave(out_png, prev, cmap="gray")
+    
+        return out_tif, out_png
+
+    def mosaic_all_channels_from_csv(self,
+                                       csv_path: str,
+                                       out_tif: Optional[str],
+                                       *,
+                                       min_score: Optional[float] = None,
+                                       channel_count: Optional[int] = None,
+                                       channel_index_order: Optional[List[int]] = None,
+                                       angle_tol_deg: float = 30.0,
+                                       step_tol_frac: float = 0.25,
+                                       rot_tol_deg: float = 5.0,
+                                       scale_tol: float = 0.03,
+                                       cap_one_per_dir: bool = True,
+                                       out_csv: Optional[str] = None) -> Optional[str]:
+        """
+        Build a CYX mosaic by reusing pairwise transforms computed on (typically) the nuclei channel.
+    
+        If out_csv is not None and out_tif is None, run in "manifest-only" mode:
+        compute transforms + canvas geometry + per-node canvas transforms and write the manifest CSV,
+        but DO NOT render/write the mosaic TIFF.
+        """
+        # ---- helpers for dtype preservation ----
+        def _series_dtype(p: str) -> np.dtype:
+            with tifffile.TiffFile(p) as tf:
+                return np.dtype(tf.series[0].dtype)
+    
+        def _cast(arr: np.ndarray, dtype: np.dtype) -> np.ndarray:
+            dtype = np.dtype(dtype)
+            if np.issubdtype(dtype, np.integer):
+                info = np.iinfo(dtype)
+                return np.clip(np.rint(arr), info.min, info.max).astype(dtype, copy=False)
+            return arr.astype(dtype, copy=False)
+    
+        # NEW: manifest-only mode (no mosaic rendering)
+        manifest_only = (out_csv is not None) and (out_tif is None)
+    
+        # ---- load rows ----
+        rows: List[Dict] = []
+        with open(csv_path, "r", newline="") as f:
+            rdr = csv.DictReader(f)
+            for r in rdr:
+                if r["score"] == "" or r["dx_px_full"] == "" or r["dy_px_full"] == "" or r["theta_deg"] == "" or r["scale"] == "":
+                    continue
+                rows.append(r)
+        if not rows:
+            raise RuntimeError("mosaic_all_channels_from_csv: CSV has no usable rows.")
+    
+        # ---- threshold (auto-knee if needed) ----
+        if min_score is None:
+            scores = [float(r["score"]) for r in rows if r["score"] != ""]
+            min_score = self._auto_elbow_threshold(scores)
+            if self.verbose:
+                print(f"[mosaic-all] auto min_score = {min_score:.4f}", flush=True)
+    
+        # ---- compute transforms and nodes ----
+        T, used_edges = self._compute_mosaic_transforms(
+            rows, float(min_score),
+            angle_tol_deg=angle_tol_deg,
+            step_tol_frac=step_tol_frac,
+            rot_tol_deg=rot_tol_deg,
+            scale_tol=scale_tol,
+            cap_one_per_dir=cap_one_per_dir
+        )
+        kept_nodes = sorted(T.keys())
+        if self.verbose:
+            print(f"[mosaic-all] nodes in mosaic: {len(kept_nodes)}; edges used: {len(used_edges)}", flush=True)
+        if not kept_nodes:
+            raise RuntimeError("mosaic_all_channels_from_csv: no nodes remained after pruning.")
+    
+        # ---- per-node shape (and dtype/channel info only if rendering) ----
+        shapes: Dict[str, Tuple[int, int]] = {}
+        node_dtype: Dict[str, np.dtype] = {}
+        node_channels: Dict[str, int] = {}
+    
+        for p in kept_nodes:
+            I0 = self._read_plane(p, ch=0)
+            H, W = I0.shape
+            shapes[p] = (H, W)
+            if not manifest_only:
+                node_dtype[p] = _series_dtype(p)
+                node_channels[p] = self._get_channel_count_tif(p)
+    
+        # decide which channels to mosaic (only if rendering)
+        if not manifest_only:
+            if channel_index_order is not None and len(channel_index_order) > 0:
+                ch_list = [int(c) for c in channel_index_order]
+            else:
+                nC = min(node_channels.values()) if channel_count is None else int(channel_count)
+                if nC <= 0:
+                    raise ValueError("mosaic_all_channels_from_csv: channel_count resolved to 0.")
+                ch_list = list(range(nC))
+            if self.verbose:
+                ch_info = {p: node_channels[p] for p in kept_nodes}
+                print(f"[mosaic-all] channel plan: {ch_list} ; per-node channel counts: {ch_info}", flush=True)
+    
+        # ---- determine canvas bounds (from transforms on geometry) ----
+        all_x, all_y = [], []
+        for p in kept_nodes:
+            H, W = shapes[p]
+            corners = np.array([[0, 0], [W, 0], [0, H], [W, H]], dtype=np.float32).reshape(-1, 1, 2)
+            M = T[p]
+            C = cv2.transform(corners, M).reshape(-1, 2)
+            all_x.append(C[:, 0])
+            all_y.append(C[:, 1])
+    
+        all_x = np.concatenate(all_x)
+        all_y = np.concatenate(all_y)
+        x_min, y_min = float(np.floor(all_x.min())), float(np.floor(all_y.min()))
+        x_max, y_max = float(np.ceil(all_x.max())),  float(np.ceil(all_y.max()))
+        Wc, Hc = int(max(1, x_max - x_min)), int(max(1, y_max - y_min))
+        off_x, off_y = int(-x_min), int(-y_min)
+        if self.verbose:
+            print(f"[mosaic-all] canvas = {Wc} x {Hc}", flush=True)
+    
+        T_off3 = np.array([[1, 0, off_x],
+                           [0, 1, off_y],
+                           [0, 0,   1 ]], dtype=np.float32)
+    
+        # ---- optional manifest (works in both modes) ----
+        if out_csv is not None:
+            os.makedirs(os.path.dirname(os.path.abspath(out_csv)) or ".", exist_ok=True)
+            best_edge_score: Dict[str, float] = {}
+            for a, b, sc in used_edges:
+                best_edge_score[a] = max(best_edge_score.get(a, float("-inf")), float(sc))
+                best_edge_score[b] = max(best_edge_score.get(b, float("-inf")), float(sc))
+    
+            with open(out_csv, "w", newline="") as f:
+                w = csv.DictWriter(f, fieldnames=[
+                    "path", "H", "W",
+                    "M00", "M01", "M02",
+                    "M10", "M11", "M12",
+                    "canvas_x", "canvas_y",
+                    "best_pair_score"
+                ])
+                w.writeheader()
+                for p in kept_nodes:
+                    H, W = shapes[p]
+                    M3 = np.eye(3, dtype=np.float32)
+                    M3[:2, :] = T[p]
+                    M_can = (T_off3 @ M3)[:2, :]
+    
+                    corners = np.array([[0, 0], [W, 0], [0, H], [W, H]], dtype=np.float32).reshape(-1, 1, 2)
+                    C = cv2.transform(corners, M_can).reshape(-1, 2)
+                    x0, y0 = float(np.min(C[:, 0])), float(np.min(C[:, 1]))
+    
+                    w.writerow(dict(
+                        path=p, H=int(H), W=int(W),
+                        M00=float(M_can[0, 0]), M01=float(M_can[0, 1]), M02=float(M_can[0, 2]),
+                        M10=float(M_can[1, 0]), M11=float(M_can[1, 1]), M12=float(M_can[1, 2]),
+                        canvas_x=float(x0), canvas_y=float(y0),
+                        best_pair_score=float(best_edge_score.get(p, float("nan")))
+                    ))
+    
+        # ---- manifest-only: stop here ----
+        if manifest_only:
+            return out_tif  # None in this mode
+    
+        # ---- otherwise, render and save mosaic TIFF ----
+        if out_tif is None:
+            raise ValueError("mosaic_all_channels_from_csv: out_tif is None but manifest_only is False.")
+    
+        out_dtype = np.result_type(*[node_dtype[p] for p in kept_nodes])
+        out_stack = np.zeros((len(ch_list), Hc, Wc), np.float32)
+    
+        for ci, ch in enumerate(ch_list):
+            canvas = np.zeros((Hc, Wc), np.float32)
+            wgt    = np.zeros((Hc, Wc), np.float32)
+            for p in kept_nodes:
+                H, W = shapes[p]
+                M3 = np.eye(3, dtype=np.float32)
+                M3[:2, :] = T[p]
+                M_can = (T_off3 @ M3)[:2, :]
+    
+                I = self._read_plane(p, ch=ch).astype(np.float32, copy=False)
+                warped = cv2.warpAffine(I, M_can, (Wc, Hc), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
+                cov    = cv2.warpAffine(np.ones((H, W), np.float32), M_can, (Wc, Hc),
+                                        flags=cv2.INTER_NEAREST, borderMode=cv2.BORDER_CONSTANT)
+                canvas += warped
+                wgt    += cov
+    
+            out_stack[ci] = np.divide(canvas, np.maximum(wgt, 1e-6))
+    
+        tifffile.imwrite(out_tif, _cast(out_stack, out_dtype), metadata={"axes": "CYX"})
+        return out_tif
 
 class StitchedMultiAligner:
     """
@@ -2465,6 +2791,431 @@ class StitchedMultiAligner:
     
         return out_tif, out_png_preview, csv_path
 
+def stitch_cycle_wells(settings):
+
+    # ---- Apply defaults (single flat dict) ----
+    settings = get_preprocess_ops_settings(settings)
+
+    vprint = print if settings.get("verbose", False) else (lambda *a, **k: None)
+
+    # ---- Required/assumed inputs ----
+    src = settings.get("src")
+    if not src or not os.path.isdir(src):
+        raise ValueError("settings['src'] must point to an existing directory")
+
+    dst_root = settings.get("dst_root") or src
+    os.makedirs(dst_root, exist_ok=True)
+
+    meta_regex = settings.get(
+        "meta_regex",
+        r"(?P<mag>\d+X)_c(?P<chan>\d+)_?(?P<well>[A-H]\d{1,2}).*?Site[-_](?P<site>\d+)\.(?:tif|tiff)$",
+    )
+    well_group = settings.get("well_group", "well")
+    recursive = bool(settings.get("recursive", True))
+    exts = tuple(x.lower() for x in settings.get("exts", (".tif", ".tiff")))
+    dry_run = bool(settings.get("dry_run", False))
+    collision = settings.get("collision", "rename")       # {'rename','skip','overwrite'}
+    on_missing = settings.get("on_missing", "error")      # {'error','skip'}
+    do_organize = bool(settings.get("do_organize", True))
+    do_nuc_stitch = bool(settings.get("do_nuc_stitch", True))
+    do_multichannel = bool(settings.get("do_multichannel", True))
+    nuc_channel_index = int(settings.get("channel_index", 0))
+
+    # plate id for filenames (plate + well metadata in all CSV names)
+    plate_id = settings.get("plate") or settings.get("plate_id") or settings.get("experiment") or os.path.basename(os.path.normpath(dst_root))
+    plate_id = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(plate_id)).strip("_") or "plate"
+
+    # Compile metadata regex
+    meta_re = re.compile(meta_regex, re.IGNORECASE)
+
+    # ---- Scan files ----
+    def _iter_files(root: str, recursive_flag: bool, _exts: tuple):
+        if recursive_flag:
+            for r, _, files in os.walk(root):
+                for fn in files:
+                    if fn.lower().endswith(_exts):
+                        yield os.path.join(r, fn)
+        else:
+            for fn in sorted(os.listdir(root)):
+                p = os.path.join(root, fn)
+                if os.path.isfile(p) and fn.lower().endswith(_exts):
+                    yield p
+
+    files = list(_iter_files(src, recursive, exts))
+    vprint(f"[organize] scanned {len(files)} files from {src}")
+
+    # ---- Group by well using regex ----
+    grouped: Dict[str, List[str]] = {}
+    skipped_missing = 0
+    for p in files:
+        m = meta_re.search(os.path.basename(p))
+        if not m or (well_group not in m.groupdict()) or not m.group(well_group):
+            if on_missing == "error":
+                raise ValueError(f"Missing '{well_group}' in filename: {os.path.basename(p)}")
+            skipped_missing += 1
+            continue
+        well = (m.group(well_group) or "").upper()
+        grouped.setdefault(well, []).append(p)
+
+    if not grouped:
+        vprint("[organize] no wells found after grouping.")
+        return {
+            "organized": {
+                "moved": 0,
+                "skipped": skipped_missing,
+                "linked": 0,
+                "by_well": {},
+            },
+            "wells": {},
+        }
+
+    # ---- Organize into per-well folders (or create symlinks if not organizing) ----
+    moved = 0
+    skipped = skipped_missing
+    linked = 0
+    by_well_outpaths: Dict[str, List[str]] = {}
+
+    link_root = os.path.join(dst_root, "_links")  # used when do_organize=False
+    if not do_organize:
+        os.makedirs(link_root, exist_ok=True)
+
+    def _resolve_collision(dst_path: str) -> Optional[str]:
+        if not os.path.exists(dst_path):
+            return dst_path
+        if collision == "skip":
+            return None
+        if collision == "overwrite":
+            return dst_path
+        # rename: add numeric suffix
+        base, ext = os.path.splitext(dst_path)
+        for k in range(1, 10000):
+            cand = f"{base}_{k:03d}{ext}"
+            if not os.path.exists(cand):
+                return cand
+        raise RuntimeError(f"Could not resolve collision for {dst_path}")
+
+    for well, src_list in grouped.items():
+        out_well_dir = os.path.join(dst_root, well)
+        link_well_dir = os.path.join(link_root, well)
+        if do_organize:
+            os.makedirs(out_well_dir, exist_ok=True)
+        else:
+            os.makedirs(link_well_dir, exist_ok=True)
+
+        out_paths: List[str] = []
+        for sp in src_list:
+            fn = os.path.basename(sp)
+            if do_organize:
+                dp = os.path.join(out_well_dir, fn)
+                rp = _resolve_collision(dp)
+                if rp is None:
+                    skipped += 1
+                    continue
+                if not dry_run:
+                    if collision == "overwrite" and os.path.exists(dp) and rp == dp:
+                        try:
+                            os.remove(dp)
+                        except FileNotFoundError:
+                            pass
+                    if sp != rp:
+                        shutil.move(sp, rp)
+                    moved += 1
+                out_paths.append(rp if rp is not None else dp)
+            else:
+                # create a symlink into link_well_dir
+                dp = os.path.join(link_well_dir, fn)
+                rp = _resolve_collision(dp)
+                if rp is None:
+                    skipped += 1
+                    continue
+                if not dry_run:
+                    try:
+                        if os.path.lexists(rp):
+                            os.remove(rp)
+                        os.symlink(sp, rp)
+                    except FileExistsError:
+                        pass
+                    linked += 1
+                out_paths.append(rp if rp is not None else dp)
+
+        # sort by site number if present
+        def _site_key(pth: str) -> int:
+            m = re.search(r"Site[-_](\d+)", os.path.basename(pth), re.IGNORECASE)
+            return int(m.group(1)) if m else 10**9
+
+        out_paths.sort(key=lambda pth: (_site_key(pth), pth))
+        by_well_outpaths[well] = out_paths
+
+    organized_summary = {
+        "moved": moved,
+        "skipped": skipped,
+        "linked": linked,
+        "by_well": by_well_outpaths,
+    }
+    vprint(f"[organize] moved={moved}, linked={linked}, skipped={skipped}; wells={len(by_well_outpaths)}")
+
+    if not do_nuc_stitch:
+        return {"organized": organized_summary, "wells": {}}
+
+    # ---- Per-well stitch + mosaic ----
+    results_by_well: Dict[str, Dict[str, Any]] = {}
+
+    for well, well_files in by_well_outpaths.items():
+        if not well_files:
+            continue
+
+        # Where run_folder will scan (keep your behavior)
+        scan_dir = os.path.dirname(well_files[0])
+
+        # Final per-well root (always under dst_root/{well})
+        well_root = os.path.join(dst_root, well)
+        os.makedirs(well_root, exist_ok=True)
+
+        # ---- Desired layout ----
+        # images moved to:     {dst_root}/{well}/{well}
+        # qc images saved in:  {dst_root}/{well}/qc/pairs
+        # stitch outputs in:   {dst_root}/{well}/{well}/stitch
+        # csv files in:        {dst_root}/{well}/results
+        orig_outdir = os.path.join(well_root, well)                  # {src}/{well}/{well}
+        qc_pairs_dir = os.path.join(well_root, "qc", "pairs")         # {src}/{well}/qc/pairs
+        stitch_outdir = os.path.join(well_root, "stitch")           # {src}/{well}/{well}/stitch
+        results_outdir = os.path.join(well_root, "results")           # {src}/{well}/results
+        feat_cache_dir = os.path.join(well_root, "cache")             # tidy cache
+
+        os.makedirs(orig_outdir, exist_ok=True)
+        os.makedirs(qc_pairs_dir, exist_ok=True)
+        os.makedirs(stitch_outdir, exist_ok=True)
+        os.makedirs(results_outdir, exist_ok=True)
+        os.makedirs(feat_cache_dir, exist_ok=True)
+
+        prefix = f"{plate_id}_{well}"
+
+        # Pairwise CSV + mosaic outputs
+        pairwise_csv = os.path.join(results_outdir, f"{prefix}_pairs.csv")
+        mosaic_csv = os.path.join(results_outdir, f"{prefix}_mosaic.csv")
+
+        # Single-channel mosaic (if multichannel=False)
+        mosaic_tif_sc = os.path.join(stitch_outdir, f"{prefix}_mosaic_full.tif")
+        mosaic_png_sc = os.path.splitext(mosaic_tif_sc)[0] + ".png"
+
+        # Multi-channel mosaic (if multichannel=True)
+        mosaic_tif_mc = os.path.join(stitch_outdir, f"{prefix}_mosaic_allc.tif")
+
+        do_mc = bool(do_multichannel)
+
+        if settings.get("write_mosaic", False):
+            mosaic_out = None
+        else:
+            mosaic_out = mosaic_tif_mc if do_mc else mosaic_tif_sc
+
+        # Instantiate stitcher with your settings
+        # NOTE: outdir now points at qc/pairs (so qc is not mixed with tiles)
+        stitcher = spacrStitcher(
+            detector=settings.get("detector", "ORB"),
+            nfeatures=int(settings.get("nfeatures", 8000)),
+            max_keypoints=settings.get("max_keypoints", 4000),
+            downsample=float(settings.get("downsample", 0.5)),
+            ransac_thresh_px=float(settings.get("ransac_thresh_px", 3.0)),
+            allow_scale=bool(settings.get("allow_scale", False)),
+            allow_rotation=bool(settings.get("allow_rotation", False)),
+            outline_source=str(settings.get("outline_source", "otsu")),
+            canny=tuple(settings.get("canny", (40, 120))),
+            blur_sigma=float(settings.get("blur_sigma", 0.0)),
+            dilate_ksize=int(settings.get("dilate_ksize", 0)),
+            line_thickness=int(settings.get("line_thickness", 1)),
+            outline_alpha=float(settings.get("outline_alpha", 1.0)),
+            outdir=qc_pairs_dir,
+            save_qc=bool(settings.get("save_qc", False)),
+            save_stitched_default=bool(settings.get("save_stitched_default", False)),
+            all_scores=bool(settings.get("all_scores", False)),
+            score_threshold=settings.get("score_threshold", None),
+            verbose=bool(settings.get("verbose", True)),
+            feature_cache_mode=str(settings.get("feature_cache_mode", "disk")),
+            feature_cache_dir=feat_cache_dir,
+            max_ram_features=int(settings.get("max_ram_features", 256)),
+            n_workers_features=settings.get("n_workers_features", None),
+            pair_batch_size=int(settings.get("pair_batch_size", 8192)),
+            stream_csv=bool(settings.get("stream_csv", True)),
+            opencv_threads=int(settings.get("opencv_threads", 1)),
+            arr_axes=str(settings.get("arr_axes", "AUTO")),
+            mip=bool(settings.get("mip", True)),
+            z_index=int(settings.get("z_index", 0)),
+            t_index=int(settings.get("t_index", 0)),
+            squeeze_singleton=bool(settings.get("squeeze_singleton", True)),
+        )
+
+        # Run per-well; enable mosaic here (single- or multi-channel)
+        
+        ch_order = settings.get("channel_indices", None)  # None → infer from tiles
+        mosaic_min_score = settings.get("mosaic_min_score", None)
+
+        csv_out = stitcher.run_folder(
+            folder=scan_dir,
+            csv_path=pairwise_csv,
+            channel_index=nuc_channel_index,
+            exts=exts,
+            recursive=False,
+            same_well_only=True,
+            max_site_gap=int(settings.get("max_site_gap", 64)),
+            n_workers=int(settings.get("n_workers", max(1, (os.cpu_count() or 8) // 2))),
+            stitch=settings.get("stitch", False),
+            score_threshold=settings.get("score_threshold", None),
+            meta_regex=meta_re,  # use compiled regex here
+            mosaic=settings.get("mosaic", False),
+            mosaic_out=mosaic_out,
+            mosaic_min_score=mosaic_min_score,
+            mosaic_csv_out=mosaic_csv,
+            mosaic_all_channels=do_mc,
+            mosaic_channel_count=None,  # infer min across tiles unless order provided
+            mosaic_channel_index_order=ch_order,
+        )
+
+        # ---- Move (or mirror) tiles into {well_root}/{well}/{...} after stitching ----
+        moved_tiles: List[str] = []
+        for sp in well_files:
+            fn = os.path.basename(sp)
+            dp = os.path.join(orig_outdir, fn)
+            rp = _resolve_collision(dp)
+            if rp is None:
+                continue
+
+            if not dry_run:
+                if do_organize:
+                    # move file into orig_outdir
+                    if collision == "overwrite" and os.path.exists(dp) and rp == dp:
+                        try:
+                            os.remove(dp)
+                        except FileNotFoundError:
+                            pass
+                    if os.path.abspath(sp) != os.path.abspath(rp):
+                        shutil.move(sp, rp)
+                else:
+                    # create a symlink into orig_outdir (keep source untouched)
+                    target = os.path.realpath(sp)
+                    try:
+                        if os.path.lexists(rp):
+                            os.remove(rp)
+                        os.symlink(target, rp)
+                    except FileExistsError:
+                        pass
+
+            moved_tiles.append(rp if rp is not None else dp)
+
+        # keep return metadata consistent with the new layout
+        by_well_outpaths[well] = moved_tiles
+
+        results_by_well[well] = {
+            "plate": plate_id,
+            "well": well,
+            "scan_dir": scan_dir,
+            "well_root": well_root,
+            "tiles_dir": orig_outdir,
+            "tiles": moved_tiles,
+            "qc_pairs_dir": qc_pairs_dir,
+            "stitch_dir": stitch_outdir,
+            "results_dir": results_outdir,
+            "cache_dir": feat_cache_dir,
+            "pairwise_csv": csv_out,
+            "mosaic_csv": mosaic_csv if os.path.exists(mosaic_csv) else None,
+            "mosaic_tif": None if do_mc else (mosaic_tif_sc if os.path.exists(mosaic_tif_sc) else None),
+            "mosaic_cyx": (mosaic_tif_mc if do_mc and os.path.exists(mosaic_tif_mc) else None),
+            "preview_png": (mosaic_png_sc if (not do_mc and os.path.exists(mosaic_png_sc)) else None),
+        }
+        vprint(f"[stitch] well {well}: pairs→{csv_out}")
+
+    # update organized_summary to reflect the final tile locations
+    organized_summary["by_well"] = by_well_outpaths
+
+    return {"organized": organized_summary, "wells": results_by_well}
+
+
+def get_preprocess_ops_settings(settings):
+    
+    # high-level sources
+    settings.setdefault("phenotype_source", "path")
+    settings.setdefault("genotype_source", "path")
+
+    # IO / basic parsing
+    settings.setdefault("src", None)
+    settings.setdefault("dst_root", None)
+    #settings.setdefault("meta_regex",r"(?P<mag>\d+X)_c(?P<chan>\d+)_?(?P<well>[A-H]\d{1,2}).*?Site[-_](?P<site>\d+)\.(?:tif|tiff)$")
+    settings.setdefault("meta_regex",r'(?P<mag>\d+X)_c(?P<chan>\d+)_?(?P<well>[A-H]\d{1,2}).*?Site[-_](?P<site>\d+)(?:_[0-9]+)?\.(?:tif|tiff)$')
+
+    
+    settings.setdefault("well_group", "well")
+    settings.setdefault("exts", [".tif", ".tiff"])
+
+    settings.setdefault("recursive", True)
+    settings.setdefault("collision", "rename")   # {'rename','skip','overwrite'}
+    settings.setdefault("on_missing", "error")   # {'error','skip'}
+    settings.setdefault("dry_run", False)
+    settings.setdefault("verbose", True)
+
+    # pipeline toggles
+    settings.setdefault("do_organize", True)
+    settings.setdefault("do_nuc_stitch", True)
+    settings.setdefault("do_multichannel", True)
+
+    # alignment / nuclei channel
+    settings.setdefault("channel_index", 0)
+    settings.setdefault("relative_scale", 2.0)
+    settings.setdefault("qc_outlines", True)
+
+    # --- spacrStitcher(...) core parameters ---
+    settings.setdefault("detector", "ORB")
+    settings.setdefault("nfeatures", 8000)
+    settings.setdefault("max_keypoints", 4000)
+    settings.setdefault("downsample", 0.5)
+    settings.setdefault("ransac_thresh_px", 3.0)
+    settings.setdefault("allow_scale", False)
+    settings.setdefault("allow_rotation", False)
+    settings.setdefault("score_threshold", 0.001)
+    settings.setdefault("all_scores", False)
+    settings.setdefault("outline_source", "otsu")
+    settings.setdefault("save_qc", False)
+    settings.setdefault("save_stitched_default", False)
+    settings.setdefault("canny", (40, 120))
+    settings.setdefault("blur_sigma", 0.0)
+    settings.setdefault("dilate_ksize", 0)
+    settings.setdefault("line_thickness", 1)
+    settings.setdefault("outline_alpha", 1.0)
+    settings.setdefault("feature_cache_mode", "disk")
+    settings.setdefault("max_qc_plots_total", 1000)   # hard cap across the whole run
+    settings.setdefault("plot_only_above_threshold", True)
+    settings.setdefault("feature_cache_dir", None)     # per well
+    settings.setdefault("max_ram_features", 256)
+    settings.setdefault("n_workers_features", None)
+    settings.setdefault("pair_batch_size", 8192)
+    settings.setdefault("stream_csv", True)
+    settings.setdefault("opencv_threads", 1)
+    settings.setdefault("arr_axes", "AUTO")
+    settings.setdefault("mip", True)
+    settings.setdefault("z_index", 0)
+    settings.setdefault("t_index", 0)
+    settings.setdefault("squeeze_singleton", True)
+    settings.setdefault("write_mosaic", False)
+
+    # --- st.run_folder(...) ---
+    settings.setdefault("n_workers", 26)
+    settings.setdefault("max_site_gap", 64)
+    settings.setdefault("mosaic_min_score", None)      # auto elbow
+
+    # per-well outputs (filled by caller, if desired)
+    settings.setdefault("mosaic_out", None)
+    settings.setdefault("mosaic_csv_out", None)
+
+    # --- multichannel (CYX mosaic build) ---
+    settings.setdefault("channel_indices", None)       # infer from first tile
+    settings.setdefault("blend", "max")
+    settings.setdefault("preview_downsample", 8)
+
+    # per-well outputs (filled by caller)
+    settings.setdefault("tmp_dir", None)
+    settings.setdefault("out_tif", None)
+    settings.setdefault("out_png", None)
+
+    return settings
+
 class FOVAlignAndCropper:
     """
     Align each image in a folder (arbitrary channels) to a stitched mosaic (arbitrary channels) using
@@ -2640,9 +3391,9 @@ class FOVAlignAndCropper:
                     Hf, Wf = fov_nuc.shape
     
                     # DS for FOV features *including known scale*
-                    WFds = max(1, int(round(Wf * s * s_known)))   # FIXED name
-                    HFds = max(1, int(round(Hf * s * s_known)))   # FIXED name
-                    fov_ds = cv2.resize(fov_nuc, (WFds, HFds), interpolation=cv2.INTER_LINEAR)  # FIXED usage
+                    Wfds = max(1, int(round(Wf * s * s_known)))   # FIXED name
+                    Hfds = max(1, int(round(Hf * s * s_known)))   # FIXED name
+                    fov_ds = cv2.resize(fov_nuc, (Wfds, Hfds), interpolation=cv2.INTER_LINEAR)  # FIXED usage
                     fov_u8 = self._to_uint8(fov_ds)
     
                     kp, desc = self._detect_and_describe(fov_u8)
@@ -2744,302 +3495,6 @@ class FOVAlignAndCropper:
                     continue
     
         return csv_path
-    
-def stitch_cycle_wells(general: dict, stitch: dict, multichannel: dict) -> dict:
-    """
-    Organize images into well folders → nuclei stitch per well → optional multichannel mosaic.
-
-    Accepts (possibly partial) flat dicts and applies:
-      - set_default_general(general)
-      - set_default_stitch(stitch)
-      - set_default_multichannel(multichannel)
-
-    Returns
-    -------
-    dict
-        {
-          "organized": {
-              "moved": int,
-              "skipped": int,
-              "linked": int,
-              "by_well": {WELL: [file_paths]}
-          },
-          "wells": {
-              WELL: {
-                  "pairwise_csv": str,
-                  "mosaic_csv": Optional[str],
-                  "mosaic_tif": Optional[str],         # single-channel mosaic if multichannel=False
-                  "mosaic_cyx": Optional[str],         # multi-channel mosaic if multichannel=True
-                  "preview_png": Optional[str],
-                  "outdir": str
-              }
-          }
-        }
-    """
-    # ---- Apply defaults (supports return-or-mutate styles) ----
-    #for _apply, _cfg in (
-    #    (globals().get("set_default_general"), general),
-    #    (globals().get("set_default_stitch"), stitch),
-    #    (globals().get("set_default_multichannel"), multichannel),
-    #):
-    #    if callable(_apply):
-    #        _maybe = _apply(_cfg)
-    #        if isinstance(_maybe, dict):
-    #            _cfg.clear()
-    #            _cfg.update(_maybe)
-    
-    from .settings import set_default_general, set_default_multichannel, set_default_stitch, get_plot_data_from_csv_default_settings
-
-    general = set_default_general(general)
-    stitch = set_default_stitch(stitch)
-    multichannel = set_default_multichannel(multichannel)
-
-    vprint = print if general.get("verbose", False) else (lambda *a, **k: None)
-
-    # ---- Required/assumed inputs ----
-    src = general.get("src")
-    if not src or not os.path.isdir(src):
-        raise ValueError("general['src'] must point to an existing directory")
-
-    dst_root = general.get("dst_root") or src
-    os.makedirs(dst_root, exist_ok=True)
-
-    meta_regex = general.get(
-        "meta_regex",
-        r"(?P<mag>\d+X)_c(?P<chan>\d+)_?(?P<well>[A-H]\d{1,2}).*?Site[-_](?P<site>\d+)\.(?:tif|tiff)$",
-    )
-    well_group = general.get("well_group", "well")
-    recursive = bool(general.get("recursive", True))
-    exts = tuple(x.lower() for x in general.get("exts", (".tif", ".tiff")))
-    dry_run = bool(general.get("dry_run", False))
-    collision = general.get("collision", "rename")  # {'rename','skip','overwrite'}
-    on_missing = general.get("on_missing", "error")  # {'error','skip'}
-    do_organize = bool(general.get("do_organize", True))
-    do_nuc_stitch = bool(general.get("do_nuc_stitch", True))
-    do_multichannel = bool(general.get("do_multichannel", True))
-    nuc_channel_index = int(general.get("channel_index", 0))
-
-    # Stitch defaults
-    stitch_cfg = dict(stitch)
-    multich_cfg = dict(multichannel)
-
-    # Compile metadata regex (use compiled pattern everywhere)
-    meta_re = re.compile(meta_regex, re.IGNORECASE)
-
-    # ---- Scan files ----
-    def _iter_files(root: str, recursive: bool, exts: tuple):
-        if recursive:
-            for r, _, files in os.walk(root):
-                for fn in files:
-                    if fn.lower().endswith(exts):
-                        yield os.path.join(r, fn)
-        else:
-            for fn in sorted(os.listdir(root)):
-                p = os.path.join(root, fn)
-                if os.path.isfile(p) and fn.lower().endswith(exts):
-                    yield p
-
-    files = list(_iter_files(src, recursive, exts))
-    vprint(f"[organize] scanned {len(files)} files from {src}")
-
-    # ---- Group by well using regex ----
-    grouped: Dict[str, List[str]] = {}
-    skipped_missing = 0
-    for p in files:
-        m = meta_re.search(os.path.basename(p))
-        if not m or (well_group not in m.groupdict()) or not m.group(well_group):
-            if on_missing == "error":
-                raise ValueError(f"Missing '{well_group}' in filename: {os.path.basename(p)}")
-            skipped_missing += 1
-            continue
-        well = (m.group(well_group) or "").upper()
-        grouped.setdefault(well, []).append(p)
-
-    if not grouped:
-        vprint("[organize] no wells found after grouping.")
-        return {"organized": {"moved": 0, "skipped": skipped_missing, "linked": 0, "by_well": {}}, "wells": {}}
-
-    # ---- Organize into per-well folders (or create symlinks if not organizing) ----
-    moved = 0
-    skipped = skipped_missing
-    linked = 0
-    by_well_outpaths: Dict[str, List[str]] = {}
-
-    link_root = os.path.join(dst_root, "_links")  # used when do_organize=False
-    if not do_organize:
-        os.makedirs(link_root, exist_ok=True)
-
-    def _resolve_collision(dst_path: str) -> Optional[str]:
-        if not os.path.exists(dst_path):
-            return dst_path
-        if collision == "skip":
-            return None
-        if collision == "overwrite":
-            return dst_path
-        # rename: add numeric suffix
-        base, ext = os.path.splitext(dst_path)
-        for k in range(1, 10000):
-            cand = f"{base}_{k:03d}{ext}"
-            if not os.path.exists(cand):
-                return cand
-        raise RuntimeError(f"Could not resolve collision for {dst_path}")
-
-    for well, src_list in grouped.items():
-        out_well_dir = os.path.join(dst_root, well)
-        link_well_dir = os.path.join(link_root, well)
-        if do_organize:
-            os.makedirs(out_well_dir, exist_ok=True)
-        else:
-            os.makedirs(link_well_dir, exist_ok=True)
-
-        out_paths: List[str] = []
-        for sp in src_list:
-            fn = os.path.basename(sp)
-            if do_organize:
-                dp = os.path.join(out_well_dir, fn)
-                rp = _resolve_collision(dp)
-                if rp is None:
-                    skipped += 1
-                    continue
-                if not dry_run:
-                    if collision == "overwrite" and os.path.exists(dp) and rp == dp:
-                        try:
-                            os.remove(dp)
-                        except FileNotFoundError:
-                            pass
-                    if sp != rp:
-                        shutil.move(sp, rp)
-                    moved += 1
-                out_paths.append(rp if rp is not None else dp)
-            else:
-                # create a symlink into link_well_dir
-                dp = os.path.join(link_well_dir, fn)
-                rp = _resolve_collision(dp)
-                if rp is None:
-                    skipped += 1
-                    continue
-                if not dry_run:
-                    try:
-                        if os.path.lexists(rp):
-                            os.remove(rp)
-                        os.symlink(sp, rp)
-                    except FileExistsError:
-                        pass
-                    linked += 1
-                out_paths.append(rp if rp is not None else dp)
-
-        # sort by site number if present
-        def _site_key(p):
-            m = re.search(r"Site[-_](\d+)", os.path.basename(p), re.IGNORECASE)
-            return int(m.group(1)) if m else 10**9
-
-        out_paths.sort(key=lambda p: (_site_key(p), p))
-        by_well_outpaths[well] = out_paths
-
-    organized_summary = {"moved": moved, "skipped": skipped, "linked": linked, "by_well": by_well_outpaths}
-    vprint(f"[organize] moved={moved}, linked={linked}, skipped={skipped}; wells={len(by_well_outpaths)}")
-
-    if not do_nuc_stitch:
-        return {"organized": organized_summary, "wells": {}}
-
-    # ---- Per-well stitch + mosaic ----
-    results_by_well: Dict[str, Dict[str, Any]] = {}
-
-    for well, well_files in by_well_outpaths.items():
-        if not well_files:
-            continue
-
-        # The working folder for this well (where run_folder will scan)
-        work_dir = os.path.dirname(well_files[0])
-        # Output dir dedicated to stitch artifacts
-        outdir = os.path.join(work_dir, "_stitch")
-        os.makedirs(outdir, exist_ok=True)
-
-        # Feature cache per well
-        feat_cache_dir = stitch_cfg.get("feature_cache_dir") or os.path.join(outdir, "feat_cache")
-        os.makedirs(feat_cache_dir, exist_ok=True)
-
-        # Pairwise CSV + mosaic outputs
-        pairwise_csv = os.path.join(outdir, "pairs.csv")
-        mosaic_csv = os.path.join(outdir, "mosaic.csv")
-        # Single-channel mosaic (if multichannel=False)
-        mosaic_tif_sc = os.path.join(outdir, "mosaic_full.tif")
-        mosaic_png_sc = os.path.splitext(mosaic_tif_sc)[0] + ".png"
-        # Multi-channel mosaic (if multichannel=True)
-        mosaic_tif_mc = os.path.join(outdir, "mosaic_allc.tif")
-
-        # Instantiate stitcher with your settings
-        stitcher = spacrStitcher(
-            detector=stitch_cfg.get("detector", "ORB"),
-            nfeatures=int(stitch_cfg.get("nfeatures", 8000)),
-            max_keypoints=stitch_cfg.get("max_keypoints", 4000),
-            downsample=float(stitch_cfg.get("downsample", 0.5)),
-            ransac_thresh_px=float(stitch_cfg.get("ransac_thresh_px", 3.0)),
-            allow_scale=bool(stitch_cfg.get("allow_scale", False)),
-            allow_rotation=bool(stitch_cfg.get("allow_rotation", False)),
-            outline_source=str(stitch_cfg.get("outline_source", "otsu")),
-            canny=tuple(stitch_cfg.get("canny", (40, 120))),
-            blur_sigma=float(stitch_cfg.get("blur_sigma", 0.0)),
-            dilate_ksize=int(stitch_cfg.get("dilate_ksize", 0)),
-            line_thickness=int(stitch_cfg.get("line_thickness", 1)),
-            outline_alpha=float(stitch_cfg.get("outline_alpha", 1.0)),
-            outdir=outdir,
-            save_qc=bool(stitch_cfg.get("save_qc", True)),
-            save_stitched_default=bool(stitch_cfg.get("save_stitched_default", False)),
-            all_scores=bool(stitch_cfg.get("all_scores", False)),
-            score_threshold=stitch_cfg.get("score_threshold", None),
-            verbose=bool(general.get("verbose", True)),
-            feature_cache_mode=str(stitch_cfg.get("feature_cache_mode", "disk")),
-            feature_cache_dir=feat_cache_dir,
-            max_ram_features=int(stitch_cfg.get("max_ram_features", 256)),
-            n_workers_features=stitch_cfg.get("n_workers_features", None),
-            pair_batch_size=int(stitch_cfg.get("pair_batch_size", 8192)),
-            stream_csv=bool(stitch_cfg.get("stream_csv", True)),
-            opencv_threads=int(stitch_cfg.get("opencv_threads", 1)),
-            arr_axes=str(stitch_cfg.get("arr_axes", "AUTO")),
-            mip=bool(stitch_cfg.get("mip", True)),
-            z_index=int(stitch_cfg.get("z_index", 0)),
-            t_index=int(stitch_cfg.get("t_index", 0)),
-            squeeze_singleton=bool(stitch_cfg.get("squeeze_singleton", True)),
-        )
-
-        # Run per-well; enable mosaic here (single- or multi-channel)
-        do_mc = bool(do_multichannel)
-        ch_order = multich_cfg.get("channel_indices", None)  # None → infer from tiles
-        mosaic_min_score = stitch_cfg.get("mosaic_min_score", None)
-
-        csv_out = stitcher.run_folder(
-            folder=work_dir,
-            csv_path=pairwise_csv,
-            channel_index=nuc_channel_index,
-            exts=exts,
-            recursive=False,
-            same_well_only=True,
-            max_site_gap=int(stitch_cfg.get("max_site_gap", 64)),
-            n_workers=int(stitch_cfg.get("n_workers", max(1, (os.cpu_count() or 8) // 2))),
-            stitch=True,
-            score_threshold=stitch_cfg.get("score_threshold", None),
-            meta_regex=meta_re,  # use compiled regex here
-            mosaic=True,
-            mosaic_out=(mosaic_tif_mc if do_mc else mosaic_tif_sc),
-            mosaic_min_score=mosaic_min_score,
-            mosaic_csv_out=mosaic_csv,
-            mosaic_all_channels=do_mc,
-            mosaic_channel_count=None,  # infer min across tiles unless order provided
-            mosaic_channel_index_order=ch_order,
-        )
-
-        results_by_well[well] = {
-            "pairwise_csv": csv_out,
-            "mosaic_csv": mosaic_csv if os.path.exists(mosaic_csv) else None,
-            "mosaic_tif": None if do_mc else (mosaic_tif_sc if os.path.exists(mosaic_tif_sc) else None),
-            "mosaic_cyx": (mosaic_tif_mc if do_mc and os.path.exists(mosaic_tif_mc) else None),
-            "preview_png": (mosaic_png_sc if (not do_mc and os.path.exists(mosaic_png_sc)) else None),
-            "outdir": outdir,
-        }
-        vprint(f"[stitch] well {well}: pairs→{csv_out}")
-
-    return {"organized": organized_summary, "wells": results_by_well}
 
 def align_image_to_stitch(
     stitch_dst_root: str,
@@ -3181,3 +3636,83 @@ def align_image_to_stitch(
 
     return results
 
+def ops_preprocess(settings):
+
+    import os
+    import numpy as np  # noqa: F401  (likely used when you add npy writing)
+    import pandas as pd  # noqa: F401  (keep if you use it later)
+    from tifffile import imread  # noqa: F401
+
+    # Fill in defaults for all stitching / alignment-related keys
+    settings = get_preprocess_ops_settings(settings)
+
+    phenotype_src = settings["phenotype_source"]
+    genotype_src = settings["genotype_source"]
+
+    # ---- Normalize phenotype_src ----
+    if not isinstance(phenotype_src, (str, os.PathLike)):
+        raise ValueError("settings['phenotype_source'] must be a path to a folder.")
+    phenotype_src = str(phenotype_src)
+
+    # Where to store npy outputs (you can change this if you like)
+    npy_out_root = os.path.join(phenotype_src, "output")
+    os.makedirs(npy_out_root, exist_ok=True)
+
+    # ---- Normalize genotype_src into a list of folders ----
+    if isinstance(genotype_src, (str, os.PathLike)):
+        genotype_src = str(genotype_src)
+        # List subdirectories; if none, treat the folder itself as one genotype
+        subdirs = [
+            os.path.join(genotype_src, d)
+            for d in os.listdir(genotype_src)
+            if os.path.isdir(os.path.join(genotype_src, d))
+        ]
+        if subdirs:
+            genotype_folders = subdirs
+        else:
+            genotype_folders = [genotype_src]
+    elif isinstance(genotype_src, (list, tuple)):
+        genotype_folders = [str(g) for g in genotype_src]
+    else:
+        raise ValueError(
+            "settings['genotype_source'] must be a path or a list/tuple of paths."
+        )
+
+    stitch_summaries = []
+    align_results = []
+
+    for geno_fldr in genotype_folders:
+        # ---- 1) per-genotype stitching ----
+        stitch_settings = dict(settings)  # shallow copy is fine for simple values
+        stitch_settings["src"] = geno_fldr
+        if stitch_settings.get("dst_root") is None:
+            stitch_settings["dst_root"] = geno_fldr
+
+        summary = stitch_cycle_wells(stitch_settings)
+        stitch_summaries.append({
+            "genotype_folder": geno_fldr,
+            "summary": summary,
+        })
+
+        # ---- 2) alignment of phenotype images to stitched mosaics ----
+        # Only run if align_image_to_stitch is available in this module.
+        if "align_image_to_stitch" in globals():
+            dst_root = stitch_settings["dst_root"]
+            ar = align_image_to_stitch(
+                stitch_dst_root=dst_root,
+                align_src=phenotype_src,
+                meta_regex=stitch_settings["meta_regex"],
+                channel_index=stitch_settings["channel_index"],
+                relative_scale=stitch_settings["relative_scale"],
+                qc_outlines=stitch_settings["qc_outlines"],
+            )
+            align_results.append({
+                "genotype_folder": geno_fldr,
+                "align": ar,
+            })
+            
+    return {
+        "stitch": stitch_summaries,
+        "align": align_results,
+        "npy_out_root": npy_out_root,
+    }
