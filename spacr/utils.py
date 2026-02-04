@@ -78,7 +78,8 @@ import umap.umap_ as umap
 import logging
 from functools import wraps
 
-def debug(enabled: bool = True, logger_name: str | None = None):
+#def debug(enabled: bool = True, logger_name: str | None = None):
+def debug(enabled=True, logger_name = None):
     """
     Decorator that temporarily sets the given logger to DEBUG
     while the function runs, then restores the old level.
