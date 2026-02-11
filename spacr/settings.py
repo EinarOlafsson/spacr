@@ -1057,13 +1057,20 @@ expected_types = {
     'infection_pca_umap_search': bool,
     'infection_pca_umap_n_neighbors_grid':list,
     'infection_pca_umap_min_dist_grid':list,
-    'infection_pca_pathogen_weight':2.0,
+    'infection_pca_pathogen_weight':float,
     'infection_pca_log_intensity':bool,
     'infection_pca_tsne_search':bool,
     'infection_pca_tsne_perplexity_grid':list,
     'infection_pca_tsne_learning_rate_grid':list,
     'infection_intensity_qc_scope': str,
+    'infection_pca_max_cells':int,
+    'infection_pca_min_gt_separation':float,
+    'infection_pca_min_silhouette':float,
+    'infection_pca_umap_n_neighbors':int,
+    'infection_pca_umap_min_dist':float,
+    'infection_pca_tsne_perplexity':float,
 }
+
 
 motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_strategy', 'seconds_per_frame', 'pixels_per_um', 'motility_ylim', 'motility_xlim', 'infection_intensity_qc_scope']
 
@@ -1120,6 +1127,8 @@ def check_settings(vars_dict, expected_types, q=None):
             value = None
 
         expected_type = expected_types.get(key, str)
+        
+        #print(f"Processing key: '{key}' with value: '{value}' and expected type: {expected_type}")
 
         try:
             if key in ["cell_plate_metadata", "timelapse_frame_limits", "png_size", "png_dims", "pathogen_plate_metadata", "treatment_plate_metadata", "timelapse_objects", "class_metadata", "crop_mode", "dialate_png_ratios"]:
@@ -1836,7 +1845,7 @@ def get_automated_motility_assay_default_settings(settings):
     settings.setdefault('tracked_object', 'cell')
     settings.setdefault('reuse_existing_measurements', True)
     settings.setdefault('infection_intensity_qc_scope', "per_well")
-    settings.setdefault('motility_analysis', True)
+    settings.setdefault('motility_analysis', False)
 
     # filter settings
     settings.setdefault('n_jobs', 8)

@@ -9,7 +9,7 @@ warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0
 
 def preprocess_generate_masks(settings):
 
-    from .timelapse import _summarise_object_relationships
+    #from .timelapse import _summarise_object_relationships
     from .io import preprocess_img_data, _load_and_concatenate_arrays, convert_to_yokogawa, convert_separate_files_to_yokogawa
     from .plot import plot_image_mask_overlay, plot_arrays
     from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, delete_intermedeate_files, format_path_for_system, normalize_src_path, generate_image_path_map, copy_images_to_consolidated
@@ -159,12 +159,12 @@ def preprocess_generate_masks(settings):
                 _load_and_concatenate_arrays(src, settings['channels'], settings['cell_channel'], settings['nucleus_channel'], settings['pathogen_channel'])
                 
                 # summarise nuclei & pathogen features per cell track
-                if settings.get('timelapse', True) and settings.get('cell_channel') is not None and (settings.get('nucleus_channel') is not None or settings.get('pathogen_channel') is not None):
+                #if settings.get('timelapse', True) and settings.get('cell_channel') is not None and (settings.get('nucleus_channel') is not None or settings.get('pathogen_channel') is not None):
                     
-                    try:
-                        _summarise_object_relationships(src, settings)
-                    except Exception as e:
-                        print(f"Warning: failed to summarise cell/nucleus/pathogen relationships for {src}. Error: {e}")
+                    #try:
+                        #_summarise_object_relationships(src, settings)
+                    #except Exception as e:
+                        #print(f"Warning: failed to summarise cell/nucleus/pathogen relationships for {src}. Error: {e}")
                 
                 if settings['plot']:
                     if not settings['timelapse']:
