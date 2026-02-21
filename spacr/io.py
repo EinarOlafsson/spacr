@@ -1605,9 +1605,9 @@ def preprocess_img_data(settings):
                     elif full_batches > 0:
                         print(f"all images: {all_imgs},  full batch: {full_batches}, last batch: {last_batch_size}")
                         raise ValueError("Last batch of size 1 detected. Adjust the batch size.")
-                print('hello _merge_channels is triggered')
+                        
                 nr_channel_folders = _merge_channels(src, plot=False)
-                print('after _merge_channels')
+                
                 if len(settings['channels']) != nr_channel_folders:
                     print(f"Number of channels does not match number of channel folders. channels: {settings['channels']} channel folders: {nr_channel_folders}")
                     new_channels = list(range(nr_channel_folders))

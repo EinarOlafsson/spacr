@@ -90,7 +90,7 @@ def set_default_settings_preprocess_generate_masks(settings={}):
     settings.setdefault('timelapse_frame_limits', [5,])
     settings.setdefault('timelapse_remove_transient', False)
     settings.setdefault('timelapse_mode', 'trackpy')
-    settings.setdefault('timelapse_objects', None)
+    settings.setdefault('timelapse_objects', ['cell'])
 
     # Misc settings
     settings.setdefault('all_to_mip', False)
