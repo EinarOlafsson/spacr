@@ -75,7 +75,7 @@ dependencies = [
 VERSION = "1.2.2"
 
 setup(
-    name="spacr-nightly",
+    name="spacr_nightly",
     version=VERSION,
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
