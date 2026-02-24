@@ -816,55 +816,6 @@ def plot_arrays(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=1, 
         fig.tight_layout()
         plt.show()
 
-def plot_arrays_v1(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=1, q2=99):
-    """
-    Plot randomly selected arrays from a given directory.
-
-    Parameters:
-    - src (str): The directory path containing the arrays.
-    - figuresize (int): The size of the figure (default: 50).
-    - cmap (str): The colormap to use for displaying the arrays (default: 'inferno').
-    - nr (int): The number of arrays to plot (default: 1).
-    - normalize (bool): Whether to normalize the arrays (default: True).
-    - q1 (int): The lower percentile for normalization (default: 1).
-    - q2 (int): The upper percentile for normalization (default: 99).
-
-    Returns:
-    None
-    """
-    from .utils import normalize_to_dtype
-    
-    mask_cmap = random_cmap()
-    paths = []
-
-    for file in os.listdir(src):
-        if file.endswith('.npy'):
-            path = os.path.join(src, file)
-            paths.append(path)
-    paths = random.sample(paths, nr)
-    for path in paths:
-        print(f'Image path:{path}')
-        img = np.load(path)
-        if normalize:
-            img = normalize_to_dtype(array=img, p1=q1, p2=q2)
-        dim = img.shape
-        if len(img.shape)>2:
-            array_nr = img.shape[2]
-            fig, axs = plt.subplots(1, array_nr,figsize=(figuresize,figuresize))
-            for channel in range(array_nr):
-                i = np.take(img, [channel], axis=2)
-                axs[channel].imshow(i, cmap=plt.get_cmap(cmap)) #_imshow
-                axs[channel].set_title('Channel '+str(channel),size=24)
-                axs[channel].axis('off')
-        else:
-            fig, ax = plt.subplots(1, 1,figsize=(figuresize,figuresize))
-            ax.imshow(img, cmap=plt.get_cmap(cmap)) #_imshow
-            ax.set_title('Channel 0',size=24)
-            ax.axis('off')
-        fig.tight_layout()
-        plt.show()
-    return
-
 def _normalize_and_outline(image, remove_background, normalize, normalization_percentiles, overlay, overlay_chans, mask_dims, outline_colors, outline_thickness):
     """
     Normalize and outline an image.
@@ -1648,98 +1599,6 @@ def _reg_v_plot(df, grouping, variable, plate_number):
 
     plt.axhline(y=-np.log10(0.05), color='gray', linestyle='--')  # line for p=0.05
     plt.show()
-    
-def generate_plate_heatmap_v1(df, plate_number, variable, grouping, min_max, min_count):
-
-    if not isinstance(min_count, (int, float)):
-        min_count = 0
-
-    # Check the number of parts in 'prc'
-    num_parts = len(df['prc'].iloc[0].split('_'))
-    if num_parts == 4:
-        split = df['prc'].str.split('_', expand=True)
-        df['rowID'] = split[2]
-        df['prc'] = f"{plate_number}" + '_' + split[2] + '_' + split[3]
-        
-    # Construct 'prc' based on 'plateID', 'rowID', and 'columnID' columns
-    #df['prc'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str)
-
-    if 'column_name' not in df.columns:
-        if 'column' in df.columns:
-            df['columnID'] = df['column']
-        if 'column_name' in df.columns:
-            df['columnID'] = df['column_name']
-                
-    df['plateID'], df['rowID'], df['columnID'] = zip(*df['prc'].str.split('_'))
-    
-    # Filtering the dataframe based on the plate_number
-    df = df[df['plateID'] == plate_number].copy()  # Create another copy after filtering
-    
-    # Ensure proper ordering
-    row_order = [f'r{i}' for i in range(1, 17)]
-    col_order = [f'c{i}' for i in range(1, 28)]  # Exclude c15 as per your earlier code
-    
-    df['rowID'] = pd.Categorical(df['rowID'], categories=row_order, ordered=True)
-    df['columnID'] = pd.Categorical(df['columnID'], categories=col_order, ordered=True)
-    df['count'] = df.groupby(['rowID', 'columnID'])['rowID'].transform('count')
-
-    if min_count > 0:
-        df = df[df['count'] >= min_count]
-
-    # Explicitly set observed=True to avoid FutureWarning
-    grouped = df.groupby(['rowID', 'columnID'], observed=True) # Group by row and column
-    
-    if grouping == 'mean':
-        plate = grouped[variable].mean().reset_index()
-    elif grouping == 'sum':
-        plate = grouped[variable].sum().reset_index()
-    elif grouping == 'count':
-        variable = 'count'
-        plate = grouped[variable].count().reset_index()
-    else:
-        raise ValueError(f"Unsupported grouping: {grouping}, use count, sum, or mean")
-        
-    plate_map = pd.pivot_table(plate, values=variable, index='rowID', columns='columnID').fillna(0)
-    
-    if min_max == 'all':
-        min_max = [plate_map.min().min(), plate_map.max().max()]
-    elif min_max == 'allq':
-        min_max = np.quantile(plate_map.values, [0.02, 0.98])
-    elif isinstance(min_max, (list, tuple)) and len(min_max) == 2:
-        if isinstance(min_max[0], (float)) and isinstance(min_max[1], (float)):
-            min_max = np.quantile(plate_map.values, [min_max[0], min_max[1]])
-        if isinstance(min_max[0], (int)) and isinstance(min_max[1], (int)): 
-            min_max = [min_max[0], min_max[1]]
-    return plate_map, min_max
-
-def plot_plates_v1(df, variable, grouping, min_max, cmap, min_count=0, verbose=True, dst=None):
-    plates = df['prc'].str.split('_', expand=True)[0].unique()
-    n_rows, n_cols = (len(plates) + 3) // 4, 4
-    fig, ax = plt.subplots(n_rows, n_cols, figsize=(40, 5 * n_rows))
-    ax = ax.flatten()
-
-    for index, plate in enumerate(plates):
-        plate_map, min_max_values = generate_plate_heatmap(df, plate, variable, grouping, min_max, min_count)
-        sns.heatmap(plate_map, cmap=cmap, vmin=min_max_values[0], vmax=min_max_values[1], ax=ax[index])
-        ax[index].set_title(plate)
-        
-    for i in range(len(plates), n_rows * n_cols):
-        fig.delaxes(ax[i])
-    
-    plt.subplots_adjust(wspace=0.1, hspace=0.4)
-
-    if not dst is None:
-        for i in range(0,1000):
-            filename = os.path.join(dst, f'plate_heatmap_{i}.pdf')
-            if os.path.exists(filename):
-                continue
-            else:
-                fig.savefig(filename, format='pdf')
-                print(f'Saved heatmap to {filename}')
-                break
-    if verbose:
-        plt.show()
-    return fig
 
 def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_count):
     if not isinstance(min_count, (int, float)):
@@ -2787,12 +2646,6 @@ class spacrGraph:
             is_normal = all(p > 0.05 for p in normal_p_values)
 
         return is_normal, normality_results
-
-    def perform_levene_test_v1(self, unique_groups):
-        """Perform Levene's test for equal variance."""
-        grouped_data = [self.df.loc[self.df[self.grouping_column] == group, self.data_column] for group in unique_groups]
-        stat, p_value = levene(*grouped_data)
-        return stat, p_value
     
     def perform_levene_test(self, unique_groups):
         cols = self.data_column if len(self.data_column) > 1 else [self.data_column[0]]
@@ -3459,16 +3312,6 @@ class spacrGraph:
             ax.set_yscale('log')
         if self.log_x:
             ax.set_xscale('log')
-
-    def _save_results_v1(self):
-        """Helper method to save the plot and results."""
-        os.makedirs(self.output_dir, exist_ok=True)
-        plot_path = os.path.join(self.output_dir, f"{self.results_name}.pdf")
-        self.fig.savefig(plot_path, bbox_inches='tight', dpi=600, transparent=True, format='pdf')
-        results_path = os.path.join(self.output_dir, f"{self.results_name}.csv")
-        self.results_df.to_csv(results_path, index=False)
-        print(f"Plot saved to {plot_path}")
-        print(f"Test results saved to {results_path}")
         
     def _save_results(self):
         """Save figure, stats, and all data used to generate the plot."""

@@ -1128,7 +1128,7 @@ def check_settings(vars_dict, expected_types, q=None):
 
         expected_type = expected_types.get(key, str)
         
-        #print(f"Processing key: '{key}' with value: '{value}' and expected type: {expected_type}")
+        print(f"Processing key: '{key}' with value: '{value}' and expected type: {expected_type}")
 
         try:
             if key in ["cell_plate_metadata", "timelapse_frame_limits", "png_size", "png_dims", "pathogen_plate_metadata", "treatment_plate_metadata", "timelapse_objects", "class_metadata", "crop_mode", "dialate_png_ratios"]:
