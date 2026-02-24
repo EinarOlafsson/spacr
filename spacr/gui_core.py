@@ -231,42 +231,6 @@ def display_figure(fig):
                     label.set_visible(visible)
 
         canvas.draw_idle()
-        
-    def zoom_v1(event):
-        # Fixed zoom factors (adjust these if you want faster or slower zoom)
-        zoom_in_factor = 0.9   # When zooming in, ranges shrink by 10%
-        zoom_out_factor = 1.1  # When zooming out, ranges increase by 10%
-
-        # Determine the zoom direction based on the scroll event
-        if event.num == 4 or (hasattr(event, 'delta') and event.delta > 0):  # Scroll up = zoom in
-            factor = zoom_in_factor
-        elif event.num == 5 or (hasattr(event, 'delta') and event.delta < 0): # Scroll down = zoom out
-            factor = zoom_out_factor
-        else:
-            return  # No recognized scroll direction
-
-        for ax in canvas.figure.get_axes():
-            # Get the current mouse position in pixel coordinates
-            mouse_x, mouse_y = event.x, event.y
-
-            # Convert pixel coordinates to data coordinates
-            inv = ax.transData.inverted()
-            data_x, data_y = inv.transform((mouse_x, mouse_y))
-
-            # Get the current axis limits
-            xlim = ax.get_xlim()
-            ylim = ax.get_ylim()
-
-            # Calculate the zooming range around the cursor position
-            x_range = (xlim[1] - xlim[0]) * factor
-            y_range = (ylim[1] - ylim[0]) * factor
-
-            # Adjust the limits while keeping the mouse position fixed
-            ax.set_xlim([data_x - (data_x - xlim[0]) * factor, data_x + (xlim[1] - data_x) * factor])
-            ax.set_ylim([data_y - (data_y - ylim[0]) * factor, data_y + (ylim[1] - data_y) * factor])
-
-        # Redraw the figure efficiently
-        canvas.draw_idle()
 
     # Bind events for hover, click interactions, and zoom
     canvas_widget.bind("<Motion>", on_hover)
