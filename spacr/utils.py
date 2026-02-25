@@ -1503,11 +1503,11 @@ def _split_data(df, group_by, object_type):
     try:
         df['prcft'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str) + '_' + df['fieldID'].astype(str) + '_' + df['timeID'].astype(str)
     except Exception as e:
-        print(e)
+        print('Exception', e)
     try:
         df['prcf'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str) + '_' + df['fieldID'].astype(str)
     except Exception as e:
-        print(e)    
+        print('Exception', e)    
         
     # Create the 'prcfo' column
     df['prcfo'] = df['prcf'] + '_' + df[object_type]

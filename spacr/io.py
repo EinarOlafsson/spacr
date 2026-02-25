@@ -2249,6 +2249,68 @@ def _copy_missclassified(df):
     return
     
 def _read_db(db_loc, tables):
+    import gc
+    import sqlite3
+    import pandas as pd
+
+    from .utils import rename_columns_in_db, correct_metadata
+
+    def _quote_identifier(name):
+        """Safely quote SQLite identifiers (e.g., table names)."""
+        if not isinstance(name, str) or not name:
+            raise ValueError(f"Invalid table name: {name!r}")
+        return '"' + name.replace('"', '""') + '"'
+
+    rename_columns_in_db(db_loc)
+
+    dfs = []
+    chunksize = 100_000  # internal safety setting; adjust if needed
+
+    with sqlite3.connect(db_loc) as conn:
+        # Optional but useful: fail early if a table name is wrong
+        existing_tables = {
+            row[0]
+            for row in conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'"
+            ).fetchall()
+        }
+        
+        print('existing_tables:', existing_tables)
+        print('tables:', tables)
+
+        for table in tables:
+            if table not in existing_tables:
+                raise ValueError(f"Table not found in database: {table}")
+
+            quoted_table = _quote_identifier(table)
+            query = f"SELECT * FROM {quoted_table}"
+
+            # Read in chunks to reduce peak memory during SQL -> pandas conversion
+            chunks = []
+            for chunk in pd.read_sql_query(query, conn, chunksize=chunksize):
+                chunks.append(chunk)
+
+            if len(chunks) == 0:
+                # Empty table: preserve columns
+                df = pd.read_sql_query(f"SELECT * FROM {quoted_table} LIMIT 0", conn)
+            elif len(chunks) == 1:
+                df = chunks[0]
+            else:
+                df = pd.concat(chunks, ignore_index=True)
+
+            del chunks
+            gc.collect()
+
+            df = correct_metadata(df)
+            dfs.append(df)
+
+            # Drop local reference before next loop iteration
+            del df
+            gc.collect()
+
+    return dfs
+    
+def _read_db_v1(db_loc, tables):
     
     from .utils import rename_columns_in_db, correct_metadata
     

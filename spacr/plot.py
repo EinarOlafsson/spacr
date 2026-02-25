@@ -2512,21 +2512,6 @@ class spacrGraph:
             sns.palplot(reordered_palette)
             plt.show()
         return reordered_palette
-
-    #def preprocess_data(self):
-    #    """Preprocess the data: remove NaNs, sort/order the grouping column, and optionally group by 'prc'."""
-    #    # Remove NaNs in both the grouping column and each data column
-    #    df = self.df.dropna(subset=[self.grouping_column] + self.data_column)
-    #    # Group by 'prc' column if representation is 'well'
-    #    if self.representation == 'well':
-    #        df = df.groupby(['prc', self.grouping_column])[self.data_column].agg(self.summary_func).reset_index()
-    #    if self.representation == 'plateID':
-    #        df = df.groupby(['plateID', self.grouping_column])[self.data_column].agg(self.summary_func).reset_index()
-    #    if self.order:
-    #        df[self.grouping_column] = pd.Categorical(df[self.grouping_column], categories=self.order, ordered=True)
-    #    else:
-    #        df[self.grouping_column] = pd.Categorical(df[self.grouping_column], categories=sorted(df[self.grouping_column].unique()), ordered=True)
-    #    return df
   
     def preprocess_data(self):
         """
@@ -3324,6 +3309,10 @@ class spacrGraph:
         # Stats
         stats_path = os.path.join(self.output_dir, f"{self.results_name}_stats.csv")
         self.results_df.to_csv(stats_path, index=False)
+        
+        # Data
+        data_path = os.path.join(self.output_dir, f"{self.results_name}_data.csv")
+        self.df.to_csv(data_path, index=False)
 
         # Data: raw -> preprocessed -> melted (plot input) -> summary (if available)
         #self.raw_df.to_csv(os.path.join(self.output_dir, f"{self.results_name}_raw.csv"), index=False)
@@ -3409,13 +3398,22 @@ def plot_data_from_db(settings):
     df['prc'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str)
     
     if settings['cell_plate_metadata'] !=  None:
-        df = df.dropna(subset='host_cell')
+        try:
+            df = df.dropna(subset='host_cells')
+        except Exception as e:
+            print(f"Could not drop NaN values from 'host_cell' column: {e}")
 
     if settings['pathogen_plate_metadata'] !=  None:
-        df = df.dropna(subset='pathogen')
+        try:
+            df = df.dropna(subset='pathogen')
+        except Exception as e:
+            print(f"Could not drop NaN values from 'pathogen' column: {e}")
 
     if settings['treatment_plate_metadata'] !=  None:
-        df = df.dropna(subset='treatment')
+        try:
+            df = df.dropna(subset='treatment')
+        except Exception as e:
+            print(f"Could not drop NaN values from 'treatment' column: {e}")
         
     if settings['data_column'] == 'recruitment':
         pahtogen_measurement = df[f"pathogen_channel_{settings['channel_of_interest']}_mean_intensity"]
