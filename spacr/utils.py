@@ -4006,7 +4006,7 @@ def _get_regex(metadata_type, img_format, custom_regex=None):
     elif metadata_type == 'auto':
         regex = f"(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>.*)C(?P<chanID>.*).tif"     
     elif metadata_type == 'custom':
-        regex = f"({custom_regex}){img_format}"
+        regex = f"({custom_regex}).{img_format}"
         
     print(f'regex mode:{metadata_type} regex:{regex}')
     return regex
