@@ -41,6 +41,7 @@ dependencies = [
     'pylibCZIrw>=5.0.0,<6.0',
     'aicspylibczi',
     'readlif',
+    'openpyxl>=3.1,<4.0',
     'imageio>=2.34.0,<3.0',
     'pingouin>=0.5.5,<1.0',
     'umap-learn>=0.5.6,<1.0',
