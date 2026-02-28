@@ -65,28 +65,6 @@ def gini_coefficient(x):
     diffsum = np.sum(np.abs(np.subtract.outer(x, x)))
     return diffsum / (2 * len(x) ** 2 * np.mean(x))
 
-def gini_V1(x):
-    """
-    Calculate the Gini coefficient for a given array of values.
-
-    Parameters:
-    x (array-like): Input array of values.
-
-    Returns:
-    float: The Gini coefficient.
-
-    Notes:
-    This implementation has a time and memory complexity of O(n**2), where n is the length of x.
-    Avoid passing in large samples to prevent performance issues.
-    """
-    # Mean absolute difference
-    mad = np.abs(np.subtract.outer(x, x)).mean()
-    # Relative mean absolute difference
-    rmad = mad/np.mean(x)
-    # Gini coefficient
-    g = 0.5 * rmad
-    return g
-
 def gini_gene_well(x):
     """
     Calculate the Gini coefficient for a given income distribution.

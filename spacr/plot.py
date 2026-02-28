@@ -1,4 +1,7 @@
+from __future__ import annotations
 import os, random, cv2, glob, math, torch, itertools
+
+from typing import Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -3976,3 +3979,288 @@ def create_venn_diagram(file1, file2, gene_column="gene", filter_coeff=0.1, save
         "unique_to_file1": list(unique_to_file1),
         "unique_to_file2": list(unique_to_file2)
     }
+
+def volcano_plot(
+    data: Union[str, pd.DataFrame],
+    *,
+    fold_change_col: str,
+    p_value_col: str,
+    name_col: Optional[str] = None,
+    # transforms
+    x_transform: str = "none",      # "none" | "log2" | "log10" | "ln"
+    y_transform: str = "-log10",    # "none" | "-log10" | "-ln" | "log10" | "ln"
+    # thresholds
+    fold_change_threshold: Optional[float] = None,
+    p_value_threshold: Optional[float] = None,
+    # annotation
+    annotate: bool = True,
+    annotate_max: Optional[int] = None,
+    # plotting
+    point_size: float = 20.0,
+    alpha: float = 0.7,
+    figsize: Tuple[float, float] = (8.0, 6.0),
+    title: Optional[str] = None,
+    xlim: Optional[Tuple[float, float]] = None,
+    ylim: Optional[Tuple[float, float]] = None,
+    threshold_line_kwargs: Optional[dict] = None,
+    scatter_kwargs: Optional[dict] = None,
+    text_kwargs: Optional[dict] = None,
+    save_path: Optional[str] = None,
+    show: bool = True,
+    ax: Optional[plt.Axes] = None,
+    # excel options
+    sheet_name: Union[int, str] = 0,
+) -> Tuple[plt.Figure, plt.Axes, list]:
+    """
+    Read a table (CSV/TSV/XLS/XLSX) and generate a volcano plot.
+
+    Auto-detects file type from extension:
+      - .csv -> read_csv
+      - .tsv / .tab -> read_csv(sep="\\t")
+      - .xls / .xlsx -> read_excel (sheet_name)
+
+    Args:
+        data: Path to table file or a pandas DataFrame.
+        fold_change_col: Column name for fold change (or log fold change if x_transform="none").
+        p_value_col: Column name for p-values.
+        name_col: Optional column for labels.
+        x_transform: "none", "log2", "log10", "ln".
+            Use "none" if fold_change_col already contains logFC values (can be negative).
+        y_transform: "none", "-log10", "-ln", "log10", "ln".
+        fold_change_threshold:
+            - If x_transform="none": interpreted in x units (e.g. abs(log2FC) >= 1).
+            - If x_transform is a log transform: interpreted in *raw FC* units (e.g. 2),
+              then converted into plotted units for the vertical dashed lines.
+        p_value_threshold: P-value cutoff (e.g. 0.05); drawn as a dashed horizontal line.
+        annotate: If True and name_col is provided, annotate points passing thresholds.
+                 If no thresholds are provided, nothing is annotated unless annotate_max is set.
+        annotate_max: If set, annotate at most N eligible points (highest y first).
+        sheet_name: Excel sheet index/name (used for .xls/.xlsx).
+
+    Returns:
+        (fig, ax, hits) where hits is the list of annotated labels.
+    """
+
+    # -------------------- I/O helpers --------------------
+    def _read_table_auto(path: str) -> pd.DataFrame:
+        lower = path.lower()
+
+        # Excel
+        if lower.endswith((".xls", ".xlsx")):
+            try:
+                return pd.read_excel(path, sheet_name=sheet_name)
+            except ImportError as e:
+                raise ImportError(
+                    "Reading Excel requires an engine.\n"
+                    "For .xlsx: pip install openpyxl\n"
+                    "For .xls:  pip install xlrd\n"
+                ) from e
+
+        # TSV-like
+        if lower.endswith((".tsv", ".tab")):
+            return pd.read_csv(path, sep="\t")
+
+        # CSV
+        if lower.endswith(".csv"):
+            return pd.read_csv(path)
+
+        # Fallback: sniff delimiter (comma vs tab) and try CSV reader
+        # (If it's actually Excel with a missing extension, user should pass a DataFrame or fix extension)
+        with open(path, "r", encoding="utf-8", errors="ignore") as f:
+            head = f.read(4096)
+        comma = head.count(",")
+        tab = head.count("\t")
+        sep = "\t" if tab > comma else ","
+        return pd.read_csv(path, sep=sep)
+
+    # -------------------- transform helpers --------------------
+    def _as_numeric(s: pd.Series, colname: str) -> np.ndarray:
+        arr = pd.to_numeric(s, errors="coerce").to_numpy(dtype=float)
+        if np.all(np.isnan(arr)):
+            raise ValueError(f"Column '{colname}' could not be converted to numeric.")
+        return arr
+
+    def _transform_x(x: np.ndarray, mode: str) -> np.ndarray:
+        mode = mode.lower()
+        if mode == "none":
+            return x
+        if np.any(x <= 0):
+            raise ValueError(
+                f"x_transform='{mode}' requires all fold changes > 0. "
+                f"If your column is already logFC (can be negative), use x_transform='none'."
+            )
+        if mode == "log2":
+            return np.log2(x)
+        if mode == "log10":
+            return np.log10(x)
+        if mode in ("ln", "log"):
+            return np.log(x)
+        raise ValueError(f"Unknown x_transform: {mode}")
+
+    def _transform_y(p: np.ndarray, mode: str) -> np.ndarray:
+        mode = mode.lower()
+        if mode == "none":
+            return p
+        tiny = np.finfo(float).tiny
+        p2 = np.clip(p, tiny, 1.0)
+        if mode == "-log10":
+            return -np.log10(p2)
+        if mode == "-ln":
+            return -np.log(p2)
+        if mode == "log10":
+            return np.log10(p2)
+        if mode in ("ln", "log"):
+            return np.log(p2)
+        raise ValueError(f"Unknown y_transform: {mode}")
+
+    def _threshold_x_in_plot_units(thresh: float) -> float:
+        t = float(thresh)
+        if x_transform.lower() == "none":
+            return abs(t)
+        if t <= 0:
+            raise ValueError("fold_change_threshold must be > 0 when using a log x_transform.")
+        if x_transform.lower() == "log2":
+            return abs(np.log2(t))
+        if x_transform.lower() == "log10":
+            return abs(np.log10(t))
+        if x_transform.lower() in ("ln", "log"):
+            return abs(np.log(t))
+        raise ValueError(f"Unknown x_transform: {x_transform}")
+
+    def _threshold_y_in_plot_units(pthresh: float) -> float:
+        pt = float(pthresh)
+        if pt <= 0:
+            raise ValueError("p_value_threshold must be > 0.")
+        return float(_transform_y(np.array([pt], dtype=float), y_transform)[0])
+
+    # -------------------- load --------------------
+    df = data.copy() if isinstance(data, pd.DataFrame) else _read_table_auto(str(data))
+
+    if fold_change_col not in df.columns:
+        raise KeyError(f"fold_change_col '{fold_change_col}' not found in columns.")
+    if p_value_col not in df.columns:
+        raise KeyError(f"p_value_col '{p_value_col}' not found in columns.")
+    if name_col is not None and name_col not in df.columns:
+        raise KeyError(f"name_col '{name_col}' not found in columns.")
+
+    x_raw = _as_numeric(df[fold_change_col], fold_change_col)
+    p_raw = _as_numeric(df[p_value_col], p_value_col)
+
+    keep = ~np.isnan(x_raw) & ~np.isnan(p_raw)
+    df = df.loc[keep].copy()
+    x_raw = x_raw[keep]
+    p_raw = p_raw[keep]
+
+    x = _transform_x(x_raw, x_transform)
+    y = _transform_y(p_raw, y_transform)
+
+    # -------------------- thresholds & hit mask --------------------
+    mask = np.ones(len(df), dtype=bool)
+
+    x_thr_plot = None
+    if fold_change_threshold is not None:
+        x_thr_plot = _threshold_x_in_plot_units(fold_change_threshold)
+        mask &= (np.abs(x) >= x_thr_plot)
+
+    y_thr_plot = None
+    if p_value_threshold is not None:
+        y_thr_plot = _threshold_y_in_plot_units(p_value_threshold)
+        if y_transform.lower() == "none":
+            mask &= (p_raw <= float(p_value_threshold))
+        else:
+            if y_transform.lower().startswith("-"):
+                mask &= (y >= y_thr_plot)
+            else:
+                mask &= (y <= y_thr_plot)
+
+    # -------------------- figure --------------------
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
+    else:
+        fig = ax.figure
+
+    scatter_defaults = dict(s=point_size, alpha=alpha, edgecolors="none")
+    if scatter_kwargs:
+        scatter_defaults.update(scatter_kwargs)
+
+    # color hits if thresholds are provided; otherwise all gray
+    if (fold_change_threshold is not None) or (p_value_threshold is not None):
+        colors = np.where(mask & (x >= 0), "crimson", np.where(mask & (x < 0), "royalblue", "lightgray"))
+    else:
+        colors = "lightgray"
+
+    ax.scatter(x, y, c=colors, **scatter_defaults)
+
+    # labels
+    xlab = fold_change_col if x_transform.lower() == "none" else f"{x_transform}({fold_change_col})"
+    ylab = p_value_col if y_transform.lower() == "none" else f"{y_transform}({p_value_col})"
+    ax.set_xlabel(xlab)
+    ax.set_ylabel(ylab)
+    if title:
+        ax.set_title(title)
+
+    # threshold lines
+    line_defaults = dict(color="black", linestyle="--", linewidth=1.0, alpha=0.9)
+    if threshold_line_kwargs:
+        line_defaults.update(threshold_line_kwargs)
+
+    if x_thr_plot is not None:
+        ax.axvline(-x_thr_plot, **line_defaults)
+        ax.axvline(+x_thr_plot, **line_defaults)
+    if y_thr_plot is not None:
+        ax.axhline(y_thr_plot, **line_defaults)
+
+    if xlim is not None:
+        ax.set_xlim(xlim)
+    if ylim is not None:
+        ax.set_ylim(ylim)
+
+    # cosmetics
+    ax.spines["right"].set_visible(False)
+    ax.spines["top"].set_visible(False)
+    ax.axvline(0, color="black", linewidth=0.8, alpha=0.4)
+
+    # -------------------- annotation --------------------
+    hits: list = []
+    if annotate and (name_col is not None):
+        eligible = mask.copy()
+
+        # If no thresholds were set, annotate nothing unless annotate_max is provided
+        if (fold_change_threshold is None) and (p_value_threshold is None) and (annotate_max is None):
+            eligible[:] = False
+
+        if np.any(eligible):
+            idx = np.where(eligible)[0]
+            if annotate_max is not None and len(idx) > int(annotate_max):
+                idx = idx[np.argsort(y[idx])[::-1][: int(annotate_max)]]
+
+            try:
+                from adjustText import adjust_text
+            except ImportError as e:
+                raise ImportError(
+                    "Annotation requires the 'adjustText' package. Install with:\n"
+                    "  pip install adjustText"
+                ) from e
+
+            tkw = dict(fontsize=8, ha="center", va="bottom")
+            if text_kwargs:
+                tkw.update(text_kwargs)
+
+            texts = []
+            for i in idx:
+                label = str(df.iloc[i][name_col])
+                hits.append(label)
+                texts.append(ax.text(x[i], y[i], label, **tkw))
+
+            adjust_text(
+                texts,
+                ax=ax,
+                arrowprops=dict(arrowstyle="-", color="black", lw=0.8, alpha=0.7),
+            )
+
+    if save_path:
+        fig.savefig(save_path, bbox_inches="tight")
+    if show:
+        plt.show()
+
+    return fig, ax, hits

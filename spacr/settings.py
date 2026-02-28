@@ -1128,8 +1128,6 @@ def check_settings(vars_dict, expected_types, q=None):
 
         expected_type = expected_types.get(key, str)
         
-        print(f"Processing key: '{key}' with value: '{value}' and expected type: {expected_type}")
-
         try:
             if key in ["cell_plate_metadata", "timelapse_frame_limits", "png_size", "png_dims", "pathogen_plate_metadata", "treatment_plate_metadata", "timelapse_objects", "class_metadata", "crop_mode", "dialate_png_ratios"]:
                 if value is None:
@@ -1219,6 +1217,7 @@ def check_settings(vars_dict, expected_types, q=None):
                     raise ValueError(f"Expected type {expected_type.__name__} for '{key}', but got '{value}'.")
 
         except (ValueError, SyntaxError) as e:
+            print(f"Processing key: '{key}' with value: '{value}' and expected type: {expected_type}")
             expected_type_name = ' or '.join([t.__name__ for t in expected_type]) if isinstance(expected_type, tuple) else expected_type.__name__
             errors.append(f"Error: '{key}' has invalid format. Expected type: {expected_type_name}. Got value: '{value}'. Error: {e}")
 
