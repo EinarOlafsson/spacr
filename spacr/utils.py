@@ -1093,7 +1093,8 @@ def _map_wells_png(file_name, timelapse=False):
     try:
         root, ext = os.path.splitext(file_name)
         parts = root.split('_')
-        plate = 'p' + parts[0]
+        #plate = 'p' + parts[0]
+        plate = parts[0]
         well = parts[1]
         field = 'f' + str(_safe_int_convert(parts[2]))
         if timelapse:
@@ -6400,6 +6401,12 @@ def correct_metadata(df):
     
     #if 'object' in df.columns:
     #    df['objectID'] = df['object']
+    # delete these four lines in 2027
+    if 'plateID' in df.columns:
+        df["plateID"] = df["plateID"].str.replace(r"^pp", "p", regex=True)
+        
+    if 'prcfo' in df.columns:
+        df["prcfo"] = df["prcfo"].str.replace(r"^pp", "p", regex=True)
         
     if 'object_name' in df.columns:
         df['objectID'] = df['object_name']
