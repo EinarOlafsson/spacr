@@ -2048,33 +2048,7 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
         print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Merging Arrays")
 
     return
-    
-def _read_db(db_loc, tables):
-    """
-    Read data from a SQLite database.
-
-    Parameters:
-    - db_loc (str): The location of the SQLite database file.
-    - tables (list): A list of table names to read from.
-
-    Returns:
-    - dfs (list): A list of pandas DataFrames, each containing the data from a table.
-    """
-    from .utils import rename_columns_in_db, correct_metadata
-    
-    rename_columns_in_db(db_loc)
-    conn = sqlite3.connect(db_loc)
-    dfs = []
-    
-    for table in tables:
-        query = f'SELECT * FROM {table}'
-        df = pd.read_sql_query(query, conn)
-        df = correct_metadata(df)
-        dfs.append(df)
         
-    conn.close()
-    return dfs
-    
 def _results_to_csv(src, df, df_well):
     """
     Save the given dataframes as CSV files in the specified directory.
@@ -2247,6 +2221,32 @@ def _copy_missclassified(df):
         shutil.copy(original_path, new_path)
     print(f"Copied {len(misclassified)} misclassified images.")
     return
+
+def _read_db_v1(db_loc, tables):
+    """
+    Read data from a SQLite database.
+
+    Parameters:
+    - db_loc (str): The location of the SQLite database file.
+    - tables (list): A list of table names to read from.
+
+    Returns:
+    - dfs (list): A list of pandas DataFrames, each containing the data from a table.
+    """
+    from .utils import rename_columns_in_db, correct_metadata
+    
+    rename_columns_in_db(db_loc)
+    conn = sqlite3.connect(db_loc)
+    dfs = []
+    
+    for table in tables:
+        query = f'SELECT * FROM {table}'
+        df = pd.read_sql_query(query, conn)
+        df = correct_metadata(df)
+        dfs.append(df)
+        
+    conn.close()
+    return dfs
     
 def _read_db(db_loc, tables):
     import gc
@@ -2308,21 +2308,6 @@ def _read_db(db_loc, tables):
             del df
             gc.collect()
 
-    return dfs
-    
-def _read_db_v1(db_loc, tables):
-    
-    from .utils import rename_columns_in_db, correct_metadata
-    
-    rename_columns_in_db(db_loc)
-    conn = sqlite3.connect(db_loc) # Create a connection to the database
-    dfs = []
-    for table in tables:
-        query = f'SELECT * FROM {table}' # Write a SQL query to get the data from the database
-        df = pd.read_sql_query(query, conn) # Use the read_sql_query function to get the data and save it as a DataFrame
-        df = correct_metadata(df)
-        dfs.append(df)
-    conn.close() # Close the connection
     return dfs
 
 def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_limit=10, change_plate=False):
