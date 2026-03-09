@@ -1420,7 +1420,7 @@ def generate_fields(variables, scrollable_frame):
         "test_images": "(list) - List of images to use for testing.",
         "test_mode": "(bool) - Mode to use for testing the analysis pipeline.",
         "test_nr": "(int) - Number of test images.",
-        "test_size": "(float) - Size of the test set.",
+        "test_size": "(float) - Size of the test set. If test_size is 0.2 20 percent of the data will be used to test and 80 to train the model.",
         "treatment_loc": "(list) - The locations of the treatments in the images.",
         "treatments": "(list) - The treatments to include in the analysis.",
         "top_features": "(int) - Top features to include in the analysis.",
