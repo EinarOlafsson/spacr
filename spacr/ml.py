@@ -1280,15 +1280,13 @@ def generate_ml_scores(settings):
     
     from .io import _read_and_merge_data, _read_db
     from .plot import plot_plates
-    from .utils import get_ml_results_paths, add_column_to_database, calculate_shortest_distance
+    from .utils import get_ml_results_paths, add_column_to_database, calculate_shortest_distance, save_settings
     from .settings import set_default_analyze_screen
 
     settings = set_default_analyze_screen(settings)
+    save_settings(settings, name='generate_ml_scores', show=True)
 
     srcs = settings['src']
-
-    settings_df = pd.DataFrame(list(settings.items()), columns=['Key', 'Value'])
-    display(settings_df)
     
     if isinstance(srcs, str):
         srcs = [srcs]
@@ -1390,7 +1388,7 @@ def generate_ml_scores(settings):
     data_path, permutation_path, feature_importance_path, model_metricks_path, permutation_fig_path, feature_importance_fig_path, shap_fig_path, plate_heatmap_path, settings_csv, ml_features = get_ml_results_paths(src1, settings['model_type_ml'], settings['channel_of_interest'])
     df, permutation_df, feature_importance_df, _, _, _, _, _, metrics_df, _ = output
 
-    settings_df.to_csv(settings_csv, index=False)
+    #settings_df.to_csv(settings_csv, index=False)
     df.to_csv(data_path, mode='w', encoding='utf-8')
     permutation_df.to_csv(permutation_path, mode='w', encoding='utf-8')
     feature_importance_df.to_csv(feature_importance_path, mode='w', encoding='utf-8')
