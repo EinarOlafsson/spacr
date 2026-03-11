@@ -1384,7 +1384,148 @@ def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, cha
             smooth_grad_image = Image.fromarray((smooth_grad_map * 255).astype(np.uint8))
             smooth_grad_image.save(os.path.join(save_dir, f'smooth_grad_{file}'))
             
-def deep_spacr(settings={}):
+def save_top_class_examples(df, tar_path, dst, n=20, classes=None):
+    """
+    Extract the N most confident images per class from the tar and save
+    them into class-labelled subfolders under dst.
+
+    For binary classification (classes=[0, 1]):
+      - class_0/  ← the 20 images with the LOWEST  pred  (closest to 0)
+      - class_1/  ← the 20 images with the HIGHEST pred  (closest to 1)
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Must contain columns 'path' (tar member name) and 'pred' (probability).
+    tar_path : str
+        Path to the tar archive that holds the images.
+    dst : str
+        Root folder where class subfolders will be created.
+    n : int
+        Number of top images to keep per class.
+    classes : list or None
+        Explicit class labels. If None, defaults to binary [0, 1].
+    """
+    import os, tarfile
+    from io import BytesIO
+    from PIL import Image
+
+    # -- default to binary labels if the caller doesn't specify --
+    if classes is None:
+        classes = [0, 1]
+
+    # -- collect the tar member names we need to extract --
+    paths_to_extract = set()
+
+    for cls in classes:
+        # For binary: class 0 → lowest pred, class 1 → highest pred
+        # For multiclass this would need per-class probability columns;
+        # keeping it binary-friendly for now.
+        if cls == 0:
+            # sort ascending: values closest to 0 come first
+            top = df.nsmallest(n, 'pred')
+        else:
+            # sort descending: values closest to 1 come first
+            top = df.nlargest(n, 'pred')
+
+        # create the class subfolder
+        cls_dir = os.path.join(dst, f'class_{cls}')
+        os.makedirs(cls_dir, exist_ok=True)
+
+        # remember which member names belong to this class
+        for _, row in top.iterrows():
+            paths_to_extract.add(row['path'])
+
+    # -- build a lookup: tar member name → list of (class, dest_path) --
+    # (an image could theoretically appear in both extremes for a
+    #  degenerate model, so we use a list)
+    member_destinations = {}
+
+    for cls in classes:
+        if cls == 0:
+            top = df.nsmallest(n, 'pred')
+        else:
+            top = df.nlargest(n, 'pred')
+
+        cls_dir = os.path.join(dst, f'class_{cls}')
+        for _, row in top.iterrows():
+            fname = os.path.basename(row['path'])
+            dest_file = os.path.join(cls_dir, fname)
+            member_destinations.setdefault(row['path'], []).append(dest_file)
+
+    # -- single pass through the tar: extract only the members we need --
+    extracted = 0
+    with tarfile.open(tar_path, 'r') as tar:
+        for member in tar.getmembers():
+            if member.name in member_destinations:
+                img_bytes = tar.extractfile(member).read()
+                for dest_file in member_destinations[member.name]:
+                    with open(dest_file, 'wb') as f:
+                        f.write(img_bytes)
+                    extracted += 1
+
+    print(f"Saved {extracted} top-confidence example images to {dst}")
+    return dst
+
+def merge_predictions_into_db(df, db_path, table='png_list', pred_col='pred',
+                               class_col='cv_predictions'):
+    """
+    Merge prediction scores back into the SQLite database.
+
+    Matching on basename of png_path (DB) vs path (tar member name),
+    since the tar stores relative member names while the DB stores
+    full disk paths.
+    """
+    import sqlite3, os
+
+    if not os.path.exists(db_path):
+        print(f"Database not found at {db_path}; skipping merge.")
+        return
+
+    df = df.copy()
+    # -- derive basename from the tar member name for matching --
+    df['_join_key'] = df['path'].apply(os.path.basename)
+
+    conn = sqlite3.connect(db_path)
+    cur = conn.cursor()
+
+    # -- add prediction columns if they don't already exist --
+    for col, col_type in [(pred_col, 'REAL'), (class_col, 'INTEGER')]:
+        try:
+            cur.execute(f"ALTER TABLE {table} ADD COLUMN {col} {col_type}")
+        except sqlite3.OperationalError:
+            pass
+
+    # -- build a lookup dict keyed on basename for fast matching --
+    lookup = {}
+    for _, row in df.iterrows():
+        lookup[row['_join_key']] = (row[pred_col], row[class_col])
+
+    # -- fetch png_path from the DB; match on its basename --
+    cur.execute(f"SELECT rowid, png_path FROM {table}")
+    rows = cur.fetchall()
+
+    updates = []
+    matched = 0
+    for rowid, png_path in rows:
+        # png_path is the full disk path; compare basenames
+        basename = os.path.basename(png_path) if png_path else None
+        if basename in lookup:
+            pred_val, class_val = lookup[basename]
+            updates.append((pred_val, class_val, rowid))
+            matched += 1
+
+    cur.executemany(
+        f"UPDATE {table} SET {pred_col} = ?, {class_col} = ? WHERE rowid = ?",
+        updates
+    )
+    conn.commit()
+    conn.close()
+
+    print(f"Merged predictions into {table}: {matched}/{len(rows)} rows matched")
+    return matched
+            
+def deep_spacr_v1(settings={}):
     import os
     # local imports kept inside to avoid import cycles on some setups
     from .settings import deep_spacr_defaults
@@ -1434,6 +1575,74 @@ def deep_spacr(settings={}):
         model_path = settings.get('model_path')
         if model_path and os.path.exists(model_path):
             apply_model_to_tar(settings)  
+        else:
+            print(f"Model path {model_path} not found; skipping model application.")
+            
+def deep_spacr(settings={}):
+    import os
+    # local imports kept inside to avoid import cycles on some setups
+    from .settings import deep_spacr_defaults
+    from .io import generate_training_dataset, generate_dataset
+    from .utils import save_settings
+
+    # 1) expand defaults (now supports things like metadata_rules, annotation_columns, measurement_rules, etc.)
+    settings = deep_spacr_defaults(settings)
+    src_before = settings.get('src')
+
+    # persist a snapshot of the config for reproducibility
+    save_settings(settings, name='DL_model')
+
+    # 2) dataset generation (train/test)
+    if settings.get('train') or settings.get('test'):
+        if settings.get('generate_training_dataset'):
+            print("Generating train and test datasets ...")
+            train_path, test_path = generate_training_dataset(settings)
+            print(f'Generated Train set: {train_path}')
+            print(f'Generated Test set: {test_path}')
+            
+            if train_path:
+                settings['src'] = os.path.dirname(train_path)
+            else:
+                print("Training dataset generation failed; skipping model training step.")
+                return  # or raise RuntimeError if you prefer hard fail
+            
+            # point training to the newly created train folder by default
+            settings['src'] = os.path.dirname(train_path)
+
+        print("Training model ...")
+        model_path = train_test_model(settings)
+        settings['model_path'] = model_path
+        # restore original src (so later steps like apply can use the user’s dataset if needed)
+        settings['src'] = src_before
+        
+    # 4) apply model to dataset/tar
+    if settings.get('apply_model_to_dataset'):
+        tar_path = settings.get('tar_path')
+
+        # if tar_path missing OR invalid, (re)generate it
+        if not tar_path or not os.path.isabs(tar_path) or not os.path.exists(tar_path):
+            print("tar_path not valid/found; generating dataset tar ...")
+            tar_path = generate_dataset(settings)
+            settings['tar_path'] = tar_path
+
+        model_path = settings.get('model_path')
+        if model_path and os.path.exists(model_path):
+            # -- run inference and get the results DataFrame --
+            df = apply_model_to_tar(settings)
+
+            # -- NEW: save the top-N most confident images per class --
+            # dst sits next to the tar file, in a subfolder called 'top_examples'
+            examples_dst = os.path.join(os.path.dirname(tar_path), 'top_examples')
+            n_examples = settings.get('n_top_examples', 20)
+            save_top_class_examples(df, tar_path, examples_dst, n=n_examples)
+
+            # -- NEW: merge predictions back into the measurements database --
+            # settings['src'] can be a string or list; use the first entry
+            src_list = settings['src'] if isinstance(settings['src'], list) else [settings['src']]
+            for src in src_list:
+                db_path = os.path.join(src, 'measurements', 'measurements.db')
+                merge_predictions_into_db(df, db_path)
+
         else:
             print(f"Model path {model_path} not found; skipping model application.")
             
