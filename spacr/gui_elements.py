@@ -4396,8 +4396,8 @@ class AnnotateApp:
         opt_cbx.set(defaults.get('optimizer_type', 'adamw'))
         _row(adv, ra, "optimizer_type", opt_cbx); ra += 1
 
-        sched_cbx = ttk.Combobox(adv, state='readonly', values=['reduce_lr_on_plateau','step_lr'])
-        sched_cbx.set(defaults.get('schedule', 'reduce_lr_on_plateau'))
+        sched_cbx = ttk.Combobox(adv, state='readonly', values=['cosine','reduce_lr_on_plateau','step_lr'])
+        sched_cbx.set(defaults.get('schedule', 'cosine'))
         _row(adv, ra, "schedule", sched_cbx); ra += 1
 
         wd_sp = ttk.Spinbox(adv, from_=0.0, to=1.0, increment=1e-6)
