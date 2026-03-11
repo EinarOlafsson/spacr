@@ -2849,8 +2849,43 @@ def _infer_indices(target: torch.Tensor, num_classes: int) -> torch.Tensor:
     # binary float → {0,1}
     return (target.view(-1) > 0.5).long()
 
-def estimate_class_counts(loader, num_classes: int) -> torch.Tensor:
+def estimate_class_counts_v1(loader, num_classes: int) -> torch.Tensor:
     """One cheap pass on CPU over labels to get global class counts."""
+    counts = torch.zeros(num_classes, dtype=torch.long)
+    for _, y, _ in loader:
+        y = y.detach()
+        idx = _infer_indices(y, num_classes)
+        binc = torch.bincount(idx, minlength=num_classes)
+        counts[:num_classes] += binc[:num_classes]
+    return counts
+
+def estimate_class_counts(loader, num_classes: int, src=None, classes=None) -> torch.Tensor:
+    """
+    Get per-class sample counts.
+
+    If src and classes are provided, counts files in the class folders
+    directly — no image loading, no DataLoader iteration. This avoids
+    stalls on slow filesystems (NAS) and potential deadlocks with
+    persistent_workers.
+
+    Falls back to iterating the DataLoader only if folder info is missing.
+    """
+
+    # -- fast path: count files on disk instead of loading images --
+    if src is not None and classes is not None:
+        counts = torch.zeros(num_classes, dtype=torch.long)
+        for i, cls in enumerate(classes):
+            cls_dir = os.path.join(src, cls)
+            if os.path.isdir(cls_dir):
+                # count only files, skip subdirectories
+                n = sum(1 for f in os.listdir(cls_dir) if os.path.isfile(os.path.join(cls_dir, f)))
+                counts[i] = n
+        print(f"Class counts (from folders): {dict(zip(classes, counts.tolist()))}")
+        return counts
+
+    # -- slow fallback: iterate the DataLoader (original behavior) --
+    print("Warning: counting classes by iterating DataLoader (slow on NAS). "
+          "Pass src and classes to avoid this.")
     counts = torch.zeros(num_classes, dtype=torch.long)
     for _, y, _ in loader:
         y = y.detach()
