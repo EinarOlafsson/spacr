@@ -73,10 +73,10 @@ dependencies = [
     'huggingface-hub>=0.24.0,<0.25'
 ]
 
-VERSION = "1.2.4"
+VERSION = "1.2.5"
 
 setup(
-    name="spacr_nightly",
+    name="spacr",
     version=VERSION,
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
