@@ -11,6 +11,7 @@ from sklearn.metrics import auc, precision_recall_curve
 from IPython.display import display
 from multiprocessing import cpu_count
 import torch.optim as optim
+from torch.optim.lr_scheduler import StepLR, CosineAnnealingLR
 
 from sklearn.metrics import precision_recall_curve, auc, average_precision_score, confusion_matrix
     
@@ -455,6 +456,132 @@ def train_test_model(settings):
     src = settings['src']
 
     channels_str = ''.join(settings['train_channels'])
+    dst = os.path.join(src, 'model', settings['model_type'], channels_str,
+                       str(f"epochs_{settings['epochs']}"))
+    os.makedirs(dst, exist_ok=True)
+    settings['dst'] = dst
+
+    num_classes = len(settings.get('classes', [])) if settings.get('classes') else 0
+    if num_classes <= 0:
+        raise ValueError("No classes provided in settings['classes'].")
+
+    if settings.get('loss_type') in (None, 'auto'):
+        settings['loss_type'] = 'cross_entropy' if num_classes > 1 else 'binary_cross_entropy_with_logits'
+
+    if settings['train']:
+        if settings['train'] and settings['test']:
+            save_settings(settings, name=f"train_test_{settings['model_type']}_{settings['epochs']}", show=True)
+        elif settings['train'] is True:
+            save_settings(settings, name=f"train_{settings['model_type']}_{settings['epochs']}", show=True)
+        elif settings['test'] is True:
+            save_settings(settings, name=f"test_{settings['model_type']}_{settings['epochs']}", show=True)
+
+    model = None
+    model_path = None
+
+    if settings['train']:
+        train, val, _ = generate_loaders(
+            src,
+            mode='train',
+            image_size=settings['image_size'],
+            batch_size=settings['batch_size'],
+            classes=settings['classes'],
+            n_jobs=settings['n_jobs'],
+            validation_split=settings['val_split'],
+            pin_memory=settings['pin_memory'],
+            normalize=settings['normalize'],
+            channels=settings['train_channels'],
+            augment=settings['augment'],
+            verbose=settings['verbose']
+        )
+
+        model, model_path = train_model(
+            dst=settings['dst'],
+            model_type=settings['model_type'],
+            train_loaders=train,
+            epochs=settings['epochs'],
+            learning_rate=settings['learning_rate'],
+            init_weights=settings['init_weights'],
+            weight_decay=settings['weight_decay'],
+            amsgrad=settings['amsgrad'],
+            optimizer_type=settings['optimizer_type'],
+            use_checkpoint=settings['use_checkpoint'],
+            dropout_rate=settings['dropout_rate'],
+            n_jobs=settings['n_jobs'],
+            val_loaders=val,
+            test_loaders=None,
+            intermedeate_save=settings['intermedeate_save'],
+            schedule=settings['schedule'],
+            loss_type=settings['loss_type'],
+            gradient_accumulation=settings['gradient_accumulation'],
+            gradient_accumulation_steps=settings['gradient_accumulation_steps'],
+            channels=settings['train_channels'],
+            num_classes=num_classes,
+            early_stopping_patience=settings.get('early_stopping_patience', 0),
+        )
+
+    if settings['test']:
+        test, _, _ = generate_loaders(
+            src,
+            mode='test',
+            image_size=settings['image_size'],
+            batch_size=settings['batch_size'],
+            classes=settings['classes'],
+            n_jobs=settings['n_jobs'],
+            validation_split=0.0,
+            pin_memory=settings['pin_memory'],
+            normalize=settings['normalize'],
+            channels=settings['train_channels'],
+            augment=False,
+            verbose=settings['verbose']
+        )
+
+        if model is None:
+            model_path = pick_best_model(src + '/model')
+            print(f'Best model: {model_path}')
+            model = torch.load(model_path, map_location=lambda storage, loc: storage,
+                               weights_only=False)
+
+        model_fldr = dst
+        time_now = datetime.date.today().strftime('%y%m%d')
+        result_loc = f"{model_fldr}/{settings['model_type']}_time_{time_now}_test_result.csv"
+        acc_loc = f"{model_fldr}/{settings['model_type']}_time_{time_now}_test_acc.csv"
+        print(f'Results will be saved in: {result_loc}')
+
+        result, accuracy = test_model_performance(loaders=test,
+                                                  model=model,
+                                                  loader_name_list='test',
+                                                  epoch=1,
+                                                  loss_type=settings['loss_type'])
+
+        result.to_csv(result_loc, index=True, header=True, mode='w')
+        accuracy.to_csv(acc_loc, index=True, header=True, mode='w')
+        _copy_missclassified(accuracy)
+
+    torch.cuda.empty_cache()
+    torch.cuda.memory.empty_cache()
+    gc.collect()
+
+    if settings['train']:
+        return model_path
+    if settings['test']:
+        return result_loc
+
+def train_test_model_v1(settings):
+    from .io import _copy_missclassified
+    from .utils import pick_best_model, save_settings
+    from .io import generate_loaders
+    from .settings import get_train_test_model_settings
+
+    settings = get_train_test_model_settings(settings)
+
+    torch.cuda.empty_cache()
+    torch.cuda.memory.empty_cache()
+    gc.collect()
+
+    src = settings['src']
+
+    channels_str = ''.join(settings['train_channels'])
     dst = os.path.join(src,'model', settings['model_type'], channels_str, str(f"epochs_{settings['epochs']}"))
     os.makedirs(dst, exist_ok=True)
     settings['dst'] = dst
@@ -565,6 +692,229 @@ def train_test_model(settings):
         return result_loc
     
 def train_model(dst, model_type, train_loaders, epochs=100, learning_rate=0.0001,
+                weight_decay=0.05, amsgrad=False, optimizer_type='adamw',
+                use_checkpoint=False, dropout_rate=0, n_jobs=20, val_loaders=None,
+                test_loaders=None, init_weights='imagenet', intermedeate_save=None,
+                chan_dict=None, schedule=None, loss_type='auto',
+                gradient_accumulation=False, gradient_accumulation_steps=4,
+                channels=['r', 'g', 'b'], verbose=False, num_classes=2,
+                # add early stopping parameters
+                early_stopping_patience=0,  # 0 = disabled; e.g. 20 = stop after 20 epochs without val improvement
+                ):
+    """
+    Trains a model (supports 2-class and >2-class via CrossEntropy).
+    
+    New parameters:
+        early_stopping_patience: number of epochs with no val improvement before stopping.
+                                 Set to 0 to disable (original behavior).
+    """
+    
+    from .io import _save_model, _save_progress
+    from .utils import choose_model, suggest_training_changes, build_loss, estimate_class_counts
+
+    print(f'Train batches:{len(train_loaders)}, Validation batches:{len(val_loaders) if val_loaders else 0}')
+    if test_loaders is not None:
+        print(f'Test batches:{len(test_loaders)}')
+
+    use_cuda = torch.cuda.is_available()
+    device = torch.device("cuda" if use_cuda else "cpu")
+    print(f'Using {device} for Torch')
+
+    head_dim = max(1, int(num_classes))
+
+    counts = estimate_class_counts(train_loaders, head_dim) if head_dim >= 2 else None
+
+    loss_fn = build_loss(
+        loss_type=loss_type,
+        num_classes=head_dim,
+        class_counts=counts,
+        label_smoothing=0.1,
+        focal_gamma=2.0,
+        focal_alpha=None,
+        logit_adjust_tau=1.0
+    )
+
+    model = choose_model(model_type, device, init_weights, dropout_rate,
+                         use_checkpoint, verbose=verbose, num_classes=head_dim)
+    if model is None:
+        print(f'Model {model_type} not found')
+        return
+
+    print(f'Loading Model to {device}...')
+    model.to(device)
+
+    if optimizer_type == 'adamw':
+        optimizer = AdamW(model.parameters(), lr=learning_rate, betas=(0.9, 0.999),
+                          weight_decay=weight_decay, amsgrad=amsgrad)
+    elif optimizer_type == 'adagrad':
+        optimizer = Adagrad(model.parameters(), lr=learning_rate, eps=1e-8,
+                            weight_decay=weight_decay)
+    else:
+        raise ValueError(f"Unknown optimizer_type: {optimizer_type}")
+
+    if schedule == 'step_lr':
+        scheduler = StepLR(optimizer, step_size=max(1, int(epochs / 5)), gamma=0.75)
+    elif schedule == 'reduce_lr_on_plateau':
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer, mode='min', factor=0.1, patience=10, verbose=True)
+    elif schedule == 'cosine':
+        # FIX: new option — cosine annealing
+        scheduler = CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-7)
+    else:
+        scheduler = None
+
+    accumulated_train_dicts, accumulated_val_dicts, accumulated_test_dicts = [], [], []
+
+    # track the best validation accuracy and corresponding model path
+    best_val_acc = -1.0
+    best_model_path = None
+    epochs_without_improvement = 0
+
+    print('Training ...')
+    for epoch in range(1, epochs + 1):
+        model.train()
+        start_time = time.time()
+
+        if gradient_accumulation:
+            optimizer.zero_grad(set_to_none=True)
+
+        # record total number of batches so we can detect leftover gradients
+        n_batches = len(train_loaders)
+
+        for batch_idx, (data, target, filenames) in enumerate(train_loaders, start=1):
+            data = data.to(device)
+            logits = model(data)
+
+            is_multiclass = (logits.ndim == 2 and logits.size(1) >= 2)
+
+            if is_multiclass:
+                if target.ndim == 2:
+                    target = target.argmax(dim=1)
+                target = target.to(device).long()
+                if not (logits.ndim == 2 and logits.size(1) == head_dim):
+                    raise RuntimeError(
+                        f"Expected logits (N,{head_dim}) for CE, got {tuple(logits.shape)}")
+            else:
+                target = target.to(device).float()
+
+            loss = loss_fn(logits, target)
+
+            if gradient_accumulation:
+                loss = loss / gradient_accumulation_steps
+
+            loss.backward()
+
+            if (not gradient_accumulation) or (batch_idx % gradient_accumulation_steps == 0):
+                optimizer.step()
+                optimizer.zero_grad(set_to_none=True)
+
+        # flush leftover accumulated gradients at the end of the epoch
+        if gradient_accumulation and (n_batches % gradient_accumulation_steps != 0):
+            optimizer.step()
+            optimizer.zero_grad(set_to_none=True)
+
+        # Epoch end: evaluate
+        train_time = time.time() - start_time
+        loop_loss_type = 'ce' if head_dim >= 2 else 'bce'
+        train_dict, _ = evaluate_model_performance(
+            model, train_loaders, epoch,
+            loss_type=loop_loss_type,
+            loss_fn=loss_fn,
+            num_classes=head_dim
+        )
+        train_dict['train_time'] = train_time
+        accumulated_train_dicts.append(train_dict)
+
+        # initialize val_dict to None so the variable always exists for _save_model
+        val_dict = None
+
+        if val_loaders is not None and len(val_loaders) > 0:
+            val_dict, _ = evaluate_model_performance(
+                model, val_loaders, epoch,
+                loss_type=loop_loss_type,
+                loss_fn=loss_fn,
+                num_classes=head_dim
+            )
+            accumulated_val_dicts.append(val_dict)
+            if schedule == 'reduce_lr_on_plateau':
+                scheduler.step(val_dict['loss'])
+
+            print(f"Progress: {train_dict.get('epoch', epoch)}/{epochs}, operation_type: Training, "
+                  f"Train Loss: {train_dict.get('loss', float('nan')):.3f}, "
+                  f"Val Loss: {val_dict.get('loss', float('nan')):.3f}, "
+                  f"Train acc.: {train_dict.get('accuracy', float('nan')):.3f}, "
+                  f"Val acc.: {val_dict.get('accuracy', float('nan')):.3f}, "
+                  f"Train F1(macro): {train_dict.get('f1_macro', float('nan')):.3f}, "
+                  f"Val F1(macro): {val_dict.get('f1_macro', float('nan')):.3f}")
+
+            # track best validation accuracy for early stopping and best-model selection
+            current_val_acc = val_dict.get('accuracy', 0.0)
+            if current_val_acc > best_val_acc:
+                best_val_acc = current_val_acc
+                epochs_without_improvement = 0
+            else:
+                epochs_without_improvement += 1
+        else:
+            print(f"Progress: {train_dict.get('epoch', epoch)}/{epochs}, operation_type: Training, "
+                  f"Train Loss: {train_dict.get('loss', float('nan')):.3f}, "
+                  f"Train acc.: {train_dict.get('accuracy', float('nan')):.3f}, "
+                  f"Train F1(macro): {train_dict.get('f1_macro', float('nan')):.3f}")
+
+        if scheduler and schedule in ('step_lr', 'cosine'):
+            # FIX: also step cosine scheduler here
+            scheduler.step()
+
+        # Save rolling CSVs
+        if accumulated_train_dicts and accumulated_val_dicts:
+            _save_progress(dst, pd.DataFrame(accumulated_train_dicts),
+                           pd.DataFrame(accumulated_val_dicts))
+            accumulated_train_dicts, accumulated_val_dicts = [], []
+        elif accumulated_train_dicts:
+            _save_progress(dst, pd.DataFrame(accumulated_train_dicts), None)
+            accumulated_train_dicts = []
+        elif accumulated_test_dicts:
+            _save_progress(dst, pd.DataFrame(accumulated_test_dicts), None)
+            accumulated_test_dicts = []
+
+        # pass val_dict to _save_model so checkpoint decisions use validation accuracy
+        model_path = _save_model(model, model_type, train_dict, dst, epoch, epochs,
+                                 intermedeate_save=[0.99, 0.98, 0.95, 0.94],
+                                 channels=channels,
+                                 val_dict=val_dict)  # FIX: new argument
+
+        # track the best model path based on validation accuracy
+        if model_path is not None and val_dict is not None:
+            if val_dict.get('accuracy', 0.0) >= best_val_acc:
+                best_model_path = model_path
+        elif model_path is not None and best_model_path is None:
+            best_model_path = model_path
+
+        # early stopping — break if val hasn't improved for `patience` epochs
+        if early_stopping_patience > 0 and epochs_without_improvement >= early_stopping_patience:
+            print(f"\nEarly stopping at epoch {epoch}: no val improvement for "
+                  f"{early_stopping_patience} epochs. Best val acc: {best_val_acc:.4f}")
+            break
+
+        # Periodic suggestions (every 25 epochs and final epoch)
+        if (epoch % 25 == 0) or (epoch == epochs):
+            try:
+                report = suggest_training_changes(dst)
+                print("== Summary ==")
+                for k, v in report["summary"].items():
+                    print(f"{k}: {v}")
+                print("\n== Flags ==")
+                print(", ".join(report["flags"]) or "none")
+                print("\n== Suggestions ==")
+                for i, s in enumerate(report["suggestions"], 1):
+                    print(f"{i}. {s}")
+            except Exception as e:
+                print(f"[suggest_training_changes] Skipped at epoch {epoch}: {e}")
+
+    # return best_model_path if available, otherwise fall back to last model_path
+    final_path = best_model_path if best_model_path is not None else model_path
+    return model, final_path
+    
+def train_model_v1(dst, model_type, train_loaders, epochs=100, learning_rate=0.0001,
                 weight_decay=0.05, amsgrad=False, optimizer_type='adamw',
                 use_checkpoint=False, dropout_rate=0, n_jobs=20, val_loaders=None,
                 test_loaders=None, init_weights='imagenet', intermedeate_save=None,

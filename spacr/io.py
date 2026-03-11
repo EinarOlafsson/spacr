@@ -2120,7 +2120,7 @@ def read_plot_model_stats(train_file_path, val_file_path ,save=False):
     _plot_and_save(train_df, val_df, column='prauc', save=save, path=fldr_1)
     _plot_and_save(train_df, val_df, column='optimal_threshold', save=save, path=fldr_1)
     
-def _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_save=[0.99,0.98,0.95,0.94], channels=['r','g','b']):
+def _save_model_v1(model, model_type, results_df, dst, epoch, epochs, intermedeate_save=[0.99,0.98,0.95,0.94], channels=['r','g','b']):
     """
     Save the model based on certain conditions during training.
 
@@ -2159,6 +2159,66 @@ def _save_model(model, model_type, results_df, dst, epoch, epochs, intermedeate_
             model_path = None
     
     return model_path
+
+def _save_model(model, model_type, results_dict, dst, epoch, epochs,
+                intermedeate_save=[0.99, 0.98, 0.95, 0.94],
+                channels=['r', 'g', 'b'],
+                # FIX: accept an optional validation dict for checkpoint decisions
+                # WHY: the original used train_dict, so checkpoints reflected memorization
+                #      not generalization — val metrics are the correct signal
+                val_dict=None):
+    """
+    Save the model based on certain conditions during training.
+
+    Args:
+        model (torch.nn.Module): The trained model to be saved.
+        model_type (str): The type of the model.
+        results_df (pandas.DataFrame): The dataframe containing the validation results.
+        dst (str): The destination directory to save the model.
+        epoch (int): The current epoch number.
+        epochs (int): The total number of epochs.
+        intermedeate_save (list, optional): List of accuracy thresholds to trigger intermediate model saves. 
+                                            Defaults to [0.99, 0.98, 0.95, 0.94].
+        channels (list, optional): List of channels used. Defaults to ['r', 'g', 'b'].
+    """
+    
+    channels_str = ''.join(channels)
+
+    def save_model_at_threshold(threshold, epoch, suffix=""):
+        percentile = str(threshold * 100)
+        print(f'Found: {percentile}% accurate model')
+        model_path = f'{dst}/{model_type}_epoch_{str(epoch)}{suffix}_acc_{percentile}_channels_{channels_str}.pth'
+        torch.save(model, model_path)
+        return model_path
+
+    if epoch % 100 == 0 or epoch == epochs:
+        model_path = f'{dst}/{model_type}_epoch_{str(epoch)}_channels_{channels_str}.pth'
+        torch.save(model, model_path)
+        return model_path
+
+    # FIX: use val_dict if available, otherwise fall back to train results_dict
+    # WHY: checkpointing on training accuracy lets the model overfit past the
+    #      val plateau — you save a model that memorized the train set, not the
+    #      one that generalizes best
+    check_dict = val_dict if val_dict is not None else results_dict
+
+    for threshold in intermedeate_save:
+        # FIX: use the generic 'accuracy' key instead of 'neg_accuracy'/'pos_accuracy'
+        # WHY: the original checked results_df['neg_accuracy'] and results_df['pos_accuracy']
+        #      — these keys only exist for binary classification with specific class naming.
+        #      For multiclass (>2 classes), these keys don't exist, so the intermediate
+        #      checkpoint NEVER fires.  You only ever saved at epoch 100/200/etc or the
+        #      final epoch.  Using the generic 'accuracy' key works for any number of classes.
+        acc = check_dict.get('accuracy', 0.0)
+        if acc >= threshold:
+            print(f"Accuracy: {acc:.4f}")
+            model_path = save_model_at_threshold(threshold, epoch)
+            break
+        else:
+            model_path = None
+
+    return model_path
+
 
 def _save_progress(dst, train_df, validation_df):
     """
@@ -2717,6 +2777,118 @@ def generate_dataset(settings={}):
     return tar_name
 
 def generate_loaders(src, mode='train', image_size=224, batch_size=32,
+                     classes=['nc', 'pc'], n_jobs=None, validation_split=0.0,
+                     pin_memory=False, normalize=False, channels=['r', 'g', 'b'],
+                     augment=False, verbose=False):
+
+    from .utils import SelectChannels, augment_dataset
+
+    chans = []
+    if 'r' in channels: chans.append(1)
+    if 'g' in channels: chans.append(2)
+    if 'b' in channels: chans.append(3)
+    channels = chans
+
+    if verbose:
+        print(f'Training a network on channels: {channels}')
+        print(f'Channel 1: Red, Channel 2: Green, Channel 3: Blue')
+
+    if mode == 'train':
+        data_dir = os.path.join(src, 'train')
+        shuffle = True
+        print('Loading Train and validation datasets')
+    elif mode == 'test':
+        data_dir = os.path.join(src, 'test')
+        validation_split = 0.0
+        shuffle = True
+        print('Loading test dataset')
+    else:
+        print(f'mode:{mode} is not valid, use mode = train or test')
+        return
+
+    # FIX: raise an error instead of just printing when class folders are missing
+    # WHY: the original printed a warning but continued execution, silently
+    #      training on a broken/incomplete dataset — this masks data problems
+    #      that look like model performance problems
+    missing = [c for c in classes if not os.path.isdir(os.path.join(data_dir, c))]
+    if missing:
+        available = sorted([d for d in os.listdir(data_dir)
+                            if os.path.isdir(os.path.join(data_dir, d))])
+        raise FileNotFoundError(
+            f"Class folders missing in {data_dir}:\n"
+            f"  Missing:   {missing}\n"
+            f"  Available: {available}"
+        )
+
+    # FIX: match normalization mean/std tuple length to the actual number of
+    #      selected channels, not a hardcoded 3
+    # WHY: if you select only 1 channel (e.g. channels=['g']), the original
+    #      Normalize(mean=(0.5,0.5,0.5), std=(0.5,0.5,0.5)) will crash or
+    #      silently produce wrong values because the tensor has 1 channel but
+    #      normalize expects 3
+    n_ch = len(channels)
+    norm_transforms = (
+        [transforms.Normalize(mean=(0.5,) * n_ch, std=(0.5,) * n_ch)]
+        if normalize else []
+    )
+
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.CenterCrop(size=(image_size, image_size)),
+        SelectChannels(channels),
+        *norm_transforms,  # FIX: uses channel-count-aware normalization
+    ])
+
+    data = spacrDataset(data_dir, classes, transform=transform,
+                        shuffle=True, pin_memory=pin_memory)
+
+    # FIX: actually use the computed num_workers variable
+    # WHY: the original computed `num_workers = n_jobs if n_jobs is not None else 0`
+    #      but then hardcoded `num_workers=1` in every DataLoader call.  This
+    #      starves the GPU — data loading becomes the bottleneck because only 1
+    #      worker is fetching/augmenting batches
+    num_workers = n_jobs if n_jobs is not None else 0
+
+    if validation_split > 0 and mode == 'train':
+        train_size = int((1 - validation_split) * len(data))
+        val_size = len(data) - train_size
+        if not augment:
+            print(f'Train data:{train_size}, Validation data:{val_size}')
+        train_dataset, val_dataset = random_split(data, [train_size, val_size])
+
+        if augment:
+            print(f'Data before augmentation: Train: {len(train_dataset)}, Validation:{len(val_dataset)}')
+            train_dataset = augment_dataset(train_dataset, is_grayscale=(len(channels) == 1))
+            print(f'Data after augmentation: Train: {len(train_dataset)}')
+
+        print(f'Generating Dataloader with {num_workers} workers')
+        train_loaders = DataLoader(train_dataset, batch_size=batch_size, shuffle=True,
+                                   num_workers=num_workers,  # FIX: was hardcoded to 1
+                                   pin_memory=pin_memory,
+                                   persistent_workers=(num_workers > 0))
+
+        # FIX: don't shuffle the validation DataLoader
+        # WHY: shuffling validation data wastes time and has zero benefit —
+        #      evaluation metrics are computed over the entire set regardless of order
+        val_loaders = DataLoader(val_dataset, batch_size=batch_size,
+                                 shuffle=False,  # FIX: was True
+                                 num_workers=num_workers,  # FIX: was hardcoded to 1
+                                 pin_memory=pin_memory,
+                                 persistent_workers=(num_workers > 0))
+        train_fig = None
+        return train_loaders, val_loaders, train_fig
+
+    else:
+        train_loaders = DataLoader(data, batch_size=batch_size, shuffle=True,
+                                   num_workers=num_workers,  # FIX: was hardcoded to 1
+                                   pin_memory=pin_memory,
+                                   persistent_workers=(num_workers > 0))
+        val_loaders = []
+        train_fig = None
+        return train_loaders, val_loaders, train_fig
+
+
+def generate_loaders_v1(src, mode='train', image_size=224, batch_size=32,
                      classes=['nc','pc'], n_jobs=None, validation_split=0.0,
                      pin_memory=False, normalize=False, channels=['r','g','b'],
                      augment=False, verbose=False):

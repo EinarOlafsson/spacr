@@ -135,7 +135,7 @@ def preprocess_generate_masks(settings):
 
                 #if settings['organelle'] != None:
                 #    if check_mask_folder(src, 'organelle_mask_stack'):
-                #        generate_cellpose_masks(mask_src, settings, 'organelle')
+                #        generate_otsu_masks(mask_src, settings, 'organelle')
 
                 if settings['adjust_cells']:
                     if not settings['timelapse']:
