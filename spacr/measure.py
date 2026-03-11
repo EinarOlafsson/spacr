@@ -12,8 +12,11 @@ from skimage.feature import graycomatrix, graycoprops
 from mahotas.features import zernike_moments
 from skimage import morphology, measure, filters
 from skimage.util import img_as_bool
+from skimage.filters import gaussian, threshold_otsu
+from skimage.measure import label as sk_label, regionprops_table
 import matplotlib.pyplot as plt
 from math import ceil, sqrt
+
 
 def get_components(cell_mask, nucleus_mask, pathogen_mask):
     """
@@ -628,7 +631,6 @@ def _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_
 
     return merged_df
 
-
 #@log_function_call
 def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, channel_arrays, settings, sizes=[3, 6, 12, 24], periphery=True, outside=True):
     
@@ -670,7 +672,7 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_ma
                 empty_df = pd.DataFrame()
                 df.append(empty_df)
                 continue
-                
+            
             mask_intensity_df = _extended_regionprops_table(label, channel, intensity_props)
             #mask_intensity_df['shannon_entropy'] = shannon_entropy(channel, base=2)
 

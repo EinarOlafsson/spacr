@@ -375,7 +375,7 @@ def set_default_train_test_model(settings):
     settings.setdefault('classes',['nc','pc'])
     settings.setdefault('model_type','maxvit_t')
     settings.setdefault('optimizer_type','adamw')
-    settings.setdefault('schedule','reduce_lr_on_plateau') #reduce_lr_on_plateau, step_lr
+    settings.setdefault('schedule','cosine') #reduce_lr_on_plateau, step_lr
     settings.setdefault('loss_type','focal_loss') # binary_cross_entropy_with_logits
     settings.setdefault('normalize',True)
     settings.setdefault('image_size',224)
@@ -446,7 +446,7 @@ def deep_spacr_defaults(settings):
     settings.setdefault('test',False)
     settings.setdefault('model_type','maxvit_t')
     settings.setdefault('optimizer_type','adamw')
-    settings.setdefault('schedule','reduce_lr_on_plateau')
+    settings.setdefault('schedule','cosine')
     settings.setdefault('loss_type','auto') 
     settings.setdefault('normalize',True)
     settings.setdefault('image_size',224)
@@ -487,7 +487,7 @@ def get_train_test_model_settings(settings):
      settings.setdefault('train_channels', ['r','g','b'])
      settings.setdefault('model_type', 'maxvit_t')
      settings.setdefault('optimizer_type', 'adamw')
-     settings.setdefault('schedule', 'reduce_lr_on_plateau')
+     settings.setdefault('schedule', 'cosine')
      settings.setdefault('loss_type', 'focal_loss')
      settings.setdefault('normalize', True)
      settings.setdefault('image_size', 224)
@@ -1097,7 +1097,7 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Annotation": ["filter_column", "filter_value","volcano", "toxo", "controls", "nc_loc", "pc_loc", "nc", "pc", "cell_plate_metadata","treatment_plate_metadata", "metadata_types", "cell_types", "target","positive_control","negative_control", "location_column", "treatment_loc", "channel_of_interest", "measurement", "treatments", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
              "Plot": ["split_axis_lims", "x_lim","log_x","log_y", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","cmap","save_figure"],
              "Timelapse": ["timelapse", "fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
-             "Advanced": ["merge_edge_pathogen_cells", "test_images", "random_test", "test_nr", "test", "test_split", "normalize", "target_unique_count","threshold_multiplier", "threshold_method", "min_n","shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs"],
+             "Advanced": ["merge_edge_pathogen_cells", "test_images", "random_test", "test_nr", "test", "test_split", "normalize", "target_unique_count","threshold_multiplier", "threshold_method", "min_n","shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs"],
              "Beta": ["all_to_mip", "upscale", "upscale_factor", "consolidate", "distance_gaussian_sigma","use_sam_pathogen","use_sam_nucleus", "use_sam_cell", "denoise"],
              "Motility (beta)": motility_settings,
              "Motility Advanced (beta)": motility_advanced_settings,
@@ -1406,7 +1406,7 @@ def generate_fields(variables, scrollable_frame):
         "save_figure": "(bool) - Whether to save the generated figures.",
         "save_measurements": "(bool) - Whether to save the measurements to disk.",
         "save_png": "(bool) - Whether to save the segmented objects as PNG images.",
-        "schedule": "(str) - Schedule for processing the data.",
+        "schedule": "(str) - Schedule for processing the data (cosine, reduce_lr_on_plateau or step_lr).",
         "Signal_to_noise": "(int) - Signal-to-noise ratio for the images.",
         "skip_mode": "(str) - The mode to use for skipping images. This will determine how to handle images that cannot be processed.",
         "smooth_lines": "(bool) - Whether to smooth lines in the plots.",
