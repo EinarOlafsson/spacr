@@ -96,7 +96,8 @@ setup(
             'annotate=spacr.app_annotate:start_annotate_app',
             'classify=spacr.app_classify:start_classify_app',
             'sim=spacr.app_sim:gui_sim',
-            'spacrn=spacr.gui:gui_app',
+            'spacr=spacr.gui:gui_app',
+            'spaceout=spacr.gui:gui_app',
         ],
     },
     extras_require={
