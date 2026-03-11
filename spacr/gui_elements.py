@@ -50,7 +50,7 @@ def create_menu_bar(root):
     gui_apps = {
         "Mask": lambda: initiate_root(root, settings_type='mask'),
         "Measure": lambda: initiate_root(root, settings_type='measure'),
-        "Annotate (Beta)": lambda: initiate_root(root, settings_type='annotate'),
+        "Annotate": lambda: initiate_root(root, settings_type='annotate'),
         "Make Masks": lambda: initiate_root(root, settings_type='make_masks'),
         "Classify": lambda: initiate_root(root, settings_type='classify'),
         "Umap": lambda: initiate_root(root, settings_type='umap'),
@@ -61,7 +61,7 @@ def create_menu_bar(root):
         "Map Barcodes": lambda: initiate_root(root, settings_type='map_barcodes'),
         "Regression": lambda: initiate_root(root, settings_type='regression'),
         "Activation": lambda: initiate_root(root, settings_type='activation'),
-        "Recruitment (Beta)": lambda: initiate_root(root, settings_type='recruitment')
+        "Recruitment (graphs broken)": lambda: initiate_root(root, settings_type='recruitment')
     }
 
     # Create the menu bar
@@ -2303,11 +2303,11 @@ class AnnotateApp:
         self.next_button = Button(self.button_frame, text="Next", command=self.next_page, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.previous_button = Button(self.button_frame, text="Back", command=self.previous_page, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.exit_button = Button(self.button_frame, text="Exit", command=self.shutdown, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
-        self.train_button = Button(self.button_frame, text="Train & Classify (beta)", command=self.train_and_classify, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
+        #self.train_button = Button(self.button_frame, text="Train & Classify (beta)", command=self.train_and_classify, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.settings_button = Button(self.button_frame, text="Settings", command=self.open_settings_window, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.clear_button = Button(self.button_frame,text="Clear annotation",command=self.clear_current_annotation,bg=self.bg_color, fg=self.fg_color,highlightbackground=self.fg_color,highlightcolor=self.fg_color,highlightthickness=1)
         self.count_button = Button(self.button_frame, text="Count classes", command=self.show_class_counts, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
-        self.dl_train_button = Button(self.button_frame,text="Train (Beta)", command=self.open_deep_spacr_window,bg=self.bg_color,fg=self.fg_color,highlightbackground=self.fg_color,highlightcolor=self.fg_color,highlightthickness=1)
+        self.dl_train_button = Button(self.button_frame,text="Train", command=self.open_deep_spacr_window,bg=self.bg_color,fg=self.fg_color,highlightbackground=self.fg_color,highlightcolor=self.fg_color,highlightthickness=1)
         #self.umap_button = Button(self.button_frame, text="Image UMAP / HParam (Beta)", command=self.open_umap_window, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         
         # pack (right to left)
@@ -4087,7 +4087,7 @@ class AnnotateApp:
 
         # ---- window -----------------------------------------------------------
         win = tk.Toplevel(self.root)
-        win.title("Deep SPACR — Train (Beta)")
+        win.title("Deep SPACR — Train")
         win.configure(bg=bg)
         win.geometry("1120x760")
 
