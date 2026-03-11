@@ -2314,7 +2314,7 @@ class AnnotateApp:
         self.next_button.pack(side="right", padx=5)
         self.previous_button.pack(side="right", padx=5)
         self.exit_button.pack(side="right", padx=5)
-        self.train_button.pack(side="right", padx=5)
+        #self.train_button.pack(side="right", padx=5)
         self.settings_button.pack(side="right", padx=5)
         self.clear_button.pack(side="right", padx=5)
         self.count_button.pack(side="right", padx=5)
