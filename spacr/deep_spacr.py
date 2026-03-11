@@ -621,6 +621,7 @@ def train_test_model_v1(settings):
         )
 
         model, model_path = train_model(
+            src=src,
             dst=settings['dst'],
             model_type=settings['model_type'],
             train_loaders=train,
@@ -691,7 +692,7 @@ def train_test_model_v1(settings):
     if settings['test']:
         return result_loc
     
-def train_model(dst, model_type, train_loaders, epochs=100, learning_rate=0.0001,
+def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.0001,
                 weight_decay=0.05, amsgrad=False, optimizer_type='adamw',
                 use_checkpoint=False, dropout_rate=0, n_jobs=20, val_loaders=None,
                 test_loaders=None, init_weights='imagenet', intermedeate_save=None,
@@ -722,7 +723,17 @@ def train_model(dst, model_type, train_loaders, epochs=100, learning_rate=0.0001
 
     head_dim = max(1, int(num_classes))
 
-    counts = estimate_class_counts(train_loaders, head_dim) if head_dim >= 2 else None
+    #counts = estimate_class_counts(train_loaders, head_dim) if head_dim >= 2 else None
+    
+
+    train_data_dir = os.path.join(src, 'train')
+    
+    if os.path.isdir(train_data_dir):
+        classes = sorted([d for d in os.listdir(train_data_dir) if os.path.isdir(os.path.join(train_data_dir, d)) and not d.startswith('.')])
+    else:
+        classes = None        
+    
+    counts = estimate_class_counts(train_loaders, head_dim, src=train_data_dir, classes=classes) if (head_dim >= 2 and classes) else None
 
     loss_fn = build_loss(
         loss_type=loss_type,
@@ -973,8 +984,7 @@ def train_model_v1(dst, model_type, train_loaders, epochs=100, learning_rate=0.0
     if schedule == 'step_lr':
         scheduler = StepLR(optimizer, step_size=max(1, int(epochs/5)), gamma=0.75)
     elif schedule == 'reduce_lr_on_plateau':
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min',
-                                                               factor=0.1, patience=10, verbose=True)
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min',factor=0.1, patience=10, verbose=True)
     else:
         scheduler = None
 

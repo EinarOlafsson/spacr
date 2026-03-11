@@ -389,7 +389,7 @@ def convert_settings_dict_for_gui(settings):
         'timelapse_objects': ('combo', ["['cell']", "['nucleus']", "['pathogen']", "['cell', 'nucleus']", "['cell', 'pathogen']", "['nucleus', 'pathogen']", "['cell', 'nucleus', 'pathogen']", None], None),
         'model_type': ('combo', torchvision_models, 'resnet50'),
         'optimizer_type': ('combo', ['adamw', 'adam'], 'adamw'),
-        'schedule': ('combo', ['cosine','reduce_lr_on_plateau', 'step_lr'], 'reduce_lr_on_plateau'),
+        'schedule': ('combo', ['cosine','reduce_lr_on_plateau', 'step_lr'], 'cosine'),
         'loss_type': ('combo', ['focal_loss', 'binary_cross_entropy_with_logits'], 'focal_loss'),
         'normalize_by': ('combo', ['fov', 'png'], 'png'),
         'agg_type': ('combo', ['mean', 'median'], 'mean'),
