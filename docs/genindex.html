@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; spacr 1.0.1 documentation</title>
+  <title>Index &mdash; spacr 1.2.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=292eb321"></script>
+      <script src="_static/documentation_options.js?v=36f53d34"></script>
       <script src="_static/doctools.js?v=9a2dae69"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -63,12 +63,14 @@
 <li class="toctree-l4"><a class="reference internal" href="api/spacr/logger/index.html">spacr.logger</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/spacr/measure/index.html">spacr.measure</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/spacr/ml/index.html">spacr.ml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/spacr/object/index.html">spacr.object</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/spacr/plot/index.html">spacr.plot</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/spacr/sequencing/index.html">spacr.sequencing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/spacr/settings/index.html">spacr.settings</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/spacr/sim/index.html">spacr.sim</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/spacr/sp_stats/index.html">spacr.sp_stats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/spacr/spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/spacr/spacrops/index.html">spacr.spacrops</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/spacr/submodules/index.html">spacr.submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/spacr/timelapse/index.html">spacr.timelapse</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/spacr/toxo/index.html">spacr.toxo</a></li>
@@ -183,14 +185,34 @@
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.adjust_cell_masks">adjust_cell_masks() (in module spacr.utils)</a>
 </li>
+      <li><a href="api/spacr/utils/index.html#spacr.utils.adjust_cell_masks_v1">adjust_cell_masks_v1() (in module spacr.utils)</a>
+</li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.adjusted_to_original_paths">adjusted_to_original_paths (spacr.gui_elements.AnnotateApp attribute)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrLabel.align">align (spacr.gui_elements.spacrLabel attribute)</a>
 </li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.StitchedMultiAligner.align">align() (spacr.spacrops.StitchedMultiAligner method)</a>
+</li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.align_image_to_stitch">align_image_to_stitch() (in module spacr.spacrops)</a>
+</li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.all_elements_match">all_elements_match() (in module spacr.utils)</a>
+</li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.all_scores">all_scores (spacr.spacrops.spacrStitcher attribute)</a>
 </li>
       <li><a href="api/spacr/plot/index.html#spacr.plot.spacrGraph.all_to_all">all_to_all (spacr.plot.spacrGraph attribute)</a>
 </li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.allow_rotation">allow_rotation (spacr.spacrops.spacrStitcher attribute)</a>
+
+      <ul>
+        <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.StitchedMultiAligner.allow_rotation">(spacr.spacrops.StitchedMultiAligner attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.allow_scale">allow_scale (spacr.spacrops.spacrStitcher attribute)</a>
+
+      <ul>
+        <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.StitchedMultiAligner.allow_scale">(spacr.spacrops.StitchedMultiAligner attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.FocalLossWithLogits.alpha">alpha (spacr.utils.FocalLossWithLogits attribute)</a>
 </li>
       <li><a href="api/spacr/timelapse/index.html#spacr.timelapse.analyze_calcium_oscillations">analyze_calcium_oscillations() (in module spacr.timelapse)</a>
@@ -201,6 +223,8 @@
 </li>
       <li><a href="api/spacr/submodules/index.html#spacr.submodules.analyze_percent_positive">analyze_percent_positive() (in module spacr.submodules)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/spacr/submodules/index.html#spacr.submodules.analyze_plaques">analyze_plaques() (in module spacr.submodules)</a>
 </li>
       <li><a href="api/spacr/submodules/index.html#spacr.submodules.analyze_recruitment">analyze_recruitment() (in module spacr.submodules)</a>
@@ -209,8 +233,6 @@
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSwitch.animate_switch">animate_switch() (spacr.gui_elements.spacrSwitch method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrButton.animate_zoom">animate_zoom() (spacr.gui_elements.spacrButton method)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrButton.animation">animation (spacr.gui_elements.spacrButton attribute)</a>
@@ -247,8 +269,6 @@
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.ModifyMaskApp.apply_dividing_line">apply_dividing_line() (spacr.gui_elements.ModifyMaskApp method)</a>
 </li>
-      <li><a href="api/spacr/utils/index.html#spacr.utils.TorchModel.apply_dropout_rate">apply_dropout_rate() (spacr.utils.TorchModel method)</a>
-</li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.ModifyMaskApp.apply_magic_wand">apply_magic_wand() (spacr.gui_elements.ModifyMaskApp method)</a>
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.apply_mask">apply_mask() (in module spacr.utils)</a>
@@ -263,14 +283,16 @@
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.ModifyMaskApp.apply_zoom_on_enter">apply_zoom_on_enter() (spacr.gui_elements.ModifyMaskApp method)</a>
 </li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.arr_axes">arr_axes (spacr.spacrops.spacrStitcher attribute)</a>
+
+      <ul>
+        <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.StitchedMultiAligner.arr_axes">(spacr.spacrops.StitchedMultiAligner attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.assign_colors">assign_colors() (in module spacr.utils)</a>
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.SelfAttention.attention">attention (spacr.utils.SelfAttention attribute)</a>
-
-      <ul>
-        <li><a href="api/spacr/utils/index.html#spacr.utils.SelfAttention_v1.attention">(spacr.utils.SelfAttention_v1 attribute)</a>
 </li>
-      </ul></li>
       <li><a href="api/spacr/submodules/index.html#spacr.submodules.CellposeLazyDataset.augment">augment (spacr.submodules.CellposeLazyDataset attribute)</a>
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.augment_classes">augment_classes() (in module spacr.utils)</a>
@@ -283,6 +305,8 @@
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.augment_single_image">augment_single_image() (in module spacr.utils)</a>
 </li>
+      <li><a href="api/spacr/timelapse/index.html#spacr.timelapse.automated_motility_assay">automated_motility_assay() (in module spacr.timelapse)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -292,7 +316,11 @@
       <li><a href="api/spacr/sequencing/index.html#spacr.sequencing.barecodes_reverse_complement">barecodes_reverse_complement() (in module spacr.sequencing)</a>
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.TorchModel.base_model">base_model (spacr.utils.TorchModel attribute)</a>
+
+      <ul>
+        <li><a href="api/spacr/utils/index.html#spacr.utils.TorchModel_v2.base_model">(spacr.utils.TorchModel_v2 attribute)</a>
 </li>
+      </ul></li>
       <li><a href="api/spacr/io/index.html#spacr.io.spacrDataLoader.batch_queue">batch_queue (spacr.io.spacrDataLoader attribute)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrContainer.bg">bg (spacr.gui_elements.spacrContainer attribute)</a>
@@ -317,7 +345,15 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.blur_sigma">blur_sigma (spacr.spacrops.spacrStitcher attribute)</a>
+</li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.boundary_f1_score">boundary_f1_score() (in module spacr.utils)</a>
+</li>
+      <li><a href="api/spacr/utils/index.html#spacr.utils.build_loss">build_loss() (in module spacr.utils)</a>
+</li>
+      <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.build_multi_annotation">build_multi_annotation() (spacr.gui_elements.AnnotateApp method)</a>
+</li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.build_multichannel_mosaic_from_manifest">build_multichannel_mosaic_from_manifest() (spacr.spacrops.spacrStitcher method)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrDropdownMenu.button_bg">button_bg (spacr.gui_elements.spacrDropdownMenu attribute)</a>
 </li>
@@ -354,6 +390,8 @@
       <li><a href="api/spacr/utils/index.html#spacr.utils.GradCAMGenerator.cam_type">cam_type (spacr.utils.GradCAMGenerator attribute)</a>
 </li>
       <li><a href="api/spacr/gui_utils/index.html#spacr.gui_utils.cancel_after_tasks">cancel_after_tasks() (in module spacr.gui_utils)</a>
+</li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.canny">canny (spacr.spacrops.spacrStitcher attribute)</a>
 </li>
       <li><a href="api/spacr/gui_core/index.html#spacr.gui_core.canvas">canvas (in module spacr.gui_core)</a>
 
@@ -421,8 +459,6 @@
 </li>
       <li><a href="api/spacr/ml/index.html#spacr.ml.check_distribution">check_distribution() (in module spacr.ml)</a>
 </li>
-      <li><a href="api/spacr/ml/index.html#spacr.ml.check_distribution_v1">check_distribution_v1() (in module spacr.ml)</a>
-</li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.check_index">check_index() (in module spacr.utils)</a>
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.check_mask_folder">check_mask_folder() (in module spacr.utils)</a>
@@ -435,8 +471,6 @@
         <li><a href="api/spacr/utils/index.html#spacr.utils.check_normality">(in module spacr.utils)</a>
 </li>
       </ul></li>
-      <li><a href="api/spacr/ml/index.html#spacr.ml.check_normality_v1">check_normality_v1() (in module spacr.ml)</a>
-</li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.check_overlap">check_overlap() (in module spacr.utils)</a>
 </li>
       <li><a href="api/spacr/settings/index.html#spacr.settings.check_settings">check_settings() (in module spacr.settings)</a>
@@ -446,6 +480,8 @@
       <li><a href="api/spacr/sp_stats/index.html#spacr.sp_stats.chi_pairwise">chi_pairwise() (in module spacr.sp_stats)</a>
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.choose_model">choose_model() (in module spacr.utils)</a>
+</li>
+      <li><a href="api/spacr/utils/index.html#spacr.utils.choose_model_v2">choose_model_v2() (in module spacr.utils)</a>
 </li>
       <li><a href="api/spacr/sp_stats/index.html#spacr.sp_stats.choose_p_adjust_method">choose_p_adjust_method() (in module spacr.sp_stats)</a>
 </li>
@@ -465,6 +501,10 @@
 </li>
       <li><a href="api/spacr/gui_core/index.html#spacr.gui_core.cleanup_previous_instance">cleanup_previous_instance() (in module spacr.gui_core)</a>
 </li>
+      <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.clear_button">clear_button (spacr.gui_elements.AnnotateApp attribute)</a>
+</li>
+      <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.clear_current_annotation">clear_current_annotation() (spacr.gui_elements.AnnotateApp method)</a>
+</li>
       <li><a href="api/spacr/gui/index.html#spacr.gui.MainApp.clear_description">clear_description() (spacr.gui.MainApp method)</a>
 
       <ul>
@@ -481,10 +521,10 @@
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.close_file_descriptors">close_file_descriptors() (in module spacr.utils)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/spacr/utils/index.html#spacr.utils.close_multiprocessing_processes">close_multiprocessing_processes() (in module spacr.utils)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/spacr/utils/index.html#spacr.utils.cluster_feature_analysis">cluster_feature_analysis() (in module spacr.utils)</a>
 </li>
       <li><a href="api/spacr/gui/index.html#spacr.gui.MainApp.color_settings">color_settings (spacr.gui.MainApp attribute)</a>
@@ -560,7 +600,11 @@
       <li><a href="api/spacr/io/index.html#spacr.io.convert_separate_files_to_yokogawa">convert_separate_files_to_yokogawa() (in module spacr.io)</a>
 </li>
       <li><a href="api/spacr/gui_utils/index.html#spacr.gui_utils.convert_settings_dict_for_gui">convert_settings_dict_for_gui() (in module spacr.gui_utils)</a>
+
+      <ul>
+        <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.convert_settings_dict_for_gui">(spacr.gui_elements.AnnotateApp static method)</a>
 </li>
+      </ul></li>
       <li><a href="api/spacr/app_annotate/index.html#spacr.app_annotate.convert_to_number">convert_to_number() (in module spacr.app_annotate)</a>
 
       <ul>
@@ -579,6 +623,8 @@
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.correct_paths">correct_paths() (in module spacr.utils)</a>
 </li>
+      <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.count_button">count_button (spacr.gui_elements.AnnotateApp attribute)</a>
+</li>
       <li><a href="api/spacr/submodules/index.html#spacr.submodules.count_phenotypes">count_phenotypes() (in module spacr.submodules)</a>
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.count_reads_in_fastq">count_reads_in_fastq() (in module spacr.utils)</a>
@@ -596,6 +642,8 @@
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.create_menu_bar">create_menu_bar() (in module spacr.gui_elements)</a>
 </li>
       <li><a href="api/spacr/plot/index.html#spacr.plot.spacrGraph.create_plot">create_plot() (spacr.plot.spacrGraph method)</a>
+</li>
+      <li><a href="api/spacr/timelapse/index.html#spacr.timelapse.create_results_figure">create_results_figure() (in module spacr.timelapse)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrButton.create_rounded_rectangle">create_rounded_rectangle() (spacr.gui_elements.spacrButton method)</a>
 
@@ -638,18 +686,12 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/spacr/utils/index.html#spacr.utils.ScaledDotProductAttention.d_k">d_k (spacr.utils.ScaledDotProductAttention attribute)</a>
-
-      <ul>
-        <li><a href="api/spacr/utils/index.html#spacr.utils.ScaledDotProductAttention_v1.d_k">(spacr.utils.ScaledDotProductAttention_v1 attribute)</a>
 </li>
-      </ul></li>
       <li><a href="api/spacr/plot/index.html#spacr.plot.spacrGraph.data_column">data_column (spacr.plot.spacrGraph attribute)</a>
 </li>
       <li><a href="api/spacr/io/index.html#spacr.io.NoClassDataset.data_dir">data_dir (spacr.io.NoClassDataset attribute)</a>
 
       <ul>
-        <li><a href="api/spacr/io/index.html#spacr.io.NoClassDataset_v1.data_dir">(spacr.io.NoClassDataset_v1 attribute)</a>
-</li>
         <li><a href="api/spacr/io/index.html#spacr.io.spacrDataset.data_dir">(spacr.io.spacrDataset attribute)</a>
 </li>
       </ul></li>
@@ -659,9 +701,13 @@
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.db_update_thread">db_update_thread (spacr.gui_elements.AnnotateApp attribute)</a>
 </li>
+      <li><a href="api/spacr/utils/index.html#spacr.utils.debug">debug() (in module spacr.utils)</a>
+</li>
       <li><a href="api/spacr/deep_spacr/index.html#spacr.deep_spacr.deep_spacr">deep_spacr() (in module spacr.deep_spacr)</a>
 </li>
       <li><a href="api/spacr/settings/index.html#spacr.settings.deep_spacr_defaults">deep_spacr_defaults() (in module spacr.settings)</a>
+</li>
+      <li><a href="api/spacr/deep_spacr/index.html#spacr.deep_spacr.deep_spacr_v1">deep_spacr_v1() (in module spacr.deep_spacr)</a>
 </li>
       <li><a href="api/spacr/settings/index.html#spacr.settings.default_settings_analyze_percent_positive">default_settings_analyze_percent_positive() (in module spacr.settings)</a>
 </li>
@@ -673,9 +719,17 @@
 </li>
       <li><a href="api/spacr/settings/index.html#spacr.settings.descriptions">descriptions (in module spacr.settings)</a>
 </li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.detector">detector (spacr.spacrops.spacrStitcher attribute)</a>
+
+      <ul>
+        <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.StitchedMultiAligner.detector">(spacr.spacrops.StitchedMultiAligner attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/spacr/plot/index.html#spacr.plot.spacrGraph.df">df (spacr.plot.spacrGraph attribute)</a>
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.dice_coefficient">dice_coefficient() (in module spacr.utils)</a>
+</li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.dilate_ksize">dilate_ksize (spacr.spacrops.spacrStitcher attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -695,12 +749,20 @@
 </li>
       <li><a href="api/spacr/sim/index.html#spacr.sim.dist_gen">dist_gen() (in module spacr.sim)</a>
 </li>
+      <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.dl_train_button">dl_train_button (spacr.gui_elements.AnnotateApp attribute)</a>
+</li>
       <li><a href="api/spacr/gui_utils/index.html#spacr.gui_utils.download_dataset">download_dataset() (in module spacr.gui_utils)</a>
 </li>
       <li><a href="api/spacr/gui_utils/index.html#spacr.gui_utils.download_hug_dataset">download_hug_dataset() (in module spacr.gui_utils)</a>
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.download_models">download_models() (in module spacr.utils)</a>
 </li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.downsample">downsample (spacr.spacrops.spacrStitcher attribute)</a>
+
+      <ul>
+        <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.StitchedMultiAligner.downsample">(spacr.spacrops.StitchedMultiAligner attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.ModifyMaskApp.draw">draw() (spacr.gui_elements.ModifyMaskApp method)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.ModifyMaskApp.draw_on_zoomed_mask">draw_on_zoomed_mask() (spacr.gui_elements.ModifyMaskApp method)</a>
@@ -727,7 +789,15 @@
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.EarlyFusion">EarlyFusion (class in spacr.utils)</a>
 </li>
+      <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.edge_image">edge_image (spacr.gui_elements.AnnotateApp attribute)</a>
+</li>
+      <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.edge_thickness">edge_thickness (spacr.gui_elements.AnnotateApp attribute)</a>
+</li>
+      <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.edge_transparency">edge_transparency (spacr.gui_elements.AnnotateApp attribute)</a>
+</li>
       <li><a href="api/spacr/gui_utils/index.html#spacr.gui_utils.ensure_after_tasks">ensure_after_tasks() (in module spacr.gui_utils)</a>
+</li>
+      <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.ensure_multi_annot_from_selection">ensure_multi_annot_from_selection() (spacr.gui_elements.AnnotateApp method)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.ModifyMaskApp.erase_brush">erase_brush() (spacr.gui_elements.ModifyMaskApp method)</a>
 </li>
@@ -735,10 +805,14 @@
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.ModifyMaskApp.erase_object">erase_object() (spacr.gui_elements.ModifyMaskApp method)</a>
 </li>
-      <li><a href="api/spacr/plot/index.html#spacr.plot.spacrGraph.error_bar_type">error_bar_type (spacr.plot.spacrGraph attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/spacr/plot/index.html#spacr.plot.spacrGraph.error_bar_type">error_bar_type (spacr.plot.spacrGraph attribute)</a>
+</li>
+      <li><a href="api/spacr/utils/index.html#spacr.utils.estimate_class_counts">estimate_class_counts() (in module spacr.utils)</a>
+</li>
+      <li><a href="api/spacr/utils/index.html#spacr.utils.estimate_class_counts_v1">estimate_class_counts_v1() (in module spacr.utils)</a>
+</li>
       <li><a href="api/spacr/deep_spacr/index.html#spacr.deep_spacr.evaluate_model_performance">evaluate_model_performance() (in module spacr.deep_spacr)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.exit_button">exit_button (spacr.gui_elements.AnnotateApp attribute)</a>
@@ -762,6 +836,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/spacr/utils/index.html#spacr.utils.CustomCellClassifier.fc1">fc1 (spacr.utils.CustomCellClassifier attribute)</a>
+</li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.feature_cache_mode">feature_cache_mode (spacr.spacrops.spacrStitcher attribute)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.fg_color">fg_color (spacr.gui_elements.AnnotateApp attribute)</a>
 
@@ -798,12 +874,12 @@
       <li><a href="api/spacr/io/index.html#spacr.io.NoClassDataset.filenames">filenames (spacr.io.NoClassDataset attribute)</a>
 
       <ul>
-        <li><a href="api/spacr/io/index.html#spacr.io.NoClassDataset_v1.filenames">(spacr.io.NoClassDataset_v1 attribute)</a>
-</li>
         <li><a href="api/spacr/io/index.html#spacr.io.spacrDataset.filenames">(spacr.io.spacrDataset attribute)</a>
 </li>
       </ul></li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.filepaths_to_database">filepaths_to_database() (in module spacr.utils)</a>
+</li>
+      <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.fill_holes">fill_holes() (spacr.gui_elements.AnnotateApp static method)</a>
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.fill_holes_in_mask">fill_holes_in_mask() (in module spacr.utils)</a>
 </li>
@@ -837,10 +913,12 @@
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.FocalLossWithLogits">FocalLossWithLogits (class in spacr.utils)</a>
 </li>
-      <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.ModifyMaskApp.folder_path">folder_path (spacr.gui_elements.ModifyMaskApp attribute)</a>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.FOVAlignAndCropper.folder_image_scale">folder_image_scale (spacr.spacrops.FOVAlignAndCropper attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.ModifyMaskApp.folder_path">folder_path (spacr.gui_elements.ModifyMaskApp attribute)</a>
+</li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrCombo.font_family">font_family (spacr.gui_elements.spacrCombo attribute)</a>
 
       <ul>
@@ -910,17 +988,17 @@
 </li>
         <li><a href="api/spacr/utils/index.html#spacr.utils.ScaledDotProductAttention.forward">(spacr.utils.ScaledDotProductAttention method)</a>
 </li>
-        <li><a href="api/spacr/utils/index.html#spacr.utils.ScaledDotProductAttention_v1.forward">(spacr.utils.ScaledDotProductAttention_v1 method)</a>
-</li>
         <li><a href="api/spacr/utils/index.html#spacr.utils.SelfAttention.forward">(spacr.utils.SelfAttention method)</a>
-</li>
-        <li><a href="api/spacr/utils/index.html#spacr.utils.SelfAttention_v1.forward">(spacr.utils.SelfAttention_v1 method)</a>
 </li>
         <li><a href="api/spacr/utils/index.html#spacr.utils.SpatialAttention.forward">(spacr.utils.SpatialAttention method)</a>
 </li>
         <li><a href="api/spacr/utils/index.html#spacr.utils.TorchModel.forward">(spacr.utils.TorchModel method)</a>
 </li>
+        <li><a href="api/spacr/utils/index.html#spacr.utils.TorchModel_v2.forward">(spacr.utils.TorchModel_v2 method)</a>
+</li>
       </ul></li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.FOVAlignAndCropper">FOVAlignAndCropper (class in spacr.spacrops)</a>
+</li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSlider.from_">from_ (spacr.gui_elements.spacrSlider attribute)</a>
 </li>
       <li><a href="api/spacr/gui_utils/index.html#spacr.gui_utils.function_gui_wrapper">function_gui_wrapper() (in module spacr.gui_utils)</a>
@@ -939,7 +1017,7 @@
 </li>
       <li><a href="api/spacr/sequencing/index.html#spacr.sequencing.generate_barecode_mapping">generate_barecode_mapping() (in module spacr.sequencing)</a>
 </li>
-      <li><a href="api/spacr/core/index.html#spacr.core.generate_cellpose_masks">generate_cellpose_masks() (in module spacr.core)</a>
+      <li><a href="api/spacr/object/index.html#spacr.object.generate_cellpose_masks">generate_cellpose_masks() (in module spacr.object)</a>
 </li>
       <li><a href="api/spacr/measure/index.html#spacr.measure.generate_cellpose_train_set">generate_cellpose_train_set() (in module spacr.measure)</a>
 </li>
@@ -975,11 +1053,15 @@
 </li>
       <li><a href="api/spacr/io/index.html#spacr.io.generate_loaders">generate_loaders() (in module spacr.io)</a>
 </li>
+      <li><a href="api/spacr/io/index.html#spacr.io.generate_loaders_v1">generate_loaders_v1() (in module spacr.io)</a>
+</li>
       <li><a href="api/spacr/plot/index.html#spacr.plot.generate_mask_random_cmap">generate_mask_random_cmap() (in module spacr.plot)</a>
 </li>
       <li><a href="api/spacr/spacr_cellpose/index.html#spacr.spacr_cellpose.generate_masks_from_imgs">generate_masks_from_imgs() (in module spacr.spacr_cellpose)</a>
 </li>
       <li><a href="api/spacr/ml/index.html#spacr.ml.generate_ml_scores">generate_ml_scores() (in module spacr.ml)</a>
+</li>
+      <li><a href="api/spacr/object/index.html#spacr.object.generate_organelle_masks">generate_organelle_masks() (in module spacr.object)</a>
 </li>
       <li><a href="api/spacr/sim/index.html#spacr.sim.generate_paramiters">generate_paramiters() (in module spacr.sim)</a>
 </li>
@@ -1019,16 +1101,18 @@
 </li>
       <li><a href="api/spacr/settings/index.html#spacr.settings.get_analyze_recruitment_default_settings">get_analyze_recruitment_default_settings() (in module spacr.settings)</a>
 </li>
+      <li><a href="api/spacr/settings/index.html#spacr.settings.get_automated_motility_assay_default_settings">get_automated_motility_assay_default_settings() (in module spacr.settings)</a>
+</li>
       <li><a href="api/spacr/settings/index.html#spacr.settings.get_check_cellpose_models_default_settings">get_check_cellpose_models_default_settings() (in module spacr.settings)</a>
 </li>
       <li><a href="api/spacr/measure/index.html#spacr.measure.get_components">get_components() (in module spacr.measure)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/spacr/sequencing/index.html#spacr.sequencing.get_consensus_base">get_consensus_base() (in module spacr.sequencing)</a>
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.get_cuda_version">get_cuda_version() (in module spacr.utils)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/spacr/utils/index.html#spacr.utils.get_db_paths">get_db_paths() (in module spacr.utils)</a>
 </li>
       <li><a href="api/spacr/settings/index.html#spacr.settings.get_default_apply_cellpose_model_settings">get_default_apply_cellpose_model_settings() (in module spacr.settings)</a>
@@ -1057,8 +1141,6 @@
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.get_ml_results_paths">get_ml_results_paths() (in module spacr.utils)</a>
 </li>
-      <li><a href="api/spacr/utils/index.html#spacr.utils.TorchModel.get_num_ftrs">get_num_ftrs() (spacr.utils.TorchModel method)</a>
-</li>
       <li><a href="api/spacr/measure/index.html#spacr.measure.get_object_counts">get_object_counts() (in module spacr.measure)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.get_on_image_click">get_on_image_click() (spacr.gui_elements.AnnotateApp method)</a>
@@ -1072,6 +1154,8 @@
       <li><a href="api/spacr/io/index.html#spacr.io.spacrDataset.get_plate">get_plate() (spacr.io.spacrDataset method)</a>
 </li>
       <li><a href="api/spacr/settings/index.html#spacr.settings.get_plot_data_from_csv_default_settings">get_plot_data_from_csv_default_settings() (in module spacr.settings)</a>
+</li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.get_preprocess_ops_settings">get_preprocess_ops_settings() (in module spacr.spacrops)</a>
 </li>
       <li><a href="api/spacr/plot/index.html#spacr.plot.spacrGraph.get_results">get_results() (spacr.plot.spacrGraph method)</a>
 </li>
@@ -1087,15 +1171,11 @@
 </li>
       <li><a href="api/spacr/settings/index.html#spacr.settings.get_train_test_model_settings">get_train_test_model_settings() (in module spacr.settings)</a>
 </li>
-      <li><a href="api/spacr/utils/index.html#spacr.utils.TorchModel.get_weight_choice">get_weight_choice() (spacr.utils.TorchModel method)</a>
-</li>
       <li><a href="api/spacr/sim/index.html#spacr.sim.gini">gini() (in module spacr.sim)</a>
 </li>
       <li><a href="api/spacr/sim/index.html#spacr.sim.gini_coefficient">gini_coefficient() (in module spacr.sim)</a>
 </li>
       <li><a href="api/spacr/sim/index.html#spacr.sim.gini_gene_well">gini_gene_well() (in module spacr.sim)</a>
-</li>
-      <li><a href="api/spacr/sim/index.html#spacr.sim.gini_V1">gini_V1() (in module spacr.sim)</a>
 </li>
       <li><a href="api/spacr/gui_utils/index.html#spacr.gui_utils.global_image_refs">global_image_refs (in module spacr.gui_utils)</a>
 </li>
@@ -1179,15 +1259,11 @@
       </ul></li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.index">index (spacr.gui_elements.AnnotateApp attribute)</a>
 </li>
-      <li><a href="api/spacr/gui_core/index.html#spacr.gui_core.index_control">index_control (in module spacr.gui_core)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/spacr/gui_core/index.html#spacr.gui_core.index_control">index_control (in module spacr.gui_core)</a>
+</li>
       <li><a href="api/spacr/timelapse/index.html#spacr.timelapse.infected_vs_noninfected">infected_vs_noninfected() (in module spacr.timelapse)</a>
-</li>
-      <li><a href="api/spacr/utils/index.html#spacr.utils.TorchModel.init_base_model">init_base_model() (spacr.utils.TorchModel method)</a>
-</li>
-      <li><a href="api/spacr/utils/index.html#spacr.utils.TorchModel.init_spacr_classifier">init_spacr_classifier() (spacr.utils.TorchModel method)</a>
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.ResNet.initialize_base">initialize_base() (spacr.utils.ResNet method)</a>
 </li>
@@ -1275,6 +1351,8 @@
 </li>
       <li><a href="api/spacr/io/index.html#spacr.io.CombinedDataset.lengths">lengths (spacr.io.CombinedDataset attribute)</a>
 </li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.line_thickness">line_thickness (spacr.spacrops.spacrStitcher attribute)</a>
+</li>
       <li><a href="api/spacr/timelapse/index.html#spacr.timelapse.link_by_iou">link_by_iou() (in module spacr.timelapse)</a>
 </li>
       <li><a href="api/spacr/gui_utils/index.html#spacr.gui_utils.load_app">load_app() (in module spacr.gui_utils)</a>
@@ -1293,8 +1371,6 @@
 
       <ul>
         <li><a href="api/spacr/io/index.html#spacr.io.NoClassDataset.load_image">(spacr.io.NoClassDataset method)</a>
-</li>
-        <li><a href="api/spacr/io/index.html#spacr.io.NoClassDataset_v1.load_image">(spacr.io.NoClassDataset_v1 method)</a>
 </li>
         <li><a href="api/spacr/io/index.html#spacr.io.spacrDataset.load_image">(spacr.io.spacrDataset method)</a>
 </li>
@@ -1316,11 +1392,7 @@
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.load_single_image">load_single_image() (spacr.gui_elements.AnnotateApp method)</a>
 </li>
       <li><a href="api/spacr/io/index.html#spacr.io.NoClassDataset.load_to_memory">load_to_memory (spacr.io.NoClassDataset attribute)</a>
-
-      <ul>
-        <li><a href="api/spacr/io/index.html#spacr.io.NoClassDataset_v1.load_to_memory">(spacr.io.NoClassDataset_v1 attribute)</a>
 </li>
-      </ul></li>
       <li><a href="api/spacr/io/index.html#spacr.io.CombineLoaders.loader_iters">loader_iters (spacr.io.CombineLoaders attribute)</a>
 </li>
       <li><a href="api/spacr/logger/index.html#spacr.logger.log_function_call">log_function_call() (in module spacr.logger)</a>
@@ -1359,6 +1431,12 @@
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.match_masks">match_masks() (in module spacr.utils)</a>
 </li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.max_keypoints">max_keypoints (spacr.spacrops.spacrStitcher attribute)</a>
+
+      <ul>
+        <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.StitchedMultiAligner.max_keypoints">(spacr.spacrops.StitchedMultiAligner attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.Cache.max_size">max_size (spacr.utils.Cache attribute)</a>
 </li>
       <li><a href="api/spacr/measure/index.html#spacr.measure.measure_crop">measure_crop() (in module spacr.measure)</a>
@@ -1371,12 +1449,20 @@
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.merge_dataframes">merge_dataframes() (in module spacr.utils)</a>
 </li>
+      <li><a href="api/spacr/deep_spacr/index.html#spacr.deep_spacr.merge_predictions_into_db">merge_predictions_into_db() (in module spacr.deep_spacr)</a>
+</li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.merge_regression_res_with_metadata">merge_regression_res_with_metadata() (in module spacr.utils)</a>
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.merge_touching_objects">merge_touching_objects() (in module spacr.utils)</a>
 </li>
       <li><a href="api/spacr/ml/index.html#spacr.ml.minimum_cell_simulation">minimum_cell_simulation() (in module spacr.ml)</a>
 </li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.mip">mip (spacr.spacrops.spacrStitcher attribute)</a>
+
+      <ul>
+        <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.StitchedMultiAligner.mip">(spacr.spacrops.StitchedMultiAligner attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/spacr/ml/index.html#spacr.ml.ml_analysis">ml_analysis() (in module spacr.ml)</a>
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.MLR">MLR() (in module spacr.utils)</a>
@@ -1400,15 +1486,19 @@
       <li><a href="api/spacr/utils/index.html#spacr.utils.model_metrics">model_metrics() (in module spacr.utils)</a>
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.TorchModel.model_name">model_name (spacr.utils.TorchModel attribute)</a>
+
+      <ul>
+        <li><a href="api/spacr/utils/index.html#spacr.utils.TorchModel_v2.model_name">(spacr.utils.TorchModel_v2 attribute)</a>
 </li>
+      </ul></li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.modify_figure">modify_figure() (in module spacr.gui_elements)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.modify_figure_properties">modify_figure_properties() (in module spacr.gui_elements)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.ModifyMaskApp">ModifyMaskApp (class in spacr.gui_elements)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     module
 
@@ -1449,6 +1539,8 @@
 </li>
         <li><a href="api/spacr/ml/index.html#module-spacr.ml">spacr.ml</a>
 </li>
+        <li><a href="api/spacr/object/index.html#module-spacr.object">spacr.object</a>
+</li>
         <li><a href="api/spacr/plot/index.html#module-spacr.plot">spacr.plot</a>
 </li>
         <li><a href="api/spacr/sequencing/index.html#module-spacr.sequencing">spacr.sequencing</a>
@@ -1461,6 +1553,8 @@
 </li>
         <li><a href="api/spacr/spacr_cellpose/index.html#module-spacr.spacr_cellpose">spacr.spacr_cellpose</a>
 </li>
+        <li><a href="api/spacr/spacrops/index.html#module-spacr.spacrops">spacr.spacrops</a>
+</li>
         <li><a href="api/spacr/submodules/index.html#module-spacr.submodules">spacr.submodules</a>
 </li>
         <li><a href="api/spacr/timelapse/index.html#module-spacr.timelapse">spacr.timelapse</a>
@@ -1472,10 +1566,24 @@
         <li><a href="api/spacr/version/index.html#module-spacr.version">spacr.version</a>
 </li>
       </ul></li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.mosaic_all_channels_from_csv">mosaic_all_channels_from_csv() (spacr.spacrops.spacrStitcher method)</a>
+</li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.mosaic_all_channels_from_csv_v1">mosaic_all_channels_from_csv_v1() (spacr.spacrops.spacrStitcher method)</a>
+</li>
+      <li><a href="api/spacr/settings/index.html#spacr.settings.motility_advanced_settings">motility_advanced_settings (in module spacr.settings)</a>
+</li>
+      <li><a href="api/spacr/settings/index.html#spacr.settings.motility_settings">motility_settings (in module spacr.settings)</a>
+</li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSlider.move_knob">move_knob() (spacr.gui_elements.spacrSlider method)</a>
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.CustomCellClassifier.multi_scale_block_1">multi_scale_block_1 (spacr.utils.CustomCellClassifier attribute)</a>
 </li>
+      <li><a href="api/spacr/utils/index.html#spacr.utils.TorchModel.multilabel">multilabel (spacr.utils.TorchModel attribute)</a>
+
+      <ul>
+        <li><a href="api/spacr/utils/index.html#spacr.utils.TorchModel_v2.multilabel">(spacr.utils.TorchModel_v2 attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.MultiScaleBlockWithAttention">MultiScaleBlockWithAttention (class in spacr.utils)</a>
 </li>
   </ul></td>
@@ -1486,26 +1594,28 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/spacr/deep_spacr/index.html#spacr.deep_spacr.SmoothGrad.n_samples">n_samples (spacr.deep_spacr.SmoothGrad attribute)</a>
 </li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.n_workers_features">n_workers_features (spacr.spacrops.spacrStitcher attribute)</a>
+</li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.next_button">next_button (spacr.gui_elements.AnnotateApp attribute)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.ModifyMaskApp.next_image">next_image() (spacr.gui_elements.ModifyMaskApp method)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.next_page">next_page() (spacr.gui_elements.AnnotateApp method)</a>
 </li>
-      <li><a href="api/spacr/io/index.html#spacr.io.NoClassDataset">NoClassDataset (class in spacr.io)</a>
-</li>
-      <li><a href="api/spacr/io/index.html#spacr.io.NoClassDataset_v1">NoClassDataset_v1 (class in spacr.io)</a>
-</li>
-      <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.normalize">normalize (spacr.gui_elements.AnnotateApp attribute)</a>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.nfeatures">nfeatures (spacr.spacrops.spacrStitcher attribute)</a>
 
       <ul>
-        <li><a href="api/spacr/submodules/index.html#spacr.submodules.CellposeLazyDataset.normalize">(spacr.submodules.CellposeLazyDataset attribute)</a>
+        <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.StitchedMultiAligner.nfeatures">(spacr.spacrops.StitchedMultiAligner attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/spacr/io/index.html#spacr.io.NoClassDataset">NoClassDataset (class in spacr.io)</a>
+</li>
+      <li><a href="api/spacr/submodules/index.html#spacr.submodules.CellposeLazyDataset.normalize">normalize (spacr.submodules.CellposeLazyDataset attribute)</a>
+</li>
       <li><a href="api/spacr/plot/index.html#spacr.plot.normalize_and_visualize">normalize_and_visualize() (in module spacr.plot)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/spacr/sim/index.html#spacr.sim.normalize_array">normalize_array() (in module spacr.sim)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.normalize_channels">normalize_channels (spacr.gui_elements.AnnotateApp attribute)</a>
@@ -1520,14 +1630,26 @@
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.normalize_to_dtype">normalize_to_dtype() (in module spacr.utils)</a>
 </li>
-      <li><a href="api/spacr/utils/index.html#spacr.utils.TorchModel.num_ftrs">num_ftrs (spacr.utils.TorchModel attribute)</a>
+      <li><a href="api/spacr/utils/index.html#spacr.utils.TorchModel.num_classes">num_classes (spacr.utils.TorchModel attribute)</a>
+
+      <ul>
+        <li><a href="api/spacr/utils/index.html#spacr.utils.TorchModel_v2.num_classes">(spacr.utils.TorchModel_v2 attribute)</a>
 </li>
+      </ul></li>
+      <li><a href="api/spacr/utils/index.html#spacr.utils.TorchModel.num_ftrs">num_ftrs (spacr.utils.TorchModel attribute)</a>
+
+      <ul>
+        <li><a href="api/spacr/utils/index.html#spacr.utils.TorchModel_v2.num_ftrs">(spacr.utils.TorchModel_v2 attribute)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.object_size">object_size (spacr.gui_elements.AnnotateApp attribute)</a>
+</li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSlider.offset">offset (spacr.gui_elements.spacrSlider attribute)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrButton.on_click">on_click() (spacr.gui_elements.spacrButton method)</a>
@@ -1566,13 +1688,19 @@
         <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrDropdownMenu.on_select">(spacr.gui_elements.spacrDropdownMenu method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.open_deep_spacr_window">open_deep_spacr_window() (spacr.gui_elements.AnnotateApp method)</a>
+</li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrCombo.open_dropdown">open_dropdown() (spacr.gui_elements.spacrCombo method)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.open_settings_window">open_settings_window() (spacr.gui_elements.AnnotateApp method)</a>
 </li>
+      <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.open_umap_window">open_umap_window() (spacr.gui_elements.AnnotateApp method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrProgressBar.operation_type">operation_type (spacr.gui_elements.spacrProgressBar attribute)</a>
+</li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.ops_preprocess">ops_preprocess() (in module spacr.spacrops)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrDropdownMenu.options">options (spacr.gui_elements.spacrDropdownMenu attribute)</a>
 </li>
@@ -1582,6 +1710,14 @@
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.orig_annotation_columns">orig_annotation_columns (spacr.gui_elements.AnnotateApp attribute)</a>
 </li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.FOVAlignAndCropper.outdir">outdir (spacr.spacrops.FOVAlignAndCropper attribute)</a>
+
+      <ul>
+        <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.outdir">(spacr.spacrops.spacrStitcher attribute)</a>
+</li>
+        <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.StitchedMultiAligner.outdir">(spacr.spacrops.StitchedMultiAligner attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.outline">outline (spacr.gui_elements.AnnotateApp attribute)</a>
 
       <ul>
@@ -1590,9 +1726,13 @@
         <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrEntry.outline">(spacr.gui_elements.spacrEntry attribute)</a>
 </li>
       </ul></li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.outline_alpha">outline_alpha (spacr.spacrops.spacrStitcher attribute)</a>
+</li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.outline_image">outline_image() (spacr.gui_elements.AnnotateApp method)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.outline_sigma">outline_sigma (spacr.gui_elements.AnnotateApp attribute)</a>
+</li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.outline_source">outline_source (spacr.spacrops.spacrStitcher attribute)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.outline_threshold_factor">outline_threshold_factor (spacr.gui_elements.AnnotateApp attribute)</a>
 </li>
@@ -1609,6 +1749,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/spacr/utils/index.html#spacr.utils.pad_to_same_shape">pad_to_same_shape() (in module spacr.utils)</a>
+</li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.pair_batch_size">pair_batch_size (spacr.spacrops.spacrStitcher attribute)</a>
 </li>
       <li><a href="api/spacr/plot/index.html#spacr.plot.spacrGraph.paired">paired (spacr.plot.spacrGraph attribute)</a>
 </li>
@@ -1736,10 +1878,10 @@
 </li>
       <li><a href="api/spacr/plot/index.html#spacr.plot.plot_images_and_arrays">plot_images_and_arrays() (in module spacr.plot)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/spacr/utils/index.html#spacr.utils.plot_images_by_cluster">plot_images_by_cluster() (in module spacr.utils)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/spacr/plot/index.html#spacr.plot.plot_lorenz_curves">plot_lorenz_curves() (in module spacr.plot)</a>
 </li>
       <li><a href="api/spacr/plot/index.html#spacr.plot.plot_masks">plot_masks() (in module spacr.plot)</a>
@@ -1747,6 +1889,8 @@
       <li><a href="api/spacr/plot/index.html#spacr.plot.plot_merged">plot_merged() (in module spacr.plot)</a>
 </li>
       <li><a href="api/spacr/plot/index.html#spacr.plot.plot_object_outlines">plot_object_outlines() (in module spacr.plot)</a>
+</li>
+      <li><a href="api/spacr/plot/index.html#spacr.plot.plot_organelle_output">plot_organelle_output() (in module spacr.plot)</a>
 </li>
       <li><a href="api/spacr/sim/index.html#spacr.sim.plot_partial_dependences">plot_partial_dependences() (in module spacr.sim)</a>
 </li>
@@ -1784,6 +1928,8 @@
 </li>
       <li><a href="api/spacr/io/index.html#spacr.io.prepare_cellpose_dataset">prepare_cellpose_dataset() (in module spacr.io)</a>
 </li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.prepare_features">prepare_features() (spacr.spacrops.spacrStitcher method)</a>
+</li>
       <li><a href="api/spacr/ml/index.html#spacr.ml.prepare_formula">prepare_formula() (in module spacr.ml)</a>
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.preprocess_data">preprocess_data() (in module spacr.utils)</a>
@@ -1795,8 +1941,6 @@
       <li><a href="api/spacr/core/index.html#spacr.core.preprocess_generate_masks">preprocess_generate_masks() (in module spacr.core)</a>
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.preprocess_image">preprocess_image() (in module spacr.utils)</a>
-</li>
-      <li><a href="api/spacr/utils/index.html#spacr.utils.preprocess_image_v1">preprocess_image_v1() (in module spacr.utils)</a>
 </li>
       <li><a href="api/spacr/io/index.html#spacr.io.preprocess_img_data">preprocess_img_data() (in module spacr.io)</a>
 </li>
@@ -1826,13 +1970,15 @@
 </li>
       <li><a href="api/spacr/io/index.html#spacr.io.process_instruction">process_instruction() (in module spacr.io)</a>
 </li>
+      <li><a href="api/spacr/utils/index.html#spacr.utils.process_mask_file_adjust_cell">process_mask_file_adjust_cell() (in module spacr.utils)</a>
+</li>
+      <li><a href="api/spacr/utils/index.html#spacr.utils.process_mask_file_adjust_cell_v1">process_mask_file_adjust_cell_v1() (in module spacr.utils)</a>
+</li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.process_masks">process_masks() (in module spacr.utils)</a>
 </li>
       <li><a href="api/spacr/measure/index.html#spacr.measure.process_meassure_crop_results">process_meassure_crop_results() (in module spacr.measure)</a>
 </li>
       <li><a href="api/spacr/ml/index.html#spacr.ml.process_model_coefficients">process_model_coefficients() (in module spacr.ml)</a>
-</li>
-      <li><a href="api/spacr/ml/index.html#spacr.ml.process_model_coefficients_v1">process_model_coefficients_v1() (in module spacr.ml)</a>
 </li>
       <li><a href="api/spacr/io/index.html#spacr.io.process_non_tif_non_2D_images">process_non_tif_non_2D_images() (in module spacr.io)</a>
 </li>
@@ -1878,6 +2024,12 @@
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.random_forest_feature_importance">random_forest_feature_importance() (in module spacr.utils)</a>
 </li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.ransac_thresh_px">ransac_thresh_px (spacr.spacrops.spacrStitcher attribute)</a>
+
+      <ul>
+        <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.StitchedMultiAligner.ransac_thresh_px">(spacr.spacrops.StitchedMultiAligner attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/spacr/plot/index.html#spacr.plot.spacrGraph.raw_df">raw_df (spacr.plot.spacrGraph attribute)</a>
 </li>
       <li><a href="api/spacr/plot/index.html#spacr.plot.read_and_plot__vision_results">read_and_plot__vision_results() (in module spacr.plot)</a>
@@ -1891,6 +2043,8 @@
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.recreate_image_grid">recreate_image_grid() (spacr.gui_elements.AnnotateApp method)</a>
 </li>
       <li><a href="api/spacr/core/index.html#spacr.core.reducer_hyperparameter_search">reducer_hyperparameter_search() (in module spacr.core)</a>
+</li>
+      <li><a href="api/spacr/utils/index.html#spacr.utils.FocalLossWithLogits.reduction">reduction (spacr.utils.FocalLossWithLogits attribute)</a>
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.reduction_and_clustering">reduction_and_clustering() (in module spacr.utils)</a>
 </li>
@@ -1912,8 +2066,6 @@
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.remove_highly_correlated_columns">remove_highly_correlated_columns() (in module spacr.utils)</a>
 </li>
-      <li><a href="api/spacr/utils/index.html#spacr.utils.remove_highly_correlated_columns_v1">remove_highly_correlated_columns_v1() (in module spacr.utils)</a>
-</li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.remove_intensity_objects">remove_intensity_objects() (in module spacr.utils)</a>
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.remove_low_variance_columns">remove_low_variance_columns() (in module spacr.utils)</a>
@@ -1922,15 +2074,19 @@
 </li>
       <li><a href="api/spacr/plot/index.html#spacr.plot.spacrGraph.remove_outliers">remove_outliers (spacr.plot.spacrGraph attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/spacr/utils/index.html#spacr.utils.remove_outliers_by_group">remove_outliers_by_group() (in module spacr.utils)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/spacr/plot/index.html#spacr.plot.spacrGraph.remove_outliers_from_plot">remove_outliers_from_plot() (spacr.plot.spacrGraph method)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.ModifyMaskApp.remove_small_objects">remove_small_objects() (spacr.gui_elements.ModifyMaskApp method)</a>
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.rename_columns_in_db">rename_columns_in_db() (in module spacr.utils)</a>
+</li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.render_mosaic_from_csv">render_mosaic_from_csv() (spacr.spacrops.spacrStitcher method)</a>
+</li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.render_mosaic_from_csv_v1">render_mosaic_from_csv_v1() (spacr.spacrops.spacrStitcher method)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrContainer.reposition_panes">reposition_panes() (spacr.gui_elements.spacrContainer method)</a>
 </li>
@@ -1964,11 +2120,15 @@
       </ul></li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrFrame.rounded_rectangle">rounded_rectangle() (spacr.gui_elements.spacrFrame method)</a>
 </li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.FOVAlignAndCropper.run">run() (spacr.spacrops.FOVAlignAndCropper method)</a>
+</li>
       <li><a href="api/spacr/sim/index.html#spacr.sim.run_and_save">run_and_save() (in module spacr.sim)</a>
 </li>
       <li><a href="api/spacr/gui_utils/index.html#spacr.gui_utils.run_annotate_app">run_annotate_app() (in module spacr.gui_utils)</a>
 </li>
       <li><a href="api/spacr/sim/index.html#spacr.sim.run_experiment">run_experiment() (in module spacr.sim)</a>
+</li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.run_folder">run_folder() (spacr.spacrops.spacrStitcher method)</a>
 </li>
       <li><a href="api/spacr/gui_utils/index.html#spacr.gui_utils.run_function_gui">run_function_gui() (in module spacr.gui_utils)</a>
 </li>
@@ -2006,6 +2166,8 @@
 </li>
       <li><a href="api/spacr/sim/index.html#spacr.sim.save_plot">save_plot() (in module spacr.sim)</a>
 </li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.save_qc">save_qc (spacr.spacrops.spacrStitcher attribute)</a>
+</li>
       <li><a href="api/spacr/sequencing/index.html#spacr.sequencing.save_qc_df_to_csv">save_qc_df_to_csv() (in module spacr.sequencing)</a>
 </li>
       <li><a href="api/spacr/spacr_cellpose/index.html#spacr.spacr_cellpose.save_results_and_figure">save_results_and_figure() (in module spacr.spacr_cellpose)</a>
@@ -2016,7 +2178,11 @@
 </li>
       <li><a href="api/spacr/sim/index.html#spacr.sim.save_shap_plot">save_shap_plot() (in module spacr.sim)</a>
 </li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.save_stitched_default">save_stitched_default (spacr.spacrops.spacrStitcher attribute)</a>
+</li>
       <li><a href="api/spacr/ml/index.html#spacr.ml.save_summary_to_file">save_summary_to_file() (in module spacr.ml)</a>
+</li>
+      <li><a href="api/spacr/deep_spacr/index.html#spacr.deep_spacr.save_top_class_examples">save_top_class_examples() (in module spacr.deep_spacr)</a>
 </li>
       <li><a href="api/spacr/sequencing/index.html#spacr.sequencing.save_unique_combinations_to_csv">save_unique_combinations_to_csv() (in module spacr.sequencing)</a>
 </li>
@@ -2028,7 +2194,7 @@
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.ScaledDotProductAttention">ScaledDotProductAttention (class in spacr.utils)</a>
 </li>
-      <li><a href="api/spacr/utils/index.html#spacr.utils.ScaledDotProductAttention_v1">ScaledDotProductAttention_v1 (class in spacr.utils)</a>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.score_threshold">score_threshold (spacr.spacrops.spacrStitcher attribute)</a>
 </li>
       <li><a href="api/spacr/gui_core/index.html#spacr.gui_core.scrollable_frame">scrollable_frame (in module spacr.gui_core)</a>
 </li>
@@ -2044,7 +2210,7 @@
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.SelfAttention">SelfAttention (class in spacr.utils)</a>
 </li>
-      <li><a href="api/spacr/utils/index.html#spacr.utils.SelfAttention_v1">SelfAttention_v1 (class in spacr.utils)</a>
+      <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.SENTINEL">SENTINEL (spacr.gui_elements.AnnotateApp attribute)</a>
 </li>
       <li><a href="api/spacr/sim/index.html#spacr.sim.sequence_plates">sequence_plates() (in module spacr.sim)</a>
 </li>
@@ -2068,7 +2234,11 @@
 </li>
       <li><a href="api/spacr/settings/index.html#spacr.settings.set_default_analyze_screen">set_default_analyze_screen() (in module spacr.settings)</a>
 </li>
+      <li><a href="api/spacr/settings/index.html#spacr.settings.set_default_general">set_default_general() (in module spacr.settings)</a>
+</li>
       <li><a href="api/spacr/settings/index.html#spacr.settings.set_default_generate_barecode_mapping">set_default_generate_barecode_mapping() (in module spacr.settings)</a>
+</li>
+      <li><a href="api/spacr/settings/index.html#spacr.settings.set_default_multichannel">set_default_multichannel() (in module spacr.settings)</a>
 </li>
       <li><a href="api/spacr/settings/index.html#spacr.settings.set_default_plot_data_from_db">set_default_plot_data_from_db() (in module spacr.settings)</a>
 </li>
@@ -2077,6 +2247,8 @@
       <li><a href="api/spacr/settings/index.html#spacr.settings.set_default_settings_preprocess_generate_masks">set_default_settings_preprocess_generate_masks() (in module spacr.settings)</a>
 </li>
       <li><a href="api/spacr/settings/index.html#spacr.settings.set_default_settings_preprocess_img_data">set_default_settings_preprocess_img_data() (in module spacr.settings)</a>
+</li>
+      <li><a href="api/spacr/settings/index.html#spacr.settings.set_default_stitch">set_default_stitch() (in module spacr.settings)</a>
 </li>
       <li><a href="api/spacr/settings/index.html#spacr.settings.set_default_train_test_model">set_default_train_test_model() (in module spacr.settings)</a>
 </li>
@@ -2097,6 +2269,8 @@
       <li><a href="api/spacr/settings/index.html#spacr.settings.set_interperate_vision_model_defaults">set_interperate_vision_model_defaults() (in module spacr.settings)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrProgressBar.set_label_position">set_label_position() (spacr.gui_elements.spacrProgressBar method)</a>
+</li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.set_meta_regex">set_meta_regex() (spacr.spacrops.spacrStitcher method)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrLabel.set_text">set_text() (spacr.gui_elements.spacrLabel method)</a>
 </li>
@@ -2136,6 +2310,8 @@
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.show_cam_on_image">show_cam_on_image() (in module spacr.utils)</a>
 </li>
+      <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.show_class_counts">show_class_counts() (spacr.gui_elements.AnnotateApp method)</a>
+</li>
       <li><a href="api/spacr/gui/index.html#spacr.gui.MainApp.show_description">show_description() (spacr.gui.MainApp method)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSlider.show_index">show_index (spacr.gui_elements.spacrSlider attribute)</a>
@@ -2153,16 +2329,12 @@
       <ul>
         <li><a href="api/spacr/io/index.html#spacr.io.NoClassDataset.shuffle">(spacr.io.NoClassDataset attribute)</a>
 </li>
-        <li><a href="api/spacr/io/index.html#spacr.io.NoClassDataset_v1.shuffle">(spacr.io.NoClassDataset_v1 attribute)</a>
-</li>
         <li><a href="api/spacr/io/index.html#spacr.io.spacrDataset.shuffle">(spacr.io.spacrDataset attribute)</a>
 </li>
       </ul></li>
       <li><a href="api/spacr/io/index.html#spacr.io.NoClassDataset.shuffle_dataset">shuffle_dataset() (spacr.io.NoClassDataset method)</a>
 
       <ul>
-        <li><a href="api/spacr/io/index.html#spacr.io.NoClassDataset_v1.shuffle_dataset">(spacr.io.NoClassDataset_v1 method)</a>
-</li>
         <li><a href="api/spacr/io/index.html#spacr.io.spacrDataset.shuffle_dataset">(spacr.io.spacrDataset method)</a>
 </li>
       </ul></li>
@@ -2200,8 +2372,6 @@
         <li><a href="api/spacr/app_annotate/index.html#module-spacr.app_annotate">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     spacr.app_classify
 
@@ -2216,6 +2386,8 @@
         <li><a href="api/spacr/app_make_masks/index.html#module-spacr.app_make_masks">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     spacr.app_mask
 
@@ -2315,6 +2487,13 @@
 </li>
       </ul></li>
       <li>
+    spacr.object
+
+      <ul>
+        <li><a href="api/spacr/object/index.html#module-spacr.object">module</a>
+</li>
+      </ul></li>
+      <li>
     spacr.plot
 
       <ul>
@@ -2357,6 +2536,13 @@
 </li>
       </ul></li>
       <li>
+    spacr.spacrops
+
+      <ul>
+        <li><a href="api/spacr/spacrops/index.html#module-spacr.spacrops">module</a>
+</li>
+      </ul></li>
+      <li>
     spacr.submodules
 
       <ul>
@@ -2391,6 +2577,8 @@
         <li><a href="api/spacr/version/index.html#module-spacr.version">module</a>
 </li>
       </ul></li>
+      <li><a href="api/spacr/utils/index.html#spacr.utils.TorchModel.spacr_classifier">spacr_classifier (spacr.utils.TorchModel attribute)</a>
+</li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.spacr_path">spacr_path (in module spacr.utils)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrButton">spacrButton (class in spacr.gui_elements)</a>
@@ -2427,6 +2615,8 @@
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSlider">spacrSlider (class in spacr.gui_elements)</a>
 </li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher">spacrStitcher (class in spacr.spacrops)</a>
+</li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrSwitch">spacrSwitch (class in spacr.gui_elements)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrToolTip">spacrToolTip (class in spacr.gui_elements)</a>
@@ -2439,6 +2629,12 @@
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.split_my_dataset">split_my_dataset() (in module spacr.utils)</a>
 </li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.squeeze_singleton">squeeze_singleton (spacr.spacrops.spacrStitcher attribute)</a>
+
+      <ul>
+        <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.StitchedMultiAligner.squeeze_singleton">(spacr.spacrops.StitchedMultiAligner attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.src">src (spacr.gui_elements.AnnotateApp attribute)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.standardize_figure">standardize_figure() (in module spacr.gui_elements)</a>
@@ -2467,6 +2663,14 @@
 </li>
       <li><a href="api/spacr/deep_spacr/index.html#spacr.deep_spacr.SmoothGrad.stdev_spread">stdev_spread (spacr.deep_spacr.SmoothGrad attribute)</a>
 </li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.stitch_cycle_wells">stitch_cycle_wells() (in module spacr.spacrops)</a>
+</li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.stitch_pair">stitch_pair() (spacr.spacrops.spacrStitcher method)</a>
+</li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.StitchedMultiAligner">StitchedMultiAligner (class in spacr.spacrops)</a>
+</li>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.stream_csv">stream_csv (spacr.spacrops.spacrStitcher attribute)</a>
+</li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrLabel.style">style (spacr.gui_elements.spacrLabel attribute)</a>
 
       <ul>
@@ -2474,6 +2678,10 @@
 </li>
       </ul></li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrLabel.style_out">style_out (spacr.gui_elements.spacrLabel attribute)</a>
+</li>
+      <li><a href="api/spacr/utils/index.html#id0">suggest_training_changes() (in module spacr.utils)</a>, <a href="api/spacr/utils/index.html#spacr.utils.suggest_training_changes">[1]</a>
+</li>
+      <li><a href="api/spacr/utils/index.html#spacr.utils.suggest_training_changes_v1">suggest_training_changes_v1() (in module spacr.utils)</a>
 </li>
       <li><a href="api/spacr/timelapse/index.html#spacr.timelapse.summarize_per_well">summarize_per_well() (in module spacr.timelapse)</a>
 </li>
@@ -2493,6 +2701,12 @@
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.t_index">t_index (spacr.spacrops.spacrStitcher attribute)</a>
+
+      <ul>
+        <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.StitchedMultiAligner.t_index">(spacr.spacrops.StitchedMultiAligner attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/spacr/io/index.html#spacr.io.TarImageDataset.tar_path">tar_path (spacr.io.TarImageDataset attribute)</a>
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.GradCAMGenerator.target_layer">target_layer (spacr.utils.GradCAMGenerator attribute)</a>
@@ -2561,11 +2775,11 @@
 </li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.TorchModel">TorchModel (class in spacr.utils)</a>
 </li>
+      <li><a href="api/spacr/utils/index.html#spacr.utils.TorchModel_v2">TorchModel_v2 (class in spacr.utils)</a>
+</li>
       <li><a href="api/spacr/io/index.html#spacr.io.CombinedDataset.total_length">total_length (spacr.io.CombinedDataset attribute)</a>
 </li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.train_and_classify">train_and_classify() (spacr.gui_elements.AnnotateApp method)</a>
-</li>
-      <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.train_button">train_button (spacr.gui_elements.AnnotateApp attribute)</a>
 </li>
       <li><a href="api/spacr/submodules/index.html#spacr.submodules.train_cellpose">train_cellpose() (in module spacr.submodules)</a>
 </li>
@@ -2573,7 +2787,11 @@
 </li>
       <li><a href="api/spacr/deep_spacr/index.html#spacr.deep_spacr.train_model">train_model() (in module spacr.deep_spacr)</a>
 </li>
+      <li><a href="api/spacr/deep_spacr/index.html#spacr.deep_spacr.train_model_v1">train_model_v1() (in module spacr.deep_spacr)</a>
+</li>
       <li><a href="api/spacr/deep_spacr/index.html#spacr.deep_spacr.train_test_model">train_test_model() (in module spacr.deep_spacr)</a>
+</li>
+      <li><a href="api/spacr/deep_spacr/index.html#spacr.deep_spacr.train_test_model_v1">train_test_model_v1() (in module spacr.deep_spacr)</a>
 </li>
       <li><a href="api/spacr/io/index.html#spacr.io.training_dataset_from_annotation">training_dataset_from_annotation() (in module spacr.io)</a>
 </li>
@@ -2582,8 +2800,6 @@
       <li><a href="api/spacr/io/index.html#spacr.io.NoClassDataset.transform">transform (spacr.io.NoClassDataset attribute)</a>
 
       <ul>
-        <li><a href="api/spacr/io/index.html#spacr.io.NoClassDataset_v1.transform">(spacr.io.NoClassDataset_v1 attribute)</a>
-</li>
         <li><a href="api/spacr/io/index.html#spacr.io.spacrDataset.transform">(spacr.io.spacrDataset attribute)</a>
 </li>
         <li><a href="api/spacr/io/index.html#spacr.io.TarImageDataset.transform">(spacr.io.TarImageDataset attribute)</a>
@@ -2605,8 +2821,12 @@
         <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrButton.update_description">(spacr.gui_elements.spacrButton method)</a>
 </li>
       </ul></li>
-      <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.ModifyMaskApp.update_display">update_display() (spacr.gui_elements.ModifyMaskApp method)</a>
+      <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.update_display">update_display() (spacr.gui_elements.AnnotateApp method)</a>
+
+      <ul>
+        <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.ModifyMaskApp.update_display">(spacr.gui_elements.ModifyMaskApp method)</a>
 </li>
+      </ul></li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.ModifyMaskApp.update_dividing_line_preview">update_dividing_line_preview() (spacr.gui_elements.ModifyMaskApp method)</a>
 </li>
       <li><a href="api/spacr/gui_core/index.html#spacr.gui_core.update_figure">update_figure() (in module spacr.gui_core)</a>
@@ -2646,7 +2866,11 @@
       <ul>
         <li><a href="api/spacr/utils/index.html#spacr.utils.TorchModel.use_checkpoint">(spacr.utils.TorchModel attribute)</a>
 </li>
+        <li><a href="api/spacr/utils/index.html#spacr.utils.TorchModel_v2.use_checkpoint">(spacr.utils.TorchModel_v2 attribute)</a>
+</li>
       </ul></li>
+      <li><a href="api/spacr/utils/index.html#spacr.utils.TorchModel.use_dropout">use_dropout (spacr.utils.TorchModel attribute)</a>
+</li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.ModifyMaskApp.use_magic_wand">use_magic_wand() (spacr.gui_elements.ModifyMaskApp method)</a>
 </li>
   </ul></td>
@@ -2677,9 +2901,11 @@
       </ul></li>
       <li><a href="api/spacr/ml/index.html#spacr.ml.QuasiBinomial.variance">variance() (spacr.ml.QuasiBinomial method)</a>
 </li>
+      <li><a href="api/spacr/gui_core/index.html#spacr.gui_core.vars_dict">vars_dict (in module spacr.gui_core)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/spacr/gui_core/index.html#spacr.gui_core.vars_dict">vars_dict (in module spacr.gui_core)</a>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.verbose">verbose (spacr.spacrops.spacrStitcher attribute)</a>
 </li>
       <li><a href="api/spacr/version/index.html#spacr.version.version">version (in module spacr.version)</a>
 </li>
@@ -2699,7 +2925,7 @@
 </li>
       <li><a href="api/spacr/deep_spacr/index.html#spacr.deep_spacr.visualize_smooth_grad">visualize_smooth_grad() (in module spacr.deep_spacr)</a>
 </li>
-      <li><a href="api/spacr/plot/index.html#spacr.plot.volcano_plot">volcano_plot() (in module spacr.plot)</a>
+      <li><a href="api/spacr/plot/index.html#id0">volcano_plot() (in module spacr.plot)</a>, <a href="api/spacr/plot/index.html#spacr.plot.volcano_plot">[1]</a>
 </li>
   </ul></td>
 </tr></table>
@@ -2708,26 +2934,16 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/spacr/utils/index.html#spacr.utils.SelfAttention.W_k">W_k (spacr.utils.SelfAttention attribute)</a>
-
-      <ul>
-        <li><a href="api/spacr/utils/index.html#spacr.utils.SelfAttention_v1.W_k">(spacr.utils.SelfAttention_v1 attribute)</a>
 </li>
-      </ul></li>
       <li><a href="api/spacr/utils/index.html#spacr.utils.SelfAttention.W_q">W_q (spacr.utils.SelfAttention attribute)</a>
-
-      <ul>
-        <li><a href="api/spacr/utils/index.html#spacr.utils.SelfAttention_v1.W_q">(spacr.utils.SelfAttention_v1 attribute)</a>
 </li>
-      </ul></li>
+      <li><a href="api/spacr/utils/index.html#spacr.utils.SelfAttention.W_v">W_v (spacr.utils.SelfAttention attribute)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/spacr/utils/index.html#spacr.utils.SelfAttention.W_v">W_v (spacr.utils.SelfAttention attribute)</a>
-
-      <ul>
-        <li><a href="api/spacr/utils/index.html#spacr.utils.SelfAttention_v1.W_v">(spacr.utils.SelfAttention_v1 attribute)</a>
-</li>
-      </ul></li>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrToolTip.widget">widget (spacr.gui_elements.spacrToolTip attribute)</a>
+</li>
+      <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.AnnotateApp.worker_busy">worker_busy (spacr.gui_elements.AnnotateApp attribute)</a>
 </li>
       <li><a href="api/spacr/gui_utils/index.html#spacr.gui_utils.WriteToQueue.write">write() (spacr.gui_utils.WriteToQueue method)</a>
 </li>
@@ -2746,6 +2962,14 @@
 
 <h2 id="Z">Z</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.spacrStitcher.z_index">z_index (spacr.spacrops.spacrStitcher attribute)</a>
+
+      <ul>
+        <li><a href="api/spacr/spacrops/index.html#spacr.spacrops.StitchedMultiAligner.z_index">(spacr.spacrops.StitchedMultiAligner attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/spacr/gui_elements/index.html#spacr.gui_elements.spacrButton.zoom_icon">zoom_icon() (spacr.gui_elements.spacrButton method)</a>
 </li>

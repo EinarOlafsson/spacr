@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.settings &mdash; spacr 1.0.1 documentation</title>
+  <title>spacr.settings &mdash; spacr 1.2.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
@@ -15,7 +15,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../../_static/documentation_options.js?v=36f53d34"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -66,12 +66,14 @@
 <li class="toctree-l4"><a class="reference internal" href="../logger/index.html">spacr.logger</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../measure/index.html">spacr.measure</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../ml/index.html">spacr.ml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../object/index.html">spacr.object</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../plot/index.html">spacr.plot</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sequencing/index.html">spacr.sequencing</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">spacr.settings</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sim/index.html">spacr.sim</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sp_stats/index.html">spacr.sp_stats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spacrops/index.html">spacr.spacrops</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../submodules/index.html">spacr.submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../timelapse/index.html">spacr.timelapse</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../toxo/index.html">spacr.toxo</a></li>
@@ -236,13 +238,23 @@
 <dd></dd></dl>
 
 <dl class="py data">
+<dt class="sig sig-object py" id="spacr.settings.motility_settings">
+<span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">motility_settings</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['motility_analysis',</span> <span class="pre">'tracked_object',</span> <span class="pre">'infection_intensity_strategy',</span> <span class="pre">'seconds_per_frame',...</span></em><a class="reference internal" href="../../../_modules/spacr/settings.html#motility_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.motility_settings" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="spacr.settings.motility_advanced_settings">
+<span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">motility_advanced_settings</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['reuse_existing_measurements',</span> <span class="pre">'infection_xgb_min_cells_per_class',...</span></em><a class="reference internal" href="../../../_modules/spacr/settings.html#motility_advanced_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.motility_advanced_settings" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
 <dt class="sig sig-object py" id="spacr.settings.categories">
 <span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">categories</span></span><a class="reference internal" href="../../../_modules/spacr/settings.html#categories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.categories" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="spacr.settings.category_keys">
-<span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">category_keys</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Paths',</span> <span class="pre">'General',</span> <span class="pre">'Cellpose',</span> <span class="pre">'Cell',</span> <span class="pre">'Nucleus',</span> <span class="pre">'Pathogen',</span> <span class="pre">'Measurements',</span> <span class="pre">'Object</span> <span class="pre">Image',...</span></em><a class="reference internal" href="../../../_modules/spacr/settings.html#category_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.category_keys" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">category_keys</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Paths',</span> <span class="pre">'General',</span> <span class="pre">'Cellpose',</span> <span class="pre">'Cell',</span> <span class="pre">'Organelle',</span> <span class="pre">'Organelle</span> <span class="pre">preprocessing',</span> <span class="pre">'Organelle</span> <span class="pre">spot...</span></em><a class="reference internal" href="../../../_modules/spacr/settings.html#category_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.category_keys" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -303,6 +315,26 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.settings.get_plot_data_from_csv_default_settings">
 <span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">get_plot_data_from_csv_default_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/settings.html#get_plot_data_from_csv_default_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.get_plot_data_from_csv_default_settings" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.settings.set_default_stitch">
+<span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">set_default_stitch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/settings.html#set_default_stitch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.set_default_stitch" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.settings.set_default_multichannel">
+<span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">set_default_multichannel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/settings.html#set_default_multichannel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.set_default_multichannel" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.settings.set_default_general">
+<span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">set_default_general</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/settings.html#set_default_general"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.set_default_general" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.settings.get_automated_motility_assay_default_settings">
+<span class="sig-prename descclassname"><span class="pre">spacr.settings.</span></span><span class="sig-name descname"><span class="pre">get_automated_motility_assay_default_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/settings.html#get_automated_motility_assay_default_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.settings.get_automated_motility_assay_default_settings" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </section>

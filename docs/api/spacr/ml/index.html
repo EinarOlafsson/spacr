@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.ml &mdash; spacr 1.0.1 documentation</title>
+  <title>spacr.ml &mdash; spacr 1.2.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
@@ -15,13 +15,13 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../../_static/documentation_options.js?v=36f53d34"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="spacr.plot" href="../plot/index.html" />
+    <link rel="next" title="spacr.object" href="../object/index.html" />
     <link rel="prev" title="spacr.measure" href="../measure/index.html" /> 
 </head>
 
@@ -66,12 +66,14 @@
 <li class="toctree-l4"><a class="reference internal" href="../logger/index.html">spacr.logger</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../measure/index.html">spacr.measure</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">spacr.ml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../object/index.html">spacr.object</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../plot/index.html">spacr.plot</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sequencing/index.html">spacr.sequencing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../settings/index.html">spacr.settings</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sim/index.html">spacr.sim</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sp_stats/index.html">spacr.sp_stats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spacrops/index.html">spacr.spacrops</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../submodules/index.html">spacr.submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../timelapse/index.html">spacr.timelapse</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../toxo/index.html">spacr.toxo</a></li>
@@ -156,18 +158,6 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="spacr.ml.process_model_coefficients_v1">
-<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">process_model_coefficients_v1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regression_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controls</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#process_model_coefficients_v1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.process_model_coefficients_v1" title="Link to this definition"></a></dt>
-<dd><p>Return DataFrame of model coefficients and p-values.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="spacr.ml.check_distribution_v1">
-<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">check_distribution_v1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#check_distribution_v1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.check_distribution_v1" title="Link to this definition"></a></dt>
-<dd><p>Check the type of distribution to recommend a model.</p>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="spacr.ml.select_glm_family">
 <span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">select_glm_family</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#select_glm_family"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.select_glm_family" title="Link to this definition"></a></dt>
 <dd><p>Select the appropriate GLM family based on the data.</p>
@@ -188,12 +178,6 @@
 <dt class="sig sig-object py" id="spacr.ml.check_and_clean_data">
 <span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">check_and_clean_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dependent_variable</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#check_and_clean_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.check_and_clean_data" title="Link to this definition"></a></dt>
 <dd><p>Check for collinearity, missing values, or invalid types in relevant columns. Clean data accordingly.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="spacr.ml.check_normality_v1">
-<span class="sig-prename descclassname"><span class="pre">spacr.ml.</span></span><span class="sig-name descname"><span class="pre">check_normality_v1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/ml.html#check_normality_v1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.ml.check_normality_v1" title="Link to this definition"></a></dt>
-<dd><p>Check if the data is normally distributed using the Shapiro-Wilk test.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -333,7 +317,7 @@ float: The optimal threshold.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../measure/index.html" class="btn btn-neutral float-left" title="spacr.measure" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../plot/index.html" class="btn btn-neutral float-right" title="spacr.plot" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../object/index.html" class="btn btn-neutral float-right" title="spacr.object" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

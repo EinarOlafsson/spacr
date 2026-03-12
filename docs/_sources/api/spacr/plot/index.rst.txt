@@ -40,6 +40,34 @@ Module Contents
    :returns: None
 
 
+.. py:function:: plot_organelle_output(img_batch, masks, settings, cmap='inferno', figuresize=10, nr=1, print_object_number=True)
+
+   Plot organelle segmentation results for a batch of images.
+
+   Shows the original image, the label mask with object IDs, and a
+   morphology-specific diagnostic panel (e.g. thresholded binary,
+   ridge-enhanced image, DoG response, or ring edges).
+
+   :param img_batch: Shape (N, H, W) single-channel images.
+   :type img_batch: numpy.ndarray
+   :param masks: Label masks, one per image.
+   :type masks: list or numpy.ndarray
+   :param settings: Organelle settings (used to determine morphology/method
+                    and generate the diagnostic panel).
+   :type settings: dict
+   :param cmap: Colormap for the raw image. Defaults to 'inferno'.
+   :type cmap: str, optional
+   :param figuresize: Base figure size. Defaults to 10.
+   :type figuresize: int, optional
+   :param nr: Maximum number of images to plot. Defaults to 1.
+   :type nr: int, optional
+   :param print_object_number: Print object labels on the mask.
+                               Defaults to True.
+   :type print_object_number: bool, optional
+
+   :returns: None
+
+
 .. py:function:: plot_masks(batch, masks, flows, cmap='inferno', figuresize=10, nr=1, file_type='.npz', print_object_number=True)
 
    Plot the masks and flows for a given batch of images.
@@ -106,19 +134,16 @@ Module Contents
 
 .. py:function:: plot_arrays(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=1, q2=99)
 
-   Plot randomly selected arrays from a given directory.
+   Plot randomly selected arrays from a given directory or a single .npz/.npy file.
 
    Parameters:
-   - src (str): The directory path containing the arrays.
-   - figuresize (int): The size of the figure (default: 50).
+   - src (str): The directory path or file path containing the arrays.
+   - figuresize (int): The size of the figure (default: 10).
    - cmap (str): The colormap to use for displaying the arrays (default: 'inferno').
    - nr (int): The number of arrays to plot (default: 1).
    - normalize (bool): Whether to normalize the arrays (default: True).
    - q1 (int): The lower percentile for normalization (default: 1).
    - q2 (int): The upper percentile for normalization (default: 99).
-
-   Returns:
-   None
 
 
 .. py:function:: plot_merged(src, settings)
@@ -365,9 +390,6 @@ Module Contents
 
    .. py:method:: perform_levene_test(unique_groups)
 
-      Perform Levene's test for equal variance.
-
-
 
    .. py:method:: perform_statistical_tests(unique_groups, is_normal)
 
@@ -479,5 +501,34 @@ Module Contents
 
    :returns: Overlapping and non-overlapping genes.
    :rtype: dict
+
+
+.. py:function:: volcano_plot(data: Union[str, pandas.DataFrame], *, fold_change_col: str, p_value_col: str, name_col: Optional[str] = None, x_transform: str = 'none', y_transform: str = '-log10', fold_change_threshold: Optional[float] = None, p_value_threshold: Optional[float] = None, annotate: bool = True, annotate_max: Optional[int] = None, point_size: float = 20.0, alpha: float = 0.7, figsize: Tuple[float, float] = (8.0, 6.0), title: Optional[str] = None, xlim: Optional[Tuple[float, float]] = None, ylim: Optional[Tuple[float, float]] = None, threshold_line_kwargs: Optional[dict] = None, scatter_kwargs: Optional[dict] = None, text_kwargs: Optional[dict] = None, save_path: Optional[str] = None, show: bool = True, ax: Optional[matplotlib.pyplot.Axes] = None, sheet_name: Union[int, str] = 0) -> Tuple[matplotlib.pyplot.Figure, matplotlib.pyplot.Axes, list]
+
+   Read a table (CSV/TSV/XLS/XLSX) and generate a volcano plot.
+
+   Auto-detects file type from extension:
+     - .csv -> read_csv
+     - .tsv / .tab -> read_csv(sep="\t")
+     - .xls / .xlsx -> read_excel (sheet_name)
+
+   :param data: Path to table file or a pandas DataFrame.
+   :param fold_change_col: Column name for fold change (or log fold change if x_transform="none").
+   :param p_value_col: Column name for p-values.
+   :param name_col: Optional column for labels.
+   :param x_transform: "none", "log2", "log10", "ln".
+                       Use "none" if fold_change_col already contains logFC values (can be negative).
+   :param y_transform: "none", "-log10", "-ln", "log10", "ln".
+   :param fold_change_threshold:
+                                 - If x_transform="none": interpreted in x units (e.g. abs(log2FC) >= 1).
+                                 - If x_transform is a log transform: interpreted in *raw FC* units (e.g. 2),
+                                   then converted into plotted units for the vertical dashed lines.
+   :param p_value_threshold: P-value cutoff (e.g. 0.05); drawn as a dashed horizontal line.
+   :param annotate: If True and name_col is provided, annotate points passing thresholds.
+                    If no thresholds are provided, nothing is annotated unless annotate_max is set.
+   :param annotate_max: If set, annotate at most N eligible points (highest y first).
+   :param sheet_name: Excel sheet index/name (used for .xls/.xlsx).
+
+   :returns: (fig, ax, hits) where hits is the list of annotated labels.
 
 

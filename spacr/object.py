@@ -790,15 +790,34 @@ def _apply_cell_mask(img_batch, batch_filenames, cell_mask_folder):
 #  Deep-learning model loaders
 # ====================================================================== #
 
-def _load_stardist_model(settings):
+def _load_stardist_model_v1(settings):
     """Load a Stardist model (pretrained or custom)."""
+    import os
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+    
+    # Free PyTorch GPU memory before TensorFlow takes over
+    torch.cuda.empty_cache()
+    torch.cuda.synchronize()
+    
     try:
-        from stardist.models import StarDist2D
-    except ImportError:
+        import tensorflow as tf
+        # Allow TensorFlow to use GPU but don't let it grab all memory
+        gpus = tf.config.list_physical_devices('GPU')
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+    except Exception as e:
+        print(f'Warning: Could not configure TensorFlow GPU: {e}')
+    
+    try:
+        from stardist.models import StarDist2D  # type: ignore
+    except (ImportError, RuntimeError) as e:
         raise ImportError(
-            "Stardist is required for method='stardist'. "
-            "Install with: pip install stardist"
+            f"Stardist requires TensorFlow which is not installed. "
+            f"Either install TensorFlow ('pip install tensorflow') or use a "
+            f"different method for spot detection: 'cellpose', 'otsu', 'log', or 'dog'. "
+            f"Original error: {e}"
         )
+    
     model_name = settings.get('organelle_stardist_model', '2D_versatile_fluo')
 
     if os.path.isdir(model_name):
@@ -806,8 +825,69 @@ def _load_stardist_model(settings):
                            basedir=os.path.dirname(model_name))
     else:
         model = StarDist2D.from_pretrained(model_name)
+    
     return model
 
+def _load_stardist_model(settings):
+    """Load a Stardist model (pretrained or custom)."""
+    import os
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+    # Free any PyTorch GPU state
+    torch.cuda.empty_cache()
+    torch.cuda.synchronize()
+
+    try:
+        from stardist.models import StarDist2D  # type: ignore
+    except (ImportError, RuntimeError) as e:
+        raise ImportError(
+            f"Stardist requires TensorFlow which is not installed. "
+            f"Either install TensorFlow ('pip install tensorflow') or use a "
+            f"different method for spot detection: 'cellpose', 'otsu', 'log', or 'dog'. "
+            f"Original error: {e}"
+        )
+
+    model_name = settings.get('organelle_stardist_model', '2D_versatile_fluo')
+
+    # Try GPU first, fall back to CPU if CUDA context is corrupted
+    for attempt, use_gpu in enumerate([True, False]):
+        try:
+            import tensorflow as tf
+            if use_gpu:
+                gpus = tf.config.list_physical_devices('GPU')
+                if gpus:
+                    for gpu in gpus:
+                        tf.config.experimental.set_memory_growth(gpu, True)
+                    print(f'Loading Stardist model on GPU: {model_name}...')
+                else:
+                    print(f'No GPU found, loading Stardist model on CPU: {model_name}...')
+            else:
+                tf.config.set_visible_devices([], 'GPU')
+                print(f'GPU unavailable for TensorFlow, loading Stardist model on CPU: {model_name}...')
+
+            if os.path.isdir(model_name):
+                model = StarDist2D(None, name=os.path.basename(model_name),
+                                   basedir=os.path.dirname(model_name))
+            else:
+                model = StarDist2D.from_pretrained(model_name)
+
+            print(f'Stardist model loaded successfully ({"GPU" if use_gpu and gpus else "CPU"}).')
+            return model
+
+        except Exception as e:
+            if attempt == 0:
+                print(f'Warning: Failed to load Stardist on GPU ({e}). Falling back to CPU...')
+                # Reset TF state for CPU retry
+                try:
+                    import tensorflow as tf
+                    tf.config.set_visible_devices([], 'GPU')
+                except Exception:
+                    os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+            else:
+                raise RuntimeError(
+                    f"Failed to load Stardist model on both GPU and CPU. "
+                    f"Error: {e}"
+                )
 
 def _load_unet_model(settings):
     """Load a user-provided U-Net model from a .pt / .pth file."""

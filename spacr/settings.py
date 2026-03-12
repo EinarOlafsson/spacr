@@ -1,5 +1,7 @@
 import os, ast
 
+#from wsgiref import types
+
 #from spacr_nightly.spacr.build.lib.spacr import settings
 
 def set_default_plot_merge_settings():
@@ -812,7 +814,7 @@ expected_types = {
     #"timelapse_frame_limits": (list, type(None)),  # This can be a list of lists
     "timelapse_remove_transient": bool,
     "timelapse_mode": str,
-    "timelapse_objects": (list, type(None)),
+    "timelapse_objects": list,
     "fps": int,
     "remove_background": bool,
     "lower_percentile": (int, float),
@@ -1162,11 +1164,31 @@ expected_types = {
     'organelle_resample': bool,
     'organelle_mask_dim':(int, type(None)),
     'organelle_chann_dim':(int, type(None)),
+    'organelle_rolling_ball':bool,
+    'organelle_rolling_ball_radius':int,
+    'organelle_clahe':bool,
+    'organelle_clahe_clip_limit':float,
+    'organelle_mask_within_cells':bool,
+    'organelle_dog_sigma_low':float,
+    'organelle_dog_sigma_high':float,
+    'organelle_stardist_model':str,
+    'organelle_stardist_prob':float,
+    'organelle_stardist_nms':float,
+    'organelle_hysteresis_low':float, 
+    'organelle_hysteresis_high':float,
+    'organelle_unet_model_path':str,
+    'organelle_unet_threshold':float,
+    'organelle_ring_sigma_inner':float, 
+    'organelle_ring_sigma_outer':float,
+    'organelle_ring_min_prominence':float, 
+    'organelle_ring_fill_method':str,
+    'summarize_organelles_by':str,
     'early_stopping_patience':int,
     'logit_adjust_tau':float,
     'focal_alpha':( float, type(None)),
     'focal_gamma':float,
     'label_smoothing':float,
+
 }
 
 motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_strategy', 'seconds_per_frame', 'pixels_per_um', 'motility_ylim', 'motility_xlim', 'infection_intensity_qc_scope']
@@ -1179,10 +1201,10 @@ motility_advanced_settings = ['reuse_existing_measurements', 'infection_xgb_min_
                      'infection_pca_tsne_learning_rate_grid', 'infection_pca_umap_n_neighbors','infection_pca_umap_min_dist','infection_pca_tsne_perplexity', 'infection_pca_min_silhouette','infection_pca_min_gt_separation','infection_pca_max_cells']
 
 categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset","model_path","grna_csv","row_csv","column_csv", "metadata_files", "score_data","count_data"],
-             "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel",  "test_mode", "plot", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "delete_intermediate", "uninfected", ],
+             "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel",  "test_mode", "plot", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "delete_intermediate", "uninfected", ],
              "Cellpose":["fill_in","from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
              "Cell": ["cell_diamiter","cell_intensity_range", "cell_size_range", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cytoplasm_min_size", "adjust_cells", "cells", "cell_loc"],               
-             "Organelle": ["organelle_mask_dim", "organelle_chann_dim", "organelle_channel", "organelle_morphology", "organelle_method", "organelle_diameter", "organelle_min_size", "organelle_max_size", "organelle_remove_border", "summarize_organelles_by"],
+             "Organelle": ["organelle_chann_dim", "organelle_morphology", "organelle_method", "organelle_diameter", "organelle_min_size", "organelle_max_size", "organelle_remove_border", "summarize_organelles_by"],
              "Organelle preprocessing": ["organelle_rolling_ball", "organelle_rolling_ball_radius", "organelle_clahe", "organelle_clahe_clip_limit", "organelle_mask_within_cells"],
              "Organelle spot detection": ["organelle_tophat_radius", "organelle_watershed_spots", "organelle_log_min_sigma", "organelle_log_max_sigma", "organelle_log_num_sigma", "organelle_log_threshold", "organelle_dog_sigma_low", "organelle_dog_sigma_high"],
              "Organelle network detection": ["organelle_ridge_filter", "organelle_ridge_sigmas", "organelle_skeletonize", "organelle_network_threshold", "organelle_hysteresis_low", "organelle_hysteresis_high"],
@@ -1715,10 +1737,29 @@ def generate_fields(variables, scrollable_frame):
     }
     
     for key, (var_type, options, default_value) in variables.items():
-        label, widget, var, frame = create_input_field(scrollable_frame.scrollable_frame, key, row, var_type, options, default_value)
-        vars_dict[key] = (label, widget, var, frame)  # Store the label, widget, and variable
+        try:
+            label, widget, var, frame = create_input_field(scrollable_frame.scrollable_frame, key, row, var_type, options, default_value)
+        except Exception as e:
+            print(f"Warning: Invalid value for {key}, reverting to {default_value}, var_type: {var_type}({default_value}).")
+            #print(f"Warning: Invalid value for '{key}' ({default_value}), reverting to type default. Error: {e}")
+            # Fall back to safe defaults based on type
+            type_defaults = {
+                'check': False,
+                'entry': '',
+                'combo': options[0] if options else '',
+                'int': 0,
+                'float': 0.0,
+            }
+            fallback = type_defaults.get(var_type, '')
+            try:
+                label, widget, var, frame = create_input_field(scrollable_frame.scrollable_frame, key, row, var_type, options, fallback)
+            except Exception as e2:
+                print(f"Error: Could not create field for '{key}' even with fallback. Skipping.")
+                #print(f"Error: Could not create field for '{key}' even with fallback. Skipping. Error: {e2}")
+                continue
+
+        vars_dict[key] = (label, widget, var, frame)
         
-        # Add tooltip to the label if it exists in the tooltips dictionary
         if key in tooltips:
             spacrToolTip(label, tooltips[key])
 

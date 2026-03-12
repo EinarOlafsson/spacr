@@ -44,16 +44,6 @@ Module Contents
    Scale independent (X) and dependent (y) variables using MinMaxScaler.
 
 
-.. py:function:: process_model_coefficients_v1(model, regression_type, X, y, nc, pc, controls)
-
-   Return DataFrame of model coefficients and p-values.
-
-
-.. py:function:: check_distribution_v1(y)
-
-   Check the type of distribution to recommend a model.
-
-
 .. py:function:: select_glm_family(y)
 
    Select the appropriate GLM family based on the data.
@@ -69,11 +59,6 @@ Module Contents
 .. py:function:: check_and_clean_data(df, dependent_variable)
 
    Check for collinearity, missing values, or invalid types in relevant columns. Clean data accordingly.
-
-
-.. py:function:: check_normality_v1(y, variable_name)
-
-   Check if the data is normally distributed using the Shapiro-Wilk test.
 
 
 .. py:function:: minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance=0.02, smoothing=10, increment=10)

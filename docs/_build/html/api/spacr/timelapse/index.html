@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.timelapse &mdash; spacr 1.0.1 documentation</title>
+  <title>spacr.timelapse &mdash; spacr 1.2.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
@@ -15,7 +15,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../../_static/documentation_options.js?v=36f53d34"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -66,12 +66,14 @@
 <li class="toctree-l4"><a class="reference internal" href="../logger/index.html">spacr.logger</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../measure/index.html">spacr.measure</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../ml/index.html">spacr.ml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../object/index.html">spacr.object</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../plot/index.html">spacr.plot</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sequencing/index.html">spacr.sequencing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../settings/index.html">spacr.settings</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sim/index.html">spacr.sim</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sp_stats/index.html">spacr.sp_stats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spacrops/index.html">spacr.spacrops</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../submodules/index.html">spacr.submodules</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">spacr.timelapse</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../toxo/index.html">spacr.toxo</a></li>
@@ -164,6 +166,76 @@
 <dt class="sig sig-object py" id="spacr.timelapse.analyze_calcium_oscillations">
 <span class="sig-prename descclassname"><span class="pre">spacr.timelapse.</span></span><span class="sig-name descname"><span class="pre">analyze_calcium_oscillations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_loc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cell_channel_1_mean_intensity'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cell_area'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fluctuation_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_lines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pathogen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cytoplasm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_transient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transience_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/timelapse.html#analyze_calcium_oscillations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.timelapse.analyze_calcium_oscillations" title="Link to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.timelapse.create_results_figure">
+<span class="sig-prename descclassname"><span class="pre">spacr.timelapse.</span></span><span class="sig-name descname"><span class="pre">create_results_figure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/timelapse.html#create_results_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.timelapse.create_results_figure" title="Link to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Create a Figure with 3 subplots arranged as:</dt><dd><ul class="simple">
+<li><p>PCA (top-left)</p></li>
+<li><p>XGBoost (top-right)</p></li>
+<li><p>Histogram (bottom spanning both columns)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>fig</strong> (<em>Figure</em>)</p></li>
+<li><p><strong>ax_pca, ax_xgb, ax_hist</strong> (<em>matplotlib.axes.Axes</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.timelapse.automated_motility_assay">
+<span class="sig-prename descclassname"><span class="pre">spacr.timelapse.</span></span><span class="sig-name descname"><span class="pre">automated_motility_assay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/timelapse.html#automated_motility_assay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.timelapse.automated_motility_assay" title="Link to this definition"></a></dt>
+<dd><p>End-to-end:</p>
+<ol class="arabic simple">
+<li><p>Read merged/<a href="#id1"><span class="problematic" id="id2">*</span></a>.npy (plate_well_field_time.npy)</p></li>
+<li><p>Build intensity + cell/nucleus/pathogen masks, derive cytoplasm</p></li>
+<li><p>Per cell &amp; frame: metadata + cell regionprops</p></li>
+<li><p>Aggregate child (nucleus/pathogen/cytoplasm) features per cell</p></li>
+<li><p>Concatenate across all merged files</p></li>
+<li><p>Clean impossible jumps + measurement glitches</p></li>
+<li><p>Save per-cell measurements to SQLite DB
+(measurements/measurements.db, table=db_table_name)
+<strong>This table is always the original, pre-QC measurements.</strong></p></li>
+<li><p>Compute per-track velocities (after smoothing)</p></li>
+<li><p>Save a well-level motility summary table in the same DB</p></li>
+<li><p>Generate <em>panel</em> plots combining intensity + motility:
+- original (mask-based) infection labels
+- adjusted infection labels (if QC modifies labels)</p></li>
+<li><p>Optional infection intensity QC based on pathogen channel.</p></li>
+</ol>
+<p>New-relevant settings (all optional):</p>
+<blockquote>
+<div><p># Infection QC / strategy
+‘infection_intensity_qc’: True/False
+‘infection_intensity_strategy’: one of</p>
+<blockquote>
+<div><p>{‘xgboost’, ‘histogram’, ‘pca’, ‘umap’, ‘tsne’}</p>
+</div></blockquote>
+<p>‘infection_intensity_mode’: {‘relabel’, ‘remove’}   # existing</p>
+<p># XGBoost ambiguous-band filtering (track-level)
+‘infection_xgb_drop_ambiguous’: True/False (default True)
+‘infection_xgb_ambiguous_low’: 0.25  (default)
+‘infection_xgb_ambiguous_high’: 0.75 (default)
+‘infection_xgb_proba_column’: ‘name_of_proba_col’   # optional override</p>
+<p># Histogram strategy
+‘infection_hist_percentile’: 25  # used inside _apply_infection_intensity_qc</p>
+<p># Panel toggles
+‘make_mask_panel’: True/False (default True)
+‘make_adjusted_panel’: True/False (default True)</p>
+<p># Plot ranges (unchanged)
+- ‘motility_xlim’, ‘motility_ylim’
+- ‘motility_origin_xlim’, ‘motility_origin_ylim’</p>
+<p># Measurements reuse
+‘reuse_existing_measurements’: True/False (default True)</p>
+</div></blockquote>
+</dd></dl>
 
 </section>
 </section>
