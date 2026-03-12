@@ -3922,7 +3922,7 @@ class AnnotateApp:
             'channel_dims': ('combo', chan_list, '[0,1,2,3]'),
             'dataset_mode': ('combo', ['annotation', 'metadata', 'measurement'], 'metadata'),
             'cov_type': ('combo', ['HC0', 'HC1', 'HC2', 'HC3', None], None),
-            'crop_mode': ('combo', ["['cell']", "['nucleus']", "['pathogen']", "['cell', 'nucleus']", "['cell', 'pathogen']", "['nucleus', 'pathogen']", "['cell', 'nucleus', 'pathogen']"], "['cell']"),
+            'crop_mode': ('combo', ["['cell']", "['nucleus']", "['pathogen']", "['organelle']", "['cell', 'nucleus']", "['cell', 'pathogen']", "['cell', 'organelle']", "['nucleus', 'pathogen']", "['cell', 'nucleus', 'pathogen']", "['cell', 'nucleus', 'pathogen', 'organelle']"], "['cell']"),
             'timelapse_mode': ('combo', ['trackpy', 'iou', 'btrack'], 'trackpy'),
             'train_mode': ('combo', ['erm', 'irm'], 'erm'),
             'clustering': ('combo', ['dbscan', 'kmean'], 'dbscan'),
@@ -3945,7 +3945,8 @@ class AnnotateApp:
             'organelle_ridge_filter': ('combo', ['frangi', 'sato', 'meijering'], 'frangi'),
             'organelle_network_threshold': ('combo', ['otsu', 'adaptive'], 'otsu'),
             'organelle_ring_fill_method': ('combo', ['flood', 'convex'], 'flood'),
-            'organelle_stardist_model': ('combo', ['2D_versatile_fluo', '2D_paper_dsb2018'], '2D_versatile_fluo')
+            'organelle_stardist_model': ('combo', ['2D_versatile_fluo', '2D_paper_dsb2018'], '2D_versatile_fluo'),
+            'summarize_organelles_by': ('combo', ["['cell']","['nucleus']","['pathogen']","['cytoplasm']","['cell', 'nucleus']","['cell', 'pathogen']","['cell', 'cytoplasm']","['cell', 'nucleus', 'pathogen']","['cell', 'nucleus', 'pathogen', 'cytoplasm']",None], None)
         }
 
         for key, value in settings.items():

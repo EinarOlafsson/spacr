@@ -17,6 +17,9 @@ from skimage.measure import label as sk_label, regionprops_table
 import matplotlib.pyplot as plt
 from math import ceil, sqrt
 
+from spacr.build.lib.spacr.utils import _filter_object
+from spacr.spacr import settings
+
 
 def get_components(cell_mask, nucleus_mask, pathogen_mask):
     """
@@ -152,8 +155,413 @@ def _analyze_cytoskeleton(array, mask, channel):
 
     return pd.DataFrame(properties_list)
 
-#@log_function_call
-def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, settings, zernike=True, degree=8):
+def _intensity_measurements_v1(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, channel_arrays, settings, sizes=[3, 6, 12, 24], periphery=True, outside=True):
+    
+    """
+    Calculate various intensity measurements for different regions in the image.
+
+    Args:
+        cell_mask (ndarray): Binary mask indicating the cell regions.
+        nucleus_mask (ndarray): Binary mask indicating the nucleus regions.
+        pathogen_mask (ndarray): Binary mask indicating the pathogen regions.
+        cytoplasm_mask (ndarray): Binary mask indicating the cytoplasm regions.
+        channel_arrays (ndarray): Array of channel images.
+        settings (dict): Additional settings for the intensity measurements.
+        sizes (list, optional): List of sizes for the measurements. Defaults to [3, 6, 12, 24].
+        periphery (bool, optional): Flag indicating whether to calculate periphery intensity measurements. Defaults to True.
+        outside (bool, optional): Flag indicating whether to calculate outside intensity measurements. Defaults to True.
+
+    Returns:
+        dict: A dictionary containing the calculated intensity measurements.
+
+    """
+    radial_dist = settings['radial_dist']
+    calculate_correlation = settings['calculate_correlation']
+    homogeneity = settings['homogeneity']
+    distances = settings['homogeneity_distances']
+    
+    intensity_props = ["label", "centroid_weighted", "centroid_weighted_local", "max_intensity", "mean_intensity", "min_intensity"]
+    col_lables = ['region_label', 'mean', '5_percentile', '10_percentile', '25_percentile', '50_percentile', '75_percentile', '85_percentile', '95_percentile']
+    cell_dfs, nucleus_dfs, pathogen_dfs, cytoplasm_dfs = [], [], [], []
+    ls = ['cell','nucleus','pathogen','cytoplasm']
+    labels = [cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask]
+    dfs = [cell_dfs, nucleus_dfs, pathogen_dfs, cytoplasm_dfs]
+    
+    for i in range(0,channel_arrays.shape[-1]):
+        channel = channel_arrays[:, :, i]
+        for j, (label, df) in enumerate(zip(labels, dfs)):
+            
+            if np.max(label) == 0:
+                empty_df = pd.DataFrame()
+                df.append(empty_df)
+                continue
+            
+            mask_intensity_df = _extended_regionprops_table(label, channel, intensity_props)
+            #mask_intensity_df['shannon_entropy'] = shannon_entropy(channel, base=2)
+
+            if homogeneity:
+                homogeneity_df = _calculate_homogeneity(label, channel, distances)
+                mask_intensity_df = pd.concat([mask_intensity_df.reset_index(drop=True), homogeneity_df], axis=1)
+
+            if periphery:
+                if ls[j] == 'nucleus' or ls[j] == 'pathogen':
+                    periphery_intensity_stats = _periphery_intensity(label, channel)
+                    mask_intensity_df = pd.concat([mask_intensity_df, pd.DataFrame(periphery_intensity_stats, columns=[f'periphery_{stat}' for stat in col_lables])],axis=1)
+
+            if outside:
+                if ls[j] == 'nucleus' or ls[j] == 'pathogen':
+                    outside_intensity_stats = _outside_intensity(label, channel)
+                    mask_intensity_df = pd.concat([mask_intensity_df, pd.DataFrame(outside_intensity_stats, columns=[f'outside_{stat}' for stat in col_lables])], axis=1)
+
+            blur_col = [_estimate_blur(channel[label == region_label]) for region_label in mask_intensity_df['label']]
+            mask_intensity_df[f'{ls[j]}_channel_{i}_blur'] = blur_col
+
+            mask_intensity_df.columns = [f'{ls[j]}_channel_{i}_{col}' if col != 'label' else col for col in mask_intensity_df.columns]
+            df.append(mask_intensity_df)
+            
+    if isinstance(settings['distance_gaussian_sigma'], int):
+        if settings['distance_gaussian_sigma'] != 0:
+            if settings['cell_mask_dim'] != None:
+                if settings['nucleus_mask_dim'] != None or settings['pathogen_mask_dim'] != None:
+                    intensity_distance_df = _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_arrays, settings)
+                    cell_dfs.append(intensity_distance_df)
+    
+    if radial_dist:
+        if np.max(nucleus_mask) != 0:
+            nucleus_radial_distributions = _calculate_radial_distribution(cell_mask, nucleus_mask, channel_arrays, num_bins=6)
+            nucleus_df = _create_dataframe(nucleus_radial_distributions, 'nucleus')
+            dfs[1].append(nucleus_df)
+            
+        if np.max(pathogen_mask) != 0:
+            pathogen_radial_distributions = _calculate_radial_distribution(cell_mask, pathogen_mask, channel_arrays, num_bins=6)
+            pathogen_df = _create_dataframe(pathogen_radial_distributions, 'pathogen')
+            dfs[2].append(pathogen_df)
+        
+    if calculate_correlation:
+        if channel_arrays.shape[-1] >= 2:
+            for i in range(channel_arrays.shape[-1]):
+                for j in range(i+1, channel_arrays.shape[-1]):
+                    chan_i = channel_arrays[:, :, i]
+                    chan_j = channel_arrays[:, :, j]
+                    for m, mask in enumerate(labels):
+                        coloc_df = _calculate_correlation_object_level(chan_i, chan_j, mask, settings)
+                        coloc_df.columns = [f'{ls[m]}_channel_{i}_channel_{j}_{col}' for col in coloc_df.columns]
+                        dfs[m].append(coloc_df)
+    
+    return pd.concat(cell_dfs, axis=1), pd.concat(nucleus_dfs, axis=1), pd.concat(pathogen_dfs, axis=1), pd.concat(cytoplasm_dfs, axis=1)
+
+def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_mask, cytoplasm_mask, settings, zernike=True, degree=8):
+    """
+    Calculate morphological measurements for cells, nucleus, pathogens, organelles, and cytoplasms.
+
+    Args:
+        cell_mask (ndarray): Binary mask of cell labels.
+        nucleus_mask (ndarray): Binary mask of nucleus labels.
+        pathogen_mask (ndarray): Binary mask of pathogen labels.
+        organelle_mask (ndarray): Binary mask of organelle labels.
+        cytoplasm_mask (ndarray): Binary mask of cytoplasm labels.
+        settings (dict): Dictionary containing settings for the measurements.
+        zernike (bool, optional): Flag indicating whether to calculate Zernike moments. Defaults to True.
+        degree (int, optional): Degree of Zernike moments. Defaults to 8.
+
+    Returns:
+        tuple: (cell_df, nucleus_df, pathogen_df, organelle_df, cytoplasm_df)
+    """
+    morphological_props = ['label', 'area', 'area_filled', 'area_bbox', 'convex_area', 'major_axis_length', 'minor_axis_length', 
+                           'eccentricity', 'solidity', 'extent', 'perimeter', 'euler_number', 'equivalent_diameter_area', 'feret_diameter_max']
+    
+    prop_ls = []
+    ls = []
+    
+    if settings['cell_mask_dim'] is not None:
+        cell_to_nucleus, cell_to_pathogen = get_components(cell_mask, nucleus_mask, pathogen_mask)
+        cell_props = pd.DataFrame(regionprops_table(cell_mask, properties=morphological_props))
+        cell_props = _calculate_zernike(cell_mask, cell_props, degree=degree)
+        prop_ls.append(cell_props)
+        ls.append('cell')
+    else:
+        prop_ls.append(pd.DataFrame())
+        ls.append('cell')
+
+    if settings['nucleus_mask_dim'] is not None:
+        nucleus_props = pd.DataFrame(regionprops_table(nucleus_mask, properties=morphological_props))
+        nucleus_props = _calculate_zernike(nucleus_mask, nucleus_props, degree=degree)
+        if settings['cell_mask_dim'] is not None:
+            nucleus_props = pd.merge(nucleus_props, cell_to_nucleus, left_on='label', right_on='nucleus', how='left')
+        prop_ls.append(nucleus_props)
+        ls.append('nucleus')
+    else:
+        prop_ls.append(pd.DataFrame())
+        ls.append('nucleus')
+    
+    if settings['pathogen_mask_dim'] is not None:
+        pathogen_props = pd.DataFrame(regionprops_table(pathogen_mask, properties=morphological_props))
+        pathogen_props = _calculate_zernike(pathogen_mask, pathogen_props, degree=degree)
+        if settings['cell_mask_dim'] is not None:
+            pathogen_props = pd.merge(pathogen_props, cell_to_pathogen, left_on='label', right_on='pathogen', how='left')
+        prop_ls.append(pathogen_props)
+        ls.append('pathogen')
+    else:
+        prop_ls.append(pd.DataFrame())
+        ls.append('pathogen')
+
+    if settings.get('organelle_mask_dim') is not None:
+        organelle_props = pd.DataFrame(regionprops_table(organelle_mask, properties=morphological_props))
+        if len(organelle_props) > 0:
+            organelle_props = _calculate_zernike(organelle_mask, organelle_props, degree=degree)
+            # Map each organelle to its parent cell
+            if settings['cell_mask_dim'] is not None:
+                organelle_to_cell = _map_child_to_parent(organelle_mask, cell_mask, child_name='organelle', parent_name='cell')
+                organelle_props = pd.merge(organelle_props, organelle_to_cell, left_on='label', right_on='organelle', how='left')
+        prop_ls.append(organelle_props)
+        ls.append('organelle')
+    else:
+        prop_ls.append(pd.DataFrame())
+        ls.append('organelle')
+
+    if settings['cytoplasm']:
+        cytoplasm_props = pd.DataFrame(regionprops_table(cytoplasm_mask, properties=morphological_props))
+        prop_ls.append(cytoplasm_props)
+        ls.append('cytoplasm')
+    else:
+        prop_ls.append(pd.DataFrame())
+        ls.append('cytoplasm')
+
+    df_ls = []
+    for i, df in enumerate(prop_ls):
+        df.columns = [f'{ls[i]}_{col}' for col in df.columns]
+        df = df.rename(columns={col: 'label' for col in df.columns if 'label' in col})
+        df_ls.append(df)
+ 
+    return df_ls[0], df_ls[1], df_ls[2], df_ls[3], df_ls[4]
+
+def _map_child_to_parent(child_mask, parent_mask, child_name='organelle', parent_name='cell'):
+    """
+    Map each child object to its parent by maximum overlap.
+
+    Returns a DataFrame with columns [child_name, parent_name].
+    """
+    child_labels = np.unique(child_mask)
+    child_labels = child_labels[child_labels != 0]
+    
+    mapping = []
+    for child_id in child_labels:
+        region = child_mask == child_id
+        parent_ids = parent_mask[region]
+        parent_ids = parent_ids[parent_ids != 0]
+        if len(parent_ids) > 0:
+            parent_id = np.bincount(parent_ids).argmax()
+        else:
+            parent_id = 0
+        mapping.append({child_name: child_id, parent_name: parent_id})
+    
+    return pd.DataFrame(mapping)
+
+
+def _summarize_organelles_per_parent(organelle_mask, parent_mask, channel_arrays, parent_name='cell'):
+    """
+    Summarize organelle measurements per parent object (e.g. per cell).
+
+    For each parent object, computes:
+        - organelle_count: number of organelles within the parent
+        - organelle_total_area: sum of organelle areas
+        - organelle_mean_area, organelle_std_area: mean/std of individual organelle areas
+        - organelle_fraction: fraction of parent area occupied by organelles
+        - organelle_mean_eccentricity, organelle_std_eccentricity
+        - organelle_mean_solidity, organelle_std_solidity
+        - per-channel: organelle_mean_intensity, organelle_std_intensity
+
+    Parameters
+    ----------
+    organelle_mask : ndarray
+        Label mask for organelles.
+    parent_mask : ndarray
+        Label mask for parent objects (cells, nuclei, etc.).
+    channel_arrays : ndarray
+        Shape (H, W, C) intensity images.
+    parent_name : str
+        Name for the parent object column.
+
+    Returns
+    -------
+    pd.DataFrame
+        One row per parent object with summarised organelle features.
+    """
+    parent_labels = np.unique(parent_mask)
+    parent_labels = parent_labels[parent_labels != 0]
+
+    morphological_props = ['label', 'area', 'eccentricity', 'solidity', 'major_axis_length', 'minor_axis_length']
+
+    # Get per-organelle morphology
+    organelle_props = regionprops_table(organelle_mask, properties=morphological_props)
+    organelle_df = pd.DataFrame(organelle_props)
+
+    # Map each organelle to its parent
+    organelle_to_parent = _map_child_to_parent(organelle_mask, parent_mask, 
+                                                child_name='organelle_label', 
+                                                parent_name=parent_name)
+    
+    if len(organelle_df) > 0 and len(organelle_to_parent) > 0:
+        organelle_df = pd.merge(organelle_df, organelle_to_parent, 
+                                left_on='label', right_on='organelle_label', how='left')
+    else:
+        # No organelles — return empty summary for all parents
+        rows = []
+        for pid in parent_labels:
+            row = {'label': pid, 'organelle_count': 0, 'organelle_total_area': 0, 
+                   'organelle_fraction': 0.0}
+            rows.append(row)
+        return pd.DataFrame(rows)
+
+    # Per-channel intensity per organelle
+    for ch in range(channel_arrays.shape[-1]):
+        channel = channel_arrays[:, :, ch]
+        intensities = []
+        for org_label in organelle_df['label']:
+            region = organelle_mask == org_label
+            if np.any(region):
+                intensities.append(channel[region].mean())
+            else:
+                intensities.append(0.0)
+        organelle_df[f'organelle_ch{ch}_mean_intensity'] = intensities
+
+    # Get parent areas for fraction calculation
+    parent_props = pd.DataFrame(regionprops_table(parent_mask, properties=['label', 'area']))
+    parent_area_map = dict(zip(parent_props['label'], parent_props['area']))
+
+    # Summarise per parent
+    summary_rows = []
+    for pid in parent_labels:
+        org_subset = organelle_df[organelle_df[parent_name] == pid]
+        parent_area = parent_area_map.get(pid, 1)
+
+        row = {'label': pid}
+        row['organelle_count'] = len(org_subset)
+        row['organelle_total_area'] = org_subset['area'].sum() if len(org_subset) > 0 else 0
+        row['organelle_fraction'] = row['organelle_total_area'] / parent_area if parent_area > 0 else 0.0
+        row['organelle_mean_area'] = org_subset['area'].mean() if len(org_subset) > 0 else 0.0
+        row['organelle_std_area'] = org_subset['area'].std() if len(org_subset) > 1 else 0.0
+        row['organelle_mean_eccentricity'] = org_subset['eccentricity'].mean() if len(org_subset) > 0 else 0.0
+        row['organelle_std_eccentricity'] = org_subset['eccentricity'].std() if len(org_subset) > 1 else 0.0
+        row['organelle_mean_solidity'] = org_subset['solidity'].mean() if len(org_subset) > 0 else 0.0
+        row['organelle_std_solidity'] = org_subset['solidity'].std() if len(org_subset) > 1 else 0.0
+        row['organelle_mean_major_axis'] = org_subset['major_axis_length'].mean() if len(org_subset) > 0 else 0.0
+        row['organelle_mean_minor_axis'] = org_subset['minor_axis_length'].mean() if len(org_subset) > 0 else 0.0
+
+        for ch in range(channel_arrays.shape[-1]):
+            col = f'organelle_ch{ch}_mean_intensity'
+            row[f'organelle_ch{ch}_mean_intensity_per_{parent_name}'] = org_subset[col].mean() if len(org_subset) > 0 else 0.0
+            row[f'organelle_ch{ch}_std_intensity_per_{parent_name}'] = org_subset[col].std() if len(org_subset) > 1 else 0.0
+
+        summary_rows.append(row)
+
+    return pd.DataFrame(summary_rows)
+
+def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_mask, cytoplasm_mask, channel_arrays, settings, sizes=[3, 6, 12, 24], periphery=True, outside=True):
+    """
+    Calculate various intensity measurements for different regions in the image,
+    including organelle masks.
+
+    Args:
+        cell_mask (ndarray): Binary mask indicating the cell regions.
+        nucleus_mask (ndarray): Binary mask indicating the nucleus regions.
+        pathogen_mask (ndarray): Binary mask indicating the pathogen regions.
+        organelle_mask (ndarray): Binary mask indicating the organelle regions.
+        cytoplasm_mask (ndarray): Binary mask indicating the cytoplasm regions.
+        channel_arrays (ndarray): Array of channel images.
+        settings (dict): Additional settings for the intensity measurements.
+        sizes (list, optional): List of sizes for the measurements.
+        periphery (bool, optional): Calculate periphery intensity measurements.
+        outside (bool, optional): Calculate outside intensity measurements.
+
+    Returns:
+        tuple: (cell_intensity_df, nucleus_intensity_df, pathogen_intensity_df, 
+                organelle_intensity_df, cytoplasm_intensity_df)
+    """
+    radial_dist = settings['radial_dist']
+    calculate_correlation = settings['calculate_correlation']
+    homogeneity = settings['homogeneity']
+    distances = settings['homogeneity_distances']
+    
+    intensity_props = ["label", "centroid_weighted", "centroid_weighted_local", "max_intensity", "mean_intensity", "min_intensity"]
+    col_lables = ['region_label', 'mean', '5_percentile', '10_percentile', '25_percentile', '50_percentile', '75_percentile', '85_percentile', '95_percentile']
+    cell_dfs, nucleus_dfs, pathogen_dfs, organelle_dfs, cytoplasm_dfs = [], [], [], [], []
+    ls = ['cell', 'nucleus', 'pathogen', 'organelle', 'cytoplasm']
+    labels = [cell_mask, nucleus_mask, pathogen_mask, organelle_mask, cytoplasm_mask]
+    dfs = [cell_dfs, nucleus_dfs, pathogen_dfs, organelle_dfs, cytoplasm_dfs]
+    
+    for i in range(0, channel_arrays.shape[-1]):
+        channel = channel_arrays[:, :, i]
+        for j, (label, df) in enumerate(zip(labels, dfs)):
+            
+            if np.max(label) == 0:
+                empty_df = pd.DataFrame()
+                df.append(empty_df)
+                continue
+            
+            mask_intensity_df = _extended_regionprops_table(label, channel, intensity_props)
+
+            if homogeneity:
+                homogeneity_df = _calculate_homogeneity(label, channel, distances)
+                mask_intensity_df = pd.concat([mask_intensity_df.reset_index(drop=True), homogeneity_df], axis=1)
+
+            if periphery:
+                if ls[j] in ('nucleus', 'pathogen', 'organelle'):
+                    periphery_intensity_stats = _periphery_intensity(label, channel)
+                    mask_intensity_df = pd.concat([mask_intensity_df, pd.DataFrame(periphery_intensity_stats, columns=[f'periphery_{stat}' for stat in col_lables])], axis=1)
+
+            if outside:
+                if ls[j] in ('nucleus', 'pathogen', 'organelle'):
+                    outside_intensity_stats = _outside_intensity(label, channel)
+                    mask_intensity_df = pd.concat([mask_intensity_df, pd.DataFrame(outside_intensity_stats, columns=[f'outside_{stat}' for stat in col_lables])], axis=1)
+
+            blur_col = [_estimate_blur(channel[label == region_label]) for region_label in mask_intensity_df['label']]
+            mask_intensity_df[f'{ls[j]}_channel_{i}_blur'] = blur_col
+
+            mask_intensity_df.columns = [f'{ls[j]}_channel_{i}_{col}' if col != 'label' else col for col in mask_intensity_df.columns]
+            df.append(mask_intensity_df)
+            
+    if isinstance(settings['distance_gaussian_sigma'], int):
+        if settings['distance_gaussian_sigma'] != 0:
+            if settings['cell_mask_dim'] is not None:
+                if settings['nucleus_mask_dim'] is not None or settings['pathogen_mask_dim'] is not None:
+                    intensity_distance_df = _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_arrays, settings)
+                    cell_dfs.append(intensity_distance_df)
+    
+    if radial_dist:
+        if np.max(nucleus_mask) != 0:
+            nucleus_radial_distributions = _calculate_radial_distribution(cell_mask, nucleus_mask, channel_arrays, num_bins=6)
+            nucleus_df = _create_dataframe(nucleus_radial_distributions, 'nucleus')
+            dfs[1].append(nucleus_df)
+            
+        if np.max(pathogen_mask) != 0:
+            pathogen_radial_distributions = _calculate_radial_distribution(cell_mask, pathogen_mask, channel_arrays, num_bins=6)
+            pathogen_df = _create_dataframe(pathogen_radial_distributions, 'pathogen')
+            dfs[2].append(pathogen_df)
+
+        if np.max(organelle_mask) != 0:
+            organelle_radial_distributions = _calculate_radial_distribution(cell_mask, organelle_mask, channel_arrays, num_bins=6)
+            organelle_rad_df = _create_dataframe(organelle_radial_distributions, 'organelle')
+            dfs[3].append(organelle_rad_df)
+        
+    if calculate_correlation:
+        if channel_arrays.shape[-1] >= 2:
+            for i in range(channel_arrays.shape[-1]):
+                for j in range(i+1, channel_arrays.shape[-1]):
+                    chan_i = channel_arrays[:, :, i]
+                    chan_j = channel_arrays[:, :, j]
+                    for m, mask in enumerate(labels):
+                        coloc_df = _calculate_correlation_object_level(chan_i, chan_j, mask, settings)
+                        coloc_df.columns = [f'{ls[m]}_channel_{i}_channel_{j}_{col}' for col in coloc_df.columns]
+                        dfs[m].append(coloc_df)
+    
+    return (pd.concat(cell_dfs, axis=1), 
+            pd.concat(nucleus_dfs, axis=1), 
+            pd.concat(pathogen_dfs, axis=1), 
+            pd.concat(organelle_dfs, axis=1),
+            pd.concat(cytoplasm_dfs, axis=1))
+
+def _morphological_measurements_v1(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, settings, zernike=True, degree=8):
     """
     Calculate morphological measurements for cells, nucleus, pathogens, and cytoplasms based on the given masks.
 
@@ -631,102 +1039,6 @@ def _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_
 
     return merged_df
 
-#@log_function_call
-def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, channel_arrays, settings, sizes=[3, 6, 12, 24], periphery=True, outside=True):
-    
-    """
-    Calculate various intensity measurements for different regions in the image.
-
-    Args:
-        cell_mask (ndarray): Binary mask indicating the cell regions.
-        nucleus_mask (ndarray): Binary mask indicating the nucleus regions.
-        pathogen_mask (ndarray): Binary mask indicating the pathogen regions.
-        cytoplasm_mask (ndarray): Binary mask indicating the cytoplasm regions.
-        channel_arrays (ndarray): Array of channel images.
-        settings (dict): Additional settings for the intensity measurements.
-        sizes (list, optional): List of sizes for the measurements. Defaults to [3, 6, 12, 24].
-        periphery (bool, optional): Flag indicating whether to calculate periphery intensity measurements. Defaults to True.
-        outside (bool, optional): Flag indicating whether to calculate outside intensity measurements. Defaults to True.
-
-    Returns:
-        dict: A dictionary containing the calculated intensity measurements.
-
-    """
-    radial_dist = settings['radial_dist']
-    calculate_correlation = settings['calculate_correlation']
-    homogeneity = settings['homogeneity']
-    distances = settings['homogeneity_distances']
-    
-    intensity_props = ["label", "centroid_weighted", "centroid_weighted_local", "max_intensity", "mean_intensity", "min_intensity"]
-    col_lables = ['region_label', 'mean', '5_percentile', '10_percentile', '25_percentile', '50_percentile', '75_percentile', '85_percentile', '95_percentile']
-    cell_dfs, nucleus_dfs, pathogen_dfs, cytoplasm_dfs = [], [], [], []
-    ls = ['cell','nucleus','pathogen','cytoplasm']
-    labels = [cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask]
-    dfs = [cell_dfs, nucleus_dfs, pathogen_dfs, cytoplasm_dfs]
-    
-    for i in range(0,channel_arrays.shape[-1]):
-        channel = channel_arrays[:, :, i]
-        for j, (label, df) in enumerate(zip(labels, dfs)):
-            
-            if np.max(label) == 0:
-                empty_df = pd.DataFrame()
-                df.append(empty_df)
-                continue
-            
-            mask_intensity_df = _extended_regionprops_table(label, channel, intensity_props)
-            #mask_intensity_df['shannon_entropy'] = shannon_entropy(channel, base=2)
-
-            if homogeneity:
-                homogeneity_df = _calculate_homogeneity(label, channel, distances)
-                mask_intensity_df = pd.concat([mask_intensity_df.reset_index(drop=True), homogeneity_df], axis=1)
-
-            if periphery:
-                if ls[j] == 'nucleus' or ls[j] == 'pathogen':
-                    periphery_intensity_stats = _periphery_intensity(label, channel)
-                    mask_intensity_df = pd.concat([mask_intensity_df, pd.DataFrame(periphery_intensity_stats, columns=[f'periphery_{stat}' for stat in col_lables])],axis=1)
-
-            if outside:
-                if ls[j] == 'nucleus' or ls[j] == 'pathogen':
-                    outside_intensity_stats = _outside_intensity(label, channel)
-                    mask_intensity_df = pd.concat([mask_intensity_df, pd.DataFrame(outside_intensity_stats, columns=[f'outside_{stat}' for stat in col_lables])], axis=1)
-
-            blur_col = [_estimate_blur(channel[label == region_label]) for region_label in mask_intensity_df['label']]
-            mask_intensity_df[f'{ls[j]}_channel_{i}_blur'] = blur_col
-
-            mask_intensity_df.columns = [f'{ls[j]}_channel_{i}_{col}' if col != 'label' else col for col in mask_intensity_df.columns]
-            df.append(mask_intensity_df)
-            
-    if isinstance(settings['distance_gaussian_sigma'], int):
-        if settings['distance_gaussian_sigma'] != 0:
-            if settings['cell_mask_dim'] != None:
-                if settings['nucleus_mask_dim'] != None or settings['pathogen_mask_dim'] != None:
-                    intensity_distance_df = _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_arrays, settings)
-                    cell_dfs.append(intensity_distance_df)
-    
-    if radial_dist:
-        if np.max(nucleus_mask) != 0:
-            nucleus_radial_distributions = _calculate_radial_distribution(cell_mask, nucleus_mask, channel_arrays, num_bins=6)
-            nucleus_df = _create_dataframe(nucleus_radial_distributions, 'nucleus')
-            dfs[1].append(nucleus_df)
-            
-        if np.max(pathogen_mask) != 0:
-            pathogen_radial_distributions = _calculate_radial_distribution(cell_mask, pathogen_mask, channel_arrays, num_bins=6)
-            pathogen_df = _create_dataframe(pathogen_radial_distributions, 'pathogen')
-            dfs[2].append(pathogen_df)
-        
-    if calculate_correlation:
-        if channel_arrays.shape[-1] >= 2:
-            for i in range(channel_arrays.shape[-1]):
-                for j in range(i+1, channel_arrays.shape[-1]):
-                    chan_i = channel_arrays[:, :, i]
-                    chan_j = channel_arrays[:, :, j]
-                    for m, mask in enumerate(labels):
-                        coloc_df = _calculate_correlation_object_level(chan_i, chan_j, mask, settings)
-                        coloc_df.columns = [f'{ls[m]}_channel_{i}_channel_{j}_{col}' for col in coloc_df.columns]
-                        dfs[m].append(coloc_df)
-    
-    return pd.concat(cell_dfs, axis=1), pd.concat(nucleus_dfs, axis=1), pd.concat(pathogen_dfs, axis=1), pd.concat(cytoplasm_dfs, axis=1)
-
 def save_and_add_image_to_grid(png_channels, img_path, grid, plot=False):
     """
     Add an image to a grid and save it as PNG.
@@ -882,29 +1194,45 @@ def _measure_crop_core(index, time_ls, file, settings):
                 pathogen_mask = _filter_object(pathogen_mask, settings['pathogen_min_size'])
         else:
             pathogen_mask = np.zeros_like(data[:, :, 0])
-
+            
+        if settings.get('organelle_mask_dim') is not None:
+            organelle_mask = data[:, :, settings['organelle_mask_dim']].astype(data_type)
+            if settings.get('organelle_min_size') and settings['organelle_min_size'] != 0:
+                organelle_mask = _filter_object(organelle_mask, settings['organelle_min_size'])
+        else:
+            organelle_mask = np.zeros_like(data[:, :, 0])
+        
         # Create cytoplasm mask
         if settings['cytoplasm']:
             if settings['cell_mask_dim'] is not None:
-                if settings['nucleus_mask_dim'] is not None and settings['pathogen_mask_dim'] is not None:
-                    cytoplasm_mask = np.where(np.logical_or(nucleus_mask != 0, pathogen_mask != 0), 0, cell_mask)
-                elif settings['nucleus_mask_dim'] is not None:
-                    cytoplasm_mask = np.where(nucleus_mask != 0, 0, cell_mask)
-                elif settings['pathogen_mask_dim'] is not None:
-                    cytoplasm_mask = np.where(pathogen_mask != 0, 0, cell_mask)
-                else:
-                    cytoplasm_mask = np.zeros_like(cell_mask)
+                # Build a combined interior mask from all subcellular objects
+                interior = np.zeros_like(cell_mask, dtype=bool)
+                if settings['nucleus_mask_dim'] is not None:
+                    interior |= (nucleus_mask != 0)
+                if settings['pathogen_mask_dim'] is not None:
+                    interior |= (pathogen_mask != 0)
+                if settings.get('organelle_mask_dim') is not None:
+                    interior |= (organelle_mask != 0)
+                cytoplasm_mask = np.where(interior, 0, cell_mask)
+            else:
+                cytoplasm_mask = np.zeros_like(cell_mask)
         else:
             cytoplasm_mask = np.zeros_like(cell_mask)
 
         if settings['cell_min_size'] is not None and settings['cell_min_size'] != 0:
             cell_mask = _filter_object(cell_mask, settings['cell_min_size'])
+        
         if settings['nucleus_min_size'] is not None and settings['nucleus_min_size'] != 0:
             nucleus_mask = _filter_object(nucleus_mask, settings['nucleus_min_size'])
+        
         if settings['pathogen_min_size'] is not None and settings['pathogen_min_size'] != 0:
             pathogen_mask = _filter_object(pathogen_mask, settings['pathogen_min_size'])
+        
         if settings['cytoplasm_min_size'] is not None and settings['cytoplasm_min_size'] != 0:
             cytoplasm_mask = _filter_object(cytoplasm_mask, settings['cytoplasm_min_size'])
+        
+        if settings.get('organelle_min_size') and settings['organelle_min_size'] != 0:
+            organelle_mask = _filter_object(organelle_mask, settings['organelle_min_size'])
 
         if settings['cell_mask_dim'] is not None and settings['nucleus_mask_dim'] is not None and settings['pathogen_mask_dim'] is not None:
             cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask = _exclude_objects(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, uninfected=settings['uninfected'])
@@ -920,26 +1248,50 @@ def _measure_crop_core(index, time_ls, file, settings):
         if settings['plot']:
             fig = _plot_cropped_arrays(data, file, figuresize)
             figs[f'{file_name}__after_filtration'] = fig
-
+            
         if settings['save_measurements']:
-            cell_df, nucleus_df, pathogen_df, cytoplasm_df = _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, settings)
+            cell_df, nucleus_df, pathogen_df, organelle_df, cytoplasm_df = _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_mask, cytoplasm_mask, settings)
 
-            #if settings['skeleton']:
-                #skeleton_df = _analyze_cytoskeleton(image=channel_arrays, mask=cell_mask, channel=1)
-                #merge skeleton_df with cell_df here
-
-            cell_intensity_df, nucleus_intensity_df, pathogen_intensity_df, cytoplasm_intensity_df = _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, channel_arrays, settings, sizes=[1, 2, 3, 4, 5], periphery=True, outside=True)
-                        
+            cell_intensity_df, nucleus_intensity_df, pathogen_intensity_df, organelle_intensity_df, cytoplasm_intensity_df = _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_mask, cytoplasm_mask, channel_arrays, settings, sizes=[1, 2, 3, 4, 5], periphery=True, outside=True)
+                
             if settings['cell_mask_dim'] is not None:
-                cell_merged_df = _merge_and_save_to_database(cell_df, cell_intensity_df, 'cell', source_folder, file_name, settings['experiment'], settings['timelapse'])
+                _ = _merge_and_save_to_database(cell_df, cell_intensity_df, 'cell', source_folder, file_name, settings['experiment'], settings['timelapse'])
             if settings['nucleus_mask_dim'] is not None:
-                nucleus_merged_df = _merge_and_save_to_database(nucleus_df, nucleus_intensity_df, 'nucleus', source_folder, file_name, settings['experiment'], settings['timelapse'])
+                _ = _merge_and_save_to_database(nucleus_df, nucleus_intensity_df, 'nucleus', source_folder, file_name, settings['experiment'], settings['timelapse'])
 
             if settings['pathogen_mask_dim'] is not None:
-                pathogen_merged_df = _merge_and_save_to_database(pathogen_df, pathogen_intensity_df, 'pathogen', source_folder, file_name, settings['experiment'], settings['timelapse'])
+                _ = _merge_and_save_to_database(pathogen_df, pathogen_intensity_df, 'pathogen', source_folder, file_name, settings['experiment'], settings['timelapse'])
+            
+            if settings.get('summarize_organelles_by') is not None:
+                if "organelle" in settings['summarize_organelles_by']:
+                    if settings.get('organelle_mask_dim') is not None:
+                        _ = _merge_and_save_to_database(organelle_df, organelle_intensity_df, 'organelle', source_folder, file_name, settings['experiment'], settings['timelapse'])
 
             if settings['cytoplasm']:
                 cytoplasm_merged_df = _merge_and_save_to_database(cytoplasm_df, cytoplasm_intensity_df, 'cytoplasm', source_folder, file_name, settings['experiment'], settings['timelapse'])
+                
+            if settings.get('summarize_organelles_by') is not None:
+                if "cell" in settings['summarize_organelles_by']:
+                    if settings.get('organelle_mask_dim') is not None and np.max(organelle_mask) > 0:
+                        if settings['cell_mask_dim'] is not None:
+                            org_per_cell = _summarize_organelles_per_parent(organelle_mask, cell_mask, channel_arrays, parent_name='cell')
+                            org_per_cell.columns = [f'organelle_summary_{col}' if col != 'label' else col for col in org_per_cell.columns]
+                            _merge_and_save_to_database(org_per_cell, pd.DataFrame(), 'cell_organelle_summary', source_folder, file_name, settings['experiment'], settings['timelapse'])
+                if "nucleus" in settings['summarize_organelles_by']:
+                    if settings['nucleus_mask_dim'] is not None:
+                        org_per_nucleus = _summarize_organelles_per_parent(organelle_mask, nucleus_mask, channel_arrays, parent_name='nucleus')
+                        org_per_nucleus.columns = [f'organelle_summary_{col}' if col != 'label' else col for col in org_per_nucleus.columns]
+                        _merge_and_save_to_database(org_per_nucleus, pd.DataFrame(), 'nucleus_organelle_summary', source_folder, file_name, settings['experiment'], settings['timelapse'])
+                if "pathogen" in settings['summarize_organelles_by']:
+                    if settings['pathogen_mask_dim'] is not None:
+                        org_per_pathogen = _summarize_organelles_per_parent(organelle_mask, pathogen_mask, channel_arrays, parent_name='pathogen')
+                        org_per_pathogen.columns = [f'organelle_summary_{col}' if col != 'label' else col for col in org_per_pathogen.columns]
+                        _merge_and_save_to_database(org_per_pathogen, pd.DataFrame(), 'pathogen_organelle_summary', source_folder, file_name, settings['experiment'], settings['timelapse'])
+                if "cytoplasm" in settings['summarize_organelles_by']:
+                    if settings['cytoplasm_mask_dim'] is not None:
+                        org_per_cytoplasm = _summarize_organelles_per_parent(organelle_mask, cytoplasm_mask, channel_arrays, parent_name='cytoplasm')
+                        org_per_cytoplasm.columns = [f'organelle_summary_{col}' if col != 'label' else col for col in org_per_cytoplasm.columns]
+                        _merge_and_save_to_database(org_per_cytoplasm, pd.DataFrame(), 'cytoplasm_organelle_summary', source_folder, file_name, settings['experiment'], settings['timelapse'])
 
         if settings['save_png'] or settings['save_arrays'] or settings['plot']:
             if isinstance(settings['dialate_pngs'], bool):
@@ -981,6 +1333,10 @@ def _measure_crop_core(index, time_ls, file, settings):
                         dialate_png_ratio = dialate_png_ratios[crop_idx]
                     elif crop_mode == 'pathogen':
                         crop_mask = pathogen_mask.copy()
+                        dialate_png = dialate_pngs[crop_idx]
+                        dialate_png_ratio = dialate_png_ratios[crop_idx]
+                    elif crop_mode == 'organelle':
+                        crop_mask = organelle_mask.copy()
                         dialate_png = dialate_pngs[crop_idx]
                         dialate_png_ratio = dialate_png_ratios[crop_idx]
                     elif crop_mode == 'cytoplasm':
