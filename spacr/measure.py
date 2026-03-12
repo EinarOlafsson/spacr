@@ -17,8 +17,8 @@ from skimage.measure import label as sk_label, regionprops_table
 import matplotlib.pyplot as plt
 from math import ceil, sqrt
 
-from spacr.build.lib.spacr.utils import _filter_object
-from spacr.spacr import settings
+#from spacr.build.lib.spacr.utils import _filter_object
+#from spacr.spacr import settings
 
 
 def get_components(cell_mask, nucleus_mask, pathogen_mask):

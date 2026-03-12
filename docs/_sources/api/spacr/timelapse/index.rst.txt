@@ -29,3 +29,62 @@ Module Contents
 
 .. py:function:: analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intensity', size_filter='cell_area', fluctuation_threshold=0.25, num_lines=None, peak_height=0.01, pathogen=None, cytoplasm=None, remove_transient=True, verbose=False, transience_threshold=0.9)
 
+.. py:function:: create_results_figure()
+
+   Create a Figure with 3 subplots arranged as:
+     - PCA (top-left)
+     - XGBoost (top-right)
+     - Histogram (bottom spanning both columns)
+   :returns: * **fig** (*Figure*)
+             * **ax_pca, ax_xgb, ax_hist** (*matplotlib.axes.Axes*)
+
+
+.. py:function:: automated_motility_assay(settings)
+
+   End-to-end:
+
+   1. Read merged/*.npy (plate_well_field_time.npy)
+   2. Build intensity + cell/nucleus/pathogen masks, derive cytoplasm
+   3. Per cell & frame: metadata + cell regionprops
+   4. Aggregate child (nucleus/pathogen/cytoplasm) features per cell
+   5. Concatenate across all merged files
+   6. Clean impossible jumps + measurement glitches
+   7. Save per-cell measurements to SQLite DB
+      (measurements/measurements.db, table=db_table_name)
+      **This table is always the original, pre-QC measurements.**
+   8. Compute per-track velocities (after smoothing)
+   9. Save a well-level motility summary table in the same DB
+   10. Generate *panel* plots combining intensity + motility:
+       - original (mask-based) infection labels
+       - adjusted infection labels (if QC modifies labels)
+   11. Optional infection intensity QC based on pathogen channel.
+
+   New-relevant settings (all optional):
+
+       # Infection QC / strategy
+       'infection_intensity_qc': True/False
+       'infection_intensity_strategy': one of
+           {'xgboost', 'histogram', 'pca', 'umap', 'tsne'}
+       'infection_intensity_mode': {'relabel', 'remove'}   # existing
+
+       # XGBoost ambiguous-band filtering (track-level)
+       'infection_xgb_drop_ambiguous': True/False (default True)
+       'infection_xgb_ambiguous_low': 0.25  (default)
+       'infection_xgb_ambiguous_high': 0.75 (default)
+       'infection_xgb_proba_column': 'name_of_proba_col'   # optional override
+
+       # Histogram strategy
+       'infection_hist_percentile': 25  # used inside _apply_infection_intensity_qc
+
+       # Panel toggles
+       'make_mask_panel': True/False (default True)
+       'make_adjusted_panel': True/False (default True)
+
+       # Plot ranges (unchanged)
+       - 'motility_xlim', 'motility_ylim'
+       - 'motility_origin_xlim', 'motility_origin_ylim'
+
+       # Measurements reuse
+       'reuse_existing_measurements': True/False (default True)
+
+

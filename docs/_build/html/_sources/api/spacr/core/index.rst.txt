@@ -11,9 +11,7 @@ Module Contents
 
 .. py:function:: preprocess_generate_masks(settings)
 
-.. py:function:: generate_cellpose_masks(src, settings, object_type)
-
-.. py:function:: generate_image_umap(settings={})
+.. py:function:: generate_image_umap(settings={}, return_fig=False)
 
    Generate UMAP or tSNE embedding and visualize the data with clustering.
 
@@ -47,7 +45,7 @@ Module Contents
    pd.DataFrame: DataFrame with the original data and an additional column 'cluster' containing the cluster identity.
 
 
-.. py:function:: reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_params=None, kmeans_params=None, save=False)
+.. py:function:: reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_params=None, kmeans_params=None, save=False, show=True, return_fig=False)
 
    Perform a hyperparameter search for UMAP or tSNE on the given data.
 

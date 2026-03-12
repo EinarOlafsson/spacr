@@ -1125,7 +1125,7 @@ Module Contents
    .. py:method:: remove_small_objects()
 
 
-.. py:class:: AnnotateApp(root, db_path, src, image_type=None, channels=None, image_size=200, annotation_column='annotate', normalize=False, percentiles=(1, 99), measurement=None, threshold=None, normalize_channels=None, outline=None, outline_threshold_factor=1, outline_sigma=1)
+.. py:class:: AnnotateApp(root, db_path, src, image_type=None, channels=None, image_size=200, annotation_column='annotate', percentiles=(1, 99), measurement=None, threshold=None, normalize_channels=None, outline=None, outline_threshold_factor=1, outline_sigma=1, edge_thickness=1, edge_transparency=100, edge_image=False, object_size=(0, 0))
 
    .. py:attribute:: root
 
@@ -1139,6 +1139,9 @@ Module Contents
    .. py:attribute:: index
       :value: 0
 
+
+
+   .. py:attribute:: SENTINEL
 
 
    .. py:attribute:: orig_annotation_columns
@@ -1158,11 +1161,6 @@ Module Contents
 
    .. py:attribute:: channels
       :value: None
-
-
-
-   .. py:attribute:: normalize
-      :value: False
 
 
 
@@ -1223,6 +1221,26 @@ Module Contents
 
 
 
+   .. py:attribute:: edge_thickness
+      :value: 1
+
+
+
+   .. py:attribute:: edge_transparency
+      :value: 100
+
+
+
+   .. py:attribute:: edge_image
+      :value: False
+
+
+
+   .. py:attribute:: object_size
+      :value: (0, 0)
+
+
+
    .. py:attribute:: font_loader
 
 
@@ -1251,12 +1269,20 @@ Module Contents
 
 
 
+   .. py:attribute:: worker_busy
+      :value: False
+
+
+
    .. py:attribute:: filtered_paths_annotations
       :value: []
 
 
 
    .. py:attribute:: db_update_thread
+
+
+   .. py:attribute:: grid_frame
 
 
    .. py:attribute:: status_label
@@ -1274,13 +1300,19 @@ Module Contents
    .. py:attribute:: exit_button
 
 
-   .. py:attribute:: train_button
-
-
    .. py:attribute:: settings_button
 
 
-   .. py:attribute:: grid_frame
+   .. py:attribute:: clear_button
+
+
+   .. py:attribute:: count_button
+
+
+   .. py:attribute:: dl_train_button
+
+
+   .. py:method:: open_umap_window()
 
 
    .. py:method:: open_settings_window()
@@ -1290,6 +1322,9 @@ Module Contents
 
 
    .. py:method:: recreate_image_grid()
+
+
+   .. py:method:: update_display()
 
 
    .. py:method:: swich_back_annotation_column()
@@ -1304,33 +1339,57 @@ Module Contents
    .. py:method:: load_images()
 
 
+   .. py:method:: show_class_counts()
+
+
    .. py:method:: load_single_image(path_annotation_tuple)
 
 
-   .. py:method:: outline_image(img, edge_sigma=1, edge_thickness=1)
-
-      For each selected channel, compute a continuous outline from the intensity landscape
-      using Otsu threshold scaled by a correction factor. Replace only that channel.
-
-
-
-   .. py:method:: normalize_image(img, normalize=False, percentiles=(1, 99), normalize_channels=None)
+   .. py:method:: fill_holes(mask, min_size=0)
       :staticmethod:
 
 
-      Normalize an image based on specific channels (R, G, B).
+      Fill holes inside True regions of a binary mask.
 
-      :param img: Input image.
-      :type img: PIL.Image or np.array
-      :param normalize: Whether to normalize the image or not.
-      :type normalize: bool
-      :param percentiles: Percentiles to use for intensity rescaling.
-      :type percentiles: tuple
-      :param normalize_channels: List of channels to normalize. E.g., ['r', 'g', 'b'], ['r'], ['g'], etc.
-      :type normalize_channels: list
+      :param mask: Binary mask where True denotes foreground.
+      :type mask: ndarray[bool]
+      :param min_size: Minimum hole area to fill (in pixels).
+                       - <= 0 : fill ALL internal holes.
+                       -  > 0 : fill only holes smaller than min_size; reopen larger ones.
+      :type min_size: int
 
-      :returns: Normalized image.
-      :rtype: PIL.Image
+      :returns: Hole-filled mask.
+      :rtype: ndarray[bool]
+
+
+
+   .. py:method:: outline_image(base_img, full_img, edge_sigma=1, edge_thickness=1, fill_holes=True, object_size=(0, 0))
+
+      Anti-aliased outlines with sub-pixel thickness that never get dimmer as they get thinner.
+      Uses peak normalization so outline brightness is thickness-invariant (then scaled only by edge_transparency).
+
+      :param base_img: already filtered (visible base)
+      :type base_img: PIL.Image
+      :param full_img: normalized RGB before filtering (edge detection / underlay)
+      :type full_img: PIL.Image
+      :param edge_sigma: Gaussian smoothing before thresholding
+      :type edge_sigma: float
+      :param edge_thickness: outline thickness in output pixels (supports < 1, e.g. 0.01)
+      :type edge_thickness: float
+      :param fill_holes: fill internal holes in foreground masks before boundary extraction
+      :type fill_holes: bool
+      :param object_size: (min_px, max_px) connected-component area filter.
+                          0 disables that bound.
+      :type object_size: tuple[int,int]
+
+
+
+   .. py:method:: normalize_image(img, percentiles=(1, 99), normalize_channels=None)
+      :staticmethod:
+
+
+      If normalize_channels is None or [], do nothing.
+      Otherwise normalize only those channels (r/g/b).
 
 
 
@@ -1348,10 +1407,13 @@ Module Contents
 
 
 
+   .. py:method:: clear_current_annotation()
+
+
    .. py:method:: update_database_worker()
 
 
-   .. py:method:: update_gui_text(text)
+   .. py:method:: shutdown()
 
 
    .. py:method:: next_page()
@@ -1360,20 +1422,58 @@ Module Contents
    .. py:method:: previous_page()
 
 
-   .. py:method:: shutdown()
+   .. py:method:: update_gui_text(text)
 
 
    .. py:method:: train_and_classify()
 
       1) Merge data from the relevant DB tables (including png_list).
       2) Collect manual annotations from png_list.<annotation_column> => 'manual_annotation'.
-         - 1 => class=1, 2 => class=0 (for training).
+      - 1 => class=1, 2 => class=0 (for training).
       3) If only one class is present, randomly sample unannotated images as the other class.
       4) Train an XGBoost model.
       5) Classify *all* rows -> fill XGboost_score (prob of class=1) & XGboost_annotation (1 or 2 if high confidence).
-      6) Write those columns back to sqlite, so every row in png_list has a score (and possibly an annotation).
-      7) Refresh the UI (prefilter_paths_annotations + load_images).
+      6) Write those columns back to sqlite.
+      7) Refresh the UI.
 
+
+
+   .. py:method:: convert_settings_dict_for_gui(settings)
+      :staticmethod:
+
+
+      Decide widget type per setting:
+      - 'check'  => Checkbutton (bools)
+      - 'combo'  => readonly Combobox (predefined choices)
+      - 'entry'  => Entry (free text / numbers / lists)
+      Returns: {key: (kind, options, initial)}
+
+
+
+   .. py:method:: build_multi_annotation(source_columns, target_column='multi_annot')
+
+      Consolidate multiple {1,2,NULL} columns into a single integer code column.
+      Unique per combination. If all inputs NULL -> store NULL.
+      Sets self.annotation_column to target_column and refreshes UI.
+
+      Encoding:
+      per col: NULL->0, 1->1, 2->2
+      code = 1 + sum( digit_i * (3^i) ), i = 0..N-1
+      (all digits 0) => store NULL instead of 1
+
+
+
+   .. py:method:: ensure_multi_annot_from_selection(source_columns, target_column='class_column', force_rebuild=True)
+
+      If one column selected -> use it directly (no consolidation).
+      If >=2 selected -> build a consolidated column. If target_column already exists,
+      auto-bump to target_column_1, target_column_2, ... and use that actual name everywhere.
+
+      Returns the effective annotation column name.
+
+
+
+   .. py:method:: open_deep_spacr_window()
 
 
 .. py:function:: standardize_figure(fig)

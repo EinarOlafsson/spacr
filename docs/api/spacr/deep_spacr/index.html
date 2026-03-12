@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.deep_spacr &mdash; spacr 1.0.1 documentation</title>
+  <title>spacr.deep_spacr &mdash; spacr 1.2.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
@@ -15,7 +15,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../../_static/documentation_options.js?v=36f53d34"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -66,12 +66,14 @@
 <li class="toctree-l4"><a class="reference internal" href="../logger/index.html">spacr.logger</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../measure/index.html">spacr.measure</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../ml/index.html">spacr.ml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../object/index.html">spacr.object</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../plot/index.html">spacr.plot</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sequencing/index.html">spacr.sequencing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../settings/index.html">spacr.settings</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sim/index.html">spacr.sim</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sp_stats/index.html">spacr.sp_stats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spacrops/index.html">spacr.spacrops</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../submodules/index.html">spacr.submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../timelapse/index.html">spacr.timelapse</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../toxo/index.html">spacr.toxo</a></li>
@@ -118,34 +120,80 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.deep_spacr.apply_model">
 <span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">apply_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">224</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/deep_spacr.html#apply_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.apply_model" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Apply a trained PyTorch model to images in a directory.</p>
+<p>The function loads a saved model, builds a dataset from the input images,
+runs batched inference, and saves prediction scores to a CSV file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src</strong> (<em>str</em><em> or </em><em>sequence</em>) – Path to the input image directory or collection of image paths.</p></li>
+<li><p><strong>model_path</strong> (<em>str</em>) – Path to the saved PyTorch model.</p></li>
+<li><p><strong>image_size</strong> (<em>int</em>) – Final square crop size used before inference.</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em>) – Number of images processed per batch.</p></li>
+<li><p><strong>normalize</strong> (<em>bool</em>) – Whether to normalize the image channels using mean 0.5
+and standard deviation 0.5.</p></li>
+<li><p><strong>n_jobs</strong> (<em>int</em>) – Number of worker processes used by the DataLoader.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame with image paths and predicted positive-class
+probabilities.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+<p>The returned DataFrame contains the columns <code class="docutils literal notranslate"><span class="pre">path</span></code> and <code class="docutils literal notranslate"><span class="pre">pred</span></code>.
+Results are also written to a CSV file derived from <code class="docutils literal notranslate"><span class="pre">model_path</span></code> and the
+current date. The model output is interpreted as a binary logit and
+converted to probabilities with <code class="docutils literal notranslate"><span class="pre">torch.sigmoid</span></code>.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.deep_spacr.apply_model_to_tar">
 <span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">apply_model_to_tar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/deep_spacr.html#apply_model_to_tar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.apply_model_to_tar" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Apply a trained PyTorch model to images stored in a tar archive.</p>
+<p>The function loads a saved model, reads images from a tar-based dataset,
+performs batched inference, post-processes prediction scores, and saves the
+results to a CSV file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Dictionary of inference settings. Expected keys include
+<code class="docutils literal notranslate"><span class="pre">tar_path</span></code>, <code class="docutils literal notranslate"><span class="pre">model_path</span></code>, <code class="docutils literal notranslate"><span class="pre">image_size</span></code>, <code class="docutils literal notranslate"><span class="pre">batch_size</span></code>,
+<code class="docutils literal notranslate"><span class="pre">normalize</span></code>, <code class="docutils literal notranslate"><span class="pre">n_jobs</span></code>, <code class="docutils literal notranslate"><span class="pre">verbose</span></code>, and <code class="docutils literal notranslate"><span class="pre">score_threshold</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame with processed prediction results.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+<p>The returned DataFrame contains at least the columns <code class="docutils literal notranslate"><span class="pre">path</span></code> and <code class="docutils literal notranslate"><span class="pre">pred</span></code>.
+Additional columns may be added by <code class="docutils literal notranslate"><span class="pre">process_vision_results</span></code>. If the model
+output has shape <code class="docutils literal notranslate"><span class="pre">(N,</span> <span class="pre">2)</span></code>, the probability of class 1 is computed with
+<code class="docutils literal notranslate"><span class="pre">torch.softmax</span></code>. Otherwise, outputs are treated as binary logits and
+converted with <code class="docutils literal notranslate"><span class="pre">torch.sigmoid</span></code>.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.deep_spacr.evaluate_model_performance">
-<span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">evaluate_model_performance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/deep_spacr.html#evaluate_model_performance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.evaluate_model_performance" title="Link to this definition"></a></dt>
-<dd><p>Evaluates the performance of a model on a given data loader.</p>
+<span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">evaluate_model_performance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/deep_spacr.html#evaluate_model_performance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.evaluate_model_performance" title="Link to this definition"></a></dt>
+<dd><p>Evaluates performance for binary or multiclass models.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>torch.nn.Module</em>) – The model to evaluate.</p></li>
-<li><p><strong>loader</strong> (<em>torch.utils.data.DataLoader</em>) – The data loader to evaluate the model on.</p></li>
-<li><p><strong>loader_name</strong> (<em>str</em>) – The name of the data loader.</p></li>
-<li><p><strong>epoch</strong> (<em>int</em>) – The current epoch number.</p></li>
-<li><p><strong>loss_type</strong> (<em>str</em>) – The type of loss function to use.</p></li>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><p>metrics + loss + epoch
+[prediction_probs, all_labels]</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>binary: probs shape (N,)</p></li>
+<li><p>multiclass: probs shape (N, C)</p></li>
 </ul>
+</div></blockquote>
+</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The classification metrics data as a DataFrame.
-prediction_pos_probs (list): The positive class probabilities for each prediction.
-all_labels (list): The true labels for each prediction.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>data_df (pandas.DataFrame)</p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>data_dict (dict)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -153,29 +201,15 @@ all_labels (list): The true labels for each prediction.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.deep_spacr.test_model_core">
 <span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">test_model_core</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/deep_spacr.html#test_model_core"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.test_model_core" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Core test loop returning both summary metrics and a row-per-image dataframe,
+compatible with binary &amp; multiclass.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.deep_spacr.test_model_performance">
 <span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">test_model_performance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loaders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader_name_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/deep_spacr.html#test_model_performance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.test_model_performance" title="Link to this definition"></a></dt>
-<dd><p>Test the performance of a model on given data loaders.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>loaders</strong> (<em>list</em>) – List of data loaders.</p></li>
-<li><p><strong>model</strong> – The model to be tested.</p></li>
-<li><p><strong>loader_name_list</strong> (<em>list</em>) – List of names for the data loaders.</p></li>
-<li><p><strong>epoch</strong> (<em>int</em>) – The current epoch.</p></li>
-<li><p><strong>loss_type</strong> – The type of loss function.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A tuple containing the test results and the results dataframe.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tuple</p>
-</dd>
-</dl>
+<dd><p>Wrapper kept for API compatibility with your caller.
+Returns (summary_metrics_dataframe, per_file_results_dataframe)</p>
 </dd></dl>
 
 <dl class="py function">
@@ -184,38 +218,27 @@ all_labels (list): The true labels for each prediction.</p>
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="spacr.deep_spacr.train_test_model_v1">
+<span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">train_test_model_v1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/deep_spacr.html#train_test_model_v1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.train_test_model_v1" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="spacr.deep_spacr.train_model">
-<span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">train_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_loaders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_decay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amsgrad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'adamw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_checkpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_loaders</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_loaders</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'imagenet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intermedeate_save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chan_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schedule</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'binary_cross_entropy_with_logits'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gradient_accumulation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gradient_accumulation_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['r',</span> <span class="pre">'g',</span> <span class="pre">'b']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/deep_spacr.html#train_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.train_model" title="Link to this definition"></a></dt>
-<dd><p>Trains a model using the specified parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>dst</strong> (<em>str</em>) – The destination path to save the model and results.</p></li>
-<li><p><strong>model_type</strong> (<em>str</em>) – The type of model to train.</p></li>
-<li><p><strong>train_loaders</strong> (<em>list</em>) – A list of training data loaders.</p></li>
-<li><p><strong>epochs</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of training epochs. Defaults to 100.</p></li>
-<li><p><strong>learning_rate</strong> (<em>float</em><em>, </em><em>optional</em>) – The learning rate for the optimizer. Defaults to 0.0001.</p></li>
-<li><p><strong>weight_decay</strong> (<em>float</em><em>, </em><em>optional</em>) – The weight decay for the optimizer. Defaults to 0.05.</p></li>
-<li><p><strong>amsgrad</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use AMSGrad for the optimizer. Defaults to False.</p></li>
-<li><p><strong>optimizer_type</strong> (<em>str</em><em>, </em><em>optional</em>) – The type of optimizer to use. Defaults to ‘adamw’.</p></li>
-<li><p><strong>use_checkpoint</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use checkpointing during training. Defaults to False.</p></li>
-<li><p><strong>dropout_rate</strong> (<em>float</em><em>, </em><em>optional</em>) – The dropout rate for the model. Defaults to 0.</p></li>
-<li><p><strong>n_jobs</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of n_jobs for data loading. Defaults to 20.</p></li>
-<li><p><strong>val_loaders</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of validation data loaders. Defaults to None.</p></li>
-<li><p><strong>test_loaders</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of test data loaders. Defaults to None.</p></li>
-<li><p><strong>init_weights</strong> (<em>str</em><em>, </em><em>optional</em>) – The initialization weights for the model. Defaults to ‘imagenet’.</p></li>
-<li><p><strong>intermedeate_save</strong> (<em>list</em><em>, </em><em>optional</em>) – The intermediate save thresholds. Defaults to None.</p></li>
-<li><p><strong>chan_dict</strong> (<em>dict</em><em>, </em><em>optional</em>) – The channel dictionary. Defaults to None.</p></li>
-<li><p><strong>schedule</strong> (<em>str</em><em>, </em><em>optional</em>) – The learning rate schedule. Defaults to None.</p></li>
-<li><p><strong>loss_type</strong> (<em>str</em><em>, </em><em>optional</em>) – The loss function type. Defaults to ‘binary_cross_entropy_with_logits’.</p></li>
-<li><p><strong>gradient_accumulation</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use gradient accumulation. Defaults to False.</p></li>
-<li><p><strong>gradient_accumulation_steps</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of steps for gradient accumulation. Defaults to 4.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">train_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_loaders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_decay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amsgrad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'adamw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_checkpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_loaders</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_loaders</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'imagenet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intermedeate_save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chan_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schedule</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gradient_accumulation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gradient_accumulation_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['r',</span> <span class="pre">'g',</span> <span class="pre">'b']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">early_stopping_patience</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/deep_spacr.html#train_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.train_model" title="Link to this definition"></a></dt>
+<dd><p>Trains a model (supports 2-class and &gt;2-class via CrossEntropy).</p>
+<dl class="simple">
+<dt>New parameters:</dt><dd><dl class="simple">
+<dt>early_stopping_patience: number of epochs with no val improvement before stopping.</dt><dd><p>Set to 0 to disable (original behavior).</p>
 </dd>
 </dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.deep_spacr.train_model_v1">
+<span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">train_model_v1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_loaders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_decay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amsgrad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'adamw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_checkpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_loaders</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_loaders</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'imagenet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intermedeate_save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chan_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schedule</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gradient_accumulation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gradient_accumulation_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['r',</span> <span class="pre">'g',</span> <span class="pre">'b']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/deep_spacr.html#train_model_v1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.train_model_v1" title="Link to this definition"></a></dt>
+<dd><p>Trains a model (supports 2-class and &gt;2-class via CrossEntropy; BCE only for true single-logit binary).</p>
 </dd></dl>
 
 <dl class="py function">
@@ -261,6 +284,45 @@ all_labels (list): The true labels for each prediction.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.deep_spacr.visualize_smooth_grad">
 <span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">visualize_smooth_grad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_label_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">224</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">3]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_smooth_grad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'smooth_grad'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/deep_spacr.html#visualize_smooth_grad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.visualize_smooth_grad" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.deep_spacr.save_top_class_examples">
+<span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">save_top_class_examples</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tar_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/deep_spacr.html#save_top_class_examples"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.save_top_class_examples" title="Link to this definition"></a></dt>
+<dd><p>Extract the N most confident images per class from the tar and save
+them into class-labelled subfolders under dst.</p>
+<dl class="simple">
+<dt>For binary classification (classes=[0, 1]):</dt><dd><ul class="simple">
+<li><p>class_0/  ← the 20 images with the LOWEST  pred  (closest to 0)</p></li>
+<li><p>class_1/  ← the 20 images with the HIGHEST pred  (closest to 1)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Must contain columns ‘path’ (tar member name) and ‘pred’ (probability).</p></li>
+<li><p><strong>tar_path</strong> (<em>str</em>) – Path to the tar archive that holds the images.</p></li>
+<li><p><strong>dst</strong> (<em>str</em>) – Root folder where class subfolders will be created.</p></li>
+<li><p><strong>n</strong> (<em>int</em>) – Number of top images to keep per class.</p></li>
+<li><p><strong>classes</strong> (<em>list</em><em> or </em><em>None</em>) – Explicit class labels. If None, defaults to binary [0, 1].</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.deep_spacr.merge_predictions_into_db">
+<span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">merge_predictions_into_db</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'png_list'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pred'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cv_predictions'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/deep_spacr.html#merge_predictions_into_db"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.merge_predictions_into_db" title="Link to this definition"></a></dt>
+<dd><p>Merge prediction scores back into the SQLite database.</p>
+<p>Matching on basename of png_path (DB) vs path (tar member name),
+since the tar stores relative member names while the DB stores
+full disk paths.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spacr.deep_spacr.deep_spacr_v1">
+<span class="sig-prename descclassname"><span class="pre">spacr.deep_spacr.</span></span><span class="sig-name descname"><span class="pre">deep_spacr_v1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/deep_spacr.html#deep_spacr_v1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.deep_spacr.deep_spacr_v1" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">

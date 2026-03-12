@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.core &mdash; spacr 1.0.1 documentation</title>
+  <title>spacr.core &mdash; spacr 1.2.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
@@ -15,7 +15,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../../_static/documentation_options.js?v=36f53d34"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -66,12 +66,14 @@
 <li class="toctree-l4"><a class="reference internal" href="../logger/index.html">spacr.logger</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../measure/index.html">spacr.measure</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../ml/index.html">spacr.ml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../object/index.html">spacr.object</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../plot/index.html">spacr.plot</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sequencing/index.html">spacr.sequencing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../settings/index.html">spacr.settings</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sim/index.html">spacr.sim</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sp_stats/index.html">spacr.sp_stats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spacrops/index.html">spacr.spacrops</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../submodules/index.html">spacr.submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../timelapse/index.html">spacr.timelapse</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../toxo/index.html">spacr.toxo</a></li>
@@ -121,13 +123,8 @@
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="spacr.core.generate_cellpose_masks">
-<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">generate_cellpose_masks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/core.html#generate_cellpose_masks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.core.generate_cellpose_masks" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="spacr.core.generate_image_umap">
-<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">generate_image_umap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/core.html#generate_image_umap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.core.generate_image_umap" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">generate_image_umap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/core.html#generate_image_umap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.core.generate_image_umap" title="Link to this definition"></a></dt>
 <dd><p>Generate UMAP or tSNE embedding and visualize the data with clustering.</p>
 <p>Parameters:
 settings (dict): Dictionary containing the following keys:
@@ -160,7 +157,7 @@ pd.DataFrame: DataFrame with the original data and an additional column ‘clust
 
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.core.reducer_hyperparameter_search">
-<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">reducer_hyperparameter_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduction_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dbscan_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kmeans_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/core.html#reducer_hyperparameter_search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.core.reducer_hyperparameter_search" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacr.core.</span></span><span class="sig-name descname"><span class="pre">reducer_hyperparameter_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduction_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dbscan_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kmeans_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/core.html#reducer_hyperparameter_search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.core.reducer_hyperparameter_search" title="Link to this definition"></a></dt>
 <dd><p>Perform a hyperparameter search for UMAP or tSNE on the given data.</p>
 <p>Parameters:
 settings (dict): Dictionary containing the following keys:

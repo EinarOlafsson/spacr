@@ -103,8 +103,9 @@ def preprocess_generate_masks(settings):
             files_processed = 0
             if settings['masks']:
                 mask_src = os.path.join(src, 'masks')
+                
                 if settings['cell_channel'] != None:
-                    time_ls=[]
+                    time_ls=[]    
                     if check_mask_folder(src, 'cell_mask_stack'):
                         start = time.time()
                         generate_cellpose_masks(mask_src, settings, 'cell')
@@ -135,8 +136,8 @@ def preprocess_generate_masks(settings):
                         time_ls.append(duration)
                         files_processed += 1
                         print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'pathogen_mask_gen')
-
-                if settings['organelle'] != None:
+                        
+                if settings['organelle_channel'] != None:
                     if check_mask_folder(src, 'organelle_mask_stack'):
                         start = time.time()
                         generate_organelle_masks(mask_src, settings, 'organelle')
@@ -149,12 +150,17 @@ def preprocess_generate_masks(settings):
                 if settings['adjust_cells']:
                     if not settings['timelapse']:
                         if settings['pathogen_channel'] != None and settings['cell_channel'] != None and settings['nucleus_channel'] != None:
-
                             start = time.time()
                             cell_folder = os.path.join(mask_src, 'cell_mask_stack')
                             nuclei_folder = os.path.join(mask_src, 'nucleus_mask_stack')
                             parasite_folder = os.path.join(mask_src, 'pathogen_mask_stack')
-                            organelle_folder = os.path.join(mask_src, 'organelle_mask_stack')
+                            
+                            organelle_folder = None
+                            if settings.get('organelle_channel') is not None:
+                                candidate = os.path.join(mask_src, 'organelle_mask_stack')
+                                if os.path.exists(candidate):
+                                    organelle_folder = candidate
+                            
                             print(f'Adjusting cell masks with nuclei and pathogen masks')
                             adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_folder, overlap_threshold=5, perimeter_threshold=30, n_jobs=settings['n_jobs'])
                             stop = time.time()

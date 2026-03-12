@@ -20,7 +20,34 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 
 def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, n_jobs=10):
-    
+    """
+    Apply a trained PyTorch model to images in a directory.
+
+    The function loads a saved model, builds a dataset from the input images,
+    runs batched inference, and saves prediction scores to a CSV file.
+
+    :param src: Path to the input image directory or collection of image paths.
+    :type src: str or sequence
+    :param model_path: Path to the saved PyTorch model.
+    :type model_path: str
+    :param image_size: Final square crop size used before inference.
+    :type image_size: int
+    :param batch_size: Number of images processed per batch.
+    :type batch_size: int
+    :param normalize: Whether to normalize the image channels using mean 0.5
+        and standard deviation 0.5.
+    :type normalize: bool
+    :param n_jobs: Number of worker processes used by the DataLoader.
+    :type n_jobs: int
+    :return: DataFrame with image paths and predicted positive-class
+        probabilities.
+    :rtype: pandas.DataFrame
+
+    The returned DataFrame contains the columns ``path`` and ``pred``.
+    Results are also written to a CSV file derived from ``model_path`` and the
+    current date. The model output is interpreted as a binary logit and
+    converted to probabilities with ``torch.sigmoid``.
+    """
     from .io import NoClassDataset
     from .utils import print_progress
     
@@ -76,6 +103,26 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, 
     return df
 
 def apply_model_to_tar(settings={}):
+    """
+    Apply a trained PyTorch model to images stored in a tar archive.
+
+    The function loads a saved model, reads images from a tar-based dataset,
+    performs batched inference, post-processes prediction scores, and saves the
+    results to a CSV file.
+
+    :param settings: Dictionary of inference settings. Expected keys include
+        ``tar_path``, ``model_path``, ``image_size``, ``batch_size``,
+        ``normalize``, ``n_jobs``, ``verbose``, and ``score_threshold``.
+    :type settings: dict
+    :return: DataFrame with processed prediction results.
+    :rtype: pandas.DataFrame
+
+    The returned DataFrame contains at least the columns ``path`` and ``pred``.
+    Additional columns may be added by ``process_vision_results``. If the model
+    output has shape ``(N, 2)``, the probability of class 1 is computed with
+    ``torch.softmax``. Otherwise, outputs are treated as binary logits and
+    converted with ``torch.sigmoid``.
+    """
     from .io import TarImageDataset
     from .utils import process_vision_results, print_progress
 
