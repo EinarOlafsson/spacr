@@ -159,6 +159,7 @@ def set_default_settings_preprocess_generate_masks(settings={}):
     settings.setdefault('organelle_ring_sigma_outer', 3.0)
     settings.setdefault('organelle_ring_min_prominence', 0.1)
     settings.setdefault('organelle_ring_fill_method', 'flood')
+    settings.setdefault('summarize_organelles_by', 'cell')
 
     return settings
 
@@ -1180,26 +1181,17 @@ motility_advanced_settings = ['reuse_existing_measurements', 'infection_xgb_min_
 categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset","model_path","grna_csv","row_csv","column_csv", "metadata_files", "score_data","count_data"],
              "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel",  "test_mode", "plot", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "delete_intermediate", "uninfected", ],
              "Cellpose":["fill_in","from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
-             "Cell": ["cell_diamiter","cell_intensity_range", "cell_size_range", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cytoplasm_min_size", "adjust_cells", "cells", "cell_loc"],
-             #"Organelle": ["organelle_mask_dim","organelle_chann_dim","organelle_channel","organelle_morphology","organelle_method", "organelle_diameter","organelle_min_size","organelle_max_size","organelle_remove_border"],
-             #"Organelle spot detection": ["organelle_tophat_radius","organelle_watershed_spots","organelle_log_min_sigma","organelle_log_max_sigma","organelle_log_num_sigma","organelle_log_threshold"],
-             #"Organelle network detection": ["organelle_ridge_filter","organelle_ridge_sigmas","organelle_skeletonize","organelle_network_threshold"],
-             #"Organelle irregular detection": ["organelle_morph_radius","organelle_fill_holes"],
-             #"Organelle cellpose": ["organelle_model_name","organelle_CP_prob","organelle_FT","organelle_resample"],
-             #"Organelle adaptive threshold": ["organelle_adaptive_block_size","organelle_adaptive_offset"],             
-             
-             
-            "Organelle": ["organelle_mask_dim", "organelle_chann_dim", "organelle_channel", "organelle_morphology", "organelle_method", "organelle_diameter", "organelle_min_size", "organelle_max_size", "organelle_remove_border"],
-            "Organelle preprocessing": ["organelle_rolling_ball", "organelle_rolling_ball_radius", "organelle_clahe", "organelle_clahe_clip_limit", "organelle_mask_within_cells"],
-            "Organelle spot detection": ["organelle_tophat_radius", "organelle_watershed_spots", "organelle_log_min_sigma", "organelle_log_max_sigma", "organelle_log_num_sigma", "organelle_log_threshold", "organelle_dog_sigma_low", "organelle_dog_sigma_high"],
-            "Organelle network detection": ["organelle_ridge_filter", "organelle_ridge_sigmas", "organelle_skeletonize", "organelle_network_threshold", "organelle_hysteresis_low", "organelle_hysteresis_high"],
-            "Organelle ring detection": ["organelle_ring_sigma_inner", "organelle_ring_sigma_outer", "organelle_ring_min_prominence", "organelle_ring_fill_method"],
-            "Organelle irregular detection": ["organelle_morph_radius", "organelle_fill_holes"],
-            "Organelle cellpose": ["organelle_model_name", "organelle_CP_prob", "organelle_FT", "organelle_resample"],
-            "Organelle stardist": ["organelle_stardist_model", "organelle_stardist_prob", "organelle_stardist_nms"],
-            "Organelle unet": ["organelle_unet_model_path", "organelle_unet_threshold"],
-            "Organelle adaptive threshold": ["organelle_adaptive_block_size", "organelle_adaptive_offset"],
-             
+             "Cell": ["cell_diamiter","cell_intensity_range", "cell_size_range", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cytoplasm_min_size", "adjust_cells", "cells", "cell_loc"],               
+             "Organelle": ["organelle_mask_dim", "organelle_chann_dim", "organelle_channel", "organelle_morphology", "organelle_method", "organelle_diameter", "organelle_min_size", "organelle_max_size", "organelle_remove_border", "summarize_organelles_by"],
+             "Organelle preprocessing": ["organelle_rolling_ball", "organelle_rolling_ball_radius", "organelle_clahe", "organelle_clahe_clip_limit", "organelle_mask_within_cells"],
+             "Organelle spot detection": ["organelle_tophat_radius", "organelle_watershed_spots", "organelle_log_min_sigma", "organelle_log_max_sigma", "organelle_log_num_sigma", "organelle_log_threshold", "organelle_dog_sigma_low", "organelle_dog_sigma_high"],
+             "Organelle network detection": ["organelle_ridge_filter", "organelle_ridge_sigmas", "organelle_skeletonize", "organelle_network_threshold", "organelle_hysteresis_low", "organelle_hysteresis_high"],
+             "Organelle ring detection": ["organelle_ring_sigma_inner", "organelle_ring_sigma_outer", "organelle_ring_min_prominence", "organelle_ring_fill_method"],
+             "Organelle irregular detection": ["organelle_morph_radius", "organelle_fill_holes"],
+             "Organelle cellpose": ["organelle_model_name", "organelle_CP_prob", "organelle_FT", "organelle_resample"],
+             "Organelle stardist": ["organelle_stardist_model", "organelle_stardist_prob", "organelle_stardist_nms"],
+             "Organelle unet": ["organelle_unet_model_path", "organelle_unet_threshold"],
+             "Organelle adaptive threshold": ["organelle_adaptive_block_size", "organelle_adaptive_offset"], 
              "Nucleus": ["nucleus_diamiter","nucleus_intensity_range", "nucleus_size_range", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_loc"],
              "Pathogen": ["pathogen_diamiter","pathogen_intensity_range", "pathogen_size_range", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogens", "pathogen_loc", "pathogen_types", "pathogen_plate_metadata", ],
              "Measurements": ["remove_image_canvas", "remove_highly_correlated", "homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements", "tables", "image_nr", "dot_size", "filter_by", "remove_highly_correlated_features", "remove_low_variance_features", "channel_of_interest"],
@@ -1718,6 +1710,8 @@ def generate_fields(variables, scrollable_frame):
         'organelle_ring_sigma_outer': "(float) - Outer sigma for DoG ring-edge enhancement (ring mode). Should approximate the ring outer radius.",
         'organelle_ring_min_prominence': "(float) - Minimum normalised intensity contrast between ring boundary and interior. Objects below this are discarded as non-rings.",
         'organelle_ring_fill_method': "(str) - How to fill detected rings: 'flood' (fill enclosed holes) or 'convex' (convex hull per edge component).",
+        'summarize_organelles_by': "(list or None) - Parent object(s) to aggregate per-organelle measurements by. For each selected parent, generates a summary table with organelle count, area fraction, mean size, and intensity statistics per parent object. None = no summary, only per-organelle measurements.",
+
     }
     
     for key, (var_type, options, default_value) in variables.items():
@@ -2076,14 +2070,14 @@ def _set_organelle_defaults(settings):
         'organelle_min_size': 10,
         'organelle_max_size': None,
         'organelle_remove_border': False,
- 
+
         # Preprocessing
         'organelle_rolling_ball': False,
         'organelle_rolling_ball_radius': 50,
         'organelle_clahe': False,
         'organelle_clahe_clip_limit': 0.01,
         'organelle_mask_within_cells': False,
- 
+
         # Spots
         'organelle_log_min_sigma': 1,
         'organelle_log_max_sigma': 10,
@@ -2093,12 +2087,12 @@ def _set_organelle_defaults(settings):
         'organelle_dog_sigma_high': 3.0,
         'organelle_tophat_radius': 5,
         'organelle_watershed_spots': True,
- 
+
         # Stardist
         'organelle_stardist_model': '2D_versatile_fluo',
         'organelle_stardist_prob': 0.5,
         'organelle_stardist_nms': 0.3,
- 
+
         # Network
         'organelle_ridge_sigmas': [1, 2, 3],
         'organelle_ridge_filter': 'frangi',
@@ -2106,23 +2100,23 @@ def _set_organelle_defaults(settings):
         'organelle_network_threshold': 'otsu',
         'organelle_hysteresis_low': 0.2,
         'organelle_hysteresis_high': 0.6,
- 
+
         # U-Net
         'organelle_unet_model_path': None,
         'organelle_unet_threshold': 0.5,
- 
+
         # Irregular
         'organelle_adaptive_block_size': 51,
         'organelle_adaptive_offset': 5,
         'organelle_morph_radius': 3,
         'organelle_fill_holes': 64,
- 
+
         # Ring
         'organelle_ring_sigma_inner': 1.0,
         'organelle_ring_sigma_outer': 3.0,
         'organelle_ring_min_prominence': 0.1,
         'organelle_ring_fill_method': 'flood',
- 
+
         # Cellpose
         'organelle_CP_prob': 0.0,
         'organelle_FT': 0.4,
@@ -2131,4 +2125,3 @@ def _set_organelle_defaults(settings):
     for key, val in defaults.items():
         settings.setdefault(key, val)
     return settings
-

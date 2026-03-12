@@ -16,6 +16,10 @@ from skimage.measure import find_contours
 from skimage.segmentation import clear_border, find_boundaries
 from scipy.stats import pearsonr
 
+from skimage.filters import (threshold_otsu, threshold_local, gaussian,frangi, sato, meijering, difference_of_gaussians,apply_hysteresis_threshold,)
+from skimage.morphology import white_tophat, disk
+from skimage.feature import blob_log, blob_dog
+
 from collections import defaultdict, OrderedDict
 from PIL import Image
 from statsmodels.stats.outliers_influence import variance_inflation_factor
@@ -77,6 +81,116 @@ import umap.umap_ as umap
 
 import logging
 from functools import wraps
+
+def _organelle_diagnostic(img, morphology, method, settings):
+    """
+    Generate a diagnostic image for organelle segmentation QC.
+
+    Returns the processed intermediate image and a descriptive title,
+    depending on the morphology mode and method used.
+
+    Parameters
+    ----------
+    img : ndarray
+        2-D float32 single-channel image.
+    morphology : str
+        One of 'spots', 'network', 'irregular', 'ring'.
+    method : str
+        Segmentation method used.
+    settings : dict
+        Organelle settings.
+
+    Returns
+    -------
+    diag_img : ndarray
+        2-D image showing the intermediate processing step.
+    diag_title : str
+        Description for the plot title.
+    """
+
+    img_norm = img.astype(np.float64)
+    pmin, pmax = np.percentile(img_norm, (1, 99))
+    if pmax - pmin > 0:
+        img_norm = np.clip((img_norm - pmin) / (pmax - pmin), 0, 1)
+
+    if morphology == 'spots':
+        if method == 'log':
+            blobs = blob_log(img_norm,
+                             min_sigma=settings.get('organelle_log_min_sigma', 1),
+                             max_sigma=settings.get('organelle_log_max_sigma', 10),
+                             num_sigma=settings.get('organelle_log_num_sigma', 10),
+                             threshold=settings.get('organelle_log_threshold', 0.01))
+            # Draw blob circles on the normalised image
+            diag_img = img_norm.copy()
+            for y, x, sigma in blobs:
+                rr, cc = np.ogrid[-int(sigma*2):int(sigma*2)+1, -int(sigma*2):int(sigma*2)+1]
+                circle = rr**2 + cc**2 <= (sigma * np.sqrt(2))**2
+                yy = np.clip(int(y) + np.where(circle)[0] - int(sigma*2), 0, img.shape[0]-1)
+                xx = np.clip(int(x) + np.where(circle)[1] - int(sigma*2), 0, img.shape[1]-1)
+                diag_img[yy, xx] = 1.0
+            return diag_img, f'LoG detections ({len(blobs)} blobs)'
+
+        elif method == 'dog':
+            blobs = blob_dog(img_norm,
+                             min_sigma=settings.get('organelle_dog_sigma_low', 1.0),
+                             max_sigma=settings.get('organelle_dog_sigma_high', 3.0),
+                             threshold=settings.get('organelle_log_threshold', 0.01))
+            diag_img = img_norm.copy()
+            for y, x, sigma in blobs:
+                rr, cc = np.ogrid[-int(sigma*2):int(sigma*2)+1, -int(sigma*2):int(sigma*2)+1]
+                circle = rr**2 + cc**2 <= (sigma * np.sqrt(2))**2
+                yy = np.clip(int(y) + np.where(circle)[0] - int(sigma*2), 0, img.shape[0]-1)
+                xx = np.clip(int(x) + np.where(circle)[1] - int(sigma*2), 0, img.shape[1]-1)
+                diag_img[yy, xx] = 1.0
+            return diag_img, f'DoG detections ({len(blobs)} blobs)'
+
+        else:
+            # otsu / adaptive: show top-hat filtered image
+            radius = settings.get('organelle_tophat_radius', 5)
+            filtered = white_tophat(img, disk(radius))
+            return filtered, f'Top-hat filtered (r={radius})'
+
+    elif morphology == 'network':
+        if method == 'ridge':
+            sigmas = settings.get('organelle_ridge_sigmas', [1, 2, 3])
+            filter_name = settings.get('organelle_ridge_filter', 'frangi')
+            ridge_filters = {'frangi': frangi, 'sato': sato, 'meijering': meijering}
+            enhanced = ridge_filters[filter_name](img_norm, sigmas=sigmas, black_ridges=False)
+            return enhanced, f'{filter_name} ridge (sigmas={sigmas})'
+
+        elif method == 'hysteresis':
+            low = settings.get('organelle_hysteresis_low', 0.2)
+            high = settings.get('organelle_hysteresis_high', 0.6)
+            smooth = gaussian(img, sigma=1)
+            if low < 1.0:
+                low_abs = np.percentile(smooth, low * 100)
+            else:
+                low_abs = low
+            if high < 1.0:
+                high_abs = np.percentile(smooth, high * 100)
+            else:
+                high_abs = high
+            binary = apply_hysteresis_threshold(smooth, low_abs, high_abs)
+            return binary.astype(np.float64), f'Hysteresis (low={low}, high={high})'
+
+        else:
+            # otsu / adaptive: show Gaussian smoothed
+            smooth = gaussian(img, sigma=1)
+            return smooth, 'Gaussian smoothed (σ=1)'
+
+    elif morphology == 'irregular':
+        morph_r = settings.get('organelle_morph_radius', 3)
+        smooth = gaussian(img, sigma=max(morph_r / 2, 1))
+        return smooth, f'Gaussian smoothed (σ={max(morph_r/2, 1):.1f})'
+
+    elif morphology == 'ring':
+        sigma_inner = settings.get('organelle_ring_sigma_inner', 1.0)
+        sigma_outer = settings.get('organelle_ring_sigma_outer', 3.0)
+        enhanced = np.abs(difference_of_gaussians(img_norm, sigma_inner, sigma_outer))
+        return enhanced, f'DoG ring enhancement (σ={sigma_inner}/{sigma_outer})'
+
+    else:
+        return img_norm, 'Normalised image'
 
 def debug(enabled=True, logger_name = None):
     """
@@ -6096,7 +6210,67 @@ def _merge_cells_based_on_parasite_overlap_v1(parasite_mask, cell_mask, nuclei_m
     relabeled_cell_mask, _ = label(cell_mask, return_num=True)
     return relabeled_cell_mask.astype(np.uint16)
 
-def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nuclei_folder, organelle_folder, overlap_threshold, perimeter_threshold):
+def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nuclei_folder, organelle_folder=None, overlap_threshold=5, perimeter_threshold=30):
+    start = time.perf_counter()
+
+    parasite_path = os.path.join(parasite_folder, file_name)
+    cell_path = os.path.join(cell_folder, file_name)
+    nuclei_path = os.path.join(nuclei_folder, file_name)
+
+    if not (os.path.exists(cell_path) and os.path.exists(nuclei_path)):
+        raise ValueError(f"Corresponding cell or nuclei mask file for {file_name} not found.")
+
+    parasite_mask = np.load(parasite_path, allow_pickle=True)
+    cell_mask = np.load(cell_path, allow_pickle=True)
+    nuclei_mask = np.load(nuclei_path, allow_pickle=True)
+
+    organelle_mask = None
+    if organelle_folder is not None:
+        organelle_path = os.path.join(organelle_folder, file_name)
+        if os.path.exists(organelle_path):
+            organelle_mask = np.load(organelle_path, allow_pickle=True)
+
+    merged_cell_mask = _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask, organelle_mask, overlap_threshold, perimeter_threshold)
+
+    np.save(cell_path, merged_cell_mask)
+
+    end = time.perf_counter()
+    return end - start
+
+def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_folder=None, overlap_threshold=5, perimeter_threshold=30, n_jobs=None):
+    
+    parasite_files = sorted([f for f in os.listdir(parasite_folder) if f.endswith('.npy')])
+    cell_files = sorted([f for f in os.listdir(cell_folder) if f.endswith('.npy')])
+    nuclei_files = sorted([f for f in os.listdir(nuclei_folder) if f.endswith('.npy')])
+
+    if not (len(parasite_files) == len(cell_files) == len(nuclei_files)):
+        raise ValueError("The number of files in the folders do not match.")
+
+    if organelle_folder is not None and os.path.exists(organelle_folder):
+        organelle_files = sorted([f for f in os.listdir(organelle_folder) if f.endswith('.npy')])
+        if len(organelle_files) != len(parasite_files):
+            print(f'Warning: organelle mask count ({len(organelle_files)}) does not match other masks ({len(parasite_files)}). Organelle masks will be loaded per-file where available.')
+    else:
+        organelle_folder = None
+
+    n_jobs = n_jobs or max(1, cpu_count() - 2)
+
+    time_ls = []
+    files_to_process = len(parasite_files)
+    process_fn = partial(process_mask_file_adjust_cell,
+                         parasite_folder=parasite_folder,
+                         cell_folder=cell_folder,
+                         nuclei_folder=nuclei_folder,
+                         organelle_folder=organelle_folder,
+                         overlap_threshold=overlap_threshold,
+                         perimeter_threshold=perimeter_threshold)
+
+    with Pool(n_jobs) as pool:
+        for i, duration in enumerate(pool.imap_unordered(process_fn, parasite_files), 1):
+            time_ls.append(duration)
+            print_progress(i, files_to_process, n_jobs=n_jobs, time_ls=time_ls, batch_size=None, operation_type='adjust_cell_masks')
+
+def process_mask_file_adjust_cell_v1(file_name, parasite_folder, cell_folder, nuclei_folder, organelle_folder, overlap_threshold, perimeter_threshold):
     start = time.perf_counter()
 
     parasite_path = os.path.join(parasite_folder, file_name)
@@ -6120,7 +6294,7 @@ def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nucle
     end = time.perf_counter()
     return end - start
 
-def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_folder, overlap_threshold=5, perimeter_threshold=30, n_jobs=None):
+def adjust_cell_masks_v1(parasite_folder, cell_folder, nuclei_folder, organelle_folder, overlap_threshold=5, perimeter_threshold=30, n_jobs=None):
     
     parasite_files = sorted([f for f in os.listdir(parasite_folder) if f.endswith('.npy')])
     cell_files = sorted([f for f in os.listdir(cell_folder) if f.endswith('.npy')])

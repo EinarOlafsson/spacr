@@ -20,7 +20,6 @@ from skimage.transform import resize as sk_resize
 import scikit_posthocs as sp
 from scipy.stats import chi2_contingency
 import tifffile as tiff
-
 from scipy.stats import normaltest, ttest_ind, mannwhitneyu, f_oneway, kruskal, levene, shapiro
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
 import pingouin as pg
@@ -407,6 +406,73 @@ def plot_cellpose4_output(batch, masks, flows, cmap='inferno', figuresize=10, nr
             ax[chans+1].imshow(flow, cmap='viridis', interpolation='nearest')
             ax[chans+1].set_title('Flow')
             plt.show()
+    return
+
+def plot_organelle_output(img_batch, masks, settings, cmap='inferno', figuresize=10, nr=1, print_object_number=True):
+    """
+    Plot organelle segmentation results for a batch of images.
+
+    Shows the original image, the label mask with object IDs, and a
+    morphology-specific diagnostic panel (e.g. thresholded binary,
+    ridge-enhanced image, DoG response, or ring edges).
+
+    Args:
+        img_batch (numpy.ndarray): Shape (N, H, W) single-channel images.
+        masks (list or numpy.ndarray): Label masks, one per image.
+        settings (dict): Organelle settings (used to determine morphology/method
+            and generate the diagnostic panel).
+        cmap (str, optional): Colormap for the raw image. Defaults to 'inferno'.
+        figuresize (int, optional): Base figure size. Defaults to 10.
+        nr (int, optional): Maximum number of images to plot. Defaults to 1.
+        print_object_number (bool, optional): Print object labels on the mask.
+            Defaults to True.
+
+    Returns:
+        None
+    """
+    from .utils import _generate_mask_random_cmap, _organelle_diagnostic
+    
+    morphology = settings.get('organelle_morphology', 'spots')
+    method = settings.get('organelle_method', 'otsu')
+    font = figuresize / 2
+
+    for idx in range(min(len(masks), nr, img_batch.shape[0])):
+        img = img_batch[idx]
+        mask = masks[idx]
+        random_cmap = _generate_mask_random_cmap(mask)
+        num_objects = len(np.unique(mask)) - (1 if 0 in mask else 0)
+
+        # Generate diagnostic image based on morphology/method
+        diag_img, diag_title = _organelle_diagnostic(img, morphology, method, settings)
+
+        n_panels = 3
+        fig, ax = plt.subplots(1, n_panels, figsize=(n_panels * figuresize, figuresize))
+
+        # Panel 1: Raw image
+        ax[0].imshow(img, cmap=cmap, interpolation='nearest')
+        ax[0].set_title(f'Organelle channel ({morphology}/{method})')
+
+        # Panel 2: Label mask
+        ax[1].imshow(mask, cmap=random_cmap, interpolation='nearest')
+        ax[1].set_title(f'Mask ({num_objects} objects)')
+        if print_object_number:
+            unique_objects = np.unique(mask)
+            unique_objects = unique_objects[unique_objects != 0]
+            for obj in unique_objects:
+                cy, cx = ndi.center_of_mass(mask == obj)
+                ax[1].text(cx, cy, str(obj), color='white', fontsize=font,
+                           ha='center', va='center')
+
+        # Panel 3: Diagnostic
+        ax[2].imshow(diag_img, cmap='viridis', interpolation='nearest')
+        ax[2].set_title(diag_title)
+
+        for a in ax:
+            a.axis('off')
+
+        plt.tight_layout()
+        plt.show()
+
     return
 
 def plot_masks(batch, masks, flows, cmap='inferno', figuresize=10, nr=1, file_type='.npz', print_object_number=True):
