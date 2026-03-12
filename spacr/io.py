@@ -1948,7 +1948,7 @@ def _create_database(db_path):
         if conn:
             conn.close() 
     
-def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_dim, pathogen_chann_dim):
+def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_dim, pathogen_chann_dim, organelle_chann_dim):
 
     from .utils import print_progress
 
@@ -1969,10 +1969,15 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
 
     if cell_chann_dim is not None or os.path.exists(os.path.join(src, 'masks', 'cell_mask_stack')):
         folder_paths = folder_paths + [os.path.join(src, 'masks','cell_mask_stack')]
+    
     if nucleus_chann_dim is not None or os.path.exists(os.path.join(src, 'masks', 'nucleus_mask_stack')):
         folder_paths = folder_paths + [os.path.join(src, 'masks','nucleus_mask_stack')]
+    
     if pathogen_chann_dim is not None or os.path.exists(os.path.join(src, 'masks', 'pathogen_mask_stack')):
         folder_paths = folder_paths + [os.path.join(src, 'masks','pathogen_mask_stack')]
+    
+    if organelle_chann_dim is not None or os.path.exists(os.path.join(src, 'masks', 'organelle_mask_stack')):
+        folder_paths = folder_paths + [os.path.join(src, 'masks','organelle_mask_stack')]
 
     output_folder = src+'/merged'
     reference_folder = folder_paths[0]
