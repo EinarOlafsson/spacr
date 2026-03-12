@@ -3,6 +3,12 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from IPython.display import display
+from scipy import ndimage
+from skimage.filters import (threshold_otsu,threshold_local,frangi,sato,meijering,laplace,gaussian)
+from skimage.feature import blob_log, blob_dog
+from skimage.morphology import (remove_small_objects,remove_small_holes,binary_opening,binary_closing,binary_dilation,binary_erosion,disk,skeletonize,white_tophat,label)
+from skimage.segmentation import watershed
+from skimage.measure import label as sk_label, regionprops
 
 import warnings
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
@@ -13,7 +19,7 @@ def preprocess_generate_masks(settings):
     from .io import preprocess_img_data, _load_and_concatenate_arrays, convert_to_yokogawa, convert_separate_files_to_yokogawa
     from .plot import plot_image_mask_overlay, plot_arrays
     from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, delete_intermedeate_files, format_path_for_system, normalize_src_path, generate_image_path_map, copy_images_to_consolidated
-    from .settings import set_default_settings_preprocess_generate_masks
+    from .settings import set_default_settings_preprocess_generate_masks, _set_organelle_defaults
         
     if 'src' in settings:
         if not isinstance(settings['src'], (str, list)):
@@ -43,6 +49,8 @@ def preprocess_generate_masks(settings):
             settings['src'] = source_folder
             src = source_folder
             settings = set_default_settings_preprocess_generate_masks(settings)
+            
+            settings = _set_organelle_defaults(settings)
             
             if settings['metadata_type'] == 'auto':
                 if settings['custom_regex'] != None:
@@ -133,9 +141,15 @@ def preprocess_generate_masks(settings):
                         files_processed += 1
                         print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'pathogen_mask_gen')
 
-                #if settings['organelle'] != None:
-                #    if check_mask_folder(src, 'organelle_mask_stack'):
-                #        generate_otsu_masks(mask_src, settings, 'organelle')
+                if settings['organelle'] != None:
+                    if check_mask_folder(src, 'organelle_mask_stack'):
+                        start = time.time()
+                        generate_organelle_masks(mask_src, settings, 'organelle')
+                        stop = time.time()
+                        duration = (stop - start)
+                        time_ls.append(duration)
+                        files_processed += 1
+                        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'organelle_mask_gen')
 
                 if settings['adjust_cells']:
                     if not settings['timelapse']:
@@ -145,9 +159,9 @@ def preprocess_generate_masks(settings):
                             cell_folder = os.path.join(mask_src, 'cell_mask_stack')
                             nuclei_folder = os.path.join(mask_src, 'nucleus_mask_stack')
                             parasite_folder = os.path.join(mask_src, 'pathogen_mask_stack')
-                            #organelle_folder = os.path.join(mask_src, 'organelle_mask_stack')
+                            organelle_folder = os.path.join(mask_src, 'organelle_mask_stack')
                             print(f'Adjusting cell masks with nuclei and pathogen masks')
-                            adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30, n_jobs=settings['n_jobs'])
+                            adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_folder, overlap_threshold=5, perimeter_threshold=30, n_jobs=settings['n_jobs'])
                             stop = time.time()
                             adjust_time = (stop-start)/60
                             print(f'Cell mask adjustment: {adjust_time} min.')
@@ -463,6 +477,655 @@ def generate_cellpose_masks(src, settings, object_type):
         gc.collect()
     torch.cuda.empty_cache()
     return
+
+def generate_organelle_masks(src, settings, object_type):
+    """
+    Generate organelle masks using multiple segmentation strategies.
+
+    Supports three morphology modes:
+        - 'spots': punctate structures (lipid droplets, vesicles, peroxisomes)
+        - 'network': filamentous/reticular structures (mitochondria, microtubules, ER tubules)
+        - 'irregular': irregular-shaped organelles (Golgi, ER cisternae, lysosomes)
+
+    Each mode can use different backends:
+        - 'cellpose': deep-learning segmentation via Cellpose
+        - 'otsu': global Otsu thresholding with morphological cleanup
+        - 'adaptive': local adaptive thresholding
+        - 'log': Laplacian of Gaussian blob detection (spots only)
+        - 'ridge': ridge/tubeness filter (network only)
+
+    Parameters
+    ----------
+    src : str
+        Path to the mask source directory containing .npz stacks.
+    settings : dict
+        Configuration dictionary. Organelle-specific keys (all prefixed with
+        'organelle_') are documented below with their defaults.
+    object_type : str
+        Should be 'organelle' (or a custom name used for folder naming).
+
+    Organelle settings keys
+    -----------------------
+    organelle_channel : int or None
+        Channel index in the image stack for the organelle signal.
+    organelle_morphology : str
+        One of 'spots', 'network', 'irregular'. Default: 'spots'.
+    organelle_method : str
+        Segmentation backend. Default: 'otsu'.
+        Valid per morphology:
+            spots    -> 'otsu', 'adaptive', 'log', 'cellpose'
+            network  -> 'otsu', 'adaptive', 'ridge', 'cellpose'
+            irregular -> 'otsu', 'adaptive', 'cellpose'
+    organelle_diameter : float or None
+        Expected object diameter in pixels (used by cellpose and for
+        morphological kernel sizing). Default: 30.
+    organelle_model_name : str
+        Cellpose model name when method='cellpose'. Default: 'cyto3'.
+    organelle_min_size : int
+        Minimum object area in pixels. Default: 10.
+    organelle_max_size : int or None
+        Maximum object area in pixels. None = no upper limit. Default: None.
+    organelle_remove_border : bool
+        Remove objects touching the image border. Default: False.
+
+    Spot-specific settings
+    ----------------------
+    organelle_log_min_sigma : float
+        Minimum sigma for LoG blob detection. Default: 1.
+    organelle_log_max_sigma : float
+        Maximum sigma for LoG blob detection. Default: 10.
+    organelle_log_num_sigma : int
+        Number of sigma steps for LoG. Default: 10.
+    organelle_log_threshold : float
+        LoG detection threshold. Default: 0.01.
+    organelle_tophat_radius : int
+        Radius for white top-hat pre-filtering in spot modes. Default: 5.
+    organelle_watershed_spots : bool
+        Apply marker-controlled watershed to separate touching spots.
+        Default: True.
+
+    Network-specific settings
+    -------------------------
+    organelle_ridge_sigmas : list of float
+        Sigma range for ridge (Frangi/Sato/Meijering) filters.
+        Default: [1, 2, 3].
+    organelle_ridge_filter : str
+        Which ridge filter to use: 'frangi', 'sato', 'meijering'.
+        Default: 'frangi'.
+    organelle_skeletonize : bool
+        Return skeletonised binary mask instead of labelled regions.
+        Default: False.
+    organelle_network_threshold : str
+        Threshold method after ridge filtering: 'otsu' or 'adaptive'.
+        Default: 'otsu'.
+
+    Irregular-specific settings
+    ---------------------------
+    organelle_adaptive_block_size : int
+        Block size for adaptive thresholding (must be odd). Default: 51.
+    organelle_adaptive_offset : float
+        Offset subtracted from local mean in adaptive threshold. Default: 5.
+    organelle_morph_radius : int
+        Radius of disk structuring element for morphological cleanup.
+        Default: 3.
+    organelle_fill_holes : int
+        Fill holes smaller than this area. Default: 64.
+
+    Cellpose-specific settings
+    --------------------------
+    organelle_CP_prob : float
+        Cellpose cell probability threshold. Default: 0.0.
+    organelle_FT : float
+        Cellpose flow threshold. Default: 0.4.
+    organelle_resample : bool
+        Cellpose resample toggle. Default: True.
+
+    Returns
+    -------
+    None
+        Masks are saved as .npy files in ``{src}/{object_type}_mask_stack/``.
+    """
+
+    from .io import _create_database, _save_object_counts_to_database, _check_masks, _get_avg_object_size
+    from .utils import _masks_to_masks_stack, _filter_cp_masks, prepare_batch_for_segmentation
+    from settings import _set_organelle_defaults
+
+    gc.collect()
+
+    settings = _set_organelle_defaults(settings)
+
+    morphology = settings['organelle_morphology']
+    method = settings['organelle_method']
+    organelle_channel = settings['organelle_channel']
+
+    _validate_organelle_settings(morphology, method)
+
+    if settings['verbose']:
+        import pandas as pd
+        from IPython.display import display
+        organ_keys = {k: v for k, v in settings.items() if k.startswith('organelle_')}
+        df = pd.DataFrame(list(organ_keys.items()), columns=['setting_key', 'setting_value'])
+        df['setting_value'] = df['setting_value'].apply(str)
+        display(df)
+
+    paths = [os.path.join(src, f) for f in os.listdir(src) if f.endswith('.npz')]
+    if not paths:
+        print(f'No .npz files found in {src}')
+        return
+
+    count_loc = os.path.join(os.path.dirname(src), 'measurements', 'measurements.db')
+    os.makedirs(os.path.dirname(count_loc), exist_ok=True)
+    _create_database(count_loc)
+
+    batch_size = settings['batch_size']
+    average_sizes = []
+    average_counts = []
+    time_ls = []
+
+    # ------------------------------------------------------------------ #
+    #  Optionally load cellpose model once
+    # ------------------------------------------------------------------ #
+    cp_model = None
+    if method == 'cellpose':
+        from .utils import _choose_model
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        cp_model = _choose_model(
+            settings['organelle_model_name'],
+            device,
+            object_type=object_type,
+            restore_type=None,
+            object_settings=_build_object_settings(settings),
+        )
+
+    # ------------------------------------------------------------------ #
+    #  Main loop over .npz stacks
+    # ------------------------------------------------------------------ #
+    for file_index, path in enumerate(paths):
+        name = os.path.splitext(os.path.basename(path))[0]
+        output_folder = os.path.join(os.path.dirname(path), f'{object_type}_mask_stack')
+        os.makedirs(output_folder, exist_ok=True)
+
+        with np.load(path) as data:
+            stack = data['data']
+            filenames = data['filenames']
+
+        # Skip already-processed files
+        existing = set(os.listdir(output_folder))
+        todo_indices = [i for i, fn in enumerate(filenames) if fn not in existing]
+        if not todo_indices:
+            print(f'All files in {name} already processed. Skipping.')
+            continue
+
+        for i in range(0, stack.shape[0], batch_size):
+            batch = stack[i: i + batch_size]
+            batch_filenames = filenames[i: i + batch_size].tolist()
+
+            # ---------------------------------------------------------- #
+            #  Extract the organelle channel(s)
+            # ---------------------------------------------------------- #
+            if organelle_channel is not None:
+                if batch.ndim == 4:
+                    img_batch = batch[:, :, :, organelle_channel].astype(np.float32)
+                else:
+                    img_batch = batch.astype(np.float32)
+            else:
+                # fallback: first channel
+                if batch.ndim == 4:
+                    img_batch = batch[:, :, :, 0].astype(np.float32)
+                else:
+                    img_batch = batch.astype(np.float32)
+
+            # ---------------------------------------------------------- #
+            #  Segment
+            # ---------------------------------------------------------- #
+            if method == 'cellpose':
+                masks = _segment_cellpose(
+                    batch, batch_filenames, cp_model, settings, object_type, output_folder,
+                )
+            else:
+                masks = _segment_classical(img_batch, settings)
+
+            if masks is None or len(masks) == 0:
+                continue
+
+            # ---------------------------------------------------------- #
+            #  Post-process: size filter, border removal
+            # ---------------------------------------------------------- #
+            mask_stack = _postprocess_masks(
+                masks,
+                min_size=settings['organelle_min_size'],
+                max_size=settings['organelle_max_size'],
+                remove_border=settings['organelle_remove_border'],
+            )
+
+            _save_object_counts_to_database(
+                mask_stack, object_type, batch_filenames, count_loc, added_string='',
+            )
+
+            # Stats
+            if not np.any(mask_stack):
+                avg_count, avg_size = 0, 0
+            else:
+                avg_count, avg_size = _get_avg_object_size(mask_stack)
+
+            average_counts.append(avg_count)
+            average_sizes.append(avg_size)
+            overall_avg_count = np.mean(average_counts)
+            overall_avg_size = np.mean(average_sizes)
+            print(
+                f'Found {overall_avg_count:.1f} {object_type}/FOV, '
+                f'average size: {overall_avg_size:.1f} px2'
+            )
+
+            # ---------------------------------------------------------- #
+            #  Save
+            # ---------------------------------------------------------- #
+            if settings['save']:
+                for mask_idx, mask in enumerate(mask_stack):
+                    out_path = os.path.join(output_folder, batch_filenames[mask_idx])
+                    np.save(out_path, mask.astype(np.uint16))
+                mask_stack = []
+                batch_filenames = []
+
+            gc.collect()
+
+    torch.cuda.empty_cache()
+    return
+
+def _validate_organelle_settings(morphology, method):
+    """Raise early on invalid morphology / method combinations."""
+    valid_morphologies = ('spots', 'network', 'irregular')
+    if morphology not in valid_morphologies:
+        raise ValueError(
+            f"organelle_morphology must be one of {valid_morphologies}, got '{morphology}'"
+        )
+
+    method_map = {
+        'spots': ('otsu', 'adaptive', 'log', 'cellpose'),
+        'network': ('otsu', 'adaptive', 'ridge', 'cellpose'),
+        'irregular': ('otsu', 'adaptive', 'cellpose'),
+    }
+    valid_methods = method_map[morphology]
+    if method not in valid_methods:
+        raise ValueError(
+            f"For morphology='{morphology}', method must be one of {valid_methods}, got '{method}'"
+        )
+
+def _build_object_settings(settings):
+    """Build an object_settings dict expected by _choose_model / cellpose eval."""
+    return {
+        'model_name': settings['organelle_model_name'],
+        'diameter': settings['organelle_diameter'],
+        'minimum_size': settings['organelle_min_size'],
+        'maximum_size': settings['organelle_max_size'],
+        'resample': settings['organelle_resample'],
+        'filter_size': False,
+        'filter_intensity': False,
+        'remove_border_objects': settings['organelle_remove_border'],
+        'merge': False,
+    }
+
+def _segment_cellpose(batch, batch_filenames, model, settings, object_type, output_folder):
+    """Run Cellpose on a batch and return a list of 2-D label arrays."""
+    from .utils import prepare_batch_for_segmentation
+    from .io import _check_masks
+    from .spacr_cellpose import parse_cellpose4_output
+
+    organelle_ch = settings['organelle_channel']
+    if organelle_ch is None:
+        organelle_ch = 0
+
+    # Build a 2-channel input: organelle channel duplicated or paired with nucleus
+    if batch.ndim == 4:
+        ch0 = batch[:, :, :, organelle_ch: organelle_ch + 1]
+        # If a nucleus channel exists, use it as the second channel for cyto models
+        nuc_ch = settings.get('nucleus_channel')
+        if nuc_ch is not None and nuc_ch < batch.shape[3]:
+            ch1 = batch[:, :, :, nuc_ch: nuc_ch + 1]
+        else:
+            ch1 = ch0
+        cp_batch = np.concatenate([ch0, ch1], axis=-1).astype(batch.dtype)
+    else:
+        cp_batch = np.stack([batch, batch], axis=-1).astype(batch.dtype)
+
+    if not settings.get('plot', False):
+        cp_batch, batch_filenames = _check_masks(cp_batch, batch_filenames, output_folder)
+    if cp_batch.size == 0:
+        return None
+
+    cp_batch = prepare_batch_for_segmentation(cp_batch)
+    batch_list = [cp_batch[j] for j in range(cp_batch.shape[0])]
+
+    output = model.eval(
+        x=batch_list,
+        batch_size=settings['batch_size'],
+        normalize=False,
+        channel_axis=-1,
+        channels=[0, 1],
+        diameter=settings['organelle_diameter'],
+        flow_threshold=settings['organelle_FT'],
+        cellprob_threshold=settings['organelle_CP_prob'],
+        rescale=None,
+        resample=settings['organelle_resample'],
+    )
+
+    masks, flows, _, _, _ = parse_cellpose4_output(output)
+    return masks
+
+def _segment_classical(img_batch, settings):
+    """
+    Dispatch to the appropriate classical segmentation based on
+    organelle_morphology and organelle_method.
+
+    Parameters
+    ----------
+    img_batch : np.ndarray
+        Shape (N, H, W) float32 single-channel images.
+    settings : dict
+
+    Returns
+    -------
+    list of np.ndarray
+        List of 2-D integer label arrays, one per image.
+    """
+    morphology = settings['organelle_morphology']
+    method = settings['organelle_method']
+
+    masks = []
+    for idx in range(img_batch.shape[0]):
+        img = img_batch[idx]
+
+        if morphology == 'spots':
+            mask = _segment_spots(img, method, settings)
+        elif morphology == 'network':
+            mask = _segment_network(img, method, settings)
+        elif morphology == 'irregular':
+            mask = _segment_irregular(img, method, settings)
+        else:
+            raise ValueError(f"Unknown morphology: {morphology}")
+
+        masks.append(mask)
+
+    return masks
+
+def _segment_spots(img, method, settings):
+    """
+    Segment punctate / spot-like organelles.
+
+    Strategies
+    ----------
+    'otsu'     : top-hat -> Otsu -> watershed
+    'adaptive' : top-hat -> adaptive threshold -> watershed
+    'log'      : Laplacian-of-Gaussian blob detection -> marker-based watershed
+    """
+    tophat_radius = settings['organelle_tophat_radius']
+    use_watershed = settings['organelle_watershed_spots']
+
+    if method == 'log':
+        return _spots_log(img, settings, use_watershed)
+
+    # --- Pre-filter: white top-hat enhances bright spots on dark bg ---
+    filtered = white_tophat(img, disk(tophat_radius))
+
+    # --- Threshold ---
+    if method == 'otsu':
+        thresh_val = threshold_otsu(filtered)
+        binary = filtered > thresh_val
+    elif method == 'adaptive':
+        block = settings['organelle_adaptive_block_size']
+        offset = settings['organelle_adaptive_offset']
+        local_thresh = threshold_local(filtered, block_size=block, offset=offset)
+        binary = filtered > local_thresh
+    else:
+        raise ValueError(f"Unsupported spot method: {method}")
+
+    # --- Morphological cleanup ---
+    binary = binary_opening(binary, disk(1))
+    binary = remove_small_objects(binary, min_size=settings['organelle_min_size'])
+
+    # --- Watershed to split touching spots ---
+    if use_watershed:
+        labeled = _watershed_split(binary, filtered)
+    else:
+        labeled = sk_label(binary)
+
+    return labeled
+
+def _spots_log(img, settings, use_watershed):
+    """LoG blob detection → marker-seeded watershed."""
+    min_s = settings['organelle_log_min_sigma']
+    max_s = settings['organelle_log_max_sigma']
+    num_s = settings['organelle_log_num_sigma']
+    thresh = settings['organelle_log_threshold']
+
+    # Normalise to [0, 1]
+    img_norm = img.astype(np.float64)
+    pmin, pmax = np.percentile(img_norm, (1, 99))
+    if pmax - pmin > 0:
+        img_norm = np.clip((img_norm - pmin) / (pmax - pmin), 0, 1)
+
+    blobs = blob_log(img_norm, min_sigma=min_s, max_sigma=max_s,
+                     num_sigma=num_s, threshold=thresh)
+
+    if len(blobs) == 0:
+        return np.zeros(img.shape, dtype=np.int32)
+
+    # Create markers from blob centres
+    markers = np.zeros(img.shape, dtype=np.int32)
+    for i, (y, x, sigma) in enumerate(blobs, start=1):
+        y, x = int(round(y)), int(round(x))
+        if 0 <= y < img.shape[0] and 0 <= x < img.shape[1]:
+            markers[y, x] = i
+
+    if not use_watershed:
+        # Simple: draw filled circles at blob locations
+        labeled = np.zeros(img.shape, dtype=np.int32)
+        for i, (y, x, sigma) in enumerate(blobs, start=1):
+            rr, cc = _circle_coords(int(round(y)), int(round(x)),
+                                    max(int(round(sigma * np.sqrt(2))), 1),
+                                    img.shape)
+            labeled[rr, cc] = i
+        return labeled
+
+    # Watershed using inverted intensity as the landscape
+    smooth = gaussian(img_norm, sigma=1)
+    labeled = watershed(-smooth, markers, mask=(smooth > np.percentile(smooth, 20)))
+    return labeled
+
+def _circle_coords(cy, cx, radius, shape):
+    """Return (row, col) arrays for a filled circle clipped to shape."""
+    yy, xx = np.ogrid[-radius:radius + 1, -radius:radius + 1]
+    circle = yy ** 2 + xx ** 2 <= radius ** 2
+    rows = np.clip(cy + np.where(circle)[0] - radius, 0, shape[0] - 1)
+    cols = np.clip(cx + np.where(circle)[1] - radius, 0, shape[1] - 1)
+    return rows, cols
+
+def _segment_network(img, method, settings):
+    """
+    Segment filamentous / reticular organelles.
+
+    Strategies
+    ----------
+    'otsu'     : Gaussian smooth -> Otsu -> morphological cleanup
+    'adaptive' : Gaussian smooth -> adaptive threshold -> cleanup
+    'ridge'    : Ridge filter (Frangi / Sato / Meijering) -> threshold -> label
+    """
+    if method == 'ridge':
+        return _network_ridge(img, settings)
+
+    # --- Gaussian pre-smoothing ---
+    smooth = gaussian(img, sigma=1)
+
+    # --- Threshold ---
+    if method == 'otsu':
+        thresh_val = threshold_otsu(smooth)
+        binary = smooth > thresh_val
+    elif method == 'adaptive':
+        block = settings['organelle_adaptive_block_size']
+        offset = settings['organelle_adaptive_offset']
+        local_thresh = threshold_local(smooth, block_size=block, offset=offset)
+        binary = smooth > local_thresh
+    else:
+        raise ValueError(f"Unsupported network method: {method}")
+
+    # --- Morphological cleanup for thin structures ---
+    morph_r = max(settings['organelle_morph_radius'] // 2, 1)
+    binary = binary_closing(binary, disk(morph_r))
+    binary = remove_small_objects(binary, min_size=settings['organelle_min_size'])
+
+    if settings['organelle_skeletonize']:
+        skeleton = skeletonize(binary)
+        # Dilate skeleton slightly so it has nonzero area for labelling
+        skeleton = binary_dilation(skeleton, disk(1))
+        return sk_label(skeleton)
+
+    return sk_label(binary)
+
+def _network_ridge(img, settings):
+    """Apply a ridge (tubeness) filter then threshold."""
+    sigmas = settings['organelle_ridge_sigmas']
+    filter_name = settings['organelle_ridge_filter']
+    thresh_method = settings['organelle_network_threshold']
+
+    # Normalise
+    img_norm = img.astype(np.float64)
+    pmin, pmax = np.percentile(img_norm, (1, 99))
+    if pmax - pmin > 0:
+        img_norm = np.clip((img_norm - pmin) / (pmax - pmin), 0, 1)
+
+    ridge_filters = {
+        'frangi': frangi,
+        'sato': sato,
+        'meijering': meijering,
+    }
+    if filter_name not in ridge_filters:
+        raise ValueError(
+            f"organelle_ridge_filter must be one of {list(ridge_filters.keys())}, "
+            f"got '{filter_name}'"
+        )
+
+    enhanced = ridge_filters[filter_name](img_norm, sigmas=sigmas, black_ridges=False)
+
+    # Threshold the enhanced image
+    if thresh_method == 'otsu':
+        t = threshold_otsu(enhanced)
+        binary = enhanced > t
+    elif thresh_method == 'adaptive':
+        block = settings['organelle_adaptive_block_size']
+        offset = settings['organelle_adaptive_offset']
+        local_t = threshold_local(enhanced, block_size=block, offset=offset)
+        binary = enhanced > local_t
+    else:
+        t = threshold_otsu(enhanced)
+        binary = enhanced > t
+
+    # Cleanup
+    binary = binary_closing(binary, disk(1))
+    binary = remove_small_objects(binary, min_size=settings['organelle_min_size'])
+
+    if settings['organelle_skeletonize']:
+        skeleton = skeletonize(binary)
+        skeleton = binary_dilation(skeleton, disk(1))
+        return sk_label(skeleton)
+
+    return sk_label(binary)
+
+def _segment_irregular(img, method, settings):
+    """
+    Segment irregularly shaped organelles (Golgi, ER cisternae, lysosomes).
+
+    Strategies
+    ----------
+    'otsu'     : Gaussian smooth -> Otsu -> morph open/close -> fill holes -> label
+    'adaptive' : Gaussian smooth -> adaptive threshold -> morph cleanup -> label
+    """
+    morph_r = settings['organelle_morph_radius']
+    fill_area = settings['organelle_fill_holes']
+
+    # --- Pre-smoothing ---
+    smooth = gaussian(img, sigma=max(morph_r / 2, 1))
+
+    # --- Threshold ---
+    if method == 'otsu':
+        thresh_val = threshold_otsu(smooth)
+        binary = smooth > thresh_val
+    elif method == 'adaptive':
+        block = settings['organelle_adaptive_block_size']
+        offset = settings['organelle_adaptive_offset']
+        local_thresh = threshold_local(smooth, block_size=block, offset=offset)
+        binary = smooth > local_thresh
+    else:
+        raise ValueError(f"Unsupported irregular method: {method}")
+
+    # --- Morphological cleanup ---
+    selem = disk(morph_r)
+    binary = binary_closing(binary, selem)
+    binary = binary_opening(binary, selem)
+
+    # Fill small internal holes
+    if fill_area > 0:
+        binary = remove_small_holes(binary, area_threshold=fill_area)
+
+    binary = remove_small_objects(binary, min_size=settings['organelle_min_size'])
+
+    # Optional: watershed to split loosely connected blobs
+    labeled = _watershed_split(binary, smooth)
+
+    return labeled
+
+def _watershed_split(binary, intensity):
+    """
+    Marker-controlled watershed to separate touching objects in a binary mask.
+    Uses distance transform peaks as markers.
+    """
+    from scipy.ndimage import distance_transform_edt, label as ndi_label
+    from skimage.feature import peak_local_max
+
+    distance = distance_transform_edt(binary)
+    coords = peak_local_max(distance, min_distance=5, labels=binary)
+    markers = np.zeros(binary.shape, dtype=np.int32)
+    for i, (r, c) in enumerate(coords, start=1):
+        markers[r, c] = i
+    labeled = watershed(-distance, markers, mask=binary)
+    return labeled
+
+def _postprocess_masks(masks, min_size=10, max_size=None, remove_border=False):
+    """
+    Apply size filtering and optional border removal to a list of label masks.
+
+    Returns
+    -------
+    list of np.ndarray
+        Cleaned label arrays.
+    """
+    processed = []
+    for mask in masks:
+        mask = mask.copy()
+
+        if remove_border:
+            border_labels = set()
+            border_labels.update(mask[0, :].ravel())
+            border_labels.update(mask[-1, :].ravel())
+            border_labels.update(mask[:, 0].ravel())
+            border_labels.update(mask[:, -1].ravel())
+            border_labels.discard(0)
+            for lbl in border_labels:
+                mask[mask == lbl] = 0
+
+        # Size filter
+        if min_size > 0 or max_size is not None:
+            props = regionprops(mask)
+            for prop in props:
+                if prop.area < min_size:
+                    mask[mask == prop.label] = 0
+                elif max_size is not None and prop.area > max_size:
+                    mask[mask == prop.label] = 0
+
+        # Relabel consecutively
+        mask = sk_label(mask > 0)
+        processed.append(mask)
+
+    return processed
 
 def generate_image_umap(settings={}, return_fig=False):
     """
