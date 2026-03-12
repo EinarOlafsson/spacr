@@ -1333,34 +1333,6 @@ def _pivot_counts_table(db_path):
     pivoted_df.to_sql('pivoted_counts', conn, if_exists='replace', index=False)
     conn.close()
     
-def _get_cellpose_channels_v2(src, nucleus_channel, pathogen_channel, cell_channel):
-    cell_mask_path = os.path.join(src, 'masks', 'cell_mask_stack')
-    nucleus_mask_path = os.path.join(src, 'masks', 'nucleus_mask_stack')
-    pathogen_mask_path = os.path.join(src, 'masks', 'pathogen_mask_stack')
-
-    if any(os.path.exists(p) for p in [cell_mask_path, nucleus_mask_path, pathogen_mask_path]):
-        if any(c is None for c in [nucleus_channel, pathogen_channel, cell_channel]):
-            print('Warning: Cellpose masks already exist. Unexpected behaviour if any channel is None while masks exist.')
-
-    cellpose_channels = {}
-
-    # Nucleus: always duplicated single channel
-    if nucleus_channel is not None:
-        cellpose_channels['nucleus'] = [nucleus_channel, nucleus_channel]
-
-    # Pathogen: always duplicated single channel
-    if pathogen_channel is not None:
-        cellpose_channels['pathogen'] = [pathogen_channel, pathogen_channel]
-
-    # Cell: prefer nucleus as second if available
-    if cell_channel is not None:
-        if nucleus_channel is not None:
-            cellpose_channels['cell'] = [nucleus_channel, cell_channel]
-        else:
-            cellpose_channels['cell'] = [cell_channel, cell_channel]
-
-    return cellpose_channels
-    
 def _get_cellpose_channels(src, nucleus_channel, pathogen_channel, cell_channel):
     cell_mask_path = os.path.join(src, 'masks', 'cell_mask_stack')
     nucleus_mask_path = os.path.join(src, 'masks', 'nucleus_mask_stack')
@@ -5415,7 +5387,7 @@ def _merge_cells_without_nucleus(adj_cell_mask: np.ndarray, nuclei_mask: np.ndar
 
     return out.astype(np.uint16)
 
-def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask, overlap_threshold=5, perimeter_threshold=30):
+def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask, organelle_mask, overlap_threshold=5, perimeter_threshold=30):
     
     """
     Merge cells in cell_mask if a parasite in parasite_mask overlaps with more than one cell,
@@ -5434,6 +5406,107 @@ def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask
     labeled_cells = label(cell_mask)
     labeled_parasites = label(parasite_mask)
     labeled_nuclei = label(nuclei_mask)
+    labeled_organelles = label(organelle_mask)
+    num_parasites = np.max(labeled_parasites)
+    num_cells = np.max(labeled_cells)
+    num_nuclei = np.max(labeled_nuclei)
+    num_organelles = np.max(labeled_organelles)
+
+    # Merge cells based on parasite overlap
+    for parasite_id in range(1, num_parasites + 1):
+        current_parasite_mask = labeled_parasites == parasite_id
+        overlapping_cell_labels = np.unique(labeled_cells[current_parasite_mask])
+        overlapping_cell_labels = overlapping_cell_labels[overlapping_cell_labels != 0]
+        if len(overlapping_cell_labels) > 1:
+            
+            # Calculate the overlap percentages
+            overlap_percentages = [
+                np.sum(current_parasite_mask & (labeled_cells == cell_label)) / np.sum(current_parasite_mask) * 100
+                for cell_label in overlapping_cell_labels
+            ]
+            # Merge cells if overlap percentage is above the threshold
+            for cell_label, overlap_percentage in zip(overlapping_cell_labels, overlap_percentages):
+                if overlap_percentage > overlap_threshold:
+                    first_label = overlapping_cell_labels[0]
+                    for other_label in overlapping_cell_labels[1:]:
+                        if other_label != first_label:
+                            cell_mask[cell_mask == other_label] = first_label
+
+    # Merge cells based on nucleus overlap
+    for nucleus_id in range(1, num_nuclei + 1):
+        current_nucleus_mask = labeled_nuclei == nucleus_id
+        overlapping_cell_labels = np.unique(labeled_cells[current_nucleus_mask])
+        overlapping_cell_labels = overlapping_cell_labels[overlapping_cell_labels != 0]
+        if len(overlapping_cell_labels) > 1:
+            
+            # Calculate the overlap percentages
+            overlap_percentages = [
+                np.sum(current_nucleus_mask & (labeled_cells == cell_label)) / np.sum(current_nucleus_mask) * 100
+                for cell_label in overlapping_cell_labels
+            ]
+            # Merge cells if overlap percentage is above the threshold for each cell
+            if all(overlap_percentage > overlap_threshold for overlap_percentage in overlap_percentages):
+                first_label = overlapping_cell_labels[0]
+                for other_label in overlapping_cell_labels[1:]:
+                    if other_label != first_label:
+                        cell_mask[cell_mask == other_label] = first_label
+
+    # Check for cells without nuclei and merge based on shared perimeter
+    labeled_cells = label(cell_mask)  # Re-label after merging based on overlap
+    cell_regions = regionprops(labeled_cells)
+    for region in cell_regions:
+        cell_label = region.label
+        cell_mask_binary = labeled_cells == cell_label
+        overlapping_nuclei = np.unique(nuclei_mask[cell_mask_binary])
+        overlapping_nuclei = overlapping_nuclei[overlapping_nuclei != 0]
+
+        if len(overlapping_nuclei) == 0:
+            
+            # Cell does not overlap with any nucleus
+            perimeter = region.perimeter
+            
+            # Dilate the cell to find neighbors
+            dilated_cell = binary_dilation(cell_mask_binary, structure=square(3))
+            neighbor_cells = np.unique(labeled_cells[dilated_cell])
+            neighbor_cells = neighbor_cells[(neighbor_cells != 0) & (neighbor_cells != cell_label)]
+            
+            # Calculate shared border length with neighboring cells
+            shared_borders = [
+                np.sum((labeled_cells == neighbor_label) & dilated_cell) for neighbor_label in neighbor_cells
+            ]
+            shared_border_percentages = [shared_border / perimeter * 100 for shared_border in shared_borders]
+            
+            # Merge with the neighbor cell with the largest shared border percentage above the threshold
+            if shared_borders:
+                max_shared_border_index = np.argmax(shared_border_percentages)
+                max_shared_border_percentage = shared_border_percentages[max_shared_border_index]
+                if max_shared_border_percentage > perimeter_threshold:
+                    cell_mask[labeled_cells == cell_label] = neighbor_cells[max_shared_border_index]
+    
+    # Relabel the merged cell mask
+    relabeled_cell_mask, _ = label(cell_mask, return_num=True)
+    return relabeled_cell_mask.astype(np.uint16)
+
+def _merge_cells_based_on_parasite_overlap_v1(parasite_mask, cell_mask, nuclei_mask, overlap_threshold=5, perimeter_threshold=30):
+    
+    """
+    Merge cells in cell_mask if a parasite in parasite_mask overlaps with more than one cell,
+    and if cells share more than a specified perimeter percentage.
+
+    Args:
+        parasite_mask (ndarray): Mask of parasites.
+        cell_mask (ndarray): Mask of cells.
+        nuclei_mask (ndarray): Mask of nuclei.
+        overlap_threshold (float): The percentage threshold for merging cells based on parasite overlap.
+        perimeter_threshold (float): The percentage threshold for merging cells based on shared perimeter.
+
+    Returns:
+        ndarray: The modified cell mask (cell_mask) with unique labels.
+    """
+    labeled_cells = label(cell_mask)
+    labeled_parasites = label(parasite_mask)
+    labeled_nuclei = label(nuclei_mask)
+
     num_parasites = np.max(labeled_parasites)
     num_cells = np.max(labeled_cells)
     num_nuclei = np.max(labeled_nuclei)
@@ -5513,12 +5586,13 @@ def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask
     relabeled_cell_mask, _ = label(cell_mask, return_num=True)
     return relabeled_cell_mask.astype(np.uint16)
 
-def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nuclei_folder, overlap_threshold, perimeter_threshold):
+def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nuclei_folder, organelle_folder, overlap_threshold, perimeter_threshold):
     start = time.perf_counter()
 
     parasite_path = os.path.join(parasite_folder, file_name)
     cell_path = os.path.join(cell_folder, file_name)
     nuclei_path = os.path.join(nuclei_folder, file_name)
+    organelle_path = os.path.join(organelle_folder, file_name)
 
     if not (os.path.exists(cell_path) and os.path.exists(nuclei_path)):
         raise ValueError(f"Corresponding cell or nuclei mask file for {file_name} not found.")
@@ -5526,8 +5600,9 @@ def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nucle
     parasite_mask = np.load(parasite_path, allow_pickle=True)
     cell_mask = np.load(cell_path, allow_pickle=True)
     nuclei_mask = np.load(nuclei_path, allow_pickle=True)
+    organelle_mask = np.load(organelle_path, allow_pickle=True)
 
-    merged_cell_mask = _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask, overlap_threshold, perimeter_threshold)
+    merged_cell_mask = _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask, organelle_mask, overlap_threshold, perimeter_threshold)
     #merged_cell_mask = _merge_cells_without_nucleus(merged_cell_mask, nuclei_mask)
 
     np.save(cell_path, merged_cell_mask)
@@ -5535,7 +5610,7 @@ def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nucle
     end = time.perf_counter()
     return end - start
 
-def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30, n_jobs=None):
+def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_folder, overlap_threshold=5, perimeter_threshold=30, n_jobs=None):
     
     parasite_files = sorted([f for f in os.listdir(parasite_folder) if f.endswith('.npy')])
     cell_files = sorted([f for f in os.listdir(cell_folder) if f.endswith('.npy')])
