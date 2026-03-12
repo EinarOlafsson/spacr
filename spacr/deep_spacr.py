@@ -496,6 +496,7 @@ def train_test_model(settings):
         )
 
         model, model_path = train_model(
+            src=src,
             dst=settings['dst'],
             model_type=settings['model_type'],
             train_loaders=train,
@@ -724,7 +725,6 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     head_dim = max(1, int(num_classes))
 
     #counts = estimate_class_counts(train_loaders, head_dim) if head_dim >= 2 else None
-    
 
     train_data_dir = os.path.join(src, 'train')
     
@@ -925,7 +925,7 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     final_path = best_model_path if best_model_path is not None else model_path
     return model, final_path
     
-def train_model_v1(dst, model_type, train_loaders, epochs=100, learning_rate=0.0001,
+def train_model_v1(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.0001,
                 weight_decay=0.05, amsgrad=False, optimizer_type='adamw',
                 use_checkpoint=False, dropout_rate=0, n_jobs=20, val_loaders=None,
                 test_loaders=None, init_weights='imagenet', intermedeate_save=None,
