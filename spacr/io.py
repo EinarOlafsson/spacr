@@ -1494,7 +1494,6 @@ def delete_empty_subdirectories(folder_path):
                 # An error occurred, likely because the directory is not empty
                 #print(f"Skipping non-empty directory: {full_dir_path}")
 
-#@log_function_call
 def preprocess_img_data(settings):
     
     from .plot import plot_arrays
@@ -1559,8 +1558,167 @@ def preprocess_img_data(settings):
             print('Found existing masks folder. Skipping preprocessing')
             return settings, src
 
-    mask_channels = [settings['nucleus_channel'], settings['cell_channel'], settings['pathogen_channel']]
+    #mask_channels = [settings['nucleus_channel'], settings['cell_channel'], settings['pathogen_channel'], settings['organelle_channel']]
+    
+    mask_channels_raw = [settings.get('nucleus_channel'), settings.get('cell_channel'), settings.get('pathogen_channel'), settings.get('organelle_channel')]
+    
+    # Deduplicate while tracking positions
+    seen = {}
+    mask_channels = []
+    for ch in mask_channels_raw:
+        if ch is not None and ch not in seen:
+            seen[ch] = len(mask_channels)
+            mask_channels.append(ch)
+    
+    settings = set_default_settings_preprocess_img_data(settings)
 
+    regex = _get_regex(settings['metadata_type'], img_format, settings['custom_regex'])
+    
+    if settings['test_mode']:
+        print(f"Running spacr in test mode")
+        settings['plot'] = True
+        if os.path.exists(os.path.join(src,'test')):
+            try:
+                os.rmdir(os.path.join(src, 'test'))
+                print(f"Deleted test directory: {os.path.join(src, 'test')}")
+            except OSError as e:
+                print(f"Error deleting test directory: {e}")
+                print(f"Delete manually before running test mode")
+                pass
+
+        src = _run_test_mode(settings['src'], regex, settings['timelapse'], settings['test_images'], settings['random_test'])
+        settings['src'] = src
+    
+    stack_path = os.path.join(src, 'stack')
+    if img_format == None:
+        if not os.path.exists(stack_path):
+            _merge_channels(src, plot=False)   
+   
+    if not os.path.exists(stack_path):
+        try:
+            if not img_format == None:
+                img_format = ['.tif', '.tiff', '.png', '.jpg', '.jpeg', '.bmp', '.nd2', '.czi', '.lif']
+                _rename_and_organize_image_files(src, regex, settings['batch_size'], settings['metadata_type'], img_format)
+                
+                #Make sure no batches will be of only one image
+                all_imgs = len(stack_path)
+                full_batches = all_imgs // settings['batch_size']
+                last_batch_size = all_imgs % settings['batch_size']
+                
+                # Check if the last batch is of size 1
+                if last_batch_size == 1:
+                    # If there's only one batch and its size is 1, it's also an issue
+                    if full_batches == 0:
+                        raise ValueError("Only one batch of size 1 detected. Adjust the batch size.")
+                    # If the last batch is of size 1, merge it with the second last batch
+                    elif full_batches > 0:
+                        print(f"all images: {all_imgs},  full batch: {full_batches}, last batch: {last_batch_size}")
+                        raise ValueError("Last batch of size 1 detected. Adjust the batch size.")
+                        
+                nr_channel_folders = _merge_channels(src, plot=False)
+                
+                if len(settings['channels']) != nr_channel_folders:
+                    print(f"Number of channels does not match number of channel folders. channels: {settings['channels']} channel folders: {nr_channel_folders}")
+                    new_channels = list(range(nr_channel_folders))
+                    print(f"Changing channels from {settings['channels']} to {new_channels}")
+                    settings['channels'] = new_channels
+
+                if settings['timelapse']:
+                    _create_movies_from_npy_per_channel(stack_path, fps=settings['fps'])
+
+                if settings['plot']:
+                    print(f"plotting {settings['nr']} images from {src}/stack")
+                    plot_arrays(stack_path, settings['figuresize'], settings['cmap'], nr=settings['nr'], normalize=settings['normalize'])
+
+                if settings['all_to_mip']:
+                    _mip_all(stack_path)
+                    if settings['plot']:
+                        print(f"plotting {settings['nr']} images from {src}/stack")
+                        plot_arrays(stack_path, settings['figuresize'], settings['cmap'], nr=settings['nr'], normalize=settings['normalize'])
+        
+        except Exception as e:
+            print(f"Error: {e}")
+    
+    concatenate_and_normalize(src=stack_path,
+                              channels=mask_channels,
+                              save_dtype=np.float32,
+                              settings=settings)
+    
+    for key in ['nucleus_channel', 'cell_channel', 'pathogen_channel', 'organelle_channel']:
+        ch = settings.get(key)
+        if ch is not None and ch in seen:
+            settings[key] = seen[ch]
+
+    return settings, src
+
+def preprocess_img_data_v1(settings):
+    
+    from .plot import plot_arrays
+    from .utils import _run_test_mode, _get_regex
+    from .settings import set_default_settings_preprocess_img_data
+    
+    """
+    Preprocesses image data by converting z-stack images to maximum intensity projection (MIP) images.
+
+    Args:
+        src (str): The source directory containing the z-stack images.
+        metadata_type (str, optional): The type of metadata associated with the images. Defaults to 'cellvoyager'.
+        custom_regex (str, optional): The custom regular expression pattern used to match the filenames of the z-stack images. Defaults to None.
+        cmap (str, optional): The colormap used for plotting. Defaults to 'inferno'.
+        figuresize (int, optional): The size of the figure for plotting. Defaults to 15.
+        normalize (bool, optional): Whether to normalize the images. Defaults to False.
+        nr (int, optional): The number of images to preprocess. Defaults to 1.
+        plot (bool, optional): Whether to plot the images. Defaults to False.
+        mask_channels (list, optional): The channels to use for masking. Defaults to [0, 1, 2].
+        batch_size (list, optional): The number of images to process in each batch. Defaults to [100, 100, 100].
+        timelapse (bool, optional): Whether the images are from a timelapse experiment. Defaults to False.
+        remove_background (bool, optional): Whether to remove the background from the images. Defaults to False.
+        backgrounds (int, optional): The number of background images to use for background removal. Defaults to 100.
+        lower_percentile (float, optional): The lower percentile used for background removal. Defaults to 1.
+        save_dtype (type, optional): The data type used for saving the preprocessed images. Defaults to np.float32.
+        randomize (bool, optional): Whether to randomize the order of the images. Defaults to True.
+        all_to_mip (bool, optional): Whether to convert all images to MIP. Defaults to False.
+        settings (dict, optional): Additional settings for preprocessing. Defaults to {}.
+
+    Returns:
+        None
+    """
+    src = settings['src']
+    
+    if len(os.listdir(src)) < 100:
+        delete_empty_subdirectories(src)
+    
+    files = os.listdir(src)
+    valid_ext = ['tif', 'tiff', 'png', 'jpg', 'jpeg', 'bmp', 'nd2', 'czi', 'lif']
+    extensions = [file.split('.')[-1].lower() for file in files]
+    # Filter only valid extensions
+    valid_extensions = [ext for ext in extensions if ext in valid_ext]
+    # Determine most common valid extension
+    img_format = None
+    if valid_extensions:
+        extension_counts = Counter(valid_extensions)
+        most_common_extension = Counter(valid_extensions).most_common(1)[0][0]
+        img_format = most_common_extension
+    
+        print(f"Found {extension_counts[most_common_extension]} {most_common_extension} files")
+    
+    else:
+        print(f"Could not find any {valid_ext} files in {src}")
+        print(f"{files} in {src}")
+        print(f"Please check the folder and try again")
+        
+        if os.path.exists(os.path.join(src,'stack')):
+            print('Found existing stack folder.')
+        if os.path.exists(os.path.join(src,'channel_stack')):
+            print('Found existing channel_stack folder.')
+        if os.path.exists(os.path.join(src,'masks')):
+            print('Found existing masks folder. Skipping preprocessing')
+            return settings, src
+
+    #mask_channels = [settings['nucleus_channel'], settings['cell_channel'], settings['pathogen_channel'], settings['organelle_channel']]
+    
+    mask_channels = [settings.get('nucleus_channel'), settings.get('cell_channel'), settings.get('pathogen_channel'), settings.get('organelle_channel')]
+    
     settings = set_default_settings_preprocess_img_data(settings)
 
     regex = _get_regex(settings['metadata_type'], img_format, settings['custom_regex'])
@@ -1657,6 +1815,7 @@ def _check_masks(batch, batch_filenames, output_folder):
     filtered_filenames = [f for f, exists in zip(batch_filenames, existing_files_mask) if exists]
 
     return np.array(filtered_batch), filtered_filenames
+
 
 def _get_avg_object_size(masks):
     """

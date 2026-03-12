@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.sim &mdash; spacr 1.0.1 documentation</title>
+  <title>spacr.sim &mdash; spacr 1.2.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
@@ -15,7 +15,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../../_static/documentation_options.js?v=36f53d34"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -66,12 +66,14 @@
 <li class="toctree-l4"><a class="reference internal" href="../logger/index.html">spacr.logger</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../measure/index.html">spacr.measure</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../ml/index.html">spacr.ml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../object/index.html">spacr.object</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../plot/index.html">spacr.plot</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sequencing/index.html">spacr.sequencing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../settings/index.html">spacr.settings</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">spacr.sim</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sp_stats/index.html">spacr.sp_stats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spacrops/index.html">spacr.spacrops</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../submodules/index.html">spacr.submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../timelapse/index.html">spacr.timelapse</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../toxo/index.html">spacr.toxo</a></li>
@@ -153,19 +155,6 @@ pandas.DataFrame: The generated plate map dataframe.</p>
 x (array-like): Array of values.</p>
 <p>Returns:
 float: Gini coefficient.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="spacr.sim.gini_V1">
-<span class="sig-prename descclassname"><span class="pre">spacr.sim.</span></span><span class="sig-name descname"><span class="pre">gini_V1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/sim.html#gini_V1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.sim.gini_V1" title="Link to this definition"></a></dt>
-<dd><p>Calculate the Gini coefficient for a given array of values.</p>
-<p>Parameters:
-x (array-like): Input array of values.</p>
-<p>Returns:
-float: The Gini coefficient.</p>
-<p>Notes:
-This implementation has a time and memory complexity of O(n**2), where n is the length of x.
-Avoid passing in large samples to prevent performance issues.</p>
 </dd></dl>
 
 <dl class="py function">

@@ -15,6 +15,18 @@ Module Contents
 
 .. py:data:: spacr_path
 
+.. py:function:: debug(enabled=True, logger_name=None)
+
+   Decorator that temporarily sets the given logger to DEBUG
+   while the function runs, then restores the old level.
+
+   :param enabled: If False, decorator is a no-op.
+   :type enabled: bool
+   :param logger_name: Name of the logger to tweak.
+                       Defaults to the function's module logger.
+   :type logger_name: str | None
+
+
 .. py:function:: filepaths_to_database(img_paths, settings, source_folder, crop_mode)
 
 .. py:function:: activation_maps_to_database(img_paths, source_folder, settings)
@@ -154,73 +166,6 @@ Module Contents
 
 
    .. py:method:: put(key, value)
-
-
-.. py:class:: ScaledDotProductAttention_v1(d_k)
-
-   Bases: :py:obj:`torch.nn.Module`
-
-
-   Scaled Dot-Product Attention module.
-
-   :param d_k: The dimension of the key and query vectors.
-   :type d_k: int
-
-
-   .. py:attribute:: d_k
-
-
-   .. py:method:: forward(Q, K, V)
-
-      Performs the forward pass of the attention mechanism.
-
-      :param Q: The query tensor of shape (batch_size, seq_len_q, d_k).
-      :type Q: torch.Tensor
-      :param K: The key tensor of shape (batch_size, seq_len_k, d_k).
-      :type K: torch.Tensor
-      :param V: The value tensor of shape (batch_size, seq_len_v, d_k).
-      :type V: torch.Tensor
-
-      :returns: The output tensor of shape (batch_size, seq_len_q, d_k).
-      :rtype: torch.Tensor
-
-
-
-.. py:class:: SelfAttention_v1(in_channels, d_k)
-
-   Bases: :py:obj:`torch.nn.Module`
-
-
-   Self-Attention module that applies scaled dot-product attention mechanism.
-
-   :param in_channels: Number of input channels.
-   :type in_channels: int
-   :param d_k: Dimensionality of the key and query vectors.
-   :type d_k: int
-
-
-   .. py:attribute:: W_q
-
-
-   .. py:attribute:: W_k
-
-
-   .. py:attribute:: W_v
-
-
-   .. py:attribute:: attention
-
-
-   .. py:method:: forward(x)
-
-      Forward pass of the SelfAttention module.
-
-      :param x: Input tensor of shape (batch_size, in_channels).
-      :type x: torch.Tensor
-
-      :returns: Output tensor of shape (batch_size, d_k).
-      :rtype: torch.Tensor
-
 
 
 .. py:class:: ScaledDotProductAttention(d_k)
@@ -501,7 +446,57 @@ Module Contents
    .. py:method:: forward(x)
 
 
-.. py:class:: TorchModel(model_name='resnet50', pretrained=True, dropout_rate=None, use_checkpoint=False)
+.. py:class:: TorchModel(model_name: str = 'resnet50', pretrained: bool = True, dropout_rate: Optional[float] = None, use_checkpoint: bool = False, num_classes: int = 2, multilabel: bool = False)
+
+   Bases: :py:obj:`torch.nn.Module`
+
+
+   Thin wrapper around TorchVision classification backbones that:
+     1) Loads a requested backbone with (optional) pretrained weights
+     2) Strips its classification head to expose features
+     3) Adds a simple Linear 'spacr' classifier with `num_classes` outputs
+     4) Optionally applies dropout before the final classifier
+     5) Supports gradient checkpointing
+   Works with most TorchVision **classification** models. Non-classification
+   (detection/segmentation) models are rejected with a clear error.
+
+
+   .. py:attribute:: model_name
+      :value: ''
+
+
+
+   .. py:attribute:: use_checkpoint
+      :value: False
+
+
+
+   .. py:attribute:: num_classes
+      :value: 2
+
+
+
+   .. py:attribute:: multilabel
+      :value: False
+
+
+
+   .. py:attribute:: use_dropout
+
+
+   .. py:attribute:: base_model
+
+
+   .. py:attribute:: num_ftrs
+
+
+   .. py:attribute:: spacr_classifier
+
+
+   .. py:method:: forward(x: torch.Tensor) -> torch.Tensor
+
+
+.. py:class:: TorchModel_v2(model_name: str = 'resnet50', pretrained: bool = True, dropout_rate: float = None, use_checkpoint: bool = False, num_classes: int = 2, multilabel: bool = False)
 
    Bases: :py:obj:`torch.nn.Module`
 
@@ -548,92 +543,53 @@ Module Contents
 
 
 
+   .. py:attribute:: num_classes
+      :value: 2
+
+
+
+   .. py:attribute:: multilabel
+      :value: False
+
+
+
    .. py:attribute:: base_model
 
 
    .. py:attribute:: num_ftrs
 
 
-   .. py:method:: apply_dropout_rate(model, dropout_rate)
-
-      Apply dropout rate to all dropout layers in the model.
+   .. py:method:: forward(x: torch.Tensor) -> torch.Tensor
 
 
-
-   .. py:method:: init_base_model(pretrained)
-
-      Initialize the base model from torchvision.models.
-
-
-
-   .. py:method:: get_weight_choice()
-
-      Get weight choice if it exists for the model.
-
-
-
-   .. py:method:: get_num_ftrs()
-
-      Determine the number of features output by the base model.
-
-
-
-   .. py:method:: init_spacr_classifier(dropout_rate)
-
-      Initialize the SPACR classifier.
-
-
-
-   .. py:method:: forward(x)
-
-      Define the forward pass of the model.
-
-
-
-.. py:class:: FocalLossWithLogits(alpha=1, gamma=2)
+.. py:class:: FocalLossWithLogits(alpha=1.0, gamma=2.0, reduction='mean')
 
    Bases: :py:obj:`torch.nn.Module`
 
 
-   Base class for all neural network modules.
+   Focal loss that works for:
+     - binary: logits shape (N,) or (N,1); target float (N,) in {0,1}
+     - multiclass (single-label): logits shape (N,C); target long (N,) in [0..C-1]
+     - multilabel: logits shape (N,C); target float (N,C) in {0,1}
 
-   Your models should also subclass this class.
-
-   Modules can also contain other Modules, allowing to nest them in
-   a tree structure. You can assign the submodules as regular attributes::
-
-       import torch.nn as nn
-       import torch.nn.functional as F
-
-       class Model(nn.Module):
-           def __init__(self):
-               super().__init__()
-               self.conv1 = nn.Conv2d(1, 20, 5)
-               self.conv2 = nn.Conv2d(20, 20, 5)
-
-           def forward(self, x):
-               x = F.relu(self.conv1(x))
-               return F.relu(self.conv2(x))
-
-   Submodules assigned in this way will be registered, and will have their
-   parameters converted too when you call :meth:`to`, etc.
-
-   .. note::
-       As per the example above, an ``__init__()`` call to the parent class
-       must be made before assignment on the child.
-
-   :ivar training: Boolean represents whether this module is in training or
-                   evaluation mode.
-   :vartype training: bool
-
-
-   .. py:attribute:: alpha
-      :value: 1
-
+   :param alpha: class balancing factor. If float for multiclass,
+                 applied uniformly; or provide a 1D tensor of shape (C,).
+   :type alpha: float or Tensor
+   :param gamma: focusing parameter.
+   :type gamma: float
+   :param reduction: 'mean'|'sum'|'none'
 
 
    .. py:attribute:: gamma
-      :value: 2
+
+
+   .. py:attribute:: reduction
+      :value: 'mean'
+
+
+
+   .. py:attribute:: alpha
+      :value: 1.0
 
 
 
@@ -726,36 +682,61 @@ Module Contents
    :rtype: float
 
 
-.. py:function:: choose_model(model_type, device, init_weights=True, dropout_rate=0, use_checkpoint=False, channels=3, height=224, width=224, chan_dict=None, num_classes=2, verbose=False)
+.. py:function:: choose_model(model_type: str, device: torch.device, init_weights: bool = True, dropout_rate: float = 0.0, use_checkpoint: bool = False, channels: int = 3, height: int = 224, width: int = 224, chan_dict: Optional[dict[str, Any]] = None, num_classes: int = 2, verbose: bool = False) -> Optional[torch.nn.Module]
 
-   Choose a model for classification.
+   Pick and configure a model for classification (binary or multiclass).
 
-   :param model_type: The type of model to choose. Can be one of the pre-defined TorchVision models or 'custom' for a custom model.
+   :param model_type: TorchVision model name (e.g. 'resnet50', 'vit_b_16', 'swin_t', 'maxvit_t') or 'custom'
+   :param device: Target device (caller will move the returned model)
+   :param init_weights: Load pretrained weights if available
+   :param dropout_rate: Dropout probability applied before the classifier head (None/0 to disable)
+   :param use_checkpoint: Enable gradient checkpointing for the backbone
+   :param channels: Input channels (TorchVision pretrained assumes 3; custom handling is up to caller)
+   :param height: Nominal input size for a forward sanity-check
+   :param width: Nominal input size for a forward sanity-check
+   :param chan_dict: Optional dict passed to a custom model (if you implement one)
+   :param num_classes: Number of output classes (>=2 => softmax-style head, ==1 => single-logit BCE head)
+   :param verbose: If True, print the model structure
+
+   :returns: nn.Module or None if invalid.
+
+
+.. py:function:: choose_model_v2(model_type, device, init_weights=True, dropout_rate=0.0, use_checkpoint=False, channels=3, height=224, width=224, chan_dict=None, num_classes=2, verbose=False)
+
+   Pick and configure a model for classification (binary or multiclass).
+
+   :param model_type: Any torchvision model name or 'custom'.
    :type model_type: str
-   :param device: The device to use for model inference.
-   :type device: str
-   :param init_weights: Whether to initialize the model with pre-trained weights. Defaults to True.
-   :type init_weights: bool, optional
-   :param dropout_rate: The dropout rate to use in the model. Defaults to 0.
-   :type dropout_rate: float, optional
-   :param use_checkpoint: Whether to use checkpointing during model training. Defaults to False.
-   :type use_checkpoint: bool, optional
-   :param channels: The number of input channels for the model. Defaults to 3.
-   :type channels: int, optional
-   :param height: The height of the input images for the model. Defaults to 224.
-   :type height: int, optional
-   :param width: The width of the input images for the model. Defaults to 224.
-   :type width: int, optional
-   :param chan_dict: A dictionary containing channel information for custom models. Defaults to None.
-   :type chan_dict: dict, optional
-   :param num_classes: The number of output classes for the model. Defaults to 2.
-   :type num_classes: int, optional
+   :param device: Device string (not used here; caller moves the model).
+   :type device: torch.device or str
+   :param init_weights: Load pretrained weights where supported.
+   :type init_weights: bool
+   :param dropout_rate: Dropout probability to apply inside the backbone head.
+   :type dropout_rate: float
+   :param use_checkpoint: Enable gradient checkpointing (if model supports it).
+   :type use_checkpoint: bool
+   :param channels: Input channel count (not used by TorchVision backbones).
+   :type channels: int
+   :param height: Nominal input size (not strictly required here).
+   :type height: int
+   :param width: Nominal input size (not strictly required here).
+   :type width: int
+   :param chan_dict: For 'custom' models (e.g. pathogen_channel, etc.).
+   :type chan_dict: dict|None
+   :param num_classes: Number of output classes (>=2 for multiclass; ==1 for BCE).
+   :type num_classes: int
 
-   :returns: The chosen model.
-   :rtype: torch.nn.Module
+   :returns: nn.Module
 
 
-.. py:function:: calculate_loss(output, target, loss_type='binary_cross_entropy_with_logits')
+.. py:function:: calculate_loss(output, target, prefer_focal=False, gamma=2.0, alpha=1.0, reduction='mean')
+
+   Auto-select loss for binary, multiclass, or multilabel based on shapes/dtypes.
+
+   - Binary: logits (N,1), float targets in {0,1}  -> BCEWithLogits / focal-BCE
+   - Multiclass: logits (N,C), long targets (N,)   -> CrossEntropy / focal-CE
+   - Multilabel: logits (N,C), float targets (N,C) -> BCEWithLogits / focal-BCE
+
 
 .. py:function:: pick_best_model(src)
 
@@ -766,6 +747,117 @@ Module Contents
 .. py:function:: augment_single_image(args)
 
 .. py:function:: augment_images(file_paths, dst)
+
+.. py:function:: suggest_training_changes(dst, train_csv=None, val_csv=None, last_k=25, min_epochs=10, gap_threshold_acc=0.05, plateau_eps=0.001, noisy_var_ratio=0.03)
+
+   Analyze saved training/validation progress CSVs and propose concrete training changes.
+
+   :param dst: Folder where progress CSVs were saved.
+   :type dst: str
+   :param train_csv: Optional explicit path to train CSV. Autodetected if None.
+   :type train_csv: str|None
+   :param val_csv: Optional explicit path to val CSV. Autodetected if None.
+   :type val_csv: str|None
+   :param last_k: How many recent epochs to use for trend/plateau checks.
+   :type last_k: int
+   :param min_epochs: Minimum epochs before issuing most suggestions.
+   :type min_epochs: int
+   :param gap_threshold_acc: Accuracy generalization gap threshold (train - val).
+   :type gap_threshold_acc: float
+   :param plateau_eps: Absolute slope threshold (|d loss / d epoch|) to call a plateau.
+   :type plateau_eps: float
+   :param noisy_var_ratio: If stdev(val_loss_last_k) > noisy_var_ratio * mean(val_loss_last_k), flag instability.
+   :type noisy_var_ratio: float
+
+   :returns:     - summary: dict of key scalars (best_epoch, best_val_loss, final metrics, slopes, gaps)
+                 - flags: list of short machine-readable flags
+                 - suggestions: list of concrete, ordered suggestions (strings)
+   :rtype: dict with keys
+
+
+.. py:function:: suggest_training_changes(dst, train_csv=None, val_csv=None, last_k=25, min_epochs=10, gap_threshold_acc=0.05, plateau_eps=0.001, noisy_var_ratio=0.03)
+
+   Analyze saved training/validation progress CSVs and propose concrete training changes.
+
+   :param dst: Folder where progress CSVs were saved.
+   :type dst: str
+   :param train_csv: Optional explicit path to train CSV. Autodetected if None.
+   :type train_csv: str|None
+   :param val_csv: Optional explicit path to val CSV. Autodetected if None.
+   :type val_csv: str|None
+   :param last_k: How many recent epochs to use for trend/plateau checks.
+   :type last_k: int
+   :param min_epochs: Minimum epochs before issuing most suggestions.
+   :type min_epochs: int
+   :param gap_threshold_acc: Accuracy generalization gap threshold (train - val).
+   :type gap_threshold_acc: float
+   :param plateau_eps: Absolute slope threshold (|d loss / d epoch|) to call a plateau.
+   :type plateau_eps: float
+   :param noisy_var_ratio: If stdev(val_loss_last_k) > noisy_var_ratio * mean(val_loss_last_k), flag instability.
+   :type noisy_var_ratio: float
+
+   :returns:     - summary: dict of key scalars (best_epoch, best_val_loss, final metrics, slopes, gaps)
+                 - flags: list of short machine-readable flags
+                 - suggestions: list of concrete, ordered suggestions (strings)
+   :rtype: dict with keys
+
+
+.. py:function:: suggest_training_changes_v1(dst, train_csv=None, val_csv=None, last_k=25, min_epochs=10, gap_threshold_acc=0.05, plateau_eps=0.001, noisy_var_ratio=0.03)
+
+   Analyze saved training/validation progress CSVs and propose concrete training changes.
+
+   :param dst: Folder where progress CSVs were saved.
+   :type dst: str
+   :param train_csv: Optional explicit path to train CSV. Autodetected if None.
+   :type train_csv: str|None
+   :param val_csv: Optional explicit path to val CSV. Autodetected if None.
+   :type val_csv: str|None
+   :param last_k: How many recent epochs to use for trend/plateau checks.
+   :type last_k: int
+   :param min_epochs: Minimum epochs before issuing most suggestions.
+   :type min_epochs: int
+   :param gap_threshold_acc: Accuracy generalization gap threshold (train - val).
+   :type gap_threshold_acc: float
+   :param plateau_eps: Absolute slope threshold (|d loss / d epoch|) to call a plateau.
+   :type plateau_eps: float
+   :param noisy_var_ratio: If stdev(val_loss_last_k) > noisy_var_ratio * mean(val_loss_last_k), flag instability.
+   :type noisy_var_ratio: float
+
+   :returns:     - summary: dict of key scalars (best_epoch, best_val_loss, final metrics, slopes, gaps)
+                 - flags: list of short machine-readable flags
+                 - suggestions: list of concrete, ordered suggestions (strings)
+   :rtype: dict with keys
+
+
+.. py:function:: estimate_class_counts_v1(loader, num_classes: int) -> torch.Tensor
+
+   One cheap pass on CPU over labels to get global class counts.
+
+
+.. py:function:: estimate_class_counts(loader, num_classes: int, src=None, classes=None) -> torch.Tensor
+
+   Get per-class sample counts.
+
+   If src and classes are provided, counts files in the class folders
+   directly — no image loading, no DataLoader iteration. This avoids
+   stalls on slow filesystems (NAS) and potential deadlocks with
+   persistent_workers.
+
+   Falls back to iterating the DataLoader only if folder info is missing.
+
+
+.. py:function:: build_loss(loss_type: str = 'ce', num_classes: int = 2, class_counts: Optional[torch.Tensor] = None, label_smoothing: float = 0.0, focal_gamma: float = 2.0, focal_alpha: Optional[float] = None, logit_adjust_tau: float = 0.0, asl_gamma_pos: float = 0.0, asl_gamma_neg: float = 4.0, asl_clip: float = 0.05)
+
+   Returns a closure loss_fn(logits, target).  Python 3.9+ compatible.
+   Supported loss_type:
+     'ce', 'ce_smooth', 'ce_weighted', 'focal_ce',
+     'bce', 'focal_bce', 'logit_adjust_ce', 'asl', 'auto'
+
+   .. rubric:: Notes
+
+   - num_classes==1 -> binary (BCE variants)
+   - num_classes>=2 -> multiclass (CE variants)
+
 
 .. py:function:: augment_classes(dst, nc, pc, generate=True, move=True)
 
@@ -856,8 +948,6 @@ Module Contents
 
    .. py:attribute:: channels
 
-
-.. py:function:: preprocess_image_v1(image_path, image_size=224, channels=[1, 2, 3], normalize=True)
 
 .. py:class:: SaliencyMapGenerator(model)
 
@@ -963,8 +1053,6 @@ Module Contents
 .. py:function:: load_image_paths(c, visualize)
 
 .. py:function:: merge_dataframes(df, image_paths_df, verbose)
-
-.. py:function:: remove_highly_correlated_columns_v1(df, threshold)
 
 .. py:function:: filter_columns(df, filter_by)
 
@@ -1145,22 +1233,13 @@ Module Contents
    and Kruskal-Wallis for non-normally distributed features. Combine results into a single DataFrame.
 
 
-.. py:function:: adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, overlap_threshold=5, perimeter_threshold=30)
+.. py:function:: process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nuclei_folder, organelle_folder=None, overlap_threshold=5, perimeter_threshold=30)
 
-   Process all npy files in the given folders. Merge and relabel cells in cell masks
-   based on parasite overlap and cell perimeter sharing conditions.
+.. py:function:: adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_folder=None, overlap_threshold=5, perimeter_threshold=30, n_jobs=None)
 
-   :param parasite_folder: Path to the folder containing parasite masks.
-   :type parasite_folder: str
-   :param cell_folder: Path to the folder containing cell masks.
-   :type cell_folder: str
-   :param nuclei_folder: Path to the folder containing nuclei masks.
-   :type nuclei_folder: str
-   :param overlap_threshold: The percentage threshold for merging cells based on parasite overlap.
-   :type overlap_threshold: float
-   :param perimeter_threshold: The percentage threshold for merging cells based on shared perimeter.
-   :type perimeter_threshold: float
+.. py:function:: process_mask_file_adjust_cell_v1(file_name, parasite_folder, cell_folder, nuclei_folder, organelle_folder, overlap_threshold, perimeter_threshold)
 
+.. py:function:: adjust_cell_masks_v1(parasite_folder, cell_folder, nuclei_folder, organelle_folder, overlap_threshold=5, perimeter_threshold=30, n_jobs=None)
 
 .. py:function:: process_masks(mask_folder, image_folder, channel, batch_size=50, n_clusters=2, plot=False)
 

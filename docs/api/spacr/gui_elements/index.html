@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.gui_elements &mdash; spacr 1.0.1 documentation</title>
+  <title>spacr.gui_elements &mdash; spacr 1.2.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
@@ -15,7 +15,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../../_static/documentation_options.js?v=36f53d34"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -66,12 +66,14 @@
 <li class="toctree-l4"><a class="reference internal" href="../logger/index.html">spacr.logger</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../measure/index.html">spacr.measure</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../ml/index.html">spacr.ml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../object/index.html">spacr.object</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../plot/index.html">spacr.plot</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sequencing/index.html">spacr.sequencing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../settings/index.html">spacr.settings</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sim/index.html">spacr.sim</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sp_stats/index.html">spacr.sp_stats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spacrops/index.html">spacr.spacrops</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../submodules/index.html">spacr.submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../timelapse/index.html">spacr.timelapse</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../toxo/index.html">spacr.toxo</a></li>
@@ -1548,7 +1550,7 @@ together.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">AnnotateApp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'annotate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percentiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">99)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outline_threshold_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outline_sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacr.gui_elements.</span></span><span class="sig-name descname"><span class="pre">AnnotateApp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'annotate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percentiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">99)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outline_threshold_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outline_sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_transparency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp" title="Link to this definition"></a></dt>
 <dd><dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.root">
 <span class="sig-name descname"><span class="pre">root</span></span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.root"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.root" title="Link to this definition"></a></dt>
@@ -1570,6 +1572,11 @@ together.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.SENTINEL">
+<span class="sig-name descname"><span class="pre">SENTINEL</span></span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.SENTINEL"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.SENTINEL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.orig_annotation_columns">
 <span class="sig-name descname"><span class="pre">orig_annotation_columns</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'annotate'</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.orig_annotation_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.orig_annotation_columns" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -1587,11 +1594,6 @@ together.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.channels">
 <span class="sig-name descname"><span class="pre">channels</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.channels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.channels" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.normalize">
-<span class="sig-name descname"><span class="pre">normalize</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.normalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.normalize" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1660,6 +1662,26 @@ together.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.edge_thickness">
+<span class="sig-name descname"><span class="pre">edge_thickness</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.edge_thickness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.edge_thickness" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.edge_transparency">
+<span class="sig-name descname"><span class="pre">edge_transparency</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">100</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.edge_transparency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.edge_transparency" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.edge_image">
+<span class="sig-name descname"><span class="pre">edge_image</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.edge_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.edge_image" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.object_size">
+<span class="sig-name descname"><span class="pre">object_size</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(0,</span> <span class="pre">0)</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.object_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.object_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.font_loader">
 <span class="sig-name descname"><span class="pre">font_loader</span></span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.font_loader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.font_loader" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -1690,6 +1712,11 @@ together.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.worker_busy">
+<span class="sig-name descname"><span class="pre">worker_busy</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.worker_busy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.worker_busy" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.filtered_paths_annotations">
 <span class="sig-name descname"><span class="pre">filtered_paths_annotations</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.filtered_paths_annotations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.filtered_paths_annotations" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -1697,6 +1724,11 @@ together.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.db_update_thread">
 <span class="sig-name descname"><span class="pre">db_update_thread</span></span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.db_update_thread"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.db_update_thread" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.grid_frame">
+<span class="sig-name descname"><span class="pre">grid_frame</span></span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.grid_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.grid_frame" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1725,18 +1757,28 @@ together.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.train_button">
-<span class="sig-name descname"><span class="pre">train_button</span></span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.train_button"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.train_button" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.settings_button">
 <span class="sig-name descname"><span class="pre">settings_button</span></span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.settings_button"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.settings_button" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.grid_frame">
-<span class="sig-name descname"><span class="pre">grid_frame</span></span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.grid_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.grid_frame" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.clear_button">
+<span class="sig-name descname"><span class="pre">clear_button</span></span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.clear_button"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.clear_button" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.count_button">
+<span class="sig-name descname"><span class="pre">count_button</span></span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.count_button"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.count_button" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.dl_train_button">
+<span class="sig-name descname"><span class="pre">dl_train_button</span></span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.dl_train_button"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.dl_train_button" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.open_umap_window">
+<span class="sig-name descname"><span class="pre">open_umap_window</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.open_umap_window"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.open_umap_window" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1752,6 +1794,11 @@ together.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.recreate_image_grid">
 <span class="sig-name descname"><span class="pre">recreate_image_grid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.recreate_image_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.recreate_image_grid" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.update_display">
+<span class="sig-name descname"><span class="pre">update_display</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.update_display"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.update_display" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1775,37 +1822,62 @@ together.</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.show_class_counts">
+<span class="sig-name descname"><span class="pre">show_class_counts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.show_class_counts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.show_class_counts" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.load_single_image">
 <span class="sig-name descname"><span class="pre">load_single_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_annotation_tuple</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.load_single_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.load_single_image" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.fill_holes">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fill_holes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.fill_holes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.fill_holes" title="Link to this definition"></a></dt>
+<dd><p>Fill holes inside True regions of a binary mask.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mask</strong> (<em>ndarray</em><em>[</em><em>bool</em><em>]</em>) – Binary mask where True denotes foreground.</p></li>
+<li><p><strong>min_size</strong> (<em>int</em>) – Minimum hole area to fill (in pixels).
+- &lt;= 0 : fill ALL internal holes.
+-  &gt; 0 : fill only holes smaller than min_size; reopen larger ones.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Hole-filled mask.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.outline_image">
-<span class="sig-name descname"><span class="pre">outline_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.outline_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.outline_image" title="Link to this definition"></a></dt>
-<dd><p>For each selected channel, compute a continuous outline from the intensity landscape
-using Otsu threshold scaled by a correction factor. Replace only that channel.</p>
+<span class="sig-name descname"><span class="pre">outline_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_holes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.outline_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.outline_image" title="Link to this definition"></a></dt>
+<dd><p>Anti-aliased outlines with sub-pixel thickness that never get dimmer as they get thinner.
+Uses peak normalization so outline brightness is thickness-invariant (then scaled only by edge_transparency).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_img</strong> (<em>PIL.Image</em>) – already filtered (visible base)</p></li>
+<li><p><strong>full_img</strong> (<em>PIL.Image</em>) – normalized RGB before filtering (edge detection / underlay)</p></li>
+<li><p><strong>edge_sigma</strong> (<em>float</em>) – Gaussian smoothing before thresholding</p></li>
+<li><p><strong>edge_thickness</strong> (<em>float</em>) – outline thickness in output pixels (supports &lt; 1, e.g. 0.01)</p></li>
+<li><p><strong>fill_holes</strong> (<em>bool</em>) – fill internal holes in foreground masks before boundary extraction</p></li>
+<li><p><strong>object_size</strong> (<em>tuple</em><em>[</em><em>int</em><em>,</em><em>int</em><em>]</em>) – (min_px, max_px) connected-component area filter.
+0 disables that bound.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.normalize_image">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">normalize_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percentiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">99)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.normalize_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.normalize_image" title="Link to this definition"></a></dt>
-<dd><p>Normalize an image based on specific channels (R, G, B).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>img</strong> (<em>PIL.Image</em><em> or </em><em>np.array</em>) – Input image.</p></li>
-<li><p><strong>normalize</strong> (<em>bool</em>) – Whether to normalize the image or not.</p></li>
-<li><p><strong>percentiles</strong> (<em>tuple</em>) – Percentiles to use for intensity rescaling.</p></li>
-<li><p><strong>normalize_channels</strong> (<em>list</em>) – List of channels to normalize. E.g., [‘r’, ‘g’, ‘b’], [‘r’], [‘g’], etc.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Normalized image.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>PIL.Image</p>
-</dd>
-</dl>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">normalize_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percentiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">99)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.normalize_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.normalize_image" title="Link to this definition"></a></dt>
+<dd><p>If normalize_channels is None or [], do nothing.
+Otherwise normalize only those channels (r/g/b).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1829,13 +1901,18 @@ using Otsu threshold scaled by a correction factor. Replace only that channel.</
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.clear_current_annotation">
+<span class="sig-name descname"><span class="pre">clear_current_annotation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.clear_current_annotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.clear_current_annotation" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.update_database_worker">
 <span class="sig-name descname"><span class="pre">update_database_worker</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.update_database_worker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.update_database_worker" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.update_gui_text">
-<span class="sig-name descname"><span class="pre">update_gui_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.update_gui_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.update_gui_text" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.shutdown">
+<span class="sig-name descname"><span class="pre">shutdown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.shutdown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.shutdown" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1849,8 +1926,8 @@ using Otsu threshold scaled by a correction factor. Replace only that channel.</
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.shutdown">
-<span class="sig-name descname"><span class="pre">shutdown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.shutdown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.shutdown" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.update_gui_text">
+<span class="sig-name descname"><span class="pre">update_gui_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.update_gui_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.update_gui_text" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1858,15 +1935,51 @@ using Otsu threshold scaled by a correction factor. Replace only that channel.</
 <span class="sig-name descname"><span class="pre">train_and_classify</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.train_and_classify"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.train_and_classify" title="Link to this definition"></a></dt>
 <dd><ol class="arabic simple">
 <li><p>Merge data from the relevant DB tables (including png_list).</p></li>
-<li><p>Collect manual annotations from png_list.&lt;annotation_column&gt; =&gt; ‘manual_annotation’.
-- 1 =&gt; class=1, 2 =&gt; class=0 (for training).</p></li>
-<li><p>If only one class is present, randomly sample unannotated images as the other class.</p></li>
-<li><p>Train an XGBoost model.</p></li>
-<li><p>Classify <em>all</em> rows -&gt; fill XGboost_score (prob of class=1) &amp; XGboost_annotation (1 or 2 if high confidence).</p></li>
-<li><p>Write those columns back to sqlite, so every row in png_list has a score (and possibly an annotation).</p></li>
-<li><p>Refresh the UI (prefilter_paths_annotations + load_images).</p></li>
 </ol>
+<p>2) Collect manual annotations from png_list.&lt;annotation_column&gt; =&gt; ‘manual_annotation’.
+- 1 =&gt; class=1, 2 =&gt; class=0 (for training).
+3) If only one class is present, randomly sample unannotated images as the other class.
+4) Train an XGBoost model.
+5) Classify <em>all</em> rows -&gt; fill XGboost_score (prob of class=1) &amp; XGboost_annotation (1 or 2 if high confidence).
+6) Write those columns back to sqlite.
+7) Refresh the UI.</p>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.convert_settings_dict_for_gui">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">convert_settings_dict_for_gui</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.convert_settings_dict_for_gui"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.convert_settings_dict_for_gui" title="Link to this definition"></a></dt>
+<dd><p>Decide widget type per setting:
+- ‘check’  =&gt; Checkbutton (bools)
+- ‘combo’  =&gt; readonly Combobox (predefined choices)
+- ‘entry’  =&gt; Entry (free text / numbers / lists)
+Returns: {key: (kind, options, initial)}</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.build_multi_annotation">
+<span class="sig-name descname"><span class="pre">build_multi_annotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'multi_annot'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.build_multi_annotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.build_multi_annotation" title="Link to this definition"></a></dt>
+<dd><p>Consolidate multiple {1,2,NULL} columns into a single integer code column.
+Unique per combination. If all inputs NULL -&gt; store NULL.
+Sets self.annotation_column to target_column and refreshes UI.</p>
+<p>Encoding:
+per col: NULL-&gt;0, 1-&gt;1, 2-&gt;2
+code = 1 + sum( digit_i * (3^i) ), i = 0..N-1
+(all digits 0) =&gt; store NULL instead of 1</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.ensure_multi_annot_from_selection">
+<span class="sig-name descname"><span class="pre">ensure_multi_annot_from_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'class_column'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_rebuild</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.ensure_multi_annot_from_selection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.ensure_multi_annot_from_selection" title="Link to this definition"></a></dt>
+<dd><p>If one column selected -&gt; use it directly (no consolidation).
+If &gt;=2 selected -&gt; build a consolidated column. If target_column already exists,
+auto-bump to target_column_1, target_column_2, … and use that actual name everywhere.</p>
+<p>Returns the effective annotation column name.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacr.gui_elements.AnnotateApp.open_deep_spacr_window">
+<span class="sig-name descname"><span class="pre">open_deep_spacr_window</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/gui_elements.html#AnnotateApp.open_deep_spacr_window"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.gui_elements.AnnotateApp.open_deep_spacr_window" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

@@ -45,21 +45,6 @@ Module Contents
 
 
 
-.. py:function:: gini_V1(x)
-
-   Calculate the Gini coefficient for a given array of values.
-
-   Parameters:
-   x (array-like): Input array of values.
-
-   Returns:
-   float: The Gini coefficient.
-
-   Notes:
-   This implementation has a time and memory complexity of O(n**2), where n is the length of x.
-   Avoid passing in large samples to prevent performance issues.
-
-
 .. py:function:: gini_gene_well(x)
 
    Calculate the Gini coefficient for a given income distribution.

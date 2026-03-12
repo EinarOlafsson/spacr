@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.sim &mdash; spacr 1.0.1 documentation</title>
+  <title>spacr.sim &mdash; spacr 1.2.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../_static/documentation_options.js?v=36f53d34"></script>
       <script src="../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -63,12 +63,14 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/logger/index.html">spacr.logger</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/measure/index.html">spacr.measure</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/ml/index.html">spacr.ml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/object/index.html">spacr.object</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/plot/index.html">spacr.plot</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sequencing/index.html">spacr.sequencing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/settings/index.html">spacr.settings</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sim/index.html">spacr.sim</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sp_stats/index.html">spacr.sp_stats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/spacrops/index.html">spacr.spacrops</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/submodules/index.html">spacr.submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/timelapse/index.html">spacr.timelapse</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/toxo/index.html">spacr.toxo</a></li>
@@ -181,31 +183,6 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">diffsum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">)))</span>
     <span class="k">return</span> <span class="n">diffsum</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="gini_V1">
-<a class="viewcode-back" href="../../api/spacr/sim/index.html#spacr.sim.gini_V1">[docs]</a>
-<span class="k">def</span> <span class="nf">gini_V1</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calculate the Gini coefficient for a given array of values.</span>
-
-<span class="sd">    Parameters:</span>
-<span class="sd">    x (array-like): Input array of values.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">    float: The Gini coefficient.</span>
-
-<span class="sd">    Notes:</span>
-<span class="sd">    This implementation has a time and memory complexity of O(n**2), where n is the length of x.</span>
-<span class="sd">    Avoid passing in large samples to prevent performance issues.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Mean absolute difference</span>
-    <span class="n">mad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-    <span class="c1"># Relative mean absolute difference</span>
-    <span class="n">rmad</span> <span class="o">=</span> <span class="n">mad</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-    <span class="c1"># Gini coefficient</span>
-    <span class="n">g</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">rmad</span>
-    <span class="k">return</span> <span class="n">g</span></div>
 
 
 <div class="viewcode-block" id="gini_gene_well">
