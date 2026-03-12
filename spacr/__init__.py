@@ -38,6 +38,7 @@ from . import toxo
 from . import spacr_cellpose
 from . import sp_stats
 from . import spacrops
+from . import object
 from . import logger
 
 __all__ = [
@@ -69,6 +70,7 @@ __all__ = [
     "spacr_cellpose",
     "sp_stats",
     "spacrops",
+    "object",
     "logger"
 ]
 

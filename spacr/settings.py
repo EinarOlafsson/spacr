@@ -129,6 +129,36 @@ def set_default_settings_preprocess_generate_masks(settings={}):
     settings.setdefault('organelle_CP_prob', 0.0)
     settings.setdefault('organelle_FT', 0.4)
     settings.setdefault('organelle_resample', True)
+    
+    # Preprocessing
+    settings.setdefault('organelle_rolling_ball', False)
+    settings.setdefault('organelle_rolling_ball_radius', 50)
+    settings.setdefault('organelle_clahe', False)
+    settings.setdefault('organelle_clahe_clip_limit', 0.01)
+    settings.setdefault('organelle_mask_within_cells', False)
+
+    # DoG (spots)
+    settings.setdefault('organelle_dog_sigma_low', 1.0)
+    settings.setdefault('organelle_dog_sigma_high', 3.0)
+
+    # Stardist (spots)
+    settings.setdefault('organelle_stardist_model', '2D_versatile_fluo')
+    settings.setdefault('organelle_stardist_prob', 0.5)
+    settings.setdefault('organelle_stardist_nms', 0.3)
+
+    # Hysteresis (network)
+    settings.setdefault('organelle_hysteresis_low', 0.2)
+    settings.setdefault('organelle_hysteresis_high', 0.6)
+
+    # U-Net (network)
+    settings.setdefault('organelle_unet_model_path', None)
+    settings.setdefault('organelle_unet_threshold', 0.5)
+
+    # Ring
+    settings.setdefault('organelle_ring_sigma_inner', 1.0)
+    settings.setdefault('organelle_ring_sigma_outer', 3.0)
+    settings.setdefault('organelle_ring_min_prominence', 0.1)
+    settings.setdefault('organelle_ring_fill_method', 'flood')
 
     return settings
 
@@ -1151,12 +1181,25 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel",  "test_mode", "plot", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "delete_intermediate", "uninfected", ],
              "Cellpose":["fill_in","from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
              "Cell": ["cell_diamiter","cell_intensity_range", "cell_size_range", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cytoplasm_min_size", "adjust_cells", "cells", "cell_loc"],
-             "Organelle": ["organelle_mask_dim","organelle_chann_dim","organelle_channel","organelle_morphology","organelle_method", "organelle_diameter","organelle_min_size","organelle_max_size","organelle_remove_border"],
-             "Organelle spot detection": ["organelle_tophat_radius","organelle_watershed_spots","organelle_log_min_sigma","organelle_log_max_sigma","organelle_log_num_sigma","organelle_log_threshold"],
-             "Organelle network detection": ["organelle_ridge_filter","organelle_ridge_sigmas","organelle_skeletonize","organelle_network_threshold"],
-             "Organelle irregular detection": ["organelle_morph_radius","organelle_fill_holes"],
-             "Organelle cellpose": ["organelle_model_name","organelle_CP_prob","organelle_FT","organelle_resample"],
-             "Organelle adaptive threshold": ["organelle_adaptive_block_size","organelle_adaptive_offset"],             
+             #"Organelle": ["organelle_mask_dim","organelle_chann_dim","organelle_channel","organelle_morphology","organelle_method", "organelle_diameter","organelle_min_size","organelle_max_size","organelle_remove_border"],
+             #"Organelle spot detection": ["organelle_tophat_radius","organelle_watershed_spots","organelle_log_min_sigma","organelle_log_max_sigma","organelle_log_num_sigma","organelle_log_threshold"],
+             #"Organelle network detection": ["organelle_ridge_filter","organelle_ridge_sigmas","organelle_skeletonize","organelle_network_threshold"],
+             #"Organelle irregular detection": ["organelle_morph_radius","organelle_fill_holes"],
+             #"Organelle cellpose": ["organelle_model_name","organelle_CP_prob","organelle_FT","organelle_resample"],
+             #"Organelle adaptive threshold": ["organelle_adaptive_block_size","organelle_adaptive_offset"],             
+             
+             
+            "Organelle": ["organelle_mask_dim", "organelle_chann_dim", "organelle_channel", "organelle_morphology", "organelle_method", "organelle_diameter", "organelle_min_size", "organelle_max_size", "organelle_remove_border"],
+            "Organelle preprocessing": ["organelle_rolling_ball", "organelle_rolling_ball_radius", "organelle_clahe", "organelle_clahe_clip_limit", "organelle_mask_within_cells"],
+            "Organelle spot detection": ["organelle_tophat_radius", "organelle_watershed_spots", "organelle_log_min_sigma", "organelle_log_max_sigma", "organelle_log_num_sigma", "organelle_log_threshold", "organelle_dog_sigma_low", "organelle_dog_sigma_high"],
+            "Organelle network detection": ["organelle_ridge_filter", "organelle_ridge_sigmas", "organelle_skeletonize", "organelle_network_threshold", "organelle_hysteresis_low", "organelle_hysteresis_high"],
+            "Organelle ring detection": ["organelle_ring_sigma_inner", "organelle_ring_sigma_outer", "organelle_ring_min_prominence", "organelle_ring_fill_method"],
+            "Organelle irregular detection": ["organelle_morph_radius", "organelle_fill_holes"],
+            "Organelle cellpose": ["organelle_model_name", "organelle_CP_prob", "organelle_FT", "organelle_resample"],
+            "Organelle stardist": ["organelle_stardist_model", "organelle_stardist_prob", "organelle_stardist_nms"],
+            "Organelle unet": ["organelle_unet_model_path", "organelle_unet_threshold"],
+            "Organelle adaptive threshold": ["organelle_adaptive_block_size", "organelle_adaptive_offset"],
+             
              "Nucleus": ["nucleus_diamiter","nucleus_intensity_range", "nucleus_size_range", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_loc"],
              "Pathogen": ["pathogen_diamiter","pathogen_intensity_range", "pathogen_size_range", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogens", "pathogen_loc", "pathogen_types", "pathogen_plate_metadata", ],
              "Measurements": ["remove_image_canvas", "remove_highly_correlated", "homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements", "tables", "image_nr", "dot_size", "filter_by", "remove_highly_correlated_features", "remove_low_variance_features", "channel_of_interest"],
@@ -1355,7 +1398,6 @@ def generate_fields(variables, scrollable_frame):
         "offset": "(int) - Offset from target_sequence to the first barcode, e.g. -8 if the barcode starts 8 bases upstream.",
         "expected_end": "(int) - Expected total sequence length from the start of the first barcode to the end of the last barcode.",
         "infection_intensity_qc_scope": "(str) - Scope for infection QC analysis: 'combined' (default, all data), 'plate', 'well', or 'none'/'off' to disable.",
-        
         "adjust_cells": "(bool) - Adjust cell parameters for better segmentation.",
         "agg_type": "(str) - Type of aggregation to use for the data.",
         "alpha": "(float) - Alpha parameter for the regression model.",
@@ -1578,9 +1620,7 @@ def generate_fields(variables, scrollable_frame):
         "use_sam_cell": "(bool) - Whether to use SAM for cell segmentation.",
         "use_sam_nucleus": "(bool) - Whether to use SAM for nucleus segmentation.",
         "use_sam_pathogen": "(bool) - Whether to use SAM for pathogen segmentation.",
-
         "distance_gaussian_sigma": "(int or None) - Standard deviation of the Gaussian kernel used to smooth distance-based features; set to None to disable Gaussian smoothing.",
-
         "infection_xgb_n_estimators": "(int) - Number of trees (estimators) in the XGBoost infection classifier.",
         "infection_xgb_max_depth": "(int) - Maximum depth of each tree in the XGBoost infection classifier.",
         "infection_xgb_learning_rate": "(float) - Learning rate (eta) for the XGBoost infection classifier.",
@@ -1589,7 +1629,6 @@ def generate_fields(variables, scrollable_frame):
         "infection_xgb_reg_lambda": "(float) - L2 regularization parameter (lambda) for the XGBoost infection classifier.",
         "infection_xgb_random_state": "(int) - Random seed for the XGBoost infection classifier.",
         "infection_xgb_n_jobs": "(int) - Number of parallel threads used by the XGBoost infection classifier.",
-
         "infection_xgb_proba_threshold": "(float) - Probability threshold used to classify cells as infected vs uninfected.",
         "infection_xgb_margin": "(float) - Half-width of the ambiguous probability interval around the infection probability threshold.",
         "infection_xgb_top_features": "(int) - Number of top-ranked features to keep / display from the XGBoost feature-importance analysis.",
@@ -1599,16 +1638,13 @@ def generate_fields(variables, scrollable_frame):
         "infection_xgb_ambiguous_low": "(float) - Lower bound of the ambiguous infection probability interval.",
         "infection_xgb_ambiguous_high": "(float) - Upper bound of the ambiguous infection probability interval.",
         "infection_xgb_min_cells_per_class": "(int) - Minimum number of cells required per infection class for downstream analyses.",
-
         "infection_pca_method": "(str) - Method used for PCA/embedding of infection features (e.g. 'pca', 'umap').",
         "infection_pca_n_clusters": "(int) - Number of clusters to compute in the infection feature space.",
         "infection_pca_random_state": "(int) - Random seed used for clustering / embedding of infection features.",
-
         "motility_ylim": "(tuple) - y-axis limits (min, max) for motility plots (e.g. velocity).",
         "motility_xlim": "(tuple) - x-axis limits (min, max) for motility plots (e.g. time or frame index).",
         "seconds_per_frame": "(int) - Time in seconds between consecutive frames in the timelapse.",
         "pixels_per_um": "(float) - Conversion factor from micrometers to pixels (px/µm) used for motility measurements.",
-
         "infection_intensity_n_bins": "(int) - Number of bins used for infection intensity histograms / radial plots.",
         "db_table_name": "(str) - Name of the SQLite table used to store measurements.",
         "infection_intensity_qc_graphs": "(bool) - Generate infection-intensity quality-control graphs.",
@@ -1616,7 +1652,6 @@ def generate_fields(variables, scrollable_frame):
         "infection_intensity_mode": "(str) - Mode for computing infection intensity (e.g. per cell, per track, per well).",
         "infection_intensity_strategy": "(str) - Strategy for curating infection status (xgboost, histogram, pca, umap, tsne).",
         "infection_intensity_qc": "(bool) - Enable additional quality-control checks for infection-intensity data.",
-
         "straightness_threshold": "(float) - Minimum straightness value required for tracks to be kept (0–1).",
         "straightness_filter": "(bool) - Filter tracks based on the straightness_threshold.",
         "zscore_thresh": "(float) - Absolute z-score threshold used to flag and remove motility outliers.",
@@ -1638,7 +1673,6 @@ def generate_fields(variables, scrollable_frame):
         "infection_pca_min_silhouette": "(float) - Minimum mean silhouette score required to accept the clustering.",
         "infection_pca_min_gt_separation": "(float) - Minimum required separation between ground-truth infection classes in the embedding.",
         "infection_pca_max_cells": "(int) - Maximum number of cells to subsample for PCA/UMAP/t-SNE to limit runtime and memory use.",
-        
         'organelle_channel': "(int) - The channel index in the image stack for the organelle signal.",
         'organelle_morphology': "(str) - Morphology mode for segmentation: 'spots' (punctate, e.g. lipid droplets, vesicles), 'network' (filamentous, e.g. mitochondria, microtubules), or 'irregular' (e.g. Golgi, ER cisternae).",
         'organelle_method': "(str) - Segmentation backend. Valid options depend on morphology: spots → 'otsu','adaptive','log','cellpose'; network → 'otsu','adaptive','ridge','cellpose'; irregular → 'otsu','adaptive','cellpose'.",
@@ -1666,6 +1700,24 @@ def generate_fields(variables, scrollable_frame):
         'organelle_resample': "(bool) - Whether Cellpose resamples the image to match the specified diameter.",
         'organelle_mask_dim': "(int) - The dimension of the array the organelle mask is saved in (array order: channels, cell, nucleus, pathogen, organelle, cytoplasm). Array starts at dimension 0.",
         'organelle_chann_dim': "(int) - The channel dimension index for organelle masks in the saved array.",
+        'organelle_rolling_ball': "(bool) - Apply rolling ball background subtraction before segmentation. Corrects uneven illumination across the FOV.",
+        'organelle_rolling_ball_radius': "(int) - Radius in pixels for the rolling ball filter. Should be larger than the largest organelle but smaller than illumination gradients.",
+        'organelle_clahe': "(bool) - Apply Contrast Limited Adaptive Histogram Equalization before segmentation. Improves detection of low-contrast organelles.",
+        'organelle_clahe_clip_limit': "(float) - Clip limit for CLAHE. Higher values allow more contrast amplification but may also amplify noise.",
+        'organelle_mask_within_cells': "(bool) - Restrict organelle detection to within cell boundaries. Requires cell masks to exist in cell_mask_stack/.",
+        'organelle_dog_sigma_low': "(float) - Lower sigma for Difference of Gaussians blob detection (spots/dog mode). Approximates the blob radius in pixels.",
+        'organelle_dog_sigma_high': "(float) - Upper sigma for Difference of Gaussians blob detection (spots/dog mode). Should be ~1.6x the lower sigma for LoG equivalence.",
+        'organelle_stardist_model': "(str) - Stardist model name or path. Pretrained: '2D_versatile_fluo', '2D_paper_dsb2018'. Or path to a custom-trained model directory.",
+        'organelle_stardist_prob': "(float) - Stardist object probability threshold. Higher values detect fewer but more confident objects.",
+        'organelle_stardist_nms': "(float) - Stardist non-maximum suppression threshold. Lower values suppress more overlapping detections.",
+        'organelle_hysteresis_low': "(float) - Low threshold for hysteresis segmentation (network mode). If <1.0, interpreted as a percentile of image intensity.",
+        'organelle_hysteresis_high': "(float) - High threshold for hysteresis segmentation (network mode). Seeds confident filament regions. If <1.0, interpreted as a percentile.",
+        'organelle_unet_model_path': "(str or None) - Path to a .pt/.pth U-Net model for semantic segmentation (network/unet mode). Model must accept (B,1,H,W) and output (B,1,H,W) logits.",
+        'organelle_unet_threshold': "(float) - Binarisation threshold applied to U-Net sigmoid output. Default: 0.5.",
+        'organelle_ring_sigma_inner': "(float) - Inner sigma for DoG ring-edge enhancement (ring mode). Should approximate the ring wall thickness.",
+        'organelle_ring_sigma_outer': "(float) - Outer sigma for DoG ring-edge enhancement (ring mode). Should approximate the ring outer radius.",
+        'organelle_ring_min_prominence': "(float) - Minimum normalised intensity contrast between ring boundary and interior. Objects below this are discarded as non-rings.",
+        'organelle_ring_fill_method': "(str) - How to fill detected rings: 'flood' (fill enclosed holes) or 'convex' (convex hull per edge component).",
     }
     
     for key, (var_type, options, default_value) in variables.items():
@@ -2024,34 +2076,59 @@ def _set_organelle_defaults(settings):
         'organelle_min_size': 10,
         'organelle_max_size': None,
         'organelle_remove_border': False,
-
+ 
+        # Preprocessing
+        'organelle_rolling_ball': False,
+        'organelle_rolling_ball_radius': 50,
+        'organelle_clahe': False,
+        'organelle_clahe_clip_limit': 0.01,
+        'organelle_mask_within_cells': False,
+ 
         # Spots
         'organelle_log_min_sigma': 1,
         'organelle_log_max_sigma': 10,
         'organelle_log_num_sigma': 10,
         'organelle_log_threshold': 0.01,
+        'organelle_dog_sigma_low': 1.0,
+        'organelle_dog_sigma_high': 3.0,
         'organelle_tophat_radius': 5,
         'organelle_watershed_spots': True,
-
+ 
+        # Stardist
+        'organelle_stardist_model': '2D_versatile_fluo',
+        'organelle_stardist_prob': 0.5,
+        'organelle_stardist_nms': 0.3,
+ 
         # Network
         'organelle_ridge_sigmas': [1, 2, 3],
         'organelle_ridge_filter': 'frangi',
         'organelle_skeletonize': False,
         'organelle_network_threshold': 'otsu',
-
+        'organelle_hysteresis_low': 0.2,
+        'organelle_hysteresis_high': 0.6,
+ 
+        # U-Net
+        'organelle_unet_model_path': None,
+        'organelle_unet_threshold': 0.5,
+ 
         # Irregular
         'organelle_adaptive_block_size': 51,
         'organelle_adaptive_offset': 5,
         'organelle_morph_radius': 3,
         'organelle_fill_holes': 64,
-
+ 
+        # Ring
+        'organelle_ring_sigma_inner': 1.0,
+        'organelle_ring_sigma_outer': 3.0,
+        'organelle_ring_min_prominence': 0.1,
+        'organelle_ring_fill_method': 'flood',
+ 
         # Cellpose
         'organelle_CP_prob': 0.0,
         'organelle_FT': 0.4,
         'organelle_resample': True,
     }
     for key, val in defaults.items():
-        if key not in settings:
-            settings[key] = val
+        settings.setdefault(key, val)
     return settings
 
