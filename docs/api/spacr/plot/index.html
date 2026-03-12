@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.plot &mdash; spacr 1.0.1 documentation</title>
+  <title>spacr.plot &mdash; spacr 1.2.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
@@ -15,14 +15,14 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../../_static/documentation_options.js?v=36f53d34"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="spacr.sequencing" href="../sequencing/index.html" />
-    <link rel="prev" title="spacr.ml" href="../ml/index.html" /> 
+    <link rel="prev" title="spacr.object" href="../object/index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -66,12 +66,14 @@
 <li class="toctree-l4"><a class="reference internal" href="../logger/index.html">spacr.logger</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../measure/index.html">spacr.measure</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../ml/index.html">spacr.ml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../object/index.html">spacr.object</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">spacr.plot</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sequencing/index.html">spacr.sequencing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../settings/index.html">spacr.settings</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sim/index.html">spacr.sim</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../sp_stats/index.html">spacr.sp_stats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spacrops/index.html">spacr.spacrops</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../submodules/index.html">spacr.submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../timelapse/index.html">spacr.timelapse</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../toxo/index.html">spacr.toxo</a></li>
@@ -145,6 +147,33 @@
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="spacr.plot.plot_organelle_output">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_organelle_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'inferno'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figuresize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_object_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#plot_organelle_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_organelle_output" title="Link to this definition"></a></dt>
+<dd><p>Plot organelle segmentation results for a batch of images.</p>
+<p>Shows the original image, the label mask with object IDs, and a
+morphology-specific diagnostic panel (e.g. thresholded binary,
+ridge-enhanced image, DoG response, or ring edges).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>img_batch</strong> (<em>numpy.ndarray</em>) – Shape (N, H, W) single-channel images.</p></li>
+<li><p><strong>masks</strong> (<em>list</em><em> or </em><em>numpy.ndarray</em>) – Label masks, one per image.</p></li>
+<li><p><strong>settings</strong> (<em>dict</em>) – Organelle settings (used to determine morphology/method
+and generate the diagnostic panel).</p></li>
+<li><p><strong>cmap</strong> (<em>str</em><em>, </em><em>optional</em>) – Colormap for the raw image. Defaults to ‘inferno’.</p></li>
+<li><p><strong>figuresize</strong> (<em>int</em><em>, </em><em>optional</em>) – Base figure size. Defaults to 10.</p></li>
+<li><p><strong>nr</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum number of images to plot. Defaults to 1.</p></li>
+<li><p><strong>print_object_number</strong> (<em>bool</em><em>, </em><em>optional</em>) – Print object labels on the mask.
+Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="spacr.plot.plot_masks">
 <span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_masks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'inferno'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figuresize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.npz'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_object_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#plot_masks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_masks" title="Link to this definition"></a></dt>
 <dd><p>Plot the masks and flows for a given batch of images.</p>
@@ -208,17 +237,15 @@ random_cmap (matplotlib.colors.ListedColormap): A random colormap.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacr.plot.plot_arrays">
 <span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">plot_arrays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figuresize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'inferno'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">99</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#plot_arrays"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.plot_arrays" title="Link to this definition"></a></dt>
-<dd><p>Plot randomly selected arrays from a given directory.</p>
+<dd><p>Plot randomly selected arrays from a given directory or a single .npz/.npy file.</p>
 <p>Parameters:
-- src (str): The directory path containing the arrays.
-- figuresize (int): The size of the figure (default: 50).
+- src (str): The directory path or file path containing the arrays.
+- figuresize (int): The size of the figure (default: 10).
 - cmap (str): The colormap to use for displaying the arrays (default: ‘inferno’).
 - nr (int): The number of arrays to plot (default: 1).
 - normalize (bool): Whether to normalize the arrays (default: True).
 - q1 (int): The lower percentile for normalization (default: 1).
 - q2 (int): The upper percentile for normalization (default: 99).</p>
-<p>Returns:
-None</p>
 </dd></dl>
 
 <dl class="py function">
@@ -522,8 +549,7 @@ then group by either ‘prc’, ‘plateID’, or do no grouping at all if repre
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.plot.spacrGraph.perform_levene_test">
 <span class="sig-name descname"><span class="pre">perform_levene_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unique_groups</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/spacr/plot.html#spacrGraph.perform_levene_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacr.plot.spacrGraph.perform_levene_test" title="Link to this definition"></a></dt>
-<dd><p>Perform Levene’s test for equal variance.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spacr.plot.spacrGraph.perform_statistical_tests">
@@ -652,6 +678,47 @@ to show overlapping and non-overlapping genes.</p>
 </dl>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-prename descclassname"><span class="pre">spacr.plot.</span></span><span class="sig-name descname"><span class="pre">volcano_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fold_change_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_value_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_transform</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'none'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_transform</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'-log10'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fold_change_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_value_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotate_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(8.0,</span> <span class="pre">6.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_line_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scatter_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">matplotlib.pyplot.Axes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sheet_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">matplotlib.pyplot.Figure</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">matplotlib.pyplot.Axes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/spacr/plot.html#volcano_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<dd><p>Read a table (CSV/TSV/XLS/XLSX) and generate a volcano plot.</p>
+<dl class="simple">
+<dt>Auto-detects file type from extension:</dt><dd><ul class="simple">
+<li><p>.csv -&gt; read_csv</p></li>
+<li><p>.tsv / .tab -&gt; read_csv(sep=”t”)</p></li>
+<li><p>.xls / .xlsx -&gt; read_excel (sheet_name)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – Path to table file or a pandas DataFrame.</p></li>
+<li><p><strong>fold_change_col</strong> – Column name for fold change (or log fold change if x_transform=”none”).</p></li>
+<li><p><strong>p_value_col</strong> – Column name for p-values.</p></li>
+<li><p><strong>name_col</strong> – Optional column for labels.</p></li>
+<li><p><strong>x_transform</strong> – “none”, “log2”, “log10”, “ln”.
+Use “none” if fold_change_col already contains logFC values (can be negative).</p></li>
+<li><p><strong>y_transform</strong> – “none”, “-log10”, “-ln”, “log10”, “ln”.</p></li>
+<li><p><strong>fold_change_threshold</strong> – <ul>
+<li><p>If x_transform=”none”: interpreted in x units (e.g. abs(log2FC) &gt;= 1).</p></li>
+<li><p>If x_transform is a log transform: interpreted in <em>raw FC</em> units (e.g. 2),
+then converted into plotted units for the vertical dashed lines.</p></li>
+</ul>
+</p></li>
+<li><p><strong>p_value_threshold</strong> – P-value cutoff (e.g. 0.05); drawn as a dashed horizontal line.</p></li>
+<li><p><strong>annotate</strong> – If True and name_col is provided, annotate points passing thresholds.
+If no thresholds are provided, nothing is annotated unless annotate_max is set.</p></li>
+<li><p><strong>annotate_max</strong> – If set, annotate at most N eligible points (highest y first).</p></li>
+<li><p><strong>sheet_name</strong> – Excel sheet index/name (used for .xls/.xlsx).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(fig, ax, hits) where hits is the list of annotated labels.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 </section>
 
@@ -659,7 +726,7 @@ to show overlapping and non-overlapping genes.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../ml/index.html" class="btn btn-neutral float-left" title="spacr.ml" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../object/index.html" class="btn btn-neutral float-left" title="spacr.object" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../sequencing/index.html" class="btn btn-neutral float-right" title="spacr.sequencing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

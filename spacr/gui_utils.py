@@ -160,6 +160,102 @@ def create_input_field(frame, label_text, row, var_type='entry', options=None, d
     # Create and configure the input widget based on var_type
     try:
         if var_type == 'entry':
+            if default_value is None:
+                default_value = ''
+            else:
+                default_value = str(default_value)
+            var = tk.StringVar(value=default_value)
+            entry = spacrEntry(custom_frame, textvariable=var, outline=False, width=size_dict['settings_width'])
+            entry.grid(column=widget_column, row=1, sticky=tk.W, padx=(2, 5), pady=5)
+            return (label, entry, var, custom_frame)
+
+        elif var_type == 'check':
+            if isinstance(default_value, str):
+                default_value = default_value.lower() in ('true', '1', 'yes')
+            elif default_value is None:
+                default_value = False
+            else:
+                default_value = bool(default_value)
+            var = tk.BooleanVar(value=default_value)
+            check = spacrCheck(custom_frame, text="", variable=var)
+            check.grid(column=widget_column, row=1, sticky=tk.W, padx=(2, 5), pady=5)
+            return (label, check, var, custom_frame)
+
+        elif var_type == 'combo':
+            if default_value is None or default_value == '':
+                default_value = options[0] if options else ''
+            else:
+                default_str = str(default_value).replace(' ', '')
+                options_stripped = [str(o).replace(' ', '') for o in options] if options else []
+                if options and default_str not in options_stripped:
+                    print(f"Warning: '{label_text}' value '{default_value}' not in options {options}, using first option.")
+                    default_value = options[0] if options else ''
+            default_value = str(default_value)
+            var = tk.StringVar(value=default_value)
+            combo = spacrCombo(custom_frame, textvariable=var, values=options, width=size_dict['settings_width'])
+            combo.grid(column=widget_column, row=1, sticky=tk.W, padx=(2, 5), pady=5)
+            combo.set(default_value)
+            return (label, combo, var, custom_frame)
+        else:
+            var = None  # Placeholder in case of an undefined var_type
+            return (label, None, var, custom_frame)
+    except Exception as e:
+        #traceback.print_exc()
+        print(f"Error creating input field: {e}")
+        print(f"Wrong type for {label_text} Expected {var_type}")
+
+def create_input_field_v1(frame, label_text, row, var_type='entry', options=None, default_value=None):
+    """
+    Create an input field in the specified frame.
+
+    Args:
+        frame (tk.Frame): The frame in which the input field will be created.
+        label_text (str): The text to be displayed as the label for the input field.
+        row (int): The row in which the input field will be placed.
+        var_type (str, optional): The type of input field to create. Defaults to 'entry'.
+        options (list, optional): The list of options for a combo box input field. Defaults to None.
+        default_value (str, optional): The default value for the input field. Defaults to None.
+
+    Returns:
+        tuple: A tuple containing the label, input widget, variable, and custom frame.
+
+    Raises:
+        Exception: If an error occurs while creating the input field.
+
+    """
+    from .gui_elements import set_dark_style, set_element_size
+    
+    label_column = 0
+    widget_column = 0  # Both label and widget will be in the same column
+
+    style_out = set_dark_style(ttk.Style())
+    font_loader = style_out['font_loader']
+    font_size = style_out['font_size']
+    size_dict = set_element_size()
+    size_dict['settings_width'] = size_dict['settings_width'] - int(size_dict['settings_width']*0.1)
+
+    # Replace underscores with spaces and capitalize the first letter
+
+    label_text = label_text.replace('_', ' ').capitalize()
+
+    # Configure the column widths
+    frame.grid_columnconfigure(label_column, weight=1)  # Allow the column to expand
+
+    # Create a custom frame with a translucent background and rounded edges
+    custom_frame = tk.Frame(frame, bg=style_out['bg_color'], bd=2, relief='solid', width=size_dict['settings_width'])
+    custom_frame.grid(column=label_column, row=row, sticky=tk.EW, padx=(5, 5), pady=5)
+
+    # Apply styles to custom frame
+    custom_frame.update_idletasks()
+    custom_frame.config(highlightbackground=style_out['bg_color'], highlightthickness=1, bd=2)
+
+    # Create and configure the label
+    label = tk.Label(custom_frame, text=label_text, bg=style_out['bg_color'], fg=style_out['fg_color'], font=font_loader.get_font(size=font_size), anchor='e', justify='right')
+    label.grid(column=label_column, row=0, sticky=tk.W, padx=(5, 2), pady=5)  # Place the label in the first row
+
+    # Create and configure the input widget based on var_type
+    try:
+        if var_type == 'entry':
             var = tk.StringVar(value=default_value)
             entry = spacrEntry(custom_frame, textvariable=var, outline=False, width=size_dict['settings_width'])
             entry.grid(column=widget_column, row=1, sticky=tk.W, padx=(2, 5), pady=5)  # Place the entry in the second row
@@ -388,7 +484,7 @@ def convert_settings_dict_for_gui(settings):
         'reduction_method': ('combo', ['umap', 'tsne'], 'umap'),
         'model_name': ('combo', ['cyto', 'cyto_2', 'cyto_3', 'nuclei'], 'cyto'),
         'regression_type': ('combo', ['ols','gls','wls','rlm','glm','mixed','quantile','logit','probit','poisson','lasso','ridge'], 'ols'),
-        'timelapse_objects': ('combo', ["['cell']", "['nucleus']", "['pathogen']", "['cell', 'nucleus']", "['cell', 'pathogen']", "['nucleus', 'pathogen']", "['cell', 'nucleus', 'pathogen']", None], None),
+        'timelapse_objects': ('combo', ["['cell']", "['nucleus']", "['pathogen']", "['organelle']", "['cell', 'nucleus']", "['cell', 'pathogen']", "['cell', 'organelle']", "['nucleus', 'pathogen']", "['nucleus', 'organelle']", "['cell', 'nucleus', 'pathogen']", "['cell', 'nucleus', 'organelle']", "['cell', 'nucleus', 'pathogen', 'organelle']"], "['cell']"),
         'model_type': ('combo', torchvision_models, 'resnet50'),
         'optimizer_type': ('combo', ['adamw', 'adam'], 'adamw'),
         'schedule': ('combo', ['cosine','reduce_lr_on_plateau', 'step_lr'], 'cosine'),

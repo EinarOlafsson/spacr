@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.ml &mdash; spacr 1.0.1 documentation</title>
+  <title>spacr.ml &mdash; spacr 1.2.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../_static/documentation_options.js?v=36f53d34"></script>
       <script src="../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -63,12 +63,14 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/logger/index.html">spacr.logger</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/measure/index.html">spacr.measure</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/ml/index.html">spacr.ml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/object/index.html">spacr.object</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/plot/index.html">spacr.plot</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sequencing/index.html">spacr.sequencing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/settings/index.html">spacr.settings</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sim/index.html">spacr.sim</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sp_stats/index.html">spacr.sp_stats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/spacrops/index.html">spacr.spacrops</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/submodules/index.html">spacr.submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/timelapse/index.html">spacr.timelapse</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/toxo/index.html">spacr.toxo</a></li>
@@ -123,21 +125,18 @@
 <span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="k">as</span> <span class="nn">st</span>
 <span class="kn">import</span> <span class="nn">statsmodels.api</span> <span class="k">as</span> <span class="nn">sm</span>
 <span class="kn">import</span> <span class="nn">statsmodels.formula.api</span> <span class="k">as</span> <span class="nn">smf</span>
-<span class="kn">from</span> <span class="nn">statsmodels.tools</span> <span class="kn">import</span> <span class="n">add_constant</span>
 <span class="kn">from</span> <span class="nn">statsmodels.regression.mixed_linear_model</span> <span class="kn">import</span> <span class="n">MixedLM</span>
-<span class="kn">from</span> <span class="nn">statsmodels.tools.sm_exceptions</span> <span class="kn">import</span> <span class="n">PerfectSeparationError</span>
 <span class="kn">from</span> <span class="nn">statsmodels.stats.outliers_influence</span> <span class="kn">import</span> <span class="n">variance_inflation_factor</span>
 <span class="kn">from</span> <span class="nn">statsmodels.genmod.families</span> <span class="kn">import</span> <span class="n">Binomial</span>
 <span class="kn">from</span> <span class="nn">statsmodels.genmod.families.links</span> <span class="kn">import</span> <span class="n">logit</span>
 <span class="kn">from</span> <span class="nn">statsmodels.othermod.betareg</span> <span class="kn">import</span> <span class="n">BetaModel</span>
-<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">minimize</span>
 <span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">gammaln</span><span class="p">,</span> <span class="n">psi</span><span class="p">,</span> <span class="n">expit</span>
 <span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">Lasso</span><span class="p">,</span> <span class="n">Ridge</span>
 <span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">FunctionTransformer</span>
 <span class="kn">from</span> <span class="nn">patsy</span> <span class="kn">import</span> <span class="n">dmatrices</span>
 
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">classification_report</span><span class="p">,</span> <span class="n">accuracy_score</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">StratifiedKFold</span><span class="p">,</span> <span class="n">cross_val_score</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">classification_report</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">StratifiedKFold</span>
 <span class="kn">from</span> <span class="nn">sklearn.feature_selection</span> <span class="kn">import</span> <span class="n">SelectKBest</span><span class="p">,</span> <span class="n">f_classif</span>
 <span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
 <span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestClassifier</span><span class="p">,</span> <span class="n">HistGradientBoostingClassifier</span>
@@ -146,7 +145,7 @@
 <span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">classification_report</span><span class="p">,</span> <span class="n">precision_recall_curve</span>
 <span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
 <span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">MinMaxScaler</span>
-<span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="kn">import</span> <span class="n">cosine</span><span class="p">,</span> <span class="n">euclidean</span><span class="p">,</span> <span class="n">mahalanobis</span><span class="p">,</span> <span class="n">cityblock</span><span class="p">,</span> <span class="n">minkowski</span><span class="p">,</span> <span class="n">chebyshev</span><span class="p">,</span> <span class="n">hamming</span><span class="p">,</span> <span class="n">jaccard</span><span class="p">,</span> <span class="n">braycurtis</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="kn">import</span> <span class="n">cosine</span><span class="p">,</span> <span class="n">euclidean</span><span class="p">,</span> <span class="n">mahalanobis</span><span class="p">,</span> <span class="n">cityblock</span><span class="p">,</span> <span class="n">minkowski</span><span class="p">,</span> <span class="n">chebyshev</span><span class="p">,</span> <span class="n">braycurtis</span>
 <span class="kn">from</span> <span class="nn">xgboost</span> <span class="kn">import</span> <span class="n">XGBClassifier</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -248,67 +247,6 @@
     <span class="n">y_scaled</span> <span class="o">=</span> <span class="n">scaler_y</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
     
     <span class="k">return</span> <span class="n">X_scaled</span><span class="p">,</span> <span class="n">y_scaled</span></div>
-
-
-<div class="viewcode-block" id="process_model_coefficients_v1">
-<a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.process_model_coefficients_v1">[docs]</a>
-<span class="k">def</span> <span class="nf">process_model_coefficients_v1</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">regression_type</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">nc</span><span class="p">,</span> <span class="n">pc</span><span class="p">,</span> <span class="n">controls</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return DataFrame of model coefficients and p-values.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">regression_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ols&#39;</span><span class="p">,</span> <span class="s1">&#39;gls&#39;</span><span class="p">,</span> <span class="s1">&#39;wls&#39;</span><span class="p">,</span> <span class="s1">&#39;rlm&#39;</span><span class="p">,</span> <span class="s1">&#39;glm&#39;</span><span class="p">,</span> <span class="s1">&#39;mixed&#39;</span><span class="p">,</span> <span class="s1">&#39;quantile&#39;</span><span class="p">,</span> <span class="s1">&#39;logit&#39;</span><span class="p">,</span> <span class="s1">&#39;probit&#39;</span><span class="p">,</span> <span class="s1">&#39;poisson&#39;</span><span class="p">]:</span>
-        <span class="n">coefs</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">params</span>
-        <span class="n">p_values</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">pvalues</span>
-
-        <span class="n">coef_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-            <span class="s1">&#39;feature&#39;</span><span class="p">:</span> <span class="n">coefs</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
-            <span class="s1">&#39;coefficient&#39;</span><span class="p">:</span> <span class="n">coefs</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-            <span class="s1">&#39;p_value&#39;</span><span class="p">:</span> <span class="n">p_values</span><span class="o">.</span><span class="n">values</span>
-        <span class="p">})</span>
-
-    <span class="k">elif</span> <span class="n">regression_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ridge&#39;</span><span class="p">,</span> <span class="s1">&#39;lasso&#39;</span><span class="p">]:</span>
-        <span class="n">coefs</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">coef_</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-        <span class="n">p_values</span> <span class="o">=</span> <span class="n">calculate_p_values</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
-
-        <span class="n">coef_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-            <span class="s1">&#39;feature&#39;</span><span class="p">:</span> <span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
-            <span class="s1">&#39;coefficient&#39;</span><span class="p">:</span> <span class="n">coefs</span><span class="p">,</span>
-            <span class="s1">&#39;p_value&#39;</span><span class="p">:</span> <span class="n">p_values</span>
-        <span class="p">})</span>
-        
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">coefs</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">coef_</span>
-        <span class="n">intercept</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">intercept_</span>
-        <span class="n">feature_names</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">design_info</span><span class="o">.</span><span class="n">column_names</span>
-
-        <span class="n">coef_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-            <span class="s1">&#39;feature&#39;</span><span class="p">:</span> <span class="n">feature_names</span><span class="p">,</span>
-            <span class="s1">&#39;coefficient&#39;</span><span class="p">:</span> <span class="n">coefs</span>
-        <span class="p">})</span>
-        <span class="n">coef_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;coefficient&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">intercept</span>
-        <span class="n">coef_df</span><span class="p">[</span><span class="s1">&#39;p_value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>  <span class="c1"># Placeholder since sklearn doesn&#39;t provide p-values</span>
-
-    <span class="n">coef_df</span><span class="p">[</span><span class="s1">&#39;-log10(p_value)&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">coef_df</span><span class="p">[</span><span class="s1">&#39;p_value&#39;</span><span class="p">])</span>
-    <span class="n">coef_df</span><span class="p">[</span><span class="s1">&#39;grna&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coef_df</span><span class="p">[</span><span class="s1">&#39;feature&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\[(.*?)\]&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">coef_df</span><span class="p">[</span><span class="s1">&#39;condition&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coef_df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="s1">&#39;nc&#39;</span> <span class="k">if</span> <span class="n">nc</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;feature&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s1">&#39;pc&#39;</span> <span class="k">if</span> <span class="n">pc</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;feature&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="p">(</span><span class="s1">&#39;control&#39;</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;grna&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">controls</span> <span class="k">else</span> <span class="s1">&#39;other&#39;</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">coef_df</span><span class="p">[</span><span class="o">~</span><span class="n">coef_df</span><span class="p">[</span><span class="s1">&#39;feature&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s1">&#39;row|column&#39;</span><span class="p">)]</span></div>
-
-
-<div class="viewcode-block" id="check_distribution_v1">
-<a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.check_distribution_v1">[docs]</a>
-<span class="k">def</span> <span class="nf">check_distribution_v1</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check the type of distribution to recommend a model.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">((</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Detected binary data.&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s1">&#39;logit&#39;</span>
-    <span class="k">elif</span> <span class="p">(</span><span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">and</span> <span class="p">(</span><span class="n">y</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Detected continuous data between 0 and 1 (excluding 0 and 1).&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s1">&#39;beta&#39;</span>
-    <span class="k">elif</span> <span class="p">(</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">and</span> <span class="p">(</span><span class="n">y</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Detected continuous data between 0 and 1 (including 0 or 1).&quot;</span><span class="p">)</span>
-        <span class="c1"># Consider quasi-binomial regression</span>
-        <span class="k">return</span> <span class="s1">&#39;quasi_binomial&#39;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using OLS as a fallback.&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s1">&#39;ols&#39;</span></div>
 
 
 <div class="viewcode-block" id="select_glm_family">
@@ -453,22 +391,6 @@
 
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Data is ready for model fitting.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df_cleaned</span></div>
-
-
-<div class="viewcode-block" id="check_normality_v1">
-<a class="viewcode-back" href="../../api/spacr/ml/index.html#spacr.ml.check_normality_v1">[docs]</a>
-<span class="k">def</span> <span class="nf">check_normality_v1</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if the data is normally distributed using the Shapiro-Wilk test.&quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">shapiro</span>
-
-    <span class="n">stat</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">shapiro</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
-    <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.05</span>
-    <span class="k">if</span> <span class="n">p</span> <span class="o">&gt;</span> <span class="n">alpha</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">variable_name</span><span class="si">}</span><span class="s2"> is normally distributed (fail to reject H0)&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">True</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">variable_name</span><span class="si">}</span><span class="s2"> is not normally distributed (reject H0)&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">False</span></div>
 
 
 <div class="viewcode-block" id="minimum_cell_simulation">
@@ -1511,8 +1433,14 @@
         <span class="n">dependent_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">dependent_df</span><span class="p">,</span> <span class="n">cell_count</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;prc&#39;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">dependent_df</span><span class="p">[</span><span class="s1">&#39;cell_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cell_count</span><span class="p">[</span><span class="s1">&#39;cell_count&#39;</span><span class="p">]</span>
+        
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;1 test&quot;</span><span class="p">)</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">dependent_df</span><span class="p">)</span>
 
     <span class="n">dependent_df</span> <span class="o">=</span> <span class="n">dependent_df</span><span class="p">[</span><span class="n">dependent_df</span><span class="p">[</span><span class="s1">&#39;cell_count&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_cell_count</span><span class="p">]</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;2 test&quot;</span><span class="p">)</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">dependent_df</span><span class="p">)</span>
 
     <span class="n">is_normal</span> <span class="o">=</span> <span class="n">check_normality</span><span class="p">(</span><span class="n">dependent_df</span><span class="p">[</span><span class="n">dependent_variable</span><span class="p">],</span> <span class="n">dependent_variable</span><span class="p">)</span>
 
@@ -1537,15 +1465,13 @@
     
     <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">_read_and_merge_data</span><span class="p">,</span> <span class="n">_read_db</span>
     <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">plot_plates</span>
-    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">get_ml_results_paths</span><span class="p">,</span> <span class="n">add_column_to_database</span><span class="p">,</span> <span class="n">calculate_shortest_distance</span>
+    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">get_ml_results_paths</span><span class="p">,</span> <span class="n">add_column_to_database</span><span class="p">,</span> <span class="n">calculate_shortest_distance</span><span class="p">,</span> <span class="n">save_settings</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">set_default_analyze_screen</span>
 
     <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_analyze_screen</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+    <span class="n">save_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;generate_ml_scores&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">srcs</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span>
-
-    <span class="n">settings_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Key&#39;</span><span class="p">,</span> <span class="s1">&#39;Value&#39;</span><span class="p">])</span>
-    <span class="n">display</span><span class="p">(</span><span class="n">settings_df</span><span class="p">)</span>
     
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">srcs</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">srcs</span> <span class="o">=</span> <span class="p">[</span><span class="n">srcs</span><span class="p">]</span>
@@ -1647,7 +1573,7 @@
     <span class="n">data_path</span><span class="p">,</span> <span class="n">permutation_path</span><span class="p">,</span> <span class="n">feature_importance_path</span><span class="p">,</span> <span class="n">model_metricks_path</span><span class="p">,</span> <span class="n">permutation_fig_path</span><span class="p">,</span> <span class="n">feature_importance_fig_path</span><span class="p">,</span> <span class="n">shap_fig_path</span><span class="p">,</span> <span class="n">plate_heatmap_path</span><span class="p">,</span> <span class="n">settings_csv</span><span class="p">,</span> <span class="n">ml_features</span> <span class="o">=</span> <span class="n">get_ml_results_paths</span><span class="p">(</span><span class="n">src1</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;model_type_ml&#39;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s1">&#39;channel_of_interest&#39;</span><span class="p">])</span>
     <span class="n">df</span><span class="p">,</span> <span class="n">permutation_df</span><span class="p">,</span> <span class="n">feature_importance_df</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">metrics_df</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">output</span>
 
-    <span class="n">settings_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">settings_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="c1">#settings_df.to_csv(settings_csv, index=False)</span>
     <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
     <span class="n">permutation_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">permutation_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
     <span class="n">feature_importance_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">feature_importance_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>

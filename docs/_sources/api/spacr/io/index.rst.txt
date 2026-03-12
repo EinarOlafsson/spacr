@@ -309,56 +309,6 @@ Module Contents
    .. py:method:: cleanup()
 
 
-.. py:class:: NoClassDataset_v1(data_dir, transform=None, shuffle=True, load_to_memory=False)
-
-   Bases: :py:obj:`torch.utils.data.Dataset`
-
-
-   An abstract class representing a :class:`Dataset`.
-
-   All datasets that represent a map from keys to data samples should subclass
-   it. All subclasses should overwrite :meth:`__getitem__`, supporting fetching a
-   data sample for a given key. Subclasses could also optionally overwrite
-   :meth:`__len__`, which is expected to return the size of the dataset by many
-   :class:`~torch.utils.data.Sampler` implementations and the default options
-   of :class:`~torch.utils.data.DataLoader`. Subclasses could also
-   optionally implement :meth:`__getitems__`, for speedup batched samples
-   loading. This method accepts list of indices of samples of batch and returns
-   list of samples.
-
-   .. note::
-     :class:`~torch.utils.data.DataLoader` by default constructs an index
-     sampler that yields integral indices.  To make it work with a map-style
-     dataset with non-integral indices/keys, a custom sampler must be provided.
-
-
-   .. py:attribute:: data_dir
-
-
-   .. py:attribute:: transform
-      :value: None
-
-
-
-   .. py:attribute:: shuffle
-      :value: True
-
-
-
-   .. py:attribute:: load_to_memory
-      :value: False
-
-
-
-   .. py:attribute:: filenames
-
-
-   .. py:method:: load_image(img_path)
-
-
-   .. py:method:: shuffle_dataset()
-
-
 .. py:class:: TarImageDataset(tar_path, transform=None)
 
    Bases: :py:obj:`torch.utils.data.Dataset`
@@ -431,29 +381,27 @@ Module Contents
 
 .. py:function:: generate_dataset(settings={})
 
-.. py:function:: generate_loaders(src, mode='train', image_size=224, batch_size=32, classes=['nc', 'pc'], n_jobs=None, validation_split=0.0, pin_memory=False, normalize=False, channels=[1, 2, 3], augment=False, verbose=False)
+.. py:function:: generate_loaders(src, mode='train', image_size=224, batch_size=32, classes=['nc', 'pc'], n_jobs=None, validation_split=0.0, pin_memory=False, normalize=False, channels=['r', 'g', 'b'], augment=False, verbose=False)
 
-   Generate data loaders for training and validation/test datasets.
-
-   Parameters:
-   - src (str): The source directory containing the data.
-   - mode (str): The mode of operation. Options are 'train' or 'test'.
-   - image_size (int): The size of the input images.
-   - batch_size (int): The batch size for the data loaders.
-   - classes (list): The list of classes to consider.
-   - n_jobs (int): The number of worker threads for data loading.
-   - validation_split (float): The fraction of data to use for validation.
-   - pin_memory (bool): Whether to pin memory for faster data transfer.
-   - normalize (bool): Whether to normalize the input images.
-   - verbose (bool): Whether to print additional information and show images.
-   - channels (list): The list of channels to retain. Options are [1, 2, 3] for all channels, [1, 2] for blue and green, etc.
-
-   Returns:
-   - train_loaders (list): List of data loaders for training datasets.
-   - val_loaders (list): List of data loaders for validation datasets.
-
+.. py:function:: generate_loaders_v1(src, mode='train', image_size=224, batch_size=32, classes=['nc', 'pc'], n_jobs=None, validation_split=0.0, pin_memory=False, normalize=False, channels=['r', 'g', 'b'], augment=False, verbose=False)
 
 .. py:function:: generate_training_dataset(settings)
+
+   Build a balanced training/testing dataset from one of:
+     - metadata rules (exact matches or compound 'where' rules)
+     - annotation columns (each <col>_<value> is a standalone class)
+     - measurement rules (numeric ranges/bins; supports multiple conditions per class)
+
+   New behavior (annotation mode):
+     - If a column has only one annotated value (e.g., only '1's), we add a
+       '<column>_random' class using unannotated rows for that column (same size as positives).
+     - Optional: persist that random selection into DB as a new INT column named '<column>_random' with 1's.
+
+   Required helpers:
+     - _read_and_merge_data, _read_db (from .io)
+     - generate_dataset_from_lists(dst, class_data, classes, test_split)
+     - save_settings (from .utils)
+
 
 .. py:function:: training_dataset_from_annotation(db_path, dst, annotation_column='test', annotated_classes=(1, 2))
 

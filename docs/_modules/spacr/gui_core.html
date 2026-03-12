@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.gui_core &mdash; spacr 1.0.1 documentation</title>
+  <title>spacr.gui_core &mdash; spacr 1.2.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../_static/documentation_options.js?v=36f53d34"></script>
       <script src="../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -63,12 +63,14 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/logger/index.html">spacr.logger</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/measure/index.html">spacr.measure</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/ml/index.html">spacr.ml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/object/index.html">spacr.object</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/plot/index.html">spacr.plot</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sequencing/index.html">spacr.sequencing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/settings/index.html">spacr.settings</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sim/index.html">spacr.sim</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sp_stats/index.html">spacr.sp_stats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/spacrops/index.html">spacr.spacrops</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/submodules/index.html">spacr.submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/timelapse/index.html">spacr.timelapse</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/toxo/index.html">spacr.toxo</a></li>
@@ -390,42 +392,6 @@
                     <span class="n">label</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="n">visible</span><span class="p">)</span>
 
         <span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
-        
-    <span class="k">def</span> <span class="nf">zoom_v1</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
-        <span class="c1"># Fixed zoom factors (adjust these if you want faster or slower zoom)</span>
-        <span class="n">zoom_in_factor</span> <span class="o">=</span> <span class="mf">0.9</span>   <span class="c1"># When zooming in, ranges shrink by 10%</span>
-        <span class="n">zoom_out_factor</span> <span class="o">=</span> <span class="mf">1.1</span>  <span class="c1"># When zooming out, ranges increase by 10%</span>
-
-        <span class="c1"># Determine the zoom direction based on the scroll event</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">num</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="s1">&#39;delta&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">delta</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>  <span class="c1"># Scroll up = zoom in</span>
-            <span class="n">factor</span> <span class="o">=</span> <span class="n">zoom_in_factor</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">num</span> <span class="o">==</span> <span class="mi">5</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="s1">&#39;delta&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">delta</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span> <span class="c1"># Scroll down = zoom out</span>
-            <span class="n">factor</span> <span class="o">=</span> <span class="n">zoom_out_factor</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span>  <span class="c1"># No recognized scroll direction</span>
-
-        <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">canvas</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">get_axes</span><span class="p">():</span>
-            <span class="c1"># Get the current mouse position in pixel coordinates</span>
-            <span class="n">mouse_x</span><span class="p">,</span> <span class="n">mouse_y</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">y</span>
-
-            <span class="c1"># Convert pixel coordinates to data coordinates</span>
-            <span class="n">inv</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">transData</span><span class="o">.</span><span class="n">inverted</span><span class="p">()</span>
-            <span class="n">data_x</span><span class="p">,</span> <span class="n">data_y</span> <span class="o">=</span> <span class="n">inv</span><span class="o">.</span><span class="n">transform</span><span class="p">((</span><span class="n">mouse_x</span><span class="p">,</span> <span class="n">mouse_y</span><span class="p">))</span>
-
-            <span class="c1"># Get the current axis limits</span>
-            <span class="n">xlim</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
-            <span class="n">ylim</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
-
-            <span class="c1"># Calculate the zooming range around the cursor position</span>
-            <span class="n">x_range</span> <span class="o">=</span> <span class="p">(</span><span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">factor</span>
-            <span class="n">y_range</span> <span class="o">=</span> <span class="p">(</span><span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">factor</span>
-
-            <span class="c1"># Adjust the limits while keeping the mouse position fixed</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="n">data_x</span> <span class="o">-</span> <span class="p">(</span><span class="n">data_x</span> <span class="o">-</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">factor</span><span class="p">,</span> <span class="n">data_x</span> <span class="o">+</span> <span class="p">(</span><span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">data_x</span><span class="p">)</span> <span class="o">*</span> <span class="n">factor</span><span class="p">])</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="n">data_y</span> <span class="o">-</span> <span class="p">(</span><span class="n">data_y</span> <span class="o">-</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">factor</span><span class="p">,</span> <span class="n">data_y</span> <span class="o">+</span> <span class="p">(</span><span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">data_y</span><span class="p">)</span> <span class="o">*</span> <span class="n">factor</span><span class="p">])</span>
-
-        <span class="c1"># Redraw the figure efficiently</span>
-        <span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
 
     <span class="c1"># Bind events for hover, click interactions, and zoom</span>
     <span class="n">canvas_widget</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;Motion&gt;&quot;</span><span class="p">,</span> <span class="n">on_hover</span><span class="p">)</span>
@@ -667,7 +633,7 @@
     <span class="kn">from</span> <span class="nn">.gui_utils</span> <span class="kn">import</span> <span class="n">convert_settings_dict_for_gui</span><span class="p">,</span> <span class="n">hide_all_settings</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">generate_fields</span><span class="p">,</span> <span class="n">set_default_settings_preprocess_generate_masks</span><span class="p">,</span> <span class="n">get_measure_crop_settings</span><span class="p">,</span> <span class="n">set_default_train_test_model</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">set_default_generate_barecode_mapping</span><span class="p">,</span> <span class="n">set_default_umap_image_settings</span><span class="p">,</span> <span class="n">get_analyze_recruitment_default_settings</span>
-    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">get_default_generate_activation_map_settings</span><span class="p">,</span> <span class="n">get_analyze_plaque_settings</span>
+    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">get_default_generate_activation_map_settings</span><span class="p">,</span> <span class="n">get_analyze_plaque_settings</span><span class="p">,</span> <span class="n">get_automated_motility_assay_default_settings</span>
 
     <span class="k">def</span> <span class="nf">read_settings_from_csv</span><span class="p">(</span><span class="n">csv_file_path</span><span class="p">):</span>
         <span class="n">settings</span> <span class="o">=</span> <span class="p">{}</span>
@@ -698,6 +664,7 @@
     <span class="n">csv_settings</span> <span class="o">=</span> <span class="n">read_settings_from_csv</span><span class="p">(</span><span class="n">csv_file_path</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;mask&#39;</span><span class="p">:</span>
         <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_settings_preprocess_generate_masks</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">get_automated_motility_assay_default_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;measure&#39;</span><span class="p">:</span>
         <span class="n">settings</span> <span class="o">=</span> <span class="n">get_measure_crop_settings</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
     <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;classify&#39;</span><span class="p">:</span>
@@ -727,7 +694,7 @@
 <a class="viewcode-back" href="../../api/spacr/gui_core/index.html#spacr.gui_core.setup_settings_panel">[docs]</a>
 <span class="k">def</span> <span class="nf">setup_settings_panel</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">,</span> <span class="n">settings_type</span><span class="o">=</span><span class="s1">&#39;mask&#39;</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">vars_dict</span><span class="p">,</span> <span class="n">scrollable_frame</span>
-    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">get_identify_masks_finetune_default_settings</span><span class="p">,</span> <span class="n">set_default_analyze_screen</span><span class="p">,</span> <span class="n">set_default_settings_preprocess_generate_masks</span>
+    <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">get_identify_masks_finetune_default_settings</span><span class="p">,</span> <span class="n">set_default_analyze_screen</span><span class="p">,</span> <span class="n">set_default_settings_preprocess_generate_masks</span><span class="p">,</span> <span class="n">get_automated_motility_assay_default_settings</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">get_measure_crop_settings</span><span class="p">,</span> <span class="n">deep_spacr_defaults</span><span class="p">,</span> <span class="n">set_default_generate_barecode_mapping</span><span class="p">,</span> <span class="n">set_default_umap_image_settings</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">get_map_barcodes_default_settings</span><span class="p">,</span> <span class="n">get_analyze_recruitment_default_settings</span><span class="p">,</span> <span class="n">get_check_cellpose_models_default_settings</span><span class="p">,</span> <span class="n">get_analyze_plaque_settings</span>
     <span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="n">generate_fields</span><span class="p">,</span> <span class="n">get_perform_regression_default_settings</span><span class="p">,</span> <span class="n">get_train_cellpose_default_settings</span><span class="p">,</span> <span class="n">get_default_generate_activation_map_settings</span>
@@ -737,9 +704,7 @@
     <span class="n">size_dict</span> <span class="o">=</span> <span class="n">set_element_size</span><span class="p">()</span>
     
     <span class="n">settings_width</span> <span class="o">=</span> <span class="n">size_dict</span><span class="p">[</span><span class="s1">&#39;settings_width&#39;</span><span class="p">]</span>
-    
-    <span class="nb">print</span><span class="p">(</span><span class="n">settings_width</span><span class="p">)</span>
-    
+        
     <span class="c1"># Create a PanedWindow for the settings panel</span>
     <span class="n">settings_paned_window</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">PanedWindow</span><span class="p">(</span><span class="n">vertical_container</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="n">tk</span><span class="o">.</span><span class="n">HORIZONTAL</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">settings_width</span><span class="p">)</span>
     <span class="n">vertical_container</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">settings_paned_window</span><span class="p">,</span> <span class="n">stretch</span><span class="o">=</span><span class="s2">&quot;always&quot;</span><span class="p">)</span>
@@ -758,6 +723,7 @@
 
     <span class="k">if</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;mask&#39;</span><span class="p">:</span>
         <span class="n">settings</span> <span class="o">=</span> <span class="n">set_default_settings_preprocess_generate_masks</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">get_automated_motility_assay_default_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;measure&#39;</span><span class="p">:</span>
         <span class="n">settings</span> <span class="o">=</span> <span class="n">get_measure_crop_settings</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="p">{})</span>
     <span class="k">elif</span> <span class="n">settings_type</span> <span class="o">==</span> <span class="s1">&#39;classify&#39;</span><span class="p">:</span>
@@ -1253,7 +1219,7 @@
         <span class="n">process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
         <span class="c1"># Set CPU affinity if necessary</span>
-        <span class="n">set_cpu_affinity</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
+        <span class="c1"># set_cpu_affinity(process)</span>
 
         <span class="c1"># Store the process in thread_control for future reference</span>
         <span class="n">thread_control</span><span class="p">[</span><span class="s2">&quot;run_thread&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">process</span>

@@ -27,12 +27,14 @@ Submodules
    /api/spacr/logger/index
    /api/spacr/measure/index
    /api/spacr/ml/index
+   /api/spacr/object/index
    /api/spacr/plot/index
    /api/spacr/sequencing/index
    /api/spacr/settings/index
    /api/spacr/sim/index
    /api/spacr/sp_stats/index
    /api/spacr/spacr_cellpose/index
+   /api/spacr/spacrops/index
    /api/spacr/submodules/index
    /api/spacr/timelapse/index
    /api/spacr/toxo/index

@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spacr.gui &mdash; spacr 1.0.1 documentation</title>
+  <title>spacr.gui &mdash; spacr 1.2.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../_static/documentation_options.js?v=36f53d34"></script>
       <script src="../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -63,12 +63,14 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/logger/index.html">spacr.logger</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/measure/index.html">spacr.measure</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/ml/index.html">spacr.ml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/object/index.html">spacr.object</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/plot/index.html">spacr.plot</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sequencing/index.html">spacr.sequencing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/settings/index.html">spacr.settings</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sim/index.html">spacr.sim</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/sp_stats/index.html">spacr.sp_stats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/spacr_cellpose/index.html">spacr.spacr_cellpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spacr/spacrops/index.html">spacr.spacrops</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/submodules/index.html">spacr.submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/timelapse/index.html">spacr.timelapse</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/spacr/toxo/index.html">spacr.toxo</a></li>
@@ -113,6 +115,7 @@
 <span class="kn">from</span> <span class="nn">.gui_elements</span> <span class="kn">import</span> <span class="n">spacrButton</span><span class="p">,</span> <span class="n">create_menu_bar</span><span class="p">,</span> <span class="n">set_dark_style</span>
 <span class="kn">from</span> <span class="nn">.gui_core</span> <span class="kn">import</span> <span class="n">initiate_root</span>
 <span class="kn">from</span> <span class="nn">screeninfo</span> <span class="kn">import</span> <span class="n">get_monitors</span>
+<span class="kn">import</span> <span class="nn">webbrowser</span>
 
 <div class="viewcode-block" id="MainApp">
 <a class="viewcode-back" href="../../api/spacr/gui/index.html#spacr.gui.MainApp">[docs]</a>
@@ -133,6 +136,7 @@
         <span class="k">for</span> <span class="n">monitor</span> <span class="ow">in</span> <span class="n">get_monitors</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">monitor</span><span class="o">.</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">monitor</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">monitor</span><span class="o">.</span><span class="n">width</span> <span class="ow">and</span> <span class="n">monitor</span><span class="o">.</span><span class="n">y</span> <span class="o">&lt;=</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="n">monitor</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">monitor</span><span class="o">.</span><span class="n">height</span><span class="p">:</span>
                 <span class="n">width</span> <span class="o">=</span> <span class="n">monitor</span><span class="o">.</span><span class="n">width</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">width</span>
                 <span class="n">height</span> <span class="o">=</span> <span class="n">monitor</span><span class="o">.</span><span class="n">height</span>
                 <span class="k">break</span>
         <span class="k">else</span><span class="p">:</span>
@@ -220,6 +224,13 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">create_startup_screen</span><span class="p">()</span></div>
 
+        
+    <span class="k">def</span> <span class="nf">_update_wraplength</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">description_label</span><span class="o">.</span><span class="n">winfo_exists</span><span class="p">():</span>
+            <span class="c1"># Use the actual width of the inner_frame as a proxy for full width</span>
+            <span class="n">available_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner_frame</span><span class="o">.</span><span class="n">winfo_width</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">available_width</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">description_label</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">wraplength</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">available_width</span> <span class="o">*</span> <span class="mf">0.9</span><span class="p">))</span>  <span class="c1"># or 0.9</span>
 
 <div class="viewcode-block" id="MainApp.create_startup_screen">
 <a class="viewcode-back" href="../../api/spacr/gui/index.html#spacr.gui.MainApp.create_startup_screen">[docs]</a>
@@ -233,18 +244,30 @@
         <span class="n">additional_buttons_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inner_frame</span><span class="p">)</span>
         <span class="n">additional_buttons_frame</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
         <span class="n">set_dark_style</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">(),</span> <span class="n">containers</span><span class="o">=</span><span class="p">[</span><span class="n">additional_buttons_frame</span><span class="p">])</span>
-
-        <span class="n">description_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inner_frame</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">70</span><span class="p">)</span>
+        
+        <span class="n">description_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inner_frame</span><span class="p">)</span>
         <span class="n">description_frame</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="n">tk</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-        <span class="n">description_frame</span><span class="o">.</span><span class="n">pack_propagate</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">description_frame</span><span class="o">.</span><span class="n">columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        
         <span class="n">set_dark_style</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">(),</span> <span class="n">containers</span><span class="o">=</span><span class="p">[</span><span class="n">description_frame</span><span class="p">])</span>
+        <span class="n">style_out</span> <span class="o">=</span> <span class="n">set_dark_style</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">())</span>
+        <span class="n">font_loader</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;font_loader&#39;</span><span class="p">]</span>
+        <span class="n">font_size</span> <span class="o">=</span> <span class="n">style_out</span><span class="p">[</span><span class="s1">&#39;font_size&#39;</span><span class="p">]</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">description_label</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span> <span class="n">description_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">wraplength</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">*</span> <span class="mf">0.9</span><span class="p">),</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">font_loader</span><span class="o">.</span><span class="n">get_font</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">font_size</span><span class="p">),</span> <span class="n">fg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">color_settings</span><span class="p">[</span><span class="s1">&#39;fg_color&#39;</span><span class="p">],</span> <span class="n">bg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">color_settings</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">])</span>
+        
+        <span class="c1"># Pack it without expanding</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description_label</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">description_label</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">description_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">wraplength</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;Helvetica&#39;</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span> <span class="n">fg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">color_settings</span><span class="p">[</span><span class="s1">&#39;fg_color&#39;</span><span class="p">],</span> <span class="n">bg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">color_settings</span><span class="p">[</span><span class="s1">&#39;bg_color&#39;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">description_label</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="n">tk</span><span class="o">.</span><span class="n">BOTH</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-
-        <span class="n">logo_button</span> <span class="o">=</span> <span class="n">spacrButton</span><span class="p">(</span><span class="n">main_buttons_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;SpaCr&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_app</span><span class="p">(</span><span class="s2">&quot;logo_spacr&quot;</span><span class="p">,</span> <span class="n">initiate_root</span><span class="p">),</span> <span class="n">icon_name</span><span class="o">=</span><span class="s2">&quot;logo_spacr&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">show_text</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># Force character width and center it</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description_label</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">//</span> <span class="mi">7</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description_label</span><span class="o">.</span><span class="n">pack_configure</span><span class="p">(</span><span class="n">anchor</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+        
+        <span class="c1">#logo_button = spacrButton(main_buttons_frame, text=&quot;SpaCR&quot;, command=lambda: self.load_app(&quot;logo_spacr&quot;, initiate_root), icon_name=&quot;logo_spacr&quot;, size=100, show_text=False)</span>
+        <span class="n">logo_button</span> <span class="o">=</span> <span class="n">spacrButton</span><span class="p">(</span><span class="n">main_buttons_frame</span><span class="p">,</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;SpaCR&quot;</span><span class="p">,</span><span class="n">command</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">webbrowser</span><span class="o">.</span><span class="n">open_new</span><span class="p">(</span><span class="s2">&quot;https://einarolafsson.github.io/spacr/tutorial/&quot;</span><span class="p">),</span><span class="n">icon_name</span><span class="o">=</span><span class="s2">&quot;logo_spacr&quot;</span><span class="p">,</span><span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">show_text</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        
         <span class="n">logo_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">main_buttons</span><span class="p">[</span><span class="n">logo_button</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SpaCr provides a flexible toolset to extract single-cell images and measurements from high-content cell painting experiments, train deep-learning models to classify cellular/subcellular phenotypes, simulate, and analyze pooled CRISPR-Cas9 imaging screens.&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main_buttons</span><span class="p">[</span><span class="n">logo_button</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;spaCR provides a flexible toolset to extract single-cell images and measurements from high-content cell painting experiments, train deep-learning models to classify cellular/subcellular phenotypes, simulate, and analyze pooled CRISPR-Cas9 imaging screens. Click to open the spaCR tutorial in your browser.&quot;</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">app_name</span><span class="p">,</span> <span class="n">app_data</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main_gui_apps</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
             <span class="n">app_func</span><span class="p">,</span> <span class="n">app_desc</span> <span class="o">=</span> <span class="n">app_data</span>
@@ -258,7 +281,8 @@
             <span class="n">button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">additional_buttons</span><span class="p">[</span><span class="n">button</span><span class="p">]</span> <span class="o">=</span> <span class="n">app_desc</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">update_description</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_description</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inner_frame</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;Configure&gt;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_wraplength</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="MainApp.update_description">
