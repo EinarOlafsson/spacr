@@ -2812,6 +2812,516 @@ def suggest_training_changes(
 
     return out
 
+def suggest_training_changes(
+    dst,
+    train_csv=None,
+    val_csv=None,
+    last_k=25,
+    min_epochs=10,
+    gap_threshold_acc=0.05,
+    plateau_eps=1e-3,
+    noisy_var_ratio=0.03,
+):
+    """
+    Analyze saved training/validation progress CSVs and propose concrete training changes.
+
+    Args:
+        dst (str): Folder where progress CSVs were saved.
+        train_csv (str|None): Optional explicit path to train CSV. Autodetected if None.
+        val_csv (str|None): Optional explicit path to val CSV. Autodetected if None.
+        last_k (int): How many recent epochs to use for trend/plateau checks.
+        min_epochs (int): Minimum epochs before issuing most suggestions.
+        gap_threshold_acc (float): Accuracy generalization gap threshold (train - val).
+        plateau_eps (float): Absolute slope threshold (|d loss / d epoch|) to call a plateau.
+        noisy_var_ratio (float): If stdev(val_loss_last_k) > noisy_var_ratio * mean(val_loss_last_k), flag instability.
+
+    Returns:
+        dict with keys:
+            - summary: dict of key scalars (best_epoch, best_val_loss, final metrics, slopes, gaps)
+            - flags: list of short machine-readable flags
+            - suggestions: list of concrete, ordered suggestions (strings)
+    """
+    import os, glob, math
+    import numpy as np
+    import pandas as pd
+    
+    def _scalar(val):
+        """Ensure a single float even if a Series sneaks through."""
+        if isinstance(val, pd.Series):
+            return float(val.iloc[0])
+        return float(val)
+
+    def _find_csv(root, hint):
+        cs = sorted(glob.glob(os.path.join(root, f"*{hint}*.csv")))
+        return cs[-1] if cs else None
+
+    def _normalize_cols(df):
+        # Lowercase and strip; map common variants
+        m = {c: c.strip().lower() for c in df.columns}
+        df = df.rename(columns=m)
+
+        # FIX: drop duplicate columns — keeps the first occurrence
+        # This happens when _save_progress appends with headers repeatedly,
+        # or when the same metric appears under multiple names that alias
+        # to the same canonical name after normalization
+        df = df.loc[:, ~df.columns.duplicated(keep='first')]
+
+        # accepted aliases
+        aliases = {
+            "accuracy": ["acc", "accuracy", "train_acc", "val_acc"],
+            "loss": ["loss", "train_loss", "val_loss"],
+            "f1_macro": ["f1_macro", "macro_f1", "f1macro", "f1"],
+            "epoch": ["epoch", "epochs", "step"],
+            "lr": ["lr", "learning_rate"],
+        }
+        name_map = {}
+        for canon, opts in aliases.items():
+            for o in opts:
+                if o in df.columns:
+                    name_map[o] = canon
+        df = df.rename(columns=name_map)
+
+        # FIX: deduplicate again after aliasing — two different original names
+        # (e.g. "acc" and "accuracy") can both map to "accuracy"
+        df = df.loc[:, ~df.columns.duplicated(keep='first')]
+
+        return df
+
+    def _poly_slope(y):
+        if len(y) < 2 or np.allclose(y, y[0]):
+            return 0.0
+        x = np.arange(len(y), dtype=float)
+        # robust to NaNs: drop them
+        mask = np.isfinite(y)
+        if mask.sum() < 2:
+            return 0.0
+        coef = np.polyfit(x[mask], y[mask], 1)
+        return float(coef[0])
+
+    def _last_seq(series, k):
+        s = np.asarray(series, dtype=float)
+        return s[-min(k, len(s)):] if len(s) else np.array([])
+
+    # --- locate CSVs ---
+    train_csv = train_csv or _find_csv(dst, "train")
+    val_csv = val_csv or _find_csv(dst, "val")
+    out = {"summary": {}, "flags": [], "suggestions": []}
+
+    if not train_csv or not os.path.exists(train_csv):
+        out["flags"].append("missing_train_csv")
+        out["suggestions"].append("Could not locate train CSV; ensure _save_progress writes a train CSV in dst.")
+        return out
+    if not val_csv or not os.path.exists(val_csv):
+        out["flags"].append("missing_val_csv")
+        out["suggestions"].append("Could not locate val CSV; enable validation logging in _save_progress.")
+        return out
+
+    tr = pd.read_csv(train_csv)
+    va = pd.read_csv(val_csv)
+
+    tr = _normalize_cols(tr)
+    va = _normalize_cols(va)
+
+    # Required columns (soft-fail if absent)
+    for col in ("epoch", "loss"):
+        if col not in tr.columns or col not in va.columns:
+            out["flags"].append(f"missing_required_col:{col}")
+            out["suggestions"].append(f"Progress CSVs lack '{col}'. Ensure _save_progress writes epoch and loss.")
+            return out
+
+    # --- core scalars ---
+    best_val_idx = int(va["loss"].idxmin())
+    #best_val_loss = float(va.loc[best_val_idx, "loss"])
+    best_val_loss = _scalar(va.loc[best_val_idx, "loss"])
+
+    best_epoch = int(va.loc[best_val_idx, "epoch"]) if "epoch" in va.columns else (best_val_idx + 1)
+
+    final = {
+        "train_loss": float(tr["loss"].iloc[-1]),
+        "val_loss": float(va["loss"].iloc[-1]),
+    }
+    if "accuracy" in tr.columns:
+        final["train_accuracy"] = _scalar(tr["accuracy"].iloc[-1])
+    if "accuracy" in va.columns:
+        final["val_accuracy"] = _scalar(va["accuracy"].iloc[-1])
+    if "f1_macro" in tr.columns:
+        final["train_f1_macro"] = _scalar(tr["f1_macro"].iloc[-1])
+    if "f1_macro" in va.columns:
+        final["val_f1_macro"] = _scalar(va["f1_macro"].iloc[-1])
+
+    # --- trends on last_k ---
+    tr_last = _last_seq(tr["loss"], last_k)
+    va_last = _last_seq(va["loss"], last_k)
+    slope_tr = _poly_slope(tr_last)
+    slope_va = _poly_slope(va_last)
+
+    # noise/instability
+    val_mean = float(np.nanmean(va_last)) if len(va_last) else np.nan
+    val_std = float(np.nanstd(va_last)) if len(va_last) else np.nan
+    unstable = (len(va_last) >= max(5, last_k//2)) and np.isfinite(val_mean) and (val_std > noisy_var_ratio * max(val_mean, 1e-8))
+
+    # generalization gap (accuracy)
+    gen_gap = None
+    if "accuracy" in tr.columns and "accuracy" in va.columns:
+        gen_gap = _scalar(tr["accuracy"].iloc[-1]) - _scalar(va["accuracy"].iloc[-1])
+
+    # macro-F1 NaN detection (common when a split has a single label)
+    f1_nan_train = "f1_macro" in tr.columns and np.isnan(tr["f1_macro"]).mean() > 0.2
+    f1_nan_val = "f1_macro" in va.columns and np.isnan(va["f1_macro"]).mean() > 0.2
+
+    # improvement since best
+    since_best = int(tr.shape[0] - (best_val_idx + 1))
+    val_loss_delta_from_best = float(va["loss"].iloc[-1] - best_val_loss)
+
+    # --- summary ---
+    out["summary"].update(
+        dict(
+            best_epoch=best_epoch,
+            best_val_loss=best_val_loss,
+            final_metrics=final,
+            slope_train_loss_last_k=slope_tr,
+            slope_val_loss_last_k=slope_va,
+            val_loss_std_last_k=val_std,
+            epochs=len(tr),
+            since_best=since_best,
+            gen_gap_acc=gen_gap,
+        )
+    )
+
+    # --- heuristics to suggest changes ---
+    E = len(tr)
+
+    # 1) Too early to judge
+    if E < min_epochs:
+        out["flags"].append("few_epochs")
+        out["suggestions"].append(f"Only {E} epochs logged (<{min_epochs}). Consider training longer or using a warmer LR schedule.")
+        # Still continue to surface other obvious issues below.
+
+    # 2) Plateau (no meaningful val loss improvement recently)
+    if len(va_last) >= max(5, last_k//2) and abs(slope_va) < plateau_eps:
+        out["flags"].append("val_plateau")
+        out["suggestions"].extend([
+            "Validation loss plateau detected: try ReduceLROnPlateau (factor=0.1, patience=5–10) or cosine annealing with warm restarts.",
+            "Add/strengthen data augmentation; if already heavy, try stochastic depth/label smoothing=0.05–0.1.",
+            "If capacity may be limiting, consider a larger backbone or unfreezing more layers after a warmup.",
+        ])
+
+    # 3) Overfitting (train improving, val degrading, or large accuracy gap)
+    overfit_like = False
+    if slope_tr < -plateau_eps and slope_va > plateau_eps:
+        overfit_like = True
+    if gen_gap is not None and gen_gap > gap_threshold_acc:
+        overfit_like = True
+    if overfit_like:
+        out["flags"].append("overfitting")
+        out["suggestions"].extend([
+            "Overfitting signs: increase regularization (weight_decay e.g. 0.05→0.1), enable/raise dropout (e.g. 0.2–0.5).",
+            "Increase augmentation (color jitter, random crops, flips, CutMix/MixUp).",
+            "Use early stopping on val loss; keep the best checkpoint (epoch with min val loss).",
+            "Consider smaller head or freeze more backbone layers for longer warmup.",
+        ])
+
+    # 4) Underfitting (both losses high; train acc low and no decreasing trend)
+    train_acc_low = ("accuracy" in tr.columns and final.get("train_accuracy", 0.0) < 0.70)
+    losses_not_decreasing = (slope_tr > -plateau_eps and slope_va > -plateau_eps)
+    if train_acc_low and losses_not_decreasing:
+        out["flags"].append("underfitting")
+        out["suggestions"].extend([
+            "Underfitting signs: increase learning rate 2–4× or use a longer schedule (more epochs with decay).",
+            "Reduce regularization (lower weight_decay), or increase model capacity (bigger backbone).",
+            "Verify labels and channel order/normalization; large label noise or wrong preprocessing can cap accuracy.",
+        ])
+
+    # 5) Unstable training (high variance in recent val loss)
+    if unstable:
+        out["flags"].append("unstable_training")
+        out["suggestions"].extend([
+            "Validation loss is noisy: lower LR (e.g., ×0.5), increase batch size, or enable gradient clipping (clip_norm=1.0).",
+            "Ensure deterministic preprocessing and consistent image normalization.",
+        ])
+
+    # 6) F1 NaNs (often single-class in split/batch or metric bug)
+    if f1_nan_train or f1_nan_val:
+        out["flags"].append("f1_nan_detected")
+        out["suggestions"].extend([
+            "F1(macro) shows NaN—ensure each split has ≥2 classes and use stratified sampling.",
+            "If highly imbalanced, prefer class weights or focal loss (you already use focal—verify label distribution).",
+        ])
+
+    # 7) Regressed after best
+    if since_best >= max(5, last_k//2) and val_loss_delta_from_best > plateau_eps:
+        out["flags"].append("past_best_regression")
+        out["suggestions"].extend([
+            f"Validation loss has worsened by +{val_loss_delta_from_best:.4f} since best epoch {best_epoch}: adopt early stopping and keep best checkpoint.",
+            "Also try ReduceLROnPlateau triggered on val loss.",
+        ])
+
+    # 8) If accuracy present but macro-F1 << accuracy -> imbalance hint
+    if ("accuracy" in va.columns and "f1_macro" in va.columns
+        and np.isfinite(final.get("val_accuracy", np.nan))
+        and np.isfinite(final.get("val_f1_macro", np.nan))
+        and (final["val_accuracy"] - final["val_f1_macro"] > 0.10)):
+        out["flags"].append("class_imbalance_suspected")
+        out["suggestions"].extend([
+            "Accuracy ≫ macro-F1 suggests imbalance: use class weights, oversampling, or stronger focal loss (gamma 2–3, tune alpha).",
+            "Track per-class metrics/confusion matrices to verify rare classes.",
+        ])
+
+    # De-duplicate while preserving order
+    seen = set()
+    dedup = []
+    for s in out["suggestions"]:
+        if s not in seen:
+            dedup.append(s); seen.add(s)
+    out["suggestions"] = dedup
+
+    return out
+
+def suggest_training_changes_v1(
+    dst,
+    train_csv=None,
+    val_csv=None,
+    last_k=25,
+    min_epochs=10,
+    gap_threshold_acc=0.05,
+    plateau_eps=1e-3,
+    noisy_var_ratio=0.03,
+):
+    """
+    Analyze saved training/validation progress CSVs and propose concrete training changes.
+
+    Args:
+        dst (str): Folder where progress CSVs were saved.
+        train_csv (str|None): Optional explicit path to train CSV. Autodetected if None.
+        val_csv (str|None): Optional explicit path to val CSV. Autodetected if None.
+        last_k (int): How many recent epochs to use for trend/plateau checks.
+        min_epochs (int): Minimum epochs before issuing most suggestions.
+        gap_threshold_acc (float): Accuracy generalization gap threshold (train - val).
+        plateau_eps (float): Absolute slope threshold (|d loss / d epoch|) to call a plateau.
+        noisy_var_ratio (float): If stdev(val_loss_last_k) > noisy_var_ratio * mean(val_loss_last_k), flag instability.
+
+    Returns:
+        dict with keys:
+            - summary: dict of key scalars (best_epoch, best_val_loss, final metrics, slopes, gaps)
+            - flags: list of short machine-readable flags
+            - suggestions: list of concrete, ordered suggestions (strings)
+    """
+    import os, glob, math
+    import numpy as np
+    import pandas as pd
+
+    def _find_csv(root, hint):
+        cs = sorted(glob.glob(os.path.join(root, f"*{hint}*.csv")))
+        return cs[-1] if cs else None
+
+    def _normalize_cols(df):
+        # Lowercase and strip; map common variants
+        m = {c: c.strip().lower() for c in df.columns}
+        df = df.rename(columns=m)
+        # accepted aliases
+        aliases = {
+            "accuracy": ["acc", "accuracy", "train_acc", "val_acc"],
+            "loss": ["loss", "train_loss", "val_loss"],
+            "f1_macro": ["f1_macro", "macro_f1", "f1macro", "f1"],
+            "epoch": ["epoch", "epochs", "step"],
+            "lr": ["lr", "learning_rate"],
+        }
+        name_map = {}
+        for canon, opts in aliases.items():
+            for o in opts:
+                if o in df.columns:
+                    name_map[o] = canon
+        df = df.rename(columns=name_map)
+        return df
+
+    def _poly_slope(y):
+        if len(y) < 2 or np.allclose(y, y[0]):
+            return 0.0
+        x = np.arange(len(y), dtype=float)
+        # robust to NaNs: drop them
+        mask = np.isfinite(y)
+        if mask.sum() < 2:
+            return 0.0
+        coef = np.polyfit(x[mask], y[mask], 1)
+        return float(coef[0])
+
+    def _last_seq(series, k):
+        s = np.asarray(series, dtype=float)
+        return s[-min(k, len(s)):] if len(s) else np.array([])
+
+    # --- locate CSVs ---
+    train_csv = train_csv or _find_csv(dst, "train")
+    val_csv = val_csv or _find_csv(dst, "val")
+    out = {"summary": {}, "flags": [], "suggestions": []}
+
+    if not train_csv or not os.path.exists(train_csv):
+        out["flags"].append("missing_train_csv")
+        out["suggestions"].append("Could not locate train CSV; ensure _save_progress writes a train CSV in dst.")
+        return out
+    if not val_csv or not os.path.exists(val_csv):
+        out["flags"].append("missing_val_csv")
+        out["suggestions"].append("Could not locate val CSV; enable validation logging in _save_progress.")
+        return out
+
+    tr = pd.read_csv(train_csv)
+    va = pd.read_csv(val_csv)
+
+    tr = _normalize_cols(tr)
+    va = _normalize_cols(va)
+
+    # Required columns (soft-fail if absent)
+    for col in ("epoch", "loss"):
+        if col not in tr.columns or col not in va.columns:
+            out["flags"].append(f"missing_required_col:{col}")
+            out["suggestions"].append(f"Progress CSVs lack '{col}'. Ensure _save_progress writes epoch and loss.")
+            return out
+
+    # --- core scalars ---
+    best_val_idx = int(va["loss"].idxmin())
+    best_val_loss = float(va.loc[best_val_idx, "loss"])
+    best_epoch = int(va.loc[best_val_idx, "epoch"]) if "epoch" in va.columns else (best_val_idx + 1)
+
+    final = {
+        "train_loss": float(tr["loss"].iloc[-1]),
+        "val_loss": float(va["loss"].iloc[-1]),
+    }
+    if "accuracy" in tr.columns:
+        final["train_accuracy"] = float(tr["accuracy"].iloc[-1])
+    if "accuracy" in va.columns:
+        final["val_accuracy"] = float(va["accuracy"].iloc[-1])
+    if "f1_macro" in tr.columns:
+        final["train_f1_macro"] = float(tr["f1_macro"].iloc[-1])
+    if "f1_macro" in va.columns:
+        final["val_f1_macro"] = float(va["f1_macro"].iloc[-1])
+
+    # --- trends on last_k ---
+    tr_last = _last_seq(tr["loss"], last_k)
+    va_last = _last_seq(va["loss"], last_k)
+    slope_tr = _poly_slope(tr_last)
+    slope_va = _poly_slope(va_last)
+
+    # noise/instability
+    val_mean = float(np.nanmean(va_last)) if len(va_last) else np.nan
+    val_std = float(np.nanstd(va_last)) if len(va_last) else np.nan
+    unstable = (len(va_last) >= max(5, last_k//2)) and np.isfinite(val_mean) and (val_std > noisy_var_ratio * max(val_mean, 1e-8))
+
+    # generalization gap (accuracy)
+    gen_gap = None
+    if "accuracy" in tr.columns and "accuracy" in va.columns:
+        gen_gap = float(tr["accuracy"].iloc[-1] - va["accuracy"].iloc[-1])
+
+    # macro-F1 NaN detection (common when a split has a single label)
+    f1_nan_train = "f1_macro" in tr.columns and np.isnan(tr["f1_macro"]).mean() > 0.2
+    f1_nan_val = "f1_macro" in va.columns and np.isnan(va["f1_macro"]).mean() > 0.2
+
+    # improvement since best
+    since_best = int(tr.shape[0] - (best_val_idx + 1))
+    val_loss_delta_from_best = float(va["loss"].iloc[-1] - best_val_loss)
+
+    # --- summary ---
+    out["summary"].update(
+        dict(
+            best_epoch=best_epoch,
+            best_val_loss=best_val_loss,
+            final_metrics=final,
+            slope_train_loss_last_k=slope_tr,
+            slope_val_loss_last_k=slope_va,
+            val_loss_std_last_k=val_std,
+            epochs=len(tr),
+            since_best=since_best,
+            gen_gap_acc=gen_gap,
+        )
+    )
+
+    # --- heuristics to suggest changes ---
+    E = len(tr)
+
+    # 1) Too early to judge
+    if E < min_epochs:
+        out["flags"].append("few_epochs")
+        out["suggestions"].append(f"Only {E} epochs logged (<{min_epochs}). Consider training longer or using a warmer LR schedule.")
+        # Still continue to surface other obvious issues below.
+
+    # 2) Plateau (no meaningful val loss improvement recently)
+    if len(va_last) >= max(5, last_k//2) and abs(slope_va) < plateau_eps:
+        out["flags"].append("val_plateau")
+        out["suggestions"].extend([
+            "Validation loss plateau detected: try ReduceLROnPlateau (factor=0.1, patience=5–10) or cosine annealing with warm restarts.",
+            "Add/strengthen data augmentation; if already heavy, try stochastic depth/label smoothing=0.05–0.1.",
+            "If capacity may be limiting, consider a larger backbone or unfreezing more layers after a warmup.",
+        ])
+
+    # 3) Overfitting (train improving, val degrading, or large accuracy gap)
+    overfit_like = False
+    if slope_tr < -plateau_eps and slope_va > plateau_eps:
+        overfit_like = True
+    if gen_gap is not None and gen_gap > gap_threshold_acc:
+        overfit_like = True
+    if overfit_like:
+        out["flags"].append("overfitting")
+        out["suggestions"].extend([
+            "Overfitting signs: increase regularization (weight_decay e.g. 0.05→0.1), enable/raise dropout (e.g. 0.2–0.5).",
+            "Increase augmentation (color jitter, random crops, flips, CutMix/MixUp).",
+            "Use early stopping on val loss; keep the best checkpoint (epoch with min val loss).",
+            "Consider smaller head or freeze more backbone layers for longer warmup.",
+        ])
+
+    # 4) Underfitting (both losses high; train acc low and no decreasing trend)
+    train_acc_low = ("accuracy" in tr.columns and final.get("train_accuracy", 0.0) < 0.70)
+    losses_not_decreasing = (slope_tr > -plateau_eps and slope_va > -plateau_eps)
+    if train_acc_low and losses_not_decreasing:
+        out["flags"].append("underfitting")
+        out["suggestions"].extend([
+            "Underfitting signs: increase learning rate 2–4× or use a longer schedule (more epochs with decay).",
+            "Reduce regularization (lower weight_decay), or increase model capacity (bigger backbone).",
+            "Verify labels and channel order/normalization; large label noise or wrong preprocessing can cap accuracy.",
+        ])
+
+    # 5) Unstable training (high variance in recent val loss)
+    if unstable:
+        out["flags"].append("unstable_training")
+        out["suggestions"].extend([
+            "Validation loss is noisy: lower LR (e.g., ×0.5), increase batch size, or enable gradient clipping (clip_norm=1.0).",
+            "Ensure deterministic preprocessing and consistent image normalization.",
+        ])
+
+    # 6) F1 NaNs (often single-class in split/batch or metric bug)
+    if f1_nan_train or f1_nan_val:
+        out["flags"].append("f1_nan_detected")
+        out["suggestions"].extend([
+            "F1(macro) shows NaN—ensure each split has ≥2 classes and use stratified sampling.",
+            "If highly imbalanced, prefer class weights or focal loss (you already use focal—verify label distribution).",
+        ])
+
+    # 7) Regressed after best
+    if since_best >= max(5, last_k//2) and val_loss_delta_from_best > plateau_eps:
+        out["flags"].append("past_best_regression")
+        out["suggestions"].extend([
+            f"Validation loss has worsened by +{val_loss_delta_from_best:.4f} since best epoch {best_epoch}: adopt early stopping and keep best checkpoint.",
+            "Also try ReduceLROnPlateau triggered on val loss.",
+        ])
+
+    # 8) If accuracy present but macro-F1 << accuracy -> imbalance hint
+    if ("accuracy" in va.columns and "f1_macro" in va.columns
+        and np.isfinite(final.get("val_accuracy", np.nan))
+        and np.isfinite(final.get("val_f1_macro", np.nan))
+        and (final["val_accuracy"] - final["val_f1_macro"] > 0.10)):
+        out["flags"].append("class_imbalance_suspected")
+        out["suggestions"].extend([
+            "Accuracy ≫ macro-F1 suggests imbalance: use class weights, oversampling, or stronger focal loss (gamma 2–3, tune alpha).",
+            "Track per-class metrics/confusion matrices to verify rare classes.",
+        ])
+
+    # De-duplicate while preserving order
+    seen = set()
+    dedup = []
+    for s in out["suggestions"]:
+        if s not in seen:
+            dedup.append(s); seen.add(s)
+    out["suggestions"] = dedup
+
+    return out
+
 def _infer_indices(target: torch.Tensor, num_classes: int) -> torch.Tensor:
     """Return class indices (N,) from target that may be long or one-hot/float."""
     if target.dtype == torch.long:
