@@ -1013,7 +1013,7 @@ def start_process(q=None, fig_queue=None, settings_type='mask'):
         process.start()
 
         # Set CPU affinity if necessary
-        set_cpu_affinity(process)
+        # set_cpu_affinity(process)
 
         # Store the process in thread_control for future reference
         thread_control["run_thread"] = process
