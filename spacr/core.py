@@ -165,15 +165,7 @@ def preprocess_generate_masks(settings):
                     _pivot_counts_table(db_path=os.path.join(src,'measurements', 'measurements.db'))
 
                 #Concatenate stack with masks
-                _load_and_concatenate_arrays(src, settings['channels'], settings['cell_channel'], settings['nucleus_channel'], settings['pathogen_channel'])
-                
-                # summarise nuclei & pathogen features per cell track
-                #if settings.get('timelapse', True) and settings.get('cell_channel') is not None and (settings.get('nucleus_channel') is not None or settings.get('pathogen_channel') is not None):
-                    
-                    #try:
-                        #_summarise_object_relationships(src, settings)
-                    #except Exception as e:
-                        #print(f"Warning: failed to summarise cell/nucleus/pathogen relationships for {src}. Error: {e}")
+                _load_and_concatenate_arrays(src, settings.get('channels'), settings.get('cell_channel'), settings.get('nucleus_channel'), settings.get('pathogen_channel'), settings.get('organelle_channel'))
                 
                 if settings['plot']:
                     if not settings['timelapse']:

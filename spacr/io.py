@@ -1949,9 +1949,6 @@ def _create_database(db_path):
             conn.close() 
     
 def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_dim, pathogen_chann_dim, organelle_chann_dim):
-
-    from .utils import print_progress
-
     """
     Load and concatenate arrays from multiple folders.
 
@@ -1961,10 +1958,13 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
         cell_chann_dim (int): Dimension of the cell channel.
         nucleus_chann_dim (int): Dimension of the nucleus channel.
         pathogen_chann_dim (int): Dimension of the pathogen channel.
+        organelle_chann_dim (int or None): Dimension of the organelle channel. If None, organelle masks are included only if the folder exists.
 
     Returns:
         None
     """
+    from .utils import print_progress
+
     folder_paths = [os.path.join(src+'/stack')]
 
     if cell_chann_dim is not None or os.path.exists(os.path.join(src, 'masks', 'cell_mask_stack')):

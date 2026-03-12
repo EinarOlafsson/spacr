@@ -19,7 +19,6 @@ from skimage.restoration import rolling_ball
 
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
 
-
 def generate_cellpose_masks(src, settings, object_type):
     
     from .utils import _masks_to_masks_stack, _filter_cp_masks, _get_cellpose_channels, _choose_model, all_elements_match, prepare_batch_for_segmentation
@@ -389,46 +388,6 @@ def _segment_network(img, method, settings):
  
     return sk_label(binary)
 
-import os
-import gc
-import time
-import numpy as np
-import torch
-from functools import partial
-from multiprocessing import Pool, cpu_count
-from scipy.ndimage import distance_transform_edt
-from skimage.filters import (
-    threshold_otsu,
-    threshold_local,
-    frangi,
-    sato,
-    meijering,
-    gaussian,
-    difference_of_gaussians,
-    apply_hysteresis_threshold,
-)
-from skimage.feature import blob_log, blob_dog, peak_local_max
-from skimage.morphology import (
-    remove_small_objects,
-    remove_small_holes,
-    binary_opening,
-    binary_closing,
-    binary_dilation,
-    binary_erosion,
-    disk,
-    skeletonize,
-    white_tophat,
-)
-from skimage.segmentation import watershed
-from skimage.measure import label as sk_label, regionprops
-from skimage.exposure import equalize_adapthist, rescale_intensity
-from skimage.restoration import rolling_ball
-
-
-# ====================================================================== #
-#  Main entry point
-# ====================================================================== #
-
 def generate_organelle_masks(src, settings, object_type):
     """
     Generate organelle masks using multiple segmentation strategies.
@@ -469,6 +428,7 @@ def generate_organelle_masks(src, settings, object_type):
     from .io import _create_database, _save_object_counts_to_database, _check_masks, _get_avg_object_size
     from .utils import _masks_to_masks_stack, _filter_cp_masks, prepare_batch_for_segmentation
     from .settings import _set_organelle_defaults
+    from.plot import plot_organelle_masks
 
     gc.collect()
 
@@ -648,6 +608,20 @@ def generate_organelle_masks(src, settings, object_type):
                 f'[batch {file_index+1}/{len(paths)}, {duration:.1f}s, '
                 f'n_jobs={n_jobs if not is_dl_method else "GPU"}]'
             )
+            
+            # ---------------------------------------------------------- #
+            #  Plot (if enabled)
+            # ---------------------------------------------------------- #
+            if settings.get('plot', False):
+                plot_organelle_output(
+                    img_batch[: len(mask_stack)],
+                    mask_stack,
+                    settings,
+                    cmap='inferno',
+                    figuresize=10,
+                    nr=min(settings.get('examples_to_plot', 1), len(mask_stack)),
+                    print_object_number=True,
+                )
 
             # ---------------------------------------------------------- #
             #  Save
@@ -663,80 +637,6 @@ def generate_organelle_masks(src, settings, object_type):
 
     torch.cuda.empty_cache()
     return
-
-
-# ====================================================================== #
-#  Settings & validation helpers
-# ====================================================================== #
-
-def _set_organelle_defaults(settings):
-    """Fill in default values for all organelle_* keys."""
-    defaults = {
-        # General
-        'organelle_channel': None,
-        'organelle_morphology': 'spots',
-        'organelle_method': 'otsu',
-        'organelle_diameter': 30,
-        'organelle_model_name': 'cyto3',
-        'organelle_min_size': 10,
-        'organelle_max_size': None,
-        'organelle_remove_border': False,
-
-        # Preprocessing
-        'organelle_rolling_ball': False,
-        'organelle_rolling_ball_radius': 50,
-        'organelle_clahe': False,
-        'organelle_clahe_clip_limit': 0.01,
-        'organelle_mask_within_cells': False,
-
-        # Spots
-        'organelle_log_min_sigma': 1,
-        'organelle_log_max_sigma': 10,
-        'organelle_log_num_sigma': 10,
-        'organelle_log_threshold': 0.01,
-        'organelle_dog_sigma_low': 1.0,
-        'organelle_dog_sigma_high': 3.0,
-        'organelle_tophat_radius': 5,
-        'organelle_watershed_spots': True,
-
-        # Stardist
-        'organelle_stardist_model': '2D_versatile_fluo',
-        'organelle_stardist_prob': 0.5,
-        'organelle_stardist_nms': 0.3,
-
-        # Network
-        'organelle_ridge_sigmas': [1, 2, 3],
-        'organelle_ridge_filter': 'frangi',
-        'organelle_skeletonize': False,
-        'organelle_network_threshold': 'otsu',
-        'organelle_hysteresis_low': 0.2,
-        'organelle_hysteresis_high': 0.6,
-
-        # U-Net
-        'organelle_unet_model_path': None,
-        'organelle_unet_threshold': 0.5,
-
-        # Irregular
-        'organelle_adaptive_block_size': 51,
-        'organelle_adaptive_offset': 5,
-        'organelle_morph_radius': 3,
-        'organelle_fill_holes': 64,
-
-        # Ring
-        'organelle_ring_sigma_inner': 1.0,
-        'organelle_ring_sigma_outer': 3.0,
-        'organelle_ring_min_prominence': 0.1,
-        'organelle_ring_fill_method': 'flood',
-
-        # Cellpose
-        'organelle_CP_prob': 0.0,
-        'organelle_FT': 0.4,
-        'organelle_resample': True,
-    }
-    for key, val in defaults.items():
-        settings.setdefault(key, val)
-    return settings
-
 
 def _validate_organelle_settings(morphology, method):
     """Raise early on invalid morphology / method combinations."""
