@@ -395,7 +395,14 @@ def convert_settings_dict_for_gui(settings):
         'agg_type': ('combo', ['mean', 'median'], 'mean'),
         'grouping': ('combo', ['mean', 'median'], 'mean'),
         'min_max': ('combo', ['allq', 'all'], 'allq'),
-        'transform': ('combo', ['log', 'sqrt', 'square', None], None)
+        'transform': ('combo', ['log', 'sqrt', 'square', None], None),
+        'organelle_morphology': ('combo', ['spots', 'network', 'irregular', 'ring'], 'spots'),
+        'organelle_method': ('combo', ['otsu', 'adaptive', 'log', 'dog', 'ridge', 'hysteresis', 'cellpose', 'stardist', 'unet'], 'otsu'),
+        'organelle_model_name': ('combo', ['cyto', 'cyto2', 'cyto3', 'nuclei'], 'cyto3'),
+        'organelle_ridge_filter': ('combo', ['frangi', 'sato', 'meijering'], 'frangi'),
+        'organelle_network_threshold': ('combo', ['otsu', 'adaptive'], 'otsu'),
+        'organelle_ring_fill_method': ('combo', ['flood', 'convex'], 'flood'),
+        'organelle_stardist_model': ('combo', ['2D_versatile_fluo', '2D_paper_dsb2018'], '2D_versatile_fluo')
     }
 
     for key, value in settings.items():

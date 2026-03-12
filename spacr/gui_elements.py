@@ -3920,10 +3920,7 @@ class AnnotateApp:
             'channels': ('combo', chan_list, '[0,1,2,3]'),
             'train_channels': ('combo', ["['r','g','b']", "['r','g']", "['r','b']", "['g','b']", "['r']", "['g']", "['b']"], "['r','g','b']"),
             'channel_dims': ('combo', chan_list, '[0,1,2,3]'),
-
-            # CHANGED: include 'measurement' instead of 'recruitment'
             'dataset_mode': ('combo', ['annotation', 'metadata', 'measurement'], 'metadata'),
-
             'cov_type': ('combo', ['HC0', 'HC1', 'HC2', 'HC3', None], None),
             'crop_mode': ('combo', ["['cell']", "['nucleus']", "['pathogen']", "['cell', 'nucleus']", "['cell', 'pathogen']", "['nucleus', 'pathogen']", "['cell', 'nucleus', 'pathogen']"], "['cell']"),
             'timelapse_mode': ('combo', ['trackpy', 'iou', 'btrack'], 'trackpy'),
@@ -3941,7 +3938,14 @@ class AnnotateApp:
             'agg_type': ('combo', ['mean', 'median'], 'mean'),
             'grouping': ('combo', ['mean', 'median'], 'mean'),
             'min_max': ('combo', ['allq', 'all'], 'allq'),
-            'transform': ('combo', ['log', 'sqrt', 'square', None], None)
+            'transform': ('combo', ['log', 'sqrt', 'square', None], None),
+            'organelle_morphology': ('combo', ['spots', 'network', 'irregular', 'ring'], 'spots'),
+            'organelle_method': ('combo', ['otsu', 'adaptive', 'log', 'dog', 'ridge', 'hysteresis', 'cellpose', 'stardist', 'unet'], 'otsu'),
+            'organelle_model_name': ('combo', ['cyto', 'cyto2', 'cyto3', 'nuclei'], 'cyto3'),
+            'organelle_ridge_filter': ('combo', ['frangi', 'sato', 'meijering'], 'frangi'),
+            'organelle_network_threshold': ('combo', ['otsu', 'adaptive'], 'otsu'),
+            'organelle_ring_fill_method': ('combo', ['flood', 'convex'], 'flood'),
+            'organelle_stardist_model': ('combo', ['2D_versatile_fluo', '2D_paper_dsb2018'], '2D_versatile_fluo')
         }
 
         for key, value in settings.items():

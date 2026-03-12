@@ -70,7 +70,8 @@ dependencies = [
     'ipykernel',
     'ipywidgets>=8.1.2,<9.0',
     'brokenaxes>=0.6.2,<1.0',
-    'huggingface-hub>=0.24.0,<0.25'
+    'huggingface-hub>=0.24.0,<0.25',
+    'stardist>=0.9,<1.0'
 ]
 
 VERSION = "1.2.5"
