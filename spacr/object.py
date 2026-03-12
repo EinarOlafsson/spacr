@@ -428,7 +428,7 @@ def generate_organelle_masks(src, settings, object_type):
     from .io import _create_database, _save_object_counts_to_database, _check_masks, _get_avg_object_size
     from .utils import _masks_to_masks_stack, _filter_cp_masks, prepare_batch_for_segmentation
     from .settings import _set_organelle_defaults
-    from.plot import plot_organelle_masks
+    from.plot import plot_organelle_output
 
     gc.collect()
 
