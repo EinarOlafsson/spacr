@@ -43,8 +43,10 @@ def set_high_priority(process):
         print(f"Failed to set high priority for process {process.pid}: {e}")
 
 def set_cpu_affinity(process):
-    p = psutil.Process(process.pid)
-    p.cpu_affinity(list(range(os.cpu_count())))
+    import platform
+    if platform.system() == 'Linux':
+        p = psutil.Process(process.pid)
+        p.cpu_affinity(list(range(os.cpu_count())))
     
 def proceed_with_app(root, app_name, app_func):
     # Clear the current content frame
