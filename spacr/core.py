@@ -1057,6 +1057,9 @@ def _watershed_split(binary, intensity):
     distance = distance_transform_edt(binary)
     coords = peak_local_max(distance, min_distance=5, labels=binary)
     markers = np.zeros(binary.shape, dtype=np.int32)
+    if len(coords) == 0:
+        return sk_label(binary)
+    
     for i, (r, c) in enumerate(coords, start=1):
         markers[r, c] = i
     labeled = watershed(-distance, markers, mask=binary)
