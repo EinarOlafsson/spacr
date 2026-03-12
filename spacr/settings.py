@@ -1104,7 +1104,6 @@ expected_types = {
     'infection_pca_umap_n_neighbors':int,
     'infection_pca_umap_min_dist':float,
     'infection_pca_tsne_perplexity':float,
-<<<<<<< HEAD
     'organelle_channel': (int, type(None)),
     'organelle_morphology': str,
     'organelle_method': str,
@@ -1132,13 +1131,11 @@ expected_types = {
     'organelle_resample': bool,
     'organelle_mask_dim':(int, type(None)),
     'organelle_chann_dim':(int, type(None)),
-=======
     'early_stopping_patience':int,
     'logit_adjust_tau':float,
     'focal_alpha':( float, type(None)),
     'focal_gamma':float,
     'label_smoothing':float,
->>>>>>> 795760f (bugs)
 }
 
 motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_strategy', 'seconds_per_frame', 'pixels_per_um', 'motility_ylim', 'motility_xlim', 'infection_intensity_qc_scope']
