@@ -2846,13 +2846,10 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
 
     data = spacrDataset(data_dir, classes, transform=transform,
                         shuffle=True, pin_memory=pin_memory)
-
-    # FIX: actually use the computed num_workers variable
-    # WHY: the original computed `num_workers = n_jobs if n_jobs is not None else 0`
-    #      but then hardcoded `num_workers=1` in every DataLoader call.  This
-    #      starves the GPU — data loading becomes the bottleneck because only 1
-    #      worker is fetching/augmenting batches
-    num_workers = n_jobs if n_jobs is not None else 0
+    
+    #num_workers = n_jobs if n_jobs is not None else 0
+    num_workers = max(n_jobs, 4) if n_jobs is not None else 0
+    use_persistent = num_workers > 0
 
     if validation_split > 0 and mode == 'train':
         train_size = int((1 - validation_split) * len(data))
@@ -2870,7 +2867,7 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
         train_loaders = DataLoader(train_dataset, batch_size=batch_size, shuffle=True,
                                    num_workers=num_workers,  # FIX: was hardcoded to 1
                                    pin_memory=pin_memory,
-                                   persistent_workers=(num_workers > 0))
+                                   persistent_workers=use_persistent)
 
         # FIX: don't shuffle the validation DataLoader
         # WHY: shuffling validation data wastes time and has zero benefit —
@@ -2879,7 +2876,7 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
                                  shuffle=False,  # FIX: was True
                                  num_workers=num_workers,  # FIX: was hardcoded to 1
                                  pin_memory=pin_memory,
-                                 persistent_workers=(num_workers > 0))
+                                 persistent_workers=use_persistent)
         train_fig = None
         return train_loaders, val_loaders, train_fig
 
@@ -2887,7 +2884,7 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
         train_loaders = DataLoader(data, batch_size=batch_size, shuffle=True,
                                    num_workers=num_workers,  # FIX: was hardcoded to 1
                                    pin_memory=pin_memory,
-                                   persistent_workers=(num_workers > 0))
+                                   persistent_workers=use_persistent)
         val_loaders = []
         train_fig = None
         return train_loaders, val_loaders, train_fig
