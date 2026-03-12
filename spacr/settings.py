@@ -101,7 +101,36 @@ def set_default_settings_preprocess_generate_masks(settings={}):
     settings.setdefault('use_sam_nucleus', False)
     settings.setdefault('use_sam_pathogen', False)
     
+    #organelle settings
+    settings.setdefault('organelle_channel', None)
+    settings.setdefault('organelle_morphology', 'spots')
+    settings.setdefault('organelle_method', 'otsu')
+    settings.setdefault('organelle_diameter', 30)
+    settings.setdefault('organelle_model_name','cyto3' )
+    settings.setdefault('organelle_min_size', 10)
+    settings.setdefault('organelle_max_size', None)
+    settings.setdefault('organelle_remove_border',False )
+    settings.setdefault('organelle_log_min_sigma', 1)
+    settings.setdefault('organelle_log_max_sigma', 10)
+    settings.setdefault('organelle_log_num_sigma', 10)
+    settings.setdefault('organelle_log_threshold', 0.01)
+    settings.setdefault('organelle_tophat_radius', 5)
+    settings.setdefault('organelle_watershed_spots', True)
+    settings.setdefault('organelle_ridge_sigmas', [1, 2, 3])
+    settings.setdefault('organelle_ridge_filter', 'frangi')
+    settings.setdefault('organelle_skeletonize', False)
+    settings.setdefault('organelle_network_threshold','otsu' )
+    settings.setdefault('organelle_adaptive_block_size', 51)
+    settings.setdefault('organelle_adaptive_offset', 5)
+    settings.setdefault('organelle_morph_radius', 3)
+    settings.setdefault('organelle_fill_holes', 64)
+    settings.setdefault('organelle_CP_prob', 0.0)
+    settings.setdefault('organelle_FT', 0.4)
+    settings.setdefault('organelle_resample', True)
+
     return settings
+
+
 
 def set_default_plot_data_from_db(settings):
     settings.setdefault('src', 'path')
@@ -1067,8 +1096,34 @@ expected_types = {
     'infection_pca_umap_n_neighbors':int,
     'infection_pca_umap_min_dist':float,
     'infection_pca_tsne_perplexity':float,
+    'organelle_channel': (int, type(None)),
+    'organelle_morphology': str,
+    'organelle_method': str,
+    'organelle_diameter': int,
+    'organelle_model_name':str,
+    'organelle_min_size': (int, type(None)),
+    'organelle_max_size': (int, type(None)),
+    'organelle_remove_border':bool,
+    'organelle_log_min_sigma': int,
+    'organelle_log_max_sigma': int,
+    'organelle_log_num_sigma': int,
+    'organelle_log_threshold': float,
+    'organelle_tophat_radius': int,
+    'organelle_watershed_spots': bool,
+    'organelle_ridge_sigmas': list,
+    'organelle_ridge_filter': str,
+    'organelle_skeletonize': bool,
+    'organelle_network_threshold':str,
+    'organelle_adaptive_block_size': int,
+    'organelle_adaptive_offset': int,
+    'organelle_morph_radius': int,
+    'organelle_fill_holes': int,
+    'organelle_CP_prob': float,
+    'organelle_FT': float,
+    'organelle_resample': bool,
+    'organelle_mask_dim':(int, type(None)),
+    'organelle_chann_dim':(int, type(None)),
 }
-
 
 motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_strategy', 'seconds_per_frame', 'pixels_per_um', 'motility_ylim', 'motility_xlim', 'infection_intensity_qc_scope']
 
@@ -1083,6 +1138,12 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel",  "test_mode", "plot", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "delete_intermediate", "uninfected", ],
              "Cellpose":["fill_in","from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
              "Cell": ["cell_diamiter","cell_intensity_range", "cell_size_range", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cytoplasm_min_size", "adjust_cells", "cells", "cell_loc"],
+             "Organelle": ["organelle_mask_dim","organelle_chann_dim","organelle_channel","organelle_morphology","organelle_method", "organelle_diameter","organelle_min_size","organelle_max_size","organelle_remove_border"],
+             "Organelle spot detection": ["organelle_tophat_radius","organelle_watershed_spots","organelle_log_min_sigma","organelle_log_max_sigma","organelle_log_num_sigma","organelle_log_threshold"],
+             "Organelle network detection": ["organelle_ridge_filter","organelle_ridge_sigmas","organelle_skeletonize","organelle_network_threshold"],
+             "Organelle irregular detection": ["organelle_morph_radius","organelle_fill_holes"],
+             "Organelle cellpose": ["organelle_model_name","organelle_CP_prob","organelle_FT","organelle_resample"],
+             "Organelle adaptive threshold": ["organelle_adaptive_block_size","organelle_adaptive_offset"],             
              "Nucleus": ["nucleus_diamiter","nucleus_intensity_range", "nucleus_size_range", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_loc"],
              "Pathogen": ["pathogen_diamiter","pathogen_intensity_range", "pathogen_size_range", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogens", "pathogen_loc", "pathogen_types", "pathogen_plate_metadata", ],
              "Measurements": ["remove_image_canvas", "remove_highly_correlated", "homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements", "tables", "image_nr", "dot_size", "filter_by", "remove_highly_correlated_features", "remove_low_variance_features", "channel_of_interest"],
@@ -1095,7 +1156,7 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Hyperparamiters (Regression)":["cross_validation","prune_features","reg_lambda","reg_alpha","cov_type", "plate", "other", "fraction_threshold", "alpha", "random_row_column_effects", "regression_type", "min_cell_count", "agg_type", "transform", "dependent_variable"],
              "Hyperparamiters (Activation)":["cam_type", "overlay", "correlation", "target_layer", "normalize_input"],
              "Annotation": ["filter_column", "filter_value","volcano", "toxo", "controls", "nc_loc", "pc_loc", "nc", "pc", "cell_plate_metadata","treatment_plate_metadata", "metadata_types", "cell_types", "target","positive_control","negative_control", "location_column", "treatment_loc", "channel_of_interest", "measurement", "treatments", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
-             "Plot": ["split_axis_lims", "x_lim","log_x","log_y", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","cmap","save_figure"],
+             "Plot": ["split_axis_lims", "x_lim","log_x","log_y", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","save_figure"],
              "Timelapse": ["timelapse", "fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
              "Advanced": ["merge_edge_pathogen_cells", "test_images", "random_test", "test_nr", "test", "test_split", "normalize", "target_unique_count","threshold_multiplier", "threshold_method", "min_n","shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs"],
              "Beta": ["all_to_mip", "upscale", "upscale_factor", "consolidate", "distance_gaussian_sigma","use_sam_pathogen","use_sam_nucleus", "use_sam_cell", "denoise"],
@@ -1558,7 +1619,33 @@ def generate_fields(variables, scrollable_frame):
         "infection_pca_max_cells": "(int) - Maximum number of cells to subsample for PCA/UMAP/t-SNE to limit runtime and memory use.",
         "infection_intensity_qc_scope": "(str) - Perform xgboost, pca, umap or tsne on the global or well level (combined (default), plate, well, none / off).",
         
-        
+        'organelle_channel': "(int) - The channel index in the image stack for the organelle signal.",
+        'organelle_morphology': "(str) - Morphology mode for segmentation: 'spots' (punctate, e.g. lipid droplets, vesicles), 'network' (filamentous, e.g. mitochondria, microtubules), or 'irregular' (e.g. Golgi, ER cisternae).",
+        'organelle_method': "(str) - Segmentation backend. Valid options depend on morphology: spots → 'otsu','adaptive','log','cellpose'; network → 'otsu','adaptive','ridge','cellpose'; irregular → 'otsu','adaptive','cellpose'.",
+        'organelle_diameter': "(float) - Estimated diameter of organelles in pixels. Used by Cellpose and for morphological kernel sizing.",
+        'organelle_model_name': "(str) - Name of the Cellpose model to use when method='cellpose' (e.g. 'cyto3', 'nuclei').",
+        'organelle_min_size': "(int) - Minimum organelle object area in pixels². Objects smaller than this are removed.",
+        'organelle_max_size': "(int or None) - Maximum organelle object area in pixels². Objects larger than this are removed. None = no upper limit.",
+        'organelle_remove_border': "(bool) - Whether to remove organelle objects touching the image border.",
+        'organelle_log_min_sigma': "(float) - Minimum sigma for Laplacian of Gaussian blob detection (spots/log mode only).",
+        'organelle_log_max_sigma': "(float) - Maximum sigma for Laplacian of Gaussian blob detection (spots/log mode only).",
+        'organelle_log_num_sigma': "(int) - Number of intermediate sigma steps between min and max for LoG blob detection.",
+        'organelle_log_threshold': "(float) - Detection threshold for LoG blob response. Lower values detect more blobs.",
+        'organelle_tophat_radius': "(int) - Radius of the disk structuring element for white top-hat pre-filtering. Enhances bright spots on dark background (spots mode only).",
+        'organelle_watershed_spots': "(bool) - Whether to apply marker-controlled watershed to separate touching spots using distance transform peaks.",
+        'organelle_ridge_sigmas': "(list of float) - Sigma values for the ridge (tubeness) filter, e.g. [1, 2, 3]. Controls the scale of detected filaments (network/ridge mode only).",
+        'organelle_ridge_filter': "(str) - Which ridge filter to use: 'frangi', 'sato', or 'meijering' (network/ridge mode only).",
+        'organelle_skeletonize': "(bool) - Whether to return a skeletonized binary mask instead of labelled regions (network mode only).",
+        'organelle_network_threshold': "(str) - Thresholding method applied after ridge filtering: 'otsu' or 'adaptive' (network/ridge mode only).",
+        'organelle_adaptive_block_size': "(int) - Block size for local adaptive thresholding. Must be odd. Larger values adapt to broader intensity gradients.",
+        'organelle_adaptive_offset': "(float) - Offset subtracted from the local mean in adaptive thresholding. Higher values yield more conservative (less) segmentation.",
+        'organelle_morph_radius': "(int) - Radius of the disk structuring element for morphological opening/closing cleanup.",
+        'organelle_fill_holes': "(int) - Fill internal holes smaller than this area in pixels². Set to 0 to disable hole filling.",
+        'organelle_CP_prob': "(float) - Cellpose cell probability threshold for organelle segmentation. Higher values are more stringent.",
+        'organelle_FT': "(float) - Cellpose flow threshold for organelle segmentation. Lower values require better flow agreement.",
+        'organelle_resample': "(bool) - Whether Cellpose resamples the image to match the specified diameter.",
+        'organelle_mask_dim': "(int) - The dimension of the array the organelle mask is saved in (array order: channels, cell, nucleus, pathogen, organelle, cytoplasm). Array starts at dimension 0.",
+        'organelle_chann_dim': "(int) - The channel dimension index for organelle masks in the saved array.",
     }
     
     for key, (var_type, options, default_value) in variables.items():
@@ -1904,3 +1991,47 @@ def get_automated_motility_assay_default_settings(settings):
     settings.setdefault('infection_pca_tsne_perplexity', 30.0)
     
     return settings
+
+def _set_organelle_defaults(settings):
+    """Fill in default values for all organelle_* keys."""
+    defaults = {
+        # General
+        'organelle_channel': None,
+        'organelle_morphology': 'spots',
+        'organelle_method': 'otsu',
+        'organelle_diameter': 30,
+        'organelle_model_name': 'cyto3',
+        'organelle_min_size': 10,
+        'organelle_max_size': None,
+        'organelle_remove_border': False,
+
+        # Spots
+        'organelle_log_min_sigma': 1,
+        'organelle_log_max_sigma': 10,
+        'organelle_log_num_sigma': 10,
+        'organelle_log_threshold': 0.01,
+        'organelle_tophat_radius': 5,
+        'organelle_watershed_spots': True,
+
+        # Network
+        'organelle_ridge_sigmas': [1, 2, 3],
+        'organelle_ridge_filter': 'frangi',
+        'organelle_skeletonize': False,
+        'organelle_network_threshold': 'otsu',
+
+        # Irregular
+        'organelle_adaptive_block_size': 51,
+        'organelle_adaptive_offset': 5,
+        'organelle_morph_radius': 3,
+        'organelle_fill_holes': 64,
+
+        # Cellpose
+        'organelle_CP_prob': 0.0,
+        'organelle_FT': 0.4,
+        'organelle_resample': True,
+    }
+    for key, val in defaults.items():
+        if key not in settings:
+            settings[key] = val
+    return settings
+
