@@ -6021,6 +6021,112 @@ def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask
         parasite_mask (ndarray): Mask of parasites.
         cell_mask (ndarray): Mask of cells.
         nuclei_mask (ndarray): Mask of nuclei.
+        organelle_mask (ndarray or None): Mask of organelles.
+        overlap_threshold (float): The percentage threshold for merging cells based on parasite overlap.
+        perimeter_threshold (float): The percentage threshold for merging cells based on shared perimeter.
+
+    Returns:
+        ndarray: The modified cell mask (cell_mask) with unique labels.
+    """
+    labeled_cells = label(cell_mask)
+    labeled_parasites = label(parasite_mask)
+    labeled_nuclei = label(nuclei_mask)
+    num_parasites = np.max(labeled_parasites)
+    num_cells = np.max(labeled_cells)
+    num_nuclei = np.max(labeled_nuclei)
+
+    if organelle_mask is not None:
+        labeled_organelles = label(organelle_mask)
+        num_organelles = np.max(labeled_organelles)
+    else:
+        labeled_organelles = None
+        num_organelles = 0
+
+    # Merge cells based on parasite overlap
+    for parasite_id in range(1, num_parasites + 1):
+        current_parasite_mask = labeled_parasites == parasite_id
+        overlapping_cell_labels = np.unique(labeled_cells[current_parasite_mask])
+        overlapping_cell_labels = overlapping_cell_labels[overlapping_cell_labels != 0]
+        if len(overlapping_cell_labels) > 1:
+            
+            # Calculate the overlap percentages
+            overlap_percentages = [
+                np.sum(current_parasite_mask & (labeled_cells == cell_label)) / np.sum(current_parasite_mask) * 100
+                for cell_label in overlapping_cell_labels
+            ]
+            # Merge cells if overlap percentage is above the threshold
+            for cell_label, overlap_percentage in zip(overlapping_cell_labels, overlap_percentages):
+                if overlap_percentage > overlap_threshold:
+                    first_label = overlapping_cell_labels[0]
+                    for other_label in overlapping_cell_labels[1:]:
+                        if other_label != first_label:
+                            cell_mask[cell_mask == other_label] = first_label
+
+    # Merge cells based on nucleus overlap
+    for nucleus_id in range(1, num_nuclei + 1):
+        current_nucleus_mask = labeled_nuclei == nucleus_id
+        overlapping_cell_labels = np.unique(labeled_cells[current_nucleus_mask])
+        overlapping_cell_labels = overlapping_cell_labels[overlapping_cell_labels != 0]
+        if len(overlapping_cell_labels) > 1:
+            
+            # Calculate the overlap percentages
+            overlap_percentages = [
+                np.sum(current_nucleus_mask & (labeled_cells == cell_label)) / np.sum(current_nucleus_mask) * 100
+                for cell_label in overlapping_cell_labels
+            ]
+            # Merge cells if overlap percentage is above the threshold for each cell
+            if all(overlap_percentage > overlap_threshold for overlap_percentage in overlap_percentages):
+                first_label = overlapping_cell_labels[0]
+                for other_label in overlapping_cell_labels[1:]:
+                    if other_label != first_label:
+                        cell_mask[cell_mask == other_label] = first_label
+
+    # Check for cells without nuclei and merge based on shared perimeter
+    labeled_cells = label(cell_mask)  # Re-label after merging based on overlap
+    cell_regions = regionprops(labeled_cells)
+    for region in cell_regions:
+        cell_label = region.label
+        cell_mask_binary = labeled_cells == cell_label
+        overlapping_nuclei = np.unique(nuclei_mask[cell_mask_binary])
+        overlapping_nuclei = overlapping_nuclei[overlapping_nuclei != 0]
+
+        if len(overlapping_nuclei) == 0:
+            
+            # Cell does not overlap with any nucleus
+            perimeter = region.perimeter
+            
+            # Dilate the cell to find neighbors
+            dilated_cell = binary_dilation(cell_mask_binary, structure=square(3))
+            neighbor_cells = np.unique(labeled_cells[dilated_cell])
+            neighbor_cells = neighbor_cells[(neighbor_cells != 0) & (neighbor_cells != cell_label)]
+            
+            # Calculate shared border length with neighboring cells
+            shared_borders = [
+                np.sum((labeled_cells == neighbor_label) & dilated_cell) for neighbor_label in neighbor_cells
+            ]
+            shared_border_percentages = [shared_border / perimeter * 100 for shared_border in shared_borders]
+            
+            # Merge with the neighbor cell with the largest shared border percentage above the threshold
+            if shared_borders:
+                max_shared_border_index = np.argmax(shared_border_percentages)
+                max_shared_border_percentage = shared_border_percentages[max_shared_border_index]
+                if max_shared_border_percentage > perimeter_threshold:
+                    cell_mask[labeled_cells == cell_label] = neighbor_cells[max_shared_border_index]
+    
+    # Relabel the merged cell mask
+    relabeled_cell_mask, _ = label(cell_mask, return_num=True)
+    return relabeled_cell_mask.astype(np.uint16)
+
+def _merge_cells_based_on_parasite_overlap_v2(parasite_mask, cell_mask, nuclei_mask, organelle_mask, overlap_threshold=5, perimeter_threshold=30):
+    
+    """
+    Merge cells in cell_mask if a parasite in parasite_mask overlaps with more than one cell,
+    and if cells share more than a specified perimeter percentage.
+
+    Args:
+        parasite_mask (ndarray): Mask of parasites.
+        cell_mask (ndarray): Mask of cells.
+        nuclei_mask (ndarray): Mask of nuclei.
         overlap_threshold (float): The percentage threshold for merging cells based on parasite overlap.
         perimeter_threshold (float): The percentage threshold for merging cells based on shared perimeter.
 
