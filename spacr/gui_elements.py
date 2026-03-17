@@ -2220,9 +2220,7 @@ class AnnotateApp:
         self.src = src
         self.index = 0
         
-        #self.update_queue.put(self.SENTINEL)
-        self.SENTINEL = object()        # unique sentinel for shutdown
-        #self.update_queue = Queue()     # create the queue
+        self.SENTINEL = object()
         
         if isinstance(image_size, list):
             self.image_size = (int(image_size[0]), int(image_size[0]))
@@ -2264,14 +2262,13 @@ class AnnotateApp:
         self.inactive_color = style_out['inactive_color']
         
         # --- save-status UI & state ---
-        self._spinner_frames = ["⠋","⠙","⠸","⠴","⠦","⠇"]  # simple TTY spinner
+        self._spinner_frames = ["⠋","⠙","⠸","⠴","⠦","⠇"]
         self._spinner_idx = 0
         
-        self.worker_busy = False        # set by the worker thread only
-        self._unsaved_batches = 0       # atomic counter: inc on enqueue, dec on commit
+        self.worker_busy = False
+        self._unsaved_batches = 0
         self._batch_lock = threading.Lock()
-        self._last_save_ts = None       # time of last successful commit
-        
+        self._last_save_ts = None
 
         if self.font_loader:
             self.font_style = self.font_loader.get_font(size=self.font_size)
@@ -2280,8 +2277,9 @@ class AnnotateApp:
         
         self.root.configure(bg=style_out['inactive_color'])
 
+        # Defer data loading until grid dimensions are known
         self.filtered_paths_annotations = []
-        self.prefilter_paths_annotations()
+        self._total_filtered = 0
                 
         self.db_update_thread = threading.Thread(target=self.update_database_worker)
         self.db_update_thread.start()
@@ -2299,32 +2297,28 @@ class AnnotateApp:
         self.status_label.grid(row=2, column=0, padx=10, pady=8, sticky="w")
         
         # begin polling the status 6–10 times/sec
-        self._poll_save_status()        # schedules itself via .after()
+        self._poll_save_status()
 
         self.button_frame = Frame(root, bg=self.root.cget('bg'))
-        self.button_frame.grid(row=2, column=1, padx=10, pady=8, sticky="e")  # or "ew"
+        self.button_frame.grid(row=2, column=1, padx=10, pady=8, sticky="e")
 
         # buttons
         self.next_button = Button(self.button_frame, text="Next", command=self.next_page, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.previous_button = Button(self.button_frame, text="Back", command=self.previous_page, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.exit_button = Button(self.button_frame, text="Exit", command=self.shutdown, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
-        #self.train_button = Button(self.button_frame, text="Train & Classify (beta)", command=self.train_and_classify, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.settings_button = Button(self.button_frame, text="Settings", command=self.open_settings_window, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
-        self.clear_button = Button(self.button_frame,text="Clear annotation",command=self.clear_current_annotation,bg=self.bg_color, fg=self.fg_color,highlightbackground=self.fg_color,highlightcolor=self.fg_color,highlightthickness=1)
+        self.clear_button = Button(self.button_frame, text="Clear annotation", command=self.clear_current_annotation, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.count_button = Button(self.button_frame, text="Count classes", command=self.show_class_counts, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
-        self.dl_train_button = Button(self.button_frame,text="Train", command=self.open_deep_spacr_window,bg=self.bg_color,fg=self.fg_color,highlightbackground=self.fg_color,highlightcolor=self.fg_color,highlightthickness=1)
-        #self.umap_button = Button(self.button_frame, text="Image UMAP / HParam (Beta)", command=self.open_umap_window, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
-        
+        self.dl_train_button = Button(self.button_frame, text="Train", command=self.open_deep_spacr_window, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
+
         # pack (right to left)
         self.next_button.pack(side="right", padx=5)
         self.previous_button.pack(side="right", padx=5)
         self.exit_button.pack(side="right", padx=5)
-        #self.train_button.pack(side="right", padx=5)
         self.settings_button.pack(side="right", padx=5)
         self.clear_button.pack(side="right", padx=5)
         self.count_button.pack(side="right", padx=5)
         self.dl_train_button.pack(side="right", padx=5)
-        #self.umap_button.pack(side="right", padx=5)
 
         # compute grid size (after buttons exist with real height)
         self.button_frame.update_idletasks()
@@ -2334,6 +2328,7 @@ class AnnotateApp:
         
         self.root.update_idletasks()
         self.calculate_grid_dimensions()
+        self.prefilter_paths_annotations()
 
         for i in range(self.grid_rows * self.grid_cols):
             label = Label(self.grid_frame, bg=self.root.cget('bg'))
@@ -2341,8 +2336,8 @@ class AnnotateApp:
             self.labels.append(label)
         
         # column/row weights
-        self.root.grid_rowconfigure(0, weight=1)   # grid grows
-        self.root.grid_rowconfigure(2, weight=0)   # bottom fixed
+        self.root.grid_rowconfigure(0, weight=1)
+        self.root.grid_rowconfigure(2, weight=0)
 
         for row in range(self.grid_rows):
             self.grid_frame.grid_rowconfigure(row, weight=1)
@@ -3950,81 +3945,81 @@ class AnnotateApp:
                 pass
             conn.close()
         
-def update_database_worker(self):
-    import sqlite3, queue, time
+    def update_database_worker(self):
+        import sqlite3, queue, time
 
-    conn = sqlite3.connect(self.db_path, timeout=30)
-    cur = conn.cursor()
-    try:
+        conn = sqlite3.connect(self.db_path, timeout=30)
+        cur = conn.cursor()
         try:
-            cur.execute("PRAGMA journal_mode=WAL;")
-            cur.execute("PRAGMA synchronous=NORMAL;")
-            conn.commit()
-        except Exception:
-            pass
-
-        while True:
             try:
-                item = self.update_queue.get(timeout=0.1)
-            except queue.Empty:
-                if self.terminate:
-                    break
-                continue
+                cur.execute("PRAGMA journal_mode=WAL;")
+                cur.execute("PRAGMA synchronous=NORMAL;")
+                conn.commit()
+            except Exception:
+                pass
 
-            if item is self.SENTINEL:
-                self.update_queue.task_done()
-                break
-
-            pending_updates = item
-            if not pending_updates:
-                self.update_queue.task_done()
-                continue
-
-            # Coalesce: grab any additional queued batches into one commit
             while True:
                 try:
-                    extra = self.update_queue.get_nowait()
-                    if extra is self.SENTINEL:
-                        self.update_queue.task_done()
-                        self.update_queue.put(self.SENTINEL)
-                        break
-                    if extra:
-                        pending_updates.update(extra)
-                    with self._batch_lock:
-                        self._unsaved_batches -= 1
-                    self.update_queue.task_done()
+                    item = self.update_queue.get(timeout=0.1)
                 except queue.Empty:
+                    if self.terminate:
+                        break
+                    continue
+
+                if item is self.SENTINEL:
+                    self.update_queue.task_done()
                     break
 
-            self.worker_busy = True
-            col = (self.annotation_column or "").replace('"', '""')
-            to_null = [p for p, v in pending_updates.items() if v is None]
-            to_set  = [(int(v), p) for p, v in pending_updates.items() if v is not None]
+                pending_updates = item
+                if not pending_updates:
+                    self.update_queue.task_done()
+                    continue
 
+                # Coalesce: grab any additional queued batches into one commit
+                while True:
+                    try:
+                        extra = self.update_queue.get_nowait()
+                        if extra is self.SENTINEL:
+                            self.update_queue.task_done()
+                            self.update_queue.put(self.SENTINEL)
+                            break
+                        if extra:
+                            pending_updates.update(extra)
+                        with self._batch_lock:
+                            self._unsaved_batches -= 1
+                        self.update_queue.task_done()
+                    except queue.Empty:
+                        break
+
+                self.worker_busy = True
+                col = (self.annotation_column or "").replace('"', '""')
+                to_null = [p for p, v in pending_updates.items() if v is None]
+                to_set  = [(int(v), p) for p, v in pending_updates.items() if v is not None]
+
+                try:
+                    if to_null:
+                        cur.executemany(
+                            f'UPDATE "png_list" SET "{col}" = NULL WHERE png_path = ?',
+                            [(p,) for p in to_null]
+                        )
+                    if to_set:
+                        cur.executemany(
+                            f'UPDATE "png_list" SET "{col}" = ? WHERE png_path = ?',
+                            to_set
+                        )
+                    conn.commit()
+                finally:
+                    with self._batch_lock:
+                        self._unsaved_batches -= 1
+                    self.worker_busy = False
+                    self._last_save_ts = time.time()
+                    self.update_queue.task_done()
+        finally:
             try:
-                if to_null:
-                    cur.executemany(
-                        f'UPDATE "png_list" SET "{col}" = NULL WHERE png_path = ?',
-                        [(p,) for p in to_null]
-                    )
-                if to_set:
-                    cur.executemany(
-                        f'UPDATE "png_list" SET "{col}" = ? WHERE png_path = ?',
-                        to_set
-                    )
-                conn.commit()
-            finally:
-                with self._batch_lock:
-                    self._unsaved_batches -= 1
-                self.worker_busy = False
-                self._last_save_ts = time.time()
-                self.update_queue.task_done()
-    finally:
-        try:
-            cur.close()
-        except Exception:
-            pass
-        conn.close()
+                cur.close()
+            except Exception:
+                pass
+            conn.close()
 
     def shutdown_v1(self):
         # push any pending UI updates first
