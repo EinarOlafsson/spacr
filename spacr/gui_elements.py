@@ -2265,8 +2265,12 @@ class AnnotateApp:
         # --- save-status UI & state ---
         self._spinner_frames = ["⠋","⠙","⠸","⠴","⠦","⠇"]  # simple TTY spinner
         self._spinner_idx = 0
+        
         self.worker_busy = False        # set by the worker thread only
+        self._unsaved_batches = 0       # atomic counter: inc on enqueue, dec on commit
+        self._batch_lock = threading.Lock()
         self._last_save_ts = None       # time of last successful commit
+        
 
         if self.font_loader:
             self.font_style = self.font_loader.get_font(size=self.font_size)
@@ -2621,9 +2625,27 @@ class AnnotateApp:
 
         run_umap_btn.configure(command=_run_umap)
         run_grid_btn.configure(command=_run_grid)
+        
+    def _poll_save_status(self):
+            with self._batch_lock:
+                unsaved = self._unsaved_batches
+            saving = unsaved > 0 or bool(self.pending_updates)
+
+            if saving:
+                self._spinner_idx = (self._spinner_idx + 1) % len(self._spinner_frames)
+                spin = self._spinner_frames[self._spinner_idx]
+                msg = f"{spin} Saving…  pending={unsaved}"
+            else:
+                if self._last_save_ts:
+                    msg = "✓ All changes saved"
+                else:
+                    msg = ""
+
+            self.status_label.config(text=msg)
+            self.root.after(125, self._poll_save_status)
 
             
-    def _poll_save_status(self):
+    def _poll_save_status_v1(self):
         """
         Main-thread UI poller: reads thread-safe flags and queue length
         to show a 'Saving…' spinner and counts. Never called from worker.
@@ -2837,10 +2859,147 @@ class AnnotateApp:
             cols = {row[1] for row in cur.fetchall()}
             if self.annotation_column not in cols:
                 # NULL allowed; values will be 1/2 per your app
-                cur.execute(f'ALTER TABLE "png_list" ADD COLUMN "{col}" INTEGER')
-                # commit occurs automatically on exiting the context if no exception
+                try:
+                    cur.execute(f'ALTER TABLE "png_list" ADD COLUMN "{col}" INTEGER')
+                    # commit occurs automatically on exiting the context if no exception
+                except sqlite3.OperationalError:
+                    pass  # column already exists
         
     def update_settings(self, **kwargs):
+        import threading
+
+        allowed_attributes = {
+            'image_type', 'channels', 'image_size', 'annotation_column', 'src', 'db_path',
+            'percentiles', 'measurement', 'threshold', 'normalize_channels',
+            'outline', 'outline_threshold_factor', 'outline_sigma',
+            'edge_thickness', 'edge_transparency', 'edge_image', 'object_size'
+        }
+
+        old_db  = getattr(self, 'db_path', None)
+        old_src = getattr(self, 'src', None)
+
+        updated = False
+
+        for attr, value in kwargs.items():
+            if attr in allowed_attributes and value is not None:
+
+                if attr == 'normalize_channels':
+                    if isinstance(value, (list, tuple)):
+                        value = [str(s).strip().lower() for s in value if s is not None and str(s).strip()]
+                        value = [s for s in value if s in {'r','g','b'}]
+                        value = value or None
+                    elif isinstance(value, str):
+                        parts = [s.strip().lower() for s in value.split(',') if s.strip()]
+                        parts = [s for s in parts if s in {'r','g','b'}]
+                        value = parts or None
+                    else:
+                        value = None
+
+                elif attr == 'outline':
+                    if isinstance(value, (list, tuple)):
+                        value = [str(s).strip().lower() for s in value if s is not None and str(s).strip()]
+                    elif isinstance(value, str):
+                        value = [s.strip().lower() for s in value.split(',') if s.strip()]
+                    else:
+                        value = []
+                    value = [s for s in value if s in {'r','g','b'}]
+                    value = value or None
+
+                elif attr == 'outline_threshold_factor':
+                    value = float(value)
+                elif attr == 'outline_sigma':
+                    value = float(value)
+
+                # **CHANGED: keep fractional thickness**
+                elif attr == 'edge_thickness':
+                    value = float(value)
+
+                elif attr == 'edge_transparency':
+                    try:
+                        value = float(value)
+                    except Exception:
+                        value = 0.0
+                    value = max(0.0, min(100.0, value))
+                elif attr == 'edge_image':
+                    value = bool(value)
+                    
+                elif attr == 'object_size':
+                    # normalize to a 2-tuple of non-negative ints; (0,0) means no bounds
+                    v = value
+                    if v in (None, '', []):
+                        v = (0, 0)
+                    elif isinstance(v, str):
+                        # reuse the same parsing logic as above, inline:
+                        s = v.replace(';', ',')
+                        parts = [p.strip() for p in s.split(',') if p.strip() != '']
+                        a = []
+                        for p in parts[:2]:
+                            try:
+                                a.append(max(0, int(float(p))))
+                            except Exception:
+                                a.append(0)
+                        while len(a) < 2:
+                            a.append(0)
+                        mn, mx = a
+                    elif isinstance(v, (list, tuple)):
+                        mn = max(0, int(v[0])) if len(v) > 0 else 0
+                        mx = max(0, int(v[1])) if len(v) > 1 else 0
+                    else:
+                        mn, mx = (0, 0)
+                    if mn and mx and mn > mx:
+                        mn, mx = mx, mn
+                    value = (mn, mx)
+
+                setattr(self, attr, value)
+                updated = True
+
+        if ('annotation_column' in kwargs and kwargs['annotation_column']) or ('db_path' in kwargs and kwargs['db_path']):
+            self._ensure_annotation_column()
+
+        if 'image_size' in kwargs:
+            if isinstance(self.image_size, list):
+                self.image_size = (int(self.image_size[0]), int(self.image_size[0]))
+            elif isinstance(self.image_size, int):
+                self.image_size = (self.image_size, self.image_size)
+            elif isinstance(self.image_size, tuple) and len(self.image_size) == 2:
+                self.image_size = tuple(map(int, self.image_size))
+            else:
+                raise ValueError("Invalid image size")
+
+            self.calculate_grid_dimensions()
+            self.recreate_image_grid()
+
+        if self.src != old_src:
+            self.adjusted_to_original_paths.clear()
+            self.index = 0
+
+        if self.db_path != old_db:
+            if self.pending_updates:
+                with self._batch_lock:
+                    self._unsaved_batches += 1
+                self.update_queue.put(self.pending_updates.copy())
+                self.pending_updates.clear()
+            self.update_queue.put(self.SENTINEL)
+            self.update_queue.join()
+            try:
+                if getattr(self, 'db_update_thread', None):
+                    self.db_update_thread.join()
+            except Exception:
+                pass
+            self.terminate = False
+            self.worker_busy = False
+            self._last_save_ts = None
+            self.db_update_thread = threading.Thread(target=self.update_database_worker, daemon=True)
+            self.db_update_thread.start()
+
+        if updated:
+            current_index = self.index
+            self.prefilter_paths_annotations()
+            max_index = len(self.filtered_paths_annotations) - 1
+            self.index = min(current_index, max(0, max(len(self.filtered_paths_annotations) - self.grid_rows * self.grid_cols, 0)))
+            self.load_images()
+        
+    def update_settings_v1(self, **kwargs):
         import threading
 
         allowed_attributes = {
@@ -3549,10 +3708,71 @@ class AnnotateApp:
                 self.update_queue.get_nowait()
         except queue.Empty:
             pass
+        with self._batch_lock:
+            self._unsaved_batches = 0
 
         # Refresh UI (no borders now)
         self.prefilter_paths_annotations()
         self.load_images()
+        
+    def update_database_worker_v1(self):
+        import sqlite3, queue, time
+
+        # generous busy-timeout so short locks don't blow up under load
+        conn = sqlite3.connect(self.db_path, timeout=30)
+        cur = conn.cursor()
+        try:
+            try:
+                cur.execute("PRAGMA journal_mode=WAL;")
+                cur.execute("PRAGMA synchronous=NORMAL;")
+                conn.commit()
+            except Exception:
+                pass
+
+            while True:
+                try:
+                    item = self.update_queue.get(timeout=0.1)
+                except queue.Empty:
+                    # allow graceful exit after shutdown signal
+                    if self.terminate:
+                        break
+                    continue
+
+                # --- graceful shutdown path ---
+                if item is self.SENTINEL:
+                    # mark the SENTINEL as done so update_queue.join() can finish
+                    self.update_queue.task_done()
+                    break
+
+                # --- normal batch update ---
+                pending_updates = item  # dict: {png_path: annotation or None}
+                if not pending_updates:
+                    self.update_queue.task_done()
+                    continue
+
+                self.worker_busy = True
+                col = (self.annotation_column or "").replace('"', '""')
+                to_null = [p for p, v in pending_updates.items() if v is None]
+                to_set  = [(int(v), p) for p, v in pending_updates.items() if v is not None]
+
+                try:
+                    if to_null:
+                        cur.executemany(...)
+                    if to_set:
+                        cur.executemany(...)
+                    conn.commit()
+                finally:
+                    with self._batch_lock:
+                        self._unsaved_batches -= 1
+                    self.worker_busy = False
+                    self._last_save_ts = time.time()
+                    self.update_queue.task_done()
+        finally:
+            try:
+                cur.close()
+            except Exception:
+                pass
+            conn.close()
         
     def update_database_worker(self):
         import sqlite3, queue, time
@@ -3607,6 +3827,8 @@ class AnnotateApp:
                         )
                     conn.commit()
                 finally:
+                    with self._batch_lock:
+                        self._unsaved_batches -= 1
                     self.worker_busy = False
                     self._last_save_ts = time.time()
                     self.update_queue.task_done()
@@ -3616,8 +3838,51 @@ class AnnotateApp:
             except Exception:
                 pass
             conn.close()
+
+    def shutdown_v1(self):
+        # push any pending UI updates first
+        if self.pending_updates:
+            self.update_queue.put(self.pending_updates.copy())
+            self.pending_updates.clear()
+
+        # signal termination and sentinel
+        self.terminate = True
+        self.update_queue.put(self.SENTINEL)
+
+        # wait for ALL tasks (including the sentinel) to be marked done
+        self.update_queue.join()
+
+        # now the worker has exited; join without timeout
+        try:
+            self.db_update_thread.join()
+        except Exception:
+            pass
+
+        # close UI
+        try:
+            self.root.quit()
+        finally:
+            try:
+                self.root.destroy()
+            except Exception:
+                pass
+
+        print("Quit application")
     
     def shutdown(self):
+        from tkinter import messagebox
+
+        with self._batch_lock:
+            unsaved = self._unsaved_batches
+        if unsaved > 0 or bool(self.pending_updates):
+            if not messagebox.askyesno(
+                "Updating Database",
+                "Annotations are still being saved to the database.\n\n"
+                "Do you want to exit before saving is complete?\n"
+                "Unsaved annotations will be lost."
+            ):
+                return  # user chose to stay
+
         # push any pending UI updates first
         if self.pending_updates:
             self.update_queue.put(self.pending_updates.copy())
@@ -3649,6 +3914,16 @@ class AnnotateApp:
         
     def next_page(self):
         if self.pending_updates:
+            with self._batch_lock:
+                self._unsaved_batches += 1
+            self.update_queue.put(self.pending_updates.copy())
+        self.pending_updates.clear()
+        self.index += self.grid_rows * self.grid_cols
+        self.prefilter_paths_annotations()
+        self.load_images()
+        
+    def next_page_v1(self):
+        if self.pending_updates:
             # show saving right away until worker picks it up
             self.worker_busy = True
             self.update_queue.put(self.pending_updates.copy())
@@ -3656,8 +3931,18 @@ class AnnotateApp:
         self.index += self.grid_rows * self.grid_cols
         self.prefilter_paths_annotations()
         self.load_images()
-
+        
     def previous_page(self):
+        if self.pending_updates:
+            with self._batch_lock:
+                self._unsaved_batches += 1
+            self.update_queue.put(self.pending_updates.copy())
+        self.pending_updates.clear()
+        self.index = max(0, self.index - self.grid_rows * self.grid_cols)
+        self.prefilter_paths_annotations()
+        self.load_images()
+
+    def previous_page_v1(self):
         if self.pending_updates:
             self.worker_busy = True
             self.update_queue.put(self.pending_updates.copy())
