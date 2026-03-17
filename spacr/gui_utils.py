@@ -316,8 +316,14 @@ def annotate(settings):
     c = conn.cursor()
     c.execute('PRAGMA table_info(png_list)')
     cols = c.fetchall()
+    
     if settings['annotation_column'] not in [col[1] for col in cols]:
-        c.execute(f"ALTER TABLE png_list ADD COLUMN {settings['annotation_column']} integer")
+        
+        try:
+            c.execute(f"ALTER TABLE png_list ADD COLUMN {settings['annotation_column']} integer")
+        except sqlite3.OperationalError:
+            pass  # column already exists
+        
     conn.commit()
     conn.close()
 
@@ -445,7 +451,10 @@ def annotate_with_image_refs(settings, root, shutdown_callback):
     c.execute('PRAGMA table_info(png_list)')
     cols = c.fetchall()
     if settings['annotation_column'] not in [col[1] for col in cols]:
-        c.execute(f"ALTER TABLE png_list ADD COLUMN {settings['annotation_column']} integer")
+        try:
+            c.execute(f"ALTER TABLE png_list ADD COLUMN {settings['annotation_column']} integer")
+        except sqlite3.OperationalError:
+            pass  # column already exists
     conn.commit()
     conn.close()
 
