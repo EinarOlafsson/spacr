@@ -13,7 +13,7 @@ def silent_print(*args, **kwargs):
 
 builtins.print = silent_print
 
-# Persistent stderr filter — catches TF/cellpose noise whenever it appears
+# Persistent stderr filter for Python-level noise
 class _StderrFilter(io.TextIOBase):
     def __init__(self, real):
         self._real = real
@@ -29,6 +29,32 @@ class _StderrFilter(io.TextIOBase):
         return self._real.isatty()
 
 sys.stderr = _StderrFilter(sys.stderr)
+
+# Suppress C-level stderr (TF writes directly to fd 2, bypassing Python)
+def _suppress_fd_stderr(func):
+    """Call func() with OS-level stderr silenced."""
+    stderr_fd = 2
+    saved_fd = os.dup(stderr_fd)
+    devnull = os.open(os.devnull, os.O_WRONLY)
+    os.dup2(devnull, stderr_fd)
+    os.close(devnull)
+    try:
+        return func()
+    finally:
+        os.dup2(saved_fd, stderr_fd)
+        os.close(saved_fd)
+
+def _do_noisy_imports():
+    try:
+        import tensorflow
+    except ImportError:
+        pass
+    try:
+        import cellpose
+    except ImportError:
+        pass
+
+_suppress_fd_stderr(_do_noisy_imports)
 
 
 from . import core
