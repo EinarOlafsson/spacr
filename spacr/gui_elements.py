@@ -2234,6 +2234,7 @@ class AnnotateApp:
         self.orig_annotation_columns = annotation_column
         self.annotation_column = annotation_column
         self._ensure_annotation_column()
+        self._ensure_png_path_index()
         self.image_type = image_type
         self.channels = channels
         self.percentiles = percentiles
@@ -2347,6 +2348,11 @@ class AnnotateApp:
             self.grid_frame.grid_rowconfigure(row, weight=1)
         for col in range(self.grid_cols):
             self.grid_frame.grid_columnconfigure(col, weight=1)
+                
+    def _ensure_png_path_index(self):
+        import sqlite3
+        with sqlite3.connect(self.db_path, timeout=30) as conn:
+            conn.execute('CREATE INDEX IF NOT EXISTS idx_png_path ON "png_list" (png_path)')
             
     def _int_to_color(self, k, s=0.65, v=0.95):
         """
@@ -3261,6 +3267,129 @@ class AnnotateApp:
                 print(f'image_type: Removed: {before-after} rows, retained {after}')
 
             self.filtered_paths_annotations = df[['png_path', self.annotation_column]].values.tolist()
+            self._total_filtered = len(self.filtered_paths_annotations)
+
+        else:
+            col = (self.annotation_column or "").replace('"', '""')
+            page_size = getattr(self, 'grid_rows', 5) * getattr(self, 'grid_cols', 5)
+            with sqlite3.connect(self.db_path, timeout=30) as conn:
+                c = conn.cursor()
+                if self.image_type:
+                    c.execute(
+                        'SELECT COUNT(*) FROM "png_list" WHERE png_path LIKE ?',
+                        (f"%{self.image_type}%",)
+                    )
+                else:
+                    c.execute('SELECT COUNT(*) FROM "png_list"')
+                self._total_filtered = c.fetchone()[0]
+
+                if self.image_type:
+                    c.execute(
+                        f'SELECT png_path, "{col}" FROM "png_list" '
+                        f'WHERE png_path LIKE ? LIMIT ? OFFSET ?',
+                        (f"%{self.image_type}%", page_size, self.index)
+                    )
+                else:
+                    c.execute(
+                        f'SELECT png_path, "{col}" FROM "png_list" '
+                        f'LIMIT ? OFFSET ?',
+                        (page_size, self.index)
+                    )
+                self.filtered_paths_annotations = c.fetchall()
+
+    def prefilter_paths_annotations_v1(self):
+        from .io import _read_and_join_tables, _read_db
+        from .utils import is_list_of_lists
+        
+        self._ensure_annotation_column()
+
+        if self.measurement and self.threshold is not None:
+            df = _read_and_join_tables(self.db_path)
+            png_list_df = _read_db(self.db_path, tables=['png_list'])[0]
+            png_list_df = png_list_df.set_index('prcfo')
+            df = df.merge(png_list_df, left_index=True, right_index=True)
+            df[self.annotation_column] = None
+            before = len(df)
+
+            if isinstance(self.threshold, int):
+                if isinstance(self.measurement, list):
+                    mes = self.measurement[0]
+                if isinstance(self.measurement, str):
+                    mes = self.measurement
+                df = df[df[f'{mes}'] == self.threshold]
+
+            if is_list_of_lists(self.measurement):
+                if isinstance(self.threshold, list) or is_list_of_lists(self.threshold):
+                    if len(self.measurement) == len(self.threshold):
+                        for idx, var in enumerate(self.measurement):
+                            df = df[df[var[idx]] > self.threshold[idx]]
+                        after = len(df)
+                    elif len(self.measurement) == len(self.threshold) * 2:
+                        th_idx = 0
+                        for idx, var in enumerate(self.measurement):
+                            if idx % 2 != 0:
+                                th_idx += 1
+                                thd = self.threshold
+                                if isinstance(thd, list):
+                                    thd = thd[0]
+                                df[f'threshold_measurement_{idx}'] = df[self.measurement[idx]] / df[self.measurement[idx + 1]]
+                                print(f"mean threshold_measurement_{idx}: {np.mean(df['threshold_measurement'])}")
+                                print(f"median threshold measurement: {np.median(df[self.measurement])}")
+                                df = df[df[f'threshold_measurement_{idx}'] > thd]
+                        after = len(df)
+
+            elif isinstance(self.measurement, list):
+                df['threshold_measurement'] = df[self.measurement[0]] / df[self.measurement[1]]
+                print(f"mean threshold measurement: {np.mean(df['threshold_measurement'])}")
+                print(f"median threshold measurement: {np.median(df[self.measurement])}")
+                df = df[df['threshold_measurement'] > self.threshold]
+                after = len(df)
+                self.measurement = 'threshold_measurement'
+                print(f'Removed: {before-after} rows, retained {after}')
+
+            else:
+                print(f"mean threshold measurement: {np.mean(df[self.measurement])}")
+                print(f"median threshold measurement: {np.median(df[self.measurement])}")
+                before = len(df)
+                if isinstance(self.threshold, str):
+                    if self.threshold == 'q1':
+                        self.threshold = df[self.measurement].quantile(0.1)
+                    if self.threshold == 'q2':
+                        self.threshold = df[self.measurement].quantile(0.2)
+                    if self.threshold == 'q3':
+                        self.threshold = df[self.measurement].quantile(0.3)
+                    if self.threshold == 'q4':
+                        self.threshold = df[self.measurement].quantile(0.4)
+                    if self.threshold == 'q5':
+                        self.threshold = df[self.measurement].quantile(0.5)
+                    if self.threshold == 'q6':
+                        self.threshold = df[self.measurement].quantile(0.6)
+                    if self.threshold == 'q7':
+                        self.threshold = df[self.measurement].quantile(0.7)
+                    if self.threshold == 'q8':
+                        self.threshold = df[self.measurement].quantile(0.8)
+                    if self.threshold == 'q9':
+                        self.threshold = df[self.measurement].quantile(0.9)
+                print(f"threshold: {self.threshold}")
+
+                df = df[df[self.measurement] > self.threshold]
+                after = len(df)
+                print(f'Removed: {before-after} rows, retained {after}')
+
+            df = df.dropna(subset=['png_path'])
+            if self.image_type:
+                before = len(df)
+                if isinstance(self.image_type, list):
+                    for tpe in self.image_type:
+                        print(f"Looking for {tpe}")
+                        df = df[df['png_path'].str.contains(tpe)]
+                        print(f"Found {len(df)} entries for {tpe}")
+                else:
+                    df = df[df['png_path'].str.contains(self.image_type)]
+                after = len(df)
+                print(f'image_type: Removed: {before-after} rows, retained {after}')
+
+            self.filtered_paths_annotations = df[['png_path', self.annotation_column]].values.tolist()
 
         else:
             # simple SELECT branch -> use context manager
@@ -3277,6 +3406,53 @@ class AnnotateApp:
                 self.filtered_paths_annotations = c.fetchall()
         
     def load_images(self):
+        for label in self.labels:
+            label.config(image='')
+
+        self.images = {}
+        page_size = self.grid_rows * self.grid_cols
+
+        # measurement branch still stores all rows; simple branch stores one page
+        if self.measurement and self.threshold is not None:
+            paths_annotations = self.filtered_paths_annotations[self.index:self.index + page_size]
+        else:
+            paths_annotations = self.filtered_paths_annotations  # already paginated
+
+        adjusted_paths = []
+        for path, annotation in paths_annotations:
+            if not path.startswith(self.src):
+                parts = path.split('/data/')
+                if len(parts) > 1:
+                    new_path = os.path.join(self.src, 'data', parts[1])
+                    self.adjusted_to_original_paths[new_path] = path
+                    adjusted_paths.append((new_path, annotation))
+                else:
+                    adjusted_paths.append((path, annotation))
+            else:
+                adjusted_paths.append((path, annotation))
+
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor() as executor:
+            loaded_images = list(executor.map(self.load_single_image, adjusted_paths))
+
+        for i, (img, annotation) in enumerate(loaded_images):
+            border_color = self._label_to_color(annotation)
+            if border_color:
+                img = self.add_colored_border(img, border_width=5, border_color=border_color)
+
+            from PIL import ImageTk
+            photo = ImageTk.PhotoImage(img)
+            label = self.labels[i]
+            self.images[label] = photo
+            label.config(image=photo)
+
+            path = adjusted_paths[i][0]
+            label.bind('<Button-1>', self.get_on_image_click(path, label, img))
+            label.bind('<Button-3>', self.get_on_image_click(path, label, img))
+
+        self.root.update()
+        
+    def load_images_v1(self):
         for label in self.labels:
             label.config(image='')
 
@@ -3774,70 +3950,81 @@ class AnnotateApp:
                 pass
             conn.close()
         
-    def update_database_worker(self):
-        import sqlite3, queue, time
+def update_database_worker(self):
+    import sqlite3, queue, time
 
-        # generous busy-timeout so short locks don't blow up under load
-        conn = sqlite3.connect(self.db_path, timeout=30)
-        cur = conn.cursor()
+    conn = sqlite3.connect(self.db_path, timeout=30)
+    cur = conn.cursor()
+    try:
         try:
-            try:
-                cur.execute("PRAGMA journal_mode=WAL;")
-                cur.execute("PRAGMA synchronous=NORMAL;")
-                conn.commit()
-            except Exception:
-                pass
+            cur.execute("PRAGMA journal_mode=WAL;")
+            cur.execute("PRAGMA synchronous=NORMAL;")
+            conn.commit()
+        except Exception:
+            pass
 
+        while True:
+            try:
+                item = self.update_queue.get(timeout=0.1)
+            except queue.Empty:
+                if self.terminate:
+                    break
+                continue
+
+            if item is self.SENTINEL:
+                self.update_queue.task_done()
+                break
+
+            pending_updates = item
+            if not pending_updates:
+                self.update_queue.task_done()
+                continue
+
+            # Coalesce: grab any additional queued batches into one commit
             while True:
                 try:
-                    item = self.update_queue.get(timeout=0.1)
-                except queue.Empty:
-                    # allow graceful exit after shutdown signal
-                    if self.terminate:
+                    extra = self.update_queue.get_nowait()
+                    if extra is self.SENTINEL:
+                        self.update_queue.task_done()
+                        self.update_queue.put(self.SENTINEL)
                         break
-                    continue
-
-                # --- graceful shutdown path ---
-                if item is self.SENTINEL:
-                    # mark the SENTINEL as done so update_queue.join() can finish
-                    self.update_queue.task_done()
-                    break
-
-                # --- normal batch update ---
-                pending_updates = item  # dict: {png_path: annotation or None}
-                if not pending_updates:
-                    self.update_queue.task_done()
-                    continue
-
-                self.worker_busy = True
-                col = (self.annotation_column or "").replace('"', '""')
-                to_null = [p for p, v in pending_updates.items() if v is None]
-                to_set  = [(int(v), p) for p, v in pending_updates.items() if v is not None]
-
-                try:
-                    if to_null:
-                        cur.executemany(
-                            f'UPDATE "png_list" SET "{col}" = NULL WHERE png_path = ?',
-                            [(p,) for p in to_null]
-                        )
-                    if to_set:
-                        cur.executemany(
-                            f'UPDATE "png_list" SET "{col}" = ? WHERE png_path = ?',
-                            to_set
-                        )
-                    conn.commit()
-                finally:
+                    if extra:
+                        pending_updates.update(extra)
                     with self._batch_lock:
                         self._unsaved_batches -= 1
-                    self.worker_busy = False
-                    self._last_save_ts = time.time()
                     self.update_queue.task_done()
-        finally:
+                except queue.Empty:
+                    break
+
+            self.worker_busy = True
+            col = (self.annotation_column or "").replace('"', '""')
+            to_null = [p for p, v in pending_updates.items() if v is None]
+            to_set  = [(int(v), p) for p, v in pending_updates.items() if v is not None]
+
             try:
-                cur.close()
-            except Exception:
-                pass
-            conn.close()
+                if to_null:
+                    cur.executemany(
+                        f'UPDATE "png_list" SET "{col}" = NULL WHERE png_path = ?',
+                        [(p,) for p in to_null]
+                    )
+                if to_set:
+                    cur.executemany(
+                        f'UPDATE "png_list" SET "{col}" = ? WHERE png_path = ?',
+                        to_set
+                    )
+                conn.commit()
+            finally:
+                with self._batch_lock:
+                    self._unsaved_batches -= 1
+                self.worker_busy = False
+                self._last_save_ts = time.time()
+                self.update_queue.task_done()
+    finally:
+        try:
+            cur.close()
+        except Exception:
+            pass
+        conn.close()
 
     def shutdown_v1(self):
         # push any pending UI updates first
@@ -3918,8 +4105,33 @@ class AnnotateApp:
                 self._unsaved_batches += 1
             self.update_queue.put(self.pending_updates.copy())
         self.pending_updates.clear()
-        self.index += self.grid_rows * self.grid_cols
-        self.prefilter_paths_annotations()
+
+        page_size = self.grid_rows * self.grid_cols
+        total = getattr(self, '_total_filtered', len(self.filtered_paths_annotations))
+        new_index = self.index + page_size
+        if new_index >= total:
+            new_index = self.index  # already at last page
+        self.index = new_index
+
+        # For the simple (non-measurement) branch, re-fetch the new page from DB
+        if not (self.measurement and self.threshold is not None):
+            col = (self.annotation_column or "").replace('"', '""')
+            with sqlite3.connect(self.db_path, timeout=30) as conn:
+                c = conn.cursor()
+                if self.image_type:
+                    c.execute(
+                        f'SELECT png_path, "{col}" FROM "png_list" '
+                        f'WHERE png_path LIKE ? LIMIT ? OFFSET ?',
+                        (f"%{self.image_type}%", page_size, self.index)
+                    )
+                else:
+                    c.execute(
+                        f'SELECT png_path, "{col}" FROM "png_list" '
+                        f'LIMIT ? OFFSET ?',
+                        (page_size, self.index)
+                    )
+                self.filtered_paths_annotations = c.fetchall()
+
         self.load_images()
         
     def next_page_v1(self):
@@ -3938,10 +4150,30 @@ class AnnotateApp:
                 self._unsaved_batches += 1
             self.update_queue.put(self.pending_updates.copy())
         self.pending_updates.clear()
-        self.index = max(0, self.index - self.grid_rows * self.grid_cols)
-        self.prefilter_paths_annotations()
-        self.load_images()
 
+        page_size = self.grid_rows * self.grid_cols
+        self.index = max(0, self.index - page_size)
+
+        if not (self.measurement and self.threshold is not None):
+            col = (self.annotation_column or "").replace('"', '""')
+            with sqlite3.connect(self.db_path, timeout=30) as conn:
+                c = conn.cursor()
+                if self.image_type:
+                    c.execute(
+                        f'SELECT png_path, "{col}" FROM "png_list" '
+                        f'WHERE png_path LIKE ? LIMIT ? OFFSET ?',
+                        (f"%{self.image_type}%", page_size, self.index)
+                    )
+                else:
+                    c.execute(
+                        f'SELECT png_path, "{col}" FROM "png_list" '
+                        f'LIMIT ? OFFSET ?',
+                        (page_size, self.index)
+                    )
+                self.filtered_paths_annotations = c.fetchall()
+
+        self.load_images()
+        
     def previous_page_v1(self):
         if self.pending_updates:
             self.worker_busy = True
