@@ -766,9 +766,9 @@ def _extract_filename_metadata(filenames, src, regular_expression, metadata_type
                     sliceID = None
                     
                 if metadata_type =='cq1':
-                    orig_wellID = wellID
-                    wellID = _convert_cq1_well_id(wellID)
-                    print(f'Converted Well ID: {orig_wellID} to {wellID}', end='\r', flush=True)
+                    orig_well = well
+                    well = _convert_cq1_well_id(well)
+                    print(f'Converted Well ID: {orig_well} to {well}', end='\r', flush=True)
 
                 key = (plate, well, field, channel, timeID, sliceID)
                 file_path = os.path.join(src, filename)
