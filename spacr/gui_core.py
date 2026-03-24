@@ -450,14 +450,40 @@ def import_settings(settings_type='mask'):
     from .settings import set_default_generate_barecode_mapping, set_default_umap_image_settings, get_analyze_recruitment_default_settings
     from .settings import get_default_generate_activation_map_settings, get_analyze_plaque_settings, get_automated_motility_assay_default_settings
 
+    #def read_settings_from_csv(csv_file_path):
+    #    settings = {}
+    #    with open(csv_file_path, newline='') as csvfile:
+    #        reader = csv.DictReader(csvfile)
+    #        for row in reader:
+    #            key = row['Key']
+    #            value = row['Value']
+    #            settings[key] = value
+    #    return settings
+
     def read_settings_from_csv(csv_file_path):
         settings = {}
-        with open(csv_file_path, newline='') as csvfile:
+
+        with open(csv_file_path, newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
-            for row in reader:
-                key = row['Key']
-                value = row['Value']
+
+            while True:
+                try:
+                    row = next(reader)
+                except StopIteration:
+                    break
+                except csv.Error:
+                    print(f"Warning: Skipping CSV row around line {reader.line_num}")
+                    continue
+
+                try:
+                    key = row['Key']
+                    value = row['Value']
+                except Exception:
+                    print(f"Warning: Skipping malformed CSV row around line {reader.line_num}")
+                    continue
+
                 settings[key] = value
+
         return settings
 
     def update_settings_from_csv(variables, csv_settings):
