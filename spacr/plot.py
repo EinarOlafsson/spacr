@@ -34,6 +34,666 @@ def plot_image_mask_overlay(
     cell_channel,
     nucleus_channel,
     pathogen_channel,
+    organelle_channel=None,
+    figuresize=10,
+    percentiles=(2, 98),
+    thickness=3,
+    save_pdf=True,
+    mode='outlines',
+    export_tiffs=False,
+    all_on_all=False,
+    all_outlines=False,
+    filter_dict=None
+):
+    """Plot image and mask overlays."""
+
+    def random_color_cmap(n_labels, seed=None):
+        """Generate a random-looking but deterministic colormap with a unique seed."""
+        if n_labels <= 0:
+            return ListedColormap(np.array([[0, 0, 0]]))
+
+        rng = np.random.default_rng(seed)
+
+        # Spread colors across hue space, then shuffle so different seeds give different maps
+        hues = np.linspace(0, 1, n_labels, endpoint=False)
+        rng.shuffle(hues)
+
+        # Keep colors vivid and bright so different objects are visually distinct
+        sats = rng.uniform(0.70, 1.00, size=n_labels)
+        vals = rng.uniform(0.85, 1.00, size=n_labels)
+
+        rand_colors = mpl.colors.hsv_to_rgb(np.column_stack([hues, sats, vals]))
+        rand_colors = np.vstack([[0, 0, 0], rand_colors])  # background = black
+        return ListedColormap(rand_colors)
+
+    def _plot_merged_plot(
+        image,
+        outlines,
+        outline_colors,
+        figuresize,
+        thickness,
+        percentiles,
+        mode='outlines',
+        all_on_all=False,
+        all_outlines=False,
+        channels=None,
+        channel_to_outline=None,
+        channel_to_label=None,
+        save_pdf=True
+    ):
+        """Plot the merged plot with overlay, image channels, and masks."""
+
+        def _generate_colored_mask(mask, cmap):
+            """Generate a colored mask using the given colormap."""
+            mask_norm = mask / (mask.max() + 1e-5)
+            colored_mask = cmap(mask_norm)
+            colored_mask[..., 3] = np.where(mask > 0, 1, 0)
+            return colored_mask
+
+        def _overlay_mask(image, mask):
+            """Overlay the colored mask onto the original image."""
+            combined = np.clip(image * (1 - mask[..., 3:]) + mask[..., :3] * mask[..., 3:], 0, 1)
+            return combined
+
+        def _normalize_image(image, percentiles):
+            """Normalize the image based on given percentiles."""
+            v_min, v_max = np.percentile(image, percentiles)
+            image_normalized = np.clip((image - v_min) / (v_max - v_min + 1e-5), 0, 1)
+            return image_normalized
+
+        def _generate_contours(mask):
+            """Generate contours from the mask using OpenCV."""
+            contours, _ = cv2.findContours(
+                mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+            )
+            return contours
+
+        def _apply_contours(image, mask, color, thickness):
+            """Apply contours to the image."""
+            unique_labels = np.unique(mask)
+            for label in unique_labels:
+                if label == 0:
+                    continue
+                label_mask = (mask == label).astype(np.uint8)
+                contours = _generate_contours(label_mask)
+                cv2.drawContours(
+                    image, contours, -1, mpl.colors.to_rgb(color), thickness
+                )
+            return image
+
+        num_channels = image.shape[-1]
+        fig, ax = plt.subplots(1, num_channels + 1, figsize=(4 * figuresize, figuresize))
+        if num_channels == 1:
+            ax = [ax]
+
+        channels_with_outlines = set(channel_to_outline.keys()) if channel_to_outline is not None else set()
+
+        for v in range(num_channels):
+            channel_image = image[..., v]
+            channel_image_normalized = _normalize_image(channel_image, percentiles)
+            channel_image_rgb = np.dstack([channel_image_normalized] * 3)
+
+            current_channel = channels[v]
+
+            if all_on_all:
+                for idx, (outline, color) in enumerate(zip(outlines, outline_colors)):
+                    if mode == 'outlines':
+                        channel_image_rgb = _apply_contours(
+                            channel_image_rgb, outline, color, thickness
+                        )
+                    else:
+                        cmap = random_color_cmap(
+                            int(outline.max() + 1),
+                            seed=1000 + idx
+                        )
+                        mask = _generate_colored_mask(outline, cmap)
+                        channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
+
+            elif current_channel in channels_with_outlines:
+                outline_info = channel_to_outline.get(current_channel, None)
+
+                if outline_info is not None:
+                    outline = outline_info['mask']
+                    color = outline_info['color']
+                    cmap_seed = outline_info.get('cmap_seed', current_channel + 1000)
+
+                    if outline is not None:
+                        if mode == 'outlines':
+                            channel_image_rgb = _apply_contours(
+                                channel_image_rgb, outline, color, thickness
+                            )
+                        else:
+                            cmap = random_color_cmap(
+                                int(outline.max() + 1),
+                                seed=cmap_seed
+                            )
+                            mask = _generate_colored_mask(outline, cmap)
+                            channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
+
+            else:
+                if all_outlines:
+                    for idx, (outline, color) in enumerate(zip(outlines, outline_colors)):
+                        if mode == 'outlines':
+                            channel_image_rgb = _apply_contours(
+                                channel_image_rgb, outline, color, thickness
+                            )
+                        else:
+                            cmap = random_color_cmap(
+                                int(outline.max() + 1),
+                                seed=1000 + idx
+                            )
+                            mask = _generate_colored_mask(outline, cmap)
+                            channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
+
+            title = channel_to_label.get(current_channel, f'channel {current_channel}')
+            ax[v].imshow(channel_image_rgb)
+            ax[v].set_title(title)
+            ax[v].axis('off')
+
+        if len(outlines) > 0:
+            combined_mask = np.zeros_like(outlines[0])
+            for outline in outlines:
+                combined_mask = np.maximum(combined_mask, outline)
+
+            cmap = random_color_cmap(int(combined_mask.max() + 1), seed=9999)
+            mask = _generate_colored_mask(combined_mask, cmap)
+            blank_image = np.zeros((*combined_mask.shape, 3))
+            filled_image = _overlay_mask(blank_image, mask)
+
+            ax[-1].imshow(filled_image)
+            ax[-1].set_title('combined objects')
+            ax[-1].axis('off')
+        else:
+            ax[-1].imshow(np.zeros((*image.shape[:2], 3)))
+            ax[-1].set_title('no objects')
+            ax[-1].axis('off')
+
+        plt.tight_layout()
+
+        if save_pdf:
+            pdf_dir = os.path.join(
+                os.path.dirname(os.path.dirname(file)), 'results', 'overlay'
+            )
+            os.makedirs(pdf_dir, exist_ok=True)
+            pdf_path = os.path.join(
+                pdf_dir, os.path.basename(file).replace('.npy', '.pdf')
+            )
+            fig.savefig(pdf_path, format='pdf')
+
+        plt.show()
+        return fig
+
+    def _save_channels_as_tiff(stack, save_dir, filename):
+        """Save each channel in the stack as a grayscale TIFF."""
+        os.makedirs(save_dir, exist_ok=True)
+        for i in range(stack.shape[-1]):
+            channel = stack[..., i]
+            tiff_path = os.path.join(save_dir, f"{filename}_channel_{i}.tiff")
+            tiff.imwrite(tiff_path, channel.astype(np.uint16), photometric='minisblack')
+            print(f"Saved {tiff_path}")
+
+    def _filter_object(mask, intensity_image, min_max_area=(0, 10000000), min_max_intensity=(0, 65000), type_='object'):
+        """
+        Filter objects in a mask based on their area (size) and mean intensity.
+
+        Args:
+            mask (ndarray): The input mask.
+            intensity_image (ndarray): The corresponding intensity image.
+            min_max_area (tuple): A tuple (min_area, max_area) specifying the minimum and maximum area thresholds.
+            min_max_intensity (tuple): A tuple (min_intensity, max_intensity) specifying the minimum and maximum intensity thresholds.
+
+        Returns:
+            ndarray: The filtered mask.
+        """
+        original_dtype = mask.dtype
+        mask_int = mask.astype(np.int64)
+        intensity_image = intensity_image.astype(np.float64)
+
+        unique_labels = np.unique(mask_int)
+        unique_labels = unique_labels[unique_labels != 0]
+        num_objects_before = len(unique_labels)
+
+        areas = []
+        mean_intensities = []
+        labels_to_keep = []
+
+        for label in unique_labels:
+            label_mask = (mask_int == label)
+            area = np.sum(label_mask)
+            mean_intensity = np.mean(intensity_image[label_mask])
+
+            areas.append(area)
+            mean_intensities.append(mean_intensity)
+
+            if (min_max_area[0] <= area <= min_max_area[1]) and (min_max_intensity[0] <= mean_intensity <= min_max_intensity[1]):
+                labels_to_keep.append(label)
+
+        areas = np.array(areas)
+        mean_intensities = np.array(mean_intensities)
+        num_objects_after = len(labels_to_keep)
+
+        avg_area_before = areas.mean() if num_objects_before > 0 else 0
+        avg_intensity_before = mean_intensities.mean() if num_objects_before > 0 else 0
+        areas_after = areas[np.isin(unique_labels, labels_to_keep)]
+        mean_intensities_after = mean_intensities[np.isin(unique_labels, labels_to_keep)]
+        avg_area_after = areas_after.mean() if num_objects_after > 0 else 0
+        avg_intensity_after = mean_intensities_after.mean() if num_objects_after > 0 else 0
+
+        print(f"Before filtering {type_}: {num_objects_before} objects")
+        print(f"Average area {type_}: {avg_area_before:.2f} pixels, Average intensity: {avg_intensity_before:.2f}")
+        print(f"After filtering {type_}: {num_objects_after} objects")
+        print(f"Average area {type_}: {avg_area_after:.2f} pixels, Average intensity: {avg_intensity_after:.2f}")
+
+        mask_filtered = np.zeros_like(mask_int)
+        for label in labels_to_keep:
+            mask_filtered[mask_int == label] = label
+        mask_filtered = mask_filtered.astype(original_dtype)
+        return mask_filtered
+
+    stack = np.load(file)
+
+    if export_tiffs:
+        save_dir = os.path.join(
+            os.path.dirname(os.path.dirname(file)),
+            'results',
+            os.path.splitext(os.path.basename(file))[0],
+            'tiff'
+        )
+        filename = os.path.splitext(os.path.basename(file))[0]
+        _save_channels_as_tiff(stack, save_dir, filename)
+
+    if stack.dtype in (np.uint16, np.uint8):
+        stack = stack.astype(np.float32)
+
+    image = stack[..., channels]
+    outlines = []
+    outline_colors = []
+
+    object_specs = [
+        ('cell', cell_channel, 'red'),
+        ('nucleus', nucleus_channel, 'blue'),
+        ('pathogen', pathogen_channel, 'green'),
+        ('organelle', organelle_channel, 'yellow'),
+    ]
+
+    present_objects = [(name, channel, color) for name, channel, color in object_specs if channel is not None]
+    n_masks = len(present_objects)
+    base_image_planes = stack.shape[2] - n_masks
+
+    channel_to_outline = {}
+    channel_to_label = {}
+
+    for mask_offset, (name, channel, color) in enumerate(present_objects):
+        mask_dim = base_image_planes + mask_offset
+        outline = np.take(stack, mask_dim, axis=2)
+
+        if filter_dict is not None and name in filter_dict:
+            intensity = np.take(stack, channel, axis=2)
+            outline = _filter_object(
+                outline,
+                intensity,
+                filter_dict[name][0],
+                filter_dict[name][1],
+                type_=name
+            )
+
+        outlines.append(outline)
+        outline_colors.append(color)
+
+        channel_to_outline[channel] = {
+            'mask': outline,
+            'color': color,
+            'cmap_seed': 1000 + mask_offset
+        }
+        channel_to_label[channel] = f'{name} (channel {channel})'
+
+    for ch in channels:
+        if ch not in channel_to_label:
+            channel_to_label[ch] = f'channel {ch}'
+
+    fig = _plot_merged_plot(
+        image=image,
+        outlines=outlines,
+        outline_colors=outline_colors,
+        figuresize=figuresize,
+        thickness=thickness,
+        percentiles=percentiles,
+        mode=mode,
+        all_on_all=all_on_all,
+        all_outlines=all_outlines,
+        channels=channels,
+        channel_to_outline=channel_to_outline,
+        channel_to_label=channel_to_label,
+        save_pdf=save_pdf
+    )
+
+    return fig
+
+def plot_image_mask_overlay_v2(
+    file,
+    channels,
+    cell_channel,
+    nucleus_channel,
+    pathogen_channel,
+    organelle_channel=None,
+    figuresize=10,
+    percentiles=(2, 98),
+    thickness=3,
+    save_pdf=True,
+    mode='outlines',
+    export_tiffs=False,
+    all_on_all=False,
+    all_outlines=False,
+    filter_dict=None
+):
+    """Plot image and mask overlays."""
+
+    def random_color_cmap(n_labels, seed=None):
+        """Generates a random color map for a given number of labels."""
+        if seed is not None:
+            np.random.seed(seed)
+        rand_colors = np.random.rand(n_labels, 3)
+        rand_colors = np.vstack([[0, 0, 0], rand_colors])  # Ensure background is black
+        cmap = ListedColormap(rand_colors)
+        return cmap
+
+    def _plot_merged_plot(
+        image,
+        outlines,
+        outline_colors,
+        figuresize,
+        thickness,
+        percentiles,
+        mode='outlines',
+        all_on_all=False,
+        all_outlines=False,
+        channels=None,
+        channel_to_outline=None,
+        channel_to_label=None,
+        save_pdf=True
+    ):
+        """Plot the merged plot with overlay, image channels, and masks."""
+
+        def _generate_colored_mask(mask, cmap):
+            """Generate a colored mask using the given colormap."""
+            mask_norm = mask / (mask.max() + 1e-5)
+            colored_mask = cmap(mask_norm)
+            colored_mask[..., 3] = np.where(mask > 0, 1, 0)
+            return colored_mask
+
+        def _overlay_mask(image, mask):
+            """Overlay the colored mask onto the original image."""
+            combined = np.clip(image * (1 - mask[..., 3:]) + mask[..., :3] * mask[..., 3:], 0, 1)
+            return combined
+
+        def _normalize_image(image, percentiles):
+            """Normalize the image based on given percentiles."""
+            v_min, v_max = np.percentile(image, percentiles)
+            image_normalized = np.clip((image - v_min) / (v_max - v_min + 1e-5), 0, 1)
+            return image_normalized
+
+        def _generate_contours(mask):
+            """Generate contours from the mask using OpenCV."""
+            contours, _ = cv2.findContours(
+                mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+            )
+            return contours
+
+        def _apply_contours(image, mask, color, thickness):
+            """Apply contours to the image."""
+            unique_labels = np.unique(mask)
+            for label in unique_labels:
+                if label == 0:
+                    continue
+                label_mask = (mask == label).astype(np.uint8)
+                contours = _generate_contours(label_mask)
+                cv2.drawContours(
+                    image, contours, -1, mpl.colors.to_rgb(color), thickness
+                )
+            return image
+
+        num_channels = image.shape[-1]
+        fig, ax = plt.subplots(1, num_channels + 1, figsize=(4 * figuresize, figuresize))
+        if num_channels == 1:
+            ax = [ax]
+
+        channels_with_outlines = set(channel_to_outline.keys()) if channel_to_outline is not None else set()
+
+        for v in range(num_channels):
+            channel_image = image[..., v]
+            channel_image_normalized = _normalize_image(channel_image, percentiles)
+            channel_image_rgb = np.dstack([channel_image_normalized] * 3)
+
+            current_channel = channels[v]
+
+            if all_on_all:
+                for outline, color in zip(outlines, outline_colors):
+                    if mode == 'outlines':
+                        channel_image_rgb = _apply_contours(
+                            channel_image_rgb, outline, color, thickness
+                        )
+                    else:
+                        cmap = random_color_cmap(int(outline.max() + 1), random.randint(0, 100))
+                        mask = _generate_colored_mask(outline, cmap)
+                        channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
+
+            elif current_channel in channels_with_outlines:
+                outline_info = channel_to_outline.get(current_channel, None)
+
+                if outline_info is not None:
+                    outline = outline_info['mask']
+                    color = outline_info['color']
+
+                    if outline is not None:
+                        if mode == 'outlines':
+                            channel_image_rgb = _apply_contours(
+                                channel_image_rgb, outline, color, thickness
+                            )
+                        else:
+                            cmap = random_color_cmap(int(outline.max() + 1), random.randint(0, 100))
+                            mask = _generate_colored_mask(outline, cmap)
+                            channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
+
+            else:
+                if all_outlines:
+                    for outline, color in zip(outlines, outline_colors):
+                        if mode == 'outlines':
+                            channel_image_rgb = _apply_contours(
+                                channel_image_rgb, outline, color, thickness
+                            )
+                        else:
+                            cmap = random_color_cmap(int(outline.max() + 1), random.randint(0, 100))
+                            mask = _generate_colored_mask(outline, cmap)
+                            channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
+
+            title = channel_to_label.get(current_channel, f'channel {current_channel}')
+            ax[v].imshow(channel_image_rgb)
+            ax[v].set_title(title)
+            ax[v].axis('off')
+
+        if len(outlines) > 0:
+            combined_mask = np.zeros_like(outlines[0])
+            for outline in outlines:
+                combined_mask = np.maximum(combined_mask, outline)
+
+            cmap = random_color_cmap(int(combined_mask.max() + 1), random.randint(0, 100))
+            mask = _generate_colored_mask(combined_mask, cmap)
+            blank_image = np.zeros((*combined_mask.shape, 3))
+            filled_image = _overlay_mask(blank_image, mask)
+
+            ax[-1].imshow(filled_image)
+            ax[-1].set_title('combined objects')
+            ax[-1].axis('off')
+        else:
+            ax[-1].imshow(np.zeros((*image.shape[:2], 3)))
+            ax[-1].set_title('no objects')
+            ax[-1].axis('off')
+
+        plt.tight_layout()
+
+        if save_pdf:
+            pdf_dir = os.path.join(
+                os.path.dirname(os.path.dirname(file)), 'results', 'overlay'
+            )
+            os.makedirs(pdf_dir, exist_ok=True)
+            pdf_path = os.path.join(
+                pdf_dir, os.path.basename(file).replace('.npy', '.pdf')
+            )
+            fig.savefig(pdf_path, format='pdf')
+
+        plt.show()
+        return fig
+
+    def _save_channels_as_tiff(stack, save_dir, filename):
+        """Save each channel in the stack as a grayscale TIFF."""
+        os.makedirs(save_dir, exist_ok=True)
+        for i in range(stack.shape[-1]):
+            channel = stack[..., i]
+            tiff_path = os.path.join(save_dir, f"{filename}_channel_{i}.tiff")
+            tiff.imwrite(tiff_path, channel.astype(np.uint16), photometric='minisblack')
+            print(f"Saved {tiff_path}")
+
+    def _filter_object(mask, intensity_image, min_max_area=(0, 10000000), min_max_intensity=(0, 65000), type_='object'):
+        """
+        Filter objects in a mask based on their area (size) and mean intensity.
+
+        Args:
+            mask (ndarray): The input mask.
+            intensity_image (ndarray): The corresponding intensity image.
+            min_max_area (tuple): A tuple (min_area, max_area) specifying the minimum and maximum area thresholds.
+            min_max_intensity (tuple): A tuple (min_intensity, max_intensity) specifying the minimum and maximum intensity thresholds.
+
+        Returns:
+            ndarray: The filtered mask.
+        """
+        original_dtype = mask.dtype
+        mask_int = mask.astype(np.int64)
+        intensity_image = intensity_image.astype(np.float64)
+
+        unique_labels = np.unique(mask_int)
+        unique_labels = unique_labels[unique_labels != 0]
+        num_objects_before = len(unique_labels)
+
+        areas = []
+        mean_intensities = []
+        labels_to_keep = []
+
+        for label in unique_labels:
+            label_mask = (mask_int == label)
+            area = np.sum(label_mask)
+            mean_intensity = np.mean(intensity_image[label_mask])
+
+            areas.append(area)
+            mean_intensities.append(mean_intensity)
+
+            if (min_max_area[0] <= area <= min_max_area[1]) and (min_max_intensity[0] <= mean_intensity <= min_max_intensity[1]):
+                labels_to_keep.append(label)
+
+        areas = np.array(areas)
+        mean_intensities = np.array(mean_intensities)
+        num_objects_after = len(labels_to_keep)
+
+        avg_area_before = areas.mean() if num_objects_before > 0 else 0
+        avg_intensity_before = mean_intensities.mean() if num_objects_before > 0 else 0
+        areas_after = areas[np.isin(unique_labels, labels_to_keep)]
+        mean_intensities_after = mean_intensities[np.isin(unique_labels, labels_to_keep)]
+        avg_area_after = areas_after.mean() if num_objects_after > 0 else 0
+        avg_intensity_after = mean_intensities_after.mean() if num_objects_after > 0 else 0
+
+        print(f"Before filtering {type_}: {num_objects_before} objects")
+        print(f"Average area {type_}: {avg_area_before:.2f} pixels, Average intensity: {avg_intensity_before:.2f}")
+        print(f"After filtering {type_}: {num_objects_after} objects")
+        print(f"Average area {type_}: {avg_area_after:.2f} pixels, Average intensity: {avg_intensity_after:.2f}")
+
+        mask_filtered = np.zeros_like(mask_int)
+        for label in labels_to_keep:
+            mask_filtered[mask_int == label] = label
+        mask_filtered = mask_filtered.astype(original_dtype)
+        return mask_filtered
+
+    stack = np.load(file)
+
+    if export_tiffs:
+        save_dir = os.path.join(
+            os.path.dirname(os.path.dirname(file)),
+            'results',
+            os.path.splitext(os.path.basename(file))[0],
+            'tiff'
+        )
+        filename = os.path.splitext(os.path.basename(file))[0]
+        _save_channels_as_tiff(stack, save_dir, filename)
+
+    if stack.dtype in (np.uint16, np.uint8):
+        stack = stack.astype(np.float32)
+
+    image = stack[..., channels]
+    outlines = []
+    outline_colors = []
+
+    object_specs = [
+        ('cell', cell_channel, 'red'),
+        ('nucleus', nucleus_channel, 'blue'),
+        ('pathogen', pathogen_channel, 'green'),
+        ('organelle', organelle_channel, 'yellow'),
+    ]
+
+    present_objects = [(name, channel, color) for name, channel, color in object_specs if channel is not None]
+    n_masks = len(present_objects)
+    base_image_planes = stack.shape[2] - n_masks
+
+    outline_map = {}
+    channel_to_outline = {}
+    channel_to_label = {}
+
+    for mask_offset, (name, channel, color) in enumerate(present_objects):
+        mask_dim = base_image_planes + mask_offset
+        outline = np.take(stack, mask_dim, axis=2)
+
+        if filter_dict is not None and name in filter_dict:
+            intensity = np.take(stack, channel, axis=2)
+            outline = _filter_object(
+                outline,
+                intensity,
+                filter_dict[name][0],
+                filter_dict[name][1],
+                type_=name
+            )
+
+        outline_map[name] = outline
+        outlines.append(outline)
+        outline_colors.append(color)
+
+        channel_to_outline[channel] = {'mask': outline, 'color': color}
+        channel_to_label[channel] = f'{name} (channel {channel})'
+
+    for ch in channels:
+        if ch not in channel_to_label:
+            channel_to_label[ch] = f'channel {ch}'
+
+    fig = _plot_merged_plot(
+        image=image,
+        outlines=outlines,
+        outline_colors=outline_colors,
+        figuresize=figuresize,
+        thickness=thickness,
+        percentiles=percentiles,
+        mode=mode,
+        all_on_all=all_on_all,
+        all_outlines=all_outlines,
+        channels=channels,
+        channel_to_outline=channel_to_outline,
+        channel_to_label=channel_to_label,
+        save_pdf=save_pdf
+    )
+
+    return fig
+
+def plot_image_mask_overlay_v1(
+    file,
+    channels,
+    cell_channel,
+    nucleus_channel,
+    pathogen_channel,
     figuresize=10,
     percentiles=(2, 98),
     thickness=3,
