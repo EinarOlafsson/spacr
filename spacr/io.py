@@ -1643,12 +1643,13 @@ def preprocess_img_data(settings):
                               channels=mask_channels,
                               save_dtype=np.float32,
                               settings=settings)
-    
+        
     for key in ['nucleus_channel', 'cell_channel', 'pathogen_channel', 'organelle_channel']:
         ch = settings.get(key)
         if ch is not None and ch in seen:
+            key = f"cellpose_{key}"
             settings[key] = seen[ch]
-
+            
     return settings, src
 
 def _check_masks(batch, batch_filenames, output_folder):
