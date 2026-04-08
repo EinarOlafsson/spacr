@@ -13,7 +13,7 @@ def preprocess_generate_masks(settings):
     from .object import generate_cellpose_masks, generate_organelle_masks
     from .io import preprocess_img_data, _load_and_concatenate_arrays, convert_to_yokogawa, convert_separate_files_to_yokogawa
     from .plot import plot_image_mask_overlay, plot_arrays
-    from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, delete_intermedeate_files, format_path_for_system, normalize_src_path, generate_image_path_map, copy_images_to_consolidated
+    from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, delete_intermedeate_files, format_path_for_system, normalize_src_path, generate_image_path_map, copy_images_to_consolidated, merge_split_objects
     from .settings import set_default_settings_preprocess_generate_masks, _set_organelle_defaults
         
     if 'src' in settings:
@@ -178,7 +178,144 @@ def preprocess_generate_masks(settings):
                             stop = time.time()
                             adjust_time = (stop-start)/60
                             print(f'Cell mask adjustment: {adjust_time} min.')
+                            
+                intensity_img_src = os.path.join(os.path.basename(mask_src), 'stack')
+                print(f"intensity_img_src:{intensity_img_src}")
+                
+                if settings.get('postprocess_cell_masks'):
                     
+                    cell_folder = os.path.join(mask_src, 'cell_mask_stack')
+                    
+                    if not os.path.exists(cell_folder) or len(os.listdir(cell_folder)) == 0:
+                        print(f"Cell mask folder {cell_folder} does not exist or is empty. Skipping cell mask post-processing.")
+                    else:
+                        start = time.time()
+                        
+                        merge_split_objects(mask_src=cell_folder,
+                                            intensity_img_src=intensity_img_src,
+                                            intensity_channel=settings['cell_channel'],
+                                            perimiter_fraction=settings['cell_perimiter_fraction'],
+                                            intensity_merge=settings['cell_intensity_merge'],
+                                            intensity_split=settings['cell_intensity_split'],
+                                            area_multiplier=settings['cell_area_multiplier'],
+                                            min_distance=settings['cell_min_distance'],
+                                            min_object_area=settings['cell_min_object_area'],
+                                            intensity_threshold_method=settings['cell_intensity_threshold_method'],
+                                            intensity_percentile=settings['cell_intensity_percentile'],
+                                            min_area=settings['cell_min_area'], 
+                                            max_area=settings['cell_max_area'], 
+                                            remove_border_objects=settings['cell_remove_border_objects'],
+                                            min_intensity=settings['cell_min_intensity'], 
+                                            max_intensity=settings['cell_max_intensity'], 
+                                            n_jobs=settings['n_jobs'])
+                        
+                        
+
+                        
+                        stop = time.time()
+                        duration = (stop - start)
+                        time_ls.append(duration)
+                        files_processed += 1
+                        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'merge_cell')
+                
+                if settings.get('postprocess_nucleus_masks'):
+                    
+                    nuclei_folder = os.path.join(mask_src, 'nucleus_mask_stack')
+                    
+                    if not os.path.exists(nuclei_folder) or len(os.listdir(nuclei_folder)) == 0:
+                        print(f"Nucleus mask folder {nuclei_folder} does not exist or is empty. Skipping nucleus mask post-processing.")
+                    else:
+                        start = time.time()
+                        
+                        merge_split_objects(mask_src=nuclei_folder,
+                                            intensity_img_src=intensity_img_src,
+                                            intensity_channel=settings['nucleus_channel'],
+                                            perimiter_fraction=settings['nucleus_perimiter_fraction'],
+                                            intensity_merge=settings['nucleus_intensity_merge'],
+                                            intensity_split=settings['nucleus_intensity_split'],
+                                            area_multiplier=settings['nucleus_area_multiplier'],
+                                            min_distance=settings['nucleus_min_distance'],
+                                            min_object_area=settings['nucleus_min_object_area'],
+                                            intensity_threshold_method=settings['nucleus_intensity_threshold_method'],
+                                            intensity_percentile=settings['nucleus_intensity_percentile'],
+                                            min_area=settings['nucleus_min_area'], 
+                                            max_area=settings['nucleus_max_area'], 
+                                            remove_border_objects=settings['nucleus_remove_border_objects'],
+                                            min_intensity=settings['nucleus_min_intensity'], 
+                                            max_intensity=settings['nucleus_max_intensity'], 
+                                            n_jobs=settings['n_jobs'])
+                        
+                        stop = time.time()
+                        duration = (stop - start)
+                        time_ls.append(duration)
+                        files_processed += 1
+                        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'merge_nucleus')
+                
+                if settings.get('postprocess_pathogen_masks'):
+                    
+                    parasite_folder = os.path.join(mask_src, 'pathogen_mask_stack')
+                    if not os.path.exists(parasite_folder) or len(os.listdir(parasite_folder)) == 0:
+                        print(f"Pathogen mask folder {parasite_folder} does not exist or is empty. Skipping pathogen mask post-processing.")
+                    else:
+                        start = time.time()
+                        
+                        merge_split_objects(mask_src=nuclei_folder,
+                                            intensity_img_src=intensity_img_src,
+                                            intensity_channel=settings['pathogen_channel'],
+                                            perimiter_fraction=settings['pathogen_perimiter_fraction'],
+                                            intensity_merge=settings['pathogen_intensity_merge'],
+                                            intensity_split=settings['pathogen_intensity_split'],
+                                            area_multiplier=settings['pathogen_area_multiplier'],
+                                            min_distance=settings['pathogen_min_distance'],
+                                            min_object_area=settings['pathogen_min_object_area'],
+                                            intensity_threshold_method=settings['pathogen_intensity_threshold_method'],
+                                            intensity_percentile=settings['pathogen_intensity_percentile'],
+                                            min_area=settings['pathogen_min_area'], 
+                                            max_area=settings['pathogen_max_area'], 
+                                            remove_border_objects=settings['pathogen_remove_border_objects'],
+                                            min_intensity=settings['pathogen_min_intensity'], 
+                                            max_intensity=settings['pathogen_max_intensity'], 
+                                            n_jobs=settings['n_jobs'])
+                        
+                        stop = time.time()
+                        duration = (stop - start)
+                        time_ls.append(duration)
+                        files_processed += 1
+                        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'merge_cpathogens')
+                    
+                if settings.get('merge_organells'):
+                    
+                    organells_folder = os.path.join(mask_src, 'organells_mask_stack')
+                    
+                    if not os.path.exists(organells_folder) or len(os.listdir(organells_folder)) == 0:
+                        print(f"Organelle mask folder {organells_folder} does not exist or is empty. Skipping organelle mask post-processing.")
+                    else:
+                    
+                        start = time.time()
+                        merge_split_objects(mask_src=organells_folder,
+                                            intensity_img_src=intensity_img_src,
+                                            intensity_channel=settings['organelle_channel'],
+                                            perimiter_fraction=settings['organelle_perimiter_fraction'],
+                                            intensity_merge=settings['organelle_intensity_merge'],
+                                            intensity_split=settings['organelle_intensity_split'],
+                                            area_multiplier=settings['organelle_area_multiplier'],
+                                            min_distance=settings['organelle_min_distance'],
+                                            min_object_area=settings['organelle_min_object_area'],
+                                            intensity_threshold_method=settings['organelle_intensity_threshold_method'],
+                                            intensity_percentile=settings['organelle_intensity_percentile'],
+                                            min_area=settings['organelle_min_area'], 
+                                            max_area=settings['organelle_max_area'], 
+                                            remove_border_objects=settings['organelle_remove_border_objects'],
+                                            min_intensity=settings['organelle_min_intensity'], 
+                                            max_intensity=settings['organelle_max_intensity'], 
+                                            n_jobs=settings['n_jobs'])
+                        
+                        stop = time.time()
+                        duration = (stop - start)
+                        time_ls.append(duration)
+                        files_processed += 1
+                        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'merge_organells')
+                
                 if os.path.exists(os.path.join(src,'measurements')):
                     _pivot_counts_table(db_path=os.path.join(src,'measurements', 'measurements.db'))
 

@@ -23,11 +23,108 @@ from skimage.util import img_as_ubyte
 from scipy.ndimage import binary_fill_holes, label, gaussian_filter
 from tkinter import ttk, scrolledtext
 from sklearn.model_selection import train_test_split
+from sympy import root
 from xgboost import XGBClassifier
 from sklearn.metrics import classification_report, confusion_matrix
 
-
 fig = None
+
+import subprocess, platform
+
+def _register_open_sans():
+    """Register OpenSans with the system font config so tkinter renders it smoothly."""
+    try:
+        base_dir = os.path.dirname(__file__)
+        font_dir = os.path.join(base_dir, 'resources', 'font', 'open_sans', 'static')
+        system = platform.system()
+        
+        if system == 'Linux':
+            fonts_dir = os.path.expanduser('~/.local/share/fonts')
+            os.makedirs(fonts_dir, exist_ok=True)
+            copied = 0
+            for ttf in ['OpenSans-Regular.ttf', 'OpenSans-Bold.ttf', 'OpenSans-Italic.ttf']:
+                src = os.path.join(font_dir, ttf)
+                dst = os.path.join(fonts_dir, ttf)
+                if os.path.exists(src) and not os.path.exists(dst):
+                    try:
+                        import shutil
+                        shutil.copy2(src, dst)
+                        copied += 1
+                    except Exception as e:
+                        print(f"Warning: Could not copy {ttf}: {e}")
+            if copied > 0:
+                print(f"Installed {copied} OpenSans font(s) to {fonts_dir}")
+            try:
+                subprocess.run(['fc-cache', '-f', fonts_dir], capture_output=True, timeout=10)
+                print("Font cache updated successfully")
+            except Exception as e:
+                print(f"Warning: Could not update font cache: {e}")
+
+            xresources = os.path.expanduser('~/.Xresources')
+            needs_update = True
+            if os.path.exists(xresources):
+                try:
+                    with open(xresources, 'r') as f:
+                        if 'Xft.antialias' in f.read():
+                            needs_update = False
+                except Exception as e:
+                    print(f"Warning: Could not read {xresources}: {e}")
+            if needs_update:
+                try:
+                    with open(xresources, 'a') as f:
+                        f.write('\nXft.antialias: 1\nXft.hinting: 1\nXft.hintstyle: hintslight\nXft.rgba: rgb\nXft.lcdfilter: lcddefault\n')
+                    subprocess.run(['xrdb', '-merge', xresources], capture_output=True, timeout=5)
+                    print("Xft anti-aliasing configured successfully")
+                except Exception as e:
+                    print(f"Warning: Could not configure Xft anti-aliasing: {e}")
+            else:
+                print("Xft anti-aliasing already configured")
+
+        elif system == 'Windows':
+            try:
+                import ctypes
+                gdi32 = ctypes.windll.gdi32
+                loaded = 0
+                for ttf in ['OpenSans-Regular.ttf', 'OpenSans-Bold.ttf']:
+                    path = os.path.join(font_dir, ttf)
+                    if os.path.exists(path):
+                        if gdi32.AddFontResourceW(path):
+                            loaded += 1
+                print(f"Loaded {loaded} OpenSans font(s) into Windows GDI")
+            except Exception as e:
+                print(f"Warning: Could not register fonts on Windows: {e}")
+
+        elif system == 'Darwin':
+            fonts_dir = os.path.expanduser('~/Library/Fonts')
+            os.makedirs(fonts_dir, exist_ok=True)
+            copied = 0
+            for ttf in ['OpenSans-Regular.ttf', 'OpenSans-Bold.ttf', 'OpenSans-Italic.ttf']:
+                src = os.path.join(font_dir, ttf)
+                dst = os.path.join(fonts_dir, ttf)
+                if os.path.exists(src) and not os.path.exists(dst):
+                    try:
+                        import shutil
+                        shutil.copy2(src, dst)
+                        copied += 1
+                    except Exception as e:
+                        print(f"Warning: Could not copy {ttf}: {e}")
+            if copied > 0:
+                print(f"Installed {copied} OpenSans font(s) to {fonts_dir}")
+            else:
+                print("OpenSans fonts already installed on macOS")
+
+        else:
+            print(f"Warning: Font registration not implemented for {system}")
+
+    except Exception as e:
+        print(f"Warning: Font registration failed: {e}")
+
+try:
+    _register_open_sans()
+except Exception as e:
+    print(f"Warning: Could not register OpenSans fonts: {e}")
+
+_register_open_sans()
 
 def restart_gui_app(root):
     """
@@ -46,6 +143,47 @@ def restart_gui_app(root):
         print(f"Error restarting GUI application: {e}")
 
 def create_menu_bar(root):
+    from .gui_core import initiate_root
+    
+    style_out = set_dark_style(ttk.Style())
+    font_loader = style_out['font_loader']
+    menu_font = font_loader.get_font(size=style_out['font_size']) if font_loader else ('Open Sans', 12)
+
+    gui_apps = {
+        "Mask": lambda: initiate_root(root, settings_type='mask'),
+        "Measure": lambda: initiate_root(root, settings_type='measure'),
+        "Annotate": lambda: initiate_root(root, settings_type='annotate'),
+        "Make Masks": lambda: initiate_root(root, settings_type='make_masks'),
+        "Classify": lambda: initiate_root(root, settings_type='classify'),
+        "Umap": lambda: initiate_root(root, settings_type='umap'),
+        "Train Cellpose": lambda: initiate_root(root, settings_type='train_cellpose'),
+        "ML Analyze": lambda: initiate_root(root, settings_type='ml_analyze'),
+        "Cellpose Masks": lambda: initiate_root(root, settings_type='cellpose_masks'),
+        "Cellpose All": lambda: initiate_root(root, settings_type='cellpose_all'),
+        "Map Barcodes": lambda: initiate_root(root, settings_type='map_barcodes'),
+        "Regression": lambda: initiate_root(root, settings_type='regression'),
+        "Activation": lambda: initiate_root(root, settings_type='activation'),
+        "Recruitment (graphs broken)": lambda: initiate_root(root, settings_type='recruitment')
+    }
+
+    menu_bar = tk.Menu(root, bg="#007ACC", fg="white", 
+                       activebackground="#C2185B", activeforeground="white",
+                       font=menu_font)
+    
+    app_menu = tk.Menu(menu_bar, tearoff=0, bg="#007ACC", fg="white",
+                       activebackground="#C2185B", activeforeground="white",
+                       font=menu_font)
+    menu_bar.add_cascade(label="SpaCr Applications", menu=app_menu)
+
+    for app_name, app_func in gui_apps.items():
+        app_menu.add_command(label=app_name, command=app_func)
+
+    app_menu.add_separator()
+    app_menu.add_command(label="Help", command=lambda: webbrowser.open("https://einarolafsson.github.io/spacr/index.html"))
+    app_menu.add_command(label="Exit", command=root.quit)
+    root.config(menu=menu_bar)
+
+def create_menu_bar_v1(root):
     from .gui import initiate_root
     gui_apps = {
         "Mask": lambda: initiate_root(root, settings_type='mask'),
@@ -65,10 +203,14 @@ def create_menu_bar(root):
     }
 
     # Create the menu bar
-    menu_bar = tk.Menu(root, bg="#008080", fg="white")
-
+    #menu_bar = tk.Menu(root, bg="#008080", fg="white")
     # Create a "SpaCr Applications" menu
-    app_menu = tk.Menu(menu_bar, tearoff=0, bg="#008080", fg="white")
+    #app_menu = tk.Menu(menu_bar, tearoff=0, bg="#008080", fg="white")
+    
+    menu_bar = tk.Menu(root, bg="#007ACC", fg="white", activebackground="#C2185B", activeforeground="white")
+    app_menu = tk.Menu(menu_bar, tearoff=0, bg="#007ACC", fg="white", activebackground="#C2185B", activeforeground="white")
+    
+    
     menu_bar.add_cascade(label="SpaCr Applications", menu=app_menu)
 
     # Add options to the "SpaCr Applications" menu
@@ -87,7 +229,33 @@ def create_menu_bar(root):
     # Configure the menu for the root window
     root.config(menu=menu_bar)
 
+
 def set_element_size():
+    global _cached_element_size
+    if _cached_element_size is not None:
+        return _cached_element_size
+
+    screen_width, screen_height = pyautogui.size()
+    screen_area = screen_width * screen_height
+    
+    # Calculate sizes based on screen dimensions
+    btn_size = int((screen_area * 0.002) ** 0.5)  # Button size as a fraction of screen area
+    bar_size = screen_height // 20  # Bar size based on screen height
+    settings_width = screen_width // 4  # Settings panel width as a fraction of screen width
+    panel_width = screen_width - settings_width  # Panel width as a fraction of screen width
+    panel_height = screen_height // 6  # Panel height as a fraction of screen height
+    
+    size_dict = {
+        'btn_size': btn_size,
+        'bar_size': bar_size,
+        'settings_width': settings_width,
+        'panel_width': panel_width,
+        'panel_height': panel_height
+    }
+    _cached_element_size = size_dict
+    return size_dict
+
+def set_element_size_v1():
 
     screen_width, screen_height = pyautogui.size()
     screen_area = screen_width * screen_height
@@ -107,8 +275,104 @@ def set_element_size():
         'panel_height': panel_height
     }
     return size_dict
+
+_cached_dark_style = None
+_cached_element_size = None
     
-def set_dark_style(style, parent_frame=None, containers=None, widgets=None, font_family="OpenSans", font_size=12, bg_color='black', fg_color='white', active_color='blue', inactive_color='dark_gray'):
+def set_dark_style(style, parent_frame=None, containers=None, widgets=None, 
+                   font_family="OpenSans", font_size=12, bg_color='black', 
+                   fg_color='white', active_color='blue', inactive_color='dark_gray'):
+    global _cached_dark_style
+    
+    # If no side effects needed, return cache
+    if parent_frame is None and containers is None and widgets is None and _cached_dark_style is not None:
+        return _cached_dark_style
+    
+    if active_color == 'teal':
+        active_color = '#008080'
+    if inactive_color == 'dark_gray':
+        inactive_color = '#2B2B2B' # '#333333' #'#050505'
+    if bg_color == 'black':
+        bg_color = '#000000'
+    if fg_color == 'white':
+        fg_color = '#ffffff'
+    if active_color == 'blue':
+        active_color = '#007BFF'
+
+    padding = '5 5 5 5'
+    font_style = tkFont.Font(family=font_family, size=font_size)
+
+    if font_family == 'OpenSans':
+        font_loader = spacrFont(font_name='OpenSans', font_style='Regular', font_size=12)
+    else:
+        font_loader = None
+        
+    style.theme_use('clam')
+    
+    style.configure('TEntry', padding=padding)
+    style.configure('TCombobox', padding=padding)
+    style.configure('Spacr.TEntry', padding=padding)
+    style.configure('TEntry', padding=padding)
+    style.configure('Spacr.TEntry', padding=padding)
+    style.configure('Custom.TLabel', padding=padding)
+    style.configure('TButton', padding=padding)
+    style.configure('TFrame', background=bg_color)
+    style.configure('TPanedwindow', background=bg_color)
+    if font_loader:
+        style.configure('TLabel', background=bg_color, foreground=fg_color, font=font_loader.get_font(size=font_size))
+    else:
+        style.configure('TLabel', background=bg_color, foreground=fg_color, font=(font_family, font_size))
+
+    if parent_frame:
+        parent_frame.configure(bg=bg_color)
+        parent_frame.grid_rowconfigure(0, weight=1)
+        parent_frame.grid_columnconfigure(0, weight=1)
+
+    if containers:
+        for container in containers:
+            if isinstance(container, ttk.Frame):
+                container_style = ttk.Style()
+                container_style.configure(f'{container.winfo_class()}.TFrame', background=bg_color)
+                container.configure(style=f'{container.winfo_class()}.TFrame')
+            else:
+                container.configure(bg=bg_color)
+
+    if widgets:
+        for widget in widgets:
+            if isinstance(widget, (tk.Label, tk.Button, tk.Frame, ttk.LabelFrame, tk.Canvas)):
+                widget.configure(bg=bg_color)
+            if isinstance(widget, (tk.Label, tk.Button)):
+                if font_loader:
+                    widget.configure(fg=fg_color, font=font_loader.get_font(size=font_size))
+                else:
+                    widget.configure(fg=fg_color, font=(font_family, font_size))
+            if isinstance(widget, scrolledtext.ScrolledText):
+                widget.configure(bg=bg_color, fg=fg_color, insertbackground=fg_color)
+            if isinstance(widget, tk.OptionMenu):
+                if font_loader:
+                    widget.configure(bg=bg_color, fg=fg_color, font=font_loader.get_font(size=font_size))
+                else:
+                    widget.configure(bg=bg_color, fg=fg_color, font=(font_family, font_size))
+                menu = widget['menu']
+                if font_loader:
+                    menu.configure(bg=bg_color, fg=fg_color, font=font_loader.get_font(size=font_size))
+                else:
+                    menu.configure(bg=bg_color, fg=fg_color, font=(font_family, font_size))
+
+    #return {'font_loader':font_loader, 'font_family': font_family, 'font_size': font_size, 'bg_color': bg_color, 'fg_color': fg_color, 'active_color': active_color, 'inactive_color': inactive_color}
+
+    result = {'font_loader': font_loader, 'font_family': font_family, 
+              'font_size': font_size, 'bg_color': bg_color, 'fg_color': fg_color, 
+              'active_color': active_color, 'inactive_color': inactive_color}
+    
+    if parent_frame is None and containers is None and widgets is None:
+        _cached_dark_style = result
+    
+    return result
+
+
+    
+def set_dark_style_v1(style, parent_frame=None, containers=None, widgets=None, font_family="OpenSans", font_size=12, bg_color='black', fg_color='white', active_color='blue', inactive_color='dark_gray'):
 
     if active_color == 'teal':
         active_color = '#008080'
@@ -183,6 +447,93 @@ def set_dark_style(style, parent_frame=None, containers=None, widgets=None, font
 
     return {'font_loader':font_loader, 'font_family': font_family, 'font_size': font_size, 'bg_color': bg_color, 'fg_color': fg_color, 'active_color': active_color, 'inactive_color': inactive_color}
 
+_font_cache = {}
+
+class spacrFont:
+    
+    def __new__(cls, font_name, font_style, font_size=12):
+        key = (font_name, font_style, font_size)
+        if key in _font_cache:
+            return _font_cache[key]
+        instance = super().__new__(cls)
+        _font_cache[key] = instance
+        return instance
+    
+    def __init__(self, font_name, font_style, font_size=12):
+        """
+        Initializes the FontLoader class.
+
+        Parameters:
+        - font_name: str, the name of the font (e.g., 'OpenSans').
+        - font_style: str, the style of the font (e.g., 'Regular', 'Bold').
+        - font_size: int, the size of the font (default: 12).
+        """
+        if hasattr(self, '_initialized'):
+            return
+        self._initialized = True
+        self.font_name = font_name
+        self.font_style = font_style
+        self.font_size = font_size
+
+        # Determine the path based on the font name and style
+        self.font_path = self.get_font_path(font_name, font_style)
+
+        # Register the font with Tkinter
+        self.load_font()
+
+    def get_font_path(self, font_name, font_style):
+        """
+        Returns the font path based on the font name and style.
+
+        Parameters:
+        - font_name: str, the name of the font.
+        - font_style: str, the style of the font.
+
+        Returns:
+        - str, the path to the font file.
+        """
+        base_dir = os.path.dirname(__file__)
+        
+        if font_name == 'OpenSans':
+            if font_style == 'Regular':
+                return os.path.join(base_dir, 'resources/font/open_sans/static/OpenSans-Regular.ttf')
+            elif font_style == 'Bold':
+                return os.path.join(base_dir, 'resources/font/open_sans/static/OpenSans-Bold.ttf')
+            elif font_style == 'Italic':
+                return os.path.join(base_dir, 'resources/font/open_sans/static/OpenSans-Italic.ttf')
+            # Add more styles as needed
+        # Add more fonts as needed
+        
+        raise ValueError(f"Font '{font_name}' with style '{font_style}' not found.")
+
+    def load_font(self):
+        """
+        Loads the font into Tkinter.
+        """
+        try:
+            font.Font(family=self.font_name, size=self.font_size)
+        except tk.TclError:
+            # Load the font manually if it's not already loaded
+            self.tk_font = font.Font(
+                name=self.font_name,
+                file=self.font_path,
+                size=self.font_size
+            )
+
+    def get_font(self, size=None):
+        """
+        Returns the font in the specified size.
+
+        Parameters:
+        - size: int, the size of the font (optional).
+
+        Returns:
+        - tkFont.Font object.
+        """
+        if size is None:
+            size = self.font_size
+        return font.Font(family=self.font_name, size=size)
+    
 class spacrFont:
     def __init__(self, font_name, font_style, font_size=12):
         """
@@ -353,6 +704,63 @@ class spacrEntry(tk.Frame):
     def __init__(self, parent, textvariable=None, outline=False, width=None, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         
+        style_out = set_dark_style(ttk.Style())
+        self.bg_color = style_out['inactive_color']
+        self.active_color = style_out['active_color']
+        self.fg_color = style_out['fg_color']
+        self.outline = outline
+        self.font_family = style_out['font_family']
+        self.font_size = style_out['font_size']
+        self.font_loader = style_out['font_loader']
+        
+        self.configure(bg=style_out['bg_color'])
+
+        self.canvas_height = 40
+        self.canvas = tk.Canvas(self, height=self.canvas_height, bd=0, highlightthickness=0, relief='ridge', bg=style_out['bg_color'])
+        self.canvas.pack(fill=tk.X, expand=True)
+        
+        if self.font_loader:
+            self.entry = tk.Entry(self, textvariable=textvariable, bd=0, highlightthickness=0, fg=self.fg_color, font=self.font_loader.get_font(size=self.font_size), bg=self.bg_color)
+        else:
+            self.entry = tk.Entry(self, textvariable=textvariable, bd=0, highlightthickness=0, fg=self.fg_color, font=(self.font_family, self.font_size), bg=self.bg_color)
+        self.entry.place(relx=0.5, rely=0.5, anchor=tk.CENTER, relwidth=0.9, height=20)
+        
+        self.entry.bind("<FocusIn>", self.on_focus_in)
+        self.entry.bind("<FocusOut>", self.on_focus_out)
+        
+        self.canvas.bind("<Configure>", self._on_resize)
+        self.draw_rounded_rectangle(self.bg_color)
+
+    def _on_resize(self, event):
+        self.draw_rounded_rectangle(self.bg_color)
+
+    def draw_rounded_rectangle(self, color):
+        radius = 15
+        x0, y0 = 5, 5
+        x1 = self.canvas.winfo_width() - 5
+        if x1 <= x0:
+            x1 = 200
+        y1 = self.canvas_height - 5
+        self.canvas.delete("all")
+        self.canvas.create_arc((x0, y0, x0 + radius, y0 + radius), start=90, extent=90, fill=color, outline=color)
+        self.canvas.create_arc((x1 - radius, y0, x1, y0 + radius), start=0, extent=90, fill=color, outline=color)
+        self.canvas.create_arc((x0, y1 - radius, x0 + radius, y1), start=180, extent=90, fill=color, outline=color)
+        self.canvas.create_arc((x1 - radius, y1 - radius, x1, y1), start=270, extent=90, fill=color, outline=color)
+        self.canvas.create_rectangle((x0 + radius / 2, y0, x1 - radius / 2, y1), fill=color, outline=color)
+        self.canvas.create_rectangle((x0, y0 + radius / 2, x1, y1 - radius / 2), fill=color, outline=color)
+    
+    def on_focus_in(self, event):
+        self.draw_rounded_rectangle(self.active_color)
+        self.entry.config(bg=self.active_color)
+    
+    def on_focus_out(self, event):
+        self.draw_rounded_rectangle(self.bg_color)
+        self.entry.config(bg=self.bg_color)
+
+class spacrEntry_v1(tk.Frame):
+    def __init__(self, parent, textvariable=None, outline=False, width=None, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        
         # Set dark style
         style_out = set_dark_style(ttk.Style())
         self.bg_color = style_out['inactive_color']
@@ -457,10 +865,115 @@ class spacrCheck(tk.Frame):
 
     def toggle_variable(self, event):
         self.variable.set(not self.variable.get())
-
+        
 class spacrCombo(tk.Frame):
     def __init__(self, parent, textvariable=None, values=None, width=None, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
+        
+        style_out = set_dark_style(ttk.Style())
+        self.bg_color = style_out['bg_color']
+        self.active_color = style_out['active_color']
+        self.fg_color = style_out['fg_color']
+        self.inactive_color = style_out['inactive_color']
+        self.font_family = style_out['font_family']
+        self.font_size = style_out['font_size']
+        self.font_loader = style_out['font_loader']
+
+        self.configure(bg=self.bg_color)
+        self.values = values or []
+
+        self.canvas_height = 40
+        self.canvas = tk.Canvas(self, height=self.canvas_height, bd=0, highlightthickness=0, relief='ridge', bg=self.bg_color)
+        self.canvas.pack(fill=tk.X, expand=True)
+        
+        self.var = textvariable if textvariable else tk.StringVar()
+        self.selected_value = self.var.get()
+        
+        if self.font_loader:
+            self.label = tk.Label(self, text=self.selected_value, bg=self.inactive_color, fg=self.fg_color, font=self.font_loader.get_font(size=self.font_size))
+        else:
+            self.label = tk.Label(self, text=self.selected_value, bg=self.inactive_color, fg=self.fg_color, font=(self.font_family, self.font_size))
+        self.label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+        
+        self.canvas.bind("<Button-1>", self.on_click)
+        self.label.bind("<Button-1>", self.on_click)
+        self.canvas.bind("<Configure>", self._on_resize)
+        
+        self.draw_rounded_rectangle(self.inactive_color)
+        self.dropdown_menu = None
+
+    def _on_resize(self, event):
+        self.draw_rounded_rectangle(self.inactive_color if self.dropdown_menu is None else self.active_color)
+
+    def draw_rounded_rectangle(self, color):
+        radius = 15
+        x0, y0 = 5, 5
+        x1 = self.canvas.winfo_width() - 5
+        if x1 <= x0:
+            x1 = 200
+        y1 = self.canvas_height - 5
+        self.canvas.delete("all")
+        self.canvas.create_arc((x0, y0, x0 + radius, y0 + radius), start=90, extent=90, fill=color, outline=color)
+        self.canvas.create_arc((x1 - radius, y0, x1, y0 + radius), start=0, extent=90, fill=color, outline=color)
+        self.canvas.create_arc((x0, y1 - radius, x0 + radius, y1), start=180, extent=90, fill=color, outline=color)
+        self.canvas.create_arc((x1 - radius, y1 - radius, x1, y1), start=270, extent=90, fill=color, outline=color)
+        self.canvas.create_rectangle((x0 + radius / 2, y0, x1 - radius / 2, y1), fill=color, outline=color)
+        self.canvas.create_rectangle((x0, y0 + radius / 2, x1, y1 - radius / 2), fill=color, outline=color)
+        self.label.config(bg=color)
+
+    def on_click(self, event):
+        if self.dropdown_menu is None:
+            self.open_dropdown()
+        else:
+            self.close_dropdown()
+
+    def open_dropdown(self):
+        self.draw_rounded_rectangle(self.active_color)
+        
+        self.dropdown_menu = tk.Toplevel(self)
+        self.dropdown_menu.wm_overrideredirect(True)
+        self.dropdown_menu.configure(bg=self.inactive_color)
+        
+        x, y, width, height = self.winfo_rootx(), self.winfo_rooty(), self.winfo_width(), self.winfo_height()
+        
+        for index, value in enumerate(self.values):
+            display_text = value if value is not None else 'None'
+            if self.font_loader:
+                item = tk.Label(self.dropdown_menu, text=display_text, bg=self.inactive_color, fg=self.fg_color, font=self.font_loader.get_font(size=self.font_size), anchor='w')
+            else:
+                item = tk.Label(self.dropdown_menu, text=display_text, bg=self.inactive_color, fg=self.fg_color, font=(self.font_family, self.font_size), anchor='w')
+            item.pack(fill='both')
+            item.bind("<Button-1>", lambda e, v=value: self.on_select(v))
+            item.bind("<Enter>", lambda e, w=item: w.config(bg=self.active_color))
+            item.bind("<Leave>", lambda e, w=item: w.config(bg=self.inactive_color))
+
+        self.dropdown_menu.update_idletasks()
+        actual_height = self.dropdown_menu.winfo_reqheight()
+        self.dropdown_menu.geometry(f"{width}x{actual_height}+{x}+{y + height}")
+
+    def close_dropdown(self):
+        self.draw_rounded_rectangle(self.inactive_color)
+        if self.dropdown_menu:
+            self.dropdown_menu.destroy()
+            self.dropdown_menu = None
+
+    def on_select(self, value):
+        display_text = value if value is not None else 'None'
+        self.var.set(value)
+        self.label.config(text=display_text)
+        self.selected_value = value
+        self.close_dropdown()
+
+    def set(self, value):
+        display_text = value if value is not None else 'None'
+        self.var.set(value)
+        self.label.config(text=display_text)
+        self.selected_value = value
+        
+class spacrCombo_v1(tk.Frame):
+    def __init__(self, parent, textvariable=None, values=None, width=None, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.configure(bg=set_dark_style(ttk.Style())['bg_color'])  # add this line
         
         # Set dark style
         style_out = set_dark_style(ttk.Style())
