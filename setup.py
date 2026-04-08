@@ -76,7 +76,7 @@ dependencies = [
     #'stardist>=0.9,<1.0'
 ]
 
-VERSION = "1.2.6"
+VERSION = "1.2.7"
 
 setup(
     name="spacr",
