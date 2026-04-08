@@ -71,12 +71,12 @@ dependencies = [
     'ipywidgets>=8.1.2,<9.0',
     'brokenaxes>=0.6.2,<1.0',
     'huggingface-hub>=0.24.0,<0.25',
-    'protobuf>=5.28.3,<6.0',
-    'tensorflow>=2.20.0,<3.0',
-    'stardist>=0.9,<1.0'
+    'protobuf>=5.28.3,<6.0'
+    #'tensorflow>=2.20.0,<3.0',
+    #'stardist>=0.9,<1.0'
 ]
 
-VERSION = "1.2.5"
+VERSION = "1.2.6"
 
 setup(
     name="spacr",

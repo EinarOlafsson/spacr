@@ -82,6 +82,559 @@ import umap.umap_ as umap
 import logging
 from functools import wraps
 
+import os
+import numpy as np
+from scipy import ndimage
+from skimage.segmentation import find_boundaries, watershed
+from skimage.feature import peak_local_max
+from joblib import Parallel, delayed
+import tifffile
+
+
+def _load_image(filepath):
+    """Load a .tif or .npy image."""
+    ext = os.path.splitext(filepath)[1].lower()
+    if ext == '.npy':
+        return np.load(filepath)
+    elif ext in ('.tif', '.tiff'):
+        return tifffile.imread(filepath)
+    return None
+
+
+def _save_image(filepath, img):
+    """Save image as .tif or .npy matching original format."""
+    ext = os.path.splitext(filepath)[1].lower()
+    if ext == '.npy':
+        np.save(filepath, img)
+    else:
+        tifffile.imwrite(filepath, img)
+
+
+def _union_find_root(parent, i):
+    while parent[i] != i:
+        parent[i] = parent[parent[i]]
+        i = parent[i]
+    return i
+
+
+def _union_find_merge(parent, a, b):
+    ra = _union_find_root(parent, a)
+    rb = _union_find_root(parent, b)
+    if ra != rb:
+        parent[max(ra, rb)] = min(ra, rb)
+
+
+def _compute_label_perimeters(label_img):
+    """Return dict {label: perimeter_pixel_count}."""
+    boundaries = find_boundaries(label_img, mode='inner')
+    boundary_labels = label_img[boundaries]
+    unique, counts = np.unique(boundary_labels[boundary_labels > 0], return_counts=True)
+    return dict(zip(unique.astype(int), counts.astype(int)))
+
+
+def _compute_shared_boundaries(label_img):
+    """Return dict {(min_label, max_label): shared_pixel_count}."""
+    shared = {}
+    for dy, dx in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+        shifted = np.roll(np.roll(label_img, dy, axis=0), dx, axis=1)
+        mask = (label_img > 0) & (shifted > 0) & (label_img != shifted)
+        if not np.any(mask):
+            continue
+        a = label_img[mask].astype(int)
+        b = shifted[mask].astype(int)
+        for la, lb in zip(a, b):
+            pair = (min(la, lb), max(la, lb))
+            shared[pair] = shared.get(pair, 0) + 1
+    return shared
+
+
+def _get_boundary_coords(label_img, la, lb):
+    """Get pixel coordinates along the shared boundary between two labels."""
+    coords = []
+    for dy, dx in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+        shifted = np.roll(np.roll(label_img, dy, axis=0), dx, axis=1)
+        mask = ((label_img == la) & (shifted == lb)) | ((label_img == lb) & (shifted == la))
+        ys, xs = np.where(mask)
+        coords.extend(zip(ys, xs))
+    return coords
+
+
+def _merge_by_perimeter(label_img, perimiter_fraction, parent):
+    """Mark label pairs for merging based on shared perimeter fraction."""
+    perimeters = _compute_label_perimeters(label_img)
+    shared = _compute_shared_boundaries(label_img)
+
+    for (la, lb), shared_px in shared.items():
+        perim_a = perimeters.get(la, 1)
+        perim_b = perimeters.get(lb, 1)
+        smaller_perim = min(perim_a, perim_b)
+        if shared_px / smaller_perim >= perimiter_fraction:
+            _union_find_merge(parent, la, lb)
+
+
+def _merge_by_intensity(label_img, intensity_img, parent,
+                        intensity_threshold_method='mean',
+                        intensity_percentile=75):
+    """Mark label pairs for merging if boundary intensity is high
+    (no real edge between them).
+
+    For each touching pair, compare the mean intensity along the shared
+    boundary to the interior intensity of the dimmer object.  If the
+    boundary intensity >= threshold, merge.
+
+    Parameters
+    ----------
+    intensity_threshold_method : str
+        'mean'  – boundary mean >= mean of dimmer label interior
+        'percentile' – boundary mean >= given percentile of dimmer label
+    intensity_percentile : int
+        Percentile used when method='percentile'.
+    """
+    shared = _compute_shared_boundaries(label_img)
+
+    # Pre-compute per-label intensity stats
+    labels_present = np.unique(label_img)
+    labels_present = labels_present[labels_present > 0]
+    label_stats = {}
+    for l in labels_present:
+        vals = intensity_img[label_img == l]
+        label_stats[int(l)] = {
+            'mean': np.mean(vals),
+            'percentile': np.percentile(vals, intensity_percentile),
+        }
+
+    for (la, lb), _ in shared.items():
+        coords = _get_boundary_coords(label_img, la, lb)
+        if not coords:
+            continue
+        ys, xs = zip(*coords)
+        boundary_intensity = np.mean(intensity_img[ys, xs])
+
+        stats_a = label_stats.get(la)
+        stats_b = label_stats.get(lb)
+        if stats_a is None or stats_b is None:
+            continue
+
+        # Compare to the dimmer of the two objects
+        if intensity_threshold_method == 'mean':
+            ref = min(stats_a['mean'], stats_b['mean'])
+        else:
+            ref = min(stats_a['percentile'], stats_b['percentile'])
+
+        if boundary_intensity >= ref:
+            _union_find_merge(parent, la, lb)
+
+
+def _split_by_watershed(label_img, area_multiplier=2.0, min_distance=10,
+                        min_object_area=100):
+    """Split labels whose area exceeds area_multiplier × median object area.
+
+    Uses distance-transform watershed seeded by local maxima.
+
+    Parameters
+    ----------
+    area_multiplier : float
+        Only split objects with area > multiplier * median area.
+    min_distance : int
+        Minimum pixel distance between watershed seeds.
+    min_object_area : int
+        Absolute minimum area (px) below which objects are never split,
+        regardless of the median multiplier.
+    """
+    labels_present = np.unique(label_img)
+    labels_present = labels_present[labels_present > 0]
+    if len(labels_present) == 0:
+        return label_img
+
+    areas = ndimage.sum(np.ones_like(label_img), label_img, labels_present)
+    area_map = dict(zip(labels_present.astype(int), areas.astype(int)))
+    median_area = np.median(list(area_map.values()))
+    threshold = max(area_multiplier * median_area, min_object_area)
+
+    output = label_img.copy()
+    next_label = int(label_img.max()) + 1
+
+    for lbl, area in area_map.items():
+        if area <= threshold:
+            continue
+
+        obj_mask = (label_img == lbl)
+        dist = ndimage.distance_transform_edt(obj_mask)
+
+        local_max_coords = peak_local_max(dist, min_distance=min_distance,
+                                          labels=obj_mask.astype(int))
+        if len(local_max_coords) <= 1:
+            continue
+
+        seeds = np.zeros_like(label_img, dtype=np.int32)
+        for i, (y, x) in enumerate(local_max_coords, start=1):
+            seeds[y, x] = i
+
+        ws = watershed(-dist, markers=seeds, mask=obj_mask)
+
+        ws_labels = np.unique(ws)
+        ws_labels = ws_labels[ws_labels > 0]
+        for wl in ws_labels:
+            output[ws == wl] = next_label
+            next_label += 1
+
+    return output
+
+
+def _relabel_sequential(label_img):
+    """Relabel to sequential uint16 IDs starting at 1."""
+    present = np.unique(label_img)
+    present = present[present > 0]
+    mapping = np.zeros(int(label_img.max()) + 1, dtype=np.uint16)
+    for new_id, old_id in enumerate(present, start=1):
+        mapping[int(old_id)] = new_id
+    return mapping[label_img].astype(np.uint16)
+
+
+def _apply_union_find(label_img, parent):
+    """Apply union-find mapping and relabel sequentially."""
+    mapping = np.zeros(int(label_img.max()) + 1, dtype=np.int64)
+    for l in range(1, len(mapping)):
+        if l in parent:
+            mapping[l] = _union_find_root(parent, l)
+        else:
+            mapping[l] = l
+    merged = mapping[label_img]
+    return _relabel_sequential(merged.astype(np.uint16))
+
+
+def _process_single_fov_v1(mask_path, intensity_path, intensity_channel,
+                        do_split, do_perimeter_merge, do_intensity_merge,
+                        perimiter_fraction, area_multiplier, min_distance,
+                        min_object_area, intensity_threshold_method,
+                        intensity_percentile):
+    """Process one field of view: split then merge."""
+    label_img = _load_image(mask_path)
+    if label_img is None:
+        return
+    label_img = label_img.astype(np.uint16)
+
+    # Load intensity image if needed
+    intensity_img = None
+    if do_intensity_merge and intensity_path is not None:
+        raw = _load_image(intensity_path)
+        if raw is not None:
+            if raw.ndim >= 2 and intensity_channel is not None:
+                intensity_img = raw[intensity_channel].astype(np.float32)
+            else:
+                intensity_img = raw.astype(np.float32)
+
+    # --- Split phase ---
+    if do_split:
+        label_img = _split_by_watershed(
+            label_img,
+            area_multiplier=area_multiplier,
+            min_distance=min_distance,
+            min_object_area=min_object_area,
+        )
+        label_img = _relabel_sequential(label_img)
+
+    # --- Merge phase ---
+    all_labels = np.unique(label_img)
+    all_labels = all_labels[all_labels > 0]
+    if len(all_labels) == 0:
+        _save_image(mask_path, label_img)
+        return
+
+    parent = {int(l): int(l) for l in all_labels}
+
+    if do_perimeter_merge:
+        _merge_by_perimeter(label_img, perimiter_fraction, parent)
+
+    if do_intensity_merge and intensity_img is not None:
+        _merge_by_intensity(label_img, intensity_img, parent,
+                            intensity_threshold_method=intensity_threshold_method,
+                            intensity_percentile=intensity_percentile)
+
+    label_img = _apply_union_find(label_img, parent)
+    _save_image(mask_path, label_img)
+    
+def _process_single_fov(mask_path, intensity_path, intensity_channel,
+                        do_split, do_perimeter_merge, do_intensity_merge,
+                        perimiter_fraction, area_multiplier, min_distance,
+                        min_object_area, intensity_threshold_method,
+                        intensity_percentile, min_area, max_area,
+                        remove_border_objects, min_intensity, max_intensity):
+    """Process one field of view: split → merge → filter."""
+    label_img = _load_image(mask_path)
+    if label_img is None:
+        return
+    label_img = label_img.astype(np.uint16)
+
+    # Load intensity image if needed
+    intensity_img = None
+    if (do_intensity_merge or min_intensity > 0 or max_intensity > 0) and intensity_path is not None:
+        raw = _load_image(intensity_path)
+        if raw is not None:
+            if raw.ndim >= 2 and intensity_channel is not None:
+                intensity_img = raw[intensity_channel].astype(np.float32)
+            else:
+                intensity_img = raw.astype(np.float32)
+
+    # --- Split phase ---
+    if do_split:
+        label_img = _split_by_watershed(
+            label_img,
+            area_multiplier=area_multiplier,
+            min_distance=min_distance,
+            min_object_area=min_object_area,
+        )
+        label_img = _relabel_sequential(label_img)
+
+    # --- Merge phase ---
+    all_labels = np.unique(label_img)
+    all_labels = all_labels[all_labels > 0]
+    if len(all_labels) > 0:
+        parent = {int(l): int(l) for l in all_labels}
+
+        if do_perimeter_merge:
+            _merge_by_perimeter(label_img, perimiter_fraction, parent)
+
+        if do_intensity_merge and intensity_img is not None:
+            _merge_by_intensity(label_img, intensity_img, parent,
+                                intensity_threshold_method=intensity_threshold_method,
+                                intensity_percentile=intensity_percentile)
+
+        label_img = _apply_union_find(label_img, parent)
+
+    # --- Filter phase ---
+    label_img = _filter_objects(label_img, intensity_img,
+                                min_area=min_area, max_area=max_area,
+                                remove_border=remove_border_objects,
+                                min_intensity=min_intensity,
+                                max_intensity=max_intensity)
+
+    _save_image(mask_path, label_img)
+    
+def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
+                    remove_border=False, min_intensity=0, max_intensity=0):
+    """Remove objects by area, border contact, and mean intensity.
+
+    Parameters
+    ----------
+    label_img : ndarray (uint16)
+        Label image.
+    intensity_img : ndarray (float32) or None
+        Corresponding intensity image for intensity filtering.
+    min_area : int
+        Remove objects with area < min_area. 0 = disabled.
+    max_area : int
+        Remove objects with area > max_area. 0 = disabled.
+    remove_border : bool
+        Remove objects touching any image edge.
+    min_intensity : float
+        Remove objects with mean intensity < min_intensity. 0 = disabled.
+    max_intensity : float
+        Remove objects with mean intensity > max_intensity. 0 = disabled.
+
+    Returns
+    -------
+    ndarray (uint16)
+        Filtered and relabelled image.
+    """
+    labels_present = np.unique(label_img)
+    labels_present = labels_present[labels_present > 0]
+
+    if len(labels_present) == 0:
+        return label_img
+
+    remove = set()
+
+    # Pre-compute areas
+    areas = {}
+    if min_area > 0 or max_area > 0:
+        for lbl in labels_present:
+            areas[int(lbl)] = int(np.sum(label_img == lbl))
+
+    # Area filter
+    if min_area > 0:
+        for lbl, area in areas.items():
+            if area < min_area:
+                remove.add(lbl)
+    if max_area > 0:
+        for lbl, area in areas.items():
+            if area > max_area:
+                remove.add(lbl)
+
+    # Border filter
+    if remove_border:
+        h, w = label_img.shape
+        border_labels = set()
+        border_labels.update(np.unique(label_img[0, :]).tolist())      # top
+        border_labels.update(np.unique(label_img[-1, :]).tolist())     # bottom
+        border_labels.update(np.unique(label_img[:, 0]).tolist())      # left
+        border_labels.update(np.unique(label_img[:, -1]).tolist())     # right
+        border_labels.discard(0)
+        remove.update(border_labels)
+
+    # Intensity filter
+    if (min_intensity > 0 or max_intensity > 0) and intensity_img is not None:
+        for lbl in labels_present:
+            if int(lbl) in remove:
+                continue
+            mean_val = float(np.mean(intensity_img[label_img == lbl]))
+            if min_intensity > 0 and mean_val < min_intensity:
+                remove.add(int(lbl))
+            if max_intensity > 0 and mean_val > max_intensity:
+                remove.add(int(lbl))
+
+    # Apply removal
+    if remove:
+        mask = np.isin(label_img, list(remove))
+        label_img[mask] = 0
+
+    return _relabel_sequential(label_img)
+
+def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None,
+                        perimiter_fraction=0.5, intensity_merge=False, intensity_split=False,
+                        area_multiplier=2.0, min_distance=10, min_object_area=100,
+                        intensity_threshold_method='mean', intensity_percentile=75,
+                        min_area=0, max_area=0, remove_border_objects=False,
+                        min_intensity=0, max_intensity=0, n_jobs=1):
+    """Merge under-segmented and split over-segmented objects in label masks.
+
+    Processing order per FOV: split → merge → filter.
+
+    Parameters
+    ----------
+    mask_src : str
+        Directory of label mask files (.tif or .npy), single-channel 2D.
+    intensity_img_src : str or None
+        Directory of corresponding intensity images. Filenames must match
+        mask_src. Images can be multi-channel (C, Y, X).
+    intensity_channel : int or None
+        Channel index to use from intensity images.
+    perimiter_fraction : float
+        Minimum shared-boundary / smaller-object-perimeter ratio to merge.
+        Set to 0 to disable perimeter-based merging.
+    intensity_merge : bool
+        If True, also merge pairs whose shared boundary intensity indicates
+        no real edge (requires intensity_img_src).
+    intensity_split : bool
+        If True, split objects whose area exceeds area_multiplier * median
+        area using distance-transform watershed.
+    area_multiplier : float
+        Split threshold = area_multiplier * median object area.
+    min_distance : int
+        Minimum distance (px) between watershed seeds when splitting.
+    min_object_area : int
+        Objects below this area (px) are never split.
+    intensity_threshold_method : str
+        'mean' or 'percentile' — how to decide if a boundary is a real edge.
+    intensity_percentile : int
+        Percentile used when intensity_threshold_method='percentile'.
+    min_area : int
+        Remove objects smaller than this area (px). 0 = no lower bound.
+    max_area : int
+        Remove objects larger than this area (px). 0 = no upper bound.
+    remove_border_objects : bool
+        Remove objects touching any edge of the image.
+    min_intensity : float
+        Remove objects whose mean intensity is below this value. 0 = disabled.
+    max_intensity : float
+        Remove objects whose mean intensity is above this value. 0 = disabled.
+    n_jobs : int
+        Number of parallel workers (joblib).
+    """
+    valid_ext = ('.tif', '.tiff', '.npy')
+    mask_files = sorted([f for f in os.listdir(mask_src)
+                         if os.path.splitext(f)[1].lower() in valid_ext])
+    if not mask_files:
+        return
+
+    do_perimeter_merge = perimiter_fraction > 0
+    do_intensity_merge = intensity_merge and intensity_img_src is not None
+    do_split = intensity_split
+
+    mask_paths = [os.path.join(mask_src, f) for f in mask_files]
+    if intensity_img_src is not None:
+        intensity_paths = [os.path.join(intensity_img_src, f) for f in mask_files]
+    else:
+        intensity_paths = [None] * len(mask_files)
+
+    Parallel(n_jobs=n_jobs)(
+        delayed(_process_single_fov)(
+            mp, ip, intensity_channel,
+            do_split, do_perimeter_merge, do_intensity_merge,
+            perimiter_fraction, area_multiplier, min_distance,
+            min_object_area, intensity_threshold_method,
+            intensity_percentile, min_area, max_area,
+            remove_border_objects, min_intensity, max_intensity,
+        )
+        for mp, ip in zip(mask_paths, intensity_paths)
+    )
+
+def merge_split_objects_v1(mask_src, intensity_img_src=None, intensity_channel=None, perimiter_fraction=0.5, intensity_merge=False, intensity_split=False, area_multiplier=2.0, min_distance=10, min_object_area=100, intensity_threshold_method='mean', intensity_percentile=75, n_jobs=1):
+    
+    """Merge under-segmented and split over-segmented objects in label masks.
+
+    Processing order per FOV: split first, then merge. This avoids merging
+    fragments that should instead be split into proper objects.
+
+    Parameters
+    ----------
+    mask_src : str
+        Directory of label mask files (.tif or .npy), single-channel 2D.
+    intensity_img_src : str or None
+        Directory of corresponding intensity images. Filenames must match
+        mask_src. Images can be multi-channel (C, Y, X).
+    intensity_channel : int or None
+        Channel index to use from intensity images.
+    perimiter_fraction : float
+        Minimum shared-boundary / smaller-object-perimeter ratio to merge.
+        Set to 0 to disable perimeter-based merging.
+    intensity_merge : bool
+        If True, also merge pairs whose shared boundary intensity indicates
+        no real edge (requires intensity_img_src).
+    intensity_split : bool
+        If True, split objects whose area exceeds area_multiplier × median
+        area using distance-transform watershed.
+    area_multiplier : float
+        Split threshold = area_multiplier × median object area.
+    min_distance : int
+        Minimum distance (px) between watershed seeds when splitting.
+    min_object_area : int
+        Objects below this area (px) are never split.
+    intensity_threshold_method : str
+        'mean' or 'percentile' — how to decide if a boundary is a real edge.
+    intensity_percentile : int
+        Percentile used when intensity_threshold_method='percentile'.
+    n_jobs : int
+        Number of parallel workers (joblib).
+    """
+    
+    valid_ext = ('.tif', '.tiff', '.npy')
+    mask_files = sorted([f for f in os.listdir(mask_src)
+                         if os.path.splitext(f)[1].lower() in valid_ext])
+    if not mask_files:
+        return
+
+    do_perimeter_merge = perimiter_fraction > 0
+    do_intensity_merge = intensity_merge and intensity_img_src is not None
+    do_split = intensity_split
+
+    mask_paths = [os.path.join(mask_src, f) for f in mask_files]
+    if intensity_img_src is not None:
+        intensity_paths = [os.path.join(intensity_img_src, f) for f in mask_files]
+    else:
+        intensity_paths = [None] * len(mask_files)
+
+    Parallel(n_jobs=n_jobs)(
+        delayed(_process_single_fov)(
+            mp, ip, intensity_channel,
+            do_split, do_perimeter_merge, do_intensity_merge,
+            perimiter_fraction, area_multiplier, min_distance,
+            min_object_area, intensity_threshold_method,
+            intensity_percentile,
+        )
+        for mp, ip in zip(mask_paths, intensity_paths)
+    )
+
 def _organelle_diagnostic(img, morphology, method, settings):
     """
     Generate a diagnostic image for organelle segmentation QC.
@@ -6399,31 +6952,6 @@ def process_mask_file_adjust_cell_v1(file_name, parasite_folder, cell_folder, nu
 
     end = time.perf_counter()
     return end - start
-
-def adjust_cell_masks_v1(parasite_folder, cell_folder, nuclei_folder, organelle_folder, overlap_threshold=5, perimeter_threshold=30, n_jobs=None):
-    
-    parasite_files = sorted([f for f in os.listdir(parasite_folder) if f.endswith('.npy')])
-    cell_files = sorted([f for f in os.listdir(cell_folder) if f.endswith('.npy')])
-    nuclei_files = sorted([f for f in os.listdir(nuclei_folder) if f.endswith('.npy')])
-
-    if not (len(parasite_files) == len(cell_files) == len(nuclei_files)):
-        raise ValueError("The number of files in the folders do not match.")
-
-    n_jobs = n_jobs or max(1, cpu_count() - 2)
-
-    time_ls = []
-    files_to_process = len(parasite_files)
-    process_fn = partial(process_mask_file_adjust_cell,
-                         parasite_folder=parasite_folder,
-                         cell_folder=cell_folder,
-                         nuclei_folder=nuclei_folder,
-                         overlap_threshold=overlap_threshold,
-                         perimeter_threshold=perimeter_threshold)
-
-    with Pool(n_jobs) as pool:
-        for i, duration in enumerate(pool.imap_unordered(process_fn, parasite_files), 1):
-            time_ls.append(duration)
-            print_progress(i, files_to_process, n_jobs=n_jobs, time_ls=time_ls, batch_size=None, operation_type='adjust_cell_masks')
 
 def process_masks(mask_folder, image_folder, channel, batch_size=50, n_clusters=2, plot=False):
     
