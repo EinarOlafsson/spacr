@@ -38,7 +38,351 @@ index_control = None
 
 thread_control = {"run_thread": None, "stop_requested": False}
 
+def _show_loading_screen(parent):
+    """Show animated spinner GIF on black overlay."""
+    from .gui_elements import set_dark_style
+    from PIL import Image, ImageTk
+    
+    bg = '#000000'
+    
+    if not isinstance(parent, (tk.Tk, tk.Toplevel)):
+        root = parent.winfo_toplevel()
+    else:
+        root = parent
+    
+    overlay = tk.Frame(root, bg=bg)
+    overlay.place(x=0, y=0, relwidth=1, relheight=1)
+    overlay.lift()
+    overlay.update()
+    
+    spinner_label = tk.Label(overlay, bg=bg, bd=0, highlightthickness=0)
+    spinner_label.place(relx=0.5, rely=0.5, anchor='center')
+    
+    state = {'frames': [], 'index': 0, 'running': True, 'after_id': None, 'duration': 40}
+    
+    try:
+        gif_path = os.path.join(os.path.dirname(__file__), 'resources', 'icons', 'loading_spinner.gif')
+        gif = Image.open(gif_path)
+        
+        # Small = fast swaps
+        target = 400
+        ow, oh = gif.size
+        scale = min(target / ow, target / oh)
+        nw, nh = int(ow * scale), int(oh * scale)
+        
+        # Pre-render all frames
+        raw_frames = []
+        try:
+            while True:
+                raw_frames.append(gif.copy().convert('RGB').resize((nw, nh), Image.Resampling.BILINEAR))
+                gif.seek(gif.tell() + 1)
+        except EOFError:
+            pass
+        
+        # Skip every other frame to halve the count
+        raw_frames = raw_frames[::2]
+        
+        frames = [ImageTk.PhotoImage(f) for f in raw_frames]
+        state['frames'] = frames
+        state['duration'] = max(40, gif.info.get('duration', 40) * 2)
+        
+        if frames:
+            spinner_label.config(image=frames[0])
+            spinner_label.image = frames[0]
+        
+        def _animate():
+            if not state['running'] or not state['frames']:
+                return
+            state['index'] = (state['index'] + 1) % len(state['frames'])
+            spinner_label.config(image=state['frames'][state['index']])
+            overlay.lift()
+            state['after_id'] = root.after(state['duration'], _animate)
+        
+        _animate()
+    except Exception as e:
+        print(f"Warning: Could not load spinner GIF: {e}")
+    
+    overlay.update()
+    
+    def _tick():
+        if not state['running'] or not state['frames']:
+            return
+        state['index'] = (state['index'] + 1) % len(state['frames'])
+        spinner_label.config(image=state['frames'][state['index']])
+        overlay.lift()
+        root.update()
+    
+    def _cancel():
+        state['running'] = False
+        if state['after_id'] is not None:
+            try:
+                root.after_cancel(state['after_id'])
+            except Exception:
+                pass
+        try:
+            overlay.destroy()
+        except Exception:
+            pass
+    
+    return overlay, _cancel, _tick
+
+def _show_loading_screen_v1(parent):
+    """Show a centered logo with spinning indicator on the top-level window."""
+    from .gui_elements import set_dark_style
+    from PIL import Image, ImageTk
+    
+    style_out = set_dark_style(ttk.Style())
+    bg = style_out['bg_color']
+    fg = style_out['fg_color']
+    
+    # Use top-level if parent isn't one
+    if not isinstance(parent, (tk.Tk, tk.Toplevel)):
+        root = parent.winfo_toplevel()
+    else:
+        root = parent
+    
+    overlay = tk.Frame(root, bg=bg)
+    overlay.place(x=0, y=0, relwidth=1, relheight=1)
+    overlay.lift()
+    overlay.update()
+    
+    center = tk.Frame(overlay, bg=bg)
+    center.place(relx=0.5, rely=0.5, anchor='center')
+    
+    try:
+        logo_path = os.path.join(os.path.dirname(__file__), 'resources', 'icons', 'logo_spacr.png')
+        logo_img = Image.open(logo_path).resize((128, 128), Image.Resampling.LANCZOS)
+        logo_photo = ImageTk.PhotoImage(logo_img)
+        logo_label = tk.Label(center, image=logo_photo, bg=bg)
+        logo_label.image = logo_photo
+        logo_label.pack(pady=(0, 20))
+    except Exception as e:
+        print(f"Warning: Could not load logo: {e}")
+    
+    spinner_size = 40
+    spinner_canvas = tk.Canvas(center, width=spinner_size * 2, height=spinner_size * 2,
+                               bg=bg, highlightthickness=0)
+    spinner_canvas.pack()
+    
+    spinner_state = {'angle': 0, 'running': True, 'after_id': None}
+    num_segments = 12
+    
+    def _draw_spinner():
+        spinner_canvas.delete('all')
+        cx, cy = spinner_size, spinner_size
+        import math
+        for i in range(num_segments):
+            angle = math.radians(i * (360 / num_segments) + spinner_state['angle'])
+            alpha = int(255 * (i / num_segments))
+            gray = max(40, min(255, alpha))
+            color = f'#{gray:02x}{gray:02x}{gray:02x}'
+            r_inner = spinner_size * 0.4
+            r_outer = spinner_size * 0.75
+            x1 = cx + r_inner * math.cos(angle)
+            y1 = cy + r_inner * math.sin(angle)
+            x2 = cx + r_outer * math.cos(angle)
+            y2 = cy + r_outer * math.sin(angle)
+            spinner_canvas.create_line(x1, y1, x2, y2, fill=color, width=3, capstyle='round')
+    
+    def _animate():
+        if not spinner_state['running']:
+            return
+        spinner_state['angle'] = (spinner_state['angle'] + 30) % 360
+        _draw_spinner()
+        overlay.lift()  # Keep on top during widget creation
+        spinner_state['after_id'] = root.after(80, _animate)
+    
+    loading_label = tk.Label(center, text="Loading...", bg=bg, fg=fg, font=('Open Sans', 12))
+    loading_label.pack(pady=(10, 0))
+    
+    _animate()
+    overlay.update()
+    
+    def _cancel():
+        spinner_state['running'] = False
+        if spinner_state['after_id'] is not None:
+            try:
+                root.after_cancel(spinner_state['after_id'])
+            except Exception:
+                pass
+        try:
+            overlay.destroy()
+        except Exception:
+            pass
+    
+    return overlay, _cancel
+
 def toggle_settings(button_scrollable_frame):
+    global vars_dict
+    from .settings import (categories, category_dependencies, category_group_dependencies,
+                           category_integer_dependencies, category_value_dependencies)
+    from .gui_utils import hide_all_settings
+    if vars_dict is None:
+        raise ValueError("vars_dict is not initialized.")
+
+    active_categories = set()
+
+    def _is_truthy_key(bool_key):
+        if bool_key not in vars_dict:
+            return False
+        val = vars_dict[bool_key][2].get()
+        if isinstance(val, bool):
+            return val
+        return str(val).lower() in ('1', 'true')
+
+    def _is_valid_integer(key):
+        if key not in vars_dict:
+            return False
+        val = vars_dict[key][2].get()
+        if val is None:
+            return False
+        val_str = str(val).strip()
+        if val_str.lower() in ('', 'none'):
+            return False
+        try:
+            int(val_str)
+            return True
+        except (ValueError, TypeError):
+            return False
+
+    def _any_valid_integer(keys):
+        """Return True if ANY of the keys is a valid integer."""
+        if isinstance(keys, str):
+            return _is_valid_integer(keys)
+        return any(_is_valid_integer(k) for k in keys)
+
+    def _get_value(key):
+        if key not in vars_dict:
+            return None
+        val = vars_dict[key][2].get()
+        if val is None:
+            return None
+        return str(val).strip().lower()
+
+    def _get_visible_categories():
+        all_cats = [cat for cat, settings in categories.items()
+                    if any(s in vars_dict for s in settings)]
+
+        blocked = set()
+
+        # Bool dependencies
+        for bool_key, cat_names in category_dependencies.items():
+            if not _is_truthy_key(bool_key):
+                blocked.update(cat_names)
+
+        # Group (any-of) dependencies
+        for cat_name, bool_keys in category_group_dependencies.items():
+            if not any(_is_truthy_key(k) for k in bool_keys):
+                blocked.add(cat_name)
+
+        # Integer dependencies (keys can be a string or tuple of strings)
+        for int_keys, cat_names in category_integer_dependencies.items():
+            if not _any_valid_integer(int_keys):
+                blocked.update(cat_names)
+
+        # Value dependencies
+        for val_key, value_map in category_value_dependencies.items():
+            all_gated_cats = set()
+            for cats in value_map.values():
+                all_gated_cats.update(cats)
+
+            current_val = _get_value(val_key)
+            if current_val in value_map:
+                allowed = set(value_map[current_val])
+                blocked.update(all_gated_cats - allowed)
+            else:
+                blocked.update(all_gated_cats)
+
+        return [c for c in all_cats if c not in blocked]
+
+    def _hide_category(cat_name):
+        """Hide all settings for a category."""
+        if cat_name not in categories:
+            return
+        for setting in categories[cat_name]:
+            if setting in vars_dict:
+                label, widget, _, frame = vars_dict[setting]
+                label.grid_remove()
+                widget.grid_remove()
+                frame.grid_remove()
+
+    def _show_category(cat_name):
+        """Show all settings for a category."""
+        if cat_name not in categories:
+            return
+        for setting in categories[cat_name]:
+            if setting in vars_dict:
+                label, widget, _, frame = vars_dict[setting]
+                label.grid()
+                widget.grid()
+                frame.grid()
+
+    def _rebuild_dropdown():
+        visible = _get_visible_categories()
+
+        # Hide categories that just became blocked
+        newly_blocked = active_categories - set(visible)
+        for cat_name in newly_blocked:
+            _hide_category(cat_name)
+            active_categories.discard(cat_name)
+
+        # Rebuild menu entries
+        category_dropdown.menu.delete(0, 'end')
+        for option in visible:
+            category_dropdown.menu.add_command(
+                label=option,
+                command=lambda opt=option: on_category_select(opt)
+            )
+        category_dropdown.options = visible
+        category_dropdown.update_styles(active_categories)
+
+    def on_category_select(selected_category):
+        if selected_category == "Select Category":
+            return
+        if selected_category not in categories:
+            return
+
+        if selected_category in active_categories:
+            # Currently visible -> hide it
+            _hide_category(selected_category)
+            active_categories.discard(selected_category)
+        else:
+            # Currently hidden -> show it
+            _show_category(selected_category)
+            active_categories.add(selected_category)
+
+        category_dropdown.update_styles(active_categories)
+        category_var.set("Select Category")
+
+    # Build dropdown
+    category_var = tk.StringVar()
+    visible_categories = _get_visible_categories()
+    category_dropdown = spacrDropdownMenu(
+        button_scrollable_frame.scrollable_frame, category_var,
+        visible_categories, command=on_category_select
+    )
+    category_dropdown.grid(row=0, column=4, sticky="ew", pady=2, padx=2)
+    vars_dict = hide_all_settings(vars_dict, categories)
+
+    # Listen on all controlling variables
+    def _on_change(*args):
+        _rebuild_dropdown()
+
+    all_control_keys = set(category_dependencies.keys())
+    for keys in category_group_dependencies.values():
+        all_control_keys.update(keys)
+    for int_keys in category_integer_dependencies.keys():
+        if isinstance(int_keys, tuple):
+            all_control_keys.update(int_keys)
+        else:
+            all_control_keys.add(int_keys)
+    all_control_keys.update(category_value_dependencies.keys())
+
+    for key in all_control_keys:
+        if key in vars_dict:
+            vars_dict[key][2].trace_add('write', _on_change)
+
+def toggle_settings_v1(button_scrollable_frame):
     global vars_dict
     from .settings import categories
     from .gui_utils import hide_all_settings
@@ -445,10 +789,13 @@ def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var,
 def import_settings(settings_type='mask'):
     global vars_dict, scrollable_frame, button_scrollable_frame
 
-    from .gui_utils import convert_settings_dict_for_gui, hide_all_settings
+    from .gui_utils import convert_settings_dict_for_gui, hide_all_settings, attach_dependency_listeners
     from .settings import generate_fields, set_default_settings_preprocess_generate_masks, get_measure_crop_settings, set_default_train_test_model
     from .settings import set_default_generate_barecode_mapping, set_default_umap_image_settings, get_analyze_recruitment_default_settings
     from .settings import get_default_generate_activation_map_settings, get_analyze_plaque_settings, get_automated_motility_assay_default_settings
+    from .settings import categories, category_dependencies, category_group_dependencies
+
+    attach_dependency_listeners(vars_dict, categories, category_dependencies, category_group_dependencies)
 
     #def read_settings_from_csv(csv_file_path):
     #    settings = {}
@@ -529,8 +876,9 @@ def import_settings(settings_type='mask'):
     new_settings = update_settings_from_csv(variables, csv_settings)
     vars_dict = generate_fields(new_settings, scrollable_frame)
     vars_dict = hide_all_settings(vars_dict, categories=None)
+    toggle_settings(button_scrollable_frame)
 
-def setup_settings_panel(vertical_container, settings_type='mask'):
+def setup_settings_panel_v1(vertical_container, settings_type='mask'):
     global vars_dict, scrollable_frame
     from .settings import get_identify_masks_finetune_default_settings, set_default_analyze_screen, set_default_settings_preprocess_generate_masks, get_automated_motility_assay_default_settings
     from .settings import get_measure_crop_settings, deep_spacr_defaults, set_default_generate_barecode_mapping, set_default_umap_image_settings
@@ -603,6 +951,74 @@ def setup_settings_panel(vertical_container, settings_type='mask'):
     print("Settings panel setup complete")
     return scrollable_frame, vars_dict
 
+def setup_settings_panel(vertical_container, settings_type='mask', tick_callback=None):
+    global vars_dict, scrollable_frame
+    from .settings import get_identify_masks_finetune_default_settings, set_default_analyze_screen, set_default_settings_preprocess_generate_masks, get_automated_motility_assay_default_settings
+    from .settings import get_measure_crop_settings, deep_spacr_defaults, set_default_generate_barecode_mapping, set_default_umap_image_settings
+    from .settings import get_map_barcodes_default_settings, get_analyze_recruitment_default_settings, get_check_cellpose_models_default_settings, get_analyze_plaque_settings
+    from .settings import generate_fields, get_perform_regression_default_settings, get_train_cellpose_default_settings, get_default_generate_activation_map_settings
+    from .gui_utils import convert_settings_dict_for_gui
+    from .gui_elements import set_element_size
+
+    size_dict = set_element_size()
+    settings_width = size_dict['settings_width']
+
+    settings_paned_window = tk.PanedWindow(vertical_container, orient=tk.HORIZONTAL, width=settings_width)
+    vertical_container.add(settings_paned_window, stretch="always")
+
+    settings_frame = tk.Frame(settings_paned_window, width=settings_width)
+    settings_frame.pack_propagate(False)
+    settings_paned_window.add(settings_frame)
+
+    scrollable_frame = spacrFrame(settings_frame)
+    scrollable_frame.grid(row=1, column=0, sticky="nsew")
+    settings_frame.grid_rowconfigure(1, weight=1)
+    settings_frame.grid_columnconfigure(0, weight=1)
+
+    if settings_type == 'mask':
+        settings = set_default_settings_preprocess_generate_masks(settings={})
+        settings = get_automated_motility_assay_default_settings(settings)
+    elif settings_type == 'measure':
+        settings = get_measure_crop_settings(settings={})
+    elif settings_type == 'classify':
+        settings = deep_spacr_defaults(settings={})
+    elif settings_type == 'umap':
+        settings = set_default_umap_image_settings(settings={})
+    elif settings_type == 'train_cellpose':
+        settings = get_train_cellpose_default_settings(settings={})
+    elif settings_type == 'ml_analyze':
+        settings = set_default_analyze_screen(settings={})
+    elif settings_type == 'cellpose_masks':
+        settings = get_identify_masks_finetune_default_settings(settings={})
+    elif settings_type == 'cellpose_all':
+        settings = get_check_cellpose_models_default_settings(settings={})
+    elif settings_type == 'map_barcodes':
+        settings = set_default_generate_barecode_mapping(settings={})
+    elif settings_type == 'regression':
+        settings = get_perform_regression_default_settings(settings={})
+    elif settings_type == 'recruitment':
+        settings = get_analyze_recruitment_default_settings(settings={})
+    elif settings_type == 'activation':
+        settings = get_default_generate_activation_map_settings(settings={})
+    elif settings_type == 'analyze_plaques':
+        settings = get_analyze_plaque_settings(settings={})
+    elif settings_type == 'convert':
+        settings = {'src': 'path to images'}
+    else:
+        raise ValueError(f"Invalid settings type: {settings_type}")
+
+    variables = convert_settings_dict_for_gui(settings)
+    vars_dict = generate_fields(variables, scrollable_frame, tick_callback=tick_callback)
+
+    containers = [settings_frame]
+    widgets = [scrollable_frame]
+
+    style = ttk.Style(vertical_container)
+    _ = set_dark_style(style, containers=containers, widgets=widgets)
+
+    print("Settings panel setup complete")
+    return scrollable_frame, vars_dict
+
 def setup_console(vertical_container):
     global console_output
     from .gui_elements import set_dark_style
@@ -636,22 +1052,6 @@ def setup_console(vertical_container):
 
     def on_leave(event):
         top_border.config(bg=style_out['bg_color'])
-
-    #def on_enter_key(event):
-    #    user_input = console_output.get("1.0", "end-1c").strip()  # Get the user input from the console
-    #    if user_input:
-    #        # Print the user input with the (user) tag
-    #        console_output.insert("end", f"\n(user): {user_input}\n")
-    #        
-    #        # Get the AI response from the chatbot
-    #        response = chatbot.ask_question(user_input)
-    #        
-    #        # Print the AI response with the (ai) tag
-    #        console_output.insert("end", f"(ai): {response}\n")
-    #        
-    #        console_output.see("end")  # Scroll to the end
-    #        #console_output.delete("1.0", "end")  # Clear the input field
-    #    return "break"  # Prevent the default behavior of inserting a new line
 
     console_output.bind("<Enter>", on_enter)
     console_output.bind("<Leave>", on_leave)
@@ -1206,6 +1606,119 @@ def cleanup_previous_instance():
     print("Previous instance cleaned up successfully.")
     
 def initiate_root(parent, settings_type='mask'):
+    global q, fig_queue, thread_control, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, button_scrollable_frame, progress_bar, uppdate_frequency, figures, figure_index, index_control, usage_bars
+    from .gui_elements import set_element_size
+    
+    cleanup_previous_instance()
+    
+    from .gui_utils import setup_frame
+    from .gui_elements import create_menu_bar
+    from .settings import descriptions
+
+    uppdate_frequency = 500
+    num_cores = os.cpu_count()
+
+    tracemalloc.start()
+    set_start_method('spawn', force=True)
+    print("Initializing root with settings_type:", settings_type)
+
+    figures = deque()
+    figure_index = -1
+    parent_frame = parent
+
+    if not isinstance(parent_frame, (tk.Tk, tk.Toplevel)):
+        parent_window = parent_frame.winfo_toplevel()
+    else:
+        parent_window = parent_frame
+
+    parent_window.update_idletasks()
+
+    if not hasattr(parent_window, 'after_tasks'):
+        parent_window.after_tasks = []
+
+    q = Queue()
+    fig_queue = Queue()
+
+    if settings_type == 'annotate':
+        parent_frame, vertical_container, horizontal_container, settings_container = setup_frame(parent_frame)
+        from .app_annotate import initiate_annotation_app
+        initiate_annotation_app(horizontal_container)
+    elif settings_type == 'make_masks':
+        parent_frame, vertical_container, horizontal_container, settings_container = setup_frame(parent_frame)
+        from .app_make_masks import initiate_make_mask_app
+        initiate_make_mask_app(horizontal_container)
+    else:
+        loading_overlay, cancel_loading, tick_loading = _show_loading_screen(parent_window)
+        parent_window.update()
+
+        def _stage_1():
+            global parent_frame
+            
+            parent_frame_local, vertical_container, horizontal_container, settings_container = setup_frame(parent_frame)
+            parent_frame = parent_frame_local
+            
+            _stage_1.vc = vertical_container
+            _stage_1.hc = horizontal_container
+            _stage_1.sc = settings_container
+            
+            tick_loading()
+            parent_window.after(10, _stage_2)
+
+        def _stage_2():
+            global scrollable_frame, vars_dict
+            
+            scrollable_frame, vars_dict = setup_settings_panel(_stage_1.sc, settings_type, tick_callback=tick_loading)
+            print('setup_settings_panel')
+            
+            tick_loading()
+            parent_window.after(10, _stage_3)
+
+        def _stage_3():
+            global canvas, canvas_widget
+            
+            canvas, canvas_widget = setup_plot_section(_stage_1.vc, settings_type)
+            
+            tick_loading()
+            parent_window.after(10, _stage_4)
+
+        def _stage_4():
+            global button_scrollable_frame, progress_bar, usage_bars
+            
+            console_output, _ = setup_console(_stage_1.vc)
+            button_scrollable_frame, btn_col = setup_button_section(_stage_1.hc, settings_type)
+
+            if num_cores > 12:
+                _, usage_bars, btn_col = setup_usage_panel(_stage_1.hc, btn_col, uppdate_frequency)
+            else:
+                usage_bars = []
+
+            set_globals(thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar, usage_bars)
+            
+            tick_loading()
+            parent_window.after(10, _stage_5)
+
+        def _stage_5():
+            description_text = descriptions.get(settings_type, "No description available for this module.")
+            q.put(f"Console")
+            q.put(f" ")
+            q.put(description_text)
+
+            process_console_queue()
+            process_fig_queue()
+            create_menu_bar(parent)
+            after_id = parent_window.after(uppdate_frequency, lambda: main_thread_update_function(parent_window, q, fig_queue, canvas_widget))
+            parent_window.after_tasks.append(after_id)
+
+            parent_window.update_idletasks()
+            cancel_loading()
+            print("Root initialization complete")
+
+        parent_window.after(10, _stage_1)
+
+    print("Root initialization complete")
+    return parent_frame, vars_dict
+    
+def initiate_root_v1(parent, settings_type='mask'):
     """
     Initializes the root window and sets up the GUI components based on the specified settings type.
 
@@ -1226,6 +1739,9 @@ def initiate_root(parent, settings_type='mask'):
     from .gui_utils import setup_frame
     from .gui_elements import create_menu_bar
     from .settings import descriptions
+    #from .settings import categories, category_dependencies, category_group_dependencies
+    #from .gui_utils import attach_dependency_listeners
+    
     #from .openai import Chatbot
 
     uppdate_frequency = 500
@@ -1270,7 +1786,8 @@ def initiate_root(parent, settings_type='mask'):
         canvas, canvas_widget = setup_plot_section(vertical_container, settings_type)
         console_output, _ = setup_console(vertical_container) #, chatbot)
         button_scrollable_frame, btn_col = setup_button_section(horizontal_container, settings_type)
-        
+        #attach_dependency_listeners(vars_dict, categories, category_dependencies, category_group_dependencies)
+
         if num_cores > 12:
             _, usage_bars, btn_col = setup_usage_panel(horizontal_container, btn_col, uppdate_frequency)
         else:

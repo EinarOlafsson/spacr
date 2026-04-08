@@ -499,7 +499,8 @@ def generate_organelle_masks(src, settings, object_type):
             object_settings=_build_object_settings(settings),
         )
     elif method == 'stardist':
-        dl_model = _load_stardist_model(settings)
+        #dl_model = _load_stardist_model(settings)
+        print(f"stardist is disabled in this verssion of spacr")
     elif method == 'unet':
         dl_model = _load_unet_model(settings)
 
@@ -806,45 +807,7 @@ def _apply_cell_mask(img_batch, batch_filenames, cell_mask_folder):
 #  Deep-learning model loaders
 # ====================================================================== #
 
-def _load_stardist_model_v1(settings):
-    """Load a Stardist model (pretrained or custom)."""
-    import os
-    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-    
-    # Free PyTorch GPU memory before TensorFlow takes over
-    torch.cuda.empty_cache()
-    torch.cuda.synchronize()
-    
-    try:
-        import tensorflow as tf
-        # Allow TensorFlow to use GPU but don't let it grab all memory
-        gpus = tf.config.list_physical_devices('GPU')
-        for gpu in gpus:
-            tf.config.experimental.set_memory_growth(gpu, True)
-    except Exception as e:
-        print(f'Warning: Could not configure TensorFlow GPU: {e}')
-    
-    try:
-        from stardist.models import StarDist2D  # type: ignore
-    except (ImportError, RuntimeError) as e:
-        raise ImportError(
-            f"Stardist requires TensorFlow which is not installed. "
-            f"Either install TensorFlow ('pip install tensorflow') or use a "
-            f"different method for spot detection: 'cellpose', 'otsu', 'log', or 'dog'. "
-            f"Original error: {e}"
-        )
-    
-    model_name = settings.get('organelle_stardist_model', '2D_versatile_fluo')
-
-    if os.path.isdir(model_name):
-        model = StarDist2D(None, name=os.path.basename(model_name),
-                           basedir=os.path.dirname(model_name))
-    else:
-        model = StarDist2D.from_pretrained(model_name)
-    
-    return model
-
-def _load_stardist_model(settings):
+#def _load_stardist_model(settings):
     """Load a Stardist model (pretrained or custom)."""
     import os
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
