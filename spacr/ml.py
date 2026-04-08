@@ -1322,11 +1322,12 @@ def generate_ml_scores(settings):
         annotated_df = png_list_df[['prcfo', settings['annotation_column']]].set_index('prcfo')
         df = annotated_df.merge(df, left_index=True, right_index=True)
         unique_values = df[settings['annotation_column']].dropna().unique()
+        print(f"Unique values in annotation column: {unique_values}")
         
         if len(unique_values) == 1:
             unannotated_rows = df[df[settings['annotation_column']].isna()].index
             existing_value = unique_values[0]
-            next_value = existing_value + 1
+            next_value = existing_value + 1 
 
             settings['positive_control'] = str(existing_value)
             settings['negative_control'] = str(next_value)
@@ -1343,6 +1344,11 @@ def generate_ml_scores(settings):
             print(f"Number of rows with value {existing_value}: {existing_count_final}")
             print(f"Number of rows with value {next_value}: {next_count_final}")
             df[settings['annotation_column']] = df[settings['annotation_column']].apply(str)
+            
+        if settings['positive_control'] is None and settings['negative_control'] is None:
+            settings['positive_control'] = str(unique_values[0])
+            settings['negative_control'] = str(unique_values[1]) if len(unique_values) > 1 else str(int(unique_values[0]) + 1)
+            print(f"Automatically set positive control to {settings['positive_control']} and negative control to {settings['negative_control']} based on unique values in annotation column.")
     
     if settings['channel_of_interest'] in [0,1,2,3]:
         if f"pathogen_channel_{settings['channel_of_interest']}_mean_intensity" and f"cytoplasm_channel_{settings['channel_of_interest']}_mean_intensity" in df.columns:
@@ -1435,7 +1441,56 @@ def ml_analysis(df, channel_of_interest=3, location_column='columnID', positive_
     pandas.DataFrame: The original dataframe with added prediction and data usage columns.
     pandas.DataFrame: DataFrame containing the importances and standard deviations.
     """
+    
+    def _match_control_values(series, control):
+        """
+        Return a boolean mask selecting rows in `series` that match `control`.
 
+        Matching is attempted in this order:
+        1. exact value match
+        2. numeric coercion match
+        3. stripped string match
+
+        `control` can be a scalar or a list/tuple/set of values.
+        """
+
+        if isinstance(control, (list, tuple, set, np.ndarray, pd.Series)):
+            controls = list(control)
+        else:
+            controls = [control]
+
+        mask = pd.Series(False, index=series.index)
+
+        for c in controls:
+            current_mask = pd.Series(False, index=series.index)
+
+            # 1. exact match
+            try:
+                current_mask |= (series == c)
+            except Exception:
+                pass
+
+            # 2. numeric match
+            try:
+                s_num = pd.to_numeric(series, errors='coerce')
+                c_num = pd.to_numeric(pd.Series([c]), errors='coerce').iloc[0]
+                if pd.notna(c_num):
+                    current_mask |= (s_num == c_num)
+            except Exception:
+                pass
+
+            # 3. stripped string match
+            try:
+                s_str = series.astype(str).str.strip()
+                c_str = str(c).strip()
+                current_mask |= (s_str == c_str)
+            except Exception:
+                pass
+
+            mask |= current_mask
+
+        return mask
+    
     from .utils import filter_dataframe_features
     from .plot import plot_permutation, plot_feature_importance
 
@@ -1455,17 +1510,44 @@ def ml_analysis(df, channel_of_interest=3, location_column='columnID', positive_
         print(f'Features: {features}')
         
     df = pd.concat([df, df_metadata[location_column]], axis=1)
+    
+    #if verbose:
+    #    print(df[location_column].dtype)
+    #    print(type(negative_control), negative_control)
+    #    print(type(positive_control), positive_control)
+    #    print(df[location_column].dropna().unique()[:20])
 
     # Subset the dataframe based on specified column values
-    if isinstance(negative_control, str):
-        df1 = df[df[location_column] == negative_control].copy()
-    elif isinstance(negative_control, list):
-        df1 = df[df[location_column].isin(negative_control)].copy()
+    #if isinstance(negative_control, str):
+    #    df1 = df[df[location_column] == negative_control].copy()
+
+    #elif isinstance(negative_control, list):
+    #    df1 = df[df[location_column].isin(negative_control)].copy()
+
+    #elif isinstance(negative_control, (int, float)):
+    #    df1 = df[df[location_column] == negative_control].copy()
+    #if verbose:
+    #    print(f'Negative control: {negative_control}, samples: {len(df1)}')
     
-    if isinstance(positive_control, str):
-        df2 = df[df[location_column] == positive_control].copy()
-    elif isinstance(positive_control, list):
-        df2 = df[df[location_column].isin(positive_control)].copy()
+    #if isinstance(positive_control, str):
+    #    df2 = df[df[location_column] == positive_control].copy()
+
+    #elif isinstance(positive_control, list):
+    #    df2 = df[df[location_column].isin(positive_control)].copy()
+        
+    #elif isinstance(positive_control, (int, float)):
+    #    df2 = df[df[location_column] == positive_control].copy()
+        
+    #if verbose:
+    #    print(f'Positive control: {positive_control}, samples: {len(df2)}')
+        
+    df1 = df[_match_control_values(df[location_column], negative_control)].copy()
+    if verbose:
+        print(f'Negative control: {negative_control}, samples: {len(df1)}')
+
+    df2 = df[_match_control_values(df[location_column], positive_control)].copy()
+    if verbose:
+        print(f'Positive control: {positive_control}, samples: {len(df2)}')
         
     # Create target variable
     df1['target'] = 0 # Negative control

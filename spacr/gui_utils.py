@@ -16,6 +16,59 @@ try:
 except AttributeError:
     pass
 
+def attach_dependency_listeners(vars_dict, categories, category_dependencies, category_group_dependencies):
+
+    def _set_category_visibility(category_name, visible):
+        if category_name not in categories:
+            return
+        for setting in categories[category_name]:
+            if setting in vars_dict:
+                label, widget, _, frame = vars_dict[setting]
+                if visible:
+                    label.grid()
+                    widget.grid()
+                    frame.grid()
+                else:
+                    label.grid_remove()
+                    widget.grid_remove()
+                    frame.grid_remove()
+
+    def _is_truthy(tk_var):
+        val = tk_var.get()
+        if isinstance(val, bool):
+            return val
+        return str(val).lower() in ('1', 'true')
+
+    # --- Simple 1:1 dependencies ---
+    def _make_simple_callback(bool_key):
+        def _on_change(*args):
+            _, _, tk_var, _ = vars_dict[bool_key]
+            is_on = _is_truthy(tk_var)
+            for cat_name in category_dependencies[bool_key]:
+                _set_category_visibility(cat_name, is_on)
+        return _on_change
+
+    for bool_key in category_dependencies:
+        if bool_key not in vars_dict:
+            continue
+        cb = _make_simple_callback(bool_key)
+        cb()  # set initial state
+        vars_dict[bool_key][2].trace_add('write', cb)
+
+    # --- Group (any-of) dependencies ---
+    def _make_group_callback(cat_name, bool_keys):
+        def _on_change(*args):
+            visible = any(_is_truthy(vars_dict[k][2]) for k in bool_keys if k in vars_dict)
+            _set_category_visibility(cat_name, visible)
+        return _on_change
+
+    for cat_name, bool_keys in category_group_dependencies.items():
+        cb = _make_group_callback(cat_name, bool_keys)
+        cb()  # set initial state
+        for k in bool_keys:
+            if k in vars_dict:
+                vars_dict[k][2].trace_add('write', cb)
+
 def initialize_cuda():
     """
     Initializes CUDA in the main process by performing a simple GPU operation.
@@ -109,55 +162,26 @@ def parse_list(value):
         raise ValueError(f"Invalid format for list: {value}. Error: {e}")
 
 def create_input_field(frame, label_text, row, var_type='entry', options=None, default_value=None):
-    """
-    Create an input field in the specified frame.
-
-    Args:
-        frame (tk.Frame): The frame in which the input field will be created.
-        label_text (str): The text to be displayed as the label for the input field.
-        row (int): The row in which the input field will be placed.
-        var_type (str, optional): The type of input field to create. Defaults to 'entry'.
-        options (list, optional): The list of options for a combo box input field. Defaults to None.
-        default_value (str, optional): The default value for the input field. Defaults to None.
-
-    Returns:
-        tuple: A tuple containing the label, input widget, variable, and custom frame.
-
-    Raises:
-        Exception: If an error occurs while creating the input field.
-
-    """
     from .gui_elements import set_dark_style, set_element_size
     
-    label_column = 0
-    widget_column = 0  # Both label and widget will be in the same column
-
     style_out = set_dark_style(ttk.Style())
     font_loader = style_out['font_loader']
     font_size = style_out['font_size']
     size_dict = set_element_size()
-    size_dict['settings_width'] = size_dict['settings_width'] - int(size_dict['settings_width']*0.1)
-
-    # Replace underscores with spaces and capitalize the first letter
+    size_dict['settings_width'] = size_dict['settings_width'] - int(size_dict['settings_width'] * 0.1)
 
     label_text = label_text.replace('_', ' ').capitalize()
 
-    # Configure the column widths
-    frame.grid_columnconfigure(label_column, weight=1)  # Allow the column to expand
+    frame.grid_columnconfigure(0, weight=1)
 
-    # Create a custom frame with a translucent background and rounded edges
-    custom_frame = tk.Frame(frame, bg=style_out['bg_color'], bd=2, relief='solid', width=size_dict['settings_width'])
-    custom_frame.grid(column=label_column, row=row, sticky=tk.EW, padx=(5, 5), pady=5)
+    custom_frame = tk.Frame(frame, bg=style_out['bg_color'], bd=0, relief='flat')
+    custom_frame.grid(column=0, row=row, sticky=tk.EW, padx=(5, 5), pady=5)
+    custom_frame.grid_columnconfigure(0, weight=1)
 
-    # Apply styles to custom frame
-    custom_frame.update_idletasks()
-    custom_frame.config(highlightbackground=style_out['bg_color'], highlightthickness=1, bd=2)
+    label = tk.Label(custom_frame, text=label_text, bg=style_out['bg_color'], fg=style_out['fg_color'],
+                     font=font_loader.get_font(size=font_size), anchor='w', justify='left')
+    label.grid(column=0, row=0, sticky=tk.W, padx=(5, 2), pady=5)
 
-    # Create and configure the label
-    label = tk.Label(custom_frame, text=label_text, bg=style_out['bg_color'], fg=style_out['fg_color'], font=font_loader.get_font(size=font_size), anchor='e', justify='right')
-    label.grid(column=label_column, row=0, sticky=tk.W, padx=(5, 2), pady=5)  # Place the label in the first row
-
-    # Create and configure the input widget based on var_type
     try:
         if var_type == 'entry':
             if default_value is None:
@@ -166,7 +190,7 @@ def create_input_field(frame, label_text, row, var_type='entry', options=None, d
                 default_value = str(default_value)
             var = tk.StringVar(value=default_value)
             entry = spacrEntry(custom_frame, textvariable=var, outline=False, width=size_dict['settings_width'])
-            entry.grid(column=widget_column, row=1, sticky=tk.W, padx=(2, 5), pady=5)
+            entry.grid(column=0, row=1, sticky=tk.EW, padx=(2, 5), pady=5)
             return (label, entry, var, custom_frame)
 
         elif var_type == 'check':
@@ -178,7 +202,7 @@ def create_input_field(frame, label_text, row, var_type='entry', options=None, d
                 default_value = bool(default_value)
             var = tk.BooleanVar(value=default_value)
             check = spacrCheck(custom_frame, text="", variable=var)
-            check.grid(column=widget_column, row=1, sticky=tk.W, padx=(2, 5), pady=5)
+            check.grid(column=0, row=1, sticky=tk.W, padx=(2, 5), pady=5)
             return (label, check, var, custom_frame)
 
         elif var_type == 'combo':
@@ -193,14 +217,13 @@ def create_input_field(frame, label_text, row, var_type='entry', options=None, d
             default_value = str(default_value)
             var = tk.StringVar(value=default_value)
             combo = spacrCombo(custom_frame, textvariable=var, values=options, width=size_dict['settings_width'])
-            combo.grid(column=widget_column, row=1, sticky=tk.W, padx=(2, 5), pady=5)
+            combo.grid(column=0, row=1, sticky=tk.EW, padx=(2, 5), pady=5)
             combo.set(default_value)
             return (label, combo, var, custom_frame)
         else:
-            var = None  # Placeholder in case of an undefined var_type
+            var = None
             return (label, None, var, custom_frame)
     except Exception as e:
-        #traceback.print_exc()
         print(f"Error creating input field: {e}")
         print(f"Wrong type for {label_text} Expected {var_type}")
 
