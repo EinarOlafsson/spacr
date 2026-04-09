@@ -172,7 +172,7 @@ class MainApp(tk.Tk):
         logo_button = spacrButton(main_buttons_frame,text="SpaCR",command=lambda: webbrowser.open_new("https://einarolafsson.github.io/spacr/tutorial/"),icon_name="logo_spacr",size=100,show_text=False)
         
         logo_button.grid(row=0, column=0, padx=5, pady=5)
-        self.main_buttons[logo_button] = "spaCR: spatial single-cell analysis tools for microscopy data. Click to open the tutorial."
+        self.main_buttons[logo_button] = "spaCR: spatial single-cell analysis tools for microscopy data. Click to open the tutorial. (under construction)"
 
         for i, (app_name, app_data) in enumerate(self.main_gui_apps.items()):
             app_func, app_desc = app_data
@@ -195,7 +195,7 @@ class MainApp(tk.Tk):
                 self.show_description(desc)
                 return
         self.clear_description()
-    
+
     def show_description(self, description):
         if self.description_label.winfo_exists():
             self.description_label.config(text=description)
