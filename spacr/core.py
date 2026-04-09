@@ -182,8 +182,8 @@ def preprocess_generate_masks(settings):
                 intensity_img_src = os.path.join(os.path.basename(mask_src), 'stack')
                 print(f"intensity_img_src:{intensity_img_src}")
                 
-                if settings.get('postprocess_cell_masks'):
-                    
+                if settings['cell_channel'] != None and settings['cell_perimiter_fraction'] > 0 or settings['cell_intensity_merge'] or settings['cell_intensity_split'] or settings['cell_min_object_area'] > 0 or settings['cell_intensity_threshold_method'] != 'none' or settings['cell_intensity_percentile'] != 100 or settings['cell_min_area'] > 0 or settings['cell_max_area'] is not None or settings['cell_remove_border_objects'] or settings['cell_min_intensity'] > 0 or settings['cell_max_intensity'] is not None:
+                                    
                     cell_folder = os.path.join(mask_src, 'cell_mask_stack')
                     
                     if not os.path.exists(cell_folder) or len(os.listdir(cell_folder)) == 0:
@@ -217,9 +217,9 @@ def preprocess_generate_masks(settings):
                         time_ls.append(duration)
                         files_processed += 1
                         print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'merge_cell')
-                
-                if settings.get('postprocess_nucleus_masks'):
-                    
+                        
+                if settings['nucleus_channel'] != None and settings['nucleus_perimiter_fraction'] > 0 or settings['nucleus_intensity_merge'] or settings['nucleus_intensity_split'] or settings['nucleus_min_object_area'] > 0 or settings['nucleus_intensity_threshold_method'] != 'none' or settings['nucleus_intensity_percentile'] != 100 or settings['nucleus_min_area'] > 0 or settings['nucleus_max_area'] is not None or settings['nucleus_remove_border_objects'] or settings['nucleus_min_intensity'] > 0 or settings['nucleus_max_intensity'] is not None:
+                                    
                     nuclei_folder = os.path.join(mask_src, 'nucleus_mask_stack')
                     
                     if not os.path.exists(nuclei_folder) or len(os.listdir(nuclei_folder)) == 0:
@@ -250,9 +250,9 @@ def preprocess_generate_masks(settings):
                         time_ls.append(duration)
                         files_processed += 1
                         print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'merge_nucleus')
-                
-                if settings.get('postprocess_pathogen_masks'):
-                    
+                        
+                if settings['pathogen_channel'] != None and settings['pathogen_perimiter_fraction'] > 0 or settings['pathogen_intensity_merge'] or settings['pathogen_intensity_split'] or settings['pathogen_min_object_area'] > 0 or settings['pathogen_intensity_threshold_method'] != 'none' or settings['pathogen_intensity_percentile'] != 100 or settings['pathogen_min_area'] > 0 or settings['pathogen_max_area'] is not None or settings['pathogen_remove_border_objects'] or settings['pathogen_min_intensity'] > 0 or settings['pathogen_max_intensity'] is not None:
+                                    
                     parasite_folder = os.path.join(mask_src, 'pathogen_mask_stack')
                     if not os.path.exists(parasite_folder) or len(os.listdir(parasite_folder)) == 0:
                         print(f"Pathogen mask folder {parasite_folder} does not exist or is empty. Skipping pathogen mask post-processing.")
@@ -282,9 +282,9 @@ def preprocess_generate_masks(settings):
                         time_ls.append(duration)
                         files_processed += 1
                         print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'merge_cpathogens')
-                    
-                if settings.get('merge_organells'):
-                    
+                        
+                if settings['organelle_channel'] != None and settings['organelle_perimiter_fraction'] > 0 or settings['organelle_intensity_merge'] or settings['organelle_intensity_split'] or settings['organelle_min_object_area'] > 0 or settings['organelle_intensity_threshold_method'] != 'none' or settings['organelle_intensity_percentile'] != 100 or settings['organelle_min_area'] > 0 or settings['organelle_max_area'] is not None or settings['organelle_remove_border_objects'] or settings['organelle_min_intensity'] > 0 or settings['organelle_max_intensity'] is not None:
+                                        
                     organells_folder = os.path.join(mask_src, 'organells_mask_stack')
                     
                     if not os.path.exists(organells_folder) or len(os.listdir(organells_folder)) == 0:
