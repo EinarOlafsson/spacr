@@ -6,6 +6,7 @@ from multiprocessing import Pool, cpu_count
 import matplotlib.pyplot as plt
 from IPython.display import display
 import warnings
+from cellpose import models as cp_models
 
 from functools import partial
 from skimage.segmentation import watershed
@@ -18,6 +19,239 @@ from skimage.exposure import equalize_adapthist, rescale_intensity
 from skimage.restoration import rolling_ball
 
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
+
+def generate_cellpose_masks_sam(src, settings, object_type):
+    
+    from .utils import _masks_to_masks_stack, all_elements_match, prepare_batch_for_segmentation
+    from .io import _create_database, _save_object_counts_to_database, _check_masks, _get_avg_object_size
+    from .timelapse import _npz_to_movie, _btrack_track_cells, _trackpy_track_cells
+    from .plot import plot_cellpose4_output
+    from .settings import set_default_settings_preprocess_generate_masks, _get_object_settings
+    from .spacr_cellpose import parse_cellpose4_output
+    
+    gc.collect()
+    if not torch.cuda.is_available():
+        print(f'Torch CUDA is not available, using CPU')
+        
+    settings['src'] = src
+    
+    settings = set_default_settings_preprocess_generate_masks(settings)
+
+    if settings['verbose']:
+        settings_df = pd.DataFrame(list(settings.items()), columns=['setting_key', 'setting_value'])
+        settings_df['setting_value'] = settings_df['setting_value'].apply(str)
+        display(settings_df)
+        
+    figuresize=10
+    timelapse = settings['timelapse']
+    
+    if timelapse:
+        timelapse_displacement = settings['timelapse_displacement']
+        timelapse_frame_limits = settings['timelapse_frame_limits']
+        timelapse_memory = settings['timelapse_memory']
+        timelapse_remove_transient = settings['timelapse_remove_transient']
+        timelapse_mode = settings['timelapse_mode']
+        timelapse_objects = settings['timelapse_objects']
+    
+    batch_size = settings['batch_size']
+    
+    cellprob_threshold = settings[f'{object_type}_CP_prob']
+    flow_threshold = settings[f'{object_type}_FT']
+    object_settings = _get_object_settings(object_type, settings)
+        
+    if settings.get('cellpose_nucleus_channel') is None and settings.get('nucleus_channel') is not None:
+        settings['cellpose_nucleus_channel'] = settings['nucleus_channel']
+
+    if settings.get('cellpose_cell_channel') is None and settings.get('cell_channel') is not None:
+        settings['cellpose_cell_channel'] = settings['cell_channel']
+
+    if settings.get('cellpose_pathogen_channel') is None and settings.get('pathogen_channel') is not None:
+        settings['cellpose_pathogen_channel'] = settings['pathogen_channel']
+    
+    cellpose_channels = {
+        'nucleus': [ch for ch in [settings.get('nucleus_channel')] if ch is not None],
+        'cell': [ch for ch in [settings.get('cell_channel'), settings.get('nucleus_channel')] if ch is not None],
+        'pathogen': [ch for ch in [settings.get('pathogen_channel')] if ch is not None],
+        'organelle': [ch for ch in [settings.get('organelle_channel')] if ch is not None],
+    }
+
+    channels = cellpose_channels[object_type]
+    if len(channels) == 0:
+        raise ValueError(f"No valid channels defined for object_type '{object_type}'.")
+        
+    if settings['verbose']:
+        print(cellpose_channels)
+
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), pretrained_model='cpsam', device=device)
+    paths = [os.path.join(src, file) for file in os.listdir(src) if file.endswith('.npz')]    
+    
+    count_loc = os.path.dirname(src)+'/measurements/measurements.db'
+    os.makedirs(os.path.dirname(src)+'/measurements', exist_ok=True)
+    _create_database(count_loc)
+    
+    average_sizes = []
+    average_count = []
+    time_ls = []
+    
+    for file_index, path in enumerate(paths):
+        name = os.path.basename(path)
+        name, ext = os.path.splitext(name)
+        output_folder = os.path.join(os.path.dirname(path), object_type+'_mask_stack')
+        os.makedirs(output_folder, exist_ok=True)
+        overall_average_size = 0
+        
+        with np.load(path) as data:
+            stack = data['data']
+            filenames = data['filenames']
+            
+            for i, filename in enumerate(filenames):
+                output_path = os.path.join(output_folder, filename)
+                
+                if os.path.exists(output_path):
+                    print(f"File {filename} already exists in the output folder. Skipping...")
+                    continue
+        
+        if settings['timelapse']:
+            trackable_objects = ['cell','nucleus','pathogen']
+            if not all_elements_match(settings['timelapse_objects'], trackable_objects):
+                print(f'timelapse_objects {settings["timelapse_objects"]} must be a subset of {trackable_objects}')
+                return
+
+            if len(stack) != batch_size:
+                print(f'Changed batch_size:{batch_size} to {len(stack)}, data length:{len(stack)}')
+                settings['timelapse_batch_size'] = len(stack)
+                batch_size = len(stack)
+                if isinstance(timelapse_frame_limits, list):
+                    if len(timelapse_frame_limits) >= 2:
+                        stack = stack[timelapse_frame_limits[0]: timelapse_frame_limits[1], :, :, :].astype(stack.dtype)
+                        filenames = filenames[timelapse_frame_limits[0]: timelapse_frame_limits[1]]
+                        batch_size = len(stack)
+                        print(f'Cut batch at indecies: {timelapse_frame_limits}, New batch_size: {batch_size} ')
+        
+        for i in range(0, stack.shape[0], batch_size):
+            mask_stack = []
+            if stack.shape[3] == 1:
+                batch = stack[i: i+batch_size, :, :, [0]].astype(stack.dtype)
+            else:
+                batch = stack[i: i+batch_size, :, :, channels].astype(stack.dtype)
+
+            batch_filenames = filenames[i: i+batch_size].tolist()
+
+            if not settings['plot']:
+                batch, batch_filenames = _check_masks(batch, batch_filenames, output_folder)
+            if batch.size == 0:
+                continue
+            
+            batch = prepare_batch_for_segmentation(batch)
+            batch_list = [batch[i] for i in range(batch.shape[0])]
+
+            if timelapse:
+                movie_path = os.path.join(os.path.dirname(src), 'movies')
+                os.makedirs(movie_path, exist_ok=True)
+                save_path = os.path.join(movie_path, f'timelapse_{object_type}_{name}.mp4')
+                _npz_to_movie(batch, batch_filenames, save_path, fps=2)
+            
+            output = model.eval(
+                x=batch_list,
+                batch_size=len(batch_list),
+                normalize=False,
+                channel_axis=-1,
+                diameter=None,
+                flow_threshold=flow_threshold,
+                cellprob_threshold=cellprob_threshold,
+                resample=object_settings['resample'],
+            )
+                        
+            masks, flows, _, _, _ = parse_cellpose4_output(output)
+
+            if timelapse:
+                if settings['plot']:
+                    plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=1, print_object_number=True)
+
+                _save_object_counts_to_database(masks, object_type, batch_filenames, count_loc, added_string='_timelapse')
+                if object_type in timelapse_objects:
+                    if timelapse_mode == 'btrack':
+                        if not timelapse_displacement is None:
+                            radius = timelapse_displacement
+                        else:
+                            radius = 100
+
+                        n_jobs = os.cpu_count()-2
+                        if n_jobs < 1:
+                            n_jobs = 1
+                            
+                        mask_stack = _btrack_track_cells(src=src,
+                                                         name=name,
+                                                         batch_filenames=batch_filenames,
+                                                         object_type=object_type,
+                                                         plot=settings['plot'],
+                                                         save=settings['save'],
+                                                         masks_3D=masks,
+                                                         mode=timelapse_mode,
+                                                         timelapse_remove_transient=timelapse_remove_transient,
+                                                         radius=radius,
+                                                         n_jobs=n_jobs,
+                                                         batch_list=None,
+                                                         optimizer_time_limit_s=120,
+                                                         optimizer_mip_gap=0.01,
+                                                         run_optimization=True,
+                                                         max_objects_for_optimization=20000)
+                    
+                    if timelapse_mode == 'trackpy' or timelapse_mode == 'iou':
+                        if timelapse_mode == 'iou':
+                            track_by_iou = True
+                        else:
+                            track_by_iou = False
+                        
+                        mask_stack = _trackpy_track_cells(src=src,
+                                                          name=name,
+                                                          batch_filenames=batch_filenames,
+                                                          object_type=object_type,
+                                                          masks=masks,
+                                                          timelapse_displacement=timelapse_displacement,
+                                                          timelapse_memory=timelapse_memory,
+                                                          timelapse_remove_transient=timelapse_remove_transient,
+                                                          plot=settings['plot'],
+                                                          save=settings['save'],
+                                                          mode=timelapse_mode,
+                                                          track_by_iou=track_by_iou)
+                else:
+                    mask_stack = _masks_to_masks_stack(masks)
+            else:
+                _save_object_counts_to_database(masks, object_type, batch_filenames, count_loc, added_string='_before_filtration')
+                mask_stack = _masks_to_masks_stack(masks)
+        
+            if timelapse and settings.get("motility_analysis", False):
+                from .timelapse import automated_motility_assay
+                _ = automated_motility_assay(settings)
+            
+            if not np.any(mask_stack):
+                avg_num_objects_per_image, average_obj_size = 0, 0
+            else:
+                avg_num_objects_per_image, average_obj_size = _get_avg_object_size(mask_stack)
+            
+            average_count.append(avg_num_objects_per_image)
+            average_sizes.append(average_obj_size) 
+            overall_average_size = np.mean(average_sizes) if len(average_sizes) > 0 else 0
+            overall_average_count = np.mean(average_count) if len(average_count) > 0 else 0
+            print(f'Found {overall_average_count} {object_type}/FOV. average size: {overall_average_size:.3f} px2')
+
+        if not timelapse:
+            if settings['plot']:
+                plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=len(batch_list))
+                
+        if settings['save']:
+            for mask_index, mask in enumerate(mask_stack):
+                output_filename = os.path.join(output_folder, batch_filenames[mask_index])
+                mask = mask.astype(np.uint16)
+                np.save(output_filename, mask)
+            mask_stack = []
+            batch_filenames = []
+
+        gc.collect()
+    torch.cuda.empty_cache()
+    return
 
 def generate_cellpose_masks(src, settings, object_type):
     
@@ -77,9 +311,7 @@ def generate_cellpose_masks(src, settings, object_type):
         settings.get('cellpose_pathogen_channel'),
         settings.get('cellpose_cell_channel')
     )
-    
-    #cellpose_channels = _get_cellpose_channels(src, settings['cellpose_nucleus_channel'], settings['cellpose_pathogen_channel'], settings['cellpose_cell_channel'])
-    
+        
     if settings['verbose']:
         print(cellpose_channels)
         
@@ -176,6 +408,7 @@ def generate_cellpose_masks(src, settings, object_type):
                                 cellprob_threshold=cellprob_threshold,
                                 rescale=None,
                                 resample=object_settings['resample'])
+            
                         
             masks, flows, _, _, _ = parse_cellpose4_output(output)
 
@@ -404,7 +637,7 @@ def _segment_network(img, method, settings):
  
     return sk_label(binary)
 
-def generate_organelle_masks(src, settings, object_type):
+def generate_organelle_masks_sam(src, settings, object_type):
     """
     Generate organelle masks using multiple segmentation strategies.
 
@@ -574,9 +807,8 @@ def generate_organelle_masks(src, settings, object_type):
             #  Segment
             # ---------------------------------------------------------- #
             if method == 'cellpose':
-                masks = _segment_cellpose(
-                    batch, batch_filenames, dl_model, settings, object_type, output_folder,
-                )
+                masks = _segment_cellpose_sam(
+                    img_batch, batch_filenames, dl_model, settings, object_type, output_folder)
             elif method == 'stardist':
                 masks = _segment_stardist(img_batch, dl_model, settings)
             elif method == 'unet':
@@ -926,6 +1158,67 @@ def _segment_cellpose(batch, batch_filenames, model, settings, object_type, outp
         cellprob_threshold=settings['organelle_CP_prob'],
         rescale=None,
         resample=settings['organelle_resample'],
+    )
+
+    masks, flows, _, _, _ = parse_cellpose4_output(output)
+    return masks
+
+def _segment_cellpose_sam(batch, batch_filenames, model, settings, object_type, output_folder):
+    """Run Cellpose-SAM on a batch and return a list of 2-D label arrays."""
+    from .utils import prepare_batch_for_segmentation
+    from .io import _check_masks
+    from .spacr_cellpose import parse_cellpose4_output
+
+    if object_type == 'nucleus':
+        selected_channels = [settings.get('nucleus_channel')]
+    elif object_type == 'cell':
+        selected_channels = [settings.get('cell_channel'), settings.get('nucleus_channel')]
+    elif object_type == 'pathogen':
+        selected_channels = [settings.get('pathogen_channel')]
+    elif object_type == 'organelle':
+        selected_channels = [settings.get('organelle_channel')]
+    else:
+        raise ValueError(f"Unsupported object_type: {object_type}")
+
+    selected_channels = [ch for ch in selected_channels if ch is not None]
+
+    if len(selected_channels) == 0:
+        raise ValueError(f"No valid channels defined for object_type '{object_type}'.")
+
+    if batch.ndim == 4:
+        max_ch = batch.shape[3]
+        selected_channels = [ch for ch in selected_channels if ch < max_ch]
+
+        if len(selected_channels) == 0:
+            raise ValueError(
+                f"Selected channels for object_type '{object_type}' are out of bounds for batch with {max_ch} channels."
+            )
+
+        cp_batch = batch[:, :, :, selected_channels].astype(batch.dtype)
+
+    elif batch.ndim == 3:
+        cp_batch = batch[:, :, :, np.newaxis].astype(batch.dtype)
+
+    else:
+        raise ValueError(f"Expected batch with ndim 3 or 4, got ndim={batch.ndim}")
+
+    if not settings.get('plot', False):
+        cp_batch, batch_filenames = _check_masks(cp_batch, batch_filenames, output_folder)
+    if cp_batch.size == 0:
+        return None
+
+    cp_batch = prepare_batch_for_segmentation(cp_batch)
+    batch_list = [cp_batch[j] for j in range(cp_batch.shape[0])]
+
+    output = model.eval(
+        x=batch_list,
+        batch_size=len(batch_list),
+        normalize=False,
+        channel_axis=-1,
+        diameter=None,
+        flow_threshold=settings[f'{object_type}_FT'],
+        cellprob_threshold=settings[f'{object_type}_CP_prob'],
+        resample=settings.get(f'{object_type}_resample', True)
     )
 
     masks, flows, _, _, _ = parse_cellpose4_output(output)
