@@ -50,9 +50,9 @@ def set_default_settings_preprocess_generate_masks(settings={}):
     settings.setdefault('remove_background_nucleus', False)
     settings.setdefault('remove_background_pathogen', False)
     
-    settings.setdefault('cell_diamiter', None)
-    settings.setdefault('nucleus_diamiter', None)
-    settings.setdefault('pathogen_diamiter', None)
+    settings.setdefault('cell_diameter', None)
+    settings.setdefault('nucleus_diameter', None)
+    settings.setdefault('pathogen_diameter', None)
 
     # Channel settings
     settings.setdefault('cell_channel', None)
@@ -294,13 +294,13 @@ def _get_object_settings(object_type, settings):
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
         object_settings['restore_type'] = settings.get('cell_restore_type', None)
-        if settings['cell_diamiter'] is not None:
-            if isinstance(settings['cell_diamiter'], (int, float)):
-                object_settings['diameter'] = settings['cell_diamiter']
+        if settings['cell_diameter'] is not None:
+            if isinstance(settings['cell_diameter'], (int, float)):
+                object_settings['diameter'] = settings['cell_diameter']
                 object_settings['minimum_size'] = (object_settings['diameter']**2)/4
                 object_settings['maximum_size'] = (object_settings['diameter']**2)*10
             else:
-                print(f'Cell diameter must be an integer or float, got {settings["cell_diamiter"]}')
+                print(f'Cell diameter must be an integer or float, got {settings["cell_diameter"]}')
         if settings['use_sam_cell']:
             object_settings['model_name'] = 'sam'
 
@@ -310,13 +310,13 @@ def _get_object_settings(object_type, settings):
         object_settings['filter_intensity'] = False
         object_settings['restore_type'] = settings.get('nucleus_restore_type', None)
         
-        if settings['nucleus_diamiter'] is not None:
-            if isinstance(settings['nucleus_diamiter'], (int, float)):
-                object_settings['diameter'] = settings['nucleus_diamiter']
+        if settings['nucleus_diameter'] is not None:
+            if isinstance(settings['nucleus_diameter'], (int, float)):
+                object_settings['diameter'] = settings['nucleus_diameter']
                 object_settings['minimum_size'] = (object_settings['diameter']**2)/4
                 object_settings['maximum_size'] = (object_settings['diameter']**2)*10
             else:
-                print(f'Nucleus diameter must be an integer or float, got {settings["nucleus_diamiter"]}')
+                print(f'Nucleus diameter must be an integer or float, got {settings["nucleus_diameter"]}')
         if settings['use_sam_nucleus']:
             object_settings['model_name'] = 'sam'
 
@@ -328,13 +328,13 @@ def _get_object_settings(object_type, settings):
         object_settings['restore_type'] = settings.get('pathogen_restore_type', None)
         object_settings['merge'] = settings['merge_pathogens']
         
-        if settings['pathogen_diamiter'] is not None:
-            if isinstance(settings['pathogen_diamiter'], (int, float)):
-                object_settings['diameter'] = settings['pathogen_diamiter']
+        if settings['pathogen_diameter'] is not None:
+            if isinstance(settings['pathogen_diameter'], (int, float)):
+                object_settings['diameter'] = settings['pathogen_diameter']
                 object_settings['minimum_size'] = (object_settings['diameter']**2)/4
                 object_settings['maximum_size'] = (object_settings['diameter']**2)*10
             else:
-                print(f'Pathogen diameter must be an integer or float, got {settings["pathogen_diamiter"]}')
+                print(f'Pathogen diameter must be an integer or float, got {settings["pathogen_diameter"]}')
                 
         if settings['use_sam_pathogen']:
             object_settings['model_name'] = 'sam'
@@ -1136,9 +1136,9 @@ expected_types = {
     "CP_prob":int,
     "diameter":int,
     "flow_threshold":float,
-    "cell_diamiter":int,
-    "nucleus_diamiter":int,
-    "pathogen_diamiter":int,
+    "cell_diameter":int,
+    "nucleus_diameter":int,
+    "pathogen_diameter":int,
     "consolidate":bool,
     'use_sam_cell':bool,
     'use_sam_nucleus':bool,
@@ -1313,9 +1313,9 @@ expected_types = {
 }
 
 tooltips = {
-    "cell_diamiter": "(int) - Estimated diameter of cell objects in pixels for Cellpose segmentation.",
-    "nucleus_diamiter": "(int) - Estimated diameter of nucleus objects in pixels for Cellpose segmentation.",
-    "pathogen_diamiter": "(int) - Estimated diameter of pathogen objects in pixels for Cellpose segmentation.",
+    "cell_diameter": "(int) - Estimated diameter of cell objects in pixels for Cellpose segmentation.",
+    "nucleus_diameter": "(int) - Estimated diameter of nucleus objects in pixels for Cellpose segmentation.",
+    "pathogen_diameter": "(int) - Estimated diameter of pathogen objects in pixels for Cellpose segmentation.",
     "nucleus_CP_prob": "(float) - The Cellpose probability threshold for nucleus segmentation. Higher values are more stringent.",
     "pathogen_CP_prob": "(float) - The Cellpose probability threshold for pathogen segmentation. Higher values are more stringent.",
     "nucleus_FT": "(float) - The flow threshold for nucleus objects. Lower values require better flow agreement.",
@@ -1752,7 +1752,7 @@ motility_advanced_settings = ['reuse_existing_measurements', 'infection_xgb_min_
 categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset","model_path","grna_csv","row_csv","column_csv", "metadata_files", "score_data","count_data"],
              "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel",  "test_mode", "plot", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "delete_intermediate", "uninfected", "organelle_chann_dim", "postprocess_cell_masks", "postprocess_nucleus_masks", "postprocess_pathogen_masks", "postprocess_organelle_masks","timelapse"],
              "Cellpose":["fill_in","from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
-             "Cell": ["cell_diamiter","cell_intensity_range", "cell_size_range", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cytoplasm_min_size", "adjust_cells", "cells", "cell_loc", "cell_max_area", "cell_min_area", "cell_remove_border_objects", "cell_min_intensity", "cell_max_intensity"],               
+             "Cell": ["cell_diameter","cell_intensity_range", "cell_size_range", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cytoplasm_min_size", "adjust_cells", "cells", "cell_loc", "cell_max_area", "cell_min_area", "cell_remove_border_objects", "cell_min_intensity", "cell_max_intensity"],               
              "Organelle": ["organelle_morphology", "organelle_method", "organelle_diameter", "organelle_min_size", "organelle_max_size", "organelle_remove_border", "summarize_organelles_by", "organelle_max_area", "organelle_min_area", "organelle_remove_border_objects", "organelle_min_intensity", "organelle_max_intensity"],
              "Organelle preprocessing": ["organelle_rolling_ball", "organelle_rolling_ball_radius", "organelle_clahe", "organelle_clahe_clip_limit", "organelle_mask_within_cells"],
              "Organelle spot detection": ["organelle_tophat_radius", "organelle_watershed_spots", "organelle_log_min_sigma", "organelle_log_max_sigma", "organelle_log_num_sigma", "organelle_log_threshold", "organelle_dog_sigma_low", "organelle_dog_sigma_high"],
@@ -1763,8 +1763,8 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              #"Organelle stardist": ["organelle_stardist_model", "organelle_stardist_prob", "organelle_stardist_nms"],
              "Organelle unet": ["organelle_unet_model_path", "organelle_unet_threshold"],
              "Organelle adaptive threshold": ["organelle_adaptive_block_size", "organelle_adaptive_offset"], 
-             "Nucleus": ["nucleus_diamiter","nucleus_intensity_range", "nucleus_size_range", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_loc", "nucleus_min_area", "nucleus_max_area", "nucleus_remove_border_objects", "nucleus_min_intensity", "nucleus_max_intensity"],
-             "Pathogen": ["pathogen_diamiter","pathogen_intensity_range", "pathogen_size_range", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogens", "pathogen_loc", "pathogen_types", "pathogen_plate_metadata", "merge_edge_pathogen_cells", "pathogen_max_area", "pathogen_min_area", "pathogen_remove_border_objects", "pathogen_min_intensity", "pathogen_max_intensity"],
+             "Nucleus": ["nucleus_diameter","nucleus_intensity_range", "nucleus_size_range", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_loc", "nucleus_min_area", "nucleus_max_area", "nucleus_remove_border_objects", "nucleus_min_intensity", "nucleus_max_intensity"],
+             "Pathogen": ["pathogen_diameter","pathogen_intensity_range", "pathogen_size_range", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogens", "pathogen_loc", "pathogen_types", "pathogen_plate_metadata", "merge_edge_pathogen_cells", "pathogen_max_area", "pathogen_min_area", "pathogen_remove_border_objects", "pathogen_min_intensity", "pathogen_max_intensity"],
              "Measurements": ["remove_image_canvas", "remove_highly_correlated", "homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements", "tables", "image_nr", "dot_size", "filter_by", "remove_highly_correlated_features", "remove_low_variance_features", "channel_of_interest"],
              "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "crop_mode", "use_bounding_box"],
              "Sequencing": ["outlier_detection","offset_start","chunk_size","single_direction", "signal_direction","mode","comp_level","comp_type","save_h5","expected_end","offset","target_sequence","regex", "highlight"],
