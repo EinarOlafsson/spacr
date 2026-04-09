@@ -164,10 +164,10 @@ def set_default_settings_preprocess_generate_masks(settings={}):
     settings.setdefault('summarize_organelles_by', 'cell')
 
     #merge_split
-    settings.setdefault('cell_perimiter_fraction', 0.5)
-    settings.setdefault('nucleus_perimiter_fraction',  0.5)
-    settings.setdefault('pathogen_perimiter_fraction',  0.5)
-    settings.setdefault('organelle_perimiter_fraction', 0.5)
+    settings.setdefault('cell_perimeter_fraction', 0.5)
+    settings.setdefault('nucleus_perimeter_fraction',  0.5)
+    settings.setdefault('pathogen_perimeter_fraction',  0.5)
+    settings.setdefault('organelle_perimeter_fraction', 0.5)
     settings.setdefault('cell_intensity_merge',False)
     settings.setdefault('nucleus_intensity_merge', False)
     settings.setdefault('pathogen_intensity_merge', False)
@@ -1249,9 +1249,9 @@ expected_types = {
     'focal_gamma':float,
     'label_smoothing':float,
     
-    'cell_perimiter_fraction':float,
-    'nucleus_perimiter_fraction':float,
-    'pathogen_perimiter_fraction':float,
+    'cell_perimeter_fraction':float,
+    'nucleus_perimeter_fraction':float,
+    'pathogen_perimeter_fraction':float,
     'cell_intensity_merge':bool,
     'nucleus_intensity_merge':bool,
     'pathogen_intensity_merge':bool,
@@ -1276,7 +1276,7 @@ expected_types = {
     'postprocess_cell_masks':bool,
     'postprocess_nucleus_masks':bool,
     'postprocess_pathogen_masks':bool,
-    'organelle_perimiter_fraction':float,
+    'organelle_perimeter_fraction':float,
     'organelle_intensity_merge':bool,
     'organelle_intensity_split':bool,
     'organelle_area_multiplier':float,
@@ -1682,9 +1682,9 @@ tooltips = {
     'organelle_ring_min_prominence': "(float) - Minimum normalised intensity contrast between ring boundary and interior. Objects below this are discarded as non-rings.",
     'organelle_ring_fill_method': "(str) - How to fill detected rings: 'flood' (fill enclosed holes) or 'convex' (convex hull per edge component).",
     'summarize_organelles_by': "(list or None) - Parent object(s) to aggregate per-organelle measurements by. For each selected parent, generates a summary table with organelle count, area fraction, mean size, and intensity statistics per parent object. None = no summary, only per-organelle measurements.",
-    'cell_perimiter_fraction': "Freaction of the cell perimeter that must be in contact with a neighboring object to be merged. Set to 0 to disable merging based on perimeter contact.",
-    'nucleus_perimiter_fraction': "Freaction of the nucleus perimeter that must be in contact with a neighboring object to be merged. Set to 0 to disable merging based on perimeter contact.",
-    'pathogen_perimiter_fraction': "Freaction of the pathogen perimeter that must be in contact with a neighboring object to be merged. Set to 0 to disable merging based on perimeter contact.",
+    'cell_perimeter_fraction': "Freaction of the cell perimeter that must be in contact with a neighboring object to be merged. Set to 0 to disable merging based on perimeter contact.",
+    'nucleus_perimeter_fraction': "Freaction of the nucleus perimeter that must be in contact with a neighboring object to be merged. Set to 0 to disable merging based on perimeter contact.",
+    'pathogen_perimeter_fraction': "Freaction of the pathogen perimeter that must be in contact with a neighboring object to be merged. Set to 0 to disable merging based on perimeter contact.",
     'cell_intensity_merge': "Whether to merge cells based on intensity criteria.",
     'nucleus_intensity_merge': "Whether to merge nuclei based on intensity criteria.",
     'pathogen_intensity_merge': "Whether to merge pathogens based on intensity criteria.",
@@ -1709,7 +1709,7 @@ tooltips = {
     'postprocess_cell_masks': "Whether to postprocess cell masks (merge/declump).",
     'postprocess_nucleus_masks': "Whether to postprocess nucleus masks (merge/declump).",
     'postprocess_pathogen_masks': "Whether to postprocess pathogen masks (merge/declump).",
-    'organelle_perimiter_fraction':"Freaction of the organelle perimeter that must be in contact with a neighboring object to be merged. Set to 0 to disable merging based on perimeter contact.",
+    'organelle_perimeter_fraction':"Freaction of the organelle perimeter that must be in contact with a neighboring object to be merged. Set to 0 to disable merging based on perimeter contact.",
     'organelle_intensity_merge': "Whether to merge organelles based on intensity criteria.",
     'organelle_intensity_split': "Whether to split organelles based on intensity criteria.",
     'organelle_area_multiplier': "Multiplier for organelle area when considering merging or splitting.",
@@ -1779,7 +1779,7 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Timelapse": ["fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
              "Advanced": ["test_images", "random_test", "test_nr", "test", "test_split", "normalize", "target_unique_count","threshold_multiplier", "threshold_method", "min_n","shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs"],
              "Beta": ["all_to_mip", "upscale", "upscale_factor", "consolidate", "distance_gaussian_sigma","use_sam_pathogen","use_sam_nucleus", "use_sam_cell", "denoise"],
-             "Merge split objects":["remove_border_cells","remove_border_nuclei","remove_border_pathogens","remove_border_organelles","cell_perimiter_fraction", "nucleus_perimiter_fraction", "pathogen_perimiter_fraction", "cell_intensity_merge", "nucleus_intensity_merge", "pathogen_intensity_merge", "cell_intensity_split", "nucleus_intensity_split", "pathogen_intensity_split", "cell_area_multiplier", "nucleus_area_multiplier", "pathogen_area_multiplier", "cell_min_distance", "nucleus_min_distance", "pathogen_min_distance", "cell_min_object_area","nucleus_min_object_area", "pathogen_min_object_area", "cell_intensity_threshold_method", "nucleus_intensity_threshold_method", "pathogen_intensity_threshold_method", "cell_intensity_percentile", "nucleus_intensity_percentile", "pathogen_intensity_percentile", "organelle_perimiter_fraction", "organelle_intensity_merge","organelle_intensity_split", "organelle_area_multiplier", "organelle_min_distance", "organelle_min_object_area", "organelle_intensity_threshold_method", "organelle_intensity_percentile"],
+             "Merge split objects":["remove_border_cells","remove_border_nuclei","remove_border_pathogens","remove_border_organelles","cell_perimeter_fraction", "nucleus_perimeter_fraction", "pathogen_perimeter_fraction", "cell_intensity_merge", "nucleus_intensity_merge", "pathogen_intensity_merge", "cell_intensity_split", "nucleus_intensity_split", "pathogen_intensity_split", "cell_area_multiplier", "nucleus_area_multiplier", "pathogen_area_multiplier", "cell_min_distance", "nucleus_min_distance", "pathogen_min_distance", "cell_min_object_area","nucleus_min_object_area", "pathogen_min_object_area", "cell_intensity_threshold_method", "nucleus_intensity_threshold_method", "pathogen_intensity_threshold_method", "cell_intensity_percentile", "nucleus_intensity_percentile", "pathogen_intensity_percentile", "organelle_perimeter_fraction", "organelle_intensity_merge","organelle_intensity_split", "organelle_area_multiplier", "organelle_min_distance", "organelle_min_object_area", "organelle_intensity_threshold_method", "organelle_intensity_percentile"],
              "Motility (beta)": motility_settings,
              "Motility Advanced (beta)": motility_advanced_settings,
              }
