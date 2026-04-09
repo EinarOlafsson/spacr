@@ -302,7 +302,7 @@ def _apply_union_find(label_img, parent):
     merged = mapping[label_img]
     return _relabel_sequential(merged.astype(np.uint16))
     
-def _process_single_fov(mask_path, intensity_path, intensity_channel,
+def _process_single_fov_v1(mask_path, intensity_path, intensity_channel,
                         do_split, do_perimeter_merge, do_intensity_merge,
                         perimeter_fraction, area_multiplier, min_distance,
                         min_object_area, intensity_threshold_method,
@@ -438,7 +438,7 @@ def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
 
     return _relabel_sequential(label_img)
 
-def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None,
+def merge_split_objects_v1(mask_src, intensity_img_src=None, intensity_channel=None,
                         perimeter_fraction=0.5, intensity_merge=False, intensity_split=False,
                         area_multiplier=2.0, min_distance=10, min_object_area=100,
                         intensity_threshold_method='mean', intensity_percentile=75,
@@ -515,6 +515,106 @@ def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None
             remove_border_objects, min_intensity, max_intensity,
         )
         for mp, ip in zip(mask_paths, intensity_paths)
+    )
+    
+def _process_single_fov(mask_path, intensity_path, intensity_channel,
+                        do_split, do_perimeter_merge, do_intensity_merge,
+                        perimeter_fraction, area_multiplier, min_distance,
+                        min_object_area, intensity_threshold_method,
+                        intensity_percentile, min_area, max_area,
+                        remove_border_objects, min_intensity, max_intensity,
+                        progress_callback=None, fov_index=0, total_fovs=0, op_name=''):
+    """Process one field of view: split → merge → filter."""
+    import time
+    start = time.time()
+    
+    label_img = _load_image(mask_path)
+    if label_img is None:
+        return
+    label_img = label_img.astype(np.uint16)
+
+    intensity_img = None
+    if (do_intensity_merge or min_intensity > 0 or max_intensity > 0) and intensity_path is not None:
+        raw = _load_image(intensity_path)
+        if raw is not None:
+            if raw.ndim >= 2 and intensity_channel is not None:
+                intensity_img = raw[intensity_channel].astype(np.float32)
+            else:
+                intensity_img = raw.astype(np.float32)
+
+    if do_split:
+        label_img = _split_by_watershed(
+            label_img,
+            area_multiplier=area_multiplier,
+            min_distance=min_distance,
+            min_object_area=min_object_area,
+        )
+        label_img = _relabel_sequential(label_img)
+
+    all_labels = np.unique(label_img)
+    all_labels = all_labels[all_labels > 0]
+    if len(all_labels) > 0:
+        parent = {int(l): int(l) for l in all_labels}
+
+        if do_perimeter_merge:
+            _merge_by_perimeter(label_img, perimeter_fraction, parent)
+
+        if do_intensity_merge and intensity_img is not None:
+            _merge_by_intensity(label_img, intensity_img, parent,
+                                intensity_threshold_method=intensity_threshold_method,
+                                intensity_percentile=intensity_percentile)
+
+        label_img = _apply_union_find(label_img, parent)
+
+    label_img = _filter_objects(label_img, intensity_img,
+                                min_area=min_area, max_area=max_area,
+                                remove_border=remove_border_objects,
+                                min_intensity=min_intensity,
+                                max_intensity=max_intensity)
+
+    _save_image(mask_path, label_img)
+    
+    duration = time.time() - start
+    if progress_callback:
+        progress_callback(fov_index, total_fovs, duration, op_name)
+
+
+def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None,
+                        perimeter_fraction=0.5, intensity_merge=False, intensity_split=False,
+                        area_multiplier=2.0, min_distance=10, min_object_area=100,
+                        intensity_threshold_method='mean', intensity_percentile=75,
+                        min_area=0, max_area=0, remove_border_objects=False,
+                        min_intensity=0, max_intensity=0, n_jobs=1,
+                        progress_callback=None, op_name=''):
+    valid_ext = ('.tif', '.tiff', '.npy')
+    mask_files = sorted([f for f in os.listdir(mask_src)
+                         if os.path.splitext(f)[1].lower() in valid_ext])
+    if not mask_files:
+        return
+
+    do_perimeter_merge = perimeter_fraction > 0
+    do_intensity_merge = intensity_merge and intensity_img_src is not None
+    do_split = intensity_split
+
+    mask_paths = [os.path.join(mask_src, f) for f in mask_files]
+    if intensity_img_src is not None:
+        intensity_paths = [os.path.join(intensity_img_src, f) for f in mask_files]
+    else:
+        intensity_paths = [None] * len(mask_files)
+
+    total = len(mask_paths)
+
+    Parallel(n_jobs=n_jobs)(
+        delayed(_process_single_fov)(
+            mp, ip, intensity_channel,
+            do_split, do_perimeter_merge, do_intensity_merge,
+            perimeter_fraction, area_multiplier, min_distance,
+            min_object_area, intensity_threshold_method,
+            intensity_percentile, min_area, max_area,
+            remove_border_objects, min_intensity, max_intensity,
+            progress_callback, idx, total, op_name,
+        )
+        for idx, (mp, ip) in enumerate(zip(mask_paths, intensity_paths))
     )
 
 def _organelle_diagnostic(img, morphology, method, settings):
