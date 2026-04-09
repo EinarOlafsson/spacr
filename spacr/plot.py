@@ -379,7 +379,7 @@ def plot_image_mask_overlay(
 
     return fig
 
-def plot_image_mask_overlay_v1(
+def plot_image_mask_overlay_old(
     file,
     channels,
     cell_channel,
