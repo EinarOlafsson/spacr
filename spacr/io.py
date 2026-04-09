@@ -2140,46 +2140,6 @@ def read_plot_model_stats(train_file_path, val_file_path ,save=False):
     _plot_and_save(train_df, val_df, column='loss', save=save, path=fldr_1)
     _plot_and_save(train_df, val_df, column='prauc', save=save, path=fldr_1)
     _plot_and_save(train_df, val_df, column='optimal_threshold', save=save, path=fldr_1)
-    
-def _save_model_v1(model, model_type, results_df, dst, epoch, epochs, intermedeate_save=[0.99,0.98,0.95,0.94], channels=['r','g','b']):
-    """
-    Save the model based on certain conditions during training.
-
-    Args:
-        model (torch.nn.Module): The trained model to be saved.
-        model_type (str): The type of the model.
-        results_df (pandas.DataFrame): The dataframe containing the training results.
-        dst (str): The destination directory to save the model.
-        epoch (int): The current epoch number.
-        epochs (int): The total number of epochs.
-        intermedeate_save (list, optional): List of accuracy thresholds to trigger intermediate model saves. 
-                                            Defaults to [0.99, 0.98, 0.95, 0.94].
-        channels (list, optional): List of channels used. Defaults to ['r', 'g', 'b'].
-    """
-
-    channels_str = ''.join(channels)
-    
-    def save_model_at_threshold(threshold, epoch, suffix=""):
-        percentile = str(threshold * 100)
-        print(f'Found: {percentile}% accurate model')
-        model_path = f'{dst}/{model_type}_epoch_{str(epoch)}{suffix}_acc_{percentile}_channels_{channels_str}.pth'
-        torch.save(model, model_path)
-        return model_path
-
-    if epoch % 100 == 0 or epoch == epochs:
-        model_path = f'{dst}/{model_type}_epoch_{str(epoch)}_channels_{channels_str}.pth'
-        torch.save(model, model_path)
-        return model_path
-
-    for threshold in intermedeate_save:
-        if results_df['neg_accuracy'] >= threshold and results_df['pos_accuracy'] >= threshold:
-            print(f"Nc class accuracy: {results_df['neg_accuracy']} Pc class Accuracy: {results_df['pos_accuracy']}")
-            model_path = save_model_at_threshold(threshold, epoch)
-            break
-        else:
-            model_path = None
-    
-    return model_path
 
 def _save_model(model, model_type, results_dict, dst, epoch, epochs,
                 intermedeate_save=[0.99, 0.98, 0.95, 0.94],
@@ -2302,32 +2262,6 @@ def _copy_missclassified(df):
         shutil.copy(original_path, new_path)
     print(f"Copied {len(misclassified)} misclassified images.")
     return
-
-def _read_db_v1(db_loc, tables):
-    """
-    Read data from a SQLite database.
-
-    Parameters:
-    - db_loc (str): The location of the SQLite database file.
-    - tables (list): A list of table names to read from.
-
-    Returns:
-    - dfs (list): A list of pandas DataFrames, each containing the data from a table.
-    """
-    from .utils import rename_columns_in_db, correct_metadata
-    
-    rename_columns_in_db(db_loc)
-    conn = sqlite3.connect(db_loc)
-    dfs = []
-    
-    for table in tables:
-        query = f'SELECT * FROM {table}'
-        df = pd.read_sql_query(query, conn)
-        df = correct_metadata(df)
-        dfs.append(df)
-        
-    conn.close()
-    return dfs
     
 def _read_db(db_loc, tables):
     import gc
@@ -2901,84 +2835,6 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
                                    num_workers=num_workers,  # FIX: was hardcoded to 1
                                    pin_memory=pin_memory,
                                    persistent_workers=use_persistent)
-        val_loaders = []
-        train_fig = None
-        return train_loaders, val_loaders, train_fig
-
-
-def generate_loaders_v1(src, mode='train', image_size=224, batch_size=32,
-                     classes=['nc','pc'], n_jobs=None, validation_split=0.0,
-                     pin_memory=False, normalize=False, channels=['r','g','b'],
-                     augment=False, verbose=False):
-
-    from .utils import SelectChannels, augment_dataset
-
-    chans = []
-    if 'r' in channels: chans.append(1)
-    if 'g' in channels: chans.append(2)
-    if 'b' in channels: chans.append(3)
-    channels = chans
-
-    if verbose:
-        print(f'Training a network on channels: {channels}')
-        print(f'Channel 1: Red, Channel 2: Green, Channel 3: Blue')
-
-    if mode == 'train':
-        data_dir = os.path.join(src, 'train')
-        shuffle = True
-        print('Loading Train and validation datasets')
-    elif mode == 'test':
-        data_dir = os.path.join(src, 'test')
-        validation_split = 0.0
-        shuffle = True
-        print('Loading test dataset')
-    else:
-        print(f'mode:{mode} is not valid, use mode = train or test')
-        return
-
-    # NEW: validate all requested class folders exist
-    missing = [c for c in classes if not os.path.isdir(os.path.join(data_dir, c))]
-    if missing:
-        print(f'One or more classes not found in {data_dir}')
-        print(f'Missing: {missing}')
-        print(f'Available: {sorted([d for d in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir,d))])}')
-
-    # Build dataset (handles any number of classes)
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.CenterCrop(size=(image_size, image_size)),
-        SelectChannels(channels),
-        *( [transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))] if normalize else [] )
-    ])
-
-    data = spacrDataset(data_dir, classes, transform=transform,
-                        shuffle=True, pin_memory=pin_memory)
-    num_workers = n_jobs if n_jobs is not None else 0
-
-    if validation_split > 0 and mode == 'train':
-        train_size = int((1 - validation_split) * len(data))
-        val_size = len(data) - train_size
-        if not augment:
-            print(f'Train data:{train_size}, Validation data:{val_size}')
-        train_dataset, val_dataset = random_split(data, [train_size, val_size])
-
-        if augment:
-            print(f'Data before augmentation: Train: {len(train_dataset)}, Validataion:{len(val_dataset)}')
-            train_dataset = augment_dataset(train_dataset, is_grayscale=(len(channels) == 1))
-            print(f'Data after augmentation: Train: {len(train_dataset)}')
-
-        print(f'Generating Dataloader with {n_jobs} workers')
-        train_loaders = DataLoader(train_dataset, batch_size=batch_size, shuffle=True,
-                                   num_workers=1, pin_memory=pin_memory, persistent_workers=True)
-        val_loaders = DataLoader(val_dataset, batch_size=batch_size, shuffle=True,
-                                 num_workers=1, pin_memory=pin_memory, persistent_workers=True)
-        train_fig = None
-        return train_loaders, val_loaders, train_fig
-
-    else:
-        # (test mode or no validation split)
-        train_loaders = DataLoader(data, batch_size=batch_size, shuffle=True,
-                                   num_workers=1, pin_memory=pin_memory, persistent_workers=True)
         val_loaders = []
         train_fig = None
         return train_loaders, val_loaders, train_fig

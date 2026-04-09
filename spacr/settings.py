@@ -1760,7 +1760,7 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Organelle ring detection": ["organelle_ring_sigma_inner", "organelle_ring_sigma_outer", "organelle_ring_min_prominence", "organelle_ring_fill_method"],
              "Organelle irregular detection": ["organelle_morph_radius", "organelle_fill_holes"],
              "Organelle cellpose": ["organelle_model_name", "organelle_CP_prob", "organelle_FT", "organelle_resample"],
-             "Organelle stardist": ["organelle_stardist_model", "organelle_stardist_prob", "organelle_stardist_nms"],
+             #"Organelle stardist": ["organelle_stardist_model", "organelle_stardist_prob", "organelle_stardist_nms"],
              "Organelle unet": ["organelle_unet_model_path", "organelle_unet_threshold"],
              "Organelle adaptive threshold": ["organelle_adaptive_block_size", "organelle_adaptive_offset"], 
              "Nucleus": ["nucleus_diamiter","nucleus_intensity_range", "nucleus_size_range", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_loc", "nucleus_min_area", "nucleus_max_area", "nucleus_remove_border_objects", "nucleus_min_intensity", "nucleus_max_intensity"],
@@ -1816,7 +1816,7 @@ category_value_dependencies = {
         'ridge':      ['Organelle', 'Organelle network detection'],
         'hysteresis': ['Organelle', 'Organelle network detection'],
         'cellpose':   ['Organelle', 'Organelle cellpose'],
-        'stardist':   ['Organelle', 'Organelle stardist'],
+        #'stardist':   ['Organelle', 'Organelle stardist'],
         'unet':       ['Organelle', 'Organelle unet'],
     },
 }
@@ -1942,45 +1942,6 @@ def check_settings(vars_dict, expected_types, q=None):
         q.put(error)
         
     return settings, errors
-
-def generate_fields_v1(variables, scrollable_frame):
-    from .gui_utils import create_input_field
-    from .gui_elements import spacrToolTip
-    from .settings import tooltips
-    
-    row = 1
-    vars_dict = {}
-
-    for key, (var_type, options, default_value) in variables.items():
-        try:
-            label, widget, var, frame = create_input_field(scrollable_frame.scrollable_frame, key, row, var_type, options, default_value)
-        except Exception as e:
-            print(f"Warning: Invalid value for {key}, reverting to {default_value}, var_type: {var_type}({default_value}).")
-            #print(f"Warning: Invalid value for '{key}' ({default_value}), reverting to type default. Error: {e}")
-            # Fall back to safe defaults based on type
-            type_defaults = {
-                'check': False,
-                'entry': '',
-                'combo': options[0] if options else '',
-                'int': 0,
-                'float': 0.0,
-            }
-            fallback = type_defaults.get(var_type, '')
-            try:
-                label, widget, var, frame = create_input_field(scrollable_frame.scrollable_frame, key, row, var_type, options, fallback)
-            except Exception as e2:
-                print(f"Error: Could not create field for '{key}' even with fallback. Skipping.")
-                #print(f"Error: Could not create field for '{key}' even with fallback. Skipping. Error: {e2}")
-                continue
-
-        vars_dict[key] = (label, widget, var, frame)
-        
-        if key in tooltips:
-            spacrToolTip(label, tooltips[key])
-
-        row += 1
-        
-    return vars_dict
 
 def generate_fields(variables, scrollable_frame, tick_callback=None):
     from .gui_utils import create_input_field
