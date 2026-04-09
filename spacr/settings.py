@@ -101,9 +101,9 @@ def set_default_settings_preprocess_generate_masks(settings={}):
     settings.setdefault('upscale', False)
     settings.setdefault('upscale_factor', 2.0)
     settings.setdefault('adjust_cells', False)
-    settings.setdefault('use_sam_cell', False)
-    settings.setdefault('use_sam_nucleus', False)
-    settings.setdefault('use_sam_pathogen', False)
+    #settings.setdefault('use_sam_cell', False)
+    #settings.setdefault('use_sam_nucleus', False)
+    #settings.setdefault('use_sam_pathogen', False)
     
     #organelle settings
     settings.setdefault('organelle_channel', None)
@@ -1313,9 +1313,9 @@ expected_types = {
 }
 
 tooltips = {
-    "cell_diameter": "(int) - Estimated diameter of cell objects in pixels for Cellpose segmentation.",
-    "nucleus_diameter": "(int) - Estimated diameter of nucleus objects in pixels for Cellpose segmentation.",
-    "pathogen_diameter": "(int) - Estimated diameter of pathogen objects in pixels for Cellpose segmentation.",
+    "cell_diameter": "(int) - (DEPRECEATED) Estimated diameter of cell objects in pixels for Cellpose segmentation.",
+    "nucleus_diameter": "(int) - (DEPRECEATED) Estimated diameter of nucleus objects in pixels for Cellpose segmentation.",
+    "pathogen_diameter": "(int) - (DEPRECEATED) Estimated diameter of pathogen objects in pixels for Cellpose segmentation.",
     "nucleus_CP_prob": "(float) - The Cellpose probability threshold for nucleus segmentation. Higher values are more stringent.",
     "pathogen_CP_prob": "(float) - The Cellpose probability threshold for pathogen segmentation. Higher values are more stringent.",
     "nucleus_FT": "(float) - The flow threshold for nucleus objects. Lower values require better flow agreement.",
@@ -1333,7 +1333,7 @@ tooltips = {
     "crop_mode": "(str) - Object type to crop around: 'cell', 'nucleus', 'pathogen', or 'cytoplasm'.",
     "custom_regex": "(str or None) - Custom regex pattern to extract metadata from image filenames. Used when metadata_type is 'custom' or 'auto'.",
     "cytoplasm": "(bool) - Whether to generate a cytoplasm mask (cell area minus nucleus and pathogen areas).",
-    "diameter": "(float) - Default diameter of objects in pixels for Cellpose segmentation. Overridden by object-specific diameters if set.",
+    "diameter": "(float) - (DEPRECEATED) Default diameter of objects in pixels for Cellpose segmentation. Overridden by object-specific diameters if set.",
     "filter": "(bool) - Whether to apply size and intensity filtering to segmented masks after Cellpose.",
     "magnification": "(int) - Objective magnification used for image acquisition. Used to estimate expected object sizes.",
     "metadata_type": "(str) - How to extract metadata from image filenames: 'auto' (try regex then built-in), 'custom' (use custom_regex), 'cellvoyager', or 'cq1'.",
@@ -1639,7 +1639,7 @@ tooltips = {
     'organelle_channel': "(int) - The channel index in the image stack for the organelle signal.",
     'organelle_morphology': "(str) - Morphology mode for segmentation: 'spots' (punctate, e.g. lipid droplets, vesicles), 'network' (filamentous, e.g. mitochondria, microtubules), or 'irregular' (e.g. Golgi, ER cisternae).",
     'organelle_method': "(str) - Segmentation backend. Valid options depend on morphology: spots → 'otsu','adaptive','log','cellpose'; network → 'otsu','adaptive','ridge','cellpose'; irregular → 'otsu','adaptive','cellpose'.",
-    'organelle_diameter': "(float) - Estimated diameter of organelles in pixels. Used by Cellpose and for morphological kernel sizing.",
+    'organelle_diameter': "(float) - (DEPRECEATED) Estimated diameter of organelles in pixels. Used by Cellpose and for morphological kernel sizing.",
     'organelle_model_name': "(str) - Name of the Cellpose model to use when method='cellpose' (e.g. 'cyto3', 'nuclei').",
     'organelle_min_size': "(int) - Minimum organelle object area in pixels². Objects smaller than this are removed.",
     'organelle_max_size': "(int or None) - Maximum organelle object area in pixels². Objects larger than this are removed. None = no upper limit.",
@@ -1660,7 +1660,7 @@ tooltips = {
     'organelle_fill_holes': "(int) - Fill internal holes smaller than this area in pixels². Set to 0 to disable hole filling.",
     'organelle_CP_prob': "(float) - Cellpose cell probability threshold for organelle segmentation. Higher values are more stringent.",
     'organelle_FT': "(float) - Cellpose flow threshold for organelle segmentation. Lower values require better flow agreement.",
-    'organelle_resample': "(bool) - Whether Cellpose resamples the image to match the specified diameter.",
+    'organelle_resample': "(bool) - (DEPRECEATED) Whether Cellpose resamples the image to match the specified diameter.",
     'organelle_mask_dim': "(int) - The dimension of the array the organelle mask is saved in (array order: channels, cell, nucleus, pathogen, organelle, cytoplasm). Array starts at dimension 0.",
     'organelle_chann_dim': "(int) - The channel dimension index for organelle masks in the saved array.",
     'organelle_rolling_ball': "(bool) - Apply rolling ball background subtraction before segmentation. Corrects uneven illumination across the FOV.",
