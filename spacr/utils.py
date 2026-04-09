@@ -159,7 +159,7 @@ def _get_boundary_coords(label_img, la, lb):
     return coords
 
 
-def _merge_by_perimeter(label_img, perimiter_fraction, parent):
+def _merge_by_perimeter(label_img, perimeter_fraction, parent):
     """Mark label pairs for merging based on shared perimeter fraction."""
     perimeters = _compute_label_perimeters(label_img)
     shared = _compute_shared_boundaries(label_img)
@@ -168,7 +168,7 @@ def _merge_by_perimeter(label_img, perimiter_fraction, parent):
         perim_a = perimeters.get(la, 1)
         perim_b = perimeters.get(lb, 1)
         smaller_perim = min(perim_a, perim_b)
-        if shared_px / smaller_perim >= perimiter_fraction:
+        if shared_px / smaller_perim >= perimeter_fraction:
             _union_find_merge(parent, la, lb)
 
 
@@ -304,7 +304,7 @@ def _apply_union_find(label_img, parent):
     
 def _process_single_fov(mask_path, intensity_path, intensity_channel,
                         do_split, do_perimeter_merge, do_intensity_merge,
-                        perimiter_fraction, area_multiplier, min_distance,
+                        perimeter_fraction, area_multiplier, min_distance,
                         min_object_area, intensity_threshold_method,
                         intensity_percentile, min_area, max_area,
                         remove_border_objects, min_intensity, max_intensity):
@@ -341,7 +341,7 @@ def _process_single_fov(mask_path, intensity_path, intensity_channel,
         parent = {int(l): int(l) for l in all_labels}
 
         if do_perimeter_merge:
-            _merge_by_perimeter(label_img, perimiter_fraction, parent)
+            _merge_by_perimeter(label_img, perimeter_fraction, parent)
 
         if do_intensity_merge and intensity_img is not None:
             _merge_by_intensity(label_img, intensity_img, parent,
@@ -439,7 +439,7 @@ def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
     return _relabel_sequential(label_img)
 
 def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None,
-                        perimiter_fraction=0.5, intensity_merge=False, intensity_split=False,
+                        perimeter_fraction=0.5, intensity_merge=False, intensity_split=False,
                         area_multiplier=2.0, min_distance=10, min_object_area=100,
                         intensity_threshold_method='mean', intensity_percentile=75,
                         min_area=0, max_area=0, remove_border_objects=False,
@@ -457,7 +457,7 @@ def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None
         mask_src. Images can be multi-channel (C, Y, X).
     intensity_channel : int or None
         Channel index to use from intensity images.
-    perimiter_fraction : float
+    perimeter_fraction : float
         Minimum shared-boundary / smaller-object-perimeter ratio to merge.
         Set to 0 to disable perimeter-based merging.
     intensity_merge : bool
@@ -495,7 +495,7 @@ def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None
     if not mask_files:
         return
 
-    do_perimeter_merge = perimiter_fraction > 0
+    do_perimeter_merge = perimeter_fraction > 0
     do_intensity_merge = intensity_merge and intensity_img_src is not None
     do_split = intensity_split
 
@@ -509,7 +509,7 @@ def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None
         delayed(_process_single_fov)(
             mp, ip, intensity_channel,
             do_split, do_perimeter_merge, do_intensity_merge,
-            perimiter_fraction, area_multiplier, min_distance,
+            perimeter_fraction, area_multiplier, min_distance,
             min_object_area, intensity_threshold_method,
             intensity_percentile, min_area, max_area,
             remove_border_objects, min_intensity, max_intensity,
