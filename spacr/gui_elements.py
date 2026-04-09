@@ -183,53 +183,6 @@ def create_menu_bar(root):
     app_menu.add_command(label="Exit", command=root.quit)
     root.config(menu=menu_bar)
 
-def create_menu_bar_v1(root):
-    from .gui import initiate_root
-    gui_apps = {
-        "Mask": lambda: initiate_root(root, settings_type='mask'),
-        "Measure": lambda: initiate_root(root, settings_type='measure'),
-        "Annotate": lambda: initiate_root(root, settings_type='annotate'),
-        "Make Masks": lambda: initiate_root(root, settings_type='make_masks'),
-        "Classify": lambda: initiate_root(root, settings_type='classify'),
-        "Umap": lambda: initiate_root(root, settings_type='umap'),
-        "Train Cellpose": lambda: initiate_root(root, settings_type='train_cellpose'),
-        "ML Analyze": lambda: initiate_root(root, settings_type='ml_analyze'),
-        "Cellpose Masks": lambda: initiate_root(root, settings_type='cellpose_masks'),
-        "Cellpose All": lambda: initiate_root(root, settings_type='cellpose_all'),
-        "Map Barcodes": lambda: initiate_root(root, settings_type='map_barcodes'),
-        "Regression": lambda: initiate_root(root, settings_type='regression'),
-        "Activation": lambda: initiate_root(root, settings_type='activation'),
-        "Recruitment (graphs broken)": lambda: initiate_root(root, settings_type='recruitment')
-    }
-
-    # Create the menu bar
-    #menu_bar = tk.Menu(root, bg="#008080", fg="white")
-    # Create a "SpaCr Applications" menu
-    #app_menu = tk.Menu(menu_bar, tearoff=0, bg="#008080", fg="white")
-    
-    menu_bar = tk.Menu(root, bg="#007ACC", fg="white", activebackground="#C2185B", activeforeground="white")
-    app_menu = tk.Menu(menu_bar, tearoff=0, bg="#007ACC", fg="white", activebackground="#C2185B", activeforeground="white")
-    
-    
-    menu_bar.add_cascade(label="SpaCr Applications", menu=app_menu)
-
-    # Add options to the "SpaCr Applications" menu
-    for app_name, app_func in gui_apps.items():
-        app_menu.add_command(
-            label=app_name,
-            command=app_func
-        )
-
-    # Add a separator and an exit option
-    app_menu.add_separator()
-    #app_menu.add_command(label="Home",command=lambda: restart_gui_app(root))
-    app_menu.add_command(label="Help", command=lambda: webbrowser.open("https://einarolafsson.github.io/spacr/index.html"))
-    app_menu.add_command(label="Exit", command=root.quit)
-
-    # Configure the menu for the root window
-    root.config(menu=menu_bar)
-
-
 def set_element_size():
     global _cached_element_size
     if _cached_element_size is not None:
@@ -253,27 +206,6 @@ def set_element_size():
         'panel_height': panel_height
     }
     _cached_element_size = size_dict
-    return size_dict
-
-def set_element_size_v1():
-
-    screen_width, screen_height = pyautogui.size()
-    screen_area = screen_width * screen_height
-    
-    # Calculate sizes based on screen dimensions
-    btn_size = int((screen_area * 0.002) ** 0.5)  # Button size as a fraction of screen area
-    bar_size = screen_height // 20  # Bar size based on screen height
-    settings_width = screen_width // 4  # Settings panel width as a fraction of screen width
-    panel_width = screen_width - settings_width  # Panel width as a fraction of screen width
-    panel_height = screen_height // 6  # Panel height as a fraction of screen height
-    
-    size_dict = {
-        'btn_size': btn_size,
-        'bar_size': bar_size,
-        'settings_width': settings_width,
-        'panel_width': panel_width,
-        'panel_height': panel_height
-    }
     return size_dict
 
 _cached_dark_style = None
@@ -369,83 +301,6 @@ def set_dark_style(style, parent_frame=None, containers=None, widgets=None,
         _cached_dark_style = result
     
     return result
-
-
-    
-def set_dark_style_v1(style, parent_frame=None, containers=None, widgets=None, font_family="OpenSans", font_size=12, bg_color='black', fg_color='white', active_color='blue', inactive_color='dark_gray'):
-
-    if active_color == 'teal':
-        active_color = '#008080'
-    if inactive_color == 'dark_gray':
-        inactive_color = '#2B2B2B' # '#333333' #'#050505'
-    if bg_color == 'black':
-        bg_color = '#000000'
-    if fg_color == 'white':
-        fg_color = '#ffffff'
-    if active_color == 'blue':
-        active_color = '#007BFF'
-
-    padding = '5 5 5 5'
-    font_style = tkFont.Font(family=font_family, size=font_size)
-
-    if font_family == 'OpenSans':
-        font_loader = spacrFont(font_name='OpenSans', font_style='Regular', font_size=12)
-    else:
-        font_loader = None
-        
-    style.theme_use('clam')
-    
-    style.configure('TEntry', padding=padding)
-    style.configure('TCombobox', padding=padding)
-    style.configure('Spacr.TEntry', padding=padding)
-    style.configure('TEntry', padding=padding)
-    style.configure('Spacr.TEntry', padding=padding)
-    style.configure('Custom.TLabel', padding=padding)
-    style.configure('TButton', padding=padding)
-    style.configure('TFrame', background=bg_color)
-    style.configure('TPanedwindow', background=bg_color)
-    if font_loader:
-        style.configure('TLabel', background=bg_color, foreground=fg_color, font=font_loader.get_font(size=font_size))
-    else:
-        style.configure('TLabel', background=bg_color, foreground=fg_color, font=(font_family, font_size))
-
-    if parent_frame:
-        parent_frame.configure(bg=bg_color)
-        parent_frame.grid_rowconfigure(0, weight=1)
-        parent_frame.grid_columnconfigure(0, weight=1)
-
-    if containers:
-        for container in containers:
-            if isinstance(container, ttk.Frame):
-                container_style = ttk.Style()
-                container_style.configure(f'{container.winfo_class()}.TFrame', background=bg_color)
-                container.configure(style=f'{container.winfo_class()}.TFrame')
-            else:
-                container.configure(bg=bg_color)
-
-    if widgets:
-        for widget in widgets:
-            if isinstance(widget, (tk.Label, tk.Button, tk.Frame, ttk.LabelFrame, tk.Canvas)):
-                widget.configure(bg=bg_color)
-            if isinstance(widget, (tk.Label, tk.Button)):
-                if font_loader:
-                    widget.configure(fg=fg_color, font=font_loader.get_font(size=font_size))
-                else:
-                    widget.configure(fg=fg_color, font=(font_family, font_size))
-            if isinstance(widget, scrolledtext.ScrolledText):
-                widget.configure(bg=bg_color, fg=fg_color, insertbackground=fg_color)
-            if isinstance(widget, tk.OptionMenu):
-                if font_loader:
-                    widget.configure(bg=bg_color, fg=fg_color, font=font_loader.get_font(size=font_size))
-                else:
-                    widget.configure(bg=bg_color, fg=fg_color, font=(font_family, font_size))
-                menu = widget['menu']
-                if font_loader:
-                    menu.configure(bg=bg_color, fg=fg_color, font=font_loader.get_font(size=font_size))
-                else:
-                    menu.configure(bg=bg_color, fg=fg_color, font=(font_family, font_size))
-
-    return {'font_loader':font_loader, 'font_family': font_family, 'font_size': font_size, 'bg_color': bg_color, 'fg_color': fg_color, 'active_color': active_color, 'inactive_color': inactive_color}
 
 _font_cache = {}
 
@@ -757,65 +612,6 @@ class spacrEntry(tk.Frame):
         self.draw_rounded_rectangle(self.bg_color)
         self.entry.config(bg=self.bg_color)
 
-class spacrEntry_v1(tk.Frame):
-    def __init__(self, parent, textvariable=None, outline=False, width=None, *args, **kwargs):
-        super().__init__(parent, *args, **kwargs)
-        
-        # Set dark style
-        style_out = set_dark_style(ttk.Style())
-        self.bg_color = style_out['inactive_color']
-        self.active_color = style_out['active_color']
-        self.fg_color = style_out['fg_color']
-        self.outline = outline
-        self.font_family = style_out['font_family']
-        self.font_size = style_out['font_size']
-        self.font_loader = style_out['font_loader']
-        
-        # Set the background color of the frame
-        self.configure(bg=style_out['bg_color'])
-
-        # Create a canvas for the rounded rectangle background
-        if width is None:
-            self.canvas_width = 220  # Adjusted for padding
-        else:
-            self.canvas_width = width
-        self.canvas_height = 40   # Adjusted for padding
-        self.canvas = tk.Canvas(self, width=self.canvas_width, height=self.canvas_height, bd=0, highlightthickness=0, relief='ridge', bg=style_out['bg_color'])
-        self.canvas.pack()
-        
-        # Create the entry widget
-        if self.font_loader:
-            self.entry = tk.Entry(self, textvariable=textvariable, bd=0, highlightthickness=0, fg=self.fg_color, font=self.font_loader.get_font(size=self.font_size), bg=self.bg_color)
-        else:
-            self.entry = tk.Entry(self, textvariable=textvariable, bd=0, highlightthickness=0, fg=self.fg_color, font=(self.font_family, self.font_size), bg=self.bg_color)
-        self.entry.place(relx=0.5, rely=0.5, anchor=tk.CENTER, width=self.canvas_width - 30, height=20)  # Centered positioning
-        
-        # Bind events to change the background color on focus
-        self.entry.bind("<FocusIn>", self.on_focus_in)
-        self.entry.bind("<FocusOut>", self.on_focus_out)
-        
-        self.draw_rounded_rectangle(self.bg_color)
-
-    def draw_rounded_rectangle(self, color):
-        radius = 15  # Increased radius for more rounded corners
-        x0, y0 = 10, 5
-        x1, y1 = self.canvas_width - 10, self.canvas_height - 5
-        self.canvas.delete("all")
-        self.canvas.create_arc((x0, y0, x0 + radius, y0 + radius), start=90, extent=90, fill=color, outline=color)
-        self.canvas.create_arc((x1 - radius, y0, x1, y0 + radius), start=0, extent=90, fill=color, outline=color)
-        self.canvas.create_arc((x0, y1 - radius, x0 + radius, y1), start=180, extent=90, fill=color, outline=color)
-        self.canvas.create_arc((x1 - radius, y1 - radius, x1, y1), start=270, extent=90, fill=color, outline=color)
-        self.canvas.create_rectangle((x0 + radius / 2, y0, x1 - radius / 2, y1), fill=color, outline=color)
-        self.canvas.create_rectangle((x0, y0 + radius / 2, x1, y1 - radius / 2), fill=color, outline=color)
-    
-    def on_focus_in(self, event):
-        self.draw_rounded_rectangle(self.active_color)
-        self.entry.config(bg=self.active_color)
-    
-    def on_focus_out(self, event):
-        self.draw_rounded_rectangle(self.bg_color)
-        self.entry.config(bg=self.bg_color)
-
 class spacrCheck(tk.Frame):
     def __init__(self, parent, text="", variable=None, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
@@ -953,106 +749,6 @@ class spacrCombo(tk.Frame):
 
     def close_dropdown(self):
         self.draw_rounded_rectangle(self.inactive_color)
-        if self.dropdown_menu:
-            self.dropdown_menu.destroy()
-            self.dropdown_menu = None
-
-    def on_select(self, value):
-        display_text = value if value is not None else 'None'
-        self.var.set(value)
-        self.label.config(text=display_text)
-        self.selected_value = value
-        self.close_dropdown()
-
-    def set(self, value):
-        display_text = value if value is not None else 'None'
-        self.var.set(value)
-        self.label.config(text=display_text)
-        self.selected_value = value
-        
-class spacrCombo_v1(tk.Frame):
-    def __init__(self, parent, textvariable=None, values=None, width=None, *args, **kwargs):
-        super().__init__(parent, *args, **kwargs)
-        self.configure(bg=set_dark_style(ttk.Style())['bg_color'])  # add this line
-        
-        # Set dark style
-        style_out = set_dark_style(ttk.Style())
-        self.bg_color = style_out['bg_color']
-        self.active_color = style_out['active_color']
-        self.fg_color = style_out['fg_color']
-        self.inactive_color = style_out['inactive_color']
-        self.font_family = style_out['font_family']
-        self.font_size = style_out['font_size']
-        self.font_loader = style_out['font_loader']
-
-        self.values = values or []
-
-        # Create a canvas for the rounded rectangle background
-        self.canvas_width = width if width is not None else 220  # Adjusted for padding
-        self.canvas_height = 40   # Adjusted for padding
-        self.canvas = tk.Canvas(self, width=self.canvas_width, height=self.canvas_height, bd=0, highlightthickness=0, relief='ridge', bg=self.bg_color)
-        self.canvas.pack()
-        
-        self.var = textvariable if textvariable else tk.StringVar()
-        self.selected_value = self.var.get()
-        
-        # Create the label to display the selected value
-        if self.font_loader:
-            self.label = tk.Label(self, text=self.selected_value, bg=self.inactive_color, fg=self.fg_color, font=self.font_loader.get_font(size=self.font_size))
-        else:
-            self.label = tk.Label(self, text=self.selected_value, bg=self.inactive_color, fg=self.fg_color, font=(self.font_family, self.font_size))
-        self.label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
-        
-        # Bind events to open the dropdown menu
-        self.canvas.bind("<Button-1>", self.on_click)
-        self.label.bind("<Button-1>", self.on_click)
-        
-        self.draw_rounded_rectangle(self.inactive_color)
-
-        self.dropdown_menu = None
-
-    def draw_rounded_rectangle(self, color):
-        radius = 15  # Increased radius for more rounded corners
-        x0, y0 = 10, 5
-        x1, y1 = self.canvas_width - 10, self.canvas_height - 5
-        self.canvas.delete("all")
-        self.canvas.create_arc((x0, y0, x0 + radius, y0 + radius), start=90, extent=90, fill=color, outline=color)
-        self.canvas.create_arc((x1 - radius, y0, x1, y0 + radius), start=0, extent=90, fill=color, outline=color)
-        self.canvas.create_arc((x0, y1 - radius, x0 + radius, y1), start=180, extent=90, fill=color, outline=color)
-        self.canvas.create_arc((x1 - radius, y1 - radius, x1, y1), start=270, extent=90, fill=color, outline=color)
-        self.canvas.create_rectangle((x0 + radius / 2, y0, x1 - radius / 2, y1), fill=color, outline=color)
-        self.canvas.create_rectangle((x0, y0 + radius / 2, x1, y1 - radius / 2), fill=color, outline=color)
-        self.label.config(bg=color)  # Update label background to match rectangle color
-
-    def on_click(self, event):
-        if self.dropdown_menu is None:
-            self.open_dropdown()
-        else:
-            self.close_dropdown()
-
-    def open_dropdown(self):
-        self.draw_rounded_rectangle(self.active_color)
-        
-        self.dropdown_menu = tk.Toplevel(self)
-        self.dropdown_menu.wm_overrideredirect(True)
-        
-        x, y, width, height = self.winfo_rootx(), self.winfo_rooty(), self.winfo_width(), self.winfo_height()
-        self.dropdown_menu.geometry(f"{width}x{len(self.values) * 30}+{x}+{y + height}")
-        
-        for index, value in enumerate(self.values):
-            display_text = value if value is not None else 'None'
-            if self.font_loader:
-                item = tk.Label(self.dropdown_menu, text=display_text, bg=self.inactive_color, fg=self.fg_color, font=self.font_loader.get_font(size=self.font_size), anchor='w')
-            else:
-                item = tk.Label(self.dropdown_menu, text=display_text, bg=self.inactive_color, fg=self.fg_color, font=(self.font_family, self.font_size), anchor='w')
-            item.pack(fill='both')
-            item.bind("<Button-1>", lambda e, v=value: self.on_select(v))
-            item.bind("<Enter>", lambda e, w=item: w.config(bg=self.active_color))
-            item.bind("<Leave>", lambda e, w=item: w.config(bg=self.inactive_color))
-
-    def close_dropdown(self):
-        self.draw_rounded_rectangle(self.inactive_color)
-        
         if self.dropdown_menu:
             self.dropdown_menu.destroy()
             self.dropdown_menu = None
@@ -3157,35 +2853,6 @@ class AnnotateApp:
 
             self.status_label.config(text=msg)
             self.root.after(125, self._poll_save_status)
-
-            
-    def _poll_save_status_v1(self):
-        """
-        Main-thread UI poller: reads thread-safe flags and queue length
-        to show a 'Saving…' spinner and counts. Never called from worker.
-        """
-        try:
-            qlen = self.update_queue.qsize()
-        except NotImplementedError:
-            qlen = 0  # some platforms don't implement qsize reliably
-
-        saving = self.worker_busy or qlen > 0 or bool(self.pending_updates)
-
-        if saving:
-            self._spinner_idx = (self._spinner_idx + 1) % len(self._spinner_frames)
-            spin = self._spinner_frames[self._spinner_idx]
-            msg = f"{spin} Saving…  queue={qlen}"
-        else:
-            if self._last_save_ts:
-                msg = f"✓ All changes saved"
-            else:
-                msg = ""  # nothing saved yet, keep bar clean
-
-        # Update the status label in the main thread
-        self.status_label.config(text=msg)
-
-        # poll ~8 times per second
-        self.root.after(125, self._poll_save_status)
             
     def open_settings_window(self):
         from .gui_utils import generate_annotate_fields, convert_to_number
@@ -3512,138 +3179,6 @@ class AnnotateApp:
             max_index = len(self.filtered_paths_annotations) - 1
             self.index = min(current_index, max(0, max(len(self.filtered_paths_annotations) - self.grid_rows * self.grid_cols, 0)))
             self.load_images()
-        
-    def update_settings_v1(self, **kwargs):
-        import threading
-
-        allowed_attributes = {
-            'image_type', 'channels', 'image_size', 'annotation_column', 'src', 'db_path',
-            'percentiles', 'measurement', 'threshold', 'normalize_channels',
-            'outline', 'outline_threshold_factor', 'outline_sigma',
-            'edge_thickness', 'edge_transparency', 'edge_image', 'object_size'
-        }
-
-        old_db  = getattr(self, 'db_path', None)
-        old_src = getattr(self, 'src', None)
-
-        updated = False
-
-        for attr, value in kwargs.items():
-            if attr in allowed_attributes and value is not None:
-
-                if attr == 'normalize_channels':
-                    if isinstance(value, (list, tuple)):
-                        value = [str(s).strip().lower() for s in value if s is not None and str(s).strip()]
-                        value = [s for s in value if s in {'r','g','b'}]
-                        value = value or None
-                    elif isinstance(value, str):
-                        parts = [s.strip().lower() for s in value.split(',') if s.strip()]
-                        parts = [s for s in parts if s in {'r','g','b'}]
-                        value = parts or None
-                    else:
-                        value = None
-
-                elif attr == 'outline':
-                    if isinstance(value, (list, tuple)):
-                        value = [str(s).strip().lower() for s in value if s is not None and str(s).strip()]
-                    elif isinstance(value, str):
-                        value = [s.strip().lower() for s in value.split(',') if s.strip()]
-                    else:
-                        value = []
-                    value = [s for s in value if s in {'r','g','b'}]
-                    value = value or None
-
-                elif attr == 'outline_threshold_factor':
-                    value = float(value)
-                elif attr == 'outline_sigma':
-                    value = float(value)
-
-                # **CHANGED: keep fractional thickness**
-                elif attr == 'edge_thickness':
-                    value = float(value)
-
-                elif attr == 'edge_transparency':
-                    try:
-                        value = float(value)
-                    except Exception:
-                        value = 0.0
-                    value = max(0.0, min(100.0, value))
-                elif attr == 'edge_image':
-                    value = bool(value)
-                    
-                elif attr == 'object_size':
-                    # normalize to a 2-tuple of non-negative ints; (0,0) means no bounds
-                    v = value
-                    if v in (None, '', []):
-                        v = (0, 0)
-                    elif isinstance(v, str):
-                        # reuse the same parsing logic as above, inline:
-                        s = v.replace(';', ',')
-                        parts = [p.strip() for p in s.split(',') if p.strip() != '']
-                        a = []
-                        for p in parts[:2]:
-                            try:
-                                a.append(max(0, int(float(p))))
-                            except Exception:
-                                a.append(0)
-                        while len(a) < 2:
-                            a.append(0)
-                        mn, mx = a
-                    elif isinstance(v, (list, tuple)):
-                        mn = max(0, int(v[0])) if len(v) > 0 else 0
-                        mx = max(0, int(v[1])) if len(v) > 1 else 0
-                    else:
-                        mn, mx = (0, 0)
-                    if mn and mx and mn > mx:
-                        mn, mx = mx, mn
-                    value = (mn, mx)
-
-                setattr(self, attr, value)
-                updated = True
-
-        if ('annotation_column' in kwargs and kwargs['annotation_column']) or ('db_path' in kwargs and kwargs['db_path']):
-            self._ensure_annotation_column()
-
-        if 'image_size' in kwargs:
-            if isinstance(self.image_size, list):
-                self.image_size = (int(self.image_size[0]), int(self.image_size[0]))
-            elif isinstance(self.image_size, int):
-                self.image_size = (self.image_size, self.image_size)
-            elif isinstance(self.image_size, tuple) and len(self.image_size) == 2:
-                self.image_size = tuple(map(int, self.image_size))
-            else:
-                raise ValueError("Invalid image size")
-
-            self.calculate_grid_dimensions()
-            self.recreate_image_grid()
-
-        if self.src != old_src:
-            self.adjusted_to_original_paths.clear()
-            self.index = 0
-
-        if self.db_path != old_db:
-            if self.pending_updates:
-                self.update_queue.put(self.pending_updates.copy())
-                self.pending_updates.clear()
-            self.update_queue.put(self.SENTINEL)
-            self.update_queue.join()
-            try:
-                if getattr(self, 'db_update_thread', None):
-                    self.db_update_thread.join()
-            except Exception:
-                pass
-            self.terminate = False
-            self.worker_busy = False
-            self._last_save_ts = None
-            self.db_update_thread = threading.Thread(target=self.update_database_worker, daemon=True)
-            self.db_update_thread.start()
-
-        if updated:
-            current_index = self.index
-            self.prefilter_paths_annotations()
-            max_index = len(self.filtered_paths_annotations) - 1
-            self.index = min(current_index, max(0, max(len(self.filtered_paths_annotations) - self.grid_rows * self.grid_cols, 0)))
-            self.load_images()
 
     def recreate_image_grid(self):
         # Remove current labels
@@ -3804,114 +3339,6 @@ class AnnotateApp:
                         (page_size, self.index)
                     )
                 self.filtered_paths_annotations = c.fetchall()
-
-    def prefilter_paths_annotations_v1(self):
-        from .io import _read_and_join_tables, _read_db
-        from .utils import is_list_of_lists
-        
-        self._ensure_annotation_column()
-
-        if self.measurement and self.threshold is not None:
-            df = _read_and_join_tables(self.db_path)
-            png_list_df = _read_db(self.db_path, tables=['png_list'])[0]
-            png_list_df = png_list_df.set_index('prcfo')
-            df = df.merge(png_list_df, left_index=True, right_index=True)
-            df[self.annotation_column] = None
-            before = len(df)
-
-            if isinstance(self.threshold, int):
-                if isinstance(self.measurement, list):
-                    mes = self.measurement[0]
-                if isinstance(self.measurement, str):
-                    mes = self.measurement
-                df = df[df[f'{mes}'] == self.threshold]
-
-            if is_list_of_lists(self.measurement):
-                if isinstance(self.threshold, list) or is_list_of_lists(self.threshold):
-                    if len(self.measurement) == len(self.threshold):
-                        for idx, var in enumerate(self.measurement):
-                            df = df[df[var[idx]] > self.threshold[idx]]
-                        after = len(df)
-                    elif len(self.measurement) == len(self.threshold) * 2:
-                        th_idx = 0
-                        for idx, var in enumerate(self.measurement):
-                            if idx % 2 != 0:
-                                th_idx += 1
-                                thd = self.threshold
-                                if isinstance(thd, list):
-                                    thd = thd[0]
-                                df[f'threshold_measurement_{idx}'] = df[self.measurement[idx]] / df[self.measurement[idx + 1]]
-                                print(f"mean threshold_measurement_{idx}: {np.mean(df['threshold_measurement'])}")
-                                print(f"median threshold measurement: {np.median(df[self.measurement])}")
-                                df = df[df[f'threshold_measurement_{idx}'] > thd]
-                        after = len(df)
-
-            elif isinstance(self.measurement, list):
-                df['threshold_measurement'] = df[self.measurement[0]] / df[self.measurement[1]]
-                print(f"mean threshold measurement: {np.mean(df['threshold_measurement'])}")
-                print(f"median threshold measurement: {np.median(df[self.measurement])}")
-                df = df[df['threshold_measurement'] > self.threshold]
-                after = len(df)
-                self.measurement = 'threshold_measurement'
-                print(f'Removed: {before-after} rows, retained {after}')
-
-            else:
-                print(f"mean threshold measurement: {np.mean(df[self.measurement])}")
-                print(f"median threshold measurement: {np.median(df[self.measurement])}")
-                before = len(df)
-                if isinstance(self.threshold, str):
-                    if self.threshold == 'q1':
-                        self.threshold = df[self.measurement].quantile(0.1)
-                    if self.threshold == 'q2':
-                        self.threshold = df[self.measurement].quantile(0.2)
-                    if self.threshold == 'q3':
-                        self.threshold = df[self.measurement].quantile(0.3)
-                    if self.threshold == 'q4':
-                        self.threshold = df[self.measurement].quantile(0.4)
-                    if self.threshold == 'q5':
-                        self.threshold = df[self.measurement].quantile(0.5)
-                    if self.threshold == 'q6':
-                        self.threshold = df[self.measurement].quantile(0.6)
-                    if self.threshold == 'q7':
-                        self.threshold = df[self.measurement].quantile(0.7)
-                    if self.threshold == 'q8':
-                        self.threshold = df[self.measurement].quantile(0.8)
-                    if self.threshold == 'q9':
-                        self.threshold = df[self.measurement].quantile(0.9)
-                print(f"threshold: {self.threshold}")
-
-                df = df[df[self.measurement] > self.threshold]
-                after = len(df)
-                print(f'Removed: {before-after} rows, retained {after}')
-
-            df = df.dropna(subset=['png_path'])
-            if self.image_type:
-                before = len(df)
-                if isinstance(self.image_type, list):
-                    for tpe in self.image_type:
-                        print(f"Looking for {tpe}")
-                        df = df[df['png_path'].str.contains(tpe)]
-                        print(f"Found {len(df)} entries for {tpe}")
-                else:
-                    df = df[df['png_path'].str.contains(self.image_type)]
-                after = len(df)
-                print(f'image_type: Removed: {before-after} rows, retained {after}')
-
-            self.filtered_paths_annotations = df[['png_path', self.annotation_column]].values.tolist()
-
-        else:
-            # simple SELECT branch -> use context manager
-            col = (self.annotation_column or "").replace('"', '""')
-            with sqlite3.connect(self.db_path, timeout=30) as conn:
-                c = conn.cursor()
-                if self.image_type:
-                    c.execute(
-                        f'SELECT png_path, "{col}" FROM "png_list" WHERE png_path LIKE ?',
-                        (f"%{self.image_type}%",)
-                    )
-                else:
-                    c.execute(f'SELECT png_path, "{col}" FROM "png_list"')
-                self.filtered_paths_annotations = c.fetchall()
         
     def load_images(self):
         for label in self.labels:
@@ -3944,48 +3371,6 @@ class AnnotateApp:
             loaded_images = list(executor.map(self.load_single_image, adjusted_paths))
 
         for i, (img, annotation) in enumerate(loaded_images):
-            border_color = self._label_to_color(annotation)
-            if border_color:
-                img = self.add_colored_border(img, border_width=5, border_color=border_color)
-
-            from PIL import ImageTk
-            photo = ImageTk.PhotoImage(img)
-            label = self.labels[i]
-            self.images[label] = photo
-            label.config(image=photo)
-
-            path = adjusted_paths[i][0]
-            label.bind('<Button-1>', self.get_on_image_click(path, label, img))
-            label.bind('<Button-3>', self.get_on_image_click(path, label, img))
-
-        self.root.update()
-        
-    def load_images_v1(self):
-        for label in self.labels:
-            label.config(image='')
-
-        self.images = {}
-        paths_annotations = self.filtered_paths_annotations[self.index:self.index + self.grid_rows * self.grid_cols]
-
-        adjusted_paths = []
-        for path, annotation in paths_annotations:
-            if not path.startswith(self.src):
-                parts = path.split('/data/')
-                if len(parts) > 1:
-                    new_path = os.path.join(self.src, 'data', parts[1])
-                    self.adjusted_to_original_paths[new_path] = path
-                    adjusted_paths.append((new_path, annotation))
-                else:
-                    adjusted_paths.append((path, annotation))
-            else:
-                adjusted_paths.append((path, annotation))
-
-        from concurrent.futures import ThreadPoolExecutor
-        with ThreadPoolExecutor() as executor:
-            loaded_images = list(executor.map(self.load_single_image, adjusted_paths))
-
-        for i, (img, annotation) in enumerate(loaded_images):
-            # NEW: infinite palette
             border_color = self._label_to_color(annotation)
             if border_color:
                 img = self.add_colored_border(img, border_width=5, border_color=border_color)
@@ -4399,65 +3784,6 @@ class AnnotateApp:
         self.prefilter_paths_annotations()
         self.load_images()
         
-    def update_database_worker_v1(self):
-        import sqlite3, queue, time
-
-        # generous busy-timeout so short locks don't blow up under load
-        conn = sqlite3.connect(self.db_path, timeout=30)
-        cur = conn.cursor()
-        try:
-            try:
-                cur.execute("PRAGMA journal_mode=WAL;")
-                cur.execute("PRAGMA synchronous=NORMAL;")
-                conn.commit()
-            except Exception:
-                pass
-
-            while True:
-                try:
-                    item = self.update_queue.get(timeout=0.1)
-                except queue.Empty:
-                    # allow graceful exit after shutdown signal
-                    if self.terminate:
-                        break
-                    continue
-
-                # --- graceful shutdown path ---
-                if item is self.SENTINEL:
-                    # mark the SENTINEL as done so update_queue.join() can finish
-                    self.update_queue.task_done()
-                    break
-
-                # --- normal batch update ---
-                pending_updates = item  # dict: {png_path: annotation or None}
-                if not pending_updates:
-                    self.update_queue.task_done()
-                    continue
-
-                self.worker_busy = True
-                col = (self.annotation_column or "").replace('"', '""')
-                to_null = [p for p, v in pending_updates.items() if v is None]
-                to_set  = [(int(v), p) for p, v in pending_updates.items() if v is not None]
-
-                try:
-                    if to_null:
-                        cur.executemany(...)
-                    if to_set:
-                        cur.executemany(...)
-                    conn.commit()
-                finally:
-                    with self._batch_lock:
-                        self._unsaved_batches -= 1
-                    self.worker_busy = False
-                    self._last_save_ts = time.time()
-                    self.update_queue.task_done()
-        finally:
-            try:
-                cur.close()
-            except Exception:
-                pass
-            conn.close()
-        
     def update_database_worker(self):
         import sqlite3, queue, time
 
@@ -4534,36 +3860,6 @@ class AnnotateApp:
                 pass
             conn.close()
 
-    def shutdown_v1(self):
-        # push any pending UI updates first
-        if self.pending_updates:
-            self.update_queue.put(self.pending_updates.copy())
-            self.pending_updates.clear()
-
-        # signal termination and sentinel
-        self.terminate = True
-        self.update_queue.put(self.SENTINEL)
-
-        # wait for ALL tasks (including the sentinel) to be marked done
-        self.update_queue.join()
-
-        # now the worker has exited; join without timeout
-        try:
-            self.db_update_thread.join()
-        except Exception:
-            pass
-
-        # close UI
-        try:
-            self.root.quit()
-        finally:
-            try:
-                self.root.destroy()
-            except Exception:
-                pass
-
-        print("Quit application")
-    
     def shutdown(self):
         from tkinter import messagebox
 
@@ -4642,16 +3938,6 @@ class AnnotateApp:
 
         self.load_images()
         
-    def next_page_v1(self):
-        if self.pending_updates:
-            # show saving right away until worker picks it up
-            self.worker_busy = True
-            self.update_queue.put(self.pending_updates.copy())
-        self.pending_updates.clear()
-        self.index += self.grid_rows * self.grid_cols
-        self.prefilter_paths_annotations()
-        self.load_images()
-        
     def previous_page(self):
         if self.pending_updates:
             with self._batch_lock:
@@ -4680,15 +3966,6 @@ class AnnotateApp:
                     )
                 self.filtered_paths_annotations = c.fetchall()
 
-        self.load_images()
-        
-    def previous_page_v1(self):
-        if self.pending_updates:
-            self.worker_busy = True
-            self.update_queue.put(self.pending_updates.copy())
-        self.pending_updates.clear()
-        self.index = max(0, self.index - self.grid_rows * self.grid_cols)
-        self.prefilter_paths_annotations()
         self.load_images()
 
     def update_gui_text(self, text):
