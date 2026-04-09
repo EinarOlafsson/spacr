@@ -1777,18 +1777,18 @@ def _masks_to_masks_stack(masks):
 def _get_diam(mag, obj):
 
     if obj == 'cell':
-        diamiter = 2 * mag + 80
+        diameter = 2 * mag + 80
         
     if obj == 'cell_large':
-        diamiter = 2 * mag + 120
+        diameter = 2 * mag + 120
                                 
     if obj == 'nucleus':
-        diamiter = 0.75 * mag + 45
+        diameter = 0.75 * mag + 45
                                 
     if obj == 'pathogen':
-        diamiter = mag
+        diameter = mag
                                 
-    return int(diamiter)
+    return int(diameter)
 
 def _get_object_settings(object_type, settings):
     object_settings = {}
