@@ -196,10 +196,10 @@ def set_default_settings_preprocess_generate_masks(settings={}):
     settings.setdefault('nucleus_intensity_percentile', 75)
     settings.setdefault('pathogen_intensity_percentile', 75)
     settings.setdefault('organelle_intensity_percentile', 75)
-    settings.setdefault('postprocess_cell_masks', False)
-    settings.setdefault('postprocess_nucleus_masks', False)
-    settings.setdefault('postprocess_pathogen_masks', False)
-    settings.setdefault('postprocess_organelle_masks', False)
+    #settings.setdefault('postprocess_cell_masks', False)
+    #settings.setdefault('postprocess_nucleus_masks', False)
+    #settings.setdefault('postprocess_pathogen_masks', False)
+    #settings.setdefault('postprocess_organelle_masks', False)
     settings.setdefault('cell_min_area', 0)
     settings.setdefault('nucleus_min_area', 0)
     settings.setdefault('pathogen_min_area', 0)
@@ -212,15 +212,16 @@ def set_default_settings_preprocess_generate_masks(settings={}):
     settings.setdefault('nucleus_remove_border_objects', False)
     settings.setdefault('pathogen_remove_border_objects', False)
     settings.setdefault('organelle_remove_border_objects', False)
-    settings.setdefault('cell_min_intensity', 0)
-    settings.setdefault('nucleus_min_intensity', 0)
-    settings.setdefault('pathogen_min_intensity', 0)
-    settings.setdefault('organelle_min_intensity', 0)
-    settings.setdefault('cell_max_intensity', 0)
-    settings.setdefault('nucleus_max_intensity', 0)
-    settings.setdefault('pathogen_max_intensity', 0)
-    settings.setdefault('organelle_max_intensity', 0)
+    settings.setdefault('cell_min_intensity_percentile', 0)
+    settings.setdefault('nucleus_min_intensity_percentile', 0)
+    settings.setdefault('pathogen_min_intensity_percentile', 0)
+    settings.setdefault('organelle_min_intensity_percentile', 0)
+    settings.setdefault('cell_max_intensity_percentile', 100)
+    settings.setdefault('nucleus_max_intensity_percentile', 100)
+    settings.setdefault('pathogen_max_intensity_percentile', 100)
+    settings.setdefault('organelle_max_intensity_percentile', 100)
     settings.setdefault('motility_analysis', False)
+    
 
 
     return settings
@@ -273,6 +274,7 @@ def set_default_settings_preprocess_img_data(settings):
     settings.setdefault('fps', 2)
     return settings
 
+
 def _get_object_settings(object_type, settings):
 
     from .utils import _get_diam
@@ -291,6 +293,7 @@ def _get_object_settings(object_type, settings):
             object_settings['model_name'] = 'cyto'
         else:
             object_settings['model_name'] = 'cyto2'
+        object_settings['min_size'] = settings['cell_min_area']
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
         object_settings['restore_type'] = settings.get('cell_restore_type', None)
@@ -301,10 +304,9 @@ def _get_object_settings(object_type, settings):
                 object_settings['maximum_size'] = (object_settings['diameter']**2)*10
             else:
                 print(f'Cell diameter must be an integer or float, got {settings["cell_diameter"]}')
-        if settings['use_sam_cell']:
-            object_settings['model_name'] = 'sam'
 
     elif object_type == 'nucleus':
+        object_settings['min_size'] = settings['nucleus_min_area']
         object_settings['model_name'] = 'nuclei'
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
@@ -321,6 +323,7 @@ def _get_object_settings(object_type, settings):
             object_settings['model_name'] = 'sam'
 
     elif object_type == 'pathogen':
+        object_settings['min_size'] = settings['pathogen_min_area']
         object_settings['model_name'] = 'cyto'
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
@@ -1301,15 +1304,14 @@ expected_types = {
     'nucleus_remove_border_objects':bool,
     'pathogen_remove_border_objects':bool,
     'organelle_remove_border_objects':bool,
-    'cell_min_intensity':int,
-    'nucleus_min_intensity':int,
-    'pathogen_min_intensity':int,
-    'organelle_min_intensity':int,
-    'cell_max_intensity':(int, type(None)),
-    'nucleus_max_intensity':(int, type(None)),
-    'pathogen_max_intensity':(int, type(None)),
-    'organelle_max_intensity':(int, type(None)),
-
+    'cell_min_intensity_percentile':int,
+    'nucleus_min_intensity_percentile':int,
+    'pathogen_min_intensity_percentile':int,
+    'organelle_min_intensity_percentile':int,
+    'cell_max_intensity_percentile':(int, type(None)),
+    'nucleus_max_intensity_percentile':(int, type(None)),
+    'pathogen_max_intensity_percentile':(int, type(None)),
+    'organelle_max_intensity_percentile':(int, type(None)),
 }
 
 tooltips = {
@@ -1380,7 +1382,7 @@ tooltips = {
     "cell_intensity_range": "(list) - Intensity range for cell segmentation.",
     "cell_loc": "(list) - The locations of the cell types in the images.",
     "cell_mask_dim": "(int) - The dimension of the array the cell mask is saved in (array order:channels,cell, nucleus, pathogen, cytoplasm) array starts at dimension 0.",
-    "cell_min_size": "(int) - The minimum size of cell objects in pixels^2.",
+    "cell_min_size": "(int) - (Depreceated) The minimum size of cell objects in pixels^2.",
     "cell_plate_metadata": "(str) - Metadata for the cell plate.",
     "cell_Signal_to_noise": "(int) - The signal-to-noise ratio for the cell channel. This will be used to determine the range of intensities to normalize images to for cell segmentation.",
     "cell_size_range": "(list) - Size range for cell segmentation.",
@@ -1399,8 +1401,8 @@ tooltips = {
     "consolidate": "(bool) - Consolidate image files from subfolders into one folder named consolidated.",
     "CP_prob": "(float) - Cellpose probability threshold for segmentation.",
     "custom_model": "(str) - Path to a custom Cellpose model.",
-    "cytoplasm_min_size": "(int) - The minimum size of cytoplasm objects in pixels^2.",
-    "nucleus_min_size": "(int) - The minimum size of nucleus objects in pixels^2.",
+    "cytoplasm_min_size": "(int) - (Depreceated) The minimum size of cytoplasm objects in pixels^2.",
+    "nucleus_min_size": "(int) - (Depreceated) The minimum size of nucleus objects in pixels^2.",
     "dependent_variable": "(str) - The dependent variable for the regression analysis.",
     "dialate_png_ratios": "(list) - The ratios to use for dilating the PNG images. This will determine the amount of dilation applied to the images before cropping.",
     "dialate_pngs": "(bool) - Whether to dilate the PNG images before saving.",
@@ -1554,7 +1556,7 @@ tooltips = {
     "timelapse_objects": "(list) - Objects to track in the timelapse, cells, nuclei, or pathogens.",
     "timelapse_remove_transient": "(bool) - Whether to remove transient objects in the timelapse.",
     "timelapse": "(bool) - Whether to analyze images as a timelapse.",
-    "pathogen_min_size": "(int) - The minimum size of pathogen objects in pixels^2.",
+    "pathogen_min_size": "(int) - (Depreceated) The minimum size of pathogen objects in pixels^2.",
     "pathogen_mask_dim": "(int) - The dimension of the array the pathogen mask is saved in (array order:channels,cell, nucleus, pathogen, cytoplasm) array starts at dimension 0.",
     "use_bounding_box": "(bool) - Whether to use the bounding box for cropping the images.",
     "plot_points": "(bool) - Whether to plot scatterplot points.",
@@ -1641,7 +1643,7 @@ tooltips = {
     'organelle_method': "(str) - Segmentation backend. Valid options depend on morphology: spots → 'otsu','adaptive','log','cellpose'; network → 'otsu','adaptive','ridge','cellpose'; irregular → 'otsu','adaptive','cellpose'.",
     'organelle_diameter': "(float) - (DEPRECEATED) Estimated diameter of organelles in pixels. Used by Cellpose and for morphological kernel sizing.",
     'organelle_model_name': "(str) - Name of the Cellpose model to use when method='cellpose' (e.g. 'cyto3', 'nuclei').",
-    'organelle_min_size': "(int) - Minimum organelle object area in pixels². Objects smaller than this are removed.",
+    'organelle_min_size': "(int) - (Depreceated) Minimum organelle object area in pixels². Objects smaller than this are removed.",
     'organelle_max_size': "(int or None) - Maximum organelle object area in pixels². Objects larger than this are removed. None = no upper limit.",
     'organelle_remove_border': "(bool) - Whether to remove organelle objects touching the image border.",
     'organelle_log_min_sigma': "(float) - Minimum sigma for Laplacian of Gaussian blob detection (spots/log mode only).",
@@ -1730,14 +1732,14 @@ tooltips = {
     'nucleus_remove_border_objects': "(bool) - Whether to remove nucleus objects that touch the image border. This can help eliminate partial nuclei that may bias the analysis.",
     'pathogen_remove_border_objects': "(bool) - Whether to remove pathogen objects that touch the image border. This can help eliminate partial pathogens that may bias the analysis.",
     'organelle_remove_border_objects': "(bool) - Whether to remove organelle objects that touch the image border. This can help eliminate partial organelles that may bias the analysis.",
-    'cell_min_intensity': "(float) - Minimum mean intensity for objects to be considered cells. Objects with mean intensity below this threshold are removed from the analysis.",
-    'nucleus_min_intensity': "(float) - Minimum mean intensity for objects to be considered nuclei. Objects with mean intensity below this threshold are removed from the analysis.",
-    'pathogen_min_intensity': "(float) - Minimum mean intensity for objects to be considered pathogens. Objects with mean intensity below this threshold are removed from the analysis.",
-    'organelle_min_intensity': "(float) - Minimum mean intensity for objects to be considered organelles. Objects with mean intensity below this threshold are removed from the analysis.",
-    'cell_max_intensity': "(float or None) - Maximum mean intensity for objects to be considered cells. Objects with mean intensity above this threshold are removed from the analysis. Set to None to disable maximum intensity filtering.",
-    'nucleus_max_intensity': "(float or None) - Maximum mean intensity for objects to be considered nuclei. Objects with mean intensity above this threshold are removed from the analysis. Set to None to disable maximum intensity filtering.",
-    'pathogen_max_intensity': "(float or None) - Maximum mean intensity for objects to be considered pathogens. Objects with mean intensity above this threshold are removed from the analysis. Set to None to disable maximum intensity filtering.",
-    'organelle_max_intensity': "(float or None) - Maximum mean intensity for objects to be considered organelles. Objects with mean intensity above this threshold are removed from the analysis. Set to None to disable maximum intensity filtering."
+    'cell_min_intensity_percentile': "(int) - Minimum mean intensity percentile for objects to be considered cells. Objects with mean intensity below this threshold are removed from the analysis.",
+    'nucleus_min_intensity_percentile': "(int) - Minimum mean intensity percentile for objects to be considered nuclei. Objects with mean intensity below this threshold are removed from the analysis.",
+    'pathogen_min_intensity_percentile': "(int) - Minimum mean intensity percentile for objects to be considered pathogens. Objects with mean intensity below this threshold are removed from the analysis.",
+    'organelle_min_intensity_percentile': "(int) - Minimum mean intensity percentile for objects to be considered organelles. Objects with mean intensity below this threshold are removed from the analysis.",
+    'cell_max_intensity_percentile': "(int or None) - Maximum mean intensity percentile for objects to be considered cells. Objects with mean intensity above this threshold are removed from the analysis. Set to None to disable maximum intensity filtering.",
+    'nucleus_max_intensity_percentile': "(int or None) - Maximum mean intensity percentile for objects to be considered nuclei. Objects with mean intensity above this threshold are removed from the analysis. Set to None to disable maximum intensity filtering.",
+    'pathogen_max_intensity_percentile': "(int or None) - Maximum mean intensity percentile for objects to be considered pathogens. Objects with mean intensity above this threshold are removed from the analysis. Set to None to disable maximum intensity filtering.",
+    'organelle_max_intensity_percentile': "(int or None) - Maximum mean intensity percentile for objects to be considered organelles. Objects with mean intensity above this threshold are removed from the analysis. Set to None to disable maximum intensity filtering."
 }
 
 motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_strategy', 'seconds_per_frame', 'pixels_per_um', 'motility_ylim', 'motility_xlim', 'infection_intensity_qc_scope']
@@ -1750,10 +1752,10 @@ motility_advanced_settings = ['reuse_existing_measurements', 'infection_xgb_min_
                      'infection_pca_tsne_learning_rate_grid', 'infection_pca_umap_n_neighbors','infection_pca_umap_min_dist','infection_pca_tsne_perplexity', 'infection_pca_min_silhouette','infection_pca_min_gt_separation','infection_pca_max_cells']
 
 categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset","model_path","grna_csv","row_csv","column_csv", "metadata_files", "score_data","count_data"],
-             "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel",  "test_mode", "plot", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "delete_intermediate", "uninfected", "organelle_chann_dim", "postprocess_cell_masks", "postprocess_nucleus_masks", "postprocess_pathogen_masks", "postprocess_organelle_masks","timelapse"],
+             "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel",  "test_mode", "plot", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "delete_intermediate", "uninfected", "organelle_chann_dim", "timelapse"],
              "Cellpose":["fill_in","from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
-             "Cell": ["cell_diameter","cell_intensity_range", "cell_size_range", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cytoplasm_min_size", "adjust_cells", "cells", "cell_loc", "cell_max_area", "cell_min_area", "cell_remove_border_objects", "cell_min_intensity", "cell_max_intensity"],               
-             "Organelle": ["organelle_morphology", "organelle_method", "organelle_diameter", "organelle_min_size", "organelle_max_size", "organelle_remove_border", "summarize_organelles_by", "organelle_max_area", "organelle_min_area", "organelle_remove_border_objects", "organelle_min_intensity", "organelle_max_intensity"],
+             "Cell": ["cell_diameter","cell_intensity_range", "cell_size_range", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cytoplasm_min_size", "adjust_cells", "cells", "cell_loc", "cell_max_area", "cell_min_area", "cell_remove_border_objects", "cell_min_intensity_percentile", "cell_max_intensity_percentile", "remove_border_cells","cell_perimeter_fraction","cell_intensity_merge", "cell_intensity_split", "cell_area_multiplier", "cell_min_distance", "cell_min_object_area","cell_intensity_threshold_method","cell_intensity_percentile", ],               
+             "Organelle": ["organelle_morphology", "organelle_method", "organelle_diameter", "organelle_min_size", "organelle_max_size", "organelle_remove_border", "summarize_organelles_by", "organelle_max_area", "organelle_min_area", "organelle_remove_border_objects", "organelle_min_intensity_percentile", "organelle_max_intensity_percentile", "organelle_perimeter_fraction", "organelle_intensity_merge", "organelle_intensity_split", "organelle_area_multiplier", "organelle_min_distance", "organelle_min_object_area", "organelle_intensity_threshold_method", "organelle_intensity_percentile", "remove_border_organelles",],
              "Organelle preprocessing": ["organelle_rolling_ball", "organelle_rolling_ball_radius", "organelle_clahe", "organelle_clahe_clip_limit", "organelle_mask_within_cells"],
              "Organelle spot detection": ["organelle_tophat_radius", "organelle_watershed_spots", "organelle_log_min_sigma", "organelle_log_max_sigma", "organelle_log_num_sigma", "organelle_log_threshold", "organelle_dog_sigma_low", "organelle_dog_sigma_high"],
              "Organelle network detection": ["organelle_ridge_filter", "organelle_ridge_sigmas", "organelle_skeletonize", "organelle_network_threshold", "organelle_hysteresis_low", "organelle_hysteresis_high"],
@@ -1763,8 +1765,8 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              #"Organelle stardist": ["organelle_stardist_model", "organelle_stardist_prob", "organelle_stardist_nms"],
              "Organelle unet": ["organelle_unet_model_path", "organelle_unet_threshold"],
              "Organelle adaptive threshold": ["organelle_adaptive_block_size", "organelle_adaptive_offset"], 
-             "Nucleus": ["nucleus_diameter","nucleus_intensity_range", "nucleus_size_range", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_loc", "nucleus_min_area", "nucleus_max_area", "nucleus_remove_border_objects", "nucleus_min_intensity", "nucleus_max_intensity"],
-             "Pathogen": ["pathogen_diameter","pathogen_intensity_range", "pathogen_size_range", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogens", "pathogen_loc", "pathogen_types", "pathogen_plate_metadata", "merge_edge_pathogen_cells", "pathogen_max_area", "pathogen_min_area", "pathogen_remove_border_objects", "pathogen_min_intensity", "pathogen_max_intensity"],
+             "Nucleus": ["nucleus_diameter","nucleus_intensity_range", "nucleus_size_range", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_loc", "nucleus_min_area", "nucleus_max_area", "nucleus_remove_border_objects", "nucleus_min_intensity_percentile", "nucleus_max_intensity_percentile", "remove_border_nuclei","nucleus_perimeter_fraction", "nucleus_intensity_merge", "nucleus_intensity_split", "nucleus_area_multiplier", "nucleus_min_distance", "nucleus_min_object_area", "nucleus_intensity_percentile", "nucleus_intensity_threshold_method"],
+             "Pathogen": ["pathogen_diameter","pathogen_intensity_range", "pathogen_size_range", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogens", "pathogen_loc", "pathogen_types", "pathogen_plate_metadata", "merge_edge_pathogen_cells", "pathogen_max_area", "pathogen_min_area", "pathogen_remove_border_objects", "pathogen_min_intensity_percentile", "pathogen_max_intensity_percentile", "remove_border_pathogens","pathogen_perimeter_fraction", "pathogen_intensity_merge", "pathogen_intensity_split", "pathogen_area_multiplier", "pathogen_min_distance", "pathogen_min_object_area", "pathogen_intensity_threshold_method", "pathogen_intensity_percentile"],
              "Measurements": ["remove_image_canvas", "remove_highly_correlated", "homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements", "tables", "image_nr", "dot_size", "filter_by", "remove_highly_correlated_features", "remove_low_variance_features", "channel_of_interest"],
              "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "crop_mode", "use_bounding_box"],
              "Sequencing": ["outlier_detection","offset_start","chunk_size","single_direction", "signal_direction","mode","comp_level","comp_type","save_h5","expected_end","offset","target_sequence","regex", "highlight"],
@@ -1779,7 +1781,6 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Timelapse": ["fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
              "Advanced": ["test_images", "random_test", "test_nr", "test", "test_split", "normalize", "target_unique_count","threshold_multiplier", "threshold_method", "min_n","shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs"],
              "Beta": ["all_to_mip", "upscale", "upscale_factor", "consolidate", "distance_gaussian_sigma","use_sam_pathogen","use_sam_nucleus", "use_sam_cell", "denoise"],
-             "Merge split objects":["remove_border_cells","remove_border_nuclei","remove_border_pathogens","remove_border_organelles","cell_perimeter_fraction", "nucleus_perimeter_fraction", "pathogen_perimeter_fraction", "cell_intensity_merge", "nucleus_intensity_merge", "pathogen_intensity_merge", "cell_intensity_split", "nucleus_intensity_split", "pathogen_intensity_split", "cell_area_multiplier", "nucleus_area_multiplier", "pathogen_area_multiplier", "cell_min_distance", "nucleus_min_distance", "pathogen_min_distance", "cell_min_object_area","nucleus_min_object_area", "pathogen_min_object_area", "cell_intensity_threshold_method", "nucleus_intensity_threshold_method", "pathogen_intensity_threshold_method", "cell_intensity_percentile", "nucleus_intensity_percentile", "pathogen_intensity_percentile", "organelle_perimeter_fraction", "organelle_intensity_merge","organelle_intensity_split", "organelle_area_multiplier", "organelle_min_distance", "organelle_min_object_area", "organelle_intensity_threshold_method", "organelle_intensity_percentile"],
              "Motility (beta)": motility_settings,
              "Motility Advanced (beta)": motility_advanced_settings,
              }
@@ -1943,38 +1944,53 @@ def check_settings(vars_dict, expected_types, q=None):
         
     return settings, errors
 
-def generate_fields(variables, scrollable_frame, tick_callback=None):
+def generate_fields_lazy(variables, scrollable_frame, tick_callback=None):
     from .gui_utils import create_input_field
     from .gui_elements import spacrToolTip
+    
     row = 1
     vars_dict = {}
     
+    # Collect all settings that belong to a category
+    categorized_keys = set()
+    for cat_name, cat_keys in categories.items():
+        categorized_keys.update(cat_keys)
+    
+    # Only create widgets for non-categorized (always-visible) settings
     for key, (var_type, options, default_value) in variables.items():
+        if key in categorized_keys:
+            # Store the definition but don't create widgets yet
+            vars_dict[key] = None  # placeholder
+            continue
+        
         try:
-            label, widget, var, frame = create_input_field(scrollable_frame.scrollable_frame, key, row, var_type, options, default_value)
-        except Exception as e:
-            print(f"Warning: Invalid value for {key}, reverting to {default_value}, var_type: {var_type}({default_value}).")
+            label, widget, var, frame = create_input_field(
+                scrollable_frame.scrollable_frame, key, row, var_type, options, default_value)
+        except Exception:
+            print(f"Warning: Invalid value for {key}, reverting to {default_value}")
             type_defaults = {'check': False, 'entry': '', 'combo': options[0] if options else '', 'int': 0, 'float': 0.0}
             fallback = type_defaults.get(var_type, '')
             try:
-                label, widget, var, frame = create_input_field(scrollable_frame.scrollable_frame, key, row, var_type, options, fallback)
+                label, widget, var, frame = create_input_field(
+                    scrollable_frame.scrollable_frame, key, row, var_type, options, fallback)
             except Exception:
-                print(f"Error: Could not create field for '{key}' even with fallback. Skipping.")
+                print(f"Error: Could not create field for '{key}'. Skipping.")
                 continue
 
         vars_dict[key] = (label, widget, var, frame)
         
         if key in tooltips:
             spacrToolTip(label, tooltips[key])
-
         row += 1
         
-        # Advance spinner every 5 widgets
-        if tick_callback and row % 5 == 0:
+        if tick_callback:
             tick_callback()
 
-    scrollable_frame.scrollable_frame.update_idletasks()
+    # Store variables and row counter for lazy creation
+    scrollable_frame._field_variables = variables
+    scrollable_frame._next_row = row
     
+    scrollable_frame.scrollable_frame.update_idletasks()
     return vars_dict
 
 def generate_fields(variables, scrollable_frame, tick_callback=None):

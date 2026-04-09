@@ -127,6 +127,200 @@ def _show_loading_screen(parent):
     return overlay, _cancel, _tick
 
 def toggle_settings(button_scrollable_frame):
+    global vars_dict, scrollable_frame
+    from .settings import categories, category_dependencies, category_group_dependencies, category_integer_dependencies, category_value_dependencies, tooltips
+    from .gui_utils import hide_all_settings, create_input_field
+    from .gui_elements import spacrToolTip
+    
+    if vars_dict is None:
+        raise ValueError("vars_dict is not initialized.")
+
+    active_categories = set()
+
+    def _is_truthy_key(bool_key):
+        if bool_key not in vars_dict or vars_dict[bool_key] is None:
+            return False
+        val = vars_dict[bool_key][2].get()
+        if isinstance(val, bool):
+            return val
+        return str(val).lower() in ('1', 'true')
+
+    def _get_int_key(key):
+        if key not in vars_dict or vars_dict[key] is None:
+            return None
+        val = vars_dict[key][2].get()
+        try:
+            v = int(float(str(val)))
+            return v if v is not None else None
+        except (ValueError, TypeError):
+            return None
+
+    def _get_visible_categories():
+        all_cats = [cat for cat, settings in categories.items()
+                    if any(s in vars_dict for s in settings)]
+        blocked = set()
+
+        for bool_key, cat_names in category_dependencies.items():
+            if not _is_truthy_key(bool_key):
+                blocked.update(cat_names)
+
+        for cat_name, bool_keys in category_group_dependencies.items():
+            if not any(_is_truthy_key(k) for k in bool_keys):
+                blocked.add(cat_name)
+
+        for key_tuple, cat_names in category_integer_dependencies.items():
+            any_set = any(_get_int_key(k) is not None for k in key_tuple)
+            if not any_set:
+                blocked.update(cat_names)
+
+        for value_key, value_map in category_value_dependencies.items():
+            if value_key not in vars_dict or vars_dict[value_key] is None:
+                for cats in value_map.values():
+                    blocked.update(cats)
+                continue
+            current_val = str(vars_dict[value_key][2].get())
+            for val_option, cat_names in value_map.items():
+                if current_val != val_option:
+                    blocked.update(cat_names)
+
+        return [c for c in all_cats if c not in blocked]
+
+    def _ensure_category_widgets(cat_name):
+        """Lazily create widgets for a category if they haven't been created yet."""
+        if cat_name not in categories:
+            return
+        
+        variables = getattr(scrollable_frame, '_field_variables', None)
+        if variables is None:
+            return
+        
+        created_any = False
+        row = getattr(scrollable_frame, '_next_row', 1000)
+        
+        for key in categories[cat_name]:
+            if key not in vars_dict:
+                continue
+            if vars_dict[key] is not None:
+                continue  # already created
+            
+            if key not in variables:
+                continue
+            
+            var_type, options, default_value = variables[key]
+            try:
+                label, widget, var, frame = create_input_field(
+                    scrollable_frame.scrollable_frame, key, row, var_type, options, default_value)
+            except Exception:
+                type_defaults = {'check': False, 'entry': '', 'combo': options[0] if options else '', 'int': 0, 'float': 0.0}
+                fallback = type_defaults.get(var_type, '')
+                try:
+                    label, widget, var, frame = create_input_field(
+                        scrollable_frame.scrollable_frame, key, row, var_type, options, fallback)
+                except Exception:
+                    continue
+            
+            vars_dict[key] = (label, widget, var, frame)
+            
+            if key in tooltips:
+                spacrToolTip(label, tooltips[key])
+            
+            # Start hidden
+            label.grid_remove()
+            widget.grid_remove()
+            frame.grid_remove()
+            
+            row += 1
+            created_any = True
+        
+        if created_any:
+            scrollable_frame._next_row = row
+
+    def _rebuild_dropdown():
+        visible = _get_visible_categories()
+        newly_blocked = active_categories - set(visible)
+        for cat_name in newly_blocked:
+            if cat_name in categories:
+                for setting in categories[cat_name]:
+                    if setting in vars_dict and vars_dict[setting] is not None:
+                        label, widget, _, frame = vars_dict[setting]
+                        label.grid_remove()
+                        widget.grid_remove()
+                        frame.grid_remove()
+            active_categories.discard(cat_name)
+
+        category_dropdown.menu.delete(0, 'end')
+        for option in visible:
+            category_dropdown.menu.add_command(
+                label=option,
+                command=lambda opt=option: on_category_select(opt)
+            )
+        category_dropdown.options = visible
+        category_dropdown.update_styles(active_categories)
+
+    def toggle_category(cat_name):
+        _ensure_category_widgets(cat_name)
+        
+        if cat_name not in categories:
+            return
+        for setting in categories[cat_name]:
+            if setting in vars_dict and vars_dict[setting] is not None:
+                label, widget, _, frame = vars_dict[setting]
+                if widget.grid_info():
+                    label.grid_remove()
+                    widget.grid_remove()
+                    frame.grid_remove()
+                else:
+                    label.grid()
+                    widget.grid()
+                    frame.grid()
+
+    def on_category_select(selected_category):
+        if selected_category == "Select Category":
+            return
+        if selected_category in categories:
+            toggle_category(selected_category)
+            if selected_category in active_categories:
+                active_categories.remove(selected_category)
+            else:
+                active_categories.add(selected_category)
+        category_dropdown.update_styles(active_categories)
+        category_var.set("Select Category")
+
+    # Build initial dropdown
+    category_var = tk.StringVar()
+    visible_categories = _get_visible_categories()
+    category_dropdown = spacrDropdownMenu(
+        button_scrollable_frame.scrollable_frame, category_var,
+        visible_categories, command=on_category_select
+    )
+    category_dropdown.grid(row=0, column=4, sticky="ew", pady=2, padx=2)
+    
+    # Hide all already-created categorized widgets
+    for cat_name, cat_keys in categories.items():
+        for key in cat_keys:
+            if key in vars_dict and vars_dict[key] is not None:
+                label, widget, _, frame = vars_dict[key]
+                label.grid_remove()
+                widget.grid_remove()
+                frame.grid_remove()
+
+    # Listen on controlling booleans
+    def _on_change(*args):
+        _rebuild_dropdown()
+
+    all_control_keys = set(category_dependencies.keys())
+    for keys in category_group_dependencies.values():
+        all_control_keys.update(keys)
+    for key_tuple in category_integer_dependencies.keys():
+        all_control_keys.update(key_tuple)
+    for vk in category_value_dependencies.keys():
+        all_control_keys.add(vk)
+
+    for key in all_control_keys:
+        if key in vars_dict and vars_dict[key] is not None:
+            vars_dict[key][2].trace_add('write', _on_change)
+
+def toggle_settings_v1(button_scrollable_frame):
     global vars_dict
     from .settings import (categories, category_dependencies, category_group_dependencies,
                            category_integer_dependencies, category_value_dependencies)
@@ -394,6 +588,56 @@ def display_figure(fig):
             show_next_figure()
             
     def zoom(event):
+        zoom_in_factor = 1 / 1.2
+        zoom_out_factor = 1.2
+
+        if event.inaxes is None:
+            return
+
+        if event.num == 4 or (hasattr(event, 'delta') and event.delta > 0) or getattr(event, 'button', None) == 'up':
+            factor = zoom_in_factor
+        elif event.num == 5 or (hasattr(event, 'delta') and event.delta < 0) or getattr(event, 'button', None) == 'down':
+            factor = zoom_out_factor
+        else:
+            return
+
+        for ax in canvas.figure.get_axes():
+            try:
+                # Convert the mouse position from display coords to this axes' data coords
+                cx, cy = ax.transData.inverted().transform((event.x, event.y))
+            except Exception:
+                continue
+
+            x0, x1 = ax.get_xlim()
+            y0, y1 = ax.get_ylim()
+
+            # Keep the mouse anchored at the same relative position within the view
+            rx = 0.5 if x1 == x0 else (cx - x0) / (x1 - x0)
+            ry = 0.5 if y1 == y0 else (cy - y0) / (y1 - y0)
+
+            new_w = (x1 - x0) * factor
+            new_h = (y1 - y0) * factor
+
+            new_x0 = cx - rx * new_w
+            new_x1 = cx + (1 - rx) * new_w
+            new_y0 = cy - ry * new_h
+            new_y1 = cy + (1 - ry) * new_h
+
+            ax.set_xlim(new_x0, new_x1)
+            ax.set_ylim(new_y0, new_y1)
+
+            for label in ax.texts:
+                label.set_clip_on(True)
+
+            if hasattr(ax, '_label_annotations'):
+                for label in ax._label_annotations:
+                    x, y = label.get_position()
+                    visible = new_x0 <= x <= new_x1 and min(new_y0, new_y1) <= y <= max(new_y0, new_y1)
+                    label.set_visible(visible)
+
+        canvas.draw_idle()
+            
+    def zoom_v1(event):
         zoom_in_factor = 1 / 1.2
         zoom_out_factor = 1.2
 
