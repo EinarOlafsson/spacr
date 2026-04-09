@@ -144,9 +144,9 @@ def set_default_settings_preprocess_generate_masks(settings={}):
     settings.setdefault('organelle_dog_sigma_high', 3.0)
 
     # Stardist (spots)
-    settings.setdefault('organelle_stardist_model', '2D_versatile_fluo')
-    settings.setdefault('organelle_stardist_prob', 0.5)
-    settings.setdefault('organelle_stardist_nms', 0.3)
+    #settings.setdefault('organelle_stardist_model', '2D_versatile_fluo')
+    #settings.setdefault('organelle_stardist_prob', 0.5)
+    #settings.setdefault('organelle_stardist_nms', 0.3)
 
     # Hysteresis (network)
     settings.setdefault('organelle_hysteresis_low', 0.2)
