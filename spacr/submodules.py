@@ -1345,7 +1345,7 @@ def analyze_endodyogeny(settings):
         df['bin_index'] = pd.cut(df[f'{compartment}_volume'], bins=bins, labels=range(1, len(bins)), right=False).astype(int)
 
         # Adjust bin indices and labels based on max_bins
-        if max_bins is not None:
+        if max_bins != None:
             df.loc[df['bin_index'] > max_bins, 'bin_index'] = max_bins
             
             # Update bin labels to reflect capped bins

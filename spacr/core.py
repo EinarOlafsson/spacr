@@ -12,7 +12,7 @@ warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0
 def preprocess_generate_masks(settings):
 
     #from .timelapse import _summarise_object_relationships
-    from .object import generate_cellpose_masks, generate_organelle_masks
+    from .object import generate_cellpose_masks, generate_organelle_masks_sam, generate_cellpose_masks_sam
     from .io import preprocess_img_data, _load_and_concatenate_arrays, convert_to_yokogawa, convert_separate_files_to_yokogawa
     from .plot import plot_image_mask_overlay, plot_arrays
     from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, delete_intermedeate_files, format_path_for_system, normalize_src_path, generate_image_path_map, copy_images_to_consolidated, merge_split_objects
@@ -121,7 +121,7 @@ def preprocess_generate_masks(settings):
                     time_ls=[]
                     if check_mask_folder(src, 'cell_mask_stack'):
                         start = time.time()
-                        generate_cellpose_masks(mask_src, settings, 'cell')
+                        generate_cellpose_masks_sam(mask_src, settings, 'cell')
                         stop = time.time()
                         duration = (stop - start)
                         time_ls.append(duration)
@@ -132,7 +132,7 @@ def preprocess_generate_masks(settings):
                     time_ls=[]
                     if check_mask_folder(src, 'nucleus_mask_stack'):
                         start = time.time()
-                        generate_cellpose_masks(mask_src, settings, 'nucleus')
+                        generate_cellpose_masks_sam(mask_src, settings, 'nucleus')
                         stop = time.time()
                         duration = (stop - start)
                         time_ls.append(duration)
@@ -154,7 +154,7 @@ def preprocess_generate_masks(settings):
                     time_ls=[]
                     if check_mask_folder(src, 'organelle_mask_stack'):
                         start = time.time()
-                        generate_organelle_masks(mask_src, settings, 'organelle')
+                        generate_organelle_masks_sam(mask_src, settings, 'organelle')
                         stop = time.time()
                         duration = (stop - start)
                         time_ls.append(duration)
@@ -188,7 +188,7 @@ def preprocess_generate_masks(settings):
                     ('cell',      'cell_mask_stack',      'merge_cell'),
                     ('nucleus',   'nucleus_mask_stack',   'merge_nucleus'),
                     ('pathogen',  'pathogen_mask_stack',  'merge_pathogen'),
-                    ('organelle', 'organells_mask_stack', 'merge_organelle'),
+                    ('organelle', 'organelle_mask_stack', 'merge_organelle'),
                 ]
 
                 for obj, folder_name, op_name in object_configs:
@@ -206,8 +206,10 @@ def preprocess_generate_masks(settings):
                     mni = settings.get(f'{obj}_min_intensity', 0)
                     mxi = settings.get(f'{obj}_max_intensity', 0)
                     
-                    needs_work = (pf > 0 or im or isp or moa > 0 or mna > 0 or
-                                (mxa and mxa > 0) or rb or mni > 0 or (mxi and mxi > 0))
+                    needs_work = (
+                        pf > 0 or im or isp or moa > 0 or mna > 0 or
+                        (mxa and mxa > 0) or rb or mni > 0 or (mxi and mxi > 0)
+                    )
                     
                     if not needs_work:
                         continue
@@ -218,21 +220,20 @@ def preprocess_generate_masks(settings):
                         print(f"{obj.capitalize()} mask folder {obj_folder} does not exist or is empty. Skipping.")
                         continue
 
-                    def _progress_v1(fov_idx, total_fovs, duration, op):
-                        time_ls.append(duration)
-                        nonlocal files_processed
-                        files_processed += 1
-                        print_progress(files_processed, files_to_process, n_jobs=1, 
-                                    time_ls=time_ls, batch_size=None, operation_type=op)
-                        
-                    _shared_counter = Value('i', 0)
+                    time_ls = []
 
-                    def _progress(fov_idx, total_fovs, duration, op):
-                        with _shared_counter.get_lock():
-                            _shared_counter.value += 1
-                            current = _shared_counter.value
-                        print_progress(current, files_to_process, n_jobs=1,
-                                    time_ls=[duration], batch_size=None, operation_type=op)
+                    def _progress_serial(fov_idx, total_fovs, duration, op):
+                        time_ls.append(duration)
+                        print_progress(
+                            fov_idx + 1,
+                            total_fovs,
+                            n_jobs=1,
+                            time_ls=time_ls,
+                            batch_size=None,
+                            operation_type=op
+                        )
+
+                    progress_callback = _progress_serial if settings['n_jobs'] == 1 else None
 
                     merge_split_objects(
                         mask_src=obj_folder,
@@ -252,7 +253,7 @@ def preprocess_generate_masks(settings):
                         min_intensity=mni,
                         max_intensity=mxi if mxi else 0,
                         n_jobs=settings['n_jobs'],
-                        progress_callback=_progress,
+                        progress_callback=progress_callback,
                         op_name=op_name,
                     )
                 
