@@ -20,6 +20,119 @@ from skimage.restoration import rolling_ball
 
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
 
+def merge_split_filter_masks(masks, intensity_images, settings, object_type, batch_filenames=None):
+    """Apply merge/split/filter operations directly to in-memory masks."""
+    import numpy as np
+    from joblib import Parallel, delayed
+    from .utils import print_progress, _process_single_fov_in_memory
+
+    pf = settings.get(f'{object_type}_perimeter_fraction', settings.get(f'{object_type}_perimiter_fraction', 0))
+    im = settings.get(f'{object_type}_intensity_merge', False)
+    isp = settings.get(f'{object_type}_intensity_split', False)
+    moa = settings.get(f'{object_type}_min_object_area', 0)
+    mna = settings.get(f'{object_type}_min_area', 0)
+    mxa = settings.get(f'{object_type}_max_area', 0)
+    rb = settings.get(f'{object_type}_remove_border_objects', False)
+    mni = settings.get(f'{object_type}_min_intensity_percentile', 0)
+    mxi = settings.get(f'{object_type}_max_intensity_percentile', 100)
+
+    needs_work = (
+        pf > 0 or im or isp or moa > 0 or mna > 0 or
+        (mxa and mxa > 0) or rb or mni > 0 or mxi < 100
+    )
+
+    if not needs_work:
+        print(f"merge_split_filter_masks({object_type}): no operations needed, skipping")
+        return masks
+
+    if masks is None:
+        return None
+
+    print(f"merge_split_filter_masks({object_type}): "
+          f"perimeter_merge={pf > 0}(frac={pf}), intensity_merge={im}, "
+          f"split={isp}, min_area={mna}, max_area={mxa}, "
+          f"remove_border={rb}, intensity_pct=[{mni}, {mxi}]")
+
+    if isinstance(masks, np.ndarray):
+        if masks.ndim == 2:
+            mask_list = [masks]
+        elif masks.ndim == 3:
+            mask_list = [masks[i] for i in range(masks.shape[0])]
+        else:
+            raise ValueError(f"Unsupported masks ndim: {masks.ndim}")
+    else:
+        mask_list = list(masks)
+
+    if isinstance(intensity_images, np.ndarray):
+        if intensity_images.ndim == 2:
+            intensity_list = [intensity_images]
+        elif intensity_images.ndim == 3:
+            intensity_list = [intensity_images[i] for i in range(intensity_images.shape[0])]
+        elif intensity_images.ndim == 4:
+            intensity_list = [intensity_images[i] for i in range(intensity_images.shape[0])]
+        else:
+            raise ValueError(f"Unsupported intensity_images ndim: {intensity_images.ndim}")
+    else:
+        intensity_list = list(intensity_images)
+
+    if len(mask_list) != len(intensity_list):
+        raise ValueError(
+            f"Number of masks ({len(mask_list)}) does not match number of intensity images ({len(intensity_list)})."
+        )
+
+    if batch_filenames is None:
+        batch_filenames = [f'image_{i:06d}' for i in range(len(mask_list))]
+
+    total = len(mask_list)
+    time_ls = []
+
+    def _progress(fov_idx, total_fovs, duration, op):
+        time_ls.append(duration)
+        print_progress(
+            fov_idx + 1,
+            total_fovs,
+            n_jobs=1,
+            time_ls=time_ls,
+            batch_size=None,
+            operation_type=op
+        )
+
+    def _run_one(idx, mask, intensity_img):
+        out_mask = _process_single_fov_in_memory(
+            mask=mask,
+            intensity_img=intensity_img,
+            intensity_channel=0,
+            do_split=isp,
+            do_perimeter_merge=(pf > 0),
+            do_intensity_merge=(im and intensity_images is not None),
+            perimeter_fraction=pf,
+            area_multiplier=settings.get(f'{object_type}_area_multiplier', 2.0),
+            min_distance=settings.get(f'{object_type}_min_distance', 10),
+            min_object_area=moa,
+            intensity_threshold_method=settings.get(f'{object_type}_intensity_threshold_method', 'mean'),
+            intensity_percentile=settings.get(f'{object_type}_intensity_percentile', 75),
+            min_area=mna,
+            max_area=mxa if mxa else 0,
+            remove_border_objects=rb,
+            min_intensity_percentile=mni,
+            max_intensity_percentile=mxi,
+            progress_callback=_progress,
+            fov_index=idx,
+            total_fovs=total,
+            op_name=f'merge_{object_type}',
+        )
+        return out_mask
+
+    n_jobs = settings.get('n_jobs', 1)
+    
+    # Always run serial so progress prints work
+    filtered_masks = [
+        _run_one(idx, mask, img)
+        for idx, (mask, img) in enumerate(zip(mask_list, intensity_list))
+    ]
+
+    return filtered_masks
+
 def generate_cellpose_masks_sam(src, settings, object_type):
     
     from .utils import _masks_to_masks_stack, all_elements_match, prepare_batch_for_segmentation
@@ -111,7 +224,7 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                 if os.path.exists(output_path):
                     print(f"File {filename} already exists in the output folder. Skipping...")
                     continue
-        
+                
         if settings['timelapse']:
             trackable_objects = ['cell','nucleus','pathogen']
             if not all_elements_match(settings['timelapse_objects'], trackable_objects):
@@ -143,28 +256,39 @@ def generate_cellpose_masks_sam(src, settings, object_type):
             if batch.size == 0:
                 continue
             
-            batch = prepare_batch_for_segmentation(batch)
-            batch_list = [batch[i] for i in range(batch.shape[0])]
+            cp_batch = prepare_batch_for_segmentation(batch)
+            batch_list = [cp_batch[i] for i in range(cp_batch.shape[0])]
 
             if timelapse:
                 movie_path = os.path.join(os.path.dirname(src), 'movies')
                 os.makedirs(movie_path, exist_ok=True)
                 save_path = os.path.join(movie_path, f'timelapse_{object_type}_{name}.mp4')
-                _npz_to_movie(batch, batch_filenames, save_path, fps=2)
+                _npz_to_movie(cp_batch, batch_filenames, save_path, fps=2)
+                
             
             output = model.eval(
                 x=batch_list,
                 batch_size=len(batch_list),
                 normalize=False,
                 channel_axis=-1,
+                min_size=object_settings['min_size'],
+                progress=True,
                 diameter=None,
                 flow_threshold=flow_threshold,
                 cellprob_threshold=cellprob_threshold,
-                resample=object_settings['resample'],
-            )
-                        
+                resample=object_settings['resample']
+                )
+                 
             masks, flows, _, _, _ = parse_cellpose4_output(output)
-
+            
+            masks = merge_split_filter_masks(
+                masks=masks,
+                intensity_images=batch,
+                settings=settings,
+                object_type=object_type,
+                batch_filenames=batch_filenames,
+            )
+            
             if timelapse:
                 if settings['plot']:
                     plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=1, print_object_number=True)
@@ -1040,65 +1164,65 @@ def _apply_cell_mask(img_batch, batch_filenames, cell_mask_folder):
 # ====================================================================== #
 
 #def _load_stardist_model(settings):
-    """Load a Stardist model (pretrained or custom)."""
-    import os
-    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-
-    # Free any PyTorch GPU state
-    torch.cuda.empty_cache()
-    torch.cuda.synchronize()
-
-    try:
-        from stardist.models import StarDist2D  # type: ignore
-    except (ImportError, RuntimeError) as e:
-        raise ImportError(
-            f"Stardist requires TensorFlow which is not installed. "
-            f"Either install TensorFlow ('pip install tensorflow') or use a "
-            f"different method for spot detection: 'cellpose', 'otsu', 'log', or 'dog'. "
-            f"Original error: {e}"
-        )
-
-    model_name = settings.get('organelle_stardist_model', '2D_versatile_fluo')
-
-    # Try GPU first, fall back to CPU if CUDA context is corrupted
-    for attempt, use_gpu in enumerate([True, False]):
-        try:
-            import tensorflow as tf
-            if use_gpu:
-                gpus = tf.config.list_physical_devices('GPU')
-                if gpus:
-                    for gpu in gpus:
-                        tf.config.experimental.set_memory_growth(gpu, True)
-                    print(f'Loading Stardist model on GPU: {model_name}...')
-                else:
-                    print(f'No GPU found, loading Stardist model on CPU: {model_name}...')
-            else:
-                tf.config.set_visible_devices([], 'GPU')
-                print(f'GPU unavailable for TensorFlow, loading Stardist model on CPU: {model_name}...')
-
-            if os.path.isdir(model_name):
-                model = StarDist2D(None, name=os.path.basename(model_name),
-                                   basedir=os.path.dirname(model_name))
-            else:
-                model = StarDist2D.from_pretrained(model_name)
-
-            print(f'Stardist model loaded successfully ({"GPU" if use_gpu and gpus else "CPU"}).')
-            return model
-
-        except Exception as e:
-            if attempt == 0:
-                print(f'Warning: Failed to load Stardist on GPU ({e}). Falling back to CPU...')
-                # Reset TF state for CPU retry
-                try:
-                    import tensorflow as tf
-                    tf.config.set_visible_devices([], 'GPU')
-                except Exception:
-                    os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-            else:
-                raise RuntimeError(
-                    f"Failed to load Stardist model on both GPU and CPU. "
-                    f"Error: {e}"
-                )
+#    """Load a Stardist model (pretrained or custom)."""
+#    import os
+#    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+#
+#    # Free any PyTorch GPU state
+#    torch.cuda.empty_cache()
+#    torch.cuda.synchronize()
+#
+#    try:
+#        from stardist.models import StarDist2D  # type: ignore
+#    except (ImportError, RuntimeError) as e:
+#        raise ImportError(
+#            f"Stardist requires TensorFlow which is not installed. "
+#            f"Either install TensorFlow ('pip install tensorflow') or use a "
+#            f"different method for spot detection: 'cellpose', 'otsu', 'log', or 'dog'. "
+#            f"Original error: {e}"
+#        )
+#
+#    model_name = settings.get('organelle_stardist_model', '2D_versatile_fluo')
+#
+#    # Try GPU first, fall back to CPU if CUDA context is corrupted
+#    for attempt, use_gpu in enumerate([True, False]):
+#        try:
+#            import tensorflow as tf
+#            if use_gpu:
+#                gpus = tf.config.list_physical_devices('GPU')
+#                if gpus:
+#                    for gpu in gpus:
+#                        tf.config.experimental.set_memory_growth(gpu, True)
+#                    print(f'Loading Stardist model on GPU: {model_name}...')
+#                else:
+#                    print(f'No GPU found, loading Stardist model on CPU: {model_name}...')
+#            else:
+#                tf.config.set_visible_devices([], 'GPU')
+#                print(f'GPU unavailable for TensorFlow, loading Stardist model on CPU: {model_name}...')
+#
+#            if os.path.isdir(model_name):
+#                model = StarDist2D(None, name=os.path.basename(model_name),
+#                                   basedir=os.path.dirname(model_name))
+#            else:
+#                model = StarDist2D.from_pretrained(model_name)
+#
+#            print(f'Stardist model loaded successfully ({"GPU" if use_gpu and gpus else "CPU"}).')
+#            return model
+#
+#        except Exception as e:
+#            if attempt == 0:
+#                print(f'Warning: Failed to load Stardist on GPU ({e}). Falling back to CPU...')
+#                # Reset TF state for CPU retry
+#                try:
+#                    import tensorflow as tf
+#                    tf.config.set_visible_devices([], 'GPU')
+#                except Exception:
+#                    os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+#            else:
+#                raise RuntimeError(
+#                    f"Failed to load Stardist model on both GPU and CPU. "
+#                    f"Error: {e}"
+#                )
 
 def _load_unet_model(settings):
     """Load a user-provided U-Net model from a .pt / .pth file."""
