@@ -18,6 +18,93 @@ except AttributeError:
 
 def attach_dependency_listeners(vars_dict, categories, category_dependencies, category_group_dependencies):
 
+    def _get_entry(setting):
+        entry = vars_dict.get(setting)
+        if entry is None:
+            return None
+        if not isinstance(entry, (tuple, list)):
+            return None
+        if len(entry) < 4:
+            return None
+        if any(item is None for item in entry[:4]):
+            return None
+        return entry
+
+    def _set_category_visibility(category_name, visible):
+        if category_name not in categories:
+            return
+
+        for setting in categories[category_name]:
+            entry = _get_entry(setting)
+            if entry is None:
+                continue
+
+            label, widget, _, frame = entry
+
+            if visible:
+                label.grid()
+                widget.grid()
+                frame.grid()
+            else:
+                label.grid_remove()
+                widget.grid_remove()
+                frame.grid_remove()
+
+    def _is_truthy(tk_var):
+        val = tk_var.get()
+        if isinstance(val, bool):
+            return val
+        return str(val).lower() in ('1', 'true')
+
+    # --- Simple 1:1 dependencies ---
+    def _make_simple_callback(bool_key):
+        def _on_change(*args):
+            entry = _get_entry(bool_key)
+            if entry is None:
+                return
+
+            _, _, tk_var, _ = entry
+            is_on = _is_truthy(tk_var)
+
+            for cat_name in category_dependencies.get(bool_key, []):
+                _set_category_visibility(cat_name, is_on)
+
+        return _on_change
+
+    for bool_key in category_dependencies:
+        entry = _get_entry(bool_key)
+        if entry is None:
+            continue
+
+        cb = _make_simple_callback(bool_key)
+        cb()  # set initial state
+        entry[2].trace_add('write', cb)
+
+    # --- Group (any-of) dependencies ---
+    def _make_group_callback(cat_name, bool_keys):
+        def _on_change(*args):
+            visible = any(
+                _is_truthy(entry[2])
+                for k in bool_keys
+                for entry in [_get_entry(k)]
+                if entry is not None
+            )
+            _set_category_visibility(cat_name, visible)
+
+        return _on_change
+
+    for cat_name, bool_keys in category_group_dependencies.items():
+        cb = _make_group_callback(cat_name, bool_keys)
+        cb()  # set initial state
+
+        for k in bool_keys:
+            entry = _get_entry(k)
+            if entry is None:
+                continue
+            entry[2].trace_add('write', cb)
+
+def attach_dependency_listeners_v1(vars_dict, categories, category_dependencies, category_group_dependencies):
+
     def _set_category_visibility(category_name, visible):
         if category_name not in categories:
             return
@@ -589,7 +676,19 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
     finally:
         stop_requested.value = 1
 
-def hide_all_settings(vars_dict, categories):
+def hide_all_settings(vars_dict, categories=None):
+    if categories is None:
+        return vars_dict
+    for cat_name, settings in categories.items():
+        for setting in settings:
+            if setting in vars_dict and vars_dict[setting] is not None:
+                label, widget, _, frame = vars_dict[setting]
+                label.grid_remove()
+                widget.grid_remove()
+                frame.grid_remove()
+    return vars_dict
+
+def hide_all_settings_v1(vars_dict, categories):
     """
     Function to initially hide all settings in the GUI.
 
