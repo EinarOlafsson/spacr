@@ -30,6 +30,123 @@ from natsort import natsorted
 from torch.utils.data import Dataset
 
 class CellposeLazyDataset(Dataset):
+    def __init__(
+        self,
+        image_files,
+        label_files,
+        settings,
+        randomize: bool = True,
+        augment: bool = False,
+    ):
+        if len(image_files) != len(label_files):
+            raise ValueError(
+                "image_files and label_files must have the same length."
+            )
+        if len(image_files) == 0:
+            raise ValueError("image_files and label_files cannot be empty.")
+
+        pairs = list(zip(map(str, image_files), map(str, label_files)))
+        if randomize:
+            random.shuffle(pairs)
+
+        self.image_files = [p[0] for p in pairs]
+        self.label_files = [p[1] for p in pairs]
+        self.normalize = bool(settings.get("normalize", True))
+        self.percentiles = settings.get("percentiles", (2, 99))
+        self.target_size = int(settings["target_size"])
+        self.augment = bool(augment)
+        self._n_augments = 8 if self.augment else 1
+
+    def __len__(self):
+        return len(self.image_files) * self._n_augments
+
+    @staticmethod
+    def _to_grayscale(image: np.ndarray) -> np.ndarray:
+        if image.ndim == 3:
+            return image.mean(axis=-1)
+        return image
+
+    @staticmethod
+    def _scale_to_unit_interval(image: np.ndarray) -> np.ndarray:
+        image = image.astype(np.float32, copy=False)
+        max_value = float(image.max()) if image.size else 0.0
+        if max_value > 1.0:
+            image = image / max_value
+        return image
+
+    @staticmethod
+    def _apply_augmentation(image: np.ndarray, label: np.ndarray, aug_idx: int):
+        if aug_idx == 1:
+            return (
+                rotate(image, 90, resize=False, preserve_range=True),
+                rotate(label, 90, resize=False, preserve_range=True),
+            )
+        if aug_idx == 2:
+            return (
+                rotate(image, 180, resize=False, preserve_range=True),
+                rotate(label, 180, resize=False, preserve_range=True),
+            )
+        if aug_idx == 3:
+            return (
+                rotate(image, 270, resize=False, preserve_range=True),
+                rotate(label, 270, resize=False, preserve_range=True),
+            )
+        if aug_idx == 4:
+            return np.fliplr(image), np.fliplr(label)
+        if aug_idx == 5:
+            return np.flipud(image), np.flipud(label)
+        if aug_idx == 6:
+            return (
+                np.fliplr(rotate(image, 90, resize=False, preserve_range=True)),
+                np.fliplr(rotate(label, 90, resize=False, preserve_range=True)),
+            )
+        if aug_idx == 7:
+            return (
+                np.flipud(rotate(image, 90, resize=False, preserve_range=True)),
+                np.flipud(rotate(label, 90, resize=False, preserve_range=True)),
+            )
+        return image, label
+
+    def __getitem__(self, idx):
+        base_idx = idx // self._n_augments
+        aug_idx = idx % self._n_augments
+
+        image = cp_io.imread(self.image_files[base_idx])
+        label = cp_io.imread(self.label_files[base_idx])
+
+        image = self._to_grayscale(image)
+        image = self._scale_to_unit_interval(image)
+
+        if self.normalize:
+            lower_p, upper_p = np.percentile(image, self.percentiles)
+            if upper_p > lower_p:
+                image = rescale_intensity(
+                    image,
+                    in_range=(lower_p, upper_p),
+                    out_range=(0, 1),
+                )
+
+        image, label = self._apply_augmentation(image, label, aug_idx)
+
+        target_shape = (self.target_size, self.target_size)
+        image = sk_resize(
+            image,
+            target_shape,
+            preserve_range=True,
+            anti_aliasing=True,
+        ).astype(np.float32)
+
+        label = sk_resize(
+            label,
+            target_shape,
+            order=0,
+            preserve_range=True,
+            anti_aliasing=False,
+        ).astype(np.uint16)
+
+        return image, label
+
+class CellposeLazyDataset_v1(Dataset):
     def __init__(self, image_files, label_files, settings, randomize=True, augment=False):
         combined = list(zip(image_files, label_files))
         if randomize:
