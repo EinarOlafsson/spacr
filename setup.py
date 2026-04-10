@@ -77,16 +77,17 @@ dependencies = [
 ]
 
 VERSION = "1.3.0"
+name = "spacr-nightly"
 
 setup(
-    name="spacr",
+    name=name,
     version=VERSION,
     author="Einar Birnir Olafsson",
     author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",
     long_description=long_description,
     long_description_content_type='text/x-rst', 
-    url="https://github.com/EinarOlafsson/spacr",
+    url=f"https://github.com/EinarOlafsson/{name}",
     packages=find_packages(exclude=["tests.*", "tests"]),
     include_package_data=True,
     package_data={'spacr': ['resources/data/*', 'resources/models/cp', 'resources/icons/*', 'resources/font/**/*', 'resources/images/*'],},
