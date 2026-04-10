@@ -26,6 +26,7 @@ from sklearn.model_selection import train_test_split
 from sympy import root
 from xgboost import XGBClassifier
 from sklearn.metrics import classification_report, confusion_matrix
+from screeninfo import get_monitors
 
 fig = None
 
@@ -187,8 +188,11 @@ def set_element_size():
     global _cached_element_size
     if _cached_element_size is not None:
         return _cached_element_size
+    
+    m = get_monitors()[0]
+    screen_width, screen_height = m.width, m.height
 
-    screen_width, screen_height = pyautogui.size()
+    #screen_width, screen_height = pyautogui.size()
     screen_area = screen_width * screen_height
     
     # Calculate sizes based on screen dimensions
