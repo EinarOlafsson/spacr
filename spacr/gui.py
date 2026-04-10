@@ -218,7 +218,13 @@ class MainApp(tk.Tk):
         for widget in frame.winfo_children():
             widget.destroy()
 
+#def gui_app():
+#    app = MainApp()
+#    app.mainloop()
+
 def gui_app():
+    from multiprocessing import freeze_support
+    freeze_support()
     app = MainApp()
     app.mainloop()
 

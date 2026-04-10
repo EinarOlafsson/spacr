@@ -9,7 +9,12 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 import psutil
-import GPUtil
+
+try:
+    import GPUtil
+except ImportError:
+    GPUtil = None
+
 from collections import deque
 import tracemalloc
 

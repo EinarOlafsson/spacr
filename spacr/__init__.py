@@ -1,4 +1,25 @@
 import logging, os, builtins, sys, io
+
+# spacr/__init__.py
+import importlib as _importlib
+
+_SUBMODULES = [
+    'core', 'io', 'utils', 'settings', 'plot', 'measure', 'sim',
+    'sequencing', 'timelapse', 'deep_spacr', 'app_annotate',
+    'gui_utils', 'gui_elements', 'gui_core', 'gui',
+    'app_make_masks', 'app_mask', 'app_measure', 'app_classify',
+    'app_sequencing', 'app_umap', 'submodules', 'ml', 'toxo',
+    'spacr_cellpose', 'sp_stats', 'spacrops', 'object', 'logger',
+]
+
+def __getattr__(name):
+    if name in _SUBMODULES:
+        return _importlib.import_module(f'.{name}', __name__)
+    raise AttributeError(f"module 'spacr' has no attribute {name}")
+
+def __dir__():
+    return _SUBMODULES
+
 #
 #os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 #os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
@@ -57,71 +78,71 @@ import logging, os, builtins, sys, io
 #_suppress_fd_stderr(_do_noisy_imports)
 
 
-from . import core
-from . import io
-from . import utils
-from . import settings
-from . import plot
-from . import measure
-from . import sim
-from . import sequencing
-from . import timelapse
-from . import deep_spacr
-from . import app_annotate
-from . import gui_utils
-from . import gui_elements
-from . import gui_core
-from . import gui
-from . import app_make_masks
-from . import app_mask
-from . import app_measure
-from . import app_classify
-from . import app_sequencing
-from . import app_umap
-from . import submodules
-from . import ml
-from . import toxo
-from . import spacr_cellpose
-from . import sp_stats
-from . import spacrops
-from . import object
-from . import logger
-
-__all__ = [
-    "core",
-    "io",
-    "utils",
-    "settings",
-    "plot",
-    "measure",
-    "sim",
-    "sequencing",
-    "timelapse",
-    "deep_spacr",
-    "app_annotate",
-    "gui_utils",
-    "gui_elements",
-    "gui_core",
-    "gui",
-    "app_make_masks",
-    "app_mask",
-    "app_measure",
-    "app_classify",
-    "app_sequencing",
-    "app_umap",
-    "submodules",
-    "openai",
-    "ml",
-    "toxo",
-    "spacr_cellpose",
-    "sp_stats",
-    "spacrops",
-    "object",
-    "logger"
-]
-
-logging.basicConfig(filename='spacr.log', level=logging.INFO,
-                    format='%(asctime)s:%(levelname)s:%(message)s')
+#from . import core
+#from . import io
+#from . import utils
+#from . import settings
+#from . import plot
+#from . import measure
+#from . import sim
+#from . import sequencing
+#from . import timelapse
+#from . import deep_spacr
+#from . import app_annotate
+#from . import gui_utils
+#from . import gui_elements
+#from . import gui_core
+#from . import gui
+#from . import app_make_masks
+#from . import app_mask
+#from . import app_measure
+#from . import app_classify
+#from . import app_sequencing
+#from . import app_umap
+#from . import submodules
+#from . import ml
+#from . import toxo
+#from . import spacr_cellpose
+#from . import sp_stats
+#from . import spacrops
+#from . import object
+#from . import logger
+#
+#__all__ = [
+#    "core",
+#    "io",
+#    "utils",
+#    "settings",
+#    "plot",
+#    "measure",
+#    "sim",
+#    "sequencing",
+#    "timelapse",
+#    "deep_spacr",
+#    "app_annotate",
+#    "gui_utils",
+#    "gui_elements",
+#    "gui_core",
+#    "gui",
+#    "app_make_masks",
+#    "app_mask",
+#    "app_measure",
+#    "app_classify",
+#    "app_sequencing",
+#    "app_umap",
+#    "submodules",
+#    "openai",
+#    "ml",
+#    "toxo",
+#    "spacr_cellpose",
+#    "sp_stats",
+#    "spacrops",
+#    "object",
+#    "logger"
+#]
+#
+#logging.basicConfig(filename='spacr.log', level=logging.INFO,
+#                    format='%(asctime)s:%(levelname)s:%(message)s')
 
 from .utils import download_models
 
