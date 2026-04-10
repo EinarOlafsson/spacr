@@ -6,6 +6,7 @@ with open("README.rst", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 dependencies = [
+    'importlib-metadata>=3.6,<4.0',
     'numpy>=1.26.4,<2.0',
     'pandas>=2.2.1,<3.0',
     'scipy>=1.12.0,<2.0',
