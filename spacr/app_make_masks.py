@@ -42,3 +42,6 @@ def start_make_mask_app():
 
 if __name__ == "__main__":
     start_make_mask_app()
+    
+#def gui_make_masks():
+#    start_make_mask_app()
