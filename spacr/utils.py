@@ -1983,7 +1983,50 @@ def _pivot_counts_table(db_path):
     pivoted_df.to_sql('pivoted_counts', conn, if_exists='replace', index=False)
     conn.close()
     
-def _get_cellpose_channels(src, nucleus_channel, pathogen_channel, cell_channel):
+def _get_cellpose_channels(settings):
+    """
+    Returns:
+        channels_to_extract: sorted list of original channel indices to pull from the full stack
+        cellpose_channels: dict of object_type -> remapped indices into the extracted stack
+    """
+    nucleus_ch = settings.get('nucleus_channel')
+    cell_ch = settings.get('cell_channel')
+    pathogen_ch = settings.get('pathogen_channel')
+    organelle_ch = settings.get('organelle_channel')
+
+    # Collect every unique channel that any object type needs
+    all_channels = set()
+    for ch in [nucleus_ch, cell_ch, pathogen_ch, organelle_ch]:
+        if ch is not None:
+            all_channels.add(ch)
+
+    # Sorted so the extracted stack has a deterministic order
+    channels_to_extract = sorted(all_channels)
+
+    # original index -> position in extracted stack
+    remap = {orig: new for new, orig in enumerate(channels_to_extract)}
+
+    # Build per-object-type channel lists using remapped indices
+    cellpose_channels = {}
+
+    if nucleus_ch is not None:
+        cellpose_channels['nucleus'] = [remap[nucleus_ch]]
+
+    if cell_ch is not None:
+        if nucleus_ch is not None:
+            cellpose_channels['cell'] = [remap[cell_ch], remap[nucleus_ch]]
+        else:
+            cellpose_channels['cell'] = [remap[cell_ch]]
+
+    if pathogen_ch is not None:
+        cellpose_channels['pathogen'] = [remap[pathogen_ch]]
+
+    if organelle_ch is not None:
+        cellpose_channels['organelle'] = [remap[organelle_ch]]
+
+    return channels_to_extract, cellpose_channels
+    
+def _get_cellpose_channels_v1(src, nucleus_channel, pathogen_channel, cell_channel):
     cell_mask_path = os.path.join(src, 'masks', 'cell_mask_stack')
     nucleus_mask_path = os.path.join(src, 'masks', 'nucleus_mask_stack')
     pathogen_mask_path = os.path.join(src, 'masks', 'pathogen_mask_stack')

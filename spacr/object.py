@@ -135,7 +135,7 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
 
 def generate_cellpose_masks_sam(src, settings, object_type):
     
-    from .utils import _masks_to_masks_stack, all_elements_match, prepare_batch_for_segmentation
+    from .utils import _masks_to_masks_stack, all_elements_match, prepare_batch_for_segmentation, _get_cellpose_channels
     from .io import _create_database, _save_object_counts_to_database, _check_masks, _get_avg_object_size
     from .timelapse import _npz_to_movie, _btrack_track_cells, _trackpy_track_cells
     from .plot import plot_cellpose4_output
@@ -172,28 +172,23 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     flow_threshold = settings[f'{object_type}_FT']
     object_settings = _get_object_settings(object_type, settings)
         
-    if settings.get('cellpose_nucleus_channel') is None and settings.get('nucleus_channel') is not None:
-        settings['cellpose_nucleus_channel'] = settings['nucleus_channel']
-
-    if settings.get('cellpose_cell_channel') is None and settings.get('cell_channel') is not None:
-        settings['cellpose_cell_channel'] = settings['cell_channel']
-
-    if settings.get('cellpose_pathogen_channel') is None and settings.get('pathogen_channel') is not None:
-        settings['cellpose_pathogen_channel'] = settings['pathogen_channel']
+    #if settings.get('cellpose_nucleus_channel') is None and settings.get('nucleus_channel') is not None:
+    #    settings['cellpose_nucleus_channel'] = settings['nucleus_channel']
+    #
+    #if settings.get('cellpose_cell_channel') is None and settings.get('cell_channel') is not None:
+    #    settings['cellpose_cell_channel'] = settings['cell_channel']
+    #
+    #if settings.get('cellpose_pathogen_channel') is None and settings.get('pathogen_channel') is not None:
+    #    settings['cellpose_pathogen_channel'] = settings['pathogen_channel']
+        
+    channels_to_extract, cellpose_channels = _get_cellpose_channels(settings)
+    channels = cellpose_channels.get(object_type, ['cell'])
     
-    cellpose_channels = {
-        'nucleus': [ch for ch in [settings.get('nucleus_channel')] if ch is not None],
-        'cell': [ch for ch in [settings.get('cell_channel'), settings.get('nucleus_channel')] if ch is not None],
-        'pathogen': [ch for ch in [settings.get('pathogen_channel')] if ch is not None],
-        'organelle': [ch for ch in [settings.get('organelle_channel')] if ch is not None],
-    }
-
-    channels = cellpose_channels[object_type]
     if len(channels) == 0:
         raise ValueError(f"No valid channels defined for object_type '{object_type}'.")
         
     if settings['verbose']:
-        print(cellpose_channels)
+        print(channels)
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), pretrained_model='cpsam', device=device)
@@ -248,6 +243,13 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                 batch = stack[i: i+batch_size, :, :, [0]].astype(stack.dtype)
             else:
                 batch = stack[i: i+batch_size, :, :, channels].astype(stack.dtype)
+            
+            # In the future drop the npz save file step, just keep it in memory and pass the batch directly to the model. This will save time and disk space. For now, keep it for backwards compatibility and to avoid issues with large batches that might not fit in memory.                
+            #if stack.shape[3] == 1:
+            #    batch = stack[i: i+batch_size, :, :, [0]].astype(stack.dtype)
+            #else:
+            #    subset = stack[i: i+batch_size, :, :, channels_to_extract].astype(stack.dtype)
+            #    batch = subset[:, :, :, channels]
 
             batch_filenames = filenames[i: i+batch_size].tolist()
 
