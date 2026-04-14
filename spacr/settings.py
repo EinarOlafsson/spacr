@@ -164,10 +164,10 @@ def set_default_settings_preprocess_generate_masks(settings={}):
     settings.setdefault('summarize_organelles_by', 'cell')
 
     #merge_split
-    settings.setdefault('cell_perimeter_fraction', 0.5)
-    settings.setdefault('nucleus_perimeter_fraction',  0.5)
-    settings.setdefault('pathogen_perimeter_fraction',  0.5)
-    settings.setdefault('organelle_perimeter_fraction', 0.5)
+    settings.setdefault('cell_perimeter_fraction', 0)
+    settings.setdefault('nucleus_perimeter_fraction',  0)
+    settings.setdefault('pathogen_perimeter_fraction',  0)
+    settings.setdefault('organelle_perimeter_fraction', 0)
     settings.setdefault('cell_intensity_merge',False)
     settings.setdefault('nucleus_intensity_merge', False)
     settings.setdefault('pathogen_intensity_merge', False)
@@ -319,8 +319,8 @@ def _get_object_settings(object_type, settings):
                 object_settings['maximum_size'] = (object_settings['diameter']**2)*10
             else:
                 print(f'Nucleus diameter must be an integer or float, got {settings["nucleus_diameter"]}')
-        if settings['use_sam_nucleus']:
-            object_settings['model_name'] = 'sam'
+        #if settings['use_sam_nucleus']:
+        #    object_settings['model_name'] = 'sam'
 
     elif object_type == 'pathogen':
         object_settings['min_size'] = settings['pathogen_min_area']
@@ -339,8 +339,8 @@ def _get_object_settings(object_type, settings):
             else:
                 print(f'Pathogen diameter must be an integer or float, got {settings["pathogen_diameter"]}')
                 
-        if settings['use_sam_pathogen']:
-            object_settings['model_name'] = 'sam'
+        #if settings['use_sam_pathogen']:
+        #    object_settings['model_name'] = 'sam'
         
     else:
         print(f'Object type: {object_type} not supported. Supported object types are : cell, nucleus and pathogen')
