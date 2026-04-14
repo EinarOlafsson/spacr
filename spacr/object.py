@@ -172,17 +172,17 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     flow_threshold = settings[f'{object_type}_FT']
     object_settings = _get_object_settings(object_type, settings)
         
-    #if settings.get('cellpose_nucleus_channel') is None and settings.get('nucleus_channel') is not None:
-    #    settings['cellpose_nucleus_channel'] = settings['nucleus_channel']
-    #
-    #if settings.get('cellpose_cell_channel') is None and settings.get('cell_channel') is not None:
-    #    settings['cellpose_cell_channel'] = settings['cell_channel']
-    #
-    #if settings.get('cellpose_pathogen_channel') is None and settings.get('pathogen_channel') is not None:
-    #    settings['cellpose_pathogen_channel'] = settings['pathogen_channel']
+    if settings.get('cellpose_nucleus_channel') is None and settings.get('nucleus_channel') is not None:
+        settings['cellpose_nucleus_channel'] = settings['nucleus_channel']
+    
+    if settings.get('cellpose_cell_channel') is None and settings.get('cell_channel') is not None:
+        settings['cellpose_cell_channel'] = settings['cell_channel']
+    
+    if settings.get('cellpose_pathogen_channel') is None and settings.get('pathogen_channel') is not None:
+        settings['cellpose_pathogen_channel'] = settings['pathogen_channel']
         
     channels_to_extract, cellpose_channels = _get_cellpose_channels(settings)
-    channels = cellpose_channels.get(object_type, ['cell'])
+    channels = cellpose_channels.get(object_type, [])
     
     if len(channels) == 0:
         raise ValueError(f"No valid channels defined for object_type '{object_type}'.")
@@ -345,6 +345,7 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                 else:
                     mask_stack = _masks_to_masks_stack(masks)
             else:
+                print("saving to DB")
                 _save_object_counts_to_database(masks, object_type, batch_filenames, count_loc, added_string='_before_filtration')
                 mask_stack = _masks_to_masks_stack(masks)
         
@@ -374,8 +375,9 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                 np.save(output_filename, mask)
             mask_stack = []
             batch_filenames = []
-
+    
         gc.collect()
+        
     torch.cuda.empty_cache()
     return
 
@@ -640,6 +642,7 @@ def generate_cellpose_masks(src, settings, object_type):
 
         if not timelapse:
             if settings['plot']:
+                print(f"plotting")
                 plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=batch_size)
                 
         if settings['save']:

@@ -1989,6 +1989,44 @@ def _get_cellpose_channels(settings):
         channels_to_extract: sorted list of original channel indices to pull from the full stack
         cellpose_channels: dict of object_type -> remapped indices into the extracted stack
     """
+    nucleus_ch = settings.get('cellpose_nucleus_channel')
+    cell_ch = settings.get('cellpose_cell_channel')
+    pathogen_ch = settings.get('cellpose_pathogen_channel')
+    organelle_ch = settings.get('cellpose_organelle_channel')
+
+    all_channels = set()
+    for ch in [nucleus_ch, cell_ch, pathogen_ch, organelle_ch]:
+        if ch is not None:
+            all_channels.add(ch)
+
+    channels_to_extract = sorted(all_channels)
+    remap = {orig: new for new, orig in enumerate(channels_to_extract)}
+
+    cellpose_channels = {}
+
+    if nucleus_ch is not None:
+        cellpose_channels['nucleus'] = [remap[nucleus_ch]]
+
+    if cell_ch is not None:
+        if nucleus_ch is not None:
+            cellpose_channels['cell'] = [remap[cell_ch], remap[nucleus_ch]]
+        else:
+            cellpose_channels['cell'] = [remap[cell_ch]]
+
+    if pathogen_ch is not None:
+        cellpose_channels['pathogen'] = [remap[pathogen_ch]]
+
+    if organelle_ch is not None:
+        cellpose_channels['organelle'] = [remap[organelle_ch]]
+
+    return channels_to_extract, cellpose_channels
+    
+def _get_cellpose_channels_v2(settings):
+    """
+    Returns:
+        channels_to_extract: sorted list of original channel indices to pull from the full stack
+        cellpose_channels: dict of object_type -> remapped indices into the extracted stack
+    """
     nucleus_ch = settings.get('nucleus_channel')
     cell_ch = settings.get('cell_channel')
     pathogen_ch = settings.get('pathogen_channel')
