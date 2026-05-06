@@ -6,7 +6,7 @@ with open("README.rst", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 dependencies = [
-    'importlib-metadata>=3.6,<4.0',
+    'importlib-metadata>=3.6,<10.0',
     'numpy>=1.26.4,<2.0',
     'pandas>=2.2.1,<3.0',
     'scipy>=1.12.0,<2.0',
@@ -59,7 +59,7 @@ dependencies = [
     'pyautogui>=0.9.54,<1.0',
     'tables>=3.8.0,<4.0',
     'rapidfuzz>=3.9, <4.0',
-    'keyring>=15.1, <16.0',
+    'keyring>=15.1, <26.0',
     'screeninfo>=0.8.1,<1.0',
     'fastremap>=1.14.1',
     'pytz>=2023.3.post1',
