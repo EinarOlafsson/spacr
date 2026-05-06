@@ -2201,6 +2201,87 @@ def _split_data(df, group_by, object_type):
     grouped_numeric (pandas.DataFrame): The grouped dataframe containing numeric columns with conditional aggregation.
     grouped_non_numeric (pandas.DataFrame): The grouped dataframe containing non-numeric columns.
     """
+
+    df = df.copy()
+
+    # Ensure 'prcft' column exists if timeID is present
+    try:
+        df['prcft'] = (
+            df['plateID'].astype(str) + '_' +
+            df['rowID'].astype(str) + '_' +
+            df['columnID'].astype(str) + '_' +
+            df['fieldID'].astype(str) + '_' +
+            df['timeID'].astype(str)
+        )
+    except Exception as e:
+        print('Exception', e)
+
+    # Ensure 'prcf' column exists
+    try:
+        df['prcf'] = (
+            df['plateID'].astype(str) + '_' +
+            df['rowID'].astype(str) + '_' +
+            df['columnID'].astype(str) + '_' +
+            df['fieldID'].astype(str)
+        )
+    except Exception as e:
+        print('Exception', e)
+
+    # Create the 'prcfo' column
+    df['prcfo'] = df['prcf'].astype(str) + '_' + df[object_type].astype(str)
+    df = df.set_index(group_by, inplace=False)
+
+    # Split the DataFrame into numeric and non-numeric parts
+    df_numeric = df.select_dtypes(include=np.number)
+    df_non_numeric = df.select_dtypes(exclude=np.number)
+
+    # Define keywords for columns to be summed instead of averaged
+    sum_keywords = [
+        'area',
+        'perimeter',
+        'convex_area',
+        'bbox_area',
+        'filled_area',
+        'major_axis_length',
+        'minor_axis_length',
+        'equivalent_diameter'
+    ]
+
+    # Create a dictionary for custom aggregation
+    agg_dict = {}
+    for column in df_numeric.columns:
+        if any(keyword in column for keyword in sum_keywords):
+            agg_dict[column] = 'sum'
+        else:
+            agg_dict[column] = 'mean'
+
+    # Apply custom aggregation
+    if len(agg_dict) > 0 and not df_numeric.empty:
+        grouped_numeric = df_numeric.groupby(df_numeric.index).agg(agg_dict)
+    else:
+        grouped_numeric = pd.DataFrame(index=df.index.unique())
+
+    if not df_non_numeric.empty:
+        grouped_non_numeric = df_non_numeric.groupby(df_non_numeric.index).first()
+    else:
+        grouped_non_numeric = pd.DataFrame(index=df.index.unique())
+
+    return pd.DataFrame(grouped_numeric), pd.DataFrame(grouped_non_numeric)
+
+def _split_data_v1(df, group_by, object_type):
+    """
+    Splits the input dataframe into numeric and non-numeric parts, groups them by the specified column,
+    and returns the grouped dataframes with conditional aggregation.
+
+    Parameters:
+    df (pandas.DataFrame): The input dataframe.
+    group_by (str): The column name to group the dataframes by.
+    object_type (str): The column name to concatenate with 'prcf' to create a new column 'prcfo'.
+
+    Returns:
+    grouped_numeric (pandas.DataFrame): The grouped dataframe containing numeric columns with conditional aggregation.
+    grouped_non_numeric (pandas.DataFrame): The grouped dataframe containing non-numeric columns.
+    """
     
     # Ensure 'prcf' column exists by concatenating specific columns
     #if 'prcf' not in df.columns:
