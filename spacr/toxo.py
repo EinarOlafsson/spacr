@@ -8,7 +8,222 @@ from scipy.stats import fisher_exact
 from sklearn.metrics import mean_absolute_error
 from matplotlib.gridspec import GridSpec
 
-def custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location',point_size=50, figsize=20, threshold=0,save_path=None, x_lim=[-0.5, 0.5], y_lims=[[0, 6], [9, 20]]):
+def custom_volcano_plot(
+    data_path,
+    metadata_path,
+    metadata_column='tagm_location',
+    point_size=50,
+    figsize=20,
+    threshold=0,
+    save_path=None,
+    x_lim=[-0.5, 0.5],
+    y_lims=None,
+):
+    from matplotlib.gridspec import GridSpec
+
+    colors = {
+        'micronemes': 'black',
+        'rhoptries 1': 'darkviolet',
+        'rhoptries 2': 'darkviolet',
+        'nucleus - chromatin': 'blue',
+        'nucleus - non-chromatin': 'blue',
+        'dense granules': 'teal',
+        'ER 1': 'pink',
+        'ER 2': 'pink',
+        'unknown': 'black',
+        'tubulin cytoskeleton': 'slategray',
+        'IMC': 'slategray',
+        'PM - peripheral 1': 'slategray',
+        'PM - peripheral 2': 'slategray',
+        'cytosol': 'turquoise',
+        'mitochondrion - soluble': 'red',
+        'mitochondrion - membranes': 'red',
+        'apicoplast': 'slategray',
+        'Golgi': 'green',
+        'PM - integral': 'slategray',
+        'apical 1': 'orange',
+        'apical 2': 'orange',
+        '19S proteasome': 'slategray',
+        '20S proteasome': 'slategray',
+        '60S ribosome': 'slategray',
+        '40S ribosome': 'slategray',
+    }
+
+    fontsize = 18
+    plt.rcParams.update({'font.size': fontsize})
+
+    # --- Load data ---
+    if isinstance(data_path, pd.DataFrame):
+        data = data_path.copy()
+    else:
+        data = pd.read_csv(data_path)
+
+    data['variable'] = data['feature'].str.extract(r'\[(.*?)\]')
+    data['variable'] = data['variable'].fillna(data['feature'])
+    data['gene_nr'] = data['variable'].str.split('_').str[0]
+    data = data[data['variable'] != 'Intercept']
+
+    # --- Load metadata ---
+    if isinstance(metadata_path, pd.DataFrame):
+        metadata = metadata_path
+    else:
+        metadata = pd.read_csv(metadata_path)
+
+    metadata['gene_nr'] = metadata['gene_nr'].astype(str)
+    data['gene_nr'] = data['gene_nr'].astype(str)
+
+    merged_data = pd.merge(
+        data,
+        metadata[['gene_nr', metadata_column]],
+        on='gene_nr',
+        how='left',
+    )
+    merged_data[metadata_column] = merged_data[metadata_column].fillna('unknown')
+    merged_data['neg_log_p'] = -np.log10(merged_data['p_value'])
+
+    # --- Normalise y_lims into (is_broken, lower_lim, upper_lim) ---
+    is_broken, lower_lim, upper_lim = _normalize_y_lims(y_lims, merged_data['neg_log_p'])
+
+    # --- Axes ---
+    if is_broken:
+        fig = plt.figure(figsize=(figsize, figsize))
+        gs = GridSpec(2, 1, height_ratios=[1, 3], hspace=0.05)
+        ax_upper = fig.add_subplot(gs[0])
+        ax_lower = fig.add_subplot(gs[1], sharex=ax_upper)
+        ax_upper.tick_params(axis='x', which='both', bottom=False, labelbottom=False)
+        all_axes = [ax_lower, ax_upper]
+    else:
+        fig, ax_lower = plt.subplots(figsize=(figsize, figsize))
+        ax_upper = None
+        all_axes = [ax_lower]
+
+    def _pick_axis(y_val):
+        if is_broken and y_val > upper_lim[0]:
+            return ax_upper
+        return ax_lower
+
+    hit_list = []
+
+    # --- Scatter ---
+    for _, row in merged_data.iterrows():
+        y_val = row['neg_log_p']
+        ax = _pick_axis(y_val)
+        ax.scatter(
+            row['coefficient'],
+            y_val,
+            color=colors.get(row[metadata_column], 'gray'),
+            marker='o',
+            s=point_size,
+            edgecolor='black',
+            alpha=0.6,
+        )
+        if (row['p_value'] <= 0.05) and (abs(row['coefficient']) >= abs(threshold)):
+            hit_list.append(row['variable'])
+
+    # --- Limits and spines ---
+    ax_lower.set_ylim(lower_lim)
+    ax_lower.set_xlim(x_lim)
+    ax_lower.set_xlabel('Coefficient')
+    ax_lower.set_ylabel('-log10(p-value)')
+    ax_lower.spines['right'].set_visible(False)
+
+    if is_broken:
+        ax_upper.set_ylim(upper_lim)
+        ax_upper.set_ylabel('-log10(p-value)')
+        ax_upper.spines['right'].set_visible(False)
+        ax_upper.spines['top'].set_visible(False)
+        ax_upper.spines['bottom'].set_visible(False)
+        ax_lower.spines['top'].set_visible(False)
+    else:
+        ax_lower.spines['top'].set_visible(False)
+
+    # --- Threshold lines ---
+    for ax in all_axes:
+        ax.axvline(x=-abs(threshold), linestyle='--', color='black')
+        ax.axvline(x=abs(threshold), linestyle='--', color='black')
+    ax_lower.axhline(y=-np.log10(0.05), linestyle='--', color='black')
+
+    # --- Annotate significant points ---
+    texts_upper, texts_lower = [], []
+    for _, row in merged_data.iterrows():
+        if row['p_value'] > 0.05 or abs(row['coefficient']) < abs(threshold):
+            continue
+        y_val = row['neg_log_p']
+        ax = _pick_axis(y_val)
+        text = ax.text(
+            row['coefficient'],
+            y_val,
+            row['variable'],
+            fontsize=fontsize,
+            ha='center',
+            va='bottom',
+        )
+        if ax is ax_upper:
+            texts_upper.append(text)
+        else:
+            texts_lower.append(text)
+
+    if texts_lower:
+        adjust_text(texts_lower, ax=ax_lower, arrowprops=dict(arrowstyle='-', color='black'))
+    if is_broken and texts_upper:
+        adjust_text(texts_upper, ax=ax_upper, arrowprops=dict(arrowstyle='-', color='black'))
+
+    # --- Legend ---
+    legend_handles = [
+        plt.Line2D([0], [0], marker='o', color=c, label=name, linewidth=0, markersize=8)
+        for name, c in colors.items()
+    ]
+    ax_lower.legend(
+        handles=legend_handles,
+        bbox_to_anchor=(1.05, 1),
+        loc='upper left',
+        borderaxespad=0.25,
+        labelspacing=2,
+        handletextpad=0.25,
+        markerscale=1.5,
+        prop={'size': fontsize},
+    )
+
+    if save_path:
+        plt.savefig(save_path, format='pdf', bbox_inches='tight')
+    plt.show()
+
+    return hit_list
+
+
+def _normalize_y_lims(y_lims, neg_log_p):
+    """
+    Coerce y_lims into (is_broken, lower_lim, upper_lim).
+
+    - None: auto-fit a single panel from the data.
+    - [low, high]: single panel with explicit limits.
+    - [[low1, high1], [low2, high2]]: broken axis (lower, upper).
+    """
+    if y_lims is None:
+        finite = neg_log_p[np.isfinite(neg_log_p)]
+        if len(finite) == 0:
+            return False, [0.0, 1.0], None
+        ymax = float(finite.max()) * 1.05
+        return False, [0.0, max(ymax, 1.0)], None
+
+    if not (isinstance(y_lims, (list, tuple)) and len(y_lims) == 2):
+        raise ValueError(
+            "y_lims must be None, [low, high], or [[low1, high1], [low2, high2]]; "
+            f"got {y_lims!r}"
+        )
+
+    a, b = y_lims
+    if all(isinstance(v, (int, float)) or v is None for v in (a, b)):
+        return False, [a, b], None
+    if all(isinstance(v, (list, tuple)) and len(v) == 2 for v in (a, b)):
+        return True, list(a), list(b)
+
+    raise ValueError(
+        "y_lims must be None, [low, high], or [[low1, high1], [low2, high2]]; "
+        f"got {y_lims!r}"
+    )
+
+def custom_volcano_plot_v1(data_path, metadata_path, metadata_column='tagm_location',point_size=50, figsize=20, threshold=0,save_path=None, x_lim=[-0.5, 0.5], y_lims=[[0, 6], [9, 20]]):
 
     # Dictionary mapping compartment to color
     
