@@ -1,7 +1,7 @@
 import os, shap, re
 import pandas as pd
 import numpy as np
-from scipy import stats
+from scipy import stats, test
 from scipy.stats import shapiro
 from math import pi
 
@@ -42,6 +42,8 @@ from scipy.stats import kstest, normaltest
 import statsmodels.api as sm
 
 import matplotlib
+
+#from spacr.spacr import settings
 matplotlib.use('Agg')
 
 import warnings
@@ -59,23 +61,35 @@ class QuasiBinomial(Binomial):
         return self.dispersion * super().variance(mu)
     
 def calculate_p_values(X, y, model):
-    # Predict y values
-    y_pred = model.predict(X)
-    # Calculate residuals
-    residuals = y - y_pred
-    # Calculate the standard error of the residuals
+    # Coerce y and y_pred to 1D arrays before doing arithmetic so the
+    # subtraction does not try to broadcast a length-N array against a
+    # single-column DataFrame.
+    y_true = np.asarray(y).ravel()
+    y_pred = np.asarray(model.predict(X)).ravel()
+
+    residuals = y_true - y_pred
+
     dof = X.shape[0] - X.shape[1] - 1
+    if dof <= 0:
+        # More features than observations; this happens easily with screen-scale
+        # one-hot designs. Standard OLS-style p-values are undefined here.
+        return np.full(X.shape[1], np.nan)
+
     residual_std_error = np.sqrt(np.sum(residuals ** 2) / dof)
-    # Calculate the standard error of the coefficients
-    X_design = np.hstack((np.ones((X.shape[0], 1)), X))  # Add intercept
-    # Use pseudoinverse instead of inverse to handle singular matrices
-    coef_var_covar = residual_std_error ** 2 * np.linalg.pinv(X_design.T @ X_design)
-    coef_standard_errors = np.sqrt(np.diag(coef_var_covar))
-    # Calculate t-statistics
-    t_stats = model.coef_ / coef_standard_errors[1:]  # Skip intercept error
-    # Calculate p-values
-    p_values = [2 * (1 - stats.t.cdf(np.abs(t), dof)) for t in t_stats]
-    return np.array(p_values)  # Ensure p_values is a 1-dimensional array
+
+    # OLS-style standard errors of the coefficients.
+    XtX = X.T @ X
+    try:
+        XtX_inv = np.linalg.inv(np.asarray(XtX))
+    except np.linalg.LinAlgError:
+        XtX_inv = np.linalg.pinv(np.asarray(XtX))
+    se = residual_std_error * np.sqrt(np.diag(XtX_inv))
+
+    coefs = np.asarray(model.coef_).ravel()
+    with np.errstate(divide='ignore', invalid='ignore'):
+        t_stats = np.where(se > 0, coefs / se, 0.0)
+    p_values = 2 * (1 - st.norm.cdf(np.abs(t_stats)))
+    return p_values
 
 def perform_mixed_model(y, X, groups, alpha=1.0):
     # Ensure groups are defined correctly and check for multicollinearity
@@ -384,24 +398,19 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
 
 def process_model_coefficients(model, regression_type, X, y, nc, pc, controls):
     """Return DataFrame of model coefficients, standard errors, and p-values."""
-    
+
     if regression_type == 'beta':
-        # Extract coefficients and standard errors
         coefs = model.params
         std_err = model.bse
-        
-        # Compute Wald test (coefficient / standard error)
         wald_stats = coefs / std_err
-        
-        # Calculate two-tailed p-values
         p_values = 2 * (1 - st.norm.cdf(np.abs(wald_stats)))
-        
+
         coef_df = pd.DataFrame({
             'feature': coefs.index,
             'coefficient': coefs.values,
             'std_err': std_err.values,
             'wald_stat': wald_stats.values,
-            'p_value': p_values
+            'p_value': p_values,
         })
 
     elif regression_type in ['ols', 'glm', 'logit', 'probit', 'quasi_binomial']:
@@ -411,30 +420,33 @@ def process_model_coefficients(model, regression_type, X, y, nc, pc, controls):
         coef_df = pd.DataFrame({
             'feature': coefs.index,
             'coefficient': coefs.values,
-            'p_value': p_values.values
+            'p_value': p_values.values,
         })
 
     elif regression_type in ['ridge', 'lasso']:
-        coefs = model.coef_.flatten()
+        coefs = np.asarray(model.coef_).ravel()
         p_values = calculate_p_values(X, y, model)
 
         coef_df = pd.DataFrame({
             'feature': X.columns,
             'coefficient': coefs,
-            'p_value': p_values
+            'p_value': p_values,
         })
 
     else:
         raise ValueError(f"Unsupported regression type: {regression_type}")
 
-    # Additional formatting
     coef_df['-log10(p_value)'] = -np.log10(coef_df['p_value'])
-    coef_df['grna'] = coef_df['feature'].str.extract(r'\[(.*?)\]')[0]
+    coef_df['grna'] = (
+        coef_df['feature']
+        .str.extract(r'\[(.*?)\]')[0]
+        .str.replace(r'^T\.', '', regex=True)
+    )
     coef_df['condition'] = coef_df.apply(
-        lambda row: 'nc' if nc in row['feature'] else 
-                    'pc' if pc in row['feature'] else 
-                    ('control' if row['grna'] in controls else 'other'), 
-        axis=1
+        lambda row: 'nc' if nc in row['feature'] else
+                    'pc' if pc in row['feature'] else
+                    ('control' if row['grna'] in controls else 'other'),
+        axis=1,
     )
 
     return coef_df[~coef_df['feature'].str.contains('row|column')]
@@ -518,39 +530,44 @@ def pick_glm_family_and_link(y):
     print("Using default Gaussian family with Identity link.")
     return sm.families.Gaussian(link=sm.families.links.Identity())
 
-def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0, cov_type=None):
-    def plot_regression_line(X, y, model):
-        """Helper to plot regression line for lasso and ridge models."""
-        y_pred = model.predict(X)
-        plt.scatter(X.iloc[:, 1], y, color='blue', label='Data')
-        plt.plot(X.iloc[:, 1], y_pred, color='red', label='Regression line')
-        plt.xlabel('Features')
-        plt.ylabel('Dependent Variable')
-        plt.legend()
-        plt.show()
-        
-    def find_best_alpha(model_cls):
-        """Find optimal alpha using cross-validation."""
-        alphas = np.logspace(-5, 5, 100)  # Search over a range of alphas
-        if model_cls == 'lasso':
-            model_cv = LassoCV(alphas=alphas, cv=5).fit(X, y)
-        elif model_cls == 'ridge':
-            model_cv = RidgeCV(alphas=alphas, cv=5).fit(X, y)
-        print(f"Optimal alpha for {model_cls}: {model_cv.alpha_}")
-        return model_cv
+def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
+                     cov_type=None, weights=None):
 
-    # Dictionary of models
+    def _find_best_alpha(model_cls):
+        alphas = np.logspace(-5, 5, 100)
+        if model_cls == 'lasso':
+            cv = LassoCV(alphas=alphas, cv=5, max_iter=10000).fit(X, np.asarray(y).ravel())
+        elif model_cls == 'ridge':
+            cv = RidgeCV(alphas=alphas, cv=5).fit(X, y)
+        else:
+            raise ValueError(f"_find_best_alpha called with unknown model_cls={model_cls!r}")
+        print(f"Optimal alpha for {model_cls}: {cv.alpha_:.4g} "
+              f"(MSE: {mean_squared_error(y, cv.predict(X)):.4f})")
+        return cv
+
+    def _glm_binomial(link=None):
+        family = sm.families.Binomial(link=link) if link else sm.families.Binomial()
+        kwargs = {'family': family}
+        if weights is not None:
+            kwargs['var_weights'] = np.asarray(weights).ravel()
+        return sm.GLM(y, X, **kwargs).fit()
+
+    use_auto_alpha = alpha is None or (isinstance(alpha, str) and alpha == 'auto')
+
     model_map = {
-        'ols': lambda: sm.OLS(y, X).fit(cov_type=cov_type) if cov_type else sm.OLS(y, X).fit(),
-        'glm': lambda: sm.GLM(y, X, family=pick_glm_family_and_link(y)).fit(),
-        'beta': lambda: BetaModel(endog=y, exog=X).fit(),
-        'logit': lambda: sm.Logit(y, X).fit(),
-        'probit': lambda: sm.Probit(y, X).fit(),
-        'lasso': lambda: find_best_alpha('lasso') if alpha in [0, None] else Lasso(alpha=alpha).fit(X, y),
-        'ridge': lambda: find_best_alpha('ridge') if alpha in [0, None] else Ridge(alpha=alpha).fit(X, y)
+        'ols':    lambda: sm.OLS(y, X).fit(cov_type=cov_type) if cov_type else sm.OLS(y, X).fit(),
+        'glm':    lambda: sm.GLM(y, X, family=pick_glm_family_and_link(y)).fit(),
+        'beta':   lambda: BetaModel(endog=y, exog=X).fit(),
+        # logit and probit on a CONTINUOUS fraction y are routed through GLM-Binomial
+        # with var_weights = cell_count. sm.Logit / sm.Probit require binary y.
+        'logit':  lambda: _glm_binomial(link=sm.families.links.logit()),
+        'probit': lambda: _glm_binomial(link=sm.families.links.probit()),
+        'lasso':  lambda: _find_best_alpha('lasso') if use_auto_alpha
+                          else Lasso(alpha=alpha, max_iter=10000).fit(X, np.asarray(y).ravel()),
+        'ridge':  lambda: _find_best_alpha('ridge') if use_auto_alpha
+                          else Ridge(alpha=alpha).fit(X, y),
     }
 
-    # Select the model based on regression_type
     if regression_type in model_map:
         model = model_map[regression_type]()
     elif regression_type == 'mixed':
@@ -558,43 +575,28 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0, cov_ty
     else:
         raise ValueError(f"Unsupported regression type {regression_type}")
 
-    # Plot regression line for Lasso and Ridge
-    if regression_type in ['lasso', 'ridge']:
-        plot_regression_line(X, y, model)
-
-    # Handle GLM-specific statistics
     if regression_type == 'glm':
-        llf_model = model.llf  # Log-likelihood of the fitted model
-        llf_null = model.null_deviance / -2  # Log-likelihood of the null model
-        mcfadden_r2 = 1 - (llf_model / llf_null)
-        print(f"McFadden's R²: {mcfadden_r2:.4f}")
+        llf_model = model.llf
+        llf_null = model.null_deviance / -2
+        print(f"McFadden's R²: {1 - (llf_model / llf_null):.4f}")
         print(model.summary())
 
     if regression_type in ['lasso', 'ridge']:
-        # Calculate the Mean Squared Error (MSE)
         mse = mean_squared_error(y, model.predict(X))
-        print(f"{regression_type.capitalize()} Regression MSE: {mse:.4f}")
-
-        # Display coefficients
-        coef_df = pd.DataFrame({
-            'Feature': X.columns,
-            'Coefficient': model.coef_
-        })
-        print(coef_df)
+        n_nonzero = int(np.sum(np.asarray(model.coef_).ravel() != 0))
+        print(f"{regression_type.capitalize()} regression MSE: {mse:.4f}, "
+              f"non-zero coefficients: {n_nonzero} of {X.shape[1]}")
 
     return model
 
 def regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0,
                random_row_column_effects=False, nc='233460', pc='220950', controls=[''],
                dst=None, cov_type=None, plot=False):
-    
+
     from .plot import volcano_plot, plot_histogram
-    #from .ml import create_volcano_filename, check_and_clean_data, prepare_formula, scale_variables
-        
-    # Generate the volcano filename
+
     volcano_path = create_volcano_filename(csv_path, regression_type, alpha, dst)
 
-    # Determine regression type if not specified
     if regression_type is None:
         regression_type = check_distribution(df[dependent_variable])
 
@@ -602,39 +604,47 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
 
     df = check_and_clean_data(df, dependent_variable)
 
-    # Handle mixed effects if row/column effect is treated as random
     if random_row_column_effects:
         regression_type = 'mixed'
         formula = prepare_formula(dependent_variable, random_row_column_effects=True)
         mixed_model, coef_df = fit_mixed_model(df, formula, dst)
         model = mixed_model
     else:
-        # Prepare the formula
         formula = prepare_formula(dependent_variable, random_row_column_effects=False)
         y, X = dmatrices(formula, data=df, return_type='dataframe')
-        
-        # Plot histogram of the dependent variable
+
         plot_histogram(y, dependent_variable, dst=dst)
         plot_histogram(df, 'fraction', dst=dst)
 
-        # Scale the independent variables and dependent variable
-        if regression_type in ['beta', 'quasi_binomial', 'logit']:
+        # Skip MinMax scaling for any model whose interpretation depends on the
+        # original scale (bounded responses, GLM links) or whose design matrix is
+        # already 0/1 from one-hot categorical predictors (lasso, ridge).
+        if regression_type in ['beta', 'quasi_binomial', 'logit', 'probit', 'lasso', 'ridge']:
             print('Data will not be scaled')
         else:
             X, y = scale_variables(X, y)
 
-        # Perform the regression
+        # Cell count weights for GLM-Binomial (logit, probit). For other models
+        # this is ignored.
+        weights = df['cell_count'].loc[y.index] if 'cell_count' in df.columns else None
         groups = df['prc'] if regression_type == 'mixed' else None
-        print(f'Performing {regression_type} regression')
-        
-        model = regression_model(X, y, regression_type=regression_type, groups=groups, alpha=alpha, cov_type=cov_type)
 
-        # Process the model coefficients
+        print(f'Performing {regression_type} regression')
+        model = regression_model(
+            X, y,
+            regression_type=regression_type,
+            groups=groups,
+            alpha=alpha,
+            cov_type=cov_type,
+            weights=weights,
+        )
+
         coef_df = process_model_coefficients(model, regression_type, X, y, nc, pc, controls)
         display(coef_df)
+
     if plot:
         volcano_plot(coef_df, volcano_path)
-        
+
     return model, coef_df, regression_type
 
 def save_summary_to_file(model, file_path='summary.csv'):
@@ -657,48 +667,88 @@ def perform_regression(settings):
     from .sequencing import graph_sequencing_stats
 
     def _perform_regression_read_data(settings):
-        
-        if not isinstance(settings['score_data'], list):
-            settings['score_data'] = [settings['score_data']]
-        if not isinstance(settings['count_data'], list):
-            settings['count_data'] = [settings['count_data']]
-            
-        score_data_df = pd.DataFrame()
-        for i, score_data in enumerate(settings['score_data']):
-            df = pd.read_csv(score_data)
-            df = correct_metadata(df)
-            if not 'plateID' in df.columns:
-                df['plateID'] = f'plate{i+1}'
 
-            score_data_df = pd.concat([score_data_df, df])
-            print('Score data:', len(score_data_df))
-            
-        count_data_df = pd.DataFrame()
-        for i, count_data in enumerate(settings['count_data']):
-            df = pd.read_csv(count_data)
-            df = correct_metadata(df)
-            if not 'plateID' in df.columns:
-                df['plateID'] = f'plate{i+1}'
-                
-            count_data_df = pd.concat([count_data_df, df])
-            print('Count data:', len(count_data_df))
+            if not isinstance(settings['score_data'], list):
+                settings['score_data'] = [settings['score_data']]
+            if not isinstance(settings['count_data'], list):
+                settings['count_data'] = [settings['count_data']]
 
-        print(f"Dependent variable: {len(score_data_df)}")
-        print(f"Independent variable: {len(count_data_df)}")
+            plate_from_order = bool(settings.get('plate_from_order', False))
+            plates_score = settings.get('plates_score', None)
+            plates_count = settings.get('plates_count', None)
 
-        if settings['dependent_variable'] not in score_data_df.columns:
-            print(f'Columns in DataFrame:')
-            for col in score_data_df.columns:
-                print(col)
-            if not settings['dependent_variable'] == 'pathogen_nucleus_shortest_distance':
-                raise ValueError(f"Dependent variable {settings['dependent_variable']} not found in the DataFrame")
-        
-        reg_types = ['ols','gls','wls','rlm','glm','mixed','quantile','logit','probit','poisson','lasso','ridge', None]
-        if settings['regression_type'] not in reg_types:
-            print(f'Possible regression types: {reg_types}')
-            raise ValueError(f"Unsupported regression type {settings['regression_type']}")
+            def _normalise_plate_id(p):
+                if isinstance(p, (int, np.integer)):
+                    return f'plate{int(p)}'
+                return str(p)
 
-        return count_data_df, score_data_df
+            def _validate_plates_list(plates_list, files_list, name):
+                if plates_list is None:
+                    return None
+                if len(plates_list) != len(files_list):
+                    raise ValueError(
+                        f"{name} has {len(plates_list)} entries but {len(files_list)} input "
+                        f"file(s) were provided. They must be the same length and aligned by "
+                        f"position."
+                    )
+                return [_normalise_plate_id(p) for p in plates_list]
+
+            plates_score = _validate_plates_list(plates_score, settings['score_data'], 'plates_score')
+            plates_count = _validate_plates_list(plates_count, settings['count_data'], 'plates_count')
+
+            def _assign_plate(df, index, plates_list):
+                # Priority order:
+                #   1. Explicit plates list (e.g. plates_count=[1, 2, 4]) overrides everything.
+                #   2. plate_from_order=True forces 'plate{i+1}' by list position.
+                #   3. Otherwise, use the existing plateID column if present,
+                #      else fill with 'plate{i+1}'.
+                if plates_list is not None:
+                    df['plateID'] = plates_list[index]
+                elif plate_from_order:
+                    df['plateID'] = f'plate{index + 1}'
+                elif 'plateID' not in df.columns:
+                    df['plateID'] = f'plate{index + 1}'
+                return df
+
+            score_data_df = pd.DataFrame()
+            for i, score_data in enumerate(settings['score_data']):
+                df = pd.read_csv(score_data)
+                df = correct_metadata(df)
+                df = _assign_plate(df, i, plates_score)
+                score_data_df = pd.concat([score_data_df, df])
+                print(f"Score data: {len(score_data_df)} "
+                    f"(file {i + 1}/{len(settings['score_data'])}, "
+                    f"plate={df['plateID'].iloc[0]})")
+
+            count_data_df = pd.DataFrame()
+            for i, count_data in enumerate(settings['count_data']):
+                df = pd.read_csv(count_data)
+                df = correct_metadata(df)
+                df = _assign_plate(df, i, plates_count)
+                count_data_df = pd.concat([count_data_df, df])
+                print(f"Count data: {len(count_data_df)} "
+                    f"(file {i + 1}/{len(settings['count_data'])}, "
+                    f"plate={df['plateID'].iloc[0]})")
+
+            print(f"Dependent variable: {len(score_data_df)}")
+            print(f"Independent variable: {len(count_data_df)}")
+
+            if settings['dependent_variable'] not in score_data_df.columns:
+                print('Columns in DataFrame:')
+                for col in score_data_df.columns:
+                    print(col)
+                if not settings['dependent_variable'] == 'pathogen_nucleus_shortest_distance':
+                    raise ValueError(
+                        f"Dependent variable {settings['dependent_variable']} not found in the DataFrame"
+                    )
+
+            reg_types = ['ols', 'gls', 'wls', 'rlm', 'glm', 'mixed', 'quantile',
+                        'logit', 'probit', 'poisson', 'lasso', 'ridge', None]
+            if settings['regression_type'] not in reg_types:
+                print(f'Possible regression types: {reg_types}')
+                raise ValueError(f"Unsupported regression type {settings['regression_type']}")
+
+            return count_data_df, score_data_df
     
     def _perform_regression_set_paths(settings):
 
@@ -738,21 +788,32 @@ def perform_regression(settings):
 
         return results_path, results_path_gene, results_path_grna, hits_path, res_folder, csv_path
     
+    
     def _count_variable_instances(df, column_1, column_2):
+        n_grna, n_gene = None, None
+
+        for col in (column_1, column_2):
+            if col is not None and col not in df.columns:
+                raise KeyError(
+                    f"Column '{col}' not found in independent_df. "
+                    f"Available columns: {list(df.columns)}"
+                )
+
         if column_1 is not None:
             n_grna = df[column_1].value_counts().reset_index()
-            n_grna.columns = [column_1, f'n_{column_1}']
+            n_grna.columns = [column_1, f"n_{column_1}"]
+
         if column_2 is not None:
             n_gene = df[column_2].value_counts().reset_index()
-            n_gene.columns = [column_2, f'n_{column_2}']
+            n_gene.columns = [column_2, f"n_{column_2}"]
+
         if column_1 is not None and column_2 is not None:
             return df, n_grna, n_gene
-        elif column_1 is not None:
+        if column_1 is not None:
             return df, n_grna
-        elif column_2 is not None:
+        if column_2 is not None:
             return df, n_gene
-        else:
-            return df
+        return df
         
     def grna_metricks(df):
         df[['plateID', 'rowID', 'columnID']] = df['prc'].str.split('_', expand=True)
@@ -822,6 +883,73 @@ def perform_regression(settings):
         outliers_ls = outliers.unique().tolist()
         
         return outliers_ls
+    
+    def bootstrap_selection_frequencies(X, y, formula, alpha='auto', n_boot=200, random_state=None):
+        """
+        Lasso selection frequency per feature via nonparametric bootstrap.
+
+        Refits Lasso on n_boot row-bootstrap resamples of (X, y), records which
+        coefficients are non-zero, and returns the fraction of fits in which each
+        feature was selected. Output is a feature ranking, not a hypothesis test.
+
+        Parameters
+        ----------
+        X : pd.DataFrame
+            Long-form data frame; the design matrix is built per-bootstrap from
+            `formula` so factor levels are stable across resamples.
+        y : array-like
+            Aligned with X by index.
+        formula : str
+            Patsy formula passed to `dmatrices` for each resample.
+        alpha : float | 'auto' | None
+            If 'auto' or None, run LassoCV on each resample. Otherwise use a fixed alpha.
+        n_boot : int
+        random_state : int | None
+
+        Returns
+        -------
+        pd.DataFrame
+            columns = ['feature', 'selection_frequency', 'mean_coefficient'].
+        """
+        rng = np.random.default_rng(random_state)
+        n = len(X)
+        use_cv = alpha is None or (isinstance(alpha, str) and alpha == 'auto')
+
+        # Build the reference design once so the feature index is stable.
+        _, X0 = dmatrices(formula, data=X, return_type='dataframe')
+        feature_index = pd.Index(X0.columns)
+        nonzero_counts = pd.Series(0.0, index=feature_index)
+        coef_sums = pd.Series(0.0, index=feature_index)
+
+        successful = 0
+        for _ in range(n_boot):
+            idx = rng.integers(0, n, size=n)
+            boot = X.iloc[idx].reset_index(drop=True)
+            try:
+                yb, Xb = dmatrices(formula, data=boot, return_type='dataframe')
+            except Exception:
+                # A resample can occasionally drop a factor level entirely.
+                continue
+            Xb = Xb.reindex(columns=feature_index, fill_value=0.0)
+            yb = np.asarray(yb).ravel()
+            if use_cv:
+                m = LassoCV(cv=5, max_iter=10000).fit(Xb, yb)
+            else:
+                m = Lasso(alpha=alpha, max_iter=10000).fit(Xb, yb)
+            coefs = pd.Series(np.asarray(m.coef_).ravel(), index=feature_index)
+            nonzero_counts += (coefs != 0).astype(float)
+            coef_sums += coefs
+            successful += 1
+
+        if successful == 0:
+            raise RuntimeError("All bootstrap resamples failed to fit. "
+                            "Check the formula and ensure factor levels are not too sparse.")
+
+        return pd.DataFrame({
+            'feature': feature_index,
+            'selection_frequency': (nonzero_counts / successful).values,
+            'mean_coefficient': (coef_sums / successful).values,
+        })
 
     settings = get_perform_regression_default_settings(settings)
     count_data_df, score_data_df = _perform_regression_read_data(settings)
@@ -832,12 +960,86 @@ def perform_regression(settings):
             split = count_data_df['rowID'].str.split('_', expand=True)
             count_data_df['rowID'] = split[1]
     
-    if "prc" in score_data_df.columns:
-        num_parts = len(score_data_df['prc'].iloc[0].split('_'))
-        if num_parts == 3:
-            split = score_data_df['prc'].str.split('_', expand=True)
-            score_data_df['plateID'] = settings['plateID']
-            score_data_df['prc'] = score_data_df['plateID'] + '_' + split[1] + '_' + split[2]
+    #if "prc" in score_data_df.columns:
+    #    num_parts = len(score_data_df['prc'].iloc[0].split('_'))
+    #    if num_parts == 3:
+    #        split = score_data_df['prc'].str.split('_', expand=True)
+    #        score_data_df['plateID'] = settings['plateID']
+    #        score_data_df['prc'] = score_data_df['plateID'] + '_' + split[1] + '_' + split[2]
+    
+    plate_from_order = bool(settings.get('plate_from_order', False))
+
+    if plate_from_order:
+        # plateID was set by input-list position inside _perform_regression_read_data.
+        # Parse rowID and columnID from the well token in 'path'
+        # (e.g. PLATE1_A14_1_1_111.png -> well = 'A14' -> rowID='r1', columnID='c14').
+        if 'path' in score_data_df.columns:
+            well = (
+                score_data_df['path']
+                .astype(str)
+                .str.extract(r'^(?i:plate)\d+_([A-Pa-p])(\d+)_', expand=True)
+            )
+            well.columns = ['row_letter', 'column_number']
+            missing = well['row_letter'].isna().sum()
+            if missing:
+                print(f"Warning: {missing} of {len(score_data_df)} rows did not match "
+                      f"the expected PLATEn_<letter><digits>_ pattern in 'path'; "
+                      f"their rowID and columnID will be left unchanged.")
+
+            row_ids = well['row_letter'].str.upper().apply(
+                lambda x: f"r{ord(x) - ord('A') + 1}" if pd.notna(x) else None
+            )
+            col_ids = well['column_number'].apply(
+                lambda x: f"c{int(x)}" if pd.notna(x) else None
+            )
+
+            if 'rowID' in score_data_df.columns:
+                score_data_df['rowID'] = row_ids.fillna(score_data_df['rowID'].astype(str))
+            else:
+                score_data_df['rowID'] = row_ids
+            if 'columnID' in score_data_df.columns:
+                score_data_df['columnID'] = col_ids.fillna(score_data_df['columnID'].astype(str))
+            else:
+                score_data_df['columnID'] = col_ids
+
+        if settings.get('verbose'):
+            print("plate_from_order=True; plateID from input-list position, "
+                  "rowID and columnID parsed from 'path' well token.")
+    else:
+        # Recover the true plateID per row from the 'path' column
+        # (e.g. PLATE4_P13_8_1_75.png), rather than overwriting all rows
+        # with settings['plateID']. Falls back to the existing plateID column
+        # for any row whose path lacks a PLATEn_ prefix.
+        if 'path' in score_data_df.columns:
+            plate_from_path = (
+                score_data_df['path']
+                .astype(str)
+                .str.extract(r'^(?i:plate)(\d+)_', expand=False)
+            )
+            missing = plate_from_path.isna().sum()
+            if missing:
+                print(f"Warning: {missing} of {len(score_data_df)} rows have no PLATEn_ "
+                      f"prefix in 'path'; falling back to existing plateID for those rows.")
+            recovered = ('plate' + plate_from_path)
+            if 'plateID' in score_data_df.columns:
+                score_data_df['plateID'] = recovered.fillna(score_data_df['plateID'].astype(str))
+            else:
+                score_data_df['plateID'] = recovered.fillna(f"plate{settings.get('plateID', 1)}")
+
+    # Rebuild prc from per-row plateID, rowID, columnID so it reflects the real plate.
+    # Runs in both modes so prc is always consistent with plateID.
+    if {'plateID', 'rowID', 'columnID'}.issubset(score_data_df.columns):
+        score_data_df['prc'] = (
+            score_data_df['plateID'].astype(str)
+            + '_' + score_data_df['rowID'].astype(str)
+            + '_' + score_data_df['columnID'].astype(str)
+        )
+    #test 1
+    if settings.get('verbose'):
+        print("score_data_df plateID counts:")
+        print(score_data_df['plateID'].value_counts())
+        print("count_data_df plateID counts:")
+        print(count_data_df['plateID'].value_counts())
         
     results_path, results_path_gene, results_path_grna, hits_path, res_folder, csv_path = _perform_regression_set_paths(settings)
     save_settings(settings, name='regression', show=True)
@@ -869,7 +1071,7 @@ def perform_regression(settings):
 
     orig_dv = settings['dependent_variable']
 
-    dependent_df, dependent_variable = process_scores(score_data_df, settings['dependent_variable'], settings['plateID'], settings['min_cell_count'], settings['agg_type'], settings['transform'])
+    dependent_df, dependent_variable = process_scores(score_data_df, settings['dependent_variable'], settings['plateID'], settings['min_cell_count'], settings['agg_type'], settings['transform'], settings['regression_type'], settings['invert_dependent_variable'])
     
     if settings['verbose']:
         print(f"Dependent variable after process_scores: {len(dependent_df)}")
@@ -879,6 +1081,12 @@ def perform_regression(settings):
         settings['fraction_threshold'] = graph_sequencing_stats(settings)
 
     independent_df = process_reads(count_data_df, settings['fraction_threshold'], settings['plateID'], filter_column=filter_column, filter_value=filter_value)
+        
+    if settings['verbose']:
+        print("independent_df columns:", list(independent_df.columns))
+        print("independent_df head:")
+        print(independent_df.head())
+        print(independent_df)
         
     independent_df, n_grna, n_gene = _count_variable_instances(independent_df, column_1='grna', column_2='gene')
     
@@ -891,7 +1099,6 @@ def perform_regression(settings):
         display(independent_df)
         display(dependent_df)
         display(merged_df)
-    
     
     merged_df[['plateID', 'rowID', 'columnID']] = merged_df['prc'].str.split('_', expand=True)
         
@@ -931,17 +1138,17 @@ def perform_regression(settings):
         print(f"Saved grna per well data to {grna_data_path}")
         
         wells_per_gene_settings = {'src':grna_data_path,
-                    'graph_name':'wells_per_gene',
-                    'data_column':['grna_well_count'],
-                    'grouping_column':'plateID',
-                    'graph_type':'jitter_bar',
-                    'theme':'bright',
-                    'save':True,
-                    'y_lim':[None,None],
-                    'log_y':False,
-                    'log_x':False,
-                    'representation':'object',
-                    'verbose':True}
+                                'graph_name':'wells_per_gene',
+                                'data_column':['grna_well_count'],
+                                'grouping_column':'plateID',
+                                'graph_type':'jitter_bar',
+                                'theme':'bright',
+                                'save':True,
+                                'y_lim':[None,None],
+                                'log_y':False,
+                                'log_x':False,
+                                'representation':'object',
+                                'verbose':True}
         
         _, _ = plot_data_from_csv(settings=wells_per_gene_settings)
         
@@ -1005,9 +1212,45 @@ def perform_regression(settings):
     gene_coef_df.to_csv(results_path_gene, index=False)
     grna_coef_df.to_csv(results_path_grna, index=False)
     
+    #v2
+    #if regression_type == 'lasso':
+    #    significant = coef_df[coef_df['coefficient'] > 0]
+    
+    #v1
+    #if regression_type == 'lasso':
+    #    significant = coef_df[coef_df['coefficient'] != 0].copy()
+    #    significant = significant.sort_values(by='coefficient', key=lambda c: c.abs(), ascending=False)
+    #    significant = significant[~significant['feature'].str.contains('row|column')]
+    
+    #v3
     if regression_type == 'lasso':
-        significant = coef_df[coef_df['coefficient'] > 0]
-        
+        # Lasso has no valid frequentist p-values. Use bootstrap selection
+        # frequency as the feature-importance ranking. Treat as a selection
+        # method, not a hypothesis test.
+        n_boot = settings.get('lasso_n_boot', 200)
+        sel_threshold = settings.get('lasso_selection_threshold', 0.6)
+        formula = prepare_formula(dependent_variable, random_row_column_effects=False)
+        # Apply the same preprocessing the OLS path uses, so derived columns
+        # referenced by the formula (e.g. gene_fraction) exist in the bootstrap.
+        cleaned_df = check_and_clean_data(merged_df.copy(), dependent_variable)
+        sel_df = bootstrap_selection_frequencies(
+            X=cleaned_df,
+            y=cleaned_df[dependent_variable],
+            formula=formula,
+            alpha=settings.get('alpha', 'auto'),
+            n_boot=n_boot,
+            random_state=0,
+        )
+        coef_df = coef_df.merge(sel_df, on='feature', how='left')
+
+        significant = coef_df[
+            (coef_df['coefficient'] != 0)
+            & (coef_df['selection_frequency'] >= sel_threshold)
+        ].copy()
+        significant = significant.sort_values(
+            by='coefficient', key=lambda c: c.abs(), ascending=False,
+        )
+        significant = significant[~significant['feature'].str.contains('row|column')]
     else:
         significant = coef_df[coef_df['p_value']<= 0.05]
         if settings['controls'] is not None:
@@ -1047,18 +1290,53 @@ def perform_regression(settings):
         base_dir = os.path.dirname(os.path.abspath(__file__))
         metadata_path = os.path.join(base_dir, 'resources', 'data', 'lopit.csv')
         
+        gene_list = None
+
         if settings['volcano'] == 'all':
             print('all')
-            gene_list = custom_volcano_plot(data_path, metadata_path, metadata_column='tagm_location', point_size=600, figsize=20, threshold=reg_threshold, save_path=volcano_path, x_lim=settings['x_lim'],y_lims=settings['y_lims'])
-            display(gene_list)
+            gene_list = custom_volcano_plot(
+                data_path, metadata_path, metadata_column='tagm_location',
+                point_size=600, figsize=20, threshold=reg_threshold,
+                save_path=volcano_path, x_lim=settings['x_lim'], y_lims=settings['y_lims'],
+            )
         elif settings['volcano'] == 'gene':
             print('gene')
-            gene_list = custom_volcano_plot(data_path_gene, metadata_path, metadata_column='tagm_location', point_size=600, figsize=20, threshold=reg_threshold, save_path=volcano_path, x_lim=settings['x_lim'],y_lims=settings['y_lims'])
-            display(gene_list)
+            gene_list = custom_volcano_plot(
+                data_path_gene, metadata_path, metadata_column='tagm_location',
+                point_size=600, figsize=20, threshold=reg_threshold,
+                save_path=volcano_path, x_lim=settings['x_lim'], y_lims=settings['y_lims'],
+            )
         elif settings['volcano'] == 'grna':
             print('grna')
-            gene_list = custom_volcano_plot(data_path_grna, metadata_path, metadata_column='tagm_location', point_size=600, figsize=20, threshold=reg_threshold, save_path=volcano_path, x_lim=settings['x_lim'],y_lims=settings['y_lims'])
-            display(gene_list)
+            gene_list = custom_volcano_plot(
+                data_path_grna, metadata_path, metadata_column='tagm_location',
+                point_size=600, figsize=20, threshold=reg_threshold,
+                save_path=volcano_path, x_lim=settings['x_lim'], y_lims=settings['y_lims'],
+            )
+        else:
+            print(f"Skipping volcano plot: settings['volcano']={settings['volcano']!r} "
+                f"is not one of 'all', 'gene', 'grna'.")
+
+        display(gene_list) if gene_list is not None else None
+
+        phenotype_plot = os.path.join(res_folder, 'phenotype_plot.pdf')
+        transcription_heatmap = os.path.join(res_folder, 'transcription_heatmap.pdf')
+        data_GT1 = pd.read_csv(settings['metadata_files'][1], low_memory=False)
+        data_ME49 = pd.read_csv(settings['metadata_files'][0], low_memory=False)
+        columns = ['sense - Tachyzoites', 'sense - Tissue cysts',
+                'sense - EES1', 'sense - EES2', 'sense - EES3',
+                'sense - EES4', 'sense - EES5']
+
+        if gene_list:
+            print('Plotting gene phenotypes and heatmaps')
+            print(gene_list)
+            plot_gene_phenotypes(data=data_GT1, gene_list=gene_list, save_path=phenotype_plot)
+            plot_gene_heatmaps(
+                data=data_ME49, gene_list=gene_list, columns=columns,
+                x_column='Gene ID', normalize=True, save_path=transcription_heatmap,
+            )
+        else:
+            print("No gene_list produced; skipping phenotype and heatmap plots.")
         
         phenotype_plot = os.path.join(res_folder,'phenotype_plot.pdf')
         transcription_heatmap = os.path.join(res_folder,'transcription_heatmap.pdf')
@@ -1067,8 +1345,9 @@ def perform_regression(settings):
         
         columns = ['sense - Tachyzoites', 'sense - Tissue cysts', 'sense - EES1', 'sense - EES2', 'sense - EES3', 'sense - EES4', 'sense - EES5']
         
-        print('Plotting gene phenotypes and heatmaps')
-        print(gene_list)
+        if gene_list:
+            print('Plotting gene phenotypes and heatmaps')
+            print(gene_list)
 
         plot_gene_phenotypes(data=data_GT1, gene_list=gene_list, save_path=phenotype_plot)
         plot_gene_heatmaps(data=data_ME49, gene_list=gene_list, columns=columns, x_column='Gene ID', normalize=True, save_path=transcription_heatmap)
@@ -1141,12 +1420,43 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filte
     merged_df['fraction'] = merged_df['count'] / merged_df['total_counts']
 
     # Filter rows with fraction under the threshold
+    #if fraction_threshold is not None:
+    #    observations_before = len(merged_df)
+    #    merged_df = merged_df[merged_df['fraction'] >= fraction_threshold]
+    #    observations_after = len(merged_df)
+    #    removed = observations_before - observations_after
+    #    print(f'Removed {removed} observation below fraction threshold: {fraction_threshold}')
+        
     if fraction_threshold is not None:
+        if not 0 <= fraction_threshold <= 1:
+            raise ValueError(
+                f"fraction_threshold={fraction_threshold} is outside the valid range [0, 1]. "
+                f"The 'fraction' column is a relative abundance bounded between 0 and 1."
+            )
+
         observations_before = len(merged_df)
+        frac_min = merged_df['fraction'].min()
+        frac_max = merged_df['fraction'].max()
+        frac_median = merged_df['fraction'].median()
+
         merged_df = merged_df[merged_df['fraction'] >= fraction_threshold]
         observations_after = len(merged_df)
         removed = observations_before - observations_after
-        print(f'Removed {removed} observation below fraction threshold: {fraction_threshold}')
+
+        pct_retained = 100 * observations_after / observations_before if observations_before else 0
+        print(
+            f"Removed {removed} of {observations_before} observations "
+            f"below fraction threshold {fraction_threshold} "
+            f"({pct_retained:.1f}% retained). "
+            f"Fraction range in input: [{frac_min:.4g}, {frac_max:.4g}], median {frac_median:.4g}."
+        )
+
+        if observations_after == 0:
+            raise ValueError(
+                f"All {observations_before} rows were removed by fraction_threshold={fraction_threshold}. "
+                f"Observed fraction range was [{frac_min:.4g}, {frac_max:.4g}], median {frac_median:.4g}. "
+                f"Choose a threshold below the median, or pass None to auto-compute."
+            )
 
     merged_df = merged_df[['prc', 'grna', 'fraction']]
 
@@ -1193,7 +1503,7 @@ def clean_controls(df,values, column):
                 print(f'Removed data from {value}')
     return df
 
-def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='mean', transform=None, regression_type='ols'):
+def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='mean', transform=None, regression_type='ols', invert_dependent_variable=False):
     from .utils import calculate_shortest_distance, correct_metadata
     df = df.reset_index(drop=True)
     if 'prcfo' in df.columns:
@@ -1203,27 +1513,70 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
         if all(col in df.columns for col in ['plateID', 'rowID', 'columnID']):
             df['prc'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str)
     else:
-        
-         
         df = correct_metadata(df)
-        
-            
-        if not plate is None:
-            df['plateID'] = plate
-    
         df = df.loc[:, ~df.columns.duplicated()].copy()
-        
+
+        # Only stamp a single plateID on every row when the caller asked for it AND
+        # the frame is single-plate (or has no plateID at all). For a multi-plate
+        # frame, ignore 'plate' so wells from different plates do not get collapsed
+        # to the same prc and silently averaged together by the groupby below.
+        n_plates_in_df = df['plateID'].nunique(dropna=True) if 'plateID' in df.columns else 0
+
+        if plate is not None:
+            if n_plates_in_df > 1:
+                print(f"Warning: process_scores received plate={plate!r} but the input "
+                      f"DataFrame already contains {n_plates_in_df} distinct plateIDs. "
+                      f"Ignoring the 'plate' argument and using the per-row plateID "
+                      f"column to avoid collapsing plates.")
+            else:
+                df['plateID'] = plate
+
+        if 'plateID' not in df.columns or df['plateID'].isna().all():
+            raise ValueError(
+                "process_scores: DataFrame has no usable 'plateID' column "
+                "and no 'plate' argument was provided."
+            )
+
         if all(col in df.columns for col in ['plateID', 'rowID', 'columnID']):
             df['prc'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str)
         else:
             raise ValueError("The DataFrame must contain 'plateID', 'rowID', and 'columnID' columns.")
 
     df = df[['prc', dependent_variable]]
+    
+    df = df[['prc', dependent_variable]].copy()
+
+    # Optional inversion of the raw dependent variable, applied before
+    # aggregation and before any transform.
+    #   False / 0 : no inversion
+    #   True  / 1 : x -> 1 - x   (complement; for probability / score in [0, 1])
+    #   -1        : x -> 1 / x   (reciprocal; for rate- or time-like quantities)
+    if invert_dependent_variable in (True, 1):
+        df[dependent_variable] = 1.0 - df[dependent_variable]
+        print(f"Inverted '{dependent_variable}' as 1 - x on raw values.")
+    elif invert_dependent_variable == -1:
+        raw = df[dependent_variable]
+        n_zero = int((raw == 0).sum())
+        if n_zero > 0:
+            print(f"Warning: '{dependent_variable}' contains {n_zero} zero "
+                  f"values; 1/x is undefined for those rows. They will be set "
+                  f"to NaN and dropped from this analysis.")
+        df[dependent_variable] = 1.0 / raw.where(raw != 0)
+        df = df.dropna(subset=[dependent_variable])
+        print(f"Inverted '{dependent_variable}' as 1/x on raw values.")
+    elif invert_dependent_variable in (False, 0):
+        pass
+    else:
+        raise ValueError(
+            f"invert_dependent_variable must be one of False, True, 1, -1; "
+            f"got {invert_dependent_variable!r}."
+        )
+
     # Group by prc and calculate the mean and count of the dependent_variable
     grouped = df.groupby('prc')[dependent_variable]
-        
+
     if regression_type != 'poisson':
-    
+
         print(f'Using agg_type: {agg_type}')
 
         if agg_type == 'median':
@@ -1232,18 +1585,18 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
             dependent_df = grouped.mean().reset_index()
         elif agg_type == 'quantile':
             dependent_df = grouped.quantile(0.75).reset_index()
-        elif agg_type == None:
+        elif agg_type is None:
             dependent_df = df.reset_index()
             if 'prcfo' in dependent_df.columns:
                 dependent_df = dependent_df.drop(columns=['prcfo'])
         else:
             raise ValueError(f"Unsupported aggregation type {agg_type}")
-            
+
     if regression_type == 'poisson':
         agg_type = 'count'
         print(f'Using agg_type: {agg_type} for poisson regression')
-        dependent_df = grouped.sum().reset_index()        
-        
+        dependent_df = grouped.sum().reset_index()
+
     # Calculate cell_count for all cases
     cell_count = grouped.size().reset_index(name='cell_count')
 
@@ -1251,18 +1604,18 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
         dependent_df = pd.merge(dependent_df, cell_count, on='prc')
     else:
         dependent_df['cell_count'] = cell_count['cell_count']
-        
+
     print("1 test")
     display(dependent_df)
 
     dependent_df = dependent_df[dependent_df['cell_count'] >= min_cell_count]
-    
+
     print("2 test")
     display(dependent_df)
 
     is_normal = check_normality(dependent_df[dependent_variable], dependent_variable)
 
-    if not transform is None:
+    if transform is not None:
         transformer = apply_transformation(dependent_df[dependent_variable], transform=transform)
         transformed_var = f'{transform}_{dependent_variable}'
         dependent_df[transformed_var] = transformer.fit_transform(dependent_df[[dependent_variable]])
