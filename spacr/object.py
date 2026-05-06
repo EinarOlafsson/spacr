@@ -397,6 +397,7 @@ def generate_cellpose_masks(src, settings, object_type):
     settings['src'] = src
     
     settings = set_default_settings_preprocess_generate_masks(settings)
+    
 
     if settings['verbose']:
         settings_df = pd.DataFrame(list(settings.items()), columns=['setting_key', 'setting_value'])
