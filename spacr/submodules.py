@@ -1383,7 +1383,7 @@ def interperate_vision_model(settings={}):
         
     return output
 
-def _plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_column='prc', level='object'):
+def _plot_proportion_stacked_bars_v1(settings, df, group_column, bin_column, prc_column='prc', level='object'):
     # Always calculate chi-squared on raw data
     raw_counts = df.groupby([group_column, bin_column]).size().unstack(fill_value=0)
     chi2, p, dof, expected = chi2_contingency(raw_counts)
@@ -1433,6 +1433,193 @@ def _plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_co
     return chi2, p, dof, expected, raw_counts, fig
 
 def analyze_endodyogeny(settings):
+
+    from .utils import annotate_conditions, save_settings
+    from .io import _read_and_merge_data
+    from .settings import set_analyze_endodyogeny_defaults
+    from .plot import plot_proportion_stacked_bars
+
+    def _calculate_volume_bins(df, compartment='pathogen', min_area_bin=500, max_bins=None, verbose=False):
+        area_column = f'{compartment}_area'
+        volume_column = f'{compartment}_volume'
+        bin_column = f'{compartment}_volume_bin'
+
+        df[volume_column] = df[area_column] ** 1.5
+        min_volume_bin = min_area_bin ** 1.5
+        max_volume = df[volume_column].max()
+
+        if max_volume <= min_volume_bin:
+            raise ValueError(
+                f"Max volume ({max_volume:.2f}) is not greater than "
+                f"min_volume_bin ({min_volume_bin:.2f}). Check min_area_bin or data."
+            )
+
+        n_edges = int(np.ceil(np.log2(max_volume / min_volume_bin))) + 1
+        bins = [min_volume_bin * (2 ** i) for i in range(n_edges)]
+        bins = sorted(set(bins))
+
+        # Ensure the last edge exceeds the data maximum so nothing is clipped
+        if bins[-1] <= max_volume:
+            bins.append(bins[-1] * 2)
+
+        bin_labels = [f"{bins[i]:.2f}-{bins[i+1]:.2f}" for i in range(len(bins) - 1)]
+
+        if verbose:
+            print('Volume bins:', bins)
+            print('Volume bin labels:', bin_labels)
+
+        # Cut into bins; values outside the range become NaN
+        df[bin_column] = pd.cut(
+            df[volume_column], bins=bins, labels=bin_labels, right=False
+        )
+        df['bin_index'] = pd.cut(
+            df[volume_column], bins=bins, labels=range(1, len(bins)), right=False
+        )
+
+        # Coerce to float so NaN is preserved (int would raise)
+        df['bin_index'] = pd.to_numeric(df['bin_index'], errors='coerce')
+
+        # Drop rows that fell outside all bins
+        before = len(df)
+        df = df.dropna(subset=['bin_index']).copy()
+        if verbose and len(df) < before:
+            print(f"Dropped {before - len(df)} rows outside volume bin range")
+        df['bin_index'] = df['bin_index'].astype(int)
+
+        # Cap at max_bins
+        if max_bins is not None and max_bins < len(bin_labels):
+            df.loc[df['bin_index'] > max_bins, 'bin_index'] = max_bins
+            capped_labels = bin_labels[:max_bins - 1] + [f">{bins[max_bins - 1]:.2f}"]
+        else:
+            capped_labels = bin_labels
+
+        # Build the authoritative ordered mapping and apply it
+        index_to_label = {i + 1: label for i, label in enumerate(capped_labels)}
+        df[bin_column] = df['bin_index'].map(index_to_label)
+
+        # Convert to an ordered categorical so order is never ambiguous
+        ordered_categories = [index_to_label[k] for k in sorted(index_to_label.keys())]
+        df[bin_column] = pd.Categorical(
+            df[bin_column], categories=ordered_categories, ordered=True
+        )
+
+        if verbose:
+            print(df[[volume_column, bin_column, 'bin_index']].head(20))
+
+        return df, ordered_categories
+
+    # ------------------------------------------------------------------
+    settings = set_analyze_endodyogeny_defaults(settings)
+    save_settings(settings, name='analyze_endodyogeny', show=True)
+    output = {}
+
+    if not isinstance(settings['src'], list):
+        settings['src'] = [settings['src']]
+
+    locs = [os.path.join(s, 'measurements/measurements.db') for s in settings['src']]
+
+    if 'png_list' not in settings['tables']:
+        settings['tables'] = settings['tables'] + ['png_list']
+
+    df, _ = _read_and_merge_data(
+        locs,
+        tables=settings['tables'],
+        verbose=settings['verbose'],
+        nuclei_limit=settings['nuclei_limit'],
+        pathogen_limit=settings['pathogen_limit'],
+        change_plate=settings['change_plate']
+    )
+
+    if settings['um_per_px'] is not None:
+        df[f"{settings['compartment']}_area"] = (
+            df[f"{settings['compartment']}_area"] * (settings['um_per_px'] ** 2)
+        )
+        settings['min_area_bin'] = settings['min_area_bin'] * (settings['um_per_px'] ** 2)
+
+    df = df[df[f"{settings['compartment']}_area"] >= settings['min_area_bin']].copy()
+    
+    df = df[df[f"{settings['compartment']}_area"] <= settings['max_area']].copy()
+
+    df = annotate_conditions(
+        df=df,
+        cells=settings['cell_types'],
+        cell_loc=settings['cell_plate_metadata'],
+        pathogens=settings['pathogen_types'],
+        pathogen_loc=settings['pathogen_plate_metadata'],
+        treatments=settings['treatments'],
+        treatment_loc=settings['treatment_plate_metadata']
+    )
+
+    if settings['group_by_class']:
+        df['new_condition'] = (
+            df['condition'].astype(str) + df[settings['class_column']].astype(str)
+        )
+        settings['group_column'] = 'new_condition'
+
+    df = df.dropna(subset=[settings['group_column']])
+
+    if settings['group_column'] not in df.columns:
+        available = ', '.join(df.columns.tolist())
+        raise KeyError(
+            f"'{settings['group_column']}' not found in DataFrame. "
+            f"Available columns: {available}"
+        )
+
+    df, ordered_bin_labels = _calculate_volume_bins(
+        df,
+        settings['compartment'],
+        settings['min_area_bin'],
+        settings['max_bins'],
+        settings['verbose']
+    )
+
+    output['data'] = df
+
+    prc_column = 'plate' if settings['level'] == 'plate' else 'prc'
+
+    bin_column = f"{settings['compartment']}_volume_bin"
+
+    # Remove categories that have zero observations across the entire dataset
+    # so the contingency table passed to chi2_contingency has no all-zero columns
+    df[bin_column] = df[bin_column].cat.remove_unused_categories()
+    ordered_bin_labels = df[bin_column].cat.categories.tolist()
+
+    results_df, pairwise_results_df, fig = plot_proportion_stacked_bars(
+        settings, df, settings['group_column'],
+        bin_column=bin_column, prc_column=prc_column,
+        level=settings['level'], cmap=settings['cmap']
+    )
+
+    # Use the authoritative ordered list (no sorting, no dtype check needed)
+    legend_labels = [
+        f"{i}: {label}" for i, label in enumerate(ordered_bin_labels, start=1)
+    ]
+
+    volume_unit = "px\u00b3" if settings['um_per_px'] is None else "\u00b5m\u00b3"
+    plt.legend(
+        legend_labels,
+        title=f'Volume Range ({volume_unit})',
+        bbox_to_anchor=(1.05, 1),
+        loc='upper left'
+    )
+    plt.ylim(0, 1)
+
+    output['chi_squared'] = results_df
+
+    if settings['save']:
+        output_dir = os.path.join(settings['src'][0], 'results', 'analyze_endodyogeny')
+        os.makedirs(output_dir, exist_ok=True)
+        fig.savefig(os.path.join(output_dir, 'chi_squared_results.pdf'), dpi=300, bbox_inches='tight')
+        df.to_csv(os.path.join(output_dir, 'data.csv'), index=False)
+        results_df.to_csv(os.path.join(output_dir, 'chi_squared_results.csv'), index=False)
+        pairwise_results_df.to_csv(os.path.join(output_dir, 'chi_squared_pairwise_results.csv'), index=False)
+        print(f"Chi-squared results saved to {output_dir}")
+
+    plt.show()
+
+    return output
+
+def analyze_endodyogeny_v1(settings):
     
     from .utils import annotate_conditions, save_settings
     from .io import _read_and_merge_data
@@ -1559,7 +1746,7 @@ def analyze_endodyogeny(settings):
         #data_output_path = os.path.join(output_dir, 'data.csv')
         output_path = os.path.join(output_dir, 'chi_squared_results.csv')
         output_path_data = os.path.join(output_dir, 'data.csv')
-        output_path_pairwise = os.path.join(output_dir, 'chi_squared_results.csv')
+        output_path_pairwise = os.path.join(output_dir, 'chi_squared_pairwise_results.csv')
         output_path_fig = os.path.join(output_dir, 'chi_squared_results.pdf')
         fig.savefig(output_path_fig, dpi=300, bbox_inches='tight')
         df.to_csv(output_path_data, index=False)
