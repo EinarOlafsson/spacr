@@ -4230,7 +4230,7 @@ def plot_data_from_db(settings):
 
     # Optional: Get the results DataFrame containing statistical test results
     results_df = spacr_graph.get_results()
-    return fig, results_df
+    return fig, results_df, df
 
 def plot_data_from_csv(settings):
     from .io import _read_db, _read_and_merge_data
@@ -4608,6 +4608,62 @@ def graph_importance(settings):
     plt.show()
     
 def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_column='prc', level='object', cmap='viridis'):
+    """
+    Generate a stacked bar plot for proportions and perform chi-squared and pairwise tests.
+    """
+
+    from .sp_stats import chi_pairwise
+
+    # Calculate contingency table for overall chi-squared test
+    raw_counts = df.groupby([group_column, bin_column], observed=True).size().unstack(fill_value=0)
+    chi2, p, dof, expected = chi2_contingency(raw_counts)
+    print(f"Chi-squared test statistic (raw data): {chi2:.4f}")
+    print(f"p-value (raw data): {p:.4e}")
+
+    # Perform pairwise comparisons
+    pairwise_results = chi_pairwise(raw_counts, verbose=settings.get('verbose', False))
+
+    # Plot based on level setting
+    if level in ['well', 'plateID']:
+        well_proportions = (
+            df.groupby([group_column, prc_column, bin_column], observed=True)
+            .size()
+            .groupby(level=[0, 1])
+            .apply(lambda x: x / x.sum())
+            .unstack(fill_value=0)
+        )
+        mean_proportions = well_proportions.groupby(group_column).mean()
+        std_proportions = well_proportions.groupby(group_column).std()
+
+        ax = mean_proportions.plot(
+            kind='bar', stacked=True, yerr=std_proportions, capsize=5, colormap=cmap, figsize=(12, 8)
+        )
+        plt.title('Proportion of Volume Bins by Group (Mean ± SD across wells)')
+    else:
+        group_counts = df.groupby([group_column, bin_column], observed=True).size()
+        group_totals = group_counts.groupby(level=0).sum()
+        proportions = group_counts / group_totals
+        proportion_df = proportions.unstack(fill_value=0)
+
+        ax = proportion_df.plot(kind='bar', stacked=True, colormap=cmap, figsize=(12, 8))
+        plt.title('Proportion of Volume Bins by Group')
+
+    plt.xlabel('Group')
+    plt.ylabel('Proportion')
+
+    plt.legend(title='Classes', bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.ylim(0, 1)
+    fig = plt.gcf()
+
+    results_df = pd.DataFrame({
+        'chi_squared_stat': [chi2],
+        'p_value': [p],
+        'degrees_of_freedom': [dof]
+    })
+
+    return results_df, pairwise_results, fig
+    
+def plot_proportion_stacked_bars_v1(settings, df, group_column, bin_column, prc_column='prc', level='object', cmap='viridis'):
     """
     Generate a stacked bar plot for proportions and perform chi-squared and pairwise tests.
     

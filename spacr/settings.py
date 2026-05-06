@@ -2173,6 +2173,7 @@ def set_analyze_endodyogeny_defaults(settings):
     settings.setdefault('treatments',None)
     settings.setdefault('treatment_plate_metadata',None)
     settings.setdefault('min_area_bin',500)
+    settings.setdefault('max_area',1000000000)
     settings.setdefault('group_column','condition')
     settings.setdefault('compartment','pathogen')
     settings.setdefault('pathogen_limit',1)
