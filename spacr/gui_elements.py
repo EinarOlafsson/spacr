@@ -1,4 +1,4 @@
-import os, threading, time, sqlite3, webbrowser, pyautogui, random, cv2
+import os, threading, time, sqlite3, webbrowser, pyautogui, random, cv2, json
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as tkFont
@@ -2427,7 +2427,7 @@ class ModifyMaskApp:
         self.update_display()
 
 class AnnotateApp:
-    def __init__(self, root, db_path, src, image_type=None, channels=None, image_size=200, annotation_column='annotate', percentiles=(1, 99), measurement=None, threshold=None, normalize_channels=None, outline=None, outline_threshold_factor=1, outline_sigma=1, edge_thickness=1, edge_transparency=100, edge_image=False, object_size=(0,0)):
+    def __init__(self, root, db_path, src, image_type=None, channels=None, image_size=200, annotation_column='annotate', percentiles=(1, 99), measurement=None, threshold=None, threshold_direction = "higher", normalize_channels=None, outline=None, outline_threshold_factor=1, outline_sigma=1, edge_thickness=1, edge_transparency=100, edge_image=False, object_size=(0,0)):
         self.root = root
         self.db_path = db_path
         self.src = src
@@ -2441,6 +2441,10 @@ class AnnotateApp:
             self.image_size = (image_size, image_size)
         else:
             raise ValueError("Invalid image size")
+        
+        # Cross-platform right-click event: 'aqua' (macOS) uses Button-2, others use Button-3
+        windowing = self.root.tk.call('tk', 'windowingsystem')
+        self._right_click_event = '<Button-2>' if windowing == 'aqua' else '<Button-3>'
         
         self.orig_annotation_columns = annotation_column
         self.annotation_column = annotation_column
@@ -2457,6 +2461,7 @@ class AnnotateApp:
         self.update_queue = Queue()
         self.measurement = measurement
         self.threshold = threshold
+        self.threshold_direction = threshold_direction
         self.normalize_channels = normalize_channels
         self.outline = outline
         self.outline_threshold_factor = outline_threshold_factor
@@ -2860,6 +2865,355 @@ class AnnotateApp:
             
     def open_settings_window(self):
         from .gui_utils import generate_annotate_fields, convert_to_number
+        
+        # ---- Local tooltip implementation (kept here so it is always defined
+        # ---- when the method runs, regardless of import or reload state) -----
+        class _ToolTip:
+            def __init__(self, widget, text):
+                self.widget = widget
+                self.text = text
+                self.tipwindow = None
+                # add='+' preserves any existing <Enter>/<Leave> handlers
+                widget.bind('<Enter>', self._show, add='+')
+                widget.bind('<Leave>', self._hide, add='+')
+
+            def _show(self, _event=None):
+                if self.tipwindow or not self.text:
+                    return
+                x = self.widget.winfo_rootx() + 20
+                y = self.widget.winfo_rooty() + self.widget.winfo_height() + 4
+                tw = tk.Toplevel(self.widget)
+                tw.wm_overrideredirect(True)
+                tw.wm_geometry(f"+{x}+{y}")
+                tk.Label(
+                    tw, text=self.text, justify='left',
+                    background='#222', foreground='#eee',
+                    relief='solid', borderwidth=1, wraplength=420,
+                    font=('TkDefaultFont', 9),
+                ).pack(ipadx=6, ipady=3)
+                self.tipwindow = tw
+
+            def _hide(self, _event=None):
+                if self.tipwindow:
+                    self.tipwindow.destroy()
+                    self.tipwindow = None
+
+        _SETTING_TOOLTIPS = {
+            'src': "Path to the experiment source directory. The measurements database is read from <src>/measurements/measurements.db.",
+            'db_path': "Full path to the SQLite measurements database. Filled automatically from src.",
+            'image_type': "Substring filter on png_path (e.g. 'cell', 'nucleus'). Leave empty for no filter. A comma-separated list applies all substrings.",
+            'channels': "Channel names as comma-separated lowercase letters (e.g. 'r,g,b'). Empty disables channel selection.",
+            'img_size': "Crop or display size as 'width,height' in pixels (e.g. '224,224').",
+            'annotation_column': "Name of the column in png_list used to store the user annotation.",
+            'percentiles': "Two comma-separated percentiles for per-image normalization (e.g. '1,99').",
+            'normalize_channels': "Channels to normalize, as comma-separated 'r','g','b'. Empty disables normalization.",
+            'outline': "Channels to draw object outlines on, as comma-separated 'r','g','b'. Empty disables outlines.",
+            'outline_threshold_factor': "Multiplicative factor applied to the outline detection threshold (float, default 1.0).",
+            'outline_sigma': "Gaussian sigma used during outline extraction (float, default 1.0).",
+            'edge_thickness': "Outline thickness in pixels (float, default 1).",
+            'edge_transparency': "Outline transparency in [0, 100]. 0 is fully opaque.",
+            'edge_image': "Boolean. If true, the outline image is composited on display.",
+            'object_size': "Object area bounds as 'min,max' in pixels. 0 disables that bound.",
+            'measurement': (
+                "Measurement(s) used for prefiltering. Three accepted shapes:\n"
+                "  - single column: e.g. area\n"
+                "  - flat list: e.g. area, intensity_mean (each filtered with the same-index threshold and direction)\n"
+                "  - list of lists (JSON): e.g. [[\"area\"], [\"int_a\", \"int_b\"]] "
+                "(an inner pair is filtered as a ratio numerator/denominator)\n"
+                "Use JSON syntax when nesting is needed."
+            ),
+            'threshold': (
+                "Threshold value(s). Accepted shapes mirror 'measurement':\n"
+                "  - single value: int, float, or quantile string 'q1'..'q9' (e.g. q3 = 30th percentile)\n"
+                "  - list: e.g. 100, q5 or as JSON [100, \"q5\"]\n"
+                "Use 'none' to disable threshold filtering."
+            ),
+            'threshold_direction': (
+                "Direction(s) for thresholding: 'lower' keeps values <= threshold, 'higher' keeps values >= threshold.\n"
+                "Single value or comma-separated list matching 'measurement'."
+            ),
+        }
+
+        def _find_label_for(entry_widget, key):
+            """Return the Label widget that pairs with this entry.
+
+            Looks at the entry's siblings (entry.master.winfo_children()). If
+            more than one Label is present, prefers the one whose text resembles
+            the key. Returns None if no Label is found.
+            """
+            try:
+                siblings = list(entry_widget.master.winfo_children())
+            except Exception:
+                return None
+            labels = [w for w in siblings if isinstance(w, (tk.Label, ttk.Label))]
+            if not labels:
+                return None
+            if len(labels) == 1:
+                return labels[0]
+            kname = key.lower().replace('_', ' ')
+            for lab in labels:
+                try:
+                    if kname in str(lab.cget('text')).lower():
+                        return lab
+                except Exception:
+                    continue
+            return labels[0]
+
+        # ---- window ----------------------------------------------------------
+        settings_window = tk.Toplevel(self.root)
+        settings_window.title("Modify Annotation Settings")
+
+        style_out = set_dark_style(ttk.Style())
+        settings_window.configure(bg=style_out['bg_color'])
+
+        settings_frame = tk.Frame(settings_window, bg=style_out['bg_color'])
+        settings_frame.pack(fill=tk.BOTH, expand=True)
+
+        vars_dict = generate_annotate_fields(settings_frame)
+
+        # Add 'threshold_direction' manually if generate_annotate_fields does
+        # not include it. Keep the label and entry as siblings so the tooltip
+        # lookup can find the label later.
+        if 'threshold_direction' not in vars_dict:
+            row = tk.Frame(settings_frame, bg=style_out['bg_color'])
+            row.pack(fill=tk.X, padx=6, pady=2)
+            tk.Label(
+                row, text='threshold_direction',
+                bg=style_out['bg_color'], fg=style_out['fg_color'],
+                width=22, anchor='w'
+            ).pack(side=tk.LEFT)
+            entry = tk.Entry(
+                row, bg=style_out['bg_color'], fg=style_out['fg_color'],
+                insertbackground=style_out['fg_color']
+            )
+            entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
+            vars_dict['threshold_direction'] = {'entry': entry}
+
+        # ---- serializers for the flexible shapes -----------------------------
+        def _serialize_measurement(m):
+            if m is None or m == '':
+                return ''
+            if isinstance(m, str):
+                return m
+            if isinstance(m, (list, tuple)):
+                if any(isinstance(x, (list, tuple)) for x in m):
+                    return json.dumps(m)
+                return ','.join(map(str, m))
+            return str(m)
+
+        def _serialize_threshold(t):
+            if t is None:
+                return ''
+            if isinstance(t, (list, tuple)):
+                return json.dumps(list(t))
+            return str(t)
+
+        def _serialize_direction(d):
+            if d is None or d == '':
+                return ''
+            if isinstance(d, (list, tuple)):
+                return ','.join(map(str, d))
+            return str(d)
+
+        current_settings = {
+            'image_type': self.image_type or '',
+            'channels': ','.join(self.channels) if self.channels else '',
+            'img_size': f"{self.image_size[0]},{self.image_size[1]}",
+            'annotation_column': self.annotation_column or '',
+            'percentiles': ','.join(map(str, self.percentiles)),
+            'measurement': _serialize_measurement(self.measurement),
+            'threshold': _serialize_threshold(self.threshold),
+            'threshold_direction': _serialize_direction(getattr(self, 'threshold_direction', None)),
+            'normalize_channels': ','.join(
+                [s for s in (self.normalize_channels or []) if isinstance(s, str) and s.strip()]
+            ),
+            'outline': ','.join(self.outline) if self.outline else '',
+            'outline_threshold_factor': str(getattr(self, 'outline_threshold_factor', 1.0)),
+            'outline_sigma': str(getattr(self, 'outline_sigma', 1.0)),
+            'edge_thickness': str(getattr(self, 'edge_thickness', 1)),
+            'edge_transparency': str(getattr(self, 'edge_transparency', 0.0)),
+            'edge_image': str(getattr(self, 'edge_image', False)),
+            'object_size': f"{getattr(self, 'object_size', (0, 0))[0]},{getattr(self, 'object_size', (0, 0))[1]}",
+            'src': self.src,
+            'db_path': self.db_path,
+        }
+
+        # Fill entries and attach tooltips to LABELS (fall back to the entry
+        # only when no sibling label is found)
+        for key, data in vars_dict.items():
+            if key in current_settings:
+                data['entry'].delete(0, tk.END)
+                data['entry'].insert(0, current_settings[key])
+            tip = _SETTING_TOOLTIPS.get(key)
+            if not tip:
+                continue
+            target = _find_label_for(data['entry'], key) or data['entry']
+            spacrToolTip(target, tip)
+
+        # ---- parsers for the flexible shapes ---------------------------------
+        QUANTILE_TOKENS = {f'q{i}' for i in range(1, 10)}
+
+        def _parse_one_threshold(token):
+            s = str(token).strip()
+            if s.lower() in QUANTILE_TOKENS:
+                return s.lower()
+            try:
+                return int(s)
+            except ValueError:
+                return float(s.replace(',', '.'))
+
+        def _parse_measurement(raw):
+            s = (raw or '').strip()
+            if not s:
+                return None
+            if s.startswith('['):
+                return json.loads(s)
+            parts = [p.strip() for p in s.split(',') if p.strip()]
+            if not parts:
+                return None
+            return parts[0] if len(parts) == 1 else parts
+
+        def _parse_threshold(raw):
+            s = (raw or '').strip()
+            if not s or s.lower() == 'none':
+                return None
+            if s.startswith('['):
+                parsed = json.loads(s)
+                if isinstance(parsed, list):
+                    return [_parse_one_threshold(x) if not isinstance(x, (int, float)) else x for x in parsed]
+                return parsed
+            parts = [p.strip() for p in s.split(',') if p.strip()]
+            if len(parts) == 1:
+                return _parse_one_threshold(parts[0])
+            return [_parse_one_threshold(p) for p in parts]
+
+        def _parse_direction(raw):
+            s = (raw or '').strip()
+            if not s:
+                return None
+            if s.startswith('['):
+                return json.loads(s)
+            parts = [p.strip().lower() for p in s.split(',') if p.strip()]
+            if not parts:
+                return None
+            return parts[0] if len(parts) == 1 else parts
+
+        def apply_new_settings():
+            settings = {key: data['entry'].get() for key, data in vars_dict.items()}
+
+            settings['channels'] = (
+                [s.strip().lower() for s in (settings.get('channels') or '').split(',') if s.strip()]
+                or None
+            )
+
+            settings['img_size'] = list(map(int, settings['img_size'].split(',')))
+            settings['percentiles'] = (
+                list(map(convert_to_number, settings['percentiles'].split(',')))
+                if settings['percentiles'] else [1, 99]
+            )
+
+            for key in ('normalize_channels', 'outline'):
+                raw = settings.get(key)
+                if raw is None or raw.strip() == '':
+                    settings[key] = []
+                else:
+                    vals = [s.strip().lower() for s in raw.split(',') if s.strip()]
+                    settings[key] = [s for s in vals if s in {'r', 'g', 'b'}]
+
+            def _parse_object_size(s):
+                if not s:
+                    return (0, 0)
+                s = s.replace(';', ',')
+                parts = [p.strip() for p in s.split(',') if p.strip() != '']
+                nums = []
+                for p in parts[:2]:
+                    try:
+                        nums.append(max(0, int(float(p))))
+                    except Exception:
+                        nums.append(0)
+                while len(nums) < 2:
+                    nums.append(0)
+                mn, mx = nums[0], nums[1]
+                if mn and mx and mn > mx:
+                    mn, mx = mx, mn
+                return (mn, mx)
+
+            settings['object_size'] = _parse_object_size((settings.get('object_size') or '').strip())
+
+            settings['outline_threshold_factor'] = (
+                float(settings['outline_threshold_factor'].replace(',', '.'))
+                if settings['outline_threshold_factor'] else 1.0
+            )
+            settings['outline_sigma'] = (
+                float(settings['outline_sigma'].replace(',', '.'))
+                if settings['outline_sigma'] else 1.0
+            )
+            settings['edge_thickness'] = (
+                float(settings['edge_thickness'].replace(',', '.'))
+                if settings['edge_thickness'] else 1
+            )
+            et = settings.get('edge_transparency')
+            if et is None or et == '':
+                settings['edge_transparency'] = 0.0
+            else:
+                try:
+                    settings['edge_transparency'] = float(str(et).replace(',', '.'))
+                except Exception:
+                    settings['edge_transparency'] = 0.0
+                settings['edge_transparency'] = max(0.0, min(100.0, settings['edge_transparency']))
+
+            ei_raw = str(settings.get('edge_image', 'true')).strip().lower()
+            settings['edge_image'] = ei_raw in ('1', 'true', 't', 'yes', 'y')
+
+            try:
+                settings['measurement'] = _parse_measurement(settings.get('measurement'))
+                settings['threshold'] = _parse_threshold(settings.get('threshold'))
+                settings['threshold_direction'] = _parse_direction(settings.get('threshold_direction'))
+            except (ValueError, json.JSONDecodeError) as e:
+                print(f"Warning: could not parse measurement/threshold/threshold_direction ({e}); disabling threshold filtering.")
+                settings['measurement'] = None
+                settings['threshold'] = None
+                settings['threshold_direction'] = None
+
+            for k, v in list(settings.items()):
+                if isinstance(v, list):
+                    settings[k] = [x for x in v if x not in (None, '')]
+                elif v == '':
+                    settings[k] = None
+
+            self.db_path = os.path.join(settings.get('src'), 'measurements', 'measurements.db')
+
+            self.update_settings(**{
+                'image_type': settings.get('image_type'),
+                'channels': settings.get('channels'),
+                'image_size': settings.get('img_size'),
+                'annotation_column': settings.get('annotation_column'),
+                'percentiles': settings.get('percentiles'),
+                'measurement': settings.get('measurement'),
+                'threshold': settings.get('threshold'),
+                'threshold_direction': settings.get('threshold_direction'),
+                'normalize_channels': settings.get('normalize_channels'),
+                'outline': settings.get('outline'),
+                'outline_threshold_factor': settings.get('outline_threshold_factor'),
+                'outline_sigma': settings.get('outline_sigma'),
+                'edge_thickness': settings.get('edge_thickness'),
+                'edge_transparency': settings.get('edge_transparency'),
+                'edge_image': settings.get('edge_image'),
+                'object_size': settings.get('object_size'),
+                'src': settings.get('src'),
+                'db_path': self.db_path,
+            })
+
+            settings_window.destroy()
+
+        apply_button = spacrButton(
+            settings_window, text="Apply Settings",
+            command=apply_new_settings, show_text=False, icon_name="annotate"
+        )
+        apply_button.pack(pady=10)
+            
+    def open_settings_window_v1(self):
+        from .gui_utils import generate_annotate_fields, convert_to_number
 
         # Create settings window
         settings_window = tk.Toplevel(self.root)
@@ -3015,6 +3369,7 @@ class AnnotateApp:
                 'percentiles': settings.get('percentiles'),
                 'measurement': settings.get('measurement'),
                 'threshold': settings.get('threshold'),
+                'threshold_direction': settings.get('threshold_direction'),
                 'normalize_channels': settings.get('normalize_channels'),   # None => no normalization
                 'outline': settings.get('outline'),                         # None => no outlines
                 'outline_threshold_factor': settings.get('outline_threshold_factor'),
@@ -3220,98 +3575,152 @@ class AnnotateApp:
         bottom_h  = max(status_h, buttons_h) + 8  # same row => max
         self.grid_cols = max(1, w // (self.image_size[0] + 4))
         self.grid_rows = max(1, (h - bottom_h) // (self.image_size[1] + 4))
+        
+    def _normalize_filter_inputs(self):
+        """Coerce self.measurement, self.threshold, self.threshold_direction into compatible shapes.
+
+        Returns a structure tag: 'scalar', 'list', or 'list_of_lists'.
+        Prints a warning whenever an attribute is broadcast or otherwise adjusted.
+        """
+        from .utils import is_list_of_lists
+
+        m, t, d = self.measurement, self.threshold, self.threshold_direction
+
+        # Scalar measurement
+        if isinstance(m, str):
+            if isinstance(t, (list, tuple)):
+                print(f"Warning: threshold is a list but measurement is a single string; using threshold[0] = {t[0]}.")
+                t = t[0]
+            if isinstance(d, (list, tuple)):
+                print(f"Warning: threshold_direction is a list but measurement is a single string; using threshold_direction[0] = {d[0]}.")
+                d = d[0]
+            if d not in ('lower', 'higher'):
+                raise ValueError(f"threshold_direction must be 'lower' or 'higher', got {d!r}.")
+            self.measurement, self.threshold, self.threshold_direction = m, t, d
+            return 'scalar'
+
+        # List or list of lists
+        if isinstance(m, (list, tuple)):
+            m = list(m)
+            n = len(m)
+            if n == 0:
+                raise ValueError("measurement is an empty list.")
+
+            if not isinstance(t, (list, tuple)):
+                print(f"Warning: threshold is scalar but measurement is a list; broadcasting threshold to length {n}.")
+                t = [t] * n
+            else:
+                t = list(t)
+                if len(t) != n:
+                    raise ValueError(f"len(threshold) = {len(t)} does not match len(measurement) = {n}.")
+
+            if isinstance(d, str):
+                print(f"Warning: threshold_direction is a string but measurement is a list; broadcasting threshold_direction to length {n}.")
+                d = [d] * n
+            else:
+                d = list(d)
+                if len(d) != n:
+                    raise ValueError(f"len(threshold_direction) = {len(d)} does not match len(measurement) = {n}.")
+
+            for i, di in enumerate(d):
+                if di not in ('lower', 'higher'):
+                    raise ValueError(f"threshold_direction[{i}] must be 'lower' or 'higher', got {di!r}.")
+
+            if is_list_of_lists(m):
+                for i, inner in enumerate(m):
+                    if not isinstance(inner, (list, tuple)) or len(inner) not in (1, 2):
+                        raise ValueError(
+                            f"measurement[{i}] must be a list of 1 or 2 column names, got {inner!r}."
+                        )
+                self.measurement, self.threshold, self.threshold_direction = m, t, d
+                return 'list_of_lists'
+
+            self.measurement, self.threshold, self.threshold_direction = m, t, d
+            return 'list'
+
+        raise TypeError(f"measurement must be a string or a list, got {type(m).__name__}.")
+
+    def _apply_threshold(self, df, col, threshold, direction):
+        """Apply a single threshold filter to df on column col."""
+        threshold = self._resolve_threshold_value(threshold, df[col])
+        before = len(df)
+        if direction == 'lower':
+            df = df[df[col] <= threshold]
+        else:
+            df = df[df[col] >= threshold]
+        print(f"Filter on '{col}' {direction} {threshold}: removed {before - len(df)} rows, retained {len(df)}.")
+        return df
+
+    def _resolve_threshold_value(self, threshold, series):
+        """Resolve a quantile string ('q1'..'q9') against the given series; otherwise return as is."""
+        if isinstance(threshold, str):
+            quantile_map = {f'q{i}': i / 10 for i in range(1, 10)}
+            if threshold in quantile_map:
+                return series.quantile(quantile_map[threshold])
+            raise ValueError(
+                f"Unknown threshold string {threshold!r}. Expected 'q1'..'q9' or a numeric value."
+            )
+        return threshold
 
     def prefilter_paths_annotations(self):
         from .io import _read_and_join_tables, _read_db
-        from .utils import is_list_of_lists
-        
+
         self._ensure_annotation_column()
 
         if self.measurement and self.threshold is not None:
+            structure = self._normalize_filter_inputs()
+
             df = _read_and_join_tables(self.db_path)
-            png_list_df = _read_db(self.db_path, tables=['png_list'])[0]
-            png_list_df = png_list_df.set_index('prcfo')
-            df = df.merge(png_list_df, left_index=True, right_index=True)
+
+            # Bring in png_path only if the join did not already provide it
+            if 'png_path' not in df.columns:
+                png_list_df = _read_db(self.db_path, tables=['png_list'])[0]
+
+                # Match on the prcfo column explicitly, regardless of where it lives
+                # (index vs. column) in either frame
+                if 'prcfo' not in df.columns and df.index.name == 'prcfo':
+                    df = df.reset_index()
+                if 'prcfo' not in png_list_df.columns and png_list_df.index.name == 'prcfo':
+                    png_list_df = png_list_df.reset_index()
+
+                df = df.merge(
+                    png_list_df[['prcfo', 'png_path']],
+                    on='prcfo',
+                    how='left',                 # keep all measurement rows
+                    suffixes=('', '_dup'),      # never silently rename png_path
+                )
+
             df[self.annotation_column] = None
-            before = len(df)
+            
+            print(f"df after merge: {len(df)} rows, columns include png_path: {'png_path' in df.columns}, cell_area range: {df['cell_area'].min()}..{df['cell_area'].max()}")
 
-            if isinstance(self.threshold, int):
-                if isinstance(self.measurement, list):
-                    mes = self.measurement[0]
-                if isinstance(self.measurement, str):
-                    mes = self.measurement
-                df = df[df[f'{mes}'] == self.threshold]
+            if structure == 'scalar':
+                df = self._apply_threshold(df, self.measurement, self.threshold, self.threshold_direction)
 
-            if is_list_of_lists(self.measurement):
-                if isinstance(self.threshold, list) or is_list_of_lists(self.threshold):
-                    if len(self.measurement) == len(self.threshold):
-                        for idx, var in enumerate(self.measurement):
-                            df = df[df[var[idx]] > self.threshold[idx]]
-                        after = len(df)
-                    elif len(self.measurement) == len(self.threshold) * 2:
-                        th_idx = 0
-                        for idx, var in enumerate(self.measurement):
-                            if idx % 2 != 0:
-                                th_idx += 1
-                                thd = self.threshold
-                                if isinstance(thd, list):
-                                    thd = thd[0]
-                                df[f'threshold_measurement_{idx}'] = df[self.measurement[idx]] / df[self.measurement[idx + 1]]
-                                print(f"mean threshold_measurement_{idx}: {np.mean(df['threshold_measurement'])}")
-                                print(f"median threshold measurement: {np.median(df[self.measurement])}")
-                                df = df[df[f'threshold_measurement_{idx}'] > thd]
-                        after = len(df)
+            elif structure == 'list':
+                for col, thr, direction in zip(self.measurement, self.threshold, self.threshold_direction):
+                    df = self._apply_threshold(df, col, thr, direction)
 
-            elif isinstance(self.measurement, list):
-                df['threshold_measurement'] = df[self.measurement[0]] / df[self.measurement[1]]
-                print(f"mean threshold measurement: {np.mean(df['threshold_measurement'])}")
-                print(f"median threshold measurement: {np.median(df[self.measurement])}")
-                df = df[df['threshold_measurement'] > self.threshold]
-                after = len(df)
-                self.measurement = 'threshold_measurement'
-                print(f'Removed: {before-after} rows, retained {after}')
-
-            else:
-                print(f"mean threshold measurement: {np.mean(df[self.measurement])}")
-                print(f"median threshold measurement: {np.median(df[self.measurement])}")
-                before = len(df)
-                if isinstance(self.threshold, str):
-                    if self.threshold == 'q1':
-                        self.threshold = df[self.measurement].quantile(0.1)
-                    if self.threshold == 'q2':
-                        self.threshold = df[self.measurement].quantile(0.2)
-                    if self.threshold == 'q3':
-                        self.threshold = df[self.measurement].quantile(0.3)
-                    if self.threshold == 'q4':
-                        self.threshold = df[self.measurement].quantile(0.4)
-                    if self.threshold == 'q5':
-                        self.threshold = df[self.measurement].quantile(0.5)
-                    if self.threshold == 'q6':
-                        self.threshold = df[self.measurement].quantile(0.6)
-                    if self.threshold == 'q7':
-                        self.threshold = df[self.measurement].quantile(0.7)
-                    if self.threshold == 'q8':
-                        self.threshold = df[self.measurement].quantile(0.8)
-                    if self.threshold == 'q9':
-                        self.threshold = df[self.measurement].quantile(0.9)
-                print(f"threshold: {self.threshold}")
-
-                df = df[df[self.measurement] > self.threshold]
-                after = len(df)
-                print(f'Removed: {before-after} rows, retained {after}')
+            elif structure == 'list_of_lists':
+                for i, (inner, thr, direction) in enumerate(
+                    zip(self.measurement, self.threshold, self.threshold_direction)
+                ):
+                    if len(inner) == 1:
+                        col = inner[0]
+                    else:
+                        col = f'ratio_{i}_{inner[0]}_over_{inner[1]}'
+                        df[col] = df[inner[0]] / df[inner[1]]
+                    df = self._apply_threshold(df, col, thr, direction)
 
             df = df.dropna(subset=['png_path'])
+
             if self.image_type:
+                image_types = self.image_type if isinstance(self.image_type, list) else [self.image_type]
                 before = len(df)
-                if isinstance(self.image_type, list):
-                    for tpe in self.image_type:
-                        print(f"Looking for {tpe}")
-                        df = df[df['png_path'].str.contains(tpe)]
-                        print(f"Found {len(df)} entries for {tpe}")
-                else:
-                    df = df[df['png_path'].str.contains(self.image_type)]
-                after = len(df)
-                print(f'image_type: Removed: {before-after} rows, retained {after}')
+                for tpe in image_types:
+                    df = df[df['png_path'].str.contains(tpe)]
+                    print(f"image_type '{tpe}': retained {len(df)} entries.")
+                print(f"image_type filter: removed {before - len(df)} rows, retained {len(df)}.")
 
             self.filtered_paths_annotations = df[['png_path', self.annotation_column]].values.tolist()
             self._total_filtered = len(self.filtered_paths_annotations)
@@ -3324,7 +3733,7 @@ class AnnotateApp:
                 if self.image_type:
                     c.execute(
                         'SELECT COUNT(*) FROM "png_list" WHERE png_path LIKE ?',
-                        (f"%{self.image_type}%",)
+                        (f"%{self.image_type}%",),
                     )
                 else:
                     c.execute('SELECT COUNT(*) FROM "png_list"')
@@ -3334,17 +3743,62 @@ class AnnotateApp:
                     c.execute(
                         f'SELECT png_path, "{col}" FROM "png_list" '
                         f'WHERE png_path LIKE ? LIMIT ? OFFSET ?',
-                        (f"%{self.image_type}%", page_size, self.index)
+                        (f"%{self.image_type}%", page_size, self.index),
                     )
                 else:
                     c.execute(
-                        f'SELECT png_path, "{col}" FROM "png_list" '
-                        f'LIMIT ? OFFSET ?',
-                        (page_size, self.index)
+                        f'SELECT png_path, "{col}" FROM "png_list" LIMIT ? OFFSET ?',
+                        (page_size, self.index),
                     )
                 self.filtered_paths_annotations = c.fetchall()
-        
+
     def load_images(self):
+        for label in self.labels:
+            label.config(image='')
+
+        self.images = {}
+        page_size = self.grid_rows * self.grid_cols
+
+        if self.measurement and self.threshold is not None:
+            paths_annotations = self.filtered_paths_annotations[self.index:self.index + page_size]
+        else:
+            paths_annotations = self.filtered_paths_annotations
+
+        adjusted_paths = []
+        for path, annotation in paths_annotations:
+            if not path.startswith(self.src):
+                parts = path.split('/data/')
+                if len(parts) > 1:
+                    new_path = os.path.join(self.src, 'data', parts[1])
+                    self.adjusted_to_original_paths[new_path] = path
+                    adjusted_paths.append((new_path, annotation))
+                else:
+                    adjusted_paths.append((path, annotation))
+            else:
+                adjusted_paths.append((path, annotation))
+
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor() as executor:
+            loaded_images = list(executor.map(self.load_single_image, adjusted_paths))
+
+        for i, (img, annotation) in enumerate(loaded_images):
+            border_color = self._label_to_color(annotation)
+            if border_color:
+                img = self.add_colored_border(img, border_width=5, border_color=border_color)
+
+            from PIL import ImageTk
+            photo = ImageTk.PhotoImage(img)
+            label = self.labels[i]
+            self.images[label] = photo
+            label.config(image=photo)
+
+            path = adjusted_paths[i][0]
+            label.bind('<Button-1>', self.get_on_image_click(path, label, img))
+            label.bind(self._right_click_event, self.get_on_image_click(path, label, img))
+
+        self.root.update()
+        
+    def load_images_v1(self):
         for label in self.labels:
             label.config(image='')
 
@@ -3715,11 +4169,35 @@ class AnnotateApp:
         # always return RGB; never collapse to grayscale
         return Image.merge("RGB", (r, g, b))
     
+    
+    
     def get_on_image_click(self, path, label, img):
         from PIL import ImageTk, ImageOps
         import os
 
         def on_image_click(event):
+            new_annotation = 1 if event.num == 1 else 2
+            original_path = self.adjusted_to_original_paths.get(path, path)
+
+            if original_path in self.pending_updates and self.pending_updates[original_path] == new_annotation:
+                self.pending_updates[original_path] = None
+                new_annotation = None
+            else:
+                self.pending_updates[original_path] = new_annotation
+
+            print(f"Image {os.path.split(path)[1]} annotated: {new_annotation}")
+
+            img_ = img.crop((5, 5, img.width - 5, img.height - 5))
+            border_fill = self._label_to_color(new_annotation)
+            if border_fill:
+                img_ = ImageOps.expand(img_, border=5, fill=border_fill)
+
+            photo = ImageTk.PhotoImage(img_)
+            self.images[label] = photo
+            label.config(image=photo)
+            self.root.update()
+
+        def on_image_click_v1(event):
             new_annotation = 1 if event.num == 1 else (2 if event.num == 3 else None)
 
             original_path = self.adjusted_to_original_paths.get(path, path)
