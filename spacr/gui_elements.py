@@ -2533,6 +2533,10 @@ class AnnotateApp:
         self.count_button.pack(side="right", padx=5)
         self.dl_train_button.pack(side="right", padx=5)
 
+        # Arrow key bindings to previous and next
+        self.root.bind('<Left>', lambda event: self.previous_page())
+        self.root.bind('<Right>', lambda event: self.next_page())
+
         # compute grid size (after buttons exist with real height)
         self.button_frame.update_idletasks()
         needed = self.button_frame.winfo_reqwidth()
