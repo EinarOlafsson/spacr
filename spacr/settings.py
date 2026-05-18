@@ -1315,6 +1315,9 @@ expected_types = {
 }
 
 tooltips = {
+    "measurement": "(str) - The measurement(s) to filter by using the threshold and threshold_direction parameters. This should be a column name in the measurements dataframe (str, list) or a set of columns (lsit-of-lists).",
+    "threshold_direction": "(list, list-of-lists, int or None) - Direction of the threshold for annotation. Options are 'higher' or 'lower'.",
+    "threshold": "(list, list-of-lists, int or None) - The threshold value for annotation. If None, no threshold is applied.",
     "cell_diameter": "(int) - (DEPRECEATED) Estimated diameter of cell objects in pixels for Cellpose segmentation.",
     "nucleus_diameter": "(int) - (DEPRECEATED) Estimated diameter of nucleus objects in pixels for Cellpose segmentation.",
     "pathogen_diameter": "(int) - (DEPRECEATED) Estimated diameter of pathogen objects in pixels for Cellpose segmentation.",
@@ -2077,6 +2080,7 @@ def set_annotate_default_settings(settings):
     settings.setdefault('percentiles', [2, 98])
     settings.setdefault('measurement', '') #'cytoplasm_channel_3_mean_intensity,pathogen_channel_3_mean_intensity')
     settings.setdefault('threshold', '') #'2')
+    settings.setdefault('threshold_direction', 'higher')
     return settings
 
 def set_default_generate_barecode_mapping(settings={}):

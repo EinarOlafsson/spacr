@@ -17,6 +17,8 @@ from skimage.measure import label as sk_label, regionprops_table
 import matplotlib.pyplot as plt
 from math import ceil, sqrt
 
+from spacr.build.lib.spacr import settings
+
 #from spacr.build.lib.spacr.utils import _filter_object
 #from spacr.spacr import settings
 
@@ -1324,14 +1326,20 @@ def measure_crop(settings):
                 settings['cytoplasm'] = True
             else:
                 settings['cytoplasm'] = False
-
-            spacr_cores = int(mp.cpu_count() - 6)
-            if spacr_cores <= 2:
-                spacr_cores = 1
-
+                
+            spacr_cores = int(mp.cpu_count())
+            
             if settings['n_jobs'] > spacr_cores:
-                print(f'Warning reserving 6 CPU cores for other processes, setting n_jobs to {spacr_cores}')
+                print(f'Warning set n_jobs to a maximum of {spacr_cores} or set as blank to use max cores')
+
+            if settings['n_jobs'] is None:
                 settings['n_jobs'] = spacr_cores
+            else:
+                spacr_cores = int(mp.cpu_count() - 4)
+                if spacr_cores <= 2:
+                    spacr_cores = 1
+                    
+            settings['n_jobs'] = spacr_cores
 
             settings_save = settings.copy()
             settings_save['src'] = os.path.dirname(settings['src'])
