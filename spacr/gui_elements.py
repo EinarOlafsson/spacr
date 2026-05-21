@@ -3734,28 +3734,47 @@ class AnnotateApp:
             page_size = getattr(self, 'grid_rows', 5) * getattr(self, 'grid_cols', 5)
             with sqlite3.connect(self.db_path, timeout=30) as conn:
                 c = conn.cursor()
+                image_types = []
                 if self.image_type:
-                    c.execute(
-                        'SELECT COUNT(*) FROM "png_list" WHERE png_path LIKE ?',
-                        (f"%{self.image_type}%",),
-                    )
-                else:
-                    c.execute('SELECT COUNT(*) FROM "png_list"')
-                self._total_filtered = c.fetchone()[0]
+                    raw = self.image_type if isinstance(self.image_type, list) else [x.strip() for x in self.image_type.split(',') if x.strip()]
+                    image_types = raw
 
-                if self.image_type:
+                if image_types:
+                    conditions = []
+                    params = []
+                    for tpe in image_types:
+                        if tpe.startswith('!'):
+                            conditions.append('png_path NOT LIKE ?')
+                            params.append(f"%{tpe[1:]}%")
+                        else:
+                            conditions.append('png_path LIKE ?')
+                            params.append(f"%{tpe}%")
+                            
+                    where = ' AND '.join(conditions)
+                    
+                    # Get total count for filtered data
+                    c.execute(f'SELECT COUNT(*) FROM "png_list" WHERE {where}', params)
+                    self._total_filtered = c.fetchone()[0]
+                    
+                    # Get paginated filtered data
                     c.execute(
-                        f'SELECT png_path, "{col}" FROM "png_list" '
-                        f'WHERE png_path LIKE ? LIMIT ? OFFSET ?',
-                        (f"%{self.image_type}%", page_size, self.index),
+                        f'SELECT png_path, "{col}" FROM "png_list" WHERE {where} LIMIT ? OFFSET ?',
+                        params + [page_size, self.index],
                     )
                 else:
+                    # Get total count for unfiltered data
+                    c.execute('SELECT COUNT(*) FROM "png_list"')
+                    self._total_filtered = c.fetchone()[0]
+                    
+                    # Get paginated unfiltered data
                     c.execute(
                         f'SELECT png_path, "{col}" FROM "png_list" LIMIT ? OFFSET ?',
-                        (page_size, self.index),
+                        [page_size, self.index],
                     )
-                self.filtered_paths_annotations = c.fetchall()
 
+                # Fetch the results of whichever query actually ran above
+                self.filtered_paths_annotations = c.fetchall()
+ 
     def load_images(self):
         for label in self.labels:
             label.config(image='')
