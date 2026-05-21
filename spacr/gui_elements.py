@@ -2520,14 +2520,31 @@ class AnnotateApp:
         self.button_frame = Frame(root, bg=self.root.cget('bg'))
         self.button_frame.grid(row=2, column=1, padx=10, pady=8, sticky="e")
 
-        # buttons
-        self.next_button = Button(self.button_frame, text="Next", command=self.next_page, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
-        self.previous_button = Button(self.button_frame, text="Back", command=self.previous_page, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
-        self.exit_button = Button(self.button_frame, text="Exit", command=self.shutdown, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
-        self.settings_button = Button(self.button_frame, text="Settings", command=self.open_settings_window, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
-        self.clear_button = Button(self.button_frame, text="Clear annotation", command=self.clear_current_annotation, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
-        self.count_button = Button(self.button_frame, text="Count classes", command=self.show_class_counts, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
-        self.dl_train_button = Button(self.button_frame, text="Train", command=self.open_deep_spacr_window, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
+        # macOS tk.Button ignores fg; force contrast explicitly
+        _is_mac = platform.system() == 'Darwin'
+
+        def _make_button(parent, text, command):
+            if _is_mac:
+                btn = tk.Button(parent, text=text, command=command,
+                                bg='#1a1a1a', fg='white',
+                                activebackground='#333333', activeforeground='white',
+                                relief='flat', borderwidth=0,
+                                padx=8, pady=4)
+            else:
+                btn = Button(parent, text=text, command=command,
+                            bg=self.bg_color, fg=self.fg_color,
+                            highlightbackground=self.fg_color,
+                            highlightcolor=self.fg_color,
+                            highlightthickness=1)
+            return btn
+
+        self.next_button = _make_button(self.button_frame, "Next", self.next_page)
+        self.previous_button = _make_button(self.button_frame, "Back", self.previous_page)
+        self.exit_button = _make_button(self.button_frame, "Exit", self.shutdown)
+        self.settings_button = _make_button(self.button_frame, "Settings", self.open_settings_window)
+        self.clear_button = _make_button(self.button_frame, "Clear annotation", self.clear_current_annotation)
+        self.count_button = _make_button(self.button_frame, "Count classes", self.show_class_counts)
+        self.dl_train_button = _make_button(self.button_frame, "Train", self.open_deep_spacr_window)
 
         # pack (right to left)
         self.next_button.pack(side="right", padx=5)
