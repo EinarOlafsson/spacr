@@ -165,3 +165,6 @@ tutorial_colab.ipynb
 
 #do not include docs
 /docs
+
+# Mac-specific .files
+.DS_Store
