@@ -4393,6 +4393,7 @@ class AnnotateApp:
         
     def skip_to_last_annotated(self):
         """Jump directly to the page containing the last annotated image."""
+        print(f"[skip_to_last_annotated] using column: '{self.annotation_column}'")
         if self.pending_updates:
             with self._batch_lock:
                 self._unsaved_batches += 1
@@ -4404,42 +4405,33 @@ class AnnotateApp:
 
         with sqlite3.connect(self.db_path, timeout=30) as conn:
             c = conn.cursor()
-            # Find the rowid of the last annotated image in the full ordered table,
-            # then count how many rows precede it to get its 0-based offset.
+
+            # Fetch all png_paths in the same order used by next/previous page,
+            # then find the index of the last annotated one.
             if self.image_type:
                 c.execute(
-                    f'SELECT rowid FROM "png_list" '
-                    f'WHERE png_path LIKE ? AND "{col}" IS NOT NULL '
-                    f'ORDER BY rowid DESC LIMIT 1',
+                    f'SELECT png_path, "{col}" FROM "png_list" '
+                    f'WHERE png_path LIKE ?',
                     (f"%{self.image_type}%",)
                 )
             else:
-                c.execute(
-                    f'SELECT rowid FROM "png_list" '
-                    f'WHERE "{col}" IS NOT NULL '
-                    f'ORDER BY rowid DESC LIMIT 1'
-                )
-            row = c.fetchone()
-            if row is None:
-                self.update_gui_text("No annotated images found.")
-                return
-            last_annotated_rowid = row[0]
+                c.execute(f'SELECT png_path, "{col}" FROM "png_list"')
 
-            # Count how many rows come before this rowid in the same filtered set
-            if self.image_type:
-                c.execute(
-                    f'SELECT COUNT(*) FROM "png_list" '
-                    f'WHERE png_path LIKE ? AND rowid <= ?',
-                    (f"%{self.image_type}%", last_annotated_rowid)
-                )
-            else:
-                c.execute(
-                    'SELECT COUNT(*) FROM "png_list" WHERE rowid <= ?',
-                    (last_annotated_rowid,)
-                )
-            offset = c.fetchone()[0] - 1  # 0-based index of that row
+            all_rows = c.fetchall()
 
-        new_index = (offset // page_size) * page_size
+        # Find the last row (by position) that has a non-NULL, non-zero annotation
+        last_annotated_index = None
+        for i, (path, annotation) in enumerate(all_rows):
+            if annotation is not None and annotation != 0:
+                last_annotated_index = i
+
+        if last_annotated_index is None:
+            self.update_gui_text("No annotated images found.")
+            return
+
+        print(f"[skip_to_last_annotated] last annotated at row {last_annotated_index} of {len(all_rows)}")
+
+        new_index = (last_annotated_index // page_size) * page_size
         self.index = new_index
 
         if not (self.measurement and self.threshold is not None):
