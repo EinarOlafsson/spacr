@@ -4404,31 +4404,45 @@ class AnnotateApp:
 
         with sqlite3.connect(self.db_path, timeout=30) as conn:
             c = conn.cursor()
-            # Find the row number (0-based) of the last annotated image
+            # Find the rowid of the last annotated image in the full ordered table,
+            # then count how many rows precede it to get its 0-based offset.
             if self.image_type:
                 c.execute(
-                    f'SELECT COUNT(*) FROM "png_list" '
-                    f'WHERE png_path LIKE ? AND "{col}" IS NOT NULL',
+                    f'SELECT rowid FROM "png_list" '
+                    f'WHERE png_path LIKE ? AND "{col}" IS NOT NULL '
+                    f'ORDER BY rowid DESC LIMIT 1',
                     (f"%{self.image_type}%",)
                 )
             else:
                 c.execute(
-                    f'SELECT COUNT(*) FROM "png_list" WHERE "{col}" IS NOT NULL'
+                    f'SELECT rowid FROM "png_list" '
+                    f'WHERE "{col}" IS NOT NULL '
+                    f'ORDER BY rowid DESC LIMIT 1'
                 )
-            annotated_count = c.fetchone()[0]
+            row = c.fetchone()
+            if row is None:
+                self.update_gui_text("No annotated images found.")
+                return
+            last_annotated_rowid = row[0]
 
-        if annotated_count == 0:
-            self.update_gui_text("No annotated images found.")
-            return
+            # Count how many rows come before this rowid in the same filtered set
+            if self.image_type:
+                c.execute(
+                    f'SELECT COUNT(*) FROM "png_list" '
+                    f'WHERE png_path LIKE ? AND rowid <= ?',
+                    (f"%{self.image_type}%", last_annotated_rowid)
+                )
+            else:
+                c.execute(
+                    'SELECT COUNT(*) FROM "png_list" WHERE rowid <= ?',
+                    (last_annotated_rowid,)
+                )
+            offset = c.fetchone()[0] - 1  # 0-based index of that row
 
-        # The last annotated image sits at row (annotated_count - 1) in the filtered set;
-        # snap to the start of that page.
-        last_annotated_index = annotated_count - 1
-        new_index = (last_annotated_index // page_size) * page_size
+        new_index = (offset // page_size) * page_size
         self.index = new_index
 
         if not (self.measurement and self.threshold is not None):
-            col = (self.annotation_column or "").replace('"', '""')
             with sqlite3.connect(self.db_path, timeout=30) as conn:
                 c = conn.cursor()
                 if self.image_type:
