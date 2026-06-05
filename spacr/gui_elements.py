@@ -2524,19 +2524,31 @@ class AnnotateApp:
         _is_mac = platform.system() == 'Darwin'
 
         def _make_button(parent, text, command):
-            if _is_mac:
-                btn = tk.Button(parent, text=text, command=command,
-                                bg='#1a1a1a', fg='white',
-                                activebackground='#333333', activeforeground='white',
-                                relief='flat', borderwidth=0,
-                                padx=8, pady=4)
-            else:
-                btn = Button(parent, text=text, command=command,
-                            bg=self.bg_color, fg=self.fg_color,
-                            highlightbackground=self.fg_color,
-                            highlightcolor=self.fg_color,
-                            highlightthickness=1)
-            return btn
+                    if _is_mac:
+                        # We use a Label because macOS completely ignores background locks on standard Buttons
+                        btn = tk.Label(parent, text=text,
+                                    bg='#1a1a1a', fg='white',
+                                    padx=12, pady=6, # Generates the button padding
+                                    relief='flat', cursor='hand2') # Makes it look clickable
+                        
+                        # Mimic the button click behavior and active state color switches
+                        def on_press(event):
+                            btn.config(bg='#333333')
+                            
+                        def on_release(event):
+                            btn.config(bg='#1a1a1a')
+                            command() # Triggers the button's actual function
+                            
+                        # Bind the mouse clicks directly to the label
+                        btn.bind("<ButtonPress-1>", on_press)
+                        btn.bind("<ButtonRelease-1>", on_release)
+                    else:
+                        btn = Button(parent, text=text, command=command,
+                                    bg=self.bg_color, fg=self.fg_color,
+                                    highlightbackground=self.fg_color,
+                                    highlightcolor=self.fg_color,
+                                    highlightthickness=1)
+                    return btn
 
         self.next_button = _make_button(self.button_frame, "Next", self.next_page)
         self.previous_button = _make_button(self.button_frame, "Back", self.previous_page)
