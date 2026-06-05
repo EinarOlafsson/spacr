@@ -2523,6 +2523,7 @@ class AnnotateApp:
         # buttons
         self.next_button = Button(self.button_frame, text="Next", command=self.next_page, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.previous_button = Button(self.button_frame, text="Back", command=self.previous_page, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
+        self.skip_to_last_annotated_button = Button(self.button_frame, text="Skip to last annotated", command=self.skip_to_last_annotated, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.exit_button = Button(self.button_frame, text="Exit", command=self.shutdown, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.settings_button = Button(self.button_frame, text="Settings", command=self.open_settings_window, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
         self.clear_button = Button(self.button_frame, text="Clear annotation", command=self.clear_current_annotation, bg=self.bg_color, fg=self.fg_color, highlightbackground=self.fg_color, highlightcolor=self.fg_color, highlightthickness=1)
@@ -2532,6 +2533,7 @@ class AnnotateApp:
         # pack (right to left)
         self.next_button.pack(side="right", padx=5)
         self.previous_button.pack(side="right", padx=5)
+        self.skip_to_last_annotated_button.pack(side="right", padx=5)
         self.exit_button.pack(side="right", padx=5)
         self.settings_button.pack(side="right", padx=5)
         self.clear_button.pack(side="right", padx=5)
@@ -4389,6 +4391,62 @@ class AnnotateApp:
 
         print("Quit application")
         
+    def skip_to_last_annotated(self):
+        """Jump directly to the page containing the last annotated image."""
+        if self.pending_updates:
+            with self._batch_lock:
+                self._unsaved_batches += 1
+            self.update_queue.put(self.pending_updates.copy())
+        self.pending_updates.clear()
+
+        page_size = self.grid_rows * self.grid_cols
+        col = (self.annotation_column or "").replace('"', '""')
+
+        with sqlite3.connect(self.db_path, timeout=30) as conn:
+            c = conn.cursor()
+            # Find the row number (0-based) of the last annotated image
+            if self.image_type:
+                c.execute(
+                    f'SELECT COUNT(*) FROM "png_list" '
+                    f'WHERE png_path LIKE ? AND "{col}" IS NOT NULL',
+                    (f"%{self.image_type}%",)
+                )
+            else:
+                c.execute(
+                    f'SELECT COUNT(*) FROM "png_list" WHERE "{col}" IS NOT NULL'
+                )
+            annotated_count = c.fetchone()[0]
+
+        if annotated_count == 0:
+            self.update_gui_text("No annotated images found.")
+            return
+
+        # The last annotated image sits at row (annotated_count - 1) in the filtered set;
+        # snap to the start of that page.
+        last_annotated_index = annotated_count - 1
+        new_index = (last_annotated_index // page_size) * page_size
+        self.index = new_index
+
+        if not (self.measurement and self.threshold is not None):
+            col = (self.annotation_column or "").replace('"', '""')
+            with sqlite3.connect(self.db_path, timeout=30) as conn:
+                c = conn.cursor()
+                if self.image_type:
+                    c.execute(
+                        f'SELECT png_path, "{col}" FROM "png_list" '
+                        f'WHERE png_path LIKE ? LIMIT ? OFFSET ?',
+                        (f"%{self.image_type}%", page_size, self.index)
+                    )
+                else:
+                    c.execute(
+                        f'SELECT png_path, "{col}" FROM "png_list" '
+                        f'LIMIT ? OFFSET ?',
+                        (page_size, self.index)
+                    )
+                self.filtered_paths_annotations = c.fetchall()
+
+        self.load_images()
+
     def next_page(self):
         if self.pending_updates:
             with self._batch_lock:
