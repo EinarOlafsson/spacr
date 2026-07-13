@@ -142,8 +142,7 @@ If you use spaCR in your research, please cite:
 Olafsson EB, et al. A pooled image-based CRISPR screen identifies EAF1 as a T. gondii modulator of
 2 ESCRT subversion. *Manuscript under consideration*.
 
-- `Preprint: A pooled image-based CRISPR screen identifies EAF1 as a T. gondii modulator of
-2 ESCRT subversion  <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_
+- `Preprint: A pooled image-based CRISPR screen identifies EAF1 as a T. gondii modulator of 2 ESCRT subversion  <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_
 
 Papers Using spaCR
 -------------------
