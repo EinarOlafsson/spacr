@@ -10,13 +10,14 @@
    :target: https://github.com/EinarOlafsson/spacr/
 .. |Tutorial| image:: https://img.shields.io/badge/Tutorial-Click%20Here-brightgreen
    :target: https://einarolafsson.github.io/spacr/tutorial/
-
+.. |DOI| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.21343317.svg
+   :target: https://doi.org/10.5281/zenodo.21343317
 
 .. _docs: https://einarolafsson.github.io/spacr/index.html
 
 Badges
 ------
-|Docs| |PyPI version| |Python version| |Licence: MIT| |repo size| |Tutorial|
+|Docs| |PyPI version| |Python version| |Licence: MIT| |repo size| |Tutorial| |DOI|
 
 SpaCr
 =====
