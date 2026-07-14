@@ -10,13 +10,14 @@
    :target: https://github.com/EinarOlafsson/spacr/
 .. |Tutorial| image:: https://img.shields.io/badge/Tutorial-Click%20Here-brightgreen
    :target: https://einarolafsson.github.io/spacr/tutorial/
-
+.. |DOI| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.21343317.svg
+   :target: https://doi.org/10.5281/zenodo.21343317
 
 .. _docs: https://einarolafsson.github.io/spacr/index.html
 
 Badges
 ------
-|Docs| |PyPI version| |Python version| |Licence: MIT| |repo size| |Tutorial|
+|Docs| |PyPI version| |Python version| |Licence: MIT| |repo size| |Tutorial| |DOI|
 
 SpaCr
 =====
@@ -138,7 +139,10 @@ See the `LICENSE <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ fi
 How to Cite
 -----------
 If you use spaCR in your research, please cite:  
-Olafsson EB, et al. SpaCr: Spatial phenotype analysis of CRISPR-Cas9 screens. *Manuscript in preparation*.
+Olafsson EB, et al. A pooled image-based CRISPR screen identifies EAF1 as a T. gondii modulator of
+2 ESCRT subversion. *Manuscript under consideration*.
+
+- `Preprint: A pooled image-based CRISPR screen identifies EAF1 as a T. gondii modulator of 2 ESCRT subversion  <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_
 
 Papers Using spaCR
 -------------------
