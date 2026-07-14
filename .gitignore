@@ -165,3 +165,6 @@ tutorial_colab.ipynb
 
 #do not include docs
 /docs
+
+#MacOS files that don't need to be tracked
+.DS_Store
