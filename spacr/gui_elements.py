@@ -2561,6 +2561,7 @@ class AnnotateApp:
         # pack (right to left)
         self.next_button.pack(side="right", padx=5)
         self.previous_button.pack(side="right", padx=5)
+        self.skip_to_last_annotated_button.pack(side="right", padx=5)
         self.exit_button.pack(side="right", padx=5)
         self.settings_button.pack(side="right", padx=5)
         self.clear_button.pack(side="right", padx=5)
@@ -4418,6 +4419,68 @@ class AnnotateApp:
 
         print("Quit application")
         
+    def skip_to_last_annotated(self):
+        """Jump directly to the page containing the last annotated image."""
+        print(f"[skip_to_last_annotated] using column: '{self.annotation_column}'")
+        if self.pending_updates:
+            with self._batch_lock:
+                self._unsaved_batches += 1
+            self.update_queue.put(self.pending_updates.copy())
+        self.pending_updates.clear()
+
+        page_size = self.grid_rows * self.grid_cols
+        col = (self.annotation_column or "").replace('"', '""')
+
+        with sqlite3.connect(self.db_path, timeout=30) as conn:
+            c = conn.cursor()
+
+            # Fetch all png_paths in the same order used by next/previous page,
+            # then find the index of the last annotated one.
+            if self.image_type:
+                c.execute(
+                    f'SELECT png_path, "{col}" FROM "png_list" '
+                    f'WHERE png_path LIKE ?',
+                    (f"%{self.image_type}%",)
+                )
+            else:
+                c.execute(f'SELECT png_path, "{col}" FROM "png_list"')
+
+            all_rows = c.fetchall()
+
+        # Find the last row (by position) that has a non-NULL, non-zero annotation
+        last_annotated_index = None
+        for i, (path, annotation) in enumerate(all_rows):
+            if annotation is not None and annotation != 0:
+                last_annotated_index = i
+
+        if last_annotated_index is None:
+            self.update_gui_text("No annotated images found.")
+            return
+
+        print(f"[skip_to_last_annotated] last annotated at row {last_annotated_index} of {len(all_rows)}")
+
+        new_index = (last_annotated_index // page_size) * page_size
+        self.index = new_index
+
+        if not (self.measurement and self.threshold is not None):
+            with sqlite3.connect(self.db_path, timeout=30) as conn:
+                c = conn.cursor()
+                if self.image_type:
+                    c.execute(
+                        f'SELECT png_path, "{col}" FROM "png_list" '
+                        f'WHERE png_path LIKE ? LIMIT ? OFFSET ?',
+                        (f"%{self.image_type}%", page_size, self.index)
+                    )
+                else:
+                    c.execute(
+                        f'SELECT png_path, "{col}" FROM "png_list" '
+                        f'LIMIT ? OFFSET ?',
+                        (page_size, self.index)
+                    )
+                self.filtered_paths_annotations = c.fetchall()
+
+        self.load_images()
+
     def next_page(self):
         if self.pending_updates:
             with self._batch_lock:
