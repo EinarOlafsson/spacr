@@ -533,8 +533,8 @@ def reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_par
             param['method'] = 'kmeans'
             clustering_params.append(param)
 
-    print('Testing paramiters:', reduction_params)
-    print('Testing clustering paramiters:', clustering_params)
+    print('Testing parameters:', reduction_params)
+    print('Testing clustering parameters:', clustering_params)
 
     # Calculate the grid size
     grid_rows = len(reduction_params)

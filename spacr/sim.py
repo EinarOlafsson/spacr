@@ -1096,7 +1096,7 @@ def run_and_save(i, settings, time_ls, total_sims):
     Returns:
         tuple: A tuple containing the simulation index, simulation time, and None.
     """
-    #print(f'Runnings simulation with the following paramiters')
+    #print(f'Runnings simulation with the following parameters')
     #print(settings)
     settings['random_seed'] = False
     if settings['random_seed']:
@@ -1161,7 +1161,7 @@ def validate_and_adjust_beta_params(sim_params):
         
     return adjusted_params
 
-def generate_paramiters(settings):
+def generate_parameters(settings):
 
     """
     Generate a list of parameter sets for simulation based on the given settings.
@@ -1232,7 +1232,7 @@ def run_multiple_simulations(settings):
     start_time = now.strftime("%y%m%d") # format as a string in 'ddmmyy' format 
     settings['start_time'] = start_time
 
-    sim_ls = generate_paramiters(settings)
+    sim_ls = generate_parameters(settings)
     #print(f'Running {len(sim_ls)} simulations.')
 
     max_workers = settings['max_workers'] or cpu_count() - 4
