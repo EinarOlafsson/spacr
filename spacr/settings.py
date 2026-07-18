@@ -517,7 +517,7 @@ def set_default_train_test_model(settings):
     settings.setdefault('use_checkpoint',True)
     settings.setdefault('gradient_accumulation',True)
     settings.setdefault('gradient_accumulation_steps',4)
-    settings.setdefault('intermedeate_save',True)
+    settings.setdefault('intermediate_save',True)
     settings.setdefault('pin_memory',False)
     settings.setdefault('n_jobs',cores)
     settings.setdefault('train_channels',['r','g','b'])
@@ -588,7 +588,7 @@ def deep_spacr_defaults(settings):
     settings.setdefault('use_checkpoint',True)
     settings.setdefault('gradient_accumulation',True)
     settings.setdefault('gradient_accumulation_steps',4)
-    settings.setdefault('intermedeate_save',True)
+    settings.setdefault('intermediate_save',True)
     settings.setdefault('pin_memory',False)
     settings.setdefault('n_jobs',cores)
     settings.setdefault('train_channels',['r','g','b'])
@@ -629,7 +629,7 @@ def get_train_test_model_settings(settings):
      settings.setdefault('use_checkpoint', True)
      settings.setdefault('gradient_accumulation', True)
      settings.setdefault('gradient_accumulation_steps', 4)
-     settings.setdefault('intermedeate_save',True)
+     settings.setdefault('intermediate_save',True)
      settings.setdefault('pin_memory', True)
      settings.setdefault('n_jobs', 30)
      settings.setdefault('augment', True)
@@ -1015,7 +1015,7 @@ expected_types = {
     "use_checkpoint": bool,
     "gradient_accumulation": bool,
     "gradient_accumulation_steps": int,
-    "intermedeate_save": bool,
+    "intermediate_save": bool,
     "pin_memory": bool,
     "n_jobs": int,
     "augment": bool,
@@ -1440,7 +1440,7 @@ tooltips = {
     "uninfected": "(bool) - Whether to include uninfected cells in the analysis.",
     "init_weights": "(bool) - Whether to initialize weights for the model.",
     "src": "(str) - Path to the folder containing the images.",
-    "intermedeate_save": "(bool) - Whether to save intermediate results.",
+    "intermediate_save": "(bool) - Whether to save intermediate results.",
     "invert": "(bool) - Whether to invert the image intensities.",
     "learning_rate": "(float) - Learning rate for training.",
     "location_column": "(str) - Column name for the location information.",
@@ -1774,11 +1774,11 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "crop_mode", "use_bounding_box"],
              "Sequencing": ["outlier_detection","offset_start","chunk_size","single_direction", "signal_direction","mode","comp_level","comp_type","save_h5","expected_end","offset","target_sequence","regex", "highlight"],
              "Generate Dataset":["save_to_db","file_metadata","class_metadata", "annotation_column","annotated_classes", "dataset_mode", "metadata_type_by","custom_measurement", "sample", "size"],
-             "Hyperparamiters (Training)": ["png_type", "score_threshold","file_type", "train_channels", "epochs", "loss_type", "optimizer_type","image_size","val_split","learning_rate","weight_decay","dropout_rate", "init_weights", "train", "classes", "augment", "amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory"],
-             "Hyperparamiters (Embedding)": ["visualize","n_neighbors","min_dist","metric","resnet_features","reduction_method","embedding_by_controls","col_to_compare","log_data"],
-             "Hyperparamiters (Clustering)": ["eps","min_samples","analyze_clusters","clustering","remove_cluster_noise"],
-             "Hyperparamiters (Regression)":["cross_validation","prune_features","reg_lambda","reg_alpha","cov_type", "plate", "other", "fraction_threshold", "alpha", "random_row_column_effects", "regression_type", "min_cell_count", "agg_type", "transform", "dependent_variable"],
-             "Hyperparamiters (Activation)":["cam_type", "overlay", "correlation", "target_layer", "normalize_input"],
+             "Hyperparameters (Training)": ["png_type", "score_threshold","file_type", "train_channels", "epochs", "loss_type", "optimizer_type","image_size","val_split","learning_rate","weight_decay","dropout_rate", "init_weights", "train", "classes", "augment", "amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermediate_save","pin_memory"],
+             "Hyperparameters (Embedding)": ["visualize","n_neighbors","min_dist","metric","resnet_features","reduction_method","embedding_by_controls","col_to_compare","log_data"],
+             "Hyperparameters (Clustering)": ["eps","min_samples","analyze_clusters","clustering","remove_cluster_noise"],
+             "Hyperparameters (Regression)":["cross_validation","prune_features","reg_lambda","reg_alpha","cov_type", "plate", "other", "fraction_threshold", "alpha", "random_row_column_effects", "regression_type", "min_cell_count", "agg_type", "transform", "dependent_variable"],
+             "Hyperparameters (Activation)":["cam_type", "overlay", "correlation", "target_layer", "normalize_input"],
              "Annotation": ["filter_column", "filter_value","volcano", "toxo", "controls", "nc_loc", "pc_loc", "nc", "pc", "cell_plate_metadata","treatment_plate_metadata", "metadata_types", "cell_types", "target","positive_control","negative_control", "location_column", "treatment_loc", "channel_of_interest", "measurement", "treatments", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
              "Plot": ["split_axis_lims", "x_lim","log_x","log_y", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","save_figure"],
              "Timelapse": ["fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
