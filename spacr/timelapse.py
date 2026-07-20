@@ -290,41 +290,6 @@ def _prepare_for_tracking(mask_array):
                           'bbox-0','bbox-1','bbox-2','bbox-3','eccentricity']])
     return pd.concat(frames, ignore_index=True)
 
-def _track_by_iou(masks, iou_threshold=0.1):
-    """
-    Build a track table by linking masks frame→frame via IoU.
-    Returns a DataFrame with columns [frame, original_label, track_id].
-    """
-    n_frames = masks.shape[0]
-    # 1) initialize: every label in frame 0 starts its own track
-    labels0 = np.unique(masks[0])[1:]
-    next_track = 1
-    track_map = {}  # (frame,label) -> track_id
-    for L in labels0:
-        track_map[(0, L)] = next_track
-        next_track += 1
-
-    # 2) iterate through frames
-    for t in range(1, n_frames):
-        prev, curr = masks[t-1], masks[t]
-        matches = link_by_iou(prev, curr, iou_threshold=iou_threshold)
-        used_curr = set()
-        # a) assign matched labels to existing tracks
-        for L_prev, L_curr in matches:
-            tid = track_map[(t-1, L_prev)]
-            track_map[(t, L_curr)] = tid
-            used_curr.add(L_curr)
-        # b) any label in curr not matched → new track
-        for L in np.unique(curr)[1:]:
-            if L not in used_curr:
-                track_map[(t, L)] = next_track
-                next_track += 1
-
-    # 3) flatten into DataFrame
-    records = []
-    for (frame, label), tid in track_map.items():
-        records.append({'frame': frame, 'original_label': label, 'track_id': tid})
-    return pd.DataFrame(records)
 
 def link_by_iou(mask_prev, mask_next, iou_threshold=0.1):
     # Get labels
