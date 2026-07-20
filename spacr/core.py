@@ -249,7 +249,7 @@ def preprocess_generate_masks(settings):
             print("Successfully completed run")
     return
 
-def generate_image_umap(settings={}, return_fig=False):
+def generate_image_umap(settings=None, return_fig=False):
     """
     Generate UMAP or tSNE embedding and visualize the data with clustering.
     
@@ -283,6 +283,8 @@ def generate_image_umap(settings={}, return_fig=False):
     pd.DataFrame: DataFrame with the original data and an additional column 'cluster' containing the cluster identity.
     """
  
+    if settings is None:
+        settings = {}
     from .io import _read_and_join_tables
     from .utils import get_db_paths, preprocess_data, reduction_and_clustering, remove_noise, generate_colors, correct_paths, plot_embedding, plot_clusters_grid, cluster_feature_analysis, map_condition
     from .settings import set_default_umap_image_settings
@@ -444,7 +446,7 @@ def generate_image_umap(settings={}, return_fig=False):
         return fig
     return all_df
 
-def reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_params=None, kmeans_params=None, save=False, show=True, return_fig=False):
+def reducer_hyperparameter_search(settings=None, reduction_params=None, dbscan_params=None, kmeans_params=None, save=False, show=True, return_fig=False):
     """
     Perform a hyperparameter search for UMAP or tSNE on the given data.
     
@@ -469,6 +471,8 @@ def reducer_hyperparameter_search(settings={}, reduction_params=None, dbscan_par
     None
     """
     
+    if settings is None:
+        settings = {}
     from .io import _read_and_join_tables
     from .utils import get_db_paths, preprocess_data, search_reduction_and_clustering, generate_colors, map_condition
     from .settings import set_default_umap_image_settings
