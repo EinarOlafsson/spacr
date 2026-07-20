@@ -361,7 +361,7 @@ def _summarize_organelles_per_parent(organelle_mask, parent_mask, channel_arrays
 
     return pd.DataFrame(summary_rows)
 
-def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_mask, cytoplasm_mask, channel_arrays, settings, sizes=[3, 6, 12, 24], periphery=True, outside=True):
+def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_mask, cytoplasm_mask, channel_arrays, settings, sizes=None, periphery=True, outside=True):
     """
     Calculate various intensity measurements for different regions in the image,
     including organelle masks.
@@ -382,6 +382,8 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_ma
         tuple: (cell_intensity_df, nucleus_intensity_df, pathogen_intensity_df, 
                 organelle_intensity_df, cytoplasm_intensity_df)
     """
+    if sizes is None:
+        sizes = [3, 6, 12, 24]
     radial_dist = settings['radial_dist']
     calculate_correlation = settings['calculate_correlation']
     homogeneity = settings['homogeneity']
@@ -579,7 +581,7 @@ def _extended_regionprops_table(labels, image, intensity_props):
         ]
     return df
 
-def _calculate_homogeneity(label, channel, distances=[2,4,8,16,32,64]):
+def _calculate_homogeneity(label, channel, distances=None):
         """
         Calculate the homogeneity values for each region in the label mask.
 
@@ -591,6 +593,8 @@ def _calculate_homogeneity(label, channel, distances=[2,4,8,16,32,64]):
         Returns:
         - homogeneity_df (DataFrame): A DataFrame containing the homogeneity values for each region and distance.
         """
+        if distances is None:
+            distances = [2,4,8,16,32,64]
         homogeneity_values = []
         # Iterate through the regions in label_mask
         for region in regionprops(label):
