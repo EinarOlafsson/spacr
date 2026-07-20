@@ -777,7 +777,7 @@ def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
                     try:                  
                         try:
                             plateID = metadata.group('plateID')
-                        except:
+                        except Exception:
                             plateID = src.name
 
                         wellID = metadata.group('wellID')
@@ -807,7 +807,7 @@ def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
                         else:
                             newpath.mkdir(exist_ok=True)
                             shutil.copy(file, move)
-                    except:
+                    except Exception:
                         print(f"Could not extract information from filename {name}{ext} with {regex}")
 
         # Move original images to a new directory
