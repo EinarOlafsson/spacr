@@ -54,6 +54,3 @@ def __getattr__(name: str):
 
 def __dir__() -> list[str]:
     return sorted(set(globals()) | {"download_models"} | set(_SUBMODULES))
-
-from .utils import download_models
-download_models()
