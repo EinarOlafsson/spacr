@@ -28,8 +28,10 @@ def set_default_plot_merge_settings():
     settings.setdefault('verbose', True)
     return settings
 
-def set_default_settings_preprocess_generate_masks(settings={}):
+def set_default_settings_preprocess_generate_masks(settings=None):
     
+    if settings is None:
+        settings = {}
     settings.setdefault('denoise', False)
     settings.setdefault('src', 'path')
     settings.setdefault('delete_intermediate', False)
@@ -350,7 +352,9 @@ def _get_object_settings(object_type, settings):
         
     return object_settings 
 
-def set_default_umap_image_settings(settings={}):
+def set_default_umap_image_settings(settings=None):
+    if settings is None:
+        settings = {}
     settings.setdefault('src', 'path')
     settings.setdefault('row_limit', 1000)
     settings.setdefault('tables', ['cell', 'cytoplasm', 'nucleus', 'pathogen'])
@@ -393,8 +397,10 @@ def set_default_umap_image_settings(settings={}):
     settings.setdefault('verbose',True)
     return settings
 
-def get_measure_crop_settings(settings={}):
+def get_measure_crop_settings(settings=None):
 
+    if settings is None:
+        settings = {}
     settings.setdefault('src', 'path')
     settings.setdefault('delete_intermediate', False)
     
@@ -2083,7 +2089,9 @@ def set_annotate_default_settings(settings):
     settings.setdefault('threshold_direction', 'higher')
     return settings
 
-def set_default_generate_barecode_mapping(settings={}):
+def set_default_generate_barecode_mapping(settings=None):
+    if settings is None:
+        settings = {}
     settings.setdefault('src', 'path')
     settings.setdefault('regex', '^(?P<column>.{8})TGCTG.*TAAAC(?P<grna>.{20,21})AACTT.*AGAAG(?P<row>.{8}).*'),
     settings.setdefault('target_sequence', 'TGCTGTTTCCAGCATAGCTCTTAAAC')
