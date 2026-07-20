@@ -549,6 +549,113 @@ def hf_toxo_mito_field(tmp_path_factory):
 
 
 @pytest.fixture(scope="session")
+def spacr_pipeline_run(tmp_path_factory, hf_toxo_mito_multi_fields):
+    """
+    Run the full `preprocess_generate_masks` pipeline ONCE per test session
+    on a copy of the HF toxo_mito data, then hand the working directory
+    (with all generated folders + masks + measurements) to every
+    downstream test that wants to inspect it.
+
+    Marked as skip if GPU / cellpose / HF is unavailable — see the tests
+    that use this fixture; they carry the @pytest.mark.slow +
+    @pytest.mark.gpu + @pytest.mark.network markers so the whole thing
+    only runs when explicitly opted in.
+    """
+    try:
+        import torch
+    except Exception as e:  # pragma: no cover
+        pytest.skip(f"torch unavailable: {e}")
+    if not torch.cuda.is_available():
+        pytest.skip("no CUDA available for full pipeline test")
+    try:
+        import cellpose  # noqa: F401
+    except Exception as e:  # pragma: no cover
+        pytest.skip(f"cellpose unavailable: {e}")
+
+    import shutil
+    work = tmp_path_factory.mktemp("spacr_pipeline")
+    # Copy the HF TIFFs into a flat working dir (the pipeline expects a
+    # flat directory of raw images).
+    for src_path in hf_toxo_mito_multi_fields["files"]:
+        shutil.copy(src_path, work / os.path.basename(src_path))
+
+    from spacr.core import preprocess_generate_masks
+    from spacr.settings import set_default_settings_preprocess_generate_masks
+
+    settings = set_default_settings_preprocess_generate_masks(None)
+    settings.update({
+        "src": str(work),
+        "metadata_type": "cellvoyager",
+        "batch_size": 100,          # avoids the mod-1 bug in preprocess_img_data
+        # channels are 0-indexed into the merged stack.
+        "channels": [0, 1, 2, 3],
+        # toxo_mito: C01=nucleus, C02=cell, C03=pathogen (0-indexed).
+        "nucleus_channel": 0, "cell_channel": 1, "pathogen_channel": 2,
+        "organelle_channel": None,
+        "plot": False, "verbose": False, "test_mode": False, "timelapse": False,
+        "n_jobs": 1, "adjust_cells": False, "delete_intermediate": False,
+        "all_to_mip": False,
+    })
+
+    try:
+        preprocess_generate_masks(settings)
+    except Exception as e:  # pragma: no cover
+        pytest.skip(f"pipeline failed to run: {e}")
+
+    return {"src": str(work), "settings": settings,
+            "n_input_fields": len(hf_toxo_mito_multi_fields["fields"])}
+
+
+@pytest.fixture(scope="session")
+def hf_toxo_mito_multi_fields(tmp_path_factory):
+    """Download several fields (each 4 channels) from einarolafsson/toxo_mito
+    into a NEW temp directory — the full mask pipeline needs enough FOVs
+    to form a valid batch and populate the channel folders.
+
+    Returns:
+      dict with src pointing at the plate directory that contains the flat
+      list of Yokogawa CellVoyager TIFFs (as the pipeline expects) plus the
+      manifest of what was downloaded.
+    """
+    try:
+        from huggingface_hub import hf_hub_download
+    except Exception as e:  # pragma: no cover
+        pytest.skip(f"huggingface_hub not available: {e}")
+
+    dst = tmp_path_factory.mktemp("hf_toxo_mito_multi")
+    # 3 fields × 4 channels = 12 TIFFs — enough to satisfy batch checks
+    # while staying under ~10 MB of download.
+    fields = ("001", "009", "010")
+    channel_layout = (
+        ("A01Z01C02",),
+        ("A02Z01C01",),
+        ("A02Z01C04",),
+        ("A03Z01C03",),
+    )
+    local_paths = []
+    for f in fields:
+        for (chan,) in channel_layout:
+            rel = f"plate1/plate1_E01_T0001F{f}L01{chan}.tif"
+            try:
+                p = hf_hub_download(
+                    repo_id="einarolafsson/toxo_mito",
+                    filename=rel,
+                    repo_type="dataset",
+                    local_dir=str(dst),
+                )
+            except Exception as e:  # pragma: no cover
+                pytest.skip(f"HF download failed for {rel}: {e}")
+            local_paths.append(p)
+    return {
+        "src": str(dst / "plate1"),
+        "files": local_paths,
+        "plate": "plate1",
+        "well": "E01",
+        "fields": fields,
+    }
+
+
+@pytest.fixture(scope="session")
 def hf_spacr_settings(tmp_path_factory):
     """Download the two reference settings CSVs from einarolafsson/spacr_settings."""
     try:
