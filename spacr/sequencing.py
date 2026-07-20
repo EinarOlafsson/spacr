@@ -675,7 +675,7 @@ def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
     save_queue.put("STOP")
     save_process.join()
 
-def generate_barecode_mapping(settings={}):
+def generate_barecode_mapping(settings=None):
     """
     Orchestrates barcode extraction and mapping from gzipped sequencing data using user-defined or default settings.
 
@@ -710,6 +710,8 @@ def generate_barecode_mapping(settings={}):
         - `unique_combinations.csv`: Count table of (rowID, columnID, grna_name) triplets.
         - `qc.csv`: Summary of missing values and read counts.
     """
+    if settings is None:
+        settings = {}
     from .settings import set_default_generate_barecode_mapping
     from .utils import save_settings
     from .io import parse_gz_files
