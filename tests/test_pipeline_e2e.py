@@ -171,35 +171,9 @@ def test_mask_object_sizes_are_biologically_plausible(spacr_pipeline_run):
 #    generated measurements/measurements.db
 # ---------------------------------------------------------------------------
 
-@pytest.fixture(scope="module")
-def spacr_measure_run(spacr_pipeline_run):
-    """Run measure_crop on the shared pipeline output (module-scoped so
-    the downstream measurement tests share the same DB)."""
-    from spacr.measure import measure_crop
-    from spacr.settings import get_measure_crop_settings
-
-    settings = get_measure_crop_settings(None)
-    settings.update({
-        "src": spacr_pipeline_run["src"],
-        # After preprocess_generate_masks, the merged stack has shape:
-        # [C0=nucleus_intensity, C1=cell_intensity, C2=pathogen_intensity,
-        #  C3=organelle_intensity(unused), C4=cell_mask, C5=nucleus_mask,
-        #  C6=pathogen_mask]
-        "channels": [0, 1, 2, 3],
-        "cell_chann_dim": 1, "nucleus_chann_dim": 0, "pathogen_chann_dim": 2,
-        "cell_mask_dim": 4, "nucleus_mask_dim": 5, "pathogen_mask_dim": 6,
-        "cytoplasm": True,
-        "n_jobs": 1, "batch_size": 8, "verbose": False,
-        # save_png=True so downstream tests can chain into generate_dataset
-        # and apply_model on the resulting per-object crops.
-        "plot": False, "save_png": True, "save_arrays": False,
-    })
-    try:
-        measure_crop(settings)
-    except Exception as e:  # pragma: no cover - integration path
-        pytest.skip(f"measure_crop failed on synthetic pipeline output: {e}")
-    return {"src": spacr_pipeline_run["src"], "db_path":
-            os.path.join(spacr_pipeline_run["src"], "measurements", "measurements.db")}
+# spacr_measure_run has been promoted to conftest.py so both
+# test_pipeline_e2e.py and test_pipeline_training_analysis.py can share
+# the same session-scoped fixture output.
 
 
 def test_measurements_db_created(spacr_measure_run):
