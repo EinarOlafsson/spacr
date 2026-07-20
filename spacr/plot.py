@@ -999,7 +999,7 @@ def _get_colours_merged(outline_color):
         outline_colors = [[1, 0, 0], [0, 0, 1], [0, 1, 0]]  # rbg
     return outline_colors
 
-def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, threshold=1000, extensions=['.npy', '.tif', '.tiff', '.png'], overlay=False, max_nr=None, randomize=True):
+def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, threshold=1000, extensions=None, overlay=False, max_nr=None, randomize=True):
     
     """
     Plot images and arrays from the given folders.
@@ -1013,11 +1013,15 @@ def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, thr
         overlay (bool, optional): If True, overlay the outlines of the objects on the image. Defaults to False.
     """
 
+    if extensions is None:
+        extensions = ['.npy', '.tif', '.tiff', '.png']
     def normalize_image(image, lower=1, upper=99):
         p2, p98 = np.percentile(image, (lower, upper))
         return np.clip((image - p2) / (p98 - p2), 0, 1)
 
-    def find_files(folders, extensions=['.npy', '.tif', '.tiff', '.png']):
+    def find_files(folders, extensions=None):
+        if extensions is None:
+            extensions = ['.npy', '.tif', '.tiff', '.png']
         file_dict = {}
 
         for folder in folders:
@@ -1487,7 +1491,7 @@ def _plot_images_on_grid(image_files, channel_indices, um_per_pixel, scale_bar_l
         plt.show()
     return fig
 
-def _save_scimg_plot(src, nr_imgs=16, channel_indices=[0,1,2], um_per_pixel=0.1, scale_bar_length_um=10, standardize=True, fontsize=8, show_filename=True, channel_names=None, dpi=300, plot=False, i=1, all_folders=1):
+def _save_scimg_plot(src, nr_imgs=16, channel_indices=None, um_per_pixel=0.1, scale_bar_length_um=10, standardize=True, fontsize=8, show_filename=True, channel_names=None, dpi=300, plot=False, i=1, all_folders=1):
 
     """
     Save and visualize single-cell images.
@@ -1508,6 +1512,8 @@ def _save_scimg_plot(src, nr_imgs=16, channel_indices=[0,1,2], um_per_pixel=0.1,
     Returns:
         None
     """
+    if channel_indices is None:
+        channel_indices = [0,1,2]
     from .io import _save_figure
     
     def _visualize_scimgs(src, channel_indices=None, um_per_pixel=0.1, scale_bar_length_um=10, show_filename=True, standardize=True, nr_imgs=None, fontsize=8, channel_names=None, plot=False):
@@ -1710,7 +1716,7 @@ def _display_gif(path):
     with open(path, 'rb') as file:
         display(ipyimage(file.read()))
         
-def _plot_recruitment(df, df_type, channel_of_interest, columns=[], figuresize=10):
+def _plot_recruitment(df, df_type, channel_of_interest, columns=None, figuresize=10):
     """
     Plot recruitment data for different conditions and pathogens.
 
@@ -1726,6 +1732,8 @@ def _plot_recruitment(df, df_type, channel_of_interest, columns=[], figuresize=1
         None
     """
 
+    if columns is None:
+        columns = []
     color_list = [(55/255, 155/255, 155/255), 
                   (155/255, 55/255, 155/255), 
                   (55/255, 155/255, 255/255), 
@@ -2396,8 +2404,12 @@ def plot_comparison_results(comparison_results):
     plt.show()
     return fig
 
-def plot_object_outlines(src, objects=['nucleus','cell','pathogen'], channels=[0,1,2], max_nr=10):
+def plot_object_outlines(src, objects=None, channels=None, max_nr=10):
     
+    if objects is None:
+        objects = ['nucleus','cell','pathogen']
+    if channels is None:
+        channels = [0,1,2]
     for object_, channel in zip(objects, channels):
         folders = [os.path.join(src, 'masks', f'{object_}_mask_stack'),
                    os.path.join(src,f'{channel+1}')]
@@ -2430,8 +2442,12 @@ def plot_histogram(df, column, dst=None):
 
 def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count', 
                        remove_keys=None, 
-                       x_lim=[0.0, 1], y_lim=[0, 1], remove_outliers=False, save=True):
+                       x_lim=None, y_lim=None, remove_outliers=False, save=True):
     
+    if x_lim is None:
+        x_lim = [0.0, 1]
+    if y_lim is None:
+        y_lim = [0, 1]
     def lorenz_curve(data):
         """Calculate Lorenz curve."""
         sorted_data = np.sort(data)
@@ -2545,8 +2561,10 @@ def plot_feature_importance(feature_importance_df):
     plt.tight_layout()
     return fig
 
-def read_and_plot__vision_results(base_dir, y_axis='accuracy', name_split='_time', y_lim=[0.8, 0.9]):
+def read_and_plot__vision_results(base_dir, y_axis='accuracy', name_split='_time', y_lim=None):
     # List to store data from all CSV files
+    if y_lim is None:
+        y_lim = [0.8, 0.9]
     data_frames = []
 
     dst = os.path.join(base_dir, 'result')
@@ -2612,7 +2630,9 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
     pd.DataFrame: The filtered and balanced DataFrame.
     """
 
-    def join_measurments_and_annotation(src, tables = ['cell', 'nucleus', 'pathogen','cytoplasm']):
+    def join_measurments_and_annotation(src, tables = None):
+        if tables is None:
+            tables = ['cell', 'nucleus', 'pathogen','cytoplasm']
         from .io import _read_and_merge_data, _read_db
         db_loc = [src+'/measurements/measurements.db']
         loc = src+'/measurements/measurements.db'
