@@ -527,7 +527,7 @@ def spacrFigShow(fig_queue=None):
         fig.show()
     plt.close(fig)
 
-def function_gui_wrapper(function=None, settings={}, q=None, fig_queue=None, imports=1):
+def function_gui_wrapper(function=None, settings=None, q=None, fig_queue=None, imports=1):
 
     """
     Wraps the run_multiple_simulations function to integrate with GUI processes.
@@ -539,6 +539,8 @@ def function_gui_wrapper(function=None, settings={}, q=None, fig_queue=None, imp
     """
 
     # Temporarily override plt.show
+    if settings is None:
+        settings = {}
     original_show = plt.show
     plt.show = lambda: spacrFigShow(fig_queue)
 
