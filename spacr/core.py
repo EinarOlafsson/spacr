@@ -54,7 +54,7 @@ def preprocess_generate_masks(settings):
                     try:
                         print(f"using regex: {settings['custom_regex']}")
                         convert_separate_files_to_yokogawa(folder=source_folder, regex=settings['custom_regex'])
-                    except:
+                    except Exception:
                         try:
                             convert_to_yokogawa(folder=source_folder)
                         except Exception as e:
