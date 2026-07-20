@@ -1066,12 +1066,12 @@ def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batc
     if not isinstance(files_processed, int):
         try:
             files_processed = int(files_processed)
-        except:
+        except Exception:
             files_processed = 0
     if not isinstance(files_to_process, int):
         try:
             files_to_process = int(files_to_process)
-        except:
+        except Exception:
             files_to_process = 0
 
     time_info = ""
@@ -1274,7 +1274,7 @@ def _extract_filename_metadata(filenames, src, regular_expression, metadata_type
             try:
                 try:
                     plate = match.group('plateID')
-                except:
+                except Exception:
                     plate = os.path.basename(src)
 
                 well = match.group('wellID')
