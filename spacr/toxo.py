@@ -16,9 +16,11 @@ def custom_volcano_plot(
     figsize=20,
     threshold=0,
     save_path=None,
-    x_lim=[-0.5, 0.5],
+    x_lim=None,
     y_lims=None,
 ):
+    if x_lim is None:
+        x_lim = [-0.5, 0.5]
     from matplotlib.gridspec import GridSpec
 
     colors = {
@@ -224,7 +226,7 @@ def _normalize_y_lims(y_lims, neg_log_p):
     )
 
 
-def go_term_enrichment_by_column(significant_df, metadata_path, go_term_columns=['Computed GO Processes', 'Curated GO Components', 'Curated GO Functions', 'Curated GO Processes']):
+def go_term_enrichment_by_column(significant_df, metadata_path, go_term_columns=None):
     """
     Perform GO term enrichment analysis for each GO term column and generate plots.
 
@@ -245,6 +247,8 @@ def go_term_enrichment_by_column(significant_df, metadata_path, go_term_columns=
     #significant_df['gene_nr'] = split_columns[0]
     #gene_list = significant_df['gene_nr'].to_list()
 
+    if go_term_columns is None:
+        go_term_columns = ['Computed GO Processes', 'Curated GO Components', 'Curated GO Functions', 'Curated GO Processes']
     significant_df = significant_df.dropna(subset=['n_gene'])
     significant_df = significant_df[significant_df['n_gene'] != None]
 
@@ -527,7 +531,9 @@ def generate_score_heatmap(settings):
         grouped_df['prc'] = grouped_df['plateID'].astype(str) + '_' + grouped_df['rowID'].astype(str) + '_' + grouped_df['column_name'].astype(str)
         return grouped_df
 
-    def calculate_fraction_mixed_condition(csv, plate=1, column='c3', control_sgrnas = ['TGGT1_220950_1', 'TGGT1_233460_4']):
+    def calculate_fraction_mixed_condition(csv, plate=1, column='c3', control_sgrnas = None):
+        if control_sgrnas is None:
+            control_sgrnas = ['TGGT1_220950_1', 'TGGT1_233460_4']
         df = pd.read_csv(csv)  
         df = df[df['column_name']==column]
         if plate not in df.columns:
