@@ -252,3 +252,239 @@ def dark_style(tk_root):
     from tkinter import ttk
     from spacr.gui_elements import set_dark_style
     return set_dark_style(ttk.Style(), parent_frame=None)
+
+
+# ---------------------------------------------------------------------------
+# Yokogawa microscopy fixtures — CellVoyager (default) and CQ1 filename styles
+# ---------------------------------------------------------------------------
+#
+# CellVoyager filename regex (see spacr/utils.py::_get_regex):
+#     {plateID}_{wellID}_T{timeID}F{fieldID}L{laserID}A{AID}Z{sliceID}C{chanID}.tif
+#
+# CQ1 filename regex:
+#     W{wellID}F{fieldID}T{timeID}Z{sliceID}C{chanID}.tif
+#     wellID is an integer 1..384 that spacr converts to A01..P24.
+
+def _write_tif(path, arr):
+    """Save an image as a real TIFF (tifffile if available, else Pillow)."""
+    try:
+        import tifffile
+        tifffile.imwrite(str(path), arr)
+        return
+    except Exception:
+        pass
+    from PIL import Image
+    Image.fromarray(arr).save(str(path))
+
+
+def _make_field(rng, shape=(128, 128)):
+    """Small deterministic uint16 field image with a few blobs."""
+    return _place_blobs(shape, n_blobs=int(rng.integers(2, 6)), rng=rng)
+
+
+@pytest.fixture
+def yokogawa_cellvoyager_dir(tmp_path, rng):
+    """
+    A temp directory of TIFFs following the Yokogawa CellVoyager naming.
+
+    Layout (deterministic):
+      * 1 plate  ('plate1')
+      * 2 wells  ('A01', 'A02')
+      * 2 fields (F001, F002)
+      * 2 channels (C01, C02)
+      * 1 z-slice, 1 timepoint, 1 laser, 1 action
+    -> 8 TIFFs total.
+
+    Yields the directory path plus a manifest so tests can assert what was
+    written.
+    """
+    src = tmp_path / "cellvoyager"
+    src.mkdir()
+    manifest = []
+    for well in ("A01", "A02"):
+        for field in ("001", "002"):
+            for chan in ("01", "02"):
+                fname = f"plate1_{well}_T0001F{field}L01A01Z01C{chan}.tif"
+                img = _make_field(rng)
+                _write_tif(src / fname, img)
+                manifest.append(
+                    {"plate": "plate1", "well": well, "field": field,
+                     "channel": chan, "path": str(src / fname)}
+                )
+    return {"src": src, "manifest": manifest,
+            "metadata_type": "cellvoyager",
+            "n_wells": 2, "n_fields": 2, "n_channels": 2}
+
+
+@pytest.fixture
+def yokogawa_cq1_dir(tmp_path, rng):
+    """
+    A temp directory of TIFFs following the Yokogawa CQ1 naming.
+
+    Uses integer well IDs (1..384) that spacr converts to A01..P24 via
+    utils._convert_cq1_well_id. Here we use W1 (=A01) and W25 (=B01).
+    """
+    src = tmp_path / "cq1"
+    src.mkdir()
+    manifest = []
+    for well_id, expected_well in ((1, "A01"), (25, "B01")):
+        for field in ("001", "002"):
+            for chan in ("1", "2"):
+                fname = f"W{well_id}F{field}T0001Z01C{chan}.tif"
+                img = _make_field(rng)
+                _write_tif(src / fname, img)
+                manifest.append(
+                    {"well_id": well_id, "well": expected_well, "field": field,
+                     "channel": chan, "path": str(src / fname)}
+                )
+    return {"src": src, "manifest": manifest,
+            "metadata_type": "cq1",
+            "n_wells": 2, "n_fields": 2, "n_channels": 2}
+
+
+# ---------------------------------------------------------------------------
+# Illumina sequencing fixtures — 3-barcode reads matching spacr's default
+# regex.
+# ---------------------------------------------------------------------------
+#
+# spacr's default barcode regex is:
+#   ^(?P<column>.{8})TGCTG.*TAAAC(?P<grna>.{20,21})AACTT.*AGAAG(?P<row>.{8}).*
+#
+# so each read starts with an 8bp column barcode, then a constant TGCTG
+# spacer, then some fill, then TAAAC + a 20-21bp gRNA, then AACTT..AGAAG,
+# then an 8bp row barcode, then anything.
+#
+# The barcode reference is emitted as FASTA (one entry per barcode) AND
+# CSV (with 'sequence' / 'name' columns), since spacr.sequencing itself
+# consumes the CSV form via map_sequences_to_names().
+
+def _rand_bases(rng, n):
+    return "".join(rng.choice(list("ACGT"), size=n))
+
+
+def _fastq_record(read_id, seq, qual_char="I"):
+    qual = qual_char * len(seq)
+    return f"@{read_id}\n{seq}\n+\n{qual}\n"
+
+
+@pytest.fixture
+def synth_barcodes(tmp_path, rng):
+    """
+    Build 3 barcode reference tables (columns, rows, gRNAs), each in BOTH
+    FASTA and CSV form, and hand back the file paths + the raw sequences
+    for use by test-read generators.
+
+    Sizes: 4 columns, 4 rows, 6 gRNAs (small so the test suite stays fast).
+    """
+    N_COLUMNS = 4
+    N_ROWS = 4
+    N_GRNAS = 6
+
+    # Deterministic barcode sequences.
+    columns = {f"col{i+1}": _rand_bases(rng, 8) for i in range(N_COLUMNS)}
+    rows = {f"row{i+1}": _rand_bases(rng, 8) for i in range(N_ROWS)}
+    grnas = {f"grna{i+1}": _rand_bases(rng, 20) for i in range(N_GRNAS)}
+
+    out_dir = tmp_path / "barcodes"
+    out_dir.mkdir()
+
+    def _write_fasta(path, name_to_seq):
+        with open(path, "w") as f:
+            for name, seq in name_to_seq.items():
+                f.write(f">{name}\n{seq}\n")
+
+    def _write_csv(path, name_to_seq):
+        # spacr.sequencing.map_sequences_to_names expects 'sequence','name' columns.
+        with open(path, "w") as f:
+            f.write("sequence,name\n")
+            for name, seq in name_to_seq.items():
+                f.write(f"{seq},{name}\n")
+
+    paths = {}
+    for label, table in (("column", columns), ("row", rows), ("grna", grnas)):
+        fasta = out_dir / f"{label}_barcodes.fasta"
+        csv = out_dir / f"{label}_barcodes.csv"
+        _write_fasta(fasta, table)
+        _write_csv(csv, table)
+        paths[f"{label}_fasta"] = str(fasta)
+        paths[f"{label}_csv"] = str(csv)
+
+    return {"columns": columns, "rows": rows, "grnas": grnas,
+            "paths": paths, "dir": out_dir}
+
+
+@pytest.fixture
+def synth_illumina_reads(tmp_path, rng, synth_barcodes):
+    """
+    Build a paired-end Illumina FASTQ.gz pair whose R1 reads carry one
+    column + one gRNA + one row barcode each, in the layout the default
+    spacr regex expects. R2 mirrors R1 in this fixture.
+
+    Yields:
+      dict with 'r1_path', 'r2_path' (both .fastq.gz), 'n_reads',
+      and 'truth' — a list of dicts telling the test which barcodes were
+      injected into each read so tests can validate detection.
+    """
+    import gzip
+
+    N_READS = 40
+    truth = []
+    col_seqs = list(synth_barcodes["columns"].items())
+    row_seqs = list(synth_barcodes["rows"].items())
+    grna_seqs = list(synth_barcodes["grnas"].items())
+
+    lines_r1 = []
+    lines_r2 = []
+    for i in range(N_READS):
+        col_name, col_seq = col_seqs[int(rng.integers(0, len(col_seqs)))]
+        row_name, row_seq = row_seqs[int(rng.integers(0, len(row_seqs)))]
+        grna_name, grna_seq = grna_seqs[int(rng.integers(0, len(grna_seqs)))]
+
+        # Build a read exactly matching:
+        #   {col:8}TGCTG{fill}TAAAC{grna:20-21}AACTT{fill}AGAAG{row:8}{trailing}
+        # spacr's regex uses .* for the two fill regions.
+        fill1 = _rand_bases(rng, 6)
+        fill2 = _rand_bases(rng, 6)
+        trailing = _rand_bases(rng, 8)
+
+        seq = (
+            col_seq +
+            "TGCTG" + fill1 +
+            "TAAAC" + grna_seq +
+            "AACTT" + fill2 +
+            "AGAAG" + row_seq + trailing
+        )
+
+        # For paired-end Illumina, R2 comes off the opposite strand — the
+        # simplest realistic fixture: R2 is the reverse complement of R1.
+        # spacr.sequencing.paired_find_sequence_in_chunk_reads applies
+        # reverse_complement(R2) before searching, so after that step R2
+        # should equal R1 again and the target anchor is findable in both.
+        def _rc(s):
+            comp = {"A": "T", "T": "A", "C": "G", "G": "C", "N": "N"}
+            return "".join(comp[b] for b in reversed(s))
+
+        read_id = f"SIM:1:FCXX:1:1101:{i}:1"
+        lines_r1.append(_fastq_record(read_id, seq))
+        lines_r2.append(_fastq_record(read_id, _rc(seq)))
+        truth.append({
+            "read_id": read_id, "seq": seq,
+            "column": col_name, "row": row_name, "grna": grna_name,
+        })
+
+    seq_dir = tmp_path / "seq"
+    seq_dir.mkdir()
+    r1 = seq_dir / "sample_R1.fastq.gz"
+    r2 = seq_dir / "sample_R2.fastq.gz"
+    with gzip.open(r1, "wt") as fh:
+        fh.write("".join(lines_r1))
+    with gzip.open(r2, "wt") as fh:
+        fh.write("".join(lines_r2))
+
+    return {
+        "r1_path": str(r1),
+        "r2_path": str(r2),
+        "n_reads": N_READS,
+        "truth": truth,
+        "src": str(seq_dir),
+    }
