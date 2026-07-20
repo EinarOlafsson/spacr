@@ -1152,8 +1152,10 @@ def check_src_folders_files(settings, settings_type, q):
 
     request_stop = False
         
-    def _folder_has_images(folder_path, image_extensions = {".png", ".jpg", ".jpeg", ".bmp", ".gif", ".tiff", ".tif", ".webp", ".npy", ".npz", "nd2", "czi", "lif"}):
+    def _folder_has_images(folder_path, image_extensions = None):
         """Check if a folder contains any image files."""
+        if image_extensions is None:
+            image_extensions = {".png", ".jpg", ".jpeg", ".bmp", ".gif", ".tiff", ".tif", ".webp", ".npy", ".npz", "nd2", "czi", "lif"}
         return any(file.lower().endswith(tuple(image_extensions)) for file in os.listdir(folder_path))
 
     def _has_folder(parent_folder, sub_folder="measure"):
