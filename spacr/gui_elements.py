@@ -1290,6 +1290,7 @@ class spacrButton(tk.Frame):
         self.active_color = color_settings['active_color']
         self.fg_color = color_settings['fg_color']
         self.is_zoomed_in = False  # Track zoom state for smooth transitions
+        self._fade_after_id = None  # in-flight hover fade, cancel-and-restart
 
     def load_icon(self):
         icon_path = self.get_icon_path(self.icon_name)
@@ -1315,16 +1316,60 @@ class spacrButton(tk.Frame):
         return os.path.join(icon_dir, f"{icon_name}.png")
 
     def on_enter(self, event=None):
-        self.canvas.itemconfig(self.button_bg, fill=self.active_color)
+        self._fade_bg_to(self.active_color)
         self.update_description(event)
         if self.animation and not self.is_zoomed_in:
             self.animate_zoom(0.85)  # Zoom in the icon to 85% of button size
 
     def on_leave(self, event=None):
-        self.canvas.itemconfig(self.button_bg, fill=self.inactive_color)
+        self._fade_bg_to(self.inactive_color)
         self.clear_description(event)
         if self.animation and self.is_zoomed_in:
             self.animate_zoom(0.65)  # Reset the icon size to 65% of button size
+
+    def _fade_bg_to(self, target_hex, duration_ms=140, steps=8):
+        """Interpolate button_bg fill from its current color to `target_hex`."""
+        # Cancel any in-flight fade so hover-in/hover-out don't stack.
+        if self._fade_after_id is not None:
+            try:
+                self.after_cancel(self._fade_after_id)
+            except Exception:
+                pass
+            self._fade_after_id = None
+        try:
+            current_hex = self.canvas.itemcget(self.button_bg, 'fill') or self.inactive_color
+        except Exception:
+            current_hex = self.inactive_color
+        if current_hex.lower() == target_hex.lower():
+            return
+        try:
+            cr, cg, cb = self.winfo_rgb(current_hex)
+            tr, tg, tb = self.winfo_rgb(target_hex)
+        except Exception:
+            # Fall back to instant swap on any color-parse trouble.
+            self.canvas.itemconfig(self.button_bg, fill=target_hex)
+            return
+        # winfo_rgb returns 0..65535 per channel; scale to 0..255.
+        c = (cr >> 8, cg >> 8, cb >> 8)
+        t = (tr >> 8, tg >> 8, tb >> 8)
+        delay = max(1, duration_ms // steps)
+
+        def _tick(i=1):
+            frac = i / steps
+            r = int(c[0] + (t[0] - c[0]) * frac)
+            g = int(c[1] + (t[1] - c[1]) * frac)
+            b = int(c[2] + (t[2] - c[2]) * frac)
+            try:
+                self.canvas.itemconfig(self.button_bg, fill=f'#{r:02x}{g:02x}{b:02x}')
+            except Exception:
+                self._fade_after_id = None
+                return
+            if i < steps:
+                self._fade_after_id = self.after(delay, _tick, i + 1)
+            else:
+                self._fade_after_id = None
+
+        _tick(1)
 
     def on_click(self, event=None):
         if self.command:
