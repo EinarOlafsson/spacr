@@ -103,58 +103,6 @@ def attach_dependency_listeners(vars_dict, categories, category_dependencies, ca
                 continue
             entry[2].trace_add('write', cb)
 
-def attach_dependency_listeners_v1(vars_dict, categories, category_dependencies, category_group_dependencies):
-
-    def _set_category_visibility(category_name, visible):
-        if category_name not in categories:
-            return
-        for setting in categories[category_name]:
-            if setting in vars_dict:
-                label, widget, _, frame = vars_dict[setting]
-                if visible:
-                    label.grid()
-                    widget.grid()
-                    frame.grid()
-                else:
-                    label.grid_remove()
-                    widget.grid_remove()
-                    frame.grid_remove()
-
-    def _is_truthy(tk_var):
-        val = tk_var.get()
-        if isinstance(val, bool):
-            return val
-        return str(val).lower() in ('1', 'true')
-
-    # --- Simple 1:1 dependencies ---
-    def _make_simple_callback(bool_key):
-        def _on_change(*args):
-            _, _, tk_var, _ = vars_dict[bool_key]
-            is_on = _is_truthy(tk_var)
-            for cat_name in category_dependencies[bool_key]:
-                _set_category_visibility(cat_name, is_on)
-        return _on_change
-
-    for bool_key in category_dependencies:
-        if bool_key not in vars_dict:
-            continue
-        cb = _make_simple_callback(bool_key)
-        cb()  # set initial state
-        vars_dict[bool_key][2].trace_add('write', cb)
-
-    # --- Group (any-of) dependencies ---
-    def _make_group_callback(cat_name, bool_keys):
-        def _on_change(*args):
-            visible = any(_is_truthy(vars_dict[k][2]) for k in bool_keys if k in vars_dict)
-            _set_category_visibility(cat_name, visible)
-        return _on_change
-
-    for cat_name, bool_keys in category_group_dependencies.items():
-        cb = _make_group_callback(cat_name, bool_keys)
-        cb()  # set initial state
-        for k in bool_keys:
-            if k in vars_dict:
-                vars_dict[k][2].trace_add('write', cb)
 
 def initialize_cuda():
     """
@@ -689,30 +637,6 @@ def hide_all_settings(vars_dict, categories=None):
                 frame.grid_remove()
     return vars_dict
 
-def hide_all_settings_v1(vars_dict, categories):
-    """
-    Function to initially hide all settings in the GUI.
-
-    Parameters:
-    - categories: dict, The categories of settings with their corresponding settings.
-    - vars_dict: dict, The dictionary containing the settings and their corresponding widgets.
-    """
-
-    if categories is None:
-        from .settings import categories
-
-    for category, settings in categories.items():
-        if any(setting in vars_dict for setting in settings):
-            vars_dict[category] = (None, None, tk.IntVar(value=0), None)
-            
-            # Initially hide all settings
-            for setting in settings:
-                if setting in vars_dict:
-                    label, widget, _, frame = vars_dict[setting]
-                    label.grid_remove()
-                    widget.grid_remove()
-                    frame.grid_remove()
-    return vars_dict
 
 def setup_frame(parent_frame):
     from .gui_elements import set_dark_style, set_element_size
