@@ -102,7 +102,7 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, 
     torch.cuda.memory.empty_cache()
     return df
 
-def apply_model_to_tar(settings={}):
+def apply_model_to_tar(settings=None):
     """
     Apply a trained PyTorch model to images stored in a tar archive.
 
@@ -123,6 +123,8 @@ def apply_model_to_tar(settings={}):
     ``torch.softmax``. Otherwise, outputs are treated as binary logits and
     converted with ``torch.sigmoid``.
     """
+    if settings is None:
+        settings = {}
     from .io import TarImageDataset
     from .utils import process_vision_results, print_progress
 
@@ -621,7 +623,7 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                 test_loaders=None, init_weights='imagenet', intermedeate_save=None,
                 chan_dict=None, schedule=None, loss_type='auto',
                 gradient_accumulation=False, gradient_accumulation_steps=4,
-                channels=['r', 'g', 'b'], verbose=False, num_classes=2,
+                channels=None, verbose=False, num_classes=2,
                 # add early stopping parameters
                 early_stopping_patience=0,  # 0 = disabled; e.g. 20 = stop after 20 epochs without val improvement
                 ):
@@ -633,6 +635,8 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                                  Set to 0 to disable (original behavior).
     """
     
+    if channels is None:
+        channels = ['r', 'g', 'b']
     from .io import _save_model, _save_progress
     from .utils import choose_model, suggest_training_changes, build_loss, estimate_class_counts
 
@@ -1019,8 +1023,10 @@ def visualize_classes(model, dtype, class_names, **kwargs):
         plt.axis('off')
         plt.show()
 
-def visualize_integrated_gradients(src, model_path, target_label_idx=0, image_size=224, channels=[1,2,3], normalize=True, save_integrated_grads=False, save_dir='integrated_grads'):
+def visualize_integrated_gradients(src, model_path, target_label_idx=0, image_size=224, channels=None, normalize=True, save_integrated_grads=False, save_dir='integrated_grads'):
 
+    if channels is None:
+        channels = [1,2,3]
     from .utils import IntegratedGradients, preprocess_image
 
     use_cuda = torch.cuda.is_available()
@@ -1092,8 +1098,10 @@ class SmoothGrad:
         avg_gradients = total_gradients / self.n_samples
         return avg_gradients.abs()
 
-def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, channels=[1,2,3], normalize=True, save_smooth_grad=False, save_dir='smooth_grad'):
+def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, channels=None, normalize=True, save_smooth_grad=False, save_dir='smooth_grad'):
 
+    if channels is None:
+        channels = [1,2,3]
     from .utils import preprocess_image
 
     use_cuda = torch.cuda.is_available()
@@ -1283,7 +1291,9 @@ def merge_predictions_into_db(df, db_path, table='png_list', pred_col='pred',
     print(f"Merged predictions into {table}: {matched}/{len(rows)} rows matched")
     return matched
             
-def deep_spacr(settings={}):
+def deep_spacr(settings=None):
+    if settings is None:
+        settings = {}
     import os
     # local imports kept inside to avoid import cycles on some setups
     from .settings import deep_spacr_defaults
