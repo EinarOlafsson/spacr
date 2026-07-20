@@ -671,7 +671,6 @@ def generate_organelle_masks_sam(src, settings, object_type):
 
     Each mode can use different backends:
         - 'cellpose': deep-learning segmentation via Cellpose
-        - 'stardist': star-convex polygon instance segmentation (spots only)
         - 'otsu': global Otsu thresholding with morphological cleanup
         - 'adaptive': local adaptive thresholding
         - 'log': Laplacian of Gaussian blob detection (spots, ring)
@@ -741,7 +740,7 @@ def generate_organelle_masks_sam(src, settings, object_type):
     #  Load deep-learning model once (if needed)
     # ------------------------------------------------------------------ #
     dl_model = None
-    is_dl_method = method in ('cellpose', 'stardist', 'unet')
+    is_dl_method = method in ('cellpose', 'unet')
 
     if method == 'cellpose':
         from .utils import _choose_model
@@ -753,9 +752,6 @@ def generate_organelle_masks_sam(src, settings, object_type):
             restore_type=None,
             object_settings=_build_object_settings(settings),
         )
-    elif method == 'stardist':
-        #dl_model = _load_stardist_model(settings)
-        print(f"stardist is disabled in this verssion of spacr")
     elif method == 'unet':
         dl_model = _load_unet_model(settings)
 
@@ -831,8 +827,6 @@ def generate_organelle_masks_sam(src, settings, object_type):
             if method == 'cellpose':
                 masks = _segment_cellpose_sam(
                     img_batch, batch_filenames, dl_model, settings, object_type, output_folder)
-            elif method == 'stardist':
-                masks = _segment_stardist(img_batch, dl_model, settings)
             elif method == 'unet':
                 masks = _segment_unet(img_batch, dl_model, settings)
             else:
@@ -918,7 +912,7 @@ def _validate_organelle_settings(morphology, method):
         )
 
     method_map = {
-        'spots': ('otsu', 'adaptive', 'log', 'dog', 'cellpose', 'stardist'),
+        'spots': ('otsu', 'adaptive', 'log', 'dog', 'cellpose'),
         'network': ('otsu', 'adaptive', 'ridge', 'hysteresis', 'cellpose', 'unet'),
         'irregular': ('otsu', 'adaptive', 'cellpose'),
         'ring': ('otsu', 'adaptive', 'dog', 'log', 'cellpose'),
@@ -1061,67 +1055,6 @@ def _apply_cell_mask(img_batch, batch_filenames, cell_mask_folder):
 #  Deep-learning model loaders
 # ====================================================================== #
 
-#def _load_stardist_model(settings):
-#    """Load a Stardist model (pretrained or custom)."""
-#    import os
-#    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-#
-#    # Free any PyTorch GPU state
-#    torch.cuda.empty_cache()
-#    torch.cuda.synchronize()
-#
-#    try:
-#        from stardist.models import StarDist2D  # type: ignore
-#    except (ImportError, RuntimeError) as e:
-#        raise ImportError(
-#            f"Stardist requires TensorFlow which is not installed. "
-#            f"Either install TensorFlow ('pip install tensorflow') or use a "
-#            f"different method for spot detection: 'cellpose', 'otsu', 'log', or 'dog'. "
-#            f"Original error: {e}"
-#        )
-#
-#    model_name = settings.get('organelle_stardist_model', '2D_versatile_fluo')
-#
-#    # Try GPU first, fall back to CPU if CUDA context is corrupted
-#    for attempt, use_gpu in enumerate([True, False]):
-#        try:
-#            import tensorflow as tf
-#            if use_gpu:
-#                gpus = tf.config.list_physical_devices('GPU')
-#                if gpus:
-#                    for gpu in gpus:
-#                        tf.config.experimental.set_memory_growth(gpu, True)
-#                    print(f'Loading Stardist model on GPU: {model_name}...')
-#                else:
-#                    print(f'No GPU found, loading Stardist model on CPU: {model_name}...')
-#            else:
-#                tf.config.set_visible_devices([], 'GPU')
-#                print(f'GPU unavailable for TensorFlow, loading Stardist model on CPU: {model_name}...')
-#
-#            if os.path.isdir(model_name):
-#                model = StarDist2D(None, name=os.path.basename(model_name),
-#                                   basedir=os.path.dirname(model_name))
-#            else:
-#                model = StarDist2D.from_pretrained(model_name)
-#
-#            print(f'Stardist model loaded successfully ({"GPU" if use_gpu and gpus else "CPU"}).')
-#            return model
-#
-#        except Exception as e:
-#            if attempt == 0:
-#                print(f'Warning: Failed to load Stardist on GPU ({e}). Falling back to CPU...')
-#                # Reset TF state for CPU retry
-#                try:
-#                    import tensorflow as tf
-#                    tf.config.set_visible_devices([], 'GPU')
-#                except Exception:
-#                    os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-#            else:
-#                raise RuntimeError(
-#                    f"Failed to load Stardist model on both GPU and CPU. "
-#                    f"Error: {e}"
-#                )
-
 def _load_unet_model(settings):
     """Load a user-provided U-Net model from a .pt / .pth file."""
     model_path = settings.get('organelle_unet_model_path')
@@ -1244,36 +1177,6 @@ def _segment_cellpose_sam(batch, batch_filenames, model, settings, object_type, 
     )
 
     masks, flows, _, _, _ = parse_cellpose4_output(output)
-    return masks
-
-
-# ====================================================================== #
-#  Stardist segmentation (GPU — not parallelised)
-# ====================================================================== #
-
-def _segment_stardist(img_batch, model, settings):
-    """
-    Run Stardist on a batch of single-channel images.
-    Best for dense, convex, spot-like organelles (lipid droplets, peroxisomes).
-    """
-    prob_thresh = settings.get('organelle_stardist_prob', 0.5)
-    nms_thresh = settings.get('organelle_stardist_nms', 0.3)
-
-    masks = []
-    for idx in range(img_batch.shape[0]):
-        img = img_batch[idx]
-        pmin, pmax = np.percentile(img, (1, 99.8))
-        if pmax - pmin > 0:
-            img_norm = np.clip((img - pmin) / (pmax - pmin), 0, 1).astype(np.float32)
-        else:
-            img_norm = np.zeros_like(img, dtype=np.float32)
-
-        labels, _ = model.predict_instances(
-            img_norm,
-            prob_thresh=prob_thresh,
-            nms_thresh=nms_thresh,
-        )
-        masks.append(labels)
     return masks
 
 

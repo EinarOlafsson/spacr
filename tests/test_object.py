@@ -44,6 +44,14 @@ def test_validate_organelle_settings_rejects_method_for_morphology():
     assert "morphology='network'" in str(excinfo.value)
 
 
+def test_validate_organelle_settings_rejects_stardist():
+    """Stardist was removed to avoid the TensorFlow dependency; it must
+    not be silently accepted as a segmentation method anywhere."""
+    for morph in ("spots", "network", "irregular", "ring"):
+        with pytest.raises(ValueError):
+            O._validate_organelle_settings(morph, "stardist")
+
+
 # ---------------------------------------------------------------------------
 # _build_object_settings — dict extraction
 # ---------------------------------------------------------------------------
