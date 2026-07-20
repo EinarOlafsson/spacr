@@ -769,7 +769,7 @@ def analyze_recruitment(settings):
         
     if not settings['cell_chann_dim'] is None:
         df = _object_filter(df, 'cell', settings['cell_size_range'], settings['cell_intensity_range'], mask_chans, 0)
-        if not settings['target_intensity_min'] is None or not settings['target_intensity_min'] is 0:
+        if settings['target_intensity_min'] is not None and settings['target_intensity_min'] != 0:
             df = df[df[f"cell_channel_{settings['channel_of_interest']}_percentile_95"] > settings['target_intensity_min']]
             print(f"After channel {settings['channel_of_interest']} filtration", len(df))
     if not settings['nucleus_chann_dim'] is None:
