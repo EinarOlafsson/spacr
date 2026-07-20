@@ -907,11 +907,15 @@ def count_phenotypes(settings):
 
     return
 
-def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict={'r1':(90,10),'r2':(90,10),'r3':(80,20),'r4':(80,20),'r5':(70,30),'r6':(70,30),'r7':(60,40),'r8':(60,40),'r9':(50,50),'r10':(50,50),'r11':(40,60),'r12':(40,60),'r13':(30,70),'r14':(30,70),'r15':(20,80),'r16':(20,80)},
+def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
                             pc_grna='TGGT1_220950_1', nc_grna='TGGT1_233460_4', 
-                            y_columns=['class_1_fraction', 'TGGT1_220950_1_fraction', 'nc_fraction'], 
+                            y_columns=None, 
                             column='columnID', value='c3', plate=None, save_paths=None):
 
+    if empirical_dict is None:
+        empirical_dict = {'r1':(90,10),'r2':(90,10),'r3':(80,20),'r4':(80,20),'r5':(70,30),'r6':(70,30),'r7':(60,40),'r8':(60,40),'r9':(50,50),'r10':(50,50),'r11':(40,60),'r12':(40,60),'r13':(30,70),'r14':(30,70),'r15':(20,80),'r16':(20,80)}
+    if y_columns is None:
+        y_columns = ['class_1_fraction', 'TGGT1_220950_1_fraction', 'nc_fraction']
     def calculate_well_score_fractions(df, class_columns='cv_predictions'):
         if all(col in df.columns for col in ['plateID', 'rowID', 'columnID']):
             df['prc'] = df['plateID'] + '_' + df['rowID'] + '_' + df['columnID']
@@ -1085,12 +1089,16 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict={'r1':(90,10),
     
     return [fig_1, fig_2]
 
-def interperate_vision_model(settings={}):
+def interperate_vision_model(settings=None):
     
+    if settings is None:
+        settings = {}
     from .io import _read_and_merge_data
 
-    def generate_comparison_columns(df, compartments=['cell', 'nucleus', 'pathogen', 'cytoplasm']):
+    def generate_comparison_columns(df, compartments=None):
 
+        if compartments is None:
+            compartments = ['cell', 'nucleus', 'pathogen', 'cytoplasm']
         comparison_dict = {}
 
         # Get columns by compartment
@@ -1132,9 +1140,11 @@ def interperate_vision_model(settings={}):
 
         return df, comparison_dict
 
-    def group_feature_class(df, feature_groups=['cell', 'cytoplasm', 'nucleus', 'pathogen'], name='compartment', include_all=False):
+    def group_feature_class(df, feature_groups=None, name='compartment', include_all=False):
 
         # Function to determine compartment based on multiple matches
+        if feature_groups is None:
+            feature_groups = ['cell', 'cytoplasm', 'nucleus', 'pathogen']
         def find_feature_class(feature, compartments):
             matches = [compartment for compartment in compartments if re.search(compartment, feature)]
             if len(matches) > 1:
@@ -1692,7 +1702,9 @@ def generate_score_heatmap(settings):
         grouped_df['prc'] = grouped_df['plateID'].astype(str) + '_' + grouped_df['rowID'].astype(str) + '_' + grouped_df['columnID'].astype(str)
         return grouped_df
 
-    def calculate_fraction_mixed_condition(csv, plate=1, column='c3', control_sgrnas = ['TGGT1_220950_1', 'TGGT1_233460_4']):
+    def calculate_fraction_mixed_condition(csv, plate=1, column='c3', control_sgrnas = None):
+        if control_sgrnas is None:
+            control_sgrnas = ['TGGT1_220950_1', 'TGGT1_233460_4']
         df = pd.read_csv(csv)  
         df = df[df['column_name']==column]
         if plate not in df.columns:
