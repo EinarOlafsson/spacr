@@ -56,7 +56,7 @@ from scipy import stats
 import scipy.ndimage as ndi
 from scipy.spatial import distance
 from scipy.stats import fisher_exact, f_oneway, kruskal
-from scipy.ndimage.filters import gaussian_filter
+from scipy.ndimage import gaussian_filter
 from scipy.spatial import ConvexHull
 from scipy.interpolate import splprep, splev
 from scipy import ndimage
