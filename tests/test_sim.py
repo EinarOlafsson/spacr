@@ -87,7 +87,8 @@ def test_generate_gene_list_length_and_uniqueness():
     genes = S.generate_gene_list(number_of_genes=20, number_of_all_genes=1000)
     assert len(genes) == 20
     assert len(set(genes)) == 20  # unique
-    assert all(1 <= g <= 1000 for g in genes)
+    # generate_gene_list samples from range(number_of_all_genes) — 0..N-1.
+    assert all(0 <= g < 1000 for g in genes)
 
 
 def test_generate_plate_map_shape():
