@@ -5526,11 +5526,13 @@ def modify_figure(fig):
     apply_button = tk.Button(modify_window, text="Apply", command=apply_modifications, bg="#2E2E2E", fg="white")
     apply_button.grid(row=len(options) + len(checkboxes), column=0, columnspan=2, pady=10)
 
-def generate_dna_matrix(output_path='dna_matrix.gif', canvas_width=1500, canvas_height=1000, duration=30, fps=20, base_size=20, transition_frames=30, font_type='arial.ttf', enhance=[1.1, 1.5, 1.2, 1.5], lowercase_prob=0.3):
+def generate_dna_matrix(output_path='dna_matrix.gif', canvas_width=1500, canvas_height=1000, duration=30, fps=20, base_size=20, transition_frames=30, font_type='arial.ttf', enhance=None, lowercase_prob=0.3):
     """
     Generate a DNA matrix animation and save it as GIF, MP4, or AVI using OpenCV for videos.
     """
 
+    if enhance is None:
+        enhance = [1.1, 1.5, 1.2, 1.5]
     def save_output(frames, output_path, fps, output_format):
         """Save the animation based on output format."""
         if output_format in ['.mp4', '.avi']:
