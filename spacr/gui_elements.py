@@ -224,16 +224,27 @@ def set_dark_style(style, parent_frame=None, containers=None, widgets=None,
     if parent_frame is None and containers is None and widgets is None and _cached_dark_style is not None:
         return _cached_dark_style
     
+    # ------------------------------------------------------------------
+    # Soft dark palette (GitHub-Dark inspired). Named-color inputs resolve
+    # to these hex values; explicit hex passed by the caller is preserved.
+    # ------------------------------------------------------------------
     if active_color == 'teal':
         active_color = '#008080'
     if inactive_color == 'dark_gray':
-        inactive_color = '#2B2B2B' # '#333333' #'#050505'
+        inactive_color = '#1a1f27'   # secondary surface / panel
     if bg_color == 'black':
-        bg_color = '#000000'
+        bg_color = '#0e1116'         # primary background
     if fg_color == 'white':
-        fg_color = '#ffffff'
+        fg_color = '#e6edf3'         # primary text
     if active_color == 'blue':
-        active_color = '#007BFF'
+        active_color = '#4a90e2'     # accent
+
+    # Extended palette exposed on the returned style dict.
+    border_color   = '#2b3138'       # dividers / subtle borders
+    muted_color    = '#8b949e'       # secondary text / hints
+    success_color  = '#3fb950'
+    warning_color  = '#d29922'
+    error_color    = '#f85149'
 
     padding = '5 5 5 5'
     font_style = tkFont.Font(family=font_family, size=font_size)
@@ -297,9 +308,12 @@ def set_dark_style(style, parent_frame=None, containers=None, widgets=None,
 
     #return {'font_loader':font_loader, 'font_family': font_family, 'font_size': font_size, 'bg_color': bg_color, 'fg_color': fg_color, 'active_color': active_color, 'inactive_color': inactive_color}
 
-    result = {'font_loader': font_loader, 'font_family': font_family, 
-              'font_size': font_size, 'bg_color': bg_color, 'fg_color': fg_color, 
-              'active_color': active_color, 'inactive_color': inactive_color}
+    result = {'font_loader': font_loader, 'font_family': font_family,
+              'font_size': font_size, 'bg_color': bg_color, 'fg_color': fg_color,
+              'active_color': active_color, 'inactive_color': inactive_color,
+              'border_color': border_color, 'muted_color': muted_color,
+              'success_color': success_color, 'warning_color': warning_color,
+              'error_color': error_color}
     
     if parent_frame is None and containers is None and widgets is None:
         _cached_dark_style = result
