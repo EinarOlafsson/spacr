@@ -1097,7 +1097,9 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
 
     return normalized_stack.astype(save_dtype)
 
-def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings={}):
+def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=None):
+    if settings is None:
+        settings = {}
     from .utils import print_progress
     from .plot import plot_arrays
 
@@ -1276,7 +1278,7 @@ def _get_lists_for_normalization(settings):
 
     return backgrounds, signal_to_noise, signal_thresholds, remove_background
 
-def _normalize_stack(src, backgrounds=[100, 100, 100], remove_backgrounds=[False, False, False], lower_percentile=2, save_dtype=np.float32, signal_to_noise=[5, 5, 5], signal_thresholds=[1000, 1000, 1000]):
+def _normalize_stack(src, backgrounds=None, remove_backgrounds=None, lower_percentile=2, save_dtype=np.float32, signal_to_noise=None, signal_thresholds=None):
     """
     Normalize the stack of images.
 
@@ -1292,6 +1294,14 @@ def _normalize_stack(src, backgrounds=[100, 100, 100], remove_backgrounds=[False
     Returns:
         None
     """
+    if backgrounds is None:
+        backgrounds = [100, 100, 100]
+    if remove_backgrounds is None:
+        remove_backgrounds = [False, False, False]
+    if signal_to_noise is None:
+        signal_to_noise = [5, 5, 5]
+    if signal_thresholds is None:
+        signal_thresholds = [1000, 1000, 1000]
     paths = [os.path.join(src, file) for file in os.listdir(src) if file.endswith('.npz')]
     output_fldr = os.path.join(os.path.dirname(src), 'masks')
     os.makedirs(output_fldr, exist_ok=True)
@@ -1747,7 +1757,7 @@ def _save_figure(fig, src, text, dpi=300, i=1, all_folders=1):
     del fig
     gc.collect()
     
-def _read_and_join_tables(db_path, table_names=['cell', 'cytoplasm', 'nucleus', 'pathogen', 'png_list']):
+def _read_and_join_tables(db_path, table_names=None):
     """
     Reads and joins tables from a SQLite database.
 
@@ -1758,6 +1768,8 @@ def _read_and_join_tables(db_path, table_names=['cell', 'cytoplasm', 'nucleus', 
     Returns:
         pandas.DataFrame: The joined DataFrame containing the data from the specified tables, or None if an error occurs.
     """
+    if table_names is None:
+        table_names = ['cell', 'cytoplasm', 'nucleus', 'pathogen', 'png_list']
     from .utils import rename_columns_in_db
     rename_columns_in_db(db_path)
     
@@ -2142,8 +2154,8 @@ def read_plot_model_stats(train_file_path, val_file_path ,save=False):
     _plot_and_save(train_df, val_df, column='optimal_threshold', save=save, path=fldr_1)
 
 def _save_model(model, model_type, results_dict, dst, epoch, epochs,
-                intermedeate_save=[0.99, 0.98, 0.95, 0.94],
-                channels=['r', 'g', 'b'],
+                intermedeate_save=None,
+                channels=None,
                 # FIX: accept an optional validation dict for checkpoint decisions
                 # WHY: the original used train_dict, so checkpoints reflected memorization
                 #      not generalization — val metrics are the correct signal
@@ -2163,6 +2175,10 @@ def _save_model(model, model_type, results_dict, dst, epoch, epochs,
         channels (list, optional): List of channels used. Defaults to ['r', 'g', 'b'].
     """
     
+    if intermedeate_save is None:
+        intermedeate_save = [0.99, 0.98, 0.95, 0.94]
+    if channels is None:
+        channels = ['r', 'g', 'b']
     channels_str = ''.join(channels)
 
     def save_model_at_threshold(threshold, epoch, suffix=""):
@@ -2617,7 +2633,9 @@ def parse_gz_files(folder_path):
             samples_dict[sample_name]['R2'] = os.path.join(folder_path, gz_file)
     return samples_dict
 
-def generate_dataset(settings={}):
+def generate_dataset(settings=None):
+    if settings is None:
+        settings = {}
     import os, tarfile, shutil, random, datetime
     from multiprocessing import Pool, Value, Lock, cpu_count
 
@@ -2732,10 +2750,14 @@ def generate_dataset(settings={}):
     return tar_name
 
 def generate_loaders(src, mode='train', image_size=224, batch_size=32,
-                     classes=['nc', 'pc'], n_jobs=None, validation_split=0.0,
-                     pin_memory=False, normalize=False, channels=['r', 'g', 'b'],
+                     classes=None, n_jobs=None, validation_split=0.0,
+                     pin_memory=False, normalize=False, channels=None,
                      augment=False, verbose=False):
 
+    if classes is None:
+        classes = ['nc', 'pc']
+    if channels is None:
+        channels = ['r', 'g', 'b']
     from .utils import SelectChannels, augment_dataset
 
     chans = []
@@ -3232,7 +3254,9 @@ def training_dataset_from_annotation(db_path, dst, annotation_column='test', ann
         
     return class_paths
 
-def training_dataset_from_annotation_metadata(db_path, dst, annotation_column='test', annotated_classes=(1, 2), metadata_type_by='columnID', class_metadata=['c1','c2']):
+def training_dataset_from_annotation_metadata(db_path, dst, annotation_column='test', annotated_classes=(1, 2), metadata_type_by='columnID', class_metadata=None):
+    if class_metadata is None:
+        class_metadata = ['c1','c2']
     all_paths = []
 
     # Connect to the database and retrieve the image paths and annotations
