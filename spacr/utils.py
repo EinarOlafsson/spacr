@@ -868,7 +868,7 @@ def activation_correlations_to_database(df, img_paths, source_folder, settings):
         print(f"SQLite error: {e}", flush=True)
         traceback.print_exc()
 
-def calculate_activation_correlations(inputs, activation_maps, file_names, manders_thresholds=[15, 50, 75]):
+def calculate_activation_correlations(inputs, activation_maps, file_names, manders_thresholds=None):
     """
     Calculates Pearson and Manders correlations between input image channels and activation map channels.
     
@@ -884,6 +884,8 @@ def calculate_activation_correlations(inputs, activation_maps, file_names, mande
     """
     
     # Ensure tensors are detached and moved to CPU before converting to numpy
+    if manders_thresholds is None:
+        manders_thresholds = [15, 50, 75]
     inputs = inputs.detach().cpu()
     activation_maps = activation_maps.detach().cpu()
 
@@ -1332,7 +1334,7 @@ def mask_object_count(mask):
     num_objects = len(unique_labels[unique_labels!=0])
     return num_objects
 
-def _update_database_with_merged_info(db_path, df, table='png_list', columns=['pathogen', 'treatment', 'host_cells', 'condition', 'prcfo']):
+def _update_database_with_merged_info(db_path, df, table='png_list', columns=None):
     """
     Merges additional columns into the png_list table in the SQLite database and updates it.
 
@@ -1342,6 +1344,8 @@ def _update_database_with_merged_info(db_path, df, table='png_list', columns=['p
         table (str): Name of the table to update in the database. Defaults to 'png_list'.
     """
     # Connect to the SQLite database
+    if columns is None:
+        columns = ['pathogen', 'treatment', 'host_cells', 'condition', 'prcfo']
     conn = sqlite3.connect(db_path)
 
     # Read the existing table into a DataFrame
@@ -1376,7 +1380,7 @@ def _update_database_with_merged_info(db_path, df, table='png_list', columns=['p
     finally:
         conn.close()
 
-def _generate_representative_images(db_path, cells=['HeLa'], cell_loc=None, pathogens=['rh'], pathogen_loc=None, treatments=['cm'], treatment_loc=None, channel_of_interest=1, compartments = ['pathogen','cytoplasm'], measurement = 'mean_intensity', nr_imgs=16, channel_indices=[0,1,2], um_per_pixel=0.1, scale_bar_length_um=10, plot=False, fontsize=12, show_filename=True, channel_names=None, update_db=True):
+def _generate_representative_images(db_path, cells=None, cell_loc=None, pathogens=None, pathogen_loc=None, treatments=None, treatment_loc=None, channel_of_interest=1, compartments = None, measurement = 'mean_intensity', nr_imgs=16, channel_indices=None, um_per_pixel=0.1, scale_bar_length_um=10, plot=False, fontsize=12, show_filename=True, channel_names=None, update_db=True):
     
     """
     Generates representative images based on the provided parameters.
@@ -1405,6 +1409,16 @@ def _generate_representative_images(db_path, cells=['HeLa'], cell_loc=None, path
         None
     """
     
+    if cells is None:
+        cells = ['HeLa']
+    if pathogens is None:
+        pathogens = ['rh']
+    if treatments is None:
+        treatments = ['cm']
+    if compartments is None:
+        compartments = ['pathogen','cytoplasm']
+    if channel_indices is None:
+        channel_indices = [0,1,2]
     from .io import _read_and_join_tables, _save_figure
     from .plot import _plot_images_on_grid
     
@@ -4657,7 +4671,9 @@ def _run_test_mode(src, regex, timelapse=False, test_images=10, random_test=True
 
     return test_folder_path
 
-def _choose_model(model_name, device, object_type='cell', restore_type=None, object_settings={}):
+def _choose_model(model_name, device, object_type='cell', restore_type=None, object_settings=None):
+    if object_settings is None:
+        object_settings = {}
     if object_type == 'pathogen':
         if model_name == 'toxo_pv_lumen':
             diameter = object_settings['diameter']
@@ -4913,7 +4929,9 @@ class GradCAMGenerator:
 
         return img_normalized
 
-def preprocess_image(image_path, normalize=True, image_size=224, channels=[1,2,3]):
+def preprocess_image(image_path, normalize=True, image_size=224, channels=None):
+    if channels is None:
+        channels = [1,2,3]
     preprocess = transforms.Compose([
         transforms.Resize((image_size, image_size)),
         transforms.ToTensor(),
@@ -4927,8 +4945,12 @@ def preprocess_image(image_path, normalize=True, image_size=224, channels=[1,2,3
     
     return image, input_tensor
 
-def class_visualization(target_y, model_path, dtype, img_size=224, channels=[0,1,2], l2_reg=1e-3, learning_rate=25, num_iterations=100, blur_every=10, max_jitter=16, show_every=25, class_names = ['nc', 'pc']):
+def class_visualization(target_y, model_path, dtype, img_size=224, channels=None, l2_reg=1e-3, learning_rate=25, num_iterations=100, blur_every=10, max_jitter=16, show_every=25, class_names = None):
     
+    if channels is None:
+        channels = [0,1,2]
+    if class_names is None:
+        class_names = ['nc', 'pc']
     def jitter(img, ox, oy):
         # Randomly jitter the image
         return torch.roll(torch.roll(img, ox, dims=2), oy, dims=3)
@@ -6696,7 +6718,9 @@ def correct_metadata_column_names(df):
         df[['plateID', 'rowID']] = df['plate_row'].str.split('_', expand=True)
     return df
 
-def control_filelist(folder, mode='columnID', values=['01','02']):
+def control_filelist(folder, mode='columnID', values=None):
+    if values is None:
+        values = ['01','02']
     files = os.listdir(folder)
     if mode == 'columnID':
         filtered_files = [file for file in files if file.split('_')[1][1:] in values]
@@ -6737,9 +6761,11 @@ def rename_columns_in_db(db_path):
     con.commit()
     con.close()    
         
-def group_feature_class(df, feature_groups=['cell', 'cytoplasm', 'nucleus', 'pathogen'], name='compartment'):
+def group_feature_class(df, feature_groups=None, name='compartment'):
 
     # Function to determine compartment based on multiple matches
+    if feature_groups is None:
+        feature_groups = ['cell', 'cytoplasm', 'nucleus', 'pathogen']
     def find_feature_class(feature, compartments):
         matches = [compartment for compartment in compartments if re.search(compartment, feature)]
         if len(matches) > 1:
