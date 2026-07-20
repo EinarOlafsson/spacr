@@ -13,7 +13,16 @@ import pytest
 
 pytestmark = pytest.mark.gui  # tag: needs a display
 
-import spacr.gui_elements as ge
+# spacr.gui_elements imports pyautogui, which imports mouseinfo, which
+# unconditionally opens an X display at IMPORT time and raises
+# Xlib.error.DisplayConnectionError when the DISPLAY xauth cookie isn't
+# available (common in subprocess pytest runs launched via coverage). Skip
+# the whole file cleanly rather than crashing collection.
+try:
+    import spacr.gui_elements as ge
+except Exception as e:  # pragma: no cover
+    pytest.skip(f"spacr.gui_elements unavailable in this env: {e}",
+                allow_module_level=True)
 
 
 # ---------------------------------------------------------------------------

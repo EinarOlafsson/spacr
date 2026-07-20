@@ -66,8 +66,13 @@ def test_main_version_command_prints_and_exits_zero(capsys):
 def test_main_dispatches_each_command_to_its_entry_point(cmd, func_path):
     """`spacr <cmd>` must import and invoke the matching start_*_app."""
     from spacr.__main__ import main
-    with patch(func_path) as spy:
-        rc = main([cmd])
+    try:
+        with patch(func_path) as spy:
+            rc = main([cmd])
+    except Exception as e:
+        if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
+            pytest.skip(f"dispatch target {func_path} needs a display: {e}")
+        raise
     assert rc == 0
     spy.assert_called_once()
 
@@ -164,12 +169,24 @@ def test_log_function_call_reraises_exceptions(tmp_path, monkeypatch):
 ])
 def test_launcher_start_function_is_callable(mod_name, fn):
     import importlib
-    mod = importlib.import_module(f"spacr.{mod_name}")
+    try:
+        mod = importlib.import_module(f"spacr.{mod_name}")
+    except Exception as e:
+        # Launchers transitively import spacr.gui, which pulls in
+        # screeninfo/pyautogui; skip cleanly on display-less runs.
+        if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
+            pytest.skip(f"spacr.{mod_name} needs a display: {e}")
+        raise
     entry = getattr(mod, fn, None)
     assert callable(entry), f"spacr.{mod_name}.{fn} must be callable"
 
 
 def test_app_make_masks_initiate_helper_exists():
     """The parent-frame initiator hook AnnotateApp / MainApp uses."""
-    import spacr.app_make_masks as m
+    try:
+        import spacr.app_make_masks as m
+    except Exception as e:
+        if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
+            pytest.skip(f"spacr.app_make_masks needs a display: {e}")
+        raise
     assert callable(getattr(m, "initiate_make_mask_app", None))

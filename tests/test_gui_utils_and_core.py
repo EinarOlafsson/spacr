@@ -10,7 +10,11 @@ from __future__ import annotations
 
 import pytest
 
-import spacr.gui_utils as GU
+try:
+    import spacr.gui_utils as GU
+except Exception as e:  # pragma: no cover
+    pytest.skip(f"spacr.gui_utils unavailable in this env: {e}",
+                allow_module_level=True)
 
 
 # ---------------------------------------------------------------------------

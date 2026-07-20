@@ -234,7 +234,12 @@ def test_gui_elements_set_element_size_returns_dict(tk_root):
 
 
 def test_gui_elements_spacr_font_gives_font_objects(tk_root):
-    from spacr.gui_elements import spacrFont
+    try:
+        from spacr.gui_elements import spacrFont
+    except Exception as e:
+        if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
+            pytest.skip(f"spacr.gui_elements needs a display: {e}")
+        raise
     loader = spacrFont("OpenSans", "Regular", font_size=12)
     f1 = loader.get_font(size=12)
     f2 = loader.get_font(size=16)
@@ -247,7 +252,12 @@ def test_gui_elements_spacr_font_gives_font_objects(tk_root):
 # ============================================================================
 
 def test_gui_core_initiate_abort_is_callable():
-    import spacr.gui_core as GC
+    try:
+        import spacr.gui_core as GC
+    except Exception as e:
+        if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
+            pytest.skip(f"spacr.gui_core needs a display: {e}")
+        raise
     assert callable(GC.initiate_abort)
 
 
@@ -255,7 +265,12 @@ def test_gui_core_check_src_folders_files_signature():
     """check_src_folders_files reads settings + queues logging messages.
     Verify at least the callable signature is intact."""
     import inspect
-    from spacr.gui_core import check_src_folders_files
+    try:
+        from spacr.gui_core import check_src_folders_files
+    except Exception as e:
+        if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
+            pytest.skip(f"spacr.gui_core needs a display: {e}")
+        raise
     sig = inspect.signature(check_src_folders_files)
     # First 3 params should be settings, settings_type, q.
     params = list(sig.parameters)
