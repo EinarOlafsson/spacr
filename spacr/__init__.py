@@ -30,7 +30,10 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "ml",
     "toxo",
     "spacr_cellpose",
+    "spacrops",
     "sp_stats",
+    "sim",
+    "object",
     "logger",
     "version",
 )
