@@ -1467,7 +1467,7 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filte
             merged_df[['org', 'gene', 'grna']] = merged_df['grna'].str.split('_', expand=True)
             merged_df = merged_df.drop(columns=['org'])
             merged_df['grna'] = merged_df['gene'] + '_' + merged_df['grna']
-        except:
+        except Exception:
             print('Error splitting grna into org, gene, grna.')
 
     return merged_df
