@@ -96,9 +96,10 @@ def test_generate_plate_map_shape():
     assert len(pm) == 2 * 16 * 24
     for col in ("plate_id", "row_id", "column_id"):
         assert col in pm.columns
-    assert set(pm["plate_id"].unique()) == {1, 2}
-    assert pm["row_id"].max() == 16
-    assert pm["column_id"].max() == 24
+    # plate_id / row_id / column_id are stored as strings, not ints.
+    assert set(pm["plate_id"].unique()) == {"1", "2"}
+    assert set(pm["row_id"].unique()) == {str(i) for i in range(1, 17)}
+    assert set(pm["column_id"].unique()) == {str(i) for i in range(1, 25)}
 
 
 # ---------------------------------------------------------------------------
