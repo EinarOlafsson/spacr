@@ -1544,6 +1544,65 @@ class spacrToolTip:
             self.tooltip_window.destroy()
         self.tooltip_window = None
 
+
+class spacrDivider(tk.Frame):
+    """Thin themed section separator, optionally with a caption.
+
+    Usage:
+        spacrDivider(parent).pack(fill=tk.X, pady=8)              # plain rule
+        spacrDivider(parent, text="Advanced").pack(fill=tk.X)     # captioned rule
+        spacrDivider(parent, orient='vertical').pack(fill=tk.Y)   # vertical rule
+
+    Pulls colors and spacing from the shared style dict so the look stays
+    consistent with the rest of the GUI.
+    """
+
+    def __init__(self, parent, text="", orient='horizontal', thickness=1, **kwargs):
+        super().__init__(parent, **kwargs)
+        self.text = text
+        self.orient = orient
+        self.thickness = max(1, int(thickness))
+
+        style_out = set_dark_style(ttk.Style())
+        bg = style_out['bg_color']
+        border = style_out.get('border_color', style_out['inactive_color'])
+        muted = style_out.get('muted_color', style_out['fg_color'])
+        spacing = style_out.get('spacing', {'sm': 8, 'md': 12})
+        font_sizes = style_out.get('font_sizes', {'small': max(style_out['font_size'] - 1, 9)})
+        font_loader = style_out.get('font_loader')
+
+        self.configure(bg=bg)
+
+        if orient == 'vertical':
+            # Vertical rule, ignores text.
+            rule = tk.Frame(self, bg=border, width=self.thickness)
+            rule.pack(fill=tk.Y, expand=True)
+            return
+
+        if not text:
+            rule = tk.Frame(self, bg=border, height=self.thickness)
+            rule.pack(fill=tk.X, expand=True, padx=0, pady=(spacing['sm'], spacing['sm']))
+            return
+
+        # Captioned rule: [--- text ---------------------]
+        self.grid_columnconfigure(1, weight=0)
+        self.grid_columnconfigure(2, weight=1)
+        left = tk.Frame(self, bg=border, height=self.thickness, width=spacing['md'])
+        left.grid(row=0, column=0, sticky='ew', padx=(0, spacing['sm']))
+        # Force a small fixed-width leading rule.
+        left.grid_propagate(False)
+
+        if font_loader:
+            font = font_loader.get_font(size=font_sizes.get('small', style_out['font_size']))
+        else:
+            font = (style_out['font_family'], font_sizes.get('small', style_out['font_size']))
+        label = tk.Label(self, text=text, bg=bg, fg=muted, font=font)
+        label.grid(row=0, column=1, sticky='w')
+
+        right = tk.Frame(self, bg=border, height=self.thickness)
+        right.grid(row=0, column=2, sticky='ew', padx=(spacing['sm'], 0))
+
+
 class ModifyMaskApp:
     def __init__(self, root, folder_path, scale_factor):
         self.root = root
