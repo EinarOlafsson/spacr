@@ -252,7 +252,7 @@ def train_cellpose(settings):
             labels.append(lbl)
     try:
         plot_cellpose_batch(images, labels)
-    except:
+    except Exception:
         print(f"could not print batch images")
         
     print(f"Training model with {len(images)} ber patch for {settings['n_epochs']} Epochs")
