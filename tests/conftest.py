@@ -39,6 +39,69 @@ if str(_REPO_ROOT) not in sys.path:
 # Headless matplotlib for CI / test runs.
 os.environ.setdefault("MPLBACKEND", "Agg")
 
+# ---------------------------------------------------------------------------
+# Pre-empt display-touching imports before any test imports a spacr.gui*
+# module. Three culprits open the X display at IMPORT time:
+#   * mouseinfo (transitive via pyautogui)
+#   * pyautogui itself (Linux backend probes the display)
+#   * screeninfo.get_monitors (used at module load in gui.py, gui_utils.py,
+#     gui_elements.py)
+# In display-less subprocess pytest runs, each of these throws
+# Xlib.error.DisplayConnectionError. Stub them all with no-op modules so
+# spacr.gui_* can be imported and their non-GUI code paths still tested.
+# ---------------------------------------------------------------------------
+import types as _types
+
+
+def _install_gui_stubs():
+    def _no_op(*args, **kwargs):
+        return None
+
+    if "mouseinfo" not in sys.modules:
+        mi = _types.ModuleType("mouseinfo")
+        mi.position = lambda: (0, 0)
+        mi.size = lambda: (0, 0)
+        mi.MOUSE_LEFT = mi.MOUSE_RIGHT = mi.MOUSE_MIDDLE = None
+        mi.PRIMARY = "primary"
+        mi._display = None
+        class MouseInfoException(Exception):  # noqa: N801 - upstream name
+            pass
+        mi.MouseInfoException = MouseInfoException
+        sys.modules["mouseinfo"] = mi
+
+    if "pyautogui" not in sys.modules:
+        try:
+            import pyautogui  # noqa: F401 - real import if available
+        except Exception:
+            pa = _types.ModuleType("pyautogui")
+            for name in ("position", "size", "click", "moveTo", "moveRel",
+                         "typewrite", "hotkey", "press", "screenshot",
+                         "onScreen", "keyDown", "keyUp"):
+                setattr(pa, name, _no_op)
+            pa.FAILSAFE = True
+            pa.PAUSE = 0.0
+            sys.modules["pyautogui"] = pa
+
+    if "screeninfo" not in sys.modules:
+        try:
+            import screeninfo  # noqa: F401
+            # Verify get_monitors works; if not, patch it.
+            try:
+                screeninfo.get_monitors()
+            except Exception:
+                _fake = _types.SimpleNamespace(x=0, y=0, width=1920, height=1080,
+                                               name="stub", is_primary=True)
+                screeninfo.get_monitors = lambda: [_fake]
+        except Exception:
+            si = _types.ModuleType("screeninfo")
+            _fake = _types.SimpleNamespace(x=0, y=0, width=1920, height=1080,
+                                           name="stub", is_primary=True)
+            si.get_monitors = lambda: [_fake]
+            sys.modules["screeninfo"] = si
+
+
+_install_gui_stubs()
+
 # Try to import matplotlib once with the Agg backend fixed. If unavailable,
 # individual tests that need it will skip themselves.
 try:  # pragma: no cover - import side effect only
@@ -248,9 +311,17 @@ def tk_root():
 
 @pytest.fixture
 def dark_style(tk_root):
-    """The style_out dict returned by set_dark_style()."""
+    """The style_out dict returned by set_dark_style().
+
+    Skips cleanly if spacr.gui_elements can't be imported (which happens
+    when pyautogui's Xlib import fails in a display-less subprocess run)."""
     from tkinter import ttk
-    from spacr.gui_elements import set_dark_style
+    try:
+        from spacr.gui_elements import set_dark_style
+    except Exception as e:
+        if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
+            pytest.skip(f"spacr.gui_elements needs a display: {e}")
+        raise
     return set_dark_style(ttk.Style(), parent_frame=None)
 
 

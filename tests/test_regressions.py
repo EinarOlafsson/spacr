@@ -67,7 +67,12 @@ def test_measure_exposes_settings_binding():
 )
 def test_dead_variants_are_gone(mod_name, gone):
     import importlib
-    mod = importlib.import_module(f"spacr.{mod_name}")
+    try:
+        mod = importlib.import_module(f"spacr.{mod_name}")
+    except Exception as e:
+        if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
+            pytest.skip(f"spacr.{mod_name} needs a display: {e}")
+        raise
     assert not hasattr(mod, gone), f"{mod_name}.{gone} should have been removed"
 
 
@@ -106,7 +111,14 @@ def test_no_duplicate_top_level_defs(mod_name, name):
 def test_kept_sibling_survives(mod_name, name):
     """The non-versioned sibling of every dropped _v1 must still be callable."""
     import importlib
-    mod = importlib.import_module(f"spacr.{mod_name}")
+    try:
+        mod = importlib.import_module(f"spacr.{mod_name}")
+    except Exception as e:
+        # gui_* modules pull in pyautogui at import time; skip if no
+        # xauth-authorized display is available.
+        if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
+            pytest.skip(f"spacr.{mod_name} needs a display: {e}")
+        raise
     obj = getattr(mod, name, None)
     assert obj is not None, f"{mod_name}.{name} unexpectedly gone"
     assert callable(obj), f"{mod_name}.{name} is not callable"
@@ -268,7 +280,12 @@ def test_font_size_hierarchy_present(dark_style):
 
 
 def test_spacr_divider_constructs(tk_root):
-    from spacr.gui_elements import spacrDivider
+    try:
+        from spacr.gui_elements import spacrDivider
+    except Exception as e:
+        if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
+            pytest.skip(f"spacr.gui_elements needs a display: {e}")
+        raise
     # All three shapes.
     plain = spacrDivider(tk_root)
     captioned = spacrDivider(tk_root, text="Section")
@@ -281,7 +298,12 @@ def test_spacr_divider_constructs(tk_root):
 
 def test_spacr_button_has_hover_fade(tk_root):
     """spacrButton must expose the fade machinery, not the old flash-swap."""
-    from spacr.gui_elements import spacrButton
+    try:
+        from spacr.gui_elements import spacrButton
+    except Exception as e:
+        if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
+            pytest.skip(f"spacr.gui_elements needs a display: {e}")
+        raise
     btn = spacrButton(tk_root, text="ok", show_text=True, size=50, animation=False)
     assert hasattr(btn, "_fade_bg_to")
     assert hasattr(btn, "_fade_after_id")
