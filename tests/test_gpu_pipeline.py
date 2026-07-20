@@ -68,10 +68,12 @@ def test_torch_reports_cuda_device():
 
 @needs_gpu
 @needs_cellpose
-def test_cellpose_runs_on_synthetic_yokogawa_field(yokogawa_cellvoyager_dir):
-    """Run a real cellpose 'cyto3' pass on one field of the synthetic
-    CellVoyager directory. Success = we get an integer label array of the
-    same H×W as the input image, with mask ids that are all >=0."""
+def test_cellposesam_runs_on_synthetic_yokogawa_field(yokogawa_cellvoyager_dir):
+    """Run CellposeSAM (pretrained_model='cpsam') on one field of the
+    synthetic CellVoyager directory — the exact model spacr uses in
+    _segment_cellpose_sam and utils._choose_model.
+
+    Success = an integer label array with the same H x W as the input."""
     from tifffile import imread
     from cellpose.models import CellposeModel
     import torch
@@ -83,13 +85,16 @@ def test_cellpose_runs_on_synthetic_yokogawa_field(yokogawa_cellvoyager_dir):
     assert img.ndim == 2
 
     device = torch.device("cuda:0")
-    model = CellposeModel(gpu=True, model_type="cyto3", device=device)
-    # cellpose 3+ eval signature: eval(imgs, diameter=..., channels=...)
-    masks, flows, styles = model.eval(
-        img.astype(np.float32),
-        diameter=30,
-        channels=[0, 0],  # grayscale
+    # CellposeSAM: no model_type, uses the 'cpsam' pretrained checkpoint.
+    model = CellposeModel(
+        gpu=True,
+        pretrained_model='cpsam',
+        device=device,
     )
+    # CellposeSAM eval() no longer takes 'channels' — feed a 2D array.
+    result = model.eval(img.astype(np.float32), diameter=30)
+    # cellpose 4 returns (masks, flows, styles).
+    masks = result[0]
     assert masks.shape == img.shape
     assert masks.dtype.kind in "iu"
     assert masks.min() >= 0

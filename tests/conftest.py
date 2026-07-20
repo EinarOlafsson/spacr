@@ -488,3 +488,85 @@ def synth_illumina_reads(tmp_path, rng, synth_barcodes):
         "truth": truth,
         "src": str(seq_dir),
     }
+
+
+# ---------------------------------------------------------------------------
+# Hugging Face-backed fixtures: real Yokogawa CellVoyager images + spacr's
+# canonical settings CSVs.
+# ---------------------------------------------------------------------------
+#
+# These pull a small deterministic slice of two public HF datasets:
+#   einarolafsson/toxo_mito       real 4-channel CellVoyager microscopy
+#   einarolafsson/spacr_settings  the reference settings CSVs
+#
+# Tests that use them are marked @pytest.mark.network so they skip in
+# offline CI. Fixtures are session-scoped since the payload is stable.
+#
+# Only 4 TIFFs (one plate/well/field, four channels) are pulled — enough
+# to exercise the metadata extractor, the settings loader, and one mask
+# generation pass, without downloading the full 210-file dataset.
+
+@pytest.fixture(scope="session")
+def hf_toxo_mito_field(tmp_path_factory):
+    """Download one field (4 channels) from einarolafsson/toxo_mito.
+
+    Returns a dict with:
+      * src: path to the local directory containing the TIFFs
+      * files: list of absolute file paths (4 TIFFs, one per channel)
+      * plate/well/field: the metadata slice picked
+    """
+    try:
+        from huggingface_hub import hf_hub_download
+    except Exception as e:  # pragma: no cover - import failure
+        pytest.skip(f"huggingface_hub not available: {e}")
+
+    dst = tmp_path_factory.mktemp("hf_toxo_mito")
+    target_files = [
+        "plate1/plate1_E01_T0001F001L01A01Z01C02.tif",
+        "plate1/plate1_E01_T0001F001L01A02Z01C01.tif",
+        "plate1/plate1_E01_T0001F001L01A02Z01C04.tif",
+        "plate1/plate1_E01_T0001F001L01A03Z01C03.tif",
+    ]
+    local_paths = []
+    for rel in target_files:
+        try:
+            p = hf_hub_download(
+                repo_id="einarolafsson/toxo_mito",
+                filename=rel,
+                repo_type="dataset",
+                local_dir=str(dst),
+            )
+        except Exception as e:  # pragma: no cover - network path
+            pytest.skip(f"HF download failed for {rel}: {e}")
+        local_paths.append(p)
+    return {
+        "src": str(dst / "plate1"),
+        "files": local_paths,
+        "plate": "plate1",
+        "well": "E01",
+        "field": "001",
+    }
+
+
+@pytest.fixture(scope="session")
+def hf_spacr_settings(tmp_path_factory):
+    """Download the two reference settings CSVs from einarolafsson/spacr_settings."""
+    try:
+        from huggingface_hub import hf_hub_download
+    except Exception as e:  # pragma: no cover
+        pytest.skip(f"huggingface_hub not available: {e}")
+
+    dst = tmp_path_factory.mktemp("hf_spacr_settings")
+    paths = {}
+    for name in ("gen_masks_settings.csv", "crop_measure_settings.csv"):
+        try:
+            p = hf_hub_download(
+                repo_id="einarolafsson/spacr_settings",
+                filename=name,
+                repo_type="dataset",
+                local_dir=str(dst),
+            )
+        except Exception as e:  # pragma: no cover
+            pytest.skip(f"HF download failed for {name}: {e}")
+        paths[name] = p
+    return paths
