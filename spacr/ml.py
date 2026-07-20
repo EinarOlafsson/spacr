@@ -590,9 +590,11 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
     return model
 
 def regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0,
-               random_row_column_effects=False, nc='233460', pc='220950', controls=[''],
+               random_row_column_effects=False, nc='233460', pc='220950', controls=None,
                dst=None, cov_type=None, plot=False):
 
+    if controls is None:
+        controls = ['']
     from .plot import volcano_plot, plot_histogram
 
     volcano_path = create_volcano_filename(csv_path, regression_type, alpha, dst)
@@ -2184,8 +2186,10 @@ def _calculate_similarity(df, features, col_to_compare, val1, val2):
         print(f"Error calculating similarity scores: {e}")    
     return df
 
-def interperate_vision_model(settings={}):
+def interperate_vision_model(settings=None):
     
+    if settings is None:
+        settings = {}
     from .io import _read_and_merge_data, _results_to_csv
     from .settings import set_interperate_vision_model_defaults
     from .utils import save_settings
