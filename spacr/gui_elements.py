@@ -246,7 +246,11 @@ def set_dark_style(style, parent_frame=None, containers=None, widgets=None,
     warning_color  = '#d29922'
     error_color    = '#f85149'
 
-    padding = '5 5 5 5'
+    # 4/8-based spacing scale, exported on the returned style dict so all
+    # custom widgets/screens can pull from a single source of truth.
+    spacing = {'xs': 4, 'sm': 8, 'md': 12, 'lg': 16, 'xl': 24}
+    # Internal widget padding: 'left top right bottom' -> comfortable 8x6.
+    padding = f"{spacing['sm']} {spacing['xs'] + 2} {spacing['sm']} {spacing['xs'] + 2}"
     font_style = tkFont.Font(family=font_family, size=font_size)
 
     if font_family == 'OpenSans':
@@ -313,7 +317,7 @@ def set_dark_style(style, parent_frame=None, containers=None, widgets=None,
               'active_color': active_color, 'inactive_color': inactive_color,
               'border_color': border_color, 'muted_color': muted_color,
               'success_color': success_color, 'warning_color': warning_color,
-              'error_color': error_color}
+              'error_color': error_color, 'spacing': spacing}
     
     if parent_frame is None and containers is None and widgets is None:
         _cached_dark_style = result
