@@ -2603,6 +2603,7 @@ class AnnotateApp:
         self.clear_button = _make_button(self.button_frame, "Clear annotation", self.clear_current_annotation)
         self.count_button = _make_button(self.button_frame, "Count classes", self.show_class_counts)
         self.dl_train_button = _make_button(self.button_frame, "Train", self.open_deep_spacr_window)
+        self.skip_to_last_annotated_button = _make_button(self.button_frame, "Skip", self.skip_to_last_annotated)
 
         # pack (right to left)
         self.next_button.pack(side="right", padx=5)
