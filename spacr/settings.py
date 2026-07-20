@@ -145,11 +145,6 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('organelle_dog_sigma_low', 1.0)
     settings.setdefault('organelle_dog_sigma_high', 3.0)
 
-    # Stardist (spots)
-    #settings.setdefault('organelle_stardist_model', '2D_versatile_fluo')
-    #settings.setdefault('organelle_stardist_prob', 0.5)
-    #settings.setdefault('organelle_stardist_nms', 0.3)
-
     # Hysteresis (network)
     settings.setdefault('organelle_hysteresis_low', 0.2)
     settings.setdefault('organelle_hysteresis_high', 0.6)
@@ -1240,10 +1235,7 @@ expected_types = {
     'organelle_mask_within_cells':bool,
     'organelle_dog_sigma_low':float,
     'organelle_dog_sigma_high':float,
-    'organelle_stardist_model':str,
-    'organelle_stardist_prob':float,
-    'organelle_stardist_nms':float,
-    'organelle_hysteresis_low':float, 
+    'organelle_hysteresis_low':float,
     'organelle_hysteresis_high':float,
     'organelle_unet_model_path':str,
     'organelle_unet_threshold':float,
@@ -1681,9 +1673,6 @@ tooltips = {
     'organelle_mask_within_cells': "(bool) - Restrict organelle detection to within cell boundaries. Requires cell masks to exist in cell_mask_stack/.",
     'organelle_dog_sigma_low': "(float) - Lower sigma for Difference of Gaussians blob detection (spots/dog mode). Approximates the blob radius in pixels.",
     'organelle_dog_sigma_high': "(float) - Upper sigma for Difference of Gaussians blob detection (spots/dog mode). Should be ~1.6x the lower sigma for LoG equivalence.",
-    'organelle_stardist_model': "(str) - Stardist model name or path. Pretrained: '2D_versatile_fluo', '2D_paper_dsb2018'. Or path to a custom-trained model directory.",
-    'organelle_stardist_prob': "(float) - Stardist object probability threshold. Higher values detect fewer but more confident objects.",
-    'organelle_stardist_nms': "(float) - Stardist non-maximum suppression threshold. Lower values suppress more overlapping detections.",
     'organelle_hysteresis_low': "(float) - Low threshold for hysteresis segmentation (network mode). If <1.0, interpreted as a percentile of image intensity.",
     'organelle_hysteresis_high': "(float) - High threshold for hysteresis segmentation (network mode). Seeds confident filament regions. If <1.0, interpreted as a percentile.",
     'organelle_unet_model_path': "(str or None) - Path to a .pt/.pth U-Net model for semantic segmentation (network/unet mode). Model must accept (B,1,H,W) and output (B,1,H,W) logits.",
@@ -1771,7 +1760,6 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Organelle ring detection": ["organelle_ring_sigma_inner", "organelle_ring_sigma_outer", "organelle_ring_min_prominence", "organelle_ring_fill_method"],
              "Organelle irregular detection": ["organelle_morph_radius", "organelle_fill_holes"],
              "Organelle cellpose": ["organelle_model_name", "organelle_CP_prob", "organelle_FT", "organelle_resample"],
-             #"Organelle stardist": ["organelle_stardist_model", "organelle_stardist_prob", "organelle_stardist_nms"],
              "Organelle unet": ["organelle_unet_model_path", "organelle_unet_threshold"],
              "Organelle adaptive threshold": ["organelle_adaptive_block_size", "organelle_adaptive_offset"], 
              "Nucleus": ["nucleus_diameter","nucleus_intensity_range", "nucleus_size_range", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_loc", "nucleus_min_area", "nucleus_max_area", "nucleus_remove_border_objects", "nucleus_min_intensity_percentile", "nucleus_max_intensity_percentile", "remove_border_nuclei","nucleus_perimeter_fraction", "nucleus_intensity_merge", "nucleus_intensity_split", "nucleus_area_multiplier", "nucleus_min_distance", "nucleus_min_object_area", "nucleus_intensity_percentile", "nucleus_intensity_threshold_method"],
@@ -1811,7 +1799,7 @@ category_integer_dependencies = {
         'Organelle', 'Organelle preprocessing', 'Organelle spot detection',
         'Organelle network detection', 'Organelle ring detection',
         'Organelle irregular detection', 'Organelle cellpose',
-        'Organelle stardist', 'Organelle unet', 'Organelle adaptive threshold',
+        'Organelle unet', 'Organelle adaptive threshold',
     ],
 }
 
@@ -1826,7 +1814,6 @@ category_value_dependencies = {
         'ridge':      ['Organelle', 'Organelle network detection'],
         'hysteresis': ['Organelle', 'Organelle network detection'],
         'cellpose':   ['Organelle', 'Organelle cellpose'],
-        #'stardist':   ['Organelle', 'Organelle stardist'],
         'unet':       ['Organelle', 'Organelle unet'],
     },
 }
@@ -2410,11 +2397,6 @@ def _set_organelle_defaults(settings):
         'organelle_dog_sigma_high': 3.0,
         'organelle_tophat_radius': 5,
         'organelle_watershed_spots': True,
-
-        # Stardist
-        'organelle_stardist_model': '2D_versatile_fluo',
-        'organelle_stardist_prob': 0.5,
-        'organelle_stardist_nms': 0.3,
 
         # Network
         'organelle_ridge_sigmas': [1, 2, 3],

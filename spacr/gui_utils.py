@@ -487,12 +487,11 @@ def convert_settings_dict_for_gui(settings):
         'min_max': ('combo', ['allq', 'all'], 'allq'),
         'transform': ('combo', ['log', 'sqrt', 'square', None], None),
         'organelle_morphology': ('combo', ['spots', 'network', 'irregular', 'ring'], 'spots'),
-        'organelle_method': ('combo', ['otsu', 'adaptive', 'log', 'dog', 'ridge', 'hysteresis', 'cellpose', 'stardist', 'unet'], 'otsu'),
+        'organelle_method': ('combo', ['otsu', 'adaptive', 'log', 'dog', 'ridge', 'hysteresis', 'cellpose', 'unet'], 'otsu'),
         'organelle_model_name': ('combo', ['cyto', 'cyto2', 'cyto3', 'nuclei'], 'cyto3'),
         'organelle_ridge_filter': ('combo', ['frangi', 'sato', 'meijering'], 'frangi'),
         'organelle_network_threshold': ('combo', ['otsu', 'adaptive'], 'otsu'),
         'organelle_ring_fill_method': ('combo', ['flood', 'convex'], 'flood'),
-        'organelle_stardist_model': ('combo', ['2D_versatile_fluo', '2D_paper_dsb2018'], '2D_versatile_fluo'),
         'summarize_organelles_by': ('combo', ["['cell']","['nucleus']","['pathogen']","['cytoplasm']","['cell', 'nucleus']","['cell', 'pathogen']","['cell', 'cytoplasm']","['cell', 'nucleus', 'pathogen']","['cell', 'nucleus', 'pathogen', 'cytoplasm']",None], None)
         
     }
