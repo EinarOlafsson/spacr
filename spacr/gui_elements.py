@@ -251,6 +251,14 @@ def set_dark_style(style, parent_frame=None, containers=None, widgets=None,
     spacing = {'xs': 4, 'sm': 8, 'md': 12, 'lg': 16, 'xl': 24}
     # Internal widget padding: 'left top right bottom' -> comfortable 8x6.
     padding = f"{spacing['sm']} {spacing['xs'] + 2} {spacing['sm']} {spacing['xs'] + 2}"
+    # Font size hierarchy — pick one from style_out['font_sizes'] rather than
+    # hard-coding numbers scattered across the GUI.
+    font_sizes = {
+        'small':  max(font_size - 1, 9),
+        'body':   font_size,
+        'header': font_size + 2,
+        'title':  font_size + 6,
+    }
     font_style = tkFont.Font(family=font_family, size=font_size)
 
     if font_family == 'OpenSans':
@@ -313,7 +321,8 @@ def set_dark_style(style, parent_frame=None, containers=None, widgets=None,
     #return {'font_loader':font_loader, 'font_family': font_family, 'font_size': font_size, 'bg_color': bg_color, 'fg_color': fg_color, 'active_color': active_color, 'inactive_color': inactive_color}
 
     result = {'font_loader': font_loader, 'font_family': font_family,
-              'font_size': font_size, 'bg_color': bg_color, 'fg_color': fg_color,
+              'font_size': font_size, 'font_sizes': font_sizes,
+              'bg_color': bg_color, 'fg_color': fg_color,
               'active_color': active_color, 'inactive_color': inactive_color,
               'border_color': border_color, 'muted_color': muted_color,
               'success_color': success_color, 'warning_color': warning_color,
