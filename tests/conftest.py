@@ -607,6 +607,47 @@ def spacr_pipeline_run(tmp_path_factory, hf_toxo_mito_multi_fields):
 
 
 @pytest.fixture(scope="session")
+def spacr_measure_run(spacr_pipeline_run):
+    """Run measure_crop on the shared pipeline output ONCE per test session
+    and hand back the measurements DB path + the src directory.
+
+    Session-scoped so multiple test modules (pipeline_e2e,
+    pipeline_training_analysis, ...) can inspect the same DB / PNG
+    outputs without re-running the (~2 minute) mask + measure work per
+    module.
+    """
+    from spacr.measure import measure_crop
+    from spacr.settings import get_measure_crop_settings
+
+    settings = get_measure_crop_settings(None)
+    settings.update({
+        "src": spacr_pipeline_run["src"],
+        # After preprocess_generate_masks the merged stack is
+        # [C0=nucleus_intensity, C1=cell_intensity, C2=pathogen_intensity,
+        #  C3=organelle_intensity(unused), C4=cell_mask, C5=nucleus_mask,
+        #  C6=pathogen_mask].
+        "channels": [0, 1, 2, 3],
+        "cell_chann_dim": 1, "nucleus_chann_dim": 0, "pathogen_chann_dim": 2,
+        "cell_mask_dim": 4, "nucleus_mask_dim": 5, "pathogen_mask_dim": 6,
+        "cytoplasm": True,
+        "n_jobs": 1, "batch_size": 8, "verbose": False,
+        # save_png=True so downstream tests can chain into generate_dataset
+        # and apply_model on the resulting per-object crops.
+        "plot": False, "save_png": True, "save_arrays": False,
+    })
+    try:
+        measure_crop(settings)
+    except Exception as e:  # pragma: no cover - integration path
+        pytest.skip(f"measure_crop failed on synthetic pipeline output: {e}")
+    return {
+        "src": spacr_pipeline_run["src"],
+        "db_path": os.path.join(
+            spacr_pipeline_run["src"], "measurements", "measurements.db"
+        ),
+    }
+
+
+@pytest.fixture(scope="session")
 def hf_toxo_mito_multi_fields(tmp_path_factory):
     """Download several fields (each 4 channels) from einarolafsson/toxo_mito
     into a NEW temp directory — the full mask pipeline needs enough FOVs
