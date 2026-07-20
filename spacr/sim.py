@@ -336,39 +336,6 @@ def classifier(positive_mean, positive_variance, negative_mean, negative_varianc
 
     return df
 
-def classifier_v2(positive_mean, positive_variance, negative_mean, negative_variance, df):
-    """
-    Classifies the data in the DataFrame based on the given parameters.
-
-    Args:
-        positive_mean (float): The mean of the positive distribution.
-        positive_variance (float): The variance of the positive distribution.
-        negative_mean (float): The mean of the negative distribution.
-        negative_variance (float): The variance of the negative distribution.
-        df (pandas.DataFrame): The DataFrame containing the data to be classified.
-
-    Returns:
-        pandas.DataFrame: The DataFrame with an additional 'score' column containing the classification scores.
-    """
-    def calc_alpha_beta(mean, variance):
-        if mean <= 0 or mean >= 1:
-            raise ValueError("Mean must be between 0 and 1 exclusively.")
-        max_variance = mean * (1 - mean)
-        if variance <= 0 or variance >= max_variance:
-            raise ValueError(f"Variance must be positive and less than {max_variance}.")
-        
-        alpha = mean * (mean * (1 - mean) / variance - 1)
-        beta = alpha * (1 - mean) / mean
-        return alpha, beta
-
-    # Calculate alpha and beta for both distributions
-    a1, b1 = calc_alpha_beta(positive_mean, positive_variance)
-    a2, b2 = calc_alpha_beta(negative_mean, negative_variance)
-
-    # Apply the beta distribution based on 'is_active' status
-    df['score'] = df['is_active'].apply(lambda is_active: np.random.beta(a1, b1) if is_active else np.random.beta(a2, b2))
-    return df
-
 def compute_roc_auc(cell_scores):
     """
     Compute the Receiver Operating Characteristic (ROC) Area Under the Curve (AUC) for cell scores.
