@@ -903,41 +903,62 @@ def setup_settings_panel(vertical_container, settings_type='mask', tick_callback
 def setup_console(vertical_container):
     global console_output
     from .gui_elements import set_dark_style
-    
+
     # Apply dark style and get style output
     style = ttk.Style()
     style_out = set_dark_style(style)
+    bg = style_out['bg_color']
+    panel = style_out.get('inactive_color', bg)
+    border = style_out.get('border_color', style_out['inactive_color'])
+    fg = style_out['fg_color']
+    muted = style_out.get('muted_color', fg)
+    spacing = style_out.get('spacing', {'xs': 4, 'sm': 8, 'md': 12})
+    font_loader = style_out['font_loader']
+    font_size = style_out['font_size']
+    font_sizes = style_out.get('font_sizes', {'small': font_size - 1, 'body': font_size})
+    small_font = (
+        font_loader.get_font(size=font_sizes.get('small', font_size))
+        if font_loader
+        else (style_out['font_family'], font_sizes.get('small', font_size))
+    )
 
-    # Create a frame for the console section
-    console_frame = tk.Frame(vertical_container, bg=style_out['bg_color'])
+    # Console frame with a slightly darker panel background so it reads
+    # as a distinct region from the main content.
+    console_frame = tk.Frame(vertical_container, bg=panel)
     vertical_container.add(console_frame, stretch="always")
 
-    # Create a thicker frame at the top for the hover effect
-    top_border = tk.Frame(console_frame, height=5, bg=style_out['bg_color'])
-    top_border.grid(row=0, column=0, sticky="ew", pady=(0, 2))
+    # Header bar: thin border-line divider that lights up on hover, plus a
+    # muted "Console" label so the user knows what they're looking at.
+    header = tk.Frame(console_frame, bg=panel)
+    header.grid(row=0, column=0, sticky="ew")
+    tk.Label(header, text="Console", bg=panel, fg=muted, font=small_font,
+             anchor="w").pack(fill=tk.X, padx=spacing['sm'],
+                              pady=(spacing['xs'], 0))
+    top_border = tk.Frame(console_frame, height=1, bg=border)
+    top_border.grid(row=1, column=0, sticky="ew",
+                    pady=(spacing['xs'], spacing['xs']))
 
-    # Create the scrollable frame (which is a Text widget) with white text
-    family = style_out['font_family']
-    font_size = style_out['font_size']
-    font_loader = style_out['font_loader']
-    console_output = tk.Text(console_frame, bg=style_out['bg_color'], fg=style_out['fg_color'], font=font_loader.get_font(size=font_size), bd=0, highlightthickness=0)
-    
-    console_output.grid(row=1, column=0, sticky="nsew")  # Use grid for console_output
+    # Console text — monospace-ish via the loaded font, panel-colored bg.
+    console_output = tk.Text(
+        console_frame, bg=panel, fg=fg,
+        font=font_loader.get_font(size=font_size),
+        bd=0, highlightthickness=0,
+        padx=spacing['sm'], pady=spacing['xs'],
+        insertbackground=fg,
+    )
+    console_output.grid(row=2, column=0, sticky="nsew")
 
-    # Configure the grid to allow expansion
-    console_frame.grid_rowconfigure(1, weight=1)
+    console_frame.grid_rowconfigure(2, weight=1)
     console_frame.grid_columnconfigure(0, weight=1)
 
-    def on_enter(event):
+    def on_enter(_event):
         top_border.config(bg=style_out['active_color'])
 
-    def on_leave(event):
-        top_border.config(bg=style_out['bg_color'])
+    def on_leave(_event):
+        top_border.config(bg=border)
 
     console_output.bind("<Enter>", on_enter)
     console_output.bind("<Leave>", on_leave)
-
-    #console_output.bind("<Return>", on_enter_key)
 
     return console_output, console_frame
 
@@ -947,9 +968,13 @@ def setup_button_section(horizontal_container, settings_type='mask', run=True, a
     from .gui_elements import set_element_size
 
     size_dict = set_element_size()
+    style_out = set_dark_style(ttk.Style())
+    spacing = style_out.get('spacing', {'xs': 4, 'sm': 8})
+    pad = spacing['sm']    # consistent 8 px around every action
+
     button_section_height = size_dict['panel_height']
     button_frame = tk.Frame(horizontal_container, height=button_section_height)
-    
+
     horizontal_container.add(button_frame, stretch="always", sticky="nsew")
     button_scrollable_frame = spacrFrame(button_frame, scrollbar=False)
     button_scrollable_frame.grid(row=1, column=0, sticky="nsew")
@@ -960,32 +985,32 @@ def setup_button_section(horizontal_container, settings_type='mask', run=True, a
 
     if run:
         run_button = spacrButton(button_scrollable_frame.scrollable_frame, text="run", command=lambda: start_process(q, fig_queue, settings_type), show_text=False, size=size_dict['btn_size'], animation=False)
-        run_button.grid(row=btn_row, column=btn_col, pady=5, padx=5, sticky='ew')
+        run_button.grid(row=btn_row, column=btn_col, pady=pad, padx=pad, sticky='ew')
         widgets.append(run_button)
         btn_col += 1
 
     if abort and settings_type in ['mask', 'measure', 'classify', 'sequencing', 'umap', 'map_barcodes']:
         abort_button = spacrButton(button_scrollable_frame.scrollable_frame, text="abort", command=lambda: initiate_abort(), show_text=False, size=size_dict['btn_size'], animation=False)
-        abort_button.grid(row=btn_row, column=btn_col, pady=5, padx=5, sticky='ew')
+        abort_button.grid(row=btn_row, column=btn_col, pady=pad, padx=pad, sticky='ew')
         widgets.append(abort_button)
         btn_col += 1
 
     if download and settings_type in ['mask']:
         download_dataset_button = spacrButton(button_scrollable_frame.scrollable_frame, text="download", command=lambda: download_hug_dataset(q, vars_dict), show_text=False, size=size_dict['btn_size'], animation=False)
-        download_dataset_button.grid(row=btn_row, column=btn_col, pady=5, padx=5, sticky='ew')
+        download_dataset_button.grid(row=btn_row, column=btn_col, pady=pad, padx=pad, sticky='ew')
         widgets.append(download_dataset_button)
         btn_col += 1
 
     if import_btn:
         import_button = spacrButton(button_scrollable_frame.scrollable_frame, text="settings", command=lambda: import_settings(settings_type), show_text=False, size=size_dict['btn_size'], animation=False)
-        import_button.grid(row=btn_row, column=btn_col, pady=5, padx=5, sticky='ew')
+        import_button.grid(row=btn_row, column=btn_col, pady=pad, padx=pad, sticky='ew')
         widgets.append(import_button)
         btn_row += 1
 
     btn_row += 1
-    # Add the batch progress bar
+    # Add the batch progress bar — themed via ttk.Progressbar style.
     progress_bar = spacrProgressBar(button_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate')
-    progress_bar.grid(row=btn_row, column=0, columnspan=7, pady=5, padx=5, sticky='ew')
+    progress_bar.grid(row=btn_row, column=0, columnspan=7, pady=pad, padx=pad, sticky='ew')
     progress_bar.set_label_position()  # Set the label position after grid placement
     widgets.append(progress_bar)
 
