@@ -41,6 +41,7 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QSpinBox,
     QSplitter,
+    QStackedWidget,
     QVBoxLayout,
     QWidget,
 )
@@ -60,9 +61,9 @@ from ..annotate_engine import (
     label_to_hex,
     normalize_pil,
 )
-from .. import prefs
+from .. import iconset, prefs
 from ..theme import PALETTE, SPACING
-from ..widgets import Divider
+from ..widgets import Divider, EmptyState
 
 
 BORDER_WIDTH = 5
@@ -324,12 +325,12 @@ class AnnotateScreen(QWidget):
         header = QWidget()
         hbox = QVBoxLayout(header)
         hbox.setContentsMargins(0, 0, 0, 0)
-        hbox.setSpacing(2)
+        hbox.setSpacing(4)
         title = QLabel("Annotate")
-        title.setObjectName("DisplayHeading")
+        title.setObjectName("TitleHeading")
         hbox.addWidget(title)
         self._src_label = QLabel("No source selected — click Open source…")
-        self._src_label.setObjectName("Muted")
+        self._src_label.setObjectName("SubtitleSmall")
         hbox.addWidget(self._src_label)
         outer.addWidget(header)
         outer.addWidget(Divider())
@@ -341,39 +342,71 @@ class AnnotateScreen(QWidget):
         row.setSpacing(SPACING["sm"])
         self._btn_open = QPushButton("Open source…")
         self._btn_open.setObjectName("PrimaryButton")
+        self._btn_open.setIcon(iconset.contrast_icon("open"))
+        self._btn_open.setCursor(Qt.PointingHandCursor)
         self._btn_open.clicked.connect(self._on_pick_source)
         row.addWidget(self._btn_open)
 
-        self._btn_settings = QPushButton("Settings…")
+        self._btn_settings = QPushButton("Settings")
+        self._btn_settings.setIcon(iconset.icon("settings"))
+        self._btn_settings.setCursor(Qt.PointingHandCursor)
         self._btn_settings.clicked.connect(self._on_open_settings)
         row.addWidget(self._btn_settings)
 
-        self._btn_prev = QPushButton("‹ Back")
+        self._btn_prev = QPushButton("Back")
+        self._btn_prev.setIcon(iconset.icon("prev"))
+        self._btn_prev.setCursor(Qt.PointingHandCursor)
         self._btn_prev.clicked.connect(self._on_prev)
         row.addWidget(self._btn_prev)
 
-        self._btn_next = QPushButton("Next ›")
+        self._btn_next = QPushButton("Next")
+        self._btn_next.setIcon(iconset.icon("next"))
+        self._btn_next.setLayoutDirection(Qt.RightToLeft)   # icon on the right
+        self._btn_next.setCursor(Qt.PointingHandCursor)
         self._btn_next.clicked.connect(self._on_next)
         row.addWidget(self._btn_next)
 
         self._btn_skip = QPushButton("Skip to last annotated")
+        self._btn_skip.setIcon(iconset.icon("skip"))
+        self._btn_skip.setCursor(Qt.PointingHandCursor)
         self._btn_skip.clicked.connect(self._on_skip)
         row.addWidget(self._btn_skip)
 
         self._btn_count = QPushButton("Class counts")
+        self._btn_count.setIcon(iconset.icon("chart"))
+        self._btn_count.setCursor(Qt.PointingHandCursor)
         self._btn_count.clicked.connect(self._on_class_counts)
         row.addWidget(self._btn_count)
 
-        self._btn_clear = QPushButton("Clear column…")
+        self._btn_clear = QPushButton("Clear column")
         self._btn_clear.setObjectName("DangerButton")
+        self._btn_clear.setIcon(iconset.icon("clear", color=PALETTE["error"]))
+        self._btn_clear.setCursor(Qt.PointingHandCursor)
         self._btn_clear.clicked.connect(self._on_clear_column)
         row.addWidget(self._btn_clear)
 
         row.addStretch(1)
         self._page_label = QLabel("")
-        self._page_label.setObjectName("Muted")
+        self._page_label.setObjectName("SubtitleSmall")
         row.addWidget(self._page_label)
         outer.addWidget(toolbar)
+
+        # Content stack: empty-state until a source is opened, then grid
+        self._content_stack = QStackedWidget()
+
+        self._empty_state = EmptyState(
+            title="Open an experiment to start annotating",
+            subtitle=(
+                "Pick a folder that contains "
+                "`measurements/measurements.db`. Left-click an image to "
+                "assign class 1, right-click for class 2, click again to "
+                "clear. Annotations save in the background."
+            ),
+            icon=iconset.accent_icon("tag"),
+            cta_label="Open source…",
+            on_action=self._on_pick_source,
+        )
+        self._content_stack.addWidget(self._empty_state)
 
         # Grid inside a scroll area
         self._grid_scroll = QScrollArea()
@@ -384,11 +417,14 @@ class AnnotateScreen(QWidget):
         self._grid_layout.setSpacing(SPACING["xs"])
         self._grid_layout.setContentsMargins(0, 0, 0, 0)
         self._grid_scroll.setWidget(self._grid_holder)
-        outer.addWidget(self._grid_scroll, 1)
+        self._content_stack.addWidget(self._grid_scroll)
+        self._content_stack.setCurrentWidget(self._empty_state)
+
+        outer.addWidget(self._content_stack, 1)
 
         # Status bar area
         self._status_label = QLabel("Ready.")
-        self._status_label.setObjectName("Muted")
+        self._status_label.setObjectName("SubtitleSmall")
         outer.addWidget(self._status_label)
 
         self._rebuild_grid()
@@ -458,6 +494,7 @@ class AnnotateScreen(QWidget):
         self._refresh_total()
         self._load_page()
         prefs.push_recent_source("annotate", src)
+        self._content_stack.setCurrentWidget(self._grid_scroll)
 
     def _on_open_settings(self):
         dlg = _SettingsDialog(self._settings, self)
