@@ -63,7 +63,8 @@ class AppScreen(QWidget):
         super().__init__(parent)
         self.app_key = app_key
         self._last_error_text: str = ""
-        self._hint_map: dict = {}
+        self._hint_map: dict = {}       # widget → plain-text hint
+        self._html_tip_map: dict = {}   # widget → HTML tooltip (sticky popup)
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
@@ -134,22 +135,25 @@ class AppScreen(QWidget):
 
         if not sections:
             layout.addWidget(QLabel("No settings defined for this app."))
-        # Map widget → plain-text hint so the bottom hint strip can
-        # update from a single hover event filter. Initialized in __init__.
+        # Map widget → plain-text hint so the bottom hint strip AND our
+        # sticky HoverTooltip can look up the description for the object
+        # under the cursor. Initialized in __init__.
         for title, rows in sections:
             section = Section(title)
             for label, widget in rows:
                 lbl_widget = QLabel(label)
-                lbl_widget.setToolTip(widget.toolTip())
-                lbl_widget.setOpenExternalLinks(True)
-                # Best-effort: match label back to a settings key by
-                # scanning the model. Slow-path but only runs once at
-                # panel build.
                 for key, w in getattr(self._settings_model, "_widgets", {}).items():
                     if w is widget:
+                        html = widget.toolTip()
                         hint = self._settings_model.plain_tooltip_for(key)
+                        # Clear Qt's native tooltip — the sticky popup
+                        # takes its place so users can move into it and
+                        # click the API docs link.
+                        widget.setToolTip("")
                         self._hint_map[widget] = hint
                         self._hint_map[lbl_widget] = hint
+                        self._html_tip_map[widget] = html
+                        self._html_tip_map[lbl_widget] = html
                         widget.installEventFilter(self)
                         lbl_widget.installEventFilter(self)
                         break
@@ -162,13 +166,18 @@ class AppScreen(QWidget):
 
     def eventFilter(self, obj, event):
         from PySide6.QtCore import QEvent
+        from ..widgets.hover_tooltip import HoverTooltip
         if event.type() == QEvent.Enter:
             hint = self._hint_map.get(obj)
             if hint and hasattr(self, "_hint_strip"):
                 self._hint_strip.setText(hint)
+            html = self._html_tip_map.get(obj)
+            if html:
+                HoverTooltip.instance().show_for(obj, html)
         elif event.type() == QEvent.Leave:
             if hasattr(self, "_hint_strip"):
                 self._hint_strip.setText(self._default_hint())
+            HoverTooltip.instance().start_hide()
         return super().eventFilter(obj, event)
 
     def _default_hint(self) -> str:
@@ -198,17 +207,17 @@ class AppScreen(QWidget):
         self._figures_card.hide()
         layout.addWidget(self._figures_card, 1)
 
-        # Console card
-        console_card = Card(title="Console")
-        self._console = QPlainTextEdit()
-        self._console.setReadOnly(True)
-        self._console.setObjectName("Console")
-        # Use monospaced font for log readability
-        mono = QFontDatabase.systemFont(QFontDatabase.FixedFont)
-        self._console.setFont(mono)
-        self._console.setPlaceholderText("Pipeline output will appear here…")
-        console_card.body_layout.addWidget(self._console, 1)
-        layout.addWidget(console_card, 1)
+        # Merged Console (pipeline stdout + spaCR AI chat, share the
+        # same scroll surface separated by topic bars).
+        from ..widgets import ConsolePanel
+        app_title = APP_TITLES.get(self.app_key, self.app_key.title())
+        # Header label above the console so it still reads "Console"
+        console_header = QLabel("Console")
+        console_header.setObjectName("CardTitle")
+        layout.addWidget(console_header)
+        self._console = ConsolePanel(active_app_label=app_title)
+        self._console.setMinimumHeight(320)
+        layout.addWidget(self._console, 1)
 
         # Usage card
         usage_card = Card(title="System")
@@ -272,7 +281,7 @@ class AppScreen(QWidget):
         self._btn_clear = QPushButton("Clear console")
         self._btn_clear.setObjectName("GhostButton")
         self._btn_clear.setCursor(Qt.PointingHandCursor)
-        self._btn_clear.clicked.connect(lambda: self._console.setPlainText(""))
+        self._btn_clear.clicked.connect(lambda: self._console.clear())
         row.addWidget(self._btn_clear)
 
         # Explain error — enabled once a pipeline error is captured.
@@ -331,10 +340,10 @@ class AppScreen(QWidget):
         self._btn_run.setEnabled(False)
         self._btn_stop.setEnabled(True)
         self._progress.setVisible(True)
-        self._console.appendPlainText(f"→ Starting {self.app_key}…\n")
+        self._console.append_stdout(f"→ Starting {self.app_key}…\n")
 
         self._thread, worker = make_thread(entry, settings)
-        worker.line_ready.connect(self._console.insertPlainText)
+        worker.line_ready.connect(self._console.append_stdout)
         worker.error.connect(self._on_pipeline_error)
         worker.figure_ready.connect(self._on_figure_ready)
         worker.finished.connect(self._on_finished)
@@ -343,12 +352,16 @@ class AppScreen(QWidget):
     def _on_pipeline_error(self, tb: str):
         """Capture the traceback so the user can hit "Explain error"."""
         self._last_error_text = tb
-        self._console.appendPlainText(f"[error]\n{tb}")
+        self._console.append_error(tb)
         self._btn_explain.setEnabled(True)
 
     def _on_explain_error(self):
         if not self._last_error_text:
             return
+        # Route the traceback into our own merged console — no more
+        # side-panel navigation. Keep the legacy signal too, for
+        # MainWindow's old dock path.
+        self._console.open_error_flow(self._last_error_text, self.app_key)
         self.error_explain_requested.emit(self._last_error_text, self.app_key)
 
     def _on_figure_ready(self, fig) -> None:
@@ -379,7 +392,7 @@ class AppScreen(QWidget):
         self._btn_run.setEnabled(True)
         self._btn_stop.setEnabled(False)
         self._progress.setVisible(False)
-        self._console.appendPlainText(
+        self._console.append_stdout(
             "✓ Finished\n" if ok else "✗ Failed — see traceback above\n")
         self._thread = None
 
@@ -388,7 +401,7 @@ class AppScreen(QWidget):
             return
         # QThread.terminate is unsafe but the pipelines have no cooperative
         # cancellation; document the caveat in the console.
-        self._console.appendPlainText(
+        self._console.append_stdout(
             "\nRequesting stop (worker cancellation isn't cooperative — "
             "the current task may finish before it exits).\n")
         try:
@@ -411,7 +424,7 @@ class AppScreen(QWidget):
                 # Try the default column names
                 loaded = load_settings(path)
             if isinstance(loaded, dict):
-                self._console.appendPlainText(f"Loaded {len(loaded)} settings from {path}\n")
+                self._console.append_stdout(f"Loaded {len(loaded)} settings from {path}\n")
                 # Push into widgets where keys match.
                 # (Silent skip for keys the current app doesn't expose.)
                 for key, val in loaded.items():
