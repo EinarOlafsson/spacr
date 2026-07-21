@@ -167,13 +167,27 @@ def create_menu_bar(root):
         "Recruitment (graphs broken)": lambda: initiate_root(root, settings_type='recruitment')
     }
 
-    menu_bar = tk.Menu(root, bg="#007ACC", fg="white", 
-                       activebackground="#C2185B", activeforeground="white",
-                       font=menu_font)
-    
-    app_menu = tk.Menu(menu_bar, tearoff=0, bg="#007ACC", fg="white",
-                       activebackground="#C2185B", activeforeground="white",
-                       font=menu_font)
+    # Pull colors from the shared palette so the menu bar matches the rest
+    # of the GUI. Previously hard-coded to #007ACC / #C2185B which clashed
+    # with the soft dark palette everywhere else.
+    menu_bg = style_out['inactive_color']       # panel color
+    menu_fg = style_out['fg_color']
+    active_bg = style_out['active_color']
+    active_fg = style_out['bg_color']           # inverted text on accent
+
+    menu_bar = tk.Menu(
+        root, bg=menu_bg, fg=menu_fg,
+        activebackground=active_bg, activeforeground=active_fg,
+        borderwidth=0, relief='flat',
+        font=menu_font,
+    )
+
+    app_menu = tk.Menu(
+        menu_bar, tearoff=0, bg=menu_bg, fg=menu_fg,
+        activebackground=active_bg, activeforeground=active_fg,
+        borderwidth=0, relief='flat',
+        font=menu_font,
+    )
     menu_bar.add_cascade(label="SpaCr Applications", menu=app_menu)
 
     for app_name, app_func in gui_apps.items():
