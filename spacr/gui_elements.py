@@ -615,7 +615,10 @@ class spacrEntry(tk.Frame):
     def _on_resize(self, event):
         self.draw_rounded_rectangle(self.bg_color)
 
-    def draw_rounded_rectangle(self, color):
+    def draw_rounded_rectangle(self, color, focus_ring=False):
+        """Draw the pill-shaped background. When `focus_ring` is True, also
+        draw a 2 px accent-colored outline around it for a modern focus
+        indicator (instead of flooding the whole interior with the accent)."""
         radius = 15
         x0, y0 = 5, 5
         x1 = self.canvas.winfo_width() - 5
@@ -623,17 +626,45 @@ class spacrEntry(tk.Frame):
             x1 = 200
         y1 = self.canvas_height - 5
         self.canvas.delete("all")
+        # Filled body (interior stays consistent regardless of focus).
         self.canvas.create_arc((x0, y0, x0 + radius, y0 + radius), start=90, extent=90, fill=color, outline=color)
         self.canvas.create_arc((x1 - radius, y0, x1, y0 + radius), start=0, extent=90, fill=color, outline=color)
         self.canvas.create_arc((x0, y1 - radius, x0 + radius, y1), start=180, extent=90, fill=color, outline=color)
         self.canvas.create_arc((x1 - radius, y1 - radius, x1, y1), start=270, extent=90, fill=color, outline=color)
         self.canvas.create_rectangle((x0 + radius / 2, y0, x1 - radius / 2, y1), fill=color, outline=color)
         self.canvas.create_rectangle((x0, y0 + radius / 2, x1, y1 - radius / 2), fill=color, outline=color)
-    
+
+        if focus_ring:
+            # Draw an outline stroke ~1 px outside the fill for a subtle ring.
+            ring = self.active_color
+            width = 2
+            self.canvas.create_arc((x0 - 1, y0 - 1, x0 - 1 + radius, y0 - 1 + radius),
+                                    start=90, extent=90, style='arc',
+                                    outline=ring, width=width)
+            self.canvas.create_arc((x1 + 1 - radius, y0 - 1, x1 + 1, y0 - 1 + radius),
+                                    start=0, extent=90, style='arc',
+                                    outline=ring, width=width)
+            self.canvas.create_arc((x0 - 1, y1 + 1 - radius, x0 - 1 + radius, y1 + 1),
+                                    start=180, extent=90, style='arc',
+                                    outline=ring, width=width)
+            self.canvas.create_arc((x1 + 1 - radius, y1 + 1 - radius, x1 + 1, y1 + 1),
+                                    start=270, extent=90, style='arc',
+                                    outline=ring, width=width)
+            # Straight edges of the ring.
+            self.canvas.create_line(x0 + radius / 2, y0 - 1, x1 - radius / 2, y0 - 1,
+                                    fill=ring, width=width)
+            self.canvas.create_line(x0 + radius / 2, y1 + 1, x1 - radius / 2, y1 + 1,
+                                    fill=ring, width=width)
+            self.canvas.create_line(x0 - 1, y0 + radius / 2, x0 - 1, y1 - radius / 2,
+                                    fill=ring, width=width)
+            self.canvas.create_line(x1 + 1, y0 + radius / 2, x1 + 1, y1 - radius / 2,
+                                    fill=ring, width=width)
+
     def on_focus_in(self, event):
-        self.draw_rounded_rectangle(self.active_color)
-        self.entry.config(bg=self.active_color)
-    
+        # Interior stays inactive_color; add an accent-colored focus ring
+        # around the outside instead of flooding the whole field.
+        self.draw_rounded_rectangle(self.bg_color, focus_ring=True)
+
     def on_focus_out(self, event):
         self.draw_rounded_rectangle(self.bg_color)
         self.entry.config(bg=self.bg_color)
@@ -725,9 +756,14 @@ class spacrCombo(tk.Frame):
         self.dropdown_menu = None
 
     def _on_resize(self, event):
-        self.draw_rounded_rectangle(self.inactive_color if self.dropdown_menu is None else self.active_color)
+        # Keep interior consistent; add focus ring only when open.
+        self.draw_rounded_rectangle(self.inactive_color,
+                                     focus_ring=(self.dropdown_menu is not None))
 
-    def draw_rounded_rectangle(self, color):
+    def draw_rounded_rectangle(self, color, focus_ring=False):
+        """Interior stays `color`; when `focus_ring` is True, draw a 2 px
+        accent-colored outline around the outside for a modern open/focus
+        indicator (instead of flooding the whole interior with the accent)."""
         radius = 15
         x0, y0 = 5, 5
         x1 = self.canvas.winfo_width() - 5
@@ -743,6 +779,30 @@ class spacrCombo(tk.Frame):
         self.canvas.create_rectangle((x0, y0 + radius / 2, x1, y1 - radius / 2), fill=color, outline=color)
         self.label.config(bg=color)
 
+        if focus_ring:
+            ring = self.active_color
+            width = 2
+            self.canvas.create_arc((x0 - 1, y0 - 1, x0 - 1 + radius, y0 - 1 + radius),
+                                    start=90, extent=90, style='arc',
+                                    outline=ring, width=width)
+            self.canvas.create_arc((x1 + 1 - radius, y0 - 1, x1 + 1, y0 - 1 + radius),
+                                    start=0, extent=90, style='arc',
+                                    outline=ring, width=width)
+            self.canvas.create_arc((x0 - 1, y1 + 1 - radius, x0 - 1 + radius, y1 + 1),
+                                    start=180, extent=90, style='arc',
+                                    outline=ring, width=width)
+            self.canvas.create_arc((x1 + 1 - radius, y1 + 1 - radius, x1 + 1, y1 + 1),
+                                    start=270, extent=90, style='arc',
+                                    outline=ring, width=width)
+            self.canvas.create_line(x0 + radius / 2, y0 - 1, x1 - radius / 2, y0 - 1,
+                                    fill=ring, width=width)
+            self.canvas.create_line(x0 + radius / 2, y1 + 1, x1 - radius / 2, y1 + 1,
+                                    fill=ring, width=width)
+            self.canvas.create_line(x0 - 1, y0 + radius / 2, x0 - 1, y1 - radius / 2,
+                                    fill=ring, width=width)
+            self.canvas.create_line(x1 + 1, y0 + radius / 2, x1 + 1, y1 - radius / 2,
+                                    fill=ring, width=width)
+
     def on_click(self, event):
         if self.dropdown_menu is None:
             self.open_dropdown()
@@ -750,7 +810,8 @@ class spacrCombo(tk.Frame):
             self.close_dropdown()
 
     def open_dropdown(self):
-        self.draw_rounded_rectangle(self.active_color)
+        # Keep interior color; add focus ring while the dropdown is open.
+        self.draw_rounded_rectangle(self.inactive_color, focus_ring=True)
         
         self.dropdown_menu = tk.Toplevel(self)
         self.dropdown_menu.wm_overrideredirect(True)
