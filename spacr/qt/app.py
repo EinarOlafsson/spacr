@@ -118,7 +118,7 @@ class Sidebar(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 
-        title = QLabel("SpaCR")
+        title = QLabel("spaCR")
         title.setObjectName("SidebarTitle")
         layout.addWidget(title)
 
@@ -154,7 +154,7 @@ class Sidebar(QWidget):
 class MainWindow(QMainWindow):
     def __init__(self, initial_app: Optional[str] = None):
         super().__init__()
-        self.setWindowTitle("SpaCR")
+        self.setWindowTitle("spaCR")
         self.setMinimumSize(1200, 720)
 
         self._build_menu_bar()
@@ -183,29 +183,15 @@ class MainWindow(QMainWindow):
         status = QStatusBar()
         self._status_app_label = QLabel("Home")
         self._status_app_label.setObjectName("Muted")
-        self._status_version_label = QLabel(f"SpaCR {self._resolve_version()}")
+        self._status_version_label = QLabel(f"spaCR {self._resolve_version()}")
         self._status_version_label.setObjectName("Caption")
         status.addPermanentWidget(self._status_app_label)
         status.addPermanentWidget(self._status_version_label)
         status.showMessage("Ready")
         self.setStatusBar(status)
 
-        # AI Console lives as a dock on the right, hidden by default.
-        # One shared instance so chat context persists across screens.
-        from .widgets import AIChatPanel
-        from PySide6.QtWidgets import QDockWidget
-        self._ai_panel = AIChatPanel()
-        self._ai_dock = QDockWidget("AI Console", self)
-        self._ai_dock.setObjectName("AIConsoleDock")
-        self._ai_dock.setAllowedAreas(Qt.RightDockWidgetArea | Qt.LeftDockWidgetArea)
-        self._ai_dock.setFeatures(
-            QDockWidget.DockWidgetClosable
-            | QDockWidget.DockWidgetMovable
-            | QDockWidget.DockWidgetFloatable
-        )
-        self._ai_dock.setWidget(self._ai_panel)
-        self.addDockWidget(Qt.RightDockWidgetArea, self._ai_dock)
-        self._ai_dock.hide()
+        # The AI Console now lives inside each pipeline app's Console
+        # panel (see spacr.qt.widgets.console_panel). No side-dock.
 
         # Preload heavy pipeline imports in a background thread AFTER
         # the first screen has been built. Kicking it off pre-nav caused
@@ -230,7 +216,7 @@ class MainWindow(QMainWindow):
     def _build_menu_bar(self):
         mb = self.menuBar()
 
-        app_menu = mb.addMenu("&SpaCR")
+        app_menu = mb.addMenu("&spaCR")
         for key, name, desc, section in APPS:
             act = QAction(name, self)
             act.setStatusTip(desc)
@@ -241,10 +227,6 @@ class MainWindow(QMainWindow):
         act_home.setShortcut(QKeySequence("Ctrl+H"))
         act_home.triggered.connect(lambda: self._on_nav_selected("__home__"))
         app_menu.addAction(act_home)
-        act_ai = QAction("Toggle AI Console", self)
-        act_ai.setShortcut(QKeySequence("Ctrl+Shift+A"))
-        act_ai.triggered.connect(self._toggle_ai_dock)
-        app_menu.addAction(act_ai)
         act_quit = QAction("Quit", self)
         act_quit.setShortcut(QKeySequence.Quit)
         act_quit.triggered.connect(self.close)
@@ -259,7 +241,7 @@ class MainWindow(QMainWindow):
         act_docs.triggered.connect(
             lambda: self._open_url("https://einarolafsson.github.io/spacr/index.html"))
         help_menu.addAction(act_docs)
-        act_about = QAction("About SpaCR", self)
+        act_about = QAction("About spaCR", self)
         act_about.triggered.connect(self._show_about)
         help_menu.addAction(act_about)
 
@@ -276,8 +258,8 @@ class MainWindow(QMainWindow):
             version = spacr.__version__
         except Exception:
             version = "unknown"
-        QMessageBox.about(self, "About SpaCR",
-                          f"<h3>SpaCR</h3>"
+        QMessageBox.about(self, "About spaCR",
+                          f"<h3>spaCR</h3>"
                           f"<p>Spatial single-cell analysis for microscopy data.</p>"
                           f"<p><b>Version:</b> {version}</p>"
                           f"<p>© Olafsson Lab</p>")
@@ -318,18 +300,11 @@ class MainWindow(QMainWindow):
         screen.error_explain_requested.connect(self._on_explain_error)
         return screen
 
-    def _toggle_ai_dock(self) -> None:
-        """Toggle the AI Console dock's visibility."""
-        self._ai_dock.setVisible(not self._ai_dock.isVisible())
-
     def _on_explain_error(self, traceback_text: str, active_app: str) -> None:
-        """Show the AI Console dock and immediately ask it to explain
-        the given traceback."""
-        self._ai_dock.show()
-        self._ai_dock.raise_()
-        # Make sure the panel picks up any keys added since launch
-        self._ai_panel.refresh_provider_combo()
-        self._ai_panel.open_error_flow(traceback_text, active_app)
+        """Legacy hook — the AI now lives inside each AppScreen's
+        Console panel, which handles Explain-error directly. This
+        method is kept only for backward-compat with subclasses."""
+        pass
 
     def _on_train_requested(self, target_key: str, seed: dict) -> None:
         """Navigate to `target_key` (creating the screen if needed) and
@@ -385,7 +360,7 @@ def launch(argv=None) -> int:
     os.environ.setdefault("QT_AUTO_SCREEN_SCALE_FACTOR", "1")
 
     app = QApplication(sys.argv[:1])
-    app.setApplicationName("SpaCR")
+    app.setApplicationName("spaCR")
     app.setOrganizationName("Olafsson Lab")
     apply_qpalette(app)
     app.setStyleSheet(stylesheet())

@@ -165,7 +165,7 @@ def test_main_window_status_bar_has_version_and_app_labels(qtbot, qt_theme_appli
     from spacr.qt.app import MainWindow
     win = MainWindow()
     qtbot.addWidget(win)
-    assert win._status_version_label.text().startswith("SpaCR")
+    assert win._status_version_label.text().startswith("spaCR")
     assert win._status_app_label.text() == "Home"
     win._on_nav_selected("mask")
     assert win._status_app_label.text() == "Mask"

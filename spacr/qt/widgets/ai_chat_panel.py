@@ -97,9 +97,8 @@ class _ProvidersDialog(QDialog):
 
         intro = QLabel(
             "The AI Console talks to the <b>vendor coding-agent CLI</b> "
-            "for each provider, so authentication piggy-backs on your "
-            "chat subscription (Claude.ai Pro, ChatGPT Plus/Pro/Team, "
-            "Google account) — no separate API billing.<br><br>"
+            "for each provider, using your chat subscription "
+            "(Claude.ai Pro, ChatGPT Plus/Pro/Team, Google account).<br><br>"
             "For each provider you want to use, install the CLI then "
             "log in <em>once</em>. Copy the commands below into a "
             "terminal."
@@ -272,9 +271,8 @@ class AIChatPanel(QWidget):
             subtitle=(
                 "The AI Console uses your chat subscription via the "
                 "vendor coding-agent CLIs: `claude`, `codex`, or "
-                "`gemini`. Install any one of them and log in — no API "
-                "billing needed. Providers ▸ Copy the commands and "
-                "paste in a terminal."
+                "`gemini`. Install any one of them and log in. Open "
+                "Providers ▸ Copy the commands and paste in a terminal."
             ),
             icon=iconset.accent_icon("info"),
             cta_label="Providers…",
