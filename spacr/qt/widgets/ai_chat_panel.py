@@ -1,19 +1,27 @@
 """
-AIConsoleScreen — chat panel that talks to Anthropic Claude, OpenAI, or
-Google Gemini via the shared `spacr.qt.ai` abstraction.
+AIChatPanel — reusable chat widget hosting the spacr AI Console.
 
-Also exposes:
-    open_error_flow(traceback_text, active_app)
-        prefills the input with an "Explain error" request and sends it
-        immediately, so AppScreen can wire an "Explain error" button
-        that lands here.
+Meant to be embedded next to the pipeline Console (via a QDockWidget on
+the main window) so users never leave the app they're running. Exposes
+`open_error_flow(traceback, active_app)` for AppScreen's "Explain
+error" button.
+
+Design notes
+------------
+* One instance is shared across the whole main window; the user's
+  chat context persists as they switch between Mask/Measure/etc.
+* Streaming is done in a QThread via `spacr.qt.ai.worker.StreamWorker`.
+  The worker reference is stored on `self` — if we let Python drop it,
+  Qt may never deliver the finished signal.
+* There is NO "already streaming" guard. If a stream is in flight, the
+  Send button turns into Cancel so the user can always recover.
 """
 from __future__ import annotations
 
 from typing import Dict, List, Optional
 
 from PySide6.QtCore import Qt, QThread, Signal
-from PySide6.QtGui import QKeyEvent, QTextCursor
+from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
@@ -25,6 +33,7 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPushButton,
     QScrollArea,
+    QStackedWidget,
     QTextEdit,
     QVBoxLayout,
     QWidget,
@@ -34,9 +43,10 @@ from .. import ai as ai_module
 from .. import iconset
 from ..ai import keys as ai_keys
 from ..ai.providers import ChatProvider
-from ..ai.worker import make_stream_thread
+from ..ai.worker import StreamWorker, make_stream_thread
 from ..theme import PALETTE, SPACING
-from ..widgets import Divider, EmptyState
+from .divider import Divider
+from .empty_state import EmptyState
 
 
 # ---------------------------------------------------------------------------
@@ -47,34 +57,32 @@ class _MessageBubble(QWidget):
     def __init__(self, role: str, text: str = "", parent=None):
         super().__init__(parent)
         self.role = role
-        self._layout = QHBoxLayout(self)
-        self._layout.setContentsMargins(0, 0, 0, 0)
-        self._layout.setSpacing(SPACING["sm"])
-
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(SPACING["sm"])
         self._text = QLabel(text)
         self._text.setWordWrap(True)
-        self._text.setTextInteractionFlags(Qt.TextSelectableByMouse | Qt.LinksAccessibleByMouse)
+        self._text.setTextInteractionFlags(
+            Qt.TextSelectableByMouse | Qt.LinksAccessibleByMouse
+        )
         self._text.setOpenExternalLinks(True)
         self._text.setObjectName(
             "ChatBubbleUser" if role == "user" else "ChatBubbleAssistant"
         )
-        self._text.setMaximumWidth(760)
+        self._text.setMaximumWidth(720)
         if role == "user":
-            self._layout.addStretch(1)
-            self._layout.addWidget(self._text)
+            layout.addStretch(1)
+            layout.addWidget(self._text)
         else:
-            self._layout.addWidget(self._text)
-            self._layout.addStretch(1)
-
-    def append_chunk(self, chunk: str) -> None:
-        self._text.setText(self._text.text() + chunk)
+            layout.addWidget(self._text)
+            layout.addStretch(1)
 
     def set_text(self, text: str) -> None:
         self._text.setText(text)
 
 
 # ---------------------------------------------------------------------------
-# Settings dialog — add / remove API keys
+# Manage keys dialog
 # ---------------------------------------------------------------------------
 
 class _KeysDialog(QDialog):
@@ -87,9 +95,9 @@ class _KeysDialog(QDialog):
         intro = QLabel(
             "Set an API key for any provider you want to use. Keys are "
             "read from env vars first "
-            "(<code>ANTHROPIC_API_KEY</code> / <code>OPENAI_API_KEY</code> / "
-            "<code>GOOGLE_API_KEY</code>), otherwise fetched from your "
-            "OS keyring under service <code>spacr-qt-ai</code>."
+            "(<code>ANTHROPIC_API_KEY</code> / <code>OPENAI_API_KEY</code> "
+            "/ <code>GOOGLE_API_KEY</code>), otherwise from your OS "
+            "keyring under service <code>spacr-qt-ai</code>."
         )
         intro.setWordWrap(True)
         intro.setTextFormat(Qt.RichText)
@@ -97,7 +105,6 @@ class _KeysDialog(QDialog):
 
         form = QFormLayout()
         self._inputs: Dict[str, QLineEdit] = {}
-        self._status: Dict[str, QLabel] = {}
         for p in ai_module.list_providers():
             row = QHBoxLayout()
             edit = QLineEdit()
@@ -107,7 +114,6 @@ class _KeysDialog(QDialog):
             row.addWidget(edit, 1)
             status = QLabel(self._status_text(p))
             status.setObjectName("SubtitleSmall")
-            self._status[p.name] = status
             row.addWidget(status)
             wrap = QWidget(); wrap.setLayout(row)
             form.addRow(p.label, wrap)
@@ -128,10 +134,8 @@ class _KeysDialog(QDialog):
 
     def _status_text(self, provider: ChatProvider) -> str:
         parts = []
-        if provider.is_sdk_available():
-            parts.append("SDK OK")
-        else:
-            parts.append(f"SDK missing — {provider.install_hint}")
+        parts.append("SDK OK" if provider.is_sdk_available()
+                     else f"SDK missing — {provider.install_hint}")
         parts.append(f"key: {provider.source_of_key()}")
         return " · ".join(parts)
 
@@ -149,76 +153,90 @@ class _KeysDialog(QDialog):
 
 
 # ---------------------------------------------------------------------------
-# The screen
+# Chat input — Enter = send, Shift+Enter = newline
 # ---------------------------------------------------------------------------
 
-class AIConsoleScreen(QWidget):
+class _ChatInput(QTextEdit):
+    submitted = Signal()
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setMinimumHeight(56)
+        self.setMaximumHeight(140)
+        self.setAcceptRichText(False)
+
+    def keyPressEvent(self, event: QKeyEvent):
+        if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+            if event.modifiers() & Qt.ShiftModifier:
+                super().keyPressEvent(event)
+                return
+            self.submitted.emit()
+            return
+        super().keyPressEvent(event)
+
+
+# ---------------------------------------------------------------------------
+# AIChatPanel
+# ---------------------------------------------------------------------------
+
+class AIChatPanel(QWidget):
+    """Full chat panel — embed inside a QDockWidget or any container."""
+
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
         self._messages: List[Dict] = []
+        # Keep BOTH thread AND worker references — Qt's signal delivery
+        # relies on the worker still being reachable.
         self._thread: Optional[QThread] = None
+        self._worker: Optional[StreamWorker] = None
         self._pending_bubble: Optional[_MessageBubble] = None
         self._pending_buf: List[str] = []
 
         self._build_ui()
-        self._refresh_provider_combo()
+        self.refresh_provider_combo()
 
     # ------------------------------------------------------------------
     def _build_ui(self):
         outer = QVBoxLayout(self)
-        outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
-                                  SPACING["lg"], SPACING["lg"])
-        outer.setSpacing(SPACING["md"])
+        outer.setContentsMargins(SPACING["md"], SPACING["md"],
+                                  SPACING["md"], SPACING["md"])
+        outer.setSpacing(SPACING["sm"])
 
-        # Header
-        header_col = QVBoxLayout()
-        header_col.setContentsMargins(0, 0, 0, 0)
-        header_col.setSpacing(4)
-        title = QLabel("AI Console")
-        title.setObjectName("TitleHeading")
-        header_col.addWidget(title)
-        self._src_label = QLabel(
-            "Ask questions about SpaCR, or paste a traceback for a fix."
-        )
-        self._src_label.setObjectName("SubtitleSmall")
-        header_col.addWidget(self._src_label)
-        header_wrap = QWidget(); header_wrap.setLayout(header_col)
-        outer.addWidget(header_wrap)
-        outer.addWidget(Divider())
-
-        # Toolbar: provider selector + keys button + clear
+        # Toolbar
         toolbar = QHBoxLayout()
         toolbar.setSpacing(SPACING["sm"])
         toolbar.addWidget(QLabel("Provider"))
         self._provider_combo = QComboBox()
-        self._provider_combo.setMinimumWidth(220)
+        self._provider_combo.setMinimumWidth(160)
         toolbar.addWidget(self._provider_combo)
-        self._btn_keys = QPushButton("Manage keys…")
+        self._btn_keys = QPushButton("Keys")
         self._btn_keys.setIcon(iconset.icon("settings"))
         self._btn_keys.setCursor(Qt.PointingHandCursor)
         self._btn_keys.clicked.connect(self._on_open_keys_dialog)
         toolbar.addWidget(self._btn_keys)
         toolbar.addStretch(1)
-        self._btn_clear = QPushButton("Clear chat")
+        self._btn_clear = QPushButton("Clear")
         self._btn_clear.setObjectName("GhostButton")
         self._btn_clear.setIcon(iconset.icon("clear"))
         self._btn_clear.setCursor(Qt.PointingHandCursor)
-        self._btn_clear.clicked.connect(self._clear_chat)
+        self._btn_clear.clicked.connect(self.clear_chat)
         toolbar.addWidget(self._btn_clear)
         tb_wrap = QWidget(); tb_wrap.setLayout(toolbar)
         outer.addWidget(tb_wrap)
 
-        # Body: scrolling message list (or empty state)
+        outer.addWidget(Divider())
+
+        # Empty state ↔ chat stack
         self._empty_state = EmptyState(
-            title="No provider configured yet",
+            title="Configure a provider to chat",
             subtitle=(
-                "Set an API key for Anthropic, OpenAI, or Google — either "
-                "in an env var or via the Manage keys… button — and this "
-                "panel becomes an in-app chat assistant. It also handles "
-                "the Explain-error button on each pipeline screen."
+                "Set an API key for Anthropic, OpenAI or Google — via env "
+                "var or the Keys button — and this panel is where the "
+                "SpaCR assistant lives. It also handles Explain-error "
+                "requests from every pipeline app."
             ),
             icon=iconset.accent_icon("info"),
-            cta_label="Manage keys…",
+            cta_label="Keys…",
             on_action=self._on_open_keys_dialog,
         )
         self._chat_scroll = QScrollArea()
@@ -231,8 +249,6 @@ class AIConsoleScreen(QWidget):
         self._chat_layout.addStretch(1)
         self._chat_scroll.setWidget(self._chat_holder)
 
-        # Stack via a simple QWidget swap
-        from PySide6.QtWidgets import QStackedWidget
         self._stack = QStackedWidget()
         self._stack.addWidget(self._empty_state)
         self._stack.addWidget(self._chat_scroll)
@@ -243,7 +259,7 @@ class AIConsoleScreen(QWidget):
         input_row.setSpacing(SPACING["sm"])
         self._input = _ChatInput()
         self._input.setPlaceholderText(
-            "Ask a question about SpaCR (Enter to send · Shift+Enter for newline)"
+            "Ask a question (Enter to send · Shift+Enter for newline)"
         )
         self._input.submitted.connect(self._send_from_input)
         input_row.addWidget(self._input, 1)
@@ -256,15 +272,15 @@ class AIConsoleScreen(QWidget):
         input_wrap = QWidget(); input_wrap.setLayout(input_row)
         outer.addWidget(input_wrap)
 
-        # Status label
+        # Status
         self._status = QLabel("")
         self._status.setObjectName("SubtitleSmall")
         outer.addWidget(self._status)
 
     # ------------------------------------------------------------------
-    # Provider combo
+    # Provider
     # ------------------------------------------------------------------
-    def _refresh_provider_combo(self):
+    def refresh_provider_combo(self):
         self._provider_combo.blockSignals(True)
         self._provider_combo.clear()
         configured = ai_module.configured_providers()
@@ -273,37 +289,63 @@ class AIConsoleScreen(QWidget):
         self._provider_combo.blockSignals(False)
         if configured:
             self._stack.setCurrentWidget(self._chat_scroll)
-            self._btn_send.setEnabled(True)
             self._input.setEnabled(True)
+            self._set_send_mode("send")
         else:
             self._stack.setCurrentWidget(self._empty_state)
-            self._btn_send.setEnabled(False)
             self._input.setEnabled(False)
+            self._set_send_mode("send")
+            self._btn_send.setEnabled(False)
 
     def _current_provider(self) -> Optional[ChatProvider]:
         name = self._provider_combo.currentData()
-        if not name:
-            return None
-        return ai_module.get_provider(name)
+        return ai_module.get_provider(name) if name else None
 
-    # ------------------------------------------------------------------
-    # Keys dialog
-    # ------------------------------------------------------------------
     def _on_open_keys_dialog(self):
         dlg = _KeysDialog(self)
         if dlg.exec() == QDialog.Accepted:
-            self._refresh_provider_combo()
+            self.refresh_provider_combo()
 
     # ------------------------------------------------------------------
-    # Chat send / stream
+    # Send / cancel
     # ------------------------------------------------------------------
+    def _set_send_mode(self, mode: str):
+        if mode == "cancel":
+            self._btn_send.setText("Cancel")
+            self._btn_send.setObjectName("DangerButton")
+            try:
+                self._btn_send.clicked.disconnect()
+            except Exception:
+                pass
+            self._btn_send.clicked.connect(self._cancel_stream)
+        else:
+            self._btn_send.setText("Send")
+            self._btn_send.setObjectName("PrimaryButton")
+            try:
+                self._btn_send.clicked.disconnect()
+            except Exception:
+                pass
+            self._btn_send.clicked.connect(self._send_from_input)
+        # Re-polish so QSS picks up the new objectName
+        self._btn_send.style().unpolish(self._btn_send)
+        self._btn_send.style().polish(self._btn_send)
+
     def _send_from_input(self):
         text = self._input.toPlainText().strip()
         if not text:
             return
+        if self._thread is not None:
+            self._status.setText("A response is already streaming — hit "
+                                  "Cancel to interrupt.")
+            return
         self._input.clear()
         self._append_user(text)
-        self._start_stream()
+        self._start_stream(system=ai_module.default_system_prompt())
+
+    def _cancel_stream(self):
+        if self._worker is not None:
+            self._worker.cancel()
+            self._status.setText("Cancelling…")
 
     def _append_user(self, text: str):
         self._messages.append({"role": "user", "content": text})
@@ -311,31 +353,37 @@ class AIConsoleScreen(QWidget):
         self._chat_layout.insertWidget(self._chat_layout.count() - 1, bubble)
         self._scroll_to_bottom()
 
-    def _start_stream(self):
-        if self._thread is not None:
-            self._status.setText("Already streaming — wait for the previous "
-                                  "response to finish.")
-            return
+    def _start_stream(self, system: str):
         provider = self._current_provider()
         if provider is None:
             self._status.setText("No provider configured.")
             return
-        # Assistant placeholder bubble that we grow as chunks arrive
         self._pending_buf = []
-        self._pending_bubble = _MessageBubble("assistant", "")
+        self._pending_bubble = _MessageBubble("assistant", "…")
         self._chat_layout.insertWidget(self._chat_layout.count() - 1,
                                         self._pending_bubble)
         self._scroll_to_bottom()
 
-        system = ai_module.default_system_prompt()
-        thread, worker = make_stream_thread(provider, list(self._messages),
-                                              system=system)
+        thread, worker = make_stream_thread(
+            provider, list(self._messages), system=system
+        )
+        worker.stage_changed.connect(self._on_stage_changed)
         worker.chunk_ready.connect(self._on_chunk)
         worker.finished.connect(self._on_stream_finished)
+        # Hold references so nothing is GC'd mid-flight.
         self._thread = thread
-        self._btn_send.setEnabled(False)
-        self._status.setText(f"Streaming from {provider.label}…")
+        self._worker = worker
+        self._set_send_mode("cancel")
+        self._status.setText(f"Connecting to {provider.label}…")
         thread.start()
+
+    def _on_stage_changed(self, stage: str):
+        provider = self._current_provider()
+        label = provider.label if provider else ""
+        if stage == "connecting":
+            self._status.setText(f"Connecting to {label}…")
+        elif stage == "streaming":
+            self._status.setText(f"Streaming from {label}…")
 
     def _on_chunk(self, text: str):
         self._pending_buf.append(text)
@@ -344,12 +392,17 @@ class AIConsoleScreen(QWidget):
             self._scroll_to_bottom()
 
     def _on_stream_finished(self, ok: bool, final_text: str):
-        self._btn_send.setEnabled(True)
+        # Reset streaming state FIRST so a fast follow-up send works.
         self._thread = None
-        if ok:
-            self._messages.append(
-                {"role": "assistant", "content": final_text}
-            )
+        self._worker = None
+        self._set_send_mode("send")
+        if ok and self._pending_bubble is not None:
+            self._messages.append({"role": "assistant", "content": final_text})
+            if not self._pending_buf:
+                # Provider returned no chunks — surface an obvious message
+                self._pending_bubble.set_text(
+                    "(empty response — try again or switch provider)"
+                )
             self._status.setText("Ready.")
         else:
             if self._pending_bubble is not None:
@@ -362,7 +415,7 @@ class AIConsoleScreen(QWidget):
         sb = self._chat_scroll.verticalScrollBar()
         sb.setValue(sb.maximum())
 
-    def _clear_chat(self):
+    def clear_chat(self):
         self._messages.clear()
         while self._chat_layout.count() > 1:
             item = self._chat_layout.takeAt(0)
@@ -372,52 +425,14 @@ class AIConsoleScreen(QWidget):
                 w.deleteLater()
 
     # ------------------------------------------------------------------
-    # Public: opened from the AppScreen error-explainer button
+    # Public API used by AppScreen's Explain-error
     # ------------------------------------------------------------------
     def open_error_flow(self, traceback_text: str, active_app: str = "") -> None:
-        """Send an 'Explain error' request straight away."""
         from ..ai.prompts import wrap_error_for_prompt, error_explainer_prompt
         provider = self._current_provider()
         if provider is None:
-            self._status.setText(
-                "Configure a provider first (Manage keys…)."
-            )
+            self._status.setText("Configure a provider first (Keys…).")
             return
         prompt = wrap_error_for_prompt(traceback_text, active_app)
         self._append_user(prompt)
-        # For error explanation we use the tighter explainer system prompt
-        self._pending_buf = []
-        self._pending_bubble = _MessageBubble("assistant", "")
-        self._chat_layout.insertWidget(self._chat_layout.count() - 1,
-                                        self._pending_bubble)
-        thread, worker = make_stream_thread(provider, list(self._messages),
-                                              system=error_explainer_prompt())
-        worker.chunk_ready.connect(self._on_chunk)
-        worker.finished.connect(self._on_stream_finished)
-        self._thread = thread
-        self._btn_send.setEnabled(False)
-        self._status.setText(f"Explaining error via {provider.label}…")
-        thread.start()
-
-
-# ---------------------------------------------------------------------------
-# Chat input — Enter = send, Shift+Enter = newline
-# ---------------------------------------------------------------------------
-
-class _ChatInput(QTextEdit):
-    submitted = Signal()
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setMinimumHeight(64)
-        self.setMaximumHeight(160)
-        self.setAcceptRichText(False)
-
-    def keyPressEvent(self, event: QKeyEvent):
-        if event.key() in (Qt.Key_Return, Qt.Key_Enter):
-            if event.modifiers() & Qt.ShiftModifier:
-                super().keyPressEvent(event)
-                return
-            self.submitted.emit()
-            return
-        super().keyPressEvent(event)
+        self._start_stream(system=error_explainer_prompt())
