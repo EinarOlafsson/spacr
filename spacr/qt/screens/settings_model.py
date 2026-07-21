@@ -107,30 +107,17 @@ def get_tooltips() -> Dict[str, str]:
 # API doc link per app
 # ---------------------------------------------------------------------------
 
-DOCS_BASE = "https://einarolafsson.github.io/spacr"
-
-_APP_TO_DOC_ANCHOR = {
-    "mask":            "core.html#preprocess_generate_masks",
-    "measure":         "measure.html#measure_crop",
-    "classify":        "deep_spacr.html#train_test_model",
-    "umap":            "core.html#generate_image_umap",
-    "train_cellpose":  "submodules.html#train_cellpose",
-    "cellpose_masks":  "spacr_cellpose.html#identify_masks_finetune",
-    "cellpose_all":    "spacr_cellpose.html#check_cellpose_models",
-    "map_barcodes":    "sequencing.html#generate_barecode_mapping",
-    "ml_analyze":      "ml.html#generate_ml_scores",
-    "regression":      "ml.html#perform_regression",
-    "recruitment":     "submodules.html#analyze_recruitment",
-    "activation":      "deep_spacr.html#generate_activation_map",
-    "analyze_plaques": "submodules.html#analyze_plaques",
-    "annotate":        "gui_elements.html#AnnotateApp",
-    "make_masks":      "gui_elements.html#ModifyMaskApp",
-}
+DOCS_BASE = "https://einarolafsson.github.io/spacr/index.html"
 
 
 def api_docs_url(app_key: str) -> str:
-    anchor = _APP_TO_DOC_ANCHOR.get(app_key, "index.html")
-    return f"{DOCS_BASE}/{anchor}"
+    """Return the spacr documentation URL for a given app.
+
+    The published docs don't yet split into per-function anchors, so
+    we point every setting at the docs landing page. Users can search
+    from there and don't hit 404s.
+    """
+    return DOCS_BASE
 
 
 def format_tooltip(text: str, app_key: str) -> str:
