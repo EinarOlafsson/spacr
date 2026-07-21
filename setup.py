@@ -122,7 +122,7 @@ setup(
             # of which provider the user configures a key for.
             'anthropic>=0.30',
             'openai>=1.30',
-            'google-generativeai>=0.7',
+            'google-genai>=0.3',
         ],
     },
     classifiers=[
