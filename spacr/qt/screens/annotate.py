@@ -53,12 +53,14 @@ from ..annotate_engine import (
     clear_column,
     count_rows,
     ensure_annotation_column,
+    fetch_filtered_paths,
     fetch_page,
     filter_channels_pil,
     find_last_annotated_offset,
     label_to_hex,
     normalize_pil,
 )
+from .. import prefs
 from ..theme import PALETTE, SPACING
 from ..widgets import Divider
 
@@ -197,6 +199,34 @@ class _SettingsDialog(QDialog):
         obj_wrap = QWidget(); obj_wrap.setLayout(obj_row)
         form.addRow("Object size (px area)", obj_wrap)
 
+        # ── Threshold filter (measurement > / < threshold on merged tables)
+        self._measurement = QLineEdit(
+            ", ".join(settings.measurement) if isinstance(settings.measurement, (list, tuple))
+            else (str(settings.measurement) if settings.measurement else "")
+        )
+        self._measurement.setPlaceholderText("e.g. cell_area (blank = off)")
+        form.addRow("Measurement column(s)", self._measurement)
+
+        self._threshold = QLineEdit(
+            ", ".join(str(x) for x in settings.threshold) if isinstance(settings.threshold, (list, tuple))
+            else (str(settings.threshold) if settings.threshold is not None else "")
+        )
+        self._threshold.setPlaceholderText("e.g. 500 (comma-separated to match)")
+        form.addRow("Threshold(s)", self._threshold)
+
+        self._threshold_dir = QComboBox()
+        for d in ("higher", "lower"):
+            self._threshold_dir.addItem(d)
+        idx = 0
+        if settings.threshold_direction == "lower":
+            idx = 1
+        elif isinstance(settings.threshold_direction, (list, tuple)) \
+                and settings.threshold_direction \
+                and str(settings.threshold_direction[0]).lower() == "lower":
+            idx = 1
+        self._threshold_dir.setCurrentIndex(idx)
+        form.addRow("Direction", self._threshold_dir)
+
         self.setLayout(QVBoxLayout())
         self.layout().addLayout(form)
 
@@ -229,6 +259,23 @@ class _SettingsDialog(QDialog):
         s.edge_transparency = float(self._edge_transp.value())
         s.edge_image = bool(self._edge_image.isChecked())
         s.object_size = (int(self._obj_min.value()), int(self._obj_max.value()))
+        # Threshold filter
+        meas_txt = self._measurement.text().strip()
+        s.measurement = _csv_to_list(meas_txt)
+        thr_txt = self._threshold.text().strip()
+        if thr_txt:
+            parts = [p.strip() for p in thr_txt.split(",") if p.strip()]
+            parsed: List[float] = []
+            for p in parts:
+                try:
+                    parsed.append(float(p))
+                except ValueError:
+                    pass
+            s.threshold = parsed or None
+        else:
+            s.threshold = None
+        s.threshold_direction = self._threshold_dir.currentText() \
+            if (s.measurement and s.threshold) else None
         return s
 
 
@@ -245,11 +292,13 @@ class AnnotateScreen(QWidget):
         self._offset = 0
         self._total = 0
         self._page_paths: List[Tuple[str, Optional[int]]] = []
+        self._filtered_rows: Optional[List[Tuple[str, Optional[int]]]] = None
         self._pending_updates: Dict[str, Optional[int]] = {}
         self._worker: Optional[SaveWorker] = None
         self._thumbs: List[_Thumbnail] = []
         self._thumb_pixmaps: List[Optional[QPixmap]] = []
         self._raw_thumb_images: List[Optional[Image.Image]] = []
+        self._suggested_source = prefs.get_last_source("annotate")
 
         self._build_ui()
         self._install_shortcuts()
@@ -258,6 +307,11 @@ class AnnotateScreen(QWidget):
         self._status_timer.setInterval(500)
         self._status_timer.timeout.connect(self._refresh_status_label)
         self._status_timer.start()
+
+        if self._suggested_source and os.path.isdir(self._suggested_source):
+            self._src_label.setText(
+                f"Suggested (last used): {self._suggested_source}"
+            )
 
     # ------------------------------------------------------------------
     def _build_ui(self):
@@ -371,8 +425,11 @@ class AnnotateScreen(QWidget):
     # Actions
     # ------------------------------------------------------------------
     def _on_pick_source(self):
+        starting = (self._settings.src
+                    or self._suggested_source
+                    or os.getcwd())
         d = QFileDialog.getExistingDirectory(self, "Pick experiment source",
-                                              self._settings.src or os.getcwd())
+                                              starting)
         if not d:
             return
         self._open_source(d)
@@ -400,6 +457,7 @@ class AnnotateScreen(QWidget):
         self._src_label.setText(f"{src}  →  {db_path}")
         self._refresh_total()
         self._load_page()
+        prefs.push_recent_source("annotate", src)
 
     def _on_open_settings(self):
         dlg = _SettingsDialog(self._settings, self)
@@ -475,18 +533,42 @@ class AnnotateScreen(QWidget):
     # ------------------------------------------------------------------
     # Page loading + rendering
     # ------------------------------------------------------------------
+    def _filter_active(self) -> bool:
+        s = self._settings
+        return bool(s.measurement and s.threshold and s.threshold_direction)
+
     def _refresh_total(self):
-        self._total = count_rows(self._settings.db_path, self._settings.image_type)
+        if self._filter_active():
+            # Cache the filtered set once so pagination + total agree
+            self._filtered_rows = fetch_filtered_paths(
+                self._settings.db_path,
+                self._settings.annotation_column,
+                self._settings.measurement if isinstance(self._settings.measurement, list)
+                else [self._settings.measurement],
+                self._settings.threshold if isinstance(self._settings.threshold, list)
+                else [self._settings.threshold],
+                self._settings.threshold_direction if isinstance(
+                    self._settings.threshold_direction, list
+                ) else [self._settings.threshold_direction],
+                self._settings.image_type,
+            )
+            self._total = len(self._filtered_rows)
+        else:
+            self._filtered_rows = None
+            self._total = count_rows(self._settings.db_path, self._settings.image_type)
 
     def _load_page(self):
         page = self._settings.page_size
-        self._page_paths = fetch_page(
-            self._settings.db_path,
-            self._settings.annotation_column,
-            self._offset,
-            page,
-            self._settings.image_type,
-        )
+        if self._filtered_rows is not None:
+            self._page_paths = list(self._filtered_rows[self._offset:self._offset + page])
+        else:
+            self._page_paths = fetch_page(
+                self._settings.db_path,
+                self._settings.annotation_column,
+                self._offset,
+                page,
+                self._settings.image_type,
+            )
         # Clear all thumbs
         for i, thumb in enumerate(self._thumbs):
             thumb.setPixmap(QPixmap())
