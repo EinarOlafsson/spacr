@@ -34,13 +34,9 @@ from typing import Dict, List, Optional
 from PySide6.QtCore import QRect, QSize, Qt, QThread, QTimer, Signal
 from PySide6.QtGui import QFontDatabase, QKeyEvent
 from PySide6.QtWidgets import (
-    QCheckBox,
-    QComboBox,
-    QDialog,
     QFrame,
     QHBoxLayout,
     QLabel,
-    QPushButton,
     QScrollArea,
     QSizePolicy,
     QTextEdit,
@@ -116,6 +112,8 @@ class _Bubble(QFrame):
 
     _H_PAD = 24     # inner horizontal padding
     _V_PAD = 12     # inner vertical padding
+    _MAX_WIDTH = 720   # hard cap so a runaway QLabel can't blow up the
+                        # parent QScrollArea's horizontal size
 
     def __init__(self, role: str, text: str = "", parent=None):
         super().__init__(parent)
@@ -123,6 +121,11 @@ class _Bubble(QFrame):
         self.setObjectName(
             "ConsoleBubbleUser" if role == "user" else "ConsoleBubbleAI"
         )
+        # Never grow past _MAX_WIDTH regardless of what the parent
+        # layout offers, and never grow past parent width. This is
+        # what actually prevents the runaway-width crash the user hit.
+        self.setMaximumWidth(self._MAX_WIDTH)
+        self._recalc_guard = False
         self._label = QLabel(self)
         self._label.setObjectName("ConsoleBubbleText")
         self._label.setTextFormat(Qt.RichText)
@@ -131,7 +134,7 @@ class _Bubble(QFrame):
         )
         self._label.setOpenExternalLinks(True)
         self._label.setWordWrap(True)
-        self._label.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+        self._label.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
         self._label.setStyleSheet(
             "QLabel#ConsoleBubbleText {"
             f"  color: {PALETTE['fg']};"
@@ -162,16 +165,23 @@ class _Bubble(QFrame):
         """Fit the label + frame to the wrapped text at our current
         width. Uses QLabel.heightForWidth which — for a word-wrap
         enabled label — returns the correct line-broken height."""
-        w = self.width()
+        if self._recalc_guard:
+            return   # setFixedHeight below triggers a resizeEvent → guard
+        w = min(self.width(), self._MAX_WIDTH)
         if w <= 0:
             return
         text_width = max(120, w - self._H_PAD)
-        self._label.setFixedWidth(text_width)
-        h = self._label.heightForWidth(text_width)
-        if h <= 0:
-            h = self._label.sizeHint().height()
-        self._label.setFixedHeight(h)
-        self.setFixedHeight(h + self._V_PAD)
+        self._recalc_guard = True
+        try:
+            self._label.setMaximumWidth(text_width)
+            self._label.setMinimumWidth(text_width)
+            h = self._label.heightForWidth(text_width)
+            if h <= 0:
+                h = self._label.sizeHint().height()
+            self._label.setFixedHeight(h)
+            self.setFixedHeight(h + self._V_PAD)
+        finally:
+            self._recalc_guard = False
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
@@ -210,20 +220,22 @@ class _ChatInput(QTextEdit):
 # ---------------------------------------------------------------------------
 
 class ConsolePanel(QWidget):
+    # Fires when an AI stream ends (ok or error) so the AppScreen
+    # actions row can flip a Cancel button back to something else.
+    ai_stream_finished = Signal()
+
     def __init__(self, active_app_label: str = "", parent=None):
         super().__init__(parent)
         self.setObjectName("ConsolePanel")
         self._active_app_label = active_app_label or ""
         self._last_entry_kind: str = ""   # "stdout" | "ai" | ""
         self._current_stdout: Optional[_StdoutBlock] = None
-        self._current_ai_bubble: Optional[_Bubble] = None
         self._ai_messages: List[Dict] = []
         self._ai_buf: List[str] = []
         self._ai_thread: Optional[QThread] = None
         self._ai_worker: Optional[StreamWorker] = None
 
         self._build_ui()
-        self._refresh_provider_combo()
 
     # ------------------------------------------------------------------
     def _build_ui(self):
@@ -236,6 +248,9 @@ class ConsolePanel(QWidget):
         self._scroll.setObjectName("ConsoleScroll")
         self._scroll.setWidgetResizable(True)
         self._scroll.setFrameShape(QScrollArea.NoFrame)
+        # Never show a horizontal scrollbar — content that doesn't fit
+        # must wrap. This is what prevents the runaway-width crash.
+        self._scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self._holder = QWidget()
         self._holder.setObjectName("ConsoleHolder")
         self._entries = QVBoxLayout(self._holder)
@@ -245,7 +260,10 @@ class ConsolePanel(QWidget):
         self._scroll.setWidget(self._holder)
         outer.addWidget(self._scroll, 1)
 
-        # Input row
+        # Input row — just a text field, no Send button. Users press
+        # Enter to submit. AI on/off toggle + provider selector live
+        # in the AppScreen actions row (bottom-right of the screen),
+        # not here.
         input_bar = QFrame()
         input_bar.setObjectName("ConsoleInputBar")
         row = QHBoxLayout(input_bar)
@@ -253,52 +271,20 @@ class ConsolePanel(QWidget):
                                 SPACING["md"], SPACING["sm"])
         row.setSpacing(SPACING["sm"])
 
-        # AI toggle
-        self._ai_toggle = QCheckBox("Ask AI")
-        self._ai_toggle.setCursor(Qt.PointingHandCursor)
-        self._ai_toggle.setToolTip(
-            "When on, Enter sends your message to the selected AI "
-            "provider and appends its reply in a spaCR AI section."
-        )
-        self._ai_toggle.toggled.connect(self._on_ai_toggle)
-        row.addWidget(self._ai_toggle)
-
-        # Provider selector (only visible when a CLI is configured)
-        self._provider_combo = QComboBox()
-        self._provider_combo.setMinimumWidth(160)
-        self._provider_combo.setToolTip(
-            "Which vendor coding-agent CLI to use for the AI."
-        )
-        row.addWidget(self._provider_combo)
-
-        # Providers button (jumps to install/login dialog)
-        self._btn_providers = QPushButton("Providers")
-        self._btn_providers.setIcon(iconset.icon("settings"))
-        self._btn_providers.setCursor(Qt.PointingHandCursor)
-        self._btn_providers.setToolTip(
-            "Install + login instructions for the vendor CLIs."
-        )
-        self._btn_providers.clicked.connect(self._on_open_providers_dialog)
-        row.addWidget(self._btn_providers)
-
-        # Input
         self._input = _ChatInput()
         self._input.setPlaceholderText(
-            "Type a message… (Ask AI to route it through your chat "
-            "subscription, or leave off to jot notes)"
+            "Type here and hit Enter…  (toggle AI at the bottom-right "
+            "to route through your chat subscription)"
         )
         self._input.submitted.connect(self._on_submit)
         row.addWidget(self._input, 1)
-
-        # Send / Cancel button
-        self._btn_send = QPushButton("Send")
-        self._btn_send.setObjectName("PrimaryButton")
-        self._btn_send.setIcon(iconset.contrast_icon("run"))
-        self._btn_send.setCursor(Qt.PointingHandCursor)
-        self._btn_send.clicked.connect(self._on_submit)
-        row.addWidget(self._btn_send)
-
         outer.addWidget(input_bar)
+
+        # AppScreen creates + owns the AI toggle/provider menu and calls
+        # our setters when they change. Panel-internal state stays here
+        # so we always know what to do on Enter.
+        self._ai_active: bool = False
+        self._current_provider_name: Optional[str] = None
 
     # ------------------------------------------------------------------
     # Entry-management helpers
@@ -340,20 +326,25 @@ class ConsolePanel(QWidget):
         self._active_app_label = label
 
     def begin_topic(self, label: str) -> None:
-        """Insert a divider bar labeled `label` (e.g. 'Mask' or
-        'spaCR AI'). Callers can force a new section this way."""
+        """Insert a divider bar labeled `label` (e.g. 'Mask'). Callers
+        can force a new section this way. AI content NEVER uses this
+        — AI replies flow inline in the same stdout block."""
         self._insert_entry(_TopicBar(label))
         self._last_entry_kind = ""    # force next append to open a block
         self._current_stdout = None
-        self._current_ai_bubble = None
 
     def append_stdout(self, text: str) -> None:
-        """Append pipeline output. Opens a new stdout block preceded by
-        an app-name divider if the previous entry wasn't stdout."""
+        """Append pipeline output. Opens a fresh stdout block (with a
+        topic divider) at the very first stdout of a session; opens a
+        divider-less block after a bubble breaks the flow."""
         if not text:
             return
-        if self._needs_topic("stdout") or self._current_stdout is None:
-            self.begin_topic(self._active_app_label or "Pipeline")
+        if self._current_stdout is None:
+            # First-ever stdout: show a topic divider once. Subsequent
+            # bubble-broken flows just get a fresh block without a
+            # divider, so the AI reply feels like inline console output.
+            if self._last_entry_kind == "":
+                self.begin_topic(self._active_app_label or "Pipeline")
             self._current_stdout = _StdoutBlock()
             self._insert_entry(self._current_stdout)
             self._last_entry_kind = "stdout"
@@ -378,80 +369,39 @@ class ConsolePanel(QWidget):
                 w.deleteLater()
         self._last_entry_kind = ""
         self._current_stdout = None
-        self._current_ai_bubble = None
         self._ai_messages.clear()
 
     # ------------------------------------------------------------------
-    # Provider / AI
+    # AI toggle + provider — external setters called by AppScreen.
     # ------------------------------------------------------------------
-    def _refresh_provider_combo(self) -> None:
-        self._provider_combo.blockSignals(True)
-        self._provider_combo.clear()
-        configured = ai_module.configured_providers()
-        for p in configured:
-            self._provider_combo.addItem(p.label, userData=p.name)
-        self._provider_combo.blockSignals(False)
-        self._ai_toggle.setEnabled(bool(configured))
-        if not configured:
-            self._ai_toggle.setChecked(False)
-            self._ai_toggle.setToolTip(
-                "No vendor CLI installed yet — open Providers… to "
-                "install `claude`, `codex`, or `gemini`."
-            )
+    def set_ai_active(self, on: bool) -> None:
+        self._ai_active = bool(on)
+
+    def set_ai_provider(self, provider_name: Optional[str]) -> None:
+        self._current_provider_name = provider_name
 
     def _current_provider(self) -> Optional[ChatProvider]:
-        name = self._provider_combo.currentData()
-        return ai_module.get_provider(name) if name else None
-
-    def _on_ai_toggle(self, on: bool) -> None:
-        # When the user turns AI on we already show the provider combo;
-        # nothing else to do here — the actual routing happens in
-        # _on_submit.
-        if on and not self._current_provider():
-            self._on_open_providers_dialog()
-
-    def _on_open_providers_dialog(self) -> None:
-        from .ai_chat_panel import _ProvidersDialog
-        dlg = _ProvidersDialog(self)
-        if dlg.exec() == QDialog.Accepted:
-            self._refresh_provider_combo()
+        if not self._current_provider_name:
+            return None
+        return ai_module.get_provider(self._current_provider_name)
 
     # ------------------------------------------------------------------
-    # Send / cancel
+    # Submit — Enter in the input
     # ------------------------------------------------------------------
-    def _set_send_mode(self, mode: str) -> None:
-        if mode == "cancel":
-            self._btn_send.setText("Cancel")
-            self._btn_send.setObjectName("DangerButton")
-        else:
-            self._btn_send.setText("Send")
-            self._btn_send.setObjectName("PrimaryButton")
-        try:
-            self._btn_send.clicked.disconnect()
-        except Exception:
-            pass
-        if mode == "cancel":
-            self._btn_send.clicked.connect(self._cancel_ai)
-        else:
-            self._btn_send.clicked.connect(self._on_submit)
-        self._btn_send.style().unpolish(self._btn_send)
-        self._btn_send.style().polish(self._btn_send)
-
     def _on_submit(self) -> None:
         text = self._input.toPlainText().strip()
         if not text:
             return
         self._input.clear()
-        if self._ai_toggle.isChecked():
+        if self._ai_active:
             self._send_to_ai(text)
         else:
-            # Local note echo — same "user:" bubble but no AI reply
-            if self._needs_topic("ai"):
-                self.begin_topic("Notes")
-            bubble = _Bubble("user", text)
-            self._insert_entry(bubble)
-            self._last_entry_kind = "ai"
-            self._current_ai_bubble = None
+            # Local note — a green "user:" bubble, no AI reply.
+            self._insert_entry(_Bubble("user", text))
+            # Bubble breaks the current stdout block — next stdout
+            # opens a fresh one below the bubble.
+            self._current_stdout = None
+            self._last_entry_kind = "bubble"
 
     def _send_to_ai(self, text: str) -> None:
         provider = self._current_provider()
@@ -461,18 +411,27 @@ class ConsolePanel(QWidget):
             )
             return
         if self._ai_thread is not None:
-            self.append_stdout(
-                "[AI] A stream is already running — hit Cancel first.\n"
-            )
+            # Silent no-op: another stream is running. The AppScreen
+            # actions row exposes the Cancel button, not us.
             return
-        if self._needs_topic("ai"):
-            self.begin_topic("spaCR AI")
         self._ai_messages.append({"role": "user", "content": text})
+        # User message as a green bubble
         self._insert_entry(_Bubble("user", text))
-        self._current_ai_bubble = _Bubble("assistant", "…")
-        self._insert_entry(self._current_ai_bubble)
-        self._last_entry_kind = "ai"
+        # Bubble breaks the current stdout block — force a fresh one
+        # below the bubble for the AI's reply.
+        self._current_stdout = None
+        self._last_entry_kind = "bubble"
+        self._ensure_stdout_block()
+        self._current_stdout.append("spaCR AI: ")
         self._start_stream(system=ai_module.default_system_prompt())
+
+    def _ensure_stdout_block(self) -> None:
+        """Open a new plain stdout block if the last entry was not one."""
+        if self._current_stdout is None or self._needs_topic("stdout"):
+            block = _StdoutBlock()
+            self._insert_entry(block)
+            self._current_stdout = block
+            self._last_entry_kind = "stdout"
 
     def _start_stream(self, system: str) -> None:
         provider = self._current_provider()
@@ -487,12 +446,15 @@ class ConsolePanel(QWidget):
         worker.finished.connect(self._on_stream_finished)
         self._ai_thread = thread
         self._ai_worker = worker
-        self._set_send_mode("cancel")
         thread.start()
 
-    def _cancel_ai(self) -> None:
+    def cancel_ai(self) -> None:
+        """Public — AppScreen calls this if the user cancels a stream."""
         if self._ai_worker is not None:
             self._ai_worker.cancel()
+
+    def is_ai_streaming(self) -> bool:
+        return self._ai_thread is not None
 
     def _on_stage(self, _stage: str) -> None:
         # Could show a spinner; keeping this quiet for now.
@@ -500,44 +462,50 @@ class ConsolePanel(QWidget):
 
     def _on_chunk(self, chunk: str) -> None:
         self._ai_buf.append(chunk)
-        if self._current_ai_bubble is not None:
-            self._current_ai_bubble.set_text("".join(self._ai_buf))
-            self._scroll_to_bottom()
+        # AI reply flows into the same stdout block as pipeline output
+        # (no separate section — user asked for this).
+        self._ensure_stdout_block()
+        self._current_stdout.append(chunk)
+        self._scroll_to_bottom()
 
     def _on_stream_finished(self, ok: bool, final_text: str) -> None:
         self._ai_thread = None
         self._ai_worker = None
-        self._set_send_mode("send")
         if ok:
             self._ai_messages.append(
                 {"role": "assistant", "content": final_text}
             )
-            if self._current_ai_bubble is not None and not self._ai_buf:
-                self._current_ai_bubble.set_text(
-                    "(empty response — try again or switch provider)"
+            if not self._ai_buf:
+                self.append_stdout(
+                    "(empty response — try again or switch provider)\n"
                 )
         else:
-            if self._current_ai_bubble is not None:
-                self._current_ai_bubble.set_text(f"[error] {final_text}")
-        self._current_ai_bubble = None
+            self.append_stdout(f"[AI error] {final_text}\n")
+        # Terminate the AI reply block with a newline so pipeline
+        # stdout that arrives next visually separates from the reply.
+        if self._current_stdout is not None:
+            self._current_stdout.append("\n")
         self._ai_buf = []
+        # Notify AppScreen so it can flip Cancel→AI on the toggle button.
+        self.ai_stream_finished.emit()
 
     # ------------------------------------------------------------------
     # Public: Explain-error entry point (called from AppScreen)
     # ------------------------------------------------------------------
     def open_error_flow(self, traceback_text: str, active_app: str = "") -> None:
         from ..ai.prompts import wrap_error_for_prompt, error_explainer_prompt
-        if not ai_module.configured_providers():
-            self._on_open_providers_dialog()
-            if not ai_module.configured_providers():
-                return
-            self._refresh_provider_combo()
-        self._ai_toggle.setChecked(True)
-        prompt = wrap_error_for_prompt(traceback_text, active_app or self._active_app_label)
-        self.begin_topic("spaCR AI — Explain error")
+        if self._current_provider() is None:
+            self.append_stdout(
+                "[AI] Enable AI in the actions row + pick a provider first.\n"
+            )
+            return
+        prompt = wrap_error_for_prompt(
+            traceback_text, active_app or self._active_app_label
+        )
         self._ai_messages.append({"role": "user", "content": prompt})
         self._insert_entry(_Bubble("user", prompt))
-        self._current_ai_bubble = _Bubble("assistant", "…")
-        self._insert_entry(self._current_ai_bubble)
-        self._last_entry_kind = "ai"
+        self._current_stdout = None
+        self._last_entry_kind = "bubble"
+        self._ensure_stdout_block()
+        self._current_stdout.append("spaCR AI: ")
         self._start_stream(system=error_explainer_prompt())
