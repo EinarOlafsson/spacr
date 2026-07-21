@@ -75,9 +75,10 @@ class StartupPage(QScrollArea):
         if logo_pix is not None:
             logo_lbl = QLabel()
             logo_lbl.setPixmap(
-                logo_pix.scaled(96, 96, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                logo_pix.scaled(128, 128, Qt.KeepAspectRatio,
+                                Qt.SmoothTransformation)
             )
-            logo_lbl.setFixedSize(96, 96)
+            logo_lbl.setFixedSize(128, 128)
             logo_lbl.setAlignment(Qt.AlignCenter)
             brand_row.addWidget(logo_lbl)
 
@@ -118,17 +119,23 @@ class StartupPage(QScrollArea):
         for section_name, entries in sections.items():
             hdr = QLabel(section_name.upper())
             hdr.setObjectName("Caption")
+            hdr.setAlignment(Qt.AlignHCenter)
             outer.addWidget(hdr)
 
             divider = Divider()
             outer.addWidget(divider)
 
             grid_container = QWidget()
-            grid = QGridLayout(grid_container)
-            grid.setContentsMargins(0, SPACING["sm"], 0, SPACING["sm"])
+            grid_row = QHBoxLayout(grid_container)
+            grid_row.setContentsMargins(0, SPACING["sm"], 0, SPACING["sm"])
+            grid_row.addStretch(1)
+
+            inner = QWidget()
+            grid = QGridLayout(inner)
+            grid.setContentsMargins(0, 0, 0, 0)
             grid.setHorizontalSpacing(SPACING["lg"])
             grid.setVerticalSpacing(SPACING["md"])
-            grid.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+            grid.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
 
             cols = 6
             for i, (key, name, desc) in enumerate(entries):
@@ -137,11 +144,12 @@ class StartupPage(QScrollArea):
                             tile_size=128, icon_size=68)
                 tile.setToolTip(desc)
                 tile.clicked.connect(lambda k=key: self.tile_clicked.emit(k))
-                # Hover shows the description in the footer
                 tile._button.installEventFilter(self)
                 tile._button.setProperty("hover_caption", desc)
                 grid.addWidget(tile, i // cols, i % cols)
 
+            grid_row.addWidget(inner)
+            grid_row.addStretch(1)
             outer.addWidget(grid_container)
 
         outer.addStretch(1)
