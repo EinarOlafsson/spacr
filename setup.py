@@ -100,9 +100,14 @@ setup(
             'annotate=spacr.app_annotate:start_annotate_app',
             'classify=spacr.app_classify:start_classify_app',
             'sim=spacr.app_sim:gui_sim',
-            'spacr=spacr.gui:gui_app',
-            'spaceout=spacr.gui:gui_app',
+            # New Qt GUI is the default
+            'spacr=spacr.qt:run',
             'spacr-qt=spacr.qt:run',
+            'spacr-nightly=spacr.qt:run',
+            # Classic Tk GUI remains available under new names
+            'spacr-tk=spacr.gui:gui_app',
+            'spacr-legacy=spacr.gui:gui_app',
+            'spaceout=spacr.gui:gui_app',
         ],
     },
     extras_require={
