@@ -1625,6 +1625,206 @@ class spacrToolTip:
         self.tooltip_window = None
 
 
+class spacrCard(tk.Frame):
+    """
+    Modern container with a subtle rounded border, optional title bar, and
+    consistent internal padding. Use where the codebase currently wraps
+    content in a bare tk.Frame — spacrCard produces a "lifted-panel" look
+    that matches the soft dark palette.
+
+    Usage:
+        card = spacrCard(parent, title="Settings")
+        card.pack(fill=tk.X, padx=8, pady=8)
+        # Add widgets to card.body:
+        tk.Label(card.body, text="hello").pack()
+    """
+
+    def __init__(self, parent, title="", padding="md", **kwargs):
+        style_out = set_dark_style(ttk.Style())
+        self.style_out = style_out
+        self.bg_color = style_out['bg_color']
+        self.panel_color = style_out['inactive_color']
+        self.border_color = style_out.get('border_color', style_out['inactive_color'])
+        self.muted_color = style_out.get('muted_color', style_out['fg_color'])
+        self.fg_color = style_out['fg_color']
+        spacing = style_out.get('spacing', {'sm': 8, 'md': 12, 'lg': 16})
+        font_loader = style_out.get('font_loader')
+        font_sizes = style_out.get('font_sizes', {'header': style_out['font_size'] + 2,
+                                                    'body':   style_out['font_size']})
+
+        pad = spacing.get(padding, spacing['md'])
+        super().__init__(parent, bg=self.border_color, bd=0,
+                         highlightbackground=self.border_color,
+                         highlightthickness=1, **kwargs)
+
+        # Interior with a slightly darker panel background so the 1-px
+        # border reads as a subtle lift.
+        interior = tk.Frame(self, bg=self.panel_color, bd=0)
+        interior.pack(fill=tk.BOTH, expand=True, padx=1, pady=1)
+
+        if title:
+            title_font = (
+                font_loader.get_font(size=font_sizes.get('header', style_out['font_size']))
+                if font_loader
+                else (style_out['font_family'], font_sizes.get('header', style_out['font_size']), "bold")
+            )
+            title_bar = tk.Frame(interior, bg=self.panel_color)
+            title_bar.pack(fill=tk.X, padx=pad, pady=(pad, spacing['sm']))
+            tk.Label(title_bar, text=title, bg=self.panel_color, fg=self.fg_color,
+                     font=title_font, anchor="w").pack(fill=tk.X)
+            # Thin divider under the title.
+            tk.Frame(interior, bg=self.border_color, height=1).pack(fill=tk.X, padx=pad)
+
+        # Public body attribute — clients pack content into this.
+        self.body = tk.Frame(interior, bg=self.panel_color)
+        self.body.pack(fill=tk.BOTH, expand=True, padx=pad, pady=pad)
+
+
+class spacrToggle(tk.Frame):
+    """
+    Modern iOS-style toggle switch replacing the small check square in
+    spacrCheck. Two-state widget bound to a tk.BooleanVar; clicking the
+    canvas or the label toggles the variable and animates the knob.
+
+    Usage:
+        v = tk.BooleanVar(value=False)
+        spacrToggle(parent, text="Enable", variable=v,
+                    command=on_change).pack()
+    """
+
+    _TRACK_W = 44
+    _TRACK_H = 22
+    _KNOB_D = 16
+    _ANIM_STEPS = 6
+    _ANIM_MS = 120
+
+    def __init__(self, parent, text="", variable=None, command=None, **kwargs):
+        style_out = set_dark_style(ttk.Style())
+        self.bg_color = style_out['bg_color']
+        self.inactive_color = style_out['inactive_color']
+        self.active_color = style_out['active_color']
+        self.fg_color = style_out['fg_color']
+        self.muted_color = style_out.get('muted_color', style_out['fg_color'])
+        spacing = style_out.get('spacing', {'sm': 8})
+
+        super().__init__(parent, bg=self.bg_color, **kwargs)
+        self.variable = variable if variable is not None else tk.BooleanVar(value=False)
+        self.command = command
+        self._anim_id = None
+
+        # Label
+        font_loader = style_out.get('font_loader')
+        if text:
+            font_style = (
+                font_loader.get_font(size=style_out['font_size'])
+                if font_loader
+                else (style_out['font_family'], style_out['font_size'])
+            )
+            self._label = tk.Label(self, text=text, bg=self.bg_color,
+                                   fg=self.fg_color, font=font_style, cursor="hand2")
+            self._label.pack(side=tk.LEFT, padx=(0, spacing['sm']))
+            self._label.bind("<Button-1>", lambda e: self.toggle())
+        else:
+            self._label = None
+
+        # Track canvas
+        self._canvas = tk.Canvas(
+            self, width=self._TRACK_W, height=self._TRACK_H,
+            bg=self.bg_color, highlightthickness=0, bd=0, cursor="hand2",
+        )
+        self._canvas.pack(side=tk.LEFT)
+        self._canvas.bind("<Button-1>", lambda e: self.toggle())
+
+        # Draw track + knob
+        self._track = self._round_rect(
+            0, 0, self._TRACK_W, self._TRACK_H, radius=self._TRACK_H // 2,
+            fill=self._track_color(), outline="",
+        )
+        self._knob = self._canvas.create_oval(
+            *self._knob_bbox(), fill=self.fg_color, outline="",
+        )
+        # Sync from variable if user rebinds it later.
+        self.variable.trace_add("write", lambda *_: self._sync_from_var())
+
+    # -- helpers ----------------------------------------------------------
+    def _round_rect(self, x1, y1, x2, y2, radius=8, **kw):
+        pts = [
+            x1 + radius, y1,
+            x2 - radius, y1,
+            x2, y1,
+            x2, y1 + radius,
+            x2, y2 - radius,
+            x2, y2,
+            x2 - radius, y2,
+            x1 + radius, y2,
+            x1, y2,
+            x1, y2 - radius,
+            x1, y1 + radius,
+            x1, y1,
+        ]
+        return self._canvas.create_polygon(pts, smooth=True, **kw)
+
+    def _track_color(self):
+        return self.active_color if self.variable.get() else self.inactive_color
+
+    def _knob_bbox(self):
+        pad = (self._TRACK_H - self._KNOB_D) // 2
+        if self.variable.get():
+            x = self._TRACK_W - self._KNOB_D - pad
+        else:
+            x = pad
+        return x, pad, x + self._KNOB_D, pad + self._KNOB_D
+
+    def _sync_from_var(self):
+        self._canvas.itemconfig(self._track, fill=self._track_color())
+        self._canvas.coords(self._knob, *self._knob_bbox())
+
+    def toggle(self):
+        self.variable.set(not self.variable.get())
+        self._animate()
+        if self.command is not None:
+            try:
+                self.command()
+            except Exception:
+                pass
+
+    def _animate(self):
+        if self._anim_id is not None:
+            try:
+                self.after_cancel(self._anim_id)
+            except Exception:
+                pass
+            self._anim_id = None
+
+        pad = (self._TRACK_H - self._KNOB_D) // 2
+        target_x = (self._TRACK_W - self._KNOB_D - pad) if self.variable.get() else pad
+        current_bbox = self._canvas.coords(self._knob)
+        current_x = current_bbox[0] if current_bbox else pad
+        target_track = self._track_color()
+        # We only animate the knob position; color swaps instantly.
+        self._canvas.itemconfig(self._track, fill=target_track)
+
+        step_x = (target_x - current_x) / self._ANIM_STEPS
+        delay = max(1, self._ANIM_MS // self._ANIM_STEPS)
+
+        def _tick(i=1, x=current_x):
+            x = x + step_x
+            self._canvas.coords(self._knob, x, pad, x + self._KNOB_D, pad + self._KNOB_D)
+            if i < self._ANIM_STEPS:
+                self._anim_id = self.after(delay, _tick, i + 1, x)
+            else:
+                self._anim_id = None
+                self._canvas.coords(self._knob, *self._knob_bbox())
+
+        _tick()
+
+    def get(self):
+        return self.variable.get()
+
+    def set(self, value):
+        self.variable.set(bool(value))
+
+
 class spacrDivider(tk.Frame):
     """Thin themed section separator, optionally with a caption.
 
