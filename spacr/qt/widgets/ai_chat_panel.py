@@ -82,74 +82,112 @@ class _MessageBubble(QWidget):
 
 
 # ---------------------------------------------------------------------------
-# Manage keys dialog
+# Provider setup dialog — install + login guidance
 # ---------------------------------------------------------------------------
 
-class _KeysDialog(QDialog):
+class _ProvidersDialog(QDialog):
+    """Shows install + login state for each vendor CLI and gives users
+    a one-click way to copy the commands into their terminal."""
+
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("AI Console — provider keys")
-        self.setMinimumWidth(520)
+        self.setWindowTitle("AI Console — providers")
+        self.setMinimumWidth(560)
         outer = QVBoxLayout(self)
 
         intro = QLabel(
-            "Set an API key for any provider you want to use. Keys are "
-            "read from env vars first "
-            "(<code>ANTHROPIC_API_KEY</code> / <code>OPENAI_API_KEY</code> "
-            "/ <code>GOOGLE_API_KEY</code>), otherwise from your OS "
-            "keyring under service <code>spacr-qt-ai</code>."
+            "The AI Console talks to the <b>vendor coding-agent CLI</b> "
+            "for each provider, so authentication piggy-backs on your "
+            "chat subscription (Claude.ai Pro, ChatGPT Plus/Pro/Team, "
+            "Google account) — no separate API billing.<br><br>"
+            "For each provider you want to use, install the CLI then "
+            "log in <em>once</em>. Copy the commands below into a "
+            "terminal."
         )
         intro.setWordWrap(True)
         intro.setTextFormat(Qt.RichText)
         outer.addWidget(intro)
 
-        form = QFormLayout()
-        self._inputs: Dict[str, QLineEdit] = {}
         for p in ai_module.list_providers():
-            row = QHBoxLayout()
-            edit = QLineEdit()
-            edit.setEchoMode(QLineEdit.Password)
-            edit.setPlaceholderText("<not set>")
-            self._inputs[p.name] = edit
-            row.addWidget(edit, 1)
-            status = QLabel(self._status_text(p))
-            status.setObjectName("SubtitleSmall")
-            row.addWidget(status)
-            wrap = QWidget(); wrap.setLayout(row)
-            form.addRow(p.label, wrap)
-        outer.addLayout(form)
+            outer.addWidget(self._make_provider_row(p))
 
         note = QLabel(
-            "Blank field = keep the current key. Delete stored keys via "
-            "your OS keyring app."
+            "Once a CLI is installed <em>and</em> you're logged in, hit "
+            "<b>Refresh</b> below and it will appear in the provider "
+            "dropdown."
         )
         note.setObjectName("SubtitleSmall")
         note.setWordWrap(True)
+        note.setTextFormat(Qt.RichText)
         outer.addWidget(note)
 
-        buttons = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel)
-        buttons.accepted.connect(self._save)
-        buttons.rejected.connect(self.reject)
+        buttons = QDialogButtonBox()
+        refresh_btn = buttons.addButton("Refresh", QDialogButtonBox.AcceptRole)
+        close_btn = buttons.addButton("Close", QDialogButtonBox.RejectRole)
+        refresh_btn.clicked.connect(self.accept)
+        close_btn.clicked.connect(self.reject)
         outer.addWidget(buttons)
 
-    def _status_text(self, provider: ChatProvider) -> str:
-        parts = []
-        parts.append("SDK OK" if provider.is_sdk_available()
-                     else f"SDK missing — {provider.install_hint}")
-        parts.append(f"key: {provider.source_of_key()}")
-        return " · ".join(parts)
+    def _make_provider_row(self, provider: ChatProvider) -> QWidget:
+        card = QWidget()
+        col = QVBoxLayout(card)
+        col.setContentsMargins(SPACING["sm"], SPACING["sm"],
+                                SPACING["sm"], SPACING["sm"])
+        col.setSpacing(2)
 
-    def _save(self):
-        for name, edit in self._inputs.items():
-            text = edit.text().strip()
-            if text:
-                if not ai_keys.set_key(name, text):
-                    QMessageBox.warning(
-                        self, "Keyring unavailable",
-                        f"Could not persist the {name} key to the OS "
-                        f"keyring. Set the matching env var instead.",
-                    )
-        self.accept()
+        # Header line with status
+        header = QHBoxLayout()
+        title = QLabel(f"<b>{provider.label}</b>")
+        title.setTextFormat(Qt.RichText)
+        header.addWidget(title)
+        header.addStretch(1)
+        installed = provider.is_installed()
+        status_label = QLabel(
+            f"<span style='color:#3fb950;'>● installed</span>"
+            if installed
+            else "<span style='color:#f85149;'>● missing</span>"
+        )
+        status_label.setTextFormat(Qt.RichText)
+        header.addWidget(status_label)
+        header_wrap = QWidget(); header_wrap.setLayout(header)
+        col.addWidget(header_wrap)
+
+        # Install command
+        install_row = QHBoxLayout()
+        install_row.addWidget(QLabel("Install:"))
+        install_edit = QLineEdit(provider.install_hint)
+        install_edit.setReadOnly(True)
+        install_row.addWidget(install_edit, 1)
+        copy_i = QPushButton("Copy")
+        copy_i.clicked.connect(lambda _, e=install_edit: self._copy_to_clipboard(e.text()))
+        install_row.addWidget(copy_i)
+        install_wrap = QWidget(); install_wrap.setLayout(install_row)
+        col.addWidget(install_wrap)
+
+        # Login command
+        login_row = QHBoxLayout()
+        login_row.addWidget(QLabel("Login:"))
+        login_edit = QLineEdit(provider.login_command)
+        login_edit.setReadOnly(True)
+        login_row.addWidget(login_edit, 1)
+        copy_l = QPushButton("Copy")
+        copy_l.clicked.connect(lambda _, e=login_edit: self._copy_to_clipboard(e.text()))
+        login_row.addWidget(copy_l)
+        login_wrap = QWidget(); login_wrap.setLayout(login_row)
+        col.addWidget(login_wrap)
+
+        card.setStyleSheet(
+            f"QWidget {{background: {PALETTE['surface_alt']}; "
+            f"border: 1px solid {PALETTE['border_soft']}; "
+            f"border-radius: 6px;}}"
+        )
+        return card
+
+    def _copy_to_clipboard(self, text: str) -> None:
+        from PySide6.QtGui import QGuiApplication
+        cb = QGuiApplication.clipboard()
+        if cb is not None:
+            cb.setText(text)
 
 
 # ---------------------------------------------------------------------------
@@ -209,9 +247,11 @@ class AIChatPanel(QWidget):
         self._provider_combo = QComboBox()
         self._provider_combo.setMinimumWidth(160)
         toolbar.addWidget(self._provider_combo)
-        self._btn_keys = QPushButton("Keys")
+        self._btn_keys = QPushButton("Providers")
         self._btn_keys.setIcon(iconset.icon("settings"))
         self._btn_keys.setCursor(Qt.PointingHandCursor)
+        self._btn_keys.setToolTip("Install + login instructions for the "
+                                    "vendor coding-agent CLIs.")
         self._btn_keys.clicked.connect(self._on_open_keys_dialog)
         toolbar.addWidget(self._btn_keys)
         toolbar.addStretch(1)
@@ -228,15 +268,16 @@ class AIChatPanel(QWidget):
 
         # Empty state ↔ chat stack
         self._empty_state = EmptyState(
-            title="Configure a provider to chat",
+            title="Install a vendor CLI to chat",
             subtitle=(
-                "Set an API key for Anthropic, OpenAI or Google — via env "
-                "var or the Keys button — and this panel is where the "
-                "SpaCR assistant lives. It also handles Explain-error "
-                "requests from every pipeline app."
+                "The AI Console uses your chat subscription via the "
+                "vendor coding-agent CLIs: `claude`, `codex`, or "
+                "`gemini`. Install any one of them and log in — no API "
+                "billing needed. Providers ▸ Copy the commands and "
+                "paste in a terminal."
             ),
             icon=iconset.accent_icon("info"),
-            cta_label="Keys…",
+            cta_label="Providers…",
             on_action=self._on_open_keys_dialog,
         )
         self._chat_scroll = QScrollArea()
@@ -302,7 +343,7 @@ class AIChatPanel(QWidget):
         return ai_module.get_provider(name) if name else None
 
     def _on_open_keys_dialog(self):
-        dlg = _KeysDialog(self)
+        dlg = _ProvidersDialog(self)
         if dlg.exec() == QDialog.Accepted:
             self.refresh_provider_combo()
 
@@ -431,7 +472,7 @@ class AIChatPanel(QWidget):
         from ..ai.prompts import wrap_error_for_prompt, error_explainer_prompt
         provider = self._current_provider()
         if provider is None:
-            self._status.setText("Configure a provider first (Keys…).")
+            self._status.setText("Install a vendor CLI first (Providers…).")
             return
         prompt = wrap_error_for_prompt(traceback_text, active_app)
         self._append_user(prompt)
