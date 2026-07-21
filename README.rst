@@ -12,19 +12,23 @@
    :target: https://einarolafsson.github.io/spacr/tutorial/
 .. |DOI| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.21343317.svg
    :target: https://doi.org/10.5281/zenodo.21343317
+.. |Tests| image:: https://img.shields.io/badge/tests-990%20passed-brightgreen
+   :target: https://github.com/EinarOlafsson/spacr/tree/main/tests
+.. |Qt| image:: https://img.shields.io/badge/GUI-Qt%20(PySide6)-4A9EFF
+   :target: https://einarolafsson.github.io/spacr/index.html
 
 .. _docs: https://einarolafsson.github.io/spacr/index.html
 
 Badges
 ------
-|Docs| |PyPI version| |Python version| |Licence: MIT| |repo size| |Tutorial| |DOI|
+|Docs| |PyPI version| |Python version| |Licence: MIT| |repo size| |Tutorial| |DOI| |Tests| |Qt|
 
-SpaCr
+spaCR
 =====
 
-**Spatial phenotype analysis of CRISPR-Cas9 screens (SpaCr).**
+**Spatial phenotype analysis of CRISPR-Cas9 screens (spaCR).**
 
-The spatial organization of organelles and proteins within cells constitutes a key level of functional regulation. In the context of infectious disease, the spatial relationships between host cell structures and intracellular pathogens are critical to understanding host clearance mechanisms and how pathogens evade them. SpaCr is a Python-based software package for generating single-cell image data for deep-learning sub-cellular/cellular phenotypic classification from pooled genetic CRISPR-Cas9 screens. SpaCr provides a flexible toolset to extract single-cell images and measurements from high-content cell painting experiments, train deep-learning models to classify cellular/subcellular phenotypes, simulate, and analyze pooled CRISPR-Cas9 imaging screens.
+The spatial organization of organelles and proteins within cells constitutes a key level of functional regulation. In the context of infectious disease, the spatial relationships between host cell structures and intracellular pathogens are critical to understanding host clearance mechanisms and how pathogens evade them. spaCR is a Python-based software package for generating single-cell image data for deep-learning sub-cellular/cellular phenotypic classification from pooled genetic CRISPR-Cas9 screens. spaCR provides a flexible toolset to extract single-cell images and measurements from high-content cell painting experiments, train deep-learning models to classify cellular/subcellular phenotypes, simulate, and analyze pooled CRISPR-Cas9 imaging screens.
 
 Features
 --------
