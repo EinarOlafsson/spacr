@@ -291,6 +291,72 @@ def set_dark_style(style, parent_frame=None, containers=None, widgets=None,
     style.configure('TButton', padding=padding)
     style.configure('TFrame', background=bg_color)
     style.configure('TPanedwindow', background=bg_color)
+
+    # ------------------------------------------------------------------
+    # Themed ttk.Scrollbar — hide the default grey-Windows/native look.
+    # A slim dark trough with a soft-blue thumb on hover.
+    # ------------------------------------------------------------------
+    style.configure(
+        'Spacr.Vertical.TScrollbar',
+        background=inactive_color,          # thumb (default)
+        troughcolor=bg_color,
+        bordercolor=bg_color,
+        arrowcolor=fg_color,
+        gripcount=0,
+        relief='flat',
+    )
+    style.map(
+        'Spacr.Vertical.TScrollbar',
+        background=[('active', active_color), ('pressed', active_color)],
+        arrowcolor=[('disabled', border_color)],
+    )
+    style.configure(
+        'Spacr.Horizontal.TScrollbar',
+        background=inactive_color,
+        troughcolor=bg_color,
+        bordercolor=bg_color,
+        arrowcolor=fg_color,
+        gripcount=0,
+        relief='flat',
+    )
+    style.map(
+        'Spacr.Horizontal.TScrollbar',
+        background=[('active', active_color), ('pressed', active_color)],
+        arrowcolor=[('disabled', border_color)],
+    )
+    # Also apply to the default TScrollbar so ScrolledText / ScrolledFrame
+    # pick it up without needing style= arguments everywhere.
+    style.configure('Vertical.TScrollbar',
+                    background=inactive_color, troughcolor=bg_color,
+                    bordercolor=bg_color, arrowcolor=fg_color, relief='flat')
+    style.map('Vertical.TScrollbar',
+              background=[('active', active_color), ('pressed', active_color)])
+    style.configure('Horizontal.TScrollbar',
+                    background=inactive_color, troughcolor=bg_color,
+                    bordercolor=bg_color, arrowcolor=fg_color, relief='flat')
+    style.map('Horizontal.TScrollbar',
+              background=[('active', active_color), ('pressed', active_color)])
+
+    # ------------------------------------------------------------------
+    # Themed ttk.Progressbar — dark trough, accent-colored bar.
+    # ------------------------------------------------------------------
+    style.configure(
+        'Spacr.Horizontal.TProgressbar',
+        troughcolor=inactive_color,
+        background=active_color,
+        bordercolor=bg_color,
+        lightcolor=active_color,
+        darkcolor=active_color,
+        thickness=8,
+    )
+    style.configure(
+        'Horizontal.TProgressbar',
+        troughcolor=inactive_color,
+        background=active_color,
+        bordercolor=bg_color,
+        lightcolor=active_color,
+        darkcolor=active_color,
+    )
     if font_loader:
         style.configure('TLabel', background=bg_color, foreground=fg_color, font=font_loader.get_font(size=font_size))
     else:
