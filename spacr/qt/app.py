@@ -25,8 +25,45 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+import threading
+
 from . import iconset
 from .theme import PALETTE, SPACING, apply_qpalette, stylesheet
+
+
+class _PipelinePreloader:
+    """Warms up the heavy pipeline modules on a daemon thread so the
+    first click on Mask/Measure/Classify/etc. doesn't stall the UI
+    while torch/cellpose/pandas/etc. resolve."""
+
+    _MODULES = (
+        "spacr.core",
+        "spacr.measure",
+        "spacr.deep_spacr",
+        "spacr.ml",
+        "spacr.sequencing",
+        "spacr.submodules",
+        "spacr.spacr_cellpose",
+    )
+
+    def __init__(self):
+        self._thread: Optional[threading.Thread] = None
+
+    def start(self) -> None:
+        if self._thread and self._thread.is_alive():
+            return
+        self._thread = threading.Thread(target=self._run,
+                                          name="spacr-qt-preloader",
+                                          daemon=True)
+        self._thread.start()
+
+    def _run(self) -> None:
+        import importlib
+        for mod in self._MODULES:
+            try:
+                importlib.import_module(mod)
+            except Exception:
+                pass
 
 
 APPS = [
@@ -149,6 +186,12 @@ class MainWindow(QMainWindow):
         status.showMessage("Ready")
         self.setStatusBar(status)
 
+        # Preload heavy pipeline imports in a background thread so the
+        # first click on Mask/Measure/Classify doesn't stall while
+        # torch/cellpose/pandas/etc. resolve.
+        self._preloader = _PipelinePreloader()
+        self._preloader.start()
+
         if initial_app:
             self._on_nav_selected(initial_app)
 
@@ -236,12 +279,54 @@ class MainWindow(QMainWindow):
     def _build_screen(self, key: str) -> QWidget:
         if key == "annotate":
             from .screens.annotate import AnnotateScreen
-            return AnnotateScreen()
+            screen = AnnotateScreen()
+            screen.train_requested.connect(self._on_train_requested)
+            return screen
         if key == "make_masks":
             from .screens.make_masks import MakeMasksScreen
             return MakeMasksScreen()
         from .screens.app_screen import AppScreen
         return AppScreen(app_key=key)
+
+    def _on_train_requested(self, target_key: str, seed: dict) -> None:
+        """Navigate to `target_key` (creating the screen if needed) and
+        push `seed` values into its settings model. Called by the
+        annotate screen's Train CV / Train XG buttons."""
+        self._on_nav_selected(target_key)
+        widget = self._screens.get(target_key)
+        if widget is None:
+            return
+        model = getattr(widget, "_settings_model", None)
+        if model is None:
+            return
+        widgets = getattr(model, "_widgets", {})
+        for key, value in seed.items():
+            w = widgets.get(key)
+            if w is None:
+                continue
+            try:
+                self._apply_seed_value(w, value)
+            except Exception:
+                pass
+
+    @staticmethod
+    def _apply_seed_value(w: QWidget, value) -> None:
+        from PySide6.QtWidgets import (
+            QCheckBox, QComboBox, QDoubleSpinBox, QLineEdit, QSpinBox,
+        )
+        if isinstance(w, QCheckBox):
+            w.setChecked(bool(value))
+        elif isinstance(w, QSpinBox):
+            w.setValue(int(float(value)))
+        elif isinstance(w, QDoubleSpinBox):
+            w.setValue(float(value))
+        elif isinstance(w, QComboBox):
+            for i in range(w.count()):
+                if w.itemData(i) == value or w.itemText(i) == str(value):
+                    w.setCurrentIndex(i)
+                    break
+        elif isinstance(w, QLineEdit):
+            w.setText("" if value is None else str(value))
 
 
 def launch(argv=None) -> int:
