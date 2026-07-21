@@ -134,13 +134,28 @@ def api_docs_url(app_key: str) -> str:
 
 
 def format_tooltip(text: str, app_key: str) -> str:
-    """Return an HTML tooltip body: description + a docs footer link."""
-    body = text.strip() if text else ""
+    """Return an HTML tooltip body: description + a docs footer link.
+
+    Kept minimal — Qt auto-detects rich text from the presence of any
+    HTML tag, but complex containers/styles trip up some Qt builds and
+    the tip renders empty. Plain <br> line breaks and a plain <a>
+    footer render reliably on every platform we've tested.
+    """
+    body = (text or "").strip()
     url = api_docs_url(app_key)
-    footer = f'<br><br><a href="{url}" style="color:#4A9EFF;">API docs →</a>'
     if body:
-        return f"<div style='max-width:360px;'>{body}{footer}</div>"
-    return f"<div style='max-width:360px;'>See <a href='{url}' style='color:#4A9EFF;'>API docs</a>.</div>"
+        return f'{body}<br><br><a href="{url}">API docs</a>'
+    return f'See <a href="{url}">API docs</a>.'
+
+
+def plain_tooltip(text: str, app_key: str) -> str:
+    """Same content as `format_tooltip` but plain text — used by the
+    hover-follows footer at the bottom of each AppScreen."""
+    body = (text or "").strip()
+    url = api_docs_url(app_key)
+    if body:
+        return f"{body}   ({url})"
+    return f"See {url}"
 
 
 # ---------------------------------------------------------------------------
@@ -227,6 +242,9 @@ class SettingsWidgets:
     def tooltip_for(self, key: str) -> str:
         """Return the HTML-formatted tooltip for a given setting key."""
         return format_tooltip(self._tooltips.get(key, ""), self.app_key)
+
+    def plain_tooltip_for(self, key: str) -> str:
+        return plain_tooltip(self._tooltips.get(key, ""), self.app_key)
 
     def _label_for(self, key: str) -> str:
         return key.replace("_", " ").capitalize()
