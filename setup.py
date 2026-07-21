@@ -117,13 +117,12 @@ setup(
         'qt': [
             'PySide6>=6.6,<7',
             'qtawesome>=1.3,<2',
-            # AI Console providers — one SDK per vendor. All three ship with
-            # the Qt GUI so the AI Console works out of the box regardless
-            # of which provider the user configures a key for.
-            'anthropic>=0.30',
-            'openai>=1.30',
-            'google-genai>=0.3',
         ],
+        # The AI Console shells out to vendor coding-agent CLIs
+        # (`claude`, `codex`, `gemini`) so authentication piggy-backs
+        # on the user's chat subscription — no Python API SDKs needed.
+        # Users install whichever CLI(s) they want separately; see the
+        # Providers… dialog in the AI Console for one-liners.
     },
     classifiers=[
         "Programming Language :: Python :: 3",
