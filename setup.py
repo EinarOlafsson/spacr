@@ -102,12 +102,17 @@ setup(
             'sim=spacr.app_sim:gui_sim',
             'spacr=spacr.gui:gui_app',
             'spaceout=spacr.gui:gui_app',
+            'spacr-qt=spacr.qt:run',
         ],
     },
     extras_require={
-        'dev': ['pytest>=8.0,<9'],
+        'dev': ['pytest>=8.0,<9', 'pytest-qt>=4.4,<5'],
         'headless': ['opencv-python-headless'],
         'full': ['opencv-python'],
+        'qt': [
+            'PySide6>=6.6,<7',
+            'qtawesome>=1.3,<2',
+        ],
     },
     classifiers=[
         "Programming Language :: Python :: 3",
