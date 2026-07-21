@@ -264,6 +264,20 @@ class MainWindow(QMainWindow):
                           f"<p><b>Version:</b> {version}</p>"
                           f"<p>© Olafsson Lab</p>")
 
+    # -- shutdown ----------------------------------------------------------
+    def closeEvent(self, event):
+        """Cancel every active AI stream + wait for its QThread to exit
+        BEFORE Qt starts destroying widgets. Prevents the
+        'QThread: Destroyed while thread is still running / Aborted'
+        crash on quit."""
+        from .widgets.console_panel import ConsolePanel
+        for panel in self.findChildren(ConsolePanel):
+            try:
+                panel.shutdown()
+            except Exception:
+                pass
+        super().closeEvent(event)
+
     # -- navigation -------------------------------------------------------
     def _install_startup_page(self):
         from .screens.startup import StartupPage

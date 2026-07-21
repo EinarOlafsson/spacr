@@ -307,16 +307,12 @@ class AppScreen(QWidget):
         row.addWidget(self._progress)
 
         # AI toggle + provider dropdown, bottom-right of the actions row.
-        # Compact "AI" switch, matches Run/Stop styling. Click the tiny
-        # chevron to pick a provider or open the install/login dialog.
-        from PySide6.QtWidgets import QCheckBox, QMenu, QToolButton
-        self._ai_switch = QCheckBox("AI")
-        self._ai_switch.setCursor(Qt.PointingHandCursor)
-        self._ai_switch.setToolTip(
-            "When on, pressing Enter in the console routes your message "
-            "to the selected AI provider (uses your chat subscription "
-            "via `claude` / `codex` / `gemini`)."
-        )
+        # AI switch is a plain clickable text label — white when off,
+        # accent blue when on. Chevron next to it exposes the provider
+        # picker + install/login dialog.
+        from PySide6.QtWidgets import QMenu, QToolButton
+        from ..widgets import AiToggleLabel
+        self._ai_switch = AiToggleLabel()
         self._ai_switch.toggled.connect(self._on_ai_switch)
         row.addWidget(self._ai_switch)
 
