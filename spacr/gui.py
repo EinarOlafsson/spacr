@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from multiprocessing import set_start_method
-from .gui_elements import spacrButton, create_menu_bar, set_dark_style
+from .gui_elements import spacrButton, spacrCard, create_menu_bar, set_dark_style
 from .gui_core import initiate_root
 from screeninfo import get_monitors
 import webbrowser
@@ -142,49 +142,101 @@ class MainApp(tk.Tk):
     def create_startup_screen(self):
         self.clear_frame(self.inner_frame)
 
-        main_buttons_frame = tk.Frame(self.inner_frame)
-        main_buttons_frame.pack(pady=10)
-        set_dark_style(ttk.Style(), containers=[main_buttons_frame])
-
-        additional_buttons_frame = tk.Frame(self.inner_frame)
-        additional_buttons_frame.pack(pady=10)
-        set_dark_style(ttk.Style(), containers=[additional_buttons_frame])
-        
-        description_frame = tk.Frame(self.inner_frame)
-        description_frame.pack(fill=tk.X, pady=10)
-        description_frame.columnconfigure(0, weight=1)
-        
-        set_dark_style(ttk.Style(), containers=[description_frame])
+        # Pull the shared palette + typography scale so the startup screen
+        # matches the rest of the modernised GUI.
         style_out = set_dark_style(ttk.Style())
-        font_loader = style_out['font_loader']
-        font_size = style_out['font_size']
-        
-        self.description_label = tk.Label( description_frame, text="", wraplength=int(self.width * 0.9), justify="center", font=font_loader.get_font(size=font_size), fg=self.color_settings['fg_color'], bg=self.color_settings['bg_color'])
-        
-        # Pack it without expanding
-        self.description_label.pack(pady=10)
+        bg = style_out['bg_color']
+        fg = style_out['fg_color']
+        muted = style_out.get('muted_color', fg)
+        spacing = style_out.get('spacing', {'sm': 8, 'md': 12, 'lg': 16, 'xl': 24})
+        font_sizes = style_out.get('font_sizes', {'small': 11, 'body': 12,
+                                                    'header': 14, 'title': 18})
+        font_loader = style_out.get('font_loader')
 
-        # Force character width and center it
-        self.description_label.configure(width=int(self.width * 0.5 // 7))
-        self.description_label.pack_configure(anchor='center')
-        
-        #logo_button = spacrButton(main_buttons_frame, text="SpaCR", command=lambda: self.load_app("logo_spacr", initiate_root), icon_name="logo_spacr", size=100, show_text=False)
-        logo_button = spacrButton(main_buttons_frame,text="SpaCR",command=lambda: webbrowser.open_new("https://einarolafsson.github.io/spacr/tutorial/"),icon_name="logo_spacr",size=100,show_text=False)
-        
-        logo_button.grid(row=0, column=0, padx=5, pady=5)
-        self.main_buttons[logo_button] = "spaCR: spatial single-cell analysis tools for microscopy data. Click to open the tutorial. (under construction)"
+        def _font(size_key, weight="normal"):
+            size = font_sizes.get(size_key, style_out['font_size'])
+            if font_loader:
+                return font_loader.get_font(size=size)
+            return (style_out['font_family'], size, weight)
+
+        # --- Title block: "SpaCR" + subtitle ----------------------------
+        title_frame = tk.Frame(self.inner_frame, bg=bg)
+        title_frame.pack(pady=(spacing['xl'], spacing['md']))
+        tk.Label(
+            title_frame, text="SpaCR", font=_font('title'),
+            bg=bg, fg=fg, cursor="hand2",
+        ).pack()
+        subtitle = tk.Label(
+            title_frame,
+            text="Spatial single-cell analysis for microscopy",
+            font=_font('small'), bg=bg, fg=muted,
+        )
+        subtitle.pack(pady=(spacing['xs'], 0))
+
+        # --- Core applications card -------------------------------------
+        main_card = spacrCard(self.inner_frame, title="Core applications",
+                              padding='md')
+        main_card.pack(pady=(spacing['md'], spacing['sm']),
+                       padx=spacing['lg'], anchor='center')
+
+        # Logo button (opens the tutorial) sits leftmost in the core row.
+        logo_button = spacrButton(
+            main_card.body, text="SpaCR",
+            command=lambda: webbrowser.open_new(
+                "https://einarolafsson.github.io/spacr/tutorial/"),
+            icon_name="logo_spacr", size=90, show_text=False,
+        )
+        logo_button.grid(row=0, column=0, padx=spacing['sm'], pady=spacing['sm'])
+        self.main_buttons[logo_button] = (
+            "spaCR: spatial single-cell analysis tools for microscopy data. "
+            "Click to open the tutorial. (under construction)"
+        )
 
         for i, (app_name, app_data) in enumerate(self.main_gui_apps.items()):
             app_func, app_desc = app_data
-            button = spacrButton(main_buttons_frame, text=app_name, command=lambda app_name=app_name, app_func=app_func: self.load_app(app_name, app_func), icon_name=app_name.lower(), size=100, show_text=False)
-            button.grid(row=0, column=i + 1, padx=5, pady=5)
+            button = spacrButton(
+                main_card.body, text=app_name,
+                command=lambda app_name=app_name, app_func=app_func:
+                    self.load_app(app_name, app_func),
+                icon_name=app_name.lower(), size=90, show_text=False,
+            )
+            button.grid(row=0, column=i + 1,
+                        padx=spacing['sm'], pady=spacing['sm'])
             self.main_buttons[button] = app_desc
+
+        # --- Additional tools card --------------------------------------
+        extra_card = spacrCard(self.inner_frame, title="Additional tools",
+                               padding='md')
+        extra_card.pack(pady=(spacing['sm'], spacing['md']),
+                        padx=spacing['lg'], anchor='center')
 
         for i, (app_name, app_data) in enumerate(self.additional_gui_apps.items()):
             app_func, app_desc = app_data
-            button = spacrButton(additional_buttons_frame, text=app_name, command=lambda app_name=app_name, app_func=app_func: self.load_app(app_name, app_func), icon_name=app_name.lower(), size=75, show_text=False)
-            button.grid(row=0, column=i, padx=5, pady=5)
+            button = spacrButton(
+                extra_card.body, text=app_name,
+                command=lambda app_name=app_name, app_func=app_func:
+                    self.load_app(app_name, app_func),
+                icon_name=app_name.lower(), size=66, show_text=False,
+            )
+            button.grid(row=0, column=i,
+                        padx=spacing['sm'], pady=spacing['sm'])
             self.additional_buttons[button] = app_desc
+
+        # --- Description panel (bottom, muted text) ---------------------
+        description_frame = tk.Frame(self.inner_frame, bg=bg)
+        description_frame.pack(fill=tk.X, pady=(spacing['sm'], spacing['xl']),
+                                padx=spacing['xl'])
+        description_frame.columnconfigure(0, weight=1)
+
+        self.description_label = tk.Label(
+            description_frame, text="",
+            wraplength=int(self.width * 0.7),
+            justify="center", font=_font('body'),
+            fg=muted, bg=bg,
+        )
+        self.description_label.pack(pady=spacing['sm'])
+        self.description_label.configure(width=int(self.width * 0.5 // 7))
+        self.description_label.pack_configure(anchor='center')
 
         self.update_description()
         self.inner_frame.bind("<Configure>", self._update_wraplength)
