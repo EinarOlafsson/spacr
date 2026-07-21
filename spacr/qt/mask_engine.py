@@ -10,6 +10,7 @@ remove small).
 from __future__ import annotations
 
 import os
+from collections import deque
 from typing import List, Optional, Tuple
 
 import imageio.v2 as imageio
@@ -205,3 +206,96 @@ def erase_object_at(mask: np.ndarray, x: int, y: int) -> np.ndarray:
     out = mask.copy()
     out[out == label_to_remove] = 0
     return out
+
+
+# ---------------------------------------------------------------------------
+# Magic wand — flood-fill by intensity tolerance (mirrors ModifyMaskApp)
+# ---------------------------------------------------------------------------
+
+def magic_wand(
+    image: np.ndarray,
+    mask: np.ndarray,
+    seed_x: int,
+    seed_y: int,
+    tolerance: float,
+    max_pixels: int = 100_000,
+    action: str = "add",
+) -> np.ndarray:
+    """BFS flood-fill from (seed_x, seed_y) filling pixels whose intensity
+    is within `tolerance` (L2 distance) of the seed. Writes 255 (add) or
+    0 (erase) into the returned mask copy.
+    """
+    if not (0 <= seed_y < image.shape[0] and 0 <= seed_x < image.shape[1]):
+        return mask
+    out = mask.copy()
+    initial = image[seed_y, seed_x].astype(np.float32)
+    visited = np.zeros(image.shape[:2], dtype=bool)
+    q = deque([(seed_x, seed_y)])
+    added = 0
+    fill_val = 255 if action == "add" else 0
+    while q and added < max_pixels:
+        cx, cy = q.popleft()
+        if not (0 <= cx < image.shape[1] and 0 <= cy < image.shape[0]):
+            continue
+        if visited[cy, cx]:
+            continue
+        visited[cy, cx] = True
+        cur = image[cy, cx].astype(np.float32)
+        if float(np.linalg.norm(cur - initial)) > tolerance:
+            continue
+        if out[cy, cx] == 0 and action == "add":
+            added += 1
+        elif out[cy, cx] > 0 and action == "erase":
+            added += 1
+        out[cy, cx] = fill_val
+        if added >= max_pixels:
+            break
+        for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+            nx, ny = cx + dx, cy + dy
+            if 0 <= nx < image.shape[1] and 0 <= ny < image.shape[0] and not visited[ny, nx]:
+                q.append((nx, ny))
+    return out
+
+
+# ---------------------------------------------------------------------------
+# Undo history — small bounded ring of mask snapshots
+# ---------------------------------------------------------------------------
+
+class MaskHistory:
+    """Bounded undo/redo stack of mask arrays. Deep-copies on push so
+    callers can mutate in place without corrupting older snapshots."""
+
+    def __init__(self, capacity: int = 20):
+        self.capacity = max(1, int(capacity))
+        self._undo: deque = deque(maxlen=self.capacity)
+        self._redo: deque = deque(maxlen=self.capacity)
+
+    def clear(self) -> None:
+        self._undo.clear()
+        self._redo.clear()
+
+    def push(self, mask: np.ndarray) -> None:
+        self._undo.append(np.array(mask, copy=True))
+        self._redo.clear()
+
+    def can_undo(self) -> bool:
+        return len(self._undo) >= 2
+
+    def can_redo(self) -> bool:
+        return bool(self._redo)
+
+    def undo(self) -> Optional[np.ndarray]:
+        """Pop the top snapshot, save it to the redo stack, and return the
+        previous snapshot (i.e. one step back). None if not possible."""
+        if not self.can_undo():
+            return None
+        current = self._undo.pop()
+        self._redo.append(current)
+        return np.array(self._undo[-1], copy=True)
+
+    def redo(self) -> Optional[np.ndarray]:
+        if not self._redo:
+            return None
+        snap = self._redo.pop()
+        self._undo.append(np.array(snap, copy=True))
+        return np.array(snap, copy=True)
