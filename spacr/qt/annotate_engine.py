@@ -217,6 +217,77 @@ def fetch_page(
         return cur.fetchall()
 
 
+# ---------------------------------------------------------------------------
+# Measurement/threshold filter fetch
+#
+# The Tk AnnotateApp joins png_list with the other measurement tables via
+# spacr.io._read_and_join_tables and applies user-supplied thresholds to
+# a numeric column (higher / lower). Here we do the same for one-or-more
+# (column, threshold, direction) triples so the settings dialog can filter
+# annotation to just objects above/below a cutoff (e.g. cell_area > 500).
+# ---------------------------------------------------------------------------
+
+def _apply_threshold(df, column: str, threshold: float, direction: str):
+    if column is None or column not in df.columns or threshold is None:
+        return df
+    if direction == "higher":
+        return df[df[column] > float(threshold)]
+    if direction == "lower":
+        return df[df[column] < float(threshold)]
+    return df
+
+
+def fetch_filtered_paths(
+    db_path: str,
+    annotation_column: str,
+    measurements: List[str],
+    thresholds: List[float],
+    directions: List[str],
+    image_type: Optional[str] = None,
+) -> List[Tuple[str, Optional[int]]]:
+    """Return ALL (png_path, annotation) rows matching every one of the
+    measurement/threshold/direction triples.
+
+    Rows come from a merge of png_list with the measurement tables (via
+    spacr.io._read_and_join_tables) — same code path as the Tk app —
+    filtered on png_path substring when `image_type` is given.
+    Callers paginate the returned list themselves.
+    """
+    if not os.path.isfile(db_path) or not measurements or not thresholds:
+        return []
+    from spacr.io import _read_and_join_tables, _read_db
+    df = _read_and_join_tables(db_path)
+    if "png_path" not in df.columns:
+        png_df = _read_db(db_path, tables=["png_list"])[0]
+        if "prcfo" not in df.columns and df.index.name == "prcfo":
+            df = df.reset_index()
+        if "prcfo" not in png_df.columns and png_df.index.name == "prcfo":
+            png_df = png_df.reset_index()
+        if "prcfo" in df.columns and "prcfo" in png_df.columns:
+            df = df.merge(
+                png_df[["prcfo", "png_path"]],
+                on="prcfo", how="left", suffixes=("", "_dup"),
+            )
+    if annotation_column not in df.columns:
+        df[annotation_column] = None
+    if len(thresholds) == 1 and len(measurements) > 1:
+        thresholds = [thresholds[0]] * len(measurements)
+    if isinstance(directions, str):
+        directions = [directions] * len(measurements)
+    if len(directions) == 1 and len(measurements) > 1:
+        directions = [directions[0]] * len(measurements)
+    for col, thr, direction in zip(measurements, thresholds, directions):
+        df = _apply_threshold(df, col, thr, direction)
+    if "png_path" not in df.columns:
+        return []
+    df = df.dropna(subset=["png_path"])
+    if image_type:
+        df = df[df["png_path"].str.contains(image_type)]
+    if annotation_column not in df.columns:
+        return []
+    return df[["png_path", annotation_column]].values.tolist()
+
+
 def class_counts(db_path: str, annotation_column: str) -> List[Tuple[int, int]]:
     """Return sorted list of (class_value, count) for annotated rows."""
     if not os.path.isfile(db_path):
