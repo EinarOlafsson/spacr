@@ -61,15 +61,15 @@ RADIUS = {
 }
 
 FONT_SIZE = {
-    "xs":      10,   # inline metadata, table cell suffixes
-    "small":   11,   # captions, muted secondary text, form hints
-    "body":    12,   # default body text
-    "label":   12,   # form field labels
-    "header":  14,   # card / section titles
-    "subtitle":16,   # dialog headings, secondary display
-    "title":   20,   # screen-level headings
-    "display": 28,   # startup screen brand title
-    "hero":    36,   # empty-state hero numerals
+    "xs":      11,   # inline metadata, table cell suffixes
+    "small":   12,   # captions, muted secondary text, form hints
+    "body":    13,   # default body text
+    "label":   13,   # form field labels
+    "header":  15,   # card / section titles
+    "subtitle":17,   # dialog headings, secondary display
+    "title":   22,   # screen-level headings
+    "display": 30,   # startup screen brand title
+    "hero":    42,   # empty-state hero numerals
 }
 
 # Typography roles — pair size with weight + tracking + line-height
@@ -224,6 +224,11 @@ QFrame#Card {{
     border: 1px solid {P["border_soft"]};
     border-radius: {R["md"]}px;
 }}
+QFrame#Hero {{
+    background-color: {P["surface"]};
+    border: 1px solid {P["border_soft"]};
+    border-radius: {R["lg"]}px;
+}}
 QLabel#CardTitle {{
     color: {P["fg"]};
     font-size: {F["header"]}px;
@@ -267,9 +272,11 @@ QPushButton#Tile:pressed {{
     color: {P["bg"]};
 }}
 QLabel#TileCaption {{
-    color: {P["fg_muted"]};
-    font-size: {F["small"]}px;
+    color: {P["fg"]};
+    font-size: {F["body"]}px;
+    font-weight: 500;
     background: transparent;
+    padding-top: 4px;
 }}
 
 /* -----------------------------------------------------------------
@@ -614,6 +621,43 @@ QToolTip {{
     border-radius: {R["sm"]}px;
     padding: {S["xs"]}px {S["sm"]}px;
     font-size: {F["small"]}px;
+}}
+
+/* -----------------------------------------------------------------
+ *  Section — collapsible dropdown (custom widget)
+ * ----------------------------------------------------------------- */
+QFrame#SectionCard {{
+    background-color: {P["surface"]};
+    border: 1px solid {P["border_soft"]};
+    border-radius: {R["md"]}px;
+    margin-bottom: {S["sm"]}px;
+}}
+QToolButton#SectionHeader {{
+    background: transparent;
+    color: {P["fg_muted"]};
+    border: none;
+    border-radius: {R["md"]}px;
+    padding: {S["sm"]}px {S["md"]}px;
+    text-align: left;
+    font-size: {F["small"]}px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+}}
+QToolButton#SectionHeader:hover {{
+    color: {P["fg"]};
+    background: {P["surface_alt"]};
+}}
+QToolButton#SectionHeader:checked {{
+    color: {P["fg"]};
+    background: {P["surface_alt"]};
+    border-bottom: 1px solid {P["border_soft"]};
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+}}
+QWidget#SectionBody {{
+    background-color: transparent;
+    border-bottom-left-radius: {R["md"]}px;
+    border-bottom-right-radius: {R["md"]}px;
 }}
 
 /* -----------------------------------------------------------------
