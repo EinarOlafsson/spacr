@@ -111,4 +111,5 @@ _NAME_TO_GLYPH = {
     "cellpose_masks":  "fa5s.shapes",
     "cellpose_all":    "fa5s.th",
     "map_barcodes":    "fa5s.barcode",
+    "ai_console":      "fa5s.robot",
 }
