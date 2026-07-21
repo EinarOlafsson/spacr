@@ -1,5 +1,6 @@
 """Reusable custom widgets for the spacr Qt GUI."""
 from .ai_chat_panel import AIChatPanel
+from .ai_toggle_label import AiToggleLabel
 from .card import Card
 from .console_panel import ConsolePanel
 from .divider import Divider
@@ -11,6 +12,6 @@ from .toggle import Toggle
 from .usage_bar import UsageBar
 
 __all__ = [
-    "AIChatPanel", "Card", "ConsolePanel", "Divider", "EmptyState",
-    "HoverTooltip", "Section", "Tile", "Toggle", "UsageBar",
+    "AIChatPanel", "AiToggleLabel", "Card", "ConsolePanel", "Divider",
+    "EmptyState", "HoverTooltip", "Section", "Tile", "Toggle", "UsageBar",
 ]
