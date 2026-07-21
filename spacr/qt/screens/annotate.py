@@ -60,6 +60,7 @@ from ..annotate_engine import (
     find_last_annotated_offset,
     label_to_hex,
     normalize_pil,
+    outline_image,
 )
 from .. import iconset, prefs
 from ..theme import PALETTE, SPACING
@@ -287,6 +288,10 @@ class _SettingsDialog(QDialog):
 class AnnotateScreen(QWidget):
     """Main Qt widget for the annotate app."""
 
+    # Emitted with (target_app_key, seed_settings_dict); MainWindow
+    # picks this up to switch to that screen and preseed values.
+    train_requested = Signal(str, dict)
+
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
         self._settings = AnnotateSettings()
@@ -378,6 +383,30 @@ class AnnotateScreen(QWidget):
         self._btn_count.clicked.connect(self._on_class_counts)
         row.addWidget(self._btn_count)
 
+        self._btn_train_cv = QPushButton("Train CV")
+        self._btn_train_cv.setIcon(iconset.icon("classify"))
+        self._btn_train_cv.setCursor(Qt.PointingHandCursor)
+        self._btn_train_cv.setToolTip(
+            "Generate a training dataset from the current annotations "
+            "and train a Torch CNN / Transformer classifier, then apply "
+            "it to the full dataset. Opens the Classify screen with "
+            "this source pre-selected."
+        )
+        self._btn_train_cv.clicked.connect(self._on_train_cv)
+        row.addWidget(self._btn_train_cv)
+
+        self._btn_train_xg = QPushButton("Train XG")
+        self._btn_train_xg.setIcon(iconset.icon("chart"))
+        self._btn_train_xg.setCursor(Qt.PointingHandCursor)
+        self._btn_train_xg.setToolTip(
+            "Train an XGBoost model on the measurement features "
+            "using the current annotations as class labels, then apply "
+            "it to score the full dataset. Opens the ML Analyze screen "
+            "with this source pre-selected."
+        )
+        self._btn_train_xg.clicked.connect(self._on_train_xg)
+        row.addWidget(self._btn_train_xg)
+
         self._btn_clear = QPushButton("Clear column")
         self._btn_clear.setObjectName("DangerButton")
         self._btn_clear.setIcon(iconset.icon("clear", color=PALETTE["error"]))
@@ -434,9 +463,30 @@ class AnnotateScreen(QWidget):
         QShortcut(QKeySequence(Qt.Key_Right), self, self._on_next)
 
     # ------------------------------------------------------------------
+    def _compute_grid_dims(self):
+        """Fit as many `image_size`-thumbnails as possible into the
+        scroll viewport, then update settings.grid_rows/grid_cols."""
+        w, h = self._settings.image_size
+        gap = SPACING["xs"]
+        pad = BORDER_WIDTH * 2
+        cell_w = w + pad + gap
+        cell_h = h + pad + gap
+        vp = self._grid_scroll.viewport() if self._grid_scroll else None
+        if vp is not None and vp.width() > cell_w and vp.height() > cell_h:
+            cols = max(1, vp.width() // cell_w)
+            rows = max(1, vp.height() // cell_h)
+        else:
+            # No viewport yet — fall back to previous values (or a
+            # sensible default of a 5x5 grid).
+            cols = max(1, self._settings.grid_cols or 5)
+            rows = max(1, self._settings.grid_rows or 5)
+        self._settings.grid_cols = cols
+        self._settings.grid_rows = rows
+
     def _rebuild_grid(self):
         """Regenerate empty thumbnail widgets sized for current settings."""
-        # Clear existing
+        # Recompute page-fit before we create widgets
+        self._compute_grid_dims()
         for w in self._thumbs:
             w.setParent(None)
             w.deleteLater()
@@ -456,6 +506,20 @@ class AnnotateScreen(QWidget):
             thumb.right_clicked.connect(self._on_thumb_right)
             self._grid_layout.addWidget(thumb, i // cols, i % cols)
             self._thumbs.append(thumb)
+
+    def resizeEvent(self, event):
+        """Re-fit the thumbnail grid when the window resizes."""
+        super().resizeEvent(event)
+        if not getattr(self, "_grid_scroll", None):
+            return
+        prev = (self._settings.grid_rows, self._settings.grid_cols)
+        self._compute_grid_dims()
+        new = (self._settings.grid_rows, self._settings.grid_cols)
+        if new != prev and self._worker is not None:
+            self._flush_pending()
+            self._rebuild_grid()
+            self._refresh_total()
+            self._load_page()
 
     # ------------------------------------------------------------------
     # Actions
@@ -548,6 +612,41 @@ class AnnotateScreen(QWidget):
             lines.append(f"{cls:>5}  {cnt:>7}    {label_to_hex(cls) or ''}")
         QMessageBox.information(self, "Class counts", "\n".join(lines))
 
+    def _on_train_cv(self):
+        """Save any pending annotations, then hand off to Classify."""
+        if not self._settings.src:
+            QMessageBox.information(
+                self, "Open a source first",
+                "Open an experiment source before training a classifier.",
+            )
+            return
+        self._flush_pending()
+        seed = {
+            "src": self._settings.src,
+            "annotation_column": self._settings.annotation_column,
+            # nudge the train pipeline into the "annotation → train → apply" mode
+            "generate_training_dataset": True,
+            "train": True,
+            "apply_model_to_dataset": True,
+        }
+        self.train_requested.emit("classify", seed)
+
+    def _on_train_xg(self):
+        """Save any pending annotations, then hand off to ML Analyze."""
+        if not self._settings.src:
+            QMessageBox.information(
+                self, "Open a source first",
+                "Open an experiment source before training an XGBoost model.",
+            )
+            return
+        self._flush_pending()
+        seed = {
+            "src": self._settings.src,
+            "annotation_column": self._settings.annotation_column,
+            "model_type": "xgboost",
+        }
+        self.train_requested.emit("ml_analyze", seed)
+
     def _on_clear_column(self):
         col = self._settings.annotation_column
         answer = QMessageBox.question(
@@ -639,7 +738,26 @@ class AnnotateScreen(QWidget):
         except Exception:
             return Image.new("RGB", s.image_size, (30, 30, 30)), annotation
         img = normalize_pil(img, s.percentiles, s.normalize_channels)
+        # Full-quality image before channel filter — used as the outline
+        # detection source so outlines still find features on channels the
+        # user has hidden.
+        full_img = img
         img = filter_channels_pil(img, s.channels)
+        if s.outline:
+            try:
+                img = outline_image(
+                    base_img=img,
+                    full_img=full_img,
+                    outline_channels=s.outline,
+                    edge_sigma=s.outline_sigma,
+                    edge_thickness=s.edge_thickness,
+                    edge_transparency=s.edge_transparency,
+                    edge_image=s.edge_image,
+                    outline_threshold_factor=s.outline_threshold_factor,
+                    object_size=s.object_size,
+                )
+            except Exception:
+                pass   # fall through with base image if outline fails
         img = img.resize(s.image_size)
         return img, annotation
 

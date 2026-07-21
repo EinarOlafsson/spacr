@@ -104,6 +104,86 @@ def filter_channels_pil(
     return Image.merge("RGB", (r, g, b))
 
 
+def outline_image(
+    base_img: Image.Image,
+    full_img: Image.Image,
+    outline_channels: Optional[Iterable[str]] = None,
+    edge_sigma: float = 1.0,
+    edge_thickness: float = 1.0,
+    edge_transparency: float = 100.0,
+    edge_image: bool = False,
+    outline_threshold_factor: float = 1.0,
+    object_size: Tuple[int, int] = (0, 0),
+) -> Image.Image:
+    """Overlay per-channel object outlines on `base_img`.
+
+    Mirrors AnnotateApp.outline_image (Tk) semantics: for every channel
+    in `outline_channels`, compute an Otsu-thresholded foreground mask
+    on the corresponding channel of `full_img`, extract the boundary,
+    optionally dilate it, then alpha-blend it over the channel in
+    `base_img` with `edge_transparency/100` opacity. Peak-normalized so
+    thin edges stay visible.
+    """
+    if not outline_channels or edge_transparency <= 0:
+        return base_img
+    from scipy.ndimage import binary_closing, binary_fill_holes, gaussian_filter, label
+    from skimage.filters import threshold_otsu
+    from skimage.morphology import dilation, disk
+    from skimage.segmentation import find_boundaries
+
+    channel_map = {"r": 0, "g": 1, "b": 2}
+    outline_channels = [ch for ch in outline_channels if ch in channel_map]
+    if not outline_channels:
+        return base_img
+    base_arr = np.asarray(base_img).copy()
+    full_arr = np.asarray(full_img)
+    if base_arr.ndim != 3 or base_arr.shape[2] != 3:
+        return base_img
+    if not edge_image:
+        for ch in outline_channels:
+            base_arr[:, :, channel_map[ch]] = 0
+    opacity = max(0.0, min(1.0, float(edge_transparency) / 100.0))
+    factor = float(outline_threshold_factor)
+    try:
+        min_px, max_px = object_size
+    except Exception:
+        min_px, max_px = (0, 0)
+    for ch in outline_channels:
+        idx = channel_map[ch]
+        if edge_image:
+            base_arr[:, :, idx] = full_arr[:, :, idx]
+        ch_sm = gaussian_filter(full_arr[:, :, idx].astype(np.float32),
+                                 sigma=float(edge_sigma))
+        try:
+            otsu = threshold_otsu(ch_sm)
+        except Exception:
+            otsu = float(np.percentile(ch_sm, 50.0))
+        thr = float(min(255.0, max(0.0, otsu * factor)))
+        fg_mask = (ch_sm > thr)
+        fg_mask = binary_closing(fg_mask, structure=np.ones((3, 3), dtype=bool))
+        fg_mask = binary_fill_holes(fg_mask)
+        if (min_px and min_px > 0) or (max_px and max_px > 0):
+            lbl, n = label(fg_mask)
+            if n > 0:
+                counts = np.bincount(lbl.ravel())
+                lo = int(min_px) if int(min_px) > 0 else 0
+                hi = int(max_px) if int(max_px) > 0 else int(counts.max())
+                keep = np.zeros_like(counts, dtype=bool)
+                for i in range(1, len(counts)):
+                    if lo <= counts[i] <= hi:
+                        keep[i] = True
+                fg_mask = keep[lbl]
+        edge = find_boundaries(fg_mask, mode="inner").astype(np.uint8)
+        thick = int(max(0, round(edge_thickness))) - 1
+        if thick > 0:
+            edge = dilation(edge > 0, disk(thick)).astype(np.uint8)
+        alpha = np.clip(edge.astype(np.float32) * opacity, 0.0, 1.0)
+        orig = base_arr[:, :, idx].astype(np.float32)
+        blended = alpha * 255.0 + (1.0 - alpha) * orig
+        base_arr[:, :, idx] = np.clip(blended, 0, 255).astype(np.uint8)
+    return Image.fromarray(base_arr)
+
+
 def add_colored_border(img: Image.Image, width: int, color: str) -> Image.Image:
     """Return `img` with an inset colored border of `width` px."""
     bordered = Image.new("RGB",
