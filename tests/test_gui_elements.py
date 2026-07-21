@@ -46,12 +46,13 @@ def test_set_dark_style_returns_hex_colors(dark_style):
 
 
 def test_set_dark_style_extended_palette_matches_defaults(dark_style):
-    """These are the values the palette-refresh commit locked in."""
-    assert dark_style["bg_color"].lower() == "#0e1116"
-    assert dark_style["fg_color"].lower() == "#e6edf3"
-    assert dark_style["active_color"].lower() == "#4a90e2"
-    assert dark_style["inactive_color"].lower() == "#1a1f27"
-    assert dark_style["border_color"].lower() == "#2b3138"
+    """The pure-black palette values that named-color defaults resolve to
+    (user preferred clean black over the earlier soft-dark scheme)."""
+    assert dark_style["bg_color"].lower() == "#000000"
+    assert dark_style["fg_color"].lower() == "#ffffff"
+    assert dark_style["active_color"].lower() == "#007bff"
+    assert dark_style["inactive_color"].lower() == "#2b2b2b"
+    assert dark_style["border_color"].lower() == "#2b2b2b"
     assert dark_style["muted_color"].lower() == "#8b949e"
     assert dark_style["success_color"].lower() == "#3fb950"
     assert dark_style["warning_color"].lower() == "#d29922"

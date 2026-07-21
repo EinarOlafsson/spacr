@@ -304,12 +304,14 @@ def test_set_dark_style_returns_full_palette(dark_style):
         )
 
 
-def test_soft_dark_defaults_landed(dark_style):
-    """The palette refresh values must land when caller passes named defaults."""
-    assert dark_style["bg_color"].lower() == "#0e1116"
-    assert dark_style["fg_color"].lower() == "#e6edf3"
-    assert dark_style["active_color"].lower() == "#4a90e2"
-    assert dark_style["inactive_color"].lower() == "#1a1f27"
+def test_pure_black_palette_defaults_landed(dark_style):
+    """The palette values that land when the caller passes named
+    defaults — pure black background per user preference (was briefly
+    soft-dark #0e1116, reverted 2026-07-21)."""
+    assert dark_style["bg_color"].lower() == "#000000"
+    assert dark_style["fg_color"].lower() == "#ffffff"
+    assert dark_style["active_color"].lower() == "#007bff"
+    assert dark_style["inactive_color"].lower() == "#2b2b2b"
 
 
 def test_spacing_scale_present(dark_style):

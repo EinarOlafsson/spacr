@@ -238,22 +238,24 @@ def set_dark_style(style, parent_frame=None, containers=None, widgets=None,
         return _cached_dark_style
     
     # ------------------------------------------------------------------
-    # Soft dark palette (GitHub-Dark inspired). Named-color inputs resolve
-    # to these hex values; explicit hex passed by the caller is preserved.
+    # Pure-black palette (user preference — cleaner than the soft-dark
+    # GitHub-inspired scheme this originally landed with). Named-color
+    # aliases resolve to these values; explicit hex passed by the caller
+    # is preserved.
     # ------------------------------------------------------------------
     if active_color == 'teal':
         active_color = '#008080'
     if inactive_color == 'dark_gray':
-        inactive_color = '#1a1f27'   # secondary surface / panel
+        inactive_color = '#2B2B2B'   # secondary surface / subtle panel
     if bg_color == 'black':
-        bg_color = '#0e1116'         # primary background
+        bg_color = '#000000'         # primary background — clean black
     if fg_color == 'white':
-        fg_color = '#e6edf3'         # primary text
+        fg_color = '#ffffff'         # primary text
     if active_color == 'blue':
-        active_color = '#4a90e2'     # accent
+        active_color = '#007BFF'     # accent
 
     # Extended palette exposed on the returned style dict.
-    border_color   = '#2b3138'       # dividers / subtle borders
+    border_color   = '#2B2B2B'       # subtle dividers (matches inactive)
     muted_color    = '#8b949e'       # secondary text / hints
     success_color  = '#3fb950'
     warning_color  = '#d29922'
@@ -1699,11 +1701,18 @@ class spacrCard(tk.Frame):
         tk.Label(card.body, text="hello").pack()
     """
 
-    def __init__(self, parent, title="", padding="md", **kwargs):
+    def __init__(self, parent, title="", padding="md", show_border=False, **kwargs):
+        """
+        Modern container with an OPTIONAL 1-px border and consistent
+        internal padding. Defaults to `show_border=False` so on a pure-
+        black background the card blends seamlessly — only the title text
+        + a thin divider mark the section. Pass `show_border=True` to get
+        a visible lifted-panel look for busy screens with multiple stacked
+        cards where you want them separated.
+        """
         style_out = set_dark_style(ttk.Style())
         self.style_out = style_out
         self.bg_color = style_out['bg_color']
-        self.panel_color = style_out['inactive_color']
         self.border_color = style_out.get('border_color', style_out['inactive_color'])
         self.muted_color = style_out.get('muted_color', style_out['fg_color'])
         self.fg_color = style_out['fg_color']
@@ -1713,14 +1722,20 @@ class spacrCard(tk.Frame):
                                                     'body':   style_out['font_size']})
 
         pad = spacing.get(padding, spacing['md'])
-        super().__init__(parent, bg=self.border_color, bd=0,
-                         highlightbackground=self.border_color,
-                         highlightthickness=1, **kwargs)
+        highlight_thickness = 1 if show_border else 0
+        outer_bg = self.border_color if show_border else self.bg_color
 
-        # Interior with a slightly darker panel background so the 1-px
-        # border reads as a subtle lift.
-        interior = tk.Frame(self, bg=self.panel_color, bd=0)
-        interior.pack(fill=tk.BOTH, expand=True, padx=1, pady=1)
+        super().__init__(parent, bg=outer_bg, bd=0,
+                         highlightbackground=self.border_color,
+                         highlightthickness=highlight_thickness, **kwargs)
+
+        # Interior always uses the bg_color so on the pure-black palette
+        # the card blends in; the optional 1-px border comes from the
+        # outer frame's highlightbackground.
+        interior = tk.Frame(self, bg=self.bg_color, bd=0)
+        interior.pack(fill=tk.BOTH, expand=True,
+                      padx=1 if show_border else 0,
+                      pady=1 if show_border else 0)
 
         if title:
             title_font = (
@@ -1728,15 +1743,15 @@ class spacrCard(tk.Frame):
                 if font_loader
                 else (style_out['font_family'], font_sizes.get('header', style_out['font_size']), "bold")
             )
-            title_bar = tk.Frame(interior, bg=self.panel_color)
-            title_bar.pack(fill=tk.X, padx=pad, pady=(pad, spacing['sm']))
-            tk.Label(title_bar, text=title, bg=self.panel_color, fg=self.fg_color,
+            title_bar = tk.Frame(interior, bg=self.bg_color)
+            title_bar.pack(fill=tk.X, padx=pad, pady=(pad, spacing['xs']))
+            tk.Label(title_bar, text=title, bg=self.bg_color, fg=self.muted_color,
                      font=title_font, anchor="w").pack(fill=tk.X)
             # Thin divider under the title.
             tk.Frame(interior, bg=self.border_color, height=1).pack(fill=tk.X, padx=pad)
 
         # Public body attribute — clients pack content into this.
-        self.body = tk.Frame(interior, bg=self.panel_color)
+        self.body = tk.Frame(interior, bg=self.bg_color)
         self.body.pack(fill=tk.BOTH, expand=True, padx=pad, pady=pad)
 
 
