@@ -45,14 +45,16 @@ from PySide6.QtWidgets import (
     QSlider,
     QSpinBox,
     QSplitter,
+    QStackedWidget,
     QVBoxLayout,
     QWidget,
 )
 
+from .. import iconset
 from .. import mask_engine as engine
 from .. import prefs
 from ..theme import PALETTE, SPACING
-from ..widgets import Card, Divider, Section
+from ..widgets import Card, Divider, EmptyState, Section
 
 
 # ---------------------------------------------------------------------------
@@ -341,36 +343,54 @@ class MakeMasksScreen(QWidget):
         # Header
         header = QVBoxLayout()
         header.setContentsMargins(0, 0, 0, 0)
-        header.setSpacing(2)
+        header.setSpacing(4)
         title = QLabel("Make Masks")
-        title.setObjectName("DisplayHeading")
+        title.setObjectName("TitleHeading")
         header.addWidget(title)
         self._src_label = QLabel("No folder selected — click Open folder…")
-        self._src_label.setObjectName("Muted")
+        self._src_label.setObjectName("SubtitleSmall")
         header.addWidget(self._src_label)
         header_wrap = QWidget(); header_wrap.setLayout(header)
         outer.addWidget(header_wrap)
         outer.addWidget(Divider())
 
-        # Body splitter: canvas (left) + tools panel (right)
-        body = QSplitter(Qt.Horizontal)
-        body.setChildrenCollapsible(False)
+        # Body — a stack: EmptyState until a folder is opened, then splitter
+        self._body_stack = QStackedWidget()
+
+        self._empty_state = EmptyState(
+            title="Open a folder of images to edit masks",
+            subtitle=(
+                "Pick a folder that contains microscopy images "
+                "(.tif / .png / .jpg). Any existing masks in a `masks/` "
+                "subfolder are loaded; new masks save back there as "
+                "labeled uint16 TIFFs."
+            ),
+            icon=iconset.accent_icon("brush"),
+            cta_label="Open folder…",
+            on_action=self._on_pick_folder,
+        )
+        self._body_stack.addWidget(self._empty_state)
+
+        self._body_splitter = QSplitter(Qt.Horizontal)
+        self._body_splitter.setChildrenCollapsible(False)
         self._canvas = _MaskCanvas()
         self._canvas.stroke_started.connect(self._on_stroke_started)
         self._canvas.stroke_finished.connect(self._on_stroke_finished)
         self._canvas.zoom_changed.connect(self._on_zoom_changed)
-        body.addWidget(self._canvas)
+        self._body_splitter.addWidget(self._canvas)
 
-        # Right: tools card (in a scroll area — the panel can be tall)
         tools_scroll = QScrollArea()
         tools_scroll.setWidgetResizable(True)
         tools_scroll.setFrameShape(QScrollArea.NoFrame)
         tools_scroll.setWidget(self._build_tools_panel())
-        body.addWidget(tools_scroll)
-        body.setStretchFactor(0, 3)
-        body.setStretchFactor(1, 1)
-        body.setSizes([900, 380])
-        outer.addWidget(body, 1)
+        self._body_splitter.addWidget(tools_scroll)
+        self._body_splitter.setStretchFactor(0, 3)
+        self._body_splitter.setStretchFactor(1, 1)
+        self._body_splitter.setSizes([900, 380])
+        self._body_stack.addWidget(self._body_splitter)
+        self._body_stack.setCurrentWidget(self._empty_state)
+
+        outer.addWidget(self._body_stack, 1)
 
         # Bottom nav bar
         nav = QWidget()
@@ -379,25 +399,34 @@ class MakeMasksScreen(QWidget):
         nav_row.setSpacing(SPACING["sm"])
         self._btn_open = QPushButton("Open folder…")
         self._btn_open.setObjectName("PrimaryButton")
+        self._btn_open.setIcon(iconset.contrast_icon("open"))
+        self._btn_open.setCursor(Qt.PointingHandCursor)
         self._btn_open.clicked.connect(self._on_pick_folder)
         nav_row.addWidget(self._btn_open)
 
-        self._btn_prev = QPushButton("‹ Prev image")
+        self._btn_prev = QPushButton("Prev image")
+        self._btn_prev.setIcon(iconset.icon("prev"))
+        self._btn_prev.setCursor(Qt.PointingHandCursor)
         self._btn_prev.clicked.connect(self._on_prev)
         nav_row.addWidget(self._btn_prev)
 
-        self._btn_next = QPushButton("Next image ›")
+        self._btn_next = QPushButton("Next image")
+        self._btn_next.setIcon(iconset.icon("next"))
+        self._btn_next.setLayoutDirection(Qt.RightToLeft)
+        self._btn_next.setCursor(Qt.PointingHandCursor)
         self._btn_next.clicked.connect(self._on_next)
         nav_row.addWidget(self._btn_next)
 
         self._btn_save = QPushButton("Save mask")
         self._btn_save.setObjectName("PrimaryButton")
+        self._btn_save.setIcon(iconset.contrast_icon("save"))
+        self._btn_save.setCursor(Qt.PointingHandCursor)
         self._btn_save.clicked.connect(self._on_save)
         nav_row.addWidget(self._btn_save)
 
         nav_row.addStretch(1)
         self._status_label = QLabel("Ready.")
-        self._status_label.setObjectName("Muted")
+        self._status_label.setObjectName("SubtitleSmall")
         nav_row.addWidget(self._status_label)
         outer.addWidget(nav)
 
@@ -414,17 +443,19 @@ class MakeMasksScreen(QWidget):
         grid.setSpacing(SPACING["sm"])
         self._mode_buttons: dict[str, QPushButton] = {}
         modes = [
-            (MODE_BRUSH,        "Brush"),
-            (MODE_ERASE,        "Erase"),
-            (MODE_ERASE_OBJECT, "Erase object"),
-            (MODE_WAND_ADD,     "Wand +"),
-            (MODE_WAND_ERASE,   "Wand −"),
-            (MODE_ZOOM,         "Zoom"),
+            (MODE_BRUSH,        "Brush",        "brush"),
+            (MODE_ERASE,        "Erase",        "erase"),
+            (MODE_ERASE_OBJECT, "Erase object", "erase_object"),
+            (MODE_WAND_ADD,     "Wand +",       "wand_add"),
+            (MODE_WAND_ERASE,   "Wand −",       "wand_erase"),
+            (MODE_ZOOM,         "Zoom",         "zoom"),
         ]
-        for i, (m, label) in enumerate(modes):
+        for i, (m, label, icon_key) in enumerate(modes):
             btn = QPushButton(label)
+            btn.setIcon(iconset.icon(icon_key))
             btn.setCheckable(True)
             btn.setMinimumHeight(32)
+            btn.setCursor(Qt.PointingHandCursor)
             btn.clicked.connect(lambda _c=False, key=m: self._set_mode(key))
             grid.addWidget(btn, i // 3, i % 3)
             self._mode_buttons[m] = btn
@@ -441,14 +472,20 @@ class MakeMasksScreen(QWidget):
         history_row = QHBoxLayout()
         history_row.setSpacing(SPACING["sm"])
         self._btn_reset_zoom = QPushButton("Reset zoom")
+        self._btn_reset_zoom.setIcon(iconset.icon("zoom_reset"))
+        self._btn_reset_zoom.setCursor(Qt.PointingHandCursor)
         self._btn_reset_zoom.setEnabled(False)
         self._btn_reset_zoom.clicked.connect(self._on_reset_zoom)
         history_row.addWidget(self._btn_reset_zoom)
         self._btn_undo = QPushButton("Undo")
+        self._btn_undo.setIcon(iconset.icon("undo"))
+        self._btn_undo.setCursor(Qt.PointingHandCursor)
         self._btn_undo.setEnabled(False)
         self._btn_undo.clicked.connect(self._on_undo)
         history_row.addWidget(self._btn_undo)
         self._btn_redo = QPushButton("Redo")
+        self._btn_redo.setIcon(iconset.icon("redo"))
+        self._btn_redo.setCursor(Qt.PointingHandCursor)
         self._btn_redo.setEnabled(False)
         self._btn_redo.clicked.connect(self._on_redo)
         history_row.addWidget(self._btn_redo)
@@ -627,6 +664,8 @@ class MakeMasksScreen(QWidget):
         self._src_label.setText(f"{folder}  —  {len(files)} images")
         self._load_current()
         self._sync_button_states()
+        prefs.push_recent_source("make_masks", folder)
+        self._body_stack.setCurrentWidget(self._body_splitter)
 
     def _load_current(self):
         if not self._image_files:
