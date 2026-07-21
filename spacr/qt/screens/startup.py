@@ -4,11 +4,13 @@ clickable tiles for each spacr app.
 """
 from __future__ import annotations
 
+import os
 from typing import Callable, List, Tuple
 
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QIcon
+from PySide6.QtCore import Qt, QSize, Signal
+from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import (
+    QFrame,
     QGridLayout,
     QHBoxLayout,
     QLabel,
@@ -17,8 +19,21 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..theme import SPACING
+from ..theme import PALETTE, SPACING
 from ..widgets import Divider, Tile
+
+
+def _find_logo_pixmap() -> QPixmap | None:
+    here = os.path.dirname(os.path.abspath(__file__))
+    for candidate in ("logo_spacr.png", "logo_spacr_v1.png"):
+        p = os.path.normpath(
+            os.path.join(here, "..", "..", "resources", "icons", candidate)
+        )
+        if os.path.isfile(p):
+            pix = QPixmap(p)
+            if not pix.isNull():
+                return pix
+    return None
 
 
 class StartupPage(QScrollArea):
@@ -42,32 +57,58 @@ class StartupPage(QScrollArea):
                                   SPACING["xxl"], SPACING["xxl"])
         outer.setSpacing(SPACING["xl"])
 
-        # Hero header block
+        # Hero header block — logo + wordmark side by side, with subtitle
+        # below on a full-width band.
+        hero = QFrame()
+        hero.setObjectName("Hero")
+        hero_col = QVBoxLayout(hero)
+        hero_col.setContentsMargins(SPACING["xl"], SPACING["xl"],
+                                     SPACING["xl"], SPACING["xl"])
+        hero_col.setSpacing(SPACING["md"])
+        hero_col.setAlignment(Qt.AlignCenter)
+
+        brand_row = QHBoxLayout()
+        brand_row.setSpacing(SPACING["lg"])
+        brand_row.setAlignment(Qt.AlignCenter)
+
+        logo_pix = _find_logo_pixmap()
+        if logo_pix is not None:
+            logo_lbl = QLabel()
+            logo_lbl.setPixmap(
+                logo_pix.scaled(96, 96, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            )
+            logo_lbl.setFixedSize(96, 96)
+            logo_lbl.setAlignment(Qt.AlignCenter)
+            brand_row.addWidget(logo_lbl)
+
+        wordmark_col = QVBoxLayout()
+        wordmark_col.setContentsMargins(0, 0, 0, 0)
+        wordmark_col.setSpacing(2)
+        wordmark_col.setAlignment(Qt.AlignVCenter)
+
         eyebrow = QLabel("SpaCR")
         eyebrow.setObjectName("Caption")
-        eyebrow.setAlignment(Qt.AlignHCenter)
-        outer.addWidget(eyebrow)
+        wordmark_col.addWidget(eyebrow)
 
         title = QLabel("Spatial phenotype analysis")
         title.setObjectName("Hero")
-        title.setAlignment(Qt.AlignHCenter)
-        outer.addWidget(title)
+        wordmark_col.addWidget(title)
+
+        brand_row.addLayout(wordmark_col)
+        hero_col.addLayout(brand_row)
 
         subtitle = QLabel(
             "End-to-end microscopy → single-cell measurements → "
-            "genotype–phenotype mapping. Pick an app to get started."
+            "genotype–phenotype mapping."
         )
-        subtitle.setObjectName("SubtitleSmall")
+        subtitle.setObjectName("Subtitle")
         subtitle.setAlignment(Qt.AlignHCenter)
         subtitle.setWordWrap(True)
-        subtitle.setMaximumWidth(720)
-        subtitle_wrap = QHBoxLayout()
-        subtitle_wrap.addStretch(1)
-        subtitle_wrap.addWidget(subtitle)
-        subtitle_wrap.addStretch(1)
-        outer.addLayout(subtitle_wrap)
+        subtitle.setMaximumWidth(820)
+        hero_col.addWidget(subtitle, alignment=Qt.AlignHCenter)
 
-        outer.addSpacing(SPACING["xl"])
+        outer.addWidget(hero)
+        outer.addSpacing(SPACING["md"])
 
         # Group apps by section, render each section as a heading + tile grid.
         sections: dict[str, list[tuple[str, str, str]]] = {}
@@ -92,19 +133,38 @@ class StartupPage(QScrollArea):
             cols = 6
             for i, (key, name, desc) in enumerate(entries):
                 icon = icon_provider(key)
-                tile = Tile(text=name, icon=icon, caption=name, tile_size=104, icon_size=46)
+                tile = Tile(text=name, icon=icon, caption=name,
+                            tile_size=128, icon_size=68)
                 tile.setToolTip(desc)
                 tile.clicked.connect(lambda k=key: self.tile_clicked.emit(k))
+                # Hover shows the description in the footer
+                tile._button.installEventFilter(self)
+                tile._button.setProperty("hover_caption", desc)
                 grid.addWidget(tile, i // cols, i % cols)
 
             outer.addWidget(grid_container)
 
         outer.addStretch(1)
 
-        # Footer
-        footer = QLabel("Click a tile to open an application, or use the sidebar.")
-        footer.setObjectName("SubtitleSmall")
-        footer.setAlignment(Qt.AlignHCenter)
-        outer.addWidget(footer)
+        # Hover-follows footer — replaced with dynamic caption on tile hover.
+        self._hover_footer = QLabel(
+            "Hover a tile to see what each app does."
+        )
+        self._hover_footer.setObjectName("SubtitleSmall")
+        self._hover_footer.setAlignment(Qt.AlignHCenter)
+        self._hover_footer.setMinimumHeight(28)
+        outer.addWidget(self._hover_footer)
 
         self.setWidget(content)
+
+    def eventFilter(self, obj, event):
+        from PySide6.QtCore import QEvent
+        if event.type() == QEvent.Enter:
+            cap = obj.property("hover_caption")
+            if cap:
+                self._hover_footer.setText(cap)
+        elif event.type() == QEvent.Leave:
+            self._hover_footer.setText(
+                "Hover a tile to see what each app does."
+            )
+        return super().eventFilter(obj, event)

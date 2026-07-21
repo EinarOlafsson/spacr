@@ -20,8 +20,8 @@ class Tile(QWidget):
         self,
         text: str,
         icon: Optional[QIcon] = None,
-        icon_size: int = 48,
-        tile_size: int = 96,
+        icon_size: int = 64,
+        tile_size: int = 120,
         caption: str = "",
         parent=None,
     ):
@@ -30,7 +30,7 @@ class Tile(QWidget):
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(6)
+        layout.setSpacing(12)   # room between tile and caption
         layout.setAlignment(Qt.AlignHCenter)
 
         self._button = QPushButton()
@@ -41,7 +41,6 @@ class Tile(QWidget):
             self._button.setIcon(icon)
             self._button.setIconSize(QSize(icon_size, icon_size))
         else:
-            # Text-only tile fallback (initials or short label).
             initials = "".join(w[0].upper() for w in text.split()[:2])[:2]
             self._button.setText(initials or text[:2].upper())
         self._button.clicked.connect(self.clicked.emit)
@@ -52,7 +51,7 @@ class Tile(QWidget):
         self._caption.setObjectName("TileCaption")
         self._caption.setAlignment(Qt.AlignHCenter)
         self._caption.setWordWrap(True)
-        self._caption.setMaximumWidth(tile_size + 24)
+        self._caption.setMaximumWidth(tile_size + 40)
         layout.addWidget(self._caption)
 
     @property
