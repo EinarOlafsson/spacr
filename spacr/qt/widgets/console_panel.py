@@ -112,8 +112,6 @@ class _Bubble(QFrame):
 
     _H_PAD = 24     # inner horizontal padding
     _V_PAD = 12     # inner vertical padding
-    _MAX_WIDTH = 720   # hard cap so a runaway QLabel can't blow up the
-                        # parent QScrollArea's horizontal size
 
     def __init__(self, role: str, text: str = "", parent=None):
         super().__init__(parent)
@@ -121,10 +119,6 @@ class _Bubble(QFrame):
         self.setObjectName(
             "ConsoleBubbleUser" if role == "user" else "ConsoleBubbleAI"
         )
-        # Never grow past _MAX_WIDTH regardless of what the parent
-        # layout offers, and never grow past parent width. This is
-        # what actually prevents the runaway-width crash the user hit.
-        self.setMaximumWidth(self._MAX_WIDTH)
         self._recalc_guard = False
         self._label = QLabel(self)
         self._label.setObjectName("ConsoleBubbleText")
@@ -149,7 +143,7 @@ class _Bubble(QFrame):
         lay.setSpacing(0)
         lay.addWidget(self._label)
         self._raw_text = ""
-        self._prefix = "user: " if role == "user" else "spaCR AI: "
+        self._prefix = "spaCR user: " if role == "user" else "spaCR AI: "
         if text:
             self.set_text(text)
 
@@ -167,7 +161,7 @@ class _Bubble(QFrame):
         enabled label — returns the correct line-broken height."""
         if self._recalc_guard:
             return   # setFixedHeight below triggers a resizeEvent → guard
-        w = min(self.width(), self._MAX_WIDTH)
+        w = self.width()
         if w <= 0:
             return
         text_width = max(120, w - self._H_PAD)
@@ -290,26 +284,10 @@ class ConsolePanel(QWidget):
     # Entry-management helpers
     # ------------------------------------------------------------------
     def _insert_entry(self, w: QWidget) -> None:
-        # Bubbles get a horizontal offset row so user (green) hugs right
-        # and spaCR AI (blue) hugs left. Everything else spans full width.
-        if isinstance(w, _Bubble):
-            row = QWidget()
-            sp = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
-            sp.setHeightForWidth(True)
-            row.setSizePolicy(sp)
-            row_lay = QHBoxLayout(row)
-            row_lay.setContentsMargins(SPACING["md"], SPACING["xs"],
-                                        SPACING["md"], SPACING["xs"])
-            row_lay.setSpacing(0)
-            if w.role == "user":
-                row_lay.addSpacing(SPACING["xxl"] * 2)
-                row_lay.addWidget(w, 1)
-            else:
-                row_lay.addWidget(w, 1)
-                row_lay.addSpacing(SPACING["xxl"] * 2)
-            self._entries.insertWidget(self._entries.count() - 1, row)
-        else:
-            self._entries.insertWidget(self._entries.count() - 1, w)
+        """Every entry — topic bar, stdout block, chat bubble — spans
+        the full width of the console. Bubbles no longer get a
+        horizontal offset row."""
+        self._entries.insertWidget(self._entries.count() - 1, w)
         self._scroll_to_bottom()
 
     def _scroll_to_bottom(self) -> None:
@@ -455,6 +433,33 @@ class ConsolePanel(QWidget):
 
     def is_ai_streaming(self) -> bool:
         return self._ai_thread is not None
+
+    def shutdown(self) -> None:
+        """Cancel any active stream and block until its QThread has
+        exited. Must be called before the panel (or its parent window)
+        is destroyed — otherwise Python drops the last reference to
+        the running QThread and Qt aborts with:
+        `QThread: Destroyed while thread '' is still running`.
+        """
+        if self._ai_worker is not None:
+            try:
+                self._ai_worker.cancel()
+            except Exception:
+                pass
+        if self._ai_thread is not None:
+            try:
+                self._ai_thread.quit()
+                # Give the worker a moment to notice the cancel flag
+                # and return from its subprocess read.
+                self._ai_thread.wait(3000)
+            except Exception:
+                pass
+        self._ai_thread = None
+        self._ai_worker = None
+
+    def closeEvent(self, event) -> None:
+        self.shutdown()
+        super().closeEvent(event)
 
     def _on_stage(self, _stage: str) -> None:
         # Could show a spinner; keeping this quiet for now.

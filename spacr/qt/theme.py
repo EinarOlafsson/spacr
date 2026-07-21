@@ -691,13 +691,17 @@ QLabel#ConsoleStdoutBlockError {{
 }}
 QFrame#ConsoleBubbleUser {{
     background-color: #163b28;                 /* dark green */
-    border: 1px solid #2a6a48;
-    border-radius: {R["md"]}px;
+    border: none;
+    border-top: 1px solid #2a6a48;
+    border-bottom: 1px solid #2a6a48;
+    border-radius: 0px;
 }}
 QFrame#ConsoleBubbleAI {{
     background-color: {P["accent_soft"]};      /* dark blue */
-    border: 1px solid {P["accent_lo"]};
-    border-radius: {R["md"]}px;
+    border: none;
+    border-top: 1px solid {P["accent_lo"]};
+    border-bottom: 1px solid {P["accent_lo"]};
+    border-radius: 0px;
 }}
 QFrame#ConsoleInputBar {{
     background-color: {P["surface"]};
