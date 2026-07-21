@@ -145,3 +145,68 @@ def test_console_panel_shutdown_drains_running_thread(qtbot, qt_theme_applied):
     assert not thread.isRunning()
     # Must have completed shutdown well under our 3s wait budget
     assert elapsed < 6, f"shutdown took {elapsed:.1f}s — crash-fix regression"
+
+
+def test_two_consecutive_streams_no_crash(qtbot, qt_theme_applied):
+    """The exact user-reported crash: sending a second AI message
+    after the first completes must not abort with:
+        QThread: Destroyed while thread '' is still running
+
+    Root cause was that _on_stream_finished nulled self._ai_thread
+    before Qt had finished tearing the QThread down. If Python
+    dropped its last reference while QThread.isRunning() was still
+    True (a small window while the OS thread wound up), Qt aborted.
+
+    Fix: (a) parent the QThread to the panel so Qt owns its C++
+    lifetime and (b) retain both thread+worker refs in
+    self._retired until thread.finished actually fires.
+    """
+    from spacr.qt.widgets.console_panel import ConsolePanel
+    from spacr.qt.ai.providers import ClaudeCliProvider, _stream_process
+
+    class _FakeShortProvider(ClaudeCliProvider):
+        """Prints a short reply and exits — so worker.finished fires
+        promptly and we can hammer a second stream right after."""
+        def stream_chat(self, messages, system="", model=None):
+            argv = [sys.executable, "-c",
+                    "import sys; sys.stdout.write('ok\\n'); sys.stdout.flush()"]
+            yield from _stream_process(argv, provider=self)
+
+    panel = ConsolePanel()
+    qtbot.addWidget(panel)
+    panel.set_ai_provider("claude")
+    panel.set_ai_active(True)
+
+    # Swap in our provider that returns immediately.
+    # ConsolePanel imports `ai as ai_module`, so we patch there.
+    from spacr.qt import ai as ai_module
+    from spacr.qt.ai import providers as pmod
+    fake = _FakeShortProvider()
+    monkeypatched = {"claude": fake}
+    orig_get = ai_module.get_provider
+    ai_module.get_provider = lambda name: monkeypatched.get(name, orig_get(name))
+    pmod.get_provider = ai_module.get_provider
+    try:
+        # First stream
+        panel._input.setPlainText("first")
+        panel._on_submit()
+        # Wait for finished
+        for _ in range(150):
+            qtbot.wait(20)
+            if panel._ai_thread is None:
+                break
+        assert panel._ai_thread is None, "first stream didn't complete"
+
+        # Second stream — this is what crashed for the user.
+        panel._input.setPlainText("second")
+        panel._on_submit()
+        for _ in range(150):
+            qtbot.wait(20)
+            if panel._ai_thread is None:
+                break
+        assert panel._ai_thread is None, "second stream didn't complete"
+        # No abort so far — success.
+    finally:
+        ai_module.get_provider = orig_get
+        pmod.get_provider = orig_get
+        panel.shutdown()

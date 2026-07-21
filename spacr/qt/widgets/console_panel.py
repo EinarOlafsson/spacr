@@ -228,6 +228,12 @@ class ConsolePanel(QWidget):
         self._ai_buf: List[str] = []
         self._ai_thread: Optional[QThread] = None
         self._ai_worker: Optional[StreamWorker] = None
+        # Retired stream (thread, worker) pairs — we hold these until
+        # thread.finished actually emits so Python doesn't GC the
+        # QThread while its OS thread is still winding down (which is
+        # what causes `QThread: Destroyed while thread '' is still
+        # running / Aborted` on the second consecutive AI request).
+        self._retired: List = []
 
         self._build_ui()
 
@@ -416,8 +422,13 @@ class ConsolePanel(QWidget):
         if provider is None:
             return
         self._ai_buf = []
+        # Parent the thread to this panel so its C++ lifetime is tied
+        # to the panel, not to our Python refcount. Without this the
+        # QThread can be GC'd between worker.run returning and
+        # thread.finished firing → Qt aborts.
         thread, worker = make_stream_thread(
             provider, list(self._ai_messages), system=system,
+            parent=self,
         )
         worker.stage_changed.connect(self._on_stage)
         worker.chunk_ready.connect(self._on_chunk)
@@ -471,6 +482,19 @@ class ConsolePanel(QWidget):
                 pass
         self._ai_thread = None
         self._ai_worker = None
+        # Also drain any retired (post-finished) threads that haven't
+        # been fully cleaned up yet.
+        for t, _w in list(self._retired):
+            try:
+                if t.isRunning():
+                    t.quit()
+                    t.wait(1000)
+                    if t.isRunning():
+                        t.terminate()
+                        t.wait(500)
+            except Exception:
+                pass
+        self._retired.clear()
 
     def closeEvent(self, event) -> None:
         self.shutdown()
@@ -489,8 +513,25 @@ class ConsolePanel(QWidget):
         self._scroll_to_bottom()
 
     def _on_stream_finished(self, ok: bool, final_text: str) -> None:
+        # Retire the current (thread, worker) pair — hold both refs
+        # in a list so Python can't GC the QThread before its OS
+        # thread has fully exited AND Qt's deleteLater has run.
+        # Once thread.finished emits we pop the entry.
+        thread, worker = self._ai_thread, self._ai_worker
         self._ai_thread = None
         self._ai_worker = None
+        if thread is not None:
+            entry = (thread, worker)
+            self._retired.append(entry)
+            def _drop_when_done(_entry=entry):
+                try:
+                    self._retired.remove(_entry)
+                except ValueError:
+                    pass
+            try:
+                thread.finished.connect(_drop_when_done)
+            except Exception:
+                pass
         if ok:
             self._ai_messages.append(
                 {"role": "assistant", "content": final_text}
