@@ -123,26 +123,29 @@ def api_docs_url(app_key: str) -> str:
 def format_tooltip(text: str, app_key: str) -> str:
     """Return an HTML tooltip body: description + a docs footer link.
 
-    Kept minimal — Qt auto-detects rich text from the presence of any
-    HTML tag, but complex containers/styles trip up some Qt builds and
-    the tip renders empty. Plain <br> line breaks and a plain <a>
-    footer render reliably on every platform we've tested.
+    Kept minimal — Qt auto-detects rich text from any HTML tag, but
+    complex containers/styles trip up some builds and the tip renders
+    empty. Plain <br> line breaks and a plain <a> footer are the
+    format that renders reliably on every platform we've tested.
+
+    Also normalises whitespace so multi-line descriptions from
+    spacr.settings.descriptions collapse into a single paragraph.
     """
-    body = (text or "").strip()
+    body = " ".join((text or "").split())
     url = api_docs_url(app_key)
     if body:
-        return f'{body}<br><br><a href="{url}">API docs</a>'
-    return f'See <a href="{url}">API docs</a>.'
+        return f'{body}<br><a href="{url}">Docs</a>'
+    return f'<a href="{url}">Docs</a>'
 
 
 def plain_tooltip(text: str, app_key: str) -> str:
     """Same content as `format_tooltip` but plain text — used by the
     hover-follows footer at the bottom of each AppScreen."""
-    body = (text or "").strip()
+    body = " ".join((text or "").split())
     url = api_docs_url(app_key)
     if body:
-        return f"{body}   ({url})"
-    return f"See {url}"
+        return f"{body}   ·  {url}"
+    return url
 
 
 # ---------------------------------------------------------------------------

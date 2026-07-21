@@ -231,9 +231,16 @@ QFrame#Card {{
     border-radius: {R["md"]}px;
 }}
 QFrame#Hero {{
-    background-color: {P["surface"]};
-    border: 1px solid {P["border_soft"]};
+    background-color: qlineargradient(
+        x1: 0, y1: 0, x2: 1, y2: 1,
+        stop: 0 {P["surface_alt"]}, stop: 1 {P["surface"]}
+    );
+    border: 1px solid {P["border"]};
     border-radius: {R["lg"]}px;
+}}
+QPushButton#Tile:hover {{
+    border: 1px solid {P["accent"]};
+    background-color: {P["surface_hi"]};
 }}
 QLabel#CardTitle {{
     color: {P["fg"]};
