@@ -58,12 +58,16 @@ class _PipelinePreloader:
         self._thread.start()
 
     def _run(self) -> None:
-        import importlib
+        import importlib, time
         for mod in self._MODULES:
             try:
                 importlib.import_module(mod)
             except Exception:
+                # Never fail loud — this is a background optimisation,
+                # and a spacr module that can't import today isn't a
+                # bug we should introduce a crash for.
                 pass
+            time.sleep(0.05)   # small yield so main-thread work runs
 
 
 APPS = [
@@ -83,7 +87,6 @@ APPS = [
     ("cellpose_masks", "Cellpose Masks", "Cellpose mask generation",                                    "Cellpose"),
     ("cellpose_all",   "Cellpose All",   "Run cellpose on all images",                                  "Cellpose"),
     ("map_barcodes",   "Map Barcodes",   "Map barcodes to data",                                        "Sequencing"),
-    ("ai_console",     "AI Console",     "Chat with Claude, ChatGPT or Gemini about SpaCR; explain errors", "Assistant"),
 ]
 
 
@@ -187,11 +190,31 @@ class MainWindow(QMainWindow):
         status.showMessage("Ready")
         self.setStatusBar(status)
 
-        # Preload heavy pipeline imports in a background thread so the
-        # first click on Mask/Measure/Classify doesn't stall while
-        # torch/cellpose/pandas/etc. resolve.
+        # AI Console lives as a dock on the right, hidden by default.
+        # One shared instance so chat context persists across screens.
+        from .widgets import AIChatPanel
+        from PySide6.QtWidgets import QDockWidget
+        self._ai_panel = AIChatPanel()
+        self._ai_dock = QDockWidget("AI Console", self)
+        self._ai_dock.setObjectName("AIConsoleDock")
+        self._ai_dock.setAllowedAreas(Qt.RightDockWidgetArea | Qt.LeftDockWidgetArea)
+        self._ai_dock.setFeatures(
+            QDockWidget.DockWidgetClosable
+            | QDockWidget.DockWidgetMovable
+            | QDockWidget.DockWidgetFloatable
+        )
+        self._ai_dock.setWidget(self._ai_panel)
+        self.addDockWidget(Qt.RightDockWidgetArea, self._ai_dock)
+        self._ai_dock.hide()
+
+        # Preload heavy pipeline imports in a background thread AFTER
+        # the first screen has been built. Kicking it off pre-nav caused
+        # a real circular-import race in spacr.core/IPython on some
+        # systems ("partially initialized module 'IPython'"), so we wait
+        # a moment before starting.
+        from PySide6.QtCore import QTimer
         self._preloader = _PipelinePreloader()
-        self._preloader.start()
+        QTimer.singleShot(1500, self._preloader.start)
 
         if initial_app:
             self._on_nav_selected(initial_app)
@@ -218,6 +241,10 @@ class MainWindow(QMainWindow):
         act_home.setShortcut(QKeySequence("Ctrl+H"))
         act_home.triggered.connect(lambda: self._on_nav_selected("__home__"))
         app_menu.addAction(act_home)
+        act_ai = QAction("Toggle AI Console", self)
+        act_ai.setShortcut(QKeySequence("Ctrl+Shift+A"))
+        act_ai.triggered.connect(self._toggle_ai_dock)
+        app_menu.addAction(act_ai)
         act_quit = QAction("Quit", self)
         act_quit.setShortcut(QKeySequence.Quit)
         act_quit.triggered.connect(self.close)
@@ -286,21 +313,23 @@ class MainWindow(QMainWindow):
         if key == "make_masks":
             from .screens.make_masks import MakeMasksScreen
             return MakeMasksScreen()
-        if key == "ai_console":
-            from .screens.ai_console import AIConsoleScreen
-            return AIConsoleScreen()
         from .screens.app_screen import AppScreen
         screen = AppScreen(app_key=key)
         screen.error_explain_requested.connect(self._on_explain_error)
         return screen
 
+    def _toggle_ai_dock(self) -> None:
+        """Toggle the AI Console dock's visibility."""
+        self._ai_dock.setVisible(not self._ai_dock.isVisible())
+
     def _on_explain_error(self, traceback_text: str, active_app: str) -> None:
-        """Open the AI Console and immediately ask it to explain the
-        given traceback."""
-        self._on_nav_selected("ai_console")
-        screen = self._screens.get("ai_console")
-        if screen is not None and hasattr(screen, "open_error_flow"):
-            screen.open_error_flow(traceback_text, active_app)
+        """Show the AI Console dock and immediately ask it to explain
+        the given traceback."""
+        self._ai_dock.show()
+        self._ai_dock.raise_()
+        # Make sure the panel picks up any keys added since launch
+        self._ai_panel.refresh_provider_combo()
+        self._ai_panel.open_error_flow(traceback_text, active_app)
 
     def _on_train_requested(self, target_key: str, seed: dict) -> None:
         """Navigate to `target_key` (creating the screen if needed) and
