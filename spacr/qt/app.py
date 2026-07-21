@@ -381,4 +381,25 @@ def launch(argv=None) -> int:
 
     win = MainWindow(initial_app=initial_app)
     win.show()
+
+    # aboutToQuit fires no matter how the app exits (window closed,
+    # Ctrl+C, SIGTERM, …). Belt-and-suspenders with MainWindow's
+    # closeEvent: ensure every ConsolePanel drains its AI thread
+    # before Qt starts destroying widgets.
+    def _drain_ai():
+        from .widgets.console_panel import ConsolePanel
+        for panel in win.findChildren(ConsolePanel):
+            try:
+                panel.shutdown()
+            except Exception:
+                pass
+        # Also kill any subprocess still tracked by a provider
+        try:
+            from . import ai as _ai
+            for p in _ai.list_providers():
+                p.cancel_stream()
+        except Exception:
+            pass
+    app.aboutToQuit.connect(_drain_ai)
+
     return app.exec()
