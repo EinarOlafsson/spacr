@@ -54,11 +54,16 @@ class PipelineWorker(QObject):
         finished(bool)   — True if the function returned without an
                             unhandled exception
         error(str)       — traceback string on failure
+        figure_ready(object)
+                         — a matplotlib Figure that the pipeline
+                            asked to show(); emitted from the worker
+                            thread so the UI slot can attach it.
     """
 
     line_ready = Signal(str)
     finished = Signal(bool)
     error = Signal(str)
+    figure_ready = Signal(object)
 
     def __init__(self, fn: Callable[..., Any], settings: Dict[str, Any]):
         super().__init__()
@@ -71,6 +76,27 @@ class PipelineWorker(QObject):
         redirect = _StreamRedirector(self.line_ready.emit)
         sys.stdout = redirect
         sys.stderr = redirect
+
+        # Intercept matplotlib show() so figures land in the UI instead
+        # of a blocking Tk window. `plt.show` gets restored in `finally`.
+        old_show = None
+        try:
+            import matplotlib
+            matplotlib.use("Agg", force=False)
+            import matplotlib.pyplot as plt
+            old_show = plt.show
+            worker = self
+
+            def _capture_show(*args, **kwargs):
+                for num in plt.get_fignums():
+                    fig = plt.figure(num)
+                    worker.figure_ready.emit(fig)
+                return None
+
+            plt.show = _capture_show
+        except Exception:
+            plt = None
+
         ok = False
         try:
             self._fn(self._settings)
@@ -87,6 +113,11 @@ class PipelineWorker(QObject):
                 pass
             sys.stdout = old_stdout
             sys.stderr = old_stderr
+            if old_show is not None and plt is not None:
+                try:
+                    plt.show = old_show
+                except Exception:
+                    pass
             self.finished.emit(ok)
 
 

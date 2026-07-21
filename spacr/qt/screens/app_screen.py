@@ -148,6 +148,24 @@ class AppScreen(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(SPACING["md"])
 
+        # Figures card — hidden until the pipeline pushes a figure via
+        # PipelineWorker.figure_ready.
+        self._figures_card = Card(title="Figures")
+        from PySide6.QtWidgets import QScrollArea as _Scroll
+        self._figures_scroll = _Scroll()
+        self._figures_scroll.setWidgetResizable(True)
+        self._figures_scroll.setFrameShape(_Scroll.NoFrame)
+        self._figures_scroll.setMinimumHeight(240)
+        self._figures_holder = QWidget()
+        self._figures_layout = QVBoxLayout(self._figures_holder)
+        self._figures_layout.setContentsMargins(0, 0, 0, 0)
+        self._figures_layout.setSpacing(SPACING["sm"])
+        self._figures_layout.addStretch(1)
+        self._figures_scroll.setWidget(self._figures_holder)
+        self._figures_card.body_layout.addWidget(self._figures_scroll, 1)
+        self._figures_card.hide()
+        layout.addWidget(self._figures_card, 1)
+
         # Console card
         console_card = Card(title="Console")
         self._console = QPlainTextEdit()
@@ -165,9 +183,34 @@ class AppScreen(QWidget):
         self._usage_ram = UsageBar("RAM")
         self._usage_gpu = UsageBar("GPU")
         self._usage_vram = UsageBar("VRAM")
-        self._usage_cpu = UsageBar("CPU")
-        for w in (self._usage_ram, self._usage_gpu, self._usage_vram, self._usage_cpu):
+        for w in (self._usage_ram, self._usage_gpu, self._usage_vram):
             usage_card.body_layout.addWidget(w)
+
+        # CPU row: single "CPU" bar + a toggle chevron button.
+        cpu_row = QHBoxLayout()
+        cpu_row.setContentsMargins(0, 0, 0, 0)
+        cpu_row.setSpacing(SPACING["sm"])
+        self._usage_cpu = UsageBar("CPU")
+        cpu_row.addWidget(self._usage_cpu, 1)
+        self._btn_cpu_toggle = QPushButton("Per-core")
+        self._btn_cpu_toggle.setCheckable(True)
+        self._btn_cpu_toggle.setCursor(Qt.PointingHandCursor)
+        self._btn_cpu_toggle.setToolTip("Toggle per-core CPU utilisation bars.")
+        self._btn_cpu_toggle.toggled.connect(self._on_toggle_per_core)
+        cpu_row.addWidget(self._btn_cpu_toggle)
+        cpu_wrap = QWidget()
+        cpu_wrap.setLayout(cpu_row)
+        usage_card.body_layout.addWidget(cpu_wrap)
+
+        # Per-core panel — hidden by default; one UsageBar per logical core.
+        self._per_core_wrap = QWidget()
+        self._per_core_layout = QVBoxLayout(self._per_core_wrap)
+        self._per_core_layout.setContentsMargins(0, 0, 0, 0)
+        self._per_core_layout.setSpacing(2)
+        self._per_core_bars: List[UsageBar] = []
+        self._per_core_wrap.hide()
+        usage_card.body_layout.addWidget(self._per_core_wrap)
+
         layout.addWidget(usage_card)
 
         # Actions row
@@ -238,8 +281,33 @@ class AppScreen(QWidget):
         self._thread, worker = make_thread(entry, settings)
         worker.line_ready.connect(self._console.insertPlainText)
         worker.error.connect(lambda tb: self._console.appendPlainText(f"[error]\n{tb}"))
+        worker.figure_ready.connect(self._on_figure_ready)
         worker.finished.connect(self._on_finished)
         self._thread.start()
+
+    def _on_figure_ready(self, fig) -> None:
+        """Embed a matplotlib figure emitted by the worker as a new
+        FigureCanvas above the console. Duplicates are skipped."""
+        try:
+            from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+        except Exception:
+            try:
+                from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
+            except Exception:
+                return
+        # Skip if this exact figure is already embedded
+        for i in range(self._figures_layout.count()):
+            item = self._figures_layout.itemAt(i)
+            w = item.widget() if item is not None else None
+            if isinstance(w, FigureCanvasQTAgg) and w.figure is fig:
+                w.draw_idle()
+                return
+        canvas = FigureCanvasQTAgg(fig)
+        canvas.setMinimumHeight(320)
+        canvas.draw_idle()
+        # Insert BEFORE the stretch item at the end
+        self._figures_layout.insertWidget(self._figures_layout.count() - 1, canvas)
+        self._figures_card.show()
 
     def _on_finished(self, ok: bool):
         self._btn_run.setEnabled(True)
@@ -316,12 +384,31 @@ class AppScreen(QWidget):
     # ------------------------------------------------------------------
     # Usage
     # ------------------------------------------------------------------
+    def _on_toggle_per_core(self, checked: bool):
+        """Show/hide the per-core CPU panel. Creates one UsageBar per
+        logical core the first time it's opened."""
+        if checked and not self._per_core_bars:
+            try:
+                import psutil
+                n = int(psutil.cpu_count(logical=True) or 0)
+            except Exception:
+                n = 0
+            for i in range(n):
+                bar = UsageBar(f"C{i:02d}")
+                self._per_core_bars.append(bar)
+                self._per_core_layout.addWidget(bar)
+        self._per_core_wrap.setVisible(checked)
+
     def _refresh_usage(self):
         # RAM
         try:
             import psutil
             self._usage_ram.set_value(psutil.virtual_memory().percent)
             self._usage_cpu.set_value(psutil.cpu_percent(interval=None))
+            if self._btn_cpu_toggle.isChecked() and self._per_core_bars:
+                per_core = psutil.cpu_percent(interval=None, percpu=True)
+                for bar, pct in zip(self._per_core_bars, per_core):
+                    bar.set_value(pct)
         except Exception:
             pass
         # GPU / VRAM
