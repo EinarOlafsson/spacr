@@ -17,20 +17,22 @@ from PySide6.QtWidgets import QApplication
 # switching between the two GUIs feels visually consistent.
 # ---------------------------------------------------------------------------
 PALETTE = {
-    # Surfaces
+    # Surfaces — pure black bg, subtle depth via layered near-blacks
     "bg":          "#000000",   # main window background
-    "surface":     "#111214",   # sidebar / panels (slightly lifted from bg)
-    "surface_alt": "#1a1c1f",   # cards / grouped sections
-    "border":      "#2a2d33",   # subtle dividers
-    "border_soft": "#1c1e22",   # even more subtle
+    "surface":     "#0d0e10",   # sidebar / panels — barely lifted from bg
+    "surface_alt": "#161719",   # cards / grouped sections — one more step
+    "surface_hi":  "#1f2124",   # hovered surfaces
+    "border":      "#2a2d33",   # visible dividers
+    "border_soft": "#1c1e22",   # hairline card borders
     # Text
     "fg":          "#ffffff",
-    "fg_muted":    "#9ba0a6",   # secondary text
+    "fg_muted":    "#a1a6ad",   # secondary text (was #9ba0a6)
     "fg_dim":      "#6b6f76",   # disabled / hints
     # Accent
     "accent":      "#4A9EFF",   # primary interactive
     "accent_hi":   "#66B2FF",   # hover
     "accent_lo":   "#2F80D9",   # pressed
+    "accent_soft": "#1e3550",   # accent-tinted surface (chips, highlights)
     # Status
     "success":     "#3fb950",
     "warning":     "#d29922",
@@ -59,12 +61,27 @@ RADIUS = {
 }
 
 FONT_SIZE = {
-    "xs":      10,
-    "small":   11,
-    "body":    12,
-    "header":  14,
-    "title":   18,
-    "display": 24,
+    "xs":      10,   # inline metadata, table cell suffixes
+    "small":   11,   # captions, muted secondary text, form hints
+    "body":    12,   # default body text
+    "label":   12,   # form field labels
+    "header":  14,   # card / section titles
+    "subtitle":16,   # dialog headings, secondary display
+    "title":   20,   # screen-level headings
+    "display": 28,   # startup screen brand title
+    "hero":    36,   # empty-state hero numerals
+}
+
+# Typography roles — pair size with weight + tracking + line-height
+TYPOGRAPHY = {
+    "display":   {"size": FONT_SIZE["display"],  "weight": 300, "tracking": "-0.4px", "line_height": "1.15"},
+    "title":     {"size": FONT_SIZE["title"],    "weight": 500, "tracking": "-0.2px", "line_height": "1.2"},
+    "subtitle":  {"size": FONT_SIZE["subtitle"], "weight": 500, "tracking": "-0.1px", "line_height": "1.25"},
+    "header":    {"size": FONT_SIZE["header"],   "weight": 600, "tracking": "0px",    "line_height": "1.3"},
+    "body":      {"size": FONT_SIZE["body"],     "weight": 400, "tracking": "0px",    "line_height": "1.45"},
+    "small":     {"size": FONT_SIZE["small"],    "weight": 400, "tracking": "0px",    "line_height": "1.4"},
+    "caption":   {"size": FONT_SIZE["xs"],       "weight": 500, "tracking": "0.6px",  "line_height": "1.4"},
+    "hero":      {"size": FONT_SIZE["hero"],     "weight": 200, "tracking": "-0.5px", "line_height": "1.1"},
 }
 
 
@@ -256,21 +273,46 @@ QLabel#TileCaption {{
 }}
 
 /* -----------------------------------------------------------------
- *  Typography helpers
+ *  Typography helpers — pair each role with weight + tracking
  * ----------------------------------------------------------------- */
+QLabel#Hero {{
+    color: {P["fg"]};
+    font-size: {F["hero"]}px;
+    font-weight: 200;
+    letter-spacing: -0.5px;
+    background: transparent;
+}}
 QLabel#DisplayHeading {{
     color: {P["fg"]};
     font-size: {F["display"]}px;
     font-weight: 300;
+    letter-spacing: -0.4px;
+    background: transparent;
+}}
+QLabel#TitleHeading {{
+    color: {P["fg"]};
+    font-size: {F["title"]}px;
+    font-weight: 500;
+    letter-spacing: -0.2px;
     background: transparent;
 }}
 QLabel#Subtitle {{
     color: {P["fg_muted"]};
-    font-size: {F["body"]}px;
+    font-size: {F["subtitle"]}px;
+    font-weight: 400;
     background: transparent;
 }}
-QLabel#Muted {{
+QLabel#SubtitleSmall, QLabel#Muted {{
     color: {P["fg_muted"]};
+    font-size: {F["small"]}px;
+    background: transparent;
+}}
+QLabel#Caption {{
+    color: {P["fg_dim"]};
+    font-size: {F["xs"]}px;
+    font-weight: 500;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
     background: transparent;
 }}
 QLabel#SectionHeading {{
@@ -284,26 +326,38 @@ QLabel#SectionHeading {{
  *  Buttons
  * ----------------------------------------------------------------- */
 QPushButton {{
-    background-color: {P["surface"]};
+    background-color: {P["surface_alt"]};
     color: {P["fg"]};
-    border: 1px solid {P["border"]};
+    border: 1px solid {P["border_soft"]};
     border-radius: {R["sm"]}px;
     padding: {S["sm"]}px {S["md"]}px;
-    min-height: 20px;
+    min-height: 22px;
+    font-weight: 500;
 }}
 QPushButton:hover {{
-    background-color: {P["surface_alt"]};
-    border-color: {P["accent"]};
+    background-color: {P["surface_hi"]};
+    border-color: {P["border"]};
+    color: {P["fg"]};
 }}
 QPushButton:pressed {{
     background-color: {P["accent_lo"]};
     border-color: {P["accent_lo"]};
     color: {P["bg"]};
 }}
+QPushButton:checked {{
+    background-color: {P["accent_soft"]};
+    border-color: {P["accent"]};
+    color: {P["accent"]};
+}}
+QPushButton:checked:hover {{
+    background-color: {P["accent_soft"]};
+    border-color: {P["accent_hi"]};
+    color: {P["accent_hi"]};
+}}
 QPushButton:disabled {{
     color: {P["fg_dim"]};
     border-color: {P["border_soft"]};
-    background-color: {P["bg"]};
+    background-color: {P["surface"]};
 }}
 QPushButton#PrimaryButton {{
     background-color: {P["accent"]};
