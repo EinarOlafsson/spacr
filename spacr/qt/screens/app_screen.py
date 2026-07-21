@@ -63,6 +63,7 @@ class AppScreen(QWidget):
         super().__init__(parent)
         self.app_key = app_key
         self._last_error_text: str = ""
+        self._hint_map: dict = {}
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
@@ -133,20 +134,45 @@ class AppScreen(QWidget):
 
         if not sections:
             layout.addWidget(QLabel("No settings defined for this app."))
+        # Map widget → plain-text hint so the bottom hint strip can
+        # update from a single hover event filter. Initialized in __init__.
         for title, rows in sections:
             section = Section(title)
             for label, widget in rows:
-                # Build a QLabel so we can copy the tooltip from widget →
-                # label (hover either shows the same tip)
                 lbl_widget = QLabel(label)
                 lbl_widget.setToolTip(widget.toolTip())
                 lbl_widget.setOpenExternalLinks(True)
+                # Best-effort: match label back to a settings key by
+                # scanning the model. Slow-path but only runs once at
+                # panel build.
+                for key, w in getattr(self._settings_model, "_widgets", {}).items():
+                    if w is widget:
+                        hint = self._settings_model.plain_tooltip_for(key)
+                        self._hint_map[widget] = hint
+                        self._hint_map[lbl_widget] = hint
+                        widget.installEventFilter(self)
+                        lbl_widget.installEventFilter(self)
+                        break
                 section.add_row(lbl_widget, widget)
             layout.addWidget(section)
 
         layout.addStretch(1)
         scroll.setWidget(content)
         return scroll
+
+    def eventFilter(self, obj, event):
+        from PySide6.QtCore import QEvent
+        if event.type() == QEvent.Enter:
+            hint = self._hint_map.get(obj)
+            if hint and hasattr(self, "_hint_strip"):
+                self._hint_strip.setText(hint)
+        elif event.type() == QEvent.Leave:
+            if hasattr(self, "_hint_strip"):
+                self._hint_strip.setText(self._default_hint())
+        return super().eventFilter(obj, event)
+
+    def _default_hint(self) -> str:
+        return "Hover any setting to see its description and docs link."
 
     def _build_runtime_panel(self) -> QWidget:
         wrap = QWidget()
@@ -272,6 +298,15 @@ class AppScreen(QWidget):
         row.addWidget(self._progress)
 
         layout.addWidget(actions)
+
+        # Hint strip — hover-follows caption that shows the current
+        # settings tooltip regardless of Qt HTML-tooltip rendering.
+        self._hint_strip = QLabel(self._default_hint())
+        self._hint_strip.setObjectName("SubtitleSmall")
+        self._hint_strip.setWordWrap(True)
+        self._hint_strip.setMinimumHeight(24)
+        self._hint_strip.setOpenExternalLinks(True)
+        layout.addWidget(self._hint_strip)
 
         return wrap
 

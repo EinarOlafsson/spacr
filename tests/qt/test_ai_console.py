@@ -119,7 +119,7 @@ def test_wrap_error_includes_active_app():
 # Screen
 # ---------------------------------------------------------------------------
 
-def test_ai_console_screen_starts_on_empty_state(qtbot, qt_theme_applied, monkeypatch):
+def test_ai_chat_panel_starts_on_empty_state(qtbot, qt_theme_applied, monkeypatch):
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
@@ -133,12 +133,12 @@ def test_ai_console_screen_starts_on_empty_state(qtbot, qt_theme_applied, monkey
         def delete_password(*a, **kw): return None
     monkeypatch.setitem(sys.modules, "keyring", _K)
 
-    from spacr.qt.screens.ai_console import AIConsoleScreen
-    screen = AIConsoleScreen()
-    qtbot.addWidget(screen)
+    from spacr.qt.widgets import AIChatPanel
+    panel = AIChatPanel()
+    qtbot.addWidget(panel)
     # Without any configured provider we render the empty-state pane
-    assert screen._stack.currentWidget() is screen._empty_state
-    assert not screen._btn_send.isEnabled()
+    assert panel._stack.currentWidget() is panel._empty_state
+    assert not panel._btn_send.isEnabled()
 
 
 def test_app_screen_has_disabled_explain_button(qtbot, qt_theme_applied):
