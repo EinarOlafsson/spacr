@@ -1,4 +1,4 @@
-import os, threading, time, sqlite3, webbrowser, pyautogui, random, cv2, json
+import os, threading, time, sqlite3, webbrowser, random, cv2, json
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as tkFont
@@ -206,7 +206,6 @@ def set_element_size():
     m = get_monitors()[0]
     screen_width, screen_height = m.width, m.height
 
-    #screen_width, screen_height = pyautogui.size()
     screen_area = screen_width * screen_height
     
     # Calculate sizes based on screen dimensions

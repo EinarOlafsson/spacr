@@ -116,7 +116,6 @@ dependencies:
       - ptyprocess==0.7.0
       - pure-eval==0.2.3
       - py-cpuinfo==9.0.0
-      - pyautogui==0.9.54
       - pydantic==1.10.18
       - pygetwindow==0.0.9
       - pygments==2.18.0

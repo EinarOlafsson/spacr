@@ -244,6 +244,50 @@ def test_import_spacr_is_fast():
 
 
 # ---------------------------------------------------------------------------
+# perf(gui_elements): no display-dependent imports at module load time
+# ---------------------------------------------------------------------------
+
+def test_gui_elements_does_not_import_pyautogui():
+    """Regression: spacr.gui_elements used to `import pyautogui` at module
+    load; pyautogui transitively opens the X display via mouseinfo, which
+    crashed `spacr` in headless / xauth-broken environments even though
+    pyautogui wasn't actually used (its only reference was a commented-out
+    line). Guard that neither the source nor the install specs re-add it."""
+    src = (PKG_ROOT / "gui_elements.py").read_text()
+    for line in src.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("#"):
+            continue
+        assert "pyautogui" not in stripped, (
+            f"gui_elements.py re-introduced pyautogui: {line!r}"
+        )
+    setup_src = (PKG_ROOT.parent / "setup.py").read_text()
+    assert "pyautogui" not in setup_src, (
+        "setup.py re-declared pyautogui (unused dependency)"
+    )
+
+
+def test_import_spacr_gui_without_display():
+    """Both spacr.gui_elements and spacr.gui must import cleanly with no
+    DISPLAY/XAUTHORITY environment — required for headless installs
+    (Docker, CI, non-desktop cronjobs). Prior to the pyautogui removal
+    this crashed with Xlib.error.DisplayConnectionError."""
+    import subprocess, sys
+    env = {k: v for k, v in os.environ.items()
+           if k not in ("DISPLAY", "XAUTHORITY")}
+    env["PYTHONPATH"] = str(PKG_ROOT.parent)
+    proc = subprocess.run(
+        [sys.executable, "-c",
+         "import spacr.gui_elements as _ge; import spacr.gui as _gui; "
+         "assert hasattr(_ge, 'spacrCard') and _gui.MainApp is not None"],
+        env=env, capture_output=True, timeout=30,
+    )
+    assert proc.returncode == 0, (
+        f"headless import failed: {proc.stderr.decode()[:800]}"
+    )
+
+
+# ---------------------------------------------------------------------------
 # feat(gui): palette / spacing / font / divider on style_out
 # ---------------------------------------------------------------------------
 
