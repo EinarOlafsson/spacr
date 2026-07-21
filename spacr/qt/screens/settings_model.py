@@ -104,6 +104,46 @@ def get_tooltips() -> Dict[str, str]:
 
 
 # ---------------------------------------------------------------------------
+# API doc link per app
+# ---------------------------------------------------------------------------
+
+DOCS_BASE = "https://einarolafsson.github.io/spacr"
+
+_APP_TO_DOC_ANCHOR = {
+    "mask":            "core.html#preprocess_generate_masks",
+    "measure":         "measure.html#measure_crop",
+    "classify":        "deep_spacr.html#train_test_model",
+    "umap":            "core.html#generate_image_umap",
+    "train_cellpose":  "submodules.html#train_cellpose",
+    "cellpose_masks":  "spacr_cellpose.html#identify_masks_finetune",
+    "cellpose_all":    "spacr_cellpose.html#check_cellpose_models",
+    "map_barcodes":    "sequencing.html#generate_barecode_mapping",
+    "ml_analyze":      "ml.html#generate_ml_scores",
+    "regression":      "ml.html#perform_regression",
+    "recruitment":     "submodules.html#analyze_recruitment",
+    "activation":      "deep_spacr.html#generate_activation_map",
+    "analyze_plaques": "submodules.html#analyze_plaques",
+    "annotate":        "gui_elements.html#AnnotateApp",
+    "make_masks":      "gui_elements.html#ModifyMaskApp",
+}
+
+
+def api_docs_url(app_key: str) -> str:
+    anchor = _APP_TO_DOC_ANCHOR.get(app_key, "index.html")
+    return f"{DOCS_BASE}/{anchor}"
+
+
+def format_tooltip(text: str, app_key: str) -> str:
+    """Return an HTML tooltip body: description + a docs footer link."""
+    body = text.strip() if text else ""
+    url = api_docs_url(app_key)
+    footer = f'<br><br><a href="{url}" style="color:#4A9EFF;">API docs →</a>'
+    if body:
+        return f"<div style='max-width:360px;'>{body}{footer}</div>"
+    return f"<div style='max-width:360px;'>See <a href='{url}' style='color:#4A9EFF;'>API docs</a>.</div>"
+
+
+# ---------------------------------------------------------------------------
 # Widget factory
 # ---------------------------------------------------------------------------
 
@@ -152,14 +192,15 @@ class SettingsWidgets:
         from spacr.gui_utils import convert_settings_dict_for_gui
         variables = convert_settings_dict_for_gui(self._defaults)
 
-        # Materialize a widget per key.
+        # Materialize a widget per key; attach a rich HTML tooltip that
+        # ends with an "API docs →" link to the spacr docs.
         for key, meta in variables.items():
             kind, options, default = meta
             widget = self._widget_for(kind, options, default, key)
             if widget is not None:
-                tooltip = self._tooltips.get(key, "")
-                if tooltip:
-                    widget.setToolTip(tooltip)
+                tip = format_tooltip(self._tooltips.get(key, ""), self.app_key)
+                widget.setToolTip(tip)
+                widget.setToolTipDuration(-1)  # respect system default (persistent)
                 self._widgets[key] = widget
 
         # Bucket into sections.
@@ -182,6 +223,10 @@ class SettingsWidgets:
             sections.append(("Other", remaining))
 
         return sections
+
+    def tooltip_for(self, key: str) -> str:
+        """Return the HTML-formatted tooltip for a given setting key."""
+        return format_tooltip(self._tooltips.get(key, ""), self.app_key)
 
     def _label_for(self, key: str) -> str:
         return key.replace("_", " ").capitalize()
