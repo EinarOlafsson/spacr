@@ -624,6 +624,26 @@ QToolTip {{
 }}
 
 /* -----------------------------------------------------------------
+ *  AI Console chat bubbles
+ * ----------------------------------------------------------------- */
+QLabel#ChatBubbleUser {{
+    background-color: {P["accent_soft"]};
+    color: {P["fg"]};
+    border: 1px solid {P["accent_lo"]};
+    border-radius: {R["md"]}px;
+    padding: {S["sm"]}px {S["md"]}px;
+    font-size: {F["body"]}px;
+}}
+QLabel#ChatBubbleAssistant {{
+    background-color: {P["surface_alt"]};
+    color: {P["fg"]};
+    border: 1px solid {P["border_soft"]};
+    border-radius: {R["md"]}px;
+    padding: {S["sm"]}px {S["md"]}px;
+    font-size: {F["body"]}px;
+}}
+
+/* -----------------------------------------------------------------
  *  Section — collapsible dropdown (custom widget)
  * ----------------------------------------------------------------- */
 QFrame#SectionCard {{
