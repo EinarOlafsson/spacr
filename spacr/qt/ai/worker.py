@@ -88,16 +88,26 @@ def make_stream_thread(
     messages: List[Dict],
     system: str = "",
     model: Optional[str] = None,
+    parent: Optional[QObject] = None,
 ):
     """Return (QThread, StreamWorker) — connect signals, then start().
 
-    Callers MUST keep a reference to the returned worker (not just the
-    thread) — otherwise Python may drop it before Qt has a chance to
-    fire its finished signal.
+    IMPORTANT: pass a `parent` (typically the panel that owns this
+    stream). Without a Qt parent the QThread's C++ object gets tied
+    exclusively to Python's refcount — and dropping the ref while
+    QThread.isRunning() is still True (which happens in the tiny
+    window between worker.run returning and thread.finished firing)
+    triggers Qt's `QThread: Destroyed while thread is still running /
+    Aborted` crash. A parent keeps the C++ object alive until
+    deleteLater runs.
+
+    Callers must ALSO keep a Python reference to the worker until
+    the stream truly finishes (see ConsolePanel._retire).
     """
     from PySide6.QtCore import Qt
-    thread = QThread()
+    thread = QThread(parent)
     worker = StreamWorker(provider, messages, system=system, model=model)
+    worker.setParent(None)              # worker moves to thread, no parent
     worker.moveToThread(thread)
     thread.started.connect(worker.run)
     # Queue the deletion + quit so they run AFTER user-facing slots
