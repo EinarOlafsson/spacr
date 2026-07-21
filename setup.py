@@ -56,7 +56,6 @@ dependencies = [
     'psutil>=5.9.8, <6.0',
     'gputil>=1.4.0, <2.0', 
     'gpustat>=1.1.1,<2.0',
-    'pyautogui>=0.9.54,<1.0',
     'tables>=3.8.0,<4.0',
     'rapidfuzz>=3.9, <4.0',
     'keyring>=15.1, <26.0',

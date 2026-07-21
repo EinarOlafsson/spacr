@@ -26,7 +26,6 @@ lxml>=5.1.0,<6.0
 psutil>=5.9.8,<6.0
 gputil>=1.4.0,<2.0
 gpustat>=1.1.1,<2.0
-pyautogui>=0.9.54,<1.0
 tables>=3.8.0,<4.0
 rapidfuzz>=3.9,<4.0
 huggingface-hub>=0.24.0,<0.25
