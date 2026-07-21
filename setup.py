@@ -117,9 +117,9 @@ setup(
         'qt': [
             'PySide6>=6.6,<7',
             'qtawesome>=1.3,<2',
-        ],
-        # Optional AI Console providers — install whichever you use.
-        'ai': [
+            # AI Console providers — one SDK per vendor. All three ship with
+            # the Qt GUI so the AI Console works out of the box regardless
+            # of which provider the user configures a key for.
             'anthropic>=0.30',
             'openai>=1.30',
             'google-generativeai>=0.7',
