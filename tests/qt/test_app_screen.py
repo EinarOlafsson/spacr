@@ -16,8 +16,8 @@ from spacr.qt.bridge import resolve_pipeline_entry
 def test_app_screen_constructs_for_every_key(qtbot, qt_theme_applied, app_key):
     screen = AppScreen(app_key)
     qtbot.addWidget(screen)
-    # Console widget exists and is empty.
-    assert screen._console.toPlainText() == ""
+    # Console widget exists and starts with only the trailing stretch.
+    assert screen._console._entries.count() == 1
     # Run + stop + import + clear buttons exist and start in expected state.
     assert screen._btn_run.isEnabled()
     assert not screen._btn_stop.isEnabled()

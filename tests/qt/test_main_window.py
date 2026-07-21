@@ -36,7 +36,7 @@ def test_sidebar_emits_nav_selected(qtbot, qt_theme_applied):
 def test_main_window_constructs_and_switches(qtbot, qt_theme_applied):
     win = MainWindow()
     qtbot.addWidget(win)
-    assert win.windowTitle() == "SpaCR"
+    assert win.windowTitle() == "spaCR"
     # Switch to mask screen; stack should register a new widget.
     starting_count = win._stack.count()
     win._on_nav_selected("mask")
