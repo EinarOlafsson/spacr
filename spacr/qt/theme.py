@@ -131,6 +131,12 @@ QWidget {{
 QMainWindow, QDialog {{
     background-color: {P["bg"]};
 }}
+/* Every QLabel is transparent by default so it inherits the bg of
+ * whatever container it lives in (surface, surface_alt, hero card,
+ * etc). Individual labels can override with their own object name. */
+QLabel {{
+    background: transparent;
+}}
 
 /* -----------------------------------------------------------------
  *  Menu bar + menus
