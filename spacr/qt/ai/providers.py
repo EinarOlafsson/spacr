@@ -127,11 +127,11 @@ class OpenAIProvider(ChatProvider):
 class GeminiProvider(ChatProvider):
     name = "google"
     label = "Google Gemini"
-    default_model = "gemini-1.5-flash"
-    install_hint = "pip install google-generativeai"
+    default_model = "gemini-2.0-flash-exp"
+    install_hint = "pip install google-genai"
 
     def _import_sdk(self):
-        import google.generativeai as genai  # noqa
+        from google import genai  # noqa  — the new supported SDK
         return genai
 
     def stream_chat(self, messages, system="", model=None):
@@ -139,25 +139,29 @@ class GeminiProvider(ChatProvider):
         api_key = keys.get_key(self.name)
         if not api_key:
             raise RuntimeError("No Google API key configured.")
-        genai.configure(api_key=api_key)
-        gemini = genai.GenerativeModel(
-            model_name=model or self.default_model,
-            system_instruction=system or None,
-        )
-        # Gemini expects role='user'/'model'. Map assistant → model.
-        history = []
-        latest_user = ""
+        client = genai.Client(api_key=api_key)
+
+        # Convert chat messages into the new SDK's Content format.
+        contents = []
         for m in messages:
             role = "user" if m["role"] == "user" else "model"
-            content = m.get("content", "")
-            if m is messages[-1] and role == "user":
-                latest_user = content
-            else:
-                history.append({"role": role, "parts": [content]})
-        chat = gemini.start_chat(history=history)
-        response = chat.send_message(latest_user, stream=True)
-        for chunk in response:
-            text = getattr(chunk, "text", "")
+            contents.append({"role": role, "parts": [{"text": m.get("content", "")}]})
+
+        cfg = None
+        try:
+            from google.genai import types as gtypes
+            cfg = gtypes.GenerateContentConfig(system_instruction=system) \
+                if system else None
+        except Exception:
+            cfg = None
+
+        stream = client.models.generate_content_stream(
+            model=model or self.default_model,
+            contents=contents,
+            config=cfg,
+        )
+        for chunk in stream:
+            text = getattr(chunk, "text", None)
             if text:
                 yield text
 
