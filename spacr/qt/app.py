@@ -249,6 +249,12 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage(f"{name}", 2000)
 
     def _build_screen(self, key: str) -> QWidget:
+        if key == "annotate":
+            from .screens.annotate import AnnotateScreen
+            return AnnotateScreen()
+        if key == "make_masks":
+            from .screens.make_masks import MakeMasksScreen
+            return MakeMasksScreen()
         from .screens.app_screen import AppScreen
         return AppScreen(app_key=key)
 
