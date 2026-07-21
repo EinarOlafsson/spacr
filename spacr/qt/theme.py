@@ -624,7 +624,7 @@ QToolTip {{
 }}
 
 /* -----------------------------------------------------------------
- *  AI Console chat bubbles
+ *  AI Console chat bubbles (legacy standalone panel)
  * ----------------------------------------------------------------- */
 QLabel#ChatBubbleUser {{
     background-color: {P["accent_soft"]};
@@ -641,6 +641,61 @@ QLabel#ChatBubbleAssistant {{
     border-radius: {R["md"]}px;
     padding: {S["sm"]}px {S["md"]}px;
     font-size: {F["body"]}px;
+}}
+
+/* -----------------------------------------------------------------
+ *  Merged Console (pipeline stdout + AI chat)
+ * ----------------------------------------------------------------- */
+QWidget#ConsolePanel {{
+    background-color: {P["surface_alt"]};
+    border-radius: {R["md"]}px;
+}}
+QWidget#ConsoleHolder {{
+    background-color: {P["surface_alt"]};
+}}
+QScrollArea#ConsoleScroll {{
+    background-color: {P["surface_alt"]};
+    border: none;
+}}
+QFrame#ConsoleTopicBar {{
+    background-color: {P["surface_hi"]};
+    border-top: 1px solid {P["border_soft"]};
+    border-bottom: 1px solid {P["border_soft"]};
+}}
+QLabel#ConsoleTopicLabel {{
+    color: {P["fg_muted"]};
+    font-size: {F["small"]}px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    background: transparent;
+}}
+QLabel#ConsoleStdoutBlock {{
+    color: {P["fg"]};
+    background-color: {P["surface_alt"]};
+    font-family: "JetBrains Mono", "Menlo", "Consolas", monospace;
+    font-size: {F["small"]}px;
+    padding: {S["sm"]}px {S["md"]}px;
+}}
+QLabel#ConsoleStdoutBlockError {{
+    color: {P["error"]};
+    background-color: {P["surface_alt"]};
+    font-family: "JetBrains Mono", "Menlo", "Consolas", monospace;
+    font-size: {F["small"]}px;
+    padding: {S["sm"]}px {S["md"]}px;
+}}
+QFrame#ConsoleBubbleUser {{
+    background-color: #163b28;                 /* dark green */
+    border: 1px solid #2a6a48;
+    border-radius: {R["md"]}px;
+}}
+QFrame#ConsoleBubbleAI {{
+    background-color: {P["accent_soft"]};      /* dark blue */
+    border: 1px solid {P["accent_lo"]};
+    border-radius: {R["md"]}px;
+}}
+QFrame#ConsoleInputBar {{
+    background-color: {P["surface"]};
+    border-top: 1px solid {P["border_soft"]};
 }}
 
 /* -----------------------------------------------------------------
