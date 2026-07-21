@@ -83,6 +83,7 @@ APPS = [
     ("cellpose_masks", "Cellpose Masks", "Cellpose mask generation",                                    "Cellpose"),
     ("cellpose_all",   "Cellpose All",   "Run cellpose on all images",                                  "Cellpose"),
     ("map_barcodes",   "Map Barcodes",   "Map barcodes to data",                                        "Sequencing"),
+    ("ai_console",     "AI Console",     "Chat with Claude, ChatGPT or Gemini about SpaCR; explain errors", "Assistant"),
 ]
 
 
@@ -285,8 +286,21 @@ class MainWindow(QMainWindow):
         if key == "make_masks":
             from .screens.make_masks import MakeMasksScreen
             return MakeMasksScreen()
+        if key == "ai_console":
+            from .screens.ai_console import AIConsoleScreen
+            return AIConsoleScreen()
         from .screens.app_screen import AppScreen
-        return AppScreen(app_key=key)
+        screen = AppScreen(app_key=key)
+        screen.error_explain_requested.connect(self._on_explain_error)
+        return screen
+
+    def _on_explain_error(self, traceback_text: str, active_app: str) -> None:
+        """Open the AI Console and immediately ask it to explain the
+        given traceback."""
+        self._on_nav_selected("ai_console")
+        screen = self._screens.get("ai_console")
+        if screen is not None and hasattr(screen, "open_error_flow"):
+            screen.open_error_flow(traceback_text, active_app)
 
     def _on_train_requested(self, target_key: str, seed: dict) -> None:
         """Navigate to `target_key` (creating the screen if needed) and
