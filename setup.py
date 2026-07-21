@@ -118,6 +118,12 @@ setup(
             'PySide6>=6.6,<7',
             'qtawesome>=1.3,<2',
         ],
+        # Optional AI Console providers — install whichever you use.
+        'ai': [
+            'anthropic>=0.30',
+            'openai>=1.30',
+            'google-generativeai>=0.7',
+        ],
     },
     classifiers=[
         "Programming Language :: Python :: 3",
