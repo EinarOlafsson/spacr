@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from PySide6.QtCore import Qt, QTimer, QThread
+from PySide6.QtCore import Qt, QTimer, QThread, Signal
 from PySide6.QtGui import QFontDatabase
 from PySide6.QtWidgets import (
     QHBoxLayout,
@@ -54,9 +54,15 @@ APP_TITLES = {
 
 
 class AppScreen(QWidget):
+    # Emitted when the user clicks "Explain error" with the last
+    # captured traceback + the app key so MainWindow can route to the
+    # AI Console.
+    error_explain_requested = Signal(str, str)
+
     def __init__(self, app_key: str, parent=None):
         super().__init__(parent)
         self.app_key = app_key
+        self._last_error_text: str = ""
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
@@ -243,6 +249,20 @@ class AppScreen(QWidget):
         self._btn_clear.clicked.connect(lambda: self._console.setPlainText(""))
         row.addWidget(self._btn_clear)
 
+        # Explain error — enabled once a pipeline error is captured.
+        from .. import iconset as _iconset
+        self._btn_explain = QPushButton("Explain error")
+        self._btn_explain.setObjectName("GhostButton")
+        self._btn_explain.setIcon(_iconset.icon("info"))
+        self._btn_explain.setCursor(Qt.PointingHandCursor)
+        self._btn_explain.setToolTip(
+            "Send the last traceback to the AI Console for a "
+            "step-by-step fix."
+        )
+        self._btn_explain.setEnabled(False)
+        self._btn_explain.clicked.connect(self._on_explain_error)
+        row.addWidget(self._btn_explain)
+
         row.addStretch(1)
 
         self._progress = QProgressBar()
@@ -280,10 +300,21 @@ class AppScreen(QWidget):
 
         self._thread, worker = make_thread(entry, settings)
         worker.line_ready.connect(self._console.insertPlainText)
-        worker.error.connect(lambda tb: self._console.appendPlainText(f"[error]\n{tb}"))
+        worker.error.connect(self._on_pipeline_error)
         worker.figure_ready.connect(self._on_figure_ready)
         worker.finished.connect(self._on_finished)
         self._thread.start()
+
+    def _on_pipeline_error(self, tb: str):
+        """Capture the traceback so the user can hit "Explain error"."""
+        self._last_error_text = tb
+        self._console.appendPlainText(f"[error]\n{tb}")
+        self._btn_explain.setEnabled(True)
+
+    def _on_explain_error(self):
+        if not self._last_error_text:
+            return
+        self.error_explain_requested.emit(self._last_error_text, self.app_key)
 
     def _on_figure_ready(self, fig) -> None:
         """Embed a matplotlib figure emitted by the worker as a new
