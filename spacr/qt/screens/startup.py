@@ -42,18 +42,32 @@ class StartupPage(QScrollArea):
                                   SPACING["xxl"], SPACING["xxl"])
         outer.setSpacing(SPACING["xl"])
 
-        # Title block
-        title = QLabel("SpaCR")
-        title.setObjectName("DisplayHeading")
+        # Hero header block
+        eyebrow = QLabel("SpaCR")
+        eyebrow.setObjectName("Caption")
+        eyebrow.setAlignment(Qt.AlignHCenter)
+        outer.addWidget(eyebrow)
+
+        title = QLabel("Spatial phenotype analysis")
+        title.setObjectName("Hero")
         title.setAlignment(Qt.AlignHCenter)
         outer.addWidget(title)
 
-        subtitle = QLabel("Spatial single-cell analysis for microscopy")
-        subtitle.setObjectName("Subtitle")
+        subtitle = QLabel(
+            "End-to-end microscopy → single-cell measurements → "
+            "genotype–phenotype mapping. Pick an app to get started."
+        )
+        subtitle.setObjectName("SubtitleSmall")
         subtitle.setAlignment(Qt.AlignHCenter)
-        outer.addWidget(subtitle)
+        subtitle.setWordWrap(True)
+        subtitle.setMaximumWidth(720)
+        subtitle_wrap = QHBoxLayout()
+        subtitle_wrap.addStretch(1)
+        subtitle_wrap.addWidget(subtitle)
+        subtitle_wrap.addStretch(1)
+        outer.addLayout(subtitle_wrap)
 
-        outer.addSpacing(SPACING["md"])
+        outer.addSpacing(SPACING["xl"])
 
         # Group apps by section, render each section as a heading + tile grid.
         sections: dict[str, list[tuple[str, str, str]]] = {}
@@ -62,7 +76,7 @@ class StartupPage(QScrollArea):
 
         for section_name, entries in sections.items():
             hdr = QLabel(section_name.upper())
-            hdr.setObjectName("SectionHeading")
+            hdr.setObjectName("Caption")
             outer.addWidget(hdr)
 
             divider = Divider()
@@ -78,7 +92,7 @@ class StartupPage(QScrollArea):
             cols = 6
             for i, (key, name, desc) in enumerate(entries):
                 icon = icon_provider(key)
-                tile = Tile(text=name, icon=icon, caption=name, tile_size=96, icon_size=42)
+                tile = Tile(text=name, icon=icon, caption=name, tile_size=104, icon_size=46)
                 tile.setToolTip(desc)
                 tile.clicked.connect(lambda k=key: self.tile_clicked.emit(k))
                 grid.addWidget(tile, i // cols, i % cols)
@@ -88,9 +102,8 @@ class StartupPage(QScrollArea):
         outer.addStretch(1)
 
         # Footer
-        footer = QLabel("Click a tile to open an application. "
-                        "Use the sidebar for quick navigation.")
-        footer.setObjectName("Muted")
+        footer = QLabel("Click a tile to open an application, or use the sidebar.")
+        footer.setObjectName("SubtitleSmall")
         footer.setAlignment(Qt.AlignHCenter)
         outer.addWidget(footer)
 

@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from . import iconset
 from .theme import PALETTE, SPACING, apply_qpalette, stylesheet
 
 
@@ -50,41 +51,14 @@ APPS = [
 
 def _icon_for_app(key: str) -> Optional[QIcon]:
     """Return a QIcon for an app key. Uses the bundled spacr PNG icon if
-    present; falls back to a qtawesome glyph."""
-    # First: local PNG icon shipped with spacr
+    present; falls back to a themed qtawesome glyph via iconset."""
     here = os.path.dirname(os.path.abspath(__file__))
     resources_dir = os.path.normpath(os.path.join(here, "..", "resources", "icons"))
     for candidate in (f"{key}.png", f"{key.replace('_', ' ')}.png"):
         p = os.path.join(resources_dir, candidate)
         if os.path.exists(p):
             return QIcon(p)
-    # Fallback to qtawesome
-    try:
-        import qtawesome as qta
-    except Exception:
-        return None
-    QTA_MAP = {
-        "mask":           "fa5s.mask",
-        "measure":        "fa5s.ruler",
-        "annotate":       "fa5s.tag",
-        "make_masks":     "fa5s.paint-brush",
-        "classify":       "fa5s.layer-group",
-        "umap":           "fa5s.project-diagram",
-        "ml_analyze":     "fa5s.chart-line",
-        "regression":     "fa5s.wave-square",
-        "recruitment":    "fa5s.crosshairs",
-        "activation":     "fa5s.bolt",
-        "analyze_plaques": "fa5s.microscope",
-        "train_cellpose": "fa5s.dumbbell",
-        "cellpose_masks": "fa5s.shapes",
-        "cellpose_all":   "fa5s.th",
-        "map_barcodes":   "fa5s.barcode",
-    }
-    name = QTA_MAP.get(key, "fa5s.puzzle-piece")
-    try:
-        return qta.icon(name, color=PALETTE["fg_muted"])
-    except Exception:
-        return None
+    return iconset.icon(key)
 
 
 class Sidebar(QWidget):
@@ -110,11 +84,7 @@ class Sidebar(QWidget):
         home = QPushButton("  Home")
         home.setObjectName("SidebarItem")
         home.setCursor(Qt.PointingHandCursor)
-        try:
-            import qtawesome as qta
-            home.setIcon(qta.icon("fa5s.home", color=PALETTE["fg_muted"]))
-        except Exception:
-            pass
+        home.setIcon(iconset.icon("home"))
         home.clicked.connect(lambda: self.nav_selected.emit("__home__"))
         layout.addWidget(home)
 
@@ -168,13 +138,26 @@ class MainWindow(QMainWindow):
         self._screens: dict[str, QWidget] = {}
         self._install_startup_page()
 
-        # Status bar
+        # Rich status bar: transient message (left) + active app + version
         status = QStatusBar()
+        self._status_app_label = QLabel("Home")
+        self._status_app_label.setObjectName("Muted")
+        self._status_version_label = QLabel(f"SpaCR {self._resolve_version()}")
+        self._status_version_label.setObjectName("Caption")
+        status.addPermanentWidget(self._status_app_label)
+        status.addPermanentWidget(self._status_version_label)
         status.showMessage("Ready")
         self.setStatusBar(status)
 
         if initial_app:
             self._on_nav_selected(initial_app)
+
+    def _resolve_version(self) -> str:
+        try:
+            import spacr
+            return getattr(spacr, "__version__", "") or "dev"
+        except Exception:
+            return "dev"
 
     # -- menu -------------------------------------------------------------
     def _build_menu_bar(self):
@@ -238,6 +221,7 @@ class MainWindow(QMainWindow):
     def _on_nav_selected(self, key: str):
         if key == "__home__":
             self._stack.setCurrentWidget(self._startup)
+            self._status_app_label.setText("Home")
             self.statusBar().showMessage("Home", 2000)
             return
         if key not in self._screens:
@@ -246,7 +230,8 @@ class MainWindow(QMainWindow):
         self._stack.setCurrentWidget(self._screens[key])
         # Find nice display name
         name = next((n for k, n, _d, _s in APPS if k == key), key)
-        self.statusBar().showMessage(f"{name}", 2000)
+        self._status_app_label.setText(name)
+        self.statusBar().showMessage(f"Opened {name}", 2000)
 
     def _build_screen(self, key: str) -> QWidget:
         if key == "annotate":
