@@ -38,8 +38,19 @@ class StreamWorker(QObject):
         self._cancelled = False
 
     def cancel(self) -> None:
-        """Ask the worker loop to stop after the next chunk."""
+        """Cancel: kill the subprocess so the reader unblocks.
+
+        Setting a Python flag alone isn't enough — the worker is
+        blocked in a `for line in proc.stdout` iteration until the
+        subprocess writes or closes. We terminate the subprocess
+        directly via `provider.cancel_stream()`; the reader then
+        exits with an empty read and run() completes cleanly.
+        """
         self._cancelled = True
+        try:
+            self._provider.cancel_stream()
+        except Exception:
+            pass
 
     def run(self):
         buf: List[str] = []

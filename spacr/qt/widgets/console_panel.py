@@ -440,18 +440,33 @@ class ConsolePanel(QWidget):
         is destroyed — otherwise Python drops the last reference to
         the running QThread and Qt aborts with:
         `QThread: Destroyed while thread '' is still running`.
+
+        The cancel path kills the CLI subprocess directly so the
+        stream reader unblocks immediately; we then wait for the
+        worker's run() to return and the QThread to quit normally.
         """
-        if self._ai_worker is not None:
+        worker = self._ai_worker
+        thread = self._ai_thread
+        # Defensively belt-and-suspender: also try every provider's
+        # cancel_stream() in case the worker itself is somehow lost.
+        try:
+            for p in ai_module.list_providers():
+                p.cancel_stream()
+        except Exception:
+            pass
+        if worker is not None:
             try:
-                self._ai_worker.cancel()
+                worker.cancel()
             except Exception:
                 pass
-        if self._ai_thread is not None:
+        if thread is not None and thread.isRunning():
             try:
-                self._ai_thread.quit()
-                # Give the worker a moment to notice the cancel flag
-                # and return from its subprocess read.
-                self._ai_thread.wait(3000)
+                thread.quit()
+                thread.wait(3000)
+                if thread.isRunning():
+                    # Last resort — Qt itself asks the thread to stop.
+                    thread.terminate()
+                    thread.wait(1000)
             except Exception:
                 pass
         self._ai_thread = None

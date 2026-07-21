@@ -37,6 +37,12 @@ class ChatProvider(ABC):
     install_hint: str = ""    # shell one-liner to install
     login_command: str = ""   # shell one-liner the user should run
 
+    def __init__(self):
+        # Tracks the currently-running child process so cancel_stream()
+        # can actually terminate it — otherwise `for line in proc.stdout`
+        # blocks indefinitely and the worker thread never exits.
+        self._current_proc: Optional[subprocess.Popen] = None
+
     def is_installed(self) -> bool:
         return shutil.which(self.cli_name) is not None
 
@@ -56,6 +62,28 @@ class ChatProvider(ABC):
         if not self.is_installed():
             return "CLI not installed"
         return f"CLI found at {shutil.which(self.cli_name)}"
+
+    def cancel_stream(self) -> None:
+        """Kill the running subprocess (if any).
+
+        This is the ONLY reliable way to unblock a stream that's stuck
+        waiting on stdout — flipping a Python flag would only unblock
+        between chunks, which may never come."""
+        proc = self._current_proc
+        if proc is None:
+            return
+        try:
+            proc.terminate()
+            try:
+                proc.wait(timeout=1)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                try:
+                    proc.wait(timeout=1)
+                except subprocess.TimeoutExpired:
+                    pass
+        except Exception:
+            pass
 
     @abstractmethod
     def stream_chat(self, messages: List[Dict], system: str = "",
@@ -77,14 +105,22 @@ _NOISE_LINE_PREFIXES = (
 
 
 def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
-                     env_extra: Optional[Dict[str, str]] = None
+                     env_extra: Optional[Dict[str, str]] = None,
+                     provider: Optional["ChatProvider"] = None,
                      ) -> Iterator[str]:
     """Spawn a subprocess and yield stdout as it arrives.
 
-    Reads line-by-line so noise-filtering can drop specific
-    warnings (e.g. Claude Code's per-file permission-rule reminders
-    from the user's ~/.claude/settings.json). Merges stderr into
-    stdout so real errors show up inline.
+    Reads line-by-line so noise-filtering can drop specific warnings
+    (e.g. Claude Code's per-file permission-rule reminders from the
+    user's ~/.claude/settings.json). Merges stderr into stdout so
+    real errors show up inline.
+
+    If `provider` is passed we register the Popen on it so that
+    provider.cancel_stream() can terminate the subprocess and unblock
+    the caller's iteration. Without this, a stream that hangs on
+    a `for line in proc.stdout` read can never be cancelled and the
+    worker QThread will outlive its Python reference on quit — which
+    is exactly the crash the user reported.
     """
     env = os.environ.copy()
     if env_extra:
@@ -104,6 +140,9 @@ def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
             f"Could not run {argv[0]!r} — is the CLI installed and on PATH?"
         ) from e
 
+    if provider is not None:
+        provider._current_proc = proc
+
     try:
         if stdin_text is not None and proc.stdin is not None:
             try:
@@ -117,13 +156,25 @@ def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
                 continue
             yield line
     finally:
+        # Always tear the child down cleanly — cancel_stream() may have
+        # already terminated it; ok to call terminate again defensively.
         try:
-            proc.wait(timeout=5)
+            proc.stdout.close()
+        except Exception:
+            pass
+        try:
+            proc.wait(timeout=1)
         except Exception:
             try:
                 proc.terminate()
+                try:
+                    proc.wait(timeout=1)
+                except Exception:
+                    proc.kill()
             except Exception:
                 pass
+        if provider is not None:
+            provider._current_proc = None
 
 
 def _format_conversation(messages: List[Dict], system: str = "") -> str:
@@ -169,7 +220,7 @@ class ClaudeCliProvider(ChatProvider):
             argv += ["--append-system-prompt", system]
         if model:
             argv += ["--model", model]
-        yield from _stream_process(argv)
+        yield from _stream_process(argv, provider=self)
 
 
 # ---------------------------------------------------------------------------
@@ -190,7 +241,7 @@ class CodexCliProvider(ChatProvider):
         argv = ["codex", "exec", prompt]
         if model:
             argv += ["--model", model]
-        yield from _stream_process(argv)
+        yield from _stream_process(argv, provider=self)
 
 
 # ---------------------------------------------------------------------------
@@ -211,7 +262,7 @@ class GeminiCliProvider(ChatProvider):
         argv = ["gemini", "-p", prompt]
         if model:
             argv += ["-m", model]
-        yield from _stream_process(argv)
+        yield from _stream_process(argv, provider=self)
 
 
 # ---------------------------------------------------------------------------
