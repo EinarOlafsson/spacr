@@ -130,7 +130,12 @@ class AppScreen(QWidget):
         for title, rows in sections:
             section = Section(title)
             for label, widget in rows:
-                section.add_row(label, widget)
+                # Build a QLabel so we can copy the tooltip from widget →
+                # label (hover either shows the same tip)
+                lbl_widget = QLabel(label)
+                lbl_widget.setToolTip(widget.toolTip())
+                lbl_widget.setOpenExternalLinks(True)
+                section.add_row(lbl_widget, widget)
             layout.addWidget(section)
 
         layout.addStretch(1)
