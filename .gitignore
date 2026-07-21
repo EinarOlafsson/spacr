@@ -168,3 +168,8 @@ tutorial_colab.ipynb
 
 #MacOS files that don't need to be tracked
 .DS_Store
+
+# scratch / transient dev output
+/scratch/
+/path/
+
