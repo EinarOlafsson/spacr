@@ -1,99 +1,106 @@
-"""Tests for the AI Console — key store, provider registry, screen wiring.
+"""Tests for the AI Console — CLI-subprocess providers, prompts,
+panel wiring, and Explain-error flow.
 
-The vendor SDKs (anthropic / openai / google-generativeai) are NOT
-required for these tests. The registry lists all three regardless of
-whether their SDKs are installed; `is_configured()` just returns False
-when they aren't.
+The vendor CLIs (`claude` / `codex` / `gemini`) may or may not be
+installed on the test machine. Tests use `shutil.which` monkeypatches
+so behaviour is deterministic.
 """
 from __future__ import annotations
-
-import os
 
 import pytest
 
 
 # ---------------------------------------------------------------------------
-# keys.py
-# ---------------------------------------------------------------------------
-
-def test_get_key_reads_env_var_first(monkeypatch):
-    from spacr.qt.ai import keys as ai_keys
-    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-env-value")
-    assert ai_keys.get_key("anthropic") == "sk-env-value"
-    assert ai_keys.source_of("anthropic").startswith("env ")
-
-
-def test_get_key_returns_none_when_absent(monkeypatch):
-    from spacr.qt.ai import keys as ai_keys
-    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
-
-    # Also monkey-patch keyring to look empty so this test doesn't
-    # depend on the developer's real keychain state.
-    import spacr.qt.ai.keys as keys_module
-
-    class _FakeKeyring:
-        @staticmethod
-        def get_password(service, account): return None
-        @staticmethod
-        def set_password(service, account, key): return None
-        @staticmethod
-        def delete_password(service, account): return None
-
-    monkeypatch.setattr(keys_module, "keyring", _FakeKeyring, raising=False)
-    # get_key imports keyring lazily; patch sys.modules too so the
-    # inline `import keyring` inside get_key sees the fake.
-    import sys
-    monkeypatch.setitem(sys.modules, "keyring", _FakeKeyring)
-    assert ai_keys.get_key("anthropic") is None
-    assert ai_keys.get_key("openai") is None
-    assert ai_keys.get_key("google") is None
-
-
-# ---------------------------------------------------------------------------
-# providers.py
+# Providers registry
 # ---------------------------------------------------------------------------
 
 def test_list_providers_returns_three():
     from spacr.qt.ai import providers
     names = {p.name for p in providers.list_providers()}
-    assert names == {"anthropic", "openai", "google"}
+    assert names == {"claude", "codex", "gemini"}
 
 
-def test_configured_providers_empty_when_no_keys(monkeypatch):
+def test_each_provider_has_cli_and_install_hint():
     from spacr.qt.ai import providers
-    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
-    import sys
-    class _K:
-        @staticmethod
-        def get_password(*a, **kw): return None
-        @staticmethod
-        def set_password(*a, **kw): return None
-        @staticmethod
-        def delete_password(*a, **kw): return None
-    monkeypatch.setitem(sys.modules, "keyring", _K)
-    assert providers.configured_providers() == []
+    for p in providers.list_providers():
+        assert p.cli_name
+        assert p.install_hint
+        assert p.login_command
+
+
+def test_is_installed_uses_which(monkeypatch):
+    """Force `shutil.which` to lie so we can verify is_installed()
+    tracks the CLI's presence on PATH."""
+    from spacr.qt.ai import providers as pmod
+
+    fake = {"claude": "/opt/bin/claude"}   # only claude "installed"
+    monkeypatch.setattr(
+        pmod.shutil, "which",
+        lambda name: fake.get(name),
+    )
+    ps = {p.name: p for p in pmod.list_providers()}
+    assert ps["claude"].is_installed()
+    assert not ps["codex"].is_installed()
+    assert not ps["gemini"].is_installed()
+
+
+def test_configured_providers_matches_installed(monkeypatch):
+    from spacr.qt.ai import providers as pmod
+    monkeypatch.setattr(pmod.shutil, "which",
+                          lambda name: "/opt/bin/" + name if name == "gemini" else None)
+    configured = [p.name for p in pmod.configured_providers()]
+    assert configured == ["gemini"]
 
 
 def test_get_provider_by_name():
     from spacr.qt.ai import providers
-    p = providers.get_provider("anthropic")
-    assert p is not None
-    assert p.name == "anthropic"
-    assert providers.get_provider("not-a-provider") is None
+    assert providers.get_provider("claude").name == "claude"
+    assert providers.get_provider("codex").name == "codex"
+    assert providers.get_provider("gemini").name == "gemini"
+    assert providers.get_provider("unknown") is None
 
 
-def test_provider_install_hints_populated():
-    from spacr.qt.ai import providers
-    for p in providers.list_providers():
-        assert p.install_hint.startswith("pip install")
+def test_source_of_key_reports_state(monkeypatch):
+    """Legacy shim now reports CLI install state instead of API keys."""
+    from spacr.qt.ai import providers as pmod
+    monkeypatch.setattr(pmod.shutil, "which",
+                          lambda name: "/opt/bin/claude" if name == "claude" else None)
+    ps = {p.name: p for p in pmod.list_providers()}
+    assert "CLI found" in ps["claude"].source_of_key()
+    assert "not installed" in ps["codex"].source_of_key()
 
 
 # ---------------------------------------------------------------------------
-# prompts.py
+# _format_conversation
+# ---------------------------------------------------------------------------
+
+def test_format_conversation_prefixes_roles():
+    from spacr.qt.ai.providers import _format_conversation
+    msgs = [
+        {"role": "user", "content": "hi"},
+        {"role": "assistant", "content": "hello"},
+        {"role": "user", "content": "who are you"},
+    ]
+    out = _format_conversation(msgs, system="be nice")
+    assert "System:" in out and "be nice" in out
+    assert "User:\nhi" in out
+    assert "Assistant:\nhello" in out
+    assert out.rstrip().endswith("who are you")
+
+
+# ---------------------------------------------------------------------------
+# Legacy keys.py stub still importable
+# ---------------------------------------------------------------------------
+
+def test_keys_module_still_importable_but_inert():
+    from spacr.qt.ai import keys as ai_keys
+    assert ai_keys.get_key("claude") is None
+    assert ai_keys.set_key("claude", "x") is False
+    assert "n/a" in ai_keys.source_of("claude")
+
+
+# ---------------------------------------------------------------------------
+# Prompts
 # ---------------------------------------------------------------------------
 
 def test_default_prompt_mentions_spacr():
@@ -105,7 +112,7 @@ def test_default_prompt_mentions_spacr():
 def test_error_explainer_prompt_asks_for_short_manual():
     from spacr.qt.ai import prompts
     body = prompts.error_explainer_prompt()
-    assert "6" in body   # <=6 steps constraint appears
+    assert "6" in body
 
 
 def test_wrap_error_includes_active_app():
@@ -116,30 +123,40 @@ def test_wrap_error_includes_active_app():
 
 
 # ---------------------------------------------------------------------------
-# Screen
+# Panel
 # ---------------------------------------------------------------------------
 
 def test_ai_chat_panel_starts_on_empty_state(qtbot, qt_theme_applied, monkeypatch):
-    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
-    import sys
-    class _K:
-        @staticmethod
-        def get_password(*a, **kw): return None
-        @staticmethod
-        def set_password(*a, **kw): return None
-        @staticmethod
-        def delete_password(*a, **kw): return None
-    monkeypatch.setitem(sys.modules, "keyring", _K)
+    """With no CLIs installed the panel should show the empty state."""
+    from spacr.qt.ai import providers as pmod
+    monkeypatch.setattr(pmod.shutil, "which", lambda name: None)
 
     from spacr.qt.widgets import AIChatPanel
     panel = AIChatPanel()
     qtbot.addWidget(panel)
-    # Without any configured provider we render the empty-state pane
     assert panel._stack.currentWidget() is panel._empty_state
     assert not panel._btn_send.isEnabled()
 
+
+def test_ai_chat_panel_shows_chat_when_cli_installed(qtbot, qt_theme_applied,
+                                                       monkeypatch):
+    from spacr.qt.ai import providers as pmod
+    monkeypatch.setattr(pmod.shutil, "which",
+                          lambda n: f"/opt/bin/{n}" if n == "claude" else None)
+
+    from spacr.qt.widgets import AIChatPanel
+    panel = AIChatPanel()
+    qtbot.addWidget(panel)
+    # Provider combo populated with the installed CLI
+    labels = [panel._provider_combo.itemText(i)
+              for i in range(panel._provider_combo.count())]
+    assert any("Claude" in l for l in labels)
+    assert panel._stack.currentWidget() is panel._chat_scroll
+
+
+# ---------------------------------------------------------------------------
+# AppScreen Explain-error wiring
+# ---------------------------------------------------------------------------
 
 def test_app_screen_has_disabled_explain_button(qtbot, qt_theme_applied):
     from spacr.qt.screens.app_screen import AppScreen
