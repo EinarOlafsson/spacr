@@ -106,7 +106,7 @@ def test_keys_module_still_importable_but_inert():
 def test_default_prompt_mentions_spacr():
     from spacr.qt.ai import prompts
     body = prompts.default_system_prompt()
-    assert "SpaCR" in body or "spacr" in body
+    assert "spaCR" in body or "spacr" in body
 
 
 def test_error_explainer_prompt_asks_for_short_manual():

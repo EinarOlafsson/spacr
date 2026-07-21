@@ -67,13 +67,24 @@ class ChatProvider(ABC):
 # Shared subprocess helper
 # ---------------------------------------------------------------------------
 
+# Noise the vendor CLIs emit that we drop before showing to the user.
+# Match on line prefix (case-sensitive).
+_NOISE_LINE_PREFIXES = (
+    "Permission deny rule",
+    "Permission allow rule",
+    "Permission ask rule",
+)
+
+
 def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
                      env_extra: Optional[Dict[str, str]] = None
                      ) -> Iterator[str]:
     """Spawn a subprocess and yield stdout as it arrives.
 
-    Reads in ~64-char chunks so the UI paints progressively. Merges
-    stderr into stdout so users see auth errors etc. inline.
+    Reads line-by-line so noise-filtering can drop specific
+    warnings (e.g. Claude Code's per-file permission-rule reminders
+    from the user's ~/.claude/settings.json). Merges stderr into
+    stdout so real errors show up inline.
     """
     env = os.environ.copy()
     if env_extra:
@@ -101,11 +112,10 @@ def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
             except BrokenPipeError:
                 pass
         assert proc.stdout is not None
-        while True:
-            chunk = proc.stdout.read(64)
-            if not chunk:
-                break
-            yield chunk
+        for line in proc.stdout:
+            if any(line.startswith(prefix) for prefix in _NOISE_LINE_PREFIXES):
+                continue
+            yield line
     finally:
         try:
             proc.wait(timeout=5)

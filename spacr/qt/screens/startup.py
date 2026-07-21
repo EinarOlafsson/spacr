@@ -86,7 +86,7 @@ class StartupPage(QScrollArea):
         wordmark_col.setSpacing(2)
         wordmark_col.setAlignment(Qt.AlignVCenter)
 
-        eyebrow = QLabel("SpaCR")
+        eyebrow = QLabel("spaCR")
         eyebrow.setObjectName("Caption")
         wordmark_col.addWidget(eyebrow)
 

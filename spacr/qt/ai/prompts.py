@@ -12,7 +12,7 @@ from __future__ import annotations
 
 def _spacr_context() -> str:
     return (
-        "You are the in-app assistant for SpaCR — a Python package for "
+        "You are the in-app assistant for spaCR — a Python package for "
         "spatial phenotype analysis of CRISPR-Cas9 imaging screens. It "
         "runs on top of PyTorch, Cellpose, scikit-image, and scipy, "
         "with a Qt (PySide6) GUI. Users typically:\n"
