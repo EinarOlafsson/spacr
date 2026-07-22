@@ -16,7 +16,7 @@
    :target: https://einarolafsson.github.io/spacr/index.html
 .. |Tutorial| image:: https://img.shields.io/badge/Tutorial-Click%20Here-brightgreen
    :target: https://einarolafsson.github.io/spacr/tutorial/
-.. |DOI| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.21343317.svg
+.. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343317-blue.svg
    :target: https://doi.org/10.5281/zenodo.21343317
 
 .. _docs: https://einarolafsson.github.io/spacr/index.html
@@ -137,39 +137,6 @@ Interactive Tutorial
 Click below to explore the step-by-step GUI and Notebook tutorials for spaCR:
 
 |Tutorial|
-
-
-Narrated video tutorials
-------------------------
-
-Every home module ships with a scripted narrated MP4 walkthrough that
-you can regenerate locally on any machine with ``ffmpeg``. The
-rendering pipeline (``spacr.qt.tutorial``) uses Piper for neural TTS
-narration and captures frames directly from the Qt widget tree — no
-Xvfb needed.
-
-.. code-block:: bash
-
-   pip install -e '.[tutorial]'
-
-   # One-time: fetch a voice model
-   mkdir -p ~/.spacr/piper && cd ~/.spacr/piper
-   curl -sL https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx \
-        -o en_US-lessac-medium.onnx
-   curl -sL https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json \
-        -o en_US-lessac-medium.onnx.json
-
-   # Render a single tutorial:
-   spacr-tutorial mask          # → ~/spacr-tutorials/mask.mp4 + mask.srt
-
-   # Or every module:
-   spacr-tutorial all           # → mask, measure, crop, classify,
-                                #    timelapse, home  (all in ~/spacr-tutorials)
-
-Each MP4 is a 1080p / 30 fps clip with a burned-in cursor overlay,
-an AAC narration track, and a matching ``.srt`` sidecar with the exact
-narration text. Swap the audio track with your own recording when you
-need publish-ready videos.
 
 
 Debugging & logs
