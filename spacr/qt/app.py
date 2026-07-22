@@ -232,6 +232,22 @@ class MainWindow(QMainWindow):
         act_quit.triggered.connect(self.close)
         app_menu.addAction(act_quit)
 
+        demo_menu = mb.addMenu("&Demos")
+        for app_key, label in (
+            ("mask",      "Mask demo…"),
+            ("measure",   "Measure demo…"),
+            ("crop",      "Crop demo…"),
+            ("classify",  "Classify demo…"),
+            ("timelapse", "Timelapse demo…"),
+        ):
+            act = QAction(label, self)
+            act.setStatusTip(
+                f"Generate a synthetic {app_key} dataset and open it "
+                "in the matching app.")
+            act.triggered.connect(
+                lambda checked=False, k=app_key: self._on_load_demo(k))
+            demo_menu.addAction(act)
+
         help_menu = mb.addMenu("&Help")
         act_tutorial = QAction("Tutorial (web)", self)
         act_tutorial.triggered.connect(
@@ -251,6 +267,82 @@ class MainWindow(QMainWindow):
             webbrowser.open(url)
         except Exception as e:
             self.statusBar().showMessage(f"Failed to open {url}: {e}", 5000)
+
+    # -- demos -----------------------------------------------------------
+    # Map each demo key to (target-app key, generator function name).
+    # Kept as a class constant so tests can introspect it without launching
+    # the file dialog.
+    DEMO_TARGETS = {
+        "mask":      ("mask",       "generate_mask_demo"),
+        "measure":   ("measure",    "generate_measure_demo"),
+        "crop":      ("measure",    "generate_crop_demo"),
+        "classify":  ("annotate",   "generate_classify_demo"),
+        "timelapse": ("mask",       "generate_timelapse_demo"),
+    }
+
+    def _on_load_demo(self, demo_key: str) -> None:
+        """Generate a synthetic demo dataset, save its settings, then
+        navigate to the matching app and pre-populate it."""
+        from PySide6.QtWidgets import QFileDialog
+        from pathlib import Path
+
+        target_app, gen_name = self.DEMO_TARGETS[demo_key]
+
+        default = str(Path.home() / "spacr-demos" / demo_key)
+        dst = QFileDialog.getExistingDirectory(
+            self, f"Choose destination for {demo_key} demo",
+            default,
+            QFileDialog.ShowDirsOnly | QFileDialog.DontConfirmOverwrite,
+        )
+        if not dst:
+            return
+        try:
+            layout = self._run_demo_generator(demo_key, dst)
+        except Exception as e:
+            QMessageBox.warning(self, "Demo generation failed", str(e))
+            return
+
+        self._on_nav_selected(target_app)
+        widget = self._screens.get(target_app)
+        if widget is None:
+            return
+        try:
+            self._apply_demo_to_screen(widget, layout)
+            self.statusBar().showMessage(
+                f"Loaded {demo_key} demo from {layout.src}", 5000)
+        except Exception as e:
+            QMessageBox.warning(self, "Demo load failed", str(e))
+
+    def _run_demo_generator(self, demo_key: str, dst: str):
+        """Isolated for tests — invoke the named generator function
+        with `dst` and return whatever it returned."""
+        from spacr.qt import synthetic as syn
+        _, gen_name = self.DEMO_TARGETS[demo_key]
+        gen = getattr(syn, gen_name)
+        return gen(dst)
+
+    def _apply_demo_to_screen(self, widget, layout) -> None:
+        """Push the demo layout into a target screen, in whatever way
+        that screen supports (settings CSV, source folder, or DB path)."""
+        from spacr.utils import load_settings
+
+        # AppScreen: load the CSV into its settings model
+        if hasattr(widget, "apply_settings_dict") and layout.settings_csv:
+            loaded = load_settings(
+                str(layout.settings_csv),
+                setting_key="Key", setting_value="Value",
+            )
+            if isinstance(loaded, dict):
+                widget.apply_settings_dict(loaded)
+                return
+        # AnnotateScreen: takes a src folder directly
+        if hasattr(widget, "_open_source"):
+            widget._open_source(str(layout.src))
+            return
+        # MakeMasksScreen: opens a folder directly
+        if hasattr(widget, "_open_folder"):
+            widget._open_folder(str(layout.src))
+            return
 
     def _show_about(self):
         try:
