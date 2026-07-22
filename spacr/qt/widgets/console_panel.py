@@ -236,6 +236,14 @@ class ConsolePanel(QWidget):
         self._retired: List = []
 
         self._build_ui()
+        # Pipe records from the global logger into this console. Every
+        # ConsolePanel subscribes to the same shared signal handler,
+        # so log records fanned out across screens all see them.
+        try:
+            from ..logging_util import get_signal_handler
+            get_signal_handler().record_ready.connect(self._on_log_record)
+        except Exception:
+            pass
 
     # ------------------------------------------------------------------
     def _build_ui(self):
@@ -334,6 +342,15 @@ class ConsolePanel(QWidget):
             self._last_entry_kind = "stdout"
         self._current_stdout.append(text)
         self._scroll_to_bottom()
+
+    def _on_log_record(self, text: str, level: int) -> None:
+        """Slot for QtLogHandler.record_ready. WARNING/ERROR/CRITICAL
+        records go through append_error so they're visually distinct."""
+        import logging as _logging
+        if level >= _logging.WARNING:
+            self.append_error(text)
+        else:
+            self.append_stdout(text)
 
     def append_error(self, tb: str) -> None:
         if not tb:
