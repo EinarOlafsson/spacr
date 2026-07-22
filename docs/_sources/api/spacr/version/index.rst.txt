@@ -5,7 +5,9 @@ spacr.version
 
 .. autoapi-nested-parse::
 
-   Copyright © 2024 Something
+   Copyright © 2025 olafsson lab
+
+
 
 
 
@@ -14,33 +16,33 @@ spacr.version
 Module Contents
 ---------------
 
-.. py:data:: version
+.. py:function:: get_version() -> str
+
+   Return the installed spacr package version, or ``"unknown"`` if not found.
+
+   :returns: Version string from the first candidate distribution that resolves.
+
+
+.. py:function:: get_torch_version() -> str
+
+   Return the installed PyTorch version, or ``"not available"`` if torch is missing.
+
+   :returns: ``torch.__version__`` when importable, otherwise a placeholder string.
+
+
+.. py:function:: get_version_info() -> dict[str, str]
+
+   Return a dict of spacr, platform, Python, and torch version strings.
+
+   :returns: Mapping with keys ``spacr_version``, ``platform``, ``python_version``, ``torch_version``.
+
+
+.. py:function:: format_version_info() -> str
+
+   Return a human-readable multi-line summary of the current environment.
+
+   :returns: Tab-aligned version report suitable for CLI display.
+
 
 .. py:data:: version_str
-   :value: Multiline-String
-
-   .. raw:: html
-
-      <details><summary>Show Value</summary>
-
-   .. code-block:: python
-
-      """
-      spacr version: 	FunctionDef.version(name='version',
-                          position=Position(lineno=562, col_offset=0, end_lineno=562, end_col_offset=11),
-                          decorators=None,
-                          args=<Arguments l.562 at 0x753a45951730>,
-                          returns=None,
-                          type_params=[],
-                          doc_node=<Const.str l.563 at 0x753a459303a0>,
-                          body=[<Return l.569 at 0x753a45930520>]) 
-      platform:       	linux 
-      python version: 	Uninferable 
-      torch version:  	torch-deploy-1.8"""
-
-   .. raw:: html
-
-      </details>
-
-
 

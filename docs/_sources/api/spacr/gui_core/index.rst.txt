@@ -11,6 +11,10 @@ spacr.gui_core
 Module Contents
 ---------------
 
+.. py:data:: GPUtil
+   :value: None
+
+
 .. py:data:: q
    :value: None
 
@@ -71,62 +75,256 @@ Module Contents
 
 .. py:function:: toggle_settings(button_scrollable_frame)
 
+   Wire the category-toggle dropdown into the button bar.
+
+   Computes the currently-visible categories from bool/int/value dependencies
+   on the live ``vars_dict``, lazily instantiates hidden category widgets on
+   demand, and re-renders the dropdown whenever a controlling widget changes.
+
+   :param button_scrollable_frame: scrollable frame in the button bar that
+       will host the ``Select Category`` dropdown.
+   :returns: None.
+   :raises ValueError: if the global ``vars_dict`` has not been initialised.
+
+
 .. py:function:: display_figure(fig)
+
+   Render ``fig`` into the plot pane with zoom, pan and context-menu bindings.
+
+   Replaces any existing canvas, hooks left/right click for previous/next
+   figure, right-click for the save/modify/reset-zoom menu, and mouse wheel
+   for anchored zooming on the axis under the cursor.
+
+   :param fig: matplotlib ``Figure`` to display.
+   :returns: None.
+
 
 .. py:function:: clear_unused_figures()
 
+   Trim the figure deque to a ±20 window around the current index.
+
+   :returns: None.
+
+
 .. py:function:: show_previous_figure()
+
+   Display the previous figure in the deque, if one exists.
+
+   :returns: None.
+
 
 .. py:function:: show_next_figure()
 
+   Display the next figure in the deque, pulling from ``fig_queue`` if at the end.
+
+   :returns: None.
+
+
 .. py:function:: process_fig_queue()
+
+   Drain ``fig_queue`` into the on-screen deque and reschedule itself.
+
+   Caps the deque at 100 entries (closing evicted figures), advances the
+   slider maximum and displays the first figure if none has been shown yet.
+
+   :returns: None.
+
 
 .. py:function:: update_figure(value)
 
+   Slider callback: display the figure at index ``value`` in the deque.
+
+   :param value: slider value, coerced to int and clamped to ``[0, len(figures))``.
+   :returns: None.
+
+
 .. py:function:: setup_plot_section(vertical_container, settings_type)
+
+   Build the figure canvas and index slider inside ``vertical_container``.
+
+   Initialises the shared ``figures`` deque and index and displays an empty
+   placeholder figure so subsequent updates have something to replace.
+
+   :param vertical_container: parent PanedWindow that receives the plot frame.
+   :param settings_type: current module id; used to short-circuit the slider
+       for modules (e.g. ``'map_barcodes'``) that don't need it.
+   :returns: tuple ``(canvas, canvas_widget)``.
+
 
 .. py:function:: set_globals(thread_control_var, q_var, console_output_var, parent_frame_var, vars_dict_var, canvas_var, canvas_widget_var, scrollable_frame_var, fig_queue_var, progress_bar_var, usage_bars_var)
 
+   Bind the module-level GUI globals to caller-owned objects.
+
+   Called once during ``initiate_root`` so cross-function state (queues,
+   canvas, progress bars, etc.) can be reached from callbacks.
+
+   :param thread_control_var: dict tracking the worker process/stop-request flag.
+   :param q_var: log/error message queue.
+   :param console_output_var: Tk ``Text`` widget backing the console.
+   :param parent_frame_var: root frame that owns the layout.
+   :param vars_dict_var: settings widget map.
+   :param canvas_var: current matplotlib canvas.
+   :param canvas_widget_var: underlying Tk widget for ``canvas``.
+   :param scrollable_frame_var: settings scrollable frame.
+   :param fig_queue_var: queue of pending figures.
+   :param progress_bar_var: batch progress bar in the button section.
+   :param usage_bars_var: list of RAM/GPU/CPU progress bars.
+   :returns: None.
+
+
 .. py:function:: import_settings(settings_type='mask')
 
-.. py:function:: setup_settings_panel(vertical_container, settings_type='mask')
+   Prompt for a settings CSV and rebuild the settings panel with its values.
+
+   Merges CSV values on top of the defaults for the given ``settings_type``,
+   regenerates every input widget, and refreshes the category dropdown.
+
+   :param settings_type: module id that selects the defaults; one of the
+       keys handled by ``setup_settings_panel`` (``'mask'``, ``'measure'``, ...).
+   :returns: None. No-op if the user cancels the file dialog.
+   :raises ValueError: for unrecognised ``settings_type``.
+
+
+.. py:function:: setup_settings_panel(vertical_container, settings_type='mask', tick_callback=None)
+
+   Build the settings scroll pane populated with defaults for ``settings_type``.
+
+   Selects the matching ``set_default_*``/``get_*_default_settings`` factory,
+   converts the resulting dict into GUI widget specs, and materialises them
+   on a new scrollable frame.
+
+   :param vertical_container: parent PanedWindow that hosts the settings panel.
+   :param settings_type: module id (``'mask'``, ``'measure'``, ``'classify'``, ...).
+   :param tick_callback: optional callable invoked per created field for progress reporting.
+   :returns: tuple ``(scrollable_frame, vars_dict)``.
+   :raises ValueError: for unrecognised ``settings_type``.
+
 
 .. py:function:: setup_console(vertical_container)
 
+   Build the console output panel inside ``vertical_container``.
+
+   Adds a labelled header with a hover-highlighted divider and a themed
+   ``Text`` widget that receives log messages via :func:`process_console_queue`.
+
+   :param vertical_container: parent PanedWindow that hosts the console.
+   :returns: tuple ``(console_output, console_frame)``.
+
+
 .. py:function:: setup_button_section(horizontal_container, settings_type='mask', run=True, abort=True, download=True, import_btn=True)
+
+   Build the run/abort/download/settings button row and progress bar.
+
+   The visible buttons depend on ``settings_type`` (e.g. ``abort`` and
+   ``download`` are only shown for pipeline-style modules) and the
+   ``run``/``abort``/``download``/``import_btn`` flags.
+
+   :param horizontal_container: parent PanedWindow that hosts the button strip.
+   :param settings_type: module id used to decide which buttons apply.
+   :param run: include the run button.
+   :param abort: include the abort button when the module supports it.
+   :param download: include the "download demo dataset" button for supporting modules.
+   :param import_btn: include the settings-import button.
+   :returns: tuple ``(button_scrollable_frame, btn_col)``; ``btn_col`` is the
+       next free column index for extra buttons.
+
 
 .. py:function:: setup_usage_panel(horizontal_container, btn_col, uppdate_frequency)
 
+   Build the RAM/VRAM/GPU/per-core CPU usage bars beside the button strip.
+
+   Bars that can't be created (missing GPU, ``GPUtil`` unavailable, etc.) are
+   silently skipped and a placeholder is substituted for the periodic updater.
+
+   :param horizontal_container: parent PanedWindow that hosts the usage panel.
+   :param btn_col: starting column index carried over from :func:`setup_button_section`.
+   :param uppdate_frequency: polling interval in ms for the usage refresh loop.
+   :returns: tuple ``(usage_scrollable_frame, usage_bars, usg_col)``.
+
+
 .. py:function:: initiate_abort()
+
+   Terminate the running worker process and reset ``thread_control``.
+
+   :returns: None.
+
 
 .. py:function:: check_src_folders_files(settings, settings_type, q)
 
-   Checks if 'src' is a key in the settings dictionary and if it exists as a valid path.
-   If 'src' is a list, iterates through the list and checks each path.
-   If any path is missing, prompts the user to edit or remove invalid paths.
+   Validate the ``src`` path(s) in a settings dict for the given module.
+
+   Confirms every source path exists and, per ``settings_type``, checks that
+   the expected images or sub-folders (``1/``, ``stack/``, ``masks/``,
+   ``merged/``) are present. Failures are reported through ``q``.
+
+   :param settings: settings dict; the ``src`` entry is normalised in place.
+   :param settings_type: module id (``'mask'``, ``'measure'``, ...).
+   :param q: queue used to surface error messages to the GUI.
+   :returns: ``True`` when the caller should stop (missing/invalid inputs),
+       ``False`` when validation passed.
 
 
 .. py:function:: start_process(q=None, fig_queue=None, settings_type='mask')
 
+   Validate settings, initialise CUDA, and spawn the worker process.
+
+   Reads and coerces the current ``vars_dict`` values, verifies source paths,
+   aborts any in-flight worker, then starts a fresh ``multiprocessing.Process``
+   running :func:`spacr.gui_utils.run_function_gui` for ``settings_type``.
+
+   :param q: log/error queue; a fresh ``Queue`` is created if None.
+   :param fig_queue: figure queue; a fresh ``Queue`` is created if None.
+   :param settings_type: module id to dispatch (``'mask'``, ``'measure'``, ...).
+   :returns: None.
+
+
 .. py:function:: process_console_queue()
+
+   Pump the log queue into the console widget and reschedule itself.
+
+   Colour-codes ``Error:`` / ``Warning:`` prefixes, parses ``Progress:``
+   messages into the batch progress bar (deduplicating repeated tick counts),
+   and re-enqueues itself after ``uppdate_frequency`` ms.
+
+   :returns: None.
+
 
 .. py:function:: main_thread_update_function(root, q, fig_queue, canvas_widget)
 
+   Background pump kept alive by ``root.after`` to keep the UI responsive.
+
+   Empties any queue backlog and re-schedules itself; primarily exists so the
+   Tk mainloop keeps ticking while a worker process is active.
+
+   :param root: Tk root used to reschedule the callback.
+   :param q: log/error queue.
+   :param fig_queue: figure queue (currently only used for keep-alive purposes).
+   :param canvas_widget: canvas widget kept in scope for future extensions.
+   :returns: None.
+
+
 .. py:function:: cleanup_previous_instance()
 
-   Cleans up resources from the previous application instance.
+   Tear down widgets, queues, canvas and threads from any prior GUI instance.
+
+   Called at the top of :func:`initiate_root` so switching modules doesn't
+   leave orphaned Tk widgets, matplotlib figures or worker state around.
+
+   :returns: None.
 
 
 .. py:function:: initiate_root(parent, settings_type='mask')
 
-   Initializes the root window and sets up the GUI components based on the specified settings type.
+   Build the full spacr GUI for ``settings_type`` inside ``parent``.
 
-   :param parent: The parent window for the GUI.
-   :type parent: tkinter.Tk or tkinter.Toplevel
-   :param settings_type: The type of settings to be displayed in the GUI. Defaults to 'mask'.
-   :type settings_type: str, optional
+   Tears down any prior instance, then progressively assembles the layout
+   (frames, settings, plot, console, buttons, usage bars) across staggered
+   ``after`` callbacks so the loading spinner stays animated. ``annotate``
+   and ``make_masks`` skip the standard pipeline and boot their own apps.
 
-   :returns: A tuple containing the parent frame and the dictionary of variables used in the GUI.
-   :rtype: tuple
+   :param parent: Tk root or frame that will host the GUI.
+   :param settings_type: module id — ``'mask'``, ``'measure'``, ``'annotate'``,
+       ``'make_masks'``, ``'classify'``, ``'umap'``, ``'ml_analyze'``, ....
+   :returns: tuple ``(parent_frame, vars_dict)``.
 
 

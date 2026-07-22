@@ -13,58 +13,110 @@ spacr.gui_utils
 Module Contents
 ---------------
 
+.. py:function:: attach_dependency_listeners(vars_dict, categories, category_dependencies, category_group_dependencies)
+
+   Wire up show/hide dependencies between boolean settings and categories.
+
+   Registers trace callbacks so toggling a boolean widget hides or shows every
+   dependent category, supporting both 1:1 dependencies and any-of group
+   dependencies. Initial visibility is applied immediately.
+
+   :param vars_dict: mapping ``key -> (label, widget, var, frame)``.
+   :param categories: mapping of category name to the list of settings it owns.
+   :param category_dependencies: mapping ``bool_key -> [categories to toggle]``.
+   :param category_group_dependencies: mapping ``category -> [bool_keys that any-enable it]``.
+   :returns: None.
+
+
 .. py:function:: initialize_cuda()
 
-   Initializes CUDA in the main process by performing a simple GPU operation.
+   Initialize CUDA in the main process by performing a trivial GPU op.
+
+   :returns: None.
 
 
 .. py:function:: set_high_priority(process)
 
+   Raise the OS scheduling priority of a subprocess.
+
+   Uses ``HIGH_PRIORITY_CLASS`` on Windows and ``nice(-10)`` on Unix-like systems.
+   Failures are logged but never raised.
+
+   :param process: a ``multiprocessing.Process`` (or object exposing ``.pid``).
+   :returns: None.
+
+
 .. py:function:: set_cpu_affinity(process)
+
+   Pin a subprocess to all available CPU cores on Linux.
+
+   No-op on non-Linux platforms.
+
+   :param process: a ``multiprocessing.Process`` (or object exposing ``.pid``).
+   :returns: None.
+
 
 .. py:function:: proceed_with_app(root, app_name, app_func)
 
+   Replace ``root.content_frame`` contents with a new app.
+
+   :param root: the Tk root that owns ``content_frame``.
+   :param app_name: display name of the app (currently unused, kept for logging/hooks).
+   :param app_func: callable invoked with ``root.content_frame`` to build the new app.
+   :returns: None.
+
+
 .. py:function:: load_app(root, app_name, app_func)
+
+   Tear down the current spacr app and load another in its place.
+
+   Cancels pending ``after`` tasks and defers the swap to the current app's
+   exit hook when one is registered (annotation/make_masks apps swap
+   immediately since they own the root themselves).
+
+   :param root: the Tk root.
+   :param app_name: name of the app to load.
+   :param app_func: callable invoked with ``root.content_frame`` to build it.
+   :returns: None.
+
 
 .. py:function:: parse_list(value)
 
-   Parses a string representation of a list and returns the parsed list.
+   Parse a string literal into a homogeneous list of scalars.
 
-   :param value: The string representation of the list.
-   :type value: str
+   Accepts Python-list or tuple literals and rejects mixed-type contents.
+   Single-element tuples are returned as one-element lists.
 
-   :returns: The parsed list, which can contain integers, floats, or strings.
-   :rtype: list
-
-   :raises ValueError: If the input value is not a valid list format or contains mixed types or unsupported types.
+   :param value: string representation of a list or tuple.
+   :returns: parsed list containing only ints, floats, or strings.
+   :raises ValueError: if the string is not a valid literal or contains
+       mixed / unsupported types.
 
 
 .. py:function:: create_input_field(frame, label_text, row, var_type='entry', options=None, default_value=None)
 
-   Create an input field in the specified frame.
+   Create a labeled settings input widget on ``frame`` at ``row``.
 
-   :param frame: The frame in which the input field will be created.
-   :type frame: tk.Frame
-   :param label_text: The text to be displayed as the label for the input field.
-   :type label_text: str
-   :param row: The row in which the input field will be placed.
-   :type row: int
-   :param var_type: The type of input field to create. Defaults to 'entry'.
-   :type var_type: str, optional
-   :param options: The list of options for a combo box input field. Defaults to None.
-   :type options: list, optional
-   :param default_value: The default value for the input field. Defaults to None.
-   :type default_value: str, optional
+   Supports entry, checkbox and combo variants and coerces ``default_value``
+   to the widget's expected type; unrecognised ``var_type`` returns a bare
+   label with no widget.
 
-   :returns: A tuple containing the label, input widget, variable, and custom frame.
-   :rtype: tuple
-
-   :raises Exception: If an error occurs while creating the input field.
+   :param frame: parent frame that hosts the row.
+   :param label_text: raw settings key; underscores are replaced with spaces
+       and the first letter capitalised for display.
+   :param row: grid row inside ``frame`` to occupy.
+   :param var_type: one of ``'entry'``, ``'check'``, ``'combo'``.
+   :param options: list of choices used when ``var_type='combo'``.
+   :param default_value: initial value; falls back to a type-appropriate default.
+   :returns: tuple ``(label, widget, tk_var, container_frame)``.
 
 
 .. py:function:: process_stdout_stderr(q)
 
-   Redirect stdout and stderr to the queue q.
+   Redirect ``sys.stdout`` and ``sys.stderr`` writes into a queue.
+
+   :param q: queue receiving each written message.
+   :returns: None.
 
 
 .. py:class:: WriteToQueue(q)
@@ -72,8 +124,11 @@ Module Contents
    Bases: :py:obj:`io.TextIOBase`
 
 
-   A custom file-like class that writes any output to a given queue.
-   This can be used to redirect stdout and stderr.
+   File-like sink that forwards writes into a queue.
+
+   Used to reroute ``stdout``/``stderr`` into the GUI console.
+
+   :param q: queue receiving each non-empty write.
 
 
    .. py:attribute:: q
@@ -81,27 +136,53 @@ Module Contents
 
    .. py:method:: write(msg)
 
-      Write string to stream.
-      Returns the number of characters written (which is always equal to
-      the length of the string).
+      Forward a non-empty message to the queue.
 
 
 
    .. py:method:: flush()
 
-      Flush write buffers, if applicable.
-
-      This is not implemented for read-only and non-blocking streams.
+      No-op required by the file-like interface.
 
 
 
 .. py:function:: cancel_after_tasks(frame)
 
+   Cancel every scheduled Tk ``after`` task tracked on ``frame``.
+
+   :param frame: Tk widget with an ``after_tasks`` attribute.
+   :returns: None.
+
+
 .. py:function:: annotate(settings)
+
+   Launch the standalone annotation UI on a measurements database.
+
+   Ensures the requested annotation column exists in the ``png_list`` table,
+   then opens ``AnnotateApp`` in its own Tk root and blocks on the mainloop.
+
+   :param settings: annotation settings dict (see ``set_annotate_default_settings``).
+   :returns: None.
+
 
 .. py:function:: generate_annotate_fields(frame)
 
+   Build labelled entry widgets for the annotation-settings defaults.
+
+   :param frame: parent Tk frame that hosts the field grid.
+   :returns: mapping ``key -> {'entry': ttk.Entry, 'value': default}``.
+
+
 .. py:function:: run_annotate_app(vars_dict, parent_frame)
+
+   Collect the annotation-fields values, coerce types, and start the annotator.
+
+   Clears ``parent_frame`` of existing widgets before launching the app.
+
+   :param vars_dict: widget map produced by :func:`generate_annotate_fields`.
+   :param parent_frame: Tk frame that hosts the annotation UI.
+   :returns: None.
+
 
 .. py:data:: global_image_refs
    :value: []
@@ -109,88 +190,194 @@ Module Contents
 
 .. py:function:: annotate_app(parent_frame, settings)
 
+   Start the annotation app inside an existing GUI frame.
+
+   :param parent_frame: Tk frame whose toplevel hosts the annotator.
+   :param settings: annotation settings dict.
+   :returns: None.
+
+
 .. py:function:: load_next_app(root)
+
+   Invoke the queued next-app callback, reinitialising root if it was destroyed.
+
+   :param root: current Tk root; expected to hold ``next_app_func`` and ``next_app_args``.
+   :returns: None.
+
 
 .. py:function:: annotate_with_image_refs(settings, root, shutdown_callback)
 
+   Start ``AnnotateApp`` inside an existing root with a shutdown chain.
+
+   Ensures the annotation column exists in the ``png_list`` table, sizes the
+   root to the full screen, and registers an exit hook that runs
+   ``shutdown_callback`` after the app closes.
+
+   :param settings: annotation settings dict.
+   :param root: existing Tk root to reuse.
+   :param shutdown_callback: callable invoked after the annotator shuts down.
+   :returns: None.
+
+
 .. py:function:: convert_settings_dict_for_gui(settings)
+
+   Convert a plain settings dict into the GUI variable spec.
+
+   Maps each key to a ``(widget_type, options, default_value)`` triple, using
+   combo boxes for keys with known enumerated options and inferring
+   check/entry widgets otherwise.
+
+   :param settings: mapping of setting names to default values.
+   :returns: mapping ``key -> (var_type, options, default_value)`` ready for
+       :func:`create_input_field`.
+
 
 .. py:function:: spacrFigShow(fig_queue=None)
 
-   Replacement for plt.show() that queues figures instead of displaying them.
+   Route matplotlib figures into a queue instead of displaying them.
+
+   Drop-in replacement for ``plt.show()`` used while spacr runs inside the GUI
+   process; falls back to ``fig.show()`` when no queue is provided.
+
+   :param fig_queue: queue that receives the current figure, or None.
+   :returns: None.
 
 
-.. py:function:: function_gui_wrapper(function=None, settings={}, q=None, fig_queue=None, imports=1)
+.. py:function:: function_gui_wrapper(function=None, settings=None, q=None, fig_queue=None, imports=1)
 
-   Wraps the run_multiple_simulations function to integrate with GUI processes.
+   Run a spacr worker function with GUI-safe stdout, error and figure routing.
 
-   Parameters:
-   - settings: dict, The settings for the run_multiple_simulations function.
-   - q: multiprocessing.Queue, Queue for logging messages to the GUI.
-   - fig_queue: multiprocessing.Queue, Queue for sending figures to the GUI.
+   Temporarily replaces ``plt.show`` with :func:`spacrFigShow` so any figures
+   are shipped to ``fig_queue`` instead of blocking, and forwards exception
+   text to ``q``.
+
+   :param function: worker callable to invoke.
+   :param settings: settings dict passed to ``function``.
+   :param q: queue for log/error messages sent to the GUI.
+   :param fig_queue: queue for matplotlib figures produced during the run.
+   :param imports: 1 to call ``function(settings=...)``; 2 to call
+       ``function(src=settings['src'], settings=...)``.
+   :returns: None.
 
 
 .. py:function:: run_function_gui(settings_type, settings, q, fig_queue, stop_requested)
 
-.. py:function:: hide_all_settings(vars_dict, categories)
+   Dispatch a spacr module by ``settings_type`` and run it in the worker.
 
-   Function to initially hide all settings in the GUI.
+   Redirects stdout/stderr into ``q``, invokes the mapped module via
+   :func:`function_gui_wrapper`, and sets ``stop_requested`` on completion so
+   the GUI can reap the process.
 
-   Parameters:
-   - categories: dict, The categories of settings with their corresponding settings.
-   - vars_dict: dict, The dictionary containing the settings and their corresponding widgets.
+   :param settings_type: identifier that selects the target spacr function.
+   :param settings: settings dict passed through to the worker.
+   :param q: queue for log/error messages.
+   :param fig_queue: queue for matplotlib figures.
+   :param stop_requested: shared ``multiprocessing.Value('i')`` flipped to 1 on exit.
+   :returns: None.
+   :raises ValueError: if ``settings_type`` is not a recognised module.
+
+
+.. py:function:: hide_all_settings(vars_dict, categories=None)
+
+   Hide every widget that belongs to any known category.
+
+   Used to collapse all optional-category settings until their triggering
+   boolean is toggled on.
+
+   :param vars_dict: mapping ``key -> (label, widget, var, frame)``.
+   :param categories: category-to-settings map; if None, ``vars_dict`` is returned unchanged.
+   :returns: the (mutated) ``vars_dict``.
 
 
 .. py:function:: setup_frame(parent_frame)
 
+   Build the settings/plot/console panel layout inside ``parent_frame``.
+
+   Creates the horizontal-split PanedWindow, a vertical container for figures
+   and a horizontal container for buttons, and applies the dark theme.
+
+   :param parent_frame: Tk frame that will host the layout.
+   :returns: tuple ``(parent_frame, vertical_container, horizontal_container, settings_container)``.
+
+
 .. py:function:: download_hug_dataset(q, vars_dict)
+
+   Download the demo dataset and settings pack from Hugging Face.
+
+   Also updates ``vars_dict['src']`` with the downloaded dataset path so the
+   settings panel points at it. Progress and errors are reported through ``q``.
+
+   :param q: queue used for status/error messages.
+   :param vars_dict: settings widget map; the ``'src'`` entry is updated if present.
+   :returns: None.
+
 
 .. py:function:: download_dataset(q, repo_id, subfolder, local_dir=None, retries=5, delay=5)
 
-   Downloads a dataset or settings files from Hugging Face and returns the local path.
+   Download a Hugging Face dataset subfolder (or CSVs) to a local directory.
 
-   :param repo_id: The repository ID (e.g., 'einarolafsson/toxo_mito' or 'einarolafsson/spacr_settings').
-   :type repo_id: str
-   :param subfolder: The subfolder path within the repository (e.g., 'plate1' or the settings subfolder).
-   :type subfolder: str
-   :param local_dir: The local directory where the files will be saved. Defaults to the user's home directory.
-   :type local_dir: str
-   :param retries: Number of retry attempts in case of failure.
-   :type retries: int
-   :param delay: Delay in seconds between retries.
-   :type delay: int
+   Skips the download if the target directory already contains files, and
+   retries transient HTTP errors per-file and per-listing.
 
-   :returns: The local path to the downloaded files.
-   :rtype: str
+   :param q: queue used for progress/error messages.
+   :param repo_id: HF dataset repo id (e.g. ``'einarolafsson/toxo_mito'``).
+   :param subfolder: subfolder within the repo; empty string downloads top-level CSVs.
+   :param local_dir: destination directory; defaults to ``~/datasets``.
+   :param retries: number of retry attempts for both listing and each file.
+   :param delay: delay in seconds between retries.
+   :returns: path to the local directory containing the downloaded files.
+   :raises Exception: if downloads fail after all retry attempts.
 
 
 .. py:function:: ensure_after_tasks(frame)
 
+   Ensure ``frame.after_tasks`` exists so scheduled callbacks can be tracked.
+
+   :param frame: Tk widget to annotate.
+   :returns: None.
+
+
 .. py:function:: display_gif_in_plot_frame(gif_path, parent_frame)
 
-   Display and zoom a GIF to fill the entire parent_frame, maintaining aspect ratio, with lazy resizing and caching.
+   Loop a GIF in ``parent_frame``, cover-cropped and cached per frame size.
+
+   :param gif_path: filesystem path to the GIF.
+   :param parent_frame: Tk frame that hosts the animation.
+   :returns: None.
 
 
 .. py:function:: display_media_in_plot_frame(media_path, parent_frame)
 
-   Display an MP4, AVI, or GIF and play it on repeat in the parent_frame, fully filling the frame while maintaining aspect ratio.
+   Loop an MP4/AVI/GIF in ``parent_frame``, cover-cropped to fill it.
+
+   :param media_path: path to the media file; extension picks the decoder.
+   :param parent_frame: Tk frame that hosts the playback.
+   :returns: None.
+   :raises ValueError: for unsupported file extensions.
 
 
 .. py:function:: print_widget_structure(widget, indent=0)
 
-   Recursively print the widget structure.
+   Print the Tk widget tree rooted at ``widget`` for debugging.
+
+   :param widget: root widget to descend from.
+   :param indent: current indent depth (spaces) used by recursive calls.
+   :returns: None.
 
 
 .. py:function:: get_screen_dimensions()
 
+   Return the pixel dimensions of the primary monitor.
+
+   :returns: tuple ``(screen_width, screen_height)`` in pixels.
+
+
 .. py:function:: convert_to_number(value)
 
-   Converts a string value to an integer if possible, otherwise converts to a float.
+   Convert a string to ``int`` when possible, otherwise to ``float``.
 
-   :param value: The string representation of the number.
-   :type value: str
-
-   :returns: The converted number.
-   :rtype: int or float
+   :param value: string representation of a number.
+   :returns: parsed number as ``int`` (preferred) or ``float``.
+   :raises ValueError: if the string is neither.
 
 

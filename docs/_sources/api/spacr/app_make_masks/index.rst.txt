@@ -11,5 +11,16 @@ Module Contents
 
 .. py:function:: initiate_make_mask_app(parent_frame)
 
+   Show a small settings dialog that then launches the ``ModifyMaskApp`` editor.
+
+   Collects ``folder_path`` and ``scale_factor`` from the user before opening the
+   mask-editing window.
+
+   :param parent_frame: Tk widget that hosts the settings Toplevel and the editor.
+
+
 .. py:function:: start_make_mask_app()
+
+   Launch the main spacr GUI with the Make Masks tab preselected.
+
 

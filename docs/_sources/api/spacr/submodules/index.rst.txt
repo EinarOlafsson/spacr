@@ -11,27 +11,59 @@ spacr.submodules
 Module Contents
 ---------------
 
-.. py:class:: CellposeLazyDataset(image_files, label_files, settings, randomize=True, augment=False)
+.. py:class:: CellposeLazyDataset(image_files, label_files, settings, randomize: bool = True, augment: bool = False)
 
    Bases: :py:obj:`torch.utils.data.Dataset`
 
 
-   An abstract class representing a :class:`Dataset`.
+   Lazy image/label dataset for Cellpose training and inference.
 
-   All datasets that represent a map from keys to data samples should subclass
-   it. All subclasses should overwrite :meth:`__getitem__`, supporting fetching a
-   data sample for a given key. Subclasses could also optionally overwrite
-   :meth:`__len__`, which is expected to return the size of the dataset by many
-   :class:`~torch.utils.data.Sampler` implementations and the default options
-   of :class:`~torch.utils.data.DataLoader`. Subclasses could also
-   optionally implement :meth:`__getitems__`, for speedup batched samples
-   loading. This method accepts list of indices of samples of batch and returns
-   list of samples.
+   Loads paired image and label tiffs on demand, optionally normalizing,
+   augmenting (8-fold rotations/flips), and resizing to a target size.
 
-   .. note::
-     :class:`~torch.utils.data.DataLoader` by default constructs an index
-     sampler that yields integral indices.  To make it work with a map-style
-     dataset with non-integral indices/keys, a custom sampler must be provided.
+   :param image_files: paths to input image tiffs.
+   :param label_files: paths to matching label tiffs (same length as ``image_files``).
+   :param settings: dict with keys ``normalize``, ``percentiles``, ``target_size``.
+   :param randomize: shuffle the image/label pairing order. Default ``True``.
+   :param augment: enable 8-fold augmentation (dataset length x8). Default ``False``.
+   :raises ValueError: when image/label lists differ in length or are empty.
+
+
+   .. py:attribute:: image_files
+
+
+   .. py:attribute:: label_files
+
+
+   .. py:attribute:: normalize
+
+
+   .. py:attribute:: percentiles
+
+
+   .. py:attribute:: target_size
+
+
+   .. py:attribute:: augment
+      :value: False
+
+
+
+.. py:class:: CellposeLazyDataset_v1(image_files, label_files, settings, randomize=True, augment=False)
+
+   Bases: :py:obj:`torch.utils.data.Dataset`
+
+
+   Legacy lazy image/label dataset for Cellpose (kept for backwards compatibility).
+
+   Superseded by :class:`CellposeLazyDataset`; retained so older training
+   scripts continue to import a working class.
+
+   :param image_files: paths to input image tiffs.
+   :param label_files: paths to matching label tiffs.
+   :param settings: dict with keys ``normalize``, ``percentiles``, ``target_size``.
+   :param randomize: shuffle pairs at construction. Default ``True``.
+   :param augment: enable 8-fold augmentation. Default ``False``.
 
 
    .. py:attribute:: normalize
@@ -50,41 +82,196 @@ Module Contents
 
    .. py:method:: apply_augmentation(image, label, aug_idx)
 
+      Return the ``aug_idx``-th rotation/flip augmentation of ``image``/``label``.
+
+
 
 .. py:function:: train_cellpose(settings)
 
+   Train a Cellpose ``cyto`` segmentation model from images and paired masks.
+
+   :param settings: dict of training settings; see
+       ``get_train_cellpose_default_settings`` for keys including ``src``,
+       ``model_name``, ``target_size``, ``n_epochs``, ``batch_size``,
+       ``learning_rate``, ``weight_decay``, and ``augment``.
+   :returns: None. Saves the trained model under ``<src>/models/cellpose_model``.
+
+
 .. py:function:: test_cellpose_model(settings)
+
+   Evaluate a Cellpose model on a labelled test set and report per-image metrics.
+
+   Computes Jaccard, object counts, mean object area, precision, recall,
+   F1 and accuracy for each image and writes a summary CSV.
+
+   :param settings: dict of test settings; see
+       ``get_default_test_cellpose_model_settings`` for keys including
+       ``src``, ``model_path``, ``batch_size``, ``FT``, ``CP_probability``,
+       and ``save``.
+   :returns: None. Writes ``test_results.csv`` in ``<src>/results`` when ``save`` is set.
+
 
 .. py:function:: apply_cellpose_model(settings)
 
+   Run a Cellpose model over a folder of images and export per-object measurements.
+
+   Optionally masks predictions to a central circle, then records per-object
+   area to ``measurements.csv`` and a per-image summary to ``summary.csv``.
+
+   :param settings: dict of inference settings; see
+       ``get_default_apply_cellpose_model_settings`` for keys including
+       ``src``, ``model_path``, ``batch_size``, ``FT``, ``CP_probability``,
+       ``circularize`` and ``save``.
+   :returns: None. Writes result CSVs under ``<src>/results``.
+
+
 .. py:function:: plot_cellpose_batch(images, labels)
+
+   Display a two-row grid of images and their paired label masks.
+
+   :param images: iterable of 2D grayscale image arrays.
+   :param labels: iterable of matching integer label arrays.
+   :returns: None.
+
 
 .. py:function:: analyze_percent_positive(settings)
 
+   Annotate objects above a threshold and summarise positive fractions per well.
+
+   Merges measurements from ``measurements.db``, thresholds on a chosen
+   feature column, then joins the resulting well-level counts against
+   ``rename_log.csv`` to recover human-readable plate/well identifiers.
+
+   :param settings: dict of settings; see
+       ``default_settings_analyze_percent_positive`` for keys including
+       ``src``, ``tables``, ``value_col``, ``threshold`` and ``filter_1``.
+   :returns: DataFrame of annotated per-well positive/negative counts and fractions.
+
+
 .. py:function:: analyze_recruitment(settings)
 
-   Analyze recruitment data by grouping the DataFrame by well coordinates and plotting controls and recruitment data.
+   Compute pathogen-to-cytoplasm recruitment ratios and plot per-PV and per-well summaries.
 
-   Parameters:
-   settings (dict): settings.
-
-   Returns:
-   None
+   :param settings: dict of recruitment settings; see
+       ``get_analyze_recruitment_default_settings`` for keys including
+       ``src``, ``cell_types``, ``pathogen_types``, ``treatments`` and
+       their plate metadata, ``channel_of_interest``, and size/intensity ranges.
+   :returns: ``[cells, wells]`` — the per-object and per-well summary DataFrames written to CSV.
 
 
 .. py:function:: analyze_plaques(settings)
 
+   Segment plaques with a bundled Cellpose model and summarise their counts and sizes.
+
+   Runs Cellpose over the images (when ``settings['masks']`` is truthy),
+   then computes per-image plaque counts and area statistics and persists
+   them to a SQLite database alongside the masks.
+
+   :param settings: dict of plaque-analysis settings; see
+       ``get_analyze_plaque_settings`` for keys including ``src`` and ``masks``.
+   :returns: None. Writes ``plaques_analysis.db`` under ``<src>/masks``.
+
+
 .. py:function:: count_phenotypes(settings)
 
-.. py:function:: compare_reads_to_scores(reads_csv, scores_csv, empirical_dict={'r1': (90, 10), 'r2': (90, 10), 'r3': (80, 20), 'r4': (80, 20), 'r5': (70, 30), 'r6': (70, 30), 'r7': (60, 40), 'r8': (60, 40), 'r9': (50, 50), 'r10': (50, 50), 'r11': (40, 60), 'r12': (40, 60), 'r13': (30, 70), 'r14': (30, 70), 'r15': (20, 80), 'r16': (20, 80)}, pc_grna='TGGT1_220950_1', nc_grna='TGGT1_233460_4', y_columns=['class_1_fraction', 'TGGT1_220950_1_fraction', 'nc_fraction'], column='columnID', value='c3', plate=None, save_paths=None)
+   Count unique phenotype annotations per plate/row/column and export to CSV.
 
-.. py:function:: interperate_vision_model(settings={})
+   :param settings: dict with ``src`` (pointing at a measurements folder or
+       ``measurements.db``) and ``annotation_column`` (the column of interest
+       in the ``png_list`` table).
+   :returns: None. Writes ``phenotype_counts.csv`` next to the database.
+
+
+.. py:function:: compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None, pc_grna='TGGT1_220950_1', nc_grna='TGGT1_233460_4', y_columns=None, column='columnID', value='c3', plate=None, save_paths=None)
+
+   Compare sequencing read fractions to classifier score fractions across wells.
+
+   Loads paired reads and scores tables (single files or matched lists),
+   computes per-well class-1 and gRNA fractions, joins them with an
+   empirical row-to-mixture dictionary, and plots the fractions against
+   the positive- and negative-control fractions.
+
+   :param reads_csv: path (or list of paths) to per-gRNA read count CSVs.
+   :param scores_csv: path (or list of paths) to per-object classifier score CSVs.
+   :param empirical_dict: mapping of ``rowID`` to ``(pc_units, nc_units)`` mixture; a 16-row default is used when ``None``.
+   :param pc_grna: positive-control gRNA name. Default ``'TGGT1_220950_1'``.
+   :param nc_grna: negative-control gRNA name. Default ``'TGGT1_233460_4'``.
+   :param y_columns: columns to plot on the y axis; a sensible default is used when ``None``.
+   :param column: column used to select a subset of wells. Default ``'columnID'``.
+   :param value: value in ``column`` to keep. Default ``'c3'``.
+   :param plate: plate ID to stamp when a single pair of CSVs is given.
+   :param save_paths: two-element list of PDF output paths (pc plot, nc plot).
+   :returns: two matplotlib figures ``[fig_pc, fig_nc]``.
+
+
+.. py:function:: interperate_vision_model(settings=None)
+
+   Explain a vision-model score with random-forest, permutation and SHAP importance.
+
+   Merges morphology measurements with per-object scores, expands
+   compartment-relative feature ratios, then runs random-forest feature
+   importance, permutation importance and (optionally) SHAP on the top
+   features, producing per-compartment and per-channel importance tables.
+
+   :param settings: dict of interpretation settings including ``src``,
+       ``tables``, ``channels``, ``score_column``, ``top_features``,
+       ``feature_importance``, ``permutation_importance``, ``shap``,
+       ``shap_sample``, ``n_jobs``, and ``save``.
+   :returns: dict of resulting DataFrames keyed by analysis (``feature_importance``, ``permutation_importance``, ``shap``, plus compartment/channel groupings).
+
 
 .. py:function:: analyze_endodyogeny(settings)
 
+   Bin pathogen volumes by log2 doublings and test group proportions.
+
+   Converts a compartment area to a volume, groups objects into doubling
+   volume bins, then runs the shared chi-squared proportion plot per group.
+
+   :param settings: dict of endodyogeny settings; see
+       ``set_analyze_endodyogeny_defaults`` for keys including ``src``,
+       ``tables``, ``compartment``, ``min_area_bin``, ``max_area``,
+       ``max_bins``, ``um_per_px``, ``group_column``, ``level`` and ``save``.
+   :returns: dict with ``data`` (binned DataFrame) and ``chi_squared`` (results DataFrame).
+
+
 .. py:function:: analyze_class_proportion(settings)
+
+   Test whether classifier class proportions differ between experimental groups.
+
+   Runs chi-squared and pairwise tests on the class column, plots stacked
+   bars and a plate heatmap, and follows up with normality, Levene, and
+   posthoc statistical tests.
+
+   :param settings: dict of settings; see
+       ``set_analyze_class_proportion_defaults`` for keys including ``src``,
+       ``tables``, ``class_column``, ``group_column``, ``level`` and ``save``.
+   :returns: dict with ``data`` (annotated DataFrame) and ``chi_squared`` (results DataFrame).
+
 
 .. py:function:: generate_score_heatmap(settings)
 
+   Combine multiple classifier score CSVs into a per-well heatmap and MAE table.
+
+   Aggregates per-object scores across score CSVs, merges with a
+   cross-validation score and a reads-derived fraction column, plots a
+   multi-channel heatmap, and computes per-channel mean absolute error
+   against the empirical fraction.
+
+   :param settings: dict of settings including ``folders``, ``csv_name``,
+       ``data_column``, ``csv``, ``cv_csv``, ``data_column_cv``,
+       ``plateID``, ``columnID``, ``control_sgrnas``, ``fraction_grna``,
+       ``cmap`` and ``dst``.
+   :returns: merged DataFrame joining reads, classifier scores and CV scores per well.
+
+
 .. py:function:: post_regression_analysis(csv_file, grna_dict, grna_list, save=False)
+
+   Compute gRNA correlation and propagate fixed effect sizes across correlated gRNAs.
+
+   :param csv_file: CSV with columns ``grna``, ``fraction`` and ``prc``.
+   :param grna_dict: mapping of anchor ``grna`` names to their fixed effect sizes.
+   :param grna_list: gRNAs to include in the correlation matrix.
+   :param save: persist correlation matrix, effect sizes and plots. Default ``False``.
+   :returns: None. Displays plots and optionally writes results to ``<csv_dir>/post_regression_analysis_results``.
+
 

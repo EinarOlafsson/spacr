@@ -11,7 +11,26 @@ Module Contents
 
 .. py:function:: convert_to_number(value)
 
+   Return ``value`` coerced to ``int`` when possible, else ``float``.
+
+   :param value: String or number-like value to convert.
+   :returns: ``int`` when parseable as integer, otherwise ``float``.
+   :raises ValueError: When ``value`` is neither an integer nor a float literal.
+
+
 .. py:function:: initiate_annotation_app(parent_frame)
 
+   Prompt for an experiment directory and launch the AnnotateApp settings window.
+
+   Bootstraps the annotation UI by picking a ``src`` directory, verifying the
+   measurements database, then handing off to ``AnnotateApp.open_settings_window``.
+
+   :param parent_frame: Tk widget that owns the modal dialogs and Toplevel window.
+   :returns: The created ``AnnotateApp`` instance, or ``None`` if the user cancelled.
+
+
 .. py:function:: start_annotate_app()
+
+   Launch the main spacr GUI with the Annotate tab preselected.
+
 

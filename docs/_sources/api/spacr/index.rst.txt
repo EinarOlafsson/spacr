@@ -25,10 +25,12 @@ Submodules
    /api/spacr/gui_utils/index
    /api/spacr/io/index
    /api/spacr/logger/index
+   /api/spacr/logging_util/index
    /api/spacr/measure/index
    /api/spacr/ml/index
    /api/spacr/object/index
    /api/spacr/plot/index
+   /api/spacr/qt/index
    /api/spacr/sequencing/index
    /api/spacr/settings/index
    /api/spacr/sim/index

@@ -11,23 +11,14 @@ Module Contents
 
 .. py:function:: get_components(cell_mask, nucleus_mask, pathogen_mask)
 
-   Get the components (nucleus and pathogens) for each cell in the given masks.
+   Map each cell to its enclosed nucleus/pathogen labels via mask lookup.
 
-   :param cell_mask: Binary mask of cell labels.
-   :type cell_mask: ndarray
-   :param nucleus_mask: Binary mask of nucleus labels.
-   :type nucleus_mask: ndarray
-   :param pathogen_mask: Binary mask of pathogen labels.
-   :type pathogen_mask: ndarray
-
-   :returns:
-
-             A tuple containing two dataframes - nucleus_df and pathogen_df.
-                 nucleus_df (DataFrame): Dataframe with columns 'cell_id' and 'nucleus',
-                     representing the mapping of each cell to its nucleus.
-                 pathogen_df (DataFrame): Dataframe with columns 'cell_id' and 'pathogen',
-                     representing the mapping of each cell to its pathogens.
-   :rtype: tuple
+   :param cell_mask: Label mask of cells.
+   :param nucleus_mask: Label mask of nuclei.
+   :param pathogen_mask: Label mask of pathogens.
+   :returns: Tuple ``(nucleus_df, pathogen_df)`` where each DataFrame has one
+       row per (cell, child) pair with columns ``cell_id`` and either
+       ``nucleus`` or ``pathogen``.
 
 
 .. py:function:: save_and_add_image_to_grid(png_channels, img_path, grid, plot=False)
@@ -82,5 +73,30 @@ Module Contents
 
 .. py:function:: generate_cellpose_train_set(folders, dst, min_objects=5)
 
+   Copy image/mask pairs from source folders into a Cellpose training set.
+
+   Only pairs whose mask contains at least ``min_objects`` labeled objects
+   (background label 0 excluded) are copied. Files are renamed with their
+   source folder name as prefix to avoid collisions.
+
+   :param folders: Iterable of source folders, each containing a ``masks/``
+       subfolder and the raw images alongside it.
+   :param dst: Destination folder; ``imgs/`` and ``masks/`` subfolders are
+       created if missing.
+   :param min_objects: Minimum number of unique object labels required in a
+       mask for the pair to be included. Default ``5``.
+   :returns: None.
+
+
 .. py:function:: get_object_counts(src)
+
+   Return per-count-type totals and per-file averages from the measurements DB.
+
+   Reads the ``object_counts`` table from ``<src>/measurements/measurements.db``
+   and aggregates by ``count_type``.
+
+   :param src: Path to the run folder containing ``measurements/measurements.db``.
+   :returns: DataFrame with columns ``count_type``, ``total_object_count``, and
+       ``avg_object_count_per_file_name``.
+
 
