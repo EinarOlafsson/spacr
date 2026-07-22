@@ -361,7 +361,7 @@ class MainWindow(QMainWindow):
             w.setText("" if value is None else str(value))
 
 
-def launch(argv=None) -> int:
+def launch(argv: Optional[list[str]] = None) -> int:
     """Bootstrap QApplication and show the main window."""
     if argv is None:
         argv = sys.argv[1:]

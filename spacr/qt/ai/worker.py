@@ -52,7 +52,7 @@ class StreamWorker(QObject):
         except Exception:
             pass
 
-    def run(self):
+    def run(self) -> None:
         buf: List[str] = []
         try:
             self.stage_changed.emit("connecting")
@@ -89,7 +89,7 @@ def make_stream_thread(
     system: str = "",
     model: Optional[str] = None,
     parent: Optional[QObject] = None,
-):
+) -> tuple[QThread, StreamWorker]:
     """Return (QThread, StreamWorker) — connect signals, then start().
 
     IMPORTANT: pass a `parent` (typically the panel that owns this

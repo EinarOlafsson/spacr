@@ -23,7 +23,7 @@ class Toggle(QCheckBox):
         self.stateChanged.connect(self._start_anim)
         self.setMinimumHeight(self._track_h + 2)
 
-    def sizeHint(self):
+    def sizeHint(self) -> "QSize":
         base = super().sizeHint()
         base.setWidth(self._track_w + 12 + base.width())
         return base

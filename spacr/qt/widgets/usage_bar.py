@@ -32,7 +32,7 @@ class UsageBar(QWidget):
         self._pct.setFixedWidth(40)
         layout.addWidget(self._pct)
 
-    def set_value(self, pct: float):
+    def set_value(self, pct: float) -> None:
         pct = max(0, min(100, int(round(pct))))
         self._bar.setValue(pct)
         self._pct.setText(f"{pct}%")
