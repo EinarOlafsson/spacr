@@ -36,14 +36,9 @@ jobs:
       - name: Install spacr (Qt extras + dev)
         run: |
           python -m pip install --upgrade pip
-          # Install the qt extras + pytest tooling. skip the pipeline
-          # deps that need torch/cellpose to keep CI fast — the qt
-          # suite doesn't need them.
           python -m pip install -e ".[qt,dev]" \
             --no-deps \
             || python -m pip install -e ".[qt,dev]"
-          # Fall through to a full install if the --no-deps path fails
-          # (e.g. an import at test-collection time)
           python -m pip install "pytest>=8" "pytest-qt>=4" \
             PySide6 qtawesome numpy scipy scikit-image scikit-learn \
             pillow imageio tifffile pandas psutil GPUtil keyring \
@@ -55,3 +50,50 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
         run: |
           python -m pytest tests/qt/ -v --tb=short
+
+  full-suite:
+    name: Full non-Qt suite
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    # Only run on main and on the working branch. Heavy job — we don't
+    # want it running on every feature branch push.
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/spacr-claude' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+
+      - name: Install system libraries needed by scientific stack
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            libgl1 libglib2.0-0 libsm6 libxext6 libxrender1 \
+            ffmpeg
+
+      - name: Install spacr (full deps except optional heavy extras)
+        run: |
+          python -m pip install --upgrade pip
+          # Full install — this pulls torch, cellpose, everything.
+          # We install CPU-only torch first so pip doesn't fetch a GPU
+          # build.
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu \
+            "torch>=2.0" "torchvision" || true
+          python -m pip install -e ".[dev]"
+
+      - name: Run non-Qt suite (excluding gpu + slow)
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          # Everything outside tests/qt/ except:
+          #   - tests marked `heavy` or `slow` (long-running E2E)
+          #   - test_gpu_pipeline.py (needs CUDA)
+          python -m pytest tests/ \
+            --ignore=tests/qt \
+            --ignore=tests/test_gpu_pipeline.py \
+            -m "not slow and not heavy" \
+            -v --tb=short
