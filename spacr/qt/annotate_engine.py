@@ -205,6 +205,12 @@ def add_colored_border(img: Image.Image, width: int, color: str) -> Image.Image:
 
 @dataclass
 class AnnotateSettings:
+    """Every knob the Annotate screen exposes, packed into one dataclass.
+
+    Sensible defaults let callers instantiate ``AnnotateSettings()`` and
+    override just the handful of fields they care about.
+    """
+
     src: str = ""
     db_path: str = ""
     annotation_column: str = "annotate"
@@ -228,6 +234,7 @@ class AnnotateSettings:
 
     @property
     def page_size(self) -> int:
+        """Number of thumbnails per page (``grid_rows * grid_cols``, min 1)."""
         return max(1, self.grid_rows * self.grid_cols)
 
 
@@ -256,6 +263,11 @@ def ensure_annotation_column(db_path: str, column: str) -> None:
 
 
 def count_rows(db_path: str, image_type: Optional[str] = None) -> int:
+    """Return the number of ``png_list`` rows, optionally filtered by ``image_type``.
+
+    :param db_path: path to ``measurements.db``; missing files count as 0.
+    :param image_type: optional substring to filter ``png_path`` on.
+    """
     if not os.path.isfile(db_path):
         return 0
     with sqlite3.connect(db_path, timeout=30) as conn:
@@ -384,6 +396,11 @@ def class_counts(db_path: str, annotation_column: str) -> List[Tuple[int, int]]:
 
 
 def clear_column(db_path: str, annotation_column: str) -> None:
+    """Null every value in ``annotation_column`` of ``png_list``.
+
+    :param db_path: path to ``measurements.db``; missing files are ignored.
+    :param annotation_column: column to reset.
+    """
     if not os.path.isfile(db_path):
         return
     col = (annotation_column or "").replace('"', '""')
@@ -431,6 +448,11 @@ class SaveWorker:
     _SENTINEL = object()
 
     def __init__(self, db_path: str, annotation_column: str):
+        """Prepare an idle worker; call :meth:`start` to spawn its thread.
+
+        :param db_path: path to the SQLite ``measurements.db``.
+        :param annotation_column: column in ``png_list`` to write into.
+        """
         self.db_path = db_path
         self.annotation_column = annotation_column
         self._q: "queue.Queue[Any]" = queue.Queue()
@@ -443,6 +465,7 @@ class SaveWorker:
 
     # ------------------------------------------------------------------
     def start(self) -> None:
+        """Spawn the daemon writer thread if it isn't already running."""
         if self._thread and self._thread.is_alive():
             return
         self._terminate = False
@@ -450,6 +473,7 @@ class SaveWorker:
         self._thread.start()
 
     def stop(self, wait: bool = True) -> None:
+        """Signal the writer to exit; when ``wait`` is True block up to 5 s."""
         self._terminate = True
         self._q.put(self._SENTINEL)
         if wait and self._thread:
@@ -469,15 +493,18 @@ class SaveWorker:
     # ------------------------------------------------------------------
     @property
     def busy(self) -> bool:
+        """True while the writer thread is inside a commit."""
         return self._busy
 
     @property
     def pending_batches(self) -> int:
+        """Number of submitted-but-not-yet-committed batches."""
         with self._lock:
             return self._pending_batches
 
     @property
     def last_save_ts(self) -> Optional[float]:
+        """POSIX timestamp of the most recent successful commit, or ``None``."""
         return self._last_save_ts
 
     # ------------------------------------------------------------------

@@ -25,6 +25,7 @@ class _StreamRedirector(io.TextIOBase):
         self._on_write = on_write
 
     def write(self, s: str) -> int:
+        """Buffer ``s`` and forward every complete line to the sink."""
         if not isinstance(s, str):
             s = str(s)
         self._buf += s
@@ -38,6 +39,7 @@ class _StreamRedirector(io.TextIOBase):
         return len(s)
 
     def flush(self) -> None:
+        """Emit any trailing (unterminated) buffered text to the sink."""
         if self._buf:
             try:
                 self._on_write(self._buf)
@@ -66,12 +68,17 @@ class PipelineWorker(QObject):
     figure_ready = Signal(object)
 
     def __init__(self, fn: Callable[..., Any], settings: Dict[str, Any]):
+        """Prepare to run ``fn(settings)`` in a worker thread.
+
+        :param fn: pipeline entry point (see :func:`resolve_pipeline_entry`).
+        :param settings: keyword-style dict passed as the sole argument.
+        """
         super().__init__()
         self._fn = fn
         self._settings = settings
 
     def run(self) -> None:
-        """Invoked by QThread.started."""
+        """Invoked by QThread.started; runs the pipeline function to completion."""
         old_stdout, old_stderr = sys.stdout, sys.stderr
         redirect = _StreamRedirector(self.line_ready.emit)
         sys.stdout = redirect

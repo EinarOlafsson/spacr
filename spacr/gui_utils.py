@@ -17,6 +17,18 @@ except AttributeError:
     pass
 
 def attach_dependency_listeners(vars_dict, categories, category_dependencies, category_group_dependencies):
+    """Wire up show/hide dependencies between boolean settings and categories.
+
+    Registers trace callbacks so toggling a boolean widget hides or shows every
+    dependent category, supporting both 1:1 dependencies and any-of group
+    dependencies. Initial visibility is applied immediately.
+
+    :param vars_dict: mapping ``key -> (label, widget, var, frame)``.
+    :param categories: mapping of category name to the list of settings it owns.
+    :param category_dependencies: mapping ``bool_key -> [categories to toggle]``.
+    :param category_group_dependencies: mapping ``category -> [bool_keys that any-enable it]``.
+    :returns: None.
+    """
 
     def _get_entry(setting):
         entry = vars_dict.get(setting)
@@ -105,8 +117,9 @@ def attach_dependency_listeners(vars_dict, categories, category_dependencies, ca
 
 
 def initialize_cuda():
-    """
-    Initializes CUDA in the main process by performing a simple GPU operation.
+    """Initialize CUDA in the main process by performing a trivial GPU op.
+
+    :returns: None.
     """
     if torch.cuda.is_available():
         # Allocate a small tensor on the GPU
@@ -116,6 +129,14 @@ def initialize_cuda():
         print("CUDA is not available.")
 
 def set_high_priority(process):
+    """Raise the OS scheduling priority of a subprocess.
+
+    Uses ``HIGH_PRIORITY_CLASS`` on Windows and ``nice(-10)`` on Unix-like systems.
+    Failures are logged but never raised.
+
+    :param process: a ``multiprocessing.Process`` (or object exposing ``.pid``).
+    :returns: None.
+    """
     try:
         p = psutil.Process(process.pid)
         if os.name == 'nt':  # Windows
@@ -131,12 +152,26 @@ def set_high_priority(process):
         print(f"Failed to set high priority for process {process.pid}: {e}")
 
 def set_cpu_affinity(process):
+    """Pin a subprocess to all available CPU cores on Linux.
+
+    No-op on non-Linux platforms.
+
+    :param process: a ``multiprocessing.Process`` (or object exposing ``.pid``).
+    :returns: None.
+    """
     import platform
     if platform.system() == 'Linux':
         p = psutil.Process(process.pid)
         p.cpu_affinity(list(range(os.cpu_count())))
     
 def proceed_with_app(root, app_name, app_func):
+    """Replace ``root.content_frame`` contents with a new app.
+
+    :param root: the Tk root that owns ``content_frame``.
+    :param app_name: display name of the app (currently unused, kept for logging/hooks).
+    :param app_func: callable invoked with ``root.content_frame`` to build the new app.
+    :returns: None.
+    """
     # Clear the current content frame
     if hasattr(root, 'content_frame'):
         for widget in root.content_frame.winfo_children():
@@ -149,6 +184,17 @@ def proceed_with_app(root, app_name, app_func):
     app_func(root.content_frame)
 
 def load_app(root, app_name, app_func):
+    """Tear down the current spacr app and load another in its place.
+
+    Cancels pending ``after`` tasks and defers the swap to the current app's
+    exit hook when one is registered (annotation/make_masks apps swap
+    immediately since they own the root themselves).
+
+    :param root: the Tk root.
+    :param app_name: name of the app to load.
+    :param app_func: callable invoked with ``root.content_frame`` to build it.
+    :returns: None.
+    """
     # Clear the canvas if it exists
     if root.canvas is not None:
         root.clear_frame(root.canvas)
@@ -168,17 +214,15 @@ def load_app(root, app_name, app_func):
         proceed_with_app(root, app_name, app_func)
 
 def parse_list(value):
-    """
-    Parses a string representation of a list and returns the parsed list.
+    """Parse a string literal into a homogeneous list of scalars.
 
-    Args:
-        value (str): The string representation of the list.
+    Accepts Python-list or tuple literals and rejects mixed-type contents.
+    Single-element tuples are returned as one-element lists.
 
-    Returns:
-        list: The parsed list, which can contain integers, floats, or strings.
-
-    Raises:
-        ValueError: If the input value is not a valid list format or contains mixed types or unsupported types.
+    :param value: string representation of a list or tuple.
+    :returns: parsed list containing only ints, floats, or strings.
+    :raises ValueError: if the string is not a valid literal or contains
+        mixed / unsupported types.
     """
     try:
         parsed_value = ast.literal_eval(value)
@@ -197,6 +241,21 @@ def parse_list(value):
         raise ValueError(f"Invalid format for list: {value}. Error: {e}")
 
 def create_input_field(frame, label_text, row, var_type='entry', options=None, default_value=None):
+    """Create a labeled settings input widget on ``frame`` at ``row``.
+
+    Supports entry, checkbox and combo variants and coerces ``default_value``
+    to the widget's expected type; unrecognised ``var_type`` returns a bare
+    label with no widget.
+
+    :param frame: parent frame that hosts the row.
+    :param label_text: raw settings key; underscores are replaced with spaces
+        and the first letter capitalised for display.
+    :param row: grid row inside ``frame`` to occupy.
+    :param var_type: one of ``'entry'``, ``'check'``, ``'combo'``.
+    :param options: list of choices used when ``var_type='combo'``.
+    :param default_value: initial value; falls back to a type-appropriate default.
+    :returns: tuple ``(label, widget, tk_var, container_frame)``.
+    """
     from .gui_elements import set_dark_style, set_element_size
     
     style_out = set_dark_style(ttk.Style())
@@ -263,32 +322,52 @@ def create_input_field(frame, label_text, row, var_type='entry', options=None, d
         print(f"Wrong type for {label_text} Expected {var_type}")
 
 def process_stdout_stderr(q):
-    """
-    Redirect stdout and stderr to the queue q.
+    """Redirect ``sys.stdout`` and ``sys.stderr`` writes into a queue.
+
+    :param q: queue receiving each written message.
+    :returns: None.
     """
     sys.stdout = WriteToQueue(q)
     sys.stderr = WriteToQueue(q)
 
 class WriteToQueue(io.TextIOBase):
-    """
-    A custom file-like class that writes any output to a given queue.
-    This can be used to redirect stdout and stderr.
+    """File-like sink that forwards writes into a queue.
+
+    Used to reroute ``stdout``/``stderr`` into the GUI console.
+
+    :param q: queue receiving each non-empty write.
     """
     def __init__(self, q):
+        """Store the target queue."""
         self.q = q
     def write(self, msg):
+        """Forward a non-empty message to the queue."""
         if msg.strip():  # Avoid empty messages
             self.q.put(msg)
     def flush(self):
+        """No-op required by the file-like interface."""
         pass
 
 def cancel_after_tasks(frame):
+    """Cancel every scheduled Tk ``after`` task tracked on ``frame``.
+
+    :param frame: Tk widget with an ``after_tasks`` attribute.
+    :returns: None.
+    """
     if hasattr(frame, 'after_tasks'):
         for task in frame.after_tasks:
             frame.after_cancel(task)
         frame.after_tasks.clear()
 
 def annotate(settings):
+    """Launch the standalone annotation UI on a measurements database.
+
+    Ensures the requested annotation column exists in the ``png_list`` table,
+    then opens ``AnnotateApp`` in its own Tk root and blocks on the mainloop.
+
+    :param settings: annotation settings dict (see ``set_annotate_default_settings``).
+    :returns: None.
+    """
     from .settings import set_annotate_default_settings
     settings = set_annotate_default_settings(settings)
     src  = settings['src']
@@ -333,6 +412,11 @@ def annotate(settings):
     root.mainloop()
 
 def generate_annotate_fields(frame):
+    """Build labelled entry widgets for the annotation-settings defaults.
+
+    :param frame: parent Tk frame that hosts the field grid.
+    :returns: mapping ``key -> {'entry': ttk.Entry, 'value': default}``.
+    """
     from .settings import set_annotate_default_settings
     from .gui_elements import set_dark_style
 
@@ -375,6 +459,14 @@ def generate_annotate_fields(frame):
     return vars_dict
 
 def run_annotate_app(vars_dict, parent_frame):
+    """Collect the annotation-fields values, coerce types, and start the annotator.
+
+    Clears ``parent_frame`` of existing widgets before launching the app.
+
+    :param vars_dict: widget map produced by :func:`generate_annotate_fields`.
+    :param parent_frame: Tk frame that hosts the annotation UI.
+    :returns: None.
+    """
     settings = {key: data['entry'].get() for key, data in vars_dict.items()}
     settings['channels'] = settings['channels'].split(',')
     settings['img_size'] = list(map(int, settings['img_size'].split(',')))  # Convert string to list of integers
@@ -398,12 +490,23 @@ def run_annotate_app(vars_dict, parent_frame):
 global_image_refs = []
 
 def annotate_app(parent_frame, settings):
+    """Start the annotation app inside an existing GUI frame.
+
+    :param parent_frame: Tk frame whose toplevel hosts the annotator.
+    :param settings: annotation settings dict.
+    :returns: None.
+    """
     global global_image_refs
     global_image_refs.clear()
     root = parent_frame.winfo_toplevel()
     annotate_with_image_refs(settings, root, lambda: load_next_app(root))
 
 def load_next_app(root):
+    """Invoke the queued next-app callback, reinitialising root if it was destroyed.
+
+    :param root: current Tk root; expected to hold ``next_app_func`` and ``next_app_args``.
+    :returns: None.
+    """
     # Get the next app function and arguments
     next_app_func = root.next_app_func
     next_app_args = root.next_app_args
@@ -423,6 +526,17 @@ def load_next_app(root):
             next_app_func(new_root, *next_app_args)
 
 def annotate_with_image_refs(settings, root, shutdown_callback):
+    """Start ``AnnotateApp`` inside an existing root with a shutdown chain.
+
+    Ensures the annotation column exists in the ``png_list`` table, sizes the
+    root to the full screen, and registers an exit hook that runs
+    ``shutdown_callback`` after the app closes.
+
+    :param settings: annotation settings dict.
+    :param root: existing Tk root to reuse.
+    :param shutdown_callback: callable invoked after the annotator shuts down.
+    :returns: None.
+    """
     from .settings import set_annotate_default_settings
 
     settings = set_annotate_default_settings(settings)
@@ -457,6 +571,16 @@ def annotate_with_image_refs(settings, root, shutdown_callback):
     app.load_images()
 
 def convert_settings_dict_for_gui(settings):
+    """Convert a plain settings dict into the GUI variable spec.
+
+    Maps each key to a ``(widget_type, options, default_value)`` triple, using
+    combo boxes for keys with known enumerated options and inferring
+    check/entry widgets otherwise.
+
+    :param settings: mapping of setting names to default values.
+    :returns: mapping ``key -> (var_type, options, default_value)`` ready for
+        :func:`create_input_field`.
+    """
     from torchvision import models as torch_models
     torchvision_models = [name for name, obj in torch_models.__dict__.items() if callable(obj)]
     chan_list = ['[0,1,2,3,4,5,6,7,8]','[0,1,2,3,4,5,6,7]','[0,1,2,3,4,5,6]','[0,1,2,3,4,5]','[0,1,2,3,4]','[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]', '[0,0]']
@@ -516,8 +640,13 @@ def convert_settings_dict_for_gui(settings):
 
 
 def spacrFigShow(fig_queue=None):
-    """
-    Replacement for plt.show() that queues figures instead of displaying them.
+    """Route matplotlib figures into a queue instead of displaying them.
+
+    Drop-in replacement for ``plt.show()`` used while spacr runs inside the GUI
+    process; falls back to ``fig.show()`` when no queue is provided.
+
+    :param fig_queue: queue that receives the current figure, or None.
+    :returns: None.
     """
     fig = plt.gcf()
     if fig_queue:
@@ -527,14 +656,19 @@ def spacrFigShow(fig_queue=None):
     plt.close(fig)
 
 def function_gui_wrapper(function=None, settings=None, q=None, fig_queue=None, imports=1):
+    """Run a spacr worker function with GUI-safe stdout, error and figure routing.
 
-    """
-    Wraps the run_multiple_simulations function to integrate with GUI processes.
-    
-    Parameters:
-    - settings: dict, The settings for the run_multiple_simulations function.
-    - q: multiprocessing.Queue, Queue for logging messages to the GUI.
-    - fig_queue: multiprocessing.Queue, Queue for sending figures to the GUI.
+    Temporarily replaces ``plt.show`` with :func:`spacrFigShow` so any figures
+    are shipped to ``fig_queue`` instead of blocking, and forwards exception
+    text to ``q``.
+
+    :param function: worker callable to invoke.
+    :param settings: settings dict passed to ``function``.
+    :param q: queue for log/error messages sent to the GUI.
+    :param fig_queue: queue for matplotlib figures produced during the run.
+    :param imports: 1 to call ``function(settings=...)``; 2 to call
+        ``function(src=settings['src'], settings=...)``.
+    :returns: None.
     """
 
     # Temporarily override plt.show
@@ -558,7 +692,20 @@ def function_gui_wrapper(function=None, settings=None, q=None, fig_queue=None, i
         plt.show = original_show
         
 def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
-    
+    """Dispatch a spacr module by ``settings_type`` and run it in the worker.
+
+    Redirects stdout/stderr into ``q``, invokes the mapped module via
+    :func:`function_gui_wrapper`, and sets ``stop_requested`` on completion so
+    the GUI can reap the process.
+
+    :param settings_type: identifier that selects the target spacr function.
+    :param settings: settings dict passed through to the worker.
+    :param q: queue for log/error messages.
+    :param fig_queue: queue for matplotlib figures.
+    :param stop_requested: shared ``multiprocessing.Value('i')`` flipped to 1 on exit.
+    :returns: None.
+    :raises ValueError: if ``settings_type`` is not a recognised module.
+    """
     from .core import generate_image_umap, preprocess_generate_masks
     from .spacr_cellpose import identify_masks_finetune, check_cellpose_models, compare_cellpose_masks
     from .submodules import analyze_recruitment
@@ -627,6 +774,15 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
         stop_requested.value = 1
 
 def hide_all_settings(vars_dict, categories=None):
+    """Hide every widget that belongs to any known category.
+
+    Used to collapse all optional-category settings until their triggering
+    boolean is toggled on.
+
+    :param vars_dict: mapping ``key -> (label, widget, var, frame)``.
+    :param categories: category-to-settings map; if None, ``vars_dict`` is returned unchanged.
+    :returns: the (mutated) ``vars_dict``.
+    """
     if categories is None:
         return vars_dict
     for cat_name, settings in categories.items():
@@ -640,6 +796,14 @@ def hide_all_settings(vars_dict, categories=None):
 
 
 def setup_frame(parent_frame):
+    """Build the settings/plot/console panel layout inside ``parent_frame``.
+
+    Creates the horizontal-split PanedWindow, a vertical container for figures
+    and a horizontal container for buttons, and applies the dark theme.
+
+    :param parent_frame: Tk frame that will host the layout.
+    :returns: tuple ``(parent_frame, vertical_container, horizontal_container, settings_container)``.
+    """
     from .gui_elements import set_dark_style, set_element_size
 
     style = ttk.Style(parent_frame)
@@ -690,6 +854,15 @@ def setup_frame(parent_frame):
 
 
 def download_hug_dataset(q, vars_dict):
+    """Download the demo dataset and settings pack from Hugging Face.
+
+    Also updates ``vars_dict['src']`` with the downloaded dataset path so the
+    settings panel points at it. Progress and errors are reported through ``q``.
+
+    :param q: queue used for status/error messages.
+    :param vars_dict: settings widget map; the ``'src'`` entry is updated if present.
+    :returns: None.
+    """
     dataset_repo_id = "einarolafsson/toxo_mito"
     settings_repo_id = "einarolafsson/spacr_settings"
     dataset_subfolder = "plate1"
@@ -713,18 +886,19 @@ def download_hug_dataset(q, vars_dict):
         q.put(f"Failed to download settings: {e}\n")
 
 def download_dataset(q, repo_id, subfolder, local_dir=None, retries=5, delay=5):
-    """
-    Downloads a dataset or settings files from Hugging Face and returns the local path.
+    """Download a Hugging Face dataset subfolder (or CSVs) to a local directory.
 
-    Args:
-        repo_id (str): The repository ID (e.g., 'einarolafsson/toxo_mito' or 'einarolafsson/spacr_settings').
-        subfolder (str): The subfolder path within the repository (e.g., 'plate1' or the settings subfolder).
-        local_dir (str): The local directory where the files will be saved. Defaults to the user's home directory.
-        retries (int): Number of retry attempts in case of failure.
-        delay (int): Delay in seconds between retries.
+    Skips the download if the target directory already contains files, and
+    retries transient HTTP errors per-file and per-listing.
 
-    Returns:
-        str: The local path to the downloaded files.
+    :param q: queue used for progress/error messages.
+    :param repo_id: HF dataset repo id (e.g. ``'einarolafsson/toxo_mito'``).
+    :param subfolder: subfolder within the repo; empty string downloads top-level CSVs.
+    :param local_dir: destination directory; defaults to ``~/datasets``.
+    :param retries: number of retry attempts for both listing and each file.
+    :param delay: delay in seconds between retries.
+    :returns: path to the local directory containing the downloaded files.
+    :raises Exception: if downloads fail after all retry attempts.
     """
     if local_dir is None:
         local_dir = os.path.join(os.path.expanduser("~"), "datasets")
@@ -771,11 +945,21 @@ def download_dataset(q, repo_id, subfolder, local_dir=None, retries=5, delay=5):
     raise Exception("Failed to download files after multiple attempts.")
 
 def ensure_after_tasks(frame):
+    """Ensure ``frame.after_tasks`` exists so scheduled callbacks can be tracked.
+
+    :param frame: Tk widget to annotate.
+    :returns: None.
+    """
     if not hasattr(frame, 'after_tasks'):
         frame.after_tasks = []
 
 def display_gif_in_plot_frame(gif_path, parent_frame):
-    """Display and zoom a GIF to fill the entire parent_frame, maintaining aspect ratio, with lazy resizing and caching."""
+    """Loop a GIF in ``parent_frame``, cover-cropped and cached per frame size.
+
+    :param gif_path: filesystem path to the GIF.
+    :param parent_frame: Tk frame that hosts the animation.
+    :returns: None.
+    """
     # Clear parent_frame if it contains any previous widgets
     for widget in parent_frame.winfo_children():
         widget.destroy()
@@ -860,7 +1044,13 @@ def display_gif_in_plot_frame(gif_path, parent_frame):
     update_frame(0)
     
 def display_media_in_plot_frame(media_path, parent_frame):
-    """Display an MP4, AVI, or GIF and play it on repeat in the parent_frame, fully filling the frame while maintaining aspect ratio."""
+    """Loop an MP4/AVI/GIF in ``parent_frame``, cover-cropped to fill it.
+
+    :param media_path: path to the media file; extension picks the decoder.
+    :param parent_frame: Tk frame that hosts the playback.
+    :returns: None.
+    :raises ValueError: for unsupported file extensions.
+    """
     # Clear parent_frame if it contains any previous widgets
     for widget in parent_frame.winfo_children():
         widget.destroy()
@@ -1005,7 +1195,12 @@ def display_media_in_plot_frame(media_path, parent_frame):
         raise ValueError("Unsupported file format. Only .mp4, .avi, and .gif are supported.")
 
 def print_widget_structure(widget, indent=0):
-    """Recursively print the widget structure."""
+    """Print the Tk widget tree rooted at ``widget`` for debugging.
+
+    :param widget: root widget to descend from.
+    :param indent: current indent depth (spaces) used by recursive calls.
+    :returns: None.
+    """
     # Print the widget's name and class
     print(" " * indent + f"{widget}: {widget.winfo_class()}")
     
@@ -1014,21 +1209,21 @@ def print_widget_structure(widget, indent=0):
         print_widget_structure(child_widget, indent + 2)
 
 def get_screen_dimensions():
+    """Return the pixel dimensions of the primary monitor.
+
+    :returns: tuple ``(screen_width, screen_height)`` in pixels.
+    """
     monitor = get_monitors()[0]  # Get the primary monitor
     screen_width = monitor.width
     screen_height = monitor.height
     return screen_width, screen_height
 
 def convert_to_number(value):
-    
-    """
-    Converts a string value to an integer if possible, otherwise converts to a float.
+    """Convert a string to ``int`` when possible, otherwise to ``float``.
 
-    Args:
-        value (str): The string representation of the number.
-
-    Returns:
-        int or float: The converted number.
+    :param value: string representation of a number.
+    :returns: parsed number as ``int`` (preferred) or ``float``.
+    :raises ValueError: if the string is neither.
     """
     try:
         return int(value)

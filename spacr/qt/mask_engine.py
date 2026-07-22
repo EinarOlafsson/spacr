@@ -164,15 +164,18 @@ def fill_holes(mask: np.ndarray) -> np.ndarray:
 
 
 def relabel_objects(mask: np.ndarray) -> np.ndarray:
+    """Return a mask whose connected components are labeled 1..N."""
     labeled, _ = label(mask > 0)
     return labeled.astype(mask.dtype)
 
 
 def clear_mask(mask: np.ndarray) -> np.ndarray:
+    """Return an all-zero array shaped like ``mask``."""
     return np.zeros_like(mask)
 
 
 def invert_mask(mask: np.ndarray) -> np.ndarray:
+    """Return the mask with foreground/background flipped and relabeled."""
     out = np.where(mask > 0, 0, 1).astype(mask.dtype)
     labeled, _ = label(out)
     return labeled.astype(mask.dtype)
@@ -266,22 +269,30 @@ class MaskHistory:
     callers can mutate in place without corrupting older snapshots."""
 
     def __init__(self, capacity: int = 20):
+        """Prepare an empty history with a bounded snapshot capacity.
+
+        :param capacity: max snapshots kept in the undo (and redo) stack.
+        """
         self.capacity = max(1, int(capacity))
         self._undo: deque = deque(maxlen=self.capacity)
         self._redo: deque = deque(maxlen=self.capacity)
 
     def clear(self) -> None:
+        """Discard every snapshot from both the undo and redo stacks."""
         self._undo.clear()
         self._redo.clear()
 
     def push(self, mask: np.ndarray) -> None:
+        """Store a deep-copy of ``mask`` and drop any redo history."""
         self._undo.append(np.array(mask, copy=True))
         self._redo.clear()
 
     def can_undo(self) -> bool:
+        """Return True when at least one prior snapshot is available to undo to."""
         return len(self._undo) >= 2
 
     def can_redo(self) -> bool:
+        """Return True when the redo stack has a snapshot to restore."""
         return bool(self._redo)
 
     def undo(self) -> Optional[np.ndarray]:
@@ -294,6 +305,7 @@ class MaskHistory:
         return np.array(self._undo[-1], copy=True)
 
     def redo(self) -> Optional[np.ndarray]:
+        """Restore the most-recently-undone snapshot, or ``None`` if empty."""
         if not self._redo:
             return None
         snap = self._redo.pop()

@@ -132,6 +132,17 @@ def _show_loading_screen(parent):
     return overlay, _cancel, _tick
 
 def toggle_settings(button_scrollable_frame):
+    """Wire the category-toggle dropdown into the button bar.
+
+    Computes the currently-visible categories from bool/int/value dependencies
+    on the live ``vars_dict``, lazily instantiates hidden category widgets on
+    demand, and re-renders the dropdown whenever a controlling widget changes.
+
+    :param button_scrollable_frame: scrollable frame in the button bar that
+        will host the ``Select Category`` dropdown.
+    :returns: None.
+    :raises ValueError: if the global ``vars_dict`` has not been initialised.
+    """
     global vars_dict, scrollable_frame
     from .settings import categories, category_dependencies, category_group_dependencies, category_integer_dependencies, category_value_dependencies, tooltips
     from .gui_utils import hide_all_settings, create_input_field
@@ -143,6 +154,7 @@ def toggle_settings(button_scrollable_frame):
     active_categories = set()
 
     def _is_truthy_key(bool_key):
+        """Return whether the widget for ``bool_key`` currently reads as True."""
         if bool_key not in vars_dict or vars_dict[bool_key] is None:
             return False
         val = vars_dict[bool_key][2].get()
@@ -151,6 +163,7 @@ def toggle_settings(button_scrollable_frame):
         return str(val).lower() in ('1', 'true')
 
     def _get_int_key(key):
+        """Return the widget for ``key`` parsed as int, or None on failure."""
         if key not in vars_dict or vars_dict[key] is None:
             return None
         val = vars_dict[key][2].get()
@@ -161,6 +174,7 @@ def toggle_settings(button_scrollable_frame):
             return None
 
     def _get_visible_categories():
+        """Return the categories whose dependency conditions are all satisfied."""
         all_cats = [cat for cat, settings in categories.items()
                     if any(s in vars_dict for s in settings)]
         blocked = set()
@@ -241,6 +255,7 @@ def toggle_settings(button_scrollable_frame):
             scrollable_frame._next_row = row
 
     def _rebuild_dropdown():
+        """Refresh the category dropdown and hide widgets for newly-blocked categories."""
         visible = _get_visible_categories()
         newly_blocked = active_categories - set(visible)
         for cat_name in newly_blocked:
@@ -263,6 +278,7 @@ def toggle_settings(button_scrollable_frame):
         category_dropdown.update_styles(active_categories)
 
     def toggle_category(cat_name):
+        """Show or hide every widget belonging to ``cat_name``."""
         _ensure_category_widgets(cat_name)
         
         if cat_name not in categories:
@@ -280,6 +296,7 @@ def toggle_settings(button_scrollable_frame):
                     frame.grid()
 
     def on_category_select(selected_category):
+        """Dropdown callback: toggle the chosen category and update highlighting."""
         if selected_category == "Select Category":
             return
         if selected_category in categories:
@@ -311,6 +328,7 @@ def toggle_settings(button_scrollable_frame):
 
     # Listen on controlling booleans
     def _on_change(*args):
+        """Trace callback that rebuilds the dropdown whenever a controlling widget changes."""
         _rebuild_dropdown()
 
     all_control_keys = set(category_dependencies.keys())
@@ -327,6 +345,15 @@ def toggle_settings(button_scrollable_frame):
 
 
 def display_figure(fig):
+    """Render ``fig`` into the plot pane with zoom, pan and context-menu bindings.
+
+    Replaces any existing canvas, hooks left/right click for previous/next
+    figure, right-click for the save/modify/reset-zoom menu, and mouse wheel
+    for anchored zooming on the axis under the cursor.
+
+    :param fig: matplotlib ``Figure`` to display.
+    :returns: None.
+    """
     global canvas, canvas_widget
 
     from .gui_elements import save_figure_as_format, modify_figure
@@ -370,6 +397,7 @@ def display_figure(fig):
     context_menu.add_command(label="Reset Zoom", command=lambda: reset_zoom(fig))  # Add Reset Zoom option
 
     def reset_zoom(fig):
+        """Restore each axis of ``fig`` to its original x/y limits."""
         global scale_factor
         scale_factor = 1.0  # Reset the scale factor
 
@@ -379,9 +407,11 @@ def display_figure(fig):
         fig.canvas.draw_idle()
 
     def on_right_click(event):
+        """Right-click handler that pops the save/modify/reset context menu."""
         context_menu.post(event.x_root, event.y_root)
 
     def on_hover(event):
+        """Cursor handler that shows a hand pointer over the figure."""
         widget_width = event.widget.winfo_width()
         x_position = event.x
 
@@ -391,9 +421,11 @@ def display_figure(fig):
             canvas_widget.config(cursor="hand2")
 
     def on_leave(event):
+        """Cursor handler that restores the default arrow when leaving the figure."""
         canvas_widget.config(cursor="arrow")
 
     def flash_feedback(side):
+        """Flash a white translucent overlay on the left or right half as click feedback."""
         flash = tk.Toplevel(canvas_widget.master)
         flash.overrideredirect(True)
         flash_width = int(canvas_widget.winfo_width() / 2)
@@ -413,6 +445,7 @@ def display_figure(fig):
         flash.after(100, flash.destroy)
 
     def on_click(event):
+        """Left-click handler: left half shows previous figure, right half shows next."""
         widget_width = event.widget.winfo_width()
         x_position = event.x
 
@@ -422,8 +455,9 @@ def display_figure(fig):
         else:
             #flash_feedback("right")
             show_next_figure()
-            
+
     def zoom(event):
+        """Mouse-wheel handler: zoom anchored on the axis under the cursor."""
         zoom_in_factor = 1 / 1.2
         zoom_out_factor = 1.2
 
@@ -474,6 +508,7 @@ def display_figure(fig):
         canvas.draw_idle()
             
     def zoom_v1(event):
+        """Legacy mouse-wheel zoom that mirrors the reference axis onto every axis."""
         zoom_in_factor = 1 / 1.2
         zoom_out_factor = 1.2
 
@@ -552,6 +587,10 @@ def display_figure(fig):
     process_fig_queue()
 
 def clear_unused_figures():
+    """Trim the figure deque to a ±20 window around the current index.
+
+    :returns: None.
+    """
     global figures, figure_index
 
     lower_bound = max(0, figure_index - 20)
@@ -562,9 +601,13 @@ def clear_unused_figures():
     figure_index = min(max(figure_index, 0), len(figures) - 1)
 
 def show_previous_figure():
+    """Display the previous figure in the deque, if one exists.
+
+    :returns: None.
+    """
     from .gui_elements import standardize_figure
     global figure_index, figures, fig_queue, index_control
-    
+
     if figure_index is not None and figure_index > 0:
         figure_index -= 1
         index_control.set(figure_index)
@@ -573,6 +616,10 @@ def show_previous_figure():
         #clear_unused_figures()
 
 def show_next_figure():
+    """Display the next figure in the deque, pulling from ``fig_queue`` if at the end.
+
+    :returns: None.
+    """
     from .gui_elements import standardize_figure
     global figure_index, figures, fig_queue, index_control
     if figure_index is not None and figure_index < len(figures) - 1:
@@ -592,6 +639,13 @@ def show_next_figure():
         display_figure(fig)
         
 def process_fig_queue():
+    """Drain ``fig_queue`` into the on-screen deque and reschedule itself.
+
+    Caps the deque at 100 entries (closing evicted figures), advances the
+    slider maximum and displays the first figure if none has been shown yet.
+
+    :returns: None.
+    """
     global canvas, fig_queue, canvas_widget, parent_frame, uppdate_frequency, figures, figure_index, index_control
     from .gui_elements import standardize_figure
 
@@ -634,6 +688,11 @@ def process_fig_queue():
 
 
 def update_figure(value):
+    """Slider callback: display the figure at index ``value`` in the deque.
+
+    :param value: slider value, coerced to int and clamped to ``[0, len(figures))``.
+    :returns: None.
+    """
     from .gui_elements import standardize_figure
     global figure_index, figures, index_control
     
@@ -650,6 +709,16 @@ def update_figure(value):
         index_control.set_to(len(figures) - 1)
         
 def setup_plot_section(vertical_container, settings_type):
+    """Build the figure canvas and index slider inside ``vertical_container``.
+
+    Initialises the shared ``figures`` deque and index and displays an empty
+    placeholder figure so subsequent updates have something to replace.
+
+    :param vertical_container: parent PanedWindow that receives the plot frame.
+    :param settings_type: current module id; used to short-circuit the slider
+        for modules (e.g. ``'map_barcodes'``) that don't need it.
+    :returns: tuple ``(canvas, canvas_widget)``.
+    """
     global canvas, canvas_widget, figures, figure_index, index_control
     from .gui_utils import display_media_in_plot_frame
 
@@ -724,6 +793,24 @@ def setup_plot_section(vertical_container, settings_type):
     return canvas, canvas_widget
 
 def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var, vars_dict_var, canvas_var, canvas_widget_var, scrollable_frame_var, fig_queue_var, progress_bar_var, usage_bars_var):
+    """Bind the module-level GUI globals to caller-owned objects.
+
+    Called once during ``initiate_root`` so cross-function state (queues,
+    canvas, progress bars, etc.) can be reached from callbacks.
+
+    :param thread_control_var: dict tracking the worker process/stop-request flag.
+    :param q_var: log/error message queue.
+    :param console_output_var: Tk ``Text`` widget backing the console.
+    :param parent_frame_var: root frame that owns the layout.
+    :param vars_dict_var: settings widget map.
+    :param canvas_var: current matplotlib canvas.
+    :param canvas_widget_var: underlying Tk widget for ``canvas``.
+    :param scrollable_frame_var: settings scrollable frame.
+    :param fig_queue_var: queue of pending figures.
+    :param progress_bar_var: batch progress bar in the button section.
+    :param usage_bars_var: list of RAM/GPU/CPU progress bars.
+    :returns: None.
+    """
     global thread_control, q, console_output, parent_frame, vars_dict, canvas, canvas_widget, scrollable_frame, fig_queue, progress_bar, usage_bars
     thread_control = thread_control_var
     q = q_var
@@ -741,6 +828,16 @@ def set_globals(thread_control_var, q_var, console_output_var, parent_frame_var,
     usage_bars = usage_bars_var
 
 def import_settings(settings_type='mask'):
+    """Prompt for a settings CSV and rebuild the settings panel with its values.
+
+    Merges CSV values on top of the defaults for the given ``settings_type``,
+    regenerates every input widget, and refreshes the category dropdown.
+
+    :param settings_type: module id that selects the defaults; one of the
+        keys handled by ``setup_settings_panel`` (``'mask'``, ``'measure'``, ...).
+    :returns: None. No-op if the user cancels the file dialog.
+    :raises ValueError: for unrecognised ``settings_type``.
+    """
     global vars_dict, scrollable_frame, button_scrollable_frame
 
     from .gui_utils import convert_settings_dict_for_gui, hide_all_settings, attach_dependency_listeners
@@ -762,6 +859,7 @@ def import_settings(settings_type='mask'):
     #    return settings
 
     def read_settings_from_csv(csv_file_path):
+        """Load ``Key,Value`` rows from a settings CSV into a plain dict."""
         settings = {}
 
         with open(csv_file_path, newline='', encoding='utf-8') as csvfile:
@@ -788,6 +886,7 @@ def import_settings(settings_type='mask'):
         return settings
 
     def update_settings_from_csv(variables, csv_settings):
+        """Overlay ``csv_settings`` values onto ``variables`` preserving var_type/options."""
         new_settings = variables.copy()  # Start with a copy of the original settings
         for key, value in csv_settings.items():
             if key in new_settings:
@@ -833,6 +932,18 @@ def import_settings(settings_type='mask'):
     toggle_settings(button_scrollable_frame)
 
 def setup_settings_panel(vertical_container, settings_type='mask', tick_callback=None):
+    """Build the settings scroll pane populated with defaults for ``settings_type``.
+
+    Selects the matching ``set_default_*``/``get_*_default_settings`` factory,
+    converts the resulting dict into GUI widget specs, and materialises them
+    on a new scrollable frame.
+
+    :param vertical_container: parent PanedWindow that hosts the settings panel.
+    :param settings_type: module id (``'mask'``, ``'measure'``, ``'classify'``, ...).
+    :param tick_callback: optional callable invoked per created field for progress reporting.
+    :returns: tuple ``(scrollable_frame, vars_dict)``.
+    :raises ValueError: for unrecognised ``settings_type``.
+    """
     global vars_dict, scrollable_frame
     from .settings import get_identify_masks_finetune_default_settings, set_default_analyze_screen, set_default_settings_preprocess_generate_masks, get_automated_motility_assay_default_settings
     from .settings import get_measure_crop_settings, deep_spacr_defaults, set_default_generate_barecode_mapping, set_default_umap_image_settings
@@ -901,6 +1012,14 @@ def setup_settings_panel(vertical_container, settings_type='mask', tick_callback
     return scrollable_frame, vars_dict
 
 def setup_console(vertical_container):
+    """Build the console output panel inside ``vertical_container``.
+
+    Adds a labelled header with a hover-highlighted divider and a themed
+    ``Text`` widget that receives log messages via :func:`process_console_queue`.
+
+    :param vertical_container: parent PanedWindow that hosts the console.
+    :returns: tuple ``(console_output, console_frame)``.
+    """
     global console_output
     from .gui_elements import set_dark_style
 
@@ -952,9 +1071,11 @@ def setup_console(vertical_container):
     console_frame.grid_columnconfigure(0, weight=1)
 
     def on_enter(_event):
+        """Highlight the console top border when the pointer enters."""
         top_border.config(bg=style_out['active_color'])
 
     def on_leave(_event):
+        """Restore the console top border colour when the pointer leaves."""
         top_border.config(bg=border)
 
     console_output.bind("<Enter>", on_enter)
@@ -963,6 +1084,21 @@ def setup_console(vertical_container):
     return console_output, console_frame
 
 def setup_button_section(horizontal_container, settings_type='mask', run=True, abort=True, download=True, import_btn=True):
+    """Build the run/abort/download/settings button row and progress bar.
+
+    The visible buttons depend on ``settings_type`` (e.g. ``abort`` and
+    ``download`` are only shown for pipeline-style modules) and the
+    ``run``/``abort``/``download``/``import_btn`` flags.
+
+    :param horizontal_container: parent PanedWindow that hosts the button strip.
+    :param settings_type: module id used to decide which buttons apply.
+    :param run: include the run button.
+    :param abort: include the abort button when the module supports it.
+    :param download: include the "download demo dataset" button for supporting modules.
+    :param import_btn: include the settings-import button.
+    :returns: tuple ``(button_scrollable_frame, btn_col)``; ``btn_col`` is the
+        next free column index for extra buttons.
+    """
     global thread_control, parent_frame, button_frame, button_scrollable_frame, run_button, abort_button, download_dataset_button, import_button, q, fig_queue, vars_dict, progress_bar
     from .gui_utils import download_hug_dataset
     from .gui_elements import set_element_size
@@ -1023,12 +1159,23 @@ def setup_button_section(horizontal_container, settings_type='mask', run=True, a
     return button_scrollable_frame, btn_col
 
 def setup_usage_panel(horizontal_container, btn_col, uppdate_frequency):
+    """Build the RAM/VRAM/GPU/per-core CPU usage bars beside the button strip.
+
+    Bars that can't be created (missing GPU, ``GPUtil`` unavailable, etc.) are
+    silently skipped and a placeholder is substituted for the periodic updater.
+
+    :param horizontal_container: parent PanedWindow that hosts the usage panel.
+    :param btn_col: starting column index carried over from :func:`setup_button_section`.
+    :param uppdate_frequency: polling interval in ms for the usage refresh loop.
+    :returns: tuple ``(usage_scrollable_frame, usage_bars, usg_col)``.
+    """
     global usage_bars
     from .gui_elements import set_dark_style, set_element_size
 
     usg_col = 1
 
     def update_usage(ram_bar, vram_bar, gpu_bar, usage_bars, parent_frame):
+        """Poll psutil/GPUtil and refresh the RAM/VRAM/GPU/CPU bars, then reschedule."""
         # Update RAM usage
         ram_usage = psutil.virtual_memory().percent
         ram_bar['value'] = ram_usage
@@ -1156,6 +1303,10 @@ def setup_usage_panel(horizontal_container, btn_col, uppdate_frequency):
     return usage_scrollable_frame, usage_bars, usg_col
 
 def initiate_abort():
+    """Terminate the running worker process and reset ``thread_control``.
+
+    :returns: None.
+    """
     global thread_control, q, parent_frame
     if thread_control.get("run_thread") is not None:
         try:
@@ -1169,10 +1320,17 @@ def initiate_abort():
     thread_control = {"run_thread": None, "stop_requested": False}
     
 def check_src_folders_files(settings, settings_type, q):
-    """
-    Checks if 'src' is a key in the settings dictionary and if it exists as a valid path.
-    If 'src' is a list, iterates through the list and checks each path.
-    If any path is missing, prompts the user to edit or remove invalid paths.
+    """Validate the ``src`` path(s) in a settings dict for the given module.
+
+    Confirms every source path exists and, per ``settings_type``, checks that
+    the expected images or sub-folders (``1/``, ``stack/``, ``masks/``,
+    ``merged/``) are present. Failures are reported through ``q``.
+
+    :param settings: settings dict; the ``src`` entry is normalised in place.
+    :param settings_type: module id (``'mask'``, ``'measure'``, ...).
+    :param q: queue used to surface error messages to the GUI.
+    :returns: ``True`` when the caller should stop (missing/invalid inputs),
+        ``False`` when validation passed.
     """
 
     request_stop = False
@@ -1306,6 +1464,17 @@ def check_src_folders_files(settings, settings_type, q):
     return request_stop
 
 def start_process(q=None, fig_queue=None, settings_type='mask'):
+    """Validate settings, initialise CUDA, and spawn the worker process.
+
+    Reads and coerces the current ``vars_dict`` values, verifies source paths,
+    aborts any in-flight worker, then starts a fresh ``multiprocessing.Process``
+    running :func:`spacr.gui_utils.run_function_gui` for ``settings_type``.
+
+    :param q: log/error queue; a fresh ``Queue`` is created if None.
+    :param fig_queue: figure queue; a fresh ``Queue`` is created if None.
+    :param settings_type: module id to dispatch (``'mask'``, ``'measure'``, ...).
+    :returns: None.
+    """
     global thread_control, vars_dict, parent_frame
     from .settings import check_settings, expected_types
     from .gui_utils import run_function_gui, set_cpu_affinity, initialize_cuda, display_gif_in_plot_frame, print_widget_structure
@@ -1357,6 +1526,14 @@ def start_process(q=None, fig_queue=None, settings_type='mask'):
         return
     
 def process_console_queue():
+    """Pump the log queue into the console widget and reschedule itself.
+
+    Colour-codes ``Error:`` / ``Warning:`` prefixes, parses ``Progress:``
+    messages into the batch progress bar (deduplicating repeated tick counts),
+    and re-enqueues itself after ``uppdate_frequency`` ms.
+
+    :returns: None.
+    """
     global q, console_output, parent_frame, progress_bar, process_console_queue
 
     # Initialize function attribute if it doesn't exist
@@ -1444,6 +1621,17 @@ def process_console_queue():
     parent_frame.after_tasks.append(after_id)
 
 def main_thread_update_function(root, q, fig_queue, canvas_widget):
+    """Background pump kept alive by ``root.after`` to keep the UI responsive.
+
+    Empties any queue backlog and re-schedules itself; primarily exists so the
+    Tk mainloop keeps ticking while a worker process is active.
+
+    :param root: Tk root used to reschedule the callback.
+    :param q: log/error queue.
+    :param fig_queue: figure queue (currently only used for keep-alive purposes).
+    :param canvas_widget: canvas widget kept in scope for future extensions.
+    :returns: None.
+    """
     global uppdate_frequency
     try:
         while not q.empty():
@@ -1454,8 +1642,12 @@ def main_thread_update_function(root, q, fig_queue, canvas_widget):
         root.after(uppdate_frequency, lambda: main_thread_update_function(root, q, fig_queue, canvas_widget))
         
 def cleanup_previous_instance():
-    """
-    Cleans up resources from the previous application instance.
+    """Tear down widgets, queues, canvas and threads from any prior GUI instance.
+
+    Called at the top of :func:`initiate_root` so switching modules doesn't
+    leave orphaned Tk widgets, matplotlib figures or worker state around.
+
+    :returns: None.
     """
     global parent_frame, usage_bars, figures, figure_index, thread_control, canvas, q, fig_queue
 
@@ -1514,6 +1706,18 @@ def cleanup_previous_instance():
     print("Previous instance cleaned up successfully.")
     
 def initiate_root(parent, settings_type='mask'):
+    """Build the full spacr GUI for ``settings_type`` inside ``parent``.
+
+    Tears down any prior instance, then progressively assembles the layout
+    (frames, settings, plot, console, buttons, usage bars) across staggered
+    ``after`` callbacks so the loading spinner stays animated. ``annotate``
+    and ``make_masks`` skip the standard pipeline and boot their own apps.
+
+    :param parent: Tk root or frame that will host the GUI.
+    :param settings_type: module id — ``'mask'``, ``'measure'``, ``'annotate'``,
+        ``'make_masks'``, ``'classify'``, ``'umap'``, ``'ml_analyze'``, ....
+    :returns: tuple ``(parent_frame, vars_dict)``.
+    """
     global q, fig_queue, thread_control, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, button_scrollable_frame, progress_bar, uppdate_frequency, figures, figure_index, index_control, usage_bars
     from .gui_elements import set_element_size
     

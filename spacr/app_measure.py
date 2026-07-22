@@ -1,6 +1,7 @@
 from .gui import MainApp
 
 def start_measure_app():
+    """Launch the main spacr GUI with the Measure tab preselected."""
     app = MainApp(default_app="Measure")
     app.mainloop()
 

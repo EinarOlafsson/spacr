@@ -7,6 +7,14 @@ from screeninfo import get_monitors
 import webbrowser
 
 class MainApp(tk.Tk):
+    """Top-level spacr GUI window hosting the app-picker and per-app frames.
+
+    Sizes itself to the monitor containing the initial window position, registers
+    the built-in core and extra tool apps, and optionally auto-loads one on start.
+
+    :param default_app: Name of a core or additional app to open immediately.
+    """
+
     def __init__(self, default_app=None):
         super().__init__()
 
@@ -74,6 +82,7 @@ class MainApp(tk.Tk):
             self.load_app(default_app, self.additional_gui_apps[default_app][0])
             
     def _setup_font_rendering(self):
+        """Apply platform-appropriate default fonts for crisp text rendering."""
         import platform
         system = platform.system()
         
@@ -112,6 +121,7 @@ class MainApp(tk.Tk):
                 pass
 
     def create_widgets(self):
+        """Build the root layout containers and render the startup screen."""
         create_menu_bar(self)
 
         # Use a grid layout for centering
@@ -133,6 +143,7 @@ class MainApp(tk.Tk):
         self.create_startup_screen()
         
     def _update_wraplength(self, event):
+        """Resize the description label wrap width in response to layout changes."""
         if self.description_label.winfo_exists():
             # Use the actual width of the inner_frame as a proxy for full width
             available_width = self.inner_frame.winfo_width()
@@ -140,6 +151,7 @@ class MainApp(tk.Tk):
                 self.description_label.config(wraplength=int(available_width * 0.9))  # or 0.9
 
     def create_startup_screen(self):
+        """Render the app-picker view with core and additional tool buttons."""
         self.clear_frame(self.inner_frame)
 
         # Pull the shared palette + typography scale so the startup screen
@@ -154,6 +166,7 @@ class MainApp(tk.Tk):
         font_loader = style_out.get('font_loader')
 
         def _font(size_key, weight="normal"):
+            """Return the tk font tuple (or loaded font) for the given size key."""
             size = font_sizes.get(size_key, style_out['font_size'])
             if font_loader:
                 return font_loader.get_font(size=size)
@@ -242,6 +255,7 @@ class MainApp(tk.Tk):
         self.inner_frame.bind("<Configure>", self._update_wraplength)
 
     def update_description(self):
+        """Show the description for the currently highlighted app button."""
         for button, desc in {**self.main_buttons, **self.additional_buttons}.items():
             if button.canvas.itemcget(button.button_bg, "fill") == self.color_settings['active_color']:
                 self.show_description(desc)
@@ -249,16 +263,26 @@ class MainApp(tk.Tk):
         self.clear_description()
 
     def show_description(self, description):
+        """Set the bottom description label text.
+
+        :param description: Text to display beneath the app buttons.
+        """
         if self.description_label.winfo_exists():
             self.description_label.config(text=description)
             self.description_label.update_idletasks()
 
     def clear_description(self):
+        """Blank the description label."""
         if self.description_label.winfo_exists():
             self.description_label.config(text="")
             self.description_label.update_idletasks()
 
     def load_app(self, app_name, app_func):
+        """Replace the current frame contents with the selected app.
+
+        :param app_name: Human-readable app label (used for icon/title lookup).
+        :param app_func: Callable that renders the app UI into a supplied frame.
+        """
         self.clear_frame(self.inner_frame)
 
         app_frame = tk.Frame(self.inner_frame)
@@ -267,6 +291,10 @@ class MainApp(tk.Tk):
         app_func(app_frame)
 
     def clear_frame(self, frame):
+        """Destroy every child widget of ``frame``.
+
+        :param frame: Tk container whose children should be removed.
+        """
         for widget in frame.winfo_children():
             widget.destroy()
 
@@ -275,6 +303,11 @@ class MainApp(tk.Tk):
 #    app.mainloop()
 
 def gui_app():
+    """Launch the spacr GUI as a standalone application.
+
+    Calls ``freeze_support`` first so the app runs correctly under
+    ``multiprocessing``-frozen executables.
+    """
     from multiprocessing import freeze_support
     freeze_support()
     app = MainApp()

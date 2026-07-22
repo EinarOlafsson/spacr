@@ -292,6 +292,13 @@ def _prepare_for_tracking(mask_array):
 
 
 def link_by_iou(mask_prev, mask_next, iou_threshold=0.1):
+    """Match labels between two consecutive frames using IoU and Hungarian assignment.
+
+    :param mask_prev: labelled mask from the previous frame.
+    :param mask_next: labelled mask from the next frame.
+    :param iou_threshold: minimum IoU required to accept a match. Default ``0.1``.
+    :returns: list of ``(label_prev, label_next)`` matches above the threshold.
+    """
     # Get labels
     labels_prev = np.unique(mask_prev)[1:]
     labels_next = np.unique(mask_next)[1:]
@@ -847,9 +854,15 @@ def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, mas
 
 
 def exponential_decay(x, a, b, c):
+    """Return ``a * exp(-b * x) + c`` for curve fitting."""
     return a * np.exp(-b * x) + c
 
 def preprocess_pathogen_data(pathogen_df):
+    """Aggregate a per-parasite table to one row per host cell with a parasite count.
+
+    :param pathogen_df: per-parasite measurements DataFrame with plate/well/field/time/cell identifiers.
+    :returns: DataFrame aggregated to (plate, row, column, field, time, host cell) with a ``parasite_count`` column.
+    """
     # Group by identifiers and count the number of parasites
     parasite_counts = pathogen_df.groupby(['plateID', 'rowID', 'column_name', 'fieldID', 'timeid', 'pathogen_cell_id']).size().reset_index(name='parasite_count')
 
@@ -871,9 +884,25 @@ def preprocess_pathogen_data(pathogen_df):
     return pathogen_agg
 
 def plot_data(measurement, group, ax, label, marker='o', linestyle='-'):
+    """Plot ``delta_<measurement>`` vs ``time`` for one grouped subset onto ``ax``.
+
+    :param measurement: base measurement name; the ``delta_`` prefix is added when reading the column.
+    :param group: DataFrame subset for a single group.
+    :param ax: matplotlib axis to draw onto.
+    :param label: legend label for this series.
+    :param marker: matplotlib marker. Default ``'o'``.
+    :param linestyle: matplotlib line style. Default ``'-'``.
+    :returns: None.
+    """
     ax.plot(group['time'], group['delta_' + measurement], marker=marker, linestyle=linestyle, label=label)
 
 def infected_vs_noninfected(result_df, measurement):
+    """Plot per-well mean ``delta_<measurement>`` for infected vs uninfected cell groups.
+
+    :param result_df: per-cell/time DataFrame with plate/row/column/field/object identifiers, ``parasite_count`` and the target measurement.
+    :param measurement: base measurement column name to plot (the ``delta_`` variant is drawn).
+    :returns: None.
+    """
     # Separate the merged dataframe into two groups based on pathogen_count
     infected_cells_df = result_df[result_df.groupby('plate_row_column_field_object')['parasite_count'].transform('max') > 0]
     uninfected_cells_df = result_df[result_df.groupby('plate_row_column_field_object')['parasite_count'].transform('max') == 0]
@@ -905,6 +934,13 @@ def infected_vs_noninfected(result_df, measurement):
     plt.show()
 
 def save_figure(fig, src, figure_number):
+    """Save ``fig`` as ``figure_<figure_number>.pdf`` inside a sibling ``results`` folder.
+
+    :param fig: matplotlib Figure to persist.
+    :param src: reference path used to derive the parent directory.
+    :param figure_number: integer/string suffix embedded in the filename.
+    :returns: None.
+    """
     source = os.path.dirname(src)
     results_fldr = os.path.join(source,'results')
     os.makedirs(results_fldr, exist_ok=True)
@@ -913,6 +949,13 @@ def save_figure(fig, src, figure_number):
     print(f'Saved figure:{fig_loc}')
 
 def save_results_dataframe(df, src, results_name):
+    """Save ``df`` as ``<results_name>.csv`` inside a sibling ``results`` folder.
+
+    :param df: DataFrame to write.
+    :param src: reference path used to derive the parent directory.
+    :param results_name: filename stem (no extension).
+    :returns: None.
+    """
     source = os.path.dirname(src)
     results_fldr = os.path.join(source,'results')
     os.makedirs(results_fldr, exist_ok=True)
@@ -921,6 +964,13 @@ def save_results_dataframe(df, src, results_name):
     print(f'Saved results:{csv_loc}')
 
 def summarize_per_well(peak_details_df):
+    """Aggregate per-object peak details to one summary row per well.
+
+    :param peak_details_df: per-object peak DataFrame with an ``ID`` column
+        encoding ``plate_row_column_field_object`` and peak metrics.
+    :returns: DataFrame with one row per well including peak counts, unique
+        cell counts, and per-well means of the numeric metrics.
+    """
     # Step 1: Split the 'ID' column
     split_columns = peak_details_df['ID'].str.split('_', expand=True)
     peak_details_df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_number']] = split_columns
@@ -952,6 +1002,14 @@ def summarize_per_well(peak_details_df):
     return summary_df
 
 def summarize_per_well_inf_non_inf(peak_details_df):
+    """Aggregate per-object peak details per well, split by infection status.
+
+    :param peak_details_df: per-object peak DataFrame with an ``ID`` column
+        encoding ``plate_row_column_field_object``, peak metrics, and
+        pathogen counts used to infer infection.
+    :returns: DataFrame with two rows per well (infected/uninfected) of
+        peak counts, cell counts, and per-well means of numeric metrics.
+    """
     # Step 1: Split the 'ID' column
     split_columns = peak_details_df['ID'].str.split('_', expand=True)
     peak_details_df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_number']] = split_columns
@@ -979,6 +1037,25 @@ def summarize_per_well_inf_non_inf(peak_details_df):
     return summary_df
 
 def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intensity', size_filter='cell_area', fluctuation_threshold=0.25, num_lines=None, peak_height=0.01, pathogen=None, cytoplasm=None, remove_transient=True, verbose=False, transience_threshold=0.9):
+    """Detect and summarise per-cell calcium oscillation peaks from a measurements DB.
+
+    Loads the ``cell`` (and optionally ``pathogen``/``cytoplasm``) tables,
+    filters transient tracks, detects peaks on the chosen intensity trace,
+    and returns both per-peak details and per-well summaries.
+
+    :param db_loc: path to the measurements SQLite database.
+    :param measurement: intensity column analysed for oscillations.
+    :param size_filter: object-size column used for gating.
+    :param fluctuation_threshold: minimum normalised fluctuation to keep a trace.
+    :param num_lines: cap on the number of traces to plot; plots all when ``None``.
+    :param peak_height: minimum peak prominence for ``scipy.find_peaks``.
+    :param pathogen: optional pathogen table name to join for infection status.
+    :param cytoplasm: optional cytoplasm table name to join.
+    :param remove_transient: drop tracks shorter than the transience threshold.
+    :param verbose: print diagnostic information.
+    :param transience_threshold: fraction of timepoints a track must span to be retained.
+    :returns: tuple of per-peak DataFrame and per-well summary DataFrame(s).
+    """
     # Load data
     conn = sqlite3.connect(db_loc)
     # Load cell table
@@ -1204,15 +1281,12 @@ def _generate_mask_random_cmap(mask):
     return mpl.colors.ListedColormap(random_colors)
 
 def create_results_figure():
-    """
-    Create a Figure with 3 subplots arranged as:
-      - PCA (top-left)
-      - XGBoost (top-right)
-      - Histogram (bottom spanning both columns)
-    Returns
-    -------
-    fig : Figure
-    ax_pca, ax_xgb, ax_hist : matplotlib.axes.Axes
+    """Create the standard 3-panel QC results figure layout.
+
+    Arrangement is PCA (top-left), XGBoost (top-right) and Histogram
+    (bottom spanning both columns).
+
+    :returns: tuple ``(fig, ax_pca, ax_xgb, ax_hist)``.
     """
     fig = Figure(figsize=(7, 6), dpi=100)
     gs = fig.add_gridspec(2, 2, height_ratios=[2, 1])
@@ -6570,52 +6644,27 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
     return all_df, infection_col
 
 def automated_motility_assay(settings):
-    """
-    End-to-end:
+    """End-to-end merged-npy pipeline for cell/pathogen motility and infection QC.
 
-    1. Read merged/*.npy (plate_well_field_time.npy)
-    2. Build intensity + cell/nucleus/pathogen masks, derive cytoplasm
-    3. Per cell & frame: metadata + cell regionprops
-    4. Aggregate child (nucleus/pathogen/cytoplasm) features per cell
-    5. Concatenate across all merged files
-    6. Clean impossible jumps + measurement glitches
-    7. Save per-cell measurements to SQLite DB
-       (measurements/measurements.db, table=db_table_name)
-       **This table is always the original, pre-QC measurements.**
-    8. Compute per-track velocities (after smoothing)
-    9. Save a well-level motility summary table in the same DB
-    10. Generate *panel* plots combining intensity + motility:
-        - original (mask-based) infection labels
-        - adjusted infection labels (if QC modifies labels)
-    11. Optional infection intensity QC based on pathogen channel.
+    Reads ``merged/*.npy`` frames, builds per-cell measurements, cleans and
+    persists them to SQLite, computes per-track velocities, generates
+    intensity + motility QC panels (mask-based and, optionally, XGBoost /
+    histogram / PCA / UMAP / t-SNE adjusted labels), and writes a
+    well-level motility summary.
 
-    New-relevant settings (all optional):
-
-        # Infection QC / strategy
-        'infection_intensity_qc': True/False
-        'infection_intensity_strategy': one of
-            {'xgboost', 'histogram', 'pca', 'umap', 'tsne'}
-        'infection_intensity_mode': {'relabel', 'remove'}   # existing
-
-        # XGBoost ambiguous-band filtering (track-level)
-        'infection_xgb_drop_ambiguous': True/False (default True)
-        'infection_xgb_ambiguous_low': 0.25  (default)
-        'infection_xgb_ambiguous_high': 0.75 (default)
-        'infection_xgb_proba_column': 'name_of_proba_col'   # optional override
-
-        # Histogram strategy
-        'infection_hist_percentile': 25  # used inside _apply_infection_intensity_qc
-
-        # Panel toggles
-        'make_mask_panel': True/False (default True)
-        'make_adjusted_panel': True/False (default True)
-
-        # Plot ranges (unchanged)
-        - 'motility_xlim', 'motility_ylim'
-        - 'motility_origin_xlim', 'motility_origin_ylim'
-
-        # Measurements reuse
-        'reuse_existing_measurements': True/False (default True)
+    :param settings: dict of assay settings; see
+        ``get_automated_motility_assay_default_settings`` for keys
+        including ``src``, ``db_table_name``, ``n_jobs``,
+        ``max_displacement``, ``zscore_thresh``, ``infection_intensity_qc``,
+        ``infection_intensity_strategy``, ``infection_intensity_mode``,
+        ``infection_xgb_drop_ambiguous``, ``infection_xgb_ambiguous_low``,
+        ``infection_xgb_ambiguous_high``, ``infection_xgb_proba_column``,
+        ``infection_hist_percentile``, ``make_mask_panel``,
+        ``make_adjusted_panel``, ``motility_xlim``, ``motility_ylim``,
+        ``motility_origin_xlim``, ``motility_origin_ylim``, and
+        ``reuse_existing_measurements``.
+    :returns: None. Writes measurements and summary tables to
+        ``measurements/measurements.db`` and saves panel PDFs under ``src``.
     """
     import matplotlib.pyplot as plt  # noqa: F401 (used in helpers)
     from matplotlib import patches  # noqa: F401 (used in helpers)

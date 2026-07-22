@@ -17,6 +17,7 @@ from .theme import PALETTE
 
 @lru_cache(maxsize=128)
 def _try_qta():
+    """Return the ``qtawesome`` module, or ``None`` when it isn't installed."""
     try:
         import qtawesome as qta
         return qta

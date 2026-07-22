@@ -21,7 +21,22 @@ from skimage.restoration import rolling_ball
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
 
 def merge_split_filter_masks(masks, intensity_images, settings, object_type, batch_filenames=None):
-    """Apply merge/split/filter operations directly to in-memory masks."""
+    """Apply merge/split/filter operations directly to in-memory masks.
+
+    Skips work when no operation is enabled for ``object_type``; otherwise
+    processes each FOV serially so progress reporting stays in order.
+
+    :param masks: 2D/3D ndarray or iterable of 2D masks (one per FOV).
+    :param intensity_images: Matching intensity arrays for scoring merges/splits.
+    :param settings: Dict of pipeline settings; per-object-type suffixes control
+        which operations run (e.g. ``<type>_perimeter_fraction``,
+        ``<type>_intensity_merge``, ``<type>_min_area``).
+    :param object_type: Label used to look up per-object settings (``'cell'``,
+        ``'nucleus'``, ``'pathogen'``, ``'organelle'``).
+    :param batch_filenames: Optional per-FOV filenames used only for logging.
+    :returns: Original ``masks`` unchanged when no operation is enabled, else a
+        list of filtered mask arrays (one per FOV).
+    """
     import numpy as np
     from joblib import Parallel, delayed
     from .utils import print_progress, _process_single_fov_in_memory
@@ -87,6 +102,7 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
     time_ls = []
 
     def _progress(fov_idx, total_fovs, duration, op):
+        """Record a per-FOV duration and emit the shared progress line."""
         time_ls.append(duration)
         print_progress(
             fov_idx + 1,
@@ -98,6 +114,7 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
         )
 
     def _run_one(idx, mask, intensity_img):
+        """Run the configured filter pipeline against a single FOV mask."""
         out_mask = _process_single_fov_in_memory(
             mask=mask,
             intensity_img=intensity_img,
@@ -134,7 +151,20 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
     return filtered_masks
 
 def generate_cellpose_masks_sam(src, settings, object_type):
-    
+    """Segment one object channel across all ``.npz`` batches under ``src`` using Cellpose-SAM.
+
+    Loads the ``cpsam`` pretrained model, iterates over each pre-batched
+    ``.npz`` file, runs merge/split/filter on the resulting masks, optionally
+    tracks timelapse objects, saves per-image ``.npy`` masks, and records
+    per-object counts to the run's SQLite database.
+
+    :param src: Directory containing the pre-batched ``.npz`` image stacks.
+    :param settings: Pipeline settings dict; canonicalized via
+        :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.
+    :param object_type: ``'cell'``, ``'nucleus'``, ``'pathogen'`` or
+        ``'organelle'``; drives channel/threshold lookups and output folder name.
+    :returns: None.
+    """
     from .utils import _masks_to_masks_stack, all_elements_match, prepare_batch_for_segmentation, _get_cellpose_channels
     from .io import _create_database, _save_object_counts_to_database, _check_masks, _get_avg_object_size
     from .timelapse import _npz_to_movie, _btrack_track_cells, _trackpy_track_cells
@@ -382,7 +412,20 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     return
 
 def generate_cellpose_masks(src, settings, object_type):
-    
+    """Segment one object channel across all ``.npz`` batches under ``src`` using a chosen Cellpose model.
+
+    Selects the model via :func:`spacr.utils._choose_model` (stock or custom),
+    runs per-batch inference with the object-specific channel/threshold
+    settings, applies :func:`spacr.utils._filter_cp_masks`, optionally tracks
+    timelapse objects, and writes ``.npy`` masks plus per-object counts.
+
+    :param src: Directory containing the pre-batched ``.npz`` image stacks.
+    :param settings: Pipeline settings dict; canonicalized via
+        :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.
+    :param object_type: ``'cell'``, ``'nucleus'``, or ``'pathogen'``; drives
+        channel/threshold lookups and output folder name.
+    :returns: None.
+    """
     from .utils import _masks_to_masks_stack, _filter_cp_masks, _get_cellpose_channels, _choose_model, all_elements_match, prepare_batch_for_segmentation
     from .io import _create_database, _save_object_counts_to_database, _check_masks, _get_avg_object_size
     from .timelapse import _npz_to_movie, _btrack_track_cells, _trackpy_track_cells
@@ -660,39 +703,27 @@ def generate_cellpose_masks(src, settings, object_type):
 
 
 def generate_organelle_masks_sam(src, settings, object_type):
-    """
-    Generate organelle masks using multiple segmentation strategies.
+    """Generate organelle masks using one of several morphology-aware strategies.
 
-    Supports four morphology modes:
-        - 'spots': punctate structures (lipid droplets, vesicles, peroxisomes)
-        - 'network': filamentous/reticular structures (mitochondria, microtubules, ER tubules)
-        - 'irregular': irregular-shaped organelles (Golgi, ER cisternae, lysosomes)
-        - 'ring': hollow / ring-shaped structures (endosomes, autophagosomes, late lysosomes)
+    Supported morphology modes and backends:
 
-    Each mode can use different backends:
-        - 'cellpose': deep-learning segmentation via Cellpose
-        - 'otsu': global Otsu thresholding with morphological cleanup
-        - 'adaptive': local adaptive thresholding
-        - 'log': Laplacian of Gaussian blob detection (spots, ring)
-        - 'dog': Difference of Gaussians blob detection (spots, ring)
-        - 'ridge': ridge/tubeness filter (network only)
-        - 'hysteresis': dual-threshold hysteresis (network only)
-        - 'unet': user-provided U-Net semantic segmentation (network only)
+    - ``spots``: punctate structures (lipid droplets, vesicles, peroxisomes) via
+      ``otsu``, ``adaptive``, ``log``, ``dog``, ``cellpose``.
+    - ``network``: filamentous/reticular structures (mitochondria, microtubules,
+      ER tubules) via ``otsu``, ``adaptive``, ``ridge``, ``hysteresis``,
+      ``cellpose``, ``unet``.
+    - ``irregular``: irregular-shaped organelles (Golgi, ER cisternae, lysosomes)
+      via ``otsu``, ``adaptive``, ``cellpose``.
+    - ``ring``: hollow/ring-shaped structures (endosomes, autophagosomes) via
+      ``otsu``, ``adaptive``, ``dog``, ``log``, ``cellpose``.
 
-    Parameters
-    ----------
-    src : str
-        Path to the mask source directory containing .npz stacks.
-    settings : dict
-        Configuration dictionary. Organelle-specific keys (all prefixed with
-        'organelle_') are documented in _set_organelle_defaults.
-    object_type : str
-        Should be 'organelle' (or a custom name used for folder naming).
-
-    Returns
-    -------
-    None
-        Masks are saved as .npy files in ``{src}/{object_type}_mask_stack/``.
+    :param src: Path to the mask source directory containing ``.npz`` stacks.
+    :param settings: Configuration dict. Organelle-specific keys are prefixed
+        with ``organelle_`` and are documented in ``_set_organelle_defaults``.
+    :param object_type: Object label (typically ``'organelle'``); drives the
+        output folder name ``<object_type>_mask_stack``.
+    :returns: None. Masks are written as ``.npy`` files in
+        ``<src>/<object_type>_mask_stack/``.
     """
 
     from .io import _create_database, _save_object_counts_to_database, _check_masks, _get_avg_object_size
@@ -940,10 +971,7 @@ def _build_object_settings(settings):
 
 
 def _extract_classical_settings(settings):
-    """
-    Extract only the plain-data keys needed by classical segmentation workers.
-    This dict is safe to pickle for multiprocessing.
-    """
+    """Return a pickle-safe subset of ``settings`` for classical segmentation workers."""
     keys = [
         'organelle_morphology', 'organelle_method',
         'organelle_min_size', 'organelle_max_size',
@@ -971,24 +999,7 @@ def _extract_classical_settings(settings):
 # ====================================================================== #
 
 def _preprocess_batch(img_batch, settings):
-    """
-    Apply optional preprocessing to the entire image batch.
-
-    Operations (applied in order if enabled):
-        1. Rolling ball background subtraction
-        2. CLAHE (Contrast Limited Adaptive Histogram Equalization)
-
-    Parameters
-    ----------
-    img_batch : np.ndarray
-        Shape (N, H, W) float32.
-    settings : dict
-
-    Returns
-    -------
-    np.ndarray
-        Preprocessed batch, same shape.
-    """
+    """Apply optional rolling-ball and/or CLAHE preprocessing to an (N,H,W) batch."""
     do_rolling_ball = settings.get('organelle_rolling_ball', False)
     do_clahe = settings.get('organelle_clahe', False)
 
@@ -1021,22 +1032,7 @@ def _preprocess_batch(img_batch, settings):
 
 
 def _apply_cell_mask(img_batch, batch_filenames, cell_mask_folder):
-    """
-    Zero out pixels outside cell boundaries for per-cell organelle detection.
-
-    Parameters
-    ----------
-    img_batch : np.ndarray
-        Shape (N, H, W) float32.
-    batch_filenames : list of str
-    cell_mask_folder : str
-        Path to cell_mask_stack directory.
-
-    Returns
-    -------
-    np.ndarray
-        Masked batch.
-    """
+    """Zero out pixels outside cell boundaries for per-cell organelle detection."""
     out = img_batch.copy()
     for idx, fn in enumerate(batch_filenames):
         cell_mask_path = os.path.join(cell_mask_folder, fn)
@@ -1185,9 +1181,10 @@ def _segment_cellpose_sam(batch, batch_filenames, model, settings, object_type, 
 # ====================================================================== #
 
 def _segment_unet(img_batch, model, settings):
-    """
-    Run a user-provided U-Net for semantic segmentation of networks.
-    Expects a model that takes (B, 1, H, W) and outputs (B, 1, H, W) logits.
+    """Run a user-provided U-Net for semantic segmentation of network organelles.
+
+    Expects a model that accepts ``(B, 1, H, W)`` and outputs
+    ``(B, 1, H, W)`` logits; returns a list of 2-D integer label arrays.
     """
     device = next(model.parameters()).device
     threshold = settings.get('organelle_unet_threshold', 0.5)
@@ -1229,23 +1226,7 @@ def _segment_unet(img_batch, model, settings):
 # ====================================================================== #
 
 def _segment_classical_parallel(img_batch, classical_settings, n_jobs=1):
-    """
-    Segment a batch of images using classical methods, optionally in parallel.
-
-    Parameters
-    ----------
-    img_batch : np.ndarray
-        Shape (N, H, W) float32 single-channel images.
-    classical_settings : dict
-        Pickle-safe subset of settings for classical segmentation.
-    n_jobs : int
-        Number of worker processes. 1 = sequential (no multiprocessing overhead).
-
-    Returns
-    -------
-    list of np.ndarray
-        List of 2-D integer label arrays, one per image.
-    """
+    """Segment a batch using classical methods, sequential or via ``Pool``."""
     n_images = img_batch.shape[0]
 
     if n_jobs == 1 or n_images == 1:
@@ -1264,9 +1245,7 @@ def _segment_classical_parallel(img_batch, classical_settings, n_jobs=1):
 
 
 def _segment_single_image(img, settings):
-    """
-    Segment a single 2-D image. Top-level function for multiprocessing.
-    """
+    """Dispatch a 2-D image to the morphology-specific segmentation routine."""
     morphology = settings['organelle_morphology']
     method = settings['organelle_method']
 
@@ -1287,16 +1266,7 @@ def _segment_single_image(img, settings):
 # ====================================================================== #
 
 def _segment_spots(img, method, settings):
-    """
-    Segment punctate / spot-like organelles.
-
-    Strategies
-    ----------
-    'otsu'     : top-hat -> Otsu -> watershed
-    'adaptive' : top-hat -> adaptive threshold -> watershed
-    'log'      : Laplacian-of-Gaussian blob detection -> marker-based watershed
-    'dog'      : Difference-of-Gaussians blob detection -> marker-based watershed
-    """
+    """Segment punctate/spot-like organelles via ``otsu``, ``adaptive``, ``log`` or ``dog``."""
     tophat_radius = settings['organelle_tophat_radius']
     use_watershed = settings['organelle_watershed_spots']
 
@@ -1352,10 +1322,7 @@ def _spots_log(img, settings, use_watershed):
 
 
 def _spots_dog(img, settings, use_watershed):
-    """
-    Difference-of-Gaussians blob detection -> marker-seeded watershed.
-    Faster than LoG, nearly equivalent accuracy for fluorescence microscopy.
-    """
+    """DoG blob detection followed by an optional marker-seeded watershed."""
     sigma_low = settings.get('organelle_dog_sigma_low', 1.0)
     sigma_high = settings.get('organelle_dog_sigma_high', 3.0)
     thresh = settings['organelle_log_threshold']
@@ -1372,10 +1339,7 @@ def _spots_dog(img, settings, use_watershed):
 
 
 def _blobs_to_labels(blobs, img_norm, use_watershed):
-    """
-    Convert blob coordinates (y, x, sigma) to a label image.
-    Shared by LoG and DoG methods.
-    """
+    """Convert ``(y, x, sigma)`` blob coordinates to a 2-D label image."""
     shape = img_norm.shape
     markers = np.zeros(shape, dtype=np.int32)
     for i, (y, x, sigma) in enumerate(blobs, start=1):
@@ -1411,16 +1375,7 @@ def _circle_coords(cy, cx, radius, shape):
 # ====================================================================== #
 
 def _segment_network(img, method, settings):
-    """
-    Segment filamentous / reticular organelles.
-
-    Strategies
-    ----------
-    'otsu'        : Gaussian smooth -> Otsu -> morphological cleanup
-    'adaptive'    : Gaussian smooth -> adaptive threshold -> cleanup
-    'ridge'       : Ridge filter (Frangi / Sato / Meijering) -> threshold -> label
-    'hysteresis'  : Gaussian smooth -> dual-threshold hysteresis -> cleanup
-    """
+    """Segment filamentous/reticular organelles via ``otsu``, ``adaptive``, ``ridge`` or ``hysteresis``."""
     if method == 'ridge':
         return _network_ridge(img, settings)
     elif method == 'hysteresis':
@@ -1496,19 +1451,10 @@ def _network_ridge(img, settings):
 
 
 def _network_hysteresis(img, settings):
-    """
-    Dual-threshold hysteresis segmentation for networks.
+    """Dual-threshold hysteresis segmentation for network organelles.
 
-    Uses a high threshold to seed confident regions and a low threshold
-    to extend into dimmer connected filaments. Much better than single-
-    threshold approaches for variable-contrast mitochondria and microtubules.
-
-    Settings
-    --------
-    organelle_hysteresis_low : float
-        Low threshold. If <1.0, interpreted as a percentile of the image.
-    organelle_hysteresis_high : float
-        High threshold. If <1.0, interpreted as a percentile of the image.
+    Values <1.0 for ``organelle_hysteresis_low`` / ``_high`` are interpreted as
+    percentiles of the image; otherwise as absolute intensities.
     """
     low = settings['organelle_hysteresis_low']
     high = settings['organelle_hysteresis_high']
@@ -1540,14 +1486,7 @@ def _network_hysteresis(img, settings):
 # ====================================================================== #
 
 def _segment_irregular(img, method, settings):
-    """
-    Segment irregularly shaped organelles (Golgi, ER cisternae, lysosomes).
-
-    Strategies
-    ----------
-    'otsu'     : Gaussian smooth -> Otsu -> morph open/close -> fill holes -> label
-    'adaptive' : Gaussian smooth -> adaptive threshold -> morph cleanup -> label
-    """
+    """Segment irregular organelles (Golgi, ER cisternae, lysosomes) via ``otsu`` or ``adaptive``."""
     morph_r = settings['organelle_morph_radius']
     fill_area = settings['organelle_fill_holes']
 
@@ -1582,30 +1521,11 @@ def _segment_irregular(img, method, settings):
 # ====================================================================== #
 
 def _segment_ring(img, method, settings):
-    """
-    Segment hollow / ring-shaped organelles (endosomes, autophagosomes,
-    late endosomes/lysosomes).
+    """Segment hollow/ring-shaped organelles by DoG edge enhancement + fill + shape filter.
 
-    Strategy
-    --------
-    1. Enhance ring edges using Difference of Gaussians.
-    2. Threshold edges using the specified method.
-    3. Fill enclosed rings to produce solid instance masks.
-    4. Filter out objects that lack ring morphology (no bright-dim
-       boundary-interior contrast).
-
-    Settings
-    --------
-    organelle_ring_sigma_inner : float
-        Inner sigma for DoG edge enhancement. Default: 1.0.
-    organelle_ring_sigma_outer : float
-        Outer sigma for DoG edge enhancement. Default: 3.0.
-    organelle_ring_min_prominence : float
-        Minimum edge-vs-interior intensity contrast (normalised).
-        Objects below this are removed. Default: 0.1.
-    organelle_ring_fill_method : str
-        'flood' (fill enclosed holes) or 'convex' (convex hull per component).
-        Default: 'flood'.
+    Uses ``organelle_ring_sigma_inner`` / ``_outer`` for DoG scales,
+    ``organelle_ring_min_prominence`` to discard non-ring objects, and
+    ``organelle_ring_fill_method`` (``'flood'`` or ``'convex'``) for the fill step.
     """
     sigma_inner = settings.get('organelle_ring_sigma_inner', 1.0)
     sigma_outer = settings.get('organelle_ring_sigma_outer', 3.0)
@@ -1661,11 +1581,7 @@ def _segment_ring(img, method, settings):
 
 
 def _fill_rings_flood(binary_edges):
-    """
-    Fill ring interiors using flood-fill logic.
-    Inverts the edge mask, labels connected components, and identifies
-    interior regions (not touching the image border) as filled objects.
-    """
+    """Fill ring interiors by treating non-border background components as interiors."""
     inverted = ~binary_edges
     labeled_bg = sk_label(inverted)
 
@@ -1684,9 +1600,7 @@ def _fill_rings_flood(binary_edges):
 
 
 def _fill_rings_convex(binary_edges):
-    """
-    Fill rings using the convex hull of each connected edge component.
-    """
+    """Fill rings using the convex hull of each connected edge component."""
     from skimage.morphology import convex_hull_image
 
     labeled_edges = sk_label(binary_edges)
@@ -1702,13 +1616,7 @@ def _fill_rings_convex(binary_edges):
 
 
 def _filter_non_rings(labeled, binary_edges, img_norm, min_prominence):
-    """
-    Remove objects that lack ring morphology.
-
-    A ring has a bright boundary with a dimmer interior. We measure this
-    as the absolute difference between the mean edge intensity and the mean
-    interior intensity, normalised by the object's mean intensity.
-    """
+    """Drop objects whose boundary-vs-interior contrast falls below ``min_prominence``."""
     props = regionprops(labeled, intensity_image=img_norm)
     output = labeled.copy()
 
@@ -1754,10 +1662,7 @@ def _normalize_01(img):
 
 
 def _watershed_split(binary, intensity):
-    """
-    Marker-controlled watershed to separate touching objects in a binary mask.
-    Uses distance transform peaks as markers.
-    """
+    """Marker-controlled watershed on a binary mask using distance-transform peaks."""
     distance = distance_transform_edt(binary)
     coords = peak_local_max(distance, min_distance=5, labels=binary)
     if len(coords) == 0:
@@ -1770,14 +1675,7 @@ def _watershed_split(binary, intensity):
 
 
 def _postprocess_masks(masks, min_size=10, max_size=None, remove_border=False):
-    """
-    Apply size filtering and optional border removal to a list of label masks.
-
-    Returns
-    -------
-    list of np.ndarray
-        Cleaned label arrays.
-    """
+    """Return each label mask with size filtering and optional border-object removal."""
     processed = []
     for mask in masks:
         mask = mask.copy()

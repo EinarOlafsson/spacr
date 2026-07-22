@@ -12,6 +12,7 @@ class Toggle(QCheckBox):
     """A modern toggle switch. Emits `stateChanged` on user interaction."""
 
     def __init__(self, text: str = "", parent=None):
+        """Initialize the switch with an optional trailing label."""
         super().__init__(text, parent)
         # Track geometry
         self._track_w = 40
@@ -24,6 +25,7 @@ class Toggle(QCheckBox):
         self.setMinimumHeight(self._track_h + 2)
 
     def sizeHint(self) -> "QSize":
+        """Return the default checkbox hint widened to fit the switch track."""
         base = super().sizeHint()
         base.setWidth(self._track_w + 12 + base.width())
         return base
@@ -31,6 +33,7 @@ class Toggle(QCheckBox):
     # Custom paint — QCheckBox default indicator is hidden via QSS
     # (we override paintEvent so we don't render it at all).
     def paintEvent(self, event):
+        """Paint the switch track, knob, and (optional) trailing label."""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
         # Track

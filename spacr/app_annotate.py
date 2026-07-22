@@ -4,6 +4,12 @@ from .gui import MainApp
 from .gui_elements import set_dark_style, spacrButton
 
 def convert_to_number(value):
+    """Return ``value`` coerced to ``int`` when possible, else ``float``.
+
+    :param value: String or number-like value to convert.
+    :returns: ``int`` when parseable as integer, otherwise ``float``.
+    :raises ValueError: When ``value`` is neither an integer nor a float literal.
+    """
     try:
         return int(value)
     except ValueError:
@@ -13,8 +19,13 @@ def convert_to_number(value):
             raise ValueError(f"Unable to convert '{value}' to an integer or float.")
 
 def initiate_annotation_app(parent_frame):
-    """Bootstrap: pick the experiment src directory, construct AnnotateApp,
-    then hand off to its own settings window for everything else.
+    """Prompt for an experiment directory and launch the AnnotateApp settings window.
+
+    Bootstraps the annotation UI by picking a ``src`` directory, verifying the
+    measurements database, then handing off to ``AnnotateApp.open_settings_window``.
+
+    :param parent_frame: Tk widget that owns the modal dialogs and Toplevel window.
+    :returns: The created ``AnnotateApp`` instance, or ``None`` if the user cancelled.
     """
     import os
     import tkinter as tk
@@ -50,6 +61,7 @@ def initiate_annotation_app(parent_frame):
 
 
 def start_annotate_app():
+    """Launch the main spacr GUI with the Annotate tab preselected."""
     app = MainApp(default_app="Annotate")
     app.mainloop()
 

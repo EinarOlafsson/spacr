@@ -12,6 +12,16 @@ from ..theme import SPACING
 
 
 class Card(QFrame):
+    """Rounded-border container with optional title/subtitle and a body area.
+
+    Consumers add content to :attr:`body_layout`.
+
+    :param title: optional heading rendered above the body.
+    :param subtitle: optional muted subheading rendered under the title.
+    :ivar body: inner QWidget that holds the body layout.
+    :ivar body_layout: QVBoxLayout consumers add widgets to.
+    """
+
     def __init__(self, title: str = "", subtitle: str = "", parent=None):
         super().__init__(parent)
         self.setObjectName("Card")

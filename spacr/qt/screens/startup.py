@@ -166,6 +166,7 @@ class StartupPage(QScrollArea):
         self.setWidget(content)
 
     def eventFilter(self, obj, event):
+        """Update the hover footer with each tile's caption on Enter/Leave."""
         from PySide6.QtCore import QEvent
         if event.type() == QEvent.Enter:
             cap = obj.property("hover_caption")

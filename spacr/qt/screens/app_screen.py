@@ -54,6 +54,17 @@ APP_TITLES = {
 
 
 class AppScreen(QWidget):
+    """Generic settings + runtime screen used by every non-interactive app.
+
+    Composes the settings model on the left with the console, usage bars,
+    figures card, and actions row on the right.
+
+    :param app_key: id of the app (see ``APPS`` in ``spacr.qt.app``).
+    :ivar error_explain_requested: emitted with ``(traceback, app_key)``
+        when the user clicks "Explain error"; MainWindow routes it to
+        the AI Console for backward compatibility.
+    """
+
     # Emitted when the user clicks "Explain error" with the last
     # captured traceback + the app key so MainWindow can route to the
     # AI Console.
@@ -165,6 +176,7 @@ class AppScreen(QWidget):
         return scroll
 
     def eventFilter(self, obj, event):
+        """Show/hide the hover tooltip and update the hint strip on Enter/Leave."""
         from PySide6.QtCore import QEvent
         from ..widgets.hover_tooltip import HoverTooltip
         if event.type() == QEvent.Enter:

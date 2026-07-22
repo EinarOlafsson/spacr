@@ -7,13 +7,14 @@ from multiprocessing import Pool
 from skimage.transform import resize as resizescikit
 
 def parse_cellpose4_output(output):
-    """
-    General parser for Cellpose eval output.
-    Handles:
-    - batched format (list of 4 arrays)
-    - per-image list of flows
-    Returns:
-        masks, flows0, flows1, flows2, flows3
+    """Normalize the return value of ``CellposeModel.eval`` into per-image flow lists.
+
+    Accepts both the batched format (4 stacked arrays) and the per-image list
+    format so downstream code can iterate uniformly.
+
+    :param output: Raw ``(masks, flows, ...)`` tuple returned by Cellpose.
+    :returns: Tuple ``(masks, flows0, flows1, flows2, flows3)`` with per-image entries.
+    :raises ValueError: When the flows structure does not match a known layout.
     """
 
     masks = output[0]
@@ -66,7 +67,17 @@ def parse_cellpose4_output(output):
     raise ValueError(f"Unrecognized Cellpose flows format: type={type(flows)}, len={len(flows) if hasattr(flows,'__len__') else 'unknown'}")
 
 def identify_masks_finetune(settings):
-    
+    """Generate Cellpose masks for a directory of images using a stock or custom model.
+
+    Iterates in batches, optionally normalizing and resizing the inputs, writes
+    the resulting masks under ``<src>/masks``, and prints per-image progress.
+
+    :param settings: Settings dict; canonicalized via
+        :func:`spacr.settings.get_identify_masks_finetune_default_settings`.
+        Must contain ``src``, ``model_name`` (or ``custom_model``), and standard
+        Cellpose parameters (``diameter``, ``flow_threshold``, ``CP_prob``, ...).
+    :returns: None.
+    """
     from .plot import print_mask_and_flows
     from .utils import resize_images_and_labels, print_progress, save_settings, fill_holes_in_mask
     from .io import _load_normalized_images_and_labels, _load_images_and_labels
@@ -189,7 +200,35 @@ def identify_masks_finetune(settings):
     return
 
 def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellprob_threshold, flow_threshold, grayscale, save, normalize, channels, percentiles, invert, plot, resize, target_height, target_width, remove_background, background, Signal_to_noise, verbose):
-    
+    """Run a Cellpose model over every ``.tif`` in ``src`` and optionally save masks.
+
+    Batches the workload, respects the model-specific channel convention, and
+    writes results to ``<src>/<model_name>``.
+
+    :param src: Directory containing input ``.tif`` images.
+    :param model: Instantiated ``cellpose.models.CellposeModel``.
+    :param model_name: Model identifier, used both for channel defaults and the
+        output subdirectory name.
+    :param batch_size: Number of images loaded per iteration.
+    :param diameter: Estimated object diameter in pixels.
+    :param cellprob_threshold: Cell probability threshold passed to Cellpose.
+    :param flow_threshold: Flow error threshold passed to Cellpose.
+    :param grayscale: When True, force single-channel input.
+    :param save: When True, write masks under ``<src>/<model_name>``.
+    :param normalize: When True, load images with normalization/background pipeline.
+    :param channels: Channel indices used when loading images.
+    :param percentiles: Percentile clipping range applied during normalization.
+    :param invert: When True, invert intensities during load.
+    :param plot: When True, display mask/flow diagnostics per image.
+    :param resize: When True, resize inputs to ``(target_height, target_width)``.
+    :param target_height: Target height for resized inputs.
+    :param target_width: Target width for resized inputs.
+    :param remove_background: When True, subtract background during normalization.
+    :param background: Background value used when ``remove_background`` is set.
+    :param Signal_to_noise: Minimum SNR threshold for retained signal.
+    :param verbose: When True, print Cellpose settings to the console.
+    :returns: None.
+    """
     from .io import _load_images_and_labels, _load_normalized_images_and_labels
     from .utils import resize_images_and_labels, resizescikit, print_progress
     from .plot import print_mask_and_flows
@@ -264,7 +303,12 @@ def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellp
                 cv2.imwrite(output_filename, mask)
 
 def check_cellpose_models(settings):
+    """Run each stock Cellpose model over ``settings['src']`` for side-by-side comparison.
 
+    :param settings: Settings dict; canonicalized via
+        :func:`spacr.settings.get_check_cellpose_models_default_settings`.
+    :returns: None.
+    """
     from .settings import get_check_cellpose_models_default_settings
     
     settings = get_check_cellpose_models_default_settings(settings)
@@ -286,7 +330,13 @@ def check_cellpose_models(settings):
     return
 
 def save_results_and_figure(src, fig, results):
+    """Persist a comparison DataFrame and figure under ``<src>/results``.
 
+    :param src: Root directory used to locate/create the ``results/`` folder.
+    :param fig: Matplotlib figure to save as PDF.
+    :param results: DataFrame or list-of-dicts of comparison metrics.
+    :returns: None.
+    """
     if not isinstance(results, pd.DataFrame):
         results = pd.DataFrame(results)
 
@@ -299,6 +349,16 @@ def save_results_and_figure(src, fig, results):
     print(f'Saved figure to {fig_path} and results to {results_path}')
 
 def compare_mask(args):
+    """Return pairwise IoU/F1/AP scores for one image across multiple mask directories.
+
+    Multiprocessing-friendly worker: unpacks its single tuple argument so it can
+    be dispatched with ``Pool.map``.
+
+    :param args: Tuple ``(src, filename, dirs, conditions)`` where ``dirs`` are
+        the mask directories to compare and ``conditions`` are their labels.
+    :returns: Dict of per-pair metrics, or None when the file is missing in
+        any directory.
+    """
     src, filename, dirs, conditions = args
     paths = [os.path.join(d, filename) for d in dirs]
 
@@ -327,6 +387,17 @@ def compare_mask(args):
     return file_results
 
 def compare_cellpose_masks(src, verbose=False, processes=None, save=True):
+    """Compare masks across sibling subdirectories of ``src`` and plot the results.
+
+    :param src: Root directory whose subdirectories each hold masks from a
+        different condition/model.
+    :param verbose: When True, render per-image mask overlays via
+        :func:`spacr.plot.visualize_cellpose_masks`.
+    :param processes: Worker-pool size for :func:`compare_mask`. None uses the
+        default from ``multiprocessing.Pool``.
+    :param save: When True, persist overlay images to disk.
+    :returns: None.
+    """
     from .plot import visualize_cellpose_masks, plot_comparison_results
     from .io import _read_mask
 

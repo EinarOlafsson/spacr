@@ -70,19 +70,24 @@ class Section(QFrame):
     # API
     # ------------------------------------------------------------------
     def add_row(self, label: str, widget: QWidget) -> None:
+        """Add a labeled row to the section's form body."""
         self._form.addRow(label, widget)
 
     def add_widget(self, widget: QWidget) -> None:
+        """Add a full-width (label-less) widget to the section's form body."""
         self._form.addRow(widget)
 
     def title(self) -> str:
+        """Return the section's header text."""
         return self._header.text()
 
     def set_expanded(self, on: bool) -> None:
+        """Expand or collapse the section body programmatically."""
         self._header.setChecked(on)
         self._on_toggle(on)
 
     def is_expanded(self) -> bool:
+        """Return True when the section body is currently visible."""
         return self._expanded
 
     # ------------------------------------------------------------------

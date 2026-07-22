@@ -438,6 +438,11 @@ _GENERATORS = {
 
 
 def main(argv: Optional[list[str]] = None) -> int:
+    """Generate one (or every) demo dataset via the ``python -m`` CLI.
+
+    :param argv: optional argv list; defaults to ``sys.argv[1:]``.
+    :returns: process exit code (0 on success).
+    """
     import argparse
     p = argparse.ArgumentParser(
         prog="python -m spacr.qt.synthetic",

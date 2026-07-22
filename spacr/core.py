@@ -10,7 +10,18 @@ from multiprocessing import Value
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
 
 def preprocess_generate_masks(settings):
+    """Run the full mask-generation pipeline for one or more experiment folders.
 
+    Consolidates inputs when requested, converts filenames to Yokogawa layout,
+    generates per-channel masks via Cellpose/SAM, optionally adjusts cell masks
+    against nucleus/pathogen/organelle overlays, and emits overlay plots.
+
+    :param settings: Settings dict; canonicalized via
+        :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.
+        Must include ``src`` and at least one of ``cell_channel``,
+        ``nucleus_channel``, ``pathogen_channel``, or ``organelle_channel``.
+    :returns: None.
+    """
     #from .timelapse import _summarise_object_relationships
     from .object import generate_cellpose_masks, generate_organelle_masks_sam, generate_cellpose_masks_sam
     from .io import preprocess_img_data, _load_and_concatenate_arrays, convert_to_yokogawa, convert_separate_files_to_yokogawa
@@ -250,37 +261,22 @@ def preprocess_generate_masks(settings):
     return
 
 def generate_image_umap(settings=None, return_fig=False):
-    """
-    Generate UMAP or tSNE embedding and visualize the data with clustering.
-    
-    Parameters:
-    settings (dict): Dictionary containing the following keys:
-    src (str): Source directory containing the data.
-    row_limit (int): Limit the number of rows to process.
-    tables (list): List of table names to read from the database.
-    visualize (str): Visualization type.
-    image_nr (int): Number of images to display.
-    dot_size (int): Size of dots in the scatter plot.
-    n_neighbors (int): Number of neighbors for UMAP.
-    figuresize (int): Size of the figure.
-    black_background (bool): Whether to use a black background.
-    remove_image_canvas (bool): Whether to remove the image canvas.
-    plot_outlines (bool): Whether to plot outlines.
-    plot_points (bool): Whether to plot points.
-    smooth_lines (bool): Whether to smooth lines.
-    verbose (bool): Whether to print verbose output.
-    embedding_by_controls (bool): Whether to use embedding from controls.
-    col_to_compare (str): Column to compare for control-based embedding.
-    pos (str): Positive control value.
-    neg (str): Negative control value.
-    clustering (str): Clustering method ('DBSCAN' or 'KMeans').
-    exclude (list): List of columns to exclude from the analysis.
-    plot_images (bool): Whether to plot images.
-    reduction_method (str): Dimensionality reduction method ('UMAP' or 'tSNE').
-    save_figure (bool): Whether to save the figure as a PDF.
-    
-    Returns:
-    pd.DataFrame: DataFrame with the original data and an additional column 'cluster' containing the cluster identity.
+    """Generate a UMAP or tSNE embedding of per-object features and plot it.
+
+    Reads measurements from the SQLite backend(s), applies preprocessing and
+    dimensionality reduction, clusters the embedding, and renders scatter/grid
+    plots of the resulting clusters.
+
+    :param settings: Configuration dict; canonicalized via
+        :func:`spacr.settings.set_default_umap_image_settings`. Common keys:
+        ``src``, ``tables``, ``row_limit``, ``clustering``,
+        ``reduction_method`` (``'UMAP'`` or ``'tSNE'``),
+        ``embedding_by_controls``, ``col_to_compare``, ``pos``, ``neg``,
+        ``plot_images``, ``save_figure``, ``exclude``.
+    :param return_fig: When True, return the Matplotlib figure instead of the
+        annotated DataFrame.
+    :returns: DataFrame of the input rows plus a ``cluster`` column, or a
+        Matplotlib ``Figure`` when ``return_fig`` is True.
     """
  
     if settings is None:
@@ -447,28 +443,23 @@ def generate_image_umap(settings=None, return_fig=False):
     return all_df
 
 def reducer_hyperparameter_search(settings=None, reduction_params=None, dbscan_params=None, kmeans_params=None, save=False, show=True, return_fig=False):
-    """
-    Perform a hyperparameter search for UMAP or tSNE on the given data.
-    
-    Parameters:
-    settings (dict): Dictionary containing the following keys:
-    src (str): Source directory containing the data.
-    row_limit (int): Limit the number of rows to process.
-    tables (list): List of table names to read from the database.
-    filter_by (str): Column to filter the data.
-    sample_size (int): Number of samples to use for the hyperparameter search.
-    remove_highly_correlated (bool): Whether to remove highly correlated columns.
-    log_data (bool): Whether to log transform the data.
-    verbose (bool): Whether to print verbose output.
-    reduction_method (str): Dimensionality reduction method ('UMAP' or 'tSNE').
-    reduction_params (list): List of dictionaries containing hyperparameters to test for the reduction method.
-    dbscan_params (list): List of dictionaries containing DBSCAN hyperparameters to test.
-    kmeans_params (list): List of dictionaries containing KMeans hyperparameters to test.
-    pointsize (int): Size of the points in the scatter plot.
-    save (bool): Whether to save the resulting plot as a file.
-    
-    Returns:
-    None
+    """Sweep UMAP/tSNE and DBSCAN/KMeans hyperparameters over the feature table.
+
+    Renders a grid of embeddings, one cell per (reduction, clustering) pair, so
+    the caller can eyeball the impact of each parameter combination.
+
+    :param settings: Config dict; canonicalized via
+        :func:`spacr.settings.set_default_umap_image_settings`.
+    :param reduction_params: Dict or list of dicts of parameters for the
+        reduction method. Presence of ``n_neighbors`` selects UMAP,
+        ``perplexity`` selects tSNE.
+    :param dbscan_params: Dict or list of DBSCAN parameter dicts (each with
+        ``eps`` and ``min_samples``).
+    :param kmeans_params: Dict or list of KMeans parameter dicts.
+    :param save: When True, save the grid figure to ``<src>/results``.
+    :param show: When True and not saving, call ``plt.show``.
+    :param return_fig: When True, return the Matplotlib figure.
+    :returns: The figure when ``return_fig`` is True, otherwise None.
     """
     
     if settings is None:
@@ -619,22 +610,17 @@ def reducer_hyperparameter_search(settings=None, reduction_params=None, dbscan_p
     return
 
 def generate_screen_graphs(settings):
-    """
-    Generate screen graphs for different measurements in a given source directory.
+    """Build recruitment-metric summary graphs per source and for the combined data.
 
-    Args:
-        src (str or list): Path(s) to the source directory or directories.
-        tables (list): List of tables to include in the analysis (default: ['cell', 'nucleus', 'pathogen', 'cytoplasm']).
-        graph_type (str): Type of graph to generate (default: 'bar').
-        summary_func (str or function): Function to summarize data (default: 'mean').
-        y_axis_start (float): Starting value for the y-axis (default: 0).
-        error_bar_type (str): Type of error bar to use ('std' or 'sem') (default: 'std').
-        theme (str): Theme for the graph (default: 'pastel').
-        representation (str): Representation for grouping (default: 'well').
-        
-    Returns:
-        figs (list): List of generated figures.
-        results (list): List of corresponding result DataFrames.
+    Reads per-object measurements, annotates conditions, computes the recruitment
+    metric, and generates one plot per source folder plus one combined plot.
+
+    :param settings: Config dict with keys ``src`` (path or list of paths),
+        ``tables``, ``cells``, ``controls``, ``controls_loc``, ``graph_type``,
+        ``summary_func``, ``y_axis_start``, ``error_bar_type``, ``theme``,
+        ``representation``, ``nuclei_limit``, ``pathogen_limit``.
+    :returns: None. Figures and CSVs are written under each source's
+        ``results/`` folder.
     """
     
     from .plot import spacrGraph

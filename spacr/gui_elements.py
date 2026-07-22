@@ -128,9 +128,9 @@ except Exception as e:
 _register_open_sans()
 
 def restart_gui_app(root):
-    """
-    Restarts the GUI application by destroying the current instance
-    and launching a fresh one.
+    """Restart the GUI by destroying ``root`` and launching a fresh instance.
+
+    :param root: the Tk root window to tear down before relaunching.
     """
     try:
         # Destroy the current root window
@@ -144,6 +144,10 @@ def restart_gui_app(root):
         print(f"Error restarting GUI application: {e}")
 
 def create_menu_bar(root):
+    """Attach the SpaCr application menu bar to ``root``.
+
+    :param root: the Tk root window that receives the menu.
+    """
     from .gui_core import initiate_root
     
     style_out = set_dark_style(ttk.Style())
@@ -199,6 +203,11 @@ def create_menu_bar(root):
     root.config(menu=menu_bar)
 
 def set_element_size():
+    """Return cached default sizes for GUI elements derived from screen dimensions.
+
+    :returns: dict with ``btn_size``, ``bar_size``, ``settings_width``,
+        ``panel_width``, and ``panel_height`` in pixels.
+    """
     global _cached_element_size
     if _cached_element_size is not None:
         return _cached_element_size
@@ -228,9 +237,28 @@ def set_element_size():
 _cached_dark_style = None
 _cached_element_size = None
     
-def set_dark_style(style, parent_frame=None, containers=None, widgets=None, 
-                   font_family="OpenSans", font_size=12, bg_color='black', 
+def set_dark_style(style, parent_frame=None, containers=None, widgets=None,
+                   font_family="OpenSans", font_size=12, bg_color='black',
                    fg_color='white', active_color='blue', inactive_color='dark_gray'):
+    """Configure ttk/tk widgets with the spacr dark theme and return the palette.
+
+    Named colors (``'black'``, ``'white'``, ``'blue'``, ``'dark_gray'``,
+    ``'teal'``) resolve to their hex equivalents; explicit hex strings pass
+    through. When ``parent_frame``, ``containers``, or ``widgets`` are given,
+    those widgets are re-styled in place.
+
+    :param style: a ``ttk.Style`` instance to configure.
+    :param parent_frame: optional root frame to color-match.
+    :param containers: optional iterable of frames to restyle.
+    :param widgets: optional iterable of widgets to restyle.
+    :param font_family: font family name; ``'OpenSans'`` loads via ``spacrFont``.
+    :param font_size: base font size in points.
+    :param bg_color: primary background color.
+    :param fg_color: primary text color.
+    :param active_color: accent color for active/pressed states.
+    :param inactive_color: secondary/panel color.
+    :returns: dict of resolved style values (colors, fonts, spacing).
+    """
     global _cached_dark_style
     
     # If no side effects needed, return cache
@@ -417,14 +445,19 @@ def set_dark_style(style, parent_frame=None, containers=None, widgets=None,
 _font_cache = {}
     
 class spacrFont:
-    def __init__(self, font_name, font_style, font_size=12):
-        """
-        Initializes the FontLoader class.
+    """Loader that resolves a bundled ``.ttf`` and registers it with Tk.
 
-        Parameters:
-        - font_name: str, the name of the font (e.g., 'OpenSans').
-        - font_style: str, the style of the font (e.g., 'Regular', 'Bold').
-        - font_size: int, the size of the font (default: 12).
+    :param font_name: font family name (e.g. ``'OpenSans'``).
+    :param font_style: font style variant (e.g. ``'Regular'``, ``'Bold'``).
+    :param font_size: default size in points.
+    """
+
+    def __init__(self, font_name, font_style, font_size=12):
+        """Resolve the font file and register the family with Tk.
+
+        :param font_name: font family name.
+        :param font_style: font style variant.
+        :param font_size: default point size.
         """
         self.font_name = font_name
         self.font_style = font_style
@@ -437,15 +470,12 @@ class spacrFont:
         self.load_font()
 
     def get_font_path(self, font_name, font_style):
-        """
-        Returns the font path based on the font name and style.
+        """Return the on-disk path to the ``.ttf`` for a given family + style.
 
-        Parameters:
-        - font_name: str, the name of the font.
-        - font_style: str, the style of the font.
-
-        Returns:
-        - str, the path to the font file.
+        :param font_name: font family name.
+        :param font_style: font style variant.
+        :returns: absolute path to the font file.
+        :raises ValueError: if the combination is not bundled.
         """
         base_dir = os.path.dirname(__file__)
         
@@ -462,9 +492,7 @@ class spacrFont:
         raise ValueError(f"Font '{font_name}' with style '{font_style}' not found.")
 
     def load_font(self):
-        """
-        Loads the font into Tkinter.
-        """
+        """Register the resolved font file with Tkinter's font system."""
         try:
             font.Font(family=self.font_name, size=self.font_size)
         except tk.TclError:
@@ -476,21 +504,30 @@ class spacrFont:
             )
 
     def get_font(self, size=None):
-        """
-        Returns the font in the specified size.
+        """Return a ``tkFont.Font`` for this family at the requested size.
 
-        Parameters:
-        - size: int, the size of the font (optional).
-
-        Returns:
-        - tkFont.Font object.
+        :param size: point size; defaults to the size given at construction.
+        :returns: ``tkFont.Font`` instance.
         """
         if size is None:
             size = self.font_size
         return font.Font(family=self.font_name, size=size)
 
 class spacrContainer(tk.Frame):
+    """Resizable multi-pane container with draggable sashes between panes.
+
+    :param parent: parent widget.
+    :param orient: ``tk.VERTICAL`` or ``tk.HORIZONTAL`` split direction.
+    :param bg: background color for panes and sashes.
+    """
+
     def __init__(self, parent, orient=tk.VERTICAL, bg=None, *args, **kwargs):
+        """Initialize the container and bind resize behavior.
+
+        :param parent: parent widget.
+        :param orient: split direction.
+        :param bg: pane/sash background color.
+        """
         super().__init__(parent, *args, **kwargs)
         self.orient = orient
         self.bg = bg if bg else 'lightgrey'
@@ -504,6 +541,11 @@ class spacrContainer(tk.Frame):
         self.grid_columnconfigure(0, weight=1)
 
     def add(self, widget, stretch='always'):
+        """Insert ``widget`` as a new pane and repartition the layout.
+
+        :param widget: widget to embed as a pane.
+        :param stretch: stretch policy (currently informational).
+        """
         print(f"Adding widget: {widget} with stretch: {stretch}")
         pane = tk.Frame(self, bg=self.bg)
         pane.grid_propagate(False)
@@ -516,6 +558,7 @@ class spacrContainer(tk.Frame):
         self.reposition_panes()
 
     def create_sash(self):
+        """Create and register a new draggable sash between panes."""
         sash = tk.Frame(self, bg=self.bg, cursor='sb_v_double_arrow' if self.orient == tk.VERTICAL else 'sb_h_double_arrow', height=self.sash_thickness, width=self.sash_thickness)
         sash.bind("<Enter>", self.on_enter_sash)
         sash.bind("<Leave>", self.on_leave_sash)
@@ -523,6 +566,7 @@ class spacrContainer(tk.Frame):
         self.sashes.append(sash)
 
     def reposition_panes(self):
+        """Re-grid panes and sashes to fill the current container size."""
         if not self.panes:
             return
 
@@ -544,22 +588,27 @@ class spacrContainer(tk.Frame):
                 sash.grid(row=0, column=(i * 2) + 1, sticky="ns")
 
     def on_configure(self, event):
+        """Re-run layout when the container is resized."""
         print(f"Configuring container: {self}")
         self.reposition_panes()
 
     def on_enter_sash(self, event):
+        """Highlight a sash on mouse enter."""
         event.widget.config(bg='blue')
 
     def on_leave_sash(self, event):
+        """Restore sash color on mouse leave."""
         event.widget.config(bg=self.bg)
 
     def start_resize(self, event):
+        """Begin a drag-resize gesture on the sash under the pointer."""
         sash = event.widget
         self.start_pos = event.y_root if self.orient == tk.VERTICAL else event.x_root
         self.start_size = sash.winfo_y() if self.orient == tk.VERTICAL else sash.winfo_x()
         sash.bind("<B1-Motion>", self.perform_resize)
 
     def perform_resize(self, event):
+        """Update pane sizes while a sash is being dragged."""
         sash = event.widget
         delta = (event.y_root - self.start_pos) if self.orient == tk.VERTICAL else (event.x_root - self.start_pos)
         new_size = self.start_size + delta
@@ -583,9 +632,18 @@ class spacrContainer(tk.Frame):
         self.reposition_panes()
 
 class spacrEntry(tk.Frame):
+    """Pill-shaped themed entry with a focus ring, backed by a ``tk.Entry``.
+
+    :param parent: parent widget.
+    :param textvariable: ``tk.StringVar`` bound to the entry text.
+    :param outline: reserved; enables a subtle outline stroke when True.
+    :param width: unused legacy parameter (canvas expands to fill).
+    """
+
     def __init__(self, parent, textvariable=None, outline=False, width=None, *args, **kwargs):
+        """Build the canvas-drawn entry and bind focus handlers."""
         super().__init__(parent, *args, **kwargs)
-        
+
         style_out = set_dark_style(ttk.Style())
         self.bg_color = style_out['inactive_color']
         self.active_color = style_out['active_color']
@@ -614,12 +672,19 @@ class spacrEntry(tk.Frame):
         self.draw_rounded_rectangle(self.bg_color)
 
     def _on_resize(self, event):
+        """Redraw the pill background when the canvas is resized."""
         self.draw_rounded_rectangle(self.bg_color)
 
     def draw_rounded_rectangle(self, color, focus_ring=False):
-        """Draw the pill-shaped background. When `focus_ring` is True, also
-        draw a 2 px accent-colored outline around it for a modern focus
-        indicator (instead of flooding the whole interior with the accent)."""
+        """Draw the pill-shaped background, optionally with an accent focus ring.
+
+        The interior always fills with ``color`` so the field stays legible;
+        ``focus_ring=True`` adds a 2 px accent outline instead of recoloring
+        the interior.
+
+        :param color: fill color for the pill interior.
+        :param focus_ring: draw the accent-colored outline when True.
+        """
         radius = 15
         x0, y0 = 5, 5
         x1 = self.canvas.winfo_width() - 5
@@ -662,16 +727,26 @@ class spacrEntry(tk.Frame):
                                     fill=ring, width=width)
 
     def on_focus_in(self, event):
+        """Show the accent focus ring when the entry gains keyboard focus."""
         # Interior stays inactive_color; add an accent-colored focus ring
         # around the outside instead of flooding the whole field.
         self.draw_rounded_rectangle(self.bg_color, focus_ring=True)
 
     def on_focus_out(self, event):
+        """Remove the focus ring when the entry loses keyboard focus."""
         self.draw_rounded_rectangle(self.bg_color)
         self.entry.config(bg=self.bg_color)
 
 class spacrCheck(tk.Frame):
+    """Themed rounded-square checkbox bound to a ``tk.BooleanVar``.
+
+    :param parent: parent widget.
+    :param text: unused caption (reserved).
+    :param variable: ``tk.BooleanVar`` whose value drives the check state.
+    """
+
     def __init__(self, parent, text="", variable=None, *args, **kwargs):
+        """Build the canvas-drawn checkbox and wire it to ``variable``."""
         super().__init__(parent, *args, **kwargs)
         
         style_out = set_dark_style(ttk.Style())
@@ -699,6 +774,10 @@ class spacrCheck(tk.Frame):
         self.canvas.bind("<Button-1>", self.toggle_variable)
 
     def draw_rounded_square(self, color):
+        """Draw the checkbox square in the given fill color.
+
+        :param color: fill color reflecting the current check state.
+        """
         radius = 5  # Adjust the radius for more rounded corners
         x0, y0 = 2, 2
         x1, y1 = 18, 18
@@ -715,13 +794,24 @@ class spacrCheck(tk.Frame):
         self.canvas.create_line(x1, y0 + radius / 2, x1, y1 - radius / 2, fill=self.fg_color)
 
     def update_check(self, *args):
+        """Redraw the checkbox when the bound variable changes."""
         self.draw_rounded_square(self.active_color if self.variable.get() else self.inactive_color)
 
     def toggle_variable(self, event):
+        """Flip the bound ``BooleanVar`` in response to a click."""
         self.variable.set(not self.variable.get())
-        
+
 class spacrCombo(tk.Frame):
+    """Themed dropdown combobox backed by a Toplevel selection popup.
+
+    :param parent: parent widget.
+    :param textvariable: ``tk.StringVar`` bound to the selected value.
+    :param values: iterable of selectable values.
+    :param width: unused legacy parameter (canvas expands to fill).
+    """
+
     def __init__(self, parent, textvariable=None, values=None, width=None, *args, **kwargs):
+        """Build the closed-state pill and prepare the dropdown popup."""
         super().__init__(parent, *args, **kwargs)
         
         style_out = set_dark_style(ttk.Style())
@@ -757,14 +847,17 @@ class spacrCombo(tk.Frame):
         self.dropdown_menu = None
 
     def _on_resize(self, event):
+        """Redraw the combobox background when the canvas is resized."""
         # Keep interior consistent; add focus ring only when open.
         self.draw_rounded_rectangle(self.inactive_color,
                                      focus_ring=(self.dropdown_menu is not None))
 
     def draw_rounded_rectangle(self, color, focus_ring=False):
-        """Interior stays `color`; when `focus_ring` is True, draw a 2 px
-        accent-colored outline around the outside for a modern open/focus
-        indicator (instead of flooding the whole interior with the accent)."""
+        """Draw the pill-shaped background, optionally with an accent focus ring.
+
+        :param color: fill color for the pill interior.
+        :param focus_ring: draw the accent-colored outline when True.
+        """
         radius = 15
         x0, y0 = 5, 5
         x1 = self.canvas.winfo_width() - 5
@@ -805,12 +898,14 @@ class spacrCombo(tk.Frame):
                                     fill=ring, width=width)
 
     def on_click(self, event):
+        """Toggle the dropdown popup open/closed on click."""
         if self.dropdown_menu is None:
             self.open_dropdown()
         else:
             self.close_dropdown()
 
     def open_dropdown(self):
+        """Open the Toplevel popup showing selectable values."""
         # Keep interior color; add focus ring while the dropdown is open.
         self.draw_rounded_rectangle(self.inactive_color, focus_ring=True)
         
@@ -836,12 +931,17 @@ class spacrCombo(tk.Frame):
         self.dropdown_menu.geometry(f"{width}x{actual_height}+{x}+{y + height}")
 
     def close_dropdown(self):
+        """Destroy the dropdown popup and remove the focus ring."""
         self.draw_rounded_rectangle(self.inactive_color)
         if self.dropdown_menu:
             self.dropdown_menu.destroy()
             self.dropdown_menu = None
 
     def on_select(self, value):
+        """Commit ``value`` as the current selection and close the popup.
+
+        :param value: selected value from the popup list.
+        """
         display_text = value if value is not None else 'None'
         self.var.set(value)
         self.label.config(text=display_text)
@@ -849,14 +949,28 @@ class spacrCombo(tk.Frame):
         self.close_dropdown()
 
     def set(self, value):
+        """Programmatically set the current selection without opening the popup.
+
+        :param value: value to display and store.
+        """
         display_text = value if value is not None else 'None'
         self.var.set(value)
         self.label.config(text=display_text)
         self.selected_value = value
 
 class spacrDropdownMenu(tk.Frame):
+    """Rounded 'Settings' button that pops up a ``tk.Menu`` on click.
+
+    :param parent: parent widget.
+    :param variable: variable associated with the current selection.
+    :param options: iterable of menu labels.
+    :param command: callback receiving the selected option string.
+    :param font: fallback font when the OpenSans loader is unavailable.
+    :param size: button height in pixels; width is ``size * 3``.
+    """
 
     def __init__(self, parent, variable, options, command=None, font=None, size=50, **kwargs):
+        """Build the rounded button and register menu entries for ``options``."""
         super().__init__(parent, **kwargs)
         self.variable = variable
         self.options = options
@@ -910,6 +1024,15 @@ class spacrDropdownMenu(tk.Frame):
             self.menu.add_command(label=option, command=lambda opt=option: self.on_select(opt))
 
     def create_rounded_rectangle(self, x1, y1, x2, y2, radius=20, **kwargs):
+        """Draw a rounded rectangle on the canvas and return the polygon id.
+
+        :param x1: left edge in canvas pixels.
+        :param y1: top edge in canvas pixels.
+        :param x2: right edge in canvas pixels.
+        :param y2: bottom edge in canvas pixels.
+        :param radius: corner radius.
+        :returns: canvas item id of the polygon.
+        """
         points = [
             x1 + radius, y1,
             x2 - radius, y1,
@@ -932,23 +1055,36 @@ class spacrDropdownMenu(tk.Frame):
         return self.canvas.create_polygon(points, **kwargs, smooth=True)
 
     def on_enter(self, event=None):
+        """Switch button background to the accent color on hover."""
         self.canvas.itemconfig(self.button_bg, fill=self.active_color)
 
     def on_leave(self, event=None):
+        """Restore the inactive background when the pointer leaves."""
         self.canvas.itemconfig(self.button_bg, fill=self.inactive_color)
 
     def on_click(self, event=None):
+        """Show the popup menu at the button position on click."""
         self.post_menu()
 
     def post_menu(self):
+        """Post the popup menu just below the button."""
         x, y, width, height = self.winfo_rootx(), self.winfo_rooty(), self.winfo_width(), self.winfo_height()
         self.menu.post(x, y + height)
 
     def on_select(self, option):
+        """Invoke the registered command with the selected option.
+
+        :param option: label of the menu entry that was clicked.
+        """
         if self.command:
             self.command(option)
 
     def update_styles(self, active_categories=None):
+        """Re-apply dark styling and mark entries in ``active_categories``.
+
+        :param active_categories: optional iterable of labels to render as
+            active (accent background); others revert to the inactive color.
+        """
         style_out = set_dark_style(ttk.Style(), widgets=[self.menu])
 
         if active_categories is not None:
@@ -960,7 +1096,16 @@ class spacrDropdownMenu(tk.Frame):
                     self.menu.entryconfig(idx, background=style_out['bg_color'], foreground=style_out['fg_color'])
 
 class spacrCheckbutton(ttk.Checkbutton):
+    """Dark-themed thin wrapper around ``ttk.Checkbutton``.
+
+    :param parent: parent widget.
+    :param text: label text.
+    :param variable: ``tk.BooleanVar`` bound to the check state.
+    :param command: callback fired on state change.
+    """
+
     def __init__(self, parent, text="", variable=None, command=None, *args, **kwargs):
+        """Configure the styled checkbutton and bind ``variable``/``command``."""
         super().__init__(parent, *args, **kwargs)
         self.text = text
         self.variable = variable if variable else tk.BooleanVar()
@@ -970,7 +1115,14 @@ class spacrCheckbutton(ttk.Checkbutton):
         _ = set_dark_style(style, widgets=[self])
 
 class spacrProgressBar(ttk.Progressbar):
+    """Themed ``ttk.Progressbar`` with an optional companion status label.
+
+    :param parent: parent widget.
+    :param label: when True, create a paired label showing progress text.
+    """
+
     def __init__(self, parent, label=True, *args, **kwargs):
+        """Style the progress bar and (optionally) create the status label."""
         super().__init__(parent, *args, **kwargs)
 
         # Get the style colors
@@ -1027,6 +1179,7 @@ class spacrProgressBar(ttk.Progressbar):
         self.additional_info = None
 
     def set_label_position(self):
+        """Grid the status label directly beneath the progress bar."""
         if self.label and self.progress_label:
             row_info = self.grid_info().get('rowID', 0)
             col_info = self.grid_info().get('columnID', 0)
@@ -1034,6 +1187,7 @@ class spacrProgressBar(ttk.Progressbar):
             self.progress_label.grid(row=row_info + 1, column=col_info, columnspan=col_span, pady=5, padx=5, sticky='ew')
 
     def update_label(self):
+        """Refresh the label text from current value, operation, and info."""
         if self.label and self.progress_label:
             # Start with the base progress information
             label_text = f"Processing: {self['value']}/{self['maximum']}"
@@ -1055,7 +1209,23 @@ class spacrProgressBar(ttk.Progressbar):
             self.progress_label.config(text=label_text)
 
 class spacrSlider(tk.Frame):
+    """Themed horizontal slider with a canvas-drawn knob and optional entry.
+
+    :param master: parent widget.
+    :param length: fixed pixel length; ``None`` for dynamic (90% of canvas).
+    :param thickness: line thickness for the slider track.
+    :param knob_radius: knob radius in pixels.
+    :param position: alignment when ``length`` is fixed
+        (``'left'``, ``'center'``, ``'right'``).
+    :param from_: minimum value.
+    :param to: maximum value.
+    :param value: initial value; defaults to ``from_``.
+    :param show_index: when True, show a companion ``tk.Entry`` for the value.
+    :param command: callback receiving the value on knob release.
+    """
+
     def __init__(self, master=None, length=None, thickness=2, knob_radius=10, position="center", from_=0, to=100, value=None, show_index=False, command=None, **kwargs):
+        """Build the slider canvas, knob, and (optional) index entry."""
         super().__init__(master, **kwargs)
 
         self.specified_length = length  # Store the specified length, if any
@@ -1115,6 +1285,7 @@ class spacrSlider(tk.Frame):
         self.canvas.bind("<ButtonRelease-1>", self.release_knob)  # Trigger command on release
 
     def resize_slider(self, event):
+        """Recompute slider length/offset when the canvas is resized."""
         if self.specified_length is not None:
             self.length = self.specified_length
         else:
@@ -1133,18 +1304,32 @@ class spacrSlider(tk.Frame):
         self.draw_slider(inactive=True)
 
     def value_to_position(self, value):
+        """Map a slider value onto its knob position in canvas pixels.
+
+        :param value: value in ``[from_, to]``.
+        :returns: knob center x-coordinate.
+        """
         if self.to == self.from_:
             return self.knob_radius
         relative_value = (value - self.from_) / (self.to - self.from_)
         return self.knob_radius + relative_value * (self.length - 2 * self.knob_radius)
 
     def position_to_value(self, position):
+        """Map a knob position back to a slider value.
+
+        :param position: knob center x-coordinate in canvas pixels.
+        :returns: value in ``[from_, to]``.
+        """
         if self.to == self.from_:
             return self.from_
         relative_position = (position - self.knob_radius) / (self.length - 2 * self.knob_radius)
         return self.from_ + relative_position * (self.to - self.from_)
 
     def draw_slider(self, inactive=False):
+        """Redraw the slider track and knob.
+
+        :param inactive: when True, render the knob in the inactive color.
+        """
         self.canvas.delete("all")
 
         self.slider_line = self.canvas.create_line(
@@ -1167,6 +1352,7 @@ class spacrSlider(tk.Frame):
         )
 
     def move_knob(self, event):
+        """Move the knob to follow the pointer during a drag."""
         new_position = min(max(event.x - self.offset, self.knob_radius), self.length - self.knob_radius)
         self.knob_position = new_position
         self.value = self.position_to_value(self.knob_position)
@@ -1181,24 +1367,34 @@ class spacrSlider(tk.Frame):
             self.index_var.set(str(int(self.value)))
 
     def activate_knob(self, event):
+        """Switch the knob to active color and start following the pointer."""
         self.draw_slider(inactive=False)
         self.move_knob(event)
 
     def release_knob(self, event):
+        """Deactivate the knob on button release and fire ``command``."""
         self.draw_slider(inactive=True)
         if self.command:
             self.command(self.value)  # Call the command with the final value when the knob is released
 
     def set_to(self, new_to):
+        """Change the slider's maximum value and redraw the knob.
+
+        :param new_to: new upper bound.
+        """
         self.to = new_to
         self.knob_position = self.value_to_position(self.value)
         self.draw_slider(inactive=False)
 
     def get(self):
+        """Return the current slider value."""
         return self.value
 
     def set(self, value):
-        """Set the slider's value and update the knob position."""
+        """Set the slider's value and update the knob position.
+
+        :param value: value to display; clamped to ``[from_, to]``.
+        """
         self.value = max(self.from_, min(value, self.to))  # Ensure the value is within bounds
         self.knob_position = self.value_to_position(self.value)
         self.draw_slider(inactive=False)
@@ -1206,10 +1402,11 @@ class spacrSlider(tk.Frame):
             self.index_var.set(str(int(self.value)))
 
     def jump_to_click(self, event):
+        """Move the knob to the clicked position."""
         self.activate_knob(event)
 
     def update_slider_from_entry(self, event):
-        """Update the slider's value from the entry."""
+        """Update the slider's value from the companion entry widget."""
         try:
             index = int(self.index_var.get())
             self.set(index)
@@ -1219,6 +1416,12 @@ class spacrSlider(tk.Frame):
             pass
 
 def spacrScrollbarStyle(style, inactive_color, active_color):
+    """Register the ``Custom.Vertical.TScrollbar`` layout on ``style``.
+
+    :param style: ``ttk.Style`` to configure.
+    :param inactive_color: color used for the trough and idle thumb.
+    :param active_color: color used for hover/pressed states.
+    """
     # Check if custom elements already exist to avoid duplication
     if not style.element_names().count('custom.Vertical.Scrollbar.trough'):
         style.element_create('custom.Vertical.Scrollbar.trough', 'from', 'clam')
@@ -1243,7 +1446,19 @@ def spacrScrollbarStyle(style, inactive_color, active_color):
               darkcolor=[('!active', inactive_color), ('active', active_color)])
 
 class spacrFrame(ttk.Frame):
+    """Scrollable themed frame that hosts either a widget grid or a text box.
+
+    :param container: parent widget.
+    :param width: frame width in pixels; defaults to a quarter of screen width.
+    :param bg: background color.
+    :param radius: corner radius for the decorative rounded rectangle.
+    :param scrollbar: when True, attach a themed vertical scrollbar.
+    :param textbox: when True, use a ``tk.Text`` as the scrollable child
+        instead of a ``ttk.Frame``.
+    """
+
     def __init__(self, container, width=None, *args, bg='black', radius=20, scrollbar=True, textbox=False, **kwargs):
+        """Build the scrollable canvas and expose ``self.scrollable_frame``."""
         super().__init__(container, *args, **kwargs)
         self.configure(style='TFrame')
         if width is None:
@@ -1295,6 +1510,16 @@ class spacrFrame(ttk.Frame):
             _ = set_dark_style(style, widgets=[scrollbar_widget])
 
     def rounded_rectangle(self, canvas, x1, y1, x2, y2, radius=20, **kwargs):
+        """Draw a rounded rectangle on ``canvas`` and return its item id.
+
+        :param canvas: target ``tk.Canvas``.
+        :param x1: left edge.
+        :param y1: top edge.
+        :param x2: right edge.
+        :param y2: bottom edge.
+        :param radius: corner radius.
+        :returns: canvas item id.
+        """
         points = [
             x1 + radius, y1,
             x2 - radius, y1,
@@ -1317,7 +1542,18 @@ class spacrFrame(ttk.Frame):
         return canvas.create_polygon(points, **kwargs, smooth=True)
 
 class spacrLabel(tk.Frame):
+    """Canvas-based themed text label supporting right or center alignment.
+
+    :param parent: parent widget.
+    :param text: label text.
+    :param font: fallback font when the shared font loader is unavailable.
+    :param style: optional ttk style name to use instead of canvas text.
+    :param align: ``'right'`` (default) or ``'center'``.
+    :param height: label height in pixels; defaults to a screen-derived size.
+    """
+
     def __init__(self, parent, text="", font=None, style=None, align="right", height=None, **kwargs):
+        """Build the label canvas and render ``text``."""
         valid_kwargs = {k: v for k, v in kwargs.items() if k not in ['foreground', 'background', 'font', 'anchor', 'justify', 'wraplength']}
         super().__init__(parent, **valid_kwargs)
         
@@ -1372,13 +1608,31 @@ class spacrLabel(tk.Frame):
         _ = set_dark_style(ttk.Style(), containers=[self], widgets=[self.canvas])
 
     def set_text(self, text):
+        """Replace the label's displayed text.
+
+        :param text: new text to render.
+        """
         if self.style:
             self.label_text.config(text=text)
         else:
             self.canvas.itemconfig(self.label_text, text=text)
 
 class spacrButton(tk.Frame):
+    """Rounded icon button with hover fade, zoom animation, and tooltip.
+
+    :param parent: parent widget.
+    :param text: button caption; only the first letter is capitalized.
+    :param command: callback fired on click.
+    :param font: fallback font when the shared font loader is unavailable.
+    :param icon_name: base name (no extension) of a bundled icon PNG.
+    :param size: button height in pixels; width scales with ``show_text``.
+    :param show_text: when True the caption is drawn next to the icon.
+    :param outline: when True draw a foreground-color outline stroke.
+    :param animation: when True, animate the icon zoom on hover.
+    """
+
     def __init__(self, parent, text="", command=None, font=None, icon_name=None, size=50, show_text=True, outline=False, animation=True, *args, **kwargs):
+        """Build the canvas, load the icon, and wire hover/click handlers."""
         super().__init__(parent, *args, **kwargs)
         
         self.text = text.capitalize()  # Capitalize only the first letter of the text
@@ -1435,6 +1689,7 @@ class spacrButton(tk.Frame):
         self._fade_after_id = None  # in-flight hover fade, cancel-and-restart
 
     def load_icon(self):
+        """Load and place the icon image on the button canvas."""
         icon_path = self.get_icon_path(self.icon_name)
         try:
             icon_image = Image.open(icon_path)
@@ -1454,23 +1709,30 @@ class spacrButton(tk.Frame):
         self.canvas.image = self.icon_photo  # Keep a reference to avoid garbage collection
 
     def get_icon_path(self, icon_name):
+        """Return the on-disk path to a bundled icon PNG.
+
+        :param icon_name: base name (no extension).
+        :returns: absolute path to ``resources/icons/<icon_name>.png``.
+        """
         icon_dir = os.path.join(os.path.dirname(__file__), 'resources', 'icons')
         return os.path.join(icon_dir, f"{icon_name}.png")
 
     def on_enter(self, event=None):
+        """Fade to the active color, show description, and zoom in the icon."""
         self._fade_bg_to(self.active_color)
         self.update_description(event)
         if self.animation and not self.is_zoomed_in:
             self.animate_zoom(0.85)  # Zoom in the icon to 85% of button size
 
     def on_leave(self, event=None):
+        """Fade back to the inactive color and reset the icon zoom."""
         self._fade_bg_to(self.inactive_color)
         self.clear_description(event)
         if self.animation and self.is_zoomed_in:
             self.animate_zoom(0.65)  # Reset the icon size to 65% of button size
 
     def _fade_bg_to(self, target_hex, duration_ms=140, steps=8):
-        """Interpolate button_bg fill from its current color to `target_hex`."""
+        """Interpolate button_bg fill from its current color to ``target_hex``."""
         # Cancel any in-flight fade so hover-in/hover-out don't stack.
         if self._fade_after_id is not None:
             try:
@@ -1514,10 +1776,20 @@ class spacrButton(tk.Frame):
         _tick(1)
 
     def on_click(self, event=None):
+        """Invoke the registered ``command`` (if any) on click."""
         if self.command:
             self.command()
 
     def create_rounded_rectangle(self, x1, y1, x2, y2, radius=20, **kwargs):
+        """Draw a rounded rectangle on the canvas and return its item id.
+
+        :param x1: left edge.
+        :param y1: top edge.
+        :param x2: right edge.
+        :param y2: bottom edge.
+        :param radius: corner radius.
+        :returns: canvas item id.
+        """
         points = [
             x1 + radius, y1,
             x2 - radius, y1,
@@ -1538,8 +1810,9 @@ class spacrButton(tk.Frame):
             x1, y1
         ]
         return self.canvas.create_polygon(points, **kwargs, smooth=True)
-    
+
     def update_description(self, event):
+        """Walk up the parent chain and call ``show_description`` on hover."""
         parent = self.master
         while parent:
             if hasattr(parent, 'show_description'):
@@ -1548,6 +1821,7 @@ class spacrButton(tk.Frame):
             parent = parent.master
 
     def clear_description(self, event):
+        """Walk up the parent chain and call ``clear_description`` on leave."""
         parent = self.master
         while parent:
             if hasattr(parent, 'clear_description'):
@@ -1556,11 +1830,18 @@ class spacrButton(tk.Frame):
             parent = parent.master
 
     def animate_zoom(self, target_scale, steps=10, delay=10):
+        """Animate the icon toward ``target_scale`` over a series of steps.
+
+        :param target_scale: final scale factor relative to ``self.size``.
+        :param steps: number of intermediate frames.
+        :param delay: milliseconds between frames.
+        """
         current_scale = 0.85 if self.is_zoomed_in else 0.65
         step_scale = (target_scale - current_scale) / steps
         self._animate_step(current_scale, step_scale, steps, delay)
 
     def _animate_step(self, current_scale, step_scale, steps, delay):
+        """Perform one frame of the zoom animation and schedule the next."""
         if steps > 0:
             new_scale = current_scale + step_scale
             self.zoom_icon(new_scale)
@@ -1569,6 +1850,10 @@ class spacrButton(tk.Frame):
             self.is_zoomed_in = not self.is_zoomed_in
 
     def zoom_icon(self, scale_factor):
+        """Resize the button icon to ``scale_factor * self.size``.
+
+        :param scale_factor: multiplier applied to the button size.
+        """
         # Resize the original icon image
         new_size = int(self.size * scale_factor)
         resized_icon = self.original_icon_image.resize((new_size, new_size), Image.Resampling.LANCZOS)
@@ -1579,7 +1864,16 @@ class spacrButton(tk.Frame):
         self.canvas.image = self.icon_photo
 
 class spacrSwitch(ttk.Frame):
+    """Animated two-state toggle switch bound to a ``tk.BooleanVar``.
+
+    :param parent: parent widget.
+    :param text: caption shown next to the switch.
+    :param variable: ``tk.BooleanVar`` bound to the switch state.
+    :param command: callback fired after each toggle.
+    """
+
     def __init__(self, parent, text="", variable=None, command=None, *args, **kwargs):
+        """Build the switch canvas and label, and wire click handlers."""
         super().__init__(parent, *args, **kwargs)
         self.text = text
         self.variable = variable if variable else tk.BooleanVar()
@@ -1599,12 +1893,14 @@ class spacrSwitch(ttk.Frame):
         _ = set_dark_style(style, containers=[self], widgets=[self.canvas, self.label])
 
     def toggle(self, event=None):
+        """Flip the bound variable, animate the knob, and fire ``command``."""
         self.variable.set(not self.variable.get())
         self.animate_switch()
         if self.command:
             self.command()
 
     def update_switch(self):
+        """Redraw the switch knob to reflect the current bound value."""
         if self.variable.get():
             self.canvas.itemconfig(self.switch, fill="#008080")
             self.canvas.coords(self.switch, 24, 4, 36, 16)
@@ -1613,6 +1909,7 @@ class spacrSwitch(ttk.Frame):
             self.canvas.coords(self.switch, 4, 4, 16, 16)
 
     def animate_switch(self):
+        """Animate the knob toward its new position and target color."""
         if self.variable.get():
             start_x, end_x = 4, 24
             final_color = "#008080"
@@ -1623,6 +1920,12 @@ class spacrSwitch(ttk.Frame):
         self.animate_movement(start_x, end_x, final_color)
 
     def animate_movement(self, start_x, end_x, final_color):
+        """Slide the knob from ``start_x`` to ``end_x`` and then set its color.
+
+        :param start_x: starting x-coordinate of the knob.
+        :param end_x: final x-coordinate of the knob.
+        :param final_color: fill color to apply after the animation.
+        """
         step = 1 if start_x < end_x else -1
         for i in range(start_x, end_x, step):
             self.canvas.coords(self.switch, i, 4, i + 12, 16)
@@ -1631,13 +1934,27 @@ class spacrSwitch(ttk.Frame):
         self.canvas.itemconfig(self.switch, fill=final_color)
 
     def get(self):
+        """Return the current switch state."""
         return self.variable.get()
 
     def set(self, value):
+        """Set the switch state without animation.
+
+        :param value: new boolean value.
+        """
         self.variable.set(value)
         self.update_switch()
 
     def create_rounded_rectangle(self, x1, y1, x2, y2, radius=9, **kwargs):
+        """Draw a rounded rectangle on the canvas and return its item id.
+
+        :param x1: left edge.
+        :param y1: top edge.
+        :param x2: right edge.
+        :param y2: bottom edge.
+        :param radius: corner radius.
+        :returns: canvas item id.
+        """
         points = [x1 + radius, y1,
                   x1 + radius, y1,
                   x2 - radius, y1,
@@ -1662,7 +1979,14 @@ class spacrSwitch(ttk.Frame):
         return self.canvas.create_polygon(points, **kwargs, smooth=True)
 
 class spacrToolTip:
+    """Attach a themed hover tooltip to an existing widget.
+
+    :param widget: widget to attach the tooltip to.
+    :param text: tooltip text shown on hover.
+    """
+
     def __init__(self, widget, text):
+        """Bind enter/leave handlers that show and hide the tooltip."""
         self.widget = widget
         self.text = text
         self.tooltip_window = None
@@ -1670,6 +1994,7 @@ class spacrToolTip:
         widget.bind("<Leave>", self.hide_tooltip)
 
     def show_tooltip(self, event):
+        """Create the borderless Toplevel showing the tooltip label."""
         x = event.x_root + 20
         y = event.y_root + 10
         self.tooltip_window = tk.Toplevel(self.widget)
@@ -1682,33 +2007,39 @@ class spacrToolTip:
         _ = set_dark_style(style, containers=[self.tooltip_window], widgets=[label])
 
     def hide_tooltip(self, event):
+        """Destroy the tooltip Toplevel when the pointer leaves the widget."""
         if self.tooltip_window:
             self.tooltip_window.destroy()
         self.tooltip_window = None
 
 
 class spacrCard(tk.Frame):
-    """
-    Modern container with a subtle rounded border, optional title bar, and
-    consistent internal padding. Use where the codebase currently wraps
-    content in a bare tk.Frame — spacrCard produces a "lifted-panel" look
-    that matches the soft dark palette.
+    """Themed container with optional title bar and consistent internal padding.
 
-    Usage:
-        card = spacrCard(parent, title="Settings")
-        card.pack(fill=tk.X, padx=8, pady=8)
-        # Add widgets to card.body:
-        tk.Label(card.body, text="hello").pack()
+    Produces a "lifted-panel" look that matches the soft dark palette. Add
+    child widgets to ``card.body`` — the outer frame reserves space for the
+    optional title bar, divider, and border.
+
+    :param parent: parent widget.
+    :param title: optional title bar text; empty string hides the title row.
+    :param padding: spacing key from the shared palette (``xs``/``sm``/``md``/
+        ``lg``/``xl``).
+    :param show_border: when True, draw a 1 px lifted border around the card.
+    :ivar body: ``tk.Frame`` clients pack content into.
     """
 
     def __init__(self, parent, title="", padding="md", show_border=False, **kwargs):
-        """
-        Modern container with an OPTIONAL 1-px border and consistent
-        internal padding. Defaults to `show_border=False` so on a pure-
-        black background the card blends seamlessly — only the title text
-        + a thin divider mark the section. Pass `show_border=True` to get
-        a visible lifted-panel look for busy screens with multiple stacked
-        cards where you want them separated.
+        """Build the outer border, optional title bar/divider, and body frame.
+
+        Defaults to ``show_border=False`` so on a pure-black background the
+        card blends in — only the title text and thin divider mark the
+        section. Pass ``show_border=True`` when stacked cards need visible
+        separation.
+
+        :param parent: parent widget.
+        :param title: title bar text.
+        :param padding: spacing key from the shared palette.
+        :param show_border: draw a 1 px lifted border when True.
         """
         style_out = set_dark_style(ttk.Style())
         self.style_out = style_out
@@ -1756,15 +2087,16 @@ class spacrCard(tk.Frame):
 
 
 class spacrToggle(tk.Frame):
-    """
-    Modern iOS-style toggle switch replacing the small check square in
-    spacrCheck. Two-state widget bound to a tk.BooleanVar; clicking the
-    canvas or the label toggles the variable and animates the knob.
+    """iOS-style animated toggle switch bound to a ``tk.BooleanVar``.
 
-    Usage:
-        v = tk.BooleanVar(value=False)
-        spacrToggle(parent, text="Enable", variable=v,
-                    command=on_change).pack()
+    Modern replacement for the small check square in ``spacrCheck``.
+    Clicking the canvas or the caption toggles the variable and animates
+    the knob to its new position.
+
+    :param parent: parent widget.
+    :param text: caption shown to the left of the toggle; empty hides it.
+    :param variable: ``tk.BooleanVar`` bound to the toggle state.
+    :param command: callback fired after each toggle.
     """
 
     _TRACK_W = 44
@@ -1774,6 +2106,13 @@ class spacrToggle(tk.Frame):
     _ANIM_MS = 120
 
     def __init__(self, parent, text="", variable=None, command=None, **kwargs):
+        """Build the toggle canvas and (optional) caption label.
+
+        :param parent: parent widget.
+        :param text: caption shown to the left of the toggle.
+        :param variable: ``tk.BooleanVar`` bound to the toggle state.
+        :param command: callback fired after each toggle.
+        """
         style_out = set_dark_style(ttk.Style())
         self.bg_color = style_out['bg_color']
         self.inactive_color = style_out['inactive_color']
@@ -1823,6 +2162,7 @@ class spacrToggle(tk.Frame):
 
     # -- helpers ----------------------------------------------------------
     def _round_rect(self, x1, y1, x2, y2, radius=8, **kw):
+        """Draw a rounded rectangle on the toggle canvas and return its id."""
         pts = [
             x1 + radius, y1,
             x2 - radius, y1,
@@ -1840,9 +2180,11 @@ class spacrToggle(tk.Frame):
         return self._canvas.create_polygon(pts, smooth=True, **kw)
 
     def _track_color(self):
+        """Return the current track color for the bound state."""
         return self.active_color if self.variable.get() else self.inactive_color
 
     def _knob_bbox(self):
+        """Return the knob's ``(x0, y0, x1, y1)`` bbox for the current state."""
         pad = (self._TRACK_H - self._KNOB_D) // 2
         if self.variable.get():
             x = self._TRACK_W - self._KNOB_D - pad
@@ -1851,10 +2193,12 @@ class spacrToggle(tk.Frame):
         return x, pad, x + self._KNOB_D, pad + self._KNOB_D
 
     def _sync_from_var(self):
+        """Redraw the toggle when the bound variable is set externally."""
         self._canvas.itemconfig(self._track, fill=self._track_color())
         self._canvas.coords(self._knob, *self._knob_bbox())
 
     def toggle(self):
+        """Flip the bound variable, animate the knob, and invoke ``command``."""
         self.variable.set(not self.variable.get())
         self._animate()
         if self.command is not None:
@@ -1864,6 +2208,7 @@ class spacrToggle(tk.Frame):
                 pass
 
     def _animate(self):
+        """Animate the knob sliding to its target position."""
         if self._anim_id is not None:
             try:
                 self.after_cancel(self._anim_id)
@@ -1894,25 +2239,39 @@ class spacrToggle(tk.Frame):
         _tick()
 
     def get(self):
+        """Return the current toggle state."""
         return self.variable.get()
 
     def set(self, value):
+        """Set the toggle state without animation.
+
+        :param value: coerced to bool.
+        """
         self.variable.set(bool(value))
 
 
 class spacrDivider(tk.Frame):
-    """Thin themed section separator, optionally with a caption.
-
-    Usage:
-        spacrDivider(parent).pack(fill=tk.X, pady=8)              # plain rule
-        spacrDivider(parent, text="Advanced").pack(fill=tk.X)     # captioned rule
-        spacrDivider(parent, orient='vertical').pack(fill=tk.Y)   # vertical rule
+    """Thin themed section separator, optionally captioned.
 
     Pulls colors and spacing from the shared style dict so the look stays
-    consistent with the rest of the GUI.
+    consistent with the rest of the GUI. Renders as a plain horizontal or
+    vertical rule; when ``text`` is provided the horizontal variant embeds
+    the caption between two short rule segments.
+
+    :param parent: parent widget.
+    :param text: caption to embed in the rule (horizontal orientation only).
+    :param orient: ``'horizontal'`` or ``'vertical'``.
+    :param thickness: rule thickness in pixels (minimum 1).
     """
 
     def __init__(self, parent, text="", orient='horizontal', thickness=1, **kwargs):
+        """Build the rule and, when ``text`` is given, its caption row.
+
+        :param parent: parent widget.
+        :param text: optional caption rendered inside the rule.
+        :param orient: ``'horizontal'`` or ``'vertical'``.
+        :param thickness: rule thickness in pixels (min 1).
+        """
         super().__init__(parent, **kwargs)
         self.text = text
         self.orient = orient
@@ -1959,7 +2318,20 @@ class spacrDivider(tk.Frame):
 
 
 class ModifyMaskApp:
+    """Tkinter app for hand-editing segmentation masks over a set of images.
+
+    Supports zoom, draw, brush, erase, magic-wand, and dividing-line
+    operations, plus per-object cleanup (fill/relabel/remove small).
+    Masks are loaded from and saved back to ``<folder_path>/masks``.
+
+    :param root: parent Tk root or Toplevel.
+    :param folder_path: directory of image files to edit.
+    :param scale_factor: pre-canvas resize factor (applied before stretching
+        to the canvas so brush strokes stay proportional).
+    """
+
     def __init__(self, root, folder_path, scale_factor):
+        """Discover images, prepare toolbars, and load the first pair."""
         self.root = root
         self.folder_path = folder_path
         self.scale_factor = scale_factor
@@ -1982,17 +2354,27 @@ class ModifyMaskApp:
     ####################################################################################################
     
     def update_display(self):
+        """Repaint the canvas using the zoomed or full-image view."""
         if self.zoom_active:
             self.display_zoomed_image()
         else:
             self.display_image()
-    
+
     def update_original_mask_from_zoom(self):
+        """Write the current zoomed-region mask back into the full mask."""
         y0, y1, x0, x1 = self.zoom_y0, self.zoom_y1, self.zoom_x0, self.zoom_x1
         zoomed_mask_resized = resize(self.zoom_mask, (y1 - y0, x1 - x0), order=0, preserve_range=True).astype(np.uint8)
         self.mask[y0:y1, x0:x1] = zoomed_mask_resized
         
     def update_original_mask(self, zoomed_mask, x0, x1, y0, y1):
+        """Merge ``zoomed_mask`` into the full mask at box ``[x0:x1, y0:y1]``.
+
+        :param zoomed_mask: mask patch in the zoomed coordinate system.
+        :param x0: left edge in original image pixels.
+        :param x1: right edge in original image pixels.
+        :param y0: top edge in original image pixels.
+        :param y1: bottom edge in original image pixels.
+        """
         actual_mask_region = self.mask[y0:y1, x0:x1]
         target_shape = actual_mask_region.shape
         resized_mask = resize(zoomed_mask, target_shape, order=0, preserve_range=True).astype(np.uint8)
@@ -2004,11 +2386,25 @@ class ModifyMaskApp:
         self.mask = self.mask.copy()
 
     def get_scaling_factors(self, img_width, img_height, canvas_width, canvas_height):
+        """Return ``(x_scale, y_scale)`` mapping canvas pixels to image pixels.
+
+        :param img_width: image width in pixels.
+        :param img_height: image height in pixels.
+        :param canvas_width: canvas width in pixels.
+        :param canvas_height: canvas height in pixels.
+        :returns: tuple ``(x_scale, y_scale)``.
+        """
         x_scale = img_width / canvas_width
         y_scale = img_height / canvas_height
         return x_scale, y_scale
-    
+
     def canvas_to_image(self, x_canvas, y_canvas):
+        """Convert canvas coordinates to full-image coordinates.
+
+        :param x_canvas: canvas x pixel.
+        :param y_canvas: canvas y pixel.
+        :returns: tuple ``(x_image, y_image)`` in image pixels.
+        """
         x_scale, y_scale = self.get_scaling_factors(
             self.image.shape[1], self.image.shape[0],
             self.canvas_width, self.canvas_height
@@ -2018,10 +2414,18 @@ class ModifyMaskApp:
         return x_image, y_image
 
     def apply_zoom_on_enter(self, event):
+        """Finalize the zoom rectangle when the pointer re-enters the canvas."""
         if self.zoom_active and self.zoom_rectangle_start is not None:
             self.set_zoom_rectangle_end(event)
-        
+
     def normalize_image(self, image, lower_quantile, upper_quantile):
+        """Percentile-clip ``image`` and rescale into its original dtype range.
+
+        :param image: 2D image array.
+        :param lower_quantile: lower percentile (0-100).
+        :param upper_quantile: upper percentile (0-100).
+        :returns: normalized image of the same dtype.
+        """
         lower_bound = np.percentile(image, lower_quantile)
         upper_bound = np.percentile(image, upper_quantile)
         normalized = np.clip(image, lower_bound, upper_bound)
@@ -2031,6 +2435,12 @@ class ModifyMaskApp:
         return normalized
     
     def resize_arrays(self, img, mask):
+        """Scale image + mask to fit the canvas while preserving their dtypes.
+
+        :param img: source intensity image.
+        :param mask: source label mask.
+        :returns: tuple ``(scaled_img, scaled_mask)`` sized to the canvas.
+        """
         original_dtype = img.dtype
         scaled_height = int(img.shape[0] * self.scale_factor)
         scaled_width = int(img.shape[1] * self.scale_factor)
@@ -2045,17 +2455,20 @@ class ModifyMaskApp:
     ####################################################################################################
     
     def load_first_image(self):
+        """Load the first image/mask pair and paint the canvas."""
         self.image, self.mask = self.load_image_and_mask(self.current_image_index)
         self.original_size = self.image.shape
         self.image, self.mask = self.resize_arrays(self.image, self.mask)
         self.display_image()
 
     def setup_canvas(self):
+        """Create the drawing canvas and attach the mouse-info binding."""
         self.canvas = tk.Canvas(self.root, width=self.canvas_width, height=self.canvas_height, bg='black')
         self.canvas.pack()
         self.canvas.bind("<Motion>", self.update_mouse_info)
 
     def initialize_flags(self):
+        """Reset all interaction-mode flags and per-image state."""
         self.zoom_rectangle_start = None
         self.zoom_rectangle_end = None
         self.zoom_rectangle_id = None
@@ -2079,6 +2492,7 @@ class ModifyMaskApp:
         self.magic_wand_tolerance = tk.StringVar(value="1000")
 
     def update_mouse_info(self, event):
+        """Update the status labels with intensity, mask value, and area."""
         x, y = event.x, event.y
         intensity = "N/A"
         mask_value = "N/A"
@@ -2102,6 +2516,7 @@ class ModifyMaskApp:
             self.pixel_count_label.config(text="Area: N/A")
     
     def setup_navigation_toolbar(self):
+        """Create the top toolbar with Previous/Next/Save and status labels."""
         navigation_toolbar = tk.Frame(self.root, bg='black')
         navigation_toolbar.pack(side='top', fill='x')
         prev_btn = tk.Button(navigation_toolbar, text="Previous", command=self.previous_image, bg='black', fg='white')
@@ -2118,6 +2533,7 @@ class ModifyMaskApp:
         self.pixel_count_label.pack(side='right')
 
     def setup_mode_toolbar(self):
+        """Create the toolbar with draw/wand/erase/brush/divider mode buttons."""
         self.mode_toolbar = tk.Frame(self.root, bg='black')
         self.mode_toolbar.pack(side='top', fill='x')
         self.draw_btn = tk.Button(self.mode_toolbar, text="Draw", command=self.toggle_draw_mode, bg='black', fg='white')
@@ -2143,6 +2559,7 @@ class ModifyMaskApp:
         self.dividing_line_btn.pack(side='left')
 
     def setup_function_toolbar(self):
+        """Create the toolbar with per-mask utility buttons (fill/relabel/clear)."""
         self.function_toolbar = tk.Frame(self.root, bg='black')
         self.function_toolbar.pack(side='top', fill='x')
         self.fill_btn = tk.Button(self.function_toolbar, text="Fill", command=self.fill_objects, bg='black', fg='white')
@@ -2161,6 +2578,7 @@ class ModifyMaskApp:
         self.min_area_entry.pack(side='left')
 
     def setup_zoom_toolbar(self):
+        """Create the toolbar with zoom, normalization, and percentile controls."""
         self.zoom_toolbar = tk.Frame(self.root, bg='black')
         self.zoom_toolbar.pack(side='top', fill='x')
         self.zoom_btn = tk.Button(self.zoom_toolbar, text="Zoom", command=self.toggle_zoom_mode, bg='black', fg='white')
@@ -2176,6 +2594,11 @@ class ModifyMaskApp:
         self.upper_entry.pack(side='left')
     
     def load_image_and_mask(self, index):
+        """Load the ``index``-th image and its mask (creating an empty one if absent).
+
+        :param index: index into ``self.image_filenames``.
+        :returns: tuple ``(image, mask)`` — image as uint16, mask as uint8.
+        """
         # Load the image
         image_path = os.path.join(self.folder_path, self.image_filenames[index])
         image = imageio.imread(image_path)
@@ -2219,6 +2642,7 @@ class ModifyMaskApp:
     # Image Display functions#
     ####################################################################################################
     def display_image(self):
+        """Render the full image + mask overlay on the canvas."""
         if self.zoom_rectangle_id is not None:
             self.canvas.delete(self.zoom_rectangle_id)
             self.zoom_rectangle_id = None
@@ -2230,6 +2654,7 @@ class ModifyMaskApp:
         self.canvas.create_image(0, 0, anchor='nw', image=self.tk_image)
 
     def display_zoomed_image(self):
+        """Render the current zoomed region with mask overlay on the canvas."""
         if self.zoom_rectangle_start and self.zoom_rectangle_end:
             # Convert canvas coordinates to image coordinates
             x0, y0 = self.canvas_to_image(*self.zoom_rectangle_start)
@@ -2266,6 +2691,13 @@ class ModifyMaskApp:
                 self.canvas.create_image(0, 0, anchor='nw', image=self.tk_image)
 
     def overlay_mask_on_image(self, image, mask, alpha=0.5):
+        """Blend a colored label mask over an intensity image.
+
+        :param image: 2D or RGB intensity image.
+        :param mask: integer label mask; each label gets a random color.
+        :param alpha: mask opacity in ``[0, 1]``.
+        :returns: uint8 RGB overlay image.
+        """
         if len(image.shape) == 2:
             image = np.stack((image,) * 3, axis=-1)
         mask = mask.astype(np.int32)
@@ -2288,6 +2720,7 @@ class ModifyMaskApp:
     ####################################################################################################
     
     def previous_image(self):
+        """Load the previous image/mask pair (no-op at the start of the list)."""
         if self.current_image_index > 0:
             self.current_image_index -= 1
             self.initialize_flags()            
@@ -2297,6 +2730,7 @@ class ModifyMaskApp:
             self.display_image()
 
     def next_image(self):
+        """Load the next image/mask pair (no-op at the end of the list)."""
         if self.current_image_index < len(self.image_filenames) - 1:
             self.current_image_index += 1
             self.initialize_flags()            
@@ -2306,6 +2740,7 @@ class ModifyMaskApp:
             self.display_image()
             
     def save_mask(self):
+        """Relabel connected components and write the mask to ``masks/*.tif``."""
         if self.current_image_index < len(self.image_filenames):
             original_size = self.original_size
             if self.mask.shape != original_size:
@@ -2326,10 +2761,12 @@ class ModifyMaskApp:
     # Zoom Functions #
     ####################################################################################################
     def set_zoom_rectangle_start(self, event):
+        """Record the first corner of the zoom rectangle."""
         if self.zoom_active:
             self.zoom_rectangle_start = (event.x, event.y)
-    
+
     def set_zoom_rectangle_end(self, event):
+        """Commit the second corner of the zoom rectangle and render the zoom."""
         if self.zoom_active:
             self.zoom_rectangle_end = (event.x, event.y)
             if self.zoom_rectangle_id is not None:
@@ -2342,6 +2779,7 @@ class ModifyMaskApp:
             self.canvas.bind("<Motion>", self.update_mouse_info)
             
     def update_zoom_box(self, event):
+        """Redraw the live zoom-selection rectangle as the pointer moves."""
         if self.zoom_active and self.zoom_rectangle_start is not None:
             if self.zoom_rectangle_id is not None:
                 self.canvas.delete(self.zoom_rectangle_id)
@@ -2356,6 +2794,7 @@ class ModifyMaskApp:
     ####################################################################################################
     
     def toggle_zoom_mode(self):
+        """Enter or exit zoom-selection mode, rebinding mouse handlers."""
         if not self.zoom_active:
             self.brush_btn.config(text="Brush")
             self.canvas.unbind("<B1-Motion>")
@@ -2401,6 +2840,7 @@ class ModifyMaskApp:
             self.zoom_image_orig = None
 
     def toggle_brush_mode(self):
+        """Enter or exit brush painting mode, rebinding mouse handlers."""
         self.brush_active = not self.brush_active
         if self.brush_active:
             self.drawing = False
@@ -2426,6 +2866,12 @@ class ModifyMaskApp:
             self.canvas.unbind("<ButtonRelease-3>")
 
     def image_to_canvas(self, x_image, y_image):
+        """Convert full-image coordinates to canvas coordinates.
+
+        :param x_image: image x pixel.
+        :param y_image: image y pixel.
+        :returns: tuple ``(x_canvas, y_canvas)`` in canvas pixels.
+        """
         x_scale, y_scale = self.get_scaling_factors(
             self.image.shape[1], self.image.shape[0],
             self.canvas_width, self.canvas_height
@@ -2435,6 +2881,7 @@ class ModifyMaskApp:
         return x_canvas, y_canvas
 
     def toggle_dividing_line_mode(self):
+        """Enter or exit dividing-line mode, rebinding mouse handlers."""
         self.dividing_line_active = not self.dividing_line_active
         if self.dividing_line_active:
             self.drawing = False
@@ -2462,11 +2909,13 @@ class ModifyMaskApp:
             self.display_image()
 
     def start_dividing_line(self, event):
+        """Begin a dividing-line stroke at the pointer position."""
         if self.dividing_line_active:
             self.dividing_line_coords = [(event.x, event.y)]
             self.current_dividing_line = self.canvas.create_line(event.x, event.y, event.x, event.y, fill="red", width=2)
 
     def finish_dividing_line(self, event):
+        """Close the dividing-line stroke and apply it to the mask."""
         if self.dividing_line_active:
             self.dividing_line_coords.append((event.x, event.y))
             if self.zoom_active:
@@ -2476,6 +2925,7 @@ class ModifyMaskApp:
             self.current_dividing_line = None
 
     def update_dividing_line_preview(self, event):
+        """Extend and redraw the in-progress dividing-line preview stroke."""
         if self.dividing_line_active and self.dividing_line_coords:
             x, y = event.x, event.y
             if self.zoom_active:
@@ -2486,6 +2936,7 @@ class ModifyMaskApp:
             self.canvas.coords(self.current_dividing_line, *flat_canvas_coords)
 
     def apply_dividing_line(self):
+        """Cut the mask along the recorded dividing-line polyline and relabel."""
         if self.dividing_line_coords:
             coords = self.dividing_line_coords
             if self.zoom_active:
@@ -2524,6 +2975,7 @@ class ModifyMaskApp:
             self.dividing_line_btn.config(text="Dividing Line")
 
     def toggle_draw_mode(self):
+        """Enter or exit freehand polygon draw mode, rebinding mouse handlers."""
         self.drawing = not self.drawing
         if self.drawing:
             self.brush_btn.config(text="Brush")
@@ -2549,6 +3001,7 @@ class ModifyMaskApp:
             self.canvas.unbind("<ButtonRelease-1>")
             
     def toggle_magic_wand_mode(self):
+        """Enter or exit magic-wand mode, rebinding mouse handlers."""
         self.magic_wand_active = not self.magic_wand_active
         if self.magic_wand_active:
             self.brush_btn.config(text="Brush")
@@ -2570,6 +3023,7 @@ class ModifyMaskApp:
             self.canvas.unbind("<Button-3>")
             
     def toggle_erase_mode(self):
+        """Enter or exit whole-object erase mode, rebinding mouse handlers."""
         self.erase_active = not self.erase_active
         if self.erase_active:
             self.brush_btn.config(text="Brush")
@@ -2594,6 +3048,7 @@ class ModifyMaskApp:
     ####################################################################################################
     
     def apply_brush_release(self, event):
+        """Commit the accumulated brush path into the mask on button release."""
         if hasattr(self, 'brush_path'):
             for x, y, brush_size in self.brush_path:
                 img_x, img_y = (x, y) if self.zoom_active else self.canvas_to_image(x, y)
@@ -2611,6 +3066,7 @@ class ModifyMaskApp:
             self.update_display()
 
     def erase_brush_release(self, event):
+        """Commit the accumulated erase-brush path into the mask on release."""
         if hasattr(self, 'erase_path'):
             for x, y, brush_size in self.erase_path:
                 img_x, img_y = (x, y) if self.zoom_active else self.canvas_to_image(x, y)
@@ -2628,6 +3084,7 @@ class ModifyMaskApp:
             self.update_display()
         
     def apply_brush(self, event):
+        """Record a brush stroke segment and draw a preview line."""
         brush_size = int(self.brush_size_entry.get())
         x, y = event.x, event.y
         if not hasattr(self, 'brush_path'):
@@ -2643,6 +3100,7 @@ class ModifyMaskApp:
         self.last_brush_coord = (x, y)
 
     def erase_brush(self, event):
+        """Record an erase-brush stroke segment and draw a preview line."""
         brush_size = int(self.brush_size_entry.get())
         x, y = event.x, event.y
         if not hasattr(self, 'erase_path'):
@@ -2658,6 +3116,7 @@ class ModifyMaskApp:
         self.last_erase_coord = (x, y)
 
     def erase_object(self, event):
+        """Erase the whole labeled object under the click position."""
         x, y = event.x, event.y
         if self.zoom_active:
             canvas_x, canvas_y = x, y
@@ -2676,6 +3135,7 @@ class ModifyMaskApp:
         self.update_display()
             
     def use_magic_wand(self, event):
+        """Run a magic-wand add (left) or erase (right) at the click position."""
         x, y = event.x, event.y
         tolerance = int(self.magic_wand_tolerance.get())
         maximum = int(self.max_pixels_entry.get())
@@ -2686,6 +3146,16 @@ class ModifyMaskApp:
             self.magic_wand_normal((x, y), tolerance, action)
     
     def apply_magic_wand(self, image, mask, seed_point, tolerance, maximum, action='add'):
+        """Flood-fill mask from ``seed_point`` while intensity delta stays within tolerance.
+
+        :param image: intensity image used for the tolerance check.
+        :param mask: mask array to modify in place.
+        :param seed_point: tuple ``(x, y)`` of the starting pixel.
+        :param tolerance: maximum L2 distance from the seed intensity.
+        :param maximum: cap on newly added pixels.
+        :param action: ``'add'`` sets mask to 255, ``'erase'`` sets it to 0.
+        :returns: the updated ``mask``.
+        """
         x, y = seed_point
         initial_value = image[y, x].astype(np.float32)
         visited = np.zeros_like(image, dtype=bool)
@@ -2714,6 +3184,12 @@ class ModifyMaskApp:
         return mask
 
     def magic_wand_normal(self, seed_point, tolerance, action):
+        """Apply the magic wand to the full-image mask and repaint the canvas.
+
+        :param seed_point: starting pixel in image coordinates.
+        :param tolerance: intensity tolerance for flood expansion.
+        :param action: ``'add'`` or ``'erase'``.
+        """
         try:
             maximum = int(self.max_pixels_entry.get())
         except ValueError:
@@ -2723,6 +3199,12 @@ class ModifyMaskApp:
         self.display_image()
         
     def magic_wand_zoomed(self, seed_point, tolerance, action):
+        """Apply the magic wand within the current zoom and reflect it in the full mask.
+
+        :param seed_point: starting pixel in canvas coordinates.
+        :param tolerance: intensity tolerance for flood expansion.
+        :param action: ``'add'`` or ``'erase'``.
+        """
         if self.zoom_image_orig is None or self.zoom_mask is None:
             print("Zoomed image or mask not initialized")
             return
@@ -2748,6 +3230,7 @@ class ModifyMaskApp:
         self.update_display()
                 
     def draw(self, event):
+        """Append the pointer position to the current freehand polygon."""
         if self.drawing:
             x, y = event.x, event.y
             if self.draw_coordinates:
@@ -2756,6 +3239,11 @@ class ModifyMaskApp:
             self.draw_coordinates.append((x, y))
             
     def draw_on_zoomed_mask(self, draw_coordinates):
+        """Rasterize a polygon (in canvas coords) into a fresh zoomed-mask array.
+
+        :param draw_coordinates: list of ``(x, y)`` tuples defining the polygon.
+        :returns: uint8 canvas-sized mask with the polygon filled.
+        """
         canvas_height = self.canvas.winfo_height()
         canvas_width = self.canvas.winfo_width()
         zoomed_mask = np.zeros((canvas_height, canvas_width), dtype=np.uint8)
@@ -2764,6 +3252,7 @@ class ModifyMaskApp:
         return zoomed_mask
             
     def finish_drawing(self, event):
+        """Close the polygon and rasterize it into the mask."""
         if len(self.draw_coordinates) > 2:
             self.draw_coordinates.append(self.draw_coordinates[0])
             if self.zoom_active:
@@ -2779,6 +3268,7 @@ class ModifyMaskApp:
         self.update_display()
             
     def finish_drawing_if_active(self, event):
+        """Close the polygon only if draw mode is active with enough vertices."""
         if self.drawing and len(self.draw_coordinates) > 2:
             self.finish_drawing(event)
 
@@ -2787,11 +3277,13 @@ class ModifyMaskApp:
     ####################################################################################################
             
     def apply_normalization(self):
+        """Read the percentile entries and repaint with the new normalization."""
         self.lower_quantile.set(self.lower_entry.get())
         self.upper_quantile.set(self.upper_entry.get())
         self.update_display()
 
     def fill_objects(self):
+        """Fill holes inside all mask objects and relabel."""
         binary_mask = self.mask > 0
         filled_mask = binary_fill_holes(binary_mask)
         self.mask = filled_mask.astype(np.uint8) * 255
@@ -2800,21 +3292,25 @@ class ModifyMaskApp:
         self.update_display()
 
     def relabel_objects(self):
+        """Assign fresh consecutive labels to the mask's connected components."""
         mask = self.mask
         labeled_mask, num_labels = label(mask > 0)
         self.mask = labeled_mask
         self.update_display()
-        
+
     def clear_objects(self):
+        """Zero the entire mask and repaint."""
         self.mask = np.zeros_like(self.mask)
         self.update_display()
 
     def invert_mask(self):
+        """Invert the binary mask and relabel connected components."""
         self.mask = np.where(self.mask > 0, 0, 1)
         self.relabel_objects()
         self.update_display()
-        
+
     def remove_small_objects(self):
+        """Delete labeled objects below the ``Min Area`` threshold."""
         try:
             min_area = int(self.min_area_entry.get())
         except ValueError:
@@ -2828,7 +3324,37 @@ class ModifyMaskApp:
         self.update_display()
 
 class AnnotateApp:
+    """Grid-based annotation viewer backed by an SQLite measurements database.
+
+    Renders a paginated grid of PNGs (with optional colored outlines and
+    normalization), lets the user click-annotate each cell, and streams
+    updates back to ``png_list.<annotation_column>`` via a background writer
+    thread. Supports pre-filtering by measurement thresholds and training a
+    lightweight XGBoost classifier on the collected labels.
+
+    :param root: parent Tk root or Toplevel.
+    :param db_path: path to the measurements SQLite database.
+    :param src: source directory containing the ``measurements/`` folder.
+    :param image_type: substring filter on ``png_path`` (or a list of them).
+    :param channels: list of channels (subset of ``'r','g','b'``) to display.
+    :param image_size: grid tile size in pixels (int or ``[w, h]``).
+    :param annotation_column: ``png_list`` column that stores user labels.
+    :param percentiles: ``(low, high)`` percentiles for per-image normalization.
+    :param measurement: column name, list, or list-of-lists driving prefilter.
+    :param threshold: numeric or quantile-code (``q1``..``q9``) threshold(s).
+    :param threshold_direction: ``'lower'`` or ``'higher'`` (or a list).
+    :param normalize_channels: channels to normalize (subset of ``'r','g','b'``).
+    :param outline: channels to overlay outlines on.
+    :param outline_threshold_factor: multiplier on the Otsu threshold.
+    :param outline_sigma: Gaussian sigma for outline extraction.
+    :param edge_thickness: outline thickness in output pixels.
+    :param edge_transparency: outline opacity in ``[0, 100]``.
+    :param edge_image: when True, composite the outline image on display.
+    :param object_size: ``(min_px, max_px)`` connected-component filter; 0 disables.
+    """
+
     def __init__(self, root, db_path, src, image_type=None, channels=None, image_size=200, annotation_column='annotate', percentiles=(1, 99), measurement=None, threshold=None, threshold_direction = "higher", normalize_channels=None, outline=None, outline_threshold_factor=1, outline_sigma=1, edge_thickness=1, edge_transparency=100, edge_image=False, object_size=(0,0)):
+        """Build the annotation UI, start the DB worker, and load the first page."""
         self.root = root
         self.db_path = db_path
         self.src = src
@@ -2934,9 +3460,11 @@ class AnnotateApp:
                         
                         # Mimic the button click behavior and active state color switches
                         def on_press(event):
+                            """Darken the label to mimic a pressed button."""
                             btn.config(bg='#333333')
-                            
+
                         def on_release(event):
+                            """Restore label color and fire the wrapped command."""
                             btn.config(bg='#1a1a1a')
                             command() # Triggers the button's actual function
                             
@@ -2999,6 +3527,7 @@ class AnnotateApp:
             self.grid_frame.grid_columnconfigure(col, weight=1)
                 
     def _ensure_png_path_index(self):
+        """Create the ``png_list.png_path`` index if it is missing."""
         import sqlite3
         with sqlite3.connect(self.db_path, timeout=30) as conn:
             conn.execute('CREATE INDEX IF NOT EXISTS idx_png_path ON "png_list" (png_path)')
@@ -3059,6 +3588,7 @@ class AnnotateApp:
         return color
             
     def _embed_figure_in(self, parent, fig):
+        """Replace ``parent``'s contents with a Tk canvas rendering ``fig``."""
         # Clear parent
         for w in parent.winfo_children():
             try: w.destroy()
@@ -3076,6 +3606,7 @@ class AnnotateApp:
         return canvas
     
     def open_umap_window(self):
+        """Open a settings + live-plot window for image UMAP + hyperparam search."""
         import tkinter as tk
         from tkinter import ttk, messagebox
         import threading
@@ -3234,8 +3765,10 @@ class AnnotateApp:
             return settings
 
         def _run_umap():
+            """Kick off a background UMAP run and embed the returned figure."""
             settings = _collect_common_settings()
             def worker():
+                """Thread body: run UMAP and embed the figure or an error."""
                 try:
                     status.config(text="Running UMAP…")
                     # Call your function; ask it to return a Figure (see tweak below)
@@ -3262,6 +3795,7 @@ class AnnotateApp:
             kmeans_grid = _parse_list(kmeans_grid_entry.get())
 
             def worker():
+                """Thread body: run the hyperparameter search and embed the figure or an error."""
                 try:
                     status.config(text="Running hyperparameter search…")
                     from spacr.core import reducer_hyperparameter_search as _search
@@ -3282,6 +3816,7 @@ class AnnotateApp:
         run_grid_btn.configure(command=_run_grid)
         
     def _poll_save_status(self):
+            """Update the status label with saving progress; re-schedules itself."""
             with self._batch_lock:
                 unsaved = self._unsaved_batches
             saving = unsaved > 0 or bool(self.pending_updates)
@@ -3300,12 +3835,16 @@ class AnnotateApp:
             self.root.after(125, self._poll_save_status)
             
     def open_settings_window(self):
+        """Open the Toplevel that edits annotation display and filter settings."""
         from .gui_utils import generate_annotate_fields, convert_to_number
         
         # ---- Local tooltip implementation (kept here so it is always defined
         # ---- when the method runs, regardless of import or reload state) -----
         class _ToolTip:
+            """Local settings-window tooltip helper (kept inline for reload safety)."""
+
             def __init__(self, widget, text):
+                """Bind enter/leave handlers that show/hide the tooltip label."""
                 self.widget = widget
                 self.text = text
                 self.tipwindow = None
@@ -3314,6 +3853,7 @@ class AnnotateApp:
                 widget.bind('<Leave>', self._hide, add='+')
 
             def _show(self, _event=None):
+                """Create the tooltip Toplevel on pointer enter."""
                 if self.tipwindow or not self.text:
                     return
                 x = self.widget.winfo_rootx() + 20
@@ -3330,6 +3870,7 @@ class AnnotateApp:
                 self.tipwindow = tw
 
             def _hide(self, _event=None):
+                """Destroy the tooltip Toplevel on pointer leave."""
                 if self.tipwindow:
                     self.tipwindow.destroy()
                     self.tipwindow = None
@@ -3535,6 +4076,7 @@ class AnnotateApp:
             return parts[0] if len(parts) == 1 else parts
 
         def apply_new_settings():
+            """Read the settings entries, parse types, and call ``update_settings``."""
             settings = {key: data['entry'].get() for key, data in vars_dict.items()}
 
             settings['channels'] = (
@@ -3650,6 +4192,7 @@ class AnnotateApp:
             
         
     def _ensure_annotation_column(self):
+        """Add the current annotation column to ``png_list`` if it is missing."""
         import sqlite3
         if not getattr(self, "annotation_column", None):
             return
@@ -3668,6 +4211,16 @@ class AnnotateApp:
                     pass  # column already exists
         
     def update_settings(self, **kwargs):
+        """Apply changed settings, coerce types, and re-prime the DB worker.
+
+        Only keys in the internal ``allowed_attributes`` set are honored;
+        ``None`` values are ignored. Handles cross-cutting side effects
+        (rebuilding the grid when ``image_size`` changes, restarting the
+        writer thread when ``db_path`` changes, resetting pagination when
+        ``src`` changes).
+
+        :param kwargs: attribute names mapped to their new values.
+        """
         import threading
 
         allowed_attributes = {
@@ -3802,6 +4355,7 @@ class AnnotateApp:
             self.load_images()
 
     def recreate_image_grid(self):
+        """Rebuild the label grid to match current ``grid_rows``/``grid_cols``."""
         # Remove current labels
         for label in self.labels:
             label.destroy()
@@ -3820,16 +4374,19 @@ class AnnotateApp:
             self.grid_frame.grid_columnconfigure(col, weight=1)
             
     def update_display(self):
+        """Re-run the prefilter and reload the visible grid."""
         self.prefilter_paths_annotations()
         self.load_images()
-            
+
     def swich_back_annotation_column(self):
+        """Restore the originally configured annotation column and refresh."""
         self.annotation_column = self.orig_annotation_columns
         self._ensure_annotation_column()
         self.prefilter_paths_annotations()
         self.update_display()
-            
+
     def calculate_grid_dimensions(self):
+        """Derive ``grid_rows`` and ``grid_cols`` from the current window size."""
         self.root.update_idletasks()
         w, h = self.root.winfo_width(), self.root.winfo_height()
         status_h  = self.status_label.winfo_height()
@@ -3925,6 +4482,12 @@ class AnnotateApp:
         return threshold
 
     def prefilter_paths_annotations(self):
+        """Populate ``filtered_paths_annotations`` from the DB using current filters.
+
+        When a measurement + threshold is configured, joins the measurement
+        tables and applies each configured filter; otherwise pages directly
+        against ``png_list``. Also honors ``image_type`` substring filtering.
+        """
         from .io import _read_and_join_tables, _read_db
 
         self._ensure_annotation_column()
@@ -4015,6 +4578,7 @@ class AnnotateApp:
                 self.filtered_paths_annotations = c.fetchall()
 
     def load_images(self):
+        """Load and paint the current page of PNGs into the grid labels."""
         for label in self.labels:
             label.config(image='')
 
@@ -4062,6 +4626,7 @@ class AnnotateApp:
         
         
     def show_class_counts(self):
+        """Open a window summarizing counts per class in the current column."""
         import tkinter as tk
         from tkinter import ttk, messagebox
 
@@ -4119,6 +4684,11 @@ class AnnotateApp:
             sw.pack(side="left")
 
     def load_single_image(self, path_annotation_tuple):
+        """Load one PNG, apply normalization/channel filtering/outlines, and resize.
+
+        :param path_annotation_tuple: ``(path, annotation)`` pair from the DB.
+        :returns: tuple ``(PIL.Image, annotation)`` sized to ``self.image_size``.
+        """
         path, annotation = path_annotation_tuple
         if not os.path.exists(path):
             blank = Image.new('RGB', self.image_size, color=(30, 30, 30))
@@ -4153,17 +4723,13 @@ class AnnotateApp:
     
     @staticmethod
     def fill_holes(mask, min_size=0):
-        """
-        Fill holes inside True regions of a binary mask.
+        """Fill interior holes inside True regions of a binary mask.
 
-        Args:
-            mask (ndarray[bool]): Binary mask where True denotes foreground.
-            min_size (int): Minimum hole area to fill (in pixels).
-                - <= 0 : fill ALL internal holes.
-                -  > 0 : fill only holes smaller than min_size; reopen larger ones.
-
-        Returns:
-            ndarray[bool]: Hole-filled mask.
+        :param mask: ndarray[bool] mask where True denotes foreground.
+        :param min_size: minimum hole area in pixels to fill; ``<= 0`` fills
+            all interior holes, ``> 0`` fills only holes smaller than this
+            and re-opens larger ones.
+        :returns: hole-filled boolean mask.
         """
         import numpy as np
         from scipy.ndimage import binary_fill_holes, label
@@ -4191,6 +4757,7 @@ class AnnotateApp:
     
     @staticmethod
     def _filter_objects_by_area(mask, min_size=0, max_size=0):
+        """Keep only connected components with area in ``[min_size, max_size]``."""
         import numpy as np
         from scipy.ndimage import label
         m = mask.astype(bool)
@@ -4210,18 +4777,18 @@ class AnnotateApp:
         return keep[lbl]
         
     def outline_image(self, base_img, full_img, edge_sigma=1, edge_thickness=1, fill_holes=True, object_size=(0, 0)):
-        """
-        Anti-aliased outlines with sub-pixel thickness that never get dimmer as they get thinner.
-        Uses peak normalization so outline brightness is thickness-invariant (then scaled only by edge_transparency).
+        """Composite anti-aliased outlines onto ``base_img`` using ``full_img`` for detection.
 
-        Args:
-            base_img (PIL.Image): already filtered (visible base)
-            full_img (PIL.Image): normalized RGB before filtering (edge detection / underlay)
-            edge_sigma (float): Gaussian smoothing before thresholding
-            edge_thickness (float): outline thickness in output pixels (supports < 1, e.g. 0.01)
-            fill_holes (bool): fill internal holes in foreground masks before boundary extraction
-            object_size (tuple[int,int]): (min_px, max_px) connected-component area filter.
-                                        0 disables that bound.
+        Peak-normalizes the outline alpha so brightness is thickness-invariant;
+        only the global ``edge_transparency`` attribute then attenuates it.
+
+        :param base_img: PIL image after channel filtering (visible base).
+        :param full_img: normalized RGB image before filtering (used for detection).
+        :param edge_sigma: Gaussian smoothing sigma applied before thresholding.
+        :param edge_thickness: outline thickness in output pixels (sub-pixel OK).
+        :param fill_holes: fill internal foreground holes before boundary extraction.
+        :param object_size: ``(min_px, max_px)`` area filter; 0 disables that bound.
+        :returns: PIL image with outlines composited into the outline channels.
         """
         import numpy as np
         from PIL import Image
@@ -4328,9 +4895,14 @@ class AnnotateApp:
 
     @staticmethod
     def normalize_image(img, percentiles=(1, 99), normalize_channels=None):
-        """
-        If normalize_channels is None or [], do nothing.
-        Otherwise normalize only those channels (r/g/b).
+        """Percentile-normalize selected channels of ``img`` and return a PIL image.
+
+        No-op when ``normalize_channels`` is falsy.
+
+        :param img: input PIL image or array.
+        :param percentiles: ``(low, high)`` percentiles for rescaling.
+        :param normalize_channels: iterable subset of ``'r','g','b'``.
+        :returns: uint8 PIL image.
         """
         img_array = np.array(img)
         img_array = np.clip(img_array, 0, 255)
@@ -4354,6 +4926,13 @@ class AnnotateApp:
         return Image.fromarray(np.clip(out, 0, 255).astype('uint8'))
 
     def add_colored_border(self, img, border_width, border_color):
+        """Return ``img`` framed by a solid colored border of the given width.
+
+        :param img: source PIL image.
+        :param border_width: border thickness in pixels on every side.
+        :param border_color: RGB tuple or hex string for the border fill.
+        :returns: new PIL image with the border pasted around the source.
+        """
         top_border = Image.new('RGB', (img.width, border_width), color=border_color)
         bottom_border = Image.new('RGB', (img.width, border_width), color=border_color)
         left_border = Image.new('RGB', (border_width, img.height), color=border_color)
@@ -4369,6 +4948,11 @@ class AnnotateApp:
         return bordered_img
     
     def filter_channels(self, img):
+        """Zero out channels not present in ``self.channels`` and return an RGB image.
+
+        :param img: input PIL image.
+        :returns: RGB PIL image with unselected channels zeroed.
+        """
         r, g, b = img.split()
 
         if self.channels:
@@ -4388,10 +4972,21 @@ class AnnotateApp:
     
     
     def get_on_image_click(self, path, label, img):
+        """Return a click handler that toggles the annotation for ``path``.
+
+        Left-click sets class 1, right-click sets class 2; clicking the same
+        button on an already-annotated tile clears the label.
+
+        :param path: image path used as the DB row key.
+        :param label: Tk ``Label`` widget hosting the tile.
+        :param img: PIL image displayed in the tile.
+        :returns: event handler callable.
+        """
         from PIL import ImageTk, ImageOps
         import os
 
         def on_image_click(event):
+            """Toggle the annotation for the clicked tile and update its border."""
             new_annotation = 1 if event.num == 1 else 2
             original_path = self.adjusted_to_original_paths.get(path, path)
 
@@ -4414,6 +5009,7 @@ class AnnotateApp:
             self.root.update()
 
         def on_image_click_v1(event):
+            """Legacy click handler: left=1, right=2, middle clears (unused)."""
             new_annotation = 1 if event.num == 1 else (2 if event.num == 3 else None)
 
             original_path = self.adjusted_to_original_paths.get(path, path)
@@ -4442,6 +5038,10 @@ class AnnotateApp:
 
     @staticmethod
     def update_html(text):
+        """Inject ``text`` into the ``#unique_id`` element via IPython display.
+
+        :param text: HTML-safe string to render.
+        """
         display(HTML(f"""
         <script>
         document.getElementById('unique_id').innerHTML = '{text}';
@@ -4449,6 +5049,7 @@ class AnnotateApp:
         """))
         
     def clear_current_annotation(self):
+        """Null every value in the current annotation column after user confirm."""
         import sqlite3, queue
         from tkinter import messagebox
 
@@ -4483,6 +5084,11 @@ class AnnotateApp:
         self.load_images()
         
     def update_database_worker(self):
+        """Background thread that batches pending updates into SQLite commits.
+
+        Consumes ``self.update_queue`` until it sees the sentinel, coalescing
+        multiple queued batches into single WAL-mode transactions.
+        """
         import sqlite3, queue, time
 
         conn = sqlite3.connect(self.db_path, timeout=30)
@@ -4559,6 +5165,7 @@ class AnnotateApp:
             conn.close()
 
     def shutdown(self):
+        """Flush pending annotations, stop the DB worker, and close the app."""
         from tkinter import messagebox
 
         with self._batch_lock:
@@ -4602,7 +5209,11 @@ class AnnotateApp:
         print("Quit application")
         
     def skip_to_last_annotated(self):
-        """Jump directly to the page containing the last annotated image."""
+        """Jump directly to the page containing the last annotated image.
+
+        Flushes any pending updates first, then scans the ordered ``png_list``
+        for the highest-indexed row whose annotation is non-null and non-zero.
+        """
         print(f"[skip_to_last_annotated] using column: '{self.annotation_column}'")
         if self.pending_updates:
             with self._batch_lock:
@@ -4664,6 +5275,7 @@ class AnnotateApp:
         self.load_images()
 
     def next_page(self):
+        """Advance to the next page of the grid, flushing pending annotations first."""
         if self.pending_updates:
             with self._batch_lock:
                 self._unsaved_batches += 1
@@ -4699,6 +5311,7 @@ class AnnotateApp:
         self.load_images()
         
     def previous_page(self):
+        """Step back to the previous page of the grid, flushing pending annotations."""
         if self.pending_updates:
             with self._batch_lock:
                 self._unsaved_batches += 1
@@ -4729,19 +5342,21 @@ class AnnotateApp:
         self.load_images()
 
     def update_gui_text(self, text):
+        """Update the status label with ``text`` and flush the UI.
+
+        :param text: message to display.
+        """
         self.status_label.config(text=text)
         self.root.update()
-        
+
     def train_and_classify(self):
-        """
-        1) Merge data from the relevant DB tables (including png_list).
-        2) Collect manual annotations from png_list.<annotation_column> => 'manual_annotation'.
-        - 1 => class=1, 2 => class=0 (for training).
-        3) If only one class is present, randomly sample unannotated images as the other class.
-        4) Train an XGBoost model.
-        5) Classify *all* rows -> fill XGboost_score (prob of class=1) & XGboost_annotation (1 or 2 if high confidence).
-        6) Write those columns back to sqlite.
-        7) Refresh the UI.
+        """Train an XGBoost classifier on manual annotations and write predictions.
+
+        Merges measurement tables, uses manual labels from
+        ``png_list.<annotation_column>`` (mapping 1->1 and 2->0), fabricates
+        the missing class by sampling unlabeled rows when only one is present,
+        trains an ``XGBClassifier``, and writes ``XGboost_score`` /
+        ``XGboost_annotation`` back to ``png_list``.
         """
         import sqlite3
         import pandas as pd
@@ -4837,6 +5452,7 @@ class AnnotateApp:
         all_df['XGboost_score'] = probs_all
 
         def get_annotation_from_prob(prob):
+            """Return 1 above 0.9, 0 below 0.1, else None (uncertain)."""
             if prob > 0.9:
                 return 1
             elif prob < 0.1:
@@ -4950,12 +5566,14 @@ class AnnotateApp:
     
     @staticmethod
     def convert_settings_dict_for_gui(settings):
-        """
-        Decide widget type per setting:
-        - 'check'  => Checkbutton (bools)
-        - 'combo'  => readonly Combobox (predefined choices)
-        - 'entry'  => Entry (free text / numbers / lists)
-        Returns: {key: (kind, options, initial)}
+        """Classify each setting into a GUI widget spec.
+
+        Each entry becomes ``(kind, options, initial)`` where ``kind`` is
+        ``'check'`` for bools, ``'combo'`` for known-choice fields, or
+        ``'entry'`` for free-form values.
+
+        :param settings: mapping of setting name to current value.
+        :returns: dict of ``key -> (kind, options, initial)``.
         """
         try:
             from torchvision import models as torch_models
@@ -5025,15 +5643,16 @@ class AnnotateApp:
         return variables
         
     def build_multi_annotation(self, source_columns, target_column="multi_annot"):
-        """
-        Consolidate multiple {1,2,NULL} columns into a single integer code column.
-        Unique per combination. If all inputs NULL -> store NULL.
-        Sets self.annotation_column to target_column and refreshes UI.
+        """Consolidate several ``{1,2,NULL}`` columns into a single integer code.
 
-        Encoding:
-        per col: NULL->0, 1->1, 2->2
-        code = 1 + sum( digit_i * (3^i) ), i = 0..N-1
-        (all digits 0) => store NULL instead of 1
+        Each source contributes a base-3 digit (NULL->0, 1->1, 2->2) so every
+        combination becomes a unique code ``1 + sum(digit_i * 3**i)``; the
+        all-zero combination stores NULL. Sets ``self.annotation_column`` to
+        ``target_column`` and refreshes the grid.
+
+        :param source_columns: iterable of column names in ``png_list``.
+        :param target_column: name of the derived column to write.
+        :raises ValueError: when ``source_columns`` is empty.
         """
         import sqlite3
 
@@ -5085,12 +5704,17 @@ class AnnotateApp:
         self.load_images()
         
     def ensure_multi_annot_from_selection(self, source_columns, target_column="class_column", force_rebuild=True):
-        """
-        If one column selected -> use it directly (no consolidation).
-        If >=2 selected -> build a consolidated column. If target_column already exists,
-        auto-bump to target_column_1, target_column_2, ... and use that actual name everywhere.
+        """Pick or build the effective annotation column from a user selection.
 
-        Returns the effective annotation column name.
+        A single-column selection is used directly. Multi-column selections
+        build a consolidated ``target_column``; if that name already exists,
+        an auto-bumped ``target_column_1``, ``_2``, ... is used instead.
+
+        :param source_columns: iterable of column names in ``png_list``.
+        :param target_column: base name for the consolidated column.
+        :param force_rebuild: rebuild the consolidated column even if it exists.
+        :returns: the effective annotation column name that was activated.
+        :raises ValueError: when ``source_columns`` is empty.
         """
         import sqlite3
 
@@ -5133,6 +5757,12 @@ class AnnotateApp:
         return effective
 
     def open_deep_spacr_window(self):
+        """Open the Deep-SPACR train/apply configuration window.
+
+        Presents a notebook of tabs (dataset generation, training, inference)
+        whose 'Run' hands the resolved settings dict to ``deep_spacr`` on a
+        background thread.
+        """
         import tkinter as tk
         from tkinter import ttk, messagebox
         import sqlite3, threading, ast, json, os
@@ -5567,6 +6197,7 @@ class AnnotateApp:
 
         # ---- run handler ------------------------------------------------------
         def on_run():
+            """Assemble the settings dict from all tabs and launch ``deep_spacr``."""
             settings = dict(defaults)  # copy
 
             # Master toggles
@@ -5714,6 +6345,15 @@ class AnnotateApp:
         run_btn.configure(command=on_run)
 
 def standardize_figure(fig):
+    """Restyle ``fig`` to match the spacr dark theme.
+
+    Applies OpenSans typography from the shared style, hides top/right
+    spines, sets a 1 px foreground line/tick width, and paints figure and
+    subplot backgrounds with the palette background.
+
+    :param fig: matplotlib ``Figure`` to restyle in place.
+    :returns: the same ``fig`` after restyling.
+    """
     from .gui_elements import set_dark_style
     from matplotlib.font_manager import FontProperties
 
@@ -5726,18 +6366,6 @@ def standardize_figure(fig):
     # Get the custom font path from the font loader
     font_path = font_loader.font_path
     font_prop = FontProperties(fname=font_path, size=font_size)
-
-    """
-    Standardizes the appearance of the figure:
-    - Font size: from style
-    - Font color: from style
-    - Font family: custom OpenSans from font_loader
-    - Removes top and right spines
-    - Figure and subplot background: from style
-    - Line width: 1
-    - Line color: from style
-    """
-    
 
     for ax in fig.get_axes():
         # Set font properties for title and labels
@@ -5789,25 +6417,26 @@ def standardize_figure(fig):
     return fig
 
 def modify_figure_properties(fig, scale_x=None, scale_y=None, line_width=None, font_size=None, x_lim=None, y_lim=None, grid=False, legend=None, title=None, x_label_rotation=None, remove_axes=False, bg_color=None, text_color=None, line_color=None):
-    """
-    Modifies the properties of the figure, including scaling, line widths, font sizes, axis limits, x-axis label rotation, background color, text color, line color, and other common options.
+    """Apply a bundle of common styling tweaks to ``fig`` in place.
 
-    Parameters:
-    - fig: The Matplotlib figure object to modify.
-    - scale_x: Scaling factor for the width of subplots (optional).
-    - scale_y: Scaling factor for the height of subplots (optional).
-    - line_width: Desired line width for all lines (optional).
-    - font_size: Desired font size for all text (optional).
-    - x_lim: Tuple specifying the x-axis limits (min, max) (optional).
-    - y_lim: Tuple specifying the y-axis limits (min, max) (optional).
-    - grid: Boolean to add grid lines to the plot (optional).
-    - legend: Boolean to show/hide the legend (optional).
-    - title: String to set as the title of the plot (optional).
-    - x_label_rotation: Angle to rotate the x-axis labels (optional).
-    - remove_axes: Boolean to remove or show the axes labels (optional).
-    - bg_color: Color for the figure and subplot background (optional).
-    - text_color: Color for all text in the figure (optional).
-    - line_color: Color for all lines in the figure (optional).
+    Any argument left ``None`` is skipped, so callers can toggle a single
+    property without disturbing the rest.
+
+    :param fig: matplotlib ``Figure`` to modify.
+    :param scale_x: multiplier applied to each subplot's width.
+    :param scale_y: multiplier applied to each subplot's height.
+    :param line_width: uniform line width for lines and spines.
+    :param font_size: uniform font size for titles, labels, ticks, legend.
+    :param x_lim: ``(min, max)`` x-axis limits.
+    :param y_lim: ``(min, max)`` y-axis limits.
+    :param grid: show grid lines when True.
+    :param legend: show/hide legend flag (unused if legend absent).
+    :param title: axis title to set.
+    :param x_label_rotation: rotation angle for x tick labels in degrees.
+    :param remove_axes: hide axis labels/ticks when True.
+    :param bg_color: figure and subplot background color.
+    :param text_color: color for all text elements.
+    :param line_color: color for all lines and spines.
     """
     if fig is None:
         print("Error: The figure provided is None.")
@@ -5891,6 +6520,12 @@ def modify_figure_properties(fig, scale_x=None, scale_y=None, line_width=None, f
     fig.canvas.draw_idle()
 
 def save_figure_as_format(fig, file_format):
+    """Prompt for a save path and export ``fig`` in the requested format.
+
+    :param fig: matplotlib ``Figure`` to save.
+    :param file_format: extension used both as default filter and
+        ``fig.savefig`` format (e.g. ``'png'``, ``'pdf'``, ``'svg'``).
+    """
     file_path = filedialog.asksaveasfilename(defaultextension=f".{file_format}", filetypes=[(f"{file_format.upper()} files", f"*.{file_format}"), ("All files", "*.*")])
     if file_path:
         try:
@@ -5900,8 +6535,13 @@ def save_figure_as_format(fig, file_format):
             print(f"Error saving figure: {e}")
 
 def modify_figure(fig):
+    """Open an interactive Toplevel that edits ``fig``'s appearance live.
+
+    :param fig: matplotlib ``Figure`` mutated in response to the controls.
+    """
     from .gui_core import display_figure
     def apply_modifications():
+        """Read the controls and forward the values to ``modify_figure_properties``."""
         try:
             # Only apply changes if the fields are filled
             scale_x = float(scale_x_var.get()) if scale_x_var.get() else None
@@ -5938,6 +6578,7 @@ def modify_figure(fig):
             print("Invalid input; please enter numeric values.")
 
     def toggle_spleens():
+        """Toggle visibility of the top/right spines on every axis."""
         for ax in fig.get_axes():
             if spleens_var.get():
                 ax.spines['top'].set_visible(False)
@@ -6013,8 +6654,22 @@ def modify_figure(fig):
     apply_button.grid(row=len(options) + len(checkboxes), column=0, columnspan=2, pady=10)
 
 def generate_dna_matrix(output_path='dna_matrix.gif', canvas_width=1500, canvas_height=1000, duration=30, fps=20, base_size=20, transition_frames=30, font_type='arial.ttf', enhance=None, lowercase_prob=0.3):
-    """
-    Generate a DNA matrix animation and save it as GIF, MP4, or AVI using OpenCV for videos.
+    """Render a Matrix-style DNA-base rain animation and save it to disk.
+
+    The output format is inferred from the ``output_path`` extension
+    (``.gif``, ``.mp4``, or ``.avi``); videos are written via OpenCV.
+
+    :param output_path: destination path; extension picks the format.
+    :param canvas_width: frame width in pixels.
+    :param canvas_height: frame height in pixels.
+    :param duration: total animation length in seconds.
+    :param fps: frames per second.
+    :param base_size: glyph size in pixels (also the column stride).
+    :param transition_frames: number of blended frames appended for looping.
+    :param font_type: font family or file used for the glyphs.
+    :param enhance: optional ``[brightness, sharpness, contrast, color]``
+        multipliers applied per frame.
+    :param lowercase_prob: probability a glyph is rendered lowercase.
     """
 
     if enhance is None:

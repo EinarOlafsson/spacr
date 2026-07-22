@@ -31,6 +31,17 @@ from typing import Dict, Iterator, List, Optional
 
 
 class ChatProvider(ABC):
+    """Abstract base for AI chat providers that shell out to a vendor CLI.
+
+    Subclasses set the ``name``/``label``/``cli_name``/``install_hint``/
+    ``login_command`` class attributes and implement :meth:`stream_chat`.
+
+    :ivar name: short id ("claude" / "codex" / "gemini").
+    :ivar label: human-readable label shown in the UI.
+    :ivar cli_name: executable expected on ``PATH``.
+    :ivar install_hint: shell one-liner suggested for installation.
+    :ivar login_command: shell one-liner the user runs to authenticate.
+    """
     name: str = ""            # short id: "claude" / "codex" / "gemini"
     label: str = ""           # human-readable label
     cli_name: str = ""        # the executable on PATH
@@ -44,6 +55,7 @@ class ChatProvider(ABC):
         self._current_proc: Optional[subprocess.Popen] = None
 
     def is_installed(self) -> bool:
+        """Return True when the provider's CLI executable is on ``PATH``."""
         return shutil.which(self.cli_name) is not None
 
     def is_logged_in(self) -> bool:
@@ -54,6 +66,7 @@ class ChatProvider(ABC):
         return self.is_installed()
 
     def is_configured(self) -> bool:
+        """Return True when the CLI is both installed and logged in."""
         return self.is_installed() and self.is_logged_in()
 
     def source_of_key(self) -> str:
@@ -204,6 +217,8 @@ def _format_conversation(messages: List[Dict], system: str = "") -> str:
 # ---------------------------------------------------------------------------
 
 class ClaudeCliProvider(ChatProvider):
+    """Anthropic Claude via the ``claude`` (Claude Code) CLI."""
+
     name = "claude"
     label = "Claude (via Claude Code)"
     cli_name = "claude"
@@ -215,6 +230,14 @@ class ClaudeCliProvider(ChatProvider):
 
     def stream_chat(self, messages: List[Dict], system: str = "",
                      model: Optional[str] = None) -> Iterator[str]:
+        """Stream a chat completion from the ``claude`` CLI.
+
+        :param messages: conversation history as ``{role, content}`` dicts.
+        :param system: optional system prompt appended via
+            ``--append-system-prompt``.
+        :param model: optional model override passed via ``--model``.
+        :returns: iterator yielding stdout text chunks.
+        """
         prompt = _format_conversation(messages, system=system)
         argv = ["claude", "-p", prompt]
         if system:
@@ -229,6 +252,8 @@ class ClaudeCliProvider(ChatProvider):
 # ---------------------------------------------------------------------------
 
 class CodexCliProvider(ChatProvider):
+    """OpenAI ChatGPT via the ``codex`` CLI."""
+
     name = "codex"
     label = "ChatGPT (via Codex CLI)"
     cli_name = "codex"
@@ -239,6 +264,13 @@ class CodexCliProvider(ChatProvider):
 
     def stream_chat(self, messages: List[Dict], system: str = "",
                      model: Optional[str] = None) -> Iterator[str]:
+        """Stream a chat completion from the ``codex`` CLI.
+
+        :param messages: conversation history as ``{role, content}`` dicts.
+        :param system: optional system prompt folded into the prompt body.
+        :param model: optional model override passed via ``--model``.
+        :returns: iterator yielding stdout text chunks.
+        """
         prompt = _format_conversation(messages, system=system)
         argv = ["codex", "exec", prompt]
         if model:
@@ -251,6 +283,8 @@ class CodexCliProvider(ChatProvider):
 # ---------------------------------------------------------------------------
 
 class GeminiCliProvider(ChatProvider):
+    """Google Gemini via the ``gemini`` CLI."""
+
     name = "gemini"
     label = "Gemini (via Gemini CLI)"
     cli_name = "gemini"
@@ -261,6 +295,13 @@ class GeminiCliProvider(ChatProvider):
 
     def stream_chat(self, messages: List[Dict], system: str = "",
                      model: Optional[str] = None) -> Iterator[str]:
+        """Stream a chat completion from the ``gemini`` CLI.
+
+        :param messages: conversation history as ``{role, content}`` dicts.
+        :param system: optional system prompt folded into the prompt body.
+        :param model: optional model override passed via ``-m``.
+        :returns: iterator yielding stdout text chunks.
+        """
         prompt = _format_conversation(messages, system=system)
         argv = ["gemini", "-p", prompt]
         if model:
@@ -280,14 +321,21 @@ _PROVIDERS: List[ChatProvider] = [
 
 
 def list_providers() -> List[ChatProvider]:
+    """Return every registered provider, regardless of install state."""
     return list(_PROVIDERS)
 
 
 def configured_providers() -> List[ChatProvider]:
+    """Return only providers whose CLI is installed and logged in."""
     return [p for p in _PROVIDERS if p.is_configured()]
 
 
 def get_provider(name: str) -> Optional[ChatProvider]:
+    """Look up a registered provider by its short id.
+
+    :param name: provider id (``"claude"``, ``"codex"``, ``"gemini"``).
+    :returns: the matching provider, or ``None`` if no such id.
+    """
     for p in _PROVIDERS:
         if p.name == name:
             return p

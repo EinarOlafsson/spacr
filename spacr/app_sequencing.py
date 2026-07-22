@@ -1,6 +1,7 @@
 from .gui import MainApp
 
 def start_seq_app():
+    """Launch the main spacr GUI with the Sequencing tab preselected."""
     app = MainApp(default_app="Sequencing")
     app.mainloop()
 

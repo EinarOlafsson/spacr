@@ -25,7 +25,15 @@ from sklearn.model_selection import train_test_split
 from pylibCZIrw import czi as pyczi
 
 def process_non_tif_non_2D_images(folder):
-    """Processes all images in the folder and splits them into grayscale channels, preserving bit depth."""
+    """Split multi-dimensional or non-TIFF images in ``folder`` into per-channel TIFFs.
+
+    Grayscale non-TIFF images are converted to TIFF in place. Multi-
+    dimensional images (3D/4D/5D) are split into one grayscale TIFF per
+    ``(channel, Z, T)`` combination. Bit depth is preserved.
+
+    :param folder: Directory containing the input images.
+    :returns: None
+    """
     
     # Helper function to save grayscale images
     def save_grayscale_images(image, base_name, folder, dtype, channel=None, z=None, t=None):
@@ -296,24 +304,26 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
     return normalized_images, labels, image_names, label_names, orig_dims
 
 class CombineLoaders:
-    """
-    A class that combines multiple data loaders into a single iterator.
+    """Round-robin iterator over multiple DataLoaders.
 
-    Args:
-        train_loaders (list): A list of data loaders.
+    Yields ``(loader_index, batch)`` pairs, drawing from a random loader
+    each step and dropping loaders once exhausted.
 
-    Raises:
-        StopIteration: If all data loaders have been exhausted.
+    :param train_loaders: DataLoaders to combine.
+    :raises StopIteration: when every wrapped loader is exhausted.
     """
-    
+
     def __init__(self, train_loaders):
+        """Store loaders and initialise per-loader iterators."""
         self.train_loaders = train_loaders
         self.loader_iters = [iter(loader) for loader in train_loaders]
 
     def __iter__(self):
+        """Return self — this object is its own iterator."""
         return self
 
     def __next__(self):
+        """Return ``(loader_index, batch)`` from a randomly-chosen live loader."""
         while self.loader_iters:
             random.shuffle(self.loader_iters)
             for i, loader_iter in enumerate(self.loader_iters):
@@ -328,15 +338,16 @@ class CombineLoaders:
         raise StopIteration
 
 class CombinedDataset(Dataset):
-    """
-    A dataset that combines multiple datasets into one.
+    """Concatenation of multiple ``Dataset`` objects behind a single index space.
 
-    Args:
-        datasets (list): A list of datasets to be combined.
-        shuffle (bool, optional): Whether to shuffle the combined dataset. Defaults to True.
+    :param datasets: Datasets to concatenate; their samples must be
+        index-compatible.
+    :param shuffle: If True, index lookups are permuted once at
+        construction time. Default ``True``.
     """
 
     def __init__(self, datasets, shuffle=True):
+        """Precompute per-dataset lengths and optionally shuffle indices."""
         self.datasets = datasets
         self.lengths = [len(dataset) for dataset in datasets]
         self.total_length = sum(self.lengths)
@@ -347,6 +358,7 @@ class CombinedDataset(Dataset):
         else:
             self.indices = None
     def __getitem__(self, index):
+        """Return the sample at ``index`` from the appropriate sub-dataset."""
         if self.shuffle:
             index = self.indices[index]
         for dataset, length in zip(self.datasets, self.lengths):
@@ -354,20 +366,23 @@ class CombinedDataset(Dataset):
                 return dataset[index]
             index -= length
     def __len__(self):
+        """Return the total number of samples across all sub-datasets."""
         return self.total_length
     
 class NoClassDataset(Dataset):
+    """Flat directory of unlabelled images returned alongside their file paths.
+
+    :param data_dir: Directory containing image files.
+    :param transform: Optional callable applied to each PIL image. If
+        ``None``, images are converted with ``ToTensor``.
+    :param shuffle: If True, shuffle filename list at construction.
+        Default ``True``.
+    :param load_to_memory: If True, decode all images once and hold them
+        in RAM. Default ``False``.
     """
-    A custom dataset class for handling image data without class labels.
-    
-    Args:
-        data_dir (str): The directory path where the image files are located.
-        transform (callable, optional): A function/transform to apply to the image data. Default is None.
-        shuffle (bool, optional): Whether to shuffle the dataset. Default is True.
-        load_to_memory (bool, optional): Whether to load all images into memory. Default is False.
-    """
-    
+
     def __init__(self, data_dir, transform=None, shuffle=True, load_to_memory=False):
+        """Enumerate files in ``data_dir`` and optionally preload them."""
         self.data_dir = data_dir
         self.transform = transform
         self.shuffle = shuffle
@@ -383,43 +398,29 @@ class NoClassDataset(Dataset):
             self.images = [self.load_image(f) for f in self.filenames]
     
     def load_image(self, img_path):
-        """
-        Load an image from the given file path.
-        
-        Args:
-            img_path (str): The file path of the image.
-        
-        Returns:
-            PIL.Image: The loaded image.
+        """Return the image at ``img_path`` decoded as RGB.
+
+        :param img_path: Path to the image file.
+        :returns: PIL ``Image`` in RGB mode.
         """
         img = Image.open(img_path).convert('RGB')
         return img
-    
+
     def __len__(self):
-        """
-        Get the total number of images in the dataset.
-        
-        Returns:
-            int: The number of images in the dataset.
-        """
+        """Return the number of images in the dataset."""
         return len(self.filenames)
-    
+
     def shuffle_dataset(self):
-        """
-        Shuffle the dataset.
-        """
+        """Shuffle the internal filename list in place."""
         if self.shuffle:
             random.shuffle(self.filenames)
-    
+
     def __getitem__(self, index):
-        """
-        Get the image and its corresponding filename at the given index.
-        
-        Args:
-            index (int): The index of the image in the dataset.
-        
-        Returns:
-            tuple: A tuple containing the image and its filename.
+        """Return ``(image_tensor, filename)`` for the given index.
+
+        :param index: Position within the dataset.
+        :returns: ``(tensor, path)`` where ``tensor`` is the transformed
+            image and ``path`` is the source filename.
         """
         if self.load_to_memory:
             img = self.images[index]
@@ -433,7 +434,23 @@ class NoClassDataset(Dataset):
 
 
 class spacrDataset(Dataset):
+    """Image classification dataset that reads class subfolders under ``data_dir``.
+
+    :param data_dir: Root directory containing one subdirectory per class.
+    :param loader_classes: Ordered list of class names — the index in
+        this list becomes the integer label.
+    :param transform: Optional callable applied to each PIL image.
+    :param shuffle: If True, shuffle files+labels at construction.
+    :param pin_memory: If True, eagerly load every image into RAM via a
+        multiprocessing pool.
+    :param specific_files: Optional explicit list of image paths. If
+        supplied together with ``specific_labels``, directory scanning
+        is skipped.
+    :param specific_labels: Labels paired with ``specific_files``.
+    """
+
     def __init__(self, data_dir, loader_classes, transform=None, shuffle=True, pin_memory=False, specific_files=None, specific_labels=None):
+        """Build the filename/label lists and optionally preload images."""
         self.data_dir = data_dir
         self.classes = loader_classes
         self.transform = transform
@@ -463,23 +480,32 @@ class spacrDataset(Dataset):
             self.images = None
 
     def load_image(self, img_path):
+        """Return the image at ``img_path`` decoded as RGB with EXIF orientation applied."""
         img = Image.open(img_path).convert('RGB')
         img = ImageOps.exif_transpose(img)  # Handle image orientation
         return img
 
     def __len__(self):
+        """Return the number of samples in the dataset."""
         return len(self.filenames)
 
     def shuffle_dataset(self):
+        """Jointly shuffle ``filenames`` and ``labels`` in place."""
         combined = list(zip(self.filenames, self.labels))
         random.shuffle(combined)
         self.filenames, self.labels = zip(*combined)
 
     def get_plate(self, filepath):
+        """Return the plate identifier parsed from a filename (leading token before ``_``).
+
+        :param filepath: Image path.
+        :returns: Plate ID string.
+        """
         filename = os.path.basename(filepath)
         return filename.split('_')[0]
 
     def __getitem__(self, index):
+        """Return ``(image, label, filename)`` for the given index."""
         if self.pin_memory:
             img = self.images[index]
         else:
@@ -491,7 +517,18 @@ class spacrDataset(Dataset):
         return img, label, filename
     
 class spacrDataLoader(DataLoader):
+    """DataLoader that pre-fetches batches into a queue on a background process.
+
+    Wraps ``torch.utils.data.DataLoader`` and, when ``pin_memory`` is
+    False, spawns a worker process that stays one or more batches ahead
+    of consumption to hide I/O latency.
+
+    :param preload_batches: Number of batches to keep queued ahead.
+        Default ``1``.
+    """
+
     def __init__(self, *args, preload_batches=1, **kwargs):
+        """Initialise the underlying DataLoader and the preload queue."""
         super().__init__(*args, **kwargs)
         self.preload_batches = preload_batches
         self.batch_queue = Queue(maxsize=preload_batches)
@@ -531,10 +568,12 @@ class spacrDataLoader(DataLoader):
             return batch
 
     def __iter__(self):
+        """Start the preloader (if not already running) and return self."""
         self._start_preloading()
         return self
 
     def __next__(self):
+        """Return the next queued batch, or raise ``StopIteration`` when drained."""
         if self.process and not self.process.is_alive() and self.batch_queue.empty():
             raise StopIteration
 
@@ -554,16 +593,25 @@ class spacrDataLoader(DataLoader):
             raise StopIteration
 
     def cleanup(self):
+        """Signal the preloader to stop and join the background process."""
         self._stop_event = True
         if self.process and self.process.is_alive():
             self.process.terminate()
             self.process.join()
 
     def __del__(self):
+        """Ensure background resources are released on garbage collection."""
         self.cleanup()
 
 class TarImageDataset(Dataset):
+    """Image dataset backed by a tar archive, decoded on demand.
+
+    :param tar_path: Path to the tar archive.
+    :param transform: Optional callable applied to each PIL image.
+    """
+
     def __init__(self, tar_path, transform=None):
+        """Enumerate archive members without extracting."""
         self.tar_path = tar_path
         self.transform = transform
 
@@ -572,20 +620,28 @@ class TarImageDataset(Dataset):
             self.members = [m for m in f.getmembers() if m.isfile()]
 
     def __len__(self):
+        """Return the number of image members in the archive."""
         return len(self.members)
 
     def __getitem__(self, idx):
+        """Return ``(image, member_name)`` extracted from the tar at ``idx``."""
         with tarfile.open(self.tar_path, 'r') as f:
             m = self.members[idx]
             img_file = f.extractfile(m)
             img = Image.open(BytesIO(img_file.read())).convert("RGB")
-            
+
         if self.transform:
             img = self.transform(img)
-        
+
         return img, m.name
-    
+
 def load_images_from_paths(images_by_key):
+    """Load images grouped by key into NumPy arrays.
+
+    :param images_by_key: Mapping of key -> list of image paths.
+    :returns: Mapping of the same keys -> list of ``ndarray`` images.
+        Paths that fail to load are skipped with a printed warning.
+    """
     images_dict = {}
 
     for key, paths in images_by_key.items():
@@ -1098,6 +1154,17 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
     return normalized_stack.astype(save_dtype)
 
 def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=None):
+    """Concatenate per-file channel arrays and normalise them into a single stack.
+
+    :param src: Directory containing per-FOV ``.npy`` channel arrays.
+    :param channels: Channel indices to keep in the output stack.
+    :param save_dtype: NumPy dtype for the saved normalised arrays.
+        Default ``np.float32``.
+    :param settings: Preprocessing settings dict. Must contain the
+        background, signal-to-noise, randomize, timelapse and plotting
+        keys used elsewhere in preprocessing.
+    :returns: Path to the directory where normalised arrays were saved.
+    """
     if settings is None:
         settings = {}
     from .utils import print_progress
@@ -1483,11 +1550,10 @@ def _create_movies_from_npy_per_channel(src, fps=10):
         _npz_to_movie(normalized_channel_arrays_3d, filenames, channel_save_path, fps)
 
 def delete_empty_subdirectories(folder_path):
-    """
-    Deletes all empty subdirectories in the specified folder.
+    """Recursively delete every empty subdirectory under ``folder_path``.
 
-    Args:
-    - folder_path (str): The path to the folder in which to look for empty subdirectories.
+    :param folder_path: Root directory to scan.
+    :returns: None
     """
     # Check each item in the specified folder
     for dirpath, dirnames, filenames in os.walk(folder_path, topdown=False):
@@ -1505,11 +1571,22 @@ def delete_empty_subdirectories(folder_path):
                 #print(f"Skipping non-empty directory: {full_dir_path}")
 
 def preprocess_img_data(settings):
-    
+    """Preprocess raw microscopy images into normalised, channel-merged stacks.
+
+    Converts z-stacks to MIPs, renames files into the spacr convention,
+    merges per-channel folders into stacked ``.npy`` arrays, and writes
+    normalised outputs. Behaviour is driven entirely by ``settings``
+    (source path, channels, background, plotting, test mode, etc.).
+
+    :param settings: Preprocessing settings dict. See
+        ``settings.set_default_settings_preprocess_img_data`` for keys.
+    :returns: ``(settings, src)`` when an existing ``masks`` folder is
+        found and preprocessing is skipped; otherwise ``None``.
+    """
     from .plot import plot_arrays
     from .utils import _run_test_mode, _get_regex
     from .settings import set_default_settings_preprocess_img_data
-    
+
     """
     Preprocesses image data by converting z-stack images to maximum intensity projection (MIP) images.
 
@@ -2105,7 +2182,15 @@ def _results_to_csv(src, df, df_well):
     return cells, wells
 
 def read_plot_model_stats(train_file_path, val_file_path ,save=False):
-    
+    """Plot training vs. validation curves from a saved model's per-epoch CSVs.
+
+    :param train_file_path: Path to the training stats CSV.
+    :param val_file_path: Path to the validation stats CSV.
+    :param save: If True, write PDFs next to the training CSV instead of
+        showing them. Default ``False``.
+    :returns: None
+    """
+
     def _plot_and_save(train_df, val_df, column='accuracy', save=False, path=None, dpi=600):
         
         pdf_path = os.path.join(path, f'{column}.pdf')
@@ -2182,6 +2267,7 @@ def _save_model(model, model_type, results_dict, dst, epoch, epochs,
     channels_str = ''.join(channels)
 
     def save_model_at_threshold(threshold, epoch, suffix=""):
+        """Persist the current model to disk when validation accuracy crosses ``threshold``."""
         percentile = str(threshold * 100)
         print(f'Found: {percentile}% accurate model')
         model_path = f'{dst}/{model_type}_epoch_{str(epoch)}{suffix}_acc_{percentile}_channels_{channels_str}.pth'
@@ -2524,11 +2610,11 @@ def _read_mask(mask_path):
     return mask
 
 def convert_numpy_to_tiff(folder_path, limit=None):
-    """
-    Converts all numpy files in a folder to TIFF format and saves them in a subdirectory 'tiff'.
-    
-    Args:
-    folder_path (str): The path to the folder containing numpy files.
+    """Convert every ``.npy`` array in ``folder_path`` to a TIFF under ``folder_path/tiff``.
+
+    :param folder_path: Folder containing the ``.npy`` files.
+    :param limit: If set, stop after processing this many files.
+    :returns: None
     """
     # Create the subdirectory 'tiff' within the specified folder if it doesn't already exist
     tiff_subdir = os.path.join(folder_path, 'tiff')
@@ -2561,6 +2647,16 @@ def convert_numpy_to_tiff(folder_path, limit=None):
     return
     
 def generate_cellpose_train_test(src, test_split=0.1):
+    """Split image/mask pairs in ``src`` into ``train`` and ``test`` sibling folders.
+
+    Only images that have a corresponding mask in ``src/masks`` are
+    considered.
+
+    :param src: Folder containing images and a ``masks`` subfolder.
+    :param test_split: Fraction of pairs to route into the test set.
+        Default ``0.1``.
+    :returns: None
+    """
     mask_src = os.path.join(src, 'masks')
     img_paths = glob.glob(os.path.join(src, '*.tif'))
     img_filenames = [os.path.basename(file) for file in img_paths]
@@ -2604,16 +2700,11 @@ def generate_cellpose_train_test(src, test_split=0.1):
             print(f'Copied {idx+1}/{len(ls)} images to {_type} set')#, end='\r', flush=True)
 
 def parse_gz_files(folder_path):
-    """
-    Parses the .fastq.gz files in the specified folder path and returns a dictionary
-    containing the sample names and their corresponding file paths.
+    """Group ``.fastq.gz`` files in ``folder_path`` by sample name and read direction.
 
-    Args:
-        folder_path (str): The path to the folder containing the .fastq.gz files.
-
-    Returns:
-        dict: A dictionary where the keys are the sample names and the values are
-        dictionaries containing the file paths for the 'R1' and 'R2' read directions.
+    :param folder_path: Directory containing gzipped FASTQ files named
+        ``<sample>_R1_...`` / ``<sample>_R2_...``.
+    :returns: Mapping ``{sample_name: {"R1": path, "R2": path}}``.
     """
     files = os.listdir(folder_path)
     gz_files = [f for f in files if f.endswith('.fastq.gz')]
@@ -2634,6 +2725,20 @@ def parse_gz_files(folder_path):
     return samples_dict
 
 def generate_dataset(settings=None):
+    """Collect PNG crops referenced by one or more measurement databases into a tar archive.
+
+    Selects paths from each source's ``measurements.db``, optionally
+    subsamples, then bundles all images in parallel into a single
+    dated tar written to the first source's ``datasets/`` folder.
+
+    :param settings: Dataset-generation settings dict. See
+        ``settings.set_generate_dataset_defaults`` for keys — notably
+        ``src`` (str or list of str), ``file_metadata``, ``sample``
+        (int / list) and ``experiment``.
+    :returns: Path to the created tar archive.
+    :raises RuntimeError: if ``src`` is malformed, no images are
+        selected, or the destination folder cannot be resolved.
+    """
     if settings is None:
         settings = {}
     import os, tarfile, shutil, random, datetime
@@ -2753,6 +2858,27 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
                      classes=None, n_jobs=None, validation_split=0.0,
                      pin_memory=False, normalize=False, channels=None,
                      augment=False, verbose=False):
+    """Build ``spacrDataLoader`` objects for training, validation, or testing.
+
+    Reads class subfolders under ``src/<mode>``, applies the requested
+    transforms (channel selection, optional normalisation, optional
+    augmentation) and returns loaders sized to ``batch_size``.
+
+    :param src: Root folder containing ``train``/``test`` subfolders.
+    :param mode: Which split to load — ``'train'`` or ``'test'``.
+    :param image_size: Square resize target in pixels. Default ``224``.
+    :param batch_size: Loader batch size. Default ``32``.
+    :param classes: Ordered class names. Default ``['nc', 'pc']``.
+    :param n_jobs: DataLoader worker count. Default: derived from CPU count.
+    :param validation_split: Fraction of the train split to hold out.
+    :param pin_memory: If True, pin batches to page-locked memory.
+    :param normalize: If True, apply per-channel normalisation.
+    :param channels: Subset of RGB channels to keep, e.g. ``['r', 'g']``.
+    :param augment: If True, apply the training augmentation pipeline.
+    :param verbose: If True, log configuration to stdout.
+    :returns: For ``mode='train'``, a tuple of loaders and a plot handle;
+        for ``mode='test'``, the test loader (plus optional metadata).
+    """
 
     if classes is None:
         classes = ['nc', 'pc']
@@ -3200,6 +3326,18 @@ def generate_training_dataset(settings):
     return train_class_dir, test_class_dir
 
 def training_dataset_from_annotation(db_path, dst, annotation_column='test', annotated_classes=(1, 2)):
+    """Group PNG paths by annotation value, balancing class sizes when only one is annotated.
+
+    :param db_path: SQLite database containing a ``png_list`` table with
+        an ``png_path`` column plus ``annotation_column``.
+    :param dst: Output root (currently unused; kept for API symmetry).
+    :param annotation_column: Column in ``png_list`` holding class labels.
+        Default ``'test'``.
+    :param annotated_classes: Class values to pull from the annotation
+        column. When length is 1, an equal-sized "other" class is
+        sampled from unannotated rows.
+    :returns: List of lists — one list of PNG paths per output class.
+    """
     all_paths = []
 
     # Connect to the database and retrieve the image paths and annotations
@@ -3255,6 +3393,23 @@ def training_dataset_from_annotation(db_path, dst, annotation_column='test', ann
     return class_paths
 
 def training_dataset_from_annotation_metadata(db_path, dst, annotation_column='test', annotated_classes=(1, 2), metadata_type_by='columnID', class_metadata=None):
+    """Same as :func:`training_dataset_from_annotation` but pre-filtered by plate metadata.
+
+    Restricts source rows to those whose ``rowID`` or ``columnID`` is in
+    ``class_metadata`` before grouping by annotation value.
+
+    :param db_path: SQLite database with a ``png_list`` table.
+    :param dst: Output root (unused; kept for API symmetry).
+    :param annotation_column: Column holding class labels.
+    :param annotated_classes: Class values to pull.
+    :param metadata_type_by: Which metadata column to filter on —
+        ``'rowID'`` or ``'columnID'``.
+    :param class_metadata: Allowed values for ``metadata_type_by``.
+        Default ``['c1', 'c2']``.
+    :returns: List of lists — one list of PNG paths per output class.
+    :raises ValueError: if ``metadata_type_by`` is not ``'rowID'`` or
+        ``'columnID'``.
+    """
     if class_metadata is None:
         class_metadata = ['c1','c2']
     all_paths = []
@@ -3326,6 +3481,16 @@ def training_dataset_from_annotation_metadata(db_path, dst, annotation_column='t
     return class_paths
 
 def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1):
+    """Copy files listed per-class into ``dst/train/<class>`` and ``dst/test/<class>`` folders.
+
+    :param dst: Output root; ``train`` and ``test`` subfolders are created.
+    :param class_data: Sequence of path lists, one per class.
+    :param classes: Class names paired positionally with ``class_data``.
+    :param test_split: Fraction of each class routed to ``test/``.
+        Default ``0.1``.
+    :returns: ``(train_dir, test_dir)`` tuple of the top-level split paths.
+    :raises ValueError: if ``len(class_data) != len(classes)``.
+    """
     from .utils import print_progress
     # Make sure that the length of class_data matches the length of classes
     if len(class_data) != len(classes):
@@ -3373,7 +3538,20 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1):
     return os.path.join(dst, 'train'), os.path.join(dst, 'test')
 
 def convert_separate_files_to_yokogawa(folder, regex):
-    
+    """Rename per-slice TIFFs in ``folder`` into the Yokogawa CV filename convention.
+
+    Files are grouped by ``(plateID, wellID, fieldID, timeID, chanID)``
+    parsed from the regex. Groups with multiple Z-slices are max-
+    projected before saving; each unique source well is mapped to the
+    next unused Yokogawa well ID and the mapping is logged to
+    ``rename_log.csv``.
+
+    :param folder: Folder containing the source TIFFs.
+    :param regex: Pattern with named groups ``wellID`` (required) plus
+        optional ``plateID``, ``fieldID``, ``timeID``, ``chanID``,
+        ``sliceID``.
+    :returns: None
+    """
     ROWS = "ABCDEFGHIJKLMNOP"
     COLS = [f"{i:02d}" for i in range(1, 25)]
     WELLS = [f"{r}{c}" for r in ROWS for c in COLS]
@@ -3704,6 +3882,14 @@ def convert_to_yokogawa(folder):
     print(f"Processing complete. Files saved in {folder} and rename log saved as {csv_path}.")
     
 def apply_augmentation(image, method):
+    """Return ``image`` transformed by a named geometric augmentation.
+
+    :param image: NumPy image array.
+    :param method: One of ``'rotate90'``, ``'rotate180'``, ``'rotate270'``,
+        ``'flip_h'``, ``'flip_v'``; any other value returns the input
+        unchanged.
+    :returns: Augmented image array.
+    """
     if method == 'rotate90':
         return cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
     elif method == 'rotate180':
@@ -3717,6 +3903,12 @@ def apply_augmentation(image, method):
     return image
 
 def process_instruction(entry):
+    """Copy one image/mask pair described by ``entry``, applying an optional augmentation.
+
+    :param entry: Dict with keys ``src_img``, ``src_msk``, ``dst_img``,
+        ``dst_msk`` and ``augment`` (augmentation name or falsy).
+    :returns: ``1`` on success — used for progress counting.
+    """
     img = tifffile.imread(entry["src_img"])
     msk = tifffile.imread(entry["src_msk"])
     if entry["augment"]:
@@ -3727,7 +3919,22 @@ def process_instruction(entry):
     return 1
 
 def prepare_cellpose_dataset(input_root, augment_data=False, train_fraction=0.8, n_jobs=None):
-    
+    """Aggregate image/mask pairs from sibling dataset folders into a Cellpose training split.
+
+    Discovers ``<input_root>/*/masks`` layouts, balances datasets to a
+    common size (with augmentations if requested) and copies the
+    selected pairs into ``<input_root>/cellpose_dataset/train`` and
+    ``.../test``.
+
+    :param input_root: Directory containing one subfolder per dataset.
+    :param augment_data: If True, expand under-sized datasets by
+        applying geometric augmentations. Default ``False``.
+    :param train_fraction: Fraction of pairs routed to the train split.
+        Default ``0.8``.
+    :param n_jobs: Worker count for parallel copies. Default: CPU count.
+    :returns: None
+    :raises ValueError: if no valid ``<subdir>/masks`` datasets are found.
+    """
     from .utils import print_progress
 
     time_ls = []
@@ -3735,9 +3942,11 @@ def prepare_cellpose_dataset(input_root, augment_data=False, train_fraction=0.8,
     output_root = os.path.join(input_root, "cellpose_dataset")
 
     def get_augmentations():
+        """Return the list of augmentation names used to expand datasets."""
         return ['rotate90', 'rotate180', 'rotate270', 'flip_h', 'flip_v']
 
     def find_image_mask_pairs(dataset_path):
+        """Return ``(image_path, mask_path)`` pairs found under ``dataset_path``."""
         mask_dir = os.path.join(dataset_path, "masks")
         pairs = []
         for fname in os.listdir(dataset_path):
@@ -3749,6 +3958,7 @@ def prepare_cellpose_dataset(input_root, augment_data=False, train_fraction=0.8,
         return pairs
 
     def prepare_output_folders(base):
+        """Create ``train/{images,masks}`` and ``test/{images,masks}`` under ``base``."""
         for subset in ["train", "test"]:
             os.makedirs(os.path.join(base, subset, "images"), exist_ok=True)
             os.makedirs(os.path.join(base, subset, "masks"), exist_ok=True)

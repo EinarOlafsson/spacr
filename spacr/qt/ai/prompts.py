@@ -36,6 +36,7 @@ def _spacr_context() -> str:
 
 
 def default_system_prompt() -> str:
+    """Return the spaCR-aware assistant persona used for freeform chat."""
     return (
         f"{_spacr_context()}\n\n"
         "Answer concisely. Use short paragraphs and code blocks. If the "
@@ -45,6 +46,7 @@ def default_system_prompt() -> str:
 
 
 def error_explainer_prompt() -> str:
+    """Return the system prompt that turns a traceback into a numbered fix list."""
     return (
         f"{_spacr_context()}\n\n"
         "The user just hit a runtime error inside spacr. Your job:\n"

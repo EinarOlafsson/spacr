@@ -21,6 +21,12 @@ AVAILABLE_TUTORIALS = [
 
 
 def build_steps(app_key: str, window) -> List[Step]:
+    """Return the tutorial Step list for ``app_key`` bound to ``window``.
+
+    :param app_key: one of :data:`AVAILABLE_TUTORIALS`.
+    :param window: live MainWindow instance the steps drive.
+    :raises ValueError: when ``app_key`` is not a known tutorial.
+    """
     if app_key == "home":       return _build_home_steps(window)
     if app_key == "mask":       return _build_mask_steps(window)
     if app_key == "measure":    return _build_measure_steps(window)

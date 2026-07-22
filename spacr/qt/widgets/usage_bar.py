@@ -8,6 +8,11 @@ from ..theme import SPACING
 
 
 class UsageBar(QWidget):
+    """Labeled thin progress bar with a right-aligned percent readout.
+
+    :param label: text shown to the left of the bar (e.g. "RAM", "GPU").
+    """
+
     def __init__(self, label: str, parent=None):
         super().__init__(parent)
         layout = QHBoxLayout(self)
@@ -33,6 +38,10 @@ class UsageBar(QWidget):
         layout.addWidget(self._pct)
 
     def set_value(self, pct: float) -> None:
+        """Set the bar value, clamped to 0-100, and re-color at 75/90 %.
+
+        :param pct: value in ``0.0``-``100.0``; out-of-range values clamp.
+        """
         pct = max(0, min(100, int(round(pct))))
         self._bar.setValue(pct)
         self._pct.setText(f"{pct}%")

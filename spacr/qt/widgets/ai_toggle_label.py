@@ -17,6 +17,12 @@ from ..theme import FONT_SIZE, PALETTE
 
 
 class AiToggleLabel(QLabel):
+    """Clickable "AI" text label that behaves like a QCheckBox toggle.
+
+    :ivar toggled: emitted with the new on/off state whenever the user
+        clicks or :meth:`setChecked` flips the state.
+    """
+
     toggled = Signal(bool)
 
     def __init__(self, parent=None):
@@ -33,9 +39,11 @@ class AiToggleLabel(QLabel):
 
     # -- QCheckBox-compat API -----------------------------------------
     def isChecked(self) -> bool:
+        """Return True when the AI toggle is currently ON."""
         return self._on
 
     def setChecked(self, on: bool) -> None:
+        """Set the toggle state; emits ``toggled`` only on a real change."""
         on = bool(on)
         if on == self._on:
             return
@@ -45,6 +53,7 @@ class AiToggleLabel(QLabel):
 
     # -- click ---------------------------------------------------------
     def mousePressEvent(self, event):
+        """Flip the toggle on left-click; forward other buttons to Qt."""
         if event.button() == Qt.LeftButton:
             self._on = not self._on
             self._refresh_style()

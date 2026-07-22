@@ -15,6 +15,16 @@ def configure_logger(
     level: int = logging.INFO,
     stream: bool = False,
 ) -> logging.Logger:
+    """Return a named logger backed by a rotating file handler in the user's home.
+
+    Reuses an already-configured logger with the same name to avoid duplicate handlers.
+
+    :param name: Logger name to fetch or create. Default ``"spacr"``.
+    :param log_file_name: File name (placed under ``$HOME``) for rotating log output.
+    :param level: Logging level applied to the logger and its handlers.
+    :param stream: When True, also attach a stderr stream handler.
+    :returns: Configured ``logging.Logger`` instance.
+    """
     logger = logging.getLogger(name)
 
     if logger.handlers:
@@ -55,6 +65,7 @@ logger.addHandler(logging.NullHandler())
 
 
 def _safe_repr(value: Any, max_length: int = 200) -> str:
+    """Return a truncated ``repr`` that never raises."""
     try:
         text = repr(value)
     except Exception:
@@ -66,8 +77,14 @@ def _safe_repr(value: Any, max_length: int = 200) -> str:
 
 
 def log_function_call(func):
+    """Decorator that logs call arguments, return value, and exceptions.
+
+    :param func: Callable to wrap.
+    :returns: Wrapped callable that emits INFO-level trace entries.
+    """
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
+        """Emit call/return/exception log lines around the wrapped call."""
         active_logger = configure_logger(name=func.__module__)
 
         args_repr = ", ".join(_safe_repr(arg) for arg in args)

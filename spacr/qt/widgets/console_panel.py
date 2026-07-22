@@ -56,6 +56,8 @@ from ..theme import FONT_SIZE, PALETTE, SPACING
 # ---------------------------------------------------------------------------
 
 class _TopicBar(QFrame):
+    """Dark-gray divider bar with a topic label ("Mask", "spaCR AI", …)."""
+
     def __init__(self, label: str, parent=None):
         super().__init__(parent)
         self.setObjectName("ConsoleTopicBar")
@@ -73,6 +75,12 @@ class _TopicBar(QFrame):
 # ---------------------------------------------------------------------------
 
 class _StdoutBlock(QLabel):
+    """Monospace text block that grows in place as pipeline output arrives.
+
+    A single block is reused for a whole stdout run so line breaks do
+    not fragment the console into one QLabel per line.
+    """
+
     def __init__(self, text: str = "", error: bool = False, parent=None):
         super().__init__(parent)
         self.setObjectName("ConsoleStdoutBlockError"
@@ -87,6 +95,7 @@ class _StdoutBlock(QLabel):
             self.append(text)
 
     def append(self, text: str) -> None:
+        """Append ``text`` to the block, capping the buffer at 200k chars."""
         self._buf.append(text)
         # Cap the buffer to keep the UI snappy for very long runs.
         joined = "".join(self._buf)
@@ -148,6 +157,7 @@ class _Bubble(QFrame):
             self.set_text(text)
 
     def set_text(self, text: str) -> None:
+        """Replace the bubble's body with ``text`` (HTML-escaped, wrapped)."""
         self._raw_text = text or ""
         safe = self._raw_text.replace("<", "&lt;").replace(">", "&gt;")
         safe = safe.replace("\n", "<br>")
@@ -178,10 +188,12 @@ class _Bubble(QFrame):
             self._recalc_guard = False
 
     def resizeEvent(self, event):
+        """Re-fit label height to the new wrap width."""
         super().resizeEvent(event)
         self._recalc()
 
     def showEvent(self, event):
+        """Re-fit label height once the bubble becomes visible."""
         super().showEvent(event)
         self._recalc()
 
@@ -191,6 +203,8 @@ class _Bubble(QFrame):
 # ---------------------------------------------------------------------------
 
 class _ChatInput(QTextEdit):
+    """Multi-line chat input: Enter sends, Shift+Enter inserts a newline."""
+
     submitted = Signal()
 
     def __init__(self, parent=None):
@@ -200,6 +214,7 @@ class _ChatInput(QTextEdit):
         self.setAcceptRichText(False)
 
     def keyPressEvent(self, event: QKeyEvent):
+        """Emit ``submitted`` on plain Enter; forward Shift+Enter as newline."""
         if event.key() in (Qt.Key_Return, Qt.Key_Enter):
             if event.modifiers() & Qt.ShiftModifier:
                 super().keyPressEvent(event)
@@ -214,6 +229,16 @@ class _ChatInput(QTextEdit):
 # ---------------------------------------------------------------------------
 
 class ConsolePanel(QWidget):
+    """Merged pipeline stdout + AI chat panel.
+
+    Owns the AI stream thread so provider switches and app changes
+    do not orphan a running subprocess. See the module docstring for
+    the full public surface.
+
+    :ivar ai_stream_finished: emitted when an AI stream ends (ok or
+        error) so the parent screen can flip its Cancel button back.
+    """
+
     # Fires when an AI stream ends (ok or error) so the AppScreen
     # actions row can flip a Cancel button back to something else.
     ai_stream_finished = Signal()
@@ -315,6 +340,7 @@ class ConsolePanel(QWidget):
     # Public: pipeline hooks
     # ------------------------------------------------------------------
     def set_active_app(self, label: str) -> None:
+        """Set the label used in the next auto-inserted topic divider."""
         self._active_app_label = label
 
     def begin_topic(self, label: str) -> None:
@@ -353,6 +379,10 @@ class ConsolePanel(QWidget):
             self.append_stdout(text)
 
     def append_error(self, tb: str) -> None:
+        """Append a red-tinted error block, prefixed with an ERROR topic bar.
+
+        :param tb: traceback text; empty strings are ignored.
+        """
         if not tb:
             return
         self.begin_topic(f"{self._active_app_label or 'Pipeline'} — ERROR")
@@ -361,6 +391,7 @@ class ConsolePanel(QWidget):
         self._last_entry_kind = "stdout"
 
     def clear(self) -> None:
+        """Wipe every entry (topic bars, stdout blocks, chat bubbles)."""
         # Remove every entry (but keep the trailing stretch)
         while self._entries.count() > 1:
             item = self._entries.takeAt(0)
@@ -376,9 +407,11 @@ class ConsolePanel(QWidget):
     # AI toggle + provider — external setters called by AppScreen.
     # ------------------------------------------------------------------
     def set_ai_active(self, on: bool) -> None:
+        """Enable/disable AI routing for Enter-submits from the input."""
         self._ai_active = bool(on)
 
     def set_ai_provider(self, provider_name: Optional[str]) -> None:
+        """Select the provider used for AI submissions, or None to unset."""
         self._current_provider_name = provider_name
 
     def _current_provider(self) -> Optional[ChatProvider]:
@@ -474,6 +507,7 @@ class ConsolePanel(QWidget):
         self._retired = alive
 
     def is_ai_streaming(self) -> bool:
+        """Return True while an AI response is being streamed."""
         return self._ai_thread is not None
 
     def shutdown(self) -> None:
@@ -528,6 +562,7 @@ class ConsolePanel(QWidget):
         self._retired.clear()
 
     def closeEvent(self, event) -> None:
+        """Ensure the AI thread is drained before Qt destroys the panel."""
         self.shutdown()
         super().closeEvent(event)
 
@@ -577,6 +612,11 @@ class ConsolePanel(QWidget):
     # Public: Explain-error entry point (called from AppScreen)
     # ------------------------------------------------------------------
     def open_error_flow(self, traceback_text: str, active_app: str = "") -> None:
+        """Send a traceback to the AI explainer and stream the reply inline.
+
+        :param traceback_text: raw traceback captured from the pipeline.
+        :param active_app: optional app label used in the framing prompt.
+        """
         from ..ai.prompts import wrap_error_for_prompt, error_explainer_prompt
         if self._current_provider() is None:
             self.append_stdout(

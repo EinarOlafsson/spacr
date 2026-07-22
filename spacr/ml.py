@@ -51,8 +51,14 @@ warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0
 
 
 class QuasiBinomial(Binomial):
-    """Custom Quasi-Binomial family with adjustable variance."""
+    """Binomial GLM family scaled by a dispersion parameter (quasi-binomial).
+
+    :param link: statsmodels link instance. Default ``logit()``.
+    :param dispersion: Multiplicative variance scaling. Default ``1.0``.
+    """
+
     def __init__(self, link=logit(), dispersion=1.0):
+        """Store the dispersion factor after delegating to ``Binomial``."""
         super().__init__(link=link)
         self.dispersion = dispersion
 
@@ -61,6 +67,14 @@ class QuasiBinomial(Binomial):
         return self.dispersion * super().variance(mu)
     
 def calculate_p_values(X, y, model):
+    """Return OLS-style p-values for a fitted model's coefficients.
+
+    :param X: Design matrix (``n x p``).
+    :param y: Observed responses.
+    :param model: Fitted estimator exposing ``predict`` and ``coef_``.
+    :returns: 1D array of length ``p``; entries are ``NaN`` when
+        ``n <= p + 1``.
+    """
     # Coerce y and y_pred to 1D arrays before doing arithmetic so the
     # subtraction does not try to broadcast a length-N array against a
     # single-column DataFrame.
@@ -92,6 +106,16 @@ def calculate_p_values(X, y, model):
     return p_values
 
 def perform_mixed_model(y, X, groups, alpha=1.0):
+    """Fit a mixed-effects linear model, falling back to Ridge-adjusted fixed effects on high VIF.
+
+    :param y: Response vector.
+    :param X: Fixed-effects design matrix (DataFrame).
+    :param groups: Cluster identifiers for random effects.
+    :param alpha: Ridge penalty applied when any VIF exceeds 10.
+        Default ``1.0``.
+    :returns: Fitted ``statsmodels`` ``MixedLMResults``.
+    :raises ValueError: if ``groups`` is None.
+    """
     # Ensure groups are defined correctly and check for multicollinearity
     if groups is None:
         raise ValueError("Groups must be defined for mixed model regression")
@@ -154,6 +178,16 @@ def prepare_formula(dependent_variable, random_row_column_effects=False):
     return f'{dependent_variable} ~ fraction:grna + gene_fraction:gene + rowID + columnID'
 
 def fit_mixed_model(df, formula, dst):
+    """Fit a mixed-effects model with plate/row/column random structure and return coefficients.
+
+    :param df: DataFrame containing the model variables plus
+        ``plateID``, ``rowID`` and ``columnID``.
+    :param formula: Formula string for fixed effects.
+    :param dst: Destination for the residual histogram PDF.
+    :returns: ``(mixed_model, coef_df)`` — the fitted results object
+        and a DataFrame with columns ``feature``, ``coefficient``,
+        ``p_value``.
+    """
     from .plot import plot_histogram
 
     """Fit the mixed model with plate, row_name, and columnID as random effects and return results."""
@@ -532,6 +566,25 @@ def pick_glm_family_and_link(y):
 
 def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
                      cov_type=None, weights=None):
+    """Dispatch to the requested regression backend and return the fitted model.
+
+    Supports OLS, GLM (auto-family), beta, GLM-binomial with logit/probit
+    link (weighted by ``weights``), Lasso, Ridge and mixed-effects.
+    Alpha is cross-validated when ``'auto'`` or ``None`` is supplied.
+
+    :param X: Design matrix.
+    :param y: Response variable.
+    :param regression_type: One of ``'ols'``, ``'glm'``, ``'beta'``,
+        ``'logit'``, ``'probit'``, ``'lasso'``, ``'ridge'``, ``'mixed'``.
+    :param groups: Cluster identifiers for the mixed model.
+    :param alpha: Regularisation strength; ``'auto'`` / ``None`` triggers
+        internal CV.
+    :param cov_type: Optional covariance type for OLS.
+    :param weights: Optional per-observation weights (used by
+        ``logit``/``probit`` via ``var_weights``).
+    :returns: Fitted statsmodels / sklearn estimator.
+    :raises ValueError: on unsupported ``regression_type``.
+    """
 
     def _find_best_alpha(model_cls):
         alphas = np.logspace(-5, 5, 100)
@@ -592,6 +645,26 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
 def regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0,
                random_row_column_effects=False, nc='233460', pc='220950', controls=None,
                dst=None, cov_type=None, plot=False):
+    """Run the full regression pipeline: clean, fit, extract coefficients, optional volcano plot.
+
+    :param df: Long-format DataFrame with gRNA/gene fractions and the
+        dependent variable.
+    :param csv_path: Path used to derive the volcano-plot filename.
+    :param dependent_variable: Response column name. Default
+        ``'predictions'``.
+    :param regression_type: Model type; auto-selected via
+        :func:`check_distribution` when ``None``.
+    :param alpha: Regularisation strength for penalised models.
+    :param random_row_column_effects: If True, fit a mixed model with
+        random row/column effects.
+    :param nc: Negative-control gene identifier. Default ``'233460'``.
+    :param pc: Positive-control gene identifier. Default ``'220950'``.
+    :param controls: Explicit list of control identifiers.
+    :param dst: Output directory for plots and summaries.
+    :param cov_type: Optional OLS covariance type.
+    :param plot: If True, render the volcano plot after fitting.
+    :returns: ``(model, coef_df, regression_type)``.
+    """
 
     if controls is None:
         controls = ['']
@@ -661,7 +734,21 @@ def save_summary_to_file(model, file_path='summary.csv'):
         f.write(summary_str)
 
 def perform_regression(settings):
-    
+    """Top-level regression driver: read score+count data, normalise, regress and plot.
+
+    Merges per-plate score and count tables, normalises plate/well
+    identifiers, runs :func:`regression`, joins metadata, and produces
+    diagnostic plots (volcano, plate heatmaps, gene phenotype plots,
+    GO enrichment).
+
+    :param settings: Regression settings dict. See
+        ``settings.get_perform_regression_default_settings`` for keys
+        (notably ``score_data``, ``count_data``, ``dependent_variable``,
+        ``regression_type``).
+    :returns: Whatever the internal regression + plotting pipeline
+        yields (typically the merged results DataFrame). See individual
+        step outputs for details.
+    """
     from .plot import plot_plates, plot_data_from_csv
     from .utils import merge_regression_res_with_metadata, save_settings, calculate_shortest_distance, correct_metadata
     from .settings import get_perform_regression_default_settings
@@ -818,6 +905,12 @@ def perform_regression(settings):
         return df
         
     def grna_metricks(df):
+        """Return per-gRNA and per-well coverage counts derived from a long ``prc`` DataFrame.
+
+        :param df: DataFrame with ``prc``, ``grna`` and ``gene`` columns.
+        :returns: ``(final_grna_df, prc_gene_count_df)`` — per-gRNA
+            well counts and per-well distinct-gene counts.
+        """
         df[['plateID', 'rowID', 'columnID']] = df['prc'].str.split('_', expand=True)
 
         # --- 2) Compute GRNA-level Well Counts ---
@@ -850,23 +943,12 @@ def perform_regression(settings):
         return final_grna_df, prc_gene_count_df
     
     def get_outlier_reference_values(df, outlier_col, return_col):
-        """
-        Detect outliers in 'outlier_col' of 'df' using the 1.5 × IQR rule,
-        and return values from 'return_col' that correspond to those outliers.
-        
-        Parameters:
-        -----------
-        df : pd.DataFrame
-            Input DataFrame.
-        outlier_col : str
-            Column in which to check for outliers.
-        return_col : str
-            Column whose values to return for rows that are outliers in 'outlier_col'.
-        
-        Returns:
-        --------
-        pd.Series
-            A Series containing values from 'return_col' for the outlier rows.
+        """Return unique ``return_col`` values whose ``outlier_col`` falls outside 1.5*IQR.
+
+        :param df: Input DataFrame.
+        :param outlier_col: Numeric column screened for outliers.
+        :param return_col: Column whose distinct values are returned.
+        :returns: List of unique reference values for outlier rows.
         """
         # Calculate Q1, Q3, and IQR for the outlier_col
         Q1 = df[outlier_col].quantile(0.05)
@@ -887,31 +969,22 @@ def perform_regression(settings):
         return outliers_ls
     
     def bootstrap_selection_frequencies(X, y, formula, alpha='auto', n_boot=200, random_state=None):
-        """
-        Lasso selection frequency per feature via nonparametric bootstrap.
+        """Return per-feature Lasso selection frequencies from a nonparametric bootstrap.
 
-        Refits Lasso on n_boot row-bootstrap resamples of (X, y), records which
-        coefficients are non-zero, and returns the fraction of fits in which each
-        feature was selected. Output is a feature ranking, not a hypothesis test.
+        Output ranks features by how often their coefficient is non-zero
+        across resamples; this is a stability score, not a hypothesis test.
 
-        Parameters
-        ----------
-        X : pd.DataFrame
-            Long-form data frame; the design matrix is built per-bootstrap from
-            `formula` so factor levels are stable across resamples.
-        y : array-like
-            Aligned with X by index.
-        formula : str
-            Patsy formula passed to `dmatrices` for each resample.
-        alpha : float | 'auto' | None
-            If 'auto' or None, run LassoCV on each resample. Otherwise use a fixed alpha.
-        n_boot : int
-        random_state : int | None
-
-        Returns
-        -------
-        pd.DataFrame
-            columns = ['feature', 'selection_frequency', 'mean_coefficient'].
+        :param X: Long-form DataFrame; design matrix is built per resample
+            from ``formula`` for stable factor levels.
+        :param y: Response array aligned with ``X`` by index.
+        :param formula: Patsy formula for ``dmatrices``.
+        :param alpha: Regularisation strength; ``'auto'``/``None`` runs
+            LassoCV per resample.
+        :param n_boot: Number of bootstrap resamples. Default ``200``.
+        :param random_state: Seed for the resampling RNG.
+        :returns: DataFrame with columns ``feature``,
+            ``selection_frequency`` and ``mean_coefficient``.
+        :raises RuntimeError: if every resample fails to fit.
         """
         rng = np.random.default_rng(random_state)
         n = len(X)
@@ -1370,7 +1443,25 @@ def perform_regression(settings):
     return output
 
 def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filter_value=None):
-    
+    """Load a per-gRNA read-count CSV and return per-well normalised fractions.
+
+    Splits derived ``plate_row`` or ``prcfo`` identifiers, computes each
+    gRNA's fraction of the well total, applies an optional
+    fraction-cutoff filter and returns a compact ``(prc, grna, fraction)``
+    frame (with ``gene`` derived from the gRNA when possible).
+
+    :param csv_path: Path to the counts CSV, or an already-loaded DataFrame.
+    :param fraction_threshold: Drop rows below this fraction; must be in
+        ``[0, 1]`` or ``None``.
+    :param plate: Plate identifier used when no ``plateID`` column is
+        present.
+    :param filter_column: Column (or list of columns) to filter rows on.
+    :param filter_value: Values (or list of values) to drop from
+        ``filter_column``.
+    :returns: DataFrame with columns ``prc``, ``grna``, ``fraction``.
+    :raises ValueError: on missing required columns, invalid
+        ``fraction_threshold``, or when the threshold removes all rows.
+    """
     from .utils import correct_metadata
 
     if isinstance(csv_path, pd.DataFrame):
@@ -1473,6 +1564,13 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filte
     return merged_df
 
 def apply_transformation(X, transform):
+    """Return an sklearn ``FunctionTransformer`` for the named transform.
+
+    :param X: Ignored (kept for compatibility with sklearn pipeline flow).
+    :param transform: One of ``'log'``, ``'sqrt'``, ``'square'``. Any
+        other value returns ``None``.
+    :returns: A ``FunctionTransformer`` or ``None``.
+    """
     if transform == 'log':
         transformer = FunctionTransformer(np.log1p, validate=True)
     elif transform == 'sqrt':
@@ -1498,6 +1596,13 @@ def check_normality(data, variable_name, verbose=False):
         return False
 
 def clean_controls(df,values, column):
+    """Drop rows whose ``column`` is in ``values``.
+
+    :param df: Source DataFrame.
+    :param values: Value or list of values to remove.
+    :param column: Column to check.
+    :returns: Filtered DataFrame (unchanged if ``column`` is missing).
+    """
     if column in df.columns:
         if isinstance(values, list):
             for value in values:
@@ -1506,6 +1611,30 @@ def clean_controls(df,values, column):
     return df
 
 def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='mean', transform=None, regression_type='ols', invert_dependent_variable=False):
+    """Aggregate per-object model scores to per-well summaries, ready for regression.
+
+    Ensures ``plateID/rowID/columnID/prc`` columns exist, applies an
+    optional inversion of the raw response, aggregates by well according
+    to ``agg_type`` (or by count for Poisson), enforces
+    ``min_cell_count`` and optionally transforms the aggregated response.
+
+    :param df: Per-object score DataFrame.
+    :param dependent_variable: Column being aggregated.
+    :param plate: Plate identifier to stamp when the frame is
+        single-plate; ignored (with warning) when multiple plates exist.
+    :param min_cell_count: Wells with fewer objects are dropped.
+        Default ``25``.
+    :param agg_type: ``'mean'``, ``'median'``, ``'quantile'`` or None.
+    :param transform: Optional post-aggregation transform name
+        (see :func:`apply_transformation`).
+    :param regression_type: If ``'poisson'``, aggregation uses ``sum``.
+    :param invert_dependent_variable: ``False``/``0`` = no inversion;
+        ``True``/``1`` = ``1 - x``; ``-1`` = ``1 / x``.
+    :returns: ``(dependent_df, dependent_variable)`` — the per-well
+        DataFrame and the (possibly transformed) response column name.
+    :raises ValueError: on missing identifiers, unsupported ``agg_type``
+        or unrecognised ``invert_dependent_variable``.
+    """
     from .utils import calculate_shortest_distance, correct_metadata
     df = df.reset_index(drop=True)
     if 'prcfo' in df.columns:
@@ -1632,7 +1761,19 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
     return dependent_df, dependent_variable
 
 def generate_ml_scores(settings):
-    
+    """Train a classical ML classifier over per-object measurements and score every well.
+
+    Reads measurement DBs across one or more sources, merges tables,
+    trains the configured model (via :func:`ml_analysis`) and persists
+    per-well and per-object prediction scores back into the source DB.
+
+    :param settings: Settings dict. See
+        ``settings.set_default_analyze_screen`` for the accepted keys
+        (``src``, ``channel_of_interest``, ``model_type``,
+        ``positive_control``, ``negative_control``, ...).
+    :returns: Whatever the internal training pipeline returns
+        (typically per-plate performance and feature-importance tables).
+    """
     from .io import _read_and_merge_data, _read_db
     from .plot import plot_plates
     from .utils import get_ml_results_paths, add_column_to_database, calculate_shortest_distance, save_settings
@@ -1772,29 +1913,40 @@ def generate_ml_scores(settings):
     return [output, plate_heatmap]
 
 def ml_analysis(df, channel_of_interest=3, location_column='columnID', positive_control='c2', negative_control='c1', exclude=None, n_repeats=10, top_features=30, reg_alpha=0.1, reg_lambda=1.0, learning_rate=0.00001, n_estimators=1000, test_size=0.2, model_type='xgboost', n_jobs=-1, remove_low_variance_features=True, remove_highly_correlated_features=True, prune_features=False, cross_validation=False, verbose=False):
-    
-    """
-    Calculates permutation importance for numerical features in the dataframe,
-    comparing groups based on specified column values and uses the model to predict 
-    the class for all other rows in the dataframe.
+    """Train a per-object classifier on positive/negative control wells and score every row.
 
-    Args:
-    df (pandas.DataFrame): The DataFrame containing the data.
-    feature_string (str): String to filter features that contain this substring.
-    location_column (str): Column name to use for comparing groups.
-    positive_control, negative_control (str): Values in location_column to create subsets for comparison.
-    exclude (list or str, optional): Columns to exclude from features.
-    n_repeats (int): Number of repeats for permutation importance.
-    top_features (int): Number of top features to plot based on permutation importance.
-    n_estimators (int): Number of trees in the random forest, gradient boosting, or XGBoost model.
-    test_size (float): Proportion of the dataset to include in the test split.
-    random_state (int): Random seed for reproducibility.
-    model_type (str): Type of model to use ('random_forest', 'logistic_regression', 'gradient_boosting', 'xgboost').
-    n_jobs (int): Number of jobs to run in parallel for applicable models.
+    Filters features, splits (or CVs) train/test, fits the requested
+    model, computes permutation and native feature importances, tunes an
+    optimal decision threshold, and writes predictions and probabilities
+    back onto the input DataFrame.
 
-    Returns:
-    pandas.DataFrame: The original dataframe with added prediction and data usage columns.
-    pandas.DataFrame: DataFrame containing the importances and standard deviations.
+    :param df: Per-object feature DataFrame.
+    :param channel_of_interest: Channel index used to select features.
+    :param location_column: Column identifying wells / plate columns.
+        Default ``'columnID'``.
+    :param positive_control: Values in ``location_column`` treated as the
+        positive class. Default ``'c2'``.
+    :param negative_control: Values treated as the negative class.
+        Default ``'c1'``.
+    :param exclude: Columns to remove from feature space.
+    :param n_repeats: Repeats for permutation importance. Default ``10``.
+    :param top_features: Feature cap when ``prune_features=True``.
+    :param reg_alpha: XGBoost L1 penalty.
+    :param reg_lambda: XGBoost L2 penalty.
+    :param learning_rate: XGBoost learning rate.
+    :param n_estimators: Tree count for tree-based models.
+    :param test_size: Test-split fraction. Default ``0.2``.
+    :param model_type: ``'random_forest'``, ``'logistic_regression'``,
+        ``'gradient_boosting'`` or ``'xgboost'``.
+    :param n_jobs: Parallel job count where applicable. Default ``-1``.
+    :param remove_low_variance_features: Drop low-variance features.
+    :param remove_highly_correlated_features: Drop highly correlated features.
+    :param prune_features: If True, apply ``SelectKBest`` before training.
+    :param cross_validation: If True, run 5-fold stratified CV.
+    :param verbose: Log progress details.
+    :returns: Tuple of results tables and figures — see call sites for
+        exact positional structure.
+    :raises ValueError: on unsupported ``model_type``.
     """
     
     def _match_control_values(series, control):
@@ -2082,16 +2234,12 @@ def ml_analysis(df, channel_of_interest=3, location_column='columnID', positive_
     return [df, permutation_df, feature_importance_df, model, X_train, X_test, y_train, y_test, metrics_df, features], [permutation_fig, feature_importance_fig]
 
 def shap_analysis(model, X_train, X_test):
-    
-    """
-    Performs SHAP analysis on the given model and data.
+    """Return a SHAP summary-plot figure for ``model`` explaining ``X_test``.
 
-    Args:
-    model: The trained model.
-    X_train (pandas.DataFrame): Training feature set.
-    X_test (pandas.DataFrame): Testing feature set.
-    Returns:
-    fig: Matplotlib figure object containing the SHAP summary plot.
+    :param model: Fitted estimator compatible with ``shap.Explainer``.
+    :param X_train: Training features used to seed the explainer.
+    :param X_test: Test features to explain.
+    :returns: Matplotlib ``Figure`` holding the summary plot.
     """
     
     explainer = shap.Explainer(model, X_train)
@@ -2106,15 +2254,11 @@ def shap_analysis(model, X_train, X_test):
     return fig
 
 def find_optimal_threshold(y_true, y_pred_proba):
-    """
-    Find the optimal threshold for binary classification based on the F1-score.
+    """Return the probability threshold maximising F1 on the precision-recall curve.
 
-    Args:
-    y_true (array-like): True binary labels.
-    y_pred_proba (array-like): Predicted probabilities for the positive class.
-
-    Returns:
-    float: The optimal threshold.
+    :param y_true: Ground-truth binary labels.
+    :param y_pred_proba: Predicted probabilities for the positive class.
+    :returns: Optimal probability threshold.
     """
     precision, recall, thresholds = precision_recall_curve(y_true, y_pred_proba)
     f1_scores = 2 * (precision * recall) / (precision + recall)
@@ -2161,6 +2305,7 @@ def _calculate_similarity(df, features, col_to_compare, val1, val2):
         
     # Calculate similarity scores
     def safe_similarity(func, row, control, *args, **kwargs):
+        """Call ``func(row, control, ...)`` and swallow errors (return ``NaN``)."""
         try:
             return func(row, control, *args, **kwargs)
         except Exception:
@@ -2187,18 +2332,31 @@ def _calculate_similarity(df, features, col_to_compare, val1, val2):
     return df
 
 def interperate_vision_model(settings=None):
-    
+    """Explain a vision model's predictions using RF, permutation and SHAP importances.
+
+    Merges per-object measurements with predicted scores, then runs any
+    combination of feature importance, permutation importance and SHAP
+    analyses. Aggregates SHAP into compartment / channel radar plots.
+
+    :param settings: Settings dict — see
+        ``settings.set_interperate_vision_model_defaults`` for keys
+        (``src``, ``scores``, ``score_column``, ``tables``,
+        ``feature_importance``, ``permutation_importance``, ``shap``,
+        ``top_features``, ``n_jobs``, ``save``).
+    :returns: None (results are plotted and optionally saved to CSV).
+    """
     if settings is None:
         settings = {}
     from .io import _read_and_merge_data, _results_to_csv
     from .settings import set_interperate_vision_model_defaults
     from .utils import save_settings
-    
+
     settings = set_interperate_vision_model_defaults(settings)
     save_settings(settings, name='interperate_vision_model', show=True)
-    
+
     # Function to create radar plot for individual and combined values
     def create_extended_radar_plot(values, labels, title):
+        """Draw a filled polar radar plot for ``values`` labelled by ``labels``."""
         values = list(values) + [values[0]]  # Close the loop for radar chart
         angles = [n / float(len(labels)) * 2 * pi for n in range(len(labels))]
         angles += angles[:1]
@@ -2213,6 +2371,7 @@ def interperate_vision_model(settings=None):
         plt.show()
 
     def extract_compartment_channel(feature_name):
+        """Return ``(compartment, channel)`` parsed from a feature column name."""
         # Identify compartment as the first part before an underscore
         compartment = feature_name.split('_')[0]
         
@@ -2239,7 +2398,7 @@ def interperate_vision_model(settings=None):
         return (compartment, channel)
 
     def read_and_preprocess_data(settings):
-
+        """Merge measurement DB tables with a scores CSV and split into ``(X, y, merged_df)``."""
         df, _ = _read_and_merge_data(
             locs=[settings['src']+'/measurements/measurements.db'], 
             tables=settings['tables'], 
