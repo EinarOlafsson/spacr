@@ -24,12 +24,15 @@ def get_key(provider: str) -> Optional[str]:
 
 
 def set_key(provider: str, key: str) -> bool:
+    """No-op — CLI-based providers do not store API keys. Always ``False``."""
     return False
 
 
 def delete_key(provider: str) -> None:
+    """No-op — CLI-based providers do not store API keys."""
     return None
 
 
 def source_of(provider: str) -> str:
+    """Return a compat label indicating the CLI-login model."""
     return "n/a (uses vendor CLI login)"

@@ -50,6 +50,7 @@ class _PipelinePreloader:
         self._thread: Optional[threading.Thread] = None
 
     def start(self) -> None:
+        """Kick off the daemon preloader thread (no-op if already running)."""
         if self._thread and self._thread.is_alive():
             return
         self._thread = threading.Thread(target=self._run,
@@ -152,6 +153,12 @@ class Sidebar(QWidget):
 
 
 class MainWindow(QMainWindow):
+    """Top-level window: sidebar + stacked screens + status bar.
+
+    :param initial_app: optional app key to navigate to on show; when
+        omitted the window opens on the Home startup page.
+    """
+
     def __init__(self, initial_app: Optional[str] = None):
         super().__init__()
         self.setWindowTitle("spaCR")
@@ -206,6 +213,7 @@ class MainWindow(QMainWindow):
             self._on_nav_selected(initial_app)
 
     def _resolve_version(self) -> str:
+        """Return the installed spacr version string, or ``"dev"`` on failure."""
         try:
             import spacr
             return getattr(spacr, "__version__", "") or "dev"
@@ -262,6 +270,7 @@ class MainWindow(QMainWindow):
         help_menu.addAction(act_about)
 
     def _open_url(self, url: str):
+        """Open ``url`` in the system browser; surface failures in the status bar."""
         import webbrowser
         try:
             webbrowser.open(url)
@@ -345,6 +354,7 @@ class MainWindow(QMainWindow):
             return
 
     def _show_about(self):
+        """Show the About dialog with the installed spacr version."""
         try:
             import spacr
             version = spacr.__version__
@@ -372,12 +382,14 @@ class MainWindow(QMainWindow):
 
     # -- navigation -------------------------------------------------------
     def _install_startup_page(self):
+        """Instantiate the Home startup page and add it to the stack."""
         from .screens.startup import StartupPage
         self._startup = StartupPage(APPS, _icon_for_app)
         self._startup.tile_clicked.connect(self._on_nav_selected)
         self._stack.addWidget(self._startup)
 
     def _on_nav_selected(self, key: str):
+        """Navigate to app ``key``, lazily instantiating its screen on first use."""
         if key == "__home__":
             self._stack.setCurrentWidget(self._startup)
             self._status_app_label.setText("Home")
@@ -393,6 +405,7 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage(f"Opened {name}", 2000)
 
     def _build_screen(self, key: str) -> QWidget:
+        """Return a freshly-built screen widget for the given app ``key``."""
         if key == "annotate":
             from .screens.annotate import AnnotateScreen
             screen = AnnotateScreen()

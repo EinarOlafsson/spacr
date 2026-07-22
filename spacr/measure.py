@@ -21,20 +21,14 @@ from . import settings
 
 
 def get_components(cell_mask, nucleus_mask, pathogen_mask):
-    """
-    Get the components (nucleus and pathogens) for each cell in the given masks.
+    """Map each cell to its enclosed nucleus/pathogen labels via mask lookup.
 
-    Args:
-        cell_mask (ndarray): Binary mask of cell labels.
-        nucleus_mask (ndarray): Binary mask of nucleus labels.
-        pathogen_mask (ndarray): Binary mask of pathogen labels.
-
-    Returns:
-        tuple: A tuple containing two dataframes - nucleus_df and pathogen_df.
-            nucleus_df (DataFrame): Dataframe with columns 'cell_id' and 'nucleus',
-                representing the mapping of each cell to its nucleus.
-            pathogen_df (DataFrame): Dataframe with columns 'cell_id' and 'pathogen',
-                representing the mapping of each cell to its pathogens.
+    :param cell_mask: Label mask of cells.
+    :param nucleus_mask: Label mask of nuclei.
+    :param pathogen_mask: Label mask of pathogens.
+    :returns: Tuple ``(nucleus_df, pathogen_df)`` where each DataFrame has one
+        row per (cell, child) pair with columns ``cell_id`` and either
+        ``nucleus`` or ``pathogen``.
     """
     # Create mappings from each cell to its nucleus, pathogens, and cytoplasms
     cell_to_nucleus = defaultdict(list)
@@ -60,20 +54,14 @@ def get_components(cell_mask, nucleus_mask, pathogen_mask):
     return nucleus_df, pathogen_df
 
 def _calculate_zernike(mask, df, degree=8):
-    """
-    Calculate Zernike moments for each region in the given mask image.
+    """Append per-region Zernike-moment columns to ``df``.
 
-    Args:
-        mask (ndarray): Binary mask image.
-        df (DataFrame): Input DataFrame.
-        degree (int, optional): Degree of Zernike moments. Defaults to 8.
-
-    Returns:
-        DataFrame: Updated DataFrame with Zernike features appended, if any regions are found in the mask.
-                   Otherwise, returns the original DataFrame.
-    Raises:
-        ValueError: If the lengths of Zernike moments are not consistent.
-
+    :param mask: Label mask defining the regions.
+    :param df: DataFrame to extend, in the same row order as ``regionprops(mask)``.
+    :param degree: Zernike-moment degree. Default ``8``.
+    :returns: ``df`` with ``zernike_i`` columns appended, or unchanged when the
+        mask has no regions.
+    :raises ValueError: When the Zernike vectors have inconsistent lengths.
     """
     zernike_features = []
     for region in regionprops(mask):
@@ -92,18 +80,13 @@ def _calculate_zernike(mask, df, degree=8):
         return df
 
 def _analyze_cytoskeleton(array, mask, channel):
-    """
-    Analyzes and extracts skeleton properties from labeled objects in a masked image based on microtubule staining intensities.
+    """Extract per-object skeleton length and branch counts from a cytoskeleton channel.
 
-    Parameters:
-    image : numpy array
-        Intensity image where the microtubules are stained.
-    mask : numpy array
-        Mask where objects are labeled for analysis. Each label corresponds to a unique object.
-
-    Returns:
-    DataFrame
-        A pandas DataFrame containing the measured properties of each object's skeleton.
+    :param array: Multi-channel intensity image ``(H, W, C)``.
+    :param mask: Label mask; each non-zero label defines one object.
+    :param channel: Channel index in ``array`` holding the cytoskeleton signal.
+    :returns: DataFrame with ``object_label``, ``skeleton_length`` and
+        ``skeleton_branch_points`` columns.
     """
 
     image = array[:, :, channel]
@@ -155,21 +138,18 @@ def _analyze_cytoskeleton(array, mask, channel):
     return pd.DataFrame(properties_list)
 
 def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_mask, cytoplasm_mask, settings, zernike=True, degree=8):
-    """
-    Calculate morphological measurements for cells, nucleus, pathogens, organelles, and cytoplasms.
+    """Return morphology + Zernike DataFrames for cells, nuclei, pathogens, organelles, cytoplasm.
 
-    Args:
-        cell_mask (ndarray): Binary mask of cell labels.
-        nucleus_mask (ndarray): Binary mask of nucleus labels.
-        pathogen_mask (ndarray): Binary mask of pathogen labels.
-        organelle_mask (ndarray): Binary mask of organelle labels.
-        cytoplasm_mask (ndarray): Binary mask of cytoplasm labels.
-        settings (dict): Dictionary containing settings for the measurements.
-        zernike (bool, optional): Flag indicating whether to calculate Zernike moments. Defaults to True.
-        degree (int, optional): Degree of Zernike moments. Defaults to 8.
-
-    Returns:
-        tuple: (cell_df, nucleus_df, pathogen_df, organelle_df, cytoplasm_df)
+    :param cell_mask: Label mask of cells.
+    :param nucleus_mask: Label mask of nuclei.
+    :param pathogen_mask: Label mask of pathogens.
+    :param organelle_mask: Label mask of organelles.
+    :param cytoplasm_mask: Label mask of cytoplasm.
+    :param settings: Settings dict; ``<object>_mask_dim`` keys drive whether
+        each object type is analysed, ``cytoplasm`` toggles cytoplasm output.
+    :param zernike: When True, append Zernike-moment columns.
+    :param degree: Zernike moment degree.
+    :returns: Tuple ``(cell_df, nucleus_df, pathogen_df, organelle_df, cytoplasm_df)``.
     """
     morphological_props = ['label', 'area', 'area_filled', 'area_bbox', 'convex_area', 'major_axis_length', 'minor_axis_length', 
                            'eccentricity', 'solidity', 'extent', 'perimeter', 'euler_number', 'equivalent_diameter_area', 'feret_diameter_max']
@@ -240,11 +220,7 @@ def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organell
     return df_ls[0], df_ls[1], df_ls[2], df_ls[3], df_ls[4]
 
 def _map_child_to_parent(child_mask, parent_mask, child_name='organelle', parent_name='cell'):
-    """
-    Map each child object to its parent by maximum overlap.
-
-    Returns a DataFrame with columns [child_name, parent_name].
-    """
+    """Map each child label to its maximum-overlap parent label."""
     child_labels = np.unique(child_mask)
     child_labels = child_labels[child_labels != 0]
     
@@ -263,33 +239,16 @@ def _map_child_to_parent(child_mask, parent_mask, child_name='organelle', parent
 
 
 def _summarize_organelles_per_parent(organelle_mask, parent_mask, channel_arrays, parent_name='cell'):
-    """
-    Summarize organelle measurements per parent object (e.g. per cell).
+    """Return one row per parent object summarising its enclosed organelles.
 
-    For each parent object, computes:
-        - organelle_count: number of organelles within the parent
-        - organelle_total_area: sum of organelle areas
-        - organelle_mean_area, organelle_std_area: mean/std of individual organelle areas
-        - organelle_fraction: fraction of parent area occupied by organelles
-        - organelle_mean_eccentricity, organelle_std_eccentricity
-        - organelle_mean_solidity, organelle_std_solidity
-        - per-channel: organelle_mean_intensity, organelle_std_intensity
+    Per parent computes: organelle count, total/mean/std area, area fraction,
+    mean/std eccentricity and solidity, and per-channel mean/std intensity.
 
-    Parameters
-    ----------
-    organelle_mask : ndarray
-        Label mask for organelles.
-    parent_mask : ndarray
-        Label mask for parent objects (cells, nuclei, etc.).
-    channel_arrays : ndarray
-        Shape (H, W, C) intensity images.
-    parent_name : str
-        Name for the parent object column.
-
-    Returns
-    -------
-    pd.DataFrame
-        One row per parent object with summarised organelle features.
+    :param organelle_mask: Label mask of organelles.
+    :param parent_mask: Label mask of parents (cells, nuclei, ...).
+    :param channel_arrays: Intensity images with shape ``(H, W, C)``.
+    :param parent_name: Column name used for the parent identifier.
+    :returns: DataFrame indexed by parent label.
     """
     parent_labels = np.unique(parent_mask)
     parent_labels = parent_labels[parent_labels != 0]
@@ -362,25 +321,25 @@ def _summarize_organelles_per_parent(organelle_mask, parent_mask, channel_arrays
     return pd.DataFrame(summary_rows)
 
 def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_mask, cytoplasm_mask, channel_arrays, settings, sizes=None, periphery=True, outside=True):
-    """
-    Calculate various intensity measurements for different regions in the image,
-    including organelle masks.
+    """Return per-channel intensity DataFrames for cells, nuclei, pathogens, organelles, cytoplasm.
 
-    Args:
-        cell_mask (ndarray): Binary mask indicating the cell regions.
-        nucleus_mask (ndarray): Binary mask indicating the nucleus regions.
-        pathogen_mask (ndarray): Binary mask indicating the pathogen regions.
-        organelle_mask (ndarray): Binary mask indicating the organelle regions.
-        cytoplasm_mask (ndarray): Binary mask indicating the cytoplasm regions.
-        channel_arrays (ndarray): Array of channel images.
-        settings (dict): Additional settings for the intensity measurements.
-        sizes (list, optional): List of sizes for the measurements.
-        periphery (bool, optional): Calculate periphery intensity measurements.
-        outside (bool, optional): Calculate outside intensity measurements.
+    Computes extended regionprops plus optional homogeneity, periphery, outside,
+    blur, colocalisation and radial distribution features per object type.
 
-    Returns:
-        tuple: (cell_intensity_df, nucleus_intensity_df, pathogen_intensity_df, 
-                organelle_intensity_df, cytoplasm_intensity_df)
+    :param cell_mask: Label mask of cells.
+    :param nucleus_mask: Label mask of nuclei.
+    :param pathogen_mask: Label mask of pathogens.
+    :param organelle_mask: Label mask of organelles.
+    :param cytoplasm_mask: Label mask of cytoplasm.
+    :param channel_arrays: Intensity array of shape ``(H, W, C)``.
+    :param settings: Settings dict (``radial_dist``, ``calculate_correlation``,
+        ``homogeneity``, ``homogeneity_distances``, ``manders_thresholds``,
+        ``distance_gaussian_sigma``, and the ``<object>_mask_dim`` toggles).
+    :param sizes: Legacy size bins. Defaults to ``[3, 6, 12, 24]``.
+    :param periphery: When True, compute periphery-intensity stats for
+        nucleus/pathogen/organelle.
+    :param outside: When True, compute outside-of-object intensity stats.
+    :returns: Tuple ``(cell_df, nucleus_df, pathogen_df, organelle_df, cytoplasm_df)``.
     """
     if sizes is None:
         sizes = [3, 6, 12, 24]
@@ -468,16 +427,7 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_ma
             pd.concat(cytoplasm_dfs, axis=1))
     
 def _create_dataframe(radial_distributions, object_type):
-        """
-        Create a pandas DataFrame from the given radial distributions.
-
-        Parameters:
-        - radial_distributions (dict): A dictionary containing the radial distributions.
-        - object_type (str): The type of object.
-
-        Returns:
-        - df (pandas.DataFrame): The created DataFrame.
-        """
+        """Convert a ``{(cell, obj, ch): bins}`` mapping into a per-object DataFrame."""
         df = pd.DataFrame()
         for key, value in radial_distributions.items():
             cell_label, object_label, channel_index = key
@@ -490,11 +440,10 @@ def _create_dataframe(radial_distributions, object_type):
         return df
 
 def _extended_regionprops_table(labels, image, intensity_props):
-    """
-    Calculate extended region properties table, adding a suite of advanced quantitative features.
-    """
-    
+    """Return a regionprops table extended with distributional intensity features (mean/std/skew/kurtosis/mode/CV/Gini/entropy/percentiles)."""
+
     def _gini(array):
+        """NaN-safe Gini coefficient of an intensity array."""
         # Compute Gini coefficient (nan safe)
         array = np.abs(array[~np.isnan(array)])
         n = array.size
@@ -582,17 +531,7 @@ def _extended_regionprops_table(labels, image, intensity_props):
     return df
 
 def _calculate_homogeneity(label, channel, distances=None):
-        """
-        Calculate the homogeneity values for each region in the label mask.
-
-        Parameters:
-        - label (ndarray): The label mask containing the regions.
-        - channel (ndarray): The image channel corresponding to the label mask.
-        - distances (list): The distances to calculate the homogeneity for.
-
-        Returns:
-        - homogeneity_df (DataFrame): A DataFrame containing the homogeneity values for each region and distance.
-        """
+        """Return per-region GLCM homogeneity across the requested co-occurrence distances."""
         if distances is None:
             distances = [2,4,8,16,32,64]
         homogeneity_values = []
@@ -611,24 +550,11 @@ def _calculate_homogeneity(label, channel, distances=None):
         return homogeneity_df
 
 def _periphery_intensity(label_mask, image):
-    """
-    Calculate intensity statistics for the periphery regions in the label mask.
+    """Return per-region intensity stats along each object's outer boundary.
 
-    Args:
-        label_mask (ndarray): Binary mask indicating the regions of interest.
-        image (ndarray): Input image.
-
-    Returns:
-        list: List of tuples containing periphery intensity statistics for each region.
-              Each tuple contains the region label and the following statistics:
-              - Mean intensity
-              - 5th percentile intensity
-              - 10th percentile intensity
-              - 25th percentile intensity
-              - 50th percentile intensity (median)
-              - 75th percentile intensity
-              - 85th percentile intensity
-              - 95th percentile intensity
+    :param label_mask: Label mask defining the regions.
+    :param image: Intensity image co-aligned with ``label_mask``.
+    :returns: List of ``(label, mean, p5, p10, p25, p50, p75, p85, p95)`` tuples.
     """
     periphery_intensity_stats = []
     boundary = find_boundaries(label_mask)
@@ -645,25 +571,12 @@ def _periphery_intensity(label_mask, image):
     return periphery_intensity_stats
 
 def _outside_intensity(label_mask, image, distance=5):
-    """
-    Calculate the statistics of intensities outside each labeled region in the image.
+    """Return per-region intensity stats within a ``distance``-pixel ring outside each object.
 
-    Args:
-        label_mask (ndarray): Binary mask indicating the labeled regions.
-        image (ndarray): Input image.
-        distance (int): Distance for dilation operation (default: 5).
-
-    Returns:
-        list: List of tuples containing the statistics for each labeled region.
-              Each tuple contains the region label and the following statistics:
-              - Mean intensity
-              - 5th percentile intensity
-              - 10th percentile intensity
-              - 25th percentile intensity
-              - 50th percentile intensity (median)
-              - 75th percentile intensity
-              - 85th percentile intensity
-              - 95th percentile intensity
+    :param label_mask: Label mask defining the regions.
+    :param image: Intensity image co-aligned with ``label_mask``.
+    :param distance: Dilation width in pixels used to build the ring.
+    :returns: List of ``(label, mean, p5, p10, p25, p50, p75, p85, p95)`` tuples.
     """
     outside_intensity_stats = []
     for region in np.unique(label_mask)[1:]:  # skip the background label
@@ -1384,6 +1297,7 @@ def measure_crop(settings):
             print_progress(files_processed=0, files_to_process=len(files), n_jobs=n_jobs, time_ls=[], operation_type='Measure and Crop')
 
             def job_callback(result):
+                """Pool callback: record completion, save partial output, and stop when done."""
                 completed_jobs.add(result[0])
                 process_meassure_crop_results([result], settings)
                 files_processed = len(completed_jobs)
@@ -1441,6 +1355,20 @@ def process_meassure_crop_results(partial_results, settings):
             result = (index, None, None, None)
             
 def generate_cellpose_train_set(folders, dst, min_objects=5):
+    """Copy image/mask pairs from source folders into a Cellpose training set.
+
+    Only pairs whose mask contains at least ``min_objects`` labeled objects
+    (background label 0 excluded) are copied. Files are renamed with their
+    source folder name as prefix to avoid collisions.
+
+    :param folders: Iterable of source folders, each containing a ``masks/``
+        subfolder and the raw images alongside it.
+    :param dst: Destination folder; ``imgs/`` and ``masks/`` subfolders are
+        created if missing.
+    :param min_objects: Minimum number of unique object labels required in a
+        mask for the pair to be included. Default ``5``.
+    :returns: None.
+    """
     os.makedirs(dst, exist_ok=True)
     os.makedirs(os.path.join(dst,'masks'), exist_ok=True)
     os.makedirs(os.path.join(dst,'imgs'), exist_ok=True)
@@ -1469,6 +1397,15 @@ def generate_cellpose_train_set(folders, dst, min_objects=5):
                     print(f"Error copying {path} to {new_mask}: {e}")
 
 def get_object_counts(src):
+    """Return per-count-type totals and per-file averages from the measurements DB.
+
+    Reads the ``object_counts`` table from ``<src>/measurements/measurements.db``
+    and aggregates by ``count_type``.
+
+    :param src: Path to the run folder containing ``measurements/measurements.db``.
+    :returns: DataFrame with columns ``count_type``, ``total_object_count``, and
+        ``avg_object_count_per_file_name``.
+    """
     database_path = os.path.join(src, 'measurements/measurements.db')
     # Connect to the SQLite database
     conn = sqlite3.connect(database_path)

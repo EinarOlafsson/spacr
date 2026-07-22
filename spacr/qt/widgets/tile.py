@@ -46,6 +46,7 @@ class _TileButton(QPushButton):
     iconPixels = Property(int, _get_icon_pixels, _set_icon_pixels)
 
     def enterEvent(self, event: QEvent) -> None:
+        """Animate the icon toward its hover-zoomed size on cursor enter."""
         self._anim.stop()
         self._anim.setStartValue(self._icon_pixels)
         self._anim.setEndValue(int(self._base_size * 1.18))   # 18% zoom
@@ -53,6 +54,7 @@ class _TileButton(QPushButton):
         super().enterEvent(event)
 
     def leaveEvent(self, event: QEvent) -> None:
+        """Animate the icon back to its base size on cursor leave."""
         self._anim.stop()
         self._anim.setStartValue(self._icon_pixels)
         self._anim.setEndValue(self._base_size)
@@ -61,6 +63,16 @@ class _TileButton(QPushButton):
 
 
 class Tile(QWidget):
+    """Large square tile with an icon and a caption, used on the startup grid.
+
+    :param text: fallback label (also used to derive initials if no icon).
+    :param icon: optional QIcon to render inside the tile.
+    :param icon_size: base icon side length in px; animates on hover.
+    :param tile_size: fixed side length of the tile button in px.
+    :param caption: caption shown under the tile; defaults to ``text``.
+    :ivar clicked: emitted when the tile button is pressed.
+    """
+
     clicked = Signal()
 
     def __init__(
@@ -103,4 +115,5 @@ class Tile(QWidget):
 
     @property
     def text(self) -> str:
+        """The tile's text label as passed to the constructor."""
         return self._text

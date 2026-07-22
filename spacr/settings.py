@@ -5,6 +5,11 @@ import os, ast
 #from spacr_nightly.spacr.build.lib.spacr import settings
 
 def set_default_plot_merge_settings():
+    """Return the default settings dict for plotting merged mask overlays.
+
+    :returns: dict populated with the default ``plot_merge`` parameters
+        (channel dimensions, backgrounds, overlay behaviour, colormap, etc.).
+    """
     settings = {}
     settings.setdefault('pathogen_limit', 10)
     settings.setdefault('nuclei_limit', 1)
@@ -29,7 +34,14 @@ def set_default_plot_merge_settings():
     return settings
 
 def set_default_settings_preprocess_generate_masks(settings=None):
-    
+    """Populate default settings for the preprocess/generate-masks pipeline.
+
+    Fills channel, Cellpose, plot, timelapse, organelle and post-processing
+    parameters used by ``preprocess_generate_masks``.
+
+    :param settings: optional dict to fill in place; a new dict is created if None.
+    :returns: the settings dict with defaults applied.
+    """
     if settings is None:
         settings = {}
     settings.setdefault('denoise', False)
@@ -226,6 +238,11 @@ def set_default_settings_preprocess_generate_masks(settings=None):
 
 
 def set_default_plot_data_from_db(settings):
+    """Populate default settings for plotting data pulled from a measurements DB.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     settings.setdefault('src', 'path')
     settings.setdefault('database', 'measurements.db')
     settings.setdefault('graph_name', 'Figure_1')
@@ -251,7 +268,11 @@ def set_default_plot_data_from_db(settings):
     return settings
 
 def set_default_settings_preprocess_img_data(settings):
+    """Populate default settings for the image-preprocessing step.
 
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     settings.setdefault('metadata_type', 'cellvoyager')
     settings.setdefault('custom_regex', None)
     settings.setdefault('nr', 1)
@@ -273,7 +294,7 @@ def set_default_settings_preprocess_img_data(settings):
 
 
 def _get_object_settings(object_type, settings):
-
+    """Build per-object Cellpose/segmentation settings for cell/nucleus/pathogen."""
     from .utils import _get_diam
     object_settings = {}
 
@@ -348,6 +369,11 @@ def _get_object_settings(object_type, settings):
     return object_settings 
 
 def set_default_umap_image_settings(settings=None):
+    """Return the default settings for UMAP/tSNE image-embedding plots.
+
+    :param settings: optional dict to fill in place; a new dict is created if None.
+    :returns: the settings dict with defaults applied.
+    """
     if settings is None:
         settings = {}
     settings.setdefault('src', 'path')
@@ -393,7 +419,13 @@ def set_default_umap_image_settings(settings=None):
     return settings
 
 def get_measure_crop_settings(settings=None):
+    """Return the default settings for the measure-and-crop pipeline.
 
+    Enables test mode / plotting automatically when ``test_mode`` is True.
+
+    :param settings: optional dict to fill in place; a new dict is created if None.
+    :returns: the settings dict with defaults applied.
+    """
     if settings is None:
         settings = {}
     settings.setdefault('src', 'path')
@@ -463,6 +495,11 @@ def get_measure_crop_settings(settings=None):
     return settings
 
 def set_default_analyze_screen(settings):
+    """Populate default settings for screen analysis (ML-based scoring).
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     settings.setdefault('src', 'path')
     settings.setdefault('annotation_column', None)
     settings.setdefault('save_to_db', False)
@@ -495,6 +532,11 @@ def set_default_analyze_screen(settings):
     return settings
 
 def set_default_train_test_model(settings):
+    """Populate default settings for the train/test classifier training pipeline.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     cores = os.cpu_count()-2
 
     settings.setdefault('src','path')
@@ -527,7 +569,11 @@ def set_default_train_test_model(settings):
     return settings
 
 def set_generate_training_dataset_defaults(settings):
-    
+    """Populate default settings for generating a labeled training dataset.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     settings.setdefault('src','path')
     settings.setdefault('tables', ['cell', 'nucleus', 'pathogen', 'cytoplasm'])
     settings.setdefault('dataset_mode','metadata')
@@ -552,7 +598,14 @@ def set_generate_training_dataset_defaults(settings):
     return settings
 
 def deep_spacr_defaults(settings):
-    
+    """Populate default settings for the end-to-end deep_spacr training pipeline.
+
+    Covers dataset generation, model training/testing and applying the trained
+    model to the dataset in a single settings dict.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     cores = os.cpu_count()-4
     
     settings.setdefault('src','path')
@@ -607,6 +660,11 @@ def deep_spacr_defaults(settings):
     return settings
 
 def get_train_test_model_settings(settings):
+     """Populate default settings for the train/test classifier settings dict.
+
+     :param settings: dict to fill in place.
+     :returns: the settings dict with defaults applied.
+     """
      settings.setdefault('src', 'path')
      settings.setdefault('train', True)
      settings.setdefault('test', False)
@@ -644,6 +702,11 @@ def get_train_test_model_settings(settings):
 
 
 def get_analyze_recruitment_default_settings(settings):
+    """Populate default settings for the recruitment-analysis pipeline.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     settings.setdefault('src', 'path')
     settings.setdefault('target','protein')
     settings.setdefault('cell_types',['HeLa'])
@@ -678,6 +741,11 @@ def get_analyze_recruitment_default_settings(settings):
     return settings
 
 def get_default_test_cellpose_model_settings(settings):
+    """Populate default settings for testing a Cellpose model on a dataset.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     settings.setdefault('src','path')
     settings.setdefault('model_path','path')
     settings.setdefault('save',True)
@@ -690,6 +758,11 @@ def get_default_test_cellpose_model_settings(settings):
     return settings
 
 def get_default_apply_cellpose_model_settings(settings):
+    """Populate default settings for applying a Cellpose model to a dataset.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     settings.setdefault('src','path')
     settings.setdefault('model_path','path')
     settings.setdefault('save',True)
@@ -703,6 +776,11 @@ def get_default_apply_cellpose_model_settings(settings):
     return settings
 
 def default_settings_analyze_percent_positive(settings):
+    """Populate default settings for the "percent positive" per-well analysis.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     settings.setdefault('src','path')
     settings.setdefault('tables',['cell'])
     settings.setdefault('filter_1',['cell_area',1000])
@@ -711,6 +789,11 @@ def default_settings_analyze_percent_positive(settings):
     return settings
 
 def get_analyze_reads_default_settings(settings):
+    """Populate default settings for analyzing FASTQ read barcodes.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     settings.setdefault('src', 'path')
     settings.setdefault('upstream', 'CTTCTGGTAAATGGGGATGTCAAGTT') 
     settings.setdefault('downstream', 'GTTTAAGAGCTATGCTGGAAACAGCAG') #This is the reverce compliment of the column primer starting from the end #TGCTGTTTAAGAGCTATGCTGGAAACAGCA
@@ -721,6 +804,11 @@ def get_analyze_reads_default_settings(settings):
     return settings
 
 def get_map_barcodes_default_settings(settings):
+    """Populate default settings for mapping barcodes to gRNAs and plates.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     settings.setdefault('src', 'path')
     settings.setdefault('grna', '/home/carruthers/Documents/grna_barcodes.csv')
     settings.setdefault('barcodes', '/home/carruthers/Documents/SCREEN_BARCODES.csv')
@@ -734,6 +822,11 @@ def get_map_barcodes_default_settings(settings):
     return settings
 
 def get_train_cellpose_default_settings(settings):
+    """Populate default settings for training a Cellpose model.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     settings.setdefault('model_name','new_model')
     settings.setdefault('model_type','cyto')
     settings.setdefault('Signal_to_noise',10)
@@ -751,6 +844,11 @@ def get_train_cellpose_default_settings(settings):
     return settings
 
 def set_generate_dataset_defaults(settings):
+    """Populate default settings for the generic dataset-generation step.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     settings.setdefault('src','path')
     settings.setdefault('file_metadata',None)
     settings.setdefault('experiment','experiment_1')
@@ -758,6 +856,14 @@ def set_generate_dataset_defaults(settings):
     return settings
 
 def get_perform_regression_default_settings(settings):
+    """Populate default settings for gRNA/score regression analysis.
+
+    Switches ``agg_type`` to None automatically when quantile regression is
+    selected, so ``alpha`` is treated as the quantile.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     settings.setdefault('count_data','list of paths')
     settings.setdefault('score_data','list of paths')
     settings.setdefault('positive_control','239740')
@@ -796,6 +902,11 @@ def get_perform_regression_default_settings(settings):
     return settings
 
 def get_check_cellpose_models_default_settings(settings):
+    """Populate default settings for the "check Cellpose models" utility.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     settings.setdefault('batch_size', 10)
     settings.setdefault('CP_prob', 0)
     settings.setdefault('flow_threshold', 0.4)
@@ -817,6 +928,11 @@ def get_check_cellpose_models_default_settings(settings):
     return settings
 
 def get_identify_masks_finetune_default_settings(settings):
+    """Populate default settings for fine-tuning mask identification.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     settings.setdefault('src', 'path')
     settings.setdefault('model_name', 'cyto')
     settings.setdefault('custom_model', None)
@@ -1821,6 +1937,21 @@ category_value_dependencies = {
 category_keys = list(categories.keys())
 
 def check_settings(vars_dict, expected_types, q=None):
+    """Validate and coerce GUI-collected settings against expected types.
+
+    Iterates the widget map produced by the settings panel, parses each raw
+    string value into the type declared in ``expected_types`` (including
+    tuple-typed "or None" fields, lists, dicts and lists-of-lists), and
+    collects human-readable error messages instead of stopping at the first
+    failure. Errors are also forwarded to ``q`` for GUI display.
+
+    :param vars_dict: mapping ``key -> (label, widget, var, frame)`` from the settings panel.
+    :param expected_types: mapping ``key -> type`` (or tuple of accepted types).
+    :param q: optional queue used to surface error strings to the GUI. A private
+        Queue is created if None.
+    :returns: tuple ``(settings, errors)`` where ``settings`` is the parsed dict
+        and ``errors`` is the list of collected error messages.
+    """
     from .gui_utils import parse_list
 
     if q is None:
@@ -1941,6 +2072,18 @@ def check_settings(vars_dict, expected_types, q=None):
     return settings, errors
 
 def generate_fields_lazy(variables, scrollable_frame, tick_callback=None):
+    """Build input widgets for the always-visible settings only.
+
+    Categorized settings are recorded as placeholders and materialised on
+    demand when their category is expanded — keeps initial GUI startup fast.
+
+    :param variables: mapping ``key -> (var_type, options, default_value)``.
+    :param scrollable_frame: parent scrollable frame that hosts the widgets.
+    :param tick_callback: optional callable invoked after each field is added
+        (e.g. to advance a progress bar).
+    :returns: ``vars_dict`` mapping ``key -> (label, widget, var, frame)`` for
+        rendered fields and ``None`` for lazy placeholders.
+    """
     from .gui_utils import create_input_field
     from .gui_elements import spacrToolTip
     
@@ -1990,6 +2133,16 @@ def generate_fields_lazy(variables, scrollable_frame, tick_callback=None):
     return vars_dict
 
 def generate_fields(variables, scrollable_frame, tick_callback=None):
+    """Build input widgets for every setting eagerly.
+
+    Falls back to a type-appropriate default when a supplied ``default_value``
+    is rejected by the widget factory, and skips the field if that also fails.
+
+    :param variables: mapping ``key -> (var_type, options, default_value)``.
+    :param scrollable_frame: parent scrollable frame that hosts the widgets.
+    :param tick_callback: optional callable invoked after each field is added.
+    :returns: ``vars_dict`` mapping ``key -> (label, widget, var, frame)``.
+    """
     from .gui_utils import create_input_field
     from .gui_elements import spacrToolTip
     row = 1
@@ -2057,6 +2210,11 @@ descriptions = {
 }
 
 def set_annotate_default_settings(settings):
+    """Populate default settings for the image annotation UI.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     settings.setdefault('src', 'path')
     settings.setdefault('image_type', 'cell_png')
     settings.setdefault('channels', "r,g,b")
@@ -2077,6 +2235,11 @@ def set_annotate_default_settings(settings):
     return settings
 
 def set_default_generate_barecode_mapping(settings=None):
+    """Return default settings for the barcode-mapping pipeline.
+
+    :param settings: optional dict to fill in place; a new dict is created if None.
+    :returns: the settings dict with defaults applied.
+    """
     if settings is None:
         settings = {}
     settings.setdefault('src', 'path')
@@ -2099,6 +2262,11 @@ def set_default_generate_barecode_mapping(settings=None):
     return settings
 
 def get_default_generate_activation_map_settings(settings):
+    """Populate default settings for generating model activation/CAM maps.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     settings.setdefault('dataset', 'path')
     settings.setdefault('model_type', 'maxvit')
     settings.setdefault('model_path', 'path')
@@ -2119,6 +2287,11 @@ def get_default_generate_activation_map_settings(settings):
     return settings
 
 def get_analyze_plaque_settings(settings):
+    """Populate default settings for plaque analysis.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     settings.setdefault('src', 'path')
     settings.setdefault('masks', True)
     settings.setdefault('background', 200)
@@ -2138,6 +2311,11 @@ def get_analyze_plaque_settings(settings):
     return settings
 
 def set_graph_importance_defaults(settings):
+    """Populate default settings for the "graph importance" plot utility.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     settings.setdefault('csvs','list of paths')
     settings.setdefault('grouping_column','compartment')
     settings.setdefault('data_column','compartment_importance_sum')
@@ -2146,6 +2324,14 @@ def set_graph_importance_defaults(settings):
     return settings
 
 def set_interperate_vision_model_defaults(settings):
+    """Populate default settings for interpreting vision-model predictions.
+
+    Covers feature importance, permutation importance, and SHAP explanation
+    options over the cell/nucleus/pathogen/cytoplasm tables.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     settings.setdefault('src','path')
     settings.setdefault('scores','path')
     settings.setdefault('tables',['cell', 'nucleus', 'pathogen','cytoplasm'])
@@ -2163,6 +2349,11 @@ def set_interperate_vision_model_defaults(settings):
     return settings
 
 def set_analyze_endodyogeny_defaults(settings):
+    """Populate default settings for endodyogeny (parasite division) analysis.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     settings.setdefault('src','path')
     settings.setdefault('tables',['cell', 'nucleus', 'pathogen', 'cytoplasm'])
     settings.setdefault('cell_types',['Hela'])
@@ -2191,6 +2382,11 @@ def set_analyze_endodyogeny_defaults(settings):
     return settings
 
 def set_analyze_class_proportion_defaults(settings):
+    """Populate default settings for class-proportion analysis across conditions.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     settings.setdefault('src','path')
     settings.setdefault('tables',['cell', 'nucleus', 'pathogen', 'cytoplasm'])
     settings.setdefault('cell_types',['Hela'])
@@ -2209,6 +2405,11 @@ def set_analyze_class_proportion_defaults(settings):
     return settings
 
 def get_plot_data_from_csv_default_settings(settings):
+    """Populate default settings for plotting data pulled from a CSV file.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
     settings.setdefault('src','path')
     settings.setdefault('data_column','choose column')
     settings.setdefault('grouping_column','choose column')
@@ -2225,6 +2426,14 @@ def get_plot_data_from_csv_default_settings(settings):
     return settings
 
 def set_default_stitch(settings=None):
+    """Return default settings for the tile-stitching pipeline.
+
+    Covers feature detection, RANSAC, outline overlay, feature cache and
+    per-well mosaic output parameters.
+
+    :param settings: optional dict to fill in place; a new dict is created if None.
+    :returns: the settings dict with defaults applied (a shallow copy of the input).
+    """
     settings = {} if settings is None else dict(settings)
     settings.setdefault('detector', 'ORB')
     settings.setdefault('nfeatures', 8000)
@@ -2266,6 +2475,11 @@ def set_default_stitch(settings=None):
     return settings
 
 def set_default_multichannel(settings=None):
+    """Return default settings for building multichannel per-well mosaics.
+
+    :param settings: optional dict to fill in place; a new dict is created if None.
+    :returns: the settings dict with defaults applied (a shallow copy of the input).
+    """
     settings = {} if settings is None else dict(settings)
     settings.setdefault('channel_indices', None)   # infer from first tile if None
     settings.setdefault('blend', 'max')            # {'max','overwrite'}
@@ -2276,6 +2490,11 @@ def set_default_multichannel(settings=None):
     return settings
 
 def set_default_general(settings=None):
+    """Return default settings for the general organize/stitch/multichannel run.
+
+    :param settings: optional dict to fill in place; a new dict is created if None.
+    :returns: the settings dict with defaults applied (a shallow copy of the input).
+    """
     settings = {} if settings is None else dict(settings)
     settings.setdefault('src', '/path/to/src')
     settings.setdefault('dst_root', settings.get('src'))
@@ -2294,6 +2513,14 @@ def set_default_general(settings=None):
     return settings
 
 def get_automated_motility_assay_default_settings(settings):
+    """Return default settings for the automated motility assay pipeline.
+
+    Combines array/filter parameters, XGBoost infection classifier settings,
+    and PCA/UMAP/t-SNE embedding options into a single settings dict.
+
+    :param settings: optional dict to fill in place; a new dict is created if None.
+    :returns: the settings dict with defaults applied.
+    """
     if settings is None:
         settings = {}
 

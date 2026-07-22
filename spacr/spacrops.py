@@ -6,14 +6,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class _DiskFeatureStore:
-    """
-    Disk-backed feature cache with an in-RAM LRU of limited size.
+    """Disk-backed feature cache with a bounded in-RAM LRU.
 
-    Saves one NPZ per image containing:
-      - ds8  : uint8 downsampled plane
-      - pts  : float32 (N,2)
-      - desc : uint8 for ORB or float32 for SIFT
-      - Hds, Wds, H, W : int32 scalars
+    Saves one NPZ per image (``ds8``, ``pts``, ``desc``, ``Hds``, ``Wds``,
+    ``H``, ``W``) so features survive across runs while capping RAM usage.
+
+    :param root_dir: directory where NPZ files are written.
+    :param max_ram_items: upper bound on the RAM LRU size. Default ``256``.
+    :param verbose: emit progress messages. Default ``False``.
     """
     def __init__(self, root_dir: str, max_ram_items: int = 256, verbose: bool = False):
         self.root = os.path.abspath(root_dir)
@@ -32,6 +32,7 @@ class _DiskFeatureStore:
         return os.path.join(self.root, f"{self._key_for_path(path)}.npz")
 
     def get(self, path: str) -> Optional[Dict[str, np.ndarray]]:
+        """Return the cached feature dict for ``path`` (RAM or disk), or ``None`` if missing."""
         # LRU hit
         with self._lru_lock:
             if path in self._ram:
@@ -60,6 +61,7 @@ class _DiskFeatureStore:
         return None
 
     def put(self, path: str, feat: Dict[str, np.ndarray]) -> None:
+        """Persist ``feat`` to disk and insert it at the front of the RAM LRU."""
         # Save to disk
         np.savez_compressed(self._npz_path(path),
                             ds8=feat["ds8"],
@@ -471,6 +473,7 @@ class spacrStitcher:
 
 
     def set_meta_regex(self, pattern: Union[str, re.Pattern]):
+        """Replace the filename regex used to parse well, site, channel and magnification."""
         self._meta_re = re.compile(pattern, re.IGNORECASE) if isinstance(pattern, str) else pattern
 
     def _parse_meta(self, path: str) -> Dict[str, Union[str, int, None]]:
@@ -528,9 +531,16 @@ class spacrStitcher:
 
 
     def prepare_features(self, paths: List[str], channel_index: int, num_workers: Optional[int] = None):
-        """
-        Precompute features. In 'disk' mode, every computed feature is flushed to disk
-        and only an LRU-sized subset is kept in RAM. In 'ram' mode, behaves like before.
+        """Precompute keypoints and descriptors for ``paths`` and cache them.
+
+        In ``disk`` mode every result is flushed to the on-disk feature store
+        with only an LRU-sized subset kept in RAM; in ``ram`` mode results
+        are held in memory only.
+
+        :param paths: image files to feature.
+        :param channel_index: channel to read from multi-channel TIFFs.
+        :param num_workers: worker thread count; defaults to ``self.n_workers_features``.
+        :returns: None.
         """
         if num_workers is None:
             num_workers = self.n_workers_features
@@ -667,6 +677,17 @@ class spacrStitcher:
                     # NEW: QC gating (safe defaults preserve current behavior)
                     force_no_qc: bool = False,
                     qc_only_if_score_ge: Optional[float] = None) -> Optional[Dict]:
+        """Estimate the B-to-A affine, score the overlap, and optionally write the stitched pair.
+
+        :param pathA: reference image path.
+        :param pathB: image to align to ``pathA``.
+        :param channel_index: channel used for feature matching. Default ``0``.
+        :param score_threshold: minimum edge-ZNCC score required to save the stitched TIFF; falls back to ``self.score_threshold``.
+        :param save_stitched: override for whether to write the stitched image; falls back to ``self.save_stitched_default``.
+        :param force_no_qc: suppress QC overlay images regardless of settings.
+        :param qc_only_if_score_ge: emit QC overlays only when the pair score meets this cutoff.
+        :returns: dict of pair metrics and output paths, or ``None`` when matching/RANSAC fails.
+        """
         t0 = time.time()
     
         # ---- helpers for dtype preservation ----
@@ -1038,10 +1059,33 @@ class spacrStitcher:
                    # NEW: QC gating controls (do not break existing calls)
                    qc_pairs_threshold: int = 1000,
                    qc_only_above_threshold_when_many: bool = True) -> str:
-        """
-        When number of candidate pairs exceeds `qc_pairs_threshold`, QC plotting is suppressed
-        during the first (threaded) scoring pass and, once a threshold is known, QC is produced
-        only for pairs with score >= threshold (in the second pass).
+        """Score every candidate pair in ``folder`` and optionally build a whole-well mosaic.
+
+        When the number of candidate pairs exceeds ``qc_pairs_threshold``, QC
+        overlays are skipped in the first pass and reissued only for pairs
+        whose score clears the auto-threshold in the second pass.
+
+        :param folder: directory of tiles to scan.
+        :param csv_path: destination CSV for pairwise metrics.
+        :param channel_index: channel used for feature scoring. Default ``0``.
+        :param exts: accepted image extensions.
+        :param recursive: recurse into subfolders. Default ``False``.
+        :param same_well_only: restrict pairings to the same parsed well. Default ``True``.
+        :param max_site_gap: maximum site-index gap between candidate neighbours. Default ``3``.
+        :param n_workers: worker threads for the scoring pass. Default ``8``.
+        :param stitch: save stitched TIFFs for pairs above the score threshold.
+        :param score_threshold: minimum score required to save the stitched image.
+        :param meta_regex: override the filename regex before scanning.
+        :param mosaic: build a single-channel mosaic once pair scoring finishes.
+        :param mosaic_out: output TIFF path for the mosaic (single-channel mode).
+        :param mosaic_min_score: minimum edge score used when pruning mosaic edges.
+        :param mosaic_csv_out: output CSV path for the mosaic manifest.
+        :param mosaic_all_channels: build a CYX mosaic across all channels.
+        :param mosaic_channel_count: force this many channels for the multi-channel mosaic.
+        :param mosaic_channel_index_order: explicit channel order for the multi-channel mosaic.
+        :param qc_pairs_threshold: pair count above which QC plotting is gated.
+        :param qc_only_above_threshold_when_many: enable the second-pass, score-gated QC output.
+        :returns: path to the pairwise-metrics CSV.
         """
         if meta_regex is not None:
             self.set_meta_regex(meta_regex)
@@ -1520,6 +1564,7 @@ class spacrStitcher:
 
         # Helper to check geometry/tolerances for one directed edge (src->dst)
         def edge_ok(tx, ty, theta, scale, dbin):
+            """Return True when the candidate ``(tx, ty, theta, scale, dbin)`` alignment is within the allowed limits."""
             if dbin is None:
                 return False
             # rotation/scale limits (if disallowed)
@@ -1595,11 +1640,13 @@ class spacrStitcher:
         parent = list(range(N))
         rank = [0]*N
         def find(x):
+            """Union-find root lookup with path compression."""
             while parent[x] != x:
                 parent[x] = parent[parent[x]]
                 x = parent[x]
             return x
         def union(a,b):
+            """Union-find merge with union-by-rank; returns False if already joined."""
             ra, rb = find(a), find(b)
             if ra == rb: return False
             if rank[ra] < rank[rb]:
@@ -1664,6 +1711,25 @@ class spacrStitcher:
                                scale_tol: float = 0.03,
                                cap_one_per_dir: bool = True,
                                out_csv: Optional[str] = None) -> Tuple[str, Optional[str]]:
+        """Assemble a mosaic image (and manifest) from a pairwise-metrics CSV.
+
+        Pass ``out_tif=None`` together with an ``out_csv`` to run in
+        manifest-only mode (transforms are computed and written but no
+        image is rendered).
+
+        :param csv_path: input pairwise metrics CSV.
+        :param out_tif: mosaic TIFF output path (``None`` for manifest-only).
+        :param out_png: optional preview PNG output path.
+        :param channel_index: channel used for rendering. Default ``0``.
+        :param min_score: minimum pair score kept for the mosaic (auto-detected when ``None``).
+        :param angle_tol_deg: tolerance for classifying edges into R/L/U/D bins.
+        :param step_tol_frac: fractional tolerance around the estimated grid step.
+        :param rot_tol_deg: max allowed rotation when rotation is disabled.
+        :param scale_tol: max allowed scale deviation when scaling is disabled.
+        :param cap_one_per_dir: keep at most one edge per direction per tile.
+        :param out_csv: optional path to the per-tile manifest CSV.
+        :returns: tuple ``(out_tif, out_png)``.
+        """
         # dtype helpers
         def _series_dtype(p: str) -> np.dtype:
             with tifffile.TiffFile(p) as tf:
@@ -1835,12 +1901,24 @@ class spacrStitcher:
                                        scale_tol: float = 0.03,
                                        cap_one_per_dir: bool = True,
                                        out_csv: Optional[str] = None) -> Optional[str]:
-        """
-        Build a CYX mosaic by reusing pairwise transforms computed on (typically) the nuclei channel.
-    
-        If out_csv is not None and out_tif is None, run in "manifest-only" mode:
-        compute transforms + canvas geometry + per-node canvas transforms and write the manifest CSV,
-        but DO NOT render/write the mosaic TIFF.
+        """Assemble a multi-channel CYX mosaic by reusing pairwise transforms across channels.
+
+        Pass ``out_tif=None`` with an ``out_csv`` to run in manifest-only
+        mode (compute transforms and canvas geometry, write manifest, skip
+        rendering).
+
+        :param csv_path: input pairwise metrics CSV.
+        :param out_tif: mosaic TIFF output path (``None`` for manifest-only).
+        :param min_score: minimum pair score kept for the mosaic (auto-detected when ``None``).
+        :param channel_count: force this many channels; auto-detected when ``None``.
+        :param channel_index_order: explicit channel index ordering for the output.
+        :param angle_tol_deg: tolerance for classifying edges into R/L/U/D bins.
+        :param step_tol_frac: fractional tolerance around the estimated grid step.
+        :param rot_tol_deg: max allowed rotation when rotation is disabled.
+        :param scale_tol: max allowed scale deviation when scaling is disabled.
+        :param cap_one_per_dir: keep at most one edge per direction per tile.
+        :param out_csv: optional per-tile manifest CSV path.
+        :returns: path to the mosaic TIFF (or ``None`` in manifest-only mode).
         """
         # ---- helpers for dtype preservation ----
         def _series_dtype(p: str) -> np.dtype:
@@ -2315,6 +2393,18 @@ class StitchedMultiAligner:
               out_tif: Optional[str] = None,
               out_png_preview: Optional[str] = None,
               csv_path: Optional[str] = None) -> Tuple[str, Optional[str], Optional[str]]:
+        """Align every stitched mosaic in ``paths`` to the first and save a CYX stack.
+
+        Alignment uses the specified nuclei channel per image; the resulting
+        stack concatenates all input channels in the order given.
+
+        :param paths: stitched TIFFs to align; ``paths[0]`` is the reference.
+        :param nuclei_channel_indices: per-image nuclei channel indices; defaults to zeros.
+        :param out_tif: output aligned stack path; defaults to ``<outdir>/aligned_allc.tif``.
+        :param out_png_preview: optional preview PNG path.
+        :param csv_path: manifest CSV path; defaults to ``<outdir>/aligned_manifest.csv``.
+        :returns: tuple ``(out_tif, out_png_preview, csv_path)``.
+        """
         assert len(paths) >= 1, "Provide at least one stitched image."
         if nuclei_channel_indices is None:
             nuclei_channel_indices = [0] * len(paths)
@@ -2468,7 +2558,18 @@ class StitchedMultiAligner:
         return out_tif, out_png_preview, csv_path
 
 def stitch_cycle_wells(settings):
+    """Organize a plate of TIFFs into per-well folders and stitch each well.
 
+    Groups images by well from filename metadata, optionally moves or
+    symlinks them into per-well folders, then runs :class:`spacrStitcher`
+    on each well to produce pairwise CSVs and single- or multi-channel
+    mosaics.
+
+    :param settings: dict of preprocess settings; see
+        :func:`get_preprocess_ops_settings` for supported keys.
+    :returns: dict with keys ``organized`` (move/symlink summary) and
+        ``wells`` (per-well output paths).
+    """
     # ---- Apply defaults (single flat dict) ----
     settings = get_preprocess_ops_settings(settings)
 
@@ -2806,7 +2907,11 @@ def stitch_cycle_wells(settings):
 
 
 def get_preprocess_ops_settings(settings):
-    
+    """Fill in defaults for the ops preprocessing / stitching / alignment pipeline.
+
+    :param settings: user-supplied settings dict, updated in place with defaults.
+    :returns: the settings dict with all defaults populated.
+    """
     # high-level sources
     settings.setdefault("phenotype_source", "path")
     settings.setdefault("genotype_source", "path")
@@ -2893,25 +2998,29 @@ def get_preprocess_ops_settings(settings):
     return settings
 
 class FOVAlignAndCropper:
-    """
-    Align each image in a folder (arbitrary channels) to a stitched mosaic (arbitrary channels) using
-    the Hoechst/nuclei channel, then extract the FOV region from the mosaic at the aligned location.
-    For each input FOV, saves:
-      - a .npy array with shape (C_fov + C_mosaic, H_fov, W_fov):
-          [FOV channels stacked; mosaic channels warped into FOV frame and stacked]
-      - a CSV row with file paths, transform, score, and the mosaic-space top-left of the aligned FOV bbox.
+    """Align individual FOVs to a stitched mosaic and export FOV-frame stacks.
 
-    Args
-    ----
-    detector, nfeatures, max_keypoints, downsample, ransac_thresh_px, allow_scale, allow_rotation, outdir, opencv_threads
-        Same semantics as in StitchedMultiAligner.
-    arr_axes, mip, z_index, t_index, squeeze_singleton
-        Same TIFF axis handling semantics as in StitchedMultiAligner.
+    For each FOV, saves a ``.npy`` with shape ``(C_fov + C_mosaic, H_fov, W_fov)``
+    (native FOV channels stacked with the mosaic channels warped into the
+    FOV frame) and a CSV row with the transform, score and mosaic bbox.
 
-    Notes
-    -----
-    - Alignment is (FOV -> mosaic). Extraction uses the inverse transform to warp the mosaic into the FOV frame,
-      guaranteeing the combined array has the FOV’s native (H_fov, W_fov).
+    Delegates feature/matching helpers to :class:`StitchedMultiAligner`.
+
+    :param detector: keypoint detector (``'ORB'`` or ``'SIFT'``). Default ``'ORB'``.
+    :param nfeatures: feature budget for the detector.
+    :param max_keypoints: hard cap on kept keypoints after detection.
+    :param downsample: downsample factor for the feature/score pass.
+    :param ransac_thresh_px: RANSAC reprojection threshold (pixels, downsampled space).
+    :param allow_scale: allow scale in the estimated affine.
+    :param allow_rotation: allow rotation in the estimated affine.
+    :param outdir: output directory. Default ``'./fov_out'``.
+    :param opencv_threads: OpenCV internal thread cap.
+    :param arr_axes: TIFF axis interpretation (``'AUTO'`` or string over ``TCZYX``).
+    :param mip: max-project Z when present.
+    :param z_index: Z slice to select if ``mip`` is false.
+    :param t_index: T slice to select if T is present.
+    :param squeeze_singleton: squeeze length-1 axes after slicing.
+    :param folder_image_scale: default FOV-to-mosaic pixel-scale factor used by :meth:`run`.
     """
 
     def __init__(self,
@@ -2931,15 +3040,11 @@ class FOVAlignAndCropper:
                  t_index: int = 0,
                  squeeze_singleton: bool = True,
                  folder_image_scale: float = 1.0):
-        """
-        Parameters
-        ----------
-        ...
-        folder_image_scale : float
-            Default known FOV→mosaic scale used by `run()` when not explicitly provided there.
-            Examples:
-              mosaic 10×, FOV 20×  -> 0.5
-              mosaic 20×, FOV 10×  -> 2.0
+        """Initialize the FOV aligner. See class docstring for arguments.
+
+        :param folder_image_scale: default FOV-to-mosaic pixel-scale factor
+            used by :meth:`run` when the caller does not override it
+            (e.g. mosaic 10x + FOV 20x -> ``0.5``; mosaic 20x + FOV 10x -> ``2.0``).
         """
         self._aligner = StitchedMultiAligner(detector=detector, nfeatures=nfeatures,
                                              max_keypoints=max_keypoints, downsample=downsample,
@@ -3007,18 +3112,22 @@ class FOVAlignAndCropper:
             csv_path: Optional[str] = None,
             npy_dir: Optional[str] = None,
             folder_image_scale: Optional[float] = None) -> str:
-        """
-        Align each FOV in `folder` to the stitched mosaic at `stitched_path` using the nuclei channel,
-        then save a stacked array [FOV channels; mosaic channels warped into FOV] to .npy and a CSV row.
-    
-        Known scale handling:
-          - If the FOV magnification differs from the mosaic, set `folder_image_scale` to the
-            FOV→mosaic pixel-scale factor (e.g., mosaic 10× vs FOV 20× -> 0.5; mosaic 20× vs FOV 10× -> 2.0).
-    
-        Returns
-        -------
-        str
-            Path to the CSV manifest.
+        """Align every FOV in ``folder`` to ``stitched_path`` and export FOV-frame stacks.
+
+        Uses the nuclei channel for alignment and writes one ``.npy`` per FOV
+        containing the FOV channels plus mosaic channels warped into the
+        FOV frame.
+
+        :param stitched_path: path to the reference stitched mosaic.
+        :param folder: directory of FOV TIFFs to align.
+        :param stitched_nuclei_idx: nuclei channel index in the mosaic. Default ``0``.
+        :param fov_nuclei_idx: nuclei channel index in each FOV. Default ``0``.
+        :param exts: accepted FOV extensions.
+        :param recursive: recurse into subfolders.
+        :param csv_path: output manifest CSV path; defaults to ``<outdir>/fov_align_manifest.csv``.
+        :param npy_dir: output folder for the per-FOV ``.npy`` stacks; defaults to ``<outdir>/npy``.
+        :param folder_image_scale: FOV-to-mosaic pixel-scale factor; falls back to ``self.folder_image_scale``.
+        :returns: path to the manifest CSV.
         """
         # Outputs
         if csv_path is None:
@@ -3189,13 +3298,28 @@ def align_image_to_stitch(
     recursive_align_src: bool = True,
     exts: tuple = (".tif", ".tiff")
 ) -> Dict[str, Dict[str, str]]:
-    """
-    For each WELL that already has a stitched mosaic under stitch_dst_root/<WELL>/_stitch/mosaic_allc.tif,
-    align all 20× images from align_src (grouped by WELL via meta_regex) to that mosaic using
-    FOVAlignAndCropper, and write per-well crop manifests and .npy crops.
+    """Align each well's higher-mag FOVs to that well's stitched mosaic.
 
-    Returns:
-      { WELL: {"mosaic": <path>, "align_folder": <per-well link>, "manifest_csv": <path>} }
+    For every well with a mosaic at
+    ``<stitch_dst_root>/<WELL>/_stitch/mosaic_allc.tif``, groups images
+    from ``align_src`` by well and runs :class:`FOVAlignAndCropper` to
+    produce per-well crop manifests and ``.npy`` crops.
+
+    :param stitch_dst_root: root folder containing per-well stitched mosaics.
+    :param align_src: folder of higher-magnification images to align.
+    :param meta_regex: regex extracting well/site metadata from filenames.
+    :param well_group: named capture group holding the well identifier.
+    :param channel_index: nuclei channel index. Default ``0``.
+    :param relative_scale: FOV-to-mosaic pixel-scale factor. Default ``2.0``.
+    :param downsample: feature-pass downsample factor. Default ``0.5``.
+    :param nfeatures: keypoint budget for the detector.
+    :param ransac_thresh_px: RANSAC reprojection threshold in pixels.
+    :param allow_scale: allow scale in the estimated affine.
+    :param allow_rotation: allow rotation in the estimated affine.
+    :param qc_outlines: emit QC outline overlays.
+    :param recursive_align_src: recurse when scanning ``align_src``.
+    :param exts: accepted image extensions.
+    :returns: mapping ``{well: {'mosaic': path, 'align_folder': path, 'manifest_csv': path}}``.
     """
     import os, re, shutil
     from typing import Dict, List, Optional
@@ -3313,7 +3437,17 @@ def align_image_to_stitch(
     return results
 
 def ops_preprocess(settings):
+    """Run the full ops preprocessing pipeline: per-genotype stitching + phenotype alignment.
 
+    Iterates over one or more genotype folders, calls
+    :func:`stitch_cycle_wells` on each, then aligns the phenotype images
+    to the resulting mosaics via :func:`align_image_to_stitch`.
+
+    :param settings: dict of preprocessing settings; see
+        :func:`get_preprocess_ops_settings` for supported keys.
+    :returns: dict with ``stitch`` (per-genotype summaries), ``align``
+        (per-genotype align results) and ``npy_out_root`` (npy output root path).
+    """
     import os
     import numpy as np  # noqa: F401  (likely used when you add npy writing)
     import pandas as pd  # noqa: F401  (keep if you use it later)

@@ -19,6 +19,26 @@ def custom_volcano_plot(
     x_lim=None,
     y_lims=None,
 ):
+    """Render a volcano plot coloured by T. gondii subcellular localisation.
+
+    Points are placed at ``(coefficient, -log10(p_value))`` and coloured by the
+    ``metadata_column`` value on the merged gene metadata. Supports a broken
+    y-axis for high ``-log10(p)`` outliers.
+
+    :param data_path: DataFrame or CSV path with ``feature``, ``coefficient``,
+        ``p_value`` columns.
+    :param metadata_path: DataFrame or CSV path with ``gene_nr`` and the
+        ``metadata_column`` values to merge on gene number.
+    :param metadata_column: Metadata column that drives point colouring.
+    :param point_size: Marker size passed to ``ax.scatter``.
+    :param figsize: Side length in inches of the (square) figure.
+    :param threshold: Absolute coefficient threshold used to select hits.
+    :param save_path: Optional path to save the figure as a PDF.
+    :param x_lim: X-axis limits ``[low, high]``. Defaults to ``[-0.5, 0.5]``.
+    :param y_lims: None, ``[low, high]``, or ``[[low1, high1], [low2, high2]]``
+        for a broken axis.
+    :returns: List of ``variable`` names that are significant hits.
+    """
     if x_lim is None:
         x_lim = [-0.5, 0.5]
     from matplotlib.gridspec import GridSpec
@@ -100,6 +120,7 @@ def custom_volcano_plot(
         all_axes = [ax_lower]
 
     def _pick_axis(y_val):
+        """Return the upper broken-axis panel when ``y_val`` clears it, else the lower."""
         if is_broken and y_val > upper_lim[0]:
             return ax_upper
         return ax_lower
@@ -194,12 +215,13 @@ def custom_volcano_plot(
 
 
 def _normalize_y_lims(y_lims, neg_log_p):
-    """
-    Coerce y_lims into (is_broken, lower_lim, upper_lim).
+    """Coerce y_lims into ``(is_broken, lower_lim, upper_lim)`` for volcano plotting.
 
-    - None: auto-fit a single panel from the data.
-    - [low, high]: single panel with explicit limits.
-    - [[low1, high1], [low2, high2]]: broken axis (lower, upper).
+    - ``None``: auto-fit a single panel from the data.
+    - ``[low, high]``: single panel with explicit limits.
+    - ``[[low1, high1], [low2, high2]]``: broken axis (lower, upper).
+
+    :raises ValueError: When ``y_lims`` does not match one of the supported forms.
     """
     if y_lims is None:
         finite = neg_log_p[np.isfinite(neg_log_p)]
@@ -227,19 +249,17 @@ def _normalize_y_lims(y_lims, neg_log_p):
 
 
 def go_term_enrichment_by_column(significant_df, metadata_path, go_term_columns=None):
-    """
-    Perform GO term enrichment analysis for each GO term column and generate plots.
+    """Compute and plot GO-term enrichment for each requested metadata column.
 
-    Parameters:
-    - significant_df: DataFrame containing the significant genes from the screen.
-    - metadata_path: Path to the metadata file containing GO terms.
-    - go_term_columns: List of columns in the metadata corresponding to GO terms.
+    For every ``go_term_column`` counts occurrences among hit vs background
+    genes, runs Fisher's exact test per term, and produces scatter plots of
+    enrichment vs ``-log10(p)`` both per column and combined.
 
-    For each GO term column, this function will:
-    - Split the GO terms by semicolons.
-    - Count the occurrences of GO terms in the hits and in the background.
-    - Perform Fisher's exact test for enrichment.
-    - Plot the enrichment score vs -log10(p-value).
+    :param significant_df: DataFrame of screen hits with a ``n_gene`` column.
+    :param metadata_path: CSV path holding ``Gene ID`` plus GO-term columns.
+    :param go_term_columns: Columns to test. Defaults to the four standard
+        Computed/Curated GO categories.
+    :returns: None. Results are displayed as Matplotlib figures.
     """
     
     #significant_df['variable'].fillna(significant_df['feature'], inplace=True)
@@ -370,15 +390,19 @@ def go_term_enrichment_by_column(significant_df, metadata_path, go_term_columns=
     plt.show()
 
 def plot_gene_phenotypes(data, gene_list, x_column='Gene ID', data_column='T.gondii GT1 CRISPR Phenotype - Mean Phenotype',error_column='T.gondii GT1 CRISPR Phenotype - Standard Error', save_path=None):
-    """
-    Plot a line graph for the mean phenotype with standard error shading and highlighted genes.
-    
-    Args:
-        data (pd.DataFrame): The input DataFrame containing gene data.
-        gene_list (list): A list of gene names to highlight on the plot.
+    """Plot ranked mean phenotype with SE shading and highlight selected genes.
+
+    :param data: DataFrame with gene identifiers and phenotype/error columns.
+    :param gene_list: Gene names (or ``TGGT1_<id>`` tags) to highlight.
+    :param x_column: Column holding gene identifiers used for matching.
+    :param data_column: Numeric column plotted on the y-axis.
+    :param error_column: Numeric column used for the SE shading band.
+    :param save_path: Optional PDF path to save the figure.
+    :returns: None. Displays the Matplotlib figure.
     """
     # Ensure x_column is properly processed
     def extract_gene_id(gene):
+        """Return the numeric portion of a ``TGGT1_<id>`` tag, or ``gene`` itself."""
         if isinstance(gene, str) and '_' in gene:
             return gene.split('_')[1]
         return str(gene)
@@ -456,18 +480,19 @@ def plot_gene_phenotypes(data, gene_list, x_column='Gene ID', data_column='T.gon
     plt.show()
 
 def plot_gene_heatmaps(data, gene_list, columns, x_column='Gene ID', normalize=False, save_path=None):
-    """
-    Generate a teal-to-white heatmap with the specified columns and genes.
+    """Render a viridis heatmap for selected genes across selected metadata columns.
 
-    Args:
-        data (pd.DataFrame): The input DataFrame containing gene data.
-        gene_list (list): A list of genes to include in the heatmap.
-        columns (list): A list of column names to visualize as heatmaps.
-        normalize (bool): If True, normalize the values for each gene between 0 and 1.
-        save_path (str): Optional. If provided, the plot will be saved to this path.
+    :param data: DataFrame containing per-gene rows.
+    :param gene_list: Genes to include as heatmap rows.
+    :param columns: Column names to include as heatmap columns.
+    :param x_column: Column holding gene identifiers for row matching.
+    :param normalize: When True, min-max scale each gene's row to [0, 1].
+    :param save_path: Optional PDF path to save the figure.
+    :returns: None. Displays the Matplotlib figure.
     """
     # Ensure x_column is properly processed
     def extract_gene_id(gene):
+        """Return the numeric portion of a ``TGGT1_<id>`` tag, or ``gene`` itself."""
         if isinstance(gene, str) and '_' in gene:
             return gene.split('_')[1]
         return str(gene)
@@ -516,9 +541,20 @@ def plot_gene_heatmaps(data, gene_list, columns, x_column='Gene ID', normalize=F
     plt.show()
 
 def generate_score_heatmap(settings):
-    
+    """Build combined classification-score and control-fraction heatmaps for a plate.
+
+    Aggregates per-model prediction CSVs across folders, computes the control
+    sgRNA mixed-condition fractions, and renders multi-channel heatmaps plus a
+    per-channel MAE summary.
+
+    :param settings: Config dict with keys ``folders``, ``csv_name``,
+        ``data_column``, ``csv``, ``plateID``, ``columnID``, ``control_sgrnas``,
+        and ``fraction_grna``.
+    :returns: None. Produces figures and DataFrames as side effects.
+    """
+
     def group_cv_score(csv, plate=1, column='c3', data_column='pred'):
-        
+        """Return per-well mean of ``data_column`` for one plate/column filter."""
         df = pd.read_csv(csv)
         if 'column_name' in df.columns:
             df = df[df['column_name']==column]
@@ -532,6 +568,7 @@ def generate_score_heatmap(settings):
         return grouped_df
 
     def calculate_fraction_mixed_condition(csv, plate=1, column='c3', control_sgrnas = None):
+        """Return per-well control sgRNA fractions for a mixed-condition run."""
         if control_sgrnas is None:
             control_sgrnas = ['TGGT1_220950_1', 'TGGT1_233460_4']
         df = pd.read_csv(csv)  
@@ -547,12 +584,11 @@ def generate_score_heatmap(settings):
         return merged_df
 
     def plot_multi_channel_heatmap(df, column='c3'):
-        """
-        Plot a heatmap with multiple channels as columns.
+        """Render a per-well heatmap with score columns treated as channels.
 
-        Parameters:
-        - df: DataFrame with scores for different channels.
-        - column: Column to filter by (default is 'c3').
+        :param df: DataFrame of scores, one column per channel.
+        :param column: Plate column to filter on (default ``'c3'``).
+        :returns: The generated Matplotlib figure.
         """
         # Extract row number and convert to integer for sorting
         df['row_num'] = df['rowID'].str.extract(r'(\d+)').astype(int)
@@ -596,6 +632,7 @@ def generate_score_heatmap(settings):
 
 
     def combine_classification_scores(folders, csv_name, data_column, plate=1, column='c3'):
+        """Merge same-named CSVs from sub-folders into a single per-well DataFrame."""
         # Ensure `folders` is a list
         if isinstance(folders, str):
             folders = [folders]
@@ -642,9 +679,7 @@ def generate_score_heatmap(settings):
         return combined_df
     
     def calculate_mae(df):
-        """
-        Calculate the MAE between each channel's predictions and the fraction column for all rows.
-        """
+        """Return a long-form DataFrame of per-row MAE between each channel and ``fraction``."""
         # Extract numeric columns excluding 'fraction' and 'prc'
         channels = df.drop(columns=['fraction', 'prc']).select_dtypes(include=[float, int])
 

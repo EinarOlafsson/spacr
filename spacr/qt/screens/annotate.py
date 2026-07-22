@@ -90,6 +90,7 @@ class _Thumbnail(QLabel):
         )
 
     def mousePressEvent(self, event):
+        """Route left/right mouse buttons to typed signals; ignore others."""
         if event.button() == Qt.LeftButton:
             self.left_clicked.emit(self.slot)
         elif event.button() == Qt.RightButton:
@@ -103,15 +104,19 @@ class _Thumbnail(QLabel):
 # ---------------------------------------------------------------------------
 
 def _csv_to_list(text: str) -> Optional[List[str]]:
+    """Parse a comma-separated string into a stripped list, or ``None`` when empty."""
     parts = [p.strip() for p in text.split(",") if p.strip()]
     return parts or None
 
 
 def _list_to_csv(vals: Optional[List[str]]) -> str:
+    """Format a list as a comma-separated string; empty/None becomes ``""``."""
     return ", ".join(str(v) for v in vals) if vals else ""
 
 
 class _SettingsDialog(QDialog):
+    """Modal dialog that edits an :class:`AnnotateSettings` in place."""
+
     def __init__(self, settings: AnnotateSettings, parent: Optional[QWidget] = None):
         super().__init__(parent)
         self.setWindowTitle("Annotate — Settings")
@@ -244,6 +249,7 @@ class _SettingsDialog(QDialog):
             self._src_edit.setText(d)
 
     def collect(self) -> AnnotateSettings:
+        """Read every editor and return the updated settings object."""
         s = self._settings
         s.src = self._src_edit.text().strip()
         s.db_path = os.path.join(s.src, "measurements", "measurements.db")
@@ -816,6 +822,7 @@ class AnnotateScreen(QWidget):
 
     # ------------------------------------------------------------------
     def closeEvent(self, event):
+        """Flush pending annotations and stop the SaveWorker before closing."""
         self._flush_pending()
         if self._worker:
             self._worker.stop(wait=True)

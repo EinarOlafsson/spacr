@@ -3,6 +3,13 @@ from tkinter import ttk
 from .gui import MainApp
 
 def initiate_make_mask_app(parent_frame):
+    """Show a small settings dialog that then launches the ``ModifyMaskApp`` editor.
+
+    Collects ``folder_path`` and ``scale_factor`` from the user before opening the
+    mask-editing window.
+
+    :param parent_frame: Tk widget that hosts the settings Toplevel and the editor.
+    """
     from .gui_elements import ModifyMaskApp, set_dark_style
     settings_window = tk.Toplevel(parent_frame)
     settings_window.title("Make Masks Settings")
@@ -24,6 +31,7 @@ def initiate_make_mask_app(parent_frame):
 
     # Function to be called when "Run" button is clicked
     def start_make_mask_app():
+        """Close the settings window and open ``ModifyMaskApp`` with the entered values."""
         folder_path = vars_dict['folder_path'].get()
         try:
             scale_factor = float(vars_dict['scale_factor'].get())
@@ -37,6 +45,7 @@ def initiate_make_mask_app(parent_frame):
     run_button.pack(pady=10)
 
 def start_make_mask_app():
+    """Launch the main spacr GUI with the Make Masks tab preselected."""
     app = MainApp(default_app="Make Masks")
     app.mainloop()
 

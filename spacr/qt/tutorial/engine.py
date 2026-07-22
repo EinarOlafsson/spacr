@@ -83,6 +83,13 @@ class Narrator:
 
     def __init__(self, voice_model: Optional[Path] = None,
                   length_scale: float = 1.0):
+        """Load the Piper voice model and set the narration speed.
+
+        :param voice_model: path to a Piper ``.onnx`` model; defaults to
+            ``~/.spacr/piper/en_US-lessac-medium.onnx``.
+        :param length_scale: Piper length scale; lower = faster speech.
+        :raises FileNotFoundError: when the voice model is missing.
+        """
         self.voice_model = Path(voice_model or DEFAULT_VOICE)
         if not self.voice_model.exists():
             raise FileNotFoundError(
@@ -180,7 +187,13 @@ def _draw_highlight_on(pixmap, rect_xywh: Tuple[int, int, int, int]) -> None:
 
 class Recorder:
     """Grab the MainWindow's rendered pixmap N times a second,
-    compositing a synthetic cursor onto each frame."""
+    compositing a synthetic cursor onto each frame.
+
+    :param window: source Qt window to grab.
+    :param frames_dir: destination folder for numbered PNG frames.
+    :param fps: capture frame rate.
+    :param size: fixed output frame size ``(width, height)`` in px.
+    """
 
     def __init__(self, window, frames_dir: Path,
                   fps: int = FRAME_RATE,
@@ -238,6 +251,14 @@ class Recorder:
 
 @dataclass
 class RenderResult:
+    """Output paths and metadata for a completed tutorial render.
+
+    :ivar mp4: absolute path to the produced MP4.
+    :ivar srt: absolute path to the produced SRT sidecar.
+    :ivar frames: total number of frames captured.
+    :ivar duration_s: total narration duration in seconds.
+    """
+
     mp4: Path
     srt: Path
     frames: int
@@ -245,6 +266,15 @@ class RenderResult:
 
 
 class Director:
+    """Orchestrates narration, capture, and mux into a final MP4 + SRT.
+
+    :param window: live MainWindow the tutorial drives.
+    :param steps: ordered list of :class:`Step` beats.
+    :param out_dir: destination folder for the rendered mp4/srt.
+    :param narrator: optional :class:`Narrator`; a default is built if omitted.
+    :param fps: capture frame rate.
+    """
+
     def __init__(self, window, steps: List[Step],
                   out_dir: Path,
                   narrator: Optional[Narrator] = None,
@@ -466,6 +496,11 @@ class Director:
 
     # -- main entry point ----------------------------------------------------
     def render(self, name: str) -> RenderResult:
+        """Run the full narrate → capture → mux pipeline for this director.
+
+        :param name: base filename for the produced ``<name>.mp4`` and ``.srt``.
+        :returns: :class:`RenderResult` with paths and duration metadata.
+        """
         total_audio = self._prerender_audio()
         self._run_capture()
         audio = self._concat_audio()

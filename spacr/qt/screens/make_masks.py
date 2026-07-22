@@ -116,6 +116,11 @@ class _MaskCanvas(QLabel):
     # Data
     # ------------------------------------------------------------------
     def set_image_and_mask(self, image: np.ndarray, mask: np.ndarray) -> None:
+        """Load a new image + mask pair and rerender at full-image zoom.
+
+        :param image: uint16 grayscale array to display underneath.
+        :param mask: uint8/uint16 label array painted on top.
+        """
         self.image = image
         self.mask = mask
         self.reset_zoom(silent=True)
@@ -131,9 +136,15 @@ class _MaskCanvas(QLabel):
         return (0, 0, w, h)
 
     def is_zoomed(self) -> bool:
+        """Return True when the canvas is viewing a zoomed sub-region."""
         return self._zoom_x0 is not None
 
     def reset_zoom(self, silent: bool = False) -> None:
+        """Clear the zoom viewport and rerender the full image.
+
+        :param silent: suppress the ``zoom_changed`` signal when True
+            (used on image load so no callback fires spuriously).
+        """
         was_zoomed = self.is_zoomed()
         self._zoom_x0 = self._zoom_y0 = self._zoom_x1 = self._zoom_y1 = None
         self._zoom_drag_start = self._zoom_drag_end = None
@@ -142,6 +153,7 @@ class _MaskCanvas(QLabel):
         self.refresh()
 
     def refresh(self) -> None:
+        """Recompose image + mask overlay and repaint the canvas pixmap."""
         if self.image is None or self.mask is None:
             return
         img = engine.normalize_uint16(self.image, self.norm_lo, self.norm_hi)
@@ -203,6 +215,7 @@ class _MaskCanvas(QLabel):
     # Painting (adds a zoom-rectangle overlay while dragging)
     # ------------------------------------------------------------------
     def paintEvent(self, event):
+        """Draw the base pixmap plus a dashed zoom-rectangle when dragging."""
         super().paintEvent(event)
         if self.mode != MODE_ZOOM:
             return
@@ -230,6 +243,7 @@ class _MaskCanvas(QLabel):
             self.stroke_finished.emit()
 
     def mousePressEvent(self, event):
+        """Dispatch a click to the current tool (brush/erase/wand/zoom/…)."""
         if self.mode == MODE_NONE or self.mask is None:
             return super().mousePressEvent(event)
 
@@ -268,6 +282,7 @@ class _MaskCanvas(QLabel):
         self.refresh()
 
     def mouseMoveEvent(self, event):
+        """Extend a brush/erase stroke or a zoom-rectangle drag."""
         if self.mask is None:
             return
         if self.mode == MODE_ZOOM and self._zoom_drag_start is not None \
@@ -291,6 +306,7 @@ class _MaskCanvas(QLabel):
             self.refresh()
 
     def mouseReleaseEvent(self, event):
+        """Commit a zoom-rectangle or finalize a brush/erase stroke."""
         if self.mode == MODE_ZOOM and self._zoom_drag_start is not None \
                 and self._zoom_drag_end is not None:
             # Convert both endpoints to image coords and commit
@@ -314,6 +330,7 @@ class _MaskCanvas(QLabel):
         self._emit_stroke_end()
 
     def resizeEvent(self, event):
+        """Refit the composited pixmap to the new canvas size."""
         super().resizeEvent(event)
         self.refresh()
 
@@ -323,6 +340,12 @@ class _MaskCanvas(QLabel):
 # ---------------------------------------------------------------------------
 
 class MakeMasksScreen(QWidget):
+    """Qt widget for the Make Masks app — the successor to Tk ModifyMaskApp.
+
+    Owns the canvas, the tools panel, and the file-navigation state; see
+    the module docstring for the full feature list.
+    """
+
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
         self._folder: str = ""

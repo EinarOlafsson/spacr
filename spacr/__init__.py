@@ -35,6 +35,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "sim",
     "object",
     "logger",
+    "logging_util",
     "version",
 )
 
@@ -42,6 +43,12 @@ __all__ = ["__version__", "download_models", *_SUBMODULES]
 
 
 def __getattr__(name: str):
+    """Lazily import declared submodules and the ``download_models`` helper on first access.
+
+    :param name: Attribute name requested on the ``spacr`` package.
+    :returns: Imported submodule or the ``download_models`` callable.
+    :raises AttributeError: If ``name`` is neither a known submodule nor ``download_models``.
+    """
     if name == "download_models":
         from .utils import download_models
         return download_models
@@ -53,4 +60,5 @@ def __getattr__(name: str):
 
 
 def __dir__() -> list[str]:
+    """Include lazy submodule names in ``dir(spacr)`` for tab-completion."""
     return sorted(set(globals()) | {"download_models"} | set(_SUBMODULES))

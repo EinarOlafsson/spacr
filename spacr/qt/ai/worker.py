@@ -19,6 +19,13 @@ from .providers import ChatProvider
 
 
 class StreamWorker(QObject):
+    """QObject that drives one provider stream on a worker QThread.
+
+    :ivar stage_changed: coarse progress signal ("connecting", "streaming").
+    :ivar chunk_ready: emitted with each partial completion chunk.
+    :ivar finished: emitted with ``(ok, full_text_or_error)`` on completion.
+    """
+
     stage_changed = Signal(str)
     chunk_ready = Signal(str)
     finished = Signal(bool, str)
@@ -30,6 +37,13 @@ class StreamWorker(QObject):
         system: str = "",
         model: Optional[str] = None,
     ):
+        """Prepare the worker; call :meth:`run` from a QThread's ``started`` signal.
+
+        :param provider: the ChatProvider to stream from.
+        :param messages: conversation history to send.
+        :param system: optional system prompt.
+        :param model: optional model override.
+        """
         super().__init__()
         self._provider = provider
         self._messages = messages
@@ -53,6 +67,7 @@ class StreamWorker(QObject):
             pass
 
     def run(self) -> None:
+        """Consume the provider stream, emitting stage/chunk/finished signals."""
         buf: List[str] = []
         try:
             self.stage_changed.emit("connecting")

@@ -522,8 +522,34 @@ def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None
                         area_multiplier=2.0, min_distance=10, min_object_area=100,
                         intensity_threshold_method='mean', intensity_percentile=75,
                         min_area=0, max_area=0, remove_border_objects=False,
-                        min_intensity_percentile=0, max_intensity_percentile=100, 
+                        min_intensity_percentile=0, max_intensity_percentile=100,
                         n_jobs=1, progress_callback=None, op_name=''):
+    """Split, merge, and filter labeled objects across a directory of masks.
+
+    Runs the split -> merge -> filter pipeline on each mask file in
+    ``mask_src`` in parallel, overwriting each mask in place.
+
+    :param mask_src: directory containing mask .tif/.tiff/.npy files.
+    :param intensity_img_src: directory of matched intensity images, or ``None``.
+    :param intensity_channel: channel index to pull from multi-channel intensity images.
+    :param perimeter_fraction: minimum shared-boundary fraction for perimeter-based merging.
+    :param intensity_merge: enable boundary-intensity-based merging.
+    :param intensity_split: enable watershed splitting of oversized objects.
+    :param area_multiplier: split objects with area > multiplier * median.
+    :param min_distance: minimum pixel distance between watershed seeds.
+    :param min_object_area: absolute minimum area below which objects are never split.
+    :param intensity_threshold_method: ``'mean'`` or ``'percentile'`` boundary comparison.
+    :param intensity_percentile: percentile used when method is ``'percentile'``.
+    :param min_area: remove objects smaller than this (px); 0 disables.
+    :param max_area: remove objects larger than this (px); 0 disables.
+    :param remove_border_objects: drop objects touching the image border.
+    :param min_intensity_percentile: drop objects below this intensity percentile; 0 disables.
+    :param max_intensity_percentile: drop objects above this intensity percentile; 100 disables.
+    :param n_jobs: parallel worker count.
+    :param progress_callback: optional callback(fov_index, total, duration, op_name).
+    :param op_name: label passed to the progress callback.
+    :returns: None.
+    """
     valid_ext = ('.tif', '.tiff', '.npy')
     mask_files = sorted([f for f in os.listdir(mask_src)
                          if os.path.splitext(f)[1].lower() in valid_ext])
@@ -729,20 +755,19 @@ def _organelle_diagnostic(img, morphology, method, settings):
         return img_norm, 'Normalised image'
 
 def debug(enabled=True, logger_name = None):
-    """
-    Decorator that temporarily sets the given logger to DEBUG
-    while the function runs, then restores the old level.
+    """Decorator that temporarily sets the given logger to DEBUG for the wrapped call.
 
-    Args:
-        enabled (bool): If False, decorator is a no-op.
-        logger_name (str | None): Name of the logger to tweak.
-            Defaults to the function's module logger.
+    :param enabled: no-op when ``False``.
+    :param logger_name: logger name to tweak; defaults to the function's module logger.
+    :returns: decorator function.
     """
     def decorator(func):
+        """Inner decorator that binds the logger for ``func`` and returns the wrapper."""
         log = logging.getLogger(logger_name or func.__module__)
 
         @wraps(func)
         def wrapper(*args, **kwargs):
+            """Temporarily bump the logger to DEBUG while ``func`` runs, then restore its level."""
             if not enabled:
                 return func(*args, **kwargs)
 
@@ -761,15 +786,7 @@ def debug(enabled=True, logger_name = None):
     return decorator
 
 def _generate_mask_random_cmap(mask):
-    """
-    Generate a random colormap based on the unique labels in the given mask.
-
-    Parameters:
-    mask (ndarray): The mask array containing unique labels.
-
-    Returns:
-    ListedColormap: A random colormap generated based on the unique labels in the mask.
-    """
+    """Return a ``ListedColormap`` with a random color per label in ``mask``."""
     unique_labels = np.unique(mask)
     num_objects = len(unique_labels[unique_labels != 0])
     random_colors = np.random.rand(num_objects+1, 4)
@@ -779,7 +796,14 @@ def _generate_mask_random_cmap(mask):
     return random_cmap
 
 def filepaths_to_database(img_paths, settings, source_folder, crop_mode):
+    """Insert cropped PNG filepaths and parsed well/object IDs into the measurements DB.
 
+    :param img_paths: iterable of PNG paths for cropped objects.
+    :param settings: settings dict; ``timelapse`` toggles time_id parsing.
+    :param source_folder: experiment root; DB is written to ``measurements/measurements.db``.
+    :param crop_mode: one of ``'cell'``, ``'nucleus'``, ``'pathogen'``, ``'cytoplasm'``.
+    :returns: None.
+    """
     png_df = pd.DataFrame(img_paths, columns=['png_path'])
 
     png_df['file_name'] = png_df['png_path'].apply(lambda x: os.path.basename(x))
@@ -816,6 +840,13 @@ def filepaths_to_database(img_paths, settings, source_folder, crop_mode):
         traceback.print_exc()
 
 def activation_maps_to_database(img_paths, source_folder, settings):
+    """Insert activation-map PNG paths and parsed well IDs into the dataset DB.
+
+    :param img_paths: iterable of PNG paths for activation-map images.
+    :param source_folder: experiment root; DB written to ``measurements/<dataset>.db``.
+    :param settings: settings dict; must contain ``dataset`` and ``cam_type``.
+    :returns: None.
+    """
     from .io import _create_database
 
     png_df = pd.DataFrame(img_paths, columns=['png_path'])
@@ -839,6 +870,14 @@ def activation_maps_to_database(img_paths, source_folder, settings):
         traceback.print_exc()
 
 def activation_correlations_to_database(df, img_paths, source_folder, settings):
+    """Merge per-image correlation stats with parsed well IDs and insert into the dataset DB.
+
+    :param df: DataFrame of correlation stats indexed by ``file_name``.
+    :param img_paths: iterable of PNG paths matching rows of ``df``.
+    :param source_folder: experiment root; DB written to ``measurements/<dataset>.db``.
+    :param settings: settings dict; must contain ``dataset`` and ``cam_type``.
+    :returns: None.
+    """
     from .io import _create_database
 
     png_df = pd.DataFrame(img_paths, columns=['png_path'])
@@ -869,18 +908,13 @@ def activation_correlations_to_database(df, img_paths, source_folder, settings):
         traceback.print_exc()
 
 def calculate_activation_correlations(inputs, activation_maps, file_names, manders_thresholds=None):
-    """
-    Calculates Pearson and Manders correlations between input image channels and activation map channels.
-    
-    Args:
-        inputs: A batch of input images, Tensor of shape (batch_size, channels, height, width)
-        activation_maps: A batch of activation maps, Tensor of shape (batch_size, channels, height, width)
-        file_names: List of file names corresponding to each image in the batch.
-        manders_thresholds: List of intensity percentiles to calculate Manders correlation.
-        
-    Returns:
-        df_correlations: A DataFrame with columns for pairwise correlations (Pearson and Manders) 
-                         between input channels and activation map channels.
+    """Compute per-image Pearson and Manders correlations between input and activation channels.
+
+    :param inputs: input image batch, tensor of shape ``(B, C, H, W)``.
+    :param activation_maps: activation-map batch, tensor of shape ``(B, C, H, W)`` or ``(B, H, W)``.
+    :param file_names: file names corresponding to each image in the batch.
+    :param manders_thresholds: intensity percentiles used for Manders coefficients. Default ``[15, 50, 75]``.
+    :returns: DataFrame with one row per image and one column per channel-pair statistic.
     """
     
     # Ensure tensors are detached and moved to CPU before converting to numpy
@@ -967,18 +1001,17 @@ def calculate_activation_correlations(inputs, activation_maps, file_names, mande
     return df_correlations
 
 def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_value='setting_value'):
-    """
-    Convert a CSV file with 'settings_key' and 'settings_value' columns into a dictionary.
-    Handles special cases where values are lists, tuples, booleans, None, integers, floats, and nested dictionaries.
+    """Load a two-column key/value settings CSV into a Python dict.
 
-    Args:
-        csv_file_path (str): The path to the CSV file.
-        show (bool): Whether to display the dataframe (for debugging).
-        setting_key (str): The name of the column that contains the setting keys.
-        setting_value (str): The name of the column that contains the setting values.
+    Values are parsed to booleans, ``None``, ints, floats, lists, tuples, or
+    nested dicts where possible, otherwise kept as strings.
 
-    Returns:
-        dict: A dictionary where 'settings_key' are the keys and 'settings_value' are the values.
+    :param csv_file_path: path to the CSV file.
+    :param show: display the raw DataFrame for debugging.
+    :param setting_key: name of the key column.
+    :param setting_value: name of the value column.
+    :returns: dict of parsed settings.
+    :raises ValueError: if the required columns are missing.
     """
     # Read the CSV file into a DataFrame
     df = pd.read_csv(csv_file_path)
@@ -1030,7 +1063,16 @@ def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_
     return result_dict
 
 def save_settings(settings, name='settings', show=False):
-    
+    """Persist a settings dict to ``<src>/settings/<name>.csv``.
+
+    Forces ``test_mode`` and ``plot`` off in the saved copy so the reloaded
+    settings are safe for a full run.
+
+    :param settings: settings dict; must contain ``src``.
+    :param name: base filename; ``_list`` suffix appended when ``src`` is a list.
+    :param show: display the DataFrame before writing.
+    :returns: None.
+    """
     settings_2 = settings.copy()
     
     if isinstance(settings_2['src'], list):
@@ -1056,6 +1098,16 @@ def save_settings(settings, name='settings', show=False):
     settings_df.to_csv(settings_csv, index=False)
 
 def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batch_size=None, operation_type=""):
+    """Print a one-line progress report with an ETA derived from mean step time.
+
+    :param files_processed: number of items done (int or list).
+    :param files_to_process: total items to do (int or list).
+    :param n_jobs: parallelism used to compute ETA.
+    :param time_ls: list of per-step durations (seconds) for ETA; ``None`` skips ETA.
+    :param batch_size: batch size when ``time_ls`` is per batch rather than per image.
+    :param operation_type: label printed alongside the progress line.
+    :returns: None.
+    """
     if isinstance(files_processed, list):
         files_processed = len(set(files_processed))
     if isinstance(files_to_process, list):
@@ -1088,6 +1140,12 @@ def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batc
     print(f'Progress: {files_processed}/{files_to_process}, operation_type: {operation_type}, {time_info}')
 
 def reset_mp():
+    """Set the multiprocessing start method appropriate for the current OS.
+
+    Uses ``spawn`` on Windows and ``fork`` on Linux/macOS.
+
+    :returns: None.
+    """
     current_method = get_start_method()
     system = platform.system()
     
@@ -1099,7 +1157,7 @@ def reset_mp():
             set_start_method('fork', force=True)
 
 def is_multiprocessing_process(process):
-    """ Check if the process is a multiprocessing process. """
+    """Return ``True`` if ``process`` cmdline contains ``multiprocessing``."""
     try:
         for cmd in process.cmdline():
             if 'multiprocessing' in cmd:
@@ -1109,7 +1167,7 @@ def is_multiprocessing_process(process):
     return False
 
 def close_file_descriptors():
-    """ Close file descriptors and shared memory objects. """
+    """Close file descriptors from 3 up to the soft NOFILE limit."""
     import resource
 
     soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
@@ -1120,7 +1178,7 @@ def close_file_descriptors():
             pass
 
 def close_multiprocessing_processes():
-    """ Close all multiprocessing processes. """
+    """Terminate all detected multiprocessing child processes and close file descriptors."""
     current_pid = os.getpid()
     for proc in psutil.process_iter(['pid', 'cmdline']):
         try:
@@ -1141,7 +1199,13 @@ def close_multiprocessing_processes():
     close_file_descriptors()
 
 def check_mask_folder(src,mask_fldr):
-    
+    """Return ``True`` if masks in ``src/masks/mask_fldr`` still need generating.
+
+    :param src: experiment root containing ``masks/`` and ``stack/`` subfolders.
+    :param mask_fldr: subfolder name under ``masks/``.
+    :returns: ``True`` when the mask folder is missing or has fewer ``.npy`` files
+        than the stack folder.
+    """
     mask_folder = os.path.join(src,'masks',mask_fldr)
     stack_folder = os.path.join(src,'stack')
 
@@ -1158,6 +1222,11 @@ def check_mask_folder(src,mask_fldr):
         return True
 
 def smooth_hull_lines(cluster_data):
+    """Return the x, y coordinates of a smoothed convex-hull outline of a 2-D point set.
+
+    :param cluster_data: 2-D array of point coordinates.
+    :returns: tuple ``(x, y)`` of spline-interpolated hull coordinates (100 samples).
+    """
     hull = ConvexHull(cluster_data)
     # Extract vertices of the hull
     vertices = hull.points[hull.vertices]
@@ -1170,16 +1239,7 @@ def smooth_hull_lines(cluster_data):
     return new_points[0], new_points[1]
 
 def _gen_rgb_image(image, channels):
-    """
-    Generate an RGB image from the specified channels of the input image.
-
-    Args:
-        image (ndarray): The input image.
-        channels (list): List of channel indices to use for RGB.
-
-    Returns:
-        rgb_image (ndarray): The generated RGB image.
-    """
+    """Return an ``(H, W, 3)`` RGB image built from selected channels of ``image``."""
     rgb_image = np.zeros((image.shape[0], image.shape[1], 3), dtype=np.float32)
     for i, chan in enumerate(channels):
         if chan < image.shape[2]:
@@ -1191,6 +1251,7 @@ def _outline_and_overlay(image, rgb_image, mask_dims, outline_colors, outline_th
     overlayed_image = rgb_image.copy()
 
     def process_dim(mask_dim):
+        """Return a dilated outline image of the labeled mask at ``image[..., mask_dim]``."""
         mask = np.take(image, mask_dim, axis=-1)
         outline = np.zeros_like(mask, dtype=np.uint8)  # Use uint8 for contour detection efficiency
 
@@ -1221,16 +1282,7 @@ def _outline_and_overlay(image, rgb_image, mask_dims, outline_colors, outline_th
     return overlayed_image, outlines, image
 
 def _convert_cq1_well_id(well_id):
-    """
-    Converts a well ID to the CQ1 well format.
-
-    Args:
-        well_id (int): The well ID to be converted.
-
-    Returns:
-        str: The well ID in CQ1 well format.
-
-    """
+    """Convert a linear well index to the CQ1 ``<row_letter><col>`` well format."""
     well_id = int(well_id)
     # ASCII code for 'A'
     ascii_A = ord('A')
@@ -1321,28 +1373,13 @@ def _extract_filename_metadata(filenames, src, regular_expression, metadata_type
     return images_by_key
 
 def mask_object_count(mask):
-    """
-    Counts the number of objects in a given mask.
-
-    Parameters:
-    - mask: numpy.ndarray. The mask containing object labels.
-
-    Returns:
-    - int. The number of objects in the mask.
-    """
+    """Return the number of nonzero labeled objects in ``mask``."""
     unique_labels = np.unique(mask)
     num_objects = len(unique_labels[unique_labels!=0])
     return num_objects
 
 def _update_database_with_merged_info(db_path, df, table='png_list', columns=None):
-    """
-    Merges additional columns into the png_list table in the SQLite database and updates it.
-
-    Args:
-        db_path (str): The path to the SQLite database file.
-        df (pd.DataFrame): DataFrame containing the additional info to be merged.
-        table (str): Name of the table to update in the database. Defaults to 'png_list'.
-    """
+    """Merge extra columns from ``df`` into ``table`` on ``prcfo`` and rewrite the table."""
     # Connect to the SQLite database
     if columns is None:
         columns = ['pathogen', 'treatment', 'host_cells', 'condition', 'prcfo']
@@ -1381,33 +1418,7 @@ def _update_database_with_merged_info(db_path, df, table='png_list', columns=Non
         conn.close()
 
 def _generate_representative_images(db_path, cells=None, cell_loc=None, pathogens=None, pathogen_loc=None, treatments=None, treatment_loc=None, channel_of_interest=1, compartments = None, measurement = 'mean_intensity', nr_imgs=16, channel_indices=None, um_per_pixel=0.1, scale_bar_length_um=10, plot=False, fontsize=12, show_filename=True, channel_names=None, update_db=True):
-    
-    """
-    Generates representative images based on the provided parameters.
-
-    Args:
-        db_path (str): The path to the SQLite database file.
-        cells (list, optional): The list of host cell types. Defaults to ['HeLa'].
-        cell_loc (list, optional): The list of location identifiers for host cells. Defaults to None.
-        pathogens (list, optional): The list of pathogens. Defaults to ['rh'].
-        pathogen_loc (list, optional): The list of location identifiers for pathogens. Defaults to None.
-        treatments (list, optional): The list of treatments. Defaults to ['cm'].
-        treatment_loc (list, optional): The list of location identifiers for treatments. Defaults to None.
-        channel_of_interest (int, optional): The index of the channel of interest. Defaults to 1.
-        compartments (list or str, optional): The compartments to compare. Defaults to ['pathogen', 'cytoplasm'].
-        measurement (str, optional): The measurement to compare. Defaults to 'mean_intensity'.
-        nr_imgs (int, optional): The number of representative images to generate. Defaults to 16.
-        channel_indices (list, optional): The indices of the channels to include in the representative images. Defaults to [0, 1, 2].
-        um_per_pixel (float, optional): The scale factor for converting pixels to micrometers. Defaults to 0.1.
-        scale_bar_length_um (float, optional): The length of the scale bar in micrometers. Defaults to 10.
-        plot (bool, optional): Whether to plot the representative images. Defaults to False.
-        fontsize (int, optional): The font size for the plot. Defaults to 12.
-        show_filename (bool, optional): Whether to show the filename on the plot. Defaults to True.
-        channel_names (list, optional): The names of the channels. Defaults to None.
-
-    Returns:
-        None
-    """
+    """Save representative-image grids per condition selected by a compartment measurement ratio."""
     
     if cells is None:
         cells = ['HeLa']
@@ -1451,17 +1462,7 @@ def _generate_representative_images(db_path, cells=None, cell_loc=None, pathogen
             
 # Adjusted mapping function to infer type from location identifiers
 def _map_values(row, values, locs):
-    """
-    Maps values to a specific location in the row or column based on the given locs.
-
-    Args:
-        row (dict): The row dictionary containing the location identifier.
-        values (list): The list of values to be mapped.
-        locs (list): The list of location identifiers.
-
-    Returns:
-        The mapped value corresponding to the given row or column location, or None if not found.
-    """
+    """Look up the value assigned to the row/column identifier in ``row``."""
     if locs:
         value_dict = {loc: value for value, loc_list in zip(values, locs) for loc in loc_list}
         # Determine if we're dealing with row or column based on first location identifier
@@ -1470,27 +1471,20 @@ def _map_values(row, values, locs):
     return values[0] if values else None
 
 def is_list_of_lists(var):
+    """Return ``True`` if ``var`` is a list whose every element is also a list."""
     if isinstance(var, list) and all(isinstance(i, list) for i in var):
         return True
     return False
 
 def normalize_to_dtype(array, p1=2, p2=98, percentile_list=None, new_dtype=None):
-    """
-    Normalize each image in the stack to its own percentiles.
+    """Percentile-normalize each channel of an image stack into the target dtype range.
 
-    Parameters:
-    - array: numpy array
-    The input stack to be normalized.
-    - p1: int, optional
-    The lower percentile value for normalization. Default is 2.
-    - p2: int, optional
-    The upper percentile value for normalization. Default is 98.
-    - percentile_list: list, optional
-    A list of pre-calculated percentiles for each image in the stack. Default is None.
-    
-    Returns:
-    - new_stack: numpy array
-    The normalized stack with the same shape as the input stack.
+    :param array: input stack of shape ``(H, W, C)``.
+    :param p1: lower percentile. Default ``2``.
+    :param p2: upper percentile. Default ``98``.
+    :param percentile_list: per-channel ``(low, high)`` pairs; overrides ``p1``/``p2``.
+    :param new_dtype: target dtype (``np.uint8``/``np.uint16`` or their string forms).
+    :returns: normalized stack with the same shape as ``array``.
     """
 
     if new_dtype is None:
@@ -1531,15 +1525,7 @@ def normalize_to_dtype(array, p1=2, p2=98, percentile_list=None, new_dtype=None)
     return new_stack
     
 def _list_endpoint_subdirectories(base_dir):
-    """
-    Returns a list of subdirectories within the given base directory.
-
-    Args:
-        base_dir (str): The base directory to search for subdirectories.
-
-    Returns:
-        list: A list of subdirectories within the base directory.
-    """
+    """Return leaf subdirectory paths under ``base_dir``, excluding any named ``figure``."""
     
     endpoint_subdirectories = []
     for root, dirs, _ in os.walk(base_dir):
@@ -1550,20 +1536,7 @@ def _list_endpoint_subdirectories(base_dir):
     return endpoint_subdirectories
     
 def _generate_names(file_name, cell_id, cell_nucleus_ids, cell_pathogen_ids, source_folder, crop_mode='cell', timelapse=None):
-    """
-    Generate names for the image, folder, and table based on the given parameters.
-
-    Args:
-        file_name (str): The name of the file.
-        cell_id (numpy.ndarray): An array of cell IDs.
-        cell_nucleus_ids (numpy.ndarray): An array of cell nucleus IDs.
-        cell_pathogen_ids (numpy.ndarray): An array of cell pathogen IDs.
-        source_folder (str): The source folder path.
-        crop_mode (str, optional): The crop mode. Defaults to 'cell'.
-
-    Returns:
-        tuple: A tuple containing the image name, folder path, and table name.
-    """
+    """Build the ``(image_name, folder_path, table_name)`` tuple for a cropped object."""
     non_zero_cell_ids = cell_id[cell_id != 0]
     cell_id_str = "multi" if non_zero_cell_ids.size > 1 else str(non_zero_cell_ids[0]) if non_zero_cell_ids.size == 1 else "none"
     cell_nucleus_ids = cell_nucleus_ids[cell_nucleus_ids != 0]
@@ -1601,17 +1574,7 @@ def _generate_names(file_name, cell_id, cell_nucleus_ids, cell_pathogen_ids, sou
     return img_name, fldr, table_name
 
 def _find_bounding_box(crop_mask, _id, buffer=10):
-    """
-    Find the bounding box coordinates for a given object ID in a crop mask.
-
-    Parameters:
-    crop_mask (ndarray): The crop mask containing object IDs.
-    _id (int): The object ID to find the bounding box for.
-    buffer (int, optional): The buffer size to add to the bounding box coordinates. Defaults to 10.
-
-    Returns:
-    ndarray: A new mask with the same dimensions as crop_mask, where the bounding box area is filled with the object ID.
-    """
+    """Return a mask with the padded bounding box of ``_id`` filled with ``_id``."""
     object_indices = np.where(crop_mask == _id)
 
     # Determine the bounding box coordinates
@@ -1633,23 +1596,7 @@ def _find_bounding_box(crop_mask, _id, buffer=10):
     return new_mask
     
 def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folder, file_name, experiment, timelapse=False):
-        """
-        Merges morphology and intensity dataframes, renames columns, adds additional columns, rearranges columns,
-        and saves the merged dataframe to a SQLite database.
-
-        Args:
-            morph_df (pd.DataFrame): Dataframe containing morphology data.
-            intensity_df (pd.DataFrame): Dataframe containing intensity data.
-            table_type (str): Type of table to save the merged dataframe to.
-            source_folder (str): Path to the source folder.
-            file_name (str): Name of the file.
-            experiment (str): Name of the experiment.
-            timelapse (bool, optional): Indicates if the data is from a timelapse experiment. Defaults to False.
-
-        Raises:
-            ValueError: If an invalid table_type is provided or if columns are missing in the dataframe.
-
-        """
+        """Merge morphology and intensity DataFrames and append to the measurements SQLite DB."""
         morph_df = _check_integrity(morph_df)
         intensity_df = _check_integrity(intensity_df)
         if len(morph_df) > 0 and len(intensity_df) > 0:
@@ -1686,16 +1633,7 @@ def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folde
                     print("SQLite error:", e)
                     
 def _safe_int_convert(value, default=0):
-    """
-    Converts the given value to an integer if possible, otherwise returns the default value.
-
-    Args:
-        value: The value to be converted to an integer.
-        default: The default value to be returned if the conversion fails. Default is 0.
-
-    Returns:
-        The converted integer value if successful, otherwise the default value.
-    """
+    """Return ``int(value)`` on success, otherwise ``default``."""
     try:
         return int(value)
     except ValueError:
@@ -1703,16 +1641,7 @@ def _safe_int_convert(value, default=0):
         return default
 
 def _map_wells(file_name, timelapse=False):
-    """
-    Maps the components of a file name to plate, row, column, field, and timeid (if timelapse is True).
-
-    Args:
-        file_name (str): The name of the file.
-        timelapse (bool, optional): Indicates whether the file is part of a timelapse sequence. Defaults to False.
-
-    Returns:
-        tuple: A tuple containing the mapped values for plate, row, column, field, and timeid (if timelapse is True).
-    """
+    """Parse a stack file name into ``(plate, row, column, field[, timeid], prcf)``."""
     try:
         parts = file_name.split('_')
         plate = parts[0]
@@ -1740,20 +1669,7 @@ def _map_wells(file_name, timelapse=False):
         return plate, row, column, field, prcf
 
 def _map_wells_png(file_name, timelapse=False):
-    """
-    Maps the components of a file name to their corresponding values.
-
-    Args:
-        file_name (str): The name of the file.
-        timelapse (bool, optional): Indicates whether the file is part of a timelapse sequence. Defaults to False.
-
-    Returns:
-        tuple: A tuple containing the mapped components of the file name.
-
-    Raises:
-        None
-
-    """
+    """Parse a cropped-object PNG file name into well identifiers plus ``prcfo`` and object id."""
     try:
         root, ext = os.path.splitext(file_name)
         parts = root.split('_')
@@ -1783,15 +1699,7 @@ def _map_wells_png(file_name, timelapse=False):
         return plate, row, column, field, prcfo, object_id
         
 def _check_integrity(df):
-    """
-    Check the integrity of the DataFrame and perform necessary modifications.
-
-    Args:
-        df (pandas.DataFrame): The input DataFrame.
-
-    Returns:
-        pandas.DataFrame: The modified DataFrame with integrity checks and modifications applied.
-    """
+    """Deduplicate label columns and collapse them into ``label_list``/``object_label``."""
     df.columns = [col + f'_{i}' if df.columns.tolist().count(col) > 1 and i != 0 else col for i, col in enumerate(df.columns)]
     label_cols = [col for col in df.columns if 'label' in col]
     df['label_list'] = df[label_cols].values.tolist()
@@ -1801,22 +1709,7 @@ def _check_integrity(df):
     return df
     
 def _get_percentiles(array, p1=2, p2=98):
-    """
-    Calculate the percentiles of each image in the given array.
-
-    Parameters:
-    - array: numpy.ndarray
-        The input array containing the images.
-    - q1: float, optional
-        The lower percentile value to calculate. Default is 2.
-    - q2: float, optional
-        The upper percentile value to calculate. Default is 98.
-
-    Returns:
-    - percentiles: list
-        A list of tuples, where each tuple contains the minimum and maximum
-        values of the corresponding image in the array.
-    """
+    """Return per-channel ``[p1, p2]`` percentiles from nonzero pixels of an image stack."""
     nimg = array.shape[2]
     percentiles = []
     for v in range(nimg):
@@ -1833,23 +1726,7 @@ def _get_percentiles(array, p1=2, p2=98):
     return percentiles
 
 def _crop_center(img, cell_mask, new_width, new_height):
-    """
-    Crop the image around the center of the cell mask.
-
-    Parameters:
-    - img: numpy.ndarray
-        The input image.
-    - cell_mask: numpy.ndarray
-        The binary mask of the cell.
-    - new_width: int
-        The desired width of the cropped image.
-    - new_height: int
-        The desired height of the cropped image.
-
-    Returns:
-    - img: numpy.ndarray
-        The cropped image.
-    """
+    """Crop ``img`` to ``new_width`` x ``new_height`` centered on the mask centroid."""
     # Convert all non-zero values in mask to 1
     cell_mask[cell_mask != 0] = 1
     mask_3d = np.repeat(cell_mask[:, :, np.newaxis], img.shape[2], axis=2).astype(img.dtype) # Create 3D mask
@@ -1875,15 +1752,7 @@ def _crop_center(img, cell_mask, new_width, new_height):
     return img
     
 def _masks_to_masks_stack(masks):
-    """
-    Convert a list of masks into a stack of masks.
-
-    Args:
-        masks (list): A list of masks.
-
-    Returns:
-        list: A stack of masks.
-    """
+    """Return ``masks`` as a plain list preserving iteration order."""
     mask_stack = []
     for idx, mask in enumerate(masks):
         mask_stack.append(mask)
@@ -1950,16 +1819,7 @@ def _get_object_settings(object_type, settings):
 def _pivot_counts_table(db_path):
 
     def _read_table_to_dataframe(db_path, table_name='object_counts'):
-        """
-        Read a table from an SQLite database into a pandas DataFrame.
-
-        Parameters:
-        - db_path (str): The path to the SQLite database file.
-        - table_name (str): The name of the table to read. Default is 'object_counts'.
-
-        Returns:
-        - df (pandas.DataFrame): The table data as a pandas DataFrame.
-        """
+        """Return the given SQLite table as a DataFrame."""
         # Connect to the SQLite database
         conn = sqlite3.connect(db_path)
         # Read the entire table into a pandas DataFrame
@@ -1970,16 +1830,7 @@ def _pivot_counts_table(db_path):
         return df
 
     def _pivot_dataframe(df):
-
-        """
-        Pivot the DataFrame.
-
-        Args:
-            df (pandas.DataFrame): The input DataFrame.
-
-        Returns:
-            pandas.DataFrame: The pivoted DataFrame with filled NaN values.
-        """
+        """Pivot count-type rows into one column per object type, NaNs filled with 0."""
         # Pivot the DataFrame
         pivoted_df = df.pivot(index='file_name', columns='count_type', values='object_count').reset_index()
         # Because the pivot operation can introduce NaN values for missing data,
@@ -1998,11 +1849,7 @@ def _pivot_counts_table(db_path):
     conn.close()
     
 def _get_cellpose_channels(settings):
-    """
-    Returns:
-        channels_to_extract: sorted list of original channel indices to pull from the full stack
-        cellpose_channels: dict of object_type -> remapped indices into the extracted stack
-    """
+    """Return the channel indices to extract and the per-object-type Cellpose channel remap."""
     nucleus_ch = settings.get('cellpose_nucleus_channel')
     cell_ch = settings.get('cellpose_cell_channel')
     pathogen_ch = settings.get('cellpose_pathogen_channel')
@@ -2037,21 +1884,16 @@ def _get_cellpose_channels(settings):
     
 
 def annotate_conditions(df, cells=None, cell_loc=None, pathogens=None, pathogen_loc=None, treatments=None, treatment_loc=None):
-    """
-    Annotates conditions in a DataFrame based on specified criteria and combines them into a 'condition' column.
-    NaN is used for missing values, and they are excluded from the 'condition' column.
+    """Annotate ``df`` with host cell, pathogen, treatment, and combined ``condition`` columns.
 
-    Args:
-        df (pandas.DataFrame): The DataFrame to annotate.
-        cells (list/str, optional): Host cell types. Defaults to None.
-        cell_loc (list of lists, optional): Values for each host cell type. Defaults to None.
-        pathogens (list/str, optional): Pathogens. Defaults to None.
-        pathogen_loc (list of lists, optional): Values for each pathogen. Defaults to None.
-        treatments (list/str, optional): Treatments. Defaults to None.
-        treatment_loc (list of lists, optional): Values for each treatment. Defaults to None.
-
-    Returns:
-        pandas.DataFrame: Annotated DataFrame with a combined 'condition' column.
+    :param df: DataFrame to annotate; must contain ``rowID``/``columnID``.
+    :param cells: host cell types (str or list).
+    :param cell_loc: per-cell-type list-of-lists of row/column identifiers.
+    :param pathogens: pathogens (str or list).
+    :param pathogen_loc: per-pathogen list-of-lists of row/column identifiers.
+    :param treatments: treatments (str or list).
+    :param treatment_loc: per-treatment list-of-lists of row/column identifiers.
+    :returns: annotated DataFrame with ``host_cells``, ``pathogen``, ``treatment``, ``condition`` columns.
     """
     
     def _get_type(val):
@@ -2063,15 +1905,7 @@ def annotate_conditions(df, cells=None, cell_loc=None, pathogens=None, pathogen_
         return None
 
     def _map_or_default(column_name, values, loc, df):
-        """
-        Consolidates the logic for mapping values or assigning defaults when loc is None.
-    
-        Args:
-            column_name (str): The column in the DataFrame to annotate.
-            values (list/str): The list of values or a single string to annotate.
-            loc (list of lists): Location mapping for the values, or None if not used.
-            df (pandas.DataFrame): The DataFrame to modify.
-        """
+        """Assign or map ``values`` into ``column_name`` based on optional row/column ``loc``."""
         if isinstance(values, str) and loc is None:
             # If a single string is provided and loc is None, assign the value to all rows
             df[column_name] = values  
@@ -2110,19 +1944,7 @@ def annotate_conditions(df, cells=None, cell_loc=None, pathogens=None, pathogen_
     return df
 
 def _split_data(df, group_by, object_type):
-    """
-    Splits the input dataframe into numeric and non-numeric parts, groups them by the specified column,
-    and returns the grouped dataframes with conditional aggregation.
-
-    Parameters:
-    df (pandas.DataFrame): The input dataframe.
-    group_by (str): The column name to group the dataframes by.
-    object_type (str): The column name to concatenate with 'prcf' to create a new column 'prcfo'.
-
-    Returns:
-    grouped_numeric (pandas.DataFrame): The grouped dataframe containing numeric columns with conditional aggregation.
-    grouped_non_numeric (pandas.DataFrame): The grouped dataframe containing non-numeric columns.
-    """
+    """Group numeric and non-numeric columns of ``df`` separately with per-column aggregation."""
 
     df = df.copy()
 
@@ -2192,17 +2014,7 @@ def _split_data(df, group_by, object_type):
 
     
 def _calculate_recruitment(df, channel):
-    """
-    Calculate recruitment metrics based on intensity values in different channels.
-
-    Args:
-        df (pandas.DataFrame): The input DataFrame containing intensity values in different channels.
-        channel (int): The channel number.
-
-    Returns:
-        pandas.DataFrame: The DataFrame with calculated recruitment metrics.
-
-    """
+    """Add pathogen-to-compartment recruitment ratio columns for the given intensity channel."""
     df['pathogen_cell_mean_mean'] = df[f'pathogen_channel_{channel}_mean_intensity']/df[f'cell_channel_{channel}_mean_intensity']
     df['pathogen_cytoplasm_mean_mean'] = df[f'pathogen_channel_{channel}_mean_intensity']/df[f'cytoplasm_channel_{channel}_mean_intensity']
     df['pathogen_nucleus_mean_mean'] = df[f'pathogen_channel_{channel}_mean_intensity']/df[f'nucleus_channel_{channel}_mean_intensity']
@@ -2267,18 +2079,18 @@ def _group_by_well(df):
 ###################################################
 
 class Cache:
-    """
-    A class representing a cache with a maximum size.
+    """LRU cache with a fixed maximum size.
 
-    Args:
-        max_size (int): The maximum size of the cache.
+    :param max_size: maximum number of entries retained; oldest is evicted on overflow.
     """
 
     def __init__(self, max_size):
+        """Store the size limit and initialize an empty ``OrderedDict``."""
         self.cache = OrderedDict()
         self.max_size = max_size
 
     def get(self, key):
+        """Return the cached value for ``key`` and mark it most-recently-used, or ``None``."""
         if key in self.cache:
             value = self.cache.pop(key)
             self.cache[key] = value
@@ -2286,34 +2098,28 @@ class Cache:
         return None
 
     def put(self, key, value):
+        """Insert ``value`` under ``key``, evicting the least-recently-used entry if full."""
         if len(self.cache) >= self.max_size:
             self.cache.popitem(last=False)
         self.cache[key] = value
 
 class ScaledDotProductAttention(nn.Module):
+    """Standard scaled dot-product attention layer.
+
+    :param d_k: dimensionality of key/query vectors used in the scaling factor.
+    """
     def __init__(self, d_k):
-        """
-        Initializes the ScaledDotProductAttention module.
-
-        Args:
-            d_k (int): The dimension of the key and query vectors.
-
-        """
+        """Store ``d_k`` used to scale attention logits."""
         super(ScaledDotProductAttention, self).__init__()
         self.d_k = d_k
 
     def forward(self, Q, K, V):
-        """
-        Performs the forward pass of the ScaledDotProductAttention module.
+        """Return ``softmax(QK^T / sqrt(d_k)) V``.
 
-        Args:
-            Q (torch.Tensor): The query tensor.
-            K (torch.Tensor): The key tensor.
-            V (torch.Tensor): The value tensor.
-
-        Returns:
-            torch.Tensor: The output tensor.
-
+        :param Q: query tensor.
+        :param K: key tensor.
+        :param V: value tensor.
+        :returns: attention-weighted value tensor.
         """
         scores = torch.matmul(Q, K.transpose(-2, -1)) / torch.sqrt(torch.tensor(self.d_k, dtype=torch.float32))
         attention_probs = F.softmax(scores, dim=-1)
@@ -2321,30 +2127,21 @@ class ScaledDotProductAttention(nn.Module):
         return output
 
 class SelfAttention(nn.Module):
-    """
-    Self-Attention module that applies scaled dot-product attention mechanism.
-    
-    Args:
-        in_channels (int): Number of input channels.
-        d_k (int): Dimensionality of the key and query vectors.
+    """Linear-projected self-attention layer.
+
+    :param in_channels: input feature dimension.
+    :param d_k: projected key/query/value dimension.
     """
     def __init__(self, in_channels, d_k):
+        """Build the Q/K/V projections and the underlying attention layer."""
         super(SelfAttention, self).__init__()
         self.W_q = nn.Linear(in_channels, d_k)
         self.W_k = nn.Linear(in_channels, d_k)
         self.W_v = nn.Linear(in_channels, d_k)
         self.attention = ScaledDotProductAttention(d_k)
-    
+
     def forward(self, x):
-        """
-        Forward pass of the SelfAttention module.
-        
-        Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, in_channels).
-        
-        Returns:
-            torch.Tensor: Output tensor after applying self-attention mechanism.
-        """
+        """Return self-attention over ``x`` of shape ``(B, in_channels)``."""
         Q = self.W_q(x)
         K = self.W_k(x)
         V = self.W_v(x)
@@ -2353,52 +2150,34 @@ class SelfAttention(nn.Module):
 
 # Early Fusion Block
 class EarlyFusion(nn.Module):
-    """
-    Early Fusion module for image classification.
-    
-    Args:
-        in_channels (int): Number of input channels.
+    """1x1 convolution that fuses input channels down to 64 feature maps.
+
+    :param in_channels: number of input channels.
     """
     def __init__(self, in_channels):
+        """Create the 1x1 fusion convolution."""
         super(EarlyFusion, self).__init__()
         self.conv1 = nn.Conv2d(in_channels, 64, kernel_size=1, stride=1)
-        
+
     def forward(self, x):
-        """
-        Forward pass of the Early Fusion module.
-        
-        Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, in_channels, height, width).
-        
-        Returns:
-            torch.Tensor: Output tensor of shape (batch_size, 64, height, width).
-        """
+        """Return the 64-channel fused feature map."""
         x = self.conv1(x)
         return x
 
 # Spatial Attention Mechanism
 class SpatialAttention(nn.Module):
-    def __init__(self, kernel_size=7):
-        """
-        Initializes the SpatialAttention module.
+    """Spatial attention gate that reweights features by pooled channel statistics.
 
-        Args:
-            kernel_size (int): The size of the convolutional kernel. Default is 7.
-        """
+    :param kernel_size: convolution kernel width used to fuse average+max pooled maps.
+    """
+    def __init__(self, kernel_size=7):
+        """Build the fusion convolution and sigmoid gate."""
         super(SpatialAttention, self).__init__()
         self.conv1 = nn.Conv2d(2, 1, kernel_size, padding=kernel_size//2, bias=False)
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
-        """
-        Performs forward pass of the SpatialAttention module.
-
-        Args:
-            x (torch.Tensor): The input tensor.
-
-        Returns:
-            torch.Tensor: The output tensor after applying spatial attention.
-        """
+        """Return the spatial attention map for ``x`` in ``[0, 1]``."""
         avg_out = torch.mean(x, dim=1, keepdim=True)
         max_out, _ = torch.max(x, dim=1, keepdim=True)
         x = torch.cat([avg_out, max_out], dim=1)
@@ -2407,35 +2186,53 @@ class SpatialAttention(nn.Module):
     
 # Multi-Scale Block with Attention
 class MultiScaleBlockWithAttention(nn.Module):
+    """Dilated conv block followed by a 1x1 attention convolution.
+
+    :param in_channels: input channel count.
+    :param out_channels: output channel count.
+    """
     def __init__(self, in_channels, out_channels):
+        """Build the dilated convolution and 1x1 spatial-attention convolution."""
         super(MultiScaleBlockWithAttention, self).__init__()
         self.dilated_conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, dilation=1, padding=1)
         self.spatial_attention = nn.Conv2d(out_channels, out_channels, kernel_size=1)
-        
+
     def custom_forward(self, x):
+        """Apply dilated conv + ReLU followed by the 1x1 spatial attention."""
         x1 = F.relu(self.dilated_conv1(x), inplace=True)
         x = self.spatial_attention(x1)
         return x
 
     def forward(self, x):
+        """Forward pass; delegates to :meth:`custom_forward`."""
         return self.custom_forward(x)
 
 # Final Classifier
 class CustomCellClassifier(nn.Module):
+    """Small classifier stacking :class:`EarlyFusion` and a multi-scale attention block.
+
+    :param num_classes: output class count.
+    :param pathogen_channel: reserved for downstream use; kept for API compatibility.
+    :param use_attention: reserved for downstream use; kept for API compatibility.
+    :param use_checkpoint: run the forward pass through ``torch.utils.checkpoint``.
+    :param dropout_rate: reserved for downstream use; kept for API compatibility.
+    """
     def __init__(self, num_classes, pathogen_channel, use_attention, use_checkpoint, dropout_rate):
+        """Build the fusion, multi-scale, and linear classifier submodules."""
         super(CustomCellClassifier, self).__init__()
         self.early_fusion = EarlyFusion(in_channels=3)
-        
+
         self.multi_scale_block_1 = MultiScaleBlockWithAttention(in_channels=64, out_channels=64)
-        
+
         self.fc1 = nn.Linear(64, num_classes)
         self.use_checkpoint = use_checkpoint
         # Explicitly require gradients for all parameters
         for param in self.parameters():
             param.requires_grad = True
-        
+
     def custom_forward(self, x):
-        x.requires_grad = True 
+        """Return the class logits for a batch ``x`` of shape ``(B, 3, H, W)``."""
+        x.requires_grad = True
         x = self.early_fusion(x)
         x = self.multi_scale_block_1(x)
         x = F.adaptive_avg_pool2d(x, (1, 1)).view(x.size(0), -1)
@@ -2443,8 +2240,9 @@ class CustomCellClassifier(nn.Module):
         return x
 
     def forward(self, x):
+        """Forward pass, optionally through activation checkpointing."""
         if self.use_checkpoint:
-            x.requires_grad = True 
+            x.requires_grad = True
             return checkpoint(self.custom_forward, x)
         else:
             return self.custom_forward(x)
@@ -2469,6 +2267,16 @@ class TorchModel(nn.Module):
         num_classes: int = 2,      # >=2 => multiclass head; ==1 => binary head (BCE)
         multilabel: bool = False   # kept for external loss/metrics decisions
     ):
+        """Build the backbone, strip its head, and attach the SPACR linear classifier.
+
+        :param model_name: TorchVision classification model to load.
+        :param pretrained: use ImageNet-pretrained weights when available.
+        :param dropout_rate: dropout probability applied to backbone and SPACR head; ``None`` disables.
+        :param use_checkpoint: enable gradient checkpointing through the backbone.
+        :param num_classes: output class count; ``1`` yields a BCE-style binary head.
+        :param multilabel: informational flag consumed by external loss/metrics code.
+        :raises ValueError: if ``model_name`` is not a TorchVision model.
+        """
         super().__init__()
         self.model_name = str(model_name)
         self.use_checkpoint = bool(use_checkpoint)
@@ -2592,6 +2400,7 @@ class TorchModel(nn.Module):
         Does NOT apply the new SPACR head.
         """
         def forward_fn(t):
+            """Run the underlying backbone on ``t`` (used as the checkpoint target)."""
             return self.base_model(t)
 
         out = checkpoint(forward_fn, x) if self.use_checkpoint else forward_fn(x)
@@ -2619,6 +2428,7 @@ class TorchModel(nn.Module):
         return out
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Return classification logits of shape ``(N, num_classes)`` for input batch ``x``."""
         feats = self._run_backbone(x)
         if self.use_dropout:
             feats = self.dropout(feats)
@@ -2626,6 +2436,15 @@ class TorchModel(nn.Module):
         return logits
 
 class TorchModel_v2(nn.Module):
+    """TorchVision backbone with a SPACR linear head (streamlined variant of :class:`TorchModel`).
+
+    :param model_name: TorchVision classification model to load.
+    :param pretrained: use ImageNet-pretrained weights when available.
+    :param dropout_rate: dropout probability applied to backbone and SPACR head; ``None`` disables.
+    :param use_checkpoint: enable gradient checkpointing through the backbone.
+    :param num_classes: output class count.
+    :param multilabel: informational flag consumed by external loss/metrics code.
+    """
     def __init__(
         self,
         model_name: str = "resnet50",
@@ -2635,6 +2454,7 @@ class TorchModel_v2(nn.Module):
         num_classes: int = 2,          # arbitrary classes (>=2 => multiclass; 1 => binary head)
         multilabel: bool = False       # kept for external loss/metrics decisions (not used internally)
     ):
+        """Build the backbone, strip its head, and attach the SPACR classifier."""
         super().__init__()
         self.model_name = model_name
         self.use_checkpoint = bool(use_checkpoint)
@@ -2722,6 +2542,7 @@ class TorchModel_v2(nn.Module):
         return self.base_model(x)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Return classification logits of shape ``(N, num_classes)`` for input batch ``x``."""
         feats = self._run_backbone(x)
         # Ensure 2D features (N, F)
         if feats.ndim > 2:
@@ -2730,27 +2551,29 @@ class TorchModel_v2(nn.Module):
             feats = self.dropout(feats)
         logits = self.spacr_classifier(feats)  # (N, C) where C==num_classes
         return logits
-    
-class FocalLossWithLogits(nn.Module):
-    """
-    Focal loss that works for:
-      - binary: logits shape (N,) or (N,1); target float (N,) in {0,1}
-      - multiclass (single-label): logits shape (N,C); target long (N,) in [0..C-1]
-      - multilabel: logits shape (N,C); target float (N,C) in {0,1}
 
-    Args:
-        alpha (float or Tensor): class balancing factor. If float for multiclass,
-            applied uniformly; or provide a 1D tensor of shape (C,).
-        gamma (float): focusing parameter.
-        reduction: 'mean'|'sum'|'none'
+class FocalLossWithLogits(nn.Module):
+    """Focal loss for binary, multiclass, and multilabel targets.
+
+    Auto-selects the BCE or cross-entropy branch based on the shapes of
+    ``logits`` and ``target``:
+      - binary: logits ``(N,)`` or ``(N,1)``; target float ``(N,)`` in ``{0,1}``.
+      - multiclass: logits ``(N,C)``; target long ``(N,)`` in ``[0..C-1]``.
+      - multilabel: logits ``(N,C)``; target float ``(N,C)`` in ``{0,1}``.
+
+    :param alpha: class-balancing factor (float or 1-D tensor of shape ``(C,)``).
+    :param gamma: focusing parameter.
+    :param reduction: one of ``'mean'``, ``'sum'``, ``'none'``.
     """
     def __init__(self, alpha=1.0, gamma=2.0, reduction="mean"):
+        """Store the focal-loss hyperparameters."""
         super().__init__()
         self.gamma = float(gamma)
         self.reduction = reduction
         self.alpha = alpha
 
     def forward(self, logits, target):
+        """Return the focal loss value for the chosen ``reduction`` mode."""
         # Binary / multilabel (BCE-style)
         if logits.ndim == 1 or logits.size(-1) == 1 or (
             logits.ndim == 2 and target.ndim == 2 and target.size(1) == logits.size(1)
@@ -2783,7 +2606,15 @@ class FocalLossWithLogits(nn.Module):
         return loss
     
 class ResNet(nn.Module):
+    """ResNet backbone with a two-layer SPACR binary-classification head.
+
+    :param resnet_type: one of ``'resnet18'``/``'resnet34'``/``'resnet50'``/``'resnet101'``/``'resnet152'``.
+    :param dropout_rate: dropout probability before the final linear layer; ``None`` disables.
+    :param use_checkpoint: enable gradient checkpointing through the ResNet backbone.
+    :param init_weights: ``'imagenet'`` for pretrained weights or ``'none'`` for random init.
+    """
     def __init__(self, resnet_type='resnet50', dropout_rate=None, use_checkpoint=False, init_weights='imagenet'):
+        """Select the backbone and delegate head construction to :meth:`initialize_base`."""
         super(ResNet, self).__init__()
 
         resnet_map = {
@@ -2800,6 +2631,14 @@ class ResNet(nn.Module):
         self.initialize_base(resnet_map[resnet_type], dropout_rate, use_checkpoint, init_weights)
 
     def initialize_base(self, base_model_dict, dropout_rate, use_checkpoint, init_weights):
+        """Build the backbone (with or without pretrained weights) and the two-layer head.
+
+        :param base_model_dict: dict with keys ``func`` (model constructor) and ``weights``.
+        :param dropout_rate: dropout probability applied between the two linear layers.
+        :param use_checkpoint: enable gradient checkpointing through the backbone.
+        :param init_weights: ``'imagenet'`` or ``'none'``.
+        :raises ValueError: if ``init_weights`` is neither ``'imagenet'`` nor ``'none'``.
+        """
         if init_weights == 'imagenet':
             self.resnet = base_model_dict['func'](weights=base_model_dict['weights'])
         elif init_weights == 'none':
@@ -2817,13 +2656,14 @@ class ResNet(nn.Module):
         self.fc2 = nn.Linear(500, 1)
 
     def forward(self, x):
+        """Return the flattened single-logit prediction for input batch ``x``."""
         x.requires_grad = True  # Ensure that the tensor has requires_grad set to True
 
         if self.use_checkpoint:
             x = checkpoint(self.resnet, x)  # Use checkpointing for just the ResNet part
         else:
             x = self.resnet(x)
-        
+
         x = F.relu(self.fc1(x))
 
         if self.use_dropout:
@@ -2833,15 +2673,11 @@ class ResNet(nn.Module):
         return logits
 
 def split_my_dataset(dataset, split_ratio=0.1):
-    """
-    Splits a dataset into training and validation subsets.
+    """Randomly split ``dataset`` into ``(train, val)`` subsets.
 
-    Args:
-        dataset (torch.utils.data.Dataset): The dataset to be split.
-        split_ratio (float, optional): The ratio of validation samples to total samples. Defaults to 0.1.
-
-    Returns:
-        tuple: A tuple containing the training dataset and validation dataset.
+    :param dataset: source dataset.
+    :param split_ratio: fraction of samples reserved for validation.
+    :returns: ``(train_subset, val_subset)``.
     """
     num_samples = len(dataset)
     indices = list(range(num_samples))
@@ -2853,18 +2689,15 @@ def split_my_dataset(dataset, split_ratio=0.1):
     return train_dataset, val_dataset
 
 def classification_metrics(all_labels, prediction_pos_probs, loss, epoch):
-    """
-    Calculate classification metrics for binary classification.
+    """Return a one-row DataFrame of accuracy, PR-AUC, and optimal-threshold stats.
 
-    Parameters:
-    - all_labels (list): List of true labels.
-    - prediction_pos_probs (list): List of predicted positive probabilities.
-    - loader_name (str): Name of the data loader.
-    - loss (float): Loss value.
-    - epoch (int): Epoch number.
-
-    Returns:
-    - data_df (DataFrame): DataFrame containing the calculated metrics.
+    :param all_labels: ground-truth binary labels.
+    :param prediction_pos_probs: predicted positive-class probabilities.
+    :param loss: loss tensor for the epoch (``.item()`` is called).
+    :param epoch: epoch number used as the row index.
+    :returns: DataFrame indexed by epoch with accuracy, per-class accuracy, loss,
+        PR-AUC, and optimal threshold columns.
+    :raises ValueError: if ``all_labels`` and ``prediction_pos_probs`` have different lengths.
     """
     
     if len(all_labels) != len(prediction_pos_probs):
@@ -2905,16 +2738,12 @@ def classification_metrics(all_labels, prediction_pos_probs, loss, epoch):
     return data_df
     
 def compute_irm_penalty(losses, dummy_w, device):
-    """
-    Computes the Invariant Risk Minimization (IRM) penalty.
+    """Return the IRM penalty as the sum of squared gradient dot-products across environments.
 
-    Args:
-        losses (list): A list of losses.
-        dummy_w (torch.Tensor): A dummy weight tensor.
-        device (torch.device): The device to perform computations on.
-
-    Returns:
-        float: The computed IRM penalty.
+    :param losses: per-environment loss tensors.
+    :param dummy_w: scalar dummy weight used for gradient computation.
+    :param device: torch device on which to compute the penalty.
+    :returns: scalar IRM penalty value.
     """
     weighted_losses = [loss.clone().detach().requires_grad_(True).to(device) * dummy_w for loss in losses]
     gradients = [grad(w_loss, dummy_w, create_graph=True)[0] for w_loss in weighted_losses]
@@ -2967,22 +2796,21 @@ def choose_model(model_type: str,
                  chan_dict: Optional[dict[str, Any]] = None,
                  num_classes: int = 2,
                  verbose: bool = False) -> Optional[nn.Module]:
-    """
-    Pick and configure a model for classification (binary or multiclass).
+    """Instantiate a classification model by name for binary or multiclass problems.
 
-    Args:
-        model_type: TorchVision model name (e.g. 'resnet50', 'vit_b_16', 'swin_t', 'maxvit_t') or 'custom'
-        device:     Target device (caller will move the returned model)
-        init_weights: Load pretrained weights if available
-        dropout_rate: Dropout probability applied before the classifier head (None/0 to disable)
-        use_checkpoint: Enable gradient checkpointing for the backbone
-        channels:   Input channels (TorchVision pretrained assumes 3; custom handling is up to caller)
-        height,width: Nominal input size for a forward sanity-check
-        chan_dict:  Optional dict passed to a custom model (if you implement one)
-        num_classes: Number of output classes (>=2 => softmax-style head, ==1 => single-logit BCE head)
-        verbose:    If True, print the model structure
+    :param model_type: TorchVision model name (e.g. ``'resnet50'``, ``'vit_b_16'``) or ``'custom'``.
+    :param device: target device (the caller moves the returned model).
+    :param init_weights: load pretrained weights when available.
+    :param dropout_rate: dropout probability before the classifier head (``None``/``0`` disables).
+    :param use_checkpoint: enable gradient checkpointing for the backbone.
+    :param channels: input channel count (pretrained backbones assume 3).
+    :param height: nominal input height used for a forward sanity check.
+    :param width: nominal input width used for a forward sanity check.
+    :param chan_dict: optional dict forwarded to a custom model builder.
+    :param num_classes: output class count; ``1`` yields a single-logit BCE head.
+    :param verbose: print the model structure when ``True``.
 
-    Returns:
+    :returns:
         nn.Module or None if invalid.
     """
 
@@ -3041,12 +2869,20 @@ def choose_model(model_type: str,
 
 
 def calculate_loss(output, target, prefer_focal=False, gamma=2.0, alpha=1.0, reduction="mean"):
-    """
-    Auto-select loss for binary, multiclass, or multilabel based on shapes/dtypes.
+    """Auto-select and return a loss for binary, multiclass, or multilabel problems.
 
-    - Binary: logits (N,1), float targets in {0,1}  -> BCEWithLogits / focal-BCE
-    - Multiclass: logits (N,C), long targets (N,)   -> CrossEntropy / focal-CE
-    - Multilabel: logits (N,C), float targets (N,C) -> BCEWithLogits / focal-BCE
+    Dispatches based on the shapes/dtypes of ``output`` and ``target``:
+      - binary: logits ``(N,1)``, float targets in ``{0,1}`` -> BCE / focal-BCE.
+      - multiclass: logits ``(N,C)``, long targets ``(N,)`` -> CE / focal-CE.
+      - multilabel: logits ``(N,C)``, float targets ``(N,C)`` -> BCE / focal-BCE.
+
+    :param output: model logits.
+    :param target: ground-truth labels.
+    :param prefer_focal: use the focal-loss variant instead of plain CE/BCE.
+    :param gamma: focal-loss focusing parameter.
+    :param alpha: focal-loss class-balancing factor.
+    :param reduction: one of ``'mean'``, ``'sum'``, ``'none'``.
+    :returns: scalar loss tensor (or per-sample tensor when ``reduction='none'``).
     """
     # --- helpers -------------------------------------------------------------
     def _focal_bce_with_logits(logits, y, alpha=1.0, gamma=2.0, reduction="mean"):
@@ -3102,11 +2938,17 @@ def calculate_loss(output, target, prefer_focal=False, gamma=2.0, alpha=1.0, red
     return F.binary_cross_entropy_with_logits(output, target, reduction=reduction)
 
 def pick_best_model(src):
+    """Return the path to the ``.pth`` file in ``src`` with the highest ``epoch/acc`` tag.
+
+    :param src: directory of checkpoint files named ``..._epoch_<N>_acc_<A>...``.
+    :returns: absolute path to the top-ranked checkpoint.
+    """
     all_files = os.listdir(src)
     pth_files = [f for f in all_files if f.endswith('.pth')]
     pattern = re.compile(r'_epoch_(\d+)_acc_(\d+(?:\.\d+)?)')
 
     def sort_key(x):
+        """Return ``(accuracy, epoch)`` parsed from a checkpoint filename for sorting."""
         match = pattern.search(x)
         if not match:
             return (0.0, 0)  # Make the primary sorting key float for consistency
@@ -3118,16 +2960,35 @@ def pick_best_model(src):
     return os.path.join(src, best_model)
 
 def get_paths_from_db(df, png_df, image_type='cell_png'):
+    """Return rows of ``png_df`` whose path contains ``image_type`` and whose ``prcfo`` is in ``df``.
+
+    :param df: DataFrame indexed by ``prcfo`` identifiers.
+    :param png_df: DataFrame of PNG metadata with ``png_path`` and ``prcfo`` columns.
+    :param image_type: substring that must appear in ``png_path``.
+    :returns: filtered subset of ``png_df``.
+    """
     objects = df.index.tolist()
     filtered_df = png_df[png_df['png_path'].str.contains(image_type) & png_df['prcfo'].isin(objects)]
     return filtered_df
 
 def save_file_lists(dst, data_set, ls):
-    df = pd.DataFrame(ls, columns=[data_set])  
+    """Write ``ls`` as a single-column CSV named ``<data_set>.csv`` under ``dst``.
+
+    :param dst: destination directory.
+    :param data_set: column name and file stem.
+    :param ls: iterable of values to persist.
+    :returns: None.
+    """
+    df = pd.DataFrame(ls, columns=[data_set])
     df.to_csv(f'{dst}/{data_set}.csv', index=False)
     return
 
 def augment_single_image(args):
+    """Save six augmentations of one image (original, 90/180/270 rotations, H/V flips).
+
+    :param args: ``(img_path, dst)`` tuple.
+    :returns: None.
+    """
     img_path, dst = args
     img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
     filename = os.path.basename(img_path).split('.')[0]
@@ -3156,6 +3017,12 @@ def augment_single_image(args):
     cv2.imwrite(os.path.join(dst, f"{filename}_flip_ver.png"), img_flip_ver)
 
 def augment_images(file_paths, dst):
+    """Run :func:`augment_single_image` in parallel over ``file_paths``.
+
+    :param file_paths: iterable of source image paths.
+    :param dst: destination folder (created if missing).
+    :returns: None.
+    """
     if not os.path.exists(dst):
         os.makedirs(dst)
 
@@ -3175,24 +3042,18 @@ def suggest_training_changes(
     plateau_eps=1e-3,
     noisy_var_ratio=0.03,
 ):
-    """
-    Analyze saved training/validation progress CSVs and propose concrete training changes.
+    """Inspect saved training/validation progress CSVs and propose concrete training changes.
 
-    Args:
-        dst (str): Folder where progress CSVs were saved.
-        train_csv (str|None): Optional explicit path to train CSV. Autodetected if None.
-        val_csv (str|None): Optional explicit path to val CSV. Autodetected if None.
-        last_k (int): How many recent epochs to use for trend/plateau checks.
-        min_epochs (int): Minimum epochs before issuing most suggestions.
-        gap_threshold_acc (float): Accuracy generalization gap threshold (train - val).
-        plateau_eps (float): Absolute slope threshold (|d loss / d epoch|) to call a plateau.
-        noisy_var_ratio (float): If stdev(val_loss_last_k) > noisy_var_ratio * mean(val_loss_last_k), flag instability.
-
-    Returns:
-        dict with keys:
-            - summary: dict of key scalars (best_epoch, best_val_loss, final metrics, slopes, gaps)
-            - flags: list of short machine-readable flags
-            - suggestions: list of concrete, ordered suggestions (strings)
+    :param dst: folder where progress CSVs were saved.
+    :param train_csv: explicit train-CSV path; auto-detected in ``dst`` if ``None``.
+    :param val_csv: explicit val-CSV path; auto-detected in ``dst`` if ``None``.
+    :param last_k: number of recent epochs used for trend and plateau checks.
+    :param min_epochs: minimum epochs before most suggestions are issued.
+    :param gap_threshold_acc: accuracy generalization-gap threshold (train - val).
+    :param plateau_eps: absolute slope threshold used to declare a plateau.
+    :param noisy_var_ratio: instability flag threshold on ``stdev/mean`` of recent val loss.
+    :returns: dict with ``summary`` (key scalars), ``flags`` (short codes),
+        and ``suggestions`` (ordered suggestion strings).
     """
     import os, glob, math
     import numpy as np
@@ -3440,15 +3301,16 @@ def _infer_indices(target: torch.Tensor, num_classes: int) -> torch.Tensor:
     return (target.view(-1) > 0.5).long()
 
 def estimate_class_counts(loader, num_classes: int, src=None, classes=None) -> torch.Tensor:
-    """
-    Get per-class sample counts.
+    """Return per-class sample counts as a ``LongTensor`` of length ``num_classes``.
 
-    If src and classes are provided, counts files in the class folders
-    directly — no image loading, no DataLoader iteration. This avoids
-    stalls on slow filesystems (NAS) and potential deadlocks with
-    persistent_workers.
+    When ``src`` and ``classes`` are provided the counts are taken from the file
+    listings under ``src/<class>``, avoiding a slow DataLoader iteration on NAS.
 
-    Falls back to iterating the DataLoader only if folder info is missing.
+    :param loader: fallback DataLoader iterated only when folder info is missing.
+    :param num_classes: number of output classes.
+    :param src: parent folder containing per-class subfolders.
+    :param classes: ordered class-folder names matching ``src``.
+    :returns: ``LongTensor`` of per-class counts.
     """
 
     # -- fast path: count files on disk instead of loading images --
@@ -3484,15 +3346,24 @@ def build_loss(loss_type: str = "ce",
                asl_gamma_pos: float = 0.0,
                asl_gamma_neg: float = 4.0,
                asl_clip: float = 0.05):
-    """
-    Returns a closure loss_fn(logits, target).  Python 3.9+ compatible.
-    Supported loss_type:
-      'ce', 'ce_smooth', 'ce_weighted', 'focal_ce',
-      'bce', 'focal_bce', 'logit_adjust_ce', 'asl', 'auto'
+    """Return a closure ``loss_fn(logits, target)`` implementing the requested loss.
 
-    Notes:
-      - num_classes==1 -> binary (BCE variants)
-      - num_classes>=2 -> multiclass (CE variants)
+    Supported ``loss_type`` values: ``'ce'``, ``'ce_smooth'``, ``'ce_weighted'``,
+    ``'focal_ce'``, ``'bce'``, ``'focal_bce'``, ``'logit_adjust_ce'``, ``'asl'``, ``'auto'``.
+    ``num_classes==1`` selects binary (BCE variants); ``>=2`` selects multiclass (CE variants).
+
+    :param loss_type: loss identifier (see above).
+    :param num_classes: output class count.
+    :param class_counts: per-class sample counts used to derive weights or logit adjustment.
+    :param label_smoothing: label-smoothing epsilon for ``ce_smooth``.
+    :param focal_gamma: focal-loss focusing parameter.
+    :param focal_alpha: focal-loss class-balancing factor (float or per-class tensor).
+    :param logit_adjust_tau: strength of the Menon-et-al. logit adjustment; 0 disables.
+    :param asl_gamma_pos: asymmetric-loss gamma for positives.
+    :param asl_gamma_neg: asymmetric-loss gamma for negatives.
+    :param asl_clip: asymmetric-loss negative-probability clip.
+    :returns: ``loss_fn(logits, target)`` callable returning a scalar tensor.
+    :raises ValueError: if ``loss_type`` is unknown or incompatible with ``num_classes``.
     """
     lt = (loss_type or "ce").lower()
 
@@ -3573,10 +3444,12 @@ def build_loss(loss_type: str = "ce",
     if num_classes == 1:
         if lt in ("bce", "binary_cross_entropy_with_logits"):
             def loss_fn(logits, target):
+                """Closure: compute the selected per-batch loss from ``(logits, target)``."""
                 y = target.float().view(-1, 1)
                 return F.binary_cross_entropy_with_logits(logits, y)
         elif lt in ("focal_bce", "focal", "focal_loss"):
             def loss_fn(logits, target):
+                """Closure: compute the selected per-batch loss from ``(logits, target)``."""
                 y = target.float().view(-1, 1)
                 return _focal_bce(logits, y, focal_alpha, focal_gamma)
         else:
@@ -3586,11 +3459,13 @@ def build_loss(loss_type: str = "ce",
     # -------- multiclass (num_classes >= 2) --------
     if lt in ("ce", "cross_entropy"):
         def loss_fn(logits, target):
+            """Closure: compute the selected per-batch loss from ``(logits, target)``."""
             y = _infer_indices(target, num_classes)
             w = class_weights.to(logits.device) if class_weights is not None else None
             return F.cross_entropy(logits, y, weight=w)
     elif lt in ("ce_smooth", "label_smoothing"):
         def loss_fn(logits, target):
+            """Closure: compute the selected per-batch loss from ``(logits, target)``."""
             y = _infer_indices(target, num_classes)
             w = class_weights.to(logits.device) if class_weights is not None else None
             return F.cross_entropy(logits, y, weight=w, label_smoothing=float(label_smoothing))
@@ -3598,6 +3473,7 @@ def build_loss(loss_type: str = "ce",
         if class_weights is None:
             raise ValueError("ce_weighted requires class_counts (to derive weights).")
         def loss_fn(logits, target):
+            """Closure: compute the selected per-batch loss from ``(logits, target)``."""
             y = _infer_indices(target, num_classes)
             return F.cross_entropy(logits, y, weight=class_weights.to(logits.device))
     elif lt in ("focal_ce", "focal"):
@@ -3607,6 +3483,7 @@ def build_loss(loss_type: str = "ce",
             if torch.is_tensor(alpha) and alpha.numel() == num_classes:
                 alpha = alpha.to(torch.float)
         def loss_fn(logits, target):
+            """Closure: compute the selected per-batch loss from ``(logits, target)``."""
             y = _infer_indices(target, num_classes)
             return _focal_ce(logits, y, alpha, focal_gamma)
     elif lt in ("logit_adjust_ce", "la_ce"):
@@ -3614,11 +3491,13 @@ def build_loss(loss_type: str = "ce",
             raise ValueError("logit_adjust_ce requires class_counts.")
         adjust = logit_adjust.to(torch.float) if logit_adjust is not None else None
         def loss_fn(logits, target):
+            """Closure: compute the selected per-batch loss from ``(logits, target)``."""
             y = _infer_indices(target, num_classes)
             z = logits if adjust is None else (logits + adjust.to(logits.device))
             return F.cross_entropy(z, y)
     elif lt in ("asl", "asymmetric_loss"):
         def loss_fn(logits, target):
+            """Closure: compute the selected per-batch loss from ``(logits, target)``."""
             # expect one-hot/float (N,C) or indices (N,)
             if target.ndim == 1:
                 y = F.one_hot(target.long(), num_classes=num_classes).float()
@@ -3631,6 +3510,16 @@ def build_loss(loss_type: str = "ce",
     return loss_fn
 
 def augment_classes(dst, nc, pc, generate=True,move=True):
+    """Augment negative and positive class images and split them into train/test folders.
+
+    :param dst: destination root; augmented images land under ``aug_nc``/``aug_pc`` and
+        move into ``aug/{train,test}/{nc,pc}``.
+    :param nc: negative-class source image paths.
+    :param pc: positive-class source image paths.
+    :param generate: run augmentation before moving files.
+    :param move: split augmented images into train/test folders.
+    :returns: None.
+    """
     aug_nc = os.path.join(dst,'aug_nc')
     aug_pc = os.path.join(dst,'aug_pc')
     all_ = len(nc)+len(pc)
@@ -3682,12 +3571,19 @@ def augment_classes(dst, nc, pc, generate=True,move=True):
         return
 
 def annotate_predictions(csv_loc):
+    """Read prediction CSV and add plate/well/field/object columns plus a ``cond`` label.
+
+    :param csv_loc: path to a predictions CSV with a ``path`` column of PNG paths.
+    :returns: DataFrame enriched with parsed metadata and a ``cond`` column
+        (``'screen'``/``'pc'``/``'nc'`` from the plate/well convention).
+    """
     df = pd.read_csv(csv_loc)
     df['filename'] = df['path'].apply(lambda x: x.split('/')[-1])
     df[['plateID', 'well', 'fieldID', 'object']] = df['filename'].str.split('_', expand=True)
     df['object'] = df['object'].str.replace('.png', '')
     
     def assign_condition(row):
+        """Return the condition label (``'screen'``/``'pc'``/``'nc'`` or ``''``) for a metadata row."""
         plate = int(row['plateID'])
         col = int(row['well'][1:])
         
@@ -3705,11 +3601,24 @@ def annotate_predictions(csv_loc):
     return df
 
 def initiate_counter(counter_, lock_):
+    """Initialize shared multiprocessing ``counter`` and ``lock`` globals.
+
+    :param counter_: shared ``multiprocessing.Value`` counter.
+    :param lock_: shared ``multiprocessing.Lock`` guarding the counter.
+    :returns: None.
+    """
     global counter, lock
     counter = counter_
     lock = lock_
 
 def add_images_to_tar(paths_chunk, tar_path, total_images):
+    """Add ``paths_chunk`` images to ``tar_path``, updating the shared counter for progress.
+
+    :param paths_chunk: list of image paths to add.
+    :param tar_path: destination tar archive path.
+    :param total_images: overall image count used to render progress.
+    :returns: None.
+    """
     with tarfile.open(tar_path, 'w') as tar:
         for i, img_path in enumerate(paths_chunk):
             arcname = os.path.basename(img_path)
@@ -3725,6 +3634,13 @@ def add_images_to_tar(paths_chunk, tar_path, total_images):
                 print(f"File not found: {img_path}")
 
 def generate_fraction_map(df, gene_column, min_frequency=0.0):
+    """Return a wells-by-genes fraction matrix, dropping columns below ``min_frequency``.
+
+    :param df: long-format DataFrame with ``prc``, ``count``, ``well_read_sum`` columns.
+    :param gene_column: column identifying the gene/guide.
+    :param min_frequency: drop columns whose maximum fraction is below this cutoff.
+    :returns: DataFrame indexed by ``prc`` with per-gene fractions.
+    """
     df['fraction'] = df['count']/df['well_read_sum']
     genes = df[gene_column].unique().tolist()
     wells = df['prc'].unique().tolist()
@@ -3750,6 +3666,13 @@ def generate_fraction_map(df, gene_column, min_frequency=0.0):
     return independent_variables
 
 def fishers_odds(df, threshold=0.5, phenotyp_col='mean_pred'):
+    """Fisher's exact test per mutant column against a binarized phenotype label.
+
+    :param df: DataFrame with per-mutant presence columns plus ``phenotyp_col``.
+    :param threshold: cutoff below which ``phenotyp_col`` is called "high phenotype".
+    :param phenotyp_col: name of the phenotype column.
+    :returns: DataFrame with columns ``Mutant``, ``OddsRatio``, ``PValue``, ``AdjustedPValue``.
+    """
     # Binning based on phenotype score (e.g., above 0.8 as high)
     df['high_phenotype'] = df[phenotyp_col] < threshold
 
@@ -3790,7 +3713,11 @@ def fishers_odds(df, threshold=0.5, phenotyp_col='mean_pred'):
     return filtered_results_df
 
 def model_metrics(model):
+    """Print RMSE/MAE/Durbin-Watson and show residual/QQ/scale-location diagnostic plots.
 
+    :param model: fitted statsmodels regression result.
+    :returns: None.
+    """
     # Calculate additional metrics
     rmse = np.sqrt(model.mse_resid)
     mae = np.mean(np.abs(model.resid))
@@ -3838,6 +3765,13 @@ def check_multicollinearity(x):
     return vif_data
 
 def lasso_reg(merged_df, alpha_value=0.01, reg_type='lasso'):
+    """Fit Lasso or Ridge on one-hot-encoded gene/grna/plate/row/column predictors.
+
+    :param merged_df: DataFrame with ``gene``, ``grna``, ``plateID``, ``rowID``, ``columnID``, ``pred``.
+    :param alpha_value: regularization strength.
+    :param reg_type: ``'lasso'`` or ``'ridge'``.
+    :returns: DataFrame with ``Feature`` and ``Coefficient`` columns.
+    """
     # Separate predictors and response
     X = merged_df[['gene', 'grna', 'plateID', 'rowID', 'columnID']]
     y = merged_df['pred']
@@ -3864,7 +3798,12 @@ def lasso_reg(merged_df, alpha_value=0.01, reg_type='lasso'):
     return coeff_df
 
 def MLR(merged_df, refine_model):
-    
+    """Fit a multiple-linear regression on gene:grna interactions plus plate/row/column terms.
+
+    :param merged_df: DataFrame with ``gene``, ``grna``, ``plate``, ``row``, ``column``, ``pred`` columns.
+    :param refine_model: refit after removing outliers by residuals and Cook's distance.
+    :returns: tuple ``(max_effects, max_effects_pvalues, model, df)``.
+    """
     from .plot import _reg_v_plot
     
     #model = smf.ols("pred ~ gene + grna + gene:grna + plate + row + column", merged_df).fit()
@@ -3916,9 +3855,18 @@ def MLR(merged_df, refine_model):
     return max_effects, max_effects_pvalues, model, df
 
 def get_files_from_dir(dir_path, file_extension="*"):
+    """Return glob matches for ``dir_path/file_extension``."""
     return glob(os.path.join(dir_path, file_extension))
-    
+
 def create_circular_mask(h, w, center=None, radius=None):
+    """Return a boolean circular mask of shape ``(h, w)`` centered on ``center``.
+
+    :param h: image height.
+    :param w: image width.
+    :param center: ``(x, y)`` center; defaults to the image middle.
+    :param radius: circle radius; defaults to the largest circle fitting inside.
+    :returns: boolean ndarray where ``True`` marks pixels within ``radius``.
+    """
     if center is None:  # use the middle of the image
         center = (int(w/2), int(h/2))
     if radius is None:  # use the smallest distance between the center and image walls
@@ -3931,6 +3879,7 @@ def create_circular_mask(h, w, center=None, radius=None):
     return mask
     
 def apply_mask(image, output_value=0):
+    """Zero out (or set to ``output_value``) pixels outside a circular mask fit to ``image``."""
     h, w = image.shape[:2]  # Assuming image is grayscale or RGB
     mask = create_circular_mask(h, w)
     
@@ -3943,12 +3892,22 @@ def apply_mask(image, output_value=0):
     return masked_image
     
 def invert_image(image):
+    """Return the intensity-inverted image, using the dtype max as the pivot."""
     # The maximum value depends on the image dtype (e.g., 255 for uint8)
     max_value = np.iinfo(image.dtype).max
     inverted_image = max_value - image
-    return inverted_image  
+    return inverted_image
 
 def resize_images_and_labels(images, labels, target_height, target_width, show_example=True):
+    """Resize aligned image/label lists to ``target_height`` x ``target_width``.
+
+    :param images: iterable of source images (2-D or 3-D).
+    :param labels: matching iterable of label masks, or ``None``.
+    :param target_height: output height in pixels.
+    :param target_width: output width in pixels.
+    :param show_example: display an example of the resized pair when ``True``.
+    :returns: ``(resized_images, resized_labels)`` lists.
+    """
     
     from .plot import plot_resize
     
@@ -4002,6 +3961,13 @@ def resize_images_and_labels(images, labels, target_height, target_width, show_e
     return resized_images, resized_labels
 
 def resize_labels_back(labels, orig_dims):
+    """Resize a list of label masks back to their original ``(width, height)``.
+
+    :param labels: iterable of label masks.
+    :param orig_dims: matching iterable of ``(width, height)`` tuples.
+    :returns: list of resized label masks.
+    :raises ValueError: if lengths differ or ``orig_dims`` entries are malformed.
+    """
     resized_labels = []
 
     if len(labels) != len(orig_dims):
@@ -4018,12 +3984,20 @@ def resize_labels_back(labels, orig_dims):
     return resized_labels
 
 def calculate_iou(mask1, mask2):
+    """Return the intersection-over-union of two binary masks after zero-padding to a common shape."""
     mask1, mask2 = pad_to_same_shape(mask1, mask2)
     intersection = np.logical_and(mask1, mask2).sum()
     union = np.logical_or(mask1, mask2).sum()
     return intersection / union if union != 0 else 0
     
 def match_masks(true_masks, pred_masks, iou_threshold):
+    """Greedy match each predicted mask to a still-unmatched true mask above ``iou_threshold``.
+
+    :param true_masks: iterable of ground-truth masks.
+    :param pred_masks: iterable of predicted masks.
+    :param iou_threshold: minimum IoU to count as a match.
+    :returns: list of ``(true_mask, pred_mask)`` matched pairs.
+    """
     matches = []
     matched_true_masks_indices = set()  # Use set to store indices of matched true masks
 
@@ -4038,6 +4012,7 @@ def match_masks(true_masks, pred_masks, iou_threshold):
     return matches
     
 def compute_average_precision(matches, num_true_masks, num_pred_masks):
+    """Return ``(precision, recall)`` given match count, true count, and predicted count."""
     TP = len(matches)
     FP = num_pred_masks - TP
     FN = num_true_masks - TP
@@ -4046,6 +4021,7 @@ def compute_average_precision(matches, num_true_masks, num_pred_masks):
     return precision, recall
 
 def pad_to_same_shape(mask1, mask2):
+    """Zero-pad ``mask1`` and ``mask2`` to their element-wise maximum shape."""
     # Find the shape differences
     shape_diff = np.array([max(mask1.shape[0], mask2.shape[0]) - mask1.shape[0], 
                            max(mask1.shape[1], mask2.shape[1]) - mask1.shape[1]])
@@ -4060,6 +4036,7 @@ def pad_to_same_shape(mask1, mask2):
     return padded_mask1, padded_mask2
     
 def compute_ap_over_iou_thresholds(true_masks, pred_masks, iou_thresholds):
+    """Return the area under the precision-recall curve swept over ``iou_thresholds``."""
     precision_recall_pairs = []
     for iou_threshold in iou_thresholds:
         matches = match_masks(true_masks, pred_masks, iou_threshold)
@@ -4076,6 +4053,7 @@ def compute_ap_over_iou_thresholds(true_masks, pred_masks, iou_thresholds):
     return np.trapz(sorted_precisions, x=sorted_recalls)
     
 def compute_segmentation_ap(true_masks, pred_masks, iou_thresholds=np.linspace(0.5, 0.95, 10)):
+    """Return the COCO-style segmentation AP by matching connected components across IoU thresholds."""
     true_mask_labels = label(true_masks)
     pred_mask_labels = label(pred_masks)
     true_mask_regions = [region.image for region in regionprops(true_mask_labels)]
@@ -4083,11 +4061,13 @@ def compute_segmentation_ap(true_masks, pred_masks, iou_thresholds=np.linspace(0
     return compute_ap_over_iou_thresholds(true_mask_regions, pred_mask_regions, iou_thresholds)
 
 def jaccard_index(mask1, mask2):
+    """Return the Jaccard/IoU index of two binary masks."""
     intersection = np.logical_and(mask1, mask2)
     union = np.logical_or(mask1, mask2)
     return np.sum(intersection) / np.sum(union)
 
 def dice_coefficient(mask1, mask2):
+    """Return the Dice similarity of two masks, treating any nonzero value as foreground."""
     # Convert to binary masks
     mask1 = np.where(mask1 > 0, 1, 0)
     mask2 = np.where(mask2 > 0, 1, 0)
@@ -4104,6 +4084,12 @@ def dice_coefficient(mask1, mask2):
     return 2.0 * intersection / total
 
 def extract_boundaries(mask, dilation_radius=1):
+    """Return the boundary of a binary mask via morphological dilation minus erosion.
+
+    :param mask: label or binary mask.
+    :param dilation_radius: half-width of the structuring element.
+    :returns: boolean boundary mask.
+    """
     binary_mask = (mask > 0).astype(np.uint8)
     struct_elem = np.ones((dilation_radius*2+1, dilation_radius*2+1))
     dilated = morphology.binary_dilation(binary_mask, footprint=struct_elem)
@@ -4112,6 +4098,7 @@ def extract_boundaries(mask, dilation_radius=1):
     return boundary
 
 def boundary_f1_score(mask_true, mask_pred, dilation_radius=1):
+    """Return the boundary F1 score between two masks with tolerance ``dilation_radius``."""
     # Assume extract_boundaries is defined to extract object boundaries with given dilation_radius
     boundary_true = extract_boundaries(mask_true, dilation_radius)
     boundary_pred = extract_boundaries(mask_pred, dilation_radius)
@@ -4131,18 +4118,7 @@ def boundary_f1_score(mask_true, mask_pred, dilation_radius=1):
 
 
 def _remove_noninfected(stack, cell_dim, nucleus_dim, pathogen_dim):
-    """
-    Remove non-infected cells from the stack based on the provided dimensions.
-
-    Args:
-        stack (ndarray): The stack of images.
-        cell_dim (int or None): The dimension index for the cell mask. If None, a zero-filled mask will be used.
-        nucleus_dim (int or None): The dimension index for the nucleus mask. If None, a zero-filled mask will be used.
-        pathogen_dim (int or None): The dimension index for the pathogen mask. If None, a zero-filled mask will be used.
-
-    Returns:
-        ndarray: The updated stack with non-infected cells removed.
-    """
+    """Zero out cells (and their nuclei) that contain no pathogen labels."""
     if not cell_dim is None:
         cell_mask = stack[:, :, cell_dim]
     else:
@@ -4170,18 +4146,7 @@ def _remove_noninfected(stack, cell_dim, nucleus_dim, pathogen_dim):
     return stack
 
 def _remove_outside_objects(stack, cell_dim, nucleus_dim, pathogen_dim):
-    """
-    Remove outside objects from the stack based on the provided dimensions.
-
-    Args:
-        stack (ndarray): The stack of images.
-        cell_dim (int): The dimension index of the cell mask in the stack.
-        nucleus_dim (int): The dimension index of the nucleus mask in the stack.
-        pathogen_dim (int): The dimension index of the pathogen mask in the stack.
-
-    Returns:
-        ndarray: The updated stack with outside objects removed.
-    """
+    """Zero out pathogens (and their nuclei) that do not overlap any cell."""
     if not cell_dim is None:
         cell_mask = stack[:, :, cell_dim]
     else:
@@ -4203,20 +4168,7 @@ def _remove_outside_objects(stack, cell_dim, nucleus_dim, pathogen_dim):
     return stack
 
 def _remove_multiobject_cells(stack, mask_dim, cell_dim, nucleus_dim, pathogen_dim, object_dim):
-    """
-    Remove multi-object cells from the stack.
-
-    Args:
-        stack (ndarray): The stack of images.
-        mask_dim (int): The dimension of the mask in the stack.
-        cell_dim (int): The dimension of the cell in the stack.
-        nucleus_dim (int): The dimension of the nucleus in the stack.
-        pathogen_dim (int): The dimension of the pathogen in the stack.
-        object_dim (int): The dimension of the object in the stack.
-
-    Returns:
-        ndarray: The updated stack with multi-object cells removed.
-    """
+    """Zero out cells containing more than one object in ``object_dim``."""
     cell_mask = stack[:, :, mask_dim]
     nucleus_mask = stack[:, :, nucleus_dim]
     pathogen_mask = stack[:, :, pathogen_dim]
@@ -4237,16 +4189,11 @@ def _remove_multiobject_cells(stack, mask_dim, cell_dim, nucleus_dim, pathogen_d
     return stack
     
 def merge_touching_objects(mask, threshold=0.25):
-    """
-    Merges touching objects in a binary mask based on the percentage of their shared boundary.
+    """Merge touching labeled objects whose shared boundary exceeds ``threshold`` of the smaller perimeter.
 
-    Args:
-        mask (ndarray): Binary mask representing objects.
-        threshold (float, optional): Threshold value for merging objects. Defaults to 0.25.
-
-    Returns:
-        ndarray: Merged mask.
-
+    :param mask: labeled mask.
+    :param threshold: fraction of the smaller perimeter required to merge.
+    :returns: merged label mask.
     """
     perimeters = {}
     labels = np.unique(mask)
@@ -4274,18 +4221,13 @@ def merge_touching_objects(mask, threshold=0.25):
     return mask
     
 def remove_intensity_objects(image, mask, intensity_threshold, mode):
-    """
-    Removes objects from the mask based on their mean intensity in the original image.
+    """Drop labeled objects whose mean intensity is on the wrong side of ``intensity_threshold``.
 
-    Args:
-        image (ndarray): The original image.
-        mask (ndarray): The mask containing labeled objects.
-        intensity_threshold (float): The threshold value for mean intensity.
-        mode (str): The mode for intensity comparison. Can be 'low' or 'high'.
-
-    Returns:
-        ndarray: The updated mask with objects removed.
-
+    :param image: intensity image.
+    :param mask: labeled mask aligned to ``image``.
+    :param intensity_threshold: cutoff value.
+    :param mode: ``'low'`` removes below-threshold objects, ``'high'`` removes above.
+    :returns: filtered label mask.
     """
     # Calculate the mean intensity of each object in the original image
     props = regionprops_table(mask, image, properties=('label', 'mean_intensity'))
@@ -4299,19 +4241,7 @@ def remove_intensity_objects(image, mask, intensity_threshold, mode):
     return mask
     
 def _filter_closest_to_stat(df, column, n_rows, use_median=False):
-    """
-    Filter the DataFrame to include the closest rows to a statistical measure.
-
-    Args:
-        df (pandas.DataFrame): The input DataFrame.
-        column (str): The column name to calculate the statistical measure.
-        n_rows (int): The number of closest rows to include in the result.
-        use_median (bool, optional): Whether to use the median or mean as the statistical measure. 
-            Defaults to False (mean).
-
-    Returns:
-        pandas.DataFrame: The filtered DataFrame with the closest rows to the statistical measure.
-    """
+    """Return the ``n_rows`` rows of ``df`` closest to the mean or median of ``column``."""
     if use_median:
         target_value = df[column].median()
     else:
@@ -4322,15 +4252,7 @@ def _filter_closest_to_stat(df, column, n_rows, use_median=False):
     return result_df
     
 def _find_similar_sized_images(file_list):
-    """
-    Find the largest group of images with the most similar size and shape.
-
-    Args:
-        file_list (list): List of file paths to the images.
-
-    Returns:
-        list: List of file paths belonging to the largest group of images with the most similar size and shape.
-    """
+    """Return the largest group of image paths sharing the same cropped size/aspect ratio."""
     # Dictionary to hold image sizes and their paths
     size_to_paths = defaultdict(list)
     # Iterate over image paths to get their dimensions
@@ -4360,17 +4282,7 @@ def _find_similar_sized_images(file_list):
     return largest_group
     
 def _relabel_parent_with_child_labels(parent_mask, child_mask):
-    """
-    Relabels the parent mask based on overlapping child labels.
-
-    Args:
-        parent_mask (ndarray): Binary mask representing the parent objects.
-        child_mask (ndarray): Binary mask representing the child objects.
-
-    Returns:
-        tuple: A tuple containing the relabeled parent mask and the original child mask.
-
-    """
+    """Relabel parent objects to match their overlapping child labels."""
     # Label parent mask to identify unique objects
     parent_labels = label(parent_mask, background=0)
     # Use the original child mask labels directly, without relabeling
@@ -4407,19 +4319,7 @@ def _relabel_parent_with_child_labels(parent_mask, child_mask):
     return parent_mask_new, child_mask
     
 def _exclude_objects(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, uninfected=True):
-    """
-    Exclude objects from the masks based on certain criteria.
-
-    Args:
-        cell_mask (ndarray): Mask representing cells.
-        nucleus_mask (ndarray): Mask representing nucleus.
-        pathogen_mask (ndarray): Mask representing pathogens.
-        cytoplasm_mask (ndarray): Mask representing cytoplasm.
-        uninfected (bool, optional): Whether to include uninfected cells. Defaults to True.
-
-    Returns:
-        tuple: A tuple containing the filtered cell mask, nucleus mask, pathogen mask, and cytoplasm mask.
-    """
+    """Drop cells missing required companion objects and clear other masks outside kept cells."""
     # Remove cells with no nucleus or cytoplasm (or pathogen)
     filtered_cells = np.zeros_like(cell_mask) # Initialize a new mask to store the filtered cells.
     for cell_label in np.unique(cell_mask): # Iterate over all cell labels in the cell mask.
@@ -4443,16 +4343,7 @@ def _exclude_objects(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, uni
     return filtered_cells, nucleus_mask, pathogen_mask, cytoplasm_mask
 
 def _merge_overlapping_objects(mask1, mask2):
-    """
-    Merge overlapping objects in two masks.
-
-    Args:
-        mask1 (ndarray): First mask.
-        mask2 (ndarray): Second mask.
-
-    Returns:
-        tuple: A tuple containing the merged masks (mask1, mask2).
-    """
+    """Merge overlapping objects across two masks using a 90% overlap heuristic."""
     labeled_1 = label(mask1)
     num_1 = np.max(labeled_1)
     for m1_id in range(1, num_1 + 1):
@@ -4473,42 +4364,14 @@ def _merge_overlapping_objects(mask1, mask2):
     return mask1, mask2
 
 def _filter_object(mask, min_value):
-    """
-    Filter objects in a mask based on their frequency.
-
-    Args:
-        mask (ndarray): The input mask.
-        min_value (int): The minimum frequency threshold.
-
-    Returns:
-        ndarray: The filtered mask.
-    """
+    """Zero out label values whose pixel count is below ``min_value``."""
     count = np.bincount(mask.ravel())
     to_remove = np.where(count < min_value)
     mask[np.isin(mask, to_remove)] = 0
     return mask
 
 def _filter_cp_masks(masks, flows, filter_size, filter_intensity, minimum_size, maximum_size, remove_border_objects, merge, batch, plot, figuresize):
-    
-    """
-    Filter the masks based on various criteria such as size, border objects, merging, and intensity.
-
-    Args:
-        masks (list): List of masks.
-        flows (list): List of flows.
-        filter_size (bool): Flag indicating whether to filter based on size.
-        filter_intensity (bool): Flag indicating whether to filter based on intensity.
-        minimum_size (int): Minimum size of objects to keep.
-        maximum_size (int): Maximum size of objects to keep.
-        remove_border_objects (bool): Flag indicating whether to remove border objects.
-        merge (bool): Flag indicating whether to merge adjacent objects.
-        batch (ndarray): Batch of images.
-        plot (bool): Flag indicating whether to plot the masks.
-        figuresize (tuple): Size of the figure.
-
-    Returns:
-        list: List of filtered masks.
-    """
+    """Post-process Cellpose masks: optional merge, size filter, intensity filter, border removal."""
     
     from .plot import plot_masks
     
@@ -4726,10 +4589,16 @@ def _choose_model(model_name, device, object_type='cell', restore_type=None, obj
             return model
 
 class SelectChannels:
+    """Callable transform that zeroes out image channels not present in ``channels``.
+
+    :param channels: iterable of 1-based channel indices to keep (1=red, 2=green, 3=blue).
+    """
     def __init__(self, channels):
+        """Store the list of channels to preserve."""
         self.channels = channels
-    
+
     def __call__(self, img):
+        """Return ``img`` with unselected RGB channels zeroed."""
         img = img.clone()
         if 1 not in self.channels:
             img[0, :, :] = 0  # Zero out the red channel
@@ -4740,10 +4609,16 @@ class SelectChannels:
         return img
 
 class SaliencyMapGenerator:
+    """Generate saliency maps and predictions for a binary classifier.
+
+    :param model: trained PyTorch model with a single-logit binary output.
+    """
     def __init__(self, model):
+        """Store the model to be probed."""
         self.model = model
 
     def compute_saliency_maps(self, X, y):
+        """Return absolute-gradient saliency maps for inputs ``X`` given labels ``y``."""
         self.model.eval()
         X.requires_grad_()
 
@@ -4760,6 +4635,7 @@ class SaliencyMapGenerator:
         return saliency
 
     def compute_saliency_and_predictions(self, X):
+        """Return ``(saliency, predictions)`` computed against the model's own predicted classes."""
         self.model.eval()
         X.requires_grad_()
 
@@ -4779,6 +4655,7 @@ class SaliencyMapGenerator:
         return saliency, predictions
 
     def plot_activation_grid(self, X, saliency, predictions, overlay=True, normalize=False):
+        """Render a grid overlaying saliency maps on inputs with predicted-class labels."""
         N = X.shape[0]
         rows = (N + 7) // 8 
         fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2))
@@ -4807,6 +4684,7 @@ class SaliencyMapGenerator:
         return fig
     
     def percentile_normalize(self, img, lower_percentile=2, upper_percentile=98):
+        """Per-channel percentile-normalize ``img`` into ``[0, 1]``."""
         img_normalized = np.zeros_like(img)
 
         for c in range(img.shape[2]):  # Iterate over each channel
@@ -4817,7 +4695,14 @@ class SaliencyMapGenerator:
         return img_normalized
 
 class GradCAMGenerator:
+    """Grad-CAM (and variants) map generator for binary classifiers.
+
+    :param model: trained model to inspect.
+    :param target_layer: dotted attribute path to the convolutional layer to probe.
+    :param cam_type: variant identifier, e.g. ``'gradcam'``.
+    """
     def __init__(self, model, target_layer, cam_type='gradcam'):
+        """Store the model, resolve the target layer, and register activation/gradient hooks."""
         self.model = model
         self.model.eval()
         self.target_layer = target_layer
@@ -4830,18 +4715,22 @@ class GradCAMGenerator:
         self.hook_layers()
 
     def hook_layers(self):
+        """Register forward/backward hooks that capture activations and gradients."""
         # Forward hook to get activations
         def forward_hook(module, input, output):
+            """Forward hook: cache the target layer's output activations."""
             self.activations = output
 
         # Backward hook to get gradients
         def backward_hook(module, grad_input, grad_output):
+            """Backward hook: cache the gradient flowing into the target layer's output."""
             self.gradients = grad_output[0]
 
         self.target_layer_module.register_forward_hook(forward_hook)
         self.target_layer_module.register_backward_hook(backward_hook)
 
     def get_layer(self, model, target_layer):
+        """Resolve a dotted attribute path into the referenced submodule."""
         # Recursively find the layer specified in target_layer
         modules = target_layer.split('.')
         layer = model
@@ -4850,6 +4739,7 @@ class GradCAMGenerator:
         return layer
 
     def compute_gradcam_maps(self, X, y):
+        """Return the min-max normalized Grad-CAM map for a single-sample batch ``X`` and label ``y``."""
         X.requires_grad_()
 
         # Forward pass
@@ -4874,6 +4764,7 @@ class GradCAMGenerator:
         return gradcam
 
     def compute_gradcam_and_predictions(self, X):
+        """Return ``(gradcam_maps, predictions)`` for every sample in the batch ``X``."""
         self.model.eval()
         X.requires_grad_()
 
@@ -4892,6 +4783,7 @@ class GradCAMGenerator:
         return torch.tensor(gradcam_maps), predictions
 
     def plot_activation_grid(self, X, gradcam, predictions, overlay=True, normalize=False):
+        """Render a grid overlaying Grad-CAM maps on inputs with predicted-class labels."""
         N = X.shape[0]
         rows = (N + 7) // 8
         fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2))
@@ -4920,6 +4812,7 @@ class GradCAMGenerator:
         return fig
     
     def percentile_normalize(self, img, lower_percentile=2, upper_percentile=98):
+        """Per-channel percentile-normalize ``img`` into ``[0, 1]``."""
         img_normalized = np.zeros_like(img)
 
         for c in range(img.shape[2]):  # Iterate over each channel
@@ -4930,6 +4823,14 @@ class GradCAMGenerator:
         return img_normalized
 
 def preprocess_image(image_path, normalize=True, image_size=224, channels=None):
+    """Load and preprocess ``image_path`` into a batched tensor ready for classification.
+
+    :param image_path: path to the source image.
+    :param normalize: apply ImageNet mean/std normalization.
+    :param image_size: square resize dimension.
+    :param channels: reserved for downstream use; kept for API compatibility.
+    :returns: ``(pil_image, input_tensor)`` where the tensor has shape ``(1, 3, H, W)``.
+    """
     if channels is None:
         channels = [1,2,3]
     preprocess = transforms.Compose([
@@ -4946,24 +4847,39 @@ def preprocess_image(image_path, normalize=True, image_size=224, channels=None):
     return image, input_tensor
 
 def class_visualization(target_y, model_path, dtype, img_size=224, channels=None, l2_reg=1e-3, learning_rate=25, num_iterations=100, blur_every=10, max_jitter=16, show_every=25, class_names = None):
-    
+    """Synthesize an input image that maximizes the classifier score for ``target_y``.
+
+    :param target_y: target class index.
+    :param model_path: path to the trained model checkpoint.
+    :param dtype: tensor dtype; overridden internally based on CUDA availability.
+    :param img_size: square image size (pixels).
+    :param channels: input channels (defaults to ``[0, 1, 2]``).
+    :param l2_reg: L2 regularization weight on the pixel norm.
+    :param learning_rate: gradient-ascent step size.
+    :param num_iterations: optimization iteration count.
+    :param blur_every: interval (iterations) between periodic Gaussian blurs.
+    :param max_jitter: maximum pixel jitter applied per iteration.
+    :param show_every: interval (iterations) between preview plots.
+    :param class_names: display names for the classes (defaults to ``['nc', 'pc']``).
+    :returns: deprocessed image as a numpy array.
+    """
     if channels is None:
         channels = [0,1,2]
     if class_names is None:
         class_names = ['nc', 'pc']
     def jitter(img, ox, oy):
-        # Randomly jitter the image
+        """Return ``img`` shifted (rolled) by ``ox`` and ``oy`` pixels along the spatial axes."""
         return torch.roll(torch.roll(img, ox, dims=2), oy, dims=3)
 
     def blur_image(img, sigma=1):
-        # Apply Gaussian blur to the image
+        """In-place Gaussian blur of each channel of ``img`` with standard deviation ``sigma``."""
         img_np = img.cpu().numpy()
         for i in range(img_np.shape[1]):
             img_np[:, i] = gaussian_filter(img_np[:, i], sigma=sigma)
         img.copy_(torch.tensor(img_np).to(img.device))
 
     def deprocess(img_tensor):
-        # Convert the tensor image to a numpy array for visualization
+        """Undo ImageNet normalization and return an ``(H, W, 3)`` numpy image in ``[0, 1]``."""
         img_tensor = img_tensor.clone()
         for c in range(3):
             img_tensor[:, c] = img_tensor[:, c] * SQUEEZENET_STD[c] + SQUEEZENET_MEAN[c]
@@ -5030,6 +4946,12 @@ def class_visualization(target_y, model_path, dtype, img_size=224, channels=None
     return deprocess(img.data.cpu())
 
 def get_submodules(model, prefix=''):
+    """Return all dotted submodule names of ``model`` in traversal order.
+
+    :param model: PyTorch module to walk.
+    :param prefix: optional prefix prepended to returned names.
+    :returns: list of dotted submodule names.
+    """
     submodules = []
     for name, module in model.named_children():
         full_name = prefix + ('.' if prefix else '') + name
@@ -5038,7 +4960,14 @@ def get_submodules(model, prefix=''):
     return submodules
 
 class GradCAM:
+    """Named-hook Grad-CAM implementation for arbitrary target layers.
+
+    :param model: trained model to inspect.
+    :param target_layers: list of dotted layer names to hook.
+    :param use_cuda: run the model on CUDA when available.
+    """
     def __init__(self, model, target_layers=None, use_cuda=True):
+        """Store the model and move it to CUDA if requested."""
         self.model = model
         self.model.eval()
         self.target_layers = target_layers
@@ -5047,14 +4976,17 @@ class GradCAM:
             self.model = model.cuda()
 
     def forward(self, input):
+        """Return the model output for ``input``."""
         return self.model(input)
 
     def __call__(self, x, index=None):
+        """Return the normalized CAM heatmap for input ``x``, targeting class ``index``."""
         if self.cuda:
             x = x.cuda()
 
         features = []
         def hook(module, input, output):
+            """Forward hook: append the target layer's output to ``features``."""
             features.append(output)
 
         handles = []
@@ -5096,6 +5028,7 @@ class GradCAM:
         return cam
 
 def show_cam_on_image(img, mask):
+    """Return ``img`` overlaid with a jet colormap of ``mask`` as an 8-bit RGB image."""
     heatmap = cv2.applyColorMap(np.uint8(255 * mask), cv2.COLORMAP_JET)
     heatmap = np.float32(heatmap) / 255
     cam = heatmap + np.float32(img)
@@ -5103,6 +5036,12 @@ def show_cam_on_image(img, mask):
     return np.uint8(255 * cam)
 
 def recommend_target_layers(model):
+    """Return ``([last_conv_layer], all_conv_layers)`` from ``model``.
+
+    :param model: PyTorch module to scan for ``Conv2d`` layers.
+    :returns: tuple ``(recommended, all)`` of layer-name lists.
+    :raises ValueError: if the model contains no convolutional layers.
+    """
     target_layers = []
     for name, module in model.named_modules():
         if isinstance(module, torch.nn.Conv2d):
@@ -5114,11 +5053,24 @@ def recommend_target_layers(model):
         raise ValueError("No convolutional layers found in the model.")
     
 class IntegratedGradients:
+    """Compute integrated-gradients attributions for a classifier.
+
+    :param model: trained PyTorch model.
+    """
     def __init__(self, model):
+        """Store the model and switch it to eval mode."""
         self.model = model
         self.model.eval()
 
     def generate_integrated_gradients(self, input_tensor, target_label_idx, baseline=None, num_steps=50):
+        """Return integrated gradients from ``baseline`` to ``input_tensor`` for ``target_label_idx``.
+
+        :param input_tensor: input sample tensor.
+        :param target_label_idx: target class index whose logit is attributed.
+        :param baseline: reference tensor (defaults to zeros of the same shape).
+        :param num_steps: number of Riemann-sum interpolation steps.
+        :returns: attribution ndarray with the shape of ``input_tensor``.
+        """
         if baseline is None:
             baseline = torch.zeros_like(input_tensor)
         
@@ -5138,18 +5090,26 @@ class IntegratedGradients:
         return integrated_grads
 
 def get_db_paths(src):
+    """Return the standard ``measurements/measurements.db`` paths for one or more source roots."""
     if isinstance(src, str):
         src = [src]
     db_paths = [os.path.join(source, 'measurements/measurements.db') for source in src]
     return db_paths
 
 def get_sequencing_paths(src):
+    """Return the standard ``sequencing/sequencing_data.csv`` paths for one or more source roots."""
     if isinstance(src, str):
         src = [src]
     seq_paths = [os.path.join(source, 'sequencing/sequencing_data.csv') for source in src]
     return seq_paths
 
 def load_image_paths(c, visualize):
+    """Load the ``png_list`` table into a DataFrame indexed by ``prcfo`` and optionally filter by object.
+
+    :param c: open sqlite3 cursor.
+    :param visualize: object-type prefix (``'cell'``/``'nucleus'``/...) or falsy to keep all rows.
+    :returns: DataFrame of PNG metadata indexed by ``prcfo``.
+    """
     c.execute(f'SELECT * FROM png_list')
     data = c.fetchall()
     columns_info = c.execute(f'PRAGMA table_info(png_list)').fetchall()
@@ -5162,6 +5122,13 @@ def load_image_paths(c, visualize):
     return image_paths_df
 
 def merge_dataframes(df, image_paths_df, verbose):
+    """Merge ``df`` into ``image_paths_df`` on the shared ``prcfo`` index.
+
+    :param df: feature DataFrame with a ``prcfo`` column.
+    :param image_paths_df: DataFrame indexed by ``prcfo``.
+    :param verbose: display the merged DataFrame.
+    :returns: merged DataFrame.
+    """
     df.set_index('prcfo', inplace=True)
     df = image_paths_df.merge(df, left_index=True, right_index=True)
     if verbose:
@@ -5169,6 +5136,12 @@ def merge_dataframes(df, image_paths_df, verbose):
     return df
 
 def filter_columns(df, filter_by):
+    """Return ``df`` restricted to columns matching ``filter_by`` (or morphology columns).
+
+    :param df: source DataFrame.
+    :param filter_by: substring required in column names, or ``'morphology'`` to drop channel columns.
+    :returns: column-filtered DataFrame.
+    """
     if filter_by != 'morphology':
         cols_to_include = [col for col in df.columns if filter_by in str(col)]
     else:
@@ -5177,24 +5150,23 @@ def filter_columns(df, filter_by):
     return df
 
 def reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, min_samples, clustering, reduction_method='umap', verbose=False, embedding=None, n_jobs=-1, mode='fit', model=False):
-    """
-    Perform dimensionality reduction and clustering on the given data.
-    
-    Parameters:
-    numeric_data (np.ndarray): Numeric data for embedding and clustering.
-    n_neighbors (int or float): Number of neighbors for UMAP or perplexity for t-SNE.
-    min_dist (float): Minimum distance for UMAP.
-    metric (str): Metric for UMAP and DBSCAN.
-    eps (float): Epsilon for DBSCAN.
-    min_samples (int): Minimum samples for DBSCAN or number of clusters for KMeans.
-    clustering (str): Clustering method ('DBSCAN' or 'KMeans').
-    reduction_method (str): Dimensionality reduction method ('UMAP' or 'tSNE').
-    verbose (bool): Whether to print verbose output.
-    embedding (np.ndarray, optional): Precomputed embedding. Default is None.
-    return_model (bool): Whether to return the reducer model. Default is False.
-    
-    Returns:
-    tuple: embedding, labels (and optionally the reducer model)
+    """Reduce ``numeric_data`` to 2-D and cluster the embedding.
+
+    :param numeric_data: numeric data matrix.
+    :param n_neighbors: UMAP ``n_neighbors`` or t-SNE perplexity (fraction or int).
+    :param min_dist: UMAP ``min_dist``.
+    :param metric: distance metric used by UMAP/DBSCAN.
+    :param eps: DBSCAN ``eps``.
+    :param min_samples: DBSCAN ``min_samples`` or KMeans cluster count.
+    :param clustering: ``'dbscan'`` or ``'kmeans'``.
+    :param reduction_method: ``'umap'`` or ``'tsne'``.
+    :param verbose: print progress.
+    :param embedding: precomputed embedding (skips reducer fit).
+    :param n_jobs: parallel worker count.
+    :param mode: ``'fit'`` to train a new reducer, otherwise transform with ``model``.
+    :param model: existing reducer to reuse when ``mode != 'fit'``.
+    :returns: ``(embedding, labels, reducer)``.
+    :raises ValueError: on unsupported ``reduction_method`` or missing model.
     """
 
     if verbose:
@@ -5282,12 +5254,17 @@ def reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, m
     return embedding, labels, reducer
 
 def remove_noise(embedding, labels):
+    """Drop rows of ``embedding`` (and ``labels``) whose label is DBSCAN noise (``-1``)."""
     non_noise_indices = labels != -1
     embedding = embedding[non_noise_indices]
     labels = labels[non_noise_indices]
     return embedding, labels
 
 def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors, plot_by_cluster, plot_outlines, plot_points, plot_images, smooth_lines, black_background, figuresize, dot_size, remove_image_canvas, verbose):
+    """Plot a 2-D embedding with cluster outlines, points, and optional image overlays.
+
+    :returns: matplotlib ``Figure``.
+    """
     unique_labels = np.unique(labels)
     #num_clusters = len(unique_labels[unique_labels != 0])
     colors, label_to_color_index = assign_colors(unique_labels, colors)
@@ -5300,6 +5277,7 @@ def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors, p
     return fig
 
 def generate_colors(num_clusters, black_background):
+    """Return an RGBA color palette for ``num_clusters`` clusters with fixed accent colors first."""
     random_colors = np.random.rand(num_clusters + 1, 4)
     random_colors[:, 3] = 1
     specific_colors = [
@@ -5314,6 +5292,7 @@ def generate_colors(num_clusters, black_background):
     return random_colors
 
 def assign_colors(unique_labels, random_colors):
+    """Return a ``(colors, label_to_index)`` mapping keyed by ``unique_labels``."""
     normalized_colors = random_colors / 255
     colors_img = [tuple(color) for color in normalized_colors]
     colors = [tuple(color) for color in random_colors]
@@ -5321,6 +5300,7 @@ def assign_colors(unique_labels, random_colors):
     return colors, label_to_color_index
 
 def setup_plot(figuresize, black_background):
+    """Return a ``(fig, ax)`` with light or dark theme applied globally."""
     if black_background:
         plt.rcParams.update({'figure.facecolor': 'black', 'axes.facecolor': 'black', 'text.color': 'white', 'xtick.color': 'white', 'ytick.color': 'white', 'axes.labelcolor': 'white'})
     else:
@@ -5329,6 +5309,21 @@ def setup_plot(figuresize, black_background):
     return fig, ax
 
 def plot_clusters(ax, embedding, labels, colors, cluster_centers, plot_outlines, plot_points, smooth_lines, figuresize=10, dot_size=50, verbose=False):
+    """Draw cluster outlines, points, and centroid labels onto ``ax`` for a 2-D embedding.
+
+    :param ax: Matplotlib axes to draw into.
+    :param embedding: ``(N, 2)`` array of 2-D points (e.g. UMAP output).
+    :param labels: length-``N`` cluster labels; ``-1`` denotes noise.
+    :param colors: iterable of per-cluster colors, one per unique label.
+    :param cluster_centers: iterable of ``(x, y)`` centroids, one per unique label.
+    :param plot_outlines: draw a hull/smoothed outline around each cluster.
+    :param plot_points: render the scatter points (otherwise plotted invisibly).
+    :param smooth_lines: use a smoothed hull polyline instead of the convex hull edges.
+    :param figuresize: base size in inches used to scale axis label and tick fonts. Default ``10``.
+    :param dot_size: scatter marker size in points. Default ``50``.
+    :param verbose: unused placeholder kept for API compatibility. Default ``False``.
+    :returns: None.
+    """
     unique_labels = np.unique(labels)
     for cluster_label, color, center in zip(unique_labels, colors, cluster_centers):
         cluster_data = embedding[labels == cluster_label]
@@ -5354,6 +5349,7 @@ def plot_clusters(ax, embedding, labels, colors, cluster_centers, plot_outlines,
     plt.tick_params(axis='both', which='major', labelsize=int(figuresize * 0.75))
 
 def plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, plot_by_cluster, remove_image_canvas, verbose):
+    """Overlay sample images from ``image_paths`` on the UMAP embedding in ``ax``."""
     if plot_by_cluster:
         cluster_indices = {label: np.where(labels == label)[0] for label in np.unique(labels) if label != -1}
         plot_images_by_cluster(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, cluster_indices, remove_image_canvas, verbose)
@@ -5365,6 +5361,7 @@ def plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, col
             plot_image(ax, x, y, img, img_zoom, remove_image_canvas)
 
 def plot_images_by_cluster(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, cluster_indices, remove_image_canvas, verbose):
+    """Overlay up to ``image_nr`` images per cluster on the embedding in ``ax``."""
     for cluster_label, color in zip(np.unique(labels), colors):
         if cluster_label == -1:
             continue
@@ -5377,6 +5374,7 @@ def plot_images_by_cluster(ax, image_paths, embedding, labels, image_nr, img_zoo
             plot_image(ax, x, y, img, img_zoom, remove_image_canvas)
 
 def plot_image(ax, x, y, img, img_zoom, remove_image_canvas=True):
+    """Place a zoomed thumbnail of ``img`` at ``(x, y)`` on ``ax``."""
     img = np.array(img)
     if remove_image_canvas:
         img = remove_canvas(img)
@@ -5385,6 +5383,7 @@ def plot_image(ax, x, y, img, img_zoom, remove_image_canvas=True):
     ax.add_artist(ab)
 
 def remove_canvas(img):
+    """Return ``img`` as an RGBA array whose alpha channel masks out zero pixels."""
     if img.mode in ['L', 'I']:
         img_data = np.array(img)
         img_data = img_data / np.max(img_data)
@@ -5401,6 +5400,7 @@ def remove_canvas(img):
     return img_data_with_alpha
 
 def plot_clusters_grid(embedding, labels, image_nr, image_paths, colors, figuresize, black_background, verbose):
+    """Plot a grid of example images per cluster label discovered in ``labels``."""
     unique_labels = np.unique(labels)
     num_clusters = len(unique_labels[unique_labels != -1])
     if num_clusters == 0:
@@ -5422,6 +5422,7 @@ def plot_clusters_grid(embedding, labels, image_nr, image_paths, colors, figures
     return fig
 
 def plot_grid(cluster_images, colors, figuresize, black_background, verbose):
+    """Render one column per cluster of representative images with colored borders and labels."""
     num_clusters = len(cluster_images)
     max_figsize = 200  # Set a maximum figure size
     if figuresize * num_clusters > max_figsize:
@@ -5469,6 +5470,12 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose):
     return grid_fig
 
 def generate_path_list_from_db(db_path, file_metadata):
+    """Return all ``png_path`` values from ``db_path`` optionally filtered by ``file_metadata`` substrings.
+
+    :param db_path: path to the measurements SQLite DB.
+    :param file_metadata: substring or list of substrings to LIKE-match against ``png_path``.
+    :returns: list of PNG paths.
+    """
     all_paths = []
 
     # Connect to the database and retrieve the image paths
@@ -5507,7 +5514,13 @@ def generate_path_list_from_db(db_path, file_metadata):
     return all_paths
 
 def correct_paths(df, base_path, folder='data'):
+    """Rewrite PNG paths (in a DataFrame or list) so they live under ``base_path/folder``.
 
+    :param df: DataFrame with a ``png_path`` column, or a list of paths.
+    :param base_path: destination root to prepend.
+    :param folder: intermediate folder name that anchors the rewrite.
+    :returns: DataFrame + list, or list, mirroring the input type.
+    """
     if isinstance(df, pd.DataFrame):
 
         if 'png_path' not in df.columns:
@@ -5538,6 +5551,7 @@ def correct_paths(df, base_path, folder='data'):
         return adjusted_image_paths
 
 def delete_folder(folder_path):
+    """Recursively delete ``folder_path`` if it exists (files and subdirectories included)."""
     if os.path.exists(folder_path) and os.path.isdir(folder_path):
         for root, dirs, files in os.walk(folder_path, topdown=False):
             for name in files:
@@ -5549,8 +5563,12 @@ def delete_folder(folder_path):
     else:
         print(f"Folder '{folder_path}' does not exist or is not a directory.")
 
-def measure_test_mode(settings):    
+def measure_test_mode(settings):
+    """Copy a random subset of source files into a ``test/merged`` folder when ``test_mode`` is on.
 
+    :param settings: settings dict; must contain ``src``, ``test_mode``, ``test_nr``.
+    :returns: settings dict with ``src`` optionally redirected to the test folder.
+    """
     if settings['test_mode']:
         if not os.path.basename(settings['src']) == 'test':
             all_files = os.listdir(settings['src'])
@@ -5572,25 +5590,16 @@ def measure_test_mode(settings):
     return settings
 
 def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude, column_list=False):
-    """
-    Preprocesses the given dataframe by applying filtering, removing highly correlated columns,
-    applying log transformation, filling NaN values, and scaling the numeric data.
+    """Prepare a feature matrix by filtering, decorrelating, log-transforming, and scaling ``df``.
 
-    Args:
-    df (pandas.DataFrame): The input dataframe.
-    filter_by (str or None): The channel of interest to filter the dataframe by.
-    remove_highly_correlated (bool or float): Whether to remove highly correlated columns.
-    If a float is provided, it represents the correlation threshold.
-    log_data (bool): Whether to apply log transformation to the numeric data.
-    exclude (list or None): List of features to exclude from the filtering process.
-    verbose (bool): Whether to print verbose output during preprocessing.
-
-    Returns:
-    numpy.ndarray: The preprocessed numeric data.
-
-    Raises:
-    ValueError: If no numeric columns are available after filtering.
-
+    :param df: input DataFrame.
+    :param filter_by: channel of interest passed to :func:`filter_dataframe_features`; ``None`` disables.
+    :param remove_highly_correlated: correlation cutoff (float) or ``True`` to use ``0.95``; ``False`` disables.
+    :param log_data: apply ``log(x + 1e-6)`` to numeric columns.
+    :param exclude: features to exclude from filtering.
+    :param column_list: optional explicit column subset applied before selecting numeric columns.
+    :returns: standard-scaled ``ndarray`` of numeric features.
+    :raises ValueError: if no numeric columns remain after filtering.
     """
     # Apply filtering based on the `filter_by` parameter
     if filter_by is not None:
@@ -5627,15 +5636,12 @@ def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude, 
     return numeric_data
 
 def remove_low_variance_columns(df, threshold=0.01, verbose=False):
-    """
-    Removes columns from the dataframe that have low variance.
+    """Drop numeric columns whose variance is below ``threshold``.
 
-    Parameters:
-    df (pandas.DataFrame): The DataFrame containing the data.
-    threshold (float): The variance threshold below which columns will be removed.
-
-    Returns:
-    pandas.DataFrame: The DataFrame with low variance columns removed.
+    :param df: input DataFrame.
+    :param threshold: variance cutoff.
+    :param verbose: print the dropped column names.
+    :returns: filtered DataFrame.
     """
 
     numerical_cols = df.select_dtypes(include=[np.number])
@@ -5649,15 +5655,12 @@ def remove_low_variance_columns(df, threshold=0.01, verbose=False):
     return df
 
 def remove_highly_correlated_columns(df, threshold=0.95, verbose=False):
-    """
-    Removes columns from the dataframe that are highly correlated with one another.
+    """Drop numeric columns whose absolute correlation with a prior column exceeds ``threshold``.
 
-    Parameters:
-    df (pandas.DataFrame): The DataFrame containing the data.
-    threshold (float): The correlation threshold above which columns will be removed.
-
-    Returns:
-    pandas.DataFrame: The DataFrame with highly correlated columns removed.
+    :param df: input DataFrame.
+    :param threshold: correlation cutoff.
+    :param verbose: print the dropped column names.
+    :returns: decorrelated DataFrame.
     """
     numerical_cols = df.select_dtypes(include=[np.number])
     corr_matrix = numerical_cols.corr().abs()
@@ -5676,19 +5679,15 @@ def remove_highly_correlated_columns(df, threshold=0.95, verbose=False):
     return df
 
 def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_variance_features=True, remove_highly_correlated_features=True, verbose=False):
-    
-    """
-    Filter the dataframe `df` based on the specified `channel_of_interest` and `exclude` parameters.
+    """Restrict a features DataFrame to a channel of interest and clean up correlated/low-variance columns.
 
-    Parameters:
-    - df (pandas.DataFrame): The input dataframe to be filtered.
-    - channel_of_interest (str, int, list, None): The channel(s) of interest to filter the dataframe. If None, no filtering is applied. If 'morphology', only morphology features are included.If an integer, only the specified channel is included. If a list, only the specified channels are included.If a string, only the specified channel is included.
-    - exclude (str, list, None): The feature(s) to exclude from the filtered dataframe. If None, no features are excluded. If a string, the specified feature is excluded.If a list, the specified features are excluded.
-
-    Returns:
-    - filtered_df (pandas.DataFrame): The filtered dataframe based on the specified parameters.
-    - features (list): The list of selected features after filtering.
-
+    :param df: input DataFrame.
+    :param channel_of_interest: int, str, list, or ``'morphology'`` to select feature groups.
+    :param exclude: features to drop from the final list.
+    :param remove_low_variance_features: apply :func:`remove_low_variance_columns`.
+    :param remove_highly_correlated_features: apply :func:`remove_highly_correlated_columns`.
+    :param verbose: print filter details.
+    :returns: ``(filtered_df, features)``.
     """
 
     count_and_id_columns = [col for col in df.columns if '_id' in col or 'count' in col]
@@ -5760,6 +5759,7 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
 
 # Create a function to check if images overlap
 def check_overlap(current_position, other_positions, threshold):
+    """Return ``True`` if ``current_position`` is within ``threshold`` of any point in ``other_positions``."""
     for other_position in other_positions:
         distance = np.linalg.norm(np.array(current_position) - np.array(other_position))
         if distance < threshold:
@@ -5768,6 +5768,15 @@ def check_overlap(current_position, other_positions, threshold):
 
 # Define a function to try random positions around a given point
 def find_non_overlapping_position(x, y, image_positions, threshold, max_attempts=100):
+    """Return a nearby ``(x, y)`` jittered position that does not collide with ``image_positions``.
+
+    :param x: original x.
+    :param y: original y.
+    :param image_positions: previously placed points.
+    :param threshold: minimum allowed spacing.
+    :param max_attempts: retry budget before giving up.
+    :returns: ``(x, y)`` tuple; original position if no non-overlapping spot is found.
+    """
     offset_range = 10  # Adjust the range for random offsets
     attempts = 0
     while attempts < max_attempts:
@@ -5781,26 +5790,22 @@ def find_non_overlapping_position(x, y, image_positions, threshold, max_attempts
     return x, y  # Return the original position if no suitable position found
 
 def search_reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, min_samples, clustering, reduction_method, verbose, reduction_param=None, embedding=None, n_jobs=-1):
-    """
-    Perform dimensionality reduction and clustering on the given data.
-    
-    Parameters:
-    numeric_data (np.array): Numeric data to process.
-    n_neighbors (int): Number of neighbors for UMAP or perplexity for tSNE.
-    min_dist (float): Minimum distance for UMAP.
-    metric (str): Metric for UMAP, tSNE, and DBSCAN.
-    eps (float): Epsilon for DBSCAN clustering.
-    min_samples (int): Minimum samples for DBSCAN or number of clusters for KMeans.
-    clustering (str): Clustering method ('DBSCAN' or 'KMeans').
-    reduction_method (str): Dimensionality reduction method ('UMAP' or 'tSNE').
-    verbose (bool): Whether to print verbose output.
-    reduction_param (dict): Additional parameters for the reduction method.
-    embedding (np.array): Precomputed embedding (optional).
-    n_jobs (int): Number of parallel jobs to run.
+    """Variant of :func:`reduction_and_clustering` accepting extra reducer kwargs via ``reduction_param``.
 
-    Returns:
-    embedding (np.array): Embedding of the data.
-    labels (np.array): Cluster labels.
+    :param numeric_data: numeric data matrix.
+    :param n_neighbors: UMAP ``n_neighbors`` or t-SNE perplexity (int or fraction).
+    :param min_dist: UMAP ``min_dist``.
+    :param metric: distance metric.
+    :param eps: DBSCAN ``eps``.
+    :param min_samples: DBSCAN ``min_samples`` or KMeans cluster count.
+    :param clustering: ``'dbscan'`` or ``'kmeans'``.
+    :param reduction_method: ``'umap'`` or ``'tsne'``.
+    :param verbose: print progress.
+    :param reduction_param: extra kwargs forwarded to the reducer.
+    :param embedding: precomputed embedding to skip fitting.
+    :param n_jobs: parallel worker count.
+    :returns: ``(embedding, labels)``.
+    :raises ValueError: on unsupported ``reduction_method`` or ``clustering``.
     """
 
     if isinstance(n_neighbors, float):
@@ -6004,22 +6009,7 @@ def _merge_cells_without_nucleus(adj_cell_mask: np.ndarray, nuclei_mask: np.ndar
     return out.astype(np.uint16)
 
 def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask, organelle_mask, overlap_threshold=5, perimeter_threshold=30):
-    
-    """
-    Merge cells in cell_mask if a parasite in parasite_mask overlaps with more than one cell,
-    and if cells share more than a specified perimeter percentage.
-
-    Args:
-        parasite_mask (ndarray): Mask of parasites.
-        cell_mask (ndarray): Mask of cells.
-        nuclei_mask (ndarray): Mask of nuclei.
-        organelle_mask (ndarray or None): Mask of organelles.
-        overlap_threshold (float): The percentage threshold for merging cells based on parasite overlap.
-        perimeter_threshold (float): The percentage threshold for merging cells based on shared perimeter.
-
-    Returns:
-        ndarray: The modified cell mask (cell_mask) with unique labels.
-    """
+    """Merge cells that share a parasite/nucleus or a large fraction of perimeter."""
     labeled_cells = label(cell_mask)
     labeled_parasites = label(parasite_mask)
     labeled_nuclei = label(nuclei_mask)
@@ -6111,6 +6101,18 @@ def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask
 
 
 def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nuclei_folder, organelle_folder=None, overlap_threshold=5, perimeter_threshold=30):
+    """Load one triple of parasite/cell/nuclei masks, merge cells in place, and return the elapsed time.
+
+    :param file_name: mask file name (must exist in all folders).
+    :param parasite_folder: folder of parasite masks.
+    :param cell_folder: folder of cell masks (overwritten in place).
+    :param nuclei_folder: folder of nuclei masks.
+    :param organelle_folder: optional folder of organelle masks.
+    :param overlap_threshold: fractional overlap threshold used by the merger.
+    :param perimeter_threshold: shared-perimeter threshold used by the merger.
+    :returns: elapsed seconds.
+    :raises ValueError: if the matching cell or nuclei mask file is missing.
+    """
     start = time.perf_counter()
 
     parasite_path = os.path.join(parasite_folder, file_name)
@@ -6138,7 +6140,18 @@ def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nucle
     return end - start
 
 def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_folder=None, overlap_threshold=5, perimeter_threshold=30, n_jobs=None):
-    
+    """Run :func:`process_mask_file_adjust_cell` in parallel across matching mask files.
+
+    :param parasite_folder: folder of parasite masks.
+    :param cell_folder: folder of cell masks (overwritten in place).
+    :param nuclei_folder: folder of nuclei masks.
+    :param organelle_folder: optional folder of organelle masks.
+    :param overlap_threshold: fractional overlap threshold used by the merger.
+    :param perimeter_threshold: shared-perimeter threshold used by the merger.
+    :param n_jobs: worker count; defaults to ``cpu_count() - 2``.
+    :returns: None.
+    :raises ValueError: if the three folders contain different numbers of files.
+    """
     parasite_files = sorted([f for f in os.listdir(parasite_folder) if f.endswith('.npy')])
     cell_files = sorted([f for f in os.listdir(cell_folder) if f.endswith('.npy')])
     nuclei_files = sorted([f for f in os.listdir(nuclei_folder) if f.endswith('.npy')])
@@ -6171,24 +6184,37 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
             print_progress(i, files_to_process, n_jobs=n_jobs, time_ls=time_ls, batch_size=None, operation_type='adjust_cell_masks')
 
 def process_masks(mask_folder, image_folder, channel, batch_size=50, n_clusters=2, plot=False):
-    
+    """Cluster object morphology/intensity across a mask folder and keep the largest cluster in place.
+
+    :param mask_folder: folder of ``.npy`` masks.
+    :param image_folder: matching folder of ``.npy`` intensity images.
+    :param channel: channel index used for intensity measurements.
+    :param batch_size: number of files to load per batch.
+    :param n_clusters: number of KMeans clusters.
+    :param plot: show a PCA scatter of the clustered objects.
+    :returns: None.
+    """
     def read_files_in_batches(folder, batch_size=50):
+        """Yield sorted lists of ``.npy`` filenames from ``folder`` in chunks of ``batch_size``."""
         files = [f for f in os.listdir(folder) if f.endswith('.npy')]
         files.sort()  # Sort to ensure matching order
         for i in range(0, len(files), batch_size):
             yield files[i:i + batch_size]
 
     def measure_morphology_and_intensity(mask, image):
+        """Return a list of dicts with area/mean_intensity/perimeter/eccentricity per labeled region."""
         properties = measure.regionprops(mask, intensity_image=image)
         properties_list = [{'area': p.area, 'mean_intensity': p.mean_intensity, 'perimeter': p.perimeter, 'eccentricity': p.eccentricity} for p in properties]
         return properties_list
 
     def cluster_objects(properties, n_clusters=2):
+        """Return a fitted ``KMeans`` object clustering the property dicts into ``n_clusters`` groups."""
         data = np.array([[p['area'], p['mean_intensity'], p['perimeter'], p['eccentricity']] for p in properties])
         kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(data)
         return kmeans
 
     def remove_objects_not_in_largest_cluster(mask, labels, largest_cluster_label):
+        """Return ``mask`` with all labeled regions removed except those in ``largest_cluster_label``."""
         cleaned_mask = np.zeros_like(mask)
         for region in measure.regionprops(mask):
             if labels[region.label - 1] == largest_cluster_label:
@@ -6196,6 +6222,7 @@ def process_masks(mask_folder, image_folder, channel, batch_size=50, n_clusters=
         return cleaned_mask
 
     def plot_clusters(properties, labels):
+        """Show a 2-D PCA scatter of the property vectors colored by cluster label."""
         data = np.array([[p['area'], p['mean_intensity'], p['perimeter'], p['eccentricity']] for p in properties])
         pca = PCA(n_components=2)
         data_2d = pca.fit_transform(data)
@@ -6244,11 +6271,19 @@ def process_masks(mask_folder, image_folder, channel, batch_size=50, n_clusters=
             label_index += len(batch_properties)
 
 def merge_regression_res_with_metadata(results_file, metadata_file, name='_metadata'):
+    """Merge regression outputs with gene metadata on the parsed ``gene`` column.
+
+    :param results_file: path to a regression results CSV with a ``feature`` column.
+    :param metadata_file: path to a gene metadata CSV with a ``Gene ID`` column.
+    :param name: suffix appended to the output filename.
+    :returns: merged DataFrame (also written to ``<results_file><name>.csv``).
+    """
     # Read the CSV files into dataframes
     df_results = pd.read_csv(results_file)
     df_metadata = pd.read_csv(metadata_file)
     
     def extract_and_clean_gene(feature):
+        """Return the gene ID parsed from a ``feature`` string like ``C(gene)[T.<id>_...]``, or ``None``."""
         # Extract the part between '[' and ']'
         match = re.search(r'\[(.*?)\]', feature)
         if match:
@@ -6281,7 +6316,12 @@ def merge_regression_res_with_metadata(results_file, metadata_file, name='_metad
     return merged_df
 
 def process_vision_results(df, threshold=0.5):
+    """Split image paths into well identifiers and binarize the ``pred`` column.
 
+    :param df: DataFrame with ``path`` and ``pred`` columns.
+    :param threshold: cutoff used to derive ``cv_predictions``.
+    :returns: enriched DataFrame with ``plateID``, ``rowID``, ``columnID``, ``fieldID``, ``prc``, ``cv_predictions``.
+    """
     # Split the 'path' column using _map_wells function
     mapped_values = df['path'].apply(lambda x: _map_wells(x))
     
@@ -6296,7 +6336,15 @@ def process_vision_results(df, threshold=0.5):
     return df
 
 def get_ml_results_paths(src, model_type='xgboost', channel_of_interest=1):
-    
+    """Return the standard set of ML output paths for the given model and channel selection.
+
+    :param src: experiment root.
+    :param model_type: model identifier (used in the results folder name).
+    :param channel_of_interest: int, list, ``'morphology'``, or ``None`` (aliased to ``all_features``).
+    :returns: 10-tuple of paths ``(data, permutation, feature_importance, model_metrics,
+        permutation_fig, feature_importance_fig, shap_fig, plate_heatmap, settings, ml_features)``.
+    :raises ValueError: if ``channel_of_interest`` has an unsupported type.
+    """
     if isinstance(channel_of_interest, list):
         feature_string = "channels_" + "_".join(map(str, channel_of_interest))
 
@@ -6327,15 +6375,7 @@ def get_ml_results_paths(src, model_type='xgboost', channel_of_interest=1):
     return data_path, permutation_path, feature_importance_path, model_metricks_path, permutation_fig_path, feature_importance_fig_path, shap_fig_path, plate_heatmap_path, settings_csv, ml_features
 
 def augment_image(image):
-    """
-    Perform data augmentation by rotating and reflecting the image.
-    
-    Parameters:
-    - image (PIL Image or numpy array): The input image.
-
-    Returns:
-    - augmented_images (list): A list of augmented images.
-    """
+    """Return a list of PIL images covering 4 rotations x 2 horizontal reflections of ``image``."""
     augmented_images = []
 
     # Convert PIL image to numpy array if necessary
@@ -6371,15 +6411,12 @@ def augment_image(image):
     return augmented_images
 
 def augment_dataset(dataset, is_grayscale=False):
-    """
-    Perform data augmentation on the entire dataset by rotating and reflecting the images.
+    """Expand ``dataset`` by 8x through rotation and horizontal reflection of every image tensor.
 
-    Parameters:
-    - dataset (list of tuples): The input dataset, each entry is a tuple (image, label, filename).
-    - is_grayscale (bool): Flag indicating if the images are grayscale.
-
-    Returns:
-    - augmented_dataset (list of tuples): A dataset with augmented (image, label, filename) tuples.
+    :param dataset: iterable of ``(tensor, label, filename)``.
+    :param is_grayscale: informational flag (retained for API compatibility).
+    :returns: list of augmented ``(tensor, label, filename)`` tuples.
+    :raises TypeError: if an image is not a ``torch.Tensor``.
     """
     augmented_dataset = []
 
@@ -6453,7 +6490,14 @@ def convert_and_relabel_masks(folder_path):
         print(f"Converted {file} and saved as uint16_{file}")
 
 def correct_masks(src):
+    """Convert cell masks under ``src/masks/cell_mask_stack`` to uint16 and re-stack arrays.
 
+    Relabels masks so they fit in ``uint16`` and then re-concatenates the four
+    array folders under ``src`` in the layout expected downstream.
+
+    :param src: Root folder of a spacr run containing a ``masks/`` subfolder.
+    :returns: None.
+    """
     from .io import _load_and_concatenate_arrays
 
     cell_path = os.path.join(src,'masks', 'cell_mask_stack')
@@ -6461,6 +6505,13 @@ def correct_masks(src):
     _load_and_concatenate_arrays(src, [0,1,2,3], 1, 0, 2)
 
 def count_reads_in_fastq(fastq_file):
+    """Return the number of reads in a gzipped FASTQ file.
+
+    Counts total lines and divides by four (the FASTQ record length).
+
+    :param fastq_file: Path to a ``.fastq.gz`` file.
+    :returns: Integer read count.
+    """
     count = 0
     with gzip.open(fastq_file, "rt") as f:
         for _ in f:
@@ -6470,6 +6521,12 @@ def count_reads_in_fastq(fastq_file):
 
 # Function to determine the CUDA version
 def get_cuda_version():
+    """Return the installed CUDA toolkit version as a digit-only string, or ``None``.
+
+    Parses the ``nvcc --version`` output; the dots are stripped so ``11.8`` becomes ``"118"``.
+
+    :returns: Version string without dots, or ``None`` if ``nvcc`` is missing or fails.
+    """
     try:
         output = subprocess.check_output(['nvcc', '--version'], stderr=subprocess.STDOUT).decode('utf-8')
         if 'release' in output:
@@ -6478,22 +6535,39 @@ def get_cuda_version():
         return None
 
 def all_elements_match(list1, list2):
-    # Check if all elements in list1 are in list2
+    """Return ``True`` if every element of ``list1`` is contained in ``list2``.
+
+    :param list1: iterable of items to test.
+    :param list2: iterable acting as the reference set.
+    :returns: ``True`` when ``list1`` is a subset of ``list2``, else ``False``.
+    """
     return all(element in list2 for element in list1)
 
 def prepare_batch_for_segmentation(batch):
-    # Ensure the batch is of dtype float32
+    """Cast a batch to ``float32`` and per-image max-normalize any image whose max exceeds 1.
+
+    :param batch: ``(N, ...)`` numpy array of images.
+    :returns: The same array cast to ``float32`` with each image scaled to ``[0, 1]``.
+    """
     if batch.dtype != np.float32:
         batch = batch.astype(np.float32)
-    
+
     # Normalize each image in the batch
     for i in range(batch.shape[0]):
         if batch[i].max() > 1:
             batch[i] = batch[i] / batch[i].max()
-    
+
     return batch
 
 def check_index(df, elements=5, split_char='_'):
+    """Validate that every index label in ``df`` splits into ``elements`` parts on ``split_char``.
+
+    :param df: DataFrame whose index labels are compound identifiers.
+    :param elements: Expected number of parts after splitting. Default ``5``.
+    :param split_char: Delimiter used to split each index label. Default ``'_'``.
+    :returns: None.
+    :raises ValueError: if any index label does not split into ``elements`` parts.
+    """
     problematic_indices = []
     for idx in df.index:
         parts = str(idx).split(split_char)
@@ -6507,6 +6581,14 @@ def check_index(df, elements=5, split_char='_'):
     
 # Define the mapping function
 def map_condition(col_value, neg='c1', pos='c2', mix='c3'):
+    """Map a column-ID value to one of ``'neg'``, ``'pos'``, ``'mix'``, or ``'screen'``.
+
+    :param col_value: Column identifier from the plate metadata.
+    :param neg: Column ID that corresponds to negative controls. Default ``'c1'``.
+    :param pos: Column ID that corresponds to positive controls. Default ``'c2'``.
+    :param mix: Column ID that corresponds to mixed controls. Default ``'c3'``.
+    :returns: Condition label; any unlisted column returns ``'screen'``.
+    """
     if col_value == neg:
         return 'neg'
     elif col_value == pos:
@@ -6704,6 +6786,15 @@ def fill_holes_in_mask(mask):
     return filled_mask
 
 def correct_metadata_column_names(df):
+    """Rename legacy metadata columns to the canonical spacr names.
+
+    Handles the common aliases (``plate_name`` -> ``plateID``, ``col`` -> ``columnID``,
+    ``row_name`` -> ``rowID``, ``grna_name`` -> ``grna``) and splits ``plate_row``
+    into ``plateID`` and ``rowID``.
+
+    :param df: DataFrame whose columns may use legacy names.
+    :returns: The same DataFrame with columns renamed in place.
+    """
     if 'plate_name' in df.columns:
         df = df.rename(columns={'plate_name': 'plateID'})
     if 'column_name' in df.columns:
@@ -6719,6 +6810,18 @@ def correct_metadata_column_names(df):
     return df
 
 def control_filelist(folder, mode='columnID', values=None):
+    """Return filenames in ``folder`` whose row or column ID matches one of ``values``.
+
+    The filename is split on ``_`` and the second token is inspected: characters
+    after the first (``mode='columnID'``) or the leading character
+    (``mode='rowID'``) are matched against ``values``.
+
+    :param folder: Directory to scan.
+    :param mode: ``'columnID'`` matches trailing digits, ``'rowID'`` matches leading letter.
+        Default ``'columnID'``.
+    :param values: Iterable of allowed ID strings. Defaults to ``['01', '02']``.
+    :returns: List of matching filenames.
+    """
     if values is None:
         values = ['01','02']
     files = os.listdir(folder)
@@ -6729,7 +6832,16 @@ def control_filelist(folder, mode='columnID', values=None):
     return filtered_files
     
 def rename_columns_in_db(db_path):
-    # map old column names → new names
+    """Rename legacy plate-metadata columns across every table in a SQLite database.
+
+    Renames each of ``row``/``column``/``col``/``plate``/``field``/``channel`` to
+    the canonical spacr column name (``rowID``/``columnID``/``plateID``/…). Skips
+    a table when the target name already exists to avoid clashes.
+
+    :param db_path: Path to the SQLite database file to update in place.
+    :returns: None.
+    """
+    # map old column names -> new names
     rename_map = {
         'row':      'rowID',
         'column':   'columnID',
@@ -6762,11 +6874,23 @@ def rename_columns_in_db(db_path):
     con.close()    
         
 def group_feature_class(df, feature_groups=None, name='compartment'):
+    """Add a column tagging each feature with its compartment (or other group) label.
 
+    Matches feature names against the tokens in ``feature_groups`` and stores the
+    result in a new column ``name``. When ``name == 'channel'``, unmatched
+    features are relabeled ``'morphology'``.
+
+    :param df: DataFrame with a ``feature`` column.
+    :param feature_groups: Iterable of substrings/regex tokens to look for in each
+        feature name. Defaults to ``['cell', 'cytoplasm', 'nucleus', 'pathogen']``.
+    :param name: Name of the column added to ``df``. Default ``'compartment'``.
+    :returns: ``df`` with the new group column populated.
+    """
     # Function to determine compartment based on multiple matches
     if feature_groups is None:
         feature_groups = ['cell', 'cytoplasm', 'nucleus', 'pathogen']
     def find_feature_class(feature, compartments):
+        """Return the group label(s) matched in ``feature`` — joined with '-' when more than one hits."""
         matches = [compartment for compartment in compartments if re.search(compartment, feature)]
         if len(matches) > 1:
             return '-'.join(matches)
@@ -6794,7 +6918,14 @@ def group_feature_class(df, feature_groups=None, name='compartment'):
     return df
 
 def delete_intermedeate_files(settings):
-    
+    """Remove intermediate per-channel and stack folders under ``settings['src']``.
+
+    Safeguarded to only run when a ``merged/`` folder is present and the ``orig/``
+    backup folder exists, so raw inputs are preserved.
+
+    :param settings: Dict with an ``'src'`` key naming the run's root folder.
+    :returns: None.
+    """
     path_orig = os.path.join(settings['src'], 'orig')
     path_stack = os.path.join(settings['src'], 'stack')
     merged_stack = os.path.join(settings['src'], 'merged')
@@ -7047,7 +7178,16 @@ def copy_images_to_consolidated(image_path_map, root_folder):
         #print(f"Copied: {original_path} -> {new_file_path}")
         
 def correct_metadata(df):
-    
+    """Normalize a metadata DataFrame to the canonical spacr column names and plate ID form.
+
+    Strips a duplicated ``pp`` prefix from plate IDs, promotes legacy
+    ``*_name`` columns to their ID equivalents, and renames
+    ``row``/``col``/``column``/``field`` (and their ``*_name`` variants) to
+    ``rowID``/``columnID``/``fieldID``.
+
+    :param df: Metadata DataFrame that may still use legacy naming.
+    :returns: The DataFrame with canonical columns.
+    """
     #if 'object' in df.columns:
     #    df['objectID'] = df['object']
     # delete these four lines in 2027
@@ -7107,6 +7247,7 @@ def remove_outliers_by_group(df, group_col, value_col, method='iqr', threshold=1
         pd.DataFrame: A DataFrame with outliers removed.
     """
     def iqr_filter(subdf):
+        """Return rows of ``subdf`` whose ``value_col`` falls within ``threshold * IQR`` of Q1/Q3."""
         q1 = subdf[value_col].quantile(0.25)
         q3 = subdf[value_col].quantile(0.75)
         iqr = q3 - q1
@@ -7115,6 +7256,7 @@ def remove_outliers_by_group(df, group_col, value_col, method='iqr', threshold=1
         return subdf[(subdf[value_col] >= lower) & (subdf[value_col] <= upper)]
 
     def zscore_filter(subdf):
+        """Return rows of ``subdf`` whose ``value_col`` is within ``threshold`` standard deviations of the mean."""
         mean = subdf[value_col].mean()
         std = subdf[value_col].std()
         return subdf[(subdf[value_col] - mean).abs() <= threshold * std]

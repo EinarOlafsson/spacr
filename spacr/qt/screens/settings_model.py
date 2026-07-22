@@ -155,6 +155,7 @@ def plain_tooltip(text: str, app_key: str) -> str:
 class _ListEdit(QLineEdit):
     """A QLineEdit that round-trips a Python list via repr()."""
     def get_value(self) -> Any:
+        """Return the field parsed as a Python literal (or raw text on failure)."""
         text = self.text().strip()
         if not text:
             return None
@@ -164,15 +165,18 @@ class _ListEdit(QLineEdit):
             return text
 
     def set_value(self, v: Any) -> None:
+        """Render ``v`` into the field via ``repr``; ``None`` clears the field."""
         self.setText(repr(v) if v is not None else "")
 
 
 class _ScalarEdit(QLineEdit):
     """A plain QLineEdit that returns None for empty text."""
     def get_value(self) -> Optional[str]:
+        """Return the current text, or ``None`` when the field is empty."""
         return self.text() or None
 
     def set_value(self, v: Any) -> None:
+        """Set the field text; ``None`` clears the field."""
         self.setText("" if v is None else str(v))
 
 
@@ -185,6 +189,11 @@ class SettingsWidgets:
     dict after user edits."""
 
     def __init__(self, app_key: str, parent: Optional[QWidget] = None):
+        """Load the app's default settings dict and prepare an empty widget map.
+
+        :param app_key: id of the app whose settings are being edited.
+        :param parent: optional Qt parent for created widgets.
+        """
         self.app_key = app_key
         self._parent = parent
         self._defaults = resolve_default_settings(app_key)
@@ -235,6 +244,7 @@ class SettingsWidgets:
         return format_tooltip(self._tooltips.get(key, ""), self.app_key)
 
     def plain_tooltip_for(self, key: str) -> str:
+        """Return the plain-text hint (description + docs URL) for a setting."""
         return plain_tooltip(self._tooltips.get(key, ""), self.app_key)
 
     def _label_for(self, key: str) -> str:

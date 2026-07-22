@@ -17,6 +17,7 @@ APP = "SpaCR"
 
 
 def _s() -> QSettings:
+    """Return a QSettings pinned to the spaCR organization/app namespace."""
     return QSettings(ORG, APP)
 
 
@@ -27,6 +28,7 @@ def get_last_source(app_key: str) -> str:
 
 
 def set_last_source(app_key: str, path: str) -> None:
+    """Remember ``path`` as the most-recent source folder for ``app_key``."""
     if not path:
         return
     settings = _s()

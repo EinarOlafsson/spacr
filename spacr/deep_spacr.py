@@ -303,14 +303,22 @@ def _multiclass_metrics(y_true: np.ndarray, prob_mat: np.ndarray) -> dict:
 
 def evaluate_model_performance(model, loader, epoch, loss_type='auto',
                                loss_fn=None, num_classes=None):
-    """
-    Evaluates performance for binary or multiclass models.
+    """Evaluate a binary or multiclass classifier and return metrics plus raw probs/labels.
 
-    Returns:
-        data_dict (dict): metrics + loss + epoch
-        [prediction_probs, all_labels]
-          - binary: probs shape (N,)
-          - multiclass: probs shape (N, C)
+    Head size is inferred from the first batch — a single-logit head is
+    treated as binary (BCE + sigmoid), otherwise softmax + CE metrics
+    apply. If ``loss_fn`` is None, one is constructed via ``build_loss``.
+
+    :param model: PyTorch classifier.
+    :param loader: DataLoader yielding ``(input, target, meta)`` batches.
+    :param epoch: Current epoch (recorded in the returned dict).
+    :param loss_type: Loss selection passed to ``build_loss`` when
+        ``loss_fn`` is None. Default ``'auto'``.
+    :param loss_fn: Optional callable ``(logits, target) -> Tensor``.
+    :param num_classes: Class count when the loader is empty.
+    :returns: ``(metrics_dict, [probs, labels])`` — metrics include
+        ``loss``, ``epoch`` and ``Accuracy``. ``probs`` is shape
+        ``(N,)`` for binary or ``(N, C)`` for multiclass.
     """
     from .utils import calculate_loss, build_loss  # build_loss only used if loss_fn is None
 
@@ -491,6 +499,16 @@ def test_model_performance(loaders, model, loader_name_list, epoch, loss_type):
     return result_df, results_df
 
 def train_test_model(settings):
+    """Train a vision classifier on ``settings['src']`` and evaluate on the held-out split.
+
+    Handles loader generation, checkpoint loading, epoch loop, best-model
+    picking and copying of misclassified examples.
+
+    :param settings: Settings dict — see
+        ``settings.get_train_test_model_settings`` for keys.
+    :returns: The final training/validation results as populated by the
+        underlying pipeline (see call sites for details).
+    """
     from .io import _copy_missclassified
     from .utils import pick_best_model, save_settings
     from .io import generate_loaders
@@ -852,7 +870,20 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     return model, final_path
 
 def generate_activation_map(settings):
-    
+    """Generate saliency or Grad-CAM activation maps for every image in a tar dataset.
+
+    Loads the model, iterates the dataset, computes the requested map
+    type per batch, saves per-image maps into class/plate/well folders,
+    optionally plots batch grids, computes activation-image correlations,
+    and pushes both maps and correlations into the measurement database.
+
+    :param settings: Settings dict — see
+        ``settings.get_default_generate_activation_map_settings`` for
+        keys (``dataset``, ``model_path``, ``cam_type``, ``target_layer``,
+        ``image_size``, ``batch_size``, ``channels``, ``normalize``,
+        ``save``, ``plot``, ``correlation``, ...).
+    :returns: None
+    """
     from .utils import SaliencyMapGenerator, GradCAMGenerator, SelectChannels, activation_maps_to_database, activation_correlations_to_database
     from .utils import print_progress, save_settings, calculate_activation_correlations
     from .io import TarImageDataset
@@ -1012,7 +1043,16 @@ def generate_activation_map(settings):
     print("Activation map generation complete.")
 
 def visualize_classes(model, dtype, class_names, **kwargs):
+    """Show one synthesised class-visualisation image per class.
 
+    :param model: Trained classifier.
+    :param dtype: Tensor dtype used for optimisation.
+    :param class_names: Ordered class names (currently assumes binary
+        classification).
+    :param kwargs: Extra keyword arguments forwarded to
+        ``utils.class_visualization``.
+    :returns: None
+    """
     from .utils import class_visualization
 
     for target_y in range(2):  # Assuming binary classification
@@ -1024,7 +1064,21 @@ def visualize_classes(model, dtype, class_names, **kwargs):
         plt.show()
 
 def visualize_integrated_gradients(src, model_path, target_label_idx=0, image_size=224, channels=None, normalize=True, save_integrated_grads=False, save_dir='integrated_grads'):
+    """Compute and plot Integrated Gradients maps for every PNG under ``src``.
 
+    :param src: Folder of PNG images.
+    :param model_path: Path to the trained model checkpoint.
+    :param target_label_idx: Target class index for the attribution.
+        Default ``0``.
+    :param image_size: Square input size in pixels. Default ``224``.
+    :param channels: Channel subset to keep. Default ``[1, 2, 3]``.
+    :param normalize: Apply per-channel normalisation. Default ``True``.
+    :param save_integrated_grads: If True, save each map as PNG.
+        Default ``False``.
+    :param save_dir: Output folder for saved maps. Default
+        ``'integrated_grads'``.
+    :returns: None
+    """
     if channels is None:
         channels = [1,2,3]
     from .utils import IntegratedGradients, preprocess_image
@@ -1076,12 +1130,28 @@ def visualize_integrated_gradients(src, model_path, target_label_idx=0, image_si
             integrated_grads_image.save(os.path.join(save_dir, f'integrated_grads_{file}'))
 
 class SmoothGrad:
+    """SmoothGrad attribution: average gradients over noisy copies of the input.
+
+    :param model: PyTorch classifier used for gradient computation.
+    :param n_samples: Number of noisy samples to average over. Default ``50``.
+    :param stdev_spread: Noise standard deviation as a fraction of the
+        input's dynamic range. Default ``0.15``.
+    """
+
     def __init__(self, model, n_samples=50, stdev_spread=0.15):
+        """Store the model and noise parameters."""
         self.model = model
         self.n_samples = n_samples
         self.stdev_spread = stdev_spread
 
     def compute_smooth_grad(self, input_tensor, target_class):
+        """Return the averaged gradient map for ``target_class`` given ``input_tensor``.
+
+        :param input_tensor: Input tensor to attribute (single sample or batch).
+        :param target_class: Class index whose logit is differentiated.
+        :returns: Tensor of the same shape as ``input_tensor`` holding
+            the averaged gradients.
+        """
         self.model.eval()
         stdev = self.stdev_spread * (input_tensor.max() - input_tensor.min())
         total_gradients = torch.zeros_like(input_tensor)
@@ -1099,7 +1169,18 @@ class SmoothGrad:
         return avg_gradients.abs()
 
 def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, channels=None, normalize=True, save_smooth_grad=False, save_dir='smooth_grad'):
+    """Compute and plot SmoothGrad maps for every PNG under ``src``.
 
+    :param src: Folder of PNG images.
+    :param model_path: Path to the trained model checkpoint.
+    :param target_label_idx: Target class index for the attribution.
+    :param image_size: Square input size in pixels. Default ``224``.
+    :param channels: Channel subset to keep. Default ``[1, 2, 3]``.
+    :param normalize: Apply per-channel normalisation. Default ``True``.
+    :param save_smooth_grad: If True, save each map as PNG. Default ``False``.
+    :param save_dir: Output folder for saved maps. Default ``'smooth_grad'``.
+    :returns: None
+    """
     if channels is None:
         channels = [1,2,3]
     from .utils import preprocess_image
@@ -1151,26 +1232,19 @@ def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, cha
             smooth_grad_image.save(os.path.join(save_dir, f'smooth_grad_{file}'))
             
 def save_top_class_examples(df, tar_path, dst, n=20, classes=None):
-    """
-    Extract the N most confident images per class from the tar and save
-    them into class-labelled subfolders under dst.
+    """Extract the ``n`` most confident images per class from a tar into class-labelled folders.
 
-    For binary classification (classes=[0, 1]):
-      - class_0/  ← the 20 images with the LOWEST  pred  (closest to 0)
-      - class_1/  ← the 20 images with the HIGHEST pred  (closest to 1)
+    For binary classification, class 0 keeps the lowest ``pred`` scores
+    and class 1 keeps the highest.
 
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Must contain columns 'path' (tar member name) and 'pred' (probability).
-    tar_path : str
-        Path to the tar archive that holds the images.
-    dst : str
-        Root folder where class subfolders will be created.
-    n : int
-        Number of top images to keep per class.
-    classes : list or None
-        Explicit class labels. If None, defaults to binary [0, 1].
+    :param df: DataFrame with columns ``path`` (tar member name) and
+        ``pred`` (probability).
+    :param tar_path: Tar archive containing the images.
+    :param dst: Output root; ``dst/class_<label>/`` subfolders are
+        created.
+    :param n: Number of images to keep per class. Default ``20``.
+    :param classes: Explicit class labels. Default ``[0, 1]``.
+    :returns: ``dst`` — for chaining.
     """
     import os, tarfile
     from io import BytesIO
@@ -1235,12 +1309,20 @@ def save_top_class_examples(df, tar_path, dst, n=20, classes=None):
 
 def merge_predictions_into_db(df, db_path, table='png_list', pred_col='pred',
                                class_col='cv_predictions'):
-    """
-    Merge prediction scores back into the SQLite database.
+    """Write per-image prediction scores back into a spacr SQLite database.
 
-    Matching on basename of png_path (DB) vs path (tar member name),
-    since the tar stores relative member names while the DB stores
-    full disk paths.
+    Matches by ``basename(png_path)`` because the tar archive uses
+    relative member names while the DB stores full disk paths.
+
+    :param df: DataFrame with columns ``path``, ``pred`` and
+        ``cv_predictions``.
+    :param db_path: SQLite database file.
+    :param table: Target table. Default ``'png_list'``.
+    :param pred_col: Column name for the probability. Default ``'pred'``.
+    :param class_col: Column name for the class label. Default
+        ``'cv_predictions'``.
+    :returns: Number of DB rows updated, or ``None`` if the database is
+        missing.
     """
     import sqlite3, os
 
@@ -1292,6 +1374,18 @@ def merge_predictions_into_db(df, db_path, table='png_list', pred_col='pred',
     return matched
             
 def deep_spacr(settings=None):
+    """End-to-end vision pipeline: dataset generation, training, inference and DB merge.
+
+    Depending on flags in ``settings`` — ``train``, ``test``,
+    ``generate_training_dataset``, ``apply_model_to_dataset`` — this
+    driver builds train/test splits, trains a classifier, runs
+    inference against a tar archive, saves top-N confident examples per
+    class and merges predictions back into the measurements database.
+
+    :param settings: Settings dict; see ``settings.deep_spacr_defaults``
+        for accepted keys.
+    :returns: None (early-returns if training-dataset generation fails).
+    """
     if settings is None:
         settings = {}
     import os
@@ -1362,7 +1456,27 @@ def deep_spacr(settings=None):
             print(f"Model path {model_path} not found; skipping model application.")
             
 def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, device='cpu', student_model_name='maxvit_t', pretrained=True, dropout_rate=None, use_checkpoint=False, alpha=0.5, temperature=2.0, lr=1e-4, epochs=10):
+    """Distil an ensemble of teacher models into a single student TorchModel.
 
+    :param teacher_paths: Paths to the teacher checkpoints (each either
+        a saved ``TorchModel`` or a state dict).
+    :param student_save_path: Destination for the trained student; the
+        suffix ``_KD.pth`` is appended.
+    :param data_loader: Training DataLoader used during distillation.
+    :param device: Torch device string. Default ``'cpu'``.
+    :param student_model_name: TorchModel architecture name for the
+        student. Default ``'maxvit_t'``.
+    :param pretrained: Whether the student uses pretrained weights.
+    :param dropout_rate: Optional dropout rate for the student.
+    :param use_checkpoint: Whether to enable gradient checkpointing.
+    :param alpha: Weight on the true-label loss vs. distillation loss.
+        Default ``0.5``.
+    :param temperature: Softmax temperature for distillation. Default ``2.0``.
+    :param lr: Adam learning rate. Default ``1e-4``.
+    :param epochs: Training epochs. Default ``10``.
+    :returns: The trained student model.
+    :raises ValueError: on unsupported checkpoint types.
+    """
     from .utils import TorchModel
 
     # Adjust filename to reflect knowledge-distillation if desired
@@ -1466,7 +1580,23 @@ def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, devi
     return student_model
             
 def model_fusion(model_paths,save_path,device='cpu',model_name='maxvit_t',pretrained=True,dropout_rate=None,use_checkpoint=False,aggregator='mean'):
+    """Fuse the weights of several identically-shaped model checkpoints into one.
 
+    :param model_paths: Paths to source checkpoints (dicts or ``TorchModel``s).
+    :param save_path: Base output path; suffix ``_<aggregator>.pth`` is
+        appended.
+    :param device: Torch device string. Default ``'cpu'``.
+    :param model_name: TorchModel architecture name for the fused model.
+    :param pretrained: Whether pretrained weights are expected.
+    :param dropout_rate: Optional dropout rate.
+    :param use_checkpoint: Whether to enable gradient checkpointing.
+    :param aggregator: Reduction over stacked weights — one of
+        ``'mean'``, ``'geomean'``, ``'median'``, ``'sum'``, ``'max'``,
+        ``'min'``. Default ``'mean'``.
+    :returns: The fused ``TorchModel``.
+    :raises ValueError: on unsupported ``aggregator``, mismatched state
+        dict keys, or unsupported checkpoint types.
+    """
     from .utils import TorchModel
     
     if save_path.endswith('.pth'):
@@ -1566,18 +1696,19 @@ def model_fusion(model_paths,save_path,device='cpu',model_name='maxvit_t',pretra
     return fused_model
 
 def annotate_filter_vision(settings):
-    
+    """Annotate vision-model score CSVs with plate metadata after removing training images.
+
+    :param settings: Settings dict with ``src`` (path or list of paths)
+        and downstream annotation keys used by ``annotate_conditions``.
+    :returns: None
+    """
     from .utils import annotate_conditions, correct_metadata
-    
+
     def filter_csv_by_png(csv_file):
-        """
-        Filters a DataFrame by removing rows that match PNG filenames in a folder.
+        """Return a DataFrame with rows matching any PNG in the sibling ``training/train`` folders removed.
 
-        Parameters:
-            csv_file (str): Path to the CSV file.
-
-        Returns:
-            pd.DataFrame: Filtered DataFrame.
+        :param csv_file: Path to the score CSV.
+        :returns: Filtered DataFrame.
         """
         # Split the path to identify the datasets folder and build the training folder path
         before_datasets, after_datasets = csv_file.split(os.sep + "datasets" + os.sep, 1)

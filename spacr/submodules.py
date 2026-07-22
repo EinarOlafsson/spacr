@@ -30,6 +30,18 @@ from natsort import natsorted
 from torch.utils.data import Dataset
 
 class CellposeLazyDataset(Dataset):
+    """Lazy image/label dataset for Cellpose training and inference.
+
+    Loads paired image and label tiffs on demand, optionally normalizing,
+    augmenting (8-fold rotations/flips), and resizing to a target size.
+
+    :param image_files: paths to input image tiffs.
+    :param label_files: paths to matching label tiffs (same length as ``image_files``).
+    :param settings: dict with keys ``normalize``, ``percentiles``, ``target_size``.
+    :param randomize: shuffle the image/label pairing order. Default ``True``.
+    :param augment: enable 8-fold augmentation (dataset length x8). Default ``False``.
+    :raises ValueError: when image/label lists differ in length or are empty.
+    """
     def __init__(
         self,
         image_files,
@@ -147,6 +159,17 @@ class CellposeLazyDataset(Dataset):
         return image, label
 
 class CellposeLazyDataset_v1(Dataset):
+    """Legacy lazy image/label dataset for Cellpose (kept for backwards compatibility).
+
+    Superseded by :class:`CellposeLazyDataset`; retained so older training
+    scripts continue to import a working class.
+
+    :param image_files: paths to input image tiffs.
+    :param label_files: paths to matching label tiffs.
+    :param settings: dict with keys ``normalize``, ``percentiles``, ``target_size``.
+    :param randomize: shuffle pairs at construction. Default ``True``.
+    :param augment: enable 8-fold augmentation. Default ``False``.
+    """
     def __init__(self, image_files, label_files, settings, randomize=True, augment=False):
         combined = list(zip(image_files, label_files))
         if randomize:
@@ -161,6 +184,7 @@ class CellposeLazyDataset_v1(Dataset):
         return len(self.image_files) * (8 if self.augment else 1)
 
     def apply_augmentation(self, image, label, aug_idx):
+        """Return the ``aug_idx``-th rotation/flip augmentation of ``image``/``label``."""
         if aug_idx == 1:
             return rotate(image, 90, resize=False, preserve_range=True), rotate(label, 90, resize=False, preserve_range=True)
         elif aug_idx == 2:
@@ -203,7 +227,14 @@ class CellposeLazyDataset_v1(Dataset):
         return image, label
 
 def train_cellpose(settings):
-    
+    """Train a Cellpose ``cyto`` segmentation model from images and paired masks.
+
+    :param settings: dict of training settings; see
+        ``get_train_cellpose_default_settings`` for keys including ``src``,
+        ``model_name``, ``target_size``, ``n_epochs``, ``batch_size``,
+        ``learning_rate``, ``weight_decay``, and ``augment``.
+    :returns: None. Saves the trained model under ``<src>/models/cellpose_model``.
+    """
     from .settings import get_train_cellpose_default_settings
     from .utils import save_settings
     
@@ -273,11 +304,31 @@ def train_cellpose(settings):
     print(f"Model saved at: {model_save_path}/{model_name}")
     
 def test_cellpose_model(settings):
-    
+    """Evaluate a Cellpose model on a labelled test set and report per-image metrics.
+
+    Computes Jaccard, object counts, mean object area, precision, recall,
+    F1 and accuracy for each image and writes a summary CSV.
+
+    :param settings: dict of test settings; see
+        ``get_default_test_cellpose_model_settings`` for keys including
+        ``src``, ``model_path``, ``batch_size``, ``FT``, ``CP_probability``,
+        and ``save``.
+    :returns: None. Writes ``test_results.csv`` in ``<src>/results`` when ``save`` is set.
+    """
     from .utils import save_settings, print_progress
     from .settings import get_default_test_cellpose_model_settings
-    
+
     def plot_cellpose_resilts(i, j, results_dir, img, lbl, pred, flow):
+        """Render one 5-panel diagnostic (image / label / pred / flow) for a Cellpose result.
+
+        :param i: outer image index used in the output filename.
+        :param j: inner batch index used in the output filename.
+        :param results_dir: folder where the composite PNG is written.
+        :param img: source image array.
+        :param lbl: ground-truth label array.
+        :param pred: predicted mask array.
+        :param flow: Cellpose flow field.
+        """
         from . plot import generate_mask_random_cmap
         fig, axs = plt.subplots(1, 5, figsize=(16, 4), gridspec_kw={'wspace': 0.1, 'hspace': 0.1})
         cmap_lbl = generate_mask_random_cmap(lbl)
@@ -459,13 +510,31 @@ def test_cellpose_model(settings):
         df_results.to_csv(os.path.join(results_dir, 'test_results.csv'), index=False)
         
 def apply_cellpose_model(settings):
-    
+    """Run a Cellpose model over a folder of images and export per-object measurements.
+
+    Optionally masks predictions to a central circle, then records per-object
+    area to ``measurements.csv`` and a per-image summary to ``summary.csv``.
+
+    :param settings: dict of inference settings; see
+        ``get_default_apply_cellpose_model_settings`` for keys including
+        ``src``, ``model_path``, ``batch_size``, ``FT``, ``CP_probability``,
+        ``circularize`` and ``save``.
+    :returns: None. Writes result CSVs under ``<src>/results``.
+    """
     from .settings import get_default_apply_cellpose_model_settings
     from .utils import save_settings, print_progress
-    
+
     def plot_cellpose_result(i, j, results_dir, img, pred, flow):
-        
-        from .plot import generate_mask_random_cmap  
+        """Render a 4-panel diagnostic (image / pred / flow) for one Cellpose apply result.
+
+        :param i: outer image index used in the output filename.
+        :param j: inner batch index used in the output filename.
+        :param results_dir: folder where the composite PNG is written.
+        :param img: source image array.
+        :param pred: predicted mask array.
+        :param flow: Cellpose flow field.
+        """
+        from .plot import generate_mask_random_cmap
         
         fig, axs = plt.subplots(1, 4, figsize=(16, 4), gridspec_kw={'wspace': 0.1, 'hspace': 0.1})
         cmap_pred = generate_mask_random_cmap(pred)
@@ -579,6 +648,12 @@ def apply_cellpose_model(settings):
         print("Saved object count and average area to summary.csv")
 
 def plot_cellpose_batch(images, labels):
+    """Display a two-row grid of images and their paired label masks.
+
+    :param images: iterable of 2D grayscale image arrays.
+    :param labels: iterable of matching integer label arrays.
+    :returns: None.
+    """
     from .plot import generate_mask_random_cmap
 
     cmap_lbl = generate_mask_random_cmap(labels)
@@ -594,6 +669,17 @@ def plot_cellpose_batch(images, labels):
     plt.show()
 
 def analyze_percent_positive(settings):
+    """Annotate objects above a threshold and summarise positive fractions per well.
+
+    Merges measurements from ``measurements.db``, thresholds on a chosen
+    feature column, then joins the resulting well-level counts against
+    ``rename_log.csv`` to recover human-readable plate/well identifiers.
+
+    :param settings: dict of settings; see
+        ``default_settings_analyze_percent_positive`` for keys including
+        ``src``, ``tables``, ``value_col``, ``threshold`` and ``filter_1``.
+    :returns: DataFrame of annotated per-well positive/negative counts and fractions.
+    """
     from .io import _read_and_merge_data
     from .utils import save_settings
     from .settings import default_settings_analyze_percent_positive
@@ -601,6 +687,11 @@ def analyze_percent_positive(settings):
     settings = default_settings_analyze_percent_positive(settings)
     
     def translate_well_in_df(csv_loc):
+        """Return a dataframe read from ``csv_loc`` with ``plateID`` / ``well`` columns split out of ``Renamed TIFF``.
+
+        :param csv_loc: path to a CSV containing a ``Renamed TIFF`` column.
+        :returns: :class:`pandas.DataFrame` with parsed ``plateID`` and ``well`` columns.
+        """
         # Load and extract metadata
         df = pd.read_csv(csv_loc)
         df[['plateID', 'well']] = df['Renamed TIFF'].str.replace('.tif', '', regex=False).str.split('_', expand=True)[[0, 1]]
@@ -620,20 +711,15 @@ def analyze_percent_positive(settings):
         return df_2
     
     def annotate_and_summarize(df, value_col, condition_col, well_col, threshold, annotation_col='annotation'):
-        """
-        Annotate and summarize a DataFrame based on a threshold.
+        """Annotate rows as ``above``/``below`` a threshold and summarise per condition and well.
 
-        Parameters:
-        - df: pandas.DataFrame
-        - value_col: str, column name to apply threshold on
-        - condition_col: str, column name for experimental condition
-        - well_col: str, column name for wells
-        - threshold: float, threshold value for annotation
-        - annotation_col: str, name of the new annotation column
-
-        Returns:
-        - df: annotated DataFrame
-        - summary_df: DataFrame with counts and fractions per condition and well
+        :param df: measurements DataFrame to annotate in place.
+        :param value_col: column whose values are compared to ``threshold``.
+        :param condition_col: experimental condition column used for grouping.
+        :param well_col: well identifier column used for grouping.
+        :param threshold: numeric cutoff; values above become ``above``.
+        :param annotation_col: name of the new annotation column. Default ``'annotation'``.
+        :returns: tuple ``(df, summary_df)`` with the annotated rows and a per-(condition, well) counts/fractions table.
         """
         # Annotate
         df[annotation_col] = np.where(df[value_col] > threshold, 'above', 'below')
@@ -680,14 +766,13 @@ def analyze_percent_positive(settings):
     return merged
 
 def analyze_recruitment(settings):
-    """
-    Analyze recruitment data by grouping the DataFrame by well coordinates and plotting controls and recruitment data.
+    """Compute pathogen-to-cytoplasm recruitment ratios and plot per-PV and per-well summaries.
 
-    Parameters:
-    settings (dict): settings.
-
-    Returns:
-    None
+    :param settings: dict of recruitment settings; see
+        ``get_analyze_recruitment_default_settings`` for keys including
+        ``src``, ``cell_types``, ``pathogen_types``, ``treatments`` and
+        their plate metadata, ``channel_of_interest``, and size/intensity ranges.
+    :returns: ``[cells, wells]`` — the per-object and per-well summary DataFrames written to CSV.
     """
     
     from .io import _read_and_merge_data, _results_to_csv
@@ -803,7 +888,16 @@ def analyze_recruitment(settings):
     return [cells,wells]
 
 def analyze_plaques(settings):
+    """Segment plaques with a bundled Cellpose model and summarise their counts and sizes.
 
+    Runs Cellpose over the images (when ``settings['masks']`` is truthy),
+    then computes per-image plaque counts and area statistics and persists
+    them to a SQLite database alongside the masks.
+
+    :param settings: dict of plaque-analysis settings; see
+        ``get_analyze_plaque_settings`` for keys including ``src`` and ``masks``.
+    :returns: None. Writes ``plaques_analysis.db`` under ``<src>/masks``.
+    """
     from .spacr_cellpose import identify_masks_finetune
     from .settings import get_analyze_plaque_settings
     from .utils import save_settings, download_models
@@ -868,6 +962,13 @@ def analyze_plaques(settings):
     print(f"Analysis completed and saved to database '{db_name}'.")
 
 def count_phenotypes(settings):
+    """Count unique phenotype annotations per plate/row/column and export to CSV.
+
+    :param settings: dict with ``src`` (pointing at a measurements folder or
+        ``measurements.db``) and ``annotation_column`` (the column of interest
+        in the ``png_list`` table).
+    :returns: None. Writes ``phenotype_counts.csv`` next to the database.
+    """
     from .io import _read_db
 
     if not settings['src'].endswith('/measurements/measurements.db'):
@@ -908,15 +1009,40 @@ def count_phenotypes(settings):
     return
 
 def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
-                            pc_grna='TGGT1_220950_1', nc_grna='TGGT1_233460_4', 
-                            y_columns=None, 
+                            pc_grna='TGGT1_220950_1', nc_grna='TGGT1_233460_4',
+                            y_columns=None,
                             column='columnID', value='c3', plate=None, save_paths=None):
+    """Compare sequencing read fractions to classifier score fractions across wells.
 
+    Loads paired reads and scores tables (single files or matched lists),
+    computes per-well class-1 and gRNA fractions, joins them with an
+    empirical row-to-mixture dictionary, and plots the fractions against
+    the positive- and negative-control fractions.
+
+    :param reads_csv: path (or list of paths) to per-gRNA read count CSVs.
+    :param scores_csv: path (or list of paths) to per-object classifier score CSVs.
+    :param empirical_dict: mapping of ``rowID`` to ``(pc_units, nc_units)`` mixture; a 16-row default is used when ``None``.
+    :param pc_grna: positive-control gRNA name. Default ``'TGGT1_220950_1'``.
+    :param nc_grna: negative-control gRNA name. Default ``'TGGT1_233460_4'``.
+    :param y_columns: columns to plot on the y axis; a sensible default is used when ``None``.
+    :param column: column used to select a subset of wells. Default ``'columnID'``.
+    :param value: value in ``column`` to keep. Default ``'c3'``.
+    :param plate: plate ID to stamp when a single pair of CSVs is given.
+    :param save_paths: two-element list of PDF output paths (pc plot, nc plot).
+    :returns: two matplotlib figures ``[fig_pc, fig_nc]``.
+    """
     if empirical_dict is None:
         empirical_dict = {'r1':(90,10),'r2':(90,10),'r3':(80,20),'r4':(80,20),'r5':(70,30),'r6':(70,30),'r7':(60,40),'r8':(60,40),'r9':(50,50),'r10':(50,50),'r11':(40,60),'r12':(40,60),'r13':(30,70),'r14':(30,70),'r15':(20,80),'r16':(20,80)}
     if y_columns is None:
         y_columns = ['class_1_fraction', 'TGGT1_220950_1_fraction', 'nc_fraction']
     def calculate_well_score_fractions(df, class_columns='cv_predictions'):
+        """Aggregate per-object classifier predictions into per-well class fractions.
+
+        :param df: measurements dataframe with a ``prc`` well id and a
+            classifier prediction column.
+        :param class_columns: name of the prediction column to summarise.
+        :returns: dataframe keyed by ``prc`` with one fraction column per class.
+        """
         if all(col in df.columns for col in ['plateID', 'rowID', 'columnID']):
             df['prc'] = df['plateID'] + '_' + df['rowID'] + '_' + df['columnID']
         else:
@@ -932,17 +1058,28 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
         summary_df['class_1_fraction'] = summary_df['class_1'] / summary_df['total_rows']
         return summary_df
         
-    def plot_line(df, x_column, y_columns, group_column=None, xlabel=None, ylabel=None, 
+    def plot_line(df, x_column, y_columns, group_column=None, xlabel=None, ylabel=None,
                   title=None, figsize=(10, 6), save_path=None, theme='deep'):
-        """
-        Create a line plot that can handle multiple y-columns, each becoming a separate line.
+        """Plot one line per y-column (or per ``group_column`` value) against ``x_column``.
+
+        :param df: DataFrame containing the x and y columns.
+        :param x_column: column used for the x axis.
+        :param y_columns: str or list of columns to plot as lines.
+        :param group_column: optional hue column when ``y_columns`` is a single column.
+        :param xlabel: x-axis label; falls back to ``x_column``.
+        :param ylabel: y-axis label; falls back to ``'Value'``.
+        :param title: plot title; falls back to ``'Line Plot'``.
+        :param figsize: figure size in inches. Default ``(10, 6)``.
+        :param save_path: optional PDF path to save the figure.
+        :param theme: Seaborn palette name. Default ``'deep'``.
+        :returns: the created matplotlib Figure.
         """
 
         def _set_theme(theme):
-            """Set the Seaborn theme and reorder colors if necessary."""
+            """Return a reordered Seaborn palette for consistent line coloring."""
 
             def __set_reordered_theme(theme='deep', order=None, n_colors=100, show_theme=False):
-                """Set and reorder the Seaborn color palette."""
+                """Return a Seaborn palette optionally reordered by index list ``order``."""
                 palette = sns.color_palette(theme, n_colors)
                 if order:
                     reordered_palette = [palette[i] for i in order]
@@ -1001,6 +1138,13 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
         return fig
     
     def calculate_grna_fraction_ratio(df, grna1='TGGT1_220950_1', grna2='TGGT1_233460_4'):
+        """Compute the per-well read-fraction ratio between two gRNAs.
+
+        :param df: dataframe with ``prc``, ``grna_name``, and ``count`` columns.
+        :param grna1: numerator gRNA.
+        :param grna2: denominator gRNA.
+        :returns: dataframe with one ratio value per ``prc``.
+        """
         # Filter relevant grna_names within each prc and group them
         grouped = df[df['grna_name'].isin([grna1, grna2])] \
             .groupby(['prc', 'grna_name']) \
@@ -1022,6 +1166,13 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
         return result
 
     def calculate_well_read_fraction(df, count_column='count'):
+        """Compute the per-well fraction of reads for each gRNA.
+
+        :param df: dataframe with ``plateID``/``rowID``/``columnID`` (or ``prc``),
+            ``grna_name``, and a read count column.
+        :param count_column: name of the read-count column.
+        :returns: dataframe with a ``fraction`` column per ``(prc, grna_name)``.
+        """
         if all(col in df.columns for col in ['plateID', 'rowID', 'columnID']):
             df['prc'] = df['plateID'] + '_' + df['rowID'] + '_' + df['columnID']
         else:
@@ -1090,13 +1241,31 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
     return [fig_1, fig_2]
 
 def interperate_vision_model(settings=None):
-    
+    """Explain a vision-model score with random-forest, permutation and SHAP importance.
+
+    Merges morphology measurements with per-object scores, expands
+    compartment-relative feature ratios, then runs random-forest feature
+    importance, permutation importance and (optionally) SHAP on the top
+    features, producing per-compartment and per-channel importance tables.
+
+    :param settings: dict of interpretation settings including ``src``,
+        ``tables``, ``channels``, ``score_column``, ``top_features``,
+        ``feature_importance``, ``permutation_importance``, ``shap``,
+        ``shap_sample``, ``n_jobs``, and ``save``.
+    :returns: dict of resulting DataFrames keyed by analysis (``feature_importance``, ``permutation_importance``, ``shap``, plus compartment/channel groupings).
+    """
     if settings is None:
         settings = {}
     from .io import _read_and_merge_data
 
     def generate_comparison_columns(df, compartments=None):
+        """Add cross-compartment feature ratios (e.g. nucleus/cell) as new columns.
 
+        :param df: measurements DataFrame; columns prefixed with each compartment.
+        :param compartments: compartment prefixes to compare. Defaults to
+            ``['cell', 'nucleus', 'pathogen', 'cytoplasm']``.
+        :returns: tuple ``(df, comparison_dict)`` with the expanded DataFrame and a mapping of source columns to their derived ratio partners.
+        """
         if compartments is None:
             compartments = ['cell', 'nucleus', 'pathogen', 'cytoplasm']
         comparison_dict = {}
@@ -1141,11 +1310,18 @@ def interperate_vision_model(settings=None):
         return df, comparison_dict
 
     def group_feature_class(df, feature_groups=None, name='compartment', include_all=False):
+        """Sum feature importance by compartment or channel group.
 
-        # Function to determine compartment based on multiple matches
+        :param df: DataFrame with columns ``feature`` and ``importance``.
+        :param feature_groups: substrings identifying each group (compartments or channels).
+        :param name: name of the grouping column to create. Default ``'compartment'``.
+        :param include_all: append an ``all`` row summing across groups. Default ``False``.
+        :returns: DataFrame of summed importance per group.
+        """
         if feature_groups is None:
             feature_groups = ['cell', 'cytoplasm', 'nucleus', 'pathogen']
         def find_feature_class(feature, compartments):
+            """Return the compartment(s) whose name matches ``feature``."""
             matches = [compartment for compartment in compartments if re.search(compartment, feature)]
             if len(matches) > 1:
                 return '-'.join(matches)
@@ -1176,6 +1352,12 @@ def interperate_vision_model(settings=None):
 
     # Function to create radar plot for individual and combined values
     def create_extended_radar_plot(values, labels, title):
+        """Render a polar radar plot of ``values`` against ``labels``.
+
+        :param values: numeric values per axis (one per label).
+        :param labels: axis labels.
+        :param title: plot title.
+        """
         values = list(values) + [values[0]]  # Close the loop for radar chart
         angles = [n / float(len(labels)) * 2 * pi for n in range(len(labels))]
         angles += angles[:1]
@@ -1190,6 +1372,11 @@ def interperate_vision_model(settings=None):
         plt.show()
 
     def extract_compartment_channel(feature_name):
+        """Split ``feature_name`` into ``(compartment, channel)`` by the leading underscore token.
+
+        :param feature_name: measurement feature key, e.g. ``"cell_ch0_mean"``.
+        :returns: two-tuple ``(compartment, channel)`` — either may be ``None``.
+        """
         # Identify compartment as the first part before an underscore
         compartment = feature_name.split('_')[0]
         
@@ -1216,7 +1403,12 @@ def interperate_vision_model(settings=None):
         return (compartment, channel)
 
     def read_and_preprocess_data(settings):
+        """Load the measurements DB pointed at by ``settings`` and return the merged dataframe.
 
+        :param settings: settings dict; must contain ``src`` (folder holding
+            ``measurements/measurements.db``).
+        :returns: dataframe of merged object measurements.
+        """
         df, _ = _read_and_merge_data(
             locs=[settings['src']+'/measurements/measurements.db'], 
             tables=settings['tables'], 
@@ -1395,13 +1587,24 @@ def interperate_vision_model(settings=None):
 
 
 def analyze_endodyogeny(settings):
+    """Bin pathogen volumes by log2 doublings and test group proportions.
 
+    Converts a compartment area to a volume, groups objects into doubling
+    volume bins, then runs the shared chi-squared proportion plot per group.
+
+    :param settings: dict of endodyogeny settings; see
+        ``set_analyze_endodyogeny_defaults`` for keys including ``src``,
+        ``tables``, ``compartment``, ``min_area_bin``, ``max_area``,
+        ``max_bins``, ``um_per_px``, ``group_column``, ``level`` and ``save``.
+    :returns: dict with ``data`` (binned DataFrame) and ``chi_squared`` (results DataFrame).
+    """
     from .utils import annotate_conditions, save_settings
     from .io import _read_and_merge_data
     from .settings import set_analyze_endodyogeny_defaults
     from .plot import plot_proportion_stacked_bars
 
     def _calculate_volume_bins(df, compartment='pathogen', min_area_bin=500, max_bins=None, verbose=False):
+        """Assign each row to a log2 volume-doubling bin and return the ordered categories."""
         area_column = f'{compartment}_area'
         volume_column = f'{compartment}_volume'
         bin_column = f'{compartment}_volume_bin'
@@ -1583,7 +1786,17 @@ def analyze_endodyogeny(settings):
 
 
 def analyze_class_proportion(settings):
-    
+    """Test whether classifier class proportions differ between experimental groups.
+
+    Runs chi-squared and pairwise tests on the class column, plots stacked
+    bars and a plate heatmap, and follows up with normality, Levene, and
+    posthoc statistical tests.
+
+    :param settings: dict of settings; see
+        ``set_analyze_class_proportion_defaults`` for keys including ``src``,
+        ``tables``, ``class_column``, ``group_column``, ``level`` and ``save``.
+    :returns: dict with ``data`` (annotated DataFrame) and ``chi_squared`` (results DataFrame).
+    """
     from .utils import annotate_conditions, save_settings
     from .io import _read_and_merge_data
     from .settings import set_analyze_class_proportion_defaults
@@ -1687,8 +1900,22 @@ def analyze_class_proportion(settings):
     return output
 
 def generate_score_heatmap(settings):
-    
+    """Combine multiple classifier score CSVs into a per-well heatmap and MAE table.
+
+    Aggregates per-object scores across score CSVs, merges with a
+    cross-validation score and a reads-derived fraction column, plots a
+    multi-channel heatmap, and computes per-channel mean absolute error
+    against the empirical fraction.
+
+    :param settings: dict of settings including ``folders``, ``csv_name``,
+        ``data_column``, ``csv``, ``cv_csv``, ``data_column_cv``,
+        ``plateID``, ``columnID``, ``control_sgrnas``, ``fraction_grna``,
+        ``cmap`` and ``dst``.
+    :returns: merged DataFrame joining reads, classifier scores and CV scores per well.
+    """
+
     def group_cv_score(csv, plate=1, column='c3', data_column='pred'):
+        """Aggregate a CV predictions CSV to a per-(plate, row, column) mean."""
         
         df = pd.read_csv(csv)
         if 'columnID' in df.columns:
@@ -1703,6 +1930,7 @@ def generate_score_heatmap(settings):
         return grouped_df
 
     def calculate_fraction_mixed_condition(csv, plate=1, column='c3', control_sgrnas = None):
+        """Return per-well read fractions restricted to the given control sgRNAs."""
         if control_sgrnas is None:
             control_sgrnas = ['TGGT1_220950_1', 'TGGT1_233460_4']
         df = pd.read_csv(csv)  
@@ -1718,12 +1946,12 @@ def generate_score_heatmap(settings):
         return merged_df
 
     def plot_multi_channel_heatmap(df, column='c3', cmap='coolwarm'):
-        """
-        Plot a heatmap with multiple channels as columns.
+        """Plot a per-well heatmap with each classifier channel as a column.
 
-        Parameters:
-        - df: DataFrame with scores for different channels.
-        - column: Column to filter by (default is 'c3').
+        :param df: DataFrame with score columns keyed by channel.
+        :param column: value in ``columnID`` used to filter rows. Default ``'c3'``.
+        :param cmap: matplotlib/seaborn colormap. Default ``'coolwarm'``.
+        :returns: the matplotlib Figure.
         """
         # Extract row number and convert to integer for sorting
         df['row_num'] = df['rowID'].str.extract(r'(\d+)').astype(int)
@@ -1767,6 +1995,7 @@ def generate_score_heatmap(settings):
 
 
     def combine_classification_scores(folders, csv_name, data_column, plate=1, column='c3'):
+        """Merge one ``data_column`` per sub-folder into a wide per-well DataFrame."""
         # Ensure `folders` is a list
         if isinstance(folders, str):
             folders = [folders]
@@ -1813,9 +2042,7 @@ def generate_score_heatmap(settings):
         return combined_df
     
     def calculate_mae(df):
-        """
-        Calculate the MAE between each channel's predictions and the fraction column for all rows.
-        """
+        """Return the per-channel, per-row MAE between predictions and the ``fraction`` column."""
         # Extract numeric columns excluding 'fraction' and 'prc'
         channels = df.drop(columns=['fraction', 'prc']).select_dtypes(include=[float, int])
 
@@ -1857,19 +2084,17 @@ def generate_score_heatmap(settings):
     return merged_df
 
 def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
-    
+    """Compute gRNA correlation and propagate fixed effect sizes across correlated gRNAs.
+
+    :param csv_file: CSV with columns ``grna``, ``fraction`` and ``prc``.
+    :param grna_dict: mapping of anchor ``grna`` names to their fixed effect sizes.
+    :param grna_list: gRNAs to include in the correlation matrix.
+    :param save: persist correlation matrix, effect sizes and plots. Default ``False``.
+    :returns: None. Displays plots and optionally writes results to ``<csv_dir>/post_regression_analysis_results``.
+    """
+
     def _analyze_and_visualize_grna_correlation(df, grna_list, save_folder, save=False):
-        """
-        Analyze and visualize the correlation matrix of gRNAs based on their fractions and overlap.
-
-        Parameters:
-        df (pd.DataFrame): DataFrame with columns ['grna', 'fraction', 'prc'].
-        grna_list (list): List of gRNAs to include in the correlation analysis.
-        save_folder (str): Path to the folder where figures and data will be saved.
-
-        Returns:
-        pd.DataFrame: Correlation matrix of the gRNAs.
-        """
+        """Return and plot the pivoted per-well gRNA fraction correlation matrix."""
         # Filter the DataFrame to include only rows with gRNAs in the list
         filtered_df = df[df['grna'].isin(grna_list)]
 
@@ -1900,17 +2125,7 @@ def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
         return correlation_matrix
 
     def _compute_effect_sizes(correlation_matrix, grna_dict, save_folder, save=False):
-        """
-        Compute and visualize the effect sizes of gRNAs given fixed effect sizes for a subset of gRNAs.
-
-        Parameters:
-        correlation_matrix (pd.DataFrame): Correlation matrix of gRNAs.
-        grna_dict (dict): Dictionary of gRNAs with fixed effect sizes {grna_name: effect_size}.
-        save_folder (str): Path to the folder where figures and data will be saved.
-
-        Returns:
-        pd.Series: Effect sizes of all gRNAs.
-        """
+        """Return per-gRNA effect sizes propagated from anchor gRNAs via the correlation matrix."""
         # Ensure the matrix is symmetric and normalize values to 0-1
         corr_matrix = correlation_matrix.copy()
         corr_matrix = (corr_matrix - corr_matrix.min().min()) / (corr_matrix.max().max() - corr_matrix.min().min())

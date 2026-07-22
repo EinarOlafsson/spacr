@@ -6,6 +6,11 @@ from PySide6.QtWidgets import QFrame
 
 
 class Divider(QFrame):
+    """Thin themed separator line, horizontal or vertical.
+
+    :param orientation: ``Qt.Horizontal`` (default) or ``Qt.Vertical``.
+    """
+
     def __init__(self, orientation: Qt.Orientation = Qt.Horizontal, parent=None):
         super().__init__(parent)
         self.setObjectName("Divider")

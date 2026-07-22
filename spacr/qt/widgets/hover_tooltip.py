@@ -23,6 +23,11 @@ from ..theme import PALETTE, SPACING
 
 
 class HoverTooltip(QFrame):
+    """Sticky QFrame popup that survives cursor entry so users can click links.
+
+    Access via :meth:`instance` — the popup is a process-wide singleton.
+    """
+
     _INSTANCE: Optional["HoverTooltip"] = None
 
     def __init__(self):
@@ -69,6 +74,7 @@ class HoverTooltip(QFrame):
     # ------------------------------------------------------------------
     @classmethod
     def instance(cls) -> "HoverTooltip":
+        """Return the process-wide singleton, creating it on first access."""
         if cls._INSTANCE is None:
             cls._INSTANCE = HoverTooltip()
         return cls._INSTANCE
@@ -77,6 +83,11 @@ class HoverTooltip(QFrame):
     # API
     # ------------------------------------------------------------------
     def show_for(self, anchor: QWidget, html: str) -> None:
+        """Show the tooltip beneath ``anchor`` with body ``html``.
+
+        :param anchor: widget the popup docks to (clamped to its screen).
+        :param html: rich-text body; empty strings are ignored.
+        """
         if not html:
             return
         self._anchor = anchor
@@ -105,9 +116,11 @@ class HoverTooltip(QFrame):
         self.show()
 
     def start_hide(self, delay_ms: int = 250) -> None:
+        """Schedule a hide after ``delay_ms`` unless the cursor re-enters."""
         self._hide_timer.start(delay_ms)
 
     def cancel_hide(self) -> None:
+        """Cancel any pending hide timer (called on cursor re-entry)."""
         self._hide_timer.stop()
 
     # ------------------------------------------------------------------
@@ -119,9 +132,11 @@ class HoverTooltip(QFrame):
         self.hide()
 
     def enterEvent(self, event):
+        """Cancel the hide timer when the cursor enters the popup."""
         self.cancel_hide()
         super().enterEvent(event)
 
     def leaveEvent(self, event):
+        """Restart the hide timer with a short delay when the cursor leaves."""
         self.start_hide(delay_ms=100)
         super().leaveEvent(event)

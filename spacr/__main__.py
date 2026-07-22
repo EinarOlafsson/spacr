@@ -8,6 +8,10 @@ import argparse
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """Return the argparse parser exposing the ``spacr`` CLI subcommands.
+
+    :returns: Parser accepting a single positional ``command`` argument.
+    """
     parser = argparse.ArgumentParser(prog="spacr")
     parser.add_argument(
         "command",
@@ -30,6 +34,11 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """CLI entry point; dispatch to the requested spacr subcommand.
+
+    :param argv: Argument list to parse. When None, ``sys.argv[1:]`` is used.
+    :returns: Process exit code (0 on success, 2 on unknown command).
+    """
     parser = build_parser()
     args = parser.parse_args(argv)
 

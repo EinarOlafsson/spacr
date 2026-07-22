@@ -39,6 +39,7 @@ class _WrappedLabel(QLabel):
         self.setFixedSize(wrap_width, self._wrapped_height())
 
     def _wrapped_height(self) -> int:
+        """Compute label height needed to render the wrapped text."""
         from PySide6.QtCore import QRect
         fm = self.fontMetrics()
         rect = fm.boundingRect(
@@ -49,6 +50,7 @@ class _WrappedLabel(QLabel):
         return rect.height() + 8
 
     def setText(self, text: str) -> None:
+        """Replace the label text and re-fix the label to its wrapped height."""
         super().setText(text)
         self.setFixedSize(self._wrap_width, self._wrapped_height())
 
@@ -114,4 +116,5 @@ class EmptyState(QWidget):
 
     @property
     def cta_button(self) -> Optional[QPushButton]:
+        """The primary CTA button, or ``None`` when no ``cta_label`` was set."""
         return self._cta_button

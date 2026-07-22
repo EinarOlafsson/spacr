@@ -17,6 +17,11 @@ from .scripts import AVAILABLE_TUTORIALS
 
 
 def main(argv=None) -> int:
+    """Parse CLI args and render one or every tutorial video.
+
+    :param argv: optional argv list; defaults to ``sys.argv[1:]``.
+    :returns: process exit code (0 on success, 2 on an unknown app).
+    """
     p = argparse.ArgumentParser(prog="spacr-tutorial",
                                  description=__doc__.splitlines()[0])
     p.add_argument("app",

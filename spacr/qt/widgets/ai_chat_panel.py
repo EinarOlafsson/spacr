@@ -54,6 +54,8 @@ from .empty_state import EmptyState
 # ---------------------------------------------------------------------------
 
 class _MessageBubble(QWidget):
+    """Aligned QLabel bubble — right-aligned for ``"user"``, left for other."""
+
     def __init__(self, role: str, text: str = "", parent=None):
         super().__init__(parent)
         self.role = role
@@ -78,6 +80,7 @@ class _MessageBubble(QWidget):
             layout.addStretch(1)
 
     def set_text(self, text: str) -> None:
+        """Replace the bubble's body text."""
         self._text.setText(text)
 
 
@@ -194,6 +197,8 @@ class _ProvidersDialog(QDialog):
 # ---------------------------------------------------------------------------
 
 class _ChatInput(QTextEdit):
+    """Multi-line input: Enter sends, Shift+Enter inserts a newline."""
+
     submitted = Signal()
 
     def __init__(self, parent=None):
@@ -203,6 +208,7 @@ class _ChatInput(QTextEdit):
         self.setAcceptRichText(False)
 
     def keyPressEvent(self, event: QKeyEvent):
+        """Emit ``submitted`` on plain Enter; forward Shift+Enter as newline."""
         if event.key() in (Qt.Key_Return, Qt.Key_Enter):
             if event.modifiers() & Qt.ShiftModifier:
                 super().keyPressEvent(event)
@@ -320,6 +326,7 @@ class AIChatPanel(QWidget):
     # Provider
     # ------------------------------------------------------------------
     def refresh_provider_combo(self) -> None:
+        """Rebuild the provider dropdown from the currently configured CLIs."""
         self._provider_combo.blockSignals(True)
         self._provider_combo.clear()
         configured = ai_module.configured_providers()
@@ -455,6 +462,7 @@ class AIChatPanel(QWidget):
         sb.setValue(sb.maximum())
 
     def clear_chat(self) -> None:
+        """Discard chat history and remove every bubble from the scroll area."""
         self._messages.clear()
         while self._chat_layout.count() > 1:
             item = self._chat_layout.takeAt(0)
@@ -467,6 +475,11 @@ class AIChatPanel(QWidget):
     # Public API used by AppScreen's Explain-error
     # ------------------------------------------------------------------
     def open_error_flow(self, traceback_text: str, active_app: str = "") -> None:
+        """Send a traceback to the AI explainer and stream the reply.
+
+        :param traceback_text: raw traceback captured from the pipeline.
+        :param active_app: optional app label used in the framing prompt.
+        """
         from ..ai.prompts import wrap_error_for_prompt, error_explainer_prompt
         provider = self._current_provider()
         if provider is None:

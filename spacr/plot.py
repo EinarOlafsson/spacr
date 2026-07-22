@@ -713,21 +713,17 @@ def plot_image_mask_overlay_magenta_outlines(
     return fig
 
 def plot_cellpose4_output(batch, masks, flows, cmap='inferno', figuresize=10, nr=1, print_object_number=True):
-    """
-    Plot the masks and flows for a given batch of images.
+    """Display per-channel images, label mask and flow field for Cellpose v4 outputs.
 
-    Args:
-        batch (numpy.ndarray): The batch of images.
-        masks (list or numpy.ndarray): The masks corresponding to the images.
-        flows (list or numpy.ndarray): The flows corresponding to the images.
-        cmap (str, optional): The colormap to use for displaying the images. Defaults to 'inferno'.
-        figuresize (int, optional): The size of the figure. Defaults to 20.
-        nr (int, optional): The maximum number of images to plot. Defaults to 1.
-        file_type (str, optional): The file type of the flows. Defaults to '.npz'.
-        print_object_number (bool, optional): Whether to print the object number on the mask. Defaults to True.
-
-    Returns:
-        None
+    :param batch: Image batch of shape ``(N, H, W, C)``.
+    :param masks: Label masks, one per image.
+    :param flows: Flow arrays, one per image.
+    :param cmap: Colormap for image channels. Default ``'inferno'``.
+    :param figuresize: Base figure size. Default ``10``.
+    :param nr: Maximum number of images to plot. Default ``1``.
+    :param print_object_number: If True, annotate each object with its
+        label ID. Default ``True``.
+    :returns: None
     """
     
     from .utils import _generate_mask_random_cmap, mask_object_count
@@ -761,26 +757,18 @@ def plot_cellpose4_output(batch, masks, flows, cmap='inferno', figuresize=10, nr
     return
 
 def plot_organelle_output(img_batch, masks, settings, cmap='inferno', figuresize=10, nr=1, print_object_number=True):
-    """
-    Plot organelle segmentation results for a batch of images.
+    """Plot organelle segmentation results: raw channel, label mask, morphology-specific diagnostic.
 
-    Shows the original image, the label mask with object IDs, and a
-    morphology-specific diagnostic panel (e.g. thresholded binary,
-    ridge-enhanced image, DoG response, or ring edges).
-
-    Args:
-        img_batch (numpy.ndarray): Shape (N, H, W) single-channel images.
-        masks (list or numpy.ndarray): Label masks, one per image.
-        settings (dict): Organelle settings (used to determine morphology/method
-            and generate the diagnostic panel).
-        cmap (str, optional): Colormap for the raw image. Defaults to 'inferno'.
-        figuresize (int, optional): Base figure size. Defaults to 10.
-        nr (int, optional): Maximum number of images to plot. Defaults to 1.
-        print_object_number (bool, optional): Print object labels on the mask.
-            Defaults to True.
-
-    Returns:
-        None
+    :param img_batch: Single-channel image batch of shape ``(N, H, W)``.
+    :param masks: Label masks, one per image.
+    :param settings: Organelle settings dict; ``organelle_morphology``
+        and ``organelle_method`` drive the diagnostic panel.
+    :param cmap: Colormap for the raw channel. Default ``'inferno'``.
+    :param figuresize: Base figure size. Default ``10``.
+    :param nr: Maximum number of images to plot. Default ``1``.
+    :param print_object_number: If True, annotate each object with its
+        label ID. Default ``True``.
+    :returns: None
     """
     from .utils import _generate_mask_random_cmap, _organelle_diagnostic
     
@@ -828,21 +816,20 @@ def plot_organelle_output(img_batch, masks, settings, cmap='inferno', figuresize
     return
 
 def plot_masks(batch, masks, flows, cmap='inferno', figuresize=10, nr=1, file_type='.npz', print_object_number=True):
-    """
-    Plot the masks and flows for a given batch of images.
+    """Display per-channel images, label masks and flow fields for a batch.
 
-    Args:
-        batch (numpy.ndarray): The batch of images.
-        masks (list or numpy.ndarray): The masks corresponding to the images.
-        flows (list or numpy.ndarray): The flows corresponding to the images.
-        cmap (str, optional): The colormap to use for displaying the images. Defaults to 'inferno'.
-        figuresize (int, optional): The size of the figure. Defaults to 20.
-        nr (int, optional): The maximum number of images to plot. Defaults to 1.
-        file_type (str, optional): The file type of the flows. Defaults to '.npz'.
-        print_object_number (bool, optional): Whether to print the object number on the mask. Defaults to True.
-
-    Returns:
-        None
+    :param batch: Image batch — shape ``(N, H, W, C)`` or a single image
+        of shape ``(H, W, C)``.
+    :param masks: Label masks, one per image (list or ndarray).
+    :param flows: Flow arrays, one per image.
+    :param cmap: Colormap for image channels. Default ``'inferno'``.
+    :param figuresize: Base figure size. Default ``10``.
+    :param nr: Maximum number of images to plot. Default ``1``.
+    :param file_type: Source file type of ``flows`` — ``'png'`` selects
+        the first element of each flow entry. Default ``'.npz'``.
+    :param print_object_number: If True, annotate each object with its
+        label ID. Default ``True``.
+    :returns: None
     """
     if len(batch.shape) == 3:
         batch = np.expand_dims(batch, axis=0)
@@ -924,14 +911,11 @@ def _plot_4D_arrays(src, figuresize=10, cmap='inferno', nr_npz=1, nr=1):
     return
 
 def generate_mask_random_cmap(mask):
-    """
-    Generate a random colormap based on the unique labels in the given mask.
+    """Return a random ``ListedColormap`` sized to the labels in ``mask``.
 
-    Parameters:
-    mask (numpy.ndarray): The input mask array.
-
-    Returns:
-    matplotlib.colors.ListedColormap: The random colormap.
+    :param mask: Label mask array (0 = background).
+    :returns: Random colormap where index 0 is black and remaining
+        entries are random opaque RGBA colours.
     """
     unique_labels = np.unique(mask)
     num_objects = len(unique_labels[unique_labels != 0])
@@ -942,14 +926,12 @@ def generate_mask_random_cmap(mask):
     return random_cmap
     
 def random_cmap(num_objects=100):
-    """
-    Generate a random colormap.
+    """Return a random ``ListedColormap`` with ``num_objects + 1`` colours.
 
-    Parameters:
-    num_objects (int): The number of objects to generate colors for. Default is 100.
-
-    Returns:
-    random_cmap (matplotlib.colors.ListedColormap): A random colormap.
+    :param num_objects: Number of foreground colours to generate.
+        Default ``100``.
+    :returns: Colormap with index 0 = black and remaining indices random
+        opaque RGBA colours.
     """
     random_colors = np.random.rand(num_objects+1, 4)
     random_colors[:, 3] = 1
@@ -1000,26 +982,35 @@ def _get_colours_merged(outline_color):
     return outline_colors
 
 def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, threshold=1000, extensions=None, overlay=False, max_nr=None, randomize=True):
-    
-    """
-    Plot images and arrays from the given folders.
+    """Show side-by-side images and arrays found across multiple folders.
 
-    Args:
-        folders (list): A list of folder paths containing the images and arrays.
-        lower_percentile (int, optional): The lower percentile for image normalization. Defaults to 1.
-        upper_percentile (int, optional): The upper percentile for image normalization. Defaults to 99.
-        threshold (int, optional): The threshold for determining whether to display an image as a mask or normalize it. Defaults to 1000.
-        extensions (list, optional): A list of file extensions to consider. Defaults to ['.npy', '.tif', '.tiff', '.png'].
-        overlay (bool, optional): If True, overlay the outlines of the objects on the image. Defaults to False.
+    Each image is either percentile-normalised (values below
+    ``threshold``) or shown as a label mask. Optionally overlays object
+    outlines from a matching mask file.
+
+    :param folders: Folders to scan for image/array files.
+    :param lower_percentile: Lower percentile clip. Default ``1``.
+    :param upper_percentile: Upper percentile clip. Default ``99``.
+    :param threshold: Values <= threshold are treated as label data
+        instead of intensity. Default ``1000``.
+    :param extensions: File extensions to include.
+        Default ``['.npy', '.tif', '.tiff', '.png']``.
+    :param overlay: If True, overlay object outlines. Default ``False``.
+    :param max_nr: Maximum number of key groups to plot.
+    :param randomize: If True, shuffle key order before plotting.
+        Default ``True``.
+    :returns: None
     """
 
     if extensions is None:
         extensions = ['.npy', '.tif', '.tiff', '.png']
     def normalize_image(image, lower=1, upper=99):
+        """Percentile-clip and rescale ``image`` to ``[0, 1]``."""
         p2, p98 = np.percentile(image, (lower, upper))
         return np.clip((image - p2) / (p98 - p2), 0, 1)
 
     def find_files(folders, extensions=None):
+        """Return a dict keyed by base filename mapping to files with the requested extensions."""
         if extensions is None:
             extensions = ['.npy', '.tif', '.tiff', '.png']
         file_dict = {}
@@ -1039,15 +1030,19 @@ def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, thr
         return filtered_dict
 
     def plot_from_file_dict(file_dict, threshold=1000, lower_percentile=1, upper_percentile=99, overlay=False, save=False):
-        """
-        Plot images and arrays from the given file dictionary.
+        """Show image/mask pairs collected in ``file_dict`` side-by-side.
 
-        Args:
-            file_dict (dict): A dictionary containing the file paths for each image or array.
-            threshold (int, optional): The threshold for determining whether to display an image as a mask or normalize it. Defaults to 1000.
-            lower_percentile (int, optional): The lower percentile for image normalization. Defaults to 1.
-            upper_percentile (int, optional): The upper percentile for image normalization. Defaults to 99.
-            overlay (bool, optional): If True, overlay the outlines of the objects on the image. Defaults to False.
+        :param file_dict: ``{filename: {folder: path}}`` produced by
+            ``find_files``.
+        :param threshold: Values above this unique-count are treated as
+            intensity images; otherwise as label masks. Default ``1000``.
+        :param lower_percentile: Lower percentile clip. Default ``1``.
+        :param upper_percentile: Upper percentile clip. Default ``99``.
+        :param overlay: If True, overlay mask outlines on the image.
+            Default ``False``.
+        :param save: If True, save each figure alongside the source
+            file. Default ``False``.
+        :returns: None
         """
 
         for filename, folder_paths in file_dict.items():
@@ -1187,17 +1182,17 @@ def _filter_objects_in_plot(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mas
 
 
 def plot_arrays(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=1, q2=99):
-    """
-    Plot randomly selected arrays from a given directory or a single .npz/.npy file.
+    """Plot random ``.npy`` / ``.npz`` arrays from ``src``, one channel per subplot.
 
-    Parameters:
-    - src (str): The directory path or file path containing the arrays.
-    - figuresize (int): The size of the figure (default: 10).
-    - cmap (str): The colormap to use for displaying the arrays (default: 'inferno').
-    - nr (int): The number of arrays to plot (default: 1).
-    - normalize (bool): Whether to normalize the arrays (default: True).
-    - q1 (int): The lower percentile for normalization (default: 1).
-    - q2 (int): The upper percentile for normalization (default: 99).
+    :param src: Directory or single ``.npy``/``.npz`` path.
+    :param figuresize: Base figure size. Default ``10``.
+    :param cmap: Matplotlib colormap. Default ``'inferno'``.
+    :param nr: Maximum number of arrays to plot. Default ``1``.
+    :param normalize: If True, percentile-normalise before display.
+        Default ``True``.
+    :param q1: Lower percentile for normalisation. Default ``1``.
+    :param q2: Upper percentile for normalisation. Default ``99``.
+    :returns: None
     """
     from .utils import normalize_to_dtype
 
@@ -1351,15 +1346,13 @@ def _plot_merged_plot(overlay, image, stack, mask_dims, figuresize, overlayed_im
     return fig
 
 def plot_merged(src, settings):
-    """
-    Plot the merged images after applying various filters and modifications.
+    """Show multi-channel image stacks with per-object outlines overlaid.
 
-    Args:
-        src (path): Path to folder with images.
-        settings (dict): The settings for the plot.
-
-    Returns:
-        None
+    :param src: Folder containing ``.npy`` merged stacks.
+    :param settings: Plot settings dict — includes channel/mask dims,
+        overlay colours, normalisation, filter and object-count keys.
+    :returns: The last generated ``Figure`` when ``settings['nr']`` is
+        exceeded; otherwise ``None``.
     """
     from .utils import _remove_noninfected
 
@@ -1606,6 +1599,7 @@ def _plot_cropped_arrays(stack, filename, figuresize=10, cmap='inferno', thresho
     dim = stack.shape
     
     def plot_single_array(array, ax, title, chosen_cmap):
+        """Render one channel from ``stack`` onto ``ax`` with a colorbar."""
         unique_values = np.unique(array)
         num_unique_values = len(unique_values)
         
@@ -2030,6 +2024,22 @@ def _reg_v_plot(df, grouping, variable, plate_number):
     plt.show()
 
 def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_count):
+    """Aggregate a well-level DataFrame into a plate-shaped heatmap.
+
+    :param df: Long-format DataFrame with a ``prc`` (plate_row_column)
+        identifier and the requested ``variable`` column.
+    :param plate_number: Plate ID selecting the subset to display.
+    :param variable: Column to aggregate. Ignored when
+        ``grouping='count'``.
+    :param grouping: Aggregation — ``'count'``, ``'mean'`` or ``'sum'``.
+    :param min_max: Colour scale spec — ``'all'``, ``'allq'``, or a
+        two-element list ``[vmin, vmax]`` (floats treated as quantiles).
+    :param min_count: Drop wells with fewer than this many rows.
+    :returns: ``(plate_map, (vmin, vmax))`` — the pivoted matrix and
+        the colour-limit tuple.
+    :raises ValueError: if ``grouping`` is not one of the accepted values.
+    :raises KeyError: if ``variable`` is missing and required.
+    """
     if not isinstance(min_count, (int, float)):
         min_count = 0
 
@@ -2114,6 +2124,19 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
 
 
 def plot_plates(df, variable, grouping, min_max, cmap, min_count=0, verbose=True, dst=None):
+    """Grid every plate in ``df`` as its own heatmap panel.
+
+    :param df: Long-format DataFrame with a ``prc`` identifier.
+    :param variable: Column to aggregate (see :func:`generate_plate_heatmap`).
+    :param grouping: Aggregation type — ``'count'``, ``'mean'``, ``'sum'``.
+    :param min_max: Colour-scale spec passed through per plate.
+    :param cmap: Matplotlib colormap name or object.
+    :param min_count: Drop wells with fewer than this many rows.
+    :param verbose: If True, call ``plt.show()``. Default ``True``.
+    :param dst: If given, save the figure as ``plate_heatmap_<n>.pdf``
+        under this folder.
+    :returns: The generated ``Figure``.
+    """
     plates = df['prc'].str.split('_', expand=True)[0].unique()
     n_rows, n_cols = (len(plates) + 3) // 4, 4
     fig, ax = plt.subplots(n_rows, n_cols, figsize=(40, 5 * n_rows))
@@ -2143,16 +2166,17 @@ def plot_plates(df, variable, grouping, min_max, cmap, min_count=0, verbose=True
     return fig
 
 def print_mask_and_flows(stack, mask, flows, overlay=True, max_size=1000, thickness=2):
-    """
-    Display the original image, mask with outlines, and flow images.
-    
-    Args:
-        stack (np.array): Original image or stack.
-        mask (np.array): Mask image.
-        flows (list): List of flow images.
-        overlay (bool): Whether to overlay the mask outlines on the original image.
-        max_size (int): Maximum allowed size for any dimension of the images.
-        thickness (int): Thickness of the contour outlines.
+    """Show a single image, its label mask (optionally outlined) and flow image.
+
+    :param stack: Original 2D image or ``(H, W, C)`` stack.
+    :param mask: Label mask matching ``stack`` spatially.
+    :param flows: Optional list of flow arrays; skipped when ``None``.
+    :param overlay: If True, draw mask contours over the image instead
+        of showing the mask alone. Default ``True``.
+    :param max_size: Downsample any dimension exceeding this size.
+        Default ``1000``.
+    :param thickness: Contour line thickness in pixels. Default ``2``.
+    :returns: None
     """
 
     def resize_if_needed(image, max_size):
@@ -2244,7 +2268,16 @@ def print_mask_and_flows(stack, mask, flows, overlay=True, max_size=1000, thickn
     plt.show()
     
 def plot_resize(images, resized_images, labels, resized_labels):
+    """Show original vs. resized image/label pairs in a 2x2 grid.
+
+    :param images: Sequence of original images (first element shown).
+    :param resized_images: Sequence of resized images.
+    :param labels: Sequence of original label arrays.
+    :param resized_labels: Sequence of resized label arrays.
+    :returns: None
+    """
     def prepare_image(img):
+        """Return ``(display_array, cmap)`` handling 2D/3D input shapes."""
         if img.ndim == 2:
             return img, 'gray'
         elif img.ndim == 3:
@@ -2304,6 +2337,14 @@ def normalize_and_visualize(image, normalized_image, title=""):
     plt.show()
     
 def visualize_masks(mask1, mask2, mask3, title="Masks Comparison"):
+    """Show three masks side by side with random colormaps.
+
+    :param mask1: First label mask.
+    :param mask2: Second label mask.
+    :param mask3: Third label mask.
+    :param title: Figure suptitle. Default ``"Masks Comparison"``.
+    :returns: None
+    """
     fig, axs = plt.subplots(1, 3, figsize=(30, 10))
     for ax, mask, title in zip(axs, [mask1, mask2, mask3], ['Mask 1', 'Mask 2', 'Mask 3']):
         cmap = generate_mask_random_cmap(mask)
@@ -2320,13 +2361,20 @@ def visualize_masks(mask1, mask2, mask3, title="Masks Comparison"):
     plt.show()
 
 def visualize_cellpose_masks(masks, titles=None, filename=None, save=False, src=None):
-    """
-    Visualize multiple masks with optional titles.
-    
-    Parameters:
-        masks (list of np.ndarray): A list of masks to visualize.
-        titles (list of str, optional): A list of titles for the masks. If None, default titles will be used.
-        comparison_title (str): Title for the entire figure.
+    """Display an arbitrary set of Cellpose-style label masks side by side.
+
+    :param masks: Sequence of label mask arrays.
+    :param titles: Titles paired with ``masks``. Falls back to
+        ``'Mask 1'``, ``'Mask 2'``, ...
+    :param filename: Used in the figure suptitle and, if saving, as the
+        PDF filename.
+    :param save: If True, save under ``src/results/<filename>.pdf``.
+        Default ``False``.
+    :param src: Root folder for saving. Defaults to the current working
+        directory.
+    :returns: None
+    :raises AssertionError: if ``titles`` and ``masks`` have different
+        lengths.
     """
     
     comparison_title=f"Masks Comparison for {filename}"
@@ -2363,6 +2411,13 @@ def visualize_cellpose_masks(masks, titles=None, filename=None, save=False, src=
 
     
 def plot_comparison_results(comparison_results):
+    """Plot Jaccard, Dice, boundary-F1 and average-precision distributions per comparison.
+
+    :param comparison_results: Iterable of dicts with per-file metrics
+        (each key ending in ``jaccard``/``dice``/``boundary_f1``/
+        ``average_precision``).
+    :returns: The generated ``Figure``.
+    """
     df = pd.DataFrame(comparison_results)
     df_melted = pd.melt(df, id_vars=['filename'], var_name='metric', value_name='value')
     df_jaccard = df_melted[df_melted['metric'].str.contains('jaccard')]
@@ -2405,7 +2460,18 @@ def plot_comparison_results(comparison_results):
     return fig
 
 def plot_object_outlines(src, objects=None, channels=None, max_nr=10):
-    
+    """Overlay mask outlines on the matching channel image for each object type.
+
+    :param src: Experiment root; ``masks/<object>_mask_stack`` and
+        channel folders live directly under it.
+    :param objects: Object types to plot. Default
+        ``['nucleus', 'cell', 'pathogen']``.
+    :param channels: Channel indices paired with ``objects`` (channel
+        folders are named ``<channel + 1>``). Default ``[0, 1, 2]``.
+    :param max_nr: Maximum number of images to plot per object.
+        Default ``10``.
+    :returns: None
+    """
     if objects is None:
         objects = ['nucleus','cell','pathogen']
     if channels is None:
@@ -2425,6 +2491,13 @@ def plot_object_outlines(src, objects=None, channels=None, max_nr=10):
                 
 
 def plot_histogram(df, column, dst=None):
+    """Plot a histogram of ``df[column]`` and optionally save it as PDF.
+
+    :param df: DataFrame containing ``column``.
+    :param column: Column to plot.
+    :param dst: If set, save under ``<dst>/<column>_histogram.pdf``.
+    :returns: None
+    """
     # Plot histogram of the dependent variable
     bar_color = (0/255, 155/255, 155/255)
     plt.figure(figsize=(10, 10))
@@ -2440,10 +2513,26 @@ def plot_histogram(df, column, dst=None):
 
     plt.show()
 
-def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count', 
-                       remove_keys=None, 
+def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
+                       remove_keys=None,
                        x_lim=None, y_lim=None, remove_outliers=False, save=True):
-    
+    """Overlay Lorenz curves from multiple gRNA count CSVs with per-plate Gini coefficients.
+
+    :param csv_files: Paths to per-plate CSVs, each with columns
+        ``name_column`` and ``value_column``.
+    :param name_column: Identifier column used for outlier filtering.
+        Default ``'grna_name'``.
+    :param value_column: Column whose distribution is analysed.
+        Default ``'count'``.
+    :param remove_keys: Names to exclude before analysis.
+    :param x_lim: X-axis limits ``[lo, hi]``. Default ``[0.0, 1]``.
+    :param y_lim: Y-axis limits ``[lo, hi]``. Default ``[0, 1]``.
+    :param remove_outliers: If True, drop names whose per-well count
+        falls outside a 1.5*IQR window. Default ``False``.
+    :param save: If True, save the figure alongside the first CSV under
+        ``results/lorenz_curve_with_gini.pdf``. Default ``True``.
+    :returns: None
+    """
     if x_lim is None:
         x_lim = [0.0, 1]
     if y_lim is None:
@@ -2536,6 +2625,12 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
         print(f"{plate}: Gini Coefficient = {gini:.4f}")
 
 def plot_permutation(permutation_df):
+    """Plot a horizontal bar chart of permutation feature importances with error bars.
+
+    :param permutation_df: DataFrame with columns ``feature``,
+        ``importance_mean`` and ``importance_std``.
+    :returns: The generated ``Figure``.
+    """
     num_features = len(permutation_df)
     fig_height = max(8, num_features * 0.3)  # Set a minimum height of 8 and adjust height based on number of features
     fig_width = 10  # Width can be fixed or adjusted similarly
@@ -2549,6 +2644,12 @@ def plot_permutation(permutation_df):
     return fig
 
 def plot_feature_importance(feature_importance_df):
+    """Plot a horizontal bar chart of raw feature importances.
+
+    :param feature_importance_df: DataFrame with columns ``feature`` and
+        ``importance``.
+    :returns: The generated ``Figure``.
+    """
     num_features = len(feature_importance_df)
     fig_height = max(8, num_features * 0.3)  # Set a minimum height of 8 and adjust height based on number of features
     fig_width = 10  # Width can be fixed or adjusted similarly
@@ -2562,6 +2663,16 @@ def plot_feature_importance(feature_importance_df):
     return fig
 
 def read_and_plot__vision_results(base_dir, y_axis='accuracy', name_split='_time', y_lim=None):
+    """Aggregate vision-model test CSVs under ``base_dir`` and plot mean score per model.
+
+    :param base_dir: Root directory containing ``*_test_result.csv``
+        files nested per epoch.
+    :param y_axis: Metric column to average. Default ``'accuracy'``.
+    :param name_split: Substring that splits filename into model name
+        and epoch info. Default ``'_time'``.
+    :param y_lim: Y-axis limits ``[lo, hi]``. Default ``[0.8, 0.9]``.
+    :returns: None
+    """
     # List to store data from all CSV files
     if y_lim is None:
         y_lim = [0.8, 0.9]
@@ -2616,21 +2727,25 @@ def read_and_plot__vision_results(base_dir, y_axis='accuracy', name_split='_time
         print("No CSV files found in the specified directory.")
 
 def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', output_path=None, filter_column=None, filter_values=None):
-    """
-    Reads a CSV file and creates a jitter plot of one column grouped by another column.
-    
-    Args:
-    src (str): Path to the source data.
-    x_column (str): Name of the column to be used for the x-axis.
-    y_column (str): Name of the column to be used for the y-axis.
-    plot_title (str): Title of the plot. Default is 'Jitter Plot'.
-    output_path (str): Path to save the plot image. If None, the plot will be displayed. Default is None.
-    
-    Returns:
-    pd.DataFrame: The filtered and balanced DataFrame.
+    """Read measurements + annotation from a spacr DB and plot a class-balanced jitter plot.
+
+    :param src: Path to a spacr experiment directory containing
+        ``measurements/measurements.db``.
+    :param x_column: Column used as grouping variable (x-axis).
+    :param y_column: Numeric column plotted on the y-axis.
+    :param plot_title: Title for the plot. Default ``'Jitter Plot'``.
+    :param output_path: If set, save the figure to this path; otherwise
+        show it.
+    :param filter_column: Optional column (or list of columns) to filter
+        rows on before plotting.
+    :param filter_values: Values (or list of value lists) accepted per
+        ``filter_column``.
+    :returns: Balanced ``DataFrame`` used for the plot.
+    :raises KeyError: if required plate/row/col columns are missing.
     """
 
     def join_measurments_and_annotation(src, tables = None):
+        """Join per-object measurement tables with the ``png_list`` annotation table."""
         if tables is None:
             tables = ['cell', 'nucleus', 'pathogen','cytoplasm']
         from .io import _read_and_merge_data, _read_db
@@ -2705,25 +2820,28 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
     return balanced_df
 
 def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summary_func='mean', order=None, colors=None, output_dir='./output', save=False, y_lim=None, error_bar_type='std'):
-    """
-    Create a grouped plot, perform statistical tests, and optionally export the results along with the plot.
+    """Plot grouped data with automatic normality-aware pairwise statistics.
 
-    Parameters:
-    - df: DataFrame containing the data.
-    - grouping_column: Column name for the categorical grouping.
-    - data_column: Column name for the data to be grouped and plotted.
-    - graph_type: Type of plot ('bar', 'violin', 'jitter', 'box', 'jitter_box').
-    - summary_func: Summary function to apply to each group ('mean', 'median', etc.).
-    - order: List specifying the order of the groups. If None, groups will be ordered alphabetically.
-    - colors: List of colors for each group.
-    - output_dir: Directory where the figure and test results will be saved if `save=True`.
-    - save: Boolean flag indicating whether to save the plot and results to files.
-    - y_lim: Optional y-axis min and max.
-    - error_bar_type: Type of error bars to plot, either 'std' for standard deviation or 'sem' for standard error of the mean.
+    Runs D'Agostino normality per group, chooses the appropriate
+    pairwise test (t-test / Mann-Whitney / ANOVA / Kruskal), adds Tukey
+    HSD post-hoc when appropriate, renders the requested plot type and
+    optionally persists both plot and stats to ``output_dir``.
 
-    Outputs:
-    - Figure of the plot.
-    - DataFrame with full statistical test results, including normality tests.
+    :param df: Source DataFrame.
+    :param grouping_column: Categorical grouping variable.
+    :param data_column: Numeric column to summarise.
+    :param graph_type: One of ``'bar'``, ``'violin'``, ``'jitter'``,
+        ``'box'``, ``'jitter_box'``. Default ``'bar'``.
+    :param summary_func: Summary function for bar plots. Default
+        ``'mean'``.
+    :param order: Explicit group ordering. Default: alphabetical.
+    :param colors: Colour palette; falls back to a HUSL palette.
+    :param output_dir: Save location when ``save=True``.
+    :param save: If True, save the plot and per-comparison stats CSV.
+    :param y_lim: Two-element y-axis limits.
+    :param error_bar_type: ``'std'`` or ``'sem'``. Default ``'std'``.
+    :returns: None (side-effects: plot displayed, files written).
+    :raises ValueError: if ``error_bar_type`` is not recognised.
     """
     
     # Remove NaN rows in grouping_column
@@ -2866,14 +2984,42 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
     return plt.gcf(), results_df
     
 class spacrGraph:
-    def __init__(self, df, grouping_column, data_column, graph_type='bar', summary_func='mean', 
+    """Grouped plot + statistical-test helper for spacr experiment DataFrames.
+
+    Wraps preprocessing (aggregation by object / well / plate), normality
+    and variance testing, group-wise pairwise stats, and plot rendering
+    (bar / violin / jitter / box / jitter_box) in a single object whose
+    output can optionally be persisted alongside a CSV of stats.
+
+    :param df: Input DataFrame.
+    :param grouping_column: Categorical grouping variable.
+    :param data_column: Metric column (or list of columns) to summarise.
+    :param graph_type: Plot type. Default ``'bar'``.
+    :param summary_func: Aggregator for well/plate level. Default ``'mean'``.
+    :param order: Explicit ordering of groups.
+    :param colors: Optional colour palette.
+    :param output_dir: Save location when ``save=True``.
+    :param save: If True, persist plot and stats.
+    :param y_lim: Two-element y-axis limits.
+    :param log_y: Use log scale for y-axis.
+    :param log_x: Use log scale for x-axis.
+    :param error_bar_type: ``'std'`` or ``'sem'``. Default ``'std'``.
+    :param remove_outliers: Drop 1.5*IQR outliers per group before plotting.
+    :param theme: Seaborn palette name. Default ``'pastel'``.
+    :param representation: Aggregation level — ``'object'``, ``'well'``
+        or ``'plate'``. Default ``'object'``.
+    :param paired: Treat groups as paired samples where applicable.
+    :param all_to_all: Run every pairwise comparison; ``False`` compares
+        each group to ``compare_group``.
+    :param compare_group: Reference group when ``all_to_all=False``.
+    :param graph_name: Prefix for saved file names.
+    """
+
+    def __init__(self, df, grouping_column, data_column, graph_type='bar', summary_func='mean',
                  order=None, colors=None, output_dir='./output', save=False, y_lim=None, log_y=False,
                  log_x=False, error_bar_type='std', remove_outliers=False, theme='pastel', representation='object',
                  paired=False, all_to_all=True, compare_group=None, graph_name=None):
-        
-        """
-        Class for creating grouped plots with optional statistical tests and data preprocessing.
-        """
+        """Store configuration, set the theme, and preprocess the DataFrame."""
 
         self.df = df
         self.grouping_column = grouping_column
@@ -3048,6 +3194,11 @@ class spacrGraph:
         return is_normal, normality_results
     
     def perform_levene_test(self, unique_groups):
+        """Return Levene's test statistic and p-value for the current data column across groups.
+
+        :param unique_groups: Groups to compare.
+        :returns: ``(statistic, p_value)`` tuple.
+        """
         cols = self.data_column if len(self.data_column) > 1 else [self.data_column[0]]
         # If you only support one column at a time in Levene:
         col = cols[0]
@@ -3753,11 +3904,24 @@ class spacrGraph:
         return self.fig
 
 def plot_data_from_db(settings):
-    
+    """Read one or more measurement DBs, annotate conditions and render a ``spacrGraph`` plot.
+
+    Concatenates results across source directories, derives the
+    ``recruitment`` column if requested, drops missing rows, then hands
+    the data to :class:`spacrGraph` for statistics + plotting.
+
+    :param settings: Settings dict. See
+        ``settings.set_default_plot_data_from_db`` for accepted keys
+        (notably ``src``, ``database``, ``table_names``, ``data_column``,
+        ``grouping_column``, ``graph_type``, ``graph_name``).
+    :returns: The plotted DataFrame, or ``None`` when the requested data
+        or grouping column is missing.
+    :raises ValueError: if ``src`` is neither a string nor a list.
+    """
     from .io import _read_db, _read_and_merge_data
     from .utils import annotate_conditions, save_settings
     from .settings import set_default_plot_data_from_db
-    
+
     """
     Extracts the specified table from the SQLite database and plots a specified column.
 
@@ -3887,6 +4051,16 @@ def plot_data_from_db(settings):
     return fig, results_df, df
 
 def plot_data_from_csv(settings):
+    """Load per-plate CSVs, filter/outlier-clean and render a ``spacrGraph`` plot.
+
+    :param settings: Settings dict — see
+        ``settings.get_plot_data_from_csv_default_settings`` for keys
+        (``src``, ``data_column``, ``grouping_column``, ``keep_groups``,
+        ``remove_outliers``, ``graph_type``, ``graph_name``, ...).
+    :returns: ``(fig, results_df, df)`` — the figure, stats DataFrame
+        and plotted DataFrame.
+    :raises ValueError: if ``src`` is not a string or list.
+    """
     from .io import _read_db, _read_and_merge_data
     from .utils import annotate_conditions, save_settings, remove_outliers_by_group
     from .settings import get_plot_data_from_csv_default_settings
@@ -3984,11 +4158,27 @@ def plot_data_from_csv(settings):
     return fig, results_df
 
 def plot_region(settings):
+    """Render mask overlay, cropped PNG grid and activation-map grid for one FOV.
+
+    Reads the FOV's merged NPY, resolves its PNG crops and activation
+    maps from the measurements and activation DBs, and writes three PDFs
+    under ``<src>/results/<name>/`` when possible.
+
+    :param settings: Settings dict with ``src``, ``name``, ``channels``,
+        ``cell_channel``, ``nucleus_channel``, ``pathogen_channel``,
+        ``percentiles``, ``activation_mode``, ``activation_db``,
+        ``mode``, ``export_tiffs``.
+    :returns: Tuple ``(fig_mask_overlay, fig_png_grid,
+        fig_activation_grid)`` — any element may be ``None`` when the
+        corresponding assets were not found.
+    """
 
     def _sort_paths_by_basename(paths):
+        """Return ``paths`` sorted by their basename."""
         return sorted(paths, key=lambda path: os.path.basename(path))
-    
+
     def save_figure_as_pdf(fig, path):
+        """Save ``fig`` as a PDF, creating parent directories as needed."""
         os.makedirs(os.path.dirname(path), exist_ok=True)  # Create directory if it doesn't exist
         fig.savefig(path, format='pdf', dpi=600, bbox_inches='tight')
         print(f"Saved {path}")
@@ -4051,15 +4241,13 @@ def plot_region(settings):
     return fig_1, fig_2, fig_3
 
 def plot_image_grid(image_paths, percentiles):
-    """
-    Plots a square grid of images from a list of image paths. 
-    Unused subplots are filled with black, and padding is minimized.
+    """Render a square grid of percentile-normalised images with a black background.
 
-    Parameters:
-    - image_paths: List of paths to images to be displayed.
-
-    Returns:
-    - fig: The generated matplotlib figure.
+    :param image_paths: Image files to display; extra tiles are filled
+        black.
+    :param percentiles: Two-element percentile pair used to normalise
+        each channel.
+    :returns: The generated ``Figure``.
     """
 
     from PIL import Image
@@ -4129,16 +4317,20 @@ def plot_image_grid(image_paths, percentiles):
     return fig
 
 def overlay_masks_on_images(img_folder, normalize=True, resize=True, save=False, plot=False, thickness=2):
-    """
-    Load images and masks from folders, overlay mask contours on images, and optionally normalize, resize, and save.
+    """Overlay ``masks/*`` outlines onto matching images from ``img_folder``.
 
-    Args:
-        img_folder (str): Path to the folder containing images.
-        mask_folder (str): Path to the folder containing masks.
-        normalize (bool): If True, normalize images to the 1st and 99th percentiles.
-        resize (bool): If True, resize the final overlay to 500x500.
-        save (bool): If True, save the final overlay in an 'overlay' folder within the image folder.
-        thickness (int): Thickness of the contour lines.
+    :param img_folder: Folder containing images; masks live in
+        ``img_folder/masks`` with matching filenames.
+    :param normalize: If True, percentile-normalise images before
+        blending. Default ``True``.
+    :param resize: If True, resize the blended overlay to 1000x1000.
+        Default ``True``.
+    :param save: If True, write PNGs to ``img_folder/overlay/``.
+        Default ``False``.
+    :param plot: If True, show each overlay via matplotlib.
+        Default ``False``.
+    :param thickness: Contour line thickness in pixels. Default ``2``.
+    :returns: None
     """
 
     def normalize_image(image):
@@ -4213,7 +4405,12 @@ def overlay_masks_on_images(img_folder, normalize=True, resize=True, save=False,
             plt.show()
 
 def graph_importance(settings):
-    
+    """Concatenate feature-importance CSVs and hand off to :class:`spacrGraph` for plotting.
+
+    :param settings: Settings dict with ``csvs`` (single path or list),
+        ``grouping_column``, ``data_column``, ``graph_type``, ``save``.
+    :returns: None (side-effects: plot shown, artefacts saved).
+    """
     from .settings import set_graph_importance_defaults
     from .utils import save_settings
     
@@ -4262,8 +4459,21 @@ def graph_importance(settings):
     plt.show()
     
 def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_column='prc', level='object', cmap='viridis'):
-    """
-    Generate a stacked bar plot for proportions and perform chi-squared and pairwise tests.
+    """Plot stacked proportion bars per group with chi-squared and pairwise stats.
+
+    :param settings: Settings dict — ``verbose`` toggles pairwise
+        chi-squared verbosity.
+    :param df: Long-format DataFrame with categorical ``group_column``
+        and ``bin_column``.
+    :param group_column: Group axis of the stacked bars.
+    :param bin_column: Categorical column stacked within each bar.
+    :param prc_column: Per-well identifier used when aggregating at the
+        well or plate level. Default ``'prc'``.
+    :param level: Aggregation level — ``'object'`` for direct counts, or
+        ``'well'`` / ``'plateID'`` for per-well means with SD bars.
+    :param cmap: Matplotlib colormap. Default ``'viridis'``.
+    :returns: ``(results_df, pairwise_results, fig)`` — chi-squared
+        summary, pairwise comparison table and the plot figure.
     """
 
     from .sp_stats import chi_pairwise
@@ -4319,20 +4529,17 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
     
 
 def create_venn_diagram(file1, file2, gene_column="gene", filter_coeff=0.1, save=True, save_path=None):
-    """
-    Reads two CSV files, extracts the `gene` column, and creates a Venn diagram
-    to show overlapping and non-overlapping genes.
+    """Compute a two-set gene overlap from CSVs and draw its Venn diagram.
 
-    Parameters:
-        file1 (str): Path to the first CSV file.
-        file2 (str): Path to the second CSV file.
-        gene_column (str): Name of the column containing gene data (default: "gene").
-        filter_coeff (float): Coefficient threshold for filtering genes.
-        save (bool): Whether to save the plot.
-        save_path (str): Path to save the Venn diagram figure.
-
-    Returns:
-        dict: Overlapping and non-overlapping genes.
+    :param file1: First CSV file.
+    :param file2: Second CSV file.
+    :param gene_column: Column identifying genes. Default ``'gene'``.
+    :param filter_coeff: Threshold on the ``coefficient`` column —
+        positive filters ``> threshold``, negative filters ``< threshold``.
+    :param save: If True, save as PDF; requires ``save_path``.
+    :param save_path: Output PDF path when ``save`` is True.
+    :returns: ``{'overlap', 'unique_to_file1', 'unique_to_file2'}`` lists.
+    :raises ValueError: if ``save`` is True but ``save_path`` is missing.
     """
     # Read CSV files
     df1 = pd.read_csv(file1)
@@ -4404,34 +4611,45 @@ def volcano_plot(
     # excel options
     sheet_name: Union[int, str] = 0,
 ) -> Tuple[plt.Figure, plt.Axes, list]:
-    """
-    Read a table (CSV/TSV/XLS/XLSX) and generate a volcano plot.
+    """Read a table (CSV/TSV/XLS/XLSX or a DataFrame) and render a volcano plot.
 
-    Auto-detects file type from extension:
-      - .csv -> read_csv
-      - .tsv / .tab -> read_csv(sep="\\t")
-      - .xls / .xlsx -> read_excel (sheet_name)
+    Auto-detects file type from extension (.csv, .tsv/.tab, .xls/.xlsx)
+    and applies the requested x/y transforms before drawing.
 
-    Args:
-        data: Path to table file or a pandas DataFrame.
-        fold_change_col: Column name for fold change (or log fold change if x_transform="none").
-        p_value_col: Column name for p-values.
-        name_col: Optional column for labels.
-        x_transform: "none", "log2", "log10", "ln".
-            Use "none" if fold_change_col already contains logFC values (can be negative).
-        y_transform: "none", "-log10", "-ln", "log10", "ln".
-        fold_change_threshold:
-            - If x_transform="none": interpreted in x units (e.g. abs(log2FC) >= 1).
-            - If x_transform is a log transform: interpreted in *raw FC* units (e.g. 2),
-              then converted into plotted units for the vertical dashed lines.
-        p_value_threshold: P-value cutoff (e.g. 0.05); drawn as a dashed horizontal line.
-        annotate: If True and name_col is provided, annotate points passing thresholds.
-                 If no thresholds are provided, nothing is annotated unless annotate_max is set.
-        annotate_max: If set, annotate at most N eligible points (highest y first).
-        sheet_name: Excel sheet index/name (used for .xls/.xlsx).
-
-    Returns:
-        (fig, ax, hits) where hits is the list of annotated labels.
+    :param data: Path to table file or a pandas ``DataFrame``.
+    :param fold_change_col: Column of raw fold change (or logFC when
+        ``x_transform='none'``).
+    :param p_value_col: Column of p-values.
+    :param name_col: Optional column supplying point labels.
+    :param x_transform: One of ``'none'``, ``'log2'``, ``'log10'``,
+        ``'ln'``. Use ``'none'`` when the column already stores logFC
+        (may be negative).
+    :param y_transform: One of ``'none'``, ``'-log10'``, ``'-ln'``,
+        ``'log10'``, ``'ln'``. Default ``'-log10'``.
+    :param fold_change_threshold: Threshold on x — in plotted units when
+        ``x_transform='none'``, otherwise in raw FC units.
+    :param p_value_threshold: Threshold on raw p; drawn as a dashed
+        horizontal line in plotted units.
+    :param annotate: Annotate significant points when a name column is
+        supplied.
+    :param annotate_max: Cap on the number of annotated points (highest
+        y first).
+    :param point_size: Scatter marker size.
+    :param alpha: Scatter marker alpha.
+    :param figsize: Figure size in inches.
+    :param title: Optional figure title.
+    :param xlim: Optional x-axis limits.
+    :param ylim: Optional y-axis limits.
+    :param threshold_line_kwargs: Extra kwargs for threshold lines.
+    :param scatter_kwargs: Extra kwargs for the scatter call.
+    :param text_kwargs: Extra kwargs for label texts.
+    :param save_path: If given, save the figure to this path.
+    :param show: Call ``plt.show()`` at the end. Default ``True``.
+    :param ax: Existing axes to draw on; a new figure is created if None.
+    :param sheet_name: Excel sheet index/name for .xls/.xlsx inputs.
+    :returns: ``(fig, ax, hits)`` where ``hits`` are the labels drawn.
+    :raises ValueError: on unknown transforms, or numeric columns that
+        cannot be coerced.
     """
 
     # -------------------- I/O helpers --------------------
