@@ -12,8 +12,8 @@
    :target: https://einarolafsson.github.io/spacr/tutorial/
 .. |DOI| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.21343317.svg
    :target: https://doi.org/10.5281/zenodo.21343317
-.. |Tests| image:: https://img.shields.io/badge/tests-990%20passed-brightgreen
-   :target: https://github.com/EinarOlafsson/spacr/tree/main/tests
+.. |Tests| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/tests.yml/badge.svg
+   :target: https://github.com/EinarOlafsson/spacr/actions/workflows/tests.yml
 .. |Qt| image:: https://img.shields.io/badge/GUI-Qt%20(PySide6)-4A9EFF
    :target: https://einarolafsson.github.io/spacr/index.html
 
