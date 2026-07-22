@@ -2,7 +2,7 @@ name: tests
 
 on:
   push:
-    branches: [main, spacr-claude, "**"]
+    branches: [main, spacr-nightly, "**"]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -33,16 +33,27 @@ jobs:
             libgl1 libglib2.0-0 libnss3 libxcomposite1 libxcursor1 \
             libxdamage1 libxi6 libxtst6 libasound2
 
-      - name: Install spacr (Qt extras + dev)
+      - name: Install spacr (Qt extras + minimal pipeline deps)
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -e ".[qt,dev]" \
-            --no-deps \
-            || python -m pip install -e ".[qt,dev]"
-          python -m pip install "pytest>=8" "pytest-qt>=4" \
-            PySide6 qtawesome numpy scipy scikit-image scikit-learn \
+          # Install spacr itself without deps first (deps come next in
+          # controlled order so we can force CPU-only torch and skip
+          # the CUDA wheels that would OOM the runner).
+          python -m pip install -e ".[qt,dev]" --no-deps
+          # CPU-only torch — much smaller than the CUDA wheel and all
+          # spacr.utils actually needs at import time.
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu \
+            "torch>=2.0" "torchvision"
+          # Everything spacr.utils imports at module scope. Without
+          # these, `from spacr.utils import load_settings` fails at
+          # import in tests/qt/test_synthetic.py and the whole run
+          # bails out on collection.
+          python -m pip install \
+            "pytest>=8" "pytest-qt>=4" PySide6 qtawesome \
+            numpy scipy scikit-image scikit-learn \
             pillow imageio tifffile pandas psutil GPUtil keyring \
-            matplotlib
+            matplotlib statsmodels requests \
+            opencv-python-headless cellpose
 
       - name: Run the qt test suite
         env:
@@ -57,7 +68,7 @@ jobs:
     timeout-minutes: 60
     # Only run on main and on the working branch. Heavy job — we don't
     # want it running on every feature branch push.
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/spacr-claude' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/spacr-nightly' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request'
 
     steps:
       - uses: actions/checkout@v4
