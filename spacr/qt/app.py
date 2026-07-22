@@ -379,6 +379,12 @@ def launch(argv: Optional[list[str]] = None) -> int:
     apply_qpalette(app)
     app.setStyleSheet(stylesheet())
 
+    # Real Python logging → rotating file + Qt signal so ConsolePanel
+    # can render records inline. Must be set up before MainWindow so
+    # child widgets can log at construct time.
+    from .logging_util import setup_logging
+    setup_logging()
+
     win = MainWindow(initial_app=initial_app)
     win.show()
 
