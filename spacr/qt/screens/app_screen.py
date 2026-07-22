@@ -495,22 +495,31 @@ class AppScreen(QWidget):
             from spacr.utils import load_settings
             loaded = load_settings(path, setting_key="Key", setting_value="Value")
             if not isinstance(loaded, dict):
-                # Try the default column names
                 loaded = load_settings(path)
             if isinstance(loaded, dict):
-                self._console.append_stdout(f"Loaded {len(loaded)} settings from {path}\n")
-                # Push into widgets where keys match.
-                # (Silent skip for keys the current app doesn't expose.)
-                for key, val in loaded.items():
-                    w = self._settings_model._widgets.get(key)
-                    if w is None:
-                        continue
-                    try:
-                        self._apply_value(w, val)
-                    except Exception:
-                        pass
+                applied = self.apply_settings_dict(loaded)
+                self._console.append_stdout(
+                    f"Loaded {applied} settings from {path}\n"
+                )
         except Exception as e:
             QMessageBox.warning(self, "Import failed", str(e))
+
+    def apply_settings_dict(self, settings: dict) -> int:
+        """Push key/value pairs from `settings` into whichever settings
+        widgets this app exposes. Silently skips keys the current app
+        does not have — the same dict can safely be applied across
+        several apps. Returns the count of keys actually applied."""
+        applied = 0
+        for key, val in settings.items():
+            w = self._settings_model._widgets.get(key)
+            if w is None:
+                continue
+            try:
+                self._apply_value(w, val)
+                applied += 1
+            except Exception:
+                pass
+        return applied
 
     def _apply_value(self, widget, val):
         from PySide6.QtWidgets import QCheckBox, QSpinBox, QDoubleSpinBox, QComboBox, QLineEdit
