@@ -442,6 +442,20 @@ class ConsolePanel(QWidget):
         if self._ai_worker is not None:
             self._ai_worker.cancel()
 
+    def _prune_retired(self) -> None:
+        """Drop entries whose QThread has already exited (isRunning
+        returns False) OR whose C++ was already deleted by Qt's
+        deferred-delete queue. Both are safe to forget."""
+        alive = []
+        for thread, worker in self._retired:
+            try:
+                if thread.isRunning():
+                    alive.append((thread, worker))
+            except RuntimeError:
+                # C++ already deleted — safe to drop
+                pass
+        self._retired = alive
+
     def is_ai_streaming(self) -> bool:
         return self._ai_thread is not None
 
@@ -516,22 +530,14 @@ class ConsolePanel(QWidget):
         # Retire the current (thread, worker) pair — hold both refs
         # in a list so Python can't GC the QThread before its OS
         # thread has fully exited AND Qt's deleteLater has run.
-        # Once thread.finished emits we pop the entry.
+        # Prune already-dead entries on the way in so the list can't
+        # grow unbounded across a long session.
+        self._prune_retired()
         thread, worker = self._ai_thread, self._ai_worker
         self._ai_thread = None
         self._ai_worker = None
         if thread is not None:
-            entry = (thread, worker)
-            self._retired.append(entry)
-            def _drop_when_done(_entry=entry):
-                try:
-                    self._retired.remove(_entry)
-                except ValueError:
-                    pass
-            try:
-                thread.finished.connect(_drop_when_done)
-            except Exception:
-                pass
+            self._retired.append((thread, worker))
         if ok:
             self._ai_messages.append(
                 {"role": "assistant", "content": final_text}
