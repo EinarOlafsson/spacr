@@ -19,17 +19,56 @@ Module Contents
 
 .. py:function:: restart_gui_app(root)
 
-   Restarts the GUI application by destroying the current instance
-   and launching a fresh one.
+   Restart the GUI by destroying ``root`` and launching a fresh instance.
+
+   :param root: the Tk root window to tear down before relaunching.
 
 
 .. py:function:: create_menu_bar(root)
 
+   Attach the SpaCr application menu bar to ``root``.
+
+   :param root: the Tk root window that receives the menu.
+
+
 .. py:function:: set_element_size()
+
+   Return cached default sizes for GUI elements derived from screen dimensions.
+
+   :returns: dict with ``btn_size``, ``bar_size``, ``settings_width``,
+       ``panel_width``, and ``panel_height`` in pixels.
+
 
 .. py:function:: set_dark_style(style, parent_frame=None, containers=None, widgets=None, font_family='OpenSans', font_size=12, bg_color='black', fg_color='white', active_color='blue', inactive_color='dark_gray')
 
+   Configure ttk/tk widgets with the spacr dark theme and return the palette.
+
+   Named colors (``'black'``, ``'white'``, ``'blue'``, ``'dark_gray'``,
+   ``'teal'``) resolve to their hex equivalents; explicit hex strings pass
+   through. When ``parent_frame``, ``containers``, or ``widgets`` are given,
+   those widgets are re-styled in place.
+
+   :param style: a ``ttk.Style`` instance to configure.
+   :param parent_frame: optional root frame to color-match.
+   :param containers: optional iterable of frames to restyle.
+   :param widgets: optional iterable of widgets to restyle.
+   :param font_family: font family name; ``'OpenSans'`` loads via ``spacrFont``.
+   :param font_size: base font size in points.
+   :param bg_color: primary background color.
+   :param fg_color: primary text color.
+   :param active_color: accent color for active/pressed states.
+   :param inactive_color: secondary/panel color.
+   :returns: dict of resolved style values (colors, fonts, spacing).
+
+
 .. py:class:: spacrFont(font_name, font_style, font_size=12)
+
+   Loader that resolves a bundled ``.ttf`` and registers it with Tk.
+
+   :param font_name: font family name (e.g. ``'OpenSans'``).
+   :param font_style: font style variant (e.g. ``'Regular'``, ``'Bold'``).
+   :param font_size: default size in points.
+
 
    .. py:attribute:: font_name
 
@@ -47,32 +86,27 @@ Module Contents
 
    .. py:method:: get_font_path(font_name, font_style)
 
-      Returns the font path based on the font name and style.
+      Return the on-disk path to the ``.ttf`` for a given family + style.
 
-      Parameters:
-      - font_name: str, the name of the font.
-      - font_style: str, the style of the font.
-
-      Returns:
-      - str, the path to the font file.
+      :param font_name: font family name.
+      :param font_style: font style variant.
+      :returns: absolute path to the font file.
+      :raises ValueError: if the combination is not bundled.
 
 
 
    .. py:method:: load_font()
 
-      Loads the font into Tkinter.
+      Register the resolved font file with Tkinter's font system.
 
 
 
    .. py:method:: get_font(size=None)
 
-      Returns the font in the specified size.
+      Return a ``tkFont.Font`` for this family at the requested size.
 
-      Parameters:
-      - size: int, the size of the font (optional).
-
-      Returns:
-      - tkFont.Font object.
+      :param size: point size; defaults to the size given at construction.
+      :returns: ``tkFont.Font`` instance.
 
 
 
@@ -81,7 +115,11 @@ Module Contents
    Bases: :py:obj:`tkinter.Frame`
 
 
-   Frame widget which may contain other widgets and can have a 3D border.
+   Resizable multi-pane container with draggable sashes between panes.
+
+   :param parent: parent widget.
+   :param orient: ``tk.VERTICAL`` or ``tk.HORIZONTAL`` split direction.
+   :param bg: background color for panes and sashes.
 
 
    .. py:attribute:: orient
@@ -90,8 +128,6 @@ Module Contents
 
 
    .. py:attribute:: bg
-      :value: 'lightgrey'
-
 
 
    .. py:attribute:: sash_thickness
@@ -111,26 +147,53 @@ Module Contents
 
    .. py:method:: add(widget, stretch='always')
 
+      Insert ``widget`` as a new pane and repartition the layout.
+
+      :param widget: widget to embed as a pane.
+      :param stretch: stretch policy (currently informational).
+
+
 
    .. py:method:: create_sash()
+
+      Create and register a new draggable sash between panes.
+
 
 
    .. py:method:: reposition_panes()
 
+      Re-grid panes and sashes to fill the current container size.
+
+
 
    .. py:method:: on_configure(event)
+
+      Re-run layout when the container is resized.
+
 
 
    .. py:method:: on_enter_sash(event)
 
+      Highlight a sash on mouse enter.
+
+
 
    .. py:method:: on_leave_sash(event)
+
+      Restore sash color on mouse leave.
+
 
 
    .. py:method:: start_resize(event)
 
+      Begin a drag-resize gesture on the sash under the pointer.
+
+
 
    .. py:method:: perform_resize(event)
+
+      Update pane sizes while a sash is being dragged.
+
 
 
 .. py:class:: spacrEntry(parent, textvariable=None, outline=False, width=None, *args, **kwargs)
@@ -138,22 +201,21 @@ Module Contents
    Bases: :py:obj:`tkinter.Frame`
 
 
-   Frame widget which may contain other widgets and can have a 3D border.
+   Pill-shaped themed entry with a focus ring, backed by a ``tk.Entry``.
+
+   :param parent: parent widget.
+   :param textvariable: ``tk.StringVar`` bound to the entry text.
+   :param outline: reserved; enables a subtle outline stroke when True.
+   :param width: unused legacy parameter (canvas expands to fill).
 
 
    .. py:attribute:: bg_color
-      :value: 'dark_gray'
-
 
 
    .. py:attribute:: active_color
-      :value: 'blue'
-
 
 
    .. py:attribute:: fg_color
-      :value: 'white'
-
 
 
    .. py:attribute:: outline
@@ -162,13 +224,9 @@ Module Contents
 
 
    .. py:attribute:: font_family
-      :value: 'OpenSans'
-
 
 
    .. py:attribute:: font_size
-      :value: 12
-
 
 
    .. py:attribute:: font_loader
@@ -182,13 +240,29 @@ Module Contents
    .. py:attribute:: canvas
 
 
-   .. py:method:: draw_rounded_rectangle(color)
+   .. py:method:: draw_rounded_rectangle(color, focus_ring=False)
+
+      Draw the pill-shaped background, optionally with an accent focus ring.
+
+      The interior always fills with ``color`` so the field stays legible;
+      ``focus_ring=True`` adds a 2 px accent outline instead of recoloring
+      the interior.
+
+      :param color: fill color for the pill interior.
+      :param focus_ring: draw the accent-colored outline when True.
+
 
 
    .. py:method:: on_focus_in(event)
 
+      Show the accent focus ring when the entry gains keyboard focus.
+
+
 
    .. py:method:: on_focus_out(event)
+
+      Remove the focus ring when the entry loses keyboard focus.
+
 
 
 .. py:class:: spacrCheck(parent, text='', variable=None, *args, **kwargs)
@@ -196,27 +270,23 @@ Module Contents
    Bases: :py:obj:`tkinter.Frame`
 
 
-   Frame widget which may contain other widgets and can have a 3D border.
+   Themed rounded-square checkbox bound to a ``tk.BooleanVar``.
+
+   :param parent: parent widget.
+   :param text: unused caption (reserved).
+   :param variable: ``tk.BooleanVar`` whose value drives the check state.
 
 
    .. py:attribute:: bg_color
-      :value: 'black'
-
 
 
    .. py:attribute:: active_color
-      :value: 'blue'
-
 
 
    .. py:attribute:: fg_color
-      :value: 'white'
-
 
 
    .. py:attribute:: inactive_color
-      :value: 'dark_gray'
-
 
 
    .. py:attribute:: variable
@@ -239,11 +309,22 @@ Module Contents
 
    .. py:method:: draw_rounded_square(color)
 
+      Draw the checkbox square in the given fill color.
+
+      :param color: fill color reflecting the current check state.
+
+
 
    .. py:method:: update_check(*args)
 
+      Redraw the checkbox when the bound variable changes.
+
+
 
    .. py:method:: toggle_variable(event)
+
+      Flip the bound ``BooleanVar`` in response to a click.
+
 
 
 .. py:class:: spacrCombo(parent, textvariable=None, values=None, width=None, *args, **kwargs)
@@ -251,37 +332,30 @@ Module Contents
    Bases: :py:obj:`tkinter.Frame`
 
 
-   Frame widget which may contain other widgets and can have a 3D border.
+   Themed dropdown combobox backed by a Toplevel selection popup.
+
+   :param parent: parent widget.
+   :param textvariable: ``tk.StringVar`` bound to the selected value.
+   :param values: iterable of selectable values.
+   :param width: unused legacy parameter (canvas expands to fill).
 
 
    .. py:attribute:: bg_color
-      :value: 'black'
-
 
 
    .. py:attribute:: active_color
-      :value: 'blue'
-
 
 
    .. py:attribute:: fg_color
-      :value: 'white'
-
 
 
    .. py:attribute:: inactive_color
-      :value: 'dark_gray'
-
 
 
    .. py:attribute:: font_family
-      :value: 'OpenSans'
-
 
 
    .. py:attribute:: font_size
-      :value: 12
-
 
 
    .. py:attribute:: font_loader
@@ -289,11 +363,6 @@ Module Contents
 
    .. py:attribute:: values
       :value: []
-
-
-
-   .. py:attribute:: canvas_width
-      :value: None
 
 
 
@@ -316,22 +385,47 @@ Module Contents
 
 
 
-   .. py:method:: draw_rounded_rectangle(color)
+   .. py:method:: draw_rounded_rectangle(color, focus_ring=False)
+
+      Draw the pill-shaped background, optionally with an accent focus ring.
+
+      :param color: fill color for the pill interior.
+      :param focus_ring: draw the accent-colored outline when True.
+
 
 
    .. py:method:: on_click(event)
 
+      Toggle the dropdown popup open/closed on click.
+
+
 
    .. py:method:: open_dropdown()
+
+      Open the Toplevel popup showing selectable values.
+
 
 
    .. py:method:: close_dropdown()
 
+      Destroy the dropdown popup and remove the focus ring.
+
+
 
    .. py:method:: on_select(value)
 
+      Commit ``value`` as the current selection and close the popup.
+
+      :param value: selected value from the popup list.
+
+
 
    .. py:method:: set(value)
+
+      Programmatically set the current selection without opening the popup.
+
+      :param value: value to display and store.
+
 
 
 .. py:class:: spacrDropdownMenu(parent, variable, options, command=None, font=None, size=50, **kwargs)
@@ -339,7 +433,14 @@ Module Contents
    Bases: :py:obj:`tkinter.Frame`
 
 
-   Frame widget which may contain other widgets and can have a 3D border.
+   Rounded 'Settings' button that pops up a ``tk.Menu`` on click.
+
+   :param parent: parent widget.
+   :param variable: variable associated with the current selection.
+   :param options: iterable of menu labels.
+   :param command: callback receiving the selected option string.
+   :param font: fallback font when the OpenSans loader is unavailable.
+   :param size: button height in pixels; width is ``size * 3``.
 
 
    .. py:attribute:: variable
@@ -364,8 +465,6 @@ Module Contents
 
 
    .. py:attribute:: font_size
-      :value: 12
-
 
 
    .. py:attribute:: font_loader
@@ -390,23 +489,15 @@ Module Contents
 
 
    .. py:attribute:: inactive_color
-      :value: 'dark_gray'
-
 
 
    .. py:attribute:: active_color
-      :value: 'blue'
-
 
 
    .. py:attribute:: fg_color
-      :value: 'white'
-
 
 
    .. py:attribute:: bg_color
-      :value: 'black'
-
 
 
    .. py:attribute:: button_bg
@@ -420,23 +511,56 @@ Module Contents
 
    .. py:method:: create_rounded_rectangle(x1, y1, x2, y2, radius=20, **kwargs)
 
+      Draw a rounded rectangle on the canvas and return the polygon id.
+
+      :param x1: left edge in canvas pixels.
+      :param y1: top edge in canvas pixels.
+      :param x2: right edge in canvas pixels.
+      :param y2: bottom edge in canvas pixels.
+      :param radius: corner radius.
+      :returns: canvas item id of the polygon.
+
+
 
    .. py:method:: on_enter(event=None)
+
+      Switch button background to the accent color on hover.
+
 
 
    .. py:method:: on_leave(event=None)
 
+      Restore the inactive background when the pointer leaves.
+
+
 
    .. py:method:: on_click(event=None)
+
+      Show the popup menu at the button position on click.
+
 
 
    .. py:method:: post_menu()
 
+      Post the popup menu just below the button.
+
+
 
    .. py:method:: on_select(option)
 
+      Invoke the registered command with the selected option.
+
+      :param option: label of the menu entry that was clicked.
+
+
 
    .. py:method:: update_styles(active_categories=None)
+
+      Re-apply dark styling and mark entries in ``active_categories``.
+
+      :param active_categories: optional iterable of labels to render as
+          active (accent background); others revert to the inactive color.
+
 
 
 .. py:class:: spacrCheckbutton(parent, text='', variable=None, command=None, *args, **kwargs)
@@ -444,7 +568,12 @@ Module Contents
    Bases: :py:obj:`tkinter.ttk.Checkbutton`
 
 
-   Ttk Checkbutton widget which is either in on- or off-state.
+   Dark-themed thin wrapper around ``ttk.Checkbutton``.
+
+   :param parent: parent widget.
+   :param text: label text.
+   :param variable: ``tk.BooleanVar`` bound to the check state.
+   :param command: callback fired on state change.
 
 
    .. py:attribute:: text
@@ -465,36 +594,25 @@ Module Contents
    Bases: :py:obj:`tkinter.ttk.Progressbar`
 
 
-   Ttk Progressbar widget shows the status of a long-running
-   operation. They can operate in two modes: determinate mode shows the
-   amount completed relative to the total amount of work to be done, and
-   indeterminate mode provides an animated display to let the user know
-   that something is happening.
+   Themed ``ttk.Progressbar`` with an optional companion status label.
+
+   :param parent: parent widget.
+   :param label: when True, create a paired label showing progress text.
 
 
    .. py:attribute:: fg_color
-      :value: 'white'
-
 
 
    .. py:attribute:: bg_color
-      :value: 'black'
-
 
 
    .. py:attribute:: active_color
-      :value: 'blue'
-
 
 
    .. py:attribute:: inactive_color
-      :value: 'dark_gray'
-
 
 
    .. py:attribute:: font_size
-      :value: 12
-
 
 
    .. py:attribute:: font_loader
@@ -520,8 +638,14 @@ Module Contents
 
    .. py:method:: set_label_position()
 
+      Grid the status label directly beneath the progress bar.
+
+
 
    .. py:method:: update_label()
+
+      Refresh the label text from current value, operation, and info.
+
 
 
 .. py:class:: spacrSlider(master=None, length=None, thickness=2, knob_radius=10, position='center', from_=0, to=100, value=None, show_index=False, command=None, **kwargs)
@@ -529,7 +653,19 @@ Module Contents
    Bases: :py:obj:`tkinter.Frame`
 
 
-   Frame widget which may contain other widgets and can have a 3D border.
+   Themed horizontal slider with a canvas-drawn knob and optional entry.
+
+   :param master: parent widget.
+   :param length: fixed pixel length; ``None`` for dynamic (90% of canvas).
+   :param thickness: line thickness for the slider track.
+   :param knob_radius: knob radius in pixels.
+   :param position: alignment when ``length`` is fixed
+       (``'left'``, ``'center'``, ``'right'``).
+   :param from_: minimum value.
+   :param to: maximum value.
+   :param value: initial value; defaults to ``from_``.
+   :param show_index: when True, show a companion ``tk.Entry`` for the value.
+   :param command: callback receiving the value on knob release.
 
 
    .. py:attribute:: specified_length
@@ -583,8 +719,6 @@ Module Contents
 
 
    .. py:attribute:: value
-      :value: None
-
 
 
    .. py:attribute:: show_index
@@ -598,102 +732,153 @@ Module Contents
 
 
    .. py:attribute:: fg_color
-      :value: 'white'
-
 
 
    .. py:attribute:: bg_color
-      :value: 'black'
-
 
 
    .. py:attribute:: active_color
-      :value: 'blue'
-
 
 
    .. py:attribute:: inactive_color
-      :value: 'dark_gray'
-
 
 
    .. py:attribute:: canvas
 
 
    .. py:attribute:: length
-      :value: None
-
 
 
    .. py:method:: resize_slider(event)
 
+      Recompute slider length/offset when the canvas is resized.
+
+
 
    .. py:method:: value_to_position(value)
+
+      Map a slider value onto its knob position in canvas pixels.
+
+      :param value: value in ``[from_, to]``.
+      :returns: knob center x-coordinate.
+
 
 
    .. py:method:: position_to_value(position)
 
+      Map a knob position back to a slider value.
+
+      :param position: knob center x-coordinate in canvas pixels.
+      :returns: value in ``[from_, to]``.
+
+
 
    .. py:method:: draw_slider(inactive=False)
+
+      Redraw the slider track and knob.
+
+      :param inactive: when True, render the knob in the inactive color.
+
 
 
    .. py:method:: move_knob(event)
 
+      Move the knob to follow the pointer during a drag.
+
+
 
    .. py:method:: activate_knob(event)
+
+      Switch the knob to active color and start following the pointer.
+
 
 
    .. py:method:: release_knob(event)
 
+      Deactivate the knob on button release and fire ``command``.
+
+
 
    .. py:method:: set_to(new_to)
 
+      Change the slider's maximum value and redraw the knob.
+
+      :param new_to: new upper bound.
+
+
 
    .. py:method:: get()
+
+      Return the current slider value.
+
 
 
    .. py:method:: set(value)
 
       Set the slider's value and update the knob position.
 
+      :param value: value to display; clamped to ``[from_, to]``.
+
 
 
    .. py:method:: jump_to_click(event)
 
+      Move the knob to the clicked position.
+
+
 
    .. py:method:: update_slider_from_entry(event)
 
-      Update the slider's value from the entry.
+      Update the slider's value from the companion entry widget.
 
 
 
 .. py:function:: spacrScrollbarStyle(style, inactive_color, active_color)
+
+   Register the ``Custom.Vertical.TScrollbar`` layout on ``style``.
+
+   :param style: ``ttk.Style`` to configure.
+   :param inactive_color: color used for the trough and idle thumb.
+   :param active_color: color used for hover/pressed states.
+
 
 .. py:class:: spacrFrame(container, width=None, *args, bg='black', radius=20, scrollbar=True, textbox=False, **kwargs)
 
    Bases: :py:obj:`tkinter.ttk.Frame`
 
 
-   Ttk Frame widget is a container, used to group other widgets
-   together.
+   Scrollable themed frame that hosts either a widget grid or a text box.
+
+   :param container: parent widget.
+   :param width: frame width in pixels; defaults to a quarter of screen width.
+   :param bg: background color.
+   :param radius: corner radius for the decorative rounded rectangle.
+   :param scrollbar: when True, attach a themed vertical scrollbar.
+   :param textbox: when True, use a ``tk.Text`` as the scrollable child
+       instead of a ``ttk.Frame``.
 
 
    .. py:attribute:: inactive_color
-      :value: 'dark_gray'
-
 
 
    .. py:attribute:: active_color
-      :value: 'blue'
-
 
 
    .. py:attribute:: fg_color
-      :value: 'white'
-
 
 
    .. py:method:: rounded_rectangle(canvas, x1, y1, x2, y2, radius=20, **kwargs)
+
+      Draw a rounded rectangle on ``canvas`` and return its item id.
+
+      :param canvas: target ``tk.Canvas``.
+      :param x1: left edge.
+      :param y1: top edge.
+      :param x2: right edge.
+      :param y2: bottom edge.
+      :param radius: corner radius.
+      :returns: canvas item id.
+
 
 
 .. py:class:: spacrLabel(parent, text='', font=None, style=None, align='right', height=None, **kwargs)
@@ -701,7 +886,14 @@ Module Contents
    Bases: :py:obj:`tkinter.Frame`
 
 
-   Frame widget which may contain other widgets and can have a 3D border.
+   Canvas-based themed text label supporting right or center alignment.
+
+   :param parent: parent widget.
+   :param text: label text.
+   :param font: fallback font when the shared font loader is unavailable.
+   :param style: optional ttk style name to use instead of canvas text.
+   :param align: ``'right'`` (default) or ``'center'``.
+   :param height: label height in pixels; defaults to a screen-derived size.
 
 
    .. py:attribute:: text
@@ -715,21 +907,17 @@ Module Contents
 
 
    .. py:attribute:: style_out
+      :value: None
+
 
 
    .. py:attribute:: font_style
-      :value: 'OpenSans'
-
 
 
    .. py:attribute:: font_size
-      :value: 12
-
 
 
    .. py:attribute:: font_family
-      :value: 'OpenSans'
-
 
 
    .. py:attribute:: font_loader
@@ -745,13 +933,28 @@ Module Contents
 
    .. py:method:: set_text(text)
 
+      Replace the label's displayed text.
+
+      :param text: new text to render.
+
+
 
 .. py:class:: spacrButton(parent, text='', command=None, font=None, icon_name=None, size=50, show_text=True, outline=False, animation=True, *args, **kwargs)
 
    Bases: :py:obj:`tkinter.Frame`
 
 
-   Frame widget which may contain other widgets and can have a 3D border.
+   Rounded icon button with hover fade, zoom animation, and tooltip.
+
+   :param parent: parent widget.
+   :param text: button caption; only the first letter is capitalized.
+   :param command: callback fired on click.
+   :param font: fallback font when the shared font loader is unavailable.
+   :param icon_name: base name (no extension) of a bundled icon PNG.
+   :param size: button height in pixels; width scales with ``show_text``.
+   :param show_text: when True the caption is drawn next to the icon.
+   :param outline: when True draw a foreground-color outline stroke.
+   :param animation: when True, animate the icon zoom on hover.
 
 
    .. py:attribute:: text
@@ -765,8 +968,6 @@ Module Contents
 
 
    .. py:attribute:: icon_name
-      :value: ''
-
 
 
    .. py:attribute:: size
@@ -790,8 +991,6 @@ Module Contents
 
 
    .. py:attribute:: font_size
-      :value: 12
-
 
 
    .. py:attribute:: font_loader
@@ -801,23 +1000,15 @@ Module Contents
 
 
    .. py:attribute:: inactive_color
-      :value: 'dark_gray'
-
 
 
    .. py:attribute:: bg_color
-      :value: 'dark_gray'
-
 
 
    .. py:attribute:: active_color
-      :value: 'blue'
-
 
 
    .. py:attribute:: fg_color
-      :value: 'white'
-
 
 
    .. py:attribute:: is_zoomed_in
@@ -827,32 +1018,78 @@ Module Contents
 
    .. py:method:: load_icon()
 
+      Load and place the icon image on the button canvas.
+
+
 
    .. py:method:: get_icon_path(icon_name)
+
+      Return the on-disk path to a bundled icon PNG.
+
+      :param icon_name: base name (no extension).
+      :returns: absolute path to ``resources/icons/<icon_name>.png``.
+
 
 
    .. py:method:: on_enter(event=None)
 
+      Fade to the active color, show description, and zoom in the icon.
+
+
 
    .. py:method:: on_leave(event=None)
+
+      Fade back to the inactive color and reset the icon zoom.
+
 
 
    .. py:method:: on_click(event=None)
 
+      Invoke the registered ``command`` (if any) on click.
+
+
 
    .. py:method:: create_rounded_rectangle(x1, y1, x2, y2, radius=20, **kwargs)
+
+      Draw a rounded rectangle on the canvas and return its item id.
+
+      :param x1: left edge.
+      :param y1: top edge.
+      :param x2: right edge.
+      :param y2: bottom edge.
+      :param radius: corner radius.
+      :returns: canvas item id.
+
 
 
    .. py:method:: update_description(event)
 
+      Walk up the parent chain and call ``show_description`` on hover.
+
+
 
    .. py:method:: clear_description(event)
+
+      Walk up the parent chain and call ``clear_description`` on leave.
+
 
 
    .. py:method:: animate_zoom(target_scale, steps=10, delay=10)
 
+      Animate the icon toward ``target_scale`` over a series of steps.
+
+      :param target_scale: final scale factor relative to ``self.size``.
+      :param steps: number of intermediate frames.
+      :param delay: milliseconds between frames.
+
+
 
    .. py:method:: zoom_icon(scale_factor)
+
+      Resize the button icon to ``scale_factor * self.size``.
+
+      :param scale_factor: multiplier applied to the button size.
+
 
 
 .. py:class:: spacrSwitch(parent, text='', variable=None, command=None, *args, **kwargs)
@@ -860,8 +1097,12 @@ Module Contents
    Bases: :py:obj:`tkinter.ttk.Frame`
 
 
-   Ttk Frame widget is a container, used to group other widgets
-   together.
+   Animated two-state toggle switch bound to a ``tk.BooleanVar``.
+
+   :param parent: parent widget.
+   :param text: caption shown next to the switch.
+   :param variable: ``tk.BooleanVar`` bound to the switch state.
+   :param command: callback fired after each toggle.
 
 
    .. py:attribute:: text
@@ -891,26 +1132,66 @@ Module Contents
 
    .. py:method:: toggle(event=None)
 
+      Flip the bound variable, animate the knob, and fire ``command``.
+
+
 
    .. py:method:: update_switch()
+
+      Redraw the switch knob to reflect the current bound value.
+
 
 
    .. py:method:: animate_switch()
 
+      Animate the knob toward its new position and target color.
+
+
 
    .. py:method:: animate_movement(start_x, end_x, final_color)
+
+      Slide the knob from ``start_x`` to ``end_x`` and then set its color.
+
+      :param start_x: starting x-coordinate of the knob.
+      :param end_x: final x-coordinate of the knob.
+      :param final_color: fill color to apply after the animation.
+
 
 
    .. py:method:: get()
 
+      Return the current switch state.
+
+
 
    .. py:method:: set(value)
+
+      Set the switch state without animation.
+
+      :param value: new boolean value.
+
 
 
    .. py:method:: create_rounded_rectangle(x1, y1, x2, y2, radius=9, **kwargs)
 
+      Draw a rounded rectangle on the canvas and return its item id.
+
+      :param x1: left edge.
+      :param y1: top edge.
+      :param x2: right edge.
+      :param y2: bottom edge.
+      :param radius: corner radius.
+      :returns: canvas item id.
+
+
 
 .. py:class:: spacrToolTip(widget, text)
+
+   Attach a themed hover tooltip to an existing widget.
+
+   :param widget: widget to attach the tooltip to.
+   :param text: tooltip text shown on hover.
+
 
    .. py:attribute:: widget
 
@@ -925,11 +1206,159 @@ Module Contents
 
    .. py:method:: show_tooltip(event)
 
+      Create the borderless Toplevel showing the tooltip label.
+
+
 
    .. py:method:: hide_tooltip(event)
 
+      Destroy the tooltip Toplevel when the pointer leaves the widget.
+
+
+
+.. py:class:: spacrCard(parent, title='', padding='md', show_border=False, **kwargs)
+
+   Bases: :py:obj:`tkinter.Frame`
+
+
+   Themed container with optional title bar and consistent internal padding.
+
+   Produces a "lifted-panel" look that matches the soft dark palette. Add
+   child widgets to ``card.body`` — the outer frame reserves space for the
+   optional title bar, divider, and border.
+
+   :param parent: parent widget.
+   :param title: optional title bar text; empty string hides the title row.
+   :param padding: spacing key from the shared palette (``xs``/``sm``/``md``/
+       ``lg``/``xl``).
+   :param show_border: when True, draw a 1 px lifted border around the card.
+   :ivar body: ``tk.Frame`` clients pack content into.
+
+
+   .. py:attribute:: style_out
+      :value: None
+
+
+
+   .. py:attribute:: bg_color
+
+
+   .. py:attribute:: border_color
+
+
+   .. py:attribute:: muted_color
+
+
+   .. py:attribute:: fg_color
+
+
+   .. py:attribute:: body
+
+
+.. py:class:: spacrToggle(parent, text='', variable=None, command=None, **kwargs)
+
+   Bases: :py:obj:`tkinter.Frame`
+
+
+   iOS-style animated toggle switch bound to a ``tk.BooleanVar``.
+
+   Modern replacement for the small check square in ``spacrCheck``.
+   Clicking the canvas or the caption toggles the variable and animates
+   the knob to its new position.
+
+   :param parent: parent widget.
+   :param text: caption shown to the left of the toggle; empty hides it.
+   :param variable: ``tk.BooleanVar`` bound to the toggle state.
+   :param command: callback fired after each toggle.
+
+
+   .. py:attribute:: bg_color
+
+
+   .. py:attribute:: inactive_color
+
+
+   .. py:attribute:: active_color
+
+
+   .. py:attribute:: fg_color
+
+
+   .. py:attribute:: muted_color
+
+
+   .. py:attribute:: variable
+
+
+   .. py:attribute:: command
+      :value: None
+
+
+
+   .. py:method:: toggle()
+
+      Flip the bound variable, animate the knob, and invoke ``command``.
+
+
+
+   .. py:method:: get()
+
+      Return the current toggle state.
+
+
+
+   .. py:method:: set(value)
+
+      Set the toggle state without animation.
+
+      :param value: coerced to bool.
+
+
+
+.. py:class:: spacrDivider(parent, text='', orient='horizontal', thickness=1, **kwargs)
+
+   Bases: :py:obj:`tkinter.Frame`
+
+
+   Thin themed section separator, optionally captioned.
+
+   Pulls colors and spacing from the shared style dict so the look stays
+   consistent with the rest of the GUI. Renders as a plain horizontal or
+   vertical rule; when ``text`` is provided the horizontal variant embeds
+   the caption between two short rule segments.
+
+   :param parent: parent widget.
+   :param text: caption to embed in the rule (horizontal orientation only).
+   :param orient: ``'horizontal'`` or ``'vertical'``.
+   :param thickness: rule thickness in pixels (minimum 1).
+
+
+   .. py:attribute:: text
+      :value: ''
+
+
+
+   .. py:attribute:: orient
+      :value: 'horizontal'
+
+
+
+   .. py:attribute:: thickness
+
 
 .. py:class:: ModifyMaskApp(root, folder_path, scale_factor)
+
+   Tkinter app for hand-editing segmentation masks over a set of images.
+
+   Supports zoom, draw, brush, erase, magic-wand, and dividing-line
+   operations, plus per-object cleanup (fill/relabel/remove small).
+   Masks are loaded from and saved back to ``<folder_path>/masks``.
+
+   :param root: parent Tk root or Toplevel.
+   :param folder_path: directory of image files to edit.
+   :param scale_factor: pre-canvas resize factor (applied before stretching
+       to the canvas so brush strokes stay proportional).
+
 
    .. py:attribute:: root
 
@@ -959,173 +1388,426 @@ Module Contents
 
    .. py:method:: update_display()
 
+      Repaint the canvas using the zoomed or full-image view.
+
+
 
    .. py:method:: update_original_mask_from_zoom()
+
+      Write the current zoomed-region mask back into the full mask.
+
 
 
    .. py:method:: update_original_mask(zoomed_mask, x0, x1, y0, y1)
 
+      Merge ``zoomed_mask`` into the full mask at box ``[x0:x1, y0:y1]``.
+
+      :param zoomed_mask: mask patch in the zoomed coordinate system.
+      :param x0: left edge in original image pixels.
+      :param x1: right edge in original image pixels.
+      :param y0: top edge in original image pixels.
+      :param y1: bottom edge in original image pixels.
+
+
 
    .. py:method:: get_scaling_factors(img_width, img_height, canvas_width, canvas_height)
+
+      Return ``(x_scale, y_scale)`` mapping canvas pixels to image pixels.
+
+      :param img_width: image width in pixels.
+      :param img_height: image height in pixels.
+      :param canvas_width: canvas width in pixels.
+      :param canvas_height: canvas height in pixels.
+      :returns: tuple ``(x_scale, y_scale)``.
+
 
 
    .. py:method:: canvas_to_image(x_canvas, y_canvas)
 
+      Convert canvas coordinates to full-image coordinates.
+
+      :param x_canvas: canvas x pixel.
+      :param y_canvas: canvas y pixel.
+      :returns: tuple ``(x_image, y_image)`` in image pixels.
+
+
 
    .. py:method:: apply_zoom_on_enter(event)
+
+      Finalize the zoom rectangle when the pointer re-enters the canvas.
+
 
 
    .. py:method:: normalize_image(image, lower_quantile, upper_quantile)
 
+      Percentile-clip ``image`` and rescale into its original dtype range.
+
+      :param image: 2D image array.
+      :param lower_quantile: lower percentile (0-100).
+      :param upper_quantile: upper percentile (0-100).
+      :returns: normalized image of the same dtype.
+
+
 
    .. py:method:: resize_arrays(img, mask)
+
+      Scale image + mask to fit the canvas while preserving their dtypes.
+
+      :param img: source intensity image.
+      :param mask: source label mask.
+      :returns: tuple ``(scaled_img, scaled_mask)`` sized to the canvas.
+
 
 
    .. py:method:: load_first_image()
 
+      Load the first image/mask pair and paint the canvas.
+
+
 
    .. py:method:: setup_canvas()
+
+      Create the drawing canvas and attach the mouse-info binding.
+
 
 
    .. py:method:: initialize_flags()
 
+      Reset all interaction-mode flags and per-image state.
+
+
 
    .. py:method:: update_mouse_info(event)
+
+      Update the status labels with intensity, mask value, and area.
+
 
 
    .. py:method:: setup_navigation_toolbar()
 
+      Create the top toolbar with Previous/Next/Save and status labels.
+
+
 
    .. py:method:: setup_mode_toolbar()
+
+      Create the toolbar with draw/wand/erase/brush/divider mode buttons.
+
 
 
    .. py:method:: setup_function_toolbar()
 
+      Create the toolbar with per-mask utility buttons (fill/relabel/clear).
+
+
 
    .. py:method:: setup_zoom_toolbar()
+
+      Create the toolbar with zoom, normalization, and percentile controls.
+
 
 
    .. py:method:: load_image_and_mask(index)
 
+      Load the ``index``-th image and its mask (creating an empty one if absent).
+
+      :param index: index into ``self.image_filenames``.
+      :returns: tuple ``(image, mask)`` — image as uint16, mask as uint8.
+
+
 
    .. py:method:: display_image()
+
+      Render the full image + mask overlay on the canvas.
+
 
 
    .. py:method:: display_zoomed_image()
 
+      Render the current zoomed region with mask overlay on the canvas.
+
+
 
    .. py:method:: overlay_mask_on_image(image, mask, alpha=0.5)
+
+      Blend a colored label mask over an intensity image.
+
+      :param image: 2D or RGB intensity image.
+      :param mask: integer label mask; each label gets a random color.
+      :param alpha: mask opacity in ``[0, 1]``.
+      :returns: uint8 RGB overlay image.
+
 
 
    .. py:method:: previous_image()
 
+      Load the previous image/mask pair (no-op at the start of the list).
+
+
 
    .. py:method:: next_image()
+
+      Load the next image/mask pair (no-op at the end of the list).
+
 
 
    .. py:method:: save_mask()
 
+      Relabel connected components and write the mask to ``masks/*.tif``.
+
+
 
    .. py:method:: set_zoom_rectangle_start(event)
+
+      Record the first corner of the zoom rectangle.
+
 
 
    .. py:method:: set_zoom_rectangle_end(event)
 
+      Commit the second corner of the zoom rectangle and render the zoom.
+
+
 
    .. py:method:: update_zoom_box(event)
+
+      Redraw the live zoom-selection rectangle as the pointer moves.
+
 
 
    .. py:method:: toggle_zoom_mode()
 
+      Enter or exit zoom-selection mode, rebinding mouse handlers.
+
+
 
    .. py:method:: toggle_brush_mode()
+
+      Enter or exit brush painting mode, rebinding mouse handlers.
+
 
 
    .. py:method:: image_to_canvas(x_image, y_image)
 
+      Convert full-image coordinates to canvas coordinates.
+
+      :param x_image: image x pixel.
+      :param y_image: image y pixel.
+      :returns: tuple ``(x_canvas, y_canvas)`` in canvas pixels.
+
+
 
    .. py:method:: toggle_dividing_line_mode()
+
+      Enter or exit dividing-line mode, rebinding mouse handlers.
+
 
 
    .. py:method:: start_dividing_line(event)
 
+      Begin a dividing-line stroke at the pointer position.
+
+
 
    .. py:method:: finish_dividing_line(event)
+
+      Close the dividing-line stroke and apply it to the mask.
+
 
 
    .. py:method:: update_dividing_line_preview(event)
 
+      Extend and redraw the in-progress dividing-line preview stroke.
+
+
 
    .. py:method:: apply_dividing_line()
+
+      Cut the mask along the recorded dividing-line polyline and relabel.
+
 
 
    .. py:method:: toggle_draw_mode()
 
+      Enter or exit freehand polygon draw mode, rebinding mouse handlers.
+
+
 
    .. py:method:: toggle_magic_wand_mode()
+
+      Enter or exit magic-wand mode, rebinding mouse handlers.
+
 
 
    .. py:method:: toggle_erase_mode()
 
+      Enter or exit whole-object erase mode, rebinding mouse handlers.
+
+
 
    .. py:method:: apply_brush_release(event)
+
+      Commit the accumulated brush path into the mask on button release.
+
 
 
    .. py:method:: erase_brush_release(event)
 
+      Commit the accumulated erase-brush path into the mask on release.
+
+
 
    .. py:method:: apply_brush(event)
+
+      Record a brush stroke segment and draw a preview line.
+
 
 
    .. py:method:: erase_brush(event)
 
+      Record an erase-brush stroke segment and draw a preview line.
+
+
 
    .. py:method:: erase_object(event)
+
+      Erase the whole labeled object under the click position.
+
 
 
    .. py:method:: use_magic_wand(event)
 
+      Run a magic-wand add (left) or erase (right) at the click position.
+
+
 
    .. py:method:: apply_magic_wand(image, mask, seed_point, tolerance, maximum, action='add')
+
+      Flood-fill mask from ``seed_point`` while intensity delta stays within tolerance.
+
+      :param image: intensity image used for the tolerance check.
+      :param mask: mask array to modify in place.
+      :param seed_point: tuple ``(x, y)`` of the starting pixel.
+      :param tolerance: maximum L2 distance from the seed intensity.
+      :param maximum: cap on newly added pixels.
+      :param action: ``'add'`` sets mask to 255, ``'erase'`` sets it to 0.
+      :returns: the updated ``mask``.
+
 
 
    .. py:method:: magic_wand_normal(seed_point, tolerance, action)
 
+      Apply the magic wand to the full-image mask and repaint the canvas.
+
+      :param seed_point: starting pixel in image coordinates.
+      :param tolerance: intensity tolerance for flood expansion.
+      :param action: ``'add'`` or ``'erase'``.
+
+
 
    .. py:method:: magic_wand_zoomed(seed_point, tolerance, action)
+
+      Apply the magic wand within the current zoom and reflect it in the full mask.
+
+      :param seed_point: starting pixel in canvas coordinates.
+      :param tolerance: intensity tolerance for flood expansion.
+      :param action: ``'add'`` or ``'erase'``.
+
 
 
    .. py:method:: draw(event)
 
+      Append the pointer position to the current freehand polygon.
+
+
 
    .. py:method:: draw_on_zoomed_mask(draw_coordinates)
+
+      Rasterize a polygon (in canvas coords) into a fresh zoomed-mask array.
+
+      :param draw_coordinates: list of ``(x, y)`` tuples defining the polygon.
+      :returns: uint8 canvas-sized mask with the polygon filled.
+
 
 
    .. py:method:: finish_drawing(event)
 
+      Close the polygon and rasterize it into the mask.
+
+
 
    .. py:method:: finish_drawing_if_active(event)
+
+      Close the polygon only if draw mode is active with enough vertices.
+
 
 
    .. py:method:: apply_normalization()
 
+      Read the percentile entries and repaint with the new normalization.
+
+
 
    .. py:method:: fill_objects()
+
+      Fill holes inside all mask objects and relabel.
+
 
 
    .. py:method:: relabel_objects()
 
+      Assign fresh consecutive labels to the mask's connected components.
+
+
 
    .. py:method:: clear_objects()
+
+      Zero the entire mask and repaint.
+
 
 
    .. py:method:: invert_mask()
 
+      Invert the binary mask and relabel connected components.
+
+
 
    .. py:method:: remove_small_objects()
 
+      Delete labeled objects below the ``Min Area`` threshold.
 
-.. py:class:: AnnotateApp(root, db_path, src, image_type=None, channels=None, image_size=200, annotation_column='annotate', percentiles=(1, 99), measurement=None, threshold=None, normalize_channels=None, outline=None, outline_threshold_factor=1, outline_sigma=1, edge_thickness=1, edge_transparency=100, edge_image=False, object_size=(0, 0))
+
+
+.. py:class:: AnnotateApp(root, db_path, src, image_type=None, channels=None, image_size=200, annotation_column='annotate', percentiles=(1, 99), measurement=None, threshold=None, threshold_direction='higher', normalize_channels=None, outline=None, outline_threshold_factor=1, outline_sigma=1, edge_thickness=1, edge_transparency=100, edge_image=False, object_size=(0, 0))
+
+   Grid-based annotation viewer backed by an SQLite measurements database.
+
+   Renders a paginated grid of PNGs (with optional colored outlines and
+   normalization), lets the user click-annotate each cell, and streams
+   updates back to ``png_list.<annotation_column>`` via a background writer
+   thread. Supports pre-filtering by measurement thresholds and training a
+   lightweight XGBoost classifier on the collected labels.
+
+   :param root: parent Tk root or Toplevel.
+   :param db_path: path to the measurements SQLite database.
+   :param src: source directory containing the ``measurements/`` folder.
+   :param image_type: substring filter on ``png_path`` (or a list of them).
+   :param channels: list of channels (subset of ``'r','g','b'``) to display.
+   :param image_size: grid tile size in pixels (int or ``[w, h]``).
+   :param annotation_column: ``png_list`` column that stores user labels.
+   :param percentiles: ``(low, high)`` percentiles for per-image normalization.
+   :param measurement: column name, list, or list-of-lists driving prefilter.
+   :param threshold: numeric or quantile-code (``q1``..``q9``) threshold(s).
+   :param threshold_direction: ``'lower'`` or ``'higher'`` (or a list).
+   :param normalize_channels: channels to normalize (subset of ``'r','g','b'``).
+   :param outline: channels to overlay outlines on.
+   :param outline_threshold_factor: multiplier on the Otsu threshold.
+   :param outline_sigma: Gaussian sigma for outline extraction.
+   :param edge_thickness: outline thickness in output pixels.
+   :param edge_transparency: outline opacity in ``[0, 100]``.
+   :param edge_image: when True, composite the outline image on display.
+   :param object_size: ``(min_px, max_px)`` connected-component filter; 0 disables.
+
 
    .. py:attribute:: root
 
@@ -1201,6 +1883,11 @@ Module Contents
 
 
 
+   .. py:attribute:: threshold_direction
+      :value: 'higher'
+
+
+
    .. py:attribute:: normalize_channels
       :value: None
 
@@ -1245,28 +1932,18 @@ Module Contents
 
 
    .. py:attribute:: font_size
-      :value: 12
-
 
 
    .. py:attribute:: bg_color
-      :value: 'black'
-
 
 
    .. py:attribute:: fg_color
-      :value: 'white'
-
 
 
    .. py:attribute:: active_color
-      :value: 'blue'
-
 
 
    .. py:attribute:: inactive_color
-      :value: 'dark_gray'
-
 
 
    .. py:attribute:: worker_busy
@@ -1312,75 +1989,118 @@ Module Contents
    .. py:attribute:: dl_train_button
 
 
+   .. py:attribute:: skip_to_last_annotated_button
+
+
    .. py:method:: open_umap_window()
+
+      Open a settings + live-plot window for image UMAP + hyperparam search.
+
 
 
    .. py:method:: open_settings_window()
 
+      Open the Toplevel that edits annotation display and filter settings.
+
+
 
    .. py:method:: update_settings(**kwargs)
+
+      Apply changed settings, coerce types, and re-prime the DB worker.
+
+      Only keys in the internal ``allowed_attributes`` set are honored;
+      ``None`` values are ignored. Handles cross-cutting side effects
+      (rebuilding the grid when ``image_size`` changes, restarting the
+      writer thread when ``db_path`` changes, resetting pagination when
+      ``src`` changes).
+
+      :param kwargs: attribute names mapped to their new values.
+
 
 
    .. py:method:: recreate_image_grid()
 
+      Rebuild the label grid to match current ``grid_rows``/``grid_cols``.
+
+
 
    .. py:method:: update_display()
+
+      Re-run the prefilter and reload the visible grid.
+
 
 
    .. py:method:: swich_back_annotation_column()
 
+      Restore the originally configured annotation column and refresh.
+
+
 
    .. py:method:: calculate_grid_dimensions()
+
+      Derive ``grid_rows`` and ``grid_cols`` from the current window size.
+
 
 
    .. py:method:: prefilter_paths_annotations()
 
+      Populate ``filtered_paths_annotations`` from the DB using current filters.
+
+      When a measurement + threshold is configured, joins the measurement
+      tables and applies each configured filter; otherwise pages directly
+      against ``png_list``. Also honors ``image_type`` substring filtering.
+
+
 
    .. py:method:: load_images()
+
+      Load and paint the current page of PNGs into the grid labels.
+
 
 
    .. py:method:: show_class_counts()
 
+      Open a window summarizing counts per class in the current column.
+
+
 
    .. py:method:: load_single_image(path_annotation_tuple)
+
+      Load one PNG, apply normalization/channel filtering/outlines, and resize.
+
+      :param path_annotation_tuple: ``(path, annotation)`` pair from the DB.
+      :returns: tuple ``(PIL.Image, annotation)`` sized to ``self.image_size``.
+
 
 
    .. py:method:: fill_holes(mask, min_size=0)
       :staticmethod:
 
 
-      Fill holes inside True regions of a binary mask.
+      Fill interior holes inside True regions of a binary mask.
 
-      :param mask: Binary mask where True denotes foreground.
-      :type mask: ndarray[bool]
-      :param min_size: Minimum hole area to fill (in pixels).
-                       - <= 0 : fill ALL internal holes.
-                       -  > 0 : fill only holes smaller than min_size; reopen larger ones.
-      :type min_size: int
-
-      :returns: Hole-filled mask.
-      :rtype: ndarray[bool]
+      :param mask: ndarray[bool] mask where True denotes foreground.
+      :param min_size: minimum hole area in pixels to fill; ``<= 0`` fills
+          all interior holes, ``> 0`` fills only holes smaller than this
+          and re-opens larger ones.
+      :returns: hole-filled boolean mask.
 
 
 
    .. py:method:: outline_image(base_img, full_img, edge_sigma=1, edge_thickness=1, fill_holes=True, object_size=(0, 0))
 
-      Anti-aliased outlines with sub-pixel thickness that never get dimmer as they get thinner.
-      Uses peak normalization so outline brightness is thickness-invariant (then scaled only by edge_transparency).
+      Composite anti-aliased outlines onto ``base_img`` using ``full_img`` for detection.
 
-      :param base_img: already filtered (visible base)
-      :type base_img: PIL.Image
-      :param full_img: normalized RGB before filtering (edge detection / underlay)
-      :type full_img: PIL.Image
-      :param edge_sigma: Gaussian smoothing before thresholding
-      :type edge_sigma: float
-      :param edge_thickness: outline thickness in output pixels (supports < 1, e.g. 0.01)
-      :type edge_thickness: float
-      :param fill_holes: fill internal holes in foreground masks before boundary extraction
-      :type fill_holes: bool
-      :param object_size: (min_px, max_px) connected-component area filter.
-                          0 disables that bound.
-      :type object_size: tuple[int,int]
+      Peak-normalizes the outline alpha so brightness is thickness-invariant;
+      only the global ``edge_transparency`` attribute then attenuates it.
+
+      :param base_img: PIL image after channel filtering (visible base).
+      :param full_img: normalized RGB image before filtering (used for detection).
+      :param edge_sigma: Gaussian smoothing sigma applied before thresholding.
+      :param edge_thickness: outline thickness in output pixels (sub-pixel OK).
+      :param fill_holes: fill internal foreground holes before boundary extraction.
+      :param object_size: ``(min_px, max_px)`` area filter; 0 disables that bound.
+      :returns: PIL image with outlines composited into the outline channels.
 
 
 
@@ -1388,53 +2108,120 @@ Module Contents
       :staticmethod:
 
 
-      If normalize_channels is None or [], do nothing.
-      Otherwise normalize only those channels (r/g/b).
+      Percentile-normalize selected channels of ``img`` and return a PIL image.
+
+      No-op when ``normalize_channels`` is falsy.
+
+      :param img: input PIL image or array.
+      :param percentiles: ``(low, high)`` percentiles for rescaling.
+      :param normalize_channels: iterable subset of ``'r','g','b'``.
+      :returns: uint8 PIL image.
 
 
 
    .. py:method:: add_colored_border(img, border_width, border_color)
 
+      Return ``img`` framed by a solid colored border of the given width.
+
+      :param img: source PIL image.
+      :param border_width: border thickness in pixels on every side.
+      :param border_color: RGB tuple or hex string for the border fill.
+      :returns: new PIL image with the border pasted around the source.
+
+
 
    .. py:method:: filter_channels(img)
 
+      Zero out channels not present in ``self.channels`` and return an RGB image.
+
+      :param img: input PIL image.
+      :returns: RGB PIL image with unselected channels zeroed.
+
+
 
    .. py:method:: get_on_image_click(path, label, img)
+
+      Return a click handler that toggles the annotation for ``path``.
+
+      Left-click sets class 1, right-click sets class 2; clicking the same
+      button on an already-annotated tile clears the label.
+
+      :param path: image path used as the DB row key.
+      :param label: Tk ``Label`` widget hosting the tile.
+      :param img: PIL image displayed in the tile.
+      :returns: event handler callable.
+
 
 
    .. py:method:: update_html(text)
       :staticmethod:
 
 
+      Inject ``text`` into the ``#unique_id`` element via IPython display.
+
+      :param text: HTML-safe string to render.
+
+
 
    .. py:method:: clear_current_annotation()
+
+      Null every value in the current annotation column after user confirm.
+
 
 
    .. py:method:: update_database_worker()
 
+      Background thread that batches pending updates into SQLite commits.
+
+      Consumes ``self.update_queue`` until it sees the sentinel, coalescing
+      multiple queued batches into single WAL-mode transactions.
+
+
 
    .. py:method:: shutdown()
+
+      Flush pending annotations, stop the DB worker, and close the app.
+
+
+
+   .. py:method:: skip_to_last_annotated()
+
+      Jump directly to the page containing the last annotated image.
+
+      Flushes any pending updates first, then scans the ordered ``png_list``
+      for the highest-indexed row whose annotation is non-null and non-zero.
+
 
 
    .. py:method:: next_page()
 
+      Advance to the next page of the grid, flushing pending annotations first.
+
+
 
    .. py:method:: previous_page()
+
+      Step back to the previous page of the grid, flushing pending annotations.
+
 
 
    .. py:method:: update_gui_text(text)
 
+      Update the status label with ``text`` and flush the UI.
+
+      :param text: message to display.
+
+
 
    .. py:method:: train_and_classify()
 
-      1) Merge data from the relevant DB tables (including png_list).
-      2) Collect manual annotations from png_list.<annotation_column> => 'manual_annotation'.
-      - 1 => class=1, 2 => class=0 (for training).
-      3) If only one class is present, randomly sample unannotated images as the other class.
-      4) Train an XGBoost model.
-      5) Classify *all* rows -> fill XGboost_score (prob of class=1) & XGboost_annotation (1 or 2 if high confidence).
-      6) Write those columns back to sqlite.
-      7) Refresh the UI.
+      Train an XGBoost classifier on manual annotations and write predictions.
+
+      Merges measurement tables, uses manual labels from
+      ``png_list.<annotation_column>`` (mapping 1->1 and 2->0), fabricates
+      the missing class by sampling unlabeled rows when only one is present,
+      trains an ``XGBClassifier``, and writes ``XGboost_score`` /
+      ``XGboost_annotation`` back to ``png_list``.
 
 
 
@@ -1442,70 +2229,127 @@ Module Contents
       :staticmethod:
 
 
-      Decide widget type per setting:
-      - 'check'  => Checkbutton (bools)
-      - 'combo'  => readonly Combobox (predefined choices)
-      - 'entry'  => Entry (free text / numbers / lists)
-      Returns: {key: (kind, options, initial)}
+      Classify each setting into a GUI widget spec.
+
+      Each entry becomes ``(kind, options, initial)`` where ``kind`` is
+      ``'check'`` for bools, ``'combo'`` for known-choice fields, or
+      ``'entry'`` for free-form values.
+
+      :param settings: mapping of setting name to current value.
+      :returns: dict of ``key -> (kind, options, initial)``.
 
 
 
    .. py:method:: build_multi_annotation(source_columns, target_column='multi_annot')
 
-      Consolidate multiple {1,2,NULL} columns into a single integer code column.
-      Unique per combination. If all inputs NULL -> store NULL.
-      Sets self.annotation_column to target_column and refreshes UI.
+      Consolidate several ``{1,2,NULL}`` columns into a single integer code.
 
-      Encoding:
-      per col: NULL->0, 1->1, 2->2
-      code = 1 + sum( digit_i * (3^i) ), i = 0..N-1
-      (all digits 0) => store NULL instead of 1
+      Each source contributes a base-3 digit (NULL->0, 1->1, 2->2) so every
+      combination becomes a unique code ``1 + sum(digit_i * 3**i)``; the
+      all-zero combination stores NULL. Sets ``self.annotation_column`` to
+      ``target_column`` and refreshes the grid.
+
+      :param source_columns: iterable of column names in ``png_list``.
+      :param target_column: name of the derived column to write.
+      :raises ValueError: when ``source_columns`` is empty.
 
 
 
    .. py:method:: ensure_multi_annot_from_selection(source_columns, target_column='class_column', force_rebuild=True)
 
-      If one column selected -> use it directly (no consolidation).
-      If >=2 selected -> build a consolidated column. If target_column already exists,
-      auto-bump to target_column_1, target_column_2, ... and use that actual name everywhere.
+      Pick or build the effective annotation column from a user selection.
 
-      Returns the effective annotation column name.
+      A single-column selection is used directly. Multi-column selections
+      build a consolidated ``target_column``; if that name already exists,
+      an auto-bumped ``target_column_1``, ``_2``, ... is used instead.
+
+      :param source_columns: iterable of column names in ``png_list``.
+      :param target_column: base name for the consolidated column.
+      :param force_rebuild: rebuild the consolidated column even if it exists.
+      :returns: the effective annotation column name that was activated.
+      :raises ValueError: when ``source_columns`` is empty.
 
 
 
    .. py:method:: open_deep_spacr_window()
 
+      Open the Deep-SPACR train/apply configuration window.
+
+      Presents a notebook of tabs (dataset generation, training, inference)
+      whose 'Run' hands the resolved settings dict to ``deep_spacr`` on a
+      background thread.
+
+
 
 .. py:function:: standardize_figure(fig)
 
+   Restyle ``fig`` to match the spacr dark theme.
+
+   Applies OpenSans typography from the shared style, hides top/right
+   spines, sets a 1 px foreground line/tick width, and paints figure and
+   subplot backgrounds with the palette background.
+
+   :param fig: matplotlib ``Figure`` to restyle in place.
+   :returns: the same ``fig`` after restyling.
+
+
 .. py:function:: modify_figure_properties(fig, scale_x=None, scale_y=None, line_width=None, font_size=None, x_lim=None, y_lim=None, grid=False, legend=None, title=None, x_label_rotation=None, remove_axes=False, bg_color=None, text_color=None, line_color=None)
 
-   Modifies the properties of the figure, including scaling, line widths, font sizes, axis limits, x-axis label rotation, background color, text color, line color, and other common options.
+   Apply a bundle of common styling tweaks to ``fig`` in place.
 
-   Parameters:
-   - fig: The Matplotlib figure object to modify.
-   - scale_x: Scaling factor for the width of subplots (optional).
-   - scale_y: Scaling factor for the height of subplots (optional).
-   - line_width: Desired line width for all lines (optional).
-   - font_size: Desired font size for all text (optional).
-   - x_lim: Tuple specifying the x-axis limits (min, max) (optional).
-   - y_lim: Tuple specifying the y-axis limits (min, max) (optional).
-   - grid: Boolean to add grid lines to the plot (optional).
-   - legend: Boolean to show/hide the legend (optional).
-   - title: String to set as the title of the plot (optional).
-   - x_label_rotation: Angle to rotate the x-axis labels (optional).
-   - remove_axes: Boolean to remove or show the axes labels (optional).
-   - bg_color: Color for the figure and subplot background (optional).
-   - text_color: Color for all text in the figure (optional).
-   - line_color: Color for all lines in the figure (optional).
+   Any argument left ``None`` is skipped, so callers can toggle a single
+   property without disturbing the rest.
+
+   :param fig: matplotlib ``Figure`` to modify.
+   :param scale_x: multiplier applied to each subplot's width.
+   :param scale_y: multiplier applied to each subplot's height.
+   :param line_width: uniform line width for lines and spines.
+   :param font_size: uniform font size for titles, labels, ticks, legend.
+   :param x_lim: ``(min, max)`` x-axis limits.
+   :param y_lim: ``(min, max)`` y-axis limits.
+   :param grid: show grid lines when True.
+   :param legend: show/hide legend flag (unused if legend absent).
+   :param title: axis title to set.
+   :param x_label_rotation: rotation angle for x tick labels in degrees.
+   :param remove_axes: hide axis labels/ticks when True.
+   :param bg_color: figure and subplot background color.
+   :param text_color: color for all text elements.
+   :param line_color: color for all lines and spines.
 
 
 .. py:function:: save_figure_as_format(fig, file_format)
 
+   Prompt for a save path and export ``fig`` in the requested format.
+
+   :param fig: matplotlib ``Figure`` to save.
+   :param file_format: extension used both as default filter and
+       ``fig.savefig`` format (e.g. ``'png'``, ``'pdf'``, ``'svg'``).
+
+
 .. py:function:: modify_figure(fig)
 
-.. py:function:: generate_dna_matrix(output_path='dna_matrix.gif', canvas_width=1500, canvas_height=1000, duration=30, fps=20, base_size=20, transition_frames=30, font_type='arial.ttf', enhance=[1.1, 1.5, 1.2, 1.5], lowercase_prob=0.3)
+   Open an interactive Toplevel that edits ``fig``'s appearance live.
 
-   Generate a DNA matrix animation and save it as GIF, MP4, or AVI using OpenCV for videos.
+   :param fig: matplotlib ``Figure`` mutated in response to the controls.
+
+
+.. py:function:: generate_dna_matrix(output_path='dna_matrix.gif', canvas_width=1500, canvas_height=1000, duration=30, fps=20, base_size=20, transition_frames=30, font_type='arial.ttf', enhance=None, lowercase_prob=0.3)
+
+   Render a Matrix-style DNA-base rain animation and save it to disk.
+
+   The output format is inferred from the ``output_path`` extension
+   (``.gif``, ``.mp4``, or ``.avi``); videos are written via OpenCV.
+
+   :param output_path: destination path; extension picks the format.
+   :param canvas_width: frame width in pixels.
+   :param canvas_height: frame height in pixels.
+   :param duration: total animation length in seconds.
+   :param fps: frames per second.
+   :param base_size: glyph size in pixels (also the column stride).
+   :param transition_frames: number of blended frames appended for looping.
+   :param font_type: font family or file used for the glyphs.
+   :param enhance: optional ``[brightness, sharpness, contrast, color]``
+       multipliers applied per frame.
+   :param lowercase_prob: probability a glyph is rendered lowercase.
 
 

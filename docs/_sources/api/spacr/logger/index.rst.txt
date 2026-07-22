@@ -11,9 +11,26 @@ spacr.logger
 Module Contents
 ---------------
 
-.. py:function:: configure_logger(log_file_name='spacr.log')
+.. py:function:: configure_logger(name: str = _LOGGER_NAME, log_file_name: str = 'spacr.log', level: int = logging.INFO, stream: bool = False) -> logging.Logger
+
+   Return a named logger backed by a rotating file handler in the user's home.
+
+   Reuses an already-configured logger with the same name to avoid duplicate handlers.
+
+   :param name: Logger name to fetch or create. Default ``"spacr"``.
+   :param log_file_name: File name (placed under ``$HOME``) for rotating log output.
+   :param level: Logging level applied to the logger and its handlers.
+   :param stream: When True, also attach a stderr stream handler.
+   :returns: Configured ``logging.Logger`` instance.
+
 
 .. py:data:: logger
 
 .. py:function:: log_function_call(func)
+
+   Decorator that logs call arguments, return value, and exceptions.
+
+   :param func: Callable to wrap.
+   :returns: Wrapped callable that emits INFO-level trace entries.
+
 

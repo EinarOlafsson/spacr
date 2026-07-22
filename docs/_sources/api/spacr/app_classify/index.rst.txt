@@ -11,3 +11,6 @@ Module Contents
 
 .. py:function:: start_classify_app()
 
+   Launch the main spacr GUI with the Classify tab preselected.
+
+

@@ -41,7 +41,7 @@ Module Contents
    converted to probabilities with ``torch.sigmoid``.
 
 
-.. py:function:: apply_model_to_tar(settings={})
+.. py:function:: apply_model_to_tar(settings=None)
 
    Apply a trained PyTorch model to images stored in a tar archive.
 
@@ -65,13 +65,22 @@ Module Contents
 
 .. py:function:: evaluate_model_performance(model, loader, epoch, loss_type='auto', loss_fn=None, num_classes=None)
 
-   Evaluates performance for binary or multiclass models.
+   Evaluate a binary or multiclass classifier and return metrics plus raw probs/labels.
 
-   :returns: metrics + loss + epoch
-             [prediction_probs, all_labels]
-               - binary: probs shape (N,)
-               - multiclass: probs shape (N, C)
-   :rtype: data_dict (dict)
+   Head size is inferred from the first batch — a single-logit head is
+   treated as binary (BCE + sigmoid), otherwise softmax + CE metrics
+   apply. If ``loss_fn`` is None, one is constructed via ``build_loss``.
+
+   :param model: PyTorch classifier.
+   :param loader: DataLoader yielding ``(input, target, meta)`` batches.
+   :param epoch: Current epoch (recorded in the returned dict).
+   :param loss_type: Loss selection passed to ``build_loss`` when
+       ``loss_fn`` is None. Default ``'auto'``.
+   :param loss_fn: Optional callable ``(logits, target) -> Tensor``.
+   :param num_classes: Class count when the loader is empty.
+   :returns: ``(metrics_dict, [probs, labels])`` — metrics include
+       ``loss``, ``epoch`` and ``Accuracy``. ``probs`` is shape
+       ``(N,)`` for binary or ``(N, C)`` for multiclass.
 
 
 .. py:function:: test_model_core(model, loader, loader_name, epoch, loss_type)
@@ -88,9 +97,18 @@ Module Contents
 
 .. py:function:: train_test_model(settings)
 
-.. py:function:: train_test_model_v1(settings)
+   Train a vision classifier on ``settings['src']`` and evaluate on the held-out split.
 
-.. py:function:: train_model(src, dst, model_type, train_loaders, epochs=100, learning_rate=0.0001, weight_decay=0.05, amsgrad=False, optimizer_type='adamw', use_checkpoint=False, dropout_rate=0, n_jobs=20, val_loaders=None, test_loaders=None, init_weights='imagenet', intermedeate_save=None, chan_dict=None, schedule=None, loss_type='auto', gradient_accumulation=False, gradient_accumulation_steps=4, channels=['r', 'g', 'b'], verbose=False, num_classes=2, early_stopping_patience=0)
+   Handles loader generation, checkpoint loading, epoch loop, best-model
+   picking and copying of misclassified examples.
+
+   :param settings: Settings dict — see
+       ``settings.get_train_test_model_settings`` for keys.
+   :returns: The final training/validation results as populated by the
+       underlying pipeline (see call sites for details).
+
+
+.. py:function:: train_model(src, dst, model_type, train_loaders, epochs=100, learning_rate=0.0001, weight_decay=0.05, amsgrad=False, optimizer_type='adamw', use_checkpoint=False, dropout_rate=0, n_jobs=20, val_loaders=None, test_loaders=None, init_weights='imagenet', intermedeate_save=None, chan_dict=None, schedule=None, loss_type='auto', gradient_accumulation=False, gradient_accumulation_steps=4, channels=None, verbose=False, num_classes=2, early_stopping_patience=0)
 
    Trains a model (supports 2-class and >2-class via CrossEntropy).
 
@@ -99,18 +117,63 @@ Module Contents
                                 Set to 0 to disable (original behavior).
 
 
-.. py:function:: train_model_v1(src, dst, model_type, train_loaders, epochs=100, learning_rate=0.0001, weight_decay=0.05, amsgrad=False, optimizer_type='adamw', use_checkpoint=False, dropout_rate=0, n_jobs=20, val_loaders=None, test_loaders=None, init_weights='imagenet', intermedeate_save=None, chan_dict=None, schedule=None, loss_type='auto', gradient_accumulation=False, gradient_accumulation_steps=4, channels=['r', 'g', 'b'], verbose=False, num_classes=2)
-
-   Trains a model (supports 2-class and >2-class via CrossEntropy; BCE only for true single-logit binary).
-
-
 .. py:function:: generate_activation_map(settings)
+
+   Generate saliency or Grad-CAM activation maps for every image in a tar dataset.
+
+   Loads the model, iterates the dataset, computes the requested map
+   type per batch, saves per-image maps into class/plate/well folders,
+   optionally plots batch grids, computes activation-image correlations,
+   and pushes both maps and correlations into the measurement database.
+
+   :param settings: Settings dict — see
+       ``settings.get_default_generate_activation_map_settings`` for
+       keys (``dataset``, ``model_path``, ``cam_type``, ``target_layer``,
+       ``image_size``, ``batch_size``, ``channels``, ``normalize``,
+       ``save``, ``plot``, ``correlation``, ...).
+   :returns: None
+
 
 .. py:function:: visualize_classes(model, dtype, class_names, **kwargs)
 
-.. py:function:: visualize_integrated_gradients(src, model_path, target_label_idx=0, image_size=224, channels=[1, 2, 3], normalize=True, save_integrated_grads=False, save_dir='integrated_grads')
+   Show one synthesised class-visualisation image per class.
+
+   :param model: Trained classifier.
+   :param dtype: Tensor dtype used for optimisation.
+   :param class_names: Ordered class names (currently assumes binary
+       classification).
+   :param kwargs: Extra keyword arguments forwarded to
+       ``utils.class_visualization``.
+   :returns: None
+
+
+.. py:function:: visualize_integrated_gradients(src, model_path, target_label_idx=0, image_size=224, channels=None, normalize=True, save_integrated_grads=False, save_dir='integrated_grads')
+
+   Compute and plot Integrated Gradients maps for every PNG under ``src``.
+
+   :param src: Folder of PNG images.
+   :param model_path: Path to the trained model checkpoint.
+   :param target_label_idx: Target class index for the attribution.
+       Default ``0``.
+   :param image_size: Square input size in pixels. Default ``224``.
+   :param channels: Channel subset to keep. Default ``[1, 2, 3]``.
+   :param normalize: Apply per-channel normalisation. Default ``True``.
+   :param save_integrated_grads: If True, save each map as PNG.
+       Default ``False``.
+   :param save_dir: Output folder for saved maps. Default
+       ``'integrated_grads'``.
+   :returns: None
+
 
 .. py:class:: SmoothGrad(model, n_samples=50, stdev_spread=0.15)
+
+   SmoothGrad attribution: average gradients over noisy copies of the input.
+
+   :param model: PyTorch classifier used for gradient computation.
+   :param n_samples: Number of noisy samples to average over. Default ``50``.
+   :param stdev_spread: Noise standard deviation as a fraction of the
+       input's dynamic range. Default ``0.15``.
+
 
    .. py:attribute:: model
 
@@ -127,46 +190,130 @@ Module Contents
 
    .. py:method:: compute_smooth_grad(input_tensor, target_class)
 
+      Return the averaged gradient map for ``target_class`` given ``input_tensor``.
 
-.. py:function:: visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, channels=[1, 2, 3], normalize=True, save_smooth_grad=False, save_dir='smooth_grad')
+      :param input_tensor: Input tensor to attribute (single sample or batch).
+      :param target_class: Class index whose logit is differentiated.
+      :returns: Tensor of the same shape as ``input_tensor`` holding
+          the averaged gradients.
+
+
+
+.. py:function:: visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, channels=None, normalize=True, save_smooth_grad=False, save_dir='smooth_grad')
+
+   Compute and plot SmoothGrad maps for every PNG under ``src``.
+
+   :param src: Folder of PNG images.
+   :param model_path: Path to the trained model checkpoint.
+   :param target_label_idx: Target class index for the attribution.
+   :param image_size: Square input size in pixels. Default ``224``.
+   :param channels: Channel subset to keep. Default ``[1, 2, 3]``.
+   :param normalize: Apply per-channel normalisation. Default ``True``.
+   :param save_smooth_grad: If True, save each map as PNG. Default ``False``.
+   :param save_dir: Output folder for saved maps. Default ``'smooth_grad'``.
+   :returns: None
+
 
 .. py:function:: save_top_class_examples(df, tar_path, dst, n=20, classes=None)
 
-   Extract the N most confident images per class from the tar and save
-   them into class-labelled subfolders under dst.
+   Extract the ``n`` most confident images per class from a tar into class-labelled folders.
 
-   For binary classification (classes=[0, 1]):
-     - class_0/  ← the 20 images with the LOWEST  pred  (closest to 0)
-     - class_1/  ← the 20 images with the HIGHEST pred  (closest to 1)
+   For binary classification, class 0 keeps the lowest ``pred`` scores
+   and class 1 keeps the highest.
 
-   :param df: Must contain columns 'path' (tar member name) and 'pred' (probability).
-   :type df: pd.DataFrame
-   :param tar_path: Path to the tar archive that holds the images.
-   :type tar_path: str
-   :param dst: Root folder where class subfolders will be created.
-   :type dst: str
-   :param n: Number of top images to keep per class.
-   :type n: int
-   :param classes: Explicit class labels. If None, defaults to binary [0, 1].
-   :type classes: list or None
+   :param df: DataFrame with columns ``path`` (tar member name) and
+       ``pred`` (probability).
+   :param tar_path: Tar archive containing the images.
+   :param dst: Output root; ``dst/class_<label>/`` subfolders are
+       created.
+   :param n: Number of images to keep per class. Default ``20``.
+   :param classes: Explicit class labels. Default ``[0, 1]``.
+   :returns: ``dst`` — for chaining.
 
 
 .. py:function:: merge_predictions_into_db(df, db_path, table='png_list', pred_col='pred', class_col='cv_predictions')
 
-   Merge prediction scores back into the SQLite database.
+   Write per-image prediction scores back into a spacr SQLite database.
 
-   Matching on basename of png_path (DB) vs path (tar member name),
-   since the tar stores relative member names while the DB stores
-   full disk paths.
+   Matches by ``basename(png_path)`` because the tar archive uses
+   relative member names while the DB stores full disk paths.
+
+   :param df: DataFrame with columns ``path``, ``pred`` and
+       ``cv_predictions``.
+   :param db_path: SQLite database file.
+   :param table: Target table. Default ``'png_list'``.
+   :param pred_col: Column name for the probability. Default ``'pred'``.
+   :param class_col: Column name for the class label. Default
+       ``'cv_predictions'``.
+   :returns: Number of DB rows updated, or ``None`` if the database is
+       missing.
 
 
-.. py:function:: deep_spacr_v1(settings={})
+.. py:function:: deep_spacr(settings=None)
 
-.. py:function:: deep_spacr(settings={})
+   End-to-end vision pipeline: dataset generation, training, inference and DB merge.
+
+   Depending on flags in ``settings`` — ``train``, ``test``,
+   ``generate_training_dataset``, ``apply_model_to_dataset`` — this
+   driver builds train/test splits, trains a classifier, runs
+   inference against a tar archive, saves top-N confident examples per
+   class and merges predictions back into the measurements database.
+
+   :param settings: Settings dict; see ``settings.deep_spacr_defaults``
+       for accepted keys.
+   :returns: None (early-returns if training-dataset generation fails).
+
 
 .. py:function:: model_knowledge_transfer(teacher_paths, student_save_path, data_loader, device='cpu', student_model_name='maxvit_t', pretrained=True, dropout_rate=None, use_checkpoint=False, alpha=0.5, temperature=2.0, lr=0.0001, epochs=10)
 
+   Distil an ensemble of teacher models into a single student TorchModel.
+
+   :param teacher_paths: Paths to the teacher checkpoints (each either
+       a saved ``TorchModel`` or a state dict).
+   :param student_save_path: Destination for the trained student; the
+       suffix ``_KD.pth`` is appended.
+   :param data_loader: Training DataLoader used during distillation.
+   :param device: Torch device string. Default ``'cpu'``.
+   :param student_model_name: TorchModel architecture name for the
+       student. Default ``'maxvit_t'``.
+   :param pretrained: Whether the student uses pretrained weights.
+   :param dropout_rate: Optional dropout rate for the student.
+   :param use_checkpoint: Whether to enable gradient checkpointing.
+   :param alpha: Weight on the true-label loss vs. distillation loss.
+       Default ``0.5``.
+   :param temperature: Softmax temperature for distillation. Default ``2.0``.
+   :param lr: Adam learning rate. Default ``1e-4``.
+   :param epochs: Training epochs. Default ``10``.
+   :returns: The trained student model.
+   :raises ValueError: on unsupported checkpoint types.
+
+
 .. py:function:: model_fusion(model_paths, save_path, device='cpu', model_name='maxvit_t', pretrained=True, dropout_rate=None, use_checkpoint=False, aggregator='mean')
 
+   Fuse the weights of several identically-shaped model checkpoints into one.
+
+   :param model_paths: Paths to source checkpoints (dicts or ``TorchModel``s).
+   :param save_path: Base output path; suffix ``_<aggregator>.pth`` is
+       appended.
+   :param device: Torch device string. Default ``'cpu'``.
+   :param model_name: TorchModel architecture name for the fused model.
+   :param pretrained: Whether pretrained weights are expected.
+   :param dropout_rate: Optional dropout rate.
+   :param use_checkpoint: Whether to enable gradient checkpointing.
+   :param aggregator: Reduction over stacked weights — one of
+       ``'mean'``, ``'geomean'``, ``'median'``, ``'sum'``, ``'max'``,
+       ``'min'``. Default ``'mean'``.
+   :returns: The fused ``TorchModel``.
+   :raises ValueError: on unsupported ``aggregator``, mismatched state
+       dict keys, or unsupported checkpoint types.
+
+
 .. py:function:: annotate_filter_vision(settings)
+
+   Annotate vision-model score CSVs with plate metadata after removing training images.
+
+   :param settings: Settings dict with ``src`` (path or list of paths)
+       and downstream annotation keys used by ``annotate_conditions``.
+   :returns: None
+
 

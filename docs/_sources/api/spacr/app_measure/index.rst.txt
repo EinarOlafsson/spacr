@@ -11,3 +11,6 @@ Module Contents
 
 .. py:function:: start_measure_app()
 
+   Launch the main spacr GUI with the Measure tab preselected.
+
+

@@ -11,3 +11,6 @@ Module Contents
 
 .. py:function:: start_mask_app()
 
+   Launch the main spacr GUI with the Mask tab preselected.
+
+

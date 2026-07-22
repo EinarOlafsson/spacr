@@ -16,8 +16,12 @@ Module Contents
    Bases: :py:obj:`tkinter.Tk`
 
 
-   Toplevel widget of Tk which represents mostly the main window
-   of an application. It has an associated Tcl interpreter.
+   Top-level spacr GUI window hosting the app-picker and per-app frames.
+
+   Sizes itself to the monitor containing the initial window position, registers
+   the built-in core and extra tool apps, and optionally auto-loads one on start.
+
+   :param default_app: Name of a core or additional app to open immediately.
 
 
    .. py:attribute:: color_settings
@@ -40,24 +44,58 @@ Module Contents
 
    .. py:method:: create_widgets()
 
+      Build the root layout containers and render the startup screen.
+
+
 
    .. py:method:: create_startup_screen()
+
+      Render the app-picker view with core and additional tool buttons.
+
 
 
    .. py:method:: update_description()
 
+      Show the description for the currently highlighted app button.
+
+
 
    .. py:method:: show_description(description)
+
+      Set the bottom description label text.
+
+      :param description: Text to display beneath the app buttons.
+
 
 
    .. py:method:: clear_description()
 
+      Blank the description label.
+
+
 
    .. py:method:: load_app(app_name, app_func)
+
+      Replace the current frame contents with the selected app.
+
+      :param app_name: Human-readable app label (used for icon/title lookup).
+      :param app_func: Callable that renders the app UI into a supplied frame.
+
 
 
    .. py:method:: clear_frame(frame)
 
+      Destroy every child widget of ``frame``.
+
+      :param frame: Tk container whose children should be removed.
+
+
 
 .. py:function:: gui_app()
+
+   Launch the spacr GUI as a standalone application.
+
+   Calls ``freeze_support`` first so the app runs correctly under
+   ``multiprocessing``-frozen executables.
+
 

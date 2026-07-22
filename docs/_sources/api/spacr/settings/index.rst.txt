@@ -13,53 +13,198 @@ Module Contents
 
 .. py:function:: set_default_plot_merge_settings()
 
-.. py:function:: set_default_settings_preprocess_generate_masks(settings={})
+   Return the default settings dict for plotting merged mask overlays.
+
+   :returns: dict populated with the default ``plot_merge`` parameters
+       (channel dimensions, backgrounds, overlay behaviour, colormap, etc.).
+
+
+.. py:function:: set_default_settings_preprocess_generate_masks(settings=None)
+
+   Populate default settings for the preprocess/generate-masks pipeline.
+
+   Fills channel, Cellpose, plot, timelapse, organelle and post-processing
+   parameters used by ``preprocess_generate_masks``.
+
+   :param settings: optional dict to fill in place; a new dict is created if None.
+   :returns: the settings dict with defaults applied.
+
 
 .. py:function:: set_default_plot_data_from_db(settings)
 
+   Populate default settings for plotting data pulled from a measurements DB.
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
+
 .. py:function:: set_default_settings_preprocess_img_data(settings)
 
-.. py:function:: set_default_umap_image_settings(settings={})
+   Populate default settings for the image-preprocessing step.
 
-.. py:function:: get_measure_crop_settings(settings={})
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
+
+.. py:function:: set_default_umap_image_settings(settings=None)
+
+   Return the default settings for UMAP/tSNE image-embedding plots.
+
+   :param settings: optional dict to fill in place; a new dict is created if None.
+   :returns: the settings dict with defaults applied.
+
+
+.. py:function:: get_measure_crop_settings(settings=None)
+
+   Return the default settings for the measure-and-crop pipeline.
+
+   Enables test mode / plotting automatically when ``test_mode`` is True.
+
+   :param settings: optional dict to fill in place; a new dict is created if None.
+   :returns: the settings dict with defaults applied.
+
 
 .. py:function:: set_default_analyze_screen(settings)
 
+   Populate default settings for screen analysis (ML-based scoring).
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
+
 .. py:function:: set_default_train_test_model(settings)
+
+   Populate default settings for the train/test classifier training pipeline.
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
 
 .. py:function:: set_generate_training_dataset_defaults(settings)
 
+   Populate default settings for generating a labeled training dataset.
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
+
 .. py:function:: deep_spacr_defaults(settings)
+
+   Populate default settings for the end-to-end deep_spacr training pipeline.
+
+   Covers dataset generation, model training/testing and applying the trained
+   model to the dataset in a single settings dict.
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
 
 .. py:function:: get_train_test_model_settings(settings)
 
+   Populate default settings for the train/test classifier settings dict.
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
+
 .. py:function:: get_analyze_recruitment_default_settings(settings)
+
+   Populate default settings for the recruitment-analysis pipeline.
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
 
 .. py:function:: get_default_test_cellpose_model_settings(settings)
 
+   Populate default settings for testing a Cellpose model on a dataset.
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
+
 .. py:function:: get_default_apply_cellpose_model_settings(settings)
+
+   Populate default settings for applying a Cellpose model to a dataset.
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
 
 .. py:function:: default_settings_analyze_percent_positive(settings)
 
+   Populate default settings for the "percent positive" per-well analysis.
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
+
 .. py:function:: get_analyze_reads_default_settings(settings)
+
+   Populate default settings for analyzing FASTQ read barcodes.
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
 
 .. py:function:: get_map_barcodes_default_settings(settings)
 
+   Populate default settings for mapping barcodes to gRNAs and plates.
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
+
 .. py:function:: get_train_cellpose_default_settings(settings)
+
+   Populate default settings for training a Cellpose model.
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
 
 .. py:function:: set_generate_dataset_defaults(settings)
 
+   Populate default settings for the generic dataset-generation step.
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
+
 .. py:function:: get_perform_regression_default_settings(settings)
+
+   Populate default settings for gRNA/score regression analysis.
+
+   Switches ``agg_type`` to None automatically when quantile regression is
+   selected, so ``alpha`` is treated as the quantile.
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
 
 .. py:function:: get_check_cellpose_models_default_settings(settings)
 
+   Populate default settings for the "check Cellpose models" utility.
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
+
 .. py:function:: get_identify_masks_finetune_default_settings(settings)
+
+   Populate default settings for fine-tuning mask identification.
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
 
 .. py:data:: q
    :value: None
 
 
 .. py:data:: expected_types
+
+.. py:data:: tooltips
 
 .. py:data:: motility_settings
    :value: ['motility_analysis', 'tracked_object', 'infection_intensity_strategy', 'seconds_per_frame',...
@@ -71,39 +216,176 @@ Module Contents
 
 .. py:data:: categories
 
+.. py:data:: category_dependencies
+
+.. py:data:: category_group_dependencies
+
+.. py:data:: category_integer_dependencies
+
+.. py:data:: category_value_dependencies
+
 .. py:data:: category_keys
    :value: ['Paths', 'General', 'Cellpose', 'Cell', 'Organelle', 'Organelle preprocessing', 'Organelle spot...
 
 
 .. py:function:: check_settings(vars_dict, expected_types, q=None)
 
-.. py:function:: generate_fields(variables, scrollable_frame)
+   Validate and coerce GUI-collected settings against expected types.
+
+   Iterates the widget map produced by the settings panel, parses each raw
+   string value into the type declared in ``expected_types`` (including
+   tuple-typed "or None" fields, lists, dicts and lists-of-lists), and
+   collects human-readable error messages instead of stopping at the first
+   failure. Errors are also forwarded to ``q`` for GUI display.
+
+   :param vars_dict: mapping ``key -> (label, widget, var, frame)`` from the settings panel.
+   :param expected_types: mapping ``key -> type`` (or tuple of accepted types).
+   :param q: optional queue used to surface error strings to the GUI. A private
+       Queue is created if None.
+   :returns: tuple ``(settings, errors)`` where ``settings`` is the parsed dict
+       and ``errors`` is the list of collected error messages.
+
+
+.. py:function:: generate_fields_lazy(variables, scrollable_frame, tick_callback=None)
+
+   Build input widgets for the always-visible settings only.
+
+   Categorized settings are recorded as placeholders and materialised on
+   demand when their category is expanded — keeps initial GUI startup fast.
+
+   :param variables: mapping ``key -> (var_type, options, default_value)``.
+   :param scrollable_frame: parent scrollable frame that hosts the widgets.
+   :param tick_callback: optional callable invoked after each field is added
+       (e.g. to advance a progress bar).
+   :returns: ``vars_dict`` mapping ``key -> (label, widget, var, frame)`` for
+       rendered fields and ``None`` for lazy placeholders.
+
+
+.. py:function:: generate_fields(variables, scrollable_frame, tick_callback=None)
+
+   Build input widgets for every setting eagerly.
+
+   Falls back to a type-appropriate default when a supplied ``default_value``
+   is rejected by the widget factory, and skips the field if that also fails.
+
+   :param variables: mapping ``key -> (var_type, options, default_value)``.
+   :param scrollable_frame: parent scrollable frame that hosts the widgets.
+   :param tick_callback: optional callable invoked after each field is added.
+   :returns: ``vars_dict`` mapping ``key -> (label, widget, var, frame)``.
+
 
 .. py:data:: descriptions
 
 .. py:function:: set_annotate_default_settings(settings)
 
-.. py:function:: set_default_generate_barecode_mapping(settings={})
+   Populate default settings for the image annotation UI.
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
+
+.. py:function:: set_default_generate_barecode_mapping(settings=None)
+
+   Return default settings for the barcode-mapping pipeline.
+
+   :param settings: optional dict to fill in place; a new dict is created if None.
+   :returns: the settings dict with defaults applied.
+
 
 .. py:function:: get_default_generate_activation_map_settings(settings)
 
+   Populate default settings for generating model activation/CAM maps.
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
+
 .. py:function:: get_analyze_plaque_settings(settings)
+
+   Populate default settings for plaque analysis.
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
 
 .. py:function:: set_graph_importance_defaults(settings)
 
+   Populate default settings for the "graph importance" plot utility.
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
+
 .. py:function:: set_interperate_vision_model_defaults(settings)
+
+   Populate default settings for interpreting vision-model predictions.
+
+   Covers feature importance, permutation importance, and SHAP explanation
+   options over the cell/nucleus/pathogen/cytoplasm tables.
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
 
 .. py:function:: set_analyze_endodyogeny_defaults(settings)
 
+   Populate default settings for endodyogeny (parasite division) analysis.
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
+
 .. py:function:: set_analyze_class_proportion_defaults(settings)
+
+   Populate default settings for class-proportion analysis across conditions.
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
 
 .. py:function:: get_plot_data_from_csv_default_settings(settings)
 
+   Populate default settings for plotting data pulled from a CSV file.
+
+   :param settings: dict to fill in place.
+   :returns: the settings dict with defaults applied.
+
+
 .. py:function:: set_default_stitch(settings=None)
+
+   Return default settings for the tile-stitching pipeline.
+
+   Covers feature detection, RANSAC, outline overlay, feature cache and
+   per-well mosaic output parameters.
+
+   :param settings: optional dict to fill in place; a new dict is created if None.
+   :returns: the settings dict with defaults applied (a shallow copy of the input).
+
 
 .. py:function:: set_default_multichannel(settings=None)
 
+   Return default settings for building multichannel per-well mosaics.
+
+   :param settings: optional dict to fill in place; a new dict is created if None.
+   :returns: the settings dict with defaults applied (a shallow copy of the input).
+
+
 .. py:function:: set_default_general(settings=None)
 
+   Return default settings for the general organize/stitch/multichannel run.
+
+   :param settings: optional dict to fill in place; a new dict is created if None.
+   :returns: the settings dict with defaults applied (a shallow copy of the input).
+
+
 .. py:function:: get_automated_motility_assay_default_settings(settings)
+
+   Return default settings for the automated motility assay pipeline.
+
+   Combines array/filter parameters, XGBoost infection classifier settings,
+   and PCA/UMAP/t-SNE embedding options into a single settings dict.
+
+   :param settings: optional dict to fill in place; a new dict is created if None.
+   :returns: the settings dict with defaults applied.
+
 
