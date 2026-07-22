@@ -5,17 +5,29 @@ on:
     branches: [main, nightly]
   workflow_dispatch:
 
-# Publish the built HTML to the existing gh-pages branch — that is
-# where https://einarolafsson.github.io/spacr/ has been served from
-# historically (last touched 2025-04-11 before this workflow existed).
+# Deploys the sphinx-autoapi build directly through the GitHub Pages
+# artifact upload API (modern approach — bypasses gh-pages, bypasses
+# `main:/docs/` commit, bypasses branch protection).
+#
+# REQUIRES: Repository Settings → Pages → "Build and deployment" →
+#           Source = "GitHub Actions" (not "Deploy from a branch").
+# If it's still "Deploy from a branch", this workflow silently uploads
+# but Pages keeps serving the old branch — flip the source once.
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
-    name: Build Sphinx + publish gh-pages
+  build:
+    name: Build Sphinx
     runs-on: ubuntu-22.04
     timeout-minutes: 20
-    permissions:
-      contents: write   # required so peaceiris can push to gh-pages
 
     steps:
       - uses: actions/checkout@v4
@@ -29,9 +41,8 @@ jobs:
       - name: Install spacr + Sphinx tooling
         run: |
           python -m pip install --upgrade pip
-          # spacr itself so autoapi can find version metadata + logo.
-          # --no-deps because we don't need the heavy pipeline stack
-          # for a docs build — autoapi walks the AST, doesn't import.
+          # spacr installed --no-deps so autoapi can walk the source
+          # tree via its AST parser (no runtime imports needed).
           python -m pip install -e "." --no-deps
           python -m pip install sphinx sphinx_rtd_theme sphinx-autoapi
 
@@ -39,11 +50,26 @@ jobs:
         run: |
           rm -rf docs/_build docs/source/api
           sphinx-build -E -b html docs/source docs/_build/html
+          # Sphinx build root needs a .nojekyll so Pages doesn't strip
+          # underscore-prefixed asset folders.
+          touch docs/_build/html/.nojekyll
 
-      - name: Deploy to gh-pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: docs/_build/html
-          commit_message: "deploy docs from ${{ github.sha }}"
+          path: docs/_build/html
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-22.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
