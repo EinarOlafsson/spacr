@@ -104,6 +104,7 @@ setup(
             'spacr=spacr.qt:run',
             'spacr-qt=spacr.qt:run',
             'spacr-nightly=spacr.qt:run',
+            'spacr-tutorial=spacr.qt.tutorial.__main__:main',
             # Classic Tk GUI remains available under new names
             'spacr-tk=spacr.gui:gui_app',
             'spacr-legacy=spacr.gui:gui_app',
@@ -117,6 +118,14 @@ setup(
         'qt': [
             'PySide6>=6.6,<7',
             'qtawesome>=1.3,<2',
+        ],
+        # `spacr-tutorial` — renders narrated MP4 tutorials for every
+        # module. ffmpeg is required at runtime (system package) and a
+        # Piper voice model is fetched on first run.
+        'tutorial': [
+            'PySide6>=6.6,<7',
+            'qtawesome>=1.3,<2',
+            'piper-tts>=1.2,<2',
         ],
         # The AI Console shells out to vendor coding-agent CLIs
         # (`claude`, `codex`, `gemini`) so authentication piggy-backs

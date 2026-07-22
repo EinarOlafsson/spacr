@@ -116,6 +116,37 @@ Click below to explore the step-by-step GUI and Notebook tutorials for spaCR:
 
 |Tutorial|
 
+Narrated video tutorials
+------------------------
+
+Every home module ships with a scripted narrated MP4 walkthrough that
+you can regenerate locally on any machine with ``ffmpeg``. The rendering
+pipeline (``spacr.qt.tutorial``) uses Piper for neural TTS narration and
+captures frames directly from the Qt widget tree — no Xvfb needed.
+
+.. code-block:: bash
+
+   pip install -e '.[tutorial]'
+   # Fetch a voice model (one-time):
+   mkdir -p ~/.spacr/piper && curl -sL \
+     https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx \
+     -o ~/.spacr/piper/en_US-lessac-medium.onnx
+   curl -sL \
+     https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json \
+     -o ~/.spacr/piper/en_US-lessac-medium.onnx.json
+
+   # Render one tutorial:
+   spacr-tutorial mask         # → ~/spacr-tutorials/mask.mp4 + mask.srt
+
+   # Or every module:
+   spacr-tutorial all          # → mask, measure, crop, classify,
+                                #    timelapse, home under ~/spacr-tutorials
+
+Each MP4 is a 1080p30 clip with a burned-in cursor overlay + AAC
+narration track and a matching ``.srt`` sidecar with the exact
+narration text. Swap the audio track with your own recording for
+publish-ready videos.
+
 spaCRPower
 ----------
 
