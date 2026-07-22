@@ -76,8 +76,8 @@ dependencies = [
     #'stardist>=0.9,<1.0'
 ]
 
-VERSION = "1.3.7"
-name = "spacr"
+VERSION = "1.4.0"
+name = "spacr-nightly"
 
 setup(
     name=name,
