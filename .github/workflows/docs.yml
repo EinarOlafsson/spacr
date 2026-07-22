@@ -29,77 +29,15 @@ jobs:
       - name: Install spacr + Sphinx tooling
         run: |
           python -m pip install --upgrade pip
-          # spacr itself so autoapi can find version metadata + logo
-          python -m pip install -e "." --no-deps || true
-          # Sphinx + theme + autoapi
+          # spacr itself so autoapi can find version metadata + logo.
+          # --no-deps because we don't need the heavy pipeline stack
+          # for a docs build — autoapi walks the AST, doesn't import.
+          python -m pip install -e "." --no-deps
           python -m pip install sphinx sphinx_rtd_theme sphinx-autoapi
 
-      - name: Build docs (autoapi via Sphinx)
+      - name: Build docs
         run: |
-          # Replicates setup_docs.sh's build side without its embedded
-          # `git push origin main` (which we handle here via peaceiris).
           rm -rf docs/_build docs/source/api
-          mkdir -p docs/source/_static
-
-          cat > docs/source/conf.py <<'EOF'
-          import os, sys
-          import sphinx_rtd_theme
-          sys.path.insert(0, os.path.abspath(os.path.join(__file__, '..', '..', 'spacr')))
-          project = 'spacr'
-          author  = 'Einar Birnir Olafsson'
-          try:
-              from importlib.metadata import version as _ver
-          except ImportError:
-              from importlib_metadata import version as _ver
-          release = _ver('spacr')
-          extensions = [
-              'sphinx.ext.napoleon',
-              'sphinx.ext.viewcode',
-              'autoapi.extension',
-          ]
-          suppress_warnings = ['misc.section']
-          autoapi_type              = 'python'
-          autoapi_dirs              = [os.path.abspath(
-              os.path.join(os.path.dirname(__file__), '..', '..', 'spacr')
-          )]
-          autoapi_root              = 'api'
-          autoapi_add_toctree_entry = True
-          autoapi_options           = ['members', 'undoc-members', 'show-inheritance']
-          autoapi_ignore            = ['*/tests/*']
-          html_theme       = 'sphinx_rtd_theme'
-          templates_path   = ['_templates']
-          html_static_path = ['_static']
-          html_logo        = '_static/logo_spacr.png'
-          html_css_files   = ['custom.css']
-          EOF
-
-          cat > docs/source/index.rst <<'EOF'
-          Welcome to spaCR
-          ================
-
-          .. image:: _static/logo_spacr.png
-             :align: center
-             :alt: spaCR Logo
-
-          SpaCr (Spatial phenotype analysis of CRISPR screens) is a Python
-          toolkit for quantifying and visualizing phenotypic changes in
-          high-throughput imaging assays.
-
-          .. toctree::
-             :maxdepth: 1
-
-             api/index
-          EOF
-
-          [ -f spacr/resources/icons/logo_spacr.png ] && \
-            cp spacr/resources/icons/logo_spacr.png docs/source/_static/logo_spacr.png
-
-          cat > docs/source/_static/custom.css <<'EOF'
-          body { font-size: 1.1em; line-height: 1.6; }
-          .wy-nav-side { background-color: #f7f7f7; }
-          .highlight { background: #fafafa; border: 1px solid #e0e0e0; padding: 0.5em; border-radius: 4px; }
-          EOF
-
           sphinx-build -E -b html docs/source docs/_build/html
 
       - name: Deploy to gh-pages
