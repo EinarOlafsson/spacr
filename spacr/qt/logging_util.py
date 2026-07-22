@@ -1,48 +1,57 @@
 """
-Real Python `logging` setup for the spacr Qt GUI.
+Qt-side extension of the package-scope logger.
 
-Two sinks are wired at app startup:
+Delegates all file-handler configuration to :mod:`spacr.logging_util`
+and adds a :class:`QtLogHandler` that emits every formatted record
+over a Qt signal so widgets on the main thread can display them
+without cross-thread violations.
 
-1. A rotating file at `~/.spacr/logs/spacr-qt.log` (5 MB × 3 backups)
-   — captures every DEBUG-and-up record so users can attach a log to
-   bug reports without re-running with a special flag.
-2. A `QtLogHandler(QObject)` that emits a Qt signal for every
-   record; ConsolePanel connects to it and pipes records into the
-   merged Console (same stream as pipeline stdout).
+Two sinks end up wired at ``spacr-qt`` startup:
 
-Third-party libraries (torch, cellpose, matplotlib, PIL, urllib3)
-are pinned at WARNING to keep the console readable during pipelines.
+1. The rotating file handler at ``~/.spacr/logs/spacr.log``
+   (installed by :mod:`spacr.logging_util`).
+2. The :class:`QtLogHandler` here — ConsolePanel connects to its
+   ``record_ready(str, int)`` signal.
 
 Public API:
-    setup_logging(...)   — call once early in launch().
-    get_signal_handler() — the QtLogHandler instance (Qt signal
-                           `record_ready(str, int)` where int is the
-                           logging level).
+    setup_logging(...)   — call once early in ``launch()``.
+    get_signal_handler() — the shared QtLogHandler instance.
     log_path()           — absolute path of the rotating log file.
 """
 from __future__ import annotations
 
 import logging
-import logging.handlers
-import os
 from pathlib import Path
 from typing import Optional
 
 from PySide6.QtCore import QObject, Signal
 
+from ..logging_util import (
+    log_dir as _package_log_dir,
+    log_path as _package_log_path,
+    setup_logging as _package_setup_logging,
+)
+
 
 # ---------------------------------------------------------------------------
-# Where the file log lives
+# Path shims — kept for backwards compatibility with existing callers /
+# tests that import log_dir/log_path from spacr.qt.logging_util.
 # ---------------------------------------------------------------------------
 
 def log_dir() -> Path:
-    root = Path.home() / ".spacr" / "logs"
-    root.mkdir(parents=True, exist_ok=True)
-    return root
+    """Return the folder where spacr log files live.
+
+    Alias for :func:`spacr.logging_util.log_dir`.
+    """
+    return _package_log_dir()
 
 
 def log_path() -> Path:
-    return log_dir() / "spacr-qt.log"
+    """Return the absolute path of the rotating log file.
+
+    Alias for :func:`spacr.logging_util.log_path`.
+    """
+    return _package_log_path()
 
 
 # ---------------------------------------------------------------------------
@@ -53,6 +62,9 @@ class QtLogHandler(QObject, logging.Handler):
     """A logging.Handler that emits every formatted record over a Qt
     signal so QWidget slots (running on the main thread) can display
     them without cross-thread violations.
+
+    :ivar record_ready: signal ``(formatted_line, levelno)`` emitted
+        once per record.
     """
 
     record_ready = Signal(str, int)   # (formatted line, levelno)
@@ -66,6 +78,7 @@ class QtLogHandler(QObject, logging.Handler):
         ))
 
     def emit(self, record: logging.LogRecord) -> None:   # noqa: D401
+        """Format and re-emit ``record`` over :attr:`record_ready`."""
         try:
             text = self.format(record)
             self.record_ready.emit(text + "\n", record.levelno)
@@ -90,54 +103,38 @@ def get_signal_handler() -> QtLogHandler:
 # One-time setup
 # ---------------------------------------------------------------------------
 
-# Third-party loggers that spam DEBUG/INFO records we don't need
-# during a pipeline run. Everything below WARNING is dropped.
-_QUIET_LOGGERS = (
-    "PIL",
-    "matplotlib",
-    "urllib3",
-    "asyncio",
-    "torch",
-    "torchvision",
-    "cellpose",
-    "tensorflow",
-    "botocore",
-)
-
-
 def setup_logging(level: int = logging.INFO,
                     console_level: int = logging.INFO) -> None:
-    """Install both the file handler and the Qt signal handler on the
-    root logger. Idempotent — safe to call more than once."""
+    """Install the file handler + the Qt signal handler on the root
+    logger. Idempotent — safe to call more than once.
+
+    :param level: minimum record level for the rotating file handler.
+    :param console_level: minimum record level for the Qt signal handler
+        (i.e. what ConsolePanel receives).
+    """
     global _INITIALISED
     if _INITIALISED:
         return
-    root = logging.getLogger()
-    root.setLevel(logging.DEBUG)
 
-    fmt_file = logging.Formatter(
-        "%(asctime)s [%(levelname)s] %(name)s:%(filename)s:%(lineno)d — %(message)s"
-    )
-    file_h = logging.handlers.RotatingFileHandler(
-        log_path(), maxBytes=5 * 1024 * 1024, backupCount=3, encoding="utf-8",
-    )
-    file_h.setLevel(logging.DEBUG)
-    file_h.setFormatter(fmt_file)
-    root.addHandler(file_h)
+    # Package-scope file handler — installed once, shared by every
+    # spacr subsystem. Explicitly pass log_path() so tests that
+    # monkey-patch the Qt-side path are honoured.
+    _package_setup_logging(level=level, log_file=log_path())
 
+    # Qt signal handler — only relevant when a QApplication exists.
     qt_h = get_signal_handler()
     qt_h.setLevel(console_level)
-    root.addHandler(qt_h)
-
-    for name in _QUIET_LOGGERS:
-        logging.getLogger(name).setLevel(logging.WARNING)
+    logging.getLogger().addHandler(qt_h)
 
     _INITIALISED = True
     logging.getLogger("spacr.qt").info(
-        "logging initialised → %s", log_path()
+        "Qt log signal installed → %s", log_path()
     )
 
 
 def get_logger(name: str = "spacr.qt") -> logging.Logger:
-    """Convenience wrapper — returns a child logger under `spacr`."""
+    """Convenience wrapper — returns a child logger under ``spacr.qt``.
+
+    :param name: logger name, defaults to ``"spacr.qt"``.
+    """
     return logging.getLogger(name)

@@ -24,9 +24,15 @@ def _reset_logging(monkeypatch, tmp_path):
         logging_util, "log_path",
         lambda: tmp_path / "spacr-qt.log",
     )
-    # Force re-init on next setup_logging call
+    # Force re-init on next setup_logging call — reset BOTH the Qt
+    # flag and the package-scope flag (the Qt setup delegates to the
+    # package one, so if it's already flipped True from a previous
+    # test the file handler won't get re-attached to tmp_path).
+    from spacr import logging_util as pkg_logging
     monkeypatch.setattr(logging_util, "_INITIALISED", False)
     monkeypatch.setattr(logging_util, "_SIGNAL_HANDLER", None)
+    monkeypatch.setattr(pkg_logging, "_INITIALISED", False)
+    monkeypatch.setattr(pkg_logging, "_LOG_PATH", None)
     # Remove any handlers that a previous test attached
     root = logging.getLogger()
     for h in list(root.handlers):
