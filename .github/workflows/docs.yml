@@ -41,17 +41,31 @@ jobs:
       - name: Install spacr + Sphinx tooling
         run: |
           python -m pip install --upgrade pip
-          # spacr installed --no-deps so autoapi can walk the source
-          # tree via its AST parser (no runtime imports needed).
-          python -m pip install -e "." --no-deps
+          # CPU-only torch first (matches tests.yml) so pip won't fetch
+          # the CUDA wheel while resolving spacr's install_requires.
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu \
+            "torch>=2.0" "torchvision"
+          # Full install — autoapi's AST walker doesn't NEED to import
+          # spacr modules, but sphinx-build's viewcode + import-checks
+          # do, and half the docstring cross-refs break without the
+          # full dep graph. Same install path as tests.yml so any
+          # green-tests commit produces a green docs build too.
+          python -m pip install -e ".[qt,dev]"
           python -m pip install sphinx sphinx_rtd_theme sphinx-autoapi
 
       - name: Build docs
+        env:
+          QT_QPA_PLATFORM: offscreen
         run: |
           rm -rf docs/_build docs/source/api
+          # Don't fail the build on individual docstring warnings —
+          # docutils flags every unindented code block, and there are
+          # some in the hand-written docstring pass we accept for now.
+          # `-W` would upgrade warnings to errors; we deliberately leave
+          # it off.
           sphinx-build -E -b html docs/source docs/_build/html
           # Sphinx build root needs a .nojekyll so Pages doesn't strip
-          # underscore-prefixed asset folders.
+          # underscore-prefixed asset folders (_static, _sources, …).
           touch docs/_build/html/.nojekyll
 
       - name: Configure Pages
