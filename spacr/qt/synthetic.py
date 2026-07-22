@@ -365,6 +365,11 @@ def demo_settings(app_key: str, src: str) -> Dict[str, Any]:
             "nucleus_min_size": 25,
             "pathogen_min_size": 15,
             "save_measurements": True,
+            "timelapse": False,
+            "experiment": "demo",
+            "cells": [1],
+            "nuclei": [1],
+            "pathogens": [1],
         }
     if app_key == "crop":
         return {
@@ -373,6 +378,11 @@ def demo_settings(app_key: str, src: str) -> Dict[str, Any]:
             "save_png": True,
             "png_size": 64,
             "png_dims": [0, 1, 2],
+            "timelapse": False,
+            "experiment": "demo",
+            "cells": [1],
+            "nuclei": [1],
+            "pathogens": [1],
         }
     if app_key == "classify":
         return {
