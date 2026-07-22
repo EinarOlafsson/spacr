@@ -70,7 +70,7 @@ class PipelineWorker(QObject):
         self._fn = fn
         self._settings = settings
 
-    def run(self):
+    def run(self) -> None:
         """Invoked by QThread.started."""
         old_stdout, old_stderr = sys.stdout, sys.stderr
         redirect = _StreamRedirector(self.line_ready.emit)
@@ -173,7 +173,10 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
     return None
 
 
-def make_thread(fn, settings):
+def make_thread(
+    fn: Callable[[Dict[str, Any]], Any],
+    settings: Dict[str, Any],
+) -> tuple["QThread", PipelineWorker]:
     """Return (thread, worker) — caller connects worker signals and calls
     thread.start()."""
     thread = QThread()

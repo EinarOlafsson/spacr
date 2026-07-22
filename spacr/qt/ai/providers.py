@@ -213,7 +213,8 @@ class ClaudeCliProvider(ChatProvider):
     )
     login_command = "claude setup-token"
 
-    def stream_chat(self, messages, system="", model=None):
+    def stream_chat(self, messages: List[Dict], system: str = "",
+                     model: Optional[str] = None) -> Iterator[str]:
         prompt = _format_conversation(messages, system=system)
         argv = ["claude", "-p", prompt]
         if system:
@@ -236,7 +237,8 @@ class CodexCliProvider(ChatProvider):
     )
     login_command = "codex login"
 
-    def stream_chat(self, messages, system="", model=None):
+    def stream_chat(self, messages: List[Dict], system: str = "",
+                     model: Optional[str] = None) -> Iterator[str]:
         prompt = _format_conversation(messages, system=system)
         argv = ["codex", "exec", prompt]
         if model:
@@ -257,7 +259,8 @@ class GeminiCliProvider(ChatProvider):
     )
     login_command = "gemini"
 
-    def stream_chat(self, messages, system="", model=None):
+    def stream_chat(self, messages: List[Dict], system: str = "",
+                     model: Optional[str] = None) -> Iterator[str]:
         prompt = _format_conversation(messages, system=system)
         argv = ["gemini", "-p", prompt]
         if model:

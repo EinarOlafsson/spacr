@@ -319,7 +319,7 @@ class AIChatPanel(QWidget):
     # ------------------------------------------------------------------
     # Provider
     # ------------------------------------------------------------------
-    def refresh_provider_combo(self):
+    def refresh_provider_combo(self) -> None:
         self._provider_combo.blockSignals(True)
         self._provider_combo.clear()
         configured = ai_module.configured_providers()
@@ -454,7 +454,7 @@ class AIChatPanel(QWidget):
         sb = self._chat_scroll.verticalScrollBar()
         sb.setValue(sb.maximum())
 
-    def clear_chat(self):
+    def clear_chat(self) -> None:
         self._messages.clear()
         while self._chat_layout.count() > 1:
             item = self._chat_layout.takeAt(0)

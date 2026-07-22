@@ -23,8 +23,17 @@ from __future__ import annotations
 __all__ = ["run"]
 
 
-def run(argv=None):
+def run(argv: list[str] | None = None) -> int:
     """Launch the Qt GUI. Public entry point used by both `spacr-qt` and
-    `python -m spacr.qt`."""
+    `python -m spacr.qt`.
+
+    Args:
+        argv: Optional CLI arguments. The first positional element,
+              if present, opens directly into that app screen key
+              (e.g. `spacr-qt mask`).
+
+    Returns:
+        The exit code returned by `QApplication.exec()`.
+    """
     from .app import launch
     return launch(argv)

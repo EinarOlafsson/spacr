@@ -115,7 +115,7 @@ class _MaskCanvas(QLabel):
     # ------------------------------------------------------------------
     # Data
     # ------------------------------------------------------------------
-    def set_image_and_mask(self, image: np.ndarray, mask: np.ndarray):
+    def set_image_and_mask(self, image: np.ndarray, mask: np.ndarray) -> None:
         self.image = image
         self.mask = mask
         self.reset_zoom(silent=True)
@@ -133,7 +133,7 @@ class _MaskCanvas(QLabel):
     def is_zoomed(self) -> bool:
         return self._zoom_x0 is not None
 
-    def reset_zoom(self, silent: bool = False):
+    def reset_zoom(self, silent: bool = False) -> None:
         was_zoomed = self.is_zoomed()
         self._zoom_x0 = self._zoom_y0 = self._zoom_x1 = self._zoom_y1 = None
         self._zoom_drag_start = self._zoom_drag_end = None
@@ -141,7 +141,7 @@ class _MaskCanvas(QLabel):
             self.zoom_changed.emit(False)
         self.refresh()
 
-    def refresh(self):
+    def refresh(self) -> None:
         if self.image is None or self.mask is None:
             return
         img = engine.normalize_uint16(self.image, self.norm_lo, self.norm_hi)

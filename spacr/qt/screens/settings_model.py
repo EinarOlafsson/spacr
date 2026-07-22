@@ -154,7 +154,7 @@ def plain_tooltip(text: str, app_key: str) -> str:
 
 class _ListEdit(QLineEdit):
     """A QLineEdit that round-trips a Python list via repr()."""
-    def get_value(self):
+    def get_value(self) -> Any:
         text = self.text().strip()
         if not text:
             return None
@@ -163,15 +163,16 @@ class _ListEdit(QLineEdit):
         except Exception:
             return text
 
-    def set_value(self, v):
+    def set_value(self, v: Any) -> None:
         self.setText(repr(v) if v is not None else "")
 
 
 class _ScalarEdit(QLineEdit):
-    def get_value(self):
+    """A plain QLineEdit that returns None for empty text."""
+    def get_value(self) -> Optional[str]:
         return self.text() or None
 
-    def set_value(self, v):
+    def set_value(self, v: Any) -> None:
         self.setText("" if v is None else str(v))
 
 
