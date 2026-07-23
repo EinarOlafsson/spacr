@@ -188,9 +188,11 @@ QMenu::separator {{
 }}
 #SidebarTitle {{
     color: {P["accent"]};
-    font-size: {F["title"]}px;
-    font-weight: 600;
-    padding: {S["md"]}px {S["md"]}px {S["sm"]}px;
+    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-size: 24px;
+    font-weight: 300;                 /* Light */
+    letter-spacing: -0.5px;
+    padding: {S["lg"]}px {S["md"]}px {S["md"]}px;
     background: {P["surface"]};
 }}
 #SidebarSection {{
