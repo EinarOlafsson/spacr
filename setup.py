@@ -83,7 +83,13 @@ dependencies = [
 ]
 
 VERSION = "1.4.0"
-name = "spacr-nightly"
+# The distribution is `spacr` (not `spacr-nightly`) so that
+# `pip install -e .` from a working copy replaces any prior PyPI
+# `spacr` install instead of coexisting with it — the coexistence
+# was the source of stale-metadata warnings after the branch
+# rename. The `spacr-nightly` name lives on as a CLI entry-point
+# alias below so users still have `spacr-nightly` on their PATH.
+name = "spacr"
 
 setup(
     name=name,
