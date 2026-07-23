@@ -17,7 +17,23 @@ from PySide6.QtCore import QObject, QThread, Signal
 
 
 class _StreamRedirector(io.TextIOBase):
-    """A file-like object that emits every write to a queue for the UI."""
+    """A file-like object that emits every write to a queue for the UI.
+
+    Pipeline libraries (cellpose especially) print progress WITHOUT a
+    trailing newline while they set up — model download, warmup, etc.
+    A pure "emit only on \\n" redirector holds those bytes hostage in
+    the buffer, and to the user it looks like the app hung after
+    "Starting mask…". Two mitigations here:
+
+    1. **Chunk cap** — if the buffer grows past ``_MAX_BUF_CHARS``
+       we emit it regardless of newline, then keep buffering. This
+       makes long dependency-import chatter visible instead of silent.
+    2. **Idle flush** — the caller can call :meth:`idle_flush` from a
+       QTimer to emit whatever partial line has been sitting quiet for
+       a while, so short-but-newline-less progress lines still surface.
+    """
+
+    _MAX_BUF_CHARS = 1024
 
     def __init__(self, on_write: Callable[[str], None]):
         super().__init__()
@@ -25,27 +41,36 @@ class _StreamRedirector(io.TextIOBase):
         self._on_write = on_write
 
     def write(self, s: str) -> int:
-        """Buffer ``s`` and forward every complete line to the sink."""
         if not isinstance(s, str):
             s = str(s)
         self._buf += s
         # Emit whole lines eagerly so the UI updates smoothly.
         while "\n" in self._buf:
             line, self._buf = self._buf.split("\n", 1)
-            try:
-                self._on_write(line + "\n")
-            except Exception:
-                pass
+            self._safe_emit(line + "\n")
+        # Chunk-cap: whatever is left after full-line drain, if it's
+        # grown suspiciously large, flush it verbatim.
+        if len(self._buf) >= self._MAX_BUF_CHARS:
+            self._safe_emit(self._buf)
+            self._buf = ""
         return len(s)
 
     def flush(self) -> None:
-        """Emit any trailing (unterminated) buffered text to the sink."""
         if self._buf:
-            try:
-                self._on_write(self._buf)
-            except Exception:
-                pass
+            self._safe_emit(self._buf)
             self._buf = ""
+
+    def idle_flush(self) -> None:
+        """Emit any pending partial line — safe to call from a QTimer."""
+        if self._buf:
+            self._safe_emit(self._buf)
+            self._buf = ""
+
+    def _safe_emit(self, s: str) -> None:
+        try:
+            self._on_write(s)
+        except Exception:
+            pass
 
 
 class PipelineWorker(QObject):
@@ -79,10 +104,47 @@ class PipelineWorker(QObject):
 
     def run(self) -> None:
         """Invoked by QThread.started; runs the pipeline function to completion."""
+        import threading
+        import time as _time
         old_stdout, old_stderr = sys.stdout, sys.stderr
         redirect = _StreamRedirector(self.line_ready.emit)
         sys.stdout = redirect
         sys.stderr = redirect
+
+        # Idle-flush pump — a daemon thread that flushes the buffered
+        # partial line every 500 ms so the console never sits silent
+        # for more than half a second while the pipeline is chatty. It
+        # also emits a "keepalive" ping every 10 s of complete silence
+        # so the user sees the run is still going. Purely diagnostic —
+        # if this thread dies for any reason the pipeline still runs.
+        stop_pump = threading.Event()
+        last_output = [_time.time()]
+        # Wrap the emit signal so we can tick "last_output" on every
+        # real write. This lets keepalive skip when the pipeline is
+        # already talking on its own.
+        original_write = redirect._safe_emit
+        def _tick_emit(text: str):
+            last_output[0] = _time.time()
+            original_write(text)
+        redirect._safe_emit = _tick_emit  # type: ignore[assignment]
+
+        def _pump():
+            while not stop_pump.is_set():
+                stop_pump.wait(0.5)
+                if stop_pump.is_set():
+                    break
+                try:
+                    redirect.idle_flush()
+                except Exception:
+                    pass
+                now = _time.time()
+                if now - last_output[0] >= 10.0:
+                    stamp = _time.strftime("%H:%M:%S")
+                    _tick_emit(
+                        f"[{stamp}] …still running (no output for 10s)…\n")
+        pump = threading.Thread(
+            target=_pump, name="spacr-worker-pump", daemon=True)
+        pump.start()
 
         # Intercept matplotlib show() so figures land in the UI instead
         # of a blocking Tk window. `plt.show` gets restored in `finally`.
@@ -114,6 +176,7 @@ class PipelineWorker(QObject):
             tb = traceback.format_exc()
             self.error.emit(tb)
         finally:
+            stop_pump.set()
             try:
                 redirect.flush()
             except Exception:
@@ -134,20 +197,28 @@ class PipelineWorker(QObject):
 
 def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | None:
     """Return the pipeline function that runs a given app, or None if the
-    app is interactive-only (annotate / make_masks) or unknown."""
+    app is interactive-only (annotate / make_masks) or unknown.
+
+    Each returned entry point is wrapped with
+    :func:`spacr.qt.verbose_logger.log_call` so that when the user has
+    "Verbose logging" enabled, every pipeline invocation emits an
+    entry-and-return trace in the console. Zero cost when verbose is
+    off (the wrapper is a single attribute check).
+    """
+    from .verbose_logger import log_call
     try:
         if app_key == "mask":
             from spacr.core import preprocess_generate_masks
-            return preprocess_generate_masks
+            return log_call(preprocess_generate_masks)
         if app_key == "measure":
             from spacr.measure import measure_crop
-            return measure_crop
+            return log_call(measure_crop)
         if app_key == "classify":
             from spacr.deep_spacr import train_test_model
-            return train_test_model
+            return log_call(train_test_model)
         if app_key == "umap":
             from spacr.core import generate_image_umap
-            return generate_image_umap
+            return log_call(generate_image_umap)
         if app_key == "train_cellpose":
             from spacr.submodules import train_cellpose
             return train_cellpose
