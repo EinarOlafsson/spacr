@@ -71,9 +71,35 @@ LIGHT_PALETTE = {
 def palette_for(theme: str = "dark") -> dict:
     """Return the palette dict for ``theme`` (``"dark"`` or ``"light"``).
 
-    Anything else falls back to the dark palette.
+    Anything else falls back to the dark palette. The returned dict
+    always carries every theme-invariant key from :data:`CONSTANT_ROLES`
+    so callers can hit e.g. ``palette_for(t)["button_accent"]`` and
+    know the value is the same across themes.
     """
-    return LIGHT_PALETTE if theme == "light" else PALETTE
+    base = LIGHT_PALETTE if theme == "light" else PALETTE
+    out = dict(base)
+    out.update(CONSTANT_ROLES)
+    return out
+
+
+# ---------------------------------------------------------------------------
+# Theme-invariant colour roles
+# ---------------------------------------------------------------------------
+# The user should be able to recognise interactive controls by colour
+# regardless of theme. If the AI/LP toggle went accent-blue in dark and
+# a different accent-blue in light, that recognition breaks. These keys
+# resolve to the SAME value in both PALETTE and LIGHT_PALETTE so button
+# / toggle styling can rely on them.
+#
+# `button_accent`     — primary button + toggle "on" colour
+# `button_accent_hi`  — hover
+# `button_accent_lo`  — pressed
+# Chosen to read well on both surface_alt colours (near-black + near-white).
+CONSTANT_ROLES = {
+    "button_accent":    "#4A9EFF",
+    "button_accent_hi": "#66B2FF",
+    "button_accent_lo": "#2F80D9",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -465,18 +491,22 @@ QPushButton:disabled {{
     border-color: {P["border_soft"]};
     background-color: {P["surface"]};
 }}
+/* PrimaryButton stays the same colour in dark AND light — users
+ * should recognise "Run" (and any other primary action) by hue
+ * without their eye having to relearn per theme. The text foreground
+ * is white in both themes so contrast holds against #4A9EFF. */
 QPushButton#PrimaryButton {{
-    background-color: {P["accent"]};
-    color: {P["bg"]};
+    background-color: {P["button_accent"]};
+    color: #ffffff;
     border: none;
     font-weight: 600;
     padding: {S["sm"]}px {S["lg"]}px;
 }}
 QPushButton#PrimaryButton:hover {{
-    background-color: {P["accent_hi"]};
+    background-color: {P["button_accent_hi"]};
 }}
 QPushButton#PrimaryButton:pressed {{
-    background-color: {P["accent_lo"]};
+    background-color: {P["button_accent_lo"]};
 }}
 QPushButton#DangerButton {{
     background-color: transparent;

@@ -71,7 +71,13 @@ class AiToggleLabel(QLabel):
 
     # -- style ---------------------------------------------------------
     def _refresh_style(self) -> None:
-        color = PALETTE["accent"] if self._on else PALETTE["fg"]
+        # Use the theme-invariant ``button_accent`` for the ON colour so
+        # the toggle looks identical in dark vs light mode. OFF colour
+        # is theme-aware (fg) — that's fine, the user recognises "on"
+        # by the blue.
+        from ..theme import CONSTANT_ROLES
+        on_color = CONSTANT_ROLES["button_accent"]
+        color = on_color if self._on else PALETTE["fg"]
         self.setStyleSheet(
             f"QLabel#AiToggleLabel {{"
             f"  color: {color};"

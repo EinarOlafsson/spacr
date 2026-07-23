@@ -114,7 +114,11 @@ class Sidebar(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("Sidebar")
-        self.setFixedWidth(220)
+        # Sidebar width tracks the user's font scale so at 150 % the
+        # labels still fit without being clipped mid-word. See
+        # preferences.scaled_px for the helper.
+        from .preferences import scaled_px
+        self.setFixedWidth(scaled_px(220))
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
