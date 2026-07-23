@@ -60,6 +60,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "cli_repro",
     "logger",
     "logging_util",
+    "mask_io",
     "run_journal",
     "version",
 )

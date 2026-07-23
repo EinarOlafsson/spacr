@@ -315,6 +315,15 @@ class AnnotateScreen(QWidget):
         self._build_ui()
         self._install_shortcuts()
 
+        # Drag & drop — accepts a plate folder with
+        # measurements/measurements.db (or the .db file directly).
+        try:
+            from ..dnd import install_dropzone
+            from ..dnd_handlers import AnnotateDropHandler
+            install_dropzone(self, AnnotateDropHandler(), self)
+        except Exception:
+            pass
+
         self._status_timer = QTimer(self)
         self._status_timer.setInterval(500)
         self._status_timer.timeout.connect(self._refresh_status_label)
