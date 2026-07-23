@@ -248,30 +248,57 @@ class TestE2EDemoMenu:
         assert captured["dest"] == str(tmp_path)
         assert captured["parent"] is mw
 
-    def test_e2e_chain_navigates_to_mask_first(
+    def test_e2e_chain_prompts_and_navigates(
             self, mw, monkeypatch, tmp_path):
-        """After a fake successful download, the pipeline chain should
-        end up on the mask screen (its first stage)."""
-        # Prepare a settings dir with mask/measure/annotate CSVs
+        """After a fake successful download, the chain should prompt
+        the user before each stage; if they answer Yes to all three,
+        we should end up having navigated to mask, measure, and
+        annotate in turn."""
         settings_dir = tmp_path / "settings"
         settings_dir.mkdir()
-        (settings_dir / "mask_settings.csv").write_text("plot,false\n")
-        (settings_dir / "measure_settings.csv").write_text("plot,false\n")
-        (settings_dir / "annotate_settings.csv").write_text("")
+        for stage in ("mask", "measure", "annotate"):
+            (settings_dir / f"{stage}_settings.csv").write_text("plot,false\n")
         dataset_dir = tmp_path / "plate1"
         dataset_dir.mkdir()
 
-        # Neutralise the actual pipeline invocation by stubbing _on_run
-        def _fake_on_run(self):
-            pass
+        prompts = []
+        def _yes(*a, **k):
+            prompts.append(a)
+            return QMessageBox.Yes
+        monkeypatch.setattr(QMessageBox, "question", _yes)
+        # Stub the pipeline run so we don't actually start Cellpose
         monkeypatch.setattr(
-            "spacr.qt.screens.app_screen.AppScreen._on_run", _fake_on_run)
-
-        # Some screens don't have apply_settings_dict; that's fine —
-        # the chain skips gracefully
+            "spacr.qt.screens.app_screen.AppScreen._on_run",
+            lambda self: None)
 
         mw._run_e2e_chain(dataset_dir, settings_dir)
-        # Should have opened annotate last, meaning the chain navigated
-        # through mask + measure + annotate.
+
+        # Three prompts — one per stage
+        assert len(prompts) == 3
         assert "annotate" in mw._screens
         assert "mask" in mw._screens
+        assert "measure" in mw._screens
+
+    def test_e2e_chain_stops_when_user_says_no(
+            self, mw, monkeypatch, tmp_path):
+        """Answering No at the first prompt should abort the chain
+        without touching downstream screens."""
+        settings_dir = tmp_path / "settings"
+        settings_dir.mkdir()
+        (settings_dir / "mask_settings.csv").write_text("plot,false\n")
+        dataset_dir = tmp_path / "plate1"
+        dataset_dir.mkdir()
+
+        monkeypatch.setattr(QMessageBox, "question",
+                             lambda *a, **k: QMessageBox.No)
+        called = {"run": 0}
+        def _bump(self):
+            called["run"] += 1
+        monkeypatch.setattr(
+            "spacr.qt.screens.app_screen.AppScreen._on_run", _bump)
+
+        mw._run_e2e_chain(dataset_dir, settings_dir)
+        assert called["run"] == 0
+        # Also — measure/annotate should not have been navigated to.
+        assert "measure" not in mw._screens
+        assert "annotate" not in mw._screens
