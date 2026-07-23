@@ -42,6 +42,41 @@ PALETTE = {
 
 
 # ---------------------------------------------------------------------------
+# Light palette — mirrors the dark set. Used when the user opts into
+# light mode or when the OS colour scheme is light and theme=system.
+# Kept close in structure to PALETTE so a caller can swap between them
+# by key without touching consumers.
+# ---------------------------------------------------------------------------
+LIGHT_PALETTE = {
+    "bg":          "#fafafa",
+    "surface":     "#ffffff",
+    "surface_alt": "#f2f4f7",
+    "surface_hi":  "#e6e9ee",
+    "border":      "#d5d9df",
+    "border_soft": "#e5e8ec",
+    "fg":          "#0d0e10",
+    "fg_muted":    "#4b5460",
+    "fg_dim":      "#8b93a1",
+    "accent":      "#0b6dd9",
+    "accent_hi":   "#1e88ff",
+    "accent_lo":   "#095cb8",
+    "accent_soft": "#dbe8fb",
+    "success":     "#188038",
+    "warning":     "#b06000",
+    "error":       "#c5221f",
+    "info":        "#0b6dd9",
+}
+
+
+def palette_for(theme: str = "dark") -> dict:
+    """Return the palette dict for ``theme`` (``"dark"`` or ``"light"``).
+
+    Anything else falls back to the dark palette.
+    """
+    return LIGHT_PALETTE if theme == "light" else PALETTE
+
+
+# ---------------------------------------------------------------------------
 # Spacing / radius scale — 4/8-based, matches Tk gui_elements.
 # ---------------------------------------------------------------------------
 SPACING = {
@@ -85,38 +120,51 @@ TYPOGRAPHY = {
 }
 
 
-def apply_qpalette(app: QApplication) -> None:
+def apply_qpalette(app: QApplication, theme: str = "dark") -> None:
     """Apply the palette to the QApplication so native controls (menu
-    bars, tooltips, dialogs) match the QSS-styled widgets."""
+    bars, tooltips, dialogs) match the QSS-styled widgets.
+
+    :param app: the running QApplication.
+    :param theme: ``"dark"`` (default) or ``"light"``.
+    """
+    P = palette_for(theme)
     p = app.palette()
-    p.setColor(QPalette.Window,          QColor(PALETTE["bg"]))
-    p.setColor(QPalette.WindowText,      QColor(PALETTE["fg"]))
-    p.setColor(QPalette.Base,            QColor(PALETTE["surface"]))
-    p.setColor(QPalette.AlternateBase,   QColor(PALETTE["surface_alt"]))
-    p.setColor(QPalette.ToolTipBase,     QColor(PALETTE["surface_alt"]))
-    p.setColor(QPalette.ToolTipText,     QColor(PALETTE["fg"]))
-    p.setColor(QPalette.Text,            QColor(PALETTE["fg"]))
-    p.setColor(QPalette.Button,          QColor(PALETTE["surface"]))
-    p.setColor(QPalette.ButtonText,      QColor(PALETTE["fg"]))
-    p.setColor(QPalette.BrightText,      QColor(PALETTE["error"]))
-    p.setColor(QPalette.Highlight,       QColor(PALETTE["accent"]))
-    p.setColor(QPalette.HighlightedText, QColor(PALETTE["bg"]))
-    p.setColor(QPalette.Link,            QColor(PALETTE["accent"]))
-    p.setColor(QPalette.LinkVisited,     QColor(PALETTE["accent_lo"]))
-    p.setColor(QPalette.PlaceholderText, QColor(PALETTE["fg_dim"]))
-    p.setColor(QPalette.Mid,             QColor(PALETTE["border"]))
-    p.setColor(QPalette.Midlight,        QColor(PALETTE["border_soft"]))
-    p.setColor(QPalette.Dark,            QColor(PALETTE["surface_alt"]))
+    p.setColor(QPalette.Window,          QColor(P["bg"]))
+    p.setColor(QPalette.WindowText,      QColor(P["fg"]))
+    p.setColor(QPalette.Base,            QColor(P["surface"]))
+    p.setColor(QPalette.AlternateBase,   QColor(P["surface_alt"]))
+    p.setColor(QPalette.ToolTipBase,     QColor(P["surface_alt"]))
+    p.setColor(QPalette.ToolTipText,     QColor(P["fg"]))
+    p.setColor(QPalette.Text,            QColor(P["fg"]))
+    p.setColor(QPalette.Button,          QColor(P["surface"]))
+    p.setColor(QPalette.ButtonText,      QColor(P["fg"]))
+    p.setColor(QPalette.BrightText,      QColor(P["error"]))
+    p.setColor(QPalette.Highlight,       QColor(P["accent"]))
+    p.setColor(QPalette.HighlightedText, QColor(P["bg"]))
+    p.setColor(QPalette.Link,            QColor(P["accent"]))
+    p.setColor(QPalette.LinkVisited,     QColor(P["accent_lo"]))
+    p.setColor(QPalette.PlaceholderText, QColor(P["fg_dim"]))
+    p.setColor(QPalette.Mid,             QColor(P["border"]))
+    p.setColor(QPalette.Midlight,        QColor(P["border_soft"]))
+    p.setColor(QPalette.Dark,            QColor(P["surface_alt"]))
     p.setColor(QPalette.Shadow,          QColor("#000000"))
     app.setPalette(p)
 
 
-def stylesheet() -> str:
-    """Return the QSS string that styles every custom widget in the app."""
-    P = PALETTE
+def stylesheet(theme: str = "dark", font_scale: float = 1.0) -> str:
+    """Return the QSS string that styles every custom widget in the app.
+
+    :param theme: ``"dark"`` (default) or ``"light"``.
+    :param font_scale: multiplier applied to every font size in
+        :data:`FONT_SIZE`. 1.0 = 100 %.
+    """
+    P = palette_for(theme)
     S = SPACING
     R = RADIUS
-    F = FONT_SIZE
+    # Scaled font sizes so the "Font scale" preference actually
+    # resizes the whole app, not just the base body text.
+    F = {k: max(6, int(round(v * font_scale)))
+         for k, v in FONT_SIZE.items()}
     return f"""
 /* -----------------------------------------------------------------
  *  Base

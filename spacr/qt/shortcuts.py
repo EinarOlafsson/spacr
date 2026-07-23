@@ -103,7 +103,7 @@ def _open_palette(window: QMainWindow) -> None:
 
 def _open_preferences(window: QMainWindow) -> None:
     try:
-        from .preferences_dialog import PreferencesDialog
+        from .preferences import PreferencesDialog
         PreferencesDialog(window).exec()
     except Exception as e:
         LOG.debug("preferences dialog not available: %s", e)
