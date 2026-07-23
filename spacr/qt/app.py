@@ -515,8 +515,10 @@ def launch(argv: Optional[list[str]] = None) -> int:
     # `font-family: "Open Sans"` rule resolves.
     _load_bundled_fonts()
 
-    apply_qpalette(app)
-    app.setStyleSheet(stylesheet())
+    # Apply user preferences (theme + font scale) — falls back to the
+    # dark defaults on the first launch when nothing is stored yet.
+    from .preferences import apply_preferences_to_app
+    apply_preferences_to_app(app)
 
     # Real Python logging → rotating file + Qt signal so ConsolePanel
     # can render records inline. Must be set up before MainWindow so
