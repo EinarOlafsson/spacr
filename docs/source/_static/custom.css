@@ -1,21 +1,90 @@
-/* spaCR docs — furo overrides.
+/* spaCR docs — Furo overrides.
  *
- * Furo handles the light / dark switch via its own CSS variables;
- * we only tweak spacing, typography rhythm, and API-page layout
- * niceties here.
+ * Font stack unified with the desktop app: Open Sans Light for
+ * body copy, Regular for hover / links, SemiBold for headings.
+ * Same TTFs the Qt app bundles at spacr/qt/resources/fonts/.
  */
 
-/* Slightly tighter paragraphs so long docstrings don't feel padded. */
+/* ---------- Bundled Open Sans (self-hosted, no CDN) ---------- */
+@font-face {
+    font-family: "Open Sans";
+    font-style:  normal;
+    font-weight: 300;
+    src: url("fonts/OpenSans-Light.ttf") format("truetype");
+    font-display: swap;
+}
+@font-face {
+    font-family: "Open Sans";
+    font-style:  normal;
+    font-weight: 400;
+    src: url("fonts/OpenSans-Regular.ttf") format("truetype");
+    font-display: swap;
+}
+@font-face {
+    font-family: "Open Sans";
+    font-style:  normal;
+    font-weight: 600;
+    src: url("fonts/OpenSans-SemiBold.ttf") format("truetype");
+    font-display: swap;
+}
+
+/* ---------- Furo font-stack override ------------------------- */
+:root {
+    --font-stack: "Open Sans", ui-sans-serif, system-ui,
+                  -apple-system, "Segoe UI", "Helvetica Neue", sans-serif;
+    --font-stack--monospace: "JetBrains Mono", ui-monospace,
+                              SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* Body defaults to Light (300) — matches app subtitle weight. */
+body {
+    font-family: var(--font-stack);
+    font-weight: 300;
+    letter-spacing: -0.005em;
+}
+
+/* Nav / sidebar sits in Regular so it reads clearly at small sizes. */
+.sidebar-brand,
+.sidebar-tree,
+.sidebar-search,
+.related,
+nav.contents,
+.toc-tree {
+    font-family: var(--font-stack);
+    font-weight: 400;
+}
+
+/* Headings — SemiBold with tighter tracking. */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-stack);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+/* Article body — Light for calm reading. */
+article p,
+article li,
+article dd {
+    font-weight: 300;
+}
+
+/* Bold inside body copy stays visible via Regular, not the default
+ * heavy 700 (which reads as too loud against Light body). */
+article p strong,
+article li strong,
+article dd strong {
+    font-weight: 600;
+}
+
+
+/* ---------- API-page niceties (unchanged from prior pass) --- */
 article p { margin: 0.6em 0; }
 
-/* Bigger, calmer h1 on the API index. */
 article > section > h1 {
     font-size: 2.2em;
     letter-spacing: -0.02em;
 }
 
-/* Autoapi's per-symbol boxes — softer background + more breathing
- * room so a long class page doesn't look like a wall. */
 .py.class dl,
 .py.function dl,
 .py.method dl,
@@ -26,27 +95,28 @@ article > section > h1 {
     margin-bottom: 1.4em;
 }
 
-/* Signature line — monospace, slightly larger, wraps cleanly. */
 .py.class dt.sig,
 .py.function dt.sig,
 .py.method dt.sig {
     font-family: var(--font-stack--monospace);
     font-size: 1.02em;
+    font-weight: 400;
     word-break: break-word;
 }
 
-/* Field-list rows (:param:/:returns:) — align labels, subtler value color. */
 .field-list dt {
     font-weight: 600;
     color: var(--color-foreground-primary);
     margin-top: 0.2em;
 }
-.field-list dd { color: var(--color-foreground-secondary); }
-
-/* Highlight the parameter *name* inside :param: lists so the type
- * annotation next to it doesn't overwhelm. */
+.field-list dd {
+    color: var(--color-foreground-secondary);
+    font-weight: 300;
+}
 .field-list dd p strong { color: var(--color-brand-primary); }
 
-/* Code blocks — slightly rounder corners, slightly denser padding. */
 div.highlight { border-radius: 6px; }
-div.highlight pre { padding: 0.9em 1em; }
+div.highlight pre {
+    padding: 0.9em 1em;
+    font-family: var(--font-stack--monospace);
+}

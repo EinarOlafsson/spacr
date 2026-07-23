@@ -81,6 +81,17 @@ class Section(QFrame):
         """Return the section's header text."""
         return self._header.text()
 
+    def set_hint(self, text: str) -> None:
+        """Attach a hover tooltip to the section's header.
+
+        The tooltip appears when the user hovers the header, whether
+        the section is currently expanded or collapsed — same UX as
+        every other Qt tooltip.
+
+        :param text: tooltip text (plain or HTML; empty clears it).
+        """
+        self._header.setToolTip(text or "")
+
     def set_expanded(self, on: bool) -> None:
         """Expand or collapse the section body programmatically."""
         self._header.setChecked(on)
