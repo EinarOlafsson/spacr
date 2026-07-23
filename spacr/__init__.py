@@ -58,6 +58,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "sim",
     "object",
     "cli_repro",
+    "_v1_v2_bridge",
     "logger",
     "logging_util",
     "mask_io",
