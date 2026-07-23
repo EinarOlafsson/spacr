@@ -125,17 +125,21 @@ class StartupPage(QScrollArea):
         )
         col.addWidget(title, alignment=Qt.AlignHCenter)
 
+        # Non-breaking hyphen (‑) in "genotype-phenotype" so the
+        # phrase never wraps mid-word.
         subtitle = QLabel(
-            "End-to-end microscopy → single-cell measurements → "
-            "genotype–phenotype mapping."
+            "End-to-end microscopy → single-cell measurements "
+            "→ genotype‑phenotype mapping."
         )
         subtitle.setObjectName("Subtitle")
         subtitle.setAlignment(Qt.AlignHCenter)
         subtitle.setWordWrap(True)
-        subtitle.setMaximumWidth(760)
+        subtitle.setMinimumWidth(560)
+        subtitle.setMaximumWidth(900)
         subtitle.setStyleSheet(
             "font-family: 'Open Sans', sans-serif;"
             "font-weight: 300;"
+            "font-size: 15px;"
             f"color: {PALETTE['fg_muted']};"
         )
         col.addWidget(subtitle, alignment=Qt.AlignHCenter)
