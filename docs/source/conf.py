@@ -9,7 +9,22 @@ try:
     from importlib.metadata import version as _ver
 except ImportError:
     from importlib_metadata import version as _ver
-release = _ver('spacr')
+try:
+    release = _ver('spacr')
+except Exception:
+    # importlib.metadata sometimes returns PackageNotFoundError on
+    # editable installs where the .egg-info wasn't laid down (some
+    # pip / setuptools combos in CI). Fall back to importing spacr
+    # directly — release only affects the HTML footer, so a soft
+    # fallback is fine.
+    sys.path.insert(0, os.path.abspath(
+        os.path.join(os.path.dirname(__file__), '..', '..')
+    ))
+    try:
+        import spacr as _spacr_pkg
+        release = getattr(_spacr_pkg, '__version__', '') or 'dev'
+    except Exception:
+        release = 'dev'
 
 extensions = [
     'sphinx.ext.napoleon',
