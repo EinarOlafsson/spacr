@@ -78,8 +78,37 @@ def preprocess_generate_masks(settings):
     else:
         ValueError(f'src is a required parameter')
         return
-    
+
     settings['src'] = normalize_src_path(settings['src'])
+
+    # v2 streaming pipeline — new opt-in flow that skips the
+    # rename/split/npz/npy multi-copy chain and goes straight from
+    # originals → merged/stack_<field>.npy with masks appended
+    # in-place. Roughly 60-80% less disk than v1 on typical plates.
+    # See spacr.pipeline_v2 for design notes.
+    if settings.get('pipeline_style', 'v1') == 'v2':
+        from .pipeline_v2 import run_v2
+        from ._v1_v2_bridge import (
+            v2_channels_from_settings, report_disk_savings,
+        )
+        srcs = settings['src'] if isinstance(settings['src'], list) \
+                                else [settings['src']]
+        for src in srcs:
+            channels, channel_names = v2_channels_from_settings(settings)
+            result = run_v2(
+                src,
+                channels=channels,
+                channel_names=channel_names,
+                model_name=settings.get('cell_model_name', 'cyto'),
+                channels_for_cellpose=(0, 0),
+                diameter=settings.get('cell_diameter'),
+                batch_fields=int(settings.get('batch_fields', 8)),
+                metadata_type=settings.get('metadata_type', 'auto'),
+                custom_regex=settings.get('custom_regex'),
+                keep_npz=bool(settings.get('keep_npz', False)),
+            )
+            report_disk_savings(src, result['stacks'])
+        return
     
     if settings['consolidate']:
         image_map = generate_image_path_map(settings['src'])

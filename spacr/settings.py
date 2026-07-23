@@ -44,6 +44,21 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     """
     if settings is None:
         settings = {}
+    # ── pipeline flavour ──────────────────────────────────────────────
+    # 'v1' — the original multi-copy chain (rename → channel folders →
+    #        npy → npz → mask npy → merged/). Stable, well-tested.
+    # 'v2' — streaming pipeline (spacr.pipeline_v2). Reads originals
+    #        directly, writes one npy per field to merged/ with masks
+    #        appended in-place. ~60-80% less disk. Opt-in for one
+    #        release, then default.
+    settings.setdefault('pipeline_style', 'v1')
+    # v2-only: how many field stacks to load into memory per Cellpose
+    # batch. Bigger = faster, more RAM.
+    settings.setdefault('batch_fields', 8)
+    # v2-only: keep the in-memory NPZ batch on disk under merged/_scratch/
+    # for debugging. Default False → NPZ never touches disk.
+    settings.setdefault('keep_npz', False)
+
     settings.setdefault('denoise', False)
     settings.setdefault('src', 'path')
     settings.setdefault('delete_intermediate', False)
