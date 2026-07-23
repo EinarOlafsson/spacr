@@ -10,7 +10,15 @@ from sklearn.metrics import mean_squared_error
 import numpy as np
 
 import matplotlib.pyplot as plt
-from IPython.display import display
+try:
+    from IPython.display import display
+except Exception:
+    # IPython may be mid-init (partially imported by another
+    # thread) — use a no-op fallback so importing this module
+    # never blocks. spaCR only calls display() from notebook
+    # contexts anyway; the Qt GUI ignores it.
+    def display(*args, **kwargs):
+        pass
 import scipy.stats as st
 import statsmodels.api as sm
 import statsmodels.formula.api as smf

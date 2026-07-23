@@ -6,7 +6,15 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 from .plot import plot_plates
-from IPython.display import display
+try:
+    from IPython.display import display
+except Exception:
+    # IPython may be mid-init (partially imported by another
+    # thread) — use a no-op fallback so importing this module
+    # never blocks. spaCR only calls display() from notebook
+    # contexts anyway; the Qt GUI ignores it.
+    def display(*args, **kwargs):
+        pass
 
 # Function to map sequences to names (same as your original)
 def map_sequences_to_names(csv_file, sequences, rc):
