@@ -115,6 +115,15 @@ class StartupPage(QWidget):
         col.addSpacing(SPACING["md"])
         col.addWidget(self._build_insights_dashboard())
 
+        # Reserved surface under the insights row. Deliberately empty
+        # for now — will host featured content (news, tutorial
+        # thumbnails, sponsored slots) later. Rendered as a subtle
+        # rounded gray box so it's laid out and visible but doesn't
+        # compete with the rest of the UI. Consumers can swap in a
+        # widget via :meth:`set_reserved_content`.
+        col.addSpacing(SPACING["md"])
+        col.addWidget(self._build_reserved_surface())
+
         col.addStretch(1)
         scroll.setWidget(content)
         outer.addWidget(scroll, 1)
@@ -139,66 +148,61 @@ class StartupPage(QWidget):
 
     # -- pieces --------------------------------------------------------
     def _build_hero(self) -> QWidget:
-        """Wordmark + logo (LEFT: text, RIGHT: logo), no border/frame.
+        """Single row: LOGO | spaCR wordmark | subtitle.
 
-        The old version wrapped everything in a rounded QFrame; that
-        looked like a card on top of a card and the border was
-        distracting. This is just the wordmark + subtitle on the
-        page background — nothing to draw attention away from the
-        app tiles below.
+        Layout::
+
+            [🖼   large logo]   spaCR   End-to-end microscopy → …
+
+        Everything is baseline-aligned so the descender of "spaCR"
+        sits on the same line as the subtitle text.
         """
         hero = QWidget()
-        outer = QVBoxLayout(hero)
-        outer.setContentsMargins(0, 0, 0, 0)
-        outer.setSpacing(SPACING["md"])
-        outer.setAlignment(Qt.AlignCenter)
-
-        # Row: [wordmark]  [logo]  — logo on the RIGHT of the text
-        row = QHBoxLayout()
+        row = QHBoxLayout(hero)
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(SPACING["lg"])
-        row.setAlignment(Qt.AlignCenter)
+        row.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
+        # LEFT: logo (larger than before — 108 px, was 72).
+        logo_pix = _find_logo_pixmap()
+        if logo_pix is not None:
+            logo_lbl = QLabel()
+            logo_lbl.setPixmap(
+                logo_pix.scaled(108, 108, Qt.KeepAspectRatio,
+                                Qt.SmoothTransformation)
+            )
+            logo_lbl.setFixedSize(108, 108)
+            logo_lbl.setStyleSheet("background: transparent;")
+            row.addWidget(logo_lbl, alignment=Qt.AlignVCenter)
+
+        # CENTER: wordmark
         title = QLabel("spaCR")
         title.setStyleSheet(
             "font-family: 'Open Sans', sans-serif;"
             "font-weight: 300;"
-            "font-size: 56px;"
+            "font-size: 64px;"
             f"color: {PALETTE['accent']};"
             "letter-spacing: -1.2px;"
             "background: transparent;"
         )
         row.addWidget(title, alignment=Qt.AlignVCenter)
 
-        logo_pix = _find_logo_pixmap()
-        if logo_pix is not None:
-            logo_lbl = QLabel()
-            logo_lbl.setPixmap(
-                logo_pix.scaled(72, 72, Qt.KeepAspectRatio,
-                                Qt.SmoothTransformation)
-            )
-            logo_lbl.setFixedSize(72, 72)
-            logo_lbl.setStyleSheet("background: transparent;")
-            row.addWidget(logo_lbl, alignment=Qt.AlignVCenter)
-
-        outer.addLayout(row)
-
+        # RIGHT: subtitle, in the same line rather than stacked below.
         subtitle = QLabel(
             "End-to-end microscopy → single-cell measurements "
-            "→ genotype‑phenotype mapping."
+            "→ genotype-phenotype mapping."
         )
-        subtitle.setAlignment(Qt.AlignHCenter)
         subtitle.setWordWrap(True)
-        subtitle.setMinimumWidth(560)
-        subtitle.setMaximumWidth(900)
+        subtitle.setMinimumWidth(320)
         subtitle.setStyleSheet(
             "font-family: 'Open Sans', sans-serif;"
             "font-weight: 300;"
-            "font-size: 15px;"
+            "font-size: 16px;"
             f"color: {PALETTE['fg_muted']};"
             "background: transparent;"
+            "padding-left: 8px;"
         )
-        outer.addWidget(subtitle, alignment=Qt.AlignHCenter)
+        row.addWidget(subtitle, 1, alignment=Qt.AlignVCenter)
 
         return hero
 
@@ -400,6 +404,66 @@ class StartupPage(QWidget):
         lay.addStretch(1)
         return self._card_wrap("Totals", body)
 
+    def _build_reserved_surface(self) -> QWidget:
+        """Empty gray placeholder under the insights dashboard.
+
+        A future release will drop featured content here (news feed,
+        tutorial thumbnails, sponsored panels, whatever). For now it
+        renders as a rounded gray box with a subtle "Reserved for
+        featured content" caption so the layout doesn't collapse.
+        """
+        self._reserved_content: Optional[QWidget] = None
+        wrap = QWidget()
+        col = QVBoxLayout(wrap)
+        col.setContentsMargins(0, 0, 0, 0)
+        col.setSpacing(4)
+        hdr = QLabel("FEATURED".upper())
+        hdr.setStyleSheet(
+            "font-family: 'Open Sans', sans-serif; font-weight: 600;"
+            "font-size: 10px; letter-spacing: 2px;"
+            f"color: {PALETTE['fg_muted']};"
+        )
+        col.addWidget(hdr)
+
+        surface = QWidget()
+        surface.setObjectName("ReservedSurface")
+        surface.setMinimumHeight(140)
+        surface.setStyleSheet(
+            f"background: {PALETTE['surface_alt']};"
+            f"border: 1px solid {PALETTE['border_soft']};"
+            "border-radius: 10px;"
+        )
+        inner = QVBoxLayout(surface)
+        caption = QLabel("Reserved for featured content")
+        caption.setAlignment(Qt.AlignCenter)
+        caption.setStyleSheet(
+            f"color: {PALETTE['fg_dim']}; font-style: italic;"
+            "font-size: 12px; background: transparent;")
+        inner.addWidget(caption)
+        col.addWidget(surface)
+        self._reserved_surface = surface
+        return wrap
+
+    def set_reserved_content(self, widget: QWidget) -> None:
+        """Swap in a widget to fill the reserved surface.
+
+        Later releases (news feed, tutorial links, etc.) can call
+        this to promote the surface from placeholder to real content
+        without touching layout code.
+        """
+        surface = getattr(self, "_reserved_surface", None)
+        if surface is None:
+            return
+        # Clear existing children
+        lay = surface.layout()
+        while lay.count():
+            item = lay.takeAt(0)
+            w = item.widget()
+            if w is not None:
+                w.deleteLater()
+        lay.addWidget(widget)
+        self._reserved_content = widget
+
     def _build_recent_runs_section(self) -> Optional[QWidget]:
         """Return a "Recent runs" widget, or None if there's no history.
 
@@ -541,12 +605,18 @@ class StartupPage(QWidget):
         row.setContentsMargins(0, SPACING["xs"], 0, SPACING["md"])
         row.setSpacing(SPACING["sm"])
 
+        # Tiles in horizontal rows: show ONLY the name (no wrapped
+        # description). The description still surfaces in the sticky
+        # hint bar at the bottom on hover, so users don't lose that
+        # information — they just don't have to squint at a cut-off
+        # two-line label. The icon jumps up to 44 px so the tile
+        # reads as an app launcher, not a menu entry.
         for key, name, desc in entries:
             icon = icon_provider(key)
-            tile = HTile(text=name, description=desc, icon=icon,
-                          icon_size=28)
-            tile.setMinimumWidth(220)
-            tile.setMaximumWidth(260)
+            tile = HTile(text=name, description="", icon=icon,
+                          icon_size=44)
+            tile.setMinimumWidth(180)
+            tile.setMaximumWidth(240)
             self._tile_hints[tile] = desc
             tile.installEventFilter(self)
             tile.clicked.connect(lambda checked=False, k=key:
@@ -560,11 +630,9 @@ class StartupPage(QWidget):
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         scroll.setWidget(row_widget)
-        # One row of tiles ~= tile min-height + padding. Anchor the
-        # scroll area's height so it doesn't grow into vertical dead
-        # space and steal room from the insights dashboard below.
         from ..preferences import scaled_px
-        scroll.setFixedHeight(scaled_px(96))
+        # Slightly taller now to accommodate the bigger icon.
+        scroll.setFixedHeight(scaled_px(112))
         return scroll
 
     # -- sticky hint bar wiring ----------------------------------------

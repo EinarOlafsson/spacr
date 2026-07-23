@@ -92,12 +92,25 @@ APPS = [
 ]
 
 
+# Explicit key -> icon-filename overrides for cases where the app_key
+# doesn't match any resource filename. Add entries here rather than
+# renaming resource files.
+_ICON_OVERRIDES = {
+    "analyze_plaques": "plaque.png",
+    "queue":           "sequencing.png",   # closest visual match for now
+}
+
+
 def _icon_for_app(key: str) -> Optional[QIcon]:
     """Return a QIcon for an app key. Uses the bundled spacr PNG icon if
     present; falls back to a themed qtawesome glyph via iconset."""
     here = os.path.dirname(os.path.abspath(__file__))
     resources_dir = os.path.normpath(os.path.join(here, "..", "resources", "icons"))
-    for candidate in (f"{key}.png", f"{key.replace('_', ' ')}.png"):
+    candidates = []
+    if key in _ICON_OVERRIDES:
+        candidates.append(_ICON_OVERRIDES[key])
+    candidates += [f"{key}.png", f"{key.replace('_', ' ')}.png"]
+    for candidate in candidates:
         p = os.path.join(resources_dir, candidate)
         if os.path.exists(p):
             return QIcon(p)

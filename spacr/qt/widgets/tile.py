@@ -200,14 +200,28 @@ class HTile(QPushButton):
 
         name_lbl = QLabel(text)
         name_lbl.setObjectName("HTileName")
-        text_col.addWidget(name_lbl)
-
+        # Don't clip — the tile stretches to accommodate the label
+        # when longer app names appear. Explicit minimum width so
+        # short names still look proportionate.
+        name_lbl.setMinimumWidth(0)
+        from PySide6.QtWidgets import QSizePolicy
+        name_lbl.setSizePolicy(QSizePolicy.Expanding,
+                                 QSizePolicy.Preferred)
         if description:
+            # Description shown BELOW the name (two-line tile).
+            text_col.addStretch(1)
+            text_col.addWidget(name_lbl)
             desc_lbl = QLabel(description)
             desc_lbl.setObjectName("HTileDesc")
             desc_lbl.setWordWrap(True)
             text_col.addWidget(desc_lbl)
-        text_col.addStretch(1)
+            text_col.addStretch(1)
+        else:
+            # Name-only tile: vertically centre the label so it sits
+            # in the middle rather than pinned to the top-left.
+            text_col.addStretch(1)
+            text_col.addWidget(name_lbl)
+            text_col.addStretch(1)
 
         layout.addLayout(text_col, 1)
 
