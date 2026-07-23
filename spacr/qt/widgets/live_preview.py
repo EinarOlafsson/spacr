@@ -93,20 +93,23 @@ def load_preview_image(path: Path) -> np.ndarray:
         return np.asarray(im)
 
 
-def _to_uint8(img: np.ndarray, normalise: bool = True) -> np.ndarray:
+def _to_uint8(img: np.ndarray, normalise: bool = True,
+                lo_pct: float = 2.0, hi_pct: float = 98.0) -> np.ndarray:
     """Return a viewable uint8 version of *img*.
 
-    :param normalise: when True (default) apply a per-channel 2–98 %
-        percentile stretch. When False the array is clipped to
-        [0, 255] without any rescaling — useful when the user has
-        already normalised upstream and wants pixel values verbatim.
+    :param normalise: when True (default) apply a per-channel percentile
+        stretch. When False the array is clipped to [0, 255] without
+        any rescaling — useful when the user has already normalised
+        upstream and wants pixel values verbatim.
+    :param lo_pct: lower percentile for the stretch (default 2 %).
+    :param hi_pct: upper percentile for the stretch (default 98 %).
     """
     if img.ndim == 3 and img.shape[-1] in (2, 3, 4):
         out = np.zeros(img.shape[:2] + (3,), dtype=np.uint8)
         for c in range(min(3, img.shape[-1])):
             slice_ = img[..., c].astype(np.float32)
             if normalise:
-                lo, hi = np.percentile(slice_, (2, 98))
+                lo, hi = np.percentile(slice_, (lo_pct, hi_pct))
                 if hi <= lo:
                     continue
                 out[..., c] = np.clip(
@@ -117,7 +120,7 @@ def _to_uint8(img: np.ndarray, normalise: bool = True) -> np.ndarray:
         return out
     arr = img.astype(np.float32)
     if normalise:
-        lo, hi = np.percentile(arr, (2, 98))
+        lo, hi = np.percentile(arr, (lo_pct, hi_pct))
         if hi <= lo:
             return np.zeros(arr.shape, dtype=np.uint8)
         return np.clip(
@@ -140,7 +143,9 @@ def overlay_masks(image: np.ndarray,
                     masks: Dict[str, np.ndarray],
                     outline_rgb: Optional[Tuple[int, int, int]] = None,
                     outline_thickness: int = 1,
-                    normalise: bool = True) -> np.ndarray:
+                    normalise: bool = True,
+                    lo_pct: float = 2.0,
+                    hi_pct: float = 98.0) -> np.ndarray:
     """Return an RGB uint8 view of ``image`` with every mask's boundary
     drawn in the object's colour (or ``outline_rgb`` when supplied).
 
@@ -153,7 +158,8 @@ def overlay_masks(image: np.ndarray,
         by (1 = crisp, 3 = highlighter). Tops out at 5.
     :param normalise: forwarded to :func:`_to_uint8`.
     """
-    base = _to_uint8(image, normalise=normalise)
+    base = _to_uint8(image, normalise=normalise,
+                        lo_pct=lo_pct, hi_pct=hi_pct)
     if base.ndim == 2:
         rgb = np.stack([base, base, base], axis=-1)
     else:
@@ -177,12 +183,15 @@ def overlay_masks(image: np.ndarray,
     return rgb
 
 
-def numpy_to_qpixmap(arr: np.ndarray, normalise: bool = True) -> QPixmap:
+def numpy_to_qpixmap(arr: np.ndarray, normalise: bool = True,
+                        lo_pct: float = 2.0,
+                        hi_pct: float = 98.0) -> QPixmap:
     """Convert an (H, W) or (H, W, 3) array to a :class:`QPixmap`."""
     if arr.ndim == 2:
         arr = np.stack([arr, arr, arr], axis=-1)
     if arr.dtype != np.uint8:
-        arr = _to_uint8(arr, normalise=normalise)
+        arr = _to_uint8(arr, normalise=normalise,
+                          lo_pct=lo_pct, hi_pct=hi_pct)
     h, w, _ = arr.shape
     img = QImage(arr.tobytes(), w, h, w * 3, QImage.Format_RGB888)
     return QPixmap.fromImage(img.copy())
@@ -322,11 +331,21 @@ def _apply_size_filter(mask: np.ndarray,
 
 class _ZoomView(QGraphicsView):
     """A :class:`QGraphicsView` that emits pixel-hover events + supports
-    Ctrl+wheel zoom.
+    plain wheel-scroll zoom.
+
+    Two big usability upgrades over the first-cut version:
+
+    * **Wheel = zoom (no Ctrl needed).** Turning the wheel zooms
+      centred on the cursor. Shift+wheel scrolls the viewport
+      vertically if the user wants scroll behaviour.
+    * **Fit-to-height on load + resize.** The image always fills the
+      canvas at 100 % zoom until the user starts scrolling, so a small
+      preview panel doesn't leave the tile 1-cm tall in the corner.
+      Every ``resizeEvent`` re-fits — as the splitter is dragged, the
+      image grows to match.
 
     Zoom is broadcast to a peer view via :meth:`set_peer` so the mask
     canvas mirrors what the original canvas is doing (and vice versa).
-    Panning uses Qt's built-in ScrollHandDrag on middle-click.
     """
 
     hover_pixel = Signal(int, int)   # (x, y) in image coords
@@ -340,19 +359,23 @@ class _ZoomView(QGraphicsView):
         self._peer: Optional["_ZoomView"] = None
         self._syncing = False
         self._scale = 1.0
+        self._user_zoomed = False
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
         self.setResizeAnchor(QGraphicsView.AnchorUnderMouse)
         self.setDragMode(QGraphicsView.ScrollHandDrag)
         self.setMouseTracking(True)
         self.viewport().setMouseTracking(True)
+        self.setFrameShape(QGraphicsView.NoFrame)
 
     def set_pixmap(self, pixmap: QPixmap) -> None:
         self._scene.clear()
         self._pixmap_item = self._scene.addPixmap(pixmap)
         self._scene.setSceneRect(QRectF(pixmap.rect()))
-        # Fit-in-view on first load so users see the whole tile.
-        self.resetTransform()
+        # Fit-in-view on load, and forget any previous user zoom so the
+        # new image starts at 100 % of the canvas.
+        self._user_zoomed = False
         self._scale = 1.0
+        self.resetTransform()
         self.fitInView(self._scene.sceneRect(), Qt.KeepAspectRatio)
 
     def set_peer(self, peer: "_ZoomView") -> None:
@@ -361,22 +384,38 @@ class _ZoomView(QGraphicsView):
     def scale_factor(self) -> float:
         return self._scale
 
+    def reset_zoom(self) -> None:
+        """Snap back to fit-in-view (100 % of the container)."""
+        self._user_zoomed = False
+        self._scale = 1.0
+        self.resetTransform()
+        if self._pixmap_item is not None:
+            self.fitInView(self._scene.sceneRect(), Qt.KeepAspectRatio)
+
     # -- events ------------------------------------------------------------
 
     def wheelEvent(self, event):
-        """Ctrl+wheel zooms; plain wheel scrolls (default)."""
-        if event.modifiers() & Qt.ControlModifier:
-            factor = 1.25 if event.angleDelta().y() > 0 else 0.8
-            self._apply_zoom(factor, broadcast=True)
-            event.accept()
+        """Plain wheel = zoom around cursor. Shift+wheel = scroll."""
+        if event.modifiers() & Qt.ShiftModifier:
+            super().wheelEvent(event)
             return
-        super().wheelEvent(event)
+        factor = 1.20 if event.angleDelta().y() > 0 else 0.833
+        self._apply_zoom(factor, broadcast=True)
+        event.accept()
+
+    def resizeEvent(self, event):
+        """Refit the tile whenever the container size changes, unless
+        the user has manually zoomed in / out."""
+        super().resizeEvent(event)
+        if not self._user_zoomed and self._pixmap_item is not None:
+            self.fitInView(self._scene.sceneRect(), Qt.KeepAspectRatio)
 
     def _apply_zoom(self, factor: float, broadcast: bool = False) -> None:
         if self._syncing:
             return
         self.scale(factor, factor)
         self._scale *= factor
+        self._user_zoomed = True
         self.zoom_changed.emit(self._scale)
         if broadcast and self._peer is not None:
             self._peer._syncing = True
@@ -418,51 +457,27 @@ class LivePreviewPanel(QWidget):
         root = QVBoxLayout(self)
         root.setContentsMargins(8, 8, 8, 8)
 
-        # File picker row
-        pick_row = QHBoxLayout()
-        self._path_label = QLabel("No preview image loaded", self)
-        self._path_label.setSizePolicy(
-            QSizePolicy.Expanding, QSizePolicy.Preferred)
-        pick_btn = QPushButton("Choose image…", self)
-        pick_btn.clicked.connect(self._pick_file)
-        pick_row.addWidget(self._path_label, 1)
-        pick_row.addWidget(pick_btn)
-        root.addLayout(pick_row)
-
-        # Params row 1 — model + object type + channels + normalise
-        row1 = QHBoxLayout()
+        # -- HIDDEN state widgets ----------------------------------------
+        # Every parameter widget lives here even though only a subset
+        # appears in the collapsed layout. The Live Settings dialog
+        # re-parents them into its own form when it opens, then hands
+        # them back on close so their values persist across opens.
+        # All widgets are children of `self` so they're never
+        # garbage-collected while re-parented.
         self._model_box = QComboBox(self)
-        # Cellpose-SAM is default; older models remain as legacy.
         self._model_box.addItems(["cpsam", "cyto3", "cyto2", "nuclei"])
         self._model_box.currentIndexChanged.connect(
-            self._on_model_changed)
+            self._on_model_or_object_changed)
+
         self._object_box = QComboBox(self)
         self._object_box.addItems(list(OBJECT_TYPES))
         self._object_box.currentIndexChanged.connect(
-            self._on_object_changed)
+            self._on_model_or_object_changed)
 
         self._cell_channel = QSpinBox(self); self._cell_channel.setRange(0, 8)
         self._nucleus_channel = QSpinBox(self); self._nucleus_channel.setRange(0, 8)
         self._nucleus_channel.setValue(1)
 
-        self._normalise_check = QCheckBox("Normalise (2-98%)", self)
-        self._normalise_check.setChecked(True)
-        self._normalise_check.toggled.connect(self._refresh_canvases)
-
-        for label, w in (("model", self._model_box),
-                          ("object", self._object_box),
-                          ("cell ch", self._cell_channel),
-                          ("nucleus ch", self._nucleus_channel),
-                          ("", self._normalise_check)):
-            col = QVBoxLayout()
-            if label:
-                col.addWidget(QLabel(label, self))
-            col.addWidget(w)
-            row1.addLayout(col)
-        root.addLayout(row1)
-
-        # Params row 2 — model-specific numeric params (may be hidden)
-        row2 = QHBoxLayout()
         self._diameter = QDoubleSpinBox(self)
         self._diameter.setRange(0, 400); self._diameter.setValue(30.0)
         self._diameter.setSuffix(" px")
@@ -472,6 +487,20 @@ class LivePreviewPanel(QWidget):
         self._prob = QDoubleSpinBox(self)
         self._prob.setRange(-6, 6); self._prob.setSingleStep(0.1)
         self._prob.setValue(0.0)
+
+        # Two-field percentile stretch — user asked for this shape
+        # explicitly (was a single toggle before).
+        self._normalise_check = QCheckBox("Normalise", self)
+        self._normalise_check.setChecked(True)
+        self._normalise_check.toggled.connect(self._refresh_canvases)
+        self._lo_pct = QDoubleSpinBox(self)
+        self._lo_pct.setRange(0, 50); self._lo_pct.setValue(2.0)
+        self._lo_pct.setSuffix(" %")
+        self._lo_pct.valueChanged.connect(self._refresh_canvases)
+        self._hi_pct = QDoubleSpinBox(self)
+        self._hi_pct.setRange(50, 100); self._hi_pct.setValue(98.0)
+        self._hi_pct.setSuffix(" %")
+        self._hi_pct.valueChanged.connect(self._refresh_canvases)
 
         # Outline appearance
         self._outline_colour = QComboBox(self)
@@ -486,55 +515,55 @@ class LivePreviewPanel(QWidget):
         self._outline_thickness.valueChanged.connect(
             self._refresh_canvases)
 
-        self._param_widgets: Dict[str, Tuple[QWidget, QWidget]] = {}
-        for label, w in (("diameter", self._diameter),
-                          ("flow_threshold", self._flow),
-                          ("cellprob", self._prob),
-                          ("outline", self._outline_colour),
-                          ("thickness", self._outline_thickness)):
-            col = QVBoxLayout()
-            hdr = QLabel(label, self)
-            col.addWidget(hdr)
-            col.addWidget(w)
-            wrap = QWidget(self); wrap.setLayout(col)
-            self._param_widgets[label] = (hdr, wrap)
-            row2.addWidget(wrap)
-        root.addLayout(row2)
+        # Pre / Post checkboxes live inside the settings dialog too.
+        self._pre_check = QCheckBox("Pre (cell background / min-max)",
+                                       self)
+        self._pre_check.toggled.connect(self._on_pre_toggle)
+        self._post_check = QCheckBox(
+            "Post (size filter after Cellpose)", self)
+        self._post_check.toggled.connect(self._on_post_toggle)
 
-        # Action row — "Run preview" + Pre / Post toggles
+        # Keep every hidden helper widget parented but invisible so it
+        # doesn't render in the compact layout.
+        for w in (self._model_box, self._object_box,
+                    self._cell_channel, self._nucleus_channel,
+                    self._diameter, self._flow, self._prob,
+                    self._normalise_check, self._lo_pct, self._hi_pct,
+                    self._outline_colour, self._outline_thickness,
+                    self._pre_check, self._post_check):
+            w.hide()
+
+        # -- VISIBLE compact layout --------------------------------------
+
+        # File picker row
+        pick_row = QHBoxLayout()
+        self._path_label = QLabel("No preview image loaded", self)
+        self._path_label.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Preferred)
+        pick_btn = QPushButton("Choose image…", self)
+        pick_btn.clicked.connect(self._pick_file)
+        pick_row.addWidget(self._path_label, 1)
+        pick_row.addWidget(pick_btn)
+        root.addLayout(pick_row)
+
+        # Action row — Run + Live settings + status
         act = QHBoxLayout()
         self._run_btn = QPushButton("Run preview", self)
         self._run_btn.clicked.connect(self.run_preview)
-        # The Pre / Post toggles borrow the AiToggleLabel look (white
-        # text off → accent blue on) so they read as siblings of the
-        # LP + AI switches on the app screen.
-        from .ai_toggle_label import AiToggleLabel
-        self._pre_toggle = AiToggleLabel(
-            text="Pre",
-            tooltip=("When ON, background subtraction / cell-min "
-                      "settings from the Mask app apply BEFORE Cellpose."),
-        )
-        self._pre_toggle.toggled.connect(self._on_pre_toggle)
-        self._post_toggle = AiToggleLabel(
-            text="Post",
-            tooltip=("When ON, cell min/max size filters apply AFTER "
-                      "Cellpose. Uses the Mask app's cell_min_size / "
-                      "cell_max_size / nucleus_min_size / …"),
-        )
-        self._post_toggle.toggled.connect(self._on_post_toggle)
+        self._live_settings_btn = QPushButton("Live settings…", self)
+        self._live_settings_btn.clicked.connect(self.open_live_settings)
         self._status = QLabel("", self)
         act.addWidget(self._run_btn)
-        act.addWidget(self._pre_toggle)
-        act.addWidget(self._post_toggle)
+        act.addWidget(self._live_settings_btn)
         act.addWidget(self._status, 1)
         root.addLayout(act)
 
         # Twin zoomable canvases in a synchronised pair.
         canvas = QHBoxLayout()
         self._src_view = _ZoomView(self)
-        self._src_view.setMinimumHeight(256)
+        self._src_view.setMinimumHeight(160)
         self._mask_view = _ZoomView(self)
-        self._mask_view.setMinimumHeight(256)
+        self._mask_view.setMinimumHeight(160)
         self._src_view.set_peer(self._mask_view)
         self._mask_view.set_peer(self._src_view)
         self._src_view.hover_pixel.connect(self._on_hover)
@@ -550,9 +579,10 @@ class LivePreviewPanel(QWidget):
                                             "font-family: monospace;")
         root.addWidget(self._hover_label)
 
-        # Kick model-aware visibility once so cpsam hides the ignored
-        # options at first show.
-        self._on_model_changed()
+        # Book-keeping for the dialog-based settings surface. Kept as
+        # a member so tests + external hooks can introspect / drive it.
+        self._live_settings_dialog: Optional["LiveSettingsDialog"] = None
+        self._on_model_or_object_changed()
 
     # -- public API --------------------------------------------------------
 
@@ -603,9 +633,12 @@ class LivePreviewPanel(QWidget):
             "cell_channel": self._cell_channel.value(),
             "nucleus_channel": self._nucleus_channel.value(),
             "normalise": self._normalise_check.isChecked(),
+            "lo_pct": float(self._lo_pct.value()),
+            "hi_pct": float(self._hi_pct.value()),
             "pre": self._pre_on,
             "post": self._post_on,
             "outline_thickness": self._outline_thickness.value(),
+            "outline_colour": self._outline_colour.currentText(),
         }
 
     def run_preview(self):
@@ -671,39 +704,64 @@ class LivePreviewPanel(QWidget):
         if self._image is None:
             return
         norm = self._normalise_check.isChecked()
-        src_pix = numpy_to_qpixmap(_to_uint8(self._image, normalise=norm))
+        lo = float(self._lo_pct.value())
+        hi = float(self._hi_pct.value())
+        src_pix = numpy_to_qpixmap(
+            _to_uint8(self._image, normalise=norm, lo_pct=lo, hi_pct=hi))
         self._src_view.set_pixmap(src_pix)
         if self._masks:
             overlay = overlay_masks(
                 self._image, self._masks,
                 outline_rgb=self._outline_rgb(),
                 outline_thickness=self._outline_thickness.value(),
-                normalise=norm)
+                normalise=norm, lo_pct=lo, hi_pct=hi)
             self._mask_view.set_pixmap(numpy_to_qpixmap(overlay))
         else:
-            # Show a copy of the src on the mask side until a run finishes
             self._mask_view.set_pixmap(src_pix)
 
-    def _on_model_changed(self, *_):
-        """Hide Cellpose-SAM-ignored knobs when SAM is selected."""
-        is_sam = self._model_box.currentText() == "cpsam"
-        for key in ("diameter", "flow_threshold", "cellprob"):
-            hdr, wrap = self._param_widgets[key]
-            hdr.setVisible(not is_sam)
-            wrap.setVisible(not is_sam)
-
-    def _on_object_changed(self, *_):
-        """Hide the unused channel spin depending on object type."""
-        obj = self._object_box.currentText()
-        # Cell-only: hide nucleus channel. Nucleus-only: hide cell.
-        self._cell_channel.setVisible(obj != "nucleus")
-        self._nucleus_channel.setVisible(obj != "cell")
+    def _on_model_or_object_changed(self, *_):
+        """Refresh visibility state — no visible-widget mutation on
+        the compact layout anymore (options are hidden by default and
+        only shown inside the Live Settings dialog when it's open).
+        The dialog re-reads visibility rules on open, so nothing to
+        do here at rest."""
+        # Kept as a hook so any observers subscribed to model/object
+        # combo changes still fire.
+        dlg = self._live_settings_dialog
+        if dlg is not None:
+            try:
+                dlg.refresh_visibility()
+            except Exception:
+                pass
 
     def _on_pre_toggle(self, on: bool):
         self._pre_on = on
 
     def _on_post_toggle(self, on: bool):
         self._post_on = on
+
+    def open_live_settings(self):
+        """Open (or focus) the Live Settings modal.
+
+        The dialog rehomes every hidden state widget into its form so
+        the user's edits go straight into `self._*` — nothing to sync.
+        On close, widgets are re-parented back to `self` (hidden again)
+        so state persists across opens.
+        """
+        if (self._live_settings_dialog is not None
+                and self._live_settings_dialog.isVisible()):
+            self._live_settings_dialog.raise_()
+            self._live_settings_dialog.activateWindow()
+            return
+        self._live_settings_dialog = LiveSettingsDialog(self)
+        self._live_settings_dialog.finished.connect(self._on_settings_closed)
+        self._live_settings_dialog.show()
+
+    def _on_settings_closed(self, *_):
+        # Refresh canvases in case a visual-only setting changed (e.g.
+        # outline colour) while the dialog was open.
+        self._refresh_canvases()
+        self._live_settings_dialog = None
 
     def _pick_file(self):
         path, _ = QFileDialog.getOpenFileName(
@@ -758,6 +816,101 @@ class LivePreviewPanel(QWidget):
         self._status.setText(f"Found {', '.join(counts)}.")
         self._refresh_canvases()
         self.preview_ready.emit(masks)
+
+
+# ---------------------------------------------------------------------------
+# Live Settings dialog
+# ---------------------------------------------------------------------------
+
+from PySide6.QtWidgets import (
+    QDialog, QDialogButtonBox, QFormLayout,
+)
+
+
+class LiveSettingsDialog(QDialog):
+    """Modal dialog that surfaces every live-preview setting.
+
+    Re-parents the panel's hidden state widgets into a QFormLayout so
+    edits go straight into the panel's canonical fields — nothing to
+    sync manually. On close, widgets are returned to the panel hidden
+    so their values persist across opens.
+
+    Rows shown (per the user's spec):
+      * Normalisation upper + lower percentile
+      * Outline colour
+      * Outline thickness
+      * Model
+      * Flow threshold
+      * Cell probability
+      * Object type
+      * Object channel (cell / nucleus depending on selection)
+      * Pre  (bool)
+      * Post (bool)
+    """
+
+    def __init__(self, panel: "LivePreviewPanel"):
+        super().__init__(panel)
+        self._panel = panel
+        self.setWindowTitle("Live settings")
+        self.setMinimumWidth(360)
+        outer = QVBoxLayout(self)
+        form = QFormLayout()
+
+        # Show the widgets we'll be adding, then re-hide them on close.
+        for w in self._managed_widgets():
+            w.show()
+
+        form.addRow("Model", panel._model_box)
+        form.addRow("Object", panel._object_box)
+        form.addRow("Cell channel", panel._cell_channel)
+        form.addRow("Nucleus channel", panel._nucleus_channel)
+        form.addRow("Diameter", panel._diameter)
+        form.addRow("Flow threshold", panel._flow)
+        form.addRow("Cell probability", panel._prob)
+        form.addRow(panel._normalise_check)
+        form.addRow("Lower percentile", panel._lo_pct)
+        form.addRow("Upper percentile", panel._hi_pct)
+        form.addRow("Outline colour", panel._outline_colour)
+        form.addRow("Outline thickness", panel._outline_thickness)
+        form.addRow(panel._pre_check)
+        form.addRow(panel._post_check)
+
+        outer.addLayout(form)
+        buttons = QDialogButtonBox(QDialogButtonBox.Close)
+        buttons.rejected.connect(self.close)
+        buttons.accepted.connect(self.close)
+        outer.addWidget(buttons)
+
+        self.refresh_visibility()
+
+    def _managed_widgets(self):
+        p = self._panel
+        return [p._model_box, p._object_box, p._cell_channel,
+                p._nucleus_channel, p._diameter, p._flow, p._prob,
+                p._normalise_check, p._lo_pct, p._hi_pct,
+                p._outline_colour, p._outline_thickness,
+                p._pre_check, p._post_check]
+
+    def refresh_visibility(self):
+        """Hide model-ignored knobs when Cellpose-SAM is selected and
+        the unused channel spin depending on object type."""
+        p = self._panel
+        is_sam = p._model_box.currentText() == "cpsam"
+        for w in (p._diameter, p._flow, p._prob):
+            w.setEnabled(not is_sam)
+            w.setToolTip("Ignored by Cellpose-SAM" if is_sam else "")
+        obj = p._object_box.currentText()
+        p._cell_channel.setEnabled(obj != "nucleus")
+        p._nucleus_channel.setEnabled(obj != "cell")
+
+    def closeEvent(self, event):
+        """Re-hide the state widgets so the compact layout stays clean."""
+        for w in self._managed_widgets():
+            w.hide()
+            # Re-parent back to the panel so the widget survives dialog
+            # deletion (Qt would otherwise destroy children).
+            w.setParent(self._panel)
+        super().closeEvent(event)
 
 
 # ---------------------------------------------------------------------------
