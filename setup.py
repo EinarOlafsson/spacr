@@ -71,10 +71,12 @@ dependencies = [
     'ipywidgets>=8.1.2,<9.0',
     'brokenaxes>=0.6.2,<1.0',
     # spacr only calls huggingface_hub.list_repo_files() — a stable API
-    # across 0.x and 1.x. Pin >=1.2 so we resolve alongside modern
-    # datasets (>=0.25) and gradio (>=1.2) without conflict, and <2
-    # so any breaking 2.x release doesn't silently break spacr users.
-    'huggingface-hub>=1.2,<2',
+    # across 0.x and 1.x. The primary constraint is transformers
+    # (a hard spacr dep) which still pins huggingface-hub<1.0 through
+    # its latest 4.57.x release. `datasets>=0.25` (transitive from
+    # transformers) resolves inside 0.25..<1.0 fine. Wider `>=1.2` was
+    # tempting but it makes `pip install spacr` unresolvable.
+    'huggingface-hub>=0.25,<1.0',
     'protobuf>=5.28.3,<6.0'
     #'tensorflow>=2.20.0,<3.0',
     #'stardist>=0.9,<1.0'
