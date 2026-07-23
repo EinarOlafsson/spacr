@@ -58,14 +58,24 @@ jobs:
           QT_QPA_PLATFORM: offscreen
         run: |
           rm -rf docs/_build docs/source/api
-          # Don't fail the build on individual docstring warnings —
-          # docutils flags every unindented code block, and there are
-          # some in the hand-written docstring pass we accept for now.
-          # `-W` would upgrade warnings to errors; we deliberately leave
-          # it off.
-          sphinx-build -E -b html docs/source docs/_build/html
-          # Sphinx build root needs a .nojekyll so Pages doesn't strip
-          # underscore-prefixed asset folders (_static, _sources, …).
+          # --keep-going: continue past docutils errors in individual
+          # docstrings (an unindented code block in one docstring should
+          # not sink the whole site). Capture the build log for the
+          # summary + check `index.html` was produced; if it was, we
+          # ship it regardless of docutils warnings.
+          set +e
+          sphinx-build -E -b html --keep-going \
+            docs/source docs/_build/html 2>&1 | tee /tmp/sphinx.log
+          rc=${PIPESTATUS[0]}
+          set -e
+          echo "sphinx-build exit=$rc"
+          if [ ! -f docs/_build/html/index.html ]; then
+            echo "FATAL: no index.html produced"
+            tail -80 /tmp/sphinx.log
+            exit 1
+          fi
+          echo "produced $(find docs/_build/html -name '*.html' | wc -l) HTML pages"
+          # Pages needs .nojekyll to preserve _static / _sources folders
           touch docs/_build/html/.nojekyll
 
       - name: Configure Pages
