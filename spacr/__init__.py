@@ -57,8 +57,10 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "sp_stats",
     "sim",
     "object",
+    "cli_repro",
     "logger",
     "logging_util",
+    "run_journal",
     "version",
 )
 
