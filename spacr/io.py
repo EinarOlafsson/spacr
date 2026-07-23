@@ -1679,6 +1679,8 @@ def preprocess_img_data(settings):
             seen[ch] = len(mask_channels)
             mask_channels.append(ch)
     
+    from .settings import set_default_settings_preprocess_img_data
+    from .utils import _get_regex, _run_test_mode
     settings = set_default_settings_preprocess_img_data(settings)
 
     regex = _get_regex(settings['metadata_type'], img_format, settings['custom_regex'])

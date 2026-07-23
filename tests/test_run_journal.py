@@ -105,3 +105,21 @@ def test_load_run_settings_roundtrip(tmp_path):
     assert loaded["src"] == "/foo"
     assert loaded["n"] == 42
     assert loaded["flag"] is True
+
+
+def test_current_run_tracks_open_scope(tmp_path):
+    """``current_run()`` should point at the active Run inside the
+    context and None outside it — including after an exception."""
+    from spacr.run_journal import open_run, current_run
+    assert current_run() is None
+    with open_run("mask", {"src": "/x"}) as run:
+        assert current_run() is run
+    assert current_run() is None
+    # And on exception
+    try:
+        with open_run("mask", {}) as run:
+            assert current_run() is run
+            raise RuntimeError("boom")
+    except RuntimeError:
+        pass
+    assert current_run() is None

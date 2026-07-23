@@ -389,6 +389,47 @@ def stream_originals_to_stack(
     return written
 
 
+def _record_cellpose_hash(model, model_name: str) -> None:
+    """Best-effort — fingerprint the Cellpose checkpoint and record it
+    on the currently-open :class:`spacr.run_journal.Run`, if any."""
+    try:
+        # Cellpose's model object usually exposes `pretrained_model`
+        # (list of paths) or `.cp.pretrained_model`.
+        ckpt_paths = []
+        for attr in ("pretrained_model", "cp"):
+            obj = getattr(model, attr, None)
+            if obj is None:
+                continue
+            if isinstance(obj, (list, tuple)):
+                ckpt_paths.extend(obj)
+            else:
+                nested = getattr(obj, "pretrained_model", None)
+                if nested is not None:
+                    if isinstance(nested, (list, tuple)):
+                        ckpt_paths.extend(nested)
+                    else:
+                        ckpt_paths.append(nested)
+        # Filter to real existing files
+        ckpt_paths = [Path(p) for p in ckpt_paths
+                       if p and Path(p).is_file()]
+        if not ckpt_paths:
+            return
+        # Push to the OPEN run journal, if any. We do this via a
+        # thread-local convenience — see spacr.run_journal for the
+        # active-run registry.
+        try:
+            from .run_journal import current_run
+            run = current_run()
+            if run is None:
+                return
+            for ckpt in ckpt_paths:
+                run.record_model(model_name, ckpt)
+        except Exception:
+            pass
+    except Exception:
+        pass
+
+
 def _read_plane(path: str) -> np.ndarray:
     """Read a single 2-D image plane (H, W) as uint16."""
     p = Path(path)
@@ -458,6 +499,11 @@ def stream_masks_from_stack(
         ) from e
 
     model = cp_models.Cellpose(gpu=True, model_type=model_name)
+
+    # Record the exact model checkpoint hash into the active run
+    # journal, if one is open. Downstream reviewers can then trace
+    # any mask back to the specific weights that produced it.
+    _record_cellpose_hash(model, model_name)
 
     for batch_start in range(0, len(stacks), batch_fields):
         batch = stacks[batch_start:batch_start + batch_fields]

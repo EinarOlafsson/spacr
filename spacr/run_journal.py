@@ -276,6 +276,22 @@ class Run:
 # Context manager
 # ---------------------------------------------------------------------------
 
+_ACTIVE_RUN: Optional["Run"] = None
+
+
+def current_run() -> Optional["Run"]:
+    """Return the :class:`Run` currently open in this process, or None.
+
+    Useful for pipeline internals (Cellpose model loaders, etc.) that
+    want to record a model checkpoint hash without every caller
+    needing to plumb the :class:`Run` object through.
+
+    Not thread-local — spaCR pipelines run one at a time; if that
+    changes we'll switch to :mod:`threading.local`.
+    """
+    return _ACTIVE_RUN
+
+
 @contextmanager
 def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
     """Open a fresh run journal folder around a pipeline invocation.
@@ -294,10 +310,13 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
         the run folder as both JSON and CSV.
     :yields: the :class:`Run` object.
     """
+    global _ACTIVE_RUN
     run = Run(app_key=app_key, settings=dict(settings or {}),
                 dir=_new_run_dir(app_key))
     run._write_settings()
     LOG.info("run opened → %s", run.dir)
+    prev_active = _ACTIVE_RUN
+    _ACTIVE_RUN = run
     try:
         yield run
         if run.status == "running":
@@ -310,6 +329,7 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
         )
         raise
     finally:
+        _ACTIVE_RUN = prev_active
         run.end_ts = time.time()
         run._snapshot_log_tail()
         run._write_manifest()

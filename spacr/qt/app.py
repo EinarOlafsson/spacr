@@ -290,6 +290,10 @@ class MainWindow(QMainWindow):
         act_about = QAction("About spaCR", self)
         act_about.triggered.connect(self._show_about)
         help_menu.addAction(act_about)
+        help_menu.addSeparator()
+        act_update = QAction("Check for updates…", self)
+        act_update.triggered.connect(self._check_for_updates)
+        help_menu.addAction(act_update)
 
     def _open_url(self, url: str):
         """Open ``url`` in the system browser; surface failures in the status bar."""
@@ -387,6 +391,56 @@ class MainWindow(QMainWindow):
                           f"<p>Spatial single-cell analysis for microscopy data.</p>"
                           f"<p><b>Version:</b> {version}</p>"
                           f"<p>© Olafsson Lab</p>")
+
+    def _check_for_updates(self):
+        """Query PyPI/GitHub in a background thread, prompt to upgrade.
+
+        The GUI thread stays responsive: the network call runs on a
+        Qt worker thread, and the ``UpdateInfo`` result gets marshalled
+        back via a signal.
+        """
+        from PySide6.QtCore import QThread, Signal
+        try:
+            from spacr.updater import check_for_updates, run_pip_upgrade
+        except Exception as e:
+            QMessageBox.warning(self, "Updates",
+                                f"Update check unavailable: {e}")
+            return
+
+        class _Worker(QThread):
+            done = Signal(object)
+            def run(self_):
+                self_.done.emit(check_for_updates())
+
+        self.statusBar().showMessage("Checking for updates…", 4000)
+        worker = _Worker(self)
+        def _on_done(info):
+            if info.error and not info.latest_release:
+                QMessageBox.warning(self, "Updates",
+                    f"Couldn't reach update server:\n{info.error}")
+                return
+            if info.upgrade_available:
+                msg = (f"A new version is available.\n\n"
+                       f"Installed: {info.installed_version}\n"
+                       f"Latest:    {info.latest_release}\n\n"
+                       f"Run pip install --upgrade spacr now?")
+                if QMessageBox.question(self, "Update available", msg
+                        ) == QMessageBox.Yes:
+                    rc = run_pip_upgrade()
+                    if rc == 0:
+                        QMessageBox.information(self, "Updates",
+                            "Upgrade finished. Restart spaCR to use it.")
+                    else:
+                        QMessageBox.warning(self, "Updates",
+                            f"pip returned exit code {rc}. "
+                            "Check the terminal for details.")
+            else:
+                QMessageBox.information(self, "Updates",
+                    f"You're on {info.installed_version}. No updates.")
+        worker.done.connect(_on_done)
+        worker.finished.connect(worker.deleteLater)
+        worker.start()
+        self._update_worker = worker
 
     # -- shutdown ----------------------------------------------------------
     def closeEvent(self, event):
