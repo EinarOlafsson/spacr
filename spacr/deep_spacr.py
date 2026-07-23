@@ -499,15 +499,54 @@ def test_model_performance(loaders, model, loader_name_list, epoch, loss_type):
     return result_df, results_df
 
 def train_test_model(settings):
-    """Train a vision classifier on ``settings['src']`` and evaluate on the held-out split.
+    """Train a vision classifier on a spacr training dataset and/or evaluate it on the held-out ``test/`` split.
 
-    Handles loader generation, checkpoint loading, epoch loop, best-model
-    picking and copying of misclassified examples.
+    Given a dataset folder ``src`` laid out as ``train/<class>/*.png`` and
+    ``test/<class>/*.png`` (as produced by
+    :func:`spacr.io.generate_dataset`), this function optionally trains a
+    torchvision-style model (``model_type``), then optionally scores the
+    test split and copies misclassified images into a review folder.
+    Best-checkpoint selection is automatic when ``train=False`` and
+    ``test=True``.
 
-    :param settings: Settings dict — see
-        ``settings.get_train_test_model_settings`` for keys.
-    :returns: The final training/validation results as populated by the
-        underlying pipeline (see call sites for details).
+    :param settings: Settings dict, canonicalized via
+        :func:`spacr.settings.get_train_test_model_settings`. Key entries:
+
+        - ``src`` — dataset root containing ``train/`` and ``test/``.
+        - ``model_type`` — e.g. ``'maxvit_t'``, ``'resnet50'``.
+        - ``classes`` — list of class names, must match subfolder names.
+        - ``epochs``, ``batch_size``, ``learning_rate``, ``weight_decay``.
+        - ``image_size``, ``train_channels`` (e.g. ``['r','g','b']``),
+          ``normalize`` (``[low, high]`` percentiles).
+        - ``val_split`` — fraction pulled from ``train/`` for validation.
+        - ``loss_type`` — ``'auto'``, ``'cross_entropy'``,
+          ``'binary_cross_entropy_with_logits'``.
+        - ``train`` / ``test`` — flip the two halves of the pipeline.
+        - ``augment``, ``dropout_rate``, ``optimizer_type``,
+          ``early_stopping_patience``, ``n_jobs``, ``pin_memory``.
+
+    :returns: Path to the saved best model (when ``train=True``) or path to
+        the test-result CSV (when ``train=False`` and ``test=True``).
+    :raises ValueError: if ``settings['classes']`` is missing or empty.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.deep_spacr import train_test_model
+            settings = {
+                'src': '/data/dataset_v1',
+                'model_type': 'maxvit_t', 'classes': ['neg', 'pos'],
+                'epochs': 25, 'batch_size': 32, 'learning_rate': 1e-4,
+                'image_size': 224, 'train_channels': ['r','g','b'],
+                'train': True, 'test': True,
+            }
+            model_path = train_test_model(settings)
+
+    See Also:
+        :func:`spacr.deep_spacr.deep_spacr` — full end-to-end training +
+        activation-map pipeline.
+        :func:`spacr.io.generate_dataset` — build the ``train/``/``test/``
+        folder tree.
     """
     from .io import _copy_missclassified
     from .utils import pick_best_model, save_settings
@@ -1374,17 +1413,56 @@ def merge_predictions_into_db(df, db_path, table='png_list', pred_col='pred',
     return matched
             
 def deep_spacr(settings=None):
-    """End-to-end vision pipeline: dataset generation, training, inference and DB merge.
+    """Run the full spacr deep-learning pipeline: build dataset, train, apply model, merge predictions into the measurements DB.
 
-    Depending on flags in ``settings`` — ``train``, ``test``,
-    ``generate_training_dataset``, ``apply_model_to_dataset`` — this
-    driver builds train/test splits, trains a classifier, runs
-    inference against a tar archive, saves top-N confident examples per
-    class and merges predictions back into the measurements database.
+    High-level driver that chains :func:`spacr.io.generate_training_dataset`
+    -> :func:`train_test_model` -> :func:`spacr.io.generate_dataset` (tar)
+    -> :func:`apply_model_to_tar` -> :func:`save_top_class_examples` ->
+    :func:`merge_predictions_into_db`. Each stage is toggled by a flag
+    in ``settings`` so the same call can (re)train from scratch, only
+    apply a saved model, or only merge predictions.
 
-    :param settings: Settings dict; see ``settings.deep_spacr_defaults``
-        for accepted keys.
-    :returns: None (early-returns if training-dataset generation fails).
+    :param settings: Settings dict; canonicalized via
+        :func:`spacr.settings.deep_spacr_defaults`. Key flags/inputs:
+
+        - ``src`` — root folder(s) containing per-object PNGs from
+          :func:`spacr.measure.measure_crop`.
+        - ``generate_training_dataset`` — build ``train/``/``test/``
+          splits via annotation rules before training.
+        - ``train`` / ``test`` — pass-through to :func:`train_test_model`.
+        - ``apply_model_to_dataset`` — run inference on a tar of PNGs.
+        - ``model_path`` — pretrained checkpoint to reuse when
+          ``train=False``.
+        - ``tar_path`` — pre-built dataset tar; regenerated if missing.
+        - ``n_top_examples`` — how many top-confidence images per class
+          to copy into ``top_examples/``.
+        - Plus every key consumed by :func:`train_test_model`,
+          :func:`spacr.io.generate_training_dataset`, and
+          :func:`spacr.io.generate_dataset`.
+
+    :returns: None. Writes model checkpoints, ``DL_model_settings.csv``,
+        a dataset tar, ``top_examples/`` and updates the
+        ``measurements.db`` in-place.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.deep_spacr import deep_spacr
+            settings = {
+                'src': '/data/plate01',
+                'generate_training_dataset': True,
+                'train': True, 'test': True,
+                'apply_model_to_dataset': True,
+                'model_type': 'maxvit_t', 'classes': ['neg','pos'],
+                'epochs': 25, 'batch_size': 32,
+            }
+            deep_spacr(settings)
+
+    See Also:
+        :func:`train_test_model` — training-only entry point.
+        :func:`spacr.io.generate_training_dataset` — labeling from
+        annotation rules.
+        :func:`apply_model_to_tar` — inference on a packed dataset.
     """
     if settings is None:
         settings = {}

@@ -734,20 +734,60 @@ def save_summary_to_file(model, file_path='summary.csv'):
         f.write(summary_str)
 
 def perform_regression(settings):
-    """Top-level regression driver: read score+count data, normalise, regress and plot.
+    """Regress per-well phenotype scores against gRNA / gene counts to identify hits from a pooled CRISPR screen.
 
-    Merges per-plate score and count tables, normalises plate/well
-    identifiers, runs :func:`regression`, joins metadata, and produces
-    diagnostic plots (volcano, plate heatmaps, gene phenotype plots,
-    GO enrichment).
+    Reads one or more score CSVs (from :func:`generate_ml_scores` or a
+    deep-learning classifier) and one or more sgRNA count CSVs (from
+    :func:`spacr.sequencing.generate_barecode_mapping`), aligns them on
+    plate / well, fits the requested regression model, merges metadata,
+    and emits volcano plots, plate heatmaps, gene phenotype plots and
+    GO enrichment reports.
 
-    :param settings: Regression settings dict. See
-        ``settings.get_perform_regression_default_settings`` for keys
-        (notably ``score_data``, ``count_data``, ``dependent_variable``,
-        ``regression_type``).
-    :returns: Whatever the internal regression + plotting pipeline
-        yields (typically the merged results DataFrame). See individual
-        step outputs for details.
+    :param settings: Settings dict, canonicalized via
+        :func:`spacr.settings.get_perform_regression_default_settings`.
+        Key entries:
+
+        - ``score_data`` (str or list) — CSV(s) of per-well scores.
+        - ``count_data`` (str or list) — CSV(s) of per-well sgRNA counts.
+        - ``dependent_variable`` — column of ``score_data`` to regress
+          (e.g. ``'pred'``, ``'recruitment'``,
+          ``'pathogen_nucleus_shortest_distance'``).
+        - ``regression_type`` — one of ``'ols'``, ``'gls'``, ``'wls'``,
+          ``'rlm'``, ``'glm'``, ``'mixed'``, ``'quantile'``,
+          ``'logit'``, ``'probit'``, ``'poisson'``, ``'lasso'``,
+          ``'ridge'`` or ``None`` (auto).
+        - ``plates_score`` / ``plates_count`` — optional explicit plate
+          IDs aligned by file position.
+        - ``plate_from_order`` — auto-assign ``plate{i+1}`` from file
+          order.
+        - ``fraction_threshold``, ``min_n``, ``metadata_files``,
+          ``volcano``, ``heatmap_feature``.
+
+    :returns: Path to the merged, metadata-annotated results DataFrame
+        (also written to ``results/<score_source>/<regression_type>/
+        results.csv``). Related gene/gRNA CSVs and significance calls
+        are saved alongside.
+    :raises ValueError: if ``score_data`` and ``plates_score`` (or
+        ``count_data`` and ``plates_count``) lengths disagree, if
+        ``dependent_variable`` is not a column of the score CSV, or if
+        ``regression_type`` is unsupported.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.ml import perform_regression
+            settings = {
+                'score_data': ['/data/plate01/results/xgb_scores.csv'],
+                'count_data': ['/data/plate01/sequencing/counts.csv'],
+                'dependent_variable': 'pred',
+                'regression_type': 'mixed',
+            }
+            perform_regression(settings)
+
+    See Also:
+        :func:`generate_ml_scores` — produce the ``score_data`` input.
+        :func:`spacr.sequencing.generate_barecode_mapping` — produce the
+        ``count_data`` input.
     """
     from .plot import plot_plates, plot_data_from_csv
     from .utils import merge_regression_res_with_metadata, save_settings, calculate_shortest_distance, correct_metadata
@@ -1761,18 +1801,63 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
     return dependent_df, dependent_variable
 
 def generate_ml_scores(settings):
-    """Train a classical ML classifier over per-object measurements and score every well.
+    """Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.
 
-    Reads measurement DBs across one or more sources, merges tables,
-    trains the configured model (via :func:`ml_analysis`) and persists
-    per-well and per-object prediction scores back into the source DB.
+    Reads the ``measurements.db`` produced by
+    :func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/
+    cytoplasm feature tables, uses the wells marked as
+    ``positive_control`` / ``negative_control`` (or an annotation column)
+    as training labels, delegates fitting to :func:`ml_analysis`, and
+    writes per-object predictions, permutation and feature-importance
+    tables plus a plate heatmap into ``results/`` next to the source DB.
 
-    :param settings: Settings dict. See
-        ``settings.set_default_analyze_screen`` for the accepted keys
-        (``src``, ``channel_of_interest``, ``model_type``,
-        ``positive_control``, ``negative_control``, ...).
-    :returns: Whatever the internal training pipeline returns
-        (typically per-plate performance and feature-importance tables).
+    :param settings: Settings dict, canonicalized via
+        :func:`spacr.settings.set_default_analyze_screen`. Key entries:
+
+        - ``src`` (str or list) — folder(s) containing
+          ``measurements/measurements.db``.
+        - ``channel_of_interest`` — 0-based channel for the recruitment
+          ratio feature; also drives table selection.
+        - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``,
+          ``'random_forest'``.
+        - ``positive_control`` / ``negative_control`` — well IDs (e.g.
+          ``'c2'`` / ``'c1'``) used as training labels.
+        - ``annotation_column`` — override controls with a PNG-level
+          annotation column.
+        - ``location_column`` — ``'columnID'`` or ``'rowID'``.
+        - ``heatmap_feature`` — feature plotted on the plate heatmap.
+        - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``,
+          ``reg_alpha``, ``reg_lambda``, ``learning_rate``,
+          ``n_estimators``, ``n_jobs``.
+        - ``remove_low_variance_features``,
+          ``remove_highly_correlated_features``, ``prune_features``,
+          ``cross_validation``, ``verbose``.
+
+    :returns: Tuple of file paths ``(data_path, permutation_path,
+        feature_importance_path, model_metrics_path,
+        permutation_fig_path, feature_importance_fig_path,
+        shap_fig_path, plate_heatmap_path, settings_csv, ml_features)``
+        pointing to the written artifacts.
+    :raises ValueError: if ``annotation_column`` is set but the
+        ``png_list`` table lacks ``prcfo`` / that column, or if
+        ``heatmap_feature`` is not among the trained features.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.ml import generate_ml_scores
+            settings = {
+                'src': '/data/plate01',
+                'channel_of_interest': 3,
+                'positive_control': 'c2', 'negative_control': 'c1',
+                'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',
+            }
+            generate_ml_scores(settings)
+
+    See Also:
+        :func:`ml_analysis` — the underlying fit/evaluate routine.
+        :func:`perform_regression` — mixed-effects regression on
+        per-well ML scores.
     """
     from .io import _read_and_merge_data, _read_db
     from .plot import plot_plates
@@ -1913,20 +1998,24 @@ def generate_ml_scores(settings):
     return [output, plate_heatmap]
 
 def ml_analysis(df, channel_of_interest=3, location_column='columnID', positive_control='c2', negative_control='c1', exclude=None, n_repeats=10, top_features=30, reg_alpha=0.1, reg_lambda=1.0, learning_rate=0.00001, n_estimators=1000, test_size=0.2, model_type='xgboost', n_jobs=-1, remove_low_variance_features=True, remove_highly_correlated_features=True, prune_features=False, cross_validation=False, verbose=False):
-    """Train a per-object classifier on positive/negative control wells and score every row.
+    """Train a per-object classifier on positive/negative control wells and score every row of the input DataFrame.
 
-    Filters features, splits (or CVs) train/test, fits the requested
-    model, computes permutation and native feature importances, tunes an
-    optimal decision threshold, and writes predictions and probabilities
-    back onto the input DataFrame.
+    Called directly for one-off ML work, and internally by
+    :func:`generate_ml_scores`. Filters features by channel, drops
+    low-variance and highly correlated columns, splits (or CVs) train /
+    test, fits the requested model, computes permutation and native
+    feature importances, tunes an optimal decision threshold and writes
+    predictions + probabilities back onto the returned DataFrame.
 
-    :param df: Per-object feature DataFrame.
+    :param df: Per-object feature DataFrame as produced by merging the
+        cell/nucleus/pathogen/cytoplasm tables of a
+        :func:`spacr.measure.measure_crop` database.
     :param channel_of_interest: Channel index used to select features.
     :param location_column: Column identifying wells / plate columns.
         Default ``'columnID'``.
-    :param positive_control: Values in ``location_column`` treated as the
-        positive class. Default ``'c2'``.
-    :param negative_control: Values treated as the negative class.
+    :param positive_control: Value(s) in ``location_column`` treated as
+        the positive class. Default ``'c2'``.
+    :param negative_control: Value(s) treated as the negative class.
         Default ``'c1'``.
     :param exclude: Columns to remove from feature space.
     :param n_repeats: Repeats for permutation importance. Default ``10``.
@@ -1944,9 +2033,27 @@ def ml_analysis(df, channel_of_interest=3, location_column='columnID', positive_
     :param prune_features: If True, apply ``SelectKBest`` before training.
     :param cross_validation: If True, run 5-fold stratified CV.
     :param verbose: Log progress details.
-    :returns: Tuple of results tables and figures — see call sites for
-        exact positional structure.
-    :raises ValueError: on unsupported ``model_type``.
+    :returns: Tuple ``(output, figs)`` where ``output`` is a positional
+        tuple of ``(scored_df, permutation_df, feature_importance_df,
+        model, X_train, X_test, y_train, y_test, metrics_df,
+        train_features)`` and ``figs`` is
+        ``(permutation_fig, feature_importance_fig)``.
+    :raises ValueError: on unsupported ``model_type`` or when positive /
+        negative control rows cannot be located in ``location_column``.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.ml import ml_analysis
+            output, figs = ml_analysis(
+                df, channel_of_interest=3,
+                positive_control='c2', negative_control='c1',
+                model_type='xgboost',
+            )
+            scored_df = output[0]
+
+    See Also:
+        :func:`generate_ml_scores` — wraps this call with DB I/O.
     """
     
     def _match_control_values(series, control):
@@ -2332,18 +2439,47 @@ def _calculate_similarity(df, features, col_to_compare, val1, val2):
     return df
 
 def interperate_vision_model(settings=None):
-    """Explain a vision model's predictions using RF, permutation and SHAP importances.
+    """Explain a spacr vision-model score using RF, permutation and SHAP importance, with per-compartment / per-channel radar plots.
 
-    Merges per-object measurements with predicted scores, then runs any
-    combination of feature importance, permutation importance and SHAP
-    analyses. Aggregates SHAP into compartment / channel radar plots.
+    Merges per-object measurements from ``measurements.db`` with a CSV of
+    predicted scores, runs any combination of RF feature importance,
+    permutation importance and SHAP over the top features, then
+    aggregates SHAP contributions into compartment and channel radar
+    plots so you can see which region (cell / nucleus / pathogen /
+    cytoplasm) and which fluorescence channel drives the model.
 
-    :param settings: Settings dict — see
-        ``settings.set_interperate_vision_model_defaults`` for keys
-        (``src``, ``scores``, ``score_column``, ``tables``,
-        ``feature_importance``, ``permutation_importance``, ``shap``,
-        ``top_features``, ``n_jobs``, ``save``).
-    :returns: None (results are plotted and optionally saved to CSV).
+    :param settings: Settings dict, canonicalized via
+        :func:`spacr.settings.set_interperate_vision_model_defaults`.
+        Key entries:
+
+        - ``src`` — folder containing ``measurements/measurements.db``.
+        - ``scores`` — CSV of per-object predictions to explain.
+        - ``score_column`` — column of ``scores`` holding the score.
+        - ``tables`` — DB tables to merge (default
+          ``['cell','nucleus','pathogen','cytoplasm']``).
+        - ``feature_importance`` / ``permutation_importance`` / ``shap``
+          — enable each explainer.
+        - ``top_features`` — cap on features shown.
+        - ``nuclei_limit`` / ``pathogen_limit`` — object-count caps.
+        - ``n_jobs``, ``save``.
+
+    :returns: None. Renders radar + importance plots and, when
+        ``save=True``, writes importance CSVs alongside the DB.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.ml import interperate_vision_model
+            interperate_vision_model({
+                'src': '/data/plate01',
+                'scores': '/data/plate01/results/pred.csv',
+                'score_column': 'pred',
+                'shap': True, 'top_features': 30,
+            })
+
+    See Also:
+        :func:`spacr.submodules.interperate_vision_model` — legacy /
+        alternative entry point returning result DataFrames.
     """
     if settings is None:
         settings = {}

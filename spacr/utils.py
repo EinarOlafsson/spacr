@@ -1001,17 +1001,34 @@ def calculate_activation_correlations(inputs, activation_maps, file_names, mande
     return df_correlations
 
 def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_value='setting_value'):
-    """Load a two-column key/value settings CSV into a Python dict.
+    """Reload a spacr settings CSV (written by :func:`save_settings`) back into a Python dict.
 
-    Values are parsed to booleans, ``None``, ints, floats, lists, tuples, or
-    nested dicts where possible, otherwise kept as strings.
+    Every spacr pipeline persists its resolved settings alongside its
+    outputs so that a run can be reproduced. This helper re-parses that
+    CSV, coercing each value into its original Python type (``bool``,
+    ``int``, ``float``, ``None``, ``list``, ``tuple``, ``dict``,
+    ``str``).
 
     :param csv_file_path: path to the CSV file.
-    :param show: display the raw DataFrame for debugging.
-    :param setting_key: name of the key column.
-    :param setting_value: name of the value column.
-    :returns: dict of parsed settings.
-    :raises ValueError: if the required columns are missing.
+    :param show: display the raw DataFrame for debugging. Default ``False``.
+    :param setting_key: name of the key column. Default
+        ``'setting_key'``.
+    :param setting_value: name of the value column. Default
+        ``'setting_value'``.
+    :returns: dict of parsed settings, ready to pass back into the
+        original pipeline entry point.
+    :raises ValueError: if the required key / value columns are missing.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.utils import load_settings
+            from spacr.core import preprocess_generate_masks
+            settings = load_settings('/data/plate01/settings/gen_mask_settings.csv')
+            preprocess_generate_masks(settings)
+
+    See Also:
+        :func:`save_settings` — inverse operation.
     """
     # Read the CSV file into a DataFrame
     df = pd.read_csv(csv_file_path)
@@ -1063,15 +1080,27 @@ def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_
     return result_dict
 
 def save_settings(settings, name='settings', show=False):
-    """Persist a settings dict to ``<src>/settings/<name>.csv``.
+    """Persist a settings dict to ``<src>/settings/<name>.csv`` so a spacr run can be reproduced later.
 
-    Forces ``test_mode`` and ``plot`` off in the saved copy so the reloaded
-    settings are safe for a full run.
+    Called by every pipeline entry point to snapshot the resolved
+    settings before real work starts. The saved copy has ``test_mode``
+    and ``plot`` forced to ``False`` so that a downstream
+    :func:`load_settings` -> re-run produces a full, headless run.
 
     :param settings: settings dict; must contain ``src``.
-    :param name: base filename; ``_list`` suffix appended when ``src`` is a list.
-    :param show: display the DataFrame before writing.
-    :returns: None.
+    :param name: base filename (no extension); ``_list`` is appended
+        when ``src`` is a list. Default ``'settings'``.
+    :param show: display the DataFrame before writing. Default ``False``.
+    :returns: None. Writes ``<src>/settings/<name>.csv``.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.utils import save_settings
+            save_settings(my_settings, name='my_experiment', show=True)
+
+    See Also:
+        :func:`load_settings` — inverse operation.
     """
     settings_2 = settings.copy()
     

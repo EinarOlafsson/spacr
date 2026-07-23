@@ -766,13 +766,54 @@ def analyze_percent_positive(settings):
     return merged
 
 def analyze_recruitment(settings):
-    """Compute pathogen-to-cytoplasm recruitment ratios and plot per-PV and per-well summaries.
+    """Quantify recruitment of a fluorescent marker to the pathogenic vacuole and produce per-PV / per-well summaries.
 
-    :param settings: dict of recruitment settings; see
-        ``get_analyze_recruitment_default_settings`` for keys including
-        ``src``, ``cell_types``, ``pathogen_types``, ``treatments`` and
-        their plate metadata, ``channel_of_interest``, and size/intensity ranges.
-    :returns: ``[cells, wells]`` — the per-object and per-well summary DataFrames written to CSV.
+    Reads the merged cell/nucleus/pathogen/cytoplasm feature tables from
+    a spacr ``measurements.db``, annotates each row with cell type /
+    pathogen / treatment based on plate metadata, filters objects by
+    size and intensity, computes the pathogen-to-cytoplasm mean-intensity
+    ratio for ``channel_of_interest``, groups by well and writes both
+    ``cells.csv`` and ``wells.csv`` alongside recruitment plots.
+
+    :param settings: Settings dict, canonicalized via
+        :func:`spacr.settings.get_analyze_recruitment_default_settings`.
+        Key entries:
+
+        - ``src`` — folder containing ``measurements/measurements.db``
+          (or the DB path directly).
+        - ``cell_types`` / ``cell_plate_metadata`` — labels + row/col
+          metadata that map wells to cell lines.
+        - ``pathogen_types`` / ``pathogen_plate_metadata``.
+        - ``treatments`` / ``treatment_plate_metadata``.
+        - ``channel_of_interest`` — intensity channel for the ratio.
+        - ``cell_chann_dim`` / ``nucleus_chann_dim`` /
+          ``pathogen_chann_dim`` — mask channel dims.
+        - ``cell_size_range``, ``nucleus_size_range``,
+          ``pathogen_size_range`` — ``[min, max]`` px area filters.
+        - ``*_intensity_range``, ``target_intensity_min``.
+        - ``cells_per_well`` — minimum well count to keep.
+        - ``plot``, ``plot_control``, ``plot_nr``, ``figuresize``.
+
+    :returns: List ``[cells, wells]`` — the per-PV and per-well
+        recruitment DataFrames, also written to CSV under ``src``.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.submodules import analyze_recruitment
+            settings = {
+                'src': '/data/plate01',
+                'cell_types': ['HeLa'], 'cell_plate_metadata': ['c2-c11'],
+                'pathogen_types': ['tgme49'], 'pathogen_plate_metadata': ['c2-c11'],
+                'treatments': ['dmso','drug'], 'treatment_plate_metadata': [['r1'],['r2']],
+                'channel_of_interest': 3,
+            }
+            cells_df, wells_df = analyze_recruitment(settings)
+
+    See Also:
+        :func:`analyze_plaques` — plaque-count/size assay.
+        :func:`spacr.ml.generate_ml_scores` — feature-based classifier
+        as an alternative to recruitment ratios.
     """
     
     from .io import _read_and_merge_data, _results_to_csv
@@ -888,15 +929,35 @@ def analyze_recruitment(settings):
     return [cells,wells]
 
 def analyze_plaques(settings):
-    """Segment plaques with a bundled Cellpose model and summarise their counts and sizes.
+    """Segment host-cell plaques with a bundled Cellpose model and summarize per-image counts and areas.
 
-    Runs Cellpose over the images (when ``settings['masks']`` is truthy),
-    then computes per-image plaque counts and area statistics and persists
-    them to a SQLite database alongside the masks.
+    Downloads (if needed) the bundled ``toxo_plaque_cyto_e25000`` model,
+    runs Cellpose over every ``.tif`` under ``src``, then computes
+    per-image plaque count + mean/stddev area and writes a
+    ``plaques_analysis.db`` (tables: ``summary``, ``stats``,
+    ``details``) alongside the masks.
 
-    :param settings: dict of plaque-analysis settings; see
-        ``get_analyze_plaque_settings`` for keys including ``src`` and ``masks``.
-    :returns: None. Writes ``plaques_analysis.db`` under ``<src>/masks``.
+    :param settings: Settings dict, canonicalized via
+        :func:`spacr.settings.get_analyze_plaque_settings`. Key entries:
+
+        - ``src`` — folder containing plaque images.
+        - ``masks`` — if truthy, run segmentation before analysis; if
+          falsy, expect masks already in ``<src>/masks``.
+        - Standard Cellpose knobs (``diameter``, ``flow_threshold``,
+          ``cellprob_threshold``, ``resample``, etc.) forwarded to
+          :func:`spacr.spacr_cellpose.identify_masks_finetune`.
+
+    :returns: None. Writes ``<src>/masks/plaques_analysis.db``.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.submodules import analyze_plaques
+            analyze_plaques({'src': '/data/plaque_assay', 'masks': True})
+
+    See Also:
+        :func:`analyze_recruitment` — intensity-ratio phenotype
+        instead of plaque counts.
     """
     from .spacr_cellpose import identify_masks_finetune
     from .settings import get_analyze_plaque_settings
@@ -1241,18 +1302,53 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
     return [fig_1, fig_2]
 
 def interperate_vision_model(settings=None):
-    """Explain a vision-model score with random-forest, permutation and SHAP importance.
+    """Explain a spacr vision-model score by ranking which morphology / intensity features drive it.
 
-    Merges morphology measurements with per-object scores, expands
-    compartment-relative feature ratios, then runs random-forest feature
-    importance, permutation importance and (optionally) SHAP on the top
-    features, producing per-compartment and per-channel importance tables.
+    Joins the per-object CNN predictions (``score_column``) with the
+    morphology + intensity measurements from
+    :func:`spacr.measure.measure_crop`, expands cross-compartment
+    feature ratios (e.g. ``nucleus_cell_area``), then runs random-forest
+    feature importance, permutation importance and (optionally) SHAP on
+    the top features. Also groups importance by compartment and by
+    channel so you can answer "is my classifier looking at the
+    pathogen or at the cell?".
 
-    :param settings: dict of interpretation settings including ``src``,
-        ``tables``, ``channels``, ``score_column``, ``top_features``,
-        ``feature_importance``, ``permutation_importance``, ``shap``,
-        ``shap_sample``, ``n_jobs``, and ``save``.
-    :returns: dict of resulting DataFrames keyed by analysis (``feature_importance``, ``permutation_importance``, ``shap``, plus compartment/channel groupings).
+    :param settings: Settings dict. Key entries:
+
+        - ``src`` — folder containing ``measurements/measurements.db``
+          with both feature and score tables.
+        - ``tables`` — DB tables to merge, e.g.
+          ``['cell','nucleus','pathogen','cytoplasm']``.
+        - ``channels`` — intensity channels included in the feature
+          space (e.g. ``[0,1,2,3]``).
+        - ``score_column`` — column holding per-object CNN scores.
+        - ``top_features`` — cap on features shown / SHAP-explained.
+        - ``feature_importance`` / ``permutation_importance`` /
+          ``shap`` — toggle each explainer.
+        - ``shap_sample`` — subsample size for SHAP.
+        - ``nuclei_limit`` / ``pathogen_limit`` — object-count caps in
+          the read/merge step.
+        - ``n_jobs``, ``save``.
+
+    :returns: Dict of DataFrames keyed by analysis name
+        (``'feature_importance'``, ``'permutation_importance'``,
+        ``'shap'``, ``'compartment_importance'``,
+        ``'channel_importance'``, ...).
+
+    Example:
+        .. code-block:: python
+
+            from spacr.submodules import interperate_vision_model
+            results = interperate_vision_model({
+                'src': '/data/plate01',
+                'score_column': 'pred',
+                'channels': [0,1,2,3],
+                'top_features': 30, 'shap': True,
+            })
+
+    See Also:
+        :func:`spacr.deep_spacr.deep_spacr` — trains the model whose
+        scores this function interprets.
     """
     if settings is None:
         settings = {}

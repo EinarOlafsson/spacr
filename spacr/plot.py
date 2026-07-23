@@ -2124,18 +2124,44 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
 
 
 def plot_plates(df, variable, grouping, min_max, cmap, min_count=0, verbose=True, dst=None):
-    """Grid every plate in ``df`` as its own heatmap panel.
+    """Render one heatmap per plate on a common grid so per-well phenotypes can be eye-balled across a full screen.
 
-    :param df: Long-format DataFrame with a ``prc`` identifier.
-    :param variable: Column to aggregate (see :func:`generate_plate_heatmap`).
-    :param grouping: Aggregation type — ``'count'``, ``'mean'``, ``'sum'``.
-    :param min_max: Colour-scale spec passed through per plate.
+    Splits ``df`` by the plate token in the ``prc`` identifier
+    (``plateID_rowID_columnID``), aggregates ``variable`` per well
+    according to ``grouping``, and lays the plates out four-per-row on
+    a single figure. Optionally writes the figure to
+    ``<dst>/plate_heatmap_<n>.pdf``.
+
+    :param df: Long-format DataFrame with a ``prc`` column of the form
+        ``plateID_rowID_columnID`` and the column named by ``variable``.
+    :param variable: Column to aggregate (see
+        :func:`generate_plate_heatmap`).
+    :param grouping: Aggregation mode — ``'count'``, ``'mean'`` or
+        ``'sum'``.
+    :param min_max: Color-scale spec forwarded to
+        :func:`generate_plate_heatmap` (``'auto'``, ``'allq'``,
+        ``[vmin, vmax]``).
     :param cmap: Matplotlib colormap name or object.
-    :param min_count: Drop wells with fewer than this many rows.
-    :param verbose: If True, call ``plt.show()``. Default ``True``.
+    :param min_count: Drop wells with fewer than this many rows before
+        plotting. Default ``0``.
+    :param verbose: If True, call ``plt.show()`` after building the
+        figure. Default ``True``.
     :param dst: If given, save the figure as ``plate_heatmap_<n>.pdf``
-        under this folder.
-    :returns: The generated ``Figure``.
+        under this folder (auto-numbered).
+    :returns: The generated matplotlib ``Figure``.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.plot import plot_plates
+            fig = plot_plates(
+                df, variable='recruitment', grouping='mean',
+                min_max='allq', cmap='viridis', min_count=20,
+            )
+
+    See Also:
+        :func:`spacr.ml.generate_ml_scores` — produces score dataframes
+        typically fed to this plotter.
     """
     plates = df['prc'].str.split('_', expand=True)[0].unique()
     n_rows, n_cols = (len(plates) + 3) // 4, 4
@@ -2361,20 +2387,40 @@ def visualize_masks(mask1, mask2, mask3, title="Masks Comparison"):
     plt.show()
 
 def visualize_cellpose_masks(masks, titles=None, filename=None, save=False, src=None):
-    """Display an arbitrary set of Cellpose-style label masks side by side.
+    """Display several Cellpose-style label masks side by side for a quick visual QC.
 
-    :param masks: Sequence of label mask arrays.
-    :param titles: Titles paired with ``masks``. Falls back to
-        ``'Mask 1'``, ``'Mask 2'``, ...
-    :param filename: Used in the figure suptitle and, if saving, as the
-        PDF filename.
-    :param save: If True, save under ``src/results/<filename>.pdf``.
-        Default ``False``.
+    Handy for sanity-checking the masks produced by
+    :func:`spacr.core.preprocess_generate_masks` (e.g. compare the cell,
+    nucleus and pathogen masks of the same field, or two runs against
+    each other). Each mask is rendered with a random-color palette so
+    neighbouring objects stay distinguishable.
+
+    :param masks: Sequence of 2D label mask arrays.
+    :param titles: Titles paired positionally with ``masks``. Falls back
+        to ``'Mask 1'``, ``'Mask 2'``, ...
+    :param filename: Used in the figure suptitle and, when ``save``, as
+        the output PDF filename.
+    :param save: If True, save the figure under
+        ``<src>/results/<filename>.pdf``. Default ``False``.
     :param src: Root folder for saving. Defaults to the current working
         directory.
-    :returns: None
+    :returns: None. Displays (and optionally writes) the figure.
     :raises AssertionError: if ``titles`` and ``masks`` have different
         lengths.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.plot import visualize_cellpose_masks
+            visualize_cellpose_masks(
+                [cell_mask, nucleus_mask, pathogen_mask],
+                titles=['cell','nucleus','pathogen'],
+                filename='field_001', save=True, src='/data/plate01',
+            )
+
+    See Also:
+        :func:`spacr.core.preprocess_generate_masks` — produces the
+        masks visualized here.
     """
     
     comparison_title=f"Masks Comparison for {filename}"

@@ -247,16 +247,42 @@ def run_experiment(plate_map, number_of_genes, active_gene_list, avg_genes_per_w
     return cell_df, genes_per_well_df, wells_per_gene_df, df_ls
 
 def classifier(positive_mean, positive_variance, negative_mean, negative_variance, classifier_accuracy, df):
-    """Assign a Beta-distributed score to each row of ``df`` with class-swap noise.
+    """Simulate a noisy binary classifier by drawing per-cell scores from two Beta distributions.
 
-    :param positive_mean: Mean of the Beta distribution for active cells.
-    :param positive_variance: Variance of the Beta for active cells.
+    Used inside the spacr screen simulator to model an imperfect
+    phenotype classifier: rows with ``is_active == 1`` should score high
+    and rows with ``is_active == 0`` should score low, but with
+    probability ``1 - classifier_accuracy`` a row is drawn from the
+    wrong Beta (simulating classifier error). The result is a
+    ``score`` column on the input DataFrame ready to be fed to
+    :func:`compute_roc_auc` / :func:`compute_precision_recall`.
+
+    :param positive_mean: Mean of the Beta distribution for active
+        cells; must be in ``(0, 1)``.
+    :param positive_variance: Variance of the Beta for active cells;
+        must satisfy ``0 < var < mean * (1 - mean)``.
     :param negative_mean: Mean of the Beta for inactive cells.
     :param negative_variance: Variance of the Beta for inactive cells.
-    :param classifier_accuracy: Probability in ``[0, 1]`` that the correct
-        Beta is used for the row's ``is_active`` label.
-    :param df: DataFrame containing an ``is_active`` column.
-    :returns: The input DataFrame with an added ``score`` column.
+    :param classifier_accuracy: Probability in ``[0, 1]`` that a row is
+        drawn from the Beta matching its true ``is_active`` label.
+    :param df: DataFrame containing an ``is_active`` column (0 / 1).
+    :returns: The input DataFrame with a new ``score`` column in
+        ``[0, 1]``.
+    :raises ValueError: if either mean is outside ``(0, 1)`` or either
+        variance is outside ``(0, mean * (1 - mean))``.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.sim import classifier
+            df = classifier(
+                positive_mean=0.8, positive_variance=0.02,
+                negative_mean=0.2, negative_variance=0.02,
+                classifier_accuracy=0.9, df=cells,
+            )
+
+    See Also:
+        :func:`compute_roc_auc`, :func:`compute_precision_recall`.
     """
     def calc_alpha_beta(mean, variance):
         """Return ``(alpha, beta)`` for a Beta with the given mean and variance."""

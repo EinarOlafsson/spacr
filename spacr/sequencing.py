@@ -10,15 +10,36 @@ from IPython.display import display
 
 # Function to map sequences to names (same as your original)
 def map_sequences_to_names(csv_file, sequences, rc):
-    """Map DNA sequences to their names via a lookup CSV of ``sequence,name``.
+    """Look up barcode / gRNA names for a list of DNA reads against a ``sequence,name`` mapping CSV.
 
-    Only the CSV sequences are reverse-complemented when ``rc`` is true;
-    the input ``sequences`` are matched as given.
+    Used inside the spacr sequencing pipeline to translate the row,
+    column, and gRNA barcodes extracted from paired-end reads into their
+    human-readable labels. Only the CSV's ``sequence`` column is
+    reverse-complemented when ``rc=True``; the input ``sequences`` are
+    matched verbatim, so callers should orient reads consistently
+    beforehand.
 
-    :param csv_file: path to a CSV with ``sequence`` and ``name`` columns.
-    :param sequences: DNA sequences to look up.
-    :param rc: reverse-complement the CSV sequences before matching.
-    :returns: list of names aligned with ``sequences``; ``pd.NA`` for misses.
+    :param csv_file: Path to a CSV with ``sequence`` and ``name``
+        columns.
+    :param sequences: Iterable of DNA sequences to look up.
+    :param rc: If True, reverse-complement the CSV sequences before
+        building the lookup dict.
+    :returns: List of names aligned positionally with ``sequences``;
+        ``pd.NA`` for sequences that do not match any entry.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.sequencing import map_sequences_to_names
+            names = map_sequences_to_names(
+                '/data/barcodes/rows.csv',
+                sequences=['ACGT...', 'TTGG...'],
+                rc=False,
+            )
+
+    See Also:
+        :func:`generate_barecode_mapping` — full end-to-end read ->
+        (row, column, gRNA) name pipeline.
     """
     def rev_comp(dna_sequence):
         """Return the reverse complement of ``dna_sequence`` (N stays N)."""
@@ -558,21 +579,53 @@ def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
     save_process.join()
 
 def generate_barecode_mapping(settings=None):
-    """Discover FASTQ samples and dispatch chunked barcode extraction for each.
+    """Turn a folder of pooled-screen FASTQ files into per-well sgRNA count tables usable by :func:`spacr.ml.perform_regression`.
 
-    Groups R1/R2 files per sample, then calls
-    :func:`paired_read_chunked_processing` or
-    :func:`single_read_chunked_processing` depending on ``settings['mode']``,
-    writing ``annotated_reads.h5`` (optional), ``unique_combinations.csv``
-    and ``qc.csv`` under each sample's output directory.
+    Discovers R1/R2 files per sample under ``src``, extracts the row,
+    column, and gRNA barcodes from each read via the configured regex
+    and offset window, translates them to names via three barcode
+    lookup CSVs (see :func:`map_sequences_to_names`), and writes
+    per-sample ``annotated_reads.h5`` (optional),
+    ``unique_combinations.csv`` (the per-well gRNA counts) and
+    ``qc.csv``. Paired vs single-end and R1/R2 orientation are chosen
+    from ``settings['mode']`` and ``single_direction``.
 
-    :param settings: dict of barcode-mapping settings; see
-        ``set_default_generate_barecode_mapping`` for keys (``src``,
-        ``mode``, ``single_direction``, ``regex``, ``target_sequence``,
-        ``offset_start``, ``expected_end``, ``column_csv``, ``grna_csv``,
-        ``row_csv``, ``save_h5``, ``comp_type``, ``comp_level``,
-        ``chunk_size``, ``n_jobs``, ``test``, ``fill_na``).
-    :returns: None. Writes per-sample HDF5 and CSV outputs to disk.
+    :param settings: Settings dict, canonicalized via
+        :func:`spacr.settings.set_default_generate_barecode_mapping`.
+        Key entries:
+
+        - ``src`` — folder containing ``*.fastq.gz`` reads.
+        - ``mode`` — ``'paired'`` or ``'single'``.
+        - ``single_direction`` — ``'R1'`` or ``'R2'`` (``mode='single'``
+          only).
+        - ``regex`` — regex extracting barcodes from a read.
+        - ``target_sequence``, ``offset_start``, ``expected_end`` —
+          anchor and slice window used to locate the barcode region.
+        - ``column_csv`` / ``row_csv`` / ``grna_csv`` — barcode->name
+          lookup CSVs.
+        - ``save_h5``, ``comp_type``, ``comp_level`` — HDF5 output
+          knobs.
+        - ``chunk_size``, ``n_jobs``, ``test``, ``fill_na``.
+
+    :returns: None. Writes per-sample outputs into
+        ``<src>/<sample>_<mode>[_<direction>]/``.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.sequencing import generate_barecode_mapping
+            generate_barecode_mapping({
+                'src': '/data/screen_v1/fastq',
+                'mode': 'paired',
+                'row_csv': '/data/barcodes/rows.csv',
+                'column_csv': '/data/barcodes/cols.csv',
+                'grna_csv': '/data/barcodes/grnas.csv',
+            })
+
+    See Also:
+        :func:`map_sequences_to_names` — inner barcode->name lookup.
+        :func:`spacr.ml.perform_regression` — consumes the resulting
+        ``unique_combinations.csv`` as ``count_data``.
     """
     if settings is None:
         settings = {}
