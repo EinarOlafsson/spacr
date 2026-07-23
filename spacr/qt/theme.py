@@ -293,6 +293,42 @@ QLabel#TileCaption {{
 }}
 
 /* -----------------------------------------------------------------
+ *  Horizontal tiles (HTile) — icons-left cards on the home screen
+ * ----------------------------------------------------------------- */
+QPushButton#HTile {{
+    background-color: transparent;
+    color: {P["fg"]};
+    border: 1px solid transparent;
+    border-radius: {R["lg"]}px;
+    padding: 12px 14px 12px 20px;
+    text-align: left;
+    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+}}
+QPushButton#HTile:hover {{
+    background-color: {P["surface_alt"]};
+    border: 1px solid {P["border_soft"]};
+}}
+QPushButton#HTile:pressed {{
+    background-color: {P["accent_lo"]};
+    border: 1px solid {P["accent"]};
+}}
+QLabel#HTileName {{
+    color: {P["fg"]};
+    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-size: {F["subtitle"]}px;
+    font-weight: 400;                 /* Open Sans Regular */
+    background: transparent;
+    letter-spacing: -0.1px;
+}}
+QLabel#HTileDesc {{
+    color: {P["fg_muted"]};
+    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-size: {F["small"]}px;
+    font-weight: 300;                 /* Open Sans Light */
+    background: transparent;
+}}
+
+/* -----------------------------------------------------------------
  *  Typography helpers — pair each role with weight + tracking
  * ----------------------------------------------------------------- */
 QLabel#Hero {{

@@ -7,11 +7,12 @@ from .divider import Divider
 from .empty_state import EmptyState
 from .hover_tooltip import HoverTooltip
 from .section import Section
-from .tile import Tile
+from .tile import HTile, Tile
 from .toggle import Toggle
 from .usage_bar import UsageBar
 
 __all__ = [
     "AIChatPanel", "AiToggleLabel", "Card", "ConsolePanel", "Divider",
-    "EmptyState", "HoverTooltip", "Section", "Tile", "Toggle", "UsageBar",
+    "EmptyState", "HTile", "HoverTooltip", "Section", "Tile", "Toggle",
+    "UsageBar",
 ]
