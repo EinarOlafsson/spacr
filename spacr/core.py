@@ -10,17 +10,59 @@ from multiprocessing import Value
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
 
 def preprocess_generate_masks(settings):
-    """Run the full mask-generation pipeline for one or more experiment folders.
+    """Turn a folder of raw microscopy images into per-channel Cellpose masks ready for :func:`spacr.measure.measure_crop`.
 
-    Consolidates inputs when requested, converts filenames to Yokogawa layout,
-    generates per-channel masks via Cellpose/SAM, optionally adjusts cell masks
-    against nucleus/pathogen/organelle overlays, and emits overlay plots.
+    Given a source folder ``src`` of multi-channel images, this pipeline (1)
+    optionally consolidates inputs from nested folders, (2) renames files to
+    the Yokogawa layout used downstream, (3) preprocesses per-channel arrays,
+    (4) generates masks for cell / nucleus / pathogen / organelle channels
+    via Cellpose (SAM variant), (5) optionally reconciles the cell mask
+    against nuclei + pathogen overlays, and (6) writes overlay plots and a
+    ``gen_mask_settings.csv`` next to the outputs.
 
     :param settings: Settings dict; canonicalized via
         :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.
         Must include ``src`` and at least one of ``cell_channel``,
         ``nucleus_channel``, ``pathogen_channel``, or ``organelle_channel``.
-    :returns: None.
+        Key entries the function reads:
+
+        - ``src`` (str or list of str) — image folder(s) to process.
+        - ``metadata_type`` — ``'cellvoyager'`` or ``'auto'`` (uses
+          ``custom_regex`` when set).
+        - ``cell_channel`` / ``nucleus_channel`` / ``pathogen_channel`` /
+          ``organelle_channel`` — 0-based channel indices; ``None`` skips.
+        - ``cell_diameter`` / ``nucleus_diameter`` / ``pathogen_diameter``
+          — Cellpose object diameters in pixels.
+        - ``pathogen_model`` — ``'toxo_pv_lumen'`` / ``'toxo_cyto'`` /
+          ``None``.
+        - ``consolidate`` — copy nested images into ``src/consolidated``
+          before processing.
+        - ``preprocess`` / ``masks`` — toggle the two pipeline halves.
+        - ``adjust_cells`` — reconcile cell masks against nuclei+pathogen.
+        - ``timelapse`` — enable trackpy linking; forces
+          ``randomize=False``.
+        - ``save``, ``plot``, ``verbose``, ``test_mode``, ``n_jobs``.
+
+    :returns: None. Writes masks, overlays, ``measurements.db`` counts and
+        settings CSVs into subfolders of ``src``.
+    :raises ValueError: if ``src`` is missing or of the wrong type, or no
+        segmentation channel is defined.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.core import preprocess_generate_masks
+            settings = {
+                'src': '/data/plate01',
+                'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,
+                'cell_diameter': 60, 'nucleus_diameter': 20, 'pathogen_diameter': 8,
+                'magnification': 20, 'save': True, 'plot': True,
+            }
+            preprocess_generate_masks(settings)
+
+    See Also:
+        :func:`spacr.io.preprocess_img_data` — the preprocessing half only.
+        :func:`spacr.measure.measure_crop` — downstream feature extraction.
     """
     #from .timelapse import _summarise_object_relationships
     from .object import generate_cellpose_masks, generate_organelle_masks_sam, generate_cellpose_masks_sam

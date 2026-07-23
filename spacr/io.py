@@ -1571,47 +1571,53 @@ def delete_empty_subdirectories(folder_path):
                 #print(f"Skipping non-empty directory: {full_dir_path}")
 
 def preprocess_img_data(settings):
-    """Preprocess raw microscopy images into normalised, channel-merged stacks.
+    """Convert raw microscopy images into normalized, channel-merged ``.npy`` stacks ready for mask generation.
 
-    Converts z-stacks to MIPs, renames files into the spacr convention,
-    merges per-channel folders into stacked ``.npy`` arrays, and writes
-    normalised outputs. Behaviour is driven entirely by ``settings``
-    (source path, channels, background, plotting, test mode, etc.).
+    Usually invoked internally by
+    :func:`spacr.core.preprocess_generate_masks`, but callable directly
+    when you only want the preprocessing half. Converts z-stacks to MIPs,
+    renames files into the Yokogawa/spacr layout, merges per-channel
+    folders into stacked ``.npy`` arrays with optional background
+    subtraction and percentile normalization, and (in ``test_mode``)
+    emits example plots.
 
-    :param settings: Preprocessing settings dict. See
-        ``settings.set_default_settings_preprocess_img_data`` for keys.
-    :returns: ``(settings, src)`` when an existing ``masks`` folder is
-        found and preprocessing is skipped; otherwise ``None``.
-    """
-    from .plot import plot_arrays
-    from .utils import _run_test_mode, _get_regex
-    from .settings import set_default_settings_preprocess_img_data
+    :param settings: Preprocessing settings dict, canonicalized via
+        :func:`spacr.settings.set_default_settings_preprocess_img_data`.
+        Key entries:
 
-    """
-    Preprocesses image data by converting z-stack images to maximum intensity projection (MIP) images.
+        - ``src`` — folder of raw images (``.tif/.nd2/.czi/.lif`` etc.).
+        - ``metadata_type`` — ``'cellvoyager'`` / ``'auto'``; drives
+          filename regex.
+        - ``custom_regex`` — override the built-in regex.
+        - ``cell_channel``, ``nucleus_channel``, ``pathogen_channel``,
+          ``organelle_channel``, ``channels`` — channel selection.
+        - ``all_to_mip`` — max-project z-stacks before saving.
+        - ``remove_background_cell`` / ``_nucleus`` / ``_pathogen`` and
+          the ``*_background`` cutoffs.
+        - ``normalize``, ``lower_percentile``, ``save_dtype``.
+        - ``batch_size``, ``randomize``, ``test_mode``, ``test_images``,
+          ``plot``, ``cmap``, ``figuresize``.
 
-    Args:
-        src (str): The source directory containing the z-stack images.
-        metadata_type (str, optional): The type of metadata associated with the images. Defaults to 'cellvoyager'.
-        custom_regex (str, optional): The custom regular expression pattern used to match the filenames of the z-stack images. Defaults to None.
-        cmap (str, optional): The colormap used for plotting. Defaults to 'inferno'.
-        figuresize (int, optional): The size of the figure for plotting. Defaults to 15.
-        normalize (bool, optional): Whether to normalize the images. Defaults to False.
-        nr (int, optional): The number of images to preprocess. Defaults to 1.
-        plot (bool, optional): Whether to plot the images. Defaults to False.
-        mask_channels (list, optional): The channels to use for masking. Defaults to [0, 1, 2].
-        batch_size (list, optional): The number of images to process in each batch. Defaults to [100, 100, 100].
-        timelapse (bool, optional): Whether the images are from a timelapse experiment. Defaults to False.
-        remove_background (bool, optional): Whether to remove the background from the images. Defaults to False.
-        backgrounds (int, optional): The number of background images to use for background removal. Defaults to 100.
-        lower_percentile (float, optional): The lower percentile used for background removal. Defaults to 1.
-        save_dtype (type, optional): The data type used for saving the preprocessed images. Defaults to np.float32.
-        randomize (bool, optional): Whether to randomize the order of the images. Defaults to True.
-        all_to_mip (bool, optional): Whether to convert all images to MIP. Defaults to False.
-        settings (dict, optional): Additional settings for preprocessing. Defaults to {}.
+    :returns: Tuple ``(settings, src)`` — ``settings`` with defaults
+        applied and ``src`` pointing at the folder containing the
+        generated ``stack/`` / ``channel_stack/`` outputs (the
+        downstream mask stage reads from here).
 
-    Returns:
-        None
+    Example:
+        .. code-block:: python
+
+            from spacr.io import preprocess_img_data
+            settings = {
+                'src': '/data/plate01',
+                'metadata_type': 'cellvoyager',
+                'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,
+                'channels': [0, 1, 2, 3], 'normalize': True,
+            }
+            settings, src = preprocess_img_data(settings)
+
+    See Also:
+        :func:`spacr.core.preprocess_generate_masks` — full pipeline
+        wrapper that calls this then generates masks.
     """
     src = settings['src']
     
@@ -2725,19 +2731,48 @@ def parse_gz_files(folder_path):
     return samples_dict
 
 def generate_dataset(settings=None):
-    """Collect PNG crops referenced by one or more measurement databases into a tar archive.
+    """Pack per-object PNGs referenced by one or more ``measurements.db`` files into a single tar for inference or upload.
 
-    Selects paths from each source's ``measurements.db``, optionally
-    subsamples, then bundles all images in parallel into a single
-    dated tar written to the first source's ``datasets/`` folder.
+    Selects PNG paths (via the ``png_list`` table plus optional
+    ``file_metadata`` filter) from each source's measurements database,
+    optionally random-subsamples, then bundles the images in parallel
+    into a dated tar under the first source's ``datasets/`` folder.
+    Use this to produce the ``tar_path`` consumed by
+    :func:`spacr.deep_spacr.deep_spacr` / ``apply_model_to_tar``.
 
-    :param settings: Dataset-generation settings dict. See
-        ``settings.set_generate_dataset_defaults`` for keys — notably
-        ``src`` (str or list of str), ``file_metadata``, ``sample``
-        (int / list) and ``experiment``.
-    :returns: Path to the created tar archive.
-    :raises RuntimeError: if ``src`` is malformed, no images are
-        selected, or the destination folder cannot be resolved.
+    :param settings: Settings dict, canonicalized via
+        :func:`spacr.settings.set_generate_dataset_defaults`. Key
+        entries:
+
+        - ``src`` (str or list of str) — folder(s) containing
+          ``measurements/measurements.db`` and the PNG crops.
+        - ``file_metadata`` — filter/join key applied against
+          ``png_list``.
+        - ``sample`` — ``int`` or ``[int]`` cap on selected PNGs
+          (random subsample); omit for all.
+        - ``experiment`` — string suffix used in the tar filename.
+
+    :returns: Absolute path to the created ``…/datasets/<date>_<
+        experiment>.tar``.
+    :raises RuntimeError: if ``src`` is not a string / list of strings,
+        no images are selected, or the destination folder cannot be
+        resolved.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.io import generate_dataset
+            tar_path = generate_dataset({
+                'src': ['/data/plate01', '/data/plate02'],
+                'experiment': 'screen_v1',
+                'sample': 100000,
+            })
+
+    See Also:
+        :func:`training_dataset_from_annotation` — build a labeled
+        ``train/`` / ``test/`` tree instead of a flat tar.
+        :func:`spacr.deep_spacr.deep_spacr` — consumes the tar via
+        ``apply_model_to_tar``.
     """
     if settings is None:
         settings = {}
@@ -3326,17 +3361,44 @@ def generate_training_dataset(settings):
     return train_class_dir, test_class_dir
 
 def training_dataset_from_annotation(db_path, dst, annotation_column='test', annotated_classes=(1, 2)):
-    """Group PNG paths by annotation value, balancing class sizes when only one is annotated.
+    """Group per-object PNG paths by manual annotation values so they can be turned into a CNN training set.
 
-    :param db_path: SQLite database containing a ``png_list`` table with
-        an ``png_path`` column plus ``annotation_column``.
-    :param dst: Output root (currently unused; kept for API symmetry).
-    :param annotation_column: Column in ``png_list`` holding class labels.
-        Default ``'test'``.
-    :param annotated_classes: Class values to pull from the annotation
-        column. When length is 1, an equal-sized "other" class is
-        sampled from unannotated rows.
-    :returns: List of lists — one list of PNG paths per output class.
+    Reads the ``png_list`` table of a spacr ``measurements.db``, buckets
+    PNG paths by the value found in ``annotation_column`` (typically
+    filled by the spacr annotation GUI), and, when only one class has
+    been annotated, samples an equal-sized "other" class from
+    unannotated rows. The returned list-of-lists is consumed by
+    :func:`generate_dataset_from_lists` to lay out
+    ``train/<class>/*.png`` / ``test/<class>/*.png``.
+
+    :param db_path: SQLite ``measurements.db`` containing a
+        ``png_list`` table with ``png_path`` plus ``annotation_column``.
+    :param dst: Output root (currently unused; kept for API symmetry
+        with sister builders).
+    :param annotation_column: Column in ``png_list`` holding class
+        labels. Default ``'test'``.
+    :param annotated_classes: Class values to pull from
+        ``annotation_column``. When length is 1, an equal-sized "other"
+        class is sampled from rows whose annotation != that value.
+    :returns: List of lists — one list of PNG paths per output class,
+        in the same order as ``annotated_classes``.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.io import training_dataset_from_annotation, generate_dataset_from_lists
+            class_data = training_dataset_from_annotation(
+                '/data/plate01/measurements/measurements.db',
+                dst='/data/plate01/dataset',
+                annotation_column='test', annotated_classes=(1, 2),
+            )
+            generate_dataset_from_lists('/data/plate01/dataset', class_data, classes=['neg','pos'])
+
+    See Also:
+        :func:`training_dataset_from_annotation_metadata` — same, but
+        first restricts rows by plate row/column metadata.
+        :func:`generate_dataset_from_lists` — turns the returned lists
+        into a ``train/`` / ``test/`` folder tree.
     """
     all_paths = []
 

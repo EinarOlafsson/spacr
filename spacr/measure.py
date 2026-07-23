@@ -1179,15 +1179,58 @@ def _measure_crop_core(index, time_ls, file, settings):
 
 #@log_function_call
 def measure_crop(settings):
-    
-    """
-    Measure the crop of an image based on the provided settings.
+    """Extract per-object morphology/intensity measurements and (optionally) cropped PNGs from mask stacks.
 
-    Args:
-        settings (dict): The settings for measuring the crop.
+    Consumes the ``merged/`` folder produced by
+    :func:`spacr.core.preprocess_generate_masks` (channel arrays + mask stacks
+    saved as ``.npy``), computes shape, intensity, texture and spatial
+    features per cell / nucleus / pathogen / cytoplasm object, and writes
+    them to a SQLite ``measurements.db``. When ``save_png`` is enabled it
+    also crops per-object PNG thumbnails, which are the training input for
+    :func:`spacr.deep_spacr.deep_spacr`.
 
-    Returns:
-        None
+    :param settings: Settings dict, canonicalized via
+        :func:`spacr.settings.get_measure_crop_settings`. Key entries the
+        function reads:
+
+        - ``src`` (str or list) — one or more ``…/merged`` folders.
+        - ``cell_mask_dim`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim``
+          — channel index of each mask stack; ``None`` disables that
+          object type.
+        - ``cell_min_size`` / ``nucleus_min_size`` / ``pathogen_min_size``
+          / ``cytoplasm_min_size`` — pixel-area cutoffs.
+        - ``channels`` — list of intensity channels to measure.
+        - ``crop_mode`` — list drawn from ``['cell','nucleus','pathogen',
+          'cytoplasm']``; each entry produces one PNG per object.
+        - ``save_png`` — write per-object PNG thumbnails.
+        - ``normalize`` — ``[lower_pct, upper_pct]`` for PNG normalization.
+        - ``normalize_by`` — ``'png'`` (per-crop) or ``'fov'`` (per-field).
+        - ``timelapse``, ``timelapse_objects``, ``n_jobs``, ``test_mode``.
+
+    :returns: None. Writes ``measurements/measurements.db``,
+        ``measure_crop_settings.csv``, and (if ``save_png``) PNGs into
+        per-object subfolders under ``src``.
+    :raises ValueError: if ``src`` is not a string or list of strings, if
+        ``normalize=True`` is passed as a bool, or if mask/crop settings
+        fail the type checks above.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.measure import measure_crop
+            settings = {
+                'src': '/data/plate01/merged',
+                'cell_mask_dim': 4, 'nucleus_mask_dim': 5, 'pathogen_mask_dim': 6,
+                'channels': [0, 1, 2, 3],
+                'crop_mode': ['cell'], 'save_png': True,
+                'normalize': [1, 99], 'normalize_by': 'png',
+            }
+            measure_crop(settings)
+
+    See Also:
+        :func:`spacr.core.preprocess_generate_masks` — upstream mask generation.
+        :func:`spacr.io.generate_dataset` — build a training set from the PNGs.
+        :func:`spacr.deep_spacr.deep_spacr` — train a CNN on the crops.
     """
 
     from .io import _save_settings_to_db
