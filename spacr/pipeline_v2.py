@@ -65,6 +65,8 @@ from typing import Any, Dict, Iterable, Iterator, List, Optional, Sequence, Tupl
 
 import numpy as np
 
+from .logging_util import Timer, timed
+
 LOG = logging.getLogger("spacr.pipeline_v2")
 
 
@@ -308,6 +310,7 @@ class StackFile:
     channels:  List[str]              # human names, in the same order
 
 
+@timed
 def stream_originals_to_stack(
     src: Path,
     mapper: FilenameMapper,
@@ -408,6 +411,7 @@ def _read_plane(path: str) -> np.ndarray:
 # Pass 2 — stream Cellpose masks back into the same stacks
 # ---------------------------------------------------------------------------
 
+@timed
 def stream_masks_from_stack(
     stacks: List[StackFile],
     model_name: str = "cyto",
@@ -457,8 +461,11 @@ def stream_masks_from_stack(
 
     for batch_start in range(0, len(stacks), batch_fields):
         batch = stacks[batch_start:batch_start + batch_fields]
-        # Load — build an in-memory list of (H, W, C_image) arrays
-        loaded = [np.load(s.path) for s in batch]
+        with Timer(
+            f"v2.batch[{batch_start}:{batch_start + len(batch)}] "
+            f"load", logger="spacr.pipeline_v2",
+        ):
+            loaded = [np.load(s.path) for s in batch]
 
         # Optionally persist the batch as NPZ for debugging.
         # Deleted after run unless keep_npz=True.
@@ -470,14 +477,20 @@ def stream_masks_from_stack(
 
         # Run Cellpose per field (batching across fields inside cellpose
         # is possible for equal shapes; we keep it per-field for
-        # heterogeneous plates).
+        # heterogeneous plates). Timer log makes it easy to spot which
+        # batches spike (cellpose is where the real time goes).
         masks_per_field: List[np.ndarray] = []
-        for arr in loaded:
-            m, _flows, _styles, _diams = model.eval(
-                arr, channels=list(channels_for_cellpose),
-                diameter=diameter,
-            )
-            masks_per_field.append(m.astype(np.uint16))
+        with Timer(
+            f"v2.batch[{batch_start}:{batch_start + len(batch)}] "
+            f"cellpose ({len(loaded)} fields)",
+            logger="spacr.pipeline_v2",
+        ):
+            for arr in loaded:
+                m, _flows, _styles, _diams = model.eval(
+                    arr, channels=list(channels_for_cellpose),
+                    diameter=diameter,
+                )
+                masks_per_field.append(m.astype(np.uint16))
 
         # Append the mask channel to each stack file and update
         # the StackFile bookkeeping.

@@ -227,3 +227,194 @@ def disable_debug() -> None:
     logging.getLogger("spacr").setLevel(_SESSION_LEVEL)
     for h in logging.getLogger().handlers:
         h.setLevel(_SESSION_LEVEL)
+
+
+# ---------------------------------------------------------------------------
+# Timing utilities — for benchmarking
+# ---------------------------------------------------------------------------
+#
+# Two shapes users can adopt as they need:
+#
+# * ``@timed`` decorator — wraps one function; on every call, logs the
+#   elapsed wall-clock at INFO. Skips logs faster than SPACR_TIME_THRESHOLD_MS
+#   (default 5 ms) so tight inner loops don't drown the log.
+#
+# * :class:`Timer` context manager — same idea for arbitrary blocks::
+#
+#     with Timer("cellpose batch"):
+#         model.eval(...)     # "cellpose batch took 2.34s"
+#
+# * :func:`time_module` — one call to wrap every public function on a
+#   module with ``@timed``. Use it during ad-hoc profiling; don't
+#   leave it on in production code.
+#
+# All three no-op cheaply when :func:`disable_timing` has been called
+# (default: enabled, since the threshold already filters noise).
+
+import functools
+import time
+from typing import Any, Callable, Optional
+
+TimingCallable = Callable[..., Any]
+
+_TIMING_ENABLED: bool = True
+_TIMING_THRESHOLD_MS: int = int(
+    os.environ.get("SPACR_TIME_THRESHOLD_MS", "5")
+)
+
+
+def enable_timing() -> None:
+    """Turn on the ``@timed`` decorator + :class:`Timer` context manager.
+
+    Enabled by default. Call this after :func:`disable_timing` to
+    re-enable timing logs at runtime.
+    """
+    global _TIMING_ENABLED
+    _TIMING_ENABLED = True
+
+
+def disable_timing() -> None:
+    """Turn off all timing logs — the decorators become pass-through."""
+    global _TIMING_ENABLED
+    _TIMING_ENABLED = False
+
+
+def set_timing_threshold_ms(ms: int) -> None:
+    """Only log timings that exceed ``ms`` milliseconds.
+
+    Defaults to 5 ms (env-overridable via ``SPACR_TIME_THRESHOLD_MS``).
+    Setting to 0 logs every call.
+    """
+    global _TIMING_THRESHOLD_MS
+    _TIMING_THRESHOLD_MS = max(0, int(ms))
+
+
+def timed(fn: Optional[TimingCallable] = None, *,
+            name: Optional[str] = None,
+            level: int = logging.INFO) -> TimingCallable:
+    """Decorator that logs wall-clock time for every call to ``fn``.
+
+    Usable as ``@timed`` or ``@timed(name="…", level=DEBUG)``::
+
+        @timed
+        def preprocess_generate_masks(settings):
+            ...
+
+        @timed(name="cellpose.batch", level=logging.DEBUG)
+        def _run_batch(...):
+            ...
+
+    Log line format: ``func_name took 1234.5 ms``. The logger name is
+    ``spacr.timing`` unless the wrapped function's module starts with
+    ``spacr.``, in which case that module's logger is reused so
+    timings interleave with the function's own log records.
+
+    :param fn: the function to wrap (when used as ``@timed``).
+    :param name: override the label used in the log line.
+    :param level: logging level for the "took Xms" line.
+    """
+    def _decorate(inner: TimingCallable) -> TimingCallable:
+        label = name or f"{inner.__module__}.{inner.__qualname__}"
+        mod = inner.__module__
+        log_name = mod if mod.startswith("spacr") else "spacr.timing"
+
+        @functools.wraps(inner)
+        def _wrapped(*args, **kwargs):
+            if not _TIMING_ENABLED:
+                return inner(*args, **kwargs)
+            log = logging.getLogger(log_name)
+            t0 = time.perf_counter()
+            try:
+                return inner(*args, **kwargs)
+            finally:
+                elapsed_ms = (time.perf_counter() - t0) * 1000.0
+                if elapsed_ms >= _TIMING_THRESHOLD_MS:
+                    log.log(level, "%s took %.1f ms", label, elapsed_ms)
+
+        _wrapped.__wrapped__ = inner   # type: ignore[attr-defined]
+        _wrapped.__spacr_timed__ = True   # type: ignore[attr-defined]
+        return _wrapped
+
+    if fn is not None:
+        return _decorate(fn)
+    return _decorate
+
+
+class Timer:
+    """Context manager that logs the elapsed wall-clock for a block.
+
+    Example::
+
+        from spacr.logging_util import Timer
+
+        with Timer("preprocess field"):
+            do_work()
+        # -> logs "preprocess field took 12.3 ms"
+
+    Nested Timers work fine — each logs its own block independently.
+
+    :param label: human-readable name shown in the log line.
+    :param logger: name of the logger to write to (default
+        ``"spacr.timing"``).
+    :param level: logging level for the line (default INFO).
+    :ivar elapsed_ms: filled on exit; None while still running.
+    """
+
+    def __init__(self, label: str,
+                  logger: str = "spacr.timing",
+                  level: int = logging.INFO):
+        self.label = label
+        self._logger_name = logger
+        self._level = level
+        self._t0: Optional[float] = None
+        self.elapsed_ms: Optional[float] = None
+
+    def __enter__(self) -> "Timer":
+        self._t0 = time.perf_counter()
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> None:
+        if self._t0 is None:
+            return
+        self.elapsed_ms = (time.perf_counter() - self._t0) * 1000.0
+        if (_TIMING_ENABLED
+                and self.elapsed_ms >= _TIMING_THRESHOLD_MS):
+            logging.getLogger(self._logger_name).log(
+                self._level, "%s took %.1f ms",
+                self.label, self.elapsed_ms,
+            )
+
+
+def time_module(module, exclude: tuple = ()) -> int:
+    """Wrap every public function in ``module`` with :func:`timed`.
+
+    Idempotent — functions that already carry ``__spacr_timed__`` are
+    skipped. Handy during ad-hoc profiling; not recommended for
+    production imports because it slows every call by ~1 µs.
+
+    Example::
+
+        import spacr.core
+        from spacr.logging_util import time_module
+        time_module(spacr.core)
+        # Every public function on spacr.core now logs its timing.
+
+    :param module: the module object to wrap.
+    :param exclude: iterable of function names to skip.
+    :returns: how many functions were wrapped.
+    """
+    wrapped = 0
+    for name in dir(module):
+        if name.startswith("_") or name in exclude:
+            continue
+        obj = getattr(module, name)
+        if not callable(obj):
+            continue
+        if getattr(obj, "__spacr_timed__", False):
+            continue
+        # Only wrap functions actually defined IN the module
+        if getattr(obj, "__module__", None) != module.__name__:
+            continue
+        setattr(module, name, timed(obj))
+        wrapped += 1
+    return wrapped
