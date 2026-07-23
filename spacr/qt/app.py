@@ -414,10 +414,16 @@ class MainWindow(QMainWindow):
         download_toxo_mito_demo(self, dst, _on_download_done)
 
     def _run_e2e_chain(self, dataset_path, settings_path) -> None:
-        """Run Mask -> Measure -> Annotate against the freshly-
-        downloaded dataset. Each stage opens its own app screen so the
-        user sees console output land in the normal place. Failures at
-        any stage are surfaced and don't cascade."""
+        """Run Mask → Measure → Annotate against the freshly-downloaded
+        dataset, prompting before each stage.
+
+        The user gets a Continue/Stop popup before each stage kicks off
+        so they can inspect the previous run's output before letting
+        the next one loose. Non-interactive stages (mask, measure) run
+        their pipeline immediately after Continue; the annotate stage
+        just opens the annotation UI at the dataset root so the user
+        can start labelling.
+        """
         from PySide6.QtWidgets import QMessageBox
         from pathlib import Path
 
@@ -451,16 +457,34 @@ class MainWindow(QMainWindow):
             settings["src"] = str(dataset_path)
             return settings
 
-        for stage in ("mask", "measure", "annotate"):
+        stages = (
+            ("mask",     "Mask generation",
+             "Ready to start mask generation with the downloaded settings?"),
+            ("measure",  "Measurement",
+             "Mask stage finished. Ready to start measurement?"),
+            ("annotate", "Annotation",
+             "Measurement stage finished. Ready to open the annotation UI?"),
+        )
+        for stage, title, prompt in stages:
+            answer = QMessageBox.question(
+                self, title, prompt,
+                QMessageBox.Yes | QMessageBox.No,
+            )
+            if answer != QMessageBox.Yes:
+                self.statusBar().showMessage(
+                    f"E2E chain stopped at '{stage}' stage.", 6000)
+                return
             settings = _settings_for(stage)
             self._on_nav_selected(stage)
             widget = self._screens.get(stage)
             if widget is None:
-                continue
+                QMessageBox.warning(self, "E2E",
+                    f"Couldn't open the '{stage}' screen.")
+                return
             try:
                 if hasattr(widget, "apply_settings_dict"):
                     widget.apply_settings_dict(settings)
-                # Kick off the run automatically for mask + measure;
+                # Kick off the pipeline automatically for mask + measure;
                 # annotate is interactive and opens directly at the
                 # loaded dataset so the user can start labelling.
                 if stage != "annotate" and hasattr(widget, "_on_run"):

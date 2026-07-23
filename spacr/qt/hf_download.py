@@ -173,8 +173,11 @@ def download_toxo_mito_demo(parent,
     dlg.setWindowTitle("Downloading spaCR demo dataset")
     dlg.setMinimumDuration(0)
     dlg.setValue(0)
-    dlg.setAutoClose(False)
-    dlg.setAutoReset(False)
+    # AutoClose True so hitting max value closes the dialog and returns
+    # control to the event loop — otherwise a stuck modal blocks the
+    # main thread and Qt shows the "Application not responding" prompt.
+    dlg.setAutoClose(True)
+    dlg.setAutoReset(True)
 
     thread = QThread(parent)
     worker = _HFDownloadWorker(dest)
@@ -189,14 +192,41 @@ def download_toxo_mito_demo(parent,
         dlg.setLabelText(msg)
 
     def _on_finished(ok: bool, ds: str, st: str, err: str) -> None:
-        dlg.setValue(dlg.maximum())
+        # Close the dialog *before* invoking the user callback — the
+        # callback may open its own modals (Continue/Stop prompts, etc.),
+        # and stacking one modal on top of another confuses Qt into the
+        # "app not responding" state on Linux.
+        try:
+            dlg.setValue(dlg.maximum())
+        except Exception:
+            pass
+        dlg.reset()
         dlg.close()
+        dlg.deleteLater()
         thread.quit()
+        thread.wait(2000)
+        # Drop retained refs on the parent so the QThread + dialog can
+        # be garbage-collected once the download flow ends.
+        for attr in ("_hf_download_thread", "_hf_download_worker",
+                     "_hf_download_dialog"):
+            try:
+                delattr(parent, attr)
+            except Exception:
+                pass
+        # Defer the user callback via a 0-ms singleShot so Qt processes
+        # any pending events (close event, deleteLater) before the
+        # chained pipeline modals appear. This is the specific fix for
+        # the "force-quit dialog after download" symptom.
+        from PySide6.QtCore import QTimer
         if ok:
-            on_done(DownloadResult(dataset_path=Path(ds),
-                                     settings_path=Path(st)), "")
+            QTimer.singleShot(
+                0,
+                lambda: on_done(DownloadResult(
+                    dataset_path=Path(ds),
+                    settings_path=Path(st)), ""),
+            )
         else:
-            on_done(None, err)
+            QTimer.singleShot(0, lambda: on_done(None, err))
 
     worker.progress.connect(_on_progress)
     worker.info.connect(_on_info)
