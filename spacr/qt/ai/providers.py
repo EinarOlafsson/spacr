@@ -236,14 +236,18 @@ class ClaudeCliProvider(ChatProvider):
         :param system: optional system prompt appended via
             ``--append-system-prompt``.
         :param model: optional model override passed via ``--model``.
+            When None the current response-speed setting supplies one.
         :returns: iterator yielding stdout text chunks.
         """
+        from . import settings as ai_settings
         prompt = _format_conversation(messages, system=system)
         argv = ["claude", "-p", prompt]
         if system:
             argv += ["--append-system-prompt", system]
         if model:
             argv += ["--model", model]
+        else:
+            argv += ai_settings.provider_args(self.name)
         yield from _stream_process(argv, provider=self)
 
 
@@ -269,12 +273,16 @@ class CodexCliProvider(ChatProvider):
         :param messages: conversation history as ``{role, content}`` dicts.
         :param system: optional system prompt folded into the prompt body.
         :param model: optional model override passed via ``--model``.
+            When None the current response-speed setting supplies one.
         :returns: iterator yielding stdout text chunks.
         """
+        from . import settings as ai_settings
         prompt = _format_conversation(messages, system=system)
         argv = ["codex", "exec", prompt]
         if model:
             argv += ["--model", model]
+        else:
+            argv += ai_settings.provider_args(self.name)
         yield from _stream_process(argv, provider=self)
 
 
@@ -300,12 +308,21 @@ class GeminiCliProvider(ChatProvider):
         :param messages: conversation history as ``{role, content}`` dicts.
         :param system: optional system prompt folded into the prompt body.
         :param model: optional model override passed via ``-m``.
+            When None the current response-speed setting supplies one.
         :returns: iterator yielding stdout text chunks.
         """
+        from . import settings as ai_settings
         prompt = _format_conversation(messages, system=system)
         argv = ["gemini", "-p", prompt]
         if model:
             argv += ["-m", model]
+        else:
+            # SPEED_MAP uses --model; translate to -m for the gemini CLI
+            args = ai_settings.provider_args(self.name)
+            if args and args[0] == "--model":
+                argv += ["-m", args[1]]
+            elif args:
+                argv += args
         yield from _stream_process(argv, provider=self)
 
 

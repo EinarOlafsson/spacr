@@ -16,6 +16,7 @@ Public entry points:
 """
 from __future__ import annotations
 
+from . import settings
 from .providers import (
     ChatProvider,
     configured_providers,
@@ -31,4 +32,5 @@ __all__ = [
     "error_explainer_prompt",
     "get_provider",
     "list_providers",
+    "settings",
 ]
