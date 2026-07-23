@@ -140,8 +140,41 @@ class TestPanel:
         params = panel.current_params()
         expected = {"model", "diameter", "flow_threshold", "cellprob",
                      "object_types", "cell_channel", "nucleus_channel",
-                     "normalise", "pre", "post", "outline_thickness"}
+                     "normalise", "lo_pct", "hi_pct", "pre", "post",
+                     "outline_thickness", "outline_colour"}
         assert expected.issubset(params.keys())
+
+    def test_settings_widgets_hidden_in_compact_layout(self, qtbot):
+        """Every option lives behind the Live Settings dialog now —
+        the compact layout only shows the file picker, Run button,
+        Live Settings button, hover label, and canvases."""
+        panel = live_preview.LivePreviewPanel()
+        qtbot.addWidget(panel)
+        panel.show()
+        # Model / object / channels / diameter / flow / prob /
+        # normalise / percentiles / outline / pre / post are all hidden
+        for name in ("_model_box", "_object_box", "_cell_channel",
+                       "_nucleus_channel", "_diameter", "_flow",
+                       "_prob", "_normalise_check", "_lo_pct",
+                       "_hi_pct", "_outline_colour",
+                       "_outline_thickness", "_pre_check",
+                       "_post_check"):
+            w = getattr(panel, name)
+            assert not w.isVisible(), (
+                f"{name} should be hidden in the compact layout")
+
+    def test_open_live_settings_shows_dialog(self, qtbot):
+        panel = live_preview.LivePreviewPanel()
+        qtbot.addWidget(panel)
+        panel.open_live_settings()
+        dlg = panel._live_settings_dialog
+        assert dlg is not None
+        assert dlg.isVisible()
+        # The dialog reveals the widgets while open
+        assert panel._model_box.isVisible()
+        dlg.close()
+        # Widgets go hidden again once the dialog closes
+        assert not panel._model_box.isVisible()
 
     def test_default_model_is_cpsam(self, qtbot):
         panel = live_preview.LivePreviewPanel()
@@ -227,23 +260,29 @@ class TestPanel:
 # ---------------------------------------------------------------------------
 
 class TestModelAwareOptions:
-    def test_cpsam_hides_diameter_flow_cellprob(self, qtbot):
+    def test_cpsam_disables_diameter_flow_cellprob_in_dialog(self, qtbot):
         panel = live_preview.LivePreviewPanel()
         qtbot.addWidget(panel)
         panel._model_box.setCurrentIndex(panel._model_box.findText("cpsam"))
-        for key in ("diameter", "flow_threshold", "cellprob"):
-            hdr, wrap = panel._param_widgets[key]
-            assert not hdr.isVisibleTo(panel)
+        panel.open_live_settings()
+        try:
+            for w in (panel._diameter, panel._flow, panel._prob):
+                assert not w.isEnabled(), (
+                    "SAM-ignored knobs should be disabled in the "
+                    "settings dialog when cpsam is selected")
+        finally:
+            panel._live_settings_dialog.close()
 
-    def test_legacy_model_shows_all_options(self, qtbot):
+    def test_legacy_model_enables_all_options(self, qtbot):
         panel = live_preview.LivePreviewPanel()
         qtbot.addWidget(panel)
         panel._model_box.setCurrentIndex(panel._model_box.findText("cyto2"))
-        for key in ("diameter", "flow_threshold", "cellprob"):
-            hdr, wrap = panel._param_widgets[key]
-            assert hdr.isVisibleTo(panel) or hdr.isVisible() is False
-            # Show state depends on show(); at least the widgets are enabled
-            assert hdr.isEnabled()
+        panel.open_live_settings()
+        try:
+            for w in (panel._diameter, panel._flow, panel._prob):
+                assert w.isEnabled()
+        finally:
+            panel._live_settings_dialog.close()
 
 
 # ---------------------------------------------------------------------------
@@ -264,7 +303,7 @@ class TestPrePostToggles:
         qtbot.addWidget(panel)
         panel.apply_settings({"remove_background_cell": True,
                                 "background": 50})
-        panel._pre_toggle.setChecked(True)
+        panel._pre_check.setChecked(True)
         panel.load_image(sample_tif)
         panel.run_preview()
         qtbot.waitUntil(lambda: "pre" in captured, timeout=3000)
@@ -281,7 +320,7 @@ class TestPrePostToggles:
         panel = live_preview.LivePreviewPanel()
         qtbot.addWidget(panel)
         panel.apply_settings({"cell_min_size": 50, "cell_max_size": 5000})
-        panel._post_toggle.setChecked(True)
+        panel._post_check.setChecked(True)
         panel.load_image(sample_tif)
         panel.run_preview()
         qtbot.waitUntil(lambda: "post" in captured, timeout=3000)
