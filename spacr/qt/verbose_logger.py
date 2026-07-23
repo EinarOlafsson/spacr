@@ -27,9 +27,10 @@ Design:
 """
 from __future__ import annotations
 
+import functools
 import logging
 import weakref
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 
 # ---------------------------------------------------------------------------
@@ -116,3 +117,92 @@ def apply_verbose_logging(on: bool) -> None:
         # noise. Users can raise those loggers manually if they need
         # to.
         logging.getLogger("cellpose").setLevel(logging.INFO)
+
+
+# ---------------------------------------------------------------------------
+# Function-entry / button-press auto-logging
+# ---------------------------------------------------------------------------
+
+def is_verbose() -> bool:
+    """Cheap runtime check — decorated functions call this on entry so
+    they emit NOTHING when verbose mode is off."""
+    return _handler is not None and _handler.level == logging.DEBUG
+
+
+def log_call(fn: Callable) -> Callable:
+    """Decorator: log entry + return of ``fn`` when verbose mode is on.
+
+    Zero cost when verbose is off (the wrapper does one attribute
+    check and forwards). When on, emits:
+
+        [class.func] args=… kwargs=…
+        [class.func] -> return-repr
+
+    Truncates giant reprs to 240 chars so a settings dict with 100
+    entries doesn't wreck the console.
+    """
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        if not is_verbose():
+            return fn(*args, **kwargs)
+        label = _label_for(fn, args)
+        logger = logging.getLogger("spacr.trace")
+        a_str = _brief(args[1:] if _looks_bound(fn, args) else args)
+        k_str = _brief(kwargs) if kwargs else ""
+        logger.debug("[%s] args=%s kwargs=%s", label, a_str, k_str)
+        try:
+            result = fn(*args, **kwargs)
+        except Exception as e:
+            logger.debug("[%s] RAISED %s: %s", label, type(e).__name__, e)
+            raise
+        logger.debug("[%s] -> %s", label, _brief(result))
+        return result
+    return wrapper
+
+
+def log_button_press(button_name: str,
+                        context: Optional[dict] = None) -> None:
+    """Fire a one-line trace record documenting a UI button press.
+
+    Wire this from Qt slot handlers so the console shows exactly which
+    button the user hit, with any relevant context values (e.g. the
+    current settings dict on a Run press).
+    """
+    if not is_verbose():
+        return
+    logger = logging.getLogger("spacr.trace")
+    if context:
+        logger.debug("[button:%s] %s", button_name, _brief(context))
+    else:
+        logger.debug("[button:%s] pressed", button_name)
+
+
+def _label_for(fn: Callable, args: tuple) -> str:
+    """Return "ClassName.method_name" when fn is a bound method, else
+    just the function's __qualname__."""
+    q = getattr(fn, "__qualname__", fn.__name__)
+    return q
+
+
+def _looks_bound(fn: Callable, args: tuple) -> bool:
+    """Rough check for whether the first arg is ``self`` — if so, we
+    hide it from the args snapshot."""
+    if not args:
+        return False
+    first = args[0]
+    q = getattr(fn, "__qualname__", "")
+    if "." not in q:
+        return False
+    cls_name = q.split(".", 1)[0]
+    return type(first).__name__ == cls_name
+
+
+def _brief(value: Any, max_chars: int = 240) -> str:
+    """Return a truncated ``repr(value)`` capped to ``max_chars``."""
+    try:
+        s = repr(value)
+    except Exception:
+        s = f"<{type(value).__name__} — repr failed>"
+    if len(s) > max_chars:
+        s = s[: max_chars - 3] + "…"
+    return s

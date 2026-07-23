@@ -653,8 +653,12 @@ class AppScreen(QWidget):
     # Actions
     # ------------------------------------------------------------------
     def _on_run(self):
+        from ..verbose_logger import log_button_press
         entry = resolve_pipeline_entry(self.app_key)
         if entry is None:
+            log_button_press(
+                f"{self.app_key}.Run",
+                {"result": "not_runnable"})
             QMessageBox.information(
                 self, "Not runnable",
                 f"The '{self.app_key}' app is interactive-only in this Qt build. "
@@ -664,13 +668,35 @@ class AppScreen(QWidget):
         try:
             settings = self._settings_model.collect()
         except Exception as e:
+            log_button_press(
+                f"{self.app_key}.Run",
+                {"result": "bad_settings", "error": str(e)})
             QMessageBox.warning(self, "Bad settings", str(e))
             return
 
+        # Diagnostic breadcrumb — visible when the user has verbose
+        # logging on. Shows exactly which app + entry-point ran and
+        # (truncated) which settings were passed. Helps triage
+        # "Starting mask… (hangs)" reports.
+        log_button_press(
+            f"{self.app_key}.Run",
+            {
+                "entry":    getattr(entry, "__qualname__", repr(entry)),
+                "src":      settings.get("src"),
+                "n_keys":   len(settings),
+            },
+        )
+        # Also always print a compact one-liner into the Console so
+        # non-verbose users see the entry point name — this is what
+        # they were missing when the console just said "Starting mask…"
+        # and nothing else.
+        entry_name = getattr(entry, "__qualname__", repr(entry))
+        self._console.append_stdout(
+            f"→ Starting {self.app_key} ({entry_name}) with "
+            f"src={settings.get('src')!r} + {len(settings)} settings…\n")
         self._btn_run.setEnabled(False)
         self._btn_stop.setEnabled(True)
         self._progress.setVisible(True)
-        self._console.append_stdout(f"→ Starting {self.app_key}…\n")
 
         # Remember start time so _on_finished can report elapsed to
         # the run journal + the OS notification.
