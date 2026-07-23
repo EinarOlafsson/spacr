@@ -70,7 +70,10 @@ dependencies = [
     'ipykernel',
     'ipywidgets>=8.1.2,<9.0',
     'brokenaxes>=0.6.2,<1.0',
-    'huggingface-hub>=0.24.0,<0.25',
+    # spacr only calls huggingface_hub.list_repo_files() — a stable API
+    # since 0.10. The old <0.25 cap forced datasets / gradio / f5-tts
+    # to resolve incompatible versions. Wide range is safe here.
+    'huggingface-hub>=0.24.0,<2.0',
     'protobuf>=5.28.3,<6.0'
     #'tensorflow>=2.20.0,<3.0',
     #'stardist>=0.9,<1.0'
