@@ -498,7 +498,15 @@ def stream_masks_from_stack(
             "cellpose is required for v2 mask streaming"
         ) from e
 
-    model = cp_models.Cellpose(gpu=True, model_type=model_name)
+    # Cellpose 4.x (SAM era) removed the classic ``Cellpose`` wrapper;
+    # everything now goes through :class:`CellposeModel`. When the
+    # caller asks for ``cpsam`` we load Cellpose-SAM via
+    # ``pretrained_model="cpsam"``; other model names still work via
+    # ``model_type=`` so saved settings from older versions keep going.
+    if model_name == "cpsam":
+        model = cp_models.CellposeModel(gpu=True, pretrained_model="cpsam")
+    else:
+        model = cp_models.CellposeModel(gpu=True, model_type=model_name)
 
     # Record the exact model checkpoint hash into the active run
     # journal, if one is open. Downstream reviewers can then trace
@@ -532,11 +540,22 @@ def stream_masks_from_stack(
             logger="spacr.pipeline_v2",
         ):
             for arr in loaded:
-                m, _flows, _styles, _diams = model.eval(
-                    arr, channels=list(channels_for_cellpose),
-                    diameter=diameter,
-                )
-                masks_per_field.append(m.astype(np.uint16))
+                # ``arr`` shape is (H, W, C). CellposeModel.eval on
+                # 4.x wants a 2-D array or (H, W) list of images; we
+                # slice down to the requested channel(s). ``channels``
+                # is legacy — the new API takes ``channel_axis`` +
+                # single-channel input.
+                if arr.ndim == 3 and arr.shape[-1] > 1:
+                    ch_idx = int(channels_for_cellpose[0]) % arr.shape[-1]
+                    img = arr[..., ch_idx]
+                else:
+                    img = arr.squeeze()
+                out = model.eval(img, diameter=diameter)
+                # Cellpose 4 returns (masks, flows, styles) — no diams.
+                m = out[0]
+                if isinstance(m, list):
+                    m = m[0]
+                masks_per_field.append(np.asarray(m).astype(np.uint16))
 
         # Append the mask channel to each stack file and update
         # the StackFile bookkeeping.
