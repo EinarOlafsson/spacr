@@ -466,6 +466,22 @@ class MainWindow(QMainWindow):
             w.setText("" if value is None else str(value))
 
 
+def _load_bundled_fonts() -> None:
+    """Register the bundled Open Sans TTFs with :class:`QFontDatabase`.
+
+    Idempotent — the fonts are only loaded once even if called
+    multiple times (Qt tracks the file path).
+    """
+    from PySide6.QtGui import QFontDatabase
+    here = os.path.dirname(os.path.abspath(__file__))
+    fonts_dir = os.path.join(here, "resources", "fonts")
+    if not os.path.isdir(fonts_dir):
+        return
+    for name in os.listdir(fonts_dir):
+        if name.lower().endswith((".ttf", ".otf")):
+            QFontDatabase.addApplicationFont(os.path.join(fonts_dir, name))
+
+
 def launch(argv: Optional[list[str]] = None) -> int:
     """Bootstrap QApplication and show the main window."""
     if argv is None:
@@ -481,6 +497,13 @@ def launch(argv: Optional[list[str]] = None) -> int:
     app = QApplication(sys.argv[:1])
     app.setApplicationName("spaCR")
     app.setOrganizationName("Olafsson Lab")
+
+    # Bundle Open Sans (Regular + Light + SemiBold) so the app renders
+    # the same on every OS regardless of what fonts the user has
+    # installed. Registered before applying the stylesheet so any
+    # `font-family: "Open Sans"` rule resolves.
+    _load_bundled_fonts()
+
     apply_qpalette(app)
     app.setStyleSheet(stylesheet())
 

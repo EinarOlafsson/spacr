@@ -1,6 +1,19 @@
-"""
-StartupPage — the home screen with a title, subtitle, and a grid of
-clickable tiles for each spacr app.
+"""StartupPage — the home screen.
+
+Minimalist layout:
+
+  ┌────────────────── logo + wordmark ──────────────────┐
+  │              spaCR — subtitle                       │
+  └─────────────────────────────────────────────────────┘
+
+  CORE ─────────────────────────────────────────
+    🖼  Mask         — Cellpose segmentation of cells…
+    📏  Measure      — Per-object feature extraction…
+    …
+
+Each app is a horizontal card (:class:`HTile`): icon on the left,
+name on top in Open Sans Regular, one-line description underneath
+in Open Sans Light. Nothing else — no borders unless you hover.
 """
 from __future__ import annotations
 
@@ -12,7 +25,6 @@ from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import (
     QFrame,
     QGridLayout,
-    QHBoxLayout,
     QLabel,
     QScrollArea,
     QVBoxLayout,
@@ -20,10 +32,11 @@ from PySide6.QtWidgets import (
 )
 
 from ..theme import PALETTE, SPACING
-from ..widgets import Divider, Tile
+from ..widgets import Divider, HTile
 
 
 def _find_logo_pixmap() -> QPixmap | None:
+    """Locate the bundled spaCR logo, returning ``None`` if absent."""
     here = os.path.dirname(os.path.abspath(__file__))
     for candidate in ("logo_spacr.png", "logo_spacr_v1.png"):
         p = os.path.normpath(
@@ -37,7 +50,15 @@ def _find_logo_pixmap() -> QPixmap | None:
 
 
 class StartupPage(QScrollArea):
-    """Home screen. `tile_clicked(str key)` fires when a tile is pressed."""
+    """Home screen. ``tile_clicked(str key)`` fires when a row is pressed.
+
+    :param apps: ``(key, name, description, section)`` tuples describing
+        each app to render.
+    :param icon_provider: callable that returns a QIcon for a given app
+        key (or ``None`` for a text-fallback tile).
+    :param parent: optional parent widget.
+    :ivar tile_clicked: emitted with the app key when a tile is pressed.
+    """
 
     tile_clicked = Signal(str)
 
@@ -57,46 +78,52 @@ class StartupPage(QScrollArea):
                                   SPACING["xxl"], SPACING["xxl"])
         outer.setSpacing(SPACING["xl"])
 
-        # Hero header block — logo + wordmark side by side, with subtitle
-        # below on a full-width band.
+        # ─── Hero ────────────────────────────────────────────────────
+        outer.addWidget(self._build_hero())
+
+        # ─── App sections ────────────────────────────────────────────
+        sections: dict[str, list[tuple[str, str, str]]] = {}
+        for key, name, desc, section in apps:
+            sections.setdefault(section, []).append((key, name, desc))
+
+        for section_name, entries in sections.items():
+            outer.addWidget(self._build_section_header(section_name))
+            outer.addWidget(self._build_section_grid(entries, icon_provider))
+
+        outer.addStretch(1)
+        self.setWidget(content)
+
+    # -- pieces --------------------------------------------------------
+    def _build_hero(self) -> QWidget:
         hero = QFrame()
         hero.setObjectName("Hero")
-        hero_col = QVBoxLayout(hero)
-        hero_col.setContentsMargins(SPACING["xl"], SPACING["xl"],
-                                     SPACING["xl"], SPACING["xl"])
-        hero_col.setSpacing(SPACING["md"])
-        hero_col.setAlignment(Qt.AlignCenter)
-
-        brand_row = QHBoxLayout()
-        brand_row.setSpacing(SPACING["lg"])
-        brand_row.setAlignment(Qt.AlignCenter)
+        col = QVBoxLayout(hero)
+        col.setContentsMargins(SPACING["xl"], SPACING["xl"],
+                                SPACING["xl"], SPACING["xl"])
+        col.setSpacing(SPACING["md"])
+        col.setAlignment(Qt.AlignCenter)
 
         logo_pix = _find_logo_pixmap()
         if logo_pix is not None:
             logo_lbl = QLabel()
             logo_lbl.setPixmap(
-                logo_pix.scaled(128, 128, Qt.KeepAspectRatio,
+                logo_pix.scaled(96, 96, Qt.KeepAspectRatio,
                                 Qt.SmoothTransformation)
             )
-            logo_lbl.setFixedSize(128, 128)
+            logo_lbl.setFixedSize(96, 96)
             logo_lbl.setAlignment(Qt.AlignCenter)
-            brand_row.addWidget(logo_lbl)
+            col.addWidget(logo_lbl, alignment=Qt.AlignHCenter)
 
-        wordmark_col = QVBoxLayout()
-        wordmark_col.setContentsMargins(0, 0, 0, 0)
-        wordmark_col.setSpacing(2)
-        wordmark_col.setAlignment(Qt.AlignVCenter)
-
-        eyebrow = QLabel("spaCR")
-        eyebrow.setObjectName("Caption")
-        wordmark_col.addWidget(eyebrow)
-
-        title = QLabel("Spatial phenotype analysis")
+        title = QLabel("spaCR")
         title.setObjectName("Hero")
-        wordmark_col.addWidget(title)
-
-        brand_row.addLayout(wordmark_col)
-        hero_col.addLayout(brand_row)
+        title.setAlignment(Qt.AlignHCenter)
+        title.setStyleSheet(
+            "font-family: 'Open Sans', sans-serif;"
+            "font-weight: 300;"        # light for the wordmark
+            "font-size: 44px;"
+            "letter-spacing: -1px;"
+        )
+        col.addWidget(title, alignment=Qt.AlignHCenter)
 
         subtitle = QLabel(
             "End-to-end microscopy → single-cell measurements → "
@@ -105,75 +132,56 @@ class StartupPage(QScrollArea):
         subtitle.setObjectName("Subtitle")
         subtitle.setAlignment(Qt.AlignHCenter)
         subtitle.setWordWrap(True)
-        subtitle.setMaximumWidth(820)
-        hero_col.addWidget(subtitle, alignment=Qt.AlignHCenter)
-
-        outer.addWidget(hero)
-        outer.addSpacing(SPACING["md"])
-
-        # Group apps by section, render each section as a heading + tile grid.
-        sections: dict[str, list[tuple[str, str, str]]] = {}
-        for key, name, desc, section in apps:
-            sections.setdefault(section, []).append((key, name, desc))
-
-        for section_name, entries in sections.items():
-            hdr = QLabel(section_name.upper())
-            hdr.setObjectName("Caption")
-            hdr.setAlignment(Qt.AlignHCenter)
-            outer.addWidget(hdr)
-
-            divider = Divider()
-            outer.addWidget(divider)
-
-            grid_container = QWidget()
-            grid_row = QHBoxLayout(grid_container)
-            grid_row.setContentsMargins(0, SPACING["sm"], 0, SPACING["sm"])
-            grid_row.addStretch(1)
-
-            inner = QWidget()
-            grid = QGridLayout(inner)
-            grid.setContentsMargins(0, 0, 0, 0)
-            grid.setHorizontalSpacing(SPACING["lg"])
-            grid.setVerticalSpacing(SPACING["md"])
-            grid.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
-
-            cols = 6
-            for i, (key, name, desc) in enumerate(entries):
-                icon = icon_provider(key)
-                tile = Tile(text=name, icon=icon, caption=name,
-                            tile_size=128, icon_size=68)
-                tile.setToolTip(desc)
-                tile.clicked.connect(lambda k=key: self.tile_clicked.emit(k))
-                tile._button.installEventFilter(self)
-                tile._button.setProperty("hover_caption", desc)
-                grid.addWidget(tile, i // cols, i % cols)
-
-            grid_row.addWidget(inner)
-            grid_row.addStretch(1)
-            outer.addWidget(grid_container)
-
-        outer.addStretch(1)
-
-        # Hover-follows footer — replaced with dynamic caption on tile hover.
-        self._hover_footer = QLabel(
-            "Hover a tile to see what each app does."
+        subtitle.setMaximumWidth(760)
+        subtitle.setStyleSheet(
+            "font-family: 'Open Sans', sans-serif;"
+            "font-weight: 300;"
+            f"color: {PALETTE['fg_muted']};"
         )
-        self._hover_footer.setObjectName("SubtitleSmall")
-        self._hover_footer.setAlignment(Qt.AlignHCenter)
-        self._hover_footer.setMinimumHeight(28)
-        outer.addWidget(self._hover_footer)
+        col.addWidget(subtitle, alignment=Qt.AlignHCenter)
 
-        self.setWidget(content)
+        return hero
 
-    def eventFilter(self, obj, event):
-        """Update the hover footer with each tile's caption on Enter/Leave."""
-        from PySide6.QtCore import QEvent
-        if event.type() == QEvent.Enter:
-            cap = obj.property("hover_caption")
-            if cap:
-                self._hover_footer.setText(cap)
-        elif event.type() == QEvent.Leave:
-            self._hover_footer.setText(
-                "Hover a tile to see what each app does."
-            )
-        return super().eventFilter(obj, event)
+    def _build_section_header(self, name: str) -> QWidget:
+        wrap = QWidget()
+        row = QVBoxLayout(wrap)
+        row.setContentsMargins(0, SPACING["sm"], 0, 0)
+        row.setSpacing(6)
+
+        hdr = QLabel(name.upper())
+        hdr.setStyleSheet(
+            "font-family: 'Open Sans', sans-serif;"
+            "font-weight: 600;"        # semibold — quiet emphasis
+            "font-size: 11px;"
+            "letter-spacing: 2px;"
+            f"color: {PALETTE['fg_muted']};"
+        )
+        row.addWidget(hdr)
+        row.addWidget(Divider())
+        return wrap
+
+    def _build_section_grid(
+        self,
+        entries: list[tuple[str, str, str]],
+        icon_provider: Callable[[str], QIcon | None],
+    ) -> QWidget:
+        wrap = QWidget()
+        grid = QGridLayout(wrap)
+        grid.setContentsMargins(0, SPACING["xs"], 0, SPACING["md"])
+        grid.setHorizontalSpacing(SPACING["md"])
+        grid.setVerticalSpacing(6)
+
+        cols = 2   # icons-left layout wants wider rows, not a 6-wide grid
+        for i, (key, name, desc) in enumerate(entries):
+            icon = icon_provider(key)
+            tile = HTile(text=name, description=desc, icon=icon,
+                          icon_size=36)
+            tile.setMinimumWidth(280)
+            tile.clicked.connect(lambda checked=False, k=key:
+                                   self.tile_clicked.emit(k))
+            grid.addWidget(tile, i // cols, i % cols)
+
+        # Uniform column widths
+        for c in range(cols):
+            grid.setColumnStretch(c, 1)
+        return wrap
