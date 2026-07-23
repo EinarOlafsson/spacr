@@ -223,6 +223,17 @@ class MainWindow(QMainWindow):
         if initial_app:
             self._on_nav_selected(initial_app)
 
+        # First-launch tour — coach-marks over the home layout the
+        # first time this user boots spacr. State stored in QSettings,
+        # so subsequent launches are silent. Delayed a beat so the
+        # window has time to render before the overlay attaches.
+        try:
+            from PySide6.QtCore import QTimer
+            from .first_run import maybe_show_tour
+            QTimer.singleShot(800, lambda: maybe_show_tour(self))
+        except Exception:
+            pass
+
     def _resolve_version(self) -> str:
         """Return the installed spacr version string, or ``"dev"`` on failure."""
         try:

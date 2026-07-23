@@ -226,6 +226,16 @@ class AppScreen(QWidget):
             scroll.setWidget(content)
             return scroll
 
+        # Empty-state banner — shown ONLY when the src widget is
+        # empty. It's a compact "Drop a plate folder here or pick a
+        # Demo dataset" card that sits above the settings form; it
+        # auto-hides as soon as the user sets src (drag/drop or
+        # typing). Users who load settings via Import don't see it
+        # a second time.
+        self._empty_state_card = self._build_empty_state_banner()
+        if self._empty_state_card is not None:
+            layout.addWidget(self._empty_state_card)
+
         if not sections:
             layout.addWidget(QLabel("No settings defined for this app."))
         # Map widget → plain-text hint so the bottom hint strip AND our
@@ -265,6 +275,76 @@ class AppScreen(QWidget):
         layout.addStretch(1)
         scroll.setWidget(content)
         return scroll
+
+    def _build_empty_state_banner(self):
+        """Return a compact "Drop or pick a demo" card, or None.
+
+        The card is inserted at the top of the settings scroll. It
+        hides once the ``src`` widget contains anything so users
+        who've already pointed the app at data see the normal form.
+        """
+        from PySide6.QtWidgets import QFrame, QLineEdit, QPushButton
+        from ..widgets import EmptyState
+
+        src_widget = None
+        try:
+            src_widget = self._settings_model._widgets.get("src")
+        except Exception:
+            pass
+        if src_widget is None:
+            return None
+
+        # If src already points at a real path, don't show the banner.
+        # `path`, `""` and None are all placeholders the settings dicts
+        # use as "no src set yet".
+        existing = ""
+        if isinstance(src_widget, QLineEdit):
+            existing = (src_widget.text() or "").strip()
+        placeholders = {"", "path", "/path/to/src", "/path"}
+        if existing and existing not in placeholders:
+            return None
+
+        # Human-friendly title varies per app; the body is the same.
+        title = f"Point {APP_TITLES.get(self.app_key, self.app_key).lower()} at some data"
+        subtitle = (
+            "Drop a folder of images anywhere on this window, or use "
+            "Demos → Mask demo… for a synthetic dataset. You can also "
+            "type a path into the src field below."
+        )
+        card = EmptyState(
+            title=title, subtitle=subtitle,
+            cta_label="Open Demos menu",
+            on_action=lambda: self._open_demos_menu(),
+        )
+        # Auto-hide once the user sets src
+        if isinstance(src_widget, QLineEdit):
+            src_widget.textChanged.connect(self._maybe_hide_empty_state)
+        card.setObjectName("EmptyStateBanner")
+        return card
+
+    def _maybe_hide_empty_state(self, text: str) -> None:
+        card = getattr(self, "_empty_state_card", None)
+        if card is None:
+            return
+        t = (text or "").strip()
+        placeholders = {"", "path", "/path/to/src", "/path"}
+        if t and t not in placeholders:
+            card.hide()
+
+    def _open_demos_menu(self) -> None:
+        try:
+            mw = self.window()
+            if mw is None:
+                return
+            for act in mw.menuBar().actions():
+                if act.text().replace("&", "") == "Demos":
+                    m = act.menu()
+                    if m is not None:
+                        # Show the menu at the top-left of the window
+                        m.exec(mw.mapToGlobal(mw.rect().topLeft()))
+                    break
+        except Exception:
+            pass
 
     def eventFilter(self, obj, event):
         """Show/hide the hover tooltip and update the hint strip on Enter/Leave."""
