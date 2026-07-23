@@ -185,7 +185,8 @@ class HTile(QPushButton):
 
         self.setSizePolicy(self.sizePolicy().horizontalPolicy(),
                            self.sizePolicy().verticalPolicy())
-        self.setMinimumHeight(72)
+        from ..preferences import scaled_px
+        self.setMinimumHeight(scaled_px(72))
         self.setToolTip(description or text)
 
         # Two-line label stack next to the icon.

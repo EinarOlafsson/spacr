@@ -475,6 +475,16 @@ class AppScreen(QWidget):
         self._console.setMinimumHeight(320)
         layout.addWidget(self._console, 1)
 
+        # Route the verbose logger (if the user turned it on in
+        # Preferences) at THIS screen's console. Only the last-focused
+        # screen receives the log stream — that's fine, users hit the
+        # console they're looking at.
+        try:
+            from ..verbose_logger import register_console_target
+            register_console_target(self._console)
+        except Exception:
+            pass
+
         # Usage card
         usage_card = Card(title="System")
         self._usage_ram = UsageBar("RAM")

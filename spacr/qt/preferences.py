@@ -50,6 +50,7 @@ _APP = "qt"
 _KEY_THEME       = "prefs/theme"
 _KEY_FONT_SCALE  = "prefs/font_scale"
 _KEY_CB_MODE     = "prefs/color_blind_mode"
+_KEY_VERBOSE_LOG = "prefs/verbose_logging"
 
 VALID_THEMES = ("dark", "light", "system")
 DEFAULT_THEME = "dark"
@@ -122,6 +123,20 @@ def set_font_scale(scale: float) -> None:
     _settings().setValue(_KEY_FONT_SCALE, scale)
 
 
+def scaled_px(base_px: int) -> int:
+    """Return ``base_px`` scaled by the current user font scale.
+
+    Widget sizes set from Python (``setMinimumWidth`` etc.) don't grow
+    when the stylesheet's font size grows, so any control tuned to
+    match a text width goes wrong at large font scales. Route those
+    calls through this helper so they track the preference.
+
+    Rounds to the nearest int; caps to at least 1 px so a very small
+    scale doesn't collapse things to zero.
+    """
+    return max(1, int(round(base_px * get_font_scale())))
+
+
 # ---------------------------------------------------------------------------
 # Colour-blind mode
 # ---------------------------------------------------------------------------
@@ -152,6 +167,20 @@ def color_blind_categorical_palette() -> list:
     # Okabe-Ito — see https://jfly.uni-koeln.de/color/
     return ["#0072B2", "#E69F00", "#009E73", "#F0E442",
             "#56B4E9", "#D55E00", "#CC79A7", "#000000"]
+
+
+def get_verbose_logging() -> bool:
+    """Return True when the user has opted into the verbose diagnostic
+    logger. Toggled via the Preferences dialog; consulted at startup
+    by :func:`apply_preferences_to_app`."""
+    raw = _settings().value(_KEY_VERBOSE_LOG, False)
+    if isinstance(raw, str):
+        return raw.lower() in ("true", "1", "yes", "on")
+    return bool(raw)
+
+
+def set_verbose_logging(on: bool) -> None:
+    _settings().setValue(_KEY_VERBOSE_LOG, bool(on))
 
 
 def color_blind_continuous_cmap() -> str:
@@ -192,6 +221,16 @@ def apply_preferences_to_app(app=None) -> None:
     apply_qpalette(app, theme=theme)
     app.setStyleSheet(stylesheet(theme=theme, font_scale=scale))
 
+    # Apply the verbose-logger preference too — cheap to re-apply, and
+    # this is the one place that runs on every prefs save.
+    try:
+        from .verbose_logger import apply_verbose_logging
+        apply_verbose_logging(get_verbose_logging())
+    except Exception:
+        # Logger module is optional at import time — never let its
+        # absence prevent the app from theming itself.
+        pass
+
 
 # ---------------------------------------------------------------------------
 # Preferences dialog
@@ -208,7 +247,7 @@ class PreferencesDialog:
     def __new__(cls, parent=None):
         from PySide6.QtCore import Qt
         from PySide6.QtWidgets import (
-            QComboBox, QDialog, QDialogButtonBox, QFormLayout,
+            QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFormLayout,
             QLabel, QSlider, QVBoxLayout,
         )
 
@@ -268,6 +307,20 @@ class PreferencesDialog:
                 cb_combo.setCurrentIndex(i); break
         form.addRow("Colour-blind mode", cb_combo)
 
+        # Verbose logging — one toggle, wired at Save time. When on,
+        # spaCR + third-party libs (cellpose, torch, PIL, matplotlib)
+        # dial their loggers to DEBUG/INFO and every record echoes into
+        # the active ConsolePanel. Aimed at bug reports.
+        verbose_check = QCheckBox("Enable verbose logging")
+        verbose_check.setToolTip(
+            "When on, every spaCR log record — plus INFO-level chatter "
+            "from cellpose, torch, PIL and matplotlib — echoes into "
+            "the active app's Console. Very chatty; leave off unless "
+            "you're triaging a bug."
+        )
+        verbose_check.setChecked(get_verbose_logging())
+        form.addRow("Diagnostics", verbose_check)
+
         outer.addLayout(form)
 
         preview = QLabel(
@@ -289,6 +342,7 @@ class PreferencesDialog:
             set_theme(theme_combo.currentData())
             set_font_scale(scale_slider.value() / 100.0)
             set_color_blind_mode(cb_combo.currentData())
+            set_verbose_logging(verbose_check.isChecked())
             apply_preferences_to_app()
             dlg.accept()
 
