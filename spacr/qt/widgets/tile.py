@@ -171,6 +171,12 @@ class HTile(QPushButton):
 
         self.setObjectName("HTile")
         self.setCursor(Qt.PointingHandCursor)
+        # Accessibility: screen readers announce the app name + one-line
+        # description as the button's role. Tooltip stays for sighted
+        # hover; the accessible bits are what NVDA / VoiceOver read.
+        self.setAccessibleName(text)
+        if description:
+            self.setAccessibleDescription(description)
         # Custom text layout — clear the button's default text so it
         # doesn't render alongside our QLabels.
         if icon is not None:

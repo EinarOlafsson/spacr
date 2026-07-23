@@ -142,6 +142,10 @@ class Sidebar(QWidget):
             btn.setObjectName("SidebarItem")
             btn.setCursor(Qt.PointingHandCursor)
             btn.setToolTip(desc)
+            # Accessibility — screen readers announce the app name +
+            # its one-line description as the button's role.
+            btn.setAccessibleName(name)
+            btn.setAccessibleDescription(desc)
             icon = _icon_for_app(key)
             if icon is not None:
                 btn.setIcon(icon)
@@ -208,6 +212,13 @@ class MainWindow(QMainWindow):
         from PySide6.QtCore import QTimer
         self._preloader = _PipelinePreloader()
         QTimer.singleShot(1500, self._preloader.start)
+
+        # Keyboard shortcuts — Ctrl+H, Ctrl+1..9, Ctrl+K, F1/?, etc.
+        try:
+            from . import shortcuts
+            shortcuts.install(self)
+        except Exception:
+            pass
 
         if initial_app:
             self._on_nav_selected(initial_app)
