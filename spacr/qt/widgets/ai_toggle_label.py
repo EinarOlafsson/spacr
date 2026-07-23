@@ -17,23 +17,31 @@ from ..theme import FONT_SIZE, PALETTE
 
 
 class AiToggleLabel(QLabel):
-    """Clickable "AI" text label that behaves like a QCheckBox toggle.
+    """Clickable text label that behaves like a QCheckBox toggle.
 
+    Originally the "AI" switch, now also used for the "LP" (live
+    preview) toggle. Every consumer gets the same on-blue / off-white
+    visual so the row of toggles reads consistently.
+
+    :param text: label text (default ``"AI"`` for back-compat).
+    :param tooltip: hover tooltip; falls back to a sensible AI-flavoured
+        message when omitted.
     :ivar toggled: emitted with the new on/off state whenever the user
         clicks or :meth:`setChecked` flips the state.
     """
 
     toggled = Signal(bool)
 
-    def __init__(self, parent=None):
-        super().__init__("AI", parent)
+    def __init__(self, parent=None, text: str = "AI",
+                     tooltip: str | None = None):
+        super().__init__(text, parent)
         self.setObjectName("AiToggleLabel")
         self.setCursor(Qt.PointingHandCursor)
-        self.setToolTip(
+        self.setToolTip(tooltip if tooltip is not None else (
             "Click to toggle AI. When ON (blue), pressing Enter in "
             "the console routes your message through your chat "
             "subscription via the selected provider."
-        )
+        ))
         self._on = False
         self._refresh_style()
 

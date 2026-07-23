@@ -80,8 +80,9 @@ def test_apply_classify_demo_opens_annotate_screen(qtbot,
     assert hasattr(screen, "_open_source")
 
 
-def test_demo_menu_has_five_entries(qtbot, qt_theme_applied):
-    """Menu wiring — five demos under &Demos, one QAction each."""
+def test_demo_menu_has_expected_entries(qtbot, qt_theme_applied):
+    """Menu wiring — every demo is a QAction under &Demos, including the
+    real-dataset end-to-end option."""
     win = _new_mainwindow(qtbot, qt_theme_applied)
     demos_menu = None
     for act in win.menuBar().actions():
@@ -90,8 +91,9 @@ def test_demo_menu_has_five_entries(qtbot, qt_theme_applied):
             break
     assert demos_menu is not None, "no &Demos menu found"
     actions = [a for a in demos_menu.actions() if not a.isSeparator()]
-    assert len(actions) == 5
     labels = {a.text() for a in actions}
     for expected in ("Mask demo…", "Measure demo…", "Crop demo…",
                       "Classify demo…", "Timelapse demo…"):
         assert expected in labels
+    # The real-dataset E2E option should be present
+    assert any("End-to-end" in lbl and "Annotate" in lbl for lbl in labels)
