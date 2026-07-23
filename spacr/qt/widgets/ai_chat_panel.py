@@ -34,6 +34,7 @@ from PySide6.QtWidgets import (
     QPushButton,
     QScrollArea,
     QStackedWidget,
+    QTabWidget,
     QTextEdit,
     QVBoxLayout,
     QWidget,
@@ -42,8 +43,14 @@ from PySide6.QtWidgets import (
 from .. import ai as ai_module
 from .. import iconset
 from ..ai import keys as ai_keys
+from ..ai import settings as ai_settings
 from ..ai.providers import ChatProvider
 from ..ai.worker import StreamWorker, make_stream_thread
+
+
+def _current_system_prompt() -> str:
+    """Delegate to ``ai_settings`` so a user override kicks in when set."""
+    return ai_settings.get_system_prompt()
 from ..theme import PALETTE, SPACING
 from .divider import Divider
 from .empty_state import EmptyState
@@ -89,14 +96,35 @@ class _MessageBubble(QWidget):
 # ---------------------------------------------------------------------------
 
 class _ProvidersDialog(QDialog):
-    """Shows install + login state for each vendor CLI and gives users
-    a one-click way to copy the commands into their terminal."""
+    """Tabbed dialog: install + login guidance for each vendor CLI on
+    one tab, response-speed + system-prompt settings on another.
+
+    :param parent: optional parent widget.
+    """
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("AI Console — providers")
-        self.setMinimumWidth(560)
+        self.setWindowTitle("AI Console — providers & settings")
+        self.setMinimumWidth(620)
+        self.setMinimumHeight(560)
         outer = QVBoxLayout(self)
+
+        tabs = QTabWidget()
+        tabs.addTab(self._build_providers_tab(), "Providers")
+        tabs.addTab(self._build_settings_tab(), "Settings")
+        outer.addWidget(tabs, 1)
+
+        buttons = QDialogButtonBox()
+        refresh_btn = buttons.addButton("Refresh", QDialogButtonBox.AcceptRole)
+        close_btn = buttons.addButton("Close", QDialogButtonBox.RejectRole)
+        refresh_btn.clicked.connect(self.accept)
+        close_btn.clicked.connect(self.reject)
+        outer.addWidget(buttons)
+
+    # -- Providers tab -------------------------------------------------
+    def _build_providers_tab(self) -> QWidget:
+        page = QWidget()
+        col = QVBoxLayout(page)
 
         intro = QLabel(
             "The AI Console talks to the <b>vendor coding-agent CLI</b> "
@@ -108,10 +136,10 @@ class _ProvidersDialog(QDialog):
         )
         intro.setWordWrap(True)
         intro.setTextFormat(Qt.RichText)
-        outer.addWidget(intro)
+        col.addWidget(intro)
 
         for p in ai_module.list_providers():
-            outer.addWidget(self._make_provider_row(p))
+            col.addWidget(self._make_provider_row(p))
 
         note = QLabel(
             "Once a CLI is installed <em>and</em> you're logged in, hit "
@@ -121,14 +149,94 @@ class _ProvidersDialog(QDialog):
         note.setObjectName("SubtitleSmall")
         note.setWordWrap(True)
         note.setTextFormat(Qt.RichText)
-        outer.addWidget(note)
+        col.addWidget(note)
+        col.addStretch(1)
+        return page
 
-        buttons = QDialogButtonBox()
-        refresh_btn = buttons.addButton("Refresh", QDialogButtonBox.AcceptRole)
-        close_btn = buttons.addButton("Close", QDialogButtonBox.RejectRole)
-        refresh_btn.clicked.connect(self.accept)
-        close_btn.clicked.connect(self.reject)
-        outer.addWidget(buttons)
+    # -- Settings tab --------------------------------------------------
+    def _build_settings_tab(self) -> QWidget:
+        page = QWidget()
+        col = QVBoxLayout(page)
+        col.setSpacing(SPACING["md"])
+
+        # Response speed --------------------------------------------------
+        speed_label = QLabel(
+            "<b>Response speed</b><br>"
+            "<span style='color:gray;'>Same three levels for every provider. "
+            "Faster = snappier + cheaper; Deep = more thorough reasoning.</span>"
+        )
+        speed_label.setTextFormat(Qt.RichText)
+        col.addWidget(speed_label)
+
+        self._speed_combo = QComboBox()
+        for value, human in (
+            ("fast",     "Fast — snappy replies, smallest model"),
+            ("balanced", "Balanced — default, mid-tier model"),
+            ("deep",     "Deep — most thorough, largest model"),
+        ):
+            self._speed_combo.addItem(human, value)
+        current = ai_settings.get_response_speed()
+        for i in range(self._speed_combo.count()):
+            if self._speed_combo.itemData(i) == current:
+                self._speed_combo.setCurrentIndex(i)
+                break
+        self._speed_combo.currentIndexChanged.connect(self._on_speed_changed)
+        col.addWidget(self._speed_combo)
+
+        col.addWidget(Divider())
+
+        # System prompt --------------------------------------------------
+        prompt_label = QLabel(
+            "<b>System prompt</b><br>"
+            "<span style='color:gray;'>The persona spaCR sends to the "
+            "assistant before your first message. Edit to change how "
+            "answers are framed, then Save. Reset restores the default.</span>"
+        )
+        prompt_label.setTextFormat(Qt.RichText)
+        col.addWidget(prompt_label)
+
+        self._prompt_edit = QTextEdit()
+        self._prompt_edit.setPlainText(ai_settings.get_system_prompt())
+        self._prompt_edit.setMinimumHeight(240)
+        col.addWidget(self._prompt_edit, 1)
+
+        self._prompt_status = QLabel(self._prompt_status_text())
+        self._prompt_status.setObjectName("SubtitleSmall")
+        col.addWidget(self._prompt_status)
+
+        prompt_buttons = QHBoxLayout()
+        save_btn = QPushButton("Save prompt")
+        save_btn.clicked.connect(self._on_prompt_save)
+        prompt_buttons.addWidget(save_btn)
+        reset_btn = QPushButton("Reset to default")
+        reset_btn.clicked.connect(self._on_prompt_reset)
+        prompt_buttons.addWidget(reset_btn)
+        prompt_buttons.addStretch(1)
+        wrap = QWidget(); wrap.setLayout(prompt_buttons)
+        col.addWidget(wrap)
+
+        return page
+
+    # -- Settings handlers --------------------------------------------
+    def _on_speed_changed(self, _idx: int) -> None:
+        value = self._speed_combo.currentData()
+        if value in ai_settings.VALID_SPEEDS:
+            ai_settings.set_response_speed(value)
+
+    def _on_prompt_save(self) -> None:
+        text = self._prompt_edit.toPlainText().strip()
+        ai_settings.set_system_prompt(text)
+        self._prompt_status.setText(self._prompt_status_text())
+
+    def _on_prompt_reset(self) -> None:
+        ai_settings.reset_system_prompt()
+        self._prompt_edit.setPlainText(ai_settings.get_system_prompt())
+        self._prompt_status.setText(self._prompt_status_text())
+
+    def _prompt_status_text(self) -> str:
+        if ai_settings.is_system_prompt_overridden():
+            return "Using your custom prompt (overrides default)."
+        return "Using the default spaCR-aware prompt."
 
     def _make_provider_row(self, provider: ChatProvider) -> QWidget:
         card = QWidget()
@@ -386,7 +494,7 @@ class AIChatPanel(QWidget):
             return
         self._input.clear()
         self._append_user(text)
-        self._start_stream(system=ai_module.default_system_prompt())
+        self._start_stream(system=_current_system_prompt())
 
     def _cancel_stream(self):
         if self._worker is not None:

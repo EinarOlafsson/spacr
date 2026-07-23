@@ -46,6 +46,7 @@ from PySide6.QtWidgets import (
 
 from .. import ai as ai_module
 from .. import iconset
+from ..ai import settings as ai_settings
 from ..ai.providers import ChatProvider
 from ..ai.worker import StreamWorker, make_stream_thread
 from ..theme import FONT_SIZE, PALETTE, SPACING
@@ -457,7 +458,7 @@ class ConsolePanel(QWidget):
         self._last_entry_kind = "bubble"
         self._ensure_stdout_block()
         self._current_stdout.append("spaCR AI: ")
-        self._start_stream(system=ai_module.default_system_prompt())
+        self._start_stream(system=ai_settings.get_system_prompt())
 
     def _ensure_stdout_block(self) -> None:
         """Open a new plain stdout block if the last entry was not one."""
