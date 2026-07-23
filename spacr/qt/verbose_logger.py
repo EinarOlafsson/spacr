@@ -29,7 +29,11 @@ from __future__ import annotations
 
 import functools
 import logging
+import os
 import weakref
+from datetime import datetime
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
 from typing import Any, Callable, Optional
 
 
@@ -39,9 +43,76 @@ from typing import Any, Callable, Optional
 
 _console_ref: "Optional[weakref.ReferenceType[Any]]" = None
 _handler: "Optional[_ConsoleForwarder]" = None
+_file_handler: "Optional[RotatingFileHandler]" = None
 _ATTACHED_LOGGERS = ("spacr", "spacr.qt", "spacr.pipeline_v2",
                         "spacr.qt.plate_queue", "spacr.qt.hf_download",
-                        "spacr.updater")
+                        "spacr.updater", "spacr.trace")
+
+
+# ---------------------------------------------------------------------------
+# Log file — always on, so a crash/hang can be diagnosed after the fact
+# ---------------------------------------------------------------------------
+
+def log_dir() -> Path:
+    """Return ``~/.spacr/logs/`` — created if it doesn't exist.
+
+    Overridable via the ``SPACR_LOG_DIR`` env var so tests can point
+    the log at a tmp directory."""
+    override = os.environ.get("SPACR_LOG_DIR")
+    if override:
+        p = Path(override)
+    else:
+        p = Path.home() / ".spacr" / "logs"
+    p.mkdir(parents=True, exist_ok=True)
+    return p
+
+
+def current_log_file() -> Path:
+    """Path of today's rotating log file."""
+    return log_dir() / f"spacr-{datetime.now().strftime('%Y%m%d')}.log"
+
+
+def _ensure_file_handler() -> RotatingFileHandler:
+    """Attach a rotating file handler to every attached spaCR logger.
+
+    Idempotent. The handler writes to ``~/.spacr/logs/spacr-YYYYMMDD.log``,
+    rotates at 5 MB, and keeps 5 backups. Always attached — this is
+    NOT gated by the verbose preference so bug reports from users who
+    never turned verbose logging on still have a trail we can read.
+
+    Level is INFO by default; verbose mode drops it to DEBUG (same as
+    the console forwarder).
+    """
+    global _file_handler
+    if _file_handler is not None:
+        # Already attached — but ensure the file target matches today's
+        # date (post-midnight the rotate would otherwise keep the old
+        # filename).
+        return _file_handler
+    try:
+        handler = RotatingFileHandler(
+            str(current_log_file()),
+            maxBytes=5 * 1024 * 1024,
+            backupCount=5,
+            encoding="utf-8",
+        )
+    except Exception:
+        # If we can't open the file, don't crash — just skip file
+        # logging so the app still runs.
+        return None                                                       # type: ignore[return-value]
+    handler.setFormatter(logging.Formatter(
+        fmt="%(asctime)s %(name)s %(levelname)s  %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    ))
+    handler.setLevel(logging.INFO)
+    for name in _ATTACHED_LOGGERS:
+        logger = logging.getLogger(name)
+        if handler not in logger.handlers:
+            logger.addHandler(handler)
+        # Ensure records propagate to the root logger's format if any.
+        logger.setLevel(min(logger.level or logging.INFO, logging.INFO))
+    _file_handler = handler
+    return handler
 
 
 class _ConsoleForwarder(logging.Handler):
@@ -98,14 +169,19 @@ def register_console_target(panel: Any) -> None:
 
 
 def apply_verbose_logging(on: bool) -> None:
-    """Flip DEBUG ↔ INFO on every attached spaCR logger + the handler.
+    """Flip DEBUG ↔ INFO on every attached spaCR logger + handlers.
 
     The user reaches this via the Preferences dialog. It's idempotent
-    and cheap — safe to call on every dialog save.
+    and cheap — safe to call on every dialog save. Also ensures the
+    rotating file handler is attached so bug reports always have a
+    trail on disk regardless of verbose state.
     """
     handler = _ensure_handler()
+    file_handler = _ensure_file_handler()
     level = logging.DEBUG if on else logging.INFO
     handler.setLevel(level)
+    if file_handler is not None:
+        file_handler.setLevel(level)
     for name in _ATTACHED_LOGGERS:
         logging.getLogger(name).setLevel(level)
     if on:

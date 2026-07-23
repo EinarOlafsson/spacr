@@ -133,6 +133,29 @@ class TestVerboseLoggerPref:
         # At least one line should contain our message
         assert any("hello world" in ln for ln in fake.lines)
 
+    def test_file_handler_creates_log_and_appends_records(
+            self, tmp_path, monkeypatch, _isolated_prefs):
+        """Every apply_verbose_logging call attaches (once) a rotating
+        file handler that writes into ~/.spacr/logs. Tests override
+        the log dir via SPACR_LOG_DIR."""
+        monkeypatch.setenv("SPACR_LOG_DIR", str(tmp_path))
+        # Reset the module-level file handler so it re-attaches at the
+        # tmp path (some earlier test may already have primed it).
+        from spacr.qt import verbose_logger as vl
+        if vl._file_handler is not None:
+            for name in vl._ATTACHED_LOGGERS:
+                logging.getLogger(name).removeHandler(vl._file_handler)
+            vl._file_handler.close()
+            vl._file_handler = None
+        vl.apply_verbose_logging(True)
+        logging.getLogger("spacr").info("hello world from a test")
+        # Force flush so the assertion sees the record.
+        if vl._file_handler is not None:
+            vl._file_handler.flush()
+        log_file = vl.current_log_file()
+        assert log_file.exists()
+        assert "hello world from a test" in log_file.read_text()
+
     def test_dialog_carries_toggle(self, qtbot, _isolated_prefs):
         """The Preferences dialog should surface the verbose toggle
         with the current pref value."""

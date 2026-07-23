@@ -222,9 +222,15 @@ def apply_preferences_to_app(app=None) -> None:
     app.setStyleSheet(stylesheet(theme=theme, font_scale=scale))
 
     # Apply the verbose-logger preference too — cheap to re-apply, and
-    # this is the one place that runs on every prefs save.
+    # this is the one place that runs on every prefs save. Also
+    # attaches the rotating file handler if it isn't already, so every
+    # spaCR launch drops a trail into ~/.spacr/logs/ regardless of
+    # whether the user turned verbose logging on.
     try:
-        from .verbose_logger import apply_verbose_logging
+        from .verbose_logger import (
+            apply_verbose_logging, _ensure_file_handler,
+        )
+        _ensure_file_handler()
         apply_verbose_logging(get_verbose_logging())
     except Exception:
         # Logger module is optional at import time — never let its
