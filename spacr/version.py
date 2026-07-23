@@ -8,7 +8,9 @@ import sys
 from importlib.metadata import PackageNotFoundError, version as package_version
 from platform import python_version
 
-_PACKAGE_CANDIDATES = ("spacr-nightly", "spacr")
+# Prefer the canonical `spacr` distribution. `spacr-nightly` stays
+# as a fallback in case a very old install still uses that name.
+_PACKAGE_CANDIDATES = ("spacr", "spacr-nightly")
 
 
 def get_version() -> str:
