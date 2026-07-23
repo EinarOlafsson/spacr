@@ -319,6 +319,18 @@ class AppScreen(QWidget):
         # Auto-hide once the user sets src
         if isinstance(src_widget, QLineEdit):
             src_widget.textChanged.connect(self._maybe_hide_empty_state)
+            # Feed the first tile in ``src`` into the live-preview panel
+            # so a Mask-app user sees something to segment as soon as
+            # they pick a folder. Deferred to a timer to debounce rapid
+            # typing.
+            if getattr(self, "_live_preview", None) is not None:
+                self._live_src_timer = QTimer(self)
+                self._live_src_timer.setSingleShot(True)
+                self._live_src_timer.setInterval(400)
+                self._live_src_timer.timeout.connect(
+                    lambda w=src_widget: self._autoload_live_preview(w.text()))
+                src_widget.textChanged.connect(
+                    lambda _t: self._live_src_timer.start())
         card.setObjectName("EmptyStateBanner")
         return card
 
@@ -330,6 +342,32 @@ class AppScreen(QWidget):
         placeholders = {"", "path", "/path/to/src", "/path"}
         if t and t not in placeholders:
             card.hide()
+
+    def _autoload_live_preview(self, src: str) -> None:
+        """Load the first supported image found under ``src`` into the
+        live-preview panel. Silent if ``src`` is empty, a placeholder,
+        or contains no images — the panel already handles that.
+        """
+        panel = getattr(self, "_live_preview", None)
+        if panel is None:
+            return
+        s = (src or "").strip()
+        if not s or s in {"path", "/path/to/src", "/path"}:
+            return
+        from pathlib import Path
+        root = Path(s)
+        if not root.is_dir():
+            if root.is_file() and root.suffix.lower() in {".tif", ".tiff",
+                                                            ".png", ".jpg",
+                                                            ".jpeg"}:
+                panel.load_image(root)
+            return
+        # Pick the first image at any depth (breadth-limited)
+        for pattern in ("*.tif", "*.tiff", "*.png", "*.jpg", "*.jpeg"):
+            hits = sorted(root.rglob(pattern))
+            if hits:
+                panel.load_image(hits[0])
+                return
 
     def _open_demos_menu(self) -> None:
         try:
@@ -412,6 +450,15 @@ class AppScreen(QWidget):
         # Bookkeeping — keep figure identities for dedup, plus a Qt
         # keep-alive for canvases we've swapped out of the stack.
         self._figure_ids: list = []
+
+        # Live-preview segmentation — Mask app only. Users tune
+        # diameter/flow/prob against a single tile before running the
+        # full plate. Wrapped in a Card so it matches the other panels
+        # visually. See spacr.qt.widgets.live_preview.
+        if self.app_key == "mask":
+            self._live_preview = _install_live_preview_card(self, layout)
+        else:
+            self._live_preview = None
 
         # Merged Console (pipeline stdout + spaCR AI chat, share the
         # same scroll surface separated by topic bars).
@@ -914,3 +961,15 @@ def QtGui_QListWidgetItem_helper(fig, idx: int):
     except Exception:
         pass
     return item
+
+
+def _install_live_preview_card(host, layout):
+    """Insert a collapsible ``Live preview`` card containing a
+    :class:`LivePreviewPanel` into ``layout`` and return the panel."""
+    from ..widgets.live_preview import LivePreviewPanel
+    card = Card(title="Live preview")
+    panel = LivePreviewPanel(card)
+    card.body_layout.addWidget(panel)
+    card.setMinimumHeight(360)
+    layout.addWidget(card)
+    return panel
