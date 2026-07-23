@@ -1,3 +1,52 @@
-body { font-size: 1.1em; line-height: 1.6; }
-.wy-nav-side { background-color: #f7f7f7; }
-.highlight { background: #fafafa; border: 1px solid #e0e0e0; padding: 0.5em; border-radius: 4px; }
+/* spaCR docs — furo overrides.
+ *
+ * Furo handles the light / dark switch via its own CSS variables;
+ * we only tweak spacing, typography rhythm, and API-page layout
+ * niceties here.
+ */
+
+/* Slightly tighter paragraphs so long docstrings don't feel padded. */
+article p { margin: 0.6em 0; }
+
+/* Bigger, calmer h1 on the API index. */
+article > section > h1 {
+    font-size: 2.2em;
+    letter-spacing: -0.02em;
+}
+
+/* Autoapi's per-symbol boxes — softer background + more breathing
+ * room so a long class page doesn't look like a wall. */
+.py.class dl,
+.py.function dl,
+.py.method dl,
+.py.data dl {
+    padding: 0.6em 1em;
+    border-radius: 6px;
+    background: var(--color-background-hover);
+    margin-bottom: 1.4em;
+}
+
+/* Signature line — monospace, slightly larger, wraps cleanly. */
+.py.class dt.sig,
+.py.function dt.sig,
+.py.method dt.sig {
+    font-family: var(--font-stack--monospace);
+    font-size: 1.02em;
+    word-break: break-word;
+}
+
+/* Field-list rows (:param:/:returns:) — align labels, subtler value color. */
+.field-list dt {
+    font-weight: 600;
+    color: var(--color-foreground-primary);
+    margin-top: 0.2em;
+}
+.field-list dd { color: var(--color-foreground-secondary); }
+
+/* Highlight the parameter *name* inside :param: lists so the type
+ * annotation next to it doesn't overwhelm. */
+.field-list dd p strong { color: var(--color-brand-primary); }
+
+/* Code blocks — slightly rounder corners, slightly denser padding. */
+div.highlight { border-radius: 6px; }
+div.highlight pre { padding: 0.9em 1em; }

@@ -51,7 +51,10 @@ jobs:
           # full dep graph. Same install path as tests.yml so any
           # green-tests commit produces a green docs build too.
           python -m pip install -e ".[qt,dev]"
-          python -m pip install sphinx sphinx_rtd_theme sphinx-autoapi
+          # furo — dark-mode capable Sphinx theme
+          # sphinx-design — grid / card directives on the landing page
+          # sphinx-autoapi — AST-walk API reference generator
+          python -m pip install sphinx furo sphinx-design sphinx-autoapi
 
       - name: Build docs
         env:
