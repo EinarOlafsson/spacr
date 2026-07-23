@@ -63,8 +63,12 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, 
             transforms.ToTensor(),
             transforms.CenterCrop(size=(image_size, image_size))])
     
-    model = torch.load(model_path)
-    
+    # PyTorch 2.6 flipped the ``weights_only`` default to True. spaCR
+    # serialises full model objects (state dict + graph) so we explicitly
+    # request the full-object load. This is safe because model_path is
+    # a file the user themselves just trained + saved.
+    model = torch.load(model_path, weights_only=False)
+
     print(model)
     
     print(f'Loading dataset in {src} with {len(src)} images')
