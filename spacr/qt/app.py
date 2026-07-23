@@ -325,6 +325,14 @@ class MainWindow(QMainWindow):
         act_update = QAction("Check for updates…", self)
         act_update.triggered.connect(self._check_for_updates)
         help_menu.addAction(act_update)
+        act_log = QAction("Open log folder…", self)
+        act_log.setStatusTip(
+            "Open the ~/.spacr/logs folder. Attach the newest log file "
+            "to any bug report — it contains a full trace of every "
+            "spaCR run including function entries, button presses, "
+            "and pipeline output.")
+        act_log.triggered.connect(self._open_log_folder)
+        help_menu.addAction(act_log)
 
     def _open_url(self, url: str):
         """Open ``url`` in the system browser; surface failures in the status bar."""
@@ -557,6 +565,16 @@ class MainWindow(QMainWindow):
                           f"<p><b>Version:</b> {version}</p>"
                           f"<p>© Olafsson Lab</p>")
 
+    def _open_log_folder(self):
+        """Open the ~/.spacr/logs folder in the OS file browser."""
+        from .verbose_logger import log_dir
+        import webbrowser
+        try:
+            webbrowser.open(f"file://{log_dir()}")
+        except Exception as e:
+            self.statusBar().showMessage(
+                f"Failed to open log folder: {e}", 5000)
+
     def _open_preferences(self):
         """Open the Preferences dialog (theme, font size, colour-blind)."""
         try:
@@ -781,6 +799,18 @@ def launch(argv: Optional[list[str]] = None) -> int:
     # dark defaults on the first launch when nothing is stored yet.
     from .preferences import apply_preferences_to_app
     apply_preferences_to_app(app)
+
+    # Every launch drops a "spaCR started" line into
+    # ~/.spacr/logs/spacr-YYYYMMDD.log so a subsequent bug report has
+    # a clear timeline start. See spacr.qt.verbose_logger.current_log_file
+    # for the path.
+    import logging as _lg
+    import sys as _sys
+    from .verbose_logger import current_log_file
+    _lg.getLogger("spacr").info(
+        "spaCR launched (python=%s.%s.%s, log=%s)",
+        _sys.version_info.major, _sys.version_info.minor,
+        _sys.version_info.micro, current_log_file())
 
     # Real Python logging → rotating file + Qt signal so ConsolePanel
     # can render records inline. Must be set up before MainWindow so
