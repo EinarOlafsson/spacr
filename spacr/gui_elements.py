@@ -33,7 +33,16 @@ fig = None
 import subprocess, platform
 
 def _register_open_sans():
-    """Register OpenSans with the system font config so tkinter renders it smoothly."""
+    """Register OpenSans with the system font config so tkinter renders it smoothly.
+
+    All status output is routed through the ``spacr.gui.fonts`` logger
+    at DEBUG level so it never leaks into the terminal on a normal
+    startup. Set ``SPACR_LOG_LEVEL=DEBUG`` to see it.
+    """
+    import logging as _lg
+    _flog = _lg.getLogger("spacr.gui.fonts")
+    def _p(msg: str) -> None:   # replacement for the module's old print()
+        _flog.debug(msg)
     try:
         base_dir = os.path.dirname(__file__)
         font_dir = os.path.join(base_dir, 'resources', 'font', 'open_sans', 'static')
@@ -52,14 +61,14 @@ def _register_open_sans():
                         shutil.copy2(src, dst)
                         copied += 1
                     except Exception as e:
-                        print(f"Warning: Could not copy {ttf}: {e}")
+                        _p(f"Warning: Could not copy {ttf}: {e}")
             if copied > 0:
-                print(f"Installed {copied} OpenSans font(s) to {fonts_dir}")
+                _p(f"Installed {copied} OpenSans font(s) to {fonts_dir}")
             try:
                 subprocess.run(['fc-cache', '-f', fonts_dir], capture_output=True, timeout=10)
-                print("Font cache updated successfully")
+                _p("Font cache updated successfully")
             except Exception as e:
-                print(f"Warning: Could not update font cache: {e}")
+                _p(f"Warning: Could not update font cache: {e}")
 
             xresources = os.path.expanduser('~/.Xresources')
             needs_update = True
@@ -69,17 +78,17 @@ def _register_open_sans():
                         if 'Xft.antialias' in f.read():
                             needs_update = False
                 except Exception as e:
-                    print(f"Warning: Could not read {xresources}: {e}")
+                    _p(f"Warning: Could not read {xresources}: {e}")
             if needs_update:
                 try:
                     with open(xresources, 'a') as f:
                         f.write('\nXft.antialias: 1\nXft.hinting: 1\nXft.hintstyle: hintslight\nXft.rgba: rgb\nXft.lcdfilter: lcddefault\n')
                     subprocess.run(['xrdb', '-merge', xresources], capture_output=True, timeout=5)
-                    print("Xft anti-aliasing configured successfully")
+                    _p("Xft anti-aliasing configured successfully")
                 except Exception as e:
-                    print(f"Warning: Could not configure Xft anti-aliasing: {e}")
+                    _p(f"Warning: Could not configure Xft anti-aliasing: {e}")
             else:
-                print("Xft anti-aliasing already configured")
+                _p("Xft anti-aliasing already configured")
 
         elif system == 'Windows':
             try:
@@ -91,9 +100,9 @@ def _register_open_sans():
                     if os.path.exists(path):
                         if gdi32.AddFontResourceW(path):
                             loaded += 1
-                print(f"Loaded {loaded} OpenSans font(s) into Windows GDI")
+                _p(f"Loaded {loaded} OpenSans font(s) into Windows GDI")
             except Exception as e:
-                print(f"Warning: Could not register fonts on Windows: {e}")
+                _p(f"Warning: Could not register fonts on Windows: {e}")
 
         elif system == 'Darwin':
             fonts_dir = os.path.expanduser('~/Library/Fonts')
@@ -108,24 +117,28 @@ def _register_open_sans():
                         shutil.copy2(src, dst)
                         copied += 1
                     except Exception as e:
-                        print(f"Warning: Could not copy {ttf}: {e}")
+                        _p(f"Warning: Could not copy {ttf}: {e}")
             if copied > 0:
-                print(f"Installed {copied} OpenSans font(s) to {fonts_dir}")
+                _p(f"Installed {copied} OpenSans font(s) to {fonts_dir}")
             else:
-                print("OpenSans fonts already installed on macOS")
+                _p("OpenSans fonts already installed on macOS")
 
         else:
-            print(f"Warning: Font registration not implemented for {system}")
+            _p(f"Warning: Font registration not implemented for {system}")
 
     except Exception as e:
-        print(f"Warning: Font registration failed: {e}")
+        _p(f"Warning: Font registration failed: {e}")
 
+# Register bundled OpenSans with the system font config exactly once
+# per process (not twice — the duplicate call was leftover from an
+# earlier debugging session). Errors go to the spaCR logger so they
+# don't leak into the terminal.
 try:
+    import logging as _logging_local
+    _FONT_LOG = _logging_local.getLogger("spacr.gui.fonts")
     _register_open_sans()
 except Exception as e:
-    print(f"Warning: Could not register OpenSans fonts: {e}")
-
-_register_open_sans()
+    _FONT_LOG.warning("could not register OpenSans fonts: %s", e)
 
 def restart_gui_app(root):
     """Restart the GUI by destroying ``root`` and launching a fresh instance.

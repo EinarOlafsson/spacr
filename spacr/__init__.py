@@ -1,9 +1,32 @@
 from __future__ import annotations
 
+import warnings as _warnings
 from importlib import import_module
 from typing import Final
 
 from .version import __version__
+
+# Third-party FutureWarnings that fire at import — noise the user
+# can't act on. Silenced before the modules that trigger them import.
+# (Users can re-enable with `warnings.filterwarnings("default")` in
+# their own code.)
+_warnings.filterwarnings(
+    "ignore",
+    message=r"The logit link alias is deprecated.*",
+    category=FutureWarning,
+    module=r"statsmodels\..*",
+)
+_warnings.filterwarnings(
+    "ignore",
+    message=r"You are using a Python version.*google\.api_core.*",
+    category=FutureWarning,
+)
+_warnings.filterwarnings(
+    "ignore",
+    message=r"You are using a Python version.*",
+    category=FutureWarning,
+    module=r"google\..*",
+)
 
 _SUBMODULES: Final[tuple[str, ...]] = (
     "core",

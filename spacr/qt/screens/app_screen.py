@@ -233,19 +233,20 @@ class AppScreen(QWidget):
             ))
             for label, widget in rows:
                 lbl_widget = QLabel(label)
+                # Give the label a subtle affordance so users know
+                # it's the hover target for tooltips (fields can be
+                # focused / clicked — tooltips on labels are calmer).
+                lbl_widget.setCursor(Qt.WhatsThisCursor)
                 for key, w in getattr(self._settings_model, "_widgets", {}).items():
                     if w is widget:
                         html = widget.toolTip()
                         hint = self._settings_model.plain_tooltip_for(key)
-                        # Clear Qt's native tooltip — the sticky popup
-                        # takes its place so users can move into it and
-                        # click the API docs link.
+                        # Tooltips live on the LABEL only — hovering
+                        # the input field itself is left alone so
+                        # focus / edit interactions aren't disturbed.
                         widget.setToolTip("")
-                        self._hint_map[widget] = hint
                         self._hint_map[lbl_widget] = hint
-                        self._html_tip_map[widget] = html
                         self._html_tip_map[lbl_widget] = html
-                        widget.installEventFilter(self)
                         lbl_widget.installEventFilter(self)
                         break
                 section.add_row(lbl_widget, widget)
