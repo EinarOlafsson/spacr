@@ -110,138 +110,138 @@ class MaskDropHandler(DropHandler):
     def apply(self, path: Path, screen) -> None:
         _set_src_on(screen, str(path))
         _log(screen, f"[drop] mask src = {path}\n")
-        # Fire the regex-preview canvas asynchronously so the UI
-        # doesn't stall while it reads images.
+        # Fire the console-based regex report asynchronously so the
+        # UI doesn't stall while it reads image filenames + auto-
+        # detects the regex.
         try:
             from PySide6.QtCore import QTimer
-            QTimer.singleShot(50, lambda: _preview_regex_on_mask(path, screen))
+            QTimer.singleShot(50, lambda: _report_regex_on_mask(path, screen))
         except Exception:
             pass
 
 
-def _preview_regex_on_mask(path: Path, screen) -> None:
-    """Parse filenames with the current metadata regex, then push a
-    matplotlib figure into the AppScreen's Figures panel showing the
-    first few sampled images with metadata colour-coded per regex
-    group."""
-    try:
-        from spacr.utils import _get_regex
-        import re
-        import matplotlib
-        from matplotlib.figure import Figure
-        from matplotlib.patches import Rectangle
-    except Exception:
+def _report_regex_on_mask(path: Path, screen) -> None:
+    """Sample filenames, apply / auto-detect the metadata regex, and
+    write a tabular report into the AppScreen's Console.
+
+    On a good match: prints an aligned column table of up to 10
+    randomly-sampled records + a ``✓ All required fields captured``
+    footer.
+
+    On a partial / no match: prints a warning list AND opens the
+    :class:`RegexEditorDialog` so the user can edit the regex or
+    click "Auto detect" for a smarter guess. Saved regex is pushed
+    back into the ``custom_regex`` settings widget.
+
+    Handles two kinds of drops:
+      * A folder of image files (existing default).
+      * A single dataset-in-a-file drop (``.npz`` / ``.lif`` /
+        ``.nd2`` / multi-page tiff / big ``.npy``) — reported via
+        :mod:`spacr.qt.multi_format`.
+    """
+    from . import regex_detect as rd
+    from . import multi_format as mf
+
+    _log(screen, "\n")
+
+    # ── Single-file dataset path ──────────────────────────────────
+    if path.is_file():
+        desc = mf.describe_file(path)
+        if desc is not None:
+            _log(screen,
+                 f"[drop] single-file dataset: {desc.summary()}\n"
+                 f"       (spaCR will expand this into the canonical "
+                 f"filename structure on the first Run — a "
+                 f"filename_map.csv will link every generated file "
+                 f"back to this source.)\n")
+            return
+        _log(screen, f"[drop] dropped file {path.name} — unrecognised "
+                     f"single-file dataset format.\n")
         return
 
-    imgs = sample_image_names(path, n=6)
+    # ── Folder path ───────────────────────────────────────────────
+    imgs = sample_image_names(path, n=20)
     if not imgs:
+        _log(screen, "[drop] no images found in the top level of "
+                     f"{path.name} — nothing to preview.\n")
         return
+    filenames = [p.name for p in imgs]
 
-    # Try cellvoyager regex first (the default for spaCR data), then
-    # yokogawa, then any custom regex the user has typed.
-    regexes: List[tuple] = []
-    for metadata in ("cellvoyager", "yokogawa"):
-        try:
-            r = _get_regex(metadata, "tif")
-            regexes.append((metadata, r))
-        except Exception:
-            pass
-    # Any custom regex in the settings model
+    # Read the user's current custom_regex (may be empty)
+    custom = ""
     try:
         w = screen._settings_model._widgets.get("custom_regex")
-        if w is not None and hasattr(w, "text") and w.text().strip():
-            regexes.append(("custom", w.text().strip()))
+        if w is not None and hasattr(w, "text"):
+            custom = (w.text() or "").strip()
     except Exception:
         pass
 
-    matched_metadata: Optional[str] = None
-    matches: List[re.Match] = []
-    for label, r in regexes:
-        m = [re.match(r, p.name) for p in imgs]
-        if all(mm is not None for mm in m):
-            matched_metadata = label
-            matches = m
-            break
+    # Auto-detect if the user has no custom regex or if it fails
+    if custom:
+        records, missed = rd.apply_regex(filenames, custom)
+        pattern, label = custom, "custom"
+        n_matches = len(records)
+    else:
+        pattern, label, n_matches = rd.auto_detect_regex(filenames)
+        records, missed = ([], filenames[:]) \
+                          if pattern is None \
+                          else rd.apply_regex(filenames, pattern)
 
-    fig = Figure(figsize=(9.5, 4.5), dpi=96, facecolor="#0d0d0d")
-    fig.suptitle(
-        f"{path.name}  •  {len(imgs)} sampled  •  "
-        + (f"regex: {matched_metadata}" if matched_metadata
-           else "no regex matched"),
-        color="#e5e5e5", fontsize=11, y=0.98,
-    )
+    _log(screen,
+         f"[drop] mask · folder = {path}\n"
+         f"[drop] regex ({label}) — matched {n_matches}/"
+         f"{len(filenames)} sampled filenames\n"
+         f"[drop] {len(imgs)} of {_count_images(path)} total sampled "
+         f"— showing up to 10 rows:\n\n")
 
-    # Palette for the six standard cellvoyager groups
-    group_colors = {
-        "plateID":  "#4A9EFF",
-        "wellID":   "#3fb950",
-        "timeID":   "#f0883e",
-        "fieldID":  "#a78bfa",
-        "laserID":  "#f85149",
-        "AID":      "#e879f9",
-        "sliceID":  "#22d3ee",
-        "chanID":   "#facc15",
-    }
+    if records:
+        table = rd.tabulate_records(records, max_rows=10)
+        _log(screen, table + "\n")
 
-    for i, (img_path, m) in enumerate(zip(imgs, matches or [None] * len(imgs))):
-        ax = fig.add_subplot(2, 3, i + 1)
-        ax.set_facecolor("#141414")
-        for spine in ax.spines.values():
-            spine.set_color("#2a2a2a")
-        ax.set_xticks([]); ax.set_yticks([])
+    warnings = rd.validate_records(records, multichannel=True)
+    if warnings:
+        for w in warnings:
+            _log(screen, f"⚠ {w}\n")
+        _log(screen, "→ Opening the regex editor so you can fix it. "
+                     "Use the Auto-detect button or edit the pattern "
+                     "manually.\n")
+        _open_regex_editor(filenames, pattern or "", screen)
+    else:
+        _log(screen, "✓ All required fields captured "
+                     "(wellID / fieldID, chanID).\n")
+        _push_regex_to_screen(pattern, screen)
 
-        if m is not None:
-            groups = m.groupdict()
-            # Build filename with each regex-group substring coloured.
-            name = img_path.name
-            cursor = 0
-            xy = 0.03
-            for gname, gval in groups.items():
-                idx = name.find(gval, cursor)
-                if idx < 0:
-                    continue
-                if idx > cursor:
-                    ax.text(xy, 0.85, name[cursor:idx], color="#c4c4c4",
-                             transform=ax.transAxes, fontsize=8,
-                             family="monospace", va="top")
-                    xy += 0.011 * (idx - cursor)
-                ax.text(xy, 0.85, gval,
-                         color=group_colors.get(gname, "#e5e5e5"),
-                         transform=ax.transAxes, fontsize=8,
-                         weight="bold", family="monospace", va="top")
-                xy += 0.011 * len(gval)
-                cursor = idx + len(gval)
-            if cursor < len(name):
-                ax.text(xy, 0.85, name[cursor:], color="#c4c4c4",
-                         transform=ax.transAxes, fontsize=8,
-                         family="monospace", va="top")
 
-            # Below the filename: metadata label / value grid
-            y = 0.7
-            for gname, gval in groups.items():
-                colour = group_colors.get(gname, "#e5e5e5")
-                ax.text(0.05, y, gname + ":", color=colour,
-                         transform=ax.transAxes, fontsize=8,
-                         family="monospace")
-                ax.text(0.35, y, gval, color="#e5e5e5",
-                         transform=ax.transAxes, fontsize=8,
-                         family="monospace")
-                y -= 0.11
-        else:
-            ax.text(0.03, 0.85, img_path.name, color="#c4c4c4",
-                     transform=ax.transAxes, fontsize=8,
-                     family="monospace", va="top")
-            ax.text(0.03, 0.55,
-                     "(no regex match — you can enter a custom one in "
-                     "General → custom_regex)",
-                     color="#f85149", transform=ax.transAxes, fontsize=8,
-                     family="monospace", va="top", wrap=True)
-
-    fig.tight_layout(rect=[0, 0, 1, 0.94])
+def _open_regex_editor(filenames: list, initial: str, screen) -> None:
     try:
-        screen._on_figure_ready(fig)
+        from .regex_editor import RegexEditorDialog
+    except Exception:
+        return
+    try:
+        dlg = RegexEditorDialog(filenames, initial_regex=initial,
+                                 multichannel=True, parent=screen)
+        if dlg.exec() == dlg.Accepted and dlg.regex:
+            _push_regex_to_screen(dlg.regex, screen)
+            _log(screen, f"[drop] saved custom regex: {dlg.regex}\n")
+    except Exception as e:
+        _log(screen, f"[drop] regex editor failed: {e}\n")
+
+
+def _push_regex_to_screen(pattern: Optional[str], screen) -> None:
+    if not pattern:
+        return
+    try:
+        w = screen._settings_model._widgets.get("custom_regex")
+        if w is not None and hasattr(w, "setText"):
+            w.setText(pattern)
     except Exception:
         pass
+
+
+def _count_images(path: Path) -> int:
+    exts = (".tif", ".tiff", ".png", ".jpg", ".jpeg")
+    return sum(1 for c in path.iterdir()
+                if c.is_file() and c.suffix.lower() in exts)
 
 
 # ---------------------------------------------------------------------------
