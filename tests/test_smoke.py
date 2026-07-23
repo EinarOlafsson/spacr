@@ -106,14 +106,19 @@ def test_version_attribute_is_string():
 
 
 def test_setup_version_matches_expected():
-    """The setup.py VERSION should be a valid X.Y.Z semver string."""
+    """The setup.py VERSION should be a valid PEP 440 version string.
+
+    spaCR uses 3-part semver (``1.4.1``) for feature drops and 4-part
+    versioning (``1.4.1.1``) for polish batches — see the
+    ``spacr-versioning`` memory rule. Both are valid here.
+    """
     setup_src = (PKG_ROOT.parent / "setup.py").read_text()
     for line in setup_src.splitlines():
         if line.strip().startswith("VERSION"):
             _, _, val = line.partition("=")
             v = val.strip().strip("'\"")
             parts = v.split(".")
-            assert len(parts) == 3 and all(p.isdigit() for p in parts), \
+            assert 3 <= len(parts) <= 4 and all(p.isdigit() for p in parts), \
                 f"unexpected VERSION string in setup.py: {val!r}"
             return
     pytest.fail("VERSION not found in setup.py")

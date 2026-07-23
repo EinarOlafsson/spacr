@@ -4,7 +4,15 @@ import numpy as np
 import pandas as pd
 from multiprocessing import Pool, cpu_count
 import matplotlib.pyplot as plt
-from IPython.display import display
+try:
+    from IPython.display import display
+except Exception:
+    # IPython may be mid-init (partially imported by another
+    # thread) — use a no-op fallback so importing this module
+    # never blocks. spaCR only calls display() from notebook
+    # contexts anyway; the Qt GUI ignores it.
+    def display(*args, **kwargs):
+        pass
 import warnings
 from cellpose import models as cp_models
 

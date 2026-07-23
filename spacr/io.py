@@ -5,7 +5,15 @@ from PIL import Image, ImageOps
 from collections import defaultdict, Counter
 from pathlib import Path
 from matplotlib.animation import FuncAnimation
-from IPython.display import display
+try:
+    from IPython.display import display
+except Exception:
+    # IPython may be mid-init (partially imported by another
+    # thread) — use a no-op fallback so importing this module
+    # never blocks. spaCR only calls display() from notebook
+    # contexts anyway; the Qt GUI ignores it.
+    def display(*args, **kwargs):
+        pass
 from skimage.util import img_as_uint
 from skimage.exposure import rescale_intensity
 import skimage.measure as measure
@@ -13,7 +21,15 @@ from skimage import exposure
 import imageio.v2 as imageio2
 import matplotlib.pyplot as plt
 from io import BytesIO
-from IPython.display import display
+try:
+    from IPython.display import display
+except Exception:
+    # IPython may be mid-init (partially imported by another
+    # thread) — use a no-op fallback so importing this module
+    # never blocks. spaCR only calls display() from notebook
+    # contexts anyway; the Qt GUI ignores it.
+    def display(*args, **kwargs):
+        pass
 from multiprocessing import Pool, cpu_count, Process, Queue, Value, Lock
 from torch.utils.data import Dataset, DataLoader, random_split
 import matplotlib.pyplot as plt

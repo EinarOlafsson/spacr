@@ -16,7 +16,15 @@ from cellpose import train as train_cp
 from cellpose.metrics import aggregated_jaccard_index
 from cellpose.metrics import average_precision
 
-from IPython.display import display
+try:
+    from IPython.display import display
+except Exception:
+    # IPython may be mid-init (partially imported by another
+    # thread) — use a no-op fallback so importing this module
+    # never blocks. spaCR only calls display() from notebook
+    # contexts anyway; the Qt GUI ignores it.
+    def display(*args, **kwargs):
+        pass
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.inspection import permutation_importance
 from math import pi
