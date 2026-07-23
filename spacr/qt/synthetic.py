@@ -403,7 +403,228 @@ def demo_settings(app_key: str, src: str) -> Dict[str, Any]:
             "timelapse_frame_limits": [1, 8],
             "cell_diameter": 60,
         }
+    if app_key == "map_barcodes":
+        return {
+            "src": src,
+            "test": False,
+            "barcode_length": 24,
+            "barcode_offset": 34,          # 20 prefix + 14 middle
+            "chunk_size": 1000,
+            "processes": 2,
+            "verbose": False,
+        }
     return base
+
+
+# ---------------------------------------------------------------------------
+# Synthetic FASTQ generator — matches EO1_R1_001.fastq.gz structure
+# ---------------------------------------------------------------------------
+
+# NovaSeq X read layout observed in EO1_R1_001.fastq.gz:
+#   header: @<instr>:<run>:<flowcell>:<lane>:<tile>:<x>:<y> 1:N:0:<i7>
+#   seq   : 150 bp
+#   qual  : 150 bp of Illumina 1.8+ Phred+33 scores
+# Every read of the real fastq carried i7 index GCTTGCGC.
+FASTQ_READ_LENGTH = 150
+FASTQ_INSTRUMENT  = "LH00000"
+FASTQ_RUN         = 1
+FASTQ_FLOWCELL    = "SYNTHFC01"
+FASTQ_LANE        = 1
+FASTQ_I7_INDEX    = "GCTTGCGC"
+
+# Real spaCR reads have a fixed adapter frame around the gRNA barcode.
+# The design lets barcode-mapping tests recover a known plant of
+# gRNA IDs from a synthetic read pool. Layout in real reads (positions
+# are approximate — spaCR's mapper doesn't rely on hard offsets):
+#   [0:20]   variable prefix / stagger
+#   [20:44]  gRNA barcode region (24 bp cassette)
+#   [44:150] downstream constant region + fill
+_ADAPTER_PREFIX  = "ATTGGCCTTGCTGTTTCCAG"           # 20 bp
+_ADAPTER_MIDDLE  = "CATAGCTCTTAAAC"                 # 14 bp
+_ADAPTER_SUFFIX  = ("GACGCGGCACAAACTTGAAACCCCCATTTA"
+                    "CCAGAAGCTAGATCGGAAGAGCACAT"
+                    "GCCTAAATTCCAGCCATGTTT")        # ~66 bp
+
+
+def _phred_run(length: int, mean_q: int = 30,
+                seed: int = 0) -> str:
+    """Generate a Phred+33 quality string of ``length`` chars with
+    Illumina-plausible variability (higher quality up front, more
+    dropouts toward the end)."""
+    rng = np.random.default_rng(seed)
+    scores = np.clip(
+        rng.normal(loc=mean_q, scale=6, size=length).round().astype(int),
+        2, 40,
+    )
+    # Fade quality toward the tail — real reads drop below Q20 near
+    # the end. Roughly halve the base quality over the last third.
+    tail = int(length * 0.33)
+    scores[-tail:] = np.clip(scores[-tail:] - rng.integers(4, 12, tail),
+                              2, 40)
+    return "".join(chr(int(q) + 33) for q in scores)
+
+
+def _random_gRNA_barcode(rng: np.random.Generator) -> str:
+    """Random 24-mer of A/C/G/T (uniform)."""
+    return "".join(rng.choice(list("ACGT"), size=24))
+
+
+def _synth_read_seq(barcode: str, rng: np.random.Generator) -> str:
+    """Build one 150-bp read: prefix + middle + barcode + suffix,
+    trimmed / padded to exactly 150 chars."""
+    body = _ADAPTER_PREFIX + _ADAPTER_MIDDLE + barcode + _ADAPTER_SUFFIX
+    if len(body) < FASTQ_READ_LENGTH:
+        # Pad with random bases so downstream stats look believable
+        pad = "".join(rng.choice(list("ACGT"),
+                                   size=FASTQ_READ_LENGTH - len(body)))
+        body = body + pad
+    return body[:FASTQ_READ_LENGTH]
+
+
+def _fastq_header(index: int, tile: int = 1101,
+                    y: Optional[int] = None) -> str:
+    """Build one @-prefixed FASTQ header matching Illumina 1.8+ format."""
+    x = 1000 + (index % 9000)          # 1000..9999
+    y = y if y is not None else 1000 + (index // 9000)
+    return (
+        f"@{FASTQ_INSTRUMENT}:{FASTQ_RUN}:{FASTQ_FLOWCELL}"
+        f":{FASTQ_LANE}:{tile}:{x}:{y} 1:N:0:{FASTQ_I7_INDEX}"
+    )
+
+
+def generate_barcode_fasta(dst: Path, n_barcodes: int = 12,
+                            prefix: str = "gRNA_",
+                            seed: int = 0) -> Path:
+    """Write ``n_barcodes`` synthetic gRNA barcodes to a FASTA file
+    that spacr.sequencing's barcode mapper can read.
+
+    :param dst: output file path (``.fasta``).
+    :param n_barcodes: how many unique barcodes to emit.
+    :param prefix: id prefix for each entry (``>gRNA_0001``, …).
+    :param seed: RNG seed for reproducible barcode sets.
+    :returns: the resolved ``dst`` path.
+    """
+    dst = Path(dst).absolute()
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    rng = np.random.default_rng(seed)
+    with open(dst, "w") as f:
+        for i in range(n_barcodes):
+            bc = _random_gRNA_barcode(rng)
+            f.write(f">{prefix}{i+1:04d}\n{bc}\n")
+    LOG.info("wrote %d synthetic gRNA barcodes → %s", n_barcodes, dst)
+    return dst
+
+
+def generate_synthetic_fastq(
+    dst: Path,
+    barcodes_fasta: Path,
+    n_reads: int = 5_000,
+    reads_per_barcode_min: int = 50,
+    seed: int = 0,
+) -> Path:
+    """Write a gzip-compressed synthetic FASTQ with reads that carry
+    the barcodes from ``barcodes_fasta``.
+
+    Distribution: each barcode gets at least ``reads_per_barcode_min``
+    reads; remaining budget is spread with a moderate Zipf tail so
+    downstream frequency plots have realistic shape.
+
+    :param dst: output path — appended with ``.gz`` if not present.
+    :param barcodes_fasta: FASTA of gRNA barcodes (:func:`generate_barcode_fasta`).
+    :param n_reads: total number of reads to emit.
+    :param reads_per_barcode_min: floor of reads per barcode.
+    :param seed: RNG seed for reproducible read pools.
+    :returns: resolved ``.fastq.gz`` path.
+    """
+    import gzip
+    dst = Path(dst).absolute()
+    if dst.suffix != ".gz":
+        dst = dst.with_suffix(dst.suffix + ".gz")
+    dst.parent.mkdir(parents=True, exist_ok=True)
+
+    # Load barcodes
+    barcodes: List[str] = []
+    with open(barcodes_fasta) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith(">"):
+                barcodes.append(line)
+    if not barcodes:
+        raise ValueError(f"no barcodes found in {barcodes_fasta}")
+
+    rng = np.random.default_rng(seed)
+    # Allocate: N floor + zipf tail over the remaining budget
+    floor = reads_per_barcode_min * len(barcodes)
+    if n_reads < floor:
+        counts = [max(1, n_reads // len(barcodes))] * len(barcodes)
+    else:
+        counts = [reads_per_barcode_min] * len(barcodes)
+        remaining = n_reads - floor
+        # Draw remaining barcode picks from a mild Zipf so a few
+        # barcodes are heavily represented — realistic screen behaviour.
+        picks = rng.zipf(1.5, size=remaining) % len(barcodes)
+        for p in picks:
+            counts[int(p)] += 1
+
+    LOG.info("emitting %d reads across %d barcodes → %s",
+              sum(counts), len(barcodes), dst)
+    read_idx = 0
+    with gzip.open(dst, "wt") as f:
+        for i, (bc, n) in enumerate(zip(barcodes, counts)):
+            for _ in range(n):
+                header = _fastq_header(read_idx)
+                seq = _synth_read_seq(bc, rng)
+                qual = _phred_run(len(seq), mean_q=32, seed=read_idx)
+                f.write(f"{header}\n{seq}\n+\n{qual}\n")
+                read_idx += 1
+    return dst
+
+
+def generate_map_barcodes_demo(
+    dst: Path,
+    n_barcodes: int = 12,
+    n_reads: int = 5_000,
+    seed: int = 0,
+) -> DemoLayout:
+    """Populate ``dst`` with a self-contained map_barcodes demo:
+
+    ::
+
+        dst/
+          barcodes/
+            grnas.fasta         # ← N barcodes
+          fastq/
+            synthetic_R1.fastq.gz  # ← reads carrying those barcodes
+          settings_map_barcodes.csv
+
+    :param dst: destination folder.
+    :param n_barcodes: number of unique gRNA barcodes to plant.
+    :param n_reads: total number of reads to emit.
+    :param seed: RNG seed for reproducibility.
+    :returns: :class:`DemoLayout` describing the emitted files.
+    """
+    dst = Path(dst).absolute()
+    (dst / "barcodes").mkdir(parents=True, exist_ok=True)
+    (dst / "fastq").mkdir(parents=True, exist_ok=True)
+
+    fasta = generate_barcode_fasta(
+        dst / "barcodes" / "grnas.fasta",
+        n_barcodes=n_barcodes, seed=seed,
+    )
+    fastq = generate_synthetic_fastq(
+        dst / "fastq" / "synthetic_R1.fastq",
+        barcodes_fasta=fasta, n_reads=n_reads, seed=seed,
+    )
+    settings = demo_settings("map_barcodes", str(dst))
+    settings["fastq"] = str(fastq)
+    settings["barcode_fasta"] = str(fasta)
+    csv_path = save_settings_csv(dst / "settings_map_barcodes.csv", settings)
+    return DemoLayout(
+        src=dst, image_dir=dst / "fastq",
+        image_files=[fastq], settings_csv=csv_path,
+        notes={"n_reads": n_reads, "n_barcodes": n_barcodes,
+                "barcodes_fasta": str(fasta)},
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -429,11 +650,12 @@ def save_settings_csv(path: Path, settings: Dict[str, Any]) -> Path:
 # ---------------------------------------------------------------------------
 
 _GENERATORS = {
-    "mask":       generate_mask_demo,
-    "measure":    generate_measure_demo,
-    "crop":       generate_crop_demo,
-    "classify":   generate_classify_demo,
-    "timelapse":  generate_timelapse_demo,
+    "mask":         generate_mask_demo,
+    "measure":      generate_measure_demo,
+    "crop":         generate_crop_demo,
+    "classify":     generate_classify_demo,
+    "timelapse":    generate_timelapse_demo,
+    "map_barcodes": generate_map_barcodes_demo,
 }
 
 
