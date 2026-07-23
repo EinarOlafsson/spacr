@@ -61,6 +61,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "logger",
     "logging_util",
     "mask_io",
+    "pipeline_v2",
     "run_journal",
     "version",
 )
