@@ -310,6 +310,23 @@ class AppScreen(QWidget):
         self._btn_explain.clicked.connect(self._on_explain_error)
         row.addWidget(self._btn_explain)
 
+        # File as GitHub issue — same enable gate as Explain, plus the
+        # user's opt-in in AI Settings. Opens a pre-filled issue URL
+        # in the default browser; the user reviews and hits Submit.
+        self._btn_file_issue = QPushButton("File as issue")
+        self._btn_file_issue.setObjectName("GhostButton")
+        self._btn_file_issue.setIcon(_iconset.icon("info"))
+        self._btn_file_issue.setCursor(Qt.PointingHandCursor)
+        self._btn_file_issue.setToolTip(
+            "Open a pre-filled GitHub issue with the last traceback + "
+            "environment. You review before submitting. Toggle on/off "
+            "in AI Settings → Report errors as GitHub issues."
+        )
+        self._btn_file_issue.setEnabled(False)
+        self._btn_file_issue.setVisible(False)
+        self._btn_file_issue.clicked.connect(self._on_file_issue)
+        row.addWidget(self._btn_file_issue)
+
         row.addStretch(1)
 
         self._progress = QProgressBar()
@@ -386,6 +403,16 @@ class AppScreen(QWidget):
         self._last_error_text = tb
         self._console.append_error(tb)
         self._btn_explain.setEnabled(True)
+        # File-as-issue button becomes visible only when the user has
+        # opted in via AI Settings — otherwise it stays hidden so the
+        # actions row doesn't grow noise for people who don't use it.
+        try:
+            from ..ai import settings as _ai_settings
+            enabled = _ai_settings.get_auto_file_issues()
+        except Exception:
+            enabled = False
+        self._btn_file_issue.setVisible(enabled)
+        self._btn_file_issue.setEnabled(enabled)
 
     # ------------------------------------------------------------------
     # AI toggle + provider menu — sits in the actions row (bottom right)
@@ -449,6 +476,40 @@ class AppScreen(QWidget):
         # MainWindow's old dock path.
         self._console.open_error_flow(self._last_error_text, self.app_key)
         self.error_explain_requested.emit(self._last_error_text, self.app_key)
+
+    def _on_file_issue(self) -> None:
+        """Open a pre-filled GitHub issue for the last captured traceback."""
+        if not self._last_error_text:
+            return
+        # Best-effort settings snapshot from the current settings model
+        # so the issue includes what the user was trying to run.
+        settings_snapshot: dict = {}
+        try:
+            model = getattr(self, "_settings_model", None)
+            if model is not None:
+                for k, w in getattr(model, "_widgets", {}).items():
+                    from PySide6.QtWidgets import (
+                        QCheckBox, QComboBox, QDoubleSpinBox, QLineEdit,
+                        QSpinBox,
+                    )
+                    if isinstance(w, QCheckBox):
+                        settings_snapshot[k] = w.isChecked()
+                    elif isinstance(w, (QSpinBox, QDoubleSpinBox)):
+                        settings_snapshot[k] = w.value()
+                    elif isinstance(w, QComboBox):
+                        settings_snapshot[k] = w.currentText()
+                    elif isinstance(w, QLineEdit):
+                        settings_snapshot[k] = w.text()
+        except Exception:
+            settings_snapshot = {}
+        from ..ai.issue_report import file_issue
+        url = file_issue(self._last_error_text,
+                          active_app=self.app_key,
+                          settings=settings_snapshot)
+        self._console.append_stdout(
+            f"[issue] opened pre-filled report in your browser — "
+            f"review + submit to complete filing.\n{url[:100]}...\n"
+        )
 
     def _on_figure_ready(self, fig) -> None:
         """Embed a matplotlib figure emitted by the worker as a new

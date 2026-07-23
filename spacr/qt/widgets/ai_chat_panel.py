@@ -185,6 +185,27 @@ class _ProvidersDialog(QDialog):
 
         col.addWidget(Divider())
 
+        # Auto-file GitHub issue on error --------------------------------
+        auto_label = QLabel(
+            "<b>Report errors as GitHub issues</b><br>"
+            "<span style='color:gray;'>Adds a \"File as GitHub issue\" "
+            "button to the Explain-error flow. Clicking it opens your "
+            "browser at a pre-filled issue on the spaCR repo — you "
+            "review the payload and hit Submit yourself.</span>"
+        )
+        auto_label.setTextFormat(Qt.RichText)
+        col.addWidget(auto_label)
+
+        from PySide6.QtWidgets import QCheckBox
+        self._auto_issue_chk = QCheckBox(
+            "Enable — one-click issue filing from the error dialog"
+        )
+        self._auto_issue_chk.setChecked(ai_settings.get_auto_file_issues())
+        self._auto_issue_chk.stateChanged.connect(self._on_auto_issue_changed)
+        col.addWidget(self._auto_issue_chk)
+
+        col.addWidget(Divider())
+
         # System prompt --------------------------------------------------
         prompt_label = QLabel(
             "<b>System prompt</b><br>"
@@ -222,6 +243,9 @@ class _ProvidersDialog(QDialog):
         value = self._speed_combo.currentData()
         if value in ai_settings.VALID_SPEEDS:
             ai_settings.set_response_speed(value)
+
+    def _on_auto_issue_changed(self, _state: int) -> None:
+        ai_settings.set_auto_file_issues(self._auto_issue_chk.isChecked())
 
     def _on_prompt_save(self) -> None:
         text = self._prompt_edit.toPlainText().strip()

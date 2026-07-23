@@ -42,6 +42,7 @@ _SETTINGS_APP = "qt"
 
 _KEY_SPEED = "ai/response_speed"
 _KEY_PROMPT = "ai/system_prompt"
+_KEY_AUTO_ISSUE = "ai/auto_file_issues"
 
 VALID_SPEEDS = ("fast", "balanced", "deep")
 DEFAULT_SPEED = "balanced"
@@ -158,3 +159,25 @@ def is_system_prompt_overridden() -> bool:
     """Return ``True`` iff the user has set a custom system prompt."""
     raw = _settings().value(_KEY_PROMPT, None)
     return raw is not None and bool(str(raw).strip())
+
+
+# ---------------------------------------------------------------------------
+# Auto-file GitHub issue on error (opt-in)
+# ---------------------------------------------------------------------------
+
+def get_auto_file_issues() -> bool:
+    """Return ``True`` iff the user has opted in to auto-issue reporting.
+
+    When True, the AI Console's "Explain error" flow shows an extra
+    "File as GitHub issue" button that opens a pre-filled issue URL
+    in the user's browser (they still click Submit themselves).
+    """
+    raw = _settings().value(_KEY_AUTO_ISSUE, False)
+    if isinstance(raw, bool):
+        return raw
+    return str(raw).lower() in ("true", "1", "yes")
+
+
+def set_auto_file_issues(enabled: bool) -> None:
+    """Persist the auto-issue toggle."""
+    _settings().setValue(_KEY_AUTO_ISSUE, bool(enabled))
