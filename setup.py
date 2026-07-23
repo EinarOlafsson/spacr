@@ -117,6 +117,8 @@ setup(
             'spacr-qt=spacr.qt:run',
             'spacr-nightly=spacr.qt:run',
             'spacr-tutorial=spacr.qt.tutorial.__main__:main',
+            # spacr-repro <run-folder> — replay a recorded run journal
+            'spacr-repro=spacr.cli_repro:main',
             # Classic Tk GUI remains available under new names
             'spacr-tk=spacr.gui:gui_app',
             'spacr-legacy=spacr.gui:gui_app',

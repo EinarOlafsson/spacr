@@ -324,15 +324,19 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
 def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
     """Return the ``limit`` most-recent runs newest-first.
 
+    Ordered by the manifest's ``start_utc`` timestamp (parsed as
+    :class:`datetime.datetime`), so runs opened in the same wall-
+    clock second still sort correctly — folder names alone truncate
+    to seconds and would produce ties. Corrupt / partial run
+    folders are silently skipped.
+
     Each entry is a dict with keys ``dir`` (Path), ``app_key`` (str),
     ``status`` (str), ``start_utc`` (ISO str), ``elapsed_s`` (float),
     and the raw ``manifest`` (dict, best-effort).
-
-    Corrupt / partial run folders are silently skipped.
     """
-    out: List[Dict[str, Any]] = []
+    all_entries: List[Dict[str, Any]] = []
     root = runs_root()
-    for d in sorted(root.iterdir(), reverse=True):
+    for d in root.iterdir():
         if not d.is_dir():
             continue
         manifest_path = d / "manifest.json"
@@ -342,7 +346,7 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
             m = json.loads(manifest_path.read_text())
         except Exception:
             continue
-        out.append({
+        all_entries.append({
             "dir":       d,
             "app_key":   m.get("app_key", "?"),
             "status":    m.get("status", "?"),
@@ -350,9 +354,17 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
             "elapsed_s": m.get("elapsed_s"),
             "manifest":  m,
         })
-        if len(out) >= limit:
-            break
-    return out
+    # Sort by parsed timestamp (with folder-mtime as tiebreaker for
+    # any manifests missing / mangled start_utc).
+    def _sort_key(e):
+        s = e.get("start_utc") or ""
+        try:
+            return (datetime.fromisoformat(s), e["dir"].stat().st_mtime)
+        except Exception:
+            return (datetime.fromtimestamp(0, tz=timezone.utc),
+                     e["dir"].stat().st_mtime)
+    all_entries.sort(key=_sort_key, reverse=True)
+    return all_entries[:limit]
 
 
 def load_run_settings(run_dir: Path) -> Dict[str, Any]:
