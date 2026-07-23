@@ -88,6 +88,7 @@ APPS = [
     ("cellpose_masks", "Cellpose Masks", "Cellpose mask generation",                                    "Cellpose"),
     ("cellpose_all",   "Cellpose All",   "Run cellpose on all images",                                  "Cellpose"),
     ("map_barcodes",   "Map Barcodes",   "Map barcodes to data",                                        "Sequencing"),
+    ("queue",          "Plate Queue",    "Chain multiple plates through the same pipeline",             "Batch"),
 ]
 
 
@@ -490,10 +491,32 @@ class MainWindow(QMainWindow):
         if key == "make_masks":
             from .screens.make_masks import MakeMasksScreen
             return MakeMasksScreen()
+        if key == "queue":
+            from .screens.queue import QueueScreen
+            screen = QueueScreen()
+            screen.wire_add_current(self._snapshot_current_screen_settings)
+            return screen
         from .screens.app_screen import AppScreen
         screen = AppScreen(app_key=key)
         screen.error_explain_requested.connect(self._on_explain_error)
         return screen
+
+    def _snapshot_current_screen_settings(self):
+        """Return ``(app_key, settings_dict)`` for the AppScreen the user
+        was looking at when they hit "Add current plate" on the Queue
+        screen. Raises when the active screen isn't a normal app."""
+        widget = self._stack.currentWidget()
+        # Prefer the most-recently-viewed AppScreen — the Queue screen
+        # itself isn't one.
+        from .screens.app_screen import AppScreen
+        if isinstance(widget, AppScreen):
+            return widget.app_key, dict(widget._settings_model.collect())
+        # Fall back to the last non-queue AppScreen the user visited
+        for key, scr in reversed(list(self._screens.items())):
+            if isinstance(scr, AppScreen):
+                return scr.app_key, dict(scr._settings_model.collect())
+        raise RuntimeError(
+            "No active plate settings — open Mask/Measure/Classify first.")
 
     def _on_explain_error(self, traceback_text: str, active_app: str) -> None:
         """Legacy hook — the AI now lives inside each AppScreen's
