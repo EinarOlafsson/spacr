@@ -258,6 +258,12 @@ class MainWindow(QMainWindow):
         act_home.setShortcut(QKeySequence("Ctrl+H"))
         act_home.triggered.connect(lambda: self._on_nav_selected("__home__"))
         app_menu.addAction(act_home)
+        app_menu.addSeparator()
+        act_prefs = QAction("Preferences…", self)
+        act_prefs.setShortcut(QKeySequence("Ctrl+,"))
+        act_prefs.triggered.connect(self._open_preferences)
+        app_menu.addAction(act_prefs)
+        app_menu.addSeparator()
         act_quit = QAction("Quit", self)
         act_quit.setShortcut(QKeySequence.Quit)
         act_quit.triggered.connect(self.close)
@@ -278,6 +284,13 @@ class MainWindow(QMainWindow):
             act.triggered.connect(
                 lambda checked=False, k=app_key: self._on_load_demo(k))
             demo_menu.addAction(act)
+        demo_menu.addSeparator()
+        act_e2e = QAction("End-to-end (Mask → Measure → Annotate) real dataset…", self)
+        act_e2e.setStatusTip(
+            "Download the toxo_mito HF demo dataset + settings pack, "
+            "then chain Mask → Measure → Annotate on it.")
+        act_e2e.triggered.connect(self._on_e2e_demo)
+        demo_menu.addAction(act_e2e)
 
         help_menu = mb.addMenu("&Help")
         act_tutorial = QAction("Tutorial (web)", self)
@@ -349,6 +362,116 @@ class MainWindow(QMainWindow):
         except Exception as e:
             QMessageBox.warning(self, "Demo load failed", str(e))
 
+    def _on_e2e_demo(self) -> None:
+        """Confirm, prompt for a folder, download the HF demo dataset,
+        then chain Mask -> Measure -> Annotate on it.
+
+        Flow (matches the spec agreed with the user):
+          1. Yes/No modal: "do you want to test mask -> Measure ->
+             Annotate on a real dataset?"
+          2. Folder picker for the local download destination.
+          3. QProgressDialog while the toxo_mito + spacr_settings repos
+             download in a background thread.
+          4. On success, kick off Mask -> Measure -> Annotate. Users
+             see the run inside each app's normal console.
+        """
+        from PySide6.QtWidgets import QFileDialog, QMessageBox
+        from pathlib import Path
+
+        answer = QMessageBox.question(
+            self, "End-to-end demo",
+            "Do you want to test Mask → Measure → Annotate on a real "
+            "dataset?\n\n"
+            "This will download the toxo_mito demo dataset "
+            "(~a few hundred MB) plus the matching settings pack from "
+            "Hugging Face, then run the pipeline chain against it.",
+            QMessageBox.Yes | QMessageBox.No,
+        )
+        if answer != QMessageBox.Yes:
+            return
+
+        default = str(Path.home() / "spacr-demos" / "toxo_mito_e2e")
+        dst = QFileDialog.getExistingDirectory(
+            self, "Choose folder for the demo dataset",
+            default,
+            QFileDialog.ShowDirsOnly | QFileDialog.DontConfirmOverwrite,
+        )
+        if not dst:
+            return
+
+        from .hf_download import download_toxo_mito_demo
+
+        def _on_download_done(result, error):
+            if result is None:
+                QMessageBox.warning(self, "Download",
+                    f"The download did not complete:\n{error or 'unknown error'}")
+                return
+            self.statusBar().showMessage(
+                f"Downloaded demo dataset to {result.dataset_path}", 6000)
+            self._run_e2e_chain(result.dataset_path,
+                                    result.settings_path)
+
+        download_toxo_mito_demo(self, dst, _on_download_done)
+
+    def _run_e2e_chain(self, dataset_path, settings_path) -> None:
+        """Run Mask -> Measure -> Annotate against the freshly-
+        downloaded dataset. Each stage opens its own app screen so the
+        user sees console output land in the normal place. Failures at
+        any stage are surfaced and don't cascade."""
+        from PySide6.QtWidgets import QMessageBox
+        from pathlib import Path
+
+        dataset_path  = Path(dataset_path)
+        settings_path = Path(settings_path)
+
+        # Helper — load the app's default settings, then override with
+        # whatever CSV pack we downloaded for that app.
+        def _settings_for(app_key: str) -> dict:
+            from .screens.settings_model import resolve_default_settings
+            settings = dict(resolve_default_settings(app_key))
+            csv = settings_path / f"{app_key}_settings.csv"
+            if csv.is_file():
+                import csv as _csv
+                with csv.open() as fh:
+                    for row in _csv.reader(fh):
+                        if not row or row[0].startswith("#") or len(row) < 2:
+                            continue
+                        k, v = row[0].strip(), row[1]
+                        if v.lower() in ("true", "false"):
+                            v = v.lower() == "true"
+                        else:
+                            try:
+                                v = int(v)
+                            except ValueError:
+                                try:
+                                    v = float(v)
+                                except ValueError:
+                                    pass
+                        settings[k] = v
+            settings["src"] = str(dataset_path)
+            return settings
+
+        for stage in ("mask", "measure", "annotate"):
+            settings = _settings_for(stage)
+            self._on_nav_selected(stage)
+            widget = self._screens.get(stage)
+            if widget is None:
+                continue
+            try:
+                if hasattr(widget, "apply_settings_dict"):
+                    widget.apply_settings_dict(settings)
+                # Kick off the run automatically for mask + measure;
+                # annotate is interactive and opens directly at the
+                # loaded dataset so the user can start labelling.
+                if stage != "annotate" and hasattr(widget, "_on_run"):
+                    widget._on_run()
+            except Exception as e:
+                QMessageBox.warning(self, f"E2E: {stage} failed", str(e))
+                return
+        self.statusBar().showMessage(
+            "E2E chain launched — check each app's console for progress.",
+            8000)
+
     def _run_demo_generator(self, demo_key: str, dst: str):
         """Isolated for tests — invoke the named generator function
         with `dst` and return whatever it returned."""
@@ -392,6 +515,16 @@ class MainWindow(QMainWindow):
                           f"<p>Spatial single-cell analysis for microscopy data.</p>"
                           f"<p><b>Version:</b> {version}</p>"
                           f"<p>© Olafsson Lab</p>")
+
+    def _open_preferences(self):
+        """Open the Preferences dialog (theme, font size, colour-blind)."""
+        try:
+            from .preferences import PreferencesDialog
+        except Exception as e:
+            self.statusBar().showMessage(
+                f"Preferences unavailable: {e}", 5000)
+            return
+        PreferencesDialog(self).exec()
 
     def _check_for_updates(self):
         """Query PyPI/GitHub in a background thread, prompt to upgrade.

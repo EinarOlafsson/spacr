@@ -454,11 +454,14 @@ class AppScreen(QWidget):
         # Live-preview segmentation — Mask app only. Users tune
         # diameter/flow/prob against a single tile before running the
         # full plate. Wrapped in a Card so it matches the other panels
-        # visually. See spacr.qt.widgets.live_preview.
+        # visually. Card is hidden by default and toggled on via the LP
+        # switch next to the AI switch. See spacr.qt.widgets.live_preview.
         if self.app_key == "mask":
-            self._live_preview = _install_live_preview_card(self, layout)
+            self._live_preview, self._live_preview_card = (
+                _install_live_preview_card(self, layout))
         else:
             self._live_preview = None
+            self._live_preview_card = None
 
         # Merged Console (pipeline stdout + spaCR AI chat, share the
         # same scroll surface separated by topic bars).
@@ -576,12 +579,27 @@ class AppScreen(QWidget):
         self._progress.setFixedWidth(240)
         row.addWidget(self._progress)
 
+        # LP (Live Preview) toggle — Mask app only. Same styling as the
+        # AI switch: white when off, accent blue when on. Toggling
+        # hides / shows the Live Preview card.
+        from PySide6.QtWidgets import QMenu, QToolButton
+        from ..widgets import AiToggleLabel
+        if getattr(self, "_live_preview", None) is not None:
+            self._lp_switch = AiToggleLabel(
+                text="LP",
+                tooltip=("Click to toggle Live Preview. When ON (blue), "
+                          "the interactive Cellpose preview appears above "
+                          "the console for tuning a sample tile."),
+            )
+            # Default LP OFF so the panel starts collapsed; user opts in.
+            self._lp_switch.toggled.connect(self._on_lp_switch)
+            row.addWidget(self._lp_switch)
+            self._on_lp_switch(False)   # hide the LP card initially
+
         # AI toggle + provider dropdown, bottom-right of the actions row.
         # AI switch is a plain clickable text label — white when off,
         # accent blue when on. Chevron next to it exposes the provider
         # picker + install/login dialog.
-        from PySide6.QtWidgets import QMenu, QToolButton
-        from ..widgets import AiToggleLabel
         self._ai_switch = AiToggleLabel()
         self._ai_switch.toggled.connect(self._on_ai_switch)
         row.addWidget(self._ai_switch)
@@ -663,6 +681,13 @@ class AppScreen(QWidget):
     # ------------------------------------------------------------------
     # AI toggle + provider menu — sits in the actions row (bottom right)
     # ------------------------------------------------------------------
+    def _on_lp_switch(self, on: bool) -> None:
+        """Show/hide the Live Preview card when the LP toggle flips."""
+        card = getattr(self, "_live_preview_card", None)
+        if card is None:
+            return
+        card.setVisible(on)
+
     def _on_ai_switch(self, on: bool) -> None:
         self._console.set_ai_active(on)
         if on:
@@ -965,11 +990,15 @@ def QtGui_QListWidgetItem_helper(fig, idx: int):
 
 def _install_live_preview_card(host, layout):
     """Insert a collapsible ``Live preview`` card containing a
-    :class:`LivePreviewPanel` into ``layout`` and return the panel."""
+    :class:`LivePreviewPanel` into ``layout``.
+
+    :returns: ``(panel, card)`` — the panel for state access, the card
+        for hide/show toggling from the LP switch.
+    """
     from ..widgets.live_preview import LivePreviewPanel
     card = Card(title="Live preview")
     panel = LivePreviewPanel(card)
     card.body_layout.addWidget(panel)
     card.setMinimumHeight(360)
     layout.addWidget(card)
-    return panel
+    return panel, card

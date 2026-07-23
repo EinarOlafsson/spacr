@@ -149,21 +149,31 @@ class _PreviewWorker(QThread):
 def _segment_once(image: np.ndarray, params: dict) -> np.ndarray:
     """Run one CellposeModel.eval on ``image`` and return an (H, W) mask.
 
+    ``params["model"]`` selects the backbone. ``"cpsam"`` (the default)
+    loads Cellpose-SAM by passing ``pretrained_model="cpsam"`` per the
+    spaCR pipeline_v2 convention; every other value is routed through
+    the classic ``model_type=`` kwarg so legacy ``cyto2`` / ``cyto3`` /
+    ``nuclei`` selections keep working.
+
     Cellpose is lazy-imported here so unit tests can exercise the pure
     helpers (``overlay_mask`` etc.) in an environment where Cellpose
     isn't installed.
     """
     from cellpose import models as cp_models
-    model_name = params.get("model", "cyto3")
-    device = None
+    model_name = params.get("model", "cpsam")
     try:
         import torch
         gpu = torch.cuda.is_available()
     except Exception:
         gpu = False
-    model = cp_models.CellposeModel(
-        gpu=gpu, model_type=model_name, device=device,
-    )
+    if model_name == "cpsam":
+        model = cp_models.CellposeModel(
+            gpu=gpu, pretrained_model="cpsam", device=None,
+        )
+    else:
+        model = cp_models.CellposeModel(
+            gpu=gpu, model_type=model_name, device=None,
+        )
     if image.ndim == 3 and image.shape[-1] > 1:
         ch = int(params.get("channel", 0)) % image.shape[-1]
         img2d = image[..., ch]
@@ -219,7 +229,15 @@ class LivePreviewPanel(QWidget):
         # Params row
         params = QHBoxLayout()
         self._model_box = QComboBox(self)
-        self._model_box.addItems(["cyto3", "cyto2", "nuclei"])
+        # Cellpose-SAM is the default; the older cpu/cyto models stay as
+        # legacy fallbacks so users with saved settings from older
+        # versions still work. First entry is the default.
+        self._model_box.addItems([
+            "cpsam",        # Cellpose-SAM (default)
+            "cyto3",        # legacy
+            "cyto2",        # legacy
+            "nuclei",       # legacy nuclear model
+        ])
         self._diameter = QDoubleSpinBox(self)
         self._diameter.setRange(0, 400); self._diameter.setValue(30.0)
         self._diameter.setSuffix(" px")
