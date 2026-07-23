@@ -296,10 +296,13 @@ def train_cellpose(settings):
         
     print(f"Training model with {len(images)} ber patch for {settings['n_epochs']} Epochs")
 
+    # Cellpose 4.x (SAM era) dropped the ``channels`` kwarg from
+    # train_seg — models are channel-agnostic now and take a
+    # ``channel_axis`` instead (None = greyscale / already-stacked).
     train_cp.train_seg(model.net,
                        train_data=images,
                        train_labels=labels,
-                       channels=cp_channels,
+                       channel_axis=None,
                        save_path=model_save_path,
                        n_epochs=settings['n_epochs'],
                        batch_size=settings['batch_size'],
@@ -405,19 +408,19 @@ def test_cellpose_model(settings):
         batch = [test_dataset[j] for j in range(i, min(i + batch_size, len(test_dataset)))]
         images, labels = zip(*batch)
 
+        # Cellpose 4.x dropped ``interp`` and ``tile`` from eval; the
+        # tiling behaviour is now controlled by ``tile_overlap`` alone.
         masks_pred, flows, _ = model.eval(x=list(images),
                                           channels=[0, 0],
                                           normalize=False,
                                           diameter=30,
                                           flow_threshold=settings['FT'],
                                           cellprob_threshold=settings['CP_probability'],
-                                          rescale=None,     
+                                          rescale=None,
                                           resample=True,
-                                          interp=True,
                                           anisotropy=None,
-                                          min_size=5,         
+                                          min_size=5,
                                           augment=True,
-                                          tile=True,
                                           tile_overlap=0.2,
                                           bsize=224)
         
@@ -598,19 +601,19 @@ def apply_cellpose_model(settings):
         X = list(images)
         
         print(settings['CP_probability'])
+        # Cellpose 4.x dropped ``interp`` and ``tile`` from eval; the
+        # tiling behaviour is now controlled by ``tile_overlap`` alone.
         masks_pred, flows, _ = model.eval(x=list(images),
                                           channels=[0, 0],
                                           normalize=False,
                                           diameter=30,
                                           flow_threshold=settings['FT'],
                                           cellprob_threshold=settings['CP_probability'],
-                                          rescale=None,     
+                                          rescale=None,
                                           resample=True,
-                                          interp=True,
                                           anisotropy=None,
-                                          min_size=5,         
+                                          min_size=5,
                                           augment=True,
-                                          tile=True,
                                           tile_overlap=0.2,
                                           bsize=224)
         
@@ -1043,7 +1046,11 @@ def count_phenotypes(settings):
     if not settings['src'].endswith('/measurements/measurements.db'):
         settings['src'] = os.path.join(settings['src'], 'measurements/measurements.db')
 
-    df = _read_db(loc=settings['src'], tables=['png_list'])
+    # _read_db's signature is (db_loc, tables) and it returns a LIST of
+    # DataFrames (one per requested table) — the previous call used a
+    # non-existent `loc=` kwarg and treated the result as a single
+    # DataFrame, so count_phenotypes crashed for every caller.
+    df = _read_db(settings['src'], tables=['png_list'])[0]
 
     unique_values_count = df[settings['annotation_column']].nunique(dropna=True)
     print(f"Unique values in {settings['annotation_column']} (excluding NaN): {unique_values_count}")

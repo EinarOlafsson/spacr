@@ -1114,20 +1114,39 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
     time_ls = []
     for i, channel in enumerate(channels):
         start = time.time()
-        if channel == settings['nucleus_channel']:
+        # Default normalisation params for any channel that isn't one
+        # of the recognised object channels (e.g. an organelle channel,
+        # or an intensity-only channel measured but not segmented).
+        # Without these defaults a channel matching NONE of the object
+        # types below raised UnboundLocalError: 'background'.
+        background = settings.get('background', 100)
+        signal_threshold = settings.get('Signal_to_noise', 10) * background
+        remove_background = settings.get('remove_background', False)
+
+        if settings.get('nucleus_channel') is not None and channel == settings['nucleus_channel']:
             background = settings['nucleus_background']
             signal_threshold = settings['nucleus_Signal_to_noise']*settings['nucleus_background']
             remove_background = settings['remove_background_nucleus']
 
-        if channel == settings['cell_channel']:
+        if settings.get('cell_channel') is not None and channel == settings['cell_channel']:
             background = settings['cell_background']
             signal_threshold = settings['cell_Signal_to_noise']*settings['cell_background']
             remove_background = settings['remove_background_cell']
 
-        if channel == settings['pathogen_channel']:
+        if settings.get('pathogen_channel') is not None and channel == settings['pathogen_channel']:
             background = settings['pathogen_background']
             signal_threshold = settings['pathogen_Signal_to_noise']*settings['pathogen_background']
             remove_background = settings['remove_background_pathogen']
+
+        # Organelle channel — use organelle-specific settings when
+        # present, otherwise the generic defaults above.
+        if settings.get('organelle_channel') is not None and channel == settings['organelle_channel']:
+            background = settings.get('organelle_background', background)
+            signal_threshold = settings.get(
+                'organelle_Signal_to_noise',
+                settings.get('Signal_to_noise', 10)) * background
+            remove_background = settings.get(
+                'remove_background_organelle', remove_background)
 
         single_channel = stack[:, :, :, channel]
 

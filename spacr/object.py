@@ -745,7 +745,23 @@ def generate_organelle_masks_sam(src, settings, object_type):
 
     morphology = settings['organelle_morphology']
     method = settings['organelle_method']
-    organelle_channel = settings['organelle_channel']
+
+    # The merged .npz stack only contains the channels that map to
+    # ENABLED object types, densely re-indexed (see
+    # spacr.utils._get_cellpose_channels). Indexing it with the RAW
+    # organelle_channel (e.g. 3) blows up when fewer than 4 objects
+    # are active — "index 3 is out of bounds for axis 3 with size N".
+    # Remap the organelle channel to its position in the compacted
+    # stack the same way the cell/nucleus/pathogen paths do.
+    _raw_organelle_channel = settings['organelle_channel']
+    _extract = sorted({c for c in (settings.get('nucleus_channel'),
+                                     settings.get('cell_channel'),
+                                     settings.get('pathogen_channel'),
+                                     settings.get('organelle_channel'))
+                          if c is not None})
+    _remap = {orig: new for new, orig in enumerate(_extract)}
+    organelle_channel = _remap.get(_raw_organelle_channel,
+                                     _raw_organelle_channel)
 
     _validate_organelle_settings(morphology, method)
 
@@ -1083,13 +1099,25 @@ def _segment_cellpose(batch, batch_filenames, model, settings, object_type, outp
     from .io import _check_masks
     from .spacr_cellpose import parse_cellpose4_output
 
+    # Remap raw object channels to their dense position in the
+    # compacted stack (same reasoning as generate_organelle_masks_sam).
+    _extract = sorted({c for c in (settings.get('nucleus_channel'),
+                                     settings.get('cell_channel'),
+                                     settings.get('pathogen_channel'),
+                                     settings.get('organelle_channel'))
+                          if c is not None})
+    _remap = {orig: new for new, orig in enumerate(_extract)}
     organelle_ch = settings['organelle_channel']
     if organelle_ch is None:
         organelle_ch = 0
+    else:
+        organelle_ch = _remap.get(organelle_ch, organelle_ch)
 
     if batch.ndim == 4:
+        organelle_ch = min(organelle_ch, batch.shape[3] - 1)
         ch0 = batch[:, :, :, organelle_ch: organelle_ch + 1]
         nuc_ch = settings.get('nucleus_channel')
+        nuc_ch = _remap.get(nuc_ch, nuc_ch) if nuc_ch is not None else None
         if nuc_ch is not None and nuc_ch < batch.shape[3]:
             ch1 = batch[:, :, :, nuc_ch: nuc_ch + 1]
         else:
