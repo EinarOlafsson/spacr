@@ -451,29 +451,41 @@ class AppScreen(QWidget):
         # keep-alive for canvases we've swapped out of the stack.
         self._figure_ids: list = []
 
-        # Live-preview segmentation — Mask app only. Users tune
-        # diameter/flow/prob against a single tile before running the
-        # full plate. Wrapped in a Card so it matches the other panels
-        # visually. Card is hidden by default and toggled on via the LP
-        # switch next to the AI switch. See spacr.qt.widgets.live_preview.
+        # Live-preview segmentation — Mask app only. The card + the
+        # console below live in a vertical QSplitter so the user can
+        # drag the divider up (bigger console) or down (bigger preview)
+        # depending on whether they're tuning parameters or watching
+        # a run. Non-Mask apps get the console alone.
+        from ..widgets import ConsolePanel
+        app_title = APP_TITLES.get(self.app_key, self.app_key.title())
+        console_wrap = QWidget()
+        console_col = QVBoxLayout(console_wrap)
+        console_col.setContentsMargins(0, 0, 0, 0)
+        console_col.setSpacing(4)
+        console_header = QLabel("Console")
+        console_header.setObjectName("CardTitle")
+        console_col.addWidget(console_header)
+        self._console = ConsolePanel(active_app_label=app_title)
+        self._console.setMinimumHeight(180)
+        console_col.addWidget(self._console, 1)
+
         if self.app_key == "mask":
+            splitter = QSplitter(Qt.Vertical)
+            splitter.setChildrenCollapsible(False)
             self._live_preview, self._live_preview_card = (
-                _install_live_preview_card(self, layout))
+                _build_live_preview_card(self))
+            splitter.addWidget(self._live_preview_card)
+            splitter.addWidget(console_wrap)
+            splitter.setStretchFactor(0, 1)
+            splitter.setStretchFactor(1, 1)
+            splitter.setSizes([420, 320])
+            layout.addWidget(splitter, 1)
+            self._runtime_splitter = splitter
         else:
             self._live_preview = None
             self._live_preview_card = None
-
-        # Merged Console (pipeline stdout + spaCR AI chat, share the
-        # same scroll surface separated by topic bars).
-        from ..widgets import ConsolePanel
-        app_title = APP_TITLES.get(self.app_key, self.app_key.title())
-        # Header label above the console so it still reads "Console"
-        console_header = QLabel("Console")
-        console_header.setObjectName("CardTitle")
-        layout.addWidget(console_header)
-        self._console = ConsolePanel(active_app_label=app_title)
-        self._console.setMinimumHeight(320)
-        layout.addWidget(self._console, 1)
+            self._runtime_splitter = None
+            layout.addWidget(console_wrap, 1)
 
         # Route the verbose logger (if the user turned it on in
         # Preferences) at THIS screen's console. Only the last-focused
@@ -998,17 +1010,17 @@ def QtGui_QListWidgetItem_helper(fig, idx: int):
     return item
 
 
-def _install_live_preview_card(host, layout):
-    """Insert a collapsible ``Live preview`` card containing a
-    :class:`LivePreviewPanel` into ``layout``.
+def _build_live_preview_card(host):
+    """Build the ``Live preview`` card + panel pair without adding it
+    to any layout.
 
-    :returns: ``(panel, card)`` — the panel for state access, the card
-        for hide/show toggling from the LP switch.
+    The Mask app screen embeds this into a QSplitter alongside the
+    console so the two panels can be resized against each other. LP
+    starts hidden and is shown when the user clicks the LP toggle.
     """
     from ..widgets.live_preview import LivePreviewPanel
     card = Card(title="Live preview")
     panel = LivePreviewPanel(card)
     card.body_layout.addWidget(panel)
-    card.setMinimumHeight(360)
-    layout.addWidget(card)
+    card.setMinimumHeight(300)
     return panel, card
