@@ -95,6 +95,13 @@ class StartupPage(QWidget):
 
         col.addWidget(self._build_hero())
 
+        # Recent runs (fed by spacr.run_journal.recent_runs) — appears
+        # ONLY when there's history to show, so first-launch users
+        # don't see an empty section.
+        recent_widget = self._build_recent_runs_section()
+        if recent_widget is not None:
+            col.addWidget(recent_widget)
+
         # Sections — keep a mapping from every HTile to its description
         # so the sticky footer knows what to display on hover.
         self._tile_hints: dict = {}
@@ -192,6 +199,112 @@ class StartupPage(QWidget):
         outer.addWidget(subtitle, alignment=Qt.AlignHCenter)
 
         return hero
+
+    def _build_recent_runs_section(self) -> Optional[QWidget]:
+        """Return a "Recent runs" widget, or None if there's no history.
+
+        Reads :func:`spacr.run_journal.recent_runs` (last 5 by default);
+        each row is a clickable strip that emits
+        :attr:`tile_clicked` for that run's app + fires a callback to
+        load its settings into the target AppScreen.
+        """
+        # Import + fetch. Imports and disk I/O can fail cheaply on a
+        # freshly-checked-out install — we log to help diagnose (the
+        # older `except Exception: return None` swallowed silently).
+        import logging as _lg
+        _log = _lg.getLogger("spacr.qt.startup")
+        try:
+            # Absolute — spacr/qt/screens/startup.py needs three dots
+            # to reach spacr.run_journal, but the absolute form is
+            # unambiguous and refactor-safe.
+            from spacr.run_journal import recent_runs, load_run_settings
+        except Exception as e:
+            _log.debug("recent runs import failed: %s", e)
+            return None
+        try:
+            runs = recent_runs(limit=5)
+        except Exception as e:
+            _log.debug("recent_runs() raised: %s", e)
+            return None
+        if not runs:
+            _log.debug("recent_runs() returned nothing — hiding section")
+            return None
+
+        from PySide6.QtWidgets import QGridLayout, QPushButton
+
+        wrap = QWidget()
+        outer = QVBoxLayout(wrap)
+        outer.setContentsMargins(0, SPACING["sm"], 0, SPACING["md"])
+        outer.setSpacing(6)
+
+        hdr = QLabel("RECENT RUNS")
+        hdr.setStyleSheet(
+            "font-family: 'Open Sans', sans-serif;"
+            "font-weight: 600; font-size: 11px;"
+            "letter-spacing: 2px;"
+            f"color: {PALETTE['fg_muted']};"
+        )
+        outer.addWidget(hdr)
+        outer.addWidget(Divider())
+
+        # Store a per-row loader closure so clicking navigates AND
+        # pushes the recorded settings back into the target screen.
+        self._recent_loaders = []
+        for r in runs:
+            btn = QPushButton()
+            btn.setCursor(Qt.PointingHandCursor)
+            elapsed = r.get("elapsed_s") or 0
+            status_dot = "●" if r["status"] == "success" else "○"
+            label = (
+                f"  {status_dot}  {r['app_key']:12s}  "
+                f"{r['start_utc'][:19]}  "
+                f"({elapsed:.0f}s)"
+            )
+            btn.setText(label)
+            btn.setStyleSheet(
+                "QPushButton {"
+                "  text-align: left; padding: 6px 12px;"
+                "  background: transparent;"
+                "  border: 1px solid transparent;"
+                "  border-radius: 4px;"
+                "  font-family: 'JetBrains Mono', monospace;"
+                "  font-size: 12px;"
+                f"  color: {PALETTE['fg_muted']};"
+                "}"
+                "QPushButton:hover {"
+                f"  background: {PALETTE['surface_alt']};"
+                f"  border-color: {PALETTE['border_soft']};"
+                f"  color: {PALETTE['fg']};"
+                "}"
+            )
+            def _load_run(run=r):
+                self.tile_clicked.emit(run["app_key"])
+                # After navigation the target AppScreen exists —
+                # tile_clicked.emit is synchronous inside MainWindow's
+                # nav handler. Push the recorded settings if possible.
+                try:
+                    from PySide6.QtCore import QTimer
+                    def _push():
+                        try:
+                            mw = self.window()
+                            if mw is None or not hasattr(mw, "_screens"):
+                                return
+                            screen = mw._screens.get(run["app_key"])
+                            if screen is None or not hasattr(
+                                screen, "apply_settings_dict"
+                            ):
+                                return
+                            settings = load_run_settings(run["dir"])
+                            screen.apply_settings_dict(settings)
+                        except Exception:
+                            pass
+                    QTimer.singleShot(50, _push)
+                except Exception:
+                    pass
+            btn.clicked.connect(_load_run)
+            outer.addWidget(btn)
+            self._recent_loaders.append(_load_run)
+        return wrap
 
     def _build_section_header(self, name: str) -> QWidget:
         wrap = QWidget()

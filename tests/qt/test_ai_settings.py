@@ -17,6 +17,13 @@ def _isolated_qsettings(monkeypatch, qt_theme_applied, tmp_path):
     # Reset any prior state per test
     from spacr.qt.ai import settings as s
     QSettings("spacr", "qt").clear()
+    # Re-mark first-launch tour seen after the QSettings clear so the
+    # autouse conftest fixture keeps its promise.
+    try:
+        from spacr.qt.first_run import mark_tour_seen
+        mark_tour_seen()
+    except Exception:
+        pass
     yield
 
 
