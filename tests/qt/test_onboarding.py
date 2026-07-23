@@ -82,18 +82,23 @@ def test_default_tour_has_at_least_five_steps():
 # Recent runs on the home page
 # ---------------------------------------------------------------------------
 
-def test_home_page_shows_no_recent_runs_when_history_empty(
+def test_home_page_shows_empty_hint_when_history_empty(
         qtbot, qt_theme_applied, tmp_path, monkeypatch,
 ):
+    """The Insights dashboard now always shows the Recent-runs card,
+    even when the journal is empty — but the card body should say
+    "No runs yet…" rather than list runs."""
     from spacr import run_journal as rj
     monkeypatch.setattr(rj, "runs_root", lambda: tmp_path)
     from spacr.qt.app import MainWindow
     win = MainWindow()
     qtbot.addWidget(win)
-    # There's no RECENT RUNS label anywhere in the widget tree
     from PySide6.QtWidgets import QLabel
     labels = [w.text() for w in win.findChildren(QLabel)]
-    assert not any("RECENT RUNS" in lbl for lbl in labels)
+    # Card header IS present ("RECENT RUNS") but body should carry the
+    # "No runs yet" hint.
+    assert any("RECENT RUNS" in lbl for lbl in labels)
+    assert any("No runs yet" in lbl for lbl in labels)
 
 
 def test_home_page_shows_recent_runs_when_history_present(
@@ -108,7 +113,11 @@ def test_home_page_shows_recent_runs_when_history_present(
     qtbot.addWidget(win)
     from PySide6.QtWidgets import QLabel
     labels = [w.text() for w in win.findChildren(QLabel)]
+    # The insights dashboard should show the card header AND a row
+    # containing the mask app_key (rendered inside a monospace
+    # QPushButton in the Recent-runs card).
     assert any("RECENT RUNS" in lbl for lbl in labels)
+    assert any("mask" in lbl for lbl in labels)
 
 
 # ---------------------------------------------------------------------------

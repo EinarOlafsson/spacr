@@ -95,15 +95,11 @@ class StartupPage(QWidget):
 
         col.addWidget(self._build_hero())
 
-        # Recent runs (fed by spacr.run_journal.recent_runs) — appears
-        # ONLY when there's history to show, so first-launch users
-        # don't see an empty section.
-        recent_widget = self._build_recent_runs_section()
-        if recent_widget is not None:
-            col.addWidget(recent_widget)
-
         # Sections — keep a mapping from every HTile to its description
         # so the sticky footer knows what to display on hover.
+        # Each section is now a HORIZONTAL row of tiles (was a 2-col
+        # grid) which collapses the middle of the page and leaves
+        # room for the Insights dashboard below.
         self._tile_hints: dict = {}
         sections: dict[str, list[tuple[str, str, str]]] = {}
         for key, name, desc, section in apps:
@@ -112,6 +108,12 @@ class StartupPage(QWidget):
         for section_name, entries in sections.items():
             col.addWidget(self._build_section_header(section_name))
             col.addWidget(self._build_section_grid(entries, icon_provider))
+
+        # Insights dashboard — three compact cards along the lower
+        # half of the home screen. Replaces the old two-column grid's
+        # tendency to shove everything upward.
+        col.addSpacing(SPACING["md"])
+        col.addWidget(self._build_insights_dashboard())
 
         col.addStretch(1)
         scroll.setWidget(content)
@@ -199,6 +201,204 @@ class StartupPage(QWidget):
         outer.addWidget(subtitle, alignment=Qt.AlignHCenter)
 
         return hero
+
+    def _build_insights_dashboard(self) -> QWidget:
+        """Three glanceable cards along the lower half of Home.
+
+        Layout::
+
+            ┌ System ─────┐ ┌ Recent (3) ─────┐ ┌ Totals ────┐
+            │ GPU 42%     │ │ 14:22 mask ✓    │ │ 47 plates  │
+            │ VRAM 3 GB   │ │ 12:05 meas ✓    │ │ 128k cells │
+            │ Disk 82%    │ │ 09:47 mask ✗    │ │ 12 models  │
+            └─────────────┘ └─────────────────┘ └────────────┘
+
+        Every card degrades gracefully — GPU section reports "no CUDA"
+        when torch/cuda are unavailable, Recent shows the top 3 runs
+        or a hint when the journal is empty, Totals shows zeros.
+        """
+        dash = QWidget()
+        row = QHBoxLayout(dash)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(SPACING["md"])
+        row.addWidget(self._build_system_card(), 1)
+        row.addWidget(self._build_recent_runs_card(), 2)
+        row.addWidget(self._build_totals_card(), 1)
+        return dash
+
+    def _card_wrap(self, title: str, body: QWidget) -> QWidget:
+        """Style helper: title label above a bordered content box."""
+        wrap = QWidget()
+        col = QVBoxLayout(wrap)
+        col.setContentsMargins(0, 0, 0, 0)
+        col.setSpacing(4)
+        hdr = QLabel(title.upper())
+        hdr.setStyleSheet(
+            "font-family: 'Open Sans', sans-serif; font-weight: 600;"
+            "font-size: 10px; letter-spacing: 2px;"
+            f"color: {PALETTE['fg_muted']};"
+        )
+        col.addWidget(hdr)
+        body.setStyleSheet(
+            f"background: {PALETTE['surface_alt']};"
+            f"border: 1px solid {PALETTE['border_soft']};"
+            "border-radius: 8px;"
+            f"padding: {SPACING['md']}px;"
+        )
+        col.addWidget(body, 1)
+        return wrap
+
+    def _build_system_card(self) -> QWidget:
+        """GPU / VRAM / disk snapshot. Refreshes on Home-revisit only —
+        the numbers move slowly enough that a live poll isn't worth
+        the CPU."""
+        body = QWidget()
+        lay = QVBoxLayout(body)
+        lay.setContentsMargins(0, 0, 0, 0)
+        lay.setSpacing(4)
+        lay.addWidget(self._stat_row("GPU",  self._gpu_util_pct()))
+        lay.addWidget(self._stat_row("VRAM", self._gpu_vram_used()))
+        lay.addWidget(self._stat_row("Disk", self._disk_used_pct()))
+        lay.addStretch(1)
+        return self._card_wrap("System", body)
+
+    def _stat_row(self, label: str, value: str) -> QWidget:
+        row = QWidget()
+        lay = QHBoxLayout(row)
+        lay.setContentsMargins(0, 0, 0, 0)
+        lay.setSpacing(SPACING["sm"])
+        lbl = QLabel(label)
+        lbl.setStyleSheet(f"color: {PALETTE['fg_muted']};"
+                            "font-size: 11px; font-weight: 500;")
+        lbl.setMinimumWidth(40)
+        val = QLabel(value)
+        val.setStyleSheet(f"color: {PALETTE['fg']}; font-size: 12px;"
+                            "font-weight: 500;")
+        lay.addWidget(lbl); lay.addWidget(val); lay.addStretch(1)
+        return row
+
+    def _gpu_util_pct(self) -> str:
+        try:
+            import pynvml
+            pynvml.nvmlInit()
+            h = pynvml.nvmlDeviceGetHandleByIndex(0)
+            u = pynvml.nvmlDeviceGetUtilizationRates(h)
+            return f"{u.gpu}%"
+        except Exception:
+            try:
+                import torch
+                return "idle" if torch.cuda.is_available() else "no CUDA"
+            except Exception:
+                return "n/a"
+
+    def _gpu_vram_used(self) -> str:
+        try:
+            import pynvml
+            pynvml.nvmlInit()
+            h = pynvml.nvmlDeviceGetHandleByIndex(0)
+            info = pynvml.nvmlDeviceGetMemoryInfo(h)
+            used_gb = info.used / 1e9
+            total_gb = info.total / 1e9
+            return f"{used_gb:.1f} / {total_gb:.0f} GB"
+        except Exception:
+            try:
+                import torch
+                if torch.cuda.is_available():
+                    used = torch.cuda.memory_allocated() / 1e9
+                    return f"{used:.1f} GB"
+            except Exception:
+                pass
+            return "n/a"
+
+    def _disk_used_pct(self) -> str:
+        try:
+            import shutil as _sh
+            usage = _sh.disk_usage(os.path.expanduser("~"))
+            pct = int(100 * usage.used / usage.total)
+            return f"{pct}%"
+        except Exception:
+            return "n/a"
+
+    def _build_recent_runs_card(self) -> QWidget:
+        """Compact 3-row list of the most recent runs (or an empty
+        hint). Each row is clickable and emits the run's app_key."""
+        body = QWidget()
+        lay = QVBoxLayout(body)
+        lay.setContentsMargins(0, 0, 0, 0)
+        lay.setSpacing(6)
+        try:
+            from spacr.run_journal import recent_runs
+            runs = recent_runs(limit=3)
+        except Exception:
+            runs = []
+        if not runs:
+            hint = QLabel("No runs yet — start one from the tiles above.")
+            hint.setStyleSheet(f"color: {PALETTE['fg_muted']};"
+                                "font-style: italic;")
+            hint.setWordWrap(True)
+            lay.addWidget(hint)
+        else:
+            for entry in runs:
+                lay.addWidget(self._recent_run_row(entry))
+        lay.addStretch(1)
+        return self._card_wrap("Recent runs", body)
+
+    def _recent_run_row(self, entry: dict) -> QWidget:
+        """One clickable row inside the Recent-Runs card."""
+        row = QWidget()
+        lay = QHBoxLayout(row)
+        lay.setContentsMargins(0, 0, 0, 0)
+        lay.setSpacing(SPACING["sm"])
+        status_ok = entry.get("status") == "success"
+        status_icon = "✓" if status_ok else "✗"
+        colour = (PALETTE['success'] if status_ok
+                    else PALETTE['error'])
+        icon = QLabel(status_icon)
+        icon.setStyleSheet(f"color: {colour}; font-weight: 700;"
+                            "font-size: 13px;")
+        icon.setFixedWidth(14)
+        label_txt = f"{entry.get('app_key', '?')}"
+        elapsed = entry.get('elapsed_s') or 0
+        label = QLabel(f"{label_txt:<8s}  {int(elapsed):>4d}s")
+        label.setStyleSheet(f"color: {PALETTE['fg']};"
+                             "font-family: 'JetBrains Mono', monospace;"
+                             "font-size: 11px;")
+        lay.addWidget(icon)
+        lay.addWidget(label, 1)
+        # Wrap in a clickable button so the row navigates on click
+        from PySide6.QtWidgets import QPushButton
+        btn = QPushButton()
+        btn.setLayout(lay)
+        btn.setFlat(True)
+        btn.setCursor(Qt.PointingHandCursor)
+        btn.setStyleSheet(
+            "QPushButton { background: transparent; border: none; "
+            "text-align: left; padding: 2px; } "
+            f"QPushButton:hover {{ background: {PALETTE['surface_hi']}; }}"
+        )
+        app_key = entry.get("app_key", "")
+        btn.clicked.connect(
+            lambda checked=False, k=app_key: self.tile_clicked.emit(k))
+        return btn
+
+    def _build_totals_card(self) -> QWidget:
+        """Aggregate journal counts: total runs, per-app, distinct models."""
+        body = QWidget()
+        lay = QVBoxLayout(body)
+        lay.setContentsMargins(0, 0, 0, 0)
+        lay.setSpacing(4)
+        try:
+            from spacr.run_journal import journal_totals
+            t = journal_totals()
+        except Exception:
+            t = {"total_runs": 0, "mask_runs": 0, "measure_runs": 0,
+                    "classify_runs": 0, "models_recorded": 0}
+        lay.addWidget(self._stat_row("Runs",   str(t["total_runs"])))
+        lay.addWidget(self._stat_row("Mask",   str(t["mask_runs"])))
+        lay.addWidget(self._stat_row("Meas.",  str(t["measure_runs"])))
+        lay.addWidget(self._stat_row("Models", str(t["models_recorded"])))
+        lay.addStretch(1)
+        return self._card_wrap("Totals", body)
 
     def _build_recent_runs_section(self) -> Optional[QWidget]:
         """Return a "Recent runs" widget, or None if there's no history.
@@ -329,29 +529,43 @@ class StartupPage(QWidget):
         entries: list[tuple[str, str, str]],
         icon_provider: Callable[[str], Optional[QIcon]],
     ) -> QWidget:
-        wrap = QWidget()
-        grid = QGridLayout(wrap)
-        grid.setContentsMargins(0, SPACING["xs"], 0, SPACING["md"])
-        grid.setHorizontalSpacing(SPACING["md"])
-        grid.setVerticalSpacing(6)
+        """Return a horizontal row of tiles for this section.
 
-        cols = 2
-        for i, (key, name, desc) in enumerate(entries):
+        Wrapped in a :class:`QScrollArea` so a section wider than the
+        window gets a horizontal scroll rather than pushing the whole
+        page sideways. Tile min-width shrinks (compared to the old
+        two-column grid) so more fit on screen at once.
+        """
+        row_widget = QWidget()
+        row = QHBoxLayout(row_widget)
+        row.setContentsMargins(0, SPACING["xs"], 0, SPACING["md"])
+        row.setSpacing(SPACING["sm"])
+
+        for key, name, desc in entries:
             icon = icon_provider(key)
             tile = HTile(text=name, description=desc, icon=icon,
-                          icon_size=36)
-            tile.setMinimumWidth(280)
-            # Remember description so the hint bar knows what to say
-            # when the cursor enters this tile.
+                          icon_size=28)
+            tile.setMinimumWidth(220)
+            tile.setMaximumWidth(260)
             self._tile_hints[tile] = desc
             tile.installEventFilter(self)
             tile.clicked.connect(lambda checked=False, k=key:
                                    self.tile_clicked.emit(k))
-            grid.addWidget(tile, i // cols, i % cols)
+            row.addWidget(tile)
+        row.addStretch(1)
 
-        for c in range(cols):
-            grid.setColumnStretch(c, 1)
-        return wrap
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QScrollArea.NoFrame)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll.setWidget(row_widget)
+        # One row of tiles ~= tile min-height + padding. Anchor the
+        # scroll area's height so it doesn't grow into vertical dead
+        # space and steal room from the insights dashboard below.
+        from ..preferences import scaled_px
+        scroll.setFixedHeight(scaled_px(96))
+        return scroll
 
     # -- sticky hint bar wiring ----------------------------------------
     def eventFilter(self, obj, event):

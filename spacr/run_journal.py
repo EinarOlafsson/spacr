@@ -387,6 +387,47 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
     return all_entries[:limit]
 
 
+def journal_totals() -> Dict[str, int]:
+    """Return aggregate counts across every stored run.
+
+    Powers the Home-screen insights dashboard: ``total_runs`` (all
+    manifests seen), ``mask_runs`` / ``measure_runs`` / ``classify_runs``
+    (per-app tallies), and ``models_recorded`` (distinct model hashes
+    ever recorded across all mask runs). Returns zeros when no journal
+    exists yet.
+
+    Cheap enough to call on Home-screen construction — one iterdir + a
+    file read per run folder. Callers that need more should cache.
+    """
+    totals = {"total_runs": 0, "mask_runs": 0, "measure_runs": 0,
+                "classify_runs": 0, "models_recorded": 0}
+    seen_models: set = set()
+    root = runs_root()
+    if not root.exists():
+        return totals
+    for d in root.iterdir():
+        if not d.is_dir():
+            continue
+        manifest_path = d / "manifest.json"
+        if not manifest_path.exists():
+            continue
+        try:
+            m = json.loads(manifest_path.read_text())
+        except Exception:
+            continue
+        totals["total_runs"] += 1
+        app_key = m.get("app_key", "")
+        if app_key in ("mask", "measure", "classify"):
+            totals[f"{app_key}_runs"] += 1
+        # Per-run model record — one line per (name, sha256) pair.
+        for model in m.get("models", []) or []:
+            sha = model.get("sha256") if isinstance(model, dict) else None
+            if sha:
+                seen_models.add(sha)
+    totals["models_recorded"] = len(seen_models)
+    return totals
+
+
 def load_run_settings(run_dir: Path) -> Dict[str, Any]:
     """Read a run's ``settings.json`` (falling back to settings.csv)."""
     run_dir = Path(run_dir)
