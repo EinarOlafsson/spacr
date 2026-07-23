@@ -34,6 +34,78 @@ from ..widgets import Card, Divider, Section, UsageBar
 from .settings_model import SettingsWidgets
 
 
+# Hover-tooltip text for each settings section. Keys match the
+# uppercased section title (e.g. "PATHS", "CELL"). Sections that
+# don't have an entry fall back to a generic "Settings that
+# control <title>."
+SECTION_HINTS = {
+    "PATHS":            "Source folder + destination folder + which "
+                        "sub-folders spaCR should read images from.",
+    "GENERAL":          "High-level knobs: metadata source (Yokogawa "
+                        "vs Cellvoyager vs custom regex), channel "
+                        "layout, magnification, plotting toggles.",
+    "CELL":             "Cellpose settings for the *cell* mask: "
+                        "channel, model, diameter, cellprob threshold, "
+                        "background floor.",
+    "NUCLEUS":          "Cellpose settings for the *nucleus* mask: "
+                        "channel, model, diameter, cellprob threshold, "
+                        "background floor.",
+    "PATHOGEN":         "Cellpose settings for the *pathogen* mask: "
+                        "channel, model, diameter, cellprob threshold, "
+                        "background floor.",
+    "ORGANELLE":        "Settings for a fourth-channel organelle mask "
+                        "when your dataset includes one.",
+    "ORGANELLE PREPROCESSING":
+                        "Denoising / background correction applied to "
+                        "the organelle channel before segmentation.",
+    "ORGANELLE SPOT DETECTION":
+                        "Blob-detector settings for organelle spots "
+                        "(radius range, threshold, exclusion border).",
+    "ORGANELLE NETWORK DETECTION":
+                        "Ridge / tubular filter settings for network-"
+                        "shaped organelles (e.g. mitochondria).",
+    "ORGANELLE RING DETECTION":
+                        "Ring / annulus detector for hollow organelle "
+                        "structures.",
+    "ORGANELLE IRREGULAR DETECTION":
+                        "Watershed / adaptive-threshold detection for "
+                        "irregular organelle shapes.",
+    "ORGANELLE CELLPOSE":
+                        "Cellpose model + parameters for organelle "
+                        "segmentation when neither spots nor networks "
+                        "capture the structure.",
+    "ORGANELLE UNET":   "U-Net segmentation for organelles when "
+                        "Cellpose is not accurate enough.",
+    "ORGANELLE ADAPTIVE THRESHOLD":
+                        "Local-threshold parameters used as a fallback "
+                        "when trained models aren't available.",
+    "PLOT":             "What spaCR plots inline during a run — "
+                        "channel arrays, mask overlays, per-object "
+                        "diagnostic figures.",
+    "TIMELAPSE":        "Enable + tune temporal linking of masks "
+                        "across frames when your data has a T axis.",
+    "ADVANCED":         "Rarely-touched knobs — batch sizes, worker "
+                        "counts, memory tuning, experimental options.",
+    "BETA":             "Experimental features that may change or be "
+                        "removed. Use with caution.",
+    "MOTILITY (BETA)":  "Beta motility-assay analysis toggle + "
+                        "per-object tracking parameters.",
+    "MOTILITY ADVANCED (BETA)":
+                        "Fine-grained control over the beta motility "
+                        "pipeline — feature selection, filter windows.",
+    "CROP":             "Per-object crop dimensions + which channels "
+                        "get baked into each saved PNG.",
+    "MEASURE":          "Which per-object measurements to compute — "
+                        "intensity percentiles, morphology, colocalisation.",
+    "CLASSIFY":         "Model type, training epochs, class balance, "
+                        "augmentation, and evaluation split.",
+    "REGRESSION":       "Regression model + covariates for mapping "
+                        "screen scores to gRNA effect sizes.",
+    "SEQUENCING":       "FASTQ inputs, barcode reference, mapping "
+                        "chunk size, and QC thresholds.",
+}
+
+
 APP_TITLES = {
     "mask":            "Mask Generation",
     "measure":         "Measure",
@@ -151,6 +223,14 @@ class AppScreen(QWidget):
         # under the cursor. Initialized in __init__.
         for title, rows in sections:
             section = Section(title)
+            # Attach a per-section tooltip so hovering the header tells
+            # users what the settings inside actually control. Falls
+            # back to a generic "settings for <TITLE>" if the section
+            # is one we don't have a curated blurb for.
+            section.set_hint(SECTION_HINTS.get(
+                title.upper().strip(),
+                f"Settings that control {title.lower().strip()}.",
+            ))
             for label, widget in rows:
                 lbl_widget = QLabel(label)
                 for key, w in getattr(self._settings_model, "_widgets", {}).items():
