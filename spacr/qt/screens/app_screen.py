@@ -193,6 +193,16 @@ class AppScreen(QWidget):
         # Threading state
         self._thread: Optional[QThread] = None
 
+        # Drag & drop — install a dropzone with this app's per-module
+        # handler. Universally accepts settings CSVs; folder policy
+        # is app-specific (see spacr.qt.dnd_handlers).
+        try:
+            from ..dnd import install_dropzone
+            from ..dnd_handlers import get_handler
+            install_dropzone(self, get_handler(self.app_key), self)
+        except Exception:
+            pass
+
     # ------------------------------------------------------------------
     # Panels
     # ------------------------------------------------------------------

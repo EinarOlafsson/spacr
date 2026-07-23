@@ -356,6 +356,14 @@ class MakeMasksScreen(QWidget):
         self._install_shortcuts()
         self._sync_button_states()
 
+        # Drag & drop — accepts a folder of images to fine-tune against.
+        try:
+            from ..dnd import install_dropzone
+            from ..dnd_handlers import MakeMasksDropHandler
+            install_dropzone(self, MakeMasksDropHandler(), self)
+        except Exception:
+            pass
+
     # ------------------------------------------------------------------
     def _build_ui(self):
         outer = QVBoxLayout(self)

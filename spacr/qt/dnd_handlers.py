@@ -1,0 +1,460 @@
+"""
+Per-module drop handlers.
+
+Each pipeline app has different expectations for what a "source"
+means. This module encodes those policies as :class:`DropHandler`
+subclasses that the AppScreen wires up at construction time.
+
+Handler map (also read by ``get_handler``):
+
++-----------------+-------------------------------------------------------+
+| App             | Accepts                                               |
++=================+=======================================================+
+| mask            | folder w/ images (auto-parses regex + preview)        |
+| measure         | folder named ``merged`` OR one containing merged/     |
+| annotate        | folder with ``measurements/measurements.db``          |
+| classify        | folder with ``data/`` or ``measurements/``            |
+| make_masks      | folder with images + optional masks/                  |
+| map_barcodes    | folder with FASTQ; also a raw .fastq.gz drop          |
+| umap            | folder with ``measurements/measurements.db``          |
+| ml_analyze      | ditto                                                 |
+| regression      | ditto + ``scores.csv``                                |
+| recruitment     | folder with per-well recruitment CSVs                 |
+| activation      | folder with saved activation maps or the CV model dir |
+| analyze_plaques | folder with plaque images                             |
+| train_cellpose  | folder with image+mask pairs                          |
+| cellpose_masks  | folder with images                                    |
+| cellpose_all    | ditto                                                 |
++-----------------+-------------------------------------------------------+
+
+Every handler falls back to CSV settings-import via :mod:`spacr.qt.dnd`
+so users can also drop a settings CSV on any screen to load it.
+"""
+from __future__ import annotations
+
+from pathlib import Path
+from typing import List, Optional
+
+from .dnd import (
+    DropHandler, find_image_folders_nearby, has_images_in,
+    sample_image_names,
+)
+
+
+# ---------------------------------------------------------------------------
+# Shared setter — every AppScreen exposes the src widget through
+# _settings_model._widgets["src"]; AnnotateScreen / MakeMasksScreen
+# have their own _open_source / _open_folder methods.
+# ---------------------------------------------------------------------------
+
+def _set_src_on(screen, path: str) -> bool:
+    """Best-effort set the screen's source path.
+
+    Tries three shapes:
+      1. ``screen._open_source(path)``          — AnnotateScreen
+      2. ``screen._open_folder(path)``          — MakeMasksScreen
+      3. ``screen._settings_model._widgets["src"].setText(path)`` — AppScreen
+    """
+    if hasattr(screen, "_open_source"):
+        try:
+            screen._open_source(path); return True
+        except Exception:
+            pass
+    if hasattr(screen, "_open_folder"):
+        try:
+            screen._open_folder(path); return True
+        except Exception:
+            pass
+    if hasattr(screen, "_settings_model"):
+        try:
+            w = screen._settings_model._widgets.get("src")
+            if w is not None and hasattr(w, "setText"):
+                w.setText(path)
+                return True
+        except Exception:
+            pass
+    return False
+
+
+def _log(screen, msg: str) -> None:
+    if hasattr(screen, "_console"):
+        try:
+            screen._console.append_stdout(msg)
+        except Exception:
+            pass
+
+
+# ---------------------------------------------------------------------------
+# Mask — the star handler with regex-preview canvas
+# ---------------------------------------------------------------------------
+
+class MaskDropHandler(DropHandler):
+    """Accept a folder of raw microscopy images and preview its filename
+    regex parse. Multi-drop is supported."""
+
+    def accepts_multiple(self) -> bool:
+        return True
+
+    def can_accept(self, path: Path) -> bool:
+        return path.is_dir() and has_images_in(path)
+
+    def suggest_alternatives(self, path: Path) -> List[Path]:
+        if path.is_dir():
+            return find_image_folders_nearby(path)
+        return []
+
+    def error_message(self, path: Path) -> str:
+        return ("The mask module needs a folder of microscopy images "
+                "(.tif / .png / .czi / .nd2 / .lif) at the top level.")
+
+    def apply(self, path: Path, screen) -> None:
+        _set_src_on(screen, str(path))
+        _log(screen, f"[drop] mask src = {path}\n")
+        # Fire the regex-preview canvas asynchronously so the UI
+        # doesn't stall while it reads images.
+        try:
+            from PySide6.QtCore import QTimer
+            QTimer.singleShot(50, lambda: _preview_regex_on_mask(path, screen))
+        except Exception:
+            pass
+
+
+def _preview_regex_on_mask(path: Path, screen) -> None:
+    """Parse filenames with the current metadata regex, then push a
+    matplotlib figure into the AppScreen's Figures panel showing the
+    first few sampled images with metadata colour-coded per regex
+    group."""
+    try:
+        from spacr.utils import _get_regex
+        import re
+        import matplotlib
+        from matplotlib.figure import Figure
+        from matplotlib.patches import Rectangle
+    except Exception:
+        return
+
+    imgs = sample_image_names(path, n=6)
+    if not imgs:
+        return
+
+    # Try cellvoyager regex first (the default for spaCR data), then
+    # yokogawa, then any custom regex the user has typed.
+    regexes: List[tuple] = []
+    for metadata in ("cellvoyager", "yokogawa"):
+        try:
+            r = _get_regex(metadata, "tif")
+            regexes.append((metadata, r))
+        except Exception:
+            pass
+    # Any custom regex in the settings model
+    try:
+        w = screen._settings_model._widgets.get("custom_regex")
+        if w is not None and hasattr(w, "text") and w.text().strip():
+            regexes.append(("custom", w.text().strip()))
+    except Exception:
+        pass
+
+    matched_metadata: Optional[str] = None
+    matches: List[re.Match] = []
+    for label, r in regexes:
+        m = [re.match(r, p.name) for p in imgs]
+        if all(mm is not None for mm in m):
+            matched_metadata = label
+            matches = m
+            break
+
+    fig = Figure(figsize=(9.5, 4.5), dpi=96, facecolor="#0d0d0d")
+    fig.suptitle(
+        f"{path.name}  •  {len(imgs)} sampled  •  "
+        + (f"regex: {matched_metadata}" if matched_metadata
+           else "no regex matched"),
+        color="#e5e5e5", fontsize=11, y=0.98,
+    )
+
+    # Palette for the six standard cellvoyager groups
+    group_colors = {
+        "plateID":  "#4A9EFF",
+        "wellID":   "#3fb950",
+        "timeID":   "#f0883e",
+        "fieldID":  "#a78bfa",
+        "laserID":  "#f85149",
+        "AID":      "#e879f9",
+        "sliceID":  "#22d3ee",
+        "chanID":   "#facc15",
+    }
+
+    for i, (img_path, m) in enumerate(zip(imgs, matches or [None] * len(imgs))):
+        ax = fig.add_subplot(2, 3, i + 1)
+        ax.set_facecolor("#141414")
+        for spine in ax.spines.values():
+            spine.set_color("#2a2a2a")
+        ax.set_xticks([]); ax.set_yticks([])
+
+        if m is not None:
+            groups = m.groupdict()
+            # Build filename with each regex-group substring coloured.
+            name = img_path.name
+            cursor = 0
+            xy = 0.03
+            for gname, gval in groups.items():
+                idx = name.find(gval, cursor)
+                if idx < 0:
+                    continue
+                if idx > cursor:
+                    ax.text(xy, 0.85, name[cursor:idx], color="#c4c4c4",
+                             transform=ax.transAxes, fontsize=8,
+                             family="monospace", va="top")
+                    xy += 0.011 * (idx - cursor)
+                ax.text(xy, 0.85, gval,
+                         color=group_colors.get(gname, "#e5e5e5"),
+                         transform=ax.transAxes, fontsize=8,
+                         weight="bold", family="monospace", va="top")
+                xy += 0.011 * len(gval)
+                cursor = idx + len(gval)
+            if cursor < len(name):
+                ax.text(xy, 0.85, name[cursor:], color="#c4c4c4",
+                         transform=ax.transAxes, fontsize=8,
+                         family="monospace", va="top")
+
+            # Below the filename: metadata label / value grid
+            y = 0.7
+            for gname, gval in groups.items():
+                colour = group_colors.get(gname, "#e5e5e5")
+                ax.text(0.05, y, gname + ":", color=colour,
+                         transform=ax.transAxes, fontsize=8,
+                         family="monospace")
+                ax.text(0.35, y, gval, color="#e5e5e5",
+                         transform=ax.transAxes, fontsize=8,
+                         family="monospace")
+                y -= 0.11
+        else:
+            ax.text(0.03, 0.85, img_path.name, color="#c4c4c4",
+                     transform=ax.transAxes, fontsize=8,
+                     family="monospace", va="top")
+            ax.text(0.03, 0.55,
+                     "(no regex match — you can enter a custom one in "
+                     "General → custom_regex)",
+                     color="#f85149", transform=ax.transAxes, fontsize=8,
+                     family="monospace", va="top", wrap=True)
+
+    fig.tight_layout(rect=[0, 0, 1, 0.94])
+    try:
+        screen._on_figure_ready(fig)
+    except Exception:
+        pass
+
+
+# ---------------------------------------------------------------------------
+# Measure — must be `merged` or contain merged/
+# ---------------------------------------------------------------------------
+
+class MeasureDropHandler(DropHandler):
+    """Accept the ``merged`` folder produced by the mask module, or a
+    parent folder that contains one."""
+
+    def can_accept(self, path: Path) -> bool:
+        if not path.is_dir():
+            return False
+        # Direct: dropped `merged` folder itself
+        if path.name == "merged" and has_images_in(path, exts=(".tif", ".tiff", ".npy")):
+            return True
+        # Contains: dropped a plate parent that HAS merged/
+        merged = path / "merged"
+        return merged.is_dir()
+
+    def suggest_alternatives(self, path: Path) -> List[Path]:
+        hits: List[Path] = []
+        # Look for merged/ under nearby folders
+        if path.is_dir():
+            for child in path.iterdir():
+                if child.is_dir() and (child / "merged").is_dir():
+                    hits.append(child / "merged")
+            if path.parent and path.parent.is_dir():
+                for sib in path.parent.iterdir():
+                    if sib.is_dir() and (sib / "merged").is_dir():
+                        hits.append(sib / "merged")
+        return hits
+
+    def error_message(self, path: Path) -> str:
+        return ("Measure needs the ``merged`` folder produced by the "
+                "mask module. Drop the folder called `merged` (or a "
+                "plate folder that contains one).")
+
+    def apply(self, path: Path, screen) -> None:
+        # Normalise: if user dropped the parent, drill into merged/
+        if path.name != "merged" and (path / "merged").is_dir():
+            path = path / "merged"
+        _set_src_on(screen, str(path))
+        _log(screen, f"[drop] measure src = {path}\n")
+
+
+# ---------------------------------------------------------------------------
+# Annotate — expects a measurements DB
+# ---------------------------------------------------------------------------
+
+class AnnotateDropHandler(DropHandler):
+    """Accept a plate folder with ``measurements/measurements.db`` or
+    the .db file itself."""
+
+    def can_accept(self, path: Path) -> bool:
+        if path.is_file() and path.suffix.lower() == ".db":
+            return True
+        if path.is_dir():
+            return (path / "measurements" / "measurements.db").is_file()
+        return False
+
+    def error_message(self, path: Path) -> str:
+        return ("Annotate needs a plate folder that has "
+                "measurements/measurements.db (produced by the "
+                "measure module).")
+
+    def apply(self, path: Path, screen) -> None:
+        # Drop-db: use its containing plate folder as src
+        if path.is_file() and path.suffix.lower() == ".db":
+            path = path.parent.parent
+        _set_src_on(screen, str(path))
+        _log(screen, f"[drop] annotate src = {path}\n")
+
+
+# ---------------------------------------------------------------------------
+# Classify — same DB requirement as annotate, plus optional model dir
+# ---------------------------------------------------------------------------
+
+class ClassifyDropHandler(DropHandler):
+    """Accept a plate folder with ``measurements/measurements.db`` or
+    a folder produced by the annotate step."""
+
+    def can_accept(self, path: Path) -> bool:
+        if not path.is_dir():
+            return False
+        return (path / "measurements" / "measurements.db").is_file() \
+               or (path / "data").is_dir()
+
+    def error_message(self, path: Path) -> str:
+        return ("Classify needs a plate folder with either "
+                "measurements/measurements.db or a data/ subfolder of "
+                "cropped PNGs.")
+
+    def apply(self, path: Path, screen) -> None:
+        _set_src_on(screen, str(path))
+        _log(screen, f"[drop] classify src = {path}\n")
+
+
+# ---------------------------------------------------------------------------
+# Make Masks — image folder, optional companion masks/
+# ---------------------------------------------------------------------------
+
+class MakeMasksDropHandler(DropHandler):
+    """Accept a folder with images (or image+mask pairs)."""
+
+    def can_accept(self, path: Path) -> bool:
+        return path.is_dir() and has_images_in(path)
+
+    def suggest_alternatives(self, path: Path) -> List[Path]:
+        if path.is_dir():
+            return find_image_folders_nearby(path)
+        return []
+
+    def error_message(self, path: Path) -> str:
+        return ("Make Masks needs a folder of images to fine-tune "
+                "Cellpose against.")
+
+    def apply(self, path: Path, screen) -> None:
+        _set_src_on(screen, str(path))
+        _log(screen, f"[drop] make_masks folder = {path}\n")
+
+
+# ---------------------------------------------------------------------------
+# Map Barcodes — fastq file OR folder with fastqs
+# ---------------------------------------------------------------------------
+
+class MapBarcodesDropHandler(DropHandler):
+    """Accept a FASTQ file (``.fastq``/``.fastq.gz``) or a folder
+    containing one."""
+
+    _FQ_EXTS = (".fastq", ".fastq.gz", ".fq", ".fq.gz")
+
+    def can_accept(self, path: Path) -> bool:
+        if path.is_file():
+            name = path.name.lower()
+            return any(name.endswith(x) for x in self._FQ_EXTS)
+        if path.is_dir():
+            for child in path.iterdir():
+                if child.is_file() and any(
+                    child.name.lower().endswith(x) for x in self._FQ_EXTS
+                ):
+                    return True
+        return False
+
+    def error_message(self, path: Path) -> str:
+        return ("Map Barcodes needs a FASTQ file (.fastq / .fastq.gz) "
+                "or a folder that contains one.")
+
+    def apply(self, path: Path, screen) -> None:
+        # If a file: point src at the containing folder + fastq at the file
+        if path.is_file():
+            fq_path = str(path)
+            src_path = str(path.parent)
+        else:
+            src_path = str(path)
+            fq_path = None
+        _set_src_on(screen, src_path)
+        if fq_path and hasattr(screen, "_settings_model"):
+            for key in ("fastq", "fastq_path", "fq"):
+                w = screen._settings_model._widgets.get(key)
+                if w is not None and hasattr(w, "setText"):
+                    w.setText(fq_path); break
+        _log(screen, f"[drop] map_barcodes src = {src_path}\n")
+
+
+# ---------------------------------------------------------------------------
+# Generic "measurements DB" downstream handler — UMAP / ML / regression
+# ---------------------------------------------------------------------------
+
+class MeasurementsDropHandler(DropHandler):
+    """Accept a plate folder containing a measurements DB."""
+
+    def can_accept(self, path: Path) -> bool:
+        if not path.is_dir():
+            return False
+        return (path / "measurements" / "measurements.db").is_file()
+
+    def error_message(self, path: Path) -> str:
+        return ("This module needs a plate folder with "
+                "measurements/measurements.db.")
+
+    def apply(self, path: Path, screen) -> None:
+        _set_src_on(screen, str(path))
+        _log(screen, f"[drop] src = {path}\n")
+
+
+# ---------------------------------------------------------------------------
+# Registry
+# ---------------------------------------------------------------------------
+
+_HANDLERS = {
+    "mask":            MaskDropHandler,
+    "measure":         MeasureDropHandler,
+    "annotate":        AnnotateDropHandler,
+    "classify":        ClassifyDropHandler,
+    "make_masks":      MakeMasksDropHandler,
+    "map_barcodes":    MapBarcodesDropHandler,
+    "umap":            MeasurementsDropHandler,
+    "ml_analyze":      MeasurementsDropHandler,
+    "regression":      MeasurementsDropHandler,
+    "recruitment":     MeasurementsDropHandler,
+    "activation":      MeasurementsDropHandler,
+    "analyze_plaques": MakeMasksDropHandler,      # plaque images
+    "train_cellpose":  MakeMasksDropHandler,      # image + mask pairs
+    "cellpose_masks":  MakeMasksDropHandler,
+    "cellpose_all":    MakeMasksDropHandler,
+}
+
+
+def get_handler(app_key: str) -> DropHandler:
+    """Return a fresh DropHandler for ``app_key``.
+
+    Falls back to :class:`MeasurementsDropHandler` for unknown apps.
+    """
+    cls = _HANDLERS.get(app_key, MeasurementsDropHandler)
+    return cls()
