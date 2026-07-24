@@ -411,45 +411,18 @@ class AppScreen(QWidget):
         layout.setSpacing(SPACING["md"])
 
         # Figures card — hidden until the pipeline pushes a figure via
-        # PipelineWorker.figure_ready. Layout: horizontal strip of
-        # thumbnails on the left (session history), one enlarged
-        # canvas on the right. Clicking a thumbnail promotes it to
-        # the enlarged pane; the vertical stack of canvases above
-        # was pushing everything off-screen once more than 2 figures
-        # arrived.
-        from PySide6.QtWidgets import (
-            QListWidget, QListWidgetItem, QScrollArea as _Scroll,
-            QStackedWidget,
-        )
+        # PipelineWorker.figure_ready. Sits ABOVE the console (like the
+        # live-preview view). The FigureQueue widget owns the thumbnail
+        # strip + zoomable enlarged view + forward/back nav + the
+        # 100-in-RAM / temp-spill memory management. See
+        # spacr.qt.widgets.figure_queue.
+        from ..widgets.figure_queue import FigureQueue
         self._figures_card = Card(title="Figures")
-        fig_row = QHBoxLayout()
-        fig_row.setContentsMargins(0, 0, 0, 0)
-        fig_row.setSpacing(SPACING["sm"])
-
-        # Left: thumbnail strip
-        self._figures_list = QListWidget()
-        self._figures_list.setObjectName("FiguresList")
-        self._figures_list.setFixedWidth(160)
-        self._figures_list.setIconSize(QSize(140, 90))
-        self._figures_list.setSpacing(4)
-        self._figures_list.currentRowChanged.connect(
-            self._on_figure_row_changed
-        )
-        fig_row.addWidget(self._figures_list)
-
-        # Right: stacked canvases — only the selected one is shown.
-        self._figures_stack = QStackedWidget()
-        fig_row.addWidget(self._figures_stack, 1)
-
-        wrap_row = QWidget(); wrap_row.setLayout(fig_row)
-        self._figures_card.body_layout.addWidget(wrap_row, 1)
-        self._figures_card.setMinimumHeight(340)
+        self._figure_queue = FigureQueue(parent=self._figures_card)
+        self._figures_card.body_layout.addWidget(self._figure_queue, 1)
+        self._figures_card.setMinimumHeight(360)
         self._figures_card.hide()
         layout.addWidget(self._figures_card, 1)
-
-        # Bookkeeping — keep figure identities for dedup, plus a Qt
-        # keep-alive for canvases we've swapped out of the stack.
-        self._figure_ids: list = []
 
         # Live-preview segmentation — Mask app only. The card + the
         # console below live in a vertical QSplitter so the user can
@@ -704,6 +677,14 @@ class AppScreen(QWidget):
         self._run_started_at = _time.time()
 
         self._thread, worker = make_thread(entry, settings)
+        # Keep a strong reference to the worker on ``self``. PySide6
+        # does NOT keep a QObject alive through a bound-method signal
+        # connection (thread.started → worker.run), so a local-only
+        # ``worker`` can be garbage-collected before run() fires — the
+        # thread then spins its event loop forever and the pipeline
+        # never starts. Storing it here fixes an intermittent
+        # "pressed Run, nothing happens" hang.
+        self._worker = worker
         worker.line_ready.connect(self._console.append_stdout)
         worker.error.connect(self._on_pipeline_error)
         worker.figure_ready.connect(self._on_figure_ready)
@@ -831,45 +812,39 @@ class AppScreen(QWidget):
         )
 
     def _on_figure_ready(self, fig) -> None:
-        """Embed a matplotlib figure as a new thumbnail + enlarged canvas.
-
-        Duplicates are collapsed (re-draws in-place). New figures
-        auto-promote to the enlarged pane so the user sees each fresh
-        result as it arrives, while older ones stay reachable via the
-        thumbnail strip on the left.
-        """
-        try:
-            from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
-        except Exception:
-            try:
-                from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
-            except Exception:
-                return
-        # Dedup: if we've seen this exact figure, just re-draw its canvas.
-        if id(fig) in self._figure_ids:
-            idx = self._figure_ids.index(id(fig))
-            w = self._figures_stack.widget(idx)
-            if w is not None:
-                w.draw_idle()
-                self._figures_stack.setCurrentIndex(idx)
-                self._figures_list.setCurrentRow(idx)
-            return
-        canvas = FigureCanvasQTAgg(fig)
-        canvas.setMinimumHeight(280)
-        canvas.draw_idle()
-        idx = self._figures_stack.addWidget(canvas)
-        self._figure_ids.append(id(fig))
-        # Build the thumbnail: render figure at low DPI into a QIcon.
-        item = QtGui_QListWidgetItem_helper(fig, idx)
-        self._figures_list.addItem(item)
-        self._figures_list.setCurrentRow(idx)   # jump to latest
-        self._figures_stack.setCurrentIndex(idx)
+        """Hand a matplotlib figure to the FigureQueue, which renders it,
+        thumbnails it, and manages the RAM/temp-spill window. The queue
+        auto-selects the newest figure so the user sees each fresh result
+        as it arrives."""
+        self._figure_queue.add_figure(fig)
         self._figures_card.show()
 
-    def _on_figure_row_changed(self, row: int) -> None:
-        """Swap the enlarged canvas to whichever thumbnail was picked."""
-        if 0 <= row < self._figures_stack.count():
-            self._figures_stack.setCurrentIndex(row)
+    def closeEvent(self, event):
+        """Stop any running pipeline thread before the widget is torn
+        down. Destroying a QWidget while a child QThread is still
+        running aborts the process (this also protects the test suite,
+        where screens are created + destroyed rapidly)."""
+        th = getattr(self, "_thread", None)
+        if th is not None:
+            try:
+                th.requestInterruption()
+                th.quit()
+                # Bounded wait so we don't destroy the widget mid-run,
+                # but only from closeEvent (main thread, not triggered
+                # by the thread's own finished signal — safe here).
+                th.wait(3000)
+            except Exception:
+                pass
+            self._thread = None
+            self._worker = None
+        # Clean up the figure queue's temp dir if present.
+        fq = getattr(self, "_figure_queue", None)
+        if fq is not None:
+            try:
+                fq.clear()
+            except Exception:
+                pass
+        super().closeEvent(event)
 
     def _on_finished(self, ok: bool):
         self._btn_run.setEnabled(True)
@@ -877,7 +852,14 @@ class AppScreen(QWidget):
         self._progress.setVisible(False)
         self._console.append_stdout(
             "✓ Finished\n" if ok else "✗ Failed — see traceback above\n")
+        # Drop our Python references. The thread tears itself down via
+        # the make_thread wiring (worker.finished → thread.quit →
+        # thread.deleteLater), which runs on the next event-loop spin.
+        # Do NOT call thread.wait() here: this slot is triggered by that
+        # very thread's finished signal, and blocking the GUI thread on
+        # thread.wait() from inside it aborts the process.
         self._thread = None
+        self._worker = None
         # OS-level notification (libnotify / osascript / win10toast) so
         # users don't have to sit and watch. Always safe — the notify
         # module fails silently on any error.

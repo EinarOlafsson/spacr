@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import io
 import sys
+import threading
 import traceback
 from typing import Any, Callable, Dict
 
@@ -39,32 +40,41 @@ class _StreamRedirector(io.TextIOBase):
         super().__init__()
         self._buf = ""
         self._on_write = on_write
+        # The worker thread writes via print(); the idle-flush pump
+        # thread calls idle_flush() concurrently. Both mutate _buf, so
+        # every access is guarded — an unlocked race corrupted the
+        # buffer and could crash the interpreter.
+        self._lock = threading.Lock()
 
     def write(self, s: str) -> int:
         if not isinstance(s, str):
             s = str(s)
-        self._buf += s
-        # Emit whole lines eagerly so the UI updates smoothly.
-        while "\n" in self._buf:
-            line, self._buf = self._buf.split("\n", 1)
-            self._safe_emit(line + "\n")
-        # Chunk-cap: whatever is left after full-line drain, if it's
-        # grown suspiciously large, flush it verbatim.
-        if len(self._buf) >= self._MAX_BUF_CHARS:
-            self._safe_emit(self._buf)
-            self._buf = ""
+        with self._lock:
+            self._buf += s
+            emits = []
+            while "\n" in self._buf:
+                line, self._buf = self._buf.split("\n", 1)
+                emits.append(line + "\n")
+            if len(self._buf) >= self._MAX_BUF_CHARS:
+                emits.append(self._buf)
+                self._buf = ""
+        # Emit OUTSIDE the lock so a slow slot can't block the writer.
+        for chunk in emits:
+            self._safe_emit(chunk)
         return len(s)
 
     def flush(self) -> None:
-        if self._buf:
-            self._safe_emit(self._buf)
-            self._buf = ""
+        with self._lock:
+            pending, self._buf = self._buf, ""
+        if pending:
+            self._safe_emit(pending)
 
     def idle_flush(self) -> None:
-        """Emit any pending partial line — safe to call from a QTimer."""
-        if self._buf:
-            self._safe_emit(self._buf)
-            self._buf = ""
+        """Emit any pending partial line — safe to call from the pump."""
+        with self._lock:
+            pending, self._buf = self._buf, ""
+        if pending:
+            self._safe_emit(pending)
 
     def _safe_emit(self, s: str) -> None:
         try:
@@ -104,47 +114,20 @@ class PipelineWorker(QObject):
 
     def run(self) -> None:
         """Invoked by QThread.started; runs the pipeline function to completion."""
-        import threading
-        import time as _time
         old_stdout, old_stderr = sys.stdout, sys.stderr
         redirect = _StreamRedirector(self.line_ready.emit)
         sys.stdout = redirect
         sys.stderr = redirect
 
-        # Idle-flush pump — a daemon thread that flushes the buffered
-        # partial line every 500 ms so the console never sits silent
-        # for more than half a second while the pipeline is chatty. It
-        # also emits a "keepalive" ping every 10 s of complete silence
-        # so the user sees the run is still going. Purely diagnostic —
-        # if this thread dies for any reason the pipeline still runs.
-        stop_pump = threading.Event()
-        last_output = [_time.time()]
-        # Wrap the emit signal so we can tick "last_output" on every
-        # real write. This lets keepalive skip when the pipeline is
-        # already talking on its own.
-        original_write = redirect._safe_emit
-        def _tick_emit(text: str):
-            last_output[0] = _time.time()
-            original_write(text)
-        redirect._safe_emit = _tick_emit  # type: ignore[assignment]
-
-        def _pump():
-            while not stop_pump.is_set():
-                stop_pump.wait(0.5)
-                if stop_pump.is_set():
-                    break
-                try:
-                    redirect.idle_flush()
-                except Exception:
-                    pass
-                now = _time.time()
-                if now - last_output[0] >= 10.0:
-                    stamp = _time.strftime("%H:%M:%S")
-                    _tick_emit(
-                        f"[{stamp}] …still running (no output for 10s)…\n")
-        pump = threading.Thread(
-            target=_pump, name="spacr-worker-pump", daemon=True)
-        pump.start()
+        # NOTE: there used to be a background "idle-flush pump" daemon
+        # thread here that emitted line_ready periodically. It was
+        # removed — emitting a Qt signal from a non-Qt-affinity Python
+        # thread delivered as a DirectConnection and mutated console
+        # widgets off the GUI thread, aborting the process. The real
+        # cause of "pressed Run, nothing happens" was a garbage-collected
+        # worker (see AppScreen._on_run keeping self._worker), not
+        # missing flushes; the redirector's 1024-char chunk-cap already
+        # surfaces long newline-less bursts.
 
         # Intercept matplotlib show() so figures land in the UI instead
         # of a blocking Tk window. `plt.show` gets restored in `finally`.
@@ -176,7 +159,6 @@ class PipelineWorker(QObject):
             tb = traceback.format_exc()
             self.error.emit(tb)
         finally:
-            stop_pump.set()
             try:
                 redirect.flush()
             except Exception:
