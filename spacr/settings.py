@@ -446,9 +446,20 @@ def get_measure_crop_settings(settings=None):
     """
     if settings is None:
         settings = {}
+    # Coerce bracketed strings (e.g. channels "[0,1,2,3]" imported from a CSV) back into
+    # Python lists/tuples. The Qt drag-and-drop settings import reads CSV cells as raw
+    # strings and does not run them through check_settings(), so without this measure_crop
+    # rejects channels / crop_mode / png_size / ... as "not a list". Idempotent: values
+    # that are already lists, or ordinary strings, are left untouched.
+    import ast as _ast
+    for _k, _v in list(settings.items()):
+        if isinstance(_v, str) and _v.strip()[:1] in "[(":
+            try:
+                settings[_k] = _ast.literal_eval(_v)
+            except (ValueError, SyntaxError):
+                pass
     settings.setdefault('src', 'path')
-    settings.setdefault('delete_intermediate', False)
-    
+
     settings.setdefault('verbose', False)
     settings.setdefault('experiment', 'exp')
     
@@ -1593,7 +1604,7 @@ tooltips = {
     "mix": "(dict) - Mixing settings for the samples.",
     "model_name": "(str) - Name of the Cellpose model.",
     "model_type": "(str) - Type of model to use for the analysis.",
-    "model_type_ml": "(str) - Type of model to use for machine learning.",
+    "model_type_ml": "(str) - Classical ML classifier to train on per-object features. One of: xgboost, random_forest, logistic_regression, gradient_boosting.",
     "nc": "(str) - Negative control identifier.",
     "nc_loc": "(str) - Location of the negative control in the images.",
     "negative_control": "(str) - Identifier for the negative control.",
@@ -1886,7 +1897,7 @@ motility_advanced_settings = ['reuse_existing_measurements', 'infection_xgb_min_
                      'infection_pca_tsne_learning_rate_grid', 'infection_pca_umap_n_neighbors','infection_pca_umap_min_dist','infection_pca_tsne_perplexity', 'infection_pca_min_silhouette','infection_pca_min_gt_separation','infection_pca_max_cells']
 
 categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset","model_path","grna_csv","row_csv","column_csv", "metadata_files", "score_data","count_data"],
-             "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel",  "test_mode", "plot", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "delete_intermediate", "uninfected", "organelle_chann_dim", "timelapse"],
+             "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel",  "test_mode", "plot", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "delete_intermediate", "uninfected", "organelle_chann_dim", "timelapse", "model_type_ml"],
              "Cellpose":["fill_in","from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
              "Cell": ["cell_diameter","cell_intensity_range", "cell_size_range", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cytoplasm_min_size", "adjust_cells", "cells", "cell_loc", "cell_max_area", "cell_min_area", "cell_remove_border_objects", "cell_min_intensity_percentile", "cell_max_intensity_percentile", "remove_border_cells","cell_perimeter_fraction","cell_intensity_merge", "cell_intensity_split", "cell_area_multiplier", "cell_min_distance", "cell_min_object_area","cell_intensity_threshold_method","cell_intensity_percentile", ],               
              "Organelle": ["organelle_morphology", "organelle_method", "organelle_diameter", "organelle_min_size", "organelle_max_size", "organelle_remove_border", "summarize_organelles_by", "organelle_max_area", "organelle_min_area", "organelle_remove_border_objects", "organelle_min_intensity_percentile", "organelle_max_intensity_percentile", "organelle_perimeter_fraction", "organelle_intensity_merge", "organelle_intensity_split", "organelle_area_multiplier", "organelle_min_distance", "organelle_min_object_area", "organelle_intensity_threshold_method", "organelle_intensity_percentile", "remove_border_organelles",],
@@ -1912,7 +1923,7 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Annotation": ["filter_column", "filter_value","volcano", "toxo", "controls", "nc_loc", "pc_loc", "nc", "pc", "cell_plate_metadata","treatment_plate_metadata", "metadata_types", "cell_types", "target","positive_control","negative_control", "location_column", "treatment_loc", "channel_of_interest", "measurement", "treatments", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
              "Plot": ["split_axis_lims", "x_lim","log_x","log_y", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","save_figure"],
              "Timelapse": ["fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
-             "Advanced": ["test_images", "random_test", "test_nr", "test", "test_split", "normalize", "target_unique_count","threshold_multiplier", "threshold_method", "min_n","shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type_ml", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs"],
+             "Advanced": ["test_images", "random_test", "test_nr", "test", "test_split", "normalize", "target_unique_count","threshold_multiplier", "threshold_method", "min_n","shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs"],
              "Beta": ["all_to_mip", "upscale", "upscale_factor", "consolidate", "distance_gaussian_sigma","use_sam_pathogen","use_sam_nucleus", "use_sam_cell", "denoise"],
              "Motility (beta)": motility_settings,
              "Motility Advanced (beta)": motility_advanced_settings,
