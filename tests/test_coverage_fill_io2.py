@@ -133,3 +133,51 @@ def test_generate_cellpose_train_test(tmp_path):
         assert (src / "train").exists() or (src / "test").exists() or True
     except Exception as e:
         pytest.skip(f"generate_cellpose_train_test contract differs: {e}")
+
+
+# ---------------------------------------------------------------------------
+# _check_masks
+# ---------------------------------------------------------------------------
+
+def test_check_masks(tmp_path):
+    (tmp_path / "b.npy").write_bytes(b"")   # b already exists → filtered out
+    batch = [np.zeros((4, 4)), np.ones((4, 4)), np.full((4, 4), 2)]
+    names = ["a.npy", "b.npy", "c.npy"]
+    fb, fn = IO._check_masks(batch, names, str(tmp_path))
+    assert fn == ["a.npy", "c.npy"] and len(fb) == 2
+
+
+# ---------------------------------------------------------------------------
+# model-stats CSV + plotting
+# ---------------------------------------------------------------------------
+
+def _stats_df(n=5):
+    rng = np.random.default_rng(0)
+    return pd.DataFrame({
+        "epoch": range(1, n + 1),
+        "accuracy": rng.uniform(0.5, 1, n),
+        "neg_accuracy": rng.uniform(0.5, 1, n),
+        "pos_accuracy": rng.uniform(0.5, 1, n),
+        "loss": rng.uniform(0, 1, n),
+        "prauc": rng.uniform(0.5, 1, n),
+        "optimal_threshold": rng.uniform(0.2, 0.8, n),
+    })
+
+
+def test_read_plot_model_stats(tmp_path):
+    train = tmp_path / "train.csv"; val = tmp_path / "validation.csv"
+    _stats_df().to_csv(train); _stats_df().to_csv(val)
+    IO.read_plot_model_stats(str(train), str(val), save=True)
+    assert list(tmp_path.glob("*.pdf"))
+
+
+def test_save_progress(tmp_path):
+    IO._save_progress(str(tmp_path), _stats_df(), _stats_df())
+    assert (tmp_path / "train.csv").exists()
+    assert (tmp_path / "validation.csv").exists()
+
+
+def test_save_progress_no_validation(tmp_path):
+    IO._save_progress(str(tmp_path), _stats_df(), None)
+    assert (tmp_path / "train.csv").exists()
+    assert not (tmp_path / "validation.csv").exists()
