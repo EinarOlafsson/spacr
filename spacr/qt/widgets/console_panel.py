@@ -380,7 +380,9 @@ class ConsolePanel(QWidget):
     # ------------------------------------------------------------------
     def _build_ui(self):
         outer = QVBoxLayout(self)
-        outer.setContentsMargins(0, 0, 0, 0)
+        # Small inset so content doesn't paint over the panel's rounded corners.
+        outer.setContentsMargins(SPACING["xs"], SPACING["xs"],
+                                 SPACING["xs"], SPACING["xs"])
         outer.setSpacing(0)
 
         # Scroll area of entries
