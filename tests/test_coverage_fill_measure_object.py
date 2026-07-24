@@ -765,3 +765,54 @@ def test_segment_cellpose_sam_no_channels(tmp_path):
             batch, ["a.npy"], _FakeCP(),
             {"nucleus_channel": None, "plot": False},
             "nucleus", str(tmp_path))
+
+
+# ---------------------------------------------------------------------------
+# merge_split_filter_masks
+# ---------------------------------------------------------------------------
+
+def test_merge_split_filter_masks_noop():
+    m = _two_object_mask()
+    # no operation enabled → returns masks unchanged (same object)
+    out = OBJ.merge_split_filter_masks(m, m.astype(float), {}, "cell")
+    assert out is m
+
+
+def test_merge_split_filter_masks_none():
+    out = OBJ.merge_split_filter_masks(
+        None, None, {"cell_min_area": 5}, "cell")
+    assert out is None
+
+
+def test_merge_split_filter_masks_min_area_2d():
+    m = np.zeros((32, 32), dtype=np.int32)
+    m[0, 0] = 1                # tiny → removed by min_area
+    m[10:20, 10:20] = 2        # kept
+    intensity = np.random.default_rng(0).random((32, 32)).astype(np.float32)
+    out = OBJ.merge_split_filter_masks(
+        m, intensity, {"cell_min_area": 5}, "cell")
+    assert isinstance(out, list) and len(out) == 1
+
+
+def test_merge_split_filter_masks_3d_batch():
+    masks = np.stack([_two_object_mask(), _two_object_mask()])
+    intensity = np.random.default_rng(1).random((2, 32, 32)).astype(np.float32)
+    out = OBJ.merge_split_filter_masks(
+        masks, intensity, {"cell_min_area": 3}, "cell",
+        batch_filenames=["a", "b"])
+    assert len(out) == 2
+
+
+def test_merge_split_filter_masks_length_mismatch():
+    masks = [_two_object_mask(), _two_object_mask()]
+    intensity = [np.zeros((32, 32), dtype=np.float32)]   # only 1
+    with pytest.raises(ValueError):
+        OBJ.merge_split_filter_masks(
+            masks, intensity, {"cell_min_area": 3}, "cell")
+
+
+def test_merge_split_filter_masks_bad_ndim():
+    bad = np.zeros((2, 2, 2, 2, 2), dtype=np.int32)   # 5-D masks
+    with pytest.raises(ValueError):
+        OBJ.merge_split_filter_masks(
+            bad, bad, {"cell_min_area": 3}, "cell")
