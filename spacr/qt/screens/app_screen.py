@@ -125,6 +125,26 @@ APP_TITLES = {
 }
 
 
+# Short "what this module does" blurbs shown to the right of the header.
+APP_INTROS = {
+    "mask":            "Segment cells, nuclei, pathogens and organelles with Cellpose and build the merged image+mask arrays.",
+    "measure":         "Extract per-object intensity + morphology features from masks and write them to the measurements database.",
+    "annotate":        "Review single-object image crops on a grid and label them; annotations save back to the database.",
+    "classify":        "Train and test Torch computer-vision models (CNNs / transformers) to classify single-object images.",
+    "ml_analyze":      "Train a classical ML classifier (XGBoost, random forest, …) on per-object features and score every well.",
+    "map_barcodes":    "Map sequencing reads to gRNA barcodes and link them to screen wells.",
+    "regression":      "Regress screen phenotypes against guide/gene effects across plates.",
+    "make_masks":      "Fine-tune a Cellpose model interactively on your own images.",
+    "train_cellpose":  "Train a custom Cellpose model from a labelled dataset.",
+    "cellpose_masks":  "Run a Cellpose model over images to generate masks.",
+    "activation":      "Generate activation / attention maps to see what a trained model focuses on.",
+    "umap":            "Embed single-object images into a UMAP and render the map with image glyphs.",
+    "queue":           "Chain several plates through the same pipeline configuration.",
+    "analyze_plaques": "Detect and quantify plaques in plaque-assay images.",
+    "recruitment":     "Quantify recruitment of a marker to a compartment across conditions.",
+}
+
+
 class AppScreen(QWidget):
     """Generic settings + runtime screen used by every non-interactive app.
 
@@ -155,16 +175,44 @@ class AppScreen(QWidget):
         outer.setSpacing(SPACING["md"])
 
         # ─── Header ───────────────────────────────────────────────────
+        # Title + subtitle on the left; a short "what this does" blurb and a
+        # docs link on the right.
         header = QWidget()
-        header_layout = QVBoxLayout(header)
+        header_layout = QHBoxLayout(header)
         header_layout.setContentsMargins(0, 0, 0, 0)
-        header_layout.setSpacing(2)
+        header_layout.setSpacing(SPACING["lg"])
+
+        title_col = QVBoxLayout()
+        title_col.setContentsMargins(0, 0, 0, 0)
+        title_col.setSpacing(2)
         title = QLabel(APP_TITLES.get(app_key, app_key.title()))
         title.setObjectName("DisplayHeading")
-        header_layout.addWidget(title)
+        title_col.addWidget(title)
         subtitle = QLabel("Configure settings, then press Run.")
         subtitle.setObjectName("Muted")
-        header_layout.addWidget(subtitle)
+        title_col.addWidget(subtitle)
+        header_layout.addLayout(title_col)
+        header_layout.addStretch(1)
+
+        intro_text = APP_INTROS.get(app_key)
+        if intro_text:
+            from ..screens.settings_model import api_docs_url
+            intro_col = QVBoxLayout()
+            intro_col.setContentsMargins(0, 0, 0, 0)
+            intro_col.setSpacing(2)
+            blurb = QLabel(intro_text)
+            blurb.setObjectName("Muted")
+            blurb.setWordWrap(True)
+            blurb.setMaximumWidth(360)
+            blurb.setAlignment(Qt.AlignRight | Qt.AlignTop)
+            intro_col.addWidget(blurb)
+            docs = QLabel(
+                f'<a href="{api_docs_url(app_key)}" '
+                f'style="color:{PALETTE["accent"]};">Docs&nbsp;→</a>')
+            docs.setOpenExternalLinks(True)
+            docs.setAlignment(Qt.AlignRight)
+            intro_col.addWidget(docs)
+            header_layout.addLayout(intro_col)
         outer.addWidget(header)
 
         outer.addWidget(Divider())
