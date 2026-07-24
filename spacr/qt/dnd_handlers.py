@@ -158,9 +158,18 @@ def _report_regex_on_mask(path: Path, screen) -> None:
                  f"       Set metadata_type = 'auto' — spaCR will auto-extract "
                  f"every image (channels/z/fields) from this container into the "
                  f"canonical filename structure on the first Run, and write a "
-                 f"filename_map.csv linking each generated file back to it. "
-                 f"Review the extracted metadata in the run output; re-run with "
-                 f"a custom regex if anything is off.\n")
+                 f"filename_map.csv linking each generated file back to it.\n")
+            # Preview the planned extraction and let the user edit the
+            # plate/well/field/channel assignment before committing.
+            try:
+                from . import ingest_preview as ip
+                rows = ip.plan_container_extraction(desc)
+                if rows:
+                    _log(screen, f"[drop] planned extraction — "
+                                 f"{ip.summarize_rows(rows)}\n")
+                    _open_metadata_table(rows, path.parent, screen)
+            except Exception as e:
+                _log(screen, f"[drop] metadata preview unavailable: {e}\n")
             return
         _log(screen, f"[drop] dropped file {path.name} — unrecognised "
                      f"single-file dataset format.\n")
@@ -268,6 +277,60 @@ def _report_folder_structure(path, screen) -> None:
          "       If your images are organised by folder (e.g. plate/well/"
          "field) rather than by filename, this can be used instead of a "
          "filename regex.\n")
+    # Make the detection actionable: build a preview of how each image would
+    # be named and open the editable metadata table so the user can accept or
+    # correct it, writing a filename_map.csv the pipeline consumes.
+    try:
+        from . import ingest_preview as ip
+        rows = ip.plan_folder_extraction(path)
+        if rows:
+            _log(screen, f"[drop] folder-structure plan — "
+                         f"{ip.summarize_rows(rows)}\n")
+            _open_metadata_table(rows, path, screen)
+    except Exception as e:
+        _log(screen, f"[drop] folder-structure preview unavailable: {e}\n")
+
+
+def _open_metadata_table(rows, dst, screen) -> None:
+    """Open the editable metadata table so the user can review/correct the
+    inferred plate/well/field/channel assignment before extraction.
+
+    On Apply it writes ``filename_map.csv`` into ``dst`` and logs the path.
+    Fails quietly (and never blocks) if Qt/dialog construction is
+    unavailable — e.g. in a headless context.
+    """
+    def _on_apply(csv_path):
+        _log(screen, f"[drop] wrote metadata map → {csv_path}\n")
+
+    try:
+        from .widgets.metadata_table import MetadataTableDialog
+    except Exception:
+        return
+    try:
+        parent = screen if hasattr(screen, "window") else None
+        dlg = MetadataTableDialog(rows, dst, on_apply=_on_apply, parent=parent)
+    except Exception as e:
+        _log(screen, f"[drop] could not open metadata table: {e}\n")
+        return
+    # Show modeless (never exec()) so the drop handler never blocks — a
+    # blocking modal would hang headless/offscreen runs. Keep a reference on
+    # the screen so the dialog isn't garbage-collected while open.
+    try:
+        holder = getattr(screen, "_metadata_dialogs", None)
+        if holder is None:
+            holder = []
+            try:
+                screen._metadata_dialogs = holder
+            except Exception:
+                pass
+        holder.append(dlg)
+        dlg.finished.connect(lambda *_: holder.remove(dlg)
+                             if dlg in holder else None)
+        dlg.setModal(False)
+        dlg.show()
+    except Exception:
+        # Non-interactive / headless — leave the console report in place.
+        pass
 
 
 def _open_regex_editor(filenames: list, initial: str, screen) -> None:
