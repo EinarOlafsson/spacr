@@ -5259,7 +5259,9 @@ def reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, m
                         perplexity=n_neighbors,
                         early_exaggeration=12.0,
                         learning_rate=200.0,
-                        n_iter=1000,
+                        # scikit-learn >=1.5 renamed TSNE's ``n_iter`` to
+                        # ``max_iter``; the old name is a hard error on 1.7+.
+                        max_iter=1000,
                         n_iter_without_progress=300,
                         min_grad_norm=1e-7,
                         metric=metric,

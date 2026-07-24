@@ -79,13 +79,14 @@ def preprocess_generate_masks(settings):
     from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, delete_intermedeate_files, format_path_for_system, normalize_src_path, generate_image_path_map, copy_images_to_consolidated, merge_split_objects
     from .settings import set_default_settings_preprocess_generate_masks, _set_organelle_defaults
 
+    # These previously *constructed* a ValueError without raising it (and then
+    # returned None), silently swallowing bad input despite the docstring
+    # promising a raise. Raise for real.
     if 'src' in settings:
         if not isinstance(settings['src'], (str, list)):
-            ValueError(f'src must be a string or a list of strings')
-            return
+            raise ValueError('src must be a string or a list of strings')
     else:
-        ValueError(f'src is a required parameter')
-        return
+        raise ValueError('src is a required parameter')
 
     settings['src'] = normalize_src_path(settings['src'])
 
