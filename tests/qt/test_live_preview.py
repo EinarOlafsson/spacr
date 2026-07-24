@@ -102,26 +102,24 @@ class TestPureHelpers:
 
 class TestSizeFilter:
     def test_min_size_drops_small(self):
+        # Filtering relabels sequentially (matching the pipeline), so assert
+        # by surviving area/count rather than by original label value.
         mask = np.zeros((16, 16), dtype=np.int32)
         mask[0, 0] = 1                   # 1 px
         mask[5:10, 5:10] = 2             # 25 px
         out = live_preview._apply_size_filter(
             mask, {"cell_min_size": 5}, "cell")
-        assert (out == 1).sum() == 0
-        assert (out == 2).sum() == 25
+        assert (out > 0).sum() == 25     # only the 25 px object remains
+        assert len(np.unique(out)) - 1 == 1
 
     def test_max_size_drops_big(self):
-        mask = np.zeros((16, 16), dtype=np.int32)
-        mask[5:10, 5:10] = 1             # 25 px
-        mask[0:15, 0:15] = 2             # ... wait, overwrites 1
-        # Rebuild cleanly
         mask = np.zeros((16, 16), dtype=np.int32)
         mask[5:10, 5:10] = 1             # 25 px
         mask[0, 15] = 2                  # 1 px
         out = live_preview._apply_size_filter(
             mask, {"cell_max_size": 10}, "cell")
-        assert (out == 1).sum() == 0     # 25 > 10, dropped
-        assert (out == 2).sum() == 1
+        assert (out > 0).sum() == 1      # 25 > 10 dropped, 1 px survives
+        assert len(np.unique(out)) - 1 == 1
 
     def test_no_settings_is_identity(self):
         mask = np.zeros((16, 16), dtype=np.int32); mask[5:10, 5:10] = 1

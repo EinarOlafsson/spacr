@@ -333,8 +333,9 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
             mask = mask[0]
         mask = np.asarray(mask).astype(np.int32)
 
-        # Post-processing — size filter by object type.
-        mask = _apply_size_filter(mask, req.postprocess_settings, obj)
+        # Return the RAW (unfiltered) mask — the panel applies the per-
+        # compartment filters afterwards so the user can re-tune filters
+        # without re-running Cellpose (see LivePreviewPanel._recompute_masks).
         out[obj] = mask
     return out
 
@@ -348,30 +349,50 @@ def _select_channel(image: np.ndarray, ch: int) -> np.ndarray:
 
 def _apply_size_filter(mask: np.ndarray,
                           settings: Dict[str, Any],
-                          obj: str) -> np.ndarray:
-    """Zero out labels smaller than ``{obj}_min_size`` or larger than
-    ``{obj}_max_size`` (both optional). Silently no-op when either
-    setting is missing / non-numeric."""
-    if not settings:
+                          obj: str,
+                          intensity_img: Optional[np.ndarray] = None) -> np.ndarray:
+    """Apply the *same* post-segmentation filters the pipeline uses, so the
+    live preview matches a real run.
+
+    Reads the per-compartment knobs (``{obj}_min_area``, ``{obj}_max_area``,
+    ``{obj}_remove_border_objects``, ``{obj}_min_intensity_percentile``,
+    ``{obj}_max_intensity_percentile``) — the exact keys the compartment
+    panels write — and runs them through :func:`spacr.utils._filter_objects`.
+    Legacy ``{obj}_min_size``/``{obj}_max_size`` are honoured as a fallback.
+    No-ops when nothing is set."""
+    if not settings or mask is None:
         return mask
-    min_key = f"{obj}_min_size"
-    max_key = f"{obj}_max_size"
-    min_size = settings.get(min_key)
-    max_size = settings.get(max_key)
-    if min_size is None and max_size is None:
+
+    def _num(key, default):
+        v = settings.get(key, default)
+        try:
+            return type(default)(v) if v is not None else default
+        except (TypeError, ValueError):
+            return default
+
+    min_area = _num(f"{obj}_min_area", _num(f"{obj}_min_size", 0))
+    max_area = _num(f"{obj}_max_area", _num(f"{obj}_max_size", 0))
+    remove_border = bool(settings.get(f"{obj}_remove_border_objects", False))
+    min_ip = _num(f"{obj}_min_intensity_percentile", 0)
+    max_ip = _num(f"{obj}_max_intensity_percentile", 100)
+
+    if not (min_area > 0 or max_area > 0 or remove_border
+            or min_ip > 0 or max_ip < 100):
         return mask
+
     try:
-        counts = np.bincount(mask.ravel())
-    except TypeError:
+        from spacr.utils import _filter_objects
+        return _filter_objects(
+            mask.astype(np.uint16).copy(),
+            intensity_img=intensity_img,
+            min_area=int(min_area), max_area=int(max_area),
+            remove_border=remove_border,
+            min_intensity_percentile=float(min_ip),
+            max_intensity_percentile=float(max_ip),
+        ).astype(mask.dtype)
+    except Exception:
+        LOG.debug("size filter failed", exc_info=True)
         return mask
-    keep = np.ones_like(counts, dtype=bool)
-    if min_size is not None:
-        keep &= counts >= float(min_size)
-    if max_size is not None:
-        keep &= counts <= float(max_size)
-    keep[0] = True   # never drop background
-    remap = np.where(keep, np.arange(len(counts)), 0)
-    return remap[mask].astype(mask.dtype)
 
 
 # ---------------------------------------------------------------------------
@@ -494,6 +515,7 @@ class LivePreviewPanel(QWidget):
         self._image: Optional[np.ndarray] = None
         self._image_path: Optional[Path] = None
         self._masks: Dict[str, np.ndarray] = {}
+        self._raw_masks: Dict[str, np.ndarray] = {}
         self._settings: Dict[str, Any] = {}
         self._worker: Optional[_PreviewWorker] = None
         self._pre_on = False
@@ -870,6 +892,17 @@ class LivePreviewPanel(QWidget):
                 group[suffix] = _spin(kind, spin_args)
             self._compartment_widgets[comp] = group
 
+        # Re-filter the cached masks live whenever any filter widget changes,
+        # so tuning updates the preview instantly (no Cellpose re-run).
+        for w in self._all_compartment_widgets():
+            for sig_name in ("valueChanged", "currentTextChanged", "toggled"):
+                sig = getattr(w, sig_name, None)
+                if sig is not None:
+                    try:
+                        sig.connect(lambda *_: self._recompute_masks())
+                    except (TypeError, RuntimeError):
+                        pass
+
     def _all_compartment_widgets(self) -> List[QWidget]:
         ws: List[QWidget] = list(self._common_widgets.values())
         ws.append(self._adjust_cells)
@@ -917,8 +950,14 @@ class LivePreviewPanel(QWidget):
             "cell":    self._cell_channel.value(),
             "nucleus": self._nucleus_channel.value(),
         }
-        pre = self._settings if self._pre_on else {}
-        post = self._settings if self._post_on else {}
+        pre = dict(self._settings) if self._pre_on else {}
+        # Always feed the live per-compartment filter values into post-
+        # processing so tuning a filter (e.g. cell min area) updates the
+        # preview masks — independent of the Pre/Post checkboxes, which gate
+        # the pipeline-style pre/post routes.
+        post = dict(self._settings)
+        if hasattr(self, "_compartment_widgets"):
+            post.update(self._compartment_settings())
         return PreviewRequest(
             image=self._image,
             model=self._model_box.currentText(),
@@ -1056,13 +1095,41 @@ class LivePreviewPanel(QWidget):
         if masks is None or not masks or self._image is None:
             self._status.setText("Preview returned no masks.")
             return
-        self._masks = masks
+        # Cache the raw masks so filters can be re-applied live, then filter.
+        self._raw_masks = masks
+        self._recompute_masks(snapshot=True)
+
+    def _obj_channel(self, obj: str) -> int:
+        """Intensity channel index used for a given compartment."""
+        if obj == "cell":
+            return int(self._cell_channel.value())
+        if obj == "nucleus":
+            return int(self._nucleus_channel.value())
+        return 0
+
+    def _recompute_masks(self, snapshot: bool = False) -> None:
+        """Re-apply the current per-compartment filters to the cached raw
+        masks and refresh the views — no Cellpose re-run. Called both after a
+        preview and whenever a filter widget changes."""
+        raw = getattr(self, "_raw_masks", None)
+        if not raw or self._image is None:
+            return
+        post = dict(self._settings)
+        if hasattr(self, "_compartment_widgets"):
+            post.update(self._compartment_settings())
+        out = {}
+        for obj, raw_mask in raw.items():
+            intensity = _select_channel(self._image, self._obj_channel(obj))
+            out[obj] = _apply_size_filter(raw_mask, post, obj,
+                                          intensity_img=intensity)
+        self._masks = out
         counts = [f"{k}={int(v.max() if v.size else 0)}"
-                    for k, v in masks.items()]
+                    for k, v in out.items()]
         self._status.setText(f"Found {', '.join(counts)}.")
         self._refresh_canvases()
-        self._snapshot_run(masks, counts)
-        self.preview_ready.emit(masks)
+        if snapshot:
+            self._snapshot_run(out, counts)
+        self.preview_ready.emit(out)
 
     # -- comparison scrubber ----------------------------------------------
 
