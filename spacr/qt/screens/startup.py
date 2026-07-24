@@ -130,20 +130,12 @@ class StartupPage(QWidget):
 
         # Sticky hint bar — always visible along the bottom, updates
         # on tile hover, reverts to the default when the mouse leaves.
+        # Styled via the app stylesheet (#HintBar) so it renders white and
+        # tracks the font-size preference instead of a fixed 13px.
         self._hint_bar = QLabel(_DEFAULT_HINT)
         self._hint_bar.setObjectName("HintBar")
         self._hint_bar.setAlignment(Qt.AlignHCenter)
         self._hint_bar.setMinimumHeight(36)
-        self._hint_bar.setStyleSheet(
-            "background-color: "
-            f"{PALETTE['surface_alt']};"
-            f"border-top: 1px solid {PALETTE['border_soft']};"
-            "font-family: 'Open Sans', sans-serif;"
-            "font-weight: 300;"
-            "font-size: 13px;"
-            f"color: {PALETTE['fg_muted']};"
-            "padding: 8px 12px;"
-        )
         outer.addWidget(self._hint_bar)
 
     # -- pieces --------------------------------------------------------
@@ -188,20 +180,15 @@ class StartupPage(QWidget):
         row.addWidget(title, alignment=Qt.AlignVCenter)
 
         # RIGHT: subtitle, in the same line rather than stacked below.
+        # Styled via the app stylesheet (#HeroSubtitle) so it renders white
+        # and tracks the font-size preference instead of a fixed 16px.
         subtitle = QLabel(
             "End-to-end microscopy → single-cell measurements "
             "→ genotype-phenotype mapping."
         )
+        subtitle.setObjectName("HeroSubtitle")
         subtitle.setWordWrap(True)
         subtitle.setMinimumWidth(320)
-        subtitle.setStyleSheet(
-            "font-family: 'Open Sans', sans-serif;"
-            "font-weight: 300;"
-            "font-size: 16px;"
-            f"color: {PALETTE['fg_muted']};"
-            "background: transparent;"
-            "padding-left: 8px;"
-        )
         row.addWidget(subtitle, 1, alignment=Qt.AlignVCenter)
 
         return hero
