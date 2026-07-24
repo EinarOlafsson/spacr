@@ -628,6 +628,8 @@ def train_test_model(settings):
             gradient_accumulation_steps=settings['gradient_accumulation_steps'],
             channels=settings['train_channels'],
             num_classes=num_classes,
+            image_size=settings.get('image_size', 224),
+            plot=settings.get('plot', False),
             early_stopping_patience=settings.get('early_stopping_patience', 0),
         )
 
@@ -678,6 +680,38 @@ def train_test_model(settings):
     if settings['test']:
         return result_loc
     
+def _plot_training_curves(train_hist, val_hist, total_epochs=None):
+    """Render live loss + accuracy curves for the training run.
+
+    Emits a fresh matplotlib figure via ``plt.show()`` (captured by the GUI
+    bridge) so the user can watch training progress in real time.
+    """
+    import matplotlib.pyplot as plt
+    if not train_hist:
+        return
+    tr_ep = [d.get('epoch', i + 1) for i, d in enumerate(train_hist)]
+    tr_loss = [d.get('loss', float('nan')) for d in train_hist]
+    tr_acc = [d.get('accuracy', float('nan')) for d in train_hist]
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4))
+    ax1.plot(tr_ep, tr_loss, marker='o', ms=3, color='#4A9EFF', label='train')
+    ax2.plot(tr_ep, tr_acc, marker='o', ms=3, color='#4A9EFF', label='train')
+    if val_hist:
+        v_ep = [d.get('epoch') for d in val_hist]
+        ax1.plot(v_ep, [d.get('loss', float('nan')) for d in val_hist],
+                 marker='s', ms=3, color='#f85149', label='val')
+        ax2.plot(v_ep, [d.get('accuracy', float('nan')) for d in val_hist],
+                 marker='s', ms=3, color='#f85149', label='val')
+    ax1.set_title('Loss'); ax1.set_xlabel('epoch'); ax1.legend(loc='best')
+    ax2.set_title('Accuracy'); ax2.set_xlabel('epoch')
+    ax2.set_ylim(0, 1.02); ax2.legend(loc='best')
+    last = tr_ep[-1] if tr_ep else 0
+    suffix = f' / {total_epochs}' if total_epochs else ''
+    fig.suptitle(f'Training — epoch {last}{suffix}')
+    plt.tight_layout()
+    plt.show()
+
+
 def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.0001,
                 weight_decay=0.05, amsgrad=False, optimizer_type='adamw',
                 use_checkpoint=False, dropout_rate=0, n_jobs=20, val_loaders=None,
@@ -685,6 +719,7 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                 chan_dict=None, schedule=None, loss_type='auto',
                 gradient_accumulation=False, gradient_accumulation_steps=4,
                 channels=None, verbose=False, num_classes=2,
+                image_size=224, plot=False,
                 # add early stopping parameters
                 early_stopping_patience=0,  # 0 = disabled; e.g. 20 = stop after 20 epochs without val improvement
                 ):
@@ -733,7 +768,8 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     )
 
     model = choose_model(model_type, device, init_weights, dropout_rate,
-                         use_checkpoint, verbose=verbose, num_classes=head_dim)
+                         use_checkpoint, verbose=verbose, num_classes=head_dim,
+                         height=image_size, width=image_size)
     if model is None:
         print(f'Model {model_type} not found')
         return
@@ -741,14 +777,34 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     print(f'Loading Model to {device}...')
     model.to(device)
 
-    if optimizer_type == 'adamw':
+    import torch.optim as _optim
+    ot = str(optimizer_type).lower()
+    if ot == 'adamw':
         optimizer = AdamW(model.parameters(), lr=learning_rate, betas=(0.9, 0.999),
                           weight_decay=weight_decay, amsgrad=amsgrad)
-    elif optimizer_type == 'adagrad':
+    elif ot == 'adam':
+        optimizer = _optim.Adam(model.parameters(), lr=learning_rate,
+                                betas=(0.9, 0.999), weight_decay=weight_decay,
+                                amsgrad=amsgrad)
+    elif ot == 'adagrad':
         optimizer = Adagrad(model.parameters(), lr=learning_rate, eps=1e-8,
                             weight_decay=weight_decay)
+    elif ot == 'sgd':
+        optimizer = _optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9,
+                               nesterov=True, weight_decay=weight_decay)
+    elif ot == 'rmsprop':
+        optimizer = _optim.RMSprop(model.parameters(), lr=learning_rate,
+                                   momentum=0.9, weight_decay=weight_decay)
+    elif ot == 'nadam':
+        optimizer = _optim.NAdam(model.parameters(), lr=learning_rate,
+                                 weight_decay=weight_decay)
+    elif ot == 'radam':
+        optimizer = _optim.RAdam(model.parameters(), lr=learning_rate,
+                                 weight_decay=weight_decay)
     else:
-        raise ValueError(f"Unknown optimizer_type: {optimizer_type}")
+        raise ValueError(
+            f"Unknown optimizer_type: {optimizer_type!r}. Choose from: "
+            "adamw, adam, adagrad, sgd, rmsprop, nadam, radam.")
 
     if schedule == 'step_lr':
         scheduler = StepLR(optimizer, step_size=max(1, int(epochs / 5)), gamma=0.75)
@@ -762,6 +818,9 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
         scheduler = None
 
     accumulated_train_dicts, accumulated_val_dicts, accumulated_test_dicts = [], [], []
+    # Full per-epoch history kept for the live training plot (the accumulators
+    # above get consumed/cleared by _save_progress each epoch).
+    live_train_hist, live_val_hist = [], []
 
     # track the best validation accuracy and corresponding model path
     best_val_acc = -1.0
@@ -857,6 +916,18 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                   f"Train Loss: {train_dict.get('loss', float('nan')):.3f}, "
                   f"Train acc.: {train_dict.get('accuracy', float('nan')):.3f}, "
                   f"Train F1(macro): {train_dict.get('f1_macro', float('nan')):.3f}")
+
+        # Live training curves — follow loss/accuracy in real time in the GUI
+        # when plot is enabled. Each epoch emits a fresh figure (the GUI bridge
+        # captures plt.show and routes it to the figure view).
+        if plot:
+            live_train_hist.append(train_dict)
+            if val_dict is not None:
+                live_val_hist.append(val_dict)
+            try:
+                _plot_training_curves(live_train_hist, live_val_hist, epochs)
+            except Exception:
+                pass
 
         if scheduler and schedule in ('step_lr', 'cosine'):
             # FIX: also step cosine scheduler here
