@@ -211,6 +211,13 @@ QMainWindow, QDialog {{
 QLabel {{
     background: transparent;
 }}
+/* Grey out text on disabled widgets (e.g. a live-preview compartment panel
+   that isn't the chosen object) so the label reads as inactive too, not just
+   the field. */
+QLabel:disabled, QCheckBox:disabled, QGroupBox:disabled,
+QGroupBox::title:disabled, QRadioButton:disabled {{
+    color: {P["fg_dim"]};
+}}
 
 /* -----------------------------------------------------------------
  *  Menu bar + menus

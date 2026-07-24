@@ -210,15 +210,43 @@ class FigureQueue(QWidget):
 
     # -- internals ---------------------------------------------------------
 
+    @staticmethod
+    def _style_figure(fig, bg: str, fg: str, text_size: int = 0) -> None:
+        """Recolour a figure's background + all text to (bg, fg), so plots
+        follow the app theme (dark → black bg + white text)."""
+        try:
+            fig.patch.set_facecolor(bg)
+            for ax in fig.get_axes():
+                ax.set_facecolor(bg)
+                for sp in ax.spines.values():
+                    sp.set_color(fg)
+                ax.tick_params(colors=fg)
+                texts = ([ax.title, ax.xaxis.label, ax.yaxis.label]
+                         + ax.get_xticklabels() + ax.get_yticklabels())
+                leg = ax.get_legend()
+                if leg is not None:
+                    texts += list(leg.get_texts())
+                for t in texts:
+                    t.set_color(fg)
+                    if text_size:
+                        t.set_fontsize(text_size)
+        except Exception:
+            pass
+
     def _render_figure(self, fig, png_path: Path) -> Optional[QPixmap]:
         """Save ``fig`` to ``png_path`` (raster, for display) and return a
-        QPixmap of it. Uses a WHITE figure background so plots read the same
-        in dark and light mode, at the user's chosen PNG resolution."""
+        QPixmap of it. The figure background + text follow the app theme
+        (dark → black bg + white text) unless overridden in figure settings."""
         try:
-            from ..preferences import get_figure_png_dpi, get_figure_format
+            from ..preferences import (get_figure_png_dpi, get_figure_format,
+                                       get_figure_colors, get_figure_text_size)
             dpi = get_figure_png_dpi()
+            bg, fg = get_figure_colors()
+            text_size = get_figure_text_size()
         except Exception:
             dpi, get_figure_format = 200, (lambda: "png")
+            bg, fg, text_size = "#ffffff", "#000000", 0
+        self._style_figure(fig, bg, fg, text_size)
         # Cap the DISPLAY raster so a big multi-panel figure at a high DPI can't
         # balloon into a multi-hundred-MB PNG that's slow to decode and blocks
         # the UI. Screen never needs more than ~4000 px on the long side; the
@@ -232,13 +260,13 @@ class FigureQueue(QWidget):
             display_dpi = min(dpi, 200)
         try:
             fig.savefig(str(png_path), dpi=display_dpi, bbox_inches="tight",
-                        facecolor="white")
+                        facecolor=bg)
             # In PDF mode, also drop a vector .pdf next to the raster so the
             # figure-settings button has something editable to work with.
             try:
                 if get_figure_format() == "pdf":
                     fig.savefig(str(Path(png_path).with_suffix(".pdf")),
-                                bbox_inches="tight", facecolor="white")
+                                bbox_inches="tight", facecolor=bg)
             except Exception:
                 pass
         except Exception as e:
@@ -279,14 +307,10 @@ class FigureQueue(QWidget):
         self._pos_label.setText(
             f"{self._current + 1} / {self._count}" if self._count
             else "0 / 0")
-        # The figure-settings button only applies to vector (PDF) figures;
-        # hide it in PNG mode (where the raster can't be restyled).
-        try:
-            from ..preferences import get_figure_format
-            is_pdf = get_figure_format() == "pdf"
-        except Exception:
-            is_pdf = False
-        self._fig_settings_btn.setVisible(is_pdf and self._count > 0)
+        # Figure settings (background/text colour + size) restyle the figure
+        # and re-render, so they apply in both PNG and PDF mode — show whenever
+        # there's a figure to tweak.
+        self._fig_settings_btn.setVisible(self._count > 0)
 
     def _delete_tempdir(self) -> None:
         if self._tempdir is not None:
@@ -326,8 +350,12 @@ class _FigureSettingsDialog(QDialog):
             QFormLayout, QDialogButtonBox, QSpinBox, QPushButton as _QPB)
         form = QFormLayout(self)
 
-        self._bg = "#ffffff"
-        self._fg = "#000000"
+        try:
+            from ..preferences import get_figure_colors, get_figure_text_size
+            self._bg, self._fg = get_figure_colors()
+            _init_size = get_figure_text_size() or 10
+        except Exception:
+            self._bg, self._fg, _init_size = "#ffffff", "#000000", 10
         self._bg_btn = _QPB("Background…")
         self._bg_btn.clicked.connect(lambda: self._pick("_bg", self._bg_btn))
         self._fg_btn = _QPB("Text colour…")
@@ -335,9 +363,12 @@ class _FigureSettingsDialog(QDialog):
         form.addRow("Background", self._bg_btn)
         form.addRow("Text colour", self._fg_btn)
 
+        self._bg_btn.setStyleSheet(f"background-color: {self._bg};")
+        self._fg_btn.setStyleSheet(f"background-color: {self._fg};")
+
         self._size = QSpinBox()
         self._size.setRange(4, 48)
-        self._size.setValue(10)
+        self._size.setValue(int(_init_size))
         form.addRow("Text size", self._size)
 
         bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -354,22 +385,14 @@ class _FigureSettingsDialog(QDialog):
             btn.setStyleSheet(f"background-color: {c.name()};")
 
     def _apply_and_accept(self):
-        """Apply background/text colour + size to every axis of the figure."""
+        """Persist the chosen colours/size (so every figure follows them) and
+        apply them to this figure, then accept — the caller re-renders."""
+        size = int(self._size.value())
         try:
-            fig = self._fig
-            fig.patch.set_facecolor(self._bg)
-            size = int(self._size.value())
-            for ax in fig.get_axes():
-                ax.set_facecolor(self._bg)
-                for txt in ([ax.title, ax.xaxis.label, ax.yaxis.label]
-                            + ax.get_xticklabels() + ax.get_yticklabels()):
-                    txt.set_color(self._fg)
-                    txt.set_fontsize(size)
-                leg = ax.get_legend()
-                if leg is not None:
-                    for t in leg.get_texts():
-                        t.set_color(self._fg)
-                        t.set_fontsize(size)
+            from ..preferences import set_figure_colors, set_figure_text_size
+            set_figure_colors(self._bg, self._fg)
+            set_figure_text_size(size)
         except Exception:
             pass
+        FigureQueue._style_figure(self._fig, self._bg, self._fg, size)
         self.accept()

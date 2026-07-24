@@ -158,12 +158,12 @@ def test_ai_chat_panel_shows_chat_when_cli_installed(qtbot, qt_theme_applied,
 # AppScreen Explain-error wiring
 # ---------------------------------------------------------------------------
 
-def test_app_screen_has_disabled_explain_button(qtbot, qt_theme_applied):
+def test_app_screen_explain_button_removed(qtbot, qt_theme_applied):
+    # The manual "Explain error" button was removed — errors auto-route to AI.
     from spacr.qt.screens.app_screen import AppScreen
     s = AppScreen("mask")
     qtbot.addWidget(s)
-    assert hasattr(s, "_btn_explain")
-    assert not s._btn_explain.isEnabled()
+    assert not hasattr(s, "_btn_explain")
 
 
 def test_app_screen_error_signal_carries_traceback(qtbot, qt_theme_applied):
@@ -171,9 +171,10 @@ def test_app_screen_error_signal_carries_traceback(qtbot, qt_theme_applied):
     s = AppScreen("mask")
     qtbot.addWidget(s)
     s._on_pipeline_error("boom\n  at line 3")
-    assert s._btn_explain.isEnabled()
+    assert s._last_error_text.startswith("boom")
+    # The explain flow is still invokable programmatically.
     with qtbot.waitSignal(s.error_explain_requested, timeout=1000) as blocker:
-        s._btn_explain.click()
+        s._on_explain_error()
     args = blocker.args
     assert "boom" in args[0]
     assert args[1] == "mask"

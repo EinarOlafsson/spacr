@@ -1318,6 +1318,17 @@ class LiveSettingsDialog(QDialog):
 
         self.refresh_visibility()
 
+        # Open wide enough to show the Segmentation panel + all four compartment
+        # panels without the user having to drag the window wider. Clamp to the
+        # available screen so it still fits on small displays (the horizontal
+        # scroll area handles any remaining overflow).
+        try:
+            avail = self.screen().availableGeometry()
+            want = row_host.sizeHint().width() + 48
+            self.resize(min(want, avail.width() - 80), min(760, avail.height() - 80))
+        except Exception:
+            self.resize(1400, 720)
+
     def _on_propagate_toggled(self, on: bool) -> None:
         """Connect/disconnect live→main propagation and do an initial push."""
         for w in self._propagate_sources:
