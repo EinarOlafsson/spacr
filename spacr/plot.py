@@ -1284,7 +1284,7 @@ def _normalize_and_outline(image, remove_background, normalize, normalization_pe
         return [], image, []
 
 
-def _plot_merged_plot(overlay, image, stack, mask_dims, figuresize, overlayed_image, outlines, cmap, outline_colors, print_object_number):
+def _plot_merged_plot(overlay, image, stack, mask_dims, figuresize, overlayed_image, outlines, cmap, outline_colors, print_object_number, mask_names=None):
     
     """
     Plot the merged plot with overlay, image channels, and masks.
@@ -1328,13 +1328,20 @@ def _plot_merged_plot(overlay, image, stack, mask_dims, figuresize, overlayed_im
                 channel_image_rgb[outline == j] = mpl.colors.to_rgb(color)
 
         ax[v + ax_index].imshow(channel_image_rgb)
-        ax[v + ax_index].set_title('Image - Channel'+str(v))
+        # 1-based, human-friendly channel label.
+        ax[v + ax_index].set_title(f'Channel {v + 1}')
 
     for i, mask_dim in enumerate(mask_dims):
         mask = np.take(stack, mask_dim, axis=2)
         random_cmap = _generate_mask_random_cmap(mask)
         ax[i + image.shape[-1] + ax_index].imshow(mask, cmap=random_cmap)
-        ax[i + image.shape[-1] + ax_index].set_title('Mask '+ str(i))
+        # Name the mask by its object class + live object count, e.g.
+        # "Cell Mask - 200 objects".
+        n_obj = int(len(np.unique(mask)) - 1)   # exclude background 0
+        cls = (mask_names[i] if mask_names and i < len(mask_names)
+               else f'Mask {i + 1}')
+        ax[i + image.shape[-1] + ax_index].set_title(
+            f'{cls} - {n_obj} object' + ('' if n_obj == 1 else 's'))
         if print_object_number:
             unique_objects = np.unique(mask)[1:]
             for obj in unique_objects:
@@ -1362,9 +1369,12 @@ def plot_merged(src, settings):
     outline_colors = _get_colours_merged(settings['outline_color'])
     index = 0
         
-    mask_dims = [settings['cell_mask_dim'], settings['nucleus_mask_dim'], settings['pathogen_mask_dim']]
-    mask_dims = [element for element in mask_dims if element is not None]
-    
+    _mask_dim_pairs = [('Cell Mask', settings['cell_mask_dim']),
+                       ('Nucleus Mask', settings['nucleus_mask_dim']),
+                       ('Pathogen Mask', settings['pathogen_mask_dim'])]
+    mask_dims = [dim for _name, dim in _mask_dim_pairs if dim is not None]
+    mask_names = [name for name, dim in _mask_dim_pairs if dim is not None]
+
     if settings['verbose']:
         display(settings)
         
@@ -1402,7 +1412,8 @@ def plot_merged(src, settings):
                                     outlines=outlines,
                                     cmap=settings['cmap'],
                                     outline_colors=outline_colors,
-                                    print_object_number=settings['print_object_number'])
+                                    print_object_number=settings['print_object_number'],
+                                    mask_names=mask_names)
         else:
             return fig
 
