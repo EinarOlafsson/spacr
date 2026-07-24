@@ -2325,20 +2325,26 @@ def ml_analysis(df, channel_of_interest=3, location_column='columnID', positive_
     if verbose:
         permutation_fig.show()
 
-    # Feature importance for models that support it
-    if model_type in ['random_forest', 'xgboost', 'gradient_boosting']:
+    # Feature importance for models that support it. Use hasattr rather than a
+    # hardcoded model list: HistGradientBoostingClassifier (model_type=
+    # 'gradient_boosting') does NOT expose feature_importances_, so the old
+    # list-based check raised AttributeError. Models without the attribute
+    # (e.g. logistic_regression) fall through to the else branch, which must
+    # also define feature_importance_fig or the return raises UnboundLocalError.
+    if hasattr(model, 'feature_importances_'):
         feature_importances = model.feature_importances_
         feature_importance_df = pd.DataFrame({
             'feature': features,
             'importance': feature_importances
         }).sort_values(by='importance', ascending=False).head(top_features)
-        
+
         feature_importance_fig = plot_feature_importance(feature_importance_df)
         if verbose:
             feature_importance_fig.show()
 
     else:
         feature_importance_df = pd.DataFrame()
+        feature_importance_fig = None
 
     df = _calculate_similarity(df, features, location_column, positive_control, negative_control)
 
