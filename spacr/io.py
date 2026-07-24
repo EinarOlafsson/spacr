@@ -1113,8 +1113,12 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
         numpy.ndarray: The normalized stack.
     """
 
+    # Channel indices may arrive as strings (e.g. from a settings CSV);
+    # coerce so ``stack[:, :, :, channel]`` indexing works.
+    channels = [int(c) for c in channels]
+
     normalized_stack = np.zeros_like(stack, dtype=np.float32)
-    
+
     #for channel in range(stack.shape[-1]):
     time_ls = []
     for i, channel in enumerate(channels):
@@ -1209,6 +1213,11 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
         settings = {}
     from .utils import print_progress
     from .plot import plot_arrays
+
+    # Coerce channel indices to int up-front so both the per-batch
+    # normalisation and the ``normalized_stack[..., channels]`` slice work
+    # even when channels came through as strings ('0', '1', ...).
+    channels = [int(c) for c in channels]
 
     """
     Concatenates and normalizes channel data from multiple files and saves the normalized data.
@@ -1695,16 +1704,27 @@ def preprocess_img_data(settings):
     
     mask_channels_raw = [settings.get('nucleus_channel'), settings.get('cell_channel'), settings.get('pathogen_channel'), settings.get('organelle_channel')]
     
-    # Deduplicate while tracking positions
+    # Deduplicate while tracking positions. Coerce to int: channel indices
+    # loaded from a settings CSV (or passed from the GUI) can arrive as
+    # strings like '0', which then blow up array indexing downstream
+    # (stack[:, :, :, '0'] -> IndexError).
     seen = {}
     mask_channels = []
     for ch in mask_channels_raw:
-        if ch is not None and ch not in seen:
+        if ch is None:
+            continue
+        try:
+            ch = int(ch)
+        except (TypeError, ValueError):
+            continue
+        if ch not in seen:
             seen[ch] = len(mask_channels)
             mask_channels.append(ch)
     
     from .settings import set_default_settings_preprocess_img_data
     from .utils import _get_regex, _run_test_mode
+    from .plot import plot_arrays   # used below; import here so the plot step
+                                    # doesn't raise NameError under try/except
     settings = set_default_settings_preprocess_img_data(settings)
 
     regex = _get_regex(settings['metadata_type'], img_format, settings['custom_regex'])
