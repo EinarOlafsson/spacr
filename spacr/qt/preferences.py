@@ -62,9 +62,45 @@ DEFAULT_FONT_SCALE = 1.0
 VALID_CB_MODES = ("off", "deuteranopia", "protanopia", "tritanopia")
 DEFAULT_CB_MODE = "off"
 
+# Figure rendering
+_KEY_FIG_FORMAT = "prefs/figure_format"
+_KEY_FIG_PNG_DPI = "prefs/figure_png_dpi"
+VALID_FIG_FORMATS = ("png", "pdf")
+DEFAULT_FIG_FORMAT = "png"
+VALID_PNG_DPIS = (100, 200, 300, 600, 1200)
+DEFAULT_PNG_DPI = 200
+
 
 def _settings() -> QSettings:
     return QSettings(_ORG, _APP)
+
+
+# ---------------------------------------------------------------------------
+# Figures — display format (png / pdf) + png resolution
+# ---------------------------------------------------------------------------
+
+def get_figure_format() -> str:
+    raw = str(_settings().value(_KEY_FIG_FORMAT, DEFAULT_FIG_FORMAT)).lower()
+    return raw if raw in VALID_FIG_FORMATS else DEFAULT_FIG_FORMAT
+
+
+def set_figure_format(fmt: str) -> None:
+    if fmt not in VALID_FIG_FORMATS:
+        raise ValueError(f"unknown figure format {fmt!r}. "
+                          f"Choose from {VALID_FIG_FORMATS}.")
+    _settings().setValue(_KEY_FIG_FORMAT, fmt)
+
+
+def get_figure_png_dpi() -> int:
+    try:
+        raw = int(_settings().value(_KEY_FIG_PNG_DPI, DEFAULT_PNG_DPI))
+    except (TypeError, ValueError):
+        raw = DEFAULT_PNG_DPI
+    return raw if raw in VALID_PNG_DPIS else DEFAULT_PNG_DPI
+
+
+def set_figure_png_dpi(dpi: int) -> None:
+    _settings().setValue(_KEY_FIG_PNG_DPI, int(dpi))
 
 
 # ---------------------------------------------------------------------------
@@ -327,6 +363,26 @@ class PreferencesDialog:
         verbose_check.setChecked(get_verbose_logging())
         form.addRow("Diagnostics", verbose_check)
 
+        # Figures — display format (png = lighter / faster, pdf = vector +
+        # editable via the figure-settings button) and the PNG resolution.
+        fig_format_combo = QComboBox()
+        fig_format_combo.addItem("PNG (raster, lighter)", "png")
+        fig_format_combo.addItem("PDF (vector, editable)", "pdf")
+        cur_fmt = get_figure_format()
+        for i in range(fig_format_combo.count()):
+            if fig_format_combo.itemData(i) == cur_fmt:
+                fig_format_combo.setCurrentIndex(i); break
+        form.addRow("Figure format", fig_format_combo)
+
+        png_dpi_combo = QComboBox()
+        for dpi in VALID_PNG_DPIS:
+            png_dpi_combo.addItem(f"{dpi} dpi", dpi)
+        cur_dpi = get_figure_png_dpi()
+        for i in range(png_dpi_combo.count()):
+            if png_dpi_combo.itemData(i) == cur_dpi:
+                png_dpi_combo.setCurrentIndex(i); break
+        form.addRow("PNG resolution", png_dpi_combo)
+
         outer.addLayout(form)
 
         preview = QLabel(
@@ -349,6 +405,8 @@ class PreferencesDialog:
             set_font_scale(scale_slider.value() / 100.0)
             set_color_blind_mode(cb_combo.currentData())
             set_verbose_logging(verbose_check.isChecked())
+            set_figure_format(fig_format_combo.currentData())
+            set_figure_png_dpi(png_dpi_combo.currentData())
             apply_preferences_to_app()
             dlg.accept()
 

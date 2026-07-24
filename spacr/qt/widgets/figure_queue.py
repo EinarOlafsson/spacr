@@ -35,7 +35,7 @@ from typing import Dict, List, Optional
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import (
-    QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton,
+    QDialog, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton,
     QVBoxLayout, QWidget,
 )
 
@@ -59,6 +59,9 @@ class FigureQueue(QWidget):
         self._fig_index: Dict[int, int] = {}
         # index -> temp PNG path (every figure has one).
         self._png_paths: Dict[int, str] = {}
+        # index -> matplotlib Figure (kept so the figure-settings dialog can
+        # restyle + re-render it).
+        self._figures: Dict[int, object] = {}
         # LRU cache of index -> full-res QPixmap (capped at ram_cap).
         self._ram: "OrderedDict[int, QPixmap]" = OrderedDict()
         self._tempdir: Optional[Path] = None
@@ -89,18 +92,33 @@ class FigureQueue(QWidget):
         body.addWidget(self._view, 1)
         root.addLayout(body, 1)
 
+        # Navigation is via the thumbnail strip (click a thumbnail) — no
+        # separate Prev/Next buttons. A "Figure settings…" button (shown only
+        # when figures are rendered as PDF/vector) restyles the current figure.
         nav = QHBoxLayout()
-        self._prev_btn = QPushButton("◀ Prev", self)
-        self._prev_btn.clicked.connect(self.show_prev)
-        self._next_btn = QPushButton("Next ▶", self)
-        self._next_btn.clicked.connect(self.show_next)
         self._pos_label = QLabel("0 / 0", self)
         self._pos_label.setAlignment(Qt.AlignCenter)
-        nav.addWidget(self._prev_btn)
+        self._fig_settings_btn = QPushButton("Figure settings…", self)
+        self._fig_settings_btn.clicked.connect(self._open_figure_settings)
         nav.addWidget(self._pos_label, 1)
-        nav.addWidget(self._next_btn)
+        nav.addWidget(self._fig_settings_btn)
         root.addLayout(nav)
         self._refresh_nav()
+
+    def _open_figure_settings(self) -> None:
+        """Open the figure-settings dialog for the current figure."""
+        fig = self._figures.get(self._current)
+        if fig is None:
+            return
+        dlg = _FigureSettingsDialog(fig, self)
+        if dlg.exec():
+            # Re-render the restyled figure in place.
+            png = self._png_paths.get(self._current)
+            if png:
+                pm = self._render_figure(fig, Path(png))
+                if pm is not None:
+                    self._cache_pixmap(self._current, pm)
+                    self._view.set_pixmap(pm)
 
     # -- temp dir ----------------------------------------------------------
 
@@ -123,6 +141,7 @@ class FigureQueue(QWidget):
         idx = self._count
         self._count += 1
         self._fig_index[id(fig)] = idx
+        self._figures[idx] = fig
 
         # Render to a temp PNG (the durable spill copy) + a full-res
         # pixmap for RAM.
@@ -182,6 +201,7 @@ class FigureQueue(QWidget):
         self._ram.clear()
         self._png_paths.clear()
         self._fig_index.clear()
+        self._figures.clear()
         self._count = 0
         self._current = -1
         self._view.set_pixmap(QPixmap())
@@ -191,11 +211,25 @@ class FigureQueue(QWidget):
     # -- internals ---------------------------------------------------------
 
     def _render_figure(self, fig, png_path: Path) -> Optional[QPixmap]:
-        """Save ``fig`` to ``png_path`` and return a QPixmap of it."""
+        """Save ``fig`` to ``png_path`` (raster, for display) and return a
+        QPixmap of it. Uses a WHITE figure background so plots read the same
+        in dark and light mode, at the user's chosen PNG resolution."""
         try:
-            fig.savefig(str(png_path), dpi=110,
-                          bbox_inches="tight",
-                          facecolor=fig.get_facecolor())
+            from ..preferences import get_figure_png_dpi, get_figure_format
+            dpi = get_figure_png_dpi()
+        except Exception:
+            dpi, get_figure_format = 200, (lambda: "png")
+        try:
+            fig.savefig(str(png_path), dpi=dpi, bbox_inches="tight",
+                        facecolor="white")
+            # In PDF mode, also drop a vector .pdf next to the raster so the
+            # figure-settings button has something editable to work with.
+            try:
+                if get_figure_format() == "pdf":
+                    fig.savefig(str(Path(png_path).with_suffix(".pdf")),
+                                bbox_inches="tight", facecolor="white")
+            except Exception:
+                pass
         except Exception as e:
             LOG.info("figure render failed: %s", e)
             return None
@@ -234,8 +268,14 @@ class FigureQueue(QWidget):
         self._pos_label.setText(
             f"{self._current + 1} / {self._count}" if self._count
             else "0 / 0")
-        self._prev_btn.setEnabled(self._current > 0)
-        self._next_btn.setEnabled(0 <= self._current < self._count - 1)
+        # The figure-settings button only applies to vector (PDF) figures;
+        # hide it in PNG mode (where the raster can't be restyled).
+        try:
+            from ..preferences import get_figure_format
+            is_pdf = get_figure_format() == "pdf"
+        except Exception:
+            is_pdf = False
+        self._fig_settings_btn.setVisible(is_pdf and self._count > 0)
 
     def _delete_tempdir(self) -> None:
         if self._tempdir is not None:
@@ -257,3 +297,68 @@ class FigureQueue(QWidget):
             self._delete_tempdir()
         except Exception:
             pass
+
+
+# ---------------------------------------------------------------------------
+# Figure settings dialog — restyle a matplotlib figure (PDF/vector mode)
+# ---------------------------------------------------------------------------
+
+class _FigureSettingsDialog(QDialog):
+    """Adjust a figure's background colour, text colour and text size, then
+    re-render. Only offered for vector (PDF) figures."""
+
+    def __init__(self, fig, parent=None):
+        super().__init__(parent)
+        self._fig = fig
+        self.setWindowTitle("Figure settings")
+        from PySide6.QtWidgets import (
+            QFormLayout, QDialogButtonBox, QSpinBox, QPushButton as _QPB)
+        form = QFormLayout(self)
+
+        self._bg = "#ffffff"
+        self._fg = "#000000"
+        self._bg_btn = _QPB("Background…")
+        self._bg_btn.clicked.connect(lambda: self._pick("_bg", self._bg_btn))
+        self._fg_btn = _QPB("Text colour…")
+        self._fg_btn.clicked.connect(lambda: self._pick("_fg", self._fg_btn))
+        form.addRow("Background", self._bg_btn)
+        form.addRow("Text colour", self._fg_btn)
+
+        self._size = QSpinBox()
+        self._size.setRange(4, 48)
+        self._size.setValue(10)
+        form.addRow("Text size", self._size)
+
+        bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        bb.accepted.connect(self._apply_and_accept)
+        bb.rejected.connect(self.reject)
+        form.addRow(bb)
+
+    def _pick(self, attr, btn):
+        from PySide6.QtWidgets import QColorDialog
+        from PySide6.QtGui import QColor
+        c = QColorDialog.getColor(QColor(getattr(self, attr)), self)
+        if c.isValid():
+            setattr(self, attr, c.name())
+            btn.setStyleSheet(f"background-color: {c.name()};")
+
+    def _apply_and_accept(self):
+        """Apply background/text colour + size to every axis of the figure."""
+        try:
+            fig = self._fig
+            fig.patch.set_facecolor(self._bg)
+            size = int(self._size.value())
+            for ax in fig.get_axes():
+                ax.set_facecolor(self._bg)
+                for txt in ([ax.title, ax.xaxis.label, ax.yaxis.label]
+                            + ax.get_xticklabels() + ax.get_yticklabels()):
+                    txt.set_color(self._fg)
+                    txt.set_fontsize(size)
+                leg = ax.get_legend()
+                if leg is not None:
+                    for t in leg.get_texts():
+                        t.set_color(self._fg)
+                        t.set_fontsize(size)
+        except Exception:
+            pass
+        self.accept()

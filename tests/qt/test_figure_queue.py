@@ -70,20 +70,25 @@ class TestNavigation:
         q.show_next()
         assert q._current == 2
 
-    def test_prev_disabled_at_start(self, qtbot):
+    def test_no_prev_next_buttons(self, qtbot):
+        # Prev/Next buttons were removed — navigation is via the thumbnail
+        # strip (show_index) instead.
         q = FigureQueue()
         qtbot.addWidget(q)
         q.add_figure(_make_fig(0))
-        q.show_index(0)
-        assert not q._prev_btn.isEnabled()
+        assert not hasattr(q, "_prev_btn")
+        assert not hasattr(q, "_next_btn")
+        assert hasattr(q, "_fig_settings_btn")
 
-    def test_next_disabled_at_end(self, qtbot):
+    def test_figure_settings_button_png_hidden(self, qtbot):
+        from spacr.qt import preferences as prefs
+        prefs.set_figure_format("png")
         q = FigureQueue()
         qtbot.addWidget(q)
-        for i in range(2):
-            q.add_figure(_make_fig(i))
-        # newest selected → next disabled
-        assert not q._next_btn.isEnabled()
+        q.add_figure(_make_fig(0))
+        q._refresh_nav()
+        # In PNG mode the figure-settings button is hidden.
+        assert not q._fig_settings_btn.isVisibleTo(q)
 
     def test_position_label(self, qtbot):
         q = FigureQueue()
