@@ -3584,7 +3584,7 @@ def build_loss(loss_type: str = "ce",
             """Closure: compute the selected per-batch loss from ``(logits, target)``."""
             y = _infer_indices(target, num_classes)
             return F.cross_entropy(logits, y, weight=class_weights.to(logits.device))
-    elif lt in ("focal_ce", "focal"):
+    elif lt in ("focal_ce", "focal", "focal_loss"):
         alpha = None
         if focal_alpha is not None:
             alpha = focal_alpha if torch.is_tensor(focal_alpha) else float(focal_alpha)
