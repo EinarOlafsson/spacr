@@ -3703,8 +3703,10 @@ def generate_fraction_map(df, gene_column, min_frequency=0.0):
     independent_variables = independent_variables.drop(columns=[col for col in independent_variables.columns if independent_variables[col].max() < min_frequency])
     independent_variables = independent_variables.drop('sum', axis=1)
     independent_variables.index.name = 'prc'
-    loc = '/mnt/data/CellVoyager/20x/tsg101/crispr_screen/all/measurements/iv.csv'
-    independent_variables.to_csv(loc, index=True, header=True, mode='w')
+    # NOTE: previously this unconditionally wrote the result to a hardcoded
+    # developer-machine path ('/mnt/data/CellVoyager/.../iv.csv'), which raised
+    # for any other environment. Removed — callers persist the returned frame
+    # themselves if they need it.
     return independent_variables
 
 def fishers_odds(df, threshold=0.5, phenotyp_col='mean_pred'):
