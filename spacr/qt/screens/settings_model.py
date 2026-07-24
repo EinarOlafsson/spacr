@@ -85,6 +85,13 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
     return {"src": "path"}
 
 
+# Per-app category suppression. Keys not in a shown category fall into the
+# trailing "Other" section, so the setting stays reachable — only the tab goes.
+_APP_HIDDEN_CATEGORIES: Dict[str, set] = {
+    "classify": {"Cellpose"},
+}
+
+
 def get_categories() -> Dict[str, List[str]]:
     """Return the {category_name: [setting keys]} mapping."""
     from spacr.settings import categories
@@ -221,8 +228,13 @@ class SettingsWidgets:
         # Bucket into sections.
         cats = get_categories()
         used_keys = set()
+        # Categories that don't apply to a given app (e.g. the classify app
+        # trains a Torch model, not Cellpose — so it gets no Cellpose tab).
+        hidden = _APP_HIDDEN_CATEGORIES.get(self.app_key, set())
         sections: List[Tuple[str, List[Tuple[str, QWidget]]]] = []
         for cat_name, keys in cats.items():
+            if cat_name in hidden:
+                continue
             rows: List[Tuple[str, QWidget]] = []
             for k in keys:
                 if k in self._widgets and k not in used_keys:
