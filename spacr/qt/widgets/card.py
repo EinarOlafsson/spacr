@@ -47,6 +47,11 @@ class Card(QFrame):
             outer.addWidget(divider)
 
         self.body = QWidget(self)
+        # The global `QWidget { background: bg }` rule would paint the body
+        # solid black over the card's rounded surface. Make it transparent so
+        # the card colour shows behind the content (bars, etc.).
+        self.body.setObjectName("CardBody")
+        self.body.setStyleSheet("QWidget#CardBody { background: transparent; }")
         self.body_layout = QVBoxLayout(self.body)
         self.body_layout.setContentsMargins(0, 0, 0, 0)
         self.body_layout.setSpacing(SPACING["sm"])

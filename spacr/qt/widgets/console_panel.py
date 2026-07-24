@@ -39,6 +39,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QScrollArea,
     QSizePolicy,
+    QSpinBox,
     QTextEdit,
     QVBoxLayout,
     QWidget,
@@ -385,11 +386,20 @@ class ConsolePanel(QWidget):
     # ------------------------------------------------------------------
     def _build_ui(self):
         outer = QVBoxLayout(self)
-        # Inset content by the corner radius so entries don't paint over the
-        # panel's rounded corners (which is what made them look square).
+        # The panel itself is transparent (see theme QSS) — the rounded box is
+        # the ConsoleBox frame below, so the AI chat input can sit UNDER it as
+        # a separate, edge-aligned row rather than inside the box.
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.setSpacing(SPACING["sm"])
+
+        # Console box — a rounded surface frame that wraps ONLY the scrolling
+        # output. QFrame paints its QSS background/border/radius natively.
+        self._console_box = QFrame()
+        self._console_box.setObjectName("ConsoleBox")
+        box_lay = QVBoxLayout(self._console_box)
         inset = SPACING["sm"]
-        outer.setContentsMargins(inset, inset, inset, inset)
-        outer.setSpacing(0)
+        box_lay.setContentsMargins(inset, inset, inset, inset)
+        box_lay.setSpacing(0)
 
         # Scroll area of entries
         self._scroll = QScrollArea()
@@ -397,7 +407,7 @@ class ConsolePanel(QWidget):
         self._scroll.setWidgetResizable(True)
         self._scroll.setFrameShape(QScrollArea.NoFrame)
         # The viewport paints its own background — make it transparent too so
-        # the panel's rounded surface shows through at the corners.
+        # the box's rounded surface shows through at the corners.
         self._scroll.viewport().setStyleSheet("background: transparent;")
         self._scroll.setStyleSheet("background: transparent;")
         # Never show a horizontal scrollbar — content that doesn't fit
@@ -408,30 +418,52 @@ class ConsolePanel(QWidget):
         self._holder.setStyleSheet("background: transparent;")
         self._entries = QVBoxLayout(self._holder)
         self._entries.setContentsMargins(0, 0, 0, 0)
-        self._entries.setSpacing(0)
+        # A little breathing room between console entries.
+        self._entries.setSpacing(SPACING["xs"])
         self._entries.addStretch(1)
         self._scroll.setWidget(self._holder)
-        outer.addWidget(self._scroll, 1)
+        box_lay.addWidget(self._scroll, 1)
+        outer.addWidget(self._console_box, 1)
 
-        # Input row — just a text field, no Send button. Users press
-        # Enter to submit. AI on/off toggle + provider selector live
-        # in the AppScreen actions row (bottom-right of the screen),
-        # not here.
-        input_bar = QFrame()
-        input_bar.setObjectName("ConsoleInputBar")
-        row = QHBoxLayout(input_bar)
-        row.setContentsMargins(SPACING["md"], SPACING["sm"],
-                                SPACING["md"], SPACING["sm"])
+        # AI chat input — a separate row UNDER the console box (not inside it),
+        # borderless wrapper so only the text field's own box shows, edges
+        # flush with the console + system boxes. AI on/off toggle + provider
+        # selector live in the AppScreen actions row.
+        input_row = QWidget()
+        row = QHBoxLayout(input_row)
+        row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(SPACING["sm"])
 
         self._input = _ChatInput()
+        self._input.setObjectName("ConsoleChatInput")
         self._input.setPlaceholderText(
             "Type here and hit Enter…  (toggle AI at the bottom-right "
             "to route through your chat subscription)"
         )
         self._input.submitted.connect(self._on_submit)
         row.addWidget(self._input, 1)
-        outer.addWidget(input_bar)
+        outer.addWidget(input_row)
+
+        # Console font-size control — its own right-aligned row below the input
+        # so the text box stays full width, flush with the console + system
+        # boxes. Adjusts every stdout/AI entry live.
+        self._font_pt = int(QFontDatabase.systemFont(
+            QFontDatabase.FixedFont).pointSize()) or 10
+        font_row = QWidget()
+        frow = QHBoxLayout(font_row)
+        frow.setContentsMargins(0, 0, 0, 0)
+        frow.addStretch(1)
+        font_lbl = QLabel("Font size")
+        font_lbl.setObjectName("Muted")
+        frow.addWidget(font_lbl)
+        self._font_spin = QSpinBox()
+        self._font_spin.setRange(7, 22)
+        self._font_spin.setValue(self._font_pt)
+        self._font_spin.setToolTip("Console font size")
+        self._font_spin.setFixedWidth(56)
+        self._font_spin.valueChanged.connect(self.set_console_font_pt)
+        frow.addWidget(self._font_spin)
+        outer.addWidget(font_row)
 
         # AppScreen creates + owns the AI toggle/provider menu and calls
         # our setters when they change. Panel-internal state stays here
@@ -440,12 +472,31 @@ class ConsolePanel(QWidget):
         self._current_provider_name: Optional[str] = None
 
     # ------------------------------------------------------------------
+    # Font size
+    # ------------------------------------------------------------------
+    def set_console_font_pt(self, pt: int) -> None:
+        """Set the console font size and apply it to every existing entry."""
+        self._font_pt = int(pt)
+        for lbl in self._holder.findChildren(QLabel):
+            f = lbl.font()
+            f.setPointSize(self._font_pt)
+            lbl.setFont(f)
+
+    def _apply_font(self, w: QWidget) -> None:
+        """Apply the current console font size to a newly-created entry."""
+        for lbl in ([w] if isinstance(w, QLabel) else w.findChildren(QLabel)):
+            f = lbl.font()
+            f.setPointSize(getattr(self, "_font_pt", 10))
+            lbl.setFont(f)
+
+    # ------------------------------------------------------------------
     # Entry-management helpers
     # ------------------------------------------------------------------
     def _insert_entry(self, w: QWidget) -> None:
         """Every entry — topic bar, stdout block, chat bubble — spans
         the full width of the console. Bubbles no longer get a
         horizontal offset row."""
+        self._apply_font(w)
         self._entries.insertWidget(self._entries.count() - 1, w)
         self._scroll_to_bottom()
 

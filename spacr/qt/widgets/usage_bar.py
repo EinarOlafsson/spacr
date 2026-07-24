@@ -15,6 +15,12 @@ class UsageBar(QWidget):
 
     def __init__(self, label: str, parent=None):
         super().__init__(parent)
+        # The global `QWidget { background: bg }` rule would otherwise paint
+        # this row solid black inside the System card. Make the row itself
+        # transparent so the card's dark-gray surface shows around the bar.
+        self.setObjectName("UsageBarRow")
+        self.setAttribute(Qt.WA_StyledBackground, True)
+        self.setStyleSheet("QWidget#UsageBarRow { background: transparent; }")
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(SPACING["sm"])
