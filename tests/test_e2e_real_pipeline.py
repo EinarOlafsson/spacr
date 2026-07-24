@@ -186,6 +186,46 @@ def test_stage4_sequencing_chunk(pipeline, tmp_path):
 # ---------------------------------------------------------------------------
 
 @_skip
+def test_stage6_core_umap_and_graphs(pipeline):
+    """Exercise core's other three entry points on the real measurement DB:
+    generate_image_umap, reducer_hyperparameter_search, generate_screen_graphs."""
+    from spacr.core import (generate_image_umap,
+                            reducer_hyperparameter_search,
+                            generate_screen_graphs)
+    plate = pipeline["src"]
+    umap_s = dict(
+        src=plate, tables=['cell', 'nucleus', 'pathogen', 'cytoplasm'],
+        visualize='cell', image_nr=4, dot_size=10, n_neighbors=15,
+        min_dist=0.1, metric='euclidean', eps=0.5, min_samples=5,
+        filter_by='channel_0', img_zoom=0.3, plot_by_cluster=False,
+        plot_cluster_grids=False, remove_cluster_noise=False,
+        remove_highly_correlated=True, log_data=False, black_background=True,
+        remove_image_canvas=False, plot_outlines=False, plot_points=True,
+        smooth_lines=False, clustering='dbscan', reduction_method='umap',
+        save_figure=False, row_limit=200, color_by=None, exclude=None,
+        plot_images=False, embedding_by_controls=False,
+        col_to_compare='columnID', pos='c2', neg='c1', figuresize=10,
+        verbose=False, resnet_features=False, channel_of_interest=3,
+        mix_metadata=False, analyze_clusters=False, cell_min_size=0,
+        nucleus_min_size=0, pathogen_min_size=0, cytoplasm_min_size=0,
+        min_cell_count=0, nuclei_limit=True, pathogen_limit=True)
+    generate_image_umap(umap_s)
+    reducer_hyperparameter_search(
+        umap_s, reduction_params=[{'n_neighbors': 15}],
+        dbscan_params=[{'eps': 0.5, 'min_samples': 5}],
+        kmeans_params=[{'n_clusters': 3}], save=False, show=False)
+
+    graph_s = dict(
+        src=plate, tables=['cell', 'nucleus', 'pathogen', 'cytoplasm'],
+        cells=['HeLa'], cell_loc=[['c1', 'c2']], controls=['c1', 'c2'],
+        controls_loc=[['c1'], ['c2']], graph_type='bar', summary_func='mean',
+        y_axis_start=0, error_bar_type='std', theme='pastel',
+        representation='well', nuclei_limit=True, pathogen_limit=True,
+        channel_of_interest=3, verbose=False, graph_name='screen')
+    generate_screen_graphs(graph_s)
+
+
+@_skip
 def test_stage5_toxo_on_scores(pipeline, tmp_path):
     from spacr import toxo as T
 
