@@ -53,13 +53,47 @@ from ..theme import FONT_SIZE, PALETTE, SPACING
 
 
 # ---------------------------------------------------------------------------
+# Console text colours (per the output type) — we colour the *text*, not the
+# background, so there are no coloured boxes.
+# ---------------------------------------------------------------------------
+
+COLOR_OUTPUT = PALETTE["accent"]    # spaCR output  → blue   (#4A9EFF)
+COLOR_USER   = PALETTE["success"]   # user input    → green  (#3fb950)
+COLOR_ERROR  = PALETTE["error"]     # errors        → red    (#f85149)
+
+# spaCR AI text colour depends on the backing provider.
+AI_COLOR_CLAUDE = "#DE7356"         # Anthropic terracotta / peach
+AI_COLOR_OPENAI = "#74AA9C"         # OpenAI signature green
+AI_COLOR_GEMINI = "#74AA9C"         # Gemini — same green as requested
+AI_COLOR_DEFAULT = "#74AA9C"
+
+
+def ai_color_for_provider(provider_name: Optional[str]) -> str:
+    """Return the spaCR-AI text colour for a provider name."""
+    p = (provider_name or "").lower()
+    if "claude" in p or "anthropic" in p:
+        return AI_COLOR_CLAUDE
+    if "gpt" in p or "openai" in p or "chatgpt" in p:
+        return AI_COLOR_OPENAI
+    if "gemini" in p or "google" in p:
+        return AI_COLOR_GEMINI
+    return AI_COLOR_DEFAULT
+
+
+# ---------------------------------------------------------------------------
 # Divider bar with a topic label
 # ---------------------------------------------------------------------------
 
 class _TopicBar(QFrame):
-    """Dark-gray divider bar with a topic label ("Mask", "spaCR AI", …)."""
+    """Dark-gray divider bar with a topic label ("spaCR output — …", …).
 
-    def __init__(self, label: str, parent=None):
+    An optional ``accent`` colour tints the label so each banner reads in
+    the same colour as the text that follows it. A trailing ``widget`` (e.g.
+    an animated working indicator) can be pinned to the right.
+    """
+
+    def __init__(self, label: str, parent=None, accent: Optional[str] = None,
+                 trailing: Optional[QWidget] = None):
         super().__init__(parent)
         self.setObjectName("ConsoleTopicBar")
         lay = QHBoxLayout(self)
@@ -67,8 +101,64 @@ class _TopicBar(QFrame):
                                 SPACING["md"], SPACING["xs"])
         self._label = QLabel(label)
         self._label.setObjectName("ConsoleTopicLabel")
+        if accent:
+            self._label.setStyleSheet(
+                f"QLabel#ConsoleTopicLabel {{ color: {accent}; "
+                "background: transparent; }")
         lay.addWidget(self._label)
+        if trailing is not None:
+            lay.addWidget(trailing)
         lay.addStretch(1)
+
+
+# ---------------------------------------------------------------------------
+# Animated "working" indicator — three dots cycling in AI colour
+# ---------------------------------------------------------------------------
+
+class _WorkingDots(QLabel):
+    """Three dots that cycle (. → .. → ...) to show work is in progress."""
+
+    def __init__(self, color: str = AI_COLOR_DEFAULT, parent=None):
+        super().__init__(parent)
+        self.setObjectName("ConsoleWorkingDots")
+        self._color = color
+        self._n = 0
+        self.setStyleSheet(
+            f"QLabel#ConsoleWorkingDots {{ color: {color}; "
+            f"font-size: {FONT_SIZE['body']}px; font-weight: 700; "
+            "background: transparent; }")
+        from PySide6.QtCore import QTimer
+        self._timer = QTimer(self)
+        self._timer.setInterval(350)
+        self._timer.timeout.connect(self._tick)
+        self._render()
+
+    def set_color(self, color: str) -> None:
+        self._color = color
+        self.setStyleSheet(
+            f"QLabel#ConsoleWorkingDots {{ color: {color}; "
+            f"font-size: {FONT_SIZE['body']}px; font-weight: 700; "
+            "background: transparent; }")
+
+    def _render(self) -> None:
+        # Fixed-width so the row doesn't jitter as the count changes.
+        dots = "●" * (self._n + 1)
+        pad = " " * (2 - self._n)   # keep three glyph-slots wide
+        self.setText(dots + pad)
+
+    def _tick(self) -> None:
+        self._n = (self._n + 1) % 3
+        self._render()
+
+    def start(self) -> None:
+        self._n = 0
+        self._render()
+        self._timer.start()
+        self.show()
+
+    def stop(self) -> None:
+        self._timer.stop()
+        self.hide()
 
 
 # ---------------------------------------------------------------------------
@@ -82,7 +172,8 @@ class _StdoutBlock(QLabel):
     not fragment the console into one QLabel per line.
     """
 
-    def __init__(self, text: str = "", error: bool = False, parent=None):
+    def __init__(self, text: str = "", error: bool = False, parent=None,
+                 text_color: Optional[str] = None):
         super().__init__(parent)
         self.setObjectName("ConsoleStdoutBlockError"
                             if error else "ConsoleStdoutBlock")
@@ -91,6 +182,16 @@ class _StdoutBlock(QLabel):
         self.setWordWrap(True)
         mono = QFontDatabase.systemFont(QFontDatabase.FixedFont)
         self.setFont(mono)
+        # Colour the TEXT (not a coloured box): each output type gets its own
+        # foreground colour while the block background stays neutral.
+        if text_color is None:
+            text_color = COLOR_ERROR if error else COLOR_OUTPUT
+        self.setStyleSheet(
+            "QLabel#%s { color: %s; background-color: %s; "
+            "font-family: 'JetBrains Mono','Menlo','Consolas',monospace; "
+            "padding: %dpx %dpx; }" % (
+                self.objectName(), text_color, PALETTE["surface_alt"],
+                SPACING["sm"], SPACING["md"]))
         self._buf: List[str] = []
         if text:
             self.append(text)
@@ -248,8 +349,13 @@ class ConsolePanel(QWidget):
         super().__init__(parent)
         self.setObjectName("ConsolePanel")
         self._active_app_label = active_app_label or ""
-        self._last_entry_kind: str = ""   # "stdout" | "ai" | ""
+        # Module + function the current pipeline output is coming from, shown
+        # in the "spaCR output — <module> — <function>" banner.
+        self._run_module: str = ""
+        self._run_function: str = ""
+        self._last_entry_kind: str = ""   # "stdout" | "ai" | "user" | ""
         self._current_stdout: Optional[_StdoutBlock] = None
+        self._working_dots: Optional[_WorkingDots] = None
         self._ai_messages: List[Dict] = []
         self._ai_buf: List[str] = []
         self._ai_thread: Optional[QThread] = None
@@ -344,27 +450,42 @@ class ConsolePanel(QWidget):
         """Set the label used in the next auto-inserted topic divider."""
         self._active_app_label = label
 
-    def begin_topic(self, label: str) -> None:
-        """Insert a divider bar labeled `label` (e.g. 'Mask'). Callers
-        can force a new section this way. AI content NEVER uses this
-        — AI replies flow inline in the same stdout block."""
-        self._insert_entry(_TopicBar(label))
+    def set_run_context(self, module: str = "", function: str = "") -> None:
+        """Record the module/function the pipeline output comes from.
+
+        Shown in the "spaCR output — <module> — <function>" banner so users
+        can see the source of the output at a glance.
+        """
+        self._run_module = module or ""
+        self._run_function = function or ""
+
+    def _output_banner(self, head: str) -> str:
+        """Build a banner like 'spaCR output — mask — preprocess_generate_masks'."""
+        parts = [head]
+        mod = self._run_module or self._active_app_label
+        if mod:
+            parts.append(str(mod))
+        if self._run_function:
+            parts.append(str(self._run_function))
+        return "  —  ".join(parts)
+
+    def begin_topic(self, label: str, accent: Optional[str] = None,
+                    trailing: Optional[QWidget] = None) -> None:
+        """Insert a divider bar labeled `label` (e.g. 'spaCR output — …')."""
+        self._insert_entry(_TopicBar(label, accent=accent, trailing=trailing))
         self._last_entry_kind = ""    # force next append to open a block
         self._current_stdout = None
 
     def append_stdout(self, text: str) -> None:
-        """Append pipeline output. Opens a fresh stdout block (with a
-        topic divider) at the very first stdout of a session; opens a
-        divider-less block after a bubble breaks the flow."""
+        """Append pipeline output as blue text under a 'spaCR output' banner."""
         if not text:
             return
         if self._current_stdout is None:
-            # First-ever stdout: show a topic divider once. Subsequent
-            # bubble-broken flows just get a fresh block without a
-            # divider, so the AI reply feels like inline console output.
-            if self._last_entry_kind == "":
-                self.begin_topic(self._active_app_label or "Pipeline")
-            self._current_stdout = _StdoutBlock()
+            # Open a "spaCR output — <module> — <function>" banner + a fresh
+            # blue-text block. Reused until a different entry type breaks it.
+            self.begin_topic(self._output_banner("spaCR output"),
+                             accent=COLOR_OUTPUT)
+            self._current_stdout = _StdoutBlock(text_color=COLOR_OUTPUT)
             self._insert_entry(self._current_stdout)
             self._last_entry_kind = "stdout"
         self._current_stdout.append(text)
@@ -380,14 +501,15 @@ class ConsolePanel(QWidget):
             self.append_stdout(text)
 
     def append_error(self, tb: str) -> None:
-        """Append a red-tinted error block, prefixed with an ERROR topic bar.
+        """Append red error text under a 'spaCR ERROR — <module> — <function>'
+        banner.
 
         :param tb: traceback text; empty strings are ignored.
         """
         if not tb:
             return
-        self.begin_topic(f"{self._active_app_label or 'Pipeline'} — ERROR")
-        block = _StdoutBlock(tb, error=True)
+        self.begin_topic(self._output_banner("spaCR ERROR"), accent=COLOR_ERROR)
+        block = _StdoutBlock(tb, error=True, text_color=COLOR_ERROR)
         self._insert_entry(block)
         self._last_entry_kind = "stdout"
 
@@ -431,12 +553,16 @@ class ConsolePanel(QWidget):
         if self._ai_active:
             self._send_to_ai(text)
         else:
-            # Local note — a green "user:" bubble, no AI reply.
-            self._insert_entry(_Bubble("user", text))
-            # Bubble breaks the current stdout block — next stdout
-            # opens a fresh one below the bubble.
-            self._current_stdout = None
-            self._last_entry_kind = "bubble"
+            # Local note — green "spaCR user" text under its own banner.
+            self._append_user(text)
+
+    def _append_user(self, text: str) -> None:
+        """Insert a 'spaCR user' banner + green user text."""
+        self.begin_topic("spaCR user", accent=COLOR_USER)
+        block = _StdoutBlock(text, text_color=COLOR_USER)
+        self._insert_entry(block)
+        self._current_stdout = None
+        self._last_entry_kind = "user"
 
     def _send_to_ai(self, text: str) -> None:
         provider = self._current_provider()
@@ -450,14 +576,19 @@ class ConsolePanel(QWidget):
             # actions row exposes the Cancel button, not us.
             return
         self._ai_messages.append({"role": "user", "content": text})
-        # User message as a green bubble
-        self._insert_entry(_Bubble("user", text))
-        # Bubble breaks the current stdout block — force a fresh one
-        # below the bubble for the AI's reply.
-        self._current_stdout = None
-        self._last_entry_kind = "bubble"
-        self._ensure_stdout_block()
-        self._current_stdout.append("spaCR AI: ")
+        # User message — green "spaCR user" text.
+        self._append_user(text)
+        # AI reply — a "spaCR AI" banner tinted in the provider colour, with a
+        # three-dot working indicator that cycles until the stream finishes,
+        # followed by the reply text in the same provider colour.
+        ai_color = ai_color_for_provider(self._current_provider_name)
+        self._working_dots = _WorkingDots(color=ai_color)
+        self.begin_topic("spaCR AI", accent=ai_color,
+                         trailing=self._working_dots)
+        self._working_dots.start()
+        self._current_stdout = _StdoutBlock(text_color=ai_color)
+        self._insert_entry(self._current_stdout)
+        self._last_entry_kind = "ai"
         self._start_stream(system=ai_settings.get_system_prompt())
 
     def _ensure_stdout_block(self) -> None:
@@ -573,9 +704,13 @@ class ConsolePanel(QWidget):
 
     def _on_chunk(self, chunk: str) -> None:
         self._ai_buf.append(chunk)
-        # AI reply flows into the same stdout block as pipeline output
-        # (no separate section — user asked for this).
-        self._ensure_stdout_block()
+        # Stream into the provider-coloured AI block created in _send_to_ai.
+        # Guard in case it was cleared (open_error_flow uses its own path).
+        if self._current_stdout is None or self._last_entry_kind != "ai":
+            ai_color = ai_color_for_provider(self._current_provider_name)
+            self._current_stdout = _StdoutBlock(text_color=ai_color)
+            self._insert_entry(self._current_stdout)
+            self._last_entry_kind = "ai"
         self._current_stdout.append(chunk)
         self._scroll_to_bottom()
 
@@ -586,6 +721,10 @@ class ConsolePanel(QWidget):
         # Prune already-dead entries on the way in so the list can't
         # grow unbounded across a long session.
         self._prune_retired()
+        # Stop the cycling working dots — the stream is done.
+        if self._working_dots is not None:
+            self._working_dots.stop()
+            self._working_dots = None
         thread, worker = self._ai_thread, self._ai_worker
         self._ai_thread = None
         self._ai_worker = None
@@ -628,9 +767,14 @@ class ConsolePanel(QWidget):
             traceback_text, active_app or self._active_app_label
         )
         self._ai_messages.append({"role": "user", "content": prompt})
-        self._insert_entry(_Bubble("user", prompt))
-        self._current_stdout = None
-        self._last_entry_kind = "bubble"
-        self._ensure_stdout_block()
-        self._current_stdout.append("spaCR AI: ")
+        self._append_user(prompt)
+        # AI reply with provider colour + cycling working dots.
+        ai_color = ai_color_for_provider(self._current_provider_name)
+        self._working_dots = _WorkingDots(color=ai_color)
+        self.begin_topic("spaCR AI", accent=ai_color,
+                         trailing=self._working_dots)
+        self._working_dots.start()
+        self._current_stdout = _StdoutBlock(text_color=ai_color)
+        self._insert_entry(self._current_stdout)
+        self._last_entry_kind = "ai"
         self._start_stream(system=error_explainer_prompt())
