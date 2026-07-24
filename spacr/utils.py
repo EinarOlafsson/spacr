@@ -1130,9 +1130,17 @@ def save_settings(settings, name='settings', show=False):
         display(settings_df)
 
     settings_csv = os.path.join(src,'settings',f'{name}.csv')
-    os.makedirs(os.path.join(src,'settings'), exist_ok=True)
-    print(f"Saving settings to {settings_csv}")
-    settings_df.to_csv(settings_csv, index=False)
+    # Persisting settings is a best-effort side effect — it must never crash the
+    # pipeline. A src that is missing / read-only / owned by another user
+    # (e.g. a settings CSV carried over from another machine) would otherwise
+    # raise PermissionError/OSError from makedirs and abort the whole run.
+    try:
+        os.makedirs(os.path.join(src,'settings'), exist_ok=True)
+        print(f"Saving settings to {settings_csv}")
+        settings_df.to_csv(settings_csv, index=False)
+    except (OSError, PermissionError) as e:
+        print(f"Warning: could not save settings to {settings_csv}: {e}. "
+              f"Continuing without writing the settings copy.")
 
 def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batch_size=None, operation_type=""):
     """Print a one-line progress report with an ETA derived from mean step time.
