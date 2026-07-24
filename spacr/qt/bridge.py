@@ -138,10 +138,21 @@ class PipelineWorker(QObject):
             import matplotlib.pyplot as plt
             old_show = plt.show
             worker = self
+            emitted_ids = set()
 
             def _capture_show(*args, **kwargs):
-                for num in plt.get_fignums():
+                # Emit each figure only ONCE. The pipeline often leaves figures
+                # open (the "More than 20 figures" matplotlib warning), so a
+                # naive re-scan would re-emit the whole backlog on every show()
+                # — flooding the GUI thread with redundant re-renders and making
+                # it hang. Track the ids we've already handed off. (We can't
+                # close the figure here: the GUI slot renders it via a queued
+                # connection that runs later, and closing would race that.)
+                for num in list(plt.get_fignums()):
                     fig = plt.figure(num)
+                    if id(fig) in emitted_ids:
+                        continue
+                    emitted_ids.add(id(fig))
                     worker.figure_ready.emit(fig)
                 return None
 
