@@ -377,7 +377,9 @@ class TestAppScreenIntegration:
         qtbot.addWidget(scr)
         assert getattr(scr, "_runtime_splitter", None) is not None
 
-    @pytest.mark.parametrize("app_key", ["measure", "classify", "umap"])
+    # measure now has its own crop preview (a splitter) — covered separately in
+    # test_measure_preview.py — so it's excluded here.
+    @pytest.mark.parametrize("app_key", ["classify", "umap"])
     def test_other_screens_omit_live_preview(self, qtbot, app_key):
         from spacr.qt.screens.app_screen import AppScreen
         scr = AppScreen(app_key)

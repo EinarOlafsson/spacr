@@ -508,9 +508,27 @@ class AppScreen(QWidget):
             splitter.setSizes([420, 320])
             layout.addWidget(splitter, 1)
             self._runtime_splitter = splitter
+        elif self.app_key == "measure":
+            splitter = QSplitter(Qt.Vertical)
+            splitter.setChildrenCollapsible(False)
+            self._measure_preview, self._measure_preview_card = (
+                _build_measure_preview_card(self))
+            self._measure_preview.set_propagate_callback(
+                self._propagate_live_settings)
+            splitter.addWidget(self._measure_preview_card)
+            splitter.addWidget(console_wrap)
+            splitter.setStretchFactor(0, 1)
+            splitter.setStretchFactor(1, 1)
+            splitter.setSizes([420, 320])
+            layout.addWidget(splitter, 1)
+            self._live_preview = None
+            self._live_preview_card = None
+            self._runtime_splitter = splitter
         else:
             self._live_preview = None
             self._live_preview_card = None
+            self._measure_preview = None
+            self._measure_preview_card = None
             self._runtime_splitter = None
             layout.addWidget(console_wrap, 1)
 
@@ -1132,6 +1150,18 @@ def _build_live_preview_card(host):
     from ..widgets.live_preview import LivePreviewPanel
     card = Card(title="Live preview")
     panel = LivePreviewPanel(card)
+    card.body_layout.addWidget(panel)
+    card.setMinimumHeight(300)
+    return panel, card
+
+
+def _build_measure_preview_card(host):
+    """Build the Measure ``Crop preview`` card + panel pair (not added to a
+    layout). Mirrors the Mask live preview but shows object crops from a merged
+    array, tuned with the crop settings the Measure run will use."""
+    from ..widgets.measure_preview import MeasurePreviewPanel
+    card = Card(title="Crop preview")
+    panel = MeasurePreviewPanel(card)
     card.body_layout.addWidget(panel)
     card.setMinimumHeight(300)
     return panel, card
