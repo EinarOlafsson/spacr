@@ -720,6 +720,15 @@ class AppScreen(QWidget):
             enabled = False
         self._btn_file_issue.setVisible(enabled)
         self._btn_file_issue.setEnabled(enabled)
+        # When the user has opted into automatic issue filing, actually file
+        # it — previously this only revealed the button, so nothing was ever
+        # sent unless the user also clicked. Open the pre-filled report now.
+        if enabled:
+            try:
+                self._on_file_issue()
+            except Exception as e:
+                self._console.append_stdout(
+                    f"[issue] auto-file failed: {e}\n")
 
     # ------------------------------------------------------------------
     # AI toggle + provider menu — sits in the actions row (bottom right)
