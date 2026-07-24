@@ -497,11 +497,15 @@ class AppScreen(QWidget):
         self._btn_cpu_toggle.toggled.connect(self._on_toggle_per_core)
         cpu_row.addWidget(self._btn_cpu_toggle)
         cpu_wrap = QWidget()
+        # Transparent so the System card surface (not the global black QWidget
+        # bg) shows behind the CPU bar + Per-core button.
+        cpu_wrap.setStyleSheet("background: transparent;")
         cpu_wrap.setLayout(cpu_row)
         usage_card.body_layout.addWidget(cpu_wrap)
 
         # Per-core panel — hidden by default; one UsageBar per logical core.
         self._per_core_wrap = QWidget()
+        self._per_core_wrap.setStyleSheet("background: transparent;")
         self._per_core_layout = QVBoxLayout(self._per_core_wrap)
         self._per_core_layout.setContentsMargins(0, 0, 0, 0)
         self._per_core_layout.setSpacing(2)

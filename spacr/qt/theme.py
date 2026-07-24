@@ -847,12 +847,28 @@ QLabel#ChatBubbleAssistant {{
 /* -----------------------------------------------------------------
  *  Merged Console (pipeline stdout + AI chat)
  * ----------------------------------------------------------------- */
+/* The panel is just a transparent container: the rounded box is the
+   ConsoleBox frame (wrapping the scroll), and the AI chat input sits UNDER it
+   as its own edge-aligned row. */
 QWidget#ConsolePanel {{
+    background-color: transparent;
+    border: none;
+}}
+QFrame#ConsoleBox {{
     background-color: {P["surface_alt"]};
     border: 1px solid {P["border_soft"]};
     border-radius: {R["md"]}px;
 }}
-/* Transparent so the panel's rounded surface shows through at the corners
+/* The AI chat text box under the console — its own rounded field, edges flush
+   with the console + system boxes. */
+QPlainTextEdit#ConsoleChatInput, QTextEdit#ConsoleChatInput {{
+    background-color: {P["surface_alt"]};
+    border: 1px solid {P["border_soft"]};
+    border-radius: {R["md"]}px;
+    padding: {S["sm"]}px {S["md"]}px;
+    color: {P["fg"]};
+}}
+/* Transparent so the box's rounded surface shows through at the corners
    (a solid child background would square them off). */
 QWidget#ConsoleHolder {{
     background-color: transparent;
