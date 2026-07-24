@@ -28,6 +28,7 @@ from typing import Callable, List, Optional, Tuple
 from PySide6.QtCore import QEvent, Qt, Signal
 from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import (
+    QFrame,
     QGridLayout,
     QHBoxLayout,
     QLabel,
@@ -230,13 +231,33 @@ class StartupPage(QWidget):
             f"color: {PALETTE['fg_muted']};"
         )
         col.addWidget(hdr)
-        body.setStyleSheet(
+        # Put the content inside a QFrame box. A QFrame paints its QSS
+        # background/border/radius natively, and scoping the rule to
+        # QFrame#DashCardBox keeps the border on the box only — an unscoped
+        # rule cascades to every child row and draws an outline (the
+        # "outline of the fields") around each field. The inner content
+        # widgets stay transparent so only the one box border shows.
+        box = QFrame()
+        box.setObjectName("DashCardBox")
+        box.setStyleSheet(
+            "QFrame#DashCardBox {"
             f"background: {PALETTE['surface_alt']};"
             f"border: 1px solid {PALETTE['border_soft']};"
             "border-radius: 8px;"
-            f"padding: {SPACING['md']}px;"
+            "}"
         )
-        col.addWidget(body, 1)
+        box_lay = QVBoxLayout(box)
+        box_lay.setContentsMargins(SPACING["md"], SPACING["md"],
+                                    SPACING["md"], SPACING["md"])
+        box_lay.setSpacing(0)
+        # The global `QWidget { background: bg }` rule paints every plain
+        # QWidget (the body + its rows) solid black, which would cover the
+        # box's surface. Make the content transparent (unscoped → cascades to
+        # the child rows) so only the QFrame box paints — no per-row fills or
+        # outlines. `transparent` carries no border, so nothing is outlined.
+        body.setStyleSheet("background: transparent;")
+        box_lay.addWidget(body)
+        col.addWidget(box, 1)
         return wrap
 
     def _build_system_card(self) -> QWidget:
