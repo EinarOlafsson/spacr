@@ -666,6 +666,12 @@ class AppScreen(QWidget):
         # they were missing when the console just said "Starting mask…"
         # and nothing else.
         entry_name = getattr(entry, "__qualname__", repr(entry))
+        # Tell the console which module/function this output is from so its
+        # "spaCR output — <module> — <function>" banner is accurate.
+        try:
+            self._console.set_run_context(self.app_key, entry_name)
+        except Exception:
+            pass
         self._console.append_stdout(
             f"→ Starting {self.app_key} ({entry_name}) with "
             f"src={settings.get('src')!r} + {len(settings)} settings…\n")

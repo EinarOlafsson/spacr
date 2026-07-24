@@ -139,23 +139,24 @@ def test_console_panel_input_has_no_send_button(qtbot, qt_theme_applied):
         assert btn.text() != "Send"
 
 
-def test_submit_without_ai_creates_full_width_user_bubble(qtbot, qt_theme_applied):
-    from spacr.qt.widgets.console_panel import ConsolePanel, _Bubble
+def test_submit_without_ai_creates_user_banner_and_green_text(qtbot, qt_theme_applied):
+    # User input is now rendered as a 'spaCR user' banner + green text block
+    # (not a coloured bubble box).
+    from spacr.qt.widgets.console_panel import (
+        ConsolePanel, _StdoutBlock, _TopicBar, COLOR_USER)
     panel = ConsolePanel()
     qtbot.addWidget(panel)
     panel.set_ai_active(False)
     panel._input.setPlainText("hi")
     panel._on_submit()
-    # Panel now has a bubble entry
-    bubbles = [
-        panel._entries.itemAt(i).widget()
-        for i in range(panel._entries.count() - 1)
-    ]
-    bubble_ws = [w for w in bubbles if isinstance(w, _Bubble)]
-    assert len(bubble_ws) == 1
-    b = bubble_ws[0]
-    assert "spaCR user:" in b._label.text()
-    assert "hi" in b._label.text()
+    entries = [panel._entries.itemAt(i).widget()
+               for i in range(panel._entries.count() - 1)]
+    bars = [w for w in entries if isinstance(w, _TopicBar)]
+    blocks = [w for w in entries if isinstance(w, _StdoutBlock)]
+    assert any("spaCR user" in b._label.text() for b in bars)
+    assert any("hi" in b.text() for b in blocks)
+    # the user block is coloured green (text colour, not a box)
+    assert any(COLOR_USER in (b.styleSheet() or "") for b in blocks)
 
 
 def test_submit_with_ai_but_no_provider_shows_hint(qtbot, qt_theme_applied,
