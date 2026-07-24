@@ -90,22 +90,24 @@ class _PipelinePreloader:
 
 APPS = [
     # (key, human name, description, section)
+    # -- Core: the main end-to-end screening workflow --
     ("mask",           "Mask",           "Generate cellpose masks for cells, nuclei and pathogens",   "Core"),
     ("measure",        "Measure",        "Measure single-object intensity + morphology features",       "Core"),
     ("annotate",       "Annotate",       "Annotate single-object images on a grid; save to database",  "Core"),
-    ("make_masks",     "Make Masks",     "Fine-tune Cellpose models for your dataset",                  "Core"),
-    ("classify",       "Classify",       "Train Torch CNNs/Transformers to classify single objects",   "Core"),
-    ("umap",           "UMAP",           "Generate UMAP embeddings with image glyphs",                 "Analysis"),
-    ("ml_analyze",     "ML Analyze",     "ML analysis of screen features",                             "Analysis"),
-    ("regression",     "Regression",     "Regression analysis of screen scores",                       "Analysis"),
-    ("recruitment",    "Recruitment",    "Analyze recruitment data",                                    "Analysis"),
-    ("activation",     "Activation",     "Generate activation maps",                                    "Analysis"),
-    ("analyze_plaques", "Plaque",        "Analyze plaque data",                                         "Analysis"),
-    ("train_cellpose", "Train Cellpose", "Train custom Cellpose models",                                "Cellpose"),
-    ("cellpose_masks", "Cellpose Masks", "Cellpose mask generation",                                    "Cellpose"),
-    ("cellpose_all",   "Cellpose All",   "Run cellpose on all images",                                  "Cellpose"),
-    ("map_barcodes",   "Map Barcodes",   "Map barcodes to data",                                        "Sequencing"),
-    ("queue",          "Plate Queue",    "Chain multiple plates through the same pipeline",             "Batch"),
+    ("classify",       "Classify (CV)",  "Train Torch CNNs/Transformers to classify single objects",   "Core"),
+    ("ml_analyze",     "Classify (ML)",  "Classical ML (XGBoost / random forest / …) on screen features", "Core"),
+    ("map_barcodes",   "Map Barcodes",   "Map sequencing barcodes to screen data",                      "Core"),
+    ("regression",     "Regression",     "Regression analysis of screen scores",                        "Core"),
+    # -- Tools: supporting / specialised utilities --
+    ("make_masks",     "Make Masks",     "Fine-tune Cellpose models for your dataset",                  "Tools"),
+    ("train_cellpose", "Train Cellpose", "Train custom Cellpose models",                                "Tools"),
+    ("cellpose_masks", "Cellpose Masks", "Cellpose mask generation",                                    "Tools"),
+    ("activation",     "Activation",     "Generate activation maps",                                    "Tools"),
+    ("umap",           "Image UMAP",     "Generate UMAP embeddings with image glyphs",                  "Tools"),
+    ("queue",          "Plate Queue",    "Chain multiple plates through the same pipeline",             "Tools"),
+    # -- Toxo: Toxoplasma-specific assays --
+    ("analyze_plaques", "Plaque Assay",  "Analyze plaque assay data",                                   "Toxo"),
+    ("recruitment",    "Recruitment",    "Analyze recruitment data",                                    "Toxo"),
 ]
 
 
@@ -117,12 +119,19 @@ _ICON_OVERRIDES = {
     "queue":           "sequencing.png",   # closest visual match for now
 }
 
+# Keys that render their qtawesome glyph instead of a bundled PNG.
+_FORCE_GLYPH = {"train_cellpose"}
+
 
 def _icon_for_app(key: str) -> Optional[QIcon]:
     """Return a QIcon for an app key. Uses the bundled spacr PNG icon if
     present; falls back to a themed qtawesome glyph via iconset."""
     here = os.path.dirname(os.path.abspath(__file__))
     resources_dir = os.path.normpath(os.path.join(here, "..", "resources", "icons"))
+    # Keys that should use their themed qtawesome glyph rather than a bundled
+    # PNG (e.g. train_cellpose got a fresh 'brain' glyph).
+    if key in _FORCE_GLYPH:
+        return iconset.icon(key)
     candidates = []
     if key in _ICON_OVERRIDES:
         candidates.append(_ICON_OVERRIDES[key])

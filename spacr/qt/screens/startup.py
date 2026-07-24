@@ -624,10 +624,13 @@ class StartupPage(QWidget):
             icon = icon_provider(key)
             tile = HTile(text=name, description="", icon=icon,
                           icon_size=52)
-            # Width scales with the font-size preference so the app name
-            # doesn't clip when the text is bumped up.
-            tile.setMinimumWidth(scaled_px(180))
-            tile.setMaximumWidth(scaled_px(240))
+            # Width scales with the font-size preference and is wide enough for
+            # the longest app names (e.g. "Mask Generation", "Train Cellpose",
+            # "Classify (CV)") plus the icon, so nothing clips. Also grow to fit
+            # the name's own size hint if it's longer than the minimum.
+            hint_w = tile.sizeHint().width()
+            tile.setMinimumWidth(max(scaled_px(210), hint_w))
+            tile.setMaximumWidth(scaled_px(320))
             self._tile_hints[tile] = desc
             tile.installEventFilter(self)
             tile.clicked.connect(lambda checked=False, k=key:

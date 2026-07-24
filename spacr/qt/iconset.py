@@ -108,7 +108,7 @@ _NAME_TO_GLYPH = {
     "recruitment":     "fa5s.crosshairs",
     "activation":      "fa5s.bolt",
     "analyze_plaques": "fa5s.microscope",
-    "train_cellpose":  "fa5s.dumbbell",
+    "train_cellpose":  "fa5s.brain",
     "cellpose_masks":  "fa5s.shapes",
     "cellpose_all":    "fa5s.th",
     "map_barcodes":    "fa5s.barcode",
