@@ -419,7 +419,16 @@ def journal_totals() -> Dict[str, int]:
         app_key = m.get("app_key", "")
         if app_key in ("mask", "measure", "classify"):
             totals[f"{app_key}_runs"] += 1
-        # Per-run model record — one line per (name, sha256) pair.
+        # Per-run model record. The manifest stores these under
+        # ``model_hashes`` as a {name: "filename:digest"} dict (see
+        # Run._write_manifest) — NOT a ``models`` list, which never
+        # matched and left models_recorded stuck at 0.
+        hashes = m.get("model_hashes") or {}
+        if isinstance(hashes, dict):
+            for digest in hashes.values():
+                if digest:
+                    seen_models.add(digest)
+        # Back-compat: also honour a legacy ``models`` list of dicts.
         for model in m.get("models", []) or []:
             sha = model.get("sha256") if isinstance(model, dict) else None
             if sha:
