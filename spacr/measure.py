@@ -708,12 +708,13 @@ def _estimate_blur(image):
     Returns:
     float: The variance of the Laplacian of the image.
     """
-    # Check if the image is not already in a floating-point format
-    if image.dtype != np.float32 and image.dtype != np.float64:
-        # Convert the image to float64 for processing
+    # cv2.Laplacian with CV_64F requires a float64 source: float32 (and any
+    # integer) inputs raise "Unsupported combination of source/destination
+    # format", so promote anything that isn't already float64.
+    if image.dtype != np.float64:
         image_float = image.astype(np.float64)
     else:
-        # If it's already a floating-point image, use it as is
+        # Already float64 — use as is.
         image_float = image
     # Compute the Laplacian of the image
     lap = cv2.Laplacian(image_float, cv2.CV_64F)
