@@ -816,3 +816,24 @@ def test_merge_split_filter_masks_bad_ndim():
     with pytest.raises(ValueError):
         OBJ.merge_split_filter_masks(
             bad, bad, {"cell_min_area": 3}, "cell")
+
+
+# ---------------------------------------------------------------------------
+# _analyze_cytoskeleton (regression: skeleton_branch_analysis did not exist)
+# ---------------------------------------------------------------------------
+
+def test_analyze_cytoskeleton():
+    size = 48
+    # a filamentous object with a branch, on one channel of a 3-channel array
+    arr = np.zeros((size, size, 3), dtype=np.float32)
+    rng = np.random.default_rng(3)
+    # bright cross-shaped filament (has a branch point at the centre)
+    arr[20:28, 6:42, 1] = 200 + rng.random((8, 36)) * 50
+    arr[6:42, 20:28, 1] = 200 + rng.random((36, 8)) * 50
+    mask = np.zeros((size, size), dtype=np.int32)
+    mask[4:44, 4:44] = 1
+    df = M._analyze_cytoskeleton(arr, mask, channel=1)
+    assert "skeleton_length" in df.columns
+    assert "skeleton_branch_points" in df.columns
+    assert len(df) == 1
+    assert df["skeleton_branch_points"].iloc[0] >= 0
