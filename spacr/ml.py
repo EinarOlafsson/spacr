@@ -2211,13 +2211,33 @@ def ml_analysis(df, channel_of_interest=3, location_column='columnID', positive_
     # Initialize the model based on model_type
     if model_type == 'random_forest':
         model = RandomForestClassifier(n_estimators=n_estimators, random_state=random_state, n_jobs=n_jobs)
+    elif model_type == 'extra_trees':
+        from sklearn.ensemble import ExtraTreesClassifier
+        model = ExtraTreesClassifier(n_estimators=n_estimators, random_state=random_state, n_jobs=n_jobs)
     elif model_type == 'logistic_regression':
         model = LogisticRegression(max_iter=1000, random_state=random_state, n_jobs=n_jobs)
     elif model_type == 'gradient_boosting':
         model = HistGradientBoostingClassifier(max_iter=n_estimators, random_state=random_state)  # Supports n_jobs internally
     elif model_type == 'xgboost':
         model = XGBClassifier(reg_alpha=reg_alpha, reg_lambda=reg_lambda, learning_rate=learning_rate, n_estimators=n_estimators, random_state=random_state, nthread=n_jobs, use_label_encoder=False, eval_metric='logloss')
-        
+    elif model_type == 'lightgbm':
+        try:
+            from lightgbm import LGBMClassifier
+        except ImportError:
+            raise ImportError("model_type='lightgbm' requires the 'lightgbm' package. Install it with: pip install lightgbm")
+        model = LGBMClassifier(n_estimators=n_estimators, learning_rate=learning_rate, reg_alpha=reg_alpha, reg_lambda=reg_lambda, random_state=random_state, n_jobs=n_jobs)
+    elif model_type == 'catboost':
+        try:
+            from catboost import CatBoostClassifier
+        except ImportError:
+            raise ImportError("model_type='catboost' requires the 'catboost' package. Install it with: pip install catboost")
+        model = CatBoostClassifier(iterations=n_estimators, learning_rate=learning_rate, l2_leaf_reg=reg_lambda, random_state=random_state, thread_count=n_jobs, verbose=False)
+    elif model_type == 'svm':
+        from sklearn.svm import SVC
+        model = SVC(probability=True, random_state=random_state)
+    elif model_type == 'mlp':
+        from sklearn.neural_network import MLPClassifier
+        model = MLPClassifier(max_iter=max(200, n_estimators), random_state=random_state)
     else:
         raise ValueError(f"Unsupported model_type: {model_type}")
 

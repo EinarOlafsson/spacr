@@ -3052,6 +3052,19 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
         print(f'mode:{mode} is not valid, use mode = train or test')
         return
 
+    # Clear, actionable error when the train/test split hasn't been generated
+    # yet — the most common Train-CV mistake is pointing src at the plate folder
+    # before the annotated crops were split into train/ and test/.
+    if not os.path.isdir(data_dir):
+        raise FileNotFoundError(
+            f"No '{mode}/' folder found at: {data_dir}\n"
+            f"The classifier trains on a '{src}/train' and '{src}/test' split of\n"
+            f"annotated crops, which doesn't exist yet. Generate it first with the\n"
+            f"'Generate Training Data' step (spacr.io.generate_training_dataset),\n"
+            f"then point the Classify (CV) 'src' at the folder that contains\n"
+            f"train/ and test/ (each with class subfolders, e.g. 1/ and 2/)."
+        )
+
     # FIX: raise an error instead of just printing when class folders are missing
     # WHY: the original printed a warning but continued execution, silently
     #      training on a broken/incomplete dataset — this masks data problems

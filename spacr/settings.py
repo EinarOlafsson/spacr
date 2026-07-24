@@ -130,6 +130,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('save_original_images', True)
     settings.setdefault('keep_intermediate', False)
     settings.setdefault('keep_original_images', False)
+    settings.setdefault('compression', 'lzw')
     settings.setdefault('upscale', False)
     settings.setdefault('upscale_factor', 2.0)
     settings.setdefault('adjust_cells', False)
@@ -303,6 +304,7 @@ def set_default_settings_preprocess_img_data(settings):
     settings.setdefault('save_original_images', True)
     settings.setdefault('keep_intermediate', False)
     settings.setdefault('keep_original_images', False)
+    settings.setdefault('compression', 'lzw')
     settings.setdefault('cmap', 'inferno')
     settings.setdefault('figuresize', 10)
     settings.setdefault('normalize', True)
@@ -655,7 +657,7 @@ def deep_spacr_defaults(settings):
     settings.setdefault('tables',None)
     settings.setdefault('png_type','cell_png')
     settings.setdefault('custom_model',False)
-    settings.setdefault('custom_model_path','path')
+    settings.setdefault('custom_model_path','')
     settings.setdefault('train',True)
     settings.setdefault('test',False)
     settings.setdefault('model_type','maxvit_t')
@@ -686,8 +688,8 @@ def deep_spacr_defaults(settings):
     settings.setdefault('sample',None)
     settings.setdefault('experiment','exp.')
     settings.setdefault('score_threshold',0.5)
-    settings.setdefault('dataset','path')
-    settings.setdefault('model_path','path')
+    settings.setdefault('dataset','')
+    settings.setdefault('model_path','')
     settings.setdefault('file_type','cell_png')
     settings.setdefault('generate_training_dataset', True)
     return settings
@@ -1037,6 +1039,7 @@ expected_types = {
     "save_original_images": bool,
     "keep_intermediate": bool,
     "keep_original_images": bool,
+    "compression": str,
     "pick_slice": bool,
     "skip_mode": str,
     "save": bool,
@@ -1523,6 +1526,7 @@ tooltips = {
     "save_original_images": "(bool) - Keep a backup of the raw input images in an orig/ folder. When False the raw images are deleted after the stack is built (no duplication).",
     "keep_intermediate": "(bool) - Keep the intermediate stack/ and masks/ folders after the merged/ arrays are built. Off by default: only merged/ is kept (masks are embedded in merged and recorded in the database).",
     "keep_original_images": "(bool) - Keep the original raw input images (in orig/). Off by default to save disk space; the pixel data lives in merged/.",
+    "compression": "(str) - Lossless compression codec for saved mask TIFFs and arrays. One of: lzw, zlib, none. Object labels are never altered.",
     "amsgrad": "(bool) - Whether to use AMSGrad optimizer.",
     "analyze_clusters": "(bool) - Whether to analyze the resulting clusters.",
     "augment": "(dict) - Data augmentation settings.",
@@ -1612,7 +1616,7 @@ tooltips = {
     "mix": "(dict) - Mixing settings for the samples.",
     "model_name": "(str) - Name of the Cellpose model.",
     "model_type": "(str) - Type of model to use for the analysis.",
-    "model_type_ml": "(str) - Classical ML classifier to train on per-object features. One of: xgboost, random_forest, logistic_regression, gradient_boosting.",
+    "model_type_ml": "(str) - Classical ML classifier to train on per-object features. One of: xgboost, lightgbm, catboost, random_forest, extra_trees, gradient_boosting, logistic_regression, svm, mlp. (lightgbm/catboost require their optional packages.)",
     "nc": "(str) - Negative control identifier.",
     "nc_loc": "(str) - Location of the negative control in the images.",
     "negative_control": "(str) - Identifier for the negative control.",
@@ -1931,7 +1935,7 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Annotation": ["filter_column", "filter_value","volcano", "toxo", "controls", "nc_loc", "pc_loc", "nc", "pc", "cell_plate_metadata","treatment_plate_metadata", "metadata_types", "cell_types", "target","positive_control","negative_control", "location_column", "treatment_loc", "channel_of_interest", "measurement", "treatments", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
              "Plot": ["split_axis_lims", "x_lim","log_x","log_y", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","save_figure"],
              "Timelapse": ["fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
-             "Advanced": ["test_images", "random_test", "test_nr", "test", "test_split", "normalize", "target_unique_count","threshold_multiplier", "threshold_method", "min_n","shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs", "keep_intermediate", "keep_original_images"],
+             "Advanced": ["test_images", "random_test", "test_nr", "test", "test_split", "normalize", "target_unique_count","threshold_multiplier", "threshold_method", "min_n","shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs", "keep_intermediate", "keep_original_images", "compression"],
              "Beta": ["all_to_mip", "upscale", "upscale_factor", "consolidate", "distance_gaussian_sigma","use_sam_pathogen","use_sam_nucleus", "use_sam_cell", "denoise"],
              "Motility (beta)": motility_settings,
              "Motility Advanced (beta)": motility_advanced_settings,
