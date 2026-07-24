@@ -974,6 +974,11 @@ def _mip_all(src, include_first_chan=True):
             if array.ndim != 3: # Check if the array is not 3-dimensional.
                 # Log a message indicating a zero array will be generated due to unexpected dimensions.
                 print(f"Generating zero array for {filename} due to unexpected dimensions: {array.shape}")
+                # A 2-D array has no depth axis to concatenate onto; promote it to
+                # (H, W, 1) first. Previously np.concatenate(..., axis=2) on the raw
+                # 2-D array raised AxisError.
+                if array.ndim == 2:
+                    array = array[:, :, np.newaxis]
                 # Create a zero array with the same height and width as the original array, but with a single depth layer.
                 zeros_array = np.zeros((array.shape[0], array.shape[1], 1))
                 # Concatenate the original array with the zero array along the depth axis.
