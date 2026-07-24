@@ -229,6 +229,9 @@ class FigureQueue(QWidget):
             # No usable prerender — fall back to rendering here.
             pixmap = self._render_figure(fig, png_path)
         self._png_paths[idx] = str(png_path)
+        # In PDF mode, show the true vector page (rendered via QtPdf) rather
+        # than the raster PNG.
+        pixmap = self._display_pixmap(png_path, pixmap)
         if pixmap is not None:
             self._cache_pixmap(idx, pixmap)
 
@@ -314,6 +317,49 @@ class FigureQueue(QWidget):
         except Exception:
             pass
 
+    @staticmethod
+    def _figure_format_is_pdf() -> bool:
+        try:
+            from ..preferences import get_figure_format
+            return get_figure_format() == "pdf"
+        except Exception:
+            return False
+
+    def _pdf_pixmap(self, pdf_path: str, max_px: int = 2200) -> Optional[QPixmap]:
+        """Render page 0 of ``pdf_path`` to a crisp QPixmap for display, so PDF
+        figures show as true (vector-rendered) pages rather than a raster PNG.
+        Returns None on any error (caller falls back to the PNG)."""
+        try:
+            from PySide6.QtPdf import QPdfDocument
+            from PySide6.QtCore import QSize
+            doc = QPdfDocument(self)
+            if doc.load(pdf_path) != QPdfDocument.Error.None_:
+                return None
+            if doc.pageCount() < 1:
+                return None
+            sz = doc.pagePointSize(0)
+            longest = max(sz.width(), sz.height()) or 1.0
+            scale = max_px / longest
+            img = doc.render(0, QSize(max(1, int(sz.width() * scale)),
+                                      max(1, int(sz.height() * scale))))
+            if img.isNull():
+                return None
+            pm = QPixmap.fromImage(img)
+            return pm if not pm.isNull() else None
+        except Exception:
+            return None
+
+    def _display_pixmap(self, png_path: Path,
+                        fallback: Optional[QPixmap]) -> Optional[QPixmap]:
+        """Prefer a PDF-rendered pixmap when in PDF mode and a sibling .pdf
+        exists; otherwise use ``fallback`` (the PNG pixmap)."""
+        pdf = Path(png_path).with_suffix(".pdf")
+        if self._figure_format_is_pdf() and pdf.is_file():
+            pm = self._pdf_pixmap(str(pdf))
+            if pm is not None:
+                return pm
+        return fallback
+
     def _render_figure(self, fig, png_path: Path) -> Optional[QPixmap]:
         """Save ``fig`` to ``png_path`` (raster, for display) and return a
         QPixmap of it. The figure background + text follow the app theme
@@ -342,6 +388,7 @@ class FigureQueue(QWidget):
         path = self._png_paths.get(idx)
         if path and Path(path).is_file():
             pm = QPixmap(path)
+            pm = self._display_pixmap(Path(path), pm) or pm
             if not pm.isNull():
                 self._cache_pixmap(idx, pm)
                 return pm
