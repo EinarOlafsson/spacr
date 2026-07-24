@@ -162,12 +162,23 @@ class HTile(QPushButton):
         text: str,
         description: str = "",
         icon: Optional[QIcon] = None,
-        icon_size: int = 40,
+        icon_size: int = 52,
         parent=None,
     ):
         super().__init__(parent)
         self._text = text
-        self._icon_size = int(icon_size)
+
+        # Icon size and all icon-adjacent geometry track the user's font-size
+        # preference so the tile grows with the text and nothing clips when
+        # the font is bumped up. ``icon_size`` is the base (100 %) side length.
+        from ..preferences import scaled_px
+        self._base_icon = scaled_px(int(icon_size))
+        self._icon_pixels = self._base_icon
+
+        # Hover zoom animation on the icon (slightly enlarges on cursor enter).
+        self._icon_anim = QPropertyAnimation(self, b"iconPixels", self)
+        self._icon_anim.setDuration(140)
+        self._icon_anim.setEasingCurve(QEasingCurve.OutCubic)
 
         self.setObjectName("HTile")
         self.setCursor(Qt.PointingHandCursor)
@@ -177,21 +188,22 @@ class HTile(QPushButton):
         self.setAccessibleName(text)
         if description:
             self.setAccessibleDescription(description)
-        # Custom text layout — clear the button's default text so it
-        # doesn't render alongside our QLabels.
         if icon is not None:
             self.setIcon(icon)
-            self.setIconSize(QSize(icon_size, icon_size))
+            self.setIconSize(QSize(self._base_icon, self._base_icon))
 
-        self.setSizePolicy(self.sizePolicy().horizontalPolicy(),
-                           self.sizePolicy().verticalPolicy())
-        from ..preferences import scaled_px
-        self.setMinimumHeight(scaled_px(72))
+        # Height tracks the font scale AND the icon so tall/large fonts don't
+        # clip the two-line label stack. Grow vertically to fit content.
+        from PySide6.QtWidgets import QSizePolicy
+        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.MinimumExpanding)
+        self.setMinimumHeight(max(scaled_px(72), self._base_icon + scaled_px(24)))
         self.setToolTip(description or text)
 
-        # Two-line label stack next to the icon.
+        # Two-line label stack next to the icon. Left padding (scaled) leaves
+        # room for the QIcon the button paints on the left edge.
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(icon_size + 24, 8, 16, 8)   # left padding leaves room for QIcon
+        layout.setContentsMargins(self._base_icon + scaled_px(24),
+                                  scaled_px(8), scaled_px(16), scaled_px(8))
         layout.setSpacing(0)
 
         text_col = QVBoxLayout()
@@ -224,6 +236,32 @@ class HTile(QPushButton):
             text_col.addStretch(1)
 
         layout.addLayout(text_col, 1)
+
+    # -- hover-zoom icon animation ------------------------------------------
+    def _get_icon_pixels(self) -> int:
+        return self._icon_pixels
+
+    def _set_icon_pixels(self, v: int) -> None:
+        self._icon_pixels = int(v)
+        self.setIconSize(QSize(self._icon_pixels, self._icon_pixels))
+
+    iconPixels = Property(int, _get_icon_pixels, _set_icon_pixels)
+
+    def enterEvent(self, event: QEvent) -> None:
+        """Slightly enlarge the icon on cursor enter."""
+        self._icon_anim.stop()
+        self._icon_anim.setStartValue(self._icon_pixels)
+        self._icon_anim.setEndValue(int(self._base_icon * 1.15))
+        self._icon_anim.start()
+        super().enterEvent(event)
+
+    def leaveEvent(self, event: QEvent) -> None:
+        """Return the icon to its base size on cursor leave."""
+        self._icon_anim.stop()
+        self._icon_anim.setStartValue(self._icon_pixels)
+        self._icon_anim.setEndValue(self._base_icon)
+        self._icon_anim.start()
+        super().leaveEvent(event)
 
     @property
     def text_label(self) -> str:

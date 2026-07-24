@@ -403,6 +403,28 @@ QLabel#HTileDesc {{
     font-weight: 300;                 /* Open Sans Light */
     background: transparent;
 }}
+/* Home hero subtitle ("End-to-end microscopy → …"): styled here (not inline)
+   so it scales with the font-size preference and reads in the primary
+   (white on dark) text colour. */
+QLabel#HeroSubtitle {{
+    color: {P["fg"]};
+    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-size: {F["body"]}px;
+    font-weight: 300;
+    background: transparent;
+    padding-left: 8px;
+}}
+/* Sticky bottom hint bar ("Hover a tile to see what it does."): also styled
+   here so it scales with the font preference and uses primary text colour. */
+QLabel#HintBar {{
+    background-color: {P["surface_alt"]};
+    border-top: 1px solid {P["border_soft"]};
+    color: {P["fg"]};
+    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-weight: 300;
+    font-size: {F["body"]}px;
+    padding: 8px 12px;
+}}
 
 /* -----------------------------------------------------------------
  *  Typography helpers — pair each role with weight + tracking

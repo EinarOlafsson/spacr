@@ -601,6 +601,26 @@ class MainWindow(QMainWindow):
                 f"Preferences unavailable: {e}", 5000)
             return
         PreferencesDialog(self).exec()
+        # The Home tiles set sizes/margins from the font scale in Python
+        # (not just via the stylesheet), so they don't reflow when the app
+        # stylesheet is re-applied. Rebuild the Home page so a font-size
+        # change takes full effect (tile heights, icon sizes, paddings).
+        try:
+            self._rebuild_startup_page()
+        except Exception:
+            pass
+
+    def _rebuild_startup_page(self):
+        """Recreate the Home page (e.g. after a font-scale change)."""
+        old = getattr(self, "_startup", None)
+        was_current = (old is not None
+                       and self._stack.currentWidget() is old)
+        self._install_startup_page()
+        if old is not None:
+            self._stack.removeWidget(old)
+            old.deleteLater()
+        if was_current:
+            self._stack.setCurrentWidget(self._startup)
 
     def _check_for_updates(self):
         """Query PyPI/GitHub in a background thread, prompt to upgrade.
