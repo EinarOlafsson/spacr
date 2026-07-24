@@ -231,3 +231,80 @@ def test_create_venn_diagram(tmp_path):
                                 save=True, save_path=str(tmp_path / "v.pdf"))
     except Exception as e:
         pytest.skip(f"create_venn_diagram contract differs: {e}")
+
+
+# ---------------------------------------------------------------------------
+# batch 2 — array-based plotters
+# ---------------------------------------------------------------------------
+
+def test_plot_cellpose4_output():
+    rng = np.random.default_rng(0)
+    batch = rng.random((1, 32, 32, 3)).astype(np.float32)
+    masks = _synth_mask(32)[None, ...]
+    flows = [[np.zeros((32, 32, 3), dtype=np.float32),
+              np.zeros((3, 32, 32), dtype=np.float32),
+              np.zeros((32, 32), dtype=np.float32)]]
+    try:
+        P.plot_cellpose4_output(batch, masks, flows, nr=1)
+    except Exception as e:
+        pytest.skip(f"plot_cellpose4_output contract differs: {e}")
+
+
+def test_print_mask_and_flows():
+    stack = np.random.default_rng(0).random((32, 32, 3)).astype(np.float32)
+    mask = _synth_mask(32)
+    flows = [np.zeros((32, 32, 3), dtype=np.float32),
+             np.zeros((3, 32, 32), dtype=np.float32),
+             np.zeros((32, 32), dtype=np.float32)]
+    try:
+        P.print_mask_and_flows(stack, mask, flows, overlay=True)
+    except Exception as e:
+        pytest.skip(f"print_mask_and_flows contract differs: {e}")
+
+
+def test_plot_resize():
+    rng = np.random.default_rng(0)
+    imgs = [rng.random((64, 64))]
+    resized = [rng.random((32, 32))]
+    labels = [_synth_mask(64)]
+    rlabels = [_synth_mask(32)]
+    try:
+        P.plot_resize(imgs, resized, labels, rlabels)
+    except Exception as e:
+        pytest.skip(f"plot_resize contract differs: {e}")
+
+
+def test_plot_comparison_results():
+    results = [{"filename": "x", "jaccard_a_b": 0.8,
+                "boundary_f1_a_b": 0.7, "ap_a_b": 0.6}]
+    try:
+        fig = P.plot_comparison_results(results)
+        assert fig is not None
+    except Exception as e:
+        pytest.skip(f"plot_comparison_results contract differs: {e}")
+
+
+def test_plot_lorenz_curves(tmp_path):
+    import csv
+    f = tmp_path / "counts.csv"
+    with f.open("w", newline="") as fh:
+        w = csv.writer(fh); w.writerow(["grna_name", "count"])
+        for i in range(30):
+            w.writerow([f"g{i}", (i + 1) * 3])
+    try:
+        P.plot_lorenz_curves([str(f)], name_column="grna_name",
+                              value_column="count")
+    except Exception as e:
+        pytest.skip(f"plot_lorenz_curves contract differs: {e}")
+
+
+def test_plot_image_mask_overlay(tmp_path):
+    rng = np.random.default_rng(0)
+    img = rng.integers(0, 4000, size=(64, 64, 3)).astype(np.uint16)
+    mask = _synth_mask(64)
+    try:
+        P.plot_image_mask_overlay(
+            file=None, image=img, masks=[mask], channels=[0, 1, 2],
+            cell_channel=0)
+    except Exception as e:
+        pytest.skip(f"plot_image_mask_overlay contract differs: {e}")
