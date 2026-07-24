@@ -333,12 +333,13 @@ def _get_object_settings(object_type, settings):
         object_settings['filter_intensity'] = False
         object_settings['restore_type'] = settings.get('cell_restore_type', None)
         if settings['cell_diameter'] is not None:
-            if isinstance(settings['cell_diameter'], (int, float)):
-                object_settings['diameter'] = settings['cell_diameter']
+            try:
+                # Coerce — CSV-imported settings arrive as strings ("30.0").
+                object_settings['diameter'] = float(settings['cell_diameter'])
                 object_settings['minimum_size'] = (object_settings['diameter']**2)/4
                 object_settings['maximum_size'] = (object_settings['diameter']**2)*10
-            else:
-                print(f'Cell diameter must be an integer or float, got {settings["cell_diameter"]}')
+            except (TypeError, ValueError):
+                print(f'Cell diameter must be an integer or float, got {settings["cell_diameter"]!r}')
 
     elif object_type == 'nucleus':
         object_settings['min_size'] = settings['nucleus_min_area']
@@ -348,12 +349,12 @@ def _get_object_settings(object_type, settings):
         object_settings['restore_type'] = settings.get('nucleus_restore_type', None)
         
         if settings['nucleus_diameter'] is not None:
-            if isinstance(settings['nucleus_diameter'], (int, float)):
-                object_settings['diameter'] = settings['nucleus_diameter']
+            try:
+                object_settings['diameter'] = float(settings['nucleus_diameter'])
                 object_settings['minimum_size'] = (object_settings['diameter']**2)/4
                 object_settings['maximum_size'] = (object_settings['diameter']**2)*10
-            else:
-                print(f'Nucleus diameter must be an integer or float, got {settings["nucleus_diameter"]}')
+            except (TypeError, ValueError):
+                print(f'Nucleus diameter must be an integer or float, got {settings["nucleus_diameter"]!r}')
         #if settings['use_sam_nucleus']:
         #    object_settings['model_name'] = 'sam'
 
@@ -367,12 +368,12 @@ def _get_object_settings(object_type, settings):
         object_settings['merge'] = settings['merge_pathogens']
         
         if settings['pathogen_diameter'] is not None:
-            if isinstance(settings['pathogen_diameter'], (int, float)):
-                object_settings['diameter'] = settings['pathogen_diameter']
+            try:
+                object_settings['diameter'] = float(settings['pathogen_diameter'])
                 object_settings['minimum_size'] = (object_settings['diameter']**2)/4
                 object_settings['maximum_size'] = (object_settings['diameter']**2)*10
-            else:
-                print(f'Pathogen diameter must be an integer or float, got {settings["pathogen_diameter"]}')
+            except (TypeError, ValueError):
+                print(f'Pathogen diameter must be an integer or float, got {settings["pathogen_diameter"]!r}')
                 
         #if settings['use_sam_pathogen']:
         #    object_settings['model_name'] = 'sam'
