@@ -181,3 +181,71 @@ def test_save_progress_no_validation(tmp_path):
     IO._save_progress(str(tmp_path), _stats_df(), None)
     assert (tmp_path / "train.csv").exists()
     assert not (tmp_path / "validation.csv").exists()
+
+
+# ---------------------------------------------------------------------------
+# normalization helpers
+# ---------------------------------------------------------------------------
+
+def test_normalize_img_batch():
+    rng = np.random.default_rng(0)
+    # (N, H, W, C) stack, 2 channels
+    stack = (rng.random((3, 16, 16, 2)) * 2000).astype(np.float32)
+    settings = {
+        "nucleus_channel": 0, "cell_channel": 1,
+        "pathogen_channel": None, "organelle_channel": None,
+        "nucleus_background": 100, "nucleus_Signal_to_noise": 5,
+        "remove_background_nucleus": True,
+        "cell_background": 100, "cell_Signal_to_noise": 5,
+        "remove_background_cell": False,
+        "lower_percentile": 2,
+    }
+    out = IO._normalize_img_batch(stack.copy(), [0, 1],
+                                  save_dtype=np.float32, settings=settings)
+    assert out.shape == stack.shape and out.dtype == np.float32
+    assert out.max() <= 1.0 + 1e-4
+
+
+def test_normalize_img_batch_generic_channel():
+    # a channel that matches no object type → generic-default branch
+    rng = np.random.default_rng(1)
+    stack = (rng.random((2, 12, 12, 3)) * 2000).astype(np.float32)
+    settings = {
+        "nucleus_channel": 0, "cell_channel": 1,
+        "pathogen_channel": None, "organelle_channel": None,
+        "nucleus_background": 100, "nucleus_Signal_to_noise": 5,
+        "remove_background_nucleus": False,
+        "cell_background": 100, "cell_Signal_to_noise": 5,
+        "remove_background_cell": False,
+        "background": 100, "Signal_to_noise": 5, "remove_background": False,
+        "lower_percentile": 2,
+    }
+    out = IO._normalize_img_batch(stack.copy(), [2],   # channel 2 = generic
+                                  save_dtype=np.float32, settings=settings)
+    assert out.shape == stack.shape
+
+
+def test_get_lists_for_normalization():
+    settings = {
+        "nucleus_channel": 0, "cell_channel": 1, "pathogen_channel": 2,
+        "nucleus_background": 100, "nucleus_Signal_to_noise": 5,
+        "remove_background_nucleus": True,
+        "cell_background": 200, "cell_Signal_to_noise": 4,
+        "remove_background_cell": False,
+        "pathogen_background": 150, "pathogen_Signal_to_noise": 6,
+        "remove_background_pathogen": True,
+    }
+    bg, snr, thr, rb = IO._get_lists_for_normalization(settings)
+    assert bg == [100, 200, 150]
+    assert thr == [500, 800, 900]
+    assert rb == [True, False, True]
+
+
+def test_get_lists_for_normalization_skip_none():
+    settings = {
+        "nucleus_channel": None, "cell_channel": 1, "pathogen_channel": None,
+        "cell_background": 200, "cell_Signal_to_noise": 4,
+        "remove_background_cell": False,
+    }
+    bg, snr, thr, rb = IO._get_lists_for_normalization(settings)
+    assert bg == [200] and len(snr) == 1
