@@ -689,6 +689,12 @@ class AppScreen(QWidget):
         worker.error.connect(self._on_pipeline_error)
         worker.figure_ready.connect(self._on_figure_ready)
         worker.finished.connect(self._on_finished)
+        # Clear our Python references only once the QThread has genuinely
+        # stopped (its event loop exited). Dropping them from _on_finished —
+        # which runs on worker.finished, before thread.quit() has taken
+        # effect — could destroy the QThread while it is still "running"
+        # ("QThread: Destroyed while thread is still running" → abort).
+        self._thread.finished.connect(self._clear_thread_refs)
         self._thread.start()
 
     def _on_pipeline_error(self, tb: str):
@@ -852,14 +858,12 @@ class AppScreen(QWidget):
         self._progress.setVisible(False)
         self._console.append_stdout(
             "✓ Finished\n" if ok else "✗ Failed — see traceback above\n")
-        # Drop our Python references. The thread tears itself down via
-        # the make_thread wiring (worker.finished → thread.quit →
-        # thread.deleteLater), which runs on the next event-loop spin.
-        # Do NOT call thread.wait() here: this slot is triggered by that
-        # very thread's finished signal, and blocking the GUI thread on
-        # thread.wait() from inside it aborts the process.
-        self._thread = None
-        self._worker = None
+        # NOTE: do NOT drop self._thread / self._worker here. This slot runs
+        # on worker.finished, i.e. before thread.quit() has actually stopped
+        # the QThread's event loop; releasing the last reference now can
+        # destroy the still-running QThread and abort the process. The
+        # references are cleared from _clear_thread_refs, wired to the
+        # QThread's own finished signal.
         # OS-level notification (libnotify / osascript / win10toast) so
         # users don't have to sit and watch. Always safe — the notify
         # module fails silently on any error.
@@ -873,6 +877,16 @@ class AppScreen(QWidget):
             )
         except Exception:
             pass
+
+    def _clear_thread_refs(self):
+        """Release worker/thread references once the QThread has stopped.
+
+        Wired to QThread.finished (not worker.finished), so by the time this
+        runs the thread's event loop has exited and dropping the last Python
+        reference cannot abort the process.
+        """
+        self._thread = None
+        self._worker = None
 
     def _on_stop(self):
         if self._thread is None:
