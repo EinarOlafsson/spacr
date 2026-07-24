@@ -127,6 +127,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
 
     # Misc settings
     settings.setdefault('all_to_mip', False)
+    settings.setdefault('save_original_images', True)
     settings.setdefault('upscale', False)
     settings.setdefault('upscale_factor', 2.0)
     settings.setdefault('adjust_cells', False)
@@ -297,6 +298,7 @@ def set_default_settings_preprocess_img_data(settings):
     settings.setdefault('lower_percentile', 2)
     settings.setdefault('randomize', True)
     settings.setdefault('all_to_mip', False)
+    settings.setdefault('save_original_images', True)
     settings.setdefault('cmap', 'inferno')
     settings.setdefault('figuresize', 10)
     settings.setdefault('normalize', True)
@@ -1016,6 +1018,7 @@ expected_types = {
     "merge_pathogens": bool,
     "normalize_plots": bool,
     "all_to_mip": bool,
+    "save_original_images": bool,
     "pick_slice": bool,
     "skip_mode": str,
     "save": bool,
@@ -1499,6 +1502,7 @@ tooltips = {
     "agg_type": "(str) - Type of aggregation to use for the data.",
     "alpha": "(float) - Alpha parameter for the regression model.",
     "all_to_mip": "(bool) - Whether to convert all images to maximum intensity projections before processing.",
+    "save_original_images": "(bool) - Keep a backup of the raw input images in an orig/ folder. When False the raw images are deleted after the stack is built (no duplication).",
     "amsgrad": "(bool) - Whether to use AMSGrad optimizer.",
     "analyze_clusters": "(bool) - Whether to analyze the resulting clusters.",
     "augment": "(dict) - Data augmentation settings.",

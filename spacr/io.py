@@ -672,28 +672,42 @@ def load_images_from_paths(images_by_key):
     return images_dict
 
 #@log_function_call 
-def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='', img_format='.tif', timelapse=False):
+def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='', img_format='.tif', timelapse=False, save_original_images=True):
     """
-    Convert z-stack images to maximum intensity projection (MIP) images.
+    Convert z-stack images to maximum intensity projection (MIP) images and
+    write the merged multi-channel ``stack/`` arrays **directly** — without
+    ever creating the intermediate per-channel sub-folders.
+
+    Instead of MIP-ing each channel to a ``src/<channel>/`` folder and then
+    re-reading those folders to merge them (which duplicated the pixel data on
+    disk), this builds an in-memory dict ``{fov_filename: {channel: mip}}`` and
+    concatenates the channels of each FOV into one ``stack/<fov>.npy``. The
+    merge order and MIP maths are identical to the old folder+``_merge_file``
+    path, so the produced stacks are byte-for-byte the same.
 
     Args:
         src (str): The source directory containing the z-stack images.
         regex (str): The regular expression pattern used to match the filenames of the z-stack images.
         batch_size (int, optional): The number of images to process in each batch. Defaults to 100.
         metadata_type (str, optional): The type of metadata associated with the images. Defaults to ''.
+        save_original_images (bool, optional): When True (default) the raw input
+            images are moved aside into ``src/orig/`` for safekeeping. When
+            False they are deleted after the stack is written, so the pixel data
+            lives only in ``stack/`` (no duplication). Defaults to True.
 
     Returns:
-        None
+        int: the number of distinct channels found (0 when nothing was processed).
     """
-    
+
     if isinstance(img_format, str):
         img_format = [img_format]
-    
+
     from .utils import _extract_filename_metadata, print_progress
-    
+
     regular_expression = re.compile(regex)
     stack_path = os.path.join(src, 'stack')
     files_processed = 0
+    channels_seen = set()
     if not os.path.exists(stack_path) or (os.path.isdir(stack_path) and len(os.listdir(stack_path)) == 0):
         all_filenames = [filename for filename in os.listdir(src) if any(filename.endswith(ext) for ext in img_format)]
         print(f'All files: {len(all_filenames)} in {src}')
@@ -703,6 +717,11 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
         # Convert dictionary keys to a list for batching
         batching_keys = list(image_paths_by_key.keys())
         print(f'All unique FOV: {len(image_paths_by_key)} in {src}')
+
+        # fov_channels[output_filename][channel] = MIP array. We collect every
+        # channel's MIP into this dict and only write the concatenated stack
+        # once a FOV has been fully assembled (below).
+        fov_channels = {}
         for idx in range(0, len(image_paths_by_key), batch_size):
             start = time.time()
 
@@ -710,23 +729,21 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
             batch_keys = batching_keys[idx:idx+batch_size]
             batch_images_by_key = {key: image_paths_by_key[key] for key in batch_keys}
             images_by_key = load_images_from_paths(batch_images_by_key)
-            
+
             # Process each batch of images
             for i, (key, images) in enumerate(images_by_key.items()):
-                
+
                 plate, well, field, channel, timeID, sliceID = key
-                
+
                 if timelapse:
                     output_filename = f'{plate}_{well}_{field}.tif'
                 else:
                     output_filename = f'{plate}_{well}_{field}_{timeID}.tif'
-                    
-                output_dir = os.path.join(src, channel)
-                os.makedirs(output_dir, exist_ok=True)
-                output_path = os.path.join(output_dir, output_filename)
+
                 mip = np.max(np.stack(images), axis=0)
-                mip_image = Image.fromarray(mip)
-               
+                channels_seen.add(channel)
+                fov_channels.setdefault(output_filename, {})[channel] = mip
+
                 files_processed += 1
                 stop = time.time()
                 duration = stop - start
@@ -734,26 +751,52 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
                 files_to_process = len(all_filenames)
                 print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type='Preprocessing filenames')
 
-                if not os.path.exists(output_path):
-                    mip_image.save(output_path)
-                else:
-                    print(f'WARNING: A file with the same name already exists at location {output_filename}')
-
             images_by_key.clear()
 
-        # Move original images to a new directory
-        newpath = os.path.join(src, 'orig')
-        os.makedirs(newpath, exist_ok=True)
-        for filename in os.listdir(src):
-            #print(f"{filename}: {os.path.splitext(filename)[1]}")
-            if os.path.splitext(filename)[1] in img_format:
-                move = os.path.join(newpath, filename)
-                if os.path.exists(move):
-                    print(f'WARNING: A file with the same name already exists at location {move}')
-                else:
-                    shutil.move(os.path.join(src, filename), move)
+        # Assemble each FOV's channels into a single stacked .npy, using the same
+        # sorted-channel order the old folder-based _merge_channels used.
+        os.makedirs(stack_path, exist_ok=True)
+        sorted_channels = sorted(channels_seen)
+        for output_filename, chan_mips in fov_channels.items():
+            file_root = os.path.splitext(output_filename)[0]
+            new_file = os.path.join(stack_path, file_root + '.npy')
+            if os.path.exists(new_file):
+                print(f'WARNING: A file with the same name already exists at location {new_file}')
+                continue
+            planes = []
+            for channel in sorted_channels:
+                mip = chan_mips.get(channel)
+                if mip is None:
+                    print(f"Warning: FOV {output_filename} is missing channel {channel}")
+                    continue
+                planes.append(np.expand_dims(mip, axis=2))
+            if planes:
+                np.save(new_file, np.concatenate(planes, axis=2))
+            else:
+                print(f"No valid channels to merge for file {output_filename}")
+        fov_channels.clear()
+
+        # Handle the raw input images: keep a backup copy under orig/ only when
+        # requested, otherwise delete them (the pixels now live in stack/).
+        if save_original_images:
+            newpath = os.path.join(src, 'orig')
+            os.makedirs(newpath, exist_ok=True)
+            for filename in os.listdir(src):
+                if os.path.splitext(filename)[1] in img_format:
+                    move = os.path.join(newpath, filename)
+                    if os.path.exists(move):
+                        print(f'WARNING: A file with the same name already exists at location {move}')
+                    else:
+                        shutil.move(os.path.join(src, filename), move)
+        else:
+            for filename in os.listdir(src):
+                if os.path.splitext(filename)[1] in img_format:
+                    try:
+                        os.remove(os.path.join(src, filename))
+                    except OSError as e:
+                        print(f"Warning: could not delete original image {filename}: {e}")
     files_processed = 0
-    return
+    return len(channels_seen)
 
 def _merge_file(chan_dirs, stack_dir, file_name):
     """
@@ -1753,8 +1796,13 @@ def preprocess_img_data(settings):
         try:
             if not img_format == None:
                 img_format = ['.tif', '.tiff', '.png', '.jpg', '.jpeg', '.bmp', '.nd2', '.czi', '.lif']
-                _rename_and_organize_image_files(src, regex, settings['batch_size'], settings['metadata_type'], img_format)
-                
+                # Builds the stack/ arrays directly from an in-memory channel dict
+                # (no per-channel sub-folders) and returns the channel count.
+                nr_channel_folders = _rename_and_organize_image_files(
+                    src, regex, settings['batch_size'], settings['metadata_type'], img_format,
+                    timelapse=settings['timelapse'],
+                    save_original_images=settings.get('save_original_images', True))
+
                 #Make sure no batches will be of only one image
                 all_imgs = len(stack_path)
                 full_batches = all_imgs // settings['batch_size']
@@ -1770,8 +1818,6 @@ def preprocess_img_data(settings):
                         print(f"all images: {all_imgs},  full batch: {full_batches}, last batch: {last_batch_size}")
                         raise ValueError("Last batch of size 1 detected. Adjust the batch size.")
                         
-                nr_channel_folders = _merge_channels(src, plot=False)
-                
                 if len(settings['channels']) != nr_channel_folders:
                     print(f"Number of channels does not match number of channel folders. channels: {settings['channels']} channel folders: {nr_channel_folders}")
                     new_channels = list(range(nr_channel_folders))

@@ -148,24 +148,28 @@ def _mask_settings_for(src: Path) -> dict:
 @pytest.mark.slow
 @pytest.mark.gpu
 def test_module_ingest_organizes_channels(_stub_plate, caplog):
-    """_rename_and_organize_image_files should sort raw tiles into
-    per-channel subfolders before any downstream stage runs."""
+    """_rename_and_organize_image_files builds the merged stack/ arrays
+    directly from an in-memory channel dict — NO per-channel sub-folders are
+    created, and the raw tiles are backed up under orig/."""
     from spacr.io import _rename_and_organize_image_files
     from spacr.utils import _get_regex
 
     src = str(_stub_plate)
     regex = _get_regex("cellvoyager", ".tif", None)
     caplog.set_level(logging.INFO, logger="spacr")
-    _rename_and_organize_image_files(
+    n_channels = _rename_and_organize_image_files(
         src, regex, batch_size=100, metadata_type="cellvoyager",
-        img_format=[".tif"])
-    # Every original tile carried a channel index 0..N; that means N
-    # sub-folders should exist afterwards.
+        img_format=[".tif"], save_original_images=True)
+    # No intermediate per-channel folders should be left behind.
     channel_dirs = [p for p in _stub_plate.iterdir()
                       if p.is_dir() and p.name in ("0", "1", "2")]
-    assert channel_dirs, (
-        f"expected per-channel subfolders under {_stub_plate}; "
-        f"found {[p.name for p in _stub_plate.iterdir()]}")
+    assert not channel_dirs, (
+        f"per-channel sub-folders should NOT be created; found {channel_dirs}")
+    # The stack/ arrays were produced directly, and raws are backed up.
+    stack = _stub_plate / "stack"
+    assert stack.is_dir() and any(stack.glob("*.npy"))
+    assert (_stub_plate / "orig").is_dir()
+    assert n_channels >= 1
 
 
 # ---------------------------------------------------------------------------
