@@ -826,6 +826,16 @@ def launch(argv: Optional[list[str]] = None) -> int:
     app.setApplicationName("spaCR")
     app.setOrganizationName("Olafsson Lab")
 
+    # Lift Qt's default 256 MB QImageReader allocation limit. Large multi-panel
+    # figures rendered at high DPI decode to well over 256 MB, and hitting the
+    # limit makes QPixmap loads fail (blank figures) and the UI hang. 0 = no
+    # limit; the figure queue still caps display resolution for sanity.
+    try:
+        from PySide6.QtGui import QImageReader
+        QImageReader.setAllocationLimit(0)
+    except Exception:
+        pass
+
     # Bundle Open Sans (Regular + Light + SemiBold) so the app renders
     # the same on every OS regardless of what fonts the user has
     # installed. Registered before applying the stylesheet so any

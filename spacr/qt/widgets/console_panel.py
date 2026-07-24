@@ -348,6 +348,11 @@ class ConsolePanel(QWidget):
     def __init__(self, active_app_label: str = "", parent=None):
         super().__init__(parent)
         self.setObjectName("ConsolePanel")
+        # QWidget (unlike QFrame) doesn't paint a QSS background/border/radius
+        # unless told to — without this the ConsolePanel's rounded surface box
+        # never draws and the console area shows straight through to the black
+        # app background. WA_StyledBackground makes the rounded box appear.
+        self.setAttribute(Qt.WA_StyledBackground, True)
         self._active_app_label = active_app_label or ""
         # Module + function the current pipeline output is coming from, shown
         # in the "spaCR output — <module> — <function>" banner.

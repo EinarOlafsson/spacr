@@ -302,7 +302,10 @@ QPushButton#SidebarItem:checked, QPushButton#SidebarItem[selected="true"] {{
  *  Cards / grouped sections
  * ----------------------------------------------------------------- */
 QFrame#Card {{
-    background-color: {P["surface"]};
+    /* A clear dark-gray rounded box sitting on the black app background —
+       same surface as the console box so System/Figures/console read as one
+       consistent family of boxes. */
+    background-color: {P["surface_alt"]};
     border: 1px solid {P["border_soft"]};
     border-radius: {R["md"]}px;
 }}
@@ -770,14 +773,15 @@ QProgressBar::chunk {{
     border-radius: 4px;
 }}
 QProgressBar#UsageBar {{
-    /* Same as the System card body so the RAM/GPU/CPU/VRAM track blends into
-       the box it sits in (only the filled chunk stands out). */
-    background: {P["surface"]};
+    /* Match the System card body (surface_alt) so the RAM/GPU/CPU/VRAM track
+       blends into the box it sits in (only the filled chunk stands out)
+       instead of reading as a separate black bar. */
+    background: {P["surface_alt"]};
     height: 6px;
     max-height: 6px;
 }}
 QProgressBar#UsageBarWarn, QProgressBar#UsageBarError {{
-    background: {P["surface"]};
+    background: {P["surface_alt"]};
     height: 6px;
     max-height: 6px;
 }}

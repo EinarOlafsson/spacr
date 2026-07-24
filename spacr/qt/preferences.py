@@ -66,9 +66,9 @@ DEFAULT_CB_MODE = "off"
 _KEY_FIG_FORMAT = "prefs/figure_format"
 _KEY_FIG_PNG_DPI = "prefs/figure_png_dpi"
 VALID_FIG_FORMATS = ("png", "pdf")
-DEFAULT_FIG_FORMAT = "png"
+DEFAULT_FIG_FORMAT = "pdf"
 VALID_PNG_DPIS = (100, 200, 300, 600, 1200)
-DEFAULT_PNG_DPI = 200
+DEFAULT_PNG_DPI = 300
 
 
 def _settings() -> QSettings:

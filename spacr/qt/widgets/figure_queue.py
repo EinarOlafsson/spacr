@@ -219,8 +219,19 @@ class FigureQueue(QWidget):
             dpi = get_figure_png_dpi()
         except Exception:
             dpi, get_figure_format = 200, (lambda: "png")
+        # Cap the DISPLAY raster so a big multi-panel figure at a high DPI can't
+        # balloon into a multi-hundred-MB PNG that's slow to decode and blocks
+        # the UI. Screen never needs more than ~4000 px on the long side; the
+        # vector .pdf (saved below) keeps full quality for export.
         try:
-            fig.savefig(str(png_path), dpi=dpi, bbox_inches="tight",
+            w_in, h_in = fig.get_size_inches()
+            longest_in = max(float(w_in), float(h_in)) or 1.0
+            MAX_PX = 4000
+            display_dpi = min(dpi, max(72, int(MAX_PX / longest_in)))
+        except Exception:
+            display_dpi = min(dpi, 200)
+        try:
+            fig.savefig(str(png_path), dpi=display_dpi, bbox_inches="tight",
                         facecolor="white")
             # In PDF mode, also drop a vector .pdf next to the raster so the
             # figure-settings button has something editable to work with.
