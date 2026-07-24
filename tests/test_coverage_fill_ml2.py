@@ -268,3 +268,40 @@ def test_ml_analysis_bad_model_type():
             positive_control="c2", negative_control="c1",
             model_type="bogus", n_repeats=1,
             remove_highly_correlated_features=False, n_jobs=1)
+
+
+def test_ml_analysis_cross_validation():
+    df = _feature_df()
+    output, figs = ML.ml_analysis(
+        df, channel_of_interest=3, location_column="columnID",
+        positive_control="c2", negative_control="c1",
+        model_type="random_forest", n_repeats=2, cross_validation=True,
+        remove_highly_correlated_features=False, n_jobs=1)
+    assert output[0] is not None
+
+
+def test_ml_analysis_logistic_regression():
+    # logistic_regression has no feature_importances_ → else branch
+    # (regression test: previously raised UnboundLocalError on the return)
+    df = _feature_df()
+    output, figs = ML.ml_analysis(
+        df, channel_of_interest=3, location_column="columnID",
+        positive_control="c2", negative_control="c1",
+        model_type="logistic_regression", n_repeats=2, test_size=0.25,
+        remove_highly_correlated_features=False, n_jobs=1)
+    assert output[2].empty       # empty feature_importance_df for LR
+    assert figs[1] is None       # no feature-importance figure
+
+
+def test_ml_analysis_gradient_boosting():
+    # HistGradientBoostingClassifier lacks feature_importances_ → else branch
+    # (regression test: previously raised AttributeError)
+    df = _feature_df()
+    output, figs = ML.ml_analysis(
+        df, channel_of_interest=3, location_column="columnID",
+        positive_control="c2", negative_control="c1",
+        model_type="gradient_boosting", n_repeats=2, test_size=0.25,
+        n_estimators=20,
+        remove_highly_correlated_features=False, n_jobs=1)
+    assert output[0] is not None
+    assert figs[1] is None
