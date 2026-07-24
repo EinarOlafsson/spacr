@@ -2258,7 +2258,11 @@ def set_default_generate_barecode_mapping(settings=None):
     if settings is None:
         settings = {}
     settings.setdefault('src', 'path')
-    settings.setdefault('regex', '^(?P<column>.{8})TGCTG.*TAAAC(?P<grna>.{20,21})AACTT.*AGAAG(?P<row>.{8}).*'),
+    # Group names MUST be columnID / rowID (not column / row): the read
+    # processors in sequencing.py read match.group('columnID') /
+    # match.group('rowID'), so a default regex naming them column/row raised
+    # "IndexError: no such group" — the shipped default was unusable.
+    settings.setdefault('regex', '^(?P<columnID>.{8})TGCTG.*TAAAC(?P<grna>.{20,21})AACTT.*AGAAG(?P<rowID>.{8}).*'),
     settings.setdefault('target_sequence', 'TGCTGTTTCCAGCATAGCTCTTAAAC')
     settings.setdefault('offset_start', -8)
     settings.setdefault('expected_end', 89)
