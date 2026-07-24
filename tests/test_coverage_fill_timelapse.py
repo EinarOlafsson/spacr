@@ -113,3 +113,78 @@ def test_parse_merged_filename_minimal():
     meta = TL._parse_merged_filename("plateX.npy")
     assert meta["plateID"] == "plateX" and meta["timeID"] == 0
     assert meta["fieldID"] == "1"
+
+
+# ---------------------------------------------------------------------------
+# _relabel_masks_based_on_tracks
+# ---------------------------------------------------------------------------
+
+def test_relabel_masks_based_on_tracks():
+    masks = _moving_masks()
+    tracks = TL._track_by_iou(masks, iou_threshold=0.1)
+    relabeled = TL._relabel_masks_based_on_tracks(masks, tracks)
+    assert relabeled.shape == masks.shape and relabeled.dtype == masks.dtype
+
+
+# ---------------------------------------------------------------------------
+# _reorient_merged_array
+# ---------------------------------------------------------------------------
+
+def test_reorient_merged_array_planes_first():
+    arr = np.zeros((4, 16, 16), dtype=np.float32)   # already planes-first
+    out, planes, H, W = TL._reorient_merged_array(arr, n_channels=3)
+    assert planes == 4 and (H, W) == (16, 16)
+
+
+def test_reorient_merged_array_planes_last():
+    arr = np.zeros((16, 16, 4), dtype=np.float32)   # planes last → moved
+    out, planes, H, W = TL._reorient_merged_array(arr, n_channels=3)
+    assert out.shape[0] == 4 and (H, W) == (16, 16)
+
+
+def test_reorient_merged_array_fallback():
+    # no axis in [n, n+max] → smallest axis chosen
+    arr = np.zeros((2, 16, 16), dtype=np.float32)
+    out, planes, H, W = TL._reorient_merged_array(arr, n_channels=8)
+    assert planes == 2
+
+
+def test_reorient_merged_array_bad_ndim():
+    with pytest.raises(ValueError):
+        TL._reorient_merged_array(np.zeros((16, 16)), n_channels=3)
+
+
+# ---------------------------------------------------------------------------
+# preprocess_pathogen_data
+# ---------------------------------------------------------------------------
+
+def test_preprocess_pathogen_data():
+    rng = np.random.default_rng(0)
+    n = 20
+    df = pd.DataFrame({
+        "plateID": ["p1"] * n, "rowID": ["r1"] * n,
+        "column_name": ["c1"] * n, "fieldID": ["f1"] * n,
+        "timeid": rng.integers(0, 3, n),
+        "pathogen_cell_id": rng.integers(1, 4, n),
+        "object_label": range(n),
+        "area": rng.uniform(10, 100, n),
+    })
+    out = TL.preprocess_pathogen_data(df)
+    assert "parasite_count" in out.columns
+    assert "object_label" in out.columns   # renamed from pathogen_cell_id
+
+
+# ---------------------------------------------------------------------------
+# save_figure / save_results_dataframe
+# ---------------------------------------------------------------------------
+
+def test_save_figure_and_results(tmp_path):
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots(); ax.plot([0, 1], [0, 1])
+    src = str(tmp_path / "run" / "data")
+    (tmp_path / "run").mkdir()
+    TL.save_figure(fig, src, 1)
+    plt.close(fig)
+    assert (tmp_path / "run" / "results" / "figure_1.pdf").exists()
+    TL.save_results_dataframe(pd.DataFrame({"a": [1, 2]}), src, "res")
+    assert (tmp_path / "run" / "results" / "res.csv").exists()
