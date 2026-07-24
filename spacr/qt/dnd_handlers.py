@@ -148,12 +148,19 @@ def _report_regex_on_mask(path: Path, screen) -> None:
     if path.is_file():
         desc = mf.describe_file(path)
         if desc is not None:
+            # Container formats (nd2/czi/lif/multi-page tiff/npz) are expanded
+            # to the canonical Yokogawa layout by the pipeline's auto converter.
+            # Set metadata_type='auto' so that conversion actually runs, and
+            # point src at the containing folder.
+            _set_screen_setting(screen, "metadata_type", "auto")
             _log(screen,
                  f"[drop] single-file dataset: {desc.summary()}\n"
-                 f"       (spaCR will expand this into the canonical "
-                 f"filename structure on the first Run — a "
-                 f"filename_map.csv will link every generated file "
-                 f"back to this source.)\n")
+                 f"       Set metadata_type = 'auto' — spaCR will auto-extract "
+                 f"every image (channels/z/fields) from this container into the "
+                 f"canonical filename structure on the first Run, and write a "
+                 f"filename_map.csv linking each generated file back to it. "
+                 f"Review the extracted metadata in the run output; re-run with "
+                 f"a custom regex if anything is off.\n")
             return
         _log(screen, f"[drop] dropped file {path.name} — unrecognised "
                      f"single-file dataset format.\n")
@@ -202,14 +209,65 @@ def _report_regex_on_mask(path: Path, screen) -> None:
     if warnings:
         for w in warnings:
             _log(screen, f"⚠ {w}\n")
-        _log(screen, "→ Opening the regex editor so you can fix it. "
-                     "Use the Auto-detect button or edit the pattern "
-                     "manually.\n")
+        # Offer folder-structure metadata as an alternative to a filename regex
+        # (useful when the plate/well/field/channel live in directory names).
+        _report_folder_structure(path, screen)
+        _log(screen, "→ Opening the regex editor so you can enter a custom "
+                     "pattern that matches your filenames live. Use the "
+                     "Auto-detect button or edit the pattern manually — or use "
+                     "the folder-structure option above.\n")
         _open_regex_editor(filenames, pattern or "", screen)
     else:
         _log(screen, "✓ All required fields captured "
                      "(wellID / fieldID, chanID).\n")
         _push_regex_to_screen(pattern, screen)
+
+
+def _set_screen_setting(screen, key: str, value) -> bool:
+    """Set a settings widget's value on the screen (combo or line edit)."""
+    try:
+        w = screen._settings_model._widgets.get(key)
+        if w is None:
+            return False
+        from PySide6.QtWidgets import QComboBox, QLineEdit
+        if isinstance(w, QComboBox):
+            idx = w.findText(str(value))
+            if idx >= 0:
+                w.setCurrentIndex(idx)
+                return True
+            w.setEditText(str(value))
+            return True
+        if isinstance(w, QLineEdit):
+            w.setText(str(value))
+            return True
+        if hasattr(w, "setText"):
+            w.setText(str(value))
+            return True
+    except Exception:
+        pass
+    return False
+
+
+def _report_folder_structure(path, screen) -> None:
+    """Detect metadata from the folder structure and report it as an
+    alternative to a filename regex (folder_metadata is otherwise unwired)."""
+    try:
+        from . import folder_metadata as fm
+        template = fm.detect_folder_metadata(str(path))
+    except Exception:
+        template = None
+    if template is None:
+        return
+    labels = getattr(template, "depth_labels", None)
+    if not labels:
+        return
+    _log(screen,
+         "\n[drop] folder-structure alternative — detected metadata from the "
+         "directory layout:\n"
+         f"       path depth → {' / '.join(str(l) for l in labels)}\n"
+         "       If your images are organised by folder (e.g. plate/well/"
+         "field) rather than by filename, this can be used instead of a "
+         "filename regex.\n")
 
 
 def _open_regex_editor(filenames: list, initial: str, screen) -> None:
