@@ -336,9 +336,15 @@ def preprocess_generate_masks(settings):
             torch.cuda.empty_cache()
             gc.collect()
             
-            if settings['delete_intermediate']:
-                print(f"deleting intermediate files")
-                delete_intermedeate_files(settings)
+            # By default keep only merged/ (masks are embedded there + labels
+            # are in the database). keep_intermediate / keep_original_images
+            # opt out. The legacy delete_intermediate flag forces cleanup too.
+            from .utils import cleanup_pipeline_folders
+            keep_intermediate = settings.get('keep_intermediate', False) and not settings.get('delete_intermediate', False)
+            keep_original = settings.get('keep_original_images', False) and not settings.get('delete_intermediate', False)
+            cleanup_pipeline_folders(src,
+                                     keep_intermediate=keep_intermediate,
+                                     keep_original=keep_original)
 
             print("Successfully completed run")
     return
