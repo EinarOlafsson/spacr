@@ -89,11 +89,12 @@ def test_lazy_dataset_static_helpers():
 
 def test_lazy_dataset_v1(tmp_path):
     imgs, lbls = zip(*[_make_pair(tmp_path, i) for i in range(2)])
-    ds = S.CellposeLazyDataset_v1(
+    ds = S.CellposeLazyDataset(
         list(imgs), list(lbls),
         {"normalize": True, "percentiles": [2, 99], "target_size": 16},
         randomize=False, augment=True)
     assert len(ds) == 16
     for k in range(8):
         img, lbl = ds[k]
-        assert img.shape == (16, 16) and lbl.dtype == np.uint8
+        assert img.shape == (16, 16) and lbl.shape == (16, 16)
+        assert lbl.dtype == np.uint16

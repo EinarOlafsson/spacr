@@ -20,7 +20,7 @@ from typing import Dict, List, Optional, Tuple
 
 from PIL import Image
 from PIL.ImageQt import ImageQt
-from PySide6.QtCore import Qt, QRectF, QSize, QTimer, Signal
+from PySide6.QtCore import Qt, QRectF, QSize, QThread, QTimer, Signal
 from PySide6.QtGui import (QAction, QImage, QKeySequence, QPainter,
                            QPainterPath, QPixmap, QShortcut)
 from PySide6.QtWidgets import (
@@ -74,6 +74,34 @@ BORDER_WIDTH = 5
 # ---------------------------------------------------------------------------
 # Click-aware thumbnail label
 # ---------------------------------------------------------------------------
+
+class _PageLoadWorker(QThread):
+    """Loads + processes a page of thumbnail images OFF the GUI thread.
+
+    ``_load_thumb_image`` (normalise + optional Otsu/Cellpose outline) is
+    expensive; running it inline froze the UI when settings changed. This runs
+    the whole page in a worker and emits the finished (PIL image, annotation)
+    list back to the main thread, which does only the cheap pixmap conversion.
+    ``gen`` lets the screen ignore results from a superseded load.
+    """
+
+    done = Signal(int, object)   # (gen, list[(PIL.Image, annotation)])
+
+    def __init__(self, gen: int, paths: list, load_fn, parent=None):
+        super().__init__(parent)
+        self._gen = gen
+        self._paths = paths
+        self._load_fn = load_fn
+
+    def run(self):
+        from concurrent.futures import ThreadPoolExecutor
+        try:
+            with ThreadPoolExecutor() as ex:
+                loaded = list(ex.map(self._load_fn, self._paths))
+        except Exception:
+            loaded = []
+        self.done.emit(self._gen, loaded)
+
 
 class _Thumbnail(QLabel):
     """QLabel that emits left/right-click signals with its slot index."""
@@ -217,6 +245,15 @@ class _SettingsDialog(QDialog):
         self._outline.setPlaceholderText("channels to outline, e.g. g")
         form.addRow("Outline channels", self._outline)
 
+        self._outline_method = QComboBox()
+        self._outline_method.addItems(["otsu", "cellpose"])
+        self._outline_method.setCurrentText(
+            getattr(settings, "outline_method", "otsu"))
+        self._outline_method.setToolTip(
+            "How object outlines are found: 'otsu' (fast threshold) or "
+            "'cellpose' (a small Cellpose model — cleaner, slower).")
+        form.addRow("Outline method", self._outline_method)
+
         self._out_factor = QDoubleSpinBox()
         self._out_factor.setRange(0.0, 100.0)
         self._out_factor.setValue(float(settings.outline_threshold_factor))
@@ -307,6 +344,7 @@ class _SettingsDialog(QDialog):
         s.normalize_channels = _csv_to_list(self._norm_channels.text())
         s.percentiles = (float(self._pct_lo.value()), float(self._pct_hi.value()))
         s.outline = _csv_to_list(self._outline.text())
+        s.outline_method = self._outline_method.currentText()
         s.outline_threshold_factor = float(self._out_factor.value())
         s.outline_sigma = float(self._out_sigma.value())
         s.edge_thickness = float(self._edge_thick.value())
@@ -356,6 +394,8 @@ class AnnotateScreen(QWidget):
         self._thumbs: List[_Thumbnail] = []
         self._thumb_pixmaps: List[Optional[QPixmap]] = []
         self._raw_thumb_images: List[Optional[Image.Image]] = []
+        self._page_workers: List[_PageLoadWorker] = []
+        self._page_gen = 0
         self._suggested_source = prefs.get_last_source("annotate")
 
         self._build_ui()
@@ -616,10 +656,20 @@ class AnnotateScreen(QWidget):
         self._worker.start()
         self._offset = 0
         self._src_label.setText(f"{src}  →  {db_path}")
-        self._refresh_total()
-        self._load_page()
         prefs.push_recent_source("annotate", src)
+        # Show the grid page FIRST so its viewport is realized, then defer the
+        # grid build + first load to the next event-loop tick. Otherwise
+        # _compute_grid_dims measures a zero-size viewport and builds a 5x5
+        # fallback, so the first open showed only a few images that don't fill
+        # the view (until the user opened Settings, which rebuilt the grid).
         self._content_stack.setCurrentWidget(self._grid_scroll)
+        self._refresh_total()
+        QTimer.singleShot(0, self._rebuild_and_load)
+
+    def _rebuild_and_load(self):
+        """Rebuild the grid against the (now realized) viewport, then load."""
+        self._rebuild_grid()
+        self._load_page()
 
     def _on_open_settings(self):
         dlg = _SettingsDialog(self._settings, self)
@@ -772,9 +822,33 @@ class AnnotateScreen(QWidget):
             self._thumb_pixmaps[i] = None
             self._raw_thumb_images[i] = None
 
-        # Load images off-thread
-        with ThreadPoolExecutor() as ex:
-            loaded = list(ex.map(self._load_thumb_image, self._page_paths))
+        # Process the page (normalise + outline) on a worker thread so the UI
+        # stays responsive even when the recompute is slow. A generation token
+        # discards results from a page/settings change the user has since
+        # superseded.
+        self._page_gen += 1
+        self._page_label.setText(f"Loading {len(self._page_paths)} images…")
+        # No parent — so the widget being torn down can't destroy a still-
+        # running QThread (which aborts the process). Held in a list until it
+        # finishes; dropped in _retire_page_worker.
+        worker = _PageLoadWorker(self._page_gen, list(self._page_paths),
+                                 self._load_thumb_image)
+        worker.done.connect(self._on_page_loaded)
+        worker.finished.connect(lambda w=worker: self._retire_page_worker(w))
+        self._page_workers.append(worker)
+        worker.start()
+
+    def _retire_page_worker(self, worker):
+        try:
+            self._page_workers.remove(worker)
+        except ValueError:
+            pass
+        worker.deleteLater()
+
+    def _on_page_loaded(self, gen: int, loaded):
+        if gen != self._page_gen:
+            return   # superseded by a newer load
+        page = self._settings.page_size
         for i, (img, annotation) in enumerate(loaded):
             if i >= len(self._thumbs):
                 break
@@ -817,6 +891,7 @@ class AnnotateScreen(QWidget):
                     edge_image=s.edge_image,
                     outline_threshold_factor=s.outline_threshold_factor,
                     object_size=s.object_size,
+                    outline_method=getattr(s, "outline_method", "otsu"),
                 )
             except Exception:
                 pass   # fall through with base image if outline fails
@@ -879,8 +954,11 @@ class AnnotateScreen(QWidget):
 
     # ------------------------------------------------------------------
     def closeEvent(self, event):
-        """Flush pending annotations and stop the SaveWorker before closing."""
+        """Flush pending annotations and stop the workers before closing."""
         self._flush_pending()
         if self._worker:
             self._worker.stop(wait=True)
+        self._page_gen += 1   # invalidate any in-flight results
+        for w in list(self._page_workers):
+            w.wait(4000)
         super().closeEvent(event)
