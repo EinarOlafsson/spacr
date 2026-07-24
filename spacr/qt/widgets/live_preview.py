@@ -59,16 +59,48 @@ LOG = logging.getLogger("spacr.qt.live_preview")
 SUPPORTED_SUFFIXES = (".tif", ".tiff", ".png", ".jpg", ".jpeg")
 
 # Object types the panel understands. Order matters — it drives the
-# order of the combo.
-OBJECT_TYPES = ("cell", "nucleus", "cell + nucleus")
+# order of the combo. cell/nucleus can be previewed together; pathogen and
+# organelle are single-compartment selections whose settings panels light up
+# when chosen.
+OBJECT_TYPES = ("cell", "nucleus", "cell + nucleus", "pathogen", "organelle")
+
+# The four segmentation compartments, in the left→right order their settings
+# panels appear in the Live settings dialog.
+COMPARTMENTS = ("cell", "nucleus", "pathogen", "organelle")
 
 # Overlay colours for individual object types. Cell = green (matches
 # the classic v1 boundary colour), nucleus = magenta, and when both
 # are shown together those colours read cleanly on top of most stains.
 OBJECT_COLORS: Dict[str, Tuple[int, int, int]] = {
-    "cell":    (32, 220, 32),
-    "nucleus": (222, 82, 200),
+    "cell":      (32, 220, 32),
+    "nucleus":   (222, 82, 200),
+    "pathogen":  (32, 200, 220),
+    "organelle": (255, 220, 32),
 }
+
+# Per-compartment tuning settings, shown (greyed unless the compartment is the
+# chosen object) in that compartment's panel. Each entry is
+# ``(key_suffix, label, kind, spin_args)`` where the real setting key is
+# ``f"{compartment}_{key_suffix}"`` and kind is one of int/float/bool/method.
+# spin_args = (min, max, default) for int/float; ignored otherwise.
+COMPARTMENT_FIELDS = (
+    ("min_area",                   "Min area (px²)",        "int",   (0, 100_000_000, 0)),
+    ("max_area",                   "Max area (px²)",        "int",   (0, 100_000_000, 0)),
+    ("min_object_area",            "Min object area",       "int",   (0, 100_000_000, 100)),
+    ("min_distance",               "Min distance",          "int",   (0, 100_000, 10)),
+    ("area_multiplier",            "Area multiplier",       "float", (0.0, 1000.0, 2.0)),
+    ("perimeter_fraction",         "Perimeter fraction",    "float", (0.0, 1.0, 0.5)),
+    ("min_intensity_percentile",   "Min intensity pct",     "int",   (0, 100, 1)),
+    ("max_intensity_percentile",   "Max intensity pct",     "int",   (0, 100, 99)),
+    ("intensity_percentile",       "Intensity percentile",  "int",   (0, 100, 50)),
+    ("intensity_threshold_method", "Intensity threshold",   "method", None),
+    ("intensity_merge",            "Intensity merge",       "bool",  None),
+    ("intensity_split",            "Intensity split",       "bool",  None),
+    ("remove_border_objects",      "Remove border objects", "bool",  None),
+)
+
+# Threshold-method choices (see spacr.utils intensity-merge logic).
+INTENSITY_THRESHOLD_METHODS = ("mean", "percentile")
 
 
 # ---------------------------------------------------------------------------
@@ -469,6 +501,7 @@ class LivePreviewPanel(QWidget):
         # Callback(dict) that pushes tuned live settings into the main panel.
         self._propagate_cb = None
         self._build_ui()
+        self._build_compartment_widgets()
         # Accept image files dropped anywhere on the panel. QGraphicsView
         # enables acceptDrops by default and would otherwise swallow drops
         # over the image canvases; turning it off on the views lets the drag
@@ -698,7 +731,7 @@ class LivePreviewPanel(QWidget):
     def settings_for_propagation(self) -> dict:
         """Map the live-preview widget values to main-panel settings keys."""
         model = self._model_box.currentText()
-        return {
+        out = {
             "model_name": model,
             "cell_channel": int(self._cell_channel.value()),
             "nucleus_channel": int(self._nucleus_channel.value()),
@@ -708,6 +741,11 @@ class LivePreviewPanel(QWidget):
             "normalize": bool(self._normalise_check.isChecked()),
             "lower_percentile": float(self._lo_pct.value()),
         }
+        # Per-compartment + common tuning settings (only present once the
+        # compartment widgets have been built).
+        if hasattr(self, "_compartment_widgets"):
+            out.update(self._compartment_settings())
+        return out
 
     def propagate_settings(self) -> None:
         """Send the current live settings to the main panel (if a callback is
@@ -777,6 +815,95 @@ class LivePreviewPanel(QWidget):
         worker.start()
 
     # -- internals ---------------------------------------------------------
+
+    # -- per-compartment tuning widgets -----------------------------------
+
+    def _build_compartment_widgets(self) -> None:
+        """Create the common + per-compartment tuning widgets.
+
+        They live on the panel (hidden) so their values persist across opens
+        of the Live settings dialog, which re-parents them into its panels and
+        hands them back on close — the same pattern the segmentation widgets
+        use. Nothing is added to the compact panel layout.
+
+        Populates:
+          * ``self._common_widgets`` — signal-to-noise / remove-background /
+            background controls that apply to whichever object is chosen.
+          * ``self._compartment_widgets[compartment][suffix]`` — the per-
+            compartment tuning spinners/checks/combos.
+          * ``self._adjust_cells`` — the cell-only "adjust cells" toggle.
+        """
+        def _spin(kind, spin_args):
+            if kind == "float":
+                w = QDoubleSpinBox(self)
+                lo, hi, dv = spin_args
+                w.setRange(float(lo), float(hi)); w.setValue(float(dv))
+                w.setDecimals(3)
+            elif kind == "int":
+                w = QSpinBox(self)
+                lo, hi, dv = spin_args
+                w.setRange(int(lo), int(hi)); w.setValue(int(dv))
+            elif kind == "bool":
+                w = QCheckBox(self)
+            elif kind == "method":
+                w = QComboBox(self)
+                w.addItems(list(INTENSITY_THRESHOLD_METHODS))
+            else:
+                raise ValueError(kind)
+            w.hide()
+            return w
+
+        # Common controls — one widget each, retargeted to the chosen object
+        # at propagation time (see settings_for_propagation).
+        self._common_widgets: Dict[str, QWidget] = {
+            "signal_to_noise": _spin("int", (0, 100_000, 10)),
+            "remove_background": _spin("bool", None),
+            "background": _spin("int", (0, 100_000, 100)),
+        }
+        # Cell-only extra.
+        self._adjust_cells = _spin("bool", None)
+
+        self._compartment_widgets: Dict[str, Dict[str, QWidget]] = {}
+        for comp in COMPARTMENTS:
+            group: Dict[str, QWidget] = {}
+            for suffix, _label, kind, spin_args in COMPARTMENT_FIELDS:
+                group[suffix] = _spin(kind, spin_args)
+            self._compartment_widgets[comp] = group
+
+    def _all_compartment_widgets(self) -> List[QWidget]:
+        ws: List[QWidget] = list(self._common_widgets.values())
+        ws.append(self._adjust_cells)
+        for group in self._compartment_widgets.values():
+            ws.extend(group.values())
+        return ws
+
+    def _primary_object(self) -> str:
+        """The compartment the common controls target — the first selected."""
+        return self._selected_object_types()[0]
+
+    @staticmethod
+    def _widget_value(w):
+        if isinstance(w, QCheckBox):
+            return bool(w.isChecked())
+        if isinstance(w, QComboBox):
+            return w.currentText()
+        return w.value()
+
+    def _compartment_settings(self) -> dict:
+        """Map every compartment + common tuning widget to its setting key."""
+        out: dict = {}
+        for comp, group in self._compartment_widgets.items():
+            for suffix, w in group.items():
+                out[f"{comp}_{suffix}"] = self._widget_value(w)
+        obj = self._primary_object()
+        out[f"{obj}_Signal_to_noise"] = self._widget_value(
+            self._common_widgets["signal_to_noise"])
+        out[f"remove_background_{obj}"] = self._widget_value(
+            self._common_widgets["remove_background"])
+        out[f"{obj}_background"] = self._widget_value(
+            self._common_widgets["background"])
+        out["adjust_cells"] = self._widget_value(self._adjust_cells)
+        return out
 
     def _selected_object_types(self) -> Tuple[str, ...]:
         current = self._object_box.currentText()
@@ -994,7 +1121,7 @@ class LivePreviewPanel(QWidget):
 # ---------------------------------------------------------------------------
 
 from PySide6.QtWidgets import (
-    QDialog, QDialogButtonBox, QFormLayout,
+    QDialog, QDialogButtonBox, QFormLayout, QGroupBox, QScrollArea,
 )
 
 
@@ -1023,14 +1150,19 @@ class LiveSettingsDialog(QDialog):
         super().__init__(panel)
         self._panel = panel
         self.setWindowTitle("Live settings")
-        self.setMinimumWidth(360)
         outer = QVBoxLayout(self)
-        form = QFormLayout()
 
         # Show the widgets we'll be adding, then re-hide them on close.
         for w in self._managed_widgets():
             w.show()
 
+        # Row of side-by-side panels: the segmentation + common controls on the
+        # left, then one greyed-until-chosen panel per compartment to the right.
+        panels_row = QHBoxLayout()
+        panels_row.setSpacing(12)
+
+        seg_group = QGroupBox("Segmentation")
+        form = QFormLayout(seg_group)
         form.addRow("Model", panel._model_box)
         form.addRow("Object", panel._object_box)
         form.addRow("Cell channel", panel._cell_channel)
@@ -1045,8 +1177,39 @@ class LiveSettingsDialog(QDialog):
         form.addRow("Outline thickness", panel._outline_thickness)
         form.addRow(panel._pre_check)
         form.addRow(panel._post_check)
+        # Common controls — apply to whichever object is chosen.
+        panel._common_widgets["signal_to_noise"].show()
+        panel._common_widgets["remove_background"].show()
+        panel._common_widgets["background"].show()
+        form.addRow("Signal to noise", panel._common_widgets["signal_to_noise"])
+        form.addRow("Remove background", panel._common_widgets["remove_background"])
+        form.addRow("Background", panel._common_widgets["background"])
+        panels_row.addWidget(seg_group)
 
-        outer.addLayout(form)
+        # One panel per compartment, greyed unless it's the chosen object.
+        self._compartment_groupboxes: Dict[str, QGroupBox] = {}
+        for comp in COMPARTMENTS:
+            box = QGroupBox(comp.capitalize())
+            cform = QFormLayout(box)
+            for suffix, label, _kind, _args in COMPARTMENT_FIELDS:
+                w = panel._compartment_widgets[comp][suffix]
+                w.show()
+                cform.addRow(label, w)
+            if comp == "cell":
+                panel._adjust_cells.show()
+                cform.addRow("Adjust cells", panel._adjust_cells)
+            self._compartment_groupboxes[comp] = box
+            panels_row.addWidget(box)
+
+        # Wrap the (wide) panel row in a horizontal scroll area so it fits on
+        # screen no matter how many compartments are shown.
+        row_host = QWidget()
+        row_host.setLayout(panels_row)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QScrollArea.NoFrame)
+        scroll.setWidget(row_host)
+        outer.addWidget(scroll, 1)
 
         # Run button lives in the dialog so settings can be iterated without
         # closing it — edit a value, hit Run, see the result, repeat.
@@ -1079,12 +1242,12 @@ class LiveSettingsDialog(QDialog):
         panel._normalise_check.toggled.connect(self.refresh_visibility)
 
         # Widgets whose changes propagate to the main panel while the toggle
-        # is on.
+        # is on — the segmentation controls plus every compartment/common knob.
         self._propagate_sources = [
             panel._model_box, panel._object_box, panel._cell_channel,
             panel._nucleus_channel, panel._diameter, panel._flow,
             panel._prob, panel._normalise_check, panel._lo_pct, panel._hi_pct,
-        ]
+        ] + panel._all_compartment_widgets()
 
         self.refresh_visibility()
 
@@ -1111,7 +1274,7 @@ class LiveSettingsDialog(QDialog):
                 p._nucleus_channel, p._diameter, p._flow, p._prob,
                 p._normalise_check, p._lo_pct, p._hi_pct,
                 p._outline_colour, p._outline_thickness,
-                p._pre_check, p._post_check]
+                p._pre_check, p._post_check] + p._all_compartment_widgets()
 
     def refresh_visibility(self):
         """Grey out settings that don't apply to the current selection.
@@ -1139,9 +1302,17 @@ class LiveSettingsDialog(QDialog):
         p._prob.setToolTip("")
 
         # -- object: which channel spinners apply --
-        obj = p._object_box.currentText()
-        p._cell_channel.setEnabled(obj != "nucleus")
-        p._nucleus_channel.setEnabled(obj != "cell")
+        selected = set(p._selected_object_types())
+        p._cell_channel.setEnabled("cell" in selected)
+        p._nucleus_channel.setEnabled("nucleus" in selected)
+
+        # -- compartment panels: only the chosen compartment(s) are editable;
+        #    the common controls (in the Segmentation panel) always are, and
+        #    they target whichever compartment is chosen. --
+        for comp, box in self._compartment_groupboxes.items():
+            box.setEnabled(comp in selected)
+            box.setToolTip("" if comp in selected
+                           else f"Select '{comp}' as the object to edit these")
 
         # -- Normalisation is always available (independent of the Pre step
         #    and of the model, incl. cpsam). The percentile bounds only apply
