@@ -90,12 +90,16 @@ def preprocess_generate_masks(settings):
 
     settings['src'] = normalize_src_path(settings['src'])
 
-    # v2 streaming pipeline — new opt-in flow that skips the
+    # v2 streaming pipeline — OPT-IN flow that skips the
     # rename/split/npz/npy multi-copy chain and goes straight from
     # originals → merged/stack_<field>.npy with masks appended
     # in-place. Roughly 60-80% less disk than v1 on typical plates.
-    # See spacr.pipeline_v2 for design notes.
-    if settings.get('pipeline_style', 'v2') == 'v2':
+    # NOTE: v1 remains the DEFAULT — v2 does not yet reproduce v1's
+    # channel/stack/mask_stack folder layout (downstream tools + the
+    # e2e suite depend on it) and still parses channels 1-indexed on
+    # real CellVoyager data. Enable v2 explicitly with
+    # pipeline_style='v2'. See spacr.pipeline_v2 for design notes.
+    if settings.get('pipeline_style', 'v1') == 'v2':
         from .pipeline_v2 import run_v2
         from ._v1_v2_bridge import (
             v2_channels_from_settings, report_disk_savings,

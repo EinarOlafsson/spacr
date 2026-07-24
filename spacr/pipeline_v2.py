@@ -350,21 +350,39 @@ def stream_originals_to_stack(
     for field_id, recs in by_field.items():
         # Group by channel number for this field
         by_ch = {r.channel: r for r in recs}
+
+        # Determine the field's true plane shape/dtype from ANY present
+        # channel first, so a zero plane synthesised for a missing channel
+        # matches — even when the missing channel is the FIRST requested one
+        # (otherwise np.stack raises "all input arrays must have the same
+        # shape"). Cache the read so present planes aren't read twice.
+        ref_shape = None
+        ref_dtype = np.uint16
+        read_cache: dict = {}
+        for ch in channels:
+            rec = by_ch.get(ch)
+            if rec is not None:
+                plane = _read_plane(rec.original_path)
+                read_cache[ch] = plane
+                ref_shape = plane.shape
+                ref_dtype = plane.dtype
+                break
+        if ref_shape is None:
+            ref_shape = (256, 256)
+
         planes: List[np.ndarray] = []
         for ch in channels:
             rec = by_ch.get(ch)
             if rec is None:
-                # Missing channel — synthesise a zero plane. This
-                # preserves shape so downstream tools don't crash.
-                if planes:
-                    zero = np.zeros_like(planes[0])
-                else:
-                    zero = np.zeros((256, 256), dtype=np.uint16)
+                # Missing channel — synthesise a zero plane matching the
+                # field's real shape so downstream tools don't crash.
                 LOG.warning("field %s missing channel %d — inserting zeros",
                              field_id, ch)
-                planes.append(zero)
+                planes.append(np.zeros(ref_shape, dtype=ref_dtype))
                 continue
-            plane = _read_plane(rec.original_path)
+            plane = read_cache.get(ch)
+            if plane is None:
+                plane = _read_plane(rec.original_path)
             planes.append(plane)
 
         stack = np.stack(planes, axis=-1).astype(np.uint16)
