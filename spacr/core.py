@@ -118,7 +118,10 @@ def preprocess_generate_masks(settings):
             report_disk_savings(src, result['stacks'])
         return
     
-    if settings['consolidate']:
+    # settings defaults (incl. 'consolidate') are only applied further down,
+    # inside the per-source loop; read defensively here so a settings dict
+    # without the key doesn't raise KeyError before that point.
+    if settings.get('consolidate', False):
         image_map = generate_image_path_map(settings['src'])
         copy_images_to_consolidated(image_map, settings['src'])
         settings['src'] = os.path.join(settings['src'], 'consolidated')
