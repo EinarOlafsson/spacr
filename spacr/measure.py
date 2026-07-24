@@ -1474,3 +1474,262 @@ def get_object_counts(src):
     return grouped_df
 
 
+
+
+def generate_object_dataset(
+    src,
+    object_type='cell',
+    channels=(0, 1, 2),
+    min_area=None,
+    max_area=None,
+    columns=None,
+    rows=None,
+    fields=None,
+    plates=None,
+    where=None,
+    criteria=None,
+    output_dir=None,
+    png_size=(128, 128),
+    mask_background=True,
+    normalize=True,
+    percentiles=(1, 99),
+    buffer=10,
+    mask_dims=None,
+    save_png=True,
+    return_arrays=False,
+    limit=None,
+    db_path=None,
+    verbose=True,
+):
+    """Build an image dataset by cropping individual objects out of the merged
+    image+mask arrays, selected by measurement and/or metadata criteria.
+
+    spaCR's ``merged/`` arrays store the image channels first and then one
+    integer label-mask slice per object class (cell, nucleus, pathogen,
+    organelle). The measurements database records, for every object, its
+    integer ``object_label``, the merged ``.npy`` it came from (``path_name``),
+    its well/field metadata, and its features (e.g. ``cell_area``). This
+    function queries that database for the objects you want, then for each hit
+    slices the object out of its array using ``object_label`` and the class
+    mask, assembles the channels you ask for into an image, and saves a PNG.
+
+    Example — an RGB dataset from image channels 0, 2, 4 for cells larger than
+    10000 px² in columns 1 and 2::
+
+        generate_object_dataset(
+            "/data/plate1", object_type="cell",
+            channels=(0, 2, 4), min_area=10000, columns=[1, 2])
+
+    :param src: experiment root (the folder that holds ``merged/`` and
+        ``measurements/measurements.db``), or the ``merged`` folder itself.
+    :param object_type: which object table + mask slice to crop
+        (``'cell'`` | ``'nucleus'`` | ``'pathogen'`` | ``'organelle'`` |
+        ``'cytoplasm'``).
+    :param channels: image channel indices to include, in output order. Three
+        indices → an RGB image; one → greyscale; two → padded to RGB; more than
+        three → kept as an ``.npy`` array (and the first three saved as a PNG
+        preview when ``save_png``).
+    :param min_area: keep only objects with ``{object_type}_area`` > this.
+    :param max_area: keep only objects with ``{object_type}_area`` < this.
+    :param columns: list of plate column numbers to include (matched against
+        ``columnID`` as ``'c<N>'``). ``rows`` / ``fields`` / ``plates`` behave
+        the same for ``rowID`` (``'r<N>'``) / ``fieldID`` (``'f<N>'``) /
+        ``plateID`` (raw token).
+    :param where: raw SQL boolean fragment ANDed onto the query, for anything
+        the shortcuts don't cover (e.g. ``"cell_eccentricity < 0.8"``).
+    :param criteria: dict of ``{column: (op, value)}`` ANDed onto the query,
+        e.g. ``{"cell_area": (">", 10000), "columnID": ("in", ["c1", "c2"])}``.
+    :param output_dir: where PNGs (and any ``.npy`` for >3 channels) are
+        written; defaults to ``<root>/object_dataset/<object_type>``.
+    :param png_size: ``(width, height)`` the crop is resized to.
+    :param mask_background: zero out pixels outside the object (isolate it).
+    :param normalize: per-channel percentile-normalise before writing.
+    :param percentiles: ``(low, high)`` percentiles for normalisation.
+    :param buffer: pixels of padding around the object's bounding box.
+    :param mask_dims: dict mapping object type → its mask slice index. Defaults
+        to spaCR's layout ``{cell:4, nucleus:5, pathogen:6, organelle:7}`` (four
+        image channels). Override if your arrays have a different channel count.
+    :param save_png: write PNG files (set False to only collect arrays).
+    :param return_arrays: also return the cropped arrays in the manifest.
+    :param limit: cap the number of objects processed (handy for previews).
+    :param db_path: explicit path to ``measurements.db`` (else derived from src).
+    :param verbose: print a short progress summary.
+    :returns: a manifest ``list[dict]``; each entry has ``object_label``,
+        ``path_name``, ``plateID``/``rowID``/``columnID``/``fieldID``,
+        ``png_path`` (if saved) and ``array`` (if ``return_arrays``).
+    """
+    import os
+    import sqlite3
+    import numpy as np
+
+    # -- resolve paths --------------------------------------------------------
+    root = os.path.abspath(src)
+    if os.path.basename(root.rstrip(os.sep)) == 'merged':
+        root = os.path.dirname(root.rstrip(os.sep))
+    if db_path is None:
+        db_path = os.path.join(root, 'measurements', 'measurements.db')
+    if not os.path.isfile(db_path):
+        raise FileNotFoundError(f"measurements database not found: {db_path}")
+
+    if mask_dims is None:
+        mask_dims = {'cell': 4, 'nucleus': 5, 'pathogen': 6, 'organelle': 7}
+    if object_type not in mask_dims:
+        raise ValueError(
+            f"no mask slice known for object_type={object_type!r}; "
+            f"pass mask_dims={{'{object_type}': <index>}}")
+    mask_dim = int(mask_dims[object_type])
+
+    channels = list(channels)
+    if output_dir is None:
+        output_dir = os.path.join(root, 'object_dataset', object_type)
+    if save_png or return_arrays:
+        os.makedirs(output_dir, exist_ok=True)
+
+    # -- build the WHERE clause ----------------------------------------------
+    clauses, params = [], []
+    if min_area is not None:
+        clauses.append(f"{object_type}_area > ?"); params.append(float(min_area))
+    if max_area is not None:
+        clauses.append(f"{object_type}_area < ?"); params.append(float(max_area))
+
+    def _in(colname, values, prefix):
+        vals = [f"{prefix}{int(v)}" if prefix else str(v) for v in values]
+        placeholders = ",".join("?" for _ in vals)
+        clauses.append(f"{colname} IN ({placeholders})")
+        params.extend(vals)
+
+    if columns:
+        _in("columnID", columns, "c")
+    if rows:
+        _in("rowID", rows, "r")
+    if fields:
+        _in("fieldID", fields, "f")
+    if plates:
+        _in("plateID", plates, "")
+    if criteria:
+        for col, (op, val) in criteria.items():
+            if str(op).lower() == "in":
+                placeholders = ",".join("?" for _ in val)
+                clauses.append(f"{col} IN ({placeholders})")
+                params.extend(list(val))
+            else:
+                clauses.append(f"{col} {op} ?")
+                params.append(val)
+    if where:
+        clauses.append(f"({where})")
+
+    where_sql = (" WHERE " + " AND ".join(clauses)) if clauses else ""
+    limit_sql = f" LIMIT {int(limit)}" if limit else ""
+    query = (
+        "SELECT object_label, path_name, plateID, rowID, columnID, fieldID "
+        f"FROM {object_type}{where_sql}{limit_sql}")
+
+    conn = sqlite3.connect(db_path)
+    try:
+        conn.row_factory = sqlite3.Row
+        selected = conn.execute(query, params).fetchall()
+    finally:
+        conn.close()
+
+    if verbose:
+        print(f"generate_object_dataset({object_type}): {len(selected)} "
+              f"objects match{where_sql or ' (no filter)'}")
+
+    # -- crop each object -----------------------------------------------------
+    manifest = []
+    _array_cache = {}
+    saved = 0
+    for row in selected:
+        path_name = row["path_name"]
+        label = int(row["object_label"])
+        if path_name not in _array_cache:
+            if not os.path.isfile(path_name):
+                if verbose:
+                    print(f"  missing array, skipping: {path_name}")
+                _array_cache[path_name] = None
+            else:
+                _array_cache[path_name] = np.load(path_name)
+        data = _array_cache[path_name]
+        if data is None:
+            continue
+        if mask_dim >= data.shape[2]:
+            raise IndexError(
+                f"mask_dim {mask_dim} out of range for array with "
+                f"{data.shape[2]} slices ({path_name})")
+
+        mask = data[:, :, mask_dim]
+        ys, xs = np.where(mask == label)
+        if ys.size == 0:
+            continue
+        y0 = max(0, ys.min() - buffer); y1 = min(mask.shape[0], ys.max() + 1 + buffer)
+        x0 = max(0, xs.min() - buffer); x1 = min(mask.shape[1], xs.max() + 1 + buffer)
+
+        crop = data[y0:y1, x0:x1, :][:, :, channels].astype(np.float32)
+        if mask_background:
+            region = (mask[y0:y1, x0:x1] == label)
+            crop = crop * region[:, :, None]
+
+        if normalize:
+            for c in range(crop.shape[2]):
+                sl = crop[:, :, c]
+                nz = sl[sl > 0] if mask_background else sl
+                if nz.size:
+                    lo, hi = np.percentile(nz, percentiles)
+                    if hi > lo:
+                        crop[:, :, c] = np.clip((sl - lo) / (hi - lo), 0, 1) * 255.0
+                        continue
+                mx = sl.max()
+                crop[:, :, c] = (sl / mx * 255.0) if mx > 0 else sl
+        crop = np.clip(crop, 0, 255).astype(np.uint8)
+
+        entry = {k: row[k] for k in
+                 ("object_label", "path_name", "plateID", "rowID",
+                  "columnID", "fieldID")}
+        base = (f"{row['plateID']}_{row['rowID']}_{row['columnID']}_"
+                f"{row['fieldID']}_obj{label}")
+
+        if return_arrays:
+            entry["array"] = crop
+
+        if save_png:
+            png_path = _save_object_crop(crop, channels, os.path.join(
+                output_dir, base + ".png"), png_size)
+            entry["png_path"] = png_path
+            saved += 1
+
+        manifest.append(entry)
+
+    if verbose and save_png:
+        print(f"generate_object_dataset({object_type}): wrote {saved} PNGs "
+              f"→ {output_dir}")
+    return manifest
+
+
+def _save_object_crop(crop, channels, png_path, png_size):
+    """Assemble ``crop`` (H, W, len(channels)) into an image and save it.
+
+    3 channels → RGB PNG; 1 → greyscale; 2 → padded to RGB; >3 → the raw array
+    is saved as ``.npy`` and the first three channels as a PNG preview. Returns
+    the path actually written.
+    """
+    import os
+    import numpy as np
+    from PIL import Image
+
+    n = crop.shape[2]
+    if n > 3:
+        npy_path = os.path.splitext(png_path)[0] + ".npy"
+        np.save(npy_path, crop)
+        preview = crop[:, :, :3]
+        Image.fromarray(preview).resize(tuple(png_size)).save(png_path)
+        return npy_path
+    if n == 1:
+        img = Image.fromarray(crop[:, :, 0], mode="L")
+    elif n == 2:
+        rgb = np.zeros((*crop.shape[:2], 3), dtype=np.uint8)
+        rgb[:, :, :2] = crop
+        img = Image.fromarray(rgb)
+    else:
+        img = Image.fromarray(crop)
+    img.resize(tuple(png_size)).save(png_path)
+    return png_path
