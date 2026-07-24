@@ -450,6 +450,55 @@ class LivePreviewPanel(QWidget):
         self._pre_on = False
         self._post_on = False
         self._build_ui()
+        # Accept image files dropped anywhere on the panel. QGraphicsView
+        # enables acceptDrops by default and would otherwise swallow drops
+        # over the image canvases; turning it off on the views lets the drag
+        # events propagate up to this panel's handlers.
+        self.setAcceptDrops(True)
+        for _v in (getattr(self, "_src_view", None),
+                   getattr(self, "_mask_view", None)):
+            if _v is not None:
+                _v.setAcceptDrops(False)
+
+    # -- drag & drop -------------------------------------------------------
+
+    _DND_EXTS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp",
+                 ".gif", ".webp")
+
+    def _dropped_image_path(self, event) -> Optional[str]:
+        """Return the first dropped local image path, or None."""
+        mime = event.mimeData()
+        if not mime.hasUrls():
+            return None
+        for url in mime.urls():
+            if not url.isLocalFile():
+                continue
+            p = url.toLocalFile()
+            if Path(p).suffix.lower() in self._DND_EXTS:
+                return p
+        return None
+
+    def dragEnterEvent(self, event):    # noqa: N802 (Qt naming)
+        """Accept the drag only if it carries a supported image file."""
+        if self._dropped_image_path(event) is not None:
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event):     # noqa: N802
+        if self._dropped_image_path(event) is not None:
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event):         # noqa: N802
+        """Load the dropped image into the preview."""
+        path = self._dropped_image_path(event)
+        if path is None:
+            event.ignore()
+            return
+        event.acceptProposedAction()
+        self.load_image(path)
 
     # -- construction ------------------------------------------------------
 
@@ -537,7 +586,9 @@ class LivePreviewPanel(QWidget):
 
         # File picker row
         pick_row = QHBoxLayout()
-        self._path_label = QLabel("No preview image loaded", self)
+        self._path_label = QLabel(
+            "No preview image loaded — drag & drop an image here to load it",
+            self)
         self._path_label.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Preferred)
         pick_btn = QPushButton("Choose image…", self)
