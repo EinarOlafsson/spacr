@@ -151,6 +151,60 @@ def test_multiclass_metrics():
 # CPU: merge_predictions_into_db
 # ---------------------------------------------------------------------------
 
+def _save_torchmodel(path, num_classes=2):
+    import torch
+    from spacr.utils import TorchModel
+    m = TorchModel(model_name="resnet18", pretrained=False,
+                   num_classes=num_classes)
+    torch.save(m, path)
+    return path
+
+
+def _tiny_loader(n=8, size=64):
+    import torch
+    from torch.utils.data import TensorDataset, DataLoader
+    x = torch.rand(n, 3, size, size)
+    y = torch.randint(0, 2, (n,))
+    return DataLoader(TensorDataset(x, y), batch_size=4)
+
+
+def test_model_fusion_mean(tmp_path):
+    """Fuse two identically-shaped TorchModel checkpoints (CPU)."""
+    from spacr.deep_spacr import model_fusion
+    p1 = _save_torchmodel(tmp_path / "m1.pth")
+    p2 = _save_torchmodel(tmp_path / "m2.pth")
+    fused = model_fusion([str(p1), str(p2)], str(tmp_path / "fused.pth"),
+                         device="cpu", model_name="resnet18",
+                         pretrained=False, aggregator="mean")
+    assert fused is not None
+    assert (tmp_path / "fused_mean.pth").exists()
+
+
+def test_model_fusion_rejects_bad_aggregator(tmp_path):
+    from spacr.deep_spacr import model_fusion
+    import pytest
+    p1 = _save_torchmodel(tmp_path / "m1.pth")
+    with pytest.raises(ValueError):
+        model_fusion([str(p1)], str(tmp_path / "f.pth"),
+                     device="cpu", aggregator="bogus")
+
+
+def test_model_knowledge_transfer_cpu(tmp_path):
+    """Distil two teachers into a student for one epoch (CPU)."""
+    from spacr.deep_spacr import model_knowledge_transfer
+    t1 = _save_torchmodel(tmp_path / "t1.pth")
+    t2 = _save_torchmodel(tmp_path / "t2.pth")
+    loader = _tiny_loader()
+    student = model_knowledge_transfer(
+        teacher_paths=[str(t1), str(t2)],
+        student_save_path=str(tmp_path / "student.pth"),
+        data_loader=loader, device="cpu",
+        student_model_name="resnet18", pretrained=False,
+        epochs=1, lr=1e-4)
+    assert student is not None
+    assert (tmp_path / "student_KD.pth").exists()
+
+
 def test_merge_predictions_into_db(tmp_path):
     import pandas as pd
     from spacr.deep_spacr import merge_predictions_into_db

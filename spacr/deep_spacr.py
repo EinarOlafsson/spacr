@@ -1644,7 +1644,7 @@ def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, devi
     print("Loading teacher models:")
     for path in teacher_paths:
         print(f"  Loading teacher: {path}")
-        ckpt = torch.load(path, map_location=device)
+        ckpt = torch.load(path, map_location=device, weights_only=False)
         if isinstance(ckpt, TorchModel):
             teacher = ckpt.to(device)
         elif isinstance(ckpt, dict):
@@ -1766,7 +1766,7 @@ def model_fusion(model_paths,save_path,device='cpu',model_name='maxvit_t',pretra
 
     # --- 1. Load the first checkpoint to figure out architecture & hyperparams ---
     print(f"Loading the first model from: {model_paths[0]} to derive architecture")
-    first_ckpt = torch.load(model_paths[0], map_location=device)
+    first_ckpt = torch.load(model_paths[0], map_location=device, weights_only=False)
 
     if isinstance(first_ckpt, dict):
         # It's a dict with state_dict + possibly metadata
@@ -1796,7 +1796,7 @@ def model_fusion(model_paths,save_path,device='cpu',model_name='maxvit_t',pretra
     # --- 2. Load the rest of the checkpoints ---
     for path in model_paths[1:]:
         print(f"Loading model from: {path}")
-        ckpt = torch.load(path, map_location=device)
+        ckpt = torch.load(path, map_location=device, weights_only=False)
         if isinstance(ckpt, dict):
             state_dicts.append(ckpt['model'])  # Just the state dict portion
         elif isinstance(ckpt, TorchModel):
