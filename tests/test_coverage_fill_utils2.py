@@ -334,3 +334,121 @@ def test_smooth_hull_lines():
     pts = rng.random((30, 2))
     x, y = U.smooth_hull_lines(pts)
     assert len(x) == 100 and len(y) == 100
+
+
+# ---------------------------------------------------------------------------
+# print_progress
+# ---------------------------------------------------------------------------
+
+def test_print_progress_variants(capsys):
+    U.print_progress(5, 10, n_jobs=1, time_ls=[1.0, 2.0], operation_type="seg")
+    U.print_progress([1, 2, 3], [1, 2, 3, 4], n_jobs=2,
+                     time_ls=[0.5], batch_size=4)
+    U.print_progress(3, 10, n_jobs=1, time_ls=None)  # no-ETA branch
+    out = capsys.readouterr().out
+    assert "Progress:" in out
+
+
+# ---------------------------------------------------------------------------
+# check_mask_folder
+# ---------------------------------------------------------------------------
+
+def test_check_mask_folder(tmp_path):
+    # missing mask folder → True
+    assert U.check_mask_folder(str(tmp_path), "cell") is True
+    # equal counts → False
+    (tmp_path / "stack").mkdir()
+    (tmp_path / "masks" / "cell").mkdir(parents=True)
+    for d in ("stack", "masks/cell"):
+        (tmp_path / d / "a.npy").write_bytes(b"")
+    assert U.check_mask_folder(str(tmp_path), "cell") is False
+    # fewer masks than stacks → True
+    (tmp_path / "stack" / "b.npy").write_bytes(b"")
+    assert U.check_mask_folder(str(tmp_path), "cell") is True
+
+
+# ---------------------------------------------------------------------------
+# _list_endpoint_subdirectories
+# ---------------------------------------------------------------------------
+
+def test_list_endpoint_subdirectories(tmp_path):
+    (tmp_path / "a" / "leaf1").mkdir(parents=True)
+    (tmp_path / "a" / "figure").mkdir()   # excluded
+    (tmp_path / "b").mkdir()
+    out = U._list_endpoint_subdirectories(str(tmp_path))
+    assert any(p.endswith("leaf1") for p in out)
+    assert not any(p.endswith("figure") for p in out)
+
+
+# ---------------------------------------------------------------------------
+# _extract_filename_metadata
+# ---------------------------------------------------------------------------
+
+def test_extract_filename_metadata(tmp_path):
+    import re
+    rx = re.compile(
+        r"(?P<plateID>plate\d+)_(?P<wellID>[A-H]\d+)_"
+        r"(?P<fieldID>f\d+)_(?P<chanID>C\d+)\.tif")
+    files = ["plate1_A01_f1_C1.tif", "plate1_A01_f1_C2.tif", "nomatch.tif"]
+    out = U._extract_filename_metadata(files, str(tmp_path), rx,
+                                       metadata_type="cellvoyager")
+    assert len(out) == 2   # two channels, same (plate,well,field) but diff chan
+
+
+def test_extract_filename_metadata_cq1(tmp_path):
+    import re
+    rx = re.compile(
+        r"(?P<plateID>plate\d+)_(?P<wellID>\d+)_"
+        r"(?P<fieldID>\d+)_(?P<chanID>\d+)\.tif")
+    files = ["plate1_1_1_1.tif"]
+    out = U._extract_filename_metadata(files, str(tmp_path), rx,
+                                       metadata_type="cq1")
+    # cq1 converts numeric well id to <letter><col>
+    keys = list(out.keys())
+    assert keys[0][1] == "A01"
+
+
+# ---------------------------------------------------------------------------
+# _generate_names
+# ---------------------------------------------------------------------------
+
+def test_generate_names_cell():
+    img_name, fldr, table = U._generate_names(
+        "plate1_A01_1", np.array([5]), np.array([2]), np.array([3]),
+        "/src", crop_mode="cell")
+    assert img_name == "plate1_A01_1_5.png"
+    assert "single_nucleus" in fldr and "single_pathogen" in fldr
+
+
+def test_generate_names_nucleus_multi():
+    img_name, fldr, table = U._generate_names(
+        "plate1_A01_1", np.array([5]), np.array([2, 3]), np.array([0]),
+        "/src", crop_mode="nucleus")
+    assert "multiple_nucleus" in fldr and "uninfected" in fldr
+
+
+def test_generate_names_pathogen_timelapse():
+    img_name, fldr, table = U._generate_names(
+        "plate1_A01_2", np.array([5]), np.array([0]), np.array([3]),
+        "/src", crop_mode="pathogen", timelapse=True)
+    assert "infected" in fldr
+
+
+# ---------------------------------------------------------------------------
+# _pivot_counts_table
+# ---------------------------------------------------------------------------
+
+def test_pivot_counts_table(tmp_path):
+    import sqlite3
+    db = tmp_path / "m.db"
+    with sqlite3.connect(str(db)) as conn:
+        pd.DataFrame({
+            "file_name": ["a", "a", "b"],
+            "count_type": ["cell", "nucleus", "cell"],
+            "object_count": [10, 5, 7],
+        }).to_sql("object_counts", conn, index=False)
+    U._pivot_counts_table(str(db))
+    with sqlite3.connect(str(db)) as conn:
+        out = pd.read_sql_query("SELECT * FROM pivoted_counts", conn)
+    assert "cell" in out.columns and "nucleus" in out.columns
+    assert len(out) == 2   # one row per file_name
