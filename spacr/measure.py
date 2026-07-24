@@ -4,7 +4,7 @@ import pandas as pd
 from collections import defaultdict
 from scipy.stats import pearsonr, skew, kurtosis, mode
 import multiprocessing as mp
-from scipy.ndimage import distance_transform_edt, generate_binary_structure, binary_dilation, gaussian_filter, center_of_mass
+from scipy.ndimage import distance_transform_edt, generate_binary_structure, binary_dilation, gaussian_filter, center_of_mass, convolve
 from skimage.measure import regionprops, regionprops_table, shannon_entropy
 from skimage.exposure import rescale_intensity
 from skimage.segmentation import find_boundaries
@@ -118,13 +118,22 @@ def _analyze_cytoskeleton(array, mask, channel):
                 # Measure properties of the skeleton
                 skeleton_props = measure.regionprops(measure.label(skeleton), intensity_image=image)
                 skeleton_length = sum(prop.area for prop in skeleton_props)  # Sum of lengths of all skeleton segments
-                branch_data = morphology.skeleton_branch_analysis(skeleton)
+                # Branch points are skeleton pixels with >= 3 skeleton
+                # neighbours (the standard definition). The previous code
+                # called morphology.skeleton_branch_analysis, which does not
+                # exist in scikit-image and raised AttributeError whenever a
+                # region had enough pixels to reach this branch.
+                skel = skeleton.astype(np.uint8)
+                neighbour_count = convolve(
+                    skel, np.ones((3, 3), dtype=np.uint8),
+                    mode='constant', cval=0) - skel
+                n_branch_points = int(np.sum((skel == 1) & (neighbour_count >= 3)))
 
                 # Store properties
                 properties = {
                     "object_label": label,
                     "skeleton_length": skeleton_length,
-                    "skeleton_branch_points": len(branch_data['branch_points'])
+                    "skeleton_branch_points": n_branch_points
                 }
                 properties_list.append(properties)
             else:
