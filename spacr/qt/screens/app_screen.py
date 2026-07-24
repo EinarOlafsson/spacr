@@ -505,11 +505,13 @@ class AppScreen(QWidget):
 
         layout.addWidget(usage_card)
 
-        # Actions row
+        # Actions row. A leading spacer nudges the whole button group
+        # (Run / Stop / Import / Clear / Explain / …) slightly to the right.
         actions = QWidget()
         row = QHBoxLayout(actions)
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(SPACING["sm"])
+        row.addSpacing(SPACING["xl"])
         self._btn_run = QPushButton("Run")
         self._btn_run.setObjectName("PrimaryButton")
         self._btn_run.setCursor(Qt.PointingHandCursor)
