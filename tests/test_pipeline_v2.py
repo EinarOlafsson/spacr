@@ -221,8 +221,16 @@ def test_stack_file_records_channel_names(tmp_path):
     assert stacks[0].shape == (32, 32, 2)
 
 
-def test_pipeline_style_defaults_to_v2():
-    """v2 (in-memory streaming, no .npz on disk) is the default pipeline."""
+def test_pipeline_style_defaults_to_v1():
+    """v1 (disk-based, full folder layout) is the default pipeline; v2
+    streaming is opt-in until it reproduces the v1 layout + channel indexing."""
     from spacr.settings import set_default_settings_preprocess_generate_masks
     s = set_default_settings_preprocess_generate_masks(settings={})
+    assert s["pipeline_style"] == "v1"
+
+
+def test_pipeline_style_v2_still_selectable():
+    """The v2 streaming pipeline remains available via explicit opt-in."""
+    from spacr.settings import set_default_settings_preprocess_generate_masks
+    s = set_default_settings_preprocess_generate_masks(settings={"pipeline_style": "v2"})
     assert s["pipeline_style"] == "v2"
