@@ -6982,6 +6982,75 @@ def group_feature_class(df, feature_groups=None, name='compartment'):
     
     return df
 
+def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
+                             verbose=True):
+    """Delete the intermediate mask-pipeline folders once ``merged/`` is built.
+
+    By default spaCR keeps only ``merged/`` (the concatenated image+mask arrays
+    that Measure reads). This removes ``stack/`` + ``masks/`` (their data is
+    embedded in ``merged/`` and object labels are recorded in the database) and
+    the raw ``orig/`` backup, unless the caller opts to keep them.
+
+    Heavily guarded so it never destroys un-merged data: ``stack/`` + ``masks/``
+    are only removed when ``merged/`` is non-empty AND every ``stack/*.npy`` has
+    a matching ``merged/*.npy`` (i.e. every field of view was merged).
+
+    :param src: run root folder (holds ``merged/``, ``stack/``, ``masks/``, ``orig/``).
+    :param keep_intermediate: keep ``stack/`` + ``masks/`` when True.
+    :param keep_original: keep the raw ``orig/`` backup when True.
+    :returns: list of folder paths that were deleted.
+    """
+    import os
+    import shutil
+
+    merged = os.path.join(src, 'merged')
+    stack = os.path.join(src, 'stack')
+    masks = os.path.join(src, 'masks')
+    orig = os.path.join(src, 'orig')
+    deleted = []
+
+    if not os.path.isdir(merged):
+        if verbose:
+            print("cleanup skipped: no merged/ folder — nothing removed")
+        return deleted
+    merged_files = {f for f in os.listdir(merged) if f.endswith('.npy')}
+    if not merged_files:
+        if verbose:
+            print("cleanup skipped: merged/ is empty — keeping intermediates")
+        return deleted
+
+    if not keep_intermediate:
+        stack_files = set()
+        if os.path.isdir(stack):
+            stack_files = {f for f in os.listdir(stack) if f.endswith('.npy')}
+        # Only safe to delete stack/+masks/ if every field of view was merged.
+        if stack_files and not stack_files.issubset(merged_files):
+            missing = len(stack_files - merged_files)
+            if verbose:
+                print(f"cleanup: keeping stack/ + masks/ — {missing} field(s) "
+                      "not present in merged/")
+        else:
+            for folder in (stack, masks):
+                if os.path.isdir(folder):
+                    shutil.rmtree(folder, ignore_errors=True)
+                    deleted.append(folder)
+            # Numeric per-channel folders (1, 2, 3, …) if any survived.
+            for d in os.listdir(src):
+                p = os.path.join(src, d)
+                if os.path.isdir(p) and d.isdigit():
+                    shutil.rmtree(p, ignore_errors=True)
+                    deleted.append(p)
+
+    if not keep_original and os.path.isdir(orig):
+        shutil.rmtree(orig, ignore_errors=True)
+        deleted.append(orig)
+
+    if verbose and deleted:
+        print(f"cleanup: removed {', '.join(os.path.basename(d) for d in deleted)} "
+              "(kept merged/)")
+    return deleted
+
+
 def delete_intermedeate_files(settings):
     """Remove intermediate per-channel and stack folders under ``settings['src']``.
 
