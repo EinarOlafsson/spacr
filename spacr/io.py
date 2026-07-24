@@ -2017,7 +2017,8 @@ def _save_settings_to_db(settings):
     settings_df = pd.DataFrame(list(settings.items()), columns=['setting_key', 'setting_value'])
     # Convert all values in the 'setting_value' column to strings
     settings_df['setting_value'] = settings_df['setting_value'].apply(str)
-    display(settings_df)
+    # (No display here — save_settings already renders the settings table via
+    # pretty_print_settings; displaying again produced the double print.)
     # Determine the directory path
     src = os.path.dirname(settings['src'])
     directory = f'{src}/measurements'

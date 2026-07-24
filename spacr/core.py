@@ -190,10 +190,9 @@ def preprocess_generate_masks(settings):
                 settings['save'] = [settings['save']]*3
 
             if settings['verbose']:
-                settings_df = pd.DataFrame(list(settings.items()), columns=['setting_key', 'setting_value'])
-                settings_df['setting_value'] = settings_df['setting_value'].apply(str)
-                display(settings_df)
-                
+                from .utils import pretty_print_settings
+                pretty_print_settings(settings, title="Mask Generation Settings")
+
             if settings['test_mode']:
                 print(f'Starting Test mode ...')
 
@@ -392,7 +391,8 @@ def generate_image_umap(settings=None, return_fig=False):
     settings_csv = os.path.join(settings_dir,'embedding_settings.csv')
     os.makedirs(settings_dir, exist_ok=True)
     settings_df.to_csv(settings_csv, index=False)
-    display(settings_df)
+    from .utils import pretty_print_settings
+    pretty_print_settings(settings, title="Image UMAP Settings")
 
     db_paths = get_db_paths(settings['src'])
     tables = settings['tables'] + ['png_list']
