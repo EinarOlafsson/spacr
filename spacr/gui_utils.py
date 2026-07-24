@@ -570,6 +570,45 @@ def annotate_with_image_refs(settings, root, shutdown_callback):
     # Call load_images after setting up the root window
     app.load_images()
 
+
+# Curated torchvision classification models for the `model_type` combo. Kept
+# static so opening a settings screen never triggers a slow `import torchvision`
+# (see convert_settings_dict_for_gui). The pipeline validates/instantiates the
+# real model by name at train time.
+_TORCHVISION_MODELS_CURATED = [
+    'resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnet152',
+    'resnext50_32x4d', 'resnext101_32x8d', 'wide_resnet50_2',
+    'vgg11', 'vgg13', 'vgg16', 'vgg19',
+    'densenet121', 'densenet169', 'densenet201',
+    'efficientnet_b0', 'efficientnet_b1', 'efficientnet_b2', 'efficientnet_b3',
+    'efficientnet_b4', 'efficientnet_b5', 'efficientnet_b6', 'efficientnet_b7',
+    'efficientnet_v2_s', 'efficientnet_v2_m', 'efficientnet_v2_l',
+    'mobilenet_v2', 'mobilenet_v3_small', 'mobilenet_v3_large',
+    'convnext_tiny', 'convnext_small', 'convnext_base', 'convnext_large',
+    'vit_b_16', 'vit_b_32', 'vit_l_16', 'vit_l_32',
+    'swin_t', 'swin_s', 'swin_b', 'swin_v2_t', 'swin_v2_s', 'swin_v2_b',
+    'maxvit_t', 'regnet_y_400mf', 'regnet_y_1_6gf', 'regnet_y_8gf',
+    'squeezenet1_0', 'squeezenet1_1', 'alexnet', 'googlenet', 'inception_v3',
+]
+
+
+def _torchvision_model_names():
+    """Return model names for the combo WITHOUT importing torchvision. If
+    torchvision is already loaded (e.g. after a training run) use its full zoo;
+    otherwise fall back to the curated static list."""
+    import sys
+    mods = sys.modules.get("torchvision.models")
+    if mods is not None:
+        try:
+            names = [n for n, o in mods.__dict__.items()
+                     if callable(o) and not n.startswith("_")]
+            if names:
+                return sorted(set(names) | set(_TORCHVISION_MODELS_CURATED))
+        except Exception:
+            pass
+    return list(_TORCHVISION_MODELS_CURATED)
+
+
 def convert_settings_dict_for_gui(settings):
     """Convert a plain settings dict into the GUI variable spec.
 
@@ -581,8 +620,14 @@ def convert_settings_dict_for_gui(settings):
     :returns: mapping ``key -> (var_type, options, default_value)`` ready for
         :func:`create_input_field`.
     """
-    from torchvision import models as torch_models
-    torchvision_models = [name for name, obj in torch_models.__dict__.items() if callable(obj)]
+    # NOTE: we deliberately do NOT `import torchvision` here. Enumerating the
+    # torchvision model zoo pulls in torch + torchvision, a ~5 s import that
+    # made every FIRST module open sluggish. The classify pipeline still
+    # instantiates the real torchvision model by name at train time — the GUI
+    # combo just needs a list of valid names, so we use a curated static list
+    # (if torchvision happens to be imported already we extend it with the full
+    # zoo, for free).
+    torchvision_models = _torchvision_model_names()
     chan_list = ['[0,1,2,3,4,5,6,7,8]','[0,1,2,3,4,5,6,7]','[0,1,2,3,4,5,6]','[0,1,2,3,4,5]','[0,1,2,3,4]','[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]', '[0,0]']
     
     variables = {}
