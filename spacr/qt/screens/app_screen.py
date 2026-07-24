@@ -712,10 +712,27 @@ class AppScreen(QWidget):
         self._thread.start()
 
     def _on_pipeline_error(self, tb: str):
-        """Capture the traceback so the user can hit "Explain error"."""
+        """Capture the traceback and either show it raw or route it through AI."""
         self._last_error_text = tb
-        self._console.append_error(tb)
         self._btn_explain.setEnabled(True)
+
+        # Route through AI when AI is enabled with a provider AND the
+        # route-errors-through-AI preference is on (the default). The user then
+        # sees the AI's explanation + instructions; the raw traceback stays
+        # hidden (the AI still has it, so the user can ask it to show the error).
+        routed = False
+        try:
+            from ..ai import settings as _ai_settings
+            if (self._console._ai_active
+                    and self._console._current_provider() is not None
+                    and _ai_settings.get_route_errors_through_ai()):
+                self._console.open_error_flow(
+                    tb, active_app=self.app_key, show_raw=False)
+                routed = True
+        except Exception:
+            routed = False
+        if not routed:
+            self._console.append_error(tb)
         # File-as-issue button becomes visible only when the user has
         # opted in via AI Settings — otherwise it stays hidden so the
         # actions row doesn't grow noise for people who don't use it.
