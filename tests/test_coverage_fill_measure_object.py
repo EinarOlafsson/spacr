@@ -615,3 +615,153 @@ def test_process_meassure_crop_results(tmp_path):
     (tmp_path / "run").mkdir()
     M.process_meassure_crop_results(partial, settings)
     assert list((tmp_path / "run" / "results").rglob("*.pdf"))
+
+
+# ---------------------------------------------------------------------------
+# object.py deep-learning helpers (real tiny torch model, no GPU/cellpose)
+# ---------------------------------------------------------------------------
+
+def test_apply_cell_mask(tmp_path):
+    batch = np.ones((2, 8, 8), dtype=np.float32)
+    # idx 0: exact-path mask; idx 1: .npy-suffix fallback
+    cm0 = np.zeros((8, 8), dtype=np.int32); cm0[2:5, 2:5] = 1
+    np.save(str(tmp_path / "img0.npy"), cm0)
+    cm1 = np.zeros((8, 8), dtype=np.int32); cm1[0:2, 0:2] = 1
+    np.save(str(tmp_path / "img1"), cm1)   # np.save appends .npy
+    out = OBJ._apply_cell_mask(
+        batch, ["img0.npy", "img1"], str(tmp_path))
+    # outside-cell pixels zeroed for idx 0
+    assert out[0][0, 0] == 0 and out[0][3, 3] == 1
+    assert out[1][1, 1] == 1 and out[1][7, 7] == 0
+
+
+def test_apply_cell_mask_missing(tmp_path):
+    batch = np.ones((1, 4, 4), dtype=np.float32)
+    out = OBJ._apply_cell_mask(batch, ["nope"], str(tmp_path))
+    assert np.all(out == 1)   # no mask found → unchanged
+
+
+def test_load_unet_model_bad_path():
+    with pytest.raises(ValueError):
+        OBJ._load_unet_model({"organelle_unet_model_path": "/nonexistent.pt"})
+
+
+def test_load_unet_model_ok(tmp_path):
+    import torch
+    import torch.nn as nn
+    model = nn.Conv2d(1, 1, 3, padding=1)
+    p = tmp_path / "unet.pt"
+    torch.save(model, str(p))
+    loaded = OBJ._load_unet_model({"organelle_unet_model_path": str(p)})
+    assert loaded is not None
+
+
+def _tiny_unet():
+    import torch.nn as nn
+    return nn.Sequential(nn.Conv2d(1, 1, 3, padding=1))
+
+
+def test_segment_unet():
+    model = _tiny_unet()
+    batch = np.random.default_rng(0).random((2, 16, 16)).astype(np.float32)
+    out = OBJ._segment_unet(batch, model, {"organelle_min_size": 2})
+    assert len(out) == 2 and out[0].shape == (16, 16)
+
+
+def test_segment_unet_skeletonize_and_flat():
+    model = _tiny_unet()
+    # one normal image + one flat image (std==0 branch)
+    batch = np.stack([np.random.default_rng(1).random((16, 16)).astype(np.float32),
+                      np.zeros((16, 16), dtype=np.float32)])
+    out = OBJ._segment_unet(
+        batch, model, {"organelle_min_size": 2, "organelle_skeletonize": True})
+    assert len(out) == 2
+
+
+# ---------------------------------------------------------------------------
+# object.py cellpose segmentation (mocked model)
+# ---------------------------------------------------------------------------
+
+class _FakeCP:
+    """Minimal stand-in for CellposeModel — returns cellpose4-shaped output."""
+    def eval(self, x, **kw):
+        n = len(x)
+        h, w = x[0].shape[:2]
+        masks = []
+        for _ in range(n):
+            m = np.zeros((h, w), dtype=np.int32)
+            m[2:6, 2:6] = 1
+            masks.append(m)
+        flow0 = np.zeros((n, h, w, 3), dtype=np.float32)
+        flow1 = np.zeros((3, n, h, w), dtype=np.float32)
+        flow2 = np.zeros((n, h, w), dtype=np.float32)
+        flow3 = np.zeros((n, h, w), dtype=np.float32)
+        return masks, [flow0, flow1, flow2, flow3], None, None
+
+
+def test_segment_cellpose_ndim4(tmp_path):
+    batch = (np.random.default_rng(0).random((2, 16, 16, 2)) * 255).astype(np.float32)
+    settings = {
+        "nucleus_channel": 1, "cell_channel": None,
+        "pathogen_channel": None, "organelle_channel": 0,
+        "plot": False, "batch_size": 2, "organelle_diameter": 15,
+        "organelle_FT": 0.4, "organelle_CP_prob": 0.0,
+        "organelle_resample": True,
+    }
+    out = OBJ._segment_cellpose(
+        batch, ["a.npy", "b.npy"], _FakeCP(), settings,
+        "organelle", str(tmp_path))
+    assert isinstance(out, list) and len(out) == 2
+
+
+def test_segment_cellpose_ndim3(tmp_path):
+    batch = (np.random.default_rng(1).random((1, 16, 16)) * 255).astype(np.float32)
+    settings = {
+        "nucleus_channel": None, "cell_channel": None,
+        "pathogen_channel": None, "organelle_channel": None,
+        "plot": True, "batch_size": 1, "organelle_diameter": 15,
+        "organelle_FT": 0.4, "organelle_CP_prob": 0.0,
+        "organelle_resample": False,
+    }
+    out = OBJ._segment_cellpose(
+        batch, ["a.npy"], _FakeCP(), settings, "organelle", str(tmp_path))
+    assert isinstance(out, list) and len(out) == 1
+
+
+@pytest.mark.parametrize("object_type,chan", [
+    ("nucleus", {"nucleus_channel": 0}),
+    ("cell", {"cell_channel": 0, "nucleus_channel": 1}),
+    ("pathogen", {"pathogen_channel": 0}),
+    ("organelle", {"organelle_channel": 0}),
+])
+def test_segment_cellpose_sam(tmp_path, object_type, chan):
+    batch = (np.random.default_rng(2).random((2, 16, 16, 2)) * 255).astype(np.float32)
+    settings = {
+        "nucleus_channel": None, "cell_channel": None,
+        "pathogen_channel": None, "organelle_channel": None,
+        "plot": False,
+        f"{object_type}_FT": 0.4, f"{object_type}_CP_prob": 0.0,
+        f"{object_type}_resample": True,
+    }
+    settings.update(chan)
+    out = OBJ._segment_cellpose_sam(
+        batch, ["a.npy", "b.npy"], _FakeCP(), settings,
+        object_type, str(tmp_path))
+    assert isinstance(out, list) and len(out) == 2
+
+
+def test_segment_cellpose_sam_bad_object_type(tmp_path):
+    batch = np.zeros((1, 16, 16, 1), dtype=np.float32)
+    with pytest.raises(ValueError):
+        OBJ._segment_cellpose_sam(
+            batch, ["a.npy"], _FakeCP(), {"plot": False},
+            "bogus", str(tmp_path))
+
+
+def test_segment_cellpose_sam_no_channels(tmp_path):
+    batch = np.zeros((1, 16, 16, 1), dtype=np.float32)
+    with pytest.raises(ValueError):
+        OBJ._segment_cellpose_sam(
+            batch, ["a.npy"], _FakeCP(),
+            {"nucleus_channel": None, "plot": False},
+            "nucleus", str(tmp_path))
