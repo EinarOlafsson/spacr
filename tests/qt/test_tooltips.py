@@ -35,6 +35,22 @@ def test_plain_tooltip_typed():
     assert "Whether to plot." in p
 
 
+def test_every_typed_setting_has_a_written_description():
+    """Every setting with a known type also has a written tooltip description —
+    no setting shows only 'Name (type)' with no explanation."""
+    from spacr.settings import tooltips, expected_types
+    missing = sorted(set(expected_types) - set(tooltips))
+    assert missing == [], f"settings with a type but no description: {missing}"
+
+
+def test_no_freaction_typo_in_tooltips():
+    """Guard against the 'Freaction' typo reappearing in user-facing tooltips."""
+    from spacr.settings import tooltips
+    offenders = [k for k, v in tooltips.items()
+                 if isinstance(v, str) and "Freaction" in v]
+    assert offenders == [], f"'Freaction' typo in: {offenders}"
+
+
 def test_every_shown_setting_has_a_typed_tooltip(qtbot, qt_theme_applied):
     """Every widget on the mask screen gets a tooltip, and most carry a type."""
     from spacr.qt.screens.settings_model import SettingsWidgets
