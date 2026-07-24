@@ -131,7 +131,9 @@ def identify_masks_finetune(settings):
     print(f"Found {len(image_files)} Images with {len(mask_files)} masks. Generating masks for {len(all_image_files)} images")
 
     if len(all_image_files) == 0:
-        print(f"Either no images were found in {settings['src']} or all images have masks in {settings['dst']}")
+        # NB: use the local ``dst`` — there is no settings['dst'] key, so
+        # the old settings['dst'] raised KeyError on this no-images path.
+        print(f"Either no images were found in {settings['src']} or all images have masks in {dst}")
         return
 
     
