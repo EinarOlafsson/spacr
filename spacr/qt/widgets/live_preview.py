@@ -645,7 +645,7 @@ class LivePreviewPanel(QWidget):
         # Pinned hover info line
         self._hover_label = QLabel("Hover over the image to inspect pixels.",
                                      self)
-        self._hover_label.setStyleSheet("color: palette(mid); "
+        self._hover_label.setStyleSheet("color: #ffffff; "
                                             "font-family: monospace;")
         root.addWidget(self._hover_label)
 
@@ -664,7 +664,7 @@ class LivePreviewPanel(QWidget):
         self._compare_slider.valueChanged.connect(self._on_compare_scrub)
         comp.addWidget(self._compare_slider, 1)
         self._compare_label = QLabel("", self)
-        self._compare_label.setStyleSheet("font-family: monospace;")
+        self._compare_label.setStyleSheet("color: #ffffff; font-family: monospace;")
         comp.addWidget(self._compare_label)
         self._compare_row.setVisible(False)
         root.addWidget(self._compare_row)

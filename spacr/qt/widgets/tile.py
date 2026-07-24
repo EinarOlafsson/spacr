@@ -171,18 +171,9 @@ class HTile(QPushButton):
         # Icon size and all icon-adjacent geometry track the user's font-size
         # preference so the tile grows with the text and nothing clips when
         # the font is bumped up. ``icon_size`` is the base (100 %) side length.
+        # (No hover zoom — the icon/text stay a fixed size on hover.)
         from ..preferences import scaled_px
         self._base_icon = scaled_px(int(icon_size))
-        self._icon_pixels = self._base_icon
-
-        # Single hover-zoom driver: one animated float scales the icon AND the
-        # label fonts together (in unison), so they always grow to the same
-        # degree and over the same 140 ms — no mismatched sizes / overlap.
-        self._HOVER_MAX = 1.10
-        self._hover_scale = 1.0
-        self._hover_anim = QPropertyAnimation(self, b"hoverScale", self)
-        self._hover_anim.setDuration(140)
-        self._hover_anim.setEasingCurve(QEasingCurve.OutCubic)
 
         self.setObjectName("HTile")
         self.setCursor(Qt.PointingHandCursor)
@@ -222,9 +213,6 @@ class HTile(QPushButton):
         from PySide6.QtWidgets import QSizePolicy
         name_lbl.setSizePolicy(QSizePolicy.Expanding,
                                  QSizePolicy.Preferred)
-        # Labels whose font grows slightly on hover (in step with the icon).
-        self._hover_labels = [name_lbl]
-        self._hover_base_fonts: dict = {}
         if description:
             # Description shown BELOW the name (two-line tile).
             text_col.addStretch(1)
@@ -234,7 +222,6 @@ class HTile(QPushButton):
             desc_lbl.setWordWrap(True)
             text_col.addWidget(desc_lbl)
             text_col.addStretch(1)
-            self._hover_labels.append(desc_lbl)
         else:
             # Name-only tile: vertically centre the label so it sits
             # in the middle rather than pinned to the top-left.
@@ -243,49 +230,6 @@ class HTile(QPushButton):
             text_col.addStretch(1)
 
         layout.addLayout(text_col, 1)
-
-    # -- unified hover zoom (icon + text together) --------------------------
-    def _get_hover_scale(self) -> float:
-        return self._hover_scale
-
-    def _set_hover_scale(self, s: float) -> None:
-        self._hover_scale = float(s)
-        # Icon
-        px = int(round(self._base_icon * self._hover_scale))
-        self._icon_pixels = px
-        self.setIconSize(QSize(px, px))
-        # Labels — scale their font in lock-step with the icon.
-        for lbl in getattr(self, "_hover_labels", []):
-            if lbl not in self._hover_base_fonts:
-                # Capture the resting font the first time (after the app
-                # stylesheet has set the QSS font size).
-                self._hover_base_fonts[lbl] = QFont(lbl.font())
-            base = self._hover_base_fonts[lbl]
-            f = QFont(base)
-            if base.pointSizeF() > 0:
-                f.setPointSizeF(base.pointSizeF() * self._hover_scale)
-            elif base.pixelSize() > 0:
-                f.setPixelSize(max(1, int(round(base.pixelSize()
-                                                * self._hover_scale))))
-            lbl.setFont(f)
-
-    hoverScale = Property(float, _get_hover_scale, _set_hover_scale)
-
-    def enterEvent(self, event: QEvent) -> None:
-        """Enlarge icon + label text together on cursor enter."""
-        self._hover_anim.stop()
-        self._hover_anim.setStartValue(self._hover_scale)
-        self._hover_anim.setEndValue(self._HOVER_MAX)
-        self._hover_anim.start()
-        super().enterEvent(event)
-
-    def leaveEvent(self, event: QEvent) -> None:
-        """Return icon + label text to their base size on cursor leave."""
-        self._hover_anim.stop()
-        self._hover_anim.setStartValue(self._hover_scale)
-        self._hover_anim.setEndValue(1.0)
-        self._hover_anim.start()
-        super().leaveEvent(event)
 
     @property
     def text_label(self) -> str:
