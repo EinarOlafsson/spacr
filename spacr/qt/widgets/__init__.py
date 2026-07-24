@@ -5,6 +5,7 @@ from .card import Card
 from .console_panel import ConsolePanel
 from .divider import Divider
 from .empty_state import EmptyState
+from .figure_queue import FigureQueue
 from .hover_tooltip import HoverTooltip
 from .live_preview import LivePreviewPanel
 from .section import Section
@@ -14,6 +15,6 @@ from .usage_bar import UsageBar
 
 __all__ = [
     "AIChatPanel", "AiToggleLabel", "Card", "ConsolePanel", "Divider",
-    "EmptyState", "HTile", "HoverTooltip", "LivePreviewPanel",
-    "Section", "Tile", "Toggle", "UsageBar",
+    "EmptyState", "FigureQueue", "HTile", "HoverTooltip",
+    "LivePreviewPanel", "Section", "Tile", "Toggle", "UsageBar",
 ]

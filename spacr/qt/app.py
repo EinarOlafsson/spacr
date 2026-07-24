@@ -25,16 +25,25 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-import threading
 
 from . import iconset
 from .theme import PALETTE, SPACING, apply_qpalette, stylesheet
 
 
 class _PipelinePreloader:
-    """Warms up the heavy pipeline modules on a daemon thread so the
-    first click on Mask/Measure/Classify/etc. doesn't stall the UI
-    while torch/cellpose/pandas/etc. resolve."""
+    """Warms up the heavy pipeline modules so the first click on
+    Mask/Measure/Classify/etc. doesn't stall the UI while
+    torch/cellpose/pandas/etc. resolve.
+
+    IMPORTANT: preloading runs on the MAIN (GUI) thread, one module
+    per event-loop tick, NOT on a background daemon thread. Importing
+    C-extension modules that initialise CUDA/GL (torch, cellpose) from
+    a non-main thread concurrent with Qt's own GPU init is a classic
+    cause of intermittent "Segmentation fault (core dumped)" at
+    startup. Each import here blocks the event loop only briefly, and
+    a QTimer tick between imports lets Qt process repaints/clicks so
+    the UI stays responsive without the off-thread race.
+    """
 
     _MODULES = (
         "spacr.core",
@@ -47,28 +56,36 @@ class _PipelinePreloader:
     )
 
     def __init__(self):
-        self._thread: Optional[threading.Thread] = None
+        self._i = 0
+        self._started = False
 
     def start(self) -> None:
-        """Kick off the daemon preloader thread (no-op if already running)."""
-        if self._thread and self._thread.is_alive():
+        """Begin the main-thread import chain (no-op if already begun)."""
+        if self._started:
             return
-        self._thread = threading.Thread(target=self._run,
-                                          name="spacr-qt-preloader",
-                                          daemon=True)
-        self._thread.start()
+        self._started = True
+        self._i = 0
+        self._step()
 
-    def _run(self) -> None:
-        import importlib, time
-        for mod in self._MODULES:
-            try:
-                importlib.import_module(mod)
-            except Exception:
-                # Never fail loud — this is a background optimisation,
-                # and a spacr module that can't import today isn't a
-                # bug we should introduce a crash for.
-                pass
-            time.sleep(0.05)   # small yield so main-thread work runs
+    def _step(self) -> None:
+        """Import the next module, then schedule the following one on the
+        next event-loop tick."""
+        from PySide6.QtCore import QTimer
+        if self._i >= len(self._MODULES):
+            return
+        mod = self._MODULES[self._i]
+        self._i += 1
+        try:
+            import importlib
+            importlib.import_module(mod)
+        except Exception:
+            # Never fail loud — this is a background optimisation, and a
+            # spacr module that can't import today isn't a bug we should
+            # turn into a crash.
+            pass
+        # 50 ms between imports so Qt drains its event queue (repaints,
+        # input) before the next potentially-blocking import.
+        QTimer.singleShot(50, self._step)
 
 
 APPS = [
