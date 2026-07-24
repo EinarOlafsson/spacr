@@ -127,32 +127,82 @@ def api_docs_url(app_key: str) -> str:
     return DOCS_BASE
 
 
-def format_tooltip(text: str, app_key: str) -> str:
-    """Return an HTML tooltip body: description + a docs footer link.
+_TYPE_NAMES = {int: "integer", float: "float", bool: "boolean",
+               str: "string", list: "list", tuple: "tuple", dict: "dict"}
 
-    Kept minimal — Qt auto-detects rich text from any HTML tag, but
-    complex containers/styles trip up some builds and the tip renders
-    empty. Plain <br> line breaks and a plain <a> footer are the
-    format that renders reliably on every platform we've tested.
 
-    Also normalises whitespace so multi-line descriptions from
-    spacr.settings.descriptions collapse into a single paragraph.
+def _type_hint(key: str) -> str:
+    """Human-readable type of a setting, from spacr.settings.expected_types.
+
+    e.g. ``'integer'``, ``'float'``, ``'boolean'``, ``'list'``, or
+    ``'integer or float'`` / ``'string (optional)'`` for unions/None."""
+    if not key:
+        return ""
+    try:
+        from spacr.settings import expected_types
+    except Exception:
+        return ""
+    t = expected_types.get(key)
+    if t is None:
+        return ""
+    if isinstance(t, tuple):
+        parts, optional = [], False
+        for x in t:
+            if x is type(None):
+                optional = True
+                continue
+            parts.append(_TYPE_NAMES.get(x, getattr(x, "__name__", str(x))))
+        s = " or ".join(dict.fromkeys(parts))   # dedupe, keep order
+        if optional and s:
+            s += " (optional)"
+        return s
+    return _TYPE_NAMES.get(t, getattr(t, "__name__", str(t)))
+
+
+def _humanize(key: str) -> str:
+    return key.replace("_", " ").strip().capitalize() if key else ""
+
+
+def _strip_type_prefix(text: str) -> str:
+    """Drop a leading ``(int) - `` / ``(bool) `` style prefix — the type is
+    rendered separately + authoritatively from expected_types."""
+    import re
+    return re.sub(r"^\s*\([^)]*\)\s*[-–:]?\s*", "", text or "").strip()
+
+
+def format_tooltip(text: str, app_key: str, key: str = "") -> str:
+    """Return a standardised HTML tooltip: ``Name (type)`` + description +
+    a Docs footer link. The type is derived from expected_types so every
+    setting — even one with no written description — shows a typed tip.
+
+    Plain <br> line breaks + a plain <a> footer render reliably on every Qt
+    build we've tested.
     """
-    body = " ".join((text or "").split())
+    body = " ".join(_strip_type_prefix(text).split())
     url = api_docs_url(app_key)
-    if body:
-        return f'{body}<br><a href="{url}">Docs</a>'
-    return f'<a href="{url}">Docs</a>'
+    header = _humanize(key)
+    th = _type_hint(key)
+    if header and th:
+        header = f"<b>{header}</b> <i>({th})</i>"
+    elif header:
+        header = f"<b>{header}</b>"
+    parts = [p for p in (header, body) if p]
+    joined = "<br>".join(parts)
+    return f'{joined}<br><a href="{url}">Docs</a>' if joined \
+        else f'<a href="{url}">Docs</a>'
 
 
-def plain_tooltip(text: str, app_key: str) -> str:
+def plain_tooltip(text: str, app_key: str, key: str = "") -> str:
     """Same content as `format_tooltip` but plain text — used by the
     hover-follows footer at the bottom of each AppScreen."""
-    body = " ".join((text or "").split())
+    body = " ".join(_strip_type_prefix(text).split())
     url = api_docs_url(app_key)
-    if body:
-        return f"{body}   ·  {url}"
-    return url
+    th = _type_hint(key)
+    name = _humanize(key)
+    head = f"{name} ({th})" if (name and th) else name
+    parts = [p for p in (head, body) if p]
+    joined = " — ".join(parts)
+    return f"{joined}   ·  {url}" if joined else url
 
 
 # ---------------------------------------------------------------------------
@@ -220,7 +270,7 @@ class SettingsWidgets:
             kind, options, default = meta
             widget = self._widget_for(kind, options, default, key)
             if widget is not None:
-                tip = format_tooltip(self._tooltips.get(key, ""), self.app_key)
+                tip = format_tooltip(self._tooltips.get(key, ""), self.app_key, key)
                 widget.setToolTip(tip)
                 widget.setToolTipDuration(-1)  # respect system default (persistent)
                 self._widgets[key] = widget
@@ -253,11 +303,11 @@ class SettingsWidgets:
 
     def tooltip_for(self, key: str) -> str:
         """Return the HTML-formatted tooltip for a given setting key."""
-        return format_tooltip(self._tooltips.get(key, ""), self.app_key)
+        return format_tooltip(self._tooltips.get(key, ""), self.app_key, key)
 
     def plain_tooltip_for(self, key: str) -> str:
         """Return the plain-text hint (description + docs URL) for a setting."""
-        return plain_tooltip(self._tooltips.get(key, ""), self.app_key)
+        return plain_tooltip(self._tooltips.get(key, ""), self.app_key, key)
 
     def _label_for(self, key: str) -> str:
         return key.replace("_", " ").capitalize()
