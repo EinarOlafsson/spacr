@@ -116,6 +116,30 @@ def test_stage2_measurements(pipeline):
 
 
 # ---------------------------------------------------------------------------
+# Stage 2b — measure: run _measure_crop_core IN-PROCESS on a merged stack.
+# measure_crop dispatches this via a multiprocessing Pool, so coverage never
+# sees it; calling it directly is the only way to cover the core routine.
+# ---------------------------------------------------------------------------
+
+@_skip
+def test_stage2b_measure_crop_core_inprocess(pipeline):
+    from spacr.utils import load_settings
+    from spacr.settings import get_measure_crop_settings
+    from spacr.measure import _measure_crop_core
+
+    merged = pipeline["merged"]
+    s = load_settings(MEASURE_SETTINGS, setting_key="Key", setting_value="Value")
+    s.update(dict(src=merged, input_folder=merged, plot=False,
+                  save_measurements=True, save_png=True, n_job=1,
+                  verbose=False, test_mode=False))
+    s = get_measure_crop_settings(s)
+    s["src"] = merged
+    f = sorted(x for x in os.listdir(merged) if x.endswith(".npy"))[0]
+    result = _measure_crop_core(0, [], f, s)
+    assert isinstance(result, tuple)
+
+
+# ---------------------------------------------------------------------------
 # Stage 3 — ml: train a classifier on the control wells + score
 # ---------------------------------------------------------------------------
 
