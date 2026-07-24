@@ -1087,6 +1087,57 @@ def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_
 
     return result_dict
 
+def pretty_print_settings(settings, title="Settings"):
+    """Print a settings dict to the console as a tidy, aligned table.
+
+    Nicer than dumping a truncated pandas DataFrame: values are grouped by the
+    spacr settings categories, keys are aligned in a column, long values are
+    clipped, and the whole thing sits under a boxed title. Purely cosmetic —
+    used wherever "Saving settings" is shown.
+
+    :param settings: the settings dict to render.
+    :param title: heading shown in the box.
+    :returns: None.
+    """
+    try:
+        from .settings import categories
+    except Exception:
+        categories = {}
+
+    items = {k: settings[k] for k in settings}
+    key_w = min(38, max((len(str(k)) for k in items), default=10))
+    line_w = max(len(title) + 4, key_w + 46)
+
+    def _fmt(v):
+        s = str(v)
+        return s if len(s) <= 44 else s[:41] + "…"
+
+    def _row(k, v):
+        return f"  {str(k):<{key_w}}  {_fmt(v)}"
+
+    bar = "─" * line_w
+    print(f"┌{bar}┐")
+    print(f"│ {title.ljust(line_w - 1)}│")
+    print(f"└{bar}┘")
+
+    shown = set()
+    for cat, keys in categories.items():
+        rows = [k for k in keys if k in items and k not in shown]
+        if not rows:
+            continue
+        print(f"▸ {cat}")
+        for k in rows:
+            print(_row(k, items[k]))
+            shown.add(k)
+    leftover = [k for k in items if k not in shown]
+    if leftover:
+        if shown:
+            print("▸ Other")
+        for k in leftover:
+            print(_row(k, items[k]))
+    print("")
+
+
 def save_settings(settings, name='settings', show=False):
     """Persist a settings dict to ``<src>/settings/<name>.csv`` so a spacr run can be reproduced later.
 
@@ -1125,9 +1176,9 @@ def save_settings(settings, name='settings', show=False):
             settings_2['plot'] = False
             
     settings_df = pd.DataFrame(list(settings_2.items()), columns=['Key', 'Value'])
-    
+
     if show:
-        display(settings_df)
+        pretty_print_settings(settings_2, title=name.replace('_', ' ').title())
 
     settings_csv = os.path.join(src,'settings',f'{name}.csv')
     # Persisting settings is a best-effort side effect — it must never crash the
