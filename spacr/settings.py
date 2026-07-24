@@ -714,6 +714,7 @@ def get_train_test_model_settings(settings):
      settings.setdefault('image_size', 224)
      settings.setdefault('batch_size', 64)
      settings.setdefault('epochs', 100)
+     settings.setdefault('plot', False)
      settings.setdefault('val_split', 0.1)
      settings.setdefault('learning_rate', 0.0001)
      settings.setdefault('weight_decay', 0.00001)

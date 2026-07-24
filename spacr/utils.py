@@ -2366,7 +2366,8 @@ class TorchModel(nn.Module):
         dropout_rate: Optional[float] = None,
         use_checkpoint: bool = False,
         num_classes: int = 2,      # >=2 => multiclass head; ==1 => binary head (BCE)
-        multilabel: bool = False   # kept for external loss/metrics decisions
+        multilabel: bool = False,  # kept for external loss/metrics decisions
+        image_size: int = 224,     # actual training resolution (ViT/inception need it)
     ):
         """Build the backbone, strip its head, and attach the SPACR linear classifier.
 
@@ -2383,6 +2384,7 @@ class TorchModel(nn.Module):
         self.use_checkpoint = bool(use_checkpoint)
         self.num_classes = int(num_classes)
         self.multilabel = bool(multilabel)
+        self.image_size = int(image_size) if image_size else 224
         self.use_dropout = (dropout_rate is not None)
 
         # 1) Initialize backbone
@@ -2480,8 +2482,9 @@ class TorchModel(nn.Module):
         feature size. Uses 224×224 nominal resolution.
         """
         self.base_model.eval()
+        s = int(getattr(self, "image_size", 224)) or 224
         with torch.no_grad():
-            x = torch.zeros(1, 3, 224, 224)
+            x = torch.zeros(1, 3, s, s)
             out = self._run_backbone_raw(x)  # raw backbone call (unwrapped)
         # Flatten if spatial
         if isinstance(out, torch.Tensor) and out.ndim > 2:
@@ -2938,12 +2941,16 @@ def choose_model(model_type: str,
 
     # --- TORCHVISION CLASSIFICATION (via your TorchModel wrapper) ------------
     head_dim = max(1, int(num_classes))
+    # Use the real training resolution so ViT/Swin/inception (which are
+    # resolution-sensitive) infer the right feature dim + pass the sanity check.
+    img_size = int(height) if height else 224
     base_model = TorchModel(  # relies on your wrapper class being available in this module
         model_name=model_type,
         pretrained=bool(init_weights),
         dropout_rate=(dropout_rate if (dropout_rate and dropout_rate > 0) else None),
         use_checkpoint=use_checkpoint,
         num_classes=head_dim,
+        image_size=img_size,
     )
 
     # Forward sanity-check to ensure classification logits shape
@@ -2951,7 +2958,7 @@ def choose_model(model_type: str,
         base_model.eval()
         with torch.no_grad():
             # Keep 3 channels for sanity-check; most pretrained backbones expect 3
-            dummy = torch.randn(1, 3, height, width)
+            dummy = torch.randn(1, 3, img_size, img_size)
             z = base_model(dummy)
             if isinstance(z, dict):
                 raise RuntimeError("Selected model returned a dict, not logits.")
