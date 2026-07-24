@@ -307,6 +307,41 @@ class SettingsWidgets:
             out.setdefault(k, v)
         return out
 
+    def set_value_for_key(self, key: str, value: Any) -> bool:
+        """Write ``value`` into the widget bound to ``key`` (if present).
+
+        Used by the Live Preview's "Propagate settings" toggle to push
+        interactively-tuned values back into the main settings panel.
+        Returns True if the key existed and was set.
+        """
+        w = self._widgets.get(key)
+        if w is None:
+            return False
+        try:
+            if isinstance(w, QCheckBox):
+                w.setChecked(bool(value))
+            elif isinstance(w, QSpinBox):
+                w.setValue(int(value))
+            elif isinstance(w, QDoubleSpinBox):
+                w.setValue(float(value))
+            elif isinstance(w, QComboBox):
+                idx = w.findData(value)
+                if idx < 0:
+                    idx = w.findText(str(value))
+                if idx >= 0:
+                    w.setCurrentIndex(idx)
+                else:
+                    w.setEditText(str(value))
+            elif isinstance(w, (_ListEdit, _ScalarEdit)):
+                w.set_value(value)
+            elif isinstance(w, QLineEdit):
+                w.setText("" if value is None else str(value))
+            else:
+                return False
+        except Exception:
+            return False
+        return True
+
     def _read_widget(self, w: QWidget) -> Any:
         if isinstance(w, QCheckBox):
             return bool(w.isChecked())
