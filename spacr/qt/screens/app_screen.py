@@ -858,12 +858,12 @@ class AppScreen(QWidget):
         for key, value in settings.items():
             model.set_value_for_key(key, value)
 
-    def _on_figure_ready(self, fig) -> None:
-        """Hand a matplotlib figure to the FigureQueue, which renders it,
-        thumbnails it, and manages the RAM/temp-spill window. The queue
-        auto-selects the newest figure so the user sees each fresh result
-        as it arrives."""
-        self._figure_queue.add_figure(fig)
+    def _on_figure_ready(self, fig, png_path: str = "") -> None:
+        """Hand a matplotlib figure to the FigureQueue. ``png_path`` is a PNG
+        the pipeline bridge already rendered in its worker thread, so the queue
+        can adopt it (cheap) instead of re-rendering on the GUI thread — that's
+        what keeps the UI responsive while many figures stream in."""
+        self._figure_queue.add_figure(fig, prerendered_png=png_path or None)
         self._figures_card.show()
 
     def closeEvent(self, event):

@@ -233,3 +233,30 @@ def test_annotate_screen_next_prev(qtbot, qt_theme_applied,
     assert screen._offset == start
     if screen._worker:
         screen._worker.stop(wait=True)
+
+
+def test_reanchor_png_path_resolves_moved_dataset(tmp_path):
+    """A stored absolute png_path from a different/old root should re-anchor to
+    the real file beside the opened database (fixes the grey-boxes bug)."""
+    import os
+    from spacr.qt.screens.annotate import _reanchor_png_path
+    root = tmp_path / "moved_here"
+    img_dir = root / "data" / "single_cell" / "plate1_A01" / "cell_png"
+    img_dir.mkdir(parents=True)
+    img = img_dir / "plate1_A01_f1_obj1.png"
+    img.write_bytes(b"\x89PNG\r\n")   # content irrelevant; isfile is what matters
+    db_path = str(root / "measurements" / "measurements.db")
+    os.makedirs(os.path.dirname(db_path))
+    open(db_path, "w").close()
+    # Stored path points at an OLD absolute location that no longer exists.
+    stored = "/old/gone/data/single_cell/plate1_A01/cell_png/plate1_A01_f1_obj1.png"
+    resolved = _reanchor_png_path(stored, db_path)
+    assert resolved == str(img)
+    assert os.path.isfile(resolved)
+
+
+def test_reanchor_keeps_valid_path(tmp_path):
+    import os
+    from spacr.qt.screens.annotate import _reanchor_png_path
+    real = tmp_path / "x.png"; real.write_bytes(b"x")
+    assert _reanchor_png_path(str(real), "") == str(real)
