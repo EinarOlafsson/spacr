@@ -598,12 +598,15 @@ class StartupPage(QWidget):
         # information — they just don't have to squint at a cut-off
         # two-line label. The icon jumps up to 44 px so the tile
         # reads as an app launcher, not a menu entry.
+        from ..preferences import scaled_px
         for key, name, desc in entries:
             icon = icon_provider(key)
             tile = HTile(text=name, description="", icon=icon,
-                          icon_size=44)
-            tile.setMinimumWidth(180)
-            tile.setMaximumWidth(240)
+                          icon_size=52)
+            # Width scales with the font-size preference so the app name
+            # doesn't clip when the text is bumped up.
+            tile.setMinimumWidth(scaled_px(180))
+            tile.setMaximumWidth(scaled_px(240))
             self._tile_hints[tile] = desc
             tile.installEventFilter(self)
             tile.clicked.connect(lambda checked=False, k=key:
