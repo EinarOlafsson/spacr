@@ -1799,16 +1799,21 @@ def _get_diam(mag, obj):
 
     if obj == 'cell':
         diameter = 2 * mag + 80
-        
-    if obj == 'cell_large':
+    elif obj == 'cell_large':
         diameter = 2 * mag + 120
-                                
-    if obj == 'nucleus':
+    elif obj == 'nucleus':
         diameter = 0.75 * mag + 45
-                                
-    if obj == 'pathogen':
+    elif obj == 'pathogen':
         diameter = mag
-                                
+    else:
+        # Guard against unsupported object types — previously this fell
+        # through to ``int(diameter)`` with ``diameter`` unbound, raising a
+        # confusing UnboundLocalError instead of a clear message.
+        raise ValueError(
+            f"_get_diam: unsupported object type '{obj}'. "
+            f"Expected one of: cell, cell_large, nucleus, pathogen."
+        )
+
     return int(diameter)
 
 def _get_object_settings(object_type, settings):
