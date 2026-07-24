@@ -217,6 +217,39 @@ class _ProvidersDialog(QDialog):
                 self._route_errors_chk.isChecked()))
         col.addWidget(self._route_errors_chk)
 
+        # GitHub sign-in — lets issues send WITHOUT a browser --------------
+        col.addWidget(Divider())
+        from ..ai import github_auth
+        gh_label = QLabel(
+            "<b>GitHub sign-in</b><br>"
+            "<span style='color:gray;'>Sign in so auto-filed issues send "
+            "directly (no browser). Paste a Personal Access Token with "
+            "<i>repo/issues</i> scope, or install + log in to the GitHub CLI "
+            "(<code>gh auth login</code>) and spaCR will use it automatically."
+            "</span>")
+        gh_label.setTextFormat(Qt.RichText)
+        gh_label.setWordWrap(True)
+        col.addWidget(gh_label)
+
+        self._gh_status = QLabel()
+        col.addWidget(self._gh_status)
+
+        gh_row = QHBoxLayout()
+        self._gh_token = QLineEdit()
+        self._gh_token.setEchoMode(QLineEdit.Password)
+        self._gh_token.setPlaceholderText("Personal Access Token (ghp_… / github_pat_…)")
+        self._gh_token.setText(github_auth.get_stored_token())
+        gh_row.addWidget(self._gh_token, 1)
+        gh_save = QPushButton("Save token")
+        gh_save.clicked.connect(self._on_save_github_token)
+        gh_row.addWidget(gh_save)
+        gh_clear = QPushButton("Clear")
+        gh_clear.clicked.connect(self._on_clear_github_token)
+        gh_row.addWidget(gh_clear)
+        gh_wrap = QWidget(); gh_wrap.setLayout(gh_row)
+        col.addWidget(gh_wrap)
+        self._refresh_github_status()
+
         col.addWidget(Divider())
 
         # System prompt --------------------------------------------------
@@ -259,6 +292,33 @@ class _ProvidersDialog(QDialog):
 
     def _on_auto_issue_changed(self, _state: int) -> None:
         ai_settings.set_auto_file_issues(self._auto_issue_chk.isChecked())
+
+    def _refresh_github_status(self) -> None:
+        from ..ai import github_auth
+        src = github_auth.auth_source()
+        labels = {"token": "a saved token", "env": "the GITHUB_TOKEN env var",
+                  "gh": "the GitHub CLI"}
+        if src:
+            self._gh_status.setText(
+                f"<span style='color:#3fb950;'>✓ Signed in via "
+                f"{labels.get(src, src)} — issues send directly.</span>")
+        else:
+            self._gh_status.setText(
+                "<span style='color:#d29922;'>Not signed in — issues open in "
+                "your browser. Add a token or run <code>gh auth login</code>."
+                "</span>")
+        self._gh_status.setTextFormat(Qt.RichText)
+
+    def _on_save_github_token(self) -> None:
+        from ..ai import github_auth
+        github_auth.set_stored_token(self._gh_token.text().strip())
+        self._refresh_github_status()
+
+    def _on_clear_github_token(self) -> None:
+        from ..ai import github_auth
+        github_auth.set_stored_token("")
+        self._gh_token.clear()
+        self._refresh_github_status()
 
     def _on_prompt_save(self) -> None:
         text = self._prompt_edit.toPlainText().strip()
