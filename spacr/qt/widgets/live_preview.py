@@ -93,17 +93,33 @@ def load_preview_image(path: Path) -> np.ndarray:
         return np.asarray(im)
 
 
+def _full_range_max(img: np.ndarray) -> float:
+    """Return the value that maps to white for a *raw* (un-normalised) view.
+
+    For integer images this is the dtype maximum (e.g. 65535 for uint16), so
+    a 16-bit image whose real values are small reads dark — the true raw
+    view. For float images we assume a [0, 1] range unless the data clearly
+    exceeds it, in which case we use the data max.
+    """
+    if np.issubdtype(img.dtype, np.integer):
+        return float(np.iinfo(img.dtype).max)
+    m = float(np.nanmax(img)) if img.size else 1.0
+    return 1.0 if m <= 1.0 else m
+
+
 def _to_uint8(img: np.ndarray, normalise: bool = True,
                 lo_pct: float = 2.0, hi_pct: float = 98.0) -> np.ndarray:
     """Return a viewable uint8 version of *img*.
 
-    :param normalise: when True (default) apply a per-channel percentile
-        stretch. When False the array is clipped to [0, 255] without
-        any rescaling — useful when the user has already normalised
-        upstream and wants pixel values verbatim.
+    :param normalise: when True apply a per-channel percentile stretch. When
+        False, map the *full bit-depth range* (0 → dtype max) to 0–255, i.e.
+        the raw view — a 16-bit image with small values reads dark/black,
+        not blown out. (Previously this clipped to [0, 255], which turned a
+        16-bit image mostly white.)
     :param lo_pct: lower percentile for the stretch (default 2 %).
     :param hi_pct: upper percentile for the stretch (default 98 %).
     """
+    full_max = _full_range_max(img) or 1.0
     if img.ndim == 3 and img.shape[-1] in (2, 3, 4):
         out = np.zeros(img.shape[:2] + (3,), dtype=np.uint8)
         for c in range(min(3, img.shape[-1])):
@@ -116,7 +132,8 @@ def _to_uint8(img: np.ndarray, normalise: bool = True,
                     255 * (slice_ - lo) / (hi - lo), 0, 255,
                 ).astype(np.uint8)
             else:
-                out[..., c] = np.clip(slice_, 0, 255).astype(np.uint8)
+                out[..., c] = np.clip(
+                    255 * slice_ / full_max, 0, 255).astype(np.uint8)
         return out
     arr = img.astype(np.float32)
     if normalise:
@@ -126,7 +143,7 @@ def _to_uint8(img: np.ndarray, normalise: bool = True,
         return np.clip(
             255 * (arr - lo) / (hi - lo), 0, 255,
         ).astype(np.uint8)
-    return np.clip(arr, 0, 255).astype(np.uint8)
+    return np.clip(255 * arr / full_max, 0, 255).astype(np.uint8)
 
 
 def _boundary_mask(mask: np.ndarray) -> np.ndarray:
@@ -945,6 +962,7 @@ class LiveSettingsDialog(QDialog):
         panel._model_box.currentTextChanged.connect(self.refresh_visibility)
         panel._pre_check.toggled.connect(self.refresh_visibility)
         panel._post_check.toggled.connect(self.refresh_visibility)
+        panel._normalise_check.toggled.connect(self.refresh_visibility)
 
         self.refresh_visibility()
 
@@ -971,23 +989,31 @@ class LiveSettingsDialog(QDialog):
         """
         p = self._panel
 
-        # -- model: SAM ignores diameter/flow/prob --
+        # -- model: SAM still uses flow threshold + cell probability; only the
+        #    diameter is ignored (SAM auto-estimates object size) --
         is_sam = p._model_box.currentText() == "cpsam"
-        for w in (p._diameter, p._flow, p._prob):
-            w.setEnabled(not is_sam)
-            w.setToolTip("Ignored by Cellpose-SAM" if is_sam else "")
+        p._diameter.setEnabled(not is_sam)
+        p._diameter.setToolTip("Ignored by Cellpose-SAM" if is_sam else "")
+        p._flow.setEnabled(True)
+        p._prob.setEnabled(True)
+        p._flow.setToolTip("")
+        p._prob.setToolTip("")
 
         # -- object: which channel spinners apply --
         obj = p._object_box.currentText()
         p._cell_channel.setEnabled(obj != "nucleus")
         p._nucleus_channel.setEnabled(obj != "cell")
 
-        # -- Pre step gates the pre-processing / normalisation knobs --
-        pre_on = p._pre_check.isChecked()
-        for w in (p._normalise_check, p._lo_pct, p._hi_pct):
-            w.setEnabled(pre_on)
-            w.setToolTip("" if pre_on
-                         else "Enable 'Pre' to use pre-processing settings")
+        # -- Normalisation is always available (independent of the Pre step
+        #    and of the model, incl. cpsam). The percentile bounds only apply
+        #    while normalisation is on. --
+        p._normalise_check.setEnabled(True)
+        p._normalise_check.setToolTip("")
+        norm_on = p._normalise_check.isChecked()
+        for w in (p._lo_pct, p._hi_pct):
+            w.setEnabled(norm_on)
+            w.setToolTip("" if norm_on
+                         else "Enable 'Normalise' to set percentile bounds")
 
         # -- Post step gates the overlay / outline knobs --
         post_on = p._post_check.isChecked()
