@@ -5,6 +5,7 @@ import gzip
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import pytest
 
 import matplotlib
@@ -170,3 +171,67 @@ def test_is_multiprocessing_process_false():
     import types
     proc = types.SimpleNamespace(cmdline=lambda: ["python", "app.py"])
     assert U.is_multiprocessing_process(proc) is False
+
+
+# ---------------------------------------------------------------------------
+# batch 2 — more pure helpers
+# ---------------------------------------------------------------------------
+
+def test_get_db_paths_str_and_list():
+    assert U.get_db_paths("/a")[0].endswith("measurements/measurements.db")
+    both = U.get_db_paths(["/a", "/b"])
+    assert len(both) == 2
+
+
+def test_get_sequencing_paths():
+    assert U.get_sequencing_paths("/a")[0].endswith(
+        "sequencing/sequencing_data.csv")
+
+
+def test_get_percentiles():
+    rng = np.random.default_rng(0)
+    arr = rng.integers(0, 1000, size=(16, 16, 3)).astype(np.uint16)
+    pct = U._get_percentiles(arr)
+    assert len(pct) == 3
+    assert all(len(p) == 2 for p in pct)
+
+
+def test_check_integrity_collapses_label_columns():
+    df = pd.DataFrame({
+        "label": [1, 2], "cell_label": [3, 4], "value": [5, 6],
+    })
+    out = U._check_integrity(df)
+    assert "object_label" in out.columns
+    assert "label_list" in out.columns
+
+
+def test_check_multicollinearity():
+    rng = np.random.default_rng(1)
+    x = pd.DataFrame({
+        "a": rng.normal(0, 1, 50), "b": rng.normal(0, 1, 50),
+    })
+    vif = U.check_multicollinearity(x)
+    assert "VIF" in vif.columns and len(vif) == 2
+
+
+def test_apply_union_find():
+    m = np.zeros((6, 6), dtype=np.int32)
+    m[0:2, 0:2] = 1; m[3:5, 3:5] = 2
+    parent = {1: 1, 2: 2}
+    out = U._apply_union_find(m, parent)
+    assert out is not None
+
+
+def test_convert_and_relabel_masks(tmp_path):
+    # int64 npy masks → converted to uint16 relabeled.
+    m = np.zeros((8, 8), dtype=np.int64); m[1:3, 1:3] = 100000
+    np.save(str(tmp_path / "m.npy"), m)
+    U.convert_and_relabel_masks(str(tmp_path))
+    out = np.load(str(tmp_path / "m.npy"))
+    assert out.dtype == np.uint16
+
+
+def test_get_cuda_version():
+    # Just runs — returns a version string or None.
+    v = U.get_cuda_version()
+    assert v is None or isinstance(v, str)
