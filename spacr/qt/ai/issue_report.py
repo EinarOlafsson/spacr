@@ -288,6 +288,18 @@ def file_issue(
     """
     report = build_report(traceback_text, active_app=active_app,
                             settings=settings)
+    # If the user is signed in to GitHub (stored token / env / gh CLI), create
+    # the issue directly via the API — no browser needed. Otherwise fall back to
+    # opening the pre-filled issues/new URL in the browser.
+    try:
+        from . import github_auth
+        if github_auth.is_authenticated():
+            ok, result = github_auth.create_issue(
+                REPO, report["title"], report["body"], labels=[ISSUE_LABEL])
+            if ok and result:
+                return result   # the created issue's html_url
+    except Exception:
+        pass
     url = issue_url(report["title"], report["body"])
     open_issue_in_browser(url)
     return url
