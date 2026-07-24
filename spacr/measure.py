@@ -845,13 +845,25 @@ def img_list_to_grid(grid, titles=None):
     
     fig, axs = plt.subplots(grid_size, grid_size, figsize=(15, 15), facecolor='black')
     
+    from matplotlib.patches import FancyBboxPatch
     for i, ax in enumerate(axs.flat):
         if i < n_images:
             image = grid[i]
-            ax.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+            im = ax.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
             ax.axis('off')
             ax.set_facecolor('black')
-            
+
+            # Clip each crop to a rounded rectangle so the grid reads like the
+            # annotate view (soft corners) rather than hard square tiles.
+            h, w = image.shape[:2]
+            r = max(2.0, min(h, w) * 0.08)
+            bbox = FancyBboxPatch(
+                (0, 0), w - 1, h - 1,
+                boxstyle=f"round,pad=0,rounding_size={r}",
+                transform=ax.transData, facecolor='none', edgecolor='none')
+            ax.add_patch(bbox)
+            im.set_clip_path(bbox)
+
             if titles:
                 # Determine text size
                 img_height, img_width = image.shape[:2]
@@ -859,10 +871,10 @@ def img_list_to_grid(grid, titles=None):
                 ax.text(5, 5, titles[i], color='white', fontsize=text_size, ha='left', va='top', fontweight='bold')
         else:
             fig.delaxes(ax)
-    
-    # Adjust spacing
-    plt.subplots_adjust(wspace=0.05, hspace=0.05)
-    plt.tight_layout(pad=0.1)
+
+    # A little more breathing room between crops.
+    plt.subplots_adjust(wspace=0.08, hspace=0.08)
+    plt.tight_layout(pad=0.2)
     return fig
 
 #@log_function_call
