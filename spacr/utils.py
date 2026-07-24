@@ -3900,7 +3900,9 @@ def MLR(merged_df, refine_model):
 
 def get_files_from_dir(dir_path, file_extension="*"):
     """Return glob matches for ``dir_path/file_extension``."""
-    return glob(os.path.join(dir_path, file_extension))
+    # ``glob`` is imported as the module here (see glob.glob usage elsewhere),
+    # so it must be called as glob.glob — a bare glob(...) raised TypeError.
+    return glob.glob(os.path.join(dir_path, file_extension))
 
 def create_circular_mask(h, w, center=None, radius=None):
     """Return a boolean circular mask of shape ``(h, w)`` centered on ``center``.
