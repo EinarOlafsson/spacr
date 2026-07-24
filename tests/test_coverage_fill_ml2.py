@@ -138,3 +138,81 @@ def test_check_and_clean_data():
     out = ML.check_and_clean_data(df, dependent_variable="prediction")
     assert "gene_fraction" in out.columns
     assert "gene" in out.columns
+
+
+# ---------------------------------------------------------------------------
+# process_scores
+# ---------------------------------------------------------------------------
+
+def _scores_df(n_wells=4, per_well=10):
+    rng = np.random.default_rng(7)
+    rows = []
+    for w in range(n_wells):
+        for o in range(per_well):
+            rows.append({
+                "prcfo": f"plate1_r{w+1}_c1_f1_o{o+1}",
+                "pred": float(rng.uniform(0.1, 0.9)),
+            })
+    return pd.DataFrame(rows)
+
+
+@pytest.mark.parametrize("agg", ["mean", "median", "quantile"])
+def test_process_scores_agg_types(agg):
+    df = _scores_df()
+    out, dv = ML.process_scores(
+        df, "pred", plate="plate1", min_cell_count=2, agg_type=agg)
+    assert "cell_count" in out.columns and dv == "pred"
+    assert (out["cell_count"] >= 2).all()
+
+
+def test_process_scores_none_agg():
+    df = _scores_df()
+    out, dv = ML.process_scores(
+        df, "pred", plate="plate1", min_cell_count=2, agg_type=None)
+    assert "cell_count" in out.columns
+
+
+def test_process_scores_poisson():
+    df = _scores_df()
+    out, dv = ML.process_scores(
+        df, "pred", plate="plate1", min_cell_count=2,
+        regression_type="poisson")
+    assert "cell_count" in out.columns
+
+
+def test_process_scores_invert_complement():
+    df = _scores_df()
+    out, dv = ML.process_scores(
+        df, "pred", plate="plate1", min_cell_count=2,
+        invert_dependent_variable=True)
+    assert "cell_count" in out.columns
+
+
+def test_process_scores_invert_reciprocal():
+    df = _scores_df()
+    out, dv = ML.process_scores(
+        df, "pred", plate="plate1", min_cell_count=2,
+        invert_dependent_variable=-1)
+    assert "cell_count" in out.columns
+
+
+def test_process_scores_transform():
+    df = _scores_df()
+    out, dv = ML.process_scores(
+        df, "pred", plate="plate1", min_cell_count=2,
+        agg_type="mean", transform="log")
+    assert dv == "log_pred"
+
+
+def test_process_scores_bad_agg():
+    df = _scores_df()
+    with pytest.raises(ValueError):
+        ML.process_scores(df, "pred", plate="plate1",
+                          min_cell_count=2, agg_type="bogus")
+
+
+def test_process_scores_bad_invert():
+    df = _scores_df()
+    with pytest.raises(ValueError):
+        ML.process_scores(df, "pred", plate="plate1",
+                          min_cell_count=2, invert_dependent_variable=99)
