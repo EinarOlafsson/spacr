@@ -164,3 +164,44 @@ def test_read_simulations_table(tmp_path):
     empty = tmp_path / "e.db"
     sqlite3.connect(str(empty)).close()
     assert SIM.read_simulations_table(str(empty)) is None
+
+
+# ---------------------------------------------------------------------------
+# simulation engine chain: run_experiment -> classifier -> sequence_plates
+# ---------------------------------------------------------------------------
+
+def test_classifier_and_errors():
+    df = pd.DataFrame({"is_active": [1, 0, 1, 0, 1, 0]})
+    out = SIM.classifier(0.8, 0.02, 0.2, 0.02, 0.9, df)
+    assert "score" in out.columns and out["score"].between(0, 1).all()
+    # invalid mean
+    with pytest.raises(ValueError):
+        SIM.classifier(1.5, 0.02, 0.2, 0.02, 0.9, df.copy())
+    # invalid variance (>= mean*(1-mean))
+    with pytest.raises(ValueError):
+        SIM.classifier(0.5, 1.0, 0.2, 0.02, 0.9, df.copy())
+
+
+def test_run_experiment_chain():
+    plate_map = SIM.generate_plate_map(1)   # one 384-well plate
+    active = list(range(1, 6))
+    cell_df, gpw_df, wpg_df, df_ls = SIM.run_experiment(
+        plate_map, number_of_genes=20, active_gene_list=active,
+        avg_genes_per_well=5, sd_genes_per_well=2,
+        avg_cells_per_well=10, sd_cells_per_well=3,
+        well_ineq_coeff=1.2, gene_ineq_coeff=1.2)
+    assert {"gene_id", "is_active", "plate_row_column"} <= set(cell_df.columns)
+    assert len(df_ls) == 6
+
+    # classifier assigns scores
+    scored = SIM.classifier(0.8, 0.02, 0.2, 0.02, 0.85, cell_df)
+    assert "score" in scored.columns
+
+    # well scores + sequencing
+    well_score = SIM.generate_well_score(scored)
+    frac_map, metadata = SIM.sequence_plates(
+        well_score, number_of_genes=20,
+        avg_reads_per_gene=100, sd_reads_per_gene=20,
+        sequencing_error=0.05)
+    assert "sum_reads" in metadata.columns
+    assert len(frac_map) == len(well_score)
