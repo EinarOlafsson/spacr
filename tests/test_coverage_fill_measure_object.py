@@ -560,3 +560,58 @@ def test_segment_classical_parallel_serial():
     batch = np.stack([_spot_img(), _spot_img()])
     out = OBJ._segment_classical_parallel(batch, _obj_settings(), n_jobs=1)
     assert len(out) == 2
+
+
+# ---------------------------------------------------------------------------
+# measure.py DB / IO tail helpers
+# ---------------------------------------------------------------------------
+
+def test_get_object_counts(tmp_path):
+    import sqlite3
+    db_dir = tmp_path / "measurements"
+    db_dir.mkdir()
+    with sqlite3.connect(str(db_dir / "measurements.db")) as conn:
+        pd.DataFrame({
+            "count_type": ["cell", "cell", "nucleus"],
+            "file_name": ["a", "b", "a"],
+            "object_count": [10, 20, 5],
+        }).to_sql("object_counts", conn, index=False)
+    out = M.get_object_counts(str(tmp_path))
+    cell = out[out["count_type"] == "cell"].iloc[0]
+    assert cell["total_object_count"] == 30
+    assert cell["avg_object_count_per_file_name"] == 15
+
+
+def test_generate_cellpose_train_set(tmp_path):
+    import tifffile
+    src = tmp_path / "exp1"
+    (src / "masks").mkdir(parents=True)
+    # mask with 6 objects (>= min_objects=5) → copied
+    big = np.zeros((16, 16), dtype=np.uint16)
+    for i in range(1, 7):
+        big[i, i] = i
+    tifffile.imwrite(str(src / "masks" / "m1.tif"), big)
+    tifffile.imwrite(str(src / "m1.tif"), big)   # the "image" alongside
+    # mask with 1 object → skipped
+    small = np.zeros((16, 16), dtype=np.uint16); small[0, 0] = 1
+    tifffile.imwrite(str(src / "masks" / "m2.tif"), small)
+    tifffile.imwrite(str(src / "m2.tif"), small)
+
+    dst = tmp_path / "trainset"
+    M.generate_cellpose_train_set([str(src)], str(dst), min_objects=5)
+    copied = list((dst / "masks").glob("*.tif"))
+    assert len(copied) == 1
+    assert copied[0].name == "exp1_m1.tif"
+
+
+def test_process_meassure_crop_results(tmp_path):
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots(); ax.plot([0, 1], [0, 1])
+    partial = [
+        None,                                    # None-skip branch
+        (0, 1.2, 3, {"cell__overlay": fig}),     # fig-save branch
+    ]
+    settings = {"src": str(tmp_path / "run" / "data")}
+    (tmp_path / "run").mkdir()
+    M.process_meassure_crop_results(partial, settings)
+    assert list((tmp_path / "run" / "results").rglob("*.pdf"))
