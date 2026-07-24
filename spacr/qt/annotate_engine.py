@@ -216,9 +216,12 @@ class AnnotateSettings:
     annotation_column: str = "annotate"
     image_size: Tuple[int, int] = (200, 200)
     image_type: Optional[str] = None
-    channels: Optional[List[str]] = None
+    # Default to showing + normalising R,G,B so object crops are visible out of
+    # the box (unnormalised crops render as near-black/grey otherwise).
+    channels: List[str] = field(default_factory=lambda: ["r", "g", "b"])
     percentiles: Tuple[float, float] = (1.0, 99.0)
-    normalize_channels: Optional[List[str]] = None
+    normalize_channels: List[str] = field(
+        default_factory=lambda: ["r", "g", "b"])
     measurement: Optional[Any] = None
     threshold: Optional[Any] = None
     threshold_direction: Optional[Any] = None

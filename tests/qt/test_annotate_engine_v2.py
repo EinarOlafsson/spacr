@@ -113,3 +113,20 @@ def test_fetch_filtered_paths_missing_db_returns_empty(tmp_path: Path):
         directions=["higher"],
     )
     assert rows == []
+
+
+def test_default_channels_are_rgb_and_normalized():
+    """Object crops must be visible out of the box: show + normalise R,G,B by
+    default so a dim/unnormalised crop doesn't render as a grey square."""
+    import numpy as np
+    from PIL import Image
+    from spacr.qt.annotate_engine import (
+        AnnotateSettings, normalize_pil, filter_channels_pil)
+    s = AnnotateSettings()
+    assert s.channels == ["r", "g", "b"]
+    assert s.normalize_channels == ["r", "g", "b"]
+    dim = Image.fromarray(
+        np.random.RandomState(0).randint(0, 30, (16, 16, 3)).astype("uint8"))
+    out = filter_channels_pil(
+        normalize_pil(dim, s.percentiles, s.normalize_channels), s.channels)
+    assert np.array(out).max() > 200   # stretched to a visible range
