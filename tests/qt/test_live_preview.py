@@ -138,7 +138,7 @@ class TestPanel:
         params = panel.current_params()
         expected = {"model", "diameter", "flow_threshold", "cellprob",
                      "object_types", "cell_channel", "nucleus_channel",
-                     "normalise", "lo_pct", "hi_pct", "pre", "post",
+                     "normalise", "lo_pct", "hi_pct",
                      "outline_thickness", "outline_colour"}
         assert expected.issubset(params.keys())
 
@@ -155,8 +155,7 @@ class TestPanel:
                        "_nucleus_channel", "_diameter", "_flow",
                        "_prob", "_normalise_check", "_lo_pct",
                        "_hi_pct", "_outline_colour",
-                       "_outline_thickness", "_pre_check",
-                       "_post_check"):
+                       "_outline_thickness"):
             w = getattr(panel, name)
             assert not w.isVisible(), (
                 f"{name} should be hidden in the compact layout")
@@ -291,42 +290,43 @@ class TestModelAwareOptions:
 # Pre / Post toggles pipe settings through the request
 # ---------------------------------------------------------------------------
 
-class TestPrePostToggles:
-    def test_pre_toggle_pushes_settings_into_request(
+class TestSettingsFlowIntoRequest:
+    """The common + per-compartment controls always flow into the request —
+    there are no Pre/Post checkboxes anymore."""
+
+    def test_remove_background_flows_from_common_control(
             self, qtbot, monkeypatch, sample_tif):
         captured = {}
         def _stub(req):
             captured["pre"] = dict(req.preprocess_settings)
-            captured["post"] = dict(req.postprocess_settings)
-            return {"cell": np.zeros(req.image.shape[:2],
-                                       dtype=np.int32)}
+            return {"cell": np.zeros(req.image.shape[:2], dtype=np.int32)}
         monkeypatch.setattr(live_preview, "_segment_multi", _stub)
         panel = live_preview.LivePreviewPanel()
         qtbot.addWidget(panel)
-        panel.apply_settings({"remove_background_cell": True,
-                                "background": 50})
-        panel._pre_check.setChecked(True)
+        panel._object_box.setCurrentText("cell")
+        panel._common_widgets["remove_background"].setChecked(True)
+        panel._common_widgets["background"].setValue(50)
         panel.load_image(sample_tif)
         panel.run_preview()
         qtbot.waitUntil(lambda: "pre" in captured, timeout=3000)
         assert captured["pre"].get("remove_background_cell") is True
+        assert captured["pre"].get("cell_background") == 50
 
-    def test_post_toggle_pushes_size_filter_into_request(
+    def test_filter_flows_from_compartment_control(
             self, qtbot, monkeypatch, sample_tif):
         captured = {}
         def _stub(req):
             captured["post"] = dict(req.postprocess_settings)
-            return {"cell": np.zeros(req.image.shape[:2],
-                                       dtype=np.int32)}
+            return {"cell": np.zeros(req.image.shape[:2], dtype=np.int32)}
         monkeypatch.setattr(live_preview, "_segment_multi", _stub)
         panel = live_preview.LivePreviewPanel()
         qtbot.addWidget(panel)
-        panel.apply_settings({"cell_min_size": 50, "cell_max_size": 5000})
-        panel._post_check.setChecked(True)
+        panel._object_box.setCurrentText("cell")
+        panel._compartment_widgets["cell"]["min_area"].setValue(50)
         panel.load_image(sample_tif)
         panel.run_preview()
         qtbot.waitUntil(lambda: "post" in captured, timeout=3000)
-        assert captured["post"].get("cell_min_size") == 50
+        assert captured["post"].get("cell_min_area") == 50
 
 
 # ---------------------------------------------------------------------------
