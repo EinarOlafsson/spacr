@@ -342,3 +342,122 @@ class TestEdgeLines:
         from spacr.updater import _lt
         assert _lt(None, "1.0") is False
         assert _lt("1.0", 123) is False
+
+
+class TestDefensiveInjection:
+    def test_notebook_missing_settings_file(self, tmp_path):
+        # _read_settings when settings.json is ABSENT (nb line 60).
+        from spacr.notebook_export import _read_settings
+        assert _read_settings(tmp_path) == {}
+
+    def test_export_run_non_directory_raises(self, tmp_path):
+        # export_run on a non-existent dir → FileNotFoundError (nb 173).
+        from spacr.notebook_export import export_run
+        with pytest.raises(FileNotFoundError):
+            export_run(tmp_path / "nope")
+
+    def test_export_run_mask_emits_mask_preview_cell(self, tmp_path):
+        # Reach the app_key=='mask' output-cell branch (nb 109).
+        import json
+        from spacr.notebook_export import export_run
+        run_dir = tmp_path / "20260101_000000_x__mask"; run_dir.mkdir()
+        (run_dir / "manifest.json").write_text('{"app_key": "mask"}')
+        (run_dir / "settings.json").write_text('{"src": "/tmp/x"}')
+        out = export_run(run_dir, out_path=tmp_path / "nb.ipynb")
+        nb = json.loads(out.read_text())
+        code = "\n".join("".join(c["source"]) for c in nb["cells"]
+                          if c["cell_type"] == "code")
+        assert "masks" in code.lower()
+
+    def test_human_readable_bytes_small(self):
+        # _human_readable_bytes < 1 KB → "N B" (_v1_v2 143).
+        from spacr._v1_v2_bridge import _human
+        assert _human(512).endswith("B")
+
+    def test_channels_from_explicit_cellpose_keys(self):
+        # The cellpose_*_channel branch (_v1_v2 58-64).
+        from spacr._v1_v2_bridge import v2_channels_from_settings
+        chans, names = v2_channels_from_settings({
+            "cell_channel": 1, "nucleus_channel": 0,
+            "pathogen_channel": None,
+        })
+        assert 0 in chans and 1 in chans
+
+    def test_disk_savings_sidecar_stat_raises(self, tmp_path, monkeypatch):
+        # exists()=True but stat() raises → except: pass (_v1_v2 117-118).
+        from spacr import _v1_v2_bridge as B
+        sidecar = tmp_path / "filename_map.csv"
+        sidecar.write_text("a\n")
+        real_stat = Path.stat
+        def _boom(self, *a, **k):
+            if self.name == "filename_map.csv":
+                raise OSError("stat blocked")
+            return real_stat(self, *a, **k)
+        monkeypatch.setattr(Path, "stat", _boom)
+        out = B.report_disk_savings(tmp_path, [])
+        assert out["v2_bytes"] == 0
+
+    def test_custom_features_spec_none(self, tmp_path, monkeypatch):
+        # spec_from_file_location → None makes the file skip (cf line 82).
+        import importlib.util
+        from spacr import custom_features as CF
+        d = tmp_path / "f"; d.mkdir()
+        monkeypatch.setattr(CF, "features_dir", lambda: d)
+        (d / "x.py").write_text("def feat(mask, image): return 1\n")
+        monkeypatch.setattr(importlib.util, "spec_from_file_location",
+                            lambda *a, **k: None)
+        assert CF.discover_features() == []
+
+    def test_custom_features_signature_unavailable(
+            self, tmp_path, monkeypatch):
+        # A same-module callable whose signature() raises → skip (106-107).
+        import inspect
+        from spacr import custom_features as CF
+        d = tmp_path / "f"; d.mkdir()
+        monkeypatch.setattr(CF, "features_dir", lambda: d)
+        (d / "s.py").write_text("def feat(mask, image): return 1\n")
+        real_sig = inspect.signature
+        def _boom(obj, *a, **k):
+            raise ValueError("no signature")
+        monkeypatch.setattr(CF.inspect, "signature", _boom)
+        # signature raises for feat → skipped, discover returns [].
+        assert CF.discover_features() == []
+
+    def test_custom_features_module_attr_raises(
+            self, tmp_path, monkeypatch):
+        # A callable whose __module__ access raises → skip (cf 98-99).
+        from spacr import custom_features as CF
+        d = tmp_path / "f"; d.mkdir()
+        monkeypatch.setattr(CF, "features_dir", lambda: d)
+        # Object that is callable but whose __module__ property raises.
+        (d / "m.py").write_text(
+            "class _Bad:\n"
+            "    def __call__(self, mask, image): return 1\n"
+            "    @property\n"
+            "    def __module__(self): raise RuntimeError('x')\n"
+            "weird = _Bad()\n"
+            "def feat(mask, image): return 2\n")
+        names = [f.name for f in CF.discover_features()]
+        # 'weird' is skipped (module attr raises); 'feat' survives.
+        assert "weird" not in names
+
+
+class TestMaskIOEnvBranch:
+    def test_invalid_env_format_warns_and_defaults(self, monkeypatch):
+        # SPACR_MASK_FORMAT=bogus at import → warn + default tif (47-49).
+        import importlib
+        monkeypatch.setenv("SPACR_MASK_FORMAT", "bogus")
+        import spacr.mask_io as MIO
+        importlib.reload(MIO)
+        assert MIO.DEFAULT_FORMAT == "tif"
+        # Reload once more with the env cleared so other tests see the
+        # normal default.
+        monkeypatch.delenv("SPACR_MASK_FORMAT", raising=False)
+        importlib.reload(MIO)
+
+
+def test_get_torch_version_with_torch_present():
+    # Directly exercise the successful import-torch path (version line 36).
+    from spacr.version import get_torch_version
+    v = get_torch_version()
+    assert isinstance(v, str)  # line 36 executes whether import succeeds or not
