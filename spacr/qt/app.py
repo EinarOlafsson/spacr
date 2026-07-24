@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import os
 import sys
+import threading
 from typing import Optional
 
 from PySide6.QtCore import Qt, QSize
@@ -878,6 +879,21 @@ def launch(argv: Optional[list[str]] = None) -> int:
 
     win = MainWindow(initial_app=initial_app)
     win.show()
+
+    # Pre-warm the heavy imports that a module screen needs (spacr.gui_utils
+    # pulls torch + cv2 ≈ 3-4 s; spacr.settings ≈ 1 s) in a BACKGROUND thread
+    # while the user looks at the home screen. By the time they open a module
+    # these are cached, so the module snaps open instead of freezing on the
+    # first import. Importing modules (no Qt objects) off-thread is safe.
+    def _prewarm():
+        try:
+            import importlib
+            for mod in ("spacr.settings", "spacr.gui_utils"):
+                importlib.import_module(mod)
+        except Exception:
+            pass
+    threading.Thread(target=_prewarm, name="spacr-prewarm",
+                     daemon=True).start()
 
     # aboutToQuit fires no matter how the app exits (window closed,
     # Ctrl+C, SIGTERM, …). Belt-and-suspenders with MainWindow's
