@@ -30,7 +30,8 @@ def test_demo_targets_cover_every_generator(qtbot, qt_theme_applied):
 
 
 @pytest.mark.parametrize("demo_key", ["mask", "measure", "crop",
-                                        "classify", "timelapse"])
+                                        "classify", "timelapse",
+                                        "map_barcodes"])
 def test_run_demo_generator_produces_layout(qtbot, qt_theme_applied,
                                               tmp_path, demo_key):
     win = _new_mainwindow(qtbot, qt_theme_applied)
@@ -93,7 +94,8 @@ def test_demo_menu_has_expected_entries(qtbot, qt_theme_applied):
     actions = [a for a in demos_menu.actions() if not a.isSeparator()]
     labels = {a.text() for a in actions}
     for expected in ("Mask demo…", "Measure demo…", "Crop demo…",
-                      "Classify demo…", "Timelapse demo…"):
+                      "Classify demo…", "Timelapse demo…",
+                      "Sequencing demo…"):
         assert expected in labels
     # The real-dataset E2E option should be present
     assert any("End-to-end" in lbl and "Annotate" in lbl for lbl in labels)

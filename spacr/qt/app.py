@@ -310,6 +310,7 @@ class MainWindow(QMainWindow):
             ("crop",      "Crop demo…"),
             ("classify",  "Classify demo…"),
             ("timelapse", "Timelapse demo…"),
+            ("map_barcodes", "Sequencing demo…"),
         ):
             act = QAction(label, self)
             act.setStatusTip(
@@ -369,6 +370,7 @@ class MainWindow(QMainWindow):
         "crop":      ("measure",    "generate_crop_demo"),
         "classify":  ("annotate",   "generate_classify_demo"),
         "timelapse": ("mask",       "generate_timelapse_demo"),
+        "map_barcodes": ("map_barcodes", "generate_map_barcodes_demo"),
     }
 
     def _on_load_demo(self, demo_key: str) -> None:
