@@ -393,3 +393,69 @@ class TestAppScreenIntegration:
         qtbot.addWidget(scr)
         scr._autoload_live_preview(str(tmp_path))
         assert scr._live_preview._image is not None
+
+
+class TestCompartmentSettings:
+    """Per-compartment tuning panels in the Live settings dialog."""
+
+    def _panel(self, qtbot):
+        from spacr.qt.widgets.live_preview import LivePreviewPanel
+        p = LivePreviewPanel()
+        qtbot.addWidget(p)
+        return p
+
+    def test_all_compartments_have_widgets(self, qtbot):
+        from spacr.qt.widgets.live_preview import COMPARTMENTS, COMPARTMENT_FIELDS
+        p = self._panel(qtbot)
+        for comp in COMPARTMENTS:
+            for suffix, *_ in COMPARTMENT_FIELDS:
+                assert suffix in p._compartment_widgets[comp]
+
+    def test_dialog_gates_panels_by_object(self, qtbot):
+        from spacr.qt.widgets.live_preview import LiveSettingsDialog
+        p = self._panel(qtbot)
+        dlg = LiveSettingsDialog(p)
+        qtbot.addWidget(dlg)
+        # Default object is "cell": only the Cell panel is editable.
+        idx = p._object_box.findText("cell")
+        p._object_box.setCurrentIndex(idx)
+        dlg.refresh_visibility()
+        assert dlg._compartment_groupboxes["cell"].isEnabled()
+        assert not dlg._compartment_groupboxes["pathogen"].isEnabled()
+        assert not dlg._compartment_groupboxes["organelle"].isEnabled()
+        # Switch to organelle: only Organelle editable.
+        p._object_box.setCurrentIndex(p._object_box.findText("organelle"))
+        dlg.refresh_visibility()
+        assert dlg._compartment_groupboxes["organelle"].isEnabled()
+        assert not dlg._compartment_groupboxes["cell"].isEnabled()
+
+    def test_cell_plus_nucleus_enables_both(self, qtbot):
+        from spacr.qt.widgets.live_preview import LiveSettingsDialog
+        p = self._panel(qtbot)
+        dlg = LiveSettingsDialog(p)
+        qtbot.addWidget(dlg)
+        p._object_box.setCurrentIndex(p._object_box.findText("cell + nucleus"))
+        dlg.refresh_visibility()
+        assert dlg._compartment_groupboxes["cell"].isEnabled()
+        assert dlg._compartment_groupboxes["nucleus"].isEnabled()
+        assert not dlg._compartment_groupboxes["pathogen"].isEnabled()
+
+    def test_common_controls_target_chosen_object(self, qtbot):
+        p = self._panel(qtbot)
+        p._common_widgets["signal_to_noise"].setValue(42)
+        p._common_widgets["background"].setValue(77)
+        p._common_widgets["remove_background"].setChecked(True)
+        # Object = pathogen -> common keys are pathogen_*.
+        p._object_box.setCurrentIndex(p._object_box.findText("pathogen"))
+        s = p.settings_for_propagation()
+        assert s["pathogen_Signal_to_noise"] == 42
+        assert s["pathogen_background"] == 77
+        assert s["remove_background_pathogen"] is True
+
+    def test_compartment_values_propagate(self, qtbot):
+        p = self._panel(qtbot)
+        p._compartment_widgets["organelle"]["min_area"].setValue(555)
+        p._compartment_widgets["organelle"]["intensity_threshold_method"].setCurrentText("percentile")
+        s = p.settings_for_propagation()
+        assert s["organelle_min_area"] == 555
+        assert s["organelle_intensity_threshold_method"] == "percentile"
