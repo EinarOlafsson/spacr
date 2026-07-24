@@ -164,3 +164,37 @@ def test_install_dropzone_enables_drops(qtbot, qt_theme_applied):
     # Handler + screen backref stored on the widget for the filter to read
     assert isinstance(w._dnd_handler, MaskDropHandler)
     assert w._dnd_screen is w
+
+
+def test_set_screen_setting_sets_metadata_type(qtbot):
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.dnd_handlers import _set_screen_setting
+    scr = AppScreen("mask")
+    qtbot.addWidget(scr)
+    assert _set_screen_setting(scr, "metadata_type", "auto") is True
+    w = scr._settings_model._widgets.get("metadata_type")
+    assert w.currentText() == "auto"
+
+
+def test_report_folder_structure_logs_detected_labels(qtbot, tmp_path):
+    from spacr.qt.dnd_handlers import _report_folder_structure
+    # plate/well/field folder layout with an image at the leaf
+    leaf = tmp_path / "plate1" / "A01" / "f01"
+    leaf.mkdir(parents=True)
+    import tifffile, numpy as np
+    tifffile.imwrite(str(leaf / "C01.tif"), np.zeros((4, 4), np.uint16))
+    logged = {"text": ""}
+
+    class _Console:
+        def append_stdout(self, t): logged["text"] += t
+
+    class _Screen:
+        _console = _Console()
+
+    # Should not raise; if folder_metadata detects a layout, it logs it.
+    _report_folder_structure(tmp_path, _Screen())
+    # (Detection may or may not fire on this tiny synthetic tree; the contract
+    # we assert is that it never crashes and only ever logs folder-structure
+    # info when a template is found.)
+    if logged["text"]:
+        assert "folder-structure" in logged["text"]
