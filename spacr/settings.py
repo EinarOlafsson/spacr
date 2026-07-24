@@ -51,7 +51,10 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     #        directly, writes one npy per field to merged/ with masks
     #        appended in-place. ~60-80% less disk. Opt-in for one
     #        release, then default.
-    settings.setdefault('pipeline_style', 'v1')
+    # Default to the v2 pipeline: it streams each normalised batch straight
+    # into Cellpose in memory (no .npz duplicated on disk) instead of the v1
+    # write-then-read flow. Set to 'v1' to use the legacy disk-based pipeline.
+    settings.setdefault('pipeline_style', 'v2')
     # v2-only: how many field stacks to load into memory per Cellpose
     # batch. Bigger = faster, more RAM.
     settings.setdefault('batch_fields', 8)
