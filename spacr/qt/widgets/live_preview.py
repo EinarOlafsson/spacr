@@ -1492,13 +1492,22 @@ class LiveSettingsDialog(QDialog):
         p._cell_channel.setEnabled("cell" in selected)
         p._nucleus_channel.setEnabled("nucleus" in selected)
 
-        # -- compartment panels: only the chosen compartment(s) are editable;
-        #    the common controls (in the Segmentation panel) always are, and
-        #    they target whichever compartment is chosen. --
+        # -- compartment panels: show only the primary object's panel plus,
+        #    for 'cell + nucleus', a secondary Nucleus panel. The other
+        #    compartments' panels are hidden entirely (their settings are the
+        #    same shape and only the chosen object's are relevant). --
+        ordered = list(p._selected_object_types())
+        primary = ordered[0] if ordered else "cell"
         for comp, box in self._compartment_groupboxes.items():
-            box.setEnabled(comp in selected)
-            box.setToolTip("" if comp in selected
-                           else f"Select '{comp}' as the object to edit these")
+            is_primary = (comp == primary)
+            is_secondary = (comp == "nucleus" and "nucleus" in selected
+                            and not is_primary)
+            box.setVisible(is_primary or is_secondary)
+            box.setEnabled(True)
+            if is_primary:
+                box.setTitle(f"{comp.capitalize()} (primary object)")
+            elif is_secondary:
+                box.setTitle("Nucleus (secondary object)")
 
         # -- Normalisation is always available (independent of the Pre step
         #    and of the model, incl. cpsam). The percentile bounds only apply

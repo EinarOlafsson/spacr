@@ -409,34 +409,35 @@ class TestCompartmentSettings:
             for suffix, *_ in COMPARTMENT_FIELDS:
                 assert suffix in p._compartment_widgets[comp]
 
-    def test_dialog_gates_panels_by_object(self, qtbot):
+    def test_dialog_shows_only_primary_object_panel(self, qtbot):
         from spacr.qt.widgets.live_preview import LiveSettingsDialog
         p = self._panel(qtbot)
         dlg = LiveSettingsDialog(p)
-        qtbot.addWidget(dlg)
-        # Default object is "cell": only the Cell panel is editable.
-        idx = p._object_box.findText("cell")
-        p._object_box.setCurrentIndex(idx)
+        qtbot.addWidget(dlg); dlg.show()
+        # object "cell": only the Cell panel is shown.
+        p._object_box.setCurrentText("cell")
         dlg.refresh_visibility()
-        assert dlg._compartment_groupboxes["cell"].isEnabled()
-        assert not dlg._compartment_groupboxes["pathogen"].isEnabled()
-        assert not dlg._compartment_groupboxes["organelle"].isEnabled()
-        # Switch to organelle: only Organelle editable.
-        p._object_box.setCurrentIndex(p._object_box.findText("organelle"))
+        assert dlg._compartment_groupboxes["cell"].isVisibleTo(dlg)
+        assert not dlg._compartment_groupboxes["pathogen"].isVisibleTo(dlg)
+        assert not dlg._compartment_groupboxes["organelle"].isVisibleTo(dlg)
+        assert not dlg._compartment_groupboxes["nucleus"].isVisibleTo(dlg)
+        # Switch to organelle: only Organelle shown.
+        p._object_box.setCurrentText("organelle")
         dlg.refresh_visibility()
-        assert dlg._compartment_groupboxes["organelle"].isEnabled()
-        assert not dlg._compartment_groupboxes["cell"].isEnabled()
+        assert dlg._compartment_groupboxes["organelle"].isVisibleTo(dlg)
+        assert not dlg._compartment_groupboxes["cell"].isVisibleTo(dlg)
 
-    def test_cell_plus_nucleus_enables_both(self, qtbot):
+    def test_cell_plus_nucleus_shows_primary_and_secondary(self, qtbot):
         from spacr.qt.widgets.live_preview import LiveSettingsDialog
         p = self._panel(qtbot)
         dlg = LiveSettingsDialog(p)
-        qtbot.addWidget(dlg)
-        p._object_box.setCurrentIndex(p._object_box.findText("cell + nucleus"))
+        qtbot.addWidget(dlg); dlg.show()
+        p._object_box.setCurrentText("cell + nucleus")
         dlg.refresh_visibility()
-        assert dlg._compartment_groupboxes["cell"].isEnabled()
-        assert dlg._compartment_groupboxes["nucleus"].isEnabled()
-        assert not dlg._compartment_groupboxes["pathogen"].isEnabled()
+        assert dlg._compartment_groupboxes["cell"].isVisibleTo(dlg)
+        assert dlg._compartment_groupboxes["nucleus"].isVisibleTo(dlg)
+        assert "secondary" in dlg._compartment_groupboxes["nucleus"].title().lower()
+        assert not dlg._compartment_groupboxes["pathogen"].isVisibleTo(dlg)
 
     def test_common_controls_target_chosen_object(self, qtbot):
         p = self._panel(qtbot)
