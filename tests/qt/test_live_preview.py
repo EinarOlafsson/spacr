@@ -260,16 +260,20 @@ class TestPanel:
 # ---------------------------------------------------------------------------
 
 class TestModelAwareOptions:
-    def test_cpsam_disables_diameter_flow_cellprob_in_dialog(self, qtbot):
+    def test_cpsam_disables_only_diameter_in_dialog(self, qtbot):
+        # Cellpose-SAM auto-estimates object size, so only the diameter is
+        # ignored; flow threshold + cell probability remain in use.
         panel = live_preview.LivePreviewPanel()
         qtbot.addWidget(panel)
         panel._model_box.setCurrentIndex(panel._model_box.findText("cpsam"))
         panel.open_live_settings()
         try:
-            for w in (panel._diameter, panel._flow, panel._prob):
-                assert not w.isEnabled(), (
-                    "SAM-ignored knobs should be disabled in the "
-                    "settings dialog when cpsam is selected")
+            assert not panel._diameter.isEnabled(), (
+                "diameter should be disabled for cpsam")
+            assert panel._flow.isEnabled(), (
+                "flow threshold should stay enabled for cpsam")
+            assert panel._prob.isEnabled(), (
+                "cell probability should stay enabled for cpsam")
         finally:
             panel._live_settings_dialog.close()
 
