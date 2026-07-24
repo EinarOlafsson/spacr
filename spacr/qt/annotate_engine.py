@@ -104,6 +104,35 @@ def filter_channels_pil(
     return Image.merge("RGB", (r, g, b))
 
 
+_cellpose_outline_model = None
+
+
+def _get_cellpose_outline_model():
+    """Lazily build + cache a small Cellpose (SAM) model for outline masks."""
+    global _cellpose_outline_model
+    if _cellpose_outline_model is None:
+        from cellpose import models as cp_models
+        try:
+            import torch
+            gpu = torch.cuda.is_available()
+        except Exception:
+            gpu = False
+        _cellpose_outline_model = cp_models.CellposeModel(
+            gpu=gpu, pretrained_model="cpsam", device=None)
+    return _cellpose_outline_model
+
+
+def _cellpose_foreground(channel_2d) -> "np.ndarray":
+    """Return a boolean foreground mask for one channel using Cellpose."""
+    model = _get_cellpose_outline_model()
+    res = model.eval(channel_2d.astype(np.float32),
+                     diameter=None, flow_threshold=0.4, cellprob_threshold=0.0)
+    mask = res[0]
+    if isinstance(mask, list):
+        mask = mask[0]
+    return np.asarray(mask) > 0
+
+
 def outline_image(
     base_img: Image.Image,
     full_img: Image.Image,
@@ -114,6 +143,7 @@ def outline_image(
     edge_image: bool = False,
     outline_threshold_factor: float = 1.0,
     object_size: Tuple[int, int] = (0, 0),
+    outline_method: str = 'otsu',
 ) -> Image.Image:
     """Overlay per-channel object outlines on `base_img`.
 
@@ -152,16 +182,24 @@ def outline_image(
         idx = channel_map[ch]
         if edge_image:
             base_arr[:, :, idx] = full_arr[:, :, idx]
-        ch_sm = gaussian_filter(full_arr[:, :, idx].astype(np.float32),
-                                 sigma=float(edge_sigma))
-        try:
-            otsu = threshold_otsu(ch_sm)
-        except Exception:
-            otsu = float(np.percentile(ch_sm, 50.0))
-        thr = float(min(255.0, max(0.0, otsu * factor)))
-        fg_mask = (ch_sm > thr)
-        fg_mask = binary_closing(fg_mask, structure=np.ones((3, 3), dtype=bool))
-        fg_mask = binary_fill_holes(fg_mask)
+        if outline_method == 'cellpose':
+            # Small Cellpose model gives cleaner object outlines than Otsu.
+            try:
+                fg_mask = _cellpose_foreground(full_arr[:, :, idx])
+            except Exception:
+                # Fall back to Otsu if cellpose isn't available / fails.
+                outline_method = 'otsu'
+        if outline_method != 'cellpose':
+            ch_sm = gaussian_filter(full_arr[:, :, idx].astype(np.float32),
+                                     sigma=float(edge_sigma))
+            try:
+                otsu = threshold_otsu(ch_sm)
+            except Exception:
+                otsu = float(np.percentile(ch_sm, 50.0))
+            thr = float(min(255.0, max(0.0, otsu * factor)))
+            fg_mask = (ch_sm > thr)
+            fg_mask = binary_closing(fg_mask, structure=np.ones((3, 3), dtype=bool))
+            fg_mask = binary_fill_holes(fg_mask)
         if (min_px and min_px > 0) or (max_px and max_px > 0):
             lbl, n = label(fg_mask)
             if n > 0:
@@ -226,6 +264,7 @@ class AnnotateSettings:
     threshold: Optional[Any] = None
     threshold_direction: Optional[Any] = None
     outline: Optional[List[str]] = None
+    outline_method: str = "otsu"        # "otsu" | "cellpose"
     outline_threshold_factor: float = 1.0
     outline_sigma: float = 1.0
     edge_thickness: float = 1.0

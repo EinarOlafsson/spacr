@@ -186,14 +186,16 @@ def test_annotate_screen_open_source_loads_page(qtbot, qt_theme_applied,
     screen._settings.grid_cols = 2
     screen._rebuild_grid()
     screen._open_source(str(synth_annotate_source))
+    # Page load is deferred (QTimer) + processed on a worker thread now.
+    qtbot.waitUntil(lambda: len(screen._page_paths) == 4, timeout=5000)
     # Total rows detected
     assert screen._total == 8
-    # First-page thumbnails populated (4 thumbs, 4 rows)
-    assert len(screen._page_paths) == 4
     for i, (path, _) in enumerate(screen._page_paths):
         assert os.path.isfile(path)
-        # Thumb pixmap should have been set
-        assert screen._thumbs[i].pixmap() is not None
+    # Thumb pixmaps should populate once the worker finishes.
+    qtbot.waitUntil(
+        lambda: screen._thumbs[0].pixmap() is not None
+        and not screen._thumbs[0].pixmap().isNull(), timeout=5000)
     # Cleanup worker
     if screen._worker:
         screen._worker.stop(wait=True)
@@ -208,6 +210,7 @@ def test_annotate_screen_left_click_marks_class_1(qtbot, qt_theme_applied,
     screen._settings.grid_cols = 2
     screen._rebuild_grid()
     screen._open_source(str(synth_annotate_source))
+    qtbot.waitUntil(lambda: len(screen._page_paths) >= 1, timeout=5000)
     screen._on_thumb_left(0)
     assert screen._page_paths[0][1] == 1
     # A second left-click clears

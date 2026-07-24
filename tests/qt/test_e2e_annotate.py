@@ -85,8 +85,9 @@ def test_annotate_click_save_reload_persists(
     screen._settings.grid_cols = 3
     screen._rebuild_grid()
 
-    # 1. Open the synthetic experiment
+    # 1. Open the synthetic experiment (page load is deferred + threaded now)
     screen._open_source(str(synth_annotate_experiment))
+    qtbot.waitUntil(lambda: len(screen._page_paths) >= 2, timeout=5000)
     assert screen._total == 6
     # Grid rows/cols get recomputed from the (offscreen) viewport size,
     # so we only assert the page has SOME thumbnails and two are
@@ -126,6 +127,7 @@ def test_annotate_click_save_reload_persists(
     fresh._settings.grid_cols = 3
     fresh._rebuild_grid()
     fresh._open_source(str(synth_annotate_experiment))
+    qtbot.waitUntil(lambda: len(fresh._page_paths) >= 2, timeout=5000)
     reload_map = {p: v for p, v in fresh._page_paths}
     # Both annotated paths should appear on page 1 with our values.
     # If pagination changed, at minimum the DB reflects them.
@@ -150,6 +152,7 @@ def test_annotate_toggle_off_second_click_clears(
     screen._settings.grid_cols = 3
     screen._rebuild_grid()
     screen._open_source(str(synth_annotate_experiment))
+    qtbot.waitUntil(lambda: len(screen._page_paths) >= 1, timeout=5000)
 
     screen._on_thumb_left(0)
     assert screen._page_paths[0][1] == 1
