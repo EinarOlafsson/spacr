@@ -210,6 +210,14 @@ def test_stage6_core_umap_and_graphs(pipeline):
         nucleus_min_size=0, pathogen_min_size=0, cytoplasm_min_size=0,
         min_cell_count=0, nuclei_limit=True, pathogen_limit=True)
     generate_image_umap(umap_s)
+    # branch variations: tSNE + KMeans, control-trained embedding, image
+    # grids, cluster analysis, condition exclusion
+    generate_image_umap({**umap_s, "reduction_method": "tsne",
+                         "clustering": "kmeans"})
+    generate_image_umap({**umap_s, "embedding_by_controls": True})
+    generate_image_umap({**umap_s, "plot_images": True,
+                         "plot_by_cluster": True})
+    generate_image_umap({**umap_s, "analyze_clusters": True})
     reducer_hyperparameter_search(
         umap_s, reduction_params=[{'n_neighbors': 15}],
         dbscan_params=[{'eps': 0.5, 'min_samples': 5}],
