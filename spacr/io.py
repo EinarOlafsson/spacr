@@ -1322,7 +1322,7 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
                 normalized_stack = normalized_stack[..., channels]
                 
                 save_loc = os.path.join(output_fldr, f'{name}_norm_timelapse.npz')
-                np.savez(save_loc, data=normalized_stack, filenames=filenames_region)
+                np.savez_compressed(save_loc, data=normalized_stack, filenames=filenames_region)
                 
                 if i == 0:
                     plot_arrays(save_loc, settings['figuresize'], settings['cmap'], nr=settings['nr'], normalize=False)
@@ -1384,7 +1384,10 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
                 normalized_stack = normalized_stack[..., channels]
 
                 save_loc = os.path.join(output_fldr, f'stack_{batch_index}_norm.npz')
-                np.savez(save_loc, data=normalized_stack, filenames=filenames_batch)                
+                # Lossless-compressed so the on-disk normalised batch is much
+                # smaller (np.load reads it transparently); it's deleted with
+                # masks/ after merged/ is built unless keep_intermediate is set.
+                np.savez_compressed(save_loc, data=normalized_stack, filenames=filenames_batch)
                 if batch_index == 0:
                     print(f"plotting: {save_loc}")
                     plot_arrays(save_loc, settings['figuresize'], settings['cmap'], nr=settings['nr'], normalize=False)
@@ -2168,6 +2171,49 @@ def _create_database(db_path):
         if conn:
             conn.close() 
     
+def save_object_mask(output_folder, filename, mask, compression='lzw'):
+    """Save an integer label mask as a lossless, compressed TIFF.
+
+    Masks are saved as TIFF (not .npy) so they're readable by ImageJ/other
+    tools, with lossless compression (default LZW). Object labels are NEVER
+    altered — the array is written verbatim as uint16, exactly as recorded in
+    the measurements database.
+
+    :param output_folder: destination folder (e.g. ``masks/cell_mask_stack``).
+    :param filename: reference filename (the stack basename; extension ignored).
+    :param mask: 2-D integer label array.
+    :param compression: lossless codec — ``'lzw'`` | ``'zlib'`` | ``'none'``.
+    :returns: the path written.
+    """
+    import tifffile
+    base = os.path.splitext(os.path.basename(filename))[0]
+    out_path = os.path.join(output_folder, base + '.tif')
+    comp = None if str(compression).lower() in ('none', '', 'no', 'false') else str(compression).lower()
+    tifffile.imwrite(out_path, np.asarray(mask).astype(np.uint16),
+                     compression=comp)
+    return out_path
+
+
+def _mask_variant_path(folder, ref_filename):
+    """Return the path to ``ref_filename``'s array in ``folder``, preferring a
+    compressed ``.tif`` mask, then legacy ``.npy``, then the exact name."""
+    base = os.path.splitext(ref_filename)[0]
+    for cand in (base + '.tif', base + '.tiff', base + '.npy',
+                 ref_filename):
+        p = os.path.join(folder, cand)
+        if os.path.isfile(p):
+            return p
+    return None
+
+
+def _load_array_any(path):
+    """Load a ``.tif``/``.tiff`` (via tifffile) or ``.npy`` array."""
+    if path.endswith(('.tif', '.tiff')):
+        import tifffile
+        return tifffile.imread(path)
+    return np.load(path, allow_pickle=True)
+
+
 def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_dim, pathogen_chann_dim, organelle_chann_dim):
     """
     Load and concatenate arrays from multiple folders.
@@ -2213,8 +2259,11 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
         if filename.endswith('.npy'):
             count += 1
 
-            # Check if this file exists in all the other specified folders
-            exists_in_all_folders = all(os.path.isfile(os.path.join(folder, filename)) for folder in folder_paths)
+            # Check if this file exists in all the other specified folders.
+            # Masks may be .tif (new, compressed) or legacy .npy — resolve both.
+            exists_in_all_folders = all(
+                _mask_variant_path(folder, filename) is not None
+                for folder in folder_paths)
 
             if exists_in_all_folders:
                 # Load and potentially modify the array from the reference folder
@@ -2227,11 +2276,10 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
                 # Add the array from the reference folder to 'stack_ls'
                 stack_ls.append(concatenated_array)
 
-                # For each of the other folders, load the array and add it to 'stack_ls'
+                # For each of the other folders, load the mask (tif or npy).
                 for folder in folder_paths[1:]:
-                    array_path = os.path.join(folder, filename)
-                    #array = np.load(array_path)
-                    array = np.load(array_path, allow_pickle=True)
+                    array_path = _mask_variant_path(folder, filename)
+                    array = _load_array_any(array_path)
                     if array.ndim == 2:
                         array = np.expand_dims(array, axis=-1)  # Add an extra dimension if the array is 2D
                     stack_ls.append(array)
