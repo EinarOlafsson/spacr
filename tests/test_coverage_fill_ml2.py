@@ -216,3 +216,55 @@ def test_process_scores_bad_invert():
     with pytest.raises(ValueError):
         ML.process_scores(df, "pred", plate="plate1",
                           min_cell_count=2, invert_dependent_variable=99)
+
+
+# ---------------------------------------------------------------------------
+# ml_analysis (end-to-end classifier on control wells)
+# ---------------------------------------------------------------------------
+
+def _feature_df(per_class=60):
+    rng = np.random.default_rng(8)
+    feats = [
+        "cell_channel_3_mean_intensity",
+        "cell_channel_3_percentile_75",
+        "nucleus_channel_3_mean_intensity",
+        "cytoplasm_channel_3_mean_intensity",
+        "pathogen_channel_3_mean_intensity",
+        "cell_channel_3_std_intensity",
+    ]
+    rows = []
+    index = []
+    counter = 0
+    for cls, col, lo in [("neg", "c1", 0.3), ("pos", "c2", 0.7),
+                          ("other", "c3", 0.5)]:
+        for j in range(per_class):
+            row = {"columnID": col}
+            for f in feats:
+                row[f] = float(rng.normal(lo, 0.12) + rng.normal(0, 0.05))
+            rows.append(row)
+            # ml_analysis requires a prcfo-style index (5 underscore parts)
+            index.append(f"plate1_r1_{col}_f1_o{counter}")
+            counter += 1
+    return pd.DataFrame(rows, index=index)
+
+
+def test_ml_analysis_random_forest():
+    df = _feature_df()
+    output, figs = ML.ml_analysis(
+        df, channel_of_interest=3, location_column="columnID",
+        positive_control="c2", negative_control="c1",
+        model_type="random_forest", n_repeats=2, test_size=0.25,
+        remove_highly_correlated_features=False, n_jobs=1)
+    scored_df = output[0]
+    assert "prediction_probability" in scored_df.columns or len(output) >= 8
+    assert figs is not None
+
+
+def test_ml_analysis_bad_model_type():
+    df = _feature_df(per_class=30)
+    with pytest.raises(ValueError):
+        ML.ml_analysis(
+            df, channel_of_interest=3, location_column="columnID",
+            positive_control="c2", negative_control="c1",
+            model_type="bogus", n_repeats=1,
+            remove_highly_correlated_features=False, n_jobs=1)
