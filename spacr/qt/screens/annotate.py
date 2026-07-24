@@ -542,10 +542,17 @@ class AnnotateScreen(QWidget):
         self._grid_scroll = QScrollArea()
         self._grid_scroll.setWidgetResizable(True)
         self._grid_scroll.setFrameShape(QScrollArea.NoFrame)
+        # Dark-gray canvas (not black) behind the rounded thumbnails.
+        self._grid_scroll.viewport().setStyleSheet(
+            f"background: {PALETTE['surface_alt']};")
         self._grid_holder = QWidget()
+        self._grid_holder.setObjectName("AnnotateGrid")
+        self._grid_holder.setStyleSheet(
+            f"QWidget#AnnotateGrid {{ background: {PALETTE['surface_alt']}; }}")
         self._grid_layout = QGridLayout(self._grid_holder)
-        self._grid_layout.setSpacing(SPACING["xs"])
-        self._grid_layout.setContentsMargins(0, 0, 0, 0)
+        self._grid_layout.setSpacing(SPACING["sm"])
+        self._grid_layout.setContentsMargins(SPACING["sm"], SPACING["sm"],
+                                              SPACING["sm"], SPACING["sm"])
         self._grid_scroll.setWidget(self._grid_holder)
         self._content_stack.addWidget(self._grid_scroll)
         self._content_stack.setCurrentWidget(self._empty_state)

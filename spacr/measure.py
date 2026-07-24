@@ -1742,3 +1742,91 @@ def _save_object_crop(crop, channels, png_path, png_size):
         img = Image.fromarray(crop)
     img.resize(tuple(png_size)).save(png_path)
     return png_path
+
+
+def crop_objects_from_array(data, mask_dim, channels=(0, 1, 2),
+                            min_area=0, max_area=0, mask_background=True,
+                            normalize=True, percentiles=(1, 99), buffer=10,
+                            to_rgb=True, limit=None):
+    """Crop every object out of an in-memory merged image+mask array.
+
+    This is the no-database counterpart of :func:`generate_object_dataset`,
+    used by the Measure live preview to show what the crops will look like
+    before a run: it reads the object labels straight from a mask slice of a
+    single merged ``.npy`` and returns the cropped, normalised images.
+
+    :param data: merged array ``(H, W, C)`` — image channels then mask slices.
+    :param mask_dim: slice index of the object-class mask to crop by.
+    :param channels: image channel indices to assemble (order = RGB order).
+    :param min_area/max_area: keep objects within this pixel-area range
+        (``0`` = no bound).
+    :param mask_background: zero pixels outside the object.
+    :param normalize: per-channel percentile-normalise each crop.
+    :param percentiles: ``(low, high)`` for normalisation.
+    :param buffer: padding (px) around each object's bounding box.
+    :param to_rgb: assemble the chosen channels into an HxWx3 uint8 image
+        (1→grey→RGB, 2→padded, 3→RGB, >3→first three); else keep N channels.
+    :param limit: cap the number of objects returned.
+    :returns: list of ``{'label', 'area', 'bbox', 'crop'}`` dicts, largest
+        objects first.
+    """
+    import numpy as np
+
+    channels = list(channels)
+    mask = data[:, :, int(mask_dim)]
+    labels = np.unique(mask)
+    labels = labels[labels > 0]
+
+    # Order by area (largest first) so the preview leads with the clearest
+    # objects; apply the area filter here too.
+    scored = []
+    for lbl in labels:
+        area = int(np.sum(mask == lbl))
+        if min_area and area < min_area:
+            continue
+        if max_area and area > max_area:
+            continue
+        scored.append((area, int(lbl)))
+    scored.sort(reverse=True)
+    if limit:
+        scored = scored[:int(limit)]
+
+    out = []
+    for area, lbl in scored:
+        ys, xs = np.where(mask == lbl)
+        if ys.size == 0:
+            continue
+        y0 = max(0, ys.min() - buffer); y1 = min(mask.shape[0], ys.max() + 1 + buffer)
+        x0 = max(0, xs.min() - buffer); x1 = min(mask.shape[1], xs.max() + 1 + buffer)
+
+        crop = data[y0:y1, x0:x1, :][:, :, channels].astype(np.float32)
+        if mask_background:
+            region = (mask[y0:y1, x0:x1] == lbl)
+            crop = crop * region[:, :, None]
+        if normalize:
+            for c in range(crop.shape[2]):
+                sl = crop[:, :, c]
+                nz = sl[sl > 0] if mask_background else sl
+                if nz.size:
+                    lo, hi = np.percentile(nz, percentiles)
+                    if hi > lo:
+                        crop[:, :, c] = np.clip((sl - lo) / (hi - lo), 0, 1) * 255.0
+                        continue
+                mx = sl.max()
+                crop[:, :, c] = (sl / mx * 255.0) if mx > 0 else sl
+        crop = np.clip(crop, 0, 255).astype(np.uint8)
+
+        if to_rgb:
+            n = crop.shape[2]
+            if n == 1:
+                crop = np.repeat(crop, 3, axis=2)
+            elif n == 2:
+                rgb = np.zeros((*crop.shape[:2], 3), dtype=np.uint8)
+                rgb[:, :, :2] = crop
+                crop = rgb
+            elif n > 3:
+                crop = crop[:, :, :3]
+
+        out.append({"label": lbl, "area": area,
+                    "bbox": (int(y0), int(y1), int(x0), int(x1)), "crop": crop})
+    return out
