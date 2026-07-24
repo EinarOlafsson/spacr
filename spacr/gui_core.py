@@ -506,64 +506,6 @@ def display_figure(fig):
                     label.set_visible(visible)
 
         canvas.draw_idle()
-            
-    def zoom_v1(event):
-        """Legacy mouse-wheel zoom that mirrors the reference axis onto every axis."""
-        zoom_in_factor = 1 / 1.2
-        zoom_out_factor = 1.2
-
-        if event.num == 4 or (hasattr(event, 'delta') and event.delta > 0):
-            factor = zoom_in_factor
-        elif event.num == 5 or (hasattr(event, 'delta') and event.delta < 0):
-            factor = zoom_out_factor
-        else:
-            return
-
-        # Find the axis under the cursor
-        ref_ax = None
-        for ax in canvas.figure.get_axes():
-            if ax.get_window_extent().contains(event.x, event.y):
-                ref_ax = ax
-                break
-
-        if ref_ax is None:
-            return
-
-        try:
-            # Convert mouse position to data coords in reference axis
-            data_x, data_y = ref_ax.transData.inverted().transform((event.x, event.y))
-        except ValueError:
-            return
-
-        # Get current limits
-        xlim = ref_ax.get_xlim()
-        ylim = ref_ax.get_ylim()
-
-        # Compute new limits for the reference axis
-        new_xlim = [
-            data_x - (data_x - xlim[0]) * factor,
-            data_x + (xlim[1] - data_x) * factor
-        ]
-        new_ylim = [
-            data_y - (data_y - ylim[0]) * factor,
-            data_y + (ylim[1] - data_y) * factor
-        ]
-
-        # Apply the same limits to all axes
-        for ax in canvas.figure.get_axes():
-            ax.set_xlim(new_xlim)
-            ax.set_ylim(new_ylim)
-
-            for label in ax.texts:
-                label.set_clip_on(True)
-
-            if hasattr(ax, '_label_annotations'):
-                for label in ax._label_annotations:
-                    x, y = label.get_position()
-                    visible = new_xlim[0] <= x <= new_xlim[1] and new_ylim[0] <= y <= new_ylim[1]
-                    label.set_visible(visible)
-
-        canvas.draw_idle()
 
     # Bind events for hover, click interactions, and zoom
     canvas_widget.bind("<Motion>", on_hover)
