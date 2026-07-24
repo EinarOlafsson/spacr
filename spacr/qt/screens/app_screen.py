@@ -449,6 +449,10 @@ class AppScreen(QWidget):
             splitter.setChildrenCollapsible(False)
             self._live_preview, self._live_preview_card = (
                 _build_live_preview_card(self))
+            # Let the live preview push tuned settings into the main panel
+            # when its "Propagate settings" toggle is on.
+            self._live_preview.set_propagate_callback(
+                self._propagate_live_settings)
             splitter.addWidget(self._live_preview_card)
             splitter.addWidget(console_wrap)
             splitter.setStretchFactor(0, 1)
@@ -835,6 +839,14 @@ class AppScreen(QWidget):
             f"[issue] opened pre-filled report in your browser — "
             f"review + submit to complete filing.\n{url[:100]}...\n"
         )
+
+    def _propagate_live_settings(self, settings: dict) -> None:
+        """Write live-preview-tuned values into the main settings panel."""
+        model = getattr(self, "_settings_model", None)
+        if model is None:
+            return
+        for key, value in settings.items():
+            model.set_value_for_key(key, value)
 
     def _on_figure_ready(self, fig) -> None:
         """Hand a matplotlib figure to the FigureQueue, which renders it,

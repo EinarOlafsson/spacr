@@ -466,6 +466,8 @@ class LivePreviewPanel(QWidget):
         self._worker: Optional[_PreviewWorker] = None
         self._pre_on = False
         self._post_on = False
+        # Callback(dict) that pushes tuned live settings into the main panel.
+        self._propagate_cb = None
         self._build_ui()
         # Accept image files dropped anywhere on the panel. QGraphicsView
         # enables acceptDrops by default and would otherwise swallow drops
@@ -647,6 +649,26 @@ class LivePreviewPanel(QWidget):
                                             "font-family: monospace;")
         root.addWidget(self._hover_label)
 
+        # Comparison scrubber — scrub back/forth through previous preview runs
+        # to compare how different settings changed the segmentation. Hidden
+        # until at least two runs exist.
+        from PySide6.QtWidgets import QSlider
+        self._history: list = []
+        self._compare_row = QWidget(self)
+        comp = QHBoxLayout(self._compare_row)
+        comp.setContentsMargins(0, 0, 0, 0)
+        comp.addWidget(QLabel("Compare runs", self))
+        self._compare_slider = QSlider(Qt.Horizontal, self)
+        self._compare_slider.setMinimum(0)
+        self._compare_slider.setMaximum(0)
+        self._compare_slider.valueChanged.connect(self._on_compare_scrub)
+        comp.addWidget(self._compare_slider, 1)
+        self._compare_label = QLabel("", self)
+        self._compare_label.setStyleSheet("font-family: monospace;")
+        comp.addWidget(self._compare_label)
+        self._compare_row.setVisible(False)
+        root.addWidget(self._compare_row)
+
         # Book-keeping for the dialog-based settings surface. Kept as
         # a member so tests + external hooks can introspect / drive it.
         self._live_settings_dialog: Optional["LiveSettingsDialog"] = None
@@ -667,6 +689,35 @@ class LivePreviewPanel(QWidget):
         self._status.setText(f"Loaded {arr.shape} {arr.dtype}")
         self._refresh_canvases()
         return True
+
+    def set_propagate_callback(self, cb) -> None:
+        """Register a callback(dict) used to push tuned live settings back to
+        the main settings panel (wired by the AppScreen)."""
+        self._propagate_cb = cb
+
+    def settings_for_propagation(self) -> dict:
+        """Map the live-preview widget values to main-panel settings keys."""
+        model = self._model_box.currentText()
+        return {
+            "model_name": model,
+            "cell_channel": int(self._cell_channel.value()),
+            "nucleus_channel": int(self._nucleus_channel.value()),
+            "cell_diameter": float(self._diameter.value()),
+            "cell_FT": float(self._flow.value()),
+            "cell_CP_prob": float(self._prob.value()),
+            "normalize": bool(self._normalise_check.isChecked()),
+            "lower_percentile": float(self._lo_pct.value()),
+        }
+
+    def propagate_settings(self) -> None:
+        """Send the current live settings to the main panel (if a callback is
+        registered). Called on any live-settings change while the dialog's
+        Propagate toggle is on."""
+        if self._propagate_cb is not None:
+            try:
+                self._propagate_cb(self.settings_for_propagation())
+            except Exception:
+                LOG.debug("propagate_settings failed", exc_info=True)
 
     def apply_settings(self, settings: dict):
         """Copy relevant values from a Mask-app ``settings`` dict, and
@@ -883,7 +934,59 @@ class LivePreviewPanel(QWidget):
                     for k, v in masks.items()]
         self._status.setText(f"Found {', '.join(counts)}.")
         self._refresh_canvases()
+        self._snapshot_run(masks, counts)
         self.preview_ready.emit(masks)
+
+    # -- comparison scrubber ----------------------------------------------
+
+    def _snapshot_run(self, masks, counts) -> None:
+        """Record a preview run (image + masks + display params) so the user
+        can scrub back to compare it against later runs."""
+        if self._image is None:
+            return
+        snap = {
+            "image": self._image,
+            "masks": {k: v for k, v in masks.items()},
+            "norm": self._normalise_check.isChecked(),
+            "lo": float(self._lo_pct.value()),
+            "hi": float(self._hi_pct.value()),
+            "model": self._model_box.currentText(),
+            "object": self._object_box.currentText(),
+            "summary": ", ".join(counts),
+        }
+        self._history.append(snap)
+        # Cap the history so memory stays bounded on long tuning sessions.
+        if len(self._history) > 50:
+            self._history = self._history[-50:]
+        n = len(self._history)
+        self._compare_row.setVisible(n >= 2)
+        self._compare_slider.blockSignals(True)
+        self._compare_slider.setMaximum(n - 1)
+        self._compare_slider.setValue(n - 1)      # newest
+        self._compare_slider.blockSignals(False)
+        self._compare_label.setText(f"{n}/{n}")
+
+    def _on_compare_scrub(self, idx: int) -> None:
+        """Render the historical run at ``idx`` into the two canvases."""
+        if not (0 <= idx < len(self._history)):
+            return
+        snap = self._history[idx]
+        img = snap["image"]
+        norm, lo, hi = snap["norm"], snap["lo"], snap["hi"]
+        src_pix = numpy_to_qpixmap(
+            _to_uint8(img, normalise=norm, lo_pct=lo, hi_pct=hi))
+        self._src_view.set_pixmap(src_pix)
+        if snap["masks"]:
+            overlay = overlay_masks(
+                img, snap["masks"], outline_rgb=self._outline_rgb(),
+                outline_thickness=self._outline_thickness.value(),
+                normalise=norm, lo_pct=lo, hi_pct=hi)
+            self._mask_view.set_pixmap(numpy_to_qpixmap(overlay))
+        else:
+            self._mask_view.set_pixmap(src_pix)
+        self._compare_label.setText(
+            f"{idx + 1}/{len(self._history)}  "
+            f"{snap['model']}/{snap['object']}  {snap['summary']}")
 
 
 # ---------------------------------------------------------------------------
@@ -952,6 +1055,17 @@ class LiveSettingsDialog(QDialog):
         self._run_btn.setDefault(True)
         self._run_btn.clicked.connect(self._panel.run_preview)
         buttons.addButton(self._run_btn, QDialogButtonBox.ActionRole)
+        # Propagate toggle — when on (blue, like the AI / LP toggles), edits
+        # here are pushed into the main settings panel so tuning in the live
+        # preview updates the run configuration.
+        self._propagate_btn = QPushButton("Propagate settings")
+        self._propagate_btn.setObjectName("ToggleButton")
+        self._propagate_btn.setCheckable(True)
+        self._propagate_btn.setToolTip(
+            "When on, changes made here are copied into the main settings "
+            "panel.")
+        self._propagate_btn.toggled.connect(self._on_propagate_toggled)
+        buttons.addButton(self._propagate_btn, QDialogButtonBox.ActionRole)
         buttons.rejected.connect(self.close)
         buttons.accepted.connect(self.close)
         outer.addWidget(buttons)
@@ -964,7 +1078,32 @@ class LiveSettingsDialog(QDialog):
         panel._post_check.toggled.connect(self.refresh_visibility)
         panel._normalise_check.toggled.connect(self.refresh_visibility)
 
+        # Widgets whose changes propagate to the main panel while the toggle
+        # is on.
+        self._propagate_sources = [
+            panel._model_box, panel._object_box, panel._cell_channel,
+            panel._nucleus_channel, panel._diameter, panel._flow,
+            panel._prob, panel._normalise_check, panel._lo_pct, panel._hi_pct,
+        ]
+
         self.refresh_visibility()
+
+    def _on_propagate_toggled(self, on: bool) -> None:
+        """Connect/disconnect live→main propagation and do an initial push."""
+        for w in self._propagate_sources:
+            for sig_name in ("valueChanged", "currentTextChanged", "toggled"):
+                sig = getattr(w, sig_name, None)
+                if sig is None:
+                    continue
+                try:
+                    if on:
+                        sig.connect(self._panel.propagate_settings)
+                    else:
+                        sig.disconnect(self._panel.propagate_settings)
+                except (TypeError, RuntimeError):
+                    pass
+        if on:
+            self._panel.propagate_settings()   # push current values now
 
     def _managed_widgets(self):
         p = self._panel
