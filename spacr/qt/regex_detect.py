@@ -48,6 +48,13 @@ YOKOGAWA = (
     r"\.(?:tif|tiff)$"
 )
 
+# Yokogawa CQ1 naming: W<well>F<field>T<time>Z<slice>C<chan> (well is numeric).
+# Matches spacr.utils._get_regex('cq1', ...).
+CQ1 = (
+    r"W(?P<wellID>.*)F(?P<fieldID>.*)T(?P<timeID>.*)"
+    r"Z(?P<sliceID>.*)C(?P<chanID>.*)\.(?:tif|tiff|png|jpg|jpeg)$"
+)
+
 # Bare-bones canonical form spaCR generates when auto-normalising
 CANONICAL = (
     r"(?P<plateID>[^_]+)_(?P<wellID>[A-Z]\d{2})_"
@@ -60,6 +67,7 @@ CANONICAL_WITH_TIME = (
 
 BUILTIN_REGEXES: Dict[str, str] = {
     "cellvoyager":         CELLVOYAGER,
+    "cq1":                 CQ1,
     "yokogawa":            YOKOGAWA,
     "canonical":           CANONICAL,
     "canonical_timelapse": CANONICAL_WITH_TIME,
