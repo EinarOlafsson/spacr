@@ -20,8 +20,9 @@ from typing import Dict, List, Optional, Tuple
 
 from PIL import Image
 from PIL.ImageQt import ImageQt
-from PySide6.QtCore import Qt, QSize, QTimer, Signal
-from PySide6.QtGui import QAction, QImage, QKeySequence, QPixmap, QShortcut
+from PySide6.QtCore import Qt, QRectF, QSize, QTimer, Signal
+from PySide6.QtGui import (QAction, QImage, QKeySequence, QPainter,
+                           QPainterPath, QPixmap, QShortcut)
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -85,9 +86,9 @@ class _Thumbnail(QLabel):
         self.slot = slot
         self.setAlignment(Qt.AlignCenter)
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        self.setStyleSheet(
-            f"background: {PALETTE['surface']}; border-radius: 4px;"
-        )
+        # Transparent so the rounded-corner pixmap shows clean soft corners
+        # against the grid background (no grey square peeking out at corners).
+        self.setStyleSheet("background: transparent;")
 
     def mousePressEvent(self, event):
         """Route left/right mouse buttons to typed signals; ignore others."""
@@ -112,6 +113,23 @@ def _csv_to_list(text: str) -> Optional[List[str]]:
 def _list_to_csv(vals: Optional[List[str]]) -> str:
     """Format a list as a comma-separated string; empty/None becomes ``""``."""
     return ", ".join(str(v) for v in vals) if vals else ""
+
+
+def _rounded_pixmap(pm: QPixmap, radius: int = 8) -> QPixmap:
+    """Return ``pm`` with anti-aliased rounded corners, so annotate thumbnails
+    have soft corners instead of the square/grey pixelated edges."""
+    if pm.isNull():
+        return pm
+    out = QPixmap(pm.size())
+    out.fill(Qt.transparent)
+    painter = QPainter(out)
+    painter.setRenderHint(QPainter.Antialiasing, True)
+    path = QPainterPath()
+    path.addRoundedRect(QRectF(0, 0, pm.width(), pm.height()), radius, radius)
+    painter.setClipPath(path)
+    painter.drawPixmap(0, 0, pm)
+    painter.end()
+    return out
 
 
 def _reanchor_png_path(path: str, db_path: str) -> str:
@@ -807,7 +825,8 @@ class AnnotateScreen(QWidget):
 
     def _image_to_pixmap(self, img: Image.Image) -> QPixmap:
         qimg = ImageQt(img.convert("RGB"))
-        return QPixmap.fromImage(QImage(qimg))
+        pm = QPixmap.fromImage(QImage(qimg))
+        return _rounded_pixmap(pm, radius=8)
 
     # ------------------------------------------------------------------
     def _toggle_annotation(self, slot: int, new_value: int):
