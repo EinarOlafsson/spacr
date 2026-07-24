@@ -114,6 +114,34 @@ def _list_to_csv(vals: Optional[List[str]]) -> str:
     return ", ".join(str(v) for v in vals) if vals else ""
 
 
+def _reanchor_png_path(path: str, db_path: str) -> str:
+    """Re-anchor a stored ``png_path`` against the opened database's location.
+
+    The measurements DB records absolute png paths built at measure time. If the
+    dataset was moved (or measure ran with a relative ``src``), those paths no
+    longer resolve and the Annotate grid shows grey placeholders instead of
+    images. The DB always sits at ``<root>/measurements/measurements.db`` beside
+    the ``<root>/data/...`` crops, so when the stored path fails we rebuild it
+    from the ``/data/`` segment onward under this DB's own root.
+    """
+    if not path or os.path.isfile(path):
+        return path
+    if not db_path:
+        return path
+    root = os.path.dirname(os.path.dirname(os.path.abspath(db_path)))
+    norm = str(path).replace("\\", "/")
+    i = norm.rfind("/data/")
+    if i != -1:
+        cand = os.path.join(root, norm[i + 1:])   # data/.../x.png
+        if os.path.isfile(cand):
+            return cand
+    if norm.startswith("data/"):                   # relative-path case
+        cand = os.path.join(root, norm)
+        if os.path.isfile(cand):
+            return cand
+    return path
+
+
 class _SettingsDialog(QDialog):
     """Modal dialog that edits an :class:`AnnotateSettings` in place."""
 
@@ -745,6 +773,7 @@ class AnnotateScreen(QWidget):
     def _load_thumb_image(self, row: Tuple[str, Optional[int]]):
         path, annotation = row
         s = self._settings
+        path = _reanchor_png_path(path, s.db_path)
         if not path or not os.path.isfile(path):
             blank = Image.new("RGB", s.image_size, color=(20, 20, 20))
             return blank, annotation

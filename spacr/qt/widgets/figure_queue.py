@@ -43,6 +43,69 @@ from .live_preview import _ZoomView
 
 LOG = logging.getLogger("spacr.qt.figure_queue")
 
+
+def _style_figure_colors(fig, bg: str, fg: str, text_size: int = 0) -> None:
+    """Recolour a figure's background + all text to (bg, fg)."""
+    try:
+        fig.patch.set_facecolor(bg)
+        for ax in fig.get_axes():
+            ax.set_facecolor(bg)
+            for sp in ax.spines.values():
+                sp.set_color(fg)
+            ax.tick_params(colors=fg)
+            texts = ([ax.title, ax.xaxis.label, ax.yaxis.label]
+                     + ax.get_xticklabels() + ax.get_yticklabels())
+            leg = ax.get_legend()
+            if leg is not None:
+                texts += list(leg.get_texts())
+            for t in texts:
+                t.set_color(fg)
+                if text_size:
+                    t.set_fontsize(text_size)
+    except Exception:
+        pass
+
+
+def render_figure_to_png(fig, png_path: str) -> bool:
+    """Style ``fig`` per the app theme and save it as a display-capped PNG (and
+    a vector .pdf alongside in PDF mode). Pure matplotlib — no Qt — so it is
+    SAFE TO CALL FROM A WORKER THREAD, which is how the pipeline bridge keeps
+    the GUI responsive while lots of figures are produced. Returns True on
+    success."""
+    try:
+        from ..preferences import (get_figure_png_dpi, get_figure_format,
+                                   get_figure_colors, get_figure_text_size)
+        dpi = get_figure_png_dpi()
+        bg, fg = get_figure_colors()
+        text_size = get_figure_text_size()
+        fmt = get_figure_format()
+    except Exception:
+        dpi, fmt = 200, "png"
+        bg, fg, text_size = "#ffffff", "#000000", 0
+    _style_figure_colors(fig, bg, fg, text_size)
+    # Cap the DISPLAY raster so a big multi-panel figure at a high DPI can't
+    # balloon into a slow-to-decode PNG. Screen never needs > ~4000 px on the
+    # long side; the vector .pdf keeps full quality for export.
+    try:
+        w_in, h_in = fig.get_size_inches()
+        longest_in = max(float(w_in), float(h_in)) or 1.0
+        display_dpi = min(dpi, max(72, int(4000 / longest_in)))
+    except Exception:
+        display_dpi = min(dpi, 200)
+    try:
+        fig.savefig(png_path, dpi=display_dpi, bbox_inches="tight",
+                    facecolor=bg)
+        if fmt == "pdf":
+            try:
+                fig.savefig(str(Path(png_path).with_suffix(".pdf")),
+                            bbox_inches="tight", facecolor=bg)
+            except Exception:
+                pass
+        return True
+    except Exception as e:
+        LOG.info("figure render failed: %s", e)
+        return False
+
 # Number of full-resolution pixmaps kept in RAM. Older figures live
 # only as PNGs on disk until viewed.
 RAM_CAP = 100
@@ -129,10 +192,15 @@ class FigureQueue(QWidget):
 
     # -- public API --------------------------------------------------------
 
-    def add_figure(self, fig) -> int:
+    def add_figure(self, fig, prerendered_png: Optional[str] = None) -> int:
         """Render + append ``fig`` (a matplotlib Figure). Returns its
         index. Re-emitting the same figure object re-selects it instead
-        of duplicating."""
+        of duplicating.
+
+        ``prerendered_png`` is a PNG the pipeline bridge already rendered in a
+        WORKER thread — when supplied we just adopt it (a fast file move + a
+        cheap QPixmap load) instead of doing the expensive savefig on the GUI
+        thread, so the UI stays responsive while many figures stream in."""
         if id(fig) in self._fig_index:
             idx = self._fig_index[id(fig)]
             self.show_index(idx)
@@ -143,10 +211,23 @@ class FigureQueue(QWidget):
         self._fig_index[id(fig)] = idx
         self._figures[idx] = fig
 
-        # Render to a temp PNG (the durable spill copy) + a full-res
-        # pixmap for RAM.
         png_path = self._ensure_tempdir() / f"fig_{idx:05d}.png"
-        pixmap = self._render_figure(fig, png_path)
+        pixmap = None
+        if prerendered_png and Path(prerendered_png).is_file():
+            # Adopt the worker-rendered PNG (and its sibling .pdf, if any).
+            try:
+                shutil.move(prerendered_png, str(png_path))
+                src_pdf = Path(prerendered_png).with_suffix(".pdf")
+                if src_pdf.is_file():
+                    shutil.move(str(src_pdf), str(png_path.with_suffix(".pdf")))
+                pixmap = QPixmap(str(png_path))
+                if pixmap.isNull():
+                    pixmap = None
+            except Exception:
+                pixmap = None
+        if pixmap is None:
+            # No usable prerender — fall back to rendering here.
+            pixmap = self._render_figure(fig, png_path)
         self._png_paths[idx] = str(png_path)
         if pixmap is not None:
             self._cache_pixmap(idx, pixmap)
@@ -237,40 +318,7 @@ class FigureQueue(QWidget):
         """Save ``fig`` to ``png_path`` (raster, for display) and return a
         QPixmap of it. The figure background + text follow the app theme
         (dark → black bg + white text) unless overridden in figure settings."""
-        try:
-            from ..preferences import (get_figure_png_dpi, get_figure_format,
-                                       get_figure_colors, get_figure_text_size)
-            dpi = get_figure_png_dpi()
-            bg, fg = get_figure_colors()
-            text_size = get_figure_text_size()
-        except Exception:
-            dpi, get_figure_format = 200, (lambda: "png")
-            bg, fg, text_size = "#ffffff", "#000000", 0
-        self._style_figure(fig, bg, fg, text_size)
-        # Cap the DISPLAY raster so a big multi-panel figure at a high DPI can't
-        # balloon into a multi-hundred-MB PNG that's slow to decode and blocks
-        # the UI. Screen never needs more than ~4000 px on the long side; the
-        # vector .pdf (saved below) keeps full quality for export.
-        try:
-            w_in, h_in = fig.get_size_inches()
-            longest_in = max(float(w_in), float(h_in)) or 1.0
-            MAX_PX = 4000
-            display_dpi = min(dpi, max(72, int(MAX_PX / longest_in)))
-        except Exception:
-            display_dpi = min(dpi, 200)
-        try:
-            fig.savefig(str(png_path), dpi=display_dpi, bbox_inches="tight",
-                        facecolor=bg)
-            # In PDF mode, also drop a vector .pdf next to the raster so the
-            # figure-settings button has something editable to work with.
-            try:
-                if get_figure_format() == "pdf":
-                    fig.savefig(str(Path(png_path).with_suffix(".pdf")),
-                                bbox_inches="tight", facecolor=bg)
-            except Exception:
-                pass
-        except Exception as e:
-            LOG.info("figure render failed: %s", e)
+        if not render_figure_to_png(fig, str(png_path)):
             return None
         pm = QPixmap(str(png_path))
         return pm if not pm.isNull() else None

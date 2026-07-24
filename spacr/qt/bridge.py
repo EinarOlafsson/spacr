@@ -9,6 +9,7 @@ print, so the caller can pipe them into a QPlainTextEdit console.
 from __future__ import annotations
 
 import io
+import os
 import sys
 import threading
 import traceback
@@ -100,7 +101,7 @@ class PipelineWorker(QObject):
     line_ready = Signal(str)
     finished = Signal(bool)
     error = Signal(str)
-    figure_ready = Signal(object)
+    figure_ready = Signal(object, str)   # (figure, prerendered_png_path or "")
 
     def __init__(self, fn: Callable[..., Any], settings: Dict[str, Any]):
         """Prepare to run ``fn(settings)`` in a worker thread.
@@ -139,21 +140,34 @@ class PipelineWorker(QObject):
             old_show = plt.show
             worker = self
             emitted_ids = set()
+            fig_counter = [0]
 
             def _capture_show(*args, **kwargs):
                 # Emit each figure only ONCE. The pipeline often leaves figures
                 # open (the "More than 20 figures" matplotlib warning), so a
-                # naive re-scan would re-emit the whole backlog on every show()
-                # — flooding the GUI thread with redundant re-renders and making
-                # it hang. Track the ids we've already handed off. (We can't
-                # close the figure here: the GUI slot renders it via a queued
-                # connection that runs later, and closing would race that.)
+                # naive re-scan would re-emit the whole backlog on every show().
+                # Render each figure to a PNG HERE, in the worker thread (Agg
+                # savefig touches no Qt) — the expensive part — so the GUI
+                # thread only does a cheap file-move + pixmap load and never
+                # hangs while figures stream in.
                 for num in list(plt.get_fignums()):
                     fig = plt.figure(num)
                     if id(fig) in emitted_ids:
                         continue
                     emitted_ids.add(id(fig))
-                    worker.figure_ready.emit(fig)
+                    png_path = ""
+                    try:
+                        import tempfile
+                        from .widgets.figure_queue import render_figure_to_png
+                        fig_counter[0] += 1
+                        tmp = os.path.join(
+                            tempfile.gettempdir(),
+                            f"spacr_fig_{os.getpid()}_{fig_counter[0]}.png")
+                        if render_figure_to_png(fig, tmp):
+                            png_path = tmp
+                    except Exception:
+                        png_path = ""
+                    worker.figure_ready.emit(fig, png_path)
                 return None
 
             plt.show = _capture_show
