@@ -101,3 +101,86 @@ def test_missing_db_raises(tmp_path):
     import pytest
     with pytest.raises(FileNotFoundError):
         generate_object_dataset(str(tmp_path), verbose=False)
+
+
+def test_max_area_rows_fields_plates_filters(tmp_path):
+    """Exercise the max_area + rowID/fieldID/plateID IN clause builders."""
+    from spacr.measure import generate_object_dataset
+    root = _build_dataset(str(tmp_path))
+    man = generate_object_dataset(
+        root, object_type="cell", channels=(0, 1, 2),
+        max_area=450, rows=[1], fields=[1], plates=["plate1"],
+        mask_dims={"cell": 3}, verbose=True)
+    # max_area=450 keeps 16 and 400 px objects (labels 1, 2).
+    assert sorted(e["object_label"] for e in man) == [1, 2]
+
+
+def test_criteria_in_operator_and_limit(tmp_path):
+    """criteria with an 'in' operator + a LIMIT clause."""
+    from spacr.measure import generate_object_dataset
+    root = _build_dataset(str(tmp_path))
+    man = generate_object_dataset(
+        root, object_type="cell", channels=(0,),
+        criteria={"columnID": ("in", ["c1", "c2"])},
+        limit=1, mask_dims={"cell": 3}, verbose=True)
+    assert len(man) == 1                       # LIMIT 1
+    assert Image.open(man[0]["png_path"]).mode in ("RGB", "L", "RGBA")
+
+
+def test_unknown_object_type_raises(tmp_path):
+    from spacr.measure import generate_object_dataset
+    import pytest
+    root = _build_dataset(str(tmp_path))
+    with pytest.raises(ValueError):
+        generate_object_dataset(root, object_type="mitochondrion",
+                                mask_dims={"cell": 3}, verbose=False)
+
+
+# ---------------------------------------------------------------------------
+# crop_objects_from_array channel/area branches
+# ---------------------------------------------------------------------------
+
+def _array_with_mask(n_img_channels):
+    H = W = 40
+    total = n_img_channels + 1
+    data = np.zeros((H, W, total), dtype=np.float32)
+    for c in range(n_img_channels):
+        data[..., c] = 10.0 * (c + 1)
+    mask = np.zeros((H, W), dtype=np.int32)
+    mask[2:6, 2:6] = 1            # 16 px  (small)
+    mask[10:34, 10:34] = 2        # 576 px (large)
+    data[..., n_img_channels] = mask
+    return data, n_img_channels    # mask_dim index
+
+
+def test_crop_objects_single_channel_repeats_to_rgb():
+    from spacr.measure import crop_objects_from_array
+    data, mdim = _array_with_mask(1)
+    out = crop_objects_from_array(data, mask_dim=mdim, channels=(0,))
+    assert out and out[0]["crop"].shape[2] == 3     # 1→repeat
+
+
+def test_crop_objects_two_channels_pad_to_rgb():
+    from spacr.measure import crop_objects_from_array
+    data, mdim = _array_with_mask(2)
+    out = crop_objects_from_array(data, mask_dim=mdim, channels=(0, 1))
+    assert out[0]["crop"].shape[2] == 3             # 2→pad blue
+
+
+def test_crop_objects_more_than_three_channels_truncated():
+    from spacr.measure import crop_objects_from_array
+    data, mdim = _array_with_mask(4)
+    out = crop_objects_from_array(data, mask_dim=mdim, channels=(0, 1, 2, 3))
+    assert out[0]["crop"].shape[2] == 3             # >3→first 3
+
+
+def test_crop_objects_area_filter_and_limit():
+    from spacr.measure import crop_objects_from_array
+    data, mdim = _array_with_mask(3)
+    # min_area drops the 16px object; max_area drops nothing; limit caps.
+    out = crop_objects_from_array(data, mask_dim=mdim, channels=(0, 1, 2),
+                                  min_area=100, max_area=10000, limit=5)
+    assert all(o["area"] >= 100 for o in out)
+    # largest-first ordering
+    areas = [o["area"] for o in out]
+    assert areas == sorted(areas, reverse=True)
