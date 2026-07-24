@@ -95,7 +95,7 @@ def preprocess_generate_masks(settings):
     # originals → merged/stack_<field>.npy with masks appended
     # in-place. Roughly 60-80% less disk than v1 on typical plates.
     # See spacr.pipeline_v2 for design notes.
-    if settings.get('pipeline_style', 'v1') == 'v2':
+    if settings.get('pipeline_style', 'v2') == 'v2':
         from .pipeline_v2 import run_v2
         from ._v1_v2_bridge import (
             v2_channels_from_settings, report_disk_savings,

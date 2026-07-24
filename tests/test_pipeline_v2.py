@@ -219,3 +219,10 @@ def test_stack_file_records_channel_names(tmp_path):
     )
     assert stacks[0].channels == ["nucleus", "cell"]
     assert stacks[0].shape == (32, 32, 2)
+
+
+def test_pipeline_style_defaults_to_v2():
+    """v2 (in-memory streaming, no .npz on disk) is the default pipeline."""
+    from spacr.settings import set_default_settings_preprocess_generate_masks
+    s = set_default_settings_preprocess_generate_masks(settings={})
+    assert s["pipeline_style"] == "v2"
