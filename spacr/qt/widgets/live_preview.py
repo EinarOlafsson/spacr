@@ -539,8 +539,6 @@ class LivePreviewPanel(QWidget):
         self._flows: Dict[str, np.ndarray] = {}
         self._settings: Dict[str, Any] = {}
         self._worker: Optional[_PreviewWorker] = None
-        self._pre_on = False
-        self._post_on = False
         # Callback(dict) that pushes tuned live settings into the main panel.
         self._propagate_cb = None
         self._build_ui()
@@ -659,13 +657,34 @@ class LivePreviewPanel(QWidget):
         self._outline_thickness.valueChanged.connect(
             self._refresh_canvases)
 
-        # Pre / Post checkboxes live inside the settings dialog too.
-        self._pre_check = QCheckBox("Pre (cell background / min-max)",
-                                       self)
-        self._pre_check.toggled.connect(self._on_pre_toggle)
-        self._post_check = QCheckBox(
-            "Post (size filter after Cellpose)", self)
-        self._post_check.toggled.connect(self._on_post_toggle)
+        # Tooltips for the segmentation controls (type + what they do).
+        self._model_box.setToolTip(
+            "(str) Cellpose model: cpsam (SAM, auto-diameter), cyto3/cyto2 "
+            "(cytoplasm), nuclei.")
+        self._object_box.setToolTip(
+            "(str) Object(s) to segment. 'cell + nucleus' runs both passes.")
+        self._cell_channel.setToolTip(
+            "(int) Image channel index used for cell segmentation.")
+        self._nucleus_channel.setToolTip(
+            "(int) Image channel index used for nucleus segmentation.")
+        self._diameter.setToolTip(
+            "(float, px) Expected object diameter. Ignored by Cellpose-SAM "
+            "(cpsam), which estimates it automatically.")
+        self._flow.setToolTip(
+            "(float) Cellpose flow threshold — higher keeps more masks.")
+        self._prob.setToolTip(
+            "(float) Cellpose cell-probability threshold — lower keeps more "
+            "(dimmer) objects.")
+        self._normalise_check.setToolTip(
+            "(bool) Percentile-normalise the image for display + segmentation.")
+        self._lo_pct.setToolTip(
+            "(float, %) Lower percentile for normalisation.")
+        self._hi_pct.setToolTip(
+            "(float, %) Upper percentile for normalisation.")
+        self._outline_colour.setToolTip(
+            "(str) Overlay outline colour ('auto' = per-object colour).")
+        self._outline_thickness.setToolTip(
+            "(int, px) Overlay outline thickness.")
 
         # Keep every hidden helper widget parented but invisible so it
         # doesn't render in the compact layout.
@@ -673,8 +692,7 @@ class LivePreviewPanel(QWidget):
                     self._cell_channel, self._nucleus_channel,
                     self._diameter, self._flow, self._prob,
                     self._normalise_check, self._lo_pct, self._hi_pct,
-                    self._outline_colour, self._outline_thickness,
-                    self._pre_check, self._post_check):
+                    self._outline_colour, self._outline_thickness):
             w.hide()
 
         # -- VISIBLE compact layout --------------------------------------
@@ -845,8 +863,6 @@ class LivePreviewPanel(QWidget):
             "normalise": self._normalise_check.isChecked(),
             "lo_pct": float(self._lo_pct.value()),
             "hi_pct": float(self._hi_pct.value()),
-            "pre": self._pre_on,
-            "post": self._post_on,
             "outline_thickness": self._outline_thickness.value(),
             "outline_colour": self._outline_colour.currentText(),
         }
@@ -907,6 +923,12 @@ class LivePreviewPanel(QWidget):
             w.hide()
             return w
 
+        # Pull the informative spaCR setting descriptions for tooltips.
+        try:
+            from spacr.settings import descriptions as _spacr_desc
+        except Exception:
+            _spacr_desc = {}
+
         # Common controls — one widget each, retargeted to the chosen object
         # at propagation time (see settings_for_propagation).
         self._common_widgets: Dict[str, QWidget] = {
@@ -914,14 +936,29 @@ class LivePreviewPanel(QWidget):
             "remove_background": _spin("bool", None),
             "background": _spin("int", (0, 100_000, 100)),
         }
+        self._common_widgets["signal_to_noise"].setToolTip(
+            "(int) Signal-to-noise ratio used to set the normalisation "
+            "intensity range for the chosen object's channel.")
+        self._common_widgets["remove_background"].setToolTip(
+            "(bool) Subtract the background intensity from the chosen object's "
+            "channel before segmentation.")
+        self._common_widgets["background"].setToolTip(
+            "(int) Background intensity subtracted from the chosen object's "
+            "channel when 'Remove background' is on.")
         # Cell-only extra.
         self._adjust_cells = _spin("bool", None)
+        self._adjust_cells.setToolTip(
+            "(bool) Adjust cell masks using the nucleus/pathogen masks.")
 
         self._compartment_widgets: Dict[str, Dict[str, QWidget]] = {}
         for comp in COMPARTMENTS:
             group: Dict[str, QWidget] = {}
-            for suffix, _label, kind, spin_args in COMPARTMENT_FIELDS:
-                group[suffix] = _spin(kind, spin_args)
+            for suffix, label, kind, spin_args in COMPARTMENT_FIELDS:
+                w = _spin(kind, spin_args)
+                key = f"{comp}_{suffix}"
+                desc = _spacr_desc.get(key) or _spacr_desc.get(suffix)
+                w.setToolTip(desc if desc else f"{label} for {comp} objects.")
+                group[suffix] = w
             self._compartment_widgets[comp] = group
 
         # Re-filter the cached masks live whenever any filter widget changes,
@@ -982,14 +1019,15 @@ class LivePreviewPanel(QWidget):
             "cell":    self._cell_channel.value(),
             "nucleus": self._nucleus_channel.value(),
         }
-        pre = dict(self._settings) if self._pre_on else {}
-        # Always feed the live per-compartment filter values into post-
-        # processing so tuning a filter (e.g. cell min area) updates the
-        # preview masks — independent of the Pre/Post checkboxes, which gate
-        # the pipeline-style pre/post routes.
-        post = dict(self._settings)
+        # One unified settings dict drives both background subtraction
+        # (pre) and filtering (post): the common "remove background" +
+        # "background" controls and the per-compartment filter values. No more
+        # Pre/Post checkboxes — the settings apply whenever they're set.
+        merged = dict(self._settings)
         if hasattr(self, "_compartment_widgets"):
-            post.update(self._compartment_settings())
+            merged.update(self._compartment_settings())
+        pre = merged
+        post = merged
         return PreviewRequest(
             image=self._image,
             model=self._model_box.currentText(),
@@ -1098,12 +1136,6 @@ class LivePreviewPanel(QWidget):
                 dlg.refresh_visibility()
             except Exception:
                 pass
-
-    def _on_pre_toggle(self, on: bool):
-        self._pre_on = on
-
-    def _on_post_toggle(self, on: bool):
-        self._post_on = on
 
     def open_live_settings(self):
         """Open (or focus) the Live Settings modal.
@@ -1311,7 +1343,7 @@ class LiveSettingsDialog(QDialog):
         seg_group = QGroupBox("Segmentation")
         form = QFormLayout(seg_group)
         form.addRow("Model", panel._model_box)
-        form.addRow("Object", panel._object_box)
+        form.addRow("Primary object", panel._object_box)
         form.addRow("Cell channel", panel._cell_channel)
         form.addRow("Nucleus channel", panel._nucleus_channel)
         form.addRow("Diameter", panel._diameter)
@@ -1322,8 +1354,6 @@ class LiveSettingsDialog(QDialog):
         form.addRow("Upper percentile", panel._hi_pct)
         form.addRow("Outline colour", panel._outline_colour)
         form.addRow("Outline thickness", panel._outline_thickness)
-        form.addRow(panel._pre_check)
-        form.addRow(panel._post_check)
         # Common controls — apply to whichever object is chosen.
         panel._common_widgets["signal_to_noise"].show()
         panel._common_widgets["remove_background"].show()
@@ -1380,12 +1410,10 @@ class LiveSettingsDialog(QDialog):
         buttons.accepted.connect(self.close)
         outer.addWidget(buttons)
 
-        # Re-gate the form whenever the object type or the Pre/Post toggles
-        # change, so irrelevant settings grey out live.
+        # Re-gate the form whenever the object type or model changes, so
+        # irrelevant settings grey out live.
         panel._object_box.currentTextChanged.connect(self.refresh_visibility)
         panel._model_box.currentTextChanged.connect(self.refresh_visibility)
-        panel._pre_check.toggled.connect(self.refresh_visibility)
-        panel._post_check.toggled.connect(self.refresh_visibility)
         panel._normalise_check.toggled.connect(self.refresh_visibility)
 
         # Widgets whose changes propagate to the main panel while the toggle
@@ -1432,7 +1460,7 @@ class LiveSettingsDialog(QDialog):
                 p._nucleus_channel, p._diameter, p._flow, p._prob,
                 p._normalise_check, p._lo_pct, p._hi_pct,
                 p._outline_colour, p._outline_thickness,
-                p._pre_check, p._post_check] + p._all_compartment_widgets()
+                ] + p._all_compartment_widgets()
 
     def refresh_visibility(self):
         """Grey out settings that don't apply to the current selection.
@@ -1483,12 +1511,10 @@ class LiveSettingsDialog(QDialog):
             w.setToolTip("" if norm_on
                          else "Enable 'Normalise' to set percentile bounds")
 
-        # -- Post step gates the overlay / outline knobs --
-        post_on = p._post_check.isChecked()
+        # Overlay / outline knobs are always relevant (they style the overlay
+        # view), so they stay enabled.
         for w in (p._outline_colour, p._outline_thickness):
-            w.setEnabled(post_on)
-            w.setToolTip("" if post_on
-                         else "Enable 'Post' to use overlay settings")
+            w.setEnabled(True)
 
     def closeEvent(self, event):
         """Re-hide the state widgets so the compact layout stays clean."""
