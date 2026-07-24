@@ -739,7 +739,7 @@ def generate_screen_graphs(settings):
                              data_column='recruitment',
                              graph_type=settings['graph_type'],
                              summary_func=settings['summary_func'],
-                             y_axis_start=settings['y_axis_start'],
+                             y_lim=[settings['y_axis_start'], None],
                              error_bar_type=settings['error_bar_type'],
                              theme=settings['theme'],
                              representation=settings['representation'])
@@ -758,7 +758,7 @@ def generate_screen_graphs(settings):
                          data_column='recruitment',
                          graph_type=settings['graph_type'],
                          summary_func=settings['summary_func'],
-                         y_axis_start=settings['y_axis_start'],
+                         y_lim=[settings['y_axis_start'], None],
                          error_bar_type=settings['error_bar_type'],
                          theme=settings['theme'],
                          representation=settings['representation'])
