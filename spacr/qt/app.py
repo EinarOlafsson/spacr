@@ -118,10 +118,11 @@ APPS = [
 _ICON_OVERRIDES = {
     "analyze_plaques": "plaque.png",
     "queue":           "sequencing.png",   # closest visual match for now
+    "train_cellpose":  "cellpose_masks.png",  # share the Cellpose Masks icon
 }
 
 # Keys that render their qtawesome glyph instead of a bundled PNG.
-_FORCE_GLYPH = {"train_cellpose"}
+_FORCE_GLYPH = set()
 
 
 def _icon_for_app(key: str) -> Optional[QIcon]:
