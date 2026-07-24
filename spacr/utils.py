@@ -5375,17 +5375,26 @@ def plot_clusters(ax, embedding, labels, colors, cluster_centers, plot_outlines,
     unique_labels = np.unique(labels)
     for cluster_label, color, center in zip(unique_labels, colors, cluster_centers):
         cluster_data = embedding[labels == cluster_label]
+        # A ConvexHull needs >=3 non-collinear points; with too few or
+        # collinear points (common for tiny/degenerate clusters) Qhull raises.
+        # Skip the outline in that case rather than crashing the whole plot.
         if smooth_lines:
             if cluster_data.shape[0] > 2:
-                x_smooth, y_smooth = smooth_hull_lines(cluster_data)
-                if plot_outlines:
-                    plt.plot(x_smooth, y_smooth, color=color, linewidth=2)
+                try:
+                    x_smooth, y_smooth = smooth_hull_lines(cluster_data)
+                    if plot_outlines:
+                        plt.plot(x_smooth, y_smooth, color=color, linewidth=2)
+                except Exception:
+                    pass
         else:
             if cluster_data.shape[0] > 2:
-                hull = ConvexHull(cluster_data)
-                for simplex in hull.simplices:
-                    if plot_outlines:
-                        plt.plot(hull.points[simplex, 0], hull.points[simplex, 1], color=color, linewidth=4)
+                try:
+                    hull = ConvexHull(cluster_data)
+                    for simplex in hull.simplices:
+                        if plot_outlines:
+                            plt.plot(hull.points[simplex, 0], hull.points[simplex, 1], color=color, linewidth=4)
+                except Exception:
+                    pass
         if plot_points:
             scatter = ax.scatter(cluster_data[:, 0], cluster_data[:, 1], s=dot_size, c=[color], alpha=0.5, label=f'Cluster {cluster_label if cluster_label != -1 else "Noise"}')
         else:

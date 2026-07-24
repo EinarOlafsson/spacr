@@ -2103,7 +2103,11 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
 
     plate_map = pd.pivot_table(plate, values='value', index='rowID', columns='columnID').fillna(0)
 
-    # vmin/vmax selection
+    # vmin/vmax selection. Guard against an empty pivot (e.g. a tiny plate
+    # where every well was filtered out): np.quantile / np.nanmin on a
+    # zero-size array raises, so fall back to a neutral [0, 1] range.
+    if plate_map.values.size == 0:
+        return plate_map, (0.0, 1.0)
     if min_max == 'all':
         vmin, vmax = float(np.nanmin(plate_map.values)), float(np.nanmax(plate_map.values))
     elif min_max == 'allq':
