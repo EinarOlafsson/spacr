@@ -80,15 +80,16 @@ class TestNavigation:
         assert not hasattr(q, "_next_btn")
         assert hasattr(q, "_fig_settings_btn")
 
-    def test_figure_settings_button_png_hidden(self, qtbot):
+    def test_figure_settings_button_visible_with_figures(self, qtbot):
         from spacr.qt import preferences as prefs
         prefs.set_figure_format("png")
         q = FigureQueue()
         qtbot.addWidget(q)
         q.add_figure(_make_fig(0))
         q._refresh_nav()
-        # In PNG mode the figure-settings button is hidden.
-        assert not q._fig_settings_btn.isVisibleTo(q)
+        # Figure settings restyle + re-render, so the button shows in PNG mode
+        # too (colours/size apply to the displayed raster).
+        assert q._fig_settings_btn.isVisibleTo(q)
 
     def test_position_label(self, qtbot):
         q = FigureQueue()

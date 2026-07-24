@@ -547,19 +547,9 @@ class AppScreen(QWidget):
         self._btn_clear.clicked.connect(lambda: self._console.clear())
         row.addWidget(self._btn_clear)
 
-        # Explain error — enabled once a pipeline error is captured.
+        # (The manual "Explain error" button was removed — errors now route to
+        # the AI automatically when AI is enabled; see _on_pipeline_error.)
         from .. import iconset as _iconset
-        self._btn_explain = QPushButton("Explain error")
-        self._btn_explain.setObjectName("GhostButton")
-        self._btn_explain.setIcon(_iconset.icon("info"))
-        self._btn_explain.setCursor(Qt.PointingHandCursor)
-        self._btn_explain.setToolTip(
-            "Send the last traceback to the AI Console for a "
-            "step-by-step fix."
-        )
-        self._btn_explain.setEnabled(False)
-        self._btn_explain.clicked.connect(self._on_explain_error)
-        row.addWidget(self._btn_explain)
 
         # File as GitHub issue — same enable gate as Explain, plus the
         # user's opt-in in AI Settings. Opens a pre-filled issue URL
@@ -718,7 +708,6 @@ class AppScreen(QWidget):
     def _on_pipeline_error(self, tb: str):
         """Capture the traceback and either show it raw or route it through AI."""
         self._last_error_text = tb
-        self._btn_explain.setEnabled(True)
 
         # Route through AI when AI is enabled with a provider AND the
         # route-errors-through-AI preference is on (the default). The user then

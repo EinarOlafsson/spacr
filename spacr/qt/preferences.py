@@ -103,6 +103,44 @@ def set_figure_png_dpi(dpi: int) -> None:
     _settings().setValue(_KEY_FIG_PNG_DPI, int(dpi))
 
 
+# Figure colours. Stored as hex strings; "auto" (the default) follows the app
+# theme — dark → black background + white text, light → white + black.
+_KEY_FIG_BG = "prefs/figure_bg"
+_KEY_FIG_FG = "prefs/figure_fg"
+_KEY_FIG_TEXT_SIZE = "prefs/figure_text_size"
+
+
+def get_figure_colors() -> tuple:
+    """Return ``(background, text)`` hex colours for rendered figures,
+    resolving "auto" against the current theme."""
+    bg = str(_settings().value(_KEY_FIG_BG, "auto"))
+    fg = str(_settings().value(_KEY_FIG_FG, "auto"))
+    if bg == "auto" or fg == "auto":
+        dark = resolve_effective_theme() == "dark"
+        auto_bg, auto_fg = ("#000000", "#ffffff") if dark else ("#ffffff", "#000000")
+        if bg == "auto":
+            bg = auto_bg
+        if fg == "auto":
+            fg = auto_fg
+    return bg, fg
+
+
+def set_figure_colors(bg: str, fg: str) -> None:
+    _settings().setValue(_KEY_FIG_BG, bg)
+    _settings().setValue(_KEY_FIG_FG, fg)
+
+
+def get_figure_text_size() -> int:
+    try:
+        return int(_settings().value(_KEY_FIG_TEXT_SIZE, 0))
+    except (TypeError, ValueError):
+        return 0   # 0 = leave matplotlib's own sizes alone
+
+
+def set_figure_text_size(size: int) -> None:
+    _settings().setValue(_KEY_FIG_TEXT_SIZE, int(size))
+
+
 # ---------------------------------------------------------------------------
 # Theme
 # ---------------------------------------------------------------------------
