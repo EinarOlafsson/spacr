@@ -770,7 +770,14 @@ QProgressBar::chunk {{
     border-radius: 4px;
 }}
 QProgressBar#UsageBar {{
-    background: {P["surface_alt"]};
+    /* Same as the System card body so the RAM/GPU/CPU/VRAM track blends into
+       the box it sits in (only the filled chunk stands out). */
+    background: {P["surface"]};
+    height: 6px;
+    max-height: 6px;
+}}
+QProgressBar#UsageBarWarn, QProgressBar#UsageBarError {{
+    background: {P["surface"]};
     height: 6px;
     max-height: 6px;
 }}

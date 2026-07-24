@@ -511,12 +511,12 @@ class AppScreen(QWidget):
 
         layout.addWidget(usage_card)
 
-        # Actions row. Left inset matches the console's AI-chat input box so
-        # Run / Stop / Import / Clear / Explain line up with the console and
-        # chat, sitting slightly away from the container's left edge.
+        # Actions row. Flush-left (no extra inset) so Run / Stop / Import /
+        # Clear / Explain line up with the console, chat and System panel,
+        # which all share the runtime panel's small left inset.
         actions = QWidget()
         row = QHBoxLayout(actions)
-        row.setContentsMargins(SPACING["md"], 0, 0, 0)
+        row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(SPACING["sm"])
         self._btn_run = QPushButton("Run")
         self._btn_run.setObjectName("PrimaryButton")

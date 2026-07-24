@@ -125,7 +125,7 @@ class _WorkingDots(QLabel):
         self._n = 0
         self.setStyleSheet(
             f"QLabel#ConsoleWorkingDots {{ color: {color}; "
-            f"font-size: {FONT_SIZE['body']}px; font-weight: 700; "
+            f"font-size: {max(6, FONT_SIZE['xs'] - 2)}px; font-weight: 400; "
             "background: transparent; }")
         from PySide6.QtCore import QTimer
         self._timer = QTimer(self)
@@ -137,7 +137,7 @@ class _WorkingDots(QLabel):
         self._color = color
         self.setStyleSheet(
             f"QLabel#ConsoleWorkingDots {{ color: {color}; "
-            f"font-size: {FONT_SIZE['body']}px; font-weight: 700; "
+            f"font-size: {max(6, FONT_SIZE['xs'] - 2)}px; font-weight: 400; "
             "background: transparent; }")
 
     def _render(self) -> None:
@@ -380,9 +380,10 @@ class ConsolePanel(QWidget):
     # ------------------------------------------------------------------
     def _build_ui(self):
         outer = QVBoxLayout(self)
-        # Small inset so content doesn't paint over the panel's rounded corners.
-        outer.setContentsMargins(SPACING["xs"], SPACING["xs"],
-                                 SPACING["xs"], SPACING["xs"])
+        # Inset content by the corner radius so entries don't paint over the
+        # panel's rounded corners (which is what made them look square).
+        inset = SPACING["sm"]
+        outer.setContentsMargins(inset, inset, inset, inset)
         outer.setSpacing(0)
 
         # Scroll area of entries
@@ -390,11 +391,16 @@ class ConsolePanel(QWidget):
         self._scroll.setObjectName("ConsoleScroll")
         self._scroll.setWidgetResizable(True)
         self._scroll.setFrameShape(QScrollArea.NoFrame)
+        # The viewport paints its own background — make it transparent too so
+        # the panel's rounded surface shows through at the corners.
+        self._scroll.viewport().setStyleSheet("background: transparent;")
+        self._scroll.setStyleSheet("background: transparent;")
         # Never show a horizontal scrollbar — content that doesn't fit
         # must wrap. This is what prevents the runaway-width crash.
         self._scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self._holder = QWidget()
         self._holder.setObjectName("ConsoleHolder")
+        self._holder.setStyleSheet("background: transparent;")
         self._entries = QVBoxLayout(self._holder)
         self._entries.setContentsMargins(0, 0, 0, 0)
         self._entries.setSpacing(0)
