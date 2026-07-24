@@ -927,10 +927,24 @@ class LiveSettingsDialog(QDialog):
         form.addRow(panel._post_check)
 
         outer.addLayout(form)
+
+        # Run button lives in the dialog so settings can be iterated without
+        # closing it — edit a value, hit Run, see the result, repeat.
         buttons = QDialogButtonBox(QDialogButtonBox.Close)
+        self._run_btn = QPushButton("Run preview")
+        self._run_btn.setDefault(True)
+        self._run_btn.clicked.connect(self._panel.run_preview)
+        buttons.addButton(self._run_btn, QDialogButtonBox.ActionRole)
         buttons.rejected.connect(self.close)
         buttons.accepted.connect(self.close)
         outer.addWidget(buttons)
+
+        # Re-gate the form whenever the object type or the Pre/Post toggles
+        # change, so irrelevant settings grey out live.
+        panel._object_box.currentTextChanged.connect(self.refresh_visibility)
+        panel._model_box.currentTextChanged.connect(self.refresh_visibility)
+        panel._pre_check.toggled.connect(self.refresh_visibility)
+        panel._post_check.toggled.connect(self.refresh_visibility)
 
         self.refresh_visibility()
 
@@ -943,16 +957,44 @@ class LiveSettingsDialog(QDialog):
                 p._pre_check, p._post_check]
 
     def refresh_visibility(self):
-        """Hide model-ignored knobs when Cellpose-SAM is selected and
-        the unused channel spin depending on object type."""
+        """Grey out settings that don't apply to the current selection.
+
+        Rules (mirroring the pipeline's own relevance):
+          * Segmentation knobs (diameter / flow / cell-prob) are ignored by
+            Cellpose-SAM, so they grey out when the SAM model is picked.
+          * The object type decides which channel spinners are live: the cell
+            channel greys out for a nucleus-only object and vice-versa.
+          * Pre-processing knobs (normalise + its two percentiles) are only
+            relevant when the *Pre* step is enabled.
+          * Overlay / post knobs (outline colour + thickness) are only
+            relevant when the *Post* step is enabled.
+        """
         p = self._panel
+
+        # -- model: SAM ignores diameter/flow/prob --
         is_sam = p._model_box.currentText() == "cpsam"
         for w in (p._diameter, p._flow, p._prob):
             w.setEnabled(not is_sam)
             w.setToolTip("Ignored by Cellpose-SAM" if is_sam else "")
+
+        # -- object: which channel spinners apply --
         obj = p._object_box.currentText()
         p._cell_channel.setEnabled(obj != "nucleus")
         p._nucleus_channel.setEnabled(obj != "cell")
+
+        # -- Pre step gates the pre-processing / normalisation knobs --
+        pre_on = p._pre_check.isChecked()
+        for w in (p._normalise_check, p._lo_pct, p._hi_pct):
+            w.setEnabled(pre_on)
+            w.setToolTip("" if pre_on
+                         else "Enable 'Pre' to use pre-processing settings")
+
+        # -- Post step gates the overlay / outline knobs --
+        post_on = p._post_check.isChecked()
+        for w in (p._outline_colour, p._outline_thickness):
+            w.setEnabled(post_on)
+            w.setToolTip("" if post_on
+                         else "Enable 'Post' to use overlay settings")
 
     def closeEvent(self, event):
         """Re-hide the state widgets so the compact layout stays clean."""
