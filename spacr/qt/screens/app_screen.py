@@ -407,7 +407,9 @@ class AppScreen(QWidget):
     def _build_runtime_panel(self) -> QWidget:
         wrap = QWidget()
         layout = QVBoxLayout(wrap)
-        layout.setContentsMargins(0, 0, 0, 0)
+        # Small left inset so the console, chat and button row sit slightly
+        # away from the container's left edge (aligned with each other).
+        layout.setContentsMargins(SPACING["sm"], 0, 0, 0)
         layout.setSpacing(SPACING["md"])
 
         # Figures card — hidden until the pipeline pushes a figure via
@@ -505,13 +507,13 @@ class AppScreen(QWidget):
 
         layout.addWidget(usage_card)
 
-        # Actions row. A leading spacer nudges the whole button group
-        # (Run / Stop / Import / Clear / Explain / …) slightly to the right.
+        # Actions row. Left inset matches the console's AI-chat input box so
+        # Run / Stop / Import / Clear / Explain line up with the console and
+        # chat, sitting slightly away from the container's left edge.
         actions = QWidget()
         row = QHBoxLayout(actions)
-        row.setContentsMargins(0, 0, 0, 0)
+        row.setContentsMargins(SPACING["md"], 0, 0, 0)
         row.setSpacing(SPACING["sm"])
-        row.addSpacing(SPACING["xl"])
         self._btn_run = QPushButton("Run")
         self._btn_run.setObjectName("PrimaryButton")
         self._btn_run.setCursor(Qt.PointingHandCursor)

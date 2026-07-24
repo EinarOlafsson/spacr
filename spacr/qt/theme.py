@@ -427,6 +427,45 @@ QLabel#HintBar {{
 }}
 
 /* -----------------------------------------------------------------
+ *  Sliders — blue (accent) handle + filled track, not the default
+ *  dark-gray handle.
+ * ----------------------------------------------------------------- */
+QSlider::groove:horizontal {{
+    height: 4px;
+    background: {P["border"]};
+    border-radius: 2px;
+}}
+QSlider::sub-page:horizontal {{
+    background: {P["accent_lo"]};
+    border-radius: 2px;
+}}
+QSlider::handle:horizontal {{
+    background: {P["accent"]};
+    width: 16px;
+    height: 16px;
+    margin: -6px 0;
+    border-radius: 8px;
+}}
+QSlider::handle:horizontal:hover {{
+    background: {P["accent_hi"]};
+}}
+QSlider::groove:vertical {{
+    width: 4px;
+    background: {P["border"]};
+    border-radius: 2px;
+}}
+QSlider::handle:vertical {{
+    background: {P["accent"]};
+    width: 16px;
+    height: 16px;
+    margin: 0 -6px;
+    border-radius: 8px;
+}}
+QSlider::handle:vertical:hover {{
+    background: {P["accent_hi"]};
+}}
+
+/* -----------------------------------------------------------------
  *  Typography helpers — pair each role with weight + tracking
  * ----------------------------------------------------------------- */
 QLabel#Hero {{
@@ -799,13 +838,16 @@ QLabel#ChatBubbleAssistant {{
  * ----------------------------------------------------------------- */
 QWidget#ConsolePanel {{
     background-color: {P["surface_alt"]};
+    border: 1px solid {P["border_soft"]};
     border-radius: {R["md"]}px;
 }}
+/* Transparent so the panel's rounded surface shows through at the corners
+   (a solid child background would square them off). */
 QWidget#ConsoleHolder {{
-    background-color: {P["surface_alt"]};
+    background-color: transparent;
 }}
 QScrollArea#ConsoleScroll {{
-    background-color: {P["surface_alt"]};
+    background-color: transparent;
     border: none;
 }}
 QFrame#ConsoleTopicBar {{
