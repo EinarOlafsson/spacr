@@ -326,6 +326,20 @@ class _ChatInput(QTextEdit):
             return
         super().keyPressEvent(event)
 
+    def canInsertFromMimeData(self, source) -> bool:
+        """Reject file/URL drops. A plain QTextEdit answers yes to a dropped file and
+        then tries to read it into the text buffer — which freezes the whole app when
+        the file (or folder) is large. Datasets belong on the app's dropzone, not the
+        chat box, so only real text is insertable here."""
+        if source.hasUrls():
+            return False
+        return super().canInsertFromMimeData(source)
+
+    def insertFromMimeData(self, source) -> None:
+        if source.hasUrls():
+            return                       # ignore dropped files; never read them in here
+        super().insertFromMimeData(source)
+
 
 # ---------------------------------------------------------------------------
 # The panel

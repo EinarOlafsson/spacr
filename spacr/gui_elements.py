@@ -5021,32 +5021,6 @@ class AnnotateApp:
             label.config(image=photo)
             self.root.update()
 
-        def on_image_click_v1(event):
-            """Legacy click handler: left=1, right=2, middle clears (unused)."""
-            new_annotation = 1 if event.num == 1 else (2 if event.num == 3 else None)
-
-            original_path = self.adjusted_to_original_paths.get(path, path)
-
-            if original_path in self.pending_updates and self.pending_updates[original_path] == new_annotation:
-                self.pending_updates[original_path] = None
-                new_annotation = None
-            else:
-                self.pending_updates[original_path] = new_annotation
-
-            print(f"Image {os.path.split(path)[1]} annotated: {new_annotation}")
-
-            # Remove existing 5px border then reapply with new color (if any)
-            img_ = img.crop((5, 5, img.width - 5, img.height - 5))
-            border_fill = self._label_to_color(new_annotation)
-
-            if border_fill:
-                img_ = ImageOps.expand(img_, border=5, fill=border_fill)
-
-            photo = ImageTk.PhotoImage(img_)
-            self.images[label] = photo
-            label.config(image=photo)
-            self.root.update()
-
         return on_image_click
 
     @staticmethod

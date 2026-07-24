@@ -1376,9 +1376,6 @@ def measure_crop(settings):
                     mask_channels = [settings['nucleus_mask_dim'], settings['pathogen_mask_dim'], settings['cell_mask_dim']]
                     object_types = ['nucleus', 'pathogen', 'cell']
                     _timelapse_masks_to_gif(folder_path, mask_channels, object_types)
-                    
-            if settings['delete_intermediate']:
-                delete_intermedeate_files(settings)
 
             print("Successfully completed run")
 
