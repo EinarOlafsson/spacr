@@ -272,6 +272,7 @@ class _PreviewWorker(QThread):
     """Runs one (or two) Cellpose passes in the background."""
 
     finished_masks = Signal(object, str)   # ({obj: mask, ...} or None, err)
+    flows_ready = Signal(object)           # {obj: flow_rgb} (may be empty)
 
     def __init__(self, request: PreviewRequest, parent=None):
         super().__init__(parent)
@@ -279,8 +280,15 @@ class _PreviewWorker(QThread):
 
     def run(self):
         try:
-            masks = _segment_multi(self._request)
+            res = _segment_multi(self._request)
+            # _segment_multi may return masks only (the stubbed test path) or
+            # (masks, flows). Handle both.
+            if isinstance(res, tuple):
+                masks, flows = res
+            else:
+                masks, flows = res, {}
             self.finished_masks.emit(masks, "")
+            self.flows_ready.emit(flows or {})
         except Exception as e:
             LOG.info("live-preview segmentation failed: %s", e,
                        exc_info=True)
@@ -312,6 +320,7 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
             gpu=gpu, model_type=req.model, device=None)
 
     out: Dict[str, np.ndarray] = {}
+    flows_out: Dict[str, np.ndarray] = {}
     for obj in req.object_types:
         ch_idx = req.channels.get(obj, 0)
         image_2d = _select_channel(req.image, ch_idx)
@@ -333,11 +342,22 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
             mask = mask[0]
         mask = np.asarray(mask).astype(np.int32)
 
+        # Capture the RGB flow visualisation (flows[0]) if Cellpose returned
+        # one, so the panel can show a Flows view alongside the masks.
+        try:
+            flows = result[1]
+            flow_rgb = flows[0] if isinstance(flows, (list, tuple)) else flows
+            if isinstance(flow_rgb, list):
+                flow_rgb = flow_rgb[0]
+            flows_out[obj] = np.asarray(flow_rgb)
+        except Exception:
+            pass
+
         # Return the RAW (unfiltered) mask — the panel applies the per-
         # compartment filters afterwards so the user can re-tune filters
         # without re-running Cellpose (see LivePreviewPanel._recompute_masks).
         out[obj] = mask
-    return out
+    return out, flows_out
 
 
 def _select_channel(image: np.ndarray, ch: int) -> np.ndarray:
@@ -516,6 +536,7 @@ class LivePreviewPanel(QWidget):
         self._image_path: Optional[Path] = None
         self._masks: Dict[str, np.ndarray] = {}
         self._raw_masks: Dict[str, np.ndarray] = {}
+        self._flows: Dict[str, np.ndarray] = {}
         self._settings: Dict[str, Any] = {}
         self._worker: Optional[_PreviewWorker] = None
         self._pre_on = False
@@ -677,9 +698,19 @@ class LivePreviewPanel(QWidget):
         self._run_btn.clicked.connect(self.run_preview)
         self._live_settings_btn = QPushButton("Live settings…", self)
         self._live_settings_btn.clicked.connect(self.open_live_settings)
+        # What the right-hand canvas shows: outline overlay, the raw label
+        # mask, or the Cellpose flow field.
+        self._view_mode = QComboBox(self)
+        self._view_mode.addItems(["Overlay", "Masks", "Flows"])
+        self._view_mode.setToolTip(
+            "Right canvas: outline overlay · label masks · Cellpose flows")
+        self._view_mode.currentTextChanged.connect(
+            lambda *_: self._refresh_canvases())
         self._status = QLabel("", self)
         act.addWidget(self._run_btn)
         act.addWidget(self._live_settings_btn)
+        act.addWidget(QLabel("View:", self))
+        act.addWidget(self._view_mode)
         act.addWidget(self._status, 1)
         root.addLayout(act)
 
@@ -832,6 +863,7 @@ class LivePreviewPanel(QWidget):
         self._status.setText("Running preview…")
         worker = _PreviewWorker(req, self)
         worker.finished_masks.connect(self._on_worker_done)
+        worker.flows_ready.connect(self._on_flows_ready)
         worker.finished.connect(worker.deleteLater)
         self._worker = worker
         worker.start()
@@ -994,7 +1026,15 @@ class LivePreviewPanel(QWidget):
         src_pix = numpy_to_qpixmap(
             _to_uint8(self._image, normalise=norm, lo_pct=lo, hi_pct=hi))
         self._src_view.set_pixmap(src_pix)
-        if self._masks:
+
+        mode = self._view_mode.currentText() if hasattr(self, "_view_mode") else "Overlay"
+        if mode == "Flows" and self._flows:
+            self._mask_view.set_pixmap(numpy_to_qpixmap(
+                self._flows_rgb()))
+        elif mode == "Masks" and self._masks:
+            self._mask_view.set_pixmap(numpy_to_qpixmap(
+                self._label_rgb()))
+        elif self._masks:   # Overlay (default)
             overlay = overlay_masks(
                 self._image, self._masks,
                 outline_rgb=self._outline_rgb(),
@@ -1003,6 +1043,46 @@ class LivePreviewPanel(QWidget):
             self._mask_view.set_pixmap(numpy_to_qpixmap(overlay))
         else:
             self._mask_view.set_pixmap(src_pix)
+
+    def _on_flows_ready(self, flows) -> None:
+        """Store the per-object Cellpose flow RGB images from a preview run."""
+        self._flows = flows or {}
+        if hasattr(self, "_view_mode") and self._view_mode.currentText() == "Flows":
+            self._refresh_canvases()
+
+    def _label_rgb(self) -> np.ndarray:
+        """Render the current label masks as a distinct-colour image (0 = black)."""
+        h, w = self._image.shape[:2]
+        out = np.zeros((h, w, 3), dtype=np.uint8)
+        for obj, mask in self._masks.items():
+            if mask is None or mask.shape[:2] != (h, w):
+                continue
+            base = np.array(OBJECT_COLORS.get(obj, (200, 200, 200)), dtype=np.uint8)
+            # Vary brightness a little per label so neighbours are separable.
+            labels = mask.astype(np.int64)
+            present = labels > 0
+            if not present.any():
+                continue
+            shade = (0.5 + 0.5 * ((labels % 7) / 6.0)).astype(np.float32)
+            for c in range(3):
+                out[..., c] = np.where(
+                    present,
+                    np.clip(base[c] * shade, 0, 255).astype(np.uint8),
+                    out[..., c])
+        return out
+
+    def _flows_rgb(self) -> np.ndarray:
+        """Combine per-object flow RGB images (first available / max-blend)."""
+        imgs = [np.asarray(f) for f in self._flows.values()
+                if f is not None and np.asarray(f).ndim == 3]
+        if not imgs:
+            h, w = self._image.shape[:2]
+            return np.zeros((h, w, 3), dtype=np.uint8)
+        out = imgs[0].astype(np.uint8)
+        for f in imgs[1:]:
+            if f.shape == out.shape:
+                out = np.maximum(out, f.astype(np.uint8))
+        return out[..., :3]
 
     def _on_model_or_object_changed(self, *_):
         """Refresh visibility state — no visible-widget mutation on
