@@ -222,15 +222,18 @@ def test_plot_generate_mask_random_cmap_scaled_to_object_count():
 # spacr.utils: more pure helpers
 # ===========================================================================
 
-def test_utils_get_files_from_dir_has_broken_glob_import():
-    """Regression: spacr.utils.get_files_from_dir tries to call the
-    `glob` module as a function (`return glob(...)`), which throws
-    `TypeError: 'module' object is not callable`. Document the bug via
-    a xfail assertion — the test will start failing (in a good way) when
-    the module import is corrected to `from glob import glob`."""
+def test_utils_get_files_from_dir_globs(tmp_path):
+    """Regression (now fixed): get_files_from_dir previously called the
+    `glob` module as a function (`return glob(...)`), raising
+    `TypeError: 'module' object is not callable`. It now correctly uses
+    `glob.glob` and returns the matching paths."""
     from spacr.utils import get_files_from_dir
-    with pytest.raises(TypeError, match="module.*not callable"):
-        get_files_from_dir("/tmp", file_extension="*.tif")
+    (tmp_path / "a.tif").write_bytes(b"")
+    (tmp_path / "b.tif").write_bytes(b"")
+    (tmp_path / "c.txt").write_bytes(b"")
+    out = get_files_from_dir(str(tmp_path), file_extension="*.tif")
+    assert len(out) == 2
+    assert all(p.endswith(".tif") for p in out)
 
 
 def test_utils_calculate_shortest_distance_zero_for_same_point():
