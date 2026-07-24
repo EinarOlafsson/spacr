@@ -457,3 +457,48 @@ class TestCompartmentSettings:
         s = p.settings_for_propagation()
         assert s["organelle_min_area"] == 555
         assert s["organelle_intensity_threshold_method"] == "percentile"
+
+
+class TestViewModes:
+    """Right-canvas view modes: Overlay / Masks / Flows."""
+
+    def _panel_with_image(self, qtbot):
+        from spacr.qt.widgets.live_preview import LivePreviewPanel
+        p = LivePreviewPanel()
+        qtbot.addWidget(p)
+        p._image = np.random.RandomState(0).randint(
+            0, 255, (32, 32), dtype=np.uint16)
+        return p
+
+    def test_view_mode_options(self, qtbot):
+        p = self._panel_with_image(qtbot)
+        opts = [p._view_mode.itemText(i) for i in range(p._view_mode.count())]
+        assert opts == ["Overlay", "Masks", "Flows"]
+
+    def test_masks_mode_renders_label_rgb(self, qtbot):
+        p = self._panel_with_image(qtbot)
+        mask = np.zeros((32, 32), np.int32)
+        mask[4:10, 4:10] = 1
+        mask[20:26, 20:26] = 2
+        p._masks = {"cell": mask}
+        rgb = p._label_rgb()
+        assert rgb.shape == (32, 32, 3)
+        assert rgb.max() > 0                       # objects coloured
+        assert (rgb[0, 0] == 0).all()              # background stays black
+
+    def test_flows_ready_stores_and_flows_rgb(self, qtbot):
+        p = self._panel_with_image(qtbot)
+        flow = np.random.RandomState(1).randint(
+            0, 255, (32, 32, 3), dtype=np.uint8)
+        p._on_flows_ready({"cell": flow})
+        assert "cell" in p._flows
+        assert np.array_equal(p._flows_rgb(), flow)
+
+    def test_switch_modes_no_crash(self, qtbot):
+        p = self._panel_with_image(qtbot)
+        mask = np.zeros((32, 32), np.int32); mask[4:10, 4:10] = 1
+        p._masks = {"cell": mask}
+        p._flows = {"cell": np.zeros((32, 32, 3), np.uint8)}
+        for m in ("Overlay", "Masks", "Flows"):
+            p._view_mode.setCurrentText(m)
+            p._refresh_canvases()   # must not raise
