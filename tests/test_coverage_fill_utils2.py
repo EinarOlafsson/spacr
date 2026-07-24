@@ -240,3 +240,97 @@ def test_split_data():
     # area columns are summed, intensity averaged
     assert isinstance(numeric, pd.DataFrame)
     assert "cell_area" in numeric.columns
+
+
+# ---------------------------------------------------------------------------
+# boundary / perimeter helpers
+# ---------------------------------------------------------------------------
+
+def _adjacent_labels(size=16):
+    m = np.zeros((size, size), dtype=np.int32)
+    m[2:12, 2:8] = 1     # left block
+    m[2:12, 8:14] = 2    # right block — touches label 1 along column 8
+    return m
+
+
+def test_compute_label_perimeters():
+    m = _adjacent_labels()
+    per = U._compute_label_perimeters(m)
+    assert 1 in per and 2 in per and per[1] > 0
+
+
+def test_compute_shared_boundaries_and_coords():
+    m = _adjacent_labels()
+    shared = U._compute_shared_boundaries(m)
+    assert (1, 2) in shared and shared[(1, 2)] > 0
+    coords = U._get_boundary_coords(m, 1, 2)
+    assert len(coords) > 0
+
+
+def test_merge_by_perimeter():
+    m = _adjacent_labels()
+    parent = {1: 1, 2: 2}
+    U._merge_by_perimeter(m, perimeter_fraction=0.01, parent=parent)
+    # low threshold → the two touching labels get merged
+    assert U._union_find_root(parent, 1) == U._union_find_root(parent, 2)
+
+
+def test_merge_by_intensity():
+    m = _adjacent_labels()
+    intensity = np.ones((16, 16), dtype=np.float32)   # uniform → boundary>=ref
+    parent = {1: 1, 2: 2}
+    U._merge_by_intensity(m, intensity, parent,
+                          intensity_threshold_method="mean")
+    assert U._union_find_root(parent, 1) == U._union_find_root(parent, 2)
+    # percentile method path
+    parent2 = {1: 1, 2: 2}
+    U._merge_by_intensity(m, intensity, parent2,
+                          intensity_threshold_method="percentile",
+                          intensity_percentile=50)
+    assert U._union_find_root(parent2, 1) == U._union_find_root(parent2, 2)
+
+
+def test_split_by_watershed():
+    # a dumbbell: two blobs joined by a thin neck → one big object to split
+    m = np.zeros((40, 80), dtype=np.int32)
+    yy, xx = np.ogrid[:40, :80]
+    m[(xx - 20) ** 2 + (yy - 20) ** 2 < 150] = 1
+    m[(xx - 60) ** 2 + (yy - 20) ** 2 < 150] = 1
+    m[18:22, 20:60] = 1   # neck
+    out = U._split_by_watershed(m, area_multiplier=0.1, min_distance=5,
+                                min_object_area=10)
+    assert out.max() >= 1
+
+
+def test_split_by_watershed_empty():
+    empty = np.zeros((8, 8), dtype=np.int32)
+    assert np.array_equal(U._split_by_watershed(empty), empty)
+
+
+# ---------------------------------------------------------------------------
+# geometry helpers
+# ---------------------------------------------------------------------------
+
+def test_gen_rgb_image():
+    img = np.random.default_rng(0).random((16, 16, 4)).astype(np.float32)
+    rgb = U._gen_rgb_image(img, channels=[0, 1, 2])
+    assert rgb.shape == (16, 16, 3)
+    # out-of-range channel index is skipped gracefully
+    rgb2 = U._gen_rgb_image(img, channels=[0, 9, 2])
+    assert rgb2.shape == (16, 16, 3)
+
+
+def test_find_bounding_box():
+    mask = np.zeros((32, 32), dtype=np.int32)
+    mask[10:20, 12:18] = 7
+    out = U._find_bounding_box(mask, 7, buffer=2)
+    assert (out == 7).any()
+    ys, xs = np.where(out == 7)
+    assert ys.min() >= 8 and xs.min() >= 10   # buffered box
+
+
+def test_smooth_hull_lines():
+    rng = np.random.default_rng(1)
+    pts = rng.random((30, 2))
+    x, y = U.smooth_hull_lines(pts)
+    assert len(x) == 100 and len(y) == 100
