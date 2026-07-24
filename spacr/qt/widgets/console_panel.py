@@ -759,11 +759,15 @@ class ConsolePanel(QWidget):
     # ------------------------------------------------------------------
     # Public: Explain-error entry point (called from AppScreen)
     # ------------------------------------------------------------------
-    def open_error_flow(self, traceback_text: str, active_app: str = "") -> None:
+    def open_error_flow(self, traceback_text: str, active_app: str = "",
+                        show_raw: bool = True) -> None:
         """Send a traceback to the AI explainer and stream the reply inline.
 
         :param traceback_text: raw traceback captured from the pipeline.
         :param active_app: optional app label used in the framing prompt.
+        :param show_raw: when False, the raw traceback is NOT printed to the
+            console (only a short note); the AI still receives it in its
+            prompt, so the user can ask the AI to show the error.
         """
         from ..ai.prompts import wrap_error_for_prompt, error_explainer_prompt
         if self._current_provider() is None:
@@ -774,8 +778,13 @@ class ConsolePanel(QWidget):
         prompt = wrap_error_for_prompt(
             traceback_text, active_app or self._active_app_label
         )
+        # The AI always receives the full error; the console only echoes the
+        # raw traceback when show_raw is True.
         self._ai_messages.append({"role": "user", "content": prompt})
-        self._append_user(prompt)
+        self._append_user(
+            prompt if show_raw
+            else "An error occurred — asking spaCR AI to explain it. "
+                 "(Ask the AI to \"show the raw error\" to see the traceback.)")
         # AI reply with provider colour + cycling working dots.
         ai_color = ai_color_for_provider(self._current_provider_name)
         self._working_dots = _WorkingDots(color=ai_color)

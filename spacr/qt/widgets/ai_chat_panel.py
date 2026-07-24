@@ -204,6 +204,19 @@ class _ProvidersDialog(QDialog):
         self._auto_issue_chk.stateChanged.connect(self._on_auto_issue_changed)
         col.addWidget(self._auto_issue_chk)
 
+        # Route errors through AI (on by default) — on a pipeline error the AI
+        # explains it first; the raw traceback stays hidden unless asked.
+        self._route_errors_chk = QCheckBox(
+            "Route errors through AI — show the AI's explanation instead of "
+            "the raw traceback"
+        )
+        self._route_errors_chk.setChecked(
+            ai_settings.get_route_errors_through_ai())
+        self._route_errors_chk.stateChanged.connect(
+            lambda _s: ai_settings.set_route_errors_through_ai(
+                self._route_errors_chk.isChecked()))
+        col.addWidget(self._route_errors_chk)
+
         col.addWidget(Divider())
 
         # System prompt --------------------------------------------------

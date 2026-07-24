@@ -43,6 +43,7 @@ _SETTINGS_APP = "qt"
 _KEY_SPEED = "ai/response_speed"
 _KEY_PROMPT = "ai/system_prompt"
 _KEY_AUTO_ISSUE = "ai/auto_file_issues"
+_KEY_ROUTE_ERRORS = "ai/route_errors_through_ai"
 
 VALID_SPEEDS = ("fast", "balanced", "deep")
 DEFAULT_SPEED = "balanced"
@@ -181,3 +182,22 @@ def get_auto_file_issues() -> bool:
 def set_auto_file_issues(enabled: bool) -> None:
     """Persist the auto-issue toggle."""
     _settings().setValue(_KEY_AUTO_ISSUE, bool(enabled))
+
+
+def get_route_errors_through_ai() -> bool:
+    """Return True iff pipeline errors should be routed through the AI.
+
+    When on (the default), a pipeline error is explained by the AI first —
+    the user sees the AI's explanation + instructions, and the raw traceback
+    stays hidden unless they ask to see it. Only takes effect when AI is
+    enabled with a configured provider.
+    """
+    raw = _settings().value(_KEY_ROUTE_ERRORS, True)   # default ON
+    if isinstance(raw, bool):
+        return raw
+    return str(raw).lower() in ("true", "1", "yes")
+
+
+def set_route_errors_through_ai(enabled: bool) -> None:
+    """Persist the route-errors-through-AI toggle."""
+    _settings().setValue(_KEY_ROUTE_ERRORS, bool(enabled))
