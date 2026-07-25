@@ -1,4 +1,4 @@
-import os, re, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, cellpose, glob, queue, tifffile, czifile, atexit, datetime, readlif
+import os, re, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, cellpose, glob, queue, threading, tifffile, czifile, atexit, datetime, readlif
 import numpy as np
 import pandas as pd
 from PIL import Image, ImageOps
@@ -533,11 +533,12 @@ class spacrDataset(Dataset):
         return img, label, filename
     
 class spacrDataLoader(DataLoader):
-    """DataLoader that pre-fetches batches into a queue on a background process.
+    """DataLoader that pre-fetches batches into a queue on a background thread.
 
-    Wraps ``torch.utils.data.DataLoader`` and, when ``pin_memory`` is
-    False, spawns a worker process that stays one or more batches ahead
-    of consumption to hide I/O latency.
+    Wraps ``torch.utils.data.DataLoader`` and runs a daemon thread that
+    stays one or more batches ahead of consumption to hide I/O latency.
+    End-of-stream is signalled with a sentinel, so the full batch stream
+    is always delivered.
 
     :param preload_batches: Number of batches to keep queued ahead.
         Default ``1``.
@@ -547,33 +548,45 @@ class spacrDataLoader(DataLoader):
         """Initialise the underlying DataLoader and the preload queue."""
         super().__init__(*args, **kwargs)
         self.preload_batches = preload_batches
-        self.batch_queue = Queue(maxsize=preload_batches)
-        self.process = None
+        # NOTE: the preloader used to run in a multiprocessing.Process writing
+        # into a multiprocessing.Queue, and __next__ stopped as soon as
+        # `not process.is_alive() and queue.empty()`. Both are unreliable: an
+        # mp.Queue can still have data in flight after the child exits, and the
+        # child only ever advanced its OWN copy of the iterator. The loader
+        # therefore silently yielded a truncated stream (0 of 4 batches in
+        # testing). A daemon THREAD shares the iterator, needs no pickling, and
+        # a sentinel gives an unambiguous end-of-stream signal.
+        self.batch_queue = queue.Queue(maxsize=max(1, preload_batches))
+        self.thread = None
         self.current_batch_index = 0
         self._stop_event = False
+        self._sentinel = object()
+        self._error = None
         self.pin_memory = kwargs.get('pin_memory', False)
         atexit.register(self.cleanup)
 
-    def _preload_next_batches(self):
+    def _preload_next_batches(self, q, iterator):
+        """Feed every batch of ``iterator`` into ``q``, then a sentinel
+        marking end-of-stream.
+
+        ``q`` and ``iterator`` are passed in rather than read off ``self`` so
+        a producer started by an earlier ``__iter__`` can never write into a
+        queue created by a later one (that duplicated the whole stream).
+        """
         try:
-            for _ in range(self.preload_batches):
+            for batch in iterator:
                 if self._stop_event:
                     break
-                batch = next(self._iterator)
                 if self.pin_memory:
                     batch = self._pin_memory_batch(batch)
-                self.batch_queue.put(batch)
-        except StopIteration:
-            pass
-
-    def _start_preloading(self):
-        if self.process is None or not self.process.is_alive():
-            self._iterator = iter(super().__iter__())
-            if not self.pin_memory:
-                self.process = Process(target=self._preload_next_batches)
-                self.process.start()
-            else:
-                self._preload_next_batches()  # Directly load if pin_memory is True
+                q.put(batch)
+        except Exception as e:
+            # Hand the failure to the consumer instead of swallowing it: a
+            # collate/decode error used to look identical to "dataset is
+            # empty", which silently trains a model on no data.
+            self._error = e
+        finally:
+            q.put(self._sentinel)
 
     def _pin_memory_batch(self, batch):
         if isinstance(batch, (list, tuple)):
@@ -584,36 +597,51 @@ class spacrDataLoader(DataLoader):
             return batch
 
     def __iter__(self):
-        """Start the preloader (if not already running) and return self."""
-        self._start_preloading()
+        """Start a fresh pass over the data and return self.
+
+        Safe to call more than once (``list(iter(dl))`` calls it twice): any
+        in-flight producer is stopped first, so the stream is never doubled.
+        """
+        self.cleanup()
+        self._stop_event = False
+        self._error = None
+        self.current_batch_index = 0
+        q = queue.Queue(maxsize=max(1, self.preload_batches))
+        self.batch_queue = q
+        iterator = iter(super().__iter__())
+        self._iterator = iterator
+        self.thread = threading.Thread(
+            target=self._preload_next_batches, args=(q, iterator), daemon=True)
+        self.thread.start()
         return self
 
     def __next__(self):
-        """Return the next queued batch, or raise ``StopIteration`` when drained."""
-        if self.process and not self.process.is_alive() and self.batch_queue.empty():
-            raise StopIteration
-
+        """Return the next queued batch, or raise ``StopIteration`` at the
+        sentinel the preloader pushes when the stream is exhausted."""
         try:
-            if self.pin_memory:
-                next_batch = self.batch_queue.get(timeout=60)
-            else:
-                next_batch = self.batch_queue.get(timeout=60)
-            self.current_batch_index += 1
-
-            # Start preloading the next batches
-            if self.batch_queue.qsize() < self.preload_batches:
-                self._start_preloading()
-
-            return next_batch
+            next_batch = self.batch_queue.get(timeout=60)
         except queue.Empty:
             raise StopIteration
+        if next_batch is self._sentinel:
+            if self._error is not None:
+                err, self._error = self._error, None
+                raise err
+            raise StopIteration
+        self.current_batch_index += 1
+        return next_batch
 
     def cleanup(self):
-        """Signal the preloader to stop and join the background process."""
+        """Signal the preloader to stop and join the background thread."""
         self._stop_event = True
-        if self.process and self.process.is_alive():
-            self.process.terminate()
-            self.process.join()
+        thread = getattr(self, 'thread', None)
+        if thread is not None and thread.is_alive():
+            # Drain so a full queue can't block the producer's final put.
+            try:
+                while True:
+                    self.batch_queue.get_nowait()
+            except Exception:
+                pass
+            thread.join(timeout=5)
 
     def __del__(self):
         """Ensure background resources are released on garbage collection."""
