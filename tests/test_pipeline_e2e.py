@@ -32,11 +32,15 @@ pytestmark = [
 # ---------------------------------------------------------------------------
 
 # The pipeline reliably creates these folders on any successful run.
-# (`channel_stack` and `merged` may be created only for some pipeline
-# configurations, so they're checked in a separate optional test.)
+# NOTE: per-channel folders ("1".."4") are NOT created — since the
+# in-memory ingest rework, _rename_and_organize_image_files builds the
+# stack/ arrays straight from a channel dict without ever writing
+# per-channel sub-folders (see
+# test_real_data_image_modules.test_module_ingest_organizes_channels).
+# stack/ and masks/ only survive when keep_intermediate=True, which the
+# spacr_pipeline_run fixture sets.
 REQUIRED_TOP_LEVEL_FOLDERS = {
     "orig",         # originals moved out of the flat source dir
-    "1", "2", "3", "4",  # per-channel folders (Yokogawa channels)
     "stack",        # merged per-FOV .npy stacks
     "masks",        # {cell,nucleus,pathogen,organelle}_mask_stack subdirs
     "measurements", # measurements.db lives here
@@ -51,6 +55,15 @@ def test_pipeline_creates_required_top_level_folders(spacr_pipeline_run):
     assert not missing, f"pipeline did not create {missing}; got {subdirs}"
 
 
+def test_no_per_channel_folders_are_created(spacr_pipeline_run):
+    """Channels are merged in memory — no per-channel sub-folders on disk."""
+    src = Path(spacr_pipeline_run["src"])
+    chan_dirs = [p.name for p in src.iterdir()
+                 if p.is_dir() and p.name in {"1", "2", "3", "4"}]
+    assert not chan_dirs, (
+        f"per-channel folders should not be created; found {chan_dirs}")
+
+
 def test_orig_holds_the_raw_input_tiffs(spacr_pipeline_run):
     orig = Path(spacr_pipeline_run["src"]) / "orig"
     assert orig.exists()
@@ -59,13 +72,18 @@ def test_orig_holds_the_raw_input_tiffs(spacr_pipeline_run):
     assert len(tiffs) == 12, f"expected 12 raw TIFFs in orig/, got {len(tiffs)}"
 
 
-@pytest.mark.parametrize("chan", ["1", "2", "3", "4"])
-def test_each_channel_folder_holds_one_file_per_field(spacr_pipeline_run, chan):
-    folder = Path(spacr_pipeline_run["src"]) / chan
-    assert folder.exists()
-    tiffs = sorted(p.name for p in folder.iterdir() if p.suffix.lower() in (".tif", ".tiff"))
-    # 3 fields → 3 per-field per-channel files.
-    assert len(tiffs) == 3, f"channel {chan}: expected 3 files, got {len(tiffs)}"
+def test_stack_holds_one_array_per_field(spacr_pipeline_run):
+    """Replaces the old per-channel-folder check: the ingest step now writes
+    one multi-channel .npy per field directly into stack/."""
+    stack = Path(spacr_pipeline_run["src"]) / "stack"
+    arrays = sorted(p for p in stack.iterdir() if p.suffix == ".npy")
+    n_fields = spacr_pipeline_run["n_input_fields"]
+    assert len(arrays) == n_fields, (
+        f"expected {n_fields} per-field stacks, got {len(arrays)}")
+    # Each stack carries all 4 acquired channels.
+    import numpy as np
+    arr = np.load(arrays[0])
+    assert arr.ndim == 3 and arr.shape[2] >= 4, f"unexpected stack shape {arr.shape}"
 
 
 def test_stack_folder_contains_npy_arrays(spacr_pipeline_run):

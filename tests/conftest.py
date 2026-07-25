@@ -666,6 +666,10 @@ def spacr_pipeline_run(tmp_path_factory, hf_toxo_mito_multi_fields):
         "plot": False, "verbose": False, "test_mode": False, "timelapse": False,
         "n_jobs": 1, "adjust_cells": False, "delete_intermediate": False,
         "all_to_mip": False,
+        # The e2e tests inspect the intermediate stack/ and masks/ folders.
+        # Those are deleted once merged/ is built unless keep_intermediate is
+        # set (default False since 1.4.6), so opt in here.
+        "keep_intermediate": True, "keep_original_images": True,
     })
 
     try:

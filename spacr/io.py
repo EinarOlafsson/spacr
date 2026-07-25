@@ -1324,7 +1324,10 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
                 save_loc = os.path.join(output_fldr, f'{name}_norm_timelapse.npz')
                 np.savez_compressed(save_loc, data=normalized_stack, filenames=filenames_region)
                 
-                if i == 0:
+                # Only plot when the user asked for it: an interactive
+                # matplotlib backend makes plt.show() block, which would hang
+                # the whole pipeline in a script/terminal run.
+                if i == 0 and settings.get('plot'):
                     plot_arrays(save_loc, settings['figuresize'], settings['cmap'], nr=settings['nr'], normalize=False)
                 
                 print(save_loc)
@@ -1388,7 +1391,9 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
                 # smaller (np.load reads it transparently); it's deleted with
                 # masks/ after merged/ is built unless keep_intermediate is set.
                 np.savez_compressed(save_loc, data=normalized_stack, filenames=filenames_batch)
-                if batch_index == 0:
+                # Gated on settings['plot'] — see the timelapse branch above:
+                # an interactive backend blocks the pipeline on plt.show().
+                if batch_index == 0 and settings.get('plot'):
                     print(f"plotting: {save_loc}")
                     plot_arrays(save_loc, settings['figuresize'], settings['cmap'], nr=settings['nr'], normalize=False)
                 
