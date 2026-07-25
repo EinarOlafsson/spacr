@@ -194,8 +194,13 @@ def generate_cellpose_masks_sam(src, settings, object_type):
         display(settings_df)
         
     figuresize=10
-    timelapse = settings['timelapse']
-    
+    # `timelapse` is no longer offered by the Mask module's settings panel —
+    # it belongs to the Timelapse module (spacr.core.preprocess_generate_masks_timelapse).
+    # It is still defaulted by set_default_settings_preprocess_generate_masks and
+    # still honoured here, so old settings CSVs and direct API calls keep working;
+    # .get() keeps a hand-built dict from raising instead of segmenting.
+    timelapse = settings.get('timelapse', False)
+
     if timelapse:
         timelapse_displacement = settings['timelapse_displacement']
         timelapse_frame_limits = settings['timelapse_frame_limits']
@@ -258,7 +263,7 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                     print(f"File {filename} already exists in the output folder. Skipping...")
                     continue
                 
-        if settings['timelapse']:
+        if timelapse:
             trackable_objects = ['cell','nucleus','pathogen']
             if not all_elements_match(settings['timelapse_objects'], trackable_objects):
                 print(f'timelapse_objects {settings["timelapse_objects"]} must be a subset of {trackable_objects}')
@@ -387,6 +392,10 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                 _save_object_counts_to_database(masks, object_type, batch_filenames, count_loc, added_string='_before_filtration')
                 mask_stack = _masks_to_masks_stack(masks)
         
+            # Legacy inline hook: the automated motility assay is now the
+            # standalone Motility Assay module (app key 'motility'), so the
+            # Mask GUI no longer exposes `motility_analysis`. The gate stays
+            # for settings CSVs and API callers that still set both flags.
             if timelapse and settings.get("motility_analysis", False):
                 from .timelapse import automated_motility_assay
                 _ = automated_motility_assay(settings)
@@ -456,8 +465,13 @@ def generate_cellpose_masks(src, settings, object_type):
         display(settings_df)
         
     figuresize=10
-    timelapse = settings['timelapse']
-    
+    # `timelapse` is no longer offered by the Mask module's settings panel —
+    # it belongs to the Timelapse module (spacr.core.preprocess_generate_masks_timelapse).
+    # It is still defaulted by set_default_settings_preprocess_generate_masks and
+    # still honoured here, so old settings CSVs and direct API calls keep working;
+    # .get() keeps a hand-built dict from raising instead of segmenting.
+    timelapse = settings.get('timelapse', False)
+
     if timelapse:
         timelapse_displacement = settings['timelapse_displacement']
         timelapse_frame_limits = settings['timelapse_frame_limits']
@@ -537,7 +551,7 @@ def generate_cellpose_masks(src, settings, object_type):
                     print(f"File {filename} already exists in the output folder. Skipping...")
                     continue
         
-        if settings['timelapse']:
+        if timelapse:
 
             trackable_objects = ['cell','nucleus','pathogen']
             if not all_elements_match(settings['timelapse_objects'], trackable_objects):
@@ -677,6 +691,10 @@ def generate_cellpose_masks(src, settings, object_type):
                 else:
                     mask_stack = _masks_to_masks_stack(masks)
         
+            # Legacy inline hook: the automated motility assay is now the
+            # standalone Motility Assay module (app key 'motility'), so the
+            # Mask GUI no longer exposes `motility_analysis`. The gate stays
+            # for settings CSVs and API callers that still set both flags.
             if timelapse and settings.get("motility_analysis", False):
                 from .timelapse import automated_motility_assay
                 _ = automated_motility_assay(settings)

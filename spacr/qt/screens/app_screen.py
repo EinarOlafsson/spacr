@@ -109,6 +109,8 @@ SECTION_HINTS = {
 
 APP_TITLES = {
     "mask":            "Mask Generation",
+    "timelapse":       "Timelapse",
+    "motility":        "Motility Assay",
     "measure":         "Measure",
     "classify":        "Classify (CV)",
     "umap":            "Image UMAP",
@@ -129,6 +131,8 @@ APP_TITLES = {
 # Short "what this module does" blurbs shown to the right of the header.
 APP_INTROS = {
     "mask":            "Segment cells, nuclei, pathogens and organelles with Cellpose and build the merged image+mask arrays.",
+    "timelapse":       "Segment each frame of a time series and link objects across frames into tracks, then export per-channel movies.",
+    "motility":        "Rebuild per-frame tracks, score velocity and straightness per object, and split them by infection state.",
     "measure":         "Extract per-object intensity + morphology features from masks and write them to the measurements database.",
     "annotate":        "Review single-object image crops on a grid and label them; annotations save back to the database.",
     "classify":        "Train and test Torch computer-vision models (CNNs / transformers) to classify single-object images.",
@@ -1032,8 +1036,40 @@ class AppScreen(QWidget):
                 self._console.append_stdout(
                     f"Loaded {applied} settings from {path}\n"
                 )
+                self._warn_about_moved_settings(loaded)
         except Exception as e:
             QMessageBox.warning(self, "Import failed", str(e))
+
+    @staticmethod
+    def _truthy(val) -> bool:
+        """Interpret a CSV-loaded value as a boolean (values arrive as strings)."""
+        if isinstance(val, str):
+            return val.strip().lower() in ("true", "1", "yes")
+        return bool(val)
+
+    def _warn_about_moved_settings(self, loaded: dict) -> None:
+        """Tell the user, in the console, when an imported CSV enables a
+        setting this module no longer owns.
+
+        Timelapse and the automated motility assay left the Mask module for
+        modules of their own; an old mask CSV with ``timelapse=True`` would
+        otherwise be applied minus that flag with nothing to show for it.
+        Console text, never a modal — a QMessageBox here would hang headless
+        runs.
+        """
+        if self.app_key != "mask":
+            return
+        notes = []
+        if self._truthy(loaded.get("timelapse", False)):
+            notes.append(
+                "timelapse=True was ignored — tracking now lives in the "
+                "Timelapse module (sidebar > Core > Timelapse).")
+        if self._truthy(loaded.get("motility_analysis", False)):
+            notes.append(
+                "motility_analysis=True was ignored — the assay now lives in "
+                "the Motility Assay module (sidebar > Core > Motility Assay).")
+        for note in notes:
+            self._console.append_stdout(f"[settings] {note}\n")
 
     def apply_settings_dict(self, settings: dict) -> int:
         """Push key/value pairs from `settings` into whichever settings

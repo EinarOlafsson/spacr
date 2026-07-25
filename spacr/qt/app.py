@@ -93,6 +93,8 @@ APPS = [
     # (key, human name, description, section)
     # -- Core: the main end-to-end screening workflow --
     ("mask",           "Mask",           "Generate cellpose masks for cells, nuclei and pathogens",   "Core"),
+    ("timelapse",      "Timelapse",      "Segment and track objects across the frames of a time series", "Core"),
+    ("motility",       "Motility Assay", "Automated motility assay: track velocity + infection QC",     "Core"),
     ("measure",        "Measure",        "Measure single-object intensity + morphology features",       "Core"),
     ("annotate",       "Annotate",       "Annotate single-object images on a grid; save to database",  "Core"),
     ("classify",       "Classify (CV)",  "Train Torch CNNs/Transformers to classify single objects",   "Core"),
@@ -119,6 +121,8 @@ _ICON_OVERRIDES = {
     "analyze_plaques": "plaque.png",
     "queue":           "sequencing.png",   # closest visual match for now
     "train_cellpose":  "cellpose_masks.png",  # share the Cellpose Masks icon
+    "timelapse":       "convert.png",      # cyclic arrows read as "over time"
+    "motility":        "recruitment.png",  # closest "things moving" glyph
 }
 
 # Keys that render their qtawesome glyph instead of a bundled PNG.
@@ -380,7 +384,10 @@ class MainWindow(QMainWindow):
         "measure":   ("measure",    "generate_measure_demo"),
         "crop":      ("measure",    "generate_crop_demo"),
         "classify":  ("annotate",   "generate_classify_demo"),
-        "timelapse": ("mask",       "generate_timelapse_demo"),
+        # The timelapse demo writes a settings CSV with timelapse=True; the
+        # Mask module no longer has a widget for that key, so it has to land
+        # in the Timelapse module or the flag would be silently dropped.
+        "timelapse": ("timelapse",  "generate_timelapse_demo"),
         "map_barcodes": ("map_barcodes", "generate_map_barcodes_demo"),
     }
 

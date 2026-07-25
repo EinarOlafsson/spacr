@@ -217,6 +217,12 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
         if app_key == "mask":
             from spacr.core import preprocess_generate_masks
             return log_call(preprocess_generate_masks)
+        if app_key == "timelapse":
+            from spacr.core import preprocess_generate_masks_timelapse
+            return log_call(preprocess_generate_masks_timelapse)
+        if app_key == "motility":
+            from spacr.timelapse import automated_motility_assay
+            return log_call(automated_motility_assay)
         if app_key == "measure":
             from spacr.measure import measure_crop
             return log_call(measure_crop)
