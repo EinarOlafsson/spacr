@@ -6810,9 +6810,11 @@ def generate_cytoplasm_mask(nucleus_mask, cell_mask):
     nucleus_mask = np.array(nucleus_mask)
     cell_mask = np.array(cell_mask)
     
-    # Generate cytoplasm mask
-    cytoplasm_mask = np.where(np.logical_or(nucleus_mask != 0), 0, cell_mask)
-    
+    # Generate cytoplasm mask: everything inside the cell that is not nucleus.
+    # NOTE: this used to read np.logical_or(nucleus_mask != 0) — logical_or
+    # needs TWO operands, so the function raised TypeError on every call.
+    cytoplasm_mask = np.where(nucleus_mask != 0, 0, cell_mask)
+
     return cytoplasm_mask
 
 def add_column_to_database(settings):
