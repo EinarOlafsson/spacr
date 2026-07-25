@@ -446,9 +446,498 @@ def load_run_settings(run_dir: Path) -> Dict[str, Any]:
     c = run_dir / "settings.csv"
     if not c.exists():
         raise FileNotFoundError(f"no settings in {run_dir}")
+    return _read_settings_csv(c)
+
+
+def _read_settings_csv(path: Path) -> Dict[str, Any]:
+    """Parse a ``Key,Value`` settings CSV into a plain dict."""
     out: Dict[str, Any] = {}
-    with open(c) as f:
+    with open(path) as f:
         for row in csv.reader(f):
             if row and row[0] and row[0] != "Key":
                 out[row[0]] = row[1] if len(row) > 1 else ""
     return out
+
+
+# ---------------------------------------------------------------------------
+# Provenance diff — "what actually changed between run A and run B?"
+# ---------------------------------------------------------------------------
+#
+# Why this is not a plain key-by-key dict diff: spaCR's settings schema
+# moves between releases. Diffing a run recorded on 1.4.3.7 (204 keys)
+# against one recorded on 1.4.8.7 (38 keys) turns up ~196 "differences",
+# of which *zero* are decisions the user made — they are keys that simply
+# did not exist on one side. The signal (a knob the user turned) drowns
+# in schema drift. So the diff buckets keys by presence first and only
+# calls a key "changed" when it exists in BOTH runs.
+
+# Strings that stand in for "unset" once a value has round-tripped
+# through CSV (``None`` is written as an empty cell) or through
+# ``json.dumps(..., default=str)``.
+_NULLISH_STRINGS = frozenset({"", "none", "null"})
+
+_LITERAL_LEAD = "([{'\"-+.0123456789"
+
+
+def _normalize_value(v: Any, _depth: int = 0) -> Any:
+    """Canonicalise a settings value so equal *meanings* compare equal.
+
+    Settings reach the journal by several routes (a live Python dict, a
+    JSON round-trip with ``default=str``, a ``Key,Value`` CSV where every
+    cell is a string), so the same setting can be recorded as ``[0, 1, 2]``
+    in one run and ``"[0, 1, 2]"`` in another. Comparing by ``repr`` would
+    flag that as a change; it is not one.
+
+    Normalisation applied, in order:
+
+    * ``None`` stays ``None``; ``bool`` stays ``bool``.
+    * ``float('nan')`` → the sentinel ``"<nan>"`` (so NaN == NaN, since
+      IEEE NaN compares unequal to itself and would report a phantom
+      change on every diff).
+    * anything with ``.tolist()`` (numpy arrays / scalars) is converted
+      to plain Python first.
+    * :class:`~pathlib.Path` → ``str``.
+    * ``str`` → stripped; ``""`` / ``"none"`` / ``"null"``
+      (case-insensitive) → ``None``; ``"true"`` / ``"false"`` → ``bool``;
+      otherwise, if it looks like a Python literal, it is parsed with
+      :func:`ast.literal_eval` and normalised recursively, so
+      ``"[0, 1, 2]" == [0, 1, 2]`` and ``"3" == 3``. Un-parseable strings
+      are returned as-is.
+    * ``list`` / ``tuple`` → tuple of normalised elements (so a list and
+      a tuple of the same contents compare equal).
+    * ``dict`` → tuple of ``(str(key), normalised value)`` sorted by key.
+    * ``set`` / ``frozenset`` → frozenset of normalised elements.
+
+    Recursion is capped at eight levels; deeper structures fall back to
+    ``repr`` so a self-referential settings value cannot hang the diff.
+    """
+    if _depth > 8:
+        return repr(v)
+    if v is None or isinstance(v, bool):
+        return v
+    if isinstance(v, float):
+        return "<nan>" if v != v else v
+    if isinstance(v, str):
+        return _normalize_str(v, _depth)
+    if isinstance(v, Path):
+        return str(v)
+    tolist = getattr(v, "tolist", None)
+    if callable(tolist):
+        try:
+            return _normalize_value(tolist(), _depth + 1)
+        except Exception:
+            return repr(v)
+    if isinstance(v, dict):
+        try:
+            return tuple(sorted(
+                (str(k), _normalize_value(val, _depth + 1))
+                for k, val in v.items()
+            ))
+        except Exception:
+            return tuple(
+                (str(k), _normalize_value(val, _depth + 1))
+                for k, val in v.items()
+            )
+    if isinstance(v, (list, tuple)):
+        return tuple(_normalize_value(x, _depth + 1) for x in v)
+    if isinstance(v, (set, frozenset)):
+        try:
+            return frozenset(_normalize_value(x, _depth + 1) for x in v)
+        except Exception:
+            return repr(v)
+    return v
+
+
+def _normalize_str(s: str, depth: int = 0) -> Any:
+    """String half of :func:`_normalize_value` (see its docstring)."""
+    t = s.strip()
+    low = t.lower()
+    if low in _NULLISH_STRINGS:
+        return None
+    if low == "true":
+        return True
+    if low == "false":
+        return False
+    if len(t) <= 4096 and t[0] in _LITERAL_LEAD:
+        try:
+            import ast
+            return _normalize_value(ast.literal_eval(t), depth + 1)
+        except Exception:
+            pass
+    return t
+
+
+def values_equal(a: Any, b: Any) -> bool:
+    """True when ``a`` and ``b`` mean the same thing.
+
+    Compares :func:`_normalize_value` output structurally, falling back
+    to a ``repr`` comparison for exotic values whose ``__eq__`` refuses
+    to produce a bool (numpy-style elementwise comparison, etc.) — and
+    to "not equal" if even that blows up. A settings comparison must
+    never be the thing that raises.
+    """
+    try:
+        return bool(_normalize_value(a) == _normalize_value(b))
+    except Exception:
+        pass
+    try:
+        return repr(a) == repr(b)
+    except Exception:
+        return False
+
+
+def resolve_run_dir(ref: Any) -> Path:
+    """Turn a run reference into a run-folder :class:`~pathlib.Path`.
+
+    Accepts, in order of preference:
+
+    * a :class:`Run` object (uses its ``dir``),
+    * a path (``str`` / ``Path``) to an existing run folder,
+    * a run-id — the folder basename, e.g.
+      ``"2026-07-23_214737_b66bae6b__mask"`` — resolved under
+      :func:`runs_root`,
+    * an unambiguous *prefix* of a run-id (``"2026-07-23_2147"``), handy
+      from a shell.
+
+    :raises FileNotFoundError: when nothing matches, or when a prefix
+        matches more than one run.
+    """
+    if isinstance(ref, Run):
+        return Path(ref.dir)
+    if ref is not None:
+        try:
+            p = Path(ref)
+        except TypeError:
+            p = None
+        if p is not None and p.is_dir():
+            return p
+        name = str(ref).strip().rstrip("/")
+        if name and os.sep not in name:
+            root = runs_root()
+            cand = root / name
+            if cand.is_dir():
+                return cand
+            try:
+                matches = sorted(
+                    d for d in root.iterdir()
+                    if d.is_dir() and d.name.startswith(name)
+                )
+            except Exception:
+                matches = []
+            if len(matches) == 1:
+                return matches[0]
+            if len(matches) > 1:
+                raise FileNotFoundError(
+                    f"run id {name!r} is ambiguous — matches {len(matches)} "
+                    f"runs ({', '.join(m.name for m in matches[:3])}…)"
+                )
+    raise FileNotFoundError(f"no such run: {ref!r}")
+
+
+def _read_run_record(ref: Any) -> Dict[str, Any]:
+    """Best-effort read of one run folder.
+
+    Never raises for a *malformed* run — a half-written folder left by a
+    crashed pipeline (``status="running"``, no manifest yet) is a real,
+    common case and must still diff. Problems are collected into
+    ``["errors"]`` instead. A run folder that does not exist at all is a
+    caller mistake, and :func:`resolve_run_dir` still raises for it.
+    """
+    d = resolve_run_dir(ref)
+    rec: Dict[str, Any] = {
+        "dir": d, "settings": {}, "manifest": {}, "errors": [],
+    }
+
+    # -- settings ----------------------------------------------------------
+    try:
+        rec["settings"] = load_run_settings(d) or {}
+    except FileNotFoundError:
+        rec["errors"].append("no settings.json / settings.csv in run folder")
+    except Exception as e:
+        # settings.json exists but is unreadable — try the CSV twin
+        # before giving up; they are written together.
+        rec["errors"].append(f"settings.json unreadable ({e.__class__.__name__})")
+        csv_path = d / "settings.csv"
+        if csv_path.exists():
+            try:
+                rec["settings"] = _read_settings_csv(csv_path) or {}
+                rec["errors"].append("fell back to settings.csv")
+            except Exception as e2:
+                rec["errors"].append(
+                    f"settings.csv unreadable ({e2.__class__.__name__})")
+    if not isinstance(rec["settings"], dict):
+        rec["errors"].append(
+            f"settings is {type(rec['settings']).__name__}, not a dict")
+        rec["settings"] = {}
+
+    # -- manifest ----------------------------------------------------------
+    mp = d / "manifest.json"
+    if not mp.exists():
+        rec["errors"].append("no manifest.json (run may still be in flight)")
+    else:
+        try:
+            m = json.loads(mp.read_text())
+            rec["manifest"] = m if isinstance(m, dict) else {}
+            if not isinstance(m, dict):
+                rec["errors"].append(
+                    f"manifest.json is {type(m).__name__}, not an object")
+        except Exception as e:
+            rec["errors"].append(
+                f"manifest.json unreadable ({e.__class__.__name__})")
+    return rec
+
+
+def _run_meta(rec: Dict[str, Any]) -> Dict[str, Any]:
+    """Summarise one run for the diff's ``meta`` block."""
+    m = rec["manifest"] or {}
+    env = m.get("env") if isinstance(m.get("env"), dict) else {}
+    return {
+        "run_id":         rec["dir"].name,
+        "dir":            str(rec["dir"]),
+        "app_key":        m.get("app_key"),
+        "status":         m.get("status"),
+        "start_utc":      m.get("start_utc"),
+        "elapsed_s":      m.get("elapsed_s"),
+        "n_settings":     len(rec["settings"]),
+        "spacr_version":  env.get("spacr"),
+        "errors":         list(rec["errors"]),
+    }
+
+
+def diff_runs(run_a: Any, run_b: Any) -> Dict[str, Any]:
+    """Compare two journalled runs and report exactly what changed.
+
+    ``run_a`` / ``run_b`` may each be a run folder (``str`` / ``Path``),
+    a run-id or unambiguous id prefix (resolved under :func:`runs_root`),
+    or a :class:`Run` object — see :func:`resolve_run_dir`.
+
+    Results are bucketed by *presence* before value, because the settings
+    schema drifts between releases and a flat diff of an old run against
+    a new one is almost entirely schema noise::
+
+        {
+          "changed":   [{"key": k, "a": av, "b": bv}, …],  # THE signal
+          "only_in_a": ["key", …],      # schema drift / dropped options
+          "only_in_b": ["key", …],      # schema drift / new options
+          "same":      int,             # count only, to keep this small
+          "env":       [{"key": k, "a": av, "b": bv}, …],  # from manifests
+          "meta":      {"a": {...}, "b": {...}, "app_key_differs": bool},
+        }
+
+    ``changed`` holds only keys present in *both* runs whose values
+    actually differ, sorted by key — those are the knobs someone turned.
+    Values are compared structurally, not by ``repr``
+    (see :func:`_normalize_value`): ``[1, 2] == [1, 2]``, ``"[1, 2]"``
+    (as CSV round-trips it) ``== [1, 2]``, and ``"None" == None``.
+
+    ``env`` diffs ``manifest.json``'s ``env`` snapshot — spaCR version,
+    git hash, python, platform, torch / cellpose / numpy versions — which
+    is usually where an unexplained behaviour change actually lives.
+
+    Comparing two runs of *different* ``app_key`` (mask vs measure) is
+    allowed — sometimes that is exactly the question — but flagged via
+    ``meta["app_key_differs"]`` so the caller can warn that the two
+    schemas were never meant to line up.
+
+    A missing or corrupt ``settings.json`` / ``manifest.json`` never
+    raises: whatever could be read is diffed and the problem is listed in
+    ``meta[side]["errors"]``.
+
+    :param run_a: baseline run reference.
+    :param run_b: comparison run reference.
+    :returns: the diff dict described above (JSON-serialisable as long as
+        the settings themselves are).
+    :raises FileNotFoundError: only when a run reference resolves to no
+        run folder at all.
+    """
+    ra = _read_run_record(run_a)
+    rb = _read_run_record(run_b)
+    sa, sb = ra["settings"], rb["settings"]
+
+    changed: List[Dict[str, Any]] = []
+    same = 0
+    for k in sorted(set(sa) & set(sb)):
+        if values_equal(sa[k], sb[k]):
+            same += 1
+        else:
+            changed.append({"key": k, "a": sa[k], "b": sb[k]})
+
+    meta_a, meta_b = _run_meta(ra), _run_meta(rb)
+    return {
+        "changed":   changed,
+        "only_in_a": sorted(set(sa) - set(sb)),
+        "only_in_b": sorted(set(sb) - set(sa)),
+        "same":      same,
+        "env":       _diff_env(ra["manifest"], rb["manifest"]),
+        "meta": {
+            "a": meta_a,
+            "b": meta_b,
+            "app_key_differs": (
+                meta_a["app_key"] != meta_b["app_key"]
+                and meta_a["app_key"] is not None
+                and meta_b["app_key"] is not None
+            ),
+        },
+    }
+
+
+def _diff_env(man_a: Dict[str, Any], man_b: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Diff the ``env`` snapshots of two manifests, sorted by key.
+
+    Keys absent from one manifest are reported with ``None`` on that
+    side — an env key that only one run recorded is itself a difference
+    worth seeing (a package that wasn't tracked yet).
+
+    But when one side has *no* env snapshot at all — missing or corrupt
+    manifest — this returns nothing rather than declaring every package
+    on the other side "changed to None". That would be a dozen invented
+    differences from one unreadable file; the unreadable file itself is
+    already reported in ``meta[side]["errors"]``.
+    """
+    ea = man_a.get("env") if isinstance(man_a, dict) else None
+    eb = man_b.get("env") if isinstance(man_b, dict) else None
+    ea = ea if isinstance(ea, dict) else {}
+    eb = eb if isinstance(eb, dict) else {}
+    if not ea or not eb:
+        return []
+    out: List[Dict[str, Any]] = []
+    for k in sorted(set(ea) | set(eb)):
+        av, bv = ea.get(k), eb.get(k)
+        if not values_equal(av, bv):
+            out.append({"key": k, "a": av, "b": bv})
+    return out
+
+
+# ---------------------------------------------------------------------------
+# Rendering
+# ---------------------------------------------------------------------------
+
+def _render_value(v: Any, width: int = 46) -> str:
+    """One-line, length-capped rendering of a settings value."""
+    s = "—" if v is None else (v if isinstance(v, str) else repr(v))
+    s = " ".join(str(s).split())
+    if width and len(s) > width:
+        s = s[: width - 1] + "…"
+    return s
+
+
+def _render_change_pair(av: Any, bv: Any, width: int = 46) -> tuple:
+    """Render both sides of a change so the *difference* stays visible.
+
+    Two long values usually share a long head — ``src`` is the classic
+    case, where both runs point deep into the same tree and differ in
+    one path component. Truncating each side independently then prints
+    the same 46 characters twice and tells the reader nothing. So when
+    either side overflows, the common prefix is elided instead.
+    """
+    sa, sb = _render_value(av, 0), _render_value(bv, 0)
+    if len(sa) > width or len(sb) > width:
+        n = len(os.path.commonprefix([sa, sb]))
+        if n > 8:
+            sa, sb = "…" + sa[n:], "…" + sb[n:]
+    return _render_value(sa, width), _render_value(sb, width)
+
+
+def _render_elapsed(v: Any) -> str:
+    try:
+        return f"{float(v):.1f}s"
+    except (TypeError, ValueError):
+        return "—"
+
+
+def _drift_names(keys: List[str], limit: int) -> str:
+    """``"a, b, c, … (+37 more)"`` — never the whole list."""
+    if not keys:
+        return ""
+    limit = max(int(limit), 0)
+    head = ", ".join(keys[:limit])
+    rest = len(keys) - limit
+    if not head:
+        return f"({rest} keys, not shown)"
+    return f"{head}, … (+{rest} more)" if rest > 0 else head
+
+
+def format_run_diff(diff: Dict[str, Any], max_drift_names: int = 6) -> str:
+    """Render :func:`diff_runs` output as a readable console report.
+
+    Ordering is deliberate: changed settings first (the signal), then the
+    environment, then schema drift reduced to a **one-line summary** plus
+    a handful of names. The drifted keys are never dumped in full — on a
+    real cross-release pair that is ~200 lines of noise that buries the
+    six settings the user actually changed.
+
+    :param diff: the dict returned by :func:`diff_runs`.
+    :param max_drift_names: how many drifted key names to name before
+        collapsing the rest into ``(+N more)``.
+    :returns: a multi-line report (no trailing newline).
+    """
+    meta = diff.get("meta") or {}
+    a, b = meta.get("a") or {}, meta.get("b") or {}
+    lines: List[str] = ["Run diff"]
+    for tag, m in (("A", a), ("B", b)):
+        lines.append(f"  {tag}  {m.get('run_id', '?')}")
+        lines.append(
+            f"     {m.get('app_key') or '?'} · {m.get('status') or '?'}"
+            f" · {m.get('start_utc') or '?'}"
+            f" · {_render_elapsed(m.get('elapsed_s'))}"
+            f" · {m.get('n_settings', 0)} settings"
+            + (f" · spacr {m['spacr_version']}" if m.get("spacr_version") else "")
+        )
+        for err in m.get("errors") or []:
+            lines.append(f"     ! {err}")
+    if meta.get("app_key_differs"):
+        lines.append(
+            f"  ! different pipelines ({a.get('app_key')} vs {b.get('app_key')})"
+            " — their settings schemas were never meant to line up"
+        )
+
+    # -- the signal --------------------------------------------------------
+    changed = diff.get("changed") or []
+    shared = len(changed) + int(diff.get("same") or 0)
+    lines.append("")
+    if changed:
+        lines.append(f"Settings changed ({len(changed)} of {shared} shared keys)")
+        width = min(max((len(c["key"]) for c in changed), default=0), 34)
+        for c in changed:
+            av, bv = _render_change_pair(c["a"], c["b"])
+            lines.append(f"  {c['key']:<{width}}  {av}  →  {bv}")
+    else:
+        lines.append(f"Settings changed (0 of {shared} shared keys) — identical")
+
+    # -- environment -------------------------------------------------------
+    env = diff.get("env") or []
+    lines.append("")
+    if env:
+        lines.append(f"Environment changed ({len(env)})")
+        width = min(max(len(e["key"]) for e in env), 34)
+        for e in env:
+            lines.append(
+                f"  {e['key']:<{width}}  {_render_value(e['a'], 28)}"
+                f"  →  {_render_value(e['b'], 28)}"
+            )
+    else:
+        lines.append("Environment changed (0) — same versions on both runs")
+
+    # -- schema drift, summarised (never enumerated) -----------------------
+    only_a = diff.get("only_in_a") or []
+    only_b = diff.get("only_in_b") or []
+    lines.append("")
+    if only_a or only_b:
+        since = a.get("spacr_version")
+        vb = b.get("spacr_version")
+        ver = ""
+        if since and vb and since != vb:
+            ver = f" (spacr {since} → {vb})"
+        elif since:
+            ver = f" since {since}"
+        lines.append(
+            f"Schema drift: +{len(only_b)} keys added, "
+            f"-{len(only_a)} removed{ver}"
+        )
+        if only_b:
+            lines.append(f"  added:   {_drift_names(only_b, max_drift_names)}")
+        if only_a:
+            lines.append(f"  removed: {_drift_names(only_a, max_drift_names)}")
+    else:
+        lines.append("Schema drift: none — both runs share the same keys")
+    return "\n".join(lines)
