@@ -550,9 +550,6 @@ def test_plot_image_grid_normalises_raw_ndarrays(tmp_path, rng, monkeypatch):
         assert arr.max() == pytest.approx(1.0)
 
 
-@pytest.mark.xfail(strict=True, reason="BUG: plot_image_grid crashes for a "
-                                       "single image - plt.subplots(1,1) "
-                                       "returns a bare Axes with no .flatten()")
 def test_plot_image_grid_single_image(tmp_path, rng):
     """One image should still render a 1x1 grid."""
     from spacr.plot import plot_image_grid

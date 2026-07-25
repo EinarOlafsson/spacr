@@ -123,8 +123,10 @@ def plot_image_mask_overlay(
 
         num_channels = image.shape[-1]
         fig, ax = plt.subplots(1, num_channels + 1, figsize=(4 * figuresize, figuresize))
-        if num_channels == 1:
-            ax = [ax]
+        # The grid is always num_channels + 1 wide, so a single channel still
+        # yields a 2-axes array -- the old `if num_channels == 1: ax = [ax]`
+        # wrapped that array in a list and made ax[0] the array, not an Axes.
+        ax = np.atleast_1d(ax).ravel()
 
         channels_with_outlines = set(channel_to_outline.keys()) if channel_to_outline is not None else set()
 
@@ -521,8 +523,11 @@ def plot_image_mask_overlay_magenta_outlines(
             else:
                 # Channel without associated outlines
                 if all_outlines:
-                    # Apply all outlines with specified colors
-                    for outline, color in zip(outlines, ['blue', 'red', 'green']):
+                    # Apply all outlines with specified colors. The colours must
+                    # come from outline_colors (as the all_on_all branch above
+                    # does); a hard-coded list mislabels the objects and silently
+                    # truncates the zip when a fourth object type is present.
+                    for outline, color in zip(outlines, outline_colors):
                         if mode == 'outlines':
                             channel_image_rgb = _apply_contours(
                                 channel_image_rgb, outline, color, thickness
@@ -535,18 +540,24 @@ def plot_image_mask_overlay_magenta_outlines(
             ax[v].imshow(channel_image_rgb)
             ax[v].set_title(f'Image - Channel {current_channel}')
 
-        # Create an image combining all objects filled with colors
-        combined_mask = np.zeros_like(outlines[0])
-        for outline in outlines:
-            combined_mask = np.maximum(combined_mask, outline)
+        # Create an image combining all objects filled with colors.
+        # outlines is empty when no object channel was supplied, and outlines[0]
+        # then raises IndexError instead of drawing an empty panel.
+        if len(outlines) > 0:
+            combined_mask = np.zeros_like(outlines[0])
+            for outline in outlines:
+                combined_mask = np.maximum(combined_mask, outline)
 
-        cmap = random_color_cmap(int(combined_mask.max() + 1), random.randint(0, 100))
-        mask = _generate_colored_mask(combined_mask, cmap)
-        blank_image = np.zeros((*combined_mask.shape, 3))
-        filled_image = _overlay_mask(blank_image, mask)
+            cmap = random_color_cmap(int(combined_mask.max() + 1), random.randint(0, 100))
+            mask = _generate_colored_mask(combined_mask, cmap)
+            blank_image = np.zeros((*combined_mask.shape, 3))
+            filled_image = _overlay_mask(blank_image, mask)
 
-        ax[-1].imshow(filled_image)
-        ax[-1].set_title('Combined Objects Image')
+            ax[-1].imshow(filled_image)
+            ax[-1].set_title('Combined Objects Image')
+        else:
+            ax[-1].imshow(np.zeros((*image.shape[:2], 3)))
+            ax[-1].set_title('no objects')
 
         plt.tight_layout()
 
@@ -747,7 +758,10 @@ def plot_cellpose4_output(batch, masks, flows, cmap='inferno', figuresize=10, nr
             ax[chans].imshow(mask, cmap=random_cmap, interpolation='nearest')
             ax[chans].set_title('Mask')
             if print_object_number:
-                unique_objects = np.unique(mask)[1:]
+                # Drop the background label explicitly: [1:] assumes 0 sorts
+                # first, so a mask with no background pixel loses a real object.
+                unique_objects = np.unique(mask)
+                unique_objects = unique_objects[unique_objects != 0]
                 for obj in unique_objects:
                     cy, cx = ndi.center_of_mass(mask == obj)
                     ax[chans].text(cx, cy, str(obj), color='white', fontsize=font, ha='center', va='center')
@@ -862,7 +876,10 @@ def plot_masks(batch, masks, flows, cmap='inferno', figuresize=10, nr=1, file_ty
             ax[chans].imshow(mask, cmap=random_cmap) #_imshow
             ax[chans].set_title('Mask')
             if print_object_number:
-                unique_objects = np.unique(mask)[1:]
+                # Drop the background label explicitly: [1:] assumes 0 sorts
+                # first, so a mask with no background pixel loses a real object.
+                unique_objects = np.unique(mask)
+                unique_objects = unique_objects[unique_objects != 0]
                 for obj in unique_objects:
                     cy, cx = ndi.center_of_mass(mask == obj)
                     ax[chans].text(cx, cy, str(obj), color='white', fontsize=font, ha='center', va='center')
@@ -1152,10 +1169,14 @@ def _filter_objects_in_plot(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mas
         total_count_after = len(props_after['label'])
 
         if mask_dim == cell_mask_dim:
+            # object_dim must be the dim each flag is named after: the two were
+            # swapped, so nuclei_limit=False dropped multi-infected cells and
+            # pathogen_limit=False dropped multinucleated ones. The inversion is
+            # invisible when both flags are False, which is why it survived.
             if nuclei_limit is False and nucleus_mask_dim is not None:
-                stack = _remove_multiobject_cells(stack, mask_dim, cell_mask_dim, nucleus_mask_dim, pathogen_mask_dim, object_dim=pathogen_mask_dim)
-            if pathogen_limit is False and cell_mask_dim is not None and pathogen_mask_dim is not None:
                 stack = _remove_multiobject_cells(stack, mask_dim, cell_mask_dim, nucleus_mask_dim, pathogen_mask_dim, object_dim=nucleus_mask_dim)
+            if pathogen_limit is False and cell_mask_dim is not None and pathogen_mask_dim is not None:
+                stack = _remove_multiobject_cells(stack, mask_dim, cell_mask_dim, nucleus_mask_dim, pathogen_mask_dim, object_dim=pathogen_mask_dim)
             cell_area_before = avg_size_before
             cell_count_before = total_count_before
             cell_area_after = avg_size_after
@@ -1215,7 +1236,13 @@ def plot_arrays(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=1, 
             img = np.load(path)
 
         if normalize:
-            img = normalize_to_dtype(array=img, p1=q1, p2=q2)
+            if img.ndim == 2:
+                # normalize_to_dtype indexes array.shape[2], so a single-plane
+                # array raises IndexError; promote it for the call and drop the
+                # axis again so the 2-D display path below is unchanged.
+                img = normalize_to_dtype(array=img[:, :, np.newaxis], p1=q1, p2=q2)[:, :, 0]
+            else:
+                img = normalize_to_dtype(array=img, p1=q1, p2=q2)
 
         if img.ndim == 3:
             array_nr = img.shape[2]
@@ -1257,6 +1284,10 @@ def _normalize_and_outline(image, remove_background, normalize, normalization_pe
     """
     from .utils import normalize_to_dtype, _outline_and_overlay, _gen_rgb_image
 
+    # `image` is the caller's stack and the remove_background branch mutates it
+    # in place, so copy the label planes rather than aliasing them.
+    raw_masks = {d: image[:, :, d].copy() for d in mask_dims}
+
     if remove_background:
         backgrounds = np.percentile(image, 1, axis=(0, 1))
         backgrounds = backgrounds[:, np.newaxis, np.newaxis]
@@ -1272,6 +1303,14 @@ def _normalize_and_outline(image, remove_background, normalize, normalization_pe
         image = normalize_to_dtype(array=image, p1=0, p2=100)
 
     rgb_image = _gen_rgb_image(image, channels=overlay_chans)
+
+    # Label values are categorical, not intensities. Percentile-rescaling them
+    # clips the background up to the lowest label (so that object merges into
+    # the background) and collapses a single-object mask to a constant image,
+    # from which no contour can be found. Restore the raw labels after the RGB
+    # build so the overlay image itself is unchanged.
+    for d, raw in raw_masks.items():
+        image[:, :, d] = raw
 
     if overlay:
         overlayed_image, outlines, image = _outline_and_overlay(image, rgb_image, mask_dims, outline_colors, outline_thickness)
@@ -1381,6 +1420,10 @@ def plot_merged(src, settings):
     if settings['pathogen_mask_dim'] is None:
         settings['pathogen_limit'] = True
 
+    # nr=0 takes the else-branch on the very first file, so `fig` has to exist
+    # before the loop or `return fig` raises UnboundLocalError.
+    fig = None
+
     for file in os.listdir(src):
         path = os.path.join(src, file)
         stack = np.load(path)
@@ -1438,7 +1481,10 @@ def _plot_images_on_grid(image_files, channel_indices, um_per_pixel, scale_bar_l
     nr_of_images = len(image_files)
     cols = int(np.ceil(np.sqrt(nr_of_images)))
     rows = np.ceil(nr_of_images / cols)
-    fig, axes = plt.subplots(int(rows), int(cols), figsize=(20, 20), facecolor='black')
+    # squeeze=False keeps the return a 2-D array: a single image gives a 1x1
+    # grid, which matplotlib otherwise collapses to a bare Axes with no
+    # .flatten().
+    fig, axes = plt.subplots(int(rows), int(cols), figsize=(20, 20), facecolor='black', squeeze=False)
     fig.patch.set_facecolor('black')
     axes = axes.flatten()
     # Calculate the scale bar length in pixels
@@ -1480,14 +1526,17 @@ def _plot_images_on_grid(image_files, channel_indices, um_per_pixel, scale_bar_l
     increment = 0.05  # Fixed increment for each subsequent channel name, adjust based on figure width
     if channel_names:
         current_offset = initial_offset
-        for i, channel_name in enumerate(channel_names):
-            color = channel_colors[i] if i < len(channel_colors) else 'white'
+        for ci, channel_name in enumerate(channel_names):
+            color = channel_colors[ci] if ci < len(channel_colors) else 'white'
             fig.text(current_offset, 0.99, channel_name, color=color, fontsize=fontsize,
                         verticalalignment='top', horizontalalignment='left',
                         bbox=dict(facecolor='black', edgecolor='none', pad=3))
             current_offset += increment
 
-    for j in range(i + 1, len(axes)):
+    # Pad from the image count, not from a leaked loop variable: the
+    # channel_names loop above used to rebind `i`, so the unused cells were
+    # blanked starting at the wrong index whenever channel_names was given.
+    for j in range(nr_of_images, len(axes)):
         axes[j].axis('off')
 
     plt.tight_layout(pad=3)
@@ -1630,6 +1679,9 @@ def _plot_cropped_arrays(stack, filename, figuresize=10, cmap='inferno', thresho
     elif len(dim) > 2:
         num_channels = dim[2]
         fig, axs = plt.subplots(1, num_channels, figsize=(figuresize, figuresize))
+        # A single channel makes plt.subplots return a bare Axes, not an array,
+        # so axs[channel] below would raise TypeError.
+        axs = np.atleast_1d(axs)
         for channel in range(num_channels):
             plot_single_array(stack[:, :, channel], axs[channel], f'C. {channel}', plt.get_cmap(cmap))
         fig.tight_layout()    
@@ -1859,18 +1911,26 @@ def _plot_controls(df, mask_chans, channel_of_interest, figuresize=5):
     for idx_condition, condition in enumerate(unique_conditions):
         df_temp = df[df['condition'] == condition]
         for idx_channel, control_cols_c in enumerate(controls_cols):
+            # Build labels and colours alongside the data. The bar call used to
+            # pass all four component names unconditionally while the guard
+            # above skips missing columns, so any absent component (or a whole
+            # absent channel) made x and height different lengths and raised.
+            names = []
             data = []
             std_dev = []
-            for control_col in control_cols_c:
+            colors = []
+            for color, control_col in zip(color_list, control_cols_c):
                 if control_col in df_temp.columns:
                     mean_intensity = df_temp[control_col].mean()
                     mean_intensity = 0 if np.isnan(mean_intensity) else mean_intensity
+                    names.append(control_col.split('_channel_')[0])
                     data.append(mean_intensity)
                     std_dev.append(df_temp[control_col].std())
+                    colors.append(color)
 
             current_axis = axes[idx_condition][idx_channel]
-            current_axis.bar(["cell", "nucleus", "pathogen", "cytoplasm"], data, yerr=std_dev, 
-                             capsize=4, color=color_list)
+            current_axis.bar(names, data, yerr=std_dev,
+                             capsize=4, color=colors)
             current_axis.set_xlabel('Component')
             current_axis.set_ylabel('Mean Intensity')
             current_axis.set_title(f'Condition: {condition} - Channel {idx_channel}')
@@ -2390,7 +2450,9 @@ def visualize_masks(mask1, mask2, mask3, title="Masks Comparison"):
     :returns: None
     """
     fig, axs = plt.subplots(1, 3, figsize=(30, 10))
-    for ax, mask, title in zip(axs, [mask1, mask2, mask3], ['Mask 1', 'Mask 2', 'Mask 3']):
+    # The loop variable must not be named `title`: it shadowed the parameter,
+    # so the suptitle below always read 'Mask 3' instead of the caller's title.
+    for ax, mask, panel_title in zip(axs, [mask1, mask2, mask3], ['Mask 1', 'Mask 2', 'Mask 3']):
         cmap = generate_mask_random_cmap(mask)
         # If the mask is binary, we can skip normalization
         if np.isin(mask, [0, 1]).all():
@@ -2399,7 +2461,7 @@ def visualize_masks(mask1, mask2, mask3, title="Masks Comparison"):
             # Normalize the image for displaying purposes
             norm = plt.Normalize(vmin=0, vmax=mask.max())
             ax.imshow(mask, cmap=cmap, norm=norm)
-        ax.set_title(title)
+        ax.set_title(panel_title)
         ax.axis('off')
     plt.suptitle(title)
     plt.show()
@@ -2451,7 +2513,10 @@ def visualize_cellpose_masks(masks, titles=None, filename=None, save=False, src=
     
     num_masks = len(masks)
     fig, axs = plt.subplots(1, num_masks, figsize=(10 * num_masks, 10))  # Adjusting figure size dynamically
-    
+    # A single mask makes plt.subplots return a bare Axes, which zip() below
+    # cannot iterate.
+    axs = np.atleast_1d(axs)
+
     for ax, mask, title in zip(axs, masks, titles):
         cmap = generate_mask_random_cmap(mask)
         # Normalize and display the mask
@@ -2550,7 +2615,9 @@ def plot_object_outlines(src, objects=None, channels=None, max_nr=10):
                                threshold=1000,
                                extensions=['.npy', '.tif', '.tiff', '.png'],
                                overlay=True,
-                               max_nr=10,
+                               # Forward the caller's cap; the literal 10 made
+                               # the documented max_nr parameter dead.
+                               max_nr=max_nr,
                                randomize=True)
                 
 
@@ -2588,7 +2655,8 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
         Default ``'grna_name'``.
     :param value_column: Column whose distribution is analysed.
         Default ``'count'``.
-    :param remove_keys: Names to exclude before analysis.
+    :param remove_keys: Names to exclude before analysis. Default ``[]``
+        (exclude nothing).
     :param x_lim: X-axis limits ``[lo, hi]``. Default ``[0.0, 1]``.
     :param y_lim: Y-axis limits ``[lo, hi]``. Default ``[0, 1]``.
     :param remove_outliers: If True, drop names whose per-well count
@@ -2597,6 +2665,11 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
         ``results/lorenz_curve_with_gini.pdf``. Default ``True``.
     :returns: None
     """
+    # remove_keys got the same mutable-default -> None treatment as x_lim/y_lim
+    # but never got the matching guard, so the documented default call died on
+    # `for remove in None`.
+    if remove_keys is None:
+        remove_keys = []
     if x_lim is None:
         x_lim = [0.0, 1]
     if y_lim is None:
@@ -2615,7 +2688,10 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
         n = len(data)
         cumulative_data = np.cumsum(sorted_data) / np.sum(sorted_data)
         cumulative_data = np.insert(cumulative_data, 0, 0)
-        gini = 1 - 2 * np.sum(cumulative_data[:-1] * np.diff(np.linspace(0, 1, n + 1)))
+        # Trapezoid rule, not a left-Riemann sum: taking only the left endpoint
+        # under-counts the area by exactly 1/n, so a perfectly equal
+        # distribution reported 1/n instead of 0.
+        gini = 1 - np.sum((cumulative_data[:-1] + cumulative_data[1:]) * np.diff(np.linspace(0, 1, n + 1)))
         return gini
 
     def remove_outliers_by_wells(data, name_col, wells_col):
@@ -2743,7 +2819,9 @@ def read_and_plot__vision_results(base_dir, y_axis='accuracy', name_split='_time
     data_frames = []
 
     dst = os.path.join(base_dir, 'result')
-    os.mkdir(dst,exists=True)
+    # os.mkdir has no `exists` kwarg (nor `exist_ok`); the old call raised
+    # TypeError on every invocation, before any file was ever read.
+    os.makedirs(dst, exist_ok=True)
 
     # Walk through the directory
     for root, dirs, files in os.walk(base_dir):
@@ -2753,9 +2831,11 @@ def read_and_plot__vision_results(base_dir, y_axis='accuracy', name_split='_time
                 # Extract model information from the file name
                 file_name = os.path.basename(file_path)
                 model = file_name.split(f'{name_split}')[0]
-                
-                # Extract epoch information from the file name
-                epoch_info = file_name.split('_time')[1]
+
+                # The epoch comes from the directory name below; the dropped
+                # `file_name.split('_time')[1]` hard-coded the separator instead
+                # of using name_split and its result was never read, so it only
+                # ever raised IndexError on non-default naming.
                 base_folder = os.path.dirname(file_path)
                 epoch = os.path.basename(base_folder)
                 
@@ -2844,14 +2924,28 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
                 print(f'hello {len(df)}')
                 df = df[df[val].isin(filter_values[i])]
 
-    # Use the correct column names based on your DataFrame
-    required_columns = ['plate_x', 'row_x', 'col_x']
-    if not all(column in df.columns for column in required_columns):
-        raise KeyError(f"DataFrame does not contain the necessary columns: {required_columns}")
+    # Resolve the well-identifier columns instead of hard-coding plate_x/row_x/
+    # col_x: spacr.io emits plateID/rowID/columnID, so those literals never
+    # match a current database and every call raised KeyError. The merge on
+    # 'prcfo' collides on all three, hence the _x/_y suffixes; the bare and _y
+    # forms are tried too so the lookup survives a non-colliding merge, and the
+    # pre-rename names stay accepted for older frames.
+    def _resolve_well_column(frame, *bases):
+        for base in bases:
+            for candidate in (f'{base}_x', base, f'{base}_y'):
+                if candidate in frame.columns:
+                    return candidate
+        return None
+
+    required_columns = [_resolve_well_column(df, 'plateID', 'plate'),
+                        _resolve_well_column(df, 'rowID', 'row'),
+                        _resolve_well_column(df, 'columnID', 'col')]
+    if any(column is None for column in required_columns):
+        raise KeyError("DataFrame does not contain the necessary columns: ['plateID', 'rowID', 'columnID']")
 
     # Filter to retain rows with non-NaN values in x_column and with matching plate, row, col values
     non_nan_df = df[df[x_column] != 'NaN']
-    retained_rows = df[df[['plate_x', 'row_x', 'col_x']].apply(tuple, axis=1).isin(non_nan_df[['plate_x', 'row_x', 'col_x']].apply(tuple, axis=1))]
+    retained_rows = df[df[required_columns].apply(tuple, axis=1).isin(non_nan_df[required_columns].apply(tuple, axis=1))]
 
     # Determine the minimum count of examples across all groups in x_column
     min_count = retained_rows[x_column].value_counts().min()
@@ -3198,17 +3292,26 @@ class spacrGraph:
    
     def remove_outliers_from_plot(self):
         """Remove outliers from the plot but keep them in the data."""
+        # self.data_column is a list, so the old code indexed with it and got a
+        # DataFrame: the bounds came out as per-column Series and the mask as a
+        # DataFrame, which cannot be combined with the group Series. Work one
+        # scalar column at a time, and collect the rows to drop instead of
+        # dropping inside the loop (that invalidates the group mask's index).
         filtered_df = self.df.copy()
         unique_groups = filtered_df[self.grouping_column].unique()
+        drop_index = pd.Index([])
         for group in unique_groups:
-            group_data = filtered_df[filtered_df[self.grouping_column] == group][self.data_column]
-            q1 = group_data.quantile(0.25)
-            q3 = group_data.quantile(0.75)
-            iqr = q3 - q1
-            lower_bound = q1 - 1.5 * iqr
-            upper_bound = q3 + 1.5 * iqr
-            filtered_df = filtered_df.drop(filtered_df[(filtered_df[self.grouping_column] == group) & ((filtered_df[self.data_column] < lower_bound) | (filtered_df[self.data_column] > upper_bound))].index)
-        return filtered_df
+            group_mask = filtered_df[self.grouping_column] == group
+            for col in self.data_column:
+                group_data = filtered_df.loc[group_mask, col]
+                q1 = group_data.quantile(0.25)
+                q3 = group_data.quantile(0.75)
+                iqr = q3 - q1
+                lower_bound = q1 - 1.5 * iqr
+                upper_bound = q3 + 1.5 * iqr
+                outliers = group_mask & ((filtered_df[col] < lower_bound) | (filtered_df[col] > upper_bound))
+                drop_index = drop_index.union(filtered_df.index[outliers])
+        return filtered_df.drop(drop_index)
 
     def perform_normality_tests(self):
         """Perform normality tests for each group and data column."""
@@ -3285,7 +3388,9 @@ class spacrGraph:
                         test_name = 'T-test'
                 else:
                     if self.paired:
-                        stat, p = pg.wilcoxon(grouped_data[0], grouped_data[1]).iloc[0][['T', 'p-val']]
+                        # pingouin's wilcoxon statistic column is 'W-val'; 'T'
+                        # belongs to pg.ttest above, so this raised KeyError.
+                        stat, p = pg.wilcoxon(grouped_data[0], grouped_data[1]).iloc[0][['W-val', 'p-val']]
                         test_name = 'Paired Wilcoxon test'
                     else:
                         stat, p = mannwhitneyu(grouped_data[0], grouped_data[1])
@@ -3360,8 +3465,11 @@ class spacrGraph:
                     'Test Name': "Dunn's Post-hoc",
                     'p_adjust_method': p_adjust_method,
                     'n_object': len(raw_data1) + len(raw_data2),  # Total objects
+                    # Both terms must index the frame with the mask. Without the
+                    # outer self.df[...] the second term is the mask itself, so
+                    # its len() is the row count of the whole frame.
                     'n_well': len(self.df[self.df[self.grouping_column] == dunn_result.index[group_a]]) +
-                            len(self.df[self.grouping_column] == dunn_result.columns[group_b])})
+                            len(self.df[self.df[self.grouping_column] == dunn_result.columns[group_b]])})
 
             return posthoc_results
 
@@ -3666,16 +3774,21 @@ class spacrGraph:
             self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
             x_axis_column = 'Combined Group'
             hue = None
+            # order must name levels of the column used for x. With multiple
+            # data columns x is 'Combined Group', so passing the raw group
+            # names selected nothing and seaborn drew an empty plot.
+            plot_order = [f"{g} - {c}" for g in self.order for c in self.data_column]
             ax.set_ylabel('Value')
         else:
             x_axis_column = self.grouping_column
             ax.set_ylabel(self.data_column[0])
-            hue = None
-    
+            hue = self.hue
+            plot_order = self.order
+
         summary_df = self.df_melted.groupby([x_axis_column]).agg(mean=('Value', 'mean'),std=('Value', 'std'),sem=('Value', 'sem')).reset_index()
         error_bars = summary_df[self.error_bar_type] if self.error_bar_type in ['std', 'sem'] else None
         self.summary_df = summary_df.copy()
-        sns.barplot(data=self.df_melted, x=x_axis_column, y='Value', hue=self.hue, palette=self.sns_palette, ax=ax, dodge=self.jitter_bar_dodge, errorbar=None, order=self.order)
+        sns.barplot(data=self.df_melted, x=x_axis_column, y='Value', hue=hue, palette=self.sns_palette, ax=ax, dodge=self.jitter_bar_dodge, errorbar=None, order=plot_order)
         
         # Adjust the bar width manually
         if len(self.data_column) > 1:
@@ -3708,15 +3821,20 @@ class spacrGraph:
             self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str)  + " - " + self.df_melted['Data Column'].astype(str))
             x_axis_column = 'Combined Group'
             hue = None  # Disable hue to avoid two-level grouping
+            # order must name levels of the column used for x. With multiple
+            # data columns x is 'Combined Group', so passing the raw group
+            # names selected nothing and seaborn drew an empty plot.
+            plot_order = [f"{g} - {c}" for g in self.order for c in self.data_column]
             ax.set_ylabel('Value')
         else:
             x_axis_column = self.grouping_column
             ax.set_ylabel(self.data_column[0])
-            hue = None
-    
+            hue = self.hue
+            plot_order = self.order
+
         # Create the jitter plot
         self.summary_df = self.df_melted.copy()
-        sns.stripplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax, alpha=0.6, size=16, order=self.order)
+        sns.stripplot(data=self.df_melted,x=x_axis_column,y='Value',hue=hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax, alpha=0.6, size=16, order=plot_order)
     
         # Adjust legend and labels
         ax.set_xlabel(self.grouping_column)
@@ -3800,16 +3918,21 @@ class spacrGraph:
             self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
             x_axis_column = 'Combined Group'
             hue = None
+            # order must name levels of the column used for x. With multiple
+            # data columns x is 'Combined Group', so passing the raw group
+            # names selected nothing and seaborn drew an empty plot.
+            plot_order = [f"{g} - {c}" for g in self.order for c in self.data_column]
             ax.set_ylabel('Value')
         else:
             x_axis_column = self.grouping_column
             ax.set_ylabel(self.data_column[0])
-            hue = None
-    
+            hue = self.hue
+            plot_order = self.order
+
         # Create the box plot
         self.summary_df = self.df_melted.copy()
-        sns.boxplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue,palette=self.sns_palette,ax=ax, order=self.order)
-    
+        sns.boxplot(data=self.df_melted,x=x_axis_column,y='Value',hue=hue,palette=self.sns_palette,ax=ax, order=plot_order)
+
         # Adjust legend and labels
         ax.set_xlabel(self.grouping_column)
 
@@ -3830,15 +3953,20 @@ class spacrGraph:
             self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
             x_axis_column = 'Combined Group'
             hue = None
+            # order must name levels of the column used for x. With multiple
+            # data columns x is 'Combined Group', so passing the raw group
+            # names selected nothing and seaborn drew an empty plot.
+            plot_order = [f"{g} - {c}" for g in self.order for c in self.data_column]
             ax.set_ylabel('Value')
         else:
             x_axis_column = self.grouping_column
             ax.set_ylabel(self.data_column[0])
-            hue = None
-    
+            hue = self.hue
+            plot_order = self.order
+
         # Create the violin plot
         self.summary_df = self.df_melted.copy()
-        sns.violinplot(data=self.df_melted,x=x_axis_column,y='Value', hue=self.hue,palette=self.sns_palette,ax=ax, order=self.order)
+        sns.violinplot(data=self.df_melted,x=x_axis_column,y='Value', hue=hue,palette=self.sns_palette,ax=ax, order=plot_order)
     
         # Adjust legend and labels
         ax.set_xlabel(self.grouping_column)
@@ -3861,17 +3989,22 @@ class spacrGraph:
             self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
             x_axis_column = 'Combined Group'
             hue = None
+            # order must name levels of the column used for x. With multiple
+            # data columns x is 'Combined Group', so passing the raw group
+            # names selected nothing and seaborn drew an empty plot.
+            plot_order = [f"{g} - {c}" for g in self.order for c in self.data_column]
             ax.set_ylabel('Value')
         else:
             x_axis_column = self.grouping_column
             ax.set_ylabel(self.data_column[0])
-            hue = None
-    
+            hue = self.hue
+            plot_order = self.order
+
         summary_df = self.df_melted.groupby([x_axis_column]).agg(mean=('Value', 'mean'),std=('Value', 'std'),sem=('Value', 'sem')).reset_index()
         error_bars = summary_df[self.error_bar_type] if self.error_bar_type in ['std', 'sem'] else None
         self.summary_df = summary_df
-        sns.barplot(data=self.df_melted, x=x_axis_column, y='Value', hue=self.hue, palette=self.sns_palette, ax=ax, dodge=self.jitter_bar_dodge, errorbar=None, order=self.order)
-        sns.stripplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,alpha=0.6, edgecolor='white',linewidth=1, size=16, order=self.order)
+        sns.barplot(data=self.df_melted, x=x_axis_column, y='Value', hue=hue, palette=self.sns_palette, ax=ax, dodge=self.jitter_bar_dodge, errorbar=None, order=plot_order)
+        sns.stripplot(data=self.df_melted,x=x_axis_column,y='Value',hue=hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,alpha=0.6, edgecolor='white',linewidth=1, size=16, order=plot_order)
         
         # Adjust the bar width manually
         if len(self.data_column) > 1:
@@ -3904,16 +4037,21 @@ class spacrGraph:
             self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
             x_axis_column = 'Combined Group'
             hue = None
+            # order must name levels of the column used for x. With multiple
+            # data columns x is 'Combined Group', so passing the raw group
+            # names selected nothing and seaborn drew an empty plot.
+            plot_order = [f"{g} - {c}" for g in self.order for c in self.data_column]
             ax.set_ylabel('Value')
         else:
             x_axis_column = self.grouping_column
             ax.set_ylabel(self.data_column[0])
-            hue = None
-    
+            hue = self.hue
+            plot_order = self.order
+
         # Create the box plot
         self.summary_df = self.df_melted.copy()
-        sns.boxplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue,palette=self.sns_palette,ax=ax, order=self.order)
-        sns.stripplot(data=self.df_melted,x=x_axis_column,y='Value',hue=self.hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,alpha=0.6, edgecolor='white',linewidth=1, size=12, order=self.order)
+        sns.boxplot(data=self.df_melted,x=x_axis_column,y='Value',hue=hue,palette=self.sns_palette,ax=ax, order=plot_order)
+        sns.stripplot(data=self.df_melted,x=x_axis_column,y='Value',hue=hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,alpha=0.6, edgecolor='white',linewidth=1, size=12, order=plot_order)
     
         # Adjust legend and labels
         ax.set_xlabel(self.grouping_column)
@@ -4351,9 +4489,12 @@ def plot_image_grid(image_paths, percentiles):
 
     # Create the square grid of subplots with a black background
     fig, axs = plt.subplots(
-        grid_size, grid_size, 
+        grid_size, grid_size,
         figsize=(grid_size * 2, grid_size * 2),
-        facecolor='black'  # Set figure background to black
+        facecolor='black',  # Set figure background to black
+        # A single image gives a 1x1 grid, which matplotlib otherwise collapses
+        # to a bare Axes with no .flatten().
+        squeeze=False
     )
 
     # Flatten axs in case of a 2D array
@@ -4478,9 +4619,12 @@ def graph_importance(settings):
     from .settings import set_graph_importance_defaults
     from .utils import save_settings
     
-    if not isinstance(settings['csvs'], list):
-        settings['csvs'] = settings['csvs']
-    
+    # Wrap a scalar path: the guard used to assign the value to itself, so a
+    # single path string fell through and was iterated character by character.
+    # Only str/PathLike are wrapped -- a tuple or Series of paths already works.
+    if isinstance(settings['csvs'], (str, os.PathLike)):
+        settings['csvs'] = [settings['csvs']]
+
     settings['src'] = os.path.dirname(settings['csvs'][0])
     
     settings = set_graph_importance_defaults(settings)

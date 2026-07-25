@@ -325,10 +325,6 @@ def test_preprocess_falls_back_to_sorted_categories_when_order_empty():
 # spacrGraph.remove_outliers_from_plot  (BUG)
 # ===========================================================================
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: remove_outliers_from_plot ANDs a Series mask with a DataFrame mask "
-    "(self.data_column is a list), so the resulting index covers every row and "
-    "drop() empties the frame instead of removing only the outliers."))
 def test_remove_outliers_from_plot_keeps_inliers():
     from spacr.plot import spacrGraph
 
@@ -344,10 +340,6 @@ def test_remove_outliers_from_plot_keeps_inliers():
     assert set(filtered["grp"]) == {"a", "b"}
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: create_plot(remove_outliers=True) empties self.df (see "
-    "remove_outliers_from_plot) and then Levene's test raises "
-    "'Must enter at least two input sample vectors.'"))
 def test_create_plot_with_remove_outliers_still_plots():
     from spacr.plot import spacrGraph
 
@@ -429,10 +421,6 @@ def test_paired_ttest_branch():
     assert res[0]["p-value"] < 0.05  # b is shifted +2 from a
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: perform_statistical_tests reads pg.wilcoxon(...)[['T','p-val']] but "
-    "pingouin names the statistic 'W-val', so the paired non-normal branch "
-    "raises KeyError: \"['T'] not in index\"."))
 def test_paired_wilcoxon_branch():
     from spacr.plot import spacrGraph
 
@@ -521,10 +509,6 @@ def test_posthoc_dunn_for_non_normal_multi_group(capsys):
     assert all(r["n_object"] == 40 for r in res)
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: Dunn's post-hoc computes n_well as len(self.df[grouping] == b) — the "
-    "length of a boolean mask (== len(df)) — instead of the number of rows in "
-    "group b, so n_well is inflated to count(a) + len(df)."))
 def test_posthoc_dunn_n_well_counts_only_the_two_groups():
     from spacr.plot import spacrGraph
 
@@ -680,10 +664,6 @@ def test_create_plot_multi_data_column_jitter_bar_places_symbols_per_position():
     assert texts.count("+") == texts.count("-")
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: multi-data-column plots draw x='Combined Group' but pass "
-    "order=self.order (the raw group names), so seaborn matches no category "
-    "and renders an empty plot (bar) or crashes (box/jitter_box)."))
 def test_create_plot_multi_data_column_draws_one_bar_per_combined_group():
     import matplotlib.pyplot as plt
     from spacr.plot import spacrGraph
@@ -697,11 +677,6 @@ def test_create_plot_multi_data_column_draws_one_bar_per_combined_group():
     assert len(bars) == 6, f"expected 3 groups x 2 columns, got {len(bars)}"
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: multi-data-column box plot passes order=self.order while x is the "
-    "'Combined Group' column, so seaborn draws no boxes and dies with "
-    "UnboundLocalError: local variable 'boxprops' referenced before assignment.")
-)
 def test_create_plot_multi_data_column_box():
     from spacr.plot import spacrGraph
 
@@ -711,9 +686,6 @@ def test_create_plot_multi_data_column_box():
     assert g.get_figure() is not None
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: same 'Combined Group' vs order mismatch kills the multi-column "
-    "jitter_box plot with UnboundLocalError on seaborn's boxprops."))
 def test_create_plot_multi_data_column_jitter_box():
     from spacr.plot import spacrGraph
 

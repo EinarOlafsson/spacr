@@ -9,12 +9,6 @@ Everything here is CPU-only, offline and headless (Agg). The figures the
 functions leave on the pyplot stack are inspected directly (bar heights,
 line data, axis limits) so each test asserts a real numeric property
 rather than merely touching the line.
-
-Three latent bugs are pinned with strict xfail tests asserting the
-CORRECT behaviour (never the broken one):
-    * plot_lorenz_curves(remove_keys=None)  -> TypeError
-    * read_and_plot__vision_results         -> os.mkdir(dst, exists=True)
-    * jitterplot_by_annotation              -> stale plate_x/row_x/col_x
 """
 from __future__ import annotations
 
@@ -49,11 +43,15 @@ def _counts_csv(path, names, counts):
 
 
 def _gini_reference(data):
-    """Independent re-implementation of the left-Riemann Gini in plot.py."""
+    """Independent re-implementation of the Gini coefficient in plot.py.
+
+    Deliberately the closed form rather than the trapezoid integration the
+    implementation uses: 2*sum(i*x_i)/(n*sum(x)) - (n+1)/n.
+    """
     d = np.sort(np.asarray(data, dtype=float))
     n = len(d)
-    cum = np.insert(np.cumsum(d) / d.sum(), 0, 0)
-    return 1 - 2 * np.sum(cum[:-1] * np.diff(np.linspace(0, 1, n + 1)))
+    i = np.arange(1, n + 1)
+    return 2 * np.sum(i * d) / (n * d.sum()) - (n + 1) / n
 
 
 # ===========================================================================
@@ -193,10 +191,6 @@ def test_plot_lorenz_curves_saves_pdf_and_honours_limits(tmp_path, capsys):
     assert ax.get_ylim() == (0.1, 0.9)
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: plot_lorenz_curves(remove_keys=None) iterates None -> TypeError",
-)
 def test_plot_lorenz_curves_default_remove_keys(tmp_path):
     """remove_keys defaults to None and must mean 'remove nothing'."""
     from spacr.plot import plot_lorenz_curves
@@ -207,11 +201,6 @@ def test_plot_lorenz_curves_default_remove_keys(tmp_path):
     assert len(plt.gcf().axes[0].get_lines()[0].get_ydata()) == 7
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: gini_coefficient uses a left-Riemann sum, so a perfectly "
-           "equal distribution of n items scores 1/n instead of 0",
-)
 def test_plot_lorenz_curves_gini_of_equal_distribution_is_zero(tmp_path, capsys):
     from spacr.plot import plot_lorenz_curves
 
@@ -303,11 +292,10 @@ def _vision_tree(base, rows_per_model):
 
 @pytest.fixture
 def patched_mkdir(monkeypatch):
-    """Make os.mkdir tolerate the buggy `exists=True` kwarg + re-runs.
+    """Record the directory read_and_plot__vision_results creates.
 
-    Without this shim read_and_plot__vision_results dies on its first
-    statement (see the strict-xfail test below) and none of its real
-    logic can be reached.
+    os.makedirs delegates to the module-global os.mkdir, so replacing it
+    captures the path without the test having to inspect the filesystem.
     """
     real_mkdir = os.mkdir
     calls = []
@@ -379,11 +367,6 @@ def test_read_and_plot_vision_results_no_csv_files(tmp_path, patched_mkdir, caps
     assert plt.get_fignums() == []  # nothing plotted
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: read_and_plot__vision_results calls os.mkdir(dst, exists=True); "
-           "os.mkdir takes no 'exists' kwarg -> TypeError on every call",
-)
 def test_read_and_plot_vision_results_creates_result_dir(tmp_path):
     from spacr.plot import read_and_plot__vision_results
 
@@ -394,11 +377,6 @@ def test_read_and_plot_vision_results_creates_result_dir(tmp_path):
     assert (base / "result").is_dir()
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: read_and_plot__vision_results splits on a hard-coded '_time' "
-           "instead of name_split, so any other name_split raises IndexError",
-)
 def test_read_and_plot_vision_results_honours_name_split(tmp_path, patched_mkdir):
     from spacr.plot import read_and_plot__vision_results
 
@@ -586,7 +564,7 @@ def test_jitterplot_filter_column_list(fake_db_readers, capsys):
 
 
 def test_jitterplot_missing_plate_columns_raises_keyerror(monkeypatch):
-    """A merged frame without plate_x/row_x/col_x must raise KeyError."""
+    """A merged frame without any plate/row/column columns must raise KeyError."""
     import spacr.io as sio
     from spacr.plot import jitterplot_by_annotation
 
@@ -596,16 +574,10 @@ def test_jitterplot_missing_plate_columns_raises_keyerror(monkeypatch):
                         lambda *a, **k: (df.copy(), []))
     monkeypatch.setattr(sio, "_read_db", lambda *a, **k: [png.copy()])
 
-    with pytest.raises(KeyError, match="plate_x"):
+    with pytest.raises(KeyError, match="plateID"):
         jitterplot_by_annotation("/exp/src", "annotation", "recruitment")
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: jitterplot_by_annotation requires the legacy plate_x/row_x/"
-           "col_x columns; spacr.io renames these to plateID/rowID/columnID, "
-           "so the function always raises KeyError on a current database",
-)
 def test_jitterplot_works_with_current_column_names(fake_db_readers):
     from spacr.plot import jitterplot_by_annotation
 

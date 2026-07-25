@@ -196,9 +196,6 @@ def test_visualize_masks_all_zero_masks_take_the_binary_branch():
     assert all(_shown(a).max() == 0 for a in fig.axes)
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="BUG: visualize_masks shadows its `title` argument in "
-                          "the for-loop, so suptitle always says 'Mask 3'")
 def test_visualize_masks_uses_the_title_argument_for_the_suptitle():
     """The documented `title` parameter must end up as the figure suptitle."""
     from spacr.plot import visualize_masks
@@ -293,10 +290,6 @@ def test_visualize_cellpose_masks_does_not_save_when_save_is_false(tmp_path):
     assert not (tmp_path / "results").exists()
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="BUG: visualize_cellpose_masks crashes on a single mask "
-                          "because plt.subplots(1, 1) returns a bare Axes and "
-                          "zip(axs, ...) raises TypeError")
 def test_visualize_cellpose_masks_handles_a_single_mask():
     """One mask is a legitimate input and must render one panel."""
     from spacr.plot import visualize_cellpose_masks
@@ -455,9 +448,6 @@ def test_plot_object_outlines_empty_objects_plots_nothing(record_plot_images):
     assert record_plot_images == []
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="BUG: plot_object_outlines ignores its max_nr argument "
-                          "and always forwards the hard-coded max_nr=10")
 def test_plot_object_outlines_forwards_max_nr(record_plot_images):
     """max_nr must reach plot_images_and_arrays."""
     from spacr.plot import plot_object_outlines

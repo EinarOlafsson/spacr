@@ -171,11 +171,6 @@ def test_plot_cellpose4_output_accepts_2d_flow_field():
     assert fig.axes[2].get_images()[0].get_cmap().name == "viridis"
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: plot_cellpose4_output annotates np.unique(mask)[1:], which drops a "
-           "real label when the mask has no background pixels",
-)
 def test_plot_cellpose4_output_labels_every_object_when_mask_has_no_background():
     from spacr.plot import plot_cellpose4_output
 

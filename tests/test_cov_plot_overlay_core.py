@@ -442,11 +442,6 @@ def test_overlay_float_stack_is_not_rescaled(tmp_path):
         assert np.allclose(_panel(fig_f, i), ref)
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: _plot_merged_plot wraps `ax` in a list when num_channels == 1, but "
-    "plt.subplots(1, num_channels + 1) already returns a 2-element ndarray "
-    "there, so ax[0] is the array and ax[0].imshow raises AttributeError. "
-    "The guard is off by one -- a single-channel overlay is impossible."))
 def test_overlay_single_channel_renders(tmp_path):
     """A one-channel overlay should still produce image + combined panels."""
     from spacr.plot import plot_image_mask_overlay
@@ -693,12 +688,6 @@ def test_magenta_variant_all_outlines_masks_mode(tmp_path):
     assert np.array_equal(_painted(fig, 3, stack, 3), union)
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: in the all_outlines branch the legacy renderer zips outlines "
-    "(pathogen, nucleus, cell) against the hard-coded list "
-    "['blue', 'red', 'green'] instead of the outline_colors it built, so the "
-    "same object is drawn green on a mask-less channel and red on the "
-    "all_on_all channels of the very same figure."))
 def test_magenta_variant_all_outlines_uses_consistent_object_colors(tmp_path):
     """A maskless channel must colour objects the same way all_on_all does."""
     from spacr.plot import plot_image_mask_overlay_magenta_outlines

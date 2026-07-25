@@ -4367,7 +4367,13 @@ def _remove_multiobject_cells(stack, mask_dim, cell_dim, nucleus_dim, pathogen_d
         if len(labels_in_cell) > 1:
             cell_mask[cell_region] = 0
             nucleus_mask[cell_region] = 0
-            for pathogen_label in labels_in_cell:
+            # Resolve the pathogens through the cell FOOTPRINT. labels_in_cell
+            # are object_dim label ids, and nucleus/pathogen masks are labeled
+            # independently from 1 — reusing them as pathogen ids deletes
+            # unrelated pathogens whenever object_dim is not the pathogen dim.
+            pathogens_in_cell = np.unique(pathogen_mask[cell_region])
+            pathogens_in_cell = pathogens_in_cell[pathogens_in_cell != 0]
+            for pathogen_label in pathogens_in_cell:
                 pathogen_mask[pathogen_mask == pathogen_label] = 0
 
     stack[:, :, cell_dim] = cell_mask

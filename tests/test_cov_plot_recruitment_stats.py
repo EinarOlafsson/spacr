@@ -223,11 +223,6 @@ def test_plot_controls_all_nan_column_is_plotted_as_zero():
     assert all(np.isfinite(h) and h > 0 for h in heights[1:])
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: _plot_controls guards each control column with `if control_col in "
-    "df_temp.columns` but then always passes the 4 fixed component names to "
-    "ax.bar(), so a DataFrame missing one component raises ValueError instead "
-    "of plotting the components it does have."))
 def test_plot_controls_tolerates_a_missing_component_column():
     df = _controls_df(chans=(0,)).drop(columns=["pathogen_channel_0_mean_intensity"])
 

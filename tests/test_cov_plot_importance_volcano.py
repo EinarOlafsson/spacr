@@ -258,11 +258,6 @@ def test_graph_importance_missing_columns_returns_early(tmp_path, capsys, no_sho
     assert (tmp_path / "settings" / "graph_importance.csv").is_file()
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: graph_importance's non-list branch is a no-op, so a single "
-           "csv path string is iterated character-by-character",
-)
 def test_graph_importance_accepts_a_single_path_string(tmp_path, monkeypatch, no_show):
     """A bare string path should behave like a one-element list."""
     from spacr.plot import graph_importance
@@ -270,9 +265,13 @@ def test_graph_importance_accepts_a_single_path_string(tmp_path, monkeypatch, no
     monkeypatch.chdir(tmp_path)
     _importance_csv(tmp_path / "imp0.csv", seed=4)
 
-    settings = {"csvs": "imp0.csv", "save": True}
+    # Absolute path: os.path.dirname of a bare relative name is '', which
+    # breaks the (separate, pre-existing) output_dir handling for the list
+    # form too, so it would not isolate the string-vs-list behaviour.
+    settings = {"csvs": str(tmp_path / "imp0.csv"), "save": True}
     graph_importance(settings)
 
+    assert settings["csvs"] == [str(tmp_path / "imp0.csv")]
     stem = "compartment_compartment_importance_sum_compartment_jitter_bar"
     assert (tmp_path / f"{stem}.pdf").is_file()
 
