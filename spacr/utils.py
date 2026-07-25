@@ -979,12 +979,18 @@ def calculate_activation_correlations(inputs, activation_maps, file_names, mande
 
         # Calculate correlations for each channel pair
         for in_c in range(in_channels):
-            input_channel = input_img[in_c].flatten().numpy()  # Flatten the input image channel
-            input_channel = input_channel[np.isfinite(input_channel)]  # Remove NaN or inf values
+            input_raw = input_img[in_c].flatten().numpy()  # Flatten the input image channel
 
             for act_c in range(act_channels):
-                activation_channel = activation_map[act_c].flatten().numpy()  # Flatten the activation map channel
-                activation_channel = activation_channel[np.isfinite(activation_channel)]  # Remove NaN or inf values
+                activation_raw = activation_map[act_c].flatten().numpy()  # Flatten the activation map channel
+
+                # Mask the two vectors JOINTLY. Filtering each independently
+                # dropped different positions from each, so the surviving
+                # elements no longer described the same pixels — pearsonr was
+                # correlating misaligned data (or raising on length mismatch).
+                finite = np.isfinite(input_raw) & np.isfinite(activation_raw)
+                input_channel = input_raw[finite]
+                activation_channel = activation_raw[finite]
 
                 # Check if there are valid (non-empty) arrays left to calculate the Pearson correlation
                 if input_channel.size > 0 and activation_channel.size > 0:
@@ -1068,6 +1074,13 @@ def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_
         # Handle empty values
         if pd.isna(value) or value == '':
             return None
+
+        # Anything pandas already typed (int/float/bool from a numeric CSV
+        # column) is returned as-is. The string-only logic below calls
+        # value.startswith(...) unconditionally, which raised AttributeError
+        # on every non-str cell.
+        if not isinstance(value, str):
+            return value
 
         # Handle boolean values
         if value == 'True':
@@ -3281,11 +3294,14 @@ def suggest_training_changes(
             return out
 
     # --- core scalars ---
-    best_val_idx = int(va["loss"].idxmin())
-    #best_val_loss = float(va.loc[best_val_idx, "loss"])
-    best_val_loss = _scalar(va.loc[best_val_idx, "loss"])
+    # idxmin returns an index LABEL; .loc on a duplicated or non-RangeIndex
+    # then returns a Series rather than a scalar (which is why _scalar exists
+    # to paper over it) and best_epoch could come from the wrong row. Use the
+    # positional argmin with .iloc so the row is unambiguous.
+    best_pos = int(va["loss"].argmin())
+    best_val_loss = _scalar(va["loss"].iloc[best_pos])
 
-    best_epoch = int(va.loc[best_val_idx, "epoch"]) if "epoch" in va.columns else (best_val_idx + 1)
+    best_epoch = int(_scalar(va["epoch"].iloc[best_pos])) if "epoch" in va.columns else (best_pos + 1)
 
     final = {
         "train_loss": float(tr["loss"].iloc[-1]),
@@ -3321,7 +3337,7 @@ def suggest_training_changes(
     f1_nan_val = "f1_macro" in va.columns and np.isnan(va["f1_macro"]).mean() > 0.2
 
     # improvement since best
-    since_best = int(tr.shape[0] - (best_val_idx + 1))
+    since_best = int(tr.shape[0] - (best_pos + 1))
     val_loss_delta_from_best = float(va["loss"].iloc[-1] - best_val_loss)
 
     # --- summary ---
@@ -3522,7 +3538,11 @@ def build_loss(loss_type: str = "ce",
         class_weights = (inv / inv.mean()).to(dtype=torch.float)
         # Menon et al. 2020: logit adjustment
         if logit_adjust_tau > 0:
-            logit_adjust = (-float(logit_adjust_tau) * priors.log()).to(dtype=torch.float)
+            # Menon et al. 2020 train-time adjustment is +tau*log(prior),
+            # applied as `logits + adjust` below. The negated form is the
+            # POST-HOC inference correction; used during training it pushes
+            # the model the wrong way and compounds the class imbalance.
+            logit_adjust = (float(logit_adjust_tau) * priors.log()).to(dtype=torch.float)
 
     # ----- binary focal BCE -----
     def _focal_bce(logits, y, alpha, gamma):
@@ -4280,7 +4300,12 @@ def _remove_noninfected(stack, cell_dim, nucleus_dim, pathogen_dim):
     for cell_label in np.unique(cell_mask)[1:]:
         cell_region = cell_mask == cell_label
         labels_in_cell = np.unique(pathogen_mask[cell_region])
-        if len(labels_in_cell) <= 1:
+        # Count actual pathogens, not uniques. `len(...) <= 1` assumed a
+        # background pixel was always present inside the cell, so a cell
+        # completely filled by its pathogen yielded [pid] (len 1) and was
+        # deleted as "uninfected" — exactly backwards.
+        labels_in_cell = labels_in_cell[labels_in_cell != 0]
+        if len(labels_in_cell) == 0:
             cell_mask[cell_region] = 0
             nucleus_mask[cell_region] = 0
     if not cell_dim is None:
@@ -4303,9 +4328,15 @@ def _remove_outside_objects(stack, cell_dim, nucleus_dim, pathogen_dim):
         cell_in_pathogen_region = np.unique(cell_mask[pathogen_region])
         cell_in_pathogen_region = cell_in_pathogen_region[cell_in_pathogen_region != 0]  # Exclude background
         if len(cell_in_pathogen_region) == 0:
+            # Resolve the nucleus through the pathogen's FOOTPRINT. The old
+            # `nucleus_mask == pathogen_label` reused a pathogen label id as a
+            # nucleus label id — independent label spaces — so it deleted an
+            # arbitrary unrelated nucleus that merely shared the number.
+            nuclei_in_pathogen = np.unique(nucleus_mask[pathogen_region])
+            nuclei_in_pathogen = nuclei_in_pathogen[nuclei_in_pathogen != 0]
             pathogen_mask[pathogen_region] = 0
-            corresponding_nucleus_region = nucleus_mask == pathogen_label
-            nucleus_mask[corresponding_nucleus_region] = 0
+            for nucleus_label in nuclei_in_pathogen:
+                nucleus_mask[nucleus_mask == nucleus_label] = 0
     stack[:, :, cell_dim] = cell_mask
     stack[:, :, nucleus_dim] = nucleus_mask
     stack[:, :, pathogen_dim] = pathogen_mask
@@ -4321,10 +4352,15 @@ def _remove_multiobject_cells(stack, mask_dim, cell_dim, nucleus_dim, pathogen_d
     for cell_label in np.unique(cell_mask)[1:]:
         cell_region = cell_mask == cell_label
         labels_in_cell = np.unique(object_mask[cell_region])
-        if len(labels_in_cell) > 2:
+        # Strip background before counting. `> 2` and the `[1:]` slice both
+        # assumed a background pixel inside every cell, so a cell fully
+        # covered by two objects read as len 2 and was kept, and the slice
+        # then skipped a real object instead of the 0.
+        labels_in_cell = labels_in_cell[labels_in_cell != 0]
+        if len(labels_in_cell) > 1:
             cell_mask[cell_region] = 0
             nucleus_mask[cell_region] = 0
-            for pathogen_label in labels_in_cell[1:]:  # Skip the first label (0)
+            for pathogen_label in labels_in_cell:
                 pathogen_mask[pathogen_mask == pathogen_label] = 0
 
     stack[:, :, cell_dim] = cell_mask
@@ -5400,7 +5436,11 @@ def reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, m
             print(f'Trained and fit reducer')
 
     else:
-        if not model is None:
+        # `model` defaults to False, not None (and core.py passes False
+        # explicitly), so a plain `is not None` check sent the sentinel into
+        # model.transform() and raised AttributeError on a bool instead of
+        # the intended "provide a model" error.
+        if model is not None and model is not False:
             embedding = model.transform(numeric_data)
             reducer = model
             if verbose:
@@ -5412,7 +5452,12 @@ def reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, m
         clustering_model = DBSCAN(eps=eps, min_samples=min_samples, metric=metric, n_jobs=n_jobs)
     elif clustering == 'kmeans':
         clustering_model = KMeans(n_clusters=min_samples, random_state=42)
-    
+    else:
+        # Without this the name stays unbound and the next line dies with a
+        # bare UnboundLocalError. search_reduction_and_clustering already
+        # raises this; the two are now consistent.
+        raise ValueError(f"Unsupported clustering method: {clustering}. Supported methods are 'dbscan' and 'kmeans'")
+
     clustering_model.fit(embedding)
     labels = clustering_model.labels_ if clustering == 'dbscan' else clustering_model.predict(embedding)
     
