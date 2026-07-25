@@ -220,6 +220,44 @@ def test_module_preprocess_generate_masks_writes_cell_masks(
         assert int(arr.max()) >= 0
 
 
+@pytest.mark.slow
+@pytest.mark.gpu
+def test_module_masks_with_organelle_adjust_and_plot(tmp_path):
+    """Exercise the remaining mask-stage branches of
+    preprocess_generate_masks: a 4th (organelle) channel, pathogen masks,
+    adjust_cells=True (cell/nucleus/pathogen reconciliation) and plot=True.
+
+    Uses a 4-channel stub so organelle_channel=3 is in range.
+    """
+    from spacr.core import preprocess_generate_masks
+
+    plate = _make_stub_dataset(tmp_path / "organelle_full", channels=4)
+    settings = _mask_settings_for(plate)
+    settings.update({
+        "channels": [0, 1, 2, 3],
+        "nucleus_channel": 0,
+        "cell_channel": 1,
+        "pathogen_channel": 2,
+        "organelle_channel": 3,
+        "adjust_cells": True,
+        "plot": True,
+        "examples_to_plot": 1,
+    })
+    preprocess_generate_masks(settings)
+
+    # Every requested object type produced a mask stack, and merged/ carries
+    # the image channels plus one slice per mask.
+    for obj in ("cell", "nucleus", "pathogen", "organelle"):
+        d = plate / "masks" / f"{obj}_mask_stack"
+        assert d.is_dir() and any(d.glob("*.npy")), f"no {obj} masks at {d}"
+
+    merged = sorted((plate / "merged").glob("*.npy"))
+    assert merged, "no merged arrays written"
+    arr = np.load(merged[0])
+    assert arr.ndim == 3 and arr.shape[2] >= 8, (
+        f"expected 4 channels + 4 mask slices, got {arr.shape}")
+
+
 # ---------------------------------------------------------------------------
 # v2 streaming pipeline
 # ---------------------------------------------------------------------------
