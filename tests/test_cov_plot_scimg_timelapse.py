@@ -298,8 +298,6 @@ def test_save_scimg_plot_writes_pdfs_to_the_figure_folder(scimg_dir):
     assert plt.get_fignums() == []
 
 
-@pytest.mark.xfail(strict=True, reason="BUG: nr_imgs=1 makes _plot_images_on_grid "
-                                       "call .flatten() on a bare Axes")
 def test_save_scimg_plot_with_a_single_image(scimg_dir, figure_recorder):
     """A one-crop folder/sample is a legal input and should still emit figures."""
     from spacr.plot import _save_scimg_plot
@@ -375,8 +373,6 @@ def test_plot_cropped_arrays_3d_makes_one_axis_per_channel():
     assert all(ax.axison is False for ax in fig.axes)
 
 
-@pytest.mark.xfail(strict=True, reason="BUG: a (H, W, 1) stack indexes axs[0] on the "
-                                       "bare Axes returned by plt.subplots(1, 1)")
 def test_plot_cropped_arrays_single_channel_stack():
     """A stack with exactly one channel is a valid shape and must not crash."""
     from spacr.plot import _plot_cropped_arrays

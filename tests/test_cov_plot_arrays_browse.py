@@ -344,9 +344,6 @@ def test_filter_objects_in_plot_both_limits_false_removes_multiobject_cells():
     assert out[50, 50, 2] == 4
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="BUG: nuclei_limit/pathogen_limit pass swapped "
-                          "object_dim to _remove_multiobject_cells")
 def test_nuclei_limit_false_removes_the_multinucleated_cell():
     """nuclei_limit=False documents 'do not keep multinucleated cells'.
 
@@ -365,9 +362,6 @@ def test_nuclei_limit_false_removes_the_multinucleated_cell():
     assert _labels(out[:, :, 0]) == {0, 2, 3}
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="BUG: nuclei_limit/pathogen_limit pass swapped "
-                          "object_dim to _remove_multiobject_cells")
 def test_pathogen_limit_false_removes_the_multiinfected_cell():
     """pathogen_limit=False must drop the multi-infected cell (cell 2).
 
@@ -516,9 +510,6 @@ def test_plot_arrays_2d_array_falls_back_to_single_axes(tmp_path):
     assert np.array_equal(np.asarray(axes[0].images[0].get_array()), arr)
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="BUG: plot_arrays(normalize=True) crashes on 2-D "
-                          "arrays - normalize_to_dtype indexes array.shape[2]")
 def test_plot_arrays_2d_array_with_default_normalisation(tmp_path):
     """plot_arrays explicitly supports 2-D arrays, but normalize defaults to
     True and normalize_to_dtype requires an (H, W, C) stack, so the documented

@@ -230,10 +230,6 @@ def test_normalize_and_outline_remove_background_zeroes_only_intensity_channels(
         np.testing.assert_array_equal(got[:, :, dim], original[:, :, dim])
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: _normalize_and_outline percentile-normalises the mask channels too, "
-    "so a mask holding exactly one object collapses to a constant image and "
-    "_outline_and_overlay finds no contour -> that object is never outlined"))
 def test_normalize_and_outline_single_object_mask_is_outlined():
     from spacr.plot import _normalize_and_outline, _get_colours_merged
 
@@ -502,9 +498,6 @@ def test_plot_merged_verbose_controls_settings_display(tmp_path, monkeypatch, ve
     assert shown == ([settings] if verbose else [])
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: plot_merged with nr=0 hits `return fig` before `fig` is ever "
-    "assigned -> UnboundLocalError instead of simply plotting nothing"))
 def test_plot_merged_with_nr_zero_plots_nothing(tmp_path):
     from spacr.plot import plot_merged
 
@@ -592,11 +585,6 @@ def test_plot_images_on_grid_channel_name_banner(tmp_path):
     assert all(t.get_fontsize() == 9 for t in fig.texts)
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: _plot_images_on_grid reuses the loop variable `i` for the "
-    "channel_names loop, so `range(i + 1, len(axes))` is computed from the "
-    "number of channel names instead of the number of images and the unused "
-    "grid cells keep their visible axes"))
 def test_plot_images_on_grid_pads_unused_cells_with_channel_names(tmp_path):
     from spacr.plot import _plot_images_on_grid
 
@@ -698,10 +686,6 @@ def test_plot_images_on_grid_plot_flag_controls_show(tmp_path, show_calls, plot)
     assert fig.get_facecolor()[:3] == (0.0, 0.0, 0.0)
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: _plot_images_on_grid with a single image builds a 1x1 subplot grid, "
-    "so plt.subplots returns a bare Axes and axes.flatten() raises "
-    "AttributeError"))
 def test_plot_images_on_grid_handles_a_single_image(tmp_path):
     from spacr.plot import _plot_images_on_grid
 
