@@ -54,7 +54,7 @@ def diff_settings(a: Dict[str, Any], b: Dict[str, Any]) -> List[DiffRow]:
     for k in keys:
         av, bv, in_a, in_b = a.get(k), b.get(k), k in a, k in b
         if in_a and in_b:
-            if _normalize(av) != _normalize(bv):
+            if not _values_equal(av, bv):
                 out.append(DiffRow(k, av, bv, "changed"))
         elif in_a:
             out.append(DiffRow(k, av, None, "removed"))
@@ -63,8 +63,32 @@ def diff_settings(a: Dict[str, Any], b: Dict[str, Any]) -> List[DiffRow]:
     return out
 
 
+def _values_equal(a: Any, b: Any) -> bool:
+    """Compare two setting values structurally.
+
+    Delegates to :func:`spacr.run_journal.values_equal` so this dialog and
+    :func:`spacr.run_journal.diff_runs` can never disagree about what counts
+    as a change. That matters in practice: the journal round-trips settings
+    through CSV, so an older run stores ``channels`` as the string
+    ``"[0, 1, 2]"`` while a newer one stores the list ``[0, 1, 2]``. The
+    local normaliser below only handles str->int/float/bool, so it reported
+    that pair as a change and the dialog showed differences that weren't real.
+
+    Falls back to :func:`_normalize` if run_journal cannot be imported, so
+    this module still works standalone.
+    """
+    try:
+        from ..run_journal import values_equal
+    except Exception:
+        return _normalize(a) == _normalize(b)
+    return values_equal(a, b)
+
+
 def _normalize(v: Any) -> Any:
-    """Weakly-canonicalise a value so `"1"` and `1` compare equal, etc."""
+    """Weakly-canonicalise a value so `"1"` and `1` compare equal, etc.
+
+    Retained as the offline fallback for :func:`_values_equal`.
+    """
     if isinstance(v, str):
         s = v.strip()
         # Bool
