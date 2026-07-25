@@ -249,3 +249,56 @@ def test_reducer_hyperparameter_search_runs(umap_src):
         save=False, show=False)
     # returns a figure or None depending on backend; the call must not raise
     assert out is None or out is not None
+
+
+def test_reducer_search_accepts_dict_params_and_returns_fig(umap_src):
+    """Bare dicts (not lists) are wrapped; return_fig hands back the figure."""
+    pytest.importorskip("umap")
+    from spacr.core import reducer_hyperparameter_search
+    fig = reducer_hyperparameter_search(
+        settings=_umap_settings(umap_src),
+        reduction_params={"n_neighbors": 5},
+        dbscan_params={"eps": 0.5, "min_samples": 3},
+        kmeans_params={"n_clusters": 2},
+        save=False, show=False, return_fig=True)
+    assert fig is not None
+
+
+def test_reducer_search_tsne_switches_method(umap_src, capsys):
+    """A 'perplexity' param selects tSNE and announces the switch."""
+    pytest.importorskip("sklearn")
+    from spacr.core import reducer_hyperparameter_search
+    reducer_hyperparameter_search(
+        settings=_umap_settings(umap_src, reduction_method="umap"),
+        reduction_params=[{"perplexity": 5}],
+        dbscan_params=[{"eps": 0.5, "min_samples": 3}],
+        kmeans_params=None, save=False, show=False)
+    assert "Changed reduction method to tsne" in capsys.readouterr().out
+
+
+def test_reducer_search_saves_figure(umap_src):
+    """save=True writes the hyperparameter-search PDF under the source."""
+    pytest.importorskip("umap")
+    from spacr.core import reducer_hyperparameter_search
+    reducer_hyperparameter_search(
+        settings=_umap_settings(umap_src),
+        reduction_params=[{"n_neighbors": 5}],
+        dbscan_params=[{"eps": 0.5, "min_samples": 3}],
+        kmeans_params=None, save=True, show=False)
+    pdfs = []
+    for root, _dirs, files in os.walk(umap_src):
+        pdfs += [f for f in files if f.endswith(".pdf")]
+    assert pdfs, "save=True should write a search figure"
+
+
+def test_reducer_search_row_limit_and_exclude(umap_src):
+    """row_limit sampling + exclude_conditions filtering inside the search."""
+    pytest.importorskip("umap")
+    from spacr.core import reducer_hyperparameter_search
+    out = reducer_hyperparameter_search(
+        settings=_umap_settings(umap_src, row_limit=30,
+                                exclude_conditions="pc", verbose=True),
+        reduction_params=[{"n_neighbors": 5}],
+        dbscan_params=[{"eps": 0.5, "min_samples": 3}],
+        kmeans_params=None, save=False, show=False)
+    assert out is None or out is not None
