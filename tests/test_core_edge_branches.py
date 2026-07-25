@@ -12,7 +12,12 @@ matplotlib = pytest.importorskip("matplotlib")
 matplotlib.use("Agg", force=True)
 
 # Reuse the synthetic measurements.db fixtures from the umap test module.
-from test_core_umap_graphs import umap_src, _umap_settings, _entity_frame, N_OBJ  # noqa: F401
+# tests/ is a package (tests/__init__.py exists), so this has to be the
+# qualified import — the bare `from test_core_umap_graphs import ...` form
+# fails at collection and takes the whole suite down with it.
+from tests.test_core_umap_graphs import (  # noqa: F401
+    umap_src, _umap_settings, _entity_frame, N_OBJ,
+)
 
 
 def _base_settings(src, **over):
