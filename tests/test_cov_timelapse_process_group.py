@@ -460,13 +460,6 @@ def test_smooth_tracks_writes_back_glitch_centroid_for_float32_columns():
     assert out["cell_area"].tolist() == [100.0, 110.0, 120.0]
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: _smooth_tracks_and_features never writes the glitch-corrected "
-           "centroid back for float64 columns - g[col].to_numpy(dtype=float) "
-           "aliases the group's own buffer, so the in-place fix also mutates "
-           "`g` and the guard `y[i] != g[y_col].iloc[i]` is always False.",
-)
 def test_smooth_tracks_writes_back_glitch_corrected_centroid():
     from spacr.timelapse import _smooth_tracks_and_features
 

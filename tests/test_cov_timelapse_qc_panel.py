@@ -663,12 +663,6 @@ def test_infection_qc_histogram_png_filename_uses_meta_tag(tmp_path):
             "infection_intensity_histogram_MULTI_PLATES_C03.png").is_file()
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: with infection_intensity_log=True the threshold is computed in "
-           "log10 space but compared against raw intensities, so every cell is "
-           "called positive",
-)
 def test_infection_qc_histogram_log_threshold_applied_in_log_space(tmp_path):
     from spacr.timelapse import _infection_qc_histogram
 
@@ -687,7 +681,7 @@ def test_infection_qc_histogram_log_threshold_applied_in_log_space(tmp_path):
 
 
 def test_infection_qc_histogram_log_payload_is_log_transformed(tmp_path):
-    """Regardless of the threshold bug, the payload itself is in log space."""
+    """The plotting payload is in log space when log_transform is on."""
     from spacr.timelapse import _infection_qc_histogram
 
     df = _qc_df()

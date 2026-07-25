@@ -9,20 +9,15 @@ so every branch here is exercised either against real trackpy on tiny
 synthetic label stacks, or by injecting a fake ``tp.link`` / ``tp.link_df``
 that fails on demand.
 
-Two real defects are pinned with ``xfail(strict=True)``:
+Two real defects, both fixed, are regression-tested here:
 
-* ``_facilitate_trackin_with_adaptive_removal`` calls
+* ``_facilitate_trackin_with_adaptive_removal`` used to call
   ``tp.link_df(..., predict=True)``; trackpy has no ``predict`` keyword
-  (it is ``predictor=<obj>``), so every linking attempt raises TypeError and
-  the function always ends in ``RuntimeError``.
-* ``_trackpy_track_cells`` does ``tracks_df['particle'] += 1`` unconditionally,
+  (it is ``predictor=<obj>``), so every linking attempt raised TypeError and
+  the function always ended in ``RuntimeError``.
+* ``_trackpy_track_cells`` did ``tracks_df['particle'] += 1`` unconditionally,
   but with ``track_by_iou=True`` the tracks frame carries ``track_id``, not
   ``particle`` -> KeyError.
-
-Tests that need to reach the code *after* the ``predict=True`` call install a
-thin shim that drops the bogus keyword and delegates to real trackpy; that
-shim is what a fixed spacr would effectively do, so the assertions describe
-correct behaviour rather than the current breakage.
 """
 from __future__ import annotations
 
@@ -82,13 +77,12 @@ def _stack_with_transient(n_frames=4, size=48, side=8):
 
 
 def _link_df_shim(monkeypatch):
-    """Make ``tp.link_df`` tolerate spacr's bogus ``predict=True`` keyword."""
+    """Pass-through wrapper around ``tp.link_df`` (isolates these tests from it)."""
     from spacr import timelapse as TL
 
     real = TL.tp.link_df
 
     def shim(f, search_range, **kwargs):
-        kwargs.pop("predict", None)
         return real(f, search_range=search_range, **kwargs)
 
     monkeypatch.setattr(TL.tp, "link_df", shim)
@@ -253,10 +247,9 @@ def test_facilitate_auto_search_range_from_area_quantile(monkeypatch):
 
     seen = {}
 
-    def fake_link_df(features, search_range, memory, predict):
+    def fake_link_df(features, search_range, memory):
         seen["search_range"] = search_range
         seen["memory"] = memory
-        seen["predict"] = predict
         out = features.copy()
         out["particle"] = out["original_label"] - 1
         return out
@@ -268,7 +261,6 @@ def test_facilitate_auto_search_range_from_area_quantile(monkeypatch):
 
     assert seen["search_range"] == expected
     assert seen["memory"] == 4
-    assert seen["predict"] is True                  # spacr's (broken) request
     assert "particle" in tracks.columns
 
 
@@ -278,7 +270,7 @@ def test_facilitate_retries_with_shrunken_search_range(monkeypatch, capsys):
 
     calls = []
 
-    def flaky_link_df(features, search_range, memory, predict):
+    def flaky_link_df(features, search_range, memory):
         calls.append(search_range)
         if len(calls) == 1:
             raise ValueError("SubnetOversizeException")
@@ -304,7 +296,7 @@ def test_facilitate_search_range_never_shrinks_below_one(monkeypatch, capsys):
 
     calls = []
 
-    def always_fail(features, search_range, memory, predict):
+    def always_fail(features, search_range, memory):
         calls.append(search_range)
         raise ValueError("nope")
 
@@ -324,7 +316,7 @@ def test_facilitate_raises_runtime_error_after_max_attempts(monkeypatch):
     """Exhausting max_attempts raises RuntimeError, not the inner exception."""
     from spacr import timelapse as TL
 
-    def always_fail(features, search_range, memory, predict):
+    def always_fail(features, search_range, memory):
         raise ZeroDivisionError("inner failure")
 
     monkeypatch.setattr(TL.tp, "link_df", always_fail)
@@ -349,13 +341,12 @@ def test_facilitate_track_by_iou_ignores_link_df_entirely(monkeypatch):
 
 
 def test_facilitate_with_real_trackpy_links_two_particles():
-    """Shimmed-away ``predict`` kwarg: real trackpy links both squares."""
+    """Real trackpy links both squares through the module-level ``tp.link_df``."""
     from spacr import timelapse as TL
 
     real = TL.tp.link_df
 
     def shim(f, search_range, **kwargs):
-        kwargs.pop("predict", None)
         return real(f, search_range=search_range, **kwargs)
 
     old = TL.tp.link_df
@@ -372,15 +363,8 @@ def test_facilitate_with_real_trackpy_links_two_particles():
     assert len(tracks) == 8
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: _facilitate_trackin_with_adaptive_removal calls "
-           "tp.link_df(..., predict=True); trackpy has no 'predict' kwarg "
-           "(it is 'predictor'), so every attempt raises TypeError and the "
-           "function always ends in RuntimeError.",
-)
 def test_facilitate_real_trackpy_predict_kwarg_is_rejected():
-    """The unpatched trackpy path should link, not raise RuntimeError."""
+    """The unpatched trackpy path links instead of raising RuntimeError."""
     from spacr.timelapse import _facilitate_trackin_with_adaptive_removal
 
     _, _, tracks = _facilitate_trackin_with_adaptive_removal(
@@ -625,12 +609,6 @@ def test_trackpy_track_cells_creates_tracks_dir_when_missing(monkeypatch, tmp_pa
         "trackpy_tracks_cell_n8a.csv", "trackpy_tracks_cell_n8b.csv"]
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: _trackpy_track_cells does tracks_df['particle'] += 1 "
-           "unconditionally, but with track_by_iou=True the frame returned by "
-           "_track_by_iou has a 'track_id' column and no 'particle' -> KeyError.",
-)
 def test_trackpy_track_cells_track_by_iou_returns_mask_stack(tmp_path):
     """track_by_iou=True is an advertised mode and should produce a stack."""
     from spacr.timelapse import _trackpy_track_cells

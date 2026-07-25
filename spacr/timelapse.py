@@ -412,7 +412,7 @@ def _track_by_iou(masks, iou_threshold=0.1):
 def _facilitate_trackin_with_adaptive_removal(masks, search_range=None, max_attempts=5, memory=3, min_mass=50, track_by_iou=False):
     """
     Facilitates object tracking with deterministic initial filtering and
-    trackpy’s constant-velocity prediction.
+    trackpy’s nearest-neighbour linking.
 
     Args:
         masks (np.ndarray): integer‐labeled masks (frames × H × W).
@@ -447,7 +447,12 @@ def _facilitate_trackin_with_adaptive_removal(masks, search_range=None, max_atte
             if track_by_iou:
                 tracks_df = _track_by_iou(masks, iou_threshold=0.1)
             else:
-                tracks_df = tp.link_df(features,search_range=search_range, memory=memory, predict=True)
+                # NB: trackpy has no 'predict' keyword (it is 'predictor=<obj>'),
+                # so tp.link_df(..., predict=True) raised TypeError on every
+                # attempt; the broad except below swallowed it and the function
+                # always ended in RuntimeError. Link the same way
+                # _find_optimal_search_range calibrates the range: plain tp.link.
+                tracks_df = tp.link_df(features, search_range=search_range, memory=memory)
                 print(f"Linked on attempt {attempt} with search_range={search_range}")
             return masks, features, tracks_df
 
@@ -493,6 +498,14 @@ def _trackpy_track_cells(src, name, batch_filenames, object_type, masks, timelap
                 timelapse_displacement = 50
 
         masks, features, tracks_df = _facilitate_trackin_with_adaptive_removal(masks, search_range=timelapse_displacement, max_attempts=100, memory=timelapse_memory, track_by_iou=track_by_iou)
+
+        if 'particle' not in tracks_df.columns:
+            # _track_by_iou returns ['frame', 'original_label', 'track_id'] and no
+            # centroids, so the unconditional tracks_df['particle'] += 1 below used
+            # to raise KeyError for the advertised timelapse_mode='iou'. Map it onto
+            # the trackpy layout; x/y are needed by the track visualiser downstream.
+            tracks_df = tracks_df.rename(columns={'track_id': 'particle'})
+            tracks_df = tracks_df.merge(features[['frame', 'original_label', 'x', 'y']], on=['frame', 'original_label'], how='left')
 
         tracks_df['particle'] += 1
 
@@ -780,6 +793,19 @@ def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, mas
         tracks_df = _filter_short_tracks(tracks_df, min_length=n_frames)
         logger.debug("tracks_df shape after filtering: %s", tracks_df.shape)
 
+    if tracks_df.empty:
+        # btrack completes normally on a batch where nothing was segmented, but
+        # pd.DataFrame([]) has no columns at all, so the rounding and the merge
+        # below used to raise KeyError: 'x'. Give the empty frame its schema so
+        # the no-tracks case flows through to an all-zero mask stack.
+        logger.warning(
+            "btrack produced no usable tracks for %s (%s); "
+            "returning an untracked mask stack.", name, object_type,
+        )
+        tracks_df = pd.DataFrame(
+            {col: pd.Series(dtype=float) for col in ("track_id", "frame", "x", "y", "z")}
+        )
+
     # ------------------------------------------------------------------
     # Map track positions back to original labels
     # ------------------------------------------------------------------
@@ -802,15 +828,27 @@ def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, mas
     )
     logger.debug("merged_df shape: %s", merged_df.shape)
 
-    final_df = merged_df[["track_id", "frame", "x", "y", "original_label"]]
-    
-    try:
-        final_df['file_name'] = name
-        final_df[['plateID', 'rowID', 'columnID', 'fieldID', 'prcf']] = (final_df['file_name'].apply(lambda fname: pd.Series(_map_wells(fname, timelapse=False))))
-        final_df['wellID'] = final_df['file_name'].str.split('_').str[1]
-        
-    except IndexError:
-        logger.warning("Failed to parse plate, well, field from name: %s", name)
+    final_df = merged_df[["track_id", "frame", "x", "y", "original_label"]].copy()
+
+    if final_df.empty:
+        # Series.apply on an empty Series returns an empty Series rather than the
+        # 5-column frame the assignment expects, so the metadata block below used
+        # to raise ValueError: Columns must be same length as key (not caught by
+        # the IndexError handler). Emit an empty, correctly-shaped table instead.
+        logger.warning(
+            "No tracks remained after filtering/merging for %s; "
+            "writing an empty track table.", name
+        )
+        for col in ('file_name', 'plateID', 'rowID', 'columnID', 'fieldID', 'prcf', 'wellID'):
+            final_df[col] = pd.Series(dtype='object')
+    else:
+        try:
+            final_df['file_name'] = name
+            final_df[['plateID', 'rowID', 'columnID', 'fieldID', 'prcf']] = (final_df['file_name'].apply(lambda fname: pd.Series(_map_wells(fname, timelapse=False))))
+            final_df['wellID'] = final_df['file_name'].str.split('_').str[1]
+
+        except IndexError:
+            logger.warning("Failed to parse plate, well, field from name: %s", name)
     
     # ------------------------------------------------------------------
     # Relabel masks with track IDs
@@ -996,7 +1034,11 @@ def summarize_per_well(peak_details_df):
         cells_per_well=('object_number', 'nunique'),
     ).reset_index()
 
-    summary_df['cells_per_well'] = summary_df_2['cells_per_well']
+    # Join on well_ID rather than assigning the column positionally: summary_df is
+    # built from the amplitude-filtered frame, so a well whose peaks all have a
+    # null amplitude is missing from it and every later well used to inherit the
+    # previous well's cell count (and an empty summary grew ghost NaN rows).
+    summary_df = summary_df.merge(summary_df_2, on='well_ID', how='left')
     summary_df['peaks_per_cell'] = summary_df['peaks_per_well'] / summary_df['cells_per_well']
     
     return summary_df
@@ -1089,6 +1131,13 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
     cell_df['time'] = prcf_components[4].str.extract('t(\d+)').astype(int)
     cell_df['object_number'] = cell_df['object_label']
     cell_df['plate_row_column_field_object'] = cell_df['plateID'].astype(str) + '_' + cell_df['rowID'].astype(str) + '_' + cell_df['columnID'].astype(str) + '_' + cell_df['fieldID'].astype(str) + '_' + cell_df['object_label'].astype(str)
+
+    # 'parasite_count' only exists when the (optional) pathogen table was merged
+    # above. The per-track loop below reads it unconditionally, so the documented
+    # default call (pathogen=None) used to die with KeyError. Default to 0, i.e.
+    # every cell uninfected, which is the right answer with no pathogen data.
+    if 'parasite_count' not in cell_df.columns:
+        cell_df['parasite_count'] = 0
 
     df = cell_df.copy()
 
@@ -3071,8 +3120,12 @@ def _smooth_tracks_and_features(df, max_displacement=50.0, zscore_thresh=3.0):
 
         n_tracks_processed += 1
 
-        y = g[y_col].to_numpy(dtype=float)
-        x = g[x_col].to_numpy(dtype=float)
+        # copy=True is required: for an already-float64 column to_numpy returns a
+        # VIEW onto the group's buffer, so the in-place glitch repair below also
+        # mutated `g` and the write-back guard (y[i] != g[y_col].iloc[i]) could
+        # never fire - the corrected centroid was silently dropped.
+        y = g[y_col].to_numpy(dtype=float, copy=True)
+        x = g[x_col].to_numpy(dtype=float, copy=True)
         n = len(idx)
         glitch_frames = set()
 
@@ -5736,7 +5789,12 @@ def _infection_qc_histogram(
             f"where infected ≥ {target_frac:.2f}: {thr_val:.2f} (bin {thresh_idx})"
         )
 
-    cell_level["intensity_positive"] = cell_level[intensity_col] >= thr_val
+    # Threshold in the space thr_val was derived in. `intensities` is the
+    # (optionally log10-transformed) array the histogram and thr_val came from;
+    # comparing the raw column against a log-space threshold used to call every
+    # cell positive (and, in mode='remove', silently delete the negatives).
+    # The ndarray is row-aligned with cell_level and assigns positionally.
+    cell_level["intensity_positive"] = intensities >= thr_val
 
     mode = str(settings.get("infection_intensity_mode", "relabel")).lower()
     if mode not in {"relabel", "remove"}:
@@ -6828,10 +6886,12 @@ def automated_motility_assay(settings):
             with Pool(processes=n_jobs) as pool:
                 dfs = pool.map(_process_merged_group, worker_args)
 
+        # Guard on the filtered list, not on `dfs`: every group returning an empty
+        # frame (e.g. no cell masks) left pd.concat([]) to raise a cryptic
+        # ValueError("No objects to concatenate") before the intended RuntimeError.
+        non_empty = [df for df in dfs if not df.empty]
         all_df = (
-            pd.concat([df for df in dfs if not df.empty], ignore_index=True)
-            if dfs
-            else pd.DataFrame()
+            pd.concat(non_empty, ignore_index=True) if non_empty else pd.DataFrame()
         )
         if all_df.empty:
             raise RuntimeError("No measurements were produced from merged .npy files.")

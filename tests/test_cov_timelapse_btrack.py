@@ -548,15 +548,9 @@ def test_btrack_hands_masks_and_tracks_to_the_visualiser(src_dir, monkeypatch,
 
 
 # ---------------------------------------------------------------------------
-# empty-input bugs (see suspected_bugs)
+# empty-input regressions (both were real crashes, now fixed)
 # ---------------------------------------------------------------------------
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: _btrack_track_cells raises KeyError 'x' when btrack returns no "
-           "tracks (e.g. a batch whose segmentation is empty) instead of "
-           "returning an untracked, all-zero mask stack",
-)
 def test_btrack_with_no_objects_returns_zeroed_stack(src_dir):
     masks = np.zeros((3, 32, 32), dtype=np.int32)
     out = _run(src_dir, masks, radius=5)
@@ -565,13 +559,6 @@ def test_btrack_with_no_objects_returns_zeroed_stack(src_dir):
     assert all(int(np.count_nonzero(f)) == 0 for f in out)
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: when every track is filtered out as transient the empty "
-           "final_df makes the _map_wells assignment raise AttributeError "
-           "('Series' object has no attribute 'columns') instead of writing an "
-           "empty track table",
-)
 def test_btrack_all_tracks_transient_returns_zeroed_stack(src_dir, monkeypatch):
     masks = _moving_masks(n_frames=3)
     # every fake track lives for a single frame -> all shorter than n_frames
