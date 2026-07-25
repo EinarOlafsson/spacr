@@ -23,6 +23,7 @@ from PySide6.QtWidgets import (
     QProgressBar,
     QPushButton,
     QScrollArea,
+    QSizePolicy,
     QSplitter,
     QVBoxLayout,
     QWidget,
@@ -175,8 +176,9 @@ class AppScreen(QWidget):
         outer.setSpacing(SPACING["md"])
 
         # ─── Header ───────────────────────────────────────────────────
-        # Title + subtitle on the left; a short "what this does" blurb and a
-        # docs link on the right.
+        # Title + subtitle on the left, followed on the same row by a short
+        # single-line "what this does" blurb and a docs link. Everything is
+        # left-aligned; the trailing stretch takes up the slack.
         header = QWidget()
         header_layout = QHBoxLayout(header)
         header_layout.setContentsMargins(0, 0, 0, 0)
@@ -192,27 +194,31 @@ class AppScreen(QWidget):
         subtitle.setObjectName("Muted")
         title_col.addWidget(subtitle)
         header_layout.addLayout(title_col)
-        header_layout.addStretch(1)
 
         intro_text = APP_INTROS.get(app_key)
         if intro_text:
             from ..screens.settings_model import api_docs_url
-            intro_col = QVBoxLayout()
-            intro_col.setContentsMargins(0, 0, 0, 0)
-            intro_col.setSpacing(2)
+            intro_row = QHBoxLayout()
+            intro_row.setContentsMargins(0, 0, 0, 0)
+            intro_row.setSpacing(SPACING["sm"])
             blurb = QLabel(intro_text)
             blurb.setObjectName("Muted")
-            blurb.setWordWrap(True)
-            blurb.setMaximumWidth(360)
-            blurb.setAlignment(Qt.AlignRight | Qt.AlignTop)
-            intro_col.addWidget(blurb)
+            # One line, flush left. The label may shrink below its ideal
+            # width so a long blurb never forces the window wider.
+            blurb.setWordWrap(False)
+            blurb.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            blurb.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
+            blurb.setMinimumWidth(0)
+            blurb.setToolTip(intro_text)
+            intro_row.addWidget(blurb)
             docs = QLabel(
                 f'<a href="{api_docs_url(app_key)}" '
                 f'style="color:{PALETTE["accent"]};">Docs&nbsp;→</a>')
             docs.setOpenExternalLinks(True)
-            docs.setAlignment(Qt.AlignRight)
-            intro_col.addWidget(docs)
-            header_layout.addLayout(intro_col)
+            docs.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            intro_row.addWidget(docs)
+            header_layout.addLayout(intro_row)
+        header_layout.addStretch(1)
         outer.addWidget(header)
 
         outer.addWidget(Divider())
