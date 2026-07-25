@@ -66,6 +66,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "run_journal",
     "notebook_export",
     "custom_features",
+    "validate",
     "updater",
     "version",
 )

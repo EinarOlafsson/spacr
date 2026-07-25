@@ -72,6 +72,14 @@ def preprocess_generate_masks(settings):
         :func:`spacr.io.preprocess_img_data` — the preprocessing half only.
         :func:`spacr.measure.measure_crop` — downstream feature extraction.
     """
+    # dry_run comes FIRST, before the local imports below: .object and .io
+    # pull in cellpose and the model machinery, which is exactly the cost a
+    # validate-only run exists to avoid. Nothing is read, written or loaded
+    # past this point when dry_run is set.
+    if settings.get('dry_run', False):
+        from .validate import run_preflight
+        return run_preflight(settings, 'mask')
+
     #from .timelapse import _summarise_object_relationships
     from .object import generate_cellpose_masks, generate_organelle_masks_sam, generate_cellpose_masks_sam
     from .io import preprocess_img_data, _load_and_concatenate_arrays, convert_to_yokogawa, convert_separate_files_to_yokogawa
