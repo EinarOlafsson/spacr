@@ -177,18 +177,25 @@ def test_timelapse_filter_short_tracks_empty_df():
 # spacr.utils: additional pure helpers
 # ===========================================================================
 
-def test_utils_generate_cytoplasm_mask_has_broken_logical_or_call():
-    """Regression pin: spacr.utils.generate_cytoplasm_mask has
-    `np.logical_or(nucleus_mask != 0)` with a single argument — the numpy
-    ufunc requires two. This test documents the current broken behavior
-    so the eventual fix has to update the test."""
+def test_utils_generate_cytoplasm_mask_excludes_nucleus():
+    """generate_cytoplasm_mask returns the cell minus the nucleus.
+
+    This test previously PINNED a bug: the implementation called
+    `np.logical_or(nucleus_mask != 0)` with a single argument, so every call
+    raised TypeError, and the old docstring said "the eventual fix has to
+    update the test". Fixed in 1.4.8.3 to
+    `np.where(nucleus_mask != 0, 0, cell_mask)`; the test now asserts the
+    documented behaviour instead of the breakage.
+    """
     from spacr.utils import generate_cytoplasm_mask
     cell = np.zeros((20, 20), dtype=np.int32)
     cell[5:15, 5:15] = 1
     nuc = np.zeros((20, 20), dtype=np.int32)
     nuc[8:12, 8:12] = 1
-    with pytest.raises(TypeError, match="logical_or"):
-        generate_cytoplasm_mask(nuc, cell)
+    cyto = generate_cytoplasm_mask(nuc, cell)
+    assert cyto[10, 10] == 0          # nucleus removed
+    assert cyto[6, 6] == 1            # cytoplasmic rim retained
+    assert cyto[0, 0] == 0            # background untouched
 
 
 def test_utils_normalize_src_path_resolves_realpath(tmp_path):
