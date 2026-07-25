@@ -66,4 +66,20 @@ def format_version_info() -> str:
 
 
 __version__ = get_version()
-version_str = format_version_info()
+
+
+def __getattr__(name: str):
+    """Resolve ``version_str`` lazily (PEP 562).
+
+    ``format_version_info()`` calls ``get_torch_version()``, which imports
+    torch — roughly 0.94 s. Evaluating it at module scope meant every
+    ``import spacr`` paid for torch whether or not anything needed it, which
+    defeated the point of light entry points like :mod:`spacr.validate`,
+    whose whole value is answering in about a second before a run starts.
+
+    ``from spacr.version import version_str`` still works unchanged; the cost
+    is now paid only by the caller that actually asks for it.
+    """
+    if name == "version_str":
+        return format_version_info()
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
