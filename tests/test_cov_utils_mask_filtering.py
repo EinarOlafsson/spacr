@@ -584,10 +584,16 @@ def test_run_test_mode_with_no_matching_files(tmp_path):
     assert os.path.isdir(out)
     assert os.listdir(out) == []
 
-
 # ---------------------------------------------------------------------------
 # _choose_model
 # ---------------------------------------------------------------------------
+#
+# Cellpose 4 ships exactly one model. models.MODEL_NAMES == ['cpsam'], and
+# CellposeModel accepts-and-ignores model_type= / diam_mean=, resolving an
+# unknown pretrained_model to cpsam with only a log warning. So the pre-SAM
+# names were never loading the model they named. _choose_model now maps every
+# legacy name to cpsam explicitly and says so, instead of pretending.
+
 
 class _FakeCellposeModel:
     """Records the kwargs Cellpose would have been constructed with."""
@@ -596,80 +602,78 @@ class _FakeCellposeModel:
         self.kwargs = kwargs
 
 
-class _FakeDenoiseModel:
-    def __init__(self, **kwargs):
-        self.kwargs = kwargs
-
-
 @pytest.fixture
 def fake_cellpose(monkeypatch):
-    """Swap both Cellpose constructors for recording doubles (no weights, no GPU)."""
+    """Swap the Cellpose constructor for a recording double (no weights, no GPU)."""
     monkeypatch.setattr(U.cp_models, "CellposeModel", _FakeCellposeModel)
-    monkeypatch.setattr(U.denoise, "CellposeDenoiseModel", _FakeDenoiseModel)
     return _FakeCellposeModel
 
 
-def test_choose_model_toxo_pv_lumen_uses_the_bundled_checkpoint(fake_cellpose):
-    model = U._choose_model("toxo_pv_lumen", device="cpu", object_type="pathogen",
-                            object_settings={"diameter": 17})
+@pytest.mark.parametrize(
+    "name", ["cyto", "cyto2", "cyto3", "cyto_2", "cyto_3", "nuclei", "nucleus"]
+)
+def test_choose_model_maps_every_legacy_name_to_cpsam(fake_cellpose, name, capsys):
+    """A pre-SAM name loads cpsam, and never passes model_type."""
+    model = U._choose_model(name, device="cpu")
     assert isinstance(model, _FakeCellposeModel)
-    assert model.kwargs["pretrained_model"].endswith(
-        os.path.join("models", "cp", "toxo_pv_lumen.CP_model"))
-    assert model.kwargs["diam_mean"] == 17
-    assert model.kwargs["model_type"] is None
-    assert model.kwargs["device"] == "cpu"
+    assert model.kwargs["pretrained_model"] == "cpsam"
+    assert "model_type" not in model.kwargs
+    assert "diam_mean" not in model.kwargs
+    # the substitution is announced rather than silent
+    assert "cpsam" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("name", ["toxo_pv_lumen", "toxo_cyto"])
+def test_choose_model_removed_toxo_models_fall_back_to_cpsam(fake_cellpose, name, capsys):
+    """The bundled toxo checkpoints were Cellpose-3 CPnet and are gone.
+
+    Their weights cannot load into CPSAM's Transformer (2 of 313 keys overlap),
+    so the only honest behaviour is cpsam plus a clear message.
+    """
+    model = U._choose_model(name, device="cpu", object_type="pathogen",
+                            object_settings={"diameter": 30})
+    assert model.kwargs["pretrained_model"] == "cpsam"
+    out = capsys.readouterr().out
+    assert name in out and "cpsam" in out
 
 
 def test_choose_model_sam_uses_cpsam_weights(fake_cellpose):
     model = U._choose_model("sam", device="cpu")
     assert model.kwargs["pretrained_model"] == "cpsam"
-    assert "model_type" not in model.kwargs
 
 
-@pytest.mark.parametrize("name", ["cyto", "cyto2", "cyto3", "nuclei"])
-def test_choose_model_builtin_names_pass_model_type(fake_cellpose, name):
-    model = U._choose_model(name, device="cpu")
-    assert model.kwargs["model_type"] == name
-    assert model.kwargs["device"] == "cpu"
+def test_choose_model_unknown_name_still_returns_cpsam(fake_cellpose):
+    """An unrecognised name must not return None — that was a latent crash."""
+    model = U._choose_model("no_such_model", device="cpu")
+    assert isinstance(model, _FakeCellposeModel)
+    assert model.kwargs["pretrained_model"] == "cpsam"
 
 
-def test_choose_model_invalid_restore_type_falls_back_to_none(fake_cellpose, capsys):
-    model = U._choose_model("cyto2", device="cpu", restore_type="sharpen")
+def test_choose_model_none_name_returns_cpsam(fake_cellpose):
+    model = U._choose_model(None, device="cpu")
+    assert model.kwargs["pretrained_model"] == "cpsam"
+
+
+@pytest.mark.parametrize("restore", ["denoise", "deblur", "upsample"])
+def test_choose_model_reports_and_ignores_restore_type(fake_cellpose, restore, capsys):
+    """The denoise/deblur/upsample checkpoints are pre-SAM and unavailable.
+
+    They are reported and ignored rather than silently constructing a
+    CellposeDenoiseModel whose model_type Cellpose 4 would discard anyway.
+    """
+    model = U._choose_model("cyto", device="cpu", restore_type=restore)
+    assert model.kwargs["pretrained_model"] == "cpsam"
     out = capsys.readouterr().out
-    assert "Invalid restore type" in out
-    # fell back to the plain (non-denoise) constructor
-    assert isinstance(model, _FakeCellposeModel)
-    assert model.kwargs["model_type"] == "cyto2"
+    assert restore in out and "not supported" in out
 
 
-def test_choose_model_unknown_model_name_returns_none(fake_cellpose):
-    assert U._choose_model("not_a_model", device="cpu") is None
+def test_choose_model_passes_the_device_through(fake_cellpose):
+    model = U._choose_model("cyto", device="cuda:1")
+    assert model.kwargs["device"] == "cuda:1"
 
 
-def test_choose_model_nucleus_restore_builds_denoise_model(fake_cellpose):
-    model = U._choose_model("nuclei", device="cpu", object_type="nucleus",
-                            restore_type="denoise")
-    assert isinstance(model, _FakeDenoiseModel)
-    assert model.kwargs["model_type"] == "nuclei"
-    assert model.kwargs["restore_type"] == "denoise_nuclei"
-    assert model.kwargs["chan2_restore"] is False
-
-
-@pytest.mark.parametrize("model_name,expect_chan2", [("cyto2", True),
-                                                     ("cyto3", False)])
-def test_choose_model_cyto_restore_sets_chan2_for_cyto2(fake_cellpose, model_name,
-                                                        expect_chan2):
-    model = U._choose_model(model_name, device="cpu", object_type="cell",
-                            restore_type="upsample")
-    assert isinstance(model, _FakeDenoiseModel)
-    assert model.kwargs["model_type"] == "cyto3"
-    assert model.kwargs["restore_type"] == "upsample_cyto3"
-    assert model.kwargs["chan2_restore"] is expect_chan2
-
-
-def test_choose_model_pathogen_without_toxo_model_falls_through(fake_cellpose):
-    """object_type='pathogen' with a generic name skips the bundled checkpoint."""
-    model = U._choose_model("cyto3", device="cpu", object_type="pathogen")
-    assert isinstance(model, _FakeCellposeModel)
-    assert model.kwargs["model_type"] == "cyto3"
-    assert "pretrained_model" not in model.kwargs
+def test_choose_model_tolerates_missing_object_settings(fake_cellpose):
+    """object_settings is optional; the removed toxo branch used to index it."""
+    model = U._choose_model("cyto", device="cpu", object_type="pathogen",
+                            object_settings=None)
+    assert model.kwargs["pretrained_model"] == "cpsam"

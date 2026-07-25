@@ -152,7 +152,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('organelle_morphology', 'spots')
     settings.setdefault('organelle_method', 'otsu')
     settings.setdefault('organelle_diameter', 30)
-    settings.setdefault('organelle_model_name','cyto3' )
+    settings.setdefault('organelle_model_name','cpsam' )
     settings.setdefault('organelle_min_size', 10)
     settings.setdefault('organelle_max_size', None)
     settings.setdefault('organelle_remove_border',False )
@@ -363,13 +363,13 @@ def _get_object_settings(object_type, settings):
     object_settings['merge'] = False
     object_settings['resample'] = True
     object_settings['remove_border_objects'] = False
-    object_settings['model_name'] = 'cyto'
+    object_settings['model_name'] = 'cpsam'
     
     if object_type == 'cell':
         if settings['nucleus_channel'] is None:
-            object_settings['model_name'] = 'cyto'
+            object_settings['model_name'] = 'cpsam'
         else:
-            object_settings['model_name'] = 'cyto2'
+            object_settings['model_name'] = 'cpsam'
         object_settings['min_size'] = settings['cell_min_area']
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
@@ -385,7 +385,7 @@ def _get_object_settings(object_type, settings):
 
     elif object_type == 'nucleus':
         object_settings['min_size'] = settings['nucleus_min_area']
-        object_settings['model_name'] = 'nuclei'
+        object_settings['model_name'] = 'cpsam'
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
         object_settings['restore_type'] = settings.get('nucleus_restore_type', None)
@@ -402,7 +402,7 @@ def _get_object_settings(object_type, settings):
 
     elif object_type == 'pathogen':
         object_settings['min_size'] = settings['pathogen_min_area']
-        object_settings['model_name'] = 'cyto'
+        object_settings['model_name'] = 'cpsam'
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
         object_settings['resample'] = False
@@ -904,7 +904,7 @@ def get_train_cellpose_default_settings(settings):
     :returns: the settings dict with defaults applied.
     """
     settings.setdefault('model_name','new_model')
-    settings.setdefault('model_type','cyto')
+    settings.setdefault('model_type','cpsam')
     settings.setdefault('Signal_to_noise',10)
     settings.setdefault('background',200)
     settings.setdefault('remove_background',False)
@@ -1010,7 +1010,7 @@ def get_identify_masks_finetune_default_settings(settings):
     :returns: the settings dict with defaults applied.
     """
     settings.setdefault('src', 'path')
-    settings.setdefault('model_name', 'cyto')
+    settings.setdefault('model_name', 'cpsam')
     settings.setdefault('custom_model', None)
     settings.setdefault('channels', [0,0])
     settings.setdefault('background', 100)
@@ -1500,7 +1500,7 @@ tooltips = {
     "threshold": "(list, list-of-lists, int or None) - Cut-off applied to 'measurement' before the annotation grid loads, so you only label the objects you care about. Accepts a number or a quantile code 'q1'-'q9' (q3 = the 30th percentile of that column), or one entry per measurement when measurement is a list. Empty or None loads every object unfiltered.",
     "cell_diameter": "(int) - (DEPRECEATED) Expected cell diameter in pixels. spaCR now segments with Cellpose-SAM, which sizes objects itself and is called with diameter=None, so this value has no effect on a normal mask run; only the opt-in pipeline_style='v2' route still passes it. Leave at None and control size with cell_min_area / cell_max_area. Default None.",
     "nucleus_diameter": "(int) - (DEPRECEATED) Expected nucleus diameter in pixels. It still overrides the magnification-derived diameter in _get_object_settings, but the live pipeline (generate_cellpose_masks_sam) calls model.eval with diameter=None, so changing it does not affect segmentation. Default None; constrain object size with nucleus_min_area / nucleus_max_area instead.",
-    "pathogen_diameter": "(int) - (DEPRECEATED) Nominal pathogen diameter in pixels. Segmentation now calls Cellpose with diameter=None, so changing this no longer resizes masks; it survives only as the diam_mean of the custom toxo_pv_lumen model. Leave at None (the default) and let magnification derive the value. Default None.",
+    "pathogen_diameter": "(int) - (DEPRECEATED) Nominal pathogen diameter in pixels. Cellpose-SAM is called with diameter=None, so this no longer rescales anything; the custom toxo model whose diam_mean it used to supply has been removed. Leave at None and let magnification derive the value. Default None.",
     "nucleus_CP_prob": "(float) - Cellpose cell-probability threshold for the nucleus channel, passed straight to model.eval as cellprob_threshold. A pixel must exceed it to join a mask, so raising it shrinks masks and drops dim nuclei, while lowering it grows masks and recovers faint ones along with more debris. Useful range about -6 to 6; default 0.",
     "pathogen_CP_prob": "(float) - Cellpose cellprob_threshold for the pathogen channel: a pixel is claimed by a mask only if its predicted object probability exceeds this. Lower it (toward -6) to recover dim or small parasites and grow mask boundaries; raise it (toward 6) to shrink masks and drop faint objects. Useful range about -6 to 6. Default 0.",
     "nucleus_FT": "(float) - Cellpose flow_threshold for nucleus masks: the maximum allowed error between a mask's recomputed flows and the network's predicted flows. Lowering it discards more irregularly shaped nuclei, giving fewer but cleaner objects; raising it keeps nearly everything Cellpose proposes. Typical range 0 to 3; spaCR default 1.0, which is permissive.",
@@ -1635,7 +1635,7 @@ tooltips = {
     "min_max": "(str) - Color limits for the plate heatmap: 'allq' scales to the 2nd-98th percentile of well values so a handful of extreme wells cannot flatten the rest, 'all' scales to the true min and max. A two-element list is also accepted, where floats are read as quantiles and integers as absolute vmin/vmax. Default 'allq'.",
     "min_samples": "(int) - Meaning depends on 'clustering': for DBSCAN it is how many points must fall within eps for a point to count as a core point, so raising it yields fewer, denser clusters and more noise; for KMeans this same value is reused as n_clusters, the exact number of clusters produced. Lower it (or raise eps) when no clusters are found. Default 100.",
     "mix": "(str) - Plate column ID whose wells hold a mixed positive/negative population; rows with this columnID are labelled cond='mix' for the image UMAP, so they can be coloured separately or dropped via exclude_conditions. Any column matching none of pos, neg or mix is labelled 'screen'. Default 'c3'.",
-    "model_name": "(str) - Stock Cellpose model to load ('cyto', 'cyto2', 'cyto_3', 'nuclei'); it also selects the channel pair (cyto -> [1,0], cyto2 -> [2,1], nucleus -> [0,0], anything else -> [2,0]) unless grayscale forces [0,0]. Pick 'nuclei' for DAPI-like stains and 'cyto2' when a nuclear channel is available. In train_cellpose it is instead the filename prefix of the model you save. Default 'cyto'.",
+    "model_name": "(str) - Cellpose model to segment with. Cellpose 4 ships exactly one, 'cpsam', and the pre-SAM names ('cyto', 'cyto2', 'cyto3', 'nuclei') are mapped to it automatically because Cellpose silently resolves them to cpsam anyway. Leave at 'cpsam' unless you are loading a custom CPSAM checkpoint. Default 'cpsam'.",
     "model_type": "(str) - Backbone architecture for the single-object image classifier, passed to choose_model: any TorchVision classification model name (resnet50, maxvit_t, densenet121, ...). An unrecognised name is not fatal at call time - choose_model prints 'Invalid model_type' and returns None, so training then fails; the special name 'custom' passes the name check but raises NotImplementedError. Bigger backbones capture subtler phenotypes but cost VRAM and epochs, and the name becomes part of the output model folder path (src/model/<model_type>/...). Default 'maxvit_t' in the training pipelines; the activation-map tool defaults to 'maxvit', and only that exact string triggers its automatic target-layer pick; the Tk/Qt combo preselects 'resnet50'.",
     "model_type_ml": "(str) - Which classifier ml_analysis fits to separate positive- from negative-control wells and rank per-object features by permutation importance. One of xgboost (default), lightgbm, catboost, random_forest, extra_trees, gradient_boosting, logistic_regression, svm, mlp; lightgbm and catboost need their optional packages. reg_alpha, reg_lambda and learning_rate only affect the boosted models; logistic_regression is a good linear sanity check.",
     "nc": "(str) - Negative control identifier.",
@@ -1761,9 +1761,9 @@ tooltips = {
     "overlay": "(bool) - In the batch-grid figures, draw the activation map in the 'jet' colormap at 50 percent alpha over the source image. Turn it off and the grid tiles are left empty apart from the predicted-class label, so keep it on whenever plot is enabled. It never affects the per-object activation PNGs saved to disk, which are always the bare map. Default True.",
     "normalize_input": "(bool) - Apply the same per-channel mean=0.5, std=0.5 normalisation used during training to each image before it enters the model when generating activation maps. Keep it matched to how the model was trained, otherwise inputs are off-distribution and both the predicted classes and the maps are meaningless. Distinct from 'normalize', which only percentile-stretches images for display. Default True.",
     "normalize_plots": "(bool) - Normalize images before plotting.",
-    "use_sam_cell": "(bool) - Inert: nothing in spaCR reads this key. Its setdefault is commented out, so it has no default value, and the only commented-out SAM model swaps in _get_object_settings are in the nucleus and pathogen branches - the cell branch never referenced it and simply picks 'cyto' or 'cyto2' depending on whether nucleus_channel is set. Segmentation loads the Cellpose-SAM 'cpsam' model by default regardless, so setting this changes nothing.",
-    "use_sam_nucleus": "(bool) - Legacy switch meant to segment nuclei with a SAM model instead of the Cellpose 'nuclei' model. The line that read it in _get_object_settings is commented out, and segmentation already runs the Cellpose-SAM 'cpsam' model by default, so this key changes nothing. Default False.",
-    "use_sam_pathogen": "(bool) - Legacy switch meant to segment pathogens with a SAM model instead of the Cellpose 'cyto' model. The line that read it in _get_object_settings is commented out, and segmentation already runs the Cellpose-SAM 'cpsam' model by default, so this key changes nothing. Default False.",
+    "use_sam_cell": "(bool) - Inert: nothing in spaCR reads this key, and it is now redundant regardless, since Cellpose 4 segments every object with the SAM model (cpsam) and no non-SAM alternative exists. Kept only so old settings CSVs still load. Default False.",
+    "use_sam_nucleus": "(bool) - Inert: nothing reads this key, and it is redundant now that Cellpose 4 segments nuclei with cpsam and the pre-SAM 'nuclei' model no longer exists. Kept only so old settings CSVs still load. Default False.",
+    "use_sam_pathogen": "(bool) - Inert: nothing reads this key, and it is redundant now that Cellpose 4 segments pathogens with cpsam and the pre-SAM 'cyto' model no longer exists. Kept only so old settings CSVs still load. Default False.",
     "distance_gaussian_sigma": "(int or None) - Sigma in pixels of the Gaussian blur applied to each channel before measuring intensity-weighted centroid distances from cells to nuclei and pathogens. Larger values smooth out speckle so the weighted centroid follows broad signal. None or 0 skips these distance features entirely. Needs a cell mask plus a nucleus or pathogen mask. Default 10.",
     "infection_xgb_n_estimators": "(int) - Number of boosting rounds (trees) trained, passed as num_boost_round. More rounds fit the intensity-extreme training set more tightly and push infection probabilities away from 0.5, which shrinks the ambiguous band, but cost runtime and can overfit small wells. Trade off against infection_xgb_learning_rate. Default 200.",
     "infection_xgb_max_depth": "(int) - Maximum depth of each boosted tree. Deeper trees capture interactions between morphology and pathogen-intensity features but overfit the quartile-derived training labels; shallower trees generalise better across wells. Typical range 2-8; raise it only when the classifier cannot separate infected from uninfected. Default 3.",
@@ -1821,7 +1821,7 @@ tooltips = {
     'organelle_morphology': "(str) - Shape family of the target organelle; picks the segmentation pipeline and restricts which organelle_method values are legal. 'spots' = punctate (vesicles, lipid droplets), 'network' = filamentous (mitochondria, ER tubules), 'irregular' = solid blobby (Golgi, lysosomes), 'ring' = hollow (endosomes, autophagosomes). Default 'spots'. An unsupported morphology/method pair raises before any image is loaded.",
     'organelle_method': "(str) - Segmentation backend, validated against organelle_morphology: 'otsu' (one global threshold), 'adaptive' (local threshold), 'log'/'dog' (blob detection), 'ridge' (tubeness filter, network only), 'hysteresis' (dual threshold, network only), 'cellpose' (pretrained model), 'unet' (your own model, network only). Classical methods run on CPU across n_jobs workers; cellpose and unet run on the GPU. Default 'otsu'.",
     'organelle_diameter': "(float) - (DEPRECEATED) Expected organelle diameter in pixels. The Cellpose-SAM path used for organelles calls model.eval with diameter=None, and no classical method sizes its kernels from it, so changing this value has no effect on organelle masks. Bound object size with organelle_min_size / organelle_max_size instead. Default 30.",
-    'organelle_model_name': "(str) - Which pretrained Cellpose model is loaded when organelle_method='cellpose': 'cyto', 'cyto2', 'cyto3', 'nuclei', or 'sam' for the Cellpose-SAM cpsam weights. Names outside that list return no model at all and the run fails. Default 'cyto3'; ignored entirely by the classical methods.",
+    "organelle_model_name": "(str) - Cellpose model used when organelle_method='cellpose'. Cellpose 4 provides only 'cpsam'; the pre-SAM names are accepted and mapped to it. Change this only to point at a custom CPSAM-architecture checkpoint. Default 'cpsam'.",
     'organelle_min_size': "(int) - (Depreceated) Minimum object area in square pixels. Most classical segmenters and the U-Net discard smaller components during segmentation via remove_small_objects (the LoG/DoG spot methods do not, and the ring method applies a quarter of it, floor 3, to its edge image), and the value is always applied again to the finished label image. Despite the marker it is still live - raise it to clear dim specks and hot pixels, lower it to keep faint puncta. Default 10; 0 disables.",
     'organelle_max_size': "(int or None) - Upper area bound in square pixels applied to the finished label image; any object above it is deleted outright, not split. Use it to drop fused clumps, saturated debris and background regions that Otsu swallowed into one blob. Set it below your largest genuine organelle and you will silently lose real objects. Default None (no limit).",
     'organelle_remove_border': "(bool) - Delete every organelle label touching any of the four image edges, in the final post-processing step before counting and saving, so partly imaged objects do not bias area and intensity statistics. Costs you real objects around the FOV rim, which matters more the larger the organelle. Default False.",
@@ -2749,7 +2749,7 @@ def _set_organelle_defaults(settings):
         'organelle_morphology': 'spots',
         'organelle_method': 'otsu',
         'organelle_diameter': 30,
-        'organelle_model_name': 'cyto3',
+        "organelle_model_name": "(str) - Cellpose model used when organelle_method='cellpose'. Cellpose 4 provides only 'cpsam'; the pre-SAM names are accepted and mapped to it. Change this only to point at a custom CPSAM-architecture checkpoint. Default 'cpsam'.",
         'organelle_min_size': 10,
         'organelle_max_size': None,
         'organelle_remove_border': False,

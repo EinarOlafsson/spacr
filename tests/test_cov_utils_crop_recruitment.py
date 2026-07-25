@@ -171,7 +171,7 @@ def test_get_object_settings_cell_large_reports_unsupported(capsys):
     assert out["diameter"] == 2 * 20 + 120
     assert out["minimum_size"] == (160 ** 2) / 4
     assert out["maximum_size"] == (160 ** 2) * 10
-    assert out["model_name"] == "cyto"       # left at the default
+    assert out["model_name"] == "cpsam"      # Cellpose 4 ships only cpsam
     assert out["resample"] is True
     assert out["merge"] is False
     # The per-object keys are only set inside the supported branches.

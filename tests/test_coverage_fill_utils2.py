@@ -125,18 +125,18 @@ def test_get_diam_unsupported_raises():
 def test_get_object_settings_cell_variants():
     base = {"magnification": 20, "verbose": False, "merge_pathogens": False}
     s_no_nuc = U._get_object_settings("cell", {**base, "nucleus_channel": None})
-    assert s_no_nuc["model_name"] == "cyto"
+    assert s_no_nuc["model_name"] == "cpsam"
     s_nuc = U._get_object_settings("cell", {**base, "nucleus_channel": 1})
-    assert s_nuc["model_name"] == "cyto2"
+    assert s_nuc["model_name"] == "cpsam"
 
 
 def test_get_object_settings_nucleus_pathogen():
     base = {"magnification": 20, "verbose": True, "merge_pathogens": True,
             "nucleus_channel": 0}
     nuc = U._get_object_settings("nucleus", base)
-    assert nuc["model_name"] == "nuclei"
+    assert nuc["model_name"] == "cpsam"
     pat = U._get_object_settings("pathogen", base)
-    assert pat["model_name"] == "cyto" and pat["merge"] is True
+    assert pat["model_name"] == "cpsam" and pat["merge"] is True
 
 
 # ---------------------------------------------------------------------------

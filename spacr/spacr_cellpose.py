@@ -107,7 +107,7 @@ def identify_masks_finetune(settings):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     
     if settings['custom_model'] == None:
-        model = cp_models.CellposeModel(gpu=True, model_type=settings['model_name'], device=device)
+        model = cp_models.CellposeModel(gpu=True, pretrained_model='cpsam', device=device)
         print(f"Loaded model: {settings['model_name']}")
     else:
         model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), model_type=None, pretrained_model=settings['custom_model'], diam_mean=settings['diameter'], device=device)
@@ -328,12 +328,12 @@ def check_cellpose_models(settings):
     settings_df['setting_value'] = settings_df['setting_value'].apply(str)
     display(settings_df)
 
-    cellpose_models = ['cyto', 'nuclei', 'cyto2', 'cyto3']
+    cellpose_models = ['cpsam']
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     
     for model_name in cellpose_models:
 
-        model = cp_models.CellposeModel(gpu=True, model_type=model_name, device=device)
+        model = cp_models.CellposeModel(gpu=True, pretrained_model='cpsam', device=device)
         print(f'Using {model_name}')
         generate_masks_from_imgs(src, model, model_name, settings['batch_size'], settings['diameter'], settings['CP_prob'], settings['flow_threshold'], settings['grayscale'], settings['save'], settings['normalize'], settings['channels'], settings['percentiles'], settings['invert'], settings['plot'], settings['resize'], settings['target_height'], settings['target_width'], settings['remove_background'], settings['background'], settings['Signal_to_noise'], settings['verbose'])
 
