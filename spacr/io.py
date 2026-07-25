@@ -1634,20 +1634,26 @@ def _create_movies_from_npy_per_channel(src, fps=10):
             #    array = ((array - array.min()) / (array.max() - array.min()) * 255).astype(np.uint8)
             arrays.append(array)
             filenames.append(os.path.basename(f[1]))
+        if not arrays:
+            continue
         arrays = np.stack(arrays, axis=0)
-    for channel in range(arrays.shape[-1]):
-        # Extract the current channel for all time points
-        channel_arrays = arrays[..., channel]
-        # Flatten the channel data to compute global percentiles
-        channel_data_flat = channel_arrays.reshape(-1)
-        p1, p99 = np.percentile(channel_data_flat, [1, 99])
-        # Normalize and rescale each array in the channel
-        normalized_channel_arrays = [(np.clip((arr - p1) / (p99 - p1), 0, 1) * 255).astype(np.uint8) for arr in channel_arrays]
-        # Convert the list of 2D arrays into a list of 3D arrays with a single channel
-        normalized_channel_arrays_3d = [arr[..., np.newaxis] for arr in normalized_channel_arrays]
-        # Save as movie for the current channel
-        channel_save_path = os.path.join(save_path, f'{plate}_{well}_{field}_channel_{channel}.mp4')
-        _npz_to_movie(normalized_channel_arrays_3d, filenames, channel_save_path, fps)
+        # NOTE: this loop must stay INSIDE the per-(plate, well, field) loop.
+        # When it was dedented, `arrays` was unbound if no filename matched
+        # the regex (UnboundLocalError) and only the LAST field ever got a
+        # movie — every other field was silently dropped.
+        for channel in range(arrays.shape[-1]):
+            # Extract the current channel for all time points
+            channel_arrays = arrays[..., channel]
+            # Flatten the channel data to compute global percentiles
+            channel_data_flat = channel_arrays.reshape(-1)
+            p1, p99 = np.percentile(channel_data_flat, [1, 99])
+            # Normalize and rescale each array in the channel
+            normalized_channel_arrays = [(np.clip((arr - p1) / (p99 - p1), 0, 1) * 255).astype(np.uint8) for arr in channel_arrays]
+            # Convert the list of 2D arrays into a list of 3D arrays with a single channel
+            normalized_channel_arrays_3d = [arr[..., np.newaxis] for arr in normalized_channel_arrays]
+            # Save as movie for the current channel
+            channel_save_path = os.path.join(save_path, f'{plate}_{well}_{field}_channel_{channel}.mp4')
+            _npz_to_movie(normalized_channel_arrays_3d, filenames, channel_save_path, fps)
 
 def delete_empty_subdirectories(folder_path):
     """Recursively delete every empty subdirectory under ``folder_path``.
