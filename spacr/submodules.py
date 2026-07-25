@@ -189,7 +189,7 @@ def train_cellpose(settings):
 
     save_settings(settings, name=model_name)
 
-    model = cp_models.CellposeModel(gpu=True, model_type='cyto', diam_mean=30, pretrained_model='cyto')
+    model = cp_models.CellposeModel(gpu=True, pretrained_model='cpsam')
     cp_channels = [0, 0]
 
     #train_image_files = sorted([os.path.join(img_src, f) for f in os.listdir(img_src) if f.endswith('.tif')])

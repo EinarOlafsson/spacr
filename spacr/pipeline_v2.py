@@ -524,7 +524,7 @@ def stream_masks_from_stack(
     if model_name == "cpsam":
         model = cp_models.CellposeModel(gpu=True, pretrained_model="cpsam")
     else:
-        model = cp_models.CellposeModel(gpu=True, model_type=model_name)
+        model = cp_models.CellposeModel(gpu=True, pretrained_model='cpsam')
 
     # Record the exact model checkpoint hash into the active run
     # journal, if one is open. Downstream reviewers can then trace

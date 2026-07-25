@@ -1926,25 +1926,25 @@ def _get_object_settings(object_type, settings):
     object_settings['merge'] = False
     object_settings['resample'] = True
     object_settings['remove_border_objects'] = False
-    object_settings['model_name'] = 'cyto'
+    object_settings['model_name'] = 'cpsam'
     
     if object_type == 'cell':
         if settings['nucleus_channel'] is None:
-            object_settings['model_name'] = 'cyto'
+            object_settings['model_name'] = 'cpsam'
         else:
-            object_settings['model_name'] = 'cyto2'
+            object_settings['model_name'] = 'cpsam'
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
         object_settings['restore_type'] = settings.get('cell_restore_type', None)
 
     elif object_type == 'nucleus':
-        object_settings['model_name'] = 'nuclei'
+        object_settings['model_name'] = 'cpsam'
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
         object_settings['restore_type'] = settings.get('nucleus_restore_type', None)
 
     elif object_type == 'pathogen':
-        object_settings['model_name'] = 'cyto'
+        object_settings['model_name'] = 'cpsam'
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
         object_settings['resample'] = False
@@ -4727,59 +4727,51 @@ def _run_test_mode(src, regex, timelapse=False, test_images=10, random_test=True
 
     return test_folder_path
 
+#: Pre-SAM Cellpose model names that older settings files may still carry.
+#: Cellpose 4 removed every one of them — ``models.MODEL_NAMES == ['cpsam']``
+#: — and silently resolves an unknown name to cpsam, so honouring them would
+#: only mislead. They are accepted and mapped forward.
+LEGACY_CELLPOSE_MODELS = ('cyto', 'cyto2', 'cyto3', 'cyto_2', 'cyto_3',
+                          'nuclei', 'nucleus', 'toxo_pv_lumen', 'toxo_cyto')
+
+
 def _choose_model(model_name, device, object_type='cell', restore_type=None, object_settings=None):
+    """Return the Cellpose model to segment ``object_type`` with.
+
+    Cellpose 4 ships exactly one model, ``cpsam``. ``model_type=`` and
+    ``diam_mean=`` are accepted-and-ignored by ``CellposeModel``, and an
+    unrecognised ``pretrained_model`` resolves to cpsam with only a log
+    warning — so the pre-SAM names were never actually loading the model they
+    named. Every legacy name is therefore mapped to cpsam explicitly, and said
+    out loud once, rather than pretending.
+
+    ``restore_type`` (denoise/deblur/upsample) drove the Cellpose 3
+    ``CellposeDenoiseModel`` restore checkpoints, which are pre-SAM and no
+    longer available; it is reported and ignored.
+
+    :param model_name: requested model; legacy names are mapped to cpsam.
+    :param device: torch device passed through to Cellpose.
+    :param object_type: 'cell' / 'nucleus' / 'pathogen' / 'organelle'.
+    :param restore_type: unsupported under Cellpose 4; reported and ignored.
+    :param object_settings: unused, kept for call-site compatibility.
+    :returns: a ``CellposeModel`` loaded with cpsam.
+    """
     if object_settings is None:
         object_settings = {}
-    if object_type == 'pathogen':
-        if model_name == 'toxo_pv_lumen':
-            diameter = object_settings['diameter']
-            current_dir = os.path.dirname(__file__)
-            model_path = os.path.join(current_dir, 'models', 'cp', 'toxo_pv_lumen.CP_model')
-            print(model_path)
-            model = cp_models.CellposeModel(
-                gpu=torch.cuda.is_available(),
-                model_type=None,
-                pretrained_model=model_path,
-                diam_mean=diameter,
-                device=device
-            )
-            print('Using Toxoplasma PV lumen model to generate pathogen masks')
-            return model
 
-    restore_list = ['denoise', 'deblur', 'upsample', None]
-    if restore_type not in restore_list:
-        print(f"Invalid restore type. Choose from {restore_list}, defaulting to None")
-        restore_type = None
+    if restore_type is not None:
+        print(f"restore_type={restore_type!r} is not supported on Cellpose 4 "
+              f"(the denoise/deblur/upsample checkpoints are pre-SAM). Ignoring it.")
 
-    if restore_type is None:
-        if model_name == 'sam':
-            model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), device=device, pretrained_model='cpsam',)
-            return model
-        if model_name in ['cyto', 'cyto2', 'cyto3', 'nuclei']:
-            model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), model_type=model_name, device=device)
-            return model
-    else:
-        if object_type == 'nucleus':
-            restore = f'{restore_type}_nuclei'
-            model = denoise.CellposeDenoiseModel(
-                gpu=torch.cuda.is_available(),
-                model_type="nuclei",
-                restore_type=restore,
-                chan2_restore=False,
-                device=device
-            )
-            return model
-        else:
-            restore = f'{restore_type}_cyto3'
-            chan2_restore = (model_name == 'cyto2')
-            model = denoise.CellposeDenoiseModel(
-                gpu=torch.cuda.is_available(),
-                model_type="cyto3",
-                restore_type=restore,
-                chan2_restore=chan2_restore,
-                device=device
-            )
-            return model
+    if model_name and model_name in LEGACY_CELLPOSE_MODELS:
+        print(f"Cellpose model {model_name!r} predates Cellpose-SAM and is no longer "
+              f"available; using 'cpsam' for {object_type}.")
+
+    return cp_models.CellposeModel(
+        gpu=torch.cuda.is_available(),
+        device=device,
+        pretrained_model='cpsam',
+    )
 
 class SelectChannels:
     """Callable transform that zeroes out image channels not present in ``channels``.

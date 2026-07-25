@@ -927,14 +927,17 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
                 ERROR, "cell_channel",
                 "no segmentation channel is set: cell, nucleus, pathogen and organelle channels are all None.",
                 "Set at least one of cell_channel / nucleus_channel / pathogen_channel / organelle_channel to a channel index."))
-        # Same function: pathogen_model must be one of the two custom models.
+        # pathogen_model: the bundled toxo checkpoints were Cellpose-3 and are
+        # gone. Anything set here is ignored, so say so rather than validating
+        # against a list of models that cannot load.
         if settings.get("pathogen_channel") is not None:
             model = settings.get("pathogen_model")
-            if model is not None and model not in ("toxo_pv_lumen", "toxo_cyto"):
+            if model is not None and model != "cpsam":
                 problems.append(Problem(
                     WARNING, "pathogen_model",
-                    f"pathogen_model={model!r} is not one of the custom models spaCR ships.",
-                    "Use 'toxo_pv_lumen', 'toxo_cyto', or None for the stock Cellpose model."))
+                    f"pathogen_model={model!r} is ignored: Cellpose 4 ships only 'cpsam', "
+                    f"and the pre-SAM toxo_pv_lumen / toxo_cyto checkpoints have been removed.",
+                    "Drop the setting, or set it to 'cpsam' to be explicit."))
 
     if app == "measure":
         # measure_crop returns early on both of these.

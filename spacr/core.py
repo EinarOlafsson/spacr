@@ -41,8 +41,8 @@ def preprocess_generate_masks(settings):
           ``organelle_channel`` — 0-based channel indices; ``None`` skips.
         - ``cell_diameter`` / ``nucleus_diameter`` / ``pathogen_diameter``
           — Cellpose object diameters in pixels.
-        - ``pathogen_model`` — ``'toxo_pv_lumen'`` / ``'toxo_cyto'`` /
-          ``None``.
+        - ``pathogen_model`` — removed. Pathogens are segmented with cpsam
+          like every other object; the pre-SAM toxo checkpoints are gone.
         - ``consolidate`` — copy nested images into ``src/consolidated``
           before processing.
         - ``preprocess`` / ``masks`` — toggle the two pipeline halves.
@@ -120,7 +120,7 @@ def preprocess_generate_masks(settings):
                 src,
                 channels=channels,
                 channel_names=channel_names,
-                model_name=settings.get('cell_model_name', 'cyto'),
+                model_name=settings.get('cell_model_name', 'cpsam'),
                 channels_for_cellpose=(0, 0),
                 diameter=settings.get('cell_diameter'),
                 batch_fields=int(settings.get('batch_fields', 8)),
@@ -186,10 +186,10 @@ def preprocess_generate_masks(settings):
             
             save_settings(settings, name='gen_mask_settings')
             
-            if not settings['pathogen_channel'] is None:
-                custom_model_ls = ['toxo_pv_lumen','toxo_cyto']
-                if settings['pathogen_model'] not in custom_model_ls:
-                    ValueError(f'Pathogen model must be {custom_model_ls} or None')
+            # The bundled toxo_pv_lumen / toxo_cyto models were Cellpose-3
+            # checkpoints and are gone: Cellpose 4 ships only cpsam, and their
+            # CPnet weights cannot load into its Transformer. This guard also
+            # never fired — it *constructed* a ValueError without raising it.
             
             if settings['timelapse']:
                 settings['randomize'] = False
