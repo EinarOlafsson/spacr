@@ -66,7 +66,7 @@ def install(window: QMainWindow) -> None:
     _bind(window, "Ctrl+,", lambda: _open_preferences(window))
     _bind(window, "Ctrl+/", lambda: _toggle_ai(window))
     _bind(window, "F1",     lambda: show_cheat_sheet(window))
-    _bind(window, "?",      lambda: show_cheat_sheet(window))
+    _bind(window, "?",      lambda: _help_key(window))
     # Ctrl+1 .. Ctrl+9 → nth app in the sidebar
     for i in range(1, 10):
         _bind(window, f"Ctrl+{i}",
@@ -77,6 +77,32 @@ def _bind(window: QMainWindow, keys: str, cb: Callable[[], None]) -> None:
     sc = QShortcut(QKeySequence(keys), window)
     sc.setContext(Qt.ApplicationShortcut)
     sc.activated.connect(cb)
+
+
+def _help_key(window: QMainWindow) -> None:
+    """Handle bare ``?``: let the active screen claim it, else show the sheet.
+
+    A ``Qt.ApplicationShortcut`` fires before the focused widget's
+    ``keyPressEvent``, so without this the global cheat sheet would preempt any
+    screen that wants ``?`` for itself — the Annotate screen uses it to toggle
+    its inline key legend, and opening a modal sheet over a rapid-labelling
+    session is exactly the wrong response.
+
+    A screen opts in by exposing ``handle_key`` and returning True from it.
+    ``F1`` remains an unconditional route to the cheat sheet everywhere.
+    """
+    try:
+        screen = window._stack.currentWidget()
+    except Exception:
+        screen = None
+    handler = getattr(screen, "handle_key", None)
+    if callable(handler):
+        try:
+            if handler("?"):
+                return
+        except Exception:
+            pass
+    show_cheat_sheet(window)
 
 
 def _nav(window: QMainWindow, key: str) -> None:
