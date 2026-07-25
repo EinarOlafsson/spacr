@@ -7,6 +7,12 @@ right-click = value 2, re-click the same value = clear. Annotations
 are persisted through a background SaveWorker (see
 `spacr.qt.annotate_engine.SaveWorker`).
 
+A keyboard-only rapid-annotation layer sits on top of the same write
+path (see :meth:`AnnotateScreen.handle_key`): ``1``–``9`` assign a class
+and auto-advance to the next unlabelled crop, ``0`` clears, arrows /
+``hjkl`` move focus, ``Space``/``Backspace`` step without labelling,
+``u`` undoes and ``Enter`` commits the page.
+
 Advanced features that are *not* yet ported (marked as TODOs in the UI):
 UMAP window, Deep Spacr training launcher, measurement-threshold
 filtering (the threshold filter can be entered in settings but only
@@ -15,14 +21,15 @@ plain per-page fetch is used at query time in this MVP).
 from __future__ import annotations
 
 import os
+from collections import deque
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, List, Optional, Tuple
+from typing import Deque, Dict, List, Optional, Tuple
 
 from PIL import Image
 from PIL.ImageQt import ImageQt
-from PySide6.QtCore import Qt, QRectF, QSize, QThread, QTimer, Signal
-from PySide6.QtGui import (QAction, QImage, QKeySequence, QPainter,
-                           QPainterPath, QPixmap, QShortcut)
+from PySide6.QtCore import Qt, QEvent, QRectF, QSize, QThread, QTimer, Signal
+from PySide6.QtGui import (QAction, QColor, QImage, QKeySequence, QPainter,
+                           QPainterPath, QPen, QPixmap, QShortcut)
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -69,6 +76,118 @@ from ..widgets import Divider, EmptyState
 
 
 BORDER_WIDTH = 5
+
+# Keyboard-focus ring. Deliberately pure white: `label_to_hex` never
+# returns white (class 1 is blue, class 2 red, 3+ are HSV rotations at
+# saturation 0.65), so the focus ring can never be confused with a class
+# colour. It is drawn INSIDE the class border, so a crop can show both
+# "focused" and "labelled class N" at the same time.
+FOCUS_RING_COLOR = "#ffffff"
+FOCUS_RING_WIDTH = 3
+
+# How many keyboard assignments can be walked back with `u`. Bounded so a
+# long session can't grow the stack without limit.
+UNDO_LIMIT = 128
+
+_THUMB_QSS = "background: transparent;"
+_THUMB_FOCUS_QSS = (
+    f"background: transparent; border: {FOCUS_RING_WIDTH}px solid "
+    f"{FOCUS_RING_COLOR}; border-radius: 10px;"
+)
+
+
+# ---------------------------------------------------------------------------
+# Keyboard tokens
+#
+# `handle_key` is the single entry point for every keystroke so tests can
+# drive the whole feature without synthesising Qt key events. It accepts a
+# Qt key code, a Qt key *name* ("Left"), or a literal character ("1", "h"),
+# and normalises all of them onto the small token vocabulary below.
+# ---------------------------------------------------------------------------
+
+# canonical tokens: "0".."9", "left", "right", "up", "down", "space",
+#                   "backspace", "undo", "enter", "help", "escape"
+
+_TEXT_TOKENS = {
+    "left": "left", "right": "right", "up": "up", "down": "down",
+    # vi-style motion
+    "h": "left", "j": "down", "k": "up", "l": "right",
+    "space": "space",
+    "backspace": "backspace", "back": "backspace",
+    "u": "undo", "undo": "undo",
+    "enter": "enter", "return": "enter",
+    "?": "help", "help": "help",
+    "escape": "escape", "esc": "escape",
+}
+
+_QT_NAME_TOKENS = (
+    ("Key_Left", "left"), ("Key_Right", "right"), ("Key_Up", "up"),
+    ("Key_Down", "down"), ("Key_Space", "space"),
+    ("Key_Backspace", "backspace"), ("Key_Return", "enter"),
+    ("Key_Enter", "enter"), ("Key_Question", "help"),
+    ("Key_Escape", "escape"),
+)
+
+
+def _qt_code_tokens() -> Dict[int, str]:
+    """Build {Qt key code -> token} once, tolerating enum-shape differences."""
+    out: Dict[int, str] = {}
+    for name, token in _QT_NAME_TOKENS:
+        code = getattr(Qt, name, None)
+        if code is None:
+            code = getattr(getattr(Qt, "Key", None), name, None)
+        if code is None:
+            continue
+        try:
+            out[int(code)] = token
+        except (TypeError, ValueError):   # pragma: no cover - defensive
+            continue
+    return out
+
+
+_QT_CODE_TOKENS: Dict[int, str] = _qt_code_tokens()
+
+
+def _token_from_text(text: str) -> Optional[str]:
+    """Map a literal character or key name onto a canonical token."""
+    if text == " ":
+        return "space"
+    low = text.strip().lower()
+    if not low:
+        return None
+    if low in _TEXT_TOKENS:
+        return _TEXT_TOKENS[low]
+    if len(low) == 1 and low.isdigit():
+        return low
+    return None
+
+
+def key_token(key, text: str = "") -> Optional[str]:
+    """Normalise ``key`` (Qt code, key name or character) to an action token.
+
+    Returns ``None`` for anything the annotate screen does not bind, so
+    callers can fall through to the default Qt handling.
+    """
+    if isinstance(key, str):
+        token = _token_from_text(key)
+        return token if token is not None else (_token_from_text(text)
+                                                 if text else None)
+    code: Optional[int]
+    try:
+        code = int(key)
+    except (TypeError, ValueError):
+        code = None
+    if code is not None:
+        token = _QT_CODE_TOKENS.get(code)
+        if token:
+            return token
+        if 0x30 <= code <= 0x39:          # Qt.Key_0 .. Qt.Key_9
+            return chr(code)
+        if 0x41 <= code <= 0x5A:          # Qt.Key_A .. Qt.Key_Z
+            token = _token_from_text(chr(code))
+            if token:
+                return token
+    return _token_from_text(text) if text else None
 
 
 # ---------------------------------------------------------------------------
@@ -156,6 +275,31 @@ def _rounded_pixmap(pm: QPixmap, radius: int = 8) -> QPixmap:
     path.addRoundedRect(QRectF(0, 0, pm.width(), pm.height()), radius, radius)
     painter.setClipPath(path)
     painter.drawPixmap(0, 0, pm)
+    painter.end()
+    return out
+
+
+def _with_focus_ring(pm: QPixmap) -> QPixmap:
+    """Return ``pm`` with the keyboard-focus ring drawn inside the class border.
+
+    The class colour lives in the outer ``BORDER_WIDTH`` band painted by
+    :func:`add_colored_border`; the ring is inset past it so focus and
+    label are readable at the same time.
+    """
+    if pm.isNull():
+        return pm
+    out = QPixmap(pm)
+    painter = QPainter(out)
+    painter.setRenderHint(QPainter.Antialiasing, True)
+    pen = QPen(QColor(FOCUS_RING_COLOR))
+    pen.setWidth(FOCUS_RING_WIDTH)
+    painter.setPen(pen)
+    painter.setBrush(Qt.NoBrush)
+    inset = BORDER_WIDTH + FOCUS_RING_WIDTH / 2.0
+    w = out.width() - 2 * inset
+    h = out.height() - 2 * inset
+    if w > 0 and h > 0:
+        painter.drawRoundedRect(QRectF(inset, inset, w, h), 5, 5)
     painter.end()
     return out
 
@@ -398,8 +542,23 @@ class AnnotateScreen(QWidget):
         self._page_gen = 0
         self._suggested_source = prefs.get_last_source("annotate")
 
+        # ── Keyboard-only rapid annotation state ───────────────────────────
+        # Index of the crop the keyboard acts on. Always a valid thumbnail
+        # index once the grid exists; `_slot_count` bounds it to the crops
+        # actually present on this page.
+        self._focus_slot = 0
+        # (slot, png_path, previous_value) for `u`. Bounded — a long session
+        # must not grow this without limit. Cleared on every page load since
+        # slot indices change meaning.
+        self._undo_stack: Deque[Tuple[int, str, Optional[int]]] = deque(
+            maxlen=UNDO_LIMIT)
+        self._legend_expanded = False
+
         self._build_ui()
         self._install_shortcuts()
+        # The screen itself owns keystrokes; the thumbnails are NoFocus
+        # QLabels so nothing inside the grid competes for them.
+        self.setFocusPolicy(Qt.StrongFocus)
 
         # Drag & drop — accepts a plate folder with
         # measurements/measurements.db (or the .db file directly).
@@ -521,6 +680,8 @@ class AnnotateScreen(QWidget):
         row.addWidget(self._page_label)
         outer.addWidget(toolbar)
 
+        outer.addWidget(self._build_key_legend())
+
         # Content stack: empty-state until a source is opened, then grid
         self._content_stack = QStackedWidget()
 
@@ -530,7 +691,8 @@ class AnnotateScreen(QWidget):
                 "Pick a folder that contains "
                 "`measurements/measurements.db`. Left-click an image to "
                 "assign class 1, right-click for class 2, click again to "
-                "clear. Annotations save in the background."
+                "clear — or go keyboard-only: 1–9 label and jump to the "
+                "next crop. Annotations save in the background."
             ),
             icon=iconset.accent_icon("tag"),
             cta_label="Open source…",
@@ -554,6 +716,11 @@ class AnnotateScreen(QWidget):
         self._grid_layout.setContentsMargins(SPACING["sm"], SPACING["sm"],
                                               SPACING["sm"], SPACING["sm"])
         self._grid_scroll.setWidget(self._grid_holder)
+        # Without these the scroll area swallows the arrow keys and scrolls
+        # instead of moving grid focus.
+        self._grid_scroll.installEventFilter(self)
+        self._grid_scroll.viewport().installEventFilter(self)
+        self._grid_holder.installEventFilter(self)
         self._content_stack.addWidget(self._grid_scroll)
         self._content_stack.setCurrentWidget(self._empty_state)
 
@@ -566,9 +733,92 @@ class AnnotateScreen(QWidget):
 
         self._rebuild_grid()
 
+    # ------------------------------------------------------------------
+    # Key legend
+    # ------------------------------------------------------------------
+    LEGEND_COMPACT = (
+        "<b>1</b>–<b>9</b> label + advance &nbsp;·&nbsp; <b>0</b> clear "
+        "&nbsp;·&nbsp; <b>← ↑ ↓ →</b> / <b>hjkl</b> move &nbsp;·&nbsp; "
+        "<b>Space</b> skip &nbsp;·&nbsp; <b>Backspace</b> back "
+        "&nbsp;·&nbsp; <b>u</b> undo &nbsp;·&nbsp; <b>Enter</b> next batch"
+    )
+    LEGEND_FULL = (
+        "<b>1</b>–<b>9</b> assign that class to the focused crop and jump to "
+        "the next unlabelled one &nbsp;·&nbsp; <b>0</b> clear the focused "
+        "crop &nbsp;·&nbsp; <b>← ↑ ↓ →</b> or <b>h j k l</b> move focus "
+        "without labelling &nbsp;·&nbsp; <b>Space</b> skip forward one "
+        "&nbsp;·&nbsp; <b>Backspace</b> step back one &nbsp;·&nbsp; "
+        "<b>u</b> undo the last label &nbsp;·&nbsp; <b>Enter</b> save this "
+        "page and load the next batch &nbsp;·&nbsp; mouse still works: "
+        "left-click = class 1, right-click = class 2."
+    )
+
+    def _build_key_legend(self) -> QWidget:
+        """Build the always-visible keyboard cheat strip.
+
+        Nothing in it accepts focus — a legend that stole focus would break
+        the very keyboard flow it documents.
+        """
+        legend = QWidget()
+        legend.setObjectName("AnnotateKeyLegend")
+        legend.setFocusPolicy(Qt.NoFocus)
+        legend.setStyleSheet(
+            f"QWidget#AnnotateKeyLegend {{ background: {PALETTE['surface']};"
+            f" border: 1px solid {PALETTE['border_soft']};"
+            f" border-radius: 6px; }}"
+        )
+        lay = QHBoxLayout(legend)
+        lay.setContentsMargins(SPACING["sm"], SPACING["xs"],
+                                SPACING["sm"], SPACING["xs"])
+        lay.setSpacing(SPACING["sm"])
+
+        self._legend_label = QLabel(self.LEGEND_COMPACT)
+        self._legend_label.setObjectName("SubtitleSmall")
+        self._legend_label.setTextFormat(Qt.RichText)
+        self._legend_label.setWordWrap(True)
+        self._legend_label.setFocusPolicy(Qt.NoFocus)
+        lay.addWidget(self._legend_label, 1)
+
+        # Transient keyboard feedback ("end of page", "nothing to undo").
+        # Deliberately NOT the shared status label: that one is rewritten
+        # every 500 ms by the save-state timer, which would eat the message.
+        self._kbd_hint = QLabel("")
+        self._kbd_hint.setObjectName("SubtitleSmall")
+        self._kbd_hint.setFocusPolicy(Qt.NoFocus)
+        self._kbd_hint.setStyleSheet(f"color: {PALETTE['warning']};")
+        lay.addWidget(self._kbd_hint, 0)
+
+        self._legend_toggle = QPushButton("?")
+        self._legend_toggle.setFocusPolicy(Qt.NoFocus)
+        self._legend_toggle.setCursor(Qt.PointingHandCursor)
+        self._legend_toggle.setFixedWidth(28)
+        self._legend_toggle.setToolTip("Show the full keyboard reference")
+        self._legend_toggle.clicked.connect(self._toggle_legend)
+        lay.addWidget(self._legend_toggle, 0)
+
+        self._legend = legend
+        return legend
+
+    def _toggle_legend(self) -> bool:
+        """Flip the legend between the compact strip and the full reference."""
+        self._legend_expanded = not self._legend_expanded
+        self._legend_label.setText(
+            self.LEGEND_FULL if self._legend_expanded else self.LEGEND_COMPACT)
+        return True
+
+    def _set_kbd_hint(self, text: str = "") -> None:
+        """Show (or clear) the transient keyboard-mode message."""
+        if getattr(self, "_kbd_hint", None) is not None:
+            self._kbd_hint.setText(text)
+
     def _install_shortcuts(self):
-        QShortcut(QKeySequence(Qt.Key_Left), self, self._on_prev)
-        QShortcut(QKeySequence(Qt.Key_Right), self, self._on_next)
+        # Bare arrow keys now drive grid focus (see `handle_key`), so page
+        # navigation moved to PageUp/PageDown with Alt+Arrow kept as an
+        # alias for anyone with the old muscle memory.
+        QShortcut(QKeySequence(Qt.Key_PageUp), self, self._on_prev)
+        QShortcut(QKeySequence(Qt.Key_PageDown), self, self._on_next)
+        QShortcut(QKeySequence("Alt+Left"), self, self._on_prev)
+        QShortcut(QKeySequence("Alt+Right"), self, self._on_next)
 
     # ------------------------------------------------------------------
     def _compute_grid_dims(self):
@@ -614,6 +864,10 @@ class AnnotateScreen(QWidget):
             thumb.right_clicked.connect(self._on_thumb_right)
             self._grid_layout.addWidget(thumb, i // cols, i % cols)
             self._thumbs.append(thumb)
+
+        # Widgets were just recreated — re-establish the focus marker.
+        self._focus_slot = max(0, min(self._focus_slot, len(self._thumbs) - 1))
+        self._refresh_focus_marks()
 
     def resizeEvent(self, event):
         """Re-fit the thumbnail grid when the window resizes."""
@@ -670,6 +924,9 @@ class AnnotateScreen(QWidget):
         # fallback, so the first open showed only a few images that don't fill
         # the view (until the user opened Settings, which rebuilt the grid).
         self._content_stack.setCurrentWidget(self._grid_scroll)
+        # Take keyboard focus so the user can start keying classes straight
+        # away without first clicking into the grid.
+        self.setFocus(Qt.OtherFocusReason)
         self._refresh_total()
         QTimer.singleShot(0, self._rebuild_and_load)
 
@@ -829,6 +1086,14 @@ class AnnotateScreen(QWidget):
             self._thumb_pixmaps[i] = None
             self._raw_thumb_images[i] = None
 
+        # Slot indices now mean different crops — an undo entry from the old
+        # page would write a label onto the wrong image.
+        self._undo_stack.clear()
+        self._set_kbd_hint("")
+        # Park the keyboard on the first crop that still needs a label.
+        first = self._next_unannotated(0)
+        self._set_focus_slot(first if first is not None else 0)
+
         # Process the page (normalise + outline) on a worker thread so the UI
         # stays responsive even when the recompute is slow. A generation token
         # discards results from a page/settings change the user has since
@@ -856,15 +1121,14 @@ class AnnotateScreen(QWidget):
         if gen != self._page_gen:
             return   # superseded by a newer load
         page = self._settings.page_size
-        for i, (img, annotation) in enumerate(loaded):
+        for i, (img, _annotation) in enumerate(loaded):
             if i >= len(self._thumbs):
                 break
             self._raw_thumb_images[i] = img
-            border = label_to_hex(annotation)
-            display = add_colored_border(img, BORDER_WIDTH, border) if border \
-                      else add_colored_border(img, BORDER_WIDTH, PALETTE["surface"])
-            self._thumb_pixmaps[i] = self._image_to_pixmap(display)
-            self._thumbs[i].setPixmap(self._thumb_pixmaps[i])
+            # Paint from `_page_paths`, not the annotation the worker
+            # snapshotted: the user may have keyed labels in while the page
+            # was still decoding, and those are the fresher truth.
+            self._repaint_slot(i)
         self._page_label.setText(
             f"Page rows {self._offset}–{min(self._offset + page, self._total)} / {self._total}"
         )
@@ -911,30 +1175,285 @@ class AnnotateScreen(QWidget):
         return _rounded_pixmap(pm, radius=8)
 
     # ------------------------------------------------------------------
+    # Annotation write path
+    #
+    # `_set_annotation` is the ONE place a label is recorded. Mouse clicks
+    # (`_toggle_annotation`), keyboard assignment, clearing and undo all
+    # funnel through it, so they can never drift apart.
+    # ------------------------------------------------------------------
+    def _slot_is_valid(self, slot: int) -> bool:
+        """True when ``slot`` addresses a crop present on the current page."""
+        return 0 <= slot < self._slot_count()
+
+    def _slot_count(self) -> int:
+        """Number of keyboard-navigable crops on this page."""
+        return min(len(self._page_paths), len(self._thumbs))
+
+    def _current_value(self, slot: int) -> Optional[int]:
+        """The label ``slot`` carries right now, pending writes included."""
+        if not (0 <= slot < len(self._page_paths)):
+            return None
+        path, current = self._page_paths[slot]
+        if path in self._pending_updates:
+            return self._pending_updates[path]
+        return current
+
+    def _is_annotated(self, slot: int) -> bool:
+        """True when ``slot`` already carries a non-zero class label."""
+        value = self._current_value(slot)
+        return value is not None and value != 0
+
+    def _set_annotation(self, slot: int, value: Optional[int]) -> bool:
+        """Record ``value`` (or ``None`` to clear) as ``slot``'s label."""
+        if not (0 <= slot < len(self._page_paths)):
+            return False
+        path, _ = self._page_paths[slot]
+        self._pending_updates[path] = value
+        self._page_paths[slot] = (path, value)
+        self._repaint_slot(slot)
+        return True
+
+    def _repaint_slot(self, slot: int) -> None:
+        """Redraw one thumbnail: class border, plus the focus ring if focused."""
+        if not (0 <= slot < len(self._thumbs)):
+            return
+        base = self._raw_thumb_images[slot] if slot < len(self._raw_thumb_images) \
+            else None
+        focused = (slot == self._focus_slot)
+        if base is None:
+            # No image decoded yet — fall back to a widget-level ring so
+            # focus is still visible while the page loads.
+            self._thumbs[slot].setStyleSheet(
+                _THUMB_FOCUS_QSS if focused else _THUMB_QSS)
+            return
+        self._thumbs[slot].setStyleSheet(_THUMB_QSS)
+        border = label_to_hex(self._current_value(slot)) or PALETTE["surface"]
+        pm = self._image_to_pixmap(add_colored_border(base, BORDER_WIDTH, border))
+        if focused:
+            pm = _with_focus_ring(pm)
+        self._thumb_pixmaps[slot] = pm
+        self._thumbs[slot].setPixmap(pm)
+
     def _toggle_annotation(self, slot: int, new_value: int):
+        """Mouse semantics: same class again clears, otherwise assign."""
         if slot >= len(self._page_paths):
             return
-        path, current = self._page_paths[slot]
-        # Cycle: same value again clears
-        if slot in self._pending_updates:
-            existing = self._pending_updates[path] if path in self._pending_updates else current
-        else:
-            existing = current
-        if existing == new_value:
-            resolved = None
-        else:
-            resolved = new_value
-        self._pending_updates[path] = resolved
-        self._page_paths[slot] = (path, resolved)
+        existing = self._current_value(slot)
+        resolved = None if existing == new_value else new_value
+        self._set_annotation(slot, resolved)
 
-        # Update thumbnail border in place
-        base = self._raw_thumb_images[slot]
-        if base is None:
+    # ------------------------------------------------------------------
+    # Keyboard-only rapid annotation
+    # ------------------------------------------------------------------
+    def _refresh_focus_marks(self) -> None:
+        """Re-apply the focus marker across every thumbnail."""
+        for i in range(len(self._thumbs)):
+            self._thumbs[i].setProperty("kbdFocused", i == self._focus_slot)
+            self._repaint_slot(i)
+
+    def _set_focus_slot(self, slot: int) -> None:
+        """Move keyboard focus to ``slot``, repainting the old and new cells."""
+        if not self._thumbs:
+            self._focus_slot = max(0, slot)
             return
-        border = label_to_hex(resolved) or PALETTE["surface"]
-        display = add_colored_border(base, BORDER_WIDTH, border)
-        self._thumb_pixmaps[slot] = self._image_to_pixmap(display)
-        self._thumbs[slot].setPixmap(self._thumb_pixmaps[slot])
+        slot = max(0, min(int(slot), len(self._thumbs) - 1))
+        previous = self._focus_slot
+        self._focus_slot = slot
+        if previous != slot and 0 <= previous < len(self._thumbs):
+            self._thumbs[previous].setProperty("kbdFocused", False)
+            self._repaint_slot(previous)
+        self._thumbs[slot].setProperty("kbdFocused", True)
+        self._repaint_slot(slot)
+        try:
+            self._grid_scroll.ensureWidgetVisible(self._thumbs[slot])
+        except Exception:      # pragma: no cover - viewport not realised
+            pass
+
+    @property
+    def focus_slot(self) -> int:
+        """Index of the crop the keyboard currently acts on."""
+        return self._focus_slot
+
+    def _next_unannotated(self, start: int) -> Optional[int]:
+        """First unlabelled slot at or after ``start``; ``None`` if there is none."""
+        for i in range(max(0, start), self._slot_count()):
+            if not self._is_annotated(i):
+                return i
+        return None
+
+    def _push_undo(self, slot: int, path: str, previous: Optional[int]) -> None:
+        self._undo_stack.append((slot, path, previous))
+
+    def handle_key(self, key, text: str = "") -> bool:
+        """Run the annotate keybinding for ``key``.
+
+        ``key`` may be a Qt key code, a Qt key name (``"Left"``) or a literal
+        character (``"1"``, ``"h"``). Returns True when the key is bound —
+        unbound keys return False and are left for Qt's default handling.
+        This is the single entry point for the whole keyboard feature so it
+        can be driven directly, without synthesising key events.
+        """
+        token = key_token(key, text)
+        if token is None:
+            return False
+        if token.isdigit():
+            value = int(token)
+            return self._kbd_clear() if value == 0 else self._kbd_assign(value)
+        if token in ("left", "right", "up", "down"):
+            return self._kbd_move(token)
+        if token == "space":
+            return self._kbd_step(+1)
+        if token == "backspace":
+            return self._kbd_step(-1)
+        if token == "undo":
+            return self._kbd_undo()
+        if token == "enter":
+            return self._kbd_commit_page()
+        if token == "help":
+            return self._toggle_legend()
+        if token == "escape":
+            # Only meaningful while the full reference is showing; otherwise
+            # leave Escape to whatever dialog/window wants it.
+            if self._legend_expanded:
+                return self._toggle_legend()
+            return False
+        return False      # pragma: no cover - every token above is handled
+
+    # -- individual actions --------------------------------------------
+    def _kbd_assign(self, value: int) -> bool:
+        """Label the focused crop with ``value`` and advance."""
+        slot = self._focus_slot
+        if not self._slot_is_valid(slot):
+            self._set_kbd_hint("Nothing to annotate — open a source first.")
+            return True
+        path = self._page_paths[slot][0]
+        previous = self._current_value(slot)
+        self._set_annotation(slot, value)
+        self._push_undo(slot, path, previous)
+        self._advance_after_assign()
+        return True
+
+    def _kbd_clear(self) -> bool:
+        """Clear the focused crop's label, staying put so it can be re-keyed."""
+        slot = self._focus_slot
+        if not self._slot_is_valid(slot):
+            self._set_kbd_hint("Nothing to annotate — open a source first.")
+            return True
+        path = self._page_paths[slot][0]
+        previous = self._current_value(slot)
+        self._set_annotation(slot, None)
+        self._push_undo(slot, path, previous)
+        self._set_kbd_hint("Cleared.")
+        return True
+
+    def _advance_after_assign(self) -> bool:
+        """Jump to the next unlabelled crop; never wrap without saying so."""
+        nxt = self._next_unannotated(self._focus_slot + 1)
+        if nxt is not None:
+            self._set_focus_slot(nxt)
+            self._set_kbd_hint("")
+            return True
+        # No unlabelled crop AFTER the focus. Stay put rather than silently
+        # wrapping to the top, and say which of the two situations this is.
+        behind = sum(1 for i in range(self._focus_slot)
+                     if not self._is_annotated(i))
+        if behind:
+            self._set_kbd_hint(
+                f"End of page — {behind} unlabelled crop(s) above. "
+                "Press Enter for the next batch."
+            )
+        else:
+            self._set_kbd_hint(
+                "End of page — all crops labelled. "
+                "Press Enter to load the next batch."
+            )
+        return False
+
+    def _kbd_move(self, token: str) -> bool:
+        """Move focus one cell in ``token``'s direction, clamped to the grid."""
+        count = self._slot_count()
+        if count <= 0:
+            self._set_kbd_hint("Nothing to annotate — open a source first.")
+            return True
+        cols = max(1, int(self._settings.grid_cols))
+        slot = self._focus_slot
+        target = slot
+        if token == "left":
+            if slot % cols > 0:
+                target = slot - 1
+        elif token == "right":
+            if slot % cols < cols - 1 and slot + 1 < count:
+                target = slot + 1
+        elif token == "up":
+            if slot - cols >= 0:
+                target = slot - cols
+        elif token == "down":
+            if slot + cols < count:
+                target = slot + cols
+        if target != slot:
+            self._set_focus_slot(target)
+            self._set_kbd_hint("")
+        return True
+
+    def _kbd_step(self, delta: int) -> bool:
+        """Step focus by ``delta`` in reading order without touching labels."""
+        count = self._slot_count()
+        if count <= 0:
+            self._set_kbd_hint("Nothing to annotate — open a source first.")
+            return True
+        target = self._focus_slot + delta
+        if target < 0:
+            self._set_kbd_hint("Start of page.")
+            return True
+        if target >= count:
+            self._set_kbd_hint(
+                "End of page — press Enter to load the next batch.")
+            return True
+        self._set_focus_slot(target)
+        self._set_kbd_hint("")
+        return True
+
+    def _kbd_undo(self) -> bool:
+        """Walk back the most recent keyboard label assignment."""
+        while self._undo_stack:
+            slot, path, previous = self._undo_stack.pop()
+            # Skip entries whose slot no longer holds the same crop; writing
+            # them back would label the wrong image.
+            if slot < len(self._page_paths) and self._page_paths[slot][0] == path:
+                self._set_annotation(slot, previous)
+                self._set_focus_slot(slot)
+                self._set_kbd_hint("Undone.")
+                return True
+        self._set_kbd_hint("Nothing to undo.")
+        return True
+
+    def _kbd_commit_page(self) -> bool:
+        """Save this page and load the next batch — same as the Next button."""
+        before = self._offset
+        self._on_next()          # flushes pending writes, then paginates
+        # `_load_page` clears the hint on a successful page turn, so only the
+        # "nothing more to load" case needs to say anything.
+        if self._offset == before:
+            self._set_kbd_hint("Saved — this is the last page.")
+        return True
+
+    # -- event plumbing -------------------------------------------------
+    def keyPressEvent(self, event):
+        """Route keystrokes through :meth:`handle_key` before Qt's default."""
+        if self.handle_key(event.key(), event.text()):
+            event.accept()
+            return
+        super().keyPressEvent(event)
+
+    def eventFilter(self, obj, event):      # noqa: N802  (Qt naming)
+        """Catch keys landing on the scroll area so arrows don't just scroll."""
+        try:
+            is_key = event.type() == QEvent.KeyPress
+        except Exception:      # pragma: no cover - defensive
+            is_key = False
+        if is_key and self.handle_key(event.key(), event.text()):
+            return True
+        return super().eventFilter(obj, event)
 
     # ------------------------------------------------------------------
     def _flush_pending(self):
