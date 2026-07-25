@@ -134,6 +134,10 @@ def _mask_settings_for(src: Path) -> dict:
         "skip_extraction": False,
         "channels": [0, 1, 2],
         "plot": False,
+        # These tests assert on the intermediate stack/ and masks/ folders,
+        # which are cleaned up once merged/ is built unless we opt in.
+        "keep_intermediate": True,
+        "keep_original_images": True,
         # Stub dataset has 3 channels; organelle would index 3 → OOB.
         "organelle_channel": None,
         "pathogen_channel":  None,
