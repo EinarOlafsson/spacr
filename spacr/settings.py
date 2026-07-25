@@ -1509,7 +1509,7 @@ tooltips = {
     "masks": "(bool) - Whether to generate segmentation masks for defined channels (cell, nucleus, pathogen, organelle).",
     "delete_intermediate": "(bool) - Delete intermediate folders (stack, channel, masks) after processing to save disk space.",
     "save": "(bool or list of bool) - Whether to save masks to disk. Can be a list of three booleans for [cell, nucleus, pathogen] independently.",
-    "reduction_method": "(str) - Dimensionality reduction method: 'umap', 'tsne', or 'pca'.",
+    "reduction_method": "(str) - Dimensionality reduction method: 'umap' or 'tsne'.",
     "schedule": "(str) - Learning rate schedule: 'cosine', 'reduce_lr_on_plateau', or 'step_lr'.",
     "test_size": "(float) - Fraction of data reserved for testing, e.g. 0.2 = 20% test, 80% train.",
     "merge_pathogens": "(bool) - Whether to merge adjacent pathogen objects sharing >75% of their perimeter into a single object.",
