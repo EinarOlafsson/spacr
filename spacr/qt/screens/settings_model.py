@@ -31,6 +31,22 @@ from PySide6.QtWidgets import (
 # Settings resolvers per app_key
 # ---------------------------------------------------------------------------
 
+def timelapse_and_motility_keys() -> set:
+    """Every setting key owned by the Timelapse / Motility Assay modules.
+
+    Derived from the category lists in :mod:`spacr.settings` so the two never
+    drift apart. Used to strip those keys out of the Mask module's editable
+    settings — they still exist in the *pipeline* defaults (spacr.object reads
+    ``timelapse`` on every run and ``motility_analysis`` inside the timelapse
+    branch), the Mask GUI just no longer offers them.
+    """
+    from spacr.settings import (
+        motility_advanced_settings, motility_settings, timelapse_settings,
+    )
+    return (set(timelapse_settings) | {"timelapse"}
+            | set(motility_settings) | set(motility_advanced_settings))
+
+
 def resolve_default_settings(app_key: str) -> Dict[str, Any]:
     """Return a fresh defaults dict for an app key, mirroring the Tk GUI
     dispatch in gui_core.setup_settings_panel."""
@@ -50,10 +66,34 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
         get_perform_regression_default_settings,
         get_train_cellpose_default_settings,
         get_default_generate_activation_map_settings,
+        get_timelapse_settings,
     )
     if app_key == "mask":
+        # Timelapse tracking and the automated motility assay are first-class
+        # modules of their own now (app keys 'timelapse' / 'motility'), so the
+        # Mask module edits neither set of knobs. The keys are dropped from the
+        # *editable* dict only — preprocess_generate_masks re-applies
+        # set_default_settings_preprocess_generate_masks internally, so a Mask
+        # run still gets timelapse=False / motility_analysis=False, and a CSV
+        # driven straight through the API keeps working unchanged.
         s = set_default_settings_preprocess_generate_masks(settings={})
-        s = get_automated_motility_assay_default_settings(s)
+        for key in timelapse_and_motility_keys():
+            s.pop(key, None)
+        return s
+    if app_key == "timelapse":
+        s = get_timelapse_settings(settings={})
+        # The Timelapse module tracks objects; running the assay is what the
+        # Motility Assay module is for, so its inline gate isn't offered here.
+        # `timelapse` itself stays visible (and True) so a mask settings CSV
+        # from before the split still round-trips through this screen.
+        s.pop("motility_analysis", None)
+        return s
+    if app_key == "motility":
+        s = get_automated_motility_assay_default_settings(settings={})
+        # `motility_analysis` is the Mask-pipeline gate for the inline assay
+        # (spacr.object), not a knob of the assay itself — opening the
+        # Motility module *is* asking for the assay.
+        s.pop("motility_analysis", None)
         return s
     if app_key == "measure":
         return get_measure_crop_settings(settings={})
@@ -89,6 +129,15 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
 # trailing "Other" section, so the setting stays reachable — only the tab goes.
 _APP_HIDDEN_CATEGORIES: Dict[str, set] = {
     "classify": {"Cellpose"},
+    # Mask no longer owns tracking or the motility assay — those are the
+    # 'timelapse' and 'motility' modules. resolve_default_settings already
+    # drops the keys so nothing spills into "Other"; this entry is the
+    # declaration of intent and keeps the tabs gone even if a future default
+    # re-introduces one of the keys.
+    "mask": {"Timelapse", "Motility (beta)", "Motility Advanced (beta)"},
+    # The Timelapse module tracks objects; the motility assay is its own
+    # module and its ~50 knobs would swamp the tracking settings.
+    "timelapse": {"Motility (beta)", "Motility Advanced (beta)"},
 }
 
 

@@ -360,6 +360,44 @@ def preprocess_generate_masks(settings):
             print("Successfully completed run")
     return
 
+
+def preprocess_generate_masks_timelapse(settings):
+    """Entry point for the standalone **Timelapse** module.
+
+    Identical to :func:`preprocess_generate_masks` except that ``timelapse`` is
+    forced on, so every well/field is grouped into a time stack, randomization
+    is switched off, per-channel movies are written, and the objects listed in
+    ``timelapse_objects`` are linked across frames and relabelled with their
+    track IDs.
+
+    Timelapse is a first-class spaCR workflow, not a checkbox on mask
+    generation — that is why it has its own module, its own settings group
+    (:func:`spacr.settings.get_timelapse_settings`) and this entry point.
+
+    :param settings: Settings dict; canonicalized via
+        :func:`spacr.settings.get_timelapse_settings`. Same keys as
+        :func:`preprocess_generate_masks` plus the ``timelapse_*`` tracking
+        group. ``timelapse`` is overwritten with True.
+    :returns: None. Same outputs as :func:`preprocess_generate_masks`, plus
+        ``<src>/movies`` and track-relabelled masks.
+
+    See Also:
+        :func:`spacr.timelapse.automated_motility_assay` — the Motility Assay
+        module, which consumes the tracked ``merged/*.npy`` this produces.
+    """
+    from .settings import get_timelapse_settings
+
+    if settings is None:
+        settings = {}
+    if settings.get('timelapse', True) is False:
+        # Non-silent: the module *is* timelapse, so an incoming False (an old
+        # mask settings CSV, say) is overridden rather than quietly honoured.
+        print("Timelapse module: settings['timelapse'] was False — forcing it "
+              "to True. Use the Mask module for non-timelapse segmentation.")
+    settings = get_timelapse_settings(settings)
+    return preprocess_generate_masks(settings)
+
+
 def generate_image_umap(settings=None, return_fig=False):
     """Generate a UMAP or tSNE embedding of per-object features and plot it.
 

@@ -257,12 +257,39 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('nucleus_max_intensity_percentile', 100)
     settings.setdefault('pathogen_max_intensity_percentile', 100)
     settings.setdefault('organelle_max_intensity_percentile', 100)
+    # NOTE: `timelapse`, the `timelapse_*` knobs above and `motility_analysis`
+    # are deliberately still defaulted here even though the Mask *module* no
+    # longer surfaces them in its GUI (they moved to the standalone Timelapse
+    # and Motility Assay modules — see get_timelapse_settings and
+    # get_automated_motility_assay_default_settings). spacr.object reads
+    # settings['timelapse'] on every mask run and settings['motility_analysis']
+    # inside the timelapse branch, and old settings CSVs still carry both, so
+    # removing the defaults would break the pipeline and every archived CSV.
     settings.setdefault('motility_analysis', False)
-    
+
 
 
     return settings
 
+
+def get_timelapse_settings(settings=None):
+    """Return default settings for the standalone Timelapse module.
+
+    The Timelapse module is mask generation run over a time series: the same
+    preprocessing + Cellpose segmentation as the Mask module, followed by
+    frame-to-frame linking of the objects named in ``timelapse_objects`` and
+    per-channel movie export. It therefore takes the full
+    ``set_default_settings_preprocess_generate_masks`` dict with ``timelapse``
+    forced on — the flag is what the module *is*, not something to configure.
+
+    :param settings: optional dict to fill in place; a new dict is created if None.
+    :returns: the settings dict with defaults applied and ``timelapse`` True.
+    """
+    if settings is None:
+        settings = {}
+    settings = set_default_settings_preprocess_generate_masks(settings)
+    settings['timelapse'] = True
+    return settings
 
 
 def set_default_plot_data_from_db(settings):
@@ -1955,6 +1982,14 @@ tooltips = {
     'x_lim': "(list) - Two-element [min, max] limits on the coefficient (x) axis of the Toxoplasma volcano plot produced by the regression pipeline when toxo mode is on. Narrow it to zoom in on hits clustered near zero, widen it to keep large-effect genes on the plot. Leaving it None falls back to [-0.5, 0.5], not auto-scaling. Default None."
 }
 
+# Keys owned by the standalone Timelapse module (spacr.qt app key 'timelapse').
+# NOTE `timelapse` itself is NOT in this list: it lives in the "General"
+# category because the Tk GUI reveals the "Timelapse" category only once that
+# box is ticked (see category_dependencies), so the toggle cannot live inside
+# the category it controls. Consumers that want "everything timelapse" should
+# use `timelapse_settings + ['timelapse']`.
+timelapse_settings = ['fps', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_mode', 'timelapse_objects', 'compartments']
+
 motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_strategy', 'seconds_per_frame', 'pixels_per_um', 'motility_ylim', 'motility_xlim', 'infection_intensity_qc_scope']
 
 motility_advanced_settings = ['reuse_existing_measurements', 'infection_xgb_min_cells_per_class', 'infection_xgb_n_estimators', 'infection_xgb_max_depth', 'infection_xgb_learning_rate', 'infection_xgb_subsample', 'infection_xgb_colsample_bytree', 
@@ -1990,7 +2025,7 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Hyperparamiters (Activation)":["cam_type", "overlay", "correlation", "target_layer", "normalize_input"],
              "Annotation": ["filter_column", "filter_value","volcano", "toxo", "controls", "nc_loc", "pc_loc", "nc", "pc", "cell_plate_metadata","treatment_plate_metadata", "metadata_types", "cell_types", "target","positive_control","negative_control", "location_column", "treatment_loc", "channel_of_interest", "measurement", "treatments", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
              "Plot": ["split_axis_lims", "x_lim","log_x","log_y", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","save_figure"],
-             "Timelapse": ["fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
+             "Timelapse": timelapse_settings,
              "Advanced": ["dry_run", "test_images", "random_test", "test_nr", "test", "test_split", "normalize", "target_unique_count","threshold_multiplier", "threshold_method", "min_n","shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs", "keep_intermediate", "keep_original_images", "compression"],
              "Beta": ["all_to_mip", "upscale", "upscale_factor", "consolidate", "distance_gaussian_sigma","use_sam_pathogen","use_sam_nucleus", "use_sam_cell", "denoise"],
              "Motility (beta)": motility_settings,
@@ -2628,6 +2663,10 @@ def get_automated_motility_assay_default_settings(settings):
         settings = {}
 
     # array settings
+    # `src` is the plate folder holding merged/*.npy. It used to be inherited
+    # from the mask settings this dict was merged into; the Motility Assay is
+    # now a module of its own, so it has to carry its own source folder.
+    settings.setdefault('src', 'path')
     settings.setdefault('channels', [0, 1, 2, 3])
     settings.setdefault('cell_channel', 2)
     settings.setdefault('nucleus_channel', 0)
@@ -2647,6 +2686,10 @@ def get_automated_motility_assay_default_settings(settings):
     settings.setdefault('infection_intensity_mode', "relabel")  # or 'remove'
     settings.setdefault('db_table_name', "timelapse_object_measurements")
     settings.setdefault('infection_intensity_n_bins', 64)
+    # Read by _make_intensity_motility_panel; previously undefaulted, so the
+    # standalone module had no widget for it. Exposing it lets users skip the
+    # QC plotting work on large runs.
+    settings.setdefault('infection_intensity_qc_graphs', True)
 
     # motility plot settings
     settings.setdefault('pixels_per_um', 1.78)

@@ -352,7 +352,7 @@ def _build_classify_steps(window) -> List[Step]:
 
 
 # ---------------------------------------------------------------------------
-# Timelapse module tutorial — hosted in the mask module with timelapse on
+# Timelapse module tutorial — the standalone Timelapse module
 # ---------------------------------------------------------------------------
 
 def _build_timelapse_steps(window) -> List[Step]:
@@ -360,30 +360,30 @@ def _build_timelapse_steps(window) -> List[Step]:
     screen_ref: List[Any] = [None]
 
     def _capture():
-        screen_ref[0] = window._screens.get("mask")
+        screen_ref[0] = window._screens.get("timelapse")
 
     return [
         Step(
             "spaCR handles timelapse natively — every module "
             "understands the T dimension in the Yokogawa filename "
             "convention.",
-            action=_nav_to(window, "mask"),
+            action=_nav_to(window, "timelapse"),
             hold_ms=400,
         ),
         Step(
             "Loading the timelapse demo generates eight frames "
-            "per field and turns on the timelapse setting. Every "
-            "downstream module then handles tracking, motion, and "
-            "per-frame analysis automatically.",
+            "per field. Every downstream module then handles "
+            "tracking, motion, and per-frame analysis "
+            "automatically.",
             action=lambda: (_load_demo(window, "timelapse", tmp_root)(),
                              _capture()),
             hold_ms=800,
         ),
         Step(
-            "Notice the timelapse toggle in the settings panel — "
-            "flipping this on tells every downstream module to "
-            "treat each field as a temporal stack rather than "
-            "independent images.",
+            "The Timelapse tab in the settings panel holds the "
+            "tracking knobs — which objects to link, the linking "
+            "mode, and how far an object may travel between "
+            "frames.",
             target=(_settings_panel(screen_ref[0]), None),
             hold_ms=500,
         ),
