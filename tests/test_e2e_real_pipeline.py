@@ -89,9 +89,15 @@ def pipeline(tmp_path_factory):
 @_skip
 def test_stage1_masks_and_stacks(pipeline):
     src = pipeline["src"]
-    for sub in ("stack", "merged", "masks", "1", "2", "3", "4"):
+    # Per-channel folders ('1'..'4') are no longer created — the ingest step
+    # merges channels in memory straight into stack/ (see
+    # test_real_data_image_modules.test_module_ingest_organizes_channels).
+    for sub in ("stack", "merged", "masks"):
         p = os.path.join(src, sub)
         assert os.path.isdir(p) and os.listdir(p), f"{sub} missing/empty"
+    for chan in ("1", "2", "3", "4"):
+        assert not os.path.isdir(os.path.join(src, chan)), (
+            f"per-channel folder {chan} should not be created")
     # merged stacks carry the appended masks (7 planes: 4 chan + 3 masks)
     sample = np.load(os.path.join(src, "merged",
                                   sorted(os.listdir(pipeline["merged"]))[0]))
