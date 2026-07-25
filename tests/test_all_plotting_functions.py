@@ -291,11 +291,10 @@ def test_plot_lorenz_curves(tmp_path):
         w = csv.writer(fh); w.writerow(["grna_name", "count"])
         for i in range(30):
             w.writerow([f"g{i}", (i + 1) * 3])
-    try:
-        P.plot_lorenz_curves([str(f)], name_column="grna_name",
-                              value_column="count")
-    except Exception as e:
-        pytest.skip(f"plot_lorenz_curves contract differs: {e}")
+    # No try/skip: the swallow here reported the remove_keys=None TypeError
+    # as a passing-looking "skipped" for as long as the bug existed.
+    P.plot_lorenz_curves([str(f)], name_column="grna_name",
+                         value_column="count")
 
 
 def test_plot_image_mask_overlay(tmp_path):

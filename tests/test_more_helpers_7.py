@@ -33,10 +33,10 @@ def test_plot_lorenz_curves_smoke_synthetic_csvs(tmp_path):
     })
     p1 = tmp_path / "d1.csv"; p2 = tmp_path / "d2.csv"
     df1.to_csv(p1, index=False); df2.to_csv(p2, index=False)
-    try:
-        plot_lorenz_curves(csv_files=[str(p1), str(p2)], save=False)
-    except Exception as e:
-        pytest.skip(f"plot_lorenz_curves contract differs: {e}")
+    # Deliberately NOT wrapped in try/pytest.skip. Swallowing the exception is
+    # exactly what hid the remove_keys=None crash: this call raised TypeError
+    # on every invocation and the suite reported a tidy "skipped".
+    plot_lorenz_curves(csv_files=[str(p1), str(p2)], save=False)
     plt.close("all")
 
 
