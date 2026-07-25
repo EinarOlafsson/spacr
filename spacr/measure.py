@@ -1254,6 +1254,12 @@ def measure_crop(settings):
         :func:`spacr.io.generate_dataset` — build a training set from the PNGs.
         :func:`spacr.deep_spacr.deep_spacr` — train a CNN on the crops.
     """
+    # dry_run comes FIRST, before the local imports below: .io and .timelapse
+    # are heavy, and _save_settings_to_db writes to measurements.db as a side
+    # effect further down. A validate-only run must not reach either.
+    if settings.get('dry_run', False):
+        from .validate import run_preflight
+        return run_preflight(settings, 'measure')
 
     from .io import _save_settings_to_db
     from .timelapse import _timelapse_masks_to_gif

@@ -73,6 +73,10 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('consolidate', False)
     settings.setdefault('batch_size', 50)
     settings.setdefault('test_mode', False)
+    # Validate-only: preprocess_generate_masks runs the pre-flight checks in
+    # spacr.validate, prints the report plus the plan, and returns before any
+    # model loads or any file is written.
+    settings.setdefault('dry_run', False)
     settings.setdefault('test_images', 10)
     settings.setdefault('magnification', 20)
     settings.setdefault('custom_regex', None)
@@ -476,6 +480,10 @@ def get_measure_crop_settings(settings=None):
     
     # Test mode
     settings.setdefault('test_mode', False)
+    # Validate-only: measure_crop runs the pre-flight checks in spacr.validate,
+    # prints the report plus the plan, and returns before the worker pool
+    # starts or anything is written to measurements.db.
+    settings.setdefault('dry_run', False)
     settings.setdefault('test_nr', 10)
     settings.setdefault('channels', [0,1,2,3])
 
@@ -1265,6 +1273,7 @@ expected_types = {
     "target_layer":str,
     "save_to_db":bool,
     "test_mode":bool,
+    "dry_run":bool,
     "test_images":int,
     "remove_background_cell":bool,
     "remove_background_nucleus":bool,
@@ -1678,6 +1687,7 @@ tooltips = {
     "test": "(bool) - In classifier training, run the held-out evaluation pass (combine with train, or use alone to score an existing model). In the sequencing barcode mapper it means something different: process only the first read chunk and print a preview, so you can sanity-check the regex and barcode CSVs in seconds. Default False.",
     "test_images": "(int) - How many plate/well/field image sets are copied into a test/ folder when test_mode is on; every channel file belonging to a chosen set is copied together. Raise it for a broader smoke test, lower it for a faster one. Forced to 1 for timelapse runs so a full sequence stays intact. Default 10.",
     "test_mode": "(bool) - Run the pipeline on a small random subset instead of the whole folder. Mask generation copies test_images (default 10) complete image sets into <src>/test and works there; measure_crop copies test_nr (default 10) merged arrays into test/merged. Both also force verbose and plot on. Use it to check channel assignment, diameters and thresholds before committing to a full plate. Default False.",
+    "dry_run": "(bool) - Validate the settings against the data they point at, print what the run would do, and stop before any compute. Mask generation and measure-and-crop check that src exists and holds the expected files, that every channel and mask-plane index is inside the number of planes actually present, that each value has the type the pipeline expects, and that the models, barcode CSVs or measurements.db the app needs are on disk; each problem is printed with a suggested fix, followed by a plan listing files found, objects to be segmented or measured, and where output would land. Nothing is written, no model is loaded and the GPU is never touched, so a settings mistake costs seconds instead of a whole run. The organize-and-stitch pipeline reuses the flag to list the file moves it would make. Default False.",
     "test_nr": "(int) - How many files are sampled at random from merged/ into test/merged when test_mode is on in the measure-and-crop pipeline, so measurement runs on a small subset. Raise it if a handful of fields is not representative; each extra file costs a full measurement pass. Default 10.",
     "treatment_loc": "(list of lists) - Plate wells that received each entry of treatments, one inner list per treatment in the same order, e.g. [['r1','r2'],['r3']]. Identifiers must start with 'r' (row) or 'c' (column); wells you do not list get no treatment label. Used by the vision-score annotation step. No default - supply it alongside treatments.",
     "treatments": "(list) - Names of the drug or treatment conditions in the experiment, e.g. ['dmso','lovastatin']. Each name is written into the treatment column and folded into the combined condition label used for grouping and plotting; positionally paired with treatment_plate_metadata (or treatment_loc), which lists the wells for each. Default ['cm','lovastatin'].",
@@ -1995,7 +2005,7 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Annotation": ["filter_column", "filter_value","volcano", "toxo", "controls", "nc_loc", "pc_loc", "nc", "pc", "cell_plate_metadata","treatment_plate_metadata", "metadata_types", "cell_types", "target","positive_control","negative_control", "location_column", "treatment_loc", "channel_of_interest", "measurement", "treatments", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
              "Plot": ["split_axis_lims", "x_lim","log_x","log_y", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","save_figure"],
              "Timelapse": ["fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
-             "Advanced": ["test_images", "random_test", "test_nr", "test", "test_split", "normalize", "target_unique_count","threshold_multiplier", "threshold_method", "min_n","shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs", "keep_intermediate", "keep_original_images", "compression"],
+             "Advanced": ["dry_run", "test_images", "random_test", "test_nr", "test", "test_split", "normalize", "target_unique_count","threshold_multiplier", "threshold_method", "min_n","shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs", "keep_intermediate", "keep_original_images", "compression"],
              "Beta": ["all_to_mip", "upscale", "upscale_factor", "consolidate", "distance_gaussian_sigma","use_sam_pathogen","use_sam_nucleus", "use_sam_cell", "denoise"],
              "Motility (beta)": motility_settings,
              "Motility Advanced (beta)": motility_advanced_settings,
