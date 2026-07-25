@@ -332,7 +332,11 @@ class CombineLoaders:
     def __init__(self, train_loaders):
         """Store loaders and initialise per-loader iterators."""
         self.train_loaders = train_loaders
-        self.loader_iters = [iter(loader) for loader in train_loaders]
+        # Carry the ORIGINAL loader index alongside each iterator: the list is
+        # shuffled and pruned as loaders empty, so a positional index would not
+        # identify which loader a batch came from.
+        self.loader_iters = [(i, iter(loader))
+                             for i, loader in enumerate(train_loaders)]
 
     def __iter__(self):
         """Return self — this object is its own iterator."""
@@ -342,15 +346,21 @@ class CombineLoaders:
         """Return ``(loader_index, batch)`` from a randomly-chosen live loader."""
         while self.loader_iters:
             random.shuffle(self.loader_iters)
-            for i, loader_iter in enumerate(self.loader_iters):
+            for pos, (idx, loader_iter) in enumerate(self.loader_iters):
                 try:
                     batch = next(loader_iter)
-                    return i, batch
                 except StopIteration:
-                    self.loader_iters.pop(i)
+                    # Exhausted: it sits at a position before `pos` and is
+                    # dropped below. Do NOT pop here — mutating the list while
+                    # enumerating it skips the entry that shifts into the freed
+                    # slot, which silently discarded still-live loaders and
+                    # truncated the combined stream.
                     continue
-            else:
-                break
+                if pos:
+                    self.loader_iters = self.loader_iters[pos:]
+                return idx, batch
+            # Every remaining loader raised StopIteration on this pass.
+            self.loader_iters = []
         raise StopIteration
 
 class CombinedDataset(Dataset):
