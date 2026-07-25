@@ -122,12 +122,6 @@ def test_merge_regression_res_with_metadata_no_matches(tmp_path):
     assert merged["Description"].isna().all()
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: rows whose gene could not be parsed (NaN) are joined to metadata "
-           "rows whose 'Gene ID' had no underscore, because pandas.merge treats "
-           "NaN keys as equal. Such rows must get NO metadata.",
-)
 def test_merge_regression_res_with_metadata_does_not_join_on_missing_gene(tmp_path):
     from spacr.utils import merge_regression_res_with_metadata
 

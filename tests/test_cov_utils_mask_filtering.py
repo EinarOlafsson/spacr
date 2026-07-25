@@ -514,10 +514,6 @@ def test_get_regex_custom_wraps_the_user_pattern():
     assert re.compile(rx).match("A01.tif") is not None
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="BUG: _get_regex uses `img_format == 'tif'` (a "
-                          "comparison) instead of an assignment, so a None "
-                          "img_format leaks the literal 'None' into the regex")
 def test_get_regex_defaults_to_tif_when_img_format_is_none():
     rx = U._get_regex("cellvoyager", None)
     assert re.compile(rx).match("plate1_A01_T0001F001L01A01Z01C02.tif") is not None

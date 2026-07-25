@@ -167,12 +167,6 @@ def test_get_cellpose_batch_size_swallows_driver_errors(monkeypatch):
     assert _get_cellpose_batch_size() == 8
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: the VRAM ladder in _get_cellpose_batch_size uses strict > and < "
-           "so exactly 8/12/24 GB leaves batch_size unbound; the UnboundLocalError "
-           "is swallowed and a 24 GB card silently gets batch size 8.",
-)
 def test_get_cellpose_batch_size_exact_24gb(monkeypatch):
     from spacr.utils import _get_cellpose_batch_size
 
@@ -259,8 +253,9 @@ def test_update_database_with_merged_info_builds_prcfo_from_object_label(tmp_pat
 
     out = capsys.readouterr().out
     assert "generating prcfo columns" in out
-    # the cell_id fallback is attempted unconditionally and prints its KeyError
-    assert "cell_id" in out
+    # object_label built prcfo successfully, so the cell_id fallback must NOT
+    # run — it used to execute unconditionally and overwrite the good value.
+    assert "cell_id" not in out
     assert "successfully updated" in out
 
     con = sqlite3.connect(db)
@@ -484,13 +479,6 @@ def test_generate_representative_images_defaults_write_one_figure_per_channel(
     assert len(png_list) == N_OBJ
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: _generate_representative_images rebinds `channel_indices = [channel]` "
-           "inside the per-condition loop, so every condition after the first renders "
-           "only the last channel (no channel_0 figure, and its 'combined' figure is "
-           "single-channel).",
-)
 def test_generate_representative_images_all_channels_for_every_condition(
     repr_db, stub_grid_plot
 ):
@@ -817,12 +805,6 @@ def test_map_wells_png_malformed_name_returns_error_tuple(capsys):
     assert "Error processing filename: garbage.png" in printed
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: _map_wells_png's except block never assigns `timeid`, so a "
-           "malformed filename with timelapse=True raises UnboundLocalError "
-           "instead of returning the 'error' tuple (_map_wells does it right).",
-)
 def test_map_wells_png_malformed_name_timelapse_returns_error_tuple():
     from spacr.utils import _map_wells_png
 
