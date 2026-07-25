@@ -1164,15 +1164,6 @@ def test_adjusted_csv_failure_is_reported_but_not_fatal(
     assert (src / "measurements" / "velocity_feature_correlations.csv").is_file()
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "BUG: when every merged group yields an empty frame, "
-        "pd.concat([]) raises ValueError('No objects to concatenate') before "
-        "the intended RuntimeError('No measurements were produced ...') can "
-        "be raised"
-    ),
-)
 def test_no_measurements_raises_runtimeerror(tmp_path, panel_calls, monkeypatch):
     import spacr.timelapse as tl
 

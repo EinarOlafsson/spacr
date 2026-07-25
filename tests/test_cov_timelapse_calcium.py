@@ -14,15 +14,14 @@ exercise every branch of the analysis loop:
     obj 4  wildly fluctuating area   -> dropped by the size filter
     obj 5  only 5 of 10 timepoints   -> dropped by the transience filter
 
-Two genuine defects are pinned with ``xfail(strict=True)`` asserting the
-CORRECT behaviour:
+Two genuine defects, now fixed, are regression-tested here:
 
-  * ``summarize_per_well`` grafts ``cells_per_well`` onto the summary frame by
-    *position* rather than by ``well_ID``, so any well whose peaks all have a
-    null amplitude shifts every subsequent well's cell count.
-  * ``analyze_calcium_oscillations`` reads ``parasite_count`` unconditionally
-    even though that column only exists when ``pathogen=`` was supplied, so the
-    documented default call raises ``KeyError``.
+  * ``summarize_per_well`` used to graft ``cells_per_well`` onto the summary
+    frame by *position* rather than by ``well_ID``, so any well whose peaks all
+    have a null amplitude shifted every subsequent well's cell count.
+  * ``analyze_calcium_oscillations`` used to read ``parasite_count``
+    unconditionally even though that column only exists when ``pathogen=`` was
+    supplied, so the documented default call raised ``KeyError``.
 """
 from __future__ import annotations
 
@@ -290,12 +289,6 @@ def test_summarize_per_well_explodes_ID_into_identifier_columns():
     assert list(df["well_ID"]) == ["A_01", "A_01", "A_01", "B_02"]
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: with no amplitude-bearing peaks the filtered summary is "
-           "empty, but assigning summary_df_2['cells_per_well'] onto it "
-           "resurrects one ghost row per well with well_ID = NaN",
-)
 def test_summarize_per_well_all_null_amplitudes_gives_empty_summary():
     from spacr.timelapse import summarize_per_well
 
@@ -307,12 +300,6 @@ def test_summarize_per_well_all_null_amplitudes_gives_empty_summary():
     assert len(out) == 0
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: summarize_per_well assigns summary_df_2['cells_per_well'] "
-           "positionally, so a well whose peaks all have a null amplitude "
-           "shifts the cell counts of every later well",
-)
 def test_summarize_per_well_cells_per_well_is_keyed_by_well():
     from spacr.timelapse import summarize_per_well
 
@@ -631,12 +618,6 @@ def test_analyze_calcium_oscillations_missing_db_raises(tmp_path):
         analyze_calcium_oscillations(str(tmp_path / "nope.db"))
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: analyze_calcium_oscillations reads group['parasite_count'] "
-           "unconditionally, so the documented default call (pathogen=None) "
-           "raises KeyError instead of analysing an uninfected experiment",
-)
 def test_analyze_calcium_oscillations_without_pathogen_table(tmp_path):
     from spacr.timelapse import analyze_calcium_oscillations
 
