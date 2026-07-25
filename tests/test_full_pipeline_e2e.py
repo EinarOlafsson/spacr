@@ -166,6 +166,8 @@ def _four_object_mask_settings(src: Path) -> dict:
         "remove_background_intensity": False,
         "skip_extraction": False,
         "plot": False,
+        # Stage-1 asserts on masks/<obj>_mask_stack; keep the intermediates.
+        "keep_intermediate": True,
     })
     return s
 

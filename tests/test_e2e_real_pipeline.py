@@ -61,7 +61,10 @@ def pipeline(tmp_path_factory):
     # --- Stage 1: masks (GPU Cellpose) ---
     ms = load_settings(MASK_SETTINGS, setting_key="Key", setting_value="Value")
     ms.update(dict(src=src, plot=False, save=True, verbose=False,
-                   test_mode=False, workers=2, batch_size=8, randomize=False))
+                   test_mode=False, workers=2, batch_size=8, randomize=False,
+                   # Later assertions inspect masks/<obj>_mask_stack, which is
+                   # cleaned up once merged/ is built unless we opt in.
+                   keep_intermediate=True))
     preprocess_generate_masks(ms)
 
     merged = os.path.join(src, "merged")

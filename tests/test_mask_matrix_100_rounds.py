@@ -181,6 +181,9 @@ def _v1_settings(plate: Path, rnd: Round) -> dict:
     s.update({
         "channels": [0, 1, 2, 3],
         "consolidate": False,
+        # This test inspects masks/<obj>_mask_stack, which is deleted once
+        # merged/ is built unless keep_intermediate is set (default False).
+        "keep_intermediate": True,
         "remove_background": rnd.remove_background,
         "normalize": rnd.normalize,
         "backgrounds": [100, 100, 100, 100],
