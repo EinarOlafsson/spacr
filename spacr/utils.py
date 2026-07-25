@@ -118,6 +118,48 @@ def _save_image(filepath, img):
         tifffile.imwrite(filepath, img)
 
 
+def _select_intensity_channel(raw, intensity_channel):
+    """Pick one intensity plane out of a raw image, layout-aware.
+
+    2-D images (and a ``None`` channel) are returned as-is. A 3-D image is
+    treated as channel-last when its trailing axis is small (<= 4), else as
+    channel-first when its leading axis is small, else channel-last.
+
+    Shared by the on-disk (:func:`_process_single_fov`) and in-memory
+    (:func:`_process_single_fov_in_memory`) paths so the two cannot drift:
+    the on-disk one used to do a bare ``raw[intensity_channel]``, which
+    silently took a ROW of a 2-D image and the wrong axis of a channel-last
+    stack.
+
+    :param raw: 2-D or 3-D image array.
+    :param intensity_channel: channel index, or ``None`` to use ``raw`` whole.
+    :returns: a float32 array.
+    :raises ValueError: if ``intensity_channel`` is out of bounds.
+    """
+    raw = np.asarray(raw)
+    if raw.ndim == 2 or intensity_channel is None:
+        return raw.astype(np.float32)
+    if raw.ndim == 3:
+        if raw.shape[-1] <= 4:
+            if intensity_channel >= raw.shape[-1]:
+                raise ValueError(
+                    f"intensity_channel={intensity_channel} out of bounds for channel-last image with shape {raw.shape}"
+                )
+            return raw[..., intensity_channel].astype(np.float32)
+        if raw.shape[0] <= 4:
+            if intensity_channel >= raw.shape[0]:
+                raise ValueError(
+                    f"intensity_channel={intensity_channel} out of bounds for channel-first image with shape {raw.shape}"
+                )
+            return raw[intensity_channel].astype(np.float32)
+        if intensity_channel >= raw.shape[-1]:
+            raise ValueError(
+                f"intensity_channel={intensity_channel} out of bounds for image with shape {raw.shape}"
+            )
+        return raw[..., intensity_channel].astype(np.float32)
+    return raw.astype(np.float32)
+
+
 def _union_find_root(parent, i):
     while parent[i] != i:
         parent[i] = parent[parent[i]]
@@ -444,31 +486,7 @@ def _process_single_fov_in_memory(mask, intensity_img, intensity_channel,
 
     intensity_img_use = None
     if (do_intensity_merge or min_intensity_percentile > 0 or max_intensity_percentile < 100) and intensity_img is not None:
-        raw = np.asarray(intensity_img)
-
-        if raw.ndim == 2:
-            intensity_img_use = raw.astype(np.float32)
-        elif raw.ndim == 3 and intensity_channel is not None:
-            if raw.shape[-1] <= 4:
-                if intensity_channel >= raw.shape[-1]:
-                    raise ValueError(
-                        f"intensity_channel={intensity_channel} out of bounds for channel-last image with shape {raw.shape}"
-                    )
-                intensity_img_use = raw[..., intensity_channel].astype(np.float32)
-            elif raw.shape[0] <= 4:
-                if intensity_channel >= raw.shape[0]:
-                    raise ValueError(
-                        f"intensity_channel={intensity_channel} out of bounds for channel-first image with shape {raw.shape}"
-                    )
-                intensity_img_use = raw[intensity_channel].astype(np.float32)
-            else:
-                if intensity_channel >= raw.shape[-1]:
-                    raise ValueError(
-                        f"intensity_channel={intensity_channel} out of bounds for image with shape {raw.shape}"
-                    )
-                intensity_img_use = raw[..., intensity_channel].astype(np.float32)
-        else:
-            intensity_img_use = raw.astype(np.float32)
+        intensity_img_use = _select_intensity_channel(intensity_img, intensity_channel)
 
     # --- Split phase ---
     if do_split:
@@ -611,10 +629,7 @@ def _process_single_fov(mask_path, intensity_path, intensity_channel,
     if (do_intensity_merge or min_intensity_percentile > 0 or max_intensity_percentile < 100) and intensity_path is not None:
         raw = _load_image(intensity_path)
         if raw is not None:
-            if raw.ndim >= 2 and intensity_channel is not None:
-                intensity_img = raw[intensity_channel].astype(np.float32)
-            else:
-                intensity_img = raw.astype(np.float32)
+            intensity_img = _select_intensity_channel(raw, intensity_channel)
 
     if do_split:
         label_img = _split_by_watershed(
@@ -1399,13 +1414,17 @@ def _get_cellpose_batch_size():
         else:
             print("CUDA is not available. Please check your installation and GPU.")
             return 8
+        # The bounds must form an exhaustive ladder: the previous
+        # `> 8 and < 12` style left 8.0/12.0/24.0 GB unmatched, so batch_size
+        # was never assigned and the print below raised UnboundLocalError,
+        # which the bare except silently turned into a batch size of 8.
         if vram_gb < 8:
             batch_size = 8
-        elif vram_gb > 8 and vram_gb < 12:
+        elif vram_gb < 12:
             batch_size = 16
-        elif vram_gb > 12 and vram_gb < 24:
+        elif vram_gb < 24:
             batch_size = 48
-        elif vram_gb > 24:
+        else:
             batch_size = 96
         print(f"Device {0}: {device_properties.name}, VRAM: {vram_gb:.2f} GB, cellpose batch size: {batch_size}")
         return batch_size
@@ -1493,12 +1512,17 @@ def _update_database_with_merged_info(db_path, df, table='png_list', columns=Non
         print(f'generating prcfo columns')
         try:
             df['prcfo'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str) + '_' + df['fieldID'].astype(str) + '_o' + df['object_label'].astype(int).astype(str)
-        except Exception as e:
+        except Exception:
+            # cell_id is the FALLBACK. Previously this second try ran
+            # unconditionally at the same indentation, so a successful
+            # object_label build was immediately overwritten — and when
+            # cell_id was absent the exception was merely printed, leaving
+            # prcfo built from the wrong column or missing entirely.
             print('Merging on cell failed, trying with cell_id')
-        try:
-            df['prcfo'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str) + '_' + df['fieldID'].astype(str) + '_o' + df['cell_id'].astype(int).astype(str)
-        except Exception as e:
-            print(e)
+            try:
+                df['prcfo'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str) + '_' + df['fieldID'].astype(str) + '_o' + df['cell_id'].astype(int).astype(str)
+            except Exception as e:
+                print(e)
         
     # Merge the existing DataFrame with the new info based on the 'prcfo' column
     merged_df = pd.merge(existing_df, df[columns], on='prcfo', how='left')
@@ -1551,8 +1575,11 @@ def _generate_representative_images(db_path, cells=None, cell_loc=None, pathogen
         os.makedirs(src, exist_ok=True)
         _save_figure(fig=fig, src=src, text=condition)
         for channel in channel_indices:
-            channel_indices=[channel]
-            fig = _plot_images_on_grid(png_paths_by_condition, channel_indices, um_per_pixel, scale_bar_length_um, fontsize, show_filename, channel_names, plot)
+            # Pass the single-channel list inline. Rebinding channel_indices
+            # here mutated the list being iterated over AND the value used by
+            # every later condition, so only the first channel was ever
+            # rendered per-channel after the first condition.
+            fig = _plot_images_on_grid(png_paths_by_condition, [channel], um_per_pixel, scale_bar_length_um, fontsize, show_filename, channel_names, plot)
             _save_figure(fig, src, text=f'channel_{channel}_{condition}')
             plt.close()
             
@@ -1788,7 +1815,9 @@ def _map_wells_png(file_name, timelapse=False):
     except Exception as e:
         print(f"Error processing filename: {file_name}")
         print(f"Error: {e}")
-        plate, row, column, field, object_id, prcfo = 'error', 'error', 'error', 'error', 'error', 'error'
+        # `timeid` must be bound here too: the timelapse return path reads it,
+        # and on the error path it was only ever assigned inside the try.
+        plate, row, column, field, timeid, object_id, prcfo = ('error',) * 7
     if timelapse:
         return plate, row, column, field, timeid, prcfo, object_id
     else:
@@ -3675,7 +3704,7 @@ def augment_classes(dst, nc, pc, generate=True,move=True):
             i+=1
             shutil.move(path, os.path.join(aug_test_pc, os.path.basename(path)))
             print(f'{i}/{all_}', end='\r', flush=True)
-        print(f'Train nc: {len(os.listdir(aug_train_nc))}, Train pc:{len(os.listdir(aug_test_nc))}, Test nc:{len(os.listdir(aug_train_pc))}, Test pc:{len(os.listdir(aug_test_pc))}')
+        print(f'Train nc: {len(os.listdir(aug_train_nc))}, Train pc:{len(os.listdir(aug_train_pc))}, Test nc:{len(os.listdir(aug_test_nc))}, Test pc:{len(os.listdir(aug_test_pc))}')
         return
 
 def annotate_predictions(csv_loc):
@@ -3916,8 +3945,11 @@ def MLR(merged_df, refine_model):
     """
     from .plot import _reg_v_plot
     
-    #model = smf.ols("pred ~ gene + grna + gene:grna + plate + row + column", merged_df).fit()
-    model = smf.ols("pred ~ gene:grna + plate + row + column", merged_df).fit()
+    # Main effects must stay in the formula. With only the interaction term,
+    # patsy full-rank-codes the second factor as grna[<level>] (no "T."), so
+    # the "[T." filter used to pull out max effects below matched nothing and
+    # the returned effects were empty.
+    model = smf.ols("pred ~ gene + grna + gene:grna + plate + row + column", merged_df).fit()
     # Display model metrics and summary
     model_metrics(model)
 
@@ -4589,7 +4621,7 @@ def _get_regex(metadata_type, img_format, custom_regex=None):
     print(f"Image_format: {img_format}")
 
     if img_format == None:
-        img_format == 'tif'
+        img_format = 'tif'
     if metadata_type == 'cellvoyager':
         regex = f"(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*).{img_format}"
     elif metadata_type == 'cq1':
@@ -4769,8 +4801,11 @@ class SaliencyMapGenerator:
     def plot_activation_grid(self, X, saliency, predictions, overlay=True, normalize=False):
         """Render a grid overlaying saliency maps on inputs with predicted-class labels."""
         N = X.shape[0]
-        rows = (N + 7) // 8 
-        fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2))
+        rows = (N + 7) // 8
+        # squeeze=False keeps axs 2-D; without it matplotlib collapses a
+        # single-row grid to 1-D and the axs[i // 8, i % 8] index below
+        # raised IndexError for every batch of 8 or fewer images.
+        fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2), squeeze=False)
 
         for i in range(N):
             ax = axs[i // 8, i % 8]
@@ -4867,9 +4902,14 @@ class GradCAMGenerator:
         for i in range(self.activations.size(1)):
             self.activations[:, i, :, :] *= pooled_gradients[i]
 
-        gradcam = torch.mean(self.activations, dim=1).squeeze()
+        # keepdim keeps the map 4-D (N, 1, H, W) even when the target layer's
+        # spatial dims have collapsed to 1x1 on small inputs; squeeze() plus
+        # two unsqueeze(0) calls produced a 2-D tensor that F.interpolate
+        # rejects with "Input and output must have the same number of
+        # spatial dimensions".
+        gradcam = torch.mean(self.activations, dim=1, keepdim=True)
         gradcam = F.relu(gradcam)
-        gradcam = F.interpolate(gradcam.unsqueeze(0).unsqueeze(0), size=X.shape[2:], mode='bilinear')
+        gradcam = F.interpolate(gradcam, size=X.shape[2:], mode='bilinear')
         gradcam = gradcam.squeeze().cpu().detach().numpy()
         gradcam = (gradcam - gradcam.min()) / (gradcam.max() - gradcam.min())
 
@@ -4898,7 +4938,9 @@ class GradCAMGenerator:
         """Render a grid overlaying Grad-CAM maps on inputs with predicted-class labels."""
         N = X.shape[0]
         rows = (N + 7) // 8
-        fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2))
+        # See SaliencyMapGenerator.plot_activation_grid — squeeze=False is
+        # required so the 2-D index below works for a single-row grid.
+        fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2), squeeze=False)
 
         for i in range(N):
             ax = axs[i // 8, i % 8]
@@ -5002,7 +5044,9 @@ def class_visualization(target_y, model_path, dtype, img_size=224, channels=None
     SQUEEZENET_MEAN = [0.485, 0.456, 0.406]
     SQUEEZENET_STD = [0.229, 0.224, 0.225]
     
-    model = torch.load(model_path)
+    # weights_only=False is the pre-torch-2.6 default this call site was
+    # written against; these checkpoints are whole nn.Module pickles.
+    model = torch.load(model_path, weights_only=False)
     
     dtype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
     len_chans = len(channels)
@@ -6357,8 +6401,12 @@ def process_masks(mask_folder, image_folder, channel, batch_size=50, n_clusters=
     def remove_objects_not_in_largest_cluster(mask, labels, largest_cluster_label):
         """Return ``mask`` with all labeled regions removed except those in ``largest_cluster_label``."""
         cleaned_mask = np.zeros_like(mask)
-        for region in measure.regionprops(mask):
-            if labels[region.label - 1] == largest_cluster_label:
+        # `labels` is the per-file slice of the KMeans label array, ordered by
+        # regionprops enumeration — NOT indexed by label value. Sparse or
+        # non-contiguous labels made `labels[region.label - 1]` read the wrong
+        # cluster (or run off the end of the slice).
+        for idx, region in enumerate(measure.regionprops(mask)):
+            if labels[idx] == largest_cluster_label:
                 cleaned_mask[mask == region.label] = region.label
         return cleaned_mask
 
@@ -6405,6 +6453,11 @@ def process_masks(mask_folder, image_folder, channel, batch_size=50, n_clusters=
         
         for i, mask in enumerate(masks):
             batch_properties = measure_morphology_and_intensity(mask, mask)
+            if not batch_properties:
+                # Object-free field of view: np.bincount([]).argmax() raises
+                # "attempt to get argmax of an empty sequence". There is
+                # nothing to cluster, so leave the mask on disk untouched.
+                continue
             batch_labels = labels[label_index:label_index + len(batch_properties)]
             largest_cluster_label = np.bincount(batch_labels).argmax()
             cleaned_mask = remove_objects_not_in_largest_cluster(mask, batch_labels, largest_cluster_label)
@@ -6444,8 +6497,12 @@ def merge_regression_res_with_metadata(results_file, metadata_file, name='_metad
     # Drop rows where gene extraction failed
     #df_results = df_results.dropna(subset=['gene'])
     
-    # Merge the two dataframes on the gene column
-    merged_df = pd.merge(df_results, df_metadata, on='gene', how='left')
+    # Merge the two dataframes on the gene column. Metadata rows whose ID had
+    # no parsable gene must not act as a join key: pandas treats NaN keys as
+    # equal, so every unparsable result row (e.g. 'Intercept') would otherwise
+    # fan out against every unparsable metadata row.
+    merged_df = pd.merge(df_results, df_metadata.dropna(subset=['gene']),
+                         on='gene', how='left')
     
     # Generate the new file name
     base, ext = os.path.splitext(results_file)
@@ -6851,7 +6908,10 @@ def add_column_to_database(settings):
     # Replace 0 values with 2 in the update column
     if (df[settings['update_column']] == 0).any():
         print("Replacing all 0 values with 2 in the update column.")
-        df[settings['update_column']].replace(0, 2, inplace=True)
+        # Plain reassignment, not chained inplace: under pandas copy-on-write
+        # (the 3.0 default) the inplace form mutates a temporary and is a
+        # silent no-op.
+        df[settings['update_column']] = df[settings['update_column']].replace(0, 2)
 
     # Connect to the SQLite database
     conn = sqlite3.connect(settings['db_path'])
@@ -7047,7 +7107,9 @@ def group_feature_class(df, feature_groups=None, name='compartment'):
     df[name] = df['feature'].apply(lambda x: find_feature_class(x, feature_groups))
     
     if name == 'channel':
-        df['channel'].fillna('morphology', inplace=True)
+        # See add_column_to_database: chained inplace is a no-op under
+        # pandas copy-on-write.
+        df['channel'] = df['channel'].fillna('morphology')
     
     # Create new DataFrame with summed importance for each compartment and channel
     importance_sum = df.groupby(name)['importance'].sum().reset_index(name=f'{name}_importance_sum')
@@ -7155,26 +7217,36 @@ def delete_intermedeate_files(settings):
     
     paths = [path_stack, path_norm_chan_stack, path_1, path_2, path_3, path_4, path_5, path_6, path_7, path_8, path_9, path_10]
     
-    merged_len = len(merged_stack)
-    stack_len = len(path_stack)
-    
-    if merged_len == stack_len and stack_len != 0:
-        if 'src' in settings:
-            if os.path.exists(settings['src']):
-                if os.path.exists(path_orig):
-                    for path in paths:
-                        if os.path.exists(path):
-                            try:
-                                shutil.rmtree(path)
-                                print(f"Deleted {path}")
-                            except OSError as e:
-                                print(f"{path} could not be deleted: {e}. Delete manually.")
-                else:
-                    print(f"{path_orig} does not exist.")
-            else:
-                print(f"{settings['src']} does not exist.")
-        else:
-            print("No 'src' key in settings dictionary.")
+    # Validate the inputs BEFORE the completeness guard. These checks used to
+    # be nested inside it, so a missing src or missing orig/ backup reported
+    # nothing at all whenever the guard happened to be closed.
+    if 'src' not in settings:
+        print("No 'src' key in settings dictionary.")
+        return
+    if not os.path.exists(settings['src']):
+        print(f"{settings['src']} does not exist.")
+        return
+    if not os.path.exists(path_orig):
+        print(f"{path_orig} does not exist.")
+        return
+
+    # Only drop the intermediates once merged/ is at least as populated as
+    # stack/, i.e. every field made it through. Count FILES, not characters:
+    # the old `len(merged_stack) == len(path_stack)` compared len(src)+7
+    # against len(src)+6 — always off by one, so the guard never opened and
+    # this function silently deleted nothing.
+    merged_len = len(os.listdir(merged_stack)) if os.path.isdir(merged_stack) else 0
+    stack_len = len(os.listdir(path_stack)) if os.path.isdir(path_stack) else 0
+    if stack_len == 0 or merged_len < stack_len:
+        return
+
+    for path in paths:
+        if os.path.exists(path):
+            try:
+                shutil.rmtree(path)
+                print(f"Deleted {path}")
+            except OSError as e:
+                print(f"{path} could not be deleted: {e}. Delete manually.")
         
 def filter_and_save_csv(input_csv, output_csv, column_name, upper_threshold, lower_threshold):
     """
@@ -7412,36 +7484,26 @@ def correct_metadata(df):
     if 'object_name' in df.columns:
         df['objectID'] = df['object_name']
     
-    if 'field_name' in df.columns:
-        df['fieldID'] = df['field_name']
-    
     if 'plate' in df.columns:
         df['plateID'] = df['plate']
     
     if 'plate_name' in df.columns:
         df['plateID'] = df['plate_name']
     
-    if 'row' in df.columns:
-        df = df.rename(columns={'row': 'rowID'})
-        
-    if 'row_name' in df.columns:
-        df = df.rename(columns={'row_name': 'rowID'})
-        
-    if 'col' in df.columns:
-        df = df.rename(columns={'col': 'columnID'})
-        
-    if 'column' in df.columns:
-        df = df.rename(columns={'column': 'columnID'})
-        
-    if 'column_name' in df.columns:
-        df = df.rename(columns={'column_name': 'columnID'})
-        
-    if 'field' in df.columns:
-        df = df.rename(columns={'field': 'fieldID'})
+    # Rename legacy aliases to their canonical names, but never when the
+    # canonical column already exists — an unguarded rename produced two
+    # columns with the same name (e.g. 'field_name' renamed onto an existing
+    # 'fieldID'), which then breaks every downstream df['fieldID'] lookup.
+    for alias, canonical in (('row', 'rowID'),
+                             ('row_name', 'rowID'),
+                             ('col', 'columnID'),
+                             ('column', 'columnID'),
+                             ('column_name', 'columnID'),
+                             ('field', 'fieldID'),
+                             ('field_name', 'fieldID')):
+        if alias in df.columns and canonical not in df.columns:
+            df = df.rename(columns={alias: canonical})
 
-    if 'field_name' in df.columns:
-        df = df.rename(columns={'field_name': 'fieldID'})
-    
     return df
 
 def remove_outliers_by_group(df, group_col, value_col, method='iqr', threshold=1.5):
