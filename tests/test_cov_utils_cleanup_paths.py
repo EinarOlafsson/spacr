@@ -152,31 +152,11 @@ def test_cleanup_keep_original_retains_orig_but_drops_stack(tmp_path):
 # delete_intermedeate_files
 # ===========================================================================
 #
-# The function guards its deletion body with
-#     merged_len = len(os.path.join(src, 'merged'))
-#     stack_len  = len(os.path.join(src, 'stack'))
-#     if merged_len == stack_len and stack_len != 0:
-# i.e. it compares the LENGTHS OF THE PATH STRINGS, which differ by exactly one
-# character ('merged' vs 'stack') for every conceivable src. The body is
-# therefore dead code in production (see the xfail test below). To exercise the
-# real deletion logic we swap the module-level ``os`` name in spacr.utils for a
-# shim that joins 'merged' as 'merge', which makes the two strings equal length
-# without touching anything else.
-
-def _install_len_matching_os(monkeypatch):
-    import os as real_os
-    import spacr.utils as su
-
-    def _join(base, name, *rest):
-        if name == "merged":
-            name = "merge"
-        return real_os.path.join(base, name, *rest)
-
-    shim = types.SimpleNamespace(
-        path=types.SimpleNamespace(join=_join, exists=real_os.path.exists)
-    )
-    monkeypatch.setattr(su, "os", shim)
-
+# The guard counts the FILES in merged/ against those in stack/ and only
+# deletes the intermediates once merged/ is at least as populated. (It used to
+# compare the lengths of the two path STRINGS, which differ by exactly one
+# character for every conceivable src, so the body was unreachable; the tests
+# below drive the real body directly now that it is live.)
 
 def _intermediate_tree(root, orig=True):
     root = str(root)
@@ -189,10 +169,6 @@ def _intermediate_tree(root, orig=True):
     return root
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="BUG: delete_intermedeate_files compares path STRING "
-                          "lengths (len('<src>/merged') vs len('<src>/stack')), "
-                          "which can never be equal, so it never deletes anything")
 def test_delete_intermedeate_files_removes_intermediates(tmp_path):
     """With merged/ built and orig/ present, stack/ + the per-channel folders
     must be removed."""
@@ -208,14 +184,12 @@ def test_delete_intermedeate_files_removes_intermediates(tmp_path):
     assert os.path.isdir(os.path.join(root, "orig"))
 
 
-def test_delete_intermedeate_files_body_deletes_stack_and_channels(tmp_path, monkeypatch, capsys):
-    """Deletion body (guard neutralised): stack/, masks/ and every numeric
-    channel folder go; merged/ and orig/ stay."""
+def test_delete_intermedeate_files_body_deletes_stack_and_channels(tmp_path, capsys):
+    """Deletion body: stack/, masks/ and every numeric channel folder go;
+    merged/ and orig/ stay, and each removal is reported once."""
     from spacr.utils import delete_intermedeate_files
 
     root = _intermediate_tree(tmp_path / "p1")
-    _install_len_matching_os(monkeypatch)
-
     delete_intermedeate_files({"src": root})
 
     for d in ("stack", "masks", "1", "2", "10"):
@@ -226,13 +200,11 @@ def test_delete_intermedeate_files_body_deletes_stack_and_channels(tmp_path, mon
     assert out.count("Deleted ") == 5
 
 
-def test_delete_intermedeate_files_requires_orig_backup(tmp_path, monkeypatch, capsys):
+def test_delete_intermedeate_files_requires_orig_backup(tmp_path, capsys):
     """No orig/ backup → refuse to delete and say which path is missing."""
     from spacr.utils import delete_intermedeate_files
 
     root = _intermediate_tree(tmp_path / "p1", orig=False)
-    _install_len_matching_os(monkeypatch)
-
     delete_intermedeate_files({"src": root})
 
     assert os.path.isdir(os.path.join(root, "stack"))
@@ -242,12 +214,10 @@ def test_delete_intermedeate_files_requires_orig_backup(tmp_path, monkeypatch, c
     assert "does not exist" in out
 
 
-def test_delete_intermedeate_files_missing_src_dir(tmp_path, monkeypatch, capsys):
+def test_delete_intermedeate_files_missing_src_dir(tmp_path, capsys):
     from spacr.utils import delete_intermedeate_files
 
     missing = str(tmp_path / "not_there")
-    _install_len_matching_os(monkeypatch)
-
     delete_intermedeate_files({"src": missing})
 
     out = capsys.readouterr().out
@@ -261,8 +231,6 @@ def test_delete_intermedeate_files_reports_oserror(tmp_path, monkeypatch, capsys
     from spacr.utils import delete_intermedeate_files
 
     root = _intermediate_tree(tmp_path / "p1")
-    _install_len_matching_os(monkeypatch)
-
     def _boom(path):
         raise OSError("device busy")
 
@@ -277,14 +245,12 @@ def test_delete_intermedeate_files_reports_oserror(tmp_path, monkeypatch, capsys
     assert os.path.isdir(os.path.join(root, "stack"))
 
 
-def test_delete_intermedeate_files_without_src_key(tmp_path, monkeypatch, capsys):
+def test_delete_intermedeate_files_without_src_key(tmp_path, capsys):
     """The 'no src key' guard: injected via a mapping whose __contains__ lies
     (a plain dict would already have raised KeyError on the first join)."""
     from spacr.utils import delete_intermedeate_files
 
     root = _intermediate_tree(tmp_path / "p1")
-    _install_len_matching_os(monkeypatch)
-
     class _NoSrcKey(dict):
         def __contains__(self, key):
             return False
@@ -619,10 +585,6 @@ def test_correct_metadata_renames_column_variant():
     assert out["columnID"].tolist() == [3]
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="BUG: correct_metadata both copies field_name->fieldID "
-                          "and renames field_name->fieldID, producing a DataFrame "
-                          "with two columns called fieldID")
 def test_correct_metadata_field_name_produces_single_field_id():
     from spacr.utils import correct_metadata
 

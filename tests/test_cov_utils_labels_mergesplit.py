@@ -552,10 +552,6 @@ def test_process_single_fov_unreadable_intensity_is_ignored(tmp_path):
     assert sorted(np.unique(out).tolist()) == [0, 1]
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: _process_single_fov does raw[intensity_channel] on a 2-D intensity "
-    "image, slicing row 0 instead of using the whole plane (the in-memory twin "
-    "_process_single_fov_in_memory handles ndim==2 correctly)"))
 def test_process_single_fov_2d_intensity_with_channel(tmp_path):
     from spacr.utils import _process_single_fov, _process_single_fov_in_memory
     m = _two_touching_blocks()
@@ -578,10 +574,6 @@ def test_process_single_fov_2d_intensity_with_channel(tmp_path):
     assert np.array_equal(tifffile.imread(str(mask_path)), expected)
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: _process_single_fov does raw[intensity_channel] on a channel-LAST "
-    "(H, W, C) intensity image, slicing row `channel` instead of the channel "
-    "plane; _process_single_fov_in_memory picks raw[..., channel]"))
 def test_process_single_fov_channel_last_intensity(tmp_path):
     from spacr.utils import _process_single_fov, _process_single_fov_in_memory
     m = _two_touching_blocks()

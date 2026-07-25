@@ -478,9 +478,6 @@ def test_process_masks_three_clusters_partitions_objects(tmp_path):
     assert np.count_nonzero(out) == 50
 
 
-@pytest.mark.xfail(strict=True, reason="BUG: process_masks indexes cluster labels by "
-                                       "region.label-1, so non-contiguous mask labels "
-                                       "raise IndexError")
 def test_process_masks_handles_non_contiguous_label_ids(tmp_path):
     """Masks whose labels are not 1..N (e.g. after any filtering step) must still work."""
     from spacr.utils import process_masks
@@ -496,8 +493,6 @@ def test_process_masks_handles_non_contiguous_label_ids(tmp_path):
     assert set(np.unique(out)) - {0} in ({2}, {3})
 
 
-@pytest.mark.xfail(strict=True, reason="BUG: process_masks crashes with "
-                                       "'argmax of an empty sequence' on an object-free mask")
 def test_process_masks_handles_object_free_mask(tmp_path):
     """A field of view with no segmented objects must not abort the whole folder."""
     from spacr.utils import process_masks

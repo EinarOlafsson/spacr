@@ -185,10 +185,6 @@ def test_saliency_plot_activation_grid_without_overlay_draws_labels_only():
     assert len(fig.axes[n].texts) == 0
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: plot_activation_grid indexes axs[i // 8, i % 8], but for N <= 8 "
-    "plt.subplots(1, 8) returns a 1-D axes array, so any batch of 8 or fewer "
-    "images raises IndexError instead of rendering a single-row grid."))
 def test_saliency_plot_activation_grid_single_row_batch():
     from spacr.utils import SaliencyMapGenerator
     gen = SaliencyMapGenerator(_tiny())
@@ -273,11 +269,6 @@ def test_gradcam_generator_batch_maps_and_predictions():
     assert float(maps.min()) == 0.0 and float(maps.max()) == 1.0
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: GradCAMGenerator.compute_gradcam_maps feeds a 0-d map to "
-    "F.interpolate when the target layer's spatial dims collapse to 1x1 "
-    "(gradcam.squeeze() drops both dims). GradCAM was fixed for this with "
-    "np.atleast_2d; GradCAMGenerator was not."))
 def test_gradcam_generator_1x1_target_layer():
     from spacr.utils import GradCAMGenerator
     model = _tiny(seed=5)
@@ -317,10 +308,6 @@ def test_gradcam_generator_plot_activation_grid_without_overlay():
     assert [t.get_text() for t in fig.axes[0].texts] == ["0"]
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: GradCAMGenerator.plot_activation_grid indexes axs[i // 8, i % 8]; "
-    "for N <= 8 plt.subplots(1, 8) returns a 1-D axes array and it raises "
-    "IndexError."))
 def test_gradcam_generator_plot_activation_grid_single_row_batch():
     from spacr.utils import GradCAMGenerator
     gen = GradCAMGenerator(_tiny(seed=8), "features.0")
@@ -456,10 +443,6 @@ def test_class_visualization_target_class_zero_uses_custom_names(tmp_path, monke
     assert np.isfinite(out).all() and out.min() >= 0.0 and out.max() <= 1.0
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: class_visualization calls torch.load(model_path) without "
-    "weights_only=False, so on torch >= 2.6 (default flipped to True) it dies "
-    "with UnpicklingError on any checkpoint saved as a whole nn.Module."))
 def test_class_visualization_loads_a_pickled_model(tmp_path, monkeypatch):
     from spacr.utils import class_visualization
     if tuple(int(x) for x in torch.__version__.split(".")[:2]) < (2, 6):

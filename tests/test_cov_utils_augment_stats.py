@@ -109,9 +109,6 @@ def test_augment_classes_moves_augmented_images_into_train_test(tmp_path):
     assert os.listdir(os.path.join(dst, "aug_pc")) == []
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="BUG: augment_classes summary swaps the pc train/test "
-                          "counts with the nc test/train counts")
 def test_augment_classes_summary_line_labels_are_correct(tmp_path, capsys):
     """The printed summary must report each split under its own label."""
     from spacr.utils import augment_classes
@@ -362,10 +359,6 @@ def test_MLR_refined_model_returns_max_interaction_effects(reg_v_plot_spy, capsy
     pd.testing.assert_frame_equal(reg_v_plot_spy[0][0][0], out)
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="BUG: without main effects patsy names the interaction "
-                          "gene[T.x]:grna[y], so MLR(refine_model=False) silently "
-                          "finds no interaction terms and returns empty effects")
 def test_MLR_unrefined_model_reports_interaction_effects(reg_v_plot_spy):
     from spacr.utils import MLR
     df = _mlr_df()
@@ -376,9 +369,6 @@ def test_MLR_unrefined_model_reports_interaction_effects(reg_v_plot_spy):
     assert set(out.columns) == {"effect", "p"}
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="BUG: utils.MLR calls plot._reg_v_plot(df) but that "
-                          "function requires (df, grouping, variable, plate_number)")
 def test_MLR_calls_reg_v_plot_with_a_usable_signature():
     from spacr.utils import MLR
     result = MLR(_mlr_df(), refine_model=False)
