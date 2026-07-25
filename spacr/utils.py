@@ -5837,18 +5837,22 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
         
         if isinstance(channel_of_interest, list):
             feature_strings = [f"channel_{channel}" for channel in channel_of_interest]
-            
-        elif isinstance(channel_of_interest, str):
-            feature_strings = [channel_of_interest]
-            
-        elif isinstance(channel_of_interest, int):
-            feature_string = f"channel_{channel_of_interest}"
-            feature_strings = [feature_string]
+
+        # NOTE: 'morphology' must be tested BEFORE the generic str branch.
+        # It is a str, so the isinstance(..., str) check used to swallow it,
+        # leaving the morphology branch unreachable and `columns_to_drop`
+        # unassigned -> UnboundLocalError on the documented option.
         elif channel_of_interest == 'morphology':
             morphological_features = ['area', 'area_bbox', 'major_axis_length', 'minor_axis_length', 'eccentricity', 'extent', 'perimeter', 'euler_number', 'solidity', 'zernike_0', 'zernike_1', 'zernike_2', 'zernike_3', 'zernike_4', 'zernike_5', 'zernike_6', 'zernike_7', 'zernike_8', 'zernike_9', 'zernike_10', 'zernike_11', 'zernike_12', 'zernike_13', 'zernike_14', 'zernike_15', 'zernike_16', 'zernike_17', 'zernike_18', 'zernike_19', 'zernike_20', 'zernike_21', 'zernike_22', 'zernike_23', 'zernike_24', 'area_filled', 'convex_area', 'equivalent_diameter_area', 'feret_diameter_max']
             morphological_columns = [item for item in df.columns.tolist() if any(base in item for base in morphological_features)]
             columns_to_drop = [col for col in df.columns if col not in morphological_columns]
-        
+
+        elif isinstance(channel_of_interest, str):
+            feature_strings = [channel_of_interest]
+
+        elif isinstance(channel_of_interest, int):
+            feature_strings = [f"channel_{channel_of_interest}"]
+
         if channel_of_interest != 'morphology':
             # Remove entries from drop_columns that are also in feature_strings
             drop_columns = [col for col in drop_columns if col not in feature_strings]
