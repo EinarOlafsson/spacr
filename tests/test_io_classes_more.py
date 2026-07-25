@@ -82,14 +82,14 @@ def test_combine_loaders_round_robin(tmp_path, rng):
         _png(b / f"b{i}.png", rng)
     la = DataLoader(NoClassDataset(str(a), shuffle=False), batch_size=2)
     lb = DataLoader(NoClassDataset(str(b), shuffle=False), batch_size=2)
-    seen = 0
+    # 4 images per folder at batch_size=2 => 2 batches per loader, 4 total.
+    # Every batch must be delivered exactly once regardless of the shuffle
+    # order; nothing may be dropped when a loader empties.
+    per_loader = {0: 0, 1: 0}
     for idx, batch in CombineLoaders([la, lb]):
         assert idx in (0, 1)
-        seen += 1
-    # CombineLoaders drops a loader as soon as it raises StopIteration, so the
-    # final batch of the loader that empties first can be lost; assert the
-    # documented round-robin behaviour rather than an exact count.
-    assert 3 <= seen <= 4
+        per_loader[idx] += 1
+    assert per_loader == {0: 2, 1: 2}
 
 
 def test_spacr_dataloader_preloads(tmp_path, rng):
