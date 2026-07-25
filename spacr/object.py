@@ -175,7 +175,8 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     """
     from .utils import _masks_to_masks_stack, all_elements_match, prepare_batch_for_segmentation, _get_cellpose_channels
     from .io import _create_database, _save_object_counts_to_database, _check_masks, _get_avg_object_size
-    from .timelapse import _npz_to_movie, _btrack_track_cells, _trackpy_track_cells
+    from .timelapse import (_npz_to_movie, _btrack_track_cells, _trackpy_track_cells,
+                            _trackastra_track_cells)
     from .plot import plot_cellpose4_output
     from .settings import set_default_settings_preprocess_generate_masks, _get_object_settings
     from .spacr_cellpose import parse_cellpose4_output
@@ -367,6 +368,24 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                                                          run_optimization=True,
                                                          max_objects_for_optimization=20000)
                     
+                    if timelapse_mode == 'trackastra':
+                        # Trackastra takes the raw intensity stack as well as the
+                        # masks — it uses appearance, not just geometry — so hand
+                        # it the batch we already loaded rather than masks alone.
+                        mask_stack = _trackastra_track_cells(
+                            src=src,
+                            name=name,
+                            batch_filenames=batch_filenames,
+                            object_type=object_type,
+                            masks=masks,
+                            images=batch,
+                            timelapse_remove_transient=timelapse_remove_transient,
+                            plot=settings['plot'],
+                            save=settings['save'],
+                            mode=timelapse_mode,
+                            model_name=settings.get('trackastra_model', 'general_2d'),
+                            linking_mode=settings.get('trackastra_linking', 'greedy'))
+
                     if timelapse_mode == 'trackpy' or timelapse_mode == 'iou':
                         if timelapse_mode == 'iou':
                             track_by_iou = True
@@ -445,7 +464,8 @@ def generate_cellpose_masks(src, settings, object_type):
     """
     from .utils import _masks_to_masks_stack, _filter_cp_masks, _get_cellpose_channels, _choose_model, all_elements_match, prepare_batch_for_segmentation
     from .io import _create_database, _save_object_counts_to_database, _check_masks, _get_avg_object_size
-    from .timelapse import _npz_to_movie, _btrack_track_cells, _trackpy_track_cells
+    from .timelapse import (_npz_to_movie, _btrack_track_cells, _trackpy_track_cells,
+                            _trackastra_track_cells)
     from .plot import plot_cellpose4_output
     from .settings import set_default_settings_preprocess_generate_masks, _get_object_settings
     from .spacr_cellpose import parse_cellpose4_output

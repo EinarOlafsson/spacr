@@ -131,7 +131,9 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('timelapse_memory', 3)
     settings.setdefault('timelapse_frame_limits', [5,])
     settings.setdefault('timelapse_remove_transient', False)
-    settings.setdefault('timelapse_mode', 'trackpy')
+    settings.setdefault('timelapse_mode', 'trackastra')
+    settings.setdefault('trackastra_model', 'general_2d')
+    settings.setdefault('trackastra_linking', 'greedy')
     settings.setdefault('timelapse_objects', ['cell'])
 
     # Misc settings
@@ -1069,6 +1071,8 @@ expected_types = {
     #"timelapse_frame_limits": (list, type(None)),  # This can be a list of lists
     "timelapse_remove_transient": bool,
     "timelapse_mode": str,
+    "trackastra_model": str,
+    "trackastra_linking": str,
     "timelapse_objects": list,
     "fps": int,
     "lower_percentile": (int, float),
@@ -1733,7 +1737,9 @@ tooltips = {
     "pathogen_model": "(str) - use a custom cellpose model to detect pathogen objects.",
     "timelapse_displacement": "(int or None) - Maximum distance in pixels an object may travel between consecutive frames when linking: trackpy's search_range, or btrack's max search radius. Too small fragments tracks, too large causes identity swaps and SubnetOversize failures. None auto-searches downward from 500 for trackpy and falls back to 100 for btrack. Default None.",
     "timelapse_memory": "(int) - Number of consecutive frames an object may vanish (e.g. missed by segmentation) and still be re-linked to the same track by trackpy. Raise it when tracks fragment because objects blink out; too high risks merging two different objects into one track. Not used by the btrack mode. Default 3.",
-    "timelapse_mode": "(str) - Linking algorithm: 'trackpy' links centroids by nearest neighbour using timelapse_displacement and timelapse_memory; 'iou' runs the same pipeline but links frames by mask overlap, which is better for slow or touching objects; 'btrack' uses a Bayesian tracker on object shape features with a global optimiser. Default 'trackpy'.",
+    "timelapse_mode": "(str) - Which tracker links objects between frames. 'trackastra' is a transformer that tops the Cell Tracking Challenge leaderboard, needs no tuning and links divisions natively; 'trackpy' needs a search radius and memory; 'btrack' needs a motion model; 'iou' just overlaps consecutive frames and drifts under fast motion. Default 'trackastra'.",
+    "trackastra_model": "(str) - Which pretrained Trackastra checkpoint links the frames; 'general_2d' is the all-round 2D model and covers most live-cell data without retraining. Only consulted when timelapse_mode='trackastra'. Change it only if you hold a checkpoint trained on imaging that looks unlike yours. Default 'general_2d'.",
+    "trackastra_linking": "(str) - How Trackastra turns predicted association scores into tracks: 'greedy' takes the best match per object and is fast, 'ilp' solves the assignment globally and is more accurate on crowded or dividing populations but needs the trackastra ilp extra and considerably more time. Default 'greedy'.",
     "timelapse_frame_limits": "(list) - Slice of frame indices [start, end] kept from each batch before tracking, e.g. [0,10] to work on the first ten frames while tuning settings. The list is ignored unless it has at least two elements, which is why the shipped default [5,] has no effect. Default [5,].",
     "timelapse_objects": "(list) - Which segmented objects are tracked across frames and relabelled with track IDs: any subset of ['cell', 'nucleus', 'pathogen']; any other value aborts the run with a message. Each extra entry costs a full additional tracking pass. Tracking nuclei is often more stable than cells when cells touch. Default ['cell'].",
     "timelapse_remove_transient": "(bool) - After linking, drop every track not present in all frames (trackpy filter_stubs over the full stack length), keeping only objects tracked from first frame to last. Enable for clean per-object time courses; expect to lose cells that divide, enter or leave the field, so object counts fall. Default False.",
@@ -1988,7 +1994,7 @@ tooltips = {
 # box is ticked (see category_dependencies), so the toggle cannot live inside
 # the category it controls. Consumers that want "everything timelapse" should
 # use `timelapse_settings + ['timelapse']`.
-timelapse_settings = ['fps', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_mode', 'timelapse_objects', 'compartments']
+timelapse_settings = ['fps', 'timelapse_mode', 'trackastra_model', 'trackastra_linking', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_objects', 'compartments']
 
 motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_strategy', 'seconds_per_frame', 'pixels_per_um', 'motility_ylim', 'motility_xlim', 'infection_intensity_qc_scope']
 

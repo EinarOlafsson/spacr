@@ -526,6 +526,130 @@ def _trackpy_track_cells(src, name, batch_filenames, object_type, masks, timelap
         mask_stack = _masks_to_masks_stack(masks)
         return mask_stack
 
+def _trackastra_track_cells(src, name, batch_filenames, object_type, masks, images=None,
+                            timelapse_remove_transient=False, plot=False, save=False,
+                            mode='trackastra', model_name='general_2d', device='automatic',
+                            linking_mode='greedy'):
+    """Track objects across frames with Trackastra, a transformer-based tracker.
+
+    Trackastra tops the Cell Tracking Challenge leaderboard and, unlike the
+    other two backends, has no hyperparameters to tune: trackpy needs a
+    search_range and a memory, and btrack needs a motion-model config, both of
+    which have to be re-guessed per dataset. It also links divisions natively,
+    which matters for a replication assay where a parasite splitting into two
+    is signal rather than a tracking error.
+
+    It consumes exactly what spaCR already has — the raw intensity stack and
+    the label masks — so nothing upstream changes.
+
+    :param src: run folder; the tracks CSV lands in ``<dirname(src)>/tracks``.
+    :param name: batch name used in the output filename.
+    :param batch_filenames: filenames of the frames, for the track visualiser.
+    :param object_type: 'cell' / 'nucleus' / 'pathogen' / 'organelle'.
+    :param masks: (T, Y, X) integer label stack.
+    :param images: (T, Y, X) intensity stack. Trackastra uses appearance as
+        well as geometry; if omitted the masks are used as a stand-in, which
+        works but discards the appearance signal.
+    :param timelapse_remove_transient: drop tracks not present in every frame.
+    :param model_name: pretrained Trackastra model, e.g. 'general_2d'.
+    :param device: 'automatic', 'cpu', or a CUDA device string.
+    :param linking_mode: 'greedy' (fast) or 'ilp' (optimal, needs the extra).
+    :returns: the relabelled mask stack, ids consistent across frames.
+    :raises RuntimeError: if trackastra is not installed, naming the fix.
+    """
+    # Function-local, matching the sibling trackers: spacr.utils imports torch,
+    # and spacr.plot pulls the whole plotting stack.
+    from .plot import _visualize_and_save_timelapse_stack_with_tracks
+    from .utils import _masks_to_masks_stack
+
+    try:
+        from trackastra.model import Trackastra
+        from trackastra.tracking import graph_to_ctc
+    except ImportError as exc:
+        # Fail loud and actionable rather than surfacing a bare ImportError
+        # from three frames down. trackastra is an optional dependency.
+        raise RuntimeError(
+            "timelapse_mode='trackastra' needs the trackastra package, which is "
+            "not installed. Install it with `pip install trackastra` (BSD-3, "
+            "PyTorch-only), or choose timelapse_mode='trackpy' / 'btrack' / 'iou'."
+        ) from exc
+
+    masks = np.asarray(masks)
+    if masks.ndim != 3:
+        raise ValueError(f"masks must be a (T, Y, X) stack, got shape {masks.shape}")
+    if masks.shape[0] < 2:
+        print(f"Trackastra: only {masks.shape[0]} frame(s) for {object_type}; nothing to link.")
+        return _masks_to_masks_stack(masks)
+
+    imgs = np.asarray(images) if images is not None else masks.astype(np.float32)
+    if imgs.shape != masks.shape:
+        raise ValueError(
+            f"images shape {imgs.shape} does not match masks shape {masks.shape}")
+
+    model = Trackastra.from_pretrained(model_name, device=device)
+    track_graph = model.track(imgs, masks, mode=linking_mode)
+
+    # graph_to_ctc gives the canonical (label, start_frame, end_frame, parent)
+    # table plus a relabelled stack whose ids are consistent across frames.
+    ctc_df, masks_tracked = graph_to_ctc(track_graph, masks, outdir=None)
+
+    tracks_df = _trackastra_graph_to_tracks_df(track_graph, masks_tracked)
+
+    if timelapse_remove_transient:
+        n_frames = masks_tracked.shape[0]
+        keep = tracks_df.groupby('track_id')['frame'].nunique() == n_frames
+        kept_ids = set(keep[keep].index)
+        before = len(tracks_df)
+        tracks_df = tracks_df[tracks_df['track_id'].isin(kept_ids)].copy()
+        print(f'Removed {before - len(tracks_df)} objects that were not present in all frames')
+        masks_tracked = _relabel_masks_based_on_tracks(masks_tracked, tracks_df)
+
+    tracks_path = os.path.join(os.path.dirname(src), 'tracks')
+    os.makedirs(tracks_path, exist_ok=True)
+    tracks_df.to_csv(
+        os.path.join(tracks_path, f'trackastra_tracks_{object_type}_{name}.csv'),
+        index=False)
+
+    if plot or save:
+        _visualize_and_save_timelapse_stack_with_tracks(
+            masks_tracked, tracks_df, save, src, name, plot,
+            batch_filenames, object_type, mode)
+
+    return _masks_to_masks_stack(masks_tracked)
+
+
+def _trackastra_graph_to_tracks_df(track_graph, masks_tracked):
+    """Flatten a Trackastra track graph into spaCR's tracks-table layout.
+
+    Downstream consumers (the track visualiser, the motility assay) expect
+    ``frame`` / ``track_id`` / ``x`` / ``y`` / ``original_label``, which is the
+    layout trackpy and btrack already emit. Centroids are recomputed from the
+    relabelled stack so they always agree with the masks actually returned,
+    rather than trusting whatever the graph carried.
+
+    :param track_graph: the graph returned by ``Trackastra.track``.
+    :param masks_tracked: the relabelled (T, Y, X) stack.
+    :returns: DataFrame with one row per object per frame.
+    """
+    from skimage.measure import regionprops
+
+    rows = []
+    for t, frame in enumerate(np.asarray(masks_tracked)):
+        for region in regionprops(frame):
+            cy, cx = region.centroid
+            rows.append({
+                'frame': t,
+                'track_id': int(region.label),
+                'original_label': int(region.label),
+                'x': float(cx),
+                'y': float(cy),
+            })
+    df = pd.DataFrame(rows, columns=['frame', 'track_id', 'original_label', 'x', 'y'])
+    if df.empty:
+        return df
+    return df.sort_values(['track_id', 'frame']).reset_index(drop=True)
+
+
 def _filter_short_tracks(df, min_length=5):
     """Filter out tracks that are shorter than min_length.
 
