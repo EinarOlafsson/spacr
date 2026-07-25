@@ -97,6 +97,52 @@ def test_no_duplicate_keys_in_the_tooltips_literal():
     assert not dupes, f"duplicate keys shadow earlier tooltips: {dupes}"
 
 
+def _literal_keys(dict_name: str):
+    """Every key as it appears in a top-level dict literal in settings.py.
+
+    Reading the source rather than the imported dict is the point: Python
+    silently keeps only the last of a repeated key, so the live object cannot
+    reveal the shadowing.
+    """
+    import inspect
+    import spacr.settings as st
+
+    src = inspect.getsource(st)
+    m = re.search(rf"^{dict_name}\s*=\s*\{{", src, re.M)
+    assert m, f"{dict_name} dict literal not found"
+    start = m.end() - 1
+    depth = 0
+    for j in range(start, len(src)):
+        if src[j] == "{":
+            depth += 1
+        elif src[j] == "}":
+            depth -= 1
+            if depth == 0:
+                end = j + 1
+                break
+    return re.findall(r'[\{,]\s*["\']([A-Za-z_][A-Za-z_0-9]*)["\']\s*:', src[start:end])
+
+
+def test_no_duplicate_keys_in_expected_types():
+    """A repeated key here silently changes a setting's declared type.
+
+    ``src`` was declared ``(str, list)`` and then again as bare ``str`` fifty
+    lines later; the second won, so the type contract disagreed with
+    ``core.py`` and ``measure.py``, which both iterate a list of folders.
+    ``check_settings`` coerces against this mapping, so the shadowing was
+    load-bearing, not cosmetic.
+    """
+    from collections import Counter
+
+    dupes = {k: c for k, c in Counter(_literal_keys("expected_types")).items() if c > 1}
+    assert not dupes, f"duplicate keys shadow earlier type declarations: {dupes}"
+
+
+def test_src_accepts_a_list_of_folders():
+    """core.py and measure.py both loop over src when given a list."""
+    assert expected_types["src"] == (str, list)
+
+
 def test_tooltips_are_single_line_plain_text():
     """The Qt tooltip widget renders these verbatim: no newlines, no markdown."""
     bad = [k for k, v in _all_tooltips().items() if "\n" in v or "**" in v or "`" in v]
