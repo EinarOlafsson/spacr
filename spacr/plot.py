@@ -2016,7 +2016,10 @@ def _show_residules(model):
     W, p_value = stats.shapiro(residuals)
     print(f'Shapiro-Wilk Test W-statistic: {W}, p-value: {p_value}')
     
-def _reg_v_plot(df, grouping, variable, plate_number):
+def _reg_v_plot(df, grouping=None, variable=None, plate_number=None):
+    # grouping/variable/plate_number are unused by the body but kept for
+    # call-site compatibility; they default so utils.MLR's `_reg_v_plot(df)`
+    # call works instead of raising TypeError.
     df['-log10(p)'] = -np.log10(df['p'])
 
     # Create the volcano plot
