@@ -168,6 +168,53 @@ def test_generate_image_umap_return_fig(umap_src):
 # reducer_hyperparameter_search
 # ---------------------------------------------------------------------------
 
+def test_generate_image_umap_plot_images_and_grids(umap_src):
+    """plot_images / plot_by_cluster / plot_cluster_grids render the image
+    overlays instead of plain points."""
+    pytest.importorskip("umap")
+    from spacr.core import generate_image_umap
+    out = generate_image_umap(_umap_settings(
+        umap_src, plot_images=True, plot_by_cluster=True,
+        plot_cluster_grids=True, black_background=True,
+        remove_image_canvas=True, image_nr=4))
+    assert out is not None
+
+
+def test_generate_image_umap_analyze_clusters_and_save(umap_src):
+    """analyze_clusters runs the per-cluster feature analysis; save_figure
+    writes the embedding PDF."""
+    pytest.importorskip("umap")
+    from spacr.core import generate_image_umap
+    out = generate_image_umap(_umap_settings(
+        umap_src, analyze_clusters=True, save_figure=True, verbose=True))
+    assert out is not None
+    pdfs = []
+    for root, _dirs, files in os.walk(umap_src):
+        pdfs += [f for f in files if f.endswith(".pdf")]
+    assert pdfs, "save_figure=True should write an embedding PDF"
+
+
+def test_generate_image_umap_color_by_and_noise_removal(umap_src):
+    """color_by disables the outline/noise options; remove_cluster_noise
+    drops DBSCAN -1 labels."""
+    pytest.importorskip("umap")
+    from spacr.core import generate_image_umap
+    out = generate_image_umap(_umap_settings(
+        umap_src, color_by="columnID", remove_cluster_noise=True,
+        plot_outlines=True, smooth_lines=True))
+    assert out is not None
+
+
+def test_generate_image_umap_log_data_and_correlation_filter(umap_src):
+    """log_data + remove_highly_correlated exercise preprocess_data's
+    transform/prune branches."""
+    pytest.importorskip("umap")
+    from spacr.core import generate_image_umap
+    out = generate_image_umap(_umap_settings(
+        umap_src, log_data=True, remove_highly_correlated=True))
+    assert out is not None
+
+
 def test_generate_screen_graphs_writes_results(umap_src):
     """generate_screen_graphs merges the DB, computes the recruitment metric
     and writes a figure + CSV per source into results/."""

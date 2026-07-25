@@ -5498,9 +5498,13 @@ def plot_images_by_cluster(ax, image_paths, embedding, labels, image_nr, img_zoo
 
 def plot_image(ax, x, y, img, img_zoom, remove_image_canvas=True):
     """Place a zoomed thumbnail of ``img`` at ``(x, y)`` on ``ax``."""
-    img = np.array(img)
+    # remove_canvas() inspects PIL's ``img.mode``, so it must run BEFORE the
+    # array conversion — converting first made remove_image_canvas=True raise
+    # AttributeError: 'numpy.ndarray' object has no attribute 'mode'.
     if remove_image_canvas:
         img = remove_canvas(img)
+    else:
+        img = np.array(img)
     imagebox = OffsetImage(img, zoom=img_zoom)
     ab = AnnotationBbox(imagebox, (x, y), frameon=False)
     ax.add_artist(ab)
