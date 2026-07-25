@@ -3210,7 +3210,14 @@ def suggest_training_changes(
     import pandas as pd
     
     def _scalar(val):
-        """Ensure a single float even if a Series sneaks through."""
+        """Ensure a single float even if a Series sneaks through.
+
+        The Series branch is currently unreachable: every call site passes
+        ``<Series>.iloc[<int>]``, which yields a numpy scalar. It is kept as a
+        deliberate guard because the label-based ``.loc`` lookups this
+        function used to rely on returned a Series whenever the progress CSV
+        had a duplicated index, and that is an easy regression to reintroduce.
+        """
         if isinstance(val, pd.Series):
             return float(val.iloc[0])
         return float(val)
@@ -5635,8 +5642,8 @@ def plot_clusters_grid(embedding, labels, image_nr, image_paths, colors, figures
     cluster_images = {label: [] for label in unique_labels if label != -1}
     cluster_indices = {label: np.where(labels == label)[0] for label in unique_labels if label != -1}
     for cluster_label, indices in cluster_indices.items():
-        if cluster_label == -1:
-            continue
+        # No -1 guard needed: the comprehension above already excludes the
+        # DBSCAN noise label, so this loop never sees it.
         if len(indices) > image_nr:
             indices = random.sample(list(indices), image_nr)
         for index in indices:
