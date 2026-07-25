@@ -128,6 +128,11 @@ setup(
     extras_require={
         'dev': ['pytest>=8.0,<9', 'pytest-qt>=4.4,<5'],
         'headless': ['opencv-python-headless'],
+        # `pip install spacr[trackastra]` — transformer-based object tracking
+        # (timelapse_mode='trackastra'). Optional because it pulls its own
+        # pretrained weights on first use; trackpy/btrack/iou stay available
+        # without it. BSD-3, PyTorch-only, no TensorFlow.
+        'trackastra': ['trackastra>=0.5,<1.0'],
         'full': ['opencv-python'],
         'qt': [
             'PySide6>=6.6,<7',
