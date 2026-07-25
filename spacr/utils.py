@@ -5098,7 +5098,14 @@ class GradCAM:
 
         features = []
         def hook(module, input, output):
-            """Forward hook: append the target layer's output to ``features``."""
+            """Forward hook: append the target layer's output to ``features``.
+
+            ``retain_grad()`` is required: PyTorch only populates ``.grad`` on
+            leaf tensors, so without it ``features[0].grad`` is None below and
+            GradCAM died with "'NoneType' object has no attribute 'cpu'".
+            """
+            if output.requires_grad:
+                output.retain_grad()
             features.append(output)
 
         handles = []
@@ -5130,7 +5137,10 @@ class GradCAM:
             cam += w * target[i, :, :]
 
         cam = np.maximum(cam, 0)
-        cam = cv2.resize(cam, (x.size(2), x.size(3)))
+        # np.atleast_2d guards the case where the target layer's spatial dims
+        # have collapsed to 1x1 (small inputs): cam would otherwise be 0-d and
+        # cv2.resize rejects it.
+        cam = cv2.resize(np.atleast_2d(cam), (x.size(2), x.size(3)))
         cam = cam - np.min(cam)
         cam = cam / np.max(cam)
 
