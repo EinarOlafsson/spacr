@@ -1,6 +1,7 @@
 from scipy.stats import shapiro, normaltest, levene, ttest_ind, mannwhitneyu, kruskal, f_oneway
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
 import scikit_posthocs as sp
+import numpy as np
 import pandas as pd
 from scipy.stats import chi2_contingency, fisher_exact
 import itertools
@@ -202,47 +203,105 @@ def chi_pairwise(raw_counts, verbose=False):
     then applies a multiple-comparison correction selected via
     :func:`choose_p_adjust_method`.
 
+    Two degenerate inputs used to crash rather than report, and both are
+    routine for a sparse per-well contingency table:
+
+    * **Fewer than two groups.** There is no pair to compare, so the p-value
+      correction was handed an empty list and raised ``ZeroDivisionError``.
+      An empty result frame is the correct answer, not an exception.
+    * **A category no group observed**, or a group with no observations at
+      all. ``chi2_contingency`` computes an expected frequency of zero and
+      raises ``ValueError``. A category with zero counts on both sides of a
+      pair carries no information about that pair, so it is dropped before
+      testing -- which is the standard handling, not a fudge. If dropping
+      leaves fewer than two categories, or either group is empty, the test is
+      genuinely undefined and the pair is reported with a NaN p-value and a
+      reason instead of being silently omitted.
+
     :param raw_counts: Contingency-table DataFrame indexed by group.
     :param verbose: When True, print the resulting DataFrame.
-    :returns: DataFrame of pairwise results including raw and adjusted p-values
-        and the correction method used.
+    :returns: DataFrame with Group 1, Group 2, Test Name, p-value,
+        p-value_adj, adj and note. Empty (with those columns) when there is
+        no pair to compare.
     """
+    columns = ['Group 1', 'Group 2', 'Test Name', 'p-value', 'p-value_adj',
+               'adj', 'note']
     pairwise_results = []
     groups = raw_counts.index.unique()  # Use index from raw_counts for group pairs
     raw_p_values = []  # Store raw p-values for correction later
-    
+
     # Calculate the number of groups and average number of data points per group
     num_groups = len(groups)
     num_data_points = raw_counts.sum(axis=1).mean()  # Average total data points per group
+
+    if num_groups < 2:
+        if verbose:
+            print(f"\nPairwise Frequency Analysis: {num_groups} group(s), "
+                  f"so there is no pair to compare.")
+        return pd.DataFrame(columns=columns)
+
     p_adjust_method = choose_p_adjust_method(num_groups, num_data_points)
 
     for group1, group2 in itertools.combinations(groups, 2):
-        contingency_table = raw_counts.loc[[group1, group2]].values
+        pair = raw_counts.loc[[group1, group2]]
+        # A category neither group observed contributes nothing to this pair
+        # and is exactly what makes the expected frequency zero.
+        kept = pair.loc[:, (pair != 0).any(axis=0)]
+        contingency_table = kept.values
+        note = ''
+        n_dropped = pair.shape[1] - kept.shape[1]
+        if n_dropped:
+            note = f"{n_dropped} empty categor{'y' if n_dropped == 1 else 'ies'} dropped"
+
+        if contingency_table.shape[1] < 2 or (contingency_table.sum(axis=1) == 0).any():
+            empty_groups = [g for g, total in zip((group1, group2),
+                                                  contingency_table.sum(axis=1))
+                            if total == 0]
+            reason = (f"no observations for {', '.join(map(str, empty_groups))}"
+                      if empty_groups else
+                      "fewer than two categories with any counts")
+            pairwise_results.append({
+                'Group 1': group1, 'Group 2': group2,
+                'Test Name': 'not testable', 'p-value': float('nan'),
+                'note': reason,
+            })
+            raw_p_values.append(float('nan'))
+            continue
+
         if contingency_table.shape[1] == 2:  # Fisher's Exact Test for 2x2 tables
             oddsratio, p_value = fisher_exact(contingency_table)
             test_name = "Fisher's Exact Test"
         else:  # Chi-Square Test for larger tables
             chi2_stat, p_value, _, _ = chi2_contingency(contingency_table)
             test_name = 'Pairwise Chi-Square Test'
-        
+
         pairwise_results.append({
             'Group 1': group1,
             'Group 2': group2,
             'Test Name': test_name,
-            'p-value': p_value
+            'p-value': p_value,
+            'note': note,
         })
         raw_p_values.append(p_value)
 
-    # Apply p-value correction
-    corrected_p_values = multipletests(raw_p_values, method=p_adjust_method)[1]
+    # Apply p-value correction over the pairs that were actually testable.
+    # Correcting across untestable pairs would inflate the family size and
+    # penalise the real comparisons for tests that never ran.
+    raw = np.asarray(raw_p_values, dtype=float)
+    testable = ~np.isnan(raw)
+    corrected_p_values = np.full(raw.shape, np.nan)
+    if testable.any():
+        corrected_p_values[testable] = multipletests(
+            raw[testable], method=p_adjust_method)[1]
 
     # Add corrected p-values to results
     for i, result in enumerate(pairwise_results):
         result['p-value_adj'] = corrected_p_values[i]
 
     pairwise_df = pd.DataFrame(pairwise_results)
-    
+
     pairwise_df['adj'] = p_adjust_method
+    pairwise_df = pairwise_df.reindex(columns=columns)
 
     if verbose:
         # Print pairwise results
