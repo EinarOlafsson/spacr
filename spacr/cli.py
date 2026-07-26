@@ -185,6 +185,16 @@ _MODULE_LIST: Tuple[Module, ...] = (
         writes=("<src>/measurements/measurements.db", "<src>/data/**/<mode>_png/"),
     ),
     Module(
+        key="align",
+        summary="Register and stitch an arbitrary number of tiles into one canvas.",
+        entry="spacr.align:align_folder",
+        defaults=None,
+        validate_key="align",
+        requires=("src — folder of .npy/.tif tiles",),
+        writes=("<dst>/<plate>_<well>_stitched.npy — the stitched canvas",
+                "align_coordinates in measurements.db when db_path is set"),
+    ),
+    Module(
         key="classify",
         summary="Full DL pipeline: build dataset, train, apply the model, merge predictions.",
         entry="spacr.deep_spacr:deep_spacr",

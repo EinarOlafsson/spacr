@@ -145,6 +145,7 @@ APPS = [
     ("regression",     "Regression",     "Regression analysis of screen scores",                        SECTION_CORE),
     # -- Data & batch runs: get images and tables into a spaCR project,
     #    run many plates unattended, get the numbers back out.
+    ("align",          "Align & Stitch", "Register tiles into one stitched canvas, written incrementally so a 20000x20000 mosaic never has to fit in RAM", SECTION_DATA),
     ("convert",        "Format Converter", "ND2/CZI/LIF/OME-TIFF into Yokogawa TIFFs: preview the mapping, then a map file back to the originals", SECTION_DATA),
     ("foreign",        "Import Project", "Someone else's images, masks and measurement table into a spaCR project, with their columns mapped onto spaCR's", SECTION_DATA),
     ("queue",          "Plate Queue",    "Chain multiple plates through the same pipeline",             SECTION_DATA),
@@ -190,6 +191,7 @@ _ICON_OVERRIDES = {
                                            # as "the same fields, twice"
     "model_zoo":       "download.png",     # the zoo is where models come from
     "batch":           "sequencing.png",   # a stacked queue of runs
+    "align":           "cellpose_all.png", # a grid of fields reads as a mosaic
 }
 
 # Keys that render their qtawesome glyph instead of a bundled PNG.
@@ -888,6 +890,9 @@ class MainWindow(QMainWindow):
         if key == "model_compare":
             from .screens.model_compare import ModelCompareScreen
             return ModelCompareScreen()
+        if key == "align":
+            from .screens.align import AlignScreen
+            return AlignScreen()
         if key == "convert":
             from .screens.convert import ConvertScreen
             return ConvertScreen()

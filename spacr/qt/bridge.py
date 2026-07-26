@@ -266,6 +266,9 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
         if app_key == "foreign":
             from spacr.foreign import import_project
             return log_call(import_project)
+        if app_key == "align":
+            from spacr.align import align_folder
+            return log_call(align_folder)
         if app_key == "convert":
             from spacr.convert import convert_folder
             return log_call(convert_folder)
