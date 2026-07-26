@@ -101,6 +101,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
@@ -548,6 +549,35 @@ def _read_curve_csv(path: Path) -> Tuple[Optional[pd.DataFrame], List[str]]:
     return out, notes
 
 
+def _is_outside_any_project(node: Path) -> bool:
+    """True when ``node`` is too high up to be a spaCR project folder.
+
+    The settings climb walks parents looking for ``<ancestor>/settings/*.csv``.
+    Left unbounded it reaches the filesystem root, the user's home and the
+    system temp directory — none of which is ever a project, and any of which
+    might hold an unrelated ``settings/`` folder that would then be reported as
+    this run's provenance. That is worse than reporting none, because the
+    settings diff would show differences that were never configured.
+
+    :param node: a candidate ancestor directory.
+    :returns: True to stop climbing.
+    """
+    try:
+        resolved = node.resolve()
+    except OSError:
+        return True
+    if resolved == resolved.parent:        # filesystem root
+        return True
+    stops = {Path(tempfile.gettempdir()).resolve()}
+    try:
+        home = Path.home().resolve()
+        stops.add(home)
+        stops.add(home.parent)             # /home, /Users
+    except (RuntimeError, OSError):
+        pass
+    return resolved in stops
+
+
 def _load_settings(path: Path) -> Tuple[Dict[str, Any], str, List[str]]:
     """Recover the settings that produced the run in ``path``.
 
@@ -581,6 +611,13 @@ def _load_settings(path: Path) -> Tuple[Dict[str, Any], str, List[str]]:
     node = path
     for _ in range(_SETTINGS_SEARCH_DEPTH):
         node = node.parent
+        if _is_outside_any_project(node):
+            # The climb has left anything that could be a spaCR project. A run
+            # at ~/data/plate1/model/<mt>/<ch>/epochs_5 reaches ~/data, then
+            # ~, then /home, then / inside the search depth — and a settings/
+            # folder in any of those would be reported as THIS run's
+            # provenance. No settings is better than someone else's.
+            break
         sdir = node / "settings"
         if not sdir.is_dir():
             continue
