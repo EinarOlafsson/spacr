@@ -373,6 +373,239 @@ def _segment_volumes_with_z(volumes, model, z_plan, eval_kwargs):
     return masks, results, intensity
 
 
+# ====================================================================== #
+#  4D (Beta): the time axis on top of the z axis
+# ====================================================================== #
+#
+# The same contract as the 3D block above, one axis further out. Everything
+# here is inert unless the `t_stack` setting is on: `_t_stack_plan` returns
+# None then and every call site branches on it, so a run that has not opted in
+# executes not one line of 4-D code and produces byte-identical masks to a run
+# from before these settings existed. That property is the acceptance criterion
+# and is asserted in tests/test_object_tstack_wiring.py.
+#
+# What `t_stack` declares, exactly
+# --------------------------------
+# It reinterprets the **leading axis of the .npz batch as time** rather than as
+# a list of independent fields, and requires a z axis behind it -- a batch is
+# then one `(T, Z, Y, X, C)` acquisition instead of `N` separate
+# `(Z, Y, X, C)` fields. Which of the two leading axes is t and which is z is
+# never guessed; `zstack.plan_4d_from_settings` refuses to build a plan at all
+# until `t_axis_order` (or `t_axis`/`z_axis`) says, because reading one as the
+# other links objects down a z stack and reports them as motion.
+#
+# How far it gets today, stated plainly
+# -------------------------------------
+# `spacr.io._rename_and_organize_image_files` collapses z into one plane per
+# field while organising the raw files, so an ordinary run's batches are
+# `(N, Y, X, C)` and there is no z axis left by the time segmentation sees
+# them. `_require_t_axis` therefore stops such a run with
+# `TAxisNotPresentError` naming that as the cause, rather than segmenting the
+# projection frame by frame and reporting a 4-D result. Handed a genuine
+# `(T, Z, Y, X, C)` array through the Python API -- write the .npz yourself --
+# the path runs end to end into `zstack.segment_4d`.
+#
+# Linking across t (`zstack.track_4d`) is deliberately *not* wired here: its
+# call site is `spacr.timelapse`, not this module. `t_stack` drives
+# segmentation only, and says so.
+
+
+def _t_stack_plan(settings):
+    """Return the :class:`spacr.zstack.TStackSpec` for this run, or None.
+
+    The t counterpart of :func:`_z_stack_plan`, and deliberately the same
+    shape: one delegation to the settings bridge in :mod:`spacr.zstack`, which
+    returns ``None`` whenever ``t_stack`` is off so that every caller can
+    branch on a single value.
+
+    :param settings: pipeline settings dict.
+    :returns: a spec when ``t_stack`` is on, else ``None``.
+    :raises spacr.zstack.AmbiguousAxisOrderError: when ``t_stack`` is on but
+        neither ``t_axis_order`` nor ``t_axis``/``z_axis`` says which leading
+        axis is time.
+    :raises spacr.zstack.TStackError: when the 4D settings are otherwise
+        self-inconsistent.
+    """
+    from .zstack import plan_4d_from_settings
+
+    return plan_4d_from_settings(settings)
+
+
+def _reconcile_z_and_t_plans(z_plan, t_plan, timelapse=False):
+    """Decide which of the two Beta plans actually drives this run.
+
+    ``t_stack`` and ``z_stack`` are not independent: ``zstack.segment_4d``
+    calls ``zstack.segment_3d`` once per timepoint, with the z settings read
+    from the very same keys ``zstack.plan_from_settings`` reads. So when both
+    are on the 4-D plan already *is* the 3-D plan, applied per timepoint, and
+    leaving the 3-D plan live as well would segment every field twice and keep
+    only the second answer. The 4-D plan therefore supersedes it, out loud.
+
+    :param z_plan: the :class:`spacr.zstack.ZStackSpec`, or ``None``.
+    :param t_plan: the :class:`spacr.zstack.TStackSpec`, or ``None``.
+    :param timelapse: whether the legacy 2-D ``timelapse`` tracking is also on.
+    :returns: the z plan to keep -- ``z_plan`` unchanged when ``t_plan`` is
+        ``None``, and ``None`` once the 4-D plan has taken over.
+    :raises spacr.zstack.TrackerIsTwoDError: when ``timelapse`` tracking is on
+        and the 4-D plan produces volumes its adapters cannot link.
+    """
+    from .zstack import TrackerIsTwoDError
+
+    if t_plan is None:
+        return z_plan
+
+    if z_plan is not None:
+        print(
+            f"z_stack and t_stack are both on: the 4-D plan supersedes the "
+            f"3-D one. zstack.segment_4d runs zstack.segment_3d once per "
+            f"timepoint with these very same z settings "
+            f"(z_segmentation_mode='{t_plan.z_mode}', "
+            f"z_projection='{t_plan.projection}'), so keeping both live would "
+            f"segment every field twice and discard the first answer."
+        )
+
+    # Only a plan that actually produces (Z, Y, X) volumes is a problem for
+    # them; a flat time series, or 'project', leaves the masks 2-D.
+    if timelapse and t_plan.z_axis is not None and t_plan.z_mode != 'project':
+        raise TrackerIsTwoDError(
+            f"t_stack is on with z_segmentation_mode='{t_plan.z_mode}', which "
+            f"produces (Z, Y, X) label volumes, but the `timelapse` setting is "
+            f"on too and every one of spaCR's timelapse tracking adapters "
+            f"(spacr.timelapse._btrack_track_cells, _trackpy_track_cells, "
+            f"_trackastra_track_cells, _ultrack_track_cells) requires a flat "
+            f"(T, Y, X) stack and raises on anything else. Either set "
+            f"z_segmentation_mode='project' so the masks stay 2-D, or turn "
+            f"`timelapse` off and link the volumes yourself with "
+            f"zstack.track_4d, which does track in 3-D. spaCR will not "
+            f"project the volumes away to make the 2-D tracker accept them."
+        )
+
+    return None
+
+
+def _require_t_axis(stack, t_plan, path):
+    """Stop the run when 4D is on but the array that arrived is not 4-D.
+
+    The exact counterpart of :func:`_require_z_axis`, and it exists for the
+    same reason: quietly segmenting one projected plane per timepoint and
+    calling the result 4-D is indistinguishable, after the fact, from a real
+    4-D run. So it is a hard error naming both the cause and the way out.
+
+    ``t_stack`` reads the batch's leading axis as time, so what is missing from
+    an ordinary batch is the **z** axis: ``(N, Y, X, C)`` has four axes where a
+    4-D acquisition needs five.
+
+    A spec with ``z_axis=None`` describes a flat ``(T, Y, X, C)`` time series
+    and needs only four, which is what an ordinary batch already is -- see
+    :func:`spacr.zstack.segment_4d`, which makes one plain 2-D call per frame
+    for it. ``spacr.zstack.plan_4d_from_settings`` cannot build such a spec
+    from settings today, so this branch is reachable only through the Python
+    API; the settings-level path for a flat time series is the ``timelapse``
+    setting.
+
+    :param stack: the ``(N, ...)`` array loaded from one ``.npz`` batch.
+    :param t_plan: the active :class:`spacr.zstack.TStackSpec`.
+    :param path: the ``.npz`` path, for the message.
+    :raises spacr.zstack.TAxisNotPresentError: when there is no 4-D array here.
+    """
+    from .zstack import TAxisNotPresentError
+
+    if stack.ndim >= (4 if t_plan.z_axis is None else 5):
+        return
+
+    raise TAxisNotPresentError(
+        f"t_stack is on but {os.path.basename(path)} holds an array of shape "
+        f"{stack.shape}, which is (timepoints, Y, X, channels) -- there is a "
+        f"time axis but no z axis, so this is a flat 2-D time series and not "
+        f"the (T, Z, Y, X, C) acquisition t_stack describes "
+        f"(t_axis={t_plan.t_axis}, z_axis={t_plan.z_axis}). spaCR's image "
+        f"ingest (io._rename_and_organize_image_files) collapses every z plane "
+        f"of a field into one plane while organising the raw files, so by the "
+        f"time a batch reaches segmentation the z axis is already gone. Turn "
+        f"t_stack off: for a flat 2-D time series the `timelapse` setting is "
+        f"the path that works today and it is untouched by any of this. To "
+        f"segment real volumes over time, hand spacr.zstack.segment_4d your "
+        f"(T, Z, Y, X, C) arrays directly through the Python API. spaCR will "
+        f"not segment the projection and report it as a 4-D result."
+    )
+
+
+def _segment_timepoints_with_t(acquisition, model, t_plan, eval_kwargs):
+    """Segment one ``(T, Z, Y, X, C)`` acquisition under the active t plan.
+
+    The adapter is :func:`_cellpose_z_segment_fn`, unchanged: ``segment_4d``
+    hands each timepoint to ``segment_3d``, which calls ``segment_fn`` with
+    exactly the kwargs the 3-D path already documents. There is deliberately
+    no second Cellpose adapter -- a 4-D run and a 3-D run must not be able to
+    drift apart in how they drive the model.
+
+    :param acquisition: a ``(T, Z, Y, X, C)`` array, axes as ``t_plan`` names
+        them.
+    :param model: a loaded ``CellposeModel``.
+    :param t_plan: the active :class:`spacr.zstack.TStackSpec`.
+    :param eval_kwargs: kwargs shared with the 2-D path.
+    :returns: ``(masks, result, intensity)`` — one label array per timepoint,
+        2-D under ``'project'`` and 3-D otherwise; the
+        :class:`spacr.zstack.TStackResult`; and, under ``'project'`` only, the
+        projected ``(T, Y, X, C)`` intensity array that was actually
+        segmented, which is what the 2-D merge/split/filter step must score
+        against rather than the original volumes.
+    """
+    from .zstack import iter_volumes, project, segment_4d
+
+    segment_fn = _cellpose_z_segment_fn(
+        model, eval_kwargs, t_plan.stitch_threshold
+    )
+
+    result = segment_4d(acquisition, t_plan, segment_fn=segment_fn)
+    masks = [np.asarray(frame) for frame in np.asarray(result.labels)]
+
+    intensity = None
+    if t_plan.z_axis is None:
+        # A flat time series: there is no z to collapse, so there is no
+        # projected copy either and the caller scores against the batch it
+        # already has, exactly as the ordinary 2-D path does.
+        pass
+    elif t_plan.z_mode == 'project':
+        # The same projection segment_3d just made, one per timepoint. The
+        # merge/split/filter step scores masks against intensities, so it must
+        # see the plane the masks were drawn on, not the volume it came from.
+        intensity = np.stack([
+            project(volume, mode=t_plan.projection, z_axis=0)
+            for volume in iter_volumes(acquisition, t_plan)
+        ])
+
+    return masks, result, intensity
+
+
+def _refuse_t_stack(settings, where):
+    """Stop a generator that cannot honour ``t_stack`` from silently ignoring it.
+
+    Only :func:`generate_cellpose_masks_sam` implements the 4-D path. The other
+    generators would segment each field independently in 2-D and return exactly
+    what a run with ``t_stack`` off returns, while the settings panel said 4-D
+    — which is the failure this whole feature exists to prevent, so they say so
+    instead.
+
+    :param settings: pipeline settings dict.
+    :param where: the generator's name, for the message.
+    :raises spacr.zstack.TStackError: when ``t_stack`` is on.
+    """
+    if not settings.get('t_stack', False):
+        return
+
+    from .zstack import TStackError
+
+    raise TStackError(
+        f"t_stack is on but {where} does not implement the 4-D path: it "
+        f"segments every field independently in 2-D and would hand back "
+        f"exactly the masks a run with t_stack off produces, while the "
+        f"settings said 4-D. Only object.generate_cellpose_masks_sam reads "
+        f"t_stack today. Either run that generator, or turn t_stack off. "
+        f"spaCR will not accept a 4-D setting and quietly return a 2-D result."
+    )
+
+
 def generate_cellpose_masks_sam(src, settings, object_type):
     """Segment one object channel across all ``.npz`` batches under ``src`` using Cellpose-SAM.
 
@@ -434,6 +667,23 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     # None unless the user opted into 3D (Beta). Every branch below is guarded
     # on it, so the 2-D path is untouched when it is None.
     z_plan = _z_stack_plan(settings)
+
+    # None unless the user opted into 4D (Beta). Raises here, before the model
+    # is loaded and the first field read, when the axis order is not settled --
+    # that answer cannot change later in the run.
+    t_plan = _t_stack_plan(settings)
+    z_plan = _reconcile_z_and_t_plans(z_plan, t_plan, timelapse=timelapse)
+
+    # The z mode that actually runs, whichever plan is driving. None means no
+    # z code runs at all and the masks are ordinary 2-D ones: either neither
+    # plan is set, or the 4-D plan describes a flat (T, Y, X) time series, for
+    # which segment_4d makes one plain 2-D call per frame and no z mode enters.
+    if t_plan is not None:
+        beta_mode = None if t_plan.z_axis is None else t_plan.z_mode
+    elif z_plan is not None:
+        beta_mode = z_plan.mode
+    else:
+        beta_mode = None
 
     if settings.get('cellpose_nucleus_channel') is None and settings.get('nucleus_channel') is not None:
         settings['cellpose_nucleus_channel'] = settings['nucleus_channel']
@@ -500,16 +750,21 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                         batch_size = len(stack)
                         print(f'Cut batch at indecies: {timelapse_frame_limits}, New batch_size: {batch_size} ')
         
-        if z_plan is not None:
+        if t_plan is not None:
+            # Fail before the first timepoint rather than after: whether this
+            # array is 4-D cannot change later in the run.
+            _require_t_axis(stack, t_plan, path)
+        elif z_plan is not None:
             # Fail before the first field rather than after: whether this
             # array has a z axis cannot change later in the run.
             _require_z_axis(stack, z_plan, path)
 
         for i in range(0, stack.shape[0], batch_size):
             mask_stack = []
-            if z_plan is not None:
-                # (N, Z, Y, X, C): select channels off the trailing axis so the
-                # z axis is preserved.
+            if z_plan is not None or t_plan is not None:
+                # (N, Z, Y, X, C) — or (T, Z, Y, X, C) under t_stack, where the
+                # leading axis is time: select channels off the trailing axis
+                # so the z axis is preserved.
                 batch = stack[i: i+batch_size][..., channels].astype(stack.dtype)
             elif stack.shape[3] == 1:
                 batch = stack[i: i+batch_size, :, :, [0]].astype(stack.dtype)
@@ -540,7 +795,7 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                 _npz_to_movie(cp_batch, batch_filenames, save_path, fps=2)
                 
             
-            if z_plan is None:
+            if z_plan is None and t_plan is None:
                 output = model.eval(
                     x=batch_list,
                     batch_size=len(batch_list),
@@ -564,7 +819,8 @@ def generate_cellpose_masks_sam(src, settings, object_type):
             else:
                 # Same eval kwargs as the 2-D call above, minus the ones zstack
                 # sets per mode (x, batch_size, channel_axis, do_3D, anisotropy,
-                # z_axis).
+                # z_axis). Shared by the 3-D and 4-D paths so the two cannot
+                # drive Cellpose differently.
                 z_eval_kwargs = dict(
                     batch_size=1,
                     normalize=False,
@@ -576,23 +832,37 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                     cellprob_threshold=cellprob_threshold,
                     resample=object_settings['resample'],
                 )
-                masks, z_results, z_intensity = _segment_volumes_with_z(
-                    batch_list, model, z_plan, z_eval_kwargs
-                )
+                if t_plan is not None:
+                    # The whole batch is one acquisition, not a list of
+                    # independent fields: its leading axis is time.
+                    masks, t_result, beta_intensity = _segment_timepoints_with_t(
+                        cp_batch, model, t_plan, z_eval_kwargs
+                    )
+                    if settings['verbose']:
+                        for note in t_result.notes:
+                            print(f"[4D] {name}: {note}")
+                        for filename, result in zip(batch_filenames,
+                                                    t_result.z_results):
+                            for note in result.notes:
+                                print(f"[4D] {filename}: {note}")
+                else:
+                    masks, z_results, beta_intensity = _segment_volumes_with_z(
+                        batch_list, model, z_plan, z_eval_kwargs
+                    )
+                    if settings['verbose']:
+                        for filename, result in zip(batch_filenames, z_results):
+                            for note in result.notes:
+                                print(f"[3D] {filename}: {note}")
                 flows = None
-                if settings['verbose']:
-                    for filename, result in zip(batch_filenames, z_results):
-                        for note in result.notes:
-                            print(f"[3D] {filename}: {note}")
 
-            if z_plan is None or z_plan.mode == 'project':
+            if beta_mode is None or beta_mode == 'project':
                 # merge/split/filter reason in 2-D: they measure areas in px²
                 # and split objects with a 2-D watershed. Handing them a
                 # (Z, Y, X) volume would silently apply all of that per plane
                 # and tear the 3-D labels apart, so the 3-D modes skip them.
                 masks = merge_split_filter_masks(
                     masks=masks,
-                    intensity_images=batch if z_plan is None else z_intensity,
+                    intensity_images=batch if beta_mode is None else beta_intensity,
                     settings=settings,
                     object_type=object_type,
                     batch_filenames=batch_filenames,
@@ -602,7 +872,7 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                     f"merge_split_filter_masks({object_type}): skipped — the "
                     f"merge/split/filter operations are 2-D only and would be "
                     f"applied per z plane, breaking the 3-D labels that "
-                    f"z_segmentation_mode='{z_plan.mode}' just produced"
+                    f"z_segmentation_mode='{beta_mode}' just produced"
                 )
             
             if timelapse:
@@ -729,10 +999,12 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                     # and do not collect one, and in the stitch/volumetric
                     # modes the mask is a (Z, Y, X) volume it cannot render
                     # beside a 2-D field either.
+                    reason = (f"z_segmentation_mode='{beta_mode}'"
+                              if beta_mode else "the 4D path")
                     print(
-                        f"plot skipped: z_segmentation_mode='{z_plan.mode}' "
-                        f"does not produce the per-image flow images this plot "
-                        f"needs. Inspect the saved .npy masks instead."
+                        f"plot skipped: {reason} does not produce the "
+                        f"per-image flow images this plot needs. Inspect the "
+                        f"saved .npy masks instead."
                     )
                 else:
                     plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=len(batch_list))
@@ -781,7 +1053,10 @@ def generate_cellpose_masks(src, settings, object_type):
     settings['src'] = src
     
     settings = set_default_settings_preprocess_generate_masks(settings)
-    
+
+    # This generator has no 4-D path. Say so rather than returning 2-D masks
+    # to a user whose settings said 4-D.
+    _refuse_t_stack(settings, 'object.generate_cellpose_masks')
 
     if settings['verbose']:
         settings_df = pd.DataFrame(list(settings.items()), columns=['setting_key', 'setting_value'])
@@ -1085,6 +1360,10 @@ def generate_organelle_masks_sam(src, settings, object_type):
     gc.collect()
 
     settings = _set_organelle_defaults(settings)
+
+    # This generator has no 4-D path. Say so rather than returning 2-D masks
+    # to a user whose settings said 4-D.
+    _refuse_t_stack(settings, 'object.generate_organelle_masks_sam')
 
     morphology = settings['organelle_morphology']
     method = settings['organelle_method']
