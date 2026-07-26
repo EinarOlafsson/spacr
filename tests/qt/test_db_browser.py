@@ -272,14 +272,17 @@ def editable(screen, measdb, allow_editing):
 # Registration: APPS / titles / intro / icon / MainWindow wiring
 # ---------------------------------------------------------------------------
 
-def test_db_browser_is_registered_as_a_tools_app():
+def test_db_browser_is_registered_under_data_and_batch_runs():
     from spacr.qt.app import APPS
     entry = next((a for a in APPS if a[0] == "db_browser"), None)
     assert entry is not None, "db_browser missing from APPS"
     key, name, desc, section = entry
     assert name == "Database Browser"
     assert desc and desc.strip()
-    assert section == "Tools", f"db_browser filed under {section!r}, want Tools"
+    from spacr.qt.app import SECTION_DATA
+    assert section == SECTION_DATA, (
+        f"db_browser filed under {section!r}; it is how measurements get "
+        "back out of a project")
 
 
 def test_db_browser_has_a_title_and_an_intro():

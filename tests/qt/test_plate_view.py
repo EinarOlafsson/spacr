@@ -153,7 +153,7 @@ def test_the_screen_builds_offscreen_and_asks_for_a_database(screen):
     assert not screen._btn_export.isEnabled()
 
 
-def test_it_is_registered_as_a_tools_app():
+def test_it_is_registered_under_results_and_qc():
     """Wiring check — asserts the registration once app.py carries it."""
     from spacr.qt.app import APPS
     entry = next((a for a in APPS if a[0] == "plate_view"), None)
@@ -161,7 +161,8 @@ def test_it_is_registered_as_a_tools_app():
         pytest.skip("plate_view not registered in spacr.qt.app.APPS yet")
     key, name, description, section = entry
     assert name == "Plate Viewer"
-    assert section == "Tools"
+    from spacr.qt.app import SECTION_RESULTS
+    assert section == SECTION_RESULTS
     assert description
     from spacr.qt.screens.app_screen import APP_INTROS, APP_TITLES
     assert APP_TITLES.get("plate_view")

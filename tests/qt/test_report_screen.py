@@ -485,7 +485,9 @@ def test_report_registration_is_complete_if_it_is_registered():
     key, name, desc, section = entry
     assert name == "Report"
     assert desc and desc.strip()
-    assert section == "Tools", f"report filed under {section!r}, want Tools"
+    from spacr.qt.app import SECTION_RESULTS
+    assert section == SECTION_RESULTS, (
+        f"report filed under {section!r}; it packages up results")
 
     from spacr.qt.screens.app_screen import APP_INTROS, APP_TITLES
     assert APP_TITLES.get("report", "").strip() == "Report"

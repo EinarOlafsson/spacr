@@ -88,6 +88,28 @@ class TourStep:
     highlight: Optional[Callable[[QMainWindow], Optional[QWidget]]] = None
 
 
+def _section_names_sentence() -> str:
+    """List the real home-page sections, read from the app registry.
+
+    Hard-coding them here is how this line came to advertise "Core,
+    Analysis, Cellpose and Sequencing" long after those sections stopped
+    existing. Reading :data:`spacr.qt.app.SECTIONS` keeps the tour honest
+    the next time the grouping changes.
+    """
+    try:
+        from .app import SECTIONS
+        names = [str(s) for s in SECTIONS]
+    except Exception:
+        names = []
+    if not names:
+        return "Every pipeline lives here, grouped by what it does."
+    if len(names) == 1:
+        listed = names[0]
+    else:
+        listed = ", ".join(names[:-1]) + " and " + names[-1]
+    return f"Every pipeline lives here, grouped into {listed}."
+
+
 DEFAULT_TOUR: List[TourStep] = [
     TourStep(
         title="Welcome to spaCR",
@@ -97,9 +119,9 @@ DEFAULT_TOUR: List[TourStep] = [
     ),
     TourStep(
         title="Sidebar — apps by category",
-        body="Every pipeline lives here, grouped into Core, Analysis, "
-             "Cellpose, and Sequencing. Click any name to open it. "
-             "Ctrl+1..9 jumps between them.",
+        body=_section_names_sentence()
+             + " Click any name to open it. Ctrl+1..9 jumps between the "
+               "core pipeline apps.",
         highlight=lambda w: getattr(w, "_sidebar", None),
     ),
     TourStep(

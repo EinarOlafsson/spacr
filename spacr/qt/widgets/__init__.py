@@ -6,6 +6,7 @@ from .column_picker import (ColumnPickerButton, ColumnPickerDialog,
                              attach_column_picker)
 from .console_panel import ConsolePanel
 from .divider import Divider
+from .eliding import ElidingLabel, ElidingPushButton
 from .empty_state import EmptyState
 from .figure_queue import FigureQueue
 from .hover_tooltip import HoverTooltip
@@ -20,6 +21,7 @@ __all__ = [
     "attach_column_picker",
     "ColumnPickerDialog",
     "ColumnPickerButton", "ConsolePanel", "Divider",
+    "ElidingLabel", "ElidingPushButton",
     "EmptyState", "FigureQueue", "HTile", "HoverTooltip",
     "LivePreviewPanel", "Section", "Tile", "Toggle", "UsageBar",
 ]
