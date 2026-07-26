@@ -1595,6 +1595,93 @@ def perform_regression(settings):
 
     return output
 
+
+#: The fixed head of a ``prcfo`` key, in order. The object id is always the
+#: LAST token and anything between the two is the timepoint, which is how a
+#: five-token and a six-token key are told apart without guessing.
+_PRCFO_HEAD = ('plateID', 'rowID', 'columnID', 'fieldID')
+
+
+def _assign_prcfo_parts(df, object_column='objectID'):
+    """Split ``prcfo`` into its named components and assign them onto ``df``.
+
+    ``prcfo`` is written by :func:`spacr.utils._map_wells_png` and rebuilt by
+    :func:`spacr.utils._split_data`. It has **five** tokens on a plain screen
+    (``plate_row_column_field_object``) and **six** on a timelapse
+    (``plate_row_column_field_TIME_object``).
+
+    Three places in this module used to spell that as
+
+    .. code-block:: python
+
+        df[['plateID', 'rowID', 'columnID', 'fieldID', 'objectID']] = \\
+            df['prcfo'].str.split('_', expand=True)
+
+    which is not a mis-assignment on a timelapse — it is a hard stop. Six
+    split columns against five keys makes pandas raise ``ValueError: Columns
+    must be same length as key``, so :func:`ml_analysis` threw away a
+    completed model at its very last statement (measured on a real 2-well x
+    2-field x 3-frame x 3-object database: 36 rows in, fit and permutation
+    importance done, then ``ValueError`` at ``ml.py:2517``). The five names
+    would *also* have been wrong had it not raised — the fifth token of a
+    timelapse key is the timepoint, so ``objectID`` would have held ``'t1'``
+    and the object id would have been dropped entirely.
+
+    Splitting the head from the left and the object from the right recovers
+    both forms, and the timepoint is kept rather than discarded: it is written
+    under whichever spelling ``df`` already uses (``timeID`` canonical,
+    ``time_id`` legacy — resolved through :func:`spacr.utils._time_column`),
+    defaulting to ``timeID``.
+
+    This doubles as repair-on-read for a scores CSV whose ``objectID`` was
+    filled in by a positional guess over a timelapse crop name — the same
+    guess :func:`spacr.ml.interperate_vision_model` already refuses to trust —
+    because the components are recomputed from ``prcfo`` and overwrite what is
+    there.
+
+    :param df: Frame carrying a ``prcfo`` column.
+    :param object_column: Name to give the object id. ``'objectID'`` for the
+        read/score paths, ``'object'`` in :func:`ml_analysis`, which is what
+        each of them already wrote.
+    :returns: ``df``, with the component columns assigned.
+    :raises TimelapseKeyMismatch: when the frame mixes five- and six-token
+        keys — two runs that disagreed about ``timelapse`` were concatenated,
+        and there is no single answer to what the fifth token means.
+    :raises ValueError: when a key has neither five nor six tokens.
+    """
+    from .io import TimelapseKeyMismatch
+    from .utils import _time_column
+
+    values = df['prcfo']
+    tokens = values.astype(str).str.split('_')
+    widths = tokens.map(len)
+    seen = set(widths.unique().tolist())
+
+    unexpected = sorted(seen - {5, 6})
+    if unexpected:
+        example = values[widths.isin(unexpected)].iloc[0]
+        raise ValueError(
+            f"prcfo must be plate_row_column_field_object (5 tokens) or "
+            f"plate_row_column_field_time_object (6, timelapse); found "
+            f"{unexpected} token(s), e.g. {example!r}."
+        )
+    if seen == {5, 6}:
+        raise TimelapseKeyMismatch(
+            f"prcfo mixes {int((widths == 5).sum())} key(s) without a "
+            f"timepoint and {int((widths == 6).sum())} with one, so the fifth "
+            f"token is an object id in some rows and a timepoint in others. "
+            f"Two runs that disagreed about 'timelapse' have been combined; "
+            f"re-run the non-timelapse half rather than splitting this."
+        )
+
+    for position, name in enumerate(_PRCFO_HEAD):
+        df[name] = tokens.str[position]
+    df[object_column] = tokens.str[-1]
+    if seen == {6}:
+        df[_time_column(df.columns) or 'timeID'] = tokens.str[4]
+    return df
+
+
 def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filter_value=None):
     """Load a per-gRNA read-count CSV and return per-well normalised fractions.
 
@@ -1638,7 +1725,7 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filte
             
     if 'prcfo' in csv_df.columns:
         #csv_df = csv_df.loc[:, ~csv_df.columns.duplicated()].copy()
-        csv_df[['plateID', 'rowID', 'columnID', 'fieldID', 'objectID']] = csv_df['prcfo'].str.split('_', expand=True)
+        csv_df = _assign_prcfo_parts(csv_df, object_column='objectID')
         csv_df['prc'] = csv_df['plateID'].astype(str) + '_' + csv_df['rowID'].astype(str) + '_' + csv_df['columnID'].astype(str)
 
     if isinstance(filter_column, str):
@@ -1801,7 +1888,7 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
     if 'prcfo' in df.columns:
         df = df.loc[:, ~df.columns.duplicated()].copy()
         if not all(col in df.columns for col in ['plateID', 'rowID', 'columnID']):
-            df[['plateID', 'rowID', 'columnID', 'fieldID', 'objectID']] = df['prcfo'].str.split('_', expand=True)
+            df = _assign_prcfo_parts(df, object_column='objectID')
         if all(col in df.columns for col in ['plateID', 'rowID', 'columnID']):
             df['prc'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str)
     else:
@@ -2514,7 +2601,10 @@ def ml_analysis(df, channel_of_interest=3, location_column='columnID', positive_
     df = _calculate_similarity(df, features, location_column, positive_control, negative_control)
 
     df['prcfo'] = df.index.astype(str)
-    df[['plateID', 'rowID', 'columnID', 'fieldID', 'object']] = df['prcfo'].str.split('_', expand=True)
+    # Six tokens on a timelapse, five otherwise; see _assign_prcfo_parts. The
+    # five-name split raised ValueError here on every timelapse database,
+    # discarding a model that had already been fitted and scored.
+    df = _assign_prcfo_parts(df, object_column='object')
     df['prc'] = df['plateID'] + '_' + df['rowID'] + '_' + df['columnID']
     
     return [df, permutation_df, feature_importance_df, model, X_train, X_test, y_train, y_test, metrics_df, features], [permutation_fig, feature_importance_fig]
