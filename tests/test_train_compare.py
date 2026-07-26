@@ -108,6 +108,26 @@ def write_settings(src, model_type, epochs, settings):
     return path
 
 
+@pytest.fixture(autouse=True)
+def _contain_the_settings_climb(monkeypatch):
+    """Keep load_run's search for ``settings/`` inside the test's own tmp tree.
+
+    load_run climbs ``_SETTINGS_SEARCH_DEPTH`` (6) parents looking for the
+    folder ``save_settings`` writes to. ``make_run`` puts ``dst`` five levels
+    below the root it is handed, so at the shipped depth the climb reaches the
+    root's PARENT — shared ground under /tmp that other tests write into, and
+    several of them create a ``settings/`` folder there. The "no settings
+    found" tests then pass in isolation and fail in a full-suite run depending
+    on which test ran first.
+
+    Clamping to 5 keeps every level these tests actually exercise (``dst`` up
+    to the run root) and stops one short of the shared parent. The product
+    default is untouched; this only bounds it here.
+    """
+    import spacr.train_compare as _tc
+    monkeypatch.setattr(_tc, "_SETTINGS_SEARCH_DEPTH", 5, raising=True)
+
+
 def make_run(root, name, model_type="maxvit_t", epochs=10, channels="rgb",
              train=None, val=None, settings=None, folds=None):
     """Build one run folder under ``root/<name>`` and return its ``dst`` path.

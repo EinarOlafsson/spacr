@@ -169,6 +169,19 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('upscale', False)
     settings.setdefault('upscale_factor', 2.0)
     settings.setdefault('adjust_cells', False)
+
+    # 3D (Beta). Off by default and read only through
+    # spacr.zstack.plan_from_settings, which returns None whenever `z_stack`
+    # is falsy -- so with these defaults not one line of z code executes and
+    # the 2-D path is bit-identical to a run from before these keys existed.
+    settings.setdefault('z_stack', False)
+    settings.setdefault('z_segmentation_mode', 'project')
+    settings.setdefault('z_axis', None)
+    settings.setdefault('z_projection', 'max')
+    settings.setdefault('anisotropy', None)
+    settings.setdefault('voxel_size_z_um', None)
+    settings.setdefault('voxel_size_xy_um', None)
+    settings.setdefault('stitch_threshold', 0.25)
     #settings.setdefault('use_sam_cell', False)
     #settings.setdefault('use_sam_nucleus', False)
     #settings.setdefault('use_sam_pathogen', False)
@@ -1152,6 +1165,15 @@ expected_types = {
     "merge_pathogens": bool,
     "normalize_plots": bool,
     "all_to_mip": bool,
+    # 3D (Beta)
+    "z_stack": bool,
+    "z_segmentation_mode": str,
+    "z_axis": (int, type(None)),
+    "z_projection": (str, type(None)),
+    "anisotropy": (int, float, type(None)),
+    "voxel_size_z_um": (int, float, type(None)),
+    "voxel_size_xy_um": (int, float, type(None)),
+    "stitch_threshold": (int, float),
     "save_original_images": bool,
     "keep_intermediate": bool,
     "keep_original_images": bool,
@@ -1661,6 +1683,17 @@ tooltips = {
     "agg_type": "(str) - How per-object scores are collapsed to one value per well before regression: 'mean', 'median', 'quantile' (75th percentile), or None to skip aggregation and regress on individual objects. Median resists a handful of extreme cells; None keeps power but ignores within-well correlation. Forced to a per-well sum for poisson and to None for quantile. Default 'mean'.",
     "alpha": "(float) - Regularisation strength for the penalised models: the L1 penalty for 'lasso', the L2 penalty for 'ridge', and the ridge fallback 'mixed' applies under high collinearity. Larger values shrink more coefficients toward zero; set it to 'auto' or None to choose it by 5-fold cross-validation. With regression_type 'quantile' it is read as the quantile instead. Default 1.",
     "all_to_mip": "(bool) - Append an extra channel to every .npy in stack/ holding the pixel-wise maximum across that file's existing channels; the original channels are kept, not replaced. The new channel's index equals the previous channel count, so reference it through the channel/mask dim settings if you want to segment on it. Default False.",
+    # --- 3D (Beta) -------------------------------------------------------
+    # These describe what the z plumbing does, and say plainly where it stops.
+    # A user must not read these and believe spaCR measures volumes today.
+    "z_stack": "(bool) - Treat each field as a z-stack instead of a flat image, turning on the z_segmentation_mode / anisotropy / stitch_threshold controls below. Off, spaCR runs the ordinary 2-D path and none of the z code executes at all, so your masks are identical to a run from before this setting existed. On, spaCR requires an array that still has a z axis when it reaches segmentation and stops with an error if it does not; note that the standard image ingest currently collapses z into one plane per field while organising the raw files, so this setting only has something to work with when you feed spaCR volumes directly through the Python API. Default False.",
+    "z_segmentation_mode": "(str) - Which of the three genuinely different ways to handle z is used, recorded alongside the masks because their answers are not comparable. 'project' collapses the stack with z_projection and segments the resulting single plane, which is what spaCR has always effectively done and the only mode whose masks the Measure module can consume. 'stitch' segments every plane independently in 2-D and then links labels down the stack by overlap (see stitch_threshold); it never computes a distance along z, so anisotropy does not enter it and an object invisible in one plane breaks in two. 'volumetric' segments the whole volume at once using the z gradient, which finds objects that no single plane shows but is acutely sensitive to a wrong anisotropy, which it therefore requires. Default 'project'.",
+    "z_axis": "(int or None) - Which axis of the incoming array holds z, as 0, 1 or 2. None asks spaCR to work it out from the shape, which it can do only when one axis is clearly shorter than the other two (a 21x512x512 or 512x512x21 stack); for an ambiguous shape such as 64x64x64 it stops and asks rather than guessing, because guessing wrong segments a transposed volume and produces plausible nonsense. Set it explicitly whenever your acquisition's shape is ambiguous. Default None.",
+    "z_projection": "(str or None) - How z is collapsed when z_segmentation_mode is 'project'. 'max' takes the brightest value down the stack and is the usual choice for sparse fluorescent objects; 'mean' averages, which suppresses noise but dilutes anything present in only a few planes; 'sum' preserves total signal so intensity stays proportional to how much of the object was in the stack; 'best_focus' discards every plane but the sharpest one, which beats a projection when only one plane is genuinely in focus and a MIP would smear the out-of-focus haze over it. Ignored by the other two modes. Default 'max'.",
+    "anisotropy": "(float or None) - The ratio of the z step to the xy pixel size (dz / dxy), which is what tells 'volumetric' mode how far apart two planes really are. At the true value, objects separated by a few planes stay separate; left at 1.0 on a confocal stack, where the z step is routinely 3-10x the xy pixel, the segmenter reads a 5 um gap as a 5 pixel gap and fuses everything along z into columns. spaCR will not assume a value: leave this None and set voxel_size_z_um / voxel_size_xy_um instead and it is derived, but if neither is known a volumetric run stops rather than silently picking 1.0. Default None.",
+    "voxel_size_z_um": "(float or None) - Spacing between consecutive z planes in micrometres, straight off the acquisition settings. Together with voxel_size_xy_um it derives anisotropy, so setting these two is the safer way to get it right, and it is also what converts object volumes from voxel counts into um3. Changing it rescales every physical z quantity and the anisotropy used for segmentation; it has no effect on a 'project' run. Default None.",
+    "voxel_size_xy_um": "(float or None) - Width of one pixel in micrometres in the image plane, assumed square. Used with voxel_size_z_um to derive anisotropy and to turn voxel counts into physical volumes and surface areas. Note this is a different setting from um_per_pixel, which only sizes the scale bar drawn on figures and never reaches a measurement. Default None.",
+    "stitch_threshold": "(float) - Minimum overlap, as an intersection-over-union between 0 and 1, for a label in one plane to be treated as the same object as a label in the plane below when z_segmentation_mode is 'stitch'. Raising it splits objects that drift or change shape between planes into several shorter ones; lowering it fuses neighbouring objects that merely overlap in projection. Matching is one-to-one, so when two objects both overlap the same object below only the better match inherits its label and the other starts a new one. Ignored by the other two modes. Default 0.25.",
     "save_original_images": "(bool) - After each batch is MIP-projected and merged into stack/, either move the raw input images into src/orig/ (True) or delete them so the pixels live only in stack/ (False). Set False on large screens where the duplicate raw copy will not fit on disk; the deletion is not reversible. Default True.",
     "keep_intermediate": "(bool) - Keep the intermediate stack/ and masks/ folders after the merged/ arrays are built. Off by default: only merged/ is kept (masks are embedded in merged and recorded in the database).",
     "keep_original_images": "(bool) - Keep the original raw input images (in orig/). Off by default to save disk space; the pixel data lives in merged/.",
@@ -2048,6 +2081,10 @@ tooltips = {
     'cov_type': "(str) - Heteroscedasticity-robust covariance estimator passed to the OLS fit: 'HC0', 'HC1', 'HC2' or 'HC3', or None for classical non-robust errors. It changes standard errors and p-values only, never the coefficients; reach for 'HC3' when residual variance grows with well cell count. Applies to regression_type 'ols' only. Default None.",
     'strict_errors': "(bool) - What happens when a step hits a problem it could technically survive. False (the default) keeps today's behaviour: the failure is recorded in the run ledger, printed in the end-of-run summary and stamped into the artifact's run_status, and the run continues on the items that worked. True turns a swallowed setup or configuration error - an unreadable path, a missing column, a database that will not open - into an immediate exception, so a batch job stops at the first sign that its inputs are wrong instead of producing a plausible-looking partial result. Per-item failures such as one corrupt image are still survived either way; only errors that make the whole run meaningless are promoted. Can also be set with the SPACR_STRICT_ERRORS environment variable, which is convenient on a cluster. Default False.",
     'max_failure_rate': "(float or None) - Fraction of failed items above which the run aborts rather than finishing and reporting. 0.2 means 'stop once more than a fifth of the fields have failed', on the grounds that whatever is left is no longer the experiment. The ledger is stamped into the artifact before the abort, so the evidence survives. None (the default) never aborts on rate alone - every failure is still counted and reported, and the artifact is still marked partial. Default None.",
+    'queue_by_uncertainty': "(bool) - Reorder the Annotate grid so the crops the classifier is least sure about come first, instead of showing them in database order. Labelling a crop the model already calls correctly with 99% probability teaches it nothing; the ones near the decision boundary are where a human's time actually moves the model. Needs model scores in png_list, so Classify (CV) has to have run - with none present the grid falls back to page order and says so rather than coming up empty. Crops that already carry an annotation are excluded. Default False.",
+    'queue_measure': "(str) - How uncertainty is scored for the queue. 'entropy' spreads its attention across every class and is the right default for three or more; 'least_confidence' ranks on how weak the top class is; 'margin' ranks on the gap between the top two. With exactly two classes margin and least_confidence produce the IDENTICAL ranking, including ties - they only diverge at three classes or more. These are uncertainty scores, not calibrated confidences: a softmax is not a probability. Default 'entropy'.",
+    'queue_diversity': "(str) - Which metadata level the queue is spread across before it is served. Ranking purely by uncertainty collapses: the hundred most uncertain crops on a real plate routinely come from one or two wells, so the annotator labels the same ambiguity a hundred times and the model learns nothing new. 'well' (the default) deals crops round-robin across wells, 'field' and 'plate' do the same at those levels, and 'none' turns the protection off and serves the raw ranking. The cost of diversity is that position two is the most uncertain crop in a DIFFERENT well and may be less uncertain than the overall runner-up. Default 'well'.",
+    'queue_limit': "(int) - How many crops the queue holds. 0 (the default) queues the whole unlabelled pool. A limit smaller than the number of wells interacts with queue_diversity: you get roughly one crop from each of that many wells and none from the rest, which is useful for a quick sweep across a plate and misleading if you expected the top N by uncertainty. Default 0.",
     'crop_source': "(str) - Where single-object images come from. 'auto' (the default) uses the pre-generated PNG crop folder when one exists and otherwise cuts each crop out of merged/*.npy on demand; 'png' insists on the folder and fails if it is absent; 'merged' always cuts on demand and ignores the folder even when it is there. On-demand crops are pixel-identical to what the PNG folder would have held for the same settings, so annotations and models stay comparable across the two, and they cost no disk and cannot go stale when crop settings change - at the price of reading the merged array each time. Default 'auto'.",
     'class_balance': "(str) - How skew between the training classes is corrected. 'none' (the default) changes nothing but still prints the per-class counts, the majority-over-minority ratio and a recommendation, so the skew is never invisible. 'weighted_sampler' attaches a WeightedRandomSampler with 1/n weights, drawing every class about equally often; 'sqrt_weighted_sampler' uses 1/sqrt(n) for a gentler pull that avoids showing a tiny class so often the model memorises it; 'weighted_loss' leaves sampling alone and switches loss_type to 'ce_weighted' instead. Resampling is applied to the train loader only - validation and test keep the real prior so their scores stay comparable to the screen.",
     'cross_validation': "(bool) - Score the classifier with 5-fold stratified cross-validation instead of a single train/test split, so every control object receives an out-of-fold prediction and an optimal probability threshold is picked per fold. Gives a far more stable accuracy estimate on small control sets, at roughly 5x the training time. Default True.",
@@ -2228,7 +2265,12 @@ categories = {
 
     "Advanced": ["strict_errors", "max_failure_rate", "crop_source", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "normalize", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "compression", "diameter_estimate_n_fields", "nuclei_limit", "pathogen_limit", "cells_per_well", "target_intensity_min", "shuffle", "save", "filter", "merge_pathogens"],
 
-    "Beta": ["all_to_mip", "upscale", "upscale_factor", "consolidate", "distance_gaussian_sigma", "use_sam_pathogen", "use_sam_nucleus", "use_sam_cell", "denoise"],
+    # The 3D (Beta) keys lead this list: `z_stack` is the master switch and
+    # the rest only mean anything once it is on. They are filed here rather
+    # than under a heading of their own because a new category with no
+    # SECTION_HINTS entry in qt/screens/app_screen.py silently falls back to a
+    # generic tooltip (see tests/test_settings_categories.py).
+    "Beta": ["z_stack", "z_segmentation_mode", "z_axis", "z_projection", "anisotropy", "voxel_size_z_um", "voxel_size_xy_um", "stitch_threshold", "all_to_mip", "upscale", "upscale_factor", "consolidate", "distance_gaussian_sigma", "use_sam_pathogen", "use_sam_nucleus", "use_sam_cell", "denoise"],
 
     "Motility (beta)": motility_settings,
     "Motility Advanced (beta)": motility_advanced_settings,
