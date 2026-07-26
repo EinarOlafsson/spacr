@@ -217,15 +217,11 @@ def test_compute_smooth_grad_noise_actually_smooths():
     assert bool((noisy >= 0).all())
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="BUG: compute_smooth_grad hardcodes output[0, target_class], "
-                          "so for a batched input only sample 0 gets gradients")
 def test_compute_smooth_grad_supports_batched_input():
     """A batch must attribute every sample, not only the first one.
 
-    The docstring advertises "single sample or batch"; today rows 1..N-1
-    come back as all-zero because only ``output[0, target]`` is
-    back-propagated.
+    The docstring advertises "single sample or batch"; back-propagating only
+    ``output[0, target]`` used to leave rows 1..N-1 all-zero.
     """
     from spacr.deep_spacr import SmoothGrad
     torch.manual_seed(0)
@@ -373,16 +369,13 @@ def test_visualize_smooth_grad_reuses_existing_save_dir(tmp_path, rng):
     assert (save_dir / "keep_me.txt").read_text() == "previous run"
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="BUG: the overlay blends the ORIGINAL-resolution image with the "
-                          "image_size-resolution map, so any src image whose size differs "
-                          "from image_size raises ValueError (broadcast)")
 def test_visualize_smooth_grad_handles_image_size_mismatch(tmp_path, rng):
     """Source images larger than image_size must still be visualised.
 
-    preprocess_image returns the UNRESIZED PIL image alongside the
-    resized tensor, so ``overlay * 0.5 + smooth_grad_map_rgb * 0.5``
-    blends a (H,W,3) array with an (image_size,image_size,3) one.
+    preprocess_image returns the UNRESIZED PIL image alongside the resized
+    tensor, so ``overlay * 0.5 + smooth_grad_map_rgb * 0.5`` used to blend a
+    (H,W,3) array with an (image_size,image_size,3) one; the overlay is now
+    built at the map's resolution.
     """
     from spacr.deep_spacr import visualize_smooth_grad
     model = _linear_model(3 * 8 * 8, 2)
