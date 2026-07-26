@@ -20,7 +20,7 @@ from skimage.filters import (threshold_otsu, threshold_local, gaussian,frangi, s
 from skimage.morphology import white_tophat, disk
 from skimage.feature import blob_log, blob_dog
 
-from collections import defaultdict, OrderedDict
+from collections import defaultdict, OrderedDict, Counter
 from PIL import Image
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.stats.stattools import durbin_watson
@@ -1862,12 +1862,54 @@ def _map_wells_png(file_name, timelapse=False):
     else:
         return plate, row, column, field, prcfo, object_id
         
+DUPLICATE_COLUMN_SUFFIX = "__dup"
+
+
 def _check_integrity(df):
-    """Deduplicate label columns and collapse them into ``label_list``/``object_label``."""
-    df.columns = [col + f'_{i}' if df.columns.tolist().count(col) > 1 and i != 0 else col for i, col in enumerate(df.columns)]
+    """Deduplicate label columns and collapse them into ``label_list``/``object_label``.
+
+    Repeats of a duplicated name are suffixed with their OCCURRENCE index, not
+    their position in the frame. The previous form used ``enumerate``'s
+    frame-wide index, so a second ``mean_intensity`` sitting at position 57
+    became ``mean_intensity_57`` -- a name indistinguishable from a genuinely
+    parameterised feature like ``homogeneity_distance_8``, and one that moved
+    whenever an unrelated column was added upstream. ``__dup<n>`` cannot
+    collide with a feature name. It also left the first occurrence renamed
+    unless it happened to sit at index 0, even though ``object_label`` is taken
+    from the first label column.
+
+    Counting once rather than re-scanning the column list per column takes this
+    from O(n^2) to O(n); a measurement frame carries roughly a thousand columns
+    and this runs twice per field per object type.
+
+    :param df: a morphology or intensity measurement frame.
+    :returns: the frame with label columns collapsed and dropped.
+    """
+    counts = Counter(df.columns)
+    seen = Counter()
+    renamed = []
+    for col in df.columns:
+        if counts[col] > 1:
+            n = seen[col]
+            seen[col] += 1
+            renamed.append(col if n == 0 else f"{col}{DUPLICATE_COLUMN_SUFFIX}{n}")
+        else:
+            renamed.append(col)
+    df.columns = renamed
     label_cols = [col for col in df.columns if 'label' in col]
+    if len(df) and not label_cols:
+        # object_label is read from label_list[0]; with no label column that
+        # list is empty and the old code died on IndexError with no indication
+        # of what was wrong. A measurement frame always carries one, and
+        # _merge_and_save_to_database merges the two frames on object_label,
+        # so arriving here without one means the wrong frame was passed.
+        raise ValueError(
+            "_check_integrity: no column containing 'label' in a frame of "
+            f"{len(df)} rows, so object_label cannot be derived. "
+            f"Columns: {list(df.columns)[:12]}"
+            + (" ..." if len(df.columns) > 12 else ""))
     df['label_list'] = df[label_cols].values.tolist()
-    df['object_label'] = df['label_list'].apply(lambda x: x[0])
+    df['object_label'] = df['label_list'].apply(lambda x: x[0] if x else None)
     df = df.drop(columns=label_cols)
     df['label_list'] = df['label_list'].astype(str)
     return df
@@ -4783,12 +4825,22 @@ def _choose_model(model_name, device, object_type='cell', restore_type=None, obj
     ``CellposeDenoiseModel`` restore checkpoints, which are pre-SAM and no
     longer available; it is reported and ignored.
 
-    :param model_name: requested model; legacy names are mapped to cpsam.
+    A ``model_name`` that names an existing FILE is treated as a fine-tuned
+    checkpoint and loaded. ``pretrained_model`` used to be hard-coded to
+    'cpsam', so every model produced by spaCR's own Train Cellpose module was
+    silently discarded and the stock weights were used instead — the trained
+    model could never actually be applied to anything.
+
+    :param model_name: 'cpsam', a legacy pre-SAM name (mapped to cpsam), or a
+        path to a fine-tuned checkpoint.
     :param device: torch device passed through to Cellpose.
     :param object_type: 'cell' / 'nucleus' / 'pathogen' / 'organelle'.
     :param restore_type: unsupported under Cellpose 4; reported and ignored.
     :param object_settings: unused, kept for call-site compatibility.
-    :returns: a ``CellposeModel`` loaded with cpsam.
+    :returns: a ``CellposeModel``.
+    :raises FileNotFoundError: if ``model_name`` looks like a path but no file
+        is there. Falling back to cpsam would silently segment with the wrong
+        weights, which is worse than stopping.
     """
     if object_settings is None:
         object_settings = {}
@@ -4797,14 +4849,30 @@ def _choose_model(model_name, device, object_type='cell', restore_type=None, obj
         print(f"restore_type={restore_type!r} is not supported on Cellpose 4 "
               f"(the denoise/deblur/upsample checkpoints are pre-SAM). Ignoring it.")
 
-    if model_name and model_name in LEGACY_CELLPOSE_MODELS:
-        print(f"Cellpose model {model_name!r} predates Cellpose-SAM and is no longer "
+    pretrained = 'cpsam'
+    name = str(model_name).strip() if model_name else ''
+
+    if name and name not in LEGACY_CELLPOSE_MODELS and name != 'cpsam':
+        # Anything that is not a known model name is meant to be a checkpoint.
+        if os.path.isfile(name):
+            print(f"Loading fine-tuned Cellpose checkpoint for {object_type}: {name}")
+            pretrained = name
+        elif os.sep in name or name.endswith(('.pth', '.pt')):
+            raise FileNotFoundError(
+                f"Cellpose model {name!r} for {object_type} looks like a "
+                f"checkpoint path but no file is there. Cellpose would quietly "
+                f"fall back to the stock cpsam weights, so this stops instead. "
+                f"Check the path, or use 'cpsam' for the stock model.")
+        else:
+            print(f"Unknown Cellpose model {name!r}; using 'cpsam' for {object_type}.")
+    elif name in LEGACY_CELLPOSE_MODELS:
+        print(f"Cellpose model {name!r} predates Cellpose-SAM and is no longer "
               f"available; using 'cpsam' for {object_type}.")
 
     return cp_models.CellposeModel(
         gpu=torch.cuda.is_available(),
         device=device,
-        pretrained_model='cpsam',
+        pretrained_model=pretrained,
     )
 
 class SelectChannels:
