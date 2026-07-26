@@ -848,7 +848,13 @@ def plot_masks(batch, masks, flows, cmap='inferno', figuresize=10, nr=1, file_ty
     if len(batch.shape) == 3:
         batch = np.expand_dims(batch, axis=0)
     if not isinstance(masks, list):
-        masks = [masks]
+        # `batch` takes either one image or a stack, so `masks` has to as well
+        # (the docstring promises "list or ndarray"). Blindly wrapping made an
+        # (N, H, W) stack a single "mask" and imshow died with
+        # "Invalid shape (N, H, W) for image data"; a swallowed pytest.skip in
+        # tests/test_all_plotting_functions.py hid that for the whole batch path.
+        masks = np.asarray(masks)
+        masks = [masks] if masks.ndim == 2 else list(masks)
     if not isinstance(flows, list):
         flows = [flows]
     else:

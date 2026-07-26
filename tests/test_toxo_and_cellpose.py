@@ -80,26 +80,74 @@ def test_toxo_public_functions_are_callable(name):
     assert callable(getattr(T, name, None)), f"toxo.{name} should be callable"
 
 
-def test_toxo_calculate_fraction_mixed_condition_shape():
-    """calculate_fraction_mixed_condition returns a dataframe with per-
-    (plate,column) fractions of mixed-condition reads. Feed it a tiny
-    synthetic CSV to check the row/col shape."""
-    df = pd.DataFrame({
-        "plateID": ["1", "1", "1", "1"],
-        "columnID": ["c1", "c2", "c3", "c3"],
-        "grna_name": ["TGGT1_220950_1", "other", "TGGT1_233460_4", "TGGT1_220950_1"],
-        "count": [10, 20, 30, 40],
+def test_toxo_generate_score_heatmap_mixed_condition_fractions(tmp_path):
+    """The mixed-condition fraction is computed inside generate_score_heatmap.
+
+    ``calculate_fraction_mixed_condition`` is a *nested* helper of
+    :func:`spacr.toxo.generate_score_heatmap`, not a module-level symbol, so
+    the previous version of this test raised AttributeError on every run and
+    the swallowed skip made that look like a contract mismatch. Drive it
+    through the real entry point and check the arithmetic instead: for each
+    well the fraction of ``fraction_grna`` reads among the two control sgRNAs.
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    rows = ["r1", "r2", "r3"]
+    col, other_col = "c3", "c2"
+
+    def _counts(i):
+        # sgA rises, sgB falls, sgC is not a control sgRNA and must be ignored
+        return {"sgA": 10 + 3 * i, "sgB": 40 - 2 * i, "sgC": 1000}
+
+    # per-sgRNA read counts for the mixed control condition
+    recs = []
+    for i, r in enumerate(rows):
+        for name, n in _counts(i).items():
+            recs.append({"column_name": col, "rowID": r,
+                         "grna_name": name, "count": n})
+        # a well in another column that the c3 filter must drop
+        recs.append({"column_name": other_col, "rowID": r,
+                     "grna_name": "sgA", "count": 99999})
+    mixed = tmp_path / "mixed.csv"
+    pd.DataFrame(recs).to_csv(mixed, index=False)
+
+    def _write_scores(path, seed, value_column="pred"):
+        rng = np.random.default_rng(seed)
+        pd.DataFrame([
+            {"column_name": c, "rowID": r,
+             value_column: float(rng.uniform(0, 1))}
+            for r in rows for c in (col, other_col)
+        ]).to_csv(path, index=False)
+
+    folder = tmp_path / "models"
+    for i, m in enumerate(("modelA", "modelB")):
+        (folder / m).mkdir(parents=True)
+        _write_scores(folder / m / "scores.csv", seed=17 + i)
+    cv = tmp_path / "cv.csv"
+    _write_scores(cv, seed=3, value_column="pred_cv")
+    dst = tmp_path / "out"
+    dst.mkdir()
+
+    out = T.generate_score_heatmap({
+        "folders": [str(folder)], "csv_name": "scores.csv",
+        "data_column": "pred", "csv": str(mixed), "cv_csv": str(cv),
+        "data_column_cv": "pred_cv", "plateID": 1, "columnID": col,
+        "control_sgrnas": ["sgA", "sgB"], "fraction_grna": "sgA",
+        "dst": str(dst),
     })
-    tmp = "/tmp/spacr_toxo_synth.csv"
-    df.to_csv(tmp, index=False)
-    try:
-        out = T.calculate_fraction_mixed_condition(
-            csv=tmp, plate=1, column="c3",
-            control_sgrnas=None,   # use default
-        )
-    except Exception as e:  # pragma: no cover
-        pytest.skip(f"function has undocumented deps: {e}")
-    assert out is not None
+    plt.close("all")
+
+    assert isinstance(out, pd.DataFrame)
+    assert len(out) == len(rows)
+    expected = {
+        f"plate1_{r}_{col}": _counts(i)["sgA"] / (_counts(i)["sgA"] + _counts(i)["sgB"])
+        for i, r in enumerate(rows)
+    }
+    assert dict(zip(out["prc"], out["fraction"])) == pytest.approx(expected)
+    assert (dst / "scores_comparison_plate_1.pdf").is_file()
+    assert (dst / "mae_scores_comparison_plate_1.csv").is_file()
 
 
 # ---------------------------------------------------------------------------

@@ -88,88 +88,118 @@ def test_barecodes_reverse_complement(tmp_path):
 # is already covered elsewhere; here we cover the single-read chunk reader)
 # ---------------------------------------------------------------------------
 
+# Read layout: 8bp column + TGCTGAAATAAAC + 20bp grna + AACTTAAAAGAAG + 8bp row
+# The barcode window the regex has to consume is therefore 8+13+20+13+8 = 62 bp.
+# The old fixtures passed expected_end=60, truncating the row barcode to 6 bp so
+# the regex matched *nothing*: every read was dropped, unique_combinations came
+# back empty and the only assertion ("qc.csv exists") still held. Combined with
+# the swallowed skip that made a completely inert test look like coverage.
+_BARCODE_WINDOW = 62
+_REGEX = (r"^(?P<columnID>.{8})TGCTG.*TAAAC(?P<grna>.{20,21})"
+          r"AACTT.*AGAAG(?P<rowID>.{8}).*")
+
+N_COLS, N_ROWS, N_GRNAS, N_READS = 4, 4, 5, 120
+
+
+def _barcode_refs(tmp_path, rng):
+    """Write the three reference CSVs and return (cols, rows, grnas) sequences."""
+    def _uniq(k, n):
+        seen = set()
+        while len(seen) < n:
+            seen.add("".join(rng.choice(list("ACGT"), k)))
+        return sorted(seen)
+
+    cols, rows, grnas = _uniq(8, N_COLS), _uniq(8, N_ROWS), _uniq(20, N_GRNAS)
+    paths = {}
+    for key, seqs, prefix in (("column", cols, "col"), ("row", rows, "row"),
+                              ("grna", grnas, "sg")):
+        p = tmp_path / f"{key}.csv"
+        pd.DataFrame({"sequence": seqs,
+                      "name": [f"{prefix}{i}" for i in range(len(seqs))]
+                      }).to_csv(p, index=False)
+        paths[key] = str(p)
+    return cols, rows, grnas, paths
+
+
+def _reads(cols, rows, grnas):
+    """Deterministic reads cycling through the reference barcodes."""
+    for i in range(N_READS):
+        yield (f"{cols[i % N_COLS]}TGCTGAAATAAAC{grnas[i % N_GRNAS]}"
+               f"AACTTAAAAGAAG{rows[i % N_ROWS]}AAAA")
+
+
+def _expected_combinations():
+    """(rowID, columnID, grna_name) -> read count, straight from _reads()."""
+    from collections import Counter
+    return Counter((f"row{i % N_ROWS}", f"col{i % N_COLS}", f"sg{i % N_GRNAS}")
+                   for i in range(N_READS))
+
+
+def _assert_round_trip(tmp_path):
+    uc = pd.read_csv(tmp_path / "uc.csv")
+    got = {(r.rowID, r.columnID, r.grna_name): r.count
+           for r in uc.itertuples()}
+    assert got == dict(_expected_combinations())
+    qc = pd.read_csv(tmp_path / "qc.csv")
+    assert qc["total_reads"].sum() == N_READS
+    # every barcode resolved to a name, so nothing is left unmapped
+    for col in ("columnID", "rowID", "grna_name"):
+        assert qc[col].sum() == 0
+
+
 def test_single_read_chunked_processing(tmp_path):
     import gzip
-    # build a tiny synthetic R1 with reads matching the default regex layout:
-    # 8bp column + TGCTG..TAAAC + 20bp grna + AACTT..AGAAG + 8bp row
     rng = np.random.default_rng(0)
-
-    def _read():
-        col = "".join(rng.choice(list("ACGT"), 8))
-        grna = "".join(rng.choice(list("ACGT"), 20))
-        row = "".join(rng.choice(list("ACGT"), 8))
-        return f"{col}TGCTGAAATAAAC{grna}AACTTAAAAGAAG{row}AAAA"
+    cols, rows, grnas, refs = _barcode_refs(tmp_path, rng)
 
     fq = tmp_path / "s_R1_001.fastq.gz"
     with gzip.open(fq, "wt") as fh:
-        for i in range(200):
-            s = _read()
+        for i, s in enumerate(_reads(cols, rows, grnas)):
             fh.write(f"@r{i}\n{s}\n+\n{'I' * len(s)}\n")
 
-    def _bc(path, k, n):
-        pd.DataFrame({"sequence": ["".join(rng.choice(list("ACGT"), k))
-                                   for _ in range(n)],
-                      "name": [f"b{i}" for i in range(n)]}).to_csv(path, index=False)
-    col_csv = str(tmp_path / "c.csv"); _bc(col_csv, 8, 8)
-    row_csv = str(tmp_path / "r.csv"); _bc(row_csv, 8, 8)
-    grna_csv = str(tmp_path / "g.csv"); _bc(grna_csv, 20, 20)
-
-    regex = r"^(?P<columnID>.{8})TGCTG.*TAAAC(?P<grna>.{20,21})AACTT.*AGAAG(?P<rowID>.{8}).*"
-    try:
-        SEQ.single_read_chunked_processing(
-            r1_file=str(fq), r2_file=None, regex=regex,
-            target_sequence="TGCTGAAATAAAC", offset_start=-8, expected_end=60,
-            column_csv=col_csv, grna_csv=grna_csv, row_csv=row_csv,
-            save_h5=False, comp_type="zlib", comp_level=5,
-            hdf5_file=str(tmp_path / "out.h5"),
-            unique_combinations_csv=str(tmp_path / "uc.csv"),
-            qc_csv_file=str(tmp_path / "qc.csv"),
-            chunk_size=100, n_jobs=1, test=True, fill_na=False)
-        assert os.path.exists(str(tmp_path / "qc.csv"))
-    except Exception as e:
-        pytest.skip(f"single_read_chunked_processing contract differs: {e}")
+    SEQ.single_read_chunked_processing(
+        r1_file=str(fq), r2_file=None, regex=_REGEX,
+        target_sequence="TGCTGAAATAAAC", offset_start=-8,
+        expected_end=_BARCODE_WINDOW,
+        column_csv=refs["column"], grna_csv=refs["grna"], row_csv=refs["row"],
+        save_h5=False, comp_type="zlib", comp_level=5,
+        hdf5_file=str(tmp_path / "out.h5"),
+        unique_combinations_csv=str(tmp_path / "uc.csv"),
+        qc_csv_file=str(tmp_path / "qc.csv"),
+        chunk_size=200, n_jobs=1, test=True, fill_na=False)
+    assert os.path.exists(str(tmp_path / "qc.csv"))
+    _assert_round_trip(tmp_path)
 
 
 def test_paired_read_chunked_processing(tmp_path):
     import gzip
+    from spacr.sequencing import reverse_complement
     rng = np.random.default_rng(1)
-
-    def _read():
-        col = "".join(rng.choice(list("ACGT"), 8))
-        grna = "".join(rng.choice(list("ACGT"), 20))
-        row = "".join(rng.choice(list("ACGT"), 8))
-        return f"{col}TGCTGAAATAAAC{grna}AACTTAAAAGAAG{row}AAAA"
+    cols, rows, grnas, refs = _barcode_refs(tmp_path, rng)
 
     r1 = tmp_path / "s_R1_001.fastq.gz"
     r2 = tmp_path / "s_R2_001.fastq.gz"
     with gzip.open(r1, "wt") as f1, gzip.open(r2, "wt") as f2:
-        for i in range(200):
-            s = _read()
+        for i, s in enumerate(_reads(cols, rows, grnas)):
             f1.write(f"@r{i}\n{s}\n+\n{'I' * len(s)}\n")
-            f2.write(f"@r{i}\n{s}\n+\n{'I' * len(s)}\n")   # R2 mirrors R1
+            # process_chunk reverse-complements R2 before anchoring, so R2 on
+            # disk must be RC(R1). The old fixture wrote R2 == R1, which after
+            # the RC no longer contained the target sequence -> zero matches.
+            rc = reverse_complement(s)
+            f2.write(f"@r{i}\n{rc}\n+\n{'I' * len(rc)}\n")
 
-    def _bc(path, k, n):
-        pd.DataFrame({"sequence": ["".join(rng.choice(list("ACGT"), k))
-                                   for _ in range(n)],
-                      "name": [f"b{i}" for i in range(n)]}).to_csv(path, index=False)
-    col_csv = str(tmp_path / "c.csv"); _bc(col_csv, 8, 8)
-    row_csv = str(tmp_path / "r.csv"); _bc(row_csv, 8, 8)
-    grna_csv = str(tmp_path / "g.csv"); _bc(grna_csv, 20, 20)
-
-    regex = r"^(?P<columnID>.{8})TGCTG.*TAAAC(?P<grna>.{20,21})AACTT.*AGAAG(?P<rowID>.{8}).*"
-    try:
-        SEQ.paired_read_chunked_processing(
-            r1_file=str(r1), r2_file=str(r2), regex=regex,
-            target_sequence="TGCTGAAATAAAC", offset_start=-8, expected_end=60,
-            column_csv=col_csv, grna_csv=grna_csv, row_csv=row_csv,
-            save_h5=False, comp_type="zlib", comp_level=5,
-            hdf5_file=str(tmp_path / "out.h5"),
-            unique_combinations_csv=str(tmp_path / "uc.csv"),
-            qc_csv_file=str(tmp_path / "qc.csv"),
-            chunk_size=100, n_jobs=1, test=True, fill_na=True)
-        assert os.path.exists(str(tmp_path / "qc.csv"))
-    except Exception as e:
-        pytest.skip(f"paired_read_chunked_processing contract differs: {e}")
+    SEQ.paired_read_chunked_processing(
+        r1_file=str(r1), r2_file=str(r2), regex=_REGEX,
+        target_sequence="TGCTGAAATAAAC", offset_start=-8,
+        expected_end=_BARCODE_WINDOW,
+        column_csv=refs["column"], grna_csv=refs["grna"], row_csv=refs["row"],
+        save_h5=False, comp_type="zlib", comp_level=5,
+        hdf5_file=str(tmp_path / "out.h5"),
+        unique_combinations_csv=str(tmp_path / "uc.csv"),
+        qc_csv_file=str(tmp_path / "qc.csv"),
+        chunk_size=200, n_jobs=1, test=True, fill_na=True)
+    assert os.path.exists(str(tmp_path / "qc.csv"))
+    _assert_round_trip(tmp_path)
 
 
 # ---------------------------------------------------------------------------

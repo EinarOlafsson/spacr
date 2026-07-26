@@ -237,18 +237,27 @@ def test_utils_get_files_from_dir_globs(tmp_path):
 
 
 def test_utils_calculate_shortest_distance_zero_for_same_point():
+    """Edge-to-edge distance from weighted centroids and Feret diameters.
+
+    The old fixture invented ``obj1_x``/``obj1_y`` columns, so the call always
+    raised KeyError and ``except: pytest.skip("signature differs")`` turned
+    that into a green skip. The real inputs are
+    ``<obj>_channel_0_centroid_weighted-0/-1`` and ``<obj>_feret_diameter_max``.
+    """
     from spacr.utils import calculate_shortest_distance
     df = pd.DataFrame({
-        "obj1_x": [10.0, 20.0],
-        "obj1_y": [10.0, 20.0],
-        "obj2_x": [10.0, 20.0],
-        "obj2_y": [10.0, 20.0],
+        # row 0: concentric objects -> negative raw distance, clamped to 0
+        # row 1: centroids 100 apart, radii 10 + 20 -> 70
+        "obj1_channel_0_centroid_weighted-0": [10.0, 0.0],
+        "obj1_channel_0_centroid_weighted-1": [10.0, 0.0],
+        "obj2_channel_0_centroid_weighted-0": [10.0, 100.0],
+        "obj2_channel_0_centroid_weighted-1": [10.0, 0.0],
+        "obj1_feret_diameter_max": [8.0, 20.0],
+        "obj2_feret_diameter_max": [4.0, 40.0],
     })
-    try:
-        d = calculate_shortest_distance(df, "obj1", "obj2")
-    except Exception:
-        pytest.skip("calculate_shortest_distance signature differs")
-    assert d is not None
+    out = calculate_shortest_distance(df, "obj1", "obj2")
+    assert "obj1_obj2_shortest_distance" in out.columns
+    assert out["obj1_obj2_shortest_distance"].tolist() == [0.0, 70.0]
 
 
 def test_utils_check_index_short_prefix_ok():

@@ -163,14 +163,15 @@ def test_add_column_to_database(tmp_path):
     settings = {"csv_path": str(csv), "db_path": str(db),
                 "table_name": "png_list", "update_column": "score",
                 "match_column": "prcfo"}
-    try:
-        add_column_to_database(settings)
-    except Exception as e:
-        pytest.skip(f"add_column_to_database contract differs: {e}")
+    add_column_to_database(settings)
     con = sqlite3.connect(db)
     cols = [r[1] for r in con.execute("PRAGMA table_info(png_list)")]
+    score_col = next(c for c in cols if "score" in c)
+    rows = dict(con.execute(
+        f'SELECT prcfo, "{score_col}" FROM png_list').fetchall())
     con.close()
-    assert any("score" in c for c in cols)
+    # the CSV values must actually land on the matching rows, not just the column
+    assert rows == {"a": 0.1, "b": 0.9}
 
 
 def test_correct_metadata_renames_columns():

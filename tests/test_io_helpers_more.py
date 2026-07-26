@@ -194,11 +194,9 @@ def test_read_plot_model_stats(tmp_path):
                 prauc=[0.5, 0.6], optimal_threshold=[0.5, 0.55])
     pd.DataFrame(cols).to_csv(tr, index=False)
     pd.DataFrame(cols).to_csv(va, index=False)
-    try:
-        read_plot_model_stats(str(tr), str(va), save=True)
-    except Exception as e:
-        pytest.skip(f"read_plot_model_stats contract differs: {e}")
-    assert list(tmp_path.rglob("*.pdf")) or True
+    read_plot_model_stats(str(tr), str(va), save=True)
+    # `assert ... or True` under a swallowed skip could not fail either way.
+    assert list(tmp_path.rglob("*.pdf")), "save=True wrote no figure"
 
 
 def test_save_settings_to_db(tmp_path):
@@ -222,22 +220,33 @@ def test_save_figure(tmp_path):
 
 
 def test_copy_missclassified(tmp_path, rng):
+    """The per-file frame from test_model_performance names the column
+    ``filename`` (see deep_spacr.test_model_core), not ``path`` — the old
+    fixture used ``path`` and the swallowed skip hid the KeyError.
+
+    The layout mirrors the real ``test/<class>/`` tree so both the 'pc' and
+    'nc' destination branches get exercised.
+    """
     from spacr.io import _copy_missclassified
     from PIL import Image
-    d = tmp_path / "pngs"; d.mkdir()
+    root = tmp_path / "run"
     paths = []
-    for i in range(4):
+    for i, cls in enumerate(["pc", "nc", "pc", "nc"]):
+        d = root / cls
+        d.mkdir(parents=True, exist_ok=True)
         p = d / f"o{i}.png"
         Image.fromarray(rng.integers(0, 255, (8, 8, 3)).astype(np.uint8)).save(p)
         paths.append(str(p))
-    df = pd.DataFrame({"path": paths,
+    # rows 1 and 2 are misclassified
+    df = pd.DataFrame({"filename": paths,
                        "true_label": [0, 0, 1, 1],
-                       "predicted_label": [0, 1, 0, 1],
-                       "pred": [0, 1, 0, 1]})
-    try:
-        _copy_missclassified(df)
-    except Exception as e:
-        pytest.skip(f"_copy_missclassified contract differs: {e}")
+                       "predicted_label": [0, 1, 0, 1]})
+    _copy_missclassified(df)
+    assert (root / "missclassified" / "nc" / "o1.png").is_file()
+    assert (root / "missclassified" / "pc" / "o2.png").is_file()
+    # correctly-classified images are left alone
+    assert not (root / "missclassified" / "pc" / "o0.png").exists()
+    assert not (root / "missclassified" / "nc" / "o3.png").exists()
 
 
 def test_create_movies_from_npy_per_channel(tmp_path, rng):

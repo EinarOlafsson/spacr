@@ -80,12 +80,9 @@ def test_calculate_zernike_empty_mask():
 def test_summarize_organelles_per_parent():
     cell, _, _, organelle, _ = _nested_masks()
     ch = np.random.default_rng(8).random((32, 32, 2)).astype(np.float32)
-    try:
-        df = M._summarize_organelles_per_parent(
-            organelle, cell, ch, parent_name="cell")
-        assert isinstance(df, pd.DataFrame)
-    except Exception as e:
-        pytest.skip(f"_summarize_organelles_per_parent contract differs: {e}")
+    df = M._summarize_organelles_per_parent(
+        organelle, cell, ch, parent_name="cell")
+    assert isinstance(df, pd.DataFrame)
 
 
 # ---------------------------------------------------------------------------
@@ -99,13 +96,10 @@ def test_morphological_measurements():
         "pathogen_mask_dim": 2, "organelle_mask_dim": 3,
         "cytoplasm": True,
     }
-    try:
-        out = M._morphological_measurements(
-            cell, nucleus, pathogen, organelle, cytoplasm,
-            settings, zernike=True, degree=8)
-        assert isinstance(out, tuple) and len(out) == 5
-    except Exception as e:
-        pytest.skip(f"_morphological_measurements contract differs: {e}")
+    out = M._morphological_measurements(
+        cell, nucleus, pathogen, organelle, cytoplasm,
+        settings, zernike=True, degree=8)
+    assert isinstance(out, tuple) and len(out) == 5
 
 
 # ---------------------------------------------------------------------------
@@ -124,13 +118,10 @@ def test_intensity_measurements():
         "manders_thresholds": [15, 85],
         "distance_gaussian_sigma": 1,
     }
-    try:
-        out = M._intensity_measurements(
-            cell, nucleus, pathogen, organelle, cytoplasm, ch,
-            settings, periphery=True, outside=True)
-        assert isinstance(out, tuple) and len(out) == 5
-    except Exception as e:
-        pytest.skip(f"_intensity_measurements contract differs: {e}")
+    out = M._intensity_measurements(
+        cell, nucleus, pathogen, organelle, cytoplasm, ch,
+        settings, periphery=True, outside=True)
+    assert isinstance(out, tuple) and len(out) == 5
 
 
 # ---------------------------------------------------------------------------
@@ -192,11 +183,11 @@ def test_calculate_radial_distribution():
     cell = np.zeros((32, 32), dtype=np.int32); cell[4:28, 4:28] = 1
     obj = np.zeros((32, 32), dtype=np.int32); obj[10:14, 10:14] = 1
     ch = np.random.default_rng(4).random((32, 32, 1)).astype(np.float32)
-    try:
-        out = M._calculate_radial_distribution(cell, obj, ch, num_bins=4)
-        assert out is not None
-    except Exception as e:
-        pytest.skip(f"_calculate_radial_distribution contract differs: {e}")
+    out = M._calculate_radial_distribution(cell, obj, ch, num_bins=4)
+    # one entry per (cell_label, object_label, channel_index), each a bin vector
+    assert list(out) == [(1, 1, 0)]
+    assert out[(1, 1, 0)].shape == (4,)
+    assert np.isfinite(out[(1, 1, 0)]).all()
 
 
 def test_calculate_correlation_object_level():

@@ -103,11 +103,8 @@ def test_save_top_class_examples_explicit_classes(tmp_path, rng):
     df = pd.DataFrame({"path": names,
                        "pred": np.linspace(0.1, 0.9, len(names))})
     dst = tmp_path / "top2"
-    try:
-        save_top_class_examples(df, tar_path, str(dst), n=1,
-                                classes=["neg", "pos"])
-    except Exception as e:
-        pytest.skip(f"classes arg contract differs: {e}")
+    save_top_class_examples(df, tar_path, str(dst), n=1,
+                            classes=["neg", "pos"])
     assert list(dst.rglob("*.png"))
 
 
@@ -137,19 +134,19 @@ def test_generate_activation_map_saliency(tmp_path, rng):
 
 
 def test_generate_activation_map_gradcam(tmp_path, rng):
+    # No try/skip: like the saliency sibling above, this ran head-first into the
+    # multi-logit prediction bug on the default two-class model and the swallow
+    # reported it as "skipped". Running clean IS the assertion here.
     from spacr.deep_spacr import generate_activation_map
     tar_path, _ = _tar_of_pngs(tmp_path, rng)
     model_path = _save_model(tmp_path / "m.pth")
-    try:
-        from spacr.utils import recommend_target_layers, TorchModel
-        import torch as _t
-        model = _t.load(model_path, weights_only=False)
-        recommended, _all = recommend_target_layers(model)
-        generate_activation_map(_activation_settings(
-            tar_path, model_path, cam_type="gradcam",
-            target_layer=recommended[0]))
-    except Exception as e:
-        pytest.skip(f"gradcam contract differs: {e}")
+    from spacr.utils import recommend_target_layers, TorchModel
+    import torch as _t
+    model = _t.load(model_path, weights_only=False)
+    recommended, _all = recommend_target_layers(model)
+    generate_activation_map(_activation_settings(
+        tar_path, model_path, cam_type="gradcam",
+        target_layer=recommended[0]))
 
 
 def test_recommend_target_layers():
@@ -207,14 +204,14 @@ def test_integrated_gradients_class():
     import torch
     from spacr.utils import IntegratedGradients, TorchModel
     m = TorchModel(model_name="resnet18", pretrained=False, num_classes=2).eval()
-    try:
-        ig = IntegratedGradients(m)
-        out = ig.generate_integrated_gradients(
-            torch.rand(1, 3, 32, 32), target_label_idx=0, baseline=None,
-            num_steps=3)
-    except Exception as e:
-        pytest.skip(f"IntegratedGradients contract differs: {e}")
-    assert out is not None
+    ig = IntegratedGradients(m)
+    out = ig.generate_integrated_gradients(
+        torch.rand(1, 3, 32, 32), target_label_idx=0, baseline=None,
+        num_steps=3)
+    # attributions come back shaped like the input, and are finite
+    out = np.asarray(out)
+    assert out.shape[-2:] == (32, 32)
+    assert np.isfinite(out).all()
 
 
 def test_show_cam_on_image():
@@ -252,8 +249,9 @@ def test_deep_spacr_train_only(tmp_path, rng):
         "dropout_rate": 0.0, "early_stopping_patience": 0,
         "generate_training_dataset": False, "apply_model_to_dataset": False,
     }
-    try:
-        deep_spacr(settings)
-    except Exception as e:
-        pytest.skip(f"deep_spacr orchestrator contract differs: {e}")
-    assert (src / "model").exists() or True
+    deep_spacr(settings)
+    # `assert ... or True` under a swallowed skip could not fail either way.
+    # Check the orchestrator actually produced a checkpoint and its logs.
+    assert list(src.rglob("*.pth")), "no checkpoint written"
+    assert (src / "settings" / "DL_model.csv").is_file()
+    assert list(src.rglob("train.csv")) and list(src.rglob("validation.csv"))

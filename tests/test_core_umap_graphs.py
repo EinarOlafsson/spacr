@@ -229,10 +229,7 @@ def test_generate_screen_graphs_writes_results(umap_src):
         "theme": "deep", "representation": "well",
         "nuclei_limit": 10, "pathogen_limit": 10,
     }
-    try:
-        generate_screen_graphs(settings)
-    except Exception as e:
-        pytest.skip(f"generate_screen_graphs contract differs on synthetic db: {e}")
+    generate_screen_graphs(settings)
     out = os.path.join(umap_src, "results")
     assert os.path.isdir(out) and os.listdir(out)
 

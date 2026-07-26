@@ -128,11 +128,20 @@ def test_generate_cellpose_train_test(tmp_path):
         msk = np.zeros((16, 16), dtype=np.uint16); msk[2:5, 2:5] = 1
         tifffile.imwrite(str(src / f"img{i}.tif"), img)
         tifffile.imwrite(str(src / "masks" / f"img{i}.tif"), msk)
-    try:
-        IO.generate_cellpose_train_test(str(src), test_split=0.2)
-        assert (src / "train").exists() or (src / "test").exists() or True
-    except Exception as e:
-        pytest.skip(f"generate_cellpose_train_test contract differs: {e}")
+    IO.generate_cellpose_train_test(str(src), test_split=0.2)
+    # `assert ... or True` under a swallowed skip could not fail either way,
+    # and it looked in the wrong place: the split folders are siblings of
+    # `src`, not children (dirname(src)).
+    train, test = tmp_path / "train", tmp_path / "test"
+    assert sorted(p.name for p in train.glob("*.tif")) != []
+    assert len(list(train.glob("*.tif"))) == 8
+    assert len(list(test.glob("*.tif"))) == 2
+    # every image is copied together with its mask
+    assert len(list((train / "masks").glob("*.tif"))) == 8
+    assert len(list((test / "masks").glob("*.tif"))) == 2
+    # and the two sets are disjoint
+    assert not ({p.name for p in train.glob("*.tif")}
+                & {p.name for p in test.glob("*.tif")})
 
 
 # ---------------------------------------------------------------------------

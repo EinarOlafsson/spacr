@@ -51,16 +51,30 @@ def test_filepaths_to_database_inserts_rows(tmp_path, rng):
 
 
 def test_filepaths_to_database_timelapse(tmp_path, rng):
+    """Timelapse crops are ``<plate>_<well>_<field>_<time>_<object>.png`` with
+    *bare numbers* (see _generate_names / _map_wells_png).
+
+    The old fixture wrote ``plate1_A01_f1_t0_o1.png``; _safe_int_convert cannot
+    parse ``f1``/``t0``, so every row silently collapsed to fieldID 'f0' and
+    time_id 't0'. A swallowed skip plus a bare "db exists" assertion meant the
+    lost time axis went unnoticed.
+    """
     from spacr.utils import filepaths_to_database
     src = tmp_path / "plate1"
     (src / "measurements").mkdir(parents=True)
     d = src / "data" / "cell_png"; d.mkdir(parents=True)
-    paths = [_png(d / f"plate1_A01_f1_t{t}_o1.png", rng) for t in range(3)]
-    try:
-        filepaths_to_database(paths, {"timelapse": True}, str(src), "cell")
-    except Exception as e:
-        pytest.skip(f"timelapse filename contract differs: {e}")
-    assert (src / "measurements" / "measurements.db").is_file()
+    paths = [_png(d / f"plate1_A01_1_{t}_1.png", rng) for t in range(3)]
+    filepaths_to_database(paths, {"timelapse": True}, str(src), "cell")
+    db = src / "measurements" / "measurements.db"
+    assert db.is_file()
+    con = sqlite3.connect(db)
+    rows = con.execute(
+        "SELECT plateID, rowID, columnID, fieldID, time_id, prcfo, cell_id "
+        "FROM png_list ORDER BY time_id").fetchall()
+    con.close()
+    assert [r[4] for r in rows] == ["t0", "t1", "t2"]
+    assert {r[:4] for r in rows} == {("plate1", "r1", "c1", "f1")}
+    assert [r[5] for r in rows] == [f"plate1_r1_c1_f1_t{t}_o1" for t in range(3)]
 
 
 # ---------------------------------------------------------------------------

@@ -52,9 +52,16 @@ def test_ml_check_distribution_normal_returns_ols(capsys, rng):
 # ===========================================================================
 
 def test_ml_calculate_p_values_returns_series(rng):
-    """calculate_p_values returns a Series (or array) of p-values indexed
-    by feature name."""
-    import statsmodels.api as sm
+    """calculate_p_values wants a *sklearn-style* fitted estimator.
+
+    It reads ``model.coef_`` and calls ``model.predict(X)`` on the same
+    constant-free design matrix it was handed — exactly how
+    ``regression_model`` uses it for the 'ridge'/'lasso' branches. The old
+    fixture fitted a statsmodels OLS on ``sm.add_constant(X)``, so predict()
+    got a 2-column X against 3 params and raised a shape error; the swallowed
+    skip made that look like a contract mismatch.
+    """
+    from sklearn.linear_model import Ridge
     from spacr.ml import calculate_p_values
     n = 100
     X = pd.DataFrame({
@@ -62,14 +69,26 @@ def test_ml_calculate_p_values_returns_series(rng):
         "b": rng.uniform(-50, 50, n),
     })
     y = pd.Series(3.0 * X["a"].values - 2.0 * X["b"].values + rng.normal(0, 5, n))
-    model = sm.OLS(y, sm.add_constant(X)).fit()
-    try:
-        pv = calculate_p_values(X, y, model)
-    except Exception as e:
-        pytest.skip(f"calculate_p_values contract differs: {e}")
-    assert pv is not None
-    # Should have a p-value per feature (or one per feature + intercept).
-    assert len(pv) >= X.shape[1]
+    model = Ridge(alpha=1.0).fit(X, y)
+    pv = calculate_p_values(X, y, model)
+    # one p-value per feature (no intercept term in the design matrix)
+    assert len(pv) == X.shape[1]
+    assert np.all((pv >= 0) & (pv <= 1))
+    # both coefficients carry real signal, so both should be significant
+    assert np.all(pv < 0.05)
+
+
+def test_ml_calculate_p_values_more_features_than_rows(rng):
+    """dof <= 0 is documented to yield NaNs rather than blowing up."""
+    from sklearn.linear_model import Ridge
+    from spacr.ml import calculate_p_values
+    X = pd.DataFrame(rng.normal(0, 1, (4, 8)),
+                     columns=[f"f{i}" for i in range(8)])
+    y = pd.Series(rng.normal(0, 1, 4))
+    model = Ridge(alpha=1.0).fit(X, y)
+    pv = calculate_p_values(X, y, model)
+    assert len(pv) == 8
+    assert np.all(np.isnan(pv))
 
 
 # ===========================================================================
@@ -108,11 +127,13 @@ def test_ml_process_reads_from_dataframe():
         "grna_name": [f"g{i%3}" for i in range(10)],
         "count": np.arange(1, 11),
     })
-    try:
-        out = process_reads(df, fraction_threshold=0.01, plate=1)
-    except Exception as e:
-        pytest.skip(f"process_reads contract differs: {e}")
-    assert out is not None
+    out = process_reads(df, fraction_threshold=0.01, plate=1)
+    assert list(out.columns) == ["prc", "grna", "fraction"]
+    assert set(out["prc"]) == {"1_r1_c1"}
+    # counts 1..10 normalised by the well total (55)
+    np.testing.assert_allclose(out["fraction"].to_numpy(),
+                               np.arange(1, 11) / 55.0)
+    assert out["fraction"].sum() == pytest.approx(1.0)
 
 
 # ===========================================================================
