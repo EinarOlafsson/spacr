@@ -227,8 +227,15 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
             from spacr.measure import measure_crop
             return log_call(measure_crop)
         if app_key == "classify":
-            from spacr.deep_spacr import train_test_model
-            return log_call(train_test_model)
+            # deep_spacr, not train_test_model. The Classify screen builds its
+            # panel from deep_spacr_defaults, so it SHOWS generate_training_
+            # dataset, apply_model_to_dataset, n_top_examples and tar_path --
+            # every one of which train_test_model ignores. Running the training
+            # stage alone meant those switches were settable and silently did
+            # nothing. Tk (gui_utils.run_function_gui) and validate.APP_FUNCTIONS
+            # both map classify -> deep_spacr; Qt was the odd one out.
+            from spacr.deep_spacr import deep_spacr
+            return log_call(deep_spacr)
         if app_key == "umap":
             from spacr.core import generate_image_umap
             return log_call(generate_image_umap)
