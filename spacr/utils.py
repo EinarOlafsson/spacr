@@ -2519,14 +2519,31 @@ def _split_data(df, group_by, object_type):
             df[time_col].astype(str)
         )
 
-    # Ensure 'prcf' column exists
+    # Ensure 'prcf' column exists.
+    #
+    # The timepoint belongs in it. `_map_wells(timelapse=True)` — the writer
+    # that put prcf into the database in the first place — builds
+    # plate_row_column_field_TIME, and this rebuild used to drop that last
+    # component, overwriting the database's own key with a coarser one. Since
+    # prcfo is derived from prcf immediately below and is what callers group
+    # on, every object was then collapsed across all of its timepoints: a
+    # 2-field x 3-frame x 2-cell run came out of _read_and_merge_data as 4 rows
+    # with the three frames averaged together, and the caller's own
+    # time-carrying prcfo (io._read_and_merge_data assigns one from the
+    # database's prcf) was silently replaced on the way in. A timepoint column
+    # is written only by a timelapse run, so keying on it when it is present is
+    # the same condition as prcft above and leaves non-timelapse frames byte
+    # for byte as they were.
     try:
-        df['prcf'] = (
+        prcf = (
             df['plateID'].astype(str) + '_' +
             df['rowID'].astype(str) + '_' +
             df['columnID'].astype(str) + '_' +
             df['fieldID'].astype(str)
         )
+        if time_col is not None:
+            prcf = prcf + '_' + df[time_col].astype(str)
+        df['prcf'] = prcf
     except Exception as e:
         print('Exception', e)
 

@@ -388,7 +388,16 @@ def test_split_data_all_numeric_columns_gives_empty_non_numeric_frame():
 
 
 def test_split_data_sums_size_columns_and_means_the_rest():
-    """sum_keywords columns are summed per group; everything else is averaged."""
+    """sum_keywords columns are summed per group; everything else is averaged.
+
+    The frame carries ``timeID``, so the grouping key is the timepoint key
+    ``p1_r1_c1_f1_<time>_<object>``. This test used to expect
+    ``p1_r1_c1_f1_1`` — plate/row/column/field/object with the timepoint
+    dropped — and that expectation was the bug: ``_map_wells(timelapse=True)``
+    writes the timepoint into ``prcf`` and ``_split_data`` rebuilt it without,
+    so every object collapsed across all of its frames. All four rows here
+    share one timepoint, which is why the old key still looked plausible.
+    """
     from spacr.utils import _split_data
 
     df = pd.DataFrame({
@@ -407,13 +416,15 @@ def test_split_data_sums_size_columns_and_means_the_rest():
     numeric, non_numeric = _split_data(df, "prcfo", "object_label")
 
     assert numeric.shape[0] == 1
-    key = "p1_r1_c1_f1_1"
+    key = "p1_r1_c1_f1_1_1"
     assert numeric.loc[key, "cell_area"] == 10.0                 # summed
     assert numeric.loc[key, "cell_perimeter"] == 4.0             # summed
     assert numeric.loc[key, "cell_equivalent_diameter"] == 8.0   # summed
     assert numeric.loc[key, "cell_channel_0_mean_intensity"] == 25.0  # averaged
     # timeID was present, so prcft got built and lands on the non-numeric side
     assert non_numeric.loc[key, "prcft"] == "p1_r1_c1_f1_1"
+    # prcf now agrees with prcft: same key, from the same components.
+    assert non_numeric.loc[key, "prcf"] == "p1_r1_c1_f1_1"
 
 
 # ---------------------------------------------------------------------------
