@@ -792,13 +792,20 @@ def test_parse_field_value_lists(tmp_path):
 
 # ===========================================================================
 # convert_settings_dict_for_gui
+#
+# ``AnnotateApp`` used to carry its own copy of this function. It had no
+# callers -- gui_core and spacr.qt.screens.settings_model both import the
+# gui_utils one -- and the copy had drifted stale (timelapse_mode without
+# trackastra/ultrack, optimizer_type with 2 of the 7 torch optimizers,
+# loss_type with 2 of the 6 build_loss aliases). It was deleted rather than
+# resynced; these tests now exercise the single live implementation.
 # ===========================================================================
 
 def test_convert_settings_dict_classifies_widget_kinds():
     """bool -> check, numbers/lists/strings -> entry, known keys -> combo."""
-    from spacr.gui_elements import AnnotateApp
+    from spacr import gui_utils as GU
 
-    out = AnnotateApp.convert_settings_dict_for_gui({
+    out = GU.convert_settings_dict_for_gui({
         "verbose": True,
         "epochs": 10,
         "lr": 0.001,
@@ -814,7 +821,7 @@ def test_convert_settings_dict_classifies_widget_kinds():
     assert out["lr"] == ("entry", None, 0.001)
     assert out["channels_list"] == ("entry", None, "[1, 2, 3]")
     assert out["name"] == ("entry", None, "abc")
-    assert out["nothing"] == ("entry", None, "")
+    assert out["nothing"] == ("entry", None, None)
     # special cases ignore the supplied value and use the canned spec
     assert out["metadata_type"] == ("combo",
                                     ["cellvoyager", "cq1", "auto", "custom"],
@@ -823,42 +830,103 @@ def test_convert_settings_dict_classifies_widget_kinds():
     assert kind == "combo" and initial == "[0,1,2,3]" and "[0,1]" in options
 
 
-def test_convert_settings_dict_uses_real_torchvision_model_list():
-    """model_type options come from torchvision when it imports."""
-    pytest.importorskip("torchvision")
+def test_annotate_app_no_longer_shadows_convert_settings_dict():
+    """The stale duplicate is gone, so the GUI cannot serve two option sets."""
     from spacr.gui_elements import AnnotateApp
+    assert not hasattr(AnnotateApp, "convert_settings_dict_for_gui")
 
-    kind, options, initial = AnnotateApp.convert_settings_dict_for_gui(
+
+def test_convert_settings_dict_uses_real_torchvision_model_list():
+    """model_type options extend to the full zoo once torchvision is loaded."""
+    pytest.importorskip("torchvision")
+    import torchvision.models  # noqa: F401  -- must be in sys.modules
+    from spacr import gui_utils as GU
+
+    kind, options, initial = GU.convert_settings_dict_for_gui(
         {"model_type": "resnet50"}
     )["model_type"]
     assert kind == "combo" and initial == "resnet50"
     assert "resnet50" in options
     assert options == sorted(options)
-    # the fallback list is only 5 entries long; torchvision exposes far more
+    # the curated fallback is short; torchvision exposes far more
     assert len(options) > 5
 
 
-def test_convert_settings_dict_falls_back_when_torchvision_missing(monkeypatch):
-    """Blocking the torchvision import switches model_type to the static list."""
-    import builtins
-    from spacr.gui_elements import AnnotateApp
+def test_convert_settings_dict_falls_back_when_torchvision_unloaded(monkeypatch):
+    """With torchvision absent from sys.modules the curated list is used.
 
-    real_import = builtins.__import__
+    gui_utils deliberately never *imports* torchvision here -- enumerating the
+    zoo costs ~5 s and made the first module open sluggish -- it only reads
+    sys.modules. So the fallback is exercised by hiding the module, not by
+    blocking the import.
+    """
+    import sys
+    from spacr import gui_utils as GU
 
-    def blocked(name, globals=None, locals=None, fromlist=(), level=0):
-        if name == "torchvision" or name.startswith("torchvision."):
-            raise ImportError("blocked for test")
-        return real_import(name, globals, locals, fromlist, level)
+    monkeypatch.delitem(sys.modules, "torchvision.models", raising=False)
+    out = GU.convert_settings_dict_for_gui({"model_type": "resnet50"})
 
-    monkeypatch.setattr(builtins, "__import__", blocked)
-    out = AnnotateApp.convert_settings_dict_for_gui({"model_type": "resnet50"})
-    monkeypatch.undo()
+    kind, options, initial = out["model_type"]
+    assert kind == "combo" and initial == "resnet50"
+    assert options == list(GU._TORCHVISION_MODELS_CURATED)
 
-    assert out["model_type"] == (
-        "combo",
-        ["resnet18", "resnet34", "resnet50", "densenet121", "mobilenet_v2"],
-        "resnet50",
-    )
+
+# --- the combos must offer exactly what the pipeline accepts ---------------
+
+def test_dataset_mode_combo_matches_the_modes_io_dispatches_on():
+    """'recruitment' used to be offered here and is not a real mode.
+
+    io.generate_training_dataset dispatches on metadata|annotation|measurement
+    and returns (None, None) for anything else -- so picking 'recruitment' in
+    the Tk GUI silently produced no dataset at all.
+    """
+    from spacr import gui_utils as GU
+    kind, options, initial = GU.convert_settings_dict_for_gui(
+        {"dataset_mode": "metadata"})["dataset_mode"]
+    assert kind == "combo"
+    assert set(options) == {"metadata", "annotation", "measurement"}
+    assert initial == "metadata"
+
+
+def test_class_balance_combo_matches_io_class_balance_modes():
+    from spacr import gui_utils as GU
+    from spacr.io import CLASS_BALANCE_MODES
+    kind, options, initial = GU.convert_settings_dict_for_gui(
+        {"class_balance": "none"})["class_balance"]
+    assert kind == "combo"
+    assert set(options) == set(CLASS_BALANCE_MODES)
+    assert initial == "none"
+
+
+def test_cv_group_by_combo_matches_io_cv_group_levels():
+    from spacr import gui_utils as GU
+    from spacr.io import CV_GROUP_LEVELS
+    kind, options, initial = GU.convert_settings_dict_for_gui(
+        {"cv_group_by": "well"})["cv_group_by"]
+    assert kind == "combo"
+    assert set(options) == set(CV_GROUP_LEVELS)
+    # well is the safe default: crops from one well are not independent
+    assert initial == "well"
+
+
+def test_optimizer_and_loss_combos_are_all_accepted_by_the_pipeline():
+    """Every offered option must survive the real dispatch, not just look right."""
+    from spacr import gui_utils as GU
+    specs = GU.convert_settings_dict_for_gui(
+        {"optimizer_type": "adamw", "loss_type": "auto"})
+
+    _, opt_options, _ = specs["optimizer_type"]
+    assert set(opt_options) == {"adamw", "adam", "adagrad", "sgd",
+                                "rmsprop", "nadam", "radam"}
+
+    torch = pytest.importorskip("torch")
+    from spacr.utils import build_loss
+    _, loss_options, _ = specs["loss_type"]
+    counts = torch.tensor([80.0, 20.0])
+    for name in loss_options:
+        n_classes = 1 if name == "binary_cross_entropy_with_logits" else 2
+        fn = build_loss(name, num_classes=n_classes, class_counts=counts)
+        assert callable(fn), name
 
 
 # ===========================================================================
