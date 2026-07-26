@@ -1920,68 +1920,40 @@ def merge_predictions_into_db(df, db_path, table='png_list', pred_col='pred',
                                class_col='cv_predictions'):
     """Write per-image prediction scores back into a spacr SQLite database.
 
-    Matches by ``basename(png_path)`` because the tar archive uses
-    relative member names while the DB stores full disk paths.
+    Thin wrapper over :func:`spacr.predictions.merge_cv_predictions`, which is
+    the one merge path Classify (CV) and Classify (ML) share. It used to be
+    implemented here, keyed on ``basename(png_path)``, and collapsed repeated
+    basenames with a plain ``dict`` assignment -- so a run over two source
+    folders whose plates were both called ``plate1`` scored one plate with the
+    other one's predictions and said nothing. The replacement keys on
+    ``prcfo``, refuses a key that arrives with two different values instead of
+    letting the last one win, counts every row it could not place, and runs in
+    one transaction. See :mod:`spacr.predictions`.
 
     :param df: DataFrame with columns ``path``, ``pred`` and
         ``cv_predictions``.
     :param db_path: SQLite database file.
     :param table: Target table. Default ``'png_list'``.
-    :param pred_col: Column name for the probability. Default ``'pred'``.
-    :param class_col: Column name for the class label. Default
+    :param pred_col: Database column for the probability. Default ``'pred'``.
+    :param class_col: Database column for the class label. Default
         ``'cv_predictions'``.
     :returns: Number of DB rows updated, or ``None`` if the database is
         missing.
+
+    See Also:
+        :func:`spacr.predictions.merge_prediction_results` -- the shared
+        implementation, and the full :class:`~spacr.predictions.MergeReport`.
     """
-    import sqlite3, os
+    from .predictions import merge_cv_predictions
 
-    if not os.path.exists(db_path):
-        print(f"Database not found at {db_path}; skipping merge.")
-        return
+    report = merge_cv_predictions(
+        df, db_path, table=table, score_col=pred_col, class_col=class_col,
+        score_source=pred_col, class_source=class_col)
+    if report is None:
+        return None
+    return report.matched_rows
 
-    df = df.copy()
-    # -- derive basename from the tar member name for matching --
-    df['_join_key'] = df['path'].apply(os.path.basename)
 
-    conn = sqlite3.connect(db_path)
-    cur = conn.cursor()
-
-    # -- add prediction columns if they don't already exist --
-    for col, col_type in [(pred_col, 'REAL'), (class_col, 'INTEGER')]:
-        try:
-            cur.execute(f"ALTER TABLE {table} ADD COLUMN {col} {col_type}")
-        except sqlite3.OperationalError:
-            pass
-
-    # -- build a lookup dict keyed on basename for fast matching --
-    lookup = {}
-    for _, row in df.iterrows():
-        lookup[row['_join_key']] = (row[pred_col], row[class_col])
-
-    # -- fetch png_path from the DB; match on its basename --
-    cur.execute(f"SELECT rowid, png_path FROM {table}")
-    rows = cur.fetchall()
-
-    updates = []
-    matched = 0
-    for rowid, png_path in rows:
-        # png_path is the full disk path; compare basenames
-        basename = os.path.basename(png_path) if png_path else None
-        if basename in lookup:
-            pred_val, class_val = lookup[basename]
-            updates.append((pred_val, class_val, rowid))
-            matched += 1
-
-    cur.executemany(
-        f"UPDATE {table} SET {pred_col} = ?, {class_col} = ? WHERE rowid = ?",
-        updates
-    )
-    conn.commit()
-    conn.close()
-
-    print(f"Merged predictions into {table}: {matched}/{len(rows)} rows matched")
-    return matched
-            
 def deep_spacr(settings=None):
     """Run the full spacr deep-learning pipeline: build dataset, train, apply model, merge predictions into the measurements DB.
 

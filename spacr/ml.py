@@ -1982,8 +1982,10 @@ def generate_ml_scores(settings):
     """
     from .io import _read_and_merge_data, _read_db
     from .plot import plot_plates
-    from .utils import get_ml_results_paths, add_column_to_database, calculate_shortest_distance, save_settings
+    from .utils import get_ml_results_paths, calculate_shortest_distance, save_settings
     from .settings import set_default_analyze_screen
+    from .predictions import (ML_CLASS_COLUMN, merge_ml_predictions,
+                              migrate_prediction_columns)
 
     settings = set_default_analyze_screen(settings)
     save_settings(settings, name='generate_ml_scores', show=True)
@@ -2017,7 +2019,13 @@ def generate_ml_scores(settings):
     if settings['annotation_column'] is not None:
 
         settings['location_column'] = settings['annotation_column']
-        
+
+        # Repair-on-read, the same contract utils.rename_columns_in_db has:
+        # a database written before the prediction columns were namespaced
+        # still carries the ML stage's scores under 'predictions', and is
+        # migrated here so the caller never has to do anything by hand. Skipped
+        # when the current name already exists.
+        migrate_prediction_columns(db_loc[0])
         png_list_df = _read_db(db_loc[0], tables=['png_list'])[0]
         if not {'prcfo', settings['annotation_column']}.issubset(png_list_df.columns):
             raise ValueError("The 'png_list_df' DataFrame must contain 'prcfo' and 'test' columns.")
@@ -2114,13 +2122,31 @@ def generate_ml_scores(settings):
     figs[1].savefig(feature_importance_fig_path, format='pdf')
     shap_fig.savefig(shap_fig_path, format='pdf')
 
-    if settings['save_to_db']:
-        settings['csv_path'] = data_path
-        settings['db_path'] = os.path.join(src1, 'measurements', 'measurements.db')
-        settings['table_name'] = 'png_list'
-        settings['update_column'] = 'predictions'
-        settings['match_column'] = 'prcfo'
-        add_column_to_database(settings)
+    # The model scored every object in every source database, so the scores
+    # belong back on every one of those databases -- not only in a CSV, and not
+    # only when a flag is set. The Annotate app, the active-learning queue and
+    # every GUI table read png_list, so a score that stops at results.csv is a
+    # score nothing downstream can see.
+    #
+    # This replaces utils.add_column_to_database, which had three problems for
+    # this use: it re-read the CSV that was just written, it appended
+    # 'predictions_1', 'predictions_2', ... on every re-run instead of updating
+    # in place, and it replaced every 0 with a 2 (the Annotate app's class
+    # encoding) so the database disagreed with the CSV from the same run.
+    # merge_ml_predictions writes 'predictions' (the class, same column name as
+    # before) plus the new 'ml_pred' (the positive-class probability, which the
+    # ML stage never stored at all). Neither collides with the CV stage's
+    # 'cv_predictions' / 'pred', so running Classify (CV) and Classify (ML)
+    # over one database leaves four readable columns rather than two
+    # overwritten ones.
+    settings['csv_path'] = data_path
+    settings['db_path'] = os.path.join(src1, 'measurements', 'measurements.db')
+    settings['table_name'] = 'png_list'
+    settings['update_column'] = ML_CLASS_COLUMN
+    settings['match_column'] = 'prcfo'
+    for src in srcs:
+        merge_ml_predictions(df, os.path.join(src, 'measurements', 'measurements.db'),
+                             table=settings['table_name'])
 
     return [output, plate_heatmap]
 
@@ -2665,9 +2691,10 @@ def interperate_vision_model(settings=None):
     # raised TypeError on every save=True run. The importance tables get their
     # own writer, _save_importance_csv, which follows the same <src>/results
     # convention.
-    from .io import _read_and_merge_data
+    from .io import _read_and_merge_data, _report_fan_out, TimelapseKeyMismatch
+    from .predictions import crop_name_metadata
     from .settings import set_interperate_vision_model_defaults
-    from .utils import save_settings
+    from .utils import save_settings, _time_column
 
     settings = set_interperate_vision_model_defaults(settings)
     save_settings(settings, name='interperate_vision_model', show=True)
@@ -2730,6 +2757,34 @@ def interperate_vision_model(settings=None):
         # Clean and align columns for merging
         df['object_label'] = df['object_label'].str.replace('o', '')
 
+        # The join key is prcfo, spelled out as the columns it is made of --
+        # the same key spacr.predictions uses to merge scores onto png_list,
+        # because this is the same question: which object is this crop?
+        #
+        # The timepoint is part of that key. _read_and_merge_data returns one
+        # row per object PER FRAME, so joining a timelapse database without it
+        # matches every frame's object to every frame's score and multiplies
+        # the frame by the number of frames. (That used to be masked by
+        # _split_data dropping the timepoint from prcf on the way in, which
+        # collapsed the frames before they got here; it no longer does.)
+        join_cols = ['plateID', 'rowID', 'columnID', 'fieldID', 'object_label']
+        df_time = _time_column(df.columns)
+
+        # A scores CSV written by apply_model_to_tar carries the crop file
+        # name, and the crop file name carries all of this -- so re-derive it
+        # with the writer's own parser rather than trusting the positional
+        # guess process_vision_results makes. On a timelapse crop
+        # (plate_well_field_time_object) that guess reads the TIMEPOINT as the
+        # object id, so its 'object' column is simply wrong there.
+        name_col = next((c for c in ('path', 'png_path', 'file_name')
+                         if c in scores_df.columns), None)
+        if name_col is not None:
+            parsed = crop_name_metadata(scores_df[name_col],
+                                        timelapse=df_time is not None)
+            for col in parsed.columns:
+                if col != 'prcfo':
+                    scores_df[col] = parsed[col]
+
         if 'rowID' not in scores_df.columns:
             if 'row' in scores_df.columns:
                 scores_df['rowID'] = scores_df['row']
@@ -2748,18 +2803,36 @@ def interperate_vision_model(settings=None):
         # Remove the 'o' prefix from 'object_label' in df, ensuring it is a string type
         df['object_label'] = df['object_label'].str.replace('o', '').astype(str)
 
-        # Ensure 'object_label' in scores_df is also a string
-        scores_df['object_label'] = scores_df['object'].astype(str)
+        scores_time = _time_column(scores_df.columns)
+        if df_time is not None and scores_time is not None:
+            if df_time != scores_time:
+                scores_df = scores_df.rename(columns={scores_time: df_time})
+            join_cols = join_cols + [df_time]
+        elif df_time is not None or scores_time is not None:
+            raise TimelapseKeyMismatch(
+                f"{settings['scores']} and the measurements database disagree "
+                f"about the timepoint: the scores have {scores_time!r} and the "
+                f"objects have {df_time!r}. One of the two was produced by a "
+                f"non-timelapse run, so there is no timepoint to join on, and "
+                f"joining without it would match every frame's object to every "
+                f"frame's score. Re-score the dataset, or supply a scores file "
+                f"that carries the crop file name so the timepoint can be read "
+                f"off it.")
 
         # Ensure all join columns have the same data type in both DataFrames
-        df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_label']] = df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_label']].astype(str)
-        scores_df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_label']] = scores_df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_label']].astype(str)
+        df[join_cols] = df[join_cols].astype(str)
+        scores_df[join_cols] = scores_df[join_cols].astype(str)
 
         # Select only the necessary columns from scores_df for merging
-        scores_df = scores_df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_label', settings['score_column']]]
+        scores_df = scores_df[join_cols + [settings['score_column']]]
 
         # Now merge DataFrames
-        merged_df = pd.merge(df, scores_df, on=['plateID', 'rowID', 'columnID', 'fieldID', 'object_label'], how='inner')
+        merged_df = pd.merge(df, scores_df, on=join_cols, how='inner')
+        # The scores are per object, so the join can only ever shrink df (an
+        # object with no score drops out). Growing means the key does not
+        # identify an object and every feature in the result is duplicated.
+        _report_fan_out(df, merged_df, join_cols,
+                        left_name='object', right_name='scores')
 
         # Separate numerical features and the score column
         X = merged_df.select_dtypes(include='number').drop(columns=[settings['score_column']])

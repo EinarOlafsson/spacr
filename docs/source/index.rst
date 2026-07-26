@@ -78,7 +78,8 @@ Key modules by category
    :mod:`spacr.object` · :mod:`spacr.utils`
 
 **Machine learning + classification**
-   :mod:`spacr.ml` · :mod:`spacr.deep_spacr` · :mod:`spacr.spacr_cellpose`
+   :mod:`spacr.ml` · :mod:`spacr.deep_spacr` · :mod:`spacr.predictions` ·
+   :mod:`spacr.spacr_cellpose`
 
 **Analysis**
    :mod:`spacr.plot` · :mod:`spacr.sp_stats` · :mod:`spacr.submodules` ·

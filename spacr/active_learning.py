@@ -138,9 +138,13 @@ CALIBRATION_NOTE = (
 DEFAULT_MEASURE = "entropy"
 
 #: Column names :func:`build_queue` looks for when ``pred_column`` is not
-#: given. ``pred`` is what :func:`spacr.deep_spacr.merge_predictions_into_db`
-#: writes (the positive-class probability, one REAL column).
-PRED_COLUMN_CANDIDATES: Tuple[str, ...] = ("pred", "prediction", "score")
+#: given, best first. ``pred`` is what the CV classifier writes via
+#: :func:`spacr.predictions.merge_cv_predictions` (the positive-class
+#: probability, one REAL column); ``ml_pred`` is the same quantity from the
+#: classical-ML classifier (:func:`spacr.predictions.merge_ml_predictions`).
+#: The CV score comes first because a database carrying both was scored by a
+#: model trained on crops, which is what the queue is picking crops for.
+PRED_COLUMN_CANDIDATES: Tuple[str, ...] = ("pred", "ml_pred", "prediction", "score")
 
 #: Metadata columns each named diversity strategy stratifies over, in the
 #: order they are combined into a group key.
