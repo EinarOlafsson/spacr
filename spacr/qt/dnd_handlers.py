@@ -565,6 +565,7 @@ _HANDLERS = {
     "regression":      MeasurementsDropHandler,
     "recruitment":     MeasurementsDropHandler,
     "activation":      MeasurementsDropHandler,
+    "invasion":        MeasurementsDropHandler,
     "analyze_plaques": MakeMasksDropHandler,      # plaque images
     "train_cellpose":  MakeMasksDropHandler,      # image + mask pairs
     "cellpose_masks":  MakeMasksDropHandler,

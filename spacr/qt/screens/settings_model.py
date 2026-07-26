@@ -63,6 +63,7 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
         get_analyze_recruitment_default_settings,
         get_check_cellpose_models_default_settings,
         get_analyze_plaque_settings,
+        set_analyze_invasion_defaults,
         get_perform_regression_default_settings,
         get_train_cellpose_default_settings,
         get_default_generate_activation_map_settings,
@@ -117,6 +118,8 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
         return get_analyze_recruitment_default_settings(settings={})
     if app_key == "activation":
         return get_default_generate_activation_map_settings(settings={})
+    if app_key == "invasion":
+        return set_analyze_invasion_defaults(settings={})
     if app_key == "analyze_plaques":
         return get_analyze_plaque_settings(settings={})
     if app_key in ("annotate", "make_masks"):

@@ -119,6 +119,7 @@ APPS = [
     # -- Toxo: Toxoplasma-specific assays --
     ("analyze_plaques", "Plaque Assay",  "Analyze plaque assay data",                                   "Toxo"),
     ("recruitment",    "Recruitment",    "Analyze recruitment data",                                    "Toxo"),
+    ("invasion",       "Invasion Assay", "Two-colour outside/inside stain: attached vs invaded parasites, invasion efficiency per well", "Toxo"),
 ]
 
 
@@ -143,7 +144,8 @@ _ICON_OVERRIDES = {
 }
 
 # Keys that render their qtawesome glyph instead of a bundled PNG.
-_FORCE_GLYPH = set()
+# No bundled PNG reads as "inside vs outside", so the glyph is better.
+_FORCE_GLYPH = {"invasion"}
 
 
 def _icon_for_app(key: str) -> Optional[QIcon]:
