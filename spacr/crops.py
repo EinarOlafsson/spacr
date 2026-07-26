@@ -635,8 +635,7 @@ def _region_for(fld: MergedField, spec: CropSpec):
         rx0 = max(bx0 - spec.bbox_buffer, 0)
         rx1 = min(bx1 - 1 + spec.bbox_buffer, W - 1) + 1
         region = np.ones((ry1 - ry0, rx1 - rx0), dtype=bool)
-        # np.sum over a rectangle filled with the label value, not with 1.
-        area_for_dilation = float(region.size) * float(spec.label)
+        area_for_dilation = float(region.size)
         cy = (ry0 + ry1 - 1) / 2.0
         cx = (rx0 + rx1 - 1) / 2.0
     else:
@@ -657,21 +656,21 @@ def _region_for(fld: MergedField, spec: CropSpec):
 
     if spec.dilate:
         px = int(np.sqrt(area_for_dilation) * float(spec.dilate_ratio))
-        if px <= 0:
-            # scipy's "iterations < 1 == dilate to fixpoint": the region becomes
-            # the whole field, so nothing is masked and the crop is centred on
-            # the middle of the field.
-            centroid = np.round(np.array([(H - 1) / 2.0, (W - 1) / 2.0])).astype(int)
-            return centroid, (0, H, 0, W), None
-        gy0, gy1 = max(0, ry0 - px), min(H, ry1 + px)
-        gx0, gx1 = max(0, rx0 - px), min(W, rx1 + px)
-        grown = np.zeros((gy1 - gy0, gx1 - gx0), dtype=bool)
-        grown[ry0 - gy0:ry1 - gy0, rx0 - gx0:rx1 - gx0] = region
-        region = _binary_dilate(grown, px)
-        ry0, ry1, rx0, rx1 = gy0, gy1, gx0, gx1
-        ys, xs = np.nonzero(region)
-        cy = float(ys.astype(np.int64).sum()) / ys.size + ry0
-        cx = float(xs.astype(np.int64).sum()) / xs.size + rx0
+        # A radius of 0 means no dilation. scipy reads iterations=0 as "repeat
+        # until nothing changes", which grew the region to the whole field and
+        # turned the crop into an unmasked window on the middle of the image —
+        # for every object under ~25 px at the default ratio. measure.py
+        # guards it now, and so does this.
+        if px > 0:
+            gy0, gy1 = max(0, ry0 - px), min(H, ry1 + px)
+            gx0, gx1 = max(0, rx0 - px), min(W, rx1 + px)
+            grown = np.zeros((gy1 - gy0, gx1 - gx0), dtype=bool)
+            grown[ry0 - gy0:ry1 - gy0, rx0 - gx0:rx1 - gx0] = region
+            region = _binary_dilate(grown, px)
+            ry0, ry1, rx0, rx1 = gy0, gy1, gx0, gx1
+            ys, xs = np.nonzero(region)
+            cy = float(ys.astype(np.int64).sum()) / ys.size + ry0
+            cx = float(xs.astype(np.int64).sum()) / xs.size + rx0
 
     centroid = np.round(np.array([cy, cx])).astype(int)
     return centroid, (ry0, ry1, rx0, rx1), region

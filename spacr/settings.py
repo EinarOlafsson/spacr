@@ -308,11 +308,11 @@ def set_default_settings_preprocess_generate_masks(settings=None):
 
 
 
-    # Fail-loud policy: when True a swallowed setup/config error raises
-    # instead of printing and carrying on with a half-finished result.
-    # spacr.errors.strict_errors() reads this key, then the
-    # SPACR_STRICT_ERRORS env var.
-    settings.setdefault('strict_errors', False)
+    # Fail-loud policy. None means "not set here" and defers to the
+    # SPACR_STRICT_ERRORS environment variable, which is how a cluster turns
+    # it on for a whole batch without editing every settings file. True/False
+    # here is an explicit per-run choice and wins over the environment.
+    settings.setdefault('strict_errors', None)
     settings.setdefault('max_failure_rate', None)
     return settings
 
@@ -616,11 +616,11 @@ def get_measure_crop_settings(settings=None):
         test_imgs = settings['test_nr']
         print(f'Test mode enabled with {test_imgs} images, plotting set to True')
 
-    # Fail-loud policy: when True a swallowed setup/config error raises
-    # instead of printing and carrying on with a half-finished result.
-    # spacr.errors.strict_errors() reads this key, then the
-    # SPACR_STRICT_ERRORS env var.
-    settings.setdefault('strict_errors', False)
+    # Fail-loud policy. None means "not set here" and defers to the
+    # SPACR_STRICT_ERRORS environment variable, which is how a cluster turns
+    # it on for a whole batch without editing every settings file. True/False
+    # here is an explicit per-run choice and wins over the environment.
+    settings.setdefault('strict_errors', None)
     settings.setdefault('max_failure_rate', None)
     return settings
 
@@ -699,11 +699,11 @@ def set_default_train_test_model(settings):
     settings.setdefault('class_balance','none')
     settings.setdefault('cross_validation_folds',0)
     settings.setdefault('cv_group_by','well')
-    # Fail-loud policy: when True a swallowed setup/config error raises
-    # instead of printing and carrying on with a half-finished result.
-    # spacr.errors.strict_errors() reads this key, then the
-    # SPACR_STRICT_ERRORS env var.
-    settings.setdefault('strict_errors', False)
+    # Fail-loud policy. None means "not set here" and defers to the
+    # SPACR_STRICT_ERRORS environment variable, which is how a cluster turns
+    # it on for a whole batch without editing every settings file. True/False
+    # here is an explicit per-run choice and wins over the environment.
+    settings.setdefault('strict_errors', None)
     settings.setdefault('max_failure_rate', None)
     # 'auto' uses the PNG crop folder when one exists and falls back to
     # cutting crops out of merged/*.npy on demand; 'png' and 'merged'
@@ -1053,11 +1053,11 @@ def get_perform_regression_default_settings(settings):
         settings['agg_type'] = None
         print(f'agg_type set to None for quantile regression')
         
-    # Fail-loud policy: when True a swallowed setup/config error raises
-    # instead of printing and carrying on with a half-finished result.
-    # spacr.errors.strict_errors() reads this key, then the
-    # SPACR_STRICT_ERRORS env var.
-    settings.setdefault('strict_errors', False)
+    # Fail-loud policy. None means "not set here" and defers to the
+    # SPACR_STRICT_ERRORS environment variable, which is how a cluster turns
+    # it on for a whole batch without editing every settings file. True/False
+    # here is an explicit per-run choice and wins over the environment.
+    settings.setdefault('strict_errors', None)
     settings.setdefault('max_failure_rate', None)
     return settings
 
@@ -1542,7 +1542,7 @@ expected_types = {
     'summarize_organelles_by':str,
     'early_stopping_patience':int,
     'class_balance':str,
-    'strict_errors':bool,
+    'strict_errors':(bool, type(None)),
     'max_failure_rate':(float, type(None)),
     'crop_source':str,
     'queue_by_uncertainty':bool,
@@ -2079,7 +2079,7 @@ tooltips = {
     "correlate": "(bool) - Intended to add pairwise correlations between selected measurements to the analysis output, but nothing reads settings['correlate']. Channel/activation correlations are controlled by the separate 'correlation' setting in the activation-map path. Kept only so old settings CSVs still load.",
     'count_data': "(str or list) - CSV(s) of per-well gRNA read counts from the sequencing step (unique_combinations.csv); each must contain grna, count, rowID and columnID columns or the run raises ValueError. These are the regression's independent variable. Pass one path per plate, position-aligned with plates_count; results are written under the first file's folder.",
     'cov_type': "(str) - Heteroscedasticity-robust covariance estimator passed to the OLS fit: 'HC0', 'HC1', 'HC2' or 'HC3', or None for classical non-robust errors. It changes standard errors and p-values only, never the coefficients; reach for 'HC3' when residual variance grows with well cell count. Applies to regression_type 'ols' only. Default None.",
-    'strict_errors': "(bool) - What happens when a step hits a problem it could technically survive. False (the default) keeps today's behaviour: the failure is recorded in the run ledger, printed in the end-of-run summary and stamped into the artifact's run_status, and the run continues on the items that worked. True turns a swallowed setup or configuration error - an unreadable path, a missing column, a database that will not open - into an immediate exception, so a batch job stops at the first sign that its inputs are wrong instead of producing a plausible-looking partial result. Per-item failures such as one corrupt image are still survived either way; only errors that make the whole run meaningless are promoted. Can also be set with the SPACR_STRICT_ERRORS environment variable, which is convenient on a cluster. Default False.",
+    'strict_errors': "(bool or None) - What happens when a step hits a problem it could technically survive. None (the default) defers to the SPACR_STRICT_ERRORS environment variable, which is how a cluster turns this on for a whole batch without editing every settings file; False and True are explicit per-run choices and override it. When off, the failure is recorded in the run ledger, printed in the end-of-run summary and stamped into the artifact's run_status, and the run continues on the items that worked. When on, a swallowed setup or configuration error - an unreadable path, a missing column, a database that will not open - raises immediately, so a batch job stops at the first sign its inputs are wrong instead of producing a plausible-looking partial result. Per-item failures such as one corrupt image are still survived either way. Default None.",
     'max_failure_rate': "(float or None) - Fraction of failed items above which the run aborts rather than finishing and reporting. 0.2 means 'stop once more than a fifth of the fields have failed', on the grounds that whatever is left is no longer the experiment. The ledger is stamped into the artifact before the abort, so the evidence survives. None (the default) never aborts on rate alone - every failure is still counted and reported, and the artifact is still marked partial. Default None.",
     'queue_by_uncertainty': "(bool) - Reorder the Annotate grid so the crops the classifier is least sure about come first, instead of showing them in database order. Labelling a crop the model already calls correctly with 99% probability teaches it nothing; the ones near the decision boundary are where a human's time actually moves the model. Needs model scores in png_list, so Classify (CV) has to have run - with none present the grid falls back to page order and says so rather than coming up empty. Crops that already carry an annotation are excluded. Default False.",
     'queue_measure': "(str) - How uncertainty is scored for the queue. 'entropy' spreads its attention across every class and is the right default for three or more; 'least_confidence' ranks on how weak the top class is; 'margin' ranks on the gap between the top two. With exactly two classes margin and least_confidence produce the IDENTICAL ranking, including ties - they only diverge at three classes or more. These are uncertainty scores, not calibrated confidences: a softmax is not a probability. Default 'entropy'.",

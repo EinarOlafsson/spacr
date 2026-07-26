@@ -4,7 +4,7 @@ import pandas as pd
 from collections import defaultdict
 from scipy.stats import pearsonr, skew, kurtosis, mode
 import multiprocessing as mp
-from scipy.ndimage import distance_transform_edt, generate_binary_structure, binary_dilation, gaussian_filter, center_of_mass, convolve
+from scipy.ndimage import distance_transform_edt, generate_binary_structure, binary_dilation, binary_erosion, gaussian_filter, center_of_mass, convolve
 from skimage.measure import regionprops, regionprops_table, shannon_entropy
 from skimage.exposure import rescale_intensity
 from skimage.segmentation import find_boundaries
@@ -62,14 +62,31 @@ def _calculate_zernike(mask, df, degree=8):
 
     :param mask: Label mask defining the regions.
     :param df: DataFrame to extend, in the same row order as ``regionprops(mask)``.
-    :param degree: Zernike-moment degree. Default ``8``.
+    :param degree: Zernike-moment degree. Default ``8``. The number of
+        coefficients is set by the degree: 9 for 4, 25 for 8, 49 for 12.
     :returns: ``df`` with ``zernike_i`` columns appended, or unchanged when the
         mask has no regions.
     :raises ValueError: When the Zernike vectors have inconsistent lengths.
     """
     zernike_features = []
     for region in regionprops(mask):
-        zernike_moment = zernike_moments(region.image, degree)
+        # mahotas' signature is zernike_moments(im, radius, degree=8): the
+        # moments are computed on a disk of `radius` centred on the object's
+        # centre of mass, and pixels outside that disk are ignored. Passing
+        # `degree` positionally put the degree into `radius`, so every object
+        # -- 20 px or 2000 px -- was described on a fixed 8 px disk and the
+        # degree was always the default 8. Scaling the radius with the object
+        # is what makes the coefficients comparable across object sizes.
+        coords = np.argwhere(region.image)
+        if coords.size == 0:
+            radius = 1.0
+        else:
+            centre = coords.mean(axis=0)
+            # Max distance from the centre of mass, which is exactly the centre
+            # mahotas uses by default, so the disk covers the whole object.
+            radius = float(np.sqrt(((coords - centre) ** 2).sum(axis=1)).max())
+        radius = max(radius, 1.0)
+        zernike_moment = zernike_moments(region.image, radius, degree=degree)
         zernike_features.append(zernike_moment.tolist())
 
     if zernike_features:
@@ -393,8 +410,15 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_ma
                     outside_intensity_stats = _outside_intensity(label, channel)
                     mask_intensity_df = pd.concat([mask_intensity_df, pd.DataFrame(outside_intensity_stats, columns=[f'outside_{stat}' for stat in col_lables])], axis=1)
 
-            blur_col = [_estimate_blur(channel[label == region_label]) for region_label in mask_intensity_df['label']]
-            mask_intensity_df[f'{ls[j]}_channel_{i}_blur'] = blur_col
+            # Measure focus on the object's 2-D patch, not on the 1-D vector of
+            # its pixels. The column is named 'blur' bare: the loop below adds
+            # the '<object>_channel_<i>_' prefix to every non-label column, and
+            # writing the prefix here too produced
+            # 'cell_channel_0_cell_channel_0_blur' in every database written
+            # before this fix.
+            blur_col = [_estimate_blur(channel, mask=(label == region_label))
+                        for region_label in mask_intensity_df['label']]
+            mask_intensity_df['blur'] = blur_col
 
             mask_intensity_df.columns = [f'{ls[j]}_channel_{i}_{col}' if col != 'label' else col for col in mask_intensity_df.columns]
             df.append(mask_intensity_df)
@@ -421,7 +445,31 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_ma
             organelle_radial_distributions = _calculate_radial_distribution(cell_mask, organelle_mask, channel_arrays, num_bins=6)
             organelle_rad_df = _create_dataframe(organelle_radial_distributions, 'organelle')
             dfs[3].append(organelle_rad_df)
-        
+
+    # The parent-cell link must exist whether or not radial_dist ran. It used
+    # to arrive ONLY as a side effect of _create_dataframe, so with
+    # radial_dist=False the nucleus/pathogen/organelle tables lost cell_id
+    # entirely and _merge_and_save_to_database silently dropped it from the
+    # key columns. Build it from the masks instead, and strip the radial
+    # frame's copy so exactly one frame supplies it (two would collide as
+    # cell_id_x / cell_id_y in the morphology/intensity merge).
+    if settings.get('cell_mask_dim') is not None and np.max(cell_mask) != 0:
+        for idx, child_mask in ((1, nucleus_mask), (2, pathogen_mask), (3, organelle_mask)):
+            if np.max(child_mask) == 0:
+                continue
+            for existing in dfs[idx]:
+                if 'cell_id' in existing.columns:
+                    existing.drop(columns=['cell_id'], inplace=True)
+            parent_link = _map_child_to_parent(child_mask, cell_mask,
+                                               child_name='label',
+                                               parent_name='cell_id')
+            # _map_child_to_parent uses 0 for "no overlapping cell". There is no
+            # cell 0, and the column this replaces was NaN in that case (an
+            # object outside every cell simply had no row in the radial frame),
+            # so keep NaN and keep the column's float dtype.
+            parent_link['cell_id'] = parent_link['cell_id'].astype(float).replace(0.0, np.nan)
+            dfs[idx].append(parent_link.reset_index(drop=True))
+
     if calculate_correlation:
         if channel_arrays.shape[-1] >= 2:
             for i in range(channel_arrays.shape[-1]):
@@ -469,6 +517,23 @@ def _extended_regionprops_table(labels, image, intensity_props):
     props = regionprops_table(labels, image, properties=intensity_props)
     df = pd.DataFrame(props)
 
+    # Reference thresholds for frac_high90 / frac_low10.
+    #
+    # These used to be thresholded on the object's OWN 90th/10th percentile,
+    # which makes them 0.10 for any continuous distribution by construction —
+    # they reported quantisation and ties, not brightness. Thresholding on the
+    # whole field's percentiles instead gives what the names promise: the
+    # fraction of the object that is bright (or dim) relative to this field.
+    # A dim object scores near 0 for frac_high90, a bright one near 1.
+    _field = np.asarray(image, dtype=float).ravel()
+    _field = _field[~np.isnan(_field)]
+    if _field.size:
+        field_p90 = float(np.percentile(_field, 90))
+        field_p10 = float(np.percentile(_field, 10))
+    else:
+        field_p90 = np.nan
+        field_p10 = np.nan
+
     regions = regionprops(labels, intensity_image=image)
     integrated_intensity = []
     std_intensity = []
@@ -507,18 +572,20 @@ def _extended_regionprops_table(labels, image, intensity_props):
             median_intensity.append(np.median(intens))
             skew_intensity.append(skew(intens) if intens.size > 2 else np.nan)
             kurtosis_intensity.append(kurtosis(intens) if intens.size > 3 else np.nan)
-            # Mode (use first mode value if multimodal)
-            try:
-                mode_val = mode(intens, nan_policy='omit').mode
-                mode_intensity.append(mode_val[0] if len(mode_val) > 0 else np.nan)
-            except Exception:
-                mode_intensity.append(np.nan)
+            # Mode (use the smallest mode value if multimodal).
+            # SciPy < 1.11 returned a 1-element array here, SciPy >= 1.11
+            # returns a bare scalar. The old code did `mode_val[0]`, which
+            # raises IndexError on a scalar, and a bare `except` turned that
+            # into NaN — so on the installed SciPy (1.15) mode_intensity was
+            # NaN for every object in every database. atleast_1d handles both.
+            mode_val = np.atleast_1d(np.asarray(mode(intens, nan_policy='omit').mode))
+            mode_intensity.append(float(mode_val[0]) if mode_val.size else np.nan)
             range_intensity.append(np.ptp(intens))
             iqr_intensity.append(np.percentile(intens, 75) - np.percentile(intens, 25))
             cv_intensity.append(np.std(intens) / np.mean(intens) if np.mean(intens) != 0 else np.nan)
             gini_intensity.append(_gini(intens))
-            frac_high90.append(np.mean(intens > np.percentile(intens, 90)))
-            frac_low10.append(np.mean(intens < np.percentile(intens, 10)))
+            frac_high90.append(np.mean(intens > field_p90) if np.isfinite(field_p90) else np.nan)
+            frac_low10.append(np.mean(intens < field_p10) if np.isfinite(field_p10) else np.nan)
             entropy_intensity.append(shannon_entropy(intens) if intens.size > 1 else 0.0)
 
     df['integrated_intensity'] = integrated_intensity
@@ -622,25 +689,47 @@ def _calculate_radial_distribution(cell_mask, object_mask, channel_arrays, num_b
             representing the radial distributions.
 
     """
-    def _calculate_average_intensity(distance_map, single_channel_image, num_bins):
+    def _calculate_average_intensity(distance_map, single_channel_image, num_bins, region_mask):
         """
         Calculate the average intensity of a single-channel image based on the distance map.
 
+        Only pixels inside ``region_mask`` (the cell) are binned. The previous
+        version multiplied the distance map by the cell mask instead, which set
+        every pixel outside the cell to distance 0 and dumped the whole field
+        background into bin 0 — so ``rad_dist_..._bin_0`` measured background,
+        not the innermost shell, and inverted the meaning of the feature.
+
         Args:
-            distance_map (numpy.ndarray): The distance map.
+            distance_map (numpy.ndarray): Distance from the object boundary.
             single_channel_image (numpy.ndarray): The single-channel image.
             num_bins (int): The number of bins for the radial distribution.
+            region_mask (numpy.ndarray): Boolean mask of the parent cell.
 
         Returns:
             numpy.ndarray: The radial distribution of average intensities.
-
+            Bins with no pixels are NaN rather than a meaningless 0.
         """
-        radial_distribution = np.zeros(num_bins)
+        radial_distribution = np.full(num_bins, np.nan)
+        in_region = distance_map[region_mask]
+        if in_region.size == 0:
+            return radial_distribution
+        max_distance = in_region.max()
+        if max_distance <= 0:
+            # Degenerate: the cell is a single shell at distance 0. Everything
+            # belongs to the innermost bin.
+            radial_distribution[0] = single_channel_image[region_mask].mean()
+            return radial_distribution
         for i in range(num_bins):
-            min_distance = i * (distance_map.max() / num_bins)
-            max_distance = (i + 1) * (distance_map.max() / num_bins)
-            bin_mask = (distance_map >= min_distance) & (distance_map < max_distance)
-            radial_distribution[i] = single_channel_image[bin_mask].mean()
+            min_distance = i * (max_distance / num_bins)
+            max_distance_i = (i + 1) * (max_distance / num_bins)
+            bin_mask = region_mask & (distance_map >= min_distance)
+            # The final bin is closed so the farthest pixel is not dropped.
+            if i == num_bins - 1:
+                bin_mask &= (distance_map <= max_distance_i)
+            else:
+                bin_mask &= (distance_map < max_distance_i)
+            if bin_mask.any():
+                radial_distribution[i] = single_channel_image[bin_mask].mean()
         return radial_distribution
 
 
@@ -659,9 +748,12 @@ def _calculate_radial_distribution(cell_mask, object_mask, channel_arrays, num_b
         for object_label in object_labels:
             objecyt_region = object_mask == object_label
             object_boundary = find_boundaries(objecyt_region, mode='outer')
-            distance_map = distance_transform_edt(~object_boundary) * cell_region
+            # NOT multiplied by cell_region: that zeroed the distance of every
+            # pixel outside the cell and put the whole background in bin 0.
+            # The cell is applied as a mask when binning instead.
+            distance_map = distance_transform_edt(~object_boundary)
             for channel_index in range(channel_arrays.shape[2]):
-                radial_distribution = _calculate_average_intensity(distance_map, channel_arrays[:, :, channel_index], num_bins)
+                radial_distribution = _calculate_average_intensity(distance_map, channel_arrays[:, :, channel_index], num_bins, cell_region)
                 object_radial_distributions[(cell_label, object_label, channel_index)] = radial_distribution
 
     return object_radial_distributions
@@ -711,16 +803,60 @@ def _calculate_correlation_object_level(channel_image1, channel_image2, mask, se
 
         return pd.DataFrame(corr_data.values())
 
-def _estimate_blur(image):
+def _estimate_blur(image, mask=None):
     """
-    Estimates the blur of an image by computing the variance of its Laplacian.
+    Estimate focus as the variance of the Laplacian.
 
-    Parameters:
-    image (numpy.ndarray): The input image.
+    Without ``mask`` this is the variance of the Laplacian of the whole array,
+    which is only meaningful for a 2-D image.
 
-    Returns:
-    float: The variance of the Laplacian of the image.
+    With ``mask`` (a boolean array the same shape as ``image`` selecting one
+    object) the Laplacian is computed on the object's 2-D bounding-box patch,
+    grown by one pixel so the 3x3 kernel has real neighbours, and the variance
+    is taken over the object's *interior* — the mask eroded by one pixel with a
+    3x3 structuring element.
+
+    Two deliberate choices make this an actual focus measure:
+
+    * The patch is the RAW image. Out-of-object pixels inside the bounding box
+      are NOT zero-filled. Zero-filling puts a step edge at the object boundary
+      whose second derivative dwarfs the texture being measured, so the score
+      would track the object's perimeter-to-area ratio rather than its focus.
+    * The variance is taken only over the eroded interior, so every sampled
+      Laplacian value is determined solely by in-object pixels. That removes
+      both the artificial edge and any contribution from the neighbouring
+      background, without needing to fabricate values.
+
+    Objects too thin to erode (one pixel wide) fall back to the un-eroded mask;
+    those samples do see their neighbours, but the alternative is no value.
+
+    Callers previously passed ``image[label == region_label]`` — a 1-D vector of
+    the object's pixels in raster order. OpenCV treats that as an N x 1 image,
+    so the result was a second difference along raster order: blind to vertical
+    structure, sensitive to the row wrap-around, and not a focus measure.
+
+    :param image: Intensity image. 2-D when ``mask`` is given.
+    :param mask: Optional boolean object mask, same shape as ``image``.
+    :returns: Variance of the Laplacian; ``nan`` when ``mask`` selects nothing.
     """
+    if mask is not None:
+        mask = np.asarray(mask, dtype=bool)
+        if not mask.any():
+            return np.nan
+        rows = np.flatnonzero(mask.any(axis=1))
+        cols = np.flatnonzero(mask.any(axis=0))
+        r0 = max(int(rows[0]) - 1, 0)
+        r1 = min(int(rows[-1]) + 1, mask.shape[0] - 1)
+        c0 = max(int(cols[0]) - 1, 0)
+        c1 = min(int(cols[-1]) + 1, mask.shape[1] - 1)
+        image = image[r0:r1 + 1, c0:c1 + 1]
+        sub_mask = mask[r0:r1 + 1, c0:c1 + 1]
+        interior = binary_erosion(sub_mask, structure=generate_binary_structure(2, 2))
+        if not interior.any():
+            interior = sub_mask
+    else:
+        interior = None
+
     # cv2.Laplacian with CV_64F requires a float64 source: float32 (and any
     # integer) inputs raise "Unsupported combination of source/destination
     # format", so promote anything that isn't already float64.
@@ -732,7 +868,9 @@ def _estimate_blur(image):
     # Compute the Laplacian of the image
     lap = cv2.Laplacian(image_float, cv2.CV_64F)
     # Compute and return the variance of the Laplacian
-    return lap.var()
+    if interior is None:
+        return lap.var()
+    return float(lap[interior].var())
 
 def _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_arrays, settings):
     """
@@ -810,9 +948,31 @@ def save_and_add_image_to_grid(png_channels, img_path, grid, plot=False):
 
     Returns:
         grid (list): Updated grid with the new image added.
+
+    .. warning::
+
+       **The channel order on disk is the REVERSE of ``settings['png_dims']``.**
+       ``cv2.imwrite`` interprets a 3-channel array as BGR and writes it as RGB,
+       while every consumer in spacr opens these files with PIL, which reads
+       RGB. So ``png_dims=[0, 1, 2]`` stores dim 2 in the PNG's red channel and
+       dim 0 in its blue channel.
+
+       This is NOT fixed here, deliberately. Reversing the write would change
+       the appearance of every crop in every dataset already on disk, and any
+       classifier already trained on these PNGs was trained on this ordering —
+       a silent flip would invalidate those models without any error. The
+       ordering is at least self-consistent: everything spacr writes and reads
+       uses the same convention, so only code that interprets a PNG channel by
+       its ``png_dims`` index (for example "channel 0 is the DAPI stain") is
+       wrong. Reverse ``png_dims`` if you need a specific stored order.
+
+       Crops are also still ``uint16``, so these are 16-bit PNGs, and PIL
+       narrows them two different ways: an RGB PNG comes back as the HIGH BYTE
+       (value // 256), while a single-channel PNG loads as mode ``I;16`` and
+       only CLIPS at 255 when converted to ``L``.
     """
 
-    # Save the image as a PNG
+    # Save the image as a PNG. See the channel-order warning above.
     cv2.imwrite(img_path, png_channels)
 
     if plot:
@@ -1136,11 +1296,24 @@ def _measure_crop_core(index, time_ls, file, settings):
                         img_name, fldr, table_name = _generate_names(file_name=file_name, cell_id = region_cell_ids, cell_nucleus_ids=region_nucleus_ids, cell_pathogen_ids=region_pathogen_ids, source_folder=source_folder, crop_mode=crop_mode, timelapse=settings['timelapse'])
 
                         if dialate_png:
-                            region_area = np.sum(region)
+                            # count_nonzero, not np.sum: when use_bounding_box is
+                            # on, _find_bounding_box fills the box with the LABEL
+                            # VALUE rather than with True, so np.sum gave
+                            # pixels * label and object 100 dilated sqrt(100)=10x
+                            # more than object 1 -- the crop depended on an
+                            # arbitrary label id.
+                            region_area = np.count_nonzero(region)
                             approximate_diameter = np.sqrt(region_area)
-                            dialate_png_px = int(approximate_diameter * dialate_png_ratio) 
-                            struct = generate_binary_structure(2, 2)
-                            region = binary_dilation(region, structure=struct, iterations=dialate_png_px)
+                            dialate_png_px = int(approximate_diameter * dialate_png_ratio)
+                            # scipy reads iterations=0 as "repeat until nothing
+                            # changes", NOT as "do nothing", so a radius that
+                            # rounded down to 0 -- every object under 25 px at the
+                            # default ratio 0.2 -- grew to fill the entire field.
+                            # The crop then became an unmasked window centred on
+                            # the middle of the field instead of on the object.
+                            if dialate_png_px > 0:
+                                struct = generate_binary_structure(2, 2)
+                                region = binary_dilation(region, structure=struct, iterations=dialate_png_px)
 
                         if settings['save_png']:
                             fldr_type = f"{crop_mode}_png/"

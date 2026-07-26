@@ -1757,42 +1757,82 @@ def _find_bounding_box(crop_mask, _id, buffer=10):
 
     return new_mask
     
+#: Tables whose rows are child objects and therefore carry a parent-cell link.
+#: 'organelle' is here because measure._morphological_measurements maps each
+#: organelle to its enclosing cell, exactly as it does for nucleus and pathogen.
+_CHILD_OBJECT_TABLES = ('nucleus', 'pathogen', 'organelle')
+
+#: Tables whose rows are parent objects summarised over their organelles. The
+#: row IS the parent, so object_label is the only key it needs — the same key
+#: set as 'cell'. Written by measure._summarize_organelles_per_parent.
+_ORGANELLE_SUMMARY_TABLES = ('cell_organelle_summary', 'nucleus_organelle_summary',
+                             'pathogen_organelle_summary', 'cytoplasm_organelle_summary')
+
+#: Tables whose rows are top-level objects with no parent link.
+_PARENT_OBJECT_TABLES = ('cell', 'cytoplasm')
+
+
 def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folder, file_name, experiment, timelapse=False):
-        """Merge morphology and intensity DataFrames and append to the measurements SQLite DB."""
+        """Merge morphology and intensity DataFrames and append to the measurements SQLite DB.
+
+        ``intensity_df`` may be empty: the ``*_organelle_summary`` tables are
+        morphology-only rollups and have no intensity frame to merge. Requiring
+        both to be non-empty meant all four summary writes returned silently and
+        no summary table was ever created.
+        """
         morph_df = _check_integrity(morph_df)
         intensity_df = _check_integrity(intensity_df)
-        if len(morph_df) > 0 and len(intensity_df) > 0:
+        if len(morph_df) == 0:
+            return
+        if len(intensity_df) == 0 and table_type not in _ORGANELLE_SUMMARY_TABLES:
+            # An object table with morphology but no intensity means the two
+            # measurement passes disagreed about which objects exist. Silently
+            # writing nothing lost a whole field's worth of objects with no
+            # trace, so say it out loud.
+            print(f"Warning: {table_type} has {len(morph_df)} morphology rows but an "
+                  f"empty intensity frame for {file_name}; nothing written to the "
+                  f"{table_type} table for this field.")
+            return
+        _META = ['plateID', 'rowID', 'columnID', 'fieldID', 'prcf', 'file_name', 'path_name']
+        if table_type in _PARENT_OBJECT_TABLES or table_type in _ORGANELLE_SUMMARY_TABLES:
+            column_list = ['object_label'] + _META
+        elif table_type in _CHILD_OBJECT_TABLES:
+            column_list = ['object_label', 'cell_id'] + _META
+        else:
+            raise ValueError(f"Invalid table_type: {table_type}")
+
+        if len(intensity_df) > 0:
             merged_df = pd.merge(morph_df, intensity_df, on='object_label', how='outer')
-            merged_df = merged_df.rename(columns={"label_list_x": "label_list_morphology", "label_list_y": "label_list_intensity"})
-            merged_df['file_name'] = file_name
-            merged_df['path_name'] = os.path.join(source_folder, file_name + '.npy')
-            if timelapse:
-                merged_df[['plateID', 'rowID', 'columnID', 'fieldID', 'timeID', 'prcf']] = merged_df['file_name'].apply(lambda x: pd.Series(_map_wells(x, timelapse)))
-            else:
-                merged_df[['plateID', 'rowID', 'columnID', 'fieldID', 'prcf']] = merged_df['file_name'].apply(lambda x: pd.Series(_map_wells(x, timelapse)))
-            cols = merged_df.columns.tolist()  # get the list of all columns
-            if table_type == 'cell' or table_type == 'cytoplasm':
-                column_list = ['object_label', 'plateID', 'rowID', 'columnID', 'fieldID', 'prcf', 'file_name', 'path_name']
-            elif table_type == 'nucleus' or table_type == 'pathogen':
-                column_list = ['object_label', 'cell_id', 'plateID', 'rowID', 'columnID', 'fieldID', 'prcf', 'file_name', 'path_name']
-            else:
-                raise ValueError(f"Invalid table_type: {table_type}")
-            # Check if all columns in column_list are in cols
-            missing_columns = [col for col in column_list if col not in cols]
-            if len(missing_columns) == 1 and missing_columns[0] == 'cell_id':
-                missing_columns = False
-                column_list = ['object_label', 'plateID', 'rowID', 'columnID', 'fieldID', 'prcf', 'file_name', 'path_name']
-            if missing_columns:
-                raise ValueError(f"Columns missing in DataFrame: {missing_columns}")
-            for i, col in enumerate(column_list):
-                cols.insert(i, cols.pop(cols.index(col)))
-            merged_df = merged_df[cols]  # rearrange the columns
-            if len(merged_df) > 0:
-                try:
-                    conn = sqlite3.connect(f'{source_folder}/measurements/measurements.db', timeout=5)
-                    merged_df.to_sql(table_type, conn, if_exists='append', index=False)
-                except sqlite3.OperationalError as e:
-                    print("SQLite error:", e)
+        else:
+            merged_df = morph_df.copy()
+        merged_df = merged_df.rename(columns={"label_list_x": "label_list_morphology", "label_list_y": "label_list_intensity"})
+        merged_df['file_name'] = file_name
+        merged_df['path_name'] = os.path.join(source_folder, file_name + '.npy')
+        if timelapse:
+            merged_df[['plateID', 'rowID', 'columnID', 'fieldID', 'timeID', 'prcf']] = merged_df['file_name'].apply(lambda x: pd.Series(_map_wells(x, timelapse)))
+        else:
+            merged_df[['plateID', 'rowID', 'columnID', 'fieldID', 'prcf']] = merged_df['file_name'].apply(lambda x: pd.Series(_map_wells(x, timelapse)))
+        cols = merged_df.columns.tolist()  # get the list of all columns
+        # Check if all columns in column_list are in cols
+        missing_columns = [col for col in column_list if col not in cols]
+        if missing_columns == ['cell_id']:
+            # A child table measured without a cell mask genuinely has no
+            # parent to link to. Since the fix in measure._intensity_measurements
+            # the link no longer depends on radial_dist, so reaching here means
+            # cell_mask_dim was None.
+            column_list = ['object_label'] + _META
+            missing_columns = []
+        if missing_columns:
+            raise ValueError(f"Columns missing in DataFrame: {missing_columns}")
+        for i, col in enumerate(column_list):
+            cols.insert(i, cols.pop(cols.index(col)))
+        merged_df = merged_df[cols]  # rearrange the columns
+        if len(merged_df) > 0:
+            try:
+                conn = sqlite3.connect(f'{source_folder}/measurements/measurements.db', timeout=5)
+                merged_df.to_sql(table_type, conn, if_exists='append', index=False)
+            except sqlite3.OperationalError as e:
+                print("SQLite error:", e)
                     
 def _safe_int_convert(value, default=0):
     """Return ``int(value)`` on success, otherwise ``default``."""

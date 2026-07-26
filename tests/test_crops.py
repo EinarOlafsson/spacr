@@ -93,12 +93,19 @@ def _reference_png_crop(data, object_type, label, *, png_dims=(0, 1, 2),
     if use_bounding_box:
         region = _find_bounding_box(crop_mask, label, buffer=10)
     if dilate:
-        region_area = np.sum(region)
+        # count_nonzero, not sum: _find_bounding_box fills the rectangle with
+        # the LABEL VALUE, so np.sum scaled the "area" by the label id and
+        # object 100 dilated ten times further than object 1.
+        region_area = np.count_nonzero(region)
         approximate_diameter = np.sqrt(region_area)
         dialate_png_px = int(approximate_diameter * dilate_ratio)
-        struct = generate_binary_structure(2, 2)
-        region = binary_dilation(region, structure=struct,
-                                 iterations=dialate_png_px)
+        # A radius of 0 means no dilation. scipy reads iterations=0 as "repeat
+        # until nothing changes", which used to grow the region to the whole
+        # field.
+        if dialate_png_px > 0:
+            struct = generate_binary_structure(2, 2)
+            region = binary_dilation(region, structure=struct,
+                                     iterations=dialate_png_px)
 
     png_channels = data[:, :, list(png_dims)].astype(data_type)
     percentile_list = None
@@ -306,13 +313,15 @@ def test_dilation_matches_png_path(tmp_path):
         assert np.array_equal(got, expected)
 
 
-def test_zero_radius_dilation_reproduces_the_png_paths_fill_the_field_quirk(tmp_path):
-    """A dilation radius that rounds to 0 fills the whole field -- matched, not fixed.
+def test_a_dilation_radius_that_rounds_to_zero_means_no_dilation(tmp_path):
+    """A radius of 0 must leave the object alone, not swallow the field.
 
-    scipy reads ``iterations=0`` as "dilate until nothing changes", so the PNG
-    path silently turns tiny objects into an unmasked window centred on the
-    middle of the field. Reproducing it is what keeps the two sources
-    comparable.
+    scipy reads ``iterations=0`` as "dilate until nothing changes", so both the
+    PNG path and this one used to turn every object under about 25 px -- which
+    on a Toxoplasma screen means the parasites -- into an unmasked window
+    centred on the middle of the field. It looked like a real crop. Both
+    sources guard the radius now, so a tiny object crops exactly as it would
+    with dilation switched off.
     """
     data = _make_field(seed=29, objects=[(1, 40, 43, 40, 43)])
     path = _write_field(tmp_path, data)
@@ -321,13 +330,11 @@ def test_zero_radius_dilation_reproduces_the_png_paths_fill_the_field_quirk(tmp_
     got = extract_crop(path, "cell", 1, channels=(0, 1, 2), size=(32, 32),
                        mask_dims=MASK_DIMS, dilate=True, dilate_ratio=0.2)
     assert np.array_equal(got, expected)
-    # Nothing was masked out: the window is background, not an isolated object.
-    # (Only the pixel that lands on the 0th percentile normalises to zero.)
-    assert (got > 0).mean() > 0.99
+    # The object is isolated, not a window on the background.
+    assert (got > 0).mean() < 0.05
     masked = extract_crop(path, "cell", 1, channels=(0, 1, 2), size=(32, 32),
                           mask_dims=MASK_DIMS, dilate=False)
-    assert (masked > 0).mean() < 0.05
-    assert not np.array_equal(got, masked)
+    assert np.array_equal(got, masked)
 
 
 def test_cytoplasm_plane_is_derived_from_cell_minus_children(tmp_path):

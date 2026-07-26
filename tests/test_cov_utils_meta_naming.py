@@ -761,9 +761,9 @@ def test_merge_and_save_to_database_rejects_unknown_table_type(tmp_path):
     (src / "measurements").mkdir(parents=True)
     morph, intensity = _morph_intensity_frames()
 
-    with pytest.raises(ValueError, match="Invalid table_type: organelle"):
+    with pytest.raises(ValueError, match="Invalid table_type: mitochondrion"):
         _merge_and_save_to_database(
-            morph, intensity, "organelle", str(src), "plate1_B03_2", "exp1"
+            morph, intensity, "mitochondrion", str(src), "plate1_B03_2", "exp1"
         )
 
 
