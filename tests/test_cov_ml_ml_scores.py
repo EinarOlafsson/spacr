@@ -275,12 +275,6 @@ def test_generate_ml_scores_unknown_heatmap_feature_raises(tmp_path, rng):
         generate_ml_scores(_ml_settings(src, heatmap_feature="not_a_feature"))
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: ml.py:1943 reads `if f'pathogen_..._mean_intensity' and "
-    "f'cytoplasm_..._mean_intensity' in df.columns` -- the first operand is a "
-    "non-empty literal, so it is always truthy and only the cytoplasm column "
-    "is membership-tested. A DB whose pathogen table lacks the channel mean "
-    "intensity therefore dies with KeyError instead of skipping recruitment."))
 def test_generate_ml_scores_survives_missing_pathogen_channel_column(tmp_path, rng):
     """recruitment must be skipped (not crash) when the pathogen intensity
     column is absent while the cytoplasm one is present."""

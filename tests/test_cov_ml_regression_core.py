@@ -372,12 +372,6 @@ def test_regression_random_row_column_effects_fits_mixed_model(tmp_path):
     assert sorted(p.name for p in tmp_path.iterdir()) == ["residuals_histogram.pdf"]
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: regression() calls volcano_plot(coef_df, volcano_path) positionally, "
-           "but plot.volcano_plot is keyword-only and requires fold_change_col / "
-           "p_value_col, so plot=True always raises TypeError",
-)
 def test_regression_plot_true_writes_volcano_pdf(tmp_path):
     from spacr.ml import regression
 
@@ -390,12 +384,6 @@ def test_regression_plot_true_writes_volcano_pdf(tmp_path):
     assert (tmp_path / "ols_scores_volcano_plot.pdf").stat().st_size > 0
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: check_and_clean_data drops 'cell_count', so the cell-count "
-           "var_weights that regression() means to hand to the GLM-binomial fit "
-           "are always None",
-)
 def test_regression_passes_cell_count_weights_to_logit(tmp_path, monkeypatch):
     from spacr import ml as ML
 
@@ -447,4 +435,13 @@ def test_save_summary_to_file_writes_model_summary(tmp_path):
     text = out.read_text()
     assert "OLS Regression Results" in text
     assert "R-squared" in text
-    assert text == model.summary().as_text()
+
+    # statsmodels stamps a second-resolution "Date:"/"Time:" row into every
+    # summary, so comparing the whole text against a freshly rendered one is a
+    # race with the wall clock: it fails whenever a second ticks between
+    # save_summary_to_file's render and this one. Compare the rest.
+    def _stable(summary_text):
+        return [line for line in summary_text.splitlines()
+                if not line.lstrip().startswith(("Date:", "Time:"))]
+
+    assert _stable(text) == _stable(model.summary().as_text())

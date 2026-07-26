@@ -2060,7 +2060,11 @@ def annotate_conditions(df, cells=None, cell_loc=None, pathogens=None, pathogen_
         elif values is not None and loc is not None:
             # Perform location-based mapping
             value_dict = {val: key for key, loc_list in zip(values, loc) for val in loc_list}
-            df[column_name] = np.nan  # Start with NaN
+            # Start with NaN, but in an object column: the labels written below
+            # are strings, and `df[column_name] = np.nan` produced a float64
+            # column, so every .loc assignment was an incompatible-dtype set.
+            # pandas 2.x warns and silently upcasts; pandas 3.0 raises.
+            df[column_name] = pd.Series(np.nan, index=df.index, dtype=object)
             for val, key in value_dict.items():
                 loc_type = _get_type(val)
                 if loc_type:
@@ -2071,11 +2075,15 @@ def annotate_conditions(df, cells=None, cell_loc=None, pathogens=None, pathogen_
     _map_or_default('pathogen', pathogens, pathogen_loc, df)
     _map_or_default('treatment', treatments, treatment_loc, df)
 
-    # Conditionally fill NaN for pathogen and treatment columns if applicable
+    # Normalise any None left by the mapping above to np.nan, so the
+    # pd.notna() filter that builds 'condition' treats both the same.
+    # Plain reassignment, not chained inplace: under pandas copy-on-write
+    # (the 3.0 default) df[col].fillna(..., inplace=True) mutates a temporary
+    # and is a silent no-op.
     if pathogens is not None:
-        df['pathogen'].fillna(np.nan, inplace=True)
+        df['pathogen'] = df['pathogen'].where(df['pathogen'].notna(), np.nan)
     if treatments is not None:
-        df['treatment'].fillna(np.nan, inplace=True)
+        df['treatment'] = df['treatment'].where(df['treatment'].notna(), np.nan)
 
     # Create the 'condition' column by excluding any NaN values, safely checking if 'host_cells', 'pathogen', and 'treatment' exist
     df['condition'] = df.apply(

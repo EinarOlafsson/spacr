@@ -247,6 +247,44 @@ def test_clean_controls_removes_each_listed_value(capsys):
     assert "Removed data from c" in printed
 
 
+def test_clean_controls_none_column_is_a_no_op():
+    """column=None means 'do not filter'; perform_regression passes
+    settings['filter_column'] straight through and None is a legal value."""
+    from spacr.ml import clean_controls
+
+    df = pd.DataFrame({"grp": ["a", "b", "c"], "v": [1, 2, 3]})
+    out = clean_controls(df, ["a"], None)
+
+    pd.testing.assert_frame_equal(out, df)
+
+
+def test_clean_controls_accepts_a_list_of_columns():
+    """process_reads documents a list of filter columns, so the well-level
+    control filter has to accept the same shape rather than raising
+    'unhashable type: list' on the membership test."""
+    from spacr.ml import clean_controls
+
+    df = pd.DataFrame({
+        "rowID": ["r1", "r2", "r3", "r4"],
+        "columnID": ["c1", "c2", "c3", "c4"],
+        "v": [1, 2, 3, 4],
+    })
+    out = clean_controls(df, ["r1", "c3"], ["rowID", "columnID"])
+
+    # r1 dropped via rowID, c3 dropped via columnID.
+    assert list(out["v"]) == [2, 4]
+
+
+def test_clean_controls_list_skips_columns_the_frame_lacks():
+    """Unknown names in the column list are ignored, not an error."""
+    from spacr.ml import clean_controls
+
+    df = pd.DataFrame({"grp": ["a", "b"], "v": [1, 2]})
+    out = clean_controls(df, ["a"], ["grp", "not_a_column"])
+
+    assert list(out["grp"]) == ["b"]
+
+
 # ---------------------------------------------------------------------------
 # process_scores — the non-prcfo metadata branch
 # ---------------------------------------------------------------------------
