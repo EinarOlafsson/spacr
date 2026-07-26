@@ -70,12 +70,14 @@ def bootstrap():
     # preferences at a temp directory mid-session, which is how this file
     # took the whole tests/qt suite down with a segfault. Only isolate when
     # this really is our own standalone process.
+    global _WE_OWN_THE_APP
     app = QApplication.instance()
     if app is None:
         QSettings.setDefaultFormat(QSettings.IniFormat)
         QSettings.setPath(QSettings.IniFormat, QSettings.UserScope,
                           tempfile.mkdtemp(prefix="spacr-home-variants-"))
         app = QApplication(sys.argv[:1])
+        _WE_OWN_THE_APP = True
     _load_fonts()
     return app
 
@@ -149,6 +151,11 @@ _ICON_CACHE: Dict[Tuple[str, str], object] = {}
 _PIXMAP_CACHE: Dict[Tuple[str, str, int], object] = {}
 _LOGO_CACHE: Dict[Tuple[str, int], object] = {}
 
+#: True only when :func:`bootstrap` created the QApplication itself. When we
+#: are a guest inside someone else's (pytest-qt), application-wide restyling
+#: is off limits -- see :meth:`Ctx.apply_theme`.
+_WE_OWN_THE_APP = False
+
 
 class Ctx:
     """Per-theme rendering context: palette, stylesheet, icon cache."""
@@ -159,13 +166,38 @@ class Ctx:
         self.theme = theme
         self.P = palette_for(theme)
 
-    def apply_theme(self) -> None:
-        """Push this theme's QPalette + QSS onto the QApplication."""
-        from spacr.qt.theme import apply_qpalette, stylesheet
+    def qss(self) -> str:
+        """This theme's stylesheet.
+
+        background=None: the Space theme degrades to its gradient sky rather
+        than depending on a cached generated image.
+        """
+        from spacr.qt.theme import stylesheet
+        return stylesheet(self.theme, 1.0, background=None)
+
+    def apply_theme(self, target=None) -> None:
+        """Apply this theme, to ``target`` if given, else the application.
+
+        QApplication.setStyleSheet re-polishes EVERY top-level widget. Inside
+        pytest-qt the application is shared, so widgets belonging to other
+        tests -- including ones mid-teardown whose C++ side is already gone --
+        get re-polished, and the process SEGFAULTS. That is what took the
+        tests/qt suite down here, and it is the same trap the theme work hit
+        with QApplication.topLevelWidgets().
+
+        A stylesheet set on a widget cascades to its children, so styling the
+        root being rendered is equivalent for our purposes and touches nothing
+        else. The application-wide path is used only when bootstrap() created
+        the application, i.e. in the standalone generator.
+        """
+        from spacr.qt.theme import apply_qpalette
+        if not _WE_OWN_THE_APP:
+            # Guest inside someone else's QApplication: never touch it.
+            if target is not None:
+                target.setStyleSheet(self.qss())
+            return
         apply_qpalette(self.app, self.theme)
-        # background=None: the Space theme degrades to its gradient sky
-        # rather than depending on a cached generated image.
-        self.app.setStyleSheet(stylesheet(self.theme, 1.0, background=None))
+        self.app.setStyleSheet(self.qss())
 
     def icon(self, key: str):
         """A themed :class:`QIcon` for an app key (same rules as the app)."""
