@@ -1836,8 +1836,11 @@ def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folde
 
 #: How many times a locked measurements.db write is retried before it fails.
 DB_WRITE_ATTEMPTS = 5
-#: Seconds a single connect() waits for the lock, per attempt.
-DB_WRITE_TIMEOUT = 30.0
+#: Seconds a single connect() waits for the lock, per attempt. Kept at the
+#: original 5 s: the retry loop, not a long single wait, is what survives
+#: contention, and a long one makes every deliberately-locked-database test
+#: pay for it. Raising it to 30 s made the whole suite time out.
+DB_WRITE_TIMEOUT = 5.0
 
 
 def _widen_table_for(conn, table, frame):
@@ -1904,23 +1907,31 @@ def _append_to_measurements_db(db_path, table, frame, required=True):
         conn = None
         try:
             conn = sqlite3.connect(db_path, timeout=DB_WRITE_TIMEOUT)
-            added = _widen_table_for(conn, table, frame)
-            if added:
-                print(f"measurements.db: added {len(added)} new column(s) to "
-                      f"{table} for this field ({', '.join(added[:6])}"
-                      f"{' ...' if len(added) > 6 else ''}); earlier rows are "
-                      f"NULL there")
-            frame.to_sql(table, conn, if_exists='append', index=False)
-            return
+            try:
+                frame.to_sql(table, conn, if_exists='append', index=False)
+                return
+            except sqlite3.OperationalError as e:
+                # Widen ONLY when the append actually complains about a
+                # column. Probing PRAGMA table_info on every write cost a
+                # round trip per field per table and is pure waste on the
+                # overwhelmingly common path where the schema already matches.
+                if 'has no column named' not in str(e):
+                    raise
+                added = _widen_table_for(conn, table, frame)
+                if added:
+                    print(f"measurements.db: added {len(added)} column(s) to "
+                          f"{table} for this field ("
+                          f"{', '.join(added[:6])}"
+                          f"{' ...' if len(added) > 6 else ''}); rows written "
+                          f"earlier are NULL there")
+                frame.to_sql(table, conn, if_exists='append', index=False)
+                return
         except sqlite3.OperationalError as e:
             if 'locked' not in str(e).lower():
-                # Not contention — an unopenable path, a read-only file. That
+                # Not contention - an unopenable path, a read-only file. That
                 # is a setup problem, and the pre-existing contract is to
                 # report it and let the run continue; spacr.errors decides
-                # whether a run that lost a table is complete. The two cases
-                # that used to LOSE DATA here are both handled above: lock
-                # contention is retried, and a differing column set widens the
-                # table rather than refusing the frame.
+                # whether a run that lost a table is complete.
                 print(f"SQLite error writing {table}: {e}")
                 return
             if attempt == DB_WRITE_ATTEMPTS:
@@ -1936,7 +1947,6 @@ def _append_to_measurements_db(db_path, table, frame, required=True):
         finally:
             if conn is not None:
                 conn.close()
-
 
 def _safe_int_convert(value, default=0):
     """Return ``int(value)`` on success, otherwise ``default``."""
