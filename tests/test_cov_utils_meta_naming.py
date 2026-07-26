@@ -801,7 +801,10 @@ def test_merge_and_save_to_database_reports_sqlite_error(tmp_path, capsys):
         morph, intensity, "cell", str(src), "plate1_B03_2", "exp1"
     )
 
-    assert "SQLite error:" in capsys.readouterr().out
+    # The message now names the table it failed to write, because a run that
+    # loses one table and keeps the others needs to say which.
+    out = capsys.readouterr().out
+    assert "SQLite error" in out and "cell" in out
     assert not (src / "measurements").exists()
 
 

@@ -854,13 +854,14 @@ def filepaths_to_database(img_paths, settings, source_folder, crop_mode):
 
     png_df[columns] = parts
 
-    try:
-        conn = sqlite3.connect(f'{source_folder}/measurements/measurements.db', timeout=5)
-        png_df.to_sql('png_list', conn, if_exists='append', index=False)
-        conn.commit()
-    except sqlite3.OperationalError as e:
-        print(f"SQLite error: {e}", flush=True)
-        traceback.print_exc()
+    # Same per-field write as the measurement tables, so it gets the same
+    # treatment: a locked database is retried rather than dropping this
+    # field's crop rows, and a differing column set widens the table instead
+    # of refusing the whole frame. Both used to be swallowed by a print.
+    _append_to_measurements_db(
+        f'{source_folder}/measurements/measurements.db', 'png_list', png_df,
+        required=False)
+
 
 def activation_maps_to_database(img_paths, source_folder, settings):
     """Insert activation-map PNG paths and parsed well IDs into the dataset DB.
@@ -1828,12 +1829,115 @@ def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folde
             cols.insert(i, cols.pop(cols.index(col)))
         merged_df = merged_df[cols]  # rearrange the columns
         if len(merged_df) > 0:
-            try:
-                conn = sqlite3.connect(f'{source_folder}/measurements/measurements.db', timeout=5)
-                merged_df.to_sql(table_type, conn, if_exists='append', index=False)
-            except sqlite3.OperationalError as e:
-                print("SQLite error:", e)
-                    
+            _append_to_measurements_db(
+                f'{source_folder}/measurements/measurements.db',
+                table_type, merged_df)
+
+
+#: How many times a locked measurements.db write is retried before it fails.
+DB_WRITE_ATTEMPTS = 5
+#: Seconds a single connect() waits for the lock, per attempt.
+DB_WRITE_TIMEOUT = 30.0
+
+
+def _widen_table_for(conn, table, frame):
+    """Add any column ``frame`` has and ``table`` lacks, as NULL for old rows.
+
+    Measurement frames legitimately differ field to field — a field with no
+    pathogen objects produces no pathogen columns, and ``radial_dist`` off
+    removes a whole block. ``to_sql(if_exists='append')`` refuses the whole
+    frame in that case with "table X has no column named Y".
+
+    :param conn: open sqlite3 connection.
+    :param table: destination table.
+    :param frame: the rows about to be appended.
+    :returns: the list of column names added.
+    """
+    have = {row[1] for row in conn.execute(f'PRAGMA table_info("{table}")')}
+    if not have:                      # table does not exist yet; to_sql creates it
+        return []
+    added = []
+    for col in frame.columns:
+        if col in have:
+            continue
+        conn.execute(f'ALTER TABLE "{table}" ADD COLUMN "{col}"')
+        added.append(col)
+    if added:
+        conn.commit()
+    return added
+
+
+def _append_to_measurements_db(db_path, table, frame, required=True):
+    """Append ``frame`` to ``table``, surviving a lock and a widened schema.
+
+    This used to be a bare ``except sqlite3.OperationalError: print(...)``,
+    which hid two different data-loss bugs behind one printed line.
+
+    **A locked database dropped the field's rows.** measure_crop writes one
+    field per worker into a single SQLite file, so contention is normal and
+    transient — but the rows were discarded while the worker still returned
+    success and the run reported complete. It reproduced about one run in
+    twelve on a four-field synthetic set. Now the write is retried with
+    backoff, and if it still cannot land the error propagates so the caller's
+    RunLedger records the field as failed and stamps the artifact partial.
+
+    **A differing column set dropped the field's rows too.** Measurement
+    frames legitimately vary between fields, and ``to_sql`` refuses the entire
+    frame when the table lacks one of its columns. The table is widened
+    instead, which keeps the rows; columns the frame lacks are simply NULL.
+
+    The connection is closed on every path — leaving it open held the lock
+    longer and made the contention worse.
+
+    :param db_path: path to measurements.db.
+    :param table: destination table name.
+    :param frame: rows to append.
+    :param required: True when losing this table should fail the whole field.
+        False for side tables such as ``png_list``: a lock there costs the crop
+        index, and aborting the field over it would throw away the
+        measurements as well, which are the artifact that matters. Measured -
+        raising on png_list took the failure rate from 3 in 20 to 8 in 20.
+    :raises sqlite3.OperationalError: when every attempt fails and ``required``.
+    """
+    delay = 0.2
+    for attempt in range(1, DB_WRITE_ATTEMPTS + 1):
+        conn = None
+        try:
+            conn = sqlite3.connect(db_path, timeout=DB_WRITE_TIMEOUT)
+            added = _widen_table_for(conn, table, frame)
+            if added:
+                print(f"measurements.db: added {len(added)} new column(s) to "
+                      f"{table} for this field ({', '.join(added[:6])}"
+                      f"{' ...' if len(added) > 6 else ''}); earlier rows are "
+                      f"NULL there")
+            frame.to_sql(table, conn, if_exists='append', index=False)
+            return
+        except sqlite3.OperationalError as e:
+            if 'locked' not in str(e).lower():
+                # Not contention — an unopenable path, a read-only file. That
+                # is a setup problem, and the pre-existing contract is to
+                # report it and let the run continue; spacr.errors decides
+                # whether a run that lost a table is complete. The two cases
+                # that used to LOSE DATA here are both handled above: lock
+                # contention is retried, and a differing column set widens the
+                # table rather than refusing the frame.
+                print(f"SQLite error writing {table}: {e}")
+                return
+            if attempt == DB_WRITE_ATTEMPTS:
+                if required:
+                    raise
+                print(f"giving up writing {table} after "
+                      f"{DB_WRITE_ATTEMPTS} attempts: {e}")
+                return
+            print(f"measurements.db busy writing {table} "
+                  f"(attempt {attempt}/{DB_WRITE_ATTEMPTS}): {e}; retrying")
+            time.sleep(delay)
+            delay *= 2
+        finally:
+            if conn is not None:
+                conn.close()
+
+
 def _safe_int_convert(value, default=0):
     """Return ``int(value)`` on success, otherwise ``default``."""
     try:
