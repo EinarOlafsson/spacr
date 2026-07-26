@@ -135,6 +135,8 @@ class AgreementScreen(QWidget):
     database_opened = Signal(str)
     #: emitted after every compute job settles (ok or not)
     job_finished = Signal(bool)
+    #: internal relay that hops a worker completion back onto the GUI thread
+    _job_settled = Signal(bool)
 
     def __init__(self, parent=None, threaded: bool = True):
         super().__init__(parent)
@@ -148,9 +150,11 @@ class AgreementScreen(QWidget):
         # collected while still running takes the process down with it.
         # Same idiom as DbBrowserScreen._jobs.
         self._jobs: List[tuple] = []
+        self._pending: List[tuple] = []
         self._thread = None
         self._worker = None
         self.last_error: str = ""
+        self._job_settled.connect(self._on_job_settled)
 
         self._build_ui()
         self._set_status(
@@ -746,6 +750,15 @@ class AgreementScreen(QWidget):
         Mirrors ``DbBrowserScreen._run_job``: one threading idiom for the
         whole Qt layer, and ``threaded=False`` runs inline while firing
         the same signals so both paths behave identically from outside.
+
+        One detail this cannot copy from the Database Browser.
+        ``PipelineWorker.finished`` is emitted *in the worker thread*, and
+        PySide6 hands a plain closure connected to it a direct call — so
+        the completion handler, and every widget it touches, would run off
+        the GUI thread. It is chained through :attr:`_job_settled` into a
+        *bound method* of this widget instead. The widget lives on the GUI
+        thread, so Qt queues the call and the handler runs where every
+        other widget call runs.
         """
         if not self._threaded:
             ok = True
@@ -766,25 +779,28 @@ class AgreementScreen(QWidget):
         thread, worker = make_thread(_job, box)
         self._jobs.append((thread, worker))
         self._thread, self._worker = thread, worker
+        self._pending.append((box, on_done))
         worker.error.connect(self._on_worker_error_text)
-
-        def _finished(ok: bool) -> None:
-            self._busy = False
-            if ok:
-                try:
-                    on_done(box.get("result"))
-                except Exception as e:
-                    self._on_job_error(e)
-                    ok = False
-            self._update_controls()
-            self.job_finished.emit(ok)
-
-        worker.finished.connect(_finished)
+        worker.finished.connect(self._job_settled)
         thread.finished.connect(lambda t=thread: self._retire_job(t))
         self._busy = True
         self._update_controls()
         thread.start()
         return True
+
+    def _on_job_settled(self, ok: bool) -> None:
+        """Finish the oldest in-flight job. Always on the GUI thread."""
+        self._busy = False
+        box, on_done = self._pending.pop(0) if self._pending else ({}, None)
+        ok = bool(ok)
+        if ok and on_done is not None:
+            try:
+                on_done(box.get("result"))
+            except Exception as e:
+                self._on_job_error(e)
+                ok = False
+        self._update_controls()
+        self.job_finished.emit(ok)
 
     def _retire_job(self, thread) -> None:
         """Release *this* job's refs once its own event loop has exited."""
