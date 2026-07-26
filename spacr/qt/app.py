@@ -21,7 +21,6 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPushButton,
     QScrollArea,
-    QSplitter,
     QStackedWidget,
     QStatusBar,
     QVBoxLayout,
@@ -109,11 +108,17 @@ class _PipelinePreloader:
 # with a name that means something, not a longer row. Sections with only
 # one or two entries aren't worth a heading either (the same finding as
 # the settings-category audit), so fold those into a neighbour instead.
-SECTION_CORE = "Core pipeline"
-SECTION_DATA = "Data & batch runs"
+#
+# The names are as short as they can be and still mean something: they
+# are now TAB LABELS on Home, where five long names would not fit on one
+# line, and a tab that has to elide is a tab nobody can read. "Core
+# pipeline", "Data & batch runs" and "Toxoplasma assays" lost their
+# qualifiers; the other two are already short.
+SECTION_CORE = "Core"
+SECTION_DATA = "Data"
 SECTION_MODELS = "Segmentation models"
 SECTION_RESULTS = "Results & QC"
-SECTION_TOXO = "Toxoplasma assays"
+SECTION_TOXO = "Toxoplasma"
 
 #: Section render order — the home page and the sidebar follow APPS order,
 #: which follows this.
@@ -172,6 +177,7 @@ APPS = [
     ("analyze_plaques", "Plaque Assay",  "Analyze plaque assay data",                                   SECTION_TOXO),
     ("recruitment",    "Recruitment",    "Analyze recruitment data",                                    SECTION_TOXO),
     ("invasion",       "Invasion Assay", "Two-colour outside/inside stain: attached vs invaded parasites, invasion efficiency per well", SECTION_TOXO),
+    ("replication",    "Replication Assay", "Endodyogeny: parasites per vacuole, scored into replication rate per condition", SECTION_TOXO),
 ]
 
 
@@ -180,7 +186,6 @@ APPS = [
 # renaming resource files.
 _ICON_OVERRIDES = {
     "analyze_plaques": "plaque.png",
-    "queue":           "sequencing.png",   # closest visual match for now
     "train_cellpose":  "cellpose_masks.png",  # share the Cellpose Masks icon
     "timelapse":       "run.png",          # convert.png now belongs to Format Converter
     "motility":        "recruitment.png",  # closest "things moving" glyph
@@ -189,16 +194,37 @@ _ICON_OVERRIDES = {
                                            # scores annotation columns
     "plate_view":      "map_barcodes.png", # ruled bars read as a well grid
     "train_compare":   "classify.png",     # it compares Classify (CV) runs
-    "model_compare":   "cellpose_all.png", # a grid of Cellpose masks reads
-                                           # as "the same fields, twice"
+    "model_compare":   "mask.png",         # mask.png is one field split down
+                                           # the middle -- raw objects on one
+                                           # side, contours on the other. That
+                                           # IS Model Compare: the same field,
+                                           # segmented two ways, side by side.
+                                           # (It used to borrow cellpose_all,
+                                           # which is now drawn as a whole
+                                           # BATCH of frames and so reads as
+                                           # "segment the lot", not "compare".)
     "model_zoo":       "download.png",     # the zoo is where models come from
-    "batch":           "sequencing.png",   # a stacked queue of runs
-    "align":           "cellpose_all.png", # a grid of fields reads as a mosaic
+    # queue.png / batch.png / invasion.png / replication.png are drawn for
+    # these apps and named after them, so they need no override. They used
+    # to: `queue` and `batch` BOTH aliased sequencing.png (a DNA helix,
+    # "the closest visual match for now"), which made two different apps
+    # render identically as a picture of neither. The new pair carries the
+    # distinction that matters -- queue is the same settings over many
+    # plates, batch is arbitrary module+plate combinations in sequence.
 }
 
 # Keys that render their qtawesome glyph instead of a bundled PNG.
-# No bundled PNG reads as "inside vs outside", so the glyph is better.
-_FORCE_GLYPH = {"invasion"}
+#
+# * ``align`` — no bundled PNG reads as "tiles registered into ONE canvas".
+#   It borrowed cellpose_all until that artwork was redrawn as a batch of
+#   frames with the front one segmented, which says "segment the whole
+#   dataset", not "stitch a mosaic". ``fa5s.border-all`` is a single square
+#   divided into four by its own seams — one canvas made of tiles, which is
+#   exactly what Align & Stitch produces.
+#
+# ``invasion`` used to be here for the same reason ("no bundled PNG reads
+# as inside vs outside") — it now has artwork that does exactly that.
+_FORCE_GLYPH = {"align"}
 
 
 def _icon_for_app(key: str) -> Optional[QIcon]:
@@ -323,7 +349,12 @@ class Sidebar(QWidget):
             ``navKey`` Qt property so callers (and tests) can tell app
             rows apart from the Home row without parsing labels.
         """
-        btn = ElidingPushButton(f"  {name}")
+        # "&&" so Qt draws the ampersand instead of eating it as a
+        # mnemonic: "Align & Stitch" was rendering as "Align _Stitch" in
+        # the nav column (QPushButton reads a lone & as an accelerator;
+        # the Home tiles are unaffected because they draw their name in
+        # a QLabel, which does not).
+        btn = ElidingPushButton(f"  {name.replace('&', '&&')}")
         btn.setObjectName("SidebarItem")
         btn.setProperty("navKey", nav_key)
         btn.setCursor(Qt.PointingHandCursor)
@@ -371,24 +402,29 @@ class MainWindow(QMainWindow):
 
         self._build_menu_bar()
 
-        # Central layout: sidebar | content
-        splitter = QSplitter(Qt.Horizontal)
-        splitter.setChildrenCollapsible(False)
+        # Central layout: the screen stack fills the window, and the app
+        # list is a REVEAL over its left edge rather than a permanent
+        # column.
+        #
+        # The column was 220-320 px of the 1440 a laptop has, on every
+        # screen, holding a list most sessions never touch — and it is
+        # the reason Home could not fit its five categories plus a state
+        # column without scrolling. As a drawer it costs 6 px of trigger
+        # strip and is one hover, one click, or Ctrl+B away.
+        #
+        # `self._sidebar` is the SAME `Sidebar` object it always was, only
+        # reparented: the tutorial highlights it, the command palette and
+        # the tests all reach it by that name.
+        self._stack = QStackedWidget()
+        self.setCentralWidget(self._stack)
 
         self._sidebar = Sidebar()
         self._sidebar.nav_selected.connect(self._on_nav_selected)
-        splitter.addWidget(self._sidebar)
+        self._sidebar.nav_selected.connect(self._on_drawer_navigated)
 
-        self._stack = QStackedWidget()
-        splitter.addWidget(self._stack)
-
-        splitter.setStretchFactor(0, 0)
-        splitter.setStretchFactor(1, 1)
-        # Ask the sidebar how wide it needs to be rather than hard-coding
-        # 220: it sizes itself to the longest app name and to the user's
-        # font scale, and a stale literal here would squeeze it.
-        splitter.setSizes([self._sidebar.width(), 980])
-        self.setCentralWidget(splitter)
+        from .widgets.drawer import EdgeDrawer
+        self._app_drawer = EdgeDrawer(self._stack, self._sidebar,
+                                      width=self._sidebar.width())
 
         # Register screens lazily — created on first navigation.
         self._screens: dict[str, QWidget] = {}
@@ -466,6 +502,17 @@ class MainWindow(QMainWindow):
         act_home.setShortcut(QKeySequence("Ctrl+H"))
         act_home.triggered.connect(lambda: self._on_nav_selected("__home__"))
         app_menu.addAction(act_home)
+        # The keyboard + menu route into the edge reveal. A panel you can
+        # only summon by hovering a 6 px strip is a panel a keyboard user
+        # does not have, so this is not optional decoration.
+        act_all = QAction("All apps", self)
+        act_all.setShortcut(QKeySequence("Ctrl+B"))
+        act_all.setStatusTip(
+            "Show the full app list. Also revealed by moving the pointer "
+            "to the left edge of the window.")
+        act_all.triggered.connect(self.toggle_app_drawer)
+        app_menu.addAction(act_all)
+        self.addAction(act_all)
         app_menu.addSeparator()
         act_prefs = QAction("Preferences…", self)
         act_prefs.setShortcut(QKeySequence("Ctrl+,"))
@@ -809,6 +856,13 @@ class MainWindow(QMainWindow):
         self._install_startup_page()
         if old is not None:
             self._stack.removeWidget(old)
+            # close() before deleteLater() so the outgoing page drops its
+            # subscription to the run registry now, rather than staying a
+            # live receiver until the deferred delete is flushed.
+            try:
+                old.close()
+            except Exception:
+                pass
             old.deleteLater()
         if was_current:
             self._stack.setCurrentWidget(self._startup)
@@ -888,17 +942,54 @@ class MainWindow(QMainWindow):
                 pass          # already deleted — nothing left to wait for
         super().closeEvent(event)
 
+    # -- the app-list drawer ----------------------------------------------
+    def toggle_app_drawer(self) -> None:
+        """Open (and focus) or close the slide-in app list.
+
+        The keyboard and menu path into the reveal, so the panel is not
+        hover-only. Note what the drawer is *for* now that Home's first
+        tab lists every app: it is not Home's app list, it is the app
+        list on **every other screen** — the replacement for the
+        permanent 220 px column. From inside Mask, this is the only
+        pointer-driven way to reach Measure without going Home first.
+        """
+        drawer = getattr(self, "_app_drawer", None)
+        if drawer is not None:
+            drawer.toggle()
+
+    def _on_drawer_navigated(self, _key: str) -> None:
+        """A row in the drawer was clicked — it has done its job, close it."""
+        drawer = getattr(self, "_app_drawer", None)
+        if drawer is not None:
+            drawer.close()
+
     # -- navigation -------------------------------------------------------
     def _install_startup_page(self):
-        """Instantiate the Home startup page and add it to the stack."""
-        from .screens.startup import StartupPage
-        self._startup = StartupPage(APPS, _icon_for_app)
+        """Instantiate the Home page and add it to the stack."""
+        from .widgets.home import HomePage
+        self._startup = HomePage(APPS, _icon_for_app)
         self._startup.tile_clicked.connect(self._on_nav_selected)
+        self._startup.update_check_requested.connect(self._check_for_updates)
+        # The hero's "All apps" button is the labelled twin of the edge
+        # reveal — a discoverable way in for anyone who never finds the
+        # hot strip, and the thing a screenshot can point at.
+        try:
+            self._startup._btn_all_apps.clicked.connect(self.toggle_app_drawer)
+        except Exception:
+            pass
         self._stack.addWidget(self._startup)
 
     def _on_nav_selected(self, key: str):
         """Navigate to app ``key``, lazily instantiating its screen on first use."""
         if key == "__home__":
+            # Re-read the things that go stale while Home is off screen:
+            # the plate queue, the run journal and the disk/GPU figures.
+            # Cheap (a JSON read and three stat calls) and only on a
+            # deliberate return to Home, not on a timer.
+            try:
+                self._startup.refresh()
+            except Exception:
+                pass
             self._stack.setCurrentWidget(self._startup)
             self._status_app_label.setText("Home")
             self.statusBar().showMessage("Home", 2000)

@@ -5,7 +5,7 @@ These are *review artefacts*, not shipped UI — nothing under
 ``spacr/qt/`` imports them. What the tests protect is that the
 artefacts stay honest:
 
-* every categorisation a variant proposes covers all 29 real apps
+* every categorisation a variant proposes covers every real app
   exactly once, so a reviewer is never shown a screen that quietly
   drops an app;
 * every rendered PNG exists, is exactly 1440x900, and is not a
@@ -69,8 +69,12 @@ def test_every_categorisation_covers_every_app(gen_common):
 def test_orderings_are_permutations_of_the_real_registry(gen_common):
     """Frequency / alphabetical / pinned-first are re-orderings, not edits."""
     gen_common.bootstrap()
+    from spacr.qt.app import APPS
     keys = set(gen_common.all_keys())
-    assert len(keys) == 29
+    # Derived, not a literal: the registry grew a Replication Assay and a
+    # hardcoded 29 turns "an app was added" into "the variant harness is
+    # broken", which is the wrong thing to be told.
+    assert keys == {k for k, *_rest in APPS}
     for order in (gen_common.by_frequency(), gen_common.alphabetical(),
                   gen_common.pinned_first()):
         assert len(order) == len(keys)
