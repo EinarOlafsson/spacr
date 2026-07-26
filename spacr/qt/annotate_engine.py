@@ -285,6 +285,9 @@ class AnnotateSettings:
     queue_measure: str = "entropy"      # entropy | least_confidence | margin
     queue_diversity: str = "well"       # well | field | plate | none
     queue_limit: int = 0                # 0 = the whole unlabelled pool
+    # 'auto' | 'png' | 'merged' -- see spacr.crops.resolve_crop_source.
+    # 'auto' prefers the PNG folder, so existing projects are unaffected.
+    crop_source: str = "auto"
 
     @property
     def page_size(self) -> int:
