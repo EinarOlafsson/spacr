@@ -629,6 +629,44 @@ class _SettingsDialog(QDialog):
         self._threshold_dir.setCurrentIndex(idx)
         form.addRow("Direction", self._threshold_dir)
 
+        # -- active-learning queue (spacr.active_learning) -------------------
+        self._queue_on = QCheckBox("Order by model uncertainty")
+        self._queue_on.setChecked(bool(getattr(settings, "queue_by_uncertainty", False)))
+        self._queue_on.setToolTip(
+            "Show the unlabelled crops the classifier is least sure about "
+            "first. Needs model scores in png_list, so run Classify (CV) "
+            "before turning this on.")
+        form.addRow("Queue", self._queue_on)
+
+        self._queue_measure = QComboBox()
+        for m in ("entropy", "least_confidence", "margin"):
+            self._queue_measure.addItem(m)
+        self._queue_measure.setCurrentText(
+            str(getattr(settings, "queue_measure", "entropy")))
+        self._queue_measure.setToolTip(
+            "How uncertainty is scored. With two classes, margin and "
+            "least_confidence give the identical ranking; they only diverge "
+            "at three classes or more.")
+        form.addRow("Uncertainty measure", self._queue_measure)
+
+        self._queue_diversity = QComboBox()
+        for d in ("well", "field", "plate", "none"):
+            self._queue_diversity.addItem(d)
+        self._queue_diversity.setCurrentText(
+            str(getattr(settings, "queue_diversity", "well")))
+        self._queue_diversity.setToolTip(
+            "Spread the queue across wells rather than serving the most "
+            "uncertain crops in ranked order. Pure uncertainty collapses onto "
+            "one or two wells, so you end up labelling the same ambiguity a "
+            "hundred times. 'none' turns that protection off.")
+        form.addRow("Queue diversity", self._queue_diversity)
+
+        self._queue_limit = QSpinBox()
+        self._queue_limit.setRange(0, 1_000_000)
+        self._queue_limit.setValue(int(getattr(settings, "queue_limit", 0) or 0))
+        self._queue_limit.setSpecialValueText("all unlabelled")
+        form.addRow("Queue length", self._queue_limit)
+
         self.setLayout(QVBoxLayout())
         self.layout().addLayout(form)
 
@@ -680,6 +718,10 @@ class _SettingsDialog(QDialog):
             s.threshold = None
         s.threshold_direction = self._threshold_dir.currentText() \
             if (s.measurement and s.threshold) else None
+        s.queue_by_uncertainty = bool(self._queue_on.isChecked())
+        s.queue_measure = self._queue_measure.currentText()
+        s.queue_diversity = self._queue_diversity.currentText()
+        s.queue_limit = int(self._queue_limit.value())
         return s
 
 
@@ -701,6 +743,8 @@ class AnnotateScreen(QWidget):
         self._total = 0
         self._page_paths: List[Tuple[str, Optional[int]]] = []
         self._filtered_rows: Optional[List[Tuple[str, Optional[int]]]] = None
+        #: rendered spread/class-balance summary when the uncertainty queue is on
+        self._queue_summary: str = ""
         self._pending_updates: Dict[str, Optional[int]] = {}
         self._worker: Optional[SaveWorker] = None
         self._thumbs: List[_Thumbnail] = []
@@ -1236,6 +1280,34 @@ class AnnotateScreen(QWidget):
         return bool(s.measurement and s.threshold and s.threshold_direction)
 
     def _refresh_total(self):
+        s = self._settings
+        if s.queue_by_uncertainty:
+            # Order the unlabelled crops by how unsure the model is about them,
+            # so the annotator spends their time on the decision boundary. The
+            # queue is a snapshot, rebuilt on every settings apply, so crops
+            # labelled since the last rebuild drop out then rather than now.
+            from ... import active_learning as al
+            try:
+                queue = al.build_queue(
+                    s.db_path, s.annotation_column,
+                    measure=s.queue_measure,
+                    diversity=(s.queue_diversity or "none"),
+                    limit=(s.queue_limit or None),
+                    image_type=s.image_type, seed=0)
+            except (FileNotFoundError, ValueError) as exc:
+                # No model scores yet is the ordinary case before a classifier
+                # has run, so fall back to page order and say why rather than
+                # showing an empty grid.
+                self._filtered_rows = None
+                self._total = count_rows(s.db_path, s.image_type)
+                self._queue_summary = ""
+                self._page_label.setText(f"Uncertainty queue unavailable: {exc}")
+                return
+            self._queue_summary = al.format_queue_summary(queue)
+            self._filtered_rows = al.queue_rows(queue)
+            self._total = len(self._filtered_rows)
+            return
+        self._queue_summary = ""
         if self._filter_active():
             # Cache the filtered set once so pagination + total agree
             self._filtered_rows = fetch_filtered_paths(

@@ -1523,6 +1523,10 @@ expected_types = {
     'strict_errors':bool,
     'max_failure_rate':(float, type(None)),
     'crop_source':str,
+    'queue_by_uncertainty':bool,
+    'queue_measure':str,
+    'queue_diversity':str,
+    'queue_limit':int,
     'cross_validation_folds':int,
     'cv_group_by':str,
     'logit_adjust_tau':float,
@@ -2222,7 +2226,7 @@ categories = {
 
     "Plot": ["cmap", "figuresize", "normalize_plots", "black_background", "save_figure", "log_x", "log_y", "x_lim", "split_axis_lims", "examples_to_plot", "plot_control", "plot_nr", "nr_imgs", "um_per_pixel", "image_nr", "dot_size", "img_zoom", "row_limit", "color_by", "plot_images", "remove_image_canvas", "plot_points", "plot_outlines", "smooth_lines", "plot_by_cluster", "plot_cluster_grids", "heatmap_feature", "grouping", "min_max", "highlight"],
 
-    "Advanced": ["strict_errors", "max_failure_rate", "crop_source", "dry_run", "verbose", "n_jobs", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "normalize", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "compression", "diameter_estimate_n_fields", "nuclei_limit", "pathogen_limit", "cells_per_well", "target_intensity_min", "shuffle", "save", "filter", "merge_pathogens"],
+    "Advanced": ["strict_errors", "max_failure_rate", "crop_source", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "normalize", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "compression", "diameter_estimate_n_fields", "nuclei_limit", "pathogen_limit", "cells_per_well", "target_intensity_min", "shuffle", "save", "filter", "merge_pathogens"],
 
     "Beta": ["all_to_mip", "upscale", "upscale_factor", "consolidate", "distance_gaussian_sigma", "use_sam_pathogen", "use_sam_nucleus", "use_sam_cell", "denoise"],
 
@@ -2560,6 +2564,12 @@ def set_annotate_default_settings(settings):
     # cutting crops out of merged/*.npy on demand; 'png' and 'merged'
     # force one source. See spacr.crops.resolve_crop_source.
     settings.setdefault('crop_source', 'auto')
+    # Active-learning queue (spacr.active_learning). Off by default: it
+    # needs model scores in png_list, which only exist after Classify (CV).
+    settings.setdefault('queue_by_uncertainty', False)
+    settings.setdefault('queue_measure', 'entropy')
+    settings.setdefault('queue_diversity', 'well')
+    settings.setdefault('queue_limit', 0)
     return settings
 
 def set_default_generate_barecode_mapping(settings=None):

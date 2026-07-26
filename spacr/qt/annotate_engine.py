@@ -223,7 +223,13 @@ def outline_image(
 
 
 def add_colored_border(img: Image.Image, width: int, color: str) -> Image.Image:
-    """Return `img` with an inset colored border of `width` px."""
+    """Return `img` with an inset colored border of `width` px.
+
+    Kept for parity with the Tk ``AnnotateApp`` (and for callers that want a
+    bordered image out of the pipeline). The Qt grid does NOT use it: its
+    tiles paint their borders in ``_Thumbnail.paintEvent`` so recolouring
+    one costs a repaint instead of a rebuilt pixmap.
+    """
     bordered = Image.new("RGB",
                           (img.width + 2 * width, img.height + 2 * width),
                           color="black")
@@ -273,6 +279,12 @@ class AnnotateSettings:
     object_size: Tuple[int, int] = (0, 0)
     grid_rows: int = 5
     grid_cols: int = 5
+    # Active-learning queue (spacr.active_learning). Off by default: it needs
+    # model scores in png_list, which only exist after a classifier has run.
+    queue_by_uncertainty: bool = False
+    queue_measure: str = "entropy"      # entropy | least_confidence | margin
+    queue_diversity: str = "well"       # well | field | plate | none
+    queue_limit: int = 0                # 0 = the whole unlabelled pool
 
     @property
     def page_size(self) -> int:
