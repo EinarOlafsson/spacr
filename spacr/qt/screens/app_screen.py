@@ -127,6 +127,7 @@ APP_TITLES = {
     "make_masks":      "Make Masks",
     "db_browser":      "Database Browser",
     "agreement":       "Annotator Agreement",
+    "plate_view":      "Plate Viewer",
 }
 
 
@@ -149,6 +150,7 @@ APP_INTROS = {
     "queue":           "Chain several plates through the same pipeline configuration.",
     "db_browser":      "Preview any table in a measurements database, search its columns, and export filtered rows to CSV — read-only.",
     "agreement":       "Score how well two or more annotation passes agree with Cohen's or Fleiss' κ, then review every crop they labelled differently.",
+    "plate_view":      "Draw any per-well measurement as a plate heatmap and test whether the outer ring reads differently from the interior — the edge artefact that turns a screen hit into a failed follow-up.",
     "analyze_plaques": "Detect and quantify plaques in plaque-assay images.",
     "recruitment":     "Quantify recruitment of a marker to a compartment across conditions.",
 }

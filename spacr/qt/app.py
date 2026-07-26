@@ -110,6 +110,7 @@ APPS = [
     ("queue",          "Plate Queue",    "Chain multiple plates through the same pipeline",             "Tools"),
     ("db_browser",     "Database Browser", "Browse and export measurements.db without the sqlite3 CLI", "Tools"),
     ("agreement",      "Annotator Agreement", "Cohen's/Fleiss' κ between annotation columns + a disagreement review", "Tools"),
+    ("plate_view",     "Plate Viewer",   "Any measurement as a plate heatmap + edge-effect detection",  "Tools"),
     # -- Toxo: Toxoplasma-specific assays --
     ("analyze_plaques", "Plaque Assay",  "Analyze plaque assay data",                                   "Toxo"),
     ("recruitment",    "Recruitment",    "Analyze recruitment data",                                    "Toxo"),
@@ -128,6 +129,7 @@ _ICON_OVERRIDES = {
     "db_browser":      "map_barcodes.png", # ruled bars read as table columns
     "agreement":       "annotate.png",     # shares the Annotate glyph: it
                                            # scores annotation columns
+    "plate_view":      "map_barcodes.png", # ruled bars read as a well grid
 }
 
 # Keys that render their qtawesome glyph instead of a bundled PNG.
@@ -756,6 +758,9 @@ class MainWindow(QMainWindow):
         if key == "agreement":
             from .screens.agreement import AgreementScreen
             return AgreementScreen()
+        if key == "plate_view":
+            from .screens.plate_view import PlateViewScreen
+            return PlateViewScreen()
         from .screens.app_screen import AppScreen
         screen = AppScreen(app_key=key)
         screen.error_explain_requested.connect(self._on_explain_error)
