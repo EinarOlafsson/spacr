@@ -105,10 +105,10 @@ def test_toxo_generate_score_heatmap_mixed_condition_fractions(tmp_path):
     recs = []
     for i, r in enumerate(rows):
         for name, n in _counts(i).items():
-            recs.append({"column_name": col, "rowID": r,
+            recs.append({"columnID": col, "rowID": r,
                          "grna_name": name, "count": n})
         # a well in another column that the c3 filter must drop
-        recs.append({"column_name": other_col, "rowID": r,
+        recs.append({"columnID": other_col, "rowID": r,
                      "grna_name": "sgA", "count": 99999})
     mixed = tmp_path / "mixed.csv"
     pd.DataFrame(recs).to_csv(mixed, index=False)
@@ -116,7 +116,7 @@ def test_toxo_generate_score_heatmap_mixed_condition_fractions(tmp_path):
     def _write_scores(path, seed, value_column="pred"):
         rng = np.random.default_rng(seed)
         pd.DataFrame([
-            {"column_name": c, "rowID": r,
+            {"columnID": c, "rowID": r,
              value_column: float(rng.uniform(0, 1))}
             for r in rows for c in (col, other_col)
         ]).to_csv(path, index=False)

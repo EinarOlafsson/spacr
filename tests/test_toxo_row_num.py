@@ -35,7 +35,7 @@ CTRL = ["sgA", "sgB"]
 def _write_scores(path, seed):
     rng = np.random.default_rng(seed)
     pd.DataFrame({
-        "column_name": [COL] * len(ROWS),
+        "columnID": [COL] * len(ROWS),
         "rowID": ROWS,
         "pred": rng.uniform(0, 1, len(ROWS)),
     }).to_csv(path, index=False)
@@ -43,7 +43,7 @@ def _write_scores(path, seed):
 
 def _write_counts(path):
     rng = np.random.default_rng(5)
-    rows = [{"column_name": COL, "rowID": r, "grna_name": g,
+    rows = [{"columnID": COL, "rowID": r, "grna_name": g,
              "count": int(rng.integers(10, 500))}
             for r in ROWS for g in CTRL]
     pd.DataFrame(rows).to_csv(path, index=False)
@@ -110,7 +110,7 @@ def test_plot_multi_channel_heatmap_does_not_mutate_its_argument(tmp_path):
 
     # 'fraction' + 'prc' + the merge keys + one column per model + the cv score.
     assert set(out.columns) == {
-        "fraction", "prc", "plateID", "rowID", "column_name",
+        "fraction", "prc", "plateID", "rowID", "columnID",
         "modelA_pred", "modelB_pred", "pred",
     }
     # every remaining numeric column is a score in [0, 1], never a row index
