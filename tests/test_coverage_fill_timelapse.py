@@ -159,19 +159,20 @@ def test_reorient_merged_array_bad_ndim():
 # ---------------------------------------------------------------------------
 
 def test_preprocess_pathogen_data():
+    """Keyed on the names the measurement writer emits: columnID, timeID, cell_id."""
     rng = np.random.default_rng(0)
     n = 20
     df = pd.DataFrame({
         "plateID": ["p1"] * n, "rowID": ["r1"] * n,
-        "column_name": ["c1"] * n, "fieldID": ["f1"] * n,
-        "timeid": rng.integers(0, 3, n),
-        "pathogen_cell_id": rng.integers(1, 4, n),
+        "columnID": ["c1"] * n, "fieldID": ["f1"] * n,
+        "timeID": [f"t{i}" for i in rng.integers(0, 3, n)],
+        "cell_id": rng.integers(1, 4, n),
         "object_label": range(n),
         "area": rng.uniform(10, 100, n),
     })
     out = TL.preprocess_pathogen_data(df)
     assert "parasite_count" in out.columns
-    assert "object_label" in out.columns   # renamed from pathogen_cell_id
+    assert "object_label" in out.columns   # renamed from cell_id
 
 
 # ---------------------------------------------------------------------------
