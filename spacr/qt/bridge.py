@@ -263,6 +263,9 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
         if app_key == "activation":
             from spacr.deep_spacr import generate_activation_map
             return generate_activation_map
+        if app_key == "convert":
+            from spacr.convert import convert_folder
+            return log_call(convert_folder)
         if app_key == "invasion":
             from spacr.submodules import analyze_invasion
             return log_call(analyze_invasion)

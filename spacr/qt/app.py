@@ -108,6 +108,7 @@ APPS = [
     ("activation",     "Activation",     "Generate activation maps",                                    "Tools"),
     ("umap",           "Image UMAP",     "Generate UMAP embeddings with image glyphs",                  "Tools"),
     ("queue",          "Plate Queue",    "Chain multiple plates through the same pipeline",             "Tools"),
+    ("convert",        "Format Converter", "ND2/CZI/LIF/OME-TIFF into Yokogawa TIFFs: preview the mapping, then a map file back to the originals", "Tools"),
     ("batch",          "Batch Runner",   "Queue any modules, plates and settings and run them overnight", "Tools"),
     ("db_browser",     "Database Browser", "Browse and export measurements.db without the sqlite3 CLI", "Tools"),
     ("agreement",      "Annotator Agreement", "Cohen's/Fleiss' κ between annotation columns + a disagreement review", "Tools"),
@@ -130,7 +131,7 @@ _ICON_OVERRIDES = {
     "analyze_plaques": "plaque.png",
     "queue":           "sequencing.png",   # closest visual match for now
     "train_cellpose":  "cellpose_masks.png",  # share the Cellpose Masks icon
-    "timelapse":       "convert.png",      # cyclic arrows read as "over time"
+    "timelapse":       "run.png",          # convert.png now belongs to Format Converter
     "motility":        "recruitment.png",  # closest "things moving" glyph
     "db_browser":      "map_barcodes.png", # ruled bars read as table columns
     "agreement":       "annotate.png",     # shares the Annotate glyph: it
@@ -796,6 +797,9 @@ class MainWindow(QMainWindow):
         if key == "model_compare":
             from .screens.model_compare import ModelCompareScreen
             return ModelCompareScreen()
+        if key == "convert":
+            from .screens.convert import ConvertScreen
+            return ConvertScreen()
         if key == "batch":
             from .screens.batch import BatchScreen
             return BatchScreen()

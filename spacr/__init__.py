@@ -42,6 +42,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "diameter",
     "feature_dict",
     "crops",
+    "convert",
     "resume",
     "zstack",
     "report",
