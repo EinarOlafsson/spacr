@@ -20,6 +20,7 @@ Public API::
         get_theme, set_theme,
         get_font_scale, set_font_scale,
         get_color_blind_mode, set_color_blind_mode,
+        get_db_browser_editable, set_db_browser_editable,
         apply_preferences_to_app,
         PreferencesDialog,
     )
@@ -33,6 +34,9 @@ Values:
   | ``"tritanopia"`` (default ``"off"``). Swaps matplotlib rainbow /
   red-green palettes for perceptually-uniform + colour-blind-safe
   alternatives (viridis for continuous, Okabe-Ito for categorical).
+* ``db_browser_editable``: bool, default ``False``. Permits the
+  Database Browser to open a read-write connection at all; see
+  :func:`get_db_browser_editable`.
 """
 from __future__ import annotations
 
@@ -51,6 +55,7 @@ _KEY_THEME       = "prefs/theme"
 _KEY_FONT_SCALE  = "prefs/font_scale"
 _KEY_CB_MODE     = "prefs/color_blind_mode"
 _KEY_VERBOSE_LOG = "prefs/verbose_logging"
+_KEY_DB_EDIT     = "prefs/db_browser_editable"
 
 VALID_THEMES = ("dark", "light", "system")
 DEFAULT_THEME = "dark"
@@ -257,6 +262,62 @@ def set_verbose_logging(on: bool) -> None:
     _settings().setValue(_KEY_VERBOSE_LOG, bool(on))
 
 
+# ---------------------------------------------------------------------------
+# Database Browser — editing is opt-in
+# ---------------------------------------------------------------------------
+
+#: The Database Browser opens ``measurements.db`` read-only. Editing is a
+#: separate, deliberate opt-in because an UPDATE against a measurements
+#: database is unrecoverable — there is no undo and no backup.
+DEFAULT_DB_BROWSER_EDITABLE = False
+
+
+def _as_bool(raw, default: bool) -> bool:
+    """Coerce a QSettings value to bool.
+
+    The INI backend hands strings back ("true"), the native backends hand
+    real bools back, and a hand-edited file can hold anything at all —
+    which must fall back to ``default`` rather than turn editing on.
+    """
+    if raw is None:
+        return default
+    if isinstance(raw, bool):
+        return raw
+    if isinstance(raw, (int, float)):
+        return bool(raw)
+    text = str(raw).strip().lower()
+    if text in ("true", "1", "yes", "on"):
+        return True
+    if text in ("false", "0", "no", "off", ""):
+        return False
+    return default
+
+
+def get_db_browser_editable() -> bool:
+    """True when the user has allowed the Database Browser to write.
+
+    Default ``False``: the browser opens every database with
+    ``mode=ro``. Turning this on only *permits* edit mode — the user
+    still has to arm it per session, per database, in the browser
+    itself.
+    """
+    return _as_bool(_settings().value(_KEY_DB_EDIT, DEFAULT_DB_BROWSER_EDITABLE),
+                    DEFAULT_DB_BROWSER_EDITABLE)
+
+
+def set_db_browser_editable(on: bool) -> None:
+    """Allow (or forbid) edit mode in the Database Browser.
+
+    Flushed immediately. QSettings writes back lazily, and the Database
+    Browser re-reads this key on every UI refresh — a stale read right
+    after the user ticked the box would tell them editing is still off.
+    One tiny INI write is worth not having to explain that.
+    """
+    settings = _settings()
+    settings.setValue(_KEY_DB_EDIT, bool(on))
+    settings.sync()
+
+
 def color_blind_continuous_cmap() -> str:
     """Return a matplotlib colormap name safe for the active CB mode.
 
@@ -401,6 +462,21 @@ class PreferencesDialog:
         verbose_check.setChecked(get_verbose_logging())
         form.addRow("Diagnostics", verbose_check)
 
+        # Database Browser — off by default. The browser opens
+        # measurements.db with mode=ro; this is the only switch that lets
+        # it open a read-write connection at all, and even then the user
+        # has to arm edit mode per session and confirm it.
+        db_edit_check = QCheckBox("Allow editing in the Database Browser")
+        db_edit_check.setToolTip(
+            "Off by default. The Database Browser opens measurements.db "
+            "read-only (mode=ro). With this on you can still only edit "
+            "after arming 'Edit mode' for a database you chose yourself, "
+            "and every change is one UPDATE scoped to one row. There is "
+            "no undo — spaCR writes straight into your measurements file."
+        )
+        db_edit_check.setChecked(get_db_browser_editable())
+        form.addRow("Database Browser", db_edit_check)
+
         # Figures — display format (png = lighter / faster, pdf = vector +
         # editable via the figure-settings button) and the PNG resolution.
         fig_format_combo = QComboBox()
@@ -443,6 +519,7 @@ class PreferencesDialog:
             set_font_scale(scale_slider.value() / 100.0)
             set_color_blind_mode(cb_combo.currentData())
             set_verbose_logging(verbose_check.isChecked())
+            set_db_browser_editable(db_edit_check.isChecked())
             set_figure_format(fig_format_combo.currentData())
             set_figure_png_dpi(png_dpi_combo.currentData())
             apply_preferences_to_app()
