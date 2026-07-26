@@ -7051,7 +7051,11 @@ def process_vision_results(df, threshold=0.5):
     df['rowID'] = mapped_values.apply(lambda x: x[1])
     df['columnID'] = mapped_values.apply(lambda x: x[2])
     df['fieldID'] = mapped_values.apply(lambda x: x[3])
-    df['object'] = df['path'].str.split('_').str[3].str.split('.').str[0]
+    # The object id is the LAST component of the crop name, not the fourth:
+    # a timelapse crop is plate_well_field_time_object, so [3] is the
+    # TIMEPOINT. Splitting from the right is correct for both layouts.
+    df['object'] = (df['path'].str.rsplit('/', n=1).str[-1]
+                    .str.split('.').str[0].str.rsplit('_', n=1).str[-1])
     df['prc'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str)
     df['cv_predictions'] = (df['pred'] >= threshold).astype(int)
 
