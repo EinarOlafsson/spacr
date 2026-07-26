@@ -176,7 +176,7 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     from .utils import _masks_to_masks_stack, all_elements_match, prepare_batch_for_segmentation, _get_cellpose_channels
     from .io import _create_database, _save_object_counts_to_database, _check_masks, _get_avg_object_size
     from .timelapse import (_npz_to_movie, _btrack_track_cells, _trackpy_track_cells,
-                            _trackastra_track_cells)
+                            _trackastra_track_cells, _ultrack_track_cells)
     from .plot import plot_cellpose4_output
     from .settings import set_default_settings_preprocess_generate_masks, _get_object_settings
     from .spacr_cellpose import parse_cellpose4_output
@@ -385,6 +385,27 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                             mode=timelapse_mode,
                             model_name=settings.get('trackastra_model', 'general_2d'),
                             linking_mode=settings.get('trackastra_linking', 'greedy'))
+
+                    elif timelapse_mode == 'ultrack':
+                        # Ultrack derives its own candidate objects from a
+                        # contour map built off these labels, and uses the raw
+                        # intensities for appearance features while linking, so
+                        # it gets the same two arrays trackastra does.
+                        mask_stack = _ultrack_track_cells(
+                            src=src,
+                            name=name,
+                            batch_filenames=batch_filenames,
+                            object_type=object_type,
+                            masks=masks,
+                            images=batch,
+                            timelapse_remove_transient=timelapse_remove_transient,
+                            plot=settings['plot'],
+                            save=settings['save'],
+                            mode=timelapse_mode,
+                            max_distance=settings.get('ultrack_max_distance', 25.0),
+                            division_weight=settings.get('ultrack_division_weight', -0.1),
+                            contour_sigma=settings.get('ultrack_contour_sigma', 0.0),
+                            n_workers=settings.get('ultrack_n_workers', 1))
 
                     if timelapse_mode == 'trackpy' or timelapse_mode == 'iou':
                         if timelapse_mode == 'iou':

@@ -618,16 +618,21 @@ def _trackastra_track_cells(src, name, batch_filenames, object_type, masks, imag
     return _masks_to_masks_stack(masks_tracked)
 
 
-def _trackastra_graph_to_tracks_df(track_graph, masks_tracked):
-    """Flatten a Trackastra track graph into spaCR's tracks-table layout.
+def _relabelled_stack_to_tracks_df(masks_tracked):
+    """Flatten a tracker's relabelled label stack into spaCR's tracks table.
 
     Downstream consumers (the track visualiser, the motility assay) expect
     ``frame`` / ``track_id`` / ``x`` / ``y`` / ``original_label``, which is the
     layout trackpy and btrack already emit. Centroids are recomputed from the
     relabelled stack so they always agree with the masks actually returned,
-    rather than trusting whatever the graph carried.
+    rather than trusting whatever table the tracker handed back — Trackastra's
+    graph and Ultrack's ``to_tracks_layer`` both carry their own coordinates,
+    and both can disagree with the exported segmentation after post-processing.
 
-    :param track_graph: the graph returned by ``Trackastra.track``.
+    Every backend that returns a stack whose ids are already consistent across
+    frames (Trackastra, Ultrack) shares this function, so their CSVs are
+    byte-for-byte comparable.
+
     :param masks_tracked: the relabelled (T, Y, X) stack.
     :returns: DataFrame with one row per object per frame.
     """
@@ -648,6 +653,239 @@ def _trackastra_graph_to_tracks_df(track_graph, masks_tracked):
     if df.empty:
         return df
     return df.sort_values(['track_id', 'frame']).reset_index(drop=True)
+
+
+def _trackastra_graph_to_tracks_df(track_graph, masks_tracked):
+    """Flatten a Trackastra track graph into spaCR's tracks-table layout.
+
+    The graph itself carries no coordinate spaCR trusts, so this is just
+    :func:`_relabelled_stack_to_tracks_df` over the relabelled stack; the
+    wrapper is kept because it names the caller's intent.
+
+    :param track_graph: the graph returned by ``Trackastra.track``; unused, the
+        coordinates come from the stack.
+    :param masks_tracked: the relabelled (T, Y, X) stack.
+    :returns: DataFrame with one row per object per frame.
+    """
+    return _relabelled_stack_to_tracks_df(masks_tracked)
+
+
+def _ultrack_set(section, attr, value, setting_name):
+    """Apply one spaCR setting onto an Ultrack config section, loudly.
+
+    Ultrack's ``MainConfig`` is a nest of pydantic models whose field names have
+    moved between releases, and spaCR deliberately does not pin a version.
+    Assigning to a field that no longer exists would surface as a pydantic
+    error naming only Ultrack's own field, which tells the user nothing about
+    which spaCR knob to change; this translates it back.
+
+    :param section: one of ``config.data_config`` / ``segmentation_config`` /
+        ``linking_config`` / ``tracking_config``.
+    :param attr: the Ultrack field name to assign.
+    :param value: the already-coerced value to assign.
+    :param setting_name: the spaCR setting this came from, for the message.
+    :raises RuntimeError: if the installed Ultrack has no such field.
+    """
+    if not hasattr(section, attr):
+        raise RuntimeError(
+            f"the installed ultrack's {type(section).__name__} has no '{attr}' "
+            f"field, so the {setting_name} setting cannot be applied. Install a "
+            "supported release with `pip install spacr[ultrack]`, or choose "
+            "timelapse_mode='trackastra' / 'trackpy' / 'btrack' / 'iou'."
+        )
+    setattr(section, attr, value)
+
+
+def _ultrack_labels_to_contours(ultrack_utils):
+    """Return the installed Ultrack's labels -> (foreground, contours) converter.
+
+    Ultrack renamed ``labels_to_edges`` to ``labels_to_contours`` in the same
+    release that renamed ``detection``/``edges`` to ``foreground``/``contours``.
+    Both names are still in the wild, so resolve whichever is present rather
+    than importing one and breaking on the other.
+
+    :param ultrack_utils: the imported ``ultrack.utils`` module.
+    :returns: the converter, called as ``fn(list_of_label_stacks, sigma=...)``.
+    :raises RuntimeError: if neither name is available.
+    """
+    for attr in ('labels_to_contours', 'labels_to_edges'):
+        fn = getattr(ultrack_utils, attr, None)
+        if fn is not None:
+            return fn
+    raise RuntimeError(
+        "the installed ultrack exposes neither ultrack.utils.labels_to_contours "
+        "nor ultrack.utils.labels_to_edges, so spaCR cannot turn the Cellpose "
+        "labels into Ultrack's input. Install a supported release with "
+        "`pip install spacr[ultrack]`, or choose timelapse_mode='trackastra' / "
+        "'trackpy' / 'btrack' / 'iou'."
+    )
+
+
+def _ultrack_track_kwargs(track_fn):
+    """Map spaCR's (foreground, contours) pair onto the installed Ultrack's names.
+
+    ``ultrack.track`` took ``detection=``/``edges=`` before the 2024 rename and
+    ``foreground=``/``contours=`` after it. Reading the signature keeps the one
+    adapter working against both instead of pinning spaCR to a release.
+
+    :param track_fn: the imported ``ultrack.track``.
+    :returns: ``(foreground_kwarg, contours_kwarg, accepts_images)``.
+    :raises RuntimeError: if the signature matches neither generation.
+    """
+    import inspect
+
+    params = inspect.signature(track_fn).parameters
+    accepts_images = 'images' in params
+    if 'foreground' in params and 'contours' in params:
+        return 'foreground', 'contours', accepts_images
+    if 'detection' in params and 'edges' in params:
+        return 'detection', 'edges', accepts_images
+    raise RuntimeError(
+        "the installed ultrack's track() accepts neither foreground/contours "
+        "nor detection/edges, so spaCR cannot drive it. Install a supported "
+        "release with `pip install spacr[ultrack]`, or choose "
+        "timelapse_mode='trackastra' / 'trackpy' / 'btrack' / 'iou'."
+    )
+
+
+def _ultrack_track_cells(src, name, batch_filenames, object_type, masks, images=None,
+                         timelapse_remove_transient=False, plot=False, save=False,
+                         mode='ultrack', max_distance=25.0, division_weight=-0.1,
+                         contour_sigma=0.0, n_workers=1):
+    """Track objects across frames with Ultrack, a global-optimisation tracker.
+
+    Ultrack (Nature Methods 2025) is the other Cell Tracking Challenge leader,
+    and it is kept alongside Trackastra rather than instead of it because the
+    two fail in different directions. Trackastra scores candidate pairs of
+    already-segmented objects with a transformer and then links them; Ultrack
+    enumerates candidate segmentations from a contour map and solves a single
+    integer program over segmentation *and* linking together. That joint solve
+    is what makes it the stronger choice on densely packed monolayers and on 3D
+    stacks, where the correct object boundary is ambiguous until you know the
+    track — a confluent, heavily infected well is exactly that case. Trackastra
+    stays the better zero-config generalist, so it stays the default.
+
+    Like the Trackastra adapter this consumes what spaCR already has: the
+    Cellpose label stack, converted to Ultrack's (foreground, contours) input
+    by ``ultrack.utils.labels_to_contours``, so the user never has to produce a
+    contour map separately. The intensity stack is forwarded when available —
+    Ultrack uses it for appearance features during linking.
+
+    Ultrack persists its candidate hypotheses and the solved links in a
+    database (sqlite by default) under ``config.data_config.working_dir``. That
+    store is pointed at a temporary directory that is deleted when this returns,
+    so the user's run folder gains the tracks CSV and nothing else.
+
+    :param src: run folder; the tracks CSV lands in ``<dirname(src)>/tracks``.
+    :param name: batch name used in the output filename.
+    :param batch_filenames: filenames of the frames, for the track visualiser.
+    :param object_type: 'cell' / 'nucleus' / 'pathogen' / 'organelle'.
+    :param masks: (T, Y, X) integer label stack.
+    :param images: (T, Y, X) intensity stack, used for appearance features.
+    :param timelapse_remove_transient: drop tracks not present in every frame.
+    :param max_distance: largest displacement in pixels Ultrack will link across.
+    :param division_weight: solver cost of splitting one track into two.
+    :param contour_sigma: Gaussian smoothing applied when deriving contours
+        from the labels; 0 disables smoothing.
+    :param n_workers: worker processes for the segmentation and linking passes.
+    :returns: the relabelled mask stack, ids consistent across frames.
+    :raises RuntimeError: if ultrack is not installed, naming the fix.
+    """
+    # Function-local, matching the sibling trackers: spacr.utils imports torch,
+    # and spacr.plot pulls the whole plotting stack.
+    from .plot import _visualize_and_save_timelapse_stack_with_tracks
+    from .utils import _masks_to_masks_stack
+
+    try:
+        from ultrack import MainConfig, track, to_tracks_layer, tracks_to_zarr
+        from ultrack import utils as ultrack_utils
+    except ImportError as exc:
+        # Fail loud and actionable rather than surfacing a bare ImportError
+        # from three frames down. ultrack is an optional dependency, and a bare
+        # ImportError here reads to the user as "no data".
+        raise RuntimeError(
+            "timelapse_mode='ultrack' needs the ultrack package, which is not "
+            "installed. Install it with `pip install spacr[ultrack]` (it brings "
+            "its own ILP solver and database backend), or choose "
+            "timelapse_mode='trackastra' / 'trackpy' / 'btrack' / 'iou'."
+        ) from exc
+
+    masks = np.asarray(masks)
+    if masks.ndim != 3:
+        raise ValueError(f"masks must be a (T, Y, X) stack, got shape {masks.shape}")
+
+    imgs = np.asarray(images) if images is not None else None
+    if imgs is not None and imgs.shape != masks.shape:
+        raise ValueError(
+            f"images shape {imgs.shape} does not match masks shape {masks.shape}")
+
+    if masks.shape[0] < 2:
+        print(f"Ultrack: only {masks.shape[0]} frame(s) for {object_type}; nothing to link.")
+        return _masks_to_masks_stack(masks)
+
+    labels_to_contours = _ultrack_labels_to_contours(ultrack_utils)
+    fg_kwarg, contours_kwarg, accepts_images = _ultrack_track_kwargs(track)
+
+    import pathlib
+    import shutil
+    import tempfile
+
+    # mkdtemp + finally rather than TemporaryDirectory: the sqlite file can
+    # still be held open by a worker when the solve ends, and ignore_errors
+    # keeps a locked file from turning a finished run into a traceback.
+    work_dir = tempfile.mkdtemp(prefix='spacr_ultrack_')
+    try:
+        config = MainConfig()
+        _ultrack_set(config.data_config, 'working_dir', pathlib.Path(work_dir),
+                     'temporary Ultrack data store')
+        _ultrack_set(config.linking_config, 'max_distance', float(max_distance),
+                     'ultrack_max_distance')
+        _ultrack_set(config.tracking_config, 'division_weight', float(division_weight),
+                     'ultrack_division_weight')
+        for section in (config.segmentation_config, config.linking_config):
+            _ultrack_set(section, 'n_workers', int(n_workers), 'ultrack_n_workers')
+
+        # sigma=None means "no smoothing" to Ultrack; 0.0 is the spaCR-side
+        # spelling of the same thing because the GUI has no tri-state float.
+        sigma = float(contour_sigma)
+        foreground, contours = labels_to_contours([masks], sigma=sigma if sigma > 0 else None)
+
+        track_kwargs = {fg_kwarg: foreground, contours_kwarg: contours}
+        if accepts_images and imgs is not None:
+            track_kwargs['images'] = [imgs]
+        track(config, **track_kwargs)
+
+        tracks_table, _lineage = to_tracks_layer(config)
+        # tracks_to_zarr paints track_id into the segmentation, so the exported
+        # stack already has ids consistent across frames. Materialise it before
+        # the working directory goes away — the zarr may be backed by it.
+        masks_tracked = np.asarray(tracks_to_zarr(config, tracks_table))
+    finally:
+        shutil.rmtree(work_dir, ignore_errors=True)
+
+    tracks_df = _relabelled_stack_to_tracks_df(masks_tracked)
+
+    if timelapse_remove_transient:
+        n_frames = masks_tracked.shape[0]
+        keep = tracks_df.groupby('track_id')['frame'].nunique() == n_frames
+        kept_ids = set(keep[keep].index)
+        before = len(tracks_df)
+        tracks_df = tracks_df[tracks_df['track_id'].isin(kept_ids)].copy()
+        print(f'Removed {before - len(tracks_df)} objects that were not present in all frames')
+        masks_tracked = _relabel_masks_based_on_tracks(masks_tracked, tracks_df)
+
+    tracks_path = os.path.join(os.path.dirname(src), 'tracks')
+    os.makedirs(tracks_path, exist_ok=True)
+    tracks_df.to_csv(
+        os.path.join(tracks_path, f'ultrack_tracks_{object_type}_{name}.csv'),
+        index=False)
+
+    if plot or save:
+        _visualize_and_save_timelapse_stack_with_tracks(
+            masks_tracked, tracks_df, save, src, name, plot,
+            batch_filenames, object_type, mode)
+
+    return _masks_to_masks_stack(masks_tracked)
 
 
 def _filter_short_tracks(df, min_length=5):

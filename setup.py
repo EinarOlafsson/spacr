@@ -133,6 +133,13 @@ setup(
         # pretrained weights on first use; trackpy/btrack/iou stay available
         # without it. BSD-3, PyTorch-only, no TensorFlow.
         'trackastra': ['trackastra>=0.5,<1.0'],
+        # `pip install spacr[ultrack]` — global-optimisation object tracking
+        # (timelapse_mode='ultrack'). Kept alongside trackastra rather than
+        # replacing it: ultrack solves segmentation and linking as one integer
+        # program, which wins on densely packed and 3D data, while trackastra
+        # is the better zero-config generalist. Optional because it brings an
+        # ILP solver and a database backend. BSD-3, no TensorFlow.
+        'ultrack': ['ultrack>=0.6,<1.0'],
         'full': ['opencv-python'],
         'qt': [
             'PySide6>=6.6,<7',
