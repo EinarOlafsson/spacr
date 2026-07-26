@@ -108,10 +108,12 @@ __all__ = [
 #: on a name prefix, which would make ``f1`` match ``f10``…``f19``.
 FIELD_KEY_COLUMNS = ('plateID', 'rowID', 'columnID', 'fieldID')
 
-#: Timepoint column, added to the key for timelapse runs. Two spellings
-#: exist in the schema: ``_merge_and_save_to_database`` writes ``timeID``
-#: into the object tables and ``filepaths_to_database`` writes ``time_id``
-#: into ``png_list``. Both are honoured.
+#: Timepoint column, added to the key for timelapse runs. ``timeID`` is
+#: canonical and is what both ``_merge_and_save_to_database`` and
+#: ``filepaths_to_database`` write. ``time_id`` is the spelling ``png_list``
+#: carried before the two were unified; ``utils.rename_columns_in_db``
+#: migrates it in place on first read, but a database not read since then
+#: still has it, so both are honoured here.
 TIME_KEY_COLUMNS = ('timeID', 'time_id')
 
 #: Tables that live in ``measurements.db`` but are **not** per-field

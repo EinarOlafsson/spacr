@@ -940,16 +940,24 @@ META_COLUMNS: dict[str, PropertyInfo] = {
         "Timepoint of a timelapse acquisition, as 't<n>'.",
         None,
         _META_WELLS,
-        "Only present when measure_crop ran with timelapse=True.",
+        "Only present when measure_crop ran with timelapse=True. Written by "
+        "every object table and, since the two spellings were unified, by "
+        "png_list too.",
     ),
     "time_id": PropertyInfo(
         "meta",
         "Timepoint of a timelapse acquisition, as 't<n>', in the png_list "
-        "table.",
+        "table of a database written before the two spellings were unified.",
         None,
         _META_WELLS_PNG,
-        "Spelled time_id here but timeID in the object tables — the same "
-        "quantity under two names.",
+        "The same quantity as timeID. png_list used to be written with this "
+        "spelling while every object table used timeID, so _split_data raised "
+        "KeyError('timeID') on png_list and built no prcft, and any join "
+        "between png_list and an object table on time matched nothing. "
+        "filepaths_to_database now writes timeID, and "
+        "spacr.utils.rename_columns_in_db migrates an existing database in "
+        "place the first time it is read — so this column should only be seen "
+        "on a database that has not been opened since.",
     ),
     "chanID": PropertyInfo(
         "meta",
@@ -981,7 +989,8 @@ META_COLUMNS: dict[str, PropertyInfo] = {
         "Field key including the timepoint: plate_row_column_field_time.",
         None,
         "spacr.utils._split_data",
-        "Only built when a timeID column exists.",
+        "Only built when a timepoint column exists, in either spelling "
+        "(timeID or the legacy time_id).",
     ),
     "prc": PropertyInfo(
         "meta",
