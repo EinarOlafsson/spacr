@@ -278,13 +278,42 @@ def make_thread(
     fn: Callable[[Dict[str, Any]], Any],
     settings: Dict[str, Any],
 ) -> tuple["QThread", PipelineWorker]:
-    """Return (thread, worker) — caller connects worker signals and calls
-    thread.start()."""
+    """Return ``(thread, worker)`` — the caller connects the worker's signals
+    and calls ``thread.start()``.
+
+    **The worker's C++ deletion is left to Python, deliberately.** There used
+    to be a ``worker.finished.connect(worker.deleteLater)`` here, and it
+    segfaulted the process: ``finished`` is emitted inside ``run()``, so the
+    deletion was posted to the WORKER thread's own event loop and executed
+    during that thread's deferred-delete flush, at the same moment the GUI
+    thread dropped the object's last Python reference in its completion
+    handler. Two owners, one object. gdb put the crash in
+    ``QThread -> sendPostedEvents -> ~QObject -> Sbk_GetPyOverride``, and a
+    stress harness over this function alone reproduced it 3 runs in 8.
+
+    Re-chaining it off ``thread.finished`` is NOT a fix and was measured: the
+    worker's thread affinity is still the worker thread, so ``deleteLater``
+    still defers into a loop that has stopped, and the same race survives
+    (2 crashes in 20 at 800 jobs). A PySide6 object constructed in Python is
+    already owned by Python; adding ``deleteLater`` on top is the second owner.
+    So the worker is simply not scheduled for deletion — the caller's last
+    reference frees it, on the thread that holds it.
+
+    The QThread itself keeps ``deleteLater``: it is created on, and has the
+    affinity of, the thread that calls this function, so its deferred delete is
+    flushed by that thread's own running loop.
+
+    A caller MUST hold a strong reference to both until ``thread.finished``:
+    a QThread garbage-collected while running takes the process down.
+
+    :param fn: callable invoked as ``fn(settings)`` on the worker thread.
+    :param settings: the single argument handed to ``fn``.
+    :returns: an unstarted ``(QThread, PipelineWorker)`` pair.
+    """
     thread = QThread()
     worker = PipelineWorker(fn, settings)
     worker.moveToThread(thread)
     thread.started.connect(worker.run)
     worker.finished.connect(thread.quit)
-    worker.finished.connect(worker.deleteLater)
     thread.finished.connect(thread.deleteLater)
     return thread, worker
