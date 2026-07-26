@@ -25,6 +25,277 @@ from .errors import RunLedger, ConfigurationError, raise_if_strict
 from .resume import plan_measure_resume
 
 
+# ---------------------------------------------------------------------------
+# 3-D support: dimensionality, voxel spacing, and the units stamp
+# ---------------------------------------------------------------------------
+#
+# spaCR's mask generation can now emit (Z, Y, X) label volumes (see
+# spacr.zstack, MODE_STITCH / MODE_VOLUMETRIC). Everything below exists so that
+# such a volume is measured correctly *or refused*, and never measured wrongly.
+#
+# Two invariants govern every change in this module:
+#
+# 1. **The 2-D path is bit-identical.** A 2-D field takes exactly the code it
+#    took before: ``spacing`` is None (skimage treats ``spacing=None`` as
+#    "omitted"), no property is dropped, no distance transform is sampled, and
+#    no column is renamed. Physical scaling is deliberately NOT applied in 2-D
+#    even when a voxel size is available, because that would turn every
+#    existing ``*_area`` column from px^2 into um^2 under an unchanged name and
+#    silently break every threshold ever written against a spaCR database.
+#
+# 2. **A row's units are never guessed at.** A 3-D run measures volumes where a
+#    2-D run measures areas, so every row written to measurements.db carries
+#    :data:`MEASUREMENT_STAMP_COLUMNS`, and
+#    ``spacr.utils._merge_and_save_to_database`` refuses to append rows whose
+#    units differ from the ones already in the table.
+
+#: The morphology properties a 2-D run measures. Unchanged from before 3-D
+#: support existed; :data:`PROPS_2D_ONLY` is what a 3-D run drops from it.
+MORPHOLOGICAL_PROPS = [
+    'label', 'area', 'area_filled', 'area_bbox', 'convex_area',
+    'major_axis_length', 'minor_axis_length', 'eccentricity', 'solidity',
+    'extent', 'perimeter', 'euler_number', 'equivalent_diameter_area',
+    'feret_diameter_max',
+]
+
+#: regionprops properties skimage implements for 2-D only. Asking for either on
+#: a 3-D label volume raises ``NotImplementedError`` *for the whole
+#: regionprops_table call*, so one 2-D-only name in the list costs every other
+#: property too. A 3-D run drops them, which makes them absent rather than
+#: wrong -- there is no meaningful 3-D "eccentricity" of a solid, and skimage's
+#: 2-D ``perimeter`` is a boundary length, whose 3-D analogue is a surface area
+#: in different units and must not share the name.
+PROPS_2D_ONLY = ('eccentricity', 'perimeter')
+
+#: 2-D run: raw pixels, exactly as spaCR has always written.
+UNITS_PX = 'px'
+#: 3-D run with a known ``anisotropy`` but no physical voxel size. Lengths are
+#: in xy-pixel units and z has been scaled by ``dz/dxy``, so the numbers are
+#: anisotropy-corrected but not physical.
+UNITS_PX_XY = 'px_xy'
+#: 3-D run with a known ``voxel_size_z_um``/``voxel_size_xy_um``. Lengths in
+#: um, areas in um^2, volumes in um^3.
+UNITS_UM = 'um'
+
+#: Provenance stamped onto every measurement row. A reader that sees
+#: ``measurement_ndim == 3`` knows ``cell_area`` is a volume, and
+#: ``measurement_units`` says in which units. ``spacr.feature_dict`` reads the
+#: same names.
+MEASUREMENT_STAMP_COLUMNS = (
+    'measurement_ndim',
+    'measurement_units',
+    'n_z',
+    'voxel_size_z_um',
+    'voxel_size_xy_um',
+)
+
+
+def _ndim_of(mask):
+    """Return the number of spatial dimensions of a label mask (2 or 3)."""
+    return int(np.asarray(mask).ndim)
+
+
+#: Cores left free when spaCR picks the worker count itself, so an interactive
+#: machine stays usable during a measure run.
+N_JOBS_HEADROOM = 4
+
+
+def resolve_n_jobs(n_jobs, cpu_count=None):
+    """Return the number of worker processes ``measure_crop`` will actually use.
+
+    This used to discard the user's value outright. The old block compared
+    ``n_jobs`` with the core count *before* the ``is None`` check -- so leaving
+    it blank, which the printed warning itself recommends, raised
+    ``TypeError: '>' not supported between instances of 'NoneType' and 'int'``
+    -- and then ended with an unconditional ``settings['n_jobs'] =
+    spacr_cores``, which threw the request away: on a 32-core machine
+    ``n_jobs=1`` ran 28 workers. That is not a performance detail. It is what
+    made the concurrent ``CREATE TABLE`` race reachable from a test that had
+    explicitly asked for one worker, and it takes away the only lever a user
+    has on a shared machine.
+
+    :param n_jobs: what the user asked for. ``None`` means "pick for me".
+    :param cpu_count: core count to resolve against; defaults to
+        :func:`multiprocessing.cpu_count`.
+    :returns: an int in ``[1, cpu_count]``.
+    :raises spacr.errors.ConfigurationError: ``n_jobs`` is zero, negative, or
+        not an integer. A pool of zero workers measures nothing, and quietly
+        turning it into some other number is how a run ends up not doing what
+        it was told.
+    """
+    cores = max(1, int(mp.cpu_count() if cpu_count is None else cpu_count))
+
+    if n_jobs is None:
+        # Blank: leave headroom, but never drop below one worker -- a machine
+        # with four cores or fewer would otherwise get zero or a negative pool.
+        return max(1, cores - N_JOBS_HEADROOM)
+
+    if isinstance(n_jobs, bool) or not isinstance(n_jobs, (int, np.integer)):
+        raise ConfigurationError(
+            f"settings['n_jobs'] = {n_jobs!r} must be an integer number of "
+            f"worker processes, or None to let spaCR choose.")
+
+    n_jobs = int(n_jobs)
+    if n_jobs < 1:
+        raise ConfigurationError(
+            f"settings['n_jobs'] = {n_jobs} must be at least 1. A pool of "
+            f"{n_jobs} workers would measure nothing; leave n_jobs blank "
+            f"(None) to let spaCR choose.")
+
+    if n_jobs > cores:
+        print(f"n_jobs={n_jobs} exceeds the {cores} available cores; using "
+              f"{cores}. Leave n_jobs blank to let spaCR choose.")
+        return cores
+    return n_jobs
+
+
+def resolve_measurement_spacing(settings, ndim, n_z=1):
+    """Return ``(spacing, stamp)`` for a measurement of ``ndim`` spatial dimensions.
+
+    ``spacing`` is handed straight to :func:`skimage.measure.regionprops_table`
+    and (as ``sampling``) to :func:`scipy.ndimage.distance_transform_edt`.
+    ``stamp`` is the dict of :data:`MEASUREMENT_STAMP_COLUMNS` written onto
+    every row so the units are recorded rather than inferred.
+
+    **2-D returns ``(None, px stamp)`` unconditionally.** Even when a voxel size
+    is configured it is not applied, so a 2-D run is numerically identical to
+    every spaCR run before this function existed.
+
+    **3-D requires a z/xy relationship and will not invent one.** With
+    anisotropic voxels an unspaced volume is not merely in unusual units: a
+    voxel count is not proportional to a physical volume, a distance transform
+    measures a different length along z than along x, and ``major_axis_length``
+    mixes the two. This mirrors :func:`spacr.zstack.resolve_anisotropy`, which
+    raises rather than defaulting to 1.0 because "isotropic" is a claim about
+    the microscope, not a neutral value. Set ``voxel_size_z_um`` and
+    ``voxel_size_xy_um`` (preferred -- it also gives physical units), or set
+    ``anisotropy`` alone (correct geometry, xy-pixel units).
+
+    :param settings: measure settings dict; reads ``voxel_size_z_um``,
+        ``voxel_size_xy_um`` and ``anisotropy``.
+    :param ndim: 2 or 3.
+    :param n_z: number of z planes behind the measurement; 1 for a 2-D field.
+    :returns: ``(spacing, stamp)``. ``spacing`` is ``None`` for 2-D, a
+        ``(dz, dy, dx)`` tuple for 3-D.
+    :raises spacr.zstack.UnknownAnisotropyError: 3-D without a voxel size or
+        anisotropy.
+    :raises spacr.errors.ConfigurationError: ``ndim`` is neither 2 nor 3, or a
+        supplied voxel size is not a positive finite number.
+    """
+    cfg = settings or {}
+    stamp = {
+        'measurement_ndim': int(ndim),
+        'measurement_units': UNITS_PX,
+        'n_z': int(n_z),
+        'voxel_size_z_um': None,
+        'voxel_size_xy_um': None,
+    }
+
+    if ndim == 2:
+        return None, stamp
+
+    if ndim != 3:
+        raise ConfigurationError(
+            f"spacr.measure can measure 2-D masks and 3-D (Z, Y, X) label "
+            f"volumes; got a {ndim}-dimensional mask. A 4-D (T, Z, Y, X) "
+            f"acquisition is measured one timepoint at a time.")
+
+    # Imported here rather than at module scope: spacr.zstack is the authority
+    # on anisotropy and owns the error type, but measure.py must not pay for
+    # importing it on the overwhelmingly common 2-D path.
+    from .zstack import UnknownAnisotropyError
+
+    def _positive(name):
+        value = cfg.get(name)
+        if value is None:
+            return None
+        value = float(value)
+        if not np.isfinite(value) or value <= 0:
+            raise ConfigurationError(
+                f"settings['{name}'] = {cfg.get(name)!r} must be a finite "
+                f"number > 0 (a physical size in micrometres).")
+        return value
+
+    dz = _positive('voxel_size_z_um')
+    dxy = _positive('voxel_size_xy_um')
+    anisotropy = cfg.get('anisotropy')
+    if anisotropy is not None:
+        anisotropy = float(anisotropy)
+        if not np.isfinite(anisotropy) or anisotropy <= 0:
+            raise ConfigurationError(
+                f"settings['anisotropy'] = {cfg.get('anisotropy')!r} must be a "
+                f"finite number > 0; it is the ratio dz / dxy.")
+
+    if dz is not None and dxy is not None:
+        stamp['measurement_units'] = UNITS_UM
+        stamp['voxel_size_z_um'] = dz
+        stamp['voxel_size_xy_um'] = dxy
+        return (dz, dxy, dxy), stamp
+
+    if anisotropy is not None:
+        # Geometry is correct, units are xy pixels. Recorded as such: a
+        # "volume" here is in cubic xy-pixels and is not a um^3.
+        stamp['measurement_units'] = UNITS_PX_XY
+        return (anisotropy, 1.0, 1.0), stamp
+
+    raise UnknownAnisotropyError(
+        "measuring a 3-D (Z, Y, X) mask needs to know how the z step relates "
+        "to the xy pixel size, and spaCR will not assume they are equal. On a "
+        "confocal stack dz is routinely 3-10x dxy, so an unspaced volume "
+        "measurement is wrong by that factor along one axis: the voxel count "
+        "in `<object>_area` is not proportional to a physical volume, and "
+        "`major_axis_length`, `feret_diameter_max` and every distance-derived "
+        "feature mix two different lengths. Set voxel_size_z_um and "
+        "voxel_size_xy_um (which also converts volumes to um^3), or set "
+        "anisotropy = dz / dxy on its own (correct geometry, xy-pixel units). "
+        f"Got voxel_size_z_um={cfg.get('voxel_size_z_um')!r}, "
+        f"voxel_size_xy_um={cfg.get('voxel_size_xy_um')!r}, "
+        f"anisotropy={cfg.get('anisotropy')!r}.")
+
+
+def _voxel_volume_columns(mask, labels, stamp):
+    """Return the explicit volume columns a 3-D morphology frame carries.
+
+    ``<object>_area`` in a 3-D row is a volume, which the stamp records -- but
+    a column whose *name* carries its unit cannot be misread at all, and
+    :func:`spacr.zstack.volume_stats` already uses exactly these names. So a
+    3-D frame gets ``volume_voxels`` (always) and ``volume_um3`` (only when the
+    physical voxel size is known) alongside the spaced ``area``.
+
+    :param mask: the 3-D label volume.
+    :param labels: label ids, in the frame's row order.
+    :param stamp: the stamp from :func:`resolve_measurement_spacing`.
+    :returns: dict of column name -> list of values, aligned with ``labels``.
+    """
+    counts = np.bincount(np.asarray(mask).ravel())
+    voxels = np.array(
+        [float(counts[int(v)]) if int(v) < counts.size else 0.0 for v in labels])
+    out = {'volume_voxels': voxels}
+    if stamp.get('measurement_units') == UNITS_UM:
+        dz = float(stamp['voxel_size_z_um'])
+        dxy = float(stamp['voxel_size_xy_um'])
+        out['volume_um3'] = voxels * dz * dxy * dxy
+    return out
+
+
+#: How ``regionprops_table`` names the axes of a centroid in 3-D, and what each
+#: one actually is. In 2-D ``centroid_weighted-0`` is the row (y); in 3-D the
+#: same name is the plane (z) and every downstream consumer reading it as y is
+#: silently wrong. Renaming only the 3-D columns leaves the 2-D names untouched
+#: and makes the 3-D ones self-describing.
+_CENTROID_AXES_3D = {'-0': '_z', '-1': '_y', '-2': '_x'}
+
+
+def _rename_3d_centroids(df):
+    """Rename ``centroid*-0/-1/-2`` to ``*_z/_y/_x`` on a 3-D intensity frame."""
+    mapping = {}
+    for col in df.columns:
+        for suffix, axis in _CENTROID_AXES_3D.items():
+            if col.startswith('centroid') and col.endswith(suffix):
+                mapping[col] = col[:-len(suffix)] + axis
+    return df.rename(columns=mapping) if mapping else df
+
+
 def get_components(cell_mask, nucleus_mask, pathogen_mask):
     """Map each cell to its enclosed nucleus/pathogen labels via mask lookup.
 
@@ -66,9 +337,21 @@ def _calculate_zernike(mask, df, degree=8):
     :param degree: Zernike-moment degree. Default ``8``. The number of
         coefficients is set by the degree: 9 for 4, 25 for 8, 49 for 12.
     :returns: ``df`` with ``zernike_i`` columns appended, or unchanged when the
-        mask has no regions.
+        mask has no regions or the mask is 3-D.
     :raises ValueError: When the Zernike vectors have inconsistent lengths.
+
+    .. note::
+
+       Zernike moments are defined on a disk, so mahotas' ``zernike_moments``
+       accepts 2-D images only -- a 3-D region raises
+       ``ValueError: too many values to unpack``, which used to take down the
+       whole morphology pass. A 3-D mask therefore gets no ``zernike_*``
+       columns at all: absent, rather than a 2-D descriptor of one arbitrary
+       plane presented as a description of the object.
     """
+    if _ndim_of(mask) != 2:
+        return df
+
     zernike_features = []
     for region in regionprops(mask):
         # mahotas' signature is zernike_moments(im, radius, degree=8): the
@@ -111,7 +394,10 @@ def _analyze_cytoskeleton(array, mask, channel):
         ``skeleton_branch_points`` columns.
     """
 
-    image = array[:, :, channel]
+    # ``[..., channel]`` rather than ``[:, :, channel]``: identical for the
+    # (Y, X, C) arrays this has always been given, and it selects the channel
+    # rather than a slab of X should a (Z, Y, X, C) array ever reach here.
+    image = array[..., channel]
 
     properties_list = []
 
@@ -181,16 +467,40 @@ def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organell
     :param zernike: When True, append Zernike-moment columns.
     :param degree: Zernike moment degree.
     :returns: Tuple ``(cell_df, nucleus_df, pathogen_df, organelle_df, cytoplasm_df)``.
+
+    .. note::
+
+       On a 3-D ``(Z, Y, X)`` mask the ``eccentricity`` and ``perimeter``
+       columns are absent (skimage implements neither for 3-D), ``zernike_*``
+       is absent, ``area`` and the ``*_area``/length columns are spaced by the
+       voxel size so they are volumes and lengths rather than voxel counts, and
+       explicit ``volume_voxels`` / ``volume_um3`` columns are added. See
+       :func:`resolve_measurement_spacing`.
     """
-    morphological_props = ['label', 'area', 'area_filled', 'area_bbox', 'convex_area', 'major_axis_length', 'minor_axis_length', 
-                           'eccentricity', 'solidity', 'extent', 'perimeter', 'euler_number', 'equivalent_diameter_area', 'feret_diameter_max']
-    
+    ndim = _ndim_of(cell_mask)
+    spacing, stamp = resolve_measurement_spacing(settings, ndim)
+    morphological_props = list(MORPHOLOGICAL_PROPS)
+    if ndim == 3:
+        morphological_props = [p for p in morphological_props
+                               if p not in PROPS_2D_ONLY]
+
+    def _props(mask):
+        """regionprops_table + (3-D only) the explicitly-named volume columns."""
+        frame = pd.DataFrame(
+            regionprops_table(mask, properties=morphological_props,
+                              spacing=spacing))
+        if ndim == 3 and len(frame) > 0:
+            for name, values in _voxel_volume_columns(
+                    mask, frame['label'].tolist(), stamp).items():
+                frame[name] = values
+        return frame
+
     prop_ls = []
     ls = []
-    
+
     if settings['cell_mask_dim'] is not None:
         cell_to_nucleus, cell_to_pathogen = get_components(cell_mask, nucleus_mask, pathogen_mask)
-        cell_props = pd.DataFrame(regionprops_table(cell_mask, properties=morphological_props))
+        cell_props = _props(cell_mask)
         cell_props = _calculate_zernike(cell_mask, cell_props, degree=degree)
         prop_ls.append(cell_props)
         ls.append('cell')
@@ -199,7 +509,7 @@ def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organell
         ls.append('cell')
 
     if settings['nucleus_mask_dim'] is not None:
-        nucleus_props = pd.DataFrame(regionprops_table(nucleus_mask, properties=morphological_props))
+        nucleus_props = _props(nucleus_mask)
         nucleus_props = _calculate_zernike(nucleus_mask, nucleus_props, degree=degree)
         if settings['cell_mask_dim'] is not None:
             nucleus_props = pd.merge(nucleus_props, cell_to_nucleus, left_on='label', right_on='nucleus', how='left')
@@ -208,9 +518,9 @@ def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organell
     else:
         prop_ls.append(pd.DataFrame())
         ls.append('nucleus')
-    
+
     if settings['pathogen_mask_dim'] is not None:
-        pathogen_props = pd.DataFrame(regionprops_table(pathogen_mask, properties=morphological_props))
+        pathogen_props = _props(pathogen_mask)
         pathogen_props = _calculate_zernike(pathogen_mask, pathogen_props, degree=degree)
         if settings['cell_mask_dim'] is not None:
             pathogen_props = pd.merge(pathogen_props, cell_to_pathogen, left_on='label', right_on='pathogen', how='left')
@@ -221,7 +531,7 @@ def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organell
         ls.append('pathogen')
 
     if settings.get('organelle_mask_dim') is not None:
-        organelle_props = pd.DataFrame(regionprops_table(organelle_mask, properties=morphological_props))
+        organelle_props = _props(organelle_mask)
         if len(organelle_props) > 0:
             organelle_props = _calculate_zernike(organelle_mask, organelle_props, degree=degree)
             # Map each organelle to its parent cell
@@ -235,7 +545,7 @@ def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organell
         ls.append('organelle')
 
     if settings['cytoplasm']:
-        cytoplasm_props = pd.DataFrame(regionprops_table(cytoplasm_mask, properties=morphological_props))
+        cytoplasm_props = _props(cytoplasm_mask)
         prop_ls.append(cytoplasm_props)
         ls.append('cytoplasm')
     else:
@@ -269,7 +579,7 @@ def _map_child_to_parent(child_mask, parent_mask, child_name='organelle', parent
     return pd.DataFrame(mapping)
 
 
-def _summarize_organelles_per_parent(organelle_mask, parent_mask, channel_arrays, parent_name='cell'):
+def _summarize_organelles_per_parent(organelle_mask, parent_mask, channel_arrays, parent_name='cell', spacing=None):
     """Return one row per parent object summarising its enclosed organelles.
 
     Per parent computes: organelle count, total/mean/std area, area fraction,
@@ -277,17 +587,31 @@ def _summarize_organelles_per_parent(organelle_mask, parent_mask, channel_arrays
 
     :param organelle_mask: Label mask of organelles.
     :param parent_mask: Label mask of parents (cells, nuclei, ...).
-    :param channel_arrays: Intensity images with shape ``(H, W, C)``.
+    :param channel_arrays: Intensity images with shape ``(H, W, C)`` in 2-D or
+        ``(Z, Y, X, C)`` in 3-D.
     :param parent_name: Column name used for the parent identifier.
+    :param spacing: Voxel spacing from :func:`resolve_measurement_spacing`;
+        ``None`` (the 2-D case) leaves everything in pixels.
     :returns: DataFrame indexed by parent label.
+
+    .. note::
+
+       On a 3-D mask the ``organelle_mean_eccentricity`` /
+       ``organelle_std_eccentricity`` columns are absent -- skimage does not
+       define eccentricity for 3-D. ``organelle_fraction`` is a ratio of two
+       equally-spaced quantities and is therefore unchanged in meaning.
     """
+    ndim = _ndim_of(organelle_mask)
     parent_labels = np.unique(parent_mask)
     parent_labels = parent_labels[parent_labels != 0]
 
     morphological_props = ['label', 'area', 'eccentricity', 'solidity', 'major_axis_length', 'minor_axis_length']
+    if ndim == 3:
+        morphological_props = [p for p in morphological_props
+                               if p not in PROPS_2D_ONLY]
 
     # Get per-organelle morphology
-    organelle_props = regionprops_table(organelle_mask, properties=morphological_props)
+    organelle_props = regionprops_table(organelle_mask, properties=morphological_props, spacing=spacing)
     organelle_df = pd.DataFrame(organelle_props)
 
     # Map each organelle to its parent
@@ -309,7 +633,7 @@ def _summarize_organelles_per_parent(organelle_mask, parent_mask, channel_arrays
 
     # Per-channel intensity per organelle
     for ch in range(channel_arrays.shape[-1]):
-        channel = channel_arrays[:, :, ch]
+        channel = channel_arrays[..., ch]
         intensities = []
         for org_label in organelle_df['label']:
             region = organelle_mask == org_label
@@ -320,7 +644,7 @@ def _summarize_organelles_per_parent(organelle_mask, parent_mask, channel_arrays
         organelle_df[f'organelle_ch{ch}_mean_intensity'] = intensities
 
     # Get parent areas for fraction calculation
-    parent_props = pd.DataFrame(regionprops_table(parent_mask, properties=['label', 'area']))
+    parent_props = pd.DataFrame(regionprops_table(parent_mask, properties=['label', 'area'], spacing=spacing))
     parent_area_map = dict(zip(parent_props['label'], parent_props['area']))
 
     # Summarise per parent
@@ -335,8 +659,9 @@ def _summarize_organelles_per_parent(organelle_mask, parent_mask, channel_arrays
         row['organelle_fraction'] = row['organelle_total_area'] / parent_area if parent_area > 0 else 0.0
         row['organelle_mean_area'] = org_subset['area'].mean() if len(org_subset) > 0 else 0.0
         row['organelle_std_area'] = org_subset['area'].std() if len(org_subset) > 1 else 0.0
-        row['organelle_mean_eccentricity'] = org_subset['eccentricity'].mean() if len(org_subset) > 0 else 0.0
-        row['organelle_std_eccentricity'] = org_subset['eccentricity'].std() if len(org_subset) > 1 else 0.0
+        if 'eccentricity' in organelle_df.columns:
+            row['organelle_mean_eccentricity'] = org_subset['eccentricity'].mean() if len(org_subset) > 0 else 0.0
+            row['organelle_std_eccentricity'] = org_subset['eccentricity'].std() if len(org_subset) > 1 else 0.0
         row['organelle_mean_solidity'] = org_subset['solidity'].mean() if len(org_subset) > 0 else 0.0
         row['organelle_std_solidity'] = org_subset['solidity'].std() if len(org_subset) > 1 else 0.0
         row['organelle_mean_major_axis'] = org_subset['major_axis_length'].mean() if len(org_subset) > 0 else 0.0
@@ -362,7 +687,8 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_ma
     :param pathogen_mask: Label mask of pathogens.
     :param organelle_mask: Label mask of organelles.
     :param cytoplasm_mask: Label mask of cytoplasm.
-    :param channel_arrays: Intensity array of shape ``(H, W, C)``.
+    :param channel_arrays: Intensity array of shape ``(H, W, C)`` in 2-D or
+        ``(Z, Y, X, C)`` in 3-D.
     :param settings: Settings dict (``radial_dist``, ``calculate_correlation``,
         ``homogeneity``, ``homogeneity_distances``, ``manders_thresholds``,
         ``distance_gaussian_sigma``, and the ``<object>_mask_dim`` toggles).
@@ -371,6 +697,16 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_ma
         nucleus/pathogen/organelle.
     :param outside: When True, compute outside-of-object intensity stats.
     :returns: Tuple ``(cell_df, nucleus_df, pathogen_df, organelle_df, cytoplasm_df)``.
+
+    .. note::
+
+       On a 3-D mask: the GLCM ``homogeneity_distance_*`` block is absent
+       (``skimage.feature.graycomatrix`` is 2-D only and there is no
+       co-occurrence matrix of a volume that reduces to it); every distance
+       transform is sampled with the voxel spacing; ``blur`` is measured plane
+       by plane in the xy plane, which is where focus is defined; and
+       ``centroid_weighted-0/-1/-2`` are renamed ``_z/_y/_x`` so that no 2-D
+       column name silently changes axis.
     """
     if sizes is None:
         sizes = [3, 6, 12, 24]
@@ -378,7 +714,19 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_ma
     calculate_correlation = settings['calculate_correlation']
     homogeneity = settings['homogeneity']
     distances = settings['homogeneity_distances']
-    
+
+    ndim = _ndim_of(cell_mask)
+    spacing, _stamp = resolve_measurement_spacing(settings, ndim)
+    if homogeneity and ndim == 3:
+        # Refused rather than approximated: graycomatrix takes a 2-D image
+        # only, and running it on one plane (or on a reshaped volume, which is
+        # what an unguarded call does) would report the texture of an
+        # arbitrary slice under a column name that promises the object's.
+        print("3-D mask: skipping GLCM homogeneity — "
+              "skimage.feature.graycomatrix is defined for 2-D images only, "
+              "so no homogeneity_distance_* columns are written for this field.")
+        homogeneity = False
+
     intensity_props = ["label", "centroid_weighted", "centroid_weighted_local", "max_intensity", "mean_intensity", "min_intensity"]
     col_lables = ['region_label', 'mean', '5_percentile', '10_percentile', '25_percentile', '50_percentile', '75_percentile', '85_percentile', '95_percentile']
     cell_dfs, nucleus_dfs, pathogen_dfs, organelle_dfs, cytoplasm_dfs = [], [], [], [], []
@@ -387,15 +735,15 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_ma
     dfs = [cell_dfs, nucleus_dfs, pathogen_dfs, organelle_dfs, cytoplasm_dfs]
     
     for i in range(0, channel_arrays.shape[-1]):
-        channel = channel_arrays[:, :, i]
+        channel = channel_arrays[..., i]
         for j, (label, df) in enumerate(zip(labels, dfs)):
-            
+
             if np.max(label) == 0:
                 empty_df = pd.DataFrame()
                 df.append(empty_df)
                 continue
-            
-            mask_intensity_df = _extended_regionprops_table(label, channel, intensity_props)
+
+            mask_intensity_df = _extended_regionprops_table(label, channel, intensity_props, spacing=spacing)
 
             if homogeneity:
                 homogeneity_df = _calculate_homogeneity(label, channel, distances)
@@ -408,7 +756,7 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_ma
 
             if outside:
                 if ls[j] in ('nucleus', 'pathogen', 'organelle'):
-                    outside_intensity_stats = _outside_intensity(label, channel)
+                    outside_intensity_stats = _outside_intensity(label, channel, spacing=spacing)
                     mask_intensity_df = pd.concat([mask_intensity_df, pd.DataFrame(outside_intensity_stats, columns=[f'outside_{stat}' for stat in col_lables])], axis=1)
 
             # Measure focus on the object's 2-D patch, not on the 1-D vector of
@@ -433,17 +781,17 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_ma
     
     if radial_dist:
         if np.max(nucleus_mask) != 0:
-            nucleus_radial_distributions = _calculate_radial_distribution(cell_mask, nucleus_mask, channel_arrays, num_bins=6)
+            nucleus_radial_distributions = _calculate_radial_distribution(cell_mask, nucleus_mask, channel_arrays, num_bins=6, spacing=spacing)
             nucleus_df = _create_dataframe(nucleus_radial_distributions, 'nucleus')
             dfs[1].append(nucleus_df)
-            
+
         if np.max(pathogen_mask) != 0:
-            pathogen_radial_distributions = _calculate_radial_distribution(cell_mask, pathogen_mask, channel_arrays, num_bins=6)
+            pathogen_radial_distributions = _calculate_radial_distribution(cell_mask, pathogen_mask, channel_arrays, num_bins=6, spacing=spacing)
             pathogen_df = _create_dataframe(pathogen_radial_distributions, 'pathogen')
             dfs[2].append(pathogen_df)
 
         if np.max(organelle_mask) != 0:
-            organelle_radial_distributions = _calculate_radial_distribution(cell_mask, organelle_mask, channel_arrays, num_bins=6)
+            organelle_radial_distributions = _calculate_radial_distribution(cell_mask, organelle_mask, channel_arrays, num_bins=6, spacing=spacing)
             organelle_rad_df = _create_dataframe(organelle_radial_distributions, 'organelle')
             dfs[3].append(organelle_rad_df)
 
@@ -475,8 +823,8 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_ma
         if channel_arrays.shape[-1] >= 2:
             for i in range(channel_arrays.shape[-1]):
                 for j in range(i+1, channel_arrays.shape[-1]):
-                    chan_i = channel_arrays[:, :, i]
-                    chan_j = channel_arrays[:, :, j]
+                    chan_i = channel_arrays[..., i]
+                    chan_j = channel_arrays[..., j]
                     for m, mask in enumerate(labels):
                         coloc_df = _calculate_correlation_object_level(chan_i, chan_j, mask, settings)
                         coloc_df.columns = [f'{ls[m]}_channel_{i}_channel_{j}_{col}' for col in coloc_df.columns]
@@ -501,8 +849,15 @@ def _create_dataframe(radial_distributions, object_type):
         df = df.reset_index().rename(columns={'index': 'label'})
         return df
 
-def _extended_regionprops_table(labels, image, intensity_props):
-    """Return a regionprops table extended with distributional intensity features (mean/std/skew/kurtosis/mode/CV/Gini/entropy/percentiles)."""
+def _extended_regionprops_table(labels, image, intensity_props, spacing=None):
+    """Return a regionprops table extended with distributional intensity features (mean/std/skew/kurtosis/mode/CV/Gini/entropy/percentiles).
+
+    :param labels: label mask, 2-D or 3-D.
+    :param image: co-aligned intensity image.
+    :param intensity_props: regionprops property names.
+    :param spacing: voxel spacing from :func:`resolve_measurement_spacing`;
+        ``None`` in 2-D, which skimage treats as "not supplied".
+    """
 
     def _gini(array):
         """NaN-safe Gini coefficient of an intensity array."""
@@ -515,8 +870,10 @@ def _extended_regionprops_table(labels, image, intensity_props):
         index = np.arange(1, n + 1)
         return (np.sum((2 * index - n - 1) * array)) / (n * np.sum(array)) if np.sum(array) else np.nan
     
-    props = regionprops_table(labels, image, properties=intensity_props)
+    props = regionprops_table(labels, image, properties=intensity_props, spacing=spacing)
     df = pd.DataFrame(props)
+    if _ndim_of(labels) == 3:
+        df = _rename_3d_centroids(df)
 
     # Reference thresholds for frac_high90 / frac_low10.
     #
@@ -535,7 +892,7 @@ def _extended_regionprops_table(labels, image, intensity_props):
         field_p90 = np.nan
         field_p10 = np.nan
 
-    regions = regionprops(labels, intensity_image=image)
+    regions = regionprops(labels, intensity_image=image, spacing=spacing)
     integrated_intensity = []
     std_intensity = []
     median_intensity = []
@@ -612,7 +969,22 @@ def _extended_regionprops_table(labels, image, intensity_props):
     return df
 
 def _calculate_homogeneity(label, channel, distances=None):
-        """Return per-region GLCM homogeneity across the requested co-occurrence distances."""
+        """Return per-region GLCM homogeneity across the requested co-occurrence distances.
+
+        :raises ValueError: when ``label`` is not 2-D.
+            ``skimage.feature.graycomatrix`` accepts a 2-D image only, and a
+            grey-level co-occurrence matrix of a volume is a different
+            construction (it needs 13 direction pairs rather than 4), not a
+            generalisation of this one. ``_intensity_measurements`` skips the
+            whole block for 3-D masks rather than calling this; the guard is
+            here so a direct caller gets an explanation instead of skimage's
+            "The parameter `image` must be a 2-dimensional array".
+        """
+        if _ndim_of(label) != 2:
+            raise ValueError(
+                "_calculate_homogeneity is 2-D only: skimage's graycomatrix "
+                f"takes a 2-D image and this mask is {_ndim_of(label)}-D. A "
+                "3-D run writes no homogeneity_distance_* columns.")
         if distances is None:
             distances = [2,4,8,16,32,64]
         homogeneity_values = []
@@ -651,18 +1023,37 @@ def _periphery_intensity(label_mask, image):
                                               np.percentile(intensities,95)))
     return periphery_intensity_stats
 
-def _outside_intensity(label_mask, image, distance=5):
+def _outside_intensity(label_mask, image, distance=5, spacing=None):
     """Return per-region intensity stats within a ``distance``-pixel ring outside each object.
 
     :param label_mask: Label mask defining the regions.
     :param image: Intensity image co-aligned with ``label_mask``.
-    :param distance: Dilation width in pixels used to build the ring.
+    :param distance: Ring width, in xy pixels.
+    :param spacing: Voxel spacing from :func:`resolve_measurement_spacing`.
+        ``None`` (2-D) keeps the historical ``binary_dilation`` ring exactly.
     :returns: List of ``(label, mean, p5, p10, p25, p50, p75, p85, p95)`` tuples.
+
+    .. note::
+
+       In 3-D the ring is built from a **sampled** distance transform, not from
+       ``binary_dilation(iterations=distance)``. Iterated dilation counts
+       voxels, so on a stack with dz = 5 dxy it grows the shell 5x further in z
+       than in xy in physical terms -- a 25x thicker slab of neighbouring
+       tissue on one axis than on the others -- and the "outside intensity" it
+       reports is dominated by whatever sits above and below the object. The
+       ring width is converted with the xy spacing so it still means
+       ``distance`` xy pixels.
     """
     outside_intensity_stats = []
+    if spacing is not None:
+        ring_width = float(distance) * float(spacing[-1])
     for region in np.unique(label_mask)[1:]:  # skip the background label
         region_mask = label_mask == region
-        dilated_mask = binary_dilation(region_mask, iterations=distance)
+        if spacing is None:
+            dilated_mask = binary_dilation(region_mask, iterations=distance)
+        else:
+            edt = distance_transform_edt(~region_mask, sampling=spacing)
+            dilated_mask = edt <= ring_width
         outside_mask = dilated_mask & ~region_mask
         intensities = image[outside_mask]
         if intensities.size == 0:
@@ -674,15 +1065,22 @@ def _outside_intensity(label_mask, image, distance=5):
                                               np.percentile(intensities,95)))
     return outside_intensity_stats
 
-def _calculate_radial_distribution(cell_mask, object_mask, channel_arrays, num_bins=6):
+def _calculate_radial_distribution(cell_mask, object_mask, channel_arrays, num_bins=6, spacing=None):
     """
     Calculate the radial distribution of average intensities for each object in each cell.
 
     Args:
         cell_mask (numpy.ndarray): The mask representing the cells.
         object_mask (numpy.ndarray): The mask representing the objects.
-        channel_arrays (numpy.ndarray): The array of channel images.
+        channel_arrays (numpy.ndarray): The array of channel images, channel last.
         num_bins (int, optional): The number of bins for the radial distribution. Defaults to 6.
+        spacing (tuple, optional): Voxel spacing from
+            :func:`resolve_measurement_spacing`, used as ``sampling`` for the
+            distance transform. ``None`` in 2-D. Without it the "distance"
+            from an object boundary in a 3-D stack counts planes and pixels as
+            equal steps, so a shell 3 planes away is binned with one 3 pixels
+            away even when it is five times further off in micrometres, and
+            every radial bin mixes the two.
 
     Returns:
         dict: A dictionary containing the radial distributions of average intensities for each object in each cell.
@@ -752,9 +1150,9 @@ def _calculate_radial_distribution(cell_mask, object_mask, channel_arrays, num_b
             # NOT multiplied by cell_region: that zeroed the distance of every
             # pixel outside the cell and put the whole background in bin 0.
             # The cell is applied as a mask when binning instead.
-            distance_map = distance_transform_edt(~object_boundary)
-            for channel_index in range(channel_arrays.shape[2]):
-                radial_distribution = _calculate_average_intensity(distance_map, channel_arrays[:, :, channel_index], num_bins, cell_region)
+            distance_map = distance_transform_edt(~object_boundary, sampling=spacing)
+            for channel_index in range(channel_arrays.shape[-1]):
+                radial_distribution = _calculate_average_intensity(distance_map, channel_arrays[..., channel_index], num_bins, cell_region)
                 object_radial_distributions[(cell_label, object_label, channel_index)] = radial_distribution
 
     return object_radial_distributions
@@ -836,27 +1234,64 @@ def _estimate_blur(image, mask=None):
     so the result was a second difference along raster order: blind to vertical
     structure, sensitive to the row wrap-around, and not a focus measure.
 
-    :param image: Intensity image. 2-D when ``mask`` is given.
+    **3-D volumes are measured plane by plane in the xy plane.** Focus is an
+    in-plane property: the objective's lateral resolution is what a blurred
+    edge reports on, while the z step is coarse, the axial PSF is elongated,
+    and consecutive planes are a different optical section rather than a
+    finer-grained sampling of the same one. A single ``cv2.Laplacian`` call on
+    a ``(Z, Y, X)`` array does not raise — OpenCV reads the third axis as up to
+    512 colour channels, so it silently returns the second derivative in the
+    **zy** plane, computed independently for each x column. That is a plausible
+    number measured in the wrong plane, which is worse than an error. Here the
+    kernel is applied to each ``(Y, X)`` plane and the variance is taken over
+    the object's in-plane interior across all planes.
+
+    :param image: Intensity image. Same shape as ``mask`` when ``mask`` is
+        given; 2-D ``(Y, X)`` or 3-D ``(Z, Y, X)``.
     :param mask: Optional boolean object mask, same shape as ``image``.
     :returns: Variance of the Laplacian; ``nan`` when ``mask`` selects nothing.
+    :raises ValueError: when ``mask`` is neither 2-D nor 3-D.
     """
+    volumetric = False
     if mask is not None:
         mask = np.asarray(mask, dtype=bool)
+        if mask.ndim not in (2, 3):
+            raise ValueError(
+                f"_estimate_blur takes a 2-D (Y, X) or 3-D (Z, Y, X) mask, got "
+                f"{mask.ndim}-D of shape {mask.shape}.")
         if not mask.any():
             return np.nan
-        rows = np.flatnonzero(mask.any(axis=1))
-        cols = np.flatnonzero(mask.any(axis=0))
+        volumetric = mask.ndim == 3
+        # Bounding box grown by one pixel in y and x so the 3x3 kernel has real
+        # neighbours. Not grown in z: the kernel never reaches across planes.
+        y_axis, x_axis = (mask.ndim - 2, mask.ndim - 1)
+        rows = np.flatnonzero(mask.any(axis=tuple(a for a in range(mask.ndim) if a != y_axis)))
+        cols = np.flatnonzero(mask.any(axis=tuple(a for a in range(mask.ndim) if a != x_axis)))
         r0 = max(int(rows[0]) - 1, 0)
-        r1 = min(int(rows[-1]) + 1, mask.shape[0] - 1)
+        r1 = min(int(rows[-1]) + 1, mask.shape[y_axis] - 1)
         c0 = max(int(cols[0]) - 1, 0)
-        c1 = min(int(cols[-1]) + 1, mask.shape[1] - 1)
-        image = image[r0:r1 + 1, c0:c1 + 1]
-        sub_mask = mask[r0:r1 + 1, c0:c1 + 1]
-        interior = binary_erosion(sub_mask, structure=generate_binary_structure(2, 2))
+        c1 = min(int(cols[-1]) + 1, mask.shape[x_axis] - 1)
+        if volumetric:
+            planes = np.flatnonzero(mask.any(axis=(1, 2)))
+            z0, z1 = int(planes[0]), int(planes[-1])
+            image = image[z0:z1 + 1, r0:r1 + 1, c0:c1 + 1]
+            sub_mask = mask[z0:z1 + 1, r0:r1 + 1, c0:c1 + 1]
+            # In-plane erosion only, matching the in-plane kernel: a voxel is
+            # interior when its eight xy neighbours in its own plane are all in
+            # the object. A 3-D structuring element would additionally require
+            # the planes above and below, which no sample of the kernel reads.
+            structure = np.zeros((3, 3, 3), dtype=bool)
+            structure[1] = generate_binary_structure(2, 2)
+        else:
+            image = image[r0:r1 + 1, c0:c1 + 1]
+            sub_mask = mask[r0:r1 + 1, c0:c1 + 1]
+            structure = generate_binary_structure(2, 2)
+        interior = binary_erosion(sub_mask, structure=structure)
         if not interior.any():
             interior = sub_mask
     else:
         interior = None
+        volumetric = np.asarray(image).ndim == 3
 
     # cv2.Laplacian with CV_64F requires a float64 source: float32 (and any
     # integer) inputs raise "Unsupported combination of source/destination
@@ -867,7 +1302,13 @@ def _estimate_blur(image, mask=None):
         # Already float64 — use as is.
         image_float = image
     # Compute the Laplacian of the image
-    lap = cv2.Laplacian(image_float, cv2.CV_64F)
+    if volumetric:
+        lap = np.empty(image_float.shape, dtype=np.float64)
+        for z in range(image_float.shape[0]):
+            lap[z] = cv2.Laplacian(
+                np.ascontiguousarray(image_float[z]), cv2.CV_64F)
+    else:
+        lap = cv2.Laplacian(image_float, cv2.CV_64F)
     # Compute and return the variance of the Laplacian
     if interior is None:
         return lap.var()
@@ -876,19 +1317,43 @@ def _estimate_blur(image, mask=None):
 def _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_arrays, settings):
     """
     Compute Gaussian-smoothed intensity-weighted centroid distances for each cell object.
+
+    Works for a 2-D ``(Y, X)`` mask and a 3-D ``(Z, Y, X)`` volume. Three things
+    are dimension-dependent and were 2-D-only:
+
+    * the bounding box was unpacked as ``minr, minc = ...``, which raises
+      ``ValueError: too many values to unpack`` on a 3-D coordinate array;
+    * ``distance_transform_edt`` was called without ``sampling``, so on an
+      anisotropic stack a distance of "3" meant 3 pixels across but 3 planes
+      down, which is a different physical length;
+    * ``gaussian_filter``'s scalar ``sigma`` smooths every axis equally, which
+      on an anisotropic stack blurs far further in z in physical terms than in
+      xy. The sigma is given per axis, scaled so it means the same physical
+      distance on each.
     """
 
     sigma = settings.get('distance_gaussian_sigma', 1.0)
+    ndim = _ndim_of(cell_mask)
+    spacing, _stamp = resolve_measurement_spacing(settings, ndim)
+    if spacing is not None:
+        # sigma is quoted in xy pixels; convert to the same physical length on
+        # every axis. With spacing (dz, dxy, dxy) the z sigma is sigma*dxy/dz,
+        # i.e. fewer planes for the same distance.
+        physical = float(sigma) * float(spacing[-1])
+        filter_sigma = tuple(physical / float(s) for s in spacing)
+    else:
+        filter_sigma = sigma
+
     cell_labels = np.unique(cell_mask)
     cell_labels = cell_labels[cell_labels > 0]
 
     dfs = []
-    nucleus_dt = distance_transform_edt(nucleus_mask == 0)
-    pathogen_dt = distance_transform_edt(pathogen_mask == 0)
+    nucleus_dt = distance_transform_edt(nucleus_mask == 0, sampling=spacing)
+    pathogen_dt = distance_transform_edt(pathogen_mask == 0, sampling=spacing)
 
     for ch in range(channel_arrays.shape[-1]):
-        channel_img = channel_arrays[:, :, ch]
-        blurred_img = gaussian_filter(channel_img, sigma=sigma)
+        channel_img = channel_arrays[..., ch]
+        blurred_img = gaussian_filter(channel_img, sigma=filter_sigma)
 
         data = []
         for label in cell_labels:
@@ -897,11 +1362,12 @@ def _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_
                 data.append([label, np.nan, np.nan])
                 continue
 
-            minr, minc = np.min(cell_coords, axis=0)
-            maxr, maxc = np.max(cell_coords, axis=0) + 1
+            lower = np.min(cell_coords, axis=0)
+            upper = np.max(cell_coords, axis=0) + 1
+            box = tuple(slice(int(a), int(b)) for a, b in zip(lower, upper))
 
-            cell_submask = (cell_mask[minr:maxr, minc:maxc] == label)
-            blurred_subimg = blurred_img[minr:maxr, minc:maxc]
+            cell_submask = (cell_mask[box] == label)
+            blurred_subimg = blurred_img[box]
 
             if np.sum(cell_submask) == 0:
                 data.append([label, np.nan, np.nan])
@@ -913,16 +1379,15 @@ def _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_
                 data.append([label, np.nan, np.nan])
                 continue
 
-            com_global = (com_local[0] + minr, com_local[1] + minc)
-            com_global_int = tuple(np.round(com_global).astype(int))
+            com_global = tuple(c + int(o) for c, o in zip(com_local, lower))
+            index = tuple(int(v) for v in np.round(com_global).astype(int))
 
-            x, y = com_global_int
-            if not (0 <= x < cell_mask.shape[0] and 0 <= y < cell_mask.shape[1]):
+            if not all(0 <= v < s for v, s in zip(index, cell_mask.shape)):
                 data.append([label, np.nan, np.nan])
                 continue
 
-            nucleus_dist = nucleus_dt[x, y]
-            pathogen_dist = pathogen_dt[x, y]
+            nucleus_dist = nucleus_dt[index]
+            pathogen_dist = pathogen_dt[index]
 
             data.append([label, nucleus_dist, pathogen_dist])
 
@@ -1083,27 +1548,53 @@ def _measure_crop_core(index, time_ls, file, settings):
             if settings['verbose']:
                 print(f'Converted data from {data_type_before} to {data_type}')
 
-        if settings['plot']:
+        # A merged 2-D field is (Y, X, C); a merged z-stack is (Z, Y, X, C).
+        # Every slice below therefore indexes the LAST axis -- `data[..., k]` --
+        # which is exactly `data[:, :, k]` for a 3-D array and the channel
+        # rather than a slab of X for a 4-D one. The old `data[:, :, channels]`
+        # on a (Z, Y, X, C) array returned shape (Z, Y, len(channels), C): it
+        # sliced X, kept every channel, and raised nothing, so the entire run
+        # was measuring an arbitrary three-pixel-wide strip of the field.
+        if data.ndim == 4 and data.shape[0] == 1:
+            # A one-plane "volume" is a 2-D field. Squeezing it here means it
+            # takes the ordinary 2-D path, so it measures identically to the
+            # same field saved without a z axis, and needs no anisotropy.
+            data = data[0]
+        volumetric = data.ndim == 4
+        n_z = int(data.shape[0]) if volumetric else 1
+        # Raises when a 3-D field arrives without a voxel size or anisotropy,
+        # which the caller records on the run ledger. Done before any
+        # measurement so the run stops rather than half-filling a table.
+        spacing, units_stamp = resolve_measurement_spacing(
+            settings, 3 if volumetric else 2, n_z=n_z)
+
+        if settings['plot'] and volumetric:
+            # spacr.plot._plot_cropped_arrays lays out one panel per slice of a
+            # (Y, X, C) array; handed a 4-D array it would either raise or plot
+            # a slice of X as if it were a channel.
+            print(f"3-D field {file_name}: skipping the cropped-array plots "
+                  f"(spacr.plot renders 2-D fields).")
+        elif settings['plot']:
             if len(data.shape) == 3:
                 figuresize = data.shape[2]*10
             else:
                 figuresize = 10
             fig = _plot_cropped_arrays(data, file, figuresize)
             figs[f'{file_name}__before_filtration'] = fig
-        
-        channel_arrays = data[:, :, settings['channels']].astype(data_type)        
+
+        channel_arrays = data[..., settings['channels']].astype(data_type)
         if settings['cell_mask_dim'] is not None:
-            cell_mask = data[:, :, settings['cell_mask_dim']].astype(data_type)
-            
+            cell_mask = data[..., settings['cell_mask_dim']].astype(data_type)
+
             if settings['cell_min_size'] is not None and settings['cell_min_size'] != 0:
                 cell_mask = _filter_object(cell_mask, settings['cell_min_size'])
         else:
-            cell_mask = np.zeros_like(data[:, :, 0])
+            cell_mask = np.zeros_like(data[..., 0])
             settings['cytoplasm'] = False
             settings['uninfected'] = True
 
         if settings['nucleus_mask_dim'] is not None:
-            nucleus_mask = data[:, :, settings['nucleus_mask_dim']].astype(data_type)
+            nucleus_mask = data[..., settings['nucleus_mask_dim']].astype(data_type)
             if settings['cell_mask_dim'] is not None:
                 nucleus_mask, cell_mask = _merge_overlapping_objects(mask1=nucleus_mask, mask2=cell_mask)
             if settings['nucleus_min_size'] is not None and settings['nucleus_min_size'] != 0:
@@ -1111,30 +1602,30 @@ def _measure_crop_core(index, time_ls, file, settings):
             if settings['timelapse_objects'] == 'nucleus':
                 if settings['cell_mask_dim'] is not None:
                     cell_mask, nucleus_mask = _relabel_parent_with_child_labels(cell_mask, nucleus_mask)
-                    data[:, :, settings['cell_mask_dim']] = cell_mask
-                    data[:, :, settings['nucleus_mask_dim']] = nucleus_mask
+                    data[..., settings['cell_mask_dim']] = cell_mask
+                    data[..., settings['nucleus_mask_dim']] = nucleus_mask
                     save_folder = settings['src']
                     np.save(os.path.join(save_folder, file), data)
         else:
-            nucleus_mask = np.zeros_like(data[:, :, 0])
+            nucleus_mask = np.zeros_like(data[..., 0])
 
         if settings['pathogen_mask_dim'] is not None:
-            pathogen_mask = data[:, :, settings['pathogen_mask_dim']].astype(data_type)
+            pathogen_mask = data[..., settings['pathogen_mask_dim']].astype(data_type)
             if settings['merge_edge_pathogen_cells']:
                 if settings['cell_mask_dim'] is not None:
                     pathogen_mask, cell_mask = _merge_overlapping_objects(mask1=pathogen_mask, mask2=cell_mask)
             if settings['pathogen_min_size'] is not None and settings['pathogen_min_size'] != 0:
                 pathogen_mask = _filter_object(pathogen_mask, settings['pathogen_min_size'])
         else:
-            pathogen_mask = np.zeros_like(data[:, :, 0])
-            
+            pathogen_mask = np.zeros_like(data[..., 0])
+
         if settings.get('organelle_mask_dim') is not None:
-            organelle_mask = data[:, :, settings['organelle_mask_dim']].astype(data_type)
+            organelle_mask = data[..., settings['organelle_mask_dim']].astype(data_type)
             if settings.get('organelle_min_size') and settings['organelle_min_size'] != 0:
                 organelle_mask = _filter_object(organelle_mask, settings['organelle_min_size'])
         else:
-            organelle_mask = np.zeros_like(data[:, :, 0])
-        
+            organelle_mask = np.zeros_like(data[..., 0])
+
         # Create cytoplasm mask
         if settings['cytoplasm']:
             if settings['cell_mask_dim'] is not None:
@@ -1169,64 +1660,82 @@ def _measure_crop_core(index, time_ls, file, settings):
 
         if settings['cell_mask_dim'] is not None and settings['nucleus_mask_dim'] is not None and settings['pathogen_mask_dim'] is not None:
             cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask = _exclude_objects(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, uninfected=settings['uninfected'])
-            data[:, :, settings['cell_mask_dim']] = cell_mask.astype(data_type)
+            data[..., settings['cell_mask_dim']] = cell_mask.astype(data_type)
 
         if settings['nucleus_mask_dim'] is not None:
-            data[:, :, settings['nucleus_mask_dim']] = nucleus_mask.astype(data_type)
+            data[..., settings['nucleus_mask_dim']] = nucleus_mask.astype(data_type)
         if settings['pathogen_mask_dim'] is not None:
-            data[:, :, settings['pathogen_mask_dim']] = pathogen_mask.astype(data_type)
+            data[..., settings['pathogen_mask_dim']] = pathogen_mask.astype(data_type)
         if settings['cytoplasm']:
-            data = np.concatenate((data, cytoplasm_mask[:, :, np.newaxis]), axis=2)
+            data = np.concatenate((data, cytoplasm_mask[..., np.newaxis]), axis=-1)
 
-        if settings['plot']:
+        if settings['plot'] and not volumetric:
             fig = _plot_cropped_arrays(data, file, figuresize)
             figs[f'{file_name}__after_filtration'] = fig
-            
+
+
         if settings['save_measurements']:
             cell_df, nucleus_df, pathogen_df, organelle_df, cytoplasm_df = _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_mask, cytoplasm_mask, settings)
 
             cell_intensity_df, nucleus_intensity_df, pathogen_intensity_df, organelle_intensity_df, cytoplasm_intensity_df = _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_mask, cytoplasm_mask, channel_arrays, settings, sizes=[1, 2, 3, 4, 5], periphery=True, outside=True)
                 
             if settings['cell_mask_dim'] is not None:
-                _ = _merge_and_save_to_database(cell_df, cell_intensity_df, 'cell', source_folder, file_name, settings['experiment'], settings['timelapse'])
+                _ = _merge_and_save_to_database(cell_df, cell_intensity_df, 'cell', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
             if settings['nucleus_mask_dim'] is not None:
-                _ = _merge_and_save_to_database(nucleus_df, nucleus_intensity_df, 'nucleus', source_folder, file_name, settings['experiment'], settings['timelapse'])
+                _ = _merge_and_save_to_database(nucleus_df, nucleus_intensity_df, 'nucleus', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
 
             if settings['pathogen_mask_dim'] is not None:
-                _ = _merge_and_save_to_database(pathogen_df, pathogen_intensity_df, 'pathogen', source_folder, file_name, settings['experiment'], settings['timelapse'])
-            
+                _ = _merge_and_save_to_database(pathogen_df, pathogen_intensity_df, 'pathogen', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
+
             if settings.get('summarize_organelles_by') is not None:
                 if "organelle" in settings['summarize_organelles_by']:
                     if settings.get('organelle_mask_dim') is not None:
-                        _ = _merge_and_save_to_database(organelle_df, organelle_intensity_df, 'organelle', source_folder, file_name, settings['experiment'], settings['timelapse'])
+                        _ = _merge_and_save_to_database(organelle_df, organelle_intensity_df, 'organelle', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
 
             if settings['cytoplasm']:
-                cytoplasm_merged_df = _merge_and_save_to_database(cytoplasm_df, cytoplasm_intensity_df, 'cytoplasm', source_folder, file_name, settings['experiment'], settings['timelapse'])
-                
+                cytoplasm_merged_df = _merge_and_save_to_database(cytoplasm_df, cytoplasm_intensity_df, 'cytoplasm', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
+
             if settings.get('summarize_organelles_by') is not None:
                 if "cell" in settings['summarize_organelles_by']:
                     if settings.get('organelle_mask_dim') is not None and np.max(organelle_mask) > 0:
                         if settings['cell_mask_dim'] is not None:
-                            org_per_cell = _summarize_organelles_per_parent(organelle_mask, cell_mask, channel_arrays, parent_name='cell')
+                            org_per_cell = _summarize_organelles_per_parent(organelle_mask, cell_mask, channel_arrays, parent_name='cell', spacing=spacing)
                             org_per_cell.columns = [f'organelle_summary_{col}' if col != 'label' else col for col in org_per_cell.columns]
-                            _merge_and_save_to_database(org_per_cell, pd.DataFrame(), 'cell_organelle_summary', source_folder, file_name, settings['experiment'], settings['timelapse'])
+                            _merge_and_save_to_database(org_per_cell, pd.DataFrame(), 'cell_organelle_summary', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
                 if "nucleus" in settings['summarize_organelles_by']:
                     if settings['nucleus_mask_dim'] is not None:
-                        org_per_nucleus = _summarize_organelles_per_parent(organelle_mask, nucleus_mask, channel_arrays, parent_name='nucleus')
+                        org_per_nucleus = _summarize_organelles_per_parent(organelle_mask, nucleus_mask, channel_arrays, parent_name='nucleus', spacing=spacing)
                         org_per_nucleus.columns = [f'organelle_summary_{col}' if col != 'label' else col for col in org_per_nucleus.columns]
-                        _merge_and_save_to_database(org_per_nucleus, pd.DataFrame(), 'nucleus_organelle_summary', source_folder, file_name, settings['experiment'], settings['timelapse'])
+                        _merge_and_save_to_database(org_per_nucleus, pd.DataFrame(), 'nucleus_organelle_summary', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
                 if "pathogen" in settings['summarize_organelles_by']:
                     if settings['pathogen_mask_dim'] is not None:
-                        org_per_pathogen = _summarize_organelles_per_parent(organelle_mask, pathogen_mask, channel_arrays, parent_name='pathogen')
+                        org_per_pathogen = _summarize_organelles_per_parent(organelle_mask, pathogen_mask, channel_arrays, parent_name='pathogen', spacing=spacing)
                         org_per_pathogen.columns = [f'organelle_summary_{col}' if col != 'label' else col for col in org_per_pathogen.columns]
-                        _merge_and_save_to_database(org_per_pathogen, pd.DataFrame(), 'pathogen_organelle_summary', source_folder, file_name, settings['experiment'], settings['timelapse'])
+                        _merge_and_save_to_database(org_per_pathogen, pd.DataFrame(), 'pathogen_organelle_summary', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
                 if "cytoplasm" in settings['summarize_organelles_by']:
                     if settings['cytoplasm_mask_dim'] is not None:
-                        org_per_cytoplasm = _summarize_organelles_per_parent(organelle_mask, cytoplasm_mask, channel_arrays, parent_name='cytoplasm')
+                        org_per_cytoplasm = _summarize_organelles_per_parent(organelle_mask, cytoplasm_mask, channel_arrays, parent_name='cytoplasm', spacing=spacing)
                         org_per_cytoplasm.columns = [f'organelle_summary_{col}' if col != 'label' else col for col in org_per_cytoplasm.columns]
-                        _merge_and_save_to_database(org_per_cytoplasm, pd.DataFrame(), 'cytoplasm_organelle_summary', source_folder, file_name, settings['experiment'], settings['timelapse'])
+                        _merge_and_save_to_database(org_per_cytoplasm, pd.DataFrame(), 'cytoplasm_organelle_summary', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
 
-        if settings['save_png'] or settings['save_arrays'] or settings['plot']:
+        if volumetric and (settings['save_png'] or settings['save_arrays'] or settings['plot']):
+            # Refused, not approximated. Every step of the crop path is
+            # irreducibly 2-D: _crop_center and _find_bounding_box take (row,
+            # col), cv2.imwrite writes an image, and the PNGs are the training
+            # input for spacr.deep_spacr, whose models take H x W x 3. Cropping
+            # a projection instead would silently substitute a different
+            # measurement of the object -- one where anything sitting above or
+            # below another object is merged into it -- under the same file
+            # names, and nothing downstream could tell it had happened.
+            print(f"3-D field {file_name}: measurements written, but no PNG "
+                  f"crops or region arrays. Cropping is 2-D; to get crops from "
+                  f"a z-stack, project it first "
+                  f"(z_segmentation_mode='project').")
+            raise_if_strict(
+                f"save_png/save_arrays/plot requested for the 3-D field "
+                f"{file_name}, but spaCR crops 2-D fields only. Measurements "
+                f"were written; no crops were.", settings=settings)
+        elif settings['save_png'] or settings['save_arrays'] or settings['plot']:
             if isinstance(settings['dialate_pngs'], bool):
                 dialate_pngs = [settings['dialate_pngs'], settings['dialate_pngs'], settings['dialate_pngs']]
             if isinstance(settings['dialate_pngs'], list):
@@ -1304,7 +1813,16 @@ def _measure_crop_core(index, time_ls, file, settings):
                             # more than object 1 -- the crop depended on an
                             # arbitrary label id.
                             region_area = np.count_nonzero(region)
-                            approximate_diameter = np.sqrt(region_area)
+                            # The diameter of an object from its size is the
+                            # ndim-th root of that size, not always the square
+                            # root: a voxel count is a volume, and sqrt of a
+                            # volume is not a length. Unreachable for a 3-D
+                            # field today (the whole crop block is refused
+                            # above), but wrong is wrong.
+                            if region.ndim == 3:
+                                approximate_diameter = np.cbrt(region_area)
+                            else:
+                                approximate_diameter = np.sqrt(region_area)
                             dialate_png_px = int(approximate_diameter * dialate_png_ratio)
                             # scipy reads iterations=0 as "repeat until nothing
                             # changes", NOT as "do nothing", so a radius that
@@ -1313,7 +1831,11 @@ def _measure_crop_core(index, time_ls, file, settings):
                             # The crop then became an unmasked window centred on
                             # the middle of the field instead of on the object.
                             if dialate_png_px > 0:
-                                struct = generate_binary_structure(2, 2)
+                                # scipy requires the structuring element to have
+                                # the same rank as the input; a fixed (2, 2)
+                                # raises "structure and input must have same
+                                # dimensionality" on a volume.
+                                struct = generate_binary_structure(region.ndim, region.ndim)
                                 region = binary_dilation(region, structure=struct, iterations=dialate_png_px)
 
                         if settings['save_png']:
@@ -1498,19 +2020,7 @@ def measure_crop(settings):
             else:
                 settings['cytoplasm'] = False
                 
-            spacr_cores = int(mp.cpu_count())
-            
-            if settings['n_jobs'] > spacr_cores:
-                print(f'Warning set n_jobs to a maximum of {spacr_cores} or set as blank to use max cores')
-
-            if settings['n_jobs'] is None:
-                settings['n_jobs'] = spacr_cores
-            else:
-                spacr_cores = int(mp.cpu_count() - 4)
-                if spacr_cores <= 2:
-                    spacr_cores = 1
-                    
-            settings['n_jobs'] = spacr_cores
+            settings['n_jobs'] = resolve_n_jobs(settings['n_jobs'])
 
             settings_save = settings.copy()
             settings_save['src'] = os.path.dirname(settings['src'])
@@ -1820,6 +2330,12 @@ def generate_object_dataset(
         three → kept as an ``.npy`` array (and the first three saved as a PNG
         preview when ``save_png``).
     :param min_area: keep only objects with ``{object_type}_area`` > this.
+        In a database measured from 2-D fields that column is a px^2 area; in
+        one measured from 3-D volumes it is a volume, in voxels or um^3
+        according to the row's ``measurement_units``. This function crops 2-D
+        arrays only and refuses a volumetric one, so in practice the threshold
+        is always px^2 here -- but read the stamp before carrying a number
+        between databases.
     :param max_area: keep only objects with ``{object_type}_area`` < this.
     :param columns: list of plate column numbers to include (matched against
         ``columnID`` as ``'c<N>'``). ``rows`` / ``fields`` / ``plates`` behave
@@ -1942,6 +2458,14 @@ def generate_object_dataset(
         data = _array_cache[path_name]
         if data is None:
             continue
+        if data.ndim != 3:
+            # A (Z, Y, X, C) volume. Everything below is 2-D indexing, and
+            # `data[:, :, mask_dim]` on a 4-D array returns a slab of X, not a
+            # mask, without raising.
+            raise ValueError(
+                f"generate_object_dataset crops 2-D merged arrays (Y, X, C); "
+                f"{path_name} has shape {data.shape}. Project the z-stack "
+                f"before building an object dataset.")
         if mask_dim >= data.shape[2]:
             raise IndexError(
                 f"mask_dim {mask_dim} out of range for array with "
