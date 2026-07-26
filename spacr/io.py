@@ -812,7 +812,17 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
 
                 mip = np.max(np.stack(images), axis=0)
                 channels_seen.add(channel)
-                fov_channels.setdefault(output_filename, {})[channel] = mip
+                # Combine, do not overwrite. The grouping key built in
+                # utils._extract_filename_metadata includes sliceID, so with
+                # cellvoyager/cq1 metadata every z-plane arrives as its OWN key
+                # and this assignment let each plane replace the last: a
+                # 21-plane stack silently became one arbitrarily chosen plane,
+                # decided by os.listdir order, with no warning and no log line.
+                # (Under metadata_type='auto' the regex has no sliceID group,
+                # so every plane is already in `images` and this is a no-op.)
+                _chans = fov_channels.setdefault(output_filename, {})
+                _prev = _chans.get(channel)
+                _chans[channel] = mip if _prev is None else np.maximum(_prev, mip)
 
                 files_processed += 1
                 stop = time.time()

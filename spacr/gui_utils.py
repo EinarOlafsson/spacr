@@ -661,6 +661,9 @@ def convert_settings_dict_for_gui(settings):
         'cv_group_by': ('combo', ['well', 'field', 'plate', 'none'], 'well'),
         # spacr.seg_qc.MODES
         'seg_qc': ('combo', ['off', 'report', 'flag'], 'report'),
+        # Three states, not two: None defers to SPACR_STRICT_ERRORS so a
+        # cluster can turn it on for a batch without editing every file.
+        'strict_errors': ('combo', [None, True, False], None),
         'normalize_by': ('combo', ['fov', 'png'], 'png'),
         'agg_type': ('combo', ['mean', 'median'], 'mean'),
         'grouping': ('combo', ['mean', 'median'], 'mean'),

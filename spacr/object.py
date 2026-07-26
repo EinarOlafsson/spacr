@@ -211,6 +211,168 @@ def _run_seg_qc(src, settings, object_type):
         settings.setdefault('seg_qc_flags', {})[object_type] = result['flags']
     return result
 
+
+# ====================================================================== #
+#  3D (Beta): z-stack plumbing
+# ====================================================================== #
+#
+# Everything below is inert unless the `z_stack` setting is on.
+# `_z_stack_plan` returns None in that case and every call site branches on
+# it, so a run that has not opted in executes not one line of z code and
+# produces byte-identical masks to a run from before these settings existed.
+# That property is the acceptance criterion and is asserted in
+# tests/test_zstack.py.
+
+def _z_stack_plan(settings):
+    """Return the :class:`spacr.zstack.ZStackSpec` for this run, or None.
+
+    :param settings: pipeline settings dict.
+    :returns: a spec when ``z_stack`` is on, else ``None``.
+    """
+    from .zstack import plan_from_settings
+
+    return plan_from_settings(settings)
+
+
+def _require_z_axis(stack, z_plan, path):
+    """Stop the run when 3D is on but the array that arrived is flat.
+
+    The alternative -- quietly segmenting the projection and calling the
+    result 3-D -- is the failure mode this whole feature exists to avoid, so
+    it is a hard error naming both the cause and the way out.
+
+    :param stack: the ``(N, ...)`` array loaded from one ``.npz`` batch.
+    :param z_plan: the active spec.
+    :param path: the ``.npz`` path, for the message.
+    :raises spacr.zstack.ZAxisNotPresentError: when there is no z axis.
+    """
+    from .zstack import ZAxisNotPresentError
+
+    if stack.ndim >= 5:
+        return
+
+    raise ZAxisNotPresentError(
+        f"z_stack is on but {os.path.basename(path)} holds an array of shape "
+        f"{stack.shape}, which is (fields, Y, X, channels) -- there is no z "
+        f"axis left to segment. spaCR's image ingest "
+        f"(io._rename_and_organize_image_files) collapses every z plane of a "
+        f"field into one plane while organising the raw files, so by the time "
+        f"a batch reaches segmentation the z axis is already gone. Either turn "
+        f"z_stack off and accept the projection spaCR has always made, or hand "
+        f"spacr.zstack.segment_3d your (Z, Y, X, C) volumes directly through "
+        f"the Python API. spaCR will not segment the projection and report it "
+        f"as a 3-D result."
+    )
+
+
+def _cellpose_z_segment_fn(model, eval_kwargs, stitch_threshold):
+    """Adapt ``CellposeModel.eval`` to the ``segment_fn`` contract of zstack.
+
+    ``spacr.zstack`` knows nothing about Cellpose; it calls
+    ``segment_fn(array, **kwargs)`` and this closure maps those kwargs onto
+    ``eval``. Two of them are worth stating because Cellpose 4 is quiet about
+    them:
+
+    * ``do_3D=True`` is the only setting under which Cellpose honours
+      ``anisotropy`` at all. With ``do_3D=False`` it accepts the argument and
+      ignores it silently, which is why the stitch branch here never passes
+      it.
+    * Rather than let Cellpose stitch (``stitch_threshold`` in ``eval``), the
+      stitch branch asks it for plain per-plane 2-D masks and links them with
+      :func:`spacr.zstack.stitch_planes`. ``cellpose.utils.stitch3D`` resets
+      its label counter after an empty plane, so an ``[objects][empty]
+      [objects]`` stack there reuses ids and silently fuses unrelated objects;
+      ours draws every new label from one monotonic counter.
+
+    :param model: a loaded ``CellposeModel``.
+    :param eval_kwargs: kwargs shared with the 2-D path.
+    :param stitch_threshold: kept for the caller's records; the linking itself
+        happens in :func:`spacr.zstack.stitch_planes`.
+    :returns: a callable matching the ``segment_fn`` contract.
+    """
+    def _segment(array, do_3D=False, anisotropy=None, z_axis=None, stitch=False):
+        kwargs = dict(eval_kwargs)
+
+        if do_3D:
+            kwargs.update(
+                do_3D=True,
+                anisotropy=anisotropy,
+                z_axis=0 if z_axis is None else int(z_axis),
+                channel_axis=-1,
+            )
+            output = model.eval(x=array, **kwargs)
+            return np.asarray(output[0])
+
+        if stitch:
+            # One 2-D call per plane. Labels come back plane-local; zstack
+            # links them.
+            planes = [array[z] for z in range(array.shape[0])]
+            kwargs['batch_size'] = len(planes)
+            output = model.eval(x=planes, **kwargs)
+            return np.asarray(output[0])
+
+        # Projected 2-D plane: exactly the ordinary single-image call.
+        output = model.eval(x=[array], **kwargs)
+        return np.asarray(output[0][0])
+
+    return _segment
+
+
+def _segment_volumes_with_z(volumes, model, z_plan, eval_kwargs):
+    """Segment one field at a time under the active z plan.
+
+    Deliberately a plain loop rather than a batched call: a z-stack is ``n_z``
+    times a field, so a batch of them is ``batch_size * n_z`` fields in memory
+    at once. See :func:`spacr.zstack.estimate_peak_bytes` for the per-field
+    footprint.
+
+    :param volumes: sequence of ``(Z, Y, X, C)`` arrays, one per field.
+    :param model: a loaded ``CellposeModel``.
+    :param z_plan: the active :class:`spacr.zstack.ZStackSpec`.
+    :param eval_kwargs: kwargs shared with the 2-D path.
+    :returns: ``(masks, results, intensity)`` — a list of label arrays, 2-D
+        under ``'project'`` and 3-D otherwise; the matching
+        :class:`spacr.zstack.ZStackResult` records; and, under ``'project'``
+        only, the projected ``(N, Y, X, C)`` intensity array that was actually
+        segmented, which is what the 2-D merge/split/filter step must score
+        against rather than the original volume.
+    """
+    from .zstack import project, segment_3d
+
+    z_axis = 0 if z_plan.z_axis is None else z_plan.z_axis
+    segment_fn = _cellpose_z_segment_fn(
+        model, eval_kwargs, z_plan.stitch_threshold
+    )
+
+    masks, results = [], []
+    for volume in volumes:
+        result = segment_3d(
+            volume,
+            segment_fn=segment_fn,
+            mode=z_plan.mode,
+            stitch_threshold=z_plan.stitch_threshold,
+            anisotropy=z_plan.anisotropy,
+            voxel_size_um=z_plan.voxel_size_um,
+            projection=z_plan.projection,
+            z_axis=z_axis,
+            resample_to_isotropic=z_plan.resample_to_isotropic,
+        )
+        masks.append(result.labels)
+        results.append(result)
+
+    intensity = None
+    if z_plan.mode == 'project' and volumes:
+        # The same projection segment_3d just made. The merge/split/filter
+        # step scores masks against intensities, so it must see the plane the
+        # masks were drawn on, not the volume it came from.
+        intensity = np.stack([
+            project(volume, mode=z_plan.projection, z_axis=z_axis)
+            for volume in volumes
+        ])
+
+    return masks, results, intensity
+
+
 def generate_cellpose_masks_sam(src, settings, object_type):
     """Segment one object channel across all ``.npz`` batches under ``src`` using Cellpose-SAM.
 
@@ -268,7 +430,11 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     cellprob_threshold = settings[f'{object_type}_CP_prob']
     flow_threshold = settings[f'{object_type}_FT']
     object_settings = _get_object_settings(object_type, settings)
-        
+
+    # None unless the user opted into 3D (Beta). Every branch below is guarded
+    # on it, so the 2-D path is untouched when it is None.
+    z_plan = _z_stack_plan(settings)
+
     if settings.get('cellpose_nucleus_channel') is None and settings.get('nucleus_channel') is not None:
         settings['cellpose_nucleus_channel'] = settings['nucleus_channel']
     
@@ -334,13 +500,22 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                         batch_size = len(stack)
                         print(f'Cut batch at indecies: {timelapse_frame_limits}, New batch_size: {batch_size} ')
         
+        if z_plan is not None:
+            # Fail before the first field rather than after: whether this
+            # array has a z axis cannot change later in the run.
+            _require_z_axis(stack, z_plan, path)
+
         for i in range(0, stack.shape[0], batch_size):
             mask_stack = []
-            if stack.shape[3] == 1:
+            if z_plan is not None:
+                # (N, Z, Y, X, C): select channels off the trailing axis so the
+                # z axis is preserved.
+                batch = stack[i: i+batch_size][..., channels].astype(stack.dtype)
+            elif stack.shape[3] == 1:
                 batch = stack[i: i+batch_size, :, :, [0]].astype(stack.dtype)
             else:
                 batch = stack[i: i+batch_size, :, :, channels].astype(stack.dtype)
-            
+
             # In the future drop the npz save file step, just keep it in memory and pass the batch directly to the model. This will save time and disk space. For now, keep it for backwards compatibility and to avoid issues with large batches that might not fit in memory.                
             #if stack.shape[3] == 1:
             #    batch = stack[i: i+batch_size, :, :, [0]].astype(stack.dtype)
@@ -365,34 +540,70 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                 _npz_to_movie(cp_batch, batch_filenames, save_path, fps=2)
                 
             
-            output = model.eval(
-                x=batch_list,
-                batch_size=len(batch_list),
-                normalize=False,
-                channel_axis=-1,
-                min_size=object_settings['min_size'],
-                progress=True,
-                # Cellpose 4 still honours `diameter` in eval() — it rescales
-                # the image by 30/diameter. Only diam_mean at construction is
-                # ignored. This was hard-coded to None, so an explicitly-set
-                # <obj>_diameter (and anything spacr.diameter proposes) never
-                # reached Cellpose. The setting defaults to None, so None here
-                # still means "let CPSAM work at native scale".
-                diameter=settings.get(f'{object_type}_diameter'),
-                flow_threshold=flow_threshold,
-                cellprob_threshold=cellprob_threshold,
-                resample=object_settings['resample']
+            if z_plan is None:
+                output = model.eval(
+                    x=batch_list,
+                    batch_size=len(batch_list),
+                    normalize=False,
+                    channel_axis=-1,
+                    min_size=object_settings['min_size'],
+                    progress=True,
+                    # Cellpose 4 still honours `diameter` in eval() — it rescales
+                    # the image by 30/diameter. Only diam_mean at construction is
+                    # ignored. This was hard-coded to None, so an explicitly-set
+                    # <obj>_diameter (and anything spacr.diameter proposes) never
+                    # reached Cellpose. The setting defaults to None, so None here
+                    # still means "let CPSAM work at native scale".
+                    diameter=settings.get(f'{object_type}_diameter'),
+                    flow_threshold=flow_threshold,
+                    cellprob_threshold=cellprob_threshold,
+                    resample=object_settings['resample']
+                    )
+
+                masks, flows, _, _, _ = parse_cellpose4_output(output)
+            else:
+                # Same eval kwargs as the 2-D call above, minus the ones zstack
+                # sets per mode (x, batch_size, channel_axis, do_3D, anisotropy,
+                # z_axis).
+                z_eval_kwargs = dict(
+                    batch_size=1,
+                    normalize=False,
+                    channel_axis=-1,
+                    min_size=object_settings['min_size'],
+                    progress=True,
+                    diameter=settings.get(f'{object_type}_diameter'),
+                    flow_threshold=flow_threshold,
+                    cellprob_threshold=cellprob_threshold,
+                    resample=object_settings['resample'],
                 )
-                 
-            masks, flows, _, _, _ = parse_cellpose4_output(output)
-            
-            masks = merge_split_filter_masks(
-                masks=masks,
-                intensity_images=batch,
-                settings=settings,
-                object_type=object_type,
-                batch_filenames=batch_filenames,
-            )
+                masks, z_results, z_intensity = _segment_volumes_with_z(
+                    batch_list, model, z_plan, z_eval_kwargs
+                )
+                flows = None
+                if settings['verbose']:
+                    for filename, result in zip(batch_filenames, z_results):
+                        for note in result.notes:
+                            print(f"[3D] {filename}: {note}")
+
+            if z_plan is None or z_plan.mode == 'project':
+                # merge/split/filter reason in 2-D: they measure areas in px²
+                # and split objects with a 2-D watershed. Handing them a
+                # (Z, Y, X) volume would silently apply all of that per plane
+                # and tear the 3-D labels apart, so the 3-D modes skip them.
+                masks = merge_split_filter_masks(
+                    masks=masks,
+                    intensity_images=batch if z_plan is None else z_intensity,
+                    settings=settings,
+                    object_type=object_type,
+                    batch_filenames=batch_filenames,
+                )
+            else:
+                print(
+                    f"merge_split_filter_masks({object_type}): skipped — the "
+                    f"merge/split/filter operations are 2-D only and would be "
+                    f"applied per z plane, breaking the 3-D labels that "
+                    f"z_segmentation_mode='{z_plan.mode}' just produced"
+                )
             
             if timelapse:
                 if settings['plot']:
@@ -512,7 +723,19 @@ def generate_cellpose_masks_sam(src, settings, object_type):
 
         if not timelapse:
             if settings['plot']:
-                plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=len(batch_list))
+                if flows is None:
+                    # plot_cellpose4_output draws the per-image flow field
+                    # beside each mask; the z paths call eval once per volume
+                    # and do not collect one, and in the stitch/volumetric
+                    # modes the mask is a (Z, Y, X) volume it cannot render
+                    # beside a 2-D field either.
+                    print(
+                        f"plot skipped: z_segmentation_mode='{z_plan.mode}' "
+                        f"does not produce the per-image flow images this plot "
+                        f"needs. Inspect the saved .npy masks instead."
+                    )
+                else:
+                    plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=len(batch_list))
                 
         if settings['save']:
             for mask_index, mask in enumerate(mask_stack):
