@@ -7,28 +7,53 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# One consolidated job — installs the exact same way as local dev
-# (`pip install -e ".[qt,dev]"` on top of a CPU-only torch) and runs
-# every test in tests/ except:
+# The full test suite, on Linux x86-64, across every Python spaCR claims to
+# support. Installs the exact same way as local dev (`pip install -e
+# ".[qt,dev]"` on top of a CPU-only torch) and runs every test in tests/
+# except:
 #   - tests/qt/test_e2e_pipeline.py's `slow` marks (need cellpose models)
 #   - tests/test_gpu_pipeline.py (needs CUDA)
 #   - anything marked `heavy` (long-running)
-# This mirrors what a maintainer runs on their workstation, so a green
-# CI badge and a green local run mean the same thing.
+# This mirrors what a maintainer runs on their workstation, so a green CI
+# badge and a green local run mean the same thing.
+#
+# Breadth — macOS, Windows, ARM64, the requires-python guard, wheel
+# availability — lives in .github/workflows/compat-matrix.yml, which runs a
+# much cheaper install + import + packaging subset. Splitting them keeps the
+# expensive suite on the platform that can actually finish it, while still
+# proving the other platforms install and import.
+#
+# Every `Programming Language :: Python :: 3.x` classifier in pyproject.toml
+# must have a cell somewhere across these two workflows. If you add a
+# classifier, add the cell first.
 
 jobs:
   tests:
-    name: Full test suite
+    name: Full suite (ubuntu-22.04, py${{ matrix.python-version }})
     runs-on: ubuntu-22.04
-    timeout-minutes: 45
+    timeout-minutes: 60
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.10 is the historical cell — before this matrix existed it was the
+        # only cell of the 36 in the compatibility grid that had ever been
+        # executed. It stays, unchanged, and stays blocking so nothing
+        # regresses. 3.11 and 3.12 are new: both sit inside requires-python
+        # (>=3.10,<3.13) and every core dependency publishes cp311/cp312
+        # wheels, so both are *expected to pass*. If one is red on first run
+        # that is a real finding — do not paper over it with
+        # continue-on-error, which is reserved for cells whose failure is
+        # already understood and documented in compat-matrix.yml.
+        python-version: ["3.10", "3.11", "3.12"]
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python 3.10
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: ${{ matrix.python-version }}
           cache: pip
 
       - name: Install system libraries (Qt offscreen + scientific stack)
@@ -54,6 +79,16 @@ jobs:
           # IPython, mahotas, czifile, readlif, statsmodels, cellpose,
           # transformers, monai, xgboost, umap, seaborn, biopython, etc.
           python -m pip install -e ".[qt,dev]"
+
+      - name: Show the pins that gate the compatibility matrix
+        # One line per dependency whose wheel availability decides which
+        # cells of the matrix can exist. When a cell goes red six months from
+        # now, this log is the difference between "which version moved?" and
+        # re-deriving the whole thing from scratch.
+        run: |
+          python -c "import sys; print('python', sys.version)"
+          python -m pip list --format=freeze | grep -Ei \
+            '^(numpy|scipy|torch|torchvision|cellpose|mahotas|opencv-python-headless|pillow|psutil|lxml|PySide6|pandas|scikit-image)=' || true
 
       - name: Run tests (skip slow / heavy / gpu-only)
         env:

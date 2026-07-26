@@ -1,0 +1,427 @@
+name: compat-matrix
+
+# ---------------------------------------------------------------------------
+# The compatibility grid.
+#
+# spaCR claims Python 3.10-3.12 on Linux, macOS and Windows. Before this
+# workflow existed, exactly one cell of that grid had ever been executed:
+# ubuntu-22.04 / CPython 3.10, in tests.yml. Every other claim in the
+# classifiers, the README and the install docs was inference from wheel
+# metadata — strong inference for "will it install", no evidence at all for
+# "will it run".
+#
+# This workflow converts the inference into builds. It deliberately does NOT
+# run the 45-minute suite on every platform (tests.yml owns that on Linux);
+# it runs the cheap, decisive part — does it install, does `import spacr`
+# succeed, is the packaging metadata self-consistent — and then runs the full
+# suite on the non-Linux platforms as an *informational* step that reports
+# but never decides.
+#
+# Honesty rules for this file:
+#   * A cell whose failure is already understood is marked
+#     `experimental: true` and carries a `why:` naming the reason and the
+#     remediation wave that clears it. It shows yellow, not green.
+#   * A cell with no known blocker is blocking. If it goes red, that is a
+#     finding, not a flake.
+#   * Nothing is excluded from the grid silently. Platforms that cannot be
+#     tested here (Intel macOS, Windows-on-ARM) are documented in comments
+#     below with the reason, so nobody re-derives it.
+#
+# Not run on every branch push: the grid is wide and most of it is slow.
+# main/nightly, PRs to main, a weekly cron, and manual dispatch.
+# ---------------------------------------------------------------------------
+
+on:
+  push:
+    branches: [main, nightly, spacr-nightly]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Mondays 05:00 UTC. Upstream wheel availability is the thing most
+    # likely to change under us; a weekly run notices it without anybody
+    # having to remember to look.
+    - cron: "0 5 * * 1"
+  workflow_dispatch:
+
+jobs:
+  # -------------------------------------------------------------------------
+  # 1. Packaging metadata. Cheap, fast, blocking. No scientific stack.
+  # -------------------------------------------------------------------------
+  metadata:
+    name: Packaging metadata
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install packaging tooling only
+        # Deliberately NOT `pip install -e .` — this job must prove the
+        # metadata is right without the 4 GB of torch that would hide a
+        # metadata bug behind a resolver failure.
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build twine pytest packaging
+
+      - name: Build sdist and wheel
+        run: python -m build --outdir dist .
+
+      - name: twine check
+        run: python -m twine check dist/*
+
+      - name: Assert the built metadata carries Requires-Python
+        # The regression this guards: setup.py used to declare no
+        # python_requires at all, and pyproject.toml was three lines of
+        # build-system. `pip install spacr` on 3.13 therefore resolved,
+        # downloaded several hundred MB, and died inside a source build of
+        # numpy 1.26.4 with a compiler error. If this assertion ever fails,
+        # that experience is back.
+        run: |
+          python - <<'PY'
+          import glob, zipfile, sys
+          wheels = glob.glob("dist/*.whl")
+          assert wheels, "no wheel was built"
+          z = zipfile.ZipFile(wheels[0])
+          name = next(n for n in z.namelist() if n.endswith("dist-info/METADATA"))
+          md = z.read(name).decode()
+          lines = [l for l in md.splitlines() if l.startswith("Requires-Python:")]
+          assert lines, "built wheel has no Requires-Python -- pip cannot decline early"
+          print(lines[0])
+          assert "Operating System :: OS Independent" not in md, \
+              "OS Independent classifier is back; it is not true (no Windows-on-ARM support)"
+          PY
+
+      - name: Packaging self-consistency tests
+        # These import nothing from spacr; they read setup.py and
+        # pyproject.toml as data. That is why they can run in a job with no
+        # scientific stack installed.
+        run: python -m pytest tests/test_packaging_metadata.py -q --no-header
+
+  # -------------------------------------------------------------------------
+  # 2. The requires-python guard, proved rather than asserted.
+  #
+  # This is the inverse of a normal test: it is GREEN when the install
+  # correctly REFUSES. Python 3.13 is outside `requires-python`, so pip must
+  # decline in seconds with a Requires-Python message instead of grinding
+  # through a numpy source build.
+  #
+  # When Wave 3 lands (numpy/pillow/lxml/psutil unpinned, mahotas and
+  # pylibCZIrw moved to extras) and requires-python widens to <3.14, this job
+  # becomes a real 3.13 install cell in the matrix below and this job is
+  # deleted. Until then it is the only thing standing between a 3.13 user and
+  # a compiler traceback.
+  # -------------------------------------------------------------------------
+  requires-python-guard:
+    name: 3.13 install is refused cleanly
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: pip must decline, not compile
+        run: |
+          python -m pip install --upgrade pip
+          set +e
+          out=$(python -m pip install --dry-run --no-deps . 2>&1)
+          rc=$?
+          set -e
+          echo "$out"
+          if [ $rc -eq 0 ]; then
+            echo "::error::pip accepted spacr on Python 3.13 -- requires-python is missing or too wide"
+            exit 1
+          fi
+          echo "$out" | grep -qi "requires-python\|requires a different python" || {
+            echo "::error::pip failed on 3.13, but not because of Requires-Python."
+            echo "::error::That means a user gets a confusing failure (probably a numpy source build) instead of one clear sentence."
+            exit 1
+          }
+          echo "OK: pip declined with a Requires-Python message."
+
+  # -------------------------------------------------------------------------
+  # 3. The platform grid: install, import, and (off Linux) the full suite as
+  #    an informational step.
+  #
+  # Platforms deliberately absent, with reasons, so nobody re-derives them:
+  #
+  #   * macOS x86-64 (Intel). GitHub retired the `macos-13` hosted runner;
+  #     macos-14/15/26 are all Apple silicon. Intel macOS therefore CANNOT be
+  #     tested on hosted runners at any price. It is also the matrix's worst
+  #     cell: the last torch with any macOS x86_64 wheel is 2.2.2, so
+  #     `torch>=2.0,<3.0` silently backtracks to a torch released two years
+  #     before the Cellpose 4 code that runs on it. The install SUCCEEDS,
+  #     which is what makes it dangerous. Verify by hand on an Intel Mac, or
+  #     drop the `Operating System :: MacOS` claim to arm64 only.
+  #
+  #   * Windows-on-ARM (`windows-11-arm`). The runner exists; the platform
+  #     does not. torch has never published a win_arm64 wheel for any
+  #     version, and neither has numpy<2.0, opencv-python-headless, mahotas,
+  #     pylibCZIrw or aicspylibczi. PySide6 *does* ship win_arm64, which is
+  #     the trap: the GUI layer installs and the compute layer cannot. A cell
+  #     here would be permanently yellow and would teach nobody anything.
+  #
+  #   * CUDA and ROCm. No hosted runner has a GPU. tests/test_gpu_pipeline.py
+  #     and the `gpu` mark exist for a self-hosted runner; wire one up and
+  #     this is where its cell goes.
+  # -------------------------------------------------------------------------
+  install:
+    name: ${{ matrix.label }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    continue-on-error: ${{ matrix.experimental }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # --- control cell -------------------------------------------------
+          # Same platform as tests.yml, cheaper path. Its only job is to make
+          # a red macOS/Windows cell attributable to the platform rather than
+          # to this workflow.
+          - label: "Linux x86-64 / py3.12 (control)"
+            os: ubuntu-22.04
+            python-version: "3.12"
+            experimental: false
+            why: "control"
+
+          # --- Linux ARM64 --------------------------------------------------
+          # Expected RED on first run, and the reason is upstream, not spaCR:
+          #   * mahotas 1.4.18 publishes NO aarch64 wheel at all (the last
+          #     aarch64 build was 1.4.13, cp36-cp39), so it must compile from
+          #     source against numpy headers.
+          #   * psutil 5.9.8 (the `<6.0` pin) publishes manylinux x86_64 and
+          #     i686 only.
+          # Both have sdists and the runner has gcc, so this may well go
+          # green — which is exactly why it is worth running rather than
+          # guessing. What it will NOT do is install on a bare ARM node with
+          # no toolchain, which is the actual user complaint.
+          # Cleared by: Wave 3 (mahotas -> extras, psutil pin lifted to <8).
+          - label: "Linux ARM64 / py3.11"
+            os: ubuntu-24.04-arm
+            python-version: "3.11"
+            experimental: true
+            why: "mahotas has no aarch64 wheel; psutil<6.0 has no aarch64 wheel"
+
+          # --- Windows x86-64 -----------------------------------------------
+          # The install is expected to succeed. The *suite* is expected to
+          # find things, because spaCR is full of POSIX assumptions: cv2
+          # .imwrite return values dropped on the crop path, mixed '/' and
+          # '\' separators written into png_list.png_path, console output
+          # unencodable in the Windows codepage, MAX_PATH overflow at ~116
+          # characters of source path, and the spawn re-import tax with an
+          # uncapped n_jobs. None of that is fatal at install; all of it is
+          # fatal at use. That is why the full suite runs here as an
+          # informational step.
+          - label: "Windows x86-64 / py3.11"
+            os: windows-2022
+            python-version: "3.11"
+            experimental: true
+            why: "POSIX assumptions in paths, encodings and multiprocessing"
+
+          # --- macOS Apple silicon ------------------------------------------
+          # Installs and runs. On the CPU. Always. `torch.backends.mps`,
+          # `torch.mps` and the string 'mps' appear zero times under spacr/;
+          # all 17 `torch.device(...)` sites resolve `cuda ? cuda : cpu`, and
+          # spaCR passes an explicit `device=torch.device('cpu')` into
+          # Cellpose, which overrides Cellpose's own working MPS detection.
+          # A green cell here means "it ran", not "it used the GPU".
+          # Cleared by: the device-resolver work (not in this workflow's
+          # scope) — this cell will keep passing either way, which is the
+          # honest limit of what CI can tell you here.
+          - label: "macOS arm64 / py3.11"
+            os: macos-15
+            python-version: "3.11"
+            experimental: true
+            why: "no MPS support in spacr; CPU-only, and Cellpose MPS is actively overridden"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install system libraries (Linux only)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          sudo apt-get update
+          # Installed one at a time and tolerantly: the Qt runtime package
+          # names differ between 22.04 and 24.04 (libasound2 became
+          # libasound2t64 in the t64 transition), and a single unknown name
+          # would otherwise abort the whole list.
+          for pkg in \
+            libegl1 libxkbcommon0 libdbus-1-3 libpulse0 \
+            libx11-xcb1 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+            libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-sync1 \
+            libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
+            libgl1 libglib2.0-0 libnss3 libxcomposite1 libxcursor1 \
+            libxdamage1 libxi6 libxtst6 libasound2t64 libasound2 \
+            libsm6 libxext6 libxrender1 ffmpeg ; do
+            sudo apt-get install --no-install-recommends -y "$pkg" || \
+              echo "skip: $pkg not available on this release"
+          done
+
+      - name: Install CPU-only torch (Linux, Windows)
+        if: runner.os != 'macOS'
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          # The CUDA wheel is ~2.5 GB and would exhaust the runner disk.
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu \
+            "torch>=2.0" "torchvision"
+
+      - name: Install torch (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          # No separate CPU index for macOS: the PyPI macOS wheels are the
+          # CPU/MPS build. (On Intel macOS this is where pip would silently
+          # backtrack to torch 2.2.2 — see the comment above about why that
+          # cell cannot be tested on hosted runners.)
+          python -m pip install "torch>=2.0" "torchvision"
+
+      - name: Install spacr
+        shell: bash
+        run: python -m pip install -e ".[qt,dev]"
+
+      - name: Show the pins that gate this cell
+        shell: bash
+        run: |
+          python -c "import sys, platform; print(sys.version); print(platform.platform(), platform.machine())"
+          python -m pip list --format=freeze | grep -Ei \
+            '^(numpy|scipy|torch|torchvision|cellpose|mahotas|opencv-python-headless|pillow|psutil|lxml|PySide6|pandas|scikit-image)=' || true
+
+      - name: Import spacr
+        # `import spacr` alone is a meaningful test on a new platform: it is
+        # what fails when a module-scope `from mahotas.features import
+        # zernike_moments` or `from pylibCZIrw import czi` has no wheel.
+        shell: bash
+        env:
+          QT_QPA_PLATFORM: offscreen
+          MPLBACKEND: Agg
+        run: |
+          python -c "import spacr; print('spacr', spacr.__version__)"
+          python -c "import spacr.io, spacr.measure, spacr.utils; print('core modules import')"
+
+      - name: Packaging + smoke subset (decides this cell)
+        shell: bash
+        env:
+          QT_QPA_PLATFORM: offscreen
+          MPLBACKEND: Agg
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          python -m pytest tests/test_packaging_metadata.py tests/test_smoke.py \
+            -q --no-header -m "not slow and not heavy and not gpu and not network"
+
+      - name: Full suite (informational, never decides)
+        # Linux already runs this in tests.yml; running it again here would
+        # double the bill for no new information.
+        if: runner.os != 'Linux'
+        continue-on-error: true
+        shell: bash
+        env:
+          QT_QPA_PLATFORM: offscreen
+          MPLBACKEND: Agg
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          python -m pytest tests/ \
+            --ignore=tests/test_gpu_pipeline.py \
+            -m "not slow and not heavy and not gpu and not network" \
+            -q --no-header --tb=short
+
+  # -------------------------------------------------------------------------
+  # 4. Upstream wheel availability. Informational, never blocking.
+  #
+  # Every "cannot support Python 3.13" and "cannot install on ARM Linux"
+  # claim in the compatibility plan rests on which wheels exist on PyPI --
+  # facts that change without warning and in our favour. This job restates
+  # them as a table in the run summary each week, so the day mahotas ships a
+  # cp313 wheel somebody notices, instead of the ceiling staying at 3.12 out
+  # of habit.
+  #
+  # Note for whoever reads the table: a naive "is there a cp313 tag" scan
+  # UNDER-reports. `abi3` wheels (opencv-python-headless ships cp37-abi3,
+  # PySide6 ships cp310-abi3) and `py3-none-any` wheels (cellpose, xgboost,
+  # btrack, umap-learn, seaborn, transformers, tifffile, monai, captum) work
+  # on every later Python unchanged. The script below counts those as
+  # compatible, because treating them as blockers is how you talk yourself
+  # out of a version you already support.
+  # -------------------------------------------------------------------------
+  wheel-availability:
+    name: Upstream wheel availability (informational)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Query PyPI
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json, urllib.request
+
+          # The packages that actually gate the matrix. Not the whole
+          # dependency list -- the ones a plan decision hangs on.
+          PACKAGES = [
+              "numpy", "mahotas", "psutil", "pylibCZIrw", "torch",
+              "torchvision", "opencv-python-headless", "pillow", "lxml",
+              "scipy", "PySide6",
+          ]
+          PYTAGS = ["cp310", "cp311", "cp312", "cp313", "cp314"]
+          PLATS = {
+              "linux-x86_64": ("manylinux", "x86_64"),
+              "linux-aarch64": ("manylinux", "aarch64"),
+              "macos-arm64": ("macosx", "arm64"),
+              "macos-x86_64": ("macosx", "x86_64"),
+              "win-amd64": ("win", "amd64"),
+              "win-arm64": ("win", "arm64"),
+          }
+
+          def files(pkg):
+              url = f"https://pypi.org/pypi/{pkg}/json"
+              with urllib.request.urlopen(url, timeout=30) as r:
+                  data = json.load(r)
+              ver = data["info"]["version"]
+              return ver, data["releases"].get(ver, [])
+
+          print("## Upstream wheel availability\n")
+          print("`any` = pure-Python (`py3-none-any`) or `abi3`; works on every")
+          print("later CPython unchanged. `-` = no wheel, source build only.\n")
+          header = "| package | latest | " + " | ".join(PYTAGS) + " | platforms |"
+          print(header)
+          print("|" + "---|" * (len(PYTAGS) + 3))
+
+          for pkg in PACKAGES:
+              try:
+                  ver, fs = files(pkg)
+              except Exception as exc:                      # informational job
+                  print(f"| {pkg} | query failed: {exc} | | | | | | |")
+                  continue
+              names = [f["filename"] for f in fs if f["filename"].endswith(".whl")]
+              universal = any("py3-none-any" in n or "abi3" in n for n in names)
+              cells = []
+              for tag in PYTAGS:
+                  if universal:
+                      cells.append("any")
+                  else:
+                      cells.append("yes" if any(f"-{tag}-" in n for n in names) else "-")
+              plats = [k for k, (a, b) in PLATS.items()
+                       if any(a in n and b in n for n in names)]
+              print(f"| {pkg} | {ver} | " + " | ".join(cells) + " | "
+                    + (", ".join(plats) or "none") + " |")
+          PY
