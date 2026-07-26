@@ -1,19 +1,33 @@
 """
-Dark palette + QSS stylesheet for the spacr Qt GUI.
+Themes (palettes + QSS stylesheet) for the spacr Qt GUI.
 
 Single source of truth for every color, radius, and font size used by the
 custom widgets and screens. Import `PALETTE` for programmatic access and
 `stylesheet()` for the Qt StyleSheet string to hand to
 `QApplication.setStyleSheet`.
+
+Three themes ship: ``"dark"``, ``"light"`` and ``"space"``. (Preferences
+also offers ``"system"``, which resolves to dark or light at runtime —
+it is not a palette of its own.) They are *themes*, not "modes":
+"dark mode" stopped being accurate the moment a third one existed.
+
+Space is a dark theme whose window background is a generated deep-space
+image (see :mod:`spacr.qt.space`). Panels, cards, inputs and dialogs are
+drawn as translucent dark scrims so text always lands on a readable
+surface while the imagery shows through the chrome and the empty areas.
+Every one of those scrims is contrast-checked against the *worst case*
+— a pure white star directly behind it — by :func:`contrast_failures`.
 """
 from __future__ import annotations
+
+from typing import Dict, List, Optional, Tuple
 
 from PySide6.QtGui import QColor, QPalette
 from PySide6.QtWidgets import QApplication
 
 
 # ---------------------------------------------------------------------------
-# Palette — kept aligned with the Tk gui_elements set_dark_style dict so
+# Palette — kept aligned with the Tk gui_elements apply_theme dict so
 # switching between the two GUIs feels visually consistent.
 # ---------------------------------------------------------------------------
 PALETTE = {
@@ -42,11 +56,17 @@ PALETTE = {
 
 
 # ---------------------------------------------------------------------------
-# Light palette — mirrors the dark set. Used when the user opts into
-# light mode or when the OS colour scheme is light and theme=system.
+# Light palette — mirrors the dark set. Used when the user picks the
+# light theme, or when the OS colour scheme is light and theme=system.
 # Kept close in structure to PALETTE so a caller can swap between them
 # by key without touching consumers.
 # ---------------------------------------------------------------------------
+# Every value below was picked (or corrected) against
+# :data:`CONTRAST_RULES`. The originals failed AA in several places —
+# `accent` at 4.10:1 on `surface_hi`, `accent_hi` at 2.81:1 on
+# `accent_soft`, `warning` at 3.82:1, `fg_dim` at 2.54:1 — because in a
+# light theme "hover" has to go *darker*, not brighter, and the first
+# cut of this palette mirrored the dark one literally.
 LIGHT_PALETTE = {
     "bg":          "#fafafa",
     "surface":     "#ffffff",
@@ -56,30 +76,223 @@ LIGHT_PALETTE = {
     "border_soft": "#e5e8ec",
     "fg":          "#0d0e10",
     "fg_muted":    "#4b5460",
-    "fg_dim":      "#8b93a1",
-    "accent":      "#0b6dd9",
-    "accent_hi":   "#1e88ff",
-    "accent_lo":   "#095cb8",
+    "fg_dim":      "#68707e",
+    "accent":      "#0a63c4",
+    "accent_hi":   "#0851a3",   # hover = darker in a light theme
+    "accent_lo":   "#063d7a",
     "accent_soft": "#dbe8fb",
-    "success":     "#188038",
-    "warning":     "#b06000",
-    "error":       "#c5221f",
-    "info":        "#0b6dd9",
+    "success":     "#0f7030",
+    "warning":     "#8f4e00",
+    "error":       "#b81d1a",
+    "info":        "#0a63c4",
 }
 
 
-def palette_for(theme: str = "dark") -> dict:
-    """Return the palette dict for ``theme`` (``"dark"`` or ``"light"``).
+# ---------------------------------------------------------------------------
+# Space palette — a dark theme layered over a generated deep-space image.
+# ---------------------------------------------------------------------------
+# The surface colours here are *scrim* colours: they are painted at the
+# alpha in :data:`SCRIM_ALPHA` over whatever the background image
+# happens to be. They are therefore chosen so that even composited over
+# a pure white star they stay dark enough for `fg`, `fg_muted` and
+# `accent` to clear AA — see :func:`effective_surface`.
+SPACE_PALETTE = {
+    "bg":          "#04060d",   # fallback flat sky when no image is cached
+    "surface":     "#080d18",
+    "surface_alt": "#0d1524",
+    "surface_hi":  "#182338",
+    "border":      "#33405c",
+    "border_soft": "#1e293d",
+    "fg":          "#ffffff",
+    "fg_muted":    "#c2ccdd",
+    "fg_dim":      "#93a0b6",
+    "accent":      "#6cb6ff",   # brighter than the dark theme's accent:
+    "accent_hi":   "#9bcdff",   # it has to clear AA on a translucent
+    "accent_lo":   "#3d8ddb",   # scrim, not on solid #161719
+    "accent_soft": "#16304f",
+    "success":     "#5fd97a",
+    "warning":     "#f0c14b",
+    "error":       "#ff7b72",
+    "info":        "#6cb6ff",
+}
 
-    Anything else falls back to the dark palette. The returned dict
-    always carries every theme-invariant key from :data:`CONSTANT_ROLES`
-    so callers can hit e.g. ``palette_for(t)["button_accent"]`` and
-    know the value is the same across themes.
+
+#: The themes with a palette of their own. ``"system"`` is a
+#: *preference* value that resolves to one of these, not a fourth entry.
+THEMES = ("dark", "light", "space")
+
+_PALETTES = {
+    "dark": PALETTE,
+    "light": LIGHT_PALETTE,
+    "space": SPACE_PALETTE,
+}
+
+
+# ---------------------------------------------------------------------------
+# Scrims — per-theme opacity of each surface role
+# ---------------------------------------------------------------------------
+# Only Space is translucent. Everything else resolves to 1.0 and the QSS
+# emits plain hex, byte-identical to what it emitted before scrims
+# existed.
+#
+# `elevated` (menus, tooltips, combo popups) is deliberately opaque even
+# in Space: those are separate top-level windows, and a translucent
+# popup without a compositor shows the desktop, not the app.
+SCRIM_ALPHA: Dict[str, Dict[str, float]] = {
+    "space": {
+        "surface":     0.88,
+        "surface_alt": 0.90,
+        "surface_hi":  0.93,
+        "tile":        0.86,
+        "elevated":    1.00,
+    },
+}
+
+#: Worst-case pixel that a scrim can be composited over. A star core is
+#: pure white, so that is what the contrast check assumes sits behind
+#: every panel — anything dimmer only helps.
+WORST_CASE_UNDER = "#ffffff"
+
+
+def scrim_alpha(theme: str, role: str) -> float:
+    """Opacity of surface ``role`` in ``theme``. 1.0 unless translucent."""
+    return SCRIM_ALPHA.get(theme, {}).get(role, 1.0)
+
+
+def palette_for(theme: str = "dark") -> dict:
+    """Return the palette dict for ``theme``.
+
+    ``theme`` is one of :data:`THEMES`; anything else (including
+    ``"system"``, which the caller is expected to have resolved) falls
+    back to the dark palette. The returned dict always carries every
+    theme-invariant key from :data:`CONSTANT_ROLES` so callers can hit
+    e.g. ``palette_for(t)["button_accent"]`` and know the value is the
+    same across themes.
     """
-    base = LIGHT_PALETTE if theme == "light" else PALETTE
+    base = _PALETTES.get(theme, PALETTE)
     out = dict(base)
     out.update(CONSTANT_ROLES)
     return out
+
+
+# ---------------------------------------------------------------------------
+# Colour maths — WCAG contrast
+# ---------------------------------------------------------------------------
+
+def _channels(color: str) -> Tuple[int, int, int]:
+    text = color.strip().lstrip("#")
+    if len(text) == 3:
+        text = "".join(ch * 2 for ch in text)
+    if len(text) != 6:
+        raise ValueError(f"not a #rrggbb colour: {color!r}")
+    return (int(text[0:2], 16), int(text[2:4], 16), int(text[4:6], 16))
+
+
+def _linear(value: int) -> float:
+    c = value / 255.0
+    return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+
+def relative_luminance(color: str) -> float:
+    """WCAG relative luminance of a ``#rrggbb`` colour, in [0, 1]."""
+    r, g, b = _channels(color)
+    return 0.2126 * _linear(r) + 0.7152 * _linear(g) + 0.0722 * _linear(b)
+
+
+def contrast_ratio(a: str, b: str) -> float:
+    """WCAG contrast ratio between two colours — 1.0 (same) to 21.0."""
+    la, lb = relative_luminance(a), relative_luminance(b)
+    hi, lo = max(la, lb), min(la, lb)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+def composite(top: str, alpha: float, under: str = WORST_CASE_UNDER) -> str:
+    """Alpha-composite ``top`` at ``alpha`` over ``under``, as hex."""
+    alpha = max(0.0, min(1.0, float(alpha)))
+    tr, tg, tb = _channels(top)
+    ur, ug, ub = _channels(under)
+    out = tuple(int(round(alpha * t + (1.0 - alpha) * u))
+                for t, u in ((tr, ur), (tg, ug), (tb, ub)))
+    return "#%02x%02x%02x" % out
+
+
+def css_color(color: str, alpha: float = 1.0) -> str:
+    """Render a colour for QSS — plain hex, or ``rgba()`` when translucent."""
+    if alpha >= 1.0:
+        return color
+    r, g, b = _channels(color)
+    return f"rgba({r}, {g}, {b}, {alpha:.3f})"
+
+
+def effective_surface(theme: str, role: str,
+                      under: str = WORST_CASE_UNDER) -> str:
+    """The colour a surface role *actually* presents to the eye.
+
+    For opaque themes that is just the palette entry. For Space it is
+    the scrim composited over ``under`` — by default a white star, the
+    worst case the background image can put behind a panel.
+    """
+    palette = palette_for(theme)
+    return composite(palette[role], scrim_alpha(theme, role), under)
+
+
+#: ``(foreground role, surface role, minimum ratio)``.
+#:
+#: 4.5:1 is AA for body text. 3.0:1 is AA for large text and for
+#: non-text UI components (WCAG 1.4.11) — which is the right tier for
+#: `fg_dim`, whose only jobs are disabled controls and hint text, both
+#: explicitly exempt from 1.4.3, and for the status hues that mostly
+#: paint progress-bar chunks.
+CONTRAST_RULES: Tuple[Tuple[str, str, float], ...] = tuple(
+    [(fg, surf, 4.5)
+     for fg in ("fg", "fg_muted", "accent")
+     for surf in ("bg", "surface", "surface_alt", "surface_hi")]
+    + [("accent", "accent_soft", 4.5),
+       ("accent_hi", "accent_soft", 4.5),
+       # `bg` is the ink on filled accent/danger surfaces: the selected
+       # menu row, a pressed button, DangerButton on hover.
+       ("bg", "accent", 4.5),
+       ("bg", "accent_lo", 4.5),
+       ("bg", "error", 4.5),
+       ("button_accent_ink", "button_accent", 4.5),
+       ("button_accent_ink", "button_accent_hi", 4.5),
+       ("button_accent_ink", "button_accent_lo", 4.5)]
+    + [(fg, surf, 3.0)
+       for fg in ("fg_dim", "success", "warning", "error")
+       for surf in ("bg", "surface", "surface_alt", "surface_hi")]
+)
+
+
+def contrast_report(theme: str) -> List[dict]:
+    """Measured contrast for every rule in :data:`CONTRAST_RULES`.
+
+    Each entry is ``{"fg", "bg", "fg_color", "bg_color", "ratio",
+    "required", "passes"}``. Surfaces are resolved through
+    :func:`effective_surface`, so Space is judged on the composited
+    scrim rather than on a colour the user never actually sees.
+    """
+    palette = palette_for(theme)
+    out: List[dict] = []
+    for fg_role, bg_role, required in CONTRAST_RULES:
+        fg_color = palette[fg_role]
+        bg_color = effective_surface(theme, bg_role)
+        ratio = contrast_ratio(fg_color, bg_color)
+        out.append({
+            "fg": fg_role, "bg": bg_role,
+            "fg_color": fg_color, "bg_color": bg_color,
+            "ratio": ratio, "required": required,
+            "passes": ratio >= required,
+        })
+    return out
+
+
+def contrast_failures(theme: str) -> List[str]:
+    """Human-readable description of every rule ``theme`` fails."""
+    return [
+        f"{r['fg']} ({r['fg_color']}) on {r['bg']} ({r['bg_color']}): "
+        f"{r['ratio']:.2f}:1 < {r['required']:.1f}:1"
+        for r in contrast_report(theme) if not r["passes"]
+    ]
 
 
 # ---------------------------------------------------------------------------
@@ -94,11 +307,18 @@ def palette_for(theme: str = "dark") -> dict:
 # `button_accent`     — primary button + toggle "on" colour
 # `button_accent_hi`  — hover
 # `button_accent_lo`  — pressed
+# `button_accent_ink` — text drawn ON those fills
 # Chosen to read well on both surface_alt colours (near-black + near-white).
+#
+# The ink is near-black, not white. White on #4A9EFF measures 2.75:1 —
+# well under AA — so the "Run" button had unreadable small text in every
+# theme until this was measured. Near-black on the same fill is 6.96:1,
+# and still 4.75:1 on the darker pressed shade.
 CONSTANT_ROLES = {
     "button_accent":    "#4A9EFF",
     "button_accent_hi": "#66B2FF",
     "button_accent_lo": "#2F80D9",
+    "button_accent_ink": "#04101c",
 }
 
 
@@ -151,7 +371,7 @@ def apply_qpalette(app: QApplication, theme: str = "dark") -> None:
     bars, tooltips, dialogs) match the QSS-styled widgets.
 
     :param app: the running QApplication.
-    :param theme: ``"dark"`` (default) or ``"light"``.
+    :param theme: one of :data:`THEMES`; unknown values fall back to dark.
     """
     P = palette_for(theme)
     p = app.palette()
@@ -177,16 +397,102 @@ def apply_qpalette(app: QApplication, theme: str = "dark") -> None:
     app.setPalette(p)
 
 
-def stylesheet(theme: str = "dark", font_scale: float = 1.0) -> str:
+def _qss_url(path) -> str:
+    """Quote a filesystem path for a QSS ``url(...)``.
+
+    QSS wants forward slashes on every platform — a Windows backslash
+    path silently fails to load and you get no background at all.
+    """
+    text = str(path).replace("\\", "/").replace('"', '\\"')
+    return f'url("{text}")'
+
+
+def _window_block(theme: str, P: dict, background, body_px: int) -> str:
+    """The base + top-level-window rules, which Space rewrites.
+
+    Space needs three things the opaque themes do not: a background
+    image on the window, ``QWidget`` transparent so the image is not
+    covered by every child, and each top-level window type explicitly
+    re-opaqued so a stray plain ``QWidget`` window does not render as a
+    hole.
+    """
+    if theme != "space":
+        return f"""QWidget {{
+    background-color: {P["bg"]};
+    color: {P["fg"]};
+    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-size: {body_px}px;
+    outline: none;
+}}
+QMainWindow, QDialog {{
+    background-color: {P["bg"]};
+}}"""
+
+    if background is not None:
+        sky = (f'background-color: {P["bg"]};\n'
+               f'    background-image: {_qss_url(background)};\n'
+               '    background-position: center center;\n'
+               '    background-repeat: no-repeat;')
+    else:
+        # No cached image (first run mid-generation, unwritable home,
+        # tests): a deep-space gradient. Dimmer than the real thing but
+        # every scrim, border and text colour still lands correctly, so
+        # the theme degrades to "plain dark blue" rather than to broken.
+        sky = ("background-color: qlineargradient(\n"
+               "        x1: 0, y1: 0, x2: 1, y2: 1,\n"
+               f'        stop: 0 {P["surface"]}, stop: 0.55 {P["bg"]},\n'
+               f'        stop: 1 {P["accent_soft"]});')
+
+    return f"""/* Space: the window paints the sky and every child is
+   transparent by default, so panels are the only opaque things and
+   the imagery shows through the gaps. */
+QWidget {{
+    background-color: transparent;
+    color: {P["fg"]};
+    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-size: {body_px}px;
+    outline: none;
+}}
+QMainWindow, QDialog {{
+    {sky}
+}}
+/* Popups are separate top-level windows: they must stay opaque or a
+   compositor-less desktop shows through them. */
+QMenu, QToolTip, QMessageBox, QComboBox QAbstractItemView {{
+    background-color: {P["surface_alt"]};
+}}"""
+
+
+def stylesheet(theme: str = "dark", font_scale: float = 1.0,
+               background: Optional[str] = None) -> str:
     """Return the QSS string that styles every custom widget in the app.
 
-    :param theme: ``"dark"`` (default) or ``"light"``.
+    :param theme: one of :data:`THEMES`; unknown values fall back to dark.
     :param font_scale: multiplier applied to every font size in
         :data:`FONT_SIZE`. 1.0 = 100 %.
+    :param background: path to a background image. Only the Space theme
+        uses it; ``None`` (the default, and what an offline first run
+        gets) falls back to a flat deep-space gradient.
     """
-    P = palette_for(theme)
+    base = palette_for(theme)
     S = SPACING
     R = RADIUS
+    # Surface roles are re-rendered through the theme's scrim alpha.
+    # For dark and light every alpha is 1.0 and this is a no-op that
+    # emits the same hex it always did; for Space each one becomes an
+    # ``rgba()`` so the background image reads through the panel.
+    P = dict(base)
+    for role in ("surface", "surface_alt", "surface_hi"):
+        P[role] = css_color(base[role], scrim_alpha(theme, role))
+    # Opaque variants for the places translucency would be wrong.
+    ELEVATED = css_color(base["surface_alt"], scrim_alpha(theme, "elevated"))
+    TILE_BG = ("transparent" if theme != "space"
+               else css_color(base["surface"], scrim_alpha(theme, "tile")))
+    # Scrollbar troughs and the group-box title notch paint over the
+    # window; in Space they must not be an opaque black block.
+    TROUGH = "transparent" if theme == "space" else base["bg"]
+    NOTCH = P["surface_alt"] if theme == "space" else base["bg"]
+    CONSOLE_BG = (P["surface_alt"] if theme == "space" else "#0a0b0d")
     # Scaled font sizes so the "Font scale" preference actually
     # resizes the whole app, not just the base body text.
     F = {k: max(6, int(round(v * font_scale)))
@@ -195,16 +501,7 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0) -> str:
 /* -----------------------------------------------------------------
  *  Base
  * ----------------------------------------------------------------- */
-QWidget {{
-    background-color: {P["bg"]};
-    color: {P["fg"]};
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
-    font-size: {F["body"]}px;
-    outline: none;
-}}
-QMainWindow, QDialog {{
-    background-color: {P["bg"]};
-}}
+{_window_block(theme, base, background, F["body"])}
 /* Every QLabel is transparent by default so it inherits the bg of
  * whatever container it lives in (surface, surface_alt, hero card,
  * etc). Individual labels can override with their own object name. */
@@ -223,7 +520,7 @@ QGroupBox::title:disabled, QRadioButton:disabled {{
  *  Menu bar + menus
  * ----------------------------------------------------------------- */
 QMenuBar {{
-    background-color: {P["bg"]};
+    background-color: {P["surface"]};
     color: {P["fg_muted"]};
     padding: {S["xs"]}px {S["sm"]}px;
     border-bottom: 1px solid {P["border_soft"]};
@@ -239,7 +536,7 @@ QMenuBar::item:selected {{
     color: {P["fg"]};
 }}
 QMenu {{
-    background-color: {P["surface_alt"]};
+    background-color: {ELEVATED};
     color: {P["fg"]};
     border: 1px solid {P["border"]};
     border-radius: {R["md"]}px;
@@ -382,7 +679,7 @@ QLabel#TileCaption {{
  *  Horizontal tiles (HTile) — icons-left cards on the home screen
  * ----------------------------------------------------------------- */
 QPushButton#HTile {{
-    background-color: transparent;
+    background-color: {TILE_BG};
     color: {P["fg"]};
     border: 1px solid transparent;
     border-radius: {R["lg"]}px;
@@ -568,7 +865,7 @@ QPushButton:disabled {{
  * is white in both themes so contrast holds against #4A9EFF. */
 QPushButton#PrimaryButton {{
     background-color: {P["button_accent"]};
-    color: #ffffff;
+    color: {P["button_accent_ink"]};
     border: none;
     font-weight: 600;
     padding: {S["sm"]}px {S["lg"]}px;
@@ -625,7 +922,7 @@ QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox, QPlainTextEdit, QTextEdit {{
     selection-color: {P["bg"]};
 }}
 QPlainTextEdit#Console {{
-    background-color: #0a0b0d;
+    background-color: {CONSOLE_BG};
     color: #d4d7dc;
     border: 1px solid {P["border_soft"]};
     font-family: "JetBrains Mono", "Menlo", "Consolas", monospace;
@@ -671,7 +968,7 @@ QComboBox::down-arrow {{
     height: 0;
 }}
 QComboBox QAbstractItemView {{
-    background-color: {P["surface_alt"]};
+    background-color: {ELEVATED};
     color: {P["fg"]};
     border: 1px solid {P["border"]};
     border-radius: {R["sm"]}px;
@@ -729,7 +1026,7 @@ QRadioButton::indicator:checked {{
  *  Scrollbars
  * ----------------------------------------------------------------- */
 QScrollBar:vertical {{
-    background: {P["bg"]};
+    background: {TROUGH};
     width: 10px;
     margin: 0px;
     border: none;
@@ -746,7 +1043,7 @@ QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
     background: transparent; height: 0px;
 }}
 QScrollBar:horizontal {{
-    background: {P["bg"]};
+    background: {TROUGH};
     height: 10px;
     margin: 0px;
     border: none;
@@ -823,7 +1120,7 @@ QSplitter::handle:hover {{
  *  Tooltip
  * ----------------------------------------------------------------- */
 QToolTip {{
-    background-color: {P["surface_alt"]};
+    background-color: {ELEVATED};
     color: {P["fg"]};
     border: 1px solid {P["border"]};
     border-radius: {R["sm"]}px;
@@ -986,7 +1283,7 @@ QGroupBox::title {{
     left: {S["md"]}px;
     top: -{S["xs"]}px;
     padding: 0px {S["xs"]}px;
-    background: {P["bg"]};
+    background: {NOTCH};
 }}
 
 /* -----------------------------------------------------------------

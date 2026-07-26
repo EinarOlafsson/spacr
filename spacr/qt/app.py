@@ -200,23 +200,19 @@ _FORCE_GLYPH = {"invasion"}
 
 
 def _icon_for_app(key: str) -> Optional[QIcon]:
-    """Return a QIcon for an app key. Uses the bundled spacr PNG icon if
-    present; falls back to a themed qtawesome glyph via iconset."""
-    here = os.path.dirname(os.path.abspath(__file__))
-    resources_dir = os.path.normpath(os.path.join(here, "..", "resources", "icons"))
+    """Return a QIcon for an app key.
+
+    The bundled PNG is re-inked for the active theme by
+    :func:`spacr.qt.iconset.app_icon`. Loading it raw is what left
+    Format Converter — a solid-black PNG — with no visible icon at all
+    on the black home page, and every white icon invisible on the light
+    theme. Falls back to a themed qtawesome glyph when there is no PNG.
+    """
     # Keys that should use their themed qtawesome glyph rather than a bundled
     # PNG (e.g. train_cellpose got a fresh 'brain' glyph).
     if key in _FORCE_GLYPH:
         return iconset.icon(key)
-    candidates = []
-    if key in _ICON_OVERRIDES:
-        candidates.append(_ICON_OVERRIDES[key])
-    candidates += [f"{key}.png", f"{key.replace('_', ' ')}.png"]
-    for candidate in candidates:
-        p = os.path.join(resources_dir, candidate)
-        if os.path.exists(p):
-            return QIcon(p)
-    return iconset.icon(key)
+    return iconset.app_icon(key, override=_ICON_OVERRIDES.get(key))
 
 
 class Sidebar(QWidget):
@@ -269,6 +265,25 @@ class Sidebar(QWidget):
 
         layout.addStretch(1)
         self.setFixedWidth(self._fitting_width())
+
+    def refresh_icons(self) -> None:
+        """Re-ink every nav icon for the current theme.
+
+        A QIcon bakes its pixmap when it is built, so re-applying the
+        stylesheet does not recolour icons that already exist: switch to
+        the light theme with a sidebar on screen and every white glyph
+        stays white, on white. Each row carries its app key in the
+        ``navKey`` property, so rebuilding them is just a re-lookup.
+        """
+        for btn in self._items:
+            key = btn.property("navKey")
+            if not key:
+                continue
+            icon = (iconset.icon("home") if key == "__home__"
+                    else _icon_for_app(key))
+            if icon is not None:
+                btn.setIcon(icon)
+                btn.setIconSize(QSize(16, 16))
 
     def _make_item(self, name: str, desc: str,
                    nav_key: str) -> "ElidingPushButton":
@@ -351,6 +366,11 @@ class MainWindow(QMainWindow):
 
         # Register screens lazily — created on first navigation.
         self._screens: dict[str, QWidget] = {}
+        #: App keys in the order the user last LOOKED at them, oldest
+        #: first. Not the same thing as ``_screens`` order, which is
+        #: creation order and never changes when an app is revisited —
+        #: see :meth:`_snapshot_current_screen_settings`.
+        self._visit_order: list[str] = []
         self._install_startup_page()
 
         # Rich status bar: transient message (left) + active app + version
@@ -734,10 +754,22 @@ class MainWindow(QMainWindow):
                 f"Preferences unavailable: {e}", 5000)
             return
         PreferencesDialog(self).exec()
-        # The Home tiles set sizes/margins from the font scale in Python
-        # (not just via the stylesheet), so they don't reflow when the app
-        # stylesheet is re-applied. Rebuild the Home page so a font-size
-        # change takes full effect (tile heights, icon sizes, paddings).
+        self.refresh_theme()
+
+    def refresh_theme(self) -> None:
+        """Rebuild everything the stylesheet alone cannot restyle.
+
+        Two things do not follow a ``setStyleSheet`` call: the Home
+        tiles set sizes/margins from the font scale in Python, and every
+        QIcon baked its pixmap at the theme in force when it was built.
+        Called after the Preferences dialog closes, and found by
+        duck-typing from :func:`spacr.qt.preferences.apply_preferences_to_app`
+        so a theme change from anywhere reaches the widgets.
+        """
+        try:
+            self._sidebar.refresh_icons()
+        except Exception:
+            pass
         try:
             self._rebuild_startup_page()
         except Exception:
@@ -817,6 +849,17 @@ class MainWindow(QMainWindow):
                 panel.shutdown()
             except Exception:
                 pass
+        # Help → "Check for updates…" runs its network call on a QThread
+        # parented to this window. Quitting while it's in flight destroys
+        # a live QThread, which is the same abort the console drain above
+        # exists to prevent. The updater's own socket timeouts are a few
+        # seconds, so the wait is bounded twice over.
+        worker = getattr(self, "_update_worker", None)
+        if worker is not None:
+            try:
+                worker.wait(5000)
+            except RuntimeError:
+                pass          # already deleted — nothing left to wait for
         super().closeEvent(event)
 
     # -- navigation -------------------------------------------------------
@@ -838,6 +881,13 @@ class MainWindow(QMainWindow):
             self._screens[key] = self._build_screen(key)
             self._stack.addWidget(self._screens[key])
         self._stack.setCurrentWidget(self._screens[key])
+        # Move this app to the end of the visit list. Revisiting an app
+        # has to count as the most recent visit — otherwise "Add current
+        # plate" on the Queue screen picks up whichever app was OPENED
+        # last rather than the one that was on screen a moment ago.
+        if key in self._visit_order:
+            self._visit_order.remove(key)
+        self._visit_order.append(key)
         # Find nice display name
         name = next((n for k, n, _d, _s in APPS if k == key), key)
         self._status_app_label.setText(name)
@@ -928,8 +978,13 @@ class MainWindow(QMainWindow):
         from .screens.app_screen import AppScreen
         if isinstance(widget, AppScreen):
             return widget.app_key, dict(widget._settings_model.collect())
-        # Fall back to the last non-queue AppScreen the user visited
-        for key, scr in reversed(list(self._screens.items())):
+        # Fall back to the last non-queue AppScreen the user visited.
+        # Walk the VISIT order, not `_screens` (creation) order: a user
+        # who opens Mask, then Measure, then goes back to Mask and hits
+        # "Add current plate" means Mask — creation order would hand
+        # them Measure's settings under Mask's nose.
+        for key in reversed(self._visit_order):
+            scr = self._screens.get(key)
             if isinstance(scr, AppScreen):
                 return scr.app_key, dict(scr._settings_model.collect())
         raise RuntimeError(

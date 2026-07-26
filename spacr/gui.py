@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from multiprocessing import set_start_method
-from .gui_elements import spacrButton, spacrCard, create_menu_bar, set_dark_style
+from .gui_elements import spacrButton, spacrCard, create_menu_bar, apply_theme
 from .gui_core import initiate_root
 from screeninfo import get_monitors
 import webbrowser
@@ -48,7 +48,7 @@ class MainApp(tk.Tk):
         self.configure(bg='#333333')
 
         style = ttk.Style()
-        self.color_settings = set_dark_style(style, parent_frame=self)
+        self.color_settings = apply_theme(style, parent_frame=self)
         self.main_buttons = {}
         self.additional_buttons = {}
 
@@ -138,7 +138,7 @@ class MainApp(tk.Tk):
         self.inner_frame = tk.Frame(self.content_frame)
         self.inner_frame.grid(row=0, column=0)
         
-        set_dark_style(ttk.Style(), containers=[self.content_frame, self.inner_frame])
+        apply_theme(ttk.Style(), containers=[self.content_frame, self.inner_frame])
 
         self.create_startup_screen()
         
@@ -156,7 +156,7 @@ class MainApp(tk.Tk):
 
         # Pull the shared palette + typography scale so the startup screen
         # matches the rest of the modernised GUI.
-        style_out = set_dark_style(ttk.Style())
+        style_out = apply_theme(ttk.Style())
         bg = style_out['bg_color']
         fg = style_out['fg_color']
         muted = style_out.get('muted_color', fg)
@@ -287,7 +287,7 @@ class MainApp(tk.Tk):
 
         app_frame = tk.Frame(self.inner_frame)
         app_frame.pack(fill=tk.BOTH, expand=True)
-        set_dark_style(ttk.Style(), containers=[app_frame])
+        apply_theme(ttk.Style(), containers=[app_frame])
         app_func(app_frame)
 
     def clear_frame(self, frame):

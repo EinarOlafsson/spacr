@@ -10,10 +10,10 @@ def initiate_make_mask_app(parent_frame):
 
     :param parent_frame: Tk widget that hosts the settings Toplevel and the editor.
     """
-    from .gui_elements import ModifyMaskApp, set_dark_style
+    from .gui_elements import ModifyMaskApp, apply_theme
     settings_window = tk.Toplevel(parent_frame)
     settings_window.title("Make Masks Settings")
-    style_out = set_dark_style(ttk.Style())
+    style_out = apply_theme(ttk.Style())
     settings_window.configure(bg=style_out['bg_color'])
     settings_frame = tk.Frame(settings_window, bg=style_out['bg_color'])
     settings_frame.pack(fill=tk.BOTH, expand=True)

@@ -18,6 +18,8 @@ Public API::
 
     from spacr.qt.preferences import (
         get_theme, set_theme,
+        get_space_variant, set_space_variant,
+        get_space_seed, set_space_seed, space_background_path,
         get_font_scale, set_font_scale,
         get_color_blind_mode, set_color_blind_mode,
         get_db_browser_editable, set_db_browser_editable,
@@ -27,8 +29,13 @@ Public API::
 
 Values:
 
-* ``theme``: ``"dark"`` | ``"light"`` | ``"system"`` (default ``"dark"``).
-  ``"system"`` follows the reader's OS colour scheme.
+* ``theme``: ``"dark"`` | ``"light"`` | ``"space"`` | ``"system"``
+  (default ``"dark"``). ``"system"`` follows the reader's OS colour
+  scheme. ``"space"`` is a dark theme over a generated deep-space
+  background — see :mod:`spacr.qt.space`.
+* ``space_variant``: ``"galaxy"`` | ``"sun"`` | ``"stars"`` — which
+  element the generated sky makes its subject.
+* ``space_seed``: int; the sky is deterministic in this.
 * ``font_scale``: float, 1.0 = 100 %. Clamped to [0.75, 2.0].
 * ``color_blind_mode``: ``"off"`` | ``"deuteranopia"`` | ``"protanopia"``
   | ``"tritanopia"`` (default ``"off"``). Swaps matplotlib rainbow /
@@ -57,8 +64,15 @@ _KEY_CB_MODE     = "prefs/color_blind_mode"
 _KEY_VERBOSE_LOG = "prefs/verbose_logging"
 _KEY_DB_EDIT     = "prefs/db_browser_editable"
 
-VALID_THEMES = ("dark", "light", "system")
+#: Persisted values. An existing install has ``prefs/theme`` set to one
+#: of the first three; those keep resolving exactly as before, and an
+#: unrecognised value (hand-edited INI, a downgrade) falls back to
+#: :data:`DEFAULT_THEME` rather than raising.
+VALID_THEMES = ("dark", "light", "system", "space")
 DEFAULT_THEME = "dark"
+
+_KEY_SPACE_VARIANT = "prefs/space_variant"
+_KEY_SPACE_SEED    = "prefs/space_seed"
 
 FONT_SCALE_MIN = 0.75
 FONT_SCALE_MAX = 2.00
@@ -121,7 +135,9 @@ def get_figure_colors() -> tuple:
     bg = str(_settings().value(_KEY_FIG_BG, "auto"))
     fg = str(_settings().value(_KEY_FIG_FG, "auto"))
     if bg == "auto" or fg == "auto":
-        dark = resolve_effective_theme() == "dark"
+        # Light is the only light theme; Space is a dark one, so a
+        # `== "dark"` test here would have handed it white figures.
+        dark = resolve_effective_theme() != "light"
         auto_bg, auto_fg = ("#000000", "#ffffff") if dark else ("#ffffff", "#000000")
         if bg == "auto":
             bg = auto_bg
@@ -162,11 +178,67 @@ def set_theme(theme: str) -> None:
     _settings().setValue(_KEY_THEME, theme)
 
 
+def get_space_variant() -> str:
+    """Which element the generated sky makes its subject."""
+    from .space import DEFAULT_VARIANT, VARIANTS
+    raw = str(_settings().value(_KEY_SPACE_VARIANT, DEFAULT_VARIANT))
+    return raw if raw in VARIANTS else DEFAULT_VARIANT
+
+
+def set_space_variant(variant: str) -> None:
+    from .space import VARIANTS
+    if variant not in VARIANTS:
+        raise ValueError(f"unknown space variant {variant!r}. "
+                          f"Choose from {VARIANTS}.")
+    _settings().setValue(_KEY_SPACE_VARIANT, variant)
+
+
+def get_space_seed() -> int:
+    """Seed for the procedural sky. Same seed → same pixels, forever."""
+    from .space import DEFAULT_SEED
+    try:
+        return int(_settings().value(_KEY_SPACE_SEED, DEFAULT_SEED))
+    except (TypeError, ValueError):
+        return DEFAULT_SEED
+
+
+def set_space_seed(seed: int) -> None:
+    _settings().setValue(_KEY_SPACE_SEED, int(seed))
+
+
+def space_background_path(width: int = 0, height: int = 0):
+    """Path of the background image for the Space theme, or ``None``.
+
+    Prefers a NASA image the user downloaded from Preferences; falls
+    back to the procedurally generated sky (cached on disk). Returns
+    ``None`` only when neither can be produced — no image at all, at
+    which point the stylesheet paints a flat gradient instead. **Never
+    raises and never touches the network.**
+    """
+    try:
+        from . import space
+        real = space.downloaded_background()
+        if real is not None:
+            return real
+        if width <= 0 or height <= 0:
+            width, height = space.screen_size()
+        return space.background_path(width, height,
+                                     variant=get_space_variant(),
+                                     seed=get_space_seed())
+    except Exception:
+        return None
+
+
 def resolve_effective_theme() -> str:
-    """Return ``"dark"`` or ``"light"`` — resolves ``"system"`` to the
-    OS colour scheme, defaulting to dark when Qt can't tell."""
+    """Return the theme to render — ``"dark"``, ``"light"`` or ``"space"``.
+
+    Resolves ``"system"`` to the OS colour scheme, defaulting to dark
+    when Qt can't tell. Every other value passes through, so callers
+    that only understand light/dark should compare against ``"light"``
+    and treat everything else as dark (Space is a dark theme).
+    """
     theme = get_theme()
-    if theme in ("dark", "light"):
+    if theme in ("dark", "light", "space"):
         return theme
     # system — poll Qt's palette hint
     try:
@@ -353,8 +425,14 @@ def apply_preferences_to_app(app=None) -> None:
     theme = resolve_effective_theme()
     scale = get_font_scale()
 
+    # Only the Space theme wants an image, and only Space pays for
+    # generating one. Everything here degrades to None on any failure,
+    # and the stylesheet renders a gradient in that case.
+    background = space_background_path() if theme == "space" else None
+
     apply_qpalette(app, theme=theme)
-    app.setStyleSheet(stylesheet(theme=theme, font_scale=scale))
+    app.setStyleSheet(stylesheet(theme=theme, font_scale=scale,
+                                 background=background))
 
     # Apply the verbose-logger preference too — cheap to re-apply, and
     # this is the one place that runs on every prefs save. Also
@@ -389,7 +467,7 @@ class PreferencesDialog:
         from PySide6.QtCore import Qt
         from PySide6.QtWidgets import (
             QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFormLayout,
-            QLabel, QSlider, QVBoxLayout,
+            QLabel, QPushButton, QSlider, QVBoxLayout,
         )
 
         dlg = QDialog(parent)
@@ -404,6 +482,7 @@ class PreferencesDialog:
         for label, key in (
             ("Dark", "dark"),
             ("Light", "light"),
+            ("Space", "space"),
             ("Follow system", "system"),
         ):
             theme_combo.addItem(label, key)
@@ -412,6 +491,61 @@ class PreferencesDialog:
             if theme_combo.itemData(i) == current:
                 theme_combo.setCurrentIndex(i); break
         form.addRow("Theme", theme_combo)
+
+        # Space theme — which sky, and (optionally) real NASA imagery.
+        from .space import VARIANTS, attribution_text
+        space_combo = QComboBox()
+        for label, key in (
+            ("Spiral galaxy", "galaxy"),
+            ("Star and corona", "sun"),
+            ("Deep starfield", "stars"),
+        ):
+            if key in VARIANTS:
+                space_combo.addItem(label, key)
+        current_space = get_space_variant()
+        for i in range(space_combo.count()):
+            if space_combo.itemData(i) == current_space:
+                space_combo.setCurrentIndex(i); break
+        space_combo.setToolTip(
+            "The Space background is generated on this machine at your "
+            "display's native resolution and cached, so it is sharp on a "
+            "5K panel and costs nothing to ship. Nothing is downloaded "
+            "unless you ask for it below."
+        )
+        form.addRow("Space background", space_combo)
+
+        credit_label = QLabel(attribution_text())
+        credit_label.setWordWrap(True)
+        credit_label.setObjectName("Muted")
+
+        nasa_button = QPushButton("Download NASA imagery…")
+        nasa_button.setToolTip(
+            "Fetches one public-domain NASA/ESA image (a few MB) to use "
+            "instead of the generated sky. NASA media is in the public "
+            "domain; the credit line is shown above and stored beside the "
+            "image. If you are offline this does nothing at all — the "
+            "generated sky stays."
+        )
+
+        def _download():
+            from .space import download_nasa_background
+            nasa_button.setEnabled(False)
+            nasa_button.setText("Downloading…")
+            try:
+                record = download_nasa_background()
+            finally:
+                nasa_button.setEnabled(True)
+                nasa_button.setText("Download NASA imagery…")
+            credit_label.setText(
+                attribution_text() if record else
+                "Download unavailable — keeping the generated sky.")
+
+        nasa_button.clicked.connect(_download)
+
+        nasa_col = QVBoxLayout()
+        nasa_col.addWidget(credit_label)
+        nasa_col.addWidget(nasa_button)
+        form.addRow("Imagery", _hbox_wrap(nasa_col))
 
         # Font scale
         scale_slider = QSlider(Qt.Horizontal)
@@ -516,6 +650,7 @@ class PreferencesDialog:
 
         def _save():
             set_theme(theme_combo.currentData())
+            set_space_variant(space_combo.currentData())
             set_font_scale(scale_slider.value() / 100.0)
             set_color_blind_mode(cb_combo.currentData())
             set_verbose_logging(verbose_check.isChecked())
@@ -523,11 +658,40 @@ class PreferencesDialog:
             set_figure_format(fig_format_combo.currentData())
             set_figure_png_dpi(png_dpi_combo.currentData())
             apply_preferences_to_app()
+            _refresh_owner_window(parent)
             dlg.accept()
 
         buttons.accepted.connect(_save)
         buttons.rejected.connect(dlg.reject)
         return dlg
+
+
+def _refresh_owner_window(parent) -> None:
+    """Ask the window that opened Preferences to rebuild itself.
+
+    A QIcon bakes its pixmap when it is built, so re-applying the
+    stylesheet leaves every existing icon in the *old* theme's ink —
+    switch to the light theme and the sidebar keeps its white glyphs, on
+    white. Only the dialog's own window is touched: walking
+    ``QApplication.topLevelWidgets()`` instead reaches leftover windows
+    whose C++ side is already being torn down, and rebuilding one of
+    those segfaults rather than raising.
+
+    Never raises: a window that cannot rebuild is a cosmetic problem,
+    not a reason to fail the Save.
+    """
+    if parent is None:
+        return
+    try:
+        window = parent.window()
+    except Exception:
+        return
+    refresh = getattr(window, "refresh_theme", None)
+    if callable(refresh):
+        try:
+            refresh()
+        except Exception:
+            pass
 
 
 def _hbox_wrap(layout):

@@ -72,7 +72,7 @@ class AiToggleLabel(QLabel):
     # -- style ---------------------------------------------------------
     def _refresh_style(self) -> None:
         # Use the theme-invariant ``button_accent`` for the ON colour so
-        # the toggle looks identical in dark vs light mode. OFF colour
+        # the toggle looks identical in every theme. OFF colour
         # is theme-aware (fg) — that's fine, the user recognises "on"
         # by the blue.
         from ..theme import CONSTANT_ROLES

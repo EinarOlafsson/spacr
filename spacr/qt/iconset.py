@@ -1,18 +1,75 @@
 """
 Central icon lookup for the spacr Qt GUI.
 
-Wraps `qtawesome` so callers stay decoupled from Font Awesome glyph
-names, and returns a placeholder QIcon() if qtawesome isn't installed
-so the UI still renders (with text-only buttons).
+Two sources of icons, both made theme-aware here:
+
+* **qtawesome glyphs** — vector, painted in whatever colour we ask for.
+  Wrapped so callers stay decoupled from Font Awesome glyph names, and
+  degrading to an empty ``QIcon()`` when qtawesome isn't installed so
+  the UI still renders with text-only buttons.
+* **bundled PNGs** in ``spacr/resources/icons`` — flat monochrome
+  artwork baked at a fixed colour.
+
+The bundled PNGs were *theme-blind*, and it showed: ``convert.png``
+(Format Converter) is solid black with an alpha mask, so on the black
+home page it rendered as nothing at all. The other twenty-odd are solid
+white, which is the same bug pointed the other way — invisible on the
+light theme, nobody had noticed because nobody used it. A third theme
+made this unavoidable, so :func:`themed_qimage` now re-inks every
+bundled PNG for the active theme:
+
+* the artwork's ink polarity is detected from its own alpha-weighted
+  mean luminance, so black-on-transparent and white-on-transparent are
+  both handled without a per-file table;
+* the ink is remapped onto a band running from the theme's foreground
+  down to a ``veil`` colour computed to clear :data:`MIN_ICON_CONTRAST`
+  against the *hardest* surface the icon can land on, so internal shading
+  survives instead of being flattened to a silhouette;
+* genuinely polychrome artwork keeps its hue and is only re-levelled.
+
+:func:`icon_contrast` exposes the measured ratio so the test suite can
+assert visibility numerically rather than checking that a file exists.
 """
 from __future__ import annotations
 
+import os
 from functools import lru_cache
-from typing import Optional
+from typing import Optional, Tuple
 
 from PySide6.QtGui import QIcon
 
-from .theme import PALETTE
+from .theme import (
+    contrast_ratio, effective_surface, palette_for, relative_luminance,
+)
+
+#: WCAG 1.4.11 (non-text contrast) minimum for a UI graphic.
+MIN_ICON_CONTRAST = 3.0
+
+#: Surfaces a bundled icon can end up sitting on. The veil is solved
+#: against whichever of these is hardest for the theme's ink.
+ICON_SURFACES = ("bg", "surface", "surface_alt", "surface_hi")
+
+#: Max per-pixel chroma (max channel − min channel, 0-255) for artwork to
+#: count as monochrome and be re-inked outright. Every bundled spaCR
+#: icon measures ≤ 13; the flow-chart diagram measures 150 and is
+#: correctly treated as polychrome.
+CHROMA_MONO_MAX = 32.0
+
+#: Fraction of the luminance range an icon's RGB must span before it is
+#: treated as carrying shading rather than being a flat mask. Below
+#: this, RGB is noise from the exporter — several bundled icons vary by
+#: ~0.03 across their "solid white" fill, and stretching that across
+#: the ink band paints visible banding into a flat glyph.
+MIN_TONAL_RANGE = 0.12
+
+#: Longest edge an icon is processed at. Icons are drawn into 16-52 px
+#: slots; anything past 512 px is pure cost.
+MAX_WORK_SIZE = 512
+
+#: Where the bundled PNGs live.
+RESOURCE_DIR = os.path.normpath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "..", "resources", "icons"))
 
 
 @lru_cache(maxsize=128)
@@ -25,32 +82,363 @@ def _try_qta():
         return None
 
 
-def icon(name: str, color: Optional[str] = None, size: int = 16) -> QIcon:
+def active_theme() -> str:
+    """The theme icons should be drawn for, resolved from preferences.
+
+    Falls back to ``"dark"`` if preferences can't be read at all —
+    icon lookup must never be the thing that stops the GUI booting.
+    """
+    try:
+        from .preferences import resolve_effective_theme
+        return resolve_effective_theme()
+    except Exception:
+        return "dark"
+
+
+def _theme_palette(theme: Optional[str]) -> dict:
+    return palette_for(theme or active_theme())
+
+
+# ---------------------------------------------------------------------------
+# qtawesome glyphs
+# ---------------------------------------------------------------------------
+
+def icon(name: str, color: Optional[str] = None, size: int = 16,
+         theme: Optional[str] = None) -> QIcon:
     """Return a QIcon for the named glyph, or an empty QIcon fallback.
 
     `name` is a semantic key (e.g. "open", "run", "brush") mapped to a
-    Font Awesome glyph. Unknown names fall back to a puzzle piece.
+    Font Awesome glyph. Unknown names fall back to a puzzle piece. The
+    default fill follows the active theme rather than the dark palette,
+    which is why a light-theme sidebar no longer draws pale-grey icons
+    on white.
     """
     qta = _try_qta()
     if qta is None:
         return QIcon()
     glyph = _NAME_TO_GLYPH.get(name, "fa5s.puzzle-piece")
-    fill = color or PALETTE["fg_muted"]
+    fill = color or _theme_palette(theme)["fg_muted"]
     try:
         return qta.icon(glyph, color=fill)
     except Exception:
         return QIcon()
 
 
-def accent_icon(name: str) -> QIcon:
+def accent_icon(name: str, theme: Optional[str] = None) -> QIcon:
     """Icon painted in the accent color (used for primary buttons)."""
-    return icon(name, color=PALETTE["accent"])
+    return icon(name, color=_theme_palette(theme)["accent"], theme=theme)
 
 
-def contrast_icon(name: str) -> QIcon:
-    """Icon painted in the background color — used inside filled
-    (PrimaryButton) buttons where the button bg IS the accent."""
-    return icon(name, color=PALETTE["bg"])
+def contrast_icon(name: str, theme: Optional[str] = None) -> QIcon:
+    """Icon painted for use inside a filled (PrimaryButton) button,
+    where the button background IS the accent fill."""
+    return icon(name, color=_theme_palette(theme)["button_accent_ink"],
+                theme=theme)
+
+
+# ---------------------------------------------------------------------------
+# Bundled PNGs — re-inked per theme
+# ---------------------------------------------------------------------------
+
+def _blend(a: str, b: str, t: float) -> str:
+    """Linear blend from colour ``a`` (t=0) to colour ``b`` (t=1)."""
+    def ch(c):
+        c = c.lstrip("#")
+        return [int(c[i:i + 2], 16) for i in (0, 2, 4)]
+    ca, cb = ch(a), ch(b)
+    return "#%02x%02x%02x" % tuple(
+        int(round(x + (y - x) * t)) for x, y in zip(ca, cb))
+
+
+def hardest_surface(theme: str) -> str:
+    """The surface colour an icon has the least contrast against."""
+    palette = _theme_palette(theme)
+    ink = palette["fg"]
+    return min((effective_surface(theme, role) for role in ICON_SURFACES),
+               key=lambda s: contrast_ratio(ink, s))
+
+
+@lru_cache(maxsize=16)
+def veil_color(theme: str) -> str:
+    """Dimmest ink allowed in a themed icon.
+
+    Solved, not guessed: bisect the blend from the hardest surface
+    toward the theme foreground until the contrast crosses
+    :data:`MIN_ICON_CONTRAST`. That way the shadow end of an icon's
+    tonal range is still a visible shape, and the answer tracks the
+    palette instead of being a magic grey someone eyeballed once.
+    """
+    palette = _theme_palette(theme)
+    ink = palette["fg"]
+    surface = hardest_surface(theme)
+    if contrast_ratio(surface, ink) < MIN_ICON_CONTRAST:
+        return ink            # palette can't do better; use full ink
+    lo, hi = 0.0, 1.0
+    for _ in range(24):
+        mid = (lo + hi) / 2.0
+        if contrast_ratio(_blend(surface, ink, mid), surface) < MIN_ICON_CONTRAST:
+            lo = mid
+        else:
+            hi = mid
+    return _blend(surface, ink, hi)
+
+
+def _load_rgba(path: str):
+    """Load a PNG as an (h, w, 4) float array, or ``None`` if unreadable.
+
+    Downscaled to :data:`MAX_WORK_SIZE` first. Some bundled assets are
+    enormous for icon artwork — ``logo_spacr.png`` is 3334x3334, which
+    is 356 MB as a float64 RGBA array and about half a second to
+    re-ink, for something drawn into a 52 px slot. 512 px is four times
+    the largest slot at 2x device pixel ratio.
+    """
+    try:
+        import numpy as np
+        from PIL import Image
+        with Image.open(path) as im:
+            im = im.convert("RGBA")
+            if max(im.size) > MAX_WORK_SIZE:
+                # reducing_gap makes PIL box-reduce by an integer factor
+                # first and only then resample — ~6x faster than going
+                # straight to LANCZOS from 3334 px, same result.
+                im.thumbnail((MAX_WORK_SIZE, MAX_WORK_SIZE),
+                             Image.LANCZOS, reducing_gap=2.0)
+            return np.asarray(im, dtype=np.float64)
+    except Exception:
+        return None
+
+
+def _file_stamp(path: str):
+    """``(path, mtime, size)`` — the cache key for a decoded icon.
+
+    Some bundled assets are large for icon artwork (``activation.png``
+    is 1024x1024, 1.5 MB on disk), and re-decoding one every time a
+    sidebar rebuilds is pure waste. Keying on mtime+size means an
+    artwork swap invalidates the entry on its own.
+    """
+    try:
+        stat = os.stat(path)
+        return (path, stat.st_mtime_ns, stat.st_size)
+    except OSError:
+        return (path, 0, 0)
+
+
+def _hex_to_array(color: str):
+    import numpy as np
+    text = color.lstrip("#")
+    return np.array([int(text[i:i + 2], 16) for i in (0, 2, 4)],
+                    dtype=np.float64)
+
+
+def carries_tonal_structure(rgba) -> bool:
+    """True when an icon's RGB channels carry shading worth preserving.
+
+    Measured, not assumed. Every bundled spaCR icon is **a monochrome
+    mask**: the alpha channel holds the entire shape and the RGB is a
+    uniform fill (white for most of them, black for ``convert.png``).
+    For those, the RGB carries no information at all and the right
+    answer is to paint the alpha mask in the theme's ink.
+
+    A couple of assets (``umap.png``, ``activation.png``) genuinely do
+    put shading in RGB, and flattening those to a silhouette would
+    destroy the picture. The discriminator is whether the visible-pixel
+    luminance spans a meaningful fraction of the range — 2 % of
+    variation is noise from whatever exported the file, not shading.
+    """
+    import numpy as np
+    alpha = rgba[:, :, 3] / 255.0
+    visible = alpha > 0.02
+    if not visible.any():
+        return False
+    rgb = rgba[:, :, :3]
+    lum = (0.2126 * rgb[:, :, 0] + 0.7152 * rgb[:, :, 1]
+           + 0.0722 * rgb[:, :, 2])[visible] / 255.0
+    lo, hi = np.percentile(lum, (2.0, 98.0))
+    return float(hi - lo) >= MIN_TONAL_RANGE
+
+
+def reink(rgba, theme: str):
+    """Re-ink an RGBA array for ``theme``. Returns a uint8 RGBA array.
+
+    The **alpha channel is the shape**, always. RGB is consulted only
+    when :func:`carries_tonal_structure` says it holds real shading, so
+    swapping in different artwork later cannot break this — a redrawn
+    monochrome mask keeps working with no code change.
+
+    :param rgba: (h, w, 4) float array, channels 0-255.
+    :param theme: theme name.
+    """
+    import numpy as np
+
+    palette = _theme_palette(theme)
+    ink = palette["fg"]
+    veil = veil_color(theme)
+
+    alpha = rgba[:, :, 3] / 255.0
+    rgb = rgba[:, :, :3]
+    visible = alpha > 0.02
+    out = rgba.copy()
+    if not visible.any():
+        return out.astype(np.uint8)
+
+    ink_rgb, veil_rgb = _hex_to_array(ink), _hex_to_array(veil)
+    lum = (0.2126 * rgb[:, :, 0] + 0.7152 * rgb[:, :, 1]
+           + 0.0722 * rgb[:, :, 2])
+
+    if not carries_tonal_structure(rgba):
+        # Pure mask: paint it flat in the theme ink and let alpha —
+        # including its antialiased edges — do all the shaping.
+        new = np.broadcast_to(ink_rgb, rgb.shape).copy()
+    else:
+        weights = alpha[visible]
+        mean_lum = float((lum[visible] * weights).sum()
+                         / max(weights.sum(), 1e-9))
+        # Which end of the tonal range is the drawing? A black glyph on
+        # transparent and a white glyph on transparent are the same
+        # picture with opposite polarity; guessing wrong inverts it.
+        ink_is_bright = mean_lum > 127.5
+        t = lum / 255.0 if ink_is_bright else 1.0 - lum / 255.0
+        lo = float(np.percentile(t[visible], 2))
+        hi = float(np.percentile(t[visible], 98))
+        t = np.clip((t - lo) / max(hi - lo, 1e-6), 0.0, 1.0)
+
+        chroma = rgb.max(axis=2) - rgb.min(axis=2)
+        polychrome = float(np.percentile(chroma[visible], 98)) > CHROMA_MONO_MAX
+        if polychrome:
+            # Keep the hue: scale each pixel toward the target luminance
+            # rather than replacing its colour outright.
+            ink_l = relative_luminance(ink)
+            veil_l = relative_luminance(veil)
+            target = (veil_l + (ink_l - veil_l) * t) * 255.0
+            scale = target / np.maximum(lum, 1.0)
+            new = np.clip(rgb * scale[:, :, None], 0.0, 255.0)
+            # Where the source was pure black there is no hue to
+            # preserve, so lift it to the neutral target instead of
+            # multiplying zero.
+            flat = lum < 1.0
+            new[flat] = np.clip(target[flat], 0.0, 255.0)[:, None]
+        else:
+            new = veil_rgb[None, None, :] + \
+                (ink_rgb - veil_rgb)[None, None, :] * t[:, :, None]
+
+    out[:, :, :3] = np.where(visible[:, :, None], new, rgb)
+    return np.clip(out, 0, 255).astype(np.uint8)
+
+
+@lru_cache(maxsize=192)
+def _themed_array(stamp, theme: str):
+    """Re-inked RGBA for one (file, theme). Cached — see :func:`_file_stamp`."""
+    rgba = _load_rgba(stamp[0])
+    if rgba is None:
+        return None
+    return reink(rgba, theme)
+
+
+def themed_array(path: str, theme: Optional[str] = None):
+    """Re-inked ``(h, w, 4)`` uint8 array for ``path``, or ``None``."""
+    return _themed_array(_file_stamp(path), theme or active_theme())
+
+
+def themed_qimage(path: str, theme: Optional[str] = None):
+    """Return the bundled PNG at ``path``, re-inked for ``theme``.
+
+    ``None`` when the file can't be read. Returns a ``QImage``, which
+    (unlike ``QPixmap``) needs no running QGuiApplication, so this is
+    safe to call from a headless test.
+    """
+    import numpy as np
+    from PySide6.QtGui import QImage
+
+    arr = themed_array(path, theme)
+    if arr is None:
+        return None
+    arr = np.ascontiguousarray(arr)
+    h, w = arr.shape[:2]
+    img = QImage(arr.data, w, h, 4 * w, QImage.Format_RGBA8888)
+    return img.copy()          # detach from the numpy buffer
+
+
+def themed_pixmap(path: str, theme: Optional[str] = None):
+    """:func:`themed_qimage` as a ``QPixmap``, or ``None``."""
+    from PySide6.QtGui import QPixmap
+    img = themed_qimage(path, theme)
+    if img is None:
+        return None
+    pix = QPixmap.fromImage(img)
+    return None if pix.isNull() else pix
+
+
+def icon_ink_color(path: str, theme: Optional[str] = None) -> Optional[str]:
+    """Alpha-weighted mean colour of the re-inked artwork, as hex.
+
+    This is the colour the eye integrates when the icon is small, which
+    is what makes it the right thing to measure contrast on.
+    """
+    import numpy as np
+
+    themed = themed_array(path, theme)
+    if themed is None:
+        return None
+    arr = themed.astype(np.float64)
+    alpha = arr[:, :, 3] / 255.0
+    total = float(alpha.sum())
+    if total <= 0.0:
+        return None
+    mean = [(arr[:, :, c] * alpha).sum() / total for c in range(3)]
+    return "#%02x%02x%02x" % tuple(int(round(v)) for v in mean)
+
+
+def icon_contrast(path: str, theme: Optional[str] = None) -> float:
+    """Worst-case contrast of a themed icon against the theme's surfaces.
+
+    ``0.0`` when the file can't be read or is fully transparent.
+    """
+    theme = theme or active_theme()
+    ink = icon_ink_color(path, theme)
+    if ink is None:
+        return 0.0
+    return min(contrast_ratio(ink, effective_surface(theme, role))
+               for role in ICON_SURFACES)
+
+
+def bundled_icon_paths() -> Tuple[str, ...]:
+    """Every bundled PNG, sorted. Used by the theme-visibility test."""
+    try:
+        names = sorted(n for n in os.listdir(RESOURCE_DIR)
+                       if n.lower().endswith(".png"))
+    except OSError:
+        return ()
+    return tuple(os.path.join(RESOURCE_DIR, n) for n in names)
+
+
+def bundled_icon_path(key: str, override: Optional[str] = None
+                      ) -> Optional[str]:
+    """Resolve an app key to its bundled PNG, or ``None``.
+
+    :param override: explicit filename to try first. The key → filename
+        table lives in :mod:`spacr.qt.app` next to the app registry it
+        describes; this module only knows how to *render* what it's
+        pointed at.
+    """
+    candidates = [override] if override else []
+    candidates += [f"{key}.png", f"{key.replace('_', ' ')}.png"]
+    for candidate in candidates:
+        path = os.path.join(RESOURCE_DIR, candidate)
+        if os.path.isfile(path):
+            return path
+    return None
+
+
+def app_icon(key: str, override: Optional[str] = None,
+             theme: Optional[str] = None) -> QIcon:
+    """Icon for an app key: the bundled PNG re-inked for the theme,
+    falling back to the themed qtawesome glyph."""
+    path = bundled_icon_path(key, override)
+    if path is not None:
+        pix = themed_pixmap(path, theme)
+        if pix is not None:
+            return QIcon(pix)
+    return icon(key, theme=theme)
 
 
 # Semantic name → Font Awesome glyph. Keep names short + generic so
