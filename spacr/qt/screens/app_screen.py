@@ -217,6 +217,12 @@ APP_INTROS = {
 }
 
 
+#: Apps that get a live DNA-rain backdrop. Sequencing only — every
+#: other app key misses this set and the hook below does nothing, so no
+#: other screen changes in any way.
+DNA_RAIN_APPS = frozenset({"map_barcodes"})
+
+
 class AppScreen(QWidget):
     """Generic settings + runtime screen used by every non-interactive app.
 
@@ -334,6 +340,19 @@ class AppScreen(QWidget):
             install_dropzone(self, get_handler(self.app_key), self)
         except Exception:
             pass
+
+        # DNA rain backdrop (sequencing only). Sits behind every other
+        # child, takes no focus and no mouse events, and stops its timer
+        # whenever this screen is not visible, so it costs nothing while
+        # the pipeline runs on another tab. Its colour / speed / font
+        # controls are appended to the bottom of `outer`.
+        self._dna_rain = None
+        if self.app_key in DNA_RAIN_APPS:
+            try:
+                from ..widgets.dna_rain import install_dna_rain
+                self._dna_rain = install_dna_rain(self, outer)
+            except Exception:
+                self._dna_rain = None
 
     # ------------------------------------------------------------------
     # Panels
