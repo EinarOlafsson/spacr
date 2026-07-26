@@ -909,6 +909,17 @@ def test_cv_group_by_combo_matches_io_cv_group_levels():
     assert initial == "well"
 
 
+def test_seg_qc_combo_matches_seg_qc_modes():
+    from spacr import gui_utils as GU
+    from spacr.seg_qc import MODES
+    kind, options, initial = GU.convert_settings_dict_for_gui(
+        {"seg_qc": "report"})["seg_qc"]
+    assert kind == "combo"
+    assert set(options) == set(MODES)
+    # report, not flag: surface the problem, do not silently filter fields
+    assert initial == "report"
+
+
 def test_optimizer_and_loss_combos_are_all_accepted_by_the_pipeline():
     """Every offered option must survive the real dispatch, not just look right."""
     from spacr import gui_utils as GU

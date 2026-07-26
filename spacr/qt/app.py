@@ -109,6 +109,7 @@ APPS = [
     ("umap",           "Image UMAP",     "Generate UMAP embeddings with image glyphs",                  "Tools"),
     ("queue",          "Plate Queue",    "Chain multiple plates through the same pipeline",             "Tools"),
     ("db_browser",     "Database Browser", "Browse and export measurements.db without the sqlite3 CLI", "Tools"),
+    ("agreement",      "Annotator Agreement", "Cohen's/Fleiss' κ between annotation columns + a disagreement review", "Tools"),
     # -- Toxo: Toxoplasma-specific assays --
     ("analyze_plaques", "Plaque Assay",  "Analyze plaque assay data",                                   "Toxo"),
     ("recruitment",    "Recruitment",    "Analyze recruitment data",                                    "Toxo"),
@@ -125,6 +126,8 @@ _ICON_OVERRIDES = {
     "timelapse":       "convert.png",      # cyclic arrows read as "over time"
     "motility":        "recruitment.png",  # closest "things moving" glyph
     "db_browser":      "map_barcodes.png", # ruled bars read as table columns
+    "agreement":       "annotate.png",     # shares the Annotate glyph: it
+                                           # scores annotation columns
 }
 
 # Keys that render their qtawesome glyph instead of a bundled PNG.
@@ -750,6 +753,9 @@ class MainWindow(QMainWindow):
         if key == "db_browser":
             from .screens.db_browser import DbBrowserScreen
             return DbBrowserScreen()
+        if key == "agreement":
+            from .screens.agreement import AgreementScreen
+            return AgreementScreen()
         from .screens.app_screen import AppScreen
         screen = AppScreen(app_key=key)
         screen.error_explain_requested.connect(self._on_explain_error)

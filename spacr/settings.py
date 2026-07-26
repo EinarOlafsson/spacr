@@ -93,6 +93,25 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('pathogen_diameter', None)
     settings.setdefault('diameter_estimate_n_fields', 5)
 
+    # Segmentation QC — scored on the masks the moment they exist, so a plate
+    # that segmented badly is caught here rather than after measure_crop has
+    # spent hours on it. 'report' computes, saves and prints; it never filters.
+    # The thresholds are spacr.seg_qc.QC_DEFAULTS, documented there and in the
+    # tooltips below.
+    settings.setdefault('seg_qc', 'report')
+    settings.setdefault('seg_qc_min_objects', 10)
+    settings.setdefault('seg_qc_count_ratio', 0.25)
+    settings.setdefault('seg_qc_size_ratio', 1.4)
+    settings.setdefault('seg_qc_border_fraction', 0.3)
+    settings.setdefault('seg_qc_outlier_mad', 5.0)
+    settings.setdefault('seg_qc_outlier_fraction', 0.15)
+    settings.setdefault('seg_qc_foreground_fraction', 0.35)
+    settings.setdefault('seg_qc_split_ratio', 2.0)
+    settings.setdefault('seg_qc_min_diameter', 5.0)
+    settings.setdefault('seg_qc_tiny_fraction', 0.3)
+    settings.setdefault('seg_qc_max_object_fraction', 0.25)
+    settings.setdefault('seg_qc_plate_fail_fraction', 0.1)
+
     # Channel settings
     settings.setdefault('cell_channel', None)
     settings.setdefault('nucleus_channel', None)
@@ -1349,6 +1368,19 @@ expected_types = {
     "nucleus_diameter":int,
     "pathogen_diameter":int,
     "diameter_estimate_n_fields":int,
+    "seg_qc":str,
+    "seg_qc_min_objects":int,
+    "seg_qc_count_ratio":float,
+    "seg_qc_size_ratio":float,
+    "seg_qc_border_fraction":float,
+    "seg_qc_outlier_mad":float,
+    "seg_qc_outlier_fraction":float,
+    "seg_qc_foreground_fraction":float,
+    "seg_qc_split_ratio":float,
+    "seg_qc_min_diameter":float,
+    "seg_qc_tiny_fraction":float,
+    "seg_qc_max_object_fraction":float,
+    "seg_qc_plate_fail_fraction":float,
     "consolidate":bool,
     'use_sam_cell':bool,
     'use_sam_nucleus':bool,
@@ -1528,6 +1560,19 @@ tooltips = {
     "nucleus_diameter": "(int or None) - Expected nucleus diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmenting. None segments at native scale. Nuclei are usually the smallest object you segment, so this is the one most likely to need setting on low-magnification plates. spacr.diameter.estimate_diameters proposes a value. Default None.",
     "pathogen_diameter": "(int or None) - Expected pathogen diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmenting. None segments at native scale. Intracellular parasites are often only a few pixels across at low magnification, where rescaling matters most. spacr.diameter.estimate_diameters proposes a value. Default None.",
     "diameter_estimate_n_fields": "(int) - How many fields spacr.diameter.estimate_diameters reads before it proposes cell_diameter, nucleus_diameter and pathogen_diameter from blob statistics instead of leaving you to guess. Fields are taken on an even stride across the sorted plate, so rows and columns are both represented rather than the first few wells; each field costs about a second of CPU and loads neither torch nor Cellpose. Raise it to 10-20 when wells vary a lot or the proposal comes back at low confidence, drop it to 2-3 for a quick look. Default 5.",
+    "seg_qc": "(str) - Segmentation quality control, scored on the masks the moment they are written and long before measure_crop spends hours on them. 'off' skips it entirely; 'report' (the default) scores every field, writes qc/segmentation_qc_OBJECT.csv under the plate folder and prints a card naming the fields that are wrong and why; 'flag' does the same and additionally saves a per-field flags JSON for a downstream step to consume. No mode ever deletes, filters or skips a field: it tells you which ones are bad and leaves the decision to you. Default 'report'.",
+    "seg_qc_min_objects": "(int) - Fields holding fewer objects than this are called near-empty, and their robust per-field size statistics are suppressed, because a median absolute deviation taken over a handful of objects is one object's opinion rather than a distribution. Raise it for confluent cell plates where every field should hold hundreds; drop it to 3-5 for low-multiplicity pathogen channels where two objects per field is genuinely the assay. Default 10.",
+    "seg_qc_count_ratio": "(float) - How far a field's object count may drift from the plate median before the field is flagged, expressed as a fraction: 0.25 flags anything below a quarter of the median and, through its reciprocal, anything above four times it. Seeding density across a plate varies with a coefficient of variation of 10-30% and edge wells rarely fall below half, so a four-fold departure means lost focus, an empty well or a collapsed mask rather than biology. Default 0.25.",
+    "seg_qc_size_ratio": "(float) - Fold change in a field's median object diameter, measured against the plate median, that marks it as fused or shattered when its object count has moved the opposite way. The default is the square root of two on purpose: two objects welded into one have exactly 1.41 times the equivalent diameter of one, and one object split in two has the reciprocal, so this is the signature itself rather than an arbitrary tolerance. Default 1.4.",
+    "seg_qc_border_fraction": "(float) - Fraction of a field's objects allowed to touch the image edge before the field is flagged. Objects on the edge are truncated, so the crops handed to Measure are cut off and their areas understate the truth. Geometry alone puts roughly two object diameters' worth on the border, about 8% for 60 px cells in a 1400 px field, so this default is well clear of what a healthy field produces. Default 0.3.",
+    "seg_qc_outlier_mad": "(float) - How many robust standard deviations, one of which is 1.4826 times the median absolute deviation, an object's diameter may sit from the field median before it counts as a size outlier. Median and MAD are used rather than mean and standard deviation because a few pieces of debris inflate a standard deviation until nothing looks unusual any more. Five is deliberately loose: real size distributions are heavier tailed than Gaussian, so three would flag part of every healthy field. Default 5.",
+    "seg_qc_outlier_fraction": "(float) - Share of a field's objects that must fall outside the robust size range before the field is reported as holding two populations. A single distribution's tail cannot put fifteen percent of its objects five robust deviations out; only debris, fused pairs or fragments can, and those are what this check is looking for. Lower it if you want the card to be chattier about mixed fields. Default 0.15.",
+    "seg_qc_foreground_fraction": "(float) - Foreground coverage at or above which a field is called confluent. That is the first half of the fusion test and the only condition under which the expensive distance-transform cross-check runs at all, so raising it makes QC faster and blinder while lowering it costs time on sparse fields. It matches the fused_fraction the diameter estimator uses, so both modules agree on what a dense field is. Default 0.35.",
+    "seg_qc_split_ratio": "(float) - How many objects the distance transform has to resolve per mask object, in a field already judged confluent, before those masks are called fused. Two means every mask object contains at least two inscribed-circle maxima on average, which is the smallest fusion worth catching: neighbouring cells merged in pairs. Raise it toward five to report only wholesale collapse of a monolayer into slabs. Default 2.",
+    "seg_qc_min_diameter": "(float) - Equivalent diameter in pixels below which an object is treated as a fragment rather than a real one; it drives the over-segmentation check and sets the seed floor of the fusion cross-check. Lower it to two or three for punctate organelles, where five-pixel objects are the actual signal rather than debris, and raise it for large cells where anything that small is certainly a shard. Default 5.",
+    "seg_qc_tiny_fraction": "(float) - Share of a field's objects that may be smaller than seg_qc_min_diameter before the whole field is called over-segmented. Cellpose shattering one cell into a dozen shards takes this close to one, while a healthy field carrying a little debris sits well below a third, which is where the default sits. Default 0.3.",
+    "seg_qc_max_object_fraction": "(float) - Share of the entire field a single label may cover before that label is read as evidence of fusion rather than as an object. A quarter of a field is not a cell, it is a monolayer that was welded into one mask, and the diameter estimator discards such components for exactly the same reason. Lower it for small objects on large fields; raise it only when one huge object per field is real. Default 0.25.",
+    "seg_qc_plate_fail_fraction": "(float) - Fraction of failing fields at which the scorecard's verdict for the whole plate flips from warn to fail. Ten percent is roughly one column of a 96-well plate: below that you can drop the bad fields and still have the experiment, and above it what Measure would produce is no longer the experiment you ran. It changes the printed verdict only, never which fields are processed. Default 0.1.",
     "nucleus_CP_prob": "(float) - Cellpose cell-probability threshold for the nucleus channel, passed straight to model.eval as cellprob_threshold. A pixel must exceed it to join a mask, so raising it shrinks masks and drops dim nuclei, while lowering it grows masks and recovers faint ones along with more debris. Useful range about -6 to 6; default 0.",
     "pathogen_CP_prob": "(float) - Cellpose cellprob_threshold for the pathogen channel: a pixel is claimed by a mask only if its predicted object probability exceeds this. Lower it (toward -6) to recover dim or small parasites and grow mask boundaries; raise it (toward 6) to shrink masks and drop faint objects. Useful range about -6 to 6. Default 0.",
     "nucleus_FT": "(float) - Cellpose flow_threshold for nucleus masks: the maximum allowed error between a mask's recomputed flows and the network's predicted flows. Lowering it discards more irregularly shaped nuclei, giving fewer but cleaner objects; raising it keeps nearly everything Cellpose proposes. Typical range 0 to 3; spaCR default 1.0, which is permissive.",
@@ -2061,6 +2106,7 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Hyperparamiters (Activation)":["cam_type", "overlay", "correlation", "target_layer", "normalize_input"],
              "Annotation": ["filter_column", "filter_value","volcano", "toxo", "controls", "nc_loc", "pc_loc", "nc", "pc", "cell_plate_metadata","treatment_plate_metadata", "metadata_types", "cell_types", "target","positive_control","negative_control", "location_column", "treatment_loc", "channel_of_interest", "measurement", "treatments", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
              "Plot": ["split_axis_lims", "x_lim","log_x","log_y", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","save_figure"],
+             "Segmentation QC": ["seg_qc", "seg_qc_min_objects", "seg_qc_count_ratio", "seg_qc_size_ratio", "seg_qc_border_fraction", "seg_qc_outlier_mad", "seg_qc_outlier_fraction", "seg_qc_foreground_fraction", "seg_qc_split_ratio", "seg_qc_min_diameter", "seg_qc_tiny_fraction", "seg_qc_max_object_fraction", "seg_qc_plate_fail_fraction"],
              "Timelapse": timelapse_settings,
              "Advanced": ["dry_run", "test_images", "random_test", "test_nr", "test", "test_split", "normalize", "target_unique_count","threshold_multiplier", "threshold_method", "min_n","shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs", "keep_intermediate", "keep_original_images", "compression", "diameter_estimate_n_fields"],
              "Beta": ["all_to_mip", "upscale", "upscale_factor", "consolidate", "distance_gaussian_sigma","use_sam_pathogen","use_sam_nucleus", "use_sam_cell", "denoise"],
