@@ -71,6 +71,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "app_umap",
     "submodules",
     "ml",
+    "predictions",
     "toxo",
     "spacr_cellpose",
     "spacrops",

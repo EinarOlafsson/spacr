@@ -161,7 +161,7 @@ def _ml_settings(src, **over):
 
 def test_generate_ml_scores_writes_every_artifact_and_updates_png_list(tmp_path, rng):
     """The full DB -> model -> results/ path: 10-tuple + heatmap returned,
-    all CSV/PDF artifacts on disk, and save_to_db back-fills png_list."""
+    all CSV/PDF artifacts on disk, and the scores back on png_list."""
     from spacr.ml import generate_ml_scores
 
     src = _make_src(tmp_path, "plate1", rng)
@@ -196,17 +196,36 @@ def test_generate_ml_scores_writes_every_artifact_and_updates_png_list(tmp_path,
     # the settings snapshot for a str src (not the *_list variant)
     assert os.path.isfile(os.path.join(src, "settings", "generate_ml_scores.csv"))
 
-    # --- save_to_db wrote predictions back onto png_list (0 -> 2)
+    # --- the scores are back on png_list, on the right row
+    #
+    # Written by spacr.predictions.merge_ml_predictions, which replaced
+    # utils.add_column_to_database here. Three things changed with it: the
+    # merge happens whether or not save_to_db is set (the model scored the
+    # whole database, so the whole database gets the scores), the class is
+    # stored as the model produced it -- the old writer replaced every 0 with
+    # a 2, the Annotate app's label encoding, so png_list disagreed with the
+    # results.csv from the same run -- and a re-run updates in place instead
+    # of appending a 'predictions_1' sibling. ml_pred is new: it carries the
+    # probability, which the ML stage never stored at all, namespaced so a
+    # later CV run writing 'pred' cannot overwrite it.
     assert settings["csv_path"] == os.path.join(res, "results.csv")
     assert settings["table_name"] == "png_list"
     con = sqlite3.connect(os.path.join(src, "measurements", "measurements.db"))
     try:
-        png_back = pd.read_sql_query("SELECT prcfo, predictions FROM png_list", con)
+        png_back = pd.read_sql_query(
+            "SELECT prcfo, predictions, ml_pred FROM png_list", con)
+        names = [r[1] for r in con.execute("PRAGMA table_info(png_list)")]
     finally:
         con.close()
     assert len(png_back) == N_OBJ
     assert png_back["predictions"].notna().all()
-    assert set(png_back["predictions"].unique()).issubset({1, 2})
+    assert png_back["ml_pred"].notna().all()
+    assert set(png_back["predictions"].unique()).issubset({0, 1})
+    assert names.count("predictions") == 1
+    assert not [n for n in names if n.startswith("predictions_")]
+    # every object got *its own* score, matched on prcfo
+    by_prcfo = dict(zip(png_back["prcfo"], png_back["predictions"]))
+    assert by_prcfo == dict(zip(scored_df["prcfo"], scored_df["predictions"]))
 
 
 def test_generate_ml_scores_annotation_column_balances_single_class(tmp_path, rng):
