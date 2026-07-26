@@ -167,6 +167,27 @@ def test_well_from_index_is_384_shaped():
     assert _well_from_index(383) == "P24"
 
 
+def test_well_from_index_past_384_does_not_reuse_a_well_name():
+    """The old overflow was ``f"E{idx + 1:03d}"``, which is itself a well.
+
+    MEASURED: index 384 (the 385th folder) became ``'E385'``, and
+    ``schema.parse_well('E385')`` reads that as row E column 385 — the
+    "fallback" minted names in the same namespace it was escaping, so
+    ``'E001'`` would have collided with well ``E01``. Counting rows past P
+    instead stays unique and stays a well a 1536 plate really has.
+    """
+    from spacr import schema
+    from spacr.qt.folder_metadata import _well_from_index
+
+    assert _well_from_index(384) == "Q01"
+    assert schema.parse_well(_well_from_index(384)) == ("r17", "c1")
+    # 1536 folders, 1536 distinct wells, every one of them a parseable well
+    # (schema.parse_well echoes a non-well back into both slots).
+    names = [_well_from_index(i) for i in range(1536)]
+    assert len(set(names)) == 1536
+    assert all(schema.parse_well(n) != (n, n) for n in names)
+
+
 def test_assign_missing_fields_generates_sequential_names(tmp_path):
     from spacr.qt.folder_metadata import assign_missing_fields
     files = [tmp_path / f"raw_{i}.tif" for i in range(3)]

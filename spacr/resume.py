@@ -93,11 +93,11 @@ from __future__ import annotations
 import ast
 import os
 import sqlite3
-import string
 from dataclasses import dataclass, field as _dc_field
 from typing import (Any, Dict, Iterable, List, Mapping, Optional, Sequence,
                     Set, Tuple)
 
+from . import schema
 from .errors import ConfigurationError, read_run_status
 
 __all__ = [
@@ -130,7 +130,12 @@ __all__ = [
 #: Columns that together identify one field of view. Every delete this
 #: module issues matches on **all** of these by equality — never a LIKE
 #: on a name prefix, which would make ``f1`` match ``f10``…``f19``.
-FIELD_KEY_COLUMNS = ('plateID', 'rowID', 'columnID', 'fieldID')
+#:
+#: Re-exported from :data:`spacr.schema.FIELD_KEY_COLUMNS` rather than
+#: spelled out again: a resume delete keyed on a different four columns than
+#: the writer used is a delete that misses, and the only way to guarantee it
+#: cannot happen is for there to be one tuple.
+FIELD_KEY_COLUMNS = schema.FIELD_KEY_COLUMNS
 
 #: Timepoint column, added to the key for timelapse runs. ``timeID`` is
 #: canonical and is what both ``_merge_and_save_to_database`` and
@@ -138,7 +143,7 @@ FIELD_KEY_COLUMNS = ('plateID', 'rowID', 'columnID', 'fieldID')
 #: carried before the two were unified; ``utils.rename_columns_in_db``
 #: migrates it in place on first read, but a database not read since then
 #: still has it, so both are honoured here.
-TIME_KEY_COLUMNS = ('timeID', 'time_id')
+TIME_KEY_COLUMNS = schema.TIME_COLUMN_ALIASES
 
 #: The tables a measure run writes, and therefore the **only** tables a
 #: measure resume may delete from.
@@ -152,6 +157,15 @@ TIME_KEY_COLUMNS = ('timeID', 'time_id')
 #: equals those four groups; the names are spelled out here rather than
 #: imported because this module must not drag ``utils`` — and therefore
 #: torch — into a process. See the module docstring.)
+#:
+#: It is **not** aliased to :data:`spacr.schema.MEASUREMENT_TABLES`, which
+#: happens to hold the same ten names today. They answer different questions:
+#: schema's list is "what does spaCR write?", this one is "what may a resume
+#: **delete**?". Coupling them would mean a table added to schema silently
+#: authorises a delete from it, which is the deny-list failure mode wearing
+#: a different hat. ``FIELD_KEY_COLUMNS`` above *is* aliased, because there
+#: the opposite is true: a delete keyed on different columns than the writer
+#: used is a delete that misses.
 #:
 #: A deny-list was tried first and is what the bug was. ``measurements.db``
 #: is shared: ``convert.populate_db_from_map`` writes ``conversion_map``,
@@ -270,22 +284,24 @@ def resume_enabled(settings: Any) -> bool:
 # Field identity
 # ---------------------------------------------------------------------------
 
-def _safe_int(value: Any, default: int = 0) -> int:
-    """``int(value)`` or ``default`` — never raises."""
-    try:
-        return int(value)
-    except (TypeError, ValueError):
-        return default
-
-
 def field_identity(field: Any, timelapse: bool = False) -> Dict[str, str]:
     """Parse a merged-stack name into the well coordinates the database stores.
 
-    This is a deliberate, stdlib-only re-implementation of
-    ``spacr.utils._map_wells``: importing ``spacr.utils`` would pull torch
-    and cellpose into every process that merely wants to know whether it
-    can skip a field. ``tests/test_resume.py`` asserts the two agree on a
-    battery of names, so the copy cannot drift.
+    :func:`spacr.schema.parse_field_stem` is the parse; this function adds the
+    mapping passthrough and the "refuse rather than guess" errors a resume
+    needs. It used to be a hand-rolled copy of ``spacr.utils._map_wells``,
+    because importing ``spacr.utils`` would pull torch and cellpose into every
+    process that merely wants to know whether it can skip a field —
+    :mod:`spacr.schema` is stdlib-only precisely so that reason no longer
+    forces a copy, and ``tests/test_resume.py`` still asserts this module
+    imports nothing heavy.
+
+    The copy had drifted, in the direction that matters most here: it gave
+    ``'plate1_A_3'`` the identity ``('r1', 'c0')`` while ``_map_wells`` wrote
+    ``'error'`` into the database for the same name, so a resume computed a
+    delete key that matched **no** rows and the field was measured twice.
+    ``'AA01'`` was the same story. Both now raise, which
+    :func:`plan_measure_resume` reports rather than silently mis-deleting.
 
     :param field: ``'plate1_A01_3'``, ``'plate1_A01_3.npy'``, or an
         already-parsed identity mapping (returned filtered, so callers can
@@ -297,8 +313,10 @@ def field_identity(field: Any, timelapse: bool = False) -> Dict[str, str]:
         ``{'plateID': 'plate1', 'rowID': 'r1', 'columnID': 'c1',
         'fieldID': 'f3'}``.
     :raises ValueError: when the name has too few underscore-separated
-        parts to identify a field. Guessing here would produce a delete
-        key that matches the wrong rows.
+        parts to identify a field, or when the well cannot be read.
+        Guessing here would produce a delete key that matches the wrong
+        rows. (:class:`spacr.schema.SchemaError` *is* a ``ValueError``, so
+        callers guarding on ``ValueError`` keep working.)
 
     Example:
         .. code-block:: python
@@ -317,36 +335,20 @@ def field_identity(field: Any, timelapse: bool = False) -> Dict[str, str]:
                 f'belonging to other fields.')
         return out
 
-    name = os.path.basename(str(field))
-    stem = os.path.splitext(name)[0]
-    parts = stem.split('_')
+    stem = os.path.splitext(os.path.basename(str(field)))[0]
+    parts = stem.split(schema.KEY_SEPARATOR)
     if len(parts) < 3:
         raise ValueError(
             f'cannot identify a field from {stem!r}: expected at least '
             f'plate_well_field (e.g. "plate1_A01_3"), got {len(parts)} '
             f'part(s). Refusing to guess — a wrong key deletes the wrong '
             f'rows.')
+    if timelapse and len(parts) < 4:
+        raise ValueError(
+            f'timelapse resume needs a time component in {stem!r} '
+            f'(plate_well_field_time); got {len(parts)} parts.')
 
-    plate = parts[0]
-    well = parts[1]
-    identity = {
-        'plateID': plate,
-        'fieldID': 'f' + str(_safe_int(parts[2])),
-    }
-    if well[:1].isalpha():
-        identity['rowID'] = 'r' + str(string.ascii_uppercase.index(well[0].upper()) + 1)
-        identity['columnID'] = 'c' + str(_safe_int(well[1:]))
-    else:
-        # _map_wells' own fallback for non-alphabetic well ids.
-        identity['rowID'] = well
-        identity['columnID'] = well
-    if timelapse:
-        if len(parts) < 4:
-            raise ValueError(
-                f'timelapse resume needs a time component in {stem!r} '
-                f'(plate_well_field_time); got {len(parts)} parts.')
-        identity['timeID'] = 't' + str(_safe_int(parts[3]))
-    return identity
+    return schema.parse_field_stem(stem, timelapse=timelapse).to_dict()
 
 
 def identity_to_prcf(identity: Mapping[str, str]) -> str:
@@ -355,13 +357,12 @@ def identity_to_prcf(identity: Mapping[str, str]) -> str:
     Used only for display and for the "no candidate list" mode of
     :func:`completed_fields_in_db`; never as a delete key.
     """
-    parts = [identity['plateID'], identity['rowID'], identity['columnID'],
-             identity['fieldID']]
+    parts = [identity[key] for key in FIELD_KEY_COLUMNS]
     for key in TIME_KEY_COLUMNS:
         if identity.get(key):
             parts.append(str(identity[key]))
             break
-    return '_'.join(str(p) for p in parts)
+    return schema.KEY_SEPARATOR.join(str(p) for p in parts)
 
 
 def _identity_tuple(identity: Mapping[str, str],

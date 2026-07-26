@@ -146,6 +146,7 @@ import pandas as pd
 from . import convert as cv
 from . import crops as cropping
 from . import feature_dict as fdict
+from . import schema
 from .errors import ConfigurationError, RunLedger
 
 __all__ = [
@@ -405,10 +406,11 @@ def _keys_of_stem(stem: str) -> Tuple[str, str, str, int, str, str]:
     apart, because one of them decides whether the other is allowed to
     write.
     """
-    plate, well, field = str(stem).split('_')
+    plate, well, field = str(stem).split(schema.KEY_SEPARATOR)
     row_id, column_id = cv._well_ids(well)
-    prc = f'{plate}_{row_id}_{column_id}'
-    return plate, row_id, column_id, int(field), prc, f'{prc}_f{int(field)}'
+    prc = schema.KEY_SEPARATOR.join([plate, row_id, column_id])
+    return (plate, row_id, column_id, int(field), prc,
+            schema.KEY_SEPARATOR.join([prc, schema.field_id(field)]))
 
 
 def _unique(name: str, taken: Set[str]) -> str:
@@ -2270,7 +2272,7 @@ def _foreign_frame(plan: ImportPlan, stems: Sequence[str],
         plates.append(plate)
         rows_.append(row_id)
         columns_.append(column_id)
-        fields.append(f'f{field}')
+        fields.append(schema.field_id(field))
         prcs.append(prc)
         prcfs.append(prcf)
         files.append(stem)

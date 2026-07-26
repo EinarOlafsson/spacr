@@ -78,8 +78,9 @@ takes::
 
 The coordinates table is keyed exactly the way every measurement table in
 ``measurements.db`` is keyed — ``plateID`` / ``rowID`` / ``columnID`` /
-``fieldID`` plus the ``prc`` / ``prcf`` composites, built the way
-:func:`spacr.utils._map_wells` builds them — so::
+``fieldID`` plus the ``prc`` / ``prcf`` composites, built through
+:mod:`spacr.schema`, which is the one definition ``spacr.utils`` writes them
+with too — so::
 
     SELECT c.*, a.y, a.x, a.method, a.confidence, a.residual
     FROM cell AS c
@@ -100,7 +101,6 @@ import math
 import os
 import re
 import sqlite3
-import string
 from dataclasses import dataclass, field as dc_field
 from typing import (Any, Dict, Iterable, List, Mapping, Optional, Sequence,
                     Tuple, Union)
@@ -108,6 +108,7 @@ from typing import (Any, Dict, Iterable, List, Mapping, Optional, Sequence,
 import numpy as np
 import pandas as pd
 
+from . import schema
 from .crops import open_merged_field
 from .errors import ConfigurationError, RunLedger
 
@@ -216,42 +217,56 @@ class AlignError(RuntimeError):
 
 
 # ---------------------------------------------------------------------------
-# Join keys — built exactly the way spacr.utils._map_wells builds them
+# Join keys — one definition, in spacr.schema
 #
-# spacr.utils imports torch, and this module is on a GUI/thumbnail path, so
-# the eight lines are reimplemented rather than imported. They are pinned
-# against the original in tests/test_align.py::test_join_keys_match_utils.
+# These used to be eight hand-rolled lines, copied here because spacr.utils
+# imports torch and this module is on a GUI/thumbnail path. The copy did not
+# agree with the original: 'AA01' came back as ('AA01', 'AA01') here and as
+# ('error', 'error') there, so a stitched plate and a measured one disagreed
+# about what a 1536 well is called. spacr.schema is stdlib-only, so there is
+# no longer any reason to have a copy at all.
 # ---------------------------------------------------------------------------
 
 def _well_ids(well: str) -> Tuple[str, str]:
     """Return ``(rowID, columnID)`` in spaCR's ``r1`` / ``c1`` form.
 
-    ``'B7'`` becomes ``('r2', 'c7')``. A well that does not start with a
-    letter is passed through unchanged in both slots, which is what
-    :func:`spacr.utils._map_wells` does.
+    ``'B7'`` becomes ``('r2', 'c7')``. A well that is a bare number is passed
+    through unchanged in both slots, which is what every spaCR key writer
+    does and what databases on disk carry.
+
+    :param well: well identifier.
+    :returns: ``(rowID, columnID)``.
     """
-    text = str(well)
-    if text[:1].isalpha():
-        try:
-            row = f'r{string.ascii_uppercase.index(text[0].upper()) + 1}'
-            column = f'c{int(text[1:])}'
-            return row, column
-        except (ValueError, IndexError):
-            return text, text
-    return text, text
+    try:
+        return schema.parse_well(well)
+    except schema.WellParseError:
+        # A well with no column at all ('A', ''). The old copy passed those
+        # through into both slots; keeping that here means a stitch of an
+        # oddly-named folder still produces *a* key rather than raising in the
+        # middle of a GUI thumbnail.
+        text = str(well)
+        return text, text
 
 
 def _join_keys(plate: str, well: str, field: int) -> Dict[str, str]:
-    """Return the five spaCR join columns for one field."""
+    """Return the five spaCR join columns for one field.
+
+    ``prc`` is joined here rather than through
+    :func:`spacr.schema.compose_prc`, which refuses a plate id containing the
+    key separator. The plate token here comes from ``(?P<plate>.+)`` in the
+    vendor filename regexes and legitimately contains underscores; refusing
+    those would make a stitch of a real Yokogawa export fail outright.
+    """
     row_id, column_id = _well_ids(well)
-    prc = f'{plate}_{row_id}_{column_id}'
+    field_key = schema.field_id(field)
+    prc = schema.KEY_SEPARATOR.join([str(plate), row_id, column_id])
     return {
-        'plateID': str(plate),
-        'rowID': row_id,
-        'columnID': column_id,
-        'fieldID': f'f{int(field)}',
-        'prc': prc,
-        'prcf': f'{prc}_f{int(field)}',
+        schema.PLATE_KEY: str(plate),
+        schema.ROW_KEY: row_id,
+        schema.COLUMN_KEY: column_id,
+        schema.FIELD_KEY: field_key,
+        schema.PRC_KEY: prc,
+        schema.PRCF_KEY: schema.KEY_SEPARATOR.join([prc, field_key]),
     }
 
 

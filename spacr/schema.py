@@ -56,11 +56,19 @@ silence and death.
 
 Dependencies
 ------------
-The standard library and pandas. Nothing else — no torch, no cellpose, no Qt,
-no ``spacr`` import at module scope. Everything wants this module, including
-GUI paths and CLI preflights that must not pay for a torch import, so
-``tests/test_schema.py`` asserts it imports clean in a subprocess (the same
-guard ``spacr.crops`` carries).
+The standard library. Nothing else — not even pandas at module scope, let
+alone torch, cellpose or Qt, and no ``spacr`` import. Everything wants this
+module, including GUI paths and CLI preflights that must not pay for a torch
+import, so ``tests/test_schema.py`` asserts it imports clean in a subprocess
+(the same guard ``spacr.crops`` carries).
+
+``spacr.resume`` is the reason the last dependency went too. It runs at the
+top of ``measure_crop``, in a process that may never load a model, and
+``tests/test_resume.py`` asserts that importing it pulls in **no numpy and no
+pandas** — so a module-scope ``import pandas`` here would have made the one
+call site this module was written for the one call site that could not use
+it. The two frame helpers at the bottom import pandas themselves; everything
+above them is strings and integers and needs nothing.
 """
 
 from __future__ import annotations
@@ -69,8 +77,6 @@ import os
 import re
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, Tuple
-
-import pandas as pd
 
 __all__ = [
     # errors
@@ -1169,7 +1175,7 @@ def table_key_columns(table: str, *, timelapse: bool = False) -> Tuple[str, ...]
 # pandas
 # ---------------------------------------------------------------------------
 
-def canonicalise_columns(df: pd.DataFrame) -> pd.DataFrame:
+def canonicalise_columns(df):
     """Return ``df`` with every legacy metadata column renamed canonically.
 
     A rename is **skipped when the canonical name is already present**, which
@@ -1179,7 +1185,7 @@ def canonicalise_columns(df: pd.DataFrame) -> pd.DataFrame:
     trade — a human can decide which column is authoritative, and until then
     both stay reachable.
 
-    :param df: frame whose columns may use legacy names.
+    :param df: :class:`pandas.DataFrame` whose columns may use legacy names.
     :returns: a new frame with canonical column names.
     """
     have = set(df.columns)
@@ -1192,10 +1198,10 @@ def canonicalise_columns(df: pd.DataFrame) -> pd.DataFrame:
     return df.rename(columns=mapping) if mapping else df.copy()
 
 
-def add_identity_columns(df: pd.DataFrame, source: str = 'file_name', *,
+def add_identity_columns(df, source: str = 'file_name', *,
                          timelapse: bool = False, objects: bool = False,
                          strict: bool = False,
-                         include_prcf: bool = True) -> pd.DataFrame:
+                         include_prcf: bool = True):
     """Parse a name column into the canonical key columns.
 
     The vectorised form of :func:`parse_field_stem` /
@@ -1204,7 +1210,7 @@ def add_identity_columns(df: pd.DataFrame, source: str = 'file_name', *,
     line that positionally unpacks a tuple whose length changes with
     ``timelapse``, so a mismatched flag misaligns every column.
 
-    :param df: frame with a column of file names.
+    :param df: :class:`pandas.DataFrame` with a column of file names.
     :param source: name of that column. Default ``'file_name'``.
     :param timelapse: names carry a timepoint.
     :param objects: names are crop PNGs, so also emit ``prcfo``.
@@ -1213,6 +1219,8 @@ def add_identity_columns(df: pd.DataFrame, source: str = 'file_name', *,
     :returns: a new frame with the key columns added.
     :raises KeyParseError: when ``source`` is not a column of ``df``.
     """
+    import pandas as pd
+
     if source not in df.columns:
         raise KeyParseError(
             f'{source!r} is not a column of the frame; got '

@@ -23,12 +23,31 @@ import spacr.utils as U
 @pytest.mark.parametrize("val,expected", [
     (42, 42),
     ("42", 42),
-    (3.7, 3),          # int() truncates
+    ("042", 42),       # de-zero-padding is the one job it still has
+    (" 42 ", 42),
+    (42.0, 42),
     ("-15", -15),
-    (True, 1),         # bool → int
 ])
 def test_safe_int_convert_ok(val, expected):
     assert U._safe_int_convert(val) == expected
+
+
+@pytest.mark.parametrize("val", [3.7, True, False, "s3"])
+def test_safe_int_convert_takes_the_default_when_there_is_no_integer(val):
+    """"What integer is this?" is answered by ``schema.parse_int_token``.
+
+    So the cases a bare ``int()`` used to answer by inventing one now take
+    the default: ``3.7`` is not a field and ``True`` is a caller bug, and
+    silently turning them into ``3`` and ``1`` is the same species of lie as
+    turning ``'x'`` into ``0``. Both are inert in spaCR — the only remaining
+    callers hand it a regex group that starts with a digit — which is why
+    this is a cheap place to be strict.
+
+    ``'s3'`` is deliberate too: a vendor prefix is a *key* spelling, and key
+    construction belongs to ``schema.field_id``, not here.
+    """
+    assert U._safe_int_convert(val) == 0
+    assert U._safe_int_convert(val, default=-7) == -7
 
 
 def test_safe_int_convert_falls_back_on_invalid(capsys):
@@ -38,6 +57,31 @@ def test_safe_int_convert_falls_back_on_invalid(capsys):
 
 def test_safe_int_convert_default_zero(capsys):
     assert U._safe_int_convert("nope") == 0
+
+
+def test_safe_int_convert_no_longer_raises_on_none():
+    """``resume._safe_int`` caught ``TypeError`` and this one did not.
+
+    So ``None`` was field ``f0`` in one code path and a crash in the other.
+    There is one answer now, and it is the default.
+    """
+    assert U._safe_int_convert(None) == 0
+    assert U._safe_int_convert(None, default=5) == 5
+
+
+@pytest.mark.parametrize("token,expected", [
+    ("001", "1"), ("1", "1"), ("0", "0"), (" 7 ", "7"),
+    ("1a", "1a"),          # not a number: kept, NOT turned into '0'
+    ("12x34", "12x34"),
+])
+def test_int_or_token_keeps_what_it_cannot_read(token, expected):
+    """The de-zero-padding helper the filename metadata parsers use.
+
+    ``str(_safe_int_convert(x))`` turned every unreadable token into ``'0'``,
+    so two odd wells became one well. Keeping the token keeps them apart and
+    keeps them visible.
+    """
+    assert U._int_or_token(token) == expected
 
 
 # ---------------------------------------------------------------------------
@@ -53,6 +97,20 @@ def test_safe_int_convert_default_zero(capsys):
 ])
 def test_convert_cq1_well_id(well_id, expected):
     assert U._convert_cq1_well_id(well_id) == expected
+
+
+@pytest.mark.parametrize("well_id", [0, -1, "1a", "", None])
+def test_convert_cq1_well_id_keeps_a_token_that_names_no_well(well_id, capsys):
+    """``chr(ord('A') + row)`` used to emit punctuation for these.
+
+    Index ``0`` came back as ``'@24'``: a well name with a punctuation mark
+    where the row letter should be. Now that ``_extract_filename_metadata``
+    keeps an unreadable well token instead of substituting ``'0'``, this can
+    also be handed ``'1a'``. Keeping the token means two odd wells stay two
+    odd wells and no name is invented for either.
+    """
+    assert U._convert_cq1_well_id(well_id) == str(well_id)
+    assert "Not a CQ1 well index" in capsys.readouterr().out
 
 
 # ---------------------------------------------------------------------------

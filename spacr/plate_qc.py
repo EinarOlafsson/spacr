@@ -87,6 +87,8 @@ import numpy as np
 import pandas as pd
 from scipy import stats as _sps
 
+from . import schema
+
 __all__ = [
     "DEFAULT_ALPHA",
     "DEFAULT_CORE_DEPTH",
@@ -124,14 +126,14 @@ __all__ = [
 #: Standard SBS plate formats as ``n_wells -> (n_rows, n_columns)``, in
 #: ascending size. Inference picks the *smallest* format whose nominal
 #: grid contains every observed row and column label.
-PLATE_FORMATS: Tuple[Tuple[int, Tuple[int, int]], ...] = (
-    (6, (2, 3)),
-    (12, (3, 4)),
-    (24, (4, 6)),
-    (48, (6, 8)),
-    (96, (8, 12)),
-    (384, (16, 24)),
-    (1536, (32, 48)),
+#:
+#: The numbers come from :data:`spacr.schema.PLATE_FORMATS`; only the shape
+#: differs (an ordered tuple of pairs, which is what this module's public API
+#: has always exposed). Two copies of the plate geometry is how QC and the
+#: database come to disagree about whether column 30 exists.
+PLATE_FORMATS: Tuple[Tuple[int, Tuple[int, int]], ...] = tuple(
+    (n_wells, schema.PLATE_FORMATS[n_wells])
+    for n_wells in sorted(schema.PLATE_FORMATS)
 )
 
 #: Per-well aggregations ``plate_layout`` understands. ``'count'`` ignores
@@ -252,23 +254,26 @@ _WELL_RE = re.compile(r"^\s*([A-Za-z]{1,2})[\s_-]*(\d{1,3})\s*$")
 
 
 def _alpha_to_index(text: str) -> Optional[int]:
-    """``A`` → 1, ``Z`` → 26, ``AA`` → 27 … (1536 plates run to ``AF``)."""
-    n = 0
-    for ch in str(text).upper():
-        if not ("A" <= ch <= "Z"):
-            return None
-        n = n * 26 + (ord(ch) - 64)
-    return n or None
+    """``A`` → 1, ``Z`` → 26, ``AA`` → 27 … (1536 plates run to ``AF``).
+
+    :func:`spacr.schema.row_index_from_letters` is the definition; this
+    wrapper only coerces to text first, because the callers here hand it
+    regex groups rather than guaranteed strings.
+    """
+    return schema.row_index_from_letters(str(text))
 
 
 def _index_to_alpha(index: int) -> str:
-    """Inverse of :func:`_alpha_to_index`. ``27`` → ``'AA'``."""
-    out = ""
-    n = int(index)
-    while n > 0:
-        n, rem = divmod(n - 1, 26)
-        out = chr(65 + rem) + out
-    return out or "?"
+    """Inverse of :func:`_alpha_to_index`. ``27`` → ``'AA'``.
+
+    ``'?'`` for an index that is not a row — a label in a report, never a
+    key, so it says "unknown" rather than raising the way
+    :func:`spacr.schema.letters_from_row_index` does.
+    """
+    try:
+        return schema.letters_from_row_index(index)
+    except schema.KeyParseError:
+        return "?"
 
 
 def parse_row_label(label: Any) -> Optional[int]:
@@ -340,8 +345,17 @@ def row_label(row_index: int) -> str:
 
 
 def well_id(row_index: int, column_index: int) -> str:
-    """Return the canonical well name, e.g. ``(3, 7)`` → ``'C07'``."""
-    return f"{_index_to_alpha(int(row_index))}{int(column_index):02d}"
+    """Return the canonical well name, e.g. ``(3, 7)`` → ``'C07'``.
+
+    Agrees with :func:`spacr.schema.well_id` on every real well; it differs
+    only in refusing to raise, because a layout table has to render every
+    cell it was handed and ``'?00'`` is a more useful report than a
+    traceback.
+    """
+    try:
+        return schema.well_id(int(row_index), int(column_index))
+    except (schema.SchemaError, TypeError, ValueError):
+        return f"{_index_to_alpha(row_index)}{int(column_index):02d}"
 
 
 def infer_plate_format(n_rows: int, n_cols: int) -> Tuple[Optional[int], int, int]:
@@ -879,8 +893,9 @@ def plate_layout(df: pd.DataFrame,
     wells["ring"] = np.maximum(depth, 0).astype(int)
     wells["is_edge"] = wells["ring"] == 0
     wells["plateID"] = str(plate)
-    wells["rowID"] = [f"r{int(r)}" for r in wells["row_index"]]
-    wells["columnID"] = [f"c{int(c)}" for c in wells["column_index"]]
+    wells[schema.ROW_KEY] = [schema.row_id(int(r)) for r in wells["row_index"]]
+    wells[schema.COLUMN_KEY] = [schema.column_id(int(c))
+                                for c in wells["column_index"]]
     wells["well"] = [well_id(r, c) for r, c in
                      zip(wells["row_index"], wells["column_index"])]
 
