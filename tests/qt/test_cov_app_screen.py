@@ -763,14 +763,10 @@ class TestHoverHints:
         label = next(iter(scr._hint_map))
         assert scr.eventFilter(label, QEvent(QEvent.Show)) is False
 
-    @pytest.mark.xfail(strict=True, reason=(
-        "BUG: HoverTooltip._maybe_hide dereferences self._anchor after the "
-        "anchored widget's C++ object is gone. Hover a settings label, switch "
-        "module inside the 250 ms hide delay and the screen is destroyed "
-        "while the timer is pending; the slot then raises RuntimeError "
-        "('Internal C++ object already deleted') inside the Qt event loop. "
-        "Fix is in widgets/hover_tooltip.py (not this agent's file) - see "
-        "report."))
+    # Was a strict xfail; fixed in widgets/hover_tooltip.py. _maybe_hide
+    # dereferenced self._anchor after the anchored widget's C++ object was
+    # gone -- hover a settings label, switch module inside the 250 ms hide
+    # delay, and the slot raised RuntimeError inside the Qt event loop.
     def test_hover_tooltip_survives_a_deleted_anchor(self, qtbot):
         import shiboken6
         from spacr.qt.widgets.hover_tooltip import HoverTooltip
