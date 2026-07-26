@@ -121,6 +121,30 @@ SECTION_HINTS = {
 }
 
 
+# Settings whose VALUE is the name of a database column. Each gets a "SQL"
+# button that opens the run's measurements.db read-only and shows what is
+# actually in it, so a typo cannot silently create a second near-identical
+# column. The value is the table to preselect; None lets the user choose.
+#
+# dependent_variable is deliberately absent: it names a column of the score
+# CSV, not of measurements.db, and pointing the picker at the wrong file
+# would be worse than having no picker at all.
+COLUMN_TABLES = {
+    "annotation_column":  "png_list",
+    "annotation_columns": "png_list",
+    "custom_measurement": None,
+    "measurement":        None,
+    "exclude":            None,
+    "heatmap_feature":    None,
+    "location_column":    None,
+    "filter_column":      None,
+    "col_to_compare":     None,
+    "color_by":           None,
+    "metadata_type_by":   None,
+    "infection_xgb_proba_column": None,
+}
+
+
 APP_TITLES = {
     "mask":            "Mask Generation",
     "timelapse":       "Timelapse",
@@ -345,8 +369,10 @@ class AppScreen(QWidget):
                 # it's the hover target for tooltips (fields can be
                 # focused / clicked — tooltips on labels are calmer).
                 lbl_widget.setCursor(Qt.WhatsThisCursor)
+                field_key = None
                 for key, w in getattr(self._settings_model, "_widgets", {}).items():
                     if w is widget:
+                        field_key = key
                         html = widget.toolTip()
                         hint = self._settings_model.plain_tooltip_for(key)
                         # Tooltips live on the LABEL only — hovering
@@ -358,11 +384,34 @@ class AppScreen(QWidget):
                         lbl_widget.installEventFilter(self)
                         break
                 section.add_row(lbl_widget, widget)
+                self._attach_column_picker(field_key, widget)
             layout.addWidget(section)
 
         layout.addStretch(1)
         scroll.setWidget(content)
         return scroll
+
+    def _attach_column_picker(self, key, widget) -> None:
+        """Give a column-name field its "SQL" button; a no-op for anything else.
+
+        :param key: the settings key this widget collects, or None.
+        :param widget: the input widget already installed in its Section.
+        """
+        if key not in COLUMN_TABLES:
+            return
+        from ..widgets.column_picker import attach_column_picker
+        attach_column_picker(widget, self._settings_src_path,
+                             COLUMN_TABLES[key])
+
+    def _settings_src_path(self) -> str:
+        """Return the run folder the src field currently names.
+
+        Read on demand rather than captured, so the picker follows the source
+        folder the user has typed rather than whatever it was at build time.
+        """
+        from PySide6.QtWidgets import QLineEdit
+        src = getattr(self._settings_model, "_widgets", {}).get("src")
+        return src.text().strip() if isinstance(src, QLineEdit) else ""
 
     def _build_empty_state_banner(self):
         """Return a compact "Drop or pick a demo" card, or None.

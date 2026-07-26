@@ -86,6 +86,7 @@ from ..annotate_engine import (
 )
 from .. import iconset, prefs
 from ..theme import SPACING, palette_for
+from ..widgets.column_picker import attach_column_picker
 from ..widgets import Divider, EmptyState
 
 
@@ -523,6 +524,11 @@ class _SettingsDialog(QDialog):
 
         self._ann_col = QLineEdit(settings.annotation_column)
         form.addRow("Annotation column", self._ann_col)
+        # "SQL" — show what png_list already holds, so a mistyped name cannot
+        # quietly start a second annotation pass that then looks like a second
+        # annotator who agrees with nobody. Opens read-only.
+        attach_column_picker(self._ann_col, self._picker_db_path, "png_list",
+                             layout=form)
 
         self._img_size = QSpinBox()
         self._img_size.setRange(48, 800)
@@ -608,6 +614,8 @@ class _SettingsDialog(QDialog):
         )
         self._measurement.setPlaceholderText("e.g. cell_area (blank = off)")
         form.addRow("Measurement column(s)", self._measurement)
+        attach_column_picker(self._measurement, self._picker_db_path,
+                             layout=form, multi=True)
 
         self._threshold = QLineEdit(
             ", ".join(str(x) for x in settings.threshold) if isinstance(settings.threshold, (list, tuple))
@@ -674,6 +682,16 @@ class _SettingsDialog(QDialog):
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         self.layout().addWidget(buttons)
+
+    def _picker_db_path(self) -> str:
+        """Where the SQL picker looks — the src folder as it reads right now.
+
+        A callable rather than a captured string: users routinely set the
+        source folder and the annotation column in the same visit to this
+        dialog, and a value captured at construction would point at the
+        previous folder.
+        """
+        return self._src_edit.text().strip()
 
     def _pick_src(self):
         d = QFileDialog.getExistingDirectory(self, "Pick experiment source",
