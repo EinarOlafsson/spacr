@@ -12,6 +12,17 @@ Where the code does something surprising (a doubled name prefix, a feature that
 is always NaN, a radial bin that covers the background) the entry says so in
 ``notes`` rather than describing the intent.
 
+**Geometric units are not fixed any more.** A 2-D run measures in pixels, but a
+3-D run measures a volume, and with ``voxel_size_z_um`` / ``voxel_size_xy_um``
+set it measures in micrometres — under the *same* column names, because
+:mod:`spacr.measure` deliberately does not rename ``<object>_area`` (renaming
+would break every downstream selector). Which one a row is in is recorded on
+the row itself, in ``measurement_units``. So the unit of a geometric column is
+a :class:`ConditionalUnit`: :func:`describe_database` reads
+``measurement_units`` out of the database it is documenting and resolves it,
+and a caller who has no database says so and gets the condition spelled out
+instead of a confident guess. See :data:`MEASUREMENT_UNITS`.
+
 Typical use::
 
     from spacr.feature_dict import describe_database, export_dictionary
@@ -37,10 +48,13 @@ from typing import Any, Iterable
 import pandas as pd
 
 __all__ = [
+    "ConditionalUnit",
     "FeatureEntry",
     "PropertyInfo",
     "FEATURE_FAMILIES",
     "KNOWN_PROPERTIES",
+    "MEASUREMENT_UNITS",
+    "MEASUREMENT_STAMP_COLUMNS",
     "META_COLUMNS",
     "OBJECT_TYPES",
     "parse_column",
@@ -69,8 +83,11 @@ OBJECT_TYPES: tuple[str, ...] = (
 #: Feature families used by :attr:`FeatureEntry.family`, with a one-line gloss.
 FEATURE_FAMILIES: dict[str, str] = {
     "morphology": (
-        "Size, shape and position measured from the label mask alone. Pixel "
-        "units; no intensity information enters these."
+        "Size, shape and position measured from the label mask alone; no "
+        "intensity information enters these. Pixel units in a 2-D run — in a "
+        "3-D run the sizes are volumes, in micrometres when the run knew its "
+        "voxel size, so read each column's unit and the row's "
+        "measurement_units rather than assuming pixels."
     ),
     "intensity": (
         "Statistics of one channel's pixel values inside (or just outside) an "
@@ -107,7 +124,9 @@ class PropertyInfo:
     :ivar family: One of the keys of :data:`FEATURE_FAMILIES`.
     :ivar description: What the number means, in prose. ``None`` only when the
         meaning could not be determined from the spaCR source.
-    :ivar unit: Physical/derived unit, or ``None`` for identifiers.
+    :ivar unit: Physical/derived unit, or ``None`` for identifiers. A
+        :class:`ConditionalUnit` for the geometric columns, whose unit depends
+        on the row's ``measurement_units``; :func:`parse_column` resolves it.
     :ivar computed_by: The real provenance — the function or library call that
         produces the value. Never empty.
     :ivar notes: Caveats, known defects, comparability warnings.
@@ -115,7 +134,7 @@ class PropertyInfo:
 
     family: str
     description: str | None
-    unit: str | None
+    unit: str | ConditionalUnit | None
     computed_by: str
     notes: str | None = None
 
@@ -138,6 +157,10 @@ class FeatureEntry:
     :ivar object_type_2: Second object type, set when a column carries a
         pandas merge suffix such as ``..._nucleus`` from
         :func:`spacr.io._read_and_join_tables`.
+    :ivar measurement_units: The ``measurement_units`` value ``unit`` was
+        resolved under — ``px``, ``px_xy``, ``um``, or ``None`` when it was not
+        known and ``unit`` therefore states its own condition. Always ``None``
+        for columns whose unit does not depend on it.
     """
 
     column: str
@@ -150,6 +173,7 @@ class FeatureEntry:
     notes: str | None
     channel_2: int | None = None
     object_type_2: str | None = None
+    measurement_units: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Return the entry as a plain dict, ready for a DataFrame row or JSON."""
@@ -160,12 +184,130 @@ class FeatureEntry:
 # units
 # --------------------------------------------------------------------------
 
-# spaCR calls skimage.measure.regionprops/regionprops_table without a
-# ``spacing`` argument (measure.py:171, 180, 191, 202, 216, 465), so every
-# geometric quantity is in raw pixels. There is no place in the pipeline where
-# a physical pixel size is applied.
-_PX = "px (pixels; spaCR never applies a physical pixel size)"
-_PX2 = "px^2 (pixel count; spaCR never applies a physical pixel size)"
+#: The values :func:`spacr.measure.resolve_measurement_spacing` writes into the
+#: per-row ``measurement_units`` column, in the order they are reported:
+#:
+#: ``px``
+#:     A 2-D run. ``regionprops_table`` is called with no ``spacing``
+#:     (``resolve_measurement_spacing`` returns ``None`` for 2-D
+#:     *unconditionally*, even when a voxel size is configured, so that
+#:     ``<object>_area`` cannot silently change from px^2 to um^2 under an
+#:     unchanged name). Areas are pixel counts, lengths are pixels — exactly
+#:     what every spaCR run wrote before 3-D measurement existed.
+#: ``px_xy``
+#:     A 3-D run given ``anisotropy`` alone. z is scaled by dz/dxy, so the
+#:     geometry is right, but the unit is the xy pixel: ``<object>_area`` is a
+#:     volume in cubic xy-pixels.
+#: ``um``
+#:     A 3-D run given ``voxel_size_z_um`` **and** ``voxel_size_xy_um``.
+#:     Lengths in um, and ``<object>_area`` is a volume in um^3.
+#:
+#: A 3-D run with neither raises rather than assuming isotropy, so these three
+#: are the whole space. Duplicated from :data:`spacr.measure.UNITS_PX` and its
+#: siblings rather than imported, because this module must stay importable on a
+#: machine with no numpy or scikit-image; ``tests/test_feature_dict_3d.py``
+#: pins the two definitions together.
+UNITS_PX = "px"
+UNITS_PX_XY = "px_xy"
+UNITS_UM = "um"
+MEASUREMENT_UNITS: tuple[str, ...] = (UNITS_PX, UNITS_PX_XY, UNITS_UM)
+
+#: What an unstamped row is. Every spaCR release before 3-D measurement existed
+#: could only write 2-D pixel rows — a 3-D mask crashed the morphology pass
+#: outright — so a table with rows but no ``measurement_units`` column is px as
+#: a matter of fact, not as a guess. Mirrors ``spacr.utils._LEGACY_STAMP``.
+_LEGACY_UNITS = UNITS_PX
+
+
+@dataclass(frozen=True)
+class ConditionalUnit:
+    """A unit that depends on how the row was measured.
+
+    This module used to state a single unit for every geometric column and say
+    in the string itself that "spaCR never applies a physical pixel size".
+    That was true until :mod:`spacr.measure` learned to measure a ``(Z, Y, X)``
+    mask in 3-D: a run with ``voxel_size_z_um`` and ``voxel_size_xy_um`` set
+    reports micrometres, and one with ``anisotropy`` alone reports xy-pixel
+    units. The column *name* is identical in all three cases — measure.py
+    records the unit on the row instead of renaming the column — which is
+    exactly why the dictionary has to read it from the data rather than assert
+    it.
+
+    :ivar px: the unit when ``measurement_units == 'px'`` (a 2-D run).
+    :ivar px_xy: the unit when ``measurement_units == 'px_xy'``.
+    :ivar um: the unit when ``measurement_units == 'um'``.
+
+    A field is ``None`` when the column is not written at all in that mode —
+    the ``_z``/``_y``/``_x`` centroid axes exist only in 3-D, for instance.
+    """
+
+    px: str | None
+    px_xy: str | None
+    um: str | None
+
+    def by_units(self) -> dict[str, str | None]:
+        """``{measurement_units value: unit}`` for all three modes."""
+        return {UNITS_PX: self.px, UNITS_PX_XY: self.px_xy, UNITS_UM: self.um}
+
+    def conditional_text(self) -> str:
+        """Every possibility, each with the condition it holds under.
+
+        Used when the ``measurement_units`` of the data being described is not
+        known. Long, but a wrong unit is worse than a long one.
+        """
+        parts = [
+            f"{unit} when measurement_units='{stamp}'" if unit
+            else f"not written when measurement_units='{stamp}'"
+            for stamp, unit in self.by_units().items()
+        ]
+        return ("depends on the row's measurement_units column — "
+                + "; ".join(parts))
+
+    def resolve(self, measurement_units: str | None = None) -> str:
+        """Return the concrete unit for a row stamped ``measurement_units``.
+
+        :param measurement_units: one of :data:`MEASUREMENT_UNITS`. ``None``, or
+            any value this module does not recognise, returns
+            :meth:`conditional_text` — the condition, not a guess.
+        """
+        if measurement_units is not None:
+            key = str(measurement_units)
+            unit = self.by_units().get(key)
+            if unit is not None:
+                return unit
+            if key in MEASUREMENT_UNITS:
+                return f"not written when measurement_units='{key}'"
+        return self.conditional_text()
+
+
+_LENGTH_PX_XY = (
+    "xy pixels (3-D measured with anisotropy alone: z is scaled by dz/dxy so "
+    "the length is geometrically correct, but the unit is the xy pixel and not "
+    "a physical one)"
+)
+_LENGTH_UM = "um (micrometres; 3-D measured with voxel_size_z_um + voxel_size_xy_um)"
+
+#: A length. Pixels in 2-D; in 3-D ``regionprops_table`` is called with a
+#: ``spacing``, so the same column is in xy pixels or in micrometres.
+_PX = ConditionalUnit(px="px (pixels)", px_xy=_LENGTH_PX_XY, um=_LENGTH_UM)
+
+#: An "area" — which in 3-D is a **volume**, because skimage's ``area`` on a
+#: label volume is the spaced voxel count and measure.py keeps the name.
+#: ``<object>_volume_voxels`` / ``<object>_volume_um3`` carry the same quantity
+#: under a name that cannot be misread.
+_PX2 = ConditionalUnit(
+    px="px^2 (pixel count)",
+    px_xy=("cubic xy pixels — in 3-D this column is a VOLUME, in xy-pixel "
+           "units (see <object>_volume_voxels)"),
+    um="um^3 — in 3-D this column is a VOLUME (see <object>_volume_um3)",
+)
+
+#: A length that only a 3-D run writes at all.
+_PX_3D_ONLY = ConditionalUnit(px=None, px_xy=_LENGTH_PX_XY, um=_LENGTH_UM)
+
+#: A length on a column skimage implements for 2-D only, so a 3-D run does not
+#: write it and there is nothing conditional about it.
+_PX_2D_ONLY = "px (pixels; 2-D only — a 3-D run does not write this column)"
 
 # Intensity is read from the merged stack, which _merge_file (io.py:2367)
 # builds from ``<src>/stack`` — the *raw* concatenated channel arrays. The
@@ -177,8 +319,18 @@ _INTENSITY = (
     "native image intensity units of the merged stack (raw acquisition "
     "counts, typically uint16; not background-subtracted and not calibrated)"
 )
-_INTENSITY_SUM = (
-    "native image intensity units summed over pixels (intensity x px^2)"
+# The sum is np.sum(region.intensity_image[region.image]) — a plain sum over
+# the object's elements with no spacing factor, so in 3-D it is intensity x
+# voxel count and NOT intensity x um^3, whatever the voxel size says.
+_INTENSITY_SUM_3D = (
+    "native image intensity units summed over voxels (intensity x voxel "
+    "count). NOT converted by the voxel size: measure.py sums the object's "
+    "values with no spacing factor, so this is not intensity x um^3"
+)
+_INTENSITY_SUM = ConditionalUnit(
+    px="native image intensity units summed over pixels (intensity x px^2)",
+    px_xy=_INTENSITY_SUM_3D,
+    um=_INTENSITY_SUM_3D,
 )
 _DIMLESS = "dimensionless"
 _FRACTION = "fraction in [0, 1]"
@@ -199,48 +351,66 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
     # ---------------- morphology (measure.py:163-164, morphological_props)
     "area": PropertyInfo(
         "morphology",
-        "Number of pixels belonging to the object in its label mask.",
+        "Size of the object in its label mask: the pixel count in a 2-D run "
+        "and, in a 3-D run, the object's VOLUME — skimage's `area` on a "
+        "(Z, Y, X) label volume is the spaced voxel count, and measure.py "
+        "keeps the name so that downstream selectors do not break.",
         _PX2,
-        f"{_RP}(area) via spacr.measure._morphological_measurements",
-        "Multiply by (um/px)^2 to convert to physical area.",
+        f"{_RP}(area, spacing=...) via spacr.measure._morphological_measurements",
+        "In 2-D, multiply by (um/px)^2 to convert to physical area. In 3-D the "
+        "conversion has already happened when measurement_units='um'. The "
+        "unambiguous companions are <object>_volume_voxels and "
+        "<object>_volume_um3, which a 3-D run writes alongside this column.",
     ),
     "area_filled": PropertyInfo(
         "morphology",
-        "Area of the object after filling any holes enclosed by it.",
+        "Area of the object after filling any holes enclosed by it — a filled "
+        "volume in a 3-D run.",
         _PX2,
-        f"{_RP}(area_filled) via spacr.measure._morphological_measurements",
-        "area_filled - area is the total hole area inside the object.",
+        f"{_RP}(area_filled, spacing=...) via "
+        "spacr.measure._morphological_measurements",
+        "area_filled - area is the total hole area (3-D: cavity volume) "
+        "inside the object.",
     ),
     "area_bbox": PropertyInfo(
         "morphology",
-        "Area of the smallest axis-aligned bounding box around the object.",
+        "Area of the smallest axis-aligned bounding box around the object — "
+        "the bounding-box volume in a 3-D run.",
         _PX2,
-        f"{_RP}(area_bbox) via spacr.measure._morphological_measurements",
+        f"{_RP}(area_bbox, spacing=...) via "
+        "spacr.measure._morphological_measurements",
         "Depends on the object's orientation relative to the image axes, so "
         "it is not rotation invariant.",
     ),
     "convex_area": PropertyInfo(
         "morphology",
-        "Area of the convex hull of the object.",
+        "Area of the convex hull of the object — the convex-hull volume in a "
+        "3-D run.",
         _PX2,
-        f"{_RP}(convex_area) via spacr.measure._morphological_measurements",
+        f"{_RP}(convex_area, spacing=...) via "
+        "spacr.measure._morphological_measurements",
         "scikit-image's modern name for the same property is area_convex.",
     ),
     "major_axis_length": PropertyInfo(
         "morphology",
         "Length of the major axis of the ellipse that has the same normalised "
-        "second central moments as the object.",
+        "second central moments as the object (an ellipsoid in 3-D).",
         _PX,
-        f"{_RP}(major_axis_length) via spacr.measure._morphological_measurements",
-        None,
+        f"{_RP}(major_axis_length, spacing=...) via "
+        "spacr.measure._morphological_measurements",
+        "In 3-D this is the longest of the three principal axes of the "
+        "equivalent ellipsoid, and it is spaced — without a spacing it would "
+        "mix a z step and an xy pixel in one number.",
     ),
     "minor_axis_length": PropertyInfo(
         "morphology",
         "Length of the minor axis of the ellipse that has the same normalised "
-        "second central moments as the object.",
+        "second central moments as the object (an ellipsoid in 3-D).",
         _PX,
-        f"{_RP}(minor_axis_length) via spacr.measure._morphological_measurements",
-        None,
+        f"{_RP}(minor_axis_length, spacing=...) via "
+        "spacr.measure._morphological_measurements",
+        "In 3-D this is the SHORTEST of the three principal axes, so it is not "
+        "the 2-D minor axis of any one plane and the two are not comparable.",
     ),
     "eccentricity": PropertyInfo(
         "morphology",
@@ -248,7 +418,10 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "approaching 1 for an increasingly elongated object.",
         _DIMLESS + ", in [0, 1)",
         f"{_RP}(eccentricity) via spacr.measure._morphological_measurements",
-        None,
+        "2-D only. skimage does not implement eccentricity for a 3-D region "
+        "and there is no meaningful eccentricity of a solid, so a 3-D run "
+        "drops the property (spacr.measure.PROPS_2D_ONLY) and this column is "
+        "absent rather than wrong.",
     ),
     "solidity": PropertyInfo(
         "morphology",
@@ -256,7 +429,9 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "convex hull it fills. Low values mean a ragged or concave outline.",
         _DIMLESS + ", in (0, 1]",
         f"{_RP}(solidity) via spacr.measure._morphological_measurements",
-        None,
+        "A ratio of two equally-spaced quantities, so it means the same thing "
+        "in 2-D and 3-D (in 3-D it is volume over convex-hull volume) and "
+        "carries no unit either way.",
     ),
     "extent": PropertyInfo(
         "morphology",
@@ -264,17 +439,22 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "object fills.",
         _DIMLESS + ", in (0, 1]",
         f"{_RP}(extent) via spacr.measure._morphological_measurements",
-        "Orientation dependent, because the bounding box is axis aligned.",
+        "Orientation dependent, because the bounding box is axis aligned. As "
+        "a ratio of two equally-spaced quantities it is unaffected by the "
+        "voxel size in 3-D.",
     ),
     "perimeter": PropertyInfo(
         "morphology",
         "Perimeter of the object, approximated as a line through the centres "
         "of its border pixels.",
-        _PX,
+        _PX_2D_ONLY,
         f"{_RP}(perimeter) via spacr.measure._morphological_measurements",
         "Perimeter estimates on a pixel grid are biased upward for small "
         "objects; do not compare across very different object sizes without "
-        "care.",
+        "care. 2-D only: skimage implements perimeter for 2-D regions, and its "
+        "3-D analogue is a surface AREA in different units, so a 3-D run drops "
+        "the property (spacr.measure.PROPS_2D_ONLY) rather than writing a "
+        "differently-dimensioned number under this name.",
     ),
     "euler_number": PropertyInfo(
         "morphology",
@@ -283,24 +463,60 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "subtracts 1.",
         _DIMLESS + " (integer)",
         f"{_RP}(euler_number) via spacr.measure._morphological_measurements",
-        None,
+        "The 3-D form is the honest generalisation and keeps this name: "
+        "components - tunnels + cavities, so a solid blob is still 1 but a "
+        "torus is 0 and a hollow shell is 2. A 3-D value is therefore not "
+        "comparable with a 2-D one.",
     ),
     "equivalent_diameter_area": PropertyInfo(
         "morphology",
         "Diameter of the circle with the same area as the object, "
         "sqrt(4 * area / pi).",
         _PX,
-        f"{_RP}(equivalent_diameter_area) via "
+        f"{_RP}(equivalent_diameter_area, spacing=...) via "
         "spacr.measure._morphological_measurements",
-        None,
+        "In 3-D this silently becomes a CUBE root: the diameter of the sphere "
+        "with the same volume, (6 * volume / pi)^(1/3). The name is kept "
+        "because it is the honest generalisation, but a 2-D and a 3-D value "
+        "are different quantities and must not be pooled.",
     ),
     "feret_diameter_max": PropertyInfo(
         "morphology",
         "Maximum Feret diameter: the longest distance between any two points "
         "on the object's boundary (its calliper length).",
         _PX,
-        f"{_RP}(feret_diameter_max) via spacr.measure._morphological_measurements",
-        None,
+        f"{_RP}(feret_diameter_max, spacing=...) via "
+        "spacr.measure._morphological_measurements",
+        "Defined in 3-D too, and spaced there: without a spacing it would "
+        "compare a distance in z with a distance in xy as if the two were the "
+        "same length.",
+    ),
+    # ---------------- 3-D volumes (measure.py:_voxel_volume_columns)
+    "volume_voxels": PropertyInfo(
+        "morphology",
+        "Number of voxels belonging to the object — its volume as a raw count, "
+        "with no voxel size applied.",
+        "voxels (count)",
+        "numpy.bincount over the label volume in "
+        "spacr.measure._voxel_volume_columns",
+        "3-D runs only; a 2-D field writes no volume columns. Written even "
+        "though <object>_area already holds the volume, because a name that "
+        "carries its own unit cannot be misread. Deliberately NOT spaced: this "
+        "is the voxel count, so on an anisotropic stack it is not proportional "
+        "to a physical volume — use <object>_volume_um3, or <object>_area when "
+        "measurement_units='um'. The name matches spacr.zstack.volume_stats.",
+    ),
+    "volume_um3": PropertyInfo(
+        "morphology",
+        "Physical volume of the object: its voxel count times "
+        "voxel_size_z_um * voxel_size_xy_um^2.",
+        "um^3 (cubic micrometres)",
+        "spacr.measure._voxel_volume_columns (voxels * dz * dxy * dxy)",
+        "Written only when the run knew both voxel_size_z_um and "
+        "voxel_size_xy_um, i.e. when measurement_units='um'. A 3-D run "
+        "configured with anisotropy alone gets volume_voxels but no "
+        "volume_um3, because there is no physical size to convert with. The "
+        "name matches spacr.zstack.volume_stats.",
     ),
     # ---------------- shape moments (measure.py:56-80)
     "zernike_<i>": PropertyInfo(
@@ -310,15 +526,17 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "as a whole is a shape fingerprint; a single index has no standalone "
         "biological meaning.",
         _DIMLESS,
-        "mahotas.features.zernike_moments(region.image, degree) via "
-        "spacr.measure._calculate_zernike",
+        "mahotas.features.zernike_moments(region.image, radius, degree=degree) "
+        "via spacr.measure._calculate_zernike",
         "Computed on the binary mask only, no intensity. mahotas' signature is "
-        "zernike_moments(im, radius, degree=8), and spaCR passes its `degree` "
-        "argument positionally, so it lands in `radius`: the unit disk is "
-        "fixed at radius 8 px for every object regardless of object size, and "
-        "the polynomial degree is always mahotas' default 8 (hence 25 "
-        "coefficients). Objects much larger than 8 px are therefore described "
-        "only by their central region.",
+        "zernike_moments(im, radius, degree=8); spaCR now derives the `radius` "
+        "per object (the maximum distance from its centre of mass, floored at "
+        "1) so the unit disk covers the whole object and the coefficients are "
+        "comparable across object sizes. Databases written before that fix "
+        "passed `degree` positionally into `radius`, fixing the disk at 8 px "
+        "for every object. 2-D only: Zernike moments are defined on a disk, so "
+        "a 3-D run writes no zernike_* columns at all rather than describing "
+        "one arbitrary plane.",
     ),
     # ---------------- intensity, from regionprops (measure.py:360)
     "mean_intensity": PropertyInfo(
@@ -347,39 +565,109 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "moment",
         "Row (y) coordinate of the intensity-weighted centroid of this "
         "channel inside the object, in full-image coordinates.",
-        _PX,
+        _PX_2D_ONLY,
         f"{_RP}(centroid_weighted) via spacr.measure._extended_regionprops_table",
         "The -0 / -1 suffix is scikit-image's separator for multi-value "
-        "properties: -0 is the row axis, -1 is the column axis.",
+        "properties: -0 is the row axis, -1 is the column axis. This numeric "
+        "spelling is 2-D only. In 3-D the same suffix would be the PLANE (z) "
+        "and any reader taking it for y would be silently wrong, so "
+        "spacr.measure._rename_3d_centroids renames the 3-D columns to "
+        "_z / _y / _x and leaves these 2-D names untouched.",
     ),
     "centroid_weighted-1": PropertyInfo(
         "moment",
         "Column (x) coordinate of the intensity-weighted centroid of this "
         "channel inside the object, in full-image coordinates.",
-        _PX,
+        _PX_2D_ONLY,
         f"{_RP}(centroid_weighted) via spacr.measure._extended_regionprops_table",
         "The -0 / -1 suffix is scikit-image's separator for multi-value "
-        "properties: -0 is the row axis, -1 is the column axis.",
+        "properties: -0 is the row axis, -1 is the column axis. 2-D only; a "
+        "3-D run writes centroid_weighted_z / _y / _x instead.",
     ),
     "centroid_weighted_local-0": PropertyInfo(
         "moment",
         "Row (y) coordinate of the intensity-weighted centroid, measured "
         "relative to the top-left corner of the object's bounding box.",
-        _PX,
+        _PX_2D_ONLY,
         f"{_RP}(centroid_weighted_local) via "
         "spacr.measure._extended_regionprops_table",
         "Position within the object, so unlike centroid_weighted-0 it does not "
-        "encode where in the field of view the object sits.",
+        "encode where in the field of view the object sits. 2-D only; a 3-D "
+        "run writes centroid_weighted_local_z / _y / _x instead.",
     ),
     "centroid_weighted_local-1": PropertyInfo(
         "moment",
         "Column (x) coordinate of the intensity-weighted centroid, measured "
         "relative to the top-left corner of the object's bounding box.",
-        _PX,
+        _PX_2D_ONLY,
         f"{_RP}(centroid_weighted_local) via "
         "spacr.measure._extended_regionprops_table",
         "Position within the object, so unlike centroid_weighted-1 it does not "
-        "encode where in the field of view the object sits.",
+        "encode where in the field of view the object sits. 2-D only; a 3-D "
+        "run writes centroid_weighted_local_z / _y / _x instead.",
+    ),
+    # ---------------- 3-D centroids, named by axis
+    # (measure.py:_CENTROID_AXES_3D / _rename_3d_centroids)
+    "centroid_weighted_z": PropertyInfo(
+        "moment",
+        "Plane (z) coordinate of the intensity-weighted centroid of this "
+        "channel inside the object, in full-volume coordinates.",
+        _PX_3D_ONLY,
+        f"{_RP}(centroid_weighted, spacing=...) then "
+        "spacr.measure._rename_3d_centroids",
+        "3-D only. skimage names this centroid_weighted-0, which is what the "
+        "row axis is called in 2-D; measure.py renames the 3-D columns by axis "
+        "so that no column name silently changes meaning between a flat field "
+        "and a z-stack. Spaced, so it is a physical depth when "
+        "measurement_units='um' rather than a plane index.",
+    ),
+    "centroid_weighted_y": PropertyInfo(
+        "moment",
+        "Row (y) coordinate of the intensity-weighted centroid of this "
+        "channel inside the object, in full-volume coordinates.",
+        _PX_3D_ONLY,
+        f"{_RP}(centroid_weighted, spacing=...) then "
+        "spacr.measure._rename_3d_centroids",
+        "3-D only; the 2-D equivalent is centroid_weighted-0 (skimage's name "
+        "for this axis in 3-D is centroid_weighted-1).",
+    ),
+    "centroid_weighted_x": PropertyInfo(
+        "moment",
+        "Column (x) coordinate of the intensity-weighted centroid of this "
+        "channel inside the object, in full-volume coordinates.",
+        _PX_3D_ONLY,
+        f"{_RP}(centroid_weighted, spacing=...) then "
+        "spacr.measure._rename_3d_centroids",
+        "3-D only; the 2-D equivalent is centroid_weighted-1 (skimage's name "
+        "for this axis in 3-D is centroid_weighted-2).",
+    ),
+    "centroid_weighted_local_z": PropertyInfo(
+        "moment",
+        "Plane (z) coordinate of the intensity-weighted centroid, measured "
+        "relative to the corner of the object's bounding box.",
+        _PX_3D_ONLY,
+        f"{_RP}(centroid_weighted_local, spacing=...) then "
+        "spacr.measure._rename_3d_centroids",
+        "3-D only. Position within the object, so unlike centroid_weighted_z "
+        "it does not encode where in the volume the object sits.",
+    ),
+    "centroid_weighted_local_y": PropertyInfo(
+        "moment",
+        "Row (y) coordinate of the intensity-weighted centroid, measured "
+        "relative to the corner of the object's bounding box.",
+        _PX_3D_ONLY,
+        f"{_RP}(centroid_weighted_local, spacing=...) then "
+        "spacr.measure._rename_3d_centroids",
+        "3-D only; the 2-D equivalent is centroid_weighted_local-0.",
+    ),
+    "centroid_weighted_local_x": PropertyInfo(
+        "moment",
+        "Column (x) coordinate of the intensity-weighted centroid, measured "
+        "relative to the corner of the object's bounding box.",
+        _PX_3D_ONLY,
+        f"{_RP}(centroid_weighted_local, spacing=...) then "
+        "spacr.measure._rename_3d_centroids",
+        "3-D only; the 2-D equivalent is centroid_weighted_local-1.",
     ),
     # ---------------- extended intensity (measure.py:483-539)
     "integrated_intensity": PropertyInfo(
@@ -425,13 +713,16 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
     ),
     "mode_intensity": PropertyInfo(
         "intensity",
-        "Intended as the most frequent pixel value inside the object.",
+        "Most frequent pixel value inside the object (the smallest one when "
+        "several values tie).",
         _INTENSITY,
         "scipy.stats.mode in spacr.measure._extended_regionprops_table",
-        "BROKEN IN PRACTICE: the code does mode(...).mode[0], but from SciPy "
-        "1.11 onwards mode() returns a scalar for 1-D input, so the "
-        "subscript raises and the bare except writes NaN. On any recent SciPy "
-        "this column is NaN for every object. Do not use it.",
+        "WAS BROKEN, NOW FIXED: the old code did mode(...).mode[0], but from "
+        "SciPy 1.11 onwards mode() returns a bare scalar for 1-D input, so the "
+        "subscript raised and a bare except wrote NaN — this column is NaN for "
+        "every object in any database written before the numpy.atleast_1d fix. "
+        "Check whether the column is all-NaN before using it on an old "
+        "database.",
     ),
     "range_intensity": PropertyInfo(
         "intensity",
@@ -470,25 +761,31 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
     ),
     "frac_high90": PropertyInfo(
         "intensity",
-        "Fraction of the object's pixels strictly above the object's OWN 90th "
-        "percentile.",
+        "Fraction of the object's pixels above the WHOLE FIELD's 90th "
+        "percentile in this channel — how much of the object is bright "
+        "relative to the image it sits in. Near 0 for a dim object, near 1 for "
+        "a bright one.",
         _FRACTION,
-        "numpy.mean(intens > numpy.percentile(intens, 90)) in "
+        "numpy.mean(intens > numpy.percentile(field, 90)) in "
         "spacr.measure._extended_regionprops_table",
-        "Near-constant by construction: for continuous data it is always "
-        "about 0.10, because the threshold is the object's own percentile. It "
-        "only departs from 0.10 when many pixels tie at that value, so in "
-        "practice it reports quantisation/saturation, not brightness.",
+        "The reference is the field, so values ARE comparable between objects "
+        "of one field but not across fields with different exposure. Databases "
+        "written before this fix thresholded on the object's OWN 90th "
+        "percentile, which pins the value at about 0.10 for any continuous "
+        "distribution and reports quantisation rather than brightness; a "
+        "column that is ~0.10 for every object is one of those.",
     ),
     "frac_low10": PropertyInfo(
         "intensity",
-        "Fraction of the object's pixels strictly below the object's OWN 10th "
-        "percentile.",
+        "Fraction of the object's pixels below the WHOLE FIELD's 10th "
+        "percentile in this channel — how much of the object is dim relative "
+        "to the image it sits in.",
         _FRACTION,
-        "numpy.mean(intens < numpy.percentile(intens, 10)) in "
+        "numpy.mean(intens < numpy.percentile(field, 10)) in "
         "spacr.measure._extended_regionprops_table",
-        "Near-constant by construction: about 0.10 for continuous data, "
-        "departing from it only through ties. See frac_high90.",
+        "Same reference and same caveats as frac_high90, including the "
+        "near-constant ~0.10 seen in databases written before the field-"
+        "referenced fix. NaN when the field is entirely NaN.",
     ),
     "entropy_intensity": PropertyInfo(
         "intensity",
@@ -526,21 +823,30 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "intensity. Pixels inside the bounding box but outside the object are "
         "set to 0, which adds an artificial object/background edge. Offsets "
         "larger than the object carry no signal. Offsets come from the "
-        "homogeneity_distances setting (default [8, 16, 32]).",
+        "homogeneity_distances setting (default [8, 16, 32]). 2-D only: "
+        "skimage.feature.graycomatrix takes a 2-D image, and a co-occurrence "
+        "matrix of a volume is a different construction (13 direction pairs, "
+        "not 4), so a 3-D run writes no homogeneity_distance_* columns rather "
+        "than reporting one arbitrary slice's texture under this name.",
     ),
     "blur": PropertyInfo(
         "texture",
-        "Variance of the discrete Laplacian of the object's pixel values — "
-        "intended as a focus/sharpness score, where low values mean blurry.",
+        "Variance of the discrete Laplacian over the object's own pixels — a "
+        "focus/sharpness score, where low values mean blurry.",
         "squared native image intensity units",
-        "cv2.Laplacian(...).var() in spacr.measure._estimate_blur",
-        "MISLEADING AS IMPLEMENTED: measure.py:392 passes "
-        "channel[label == region_label], which is a 1-D vector of the object's "
-        "pixels in raster order, so OpenCV treats it as an Nx1 image and the "
-        "Laplacian is a 1-D second difference along that vector rather than a "
-        "2-D focus measure. It behaves like a roughness statistic of the "
-        "object's pixel sequence. Also see the duplicated column prefix noted "
-        "on the column itself.",
+        "cv2.Laplacian on the object's bounding-box patch, variance over the "
+        "eroded interior, in spacr.measure._estimate_blur",
+        "The patch is the RAW image (zero-filling outside the object would put "
+        "a step edge at the boundary whose second derivative dwarfs the "
+        "texture) and the variance is taken over the mask eroded by one pixel, "
+        "so every sampled value is determined by in-object pixels only; "
+        "one-pixel-wide objects fall back to the un-eroded mask. On a 3-D "
+        "volume the kernel is applied plane by plane in xy, where focus is "
+        "defined — a single call on a (Z, Y, X) array does not raise but "
+        "differentiates in the zy plane. Databases written before this fix "
+        "passed a 1-D vector of the object's pixels in raster order, which "
+        "OpenCV treats as an Nx1 image, so the old column is a second "
+        "difference along raster order rather than a focus measure.",
     ),
     # ---------------- colocalisation (measure.py:665-708)
     "Pearson_correlation": PropertyInfo(
@@ -608,20 +914,23 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "Mean intensity of this channel in a ring extending 5 px outward from "
         "the object — the local surround.",
         _INTENSITY,
-        "scipy.ndimage.binary_dilation(iterations=5) minus the object, in "
-        "spacr.measure._outside_intensity",
+        "scipy.ndimage.binary_dilation(iterations=5) — in 3-D a "
+        "distance_transform_edt(sampling=spacing) thresholded at 5 xy pixels — "
+        "minus the object, in spacr.measure._outside_intensity",
         "Only emitted for nucleus, pathogen and organelle objects. The ring is "
         "NOT masked against neighbouring objects, so for crowded fields it can "
         "include signal from adjacent cells or pathogens. NaN when the ring is "
-        "empty.",
+        "empty. The ring width is 5 xy pixels in both 2-D and 3-D: iterated "
+        "dilation on a stack would grow the shell dz/dxy times further in z, "
+        "so the 3-D ring is built from a sampled distance transform instead.",
     ),
     "outside_<p>_percentile": PropertyInfo(
         "intensity",
         "{p}th percentile of this channel's intensity in a ring extending 5 px "
         "outward from the object.",
         _INTENSITY,
-        "numpy.percentile over the dilation ring in "
-        "spacr.measure._outside_intensity",
+        "numpy.percentile over the dilation ring (3-D: the sampled "
+        "distance-transform ring) in spacr.measure._outside_intensity",
         "Emitted for p in 5, 10, 25, 50, 75, 85, 95. Only for nucleus, "
         "pathogen and organelle objects. The ring is not masked against "
         "neighbouring objects. Note the reversed word order compared with the "
@@ -644,7 +953,9 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "width is (max distance inside that cell)/6, so it differs per object "
         "and the bins are not comparable between objects of different size. "
         "Emitted for nucleus, pathogen and organelle when the radial_dist "
-        "setting is on.",
+        "setting is on. In 3-D the distance map is sampled with the voxel "
+        "spacing, so the shells are physical shells rather than voxel counts; "
+        "the bin values themselves stay in intensity units either way.",
     ),
     # ---------------- intensity-weighted distances (measure.py:733-796)
     "distance_to_nucleus": PropertyInfo(
@@ -654,13 +965,15 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "channel's signal piles up on or near the nucleus.",
         _PX,
         "scipy.ndimage.center_of_mass on a Gaussian-blurred channel, then "
-        "scipy.ndimage.distance_transform_edt of the nucleus mask, in "
-        "spacr.measure._measure_intensity_distance",
+        "scipy.ndimage.distance_transform_edt(sampling=spacing) of the nucleus "
+        "mask, in spacr.measure._measure_intensity_distance",
         "Only emitted for the cell object, and only when the "
         "distance_gaussian_sigma setting is a non-zero int. 0 when the centre "
         "of mass lands inside a nucleus. The distance transform is global, so "
         "the nearest nucleus may belong to a neighbouring cell. NaN when the "
-        "centre of mass is undefined or falls outside the image.",
+        "centre of mass is undefined or falls outside the image. In 3-D the "
+        "transform is sampled with the voxel spacing, so a step in z counts as "
+        "dz and not as one pixel.",
     ),
     "distance_to_pathogen": PropertyInfo(
         "morphology",
@@ -668,12 +981,13 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "within the cell to the nearest pathogen pixel.",
         _PX,
         "scipy.ndimage.center_of_mass on a Gaussian-blurred channel, then "
-        "scipy.ndimage.distance_transform_edt of the pathogen mask, in "
-        "spacr.measure._measure_intensity_distance",
+        "scipy.ndimage.distance_transform_edt(sampling=spacing) of the "
+        "pathogen mask, in spacr.measure._measure_intensity_distance",
         "Only emitted for the cell object, and only when the "
         "distance_gaussian_sigma setting is a non-zero int. 0 when the centre "
         "of mass lands inside a pathogen. The distance transform is global, so "
-        "the nearest pathogen may belong to a neighbouring cell.",
+        "the nearest pathogen may belong to a neighbouring cell. Sampled with "
+        "the voxel spacing in 3-D.",
     ),
     # ---------------- organelle summaries (measure.py:250-330, 1046-1062)
     "organelle_summary_organelle_count": PropertyInfo(
@@ -686,10 +1000,12 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
     ),
     "organelle_summary_organelle_total_area": PropertyInfo(
         "morphology",
-        "Summed area of all organelles assigned to this parent object.",
+        "Summed area of all organelles assigned to this parent object — a "
+        "summed volume in a 3-D run.",
         _PX2,
         "spacr.measure._summarize_organelles_per_parent",
-        None,
+        "Summed from the same spaced regionprops `area` as <object>_area, so "
+        "it follows the row's measurement_units exactly as that column does.",
     ),
     "organelle_summary_organelle_fraction": PropertyInfo(
         "morphology",
@@ -697,7 +1013,9 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "fraction of the parent occupied by organelles.",
         _FRACTION,
         "spacr.measure._summarize_organelles_per_parent",
-        "0.0 when the parent area is 0.",
+        "0.0 when the parent area is 0. A ratio of two equally-spaced "
+        "quantities, so it is a volume fraction in 3-D and needs no unit "
+        "either way.",
     ),
     "organelle_summary_organelle_mean_area": PropertyInfo(
         "morphology",
@@ -718,14 +1036,17 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "Mean eccentricity of the organelles assigned to this parent object.",
         _DIMLESS + ", in [0, 1)",
         "spacr.measure._summarize_organelles_per_parent",
-        "0.0 when the parent has no organelles.",
+        "0.0 when the parent has no organelles. 2-D only — skimage does not "
+        "define eccentricity for a 3-D region, so a 3-D run omits this column "
+        "and its std_ counterpart.",
     ),
     "organelle_summary_organelle_std_eccentricity": PropertyInfo(
         "morphology",
         "Standard deviation of organelle eccentricity within this parent.",
         _DIMLESS,
         "spacr.measure._summarize_organelles_per_parent",
-        "0.0 when the parent has fewer than 2 organelles.",
+        "0.0 when the parent has fewer than 2 organelles. 2-D only; absent "
+        "from a 3-D run.",
     ),
     "organelle_summary_organelle_mean_solidity": PropertyInfo(
         "morphology",
@@ -780,13 +1101,15 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "morphology",
         "Total pixel count of the morphological skeleton of the thresholded "
         "cytoskeleton signal inside the object — a proxy for filament length.",
-        _PX,
+        "px (pixels; an unspaced skeleton pixel count)",
         "skimage.morphology.skeletonize + regionprops area sum in "
         "spacr.measure._analyze_cytoskeleton",
         "_analyze_cytoskeleton is defined in measure.py but is not called by "
         "measure_crop in this version, so this column is not produced by a "
         "standard run. Thresholding is local (block size 35) with a "
-        "per-object adaptive offset.",
+        "per-object adaptive offset. It takes no spacing, so unlike the other "
+        "length columns this one stays a raw pixel count whatever "
+        "measurement_units says.",
     ),
     "skeleton_branch_points": PropertyInfo(
         "morphology",
@@ -1133,7 +1456,91 @@ META_COLUMNS: dict[str, PropertyInfo] = {
         "spacr.gui_utils (ALTER TABLE png_list ADD COLUMN <annotation_column>)",
         "Annotation column names are user-chosen; see 'test'.",
     ),
+    # ---------------- measurement provenance stamp
+    # spacr.measure.MEASUREMENT_STAMP_COLUMNS, written onto every row of every
+    # object table by spacr.utils._merge_and_save_to_database. These five are
+    # what makes the conditional units above resolvable: measure.py records the
+    # unit on the row instead of renaming <object>_area, so the columns below
+    # are the only thing that says which quantity that column holds.
+    "measurement_ndim": PropertyInfo(
+        "meta",
+        "Number of spatial dimensions this row was measured in: 2 for a flat "
+        "field, 3 for a (Z, Y, X) volume.",
+        None,
+        "spacr.measure.resolve_measurement_spacing -> "
+        "spacr.utils._merge_and_save_to_database",
+        "READ THIS BEFORE COMPARING GEOMETRIC COLUMNS. When it is 3, "
+        "<object>_area is a VOLUME, equivalent_diameter_area is a cube root, "
+        "euler_number counts cavities, and eccentricity / perimeter / "
+        "zernike_* / homogeneity_distance_* are absent. A row with no stamp at "
+        "all is 2-D: every spaCR release before 3-D measurement existed "
+        "crashed outright on a 3-D mask, so nothing else can be in an old "
+        "table. spacr.utils refuses to append rows whose (ndim, units) differ "
+        "from those already in the table, so within one table this is constant.",
+    ),
+    "measurement_units": PropertyInfo(
+        "meta",
+        "Which units the geometric columns of this row are in: 'px' (2-D, "
+        "pixels), 'px_xy' (3-D measured with anisotropy alone — correct "
+        "geometry in xy-pixel units) or 'um' (3-D measured with "
+        "voxel_size_z_um + voxel_size_xy_um — micrometres).",
+        None,
+        "spacr.measure.resolve_measurement_spacing -> "
+        "spacr.utils._merge_and_save_to_database",
+        "The source of truth for the unit of every length/area/volume column "
+        "in the row; spacr.feature_dict.describe_database reads it out of the "
+        "database and resolves the units it reports accordingly. A 2-D run "
+        "always writes 'px' even when a voxel size is configured, because "
+        "applying it would turn every *_area from px^2 into um^2 under an "
+        "unchanged name. NULL/absent means 'px'.",
+    ),
+    "n_z": PropertyInfo(
+        "meta",
+        "Number of z planes behind this measurement; 1 for a 2-D field.",
+        "count",
+        "spacr.measure.measure_crop (data.shape[0] of a (Z, Y, X, C) stack) -> "
+        "spacr.utils._merge_and_save_to_database",
+        "A (1, Y, X, C) stack is squeezed to the 2-D path before measuring, so "
+        "n_z = 1 always comes with measurement_ndim = 2.",
+    ),
+    "voxel_size_z_um": PropertyInfo(
+        "meta",
+        "The z step of the acquisition, in micrometres, as configured for this "
+        "run.",
+        "um",
+        "settings['voxel_size_z_um'] via "
+        "spacr.measure.resolve_measurement_spacing",
+        "NULL unless the run was 3-D AND both voxel sizes were given, which is "
+        "exactly the case measurement_units='um'. This is a setting recorded "
+        "for provenance, not a measurement of the object.",
+    ),
+    "voxel_size_xy_um": PropertyInfo(
+        "meta",
+        "The width of one pixel in the image plane, in micrometres, as "
+        "configured for this run (pixels assumed square).",
+        "um",
+        "settings['voxel_size_xy_um'] via "
+        "spacr.measure.resolve_measurement_spacing",
+        "NULL unless the run was 3-D AND both voxel sizes were given "
+        "(measurement_units='um'). NOT the same setting as um_per_pixel: "
+        "um_per_pixel only converts scale_bar_length_um into pixels when a "
+        "scale bar is drawn on a figure and never reaches a measurement, "
+        "whereas this one is handed to regionprops as `spacing` — but only on "
+        "a 3-D run.",
+    ),
 }
+
+#: The per-row provenance stamp, in the order :mod:`spacr.measure` declares it.
+#: Mirrors :data:`spacr.measure.MEASUREMENT_STAMP_COLUMNS` and
+#: :data:`spacr.utils.MEASUREMENT_STAMP_COLUMNS`; every name here is also a key
+#: of :data:`META_COLUMNS`.
+MEASUREMENT_STAMP_COLUMNS: tuple[str, ...] = (
+    "measurement_ndim",
+    "measurement_units",
+    "n_z",
+    "voxel_size_z_um",
+    "voxel_size_xy_um",
+)
 
 # Per-object-type parent/child link columns produced by the morphology merge:
 # measure.py:183 (nucleus <- cell_to_nucleus), 194 (pathogen <- cell_to_pathogen)
@@ -1272,23 +1679,32 @@ def _entry(
     object_type_2: str | None = None,
     params: dict[str, str] | None = None,
     extra_note: str | None = None,
+    measurement_units: str | None = None,
 ) -> FeatureEntry:
     """Build a :class:`FeatureEntry` from a curated :class:`PropertyInfo`."""
     params = params or {}
     notes = _fill(info.notes, params)
     if extra_note:
         notes = f"{extra_note} {notes}" if notes else extra_note
+    unit = info.unit
+    basis: str | None = None
+    if isinstance(unit, ConditionalUnit):
+        # Only a conditional unit is affected by the stamp, so a column whose
+        # unit is fixed never claims to have been resolved against one.
+        basis = measurement_units
+        unit = unit.resolve(measurement_units)
     return FeatureEntry(
         column=column,
         object_type=object_type,
         channel=channel,
         family=info.family,
         description=_fill(info.description, params),
-        unit=info.unit,
+        unit=unit,
         computed_by=info.computed_by,
         notes=notes,
         channel_2=channel_2,
         object_type_2=object_type_2,
+        measurement_units=basis,
     )
 
 
@@ -1325,7 +1741,8 @@ def _lookup_stat(stat: str) -> tuple[PropertyInfo, dict[str, str]] | None:
     return None
 
 
-def _parse_organelle_summary(name: str) -> FeatureEntry | None:
+def _parse_organelle_summary(name: str, measurement_units: str | None = None
+                             ) -> FeatureEntry | None:
     """Parse the ``organelle_summary_*`` columns written per parent object."""
     if not name.startswith("organelle_summary_"):
         return None
@@ -1342,10 +1759,12 @@ def _parse_organelle_summary(name: str) -> FeatureEntry | None:
             channel=int(m.group("c")),
             object_type_2=m.group("parent"),
             params={"c": m.group("c"), "parent": m.group("parent")},
+            measurement_units=measurement_units,
         )
     info = KNOWN_PROPERTIES.get(name)
     if info is not None:
-        return _entry(name, info, object_type="organelle")
+        return _entry(name, info, object_type="organelle",
+                      measurement_units=measurement_units)
     return _unknown(
         name,
         "organelle",
@@ -1356,7 +1775,8 @@ def _parse_organelle_summary(name: str) -> FeatureEntry | None:
     )
 
 
-def parse_column(name: str) -> FeatureEntry:
+def parse_column(name: str, measurement_units: str | None = None
+                 ) -> FeatureEntry:
     """Decompose one ``measurements.db`` column name into a described feature.
 
     The grammar this implements, derived from the f-strings in
@@ -1369,11 +1789,22 @@ def parse_column(name: str) -> FeatureEntry:
         <object>_channel_<i>_outside_<stat>              5 px surrounding ring
         <object>_rad_dist_channel_<c>_bin_<b>            radial intensity profile
         organelle_summary_<stat>                         per-parent organelle summary
+        <object>_volume_voxels / _volume_um3             3-D volumes, named by unit
+        <object>_channel_<i>_centroid_weighted_<z|y|x>   3-D centroid, named by axis
+        measurement_ndim / measurement_units / n_z /     per-row provenance stamp
+        voxel_size_z_um / voxel_size_xy_um
 
     An unrecognised name never raises and is never dropped: it comes back as a
     :class:`FeatureEntry` with ``family="unknown"`` and ``description=None``.
 
     :param name: Column name exactly as stored in the database.
+    :param measurement_units: The ``measurement_units`` value of the rows being
+        described — one of :data:`MEASUREMENT_UNITS`. Geometric columns have no
+        single unit any more (a 3-D run measures a volume, in micrometres when
+        it was given a voxel size), so pass this when you know it and the
+        returned ``unit`` is concrete. Left ``None``, ``unit`` states every
+        possibility with the condition attached rather than guessing one;
+        :func:`describe_database` fills it in from the database itself.
     :returns: A :class:`FeatureEntry` describing the column.
     """
     if not isinstance(name, str):
@@ -1383,11 +1814,11 @@ def parse_column(name: str) -> FeatureEntry:
     #    e.g. cell_id is an identifier and not a 'cell' feature named 'id'.
     info = META_COLUMNS.get(name)
     if info is not None:
-        return _entry(name, info)
+        return _entry(name, info, measurement_units=measurement_units)
 
     # 2. per-parent organelle summaries, before the object prefix is stripped
     #    (the prefix 'organelle_' would otherwise swallow the family name).
-    summary = _parse_organelle_summary(name)
+    summary = _parse_organelle_summary(name, measurement_units)
     if summary is not None:
         return summary
 
@@ -1406,7 +1837,8 @@ def parse_column(name: str) -> FeatureEntry:
     # 4. parent/child link columns, e.g. nucleus_cell_id, organelle_cell
     link = _LINK_COLUMNS.get(rest)
     if link is not None:
-        return _entry(name, link, object_type=object_type)
+        return _entry(name, link, object_type=object_type,
+                      measurement_units=measurement_units)
 
     # 5. radial distribution: the channel index sits AFTER the family token
     #    (measure.py:444), so it needs its own rule.
@@ -1418,6 +1850,7 @@ def parse_column(name: str) -> FeatureEntry:
             object_type=object_type,
             channel=int(m.group("c")),
             params=dict(m.groupdict()),
+            measurement_units=measurement_units,
         )
 
     # 6. up to two channel_<n> infixes (measure.py:395 and measure.py:429)
@@ -1454,22 +1887,24 @@ def parse_column(name: str) -> FeatureEntry:
                 "measure.py:395); both copies name the same object and "
                 f"channel.{mismatch}"
             ),
+            measurement_units=measurement_units,
         )
 
     if channel is not None and _PLAIN_BLUR_RE.match(rest):
         return _entry(name, KNOWN_PROPERTIES["blur"], object_type=object_type,
-                      channel=channel)
+                      channel=channel, measurement_units=measurement_units)
 
     link = _LINK_COLUMNS.get(rest)
     if link is not None:
         return _entry(name, link, object_type=object_type, channel=channel,
-                      channel_2=channel_2)
+                      channel_2=channel_2, measurement_units=measurement_units)
 
     resolved = _lookup_stat(rest)
     if resolved is not None:
         info, params = resolved
         return _entry(name, info, object_type=object_type, channel=channel,
-                      channel_2=channel_2, params=params)
+                      channel_2=channel_2, params=params,
+                      measurement_units=measurement_units)
 
     # 8. a pandas merge suffix appended when object tables are joined
     #    (spacr.io._read_and_join_tables uses suffixes=('', '_<entity>')).
@@ -1488,6 +1923,7 @@ def parse_column(name: str) -> FeatureEntry:
                         "(spacr.io._read_and_join_tables), not part of the "
                         "feature name."
                     ),
+                    measurement_units=measurement_units,
                 )
 
     # 8b. Current spacr.utils._check_integrity suffixes a repeated column with
@@ -1505,6 +1941,7 @@ def parse_column(name: str) -> FeatureEntry:
                     "spacr.utils._check_integrity suffixes every repeat after "
                     f"the first, so this is another copy of '{m.group('base')}'."
                 ),
+                measurement_units=measurement_units,
             )
 
     # 9. Databases written before that change carry the positional index
@@ -1523,18 +1960,23 @@ def parse_column(name: str) -> FeatureEntry:
                     "appends to duplicated column names, so this is a second "
                     f"copy of '{m.group('base')}'. Verify before using it."
                 ),
+                measurement_units=measurement_units,
             )
 
     return _unknown(name, object_type, channel)
 
 
-def describe_columns(columns: Iterable[str]) -> list[FeatureEntry]:
+def describe_columns(columns: Iterable[str],
+                     measurement_units: str | None = None
+                     ) -> list[FeatureEntry]:
     """Describe every column name given, in order and without dropping any.
 
     :param columns: Iterable of column names.
+    :param measurement_units: The ``measurement_units`` value these columns
+        were measured under; see :func:`parse_column`.
     :returns: One :class:`FeatureEntry` per input name, same order.
     """
-    return [parse_column(c) for c in columns]
+    return [parse_column(c, measurement_units) for c in columns]
 
 
 # --------------------------------------------------------------------------
@@ -1551,9 +1993,15 @@ _FRAME_COLUMNS = [
     "family",
     "description",
     "unit",
+    "measurement_units",
     "computed_by",
     "notes",
 ]
+
+
+def _quoted(name: str) -> str:
+    """Quote a table identifier for interpolation into a statement."""
+    return '"' + name.replace('"', '""') + '"'
 
 
 def _table_columns(db_path: str | Path, table: str | None = None
@@ -1581,26 +2029,89 @@ def _table_columns(db_path: str | Path, table: str | None = None
 
         out: dict[str, list[str]] = {}
         for name in names:
-            quoted = '"' + name.replace('"', '""') + '"'
-            out[name] = [row[1] for row in
-                         conn.execute(f"PRAGMA table_info({quoted})").fetchall()]
+            out[name] = [
+                row[1] for row in
+                conn.execute(f"PRAGMA table_info({_quoted(name)})").fetchall()]
     return out
 
 
-def describe_database(db_path: str | Path, table: str | None = None
-                      ) -> pd.DataFrame:
+def _table_measurement_units(db_path: str | Path, table: str,
+                             columns: Iterable[str]) -> tuple[str | None, str]:
+    """Read the ``measurement_units`` the rows of one table were measured in.
+
+    This is what makes the geometric units concrete instead of conditional:
+    the dictionary describes a specific database, and that database says on
+    every row which units it is in. :func:`spacr.utils._merge_and_save_to_database`
+    refuses to append rows whose ``(ndim, units)`` differ from those already in
+    the table, so a table normally has exactly one answer.
+
+    :returns: ``(units, why)`` — ``units`` is one of :data:`MEASUREMENT_UNITS`
+        or ``None`` when it cannot be pinned to one value, and ``why`` is a
+        short human explanation for the export to print.
+    """
+    columns = list(columns)
+    path = Path(db_path)
+    quoted = _quoted(table)
+    try:
+        with sqlite3.connect(f"file:{path}?mode=ro", uri=True) as conn:
+            if "measurement_units" not in columns:
+                row = conn.execute(
+                    f"SELECT 1 FROM {quoted} LIMIT 1").fetchone()
+                if row is None:
+                    return None, "no rows and no measurement_units column"
+                # Not a guess: before 3-D measurement existed a 3-D mask
+                # crashed the morphology pass outright, so an unstamped row
+                # cannot be anything but a 2-D pixel measurement. Same rule as
+                # spacr.utils._LEGACY_STAMP.
+                return _LEGACY_UNITS, (
+                    "no measurement_units column — written before the stamp "
+                    "existed, which can only be a 2-D pixel measurement")
+            found = {
+                (None if value is None else str(value))
+                for (value,) in conn.execute(
+                    f"SELECT DISTINCT measurement_units FROM {quoted}")
+            }
+    except sqlite3.Error as exc:  # unreadable table: describe it, do not fail
+        return None, f"measurement_units unreadable ({exc.__class__.__name__})"
+
+    if not found:
+        return None, "measurement_units column present but the table is empty"
+    # A NULL stamp is the legacy 2-D/px row, exactly as spacr.utils reads it.
+    resolved = {_LEGACY_UNITS if v is None else v for v in found}
+    if len(resolved) == 1:
+        units = resolved.pop()
+        if units in MEASUREMENT_UNITS:
+            return units, f"measurement_units = '{units}'"
+        return None, (f"measurement_units = '{units}', which this dictionary "
+                      f"does not recognise")
+    return None, ("MIXED measurement_units in one table ("
+                  + ", ".join(sorted(resolved))
+                  + ") — the geometric columns of these rows are not "
+                    "comparable with each other")
+
+
+def describe_database(db_path: str | Path, table: str | None = None,
+                      measurement_units: str | None = None) -> pd.DataFrame:
     """Describe every column of a spaCR measurements database.
 
     Every column of every table is returned — a column that this dictionary
     cannot explain appears with ``family='unknown'`` and a null description
     rather than being omitted.
 
+    The units are read from the database, not assumed: each table's own
+    ``measurement_units`` column decides whether ``<object>_area`` is reported
+    as a px^2 area, a cubic-xy-pixel volume or a um^3 volume. A table that
+    cannot be pinned to one value gets units that state the condition instead.
+
     :param db_path: Path to a SQLite database, typically ``measurements.db``.
     :param table: Restrict to a single table. ``None`` (default) covers all
         user tables.
+    :param measurement_units: Force the unit basis (one of
+        :data:`MEASUREMENT_UNITS`) instead of reading it from each table. For
+        describing a frame that has been detached from its database.
     :returns: DataFrame with one row per (table, column) and the columns
         ``table, column, object_type, object_type_2, channel, channel_2,
-        family, description, unit, computed_by, notes``.
+        family, description, unit, measurement_units, computed_by, notes``.
     :raises FileNotFoundError: If ``db_path`` does not exist.
     :raises ValueError: If ``table`` is given but not present in the database.
     """
@@ -1608,7 +2119,11 @@ def describe_database(db_path: str | Path, table: str | None = None
 
     rows: list[dict[str, Any]] = []
     for table_name, columns in columns_by_table.items():
-        for entry in describe_columns(columns):
+        if measurement_units is None:
+            units, _why = _table_measurement_units(db_path, table_name, columns)
+        else:
+            units = str(measurement_units)
+        for entry in describe_columns(columns, units):
             row = entry.to_dict()
             row["table"] = table_name
             rows.append(row)
@@ -1661,10 +2176,27 @@ def _md_escape(value: Any) -> str:
     return text.replace("|", "\\|").replace("\n", " ")
 
 
-def _markdown(df: pd.DataFrame, db_path: Path) -> str:
+#: What each ``measurement_units`` value means for the geometric columns, for
+#: the exported "Units" table.
+_UNITS_GLOSS: dict[str, str] = {
+    UNITS_PX: ("2-D run: `<object>_area` is a pixel count (px^2) and every "
+               "length is in pixels. No physical size is applied, even if one "
+               "was configured."),
+    UNITS_PX_XY: ("3-D run measured with `anisotropy` alone: `<object>_area` "
+                  "is a VOLUME in cubic xy-pixels and lengths are in xy "
+                  "pixels — geometrically correct, but not physical."),
+    UNITS_UM: ("3-D run measured with `voxel_size_z_um` + `voxel_size_xy_um`: "
+               "`<object>_area` is a VOLUME in um^3 and lengths are in um."),
+}
+
+
+def _markdown(df: pd.DataFrame, db_path: Path,
+              units_by_table: dict[str, tuple[str | None, str]] | None = None
+              ) -> str:
     """Render the dictionary as markdown grouped by object then family."""
     n_unknown = int((df["family"] == "unknown").sum())
     tables = sorted(df["table"].dropna().unique().tolist())
+    units_by_table = units_by_table or {}
 
     lines: list[str] = [
         "# spaCR feature dictionary",
@@ -1675,10 +2207,37 @@ def _markdown(df: pd.DataFrame, db_path: Path) -> str:
         f"- Columns described: {len(df)}",
         f"- Unrecognised columns: {n_unknown}",
         "",
-        "Intensity features are in the native units of the merged image "
-        "stack; spaCR does not calibrate pixel size, so all geometric "
-        "features are in pixels.",
+        "Intensity features are in the native units of the merged image stack. "
+        "Geometric features have no single unit: a 2-D run measures in pixels, "
+        "a 3-D run measures a volume, and a 3-D run given a voxel size "
+        "measures in micrometres — all under the same column names, with the "
+        "unit recorded on each row in `measurement_units`. The units below "
+        "were resolved from this database; the Units section says what each "
+        "table was measured in.",
         "",
+        "The `um_per_pixel` setting is NOT involved in any of this: it only "
+        "converts `scale_bar_length_um` into pixels when a scale bar is drawn "
+        "on a figure, and never reaches a measurement. The settings that do "
+        "are `voxel_size_z_um` and `voxel_size_xy_um`, and only on a 3-D run.",
+        "",
+        "## Units",
+        "",
+        "| table | measurement_units | geometric columns |",
+        "| --- | --- | --- |",
+    ]
+    for name in tables:
+        units, why = units_by_table.get(name, (None, "not determined"))
+        gloss = _UNITS_GLOSS.get(units or "", "")
+        if not gloss:
+            gloss = ("Not pinned to one value, so each geometric column below "
+                     "reports its unit as a condition on `measurement_units` "
+                     "instead of asserting one.")
+        lines.append(
+            f"| {_md_escape(name)} | {_md_escape(units or 'unknown')} "
+            f"({_md_escape(why)}) | {_md_escape(gloss)} |")
+    lines.append("")
+
+    lines += [
         "## Families",
         "",
         "| family | meaning |",
@@ -1754,17 +2313,27 @@ def export_dictionary(db_path: str | Path, out_path: str | Path,
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     df = describe_database(db_path)
+    units_by_table = {
+        name: _table_measurement_units(db_path, name, columns)
+        for name, columns in _table_columns(db_path).items()
+    }
 
     if fmt == "csv":
         df.to_csv(out_path, index=False)
     elif fmt == "md":
-        out_path.write_text(_markdown(df, db_path), encoding="utf-8")
+        out_path.write_text(_markdown(df, db_path, units_by_table),
+                            encoding="utf-8")
     else:
         payload = {
             "database": str(db_path),
             "n_columns": int(len(df)),
             "n_unrecognised": int((df["family"] == "unknown").sum()),
             "families": FEATURE_FAMILIES,
+            "measurement_units": {
+                name: {"measurement_units": units, "resolved_from": why,
+                       "geometric_columns": _UNITS_GLOSS.get(units or "")}
+                for name, (units, why) in units_by_table.items()
+            },
             "columns": [
                 {k: _jsonable(v) for k, v in record.items()}
                 for record in df.to_dict(orient="records")

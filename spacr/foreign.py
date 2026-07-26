@@ -42,9 +42,12 @@ and the four ways that goes silently wrong:
    :func:`infer_column_map` only ever *proposes*; the proposal is a file
    the user edits (:func:`save_column_map` / :func:`load_column_map`);
    and :func:`run_import` applies what was agreed, nothing else.
-2. **Units.** spaCR's areas are px², its lengths px and its intensities
-   raw uncalibrated counts — :mod:`spacr.feature_dict` documents that in
-   as many words. A foreign table in µm needs a scale factor, and every
+2. **Units.** spaCR's intensities are raw uncalibrated counts, and its
+   geometry is px²/px for a 2-D run — but a 3-D run measures volumes,
+   in µm³ when it was given voxel_size_z_um/voxel_size_xy_um, under the
+   same column names; the row's ``measurement_units`` says which, and
+   :mod:`spacr.feature_dict` resolves it per table. A foreign table in
+   µm needs a scale factor unless the target rows are µm too, and every
    mapping therefore carries ``unit_in`` / ``unit_out``. When a
    conversion is declared but the pixel size is unknown, the value is
    **not** multiplied by 1.0 and pretended to be pixels: the column is
@@ -1804,10 +1807,12 @@ def plan_import(images: str,
 
     if um_per_px is None:
         notes.append(
-            'No pixel size (um_per_px) was given. spaCR measures areas in '
-            'px^2, lengths in px and intensities in raw uncalibrated counts '
-            '(see spacr.feature_dict), so any column declared in micrometres '
-            'is imported unconverted and flagged calibrated = 0.')
+            'No pixel size (um_per_px) was given. A 2-D spaCR run measures '
+            'areas in px^2, lengths in px and intensities in raw uncalibrated '
+            'counts (see spacr.feature_dict), so any column declared in '
+            'micrometres is imported unconverted and flagged calibrated = 0. '
+            'A 3-D run stamped measurement_units = "um" is already in '
+            'micrometres — check the target table before converting.')
 
     # -- 4. the join ---------------------------------------------------------
     join = JoinReport(image_key=str(image_key or ''),
