@@ -639,7 +639,7 @@ def convert_settings_dict_for_gui(settings):
         'dataset_mode': ('combo', ['annotation', 'metadata', 'recruitment'], 'metadata'),
         'cov_type': ('combo', ['HC0', 'HC1', 'HC2', 'HC3', None], None),
         'crop_mode': ('combo', ["['cell']", "['nucleus']", "['pathogen']", "['organelle']", "['cell', 'nucleus']", "['cell', 'pathogen']", "['cell', 'organelle']", "['nucleus', 'pathogen']", "['cell', 'nucleus', 'pathogen']", "['cell', 'nucleus', 'pathogen', 'organelle']"], "['cell']"),
-        'timelapse_mode': ('combo', ['trackastra', 'trackpy', 'iou', 'btrack'], 'trackastra'),
+        'timelapse_mode': ('combo', ['trackastra', 'ultrack', 'trackpy', 'iou', 'btrack'], 'trackastra'),
         'train_mode': ('combo', ['erm', 'irm'], 'erm'),
         'clustering': ('combo', ['dbscan', 'kmean'], 'dbscan'),
         'reduction_method': ('combo', ['umap', 'tsne'], 'umap'),
