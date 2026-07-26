@@ -273,11 +273,6 @@ def test_analyze_recruitment_existing_measurements_dir_is_not_clobbered(
     assert keeper.read_bytes() == b"already here"
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: analyze_recruitment strips only the filename from a "
-    "<src>/measurements/measurements.db path, leaving src pointing at the "
-    "measurements folder, then reads <src>/measurements/measurements.db "
-    "again -> a doubled 'measurements/measurements' path that never exists."))
 def test_analyze_recruitment_db_inside_measurements_dir(tmp_path,
                                                         recruitment_env):
     """Passing the canonical ``<plate>/measurements/measurements.db`` path
@@ -673,11 +668,6 @@ def test_count_phenotypes_pivots_counts_per_well(tmp_path, monkeypatch):
     assert sorted(grouped["unique_count"].tolist()) == [1, 1, 2, 2]
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: count_phenotypes runs os.makedirs(os.path.join('src','results')) on "
-    "a hard-coded relative path, creating a stray ./src/results directory in "
-    "the caller's cwd; the value is immediately overwritten so the makedirs "
-    "is dead code."))
 def test_count_phenotypes_does_not_litter_cwd(tmp_path, monkeypatch):
     """An explicit measurements.db path should not create anything outside the
     measurements folder."""

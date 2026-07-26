@@ -283,9 +283,6 @@ def test_list_inputs_concat_plates_and_rename_legacy_columns(tmp_path, capsys):
     assert np.isclose(y[-1], (1 / 6 + 5 / 6) / 2)
 
 
-@pytest.mark.xfail(strict=True, reason="BUG: mismatched reads/scores list lengths "
-                                       "only print a message, then blow up with "
-                                       "UnboundLocalError on reads_df")
 def test_mismatched_list_lengths_should_raise_valueerror(tmp_path):
     """A 2-vs-1 list mismatch should be a clean error, not UnboundLocalError."""
     from spacr.submodules import compare_reads_to_scores
@@ -296,9 +293,6 @@ def test_mismatched_list_lengths_should_raise_valueerror(tmp_path):
                                 save_paths=[None, None])
 
 
-@pytest.mark.xfail(strict=True, reason="BUG: the legacy 'row' header is detected "
-                                       "but 'row_name' is what gets renamed, so a "
-                                       "'row'-only reads CSV is never fixed up")
 def test_legacy_row_header_should_be_renamed_to_rowid(tmp_path):
     """``if 'row' in columns: rename({'row_name': 'rowID'})`` renames nothing."""
     from spacr.submodules import compare_reads_to_scores
@@ -436,12 +430,12 @@ def test_non_list_y_columns_plot_one_unlabelled_line(tmp_path):
 # ---------------------------------------------------------------------------
 
 def test_guard_prints_columns_and_returns_none(tmp_path, capsys):
-    """The guard at ``if any in y_columns not in df.columns`` bails out.
+    """The missing-y-column guard bails out and lists what is available.
 
-    That expression is a *chained comparison*: it only fires when the builtin
-    ``any`` is literally an element of ``y_columns``. This test drives the one
-    input that reaches the bail-out; see the xfail below for what the guard was
-    clearly meant to do.
+    ``y_columns=(any,)`` names a "column" no frame can hold, so the guard
+    prints the real column names and returns ``None``. This used to be the
+    *only* input that reached the bail-out, back when the guard was the
+    chained comparison ``any in y_columns not in df.columns``.
     """
     from spacr.submodules import compare_reads_to_scores
 
@@ -458,10 +452,6 @@ def test_guard_prints_columns_and_returns_none(tmp_path, capsys):
         assert f"\n{col}\n" in out
 
 
-@pytest.mark.xfail(strict=True, reason="BUG: `if any in y_columns not in df.columns` "
-                                       "is a chained comparison that is always "
-                                       "False, so an unknown y column reaches "
-                                       "seaborn and raises instead of bailing out")
 def test_unknown_y_column_should_bail_out(tmp_path):
     """An unknown y column should print the columns and return None."""
     from spacr.submodules import compare_reads_to_scores
@@ -477,9 +467,6 @@ def test_unknown_y_column_should_bail_out(tmp_path):
 # defaults that do not survive contact with the code
 # ---------------------------------------------------------------------------
 
-@pytest.mark.xfail(strict=True, reason="BUG: save_paths defaults to None but is "
-                                       "indexed unconditionally, so the documented "
-                                       "minimal call raises TypeError")
 def test_default_save_paths_should_not_crash(tmp_path):
     """Calling with the declared defaults should just skip saving."""
     from spacr.submodules import compare_reads_to_scores
@@ -489,9 +476,6 @@ def test_default_save_paths_should_not_crash(tmp_path):
     assert len(figs) == 2
 
 
-@pytest.mark.xfail(strict=True, reason="BUG: a scores table where every object is "
-                                       "class 1 has no class_0 column after "
-                                       "unstack, so class_0_fraction raises KeyError")
 def test_single_class_scores_should_not_crash(tmp_path):
     """An all-positive classifier output should give class_1_fraction == 1."""
     from spacr.submodules import compare_reads_to_scores

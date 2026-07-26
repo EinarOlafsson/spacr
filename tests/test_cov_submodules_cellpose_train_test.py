@@ -10,7 +10,10 @@ fan-out, the metric computation, the diagnostic PNGs and the result
 DataFrame — is the real product code running on real synthetic TIFFs.
 
 Known defects are asserted as ``xfail(strict=True)`` against the CORRECT
-behaviour so they flip to a failure the moment they are fixed.
+behaviour so they flip to a failure the moment they are fixed. The only
+one still outstanding lives in ``spacr.settings``:
+``get_train_cellpose_default_settings`` supplies neither ``target_size``
+nor ``augment``, both of which ``train_cellpose`` indexes unconditionally.
 """
 from __future__ import annotations
 
@@ -537,11 +540,6 @@ def test_test_cellpose_model_saves_csv_and_diagnostic_pngs(tmp_path, cp_stub,
     assert plt.get_fignums() == []
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: the per-image metric lists (n_objects_*, mean_area_*, TP/FP/FN, "
-    "Precision/Recall/F1/Accuracy) are re-initialised inside the batch loop "
-    "while names/scores accumulate across batches, so building df_results "
-    "raises ValueError as soon as there is more than one batch."))
 def test_test_cellpose_model_multi_batch_reports_every_image(tmp_path, cp_stub,
                                                              monkeypatch):
     """With 4 images and batch_size=2 the CSV must still hold all 4 rows."""
@@ -559,10 +557,6 @@ def test_test_cellpose_model_multi_batch_reports_every_image(tmp_path, cp_stub,
     assert df["label_image"].tolist() == written["names"]
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: files_to_process = len(test_image_folder) measures the LENGTH OF "
-    "THE FOLDER PATH STRING, not the number of test images, so the progress "
-    "line reports a nonsense total."))
 def test_test_cellpose_model_progress_total_is_the_image_count(tmp_path, cp_stub,
                                                                monkeypatch):
     from spacr.submodules import test_cellpose_model
@@ -586,10 +580,6 @@ def test_test_cellpose_model_progress_total_is_the_image_count(tmp_path, cp_stub
     assert calls[0][1] == 3
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: files_processed = (i + 1) * batch_size, but i is already the index "
-    "of the first image of the batch, so the progress counter overshoots the "
-    "number of images actually processed."))
 def test_test_cellpose_model_progress_counts_processed_images(tmp_path, cp_stub,
                                                               monkeypatch):
     from spacr.submodules import test_cellpose_model
@@ -613,9 +603,6 @@ def test_test_cellpose_model_progress_counts_processed_images(tmp_path, cp_stub,
     assert calls[0][0] == 3
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: the `if settings['save']: plot_cellpose_resilts(...)` block is "
-    "duplicated, so every diagnostic figure is rendered and written twice."))
 def test_test_cellpose_model_renders_each_diagnostic_once(tmp_path, cp_stub,
                                                           monkeypatch):
     from spacr.submodules import test_cellpose_model

@@ -457,16 +457,9 @@ def test_endodyogeny_accepts_a_list_of_sources(endo_src):
 
 
 # ---------------------------------------------------------------------------
-# Missing group column — the informative KeyError is dead code today
+# Missing group column — the informative KeyError must beat pandas' bare one
 # ---------------------------------------------------------------------------
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: the 'group_column not in df.columns' check sits AFTER "
-           "df.dropna(subset=[group_column]), so pandas raises a bare "
-           "KeyError first and the informative 'Available columns' message "
-           "is unreachable",
-)
 def test_endodyogeny_missing_group_column_reports_available_columns(endo_src):
     from spacr.submodules import analyze_endodyogeny
 

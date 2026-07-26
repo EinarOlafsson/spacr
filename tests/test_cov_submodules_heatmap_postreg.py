@@ -7,24 +7,17 @@ CSVs (8 rows x 1 column of a plate) so the expected fractions, means, MAEs,
 correlations and propagated effect sizes can be written down by hand and
 asserted exactly.
 
-One real defect is pinned with ``xfail(strict=True)``:
+Two defects that used to be pinned here as ``xfail(strict=True)`` are now
+fixed, and the tests below are ordinary regression tests for them:
 
-* ``generate_score_heatmap`` -> ``calculate_fraction_mixed_condition`` groups by
-  ``columnID`` but then merges on ``column_name``, which never exists on the
-  grouped frame -> ``KeyError: 'column_name'``. The function can therefore never
-  complete on any input (spacr.toxo's copy of the same helper uses
-  ``column_name`` consistently and does work).
-* the ``'row_number' in merged_df.columns`` guard is a typo for the ``'row_num'``
-  helper column the heatmap adds in place, so ``row_num`` leaks into the
-  returned frame, into the saved ``*_data.csv`` and into the MAE table as a
-  bogus channel.
-
-Because the first defect aborts the function on line 1986, the downstream code
-(heatmap, MAE, artifact writing) is reached through a narrowly scoped
-``pandas.merge`` shim that supplies the missing key. The shim only aliases
-``column_name`` from ``columnID`` on the right frame of that one merge; every
-other merge passes straight through, and the assertions are all on the *correct*
-downstream results.
+* ``generate_score_heatmap`` -> ``calculate_fraction_mixed_condition`` grouped by
+  ``columnID`` but merged on ``column_name``, which never exists on the grouped
+  frame -> ``KeyError: 'column_name'`` for every input. It now keys on
+  ``columnID`` throughout while still accepting a legacy ``column_name`` CSV.
+* the ``'row_number' in merged_df.columns`` guard was a typo for the ``'row_num'``
+  helper column the heatmap added *in place*, so ``row_num`` leaked into the
+  returned frame, the saved ``*_data.csv`` and the MAE table as a bogus channel.
+  The helper now copies its input and the guard tests the right name.
 """
 from __future__ import annotations
 
@@ -109,28 +102,6 @@ def _model_folder(tmp_path, names=("modelA", "modelB"), with_empty=True):
     return folder, truth
 
 
-@pytest.fixture
-def merge_shim(monkeypatch):
-    """Work around the ``column_name`` merge bug so downstream code is reachable.
-
-    Aliases the missing ``column_name`` key onto the right-hand frame of the one
-    broken merge; all other merges are untouched.
-    """
-    real_merge = pd.merge
-
-    def _shim(left, right, *args, **kwargs):
-        on = kwargs.get("on")
-        right_cols = list(getattr(right, "columns", []))
-        if (isinstance(on, list) and "column_name" in on
-                and "column_name" not in right_cols and "columnID" in right_cols):
-            right = right.copy()
-            right["column_name"] = right["columnID"]
-        return real_merge(left, right, *args, **kwargs)
-
-    monkeypatch.setattr(pd, "merge", _shim)
-    return _shim
-
-
 def _settings(tmp_path, folders, mixed, cv, dst, **overrides):
     settings = {
         "folders": folders,
@@ -154,10 +125,6 @@ def _settings(tmp_path, folders, mixed, cv, dst, **overrides):
 # generate_score_heatmap
 # ---------------------------------------------------------------------------
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: submodules.generate_score_heatmap -> calculate_fraction_mixed_condition "
-    "groups by 'columnID' but merges on 'column_name' (line 1986), a key that is "
-    "never present on the grouped frame -> KeyError('column_name') for every input"))
 def test_generate_score_heatmap_completes_on_valid_inputs(tmp_path):
     """A fully valid set of score/reads/CV CSVs must yield the merged frame."""
     from spacr.submodules import generate_score_heatmap
@@ -179,7 +146,7 @@ def test_generate_score_heatmap_completes_on_valid_inputs(tmp_path):
 
 
 def test_generate_score_heatmap_end_to_end_values_and_artifacts(
-    tmp_path, merge_shim, capsys
+    tmp_path, capsys
 ):
     """Merged fractions/scores, the MAE table and the three artifacts are correct."""
     from spacr.submodules import generate_score_heatmap
@@ -248,11 +215,7 @@ def test_generate_score_heatmap_end_to_end_values_and_artifacts(
     assert len(mae) == len(mae["Channel"].unique()) * len(ROWS)
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: submodules.generate_score_heatmap guards on 'row_number' (lines 2114/2117) "
-    "but the heatmap helper adds 'row_num' in place, so the sort helper column leaks "
-    "into the returned frame, the saved *_data.csv and the MAE table as a channel"))
-def test_generate_score_heatmap_does_not_leak_row_num(tmp_path, merge_shim):
+def test_generate_score_heatmap_does_not_leak_row_num(tmp_path):
     """The plate-row sort helper must not survive into the results."""
     from spacr.submodules import generate_score_heatmap
 
@@ -272,9 +235,7 @@ def test_generate_score_heatmap_does_not_leak_row_num(tmp_path, merge_shim):
     assert "row_num" not in set(mae["Channel"])
 
 
-def test_generate_score_heatmap_column_alias_str_folder_and_no_dst(
-    tmp_path, merge_shim
-):
+def test_generate_score_heatmap_column_alias_str_folder_and_no_dst(tmp_path):
     """Cover the CV 'column' alias, default control sgRNAs, a str ``folders``
     and ``dst=None``; the 'row_number' guard fires and drops the sort helper."""
     from spacr.submodules import generate_score_heatmap
