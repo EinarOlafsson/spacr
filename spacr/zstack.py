@@ -93,7 +93,8 @@ __all__ = [
     "flag_truncated_z", "volume_stats", "segment_3d", "plan_from_settings",
     "estimate_peak_bytes",
     # --- 4D (Beta): t on top of z ---
-    "AXIS_ORDER_TZYX", "AXIS_ORDER_ZTYX", "AXIS_ORDERS", "BACKEND_IOU",
+    "AXIS_ORDER_TZYX", "AXIS_ORDER_ZTYX", "AXIS_ORDER_TYX", "AXIS_ORDERS",
+    "BACKEND_IOU",
     "BACKEND_CENTROID", "BACKEND_TRACKPY", "BACKEND_BTRACK",
     "BACKEND_TRACKASTRA", "BACKEND_ULTRACK", "TRACK_BACKENDS",
     "TRACK_COLUMN_UNITS", "BASE_TRACK_COLUMNS", "FLAG_T_TRUNCATED",
@@ -1166,6 +1167,15 @@ AXIS_ORDER_TZYX = "TZYX"
 #: position, looped over time" writes, and what ImageJ hyperstacks saved with a
 #: non-default dimension order carry.
 AXIS_ORDER_ZTYX = "ZTYX"
+
+#: A flat time series with no z axis at all: ``(T, Y, X)``. Deliberately *not*
+#: one of :data:`AXIS_ORDERS`, because with no z axis there is nothing for
+#: :func:`detect_axes` to choose between; it is accepted by
+#: :func:`plan_4d_from_settings` as a declaration only, and it is what a user
+#: with an ordinary 2-D movie sets. :class:`TStackSpec` has always modelled it
+#: as ``z_axis=None`` and :func:`segment_4d` has always made one plain 2-D call
+#: per frame for it -- this constant is only the settings-level spelling.
+AXIS_ORDER_TYX = "TYX"
 
 #: The two orders :func:`detect_axes` chooses between. It refuses to choose
 #: without evidence; see the 4D (Beta) preamble above.
@@ -2738,23 +2748,44 @@ def plan_4d_from_settings(settings) -> Optional[TStackSpec]:
 
     if order:
         name = str(order).upper().strip()
-        if name not in AXIS_ORDERS:
-            raise TStackError(
-                f"t_axis_order={order!r} is not one of {list(AXIS_ORDERS)}"
-            )
-        # An explicit t_axis/z_axis alongside the order must agree with it.
-        # Letting the order silently win would mean a user who set both, and
-        # got one of them wrong, is segmenting a differently-transposed array
-        # than they think -- which is the failure this setting exists to stop.
-        for label, given, implied in (("t_axis", t_axis, name.index("T")),
-                                      ("z_axis", z_axis, name.index("Z"))):
-            if given is not None and int(given) != implied:
+        if name == AXIS_ORDER_TYX:
+            # A flat time series: no z axis is claimed, so there is no order to
+            # refuse and nothing to disambiguate. This is the common case -- an
+            # ordinary 2-D movie -- and it is the only spelling that makes it
+            # expressible from the settings.
+            if z_axis is not None:
                 raise TStackError(
-                    f"t_axis_order={name!r} puts {label[0]} on axis {implied}, "
-                    f"but {label}={given!r} says axis {int(given)}. spaCR will "
+                    f"t_axis_order='{AXIS_ORDER_TYX}' says the acquisition has "
+                    f"no z axis, but z_axis={z_axis!r} places one. spaCR will "
                     f"not pick one: unset whichever of them is wrong."
                 )
-        t_axis, z_axis = name.index("T"), name.index("Z")
+            t_axis = 0 if t_axis is None else int(t_axis)
+            if t_axis != 0:
+                raise TStackError(
+                    f"t_axis_order='{AXIS_ORDER_TYX}' describes a (T, Y, X) "
+                    f"acquisition, whose time axis is axis 0, but "
+                    f"t_axis={t_axis} was given. Give t_axis=0, or state the "
+                    f"whole order with t_axis/z_axis indices instead."
+                )
+        elif name not in AXIS_ORDERS:
+            raise TStackError(
+                f"t_axis_order={order!r} is not one of "
+                f"{list(AXIS_ORDERS) + [AXIS_ORDER_TYX]}"
+            )
+        else:
+            # An explicit t_axis/z_axis alongside the order must agree with it.
+            # Letting the order silently win would mean a user who set both, and
+            # got one of them wrong, is segmenting a differently-transposed array
+            # than they think -- which is the failure this setting exists to stop.
+            for label, given, implied in (("t_axis", t_axis, name.index("T")),
+                                          ("z_axis", z_axis, name.index("Z"))):
+                if given is not None and int(given) != implied:
+                    raise TStackError(
+                        f"t_axis_order={name!r} puts {label[0]} on axis {implied}, "
+                        f"but {label}={given!r} says axis {int(given)}. spaCR will "
+                        f"not pick one: unset whichever of them is wrong."
+                    )
+            t_axis, z_axis = name.index("T"), name.index("Z")
     elif t_axis is None and z_axis is None:
         raise AmbiguousAxisOrderError(
             "t_stack is on but neither t_axis_order nor t_axis/z_axis is set, "
@@ -2762,7 +2793,8 @@ def plan_4d_from_settings(settings) -> Optional[TStackSpec]:
             "(T, Z, ...) or (Z, T, ...). It will not guess: reading one as the "
             "other links objects across z and reports them as trajectories "
             "through time, which looks entirely plausible and is entirely "
-            "fictional. Set t_axis_order to 'TZYX' or 'ZTYX'."
+            "fictional. Set t_axis_order to 'TZYX' or 'ZTYX' -- or to 'TYX' if "
+            "your acquisition has no z axis at all."
         )
     elif t_axis is None:
         z_axis = _require_leading_axis(z_axis, "z_axis")
@@ -2777,7 +2809,7 @@ def plan_4d_from_settings(settings) -> Optional[TStackSpec]:
 
     spec = TStackSpec(
         t_axis=int(t_axis),
-        z_axis=int(z_axis),
+        z_axis=None if z_axis is None else int(z_axis),
         anisotropy=settings.get("anisotropy"),
         frame_interval_s=None if interval is None else float(interval),
         voxel_size_um=voxel_size,
@@ -2793,7 +2825,7 @@ def plan_4d_from_settings(settings) -> Optional[TStackSpec]:
 
     # Fail here rather than after the model has been loaded and the first
     # timepoint read: none of these answers can change later in the run.
-    if spec.z_mode == MODE_VOLUMETRIC:
+    if spec.z_axis is not None and spec.z_mode == MODE_VOLUMETRIC:
         spec.require_anisotropy()
     if spec.track_backend in (BACKEND_CENTROID, BACKEND_TRACKPY):
         if spec.max_displacement_px is None and spec.max_displacement_um is None:
@@ -2802,9 +2834,12 @@ def plan_4d_from_settings(settings) -> Optional[TStackSpec]:
                 f"neither t_max_displacement_px nor t_max_displacement_um is "
                 f"set. Set one; spaCR will not pick a default gate."
             )
-        if spec.z_mode != MODE_PROJECT and spec.max_displacement_um is None:
+        if (spec.z_axis is not None and spec.z_mode != MODE_PROJECT
+                and spec.max_displacement_um is None):
             spec.require_anisotropy()
-    if not TRACK_BACKENDS[spec.track_backend].links_3d and spec.z_mode != MODE_PROJECT:
+    if (spec.z_axis is not None
+            and not TRACK_BACKENDS[spec.track_backend].links_3d
+            and spec.z_mode != MODE_PROJECT):
         raise TrackerIsTwoDError(
             f"t_track_backend='{spec.track_backend}' cannot link volumes as "
             f"spaCR drives it, but z_segmentation_mode='{spec.z_mode}' "
