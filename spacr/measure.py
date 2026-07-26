@@ -18,6 +18,12 @@ import matplotlib.pyplot as plt
 from math import ceil, sqrt
 
 from . import settings
+# The crop PNG format lives in spacr.crops: the writer's channel order
+# (to_cv2_bgr), the folder marker (stamp_crop_folder) and the reader that
+# undoes the legacy order all have to agree, so they live in one place.
+# spacr.crops imports nothing from spacr and nothing heavy, so this costs the
+# measure path nothing.
+from .crops import stamp_crop_folder, to_cv2_bgr
 # Fail-loud accounting: a field that fails to measure is recorded, summarised
 # at the end of the run, and stamped into measurements.db so a downstream
 # regression cannot silently analyse 344 of 384 wells.
@@ -1415,31 +1421,42 @@ def save_and_add_image_to_grid(png_channels, img_path, grid, plot=False):
     Returns:
         grid (list): Updated grid with the new image added.
 
-    .. warning::
+    .. note::
 
-       **The channel order on disk is the REVERSE of ``settings['png_dims']``.**
-       ``cv2.imwrite`` interprets a 3-channel array as BGR and writes it as RGB,
-       while every consumer in spacr opens these files with PIL, which reads
-       RGB. So ``png_dims=[0, 1, 2]`` stores dim 2 in the PNG's red channel and
-       dim 0 in its blue channel.
+       **The channel order on disk matches ``settings['png_dims']``:**
+       ``png_dims[0]`` is the file's red channel, ``[1]`` green, ``[2]`` blue.
 
-       This is NOT fixed here, deliberately. Reversing the write would change
-       the appearance of every crop in every dataset already on disk, and any
-       classifier already trained on these PNGs was trained on this ordering —
-       a silent flip would invalidate those models without any error. The
-       ordering is at least self-consistent: everything spacr writes and reads
-       uses the same convention, so only code that interprets a PNG channel by
-       its ``png_dims`` index (for example "channel 0 is the DAPI stain") is
-       wrong. Reverse ``png_dims`` if you need a specific stored order.
+       ``cv2.imwrite`` interprets a 3-channel array as BGR, so handing it the
+       crop unchanged put ``png_dims[0]`` in the file's blue slot — the
+       REVERSE of what the setting says, and the reverse of what every
+       consumer assumes, since they all open these files with PIL, which
+       reads RGB. :func:`spacr.crops.to_cv2_bgr` reverses the array once,
+       here, so cv2's interpretation lands the user's first channel in red.
+       It refuses more than three channels rather than letting cv2 write the
+       fourth as an alpha plane for every reader to drop in silence.
 
-       Crops are also still ``uint16``, so these are 16-bit PNGs, and PIL
-       narrows them two different ways: an RGB PNG comes back as the HIGH BYTE
-       (value // 256), while a single-channel PNG loads as mode ``I;16`` and
-       only CLIPS at 255 when converted to ``L``.
+       Crops written *before* this change are in the reversed order and carry
+       no marker, so the format is versioned:
+       :func:`spacr.crops.stamp_crop_folder` drops a
+       ``.spacr_crop_format.json`` sidecar into the crop folder before the
+       first PNG lands, an unmarked folder means legacy, and
+       :func:`spacr.crops.read_crop_png` converts legacy content on load.
+       ``spacr.crops.migrate_crop_folder`` rewrites an old folder in place.
+
+       Crops are still ``uint16``, so these are 16-bit PNGs and no intensity
+       is discarded at write time. The narrowing to 8 bit happens once, on
+       read, in :func:`spacr.crops.narrow_to_uint8`, which always takes the
+       HIGH BYTE (``// 256``) — replacing PIL's two incompatible rules (high
+       byte for an RGB PNG, a *clip* at 255 for a single-channel one, which
+       returned solid white for any crop brighter than that).
     """
 
-    # Save the image as a PNG. See the channel-order warning above.
-    cv2.imwrite(img_path, png_channels)
+    # Mark the folder BEFORE the first PNG lands: a run killed in between then
+    # leaves a marked folder holding fewer crops, never an unmarked folder of
+    # corrected ones, which is the single state that would be misread as
+    # legacy. Costs one stat per folder per process.
+    stamp_crop_folder(os.path.dirname(img_path))
+    cv2.imwrite(img_path, to_cv2_bgr(png_channels))
 
     if plot:
 

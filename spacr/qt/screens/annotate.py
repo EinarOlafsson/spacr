@@ -81,6 +81,7 @@ from ..annotate_engine import (
     filter_channels_pil,
     find_last_annotated_offset,
     label_to_hex,
+    load_crop_image,
     normalize_pil,
     outline_image,
 )
@@ -1460,7 +1461,10 @@ class AnnotateScreen(QWidget):
                 blank = Image.new("RGB", s.image_size, color=(20, 20, 20))
                 return blank, annotation
             try:
-                img = Image.open(path).convert("RGB")
+                # Not Image.open(): crop PNGs are format-versioned, and a
+                # legacy folder has to be un-reversed on load or every "r"/
+                # "g"/"b" control on this screen addresses the wrong stain.
+                img = load_crop_image(path, db_path=s.db_path)
             except Exception:
                 return Image.new("RGB", s.image_size, (30, 30, 30)), annotation
         img = normalize_pil(img, s.percentiles, s.normalize_channels)
