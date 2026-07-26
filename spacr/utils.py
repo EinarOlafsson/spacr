@@ -4824,15 +4824,26 @@ class SaliencyMapGenerator:
         self.model.eval()
         X.requires_grad_()
 
-        # Forward pass to get predictions (logits)
-        scores = self.model(X).squeeze()
-
-        # Get predicted class (0 or 1 for binary classification)
-        predictions = (scores > 0).long()
+        # Branch on the UN-squeezed logits. `(scores > 0).long()` is only a
+        # class label for a single-logit head; for a (B, C>1) head it is a
+        # per-logit boolean MASK, which then indexed as if it were a class and
+        # raised "a Tensor with 2 elements cannot be converted to Scalar" for
+        # every model train_test_model produces with the default two classes.
+        # argmax must be taken on the LOGITS, not on the mask: logits
+        # (-0.5, -0.2) mask to (0, 0), whose argmax is 0 while the true class
+        # is 1.
+        raw = self.model(X)
+        if raw.ndim > 1 and raw.shape[-1] > 1:
+            predictions = raw.argmax(dim=-1).long()
+            scores = raw.gather(-1, predictions.unsqueeze(-1)).squeeze(-1)
+            target_scores = scores
+        else:
+            scores = raw.squeeze()
+            predictions = (scores > 0).long()
+            target_scores = scores * (2 * predictions - 1)
 
         # Compute saliency maps
         self.model.zero_grad()
-        target_scores = scores * (2 * predictions - 1)
         target_scores.backward(torch.ones_like(target_scores))
 
         saliency = X.grad.abs()
@@ -4961,11 +4972,15 @@ class GradCAMGenerator:
         self.model.eval()
         X.requires_grad_()
 
-        # Forward pass to get predictions (logits)
-        scores = self.model(X).squeeze()
-
-        # Get predicted class (0 or 1 for binary classification)
-        predictions = (scores > 0).long()
+        # See compute_saliency_and_predictions: `(scores > 0).long()` is a
+        # class label only for a single-logit head. For a (B, C>1) head it is a
+        # per-logit mask, so predictions[i] below was a C-element tensor rather
+        # than a scalar class index.
+        raw = self.model(X)
+        if raw.ndim > 1 and raw.shape[-1] > 1:
+            predictions = raw.argmax(dim=-1).long()
+        else:
+            predictions = (raw.squeeze() > 0).long()
 
         # Compute gradcam maps
         gradcam_maps = []

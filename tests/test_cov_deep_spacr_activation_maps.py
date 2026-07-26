@@ -422,12 +422,6 @@ def test_generate_activation_map_n_jobs_defaults_to_cpu_count(tmp_path, model_pa
 # generate_activation_map — multi-logit models (what train_test_model produces)
 # ---------------------------------------------------------------------------
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: generate_activation_map only handles single-logit models. For a "
-    "2-class TorchModel (what train_test_model builds for classes=['nc','pc']) "
-    "predicted_classes is (B, 2), so deep_spacr.py:1127 "
-    "predicted_classes[i].item() raises 'a Tensor with 2 elements cannot be "
-    "converted to Scalar'. The per-image class should be the argmax logit."))
 def test_generate_activation_map_multiclass_model(tmp_path):
     """A 2-class model must still yield exactly one activation map per image."""
     from spacr.deep_spacr import generate_activation_map

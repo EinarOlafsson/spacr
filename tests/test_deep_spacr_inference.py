@@ -130,10 +130,10 @@ def test_generate_activation_map_saliency(tmp_path, rng):
     from spacr.deep_spacr import generate_activation_map
     tar_path, _ = _tar_of_pngs(tmp_path, rng)
     model_path = _save_model(tmp_path / "m.pth")
-    try:
-        generate_activation_map(_activation_settings(tar_path, model_path))
-    except Exception as e:
-        pytest.skip(f"activation map contract differs: {e}")
+    # No try/skip: this crashed on the DEFAULT two-class model for as long as
+    # the multi-logit prediction bug existed, and the swallow reported it as a
+    # tidy "skipped" instead of a failure.
+    generate_activation_map(_activation_settings(tar_path, model_path))
 
 
 def test_generate_activation_map_gradcam(tmp_path, rng):
