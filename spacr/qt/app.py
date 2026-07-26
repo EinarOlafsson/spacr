@@ -15,10 +15,12 @@ from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QAction, QIcon, QKeySequence, QPixmap
 from PySide6.QtWidgets import (
     QApplication,
+    QFrame,
     QLabel,
     QMainWindow,
     QMessageBox,
     QPushButton,
+    QScrollArea,
     QSplitter,
     QStackedWidget,
     QStatusBar,
@@ -232,13 +234,37 @@ class Sidebar(QWidget):
         super().__init__(parent)
         self.setObjectName("Sidebar")
 
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.setSpacing(0)
 
         title = QLabel("spaCR")
         title.setObjectName("SidebarTitle")
-        layout.addWidget(title)
+        outer.addWidget(title)
+
+        # The nav rows scroll. Measured at 1440x900 -- the realistic laptop
+        # size -- this column stacks 29 rows, 5 section headings and the title
+        # in a plain QVBoxLayout and asks for 1356 px against 850 available,
+        # so the last three apps (Plaque Assay, Recruitment, Invasion Assay)
+        # were simply UNREACHABLE. The title stays pinned; only the rows move.
+        #
+        # No stylesheet is set on the scroll area on purpose: an unscoped
+        # `background: transparent` on a QScrollArea cascades to every
+        # descendant and strips the fill off the buttons inside it.
+        self._scroll = QScrollArea(self)
+        self._scroll.setObjectName("SidebarScroll")
+        self._scroll.setWidgetResizable(True)
+        self._scroll.setFrameShape(QFrame.NoFrame)
+        self._scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self._scroll.viewport().setAutoFillBackground(False)
+
+        inner = QWidget()
+        inner.setObjectName("SidebarInner")
+        layout = QVBoxLayout(inner)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        self._scroll.setWidget(inner)
+        outer.addWidget(self._scroll, 1)
 
         self._items: list[ElidingPushButton] = []
 
