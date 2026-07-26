@@ -173,6 +173,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "queue_limit",
     # and opt-in resume (spacr.resume).
     "resume",
+    # and the attribution methods + their analyses (spacr.attribution).
+    "smoothgrad_samples", "smoothgrad_sigma", "occlusion_window",
+    "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps",
+    "attribution_baseline", "sanity_check", "object_type",
     # and the two-colour invasion assay (submodules.analyze_invasion).
     "parasite_table", "compartment", "outside_channel",
     "total_channel", "intensity_statistic", "background_correction",

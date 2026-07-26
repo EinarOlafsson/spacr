@@ -167,7 +167,7 @@ class TestPureHelpers:
         assert searchable("classify")
         assert searchable("ml_analyze")
         assert not searchable("mask")
-        assert set(APP_PARAMS) == {"umap", "classify", "ml_analyze"}
+        assert set(APP_PARAMS) == {"umap", "classify", "ml_analyze", "activation"}
 
     def test_toggle_text_is_what_the_user_asked_for(self):
         assert TOGGLE_TEXT == "Hyperparameter search"

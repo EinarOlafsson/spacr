@@ -1423,6 +1423,16 @@ expected_types = {
     "save_to_db":bool,
     "test_mode":bool,
     "dry_run":bool,
+    'smoothgrad_samples':int,
+    'smoothgrad_sigma':float,
+    'occlusion_window':int,
+    'occlusion_stride':int,
+    'ig_steps':int,
+    'ig_baseline':str,
+    'attribution_steps':int,
+    'attribution_baseline':str,
+    'sanity_check':bool,
+    'object_type':str,
     "parasite_table": str,
     "compartment": str,
     "outside_channel": int,
@@ -2185,6 +2195,16 @@ tooltips = {
     'threshold_agreement_tolerance': "(float) - Relative distance a threshold may sit from its reference before the field and well are flagged; the reference is the control-derived cut when controls exist, otherwise the field's own automatic cut. 0.5 means a factor of two. Lower it to catch smaller drifts between a fixed threshold and what the data would have chosen. Default 0.5.",
     'threshold_sensitivity': "(float) - Fractional amount the threshold is moved up and down to produce the invasion_efficiency_low_threshold and _high_threshold bracket, which shows how much of a well's answer is the threshold rather than the biology. Widening it widens the bracket and makes the inflation flag more eager. Default 0.25.",
     'total_channel': '(int or None) - Zero-indexed channel of the post-permeabilisation antibody that stains every parasite. Nothing is classified from it; it only supplies the intensity that min_total_intensity filters on, so an incorrect value costs nothing until that filter is switched on. Default 0.',
+    'attribution_baseline': "(str) - What a pixel is replaced with when the deletion/insertion curves remove it: 'blur', 'zero' or 'noise'. It is a confound, not a detail - blanking to zero creates a hard edge the model has never seen, so part of the score drop measures the artefact rather than the lost information. 'blur' is the least out-of-distribution and is the default; comparing two baselines is a fair way to ask how much of your AUC is real. Default 'blur'.",
+    'attribution_steps': '(int) - Points along the deletion and insertion curves used to score a map. At each step the highest-ranked remaining pixels are removed (or added) and the model re-run, so this is the resolution of the area-under-curve that judges whether the map describes what the model actually uses. More steps give a smoother AUC at linearly more forward passes. Default 12.',
+    'ig_baseline': "(str) - The 'absence of signal' image integrated gradients integrates away from: 'zero' is black, 'blur' is your own image blurred, 'noise' is random. This choice IS the explanation's reference point and changes the result - a black baseline attributes to everything bright, which on dark-field microscopy means it attributes to the object merely for existing. 'blur' keeps the low-frequency content and asks what the detail contributes. Default 'zero'.",
+    'ig_steps': "(int) - Interpolation steps between the baseline and your image for integrated gradients. The method's guarantee - that the attributions sum to the score difference - only holds in the limit, so too few steps silently breaks it; 50 is the usual default and the completeness error is worth checking if you lower it. Cost is linear in this number. Default 50.",
+    'object_type': "(str) - Which mask decides where an object is when the pointing game scores an attribution map: 'cell', 'nucleus', 'pathogen' or 'cytoplasm'. The pointing game asks only whether the map's single hottest pixel lands inside that mask, so it is cheap and coarse - it says nothing about the rest of the map, and a method can score 1.0 while attributing nonsense everywhere else. Default 'cell'.",
+    'occlusion_stride': '(int) - How far the occlusion patch moves between evaluations. Equal to occlusion_window it tiles without overlap and is fastest; half of it doubles the passes and halves the blockiness. A stride larger than the window leaves unmeasured gaps that appear as an artificial grid in the map. Default 4.',
+    'occlusion_window': "(int) - Side length in pixels of the patch occlusion slides over the image, blanking it and recording how far the model's score falls. Larger windows are faster and blurrier and will miss a feature smaller than the window; smaller ones resolve fine structure at quadratically more forward passes. Occlusion is the only method here that needs no gradients at all, which is why it is worth its cost as a cross-check on the gradient family. Default 8.",
+    'sanity_check': "(bool) - Randomise the model's weights layer by layer and re-attribute, then report how similar the map stays. A method that produces nearly the same picture for a randomised model is an edge detector, not an explanation - and measured on a small CNN the whole CAM family, including the Grad-CAM spaCR defaults to, fails this while saliency and integrated gradients pass. The number is reported for YOUR model rather than assumed, which is the point. Costs one extra attribution per randomised layer. Default True.",
+    'smoothgrad_samples': "(int) - Noisy copies of the image averaged into one attribution map. A single map is dominated by the gradient's local jitter, so 8-50 samples smooth it into something stable enough to compare between images; 0 (the default) runs the method once and is what you want while you are still choosing a method, since it costs one forward-backward pass instead of N. Applies to every method, including the CAM family, where it is averaged explicitly rather than through captum. Default 0.",
+    'smoothgrad_sigma': "(float) - Standard deviation of the noise SmoothGrad adds, as a fraction of the image's intensity range. Too small and every sample is the same map, so averaging changes nothing; too large and the samples are of images the model has never seen, so the average describes the model's behaviour on noise rather than on your data. 0.1-0.2 is the usual band. Ignored when smoothgrad_samples is 0. Default 0.15.",
     'strict_errors': "(bool or None) - What happens when a step hits a problem it could technically survive. None (the default) defers to the SPACR_STRICT_ERRORS environment variable, which is how a cluster turns this on for a whole batch without editing every settings file; False and True are explicit per-run choices and override it. When off, the failure is recorded in the run ledger, printed in the end-of-run summary and stamped into the artifact's run_status, and the run continues on the items that worked. When on, a swallowed setup or configuration error - an unreadable path, a missing column, a database that will not open - raises immediately, so a batch job stops at the first sign its inputs are wrong instead of producing a plausible-looking partial result. Per-item failures such as one corrupt image are still survived either way. Default None.",
     'max_failure_rate': "(float or None) - Fraction of failed items above which the run aborts rather than finishing and reporting. 0.2 means 'stop once more than a fifth of the fields have failed', on the grounds that whatever is left is no longer the experiment. The ledger is stamped into the artifact before the abort, so the evidence survives. None (the default) never aborts on rate alone - every failure is still counted and reported, and the artifact is still marked partial. Default None.",
     'queue_by_uncertainty': "(bool) - Reorder the Annotate grid so the crops the classifier is least sure about come first, instead of showing them in database order. Labelling a crop the model already calls correctly with 99% probability teaches it nothing; the ones near the decision boundary are where a human's time actually moves the model. Needs model scores in png_list, so Classify (CV) has to have run - with none present the grid falls back to page order and says so rather than coming up empty. Crops that already carry an annotation are excluded. Default False.",
@@ -2363,7 +2383,7 @@ categories = {
 
     "Regression": ["regression_type", "dependent_variable", "agg_type", "transform", "alpha", "cov_type", "random_row_column_effects", "min_cell_count", "fraction_threshold", "target_unique_count", "outlier_detection", "threshold_method", "threshold_multiplier", "min_n", "volcano", "toxo", "other"],
 
-    "Activation Maps": ["cam_type", "target_layer", "overlay", "correlation", "normalize_input"],
+    "Activation Maps": ["smoothgrad_samples", "smoothgrad_sigma", "occlusion_window", "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps", "attribution_baseline", "sanity_check", "object_type", "cam_type", "target_layer", "overlay", "correlation", "normalize_input"],
 
     "Sequencing": ["mode", "single_direction", "signal_direction", "target_sequence", "regex", "offset", "offset_start", "expected_end", "chunk_size", "fill_na", "save_h5", "comp_type", "comp_level"],
 
@@ -2797,6 +2817,19 @@ def get_default_generate_activation_map_settings(settings):
     settings.setdefault('correlation', True)
     settings.setdefault('manders_thresholds', [15,50, 75])
     settings.setdefault('n_jobs', None)
+    # Attribution methods and their analyses (spacr.attribution). The
+    # sanity check is on by default because a map that ignores the model's
+    # weights is an edge detector, not an explanation.
+    settings.setdefault('smoothgrad_samples', 0)
+    settings.setdefault('smoothgrad_sigma', 0.15)
+    settings.setdefault('occlusion_window', 8)
+    settings.setdefault('occlusion_stride', 4)
+    settings.setdefault('ig_steps', 50)
+    settings.setdefault('ig_baseline', 'zero')
+    settings.setdefault('attribution_steps', 12)
+    settings.setdefault('attribution_baseline', 'blur')
+    settings.setdefault('sanity_check', True)
+    settings.setdefault('object_type', 'cell')
     return settings
 
 def get_analyze_plaque_settings(settings):

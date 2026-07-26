@@ -36,8 +36,8 @@ from PySide6.QtWidgets import (
 )
 
 from ...hyperparam import (
-    APP_CRITERIA, DEFAULT_SPACES, SearchResult, SearchSpace, Trial,
-    run_search_for_app,
+    ACTIVATION_CRITERIA, APP_CRITERIA, DEFAULT_SPACES, LOWER_IS_BETTER,
+    SearchResult, SearchSpace, Trial, run_search_for_app,
 )
 
 LOG = logging.getLogger("spacr.qt.hyperparam")
@@ -73,6 +73,19 @@ APP_PARAMS: Dict[str, Tuple[Tuple[str, str, str], ...]] = {
         ("n_estimators", "n_estimators", "int"),
         ("reg_alpha", "reg_alpha", "float"),
         ("reg_lambda", "reg_lambda", "float"),
+    ),
+    # Activation sweeps the settings that change the MAP, not the model: which
+    # method, which layer it hooks, how much the input is smoothed, and the
+    # window / step counts the perturbation and path-integral methods take.
+    "activation": (
+        ("cam_type", "method", "str"),
+        ("target_layer", "target_layer", "str"),
+        ("smoothgrad_samples", "smoothgrad n", "int"),
+        ("smoothgrad_sigma", "smoothgrad sigma", "float"),
+        ("occlusion_window", "occlusion window", "int"),
+        ("occlusion_stride", "occlusion stride", "int"),
+        ("ig_steps", "IG steps", "int"),
+        ("ig_baseline", "IG baseline", "str"),
     ),
 }
 
@@ -125,6 +138,74 @@ def format_params(params: Dict[str, Any]) -> str:
     return ", ".join(f"{k}={params[k]}" for k in sorted(params))
 
 
+def format_scores(trial: Trial, keys: Sequence[str] = ()) -> str:
+    """Render every criterion a trial recorded, one per line.
+
+    An Activation sweep computes four criteria for every trial precisely
+    because they disagree, so the row that shows only the ranked one is hiding
+    the finding. The panel puts this on the row's tooltip and in the figure
+    titles.
+
+    :param trial: the trial to describe.
+    :param keys: criteria to show first, in order; anything else the trial
+        recorded that is a plain number follows.
+    :returns: the multi-line text (empty when the trial recorded nothing).
+    """
+    extra = trial.extra_metrics or {}
+    lines: List[str] = []
+    seen = set()
+    for key in keys:
+        if key in extra and isinstance(extra[key], (int, float)):
+            lines.append(f"{key} = {float(extra[key]):.4f}")
+            seen.add(key)
+    for key in sorted(extra):
+        if key in seen or not isinstance(extra[key], (int, float)) \
+                or isinstance(extra[key], bool):
+            continue
+        lines.append(f"{key} = {float(extra[key]):.4g}")
+    verdict = extra.get("sanity_verdict")
+    if isinstance(verdict, str) and verdict:
+        lines.append(verdict)
+    return "\n".join(lines)
+
+
+def criteria_disagree(result: SearchResult,
+                      criteria: Sequence[str]) -> Optional[str]:
+    """Say plainly when re-ranking by another criterion picks another winner.
+
+    Ranking attribution methods has no ground truth, so the useful output is
+    not the top row but whether the top row survives a change of criterion.
+    When it does not, that is the result and it goes on the status line.
+
+    :param result: the finished sweep.
+    :param criteria: the criteria to re-rank by.
+    :returns: the sentence, or None when every criterion agrees (or there is
+        not enough recorded to tell).
+    """
+    ranked = result.ranked()
+    if len(ranked) < 2:
+        return None
+    winners: Dict[str, str] = {}
+    for name in criteria:
+        scored = [t for t in result.successful
+                  if isinstance(t.extra_metrics.get(name), (int, float))
+                  and not isinstance(t.extra_metrics.get(name), bool)]
+        if len(scored) < 2:
+            continue
+        reverse = name not in LOWER_IS_BETTER
+        best = sorted(scored,
+                      key=lambda t: (float(t.extra_metrics[name]), t.index),
+                      reverse=reverse)[0]
+        winners[name] = format_params(best.params)
+    if len(set(winners.values())) <= 1:
+        return None
+    listed = "; ".join(f"{k} -> {v}" for k, v in winners.items())
+    return (f"THE CRITERIA DISAGREE: {listed}. There is no ground truth for "
+            f"attribution, so this is not a tie to be broken — it means the "
+            f"configurations differ in which property they satisfy. Look at "
+            f"the maps.")
+
+
 def figure_to_pixmap(fig) -> QPixmap:
     """Rasterise a matplotlib figure into a QPixmap without touching disk.
 
@@ -163,6 +244,43 @@ def build_panel_figure(result: SearchResult, max_panels: int = MAX_PANELS):
     ranked = result.ranked()
     if not ranked:
         return None
+
+    # Attribution sweeps first: the maps ARE the deliverable, and the four
+    # scores go in every title so the panel shows the criteria disagreeing
+    # rather than hiding it behind one ranking.
+    attributed = [t for t in ranked
+                  if t.extra_metrics.get("attribution") is not None]
+    if attributed:
+        shown = attributed[:max_panels]
+        cols = min(4, len(shown))
+        rows = (len(shown) + cols - 1) // cols
+        fig, axes = plt.subplots(rows, cols, figsize=(3.0 * cols, 3.2 * rows),
+                                 squeeze=False)
+        for ax in axes.ravel():
+            ax.set_axis_off()
+        for i, trial in enumerate(shown):
+            ax = axes[i // cols][i % cols]
+            ax.set_axis_on()
+            att = trial.extra_metrics["attribution"]
+            heat = getattr(att, "map", att)
+            ax.imshow(heat, cmap="jet")
+            ax.set_xticks([])
+            ax.set_yticks([])
+            extra = trial.extra_metrics
+            bits = [f"{k}={float(extra[k]):.3f}"
+                    for k in ("deletion_auc", "insertion_auc", "pointing_game",
+                              "sanity_gap")
+                    if isinstance(extra.get(k), (int, float))
+                    and not isinstance(extra.get(k), bool)]
+            ax.set_title(f"{format_params(trial.params)}\n" + "  ".join(bits),
+                         fontsize=6)
+        fig.suptitle(
+            f"{len(shown)} of {len(ranked)} attribution maps, ranked by "
+            f"{result.metric} — deletion wants a LOW number, insertion and "
+            f"pointing a high one; they disagree on purpose",
+            fontsize=8)
+        fig.tight_layout()
+        return fig
 
     embedded = [t for t in ranked if t.extra_metrics.get("embedding") is not None]
     if embedded:
@@ -380,7 +498,10 @@ class HyperparamPanel(QWidget):
             "Cross-validation folds per trial. Folds are grouped by well, so "
             "crops from one well never straddle a split.")
         row.addWidget(self._n_folds)
-        if self.app_key == "umap":
+        if self.app_key in ("umap", "activation"):
+            # Neither app cross-validates: UMAP fits one embedding per trial and
+            # Activation attributes an already-trained model, so a fold count
+            # would be a control that does nothing.
             self._n_folds.setVisible(False)
 
         row.addWidget(QLabel("seed"))
@@ -547,7 +668,14 @@ class HyperparamPanel(QWidget):
         worker = _SearchWorker(request, self._search_fn, self)
         worker.trial_ready.connect(self._on_trial_ready)
         worker.search_done.connect(self._on_search_done)
-        worker.finished.connect(worker.deleteLater)
+        # NOT worker.deleteLater. `finished` is emitted from inside the worker
+        # thread, so scheduling the object's deletion there hands C++ a second
+        # owner for an object Python already owns, and the two race — see the
+        # measured account in spacr.qt.bridge.make_thread. The relay below is a
+        # bound method, so the connection keeps `self` alive rather than a
+        # lambda closure Qt cannot introspect, and the worker is freed when the
+        # panel drops its reference on the GUI thread.
+        worker.finished.connect(self._on_worker_finished)
         self._worker = worker
         self._run_btn.setEnabled(False)
         self._stop_btn.setEnabled(True)
@@ -567,6 +695,16 @@ class HyperparamPanel(QWidget):
 
     # -- signal handlers ---------------------------------------------------
 
+    def _on_worker_finished(self) -> None:
+        """Re-enable the controls once the worker's thread body has returned.
+
+        ``search_done`` normally does this, but a worker that died before
+        emitting it (a hard crash inside a backend, a stop between trials)
+        would otherwise leave Run disabled forever.
+        """
+        self._run_btn.setEnabled(True)
+        self._stop_btn.setEnabled(False)
+
     def _on_trial_ready(self, trial: Trial, done: int, total: int) -> None:
         """Append one finished trial to the table as the sweep progresses."""
         self._live_trials.append(trial)
@@ -577,7 +715,7 @@ class HyperparamPanel(QWidget):
                       self._fold_sd(trial),
                       format_params(trial.params),
                       "failed" if trial.error else "ok",
-                      trial.params, trial.error)
+                      trial.params, trial.error, trial)
         self._status.setText(
             f"{done} of {total} configurations evaluated"
             + (f" — last one failed: {trial.error}" if trial.error else ""))
@@ -617,6 +755,10 @@ class HyperparamPanel(QWidget):
                     f"winner is arbitrary.")
         if result.n_failed:
             summary.append(f"{result.n_failed} trials failed.")
+        disagreement = criteria_disagree(result,
+                                         APP_CRITERIA.get(self.app_key, ()))
+        if disagreement:
+            summary.append(disagreement)
         self._status.setText(" ".join(summary))
         self._draw_preview(result)
         self.search_finished.emit(result)
@@ -634,15 +776,25 @@ class HyperparamPanel(QWidget):
 
     def _set_row(self, row: int, rank: str, score: str, sd: str, params: str,
                  status: str, param_dict: Dict[str, Any],
-                 error: Optional[str]) -> None:
-        """Write one table row and stash the config on the first cell."""
+                 error: Optional[str], trial: Optional[Trial] = None) -> None:
+        """Write one table row and stash the config on the first cell.
+
+        Every criterion the trial recorded goes on the row's tooltip, not just
+        the one the table is ranked by: for an Activation sweep the other three
+        are the reason the ranking should not be read as a verdict.
+        """
         cells = (rank, score, sd, params, error or status)
+        detail = format_scores(trial, APP_CRITERIA.get(self.app_key, ())) \
+            if trial is not None else ""
         for col, text in enumerate(cells):
             item = QTableWidgetItem(text)
             if col == 0:
                 item.setData(Qt.UserRole, dict(param_dict))
-            if error:
-                item.setToolTip(error)
+                if trial is not None:
+                    item.setData(Qt.UserRole + 1, dict(trial.extra_metrics))
+            tip = error or detail
+            if tip:
+                item.setToolTip(tip)
             self._table.setItem(row, col, item)
 
     def _rebuild_table(self, result: SearchResult) -> None:
@@ -653,12 +805,12 @@ class HyperparamPanel(QWidget):
             self._table.insertRow(row)
             self._set_row(row, str(rank), f"{float(trial.score):.4f}",
                           self._fold_sd(trial), format_params(trial.params),
-                          "ok", trial.params, None)
+                          "ok", trial.params, None, trial)
         for trial in result.failed:
             row = self._table.rowCount()
             self._table.insertRow(row)
             self._set_row(row, "-", "-", "-", format_params(trial.params),
-                          "failed", trial.params, trial.error)
+                          "failed", trial.params, trial.error, trial)
         if self._table.rowCount():
             self._table.selectRow(0)
 

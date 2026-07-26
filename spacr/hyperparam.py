@@ -65,6 +65,12 @@ __all__ = [
     "UMAP_MISSING_MESSAGE",
     "UMAP_NO_GROUND_TRUTH",
     "DEFAULT_SPACES",
+    "ActivationSearchData",
+    "activation_fit_fn",
+    "activation_search",
+    "load_activation_data",
+    "ACTIVATION_CRITERIA",
+    "ACTIVATION_NO_GROUND_TRUTH",
 ]
 
 
@@ -110,15 +116,54 @@ UMAP_CRITERIA: Dict[str, str] = {
     ),
 }
 
+#: The caveat attached to every Activation search result. Never suppressed.
+ACTIVATION_NO_GROUND_TRUTH = (
+    "Attribution has no ground truth: no measurement can tell you a saliency "
+    "or CAM map is correct, because there is no correct map to compare it "
+    "against. The criteria below measure three different, partly contradictory "
+    "properties — whether removing the top-ranked pixels breaks the "
+    "prediction, whether adding them alone restores it, and whether the peak "
+    "lands on the object — and they routinely rank the same methods in "
+    "different orders. Read the panel of maps; the table only chooses which "
+    "ones to look at first."
+)
+
+#: What each Activation criterion rewards. Mirrors
+#: :data:`spacr.attribution.CRITERION_CAVEATS`, which is the single source.
+ACTIVATION_CRITERIA: Dict[str, str] = {
+    "deletion_auc": (
+        "area under the deletion curve — LOWER is better. Removing the pixels "
+        "the map ranks highest should collapse the score immediately."
+    ),
+    "insertion_auc": (
+        "area under the insertion curve — higher is better. The top-ranked "
+        "pixels alone, on a blank background, should already recover the "
+        "prediction."
+    ),
+    "pointing_game": (
+        "fraction of images whose brightest attribution pixel falls inside the "
+        "object mask — higher is better, and it says nothing about the rest of "
+        "the map."
+    ),
+    "sanity_gap": (
+        "1 - (rank correlation between the map from the trained model and the "
+        "map from the same model with randomised weights) — higher is better. "
+        "A method scoring near zero produces the same picture for a random "
+        "model and is an edge detector, not an explanation."
+    ),
+}
+
 #: Criteria each app's search can rank by, first entry being the default.
 APP_CRITERIA: Dict[str, List[str]] = {
     "umap": ["trustworthiness", "continuity", "silhouette"],
     "classify": ["accuracy", "prauc", "loss"],
     "ml_analyze": ["accuracy", "roc_auc", "f1"],
+    "activation": ["deletion_auc", "insertion_auc", "pointing_game",
+                   "sanity_gap"],
 }
 
 #: Criteria where a smaller number is better.
-LOWER_IS_BETTER = frozenset({"loss"})
+LOWER_IS_BETTER = frozenset({"loss", "deletion_auc"})
 
 #: Starting grids offered by the GUI, per app key. Small on purpose: a sweep the
 #: user actually finishes beats an exhaustive one they cancel.
@@ -134,6 +179,16 @@ DEFAULT_SPACES: Dict[str, Dict[str, List[Any]]] = {
     "ml_analyze": {
         "learning_rate": [0.001, 0.01, 0.1],
         "n_estimators": [100, 500, 1000],
+    },
+    # One representative of each attribution family, because agreement within
+    # a family is nearly worthless and disagreement across families is the
+    # finding. Score-CAM and feature ablation are left out of the default
+    # grid: both are an order of magnitude slower than the rest and a sweep
+    # the user cancels tells them nothing.
+    "activation": {
+        "cam_type": ["gradcam", "gradcam_pp", "layercam", "saliency",
+                     "integrated_gradients", "occlusion"],
+        "smoothgrad_samples": [0, 8],
     },
 }
 
@@ -873,6 +928,404 @@ def umap_search(features,
 
 
 # ---------------------------------------------------------------------------
+# Activation — sweeping what a trained model is said to attend to
+# ---------------------------------------------------------------------------
+
+@dataclass
+class ActivationSearchData:
+    """The model and images one Activation sweep is scored on.
+
+    :ivar model: the trained classifier, already on the right device and in
+        eval mode.
+    :ivar images: list of per-image tensors ``(C, H, W)``.
+    :ivar masks: optional per-image boolean object masks, same spatial shape,
+        enabling the pointing game. None when spaCR could not find them.
+    :ivar filenames: per-image provenance for the panel labels.
+    :ivar model_type: architecture name, used to make errors readable.
+    :ivar notes: provenance and warnings the caller must surface.
+    """
+
+    model: Any = None
+    images: List[Any] = field(default_factory=list)
+    masks: Optional[List[Any]] = None
+    filenames: List[str] = field(default_factory=list)
+    model_type: Optional[str] = None
+    notes: List[str] = field(default_factory=list)
+
+
+def _activation_params(params: Mapping[str, Any]) -> Tuple[str, Dict[str, Any],
+                                                           int, float]:
+    """Split one trial's configuration into method, kwargs and SmoothGrad knobs.
+
+    spaCR's Activation settings name the method ``cam_type`` and carry the
+    legacy values ``'saliency_image'`` / ``'saliency_channel'``, which both mean
+    the plain input-gradient saliency map; they are folded onto ``'saliency'``
+    so an existing settings CSV sweeps without editing.
+
+    :param params: one trial's parameters.
+    :returns: ``(method, method_kwargs, smoothgrad_samples, smoothgrad_sigma)``.
+    """
+    p = dict(params)
+    # Both spellings are removed whichever one supplied the value, so neither
+    # can leak downstream into the attribution call as a stray keyword.
+    named = p.pop("method", None)
+    method = str(p.pop("cam_type", None) or named or "gradcam")
+    if method in ("saliency_image", "saliency_channel"):
+        method = "saliency"
+    kw: Dict[str, Any] = {}
+    if p.get("target_layer") not in (None, "", "None"):
+        kw["layer"] = str(p["target_layer"])
+    p.pop("target_layer", None)
+    for src, dst in (("ig_steps", "n_steps"), ("ig_baseline", "baseline"),
+                     ("occlusion_window", "window"),
+                     ("occlusion_stride", "stride")):
+        if p.get(src) is not None:
+            kw[dst] = p[src]
+        p.pop(src, None)
+    n_samples = int(p.pop("smoothgrad_samples", 0) or 0)
+    sigma = float(p.pop("smoothgrad_sigma", 0.15) or 0.15)
+    kw.update(p)
+    return method, kw, n_samples, sigma
+
+
+def activation_fit_fn(data: ActivationSearchData,
+                      *,
+                      criterion: str = "deletion_auc",
+                      n_steps: int = 12,
+                      baseline: str = "blur",
+                      sanity_threshold: float = 0.5,
+                      run_sanity_check: bool = True,
+                      keep_maps: bool = True,
+                      attribute_fn: Optional[Callable[..., Any]] = None,
+                      ) -> Callable[[Dict[str, Any]], Any]:
+    """Build the ``fit_fn(params)`` an Activation sweep evaluates.
+
+    Every trial attributes each image once and then measures that map four
+    ways — deletion AUC, insertion AUC, the pointing game (when masks exist)
+    and the randomisation sanity check — so the table can be re-ranked by any
+    criterion without re-running the sweep. **All four are reported for every
+    trial precisely because they disagree**; a sweep that reported only the one
+    it ranked by would hide the disagreement, which is the informative part.
+
+    :param data: the model and images to score on.
+    :param criterion: which of :data:`ACTIVATION_CRITERIA` drives the ranking.
+    :param n_steps: perturbation steps in the deletion / insertion curves.
+    :param baseline: what removed pixels become — ``'blur'`` (least
+        out-of-distribution), ``'zero'``, ``'mean'`` or ``'uniform'``.
+    :param sanity_threshold: rank correlation below which a method passes the
+        randomisation check.
+    :param run_sanity_check: run the check on the first image only. It costs one
+        extra attribution per parameterised layer, so it is the expensive part
+        of a trial; turning it off removes the most valuable number here.
+    :param keep_maps: keep each trial's first map so the panel can draw it.
+    :param attribute_fn: override for the attribution call, used by tests.
+    :returns: the fit function.
+    :raises ValueError: for an unknown criterion or an empty image set.
+    """
+    if criterion not in ACTIVATION_CRITERIA:
+        raise ValueError(
+            f"Unknown Activation criterion {criterion!r}. Choose one of "
+            f"{sorted(ACTIVATION_CRITERIA)} — each measures a different "
+            f"property and they routinely disagree.")
+    if not data.images:
+        raise ValueError(
+            "The Activation search has no images to score on. Point 'dataset' "
+            "at a crop tar (or 'src' at an experiment with merged/*.npy) so "
+            "there is something to attribute.")
+
+    def _attribute(params: Mapping[str, Any], image):
+        """Attribute one image with one trial's configuration."""
+        if attribute_fn is not None:
+            return attribute_fn(data.model, image, dict(params))
+        from .attribution import attribute, smoothgrad
+        method, kw, n_samples, sigma = _activation_params(params)
+        if n_samples > 1:
+            return smoothgrad(data.model, image, method, n_samples=n_samples,
+                              sigma=sigma, model_type=data.model_type, **kw)
+        return attribute(data.model, image, method,
+                         model_type=data.model_type, **kw)
+
+    def _fit(params: Dict[str, Any]) -> Tuple[float, Dict[str, Any]]:
+        """Score one configuration on every image, reporting every criterion."""
+        from .attribution import (deletion_curve, insertion_curve,
+                                  pointing_game_rate)
+
+        maps = [_attribute(params, img) for img in data.images]
+        deletions: List[float] = []
+        insertions: List[float] = []
+        flat = 0
+        for att, img in zip(maps, data.images):
+            deletions.append(deletion_curve(data.model, img, att,
+                                            n_steps=n_steps,
+                                            baseline=baseline).auc)
+            insertions.append(insertion_curve(data.model, img, att,
+                                              n_steps=n_steps,
+                                              baseline=baseline).auc)
+            flat += int(getattr(att, "is_flat", lambda: False)())
+
+        scores: Dict[str, Any] = {
+            "deletion_auc": statistics.fmean(deletions),
+            "insertion_auc": statistics.fmean(insertions),
+            "n_images": len(maps),
+            "n_flat_maps": flat,
+        }
+        # The image-to-image spread of the ranked criterion is this search's
+        # noise yardstick, the way fold-to-fold spread is the classifiers'. A
+        # configuration that wins by less than the variation between images has
+        # not won.
+        per_image = {"deletion_auc": deletions,
+                     "insertion_auc": insertions}.get(criterion, [])
+        scores["fold_std"] = (statistics.pstdev(per_image)
+                              if len(per_image) > 1 else 0.0)
+        scores["deletion_std"] = (statistics.pstdev(deletions)
+                                  if len(deletions) > 1 else 0.0)
+        scores["insertion_std"] = (statistics.pstdev(insertions)
+                                   if len(insertions) > 1 else 0.0)
+
+        if data.masks:
+            pg = pointing_game_rate([m.map for m in maps], data.masks)
+            scores["pointing_game"] = float(pg["rate"])
+            scores["pointing_hits"] = pg["hits"]
+            scores["pointing_scored"] = pg["n"]
+
+        if run_sanity_check:
+            from .attribution import randomization_sanity_check
+            method, kw, _n, _s = _activation_params(params)
+            check = randomization_sanity_check(
+                data.model, data.images[0], method,
+                model_type=data.model_type, threshold=sanity_threshold,
+                **{k: v for k, v in kw.items()
+                   if k in ("layer", "n_steps", "baseline", "window",
+                            "stride")})
+            scores["sanity_gap"] = check.gap
+            scores["sanity_similarity"] = check.final_similarity
+            scores["sanity_passed"] = check.passed
+            scores["sanity_verdict"] = check.verdict()
+
+        if criterion not in scores:
+            raise ValueError(
+                f"criterion {criterion!r} could not be computed for this "
+                f"trial: "
+                + ("no object masks were available, so the pointing game has "
+                   "no answer key. Rank by deletion_auc or insertion_auc, or "
+                   "point 'src' at an experiment whose merged/*.npy files "
+                   "carry the mask planes."
+                   if criterion == "pointing_game" else
+                   "the randomisation sanity check was disabled for this "
+                   "sweep."))
+        if keep_maps and maps:
+            scores["attribution"] = maps[0]
+        scores["criterion"] = criterion
+        return float(scores[criterion]), scores
+
+    return _fit
+
+
+def activation_search(data: ActivationSearchData,
+                      space: SearchSpace,
+                      *,
+                      criterion: str = "deletion_auc",
+                      mode: str = "grid",
+                      n_trials: int = 12,
+                      seed: int = 0,
+                      n_steps: int = 12,
+                      baseline: str = "blur",
+                      run_sanity_check: bool = True,
+                      attribute_fn: Optional[Callable[..., Any]] = None,
+                      on_trial: Optional[Callable[[Trial, int, int], None]] = None,
+                      should_stop: Optional[Callable[[], bool]] = None,
+                      ) -> SearchResult:
+    """Sweep attribution settings, scoring each with the faithfulness checks.
+
+    The honest deliverable is the panel of maps plus the four scores per trial,
+    not the top row. There is no ground truth for attribution, so this refuses
+    to name a single "best": :data:`ACTIVATION_NO_GROUND_TRUTH` leads the notes,
+    every criterion is computed for every trial, and the usual within-noise flag
+    fires when the leaders are indistinguishable.
+
+    :param data: model + images (+ optional masks) to score on.
+    :param space: attribution parameters to sweep (``cam_type``,
+        ``target_layer``, ``smoothgrad_samples``, ``smoothgrad_sigma``,
+        ``occlusion_window``, ``occlusion_stride``, ``ig_steps``,
+        ``ig_baseline``).
+    :param criterion: which criterion ranks the trials.
+    :param mode: ``'grid'`` or ``'random'``.
+    :param n_trials: configurations to evaluate when ``mode='random'``.
+    :param seed: seed for random sampling.
+    :param n_steps: steps in the deletion / insertion curves.
+    :param baseline: removal baseline for those curves.
+    :param run_sanity_check: run the randomisation check per trial.
+    :param attribute_fn: override for the attribution call, used by tests.
+    :param on_trial: progress callback ``(trial, completed, total)``.
+    :param should_stop: polled before each trial.
+    :returns: the :class:`SearchResult`.
+    :raises ValueError: for an unknown criterion or mode.
+    """
+    if mode not in ("grid", "random"):
+        raise ValueError(f"mode must be 'grid' or 'random', got {mode!r}.")
+    fit = activation_fit_fn(data, criterion=criterion, n_steps=n_steps,
+                            baseline=baseline,
+                            run_sanity_check=run_sanity_check,
+                            attribute_fn=attribute_fn)
+    higher = criterion not in LOWER_IS_BETTER
+    notes = list(data.notes) + [
+        ACTIVATION_NO_GROUND_TRUTH,
+        f"Criterion '{criterion}': {ACTIVATION_CRITERIA[criterion]}",
+        f"Scored on {len(data.images)} image(s) with {n_steps}-step deletion "
+        f"and insertion curves against a {baseline!r} baseline. "
+        + ("Object masks were available, so the pointing game was scored too."
+           if data.masks else
+           "No object masks were available, so the pointing game could not be "
+           "scored for any trial."),
+        "Every criterion was computed for every trial, so you can re-rank the "
+        "table by a different one and see whether the winner survives — it "
+        "often does not, and that is the result.",
+    ]
+    if not run_sanity_check:
+        notes.append(
+            "The model-randomisation sanity check was skipped for this sweep. "
+            "Without it, a method that returns the same map for a randomised "
+            "model ranks exactly like one that does not.")
+    if mode == "grid":
+        return grid_search(fit, space, metric=criterion,
+                           higher_is_better=higher, on_trial=on_trial,
+                           should_stop=should_stop, notes=notes)
+    return random_search(fit, space, n_trials, seed, metric=criterion,
+                         higher_is_better=higher, on_trial=on_trial,
+                         should_stop=should_stop, notes=notes)
+
+
+def load_activation_data(settings: Mapping[str, Any],
+                         *, n_images: int = 8) -> ActivationSearchData:
+    """Load the model and a handful of images an Activation sweep scores on.
+
+    Two sources, in order of preference:
+
+    * ``src``/``merged/*.npy`` — spaCR's own merged arrays, which carry the
+      image channels *and* the object label planes in one file. Preferred
+      because the object mask comes free and exactly aligned, which is what
+      makes the pointing game possible at all.
+    * ``dataset`` — the crop tar the Activation run itself reads. Aligned masks
+      do not exist for these crops, so the pointing game is unavailable and the
+      returned notes say so rather than silently dropping the criterion.
+
+    A sweep runs every configuration over every image, so ``n_images`` is small
+    on purpose: the cost is ``configurations × images × (2 curves + 1 sanity
+    cascade)`` forward passes.
+
+    :param settings: the Activation app's settings dict.
+    :param n_images: how many images to score on.
+    :returns: the :class:`ActivationSearchData`.
+    :raises ValueError: when neither source is usable.
+    """
+    import glob
+    import os
+
+    import numpy as np
+    import torch
+
+    model_path = settings.get("model_path")
+    if not model_path or not os.path.isfile(str(model_path)):
+        raise ValueError(
+            f"No trained model to explain: model_path={model_path!r} is not a "
+            f"file. Point it at a model saved by Classify before searching "
+            f"attribution settings.")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = torch.load(str(model_path), map_location=device,
+                       weights_only=False)
+    model.to(device)
+    model.eval()
+
+    image_size = int(settings.get("image_size", 224) or 224)
+    channels = list(settings.get("channels") or [1, 2, 3])
+    notes: List[str] = []
+
+    src = settings.get("src") or ""
+    merged = os.path.join(str(src), "merged") if src else ""
+    npys = sorted(glob.glob(os.path.join(merged, "*.npy"))) if merged else []
+    if npys:
+        mask_dims = settings.get("mask_dims") or {"cell": 4, "nucleus": 5,
+                                                  "pathogen": 6, "organelle": 7}
+        object_type = str(settings.get("object_type", "cell"))
+        mask_dim = int(mask_dims.get(object_type, 4))
+        images, masks, names = [], [], []
+        for path in npys[:int(n_images)]:
+            arr = np.load(path)
+            if arr.ndim != 3 or arr.shape[-1] <= mask_dim:
+                continue
+            img = np.stack([arr[..., c] for c in channels
+                            if c < arr.shape[-1]], axis=0).astype(np.float32)
+            span = float(img.max() - img.min())
+            img = (img - float(img.min())) / (span if span > 0 else 1.0)
+            tensor = torch.from_numpy(img)[None]
+            mask = torch.from_numpy(
+                (arr[..., mask_dim] != 0).astype(np.float32))[None, None]
+            tensor = torch.nn.functional.interpolate(
+                tensor, size=(image_size, image_size), mode="bilinear",
+                align_corners=False)[0]
+            mask = torch.nn.functional.interpolate(
+                mask, size=(image_size, image_size), mode="nearest")[0, 0]
+            if not bool(mask.any()):
+                continue
+            images.append(tensor.to(device))
+            masks.append(mask.cpu().numpy() != 0)
+            names.append(os.path.basename(path))
+        if images:
+            notes.append(
+                f"Scored on {len(images)} merged array(s) from {merged}, "
+                f"channels {channels}, with the '{object_type}' label plane "
+                f"(index {mask_dim}) as the pointing-game answer key. The mask "
+                f"is the union of every {object_type} in the field, so the "
+                f"pointing game asks whether the peak landed on any object "
+                f"rather than on background — not which object.")
+            return ActivationSearchData(
+                model=model, images=images, masks=masks, filenames=names,
+                model_type=settings.get("model_type"), notes=notes)
+        notes.append(
+            f"{len(npys)} merged arrays were found in {merged} but none had a "
+            f"usable image + mask pair, so the crop tar was used instead.")
+
+    dataset = settings.get("dataset")
+    if not dataset or not os.path.isfile(str(dataset)):
+        raise ValueError(
+            f"Nothing to attribute: no merged/*.npy under src={src!r} and "
+            f"dataset={dataset!r} is not a file. The search needs either "
+            f"spaCR's merged arrays (which also give the object masks) or the "
+            f"crop tar the Activation run reads.")
+
+    from torchvision import transforms
+
+    from .io import TarImageDataset
+    from .utils import SelectChannels
+
+    steps = [transforms.ToTensor(),
+             transforms.CenterCrop(size=(image_size, image_size))]
+    if settings.get("normalize_input", True):
+        steps.append(transforms.Normalize(mean=(0.5, 0.5, 0.5),
+                                          std=(0.5, 0.5, 0.5)))
+    steps.append(SelectChannels(channels))
+    ds = TarImageDataset(str(dataset), transform=transforms.Compose(steps))
+    images, names = [], []
+    for i in range(min(int(n_images), len(ds))):
+        img, name = ds[i]
+        images.append(img.to(device))
+        names.append(str(name))
+    if not images:
+        raise ValueError(
+            f"The crop tar {dataset!r} yielded no images, so there is nothing "
+            f"to attribute.")
+    notes.append(
+        f"Scored on {len(images)} crop(s) from {dataset}. These crops have no "
+        f"aligned object mask, so the pointing game cannot be scored — point "
+        f"'src' at the experiment folder whose merged/*.npy files carry the "
+        f"label planes to enable it.")
+    return ActivationSearchData(model=model, images=images, masks=None,
+                                filenames=names,
+                                model_type=settings.get("model_type"),
+                                notes=notes)
+
+
+# ---------------------------------------------------------------------------
 # Grouped cross-validated search — Classify (CV) and Classify (ML)
 # ---------------------------------------------------------------------------
 
@@ -1139,6 +1592,9 @@ def format_search(result: SearchResult, max_rows: int = 20) -> str:
 
     if result.metric in UMAP_CRITERIA:
         lines.append(f"'{result.metric}' {UMAP_CRITERIA[result.metric]}")
+        lines.append("")
+    elif result.metric in ACTIVATION_CRITERIA:
+        lines.append(f"'{result.metric}' {ACTIVATION_CRITERIA[result.metric]}")
         lines.append("")
 
     for note in result.notes:
@@ -1578,6 +2034,9 @@ def run_search_for_app(app_key: str,
       hyperparameters (see :func:`cv_search`).
     * ``classify`` — one cross-validated deep-training run per configuration
       (see :func:`classify_cv_fit_fn`).
+    * ``activation`` — one attribution per image per configuration, scored by
+      deletion AUC, insertion AUC, the pointing game and the randomisation
+      sanity check (see :func:`activation_search`).
 
     :param app_key: which app is asking.
     :param settings: that app's settings dict.
@@ -1590,7 +2049,9 @@ def run_search_for_app(app_key: str,
     :param n_folds: cross-validation folds for the supervised apps.
     :param on_trial: progress callback ``(trial, completed, total)``.
     :param should_stop: polled before each trial.
-    :param data: pre-loaded :class:`SearchData`, skipping the database read.
+    :param data: pre-loaded :class:`SearchData` (or
+        :class:`ActivationSearchData` for ``'activation'``), skipping the
+        database / model read.
     :returns: the :class:`SearchResult`.
     :raises ValueError: for an unknown ``app_key`` or ``mode``.
     """
@@ -1607,6 +2068,19 @@ def run_search_for_app(app_key: str,
             f"Criterion {criterion!r} is not available for {app_key!r}; "
             f"choose one of {APP_CRITERIA[app_key]}.")
     higher = criterion not in LOWER_IS_BETTER
+
+    if app_key == "activation":
+        act_data = data if isinstance(data, ActivationSearchData) else None
+        if act_data is None:
+            act_data = load_activation_data(settings)
+        return activation_search(
+            act_data, space, criterion=criterion, mode=mode,
+            n_trials=n_trials, seed=seed,
+            n_steps=int(settings.get("attribution_steps", 12) or 12),
+            baseline=str(settings.get("attribution_baseline", "blur")
+                         or "blur"),
+            run_sanity_check=bool(settings.get("sanity_check", True)),
+            on_trial=on_trial, should_stop=should_stop)
 
     if app_key == "classify":
         fit = classify_cv_fit_fn(settings, criterion=criterion,
