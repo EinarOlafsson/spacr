@@ -284,11 +284,6 @@ def test_split_channels_is_inert_for_2d_input(tmp_path, monkeypatch):
     assert sorted(p.name for p in d.iterdir()) == [os.path.basename(src)]
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: load_image returns PIL's `image.mode` string instead of a numpy "
-    "dtype for PNG/JPEG, so split_channels does image.astype('RGB') -> "
-    "TypeError, swallowed by the except; multi-channel PNGs are silently "
-    "dropped instead of split"))
 def test_rgb_png_is_split_into_channels(tmp_path):
     """An RGB PNG should be split into one grayscale TIFF per channel."""
     from PIL import Image
@@ -306,11 +301,6 @@ def test_rgb_png_is_split_into_channels(tmp_path):
         "rgb_C1.tif", "rgb_C2.tif", "rgb_C3.tif"]
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: for PNG/JPEG, load_image returns image.mode ('L') as the dtype, so "
-    "convert_grayscale_to_tiff does astype('L') -> uint64; an 8-bit PNG is "
-    "written as a 64-bit TIFF, contradicting the 'bit depth is preserved' "
-    "contract"))
 def test_grayscale_png_conversion_preserves_bit_depth(tmp_path):
     """An 8-bit grayscale PNG should convert to an 8-bit TIFF."""
     from PIL import Image

@@ -305,10 +305,6 @@ def test_uncoercible_channel_values_are_dropped(tmp_path, monkeypatch):
     assert "cellpose_cell_channel" not in out_settings
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: preprocess_img_data coerces channel indices to int when building "
-    "mask_channels but looks them up un-coerced in `seen`, so string channel "
-    "indices ('0') silently produce no cellpose_* remap"))
 def test_string_channel_indices_are_remapped(tmp_path, monkeypatch):
     from spacr.io import preprocess_img_data
 
@@ -480,11 +476,6 @@ def test_all_to_mip_appends_projection_and_replots(tmp_path, capsys, monkeypatch
     assert "plotting 1 images" in capsys.readouterr().out
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: preprocess_img_data computes `all_imgs = len(stack_path)` — the "
-    "LENGTH OF THE PATH STRING — instead of the number of stacked images, so "
-    "the batch-size sanity check fires (and aborts the stack step) purely "
-    "because of how long the source path happens to be"))
 def test_batch_size_check_uses_image_count_not_path_length(tmp_path, capsys, monkeypatch):
     from spacr.io import preprocess_img_data
 
@@ -508,6 +499,52 @@ def test_batch_size_check_uses_image_count_not_path_length(tmp_path, capsys, mon
     assert recs["plot"].n == 1, "the plotting step was skipped by a bogus error"
 
 
+def test_trailing_batch_of_one_is_reported_not_fatal(tmp_path, capsys, monkeypatch):
+    """11 images at batch_size 5 -> 2 full batches + a trailing batch of 1.
+
+    The condition is reported, but the steps that follow it (channel fix-up,
+    plotting, MIP) still run: the stack is already on disk by then, so aborting
+    could not fix the batching, only silently truncate the run.
+    """
+    from spacr.io import preprocess_img_data
+
+    src = tmp_path / "plate1"
+    src.mkdir()
+    _write_tif(src / "plate1_A01_T0001F001L01A01Z01C01.tif", _tiny_img())
+
+    rename, _ = _fake_rename(n_files=11, n_channels=2)
+    recs = _patch_common(monkeypatch, rename=rename)
+    preprocess_img_data(_settings(src, batch_size=5, plot=True))
+
+    out = capsys.readouterr().out
+    assert "all images: 11,  full batch: 2, last batch: 1" in out
+    assert "Last batch of size 1 detected" in out
+    assert recs["plot"].n == 1
+    assert recs["concat"].n == 1
+
+
+def test_single_image_batch_of_one_is_reported_not_fatal(tmp_path, capsys, monkeypatch):
+    """1 image at batch_size 5 -> the ``full_batches == 0`` arm.
+
+    Unreachable while the check measured ``len(stack_path)`` (a path string that
+    always ends in 'stack', so its length is never 1).
+    """
+    from spacr.io import preprocess_img_data
+
+    src = tmp_path / "plate1"
+    src.mkdir()
+    _write_tif(src / "plate1_A01_T0001F001L01A01Z01C01.tif", _tiny_img())
+
+    rename, _ = _fake_rename(n_files=1, n_channels=2)
+    recs = _patch_common(monkeypatch, rename=rename)
+    preprocess_img_data(_settings(src, batch_size=5, plot=True))
+
+    out = capsys.readouterr().out
+    assert "Only one batch of size 1 detected" in out
+    assert recs["plot"].n == 1
+    assert recs["concat"].n == 1
+
+
 # ---------------------------------------------------------------------------
 # real end-to-end run (no stubs)
 # ---------------------------------------------------------------------------
@@ -520,7 +557,7 @@ def test_end_to_end_real_run(yokogawa_cellvoyager_dir):
     settings = _settings(
         src,
         plot=False,
-        batch_size=1,                 # keeps len(stack_path) % batch_size == 0
+        batch_size=1,
         randomize=False,
         lower_percentile=2,
         nucleus_channel=0, cell_channel=1,

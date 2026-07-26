@@ -14,8 +14,6 @@ The focus is the branches the rest of the suite never reaches:
   the ND2 / CZI / LIF vendor branches (driven through stub readers)
 * ``prepare_cellpose_dataset`` augmentation maths
 
-Two product bugs are pinned with ``xfail(strict=True)`` tests asserting the
-*correct* behaviour — see ``suspected_bugs`` in the run report.
 """
 from __future__ import annotations
 
@@ -332,10 +330,6 @@ def test_read_and_merge_cell_plus_png_list(tmp_path, capsys):
     assert "png_list grouped" in capsys.readouterr().out
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="BUG: for a child-table-only merge the metadata index "
-                          "is rebuilt from object_label while the data is keyed "
-                          "on cell_id, so the final merge drops every row")
 def test_read_and_merge_nucleus_only_keeps_rows_when_labels_differ(tmp_path):
     """A nucleus-only merge must return one row per parent cell even when the
     nucleus labels do not happen to equal the cell labels."""
@@ -346,9 +340,6 @@ def test_read_and_merge_nucleus_only_keeps_rows_when_labels_differ(tmp_path):
     assert len(merged) == 6
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="BUG: _read_and_merge_data change_plate=True indexes "
-                          "the list returned by _read_db with a string key")
 def test_read_and_merge_change_plate_renames_plate(tmp_path):
     """change_plate=True should relabel each location as plate<idx>."""
     db = _write_db(tmp_path / "m.db", {"cell": _entity_frame("cell")})
@@ -994,10 +985,6 @@ class _StubND2:
         return np.full((4, 4), z + 1, np.uint16)
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="BUG: convert_to_yokogawa evaluates np.max.reduce "
-                          "before reading any frame, so the per-frame IndexError "
-                          "handler for truncated ND2 files is dead code")
 def test_convert_to_yokogawa_nd2_incomplete_frames(tmp_path, monkeypatch, capsys):
     """A frame the ND2 doesn't contain should be reported and skipped."""
     folder = tmp_path / "raw"
@@ -1025,9 +1012,6 @@ def test_convert_to_yokogawa_nd2_reader_failure(tmp_path, monkeypatch, capsys):
     assert "Error processing ND2 file movie.nd2" in capsys.readouterr().out
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="BUG: convert_to_yokogawa uses np.max.reduce (np.max "
-                          "is not a ufunc) so every ND2 MIP raises AttributeError")
 def test_convert_to_yokogawa_nd2_writes_mip(tmp_path, monkeypatch):
     """A readable ND2 should be max-projected over Z and written out."""
     folder = tmp_path / "raw"

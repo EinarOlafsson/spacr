@@ -86,10 +86,6 @@ def test_load_images_from_paths_skips_unreadable_paths(tmp_path, capsys):
     assert "corrupt.tif" in err and "not_there.tif" in err
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: load_images_from_paths tolerates an unreadable image (returns an "
-    "empty list for that key) but _rename_and_organize_image_files then calls "
-    "np.stack([]) on it and dies with ValueError, aborting the whole ingest"))
 def test_rename_survives_one_corrupt_raw_image(tmp_path):
     """A single corrupt TIFF must not abort ingest of the other FOVs."""
     from spacr.io import _rename_and_organize_image_files

@@ -657,7 +657,7 @@ def spacr_pipeline_run(tmp_path_factory, hf_toxo_mito_multi_fields):
     settings.update({
         "src": str(work),
         "metadata_type": "cellvoyager",
-        "batch_size": 100,          # avoids the mod-1 bug in preprocess_img_data
+        "batch_size": 100,
         # channels are 0-indexed into the merged stack.
         "channels": [0, 1, 2, 3],
         # toxo_mito: C01=nucleus, C02=cell, C03=pathogen (0-indexed).
