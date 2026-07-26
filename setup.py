@@ -106,7 +106,7 @@ dependencies = [
     #'stardist>=0.9,<1.0'
 ]
 
-VERSION = "1.4.9.3"
+VERSION = "1.4.9.4"
 # The distribution is `spacr` (not `spacr-nightly`) so that
 # `pip install -e .` from a working copy replaces any prior PyPI
 # `spacr` install instead of coexisting with it — the coexistence
