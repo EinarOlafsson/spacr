@@ -2402,6 +2402,10 @@ categories = {
     # which channels hold the two stains -> how the outside signal is measured
     # -> how its threshold is chosen -> what makes that threshold trustworthy
     # -> which objects count at all -> how wells are grouped and reported.
+    "Replication Assay": [
+        "class_column", "group_by_class", "um_per_px",
+        "min_area_bin", "max_area", "max_bins",
+    ],
     "Invasion Assay": [
         "parasite_table", "compartment", "outside_channel", "total_channel",
         "intensity_statistic", "background_correction",

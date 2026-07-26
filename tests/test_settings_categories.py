@@ -163,6 +163,12 @@ KEYS_BEFORE_REGROUP = frozenset({
 #: module but had no category, so they rendered ungrouped. Extending this set
 #: is fine; it exists so that "the union grew" is always a deliberate act.
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # Replication Assay: the six keys set_analyze_endodyogeny_defaults returns
+    # that no category listed, so they landed in "Other" until the assay got a
+    # category of its own. The backend has existed since #21; only the app
+    # entry and this category were missing.
+    "class_column", "group_by_class", "um_per_px",
+    "min_area_bin", "max_area", "max_bins",
     "batch_fields", "fill_na", "keep_npz", "pipeline_style", "plateID",
     "save_original_images",
     # Landed alongside the regroup: the fail-loud policy (spacr.errors) and
