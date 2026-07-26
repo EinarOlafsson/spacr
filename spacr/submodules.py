@@ -1,5 +1,5 @@
 import seaborn as sns
-import os, random, sqlite3, re, shap, string, time, shutil
+import os, random, sqlite3, re, shap, string, time, shutil, itertools
 import pandas as pd
 import numpy as np
 
@@ -1739,16 +1739,43 @@ def interperate_vision_model(settings=None):
 
 
 def analyze_endodyogeny(settings):
-    """Bin pathogen volumes by log2 doublings and test group proportions.
+    """Bin pathogen *size* by log2 doublings and test the bin proportions per group.
 
-    Converts a compartment area to a volume, groups objects into doubling
-    volume bins, then runs the shared chi-squared proportion plot per group.
+    This is the **size-proxy** replication readout, not a parasite count.
+    Read that sentence twice before quoting a number from it:
+
+    * The rows come from :func:`spacr.io._read_and_merge_data`, which collapses
+      the per-object ``pathogen`` table onto the **host cell** (``prcfo`` is
+      built from ``cell_id``). ``pathogen_area`` on each row is therefore the
+      *sum* of the areas of every pathogen object inside that host cell — one
+      host cell carrying two parasitophorous vacuoles contributes a single row
+      holding the combined area of both.
+    * ``area ** 1.5`` is a 2-D-to-3-D size proxy, not a measured volume.
+    * Nothing here counts parasites. A bin is a doubling of *area-derived
+      size*, which tracks parasites-per-vacuole only while the pathogen mask
+      segments whole vacuoles and each host cell holds exactly one.
+
+    Keep using it when the pathogen channel gives you fused rosettes that
+    cannot be resolved into single parasites. When the individual parasites
+    *are* resolvable, :func:`analyze_replication` counts them and reports the
+    parasites-per-vacuole distribution directly, which is the readout an
+    endodyogeny experiment is actually after.
 
     :param settings: dict of endodyogeny settings; see
         ``set_analyze_endodyogeny_defaults`` for keys including ``src``,
         ``tables``, ``compartment``, ``min_area_bin``, ``max_area``,
         ``max_bins``, ``um_per_px``, ``group_column``, ``level`` and ``save``.
     :returns: dict with ``data`` (binned DataFrame) and ``chi_squared`` (results DataFrame).
+
+    Example:
+        .. code-block:: python
+
+            from spacr.submodules import analyze_endodyogeny
+            out = analyze_endodyogeny({'src': '/data/plate1', 'save': True})
+
+    See Also:
+        :func:`analyze_replication` — counts parasites per vacuole instead of
+        inferring replication from object size.
     """
     from .utils import annotate_conditions, save_settings
     from .io import _read_and_merge_data
@@ -1847,15 +1874,19 @@ def analyze_endodyogeny(settings):
         change_plate=settings['change_plate']
     )
 
-    if settings['um_per_px'] is not None:
-        df[f"{settings['compartment']}_area"] = (
-            df[f"{settings['compartment']}_area"] * (settings['um_per_px'] ** 2)
-        )
-        settings['min_area_bin'] = settings['min_area_bin'] * (settings['um_per_px'] ** 2)
+    area_column = f"{settings['compartment']}_area"
+    # Local, not settings['min_area_bin']: the um scaling below is an internal
+    # unit change, and writing it back would mutate the caller's dict (and make
+    # a second call with the same dict scale the threshold twice).
+    min_area_bin = settings['min_area_bin']
 
-    df = df[df[f"{settings['compartment']}_area"] >= settings['min_area_bin']].copy()
-    
-    df = df[df[f"{settings['compartment']}_area"] <= settings['max_area']].copy()
+    if settings['um_per_px'] is not None:
+        df[area_column] = df[area_column] * (settings['um_per_px'] ** 2)
+        min_area_bin = min_area_bin * (settings['um_per_px'] ** 2)
+
+    df = df[df[area_column] >= min_area_bin].copy()
+
+    df = df[df[area_column] <= settings['max_area']].copy()
 
     df = annotate_conditions(
         df=df,
@@ -1888,7 +1919,7 @@ def analyze_endodyogeny(settings):
     df, ordered_bin_labels = _calculate_volume_bins(
         df,
         settings['compartment'],
-        settings['min_area_bin'],
+        min_area_bin,
         settings['max_bins'],
         settings['verbose']
     )
@@ -1936,6 +1967,956 @@ def analyze_endodyogeny(settings):
         print(f"Chi-squared results saved to {output_dir}")
 
     plt.show()
+
+    return output
+
+
+# ===========================================================================
+# Replication assay (Toxoplasma endodyogeny) — parasites per vacuole
+# ===========================================================================
+
+def _set_analyze_replication_defaults(settings):
+    """Fallback defaults for :func:`analyze_replication`.
+
+    The canonical copy of every pipeline's defaults lives in
+    :mod:`spacr.settings`; this one is used only while
+    ``spacr.settings.set_analyze_replication_defaults`` does not exist yet, so
+    the assay is runnable from the API before the GUI knobs are registered.
+    Once :mod:`spacr.settings` defines it, that version wins.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
+    settings.setdefault('src', 'path')
+    settings.setdefault('parasite_table', 'pathogen')
+    settings.setdefault('compartment', 'pathogen')
+    settings.setdefault('vacuole_key', 'auto')
+    settings.setdefault('vacuole_link_distance', None)
+    settings.setdefault('vacuole_link_factor', 1.5)
+    settings.setdefault('parasite_count_column', None)
+    settings.setdefault('min_parasite_area', 0)
+    settings.setdefault('max_parasite_area', None)
+    settings.setdefault('max_parasites_per_vacuole', 16)
+    settings.setdefault('require_host_cell', True)
+    settings.setdefault('seed_wells_from_cells', True)
+    settings.setdefault('non_power_of_two_warn', 0.2)
+    settings.setdefault('cell_types', ['Hela'])
+    settings.setdefault('cell_plate_metadata', None)
+    settings.setdefault('pathogen_types', ['nc', 'pc'])
+    settings.setdefault('pathogen_plate_metadata', [['c1'], ['c2']])
+    settings.setdefault('treatments', None)
+    settings.setdefault('treatment_plate_metadata', None)
+    settings.setdefault('group_column', 'condition')
+    settings.setdefault('level', 'object')
+    settings.setdefault('change_plate', False)
+    settings.setdefault('cmap', 'viridis')
+    settings.setdefault('save', True)
+    settings.setdefault('verbose', False)
+    return settings
+
+
+def _replication_bucket_order(max_power=16):
+    """Return the ordered parasites-per-vacuole bucket labels.
+
+    Powers of two from 1 up to ``max_power``, then a ``'>max_power'`` bucket
+    for larger powers of two, then ``'non_power_of_two'`` last. The first
+    entries are the biological ladder (1 -> 2 -> 4 -> 8 -> 16 doublings);
+    ``non_power_of_two`` sits last because it is *off* that ordinal scale, not
+    at the top of it.
+
+    :param max_power: Largest explicitly named power of two. Default 16.
+    :returns: list of bucket labels in order.
+    """
+    labels = []
+    p = 1
+    while p <= max_power:
+        labels.append(str(p))
+        p *= 2
+    labels.append(f'>{max_power}')
+    labels.append('non_power_of_two')
+    return labels
+
+
+def _replication_bucket(n, max_power=16):
+    """Map a parasite count onto its parasites-per-vacuole bucket label.
+
+    *Toxoplasma gondii* divides by endodyogeny — two daughters inside one
+    mother — so a vacuole holds 1, 2, 4, 8, 16 ... parasites. Anything else
+    (3, 5, 6, 7, ...) is a segmentation error, an asynchronous vacuole, or two
+    vacuoles fused by the mask, and it is reported in its own bucket rather
+    than rounded into a neighbour.
+
+    :param n: Parasite count for one vacuole.
+    :param max_power: Largest explicitly named power of two. Default 16.
+    :returns: bucket label string.
+    """
+    n = int(n)
+    if n < 1 or (n & (n - 1)) != 0:
+        return 'non_power_of_two'
+    if n > max_power:
+        return f'>{max_power}'
+    return str(n)
+
+
+def _find_centroid_columns(df, compartment='pathogen'):
+    """Locate a pair of centroid columns for ``compartment`` in a raw object table.
+
+    Tries, in order, the plain morphology centroid, an unqualified weighted
+    centroid, and finally the per-channel weighted centroid written by
+    :func:`spacr.measure._intensity_measurements` (lowest channel index wins,
+    so the choice is deterministic).
+
+    :param df: Raw per-object DataFrame.
+    :param compartment: Object prefix, e.g. ``'pathogen'``. Default ``'pathogen'``.
+    :returns: ``(y_column, x_column)`` or ``None`` when no pair is present.
+    """
+    for base in (f'{compartment}_centroid', f'{compartment}_centroid_weighted'):
+        if f'{base}-0' in df.columns and f'{base}-1' in df.columns:
+            return f'{base}-0', f'{base}-1'
+
+    pattern = re.compile(
+        rf'^{re.escape(compartment)}_channel_(\d+)_centroid_weighted-0$'
+    )
+    channels = []
+    for column in df.columns:
+        match = pattern.match(str(column))
+        if match and str(column).replace('-0', '-1') in df.columns:
+            channels.append(int(match.group(1)))
+    if channels:
+        channel = min(channels)
+        base = f'{compartment}_channel_{channel}_centroid_weighted'
+        return f'{base}-0', f'{base}-1'
+    return None
+
+
+def _derive_vacuole_link_distance(df, compartment='pathogen', link_factor=1.5):
+    """Return the centroid distance below which two parasites share a vacuole.
+
+    Derived from the parasites themselves rather than hard-coded: parasites in
+    one rosette sit roughly one parasite-diameter apart, separate vacuoles in
+    the same host cell are several diameters apart. Uses the median
+    ``equivalent_diameter_area`` when present, otherwise the diameter of a disc
+    with the median object area.
+
+    :param df: Raw per-parasite DataFrame.
+    :param compartment: Object prefix. Default ``'pathogen'``.
+    :param link_factor: Multiplier applied to the median diameter. Default 1.5.
+    :returns: float distance in the units of the centroid columns (pixels).
+    :raises ValueError: when neither a diameter nor an area column is present.
+    """
+    diameter_column = f'{compartment}_equivalent_diameter_area'
+    area_column = f'{compartment}_area'
+
+    if diameter_column in df.columns and df[diameter_column].notna().any():
+        diameter = float(np.nanmedian(df[diameter_column].to_numpy(dtype=float)))
+    elif area_column in df.columns and df[area_column].notna().any():
+        median_area = float(np.nanmedian(df[area_column].to_numpy(dtype=float)))
+        diameter = 2.0 * np.sqrt(median_area / np.pi)
+    else:
+        raise ValueError(
+            f"Cannot derive a vacuole link distance: neither "
+            f"'{diameter_column}' nor '{area_column}' is in the table. Set "
+            f"'vacuole_link_distance' explicitly."
+        )
+    return float(diameter) * float(link_factor)
+
+
+def _assign_vacuole_ids(df, compartment='pathogen', vacuole_key='auto',
+                        link_distance=None, link_factor=1.5, verbose=False):
+    """Attach a ``vacuole_id`` to every parasite row and report how it was derived.
+
+    The counting unit of a replication assay is the parasitophorous vacuole.
+    It is *not* the host cell — one host cell routinely carries several
+    vacuoles, and grouping on ``cell_id`` silently reports their combined
+    parasite count as a single, plausible-looking, wrong number.
+
+    Resolution order for ``vacuole_key='auto'``:
+
+    1. an explicit ``vacuole_id`` / ``<compartment>_vacuole_id`` column, if the
+       segmentation produced one;
+    2. ``'spatial'`` — single-linkage clustering of parasite centroids inside
+       each (field, host cell), which separates two rosettes sharing a host;
+    3. ``'cell_id'`` — one vacuole per infected host cell. Approximate, and
+       announced as such.
+    4. ``'object'`` — one vacuole per pathogen object, used only when there is
+       no host-cell column and no centroids to cluster on.
+
+    :param df: Raw per-parasite DataFrame; needs ``prcf`` and usually ``cell_id``.
+    :param compartment: Object prefix. Default ``'pathogen'``.
+    :param vacuole_key: ``'auto'``, ``'spatial'``, ``'cell_id'``, ``'object'``
+        or the name of a column holding a vacuole identifier.
+    :param link_distance: Centroid distance threshold for ``'spatial'``;
+        ``None`` derives it from the parasite sizes.
+    :param link_factor: Multiplier used by that derivation. Default 1.5.
+    :param verbose: Print the resolved key and threshold.
+    :returns: ``(df, resolved_key, link_distance_used)``.
+    :raises KeyError: when an explicitly named key is not a column.
+    """
+    from scipy.cluster.hierarchy import fcluster, linkage
+
+    df = df.copy()
+    has_cell = 'cell_id' in df.columns
+    centroid_columns = _find_centroid_columns(df, compartment)
+
+    explicit_columns = [
+        column for column in ('vacuole_id', f'{compartment}_vacuole_id')
+        if column in df.columns
+    ]
+
+    if vacuole_key == 'auto':
+        if explicit_columns:
+            vacuole_key = explicit_columns[0]
+        elif centroid_columns is not None and has_cell:
+            vacuole_key = 'spatial'
+        elif has_cell:
+            vacuole_key = 'cell_id'
+        else:
+            vacuole_key = 'object'
+
+    if vacuole_key not in ('spatial', 'cell_id', 'object') and vacuole_key not in df.columns:
+        raise KeyError(
+            f"vacuole_key '{vacuole_key}' is not a column of the parasite "
+            f"table. Available columns: {', '.join(map(str, df.columns))}"
+        )
+
+    if vacuole_key == 'object':
+        print(
+            "WARNING: no host-cell column and no centroids — every pathogen "
+            "object is being treated as its own vacuole. Parasites-per-vacuole "
+            "is only meaningful here if the pathogen mask segments whole "
+            "vacuoles and a parasite count column is supplied."
+        )
+        df['vacuole_id'] = (
+            df['prcf'].astype(str) + '_o' + df['object_label'].astype(str)
+        )
+        return df, vacuole_key, None
+
+    if vacuole_key == 'cell_id':
+        print(
+            "WARNING: grouping parasites by host cell. A host cell carrying "
+            "two vacuoles will be reported as ONE vacuole holding their "
+            "combined parasite count. Provide centroids (vacuole_key="
+            "'spatial') or a vacuole column for a per-vacuole readout."
+        )
+        df['vacuole_id'] = (
+            df['prcf'].astype(str) + '_c' + df['cell_id'].astype(str)
+        )
+        return df, vacuole_key, None
+
+    if vacuole_key != 'spatial':
+        df['vacuole_id'] = (
+            df['prcf'].astype(str) + '_v' + df[vacuole_key].astype(str)
+        )
+        return df, vacuole_key, None
+
+    # -- spatial ----------------------------------------------------------
+    if centroid_columns is None:
+        raise KeyError(
+            f"vacuole_key='spatial' needs centroid columns for "
+            f"'{compartment}' and none were found. Measure with "
+            f"intensity features enabled, or set vacuole_key='cell_id'."
+        )
+    if link_distance is None:
+        link_distance = _derive_vacuole_link_distance(df, compartment, link_factor)
+    link_distance = float(link_distance)
+
+    y_column, x_column = centroid_columns
+    scope_columns = ['prcf', 'cell_id'] if has_cell else ['prcf']
+
+    labels = pd.Series(index=df.index, dtype=object)
+    for scope, group in df.groupby(scope_columns, dropna=False, sort=False):
+        scope_tag = '_'.join(str(part) for part in np.atleast_1d(scope))
+        coordinates = group[[y_column, x_column]].to_numpy(dtype=float)
+        finite = np.isfinite(coordinates).all(axis=1)
+
+        clusters = np.zeros(len(group), dtype=int)
+        if finite.sum() >= 2:
+            linked = linkage(coordinates[finite], method='single')
+            clusters[finite] = fcluster(linked, t=link_distance,
+                                        criterion='distance')
+        elif finite.sum() == 1:
+            clusters[finite] = 1
+        # Objects with a non-finite centroid cannot be clustered; each becomes
+        # its own vacuole rather than silently joining cluster 0 together.
+        next_id = clusters.max() + 1 if len(clusters) else 1
+        for position in np.flatnonzero(~finite):
+            clusters[position] = next_id
+            next_id += 1
+
+        labels.loc[group.index] = [
+            f'{scope_tag}_v{cluster}' for cluster in clusters
+        ]
+
+    df['vacuole_id'] = labels
+    if verbose:
+        print(f"vacuole_key='spatial', link distance {link_distance:.2f} px, "
+              f"{df['vacuole_id'].nunique()} vacuoles from {len(df)} parasites")
+    return df, vacuole_key, link_distance
+
+
+def _replication_well_distribution(vacuoles, group_column, buckets,
+                                   non_power_of_two_warn=0.2, wells=None):
+    """Summarize the parasites-per-vacuole distribution for every well.
+
+    One row per (group, well). Reports the bucket fractions, the median, and a
+    mean paired with the fraction of vacuoles that mean was computed from, so a
+    mean taken over a minority of trustworthy vacuoles cannot be quoted without
+    that context.
+
+    :param vacuoles: Per-vacuole DataFrame from :func:`analyze_replication`.
+    :param group_column: Condition column carried onto each well row.
+    :param buckets: Ordered bucket labels from :func:`_replication_bucket_order`.
+    :param non_power_of_two_warn: ``non_power_of_two`` fraction above which the
+        well is flagged. Default 0.2.
+    :param wells: Optional DataFrame of ``(plateID, rowID, columnID, prc,
+        group_column)`` rows to seed the output with, so wells that contain
+        host cells but no vacuoles appear with zeros instead of vanishing.
+    :returns: per-well DataFrame.
+    """
+    bucket_columns = {bucket: _bucket_column_suffix(bucket) for bucket in buckets}
+
+    identity = ['plateID', 'rowID', 'columnID', 'prc', group_column]
+    rows = []
+
+    seeded = {}
+    if wells is not None and len(wells) > 0:
+        for record in wells[identity].drop_duplicates().to_dict('records'):
+            seeded[(record['prc'], record[group_column])] = record
+
+    if len(vacuoles) > 0:
+        for key, group in vacuoles.groupby(['prc', group_column],
+                                           dropna=False, sort=False):
+            record = {column: group[column].iloc[0] for column in identity}
+            seeded[key] = record
+
+    for key, record in seeded.items():
+        prc, group_value = key
+        subset = vacuoles[(vacuoles['prc'] == prc)
+                          & (vacuoles[group_column] == group_value)]
+        n_vacuoles = int(len(subset))
+        row = dict(record)
+        row['n_vacuoles'] = n_vacuoles
+        row['n_parasites'] = int(subset['n_parasites'].sum()) if n_vacuoles else 0
+
+        for bucket in buckets:
+            suffix = bucket_columns[bucket]
+            count = int((subset['replication_bucket'] == bucket).sum()) if n_vacuoles else 0
+            row[f'n_{suffix}'] = count
+            # No vacuoles is a real, reportable state (an uninfected well), not
+            # a divide-by-zero: every fraction is 0.0 and n_vacuoles says why.
+            row[f'frac_{suffix}'] = (count / n_vacuoles) if n_vacuoles else 0.0
+
+        row['non_power_of_two_fraction'] = row['frac_non_power_of_two']
+        row['qc_flag_non_power_of_two'] = bool(
+            row['non_power_of_two_fraction'] > non_power_of_two_warn
+        )
+
+        if n_vacuoles:
+            row['median_parasites_per_vacuole'] = float(
+                np.median(subset['n_parasites'].to_numpy(dtype=float))
+            )
+            on_ladder = subset[subset['is_power_of_two']]
+            row['n_power_of_two'] = int(len(on_ladder))
+            if len(on_ladder):
+                row['median_doublings'] = float(
+                    np.median(on_ladder['doublings'].to_numpy(dtype=float))
+                )
+                row['mean_parasites_per_vacuole'] = float(
+                    on_ladder['n_parasites'].mean()
+                )
+            else:
+                row['median_doublings'] = 0.0
+                row['mean_parasites_per_vacuole'] = 0.0
+            row['mean_fraction_of_vacuoles'] = len(on_ladder) / n_vacuoles
+        else:
+            row['median_parasites_per_vacuole'] = 0.0
+            row['n_power_of_two'] = 0
+            row['median_doublings'] = 0.0
+            row['mean_parasites_per_vacuole'] = 0.0
+            row['mean_fraction_of_vacuoles'] = 0.0
+
+        rows.append(row)
+
+    columns = identity + ['n_vacuoles', 'n_parasites']
+    for bucket in buckets:
+        columns += [f'n_{bucket_columns[bucket]}', f'frac_{bucket_columns[bucket]}']
+    columns += ['non_power_of_two_fraction', 'qc_flag_non_power_of_two',
+                'median_parasites_per_vacuole', 'n_power_of_two',
+                'median_doublings', 'mean_parasites_per_vacuole',
+                'mean_fraction_of_vacuoles']
+
+    return pd.DataFrame(rows, columns=columns)
+
+
+def _bucket_column_suffix(bucket):
+    """Turn a bucket label into a column-name-safe suffix (``'>16'`` -> ``'gt16'``)."""
+    return str(bucket).replace('>', 'gt')
+
+
+def _replication_summary(vacuoles, group_column, buckets,
+                         non_power_of_two_warn=0.2):
+    """Collapse the per-vacuole table to one row per experimental group.
+
+    :param vacuoles: Per-vacuole DataFrame.
+    :param group_column: Condition column.
+    :param buckets: Ordered bucket labels.
+    :param non_power_of_two_warn: QC threshold on the non-power-of-two fraction.
+    :returns: per-group DataFrame.
+    """
+    rows = []
+    for group_value, subset in vacuoles.groupby(group_column, dropna=False,
+                                                sort=False):
+        n_vacuoles = int(len(subset))
+        row = {group_column: group_value,
+               'n_wells': int(subset['prc'].nunique()),
+               'n_vacuoles': n_vacuoles,
+               'n_parasites': int(subset['n_parasites'].sum())}
+        for bucket in buckets:
+            suffix = _bucket_column_suffix(bucket)
+            count = int((subset['replication_bucket'] == bucket).sum())
+            row[f'n_{suffix}'] = count
+            row[f'frac_{suffix}'] = (count / n_vacuoles) if n_vacuoles else 0.0
+
+        row['non_power_of_two_fraction'] = row['frac_non_power_of_two']
+        row['qc_flag_non_power_of_two'] = bool(
+            row['non_power_of_two_fraction'] > non_power_of_two_warn
+        )
+        row['median_parasites_per_vacuole'] = (
+            float(np.median(subset['n_parasites'].to_numpy(dtype=float)))
+            if n_vacuoles else 0.0
+        )
+        on_ladder = subset[subset['is_power_of_two']]
+        row['n_power_of_two'] = int(len(on_ladder))
+        row['median_doublings'] = (
+            float(np.median(on_ladder['doublings'].to_numpy(dtype=float)))
+            if len(on_ladder) else 0.0
+        )
+        row['mean_parasites_per_vacuole'] = (
+            float(on_ladder['n_parasites'].mean()) if len(on_ladder) else 0.0
+        )
+        row['mean_fraction_of_vacuoles'] = (
+            len(on_ladder) / n_vacuoles if n_vacuoles else 0.0
+        )
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def _replication_compare_conditions(vacuoles, group_column, buckets,
+                                    verbose=False):
+    """Compare the parasites-per-vacuole distribution between every pair of groups.
+
+    The primary test is a **Mann-Whitney U (Wilcoxon rank-sum) test on the
+    doubling index** ``log2(n_parasites)``, restricted to vacuoles that sit on
+    the power-of-two ladder. Reasons, in order of importance:
+
+    * The outcome is an *ordered discrete* class (1, 2, 4, 8, 16), so a test
+      must use the ordering. A plain chi-squared over the buckets throws it
+      away — swap the 2 and 8 columns and the chi-squared is unchanged, while
+      the biology is reversed. Mann-Whitney tests exactly the alternative that
+      matters: one condition is stochastically shifted toward fewer (or more)
+      divisions.
+    * A t-test on the raw counts is wrong twice over. The counts are not
+      interval-scaled — 8 -> 16 is one division, the same single division as
+      1 -> 2 — so their arithmetic mean is dominated by the tail. And the
+      distribution is discrete and multimodal by construction, so the normal
+      approximation a t-test rests on never holds.
+    * Ranks handle the heavy ties that a five-value scale produces; scipy's
+      normal approximation applies the tie correction.
+
+    A chi-squared over the full bucket table (including ``non_power_of_two``)
+    is reported alongside as an omnibus "does anything differ" check, and the
+    rank-biserial correlation gives an effect size that a p-value cannot.
+
+    :param vacuoles: Per-vacuole DataFrame.
+    :param group_column: Condition column.
+    :param buckets: Ordered bucket labels.
+    :param verbose: Print the resulting table.
+    :returns: DataFrame with one row per group pair; empty (with the full
+        column set) when there are fewer than two groups.
+    """
+    from scipy.stats import mannwhitneyu
+    from statsmodels.stats.multitest import multipletests
+    from .sp_stats import choose_p_adjust_method
+
+    columns = ['group1', 'group2', 'test', 'n1', 'n2',
+               'n1_power_of_two', 'n2_power_of_two',
+               'median_doublings_1', 'median_doublings_2',
+               'u_statistic', 'p_value', 'rank_biserial',
+               'chi_squared_stat', 'chi_squared_p_value',
+               'non_power_of_two_fraction_1', 'non_power_of_two_fraction_2',
+               'p_value_adj', 'adj']
+
+    groups = list(pd.unique(vacuoles[group_column].dropna()))
+    if len(groups) < 2:
+        return pd.DataFrame(columns=columns)
+
+    counts = (
+        vacuoles.groupby([group_column, 'replication_bucket'], observed=False)
+        .size().unstack(fill_value=0)
+    )
+
+    results = []
+    for group1, group2 in itertools.combinations(groups, 2):
+        left = vacuoles[vacuoles[group_column] == group1]
+        right = vacuoles[vacuoles[group_column] == group2]
+        left_ladder = left.loc[left['is_power_of_two'], 'doublings'].to_numpy(dtype=float)
+        right_ladder = right.loc[right['is_power_of_two'], 'doublings'].to_numpy(dtype=float)
+
+        if len(left_ladder) and len(right_ladder):
+            statistic, p_value = mannwhitneyu(left_ladder, right_ladder,
+                                              alternative='two-sided')
+            # Rank-biserial correlation: +1 means every vacuole in group1 is
+            # further along the ladder than every vacuole in group2.
+            rank_biserial = 2.0 * statistic / (len(left_ladder) * len(right_ladder)) - 1.0
+        else:
+            statistic, p_value, rank_biserial = np.nan, np.nan, np.nan
+
+        # Dropping the buckets neither group occupies is what keeps scipy from
+        # rejecting the table over an all-zero column; every group has at
+        # least one vacuole, so no row can be empty.
+        pair_counts = counts.loc[[group1, group2]]
+        pair_counts = pair_counts.loc[:, pair_counts.sum(axis=0) > 0]
+        chi2, chi2_p, _, _ = chi2_contingency(pair_counts.to_numpy())
+
+        results.append({
+            'group1': group1,
+            'group2': group2,
+            'test': 'Mann-Whitney U on log2(parasites per vacuole)',
+            'n1': int(len(left)),
+            'n2': int(len(right)),
+            'n1_power_of_two': int(len(left_ladder)),
+            'n2_power_of_two': int(len(right_ladder)),
+            'median_doublings_1': float(np.median(left_ladder)) if len(left_ladder) else np.nan,
+            'median_doublings_2': float(np.median(right_ladder)) if len(right_ladder) else np.nan,
+            'u_statistic': statistic,
+            'p_value': p_value,
+            'rank_biserial': rank_biserial,
+            'chi_squared_stat': chi2,
+            'chi_squared_p_value': chi2_p,
+            'non_power_of_two_fraction_1': (
+                float((~left['is_power_of_two']).mean()) if len(left) else 0.0),
+            'non_power_of_two_fraction_2': (
+                float((~right['is_power_of_two']).mean()) if len(right) else 0.0),
+        })
+
+    results_df = pd.DataFrame(results)
+    method = choose_p_adjust_method(len(groups),
+                                    float(counts.sum(axis=1).mean()))
+    finite = results_df['p_value'].notna()
+    results_df['p_value_adj'] = np.nan
+    if finite.any():
+        results_df.loc[finite, 'p_value_adj'] = multipletests(
+            results_df.loc[finite, 'p_value'].to_numpy(dtype=float),
+            method=method
+        )[1]
+    results_df['adj'] = method
+
+    results_df = results_df[columns]
+    if verbose:
+        print("\nParasites-per-vacuole comparisons:")
+        print(results_df.to_string(index=False))
+    return results_df
+
+
+def _chi_pairwise_is_safe(counts):
+    """True when every pair of rows of ``counts`` can go through ``chi_pairwise``.
+
+    :func:`spacr.sp_stats.chi_pairwise` slices the contingency table two rows
+    at a time and hands each slice to ``scipy.stats.chi2_contingency``, which
+    refuses a sub-table holding an all-zero row or column, and it divides by
+    the number of comparisons, so a single group raises ``ZeroDivisionError``.
+    Both cases are routine for a sparse per-well table (two wells whose
+    vacuoles share no bucket), so callers check before delegating instead of
+    crashing halfway through drawing a figure.
+
+    :param counts: Contingency-table DataFrame or array indexed by group.
+    :returns: bool.
+    """
+    values = np.asarray(counts, dtype=float)
+    if values.ndim != 2 or values.shape[0] < 2 or values.shape[1] < 1:
+        return False
+    for first, second in itertools.combinations(range(values.shape[0]), 2):
+        pair = values[[first, second], :]
+        if np.any(pair.sum(axis=0) == 0) or np.any(pair.sum(axis=1) == 0):
+            return False
+    return True
+
+
+def _replication_stacked_bars(settings, vacuoles, group_column, prc_column,
+                              level, cmap, title):
+    """Draw stacked bucket-proportion bars, reusing the shared plot helper.
+
+    Delegates to :func:`spacr.plot.plot_proportion_stacked_bars` whenever its
+    contingency table is well formed — see :func:`_chi_pairwise_is_safe` for
+    what "well formed" costs. When it is not (one group, or a sparse per-well
+    table), the bars are drawn here and the statistics come back empty: the
+    figure is descriptive either way, and the tests that matter live in
+    :func:`_replication_compare_conditions`, which handles sparsity itself.
+
+    :param settings: Settings dict (``verbose`` is read by the helper).
+    :param vacuoles: Per-vacuole DataFrame with a ``replication_bucket`` column.
+    :param group_column: Column forming the bar axis.
+    :param prc_column: Per-well identifier used when ``level`` aggregates.
+    :param level: ``'object'``, ``'well'`` or ``'plateID'``.
+    :param cmap: Matplotlib colormap name.
+    :param title: Axes title.
+    :returns: ``(results_df, pairwise_df, fig)``.
+    """
+    from .plot import plot_proportion_stacked_bars
+
+    working = vacuoles.copy()
+    working['replication_bucket'] = (
+        working['replication_bucket'].cat.remove_unused_categories()
+    )
+    counts = working.groupby([group_column, 'replication_bucket'],
+                             observed=True).size().unstack(fill_value=0)
+
+    if _chi_pairwise_is_safe(counts):
+        results_df, pairwise_df, fig = plot_proportion_stacked_bars(
+            settings, working, group_column, bin_column='replication_bucket',
+            prc_column=prc_column, level=level, cmap=cmap
+        )
+    else:
+        proportions = counts.div(counts.sum(axis=1), axis=0)
+        axes = proportions.plot(kind='bar', stacked=True, colormap=cmap,
+                                figsize=(12, 8))
+        axes.set_xlabel('Group')
+        axes.set_ylabel('Proportion')
+        fig = plt.gcf()
+        results_df = pd.DataFrame({'chi_squared_stat': [np.nan],
+                                   'p_value': [np.nan],
+                                   'degrees_of_freedom': [np.nan]})
+        pairwise_df = pd.DataFrame(columns=['Group 1', 'Group 2', 'Test Name',
+                                            'p-value', 'p-value_adj', 'adj'])
+
+    axes = fig.axes[0]
+    axes.set_title(title)
+    axes.set_ylim(0, 1)
+    axes.legend(title='Parasites per vacuole', bbox_to_anchor=(1.05, 1),
+                loc='upper left')
+    return results_df, pairwise_df, fig
+
+
+def analyze_replication(settings):
+    """Replication assay: count parasites per vacuole and compare the distributions.
+
+    *Toxoplasma gondii* replicates by endodyogeny, two daughters forming inside
+    a mother, so a parasitophorous vacuole holds 1, 2, 4, 8 or 16 parasites —
+    a power of two. The readout of a replication assay is therefore the
+    **distribution** of parasites-per-vacuole across a well, not a mean: a mean
+    of 3.2 cannot distinguish "everything at 3-ish", which is biologically
+    impossible, from a healthy mix of 2s and 4s. A drug that slows replication
+    moves mass from the 8 and 4 buckets down into 2 and 1, and only the
+    distribution shows that.
+
+    **The counting unit is the vacuole.** Not the parasite, and emphatically
+    not the host cell — one host cell routinely carries several vacuoles, so
+    grouping on ``cell_id`` reports their combined count as a single vacuole
+    and produces a plausible but meaningless number. See
+    :func:`_assign_vacuole_ids` for how the vacuole is derived and what each
+    ``vacuole_key`` costs you.
+
+    Rosettes of 3, 5, 6 or 7 are counted into an explicit ``non_power_of_two``
+    bucket that is always reported and never folded into a neighbouring bucket.
+    That bucket is the assay's own quality control: a well where 30% of
+    vacuoles are off the power-of-two ladder has a segmentation problem, and
+    its replication number should not be trusted.
+
+    Statistics: the two-condition comparison is a Mann-Whitney U test on the
+    doubling index ``log2(n_parasites)``, with a chi-squared omnibus test
+    alongside it. :func:`_replication_compare_conditions` explains why, and why
+    a t-test on the raw counts is the wrong instrument.
+
+    :param settings: dict of replication settings; see
+        ``set_analyze_replication_defaults``. Key entries:
+
+        - ``src`` — plate directory (or list of them) holding
+          ``measurements/measurements.db``.
+        - ``parasite_table`` / ``compartment`` — table and column prefix
+          holding one row per segmented parasite. Default ``'pathogen'``.
+        - ``vacuole_key`` — how parasite rows are grouped into vacuoles
+          (``'auto'``, ``'spatial'``, ``'cell_id'``, ``'object'``, or a column
+          name).
+        - ``vacuole_link_distance`` / ``vacuole_link_factor`` — the spatial
+          clustering threshold, or the multiplier used to derive it.
+        - ``min_parasite_area`` / ``max_parasite_area`` — debris and
+          merged-clump filters applied before counting.
+        - ``max_parasites_per_vacuole`` — largest named power-of-two bucket.
+        - ``non_power_of_two_warn`` — QC flag threshold.
+        - ``cell_types`` / ``pathogen_types`` / ``treatments`` and their
+          ``*_plate_metadata`` well maps, plus ``group_column`` and ``level``.
+        - ``save`` — write the CSVs and figures under
+          ``<src>/results/analyze_replication``.
+
+    :returns: dict with ``vacuoles`` (per-vacuole counts), ``wells`` (per-well
+        distribution), ``summary`` (per-condition distribution),
+        ``comparisons`` (pairwise ordered tests), ``chi_squared`` /
+        ``chi_squared_pairwise`` (omnibus proportion tests), ``figures`` and
+        ``vacuole_key`` (the grouping actually used).
+    :raises ValueError: when the parasite table holds no usable rows.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.submodules import analyze_replication
+            out = analyze_replication({
+                'src': '/data/plate1',
+                'pathogen_types': ['dmso', 'pyrimethamine'],
+                'pathogen_plate_metadata': [['c1'], ['c2']],
+            })
+            print(out['summary'][['condition', 'frac_1', 'frac_2', 'frac_4',
+                                  'frac_8', 'frac_non_power_of_two']])
+
+    See Also:
+        :func:`analyze_endodyogeny` — the size-proxy version, for fused
+        rosettes that cannot be resolved into single parasites.
+    """
+    from .utils import annotate_conditions, save_settings
+    from .io import _read_db
+    from . import settings as settings_module
+
+    # spacr.settings owns every pipeline's defaults and wins wherever it
+    # defines one; the local copy runs afterwards purely as a gap-filler, so
+    # the assay is callable before the GUI knobs are registered. Both use
+    # setdefault, so running settings.py first makes its values authoritative.
+    apply_defaults = getattr(settings_module, 'set_analyze_replication_defaults',
+                             None)
+    if apply_defaults is not None:
+        settings = apply_defaults(settings)
+    settings = _set_analyze_replication_defaults(settings)
+    save_settings(settings, name='analyze_replication', show=settings['verbose'])
+
+    if not isinstance(settings['src'], list):
+        settings['src'] = [settings['src']]
+
+    compartment = settings['compartment']
+    parasite_table = settings['parasite_table']
+    buckets = _replication_bucket_order(settings['max_parasites_per_vacuole'])
+
+    # ---- read one row per segmented parasite ----------------------------
+    # Deliberately NOT _read_and_merge_data: that helper collapses the
+    # pathogen table onto the host cell (prcfo is built from cell_id), which
+    # destroys the per-vacuole identity this assay is built on.
+    parasite_frames, cell_frames = [], []
+    for index, source in enumerate(settings['src']):
+        location = os.path.join(source, 'measurements/measurements.db')
+        frame = _read_db(location, [parasite_table])[0]
+        if settings['change_plate']:
+            # prcf carries the ORIGINAL plate name and is what the vacuole id
+            # is built from, so relabelling plateID alone would let two plates
+            # that share a well/field/cell collapse into one vacuole.
+            frame['plateID'] = f'plate{index + 1}'
+            frame = frame.drop(columns=['prcf'], errors='ignore')
+        parasite_frames.append(frame)
+        if settings['seed_wells_from_cells']:
+            try:
+                cell_frame = _read_db(location, ['cell'])[0]
+            except ValueError:
+                cell_frame = None
+            if cell_frame is not None:
+                if settings['change_plate']:
+                    cell_frame['plateID'] = f'plate{index + 1}'
+                cell_frames.append(cell_frame)
+
+    df = pd.concat(parasite_frames, axis=0, ignore_index=True)
+
+    for column in ('plateID', 'rowID', 'columnID', 'fieldID'):
+        if column not in df.columns:
+            raise ValueError(
+                f"Table '{parasite_table}' has no '{column}' column; it does "
+                f"not look like a spacr measurements table."
+            )
+    if 'prcf' not in df.columns:
+        df['prcf'] = (df['plateID'].astype(str) + '_' + df['rowID'].astype(str)
+                      + '_' + df['columnID'].astype(str) + '_'
+                      + df['fieldID'].astype(str))
+    df['prc'] = (df['plateID'].astype(str) + '_' + df['rowID'].astype(str)
+                 + '_' + df['columnID'].astype(str))
+
+    # ---- object filters --------------------------------------------------
+    area_column = f'{compartment}_area'
+    if area_column in df.columns:
+        if settings['min_parasite_area']:
+            df = df[df[area_column] >= settings['min_parasite_area']]
+        if settings['max_parasite_area'] is not None:
+            df = df[df[area_column] <= settings['max_parasite_area']]
+
+    if 'cell_id' in df.columns:
+        # 0 / NaN means the object overlapped no host cell — an extracellular
+        # parasite, which has no vacuole and cannot enter a replication count.
+        host = pd.to_numeric(df['cell_id'], errors='coerce')
+        if settings['require_host_cell']:
+            df = df[host.notna() & (host != 0)]
+        df = df.copy()
+        df['cell_id'] = host.fillna(0).astype(int)
+
+    df = df.copy()
+    if len(df) == 0:
+        raise ValueError(
+            f"No parasite objects left in '{parasite_table}' after filtering. "
+            f"Check min_parasite_area / max_parasite_area / require_host_cell."
+        )
+
+    df = annotate_conditions(
+        df=df,
+        cells=settings['cell_types'],
+        cell_loc=settings['cell_plate_metadata'],
+        pathogens=settings['pathogen_types'],
+        pathogen_loc=settings['pathogen_plate_metadata'],
+        treatments=settings['treatments'],
+        treatment_loc=settings['treatment_plate_metadata'],
+    )
+
+    group_column = settings['group_column']
+    if group_column not in df.columns:
+        raise KeyError(
+            f"'{group_column}' not found in the parasite table. "
+            f"Available columns: {', '.join(map(str, df.columns))}"
+        )
+    df = df.dropna(subset=[group_column])
+    if len(df) == 0:
+        raise ValueError(
+            f"Every parasite row has an empty '{group_column}'. Check the "
+            f"cell_plate_metadata / pathogen_plate_metadata / "
+            f"treatment_plate_metadata well maps."
+        )
+
+    # ---- vacuole assignment ---------------------------------------------
+    df, vacuole_key_used, link_distance = _assign_vacuole_ids(
+        df,
+        compartment=compartment,
+        vacuole_key=settings['vacuole_key'],
+        link_distance=settings['vacuole_link_distance'],
+        link_factor=settings['vacuole_link_factor'],
+        verbose=settings['verbose'],
+    )
+
+    if settings['parasite_count_column'] is not None:
+        count_column = settings['parasite_count_column']
+        if count_column not in df.columns:
+            raise KeyError(
+                f"parasite_count_column '{count_column}' is not a column of "
+                f"'{parasite_table}'."
+            )
+        counts = df.groupby('vacuole_id', sort=False)[count_column].max()
+    else:
+        counts = df.groupby('vacuole_id', sort=False)['vacuole_id'].size()
+
+    identity_columns = ['plateID', 'rowID', 'columnID', 'fieldID', 'prc',
+                        'prcf', group_column]
+    if 'cell_id' in df.columns:
+        identity_columns.append('cell_id')
+    identity_columns = [c for c in dict.fromkeys(identity_columns) if c in df.columns]
+
+    vacuoles = df.groupby('vacuole_id', sort=False)[identity_columns].first()
+    vacuoles['n_parasites'] = counts.astype(int)
+    if area_column in df.columns:
+        vacuoles['total_parasite_area'] = df.groupby('vacuole_id',
+                                                     sort=False)[area_column].sum()
+    vacuoles = vacuoles.reset_index()
+
+    vacuoles['replication_bucket'] = pd.Categorical(
+        [_replication_bucket(n, settings['max_parasites_per_vacuole'])
+         for n in vacuoles['n_parasites']],
+        categories=buckets, ordered=True
+    )
+    vacuoles['is_power_of_two'] = (
+        vacuoles['replication_bucket'].astype(str) != 'non_power_of_two'
+    )
+    vacuoles['doublings'] = np.where(
+        vacuoles['is_power_of_two'],
+        np.log2(vacuoles['n_parasites'].to_numpy(dtype=float)),
+        np.nan
+    )
+
+    # ---- wells that hold host cells but no vacuoles ----------------------
+    seed_wells = None
+    if cell_frames:
+        cells = pd.concat(cell_frames, axis=0, ignore_index=True)
+        cells['prc'] = (cells['plateID'].astype(str) + '_'
+                        + cells['rowID'].astype(str) + '_'
+                        + cells['columnID'].astype(str))
+        cells = annotate_conditions(
+            df=cells,
+            cells=settings['cell_types'],
+            cell_loc=settings['cell_plate_metadata'],
+            pathogens=settings['pathogen_types'],
+            pathogen_loc=settings['pathogen_plate_metadata'],
+            treatments=settings['treatments'],
+            treatment_loc=settings['treatment_plate_metadata'],
+        )
+        if group_column in cells.columns:
+            seed_wells = cells.dropna(subset=[group_column])[
+                ['plateID', 'rowID', 'columnID', 'prc', group_column]
+            ].drop_duplicates()
+
+    wells = _replication_well_distribution(
+        vacuoles, group_column, buckets,
+        non_power_of_two_warn=settings['non_power_of_two_warn'],
+        wells=seed_wells,
+    )
+    summary = _replication_summary(
+        vacuoles, group_column, buckets,
+        non_power_of_two_warn=settings['non_power_of_two_warn'],
+    )
+    comparisons = _replication_compare_conditions(
+        vacuoles, group_column, buckets, verbose=settings['verbose']
+    )
+
+    # ---- figures ---------------------------------------------------------
+    prc_column = 'plateID' if settings['level'] == 'plate' else 'prc'
+
+    _, _, well_fig = _replication_stacked_bars(
+        settings, vacuoles, group_column='prc', prc_column='prc',
+        level='object', cmap=settings['cmap'],
+        title='Parasites per vacuole — per well',
+    )
+    results_df, pairwise_df, group_fig = _replication_stacked_bars(
+        settings, vacuoles, group_column=group_column, prc_column=prc_column,
+        level=settings['level'], cmap=settings['cmap'],
+        title='Parasites per vacuole — by condition',
+    )
+
+    output = {
+        'vacuoles': vacuoles,
+        'wells': wells,
+        'summary': summary,
+        'comparisons': comparisons,
+        'chi_squared': results_df,
+        'chi_squared_pairwise': pairwise_df,
+        'vacuole_key': vacuole_key_used,
+        'vacuole_link_distance': link_distance,
+        'figures': {'per_well': well_fig, 'by_condition': group_fig},
+    }
+
+    if settings['save']:
+        output_dir = os.path.join(settings['src'][0], 'results',
+                                  'analyze_replication')
+        os.makedirs(output_dir, exist_ok=True)
+        vacuoles.to_csv(os.path.join(output_dir, 'vacuole_counts.csv'), index=False)
+        wells.to_csv(os.path.join(output_dir, 'well_distribution.csv'), index=False)
+        summary.to_csv(os.path.join(output_dir, 'condition_summary.csv'), index=False)
+        comparisons.to_csv(os.path.join(output_dir, 'condition_comparisons.csv'), index=False)
+        results_df.to_csv(os.path.join(output_dir, 'chi_squared_results.csv'), index=False)
+        pairwise_df.to_csv(os.path.join(output_dir, 'chi_squared_pairwise_results.csv'), index=False)
+        well_fig.savefig(os.path.join(output_dir, 'parasites_per_vacuole_per_well.pdf'),
+                         dpi=300, bbox_inches='tight')
+        group_fig.savefig(os.path.join(output_dir, 'parasites_per_vacuole_by_condition.pdf'),
+                          dpi=300, bbox_inches='tight')
+        print(f"Replication assay results saved to {output_dir}")
+
+    if settings['verbose']:
+        flagged = wells.loc[wells['qc_flag_non_power_of_two'], 'prc'].tolist()
+        if flagged:
+            print(f"QC: {len(flagged)} well(s) above the non_power_of_two "
+                  f"threshold ({settings['non_power_of_two_warn']:.0%}): "
+                  f"{', '.join(map(str, flagged))}")
+
+    plt.show()
+    # The figures stay usable (savefig works on a closed figure); closing them
+    # keeps a batch run over many plates from accumulating open figures.
+    plt.close(well_fig)
+    plt.close(group_fig)
 
     return output
 
