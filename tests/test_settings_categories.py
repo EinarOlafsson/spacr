@@ -171,6 +171,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # and the active-learning queue (spacr.active_learning).
     "queue_by_uncertainty", "queue_measure", "queue_diversity",
     "queue_limit",
+    # and opt-in resume (spacr.resume).
+    "resume",
+    # The 3D (Beta) z-axis controls (spacr.zstack), filed under "Beta".
+    "z_stack", "z_segmentation_mode", "z_axis", "z_projection",
+    "anisotropy", "voxel_size_z_um", "voxel_size_xy_um", "stitch_threshold",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six
