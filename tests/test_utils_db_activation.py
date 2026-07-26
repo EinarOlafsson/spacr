@@ -56,8 +56,11 @@ def test_filepaths_to_database_timelapse(tmp_path, rng):
 
     The old fixture wrote ``plate1_A01_f1_t0_o1.png``; _safe_int_convert cannot
     parse ``f1``/``t0``, so every row silently collapsed to fieldID 'f0' and
-    time_id 't0'. A swallowed skip plus a bare "db exists" assertion meant the
+    timeID 't0'. A swallowed skip plus a bare "db exists" assertion meant the
     lost time axis went unnoticed.
+
+    The column is ``timeID``, the same spelling every object table uses; it was
+    written as ``time_id`` until the two were unified.
     """
     from spacr.utils import filepaths_to_database
     src = tmp_path / "plate1"
@@ -69,8 +72,8 @@ def test_filepaths_to_database_timelapse(tmp_path, rng):
     assert db.is_file()
     con = sqlite3.connect(db)
     rows = con.execute(
-        "SELECT plateID, rowID, columnID, fieldID, time_id, prcfo, cell_id "
-        "FROM png_list ORDER BY time_id").fetchall()
+        "SELECT plateID, rowID, columnID, fieldID, timeID, prcfo, cell_id "
+        "FROM png_list ORDER BY timeID").fetchall()
     con.close()
     assert [r[4] for r in rows] == ["t0", "t1", "t2"]
     assert {r[:4] for r in rows} == {("plate1", "r1", "c1", "f1")}

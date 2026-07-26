@@ -311,9 +311,14 @@ def test_split_data_reports_missing_well_columns_and_reuses_existing_prcf(capsys
     numeric, non_numeric = _split_data(df, "prcf", "object_label")
 
     printed = capsys.readouterr().out
-    # one Exception line for the prcft attempt, one for the prcf attempt; both
-    # trip over the missing fieldID before they ever reach timeID
-    assert printed.splitlines() == ["Exception 'fieldID'", "Exception 'fieldID'"]
+    # One Exception line, from the prcf attempt tripping over the missing
+    # fieldID. The prcft attempt no longer prints anything: it now asks whether
+    # a timepoint column (timeID or the legacy time_id) is present rather than
+    # hard-coding 'timeID' inside a bare try/except, and this frame has none —
+    # so there is nothing to build and nothing to report. That distinction is
+    # the point of the change: "not a timelapse frame" and "the metadata is
+    # broken" used to print the same line.
+    assert printed.splitlines() == ["Exception 'fieldID'"]
 
     assert "prcft" not in numeric.columns and "prcft" not in non_numeric.columns
     assert numeric.index.tolist() == ["p1_r1_c1_f1", "p1_r2_c1_f1"]
@@ -341,7 +346,9 @@ def test_split_data_all_object_columns_gives_empty_numeric_frame(capsys):
 
     numeric, non_numeric = _split_data(df, "prcf", "object_label")
 
-    assert capsys.readouterr().out.count("Exception") == 1  # only prcft failed
+    # Nothing is printed: prcf builds fine, and the absence of a timepoint
+    # column is now a silent "no prcft" rather than a printed exception.
+    assert capsys.readouterr().out.count("Exception") == 0
     assert isinstance(numeric, pd.DataFrame)
     assert numeric.shape == (2, 0)
     assert sorted(numeric.index.tolist()) == ["p1_r1_c1_f1", "p1_r2_c1_f1"]

@@ -836,7 +836,14 @@ def filepaths_to_database(img_paths, settings, source_folder, crop_mode):
     columns = ['plateID', 'rowID', 'columnID', 'fieldID']
 
     if settings['timelapse']:
-        columns = columns + ['time_id']
+        # 'timeID', not 'time_id'. _merge_and_save_to_database writes 'timeID'
+        # onto every object table, so the old spelling gave one database two
+        # names for one concept: _split_data raised KeyError('timeID') on
+        # png_list and silently skipped building prcft, and any join between
+        # png_list and the cell table on time matched nothing. Databases
+        # already carrying 'time_id' are repaired in place on first read by
+        # rename_columns_in_db.
+        columns = columns + ['timeID']
 
     columns = columns + ['prcfo']
 
@@ -1773,13 +1780,129 @@ _ORGANELLE_SUMMARY_TABLES = ('cell_organelle_summary', 'nucleus_organelle_summar
 _PARENT_OBJECT_TABLES = ('cell', 'cytoplasm')
 
 
-def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folder, file_name, experiment, timelapse=False):
+class MeasurementUnitsMismatch(ValueError):
+    """A measurement frame's units differ from the ones already in the table.
+
+    A 2-D field measures areas in px^2; a 3-D field measures volumes, in voxels
+    or um^3, and writes them into the *same* ``<object>_area`` column, because
+    that column is read by name by every downstream selector, model and
+    threshold ever written against a spaCR database and renaming it would break
+    all of them silently. Appending both into one table would therefore leave a
+    numeric column that mixes two incompatible quantities with nothing in the
+    row to tell them apart, which no amount of downstream care could recover
+    from. So it is refused here instead.
+    """
+
+
+#: Written onto every measurement row by :func:`_merge_and_save_to_database`
+#: from the stamp :func:`spacr.measure.resolve_measurement_spacing` produced.
+#: This is the schema half of the units decision: ``<object>_area`` keeps its
+#: name and a reader learns from ``measurement_ndim`` / ``measurement_units``
+#: what the number in it actually is.
+MEASUREMENT_STAMP_COLUMNS = (
+    'measurement_ndim',
+    'measurement_units',
+    'n_z',
+    'voxel_size_z_um',
+    'voxel_size_xy_um',
+)
+
+#: What an unstamped row is taken to be. Every spaCR release before 3-D
+#: measurement existed could only write 2-D pixel measurements -- a 3-D mask
+#: crashed the morphology pass outright -- so a row with no stamp is 2-D/px as
+#: a matter of fact, not as an assumption.
+_LEGACY_STAMP = (2, 'px')
+
+
+def _stamp_identity(stamp):
+    """Reduce a stamp dict to the ``(ndim, units)`` pair the table is keyed on."""
+    if not stamp:
+        return _LEGACY_STAMP
+    ndim = stamp.get('measurement_ndim')
+    units = stamp.get('measurement_units')
+    if ndim is None or units is None:
+        return _LEGACY_STAMP
+    return (int(ndim), str(units))
+
+
+def _existing_measurement_identity(db_path, table):
+    """Return the ``(ndim, units)`` pairs already present in ``table``.
+
+    :returns: a set of pairs; empty when the database or table does not exist
+        yet. Rows written before the stamp existed, and rows whose stamp is
+        NULL, count as :data:`_LEGACY_STAMP`.
+    """
+    if not os.path.isfile(db_path):
+        return set()
+    conn = sqlite3.connect(db_path, timeout=DB_WRITE_TIMEOUT)
+    try:
+        exists = conn.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
+            (table,)).fetchone()
+        if not exists:
+            return set()
+        have = {row[1] for row in conn.execute(f'PRAGMA table_info("{table}")')}
+        if not {'measurement_ndim', 'measurement_units'} <= have:
+            row = conn.execute(f'SELECT 1 FROM "{table}" LIMIT 1').fetchone()
+            return {_LEGACY_STAMP} if row else set()
+        rows = conn.execute(
+            'SELECT DISTINCT measurement_ndim, measurement_units '
+            f'FROM "{table}"').fetchall()
+    finally:
+        conn.close()
+    found = set()
+    for ndim, units in rows:
+        if ndim is None or units is None:
+            found.add(_LEGACY_STAMP)
+        else:
+            found.add((int(ndim), str(units)))
+    return found
+
+
+def _assert_measurement_units_compatible(db_path, table, stamp):
+    """Refuse to append rows whose units differ from the table's.
+
+    :param db_path: path to measurements.db.
+    :param table: destination table.
+    :param stamp: the stamp about to be written, or ``None`` for a caller that
+        supplies none (treated as :data:`_LEGACY_STAMP`, i.e. 2-D pixels).
+    :raises MeasurementUnitsMismatch: when the table already holds rows in
+        different units.
+    """
+    incoming = _stamp_identity(stamp)
+    existing = _existing_measurement_identity(db_path, table)
+    other = existing - {incoming}
+    if not other:
+        return
+    describe = ', '.join(
+        f"{n}-D/{u}" for n, u in sorted(other, key=lambda p: (p[0], p[1])))
+    raise MeasurementUnitsMismatch(
+        f"refusing to append {incoming[0]}-D/{incoming[1]} rows to the "
+        f"'{table}' table of {db_path}, which already holds {describe} rows. "
+        f"A 2-D field writes a px^2 area into <object>_area and a 3-D field "
+        f"writes a volume into the same column, so one table cannot hold both "
+        f"without the numbers becoming uncomparable in a way no reader could "
+        f"detect. Measure the 3-D and 2-D fields into separate output folders, "
+        f"or re-measure the whole plate one way.")
+
+
+def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folder, file_name, experiment, timelapse=False, stamp=None):
         """Merge morphology and intensity DataFrames and append to the measurements SQLite DB.
 
         ``intensity_df`` may be empty: the ``*_organelle_summary`` tables are
         morphology-only rollups and have no intensity frame to merge. Requiring
         both to be non-empty meant all four summary writes returned silently and
         no summary table was ever created.
+
+        :param stamp: dict of :data:`MEASUREMENT_STAMP_COLUMNS`, from
+            :func:`spacr.measure.resolve_measurement_spacing`. Every value is
+            written onto every row so that a reader can tell whether
+            ``<object>_area`` is a px^2 area or a volume, and in which units,
+            without guessing. ``None`` writes no stamp columns, which keeps a
+            direct caller's schema exactly as it was, and is treated as 2-D/px
+            by the compatibility check.
+        :raises MeasurementUnitsMismatch: when ``table_type`` already holds
+            rows measured in other units.
         """
         morph_df = _check_integrity(morph_df)
         intensity_df = _check_integrity(intensity_df)
@@ -1809,6 +1932,9 @@ def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folde
         merged_df = merged_df.rename(columns={"label_list_x": "label_list_morphology", "label_list_y": "label_list_intensity"})
         merged_df['file_name'] = file_name
         merged_df['path_name'] = os.path.join(source_folder, file_name + '.npy')
+        if stamp:
+            for col in MEASUREMENT_STAMP_COLUMNS:
+                merged_df[col] = stamp.get(col)
         if timelapse:
             merged_df[['plateID', 'rowID', 'columnID', 'fieldID', 'timeID', 'prcf']] = merged_df['file_name'].apply(lambda x: pd.Series(_map_wells(x, timelapse)))
         else:
@@ -1829,9 +1955,9 @@ def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folde
             cols.insert(i, cols.pop(cols.index(col)))
         merged_df = merged_df[cols]  # rearrange the columns
         if len(merged_df) > 0:
-            _append_to_measurements_db(
-                f'{source_folder}/measurements/measurements.db',
-                table_type, merged_df)
+            db_path = f'{source_folder}/measurements/measurements.db'
+            _assert_measurement_units_compatible(db_path, table_type, stamp)
+            _append_to_measurements_db(db_path, table_type, merged_df)
 
 
 #: How many times a locked measurements.db write is retried before it fails.
@@ -2374,17 +2500,24 @@ def _split_data(df, group_by, object_type):
 
     df = df.copy()
 
-    # Ensure 'prcft' column exists if timeID is present
-    try:
+    # Ensure 'prcft' column exists if a timepoint column is present.
+    #
+    # This used to hard-code 'timeID' inside a bare try/except, so on the
+    # png_list table — which was written with 'time_id' — it printed
+    # "Exception 'timeID'" and silently produced no prcft at all. Asking which
+    # spelling is present makes the difference between "this is not a timelapse
+    # run" (nothing to build, no message) and a real failure (which now
+    # propagates instead of being printed and forgotten).
+    time_col = _time_column(df.columns)
+    if time_col is not None and all(
+            c in df.columns for c in ('plateID', 'rowID', 'columnID', 'fieldID')):
         df['prcft'] = (
             df['plateID'].astype(str) + '_' +
             df['rowID'].astype(str) + '_' +
             df['columnID'].astype(str) + '_' +
             df['fieldID'].astype(str) + '_' +
-            df['timeID'].astype(str)
+            df[time_col].astype(str)
         )
-    except Exception as e:
-        print('Exception', e)
 
     # Ensure 'prcf' column exists
     try:
@@ -7408,48 +7541,121 @@ def control_filelist(folder, mode='columnID', values=None):
         filtered_files = [file for file in files if file.split('_')[1][:1] in values]
     return filtered_files
     
+#: Legacy column spellings and the canonical spaCR name each maps to. Applied
+#: to every table of a measurements database by :func:`rename_columns_in_db`,
+#: which runs at the top of ``io._read_db`` and ``io._read_and_join_tables`` —
+#: so an old database is upgraded in place the first time it is read.
+#:
+#: The ``*_name`` entries mirror :func:`correct_metadata`, which knew them while
+#: this function did not; a database carrying them was therefore only half
+#: repaired, which is the generic cause behind several helpers that merged on
+#: ``column_name`` and had never once worked against a real measurements.db.
+DB_COLUMN_RENAMES = {
+    'row':          'rowID',
+    'row_name':     'rowID',
+    'column':       'columnID',
+    'col':          'columnID',
+    'column_name':  'columnID',
+    'plate':        'plateID',
+    'plate_name':   'plateID',
+    'field':        'fieldID',
+    'field_name':   'fieldID',
+    'channel':      'chanID',
+    # png_list used to be written with 'time_id' while every object table got
+    # 'timeID'. One database, two names for one concept.
+    'time_id':      'timeID',
+}
+
+
 def rename_columns_in_db(db_path):
     """Rename legacy plate-metadata columns across every table in a SQLite database.
 
-    Renames each of ``row``/``column``/``col``/``plate``/``field``/``channel`` to
-    the canonical spacr column name (``rowID``/``columnID``/``plateID``/…). Skips
-    a table when the target name already exists to avoid clashes.
+    Applies :data:`DB_COLUMN_RENAMES` to every user table. A rename is skipped
+    when the target name already exists in that table, which gives three
+    properties worth relying on:
+
+    * **Idempotent.** After a rename the legacy name is gone, so a second run
+      finds nothing to do. Running it on every read is therefore free after the
+      first.
+    * **Never destructive.** A table that somehow carries *both* spellings —
+      say ``time_id`` and ``timeID`` — keeps both, untouched. Neither column is
+      dropped and nothing raises; the readers accept either spelling, so the
+      data stays reachable and a human can decide which one is authoritative.
+      Dropping or overwriting one of them here would destroy data to tidy a
+      name, which is never the right trade.
+    * **All or nothing.** SQLite's DDL *is* transactional, but Python's sqlite3
+      driver only opens an implicit transaction for DML (INSERT/UPDATE/DELETE/
+      REPLACE) — an ``ALTER TABLE`` runs in autocommit and lands immediately.
+      So the previous version, which relied on a trailing ``con.commit()``,
+      left a database half-migrated when a later rename raised. The
+      transaction is opened explicitly here and rolled back on any error, and
+      the connection is closed in a ``finally``.
+
+    A partial migration would not corrupt anything — each rename is
+    independently valid and the next read finishes the job — but "the schema
+    changed and then the call raised" is not a state a user should have to
+    reason about.
 
     :param db_path: Path to the SQLite database file to update in place.
-    :returns: None.
+    :returns: The list of ``(table, old, new)`` renames performed.
     """
-    # map old column names -> new names
-    rename_map = {
-        'row':      'rowID',
-        'column':   'columnID',
-        'col':      'columnID',
-        'plate':    'plateID',
-        'field':    'fieldID',
-        'channel':  'chanID',
-    }
-
+    renamed = []
     con = sqlite3.connect(db_path)
-    cur = con.cursor()
+    # Take explicit control of the transaction: the driver will not start one
+    # for DDL, so without this each ALTER commits on its own.
+    con.isolation_level = None
+    try:
+        cur = con.cursor()
 
-    # 1) get all user tables
-    cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
-    tables = [row[0] for row in cur.fetchall()]
+        # 1) get all user tables
+        cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        tables = [row[0] for row in cur.fetchall()]
 
-    for table in tables:
-        # 2) get column names only
-        cur.execute(f"PRAGMA table_info(`{table}`);")
-        cols = [row[1] for row in cur.fetchall()]
+        cur.execute("BEGIN")
+        try:
+            for table in tables:
+                # 2) get column names only
+                cur.execute(f"PRAGMA table_info(`{table}`);")
+                cols = [row[1] for row in cur.fetchall()]
 
-        # 3) for each old→new, if the old exists and new does not, rename it
-        for old, new in rename_map.items():
-            if old in cols and new not in cols:
-                sql = f"ALTER TABLE `{table}` RENAME COLUMN `{old}` TO `{new}`;"
-                cur.execute(sql)
-                print(f"Renamed `{table}`.`{old}` → `{new}`")
+                # 3) for each old→new, if the old exists and new does not, rename it
+                for old, new in DB_COLUMN_RENAMES.items():
+                    if old in cols and new not in cols:
+                        sql = f"ALTER TABLE `{table}` RENAME COLUMN `{old}` TO `{new}`;"
+                        cur.execute(sql)
+                        # Keep the local view current so that two aliases of
+                        # the same canonical name (col / column / column_name)
+                        # cannot both fire and collide.
+                        cols[cols.index(old)] = new
+                        renamed.append((table, old, new))
+            cur.execute("COMMIT")
+        except BaseException:
+            cur.execute("ROLLBACK")
+            raise
+    finally:
+        con.close()
 
-    con.commit()
-    con.close()    
-        
+    for table, old, new in renamed:
+        print(f"Renamed `{table}`.`{old}` → `{new}`")
+    return renamed
+
+
+#: Both spellings of the timepoint column. ``timeID`` is canonical; ``time_id``
+#: is what ``filepaths_to_database`` wrote into ``png_list`` before the two were
+#: unified, and survives in databases written by those releases until
+#: :func:`rename_columns_in_db` migrates them.
+TIME_COLUMN_ALIASES = ('timeID', 'time_id')
+
+
+def _time_column(columns):
+    """Return whichever timepoint spelling ``columns`` carries, or ``None``."""
+    columns = set(columns)
+    for name in TIME_COLUMN_ALIASES:
+        if name in columns:
+            return name
+    return None
+
+
 def group_feature_class(df, feature_groups=None, name='compartment'):
     """Add a column tagging each feature with its compartment (or other group) label.
 
