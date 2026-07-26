@@ -1313,9 +1313,10 @@ def generate_activation_map(settings):
     """
     from .utils import SaliencyMapGenerator, GradCAMGenerator, SelectChannels, activation_maps_to_database, activation_correlations_to_database
     from .utils import print_progress, save_settings, calculate_activation_correlations
+    from .attribution import ATTRIBUTION_METHODS, AttributionMapGenerator, methods_by_family
     from .io import TarImageDataset
     from .settings import get_default_generate_activation_map_settings
-    
+
     torch.cuda.empty_cache()
     gc.collect()
     
@@ -1332,7 +1333,27 @@ def generate_activation_map(settings):
         settings['target_layer'] = 'base_model.blocks.3.layers.1.layers.MBconv.layers.conv_b'
     if settings['cam_type'] in ['saliency_image', 'saliency_channel']:
         settings['target_layer'] = None
-    
+
+    # Anything outside the four legacy names is one of the methods registered
+    # in spacr.attribution (Grad-CAM++, Score-CAM, XGrad-CAM, Layer-CAM,
+    # Eigen-CAM, guided backprop, input x gradient, DeepLIFT, integrated
+    # gradients, occlusion, feature ablation, attention rollout). They run
+    # through the same batch loop via AttributionMapGenerator, which exposes
+    # the same compute_*_and_predictions / plot_activation_grid calls the two
+    # legacy generators do.
+    _LEGACY_CAM_TYPES = ('gradcam', 'gradcam_pp', 'saliency_image',
+                         'saliency_channel')
+    cam_type = settings['cam_type']
+    use_attribution = cam_type not in _LEGACY_CAM_TYPES
+    if use_attribution and cam_type not in ATTRIBUTION_METHODS:
+        raise ValueError(
+            f"unknown cam_type {cam_type!r}. Legacy names: "
+            f"{list(_LEGACY_CAM_TYPES)}. Registered attribution methods by "
+            f"family — " + ", ".join(f"{fam}: {names}" for fam, names
+                                     in methods_by_family().items()))
+    settings.setdefault('smoothgrad_samples', 0)
+    settings.setdefault('smoothgrad_sigma', 0.15)
+
     # Set number of jobs for loading
     n_jobs = settings['n_jobs']
     if n_jobs is None:
@@ -1381,11 +1402,17 @@ def generate_activation_map(settings):
     data_loader = DataLoader(dataset, batch_size=settings['batch_size'], shuffle=settings['shuffle'], num_workers=n_jobs, pin_memory=True)
 
     # Initialize generator based on cam_type
-    if settings['cam_type'] in ['gradcam', 'gradcam_pp']:
+    if use_attribution:
+        cam_generator = AttributionMapGenerator(
+            model, method=cam_type, target_layer=settings['target_layer'],
+            model_type=settings.get('model_type'),
+            smoothgrad_samples=settings['smoothgrad_samples'],
+            smoothgrad_sigma=settings['smoothgrad_sigma'])
+    elif settings['cam_type'] in ['gradcam', 'gradcam_pp']:
         cam_generator = GradCAMGenerator(model, target_layer=settings['target_layer'], cam_type=settings['cam_type'])
     elif settings['cam_type'] in ['saliency_image', 'saliency_channel']:
         cam_generator = SaliencyMapGenerator(model)
-        
+
     time_ls = []
     for batch_idx, (inputs, filenames) in enumerate(data_loader):
         start = time.time()
@@ -1393,11 +1420,13 @@ def generate_activation_map(settings):
         inputs = inputs.to(device)
 
         # Compute activation maps and predictions
-        if settings['cam_type'] in ['gradcam', 'gradcam_pp']:
+        if use_attribution:
+            activation_maps, predicted_classes = cam_generator.compute_maps_and_predictions(inputs)
+        elif settings['cam_type'] in ['gradcam', 'gradcam_pp']:
             activation_maps, predicted_classes = cam_generator.compute_gradcam_and_predictions(inputs)
         elif settings['cam_type'] in ['saliency_image', 'saliency_channel']:
             activation_maps, predicted_classes = cam_generator.compute_saliency_and_predictions(inputs)
-                
+
         # Move activation maps to CPU
         activation_maps = activation_maps.cpu()
 
@@ -1431,7 +1460,10 @@ def generate_activation_map(settings):
             # max == min, so the unguarded min-max rescale below used to produce
             # 0/0 -> all-NaN and then an undefined NaN -> uint8 cast. `rng > 0` is
             # also False for NaN, so a map that arrives already NaN is absorbed too.
-            if settings['cam_type'] in ['saliency_image', 'gradcam', 'gradcam_pp']:
+            if use_attribution or settings['cam_type'] in ['saliency_image', 'gradcam', 'gradcam_pp']:
+                # Every spacr.attribution method returns a single (H, W) map,
+                # so it takes the same greyscale path the summed saliency and
+                # the CAMs already took.
                 #activation_map = activation_map.sum(axis=0)
                 lo = activation_map.min()
                 rng = activation_map.max() - lo
@@ -1482,6 +1514,130 @@ def generate_activation_map(settings):
     torch.cuda.empty_cache()
     gc.collect()
     print("Activation map generation complete.")
+
+def analyze_activation_maps(model, images, methods=None, *, masks=None,
+                            target=None, target_layer=None, model_type=None,
+                            n_steps=12, baseline='blur', sanity_check=True,
+                            sanity_threshold=0.5, verbose=True):
+    """Attribute images several ways and report whether any of it is trustworthy.
+
+    Grad-CAM and a saliency map always render. Nothing about the picture says
+    whether it describes what the model uses, so this runs the four checks that
+    do (see :mod:`spacr.attribution` for why each is limited):
+
+    * **deletion / insertion AUC** — remove, or add, the pixels each map ranks
+      highest and track the class probability. A flat deletion curve means the
+      map ranked pixels the model does not use.
+    * **pointing game** — does the map's peak land inside the object mask?
+      Scored only when ``masks`` is given; spaCR's ``merged/*.npy`` carries the
+      label planes.
+    * **model-randomisation sanity check** (Adebayo et al. 2018) — randomise the
+      weights layer by layer and attribute again. A method whose map survives
+      that is an edge detector, and this is the one check that catches it.
+    * **agreement** — rank correlation between the methods. Disagreement is
+      strong evidence that no single map should be quoted alone.
+
+    :param model: the trained classifier.
+    :param images: one image tensor, or a sequence of them, ``(C, H, W)``.
+    :param methods: method names from
+        :data:`spacr.attribution.ATTRIBUTION_METHODS`; defaults to one
+        representative of each family.
+    :param masks: optional per-image boolean object masks for the pointing game.
+    :param target: class index to explain; defaults to each image's prediction.
+    :param target_layer: CAM target layer, or None for the last convolution.
+    :param model_type: architecture name, used to make errors readable.
+    :param n_steps: steps in the deletion / insertion curves.
+    :param baseline: what removed pixels become — ``'blur'``, ``'zero'``,
+        ``'mean'`` or ``'uniform'``.
+    :param sanity_check: run the randomisation check (on the first image).
+    :param sanity_threshold: rank correlation below which a method passes.
+    :param verbose: print the per-method verdicts.
+    :returns: dict with ``table`` (a DataFrame, one row per method × image),
+        ``attributions``, ``agreement``, ``sanity`` and ``notes``.
+    """
+    import pandas as pd
+
+    from .attribution import (NOT_AN_EXPLANATION, compare_methods,
+                              faithfulness, method_agreement,
+                              randomization_sanity_check)
+
+    if isinstance(images, torch.Tensor) and images.ndim == 3:
+        images = [images]
+    images = list(images)
+    if not images:
+        raise ValueError(
+            "analyze_activation_maps needs at least one image; nothing was "
+            "given, so there is nothing to attribute.")
+    methods = list(methods or ['gradcam', 'saliency', 'integrated_gradients',
+                               'occlusion'])
+    masks = list(masks) if masks is not None else None
+
+    rows = []
+    per_image = []
+    for i, image in enumerate(images):
+        atts = compare_methods(model, image, methods, target=target,
+                               layer=target_layer, model_type=model_type)
+        per_image.append(atts)
+        mask = masks[i] if masks is not None and i < len(masks) else None
+        for att in atts:
+            failed = any(n.startswith('FAILED:') for n in att.notes)
+            row = {'image': i, 'method': att.method, 'family': att.family,
+                   'backend': att.backend, 'target': att.target,
+                   'predicted': att.predicted, 'flat': att.is_flat(),
+                   'failed': failed}
+            if not failed:
+                scores = faithfulness(model, image, att, target=att.target,
+                                      n_steps=n_steps, baseline=baseline,
+                                      mask=mask)
+                row.update({'deletion_auc': scores['deletion_auc'],
+                            'insertion_auc': scores['insertion_auc'],
+                            'pointing_game': scores['pointing_game']})
+            else:
+                row.update({'deletion_auc': float('nan'),
+                            'insertion_auc': float('nan'),
+                            'pointing_game': None})
+            rows.append(row)
+
+    agreement = method_agreement([a for a in per_image[0]
+                                  if not a.is_flat()]) \
+        if sum(1 for a in per_image[0] if not a.is_flat()) >= 2 else None
+
+    sanity = {}
+    if sanity_check:
+        for name in methods:
+            try:
+                sanity[name] = randomization_sanity_check(
+                    model, images[0], name, target=target, layer=target_layer,
+                    model_type=model_type, threshold=sanity_threshold)
+            except Exception as exc:
+                sanity[name] = f"{type(exc).__name__}: {exc}"
+
+    table = pd.DataFrame(rows)
+    if not table.empty and 'deletion_auc' in table.columns:
+        table = table.sort_values(['image', 'deletion_auc'],
+                                  na_position='last').reset_index(drop=True)
+
+    notes = [NOT_AN_EXPLANATION]
+    if masks is None:
+        notes.append(
+            "No object masks were given, so the pointing game was not scored. "
+            "spaCR's merged/*.npy files carry the label planes if you want it.")
+    if not sanity_check:
+        notes.append(
+            "The model-randomisation sanity check was skipped. Without it, a "
+            "method that returns the same map for a randomised model is "
+            "indistinguishable here from one that does not.")
+
+    if verbose:
+        print(NOT_AN_EXPLANATION)
+        for name, check in sanity.items():
+            print(check if isinstance(check, str) else check.verdict())
+        if agreement is not None:
+            print(agreement.verdict())
+
+    return {'table': table, 'attributions': per_image,
+            'agreement': agreement, 'sanity': sanity, 'notes': notes}
+
 
 def visualize_classes(model, dtype, class_names, **kwargs):
     """Show one synthesised class-visualisation image per class.
