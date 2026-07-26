@@ -127,7 +127,7 @@ setup(
     long_description_content_type='text/x-rst',
     packages=find_packages(exclude=["tests.*", "tests"]),
     include_package_data=True,
-    package_data={'spacr': ['resources/data/*', 'resources/models/cp', 'resources/icons/*', 'resources/font/**/*', 'resources/images/*'],},
+    package_data={'spacr': ['resources/data/*', 'resources/models/cp', 'resources/icons/*', 'resources/font/**/*', 'resources/images/*', 'resources/themes/*.jpg'],},
     install_requires=dependencies,
     entry_points={
         'console_scripts': [
