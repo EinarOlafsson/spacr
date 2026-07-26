@@ -677,3 +677,73 @@ def test_choose_model_tolerates_missing_object_settings(fake_cellpose):
     model = U._choose_model("cyto", device="cpu", object_type="pathogen",
                             object_settings=None)
     assert model.kwargs["pretrained_model"] == "cpsam"
+
+
+# ---------------------------------------------------------------------------
+# Fine-tuned checkpoints
+#
+# pretrained_model was hard-coded to 'cpsam', so every model produced by
+# spaCR's own Train Cellpose module was discarded and the stock weights used
+# instead — the trained model could never be applied to anything, and nothing
+# said so.
+# ---------------------------------------------------------------------------
+
+def test_choose_model_loads_a_fine_tuned_checkpoint(fake_cellpose, tmp_path, capsys):
+    ckpt = tmp_path / "my_cells_model"
+    ckpt.write_bytes(b"not really weights, but it exists")
+
+    model = U._choose_model(str(ckpt), device="cpu", object_type="cell")
+
+    assert model.kwargs["pretrained_model"] == str(ckpt)
+    assert str(ckpt) in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("suffix", [".pth", ".pt", ""])
+def test_choose_model_loads_a_checkpoint_whatever_its_extension(
+        fake_cellpose, tmp_path, suffix):
+    """Cellpose checkpoints are commonly extensionless."""
+    ckpt = tmp_path / f"cp_model{suffix}"
+    ckpt.write_bytes(b"x")
+    model = U._choose_model(str(ckpt), device="cpu")
+    assert model.kwargs["pretrained_model"] == str(ckpt)
+
+
+def test_choose_model_raises_on_a_missing_checkpoint_path(fake_cellpose, tmp_path):
+    """Falling back to cpsam would segment with the wrong weights and say
+    nothing, which is worse than stopping."""
+    missing = tmp_path / "gone" / "model.pth"
+    with pytest.raises(FileNotFoundError) as exc:
+        U._choose_model(str(missing), device="cpu", object_type="nucleus")
+    msg = str(exc.value)
+    assert str(missing) in msg
+    assert "nucleus" in msg
+    assert "cpsam" in msg          # tells the user what to write instead
+
+
+def test_choose_model_raises_on_a_missing_path_without_an_extension(
+        fake_cellpose, tmp_path):
+    missing = tmp_path / "models" / "trained_on_hela"
+    with pytest.raises(FileNotFoundError):
+        U._choose_model(str(missing), device="cpu")
+
+
+def test_choose_model_bare_unknown_word_is_not_treated_as_a_path(
+        fake_cellpose, capsys):
+    """A typo'd model name has no separator and no extension, so it falls back
+    to cpsam with a message rather than raising."""
+    model = U._choose_model("cytoo", device="cpu")
+    assert model.kwargs["pretrained_model"] == "cpsam"
+    assert "cytoo" in capsys.readouterr().out
+
+
+def test_choose_model_cpsam_by_name_does_not_touch_the_filesystem(fake_cellpose):
+    model = U._choose_model("cpsam", device="cpu")
+    assert model.kwargs["pretrained_model"] == "cpsam"
+
+
+def test_choose_model_strips_surrounding_whitespace(fake_cellpose, tmp_path):
+    """A path pasted into a settings CSV often carries a trailing space."""
+    ckpt = tmp_path / "model"
+    ckpt.write_bytes(b"x")
+    model = U._choose_model(f"  {ckpt}  ", device="cpu")
+    assert model.kwargs["pretrained_model"] == str(ckpt)

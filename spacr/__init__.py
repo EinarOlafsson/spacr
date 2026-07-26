@@ -44,6 +44,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "agreement",
     "plate_qc",
     "seg_qc",
+    "model_compare",
     "gui_utils",
     "gui_elements",
     "gui_core",

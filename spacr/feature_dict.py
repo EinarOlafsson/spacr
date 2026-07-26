@@ -1224,6 +1224,9 @@ _ORG_SUMMARY_CH_RE = re.compile(
     r"(?P<parent>cell|nucleus|pathogen|cytoplasm)$"
 )
 _DEDUP_SUFFIX_RE = re.compile(r"^(?P<base>.+)_(?P<idx>\d+)$")
+# Current form written by spacr.utils._check_integrity. Unambiguous, so it is
+# matched BEFORE the legacy positional form above.
+_DUP_SUFFIX_RE = re.compile(r"^(?P<base>.+)__dup(?P<idx>\d+)$")
 
 # (regex, KNOWN_PROPERTIES key). Order matters only in that each regex is
 # anchored and mutually exclusive.
@@ -1478,8 +1481,25 @@ def parse_column(name: str) -> FeatureEntry:
                     ),
                 )
 
-    # 9. spacr.utils._check_integrity renames duplicated columns by appending
-    #    their positional index, which produces names that look parameterised.
+    # 8b. Current spacr.utils._check_integrity suffixes a repeated column with
+    #     '__dup<n>'. Unambiguous, unlike the legacy positional form below.
+    m = _DUP_SUFFIX_RE.match(rest)
+    if m:
+        resolved = _lookup_stat(m.group("base"))
+        if resolved is not None:
+            info, params = resolved
+            return _entry(
+                name, info, object_type=object_type, channel=channel,
+                channel_2=channel_2, params=params,
+                extra_note=(
+                    f"Occurrence {m.group('idx')} of a duplicated column name: "
+                    "spacr.utils._check_integrity suffixes every repeat after "
+                    f"the first, so this is another copy of '{m.group('base')}'."
+                ),
+            )
+
+    # 9. Databases written before that change carry the positional index
+    #    instead, which produces names that look parameterised.
     m = _DEDUP_SUFFIX_RE.match(rest)
     if m:
         resolved = _lookup_stat(m.group("base"))
