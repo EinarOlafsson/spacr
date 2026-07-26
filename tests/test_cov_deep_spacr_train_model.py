@@ -118,20 +118,6 @@ def _recording_optimizer(base, log):
     return Recording
 
 
-def _plateau_accepts_verbose():
-    """True on torch versions where ReduceLROnPlateau still takes verbose=."""
-    m = nn.Linear(2, 2)
-    opt = torch.optim.SGD(m.parameters(), lr=0.1)
-    try:
-        torch.optim.lr_scheduler.ReduceLROnPlateau(opt, mode="min", verbose=True)
-    except TypeError:
-        return False
-    return True
-
-
-PLATEAU_VERBOSE_OK = _plateau_accepts_verbose()
-
-
 # ---------------------------------------------------------------------------
 # happy path: defaults, no validation loader, real io/eval helpers
 # ---------------------------------------------------------------------------
@@ -204,8 +190,9 @@ def test_train_model_invalid_model_type_bails_out(tmp_path, monkeypatch, capsys)
     out = train_model(str(tmp_path), str(dst), "not_a_real_backbone", _loaders(1),
                       epochs=1, num_classes=2)
 
-    # nothing trained, nothing written
-    assert out is None or out[0] is None
+    # nothing trained, nothing written. The bail-out must keep the 2-tuple arity
+    # of the success path, or the caller's unpack raises TypeError instead.
+    assert out == (None, None)
     assert list(dst.iterdir()) == []
     assert "Model not_a_real_backbone not found" in capsys.readouterr().out
 
@@ -331,15 +318,19 @@ def test_train_model_reduce_lr_on_plateau_steps_on_val_loss(tmp_path, monkeypatc
     assert built[0].kwargs["mode"] == "min"
     assert built[0].kwargs["factor"] == 0.1
     assert built[0].kwargs["patience"] == 10
+    # `verbose` was removed in torch 2.5; this fake swallows **kwargs, so pin the
+    # exact kwarg set here or a reintroduction would sail past the whole suite.
+    assert set(built[0].kwargs) == {"mode", "factor", "patience"}
     # one step per epoch, always with the validation loss
     assert built[0].steps == [0.42, 0.42]
 
 
-@pytest.mark.xfail(
-    not PLATEAU_VERBOSE_OK, strict=True,
-    reason="BUG: train_model builds ReduceLROnPlateau(verbose=True); torch>=2.5 "
-           "removed that kwarg, so schedule='reduce_lr_on_plateau' raises TypeError")
 def test_train_model_reduce_lr_on_plateau_works_with_installed_torch(tmp_path, monkeypatch):
+    """The real (unstubbed) scheduler must build on the installed torch.
+
+    torch 2.5 removed the ``verbose`` kwarg that train_model used to pass, which
+    made this documented schedule raise TypeError before the first batch.
+    """
     from spacr.deep_spacr import train_model
     _use_model(monkeypatch, nn.Sequential(nn.Linear(4, 2)))
     _stub_eval(monkeypatch)

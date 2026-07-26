@@ -190,9 +190,12 @@ def test_explicit_loss_type_is_not_overwritten(tmp_path, monkeypatch):
     assert record['train_kwargs']['loss_type'] == 'focal_loss'
 
 
-def test_train_flag_truthy_but_not_true_skips_all_save_settings(tmp_path, monkeypatch):
-    """train=1 (truthy, not ``True``) with test=False falls through the whole
-    save_settings ladder without writing a snapshot (line 586)."""
+def test_train_flag_truthy_but_not_true_still_saves_settings(tmp_path, monkeypatch):
+    """train=1 (truthy, not ``True``) with test=False is a train-only run.
+
+    The ladder used to compare with ``is True``, so a scripted caller passing 1
+    instead of True fell through every arm and silently lost its snapshot.
+    """
     import spacr.utils as sutils
     from spacr.deep_spacr import train_test_model
 
@@ -208,8 +211,8 @@ def test_train_flag_truthy_but_not_true_skips_all_save_settings(tmp_path, monkey
     settings = _base_settings(src, train=1, test=False, loss_type='cross_entropy')
     out = train_test_model(settings)
 
-    assert saved == []                      # no branch of the ladder fired
-    assert out == '/tmp/best_model.pth'     # but training still ran
+    assert saved == ['train_tinynet_1']     # the train-only arm fired
+    assert out == '/tmp/best_model.pth'     # and training still ran
     assert record['loader_modes'] == ['train']
 
 
@@ -324,16 +327,11 @@ def test_train_and_test_run_reuses_trained_model_and_returns_model_path(
     assert (dst / f'tinynet_time_{today}_test_acc.csv').is_file()
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: the save_settings ladder is guarded by `if settings['train']:`, "
-           "so a test-only run never snapshots its settings and the "
-           "`elif settings['test'] is True:` arm inside it is dead code.",
-)
 def test_test_only_run_snapshots_its_settings(test_split_dir, monkeypatch):
     """A test-only run should still write ``test_<model>_<epochs>.csv`` so the
-    evaluation is reproducible — that is what the (unreachable) third arm of the
-    save_settings ladder was written to do."""
+    evaluation is reproducible — that is what the third arm of the save_settings
+    ladder was written to do, and it was unreachable while the ladder sat inside
+    ``if settings['train']:``."""
     from spacr.deep_spacr import train_test_model
 
     src, nc_png, pos_png = test_split_dir

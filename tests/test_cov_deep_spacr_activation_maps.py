@@ -366,6 +366,24 @@ def test_generate_activation_map_saliency_clears_target_layer(tmp_path, model_pa
     assert settings["target_layer"] is None
 
 
+def test_generate_activation_map_normalize_input_false(tmp_path, model_path):
+    """normalize_input=False must simply drop the Normalize step.
+
+    The transform pipeline used to be built with an inline
+    ``Normalize(...) if normalize_input else None``, which left a literal None
+    inside the Compose, so this documented setting raised
+    "TypeError: 'NoneType' object is not callable" on the first image.
+    """
+    from spacr.deep_spacr import generate_activation_map
+
+    root, tar_path, names = _project(tmp_path, n_images=2)
+    generate_activation_map(_settings(tar_path, model_path, normalize_input=False,
+                                      save=True, batch_size=2))
+
+    pngs = sorted((root / "datasets" / "ds" / "saliency_image").rglob("*.png"))
+    assert {p.name for p in pngs} == set(names)
+
+
 # ---------------------------------------------------------------------------
 # generate_activation_map — n_jobs=None falls back to cpu_count() - 4
 # ---------------------------------------------------------------------------

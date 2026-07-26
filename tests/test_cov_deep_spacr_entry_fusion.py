@@ -689,3 +689,28 @@ def test_annotate_filter_vision_no_filter_multiple_sources(tmp_path):
     assert len(out_a) == 2 and len(out_b) == 3
     assert set(out_a["condition"]) == {"HeLa_wt_untreated"}
     assert "pred" in out_b.columns
+
+
+def test_annotate_filter_vision_remove_train_outside_datasets_folder(tmp_path):
+    """remove_train on a CSV outside a datasets/ tree explains itself.
+
+    ``filter_csv_by_png`` locates the training images by splitting the CSV path
+    on ``/datasets/``; unpacking that split into two names used to raise a bare
+    "not enough values to unpack" for any other layout.
+    """
+    from spacr.deep_spacr import annotate_filter_vision
+
+    csv = tmp_path / "elsewhere" / "scores.csv"
+    _write_scores_csv(csv, [0.1, 0.9])
+
+    settings = {
+        "src": str(csv),
+        "cells": ["HeLa"], "cell_loc": [["c1", "c2"]],
+        "pathogens": None, "pathogen_loc": None,
+        "treatments": None, "treatment_loc": None,
+        "filter_column": None,
+        "upper_threshold": 0.8, "lower_threshold": 0.2,
+        "remove_train": True,
+    }
+    with pytest.raises(ValueError, match="datasets"):
+        annotate_filter_vision(settings)

@@ -281,8 +281,14 @@ def _multiclass_metrics(y_true: np.ndarray, prob_mat: np.ndarray) -> dict:
 
     # Per-class (diagonal / row sum)
     cm = confusion_matrix(y_true, preds, labels=np.arange(prob_mat.shape[1]))
-    with np.errstate(divide='ignore', invalid='ignore'):
-        per_class_acc = np.diag(cm) / cm.sum(axis=1, where=(cm.sum(axis=1) != 0), initial=1)
+    # The old `cm.sum(axis=1, where=(rowsums != 0), initial=1)` looked like a
+    # divide-by-zero guard but was neither: `initial` seeds np.add.reduce, so it
+    # added 1 to *every* row sum (a perfect classifier scored diag/(rowsum+1)),
+    # and the (C,) mask broadcasts over the LAST axis of the (C, C) matrix, so it
+    # dropped columns instead of rows. Guard the row sums explicitly; classes with
+    # no true support report 0.0.
+    row_sums = cm.sum(axis=1)
+    per_class_acc = np.where(row_sums > 0, np.diag(cm) / np.maximum(row_sums, 1), 0.0)
     # Average precision macro (one-vs-rest)
     # Build one-hot y_true
     C = prob_mat.shape[1]
@@ -578,13 +584,16 @@ def train_test_model(settings):
     if settings.get('loss_type') in (None, 'auto'):
         settings['loss_type'] = 'cross_entropy' if num_classes > 1 else 'binary_cross_entropy_with_logits'
 
-    if settings['train']:
-        if settings['train'] and settings['test']:
-            save_settings(settings, name=f"train_test_{settings['model_type']}_{settings['epochs']}", show=True)
-        elif settings['train'] is True:
-            save_settings(settings, name=f"train_{settings['model_type']}_{settings['epochs']}", show=True)
-        elif settings['test'] is True:
-            save_settings(settings, name=f"test_{settings['model_type']}_{settings['epochs']}", show=True)
+    # This ladder used to sit inside an outer `if settings['train']:`, which made
+    # the test-only arm unreachable (a test-only run snapshotted nothing), and the
+    # `is True` comparisons also skipped the snapshot for truthy-but-not-True flags
+    # such as train=1 coming from a scripted caller.
+    if settings['train'] and settings['test']:
+        save_settings(settings, name=f"train_test_{settings['model_type']}_{settings['epochs']}", show=True)
+    elif settings['train']:
+        save_settings(settings, name=f"train_{settings['model_type']}_{settings['epochs']}", show=True)
+    elif settings['test']:
+        save_settings(settings, name=f"test_{settings['model_type']}_{settings['epochs']}", show=True)
 
     model = None
     model_path = None
@@ -632,6 +641,13 @@ def train_test_model(settings):
             plot=settings.get('plot', False),
             early_stopping_patience=settings.get('early_stopping_patience', 0),
         )
+
+        if model is None:
+            # choose_model could not build model_type (e.g. a typo in settings).
+            # Abort here rather than falling through into the test branch, where
+            # pick_best_model would look for a checkpoint that was never written.
+            print(f"Training aborted: model_type {settings['model_type']!r} could not be built.")
+            return None
 
     if settings['test']:
         test, _, _ = generate_loaders(
@@ -772,7 +788,10 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                          height=image_size, width=image_size)
     if model is None:
         print(f'Model {model_type} not found')
-        return
+        # Match the 2-tuple arity of the success path below. A bare `return` made
+        # the caller's `model, model_path = train_model(...)` raise
+        # "cannot unpack non-iterable NoneType object", burying this message.
+        return None, None
 
     print(f'Loading Model to {device}...')
     model.to(device)
@@ -809,8 +828,10 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     if schedule == 'step_lr':
         scheduler = StepLR(optimizer, step_size=max(1, int(epochs / 5)), gamma=0.75)
     elif schedule == 'reduce_lr_on_plateau':
+        # `verbose` was deprecated in torch 2.2 and removed in 2.5; passing it
+        # made this documented schedule raise TypeError before the first batch.
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-            optimizer, mode='min', factor=0.1, patience=10, verbose=True)
+            optimizer, mode='min', factor=0.1, patience=10)
     elif schedule == 'cosine':
         # FIX: new option — cosine annealing
         scheduler = CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-7)
@@ -1025,13 +1046,18 @@ def generate_activation_map(settings):
     if n_jobs is None:
         n_jobs = max(1, cpu_count() - 4)
 
-    # Set transforms for images
-    transform = transforms.Compose([
+    # Set transforms for images. The Normalize step has to be appended
+    # conditionally: an inline `... if normalize_input else None` put a literal
+    # None into the Compose list, so normalize_input=False raised
+    # "TypeError: 'NoneType' object is not callable" on the first image.
+    transform_steps = [
         transforms.ToTensor(),
         transforms.CenterCrop(size=(settings['image_size'], settings['image_size'])),
-        transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)) if settings['normalize_input'] else None,
-        SelectChannels(settings['channels'])
-    ])
+    ]
+    if settings['normalize_input']:
+        transform_steps.append(transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)))
+    transform_steps.append(SelectChannels(settings['channels']))
+    transform = transforms.Compose(transform_steps)
 
     # Handle dataset path
     if not os.path.exists(settings['dataset']):
@@ -1108,9 +1134,16 @@ def generate_activation_map(settings):
         for i in range(inputs.size(0)):
             activation_map = activation_maps[i].detach().numpy()
 
+            # A flat map (e.g. a Grad-CAM fully suppressed by its F.relu, which
+            # happens whenever the target layer has collapsed to 1x1) has
+            # max == min, so the unguarded min-max rescale below used to produce
+            # 0/0 -> all-NaN and then an undefined NaN -> uint8 cast. `rng > 0` is
+            # also False for NaN, so a map that arrives already NaN is absorbed too.
             if settings['cam_type'] in ['saliency_image', 'gradcam', 'gradcam_pp']:
-                #activation_map = activation_map.sum(axis=0) 
-                activation_map = (activation_map - activation_map.min()) / (activation_map.max() - activation_map.min())
+                #activation_map = activation_map.sum(axis=0)
+                lo = activation_map.min()
+                rng = activation_map.max() - lo
+                activation_map = (activation_map - lo) / rng if rng > 0 else np.zeros_like(activation_map)
                 activation_map = (activation_map * 255).astype(np.uint8)
                 activation_image = Image.fromarray(activation_map, mode='L')
 
@@ -1119,7 +1152,9 @@ def generate_activation_map(settings):
                 rgb_activation_map = np.zeros((activation_map.shape[1], activation_map.shape[2], 3), dtype=np.uint8)
                 for c in range(min(activation_map.shape[0], 3)):  # Limit to 3 channels for RGB
                     channel_map = activation_map[c]
-                    channel_map = (channel_map - channel_map.min()) / (channel_map.max() - channel_map.min())
+                    lo = channel_map.min()
+                    rng = channel_map.max() - lo
+                    channel_map = (channel_map - lo) / rng if rng > 0 else np.zeros_like(channel_map)
                     rgb_activation_map[:, :, c] = (channel_map * 255).astype(np.uint8)
                 activation_image = Image.fromarray(rgb_activation_map, mode='RGB')
 
@@ -1229,7 +1264,10 @@ def visualize_integrated_gradients(src, model_path, target_label_idx=0, image_si
         ax[1].imshow(integrated_grads, cmap='hot')
         ax[1].axis('off')
         ax[1].set_title("Integrated Gradients")
-        overlay = np.array(image)
+        # Same trap as in visualize_smooth_grad: `image` is the unresized original
+        # while the attribution map is image_size square, so the blend below only
+        # broadcast when the source PNG happened to be image_size square.
+        overlay = np.array(image.resize((image_size, image_size)))
         overlay = overlay / overlay.max()
         integrated_grads_rgb = np.stack([integrated_grads] * 3, axis=-1)  # Convert saliency map to RGB
         overlay = (overlay * 0.5 + integrated_grads_rgb * 0.5).clip(0, 1)
@@ -1276,7 +1314,11 @@ class SmoothGrad:
             noisy_input.requires_grad_()
             output = self.model(noisy_input)
             self.model.zero_grad()
-            output[0, target_class].backward()
+            # Back-propagate the whole target column, not just row 0: with
+            # `output[0, target_class]` autograd only populated row 0 of .grad, so
+            # a batched input silently came back with all-zero attributions for
+            # every sample after the first. Identical for a single sample.
+            output[:, target_class].sum().backward()
             total_gradients += noisy_input.grad
 
         avg_gradients = total_gradients / self.n_samples
@@ -1331,7 +1373,12 @@ def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, cha
         ax[1].imshow(smooth_grad_map, cmap='hot')
         ax[1].axis('off')
         ax[1].set_title("SmoothGrad")
-        overlay = np.array(image)
+        # preprocess_image returns the UNRESIZED PIL image next to the resized
+        # tensor, so blending np.array(image) with the image_size-sized map raised
+        # a broadcast ValueError for any source PNG that is not image_size square.
+        # Blend at the resolution the model actually saw (a no-op copy when they
+        # already match); ax[0] still shows the full-resolution original.
+        overlay = np.array(image.resize((image_size, image_size)))
         overlay = overlay / overlay.max()
         smooth_grad_map_rgb = np.stack([smooth_grad_map] * 3, axis=-1)  # Convert smooth grad map to RGB
         overlay = (overlay * 0.5 + smooth_grad_map_rgb * 0.5).clip(0, 1)
@@ -1863,8 +1910,17 @@ def annotate_filter_vision(settings):
         :param csv_file: Path to the score CSV.
         :returns: Filtered DataFrame.
         """
-        # Split the path to identify the datasets folder and build the training folder path
-        before_datasets, after_datasets = csv_file.split(os.sep + "datasets" + os.sep, 1)
+        # Split the path to identify the datasets folder and build the training folder path.
+        # Unpacking the split into two names raised a bare "not enough values to
+        # unpack" for any CSV outside a '.../datasets/...' tree; say what is wrong
+        # instead, since remove_train cannot locate the training images without it.
+        marker = os.sep + "datasets" + os.sep
+        if marker not in csv_file:
+            raise ValueError(
+                f"remove_train=True needs the score CSV to sit inside a "
+                f"'...{marker}...' folder so the training images can be found, "
+                f"but got: {csv_file}")
+        before_datasets = csv_file.split(marker, 1)[0]
         train_fldr = os.path.join(before_datasets, 'datasets', 'training', 'train')
 
         # Paths for train/nc and train/pc

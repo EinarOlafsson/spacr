@@ -239,17 +239,11 @@ def test_multiclass_metrics_counts_wrong_predictions():
     assert len(m["per_class_accuracy"]) == 3
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: _multiclass_metrics per-class accuracy uses "
-           "cm.sum(axis=1, where=..., initial=1), so every row sum is "
-           "inflated by 1 and a perfectly classified class scores <1.0",
-)
 def test_multiclass_metrics_per_class_accuracy_perfect_is_one():
     """Per-class accuracy of a perfect classifier must be 1.0 for every class.
 
-    ``np.sum(..., initial=1)`` adds 1 to *every* row sum (it is not a
-    divide-by-zero guard), so the reported per-class accuracies are
+    ``np.sum(..., initial=1)`` used to add 1 to *every* row sum (it is not a
+    divide-by-zero guard), so the reported per-class accuracies came back as
     ``diag / (rowsum + 1)`` — e.g. [0.5, 0.667, 0.5] instead of [1, 1, 1].
     """
     from spacr.deep_spacr import _multiclass_metrics
