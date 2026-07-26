@@ -40,6 +40,8 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "deep_spacr",
     "diameter",
     "feature_dict",
+    "agreement",
+    "seg_qc",
     "gui_utils",
     "gui_elements",
     "gui_core",

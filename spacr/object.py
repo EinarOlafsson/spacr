@@ -158,6 +158,59 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
 
     return filtered_masks
 
+def _run_seg_qc(src, settings, object_type):
+    """Score the masks just written and surface the segmentation scorecard.
+
+    Called at the end of every mask generator, once per object type, while the
+    masks are the newest thing on disk and before anyone spends hours in
+    ``measure_crop`` on them. Controlled by the ``seg_qc`` setting:
+
+    * ``'off'`` — return immediately, touch nothing.
+    * ``'report'`` (default) — score every field, write
+      ``<plate>/qc/segmentation_qc_<object_type>.csv`` and print the card.
+      Nothing is filtered, skipped or deleted; the point is that the user sees
+      a bad plate now instead of discovering it in the measurements.
+    * ``'flag'`` — as ``'report'``, plus a ``..._flags.json`` sidecar and the
+      per-field flags recorded in ``settings['seg_qc_flags'][object_type]`` for
+      a downstream step to act on.
+
+    :param src: the mask source folder the generator was given (the one holding
+        the ``.npz`` batches and the ``<object_type>_mask_stack`` output).
+    :param settings: pipeline settings; read for ``seg_qc``, the ``seg_qc_*``
+        thresholds and ``verbose``. Mutated only in ``'flag'`` mode.
+    :param object_type: which masks to score.
+    :returns: the dict :func:`spacr.seg_qc.run_segmentation_qc` returns, or
+        None when QC is off, unavailable or it failed.
+    """
+    try:
+        from .seg_qc import qc_mode, run_segmentation_qc, thresholds_from_settings
+
+        mode = qc_mode(settings)
+        if mode == 'off':
+            return None
+
+        mask_folder = os.path.join(src, f'{object_type}_mask_stack')
+        # Same idiom as `count_loc` above: plate-level output lives one level up
+        # from the mask source, next to measurements/.
+        dst = os.path.dirname(src) or src
+        result = run_segmentation_qc(
+            mask_folder,
+            object_type=object_type,
+            dst=dst,
+            mode=mode,
+            thresholds=thresholds_from_settings(settings),
+            verbose=bool(settings.get('verbose', True)),
+        )
+    except Exception as exc:
+        # QC is a report, never a gate. A run that has just spent hours
+        # segmenting must not lose its masks to a scorecard bug.
+        print(f"Segmentation QC skipped for {object_type}: {type(exc).__name__}: {exc}")
+        return None
+
+    if result is not None and result.get('mode') == 'flag':
+        settings.setdefault('seg_qc_flags', {})[object_type] = result['flags']
+    return result
+
 def generate_cellpose_masks_sam(src, settings, object_type):
     """Segment one object channel across all ``.npz`` batches under ``src`` using Cellpose-SAM.
 
@@ -470,8 +523,9 @@ def generate_cellpose_masks_sam(src, settings, object_type):
             batch_filenames = []
     
         gc.collect()
-        
+
     torch.cuda.empty_cache()
+    _run_seg_qc(src, settings, object_type)
     return
 
 def generate_cellpose_masks(src, settings, object_type):
@@ -772,6 +826,7 @@ def generate_cellpose_masks(src, settings, object_type):
 
         gc.collect()
     torch.cuda.empty_cache()
+    _run_seg_qc(src, settings, object_type)
     return
 
 
@@ -1021,6 +1076,7 @@ def generate_organelle_masks_sam(src, settings, object_type):
             gc.collect()
 
     torch.cuda.empty_cache()
+    _run_seg_qc(src, settings, object_type)
     return
 
 def _validate_organelle_settings(morphology, method):

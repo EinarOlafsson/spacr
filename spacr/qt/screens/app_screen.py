@@ -126,6 +126,7 @@ APP_TITLES = {
     "annotate":        "Annotate",
     "make_masks":      "Make Masks",
     "db_browser":      "Database Browser",
+    "agreement":       "Annotator Agreement",
 }
 
 
@@ -147,6 +148,7 @@ APP_INTROS = {
     "umap":            "Embed single-object images into a UMAP and render the map with image glyphs.",
     "queue":           "Chain several plates through the same pipeline configuration.",
     "db_browser":      "Preview any table in a measurements database, search its columns, and export filtered rows to CSV — read-only.",
+    "agreement":       "Score how well two or more annotation passes agree with Cohen's or Fleiss' κ, then review every crop they labelled differently.",
     "analyze_plaques": "Detect and quantify plaques in plaque-assay images.",
     "recruitment":     "Quantify recruitment of a marker to a compartment across conditions.",
 }
