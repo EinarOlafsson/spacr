@@ -636,7 +636,10 @@ def convert_settings_dict_for_gui(settings):
         'channels': ('combo', chan_list, '[0,1,2,3]'),
         'train_channels': ('combo', ["['r','g','b']", "['r','g']", "['r','b']", "['g','b']", "['r']", "['g']", "['b']"], "['r','g','b']"),
         'channel_dims': ('combo', chan_list, '[0,1,2,3]'),
-        'dataset_mode': ('combo', ['annotation', 'metadata', 'recruitment'], 'metadata'),
+        # io.generate_training_dataset dispatches on metadata|annotation|
+        # measurement and returns (None, None) for anything else. 'recruitment'
+        # was offered here and silently produced no dataset.
+        'dataset_mode': ('combo', ['annotation', 'metadata', 'measurement'], 'metadata'),
         'cov_type': ('combo', ['HC0', 'HC1', 'HC2', 'HC3', None], None),
         'crop_mode': ('combo', ["['cell']", "['nucleus']", "['pathogen']", "['organelle']", "['cell', 'nucleus']", "['cell', 'pathogen']", "['cell', 'organelle']", "['nucleus', 'pathogen']", "['cell', 'nucleus', 'pathogen']", "['cell', 'nucleus', 'pathogen', 'organelle']"], "['cell']"),
         'timelapse_mode': ('combo', ['trackastra', 'ultrack', 'trackpy', 'iou', 'btrack'], 'trackastra'),
@@ -652,6 +655,10 @@ def convert_settings_dict_for_gui(settings):
         'optimizer_type': ('combo', ['adamw', 'adam', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad'], 'adamw'),
         'schedule': ('combo', ['cosine','reduce_lr_on_plateau', 'step_lr'], 'cosine'),
         'loss_type': ('combo', ['auto', 'cross_entropy', 'label_smoothing', 'focal_loss', 'ce_weighted', 'binary_cross_entropy_with_logits'], 'auto'),
+        # io.CLASS_BALANCE_MODES / io.CV_GROUP_LEVELS — both raise ValueError
+        # on anything outside these lists, so free text is not usable here.
+        'class_balance': ('combo', ['none', 'weighted_sampler', 'sqrt_weighted_sampler', 'weighted_loss'], 'none'),
+        'cv_group_by': ('combo', ['well', 'field', 'plate', 'none'], 'well'),
         'normalize_by': ('combo', ['fov', 'png'], 'png'),
         'agg_type': ('combo', ['mean', 'median'], 'mean'),
         'grouping': ('combo', ['mean', 'median'], 'mean'),
