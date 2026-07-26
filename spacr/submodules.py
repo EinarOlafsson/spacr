@@ -1972,6 +1972,88 @@ def analyze_endodyogeny(settings):
 
 
 # ===========================================================================
+# The field key both object assays are built on
+# ===========================================================================
+
+def _ensure_field_key(df, source='the parasite table', verbose=False):
+    """Give ``df`` a ``prcf`` that identifies **one field at one timepoint**.
+
+    ``prcf`` is the unit of observation for both object assays: the replication
+    assay builds every vacuole id out of it, and the invasion assay computes one
+    outside-stain threshold per ``prcf``. On a plain screen it is
+    ``plate_row_column_field``; on a **timelapse** it is
+    ``plate_row_column_field_TIME``, which is what
+    :func:`spacr.utils._map_wells` — the writer that put ``prcf`` into the
+    measurements database — actually writes.
+
+    Both assays used to rebuild the four-token form whenever the column was
+    missing (which is exactly what ``change_plate=True`` arranges, since it
+    drops the database's own ``prcf`` so the relabelled plate does not
+    disagree with it). A four-token key on a timelapse names a *stack*, not a
+    frame, and both assays then silently fold every timepoint of a field into
+    one observation:
+
+    * replication — the spatial clustering scopes on ``(prcf, cell_id)``, so
+      the same host cell photographed at t1/t2/t3 became one group. A real
+      2-well x 1-field x 3-frame x 2-cell database (one parasite per cell,
+      12 vacuoles of 1) came out as **4 vacuoles of 3 parasites**, every one of
+      them in the ``non_power_of_two`` bucket — the assay reported 100 %
+      segmentation error and zero singly-infected vacuoles.
+    * invasion — one Otsu cut was computed across all frames. With the stain
+      level drifting between frames (the ordinary reason the threshold is
+      per-field in the first place), a 36-parasite well whose true efficiency
+      is **0.500** was reported as **0.944**, and 6 field rows collapsed to 2.
+
+    Repair-on-read, the contract :func:`spacr.utils.rename_columns_in_db`
+    established: a stored ``prcf`` that is *provably* this frame's own
+    time-blind key — it equals the four-token build character for character —
+    is a key written before this was fixed, and gets the timepoint appended.
+    A ``prcf`` that differs in any other way (a renamed plate, an imported
+    table, a key from :mod:`spacr.foreign`) is left exactly as the caller
+    supplied it, and a database with no timepoint column is not touched at
+    all.
+
+    :param df: Frame carrying ``plateID`` / ``rowID`` / ``columnID`` /
+        ``fieldID`` and, on a timelapse, ``timeID`` (or the legacy
+        ``time_id`` — either spelling is resolved through
+        :func:`spacr.utils._time_column`).
+    :param source: Name used in the repair message.
+    :param verbose: Print the resolved key composition.
+    :returns: ``df``, with ``prcf`` present and time-aware.
+    """
+    from .utils import _time_column
+
+    time_column = _time_column(df.columns)
+    blind = (df['plateID'].astype(str) + '_' + df['rowID'].astype(str)
+             + '_' + df['columnID'].astype(str) + '_'
+             + df['fieldID'].astype(str))
+    keyed = blind if time_column is None else blind + '_' + df[time_column].astype(str)
+
+    if 'prcf' not in df.columns:
+        df['prcf'] = keyed
+        if verbose:
+            built = 'plate_row_column_field' if time_column is None else \
+                f'plate_row_column_field_{time_column}'
+            print(f"Built prcf for {source} as {built}.")
+        return df
+
+    if time_column is None:
+        return df
+
+    stale = df['prcf'].astype(str).eq(blind)
+    if stale.any():
+        print(f"Repaired {int(stale.sum())} time-blind prcf value(s) in "
+              f"{source}: the table carries '{time_column}' but its prcf named "
+              f"only plate/row/column/field, which merges every timepoint of a "
+              f"field into one observation. The timepoint has been appended.")
+        # .to_numpy(): assign positionally. `keyed` shares df's index, but a
+        # frame whose index carries repeated labels would make .loc align on
+        # the label and write the wrong rows.
+        df.loc[stale, 'prcf'] = keyed[stale].to_numpy()
+    return df
+
+
+# ===========================================================================
 # Replication assay (Toxoplasma endodyogeny) — parasites per vacuole
 # ===========================================================================
 
@@ -2726,10 +2808,11 @@ def analyze_replication(settings):
                 f"Table '{parasite_table}' has no '{column}' column; it does "
                 f"not look like a spacr measurements table."
             )
-    if 'prcf' not in df.columns:
-        df['prcf'] = (df['plateID'].astype(str) + '_' + df['rowID'].astype(str)
-                      + '_' + df['columnID'].astype(str) + '_'
-                      + df['fieldID'].astype(str))
+    # The timepoint is part of this key on a timelapse; see _ensure_field_key.
+    # Every vacuole id below is built from prcf, so a time-blind one merges the
+    # same host cell across all of its frames into a single vacuole.
+    df = _ensure_field_key(df, source=f"table '{parasite_table}'",
+                           verbose=settings['verbose'])
     df['prc'] = (df['plateID'].astype(str) + '_' + df['rowID'].astype(str)
                  + '_' + df['columnID'].astype(str))
 
@@ -3463,10 +3546,19 @@ def _invasion_classify(df, fields, value_column, extracellular_class):
         is applied by the caller).
     :returns: DataFrame copy with the classification columns added.
     """
+    from .io import _report_fan_out
+
     columns = ['prcf', 'threshold', 'threshold_source', 'threshold_low',
                'threshold_high', 'automatic_threshold', 'reference_threshold',
                'bimodality_coefficient']
-    df = df.merge(fields[columns], on='prcf', how='left')
+    merged = df.merge(fields[columns], on='prcf', how='left')
+    # ``fields`` comes out of a groupby on prcf so it holds one row per key and
+    # this join cannot grow. Checked anyway, with io's own helper: if a caller
+    # ever hands in a field table assembled some other way, a duplicated prcf
+    # would silently duplicate every parasite and inflate n_total.
+    _report_fan_out(df, merged, ['prcf'], left_name='parasite',
+                    right_name='the field threshold table')
+    df = merged
 
     values = df[value_column].to_numpy(dtype=float)
     thresholds = df['threshold'].to_numpy(dtype=float)
@@ -4162,10 +4254,11 @@ def analyze_invasion(settings):
                 f"Table '{parasite_table}' has no '{column}' column; it does "
                 f"not look like a spacr measurements table."
             )
-    if 'prcf' not in df.columns:
-        df['prcf'] = (df['plateID'].astype(str) + '_' + df['rowID'].astype(str)
-                      + '_' + df['columnID'].astype(str) + '_'
-                      + df['fieldID'].astype(str))
+    # The timepoint is part of this key on a timelapse; see _ensure_field_key.
+    # One outside-stain threshold is computed per prcf, so a time-blind one
+    # cuts every frame of a field on a single number.
+    df = _ensure_field_key(df, source=f"table '{parasite_table}'",
+                           verbose=settings['verbose'])
     df['prc'] = (df['plateID'].astype(str) + '_' + df['rowID'].astype(str)
                  + '_' + df['columnID'].astype(str))
 
