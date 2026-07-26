@@ -1,0 +1,617 @@
+{
+ "10|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "10|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "10|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "11|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "11|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "11|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "12|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "12|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "12|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "13|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "13|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "13|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "14|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "14|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "14|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "15|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "15|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "15|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "16|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "16|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "16|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "17|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "17|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "17|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "18|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "18|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "18|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "19|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "19|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "19|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "1|dark": {
+  "clipped": [
+   "'spaCR' needs 101x61, has 220x24",
+   "'Core pipeline' needs 123x31, has 220x23",
+   "'Data & batch runs' needs 160x31, has 220x23",
+   "'Segmentation models' needs 184x31, has 220x24",
+   "'Results & QC' needs 118x31, has 220x23",
+   "'Toxoplasma assays' needs 164x31, has 220x24"
+  ],
+  "elided": [],
+  "overflow": [
+   "layout needs 1406 px of height, canvas is 900"
+  ],
+  "scrollbars": [
+   "Horizontal in QWidget",
+   "Horizontal in QWidget",
+   "Horizontal in QWidget",
+   "Vertical in QWidget"
+  ]
+ },
+ "1|light": {
+  "clipped": [
+   "'spaCR' needs 101x61, has 220x24",
+   "'Core pipeline' needs 123x31, has 220x23",
+   "'Data & batch runs' needs 160x31, has 220x23",
+   "'Segmentation models' needs 184x31, has 220x24",
+   "'Results & QC' needs 118x31, has 220x23",
+   "'Toxoplasma assays' needs 164x31, has 220x24"
+  ],
+  "elided": [],
+  "overflow": [
+   "layout needs 1406 px of height, canvas is 900"
+  ],
+  "scrollbars": [
+   "Horizontal in QWidget",
+   "Horizontal in QWidget",
+   "Horizontal in QWidget",
+   "Vertical in QWidget"
+  ]
+ },
+ "1|space": {
+  "clipped": [
+   "'spaCR' needs 101x61, has 220x24",
+   "'Core pipeline' needs 123x31, has 220x23",
+   "'Data & batch runs' needs 160x31, has 220x23",
+   "'Segmentation models' needs 184x31, has 220x24",
+   "'Results & QC' needs 118x31, has 220x23",
+   "'Toxoplasma assays' needs 164x31, has 220x24"
+  ],
+  "elided": [],
+  "overflow": [
+   "layout needs 1406 px of height, canvas is 900"
+  ],
+  "scrollbars": [
+   "Horizontal in QWidget",
+   "Horizontal in QWidget",
+   "Horizontal in QWidget",
+   "Vertical in QWidget"
+  ]
+ },
+ "20|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "20|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "20|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "21|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "21|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "21|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "22|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "22|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "22|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "23|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "23|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "23|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "24|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "24|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "24|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "25|dark": {
+  "clipped": [
+   "'spaCR' needs 101x61, has 220x24",
+   "'Core pipeline' needs 123x31, has 220x23",
+   "'Data & batch runs' needs 160x31, has 220x23",
+   "'Segmentation models' needs 184x31, has 220x24",
+   "'Results & QC' needs 118x31, has 220x23",
+   "'Toxoplasma assays' needs 164x31, has 220x24"
+  ],
+  "elided": [],
+  "overflow": [
+   "layout needs 1406 px of height, canvas is 900"
+  ],
+  "scrollbars": []
+ },
+ "25|light": {
+  "clipped": [
+   "'spaCR' needs 101x61, has 220x24",
+   "'Core pipeline' needs 123x31, has 220x23",
+   "'Data & batch runs' needs 160x31, has 220x23",
+   "'Segmentation models' needs 184x31, has 220x24",
+   "'Results & QC' needs 118x31, has 220x23",
+   "'Toxoplasma assays' needs 164x31, has 220x24"
+  ],
+  "elided": [],
+  "overflow": [
+   "layout needs 1406 px of height, canvas is 900"
+  ],
+  "scrollbars": []
+ },
+ "25|space": {
+  "clipped": [
+   "'spaCR' needs 101x61, has 220x24",
+   "'Core pipeline' needs 123x31, has 220x23",
+   "'Data & batch runs' needs 160x31, has 220x23",
+   "'Segmentation models' needs 184x31, has 220x24",
+   "'Results & QC' needs 118x31, has 220x23",
+   "'Toxoplasma assays' needs 164x31, has 220x24"
+  ],
+  "elided": [],
+  "overflow": [
+   "layout needs 1406 px of height, canvas is 900"
+  ],
+  "scrollbars": []
+ },
+ "26|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "26|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "26|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "27|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "27|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "27|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "28|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "28|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "28|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "29|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "29|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "29|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "2|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "2|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "2|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "30|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": [
+   "Vertical in QWidget"
+  ]
+ },
+ "30|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": [
+   "Vertical in QWidget"
+  ]
+ },
+ "30|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": [
+   "Vertical in QWidget"
+  ]
+ },
+ "3|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "3|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "3|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "4|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "4|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "4|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "5|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "5|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "5|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "6|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "6|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "6|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "7|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "7|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "7|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "8|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "8|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "8|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "9|dark": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "9|light": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ },
+ "9|space": {
+  "clipped": [],
+  "elided": [],
+  "overflow": [],
+  "scrollbars": []
+ }
+}
