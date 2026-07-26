@@ -89,6 +89,7 @@ APP_FUNCTIONS: Dict[str, str] = {
     "mask": "spacr.core.preprocess_generate_masks",
     "measure": "spacr.measure.measure_crop",
     "classify": "spacr.deep_spacr.deep_spacr",
+    "foreign": "spacr.foreign.import_project",
     "umap": "spacr.core.generate_image_umap",
     "train_cellpose": "spacr.submodules.train_cellpose",
     "ml_analyze": "spacr.ml.generate_ml_scores",
