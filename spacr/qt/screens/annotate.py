@@ -1398,17 +1398,53 @@ class AnnotateScreen(QWidget):
             f"Page rows {self._offset}–{min(self._offset + page, self._total)} / {self._total}"
         )
 
-    def _load_thumb_image(self, row: Tuple[str, Optional[int]]):
-        path, annotation = row
+    def _crop_source(self):
+        """Resolve the crop source once per settings change, then cache it.
+
+        'auto' keeps today's behaviour: the PNG folder is used whenever one
+        exists, and only a project without one falls back to cutting crops out
+        of merged/*.npy. See spacr.crops.resolve_crop_source.
+        """
         s = self._settings
-        path = _reanchor_png_path(path, s.db_path)
-        if not path or not os.path.isfile(path):
-            blank = Image.new("RGB", s.image_size, color=(20, 20, 20))
-            return blank, annotation
-        try:
-            img = Image.open(path).convert("RGB")
-        except Exception:
-            return Image.new("RGB", s.image_size, (30, 30, 30)), annotation
+        key = (s.db_path, getattr(s, "crop_source", "auto"), s.image_type)
+        if getattr(self, "_cropsrc_key", None) != key:
+            from ...crops import resolve_crop_source
+            root = os.path.dirname(os.path.dirname(s.db_path or ""))
+            obj = (s.image_type or "cell_png").replace("_png", "") or "cell"
+            try:
+                self._cropsrc = resolve_crop_source(
+                    {"src": root, "crop_source": getattr(s, "crop_source", "auto")},
+                    object_type=obj)
+            except Exception:
+                self._cropsrc = None      # PNG path below still works
+            self._cropsrc_key = key
+        return self._cropsrc
+
+    def _load_thumb_image(self, row):
+        # Rows are (png_path, annotation) from the plain page fetch, or a dict
+        # carrying path_name/object_label when the merged source is in play.
+        if isinstance(row, dict):
+            annotation = row.get("annotation")
+        else:
+            path, annotation = row
+            row = {"png_path": path}
+        s = self._settings
+
+        src = self._crop_source()
+        if src is not None and getattr(src, "kind", "png") == "merged":
+            try:
+                img = Image.fromarray(src.get(row)).convert("RGB")
+            except Exception:
+                return Image.new("RGB", s.image_size, (30, 30, 30)), annotation
+        else:
+            path = _reanchor_png_path(row.get("png_path"), s.db_path)
+            if not path or not os.path.isfile(path):
+                blank = Image.new("RGB", s.image_size, color=(20, 20, 20))
+                return blank, annotation
+            try:
+                img = Image.open(path).convert("RGB")
+            except Exception:
+                return Image.new("RGB", s.image_size, (30, 30, 30)), annotation
         img = normalize_pil(img, s.percentiles, s.normalize_channels)
         # Full-quality image before channel filter — used as the outline
         # detection source so outlines still find features on channels the
