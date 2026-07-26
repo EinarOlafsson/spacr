@@ -109,6 +109,7 @@ APPS = [
     ("umap",           "Image UMAP",     "Generate UMAP embeddings with image glyphs",                  "Tools"),
     ("queue",          "Plate Queue",    "Chain multiple plates through the same pipeline",             "Tools"),
     ("convert",        "Format Converter", "ND2/CZI/LIF/OME-TIFF into Yokogawa TIFFs: preview the mapping, then a map file back to the originals", "Tools"),
+    ("foreign",        "Import Project", "Someone else's images, masks and measurement table into a spaCR project, with their columns mapped onto spaCR's", "Tools"),
     ("batch",          "Batch Runner",   "Queue any modules, plates and settings and run them overnight", "Tools"),
     ("db_browser",     "Database Browser", "Browse and export measurements.db without the sqlite3 CLI", "Tools"),
     ("agreement",      "Annotator Agreement", "Cohen's/Fleiss' κ between annotation columns + a disagreement review", "Tools"),
@@ -800,6 +801,9 @@ class MainWindow(QMainWindow):
         if key == "convert":
             from .screens.convert import ConvertScreen
             return ConvertScreen()
+        if key == "foreign":
+            from .screens.foreign import ForeignScreen
+            return ForeignScreen()
         if key == "batch":
             from .screens.batch import BatchScreen
             return BatchScreen()
