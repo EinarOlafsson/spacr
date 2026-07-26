@@ -99,6 +99,7 @@ APP_FUNCTIONS: Dict[str, str] = {
     "map_barcodes": "spacr.sequencing.generate_barecode_mapping",
     "regression": "spacr.ml.perform_regression",
     "recruitment": "spacr.submodules.analyze_recruitment",
+    "replication": "spacr.submodules.analyze_endodyogeny",
     "analyze_plaques": "spacr.submodules.analyze_plaques",
     "convert": "spacr.io.process_non_tif_non_2D_images",
     "simulation": "spacr.sim.run_multiple_simulations",

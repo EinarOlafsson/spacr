@@ -40,6 +40,7 @@ from .settings_model import SettingsWidgets
 # don't have an entry fall back to a generic "Settings that
 # control <title>."
 SECTION_HINTS = {
+    "REPLICATION ASSAY": "How endodyogeny is scored: which column carries the class, how vacuoles are binned by area, and the pixel size used to convert those bins to micrometres.",
     "PATHS":            "Source folder + destination folder + which "
                         "sub-folders spaCR should read images from.",
     "GENERAL":          "High-level knobs: metadata source (Yokogawa "
