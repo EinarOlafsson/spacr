@@ -186,7 +186,22 @@ _MODULE_LIST: Tuple[Module, ...] = (
     ),
     Module(
         key="classify",
-        summary="Train / evaluate a torch vision classifier on a spaCR dataset.",
+        summary="Full DL pipeline: build dataset, train, apply the model, merge predictions.",
+        entry="spacr.deep_spacr:deep_spacr",
+        defaults="deep_spacr_defaults",
+        validate_key="classify",
+        requires=("src — plate folder with per-object PNGs from the measure module",
+                  "classes — the class names",
+                  "model_path when train=False and apply_model_to_dataset=True"),
+        writes=("<src>/datasets/", "<src>/model/*.pth",
+                "predictions merged into measurements.db"),
+        note=("Same function the Classify (CV) button runs in both GUIs, so a "
+              "settings.csv saved there behaves identically here. Use the "
+              "'train_only' module for the training stage alone."),
+    ),
+    Module(
+        key="train_only",
+        summary="The training stage alone: train / evaluate on an existing dataset folder.",
         entry="spacr.deep_spacr:train_test_model",
         defaults="get_train_test_model_settings",
         validate_key="classify",
@@ -194,20 +209,9 @@ _MODULE_LIST: Tuple[Module, ...] = (
                   "classes — the class folder names",
                   "train and/or test"),
         writes=("<src>/model/*.pth", "training + evaluation metrics CSVs"),
-        note=("The Qt Classify screen shows the wider deep_spacr_defaults but runs "
-              "this function, which ignores generate_training_dataset / "
-              "apply_model_to_dataset. Use the 'deep_spacr' module for the full driver."),
-    ),
-    Module(
-        key="deep_spacr",
-        summary="Full DL driver: build dataset, train, apply the model, merge predictions.",
-        entry="spacr.deep_spacr:deep_spacr",
-        defaults="deep_spacr_defaults",
-        validate_key="classify",
-        requires=("src — plate folder with per-object PNGs from the measure module",
-                  "model_path when train=False and apply_model_to_dataset=True"),
-        writes=("<src>/datasets/", "<src>/model/*.pth",
-                "predictions merged into measurements.db"),
+        note=("Ignores generate_training_dataset and apply_model_to_dataset — "
+              "the dataset must already exist. Use 'classify' for the full "
+              "pipeline, which is what both GUIs run."),
     ),
     Module(
         key="activation",
@@ -346,8 +350,9 @@ ALIASES: Dict[str, str] = {
     "generate_masks": "mask",
     "masks": "mask",
     "measure_crop": "measure",
-    "train_test_model": "classify",
-    "train": "classify",
+    "train_test_model": "train_only",
+    "train": "train_only",
+    "deep_spacr": "classify",
     "classify_dl": "classify",
     "classify_ml": "ml_analyze",
     "generate_ml_scores": "ml_analyze",
