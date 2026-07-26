@@ -127,8 +127,22 @@ class HoverTooltip(QFrame):
     def _maybe_hide(self) -> None:
         if self.underMouse():
             return
-        if self._anchor is not None and self._anchor.underMouse():
-            return
+        # `self._anchor is not None` is not enough. The tooltip is a
+        # process-wide singleton holding a plain reference to a widget it does
+        # not own, and the hide is deferred by a timer -- so hovering a
+        # settings label and switching module inside the delay destroys the
+        # anchor's C++ object while this timer is still pending. The Python
+        # wrapper survives, so the None check passes, and underMouse() then
+        # raises RuntimeError('Internal C++ object already deleted') inside
+        # the Qt event loop, where there is nobody to catch it.
+        anchor = self._anchor
+        if anchor is not None:
+            try:
+                if anchor.underMouse():
+                    return
+            except RuntimeError:
+                # The anchored widget is gone; nothing can be hovering it.
+                self._anchor = None
         self.hide()
 
     def enterEvent(self, event):
