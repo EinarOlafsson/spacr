@@ -104,7 +104,14 @@ PNG_KEY = "png_path"
 #: hold annotations.
 _METADATA_COLUMNS = frozenset({
     "png_path", "file_name", "plateID", "rowID", "columnID", "fieldID",
-    "time_id", "prcfo", "prc", "cell_id", "nucleus_id", "pathogen_id",
+    # Both spellings of the timepoint. 'timeID' is what filepaths_to_database
+    # writes now, and what spacr.utils.rename_columns_in_db migrates an old
+    # database to on first read; 'time_id' is what a database written before
+    # that still carries until then. Either one is metadata, never an
+    # annotation -- and a timelapse database whose time column counted as a
+    # candidate annotation column would have been scored for agreement.
+    "timeID", "time_id", "prcft",
+    "prcfo", "prc", "cell_id", "nucleus_id", "pathogen_id",
     "cytoplasm_id", "object_label", "plate", "row", "column", "field",
     "well", "id", "index", "level_0",
 })
