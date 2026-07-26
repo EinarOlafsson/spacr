@@ -12,18 +12,19 @@ the real helper's output. A recording ``RandomForestClassifier`` subclass is
 installed where the test needs to assert on the feature matrix the function
 actually built (the function only returns the importance tables).
 
-Bugs found while writing this file are pinned with ``xfail(strict=True)``
-asserting the CORRECT behaviour:
+Bugs found while writing this file were pinned with ``xfail(strict=True)``
+asserting the CORRECT behaviour; all four are now fixed and the tests at the
+bottom of the file are their plain regression tests:
 
 * ``if settings['feature_importance'] or settings['feature_importance']``
-  (a duplicated condition) leaves ``model`` / ``feature_importance_df``
-  unbound when only permutation importance or only SHAP is requested,
-* ``shap_sample`` draws ``int(len(X)/100)`` rows, i.e. zero rows for any
+  (a duplicated condition) left ``model`` / ``feature_importance_df``
+  unbound when only permutation importance or only SHAP was requested,
+* ``shap_sample`` drew ``int(len(X)/100)`` rows, i.e. zero rows for any
   experiment with fewer than 100 objects,
-* ``group_feature_class`` regex-matches ``settings['channels']``, so the
-  documented integer channel ids blow up,
-* the merge keys use the legacy ``column_name`` while
-  ``io._read_and_merge_data`` emits ``columnID``.
+* ``group_feature_class`` regex-matched ``settings['channels']``, so the
+  documented integer channel ids blew up,
+* the merge keys used the legacy ``column_name`` while
+  ``io._read_and_merge_data`` emits ``columnID`` (both are accepted now).
 """
 from __future__ import annotations
 
@@ -658,13 +659,9 @@ def test_group_feature_class_defaults_to_the_four_compartments():
 
 
 # ===========================================================================
-# bugs — xfail(strict=True) pinning the CORRECT behaviour
+# regression tests for bugs that were once pinned with xfail(strict=True)
 # ===========================================================================
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: `if settings['feature_importance'] or settings['feature_importance']` "
-    "repeats the same key, so the random forest is never fitted when only "
-    "permutation importance is requested -> UnboundLocalError on `model`"))
 def test_permutation_importance_without_feature_importance(tmp_path,
                                                            monkeypatch):
     """Permutation importance must be usable on its own."""
@@ -684,10 +681,6 @@ def test_permutation_importance_without_feature_importance(tmp_path,
     assert len(out["permutation_importance"]) == 4
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: the SHAP block reads `feature_importance_df`, which is only bound "
-    "inside the feature-importance branch, so shap=True with "
-    "feature_importance=False raises UnboundLocalError"))
 def test_shap_without_feature_importance(tmp_path, monkeypatch):
     """SHAP must be usable without also asking for RF feature importance."""
     from spacr.submodules import interperate_vision_model
@@ -706,10 +699,6 @@ def test_shap_without_feature_importance(tmp_path, monkeypatch):
     assert len(out["shap"]) == 20
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: shap_sample takes int(len(X_top) / 100) rows, which floors to 0 for "
-    "any experiment with fewer than 100 objects -> shap gets an empty "
-    "background and raises IndexError"))
 def test_shap_sample_on_a_small_plate(tmp_path, monkeypatch):
     """shap_sample must degrade gracefully below 100 objects."""
     from spacr.submodules import interperate_vision_model
@@ -727,10 +716,6 @@ def test_shap_sample_on_a_small_plate(tmp_path, monkeypatch):
     assert len(out["shap"]) >= 1
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: group_feature_class re.search()es settings['channels'] directly, so "
-    "the documented integer channel ids raise "
-    "TypeError: first argument must be string or compiled pattern"))
 def test_integer_channel_ids_are_accepted(tmp_path, monkeypatch):
     """``channels`` is an int list everywhere else in spacr (and in this
     function's own docstring), so [0, 1, 2, 3] must group cleanly."""
@@ -751,10 +736,6 @@ def test_integer_channel_ids_are_accepted(tmp_path, monkeypatch):
     assert chan["channel_importance_sum"].sum() == pytest.approx(1.0)
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: the merge keys use the legacy 'column_name', but "
-    "io._read_and_merge_data emits 'columnID' -> KeyError "
-    "\"['column_name'] not in index\" on any real measurements.db"))
 def test_modern_columnid_schema_from_read_and_merge_data(tmp_path, monkeypatch):
     """The frame handed back by ``io._read_and_merge_data`` names the plate
     column ``columnID``; the explainer has to cope with it."""

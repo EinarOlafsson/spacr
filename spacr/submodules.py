@@ -332,8 +332,22 @@ def test_cellpose_model(settings):
     scores = []
     names = []
     time_ls = []
-    
-    files_to_process = len(test_image_folder)
+    # These per-image metric lists used to be re-initialised INSIDE the
+    # batch loop, while names/scores accumulated across batches — so the
+    # df_results build below raised "All arrays must be of the same
+    # length" as soon as there was more than one batch. They belong here,
+    # next to names/scores, so every image contributes exactly one row.
+    n_objects_true_ls = []
+    n_objects_pred_ls = []
+    mean_area_true_ls = []
+    mean_area_pred_ls = []
+    tp_ls, fp_ls, fn_ls = [], [], []
+    precision_ls, recall_ls, f1_ls, accuracy_ls = [], [], [], []
+
+    # test_image_folder is a path STRING (os.path.join), so len() of it
+    # measured the number of characters in the path, not the number of
+    # images — the progress line reported a nonsense total.
+    files_to_process = len(test_image_files)
 
     for i in range(0, len(test_dataset), batch_size):
         start = time.time()
@@ -355,13 +369,6 @@ def test_cellpose_model(settings):
                                           augment=True,
                                           tile_overlap=0.2,
                                           bsize=224)
-        
-        n_objects_true_ls = []
-        n_objects_pred_ls = []
-        mean_area_true_ls = []
-        mean_area_pred_ls = []
-        tp_ls, fp_ls, fn_ls = [], [], []
-        precision_ls, recall_ls, f1_ls, accuracy_ls = [], [], [], []
 
         for j, (img, lbl, pred, flow) in enumerate(zip(images, labels, masks_pred, flows)):
             score = float(aggregated_jaccard_index([lbl], [pred]))
@@ -406,15 +413,19 @@ def test_cellpose_model(settings):
             f1_ls.append(f1)
             accuracy_ls.append(acc)
 
+            # This block used to be duplicated verbatim, so every
+            # diagnostic figure was rendered and savefig'd twice to the
+            # same cellpose_result_{i+j:03d}.png path.
             if settings['save']:
                 plot_cellpose_resilts(i, j, results_dir, img, lbl, pred, flow)
 
-            if settings['save']:
-                plot_cellpose_resilts(i,j,results_dir, img, lbl, pred, flow)
-                
         stop = time.time()
         duration = stop-start
-        files_processed = (i+1) * batch_size
+        # i already steps by batch_size, i.e. it IS the dataset index of
+        # the first image of this batch — (i+1)*batch_size overshot the
+        # number of images actually processed on every batch after the
+        # first. min() clamps the final, partial batch.
+        files_processed = min(i + batch_size, len(test_dataset))
         time_ls.append(duration)
         print_progress(files_processed, files_to_process, n_jobs=1, time_ls=None, batch_size=batch_size, operation_type="test custom cellpose model")
 
@@ -578,8 +589,13 @@ def apply_cellpose_model(settings):
         print_progress(files_processed, files_to_process, n_jobs=1, time_ls=None, batch_size=batch_size, operation_type="apply custom cellpose model")
 
 
-        # Write after each batch
-        df_measurements = pd.DataFrame(measurements)
+        # Write after each batch. The columns must be declared: when a
+        # batch finds no objects (blank field, aggressive CP_probability,
+        # or circularize=True zeroing every peripheral object)
+        # `measurements` is still [] and pd.DataFrame([]) has NO columns,
+        # so the groupby below died with KeyError('image') and left
+        # measurements.csv as a bare newline that pd.read_csv rejects.
+        df_measurements = pd.DataFrame(measurements, columns=['image', 'object_id', 'area'])
         df_measurements.to_csv(os.path.join(results_dir, 'measurements.csv'), index=False)
         print("Saved object counts and areas to measurements.csv")
 
@@ -601,7 +617,10 @@ def plot_cellpose_batch(images, labels):
 
     cmap_lbl = generate_mask_random_cmap(labels)
     batch_size = len(images)
-    fig, axs = plt.subplots(2, batch_size, figsize=(4 * batch_size, 8))
+    # squeeze=False keeps axs 2-D for every batch size; with the default
+    # squeeze=True a single-image batch collapsed to a 1-D array and the
+    # axs[0, i] indexing below raised IndexError.
+    fig, axs = plt.subplots(2, batch_size, figsize=(4 * batch_size, 8), squeeze=False)
     for i in range(batch_size):
         axs[0, i].imshow(images[i], cmap='gray')
         axs[0, i].set_title(f'Image {i+1}')
@@ -702,7 +721,12 @@ def analyze_percent_positive(settings):
     
     merged = pd.merge(count_df, translate_df, on=['rowID', 'column_name'], how='inner')
 
-    merged = merged[['plate_y', 'well', 'plate_well','fieldID','rowID','column_name','prc_x','Original File','Renamed TIFF','above','below','fraction_above','fraction_below']]
+    # 'plateID_y' is the plate parsed from rename_log.csv's 'Renamed TIFF'.
+    # This used to read 'plate_y', a leftover from before the
+    # plate -> plateID rename: neither frame carries a 'plate' column any
+    # more, so pandas never synthesises a 'plate_y' suffix and the
+    # selection always raised KeyError "['plate_y'] not in index".
+    merged = merged[['plateID_y', 'well', 'plate_well','fieldID','rowID','column_name','prc_x','Original File','Renamed TIFF','above','below','fraction_above','fraction_below']]
     merged[[f'part{i}' for i in range(merged['Original File'].str.count('_').max() + 1)]] = merged['Original File'].str.split('_', expand=True)
     merged.to_csv(csv_out_loc, index=False)
     display(merged)
@@ -769,7 +793,14 @@ def analyze_recruitment(settings):
     if settings['src'].endswith('/measurements.db'):
         src_orig = settings['src']
         settings['src'] = os.path.dirname(settings['src'])
-        if not settings['src'].endswith('/measurements'):
+        if settings['src'].endswith('/measurements'):
+            # The db already lives in the canonical <plate>/measurements/
+            # folder, so src must go one more level up to the plate. The
+            # old code only skipped the move here and left src pointing at
+            # the measurements folder, which made the read below build
+            # <plate>/measurements/measurements/measurements.db.
+            settings['src'] = os.path.dirname(settings['src'])
+        else:
             src_mes = os.path.join(settings['src'], 'measurements')
             if not os.path.exists(src_mes):
                 os.makedirs(src_mes)
@@ -1005,10 +1036,11 @@ def count_phenotypes(settings):
     # Reset the index so that plate, row, and column form a combined index
     pivot_df.index = pivot_df.index.map(lambda x: f"{x[0]}_{x[1]}_{x[2]}")
 
-    # Saving the DataFrame to a SQLite .db file
-    output_dir = os.path.join('src', 'results')  # Replace 'src' with the actual base directory
-    os.makedirs(output_dir, exist_ok=True)
-
+    # Save the pivoted counts next to the measurements database. The
+    # previous revision first did os.makedirs(os.path.join('src',
+    # 'results')) — a hard-coded RELATIVE path whose value was discarded
+    # on the very next line, so its only effect was littering the
+    # caller's cwd with a stray ./src/results directory.
     output_dir = os.path.dirname(settings['src'])
     output_path = os.path.join(output_dir, 'phenotype_counts.csv')
 
@@ -1043,6 +1075,12 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
         empirical_dict = {'r1':(90,10),'r2':(90,10),'r3':(80,20),'r4':(80,20),'r5':(70,30),'r6':(70,30),'r7':(60,40),'r8':(60,40),'r9':(50,50),'r10':(50,50),'r11':(40,60),'r12':(40,60),'r13':(30,70),'r14':(30,70),'r15':(20,80),'r16':(20,80)}
     if y_columns is None:
         y_columns = ['class_1_fraction', 'TGGT1_220950_1_fraction', 'nc_fraction']
+    if save_paths is None:
+        # save_paths is declared with a None default but was indexed
+        # unconditionally below, so the documented minimal call raised
+        # TypeError. plot_line already treats save_path=None as
+        # "don't save", so normalise to the two-element form here.
+        save_paths = [None, None]
     def calculate_well_score_fractions(df, class_columns='cv_predictions'):
         """Aggregate per-object classifier predictions into per-well class fractions.
 
@@ -1061,6 +1099,14 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
                        .unstack(fill_value=0)
                        .reset_index()
                        .rename(columns={0: 'class_0', 1: 'class_1'}))
+        # unstack(fill_value=0) only materialises columns for class labels
+        # that occur SOMEWHERE in the frame, so a scores table where every
+        # object got the same call yields just one class column and the
+        # fractions below raised KeyError. Backfill (never reindex — that
+        # would drop unexpected label columns that pass through today).
+        for _cls in ('class_0', 'class_1'):
+            if _cls not in well_counts.columns:
+                well_counts[_cls] = 0
         summary_df = pd.merge(prc_summary, well_counts, on=['plateID', 'rowID', 'columnID', 'prc'], how='left')
         summary_df['class_0_fraction'] = summary_df['class_0'] / summary_df['total_rows']
         summary_df['class_1_fraction'] = summary_df['class_1'] / summary_df['total_rows']
@@ -1205,7 +1251,16 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
                     reads_df_temp = reads_df_temp.rename(columns={'column': 'columnID'})
                 if 'column_name' in reads_df_temp.columns:
                     reads_df_temp = reads_df_temp.rename(columns={'column_name': 'columnID'})
-                if 'row' in reads_df_temp.columns:
+                # The reads-side row fixup used to test for 'row' but
+                # rename 'row_name', a pandas no-op, so neither legacy
+                # spelling was ever repaired. The "canonical not already
+                # present" guard mirrors utils' alias table and is
+                # load-bearing: without it a frame carrying both spellings
+                # ends up with two 'rowID' columns and dies later with
+                # "cannot reindex on an axis with duplicate labels".
+                if 'row' in reads_df_temp.columns and 'rowID' not in reads_df_temp.columns:
+                    reads_df_temp = reads_df_temp.rename(columns={'row': 'rowID'})
+                if 'row_name' in reads_df_temp.columns and 'rowID' not in reads_df_temp.columns:
                     reads_df_temp = reads_df_temp.rename(columns={'row_name': 'rowID'})
                 if 'row_name' in scores_df_temp.columns:
                     scores_df_temp = scores_df_temp.rename(columns={'row_name': 'rowID'})
@@ -1217,7 +1272,11 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
             scores_df = pd.concat(scores_ls, axis=0)
             print(f"Reads: {len(reads_df)} Scores: {len(scores_df)}")
         else:
-            print(f"reads_csv and scores_csv must contain the same number of elements if reads_csv is a list")
+            # This branch used to only print: control then fell through to
+            # calculate_well_read_fraction(reads_df) with reads_df never
+            # bound, so the validation message was followed by a confusing
+            # UnboundLocalError. Raise so the branch actually terminates.
+            raise ValueError("reads_csv and scores_csv must contain the same number of elements if reads_csv is a list")
     else:
         reads_df = pd.read_csv(reads_csv)
         scores_df = pd.read_csv(scores_csv)
@@ -1237,7 +1296,21 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
     
     df = pd.merge(df, df_emp, left_on='rowID', right_on='key')
     
-    if any in y_columns not in df.columns:
+    # `if any in y_columns not in df.columns` was a chained comparison,
+    # i.e. `(any in y_columns) and (y_columns not in df.columns)`, which
+    # is False for every realistic input — the guard was dead and an
+    # unknown y column reached seaborn as a cryptic ValueError instead.
+    # plot_line's else-branch also accepts a scalar column name and a bare
+    # y *vector* (Series/array), so only list/tuple/str forms name columns
+    # — iterating a Series here would test its VALUES against df.columns
+    # and bail out on a perfectly good call.
+    if isinstance(y_columns, str):
+        _y_cols = [y_columns]
+    elif isinstance(y_columns, (list, tuple)):
+        _y_cols = list(y_columns)
+    else:
+        _y_cols = []
+    if any(col not in df.columns for col in _y_cols):
         print(f"columns in dataframe:")
         for col in df.columns:
             print(col)
@@ -1363,6 +1436,14 @@ def interperate_vision_model(settings=None):
         """
         if feature_groups is None:
             feature_groups = ['cell', 'cytoplasm', 'nucleus', 'pathogen']
+        # spacr settings identify channels by integer id ([0, 1, 2, 3]),
+        # but the feature columns spell them 'channel_<n>'. The groups are
+        # fed straight to re.search below, which raises "first argument
+        # must be string or compiled pattern" on an int, so the documented
+        # channels=[0,1,2,3] crashed. String groups are left untouched
+        # (they are deliberately treated as regex patterns).
+        feature_groups = [g if isinstance(g, str) else f'channel_{g}'
+                          for g in feature_groups]
         def find_feature_class(feature, compartments):
             """Return the compartment(s) whose name matches ``feature``."""
             matches = [compartment for compartment in compartments if re.search(compartment, feature)]
@@ -1474,10 +1555,15 @@ def interperate_vision_model(settings=None):
                 scores_df['rowID'] = scores_df['row_name']
 
         if 'columnID' not in scores_df.columns:
-            if 'column_name' in scores_df.columns:
-                scores_df['columnID'] = scores_df['column_name']
+            # Ordered so the more specific 'column_name' wins, mirroring the
+            # row branch above where 'row_name' wins over 'row'. The old
+            # order let a junk 'column' column override a good
+            # 'column_name'; that was invisible while the merge below still
+            # keyed on 'column_name', but now silently merges to zero rows.
             if 'column' in scores_df.columns:
                 scores_df['columnID'] = scores_df['column']
+            if 'column_name' in scores_df.columns:
+                scores_df['columnID'] = scores_df['column_name']
 
         if 'object_label' not in scores_df.columns:
             scores_df['object_label'] = scores_df['object']
@@ -1488,15 +1574,25 @@ def interperate_vision_model(settings=None):
         # Ensure 'object_label' in scores_df is also a string
         scores_df['object_label'] = scores_df['object'].astype(str)
 
+        # The merge below used to key on the legacy 'column_name', but
+        # io._read_and_merge_data normalises every spelling to 'columnID'
+        # before it returns, so the merge raised KeyError
+        # "['column_name'] not in index" against any real measurements.db.
+        # Key on 'columnID' (matching the alias fixup above and the
+        # spacr.ml twin) while still accepting the legacy spelling, which
+        # older CSVs and hand-built frames in the wild still carry.
+        if 'columnID' not in df.columns and 'column_name' in df.columns:
+            df['columnID'] = df['column_name']
+
         # Ensure all join columns have the same data type in both DataFrames
-        df[['plateID', 'rowID', 'column_name', 'fieldID', 'object_label']] = df[['plateID', 'rowID', 'column_name', 'fieldID', 'object_label']].astype(str)
-        scores_df[['plateID', 'rowID', 'column_name', 'fieldID', 'object_label']] = scores_df[['plateID', 'rowID', 'column_name', 'fieldID', 'object_label']].astype(str)
+        df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_label']] = df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_label']].astype(str)
+        scores_df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_label']] = scores_df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_label']].astype(str)
 
         # Select only the necessary columns from scores_df for merging
-        scores_df = scores_df[['plateID', 'rowID', 'column_name', 'fieldID', 'object_label', settings['score_column']]]
+        scores_df = scores_df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_label', settings['score_column']]]
 
         # Now merge DataFrames
-        merged_df = pd.merge(df, scores_df, on=['plateID', 'rowID', 'column_name', 'fieldID', 'object_label'], how='inner')
+        merged_df = pd.merge(df, scores_df, on=['plateID', 'rowID', 'columnID', 'fieldID', 'object_label'], how='inner')
 
         # Separate numerical features and the score column
         X = merged_df.select_dtypes(include='number').drop(columns=[settings['score_column']])
@@ -1509,15 +1605,24 @@ def interperate_vision_model(settings=None):
     output = {}
     
     # Step 1: Feature Importance using Random Forest
-    if settings['feature_importance'] or settings['feature_importance']:
+    # The outer guard used to read `feature_importance or feature_importance`
+    # — the same key OR'd with itself — so the forest was never fitted
+    # unless feature importance was explicitly requested. Permutation
+    # importance then hit UnboundLocalError on `model`, and SHAP on
+    # `feature_importance_df`, even though the docstring documents the
+    # three explainers as independent toggles. The forest and the
+    # importance frame are shared by all three; only the reporting,
+    # grouping and output writes belong to feature_importance itself.
+    if settings['feature_importance'] or settings['permutation_importance'] or settings['shap']:
         model = RandomForestClassifier(random_state=42, n_jobs=settings['n_jobs'])
         model.fit(X, y)
-        
+
+        feature_importances = model.feature_importances_
+        feature_importance_df = pd.DataFrame({'feature': X.columns, 'importance': feature_importances})
+        feature_importance_df = feature_importance_df.sort_values(by='importance', ascending=False)
+
         if settings['feature_importance']:
             print(f"Feature Importance ...")
-            feature_importances = model.feature_importances_
-            feature_importance_df = pd.DataFrame({'feature': X.columns, 'importance': feature_importances})
-            feature_importance_df = feature_importance_df.sort_values(by='importance', ascending=False)
             top_feature_importance_df = feature_importance_df.head(settings['top_features'])
 
             # Plot Feature Importance
@@ -1527,14 +1632,14 @@ def interperate_vision_model(settings=None):
             plt.title(f"Top {settings['top_features']} Features - Feature Importance")
             plt.gca().invert_yaxis()
             plt.show()
-            
-        output['feature_importance'] = feature_importance_df
-        fi_compartment_df = group_feature_class(feature_importance_df, feature_groups=settings['tables'], name='compartment', include_all=settings['include_all'])
-        fi_channel_df = group_feature_class(feature_importance_df, feature_groups=settings['channels'], name='channel', include_all=settings['include_all'])
-        
-        output['feature_importance_compartment'] = fi_compartment_df
-        output['feature_importance_channel'] = fi_channel_df
-    
+
+            output['feature_importance'] = feature_importance_df
+            fi_compartment_df = group_feature_class(feature_importance_df, feature_groups=settings['tables'], name='compartment', include_all=settings['include_all'])
+            fi_channel_df = group_feature_class(feature_importance_df, feature_groups=settings['channels'], name='channel', include_all=settings['include_all'])
+
+            output['feature_importance_compartment'] = fi_compartment_df
+            output['feature_importance_channel'] = fi_channel_df
+
     # Step 2: Permutation Importance
     if settings['permutation_importance']:
         print(f"Permutation Importance ...")
@@ -1567,8 +1672,12 @@ def interperate_vision_model(settings=None):
 
         # Sample a smaller subset of rows to speed up SHAP
         if settings['shap_sample']:
-            sample = int(len(X_top) / 100)
-            X_sample = X_top.sample(min(sample, len(X_top)), random_state=42)
+            # int(len/100) floors to 0 for any experiment with fewer than
+            # 100 objects, which handed shap an empty background AND an
+            # empty matrix to explain -> IndexError. Clamp to at least one
+            # row; for >=100 objects the clamp is a no-op.
+            sample = max(1, min(int(len(X_top) / 100), len(X_top)))
+            X_sample = X_top.sample(sample, random_state=42)
         else:
             X_sample = X_top
 
@@ -1764,14 +1873,17 @@ def analyze_endodyogeny(settings):
         )
         settings['group_column'] = 'new_condition'
 
-    df = df.dropna(subset=[settings['group_column']])
-
+    # This guard used to sit AFTER the dropna below. pandas' dropna raises
+    # a bare KeyError for exactly the condition tested here, so the
+    # informative "Available columns" message was unreachable dead code.
     if settings['group_column'] not in df.columns:
         available = ', '.join(df.columns.tolist())
         raise KeyError(
             f"'{settings['group_column']}' not found in DataFrame. "
             f"Available columns: {available}"
         )
+
+    df = df.dropna(subset=[settings['group_column']])
 
     df, ordered_bin_labels = _calculate_volume_bins(
         df,
@@ -1976,16 +2088,24 @@ def generate_score_heatmap(settings):
         """Return per-well read fractions restricted to the given control sgRNAs."""
         if control_sgrnas is None:
             control_sgrnas = ['TGGT1_220950_1', 'TGGT1_233460_4']
-        df = pd.read_csv(csv)  
-        df = df[df['column_name']==column]
+        df = pd.read_csv(csv)
+        # This helper was left half-way through the column_name -> columnID
+        # rename: it grouped by 'columnID' but filtered and merged on
+        # 'column_name', a key the grouped frame can never carry, so every
+        # call died with KeyError('column_name'). Key on 'columnID' like
+        # every sibling helper here, accepting the legacy spelling that
+        # older reads CSVs still use.
+        if 'columnID' not in df.columns and 'column_name' in df.columns:
+            df = df.rename(columns={'column_name': 'columnID'})
+        df = df[df['columnID']==column]
         if plate not in df.columns:
             df['plateID'] = f"plate{plate}"
         df = df[df['grna_name'].str.match(f'^{control_sgrnas[0]}$|^{control_sgrnas[1]}$')]
         grouped_df = df.groupby(['plateID', 'rowID', 'columnID'])['count'].sum().reset_index()
         grouped_df = grouped_df.rename(columns={'count': 'total_count'})
-        merged_df = pd.merge(df, grouped_df, on=['plateID', 'rowID', 'column_name'])
+        merged_df = pd.merge(df, grouped_df, on=['plateID', 'rowID', 'columnID'])
         merged_df['fraction'] = merged_df['count'] / merged_df['total_count']
-        merged_df['prc'] = merged_df['plateID'].astype(str) + '_' + merged_df['rowID'].astype(str) + '_' + merged_df['column_name'].astype(str)
+        merged_df['prc'] = merged_df['plateID'].astype(str) + '_' + merged_df['rowID'].astype(str) + '_' + merged_df['columnID'].astype(str)
         return merged_df
 
     def plot_multi_channel_heatmap(df, column='c3', cmap='coolwarm'):
@@ -1996,6 +2116,12 @@ def generate_score_heatmap(settings):
         :param cmap: matplotlib/seaborn colormap. Default ``'coolwarm'``.
         :returns: the matplotlib Figure.
         """
+        # Copy first: this assignment used to mutate the CALLER's frame,
+        # so the temporary sort column survived in merged_df (the drop
+        # below only affects the local slice) and leaked into the returned
+        # frame, the saved *_data.csv and the MAE table as a bogus channel.
+        df = df.copy()
+
         # Extract row number and convert to integer for sorting
         df['row_num'] = df['rowID'].str.extract(r'(\d+)').astype(int)
 
@@ -2111,12 +2237,17 @@ def generate_score_heatmap(settings):
     merged_df = pd.merge(merged_df, cv_df, on=['prc'])
     
     fig = plot_multi_channel_heatmap(merged_df, settings['columnID'], settings['cmap'])
-    if 'row_number' in merged_df.columns:
+    # The guard used to test for 'row_number' while the helper adds
+    # 'row_num', so it never fired for the column it meant to drop and
+    # would KeyError on a frame that genuinely carries a 'row_number'
+    # data column. With the copy in the helper this is now a no-op kept
+    # as cheap defence. The matching mae_df guard was deleted: calculate_mae
+    # only ever emits Channel/MAE/Row, so it was dead and, if it had ever
+    # fired, would have dropped a differently-named column.
+    if 'row_num' in merged_df.columns:
         merged_df = merged_df.drop('row_num', axis=1)
     mae_df = calculate_mae(merged_df)
-    if 'row_number' in mae_df.columns:
-        mae_df = mae_df.drop('row_num', axis=1)
-        
+
     if not settings['dst'] is None:
         mae_dst = os.path.join(settings['dst'], f"mae_scores_comparison_plate_{settings['plateID']}.csv")
         merged_dst = os.path.join(settings['dst'], f"scores_comparison_plate_{settings['plateID']}_data.csv")

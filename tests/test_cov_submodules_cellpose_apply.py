@@ -256,11 +256,6 @@ def test_apply_cellpose_model_circularize_drops_outside_objects_and_plots(
     assert plt.get_fignums() == []
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: apply_cellpose_model crashes with KeyError('image') when the "
-           "first batch yields no objects -- it groups an empty DataFrame",
-)
 def test_apply_cellpose_model_handles_batch_with_no_objects(tmp_path, monkeypatch):
     """A prediction with zero objects must still produce (empty) result CSVs
     rather than blowing up the whole run."""
@@ -341,11 +336,6 @@ def test_plot_cellpose_batch_builds_two_row_grid(_no_blocking_show):
     assert axs[2].images[0].get_interpolation() == "nearest"
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: plot_cellpose_batch indexes axs[0, i] but plt.subplots(2, 1) "
-           "squeezes to a 1-D array, so a single-image batch raises IndexError",
-)
 def test_plot_cellpose_batch_single_image(_no_blocking_show):
     """A batch of one is a legal batch and must render a 2-panel figure."""
     from spacr.submodules import plot_cellpose_batch
@@ -465,20 +455,13 @@ def _spy_on_final_merge(monkeypatch):
 def test_analyze_percent_positive_annotates_and_summarizes(tmp_path, monkeypatch):
     """The filter_1 + annotate_and_summarize + translate_well_in_df stages
     produce the expected per-well counts and well->row/column translation.
-
-    The final projection at submodules.py:705 raises KeyError('plate_y')
-    (see the xfail test below); this test asserts everything computed
-    *before* that line and tolerates the known crash.
     """
     from spacr.submodules import analyze_percent_positive
 
     src = _make_screen(tmp_path)
     captured = _spy_on_final_merge(monkeypatch)
 
-    try:
-        analyze_percent_positive(_pp_settings(src))
-    except KeyError:
-        pass
+    analyze_percent_positive(_pp_settings(src))
     assert "count_df" in captured, "never reached the final merge"
 
     count_df = captured["count_df"]
@@ -534,10 +517,7 @@ def test_analyze_percent_positive_without_filter_keeps_all_objects(
     src = _make_screen(tmp_path)
     captured = _spy_on_final_merge(monkeypatch)
 
-    try:
-        analyze_percent_positive(_pp_settings(src, filter_1=None))
-    except KeyError:
-        pass
+    analyze_percent_positive(_pp_settings(src, filter_1=None))
     assert "count_df" in captured, "never reached the final merge"
 
     count_df = captured["count_df"]
@@ -552,13 +532,6 @@ def test_analyze_percent_positive_without_filter_keeps_all_objects(
     np.testing.assert_allclose(rest["fraction_below"], 2 / 3)
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: submodules.py:705 selects 'plate_y', but neither frame in the "
-           "final merge has a 'plate' column since the plate->plateID rename "
-           "(the merge produces plateID_x / plateID_y), so the function always "
-           "raises KeyError instead of returning the result table",
-)
 def test_analyze_percent_positive_returns_and_writes_result_table(tmp_path):
     """The documented return value: a per-well table written to result.csv."""
     from spacr.submodules import analyze_percent_positive
