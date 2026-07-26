@@ -323,13 +323,18 @@ def preprocess_generate_masks(settings):
                 if os.path.exists(os.path.join(src,'measurements')):
                     _pivot_counts_table(db_path=os.path.join(src,'measurements', 'measurements.db'))
 
+                # resume (opt-in, default False): skip fields whose merged
+                # stack is already present and verified complete, so a crash
+                # at field 900 of 1000 does not cost the first 900. Validated
+                # rather than stat'ed — see spacr.resume.
                 _load_and_concatenate_arrays(
                     src,
                     settings.get('channels'),
                     settings.get('cell_channel'),
                     settings.get('nucleus_channel'),
                     settings.get('pathogen_channel'),
-                    settings.get('organelle_channel')
+                    settings.get('organelle_channel'),
+                    resume=settings.get('resume', False)
                 )
                 
                 if settings['plot']:

@@ -108,10 +108,12 @@ APPS = [
     ("activation",     "Activation",     "Generate activation maps",                                    "Tools"),
     ("umap",           "Image UMAP",     "Generate UMAP embeddings with image glyphs",                  "Tools"),
     ("queue",          "Plate Queue",    "Chain multiple plates through the same pipeline",             "Tools"),
+    ("batch",          "Batch Runner",   "Queue any modules, plates and settings and run them overnight", "Tools"),
     ("db_browser",     "Database Browser", "Browse and export measurements.db without the sqlite3 CLI", "Tools"),
     ("agreement",      "Annotator Agreement", "Cohen's/Fleiss' κ between annotation columns + a disagreement review", "Tools"),
     ("plate_view",     "Plate Viewer",   "Any measurement as a plate heatmap + edge-effect detection",  "Tools"),
     ("model_compare",  "Model Compare",  "Two Cellpose models on the same fields: masks side by side, object-count and ARI deltas", "Tools"),
+    ("model_zoo",      "Model Zoo",      "Browse, verify, download and bench Cellpose + classifier models on three of your fields", "Tools"),
     ("report",         "Report",         "One-click shareable HTML/PDF: QC verdict, figures, stats, settings, versions", "Tools"),
     ("train_compare",  "Training Runs",  "Overlay several training runs' curves with their settings diffed side by side", "Tools"),
     # -- Toxo: Toxoplasma-specific assays --
@@ -136,6 +138,8 @@ _ICON_OVERRIDES = {
     "train_compare":   "classify.png",     # it compares Classify (CV) runs
     "model_compare":   "cellpose_all.png", # a grid of Cellpose masks reads
                                            # as "the same fields, twice"
+    "model_zoo":       "download.png",     # the zoo is where models come from
+    "batch":           "sequencing.png",   # a stacked queue of runs
 }
 
 # Keys that render their qtawesome glyph instead of a bundled PNG.
@@ -743,6 +747,26 @@ class MainWindow(QMainWindow):
         self._status_app_label.setText(name)
         self.statusBar().showMessage(f"Opened {name}", 2000)
 
+    def _on_zoo_compare_requested(self, request: dict) -> None:
+        """Open Model Compare preloaded with the two models the zoo selected.
+
+        Goes through ``ModelCompareScreen.configure`` rather than reaching into
+        the panels, so restructuring either panel cannot silently break the
+        hand-off.
+
+        :param request: ``{'model_a', 'model_b', 'folder', 'n_fields'}``.
+        """
+        self._on_nav_selected("model_compare")
+        screen = self._screens.get("model_compare")
+        if screen is None or not hasattr(screen, "configure"):
+            return
+        screen.configure(
+            model_a=request.get("model_a", ""),
+            model_b=request.get("model_b", ""),
+            folder=request.get("folder", ""),
+            n_fields=int(request.get("n_fields", 0) or 0),
+        )
+
     def _build_screen(self, key: str) -> QWidget:
         """Return a freshly-built screen widget for the given app ``key``."""
         if key == "annotate":
@@ -770,6 +794,14 @@ class MainWindow(QMainWindow):
         if key == "model_compare":
             from .screens.model_compare import ModelCompareScreen
             return ModelCompareScreen()
+        if key == "batch":
+            from .screens.batch import BatchScreen
+            return BatchScreen()
+        if key == "model_zoo":
+            from .screens.model_zoo import ModelZooScreen
+            screen = ModelZooScreen()
+            screen.compare_requested.connect(self._on_zoo_compare_requested)
+            return screen
         if key == "report":
             from .screens.report import ReportScreen
             return ReportScreen()
