@@ -32,6 +32,29 @@ the reason this module exists at all. It runs in one transaction across
 every table the field touched, so a failure part-way leaves the database
 exactly as it was.
 
+**measurements.db is not measure's private file.** ``convert`` writes
+``conversion_map`` into it, ``align`` writes ``align_coordinates``,
+``foreign`` writes ``foreign_*``, ``timelapse`` writes its track table —
+all keyed on the same four columns as the measurements, deliberately, so
+that they join. Discovering "tables to clear" structurally therefore
+found all of them, and a resume deleted every pending field's row from
+each: the only record of which vendor file became ``plate1_A01_1``, of
+where each tile was stitched, of somebody else's imported measurements.
+None of it can be recomputed from the database. The tables a resume may
+delete from are now an explicit allow-list,
+:data:`MEASURE_OWNED_TABLES`, checked both when the list is discovered
+and again per table immediately before the DELETE is prepared.
+
+A database already damaged by an earlier resume cannot be repaired on
+read — the rows are gone, and nothing in the file records what they
+were. It can be *rewritten* from the sources outside the database, and
+all three writers use ``if_exists='replace'``, so re-running one is a
+full repair rather than a second generation of rows:
+``convert.populate_db_from_map(db, '<converted>/conversion_map.csv')``
+restores the map from the CSV that sits beside the converted images,
+``align.save_coordinates`` restores the stitch coordinates, and
+``foreign.run_import`` restores the imported measurements.
+
 **A field is identified by its well coordinates, never by a name prefix.**
 Deleting with ``LIKE 'plate1_A01_f1%'`` also matches ``f10`` … ``f19`` —
 nineteen innocent fields destroyed to clean up one. Every statement in
@@ -83,6 +106,7 @@ __all__ = [
     'SettingsComparison',
     'FIELD_KEY_COLUMNS',
     'TIME_KEY_COLUMNS',
+    'MEASURE_OWNED_TABLES',
     'NON_FIELD_TABLES',
     'resume_enabled',
     'field_identity',
@@ -116,12 +140,52 @@ FIELD_KEY_COLUMNS = ('plateID', 'rowID', 'columnID', 'fieldID')
 #: still has it, so both are honoured here.
 TIME_KEY_COLUMNS = ('timeID', 'time_id')
 
+#: The tables a measure run writes, and therefore the **only** tables a
+#: measure resume may delete from.
+#:
+#: This is an allow-list on purpose. The set is closed and small:
+#: ``utils._merge_and_save_to_database`` raises ``ValueError`` for any
+#: ``table_type`` outside ``_PARENT_OBJECT_TABLES`` /
+#: ``_CHILD_OBJECT_TABLES`` / ``_ORGANELLE_SUMMARY_TABLES``, and
+#: ``utils.filepaths_to_database`` writes exactly one more, ``png_list``.
+#: (``tests/test_resume_owned_tables.py`` asserts this literal still
+#: equals those four groups; the names are spelled out here rather than
+#: imported because this module must not drag ``utils`` — and therefore
+#: torch — into a process. See the module docstring.)
+#:
+#: A deny-list was tried first and is what the bug was. ``measurements.db``
+#: is shared: ``convert.populate_db_from_map`` writes ``conversion_map``,
+#: ``align.save_coordinates`` writes ``align_coordinates``,
+#: ``foreign.run_import`` writes ``foreign_*``, and
+#: ``timelapse._save_measurements_and_well_summary`` writes a
+#: user-named track table. All of them are keyed on
+#: :data:`FIELD_KEY_COLUMNS` *deliberately*, so that they join to the
+#: measurements — which made every one of them look like per-field measure
+#: output to a rule that asked "does it have the key columns, and is it
+#: not on the deny-list?". A resume then deleted the pending fields'
+#: rows from all of them: the only record of which vendor file became
+#: ``plate1_A01_1``, where each tile was stitched, and somebody else's
+#: imported measurements. None of it is recomputable from the database.
+#: A deny-list goes stale the moment a module is added — which is exactly
+#: how those three came to be deleted. An allow-list goes stale the other
+#: way: a new measure table would be left uncleared and its rows
+#: duplicated, which the consistency test named above turns into a failing
+#: test rather than silent data loss.
+MEASURE_OWNED_TABLES = frozenset({
+    'cell', 'cytoplasm',                       # _PARENT_OBJECT_TABLES
+    'nucleus', 'pathogen', 'organelle',        # _CHILD_OBJECT_TABLES
+    'cell_organelle_summary', 'nucleus_organelle_summary',
+    'pathogen_organelle_summary', 'cytoplasm_organelle_summary',
+    'png_list',                                # filepaths_to_database
+})
+
 #: Tables that live in ``measurements.db`` but are **not** per-field
 #: measure output, and so must never be cleared by a measure resume.
 #: ``object_counts`` / ``pivoted_counts`` belong to the mask stage;
-#: ``settings`` and ``run_status`` are run metadata. In practice none of
-#: them carry the four key columns either, so :func:`discover_field_tables`
-#: already excludes them — this is the second lock on the same door.
+#: ``settings`` and ``run_status`` are run metadata. None of them carries
+#: the four key columns and none of them is in
+#: :data:`MEASURE_OWNED_TABLES`, so they are excluded twice over — this is
+#: kept as the historical deny-list, not as the mechanism.
 NON_FIELD_TABLES = frozenset({
     'object_counts', 'pivoted_counts', 'settings', 'run_status',
     'sqlite_sequence',
@@ -589,8 +653,9 @@ def _list_tables(conn: sqlite3.Connection) -> List[str]:
 
 
 def discover_field_tables(db_path: str,
-                          include_non_field: bool = False) -> List[str]:
-    """Every table in ``db_path`` that stores rows *per field of view*.
+                          include_non_field: bool = False,
+                          owned_only: bool = True) -> List[str]:
+    """The measure tables in ``db_path`` that store rows *per field of view*.
 
     Enumerated from the database rather than hard-coded, because a delete
     that misses one table leaves orphan rows that join incorrectly
@@ -599,18 +664,22 @@ def discover_field_tables(db_path: str,
     ``*_organelle_summary`` tables without ``summarize_organelles_by``,
     no ``png_list`` without ``save_png``.
 
-    A table qualifies when it carries all of :data:`FIELD_KEY_COLUMNS`.
-    That single test picks up ``cell`` / ``nucleus`` / ``pathogen`` /
-    ``cytoplasm`` / ``organelle`` / every ``*_organelle_summary`` /
-    ``png_list``, and *excludes* the mask stage's ``object_counts`` and
-    ``pivoted_counts`` (keyed by ``file_name`` / ``count_type``, with no
-    well columns) along with ``settings`` and ``run_status``. Those are
-    named in :data:`NON_FIELD_TABLES` as well, so a future schema change
-    that gives them well columns still cannot get them deleted.
+    A table qualifies when it is in :data:`MEASURE_OWNED_TABLES` **and**
+    carries all of :data:`FIELD_KEY_COLUMNS`. Both halves are needed. The
+    column test alone is not a test of ownership: ``conversion_map``,
+    ``align_coordinates`` and ``foreign_*`` all carry the same four
+    columns, precisely so that they join to the measurements, and they
+    passed it — which is how a measure resume came to delete three other
+    modules' provenance tables. The name test alone would delete from a
+    table whose schema is not what this module thinks it is.
 
     :param db_path: path to ``measurements.db``.
     :param include_non_field: skip the :data:`NON_FIELD_TABLES` filter.
         For inspection only — never pass this to :func:`clear_field_rows`.
+    :param owned_only: keep only :data:`MEASURE_OWNED_TABLES`. Pass False
+        to see every per-field table in the database *whoever wrote it* —
+        for inspection only, and :func:`clear_field_rows` refuses the
+        extras by name if that list is handed to it.
     :returns: sorted table names.
     """
     if not os.path.isfile(db_path):
@@ -620,6 +689,8 @@ def discover_field_tables(db_path: str,
         out = []
         for table in _list_tables(conn):
             if not include_non_field and table in NON_FIELD_TABLES:
+                continue
+            if owned_only and table not in MEASURE_OWNED_TABLES:
                 continue
             columns = set(_table_columns(conn, table))
             if all(key in columns for key in FIELD_KEY_COLUMNS):
@@ -797,7 +868,7 @@ def clear_field_rows(db_path: str,
     says so. Calling this immediately before re-measuring a field is what
     makes a resume idempotent.
 
-    Two safety properties, both tested:
+    Three safety properties, all tested:
 
     * **All or nothing.** Every table is deleted from inside one
       ``BEGIN IMMEDIATE`` … ``COMMIT``. If any statement fails — a
@@ -809,6 +880,13 @@ def clear_field_rows(db_path: str,
       clearing ``f1`` cannot touch ``f10``–``f19`` the way a
       ``LIKE 'plate1_A01_f1%'`` would. A table missing any of the four
       raises rather than running a broader delete.
+    * **Only measure's own tables.** Every table is checked against
+      :data:`MEASURE_OWNED_TABLES` before anything is deleted, and one
+      that is not on it aborts the whole call. ``measurements.db`` is
+      shared — ``conversion_map``, ``align_coordinates`` and ``foreign_*``
+      live there and carry the same four key columns so that they join —
+      and clearing a field out of those destroys the only record of how
+      the project's files were named and registered.
 
     :param db_path: path to ``measurements.db``.
     :param tables: tables to clear. ``None`` uses
@@ -819,8 +897,9 @@ def clear_field_rows(db_path: str,
     :param timelapse: include the timepoint in the key, so one frame can
         be cleared without touching the rest of the movie.
     :returns: total number of rows deleted.
-    :raises ValueError: when the field cannot be identified, or a named
-        table lacks the key columns.
+    :raises ValueError: when the field cannot be identified, a named
+        table lacks the key columns, or a named table is not one measure
+        writes.
     :raises sqlite3.Error: propagated after rollback.
 
     Example:
@@ -846,6 +925,17 @@ def clear_field_rows(db_path: str,
         plans = []
         for table in tables:
             keys = _key_columns_for(conn, table, identity)
+            if table not in MEASURE_OWNED_TABLES:
+                raise ValueError(
+                    f'table {table!r} carries the field key columns but is '
+                    f'not written by the measure stage — measure writes only '
+                    f'{sorted(MEASURE_OWNED_TABLES)}. Other modules key their '
+                    f'tables the same way so that they join: convert writes '
+                    f'conversion_map, align writes align_coordinates, foreign '
+                    f'writes foreign_*, timelapse writes its track table. '
+                    f'Deleting from {table!r} would destroy the only record '
+                    f'of how this project was registered, and none of it can '
+                    f'be recomputed from the database. Refusing.')
             where = ' AND '.join(f'"{k}" = ?' for k in keys)
             plans.append((f'DELETE FROM "{table}" WHERE {where}',
                           _bind_values(identity, keys)))
