@@ -168,6 +168,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Landed alongside the regroup: the fail-loud policy (spacr.errors) and
     # the on-demand crop source (spacr.crops).
     "strict_errors", "max_failure_rate", "crop_source",
+    # and the active-learning queue (spacr.active_learning).
+    "queue_by_uncertainty", "queue_measure", "queue_diversity",
+    "queue_limit",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six
