@@ -1863,11 +1863,77 @@ def _widen_table_for(conn, table, frame):
     for col in frame.columns:
         if col in have:
             continue
-        conn.execute(f'ALTER TABLE "{table}" ADD COLUMN "{col}"')
+        try:
+            conn.execute(f'ALTER TABLE "{table}" ADD COLUMN "{col}"')
+        except sqlite3.OperationalError as e:
+            # Another worker widened the table for the same column between the
+            # PRAGMA above and this ALTER. Its column is indistinguishable from
+            # the one we were about to add, so this is success, not failure --
+            # and letting it escape would have cost the caller its whole frame.
+            if 'duplicate column name' not in str(e).lower():
+                raise
+            continue
         added.append(col)
     if added:
         conn.commit()
     return added
+
+
+#: How many schema repairs a single append attempts before giving up. Two
+#: distinct conditions can each fire once (lost the CREATE TABLE race, then
+#: the winner's schema turns out to be narrower than ours), plus slack.
+DB_APPEND_REPAIRS = 4
+
+
+def _append_frame(conn, table, frame):
+    """``to_sql(if_exists='append')`` that survives two concurrent-writer hazards.
+
+    ``pandas.DataFrame.to_sql`` is check-then-act: ``SQLTable.create`` asks
+    whether the table exists and issues ``CREATE TABLE`` when it does not.
+    measure_crop runs one worker process per field against a single
+    measurements.db, so on the first fields of a fresh run several workers pass
+    that check together, all issue the CREATE, and every one but the winner
+    gets ``OperationalError: table "cell" already exists``. That is not a lock,
+    so the caller's "report it and continue" branch threw the entire frame --
+    one field's measurements -- away, silently, while the field still counted
+    as a success on the run ledger. Measured with four workers released from a
+    barrier: 30 of 30 runs lost rows.
+
+    Retrying is the whole fix: on the next pass the table exists, ``create()``
+    is a no-op and the insert proceeds. Nothing is inserted before the CREATE,
+    so there is no half-written frame to undo. The same loop covers the schema
+    widening, which can need a second pass of its own when the worker that won
+    the race created the table from a narrower frame than ours.
+
+    :param conn: open sqlite3 connection.
+    :param table: destination table.
+    :param frame: rows to append.
+    :raises sqlite3.OperationalError: the last error, if every repair failed.
+    """
+    last = None
+    for _ in range(DB_APPEND_REPAIRS):
+        try:
+            frame.to_sql(table, conn, if_exists='append', index=False)
+            return
+        except sqlite3.OperationalError as e:
+            last = e
+            message = str(e)
+            if 'already exists' in message:
+                continue          # lost the create race; the table is there now
+            # Widen ONLY when the append actually complains about a column.
+            # Probing PRAGMA table_info on every write cost a round trip per
+            # field per table and is pure waste on the overwhelmingly common
+            # path where the schema already matches.
+            if 'has no column named' not in message:
+                raise
+            added = _widen_table_for(conn, table, frame)
+            if added:
+                print(f"measurements.db: added {len(added)} column(s) to "
+                      f"{table} for this field ("
+                      f"{', '.join(added[:6])}"
+                      f"{' ...' if len(added) > 6 else ''}); rows written "
+                      f"earlier are NULL there")
+    raise last
 
 
 def _append_to_measurements_db(db_path, table, frame, required=True):
@@ -1889,6 +1955,10 @@ def _append_to_measurements_db(db_path, table, frame, required=True):
     frame when the table lacks one of its columns. The table is widened
     instead, which keeps the rows; columns the frame lacks are simply NULL.
 
+    **And losing pandas' CREATE TABLE race dropped them a third time** — see
+    :func:`_append_frame`, which now retries instead. That was the last
+    remaining cause of measure_crop measuring only three of four fields.
+
     The connection is closed on every path — leaving it open held the lock
     longer and made the contention worse.
 
@@ -1907,25 +1977,8 @@ def _append_to_measurements_db(db_path, table, frame, required=True):
         conn = None
         try:
             conn = sqlite3.connect(db_path, timeout=DB_WRITE_TIMEOUT)
-            try:
-                frame.to_sql(table, conn, if_exists='append', index=False)
-                return
-            except sqlite3.OperationalError as e:
-                # Widen ONLY when the append actually complains about a
-                # column. Probing PRAGMA table_info on every write cost a
-                # round trip per field per table and is pure waste on the
-                # overwhelmingly common path where the schema already matches.
-                if 'has no column named' not in str(e):
-                    raise
-                added = _widen_table_for(conn, table, frame)
-                if added:
-                    print(f"measurements.db: added {len(added)} column(s) to "
-                          f"{table} for this field ("
-                          f"{', '.join(added[:6])}"
-                          f"{' ...' if len(added) > 6 else ''}); rows written "
-                          f"earlier are NULL there")
-                frame.to_sql(table, conn, if_exists='append', index=False)
-                return
+            _append_frame(conn, table, frame)
+            return
         except sqlite3.OperationalError as e:
             if 'locked' not in str(e).lower():
                 # Not contention - an unopenable path, a read-only file. That
