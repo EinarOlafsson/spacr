@@ -519,11 +519,17 @@ def test_filepaths_to_database_object_id_column_per_crop_mode(
     # only the crop mode's own id column is present
     others = {"cell_id", "nucleus_id", "pathogen_id", "cytoplasm_id"} - {id_col}
     assert not (others & set(df.columns))
-    assert "time_id" not in df.columns
+    assert "timeID" not in df.columns and "time_id" not in df.columns
 
 
 def test_filepaths_to_database_timelapse_adds_time_id_column(tmp_path):
-    """timelapse=True inserts an extra time_id column parsed from parts[3]."""
+    """timelapse=True inserts an extra timeID column parsed from parts[3].
+
+    Spelled ``timeID``, matching every object table. It used to be written as
+    ``time_id`` while _merge_and_save_to_database wrote ``timeID``, so one
+    database carried two names for one concept and no join between png_list
+    and cell on time could match.
+    """
     from spacr.utils import filepaths_to_database
     src = tmp_path / "plate1"
     (src / "measurements").mkdir(parents=True)
@@ -539,7 +545,8 @@ def test_filepaths_to_database_timelapse_adds_time_id_column(tmp_path):
         con.close()
 
     assert len(df) == 3
-    assert sorted(df["time_id"]) == ["t1", "t2", "t3"]
+    assert "time_id" not in df.columns
+    assert sorted(df["timeID"]) == ["t1", "t2", "t3"]
     assert set(df["fieldID"]) == {"f1"}
     assert set(df["cell_id"]) == {"o5"}
     # prcfo carries the time id between field and object
