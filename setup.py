@@ -119,6 +119,10 @@ setup(
             'spacr-tutorial=spacr.qt.tutorial.__main__:main',
             # spacr-repro <run-folder> — replay a recorded run journal
             'spacr-repro=spacr.cli_repro:main',
+            # spacr-run <module> --settings f — headless pipeline runner for
+            # clusters: no Qt, no Tk, no display. Importing spacr.cli pulls
+            # neither torch nor matplotlib, so --help/--list answer instantly.
+            'spacr-run=spacr.cli:main',
             # Classic Tk GUI remains available under new names
             'spacr-tk=spacr.gui:gui_app',
             'spacr-legacy=spacr.gui:gui_app',
