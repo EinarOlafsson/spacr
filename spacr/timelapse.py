@@ -271,7 +271,53 @@ def _relabel_masks_based_on_tracks(masks, tracks, mode='btrack'):
 
     return relabeled_masks
 
+def _require_2d_frames(masks, caller):
+    """Stop a volumetric stack from reaching a 2-D-only tracking helper.
+
+    Every tracking path in this module reasons in 2-D: the feature table below
+    renames ``centroid-0``/``centroid-1`` to y/x, the track visualiser plots
+    two coordinates, and the motility assay measures displacement in the image
+    plane. Handed a ``(T, Z, Y, X)`` stack, they fail in two different and
+    equally unhelpful ways:
+
+    * :func:`_prepare_for_tracking` and :func:`_relabelled_stack_to_tracks_df`
+      raise out of skimage -- "Property eccentricity is not implemented for 3D
+      images", "too many values to unpack" -- which names neither z nor spaCR
+      and reads to the user as a corrupt mask;
+    * :func:`_track_by_iou` does not fail at all. Its overlap arithmetic is
+      dimension-agnostic, so it happily links volumes and returns a table of
+      perfectly plausible tracks. It returns one just as happily when the
+      leading axis is z rather than t, in which case the "tracks" are objects
+      stacked on top of each other and the trajectory is fiction.
+
+    The second is the reason this guard exists. See the 4D (Beta) half of
+    :mod:`spacr.zstack` for the volumetric equivalents.
+
+    :param masks: the label stack, ``(T, Y, X)`` or a sequence of 2-D frames.
+    :param caller: name used in the message.
+    :raises ValueError: when any frame is not 2-D.
+    """
+    frames = masks if isinstance(masks, (list, tuple)) else np.asarray(masks)
+    ndims = {int(np.ndim(frame)) for frame in frames}
+    if ndims and ndims != {2}:
+        shape = getattr(np.asarray(masks), 'shape', None)
+        raise ValueError(
+            f"{caller} needs a (T, Y, X) stack of 2-D frames and got frames of "
+            f"{sorted(ndims)} dimension(s) (stack shape {shape}). Every tracker "
+            f"in spacr.timelapse links in the image plane only, so a volume "
+            f"handed to one is either an error further down or -- for the IoU "
+            f"linker, whose overlap arithmetic works in any dimension -- a "
+            f"table of plausible tracks that may have been linked along z "
+            f"instead of along t. Use the 4D (Beta) half of spacr.zstack "
+            f"(segment_4d / track_4d), which requires the axis order to be "
+            f"stated, or collapse z before tracking with "
+            f"spacr.zstack.project_labels and accept that objects separated "
+            f"only in z merge."
+        )
+
+
 def _prepare_for_tracking(mask_array):
+    _require_2d_frames(mask_array, '_prepare_for_tracking')
     frames = []
     for t, frame in enumerate(mask_array):
         props = regionprops_table(
@@ -377,7 +423,13 @@ def _track_by_iou(masks, iou_threshold=0.1):
     """
     Build a track table by linking masks frame→frame via IoU.
     Returns a DataFrame with columns [frame, original_label, track_id].
+
+    The 2-D guard is load-bearing here rather than defensive: the overlap
+    arithmetic below is dimension-agnostic and will link a (T, Z, Y, X) stack
+    without complaint, including one whose leading axis is z rather than t.
+    See :func:`_require_2d_frames`.
     """
+    _require_2d_frames(masks, '_track_by_iou')
     n_frames = masks.shape[0]
     # 1) initialize: every label in frame 0 starts its own track
     labels0 = np.unique(masks[0])[1:]
@@ -633,11 +685,18 @@ def _relabelled_stack_to_tracks_df(masks_tracked):
     frames (Trackastra, Ultrack) shares this function, so their CSVs are
     byte-for-byte comparable.
 
+    The columns are also the ones the 4D (Beta) table in :mod:`spacr.zstack`
+    reproduces verbatim (``zstack.BASE_TRACK_COLUMNS``), so a volumetric run's
+    table drops into the same consumers with z and volume merely appended.
+
     :param masks_tracked: the relabelled (T, Y, X) stack.
     :returns: DataFrame with one row per object per frame.
+    :raises ValueError: when handed a volumetric stack; see
+        :func:`_require_2d_frames`.
     """
     from skimage.measure import regionprops
 
+    _require_2d_frames(masks_tracked, '_relabelled_stack_to_tracks_df')
     rows = []
     for t, frame in enumerate(np.asarray(masks_tracked)):
         for region in regionprops(frame):

@@ -1,13 +1,23 @@
-"""Z-axis handling for the 3D (Beta) mask settings.
+"""Z- and time-axis handling for the 3D (Beta) and 4D (Beta) mask settings.
 
-This module is the z half of spaCR's 3-D support. It is deliberately kept
-free of Cellpose (and of any model at all) so that the z logic can be tested
-against synthetic label volumes on a CPU in milliseconds: every function here
-either takes a plain numpy array or takes a ``segment_fn`` callable that the
-caller supplies. :mod:`spacr.object` provides the Cellpose adapter.
+This module holds the two non-xy axes: the **z half** (3D Beta, the first
+part of the file) and the **t half** built on top of it (4D Beta, the second
+part, from the ``4D (Beta)`` banner onwards -- it has its own long preamble
+there). Both are deliberately kept free of Cellpose, of any tracker library
+and of any model at all, so that the logic can be tested against synthetic
+label volumes on a CPU in milliseconds: every function here either takes a
+plain numpy array or takes a ``segment_fn`` callable that the caller
+supplies. :mod:`spacr.object` provides the Cellpose adapter.
 
-Four things drive the design, and each of them is a place where a naive 3-D
-implementation silently produces wrong science:
+The two halves live in one file rather than two because a 4-D acquisition is
+a z-stack per timepoint and the t code delegates to the z code for every one
+of them -- ``segment_4d`` is a loop around :func:`segment_3d`, ``track_4d``'s
+overlap backend *is* :func:`stitch_planes` applied along t, and ``TStackSpec``
+carries a :class:`ZStackSpec` inside it. Nothing in the z half below knows the
+t half exists, so a 3-D run is unaffected by any of it.
+
+Four things drive the design of the z half, and each of them is a place where
+a naive 3-D implementation silently produces wrong science:
 
 **Anisotropy is the whole game.**
     Confocal z-spacing is routinely 3-10x the xy pixel size. A volume
@@ -65,7 +75,8 @@ projecting when the settings are on but no z axis survived ingest.
 from __future__ import annotations
 
 from dataclasses import dataclass, field as _dc_field
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+from typing import (Any, Callable, Dict, Iterator, List, Optional, Sequence,
+                    Tuple)
 
 import numpy as np
 
@@ -81,6 +92,17 @@ __all__ = [
     "restore_anisotropic", "stitch_planes", "relabel_volume",
     "flag_truncated_z", "volume_stats", "segment_3d", "plan_from_settings",
     "estimate_peak_bytes",
+    # --- 4D (Beta): t on top of z ---
+    "AXIS_ORDER_TZYX", "AXIS_ORDER_ZTYX", "AXIS_ORDERS", "BACKEND_IOU",
+    "BACKEND_CENTROID", "BACKEND_TRACKPY", "BACKEND_BTRACK",
+    "BACKEND_TRACKASTRA", "BACKEND_ULTRACK", "TRACK_BACKENDS",
+    "TRACK_COLUMN_UNITS", "BASE_TRACK_COLUMNS", "FLAG_T_TRUNCATED",
+    "TStackError", "AmbiguousAxisOrderError", "TrackerIsTwoDError",
+    "TAxisNotPresentError", "UnknownDisplacementError", "AxisOrder",
+    "TrackBackend", "TStackSpec", "TStackResult", "TrackResult", "detect_axes",
+    "resolve_axis_order", "as_t_first", "iter_volumes", "segment_4d",
+    "track_4d", "volume_tracks", "flag_truncated_t", "project_labels",
+    "format_4d", "plan_4d_from_settings", "estimate_peak_bytes_4d",
 ]
 
 
@@ -1034,3 +1056,1814 @@ def estimate_peak_bytes(volume_shape: Sequence[int], dtype=np.float32,
     # Volumetric: the isotropic copy dominates, plus a 3-component flow field.
     iso = int(volume_bytes * max(anisotropy, 1.0))
     return volume_bytes + iso + iso * 3 + n_voxels * 8
+
+
+# ===========================================================================
+#  4D (Beta): the time axis on top of the z axis
+# ===========================================================================
+#
+# Time-plus-z handling for the 4D (Beta) settings: x, y, z, t.
+#
+# This is the *t* half of spaCR's volumetric support and it sits directly on
+# top of the z half above. Everything z-shaped -- ZStackSpec, segment_3d,
+# stitch_planes, resolve_anisotropy, flag_truncated_z, volume_stats -- is
+# delegated to rather than re-derived. Like the z half it is free of Cellpose
+# and of any tracker library, so the 4-D logic can be tested against synthetic
+# label volumes on a CPU in milliseconds: every entry point takes a plain
+# numpy array plus a caller-supplied ``segment_fn``.
+#
+# Five things drive the design.
+#
+# **The axis order is the crux, and it cannot be guessed.**
+#     ``(T, Z, Y, X)`` and ``(Z, T, Y, X)`` are both written by real microscopes
+#     and a 4-D shape does not say which one you have: ``(10, 21, 512, 512)`` is
+#     either ten timepoints of twenty-one planes or twenty-one timepoints of ten
+#     planes, and nothing in the array distinguishes them. Getting it wrong does
+#     not crash -- it links objects *across z* and calls the result a track,
+#     which produces smooth, plausible, entirely fictional trajectories.
+#     :func:`detect_axes` therefore returns ``None`` for the ambiguous case and
+#     never picks a side; the order must come from the user, from
+#     ``t_axis_order``, or from an explicit ``n_t``/``n_z`` that settles it.
+#     (spaCR's own ingest already gets this wrong: ``io.py``'s 4-D TIFF branch
+#     hard-codes ``t_dim, z_dim, y_dim, x_dim = images.shape`` with no check.)
+#
+# **A tracker that cannot do 3-D must not be handed a volume.**
+#     Silently projecting z away and linking the projection would give a table
+#     that looks exactly like a real one. :func:`track_4d` refuses, names the
+#     backend, and says whether the limit is the library's or spaCR's adapter's
+#     -- see :data:`TRACK_BACKENDS`. Projection is available, but only when the
+#     caller asks for it by name (``project_for_tracking``), and it then says in
+#     ``notes`` what it destroyed.
+#
+# **Anisotropy applies to linking, not just to segmentation.**
+#     A displacement gate expressed in pixels means something different along z:
+#     at ``dz/dxy = 5`` a two-plane move is a ten-pixel move. The distance-based
+#     backends therefore scale the z component of every displacement by the
+#     anisotropy before comparing it with the gate, and refuse to run without one
+#     (:func:`~spacr.zstack.resolve_anisotropy` raises rather than assuming 1.0).
+#     ``max_displacement_px`` is measured in **xy pixels** with z so scaled;
+#     ``max_displacement_um`` is measured in **micrometres** and needs a voxel
+#     size. The overlap-based backend has no distance in it at all, so anisotropy
+#     genuinely does not enter -- exactly as in
+#     :data:`~spacr.zstack.MODE_STITCH`.
+#
+# **The tracks table keeps its existing columns.**
+#     ``frame`` / ``track_id`` / ``original_label`` / ``x`` / ``y`` are emitted in
+#     that order with the same meanings ``timelapse._relabelled_stack_to_tracks_df``
+#     already gives them, so the track visualiser and the motility assay need no
+#     change. ``z`` and the volume columns are *additional*. A stack with no z
+#     axis gets ``area_px2`` and a volumetric one gets ``volume_voxels``; the two
+#     are never written into the same column, because a px^2 area and a voxel
+#     count are different quantities (the point :data:`spacr.zstack.VOLUME_STATS_UNITS`
+#     exists to make).
+#
+# **Truncation now has two directions.**
+#     An object touching the first or last z plane is cut off in z, exactly as
+#     ``seg_qc`` treats an object touching the xy field edge; a track present in
+#     the first or last *timepoint* is cut off in t -- it began before the movie
+#     did or was still going when it stopped, so its lifetime, its displacement
+#     and its division count are all lower bounds. :func:`volume_tracks` flags
+#     both, in separate columns, because they are different defects.
+#
+# Memory
+# ------
+# A 4-D acquisition is ``n_t * n_z`` fields. :func:`iter_volumes` yields **views**
+# into the input, one ``(Z, Y, X)`` timepoint at a time, and never materialises
+# the 4-D intensity array; :func:`segment_4d` holds exactly one volume plus
+# whatever the segmenter transiently needs (see
+# :func:`spacr.zstack.estimate_peak_bytes`). What it *does* have to hold is the
+# label array for every timepoint, because linking across t cannot start until
+# the last timepoint is segmented; those are int32, so a 41-timepoint, 21-plane,
+# 2048x2048 acquisition costs ~14 GB of labels against ~350 MB for the one live
+# float32 volume. :func:`estimate_peak_bytes_4d` gives the number.
+#
+# Scope, stated plainly
+# ---------------------
+# This reaches exactly as far as the z half above does, which is to say the
+# library is real and the pipeline cannot feed it. ``spacr.io`` MIPs z away while
+# it organises raw files -- for a 4-D TIFF at ``io.py:5051`` and for a LIF at
+# ``io.py:5009`` -- so by the time a timelapse batch reaches segmentation it is
+# ``(frames, Y, X, C)`` and the z axis no longer exists. On top of that, none of
+# spaCR's five tracker adapters accepts a 4-D array: ``btrack`` and the
+# ``trackastra``/``ultrack`` adapters raise on ``ndim != 3``, and the
+# trackpy/iou feature table raises out of skimage.
+# :func:`plan_4d_from_settings` therefore returns ``None`` whenever ``t_stack``
+# is off -- the default -- so not one line of the t half executes in an
+# ordinary run, and when it is on without
+# a real 4-D array the callers raise :class:`TAxisNotPresentError` naming the
+# cause. spaCR will not project a volume, link the projection, and call the
+# result a 4-D track.
+
+# ---------------------------------------------------------------------------
+# Vocabulary
+# ---------------------------------------------------------------------------
+
+#: Time first, then z. What OME-TIFF's canonical order and most acquisition
+#: software write.
+AXIS_ORDER_TZYX = "TZYX"
+
+#: z first, then time. What a microscope driven "one z-stack per channel per
+#: position, looped over time" writes, and what ImageJ hyperstacks saved with a
+#: non-default dimension order carry.
+AXIS_ORDER_ZTYX = "ZTYX"
+
+#: The two orders :func:`detect_axes` chooses between. It refuses to choose
+#: without evidence; see the 4D (Beta) preamble above.
+AXIS_ORDERS = (AXIS_ORDER_TZYX, AXIS_ORDER_ZTYX)
+
+#: Link objects between consecutive timepoints by volumetric overlap. Built in
+#: (no dependency), works in 2-D and 3-D alike, ignores anisotropy because it
+#: computes no distance.
+BACKEND_IOU = "iou"
+
+#: Link by nearest centroid under a displacement gate, with the z component
+#: scaled by the anisotropy. Built in. Requires an anisotropy and a gate.
+BACKEND_CENTROID = "centroid"
+
+#: Link with trackpy's nearest-neighbour linker over ``['z', 'y', 'x']``.
+#: trackpy genuinely does 3-D; z is pre-scaled by the anisotropy so its single
+#: isotropic ``search_range`` is meaningful.
+BACKEND_TRACKPY = "trackpy"
+
+#: btrack. The library tracks in 3-D natively, spaCR's adapter does not.
+BACKEND_BTRACK = "btrack"
+
+#: Trackastra. The library has 3-D models, spaCR's adapter does not.
+BACKEND_TRACKASTRA = "trackastra"
+
+#: Ultrack. The library is documented for 3-D, spaCR's adapter does not.
+BACKEND_ULTRACK = "ultrack"
+
+
+@dataclass(frozen=True)
+class TrackBackend:
+    """What one tracking backend can and cannot be driven to do here.
+
+    Two separate booleans, because they are two separate facts and conflating
+    them is how a user ends up believing spaCR cannot do something the library
+    plainly can.
+
+    :param name: the ``timelapse_mode`` / ``t_track_backend`` spelling.
+    :param links_3d: whether :func:`track_4d` can drive it on a ``(Z, Y, X)``
+        volume per timepoint.
+    :param library_links_3d: whether the upstream package is capable of 3-D at
+        all, independent of spaCR.
+    :param note: the sentence shown to the user when the two disagree.
+    """
+
+    name: str
+    links_3d: bool
+    library_links_3d: bool
+    note: str
+
+
+#: Every backend :func:`track_4d` knows about, and exactly how far each goes.
+#:
+#: The three ``links_3d=False`` entries are not a claim about the libraries --
+#: all three handle 3-D upstream, and btrack 0.7's
+#: ``utils.segmentation_to_objects`` reads a ``(T, Z, Y, X)`` array and returns
+#: objects with a real ``z`` without complaint. They are a claim about
+#: ``spacr.timelapse``'s adapters, which every one of them gate on
+#: ``ndim != 3`` and would have to be rewritten to drive volumetrically. Until
+#: that happens, asking for one of them on a volume is an error and not a
+#: silent projection.
+TRACK_BACKENDS: Dict[str, TrackBackend] = {
+    BACKEND_IOU: TrackBackend(
+        name=BACKEND_IOU, links_3d=True, library_links_3d=True,
+        note="built in; overlap between consecutive timepoints, one-to-one, "
+             "no distance and therefore no anisotropy",
+    ),
+    BACKEND_CENTROID: TrackBackend(
+        name=BACKEND_CENTROID, links_3d=True, library_links_3d=True,
+        note="built in; nearest centroid under a displacement gate, with the z "
+             "component scaled by the anisotropy",
+    ),
+    BACKEND_TRACKPY: TrackBackend(
+        name=BACKEND_TRACKPY, links_3d=True, library_links_3d=True,
+        note="trackpy links in 3-D when given pos_columns=['z','y','x']; spaCR "
+             "pre-scales z by the anisotropy so its single search_range is "
+             "isotropic",
+    ),
+    BACKEND_BTRACK: TrackBackend(
+        name=BACKEND_BTRACK, links_3d=False, library_links_3d=True,
+        note="btrack itself tracks in 3-D (segmentation_to_objects reads a "
+             "(T,Z,Y,X) array and fills object.z), but spacr.timelapse."
+             "_btrack_track_cells raises on any array that is not (T,Y,X), so "
+             "spaCR cannot drive it volumetrically today",
+    ),
+    BACKEND_TRACKASTRA: TrackBackend(
+        name=BACKEND_TRACKASTRA, links_3d=False, library_links_3d=True,
+        note="Trackastra ships 3-D models, but spacr.timelapse."
+             "_trackastra_track_cells requires a (T,Y,X) stack and passes the "
+             "2-D model name through, so spaCR cannot drive it volumetrically "
+             "today",
+    ),
+    BACKEND_ULTRACK: TrackBackend(
+        name=BACKEND_ULTRACK, links_3d=False, library_links_3d=True,
+        note="Ultrack solves segmentation and linking jointly and is "
+             "documented for 3-D, but spacr.timelapse._ultrack_track_cells "
+             "requires a (T,Y,X) stack, so spaCR cannot drive it "
+             "volumetrically today",
+    ),
+}
+
+#: The columns ``timelapse._relabelled_stack_to_tracks_df`` already emits, in
+#: its order. :func:`volume_tracks` reproduces them exactly and appends its own
+#: after them, so every existing consumer keeps working unchanged.
+BASE_TRACK_COLUMNS = ("frame", "track_id", "original_label", "x", "y")
+
+#: Unit of every column :func:`volume_tracks` can produce. The counterpart of
+#: :data:`spacr.zstack.VOLUME_STATS_UNITS`, and here for the same reason: a
+#: voxel count and a px^2 area are different quantities and must never share a
+#: column.
+TRACK_COLUMN_UNITS: Dict[str, str] = {
+    "frame": "timepoint index",
+    "track_id": "index",
+    "original_label": "index",
+    "x": "px",
+    "y": "px",
+    "z": "plane index",
+    "volume_voxels": "voxels",
+    "area_px2": "px^2",
+    "volume_um3": "um^3",
+    "z_um": "um",
+    "time_s": "s",
+    "truncated_z": "bool",
+    "truncated_t": "bool",
+}
+
+#: Flag name for a track cut off by the first or last timepoint, named to match
+#: :data:`spacr.zstack.FLAG_Z_TRUNCATED` for its z equivalent.
+FLAG_T_TRUNCATED = "t_truncated"
+
+
+# ---------------------------------------------------------------------------
+# Errors
+# ---------------------------------------------------------------------------
+
+class TStackError(ConfigurationError):
+    """Base class for every 4-D configuration problem.
+
+    A :class:`spacr.errors.ConfigurationError`, so a run never continues past
+    one: every field would be wrong in the same way.
+    """
+
+
+class AmbiguousAxisOrderError(TStackError):
+    """It could not be established which axis is t and which is z.
+
+    Guessing here chooses between tracking through time and "tracking" down a
+    z-stack, and the second produces smooth plausible trajectories that mean
+    nothing, so the shape is reported back to the user instead.
+    """
+
+
+class TrackerIsTwoDError(TStackError):
+    """A backend that cannot link volumes was asked to link volumes.
+
+    Raised rather than projecting z away, because a projected track table is
+    indistinguishable from a real one after the fact.
+    """
+
+
+class TAxisNotPresentError(TStackError):
+    """The 4D settings are on but the array that arrived has no t (or no z).
+
+    Almost always because ``spacr.io`` collapsed z during ingest. The message
+    names the setting to turn off and where the axis went.
+    """
+
+
+class UnknownDisplacementError(TStackError):
+    """A distance-based backend was asked for without a displacement gate.
+
+    There is no safe default: the right value is set by how fast the objects
+    move relative to the frame interval, and a wrong one either links objects
+    that are not the same or splits one object into a track per frame.
+    """
+
+
+# ---------------------------------------------------------------------------
+# Axis order
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class AxisOrder:
+    """Which axis of the incoming array is which.
+
+    :param t_axis: index of the time axis.
+    :param z_axis: index of the z axis, or ``None`` for a flat time series.
+    :param y_axis: index of the row axis.
+    :param x_axis: index of the column axis.
+    :param channel_axis: index of the channel axis, or ``None``.
+    :param source: how the order was established -- ``'explicit'``,
+        ``'n_t'``, ``'n_z'`` or ``'n_t+n_z'`` -- recorded so it can be written
+        next to the tracks it produced.
+    """
+
+    t_axis: int
+    z_axis: Optional[int]
+    y_axis: int
+    x_axis: int
+    channel_axis: Optional[int] = None
+    source: str = "explicit"
+
+    def __post_init__(self):
+        axes = [self.t_axis, self.y_axis, self.x_axis]
+        if self.z_axis is not None:
+            axes.append(self.z_axis)
+        if self.channel_axis is not None:
+            axes.append(self.channel_axis)
+        if len(set(axes)) != len(axes):
+            raise TStackError(
+                f"the same axis index is used twice in {self!r}: t={self.t_axis}, "
+                f"z={self.z_axis}, y={self.y_axis}, x={self.x_axis}, "
+                f"channel={self.channel_axis}"
+            )
+
+    @property
+    def name(self) -> str:
+        """``'TZYX'``, ``'ZTYX'``, ``'TYX'`` ... in ascending axis order."""
+        letters = {self.t_axis: "T", self.y_axis: "Y", self.x_axis: "X"}
+        if self.z_axis is not None:
+            letters[self.z_axis] = "Z"
+        if self.channel_axis is not None:
+            letters[self.channel_axis] = "C"
+        return "".join(letters[i] for i in sorted(letters))
+
+
+def _shape_of(array) -> Tuple[int, ...]:
+    """Shape of an array, or the tuple/list itself if one was passed."""
+    if isinstance(array, (tuple, list)):
+        return tuple(int(s) for s in array)
+    return tuple(int(s) for s in np.shape(array))
+
+
+def detect_axes(
+    array,
+    n_t: Optional[int] = None,
+    n_z: Optional[int] = None,
+    xy_min: int = 32,
+    channel_axis: Optional[int] = None,
+    strict: bool = False,
+) -> Optional[AxisOrder]:
+    """Work out which leading axis is t and which is z, or refuse to.
+
+    The trailing two axes are taken to be ``(Y, X)``. That is not a guess:
+    :data:`AXIS_ORDER_TZYX` and :data:`AXIS_ORDER_ZTYX` agree on it, so there
+    is nothing to choose between, and it is checked -- if either of them is
+    shorter than ``xy_min`` the array is not ``(..., Y, X)`` at all and that is
+    an error rather than a silent transposition.
+
+    The two *leading* axes are ``t`` and ``z`` in an order the shape cannot
+    reveal. This function settles it only from evidence:
+
+    * ``n_t`` and/or ``n_z`` given, and exactly one assignment matches -> that
+      assignment;
+    * a hint given that matches *both* assignments (``n_t == n_z``, or the two
+      leading axes are the same length) -> ambiguous, ``None``;
+    * a hint given that matches *neither* -> :class:`TStackError`, because the
+      user's belief about the data and the data disagree;
+    * no hint at all -> ambiguous, ``None``.
+
+    There is deliberately no heuristic on the leading lengths. "Time series are
+    longer than z stacks" is true often enough to be dangerous and false often
+    enough to ruin an experiment -- a 5-timepoint acquisition of 40-plane
+    stacks is an ordinary thing to collect.
+
+    :param array: a 4-D array (or a shape tuple).
+    :param n_t: number of timepoints, if known independently of the array.
+    :param n_z: number of z planes, if known independently of the array.
+    :param xy_min: smallest side length still considered an image axis.
+    :param channel_axis: index of a channel axis to ignore, if present.
+    :param strict: raise instead of returning ``None`` when ambiguous.
+    :returns: an :class:`AxisOrder`, or ``None`` when it cannot be settled.
+    :raises ValueError: when the array is not 4-D (after removing any channel
+        axis), or its trailing two axes are not an image plane.
+    :raises TStackError: when a supplied ``n_t``/``n_z`` matches neither
+        reading.
+    :raises AmbiguousAxisOrderError: when ``strict`` and the order is
+        ambiguous.
+    """
+    shape = _shape_of(array)
+
+    kept = list(range(len(shape)))
+    if channel_axis is not None:
+        c_axis = int(channel_axis) % len(shape)
+        kept = [i for i in kept if i != c_axis]
+    else:
+        c_axis = None
+
+    if len(kept) != 4:
+        raise ValueError(
+            f"detect_axes expects a 4-D (T,Z,Y,X) or (Z,T,Y,X) array; got shape "
+            f"{shape}"
+            + (f" with channel_axis={channel_axis}" if channel_axis is not None else "")
+            + ". A 3-D array is either a time series or a z stack and this "
+            "function cannot tell which -- use spacr.zstack for (Z,Y,X), and "
+            "state t_axis explicitly for (T,Y,X)."
+        )
+
+    a0, a1, ay, ax = kept
+    if shape[ay] < xy_min or shape[ax] < xy_min:
+        raise ValueError(
+            f"the trailing two axes of shape {shape} are {shape[ay]}x{shape[ax]}, "
+            f"which is smaller than xy_min={xy_min} and so is not an image "
+            f"plane. spaCR reads 4-D arrays as (..., Y, X); if yours is stored "
+            f"as (Y, X, Z, T) transpose it before handing it over, or lower "
+            f"xy_min if your fields really are that small."
+        )
+
+    def _order(t_axis: int, z_axis: int, source: str) -> AxisOrder:
+        return AxisOrder(t_axis=t_axis, z_axis=z_axis, y_axis=ay, x_axis=ax,
+                         channel_axis=c_axis, source=source)
+
+    # Candidate readings: (t_axis, z_axis).
+    candidates = [(a0, a1), (a1, a0)]
+    hints = []
+    if n_t is not None:
+        hints.append(("n_t", int(n_t)))
+    if n_z is not None:
+        hints.append(("n_z", int(n_z)))
+
+    if hints:
+        surviving = []
+        for t_axis, z_axis in candidates:
+            ok = True
+            for which, value in hints:
+                axis = t_axis if which == "n_t" else z_axis
+                if shape[axis] != value:
+                    ok = False
+            if ok:
+                surviving.append((t_axis, z_axis))
+
+        if len(surviving) == 1:
+            t_axis, z_axis = surviving[0]
+            return _order(t_axis, z_axis, "+".join(w for w, _ in hints))
+
+        if not surviving:
+            raise TStackError(
+                f"the axis hints {dict(hints)} match neither reading of shape "
+                f"{shape}: axis {a0} has length {shape[a0]} and axis {a1} has "
+                f"length {shape[a1]}. Either the array is not the acquisition "
+                f"you think it is, or n_t/n_z is wrong -- spaCR will not "
+                f"proceed on the assumption that one of them is a typo."
+            )
+        # Both readings survive: the hint did not discriminate.
+
+    if strict:
+        reason = (
+            f"axes {a0} and {a1} have lengths {shape[a0]} and {shape[a1]}"
+            + (" and the hints given fit both readings" if hints else
+               " and no n_t/n_z was given")
+        )
+        raise AmbiguousAxisOrderError(
+            f"cannot tell which axis of shape {shape} is time and which is z: "
+            f"{reason}. Reading it as {AXIS_ORDER_TZYX} gives {shape[a0]} "
+            f"timepoints of {shape[a1]} planes; reading it as "
+            f"{AXIS_ORDER_ZTYX} gives {shape[a1]} timepoints of {shape[a0]} "
+            f"planes. Set the `t_axis_order` setting to '{AXIS_ORDER_TZYX}' or "
+            f"'{AXIS_ORDER_ZTYX}' (or pass t_axis/z_axis directly). spaCR will "
+            f"not guess: guessing wrong links objects across z and reports them "
+            f"as trajectories through time, which looks entirely plausible and "
+            f"is entirely fictional."
+        )
+    return None
+
+
+def resolve_axis_order(
+    array,
+    axis_order: Optional[str] = None,
+    t_axis: Optional[int] = None,
+    z_axis: Optional[int] = None,
+    n_t: Optional[int] = None,
+    n_z: Optional[int] = None,
+    channel_axis: Optional[int] = None,
+    xy_min: int = 32,
+) -> AxisOrder:
+    """Return the :class:`AxisOrder` for ``array``, or explain why it cannot.
+
+    An explicit ``axis_order`` name wins, then explicit ``t_axis``/``z_axis``
+    indices, then :func:`detect_axes` in strict mode.
+
+    :param array: a 4-D array (or a shape tuple).
+    :param axis_order: ``'TZYX'`` or ``'ZTYX'``; case-insensitive.
+    :param t_axis: index of the time axis, if known.
+    :param z_axis: index of the z axis, if known.
+    :param n_t: number of timepoints, used as a disambiguating hint.
+    :param n_z: number of z planes, used as a disambiguating hint.
+    :param channel_axis: index of a channel axis to ignore, if present.
+    :param xy_min: smallest side length still considered an image axis.
+    :returns: the resolved :class:`AxisOrder`.
+    :raises TStackError: on an unknown ``axis_order`` name, or when the
+        explicit indices contradict the array.
+    :raises AmbiguousAxisOrderError: when nothing settles the order.
+    """
+    shape = _shape_of(array)
+
+    if axis_order is not None:
+        name = str(axis_order).upper().strip()
+        if name not in AXIS_ORDERS:
+            raise TStackError(
+                f"t_axis_order={axis_order!r} is not one of {list(AXIS_ORDERS)}. "
+                f"These are the two orders in which a 4-D acquisition is "
+                f"actually written; anything else needs t_axis/z_axis given as "
+                f"indices."
+            )
+        t_axis = name.index("T")
+        z_axis = name.index("Z")
+
+    if t_axis is not None or z_axis is not None:
+        kept = [i for i in range(len(shape))
+                if channel_axis is None or i != int(channel_axis) % len(shape)]
+        if len(kept) != 4:
+            raise TStackError(
+                f"an explicit t_axis/z_axis needs a 4-D (T,Z,Y,X)-shaped array; "
+                f"got shape {shape}"
+            )
+        if t_axis is None or z_axis is None:
+            # One given, the other is whichever leading axis is left.
+            leading = [i for i in kept[:2]]
+            known = t_axis if t_axis is not None else z_axis
+            known = int(known) % len(shape)
+            others = [i for i in leading if i != known]
+            if len(others) != 1:
+                raise TStackError(
+                    f"axis {known} is not one of the two leading axes {leading} "
+                    f"of shape {shape}, so the other one cannot be inferred; "
+                    f"give both t_axis and z_axis."
+                )
+            if t_axis is None:
+                t_axis, z_axis = others[0], known
+            else:
+                t_axis, z_axis = known, others[0]
+        t_axis = int(t_axis) % len(shape)
+        z_axis = int(z_axis) % len(shape)
+        y_axis, x_axis = [i for i in kept if i not in (t_axis, z_axis)]
+        order = AxisOrder(
+            t_axis=t_axis, z_axis=z_axis, y_axis=y_axis, x_axis=x_axis,
+            channel_axis=(None if channel_axis is None
+                          else int(channel_axis) % len(shape)),
+            source="explicit",
+        )
+        if n_t is not None and shape[order.t_axis] != int(n_t):
+            raise TStackError(
+                f"t_axis={order.t_axis} has length {shape[order.t_axis]} but "
+                f"n_t={n_t} was given; the declared axis order and the declared "
+                f"timepoint count disagree."
+            )
+        if n_z is not None and shape[order.z_axis] != int(n_z):
+            raise TStackError(
+                f"z_axis={order.z_axis} has length {shape[order.z_axis]} but "
+                f"n_z={n_z} was given; the declared axis order and the declared "
+                f"plane count disagree."
+            )
+        return order
+
+    return detect_axes(array, n_t=n_t, n_z=n_z, xy_min=xy_min,
+                       channel_axis=channel_axis, strict=True)
+
+
+# ---------------------------------------------------------------------------
+# Spec / result records
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class TStackSpec:
+    """Everything the 4-D plumbing needs to know about one acquisition.
+
+    The geometry half (``t_axis`` ... ``voxel_size_um``) describes the data;
+    the rest describes what to do with it. ``z_mode``, ``projection`` and
+    ``stitch_threshold`` are handed straight to :mod:`spacr.zstack` via
+    :meth:`to_z_spec` and mean exactly what they mean there.
+
+    :param t_axis: index of the time axis in the incoming array.
+    :param z_axis: index of the z axis, or ``None`` for a flat time series.
+    :param n_t: number of timepoints, or ``None`` when not yet known.
+    :param n_z: number of z planes, or ``None`` when not yet known.
+    :param anisotropy: ``dz / dxy``. ``None`` means "not known", which is fatal
+        for volumetric segmentation and for the distance-based trackers.
+    :param frame_interval_s: seconds between consecutive timepoints, or
+        ``None``. Only ever used to add a ``time_s`` column -- no linking
+        decision depends on it.
+    :param voxel_size_um: ``(dz, dy, dx)`` in micrometres, or ``None``.
+    :param channel_axis: index of a channel axis, or ``None``.
+    :param z_mode: one of :data:`spacr.zstack.SEGMENTATION_MODES`.
+    :param projection: reducer used by :data:`~spacr.zstack.MODE_PROJECT`.
+    :param stitch_threshold: IoU floor for
+        :func:`~spacr.zstack.stitch_planes`, i.e. for linking across **z**.
+    :param track_backend: one of :data:`TRACK_BACKENDS`.
+    :param link_threshold: IoU floor for linking across **t** in
+        :data:`BACKEND_IOU`. Deliberately a separate number from
+        ``stitch_threshold``: consecutive z planes and consecutive timepoints
+        do not overlap by the same amount.
+    :param max_displacement_px: gate for the distance-based backends, in xy
+        pixels, with z scaled by ``anisotropy``.
+    :param max_displacement_um: the same gate in micrometres; needs
+        ``voxel_size_um``. Mutually exclusive with ``max_displacement_px``.
+    :param project_for_tracking: opt in to collapsing z before linking, so
+        that linking happens on the projection rather than on the volume. Off
+        by default and never implied. It does **not** unlock the backends
+        spaCR cannot drive volumetrically -- see :func:`track_4d`.
+    """
+
+    t_axis: int = 0
+    z_axis: Optional[int] = 1
+    n_t: Optional[int] = None
+    n_z: Optional[int] = None
+    anisotropy: Optional[float] = None
+    frame_interval_s: Optional[float] = None
+    voxel_size_um: Optional[Tuple[float, float, float]] = None
+    channel_axis: Optional[int] = None
+    z_mode: str = MODE_PROJECT
+    projection: Optional[str] = "max"
+    stitch_threshold: float = 0.25
+    track_backend: str = BACKEND_IOU
+    link_threshold: float = 0.25
+    max_displacement_px: Optional[float] = None
+    max_displacement_um: Optional[float] = None
+    project_for_tracking: bool = False
+
+    def __post_init__(self):
+        if self.z_axis is not None and int(self.t_axis) == int(self.z_axis):
+            raise TStackError(
+                f"t_axis and z_axis are both {self.t_axis}; one array axis "
+                f"cannot be both time and z"
+            )
+        if self.channel_axis is not None:
+            taken = {int(self.t_axis)}
+            if self.z_axis is not None:
+                taken.add(int(self.z_axis))
+            if int(self.channel_axis) in taken:
+                raise TStackError(
+                    f"channel_axis={self.channel_axis} collides with t_axis="
+                    f"{self.t_axis} / z_axis={self.z_axis}; one array axis "
+                    f"cannot be two things at once"
+                )
+        if self.track_backend not in TRACK_BACKENDS:
+            raise TStackError(
+                f"t_track_backend={self.track_backend!r} is not one of "
+                f"{sorted(TRACK_BACKENDS)}"
+            )
+        if not 0.0 <= float(self.link_threshold) <= 1.0:
+            raise TStackError(
+                f"t_link_threshold={self.link_threshold!r} must be an IoU in "
+                f"[0, 1]"
+            )
+        if self.max_displacement_px is not None and self.max_displacement_um is not None:
+            raise TStackError(
+                "t_max_displacement_px and t_max_displacement_um are both set; "
+                "they are the same gate in two units and spaCR will not pick "
+                "one. Set exactly one."
+            )
+        for label, value in (("t_max_displacement_px", self.max_displacement_px),
+                             ("t_max_displacement_um", self.max_displacement_um)):
+            if value is not None and (not np.isfinite(float(value)) or float(value) <= 0):
+                raise TStackError(f"{label}={value!r} must be a finite number > 0")
+        if self.frame_interval_s is not None:
+            value = float(self.frame_interval_s)
+            if not np.isfinite(value) or value <= 0:
+                raise TStackError(
+                    f"frame_interval_s={self.frame_interval_s!r} must be a "
+                    f"finite number of seconds > 0"
+                )
+        # Validated by ZStackSpec, which owns these three; constructing it here
+        # means an impossible z_mode/projection/anisotropy is refused when the
+        # spec is built and not after the first field has been read.
+        self.to_z_spec()
+
+    @property
+    def voxel_size(self) -> Optional[Tuple[float, float, float]]:
+        """Alias of ``voxel_size_um``; the units are in the canonical name."""
+        return self.voxel_size_um
+
+    @property
+    def axis_order(self) -> Optional[str]:
+        """``'TZYX'`` / ``'ZTYX'`` when the two leading axes are t and z."""
+        if self.z_axis is None:
+            return None
+        if (int(self.t_axis), int(self.z_axis)) == (0, 1):
+            return AXIS_ORDER_TZYX
+        if (int(self.t_axis), int(self.z_axis)) == (1, 0):
+            return AXIS_ORDER_ZTYX
+        return None
+
+    @property
+    def backend(self) -> TrackBackend:
+        """The :class:`TrackBackend` record for ``track_backend``."""
+        return TRACK_BACKENDS[self.track_backend]
+
+    def to_z_spec(self) -> ZStackSpec:
+        """The :class:`spacr.zstack.ZStackSpec` for one timepoint of this run.
+
+        :returns: a z spec carrying this spec's z settings verbatim.
+        """
+        return ZStackSpec(
+            z_axis=0,  # iter_volumes always yields z-first volumes
+            n_z=self.n_z,
+            anisotropy=self.anisotropy,
+            voxel_size_um=self.voxel_size_um,
+            projection=self.projection,
+            mode=self.z_mode,
+            stitch_threshold=self.stitch_threshold,
+            resample_to_isotropic=False,
+        )
+
+    def require_anisotropy(self) -> float:
+        """Return ``dz/dxy``, or explain why the run cannot proceed.
+
+        :raises spacr.zstack.UnknownAnisotropyError: when it is not known.
+        """
+        return resolve_anisotropy(anisotropy=self.anisotropy,
+                                  voxel_size_um=self.voxel_size_um)
+
+
+@dataclass
+class TStackResult:
+    """The labels a 4-D run produced, plus how it produced them.
+
+    :param labels: **t-first** labels: ``(T, Z, Y, X)`` for the volumetric z
+        modes, ``(T, Y, X)`` for ``project`` and for a single-plane
+        acquisition. Label values are per-timepoint and carry no identity
+        across t until :func:`track_4d` has run.
+    :param z_results: the :class:`spacr.zstack.ZStackResult` for each
+        timepoint, in order.
+    :param spec: the spec that produced them.
+    :param n_t: number of timepoints segmented.
+    :param n_z: planes per timepoint.
+    :param notes: remarks worth surfacing to the user.
+    """
+
+    labels: np.ndarray
+    z_results: List[Any] = _dc_field(default_factory=list)
+    spec: Optional[TStackSpec] = None
+    n_t: int = 0
+    n_z: int = 1
+    notes: List[str] = _dc_field(default_factory=list)
+
+    @property
+    def has_z(self) -> bool:
+        """Whether the labels kept a z axis (i.e. are ``(T, Z, Y, X)``)."""
+        return np.asarray(self.labels).ndim == 4
+
+    @property
+    def z_mode(self) -> str:
+        """The mode that actually ran, as recorded by the first timepoint."""
+        if self.z_results:
+            return self.z_results[0].mode
+        return MODE_SINGLE_PLANE
+
+    @property
+    def objects_per_timepoint(self) -> List[int]:
+        """Non-background label count at each timepoint."""
+        return [int(np.count_nonzero(np.unique(frame)))
+                for frame in np.asarray(self.labels)]
+
+
+@dataclass
+class TrackResult:
+    """The outcome of linking a 4-D label array across time.
+
+    :param labels: **t-first** labels renumbered so that one value means one
+        track for the whole acquisition; same shape as the input.
+    :param tracks: the :func:`volume_tracks` table.
+    :param backend: which backend linked them.
+    :param n_tracks: number of distinct tracks.
+    :param anisotropy: the value used, or ``None`` when the backend has no
+        distance in it.
+    :param projected: whether z was collapsed before linking (only ever true
+        when the caller asked for it).
+    :param notes: remarks worth surfacing to the user.
+    """
+
+    labels: np.ndarray
+    tracks: Any = None
+    backend: str = BACKEND_IOU
+    n_tracks: int = 0
+    anisotropy: Optional[float] = None
+    projected: bool = False
+    notes: List[str] = _dc_field(default_factory=list)
+
+    @property
+    def truncated_tracks(self) -> np.ndarray:
+        """Track ids present in the first or last timepoint."""
+        return flag_truncated_t(self.labels)
+
+    @property
+    def truncated_fraction(self) -> float:
+        """Share of tracks cut off by the start or end of the acquisition.
+
+        The t counterpart of :attr:`spacr.zstack.ZStackResult.truncated_fraction`;
+        a high value means the movie does not span the process being measured
+        and every lifetime in the table is a lower bound.
+        """
+        if self.n_tracks == 0:
+            return 0.0
+        return float(self.truncated_tracks.size) / self.n_tracks
+
+
+# ---------------------------------------------------------------------------
+# Iteration
+# ---------------------------------------------------------------------------
+
+def as_t_first(array, spec: TStackSpec) -> np.ndarray:
+    """Return a **view** of ``array`` with t at axis 0 and z at axis 1.
+
+    A view, not a copy: ``np.moveaxis`` never copies, which is what keeps a
+    4-D acquisition from being materialised twice.
+
+    :param array: the acquisition, axes as described by ``spec``.
+    :param spec: the :class:`TStackSpec` naming ``t_axis`` / ``z_axis``.
+    :returns: the same data as ``(T, Z, Y, X[, C])`` or ``(T, Y, X[, C])``.
+    :raises TAxisNotPresentError: when the array has fewer axes than the spec
+        claims.
+    """
+    arr = np.asarray(array)
+    needed = 3 if spec.z_axis is None else 4
+    if spec.channel_axis is not None:
+        needed += 1
+    if arr.ndim < needed:
+        raise TAxisNotPresentError(
+            f"t_stack is on and the spec describes a {needed}-axis acquisition "
+            f"(t_axis={spec.t_axis}, z_axis={spec.z_axis}, channel_axis="
+            f"{spec.channel_axis}), but the array that arrived has shape "
+            f"{arr.shape}. spaCR's image ingest collapses z into one plane per "
+            f"field while organising the raw files (spacr.io, the 4-D TIFF and "
+            f"LIF branches both take a maximum along z), so by the time a "
+            f"batch reaches segmentation there is no z axis left to segment. "
+            f"Either turn t_stack off and accept the projection spaCR has "
+            f"always made, or hand spacr.zstack.segment_4d your (T, Z, Y, X) "
+            f"arrays directly through the Python API. spaCR will not segment "
+            f"the projection and report it as a 4-D result."
+        )
+
+    if spec.z_axis is None:
+        return np.moveaxis(arr, int(spec.t_axis), 0)
+    return np.moveaxis(arr, [int(spec.t_axis), int(spec.z_axis)], [0, 1])
+
+
+def iter_volumes(array, spec: TStackSpec) -> Iterator[np.ndarray]:
+    """Yield one ``(Z, Y, X[, C])`` volume per timepoint, lazily.
+
+    Each yielded array is a **view** into ``array``: nothing is copied and the
+    4-D acquisition is never materialised a second time. A spec with
+    ``z_axis=None`` yields ``(Y, X[, C])`` planes instead, which is the
+    ordinary 2-D time series and is handled by exactly the same code.
+
+    :param array: the acquisition, axes as described by ``spec``.
+    :param spec: the :class:`TStackSpec`.
+    :yields: one volume (or plane) per timepoint, in acquisition order.
+    :raises TStackError: when the array's t/z lengths contradict ``spec.n_t``
+        or ``spec.n_z``.
+    :raises TAxisNotPresentError: when the array has no z axis but the spec
+        says it should.
+    """
+    view = as_t_first(array, spec)
+
+    n_t = int(view.shape[0])
+    if spec.n_t is not None and n_t != int(spec.n_t):
+        raise TStackError(
+            f"t_axis={spec.t_axis} of the array has length {n_t} but the spec "
+            f"says n_t={spec.n_t}. One of them is describing a different "
+            f"acquisition."
+        )
+    if spec.z_axis is not None:
+        n_z = int(view.shape[1])
+        if spec.n_z is not None and n_z != int(spec.n_z):
+            raise TStackError(
+                f"z_axis={spec.z_axis} of the array has length {n_z} but the "
+                f"spec says n_z={spec.n_z}. One of them is describing a "
+                f"different acquisition."
+            )
+
+    for t in range(n_t):
+        yield view[t]
+
+
+# ---------------------------------------------------------------------------
+# Segmentation
+# ---------------------------------------------------------------------------
+
+def segment_4d(
+    array,
+    spec: TStackSpec,
+    segment_fn: Callable[..., Any],
+    verbose: bool = False,
+) -> TStackResult:
+    """Segment every timepoint independently, in 3-D, and stack the results.
+
+    Each timepoint goes to :func:`spacr.zstack.segment_3d` with this spec's z
+    settings, so the per-timepoint behaviour is *identical* to a 3-D run and
+    the two cannot drift apart. Segmentation is deliberately per-timepoint and
+    independent: linking is a separate decision made by :func:`track_4d`, and
+    fusing the two is what makes a tracker's mistakes indistinguishable from a
+    segmenter's.
+
+    Two degenerate cases are not degenerate at all, and both are exact:
+
+    * ``n_t == 1`` -- the result is the 3-D result. ``labels[0]`` is
+      byte-identical to what :func:`spacr.zstack.segment_3d` returns for that
+      volume.
+    * ``n_z == 1`` -- every timepoint short-circuits to
+      :data:`~spacr.zstack.MODE_SINGLE_PLANE`, so ``labels`` is ``(T, Y, X)``
+      and each frame is byte-identical to ``segment_fn(plane)``. That is the
+      ordinary 2-D path.
+
+    :param array: the acquisition, axes as described by ``spec``.
+    :param spec: the :class:`TStackSpec`.
+    :param segment_fn: the ``segment_fn`` contract of
+        :func:`spacr.zstack.segment_3d`; see that function for the kwargs it
+        receives in each mode.
+    :param verbose: print each timepoint's z notes as it is segmented.
+    :returns: a :class:`TStackResult` whose labels are t-first.
+    :raises TStackError: on an inconsistent spec (see :func:`iter_volumes`).
+    """
+    z_spec = spec.to_z_spec()
+    labels: List[np.ndarray] = []
+    z_results: List[Any] = []
+
+    for t, volume in enumerate(iter_volumes(array, spec)):
+        if spec.z_axis is None:
+            # A flat time series: one 2-D call per frame, no z code at all.
+            result = ZStackResult(
+                labels=np.asarray(segment_fn(volume)),
+                mode=MODE_SINGLE_PLANE, anisotropy=None, n_z=1,
+                notes=["no z axis: segmented in 2-D, exactly as a non-z run"],
+            )
+        else:
+            result = segment_3d(
+                volume,
+                segment_fn=segment_fn,
+                mode=z_spec.mode,
+                stitch_threshold=z_spec.stitch_threshold,
+                anisotropy=z_spec.anisotropy,
+                voxel_size_um=z_spec.voxel_size_um,
+                projection=z_spec.projection,
+                z_axis=0,
+                resample_to_isotropic=z_spec.resample_to_isotropic,
+            )
+        labels.append(np.asarray(result.labels))
+        z_results.append(result)
+        if verbose:
+            for note in result.notes:
+                print(f"[4D] t={t}: {note}")
+
+    if not labels:
+        raise TStackError(
+            "segment_4d got an acquisition with zero timepoints; there is "
+            "nothing to segment or to link"
+        )
+
+    shapes = {arr.shape for arr in labels}
+    if len(shapes) != 1:
+        raise TStackError(
+            f"the timepoints segmented to different shapes {sorted(shapes)}; "
+            f"they cannot be stacked, let alone linked"
+        )
+
+    stacked = np.stack(labels, axis=0)
+    n_t = len(labels)
+    n_z = int(z_results[0].n_z)
+
+    notes = [
+        f"{n_t} timepoint(s) x {n_z} plane(s) segmented independently in "
+        f"'{z_results[0].mode}' mode; label values are per-timepoint and mean "
+        f"nothing across t until track_4d has linked them"
+    ]
+    if n_t == 1:
+        notes.append(
+            "a single timepoint is a 3-D run, not a degenerate 4-D one: "
+            "labels[0] is exactly what zstack.segment_3d returns"
+        )
+    if stacked.ndim == 3:
+        notes.append(
+            "labels have no z axis (single plane, or 'project' mode collapsed "
+            "it), so this is the ordinary 2-D time series and volumes are not "
+            "measurable from it"
+        )
+
+    return TStackResult(labels=stacked, z_results=z_results, spec=spec,
+                        n_t=n_t, n_z=n_z, notes=notes)
+
+
+# ---------------------------------------------------------------------------
+# Label geometry
+# ---------------------------------------------------------------------------
+
+def _label_centroids(labels: np.ndarray):
+    """Centroid and voxel count of every non-background label.
+
+    Works in any dimensionality, so the same code serves a ``(Z, Y, X)`` volume
+    and a ``(Y, X)`` plane.
+
+    :param labels: an integer label array.
+    :returns: ``(ids, centroids, counts)`` where ``centroids`` is
+        ``(n_labels, ndim)`` in axis order.
+    """
+    labels = np.asarray(labels)
+    ids = np.unique(labels)
+    ids = ids[ids > 0]
+    if ids.size == 0:
+        return ids.astype(np.int64), np.zeros((0, labels.ndim)), np.zeros(0, np.int64)
+
+    coords = np.nonzero(labels)
+    flat = labels[coords]
+    n = int(labels.max()) + 1
+    counts = np.bincount(flat, minlength=n)
+    centroids = np.stack(
+        [np.bincount(flat, weights=c, minlength=n)[ids] / counts[ids]
+         for c in coords],
+        axis=1,
+    )
+    return ids.astype(np.int64), centroids, counts[ids].astype(np.int64)
+
+
+def project_labels(labels_3d) -> np.ndarray:
+    """Collapse a ``(Z, Y, X)`` label volume to ``(Y, X)``, honestly.
+
+    Taking a maximum along z -- what :func:`spacr.zstack.project` does to
+    *intensities* -- is meaningless for labels, because label values are
+    arbitrary ids and the maximum simply picks the highest-numbered object.
+    This instead gives each pixel the label that occupies the most planes in
+    that column, which is the only projection that answers "which object is
+    here?".
+
+    It costs one pass over the volume per label present, which is why it is
+    only ever reached when the caller has explicitly asked for
+    ``project_for_tracking``.
+
+    :param labels_3d: a ``(Z, Y, X)`` label volume.
+    :returns: a ``(Y, X)`` label image.
+    """
+    volume = np.asarray(labels_3d)
+    if volume.ndim == 2:
+        return volume
+
+    out = np.zeros(volume.shape[1:], dtype=volume.dtype)
+    best = np.zeros(volume.shape[1:], dtype=np.int64)
+    ids = np.unique(volume)
+    for value in ids[ids > 0]:
+        count = (volume == value).sum(axis=0)
+        take = count > best
+        best[take] = count[take]
+        out[take] = value
+    return out
+
+
+def flag_truncated_t(labels_4d) -> np.ndarray:
+    """Track ids present in the first or last timepoint, and so cut off in t.
+
+    The time counterpart of :func:`spacr.zstack.flag_truncated_z`: such a track
+    began before the acquisition did, or was still running when it ended, so
+    its lifetime, total displacement and division count are lower bounds and it
+    should be reported rather than quietly averaged into a survival curve.
+
+    :param labels_4d: a t-first label array; ``(T, Z, Y, X)`` or ``(T, Y, X)``.
+    :returns: sorted array of truncated track ids.
+    """
+    labels = np.asarray(labels_4d)
+    if labels.ndim < 3 or labels.shape[0] == 0:
+        return np.empty(0, dtype=np.int64)
+
+    ends = np.concatenate([labels[0].ravel(), labels[-1].ravel()])
+    ids = np.unique(ends)
+    return ids[ids > 0].astype(np.int64)
+
+
+# ---------------------------------------------------------------------------
+# Linking
+# ---------------------------------------------------------------------------
+
+def _displacement_scale(ndim: int, anisotropy: float,
+                        voxel_size_um: Optional[Sequence[float]],
+                        in_um: bool) -> np.ndarray:
+    """Per-axis multipliers turning centroid coordinates into gate units.
+
+    :param ndim: 3 for ``(Z, Y, X)`` centroids, 2 for ``(Y, X)``.
+    :param anisotropy: ``dz / dxy``, applied to the z component only.
+    :param voxel_size_um: ``(dz, dy, dx)``; required when ``in_um``.
+    :param in_um: whether the gate is in micrometres rather than xy pixels.
+    :returns: an ``(ndim,)`` array of multipliers.
+    :raises TStackError: when micrometres are asked for without a voxel size.
+    """
+    if in_um:
+        if voxel_size_um is None:
+            raise TStackError(
+                "t_max_displacement_um is set but the voxel size is not known, "
+                "so pixels cannot be converted to micrometres. Set "
+                "voxel_size_z_um and voxel_size_xy_um, or express the gate in "
+                "pixels with t_max_displacement_px."
+            )
+        dz, dy, dx = (float(v) for v in voxel_size_um)
+        return np.array([dz, dy, dx][3 - ndim:], dtype=float)
+
+    # xy-pixel space: x and y are already in pixels, z is `anisotropy` pixels
+    # per plane. This is the whole reason anisotropy matters to tracking.
+    return np.array([float(anisotropy), 1.0, 1.0][3 - ndim:], dtype=float)
+
+
+def _centroid_matches(prev_labels, cur_labels, scale: np.ndarray,
+                      max_distance: float):
+    """Nearest-centroid matches under a hard displacement gate.
+
+    The assignment is globally optimal (Hungarian) over the gated cost matrix,
+    then any pair that still exceeds the gate is dropped -- a pair beyond the
+    gate is not a link at any cost.
+
+    :param prev_labels: labels at t-1.
+    :param cur_labels: labels at t.
+    :param scale: per-axis multipliers from :func:`_displacement_scale`.
+    :param max_distance: gate, in the units ``scale`` produces.
+    :returns: ``{cur_label: prev_label}``.
+    """
+    from scipy.optimize import linear_sum_assignment
+
+    prev_ids, prev_c, _ = _label_centroids(prev_labels)
+    cur_ids, cur_c, _ = _label_centroids(cur_labels)
+    if prev_ids.size == 0 or cur_ids.size == 0:
+        return {}
+
+    delta = (prev_c[:, None, :] - cur_c[None, :, :]) * scale[None, None, :]
+    cost = np.sqrt((delta ** 2).sum(axis=-1))
+
+    # Gate first so the solver never prefers a long link just to complete a
+    # permutation, then drop anything that is still over the gate.
+    big = float(max_distance) * 1e6 + 1.0
+    gated = np.where(cost <= max_distance, cost, big)
+    rows, cols = linear_sum_assignment(gated)
+
+    assigned: Dict[int, int] = {}
+    for i, j in zip(rows, cols):
+        if cost[i, j] <= max_distance:
+            assigned[int(cur_ids[j])] = int(prev_ids[i])
+    return assigned
+
+
+def _trackpy_maps(labels_4d, scale: np.ndarray, max_distance: float,
+                  memory: int = 0) -> List[Dict[int, int]]:
+    """Link with trackpy over ``['z', 'y', 'x']`` and return per-timepoint maps.
+
+    trackpy takes one isotropic ``search_range``, so the z coordinate is
+    pre-scaled by the anisotropy before it is handed over -- otherwise the gate
+    would silently mean ``anisotropy`` times further along z than across it.
+    ``pos_columns`` is passed explicitly because trackpy's own column guess
+    reads whichever of ``x``/``y``/``z`` happen to be present, which makes the
+    dimensionality of the link depend on the shape of a DataFrame rather than
+    on a decision anyone made.
+
+    :param labels_4d: t-first label array.
+    :param scale: per-axis multipliers from :func:`_displacement_scale`.
+    :param max_distance: search range, in the units ``scale`` produces.
+    :param memory: frames a track may vanish for and still be continued.
+    :returns: one ``{original_label: track_id}`` map per timepoint.
+    :raises RuntimeError: when trackpy is not installed, naming the fix.
+    """
+    import pandas as pd
+
+    try:
+        import trackpy as tp
+    except ImportError as exc:
+        raise RuntimeError(
+            "t_track_backend='trackpy' needs the trackpy package, which is not "
+            "installed. Install it with `pip install trackpy`, or choose "
+            "t_track_backend='iou' / 'centroid', which are built in."
+        ) from exc
+
+    labels = np.asarray(labels_4d)
+    rows = []
+    for t, frame in enumerate(labels):
+        ids, centroids, _ = _label_centroids(frame)
+        for value, centroid in zip(ids, centroids * scale[None, :]):
+            row = {"frame": t, "original_label": int(value)}
+            if centroid.size == 3:
+                row.update(z=float(centroid[0]), y=float(centroid[1]),
+                           x=float(centroid[2]))
+            else:
+                row.update(z=0.0, y=float(centroid[0]), x=float(centroid[1]))
+            rows.append(row)
+
+    if not rows:
+        return [{} for _ in range(labels.shape[0])]
+
+    features = pd.DataFrame(rows)
+    linked = tp.link(features, search_range=float(max_distance),
+                     pos_columns=["z", "y", "x"], t_column="frame",
+                     memory=int(memory))
+
+    maps: List[Dict[int, int]] = [{} for _ in range(labels.shape[0])]
+    for _, row in linked.iterrows():
+        maps[int(row["frame"])][int(row["original_label"])] = int(row["particle"]) + 1
+    return maps
+
+
+def _apply_track_maps(labels_4d, maps: Sequence[Dict[int, int]]) -> np.ndarray:
+    """Renumber a t-first label array so one value means one track.
+
+    :param labels_4d: t-first label array.
+    :param maps: one ``{original_label: track_id}`` per timepoint.
+    :returns: a new array of the same shape with track ids in it.
+    """
+    labels = np.asarray(labels_4d)
+    out = np.zeros(labels.shape, dtype=np.int64)
+    for t, mapping in enumerate(maps):
+        frame = labels[t]
+        if not mapping:
+            continue
+        lut = np.zeros(int(frame.max()) + 1, dtype=np.int64)
+        for original, track_id in mapping.items():
+            if original <= frame.max():
+                lut[int(original)] = int(track_id)
+        out[t] = lut[frame]
+    return relabel_volume(out)
+
+
+def track_4d(
+    labels_or_result,
+    spec: Optional[TStackSpec] = None,
+    backend: Optional[str] = None,
+    link_threshold: Optional[float] = None,
+    max_displacement_px: Optional[float] = None,
+    max_displacement_um: Optional[float] = None,
+    anisotropy: Optional[float] = None,
+    project_for_tracking: Optional[bool] = None,
+    memory: int = 0,
+) -> TrackResult:
+    """Link objects across time, in 3-D, and renumber them by track.
+
+    The input is **t-first** labels -- ``(T, Z, Y, X)`` or ``(T, Y, X)`` --
+    which is exactly what :func:`segment_4d` returns, or a
+    :class:`TStackResult` itself. There is no axis detection here on purpose:
+    by this point the order is a decision that has already been made and
+    recorded, and re-deriving it would be a second chance to get it wrong.
+
+    Handing a volume to a backend that cannot link volumes raises
+    :class:`TrackerIsTwoDError` naming the backend and saying whether the limit
+    is the library's or spaCR's; it does not project. ``project_for_tracking``
+    turns the projection on explicitly, and then the result records that z was
+    destroyed, because two objects stacked in z become one object in the
+    projection and no downstream number can tell that it happened.
+
+    :param labels_or_result: t-first label array, or a :class:`TStackResult`.
+    :param spec: the :class:`TStackSpec`; taken from the result when it carries
+        one, and defaulted otherwise.
+    :param backend: overrides ``spec.track_backend``.
+    :param link_threshold: overrides ``spec.link_threshold`` (IoU backend).
+    :param max_displacement_px: overrides the spec's gate, in xy pixels.
+    :param max_displacement_um: overrides the spec's gate, in micrometres.
+    :param anisotropy: overrides ``spec.anisotropy``.
+    :param project_for_tracking: overrides ``spec.project_for_tracking``.
+    :param memory: frames a track may vanish for; supported by the trackpy
+        backend only, and 0 everywhere else -- the built-in linkers compare
+        consecutive timepoints and nothing else, so a missed detection ends a
+        track and starts a new one.
+    :returns: a :class:`TrackResult`.
+    :raises TrackerIsTwoDError: when the backend cannot link volumes and the
+        projection was not explicitly asked for.
+    :raises UnknownDisplacementError: when a distance-based backend has no gate.
+    :raises spacr.zstack.UnknownAnisotropyError: when a distance-based backend
+        has no anisotropy and a volume to link.
+    :raises TStackError: on an unknown backend or a non-t-first input.
+    """
+    if isinstance(labels_or_result, TStackResult):
+        if spec is None:
+            spec = labels_or_result.spec
+        labels = np.asarray(labels_or_result.labels)
+    else:
+        labels = np.asarray(labels_or_result)
+
+    if spec is None:
+        spec = TStackSpec()
+
+    name = spec.track_backend if backend is None else str(backend)
+    if name not in TRACK_BACKENDS:
+        raise TStackError(
+            f"t_track_backend={name!r} is not one of {sorted(TRACK_BACKENDS)}"
+        )
+    record = TRACK_BACKENDS[name]
+
+    threshold = spec.link_threshold if link_threshold is None else float(link_threshold)
+    gate_px = spec.max_displacement_px if max_displacement_px is None else float(max_displacement_px)
+    gate_um = spec.max_displacement_um if max_displacement_um is None else float(max_displacement_um)
+    if gate_px is not None and gate_um is not None:
+        raise TStackError(
+            "t_max_displacement_px and t_max_displacement_um are both set; "
+            "they are the same gate in two units and spaCR will not pick one."
+        )
+    aniso_value = spec.anisotropy if anisotropy is None else float(anisotropy)
+    project = (spec.project_for_tracking if project_for_tracking is None
+               else bool(project_for_tracking))
+
+    if labels.ndim not in (3, 4):
+        raise TStackError(
+            f"track_4d expects t-first labels, (T,Z,Y,X) or (T,Y,X); got shape "
+            f"{labels.shape}. Use as_t_first(array, spec) to reorder an "
+            f"acquisition before tracking it -- track_4d deliberately does not "
+            f"detect the axis order itself."
+        )
+
+    notes: List[str] = []
+    volumetric = labels.ndim == 4
+    projected = False
+
+    if volumetric and not record.links_3d:
+        # Deliberately not unlocked by project_for_tracking. This module
+        # does not drive this backend at all -- it lives in spacr.timelapse
+        # and takes (T, Y, X) -- so projecting here and then linking with a
+        # DIFFERENT linker would report one tracker's answer under another
+        # tracker's name, which is a worse lie than the one this refusal
+        # prevents.
+        raise TrackerIsTwoDError(
+            f"t_track_backend='{record.name}' cannot link "
+            f"{labels.shape[1]}-plane volumes as spaCR drives it, and the "
+            f"labels handed to it are volumetric (shape {labels.shape}). "
+            f"{record.note}. Either choose a backend that links volumes "
+            f"({', '.join(sorted(b for b, r in TRACK_BACKENDS.items() if r.links_3d))}), "
+            f"or, if you specifically want {record.name}, collapse z yourself "
+            f"with spacr.zstack.project_labels and hand the resulting (T, Y, X) "
+            f"stack to spacr.timelapse's adapter for it -- that merges every "
+            f"pair of objects separated only in z, which is exactly why spaCR "
+            f"makes you do it rather than doing it silently."
+        )
+
+    if volumetric and project:
+        # A real choice with a real cost, and only ever made explicitly: link
+        # the projection rather than the volume. Faster and less sensitive to a
+        # wrong anisotropy, at the price of fusing anything stacked in z.
+        labels = np.stack([project_labels(frame) for frame in labels], axis=0)
+        volumetric = False
+        projected = True
+        notes.append(
+            "project_for_tracking: z was collapsed before linking, as asked. "
+            "Objects that overlap in xy but are separated in z have been "
+            "merged into one and nothing computed downstream can tell that it "
+            "happened."
+        )
+
+    aniso_used: Optional[float] = None
+
+    if name == BACKEND_IOU:
+        # Linking across t by overlap is the same algorithm as linking across
+        # z by overlap, so this is zstack.stitch_planes applied along axis 0 --
+        # which here is time, explicitly, never inferred.
+        tracked = stitch_planes(labels, iou_threshold=threshold)
+        notes.append(
+            f"linked across t by overlap at IoU >= {threshold} (one-to-one, "
+            f"consecutive timepoints only). Overlap has no distance in it, so "
+            f"anisotropy does not enter this backend at all."
+        )
+        if aniso_value is not None:
+            notes.append(
+                "anisotropy is ignored by the 'iou' backend, exactly as it is "
+                "ignored by zstack's stitch mode"
+            )
+    elif name in (BACKEND_CENTROID, BACKEND_TRACKPY):
+        in_um = gate_um is not None
+        gate = gate_um if in_um else gate_px
+        if gate is None:
+            raise UnknownDisplacementError(
+                f"t_track_backend='{name}' links by distance and this run has "
+                f"no displacement gate. Set t_max_displacement_px (in xy "
+                f"pixels, with z scaled by the anisotropy) or "
+                f"t_max_displacement_um (in micrometres, which also needs "
+                f"voxel_size_z_um / voxel_size_xy_um). spaCR will not pick a "
+                f"default: the right value depends on how far your objects "
+                f"move between frames, and a wrong one either fuses "
+                f"neighbouring objects into one track or breaks one object "
+                f"into a track per frame."
+            )
+
+        ndim = 3 if volumetric else 2
+        if volumetric and not in_um:
+            # Required, not defaulted: at dz/dxy = 5 a two-plane move is a
+            # ten-pixel move, and treating it as two lets objects five times
+            # too far apart link.
+            aniso_used = resolve_anisotropy(aniso_value, spec.voxel_size_um)
+        else:
+            aniso_used = aniso_value
+        scale = _displacement_scale(
+            ndim, 1.0 if aniso_used is None else aniso_used,
+            spec.voxel_size_um, in_um,
+        )
+
+        if name == BACKEND_CENTROID:
+            maps: List[Dict[int, int]] = []
+            prev_map: Dict[int, int] = {}
+            next_track = 1
+            for t in range(labels.shape[0]):
+                current: Dict[int, int] = {}
+                ids = np.unique(labels[t])
+                ids = ids[ids > 0]
+                matched: Dict[int, int] = {}
+                if t > 0:
+                    matched = _centroid_matches(labels[t - 1], labels[t],
+                                                scale, float(gate))
+                for value in ids:
+                    value = int(value)
+                    parent = matched.get(value)
+                    if parent is not None and parent in prev_map:
+                        current[value] = prev_map[parent]
+                    else:
+                        current[value] = next_track
+                        next_track += 1
+                maps.append(current)
+                prev_map = current
+            tracked = _apply_track_maps(labels, maps)
+        else:
+            tracked = _apply_track_maps(
+                labels, _trackpy_maps(labels, scale, float(gate), memory=memory)
+            )
+
+        units = "um" if in_um else "xy px"
+        notes.append(
+            f"linked across t by centroid distance <= {gate:g} {units}"
+            + (f", with z scaled by anisotropy {aniso_used:g} so that one "
+               f"plane counts as {aniso_used:g} xy pixels"
+               if (ndim == 3 and not in_um) else "")
+            + f" ('{name}' backend)"
+        )
+    else:
+        # Reached when one of the three adapter-only backends is asked for on
+        # a flat (T, Y, X) stack. That is a perfectly reasonable thing to want
+        # -- it is just not this module's job, and pretending otherwise would
+        # mean quietly substituting a built-in linker for the one named.
+        raise TStackError(
+            f"t_track_backend='{record.name}' is not driven by spacr.zstack: "
+            f"{record.note}. For a flat (T, Y, X) time series use "
+            f"spacr.timelapse's existing adapter for it, which is what the "
+            f"timelapse_mode setting selects; the 4D half here adds only the "
+            f"backends that can link volumes ("
+            f"{', '.join(sorted(b for b, r in TRACK_BACKENDS.items() if r.links_3d))})."
+        )
+
+    n_tracks = int(np.count_nonzero(np.unique(tracked)))
+    truncated = flag_truncated_t(tracked)
+    if truncated.size:
+        notes.append(
+            f"{truncated.size} of {n_tracks} track(s) touch the first or last "
+            f"timepoint and are truncated in t: their lifetimes and total "
+            f"displacements are lower bounds, exactly as a z-truncated "
+            f"object's volume is"
+        )
+
+    result = TrackResult(
+        labels=tracked, backend=name, n_tracks=n_tracks,
+        anisotropy=aniso_used, projected=projected, notes=notes,
+    )
+    result.tracks = volume_tracks(tracked, spec)
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Measurement
+# ---------------------------------------------------------------------------
+
+def volume_tracks(labels_4d, spec: Optional[TStackSpec] = None):
+    """One row per object per timepoint: where it is, how big, how truncated.
+
+    The first five columns are ``frame``, ``track_id``, ``original_label``,
+    ``x``, ``y`` -- the same names, order and meanings that
+    ``spacr.timelapse._relabelled_stack_to_tracks_df`` already emits from a
+    relabelled stack, so the track visualiser and the motility assay consume
+    this table unchanged. Everything after them is new.
+
+    ``original_label`` equals ``track_id``, as it does in the existing table:
+    after linking, the label value in the stack *is* the track id.
+
+    Size is reported in exactly one column, never two: ``volume_voxels`` for a
+    ``(T, Z, Y, X)`` stack and ``area_px2`` for a ``(T, Y, X)`` one. They are
+    different quantities and writing one into the other's column is the
+    single easiest way to corrupt a screen -- the same point
+    :data:`spacr.zstack.VOLUME_STATS_UNITS` exists to make. Micrometre and
+    second columns appear only when the voxel size and frame interval are
+    known.
+
+    :param labels_4d: t-first labels whose values are track ids.
+    :param spec: the :class:`TStackSpec`; supplies the voxel size and frame
+        interval when known.
+    :returns: a :class:`pandas.DataFrame` sorted by ``track_id`` then
+        ``frame``.
+    :raises TStackError: when the array is not t-first 3-D or 4-D.
+    """
+    import pandas as pd
+
+    labels = np.asarray(labels_4d)
+    if labels.ndim not in (3, 4):
+        raise TStackError(
+            f"volume_tracks expects t-first labels, (T,Z,Y,X) or (T,Y,X); got "
+            f"shape {labels.shape}"
+        )
+
+    volumetric = labels.ndim == 4
+    voxel_size = None if spec is None else spec.voxel_size_um
+    interval = None if spec is None else spec.frame_interval_s
+
+    columns = list(BASE_TRACK_COLUMNS)
+    if volumetric:
+        columns += ["z", "volume_voxels"]
+        if voxel_size is not None:
+            columns += ["volume_um3", "z_um"]
+    else:
+        columns += ["area_px2"]
+    if interval is not None:
+        columns += ["time_s"]
+    columns += ["truncated_z", "truncated_t"]
+
+    truncated_t = set(flag_truncated_t(labels).tolist())
+
+    rows = []
+    for t, frame in enumerate(labels):
+        ids, centroids, counts = _label_centroids(frame)
+        truncated_z = set(flag_truncated_z(frame).tolist()) if volumetric else set()
+        for value, centroid, count in zip(ids, centroids, counts):
+            value = int(value)
+            if volumetric:
+                cz, cy, cx = (float(c) for c in centroid)
+            else:
+                cz = None
+                cy, cx = float(centroid[0]), float(centroid[1])
+            row = {
+                "frame": t,
+                "track_id": value,
+                "original_label": value,
+                "x": cx,
+                "y": cy,
+            }
+            if volumetric:
+                row["z"] = cz
+                row["volume_voxels"] = int(count)
+                if voxel_size is not None:
+                    dz, dy, dx = (float(v) for v in voxel_size)
+                    row["volume_um3"] = int(count) * dz * dy * dx
+                    row["z_um"] = cz * dz
+            else:
+                row["area_px2"] = int(count)
+            if interval is not None:
+                row["time_s"] = t * float(interval)
+            row["truncated_z"] = value in truncated_z
+            row["truncated_t"] = value in truncated_t
+            rows.append(row)
+
+    if not rows:
+        return pd.DataFrame({c: pd.Series(dtype="float64") for c in columns})
+
+    df = pd.DataFrame(rows, columns=columns)
+    return df.sort_values(["track_id", "frame"]).reset_index(drop=True)
+
+
+# ---------------------------------------------------------------------------
+# Reporting
+# ---------------------------------------------------------------------------
+
+def format_4d(result) -> str:
+    """Render a :class:`TStackResult` or :class:`TrackResult` as text.
+
+    Written to be pasted next to the numbers it describes: the axis order, the
+    modes and the truncation counts are the three things that make a 4-D result
+    interpretable, and none of them can be recovered from the tracks table
+    afterwards.
+
+    :param result: a :class:`TStackResult` or a :class:`TrackResult`.
+    :returns: a multi-line summary.
+    :raises TypeError: for anything else.
+    """
+    lines: List[str] = []
+
+    if isinstance(result, TStackResult):
+        spec = result.spec
+        order = spec.axis_order if spec is not None else None
+        lines.append("4D (Beta) segmentation")
+        lines.append(f"  axis order      : {order or 'custom/2-D'}")
+        lines.append(f"  timepoints      : {result.n_t}")
+        lines.append(f"  planes per t    : {result.n_z}")
+        lines.append(f"  z mode          : {result.z_mode}")
+        if spec is not None and spec.anisotropy is not None:
+            lines.append(f"  anisotropy      : {spec.anisotropy:g} (dz/dxy)")
+        if spec is not None and spec.frame_interval_s is not None:
+            lines.append(f"  frame interval  : {spec.frame_interval_s:g} s")
+        counts = result.objects_per_timepoint
+        if counts:
+            lines.append(
+                f"  objects per t   : min {min(counts)}, max {max(counts)}"
+            )
+    elif isinstance(result, TrackResult):
+        lines.append("4D (Beta) tracking")
+        lines.append(f"  backend         : {result.backend}")
+        lines.append(f"  tracks          : {result.n_tracks}")
+        lines.append(
+            f"  anisotropy      : "
+            + (f"{result.anisotropy:g} (dz/dxy)" if result.anisotropy is not None
+               else "not used by this backend")
+        )
+        lines.append(
+            f"  truncated in t  : {result.truncated_tracks.size} "
+            f"({result.truncated_fraction:.0%} of tracks touch the first or "
+            f"last timepoint)"
+        )
+        if result.projected:
+            lines.append("  z               : COLLAPSED before linking "
+                         "(project_for_tracking)")
+    else:
+        raise TypeError(
+            f"format_4d takes a TStackResult or a TrackResult, got "
+            f"{type(result).__name__}"
+        )
+
+    for note in result.notes:
+        lines.append(f"  - {note}")
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# Settings bridge
+# ---------------------------------------------------------------------------
+
+def _require_leading_axis(value, name: str) -> int:
+    """Check that a lone axis index is one of the two leading axes.
+
+    Only axis 0 and axis 1 have a partner to infer: given ``z_axis=1`` the time
+    axis must be 0, and vice versa. ``z_axis=2`` is a perfectly valid *3-D*
+    setting -- it is how you say a field is stored ``(Y, X, Z)`` -- but for a
+    4-D acquisition there is no second leading axis to deduce from it, and
+    arithmetic on it would silently produce ``t_axis=-1``.
+
+    :param value: the axis index that was given.
+    :param name: the setting it came from, for the message.
+    :returns: the index as an int.
+    :raises TStackError: when the index is not 0 or 1.
+    """
+    index = int(value)
+    if index not in (0, 1):
+        raise TStackError(
+            f"{name}={value!r} is not one of the two leading axes (0 or 1), so "
+            f"spaCR cannot deduce which axis the other one is. That is a valid "
+            f"3-D setting -- it says where z sits in a single field -- but a "
+            f"4-D acquisition needs the whole order: set t_axis_order to "
+            f"'{AXIS_ORDER_TZYX}' or '{AXIS_ORDER_ZTYX}', or give both t_axis "
+            f"and z_axis."
+        )
+    return index
+
+
+def plan_4d_from_settings(settings) -> Optional[TStackSpec]:
+    """Build a :class:`TStackSpec` from a settings dict, or ``None`` when off.
+
+    Returning ``None`` is the contract that keeps the 2-D and 3-D paths
+    bit-identical: every caller branches on ``spec is None`` and, when it is,
+    does not touch any 4-D code at all. ``t_stack`` absent and ``t_stack=False``
+    are the same thing.
+
+    The z half of the spec is read from the very same keys
+    :func:`spacr.zstack.plan_from_settings` reads, so a 4-D run and a 3-D run
+    configured the same way segment identically. ``frame_interval_s`` falls
+    back to the motility module's ``seconds_per_frame`` when it is not set,
+    rather than becoming a second source of truth for the same physical number.
+
+    :param settings: the pipeline settings dict.
+    :returns: a spec, or ``None`` when 4D handling is off.
+    :raises TStackError: when 4D is on but the settings are self-inconsistent.
+    :raises spacr.zstack.ZStackError: when the z half is self-inconsistent.
+    """
+    if not settings.get("t_stack", False):
+        return None
+
+    dz = settings.get("voxel_size_z_um")
+    dxy = settings.get("voxel_size_xy_um")
+    voxel_size = None
+    if dz is not None and dxy is not None:
+        voxel_size = (float(dz), float(dxy), float(dxy))
+
+    order = settings.get("t_axis_order")
+    t_axis = settings.get("t_axis")
+    z_axis = settings.get("z_axis")
+
+    if order:
+        name = str(order).upper().strip()
+        if name not in AXIS_ORDERS:
+            raise TStackError(
+                f"t_axis_order={order!r} is not one of {list(AXIS_ORDERS)}"
+            )
+        # An explicit t_axis/z_axis alongside the order must agree with it.
+        # Letting the order silently win would mean a user who set both, and
+        # got one of them wrong, is segmenting a differently-transposed array
+        # than they think -- which is the failure this setting exists to stop.
+        for label, given, implied in (("t_axis", t_axis, name.index("T")),
+                                      ("z_axis", z_axis, name.index("Z"))):
+            if given is not None and int(given) != implied:
+                raise TStackError(
+                    f"t_axis_order={name!r} puts {label[0]} on axis {implied}, "
+                    f"but {label}={given!r} says axis {int(given)}. spaCR will "
+                    f"not pick one: unset whichever of them is wrong."
+                )
+        t_axis, z_axis = name.index("T"), name.index("Z")
+    elif t_axis is None and z_axis is None:
+        raise AmbiguousAxisOrderError(
+            "t_stack is on but neither t_axis_order nor t_axis/z_axis is set, "
+            "so spaCR does not know whether the leading axes of your data are "
+            "(T, Z, ...) or (Z, T, ...). It will not guess: reading one as the "
+            "other links objects across z and reports them as trajectories "
+            "through time, which looks entirely plausible and is entirely "
+            "fictional. Set t_axis_order to 'TZYX' or 'ZTYX'."
+        )
+    elif t_axis is None:
+        z_axis = _require_leading_axis(z_axis, "z_axis")
+        t_axis = 1 - z_axis
+    elif z_axis is None:
+        t_axis = _require_leading_axis(t_axis, "t_axis")
+        z_axis = 1 - t_axis
+
+    interval = settings.get("frame_interval_s")
+    if interval is None:
+        interval = settings.get("seconds_per_frame")
+
+    spec = TStackSpec(
+        t_axis=int(t_axis),
+        z_axis=int(z_axis),
+        anisotropy=settings.get("anisotropy"),
+        frame_interval_s=None if interval is None else float(interval),
+        voxel_size_um=voxel_size,
+        z_mode=settings.get("z_segmentation_mode", MODE_PROJECT),
+        projection=settings.get("z_projection", "max"),
+        stitch_threshold=float(settings.get("stitch_threshold", 0.25) or 0.0),
+        track_backend=settings.get("t_track_backend", BACKEND_IOU),
+        link_threshold=float(settings.get("t_link_threshold", 0.25) or 0.0),
+        max_displacement_px=settings.get("t_max_displacement_px"),
+        max_displacement_um=settings.get("t_max_displacement_um"),
+        project_for_tracking=bool(settings.get("t_project_for_tracking", False)),
+    )
+
+    # Fail here rather than after the model has been loaded and the first
+    # timepoint read: none of these answers can change later in the run.
+    if spec.z_mode == MODE_VOLUMETRIC:
+        spec.require_anisotropy()
+    if spec.track_backend in (BACKEND_CENTROID, BACKEND_TRACKPY):
+        if spec.max_displacement_px is None and spec.max_displacement_um is None:
+            raise UnknownDisplacementError(
+                f"t_track_backend='{spec.track_backend}' links by distance but "
+                f"neither t_max_displacement_px nor t_max_displacement_um is "
+                f"set. Set one; spaCR will not pick a default gate."
+            )
+        if spec.z_mode != MODE_PROJECT and spec.max_displacement_um is None:
+            spec.require_anisotropy()
+    if not TRACK_BACKENDS[spec.track_backend].links_3d and spec.z_mode != MODE_PROJECT:
+        raise TrackerIsTwoDError(
+            f"t_track_backend='{spec.track_backend}' cannot link volumes as "
+            f"spaCR drives it, but z_segmentation_mode='{spec.z_mode}' "
+            f"produces them. {TRACK_BACKENDS[spec.track_backend].note}. Choose "
+            f"a backend that links volumes "
+            f"({', '.join(sorted(b for b, r in TRACK_BACKENDS.items() if r.links_3d))}), "
+            f"or set z_segmentation_mode='project' to work in 2-D throughout. "
+            f"t_project_for_tracking does not rescue this combination: it "
+            f"collapses z so that a volume-capable linker works on the "
+            f"projection, and spaCR still would not be running "
+            f"'{spec.track_backend}'."
+        )
+
+    return spec
+
+
+# ---------------------------------------------------------------------------
+# Memory
+# ---------------------------------------------------------------------------
+
+def estimate_peak_bytes_4d(shape: Sequence[int], dtype=np.float32,
+                            z_mode: str = MODE_PROJECT,
+                            anisotropy: float = 1.0,
+                            label_dtype=np.int32) -> int:
+    """Peak bytes a 4-D run needs, so an acquisition can be sized before it runs.
+
+    Two terms, and the second is the one that surprises people:
+
+    * **one timepoint live** -- :func:`spacr.zstack.estimate_peak_bytes` for a
+      single ``(Z, Y, X)`` volume, because :func:`iter_volumes` yields views
+      and :func:`segment_4d` holds exactly one of them at a time;
+    * **every timepoint's labels** -- linking cannot begin until the last
+      timepoint is segmented, so the whole ``(T, Z, Y, X)`` label array is
+      resident. At int32 that is 4 bytes per voxel per timepoint, and for a
+      41 x 21 x 2048 x 2048 acquisition it is ~14 GB against ~350 MB for the
+      live volume -- which is the number that decides whether the run fits.
+
+    :param shape: ``(T, Z, Y, X)`` or ``(T, Z, Y, X, C)``.
+    :param dtype: image dtype.
+    :param z_mode: one of :data:`spacr.zstack.SEGMENTATION_MODES`.
+    :param anisotropy: used only by :data:`~spacr.zstack.MODE_VOLUMETRIC`.
+    :param label_dtype: dtype of the retained label array.
+    :returns: estimated peak bytes.
+    :raises ValueError: when ``shape`` is not at least ``(T, Z, Y, X)``.
+    """
+    shape = [int(s) for s in shape]
+    if len(shape) < 4:
+        raise ValueError(
+            f"estimate_peak_bytes_4d expects at least (T, Z, Y, X); got "
+        f"{tuple(shape)}"
+        )
+
+    n_t, volume_shape = shape[0], shape[1:]
+    live = estimate_peak_bytes(volume_shape, dtype=dtype, mode=z_mode,
+                                  anisotropy=anisotropy)
+
+    label_voxels = int(np.prod(volume_shape[:3]))
+    if z_mode == MODE_PROJECT:
+        label_voxels = int(np.prod(volume_shape[1:3]))  # z is gone
+    labels = n_t * label_voxels * np.dtype(label_dtype).itemsize
+
+    return int(live + labels)
