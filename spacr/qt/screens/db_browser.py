@@ -568,11 +568,22 @@ class ReadOnlyDb:
         if table in self._row_keys:
             return self._row_keys[table]
         key: Tuple[str, List[str]]
+        # SQLite identifiers are case-insensitive, and a table that DECLARES a
+        # column named `rowid` makes the bare name resolve to that column
+        # rather than to the implicit row id. png_list declares `rowID`, so
+        # this probe used to SUCCEED there and hand back 'r1' -- after which
+        # editing one cell issued `UPDATE png_list SET c = ? WHERE rowid =
+        # 'r1'` and rewrote every crop in that plate row, and keyset paging
+        # ordered a TEXT column as if it were the row id. Ask for an alias the
+        # table does not shadow.
+        from ...predictions import _rowid_alias
+        alias = _rowid_alias([str(r[1]) for r in self.table_info(table)])
         try:
             with self._con() as con:
                 self._execute(
-                    con, f"SELECT rowid FROM {quote_ident(table)} LIMIT 1").fetchall()
-            key = ("rowid", ["rowid"])
+                    con,
+                    f"SELECT {alias} FROM {quote_ident(table)} LIMIT 1").fetchall()
+            key = ("rowid", [alias])
         except sqlite3.Error:
             pk = [r for r in self.table_info(table) if int(r[5] or 0) > 0]
             pk.sort(key=lambda r: int(r[5]))
@@ -589,8 +600,11 @@ class ReadOnlyDb:
         sql = f"SELECT {col_sql} FROM {quote_ident(table)}"
         if where:
             sql += f" WHERE {where}"
-        if self.row_key(table)[0] == "rowid":
-            sql += " ORDER BY rowid"
+        key_kind, key_cols = self.row_key(table)
+        if key_kind == "rowid":
+            # key_cols[0], not the literal "rowid" -- png_list declares a
+            # rowID column that shadows the bare name.
+            sql += f" ORDER BY {quote_ident(key_cols[0])}"
         return sql
 
     def chunk_sql(self, table: str, columns: Sequence[str],
@@ -666,11 +680,14 @@ class ReadOnlyDb:
         ``None`` when the table has no rowid, or is empty.
         """
         self.check_table(table)
-        if self.row_key(table)[0] != "rowid":
+        key_kind, key_cols = self.row_key(table)
+        if key_kind != "rowid":
             return None
         with self._con() as con:
             row = self._execute(
-                con, f"SELECT max(rowid) FROM {quote_ident(table)}").fetchone()
+                con,
+                f"SELECT max({quote_ident(key_cols[0])}) FROM {quote_ident(table)}"
+            ).fetchone()
         if not row or row[0] is None:
             return None
         return int(row[0])
@@ -815,8 +832,13 @@ class WritableDb:
             if column not in known:
                 raise EditRefused(
                     f"{table!r} has no column {column!r}.")
+            # All three implicit row-id spellings are legal here, not just
+            # "rowid": row_key() now returns whichever one the table does not
+            # shadow, because png_list DECLARES a rowID column and SQLite
+            # identifiers are case-insensitive.
+            implicit = {"rowid", "oid", "_rowid_"}
             missing = [k for k in key_columns
-                       if k != "rowid" and k not in known]
+                       if k.lower() not in implicit and k not in known]
             if missing:
                 raise EditRefused(
                     f"{table!r} has no column(s) "

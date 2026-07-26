@@ -504,7 +504,7 @@ def test_the_first_chunk_is_painted_before_the_table_is_counted(
     screen.set_database(measdb.path)
 
     selects = [i for i, s in enumerate(seen)
-               if s.startswith('SELECT "rowid", "plate"')]
+               if s.startswith('SELECT "_rowid_", "plate"')]
     counts = [i for i, s in enumerate(seen) if "COUNT(*)" in s]
     assert selects and counts, f"expected both queries, got {seen}"
     assert selects[0] < counts[0], (
@@ -524,12 +524,12 @@ def test_chunks_are_keyset_paged_and_never_use_offset(measdb):
     assert "LIMIT ?" in first_sql
     assert "OFFSET" not in first_sql
     assert "SELECT *" not in first_sql
-    assert first_sql.startswith('SELECT "rowid", "plate"')
-    assert 'ORDER BY "rowid"' in first_sql
+    assert first_sql.startswith('SELECT "_rowid_", "plate"')
+    assert 'ORDER BY "_rowid_"' in first_sql
     assert keys == [(i,) for i in range(1, 11)]
 
     cols, rows, keys = db.chunk("cell", limit=10, after=keys[-1])
-    assert '"rowid" > ?' in db.last_sql
+    assert '"_rowid_" > ?' in db.last_sql
     assert "OFFSET" not in db.last_sql
     label = cols.index("object_label")
     assert [r[label] for r in rows] == list(range(11, 21))
@@ -1401,7 +1401,7 @@ def test_the_default_confirmation_is_a_dialog_that_must_be_accepted(
     monkeypatch.setattr(QMessageBox, "exec", _cancel, raising=False)
     assert screen.enable_edit_mode() is False
     assert shown and 'UPDATE "cell"' in shown[0]
-    assert 'WHERE "rowid" = ?' in shown[0]
+    assert 'WHERE "_rowid_" = ?' in shown[0]
     assert "no undo" in shown[0]
 
     monkeypatch.setattr(QMessageBox, "exec",
@@ -1432,7 +1432,7 @@ def test_arming_edit_mode_on_a_database_with_no_tables_is_harmless(
     assert screen.set_database(str(path)) is True
     assert screen.enable_edit_mode() is True, screen.status_text()
     assert 'UPDATE "<table>"' in seen[0]
-    assert 'WHERE "rowid" = ?' in seen[0]
+    assert 'WHERE "rowid" = ?' in seen[0]   # illustrative prose, not real SQL
     # ...and with no table the cells are not editable either.
     assert screen._model.is_editable() is False
     assert screen.edit_cell(0, "anything", "1") is False
@@ -1501,7 +1501,7 @@ def test_an_edit_shows_the_exact_sql_before_it_runs(editable, measdb,
 
     assert editable.edit_cell(2, "pathogen_count", "3") is False
     assert editable.pending_edit_sql() == (
-        'UPDATE "cell" SET "pathogen_count" = ? WHERE "rowid" = ?')
+        'UPDATE "cell" SET "pathogen_count" = ? WHERE "_rowid_" = ?')
     assert 'UPDATE "cell"' in editable.sql_text()
     assert "[3, 3]" in editable.sql_text()     # value, then the rowid
     assert "database is locked" in editable.status_text()
@@ -1769,8 +1769,12 @@ def test_row_key_reports_how_a_row_can_be_addressed(measdb):
     measdb.exec("CREATE TABLE kv (a TEXT, b TEXT, v REAL, "
                 "PRIMARY KEY (a, b)) WITHOUT ROWID")
     db = ReadOnlyDb(measdb.path)
-    assert db.row_key("cell") == ("rowid", ["rowid"])
-    assert db.row_key("cell") == ("rowid", ["rowid"])     # cached
+    # `_rowid_`, not `rowid`: SQLite identifiers are case-insensitive and
+    # png_list DECLARES a rowID column, which makes the bare name resolve to
+    # that column. row_key now asks for a spelling the table cannot shadow,
+    # so an edit addresses one row instead of a whole plate row.
+    assert db.row_key("cell") == ("rowid", ["_rowid_"])
+    assert db.row_key("cell") == ("rowid", ["_rowid_"])   # cached
     assert db.row_key("kv") == ("pk", ["a", "b"])
     assert db.row_key("cell_view") == ("", [])
 
