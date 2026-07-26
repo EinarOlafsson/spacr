@@ -85,10 +85,21 @@ class Problem:
 # The names are the ``settings_type`` strings dispatched by
 # spacr.gui_utils.run_function_gui, so a caller can pass the same key the GUI
 # uses. Values are the function that would run.
+#
+# Every app in spacr.qt.app.APPS that is not GUI-only belongs here, and
+# tests/test_app_registry_parity.py fails when one does not. Four were missing
+# until that test existed: `timelapse`, `motility` and `activation` had a Qt
+# button and (for two of them) a CLI module but no entry here, so
+# validate_settings(settings, 'timelapse') answered "unknown app" and ran the
+# generic checks only; `invasion` had no entry in any registry outside the Qt
+# bridge, so `spacr-run invasion` did not exist either.
 APP_FUNCTIONS: Dict[str, str] = {
     "mask": "spacr.core.preprocess_generate_masks",
+    "timelapse": "spacr.core.preprocess_generate_masks_timelapse",
+    "motility": "spacr.timelapse.automated_motility_assay",
     "measure": "spacr.measure.measure_crop",
     "classify": "spacr.deep_spacr.deep_spacr",
+    "activation": "spacr.deep_spacr.generate_activation_map",
     "foreign": "spacr.foreign.import_project",
     "align": "spacr.align.align_folder",
     "umap": "spacr.core.generate_image_umap",
@@ -99,6 +110,7 @@ APP_FUNCTIONS: Dict[str, str] = {
     "map_barcodes": "spacr.sequencing.generate_barecode_mapping",
     "regression": "spacr.ml.perform_regression",
     "recruitment": "spacr.submodules.analyze_recruitment",
+    "invasion": "spacr.submodules.analyze_invasion",
     "replication": "spacr.submodules.analyze_endodyogeny",
     "analyze_plaques": "spacr.submodules.analyze_plaques",
     "convert": "spacr.io.process_non_tif_non_2D_images",
@@ -122,11 +134,27 @@ APP_ALIASES: Dict[str, str] = {
 # Apps whose ``src`` is a plate folder that must already contain
 # measurements/measurements.db — see spacr.ml.perform_regression
 # (``src + '/measurements/measurements.db'``), spacr.submodules
-# .analyze_recruitment and spacr.io._read_and_join_tables.
-DB_APPS = frozenset({"umap", "ml_analyze", "regression", "recruitment", "activation", "classify"})
+# .analyze_recruitment and spacr.io._read_and_join_tables. The two Toxo assays
+# open it the same way: analyze_invasion via spacr.io._read_db and
+# analyze_endodyogeny via spacr.io._read_and_merge_data, both on
+# ``os.path.join(src, 'measurements/measurements.db')``.
+DB_APPS = frozenset({"umap", "ml_analyze", "regression", "recruitment", "activation",
+                     "classify", "invasion", "replication"})
 
 # Apps that read the merged/*.npy stacks produced by the mask pipeline.
 MERGED_APPS = frozenset({"measure"})
+
+# Apps whose segmentation-channel rules are the mask pipeline's, because they
+# run the mask pipeline: preprocess_generate_masks_timelapse is
+# preprocess_generate_masks with tracking, and prints and returns on the same
+# "at least one of cell_channel / nucleus_channel / ..." check.
+MASK_APPS = frozenset({"mask", "timelapse"})
+
+# Apps whose input folder is not called ``src``. spacr.foreign.import_project
+# takes ``images`` / ``masks`` / ``measurements`` — someone else's project —
+# and writes a spaCR one to ``dst``; there is no ``src`` to check, and
+# reporting "src is missing" for it was simply wrong.
+ALT_SRC_KEYS: Dict[str, str] = {"foreign": "images"}
 
 CHANNEL_KEYS: Tuple[str, ...] = (
     "cell_channel",
@@ -437,9 +465,14 @@ def _inventory(src: Any, settings: Dict[str, Any], app: str) -> _Inventory:
     return inv
 
 
-def _src_values(settings: Dict[str, Any]) -> List[Any]:
-    """``src`` normalized to a list, mirroring spacr.utils.normalize_src_path."""
-    src = settings.get("src")
+def _source_key(app: str) -> str:
+    """Name of the setting holding this app's input folder — usually ``src``."""
+    return ALT_SRC_KEYS.get(app, "src")
+
+
+def _src_values(settings: Dict[str, Any], app: str = "") -> List[Any]:
+    """The app's source folder(s), mirroring spacr.utils.normalize_src_path."""
+    src = settings.get(_source_key(app))
     if isinstance(src, (list, tuple)):
         return list(src)
     if isinstance(src, str):
@@ -465,28 +498,30 @@ def _src_values(settings: Dict[str, Any]) -> List[Any]:
 def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Inventory]) -> List[Problem]:
     """``src`` exists, is the right kind of thing, and holds what the app needs."""
     problems: List[Problem] = []
-    if "src" not in settings:
+    key = _source_key(app)
+    fix = ("Set images to the folder holding their images."
+           if key != "src" else
+           "Set src to the folder holding the images (or, for measure, the merged folder).")
+    if key not in settings:
         # spacr.core.preprocess_generate_masks raises ValueError('src is a
         # required parameter').
-        return [Problem(ERROR, "src", "src is missing from the settings.",
-                        "Set src to the folder holding the images (or, for measure, the merged folder).")]
+        return [Problem(ERROR, key, f"{key} is missing from the settings.", fix)]
 
-    raw = settings.get("src")
+    raw = settings.get(key)
     if raw is None or (isinstance(raw, str) and not raw.strip()):
-        return [Problem(ERROR, "src", "src is empty.",
-                        "Set src to the folder holding the images (or, for measure, the merged folder).")]
+        return [Problem(ERROR, key, f"{key} is empty.", fix)]
 
-    for value in _src_values(settings):
+    for value in _src_values(settings, app):
         if not isinstance(value, str):
             problems.append(Problem(
-                ERROR, "src",
-                f"src entry {value!r} is a {type(value).__name__}, not a path string.",
-                "src must be a path string or a list of path strings."))
+                ERROR, key,
+                f"{key} entry {value!r} is a {type(value).__name__}, not a path string.",
+                f"{key} must be a path string or a list of path strings."))
             continue
         elif value in ("path", "/path/to/src"):
             problems.append(Problem(
-                ERROR, "src",
-                f"src is still the placeholder {value!r} that the defaults ship with.",
+                ERROR, key,
+                f"{key} is still the placeholder {value!r} that the defaults ship with.",
                 "Replace it with the real folder you want to process."))
 
     for inv in inventories:
@@ -494,15 +529,15 @@ def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Invent
             continue
         if not inv.exists:
             problems.append(Problem(
-                ERROR, "src", f"src does not exist: {inv.src}",
+                ERROR, key, f"{key} does not exist: {inv.src}",
                 "Check the path for typos, and that the drive or share is mounted."))
             continue
         if inv.is_db_file:
             continue
         if not inv.is_dir:
             problems.append(Problem(
-                ERROR, "src", f"src is a file, not a folder: {inv.src}",
-                "Point src at the folder that contains the images."))
+                ERROR, key, f"{key} is a file, not a folder: {inv.src}",
+                f"Point {key} at the folder that contains the images."))
             continue
 
         if app in MERGED_APPS:
@@ -518,7 +553,7 @@ def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Invent
                     ERROR, "src",
                     f"{inv.merged_dir} exists but contains no .npy arrays.",
                     "Re-run the Mask module: merged/ is written at the end of mask generation and is empty here."))
-        elif app == "mask":
+        elif app in MASK_APPS:
             if inv.raw_files == 0 and inv.stack_files == 0 and inv.merged_files == 0:
                 problems.append(Problem(
                     ERROR, "src",
@@ -684,7 +719,18 @@ _EXPECTED_TYPE_OVERRIDES: Dict[str, Any] = {
 }
 
 
-def _check_types(settings: Dict[str, Any]) -> List[Problem]:
+# ``expected_types`` is one flat registry shared by every pipeline, so a key
+# name two pipelines both use can only be declared once. ``masks`` is a bool
+# there — the mask pipeline's "save the masks" switch — while
+# spacr.foreign.import_project takes ``masks`` as the other lab's mask folder,
+# or a list of them. Judging a foreign import by the mask pipeline's meaning
+# turned a perfectly good settings file into a blocking pre-flight error.
+_APP_TYPE_OVERRIDES: Dict[str, Dict[str, Any]] = {
+    "foreign": {"masks": (str, list)},
+}
+
+
+def _check_types(settings: Dict[str, Any], app: str = "") -> List[Problem]:
     """Values match ``spacr.settings.expected_types``.
 
     A settings CSV round-trip is the usual culprit: every value comes back a
@@ -693,11 +739,13 @@ def _check_types(settings: Dict[str, Any]) -> List[Problem]:
     """
     from .settings import expected_types
 
+    per_app = _APP_TYPE_OVERRIDES.get(app, {})
     problems: List[Problem] = []
     for key, value in settings.items():
         if key not in expected_types:
             continue
-        expected = _EXPECTED_TYPE_OVERRIDES.get(key, expected_types[key])
+        expected = per_app.get(
+            key, _EXPECTED_TYPE_OVERRIDES.get(key, expected_types[key]))
         types = expected if isinstance(expected, tuple) else (expected,)
         if value is None:
             # None means "skip this object / leave it unset" nearly everywhere
@@ -727,14 +775,35 @@ def _check_types(settings: Dict[str, Any]) -> List[Problem]:
     return problems
 
 
-def _check_unknown_keys(settings: Dict[str, Any]) -> List[Problem]:
+# Keys owned by a pipeline whose defaults factory lives outside
+# spacr.settings, so `_known_setting_keys` — which is built from spacr.settings
+# alone — cannot see them. Spelled out rather than imported because this module
+# deliberately imports nothing heavier than spacr.settings, and
+# spacr.foreign pulls spacr.convert with it. The list is pinned against
+# spacr.foreign.default_settings by tests/test_app_registry_parity.py, so it
+# cannot drift silently.
+#
+# Without this, `spacr-run foreign` told the user to rename `measurements` to
+# `measurement` — a key from a different pipeline that import_project does not
+# read at all.
+_APP_EXTRA_KEYS: Dict[str, frozenset] = {
+    "foreign": frozenset({
+        "images", "masks", "measurements", "dst", "layout", "z_handling",
+        "plate_naming", "measurement_table", "measurement_object", "image_key",
+        "label_key", "column_map", "um_per_px", "on_conflict",
+        "allow_spacr_targets", "measure", "crops", "overwrite", "preview_only",
+    }),
+}
+
+
+def _check_unknown_keys(settings: Dict[str, Any], app: str = "") -> List[Problem]:
     """Flag keys that look like a typo of a real setting.
 
     Only keys with a close match are reported: spaCR's newer pipelines
     (stitching, motility, plotting) legitimately carry keys that are not in
     ``expected_types``, and warning about all of them would be noise.
     """
-    known = _known_setting_keys()
+    known = _known_setting_keys() | _APP_EXTRA_KEYS.get(app, frozenset())
     problems: List[Problem] = []
     for key in settings:
         if not isinstance(key, str) or key in known:
@@ -883,6 +952,32 @@ def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
                 key, f"barcode mapping needs {label}",
                 f"Point {key} at a CSV with 'name' and 'sequence' columns.")
 
+    if app == "foreign":
+        # spacr.foreign.import_project raises ConfigurationError("import_project
+        # needs '<key>'") for each of these before it plans anything, so a
+        # pre-flight that stayed quiet about them would be worse than useless.
+        for key, purpose in (("images", "the import reads their images"),
+                             ("masks", "the import reads their mask folder(s)"),
+                             ("measurements", "the import reads their measurement table")):
+            value = settings.get(key)
+            if value is None or (isinstance(value, str) and not value.strip()) or value == []:
+                problems.append(Problem(
+                    ERROR, key, f"{key} is not set, but {purpose}.",
+                    f"Point {key} at what the other lab gave you."))
+            elif isinstance(value, str) and not os.path.exists(value):
+                problems.append(Problem(
+                    ERROR, key, f"{key} points at a path that does not exist: {value}",
+                    "Check the path, and that the share holding it is mounted."))
+        if not settings.get("column_map") and not settings.get("preview_only"):
+            # import_project says so in the printed plan; saying it before the
+            # write starts is the point of a pre-flight.
+            problems.append(Problem(
+                WARNING, "column_map",
+                "no reviewed column_map, so the import will run with the columns "
+                "it inferred.",
+                "Run once with preview_only=True, save the column map, read it, "
+                "then point column_map at it."))
+
     if app == "classify":
         train = settings.get("train", settings.get("generate_training_dataset", False))
         needs_model = bool(settings.get("apply_model_to_dataset", False)) or bool(settings.get("test", False))
@@ -921,7 +1016,7 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
     """Cross-setting rules the pipeline entry points enforce at runtime."""
     problems: List[Problem] = []
 
-    if app == "mask":
+    if app in MASK_APPS:
         # core.preprocess_generate_masks prints 'At least one of cell_channel,
         # nucleus_channel, pathogen_channel or organelle_channel must be
         # defined' and returns.
@@ -1014,12 +1109,12 @@ def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
             WARNING, "", f"unknown app '{app_key}'; only the generic checks were run.",
             f"Use one of: {', '.join(sorted(APP_FUNCTIONS))}."))
 
-    inventories = [_inventory(src, settings, app) for src in _src_values(settings)]
+    inventories = [_inventory(src, settings, app) for src in _src_values(settings, app)]
 
     problems.extend(_check_src(settings, app, inventories))
     problems.extend(_check_channels(settings, app, inventories))
-    problems.extend(_check_types(settings))
-    problems.extend(_check_unknown_keys(settings))
+    problems.extend(_check_types(settings, app))
+    problems.extend(_check_unknown_keys(settings, app))
     problems.extend(_check_numeric_sanity(settings))
     problems.extend(_check_required_paths(settings, app))
     problems.extend(_check_app_specific(settings, app))
@@ -1041,7 +1136,7 @@ def format_report(problems: Sequence[Problem], settings: Optional[Dict[str, Any]
     app = _normalize_app(app_key)
     src = ""
     if isinstance(settings, dict):
-        values = _src_values(settings)
+        values = _src_values(settings, app)
         src = str(values[0]) if values and values[0] is not None else ""
         if len(values) > 1:
             src = f"{src} (+{len(values) - 1} more)"
@@ -1113,7 +1208,7 @@ def describe_plan(settings: Dict[str, Any], app_key: str = "") -> str:
         return "Plan unavailable: settings is not a dict."
 
     app = _normalize_app(app_key)
-    srcs = _src_values(settings)
+    srcs = _src_values(settings, app)
     inventories = [_inventory(src, settings, app) for src in srcs]
 
     rows: List[Tuple[str, str]] = []

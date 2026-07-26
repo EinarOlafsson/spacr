@@ -80,10 +80,10 @@ def test_icon_provider_returns_an_icon(qtbot, qt_theme_applied, key):
     assert not icon.isNull(), f"{key} icon is null — the PNG failed to load"
 
 
-def test_sidebar_and_startup_page_render_the_new_modules(qtbot, qt_theme_applied):
+def test_sidebar_and_home_page_render_the_new_modules(qtbot, qt_theme_applied):
     from PySide6.QtWidgets import QPushButton
     from spacr.qt.app import APPS, Sidebar, _icon_for_app
-    from spacr.qt.screens.startup import StartupPage
+    from spacr.qt.widgets.home import HomePage
 
     bar = Sidebar()
     qtbot.addWidget(bar)
@@ -91,10 +91,13 @@ def test_sidebar_and_startup_page_render_the_new_modules(qtbot, qt_theme_applied
     assert "Timelapse" in labels
     assert "Motility Assay" in labels
 
-    page = StartupPage(APPS, _icon_for_app)
+    page = HomePage(APPS, _icon_for_app)
     qtbot.addWidget(page)
     from spacr.qt.widgets.tile import HTile
-    assert page.findChildren(HTile), "startup page rendered no tiles"
+    tiles = {t.text_label for t in page.findChildren(HTile)}
+    assert tiles, "Home page rendered no tiles"
+    # The two new modules are on Home, not only in the sidebar.
+    assert {"Timelapse", "Motility Assay"} <= tiles
 
 
 # ---------------------------------------------------------------------------

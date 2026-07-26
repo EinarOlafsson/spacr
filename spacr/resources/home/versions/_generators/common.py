@@ -286,12 +286,13 @@ USE_COUNTS = {
     "model_zoo": 29, "cellpose_masks": 27, "align": 24, "foreign": 21,
     "agreement": 19, "activation": 17, "train_compare": 15,
     "model_compare": 13, "motility": 11, "recruitment": 9,
-    "analyze_plaques": 8, "invasion": 6, "train_cellpose": 5,
+    "analyze_plaques": 8, "invasion": 6, "replication": 6,
+    "train_cellpose": 5,
 }
 
 
 # ---------------------------------------------------------------------------
-# Categorisations — every one covers all 29 real app keys exactly once
+# Categorisations — every one covers every real app key exactly once
 # ---------------------------------------------------------------------------
 
 def cats_current() -> "List[Tuple[str, List[str]]]":
@@ -309,7 +310,7 @@ CATS_BROAD3 = [
     ("Run", ["mask", "timelapse", "motility", "measure", "annotate",
              "classify", "ml_analyze", "map_barcodes", "regression",
              "queue", "batch", "analyze_plaques", "recruitment",
-             "invasion"]),
+             "invasion", "replication"]),
     ("Review", ["plate_view", "agreement", "umap", "activation",
                 "train_compare", "model_compare", "db_browser",
                 "report"]),
@@ -321,7 +322,7 @@ CATS_STAGE5 = [
     ("Segment", ["mask", "timelapse", "cellpose_masks", "make_masks",
                  "train_cellpose", "model_zoo", "model_compare"]),
     ("Measure", ["measure", "annotate", "motility", "analyze_plaques",
-                 "recruitment", "invasion"]),
+                 "recruitment", "invasion", "replication"]),
     ("Analyse", ["classify", "ml_analyze", "map_barcodes", "regression",
                  "umap", "activation"]),
     ("Report",  ["plate_view", "agreement", "train_compare", "report"]),
@@ -339,7 +340,8 @@ CATS_NARROW8 = [
                            "plate_view", "report"]),
     ("Import & batch",   ["convert", "align", "foreign", "queue", "batch",
                           "db_browser"]),
-    ("Toxoplasma",       ["analyze_plaques", "recruitment", "invasion"]),
+    ("Toxoplasma",       ["analyze_plaques", "recruitment", "invasion",
+                          "replication"]),
 ]
 
 CATS_QUESTIONS = [
@@ -348,7 +350,7 @@ CATS_QUESTIONS = [
       "model_zoo", "model_compare", "align", "convert", "foreign"]),
     ("I have objects. What are they like?",
      ["measure", "annotate", "motility", "analyze_plaques", "recruitment",
-      "invasion", "agreement"]),
+      "invasion", "replication", "agreement"]),
     ("I have a screen. Which genes matter?",
      ["classify", "ml_analyze", "map_barcodes", "regression", "umap",
       "activation"]),

@@ -2,9 +2,22 @@
 Themes (palettes + QSS stylesheet) for the spacr Qt GUI.
 
 Single source of truth for every color, radius, and font size used by the
-custom widgets and screens. Import `PALETTE` for programmatic access and
-`stylesheet()` for the Qt StyleSheet string to hand to
-`QApplication.setStyleSheet`.
+custom widgets and screens. Call :func:`active_palette` for the colours
+that are on screen right now and :func:`stylesheet` for the Qt StyleSheet
+string to hand to `QApplication.setStyleSheet`.
+
+.. warning::
+
+   There is deliberately **no module-level ``PALETTE``**. The name used
+   to exist, held the *dark* palette, and nothing ever updated it — so
+   ``from .theme import PALETTE`` followed by
+   ``widget.setStyleSheet(f"background: {PALETTE['surface_alt']}")``
+   painted a near-black panel on the light theme's near-white page, and
+   any text the app stylesheet inked landed on it at 1.08:1. Black on
+   black, measured. The dark palette is now called
+   :data:`DARK_PALETTE`, which says what it is; ``theme.PALETTE`` still
+   resolves (read-only, with a ``DeprecationWarning``) so the modules
+   that have not been migrated yet keep working.
 
 Four themes ship: ``"dark"``, ``"light"``, ``"space"`` and ``"cell"``.
 (Preferences also offers ``"system"``, which resolves to dark or light
@@ -33,6 +46,8 @@ modes are different:
 """
 from __future__ import annotations
 
+import warnings
+from types import MappingProxyType
 from typing import Dict, List, Optional, Tuple
 
 from PySide6.QtGui import QColor, QPalette
@@ -40,10 +55,14 @@ from PySide6.QtWidgets import QApplication
 
 
 # ---------------------------------------------------------------------------
-# Palette — kept aligned with the Tk gui_elements apply_theme dict so
+# Dark palette — kept aligned with the Tk gui_elements apply_theme dict so
 # switching between the two GUIs feels visually consistent.
 # ---------------------------------------------------------------------------
-PALETTE = {
+# Named DARK_PALETTE, not PALETTE. The old name read like "the palette"
+# and was imported as one by two dozen widgets, which is how the light
+# theme ended up drawing dark panels. See the module docstring and
+# :func:`active_palette`.
+DARK_PALETTE = {
     # Surfaces — pure black bg, subtle depth via layered near-blacks
     "bg":          "#000000",   # main window background
     "surface":     "#0d0e10",   # sidebar / panels — barely lifted from bg
@@ -71,8 +90,8 @@ PALETTE = {
 # ---------------------------------------------------------------------------
 # Light palette — mirrors the dark set. Used when the user picks the
 # light theme, or when the OS colour scheme is light and theme=system.
-# Kept close in structure to PALETTE so a caller can swap between them
-# by key without touching consumers.
+# Kept close in structure to DARK_PALETTE so a caller can swap between
+# them by key without touching consumers.
 # ---------------------------------------------------------------------------
 # Every value below was picked (or corrected) against
 # :data:`CONTRAST_RULES`. The originals failed AA in several places —
@@ -80,6 +99,11 @@ PALETTE = {
 # `accent_soft`, `warning` at 3.82:1, `fg_dim` at 2.54:1 — because in a
 # light theme "hover" has to go *darker*, not brighter, and the first
 # cut of this palette mirrored the dark one literally.
+#
+# Every key here also exists in :data:`DARK_PALETTE` — see
+# ``test_theme.py`` — so a caller can swap palettes without touching
+# consumers. That is what makes :func:`active_palette` a drop-in for the
+# old module-level import.
 LIGHT_PALETTE = {
     "bg":          "#fafafa",
     "surface":     "#ffffff",
@@ -172,7 +196,7 @@ CELL_PALETTE = {
 THEMES = ("dark", "light", "space", "cell")
 
 _PALETTES = {
-    "dark": PALETTE,
+    "dark": DARK_PALETTE,
     "light": LIGHT_PALETTE,
     "space": SPACE_PALETTE,
     "cell": CELL_PALETTE,
@@ -237,10 +261,76 @@ def palette_for(theme: str = "dark") -> dict:
     e.g. ``palette_for(t)["button_accent"]`` and know the value is the
     same across themes.
     """
-    base = _PALETTES.get(theme, PALETTE)
+    base = _PALETTES.get(theme, DARK_PALETTE)
     out = dict(base)
     out.update(CONSTANT_ROLES)
     return out
+
+
+def active_palette() -> dict:
+    """The palette for the theme that is **on screen right now**.
+
+    This is what a widget wants. ``DARK_PALETTE`` is a constant; the
+    theme is a preference, and it changes while the process is running.
+    A widget that inlines colours — anything that builds its own
+    ``setStyleSheet`` string, and anything that paints in a
+    ``paintEvent`` — must resolve them through here, per instance, at
+    construction or paint time.
+
+    Screens are rebuilt on a theme change
+    (``MainWindow._rebuild_startup_page`` for Home, and the stylesheet is
+    re-applied to everything else), so one call per widget build is
+    enough; there is no need to cache the result across constructions.
+
+    Falls back to dark if preferences cannot be read — headless, no
+    ``QApplication``, a corrupt settings file — because that is what the
+    app looked like before this function existed.
+    """
+    try:
+        from .preferences import resolve_effective_theme
+        return palette_for(resolve_effective_theme())
+    except Exception:
+        return palette_for("dark")
+
+
+# ---------------------------------------------------------------------------
+# The name that was a trap
+# ---------------------------------------------------------------------------
+# `PALETTE` is served by module ``__getattr__`` rather than bound as a
+# global, for three reasons:
+#
+# 1. It cannot be assigned to. `theme.PALETTE = ...` and
+#    `PALETTE["fg"] = ...` both fail now, so nobody can "fix" a theme by
+#    mutating it and have the change silently apply to every module that
+#    already imported it — or, worse, not apply, because half of them
+#    copied the value into an f-string at import time.
+# 2. `grep -n 'PALETTE ='` over this file no longer finds a definition
+#    for it. The dark dict is spelled `DARK_PALETTE` at its definition,
+#    where a reader decides whether it is the right thing to import.
+# 3. Importing it warns, naming the exact failure, so the remaining
+#    call sites are discoverable with `-W error::DeprecationWarning`
+#    instead of by eye.
+#
+# It is kept (rather than deleted) only because the migration is not
+# finished: two dozen screens and widgets still import it. Each one is a
+# light-theme rendering bug until it moves to `active_palette()`.
+_FROZEN_DARK = MappingProxyType(DARK_PALETTE)
+
+_PALETTE_DEPRECATION = (
+    "spacr.qt.theme.PALETTE is the DARK palette and nothing updates it, "
+    "so inlining it renders dark chrome on the light theme (measured: "
+    "1.08:1 ink-on-panel, i.e. black on black). Use "
+    "spacr.qt.theme.active_palette() for the theme on screen, or "
+    "spacr.qt.theme.DARK_PALETTE if you really do mean the dark colours."
+)
+
+
+def __getattr__(name: str):
+    """Serve the deprecated ``PALETTE`` alias (PEP 562)."""
+    if name == "PALETTE":
+        warnings.warn(_PALETTE_DEPRECATION, DeprecationWarning, stacklevel=2)
+        return _FROZEN_DARK
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 # ---------------------------------------------------------------------------
@@ -443,8 +533,8 @@ def image_contrast_failures(theme: str, under: str) -> List[str]:
 # The user should be able to recognise interactive controls by colour
 # regardless of theme. If the AI/LP toggle went accent-blue in dark and
 # a different accent-blue in light, that recognition breaks. These keys
-# resolve to the SAME value in both PALETTE and LIGHT_PALETTE so button
-# / toggle styling can rely on them.
+# resolve to the SAME value in both DARK_PALETTE and LIGHT_PALETTE so
+# button / toggle styling can rely on them.
 #
 # `button_accent`     — primary button + toggle "on" colour
 # `button_accent_hi`  — hover
