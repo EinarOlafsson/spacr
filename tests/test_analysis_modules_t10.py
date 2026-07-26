@@ -76,31 +76,53 @@ def test_annotate_conditions_handles_no_metadata():
 
 def test_ml_analysis_runs_on_synthetic_features():
     """ml_analysis should fit + return results on a synthetic feature
-    table with a c1/c2 control split."""
+    table with a c1/c2 control split.
+
+    Two things the old ``try/except -> pytest.skip`` hid, both of them the
+    test's fault rather than the product's:
+
+    * ``channel_of_interest=0`` makes ``filter_dataframe_features`` keep only
+      columns whose name contains ``channel_0``. The old fixture named its
+      features ``feat_0..feat_5``, so *every* feature was dropped and xgboost
+      died deep inside QuantileDMatrix with ``IndexError: list index out of
+      range``. Feature names must follow the spacr measurement convention.
+    * The tail of ``ml_analysis`` does
+      ``df[['plateID','rowID','columnID','fieldID','object']] =
+      df.index.astype(str).str.split('_', expand=True)``, so the index has to
+      be a 5-part ``prcfo`` string, not a RangeIndex.
+    """
     import pandas as pd
     from spacr.ml import ml_analysis
     rng = np.random.default_rng(1)
     n = 200
-    # 6 numeric features; the label correlates with feature_0.
-    data = {f"feat_{i}": rng.normal(0, 1, n) for i in range(6)}
+    names = [f"cell_channel_0_{s}" for s in
+             ("mean_intensity", "median_intensity", "p75_intensity",
+              "std_intensity", "min_intensity", "max_intensity")]
+    data = {name: rng.normal(0, 1, n) for name in names}
     df = pd.DataFrame(data)
+    df.index = [f"plate1_r{(i % 8) + 1}_c{(i % 2) + 1}_f1_o{i}" for i in range(n)]
     df["columnID"] = ["c1" if i % 2 == 0 else "c2" for i in range(n)]
-    # Make feat_0 separate the two groups so xgboost has real signal.
-    df.loc[df["columnID"] == "c2", "feat_0"] += 3.0
-    try:
-        result = ml_analysis(
-            df, channel_of_interest=0, location_column="columnID",
-            positive_control="c2", negative_control="c1",
-            n_repeats=1, top_features=5, n_estimators=50,
-            model_type="xgboost",
-            remove_low_variance_features=False,
-            remove_highly_correlated_features=False,
-            prune_features=False, cross_validation=False,
-            n_jobs=1, verbose=False,
-        )
-    except Exception as e:
-        pytest.skip(f"ml_analysis contract differs on synthetic data: {e}")
-    assert result is not None
+    # Make the first feature separate the two groups so xgboost has real signal.
+    df.loc[df["columnID"] == "c2", names[0]] += 3.0
+    output, figs = ml_analysis(
+        df, channel_of_interest=0, location_column="columnID",
+        positive_control="c2", negative_control="c1",
+        n_repeats=1, top_features=5, n_estimators=50,
+        model_type="xgboost",
+        remove_low_variance_features=False,
+        remove_highly_correlated_features=False,
+        prune_features=False, cross_validation=False,
+        n_jobs=1, verbose=False,
+    )
+    scored_df, permutation_df, feature_importance_df = output[0], output[1], output[2]
+    train_features = output[9]
+    assert set(train_features) == set(names)
+    assert "predictions" in scored_df.columns
+    assert len(scored_df) == n
+    # the planted signal must be the top-ranked feature
+    assert feature_importance_df.iloc[0]["feature"] == names[0]
+    assert not permutation_df.empty
+    assert len(figs) == 2
 
 
 # ---------------------------------------------------------------------------

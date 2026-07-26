@@ -215,12 +215,22 @@ def test_merge_predictions_into_db(tmp_path):
                     [("/x/a.png", "p1_A01_1_1_1"), ("/x/b.png", "p1_A01_1_1_2")])
     con.commit(); con.close()
 
-    df = pd.DataFrame({"png_path": ["/x/a.png", "/x/b.png"], "pred": [0.2, 0.8]})
-    try:
-        merge_predictions_into_db(df, str(db), table="png_list", pred_col="pred")
-    except Exception as e:  # tolerate schema-shape differences across versions
-        pytest.skip(f"merge_predictions_into_db contract differs: {e}")
+    # The frame comes from apply_model_to_tar -> process_vision_results, which
+    # yields the tar member name in `path` plus `pred` and `cv_predictions`.
+    # The old fixture named the column `png_path` (that is the *DB* column) and
+    # omitted cv_predictions; the swallowed skip hid the resulting KeyError.
+    df = pd.DataFrame({"path": ["sub/a.png", "sub/b.png"],
+                       "pred": [0.2, 0.8],
+                       "cv_predictions": [0, 1]})
+    merge_predictions_into_db(df, str(db), table="png_list", pred_col="pred")
     con = sqlite3.connect(db)
     cols = [r[1] for r in con.execute("PRAGMA table_info(png_list)")]
+    rows = dict(con.execute(
+        "SELECT png_path, pred FROM png_list").fetchall())
+    classes = dict(con.execute(
+        "SELECT png_path, cv_predictions FROM png_list").fetchall())
     con.close()
-    assert "pred" in cols
+    assert "pred" in cols and "cv_predictions" in cols
+    # matching is on basename, so the differing directories must not matter
+    assert rows == {"/x/a.png": 0.2, "/x/b.png": 0.8}
+    assert classes == {"/x/a.png": 0, "/x/b.png": 1}

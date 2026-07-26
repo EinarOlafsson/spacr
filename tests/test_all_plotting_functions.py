@@ -3,9 +3,13 @@ functions with synthetic inputs on the Agg backend.
 
 Each test builds the minimal real-shaped input a function needs and
 asserts it runs without raising (and, where it saves, that a file
-lands on disk). Functions whose contract needs a richer fixture than
-is worth constructing here skip cleanly with a reason — that keeps the
-file honest about what's actually covered rather than silently passing.
+lands on disk).
+
+Nothing in here is allowed to swallow an exception into a pytest.skip:
+a self-skip makes a broken function and an unsupported fixture look
+identical, and every skip this file used to carry was hiding either a
+product bug or a wrong call. Build the real input, or assert the real
+failure with xfail(strict=True).
 """
 from __future__ import annotations
 
@@ -57,37 +61,43 @@ def test_random_cmap():
 
 def test_visualize_masks():
     m1, m2, m3 = _synth_mask(), _synth_mask(), _synth_mask()
-    try:
-        P.visualize_masks(m1, m2, m3, title="t")
-    except Exception as e:
-        pytest.skip(f"visualize_masks contract differs: {e}")
+    P.visualize_masks(m1, m2, m3, title="t")
 
 
 def test_visualize_cellpose_masks():
     masks = [_synth_mask(), _synth_mask()]
-    try:
-        P.visualize_cellpose_masks(masks, titles=["a", "b"])
-    except Exception as e:
-        pytest.skip(f"visualize_cellpose_masks contract differs: {e}")
+    P.visualize_cellpose_masks(masks, titles=["a", "b"])
 
 
 def test_normalize_and_visualize():
     img = np.random.default_rng(0).random((64, 64))
-    try:
-        P.normalize_and_visualize(img, img, title="t")
-    except Exception as e:
-        pytest.skip(f"normalize_and_visualize contract differs: {e}")
+    P.normalize_and_visualize(img, img, title="t")
 
 
 def test_plot_masks():
+    """Batch path: mask stack as an ndarray, cellpose-shaped ``flows``.
+
+    The swallow here hid a real bug — an (N, H, W) mask stack was wrapped in a
+    list instead of iterated, so imshow got the whole stack and raised
+    "Invalid shape (1, 64, 64) for image data".
+    """
     rng = np.random.default_rng(0)
     batch = rng.random((1, 64, 64, 3)).astype(np.float32)
     masks = _synth_mask()[None, ...]
-    flows = [np.zeros((3, 64, 64), dtype=np.float32)]
-    try:
-        P.plot_masks(batch, masks, flows, nr=1)
-    except Exception as e:
-        pytest.skip(f"plot_masks contract differs: {e}")
+    # Cellpose hands back flows as a list whose [0] is the per-image RGB flows.
+    flows = [[np.zeros((64, 64, 3), dtype=np.float32)]]
+    P.plot_masks(batch, masks, flows, nr=1)
+    assert plt.get_fignums(), "plot_masks drew nothing"
+
+
+def test_plot_masks_single_image():
+    """Singleton path, as ``spacr.utils._filter_cp_masks`` actually calls it."""
+    rng = np.random.default_rng(0)
+    image = rng.random((64, 64, 3)).astype(np.float32)
+    mask = _synth_mask()
+    flow = np.zeros((64, 64, 3), dtype=np.float32)
+    P.plot_masks(batch=image, masks=mask, flows=flow, nr=1)
+    assert plt.get_fignums(), "plot_masks drew nothing"
 
 
 # ---------------------------------------------------------------------------
@@ -110,31 +120,22 @@ def _screen_df(n=120):
 
 def test_generate_plate_heatmap():
     df = _screen_df()
-    try:
-        out = P.generate_plate_heatmap(
-            df, plate_number="plate1", variable="recruitment",
-            grouping="mean", min_max="allq", min_count=0)
-    except Exception as e:
-        pytest.skip(f"generate_plate_heatmap contract differs: {e}")
+    out = P.generate_plate_heatmap(
+        df, plate_number="plate1", variable="recruitment",
+        grouping="mean", min_max="allq", min_count=0)
     assert out is not None
 
 
 def test_plot_plates():
     df = _screen_df()
-    try:
-        P.plot_plates(df, variable="recruitment", grouping="mean",
-                        min_max="allq", cmap="viridis", min_count=0,
-                        verbose=False)
-    except Exception as e:
-        pytest.skip(f"plot_plates contract differs: {e}")
+    P.plot_plates(df, variable="recruitment", grouping="mean",
+                    min_max="allq", cmap="viridis", min_count=0,
+                    verbose=False)
 
 
 def test_plot_histogram(tmp_path):
     df = _screen_df()
-    try:
-        P.plot_histogram(df, "recruitment", dst=str(tmp_path))
-    except Exception as e:
-        pytest.skip(f"plot_histogram contract differs: {e}")
+    P.plot_histogram(df, "recruitment", dst=str(tmp_path))
 
 
 def test_plot_feature_importance():
@@ -144,10 +145,7 @@ def test_plot_feature_importance():
         "feature": [f"f{i}" for i in range(15)],
         "importance": rng.random(15),
     })
-    try:
-        P.plot_feature_importance(df)
-    except Exception as e:
-        pytest.skip(f"plot_feature_importance contract differs: {e}")
+    P.plot_feature_importance(df)
 
 
 def test_plot_permutation():
@@ -158,10 +156,7 @@ def test_plot_permutation():
         "importance_mean": rng.random(15),
         "importance_std": rng.random(15) * 0.1,
     })
-    try:
-        P.plot_permutation(df)
-    except Exception as e:
-        pytest.skip(f"plot_permutation contract differs: {e}")
+    P.plot_permutation(df)
 
 
 def test_create_grouped_plot(tmp_path):
@@ -171,13 +166,10 @@ def test_create_grouped_plot(tmp_path):
         "grp": rng.choice(["a", "b", "c"], 90),
         "val": rng.normal(0, 1, 90),
     })
-    try:
-        P.create_grouped_plot(
-            df, grouping_column="grp", data_column="val",
-            graph_type="bar", summary_func="mean",
-            output_dir=str(tmp_path), save=True)
-    except Exception as e:
-        pytest.skip(f"create_grouped_plot contract differs: {e}")
+    P.create_grouped_plot(
+        df, grouping_column="grp", data_column="val",
+        graph_type="bar", summary_func="mean",
+        output_dir=str(tmp_path), save=True)
 
 
 def test_plot_proportion_stacked_bars():
@@ -190,12 +182,9 @@ def test_plot_proportion_stacked_bars():
         "group": rng.choice(["ctrl", "trt"], n),
         "bin": rng.choice([0, 1, 2], n),
     })
-    try:
-        P.plot_proportion_stacked_bars(
-            {"verbose": False}, df, group_column="group",
-            bin_column="bin", prc_column="prc", level="object")
-    except Exception as e:
-        pytest.skip(f"plot_proportion_stacked_bars contract differs: {e}")
+    P.plot_proportion_stacked_bars(
+        {"verbose": False}, df, group_column="group",
+        bin_column="bin", prc_column="prc", level="object")
 
 
 def test_volcano_plot(tmp_path):
@@ -208,12 +197,9 @@ def test_volcano_plot(tmp_path):
         "p_value": np.clip(np.abs(rng.normal(0.05, 0.05, n)), 1e-6, 1),
     })
     save = tmp_path / "volcano.pdf"
-    try:
-        P.volcano_plot(df, save_path=str(save),
-                        fold_change_col="coefficient",
-                        p_value_col="p_value")
-    except Exception as e:
-        pytest.skip(f"volcano_plot contract differs: {e}")
+    P.volcano_plot(df, save_path=str(save),
+                    fold_change_col="coefficient",
+                    p_value_col="p_value")
 
 
 def test_create_venn_diagram(tmp_path):
@@ -226,11 +212,8 @@ def test_create_venn_diagram(tmp_path):
             w = csv.writer(fh); w.writerow(["gene", "coefficient"])
             for g in genes:
                 w.writerow([g, 0.5])
-    try:
-        P.create_venn_diagram(str(f1), str(f2), gene_column="gene",
-                                save=True, save_path=str(tmp_path / "v.pdf"))
-    except Exception as e:
-        pytest.skip(f"create_venn_diagram contract differs: {e}")
+    P.create_venn_diagram(str(f1), str(f2), gene_column="gene",
+                            save=True, save_path=str(tmp_path / "v.pdf"))
 
 
 # ---------------------------------------------------------------------------
@@ -238,16 +221,20 @@ def test_create_venn_diagram(tmp_path):
 # ---------------------------------------------------------------------------
 
 def test_plot_cellpose4_output():
+    """``flows`` is the *flows0* list from ``parse_cellpose4_output``.
+
+    The old fixture handed in the raw per-image ``[rgb, dP, cellprob]`` triple,
+    which is what spacr_cellpose.parse_cellpose4_output unpacks *from*, never
+    what spacr.object passes on -- so imshow choked on a ragged list. The call,
+    not the function, was wrong; a skip papered over the difference.
+    """
     rng = np.random.default_rng(0)
     batch = rng.random((1, 32, 32, 3)).astype(np.float32)
     masks = _synth_mask(32)[None, ...]
-    flows = [[np.zeros((32, 32, 3), dtype=np.float32),
-              np.zeros((3, 32, 32), dtype=np.float32),
-              np.zeros((32, 32), dtype=np.float32)]]
-    try:
-        P.plot_cellpose4_output(batch, masks, flows, nr=1)
-    except Exception as e:
-        pytest.skip(f"plot_cellpose4_output contract differs: {e}")
+    flows = [np.zeros((32, 32, 3), dtype=np.float32)]
+    P.plot_cellpose4_output(batch, masks, flows, nr=1)
+    # 3 image channels + mask + flow
+    assert len(plt.gcf().axes) == 5
 
 
 def test_print_mask_and_flows():
@@ -256,10 +243,7 @@ def test_print_mask_and_flows():
     flows = [np.zeros((32, 32, 3), dtype=np.float32),
              np.zeros((3, 32, 32), dtype=np.float32),
              np.zeros((32, 32), dtype=np.float32)]
-    try:
-        P.print_mask_and_flows(stack, mask, flows, overlay=True)
-    except Exception as e:
-        pytest.skip(f"print_mask_and_flows contract differs: {e}")
+    P.print_mask_and_flows(stack, mask, flows, overlay=True)
 
 
 def test_plot_resize():
@@ -268,20 +252,14 @@ def test_plot_resize():
     resized = [rng.random((32, 32))]
     labels = [_synth_mask(64)]
     rlabels = [_synth_mask(32)]
-    try:
-        P.plot_resize(imgs, resized, labels, rlabels)
-    except Exception as e:
-        pytest.skip(f"plot_resize contract differs: {e}")
+    P.plot_resize(imgs, resized, labels, rlabels)
 
 
 def test_plot_comparison_results():
     results = [{"filename": "x", "jaccard_a_b": 0.8,
                 "boundary_f1_a_b": 0.7, "ap_a_b": 0.6}]
-    try:
-        fig = P.plot_comparison_results(results)
-        assert fig is not None
-    except Exception as e:
-        pytest.skip(f"plot_comparison_results contract differs: {e}")
+    fig = P.plot_comparison_results(results)
+    assert fig is not None
 
 
 def test_plot_lorenz_curves(tmp_path):
@@ -298,12 +276,27 @@ def test_plot_lorenz_curves(tmp_path):
 
 
 def test_plot_image_mask_overlay(tmp_path):
+    """The function reads a merged ``.npy`` stack; it has no image/masks kwargs.
+
+    The old call passed ``image=``/``masks=`` and the swallow turned the
+    resulting TypeError into a green skip. The real contract (see
+    spacr.core / spacr.submodules callers) is: last N planes of the stack are
+    the object masks, one per non-None ``*_channel`` argument.
+    """
     rng = np.random.default_rng(0)
-    img = rng.integers(0, 4000, size=(64, 64, 3)).astype(np.uint16)
-    mask = _synth_mask(64)
-    try:
-        P.plot_image_mask_overlay(
-            file=None, image=img, masks=[mask], channels=[0, 1, 2],
-            cell_channel=0)
-    except Exception as e:
-        pytest.skip(f"plot_image_mask_overlay contract differs: {e}")
+    merged = tmp_path / "merged"
+    merged.mkdir()
+    stack = np.zeros((64, 64, 5), dtype=np.uint16)
+    stack[..., :3] = rng.integers(0, 4000, size=(64, 64, 3))
+    stack[..., 3] = _synth_mask(64)       # cell mask plane
+    stack[..., 4] = _synth_mask(64)       # nucleus mask plane
+    f = merged / "img_1.npy"
+    np.save(f, stack)
+
+    fig = P.plot_image_mask_overlay(
+        file=str(f), channels=[0, 1, 2], cell_channel=0,
+        nucleus_channel=1, pathogen_channel=None, save_pdf=True)
+    assert fig is not None
+    # 3 channel panels + the combined-objects panel
+    assert len(fig.axes) == 4
+    assert (tmp_path / "results" / "overlay" / "img_1.pdf").is_file()

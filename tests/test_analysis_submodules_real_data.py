@@ -232,11 +232,8 @@ def test_toxo_plot_gene_phenotypes_saves_pdf(tmp_path):
     df = _toxo_phenotype_df()
     genes = df["Gene ID"].iloc[:3].tolist()
     save = tmp_path / "gene_phenotypes.pdf"
-    try:
-        toxo.plot_gene_phenotypes(
-            data=df, gene_list=genes, save_path=str(save))
-    except Exception as e:
-        pytest.skip(f"plot_gene_phenotypes contract differs: {e}")
+    toxo.plot_gene_phenotypes(
+        data=df, gene_list=genes, save_path=str(save))
     assert save.exists() and save.stat().st_size > 0
 
 
@@ -255,12 +252,9 @@ def test_toxo_plot_gene_heatmaps_saves_pdf(tmp_path):
     # gene_list must be the numeric IDs.
     genes = [g.split("_")[1] for g in df["Gene ID"].iloc[:5].tolist()]
     save = tmp_path / "gene_heatmaps.pdf"
-    try:
-        toxo.plot_gene_heatmaps(
-            data=df, gene_list=genes, columns=cols,
-            save_path=str(save))
-    except Exception as e:
-        pytest.skip(f"plot_gene_heatmaps contract differs: {e}")
+    toxo.plot_gene_heatmaps(
+        data=df, gene_list=genes, columns=cols,
+        save_path=str(save))
     assert save.exists() and save.stat().st_size > 0
 
 
@@ -283,10 +277,7 @@ def test_toxo_custom_volcano_plot_saves_pdf(tmp_path):
             ["nucleus", "cytoplasm", "apicoplast", "rhoptry"], n),
     })
     save = tmp_path / "volcano.pdf"
-    try:
-        toxo.custom_volcano_plot(
-            data_path=data, metadata_path=metadata,
-            metadata_column="tagm_location", save_path=str(save))
-    except Exception as e:
-        pytest.skip(f"custom_volcano_plot contract differs: {e}")
+    toxo.custom_volcano_plot(
+        data_path=data, metadata_path=metadata,
+        metadata_column="tagm_location", save_path=str(save))
     assert save.exists() and save.stat().st_size > 0

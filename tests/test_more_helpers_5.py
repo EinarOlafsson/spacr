@@ -259,19 +259,25 @@ def test_measure_summarize_organelles_per_parent_shape(synth_masks_multi, rng):
     # Use pathogens as "organelles" for this test (pathogen mask is a
     # bunch of small blobs inside cells — same structural relationship).
     organelle = synth_masks_multi["pathogen"]
-    # channel_arrays: dict {channel_idx: array}
+    # channel_arrays is an (H, W, C) intensity stack everywhere in measure.py
+    # (see _intensity_measurements / _calculate_radial_distribution). The old
+    # fixture passed a {channel_idx: array} dict and the swallowed skip hid the
+    # resulting "'dict' object has no attribute 'shape'".
     channel = rng.uniform(500, 5000, size=cell.shape).astype(np.float32)
-    channel_arrays = {0: channel, 1: channel}
-    try:
-        df = _summarize_organelles_per_parent(
-            organelle_mask=organelle,
-            parent_mask=cell,
-            channel_arrays=channel_arrays,
-            parent_name="cell",
-        )
-    except Exception as e:
-        pytest.skip(f"_summarize_organelles_per_parent contract differs: {e}")
+    channel_arrays = np.stack([channel, channel * 0.5], axis=-1)
+    df = _summarize_organelles_per_parent(
+        organelle_mask=organelle,
+        parent_mask=cell,
+        channel_arrays=channel_arrays,
+        parent_name="cell",
+    )
     assert isinstance(df, pd.DataFrame)
+    assert {"organelle_count", "organelle_total_area"} <= set(df.columns)
+    # one row per parent label
+    assert len(df) == len(np.unique(cell[cell != 0]))
+    # per-channel intensity summaries for both planes of the stack
+    assert any("ch0" in c for c in df.columns)
+    assert any("ch1" in c for c in df.columns)
 
 
 # ===========================================================================

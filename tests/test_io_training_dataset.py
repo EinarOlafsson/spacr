@@ -68,6 +68,9 @@ def train_src(tmp_path, rng):
             "test": [1 if i % 2 == 0 else 2 for i in range(N)],
             # legacy metadata mode buckets png_list rows by 'condition'
             "condition": ["c1" if i % 2 == 0 else "c2" for i in range(N)],
+            # measurement mode filters png_list columns directly (_load_png_table
+            # reads png_list only), so the measured feature has to live here.
+            "cell_area": [1000.0 if i % 2 == 0 else 3000.0 for i in range(N)],
         })
         png_list.to_sql("png_list", con, index=False)
     finally:
@@ -98,37 +101,60 @@ def _tds(src, **over):
 # generate_training_dataset
 # ---------------------------------------------------------------------------
 
+def _assert_split(out, expected_classes):
+    """Both split folders exist, hold one sub-folder per class, and are disjoint."""
+    train, test = out
+    assert os.path.isdir(train) and os.path.isdir(test)
+    assert sorted(os.listdir(train)) == sorted(expected_classes)
+    assert sorted(os.listdir(test)) == sorted(expected_classes)
+
+    def _names(root):
+        return {(cls, f) for cls in os.listdir(root)
+                for f in os.listdir(os.path.join(root, cls))}
+
+    tr, te = _names(train), _names(test)
+    assert tr and te
+    assert not ({f for _, f in tr} & {f for _, f in te}), "train/test overlap"
+    # test_split=0.2 of the 40 crops
+    assert len(tr) + len(te) == N
+    assert len(te) == pytest.approx(N * 0.2, abs=2)
+
+
 def test_generate_training_dataset_metadata_mode(train_src):
     from spacr.io import generate_training_dataset
-    try:
-        out = generate_training_dataset(_tds(train_src))
-    except Exception as e:
-        pytest.skip(f"metadata mode contract differs: {e}")
-    assert out is not None
-    assert os.path.isdir(os.path.join(train_src, "datasets")) or out
+    out = generate_training_dataset(_tds(train_src))
+    _assert_split(out, ["c1", "c2"])
 
 
 def test_generate_training_dataset_annotation_mode(train_src):
     from spacr.io import generate_training_dataset
-    try:
-        out = generate_training_dataset(_tds(
-            train_src, dataset_mode="annotation",
-            annotation_column="test", annotated_classes=[1, 2]))
-    except Exception as e:
-        pytest.skip(f"annotation mode contract differs: {e}")
-    assert out is not None
+    out = generate_training_dataset(_tds(
+        train_src, dataset_mode="annotation",
+        annotation_column="test", annotated_classes=[1, 2]))
+    # one class folder per observed value of the annotation column
+    _assert_split(out, ["test_1", "test_2"])
 
 
 def test_generate_training_dataset_measurement_mode(train_src):
+    """measurement mode is driven by ``measurement_rules``.
+
+    ``custom_measurement`` + ``class_metadata`` (what the old call used) are the
+    legacy keys — settings.py documents custom_measurement as having no effect,
+    and io.generate_training_dataset only reads ``measurement_rules``. With the
+    old arguments no class was ever assembled, the function printed
+    "No class data assembled; aborting." and returned ``(None, None)``, which
+    ``assert out is not None`` happily accepted under a swallowed skip.
+    """
     from spacr.io import generate_training_dataset
-    try:
-        out = generate_training_dataset(_tds(
-            train_src, dataset_mode="measurement",
-            custom_measurement="cell_area",
-            class_metadata=[[0, 2000], [2000, 5000]]))
-    except Exception as e:
-        pytest.skip(f"measurement mode contract differs: {e}")
-    assert out is not None
+    out = generate_training_dataset(_tds(
+        train_src, dataset_mode="measurement",
+        measurement_rules=[
+            {"name": "small",
+             "where": [{"column": "cell_area", "op": "<", "value": 2000}]},
+            {"name": "large",
+             "where": [{"column": "cell_area", "op": ">=", "value": 2000}]},
+        ]))
+    _assert_split(out, ["small", "large"])
 
 
 # ---------------------------------------------------------------------------

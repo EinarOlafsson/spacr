@@ -267,13 +267,26 @@ def test_merge_dataframes():
 
 
 def test_process_vision_results():
+    """`path` holds a bare tar member name in spacr's crop-PNG convention
+    ``<plate>_<well>_<field>_<object>.png`` (see _map_wells / _map_wells_png).
+
+    The old fixture used ``/x/plate1_A01_f1_o1.png``: the directory prefix
+    leaked into plateID and the ``f1`` field could not be int-parsed, so
+    fieldID silently became ``f0``. The swallowed skip hid the whole thing.
+    """
     from spacr.utils import process_vision_results
     df = pd.DataFrame({
-        "path": ["/x/plate1_A01_f1_o1.png", "/x/plate1_A01_f1_o2.png"],
+        "path": ["plate1_A01_1_1.png", "plate1_A01_1_2.png"],
         "pred": [0.2, 0.8],
     })
-    try:
-        out = process_vision_results(df, threshold=0.5)
-    except Exception as e:
-        pytest.skip(f"process_vision_results contract differs: {e}")
-    assert out is not None
+    out = process_vision_results(df, threshold=0.5)
+    assert {"plateID", "rowID", "columnID", "fieldID", "prc",
+            "cv_predictions"} <= set(out.columns)
+    assert out["plateID"].tolist() == ["plate1", "plate1"]
+    assert out["rowID"].tolist() == ["r1", "r1"]
+    assert out["columnID"].tolist() == ["c1", "c1"]
+    assert out["fieldID"].tolist() == ["f1", "f1"]
+    assert out["prc"].tolist() == ["plate1_r1_c1"] * 2
+    assert out["object"].tolist() == ["1", "2"]
+    # pred 0.2 < 0.5 <= 0.8
+    assert out["cv_predictions"].tolist() == [0, 1]

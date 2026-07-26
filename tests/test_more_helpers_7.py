@@ -45,15 +45,19 @@ def test_plot_lorenz_curves_smoke_synthetic_csvs(tmp_path):
 # ===========================================================================
 
 def test_plot_permutation_returns_figure():
+    """plot_permutation draws error bars, so it needs the permutation frame
+    ml_analysis builds: feature / importance_mean / importance_std. The old
+    fixture passed a plain ``importance`` column (that is plot_feature_
+    importance's contract) and the swallowed skip hid the KeyError."""
     from spacr.plot import plot_permutation
     df = pd.DataFrame({
         "feature": [f"f{i}" for i in range(5)],
-        "importance": np.linspace(0, 1, 5),
+        "importance_mean": np.linspace(0, 1, 5),
+        "importance_std": np.full(5, 0.05),
     })
-    try:
-        result = plot_permutation(df)
-    except Exception as e:
-        pytest.skip(f"plot_permutation needs different columns: {e}")
+    fig = plot_permutation(df)
+    assert fig is not None
+    assert len(fig.axes[0].patches) == 5
     plt.close("all")
 
 

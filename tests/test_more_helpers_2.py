@@ -74,19 +74,35 @@ def test_plot_feature_importance_handles_many_features():
 # ===========================================================================
 
 def test_sim_validate_and_adjust_beta_params_valid_range():
+    """The function takes a *list* of per-run dicts (see generate_paramiters),
+    not a single dict — the old call passed one dict, so iterating it yielded
+    the string keys and ``params['positive_mean']`` raised
+    ``TypeError: string indices must be integers``. The swallowed skip made
+    that look like a contract mismatch."""
     from spacr.sim import validate_and_adjust_beta_params
-    params = {
+    feasible = {
         "positive_mean": 0.7,
         "positive_variance": 0.02,
         "negative_mean": 0.3,
         "negative_variance": 0.02,
     }
-    # Should not raise, and returned params should keep the means intact.
-    try:
-        out = validate_and_adjust_beta_params(params)
-    except Exception as e:
-        pytest.skip(f"function contract differs: {e}")
-    assert out is not None
+    # max variance for mean 0.7 is 0.7*0.3 = 0.21, so 0.5 must be clamped
+    infeasible = {
+        "positive_mean": 0.7,
+        "positive_variance": 0.5,
+        "negative_mean": 0.3,
+        "negative_variance": 0.5,
+    }
+    out = validate_and_adjust_beta_params([feasible, infeasible])
+    assert len(out) == 2
+    # feasible variances are left alone, means are never touched
+    assert out[0]["positive_variance"] == 0.02
+    assert out[0]["negative_variance"] == 0.02
+    assert [p["positive_mean"] for p in out] == [0.7, 0.7]
+    assert [p["negative_mean"] for p in out] == [0.3, 0.3]
+    # infeasible ones are capped at 99% of mean*(1-mean)
+    assert out[1]["positive_variance"] == pytest.approx(0.7 * 0.3 * 0.99)
+    assert out[1]["negative_variance"] == pytest.approx(0.3 * 0.7 * 0.99)
 
 
 # ===========================================================================

@@ -149,14 +149,12 @@ def test_torchmodel_run_backbone_raw():
 
 def test_torchmodel_v2_forward():
     from spacr.utils import TorchModel_v2
-    try:
-        m = TorchModel_v2(model_name="resnet18", pretrained=False,
-                          num_classes=2).eval()
-        with torch.no_grad():
-            out = m(torch.rand(2, 3, 32, 32))
-    except Exception as e:
-        pytest.skip(f"TorchModel_v2 contract differs: {e}")
-    assert out.shape[0] == 2
+    m = TorchModel_v2(model_name="resnet18", pretrained=False,
+                      num_classes=2).eval()
+    with torch.no_grad():
+        out = m(torch.rand(2, 3, 32, 32))
+    assert out.shape == (2, 2)          # one logit per class, per image
+    assert torch.isfinite(out).all()
 
 
 # ---------------------------------------------------------------------------
@@ -196,27 +194,47 @@ def test_cache_get_put_and_eviction():
 # ---------------------------------------------------------------------------
 
 def _recruitment_df(n=12, rng=None):
+    """A measurement frame carrying every column _calculate_recruitment divides on.
+
+    The original fixture had only the four ``*_mean_intensity`` columns, so the
+    first q75 ratio raised ``KeyError: pathogen_channel_1_percentile_75`` — a
+    swallowed skip hid it. The function also needs the outside / periphery
+    variants that measure._intensity_measurements produces.
+    """
     rng = rng or np.random.default_rng(0)
-    return pd.DataFrame({
+    cols = {
         "prc": [f"plate1_r1_c{(i % 2) + 1}" for i in range(n)],
         "prcfo": [f"plate1_r1_c{(i % 2) + 1}_f1_o{i}" for i in range(n)],
-        "pathogen_channel_1_mean_intensity": rng.uniform(100, 900, n),
-        "cytoplasm_channel_1_mean_intensity": rng.uniform(100, 900, n),
-        "nucleus_channel_1_mean_intensity": rng.uniform(100, 900, n),
-        "cell_channel_1_mean_intensity": rng.uniform(100, 900, n),
         "cell_area": rng.uniform(200, 900, n),
-    })
+    }
+    for obj in ("pathogen", "cytoplasm", "nucleus", "cell"):
+        cols[f"{obj}_channel_1_mean_intensity"] = rng.uniform(100, 900, n)
+    for suffix in ("percentile_75", "outside_mean", "outside_75_percentile",
+                   "periphery_mean"):
+        cols[f"pathogen_channel_1_{suffix}"] = rng.uniform(100, 900, n)
+    return pd.DataFrame(cols)
 
 
 def test_calculate_recruitment():
     from spacr.utils import _calculate_recruitment
     df = _recruitment_df()
-    try:
-        out = _calculate_recruitment(df, channel=1)
-    except Exception as e:
-        pytest.skip(f"_calculate_recruitment contract differs: {e}")
+    expected_inputs = df.copy()
+    out = _calculate_recruitment(df, channel=1)
     assert isinstance(out, pd.DataFrame)
-    assert any("recruitment" in c for c in out.columns)
+    # No column literally contains the word "recruitment"; the ratios are
+    # named <object>_<compartment>_<stat>_mean. The old assertion would have
+    # failed too, had the call ever got that far.
+    expected = {f"pathogen_{compartment}_{stat}_mean"
+                for compartment in ("cell", "cytoplasm", "nucleus")
+                for stat in ("mean", "q75")}
+    assert expected <= set(out.columns)
+    np.testing.assert_allclose(
+        out["pathogen_cell_q75_mean"],
+        expected_inputs["pathogen_channel_1_percentile_75"]
+        / expected_inputs["cell_channel_1_mean_intensity"])
+    # per-channel slope placeholders for both object types
+    assert {f"pathogen_slope_channel_{c}" for c in range(4)} <= set(out.columns)
+    assert {f"nucleus_slope_channel_{c}" for c in range(4)} <= set(out.columns)
 
 
 def test_group_by_well():
