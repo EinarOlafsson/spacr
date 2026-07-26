@@ -250,15 +250,21 @@ def set_element_size():
 _cached_dark_style = None
 _cached_element_size = None
     
-def set_dark_style(style, parent_frame=None, containers=None, widgets=None,
-                   font_family="OpenSans", font_size=12, bg_color='black',
-                   fg_color='white', active_color='blue', inactive_color='dark_gray'):
-    """Configure ttk/tk widgets with the spacr dark theme and return the palette.
+def apply_theme(style, parent_frame=None, containers=None, widgets=None,
+                font_family="OpenSans", font_size=12, bg_color='black',
+                fg_color='white', active_color='blue', inactive_color='dark_gray'):
+    """Apply the spaCR theme to ttk/tk widgets and return the palette.
 
     Named colors (``'black'``, ``'white'``, ``'blue'``, ``'dark_gray'``,
     ``'teal'``) resolve to their hex equivalents; explicit hex strings pass
     through. When ``parent_frame``, ``containers``, or ``widgets`` are given,
     those widgets are re-styled in place.
+
+    The Tk GUI ships one theme (dark). The Qt GUI has three — dark,
+    light and space — which is why this is called ``apply_theme`` and
+    not ``set_dark_style``: the old name promised a colour scheme rather
+    than an operation. :func:`set_dark_style` is kept as an alias
+    because a large amount of lightly-covered Tk code calls it.
 
     :param style: a ``ttk.Style`` instance to configure.
     :param parent_frame: optional root frame to color-match.
@@ -452,8 +458,25 @@ def set_dark_style(style, parent_frame=None, containers=None, widgets=None,
     
     if parent_frame is None and containers is None and widgets is None:
         _cached_dark_style = result
-    
+
     return result
+
+
+def set_dark_style(*args, **kwargs):
+    """Deprecated alias for :func:`apply_theme`.
+
+    Kept — and kept forwarding rather than being swapped out at the ~40
+    call sites in ``gui_core.py``, ``gui_utils.py`` and this module —
+    because those modules sit at single-digit test coverage. A hard
+    rename there is precisely the kind of change that breaks the Tk GUI
+    without a single test noticing. New code should call
+    :func:`apply_theme`.
+
+    Signature, behaviour and return value are identical: the same dict
+    of resolved colours, fonts and spacing.
+    """
+    return apply_theme(*args, **kwargs)
+
 
 _font_cache = {}
     
@@ -991,7 +1014,7 @@ class spacrDropdownMenu(tk.Frame):
         self.text = "Settings"
         self.size = size
 
-        # Apply dark style and get color settings
+        # Apply the theme and get color settings
         style_out = set_dark_style(ttk.Style())
         self.font_size = style_out['font_size']
         self.font_loader = style_out['font_loader']
@@ -1005,7 +1028,7 @@ class spacrDropdownMenu(tk.Frame):
         self.canvas = tk.Canvas(self, width=self.canvas_width, height=self.canvas_height, highlightthickness=0, bg=style_out['bg_color'])
         self.canvas.grid(row=0, column=0)
 
-        # Apply dark style and get color settings
+        # Apply the theme and get color settings
         color_settings = set_dark_style(ttk.Style(), containers=[self], widgets=[self.canvas])
         self.inactive_color = color_settings['inactive_color']
         self.active_color = color_settings['active_color']
@@ -1669,7 +1692,7 @@ class spacrButton(tk.Frame):
         self.canvas = tk.Canvas(self, width=self.button_width + 4, height=self.size + 4, highlightthickness=0, bg=style_out['bg_color'])
         self.canvas.grid(row=0, column=0)
 
-        # Apply dark style and get color settings
+        # Apply the theme and get color settings
         color_settings = set_dark_style(ttk.Style(), containers=[self], widgets=[self.canvas])
 
         self.inactive_color = color_settings['inactive_color']
@@ -4699,16 +4722,28 @@ class AnnotateApp:
     def load_single_image(self, path_annotation_tuple):
         """Load one PNG, apply normalization/channel filtering/outlines, and resize.
 
+        The crop is read through :func:`spacr.crops.read_crop_png`, not
+        ``Image.open``, because a crop PNG is format-versioned: anything
+        written before the BGR fix holds ``png_dims[0]`` in its *blue*
+        channel, and showing that as-is means every red/green/blue control in
+        this window points at the wrong stain. The reader corrects a legacy
+        folder on load (and narrows 16-bit crops by their high byte instead of
+        letting PIL clip a single-channel one to solid white), so old and new
+        datasets look the same here.
+
         :param path_annotation_tuple: ``(path, annotation)`` pair from the DB.
         :returns: tuple ``(PIL.Image, annotation)`` sized to ``self.image_size``.
         """
+        from .crops import read_crop_png
+
         path, annotation = path_annotation_tuple
         if not os.path.exists(path):
             blank = Image.new('RGB', self.image_size, color=(30, 30, 30))
             print(f"Could not find image: {path}")
             return blank, annotation
 
-        img = Image.open(path)
+        img = Image.fromarray(
+            read_crop_png(path, db_path=getattr(self, 'db_path', None)))
 
         # Normalize (optionally) – returns RGB ndarray-equivalent in a PIL Image
         img = self.normalize_image(img, self.percentiles, self.normalize_channels)
@@ -6254,7 +6289,7 @@ class AnnotateApp:
         run_btn.configure(command=on_run)
 
 def standardize_figure(fig):
-    """Restyle ``fig`` to match the spacr dark theme.
+    """Restyle ``fig`` to match the spacr theme.
 
     Applies OpenSans typography from the shared style, hides top/right
     spines, sets a 1 px foreground line/tick width, and paints figure and
@@ -6505,7 +6540,7 @@ def modify_figure(fig):
     modify_window = tk.Toplevel()
     modify_window.title("Modify Figure Properties")
 
-    # Apply dark style to the popup window
+    # Apply the theme to the popup window
     style = ttk.Style()
     style.configure("TCheckbutton", background="#2E2E2E", foreground="white", selectcolor="blue")
 

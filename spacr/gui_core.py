@@ -23,7 +23,7 @@ try:
 except AttributeError:
     pass
 
-from .gui_elements import spacrProgressBar, spacrButton, spacrFrame, spacrDropdownMenu , spacrSlider, set_dark_style
+from .gui_elements import spacrProgressBar, spacrButton, spacrFrame, spacrDropdownMenu , spacrSlider, apply_theme
 
 # Define global variables
 q = None
@@ -45,7 +45,7 @@ thread_control = {"run_thread": None, "stop_requested": False}
 
 def _show_loading_screen(parent):
     """Show animated spinner GIF on black overlay."""
-    from .gui_elements import set_dark_style
+    from .gui_elements import apply_theme
     from PIL import Image, ImageTk
     
     bg = '#000000'
@@ -358,8 +358,8 @@ def display_figure(fig):
 
     from .gui_elements import save_figure_as_format, modify_figure
 
-    # Apply the dark style to the context menu
-    style_out = set_dark_style(ttk.Style())
+    # Apply the theme to the context menu
+    style_out = apply_theme(ttk.Style())
     bg_color = style_out['bg_color']
     fg_color = style_out['fg_color']
 
@@ -664,7 +664,7 @@ def setup_plot_section(vertical_container, settings_type):
     global canvas, canvas_widget, figures, figure_index, index_control
     from .gui_utils import display_media_in_plot_frame
 
-    style_out = set_dark_style(ttk.Style())
+    style_out = apply_theme(ttk.Style())
     bg = style_out['bg_color']
     fg = style_out['fg_color']
 
@@ -723,7 +723,7 @@ def setup_plot_section(vertical_container, settings_type):
 
     widgets = [canvas_widget, index_control]
     style = ttk.Style(vertical_container)
-    _ = set_dark_style(style, containers=containers, widgets=widgets)
+    _ = apply_theme(style, containers=containers, widgets=widgets)
 
     # Now ensure the first figure is displayed and recognized:
     figures.append(figure)
@@ -948,7 +948,7 @@ def setup_settings_panel(vertical_container, settings_type='mask', tick_callback
     widgets = [scrollable_frame]
 
     style = ttk.Style(vertical_container)
-    _ = set_dark_style(style, containers=containers, widgets=widgets)
+    _ = apply_theme(style, containers=containers, widgets=widgets)
 
     print("Settings panel setup complete")
     return scrollable_frame, vars_dict
@@ -963,11 +963,11 @@ def setup_console(vertical_container):
     :returns: tuple ``(console_output, console_frame)``.
     """
     global console_output
-    from .gui_elements import set_dark_style
+    from .gui_elements import apply_theme
 
-    # Apply dark style and get style output
+    # Apply the theme and get style output
     style = ttk.Style()
-    style_out = set_dark_style(style)
+    style_out = apply_theme(style)
     bg = style_out['bg_color']
     panel = style_out.get('inactive_color', bg)
     border = style_out.get('border_color', style_out['inactive_color'])
@@ -1046,7 +1046,7 @@ def setup_button_section(horizontal_container, settings_type='mask', run=True, a
     from .gui_elements import set_element_size
 
     size_dict = set_element_size()
-    style_out = set_dark_style(ttk.Style())
+    style_out = apply_theme(ttk.Style())
     spacing = style_out.get('spacing', {'xs': 4, 'sm': 8})
     pad = spacing['sm']    # consistent 8 px around every action
 
@@ -1096,7 +1096,7 @@ def setup_button_section(horizontal_container, settings_type='mask', run=True, a
         toggle_settings(button_scrollable_frame)
 
     style = ttk.Style(horizontal_container)
-    _ = set_dark_style(style, containers=[button_frame], widgets=widgets)
+    _ = apply_theme(style, containers=[button_frame], widgets=widgets)
 
     return button_scrollable_frame, btn_col
 
@@ -1112,7 +1112,7 @@ def setup_usage_panel(horizontal_container, btn_col, uppdate_frequency):
     :returns: tuple ``(usage_scrollable_frame, usage_bars, usg_col)``.
     """
     global usage_bars
-    from .gui_elements import set_dark_style, set_element_size
+    from .gui_elements import apply_theme, set_element_size
 
     usg_col = 1
 
@@ -1163,7 +1163,7 @@ def setup_usage_panel(horizontal_container, btn_col, uppdate_frequency):
     
     # Configure the style for the label
     style = ttk.Style()
-    style_out = set_dark_style(style)
+    style_out = apply_theme(style)
     font_loader = style_out['font_loader']
     font_size = style_out['font_size'] - 2
     style.configure("usage.TLabel", font=font_loader.get_font(size=font_size), foreground=style_out['fg_color'])
@@ -1232,7 +1232,7 @@ def setup_usage_panel(horizontal_container, btn_col, uppdate_frequency):
         print(f"Could not add CPU core usage bars: {e}")
 
     style = ttk.Style(horizontal_container)
-    _ = set_dark_style(style, containers=[usage_frame], widgets=widgets)
+    _ = apply_theme(style, containers=[usage_frame], widgets=widgets)
 
     if ram_bar is None:
         ram_bar = spacrProgressBar(usage_scrollable_frame.scrollable_frame, orient='horizontal', mode='determinate', length=size_dict['bar_size'], label=False)

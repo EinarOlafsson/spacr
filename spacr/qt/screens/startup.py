@@ -42,14 +42,21 @@ from ..widgets import Divider, HTile
 
 
 def _find_logo_pixmap() -> Optional[QPixmap]:
-    """Locate the bundled spaCR logo, returning ``None`` if absent."""
+    """Locate the bundled spaCR logo, returning ``None`` if absent.
+
+    Routed through ``iconset.themed_pixmap`` so it is re-inked for the
+    active theme — the bundled logo is solid white, which rendered as
+    nothing at all on the light theme.
+    """
+    from ..iconset import themed_pixmap
+
     here = os.path.dirname(os.path.abspath(__file__))
     for candidate in ("logo_spacr.png", "logo_spacr_v1.png"):
         p = os.path.normpath(
             os.path.join(here, "..", "..", "resources", "icons", candidate)
         )
         if os.path.isfile(p):
-            pix = QPixmap(p)
+            pix = themed_pixmap(p) or QPixmap(p)
             if not pix.isNull():
                 return pix
     return None
@@ -70,6 +77,16 @@ class StartupPage(QWidget):
     """
 
     tile_clicked = Signal(str)
+
+    #: Tile width bounds in px at 100 % font scale. ``TILE_MIN_W`` keeps
+    #: short names ("Mask") from rendering as stubby buttons;
+    #: ``TILE_MAX_W`` is how wide a tile may be drawn once it has room;
+    #: ``TILE_CAP_W`` is the point past which a very long name elides
+    #: instead of stretching the row. All three scale with the font
+    #: preference.
+    TILE_MIN_W = 210
+    TILE_MAX_W = 320
+    TILE_CAP_W = 420
 
     def __init__(
         self,
@@ -624,13 +641,19 @@ class StartupPage(QWidget):
             icon = icon_provider(key)
             tile = HTile(text=name, description="", icon=icon,
                           icon_size=52)
-            # Width scales with the font-size preference and is wide enough for
-            # the longest app names (e.g. "Mask Generation", "Train Cellpose",
-            # "Classify (CV)") plus the icon, so nothing clips. Also grow to fit
-            # the name's own size hint if it's longer than the minimum.
-            hint_w = tile.sizeHint().width()
-            tile.setMinimumWidth(max(scaled_px(210), hint_w))
-            tile.setMaximumWidth(scaled_px(320))
+            # Every tile is at least `TILE_MIN_W` wide so short names
+            # ("Mask", "Report") still look like buttons, and grows to
+            # whatever the name needs — HTile.sizeHint() measures the
+            # name label, so a long name ("Annotator Agreement") widens
+            # its own tile instead of being clipped by it. TILE_CAP_W
+            # stops one pathological name from eating the row; past
+            # that the label elides and keeps the full name in its
+            # tooltip. Everything scales with the font preference.
+            needed = tile.sizeHint().width()
+            width = max(scaled_px(self.TILE_MIN_W),
+                        min(needed, scaled_px(self.TILE_CAP_W)))
+            tile.setMinimumWidth(width)
+            tile.setMaximumWidth(max(width, scaled_px(self.TILE_MAX_W)))
             self._tile_hints[tile] = desc
             tile.installEventFilter(self)
             tile.clicked.connect(lambda checked=False, k=key:
