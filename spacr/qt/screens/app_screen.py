@@ -125,6 +125,7 @@ APP_TITLES = {
     "analyze_plaques": "Plaque Analysis",
     "annotate":        "Annotate",
     "make_masks":      "Make Masks",
+    "db_browser":      "Database Browser",
 }
 
 
@@ -145,6 +146,7 @@ APP_INTROS = {
     "activation":      "Generate activation / attention maps to see what a trained model focuses on.",
     "umap":            "Embed single-object images into a UMAP and render the map with image glyphs.",
     "queue":           "Chain several plates through the same pipeline configuration.",
+    "db_browser":      "Preview any table in a measurements database, search its columns, and export filtered rows to CSV — read-only.",
     "analyze_plaques": "Detect and quantify plaques in plaque-assay images.",
     "recruitment":     "Quantify recruitment of a marker to a compartment across conditions.",
 }
