@@ -454,14 +454,46 @@ def test_a_threaded_generate_writes_the_file(qtbot, qt_theme_applied, plate,
 
 
 def test_a_second_request_while_busy_is_refused_inline(qtbot, qt_theme_applied,
-                                                       plate):
+                                                       plate, monkeypatch):
+    """A scan started while one is running must be refused, not queued.
+
+    This used to read `widget.scan(); if widget.is_busy(): assert
+    widget.scan() is False`, which is racy in BOTH directions. If the first
+    job finished before is_busy() was called the branch was skipped and the
+    test asserted nothing; if it finished BETWEEN is_busy() and the second
+    scan() the refusal never happened and the assertion failed. That is the
+    intermittent failure seen under a loaded full-suite run -- and the
+    vacuous-pass direction meant it was not reliably testing anything even
+    when green.
+
+    The worker is now held on an Event the test releases itself, so "busy"
+    is a fact for the whole window rather than a race.
+    """
+    import threading
+    import spacr.report as _rep
+
+    release = threading.Event()
+    real_collect = _rep.collect_report
+
+    def blocking_collect(path, **kw):
+        # Hold the worker until the test has made its second request.
+        release.wait(timeout=30)
+        return real_collect(path, **kw)
+
+    monkeypatch.setattr(_rep, "collect_report", blocking_collect)
+
     widget = ReportScreen(threaded=True)
     qtbot.addWidget(widget)
     widget.set_source(str(plate))
-    widget.scan()
-    if widget.is_busy():
-        assert widget.scan() is False
-        assert "previous request" in widget.last_error
+
+    assert widget.scan() is True
+    qtbot.waitUntil(widget.is_busy, timeout=10000)
+
+    # Busy is now guaranteed for as long as we hold the event.
+    assert widget.scan() is False
+    assert "previous request" in widget.last_error
+
+    release.set()
     qtbot.waitUntil(lambda: widget.active_jobs() == 0, timeout=60000)
 
 
