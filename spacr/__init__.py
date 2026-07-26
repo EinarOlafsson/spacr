@@ -41,6 +41,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "deep_spacr",
     "diameter",
     "feature_dict",
+    "crops",
     "agreement",
     "plate_qc",
     "seg_qc",
