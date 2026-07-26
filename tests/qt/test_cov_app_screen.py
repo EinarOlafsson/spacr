@@ -494,13 +494,11 @@ class TestRoundTrip:
         combo.setCurrentIndex(idx)
         assert scr._settings_model.collect()["strict_errors"] is None
 
-    @pytest.mark.xfail(strict=True, reason=(
-        "BUG: a setting whose DEFAULT is None gets a free-text widget and is "
-        "collected as a raw string, even though spacr.settings.expected_types "
-        "declares it int. The Tk GUI runs settings.check_settings(vars_dict, "
-        "expected_types) before dispatch and gets int 37; the Qt GUI has no "
-        "equivalent step, so cellpose receives diameter='37'. Fix is in "
-        "settings_model.py (not this agent's file) - see report."))
+    # Was a strict xfail; fixed by collect() coercing against
+    # settings.expected_types. A setting whose DEFAULT is None gets a
+    # free-text widget, so it came back as a raw string and cellpose received
+    # diameter='37'. The Tk GUI never had this because it runs check_settings
+    # before dispatch.
     def test_numeric_text_fields_collect_as_numbers(self, qtbot):
         from spacr.settings import expected_types
         assert expected_types["cell_diameter"] is int

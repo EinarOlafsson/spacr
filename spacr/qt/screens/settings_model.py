@@ -409,11 +409,53 @@ class SettingsWidgets:
             return w
         return None
 
+    @staticmethod
+    def _coerce_to_expected_type(key: str, value: Any) -> Any:
+        """Parse a raw widget string into the type ``settings`` declares.
+
+        A setting whose DEFAULT is None gets a free-text widget, so it comes
+        back as a raw string even when ``spacr.settings.expected_types`` says
+        it is an int -- and cellpose received ``diameter='37'``. The Tk GUI
+        never had this problem because it runs
+        ``settings.check_settings(vars_dict, expected_types)`` before
+        dispatch; the Qt path had no equivalent step. check_settings itself
+        cannot be reused here: it takes the Tk widget map
+        ``key -> (label, widget, var, frame)``, not a plain dict.
+
+        Anything not declared, or not parseable, is returned untouched -- this
+        coerces, it does not validate, and it must never turn a real value
+        into None behind the user's back.
+        """
+        if not isinstance(value, str):
+            return value
+        try:
+            from ... import settings as _settings
+            declared = _settings.expected_types.get(key)
+        except Exception:
+            return value
+        if declared is None:
+            return value
+        allowed = declared if isinstance(declared, tuple) else (declared,)
+        text = value.strip()
+        if text == "" or text == "None":
+            return None if type(None) in allowed else value
+        for typ in allowed:
+            if typ is bool:
+                if text.lower() in ("true", "false"):
+                    return text.lower() == "true"
+                continue
+            if typ in (int, float):
+                try:
+                    return typ(text)
+                except ValueError:
+                    continue
+        return value
+
     def collect(self) -> Dict[str, Any]:
         """Read all widgets and return the current settings dict."""
         out: Dict[str, Any] = {}
         for key, w in self._widgets.items():
-            out[key] = self._read_widget(w)
+            out[key] = self._coerce_to_expected_type(key, self._read_widget(w))
         # Also carry over any defaults we didn't render (e.g. things not
         # in the categories map that convert_settings_dict_for_gui also
         # skipped).
