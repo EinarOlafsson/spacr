@@ -13,7 +13,7 @@ from multiprocessing import cpu_count
 import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR, CosineAnnealingLR
 
-from sklearn.metrics import precision_recall_curve, auc, average_precision_score, confusion_matrix
+from sklearn.metrics import precision_recall_curve, auc, average_precision_score, confusion_matrix, f1_score
     
 
 from torchvision import transforms
@@ -272,6 +272,11 @@ def _binary_metrics(y_true: np.ndarray, pos_probs: np.ndarray) -> dict:
         "pos_accuracy": float(acc_pos),
         "prauc": float(pr_auc),
         "optimal_threshold": float(opt_thr),
+        # train_model has always PRINTED f1_macro, but neither metric helper
+        # returned it, so it read nan on every line and never reached the CSV.
+        "f1_macro": (float(f1_score(y_true, pred, average='macro',
+                                    zero_division=0))
+                     if len(y_true) else float(np.nan)),
     }
 
 def _multiclass_metrics(y_true: np.ndarray, prob_mat: np.ndarray) -> dict:
@@ -318,6 +323,12 @@ def _multiclass_metrics(y_true: np.ndarray, prob_mat: np.ndarray) -> dict:
         "pos_accuracy": np.nan,  # not meaningful in multiclass
         "prauc": float(ap_macro),  # reuse key for macro-AP
         "optimal_threshold": np.nan,
+        # Macro F1 is the metric that actually matters on an imbalanced screen:
+        # accuracy is dominated by the majority class, and this weights every
+        # class equally. It was printed but never computed.
+        "f1_macro": (float(f1_score(y_true, preds, average='macro',
+                                    zero_division=0))
+                     if len(y_true) else float(np.nan)),
         "per_class_accuracy": per_class_acc.tolist(),
         "num_classes": int(C),
     }
@@ -841,6 +852,18 @@ def train_test_model(settings):
     elif settings['test']:
         save_settings(settings, name=f"test_{settings['model_type']}_{settings['epochs']}", show=True)
 
+    # save_settings writes to <src>/settings/<name>.csv, and the name is keyed
+    # on model_type and epochs alone -- so a second run of the same shape with
+    # a different learning rate silently OVERWRITES the first run's snapshot,
+    # and the first run's curves become unattributable. A copy inside dst is
+    # per-run by construction, since dst already varies with the run.
+    # spacr.train_compare.load_run prefers this one.
+    try:
+        pd.DataFrame(list(settings.items()), columns=['Key', 'Value']).to_csv(
+            os.path.join(dst, 'settings.csv'), index=False)
+    except Exception as e:
+        print(f"Could not write the per-run settings snapshot to {dst}: {e}")
+
     model = None
     model_path = None
     cv_result_loc = None
@@ -1160,6 +1183,10 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
             num_classes=head_dim
         )
         train_dict['train_time'] = train_time
+        # The schedule moves the learning rate every epoch and nothing
+        # recorded it, so "why did the curve bend at epoch 30" was
+        # unanswerable from the run folder alone.
+        train_dict['lr'] = float(optimizer.param_groups[0]['lr'])
         accumulated_train_dicts.append(train_dict)
 
         # initialize val_dict to None so the variable always exists for _save_model
