@@ -1265,7 +1265,26 @@ def plot_simulations(df, variable, x_rotation=None, legend=False, grid=False, cl
     plt.show()
     return fig
     
-def plot_correlation_matrix(df, annot=False, cmap='inferno', clean=True):
+
+def _figures_dst(dst=None):
+    """Resolve where a simulation figure is written.
+
+    The literal folder name was hard-coded at five call sites. Being a
+    RELATIVE path, every simulator run dropped a ``figures/`` tree into whatever
+    directory the process happened to be launched from -- the user's home,
+    a cluster scratch dir, or the repo itself, which is how a test run
+    leaked ``figures/feature_importance`` into the working tree.
+
+    :param dst: explicit destination; ``None`` falls back to the old
+        relative name so existing callers keep working, and the
+        ``SPACR_SIM_FIGURES`` environment variable overrides both.
+    :returns: the directory to hand to ``save_plot``.
+    """
+    if dst:
+        return str(dst)
+    return os.environ.get('SPACR_SIM_FIGURES', 'figures')
+
+def plot_correlation_matrix(df, annot=False, cmap='inferno', clean=True, dst=None):
     """Render a lower-triangular correlation heatmap of the standard sweep + metric columns.
 
     :param df: DataFrame containing sweep variables plus ``prauc``, ``roc_auc``
@@ -1305,10 +1324,10 @@ def plot_correlation_matrix(df, annot=False, cmap='inferno', clean=True):
 
     plt.tight_layout()
     plt.show()
-    save_plot(fig, src='figures', variable='correlation_matrix', i=1)
+    save_plot(fig, src=_figures_dst(dst), variable='correlation_matrix', i=1)
     return fig
 
-def plot_feature_importance(df, target='prauc', exclude=None, clean=True):
+def plot_feature_importance(df, target='prauc', exclude=None, clean=True, dst=None):
     """Train a RandomForestRegressor on sweep variables and plot the resulting importances.
 
     :param df: DataFrame with sweep columns and ``target``.
@@ -1351,10 +1370,10 @@ def plot_feature_importance(df, target='prauc', exclude=None, clean=True):
     plt.title('Feature Importances')
     plt.tight_layout()
     plt.show()
-    save_plot(fig, src='figures', variable='feature_importance', i=1)
+    save_plot(fig, src=_figures_dst(dst), variable='feature_importance', i=1)
     return fig
 
-def calculate_permutation_importance(df, target='prauc', exclude=None, n_repeats=10, clean=True):
+def calculate_permutation_importance(df, target='prauc', exclude=None, n_repeats=10, clean=True, dst=None):
     """Fit a RandomForest and plot permutation-based feature importances for the sweep columns.
 
     :param df: DataFrame with sweep columns and ``target``.
@@ -1400,10 +1419,10 @@ def calculate_permutation_importance(df, target='prauc', exclude=None, n_repeats
     ax.set_xlabel('Permutation Importance')
     plt.tight_layout()
     plt.show()
-    save_plot(fig, src='figures', variable='permutation_importance', i=1)
+    save_plot(fig, src=_figures_dst(dst), variable='permutation_importance', i=1)
     return fig
     
-def plot_partial_dependences(df, target='prauc', clean=True):
+def plot_partial_dependences(df, target='prauc', clean=True, dst=None):
     """Fit a GradientBoostingRegressor and plot partial dependences for every sweep feature.
 
     :param df: DataFrame with sweep columns and ``target``.
@@ -1450,7 +1469,7 @@ def plot_partial_dependences(df, target='prauc', clean=True):
     
     plt.tight_layout()
     plt.show()
-    save_plot(fig, src='figures', variable='partial_dependences', i=1)
+    save_plot(fig, src=_figures_dst(dst), variable='partial_dependences', i=1)
     return fig
 
 def save_shap_plot(fig, src, variable, i):
@@ -1461,7 +1480,7 @@ def save_shap_plot(fig, src, variable, i):
     fig.savefig(filename_fig, dpi=600, format='pdf', bbox_inches='tight')
     print(f"Saved figure as {filename_fig}")
 
-def generate_shap_summary_plot(df,target='prauc', clean=True):
+def generate_shap_summary_plot(df,target='prauc', clean=True, dst=None):
     """Fit a RandomForest and render a SHAP summary plot over the standard sweep features.
 
     :param df: DataFrame with sweep columns and ``target``.
@@ -1491,7 +1510,7 @@ def generate_shap_summary_plot(df,target='prauc', clean=True):
 
     # Summary plot
     shap.summary_plot(shap_values, X)
-    save_shap_plot(plt.gcf(), src='figures', variable='shap', i=1)
+    save_shap_plot(plt.gcf(), src=_figures_dst(dst), variable='shap', i=1)
     #save_shap_plot(fig, src, variable, i)
     return plt.gcf()
 

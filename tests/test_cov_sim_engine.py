@@ -21,6 +21,17 @@ import pandas as pd
 import pytest
 
 import matplotlib
+@pytest.fixture(autouse=True)
+def _never_write_figures_into_the_repo(tmp_path, monkeypatch):
+    """Run every test in this file from a temp directory.
+
+    sim's plotting entry points default to the RELATIVE folder ``figures``,
+    which resolves against the process's current directory. The tests that do
+    not chdir themselves were therefore writing ``figures/feature_importance``
+    and ``figures/permutation_importance`` into the repo working tree. Tests
+    that chdir on their own are unaffected -- they simply chdir again.
+    """
+    monkeypatch.chdir(tmp_path)
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 

@@ -793,3 +793,4 @@ def hf_spacr_settings(tmp_path_factory):
             pytest.skip(f"HF download failed for {name}: {e}")
         paths[name] = p
     return paths
+
