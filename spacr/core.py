@@ -15,6 +15,11 @@ import warnings
 from scipy import ndimage
 from multiprocessing import Value
 
+# Fail-loud accounting: per-folder / per-example failures are recorded on a
+# RunLedger and reported in one block at the end of the run, and setup
+# failures escalate to ConfigurationError under SPACR_STRICT_ERRORS.
+from .errors import RunLedger, ConfigurationError, raise_if_strict
+
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
 
 def preprocess_generate_masks(settings):
@@ -144,17 +149,20 @@ def preprocess_generate_masks(settings):
 
     if isinstance(settings['src'], list):
         source_folders = settings['src']
+        # One ledger for the whole invocation: a run over four plates that
+        # only managed three must not report as if it did four.
+        ledger = RunLedger('preprocess_generate_masks')
         for source_folder in source_folders:
-            
+
             print(f'Processing folder: {source_folder}')
-            
-            source_folder = format_path_for_system(source_folder)   
+
+            source_folder = format_path_for_system(source_folder)
             settings['src'] = source_folder
             src = source_folder
             settings = set_default_settings_preprocess_generate_masks(settings)
-            
+
             settings = _set_organelle_defaults(settings)
-            
+
             if settings['metadata_type'] == 'auto':
                 if settings['custom_regex'] != None:
                     try:
@@ -164,8 +172,20 @@ def preprocess_generate_masks(settings):
                         try:
                             convert_to_yokogawa(folder=source_folder)
                         except Exception as e:
+                            # Category B: no file was renamed, so every step
+                            # below would operate on an empty/unrecognised
+                            # folder. Historically this printed and returned
+                            # None, which reads exactly like success.
                             print(f"Error: Tried to convert image files and image file name metadata with regex {settings['custom_regex']} then without regex but failed both.")
                             print(f'Error: {e}')
+                            ledger.record_failure(source_folder,
+                                                  stage='convert_metadata', exc=e)
+                            ledger.finalize()
+                            raise_if_strict(
+                                f"Could not apply Yokogawa naming to {source_folder} "
+                                f"with regex {settings['custom_regex']!r} or without "
+                                f"one; nothing downstream can run on this folder.",
+                                exc=e, settings=settings)
                             return
                 else:
                     try:
@@ -173,15 +193,29 @@ def preprocess_generate_masks(settings):
                     except Exception as e:
                         print(f"Error: Tried to convert image files and image file name metadata without regex but failed.")
                         print(f'Error: {e}')
+                        ledger.record_failure(source_folder,
+                                              stage='convert_metadata', exc=e)
+                        ledger.finalize()
+                        raise_if_strict(
+                            f"Could not apply Yokogawa naming to {source_folder}; "
+                            f"nothing downstream can run on this folder.",
+                            exc=e, settings=settings)
                         return
-            
+
             if (
                 settings['cell_channel'] is None and
                 settings['nucleus_channel'] is None and
                 settings['pathogen_channel'] is None and
                 settings.get('organelle_channel') is None
             ):
+                # Category B: with no object channel there is nothing to
+                # segment, so returning None here is indistinguishable from
+                # a successful run that produced no masks.
                 print(f'Error: At least one of cell_channel, nucleus_channel, pathogen_channel or organelle_channel must be defined')
+                raise_if_strict(
+                    'At least one of cell_channel / nucleus_channel / '
+                    'pathogen_channel / organelle_channel must be set; '
+                    'no masks can be generated.', settings=settings)
                 return
             
             save_settings(settings, name='gen_mask_settings')
@@ -303,23 +337,34 @@ def preprocess_generate_masks(settings):
                         if settings['test_mode'] == True:
                             settings['examples_to_plot'] = len(os.path.join(src,'merged'))
 
+                        # A separate ledger: an overlay PDF that fails to
+                        # render is cosmetic and must NOT brand the masks
+                        # themselves as partial. It still gets accounted for.
+                        plot_ledger = RunLedger('preprocess_generate_masks:overlay_plots')
                         try:
                             merged_src = os.path.join(src,'merged')
                             files = os.listdir(merged_src)
+                        except Exception as e:
+                            print(f'Failed to plot image mask overly. Error: {e}')
+                            plot_ledger.record_failure(os.path.join(src, 'merged'),
+                                                       stage='list_merged', exc=e)
+                            files = []
+                        else:
                             random.shuffle(files)
-                            time_ls = []
-                            
-                            for i, file in enumerate(files):
-                                start = time.time()
-                                if i+1 <= settings['examples_to_plot']:
-                                    file_path = os.path.join(merged_src, file)
-                                    
-                                    #print(f'cahnnels({settings["channels"]})')
-                                    #print(f'cell channel({settings["cell_channel"]})')
-                                    #print(f'nucleus channel({settings["nucleus_channel"]})')
-                                    #print(f'pathogen channel({settings["pathogen_channel"]})')
-                                    #print(f'organelle channel({settings["organelle_channel"]})')
-                                    
+                        time_ls = []
+
+                        for i, file in enumerate(files):
+                            start = time.time()
+                            if i+1 <= settings['examples_to_plot']:
+                                file_path = os.path.join(merged_src, file)
+
+                                # Per example, not per batch: the old single
+                                # try around the whole loop meant one
+                                # unplottable field silently cancelled every
+                                # remaining example.
+                                with plot_ledger.item(
+                                        file, stage='plot_mask_overlay',
+                                        echo='Failed to plot image mask overly. Error'):
                                     plot_image_mask_overlay(
                                         file_path,
                                         settings['channels'],
@@ -338,9 +383,8 @@ def preprocess_generate_masks(settings):
                                     files_processed = i+1
                                     files_to_process = settings['examples_to_plot']
                                     print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Plot mask outlines")
-                                    
-                        except Exception as e:
-                            print(f'Failed to plot image mask overly. Error: {e}')
+
+                        plot_ledger.finalize()
                     else:
                         plot_arrays(src=os.path.join(src,'merged'), figuresize=settings['figuresize'], cmap=settings['cmap'], nr=settings['examples_to_plot'], normalize=settings['normalize'], q1=1, q2=99)
                     
@@ -357,7 +401,17 @@ def preprocess_generate_masks(settings):
                                      keep_intermediate=keep_intermediate,
                                      keep_original=keep_original)
 
+            ledger.record_success(source_folder, stage='preprocess_generate_masks')
             print("Successfully completed run")
+
+        # Last thing on screen: a four-plate run that only completed three
+        # says so here, and the per-folder db carries the same verdict.
+        ledger.finalize()
+        for source_folder in source_folders:
+            db_path = os.path.join(format_path_for_system(source_folder),
+                                   'measurements', 'measurements.db')
+            if os.path.isfile(db_path):
+                ledger.stamp(db_path)
     return
 
 

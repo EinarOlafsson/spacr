@@ -40,6 +40,11 @@ from torchvision import transforms
 from sklearn.model_selection import train_test_split
 from pylibCZIrw import czi as pyczi
 
+# Fail-loud accounting. Every per-file skip below is recorded on a RunLedger
+# so a batch that lost 40 of 384 files says so at the end and stamps the
+# artifact it produced, instead of writing a silently-short result.
+from .errors import RunLedger, ConfigurationError, raise_if_strict
+
 def process_non_tif_non_2D_images(folder):
     """Split multi-dimensional or non-TIFF images in ``folder`` into per-channel TIFFs.
 
@@ -47,10 +52,17 @@ def process_non_tif_non_2D_images(folder):
     dimensional images (3D/4D/5D) are split into one grayscale TIFF per
     ``(channel, Z, T)`` combination. Bit depth is preserved.
 
+    A file that cannot be read is recorded on a
+    :class:`spacr.errors.RunLedger` and skipped, so one corrupt image
+    does not abort the folder — but the ledger prints a loud summary of
+    everything that was skipped once the folder is done.
+
     :param folder: Directory containing the input images.
-    :returns: None
+    :returns: the :class:`spacr.errors.RunLedger` for the conversion, so
+        callers can check ``ledger.is_complete`` before trusting the
+        folder's contents.
     """
-    
+
     # Helper function to save grayscale images
     def save_grayscale_images(image, base_name, folder, dtype, channel=None, z=None, t=None):
         """Save grayscale images with appropriate suffix based on channel, z, and t, preserving bit depth."""
@@ -133,16 +145,18 @@ def process_non_tif_non_2D_images(folder):
     supported_formats = ['.tif', '.tiff', '.png', '.jpg', '.jpeg', '.czi', '.nd2']
     
     # Loop through all files in the folder
+    ledger = RunLedger('process_non_tif_non_2D_images')
     for filename in os.listdir(folder):
         file_path = os.path.join(folder, filename)
         ext = os.path.splitext(file_path)[1].lower()
 
         if ext in supported_formats:
             print(f"Processing {filename}")
-            try:
+            with ledger.item(filename, stage='split_channels',
+                             echo=f"Error processing {filename}"):
                 # Load the image and its dtype
                 image, dtype = load_image(file_path)
-                
+
                 # If the image is grayscale (2D), convert it to TIFF if it's not already in TIFF format
                 if image.ndim == 2:
                     if ext not in ['.tif', '.tiff']:
@@ -150,13 +164,14 @@ def process_non_tif_non_2D_images(folder):
                     else:
                         print(f"Image {filename} is already grayscale and in TIFF format, skipping.")
                     continue
-                
+
                 # Otherwise, split channels and save images
                 base_name = os.path.splitext(filename)[0]
                 split_channels(image, folder, base_name, dtype)
-            
-            except Exception as e:
-                print(f"Error processing {filename}: {str(e)}")
+
+    # Last thing on screen, so a partial conversion cannot scroll past.
+    ledger.finalize()
+    return ledger
 
 def _load_images_and_labels(image_files, label_files, invert=False):
     
@@ -699,19 +714,22 @@ def load_images_from_paths(images_by_key):
 
     :param images_by_key: Mapping of key -> list of image paths.
     :returns: Mapping of the same keys -> list of ``ndarray`` images.
-        Paths that fail to load are skipped with a printed warning.
+        Paths that fail to load are skipped, recorded on a
+        :class:`spacr.errors.RunLedger` and reported in a loud summary,
+        so a short list is never mistaken for a complete one.
     """
     images_dict = {}
+    ledger = RunLedger('load_images_from_paths')
 
     for key, paths in images_by_key.items():
         images_dict[key] = []
         for path in paths:
-            try:
+            with ledger.item(path, stage='load',
+                             echo=f"Error loading image from {path}"):
                 with Image.open(path) as img:
                     images_dict[key].append(np.array(img))
-            except Exception as e:
-                print(f"Error loading image from {path}: {e}")
-    
+
+    ledger.finalize()
     return images_dict
 
 #@log_function_call 
@@ -935,13 +953,17 @@ def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
     src = Path(src)
     valid_exts = ['.tif', '.png']
 
+    ledger = RunLedger('_move_to_chan_folder')
     if not (src / 'stack').exists():
         for file in src.iterdir():
             if file.is_file():
                 name, ext = file.stem, file.suffix
                 if ext in valid_exts:
-                    metadata = re.match(regex, file.name) 
-                    try:                  
+                    metadata = re.match(regex, file.name)
+                    with ledger.item(
+                            file.name, stage='parse_filename',
+                            echo=(f"Could not extract information from filename "
+                                  f"{name}{ext} with {regex}")):
                         try:
                             plateID = metadata.group('plateID')
                         except Exception:
@@ -974,8 +996,6 @@ def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
                         else:
                             newpath.mkdir(exist_ok=True)
                             shutil.copy(file, move)
-                    except Exception:
-                        print(f"Could not extract information from filename {name}{ext} with {regex}")
 
         # Move original images to a new directory
         valid_exts = ['.tif', '.png']
@@ -988,6 +1008,11 @@ def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
                     print(f'WARNING: A file with the same name already exists at location {move}')
                 else:
                     shutil.move(os.path.join(src, filename), move)
+    # Files whose metadata could not be parsed never reach a channel folder;
+    # without this the plate silently continues with fewer fields.
+    # Returns None, as it always has — callers treat this as a side-effecting
+    # sorter and one existing caller asserts on the None.
+    ledger.finalize()
     return
 
 def _merge_channels(src, plot=False):
@@ -1363,6 +1388,9 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
     time_ls = []
     output_fldr = os.path.join(os.path.dirname(src), 'masks')
     os.makedirs(output_fldr, exist_ok=True)
+    # Every FOV that fails to load is dropped from the normalised stacks.
+    # Nothing downstream can tell, so account for it here.
+    ledger = RunLedger('concatenate_and_normalize')
 
     if settings['timelapse']:
         try:
@@ -1428,11 +1456,9 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
             # file in the final position discarded every good image already
             # collected in that batch (and elsewhere merged two batches into
             # one, silently changing the per-batch normalisation grouping).
-            try:
+            with ledger.item(path, stage='load_npy',
+                             echo=f"Error loading file {path}"):
                 array = np.load(path)
-            except Exception as e:
-                print(f"Error loading file {path}: {e}")
-            else:
                 stack_ls.append(array)
                 filenames_batch.append(os.path.basename(path))
                 stop = time.time()
@@ -1484,6 +1510,10 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
                 padded_stack_ls = []
 
     print(f'All files concatenated and normalized. Saved to: {output_fldr}')
+    # Emitted last so a partially-loaded stack cannot scroll off the top of
+    # a 400-line progress log. No stamp: output_fldr is masks/, which the
+    # segmentation step globs, and a stray sidecar there is not worth the risk.
+    ledger.finalize()
     return output_fldr
 
 def _get_lists_for_normalization(settings):
@@ -4682,11 +4712,25 @@ def convert_separate_files_to_yokogawa(folder, regex):
     print(f"Processing complete. Files saved in {folder} and rename log saved as {csv_path}.")
 
 def convert_to_yokogawa(folder):
+    """Convert every image in ``folder`` to Yokogawa-style naming with a MIP.
+
+    ND2, CZI, LIF and plain TIFF/PNG/JPEG inputs are detected by
+    extension, max-projected over Z, and written out as
+    ``plate<N>_<well>_T####F###L01C##.tif``. A ``rename_log.csv``
+    records the original-to-new mapping.
+
+    A file that cannot be read is skipped so the rest of the folder
+    still converts — but the skip is recorded on a
+    :class:`spacr.errors.RunLedger`, printed as a loud summary at the
+    end, and **stamped into a sibling ``rename_log.run_status.json``**.
+    That sidecar is what lets a later reader (or
+    :func:`spacr.errors.run_is_complete`) tell that the converted
+    folder is missing inputs, instead of quietly analysing a subset.
+
+    :param folder: Directory of raw images, converted in place.
+    :returns: the :class:`spacr.errors.RunLedger` for the conversion.
     """
-    Detects file type in the folder and converts them
-    to Yokogawa-style naming with Maximum Intensity Projection (MIP).
-    """
-       
+
     def _get_next_well(used_wells):
         """
         Determines the next available well position across multiple 384-well plates.
@@ -4714,6 +4758,7 @@ def convert_to_yokogawa(folder):
     rename_log = []
     csv_path = os.path.join(folder, "rename_log.csv")
     used_wells = set()
+    ledger = RunLedger('convert_to_yokogawa')
 
     # **Dictionary to store well assignments per original file**
     file_to_well = {}
@@ -4731,7 +4776,8 @@ def convert_to_yokogawa(folder):
 
         ### **Process Nikon ND2 Files**
         if ext == 'nd2':
-            try:
+            with ledger.item(file, stage='nd2',
+                             echo=f"Error processing ND2 file {file}"):
                 nd2 = ND2Reader(path)
                 metadata = nd2.metadata
 
@@ -4767,14 +4813,18 @@ def convert_to_yokogawa(folder):
                                                    "channel": channel,
                                                    "z": z_levels})
 
-                            except IndexError:
+                            except IndexError as frame_err:
+                                # A dropped frame silently shrinks the FOV set —
+                                # record it as its own item so the summary shows
+                                # how much of the ND2 never made it to disk.
+                                ledger.record_failure(
+                                    f"{file}:T{t_idx}F{f_idx}C{c_idx}",
+                                    stage='nd2_frame', exc=frame_err)
                                 print(f"Warning: ND2 file {file} has an incomplete data structure. Skipping.")
 
-            except Exception as e:
-                print(f"Error processing ND2 file {file}: {e}")
-        
         elif ext == 'czi':
-            try:
+            with ledger.item(file, stage='czi',
+                             echo=f"Error processing CZI file {file}"):
                 # Open the CZI in streaming mode
                 with pyczi.open_czi(path) as czidoc:
 
@@ -4843,12 +4893,10 @@ def convert_to_yokogawa(folder):
                                         "well": scene_well
                                     })
 
-            except Exception as e:
-                print(f"Error processing CZI file {file}: {e}")
-
         ### **Process Leica LIF Files**
         elif ext == 'lif':
-            try:
+            with ledger.item(file, stage='lif',
+                             echo=f"Error processing LIF file {file}"):
                 lif_file = readlif.Reader(path)
 
                 for image_idx, image in enumerate(lif_file.getIterImage()):
@@ -4863,9 +4911,12 @@ def convert_to_yokogawa(folder):
                                 try:
                                     frame = image.getFrame(z=z_idx, t=t_idx, c=c_idx)
                                     z_stack.append(frame)
-                                except IndexError:
+                                except IndexError as frame_err:
+                                    ledger.record_failure(
+                                        f"{file}:T{t_idx}Z{z_idx}C{c_idx}",
+                                        stage='lif_frame', exc=frame_err)
                                     print(f"Missing frame: T{t_idx}, Z{z_idx}, C{c_idx} in {file}, skipping frame.")
-                            
+
                             if z_stack:
                                 mip_image = np.max(np.stack(z_stack), axis=0)
                                 dtype = mip_image.dtype
@@ -4875,12 +4926,10 @@ def convert_to_yokogawa(folder):
                                 tifffile.imwrite(filepath, mip_image.astype(dtype))
                                 rename_log.append({"Original File": file, "Renamed TIFF": filename})
 
-            except Exception as e:
-                print(f"Error processing LIF file {file}: {e}")
-
         ### **Process Standard Image Files (TIFF, PNG, JPEG, BMP)**
         elif ext in ['tif', 'tiff', 'png', 'jpg', 'jpeg', 'bmp'] and not file.startswith("plate"):
-            try:
+            with ledger.item(file, stage='tiff',
+                             echo=f"Error processing standard image file {file}"):
                 with tifffile.TiffFile(path) as tif:
                     images = tif.asarray()
                     ndim = images.ndim
@@ -4921,13 +4970,15 @@ def convert_to_yokogawa(folder):
                     else:
                         raise ValueError(f"Unsupported TIFF dimensions: {images.shape}")
 
-            except Exception as e:
-                print(f"Error processing standard image file {file}: {e}")
-
     # Save rename log as CSV
     pd.DataFrame(rename_log).to_csv(csv_path, index=False)
     print(f"Processing complete. Files saved in {folder} and rename log saved as {csv_path}.")
-    
+    # Stamp the artifact, then say so last. rename_log.csv on its own cannot
+    # tell you that three of the ten inputs never converted; the sidecar can.
+    ledger.finalize(artifact=csv_path)
+    return ledger
+
+
 def apply_augmentation(image, method):
     """Return ``image`` transformed by a named geometric augmentation.
 
