@@ -28,7 +28,7 @@ CTRL = ["sgA", "sgB"]
 def _scores_csv(path, seed):
     rng = np.random.default_rng(seed)
     pd.DataFrame({
-        "column_name": [COL] * len(ROWS),
+        "columnID": [COL] * len(ROWS),
         "rowID": ROWS,
         "pred": rng.uniform(0, 1, len(ROWS)),
     }).to_csv(path, index=False)
@@ -39,7 +39,7 @@ def _mixed_csv(path):
     rows = []
     for r in ROWS:
         for g in CTRL:
-            rows.append({"column_name": COL, "rowID": r, "grna_name": g,
+            rows.append({"columnID": COL, "rowID": r, "grna_name": g,
                          "count": int(rng.integers(10, 500))})
     pd.DataFrame(rows).to_csv(path, index=False)
 
