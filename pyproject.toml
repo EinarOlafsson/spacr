@@ -1,3 +1,101 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+# setuptools >= 64 is the floor for PEP 621 `[project]` support *including*
+# `dynamic = ["entry-points", "scripts"]`. Older setuptools silently ignores
+# the whole `[project]` table, which would drop `requires-python` from the
+# built metadata rather than fail loudly — so the floor is declared, not
+# assumed.
+requires = ["setuptools>=64", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "spacr"
+
+# ---------------------------------------------------------------------------
+# requires-python: the single most valuable line in this file.
+#
+# Without it, `pip install spacr` on Python 3.13 resolves happily, downloads
+# several hundred MB, and then dies inside a *source build of numpy 1.26.4*
+# with a compiler error — which reads to a user as "spaCR is broken".
+# numpy 1.26.4 (the only release satisfying `numpy>=1.26.4,<2.0`) publishes
+# cp39-cp312 wheels and nothing else; mahotas has never published a cp313
+# wheel at any version. With this line, pip declines in under two seconds
+# with one clear sentence.
+#
+# The floor is 3.10, not 3.9, deliberately:
+#   * 3.9 is *resolvable* (torch 2.8.0 still ships cp39 wheels), but keeping
+#     it freezes torch at 2.8, caps PySide6 at 6.10, and forces monai,
+#     torch-geometric, torchcam, numba, llvmlite, pingouin and gdown to
+#     backtrack — six resolver branches nothing has ever exercised.
+#   * No spaCR test has ever run on 3.9.
+#   * packaging/build_debian.sh already declares `python3 (>= 3.10)`, and
+#     packaging/build_macos.sh and build_windows.ps1 agree.
+#
+# The ceiling moves to <3.14 once numpy/pillow/lxml/psutil are unpinned and
+# mahotas + pylibCZIrw move to extras, and to <3.15 only once a 3.14 CI cell
+# is green. Do not widen it ahead of the evidence.
+# ---------------------------------------------------------------------------
+requires-python = ">=3.10,<3.13"
+
+authors = [
+    { name = "Einar Birnir Olafsson", email = "olafsson@med.umich.com" },
+]
+
+# ---------------------------------------------------------------------------
+# Classifiers are a *claim of support*. `Operating System :: OS Independent`
+# was never true — Windows-on-ARM cannot install spaCR at all (torch has
+# never published a win_arm64 wheel, and neither has numpy<2.0, mahotas,
+# opencv-python-headless, pylibCZIrw or aicspylibczi), so the honest
+# statement is the three operating systems CI actually exercises.
+#
+# Every Python classifier below is covered by a CI cell in
+# .github/workflows/tests.yml (full suite) or compat-matrix.yml (install +
+# import + packaging subset). If you add a classifier, add the cell first.
+# ---------------------------------------------------------------------------
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+]
+
+# ---------------------------------------------------------------------------
+# Everything below is still supplied by setup.py. That is deliberate, not
+# laziness: several things read setup.py as text or execute it directly and
+# would break if the data moved here —
+#   * packaging/build_debian.sh runs `python3 setup.py` under stdeb and
+#     regex-extracts `VERSION = "..."`,
+#   * packaging/build_macos.sh and packaging/build_windows.ps1 regex-extract
+#     the same line,
+#   * tests/test_gui_dispatch_call_styles.py ast-parses `entry_points`,
+#     tests/test_timelapse_ultrack.py regexes `extras_require['ultrack']`,
+#     tests/test_smoke.py regexes VERSION, tests/test_regressions.py greps
+#     the dependency list.
+# Declaring them `dynamic` is what PEP 621 provides for exactly this case,
+# and it was verified end-to-end on setuptools 83.0.0: both `pip wheel`
+# (PEP 517) and a direct `python setup.py egg_info` emit
+# `Requires-Python: <3.13,>=3.10` and the classifiers above.
+# ---------------------------------------------------------------------------
+dynamic = [
+    "version",
+    "description",
+    "readme",
+    "dependencies",
+    "optional-dependencies",
+    "entry-points",
+    "scripts",
+]
+
+[project.urls]
+Homepage = "https://github.com/EinarOlafsson/spacr"
+Documentation = "https://spacr.readthedocs.io"
+Source = "https://github.com/EinarOlafsson/spacr"
+Issues = "https://github.com/EinarOlafsson/spacr/issues"

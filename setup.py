@@ -1,7 +1,23 @@
-import subprocess
+# setup.py must do nothing but describe the package.
+#
+# It used to end with a module-level loop that shelled out to
+# `subprocess.run(['pip', 'install', dep])`. That ran on every build and on
+# every `pip install .`, which broke PEP 517 isolated builds (no pip inside
+# the isolated env), broke every offline/air-gapped install, swallowed all
+# failures behind a bare `except CalledProcessError: pass`, invoked the bare
+# name `pip` (absent from PATH in many venv layouts), and installed an entire
+# second, unused Qt binding: pyqtgraph, pyqt6, pyqt6.sip, qtpy and superqt —
+# a hand-copy of cellpose's `gui` extra, duplicated within itself. 75 files
+# under spacr/ import PySide6; zero import PyQt6, pyqtgraph, qtpy or superqt.
+# The block is gone; nothing replaced it, because nothing needed it.
+#
+# Project metadata that PEP 621 owns (name, requires-python, classifiers,
+# authors, URLs) now lives in pyproject.toml. The fields below stay here
+# because packaging/build_{debian,macos,windows}.* and four tests read this
+# file as text or execute it directly; pyproject.toml declares them
+# `dynamic` so setuptools takes them from this call.
 from setuptools import setup, find_packages
 
-# Ensure you have read the README.rst content into a variable, e.g., `long_description`
 with open("README.rst", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
@@ -11,7 +27,11 @@ dependencies = [
     'pandas>=2.2.1,<3.0',
     'scipy>=1.12.0,<2.0',
     'cellpose>=4.0,<5.0',
-    'segment-anything',
+    # `segment-anything` removed: PyPI's `segment-anything` has exactly one
+    # release (1.0, 2023-04-06) with empty author, homepage and summary —
+    # Meta never published SAM to PyPI. spaCR imports it in zero files, and
+    # cellpose already depends on segment_anything itself. It was an
+    # unpinned, unattributed name in the supply chain for no benefit.
     'scikit-image>=0.22.0,<1.0',
     'scikit-learn>=1.4.1,<2.0',
     'scikit-posthocs>=0.10.0, <0.20',
@@ -40,7 +60,11 @@ dependencies = [
     'nd2reader>=3.3.0, <4.0',
     'czifile',
     'pylibCZIrw>=5.0.0,<6.0',
-    'aicspylibczi',
+    # `aicspylibczi` removed: zero import statements and zero raw-string
+    # references anywhere under spacr/. It ships a manylinux x86_64 wheel
+    # only — no linux-aarch64, no cp313, no cp314 — and its sdist needs CMake
+    # plus libCZI headers, so it was the single dependency forcing a C++
+    # source build on ARM Linux, for a package spaCR never imports.
     'readlif',
     'openpyxl>=3.1,<4.0',
     'imageio>=2.34.0,<3.0',
@@ -92,14 +116,15 @@ VERSION = "1.4.9.3"
 name = "spacr"
 
 setup(
+    # name/authors/urls/classifiers/requires-python are declared statically in
+    # pyproject.toml [project]; name is repeated here only because stdeb and
+    # `python setup.py egg_info` want a non-empty distribution before the
+    # pyproject config is applied.
     name=name,
     version=VERSION,
-    author="Einar Birnir Olafsson",
-    author_email="olafsson@med.umich.com",
     description="Spatial phenotype analysis of crisp screens (SpaCr)",
     long_description=long_description,
-    long_description_content_type='text/x-rst', 
-    url=f"https://github.com/EinarOlafsson/{name}",
+    long_description_content_type='text/x-rst',
     packages=find_packages(exclude=["tests.*", "tests"]),
     include_package_data=True,
     package_data={'spacr': ['resources/data/*', 'resources/models/cp', 'resources/icons/*', 'resources/font/**/*', 'resources/images/*'],},
@@ -132,8 +157,18 @@ setup(
         ],
     },
     extras_require={
-        'dev': ['pytest>=8.0,<9', 'pytest-qt>=4.4,<5'],
-        'headless': ['opencv-python-headless'],
+        # `tomli` only on 3.10: tests/test_packaging_metadata.py parses
+        # pyproject.toml, and tomllib is stdlib from 3.11. The test degrades
+        # to a narrow regex without it, so this is about keeping the strong
+        # check on the oldest supported interpreter, not about being able to
+        # run the suite at all.
+        'dev': ['pytest>=8.0,<9', 'pytest-qt>=4.4,<5',
+                'tomli>=2.0; python_version < "3.11"'],
+        # Pinned identically to the core dependency. Unpinned, this extra
+        # silently widened the core `<5.0` cap to "any opencv", so
+        # `pip install spacr[headless]` could resolve a different opencv
+        # than `pip install spacr`.
+        'headless': ['opencv-python-headless>=4.9.0.80,<5.0'],
         # `pip install spacr[trackastra]` — transformer-based object tracking
         # (timelapse_mode='trackastra'). Optional because it pulls its own
         # pretrained weights on first use; trackpy/btrack/iou stay available
@@ -164,27 +199,59 @@ setup(
         # on the user's chat subscription — no Python API SDKs needed.
         # Users install whichever CLI(s) they want separately; see the
         # Providers… dialog in the AI Console for one-liners.
+
+        # ------------------------------------------------------------------
+        # File-format extras.
+        #
+        # These name the readers for the vendor microscope formats. They are
+        # declared now so `pip install spacr[czi]` is stable from today, but
+        # each package is *still* listed in `dependencies` above, because
+        # spacr/io.py imports pylibCZIrw, czifile and nd2reader at module
+        # scope and spacr/measure.py imports mahotas at module scope —
+        # removing them from the core install would turn `import spacr.io`
+        # into an ImportError on every platform, not just the thin ones. The
+        # core copies come out the moment those imports become lazy/guarded;
+        # the diffs live in files this change does not own.
+        #
+        # Which of these actually gate the platform matrix (verified against
+        # the PyPI JSON API on 2026-07-26, not assumed):
+        #   * mahotas 1.4.18 — the real blocker. cp310-cp312 only, and its
+        #     Linux wheels are manylinux x86_64 ONLY. No cp313 or cp314 has
+        #     ever been published, and the last aarch64 build was 1.4.13.
+        #     This one pin is what caps Python at 3.12 alongside numpy, and
+        #     what forces a C++ build on ARM Linux.
+        #   * pylibCZIrw — NOT a 3.13 blocker, contrary to earlier analysis.
+        #     5.1.1 (inside the `<6.0` cap already declared above) ships
+        #     cp39-cp313 including manylinux aarch64 and macosx arm64. It is
+        #     only a 3.14 blocker: no cp314 exists even in 6.1.0.
+        #   * czifile, readlif, nd2reader — all pure `py3-none-any`. They
+        #     constrain no platform and no Python version; these extras are
+        #     organisational, not load-bearing.
+        # ------------------------------------------------------------------
+        'czi': ['pylibCZIrw>=5.0.0,<6.0', 'czifile'],
+        'nd2': ['nd2reader>=3.3.0,<4.0'],
+        'lif': ['readlif'],
+        'zernike': ['mahotas>=1.4.13,<2.0'],
+
+        # `pip install spacr[all]` — every optional feature at once, minus
+        # `dev` (test tooling) and `full` (the GUI-capable opencv build,
+        # which would shadow the headless one already in the core deps).
+        # Spelled out as concrete requirements rather than a recursive
+        # `spacr[qt,tutorial,...]` self-reference so it resolves identically
+        # on old pip, under `pip download`, and in uv/conda resolvers.
+        # tests/test_packaging_metadata.py asserts this stays the exact union
+        # of the extras it claims to aggregate, so it cannot drift.
+        'all': [
+            'PySide6>=6.6,<7',
+            'qtawesome>=1.3,<2',
+            'piper-tts>=1.2,<2',
+            'trackastra>=0.5,<1.0',
+            'ultrack>=0.6,<1.0',
+            'pylibCZIrw>=5.0.0,<6.0',
+            'czifile',
+            'nd2reader>=3.3.0,<4.0',
+            'readlif',
+            'mahotas>=1.4.13,<2.0',
+        ],
     },
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-    ]
 )
-
-deps = ['pyqtgraph>=0.13.7,<0.14',
-        'pyqt6>=6.7.1,<6.8',
-        'pyqt6.sip',
-        'qtpy>=2.4.1,<2.5',
-        'superqt>=0.6.7,<0.7',
-        'pyqtgraph',
-        'pyqt6',
-        'pyqt6.sip',
-        'qtpy',
-        'superqt']
-
-for dep in deps:
-    try:
-        subprocess.run(['pip', 'install', dep], check=True)
-    except subprocess.CalledProcessError:
-        pass
