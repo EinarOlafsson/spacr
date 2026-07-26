@@ -2105,9 +2105,71 @@ def _save_figure(fig, src, text, dpi=300, i=1, all_folders=1):
     del fig
     gc.collect()
     
+class TimelapseKeyMismatch(ValueError):
+    """One side of the ``png_list`` join carries a timepoint and the other does not.
+
+    A timepoint column is written only by a timelapse run — by
+    :func:`spacr.utils.filepaths_to_database` onto ``png_list`` and by
+    :func:`spacr.utils._merge_and_save_to_database` onto every object table —
+    so a database where one of the two has it and the other does not was
+    written by two runs that disagreed about whether the experiment was a
+    timelapse. Joining them without the timepoint silently multiplies every
+    object by the number of frames, which is precisely the failure this
+    exception exists to stop.
+    """
+
+
+class JoinFanOut(ValueError):
+    """A left join returned more rows than the frame it started from.
+
+    The object tables carry one row per object per field per timepoint and
+    ``png_list`` carries one crop per the same key, so the join is many-to-one
+    and the row count cannot grow. If it did, the join key does not identify a
+    ``png_list`` row uniquely and every downstream measurement is duplicated.
+    """
+
+
+def _report_fan_out(left, merged, join_cols, left_name='cell',
+                    right_name='png_list'):
+    """Raise :class:`JoinFanOut` if ``merged`` grew, naming the offending keys.
+
+    The invariant checked is ``len(merged) == len(left)``, not
+    ``len(merged) <= len(png_list)``. For a LEFT join those are different
+    statements and only the first one is true of a healthy database: crops are
+    routinely a strict subset of the measured objects — ``save_png`` can be off
+    for some fields, a crop can fail to write, and ``png_list`` is appended per
+    field so an interrupted run leaves fewer crops than cells. In all of those
+    cases ``len(merged) == len(cell) > len(png_list)`` and nothing is wrong.
+    What cannot happen is the join *growing* the left frame, and that is the
+    exact signature of the timelapse bug (12 cell rows in, 36 out).
+    """
+    if len(merged) <= len(left):
+        return
+    raise JoinFanOut(
+        f"Joining {left_name} to {right_name} on {list(join_cols)} turned "
+        f"{len(left)} {left_name} rows into {len(merged)}: {right_name} holds "
+        f"more than one row per {list(join_cols)}, so every measurement in the "
+        f"result is duplicated. This usually means the crop step ran twice and "
+        f"appended a second set of rows to {right_name}; de-duplicate that "
+        f"table before reading."
+    )
+
+
 def _read_and_join_tables(db_path, table_names=None):
     """
     Reads and joins tables from a SQLite database.
+
+    ``png_list`` is joined to the object tables on plate / row / column / field
+    **and on the timepoint when both sides carry one**. Without the timepoint
+    the join is many-to-many on a timelapse database: every frame's crop
+    matches every frame's object row, so N objects x T frames came back as
+    N x T x T rows with the wrong PNG attached to most of them.
+
+    Either spelling of the timepoint is accepted on read (``timeID`` is
+    canonical, ``time_id`` is what ``png_list`` was written with before the two
+    were unified). :func:`spacr.utils.rename_columns_in_db` runs above and
+    repairs an old database in place, but a database opened read-only, or one
+    carrying both spellings, still reads correctly here.
 
     Args:
         db_path (str): The path to the SQLite database file.
@@ -2115,12 +2177,18 @@ def _read_and_join_tables(db_path, table_names=None):
 
     Returns:
         pandas.DataFrame: The joined DataFrame containing the data from the specified tables, or None if an error occurs.
+
+    Raises:
+        TimelapseKeyMismatch: when exactly one of ``png_list`` and ``cell``
+            carries a timepoint column.
+        JoinFanOut: when the join returns more rows than the object table had.
     """
     if table_names is None:
         table_names = ['cell', 'cytoplasm', 'nucleus', 'pathogen', 'png_list']
-    from .utils import rename_columns_in_db
+    from .utils import (TIME_COLUMN_ALIASES, rename_columns_in_db,
+                        _time_column)
     rename_columns_in_db(db_path)
-    
+
     conn = sqlite3.connect(db_path)
     dataframes = {}
     for table_name in table_names:
@@ -2131,12 +2199,37 @@ def _read_and_join_tables(db_path, table_names=None):
             print(e)
     conn.close()
     if 'png_list' in dataframes:
-        png_list_df = dataframes['png_list'][['cell_id', 'png_path', 'plateID', 'rowID', 'columnID', 'fieldID']].copy()
+        png_cols = ['cell_id', 'png_path', 'plateID', 'rowID', 'columnID', 'fieldID']
+        png_time = _time_column(dataframes['png_list'].columns)
+        if png_time is not None:
+            png_cols = png_cols + [png_time]
+        png_list_df = dataframes['png_list'][png_cols].copy()
         png_list_df['cell_id'] = png_list_df['cell_id'].str[1:].astype(int)
         png_list_df.rename(columns={'cell_id': 'object_label'}, inplace=True)
         if 'cell' in dataframes:
             join_cols = ['object_label', 'plateID', 'rowID', 'columnID','fieldID']
-            dataframes['cell'] = pd.merge(dataframes['cell'], png_list_df, on=join_cols, how='left')
+            cell_time = _time_column(dataframes['cell'].columns)
+            if png_time is not None and cell_time is not None:
+                if png_time != cell_time:
+                    # The two tables spell one concept two ways. Align the copy
+                    # of png_list, never the object table: the object table's
+                    # column survives into the result and renaming it there
+                    # would change the schema the caller gets back.
+                    png_list_df = png_list_df.rename(columns={png_time: cell_time})
+                join_cols = join_cols + [cell_time]
+            elif png_time is not None or cell_time is not None:
+                raise TimelapseKeyMismatch(
+                    f"png_list and cell disagree about the timepoint: png_list "
+                    f"has {png_time!r} and cell has {cell_time!r} (of "
+                    f"{list(TIME_COLUMN_ALIASES)}). One of the two was written "
+                    f"by a non-timelapse run, so there is no timepoint to join "
+                    f"on and joining without it would match every frame's crop "
+                    f"to every frame's object. Re-run the missing step with the "
+                    f"same 'timelapse' setting."
+                )
+            merged = pd.merge(dataframes['cell'], png_list_df, on=join_cols, how='left')
+            _report_fan_out(dataframes['cell'], merged, join_cols)
+            dataframes['cell'] = merged
         else:
             print("Cell table not found in database tables.")
             return png_list_df
