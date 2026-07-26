@@ -39,21 +39,38 @@ Fidelity
 step for step: same channel selection (``png_dims``), same region definition
 (object mask, optionally replaced by its padded bounding box, optionally
 dilated), same ``_crop_center`` centering/padding, same ``normalize_to_dtype``
-percentile normalisation, same dtype. See :func:`png_view` for the extra twist
-that the crop is written with ``cv2.imwrite`` (BGR) and read back with PIL.
+percentile normalisation, same dtype. :func:`png_view` turns that array into
+what a consumer sees after the PNG round trip, and :func:`read_crop_png` reads
+a crop PNG back into the same thing -- the two are the two halves of one
+contract, and ``tests/test_crops.py`` asserts they agree.
+
+Crop PNG format
+---------------
+This module is also the authority on **what a crop PNG on disk means** --
+see the "Crop PNG format" section below. In short: ``png_dims[0]`` is the
+file's red channel (format 2), crops written before that fix are the reverse
+(format 1, "legacy"), a folder says which it is via a
+``.spacr_crop_format.json`` sidecar, an unmarked folder is legacy, and
+:func:`read_crop_png` corrects legacy content on load so nothing downstream
+has to care.
 
 Dependencies
 ------------
-numpy, and the standard library (plus PIL only inside :class:`PngCropSource`,
-which has to decode a PNG). No torch, no cellpose, no scipy, no skimage --
-importing this module must stay cheap enough for a GUI thumbnail path.
+numpy, and the standard library (plus PIL only inside :func:`read_crop_png`
+and cv2 only inside :func:`migrate_crop_folder`, both imported lazily). No
+torch, no cellpose, no scipy, no skimage -- importing this module must stay
+cheap enough for a GUI thumbnail path, and ``spacr.measure`` imports it for
+the writer helpers, so it must not import ``spacr`` back.
 """
 
 from __future__ import annotations
 
 import ast
+import datetime
+import json
 import os
 import sqlite3
+import tempfile
 from dataclasses import dataclass, field as _dc_field, replace
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
 
@@ -81,6 +98,30 @@ __all__ = [
     "PngCropSource",
     "MergedCropSource",
     "resolve_crop_source",
+    # -- crop PNG format ---------------------------------------------------
+    "CROP_FORMAT_LEGACY_BGR",
+    "CROP_FORMAT_RGB",
+    "CROP_FORMAT_CURRENT",
+    "CROP_FORMAT_SIDECAR",
+    "CROP_FORMAT_DB_COLUMN",
+    "CropFormatConflict",
+    "narrow_to_uint8",
+    "to_cv2_bgr",
+    "legacy_png_view",
+    "read_crop_folder_marker",
+    "write_crop_folder_marker",
+    "stamp_crop_folder",
+    "crop_folder_format",
+    "crop_format_for_png",
+    "read_crop_png",
+    "read_db_crop_format",
+    "stamp_crop_format_in_db",
+    "clear_crop_format_cache",
+    "MigrationResult",
+    "migrate_crop_folder",
+    "migrate_crop_tree",
+    "find_crop_folders",
+    "legacy_channel_names",
 ]
 
 
@@ -740,10 +781,10 @@ def extract_crop(merged_path: str, object_type: str = "cell", label: int = 0,
     """Cut one object out of a merged array, reproducing the PNG path exactly.
 
     The returned array is the *pre-write* array: exactly what
-    ``_measure_crop_core`` hands to ``cv2.imwrite``. Its dtype is the merged
+    ``_measure_crop_core`` hands to the writer. Its dtype is the merged
     array's (``uint16`` for a normal spaCR run) and its channel order is
-    ``spec.channels``. Use :func:`png_view` to get what a consumer that opens
-    the written PNG with PIL would see.
+    ``spec.channels``. Use :func:`png_view` to get what a consumer reading the
+    written PNG (via :func:`read_crop_png`) would see.
 
     :param merged_path: the ``merged/<fov>.npy``.
     :param object_type: which mask plane to crop by.
@@ -818,15 +859,55 @@ def extract_crops(merged_path: str, specs: Iterable[CropSpec],
 def png_view(crop: np.ndarray) -> np.ndarray:
     """Return what a consumer sees after the crop has made the PNG round trip.
 
-    The PNG path writes crops with ``cv2.imwrite``, which interprets a
-    three-channel array as **BGR**, and every consumer reads them back with
-    ``PIL.Image.open(...).convert('RGB')``. Two consequences that this function
-    reproduces, and that callers of :func:`extract_crop` must not forget:
+    This is the corrected contract, and it is deliberately boring: **channel
+    ``i`` of the crop is channel ``i`` of the result**, narrowed to 8 bit by
+    :func:`narrow_to_uint8`. ``png_dims[0]`` is red, ``[1]`` green, ``[2]``
+    blue -- in the array, in the file, and here.
 
-    * the channel order is reversed relative to ``png_dims``;
-    * a ``uint16`` crop is written as a 16-bit PNG, and PIL narrows it to 8 bit
-      by taking the high byte (``// 256``) for RGB images, or by *clipping* to
-      255 for single-channel ones.
+    :func:`read_crop_png` returns exactly this for the same object, for a crop
+    written in either format, which is what makes the on-demand source and the
+    PNG folder interchangeable.
+
+    Before spaCR grew a crop-format marker the answer was the *reverse* of this
+    (see :func:`legacy_png_view`); that was a bug, not a convention.
+
+    :param crop: the array returned by :func:`extract_crop`.
+    :returns: ``(H, W, 3)`` uint8 RGB array.
+    """
+    arr = np.asarray(crop)
+    if arr.ndim == 2:
+        arr = arr[:, :, None]
+    eight = narrow_to_uint8(arr)
+    n = eight.shape[2]
+    if n == 1:
+        return np.repeat(eight, 3, axis=2)
+    if n == 2:
+        # The PNG path pads a two-channel crop with a zero third plane, so the
+        # blue channel is empty -- not the red one, as it was under the bug.
+        rgb = np.zeros((eight.shape[0], eight.shape[1], 3), dtype=np.uint8)
+        rgb[:, :, :2] = eight
+        return rgb
+    return np.ascontiguousarray(eight[:, :, :3])
+
+
+def legacy_png_view(crop: np.ndarray) -> np.ndarray:
+    """Return what a *naive* PIL read of a **legacy** crop PNG gives back.
+
+    Kept, and named for what it is, because it is the inverse of the format-1
+    write and therefore the thing :func:`read_crop_png` has to undo. Two
+    behaviours, both of them the bug:
+
+    * the channel order is reversed relative to ``png_dims`` -- ``cv2.imwrite``
+      read the array as BGR;
+    * a ``uint16`` crop is a 16-bit PNG and PIL narrows it two different ways:
+      the high byte (``// 256``) for an RGB image, but a *clip* at 255 for a
+      single-channel one, which flattens any crop brighter than 255/65535 to
+      solid white.
+
+    Nothing in spaCR calls this on the live path any more. It exists so tests
+    can prove the legacy reader inverts the legacy writer exactly, and so code
+    that genuinely needs bug-compatible pixels (a classifier trained on legacy
+    crops, say) can ask for them by name instead of by accident.
 
     :param crop: the array returned by :func:`extract_crop`.
     :returns: ``(H, W, 3)`` uint8 RGB array.
@@ -851,6 +932,1030 @@ def png_view(crop: np.ndarray) -> np.ndarray:
         rgb[:, :, :2] = eight
         return rgb[:, :, ::-1].copy()
     return eight[:, :, :3][:, :, ::-1].copy()
+
+
+# ===========================================================================
+# Crop PNG format
+#
+# A PNG on disk carries no field saying which channel order it was written
+# in, so the format has to be *versioned* or every reader is guessing.
+#
+#   format 1 ("legacy", BGR)
+#       ``cv2.imwrite(path, png_channels)``. cv2 reads a 3-channel array as
+#       BGR, so ``png_dims[0]`` landed in the file's BLUE slot and
+#       ``png_dims[2]`` in its RED one -- the reverse of what the user asked
+#       for, and the reverse of what every consumer (all of which open the
+#       file with PIL) assumes. Every crop written by spaCR before this
+#       change is format 1, and every one of them is unmarked.
+#
+#   format 2 ("rgb", current)
+#       ``cv2.imwrite(path, png_channels[..., ::-1])``. The reversal is done
+#       once, in the writer, so cv2's BGR interpretation puts the user's
+#       ``png_dims[0]`` in the file's red slot. ``png_dims`` keeps its plain
+#       reading -- [0] is red, [1] green, [2] blue -- in the settings, in the
+#       array and in the file.
+#
+# The marker, in precedence order:
+#
+#   1. the folder sidecar ``.spacr_crop_format.json``, written into the crop
+#      folder itself. It is the authority, because it travels with the bytes
+#      it describes: copy, move, rsync or zip the folder and the marker goes
+#      with it. A database row does not -- crop folders routinely outlive,
+#      and get copied away from, the ``measurements.db`` that indexed them.
+#   2. the ``crop_format`` column on ``png_list``, when a database is on hand.
+#      Advisory: it makes the format queryable and survives a folder being
+#      re-pointed, but it loses to the sidecar when the two disagree, and
+#      the disagreement is reported rather than silently resolved.
+#   3. nothing at all -> format 1. Unmarked means legacy, because every crop
+#      that exists today is unmarked and every one of them is legacy. This is
+#      the only default that cannot corrupt existing data.
+#
+# 16-bit narrowing: crops are ``uint16`` and the files are 16-bit PNGs, but
+# every consumer wants 8-bit RGB. PIL narrows those two different ways -- the
+# high byte for an RGB image, a *clip* at 255 for a single-channel one, which
+# turns any single-channel crop into solid white. spaCR does the narrowing
+# itself now, in exactly one place (:func:`narrow_to_uint8`), with exactly one
+# rule: **take the high byte** (``// 256``). It applies to every channel
+# count and to both formats. The file keeps its full 16 bits; only the view
+# is narrowed, and it is narrowed the same way every time.
+# ===========================================================================
+
+#: Format 1: what ``cv2.imwrite(png_channels)`` wrote -- ``png_dims`` reversed.
+CROP_FORMAT_LEGACY_BGR = 1
+
+#: Format 2: ``png_dims[0]`` is the file's red channel.
+CROP_FORMAT_RGB = 2
+
+#: The format new crops are written in.
+CROP_FORMAT_CURRENT = CROP_FORMAT_RGB
+
+#: Sidecar file name, written into each crop folder.
+CROP_FORMAT_SIDECAR = ".spacr_crop_format.json"
+
+#: Column :func:`stamp_crop_format_in_db` adds to ``png_list``.
+CROP_FORMAT_DB_COLUMN = "crop_format"
+
+#: Suffix of the staging file :func:`migrate_crop_folder` converts through.
+#: Its presence means "the file next to me has NOT been converted yet".
+CROP_MIGRATION_SUFFIX = ".spacr_v2"
+
+#: Prefix of the temporary files both the marker and the migrator write.
+_TMP_PREFIX = ".spacr_tmp_"
+
+_CHANNEL_ORDER_NAME = {CROP_FORMAT_LEGACY_BGR: "bgr", CROP_FORMAT_RGB: "rgb"}
+
+
+class CropFormatConflict(CropError):
+    """The sidecar and the database disagree about a folder's crop format."""
+
+
+def _utc_now() -> str:
+    """Return an ISO-8601 UTC timestamp for the sidecar."""
+    return datetime.datetime.now(datetime.timezone.utc).strftime(
+        "%Y-%m-%dT%H:%M:%SZ")
+
+
+def _coerce_format(value: Any) -> Optional[int]:
+    """Return ``value`` as a known crop-format integer, or ``None``."""
+    if value is None:
+        return None
+    try:
+        fmt = int(value)
+    except (TypeError, ValueError):
+        return None
+    return fmt if fmt in _CHANNEL_ORDER_NAME else None
+
+
+# ---------------------------------------------------------------------------
+# Narrowing and the writer's channel order
+# ---------------------------------------------------------------------------
+
+def narrow_to_uint8(arr: np.ndarray) -> np.ndarray:
+    """Narrow ``arr`` to ``uint8`` -- the one and only narrowing rule.
+
+    ``uint16`` (and anything wider) is narrowed by **taking the high byte**,
+    which is a plain linear rescale of a crop that ``normalize_to_dtype``
+    already stretched across the full dtype range. Floats, which only appear
+    when a caller hands in something the crop path never produces, are clipped
+    -- there is no dtype range to rescale from.
+
+    Deliberately *not* PIL's behaviour: PIL takes the high byte of a 16-bit
+    RGB PNG but clips a 16-bit single-channel one at 255, so the same pixel
+    value survives or saturates depending on how many channels its neighbours
+    have. One behaviour, applied here, replaces both.
+
+    :param arr: any numeric array.
+    :returns: ``uint8`` array of the same shape.
+    """
+    a = np.asarray(arr)
+    if a.dtype == np.dtype(np.uint8):
+        return a
+    if np.issubdtype(a.dtype, np.integer):
+        info = np.iinfo(a.dtype)
+        if info.max <= 255:
+            return np.clip(a, 0, 255).astype(np.uint8)
+        # Anything wider than 8 bit is high-byte narrowed off the 16-bit
+        # range: that is what a 16-bit PNG holds, whatever container PIL
+        # chose to hand it back in (uint16 for I;16, int32 for I).
+        return (np.clip(a, 0, 65535) // 256).astype(np.uint8)
+    return np.clip(a, 0, 255).astype(np.uint8)
+
+
+def to_cv2_bgr(png_channels: np.ndarray) -> np.ndarray:
+    """Return ``png_channels`` in the order ``cv2.imwrite`` has to be handed it.
+
+    ``cv2.imwrite`` interprets a 3-channel array as BGR, so writing the crop
+    unchanged put ``png_dims[0]`` in the file's blue slot. Reversing the
+    channel axis here -- once, in the writer -- makes cv2's interpretation land
+    ``png_dims[0]`` in red, which is what the setting says and what every
+    reader assumes. This is the whole of the format-2 fix.
+
+    * 2-D or single-channel: returned unchanged. cv2 writes a grayscale PNG
+      and does no colour interpretation, so there is nothing to reverse.
+    * 2 channels: padded with a zero plane to RGB first, exactly as
+      ``_measure_crop_core`` does, then reversed.
+    * 3 channels: reversed.
+    * 4 or more: **refused**. cv2 would write BGRA, and PIL then reads the
+      fourth intensity plane as an alpha channel and drops it on
+      ``convert('RGB')`` -- a whole stain silently deleted from every crop.
+      ``settings['png_dims']`` documents a maximum of three entries; this is
+      where a fourth stops being ignored and starts being an error.
+
+    :param png_channels: the crop as ``_measure_crop_core`` built it.
+    :returns: the array to hand to ``cv2.imwrite``.
+    :raises CropError: more than three channels.
+    """
+    arr = np.asarray(png_channels)
+    if arr.ndim == 2:
+        return arr
+    if arr.ndim != 3:
+        raise CropError(
+            f"a crop must be 2-D or (H, W, C); got shape {arr.shape!r}")
+    n = arr.shape[2]
+    if n == 1:
+        return arr
+    if n == 2:
+        arr = np.dstack((arr, np.zeros_like(arr[:, :, 0])))
+    elif n > 3:
+        raise CropError(
+            f"png_dims selected {n} channels, but a crop PNG holds at most 3: "
+            f"cv2 would write channel 4 as an alpha plane and every reader "
+            f"would silently drop it. Use at most three entries in png_dims.")
+    return arr[:, :, ::-1]
+
+
+# ---------------------------------------------------------------------------
+# The folder sidecar
+# ---------------------------------------------------------------------------
+
+# (folder -> (cache key, marker or None)). Cleared by clear_crop_format_cache.
+_FORMAT_CACHE: Dict[str, Tuple[Any, Optional[Dict[str, Any]]]] = {}
+# Folders this process has already stamped, so the writer pays one stat per
+# folder rather than one per crop.
+_STAMPED_FOLDERS: set = set()
+# db path -> table-wide crop_format. Held for the life of the process, not
+# keyed on mtime: the annotate GUI writes labels into png_list constantly, and
+# an mtime key would re-run a full-table SELECT DISTINCT for every thumbnail.
+# A dataset's crop format does not change under a running session -- and when
+# spaCR itself changes it, stamp_crop_format_in_db drops the entry.
+_DB_FORMAT_CACHE: Dict[str, Optional[int]] = {}
+
+
+def clear_crop_format_cache() -> None:
+    """Forget every cached folder marker (and every "already stamped" folder)."""
+    _FORMAT_CACHE.clear()
+    _STAMPED_FOLDERS.clear()
+    _DB_FORMAT_CACHE.clear()
+
+
+def _sidecar_path(folder: str) -> str:
+    return os.path.join(os.fspath(folder), CROP_FORMAT_SIDECAR)
+
+
+def _cache_stamp(folder: str) -> Any:
+    """Return a value that changes whenever the folder's sidecar could have."""
+    side = _sidecar_path(folder)
+    try:
+        st = os.stat(side)
+        return ("file", st.st_mtime_ns, st.st_size)
+    except OSError:
+        pass
+    try:
+        return ("none", os.stat(folder).st_mtime_ns)
+    except OSError:
+        return ("gone",)
+
+
+def read_crop_folder_marker(folder: str, use_cache: bool = True) -> Optional[Dict[str, Any]]:
+    """Return the parsed ``.spacr_crop_format.json`` of ``folder``, or ``None``.
+
+    A sidecar that cannot be parsed is treated as absent -- a corrupt marker
+    must not be *more* trusted than no marker, and no marker means legacy,
+    which is the safe answer.
+
+    :param folder: the crop folder (the one holding the PNGs).
+    :param use_cache: reuse a cached read while the sidecar is unchanged.
+    :returns: the marker dict, or ``None`` when there is no usable one.
+    """
+    key = os.path.abspath(os.fspath(folder))
+    stamp = _cache_stamp(key)
+    if use_cache:
+        cached = _FORMAT_CACHE.get(key)
+        if cached is not None and cached[0] == stamp:
+            return cached[1]
+    marker: Optional[Dict[str, Any]] = None
+    try:
+        with open(_sidecar_path(key), "r", encoding="utf-8") as handle:
+            loaded = json.load(handle)
+        if isinstance(loaded, dict) and _coerce_format(
+                loaded.get("spacr_crop_format")) is not None:
+            marker = loaded
+    except (OSError, ValueError):
+        marker = None
+    # A folder mid-migration changes on every file, so caching it would serve
+    # a stale watermark and mis-read the files either side of it.
+    if marker is None or "migration" not in marker:
+        _FORMAT_CACHE[key] = (stamp, marker)
+    return marker
+
+
+def write_crop_folder_marker(folder: str, fmt: int = CROP_FORMAT_CURRENT,
+                             **extra: Any) -> str:
+    """Write ``folder``'s crop-format sidecar atomically.
+
+    Temp file plus :func:`os.replace`, like ``spacr.io._save_array_atomic``:
+    a marker is either the previous one or the complete new one, never a
+    half-written JSON document that :func:`read_crop_folder_marker` would
+    then read as "no marker" -- i.e. as legacy -- over a folder of corrected
+    crops.
+
+    :param folder: the crop folder.
+    :param fmt: :data:`CROP_FORMAT_RGB` or :data:`CROP_FORMAT_LEGACY_BGR`.
+    :param extra: extra keys to record (``migration``, ``png_dims``, ...).
+        A key whose value is ``None`` is dropped.
+    :returns: the sidecar path.
+    :raises CropError: ``fmt`` is not a known format.
+    """
+    if _coerce_format(fmt) is None:
+        raise CropError(f"unknown crop format {fmt!r}")
+    fmt = int(fmt)
+    folder = os.path.abspath(os.fspath(folder))
+    os.makedirs(folder, exist_ok=True)
+    payload: Dict[str, Any] = {
+        "spacr_crop_format": fmt,
+        "channel_order": _CHANNEL_ORDER_NAME[fmt],
+        "narrowing": "high-byte",
+        "updated_utc": _utc_now(),
+        "note": ("png_dims[0] is this file's red channel."
+                 if fmt == CROP_FORMAT_RGB else
+                 "Written before the BGR fix: the file's red channel is "
+                 "png_dims[-1]. spacr.crops.read_crop_png corrects it on load."),
+    }
+    payload.update({k: v for k, v in extra.items() if v is not None})
+    fd, tmp = tempfile.mkstemp(prefix=_TMP_PREFIX, suffix=".json", dir=folder)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            json.dump(payload, handle, indent=2, sort_keys=True)
+            handle.write("\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(tmp, _sidecar_path(folder))
+    except BaseException:
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
+        raise
+    _FORMAT_CACHE.pop(folder, None)
+    return _sidecar_path(folder)
+
+
+def stamp_crop_folder(folder: str, fmt: int = CROP_FORMAT_CURRENT) -> Optional[str]:
+    """Make sure ``folder`` carries the format marker. Cheap enough to call per crop.
+
+    Called by the crop writer immediately *before* the first PNG lands, so a
+    run killed part-way through leaves a marked folder holding fewer crops --
+    never an unmarked folder of format-2 crops, which is the one state that
+    would be silently misread as legacy.
+
+    One listing per folder per process: after that the folder is remembered.
+    A marker that cannot be written is a loud warning rather than an
+    exception, because failing the whole measure run over a 300-byte sidecar
+    helps nobody -- but it is never silent, because the consequence is that
+    the crops read back reversed.
+
+    Writing new crops into a folder that already holds *old* ones is the one
+    case a single folder-level marker cannot describe, so it is called out
+    rather than papered over: the run's own crops are marked, and the message
+    says which files were there first and what to do about them. (Migrating
+    them here instead would mean several measure workers converting the same
+    folder at once, which is exactly the race
+    :func:`migrate_crop_folder`'s single-process design rules out.)
+
+    :param folder: the crop folder.
+    :param fmt: format to record; defaults to :data:`CROP_FORMAT_CURRENT`.
+    :returns: the sidecar path, or ``None`` if it could not be written.
+    """
+    key = os.path.abspath(os.fspath(folder))
+    if key in _STAMPED_FOLDERS:
+        return _sidecar_path(key)
+    fmt = int(fmt)
+    try:
+        existing = read_crop_folder_marker(key)
+        found = _coerce_format(existing.get("spacr_crop_format")) if existing else None
+        if found != fmt:
+            if existing is None and fmt == CROP_FORMAT_RGB:
+                stale = _crop_pngs_in(key)
+                # Re-read the marker before complaining. The writer stamps
+                # before its first PNG, so if a sibling measure worker got
+                # here first its marker is already on disk and the PNGs we
+                # just listed are this run's, not an old dataset's.
+                if stale and read_crop_folder_marker(key, use_cache=False) is None:
+                    print(
+                        f"spacr: {key} already holds {len(stale)} unmarked "
+                        f"crop PNG(s), which are in the old reversed channel "
+                        f"order, and this run is about to add corrected ones. "
+                        f"Crops this run overwrites are fine; any it does not "
+                        f"will be read as if they were corrected. Delete the "
+                        f"folder before re-measuring, or convert it first "
+                        f"with: python -m spacr.crops {os.path.dirname(key)}")
+            elif found is not None:
+                print(
+                    f"spacr: {key} is marked crop format {found} "
+                    f"({_CHANNEL_ORDER_NAME[found]}) and this run writes "
+                    f"format {fmt} ({_CHANNEL_ORDER_NAME[fmt]}). Re-marking "
+                    f"it; any crop in here the run does not overwrite will be "
+                    f"read in the wrong order.")
+            write_crop_folder_marker(key, fmt)
+    except Exception as exc:
+        print(f"spacr: could not write the crop-format marker in {key}: "
+              f"{exc}. Crops written here will be read back with their "
+              f"channels reversed until "
+              f"spacr.crops.write_crop_folder_marker() is run on it.")
+        return None
+    _STAMPED_FOLDERS.add(key)
+    return _sidecar_path(key)
+
+
+# ---------------------------------------------------------------------------
+# Resolving the format of a folder / of one file
+# ---------------------------------------------------------------------------
+
+def read_db_crop_format(db_path: str, png_path: Optional[str] = None,
+                        table: str = "png_list") -> Optional[int]:
+    """Return the crop format recorded in the database, or ``None``.
+
+    Reads the ``crop_format`` column of ``png_list``: for one ``png_path`` if
+    given, otherwise the single distinct value covering the whole table (a
+    table holding both formats returns ``None`` -- ambiguous is not an answer).
+
+    :param db_path: path to ``measurements.db``.
+    :param png_path: restrict to one crop's row.
+    :param table: table holding the crops.
+    :returns: the format integer, or ``None`` when the column, the table or
+        the database is absent, or the answer is ambiguous.
+    """
+    if not db_path or not os.path.isfile(db_path):
+        return None
+    try:
+        conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=5)
+    except sqlite3.Error:
+        return None
+    try:
+        cols = {row[1] for row in conn.execute(
+            f'PRAGMA table_info("{table}")').fetchall()}
+        if CROP_FORMAT_DB_COLUMN not in cols:
+            return None
+        if png_path:
+            rows = conn.execute(
+                f'SELECT DISTINCT "{CROP_FORMAT_DB_COLUMN}" FROM "{table}" '
+                f'WHERE png_path = ?', (str(png_path),)).fetchall()
+            if not rows:
+                # The exact path is not in this database (a folder copied
+                # somewhere else, say). Fall back to the table-wide answer.
+                rows = conn.execute(
+                    f'SELECT DISTINCT "{CROP_FORMAT_DB_COLUMN}" FROM "{table}"'
+                ).fetchall()
+        else:
+            rows = conn.execute(
+                f'SELECT DISTINCT "{CROP_FORMAT_DB_COLUMN}" FROM "{table}"'
+            ).fetchall()
+    except sqlite3.Error:
+        return None
+    finally:
+        conn.close()
+    values = {_coerce_format(r[0]) for r in rows}
+    values.discard(None)
+    if len(values) != 1:
+        return None
+    return values.pop()
+
+
+def _db_crop_format_cached(db_path: str) -> Optional[int]:
+    """:func:`read_db_crop_format` for a whole table, memoised per process.
+
+    The table-wide query is a ``SELECT DISTINCT`` over every crop row; running
+    it once per thumbnail would make the annotate grid quadratic in the size
+    of ``png_list``.
+    """
+    key = os.path.abspath(os.fspath(db_path))
+    if key not in _DB_FORMAT_CACHE:
+        _DB_FORMAT_CACHE[key] = read_db_crop_format(db_path)
+    return _DB_FORMAT_CACHE[key]
+
+
+def stamp_crop_format_in_db(db_path: str, png_paths: Optional[Iterable[str]] = None,
+                            fmt: int = CROP_FORMAT_CURRENT,
+                            table: str = "png_list") -> int:
+    """Record the crop format on ``png_list``, adding the column if needed.
+
+    The database copy is advisory -- :func:`crop_format_for_png` prefers the
+    sidecar -- but it makes "which of my plates are still legacy?" a query
+    rather than a filesystem walk.
+
+    :param db_path: path to ``measurements.db``.
+    :param png_paths: rows to stamp; ``None`` stamps every row.
+    :param fmt: the format to record.
+    :param table: table holding the crops.
+    :returns: number of rows updated.
+    :raises CropError: unknown ``fmt``.
+    """
+    if _coerce_format(fmt) is None:
+        raise CropError(f"unknown crop format {fmt!r}")
+    if not db_path or not os.path.isfile(db_path):
+        return 0
+    conn = sqlite3.connect(db_path, timeout=30)
+    try:
+        cols = {row[1] for row in conn.execute(
+            f'PRAGMA table_info("{table}")').fetchall()}
+        if not cols:
+            return 0
+        if CROP_FORMAT_DB_COLUMN not in cols:
+            conn.execute(
+                f'ALTER TABLE "{table}" ADD COLUMN "{CROP_FORMAT_DB_COLUMN}" INTEGER')
+        if png_paths is None:
+            cur = conn.execute(
+                f'UPDATE "{table}" SET "{CROP_FORMAT_DB_COLUMN}" = ?', (int(fmt),))
+            n = cur.rowcount
+        else:
+            paths = [(int(fmt), str(p)) for p in png_paths]
+            cur = conn.executemany(
+                f'UPDATE "{table}" SET "{CROP_FORMAT_DB_COLUMN}" = ? '
+                f'WHERE png_path = ?', paths)
+            n = cur.rowcount
+        conn.commit()
+    finally:
+        conn.close()
+    # The memoised table-wide answer is now stale.
+    _DB_FORMAT_CACHE.pop(os.path.abspath(db_path), None)
+    return int(n or 0)
+
+
+def crop_folder_format(folder: str, db_path: Optional[str] = None,
+                       *, strict: bool = False) -> int:
+    """Return the crop format that applies to ``folder`` as a whole.
+
+    Precedence: sidecar, then the database column, then
+    :data:`CROP_FORMAT_LEGACY_BGR`. When both are present and they disagree,
+    **the sidecar wins** -- it is the marker that travels with the folder --
+    and the disagreement is reported: printed by default, raised when
+    ``strict``.
+
+    A folder in the middle of a migration reports ``CROP_FORMAT_LEGACY_BGR``,
+    because the files that have not been converted yet still are; use
+    :func:`crop_format_for_png` to resolve one file inside such a folder.
+
+    :param folder: the crop folder.
+    :param db_path: optional ``measurements.db`` to consult.
+    :param strict: raise :class:`CropFormatConflict` instead of printing.
+    :returns: the format integer.
+    """
+    marker = read_crop_folder_marker(folder)
+    from_db = _db_crop_format_cached(db_path) if db_path else None
+    if marker is not None:
+        fmt = _coerce_format(marker.get("spacr_crop_format"))
+        if from_db is not None and from_db != fmt:
+            msg = (f"crop format conflict for {folder}: the sidecar "
+                   f"{CROP_FORMAT_SIDECAR} says {fmt} "
+                   f"({_CHANNEL_ORDER_NAME[fmt]}) and {db_path} says "
+                   f"{from_db} ({_CHANNEL_ORDER_NAME[from_db]}). Using the "
+                   f"sidecar: it travels with the crops, the database row "
+                   f"does not.")
+            if strict:
+                raise CropFormatConflict(msg)
+            print(f"spacr: {msg}")
+        if "migration" in marker:
+            return CROP_FORMAT_LEGACY_BGR
+        return fmt
+    if from_db is not None:
+        return from_db
+    return CROP_FORMAT_LEGACY_BGR
+
+
+def crop_format_for_png(png_path: str, db_path: Optional[str] = None,
+                        *, strict: bool = False) -> int:
+    """Return the crop format of one crop PNG.
+
+    Same precedence as :func:`crop_folder_format`, plus the two per-file
+    overrides an interrupted :func:`migrate_crop_folder` leaves behind:
+
+    * a leftover ``<name>.spacr_v2`` staging file means the file next to it
+      has **not** been converted yet -- it is still legacy;
+    * a name in the marker's ``unconverted`` list is a file the migration
+      could not rewrite. It stays legacy for good, in a folder that is
+      otherwise format 2, so it still has to be read correctly;
+    * otherwise, inside a folder whose marker carries a ``migration`` block,
+      a file at or before the recorded watermark is converted and one after
+      it is not.
+
+    :param png_path: the crop PNG.
+    :param db_path: optional ``measurements.db`` to consult.
+    :param strict: raise on a sidecar/database conflict.
+    :returns: the format integer.
+    """
+    png_path = os.fspath(png_path)
+    folder = os.path.dirname(os.path.abspath(png_path)) or "."
+    marker = read_crop_folder_marker(folder)
+    if isinstance(marker, dict):
+        name = os.path.basename(png_path)
+        migration = marker.get("migration")
+        source = _coerce_format(
+            (migration or marker).get("from")
+            or marker.get("migrated_from")) or CROP_FORMAT_LEGACY_BGR
+        if os.path.exists(png_path + CROP_MIGRATION_SUFFIX):
+            return source
+        if name in set((migration or marker).get("unconverted") or ()):
+            return source
+        if migration:
+            done_through = migration.get("done_through")
+            target = (_coerce_format(marker.get("spacr_crop_format"))
+                      or CROP_FORMAT_CURRENT)
+            if done_through is not None and name <= str(done_through):
+                return target
+            return source
+    return crop_folder_format(folder, db_path, strict=strict)
+
+
+# ---------------------------------------------------------------------------
+# Reading a crop PNG
+# ---------------------------------------------------------------------------
+
+def read_crop_png(path: str, fmt: Optional[int] = None,
+                  db_path: Optional[str] = None,
+                  as_format: int = CROP_FORMAT_CURRENT) -> np.ndarray:
+    """Read a crop PNG and return it in the corrected order, as 8-bit RGB.
+
+    The one function every consumer of a crop folder should go through. It
+    resolves the file's format (see :func:`crop_format_for_png`), undoes the
+    legacy channel reversal when there is one, and narrows to 8 bit with
+    :func:`narrow_to_uint8` -- so a legacy dataset and a new one come back
+    identical, and the caller never has to know which it opened.
+
+    The result equals ``png_view(extract_crop(...))`` for the same object,
+    under either format. That equality is the contract, and
+    ``tests/test_crops.py`` asserts it.
+
+    :param path: the crop PNG.
+    :param fmt: what the file on disk is, when you know better than the
+        marker does. ``None`` resolves it.
+    :param as_format: what ordering you want *back*. The default is the
+        corrected one. Pass :data:`CROP_FORMAT_LEGACY_BGR` to get what a
+        classifier trained on legacy crops expects, out of a folder in either
+        format -- explicitly, by name, rather than by accident.
+    :param db_path: optional ``measurements.db`` consulted when the folder has
+        no sidecar.
+    :returns: ``(H, W, 3)`` uint8 RGB array.
+    :raises MergedFileMissing: the file does not exist.
+    :raises CropError: ``as_format`` is not a known format.
+    """
+    from PIL import Image
+
+    path = os.fspath(path)
+    if not os.path.isfile(path):
+        raise MergedFileMissing(f"crop PNG not found: {path}")
+    if _coerce_format(as_format) is None:
+        raise CropError(f"unknown crop format {as_format!r}")
+    if fmt is None:
+        fmt = crop_format_for_png(path, db_path)
+    with Image.open(path) as img:
+        mode = img.mode
+        if mode in ("RGB", "L") or mode.startswith("I") or mode == "F":
+            # I;16 (a 16-bit single-channel PNG) must NOT go through
+            # convert('L'): PIL clips it at 255 and every crop brighter than
+            # that comes back solid white. Take the raw samples and narrow
+            # them ourselves.
+            arr = np.array(img)
+        else:
+            arr = np.array(img.convert("RGB"))
+    # Every branch above yields either a 2-D plane (L / I;16 / F) or three
+    # channels (RGB, or anything else converted to it), so there is no other
+    # shape to handle here.
+    arr = narrow_to_uint8(arr)
+    if arr.ndim == 2:
+        arr = np.repeat(arr[:, :, None], 3, axis=2)
+    # There are exactly two orderings, so "the file is not in the ordering the
+    # caller asked for" means one reversal, whichever way round it is.
+    if int(fmt) != int(as_format):
+        arr = arr[:, :, ::-1]
+    return np.ascontiguousarray(arr)
+
+
+# ---------------------------------------------------------------------------
+# Migration
+# ---------------------------------------------------------------------------
+
+@dataclass
+class MigrationResult:
+    """What :func:`migrate_crop_folder` did to one folder.
+
+    :ivar folder: the folder.
+    :ivar converted: files whose channel order was rewritten.
+    :ivar skipped: files that needed no rewrite (already converted, or
+        single-channel, where there is no order to fix).
+    :ivar failed: ``(name, reason)`` for files that could not be converted.
+    :ivar already: the folder was already at the target format; nothing done.
+    :ivar dry_run: nothing was written.
+    :ivar mode: ``'rewrite'`` or ``'mark'``.
+    """
+
+    folder: str
+    converted: List[str] = _dc_field(default_factory=list)
+    skipped: List[str] = _dc_field(default_factory=list)
+    failed: List[Tuple[str, str]] = _dc_field(default_factory=list)
+    already: bool = False
+    dry_run: bool = False
+    mode: str = "rewrite"
+
+    def describe(self) -> str:
+        """Return a one-line summary for a log."""
+        if self.already:
+            return f"{self.folder}: already format {CROP_FORMAT_CURRENT}, nothing to do"
+        if self.mode == "mark":
+            return f"{self.folder}: marked as legacy (format {CROP_FORMAT_LEGACY_BGR}), pixels untouched"
+        what = "would convert" if self.dry_run else "converted"
+        text = (f"{self.folder}: {what} {len(self.converted)} crop(s), "
+                f"skipped {len(self.skipped)}")
+        if self.failed:
+            text += f", FAILED {len(self.failed)}"
+        return text
+
+
+def _crop_pngs_in(folder: str) -> List[str]:
+    """Return the crop PNG names in ``folder``, sorted, staging files excluded."""
+    try:
+        names = os.listdir(folder)
+    except OSError as exc:
+        raise CropError(f"cannot list crop folder {folder}: {exc}") from exc
+    return sorted(
+        n for n in names
+        if n.lower().endswith(".png") and not n.startswith(".")
+        and os.path.isfile(os.path.join(folder, n)))
+
+
+def _convert_one(src: str, dst: str) -> bool:
+    """Write the format-2 version of the legacy crop ``src`` to ``dst``.
+
+    ``cv2.imread(..., IMREAD_UNCHANGED)`` hands back the file's samples in
+    BGR order, which for a legacy file is exactly the ``png_channels`` array
+    that was passed to ``cv2.imwrite`` -- so re-writing it through
+    :func:`to_cv2_bgr` is literally the new writer, bit depth and all. No
+    narrowing happens here: the file keeps its 16 bits.
+
+    :returns: True if a file was written, False if the crop needs no rewrite.
+    :raises CropError: the PNG cannot be decoded, or has too many channels.
+    """
+    import cv2
+
+    arr = cv2.imread(src, cv2.IMREAD_UNCHANGED)
+    if arr is None:
+        raise CropError(f"cv2 could not decode {src}")
+    if arr.ndim == 2 or arr.shape[2] == 1:
+        # Single-channel: cv2 did no colour interpretation on the way in, so
+        # there is no reversal to undo. Only the marker changes.
+        return False
+    out = to_cv2_bgr(arr)
+    if not cv2.imwrite(dst, out):
+        raise CropError(f"cv2 could not write {dst}")
+    return True
+
+
+def _atomic_convert(src: str, staged: str) -> bool:
+    """Convert ``src`` into ``staged`` via a temp file plus :func:`os.replace`."""
+    folder = os.path.dirname(staged) or "."
+    fd, tmp = tempfile.mkstemp(prefix=_TMP_PREFIX, suffix=".png", dir=folder)
+    os.close(fd)
+    try:
+        wrote = _convert_one(src, tmp)
+        if not wrote:
+            os.remove(tmp)
+            return False
+        os.replace(tmp, staged)
+    except BaseException:
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
+        raise
+    return True
+
+
+def migrate_crop_folder(folder: str, *, mode: str = "rewrite",
+                        dry_run: bool = False, on_error: str = "raise",
+                        db_path: Optional[str] = None,
+                        progress: Optional[Any] = None) -> MigrationResult:
+    """Convert one folder of legacy crops to format 2 and stamp it. Idempotent.
+
+    ``mode='rewrite'`` (the default) rewrites every 3-channel PNG with its
+    channels in the corrected order and marks the folder format 2.
+    ``mode='mark'`` touches no pixels and only records that the folder is
+    format 1 -- use it when something outside spaCR reads those exact bytes
+    and must keep seeing them (a classifier trained on legacy crops, for
+    instance): spaCR's own readers then correct the order on load while the
+    file on disk stays as it was.
+
+    Interruption safety, which is the whole design:
+
+    * each file is converted into a durable staging file ``<name>.spacr_v2``
+      (itself written temp-then-``os.replace``, per ``io._save_array_atomic``)
+      and only then ``os.replace``-d over the original, so the crop at its
+      real name is always a complete PNG -- the old one or the new one;
+    * the folder marker carries a ``migration`` block with a ``done_through``
+      watermark, advanced *before* the install, so the rule
+      **"a staging file exists ⇒ the crop beside it is still legacy"**
+      resolves every file at every point in the sequence. That is what
+      :func:`crop_format_for_png` reads, and it is why a killed migration is
+      still read correctly and can simply be re-run.
+
+    Running it on an already-converted folder is an immediate no-op: nothing
+    is decoded, nothing is written, and ``result.already`` is True. Running it
+    twice therefore cannot double-reverse anything.
+
+    The one exception is a folder finished with ``on_error='skip'``: its
+    marker names the files that could not be rewritten, those stay legacy (and
+    are read as legacy) inside an otherwise format-2 folder, and a later run
+    retries **only** them.
+
+    :param folder: the crop folder (``.../<well>/cell_png`` and friends).
+    :param mode: ``'rewrite'`` or ``'mark'``.
+    :param dry_run: report what would happen; write nothing.
+    :param on_error: ``'raise'`` (default) or ``'skip'``, which records the
+        file in the marker's ``unconverted`` list and keeps reading it as
+        legacy.
+    :param db_path: also stamp ``png_list.crop_format`` in this database.
+    :param progress: optional callable ``(done, total, name)``.
+    :returns: a :class:`MigrationResult`.
+    :raises CropError: bad arguments, or a file that cannot be converted when
+        ``on_error='raise'``.
+    """
+    if mode not in ("rewrite", "mark"):
+        raise CropError(f"mode must be 'rewrite' or 'mark', got {mode!r}")
+    if on_error not in ("raise", "skip"):
+        raise CropError(f"on_error must be 'raise' or 'skip', got {on_error!r}")
+    folder = os.path.abspath(os.fspath(folder))
+    if not os.path.isdir(folder):
+        raise CropError(f"not a crop folder: {folder}")
+
+    result = MigrationResult(folder=folder, dry_run=dry_run, mode=mode)
+    marker = read_crop_folder_marker(folder, use_cache=False)
+    current = _coerce_format(marker.get("spacr_crop_format")) if marker else None
+    migration = marker.get("migration") if marker else None
+
+    if mode == "mark":
+        if current == CROP_FORMAT_LEGACY_BGR and not migration:
+            result.already = True
+            return result
+        if current == CROP_FORMAT_RGB and not migration:
+            raise CropError(
+                f"{folder} is already format {CROP_FORMAT_RGB}; marking it "
+                f"legacy would make every crop in it read back reversed")
+        if not dry_run:
+            write_crop_folder_marker(folder, CROP_FORMAT_LEGACY_BGR)
+            if db_path:
+                stamp_crop_format_in_db(db_path, None, CROP_FORMAT_LEGACY_BGR)
+        return result
+
+    retry_only: Optional[set] = None
+    if current == CROP_FORMAT_RGB and not migration:
+        leftover = set((marker or {}).get("unconverted") or ())
+        if not leftover:
+            result.already = True
+            return result
+        # The folder is converted apart from these. Retry exactly them: every
+        # other crop in here is already format 2 and reversing it again would
+        # undo the migration.
+        retry_only = leftover
+
+    names = _crop_pngs_in(folder)
+    done_through = str(migration.get("done_through") or "") if migration else ""
+    failed_names = list((migration or marker or {}).get("unconverted") or ())
+    started = (migration or {}).get("started_utc") or _utc_now()
+
+    def _todo(name: str) -> bool:
+        """True when ``name`` still has to be converted.
+
+        A staged file outranks everything else, in both modes and in both
+        directions -- it is the same rule :func:`crop_format_for_png` reads,
+        so what the migrator thinks is left to do and what a reader thinks is
+        still legacy can never disagree.
+        """
+        if os.path.exists(os.path.join(folder, name + CROP_MIGRATION_SUFFIX)):
+            return True
+        if retry_only is not None:
+            return name in retry_only
+        return not (done_through and name <= done_through)
+
+    if dry_run:
+        for name in names:
+            (result.converted if _todo(name) else result.skipped).append(name)
+        return result
+
+    def _flush(done: str) -> None:
+        """Advance the watermark durably. One small fsync per crop, on purpose.
+
+        It is what makes "converted" and "not converted yet" a fact on disk
+        rather than a guess, and it is cheap next to decoding and re-encoding
+        the PNG it guards.
+
+        A retry run has no watermark to advance -- the folder is already
+        format 2 apart from the named leftovers -- so it rewrites the finished
+        marker with a shorter ``unconverted`` list instead.
+        """
+        if retry_only is not None:
+            write_crop_folder_marker(
+                folder, CROP_FORMAT_RGB,
+                migrated_from=CROP_FORMAT_LEGACY_BGR,
+                unconverted=sorted(set(failed_names)) or None)
+            return
+        block = {"from": CROP_FORMAT_LEGACY_BGR, "started_utc": started,
+                 "done_through": done}
+        if failed_names:
+            block["unconverted"] = sorted(set(failed_names))
+        write_crop_folder_marker(folder, CROP_FORMAT_RGB, migration=block)
+
+    total = len(names)
+    for i, name in enumerate(names):
+        path = os.path.join(folder, name)
+        staged = path + CROP_MIGRATION_SUFFIX
+        if not _todo(name):
+            result.skipped.append(name)
+            if progress:
+                progress(i + 1, total, name)
+            continue
+        try:
+            if os.path.exists(staged):
+                # A previous run converted it and died before installing it.
+                wrote = True
+            else:
+                wrote = _atomic_convert(path, staged)
+        except CropError as exc:
+            if on_error == "raise":
+                raise CropError(
+                    f"{folder}: {name} could not be converted ({exc}). "
+                    f"Nothing after it was touched; fix or remove the file "
+                    f"and re-run -- the migration resumes where it stopped."
+                ) from exc
+            failed_names.append(name)
+            result.failed.append((name, str(exc)))
+            done_through = name
+            _flush(done_through)
+            if progress:
+                progress(i + 1, total, name)
+            continue
+        # Marker first, install second: a crash between them leaves the
+        # staging file in place, and "staging file exists" outranks everything
+        # else, so the crop is still correctly read as legacy.
+        if name in failed_names:
+            failed_names.remove(name)          # a retry that worked
+        done_through = name
+        _flush(done_through)
+        if wrote:
+            os.replace(staged, path)
+            result.converted.append(name)
+        else:
+            result.skipped.append(name)
+        if progress:
+            progress(i + 1, total, name)
+
+    extra: Dict[str, Any] = {}
+    if failed_names:
+        extra["unconverted"] = sorted(set(failed_names))
+    extra["migrated_from"] = CROP_FORMAT_LEGACY_BGR
+    extra["migrated_utc"] = _utc_now()
+    write_crop_folder_marker(folder, CROP_FORMAT_RGB, **extra)
+    if db_path:
+        stamp_crop_format_in_db(
+            db_path,
+            [os.path.join(folder, n) for n in names if n not in failed_names],
+            CROP_FORMAT_RGB)
+    return result
+
+
+def main(argv: Optional[Sequence[str]] = None) -> int:
+    """``python -m spacr.crops <path>`` -- migrate crop folders from the shell.
+
+    Exists so the migration is a command a user can run over an old dataset,
+    not a Python snippet they have to be told how to write.
+
+    :param argv: argument list; ``None`` uses ``sys.argv[1:]``.
+    :returns: process exit status.
+    """
+    import argparse
+    import sys
+
+    parser = argparse.ArgumentParser(
+        prog="python -m spacr.crops",
+        description="Convert object-crop PNG folders to the corrected "
+                    "channel order (png_dims[0] = red) and stamp them.")
+    parser.add_argument("path", help="experiment root, its data/ folder, or "
+                                     "one *_png crop folder")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="report what would change; write nothing")
+    parser.add_argument("--mark-legacy", action="store_true",
+                        help="do not rewrite any pixels; only record that "
+                             "these folders are in the old order, so spaCR "
+                             "corrects them on load and anything reading the "
+                             "raw bytes (a classifier trained on them) still "
+                             "sees what it expects")
+    parser.add_argument("--db", default=None,
+                        help="measurements.db to stamp as well")
+    parser.add_argument("--skip-errors", action="store_true",
+                        help="record files that cannot be converted and "
+                             "carry on, instead of stopping")
+    args = parser.parse_args(argv)
+
+    try:
+        results = migrate_crop_tree(
+            args.path, dry_run=args.dry_run,
+            mode="mark" if args.mark_legacy else "rewrite",
+            on_error="skip" if args.skip_errors else "raise",
+            db_path=args.db)
+    except CropError as exc:
+        print(f"spacr: {exc}", file=sys.stderr)
+        return 1
+    for result in results:
+        print(result.describe())
+    return 1 if any(r.failed for r in results) else 0
+
+
+def legacy_channel_names(channels: Iterable[str]) -> List[str]:
+    """Map a legacy-trained model's ``train_channels`` onto format-2 crops.
+
+    A classifier trained on legacy crops learned "input plane 0 is whatever is
+    in the file's red channel", and in a legacy file that is ``png_dims[-1]``.
+    Feed the same model a format-2 crop and plane 0 is now ``png_dims[0]`` --
+    a permutation of its input, which it will happily score and get wrong,
+    with no error anywhere.
+
+    Reversing the request undoes the permutation exactly: red and blue swap,
+    green is unmoved. So a model trained with ``train_channels=['r','g','b']``
+    keeps seeing the pixels it was trained on if it is applied with
+    ``['b','g','r']``, and one trained with ``['r','g']`` with ``['b','g']``.
+
+    This is a stopgap for a model you cannot retrain. Retraining on corrected
+    crops is the real fix, and it is cheap compared with getting this wrong.
+
+    :param channels: the ``train_channels`` the model was trained with.
+    :returns: the equivalent list to apply it with on format-2 crops.
+    """
+    swap = {"r": "b", "b": "r", "g": "g"}
+    return [swap.get(str(c).strip().lower(), str(c)) for c in channels]
+
+
+def find_crop_folders(root: str) -> List[str]:
+    """Return every ``*_png`` crop folder under ``root``, sorted.
+
+    Accepts an experiment root, its ``data`` folder, or a crop folder itself.
+
+    :param root: where to look.
+    :returns: absolute folder paths.
+    """
+    root = os.path.abspath(os.fspath(root))
+    if os.path.basename(root).endswith("_png") and os.path.isdir(root):
+        return [root]
+    found: List[str] = []
+    for start in (os.path.join(root, "data"), root):
+        if not os.path.isdir(start):
+            continue
+        for dirpath, dirnames, _files in os.walk(start):
+            for name in sorted(dirnames):
+                if name.endswith("_png"):
+                    found.append(os.path.join(dirpath, name))
+        if found:
+            break
+    return sorted(set(found))
+
+
+def migrate_crop_tree(root: str, **kwargs) -> List[MigrationResult]:
+    """Run :func:`migrate_crop_folder` on every crop folder under ``root``.
+
+    :param root: experiment root, its ``data`` folder, or one crop folder.
+    :param kwargs: forwarded to :func:`migrate_crop_folder`.
+    :returns: one :class:`MigrationResult` per folder, in folder order.
+    """
+    folders = find_crop_folders(root)
+    if not folders:
+        raise CropError(f"no '*_png' crop folders found under {root}")
+    return [migrate_crop_folder(f, **kwargs) for f in folders]
 
 
 # ---------------------------------------------------------------------------
@@ -1031,20 +2136,31 @@ class CropSource:
 class PngCropSource(CropSource):
     """The existing behaviour: read the pre-generated PNG named by the row.
 
+    Reads go through :func:`read_crop_png`, so a folder of legacy (format 1)
+    crops is corrected on load and comes back in the same channel order as a
+    new one -- the caller cannot tell which it opened, which is the point.
+
     :param root: optional experiment root used to re-anchor ``png_path`` values
         recorded on another machine (the same rewrite
         :func:`spacr.utils.correct_paths` performs).
     :param folder: the anchor folder name for that rewrite.
     :param reason: why this source was chosen (for :meth:`describe`).
+    :param db_path: ``measurements.db`` consulted for the ``crop_format``
+        column when a folder carries no sidecar; defaults to
+        ``<root>/measurements/measurements.db`` when ``root`` is given.
     """
 
     kind = "png"
 
     def __init__(self, root: Optional[str] = None, folder: str = "data",
-                 reason: str = ""):
+                 reason: str = "", db_path: Optional[str] = None):
         self.root = root
         self.folder = folder
         self.reason = reason
+        if db_path is None and root:
+            candidate = os.path.join(root, "measurements", "measurements.db")
+            db_path = candidate if os.path.isfile(candidate) else None
+        self.db_path = db_path
 
     def resolve(self, row: Any) -> str:
         """Return the on-disk PNG path for ``row``, re-anchored under ``root``."""
@@ -1059,13 +2175,13 @@ class PngCropSource(CropSource):
         return path
 
     def get(self, row: Any) -> np.ndarray:
-        """Return the PNG for ``row`` decoded as a ``(H, W, 3)`` uint8 RGB array."""
-        from PIL import Image
-        path = self.resolve(row)
-        if not os.path.isfile(path):
-            raise MergedFileMissing(f"crop PNG not found: {path}")
-        with Image.open(path) as img:
-            return np.array(img.convert("RGB"))
+        """Return the PNG for ``row`` decoded as a ``(H, W, 3)`` uint8 RGB array.
+
+        Legacy content is converted on load, so this equals
+        ``png_view(extract_crop(...))`` for the same object whichever format
+        the folder is in.
+        """
+        return read_crop_png(self.resolve(row), db_path=self.db_path)
 
 
 class MergedCropSource(CropSource):
@@ -1155,8 +2271,8 @@ class MergedCropSource(CropSource):
         """Return the crop as a ``(H, W, 3)`` uint8 RGB array.
 
         Deliberately routed through :func:`png_view`, so what a consumer gets
-        here is identical to what it would get from the PNG folder -- reversed
-        channel order and 16-bit narrowing included.
+        here is identical to what :func:`read_crop_png` returns for the same
+        object out of the PNG folder -- 16-bit narrowing included.
         """
         return png_view(self.get_array(row))
 
@@ -1286,3 +2402,7 @@ def resolve_crop_source(settings_or_src: Union[str, Mapping[str, Any]],
         reason += " (crop settings recovered from measurements.db)"
     return MergedCropSource(spec=spec, merged_root=merged_dir,
                             object_type=object_type, reason=reason)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

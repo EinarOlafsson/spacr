@@ -161,28 +161,37 @@ def test_merged_crop_is_pixel_identical_to_png_path(tmp_path, object_type,
 def test_merged_crop_matches_png_written_and_read_back(tmp_path):
     """png_view() of an on-demand crop == what a consumer reads off the PNG folder.
 
-    The PNG path writes with ``cv2.imwrite`` (BGR) and every consumer reads with
-    ``PIL.Image.open(...).convert('RGB')``, so the file round trip reverses the
-    channel order and narrows uint16 to its high byte. The merged source has to
-    land on the same pixels after that round trip, not before it.
+    UPDATED, DELIBERATELY, to the corrected contract. This test used to assert
+    the bug: it wrote the crop with a bare ``cv2.imwrite`` (which reads a
+    3-channel array as BGR), read it back with ``PIL.Image.open(...)`` (which
+    reads RGB) and pinned ``png_view`` to the *reversed* result. That made
+    ``png_dims[0]`` the blue channel of every crop spaCR ever wrote.
+
+    The writer now hands cv2 the reversed array (``crops.to_cv2_bgr``) so the
+    file's red channel is ``png_dims[0]``, and the reader
+    (``crops.read_crop_png``) knows which format it is looking at. Both paths
+    now land on ``png_view``: channel i in, channel i out.
     """
     cv2 = pytest.importorskip("cv2")
-    from PIL import Image
 
     data = _make_field(seed=11)
     path = _write_field(tmp_path, data)
+    folder = tmp_path / "cell_png"
+    folder.mkdir()
+    crops.stamp_crop_folder(str(folder))
 
     for label in (1, 2, 3):
         expected = _reference_png_crop(data, "cell", label, png_dims=(0, 1, 2),
                                        width=64, height=64)
-        png_file = str(tmp_path / f"ref_{label}.png")
-        cv2.imwrite(png_file, expected)
-        with Image.open(png_file) as img:
-            from_disk = np.array(img.convert("RGB"))
+        png_file = str(folder / f"ref_{label}.png")
+        cv2.imwrite(png_file, crops.to_cv2_bgr(expected))       # the new writer
+        from_disk = crops.read_crop_png(png_file)
 
         crop = extract_crop(path, "cell", label, channels=(0, 1, 2),
                             size=(64, 64), mask_dims=MASK_DIMS)
         assert np.array_equal(png_view(crop), from_disk)
+        # ...and the file really does carry png_dims[0] in its red slot.
+        assert np.array_equal(from_disk[:, :, 0], expected[:, :, 0] // 256)
 
         src = MergedCropSource(
             spec=CropSpec(merged_path="", channels=(0, 1, 2), size=(64, 64),
@@ -978,7 +987,49 @@ def test_binary_dilate_clone_matches_scipy():
                 binary_dilation(region, structure=struct, iterations=it))
 
 
-def test_png_view_matches_a_real_cv2_pil_round_trip(tmp_path):
+def test_png_view_matches_a_real_write_and_read(tmp_path):
+    """png_view == what read_crop_png gives back, for a real file round trip.
+
+    UPDATED, DELIBERATELY. The old version wrote with a bare ``cv2.imwrite``
+    and read with ``PIL...convert('RGB')`` and asserted png_view reproduced
+    *that* — i.e. it pinned both halves of the bug: the reversed channel order
+    and PIL's split narrowing, which CLIPS a 16-bit single-channel PNG at 255
+    (case 3 below is exactly such a crop, and it used to come back solid
+    white). The round trip is now writer + reader, and the narrowing is one
+    rule: the high byte, for every channel count.
+    """
+    cv2 = pytest.importorskip("cv2")
+
+    folder = tmp_path / "cell_png"
+    folder.mkdir()
+    crops.stamp_crop_folder(str(folder))
+
+    rng = np.random.default_rng(17)
+    cases = [
+        rng.integers(0, 256, size=(6, 5, 3)).astype(np.uint8),
+        rng.integers(0, 65536, size=(6, 5, 3)).astype(np.uint16),
+        rng.integers(0, 256, size=(6, 5, 1)).astype(np.uint8),
+        rng.integers(300, 40000, size=(6, 5, 1)).astype(np.uint16),
+    ]
+    for i, arr in enumerate(cases):
+        p = str(folder / f"case{i}.png")
+        cv2.imwrite(p, crops.to_cv2_bgr(arr))
+        assert np.array_equal(png_view(arr), crops.read_crop_png(p)), f"case {i}"
+
+    # The single-channel 16-bit case is the one PIL used to flatten: prove it
+    # comes back as the high byte, not as 255.
+    assert crops.read_crop_png(str(folder / "case3.png"))[:, :, 0].max() < 255
+    assert np.array_equal(crops.read_crop_png(str(folder / "case3.png"))[:, :, 0],
+                          cases[3][:, :, 0] // 256)
+
+
+def test_legacy_png_view_still_reproduces_the_old_round_trip(tmp_path):
+    """legacy_png_view is the inverse of the format-1 write, and stays exact.
+
+    This is the assertion the file used to make about ``png_view``. It is kept
+    under the name that says what it is, because ``read_crop_png`` has to undo
+    precisely this to open an old dataset.
+    """
     cv2 = pytest.importorskip("cv2")
     from PIL import Image
 
@@ -991,10 +1042,10 @@ def test_png_view_matches_a_real_cv2_pil_round_trip(tmp_path):
     ]
     for i, arr in enumerate(cases):
         p = str(tmp_path / f"case{i}.png")
-        cv2.imwrite(p, arr)
+        cv2.imwrite(p, arr)                    # the OLD writer, verbatim
         with Image.open(p) as img:
             expected = np.array(img.convert("RGB"))
-        assert np.array_equal(png_view(arr), expected), f"case {i}"
+        assert np.array_equal(crops.legacy_png_view(arr), expected), f"case {i}"
 
 
 def test_png_view_accepts_a_2d_array():
@@ -1162,23 +1213,31 @@ def test_extract_crops_raises_by_default(tmp_path):
 
 
 def test_png_view_of_a_two_channel_crop(tmp_path):
+    """UPDATED, DELIBERATELY: the empty plane of a 2-channel crop is BLUE.
+
+    The PNG path pads a 2-channel crop with a zero third plane, so the crop's
+    channel 2 is empty. Under the bug the write reversed everything and that
+    empty plane came back as RED — the assertion below used to be on
+    ``[:, :, 0]``. With the writer corrected it is where the user put it.
+    """
     cv2 = pytest.importorskip("cv2")
-    from PIL import Image
 
     data = _make_field(seed=193)
     path = _write_field(tmp_path, data)
+    folder = tmp_path / "cell_png"
+    folder.mkdir()
+    crops.stamp_crop_folder(str(folder))
     crop = extract_crop(path, "cell", 1, channels=(0, 1), size=(32, 32),
                         mask_dims=MASK_DIMS)
     assert crop.shape == (32, 32, 3)          # padded to RGB by the PNG path
-    png_file = str(tmp_path / "two.png")
-    cv2.imwrite(png_file, crop)
-    with Image.open(png_file) as img:
-        expected = np.array(img.convert("RGB"))
-    assert np.array_equal(png_view(crop), expected)
+    png_file = str(folder / "two.png")
+    cv2.imwrite(png_file, crops.to_cv2_bgr(crop))
+    assert np.array_equal(png_view(crop), crops.read_crop_png(png_file))
 
     raw_two = crop[:, :, :2]
     assert png_view(raw_two).shape == (32, 32, 3)
-    assert not png_view(raw_two)[:, :, 0].any()
+    assert not png_view(raw_two)[:, :, 2].any()
+    assert png_view(raw_two)[:, :, 0].any()
 
 
 def test_coerce_passes_non_strings_through():

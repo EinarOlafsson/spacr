@@ -57,6 +57,32 @@ def label_to_hex(val: Optional[int]) -> Optional[str]:
 # Image pipeline
 # ---------------------------------------------------------------------------
 
+def load_crop_image(path: str, db_path: Optional[str] = None) -> Image.Image:
+    """Open one object crop PNG as an 8-bit RGB image, in the corrected order.
+
+    Not ``Image.open(path).convert('RGB')``. Crop PNGs come in two formats:
+    anything spaCR wrote before the BGR fix has ``png_dims[0]`` in its *blue*
+    channel, so a plain PIL read shows the user's first stain as blue and
+    their third as red -- and the annotator's "r"/"g"/"b" channel filters then
+    address the wrong stains. :func:`spacr.crops.read_crop_png` resolves which
+    format the folder is in (sidecar marker, else the database column, else
+    legacy) and corrects it on load, so an old dataset and a new one look the
+    same here.
+
+    It also fixes the other half: a 16-bit single-channel crop opened with
+    ``convert('RGB')`` is CLIPPED at 255 by PIL and comes back solid white.
+    Every crop is narrowed the same way now -- by its high byte.
+
+    :param path: the crop PNG.
+    :param db_path: optional ``measurements.db``, consulted when the crop
+        folder carries no sidecar marker.
+    :returns: PIL ``Image`` in RGB mode.
+    """
+    from ..crops import read_crop_png
+
+    return Image.fromarray(read_crop_png(path, db_path=db_path))
+
+
 def normalize_pil(
     img: Image.Image,
     percentiles: Tuple[float, float] = (1.0, 99.0),
