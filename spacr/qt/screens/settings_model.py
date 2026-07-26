@@ -464,7 +464,24 @@ class SettingsWidgets:
         if isinstance(w, QDoubleSpinBox):
             return float(w.value())
         if isinstance(w, QComboBox):
-            return w.currentData() if w.currentData() is not None else w.currentText()
+            idx = w.currentIndex()
+            # EVERY item is added with userData=opt, including the Python None
+            # option (`addItem("None" if opt is None else str(opt),
+            # userData=opt)`). So currentData() returning None means the chosen
+            # option IS None -- not that the item carries no data. The old
+            # fallback to currentText() therefore handed back the STRING
+            # 'None', which is how every Qt run shipped strict_errors='None'
+            # and turned strict error handling silently ON, since
+            # errors.strict_errors() saw a non-None value and took
+            # bool('None') == True. cov_type and 'transform' reached
+            # statsmodels the same way.
+            #
+            # currentText() is still right for an EDITABLE combo showing
+            # something the user typed that is not in the list -- detected by
+            # the displayed text not matching the current item's text.
+            if idx >= 0 and w.itemText(idx) == w.currentText():
+                return w.itemData(idx)
+            return w.currentText()
         if isinstance(w, _ListEdit):
             return w.get_value()
         if isinstance(w, _ScalarEdit):

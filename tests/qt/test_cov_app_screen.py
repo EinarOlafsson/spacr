@@ -480,14 +480,12 @@ class TestRoundTrip:
         w.set_value(3)
         assert w.text() == "3" and w.get_value() == "3"
 
-    @pytest.mark.xfail(strict=True, reason=(
-        "BUG: SettingsWidgets._read_widget returns the STRING 'None' for a "
-        "combo whose selected option is Python None, so every Qt run ships "
-        "strict_errors='None'. spacr.errors.strict_errors() then sees a "
-        "non-None value and returns bool('None') == True, silently turning "
-        "strict error handling ON for every GUI run. cov_type/'transform' "
-        "reach statsmodels the same way. Fix is in settings_model.py "
-        "(not this agent's file) - see report."))
+    # Was a strict xfail; fixed in settings_model._read_widget. A combo whose
+    # selected option is Python None used to collect as the STRING 'None', so
+    # every Qt run shipped strict_errors='None' -- and errors.strict_errors()
+    # saw a non-None value and took bool('None') == True, silently turning
+    # strict error handling ON for every GUI run. cov_type and 'transform'
+    # reached statsmodels the same way.
     def test_none_option_collects_as_none_not_the_string(self, qtbot):
         scr = _make_screen(qtbot, "mask")
         combo = scr._settings_model._widgets["strict_errors"]
