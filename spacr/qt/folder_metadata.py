@@ -24,13 +24,18 @@ import logging
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from string import ascii_uppercase
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 LOG = logging.getLogger("spacr.qt.folder_metadata")
 
-# 384-well plate convention: 16 rows × 24 columns (A01 … P24).
-WELL_ROWS = list(ascii_uppercase[:16])   # A..P
+#: How many synthetic wells :func:`_well_from_index` puts in a row before
+#: starting the next one. Only the *width* is a convention — the rows are
+#: not, because :func:`_well_from_index` keeps counting with
+#: :func:`spacr.schema.well_id` (``Q``, ``R`` … ``AA``) rather than stopping
+#: at ``P``. There used to be a companion ``WELL_ROWS = ascii_uppercase[:16]``
+#: here; nothing read it, and a stale "rows stop at P" list sitting next to
+#: code that deliberately counts past P is how the next 16-row bug gets
+#: written.
 WELL_COLS = list(range(1, 25))           # 1..24
 
 
@@ -53,18 +58,31 @@ class FolderTemplate:
     chan_from_filename: bool
 
 
-# Heuristic recognisers for common folder tokens
-_WELL_RX     = re.compile(r"^[A-P](\d{1,3})$", re.I)
+# Heuristic recognisers for common folder tokens.
+#
+# The well pattern is one or two letters then the column digits — the same
+# *shape* as ``plate_qc._WELL_RE`` and ``schema._WELL``, and deliberately so:
+# those two modules already agree that a row runs ``A``…``Z``, ``AA``…``AF``
+# (a 1536 plate has 32 of them), and a third opinion here is how "is this a
+# well?" comes to have two answers. It used to be ``[A-P]``, which is 16
+# rows — so every folder from ``Q01`` up, the whole bottom half of a 1536
+# plate, was not recognised as a well at all.
+_WELL_RX     = re.compile(r"^[A-Z]{1,2}\d{1,3}$", re.I)
 _FIELD_RX    = re.compile(r"^(?:F|field|fld|position)[_-]?(\d+)$", re.I)
 _CHANNEL_RX  = re.compile(r"^(?:C|ch|channel)[_-]?(\d+)$", re.I)
 _PLATE_RX    = re.compile(r"^plate[_-]?\d*$", re.I)
 
 
 def _classify(token: str) -> Optional[str]:
-    # Order matters — the FIELD / CHANNEL / PLATE recognisers use
-    # explicit prefixes so they're strictly more specific than the
-    # generic well pattern `[A-P]\d{1,3}` (which would otherwise
-    # swallow `F01`, `C01`, `Z01`, etc.). Check them first.
+    # Order matters, and it matters more now that the well pattern reaches
+    # past P: the FIELD / CHANNEL / PLATE recognisers name their axis
+    # explicitly, so they are strictly more specific and are checked first
+    # — `F01`, `C01`, `ch1` and `plate2` still classify as themselves.
+    # What is left over (`Z01`, `S01`, `T01`) is genuinely ambiguous from a
+    # single token, and is read as a well, because on a plate that is what
+    # it is: row Z, row S, row T. A dataset that means a z slice, a site or
+    # a timepoint should spell it with a prefix the specific recognisers
+    # know.
     if _FIELD_RX.match(token):   return "field"
     if _CHANNEL_RX.match(token): return "channel"
     if _PLATE_RX.match(token):   return "plate"
