@@ -113,6 +113,7 @@ APPS = [
     ("plate_view",     "Plate Viewer",   "Any measurement as a plate heatmap + edge-effect detection",  "Tools"),
     ("model_compare",  "Model Compare",  "Two Cellpose models on the same fields: masks side by side, object-count and ARI deltas", "Tools"),
     ("report",         "Report",         "One-click shareable HTML/PDF: QC verdict, figures, stats, settings, versions", "Tools"),
+    ("train_compare",  "Training Runs",  "Overlay several training runs' curves with their settings diffed side by side", "Tools"),
     # -- Toxo: Toxoplasma-specific assays --
     ("analyze_plaques", "Plaque Assay",  "Analyze plaque assay data",                                   "Toxo"),
     ("recruitment",    "Recruitment",    "Analyze recruitment data",                                    "Toxo"),
@@ -132,6 +133,7 @@ _ICON_OVERRIDES = {
     "agreement":       "annotate.png",     # shares the Annotate glyph: it
                                            # scores annotation columns
     "plate_view":      "map_barcodes.png", # ruled bars read as a well grid
+    "train_compare":   "classify.png",     # it compares Classify (CV) runs
     "model_compare":   "cellpose_all.png", # a grid of Cellpose masks reads
                                            # as "the same fields, twice"
 }
@@ -771,6 +773,9 @@ class MainWindow(QMainWindow):
         if key == "report":
             from .screens.report import ReportScreen
             return ReportScreen()
+        if key == "train_compare":
+            from .screens.train_compare import TrainCompareScreen
+            return TrainCompareScreen()
         from .screens.app_screen import AppScreen
         screen = AppScreen(app_key=key)
         screen.error_explain_requested.connect(self._on_explain_error)

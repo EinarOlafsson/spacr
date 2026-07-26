@@ -374,6 +374,18 @@ INTERACTIVE_ONLY: Dict[str, str] = {
              "spacr-run once per plate.",
     "db_browser": "Database Browser is an interactive sqlite viewer; use the sqlite3 "
                   "CLI or pandas on measurements.db instead.",
+    "agreement": "Annotator Agreement is an interactive review of the crops two "
+                 "annotators disagreed on; headless, call "
+                 "spacr.agreement.agreement_report + format_agreement from Python.",
+    "plate_view": "Plate Viewer is an interactive heatmap; headless, call "
+                  "spacr.plate_qc.detect_edge_effect + format_edge_report.",
+    "model_compare": "Model Compare runs two Cellpose models side by side for you to "
+                     "look at; headless, call spacr.model_compare.compare_models.",
+    "report": "Report is a one-click document builder; headless, call "
+              "spacr.report.build_report(src, out, fmt='html').",
+    "train_compare": "Training Runs is an interactive curve/settings comparison; "
+                     "headless, use spacr.train_compare.find_runs + "
+                     "format_comparison from Python.",
 }
 
 
