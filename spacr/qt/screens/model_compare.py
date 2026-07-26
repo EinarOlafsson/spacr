@@ -467,6 +467,39 @@ class ModelCompareScreen(QWidget):
     def _on_open_typed_path(self) -> None:
         self.set_source(self._path_edit.text())
 
+    def configure(self, model_a: str = "", model_b: str = "",
+                  folder: str = "", n_fields: int = 0) -> bool:
+        """Preload the screen with two models and a folder.
+
+        The public route for another screen to hand this one a comparison —
+        the Model Zoo's "compare the two selected" uses it. A caller reaching
+        into ``_panel_a.model_edit`` would break the moment either panel is
+        restructured.
+
+        Every argument is optional; an empty one leaves that control alone.
+        ``n_fields`` is applied BEFORE the folder so the reload the folder
+        triggers already uses the right count, rather than loading N fields and
+        immediately reloading with a different N.
+
+        :param model_a: model name or checkpoint path for the left panel.
+        :param model_b: same, for the right panel.
+        :param folder: directory of fields to compare on.
+        :param n_fields: how many fields; 0 keeps the current value.
+        :returns: what :meth:`set_source` returned, or True when no folder was
+            given.
+        """
+        if n_fields:
+            self._fields_box.blockSignals(True)
+            self._fields_box.setValue(int(n_fields))
+            self._fields_box.blockSignals(False)
+        if model_a:
+            self._panel_a.model_edit.setText(str(model_a))
+        if model_b:
+            self._panel_b.model_edit.setText(str(model_b))
+        if folder:
+            return self.set_source(str(folder))
+        return True
+
     def set_source(self, folder: str) -> bool:
         """Load the first N fields out of ``folder``.
 

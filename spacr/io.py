@@ -1,4 +1,4 @@
-import os, re, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, cellpose, glob, queue, threading, tifffile, czifile, atexit, datetime, readlif
+import os, re, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, cellpose, glob, queue, threading, tifffile, czifile, atexit, datetime, readlif, tempfile
 import numpy as np
 import pandas as pd
 from PIL import Image, ImageOps
@@ -2350,6 +2350,50 @@ def _mask_variant_path(folder, ref_filename):
     return None
 
 
+def _save_array_atomic(output_path, array):
+    """Write ``array`` to ``output_path`` as ``.npy`` atomically.
+
+    ``np.save(path, arr)`` writes straight onto the destination, so a
+    process killed part-way through — full disk, OOM killer, Ctrl-C —
+    leaves a *short* file at the final name. It still starts with the
+    ``.npy`` magic and still parses as a header, so anything that decides
+    "this field is done because the file is there" will happily accept it
+    and measure whatever bytes happened to land. That is the failure mode
+    that turns a resume into silently corrupt output.
+
+    Writing to a sibling temporary file and then ``os.replace``-ing it
+    into position makes the destination atomic within the filesystem: it
+    is either the previous content or the complete new array, never a
+    prefix of it. The temp file is removed if anything goes wrong.
+
+    :param output_path: final ``.npy`` path.
+    :param array: array to write.
+    :returns: ``output_path``.
+    """
+    directory = os.path.dirname(output_path) or '.'
+    os.makedirs(directory, exist_ok=True)
+    # Same directory as the destination: os.replace is only atomic within
+    # one filesystem, and /tmp is routinely a different one.
+    fd, tmp_path = tempfile.mkstemp(prefix='.spacr_tmp_', suffix='.npy',
+                                    dir=directory)
+    os.close(fd)
+    try:
+        # allow_pickle stays at numpy's default (False) — these are plain
+        # numeric stacks and a pickled payload here would be a bug.
+        with open(tmp_path, 'wb') as handle:
+            np.save(handle, array)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(tmp_path, output_path)
+    except BaseException:
+        try:
+            os.remove(tmp_path)
+        except OSError:
+            pass
+        raise
+    return output_path
+
+
 def _load_array_any(path):
     """Load a ``.tif``/``.tiff`` (via tifffile) or ``.npy`` array."""
     if path.endswith(('.tif', '.tiff')):
@@ -2358,9 +2402,17 @@ def _load_array_any(path):
     return np.load(path, allow_pickle=True)
 
 
-def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_dim, pathogen_chann_dim, organelle_chann_dim):
+def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_dim, pathogen_chann_dim, organelle_chann_dim, resume=False):
     """
     Load and concatenate arrays from multiple folders.
+
+    Every merged stack is written **atomically** — to a temporary file in
+    the destination folder, then ``os.replace``\\ d into place. The plain
+    ``np.save`` this used to do wrote straight onto the destination, so a
+    run killed mid-write (full disk, OOM, Ctrl-C) left a short file that
+    still looked like a valid ``.npy`` to anything that only checked
+    whether it existed. ``os.replace`` is atomic within a filesystem, so
+    ``merged/<field>.npy`` is now either absent or complete.
 
     Args:
         src (str): The source directory containing the arrays.
@@ -2369,11 +2421,19 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
         nucleus_chann_dim (int): Dimension of the nucleus channel.
         pathogen_chann_dim (int): Dimension of the pathogen channel.
         organelle_chann_dim (int or None): Dimension of the organelle channel. If None, organelle masks are included only if the folder exists.
+        resume (bool): Opt-in checkpointing. When True, fields whose merged
+            stack is already present **and verified complete** are skipped, so
+            a run that died at field 900 of 1000 does not redo the first 900.
+            Verification is deliberately not ``os.path.exists``: files left
+            behind by older, non-atomic versions of this function can be
+            truncated, and those are re-merged rather than trusted. Default
+            False, which redoes every field exactly as before.
 
     Returns:
         None
     """
     from .utils import print_progress
+    from .resume import completed_fields_in_merged, format_resume, plan_resume
 
     folder_paths = [os.path.join(src+'/stack')]
 
@@ -2394,13 +2454,32 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
     os.makedirs(output_folder, exist_ok=True)
 
     count=0
-    all_imgs = len(os.listdir(reference_folder))
+    reference_files = os.listdir(reference_folder)
+    all_imgs = len(reference_files)
     time_ls = []
+
+    # Opt-in resume: skip fields whose merged stack is already there AND
+    # verified complete. Reported before any work starts, so a resume that
+    # rejects three truncated leftovers says so rather than quietly
+    # re-merging them.
+    already_done = set()
+    if resume:
+        candidates = [os.path.splitext(f)[0] for f in reference_files
+                      if f.endswith('.npy')]
+        rejected = {}
+        already_done = completed_fields_in_merged(
+            output_folder, reasons=rejected, fields=candidates)
+        print(format_resume(plan_resume(candidates, already_done,
+                                        reasons=rejected, enabled=True,
+                                        src=output_folder)))
+
     # Iterate through each file in the reference folder
-    for idx, filename in enumerate(os.listdir(reference_folder)):
+    for idx, filename in enumerate(reference_files):
         start = time.time()
         stack_ls = []
-        if filename.endswith('.npy'):
+        # `and not already done` rather than a `continue`, so a skipped field
+        # still advances the progress bar instead of the counter jumping.
+        if filename.endswith('.npy') and os.path.splitext(filename)[0] not in already_done:
             count += 1
 
             # Check if this file exists in all the other specified folders.
@@ -2455,7 +2534,7 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
 
                 if stack.shape[-1] > concatenated_array.shape[-1]:
                     output_path = os.path.join(output_folder, filename)
-                    np.save(output_path, stack)
+                    _save_array_atomic(output_path, stack)
         
         stop = time.time()
         duration = stop - start

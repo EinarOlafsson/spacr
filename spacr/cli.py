@@ -386,6 +386,13 @@ INTERACTIVE_ONLY: Dict[str, str] = {
                   "spacr.plate_qc.detect_edge_effect + format_edge_report.",
     "model_compare": "Model Compare runs two Cellpose models side by side for you to "
                      "look at; headless, call spacr.model_compare.compare_models.",
+    "batch": "Batch Runner is the GUI for building a queue file. Headless, run the "
+             "queue itself: from spacr.batch import load_queue, run_queue; "
+             "run_queue(load_queue('night.queue.json'), path='night.queue.json') "
+             "-- each job in it is a spacr-run invocation.",
+    "model_zoo": "Model Zoo is an interactive browser; headless, call "
+                 "spacr.model_zoo.discover_local + format_zoo, and "
+                 "benchmark(entry, source=...) to test one on three fields.",
     "report": "Report is a one-click document builder; headless, call "
               "spacr.report.build_report(src, out, fmt='html').",
     "train_compare": "Training Runs is an interactive curve/settings comparison; "
