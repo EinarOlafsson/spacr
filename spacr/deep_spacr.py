@@ -1,4 +1,4 @@
-import os, torch, time, gc, datetime
+import os, torch, time, gc, datetime, logging
 torch.backends.cudnn.benchmark = True
 import numpy as np
 import pandas as pd
@@ -18,6 +18,11 @@ from sklearn.metrics import precision_recall_curve, auc, average_precision_score
 
 from torchvision import transforms
 from torch.utils.data import DataLoader
+
+# Fail-loud accounting: a cross-validation fold that dies must not be
+# averaged away silently, and an optional plot that fails must still be
+# visible somewhere other than /dev/null.
+from .errors import RunLedger, ConfigurationError
 
 def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, n_jobs=10):
     """
@@ -297,7 +302,13 @@ def _multiclass_metrics(y_true: np.ndarray, prob_mat: np.ndarray) -> dict:
         y_true_oh[np.arange(len(y_true)), y_true] = 1
     try:
         ap_macro = average_precision_score(y_true_oh, prob_mat, average="macro")
-    except Exception:
+    except Exception as e:
+        # NaN is written straight into the metrics CSV, where it is
+        # indistinguishable from "not computed". Say why, at least once.
+        logging.getLogger('spacr.deep_spacr').error(
+            'macro average-precision could not be computed (%s: %s); '
+            'prauc will be NaN for this evaluation',
+            type(e).__name__, e)
         ap_macro = np.nan
 
     # For compatibility with your logging keys:
@@ -642,6 +653,9 @@ def _cross_validate_model(settings, num_classes):
     )
 
     rows = []
+    # A fold that does not train is dropped from the spread. Two dead folds
+    # out of five used to produce a "5-fold CV" summary computed on three.
+    ledger = RunLedger('cross_validation')
     for i, (train_loader, val_loader) in enumerate(fold_loaders, start=1):
         fold_dst = os.path.join(dst, f'fold_{i}')
         os.makedirs(fold_dst, exist_ok=True)
@@ -674,6 +688,9 @@ def _cross_validate_model(settings, num_classes):
             early_stopping_patience=settings.get('early_stopping_patience', 0),
         )
         if model is None:
+            ledger.record_failure(
+                f'fold_{i}', stage='train',
+                exc=f"model_type {settings['model_type']!r} could not be built")
             print(f"Fold {i}: model_type {settings['model_type']!r} could not be "
                   f"built; fold skipped.")
             continue
@@ -688,8 +705,10 @@ def _cross_validate_model(settings, num_classes):
             if key in metrics:
                 row[key] = metrics[key]
         rows.append(row)
+        ledger.record_success(f'fold_{i}', stage='train')
 
     if not rows:
+        ledger.finalize()
         print("Cross-validation produced no fold results.")
         return None
 
@@ -708,6 +727,10 @@ def _cross_validate_model(settings, num_classes):
     print(f"\nPer-fold metrics: {folds_loc}")
     print(f"Fold spread:      {summary_loc}")
     print(f"Fold composition: {split_loc}")
+    # The per-fold CSV is stamped so a reader can see it covers fewer folds
+    # than requested, and a run in which most folds died aborts outright:
+    # the "spread" of two surviving folds out of five is not a spread.
+    ledger.finalize(artifact=folds_loc, threshold=0.5)
     return folds_loc
 
 
@@ -1075,6 +1098,9 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     # Full per-epoch history kept for the live training plot (the accumulators
     # above get consumed/cleared by _save_progress each epoch).
     live_train_hist, live_val_hist = [], []
+    # Kept separate from any training ledger: a failed live plot says nothing
+    # about whether the weights are trustworthy.
+    _curve_ledger = RunLedger('train_model:live_curves')
 
     # track the best validation accuracy and corresponding model path
     best_val_acc = -1.0
@@ -1178,10 +1204,11 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
             live_train_hist.append(train_dict)
             if val_dict is not None:
                 live_val_hist.append(val_dict)
-            try:
+            # Cosmetic: a live curve that fails to render must not kill the
+            # training run. It must not be *invisible* either — the bare
+            # `pass` here hid a broken plot for the whole run.
+            with _curve_ledger.item(f'epoch_{epoch}', stage='live_curves'):
                 _plot_training_curves(live_train_hist, live_val_hist, epochs)
-            except Exception:
-                pass
 
         if scheduler and schedule in ('step_lr', 'cosine'):
             # FIX: also step cosine scheduler here
@@ -1232,6 +1259,11 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                     print(f"{i}. {s}")
             except Exception as e:
                 print(f"[suggest_training_changes] Skipped at epoch {epoch}: {e}")
+
+    # Not stamped and not fatal — the training artifacts are unaffected —
+    # but a run where every live plot failed now says so instead of ending
+    # with a silently empty figure pane.
+    _curve_ledger.finalize()
 
     # return best_model_path if available, otherwise fall back to last model_path
     final_path = best_model_path if best_model_path is not None else model_path

@@ -18,6 +18,10 @@ import matplotlib.pyplot as plt
 from math import ceil, sqrt
 
 from . import settings
+# Fail-loud accounting: a field that fails to measure is recorded, summarised
+# at the end of the run, and stamped into measurements.db so a downstream
+# regression cannot silently analyse 344 of 384 wells.
+from .errors import RunLedger, ConfigurationError, raise_if_strict
 
 
 def get_components(cell_mask, nucleus_mask, pathogen_mask):
@@ -1187,8 +1191,16 @@ def _measure_crop_core(index, time_ls, file, settings):
         cells = np.unique(cell_mask)
     except Exception as e:
         print('main',e)
+        # `cells = 0` (a plain int) is the cross-process failure sentinel:
+        # the success path always assigns np.unique(...), an ndarray, so the
+        # parent's job_callback can tell the two apart and file this field on
+        # the run ledger. Without that the pool callback saw a normal result
+        # and the run reported as complete.
         cells = 0
         traceback.print_exc()
+        # Also lands in ~/.spacr/logs/spacr.log with the file id, so the
+        # failure survives a scrolled-away terminal.
+        RunLedger('_measure_crop_core').record_failure(file, stage='measure', exc=e)
 
     end = time.time()
     duration = end-start
@@ -1337,21 +1349,41 @@ def measure_crop(settings):
 
             int_setting_keys = ['cell_mask_dim', 'nucleus_mask_dim', 'pathogen_mask_dim', 'cell_min_size', 'nucleus_min_size', 'pathogen_min_size', 'cytoplasm_min_size']
             
+            # Category B, every one of these: the settings are wrong, so no
+            # field can be measured. Each historically printed a WARNING and
+            # returned None, which the caller cannot distinguish from a
+            # completed run that wrote no rows. SPACR_STRICT_ERRORS turns
+            # them into a ConfigurationError; the default stays as-is.
             if isinstance(settings['normalize'], bool) and settings['normalize']:
                 print(f'WARNING: to notmalize single object pngs set normalize to a list of 2 integers, e.g. [1,99] (lower and upper percentiles)')
+                raise_if_strict(
+                    "settings['normalize'] must be a list of two percentiles, "
+                    "e.g. [1, 99] — not a bool. Nothing was measured.",
+                    settings=settings)
                 return
-            
+
             if isinstance(settings['normalize'], list) or isinstance(settings['normalize'], bool) and settings['normalize']:
                 if settings['normalize_by'] not in ['png', 'fov']:
                     print("Warning: normalize_by should be either 'png' to notmalize each png to its own percentiles or 'fov' to normalize each png to the fov percentiles ")
+                    raise_if_strict(
+                        "settings['normalize_by'] must be 'png' or 'fov', got "
+                        f"{settings['normalize_by']!r}. Nothing was measured.",
+                        settings=settings)
                     return
 
             if not all(isinstance(settings[key], int) or settings[key] is None for key in int_setting_keys):
                 print(f"WARNING: {int_setting_keys} must all be integers")
+                raise_if_strict(
+                    f"{int_setting_keys} must all be int or None. "
+                    "Nothing was measured.", settings=settings)
                 return
 
             if not isinstance(settings['channels'], list):
                 print(f"WARNING: channels should be a list of integers representing channels e.g. [0,1,2,3]")
+                raise_if_strict(
+                    "settings['channels'] must be a list of channel indices, "
+                    f"got {type(settings['channels']).__name__}. "
+                    "Nothing was measured.", settings=settings)
                 return
 
             if not isinstance(settings['crop_mode'], list):
@@ -1367,9 +1399,29 @@ def measure_crop(settings):
             print(f'using {n_jobs} cpu cores')
             print_progress(files_processed=0, files_to_process=len(files), n_jobs=n_jobs, time_ls=[], operation_type='Measure and Crop')
 
+            # One ledger per source folder. Both failure routes are covered:
+            # a worker that returned the cells==0 sentinel (it caught its own
+            # exception), and a worker that died outright — the latter used to
+            # be completely invisible, because apply_async stores the exception
+            # on an AsyncResult nobody ever read.
+            ledger = RunLedger('measure_crop')
+            index_to_file = dict(enumerate(files))
+            reported_files = set()
+
             def job_callback(result):
                 """Pool callback: record completion, save partial output, and stop when done."""
                 completed_jobs.add(result[0])
+                item = index_to_file.get(result[0], result[0])
+                reported_files.add(item)
+                # cells is np.unique(cell_mask) on success and the int 0 when
+                # _measure_crop_core swallowed an exception for this field.
+                if isinstance(result[2], int) and result[2] == 0:
+                    ledger.record_failure(
+                        item, stage='measure',
+                        exc='field failed inside _measure_crop_core '
+                            '(worker traceback in ~/.spacr/logs/spacr.log)')
+                else:
+                    ledger.record_success(item, stage='measure')
                 process_meassure_crop_results([result], settings)
                 files_processed = len(completed_jobs)
                 files_to_process = len(files)
@@ -1377,16 +1429,40 @@ def measure_crop(settings):
                 if files_processed >= files_to_process:
                     pool.terminate()
 
+            def make_error_callback(job_file):
+                """Bind the filename into the pool's error callback.
+
+                ``apply_async`` hands the error callback only the exception,
+                so the file has to be closed over. Without this hook a worker
+                that died outright vanished entirely: the exception sat on an
+                AsyncResult nobody read, and the run still printed
+                "Successfully completed run".
+                """
+                def _on_error(exc):
+                    reported_files.add(job_file)
+                    ledger.record_failure(job_file, stage='measure_worker', exc=exc)
+                return _on_error
+
             with mp.Manager() as manager:
                 time_ls = manager.list()
                 completed_jobs = set()  # Set to keep track of completed jobs
-                
+
                 with mp.Pool(n_jobs) as pool:
                     for index, file in enumerate(files):
-                        pool.apply_async(_measure_crop_core, args=(index, time_ls, file, settings), callback=job_callback)
-                    
+                        pool.apply_async(_measure_crop_core, args=(index, time_ls, file, settings),
+                                         callback=job_callback,
+                                         error_callback=make_error_callback(file))
+
                     pool.close()
                     pool.join()
+
+            # Fields the pool never reported on at all (killed worker, pool
+            # terminated before the task ran). Counting them keeps
+            # n_attempted equal to the number of fields on disk.
+            for job_file in files:
+                if job_file not in reported_files:
+                    ledger.record_failure(job_file, stage='measure',
+                                          exc='field produced no result')
 
             if settings['timelapse']:
                 if settings['timelapse_objects'] == 'nucleus':
@@ -1395,7 +1471,16 @@ def measure_crop(settings):
                     object_types = ['nucleus', 'pathogen', 'cell']
                     _timelapse_masks_to_gif(folder_path, mask_channels, object_types)
 
-            print("Successfully completed run")
+            # Stamp measurements.db with the verdict, then print it last.
+            # This is the bit that turns "we printed a warning" into "the
+            # artifact knows it is suspect": spacr.errors.read_run_status()
+            # on this db tells a downstream reader how many fields are missing.
+            db_path = os.path.join(os.path.dirname(settings['src']),
+                                   'measurements', 'measurements.db')
+            ledger.finalize(artifact=db_path if os.path.isfile(db_path) else None)
+
+            if ledger.is_complete:
+                print("Successfully completed run")
 
 def process_meassure_crop_results(partial_results, settings):
     """
@@ -1435,12 +1520,15 @@ def generate_cellpose_train_set(folders, dst, min_objects=5):
         created if missing.
     :param min_objects: Minimum number of unique object labels required in a
         mask for the pair to be included. Default ``5``.
-    :returns: None.
+    :returns: None. Unreadable masks and failed copies are recorded on a
+        :class:`spacr.errors.RunLedger` and summarised loudly at the end, so
+        a training set that is quietly short of pairs announces itself.
     """
     os.makedirs(dst, exist_ok=True)
     os.makedirs(os.path.join(dst,'masks'), exist_ok=True)
     os.makedirs(os.path.join(dst,'imgs'), exist_ok=True)
-    
+
+    ledger = RunLedger('generate_cellpose_train_set')
     for folder in folders:
         mask_folder = os.path.join(folder, 'masks')
         experiment_id = os.path.basename(folder)
@@ -1453,16 +1541,22 @@ def generate_cellpose_train_set(folders, dst, min_objects=5):
 
             mask = cv2.imread(path, cv2.IMREAD_UNCHANGED)
             if mask is None:
+                # cv2 signals failure by returning None rather than raising,
+                # so this needs recording explicitly.
+                ledger.record_failure(path, stage='read_mask',
+                                      exc='cv2.imread returned None')
                 print(f"Error reading {path}, skipping.")
                 continue
 
             nr_of_objects = len(np.unique(mask)) - 1  # Assuming 0 is background
             if nr_of_objects >= min_objects:  # Use >= to include min_objects
-                try:
+                with ledger.item(path, stage='copy_pair',
+                                 echo=f"Error copying {path} to {new_mask}"):
                     shutil.copy(path, new_mask)
                     shutil.copy(img_path, new_img)
-                except Exception as e:
-                    print(f"Error copying {path} to {new_mask}: {e}")
+
+    ledger.finalize()
+    return ledger
 
 def get_object_counts(src):
     """Return per-count-type totals and per-file averages from the measurements DB.

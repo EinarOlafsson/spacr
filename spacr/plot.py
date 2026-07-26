@@ -28,6 +28,10 @@ from ipywidgets import IntSlider, interact
 from IPython.display import Image as ipyimage
 from matplotlib_venn import venn2
 
+# Fail-loud accounting: a missing annotation column silently pools every
+# condition together, which is far worse than a plot that refuses to render.
+from .errors import RunLedger, ConfigurationError, raise_if_strict
+
 def plot_image_mask_overlay(
     file,
     channels,
@@ -4184,24 +4188,31 @@ def plot_data_from_db(settings):
     df = pd.concat(dfs, axis=0)
     df['prc'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str)
     
-    if settings['cell_plate_metadata'] !=  None:
-        try:
-            df = df.dropna(subset='host_cells')
-        except Exception as e:
-            print(f"Could not drop NaN values from 'host_cell' column: {e}")
+    # Category B, not a per-item skip: the user asked for these conditions,
+    # so a missing annotation column means every well below is pooled under
+    # the wrong label. Historically this printed one line and produced a plot
+    # that looked entirely fine. The ledger makes the damage countable and
+    # SPACR_STRICT_ERRORS turns it into a hard stop.
+    annotation_ledger = RunLedger('plot_data_from_db:annotation')
+    for meta_key, column, label in (
+            ('cell_plate_metadata', 'host_cells', 'host_cell'),
+            ('pathogen_plate_metadata', 'pathogen', 'pathogen'),
+            ('treatment_plate_metadata', 'treatment', 'treatment')):
+        if settings[meta_key] != None:
+            try:
+                df = df.dropna(subset=column)
+            except Exception as e:
+                print(f"Could not drop NaN values from '{label}' column: {e}")
+                annotation_ledger.record_failure(column, stage='annotate_conditions', exc=e)
+                raise_if_strict(
+                    f"{meta_key} was set but the {column!r} column was never "
+                    f"created, so rows cannot be filtered to the requested "
+                    f"conditions; every group in this plot is suspect.",
+                    exc=e, settings=settings)
+            else:
+                annotation_ledger.record_success(column, stage='annotate_conditions')
+    annotation_ledger.finalize()
 
-    if settings['pathogen_plate_metadata'] !=  None:
-        try:
-            df = df.dropna(subset='pathogen')
-        except Exception as e:
-            print(f"Could not drop NaN values from 'pathogen' column: {e}")
-
-    if settings['treatment_plate_metadata'] !=  None:
-        try:
-            df = df.dropna(subset='treatment')
-        except Exception as e:
-            print(f"Could not drop NaN values from 'treatment' column: {e}")
-        
     if settings['data_column'] == 'recruitment':
         pahtogen_measurement = df[f"pathogen_channel_{settings['channel_of_interest']}_mean_intensity"]
         cytoplasm_measurement = df[f"cytoplasm_channel_{settings['channel_of_interest']}_mean_intensity"]
@@ -4313,7 +4324,15 @@ def plot_data_from_csv(settings):
                 # Split 'prc' into 'plateID', 'rowID', and 'columnID'
                 df[['plateID', 'rowID', 'columnID']] = df['prc'].str.split('_', expand=True)
             except Exception as e:
+                # Category B: without plateID/rowID/columnID every downstream
+                # grouping falls back to whatever happens to be in the frame,
+                # so the plot groups by the wrong thing rather than not at all.
                 print(f"Could not split the prc column: {e}")
+                raise_if_strict(
+                    "The 'prc' column could not be split into "
+                    "plateID/rowID/columnID; any grouping in this plot is "
+                    "computed on the wrong keys.",
+                    exc=e, settings=settings)
 
     if 'keep_groups' in settings.keys():
         if isinstance(settings['keep_groups'], str):
