@@ -116,6 +116,10 @@ SECTION_HINTS = {
     "REGRESSION":       "Regression model + covariates for mapping "
                         "screen scores to gRNA effect sizes, plus the "
                         "control-based threshold used to call hits.",
+    "INVASION ASSAY":   "The two-colour invasion assay: which channels hold the "
+                        "outside and total stains, how the outside signal is "
+                        "measured, how its threshold is chosen and checked, and "
+                        "which objects count as parasites at all.",
     "SEQUENCING":       "FASTQ inputs, barcode reference, mapping "
                         "chunk size, and QC thresholds.",
 }
@@ -161,6 +165,7 @@ APP_TITLES = {
     "recruitment":     "Recruitment",
     "activation":      "Activation Maps",
     "analyze_plaques": "Plaque Analysis",
+    "invasion":        "Invasion Assay",
     "annotate":        "Annotate",
     "make_masks":      "Make Masks",
     "db_browser":      "Database Browser",
@@ -201,6 +206,7 @@ APP_INTROS = {
     "train_compare":   "Overlay the loss and accuracy curves of several training runs on one axis and see, beside them, exactly which settings differed — with environment drift bucketed away from the knobs you actually turned.",
     "analyze_plaques": "Detect and quantify plaques in plaque-assay images.",
     "recruitment":     "Quantify recruitment of a marker to a compartment across conditions.",
+    "invasion":        "Score every parasite attached or invaded from a two-colour outside/inside stain, with the threshold derived per field and flagged when the two populations it assumes are not actually there.",
 }
 
 

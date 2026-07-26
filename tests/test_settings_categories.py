@@ -173,6 +173,16 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "queue_limit",
     # and opt-in resume (spacr.resume).
     "resume",
+    # and the two-colour invasion assay (submodules.analyze_invasion).
+    "parasite_table", "compartment", "outside_channel",
+    "total_channel", "intensity_statistic", "background_correction",
+    "outside_threshold_method", "outside_threshold", "control_wells",
+    "control_quantile", "min_control_objects", "min_objects_for_threshold",
+    "min_objects_for_bimodality", "bimodality_cutoff", "threshold_agreement_tolerance",
+    "threshold_sensitivity", "inflation_warn", "min_parasites_per_well",
+    "min_parasite_area", "max_parasite_area", "min_total_intensity",
+    "extracellular_class", "seed_wells_from_cells", "group_column",
+    "level", "change_plate", "qc_plot_max_panels",
     # The 3D (Beta) z-axis controls (spacr.zstack), filed under "Beta".
     "z_stack", "z_segmentation_mode", "z_axis", "z_projection",
     "anisotropy", "voxel_size_z_um", "voxel_size_xy_um", "stitch_threshold",

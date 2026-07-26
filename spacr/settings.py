@@ -1394,6 +1394,33 @@ expected_types = {
     "save_to_db":bool,
     "test_mode":bool,
     "dry_run":bool,
+    "parasite_table": str,
+    "compartment": str,
+    "outside_channel": int,
+    "total_channel": (int, type(None)),
+    "intensity_statistic": str,
+    "background_correction": str,
+    "outside_threshold_method": str,
+    "outside_threshold": (float, type(None)),
+    "control_wells": (list, type(None)),
+    "control_quantile": float,
+    "min_control_objects": int,
+    "min_objects_for_threshold": int,
+    "min_objects_for_bimodality": int,
+    "bimodality_cutoff": float,
+    "threshold_agreement_tolerance": float,
+    "threshold_sensitivity": float,
+    "inflation_warn": float,
+    "min_parasites_per_well": int,
+    "min_parasite_area": (int, float),
+    "max_parasite_area": (float, type(None)),
+    "min_total_intensity": (float, type(None)),
+    "extracellular_class": str,
+    "seed_wells_from_cells": bool,
+    "group_column": str,
+    "level": str,
+    "change_plate": bool,
+    "qc_plot_max_panels": int,
     "resume":bool,
     "test_images":int,
     "remove_background_cell":bool,
@@ -2089,6 +2116,33 @@ tooltips = {
     'count_data': "(str or list) - CSV(s) of per-well gRNA read counts from the sequencing step (unique_combinations.csv); each must contain grna, count, rowID and columnID columns or the run raises ValueError. These are the regression's independent variable. Pass one path per plate, position-aligned with plates_count; results are written under the first file's folder.",
     'cov_type': "(str) - Heteroscedasticity-robust covariance estimator passed to the OLS fit: 'HC0', 'HC1', 'HC2' or 'HC3', or None for classical non-robust errors. It changes standard errors and p-values only, never the coefficients; reach for 'HC3' when residual variance grows with well cell count. Applies to regression_type 'ols' only. Default None.",
     "resume": "(bool) - Continue an interrupted run instead of starting over. Mask generation skips fields whose merged/ stack is already present AND verifies complete; measure-and-crop skips fields already present in every table of measurements.db. Fields that are present but unusable - a .npy truncated by a crash mid-write, or a field with rows in some tables and not others - are redone rather than trusted, and the count of each is reported. Every field about to be redone has its existing rows deleted first, so resuming cannot duplicate objects or inflate the per-well counts every downstream analysis is computed from. Refuses to resume at all if the recorded settings differ materially from the current ones, because half a dataset made one way and half another is not a dataset. Default False.",
+    'background_correction': "(str) - Per-object local background subtracted from the outside-stain statistic before thresholding. 'auto' uses the median of the five-pixel ring outside the parasite mask, which removes a per-field offset without a flat-field image; 'none' subtracts nothing. Switching it on can backfire: a brightly stained attached parasite carries an antibody halo that reaches into that same ring, so subtracting it suppresses exactly the objects the threshold must keep above it. Default 'none'.",
+    'bimodality_cutoff': '(float) - Value of the bimodality coefficient above which a distribution counts as two populations rather than one, below which the field and well are flagged and their efficiency should not be quoted. A perfect two-population mixture scores 1.0 at any mixing ratio and a single normal population about 0.33, so 5/9 sits between them. Raise it to demand cleaner separation before a number is reported unflagged. Default 0.5555555555555556.',
+    'change_plate': "(bool) - Relabel each source directory as plate1, plate2, ... instead of trusting the plate ID stored in its database. Use it when several plates were written under the same name, which would otherwise let two plates' fields pool into one threshold and one well. Default False.",
+    'compartment': "(str) - Prefix the per-object measurement columns carry, so 'pathogen' selects pathogen_area and pathogen_channel_1_percentile_95. It must match the object type the table actually holds, or the area filters and the intensity statistic resolve to columns that do not exist and the run aborts naming them. Default 'pathogen'.",
+    'control_quantile': "(float) - Quantile of the control wells' outside-stain distribution taken as the threshold. 0.99 means one in a hundred genuinely unstained parasites is misread as attached. Lowering it toward 0.95 buys safety against this assay's dangerous error - an outside parasite scored invaded - at the cost of a few false attached calls; raising it does the reverse. Default 0.99.",
+    'control_wells': "(list or None) - Wells whose parasites are known to carry no pre-permeabilisation stain (no primary antibody, or no permeabilisation). They give the honest negative distribution the cut should sit above, which is better evidence than any automatic method. Entries may name a column ('c12'), a row ('r1'), a well ('r1_c12') or a full plate-row-column key, and those wells are dropped from every efficiency because a staining control is not an experimental condition. None runs the automatic per-field method instead. Default None.",
+    'extracellular_class': "(str) - How parasites overlapping no host cell are scored. 'attached' calls them attached whatever the stain says, since something outside every cell cannot have invaded one; 'classify' leaves the decision to the stain, which is what you want when the cell mask is the unreliable part; 'exclude' drops them before anything is counted. The count is reported as n_no_host_cell either way, so the choice stays visible. Default 'attached'.",
+    'group_column': "(str) - Column whose values become the experimental conditions compared against each other; 'condition' is the combined host-cell / pathogen / treatment label built from the plate-metadata maps. Point it at 'pathogen' or 'treatment' to compare on one factor alone. Rows with no value here are dropped before anything is counted. Default 'condition'.",
+    'inflation_warn': '(float) - Extra invasion efficiency, in proportion units, that raising the threshold by threshold_sensitivity may add to a well before the well is flagged. Only the upward move is watched, because lowering a threshold can only turn invaded back into attached and never invents a result. 0.05 flags a well whose efficiency would gain more than five percentage points. Default 0.05.',
+    'intensity_statistic': "(str) - Which per-object statistic of the pre-permeabilisation channel is thresholded. That stain sits on the parasite's surface, so the object's mean divides a rim by the whole area and reads a large parasite as dimmer than a small one stained identically - a bias that turns outside parasites into invaded ones. 'auto' therefore takes periphery_95, then percentile_95, then mean, in that order and warns on the last; 'periphery_95', 'periphery_85', 'periphery_mean', 'percentile_95', 'percentile_85', 'max', 'mean', 'median' and 'integrated' pick one explicitly, and any literal column name is used verbatim. Default 'auto'.",
+    'level': "(str) - Aggregation the condition figure's stacked bars are drawn at: 'object' pools every parasite into one bar per condition, 'well' averages the per-well proportions and draws SD whiskers, 'plate' does the same across plates. It changes the figure only - the reported statistics always treat the well as the unit of replication. Default 'object'.",
+    'max_parasite_area': '(float or None) - Largest object area in pixels kept as a parasite. Anything bigger is several parasites merged by the mask, whose rim statistic mixes them and whose single classification then stands for all of them. None keeps everything. Default None.',
+    'min_control_objects': "(int) - Objects a plate's control wells must contribute before their quantile is trusted as a threshold. Below it the plate falls back to the automatic per-field method and says so, rather than taking a 99th percentile from a handful of points. Default 10.",
+    'min_objects_for_bimodality': '(int) - Objects required before the bimodality coefficient is computed at all; below it the coefficient is left NaN and the field or well is flagged. The statistic exceeds its cutoff on genuinely unimodal data about 45% of the time at ten objects and 15% at twenty, so computing it there would silence the check exactly where the classification is least trustworthy. Default 30, where that false-pass rate is 5%.',
+    'min_objects_for_threshold': "(int) - Objects a field must hold before a threshold is derived from it alone; below it the field borrows its well's threshold, then its plate's, and the level actually used is written into automatic_source. Raising it makes thresholds steadier and less local, which is the wrong trade when illumination varies across the field of view. Default 10.",
+    'min_parasite_area': '(int or float) - Smallest object area in pixels kept as a parasite. Smaller objects are debris, and their outside-stain statistic is noise over a handful of pixels that will land on whichever side of the threshold the noise happens to fall. Raise it when the pathogen mask is shattering. Default 0, which filters nothing.',
+    'min_parasites_per_well': "(int) - Scored parasites below which a well's efficiency is flagged as too thin to quote. At fifty the 95% interval on a proportion near a half is still about fourteen percentage points wide, which is larger than most real effects. The number is never suppressed, only marked, and n_total travels beside it. Default 50.",
+    'min_total_intensity': '(float or None) - Minimum mean intensity in the post-permeabilisation channel for an object to count as a parasite at all. That antibody stains every parasite, so an object dark in it is debris inside the pathogen mask rather than a dim parasite, and it would otherwise contribute a background-level outside signal and be scored invaded. None applies no filter. Default None.',
+    'outside_channel': "(int) - Zero-indexed channel of the pre-permeabilisation antibody, which reaches only parasites still outside the host cell. Every classification the assay makes is a threshold on this channel, so pointing it at the wrong stain silently converts the readout into whatever that channel measures. Note this is a channel index, not measure.py's <object>_channel_<n>_outside_* columns, which are the ring just outside an object's own mask. Default 1.",
+    'outside_threshold': '(float or None) - Fixed cut on the outside-stain statistic, applied to every field and overriding both the automatic method and the control wells. Set it only when you have calibrated it yourself: raising it above the true cut moves attached parasites into the invaded class and inflates invasion efficiency, and nothing moves them back. Control wells, if given, stay on as the reference the QC judges the fixed value against. None derives the cut per field. Default None.',
+    'outside_threshold_method': "(str) - How the outside-stain cut is derived from each field's own objects when no fixed value and no control wells are given: 'otsu', 'triangle', 'li', 'yen' or 'mean'. All of them find a split; none of them can tell you a split exists, which is what the bimodality check is for. 'triangle' suits a heavily skewed distribution with a small stained minority, 'otsu' a more balanced one. Default 'otsu'.",
+    'parasite_table': "(str) - Table in measurements/measurements.db holding one row per segmented parasite. It is read directly rather than through the usual merge, because that merge collapses pathogen rows onto their host cell and would sum several parasites' stain intensities into a single row. Change it only if measure_crop wrote the parasite objects under a non-standard name. Default 'pathogen'.",
+    'qc_plot_max_panels': '(int) - Largest number of wells drawn in the threshold-diagnostic figure, taken in sorted well order. It exists so a 384-well plate does not produce a 384-panel figure; the CSVs always carry every well regardless. Default 12.',
+    'seed_wells_from_cells': '(bool) - Read the cell table as well, so a well holding host cells but no parasites appears in the results with a zero denominator instead of vanishing from the plate entirely. Switch it off only when the database has no cell table. Default True.',
+    'threshold_agreement_tolerance': "(float) - Relative distance a threshold may sit from its reference before the field and well are flagged; the reference is the control-derived cut when controls exist, otherwise the field's own automatic cut. 0.5 means a factor of two. Lower it to catch smaller drifts between a fixed threshold and what the data would have chosen. Default 0.5.",
+    'threshold_sensitivity': "(float) - Fractional amount the threshold is moved up and down to produce the invasion_efficiency_low_threshold and _high_threshold bracket, which shows how much of a well's answer is the threshold rather than the biology. Widening it widens the bracket and makes the inflation flag more eager. Default 0.25.",
+    'total_channel': '(int or None) - Zero-indexed channel of the post-permeabilisation antibody that stains every parasite. Nothing is classified from it; it only supplies the intensity that min_total_intensity filters on, so an incorrect value costs nothing until that filter is switched on. Default 0.',
     'strict_errors': "(bool or None) - What happens when a step hits a problem it could technically survive. None (the default) defers to the SPACR_STRICT_ERRORS environment variable, which is how a cluster turns this on for a whole batch without editing every settings file; False and True are explicit per-run choices and override it. When off, the failure is recorded in the run ledger, printed in the end-of-run summary and stamped into the artifact's run_status, and the run continues on the items that worked. When on, a swallowed setup or configuration error - an unreadable path, a missing column, a database that will not open - raises immediately, so a batch job stops at the first sign its inputs are wrong instead of producing a plausible-looking partial result. Per-item failures such as one corrupt image are still survived either way. Default None.",
     'max_failure_rate': "(float or None) - Fraction of failed items above which the run aborts rather than finishing and reporting. 0.2 means 'stop once more than a fifth of the fields have failed', on the grounds that whatever is left is no longer the experiment. The ledger is stamped into the artifact before the abort, so the evidence survives. None (the default) never aborts on rate alone - every failure is still counted and reported, and the artifact is still marked partial. Default None.",
     'queue_by_uncertainty': "(bool) - Reorder the Annotate grid so the crops the classifier is least sure about come first, instead of showing them in database order. Labelling a crop the model already calls correctly with 99% probability teaches it nothing; the ones near the decision boundary are where a human's time actually moves the model. Needs model scores in png_list, so Classify (CV) has to have run - with none present the grid falls back to page order and says so rather than coming up empty. Crops that already carry an annotation are excluded. Default False.",
@@ -2272,6 +2326,23 @@ categories = {
     "Sequencing": ["mode", "single_direction", "signal_direction", "target_sequence", "regex", "offset", "offset_start", "expected_end", "chunk_size", "fill_na", "save_h5", "comp_type", "comp_level"],
 
     "Plot": ["cmap", "figuresize", "normalize_plots", "black_background", "save_figure", "log_x", "log_y", "x_lim", "split_axis_lims", "examples_to_plot", "plot_control", "plot_nr", "nr_imgs", "um_per_pixel", "image_nr", "dot_size", "img_zoom", "row_limit", "color_by", "plot_images", "remove_image_canvas", "plot_points", "plot_outlines", "smooth_lines", "plot_by_cluster", "plot_cluster_grids", "heatmap_feature", "grouping", "min_max", "highlight"],
+    # One heading for the whole invasion assay, ordered the way it is set up:
+    # which channels hold the two stains -> how the outside signal is measured
+    # -> how its threshold is chosen -> what makes that threshold trustworthy
+    # -> which objects count at all -> how wells are grouped and reported.
+    "Invasion Assay": [
+        "parasite_table", "compartment", "outside_channel", "total_channel",
+        "intensity_statistic", "background_correction",
+        "outside_threshold_method", "outside_threshold", "control_wells",
+        "control_quantile", "min_control_objects", "min_objects_for_threshold",
+        "min_objects_for_bimodality", "bimodality_cutoff",
+        "threshold_agreement_tolerance", "threshold_sensitivity",
+        "inflation_warn", "min_parasites_per_well",
+        "min_parasite_area", "max_parasite_area", "min_total_intensity",
+        "extracellular_class",
+        "seed_wells_from_cells", "group_column", "level", "change_plate",
+        "qc_plot_max_panels",
+    ],
 
     "Advanced": ["resume", "strict_errors", "max_failure_rate", "crop_source", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "normalize", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "compression", "diameter_estimate_n_fields", "nuclei_limit", "pathogen_limit", "cells_per_well", "target_intensity_min", "shuffle", "save", "filter", "merge_pathogens"],
 
@@ -2740,6 +2811,51 @@ def set_interperate_vision_model_defaults(settings):
     settings.setdefault('n_jobs',-1)
     settings.setdefault('shap_approximate',True)
     settings.setdefault('score_column','cv_predictions')
+    return settings
+
+def set_analyze_invasion_defaults(settings):
+    """Populate default settings for the two-colour (red/green) invasion assay.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
+    settings.setdefault('src','path')
+    settings.setdefault('parasite_table','pathogen')
+    settings.setdefault('compartment','pathogen')
+    settings.setdefault('outside_channel',1)
+    settings.setdefault('total_channel',0)
+    settings.setdefault('intensity_statistic','auto')
+    settings.setdefault('background_correction','none')
+    settings.setdefault('outside_threshold_method','otsu')
+    settings.setdefault('outside_threshold',None)
+    settings.setdefault('control_wells',None)
+    settings.setdefault('control_quantile',0.99)
+    settings.setdefault('min_control_objects',10)
+    settings.setdefault('min_objects_for_threshold',10)
+    settings.setdefault('min_objects_for_bimodality',30)
+    settings.setdefault('bimodality_cutoff',0.5555555555555556)
+    settings.setdefault('threshold_agreement_tolerance',0.5)
+    settings.setdefault('threshold_sensitivity',0.25)
+    settings.setdefault('inflation_warn',0.05)
+    settings.setdefault('min_parasites_per_well',50)
+    settings.setdefault('min_parasite_area',0)
+    settings.setdefault('max_parasite_area',None)
+    settings.setdefault('min_total_intensity',None)
+    settings.setdefault('extracellular_class','attached')
+    settings.setdefault('seed_wells_from_cells',True)
+    settings.setdefault('cell_types',['Hela'])
+    settings.setdefault('cell_plate_metadata',None)
+    settings.setdefault('pathogen_types',['nc', 'pc'])
+    settings.setdefault('pathogen_plate_metadata',[['c1'], ['c2']])
+    settings.setdefault('treatments',None)
+    settings.setdefault('treatment_plate_metadata',None)
+    settings.setdefault('group_column','condition')
+    settings.setdefault('level','object')
+    settings.setdefault('change_plate',False)
+    settings.setdefault('qc_plot_max_panels',12)
+    settings.setdefault('cmap','viridis')
+    settings.setdefault('save',True)
+    settings.setdefault('verbose',False)
     return settings
 
 def set_analyze_endodyogeny_defaults(settings):
