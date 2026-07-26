@@ -271,12 +271,6 @@ def test_concatenate_channel_pads_arrays_of_mixed_shape(tmp_path):
 # _concatenate_channel — timelapse branch
 # ---------------------------------------------------------------------------
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: io._concatenate_channel timelapse branch reads `start` before "
-           "assignment (io.py:1121) so every group raises UnboundLocalError, is "
-           "swallowed by the except, and no .npz is ever written.",
-)
 def test_concatenate_channel_timelapse_writes_one_npz_per_field(tmp_path):
     """timelapse=True should emit <plate>_<well>_<field>.npz per field, with the
     frames stacked in timepoint order."""

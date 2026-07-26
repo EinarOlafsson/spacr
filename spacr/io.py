@@ -100,8 +100,13 @@ def process_non_tif_non_2D_images(folder):
             return image, image.dtype
         
         elif ext in ['.png', '.jpg', '.jpeg']:
-            image = Image.open(file_path)
-            return np.array(image), image.mode
+            # Return a numpy dtype like every sibling branch. Returning PIL's
+            # mode string here fed image.astype('RGB') -> TypeError (swallowed,
+            # so multi-channel PNG/JPEG were silently dropped), and astype('L')
+            # -> uint64, inflating 8-bit greyscale 8x despite the
+            # "bit depth is preserved" contract.
+            image = np.array(Image.open(file_path))
+            return image, image.dtype
         
         elif ext == '.czi':
             with czifile.CziFile(file_path) as czi:
@@ -773,6 +778,15 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
 
                 plate, well, field, channel, timeID, sliceID = key
 
+                # load_images_from_paths deliberately skips unreadable files, so
+                # this list can be empty. np.stack([]) below used to raise and
+                # abort the whole ingest before stack/ was written, discarding
+                # every healthy FOV in the plate because of one corrupt raw.
+                if not images:
+                    print(f"Warning: no readable images for {key}, skipping")
+                    files_processed += 1
+                    continue
+
                 if timelapse:
                     output_filename = f'{plate}_{well}_{field}.tif'
                 else:
@@ -1105,6 +1119,12 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
         try:
             time_stack_path_lists = _generate_time_lists(os.listdir(src))
             for i, time_stack_list in enumerate(time_stack_path_lists):
+                # `start` used to be bound only in the non-timelapse branch, so
+                # this branch raised UnboundLocalError on its first group and
+                # the except below reported it as a filename-metadata problem
+                # while silently writing nothing. Time per group, to match the
+                # group-based files_processed/files_to_process below.
+                start = time.time()
                 stack_region = []
                 filenames_region = []
                 for idx, file in enumerate(time_stack_list):
@@ -1121,7 +1141,9 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
                 duration = stop - start
                 time_ls.append(duration)
                 files_processed = i+1
-                files_to_process = time_stack_path_lists
+                # A count, not the list-of-lists: print_progress normalises a
+                # list via len(set(...)), which raises on unhashable lists.
+                files_to_process = len(time_stack_path_lists)
                 print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type="Concatinating")
                 stack = np.stack(stack_region)
                 save_loc = os.path.join(channel_stack_loc, f'{name}.npz')
@@ -1285,20 +1307,33 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
     :param channels: Channel indices to keep in the output stack.
     :param save_dtype: NumPy dtype for the saved normalised arrays.
         Default ``np.float32``.
-    :param settings: Preprocessing settings dict. Must contain the
-        background, signal-to-noise, randomize, timelapse and plotting
-        keys used elsewhere in preprocessing.
+    :param settings: Preprocessing settings dict. **Required** — it must
+        contain the background, signal-to-noise, randomize, timelapse,
+        batch_size and plotting keys used elsewhere in preprocessing. The
+        ``None`` in the signature is kept only so the argument can still be
+        passed positionally; omitting it is an error.
     :returns: Path to the directory where normalised arrays were saved.
+    :raises ValueError: if ``settings`` is not supplied.
     """
+    # `settings = {}` used to be substituted here, but the very next reads are
+    # settings['timelapse'] / ['randomize'] / ['batch_size'], so the empty dict
+    # could only ever produce a cryptic KeyError from deep inside the function
+    # (after masks/ had already been created). Say what is actually wrong.
     if settings is None:
-        settings = {}
+        raise ValueError(
+            "concatenate_and_normalize requires a settings dict (it reads "
+            "'timelapse', 'randomize', 'batch_size', 'lower_percentile' and the "
+            "per-channel background / Signal_to_noise keys); pass the dict "
+            "returned by settings.set_default_settings_preprocess_img_data.")
     from .utils import print_progress
     from .plot import plot_arrays
 
     # Coerce channel indices to int up-front so both the per-batch
     # normalisation and the ``normalized_stack[..., channels]`` slice work
     # even when channels came through as strings ('0', '1', ...).
-    channels = [int(c) for c in channels]
+    # Drop Nones first: an unused object channel is passed as None, and
+    # coercing before the (later) None filter made int(None) raise TypeError.
+    channels = [int(c) for c in channels if c is not None]
 
     """
     Concatenates and normalizes channel data from multiple files and saves the normalized data.
@@ -1388,21 +1423,28 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
         files_processed = 0
         for i, path in enumerate(paths):
             start = time.time()
+            # An unreadable file must skip only its own accumulation. The old
+            # `continue` also jumped past the batch-flush check below, so a bad
+            # file in the final position discarded every good image already
+            # collected in that batch (and elsewhere merged two batches into
+            # one, silently changing the per-batch normalisation grouping).
             try:
                 array = np.load(path)
             except Exception as e:
                 print(f"Error loading file {path}: {e}")
-                continue
-            stack_ls.append(array)
-            filenames_batch.append(os.path.basename(path))
-            stop = time.time()
-            duration = stop - start
-            time_ls.append(duration)
-            files_processed += 1
-            files_to_process = nr_files
-            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Concatinating")
+            else:
+                stack_ls.append(array)
+                filenames_batch.append(os.path.basename(path))
+                stop = time.time()
+                duration = stop - start
+                time_ls.append(duration)
+                files_processed += 1
+                files_to_process = nr_files
+                print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Concatinating")
 
-            if (i + 1) % settings['batch_size'] == 0 or i + 1 == nr_files:
+            # `stack_ls and` guards the case where every file in a batch failed:
+            # np.stack([]) would raise.
+            if stack_ls and ((i + 1) % settings['batch_size'] == 0 or i + 1 == nr_files):
                 unique_shapes = {arr.shape[:-1] for arr in stack_ls}
                 if len(unique_shapes) > 1:
                     max_dims = np.max(np.array(list(unique_shapes)), axis=0)
@@ -1544,6 +1586,12 @@ def _normalize_stack(src, backgrounds=None, remove_backgrounds=None, lower_perce
             arr_2d_normalized = np.zeros_like(single_channel, dtype=single_channel.dtype)
             signal_to_noise_ratio_ls = []
             time_ls = []
+            # Seeded because the per-frame progress print below formats these
+            # unconditionally while they are only assigned for frames that have
+            # non-zero pixels: a blank FIRST frame used to abort the whole run
+            # with UnboundLocalError, and a later blank frame reported the
+            # previous frame's percentiles.
+            lower = upper = 0.0
             for array_index in range(single_channel.shape[0]):
                 start = time.time()
                 arr_2d = single_channel[array_index, :, :]
@@ -1552,6 +1600,7 @@ def _normalize_stack(src, backgrounds=None, remove_backgrounds=None, lower_perce
                     lower, upper = np.percentile(non_zero_arr_2d, (lower_percentile, upper_p))
                     signal_to_noise_ratio = upper / lower
                 else:
+                    lower, upper = 0.0, 0.0
                     signal_to_noise_ratio = 0
                 signal_to_noise_ratio_ls.append(signal_to_noise_ratio)
                 average_stnr = np.mean(signal_to_noise_ratio_ls) if len(signal_to_noise_ratio_ls) > 0 else 0
@@ -1856,20 +1905,27 @@ def preprocess_img_data(settings):
                     save_original_images=settings.get('save_original_images', True))
 
                 #Make sure no batches will be of only one image
-                all_imgs = len(stack_path)
-                full_batches = all_imgs // settings['batch_size']
-                last_batch_size = all_imgs % settings['batch_size']
-                
-                # Check if the last batch is of size 1
+                # This counted len(stack_path) — the number of CHARACTERS in the
+                # path string, which always ends in 'stack' — so the check fired
+                # (or stayed silent) purely because of how long src happened to
+                # be. Count the .npy stacks that concatenate_and_normalize will
+                # actually batch over instead.
+                all_imgs = len([f for f in os.listdir(stack_path) if f.endswith('.npy')]) if os.path.isdir(stack_path) else 0
+                batch_size = int(settings.get('batch_size') or 0)
+                full_batches = all_imgs // batch_size if batch_size else 0
+                last_batch_size = all_imgs % batch_size if batch_size else 0
+
+                # Report, don't raise: the stack is already written by this
+                # point so aborting cannot fix the batching, it only skipped the
+                # channel-count fix-up, the movies, the plot and the MIP below —
+                # silently corrupting the output of an otherwise fine run.
                 if last_batch_size == 1:
-                    # If there's only one batch and its size is 1, it's also an issue
                     if full_batches == 0:
-                        raise ValueError("Only one batch of size 1 detected. Adjust the batch size.")
-                    # If the last batch is of size 1, merge it with the second last batch
-                    elif full_batches > 0:
+                        print(f"Warning: Only one batch of size 1 detected (all images: {all_imgs}). Adjust the batch size.")
+                    else:
                         print(f"all images: {all_imgs},  full batch: {full_batches}, last batch: {last_batch_size}")
-                        raise ValueError("Last batch of size 1 detected. Adjust the batch size.")
-                        
+                        print("Warning: Last batch of size 1 detected. Adjust the batch size.")
+
                 if len(settings['channels']) != nr_channel_folders:
                     print(f"Number of channels does not match number of channel folders. channels: {settings['channels']} channel folders: {nr_channel_folders}")
                     new_channels = list(range(nr_channel_folders))
@@ -1899,9 +1955,18 @@ def preprocess_img_data(settings):
         
     for key in ['nucleus_channel', 'cell_channel', 'pathogen_channel', 'organelle_channel']:
         ch = settings.get(key)
-        if ch is not None and ch in seen:
-            key = f"cellpose_{key}"
-            settings[key] = seen[ch]
+        if ch is None:
+            continue
+        # `seen` is keyed on int(ch) (see the dedup loop above), so looking the
+        # raw value up meant a string channel index ('0') never matched and no
+        # cellpose_* key was written — leaving the objects to be segmented on
+        # the wrong plane, silently. Uncoercible values are dropped as before.
+        try:
+            ch = int(ch)
+        except (TypeError, ValueError):
+            continue
+        if ch in seen:
+            settings[f"cellpose_{key}"] = seen[ch]
             
     return settings, src
 
@@ -2646,6 +2711,12 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_
     # keep final integer counts per prcfo for pathogens
     pathogen_counts = None
 
+    # Column of `metadata` that the grouping key (prcfo) was built from. The
+    # child-only branches key on the PARENT cell ('cell_id'), so rebuilding
+    # metadata's prcfo from 'object_label' further down made the final
+    # metadata/data merge match nothing and silently return zero rows.
+    metadata_key = 'object_label'
+
     # Initialize an empty dictionary to store DataFrames by table name
     data_dict = {table: [] for table in tables}
 
@@ -2653,12 +2724,16 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_
     for idx, loc in enumerate(locs):
         db_dfs = _read_db(loc, tables)
         if change_plate:
-            db_dfs['plateID'] = f'plate{idx+1}'
-            db_dfs['prc'] = (
-                db_dfs['plateID'].astype(str)
-                + '_' + db_dfs['rowID'].astype(str)
-                + '_' + db_dfs['columnID'].astype(str)
-            )
+            # _read_db returns a LIST of DataFrames (one per table) — it was
+            # string-subscripted here, so change_plate=True always raised
+            # TypeError and the feature never worked. Relabel each frame.
+            for df in db_dfs:
+                df['plateID'] = f'plate{idx+1}'
+                df['prc'] = (
+                    df['plateID'].astype(str)
+                    + '_' + df['rowID'].astype(str)
+                    + '_' + df['columnID'].astype(str)
+                )
         for table, df in zip(tables, db_dfs):
             data_dict[table].append(df)
 
@@ -2716,6 +2791,7 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_
 
         if all(key not in data_dict for key in ['cell', 'cytoplasm']):
             merged_df, metadata = _split_data(nucleus, 'prcfo', 'cell_id')
+            metadata_key = 'cell_id'
 
             if verbose:
                 print(f'nucleus: {len(nucleus)}, nucleus grouped: {len(merged_df)}')
@@ -2743,6 +2819,7 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_
 
         if all(key not in data_dict for key in ['cell', 'cytoplasm', 'nucleus']):
             merged_df, metadata = _split_data(pathogens, 'prcfo', 'cell_id')
+            metadata_key = 'cell_id'
 
             if verbose:
                 print(f'pathogens: {len(pathogens)}, pathogens grouped: {len(merged_df)}')
@@ -2780,15 +2857,18 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_
     metadata = metadata.assign(
         prc=lambda x: x['plateID'] + '_' + x['rowID'] + '_' + x['columnID']
     )
-    cells_well = metadata.groupby('prc')['object_label'].nunique().reset_index(name='cells_per_well')
+    # metadata_key, not a hard-coded 'object_label': for a child-only merge the
+    # cells per well are the distinct PARENT cells, and prcfo must be rebuilt
+    # from the same column the data was grouped on or the merge below is empty.
+    cells_well = metadata.groupby('prc')[metadata_key].nunique().reset_index(name='cells_per_well')
     metadata = metadata.merge(cells_well, on='prc')
 
     if 'prcf' in metadata.columns:
-        metadata = metadata.assign(prcfo=lambda x: x['prcf'] + '_' + x['object_label'])
+        metadata = metadata.assign(prcfo=lambda x: x['prcf'] + '_' + x[metadata_key])
     else:
         metadata = metadata.assign(
             prcfo=lambda x: (
-                x['plateID'] + '_' + x['rowID'] + '_' + x['columnID'] + '_' + x['fieldID'] + '_' + x['object_label']
+                x['plateID'] + '_' + x['rowID'] + '_' + x['columnID'] + '_' + x['fieldID'] + '_' + x[metadata_key]
             )
         )
     metadata.set_index('prcfo', inplace=True)
@@ -3983,8 +4063,13 @@ def convert_to_yokogawa(folder):
                     for f_idx in fields:
                         for c_idx, channel in enumerate(channels):
                             try:
-                                mip_image = np.max.reduce([
-                                    nd2.get_frame_2D(t=t_idx, v=f_idx, z=z_idx, c=c_idx) 
+                                # np.max is a dispatcher, not a ufunc, so
+                                # np.max.reduce raised AttributeError before a
+                                # single frame was read: every ND2 silently
+                                # produced no TIFF (and the IndexError handler
+                                # below was dead code). np.maximum is the ufunc.
+                                mip_image = np.maximum.reduce([
+                                    nd2.get_frame_2D(t=t_idx, v=f_idx, z=z_idx, c=c_idx)
                                     for z_idx in z_levels
                                 ], axis=0)
 

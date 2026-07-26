@@ -199,16 +199,6 @@ def test_normalize_stack_honours_save_dtype(tmp_path):
     assert res.max() == pytest.approx(1.0)
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "BUG: _normalize_stack's per-frame progress print formats `upper`/`lower`, "
-        "but those names are only bound inside the `non_zero_arr_2d.size > 0` "
-        "branch. A channel whose FIRST 2-D frame is entirely zero (a blank field, "
-        "or every pixel removed by background subtraction) raises "
-        "UnboundLocalError instead of copying the blank frame through."
-    ),
-)
 def test_normalize_stack_first_frame_all_zero(tmp_path):
     """A leading blank frame must be copied through, not crash the run."""
     from spacr.io import _normalize_stack

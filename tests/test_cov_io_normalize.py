@@ -375,10 +375,6 @@ def test_concatenate_and_normalize_ignores_non_npy_and_bad_npy(tmp_path,
     assert "readme.txt" not in filenames
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: concatenate_and_normalize `continue`s past the batch-flush check when "
-    "np.load fails, so an unreadable file in the final position silently "
-    "discards every successfully loaded image in the trailing batch"))
 def test_concatenate_and_normalize_bad_last_file_keeps_trailing_batch(
         tmp_path, monkeypatch):
     from spacr.io import concatenate_and_normalize
@@ -471,17 +467,17 @@ def test_concatenate_and_normalize_no_plot_when_disabled(tmp_path, monkeypatch):
 
 
 def test_concatenate_and_normalize_requires_settings(tmp_path):
-    """settings=None still creates masks/ but cannot run without 'timelapse'."""
+    """settings is mandatory: omitting it fails fast and says so."""
     from spacr.io import concatenate_and_normalize
 
     src = tmp_path / "stack"
     _write_fields(src, ["p_A01_1.npy"])
 
-    with pytest.raises(KeyError) as exc:
+    with pytest.raises(ValueError) as exc:
         concatenate_and_normalize(str(src), [0, 1], settings=None)
-    assert "timelapse" in str(exc.value)
-    # The output folder is created before the settings are consumed.
-    assert (tmp_path / "masks").is_dir()
+    assert "requires a settings dict" in str(exc.value)
+    # Fails before any side effect: no masks/ folder is left behind.
+    assert not (tmp_path / "masks").exists()
 
 
 def test_concatenate_and_normalize_accepts_string_channels(tmp_path):
@@ -496,10 +492,6 @@ def test_concatenate_and_normalize_accepts_string_channels(tmp_path):
         assert npz["data"].shape == (2, 8, 8, 2)
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: concatenate_and_normalize coerces channels with int(c) before the "
-    "`item is not None` filter, so a None channel (the documented 'unused "
-    "object channel' marker) raises TypeError instead of being dropped"))
 def test_concatenate_and_normalize_drops_none_channels(tmp_path):
     from spacr.io import concatenate_and_normalize
 
