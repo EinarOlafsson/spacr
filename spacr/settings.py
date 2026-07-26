@@ -91,6 +91,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('cell_diameter', None)
     settings.setdefault('nucleus_diameter', None)
     settings.setdefault('pathogen_diameter', None)
+    settings.setdefault('diameter_estimate_n_fields', 5)
 
     # Channel settings
     settings.setdefault('cell_channel', None)
@@ -134,6 +135,10 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('timelapse_mode', 'trackastra')
     settings.setdefault('trackastra_model', 'general_2d')
     settings.setdefault('trackastra_linking', 'greedy')
+    settings.setdefault('ultrack_max_distance', 25.0)
+    settings.setdefault('ultrack_division_weight', -0.1)
+    settings.setdefault('ultrack_contour_sigma', 0.0)
+    settings.setdefault('ultrack_n_workers', 1)
     settings.setdefault('timelapse_objects', ['cell'])
 
     # Misc settings
@@ -1073,6 +1078,10 @@ expected_types = {
     "timelapse_mode": str,
     "trackastra_model": str,
     "trackastra_linking": str,
+    "ultrack_max_distance": float,
+    "ultrack_division_weight": float,
+    "ultrack_contour_sigma": float,
+    "ultrack_n_workers": int,
     "timelapse_objects": list,
     "fps": int,
     "lower_percentile": (int, float),
@@ -1330,6 +1339,7 @@ expected_types = {
     "cell_diameter":int,
     "nucleus_diameter":int,
     "pathogen_diameter":int,
+    "diameter_estimate_n_fields":int,
     "consolidate":bool,
     'use_sam_cell':bool,
     'use_sam_nucleus':bool,
@@ -1505,6 +1515,7 @@ tooltips = {
     "cell_diameter": "(int) - (DEPRECEATED) Expected cell diameter in pixels. spaCR now segments with Cellpose-SAM, which sizes objects itself and is called with diameter=None, so this value has no effect on a normal mask run; only the opt-in pipeline_style='v2' route still passes it. Leave at None and control size with cell_min_area / cell_max_area. Default None.",
     "nucleus_diameter": "(int) - (DEPRECEATED) Expected nucleus diameter in pixels. It still overrides the magnification-derived diameter in _get_object_settings, but the live pipeline (generate_cellpose_masks_sam) calls model.eval with diameter=None, so changing it does not affect segmentation. Default None; constrain object size with nucleus_min_area / nucleus_max_area instead.",
     "pathogen_diameter": "(int) - (DEPRECEATED) Nominal pathogen diameter in pixels. Cellpose-SAM is called with diameter=None, so this no longer rescales anything; the custom toxo model whose diam_mean it used to supply has been removed. Leave at None and let magnification derive the value. Default None.",
+    "diameter_estimate_n_fields": "(int) - How many fields spacr.diameter.estimate_diameters reads before it proposes cell_diameter, nucleus_diameter and pathogen_diameter from blob statistics instead of leaving you to guess. Fields are taken on an even stride across the sorted plate, so rows and columns are both represented rather than the first few wells; each field costs about a second of CPU and loads neither torch nor Cellpose. Raise it to 10-20 when wells vary a lot or the proposal comes back at low confidence, drop it to 2-3 for a quick look. Default 5.",
     "nucleus_CP_prob": "(float) - Cellpose cell-probability threshold for the nucleus channel, passed straight to model.eval as cellprob_threshold. A pixel must exceed it to join a mask, so raising it shrinks masks and drops dim nuclei, while lowering it grows masks and recovers faint ones along with more debris. Useful range about -6 to 6; default 0.",
     "pathogen_CP_prob": "(float) - Cellpose cellprob_threshold for the pathogen channel: a pixel is claimed by a mask only if its predicted object probability exceeds this. Lower it (toward -6) to recover dim or small parasites and grow mask boundaries; raise it (toward 6) to shrink masks and drop faint objects. Useful range about -6 to 6. Default 0.",
     "nucleus_FT": "(float) - Cellpose flow_threshold for nucleus masks: the maximum allowed error between a mask's recomputed flows and the network's predicted flows. Lowering it discards more irregularly shaped nuclei, giving fewer but cleaner objects; raising it keeps nearly everything Cellpose proposes. Typical range 0 to 3; spaCR default 1.0, which is permissive.",
@@ -1737,9 +1748,13 @@ tooltips = {
     "pathogen_model": "(str) - use a custom cellpose model to detect pathogen objects.",
     "timelapse_displacement": "(int or None) - Maximum distance in pixels an object may travel between consecutive frames when linking: trackpy's search_range, or btrack's max search radius. Too small fragments tracks, too large causes identity swaps and SubnetOversize failures. None auto-searches downward from 500 for trackpy and falls back to 100 for btrack. Default None.",
     "timelapse_memory": "(int) - Number of consecutive frames an object may vanish (e.g. missed by segmentation) and still be re-linked to the same track by trackpy. Raise it when tracks fragment because objects blink out; too high risks merging two different objects into one track. Not used by the btrack mode. Default 3.",
-    "timelapse_mode": "(str) - Which tracker links objects between frames. 'trackastra' is a transformer that tops the Cell Tracking Challenge leaderboard, needs no tuning and links divisions natively; 'trackpy' needs a search radius and memory; 'btrack' needs a motion model; 'iou' just overlaps consecutive frames and drifts under fast motion. Default 'trackastra'.",
+    "timelapse_mode": "(str) - Which tracker links objects between frames. 'trackastra' is a transformer that tops the Cell Tracking Challenge leaderboard, needs no tuning and links divisions natively; 'ultrack' solves segmentation and linking as one integer program and wins on densely packed or 3D data at the cost of a longer solve; 'trackpy' needs a search radius and memory; 'btrack' needs a motion model; 'iou' just overlaps consecutive frames and drifts under fast motion. Default 'trackastra'.",
     "trackastra_model": "(str) - Which pretrained Trackastra checkpoint links the frames; 'general_2d' is the all-round 2D model and covers most live-cell data without retraining. Only consulted when timelapse_mode='trackastra'. Change it only if you hold a checkpoint trained on imaging that looks unlike yours. Default 'general_2d'.",
     "trackastra_linking": "(str) - How Trackastra turns predicted association scores into tracks: 'greedy' takes the best match per object and is fast, 'ilp' solves the assignment globally and is more accurate on crowded or dividing populations but needs the trackastra ilp extra and considerably more time. Default 'greedy'.",
+    "ultrack_max_distance": "(float) - The largest jump in pixels Ultrack will consider when linking an object in one frame to a candidate in the next; anything further apart is never joined, so the track breaks instead. Raise it for fast-moving or sparsely sampled cells, lower it on crowded fields where a generous radius invites identity swaps. Only consulted when timelapse_mode='ultrack'. Default 25.0.",
+    "ultrack_division_weight": "(float) - Cost the Ultrack solver pays to split one track into two daughters; the value is negative and the more negative it is the more readily divisions are accepted. Make it less negative when a replication assay over-calls divisions on touching cells, more negative when real division events are being missed. Only consulted when timelapse_mode='ultrack'. Default -0.1.",
+    "ultrack_contour_sigma": "(float) - Standard deviation of the Gaussian blur applied while turning the segmentation labels into the contour map Ultrack builds its candidate objects from. Zero keeps the boundaries exactly as Cellpose drew them; one to four softens them so the joint solver is free to redraw boundaries between objects that were merged or split. Only consulted when timelapse_mode='ultrack'. Default 0.0.",
+    "ultrack_n_workers": "(int) - How many worker processes Ultrack runs during its candidate-segmentation and linking passes; they all write into the same temporary sqlite store, so extra workers cut wall-clock on long movies but add database contention and memory. Leave it at one for short batches or a busy machine. Only consulted when timelapse_mode='ultrack'. Default 1.",
     "timelapse_frame_limits": "(list) - Slice of frame indices [start, end] kept from each batch before tracking, e.g. [0,10] to work on the first ten frames while tuning settings. The list is ignored unless it has at least two elements, which is why the shipped default [5,] has no effect. Default [5,].",
     "timelapse_objects": "(list) - Which segmented objects are tracked across frames and relabelled with track IDs: any subset of ['cell', 'nucleus', 'pathogen']; any other value aborts the run with a message. Each extra entry costs a full additional tracking pass. Tracking nuclei is often more stable than cells when cells touch. Default ['cell'].",
     "timelapse_remove_transient": "(bool) - After linking, drop every track not present in all frames (trackpy filter_stubs over the full stack length), keeping only objects tracked from first frame to last. Enable for clean per-object time courses; expect to lose cells that divide, enter or leave the field, so object counts fall. Default False.",
@@ -1994,7 +2009,7 @@ tooltips = {
 # box is ticked (see category_dependencies), so the toggle cannot live inside
 # the category it controls. Consumers that want "everything timelapse" should
 # use `timelapse_settings + ['timelapse']`.
-timelapse_settings = ['fps', 'timelapse_mode', 'trackastra_model', 'trackastra_linking', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_objects', 'compartments']
+timelapse_settings = ['fps', 'timelapse_mode', 'trackastra_model', 'trackastra_linking', 'ultrack_max_distance', 'ultrack_division_weight', 'ultrack_contour_sigma', 'ultrack_n_workers', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_objects', 'compartments']
 
 motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_strategy', 'seconds_per_frame', 'pixels_per_um', 'motility_ylim', 'motility_xlim', 'infection_intensity_qc_scope']
 
@@ -2032,7 +2047,7 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Annotation": ["filter_column", "filter_value","volcano", "toxo", "controls", "nc_loc", "pc_loc", "nc", "pc", "cell_plate_metadata","treatment_plate_metadata", "metadata_types", "cell_types", "target","positive_control","negative_control", "location_column", "treatment_loc", "channel_of_interest", "measurement", "treatments", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
              "Plot": ["split_axis_lims", "x_lim","log_x","log_y", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","save_figure"],
              "Timelapse": timelapse_settings,
-             "Advanced": ["dry_run", "test_images", "random_test", "test_nr", "test", "test_split", "normalize", "target_unique_count","threshold_multiplier", "threshold_method", "min_n","shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs", "keep_intermediate", "keep_original_images", "compression"],
+             "Advanced": ["dry_run", "test_images", "random_test", "test_nr", "test", "test_split", "normalize", "target_unique_count","threshold_multiplier", "threshold_method", "min_n","shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs", "keep_intermediate", "keep_original_images", "compression", "diameter_estimate_n_fields"],
              "Beta": ["all_to_mip", "upscale", "upscale_factor", "consolidate", "distance_gaussian_sigma","use_sam_pathogen","use_sam_nucleus", "use_sam_cell", "denoise"],
              "Motility (beta)": motility_settings,
              "Motility Advanced (beta)": motility_advanced_settings,
