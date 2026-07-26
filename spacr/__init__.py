@@ -38,6 +38,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "sequencing",
     "timelapse",
     "deep_spacr",
+    "diameter",
     "gui_utils",
     "gui_elements",
     "gui_core",
