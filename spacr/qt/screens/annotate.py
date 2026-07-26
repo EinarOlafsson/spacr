@@ -13,6 +13,21 @@ and auto-advance to the next unlabelled crop, ``0`` clears, arrows /
 ``hjkl`` move focus, ``Space``/``Backspace`` step without labelling,
 ``u`` undoes and ``Enter`` commits the page.
 
+Every crop is drawn as a rounded square (see :class:`_Thumbnail`) with
+two independent bands of colour, so its three states stay readable
+together rather than overwriting each other:
+
+* **resting** — a thin gray ring hugging the image
+* **classified** — that same ring in the class colour
+  (:func:`~spacr.qt.annotate_engine.label_to_hex`, the app's one
+  class→colour map)
+* **current** — an *extra* white ring outside it on the single tile the
+  next click or keystroke will hit
+
+The cursor and the keyboard move the same current tile: entering a tile
+makes it current, and an arrow key moves it away. There is no second
+"hovered" highlight that could point somewhere else.
+
 Advanced features that are *not* yet ported (marked as TODOs in the UI):
 UMAP window, Deep Spacr training launcher, measurement-threshold
 filtering (the threshold filter can be entered in settings but only
@@ -57,7 +72,6 @@ from PySide6.QtWidgets import (
 from ..annotate_engine import (
     AnnotateSettings,
     SaveWorker,
-    add_colored_border,
     class_counts,
     clear_column,
     count_rows,
@@ -71,29 +85,70 @@ from ..annotate_engine import (
     outline_image,
 )
 from .. import iconset, prefs
-from ..theme import PALETTE, SPACING
+from ..theme import SPACING, palette_for
 from ..widgets import Divider, EmptyState
 
 
-BORDER_WIDTH = 5
+# ---------------------------------------------------------------------------
+# Tile chrome
+#
+# Every crop is a rounded square drawn by `_Thumbnail.paintEvent` as three
+# concentric pieces:
+#
+#     ┌── current ring  (white) — ONLY on the tile the next action hits
+#     │ ┌── state ring          — resting gray, or the crop's class colour
+#     │ │ ┌── the crop itself, CLIPPED to a rounded rect (a real round
+#     │ │ │   corner, not a rounded frame laid over a square image)
+#
+# The two rings sit at fixed insets, so nothing moves or resizes when the
+# cursor arrives: hover ADDS the outer ring, it never recolours the inner
+# one, and a class colour never hides the fact that a tile is the current
+# one. That is the whole composition rule — the two states are drawn in
+# two different bands and cannot overwrite each other.
+# ---------------------------------------------------------------------------
 
-# Keyboard-focus ring. Deliberately pure white: `label_to_hex` never
-# returns white (class 1 is blue, class 2 red, 3+ are HSV rotations at
-# saturation 0.65), so the focus ring can never be confused with a class
-# colour. It is drawn INSIDE the class border, so a crop can show both
-# "focused" and "labelled class N" at the same time.
-FOCUS_RING_COLOR = "#ffffff"
-FOCUS_RING_WIDTH = 3
+BORDER_WIDTH = 2          # state ring — the thin line around every crop
+HOVER_RING_WIDTH = 3      # current-tile ring, drawn outside the state ring
+TILE_INSET = HOVER_RING_WIDTH + BORDER_WIDTH   # chrome per side, in px
+TILE_RADIUS = 10          # outer corner radius of the rounded square
+IMAGE_RADIUS = max(1, TILE_RADIUS - TILE_INSET)
 
 # How many keyboard assignments can be walked back with `u`. Bounded so a
 # long session can't grow the stack without limit.
 UNDO_LIMIT = 128
 
-_THUMB_QSS = "background: transparent;"
-_THUMB_FOCUS_QSS = (
-    f"background: transparent; border: {FOCUS_RING_WIDTH}px solid "
-    f"{FOCUS_RING_COLOR}; border-radius: 10px;"
-)
+
+def tile_palette() -> Dict[str, str]:
+    """Palette for the theme the app is actually showing right now.
+
+    The Annotate grid paints raw colours (it is not QSS-styled), so it has
+    to resolve dark/light itself instead of importing the dark ``PALETTE``
+    at module scope — a hard-coded gray is invisible on one of the two
+    themes.
+    """
+    try:
+        from ..preferences import resolve_effective_theme
+        return palette_for(resolve_effective_theme())
+    except Exception:
+        return palette_for("dark")
+
+
+def resting_border_color() -> str:
+    """The thin gray line every unlabelled crop carries."""
+    return tile_palette()["border"]
+
+
+def current_ring_color() -> str:
+    """Colour of the "this is the tile you are on" ring.
+
+    ``fg`` is pure white on the (default) dark theme — exactly the white
+    border the feature asks for — and flips to the near-black foreground
+    on the light theme, where white would vanish into the background.
+    Either way it is a colour :func:`label_to_hex` can never produce
+    (class 1 is blue, 2 red, 3+ are HSV rotations at saturation 0.65), so
+    the current ring is never mistaken for a class.
+    """
+    return tile_palette()["fg"]
 
 
 # ---------------------------------------------------------------------------
@@ -223,20 +278,146 @@ class _PageLoadWorker(QThread):
 
 
 class _Thumbnail(QLabel):
-    """QLabel that emits left/right-click signals with its slot index."""
+    """One crop in the grid: a rounded square wearing up to two rings.
+
+    Everything is drawn in :meth:`paintEvent`, which is what makes the
+    borders cheap: changing a border is one ``update()`` on ONE widget, not
+    a rebuilt pixmap. The pixmap handed to ``setPixmap`` is the bare crop —
+    the rounded corners come from clipping it here, so the corner is
+    actually round instead of a rounded frame sitting on a square image.
+
+    Three visual states, drawn in two separate bands so they compose
+    instead of overwriting each other:
+
+    * resting — thin ``resting_border_color()`` gray ring
+    * classified — the same ring, recoloured to the class colour
+    * current (cursor is on it, or the keyboard is) — an ADDITIONAL white
+      ring outside the first one, leaving the class colour untouched
+    """
 
     left_clicked = Signal(int)
     right_clicked = Signal(int)
+    # (slot, entered). Emitted on Enter/Leave only — never per mouse-move —
+    # so tracking the cursor across the grid costs two repaints per tile
+    # boundary crossed and nothing at all in between.
+    hover_changed = Signal(int, bool)
 
-    def __init__(self, slot: int, parent: Optional[QWidget] = None):
+    def __init__(self, slot: int, parent: Optional[QWidget] = None,
+                 border_color: Optional[str] = None,
+                 ring_color: Optional[str] = None):
         super().__init__(parent)
         self.slot = slot
+        # Colours are resolved by the screen once per grid rebuild and
+        # handed down, so the hover path never has to look up a palette.
+        self._border_color = border_color or resting_border_color()
+        self._ring_color = ring_color or current_ring_color()
+        self._current = False
+        self._occupied = False
         self.setAlignment(Qt.AlignCenter)
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        # Transparent so the rounded-corner pixmap shows clean soft corners
-        # against the grid background (no grey square peeking out at corners).
+        # Transparent so the rounded tile sits cleanly on the grid canvas
+        # (no grey square peeking out at the corners).
         self.setStyleSheet("background: transparent;")
+        self.setProperty("kbdFocused", False)
 
+    # -- state ---------------------------------------------------------
+    def border_color(self) -> str:
+        """Colour of the ring hugging the image: resting gray or class colour."""
+        return self._border_color
+
+    def ring_color(self) -> Optional[str]:
+        """The current-tile ring colour, or ``None`` when this isn't it."""
+        return self._ring_color if self._current else None
+
+    def outline_color(self) -> str:
+        """Outermost colour drawn — what a user would call "the border"."""
+        return self._ring_color if self._current else self._border_color
+
+    def is_current(self) -> bool:
+        """True when this is the one tile the next action applies to."""
+        return self._current
+
+    def is_occupied(self) -> bool:
+        """True when this cell holds a crop (empty cells draw nothing)."""
+        return self._occupied
+
+    def set_border_color(self, color: Optional[str]) -> bool:
+        """Recolour the state ring; returns True when a repaint was needed."""
+        color = str(color or resting_border_color())
+        if color.lower() == self._border_color.lower():
+            return False
+        self._border_color = color
+        self.update()
+        return True
+
+    def set_current(self, on: bool) -> bool:
+        """Add/remove the current-tile ring; returns True when it changed."""
+        on = bool(on)
+        # Mirrored onto a Qt property so QSS and tests can both see it, and
+        # so there is exactly one notion of "the current tile".
+        self.setProperty("kbdFocused", on)
+        if on == self._current:
+            return False
+        self._current = on
+        self.update()
+        return True
+
+    def set_occupied(self, on: bool) -> bool:
+        """Mark whether this cell holds a crop; empty cells paint nothing."""
+        on = bool(on)
+        if on == self._occupied:
+            return False
+        self._occupied = on
+        self.update()
+        return True
+
+    # -- painting ------------------------------------------------------
+    def paintEvent(self, event):        # noqa: N802  (Qt naming)
+        """Draw the clipped crop, the state ring and (if current) the ring."""
+        if not self._occupied:
+            return
+        w = float(self.width())
+        h = float(self.height())
+        painter = QPainter(self)
+        try:
+            painter.setRenderHint(QPainter.Antialiasing, True)
+            painter.setBrush(Qt.NoBrush)
+            inner = QRectF(TILE_INSET, TILE_INSET,
+                           max(0.0, w - 2 * TILE_INSET),
+                           max(0.0, h - 2 * TILE_INSET))
+            pm = self.pixmap()
+            if pm is not None and not pm.isNull() \
+                    and inner.width() > 0 and inner.height() > 0:
+                clip = QPainterPath()
+                clip.addRoundedRect(inner, IMAGE_RADIUS, IMAGE_RADIUS)
+                painter.save()
+                painter.setClipPath(clip)
+                painter.drawPixmap(_cover_rect(pm, inner), pm,
+                                   QRectF(pm.rect()))
+                painter.restore()
+            self._stroke(painter, self._border_color, BORDER_WIDTH,
+                         HOVER_RING_WIDTH + BORDER_WIDTH / 2.0, w, h)
+            if self._current:
+                self._stroke(painter, self._ring_color, HOVER_RING_WIDTH,
+                             HOVER_RING_WIDTH / 2.0, w, h)
+        finally:
+            painter.end()
+
+    @staticmethod
+    def _stroke(painter: QPainter, color: str, width: int, inset: float,
+                w: float, h: float) -> None:
+        """Stroke one rounded rect inset by ``inset`` from the widget edge."""
+        if w - 2 * inset <= 0 or h - 2 * inset <= 0:
+            return
+        pen = QPen(QColor(color))
+        pen.setWidth(width)
+        painter.setPen(pen)
+        radius = max(1.0, TILE_RADIUS - inset)
+        painter.drawRoundedRect(
+            QRectF(inset, inset, w - 2 * inset, h - 2 * inset),
+            radius, radius)
+
+    # -- mouse ---------------------------------------------------------
     def mousePressEvent(self, event):
         """Route left/right mouse buttons to typed signals; ignore others."""
         if event.button() == Qt.LeftButton:
@@ -245,6 +426,16 @@ class _Thumbnail(QLabel):
             self.right_clicked.emit(self.slot)
         else:
             super().mousePressEvent(event)
+
+    def enterEvent(self, event):        # noqa: N802  (Qt naming)
+        """Cursor arrived — tell the screen this tile is now the current one."""
+        self.hover_changed.emit(self.slot, True)
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):        # noqa: N802  (Qt naming)
+        """Cursor left — the screen drops the hover if it still points here."""
+        self.hover_changed.emit(self.slot, False)
+        super().leaveEvent(event)
 
 
 # ---------------------------------------------------------------------------
@@ -262,46 +453,23 @@ def _list_to_csv(vals: Optional[List[str]]) -> str:
     return ", ".join(str(v) for v in vals) if vals else ""
 
 
-def _rounded_pixmap(pm: QPixmap, radius: int = 8) -> QPixmap:
-    """Return ``pm`` with anti-aliased rounded corners, so annotate thumbnails
-    have soft corners instead of the square/grey pixelated edges."""
-    if pm.isNull():
-        return pm
-    out = QPixmap(pm.size())
-    out.fill(Qt.transparent)
-    painter = QPainter(out)
-    painter.setRenderHint(QPainter.Antialiasing, True)
-    path = QPainterPath()
-    path.addRoundedRect(QRectF(0, 0, pm.width(), pm.height()), radius, radius)
-    painter.setClipPath(path)
-    painter.drawPixmap(0, 0, pm)
-    painter.end()
-    return out
+def _cover_rect(pm: QPixmap, box: QRectF) -> QRectF:
+    """Rect to draw ``pm`` into so it fills ``box`` at its own aspect ratio.
 
-
-def _with_focus_ring(pm: QPixmap) -> QPixmap:
-    """Return ``pm`` with the keyboard-focus ring drawn inside the class border.
-
-    The class colour lives in the outer ``BORDER_WIDTH`` band painted by
-    :func:`add_colored_border`; the ring is inset past it so focus and
-    label are readable at the same time.
+    Crops rather than letterboxes (the clip path trims the overflow), so a
+    tile is always a complete rounded square with no canvas showing through
+    at the edges. Crops normally arrive already resized to the box, in
+    which case this is the identity.
     """
-    if pm.isNull():
-        return pm
-    out = QPixmap(pm)
-    painter = QPainter(out)
-    painter.setRenderHint(QPainter.Antialiasing, True)
-    pen = QPen(QColor(FOCUS_RING_COLOR))
-    pen.setWidth(FOCUS_RING_WIDTH)
-    painter.setPen(pen)
-    painter.setBrush(Qt.NoBrush)
-    inset = BORDER_WIDTH + FOCUS_RING_WIDTH / 2.0
-    w = out.width() - 2 * inset
-    h = out.height() - 2 * inset
-    if w > 0 and h > 0:
-        painter.drawRoundedRect(QRectF(inset, inset, w, h), 5, 5)
-    painter.end()
-    return out
+    pw = float(pm.width())
+    ph = float(pm.height())
+    if pw <= 0 or ph <= 0:
+        return box
+    scale = max(box.width() / pw, box.height() / ph)
+    w = pw * scale
+    h = ph * scale
+    return QRectF(box.x() + (box.width() - w) / 2.0,
+                  box.y() + (box.height() - h) / 2.0, w, h)
 
 
 def _reanchor_png_path(path: str, db_path: str) -> str:
@@ -542,11 +710,17 @@ class AnnotateScreen(QWidget):
         self._page_gen = 0
         self._suggested_source = prefs.get_last_source("annotate")
 
-        # ── Keyboard-only rapid annotation state ───────────────────────────
-        # Index of the crop the keyboard acts on. Always a valid thumbnail
-        # index once the grid exists; `_slot_count` bounds it to the crops
-        # actually present on this page.
+        # ── The current tile ───────────────────────────────────────────────
+        # ONE notion, shared by mouse and keyboard: `_focus_slot` is the crop
+        # the next action hits and the only tile that wears the white ring.
+        # The cursor entering a tile moves it; an arrow key moves it. There
+        # is deliberately no second "hovered tile" that could disagree.
         self._focus_slot = 0
+        # Bookkeeping only: which tile the cursor is inside right now, or
+        # None when it is between tiles / outside the grid. Whenever it is
+        # set it equals `_focus_slot` (see `_set_hover_slot`), so the white
+        # ring never has two candidates.
+        self._hover_slot: Optional[int] = None
         # (slot, png_path, previous_value) for `u`. Bounded — a long session
         # must not grow this without limit. Cleared on every page load since
         # slot indices change meaning.
@@ -581,6 +755,10 @@ class AnnotateScreen(QWidget):
 
     # ------------------------------------------------------------------
     def _build_ui(self):
+        # Resolved once here rather than imported at module scope, so the
+        # grid canvas and the tile chrome agree with the theme the user is
+        # actually running (see `tile_palette`).
+        PALETTE = tile_palette()
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                   SPACING["lg"], SPACING["lg"])
@@ -759,6 +937,7 @@ class AnnotateScreen(QWidget):
         Nothing in it accepts focus — a legend that stole focus would break
         the very keyboard flow it documents.
         """
+        PALETTE = tile_palette()
         legend = QWidget()
         legend.setObjectName("AnnotateKeyLegend")
         legend.setFocusPolicy(Qt.NoFocus)
@@ -826,7 +1005,7 @@ class AnnotateScreen(QWidget):
         scroll viewport, then update settings.grid_rows/grid_cols."""
         w, h = self._settings.image_size
         gap = SPACING["xs"]
-        pad = BORDER_WIDTH * 2
+        pad = TILE_INSET * 2
         cell_w = w + pad + gap
         cell_h = h + pad + gap
         vp = self._grid_scroll.viewport() if self._grid_scroll else None
@@ -849,6 +1028,9 @@ class AnnotateScreen(QWidget):
             w.setParent(None)
             w.deleteLater()
         self._thumbs.clear()
+        # Every widget the cursor could have been inside is gone; keeping the
+        # index would leave a hover pointing at a tile that no longer exists.
+        self._hover_slot = None
         self._thumb_pixmaps = [None] * (self._settings.grid_rows *
                                          self._settings.grid_cols)
         self._raw_thumb_images = [None] * len(self._thumb_pixmaps)
@@ -856,12 +1038,17 @@ class AnnotateScreen(QWidget):
         cols = self._settings.grid_cols
         rows = self._settings.grid_rows
         w, h = self._settings.image_size
-        pad = BORDER_WIDTH * 2
+        pad = TILE_INSET * 2
+        # One palette lookup for the whole grid — the hover path must not
+        # pay for a theme resolution on every mouse move.
+        resting = resting_border_color()
+        ring = current_ring_color()
         for i in range(rows * cols):
-            thumb = _Thumbnail(i)
+            thumb = _Thumbnail(i, border_color=resting, ring_color=ring)
             thumb.setFixedSize(w + pad, h + pad)
             thumb.left_clicked.connect(self._on_thumb_left)
             thumb.right_clicked.connect(self._on_thumb_right)
+            thumb.hover_changed.connect(self._on_thumb_hover)
             self._grid_layout.addWidget(thumb, i // cols, i % cols)
             self._thumbs.append(thumb)
 
@@ -1081,18 +1268,24 @@ class AnnotateScreen(QWidget):
                 self._settings.image_type,
             )
         # Clear all thumbs
-        for i, thumb in enumerate(self._thumbs):
-            thumb.setPixmap(QPixmap())
-            self._thumb_pixmaps[i] = None
-            self._raw_thumb_images[i] = None
+        for i in range(len(self._thumbs)):
+            self._set_slot_image(i, None)
 
         # Slot indices now mean different crops — an undo entry from the old
         # page would write a label onto the wrong image.
         self._undo_stack.clear()
         self._set_kbd_hint("")
+        # The crops under the grid just changed. A hover recorded against
+        # the previous page is only still true if the cursor is genuinely
+        # inside that same widget.
+        self._revalidate_hover()
         # Park the keyboard on the first crop that still needs a label.
         first = self._next_unannotated(0)
         self._set_focus_slot(first if first is not None else 0)
+        # Repaint every cell so occupancy + resting borders match the new
+        # page (cells past the end of a short last page draw nothing).
+        for i in range(len(self._thumbs)):
+            self._repaint_slot(i)
 
         # Process the page (normalise + outline) on a worker thread so the UI
         # stays responsive even when the recompute is slow. A generation token
@@ -1124,7 +1317,7 @@ class AnnotateScreen(QWidget):
         for i, (img, _annotation) in enumerate(loaded):
             if i >= len(self._thumbs):
                 break
-            self._raw_thumb_images[i] = img
+            self._set_slot_image(i, img)
             # Paint from `_page_paths`, not the annotation the worker
             # snapshotted: the user may have keyed labels in while the page
             # was still decoding, and those are the fresher truth.
@@ -1170,9 +1363,13 @@ class AnnotateScreen(QWidget):
         return img, annotation
 
     def _image_to_pixmap(self, img: Image.Image) -> QPixmap:
+        """Convert one decoded crop to a bare pixmap.
+
+        No border and no corner rounding are baked in — both are painted by
+        :class:`_Thumbnail`, so changing either never costs a conversion.
+        """
         qimg = ImageQt(img.convert("RGB"))
-        pm = QPixmap.fromImage(QImage(qimg))
-        return _rounded_pixmap(pm, radius=8)
+        return QPixmap.fromImage(QImage(qimg))
 
     # ------------------------------------------------------------------
     # Annotation write path
@@ -1213,26 +1410,46 @@ class AnnotateScreen(QWidget):
         self._repaint_slot(slot)
         return True
 
-    def _repaint_slot(self, slot: int) -> None:
-        """Redraw one thumbnail: class border, plus the focus ring if focused."""
+    def _set_slot_image(self, slot: int, img: Optional[Image.Image]) -> None:
+        """Install (or clear) the decoded crop for ``slot``.
+
+        This is the ONLY place a pixmap is built. Border and ring changes go
+        through :meth:`_repaint_slot`, which never touches pixels.
+        """
         if not (0 <= slot < len(self._thumbs)):
             return
-        base = self._raw_thumb_images[slot] if slot < len(self._raw_thumb_images) \
-            else None
-        focused = (slot == self._focus_slot)
-        if base is None:
-            # No image decoded yet — fall back to a widget-level ring so
-            # focus is still visible while the page loads.
-            self._thumbs[slot].setStyleSheet(
-                _THUMB_FOCUS_QSS if focused else _THUMB_QSS)
+        self._raw_thumb_images[slot] = img
+        if img is None:
+            self._thumb_pixmaps[slot] = None
+            self._thumbs[slot].setPixmap(QPixmap())
             return
-        self._thumbs[slot].setStyleSheet(_THUMB_QSS)
-        border = label_to_hex(self._current_value(slot)) or PALETTE["surface"]
-        pm = self._image_to_pixmap(add_colored_border(base, BORDER_WIDTH, border))
-        if focused:
-            pm = _with_focus_ring(pm)
+        pm = self._image_to_pixmap(img)
         self._thumb_pixmaps[slot] = pm
         self._thumbs[slot].setPixmap(pm)
+
+    def _border_color_for(self, slot: int) -> str:
+        """The state-ring colour for ``slot``: its class colour, else gray.
+
+        ``label_to_hex`` is the app's one class→colour map (the Class counts
+        dialog reads the same function), so the border can never disagree
+        with the colour shown anywhere else.
+        """
+        return label_to_hex(self._current_value(slot)) or resting_border_color()
+
+    def _repaint_slot(self, slot: int) -> None:
+        """Sync one tile's chrome with the model. Cheap: no pixmap work.
+
+        Sets the state ring (class colour or resting gray) and whether this
+        is the current tile. Both setters no-op when nothing changed, so a
+        redundant call costs nothing and a real change costs one
+        ``update()`` on one widget.
+        """
+        if not (0 <= slot < len(self._thumbs)):
+            return
+        thumb = self._thumbs[slot]
+        thumb.set_occupied(slot < len(self._page_paths))
+        thumb.set_border_color(self._border_color_for(slot))
+        thumb.set_current(slot == self._focus_slot)
 
     def _toggle_annotation(self, slot: int, new_value: int):
         """Mouse semantics: same class again clears, otherwise assign."""
@@ -1246,32 +1463,93 @@ class AnnotateScreen(QWidget):
     # Keyboard-only rapid annotation
     # ------------------------------------------------------------------
     def _refresh_focus_marks(self) -> None:
-        """Re-apply the focus marker across every thumbnail."""
+        """Re-apply the current-tile marker across every thumbnail."""
         for i in range(len(self._thumbs)):
-            self._thumbs[i].setProperty("kbdFocused", i == self._focus_slot)
             self._repaint_slot(i)
 
-    def _set_focus_slot(self, slot: int) -> None:
-        """Move keyboard focus to ``slot``, repainting the old and new cells."""
+    def _set_focus_slot(self, slot: int, ensure_visible: bool = True) -> None:
+        """Move the current tile to ``slot``, repainting the old and new cells.
+
+        ``ensure_visible`` is False on the hover path: the tile the cursor is
+        inside is visible by definition, and scrolling under the cursor could
+        drag a fresh tile under it and set off a feedback loop.
+        """
         if not self._thumbs:
             self._focus_slot = max(0, slot)
             return
         slot = max(0, min(int(slot), len(self._thumbs) - 1))
         previous = self._focus_slot
         self._focus_slot = slot
+        # A keyboard move away from the hovered tile makes the recorded
+        # hover stale — the cursor has not moved, but it is no longer on the
+        # tile the next action hits, and only that tile may wear the ring.
+        if self._hover_slot is not None and self._hover_slot != slot:
+            self._hover_slot = None
         if previous != slot and 0 <= previous < len(self._thumbs):
-            self._thumbs[previous].setProperty("kbdFocused", False)
             self._repaint_slot(previous)
-        self._thumbs[slot].setProperty("kbdFocused", True)
         self._repaint_slot(slot)
-        try:
-            self._grid_scroll.ensureWidgetVisible(self._thumbs[slot])
-        except Exception:      # pragma: no cover - viewport not realised
-            pass
+        if ensure_visible:
+            try:
+                self._grid_scroll.ensureWidgetVisible(self._thumbs[slot])
+            except Exception:
+                pass           # no viewport yet — nothing to scroll into
+
+    # -- hover ----------------------------------------------------------
+    def _on_thumb_hover(self, slot: int, entered: bool) -> None:
+        """Handle a tile's Enter/Leave. Runs once per boundary crossed."""
+        if entered:
+            self._set_hover_slot(slot)
+        elif self._hover_slot == slot:
+            self._set_hover_slot(None)
+
+    def _set_hover_slot(self, slot: Optional[int]) -> None:
+        """Record which tile the cursor is inside and follow it.
+
+        Entering a tile makes it the current tile, so the white ring is
+        always on the crop the next click or keystroke will hit. Leaving
+        only forgets the cursor position: the ring stays where it is,
+        because the keyboard still targets that crop.
+        """
+        if slot is not None:
+            slot = int(slot)
+            # Empty cells past the end of a short page hold no crop, so
+            # there is nothing there to be "on".
+            if not (0 <= slot < self._slot_count()):
+                slot = None
+        if slot == self._hover_slot:
+            return
+        self._hover_slot = slot
+        if slot is not None:
+            self._set_focus_slot(slot, ensure_visible=False)
+
+    def _revalidate_hover(self) -> None:
+        """Drop a hover the cursor is no longer actually inside.
+
+        Called after a page load: the widgets stay put but the crops under
+        them change, and Qt only re-sends Enter/Leave when the cursor
+        crosses a boundary. ``underMouse`` is the authority on where the
+        cursor really is.
+        """
+        slot = self._hover_slot
+        if slot is None:
+            return
+        if not (0 <= slot < self._slot_count()) \
+                or not self._thumbs[slot].underMouse():
+            self._hover_slot = None
 
     @property
     def focus_slot(self) -> int:
         """Index of the crop the keyboard currently acts on."""
+        return self._focus_slot
+
+    @property
+    def hover_slot(self) -> Optional[int]:
+        """Index of the tile the cursor is inside, or ``None``."""
+        return self._hover_slot
+
+    @property
+    def current_slot(self) -> int:
+        """The one tile wearing the white ring — mouse and keyboard agree."""
         return self._focus_slot
 
     def _next_unannotated(self, start: int) -> Optional[int]:
@@ -1446,13 +1724,22 @@ class AnnotateScreen(QWidget):
         super().keyPressEvent(event)
 
     def eventFilter(self, obj, event):      # noqa: N802  (Qt naming)
-        """Catch keys landing on the scroll area so arrows don't just scroll."""
+        """Catch keys landing on the scroll area so arrows don't just scroll.
+
+        Also catches the cursor leaving the grid as a whole. A tile's own
+        Leave normally clears the hover, but the cursor can quit the grid
+        without one (window hidden, cursor warped), and a hover nobody is
+        pointing at any more must not survive.
+        """
         try:
-            is_key = event.type() == QEvent.KeyPress
-        except Exception:      # pragma: no cover - defensive
-            is_key = False
-        if is_key and self.handle_key(event.key(), event.text()):
+            etype = event.type()
+        except Exception:
+            return False       # not something we can reason about
+        if etype == QEvent.KeyPress and self.handle_key(event.key(),
+                                                         event.text()):
             return True
+        if etype == QEvent.Leave:
+            self._set_hover_slot(None)
         return super().eventFilter(obj, event)
 
     # ------------------------------------------------------------------

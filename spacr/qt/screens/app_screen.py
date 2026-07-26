@@ -54,35 +54,54 @@ SECTION_HINTS = {
     "PATHOGEN":         "Cellpose settings for the *pathogen* mask: "
                         "channel, model, diameter, cellprob threshold, "
                         "background floor.",
-    "ORGANELLE":        "Settings for a fourth-channel organelle mask "
-                        "when your dataset includes one.",
-    "ORGANELLE PREPROCESSING":
-                        "Denoising / background correction applied to "
-                        "the organelle channel before segmentation.",
-    "ORGANELLE SPOT DETECTION":
-                        "Blob-detector settings for organelle spots "
-                        "(radius range, threshold, exclusion border).",
-    "ORGANELLE NETWORK DETECTION":
-                        "Ridge / tubular filter settings for network-"
-                        "shaped organelles (e.g. mitochondria).",
-    "ORGANELLE RING DETECTION":
-                        "Ring / annulus detector for hollow organelle "
-                        "structures.",
-    "ORGANELLE IRREGULAR DETECTION":
-                        "Watershed / adaptive-threshold detection for "
-                        "irregular organelle shapes.",
-    "ORGANELLE CELLPOSE":
-                        "Cellpose model + parameters for organelle "
-                        "segmentation when neither spots nor networks "
-                        "capture the structure.",
-    "ORGANELLE UNET":   "U-Net segmentation for organelles when "
-                        "Cellpose is not accurate enough.",
-    "ORGANELLE ADAPTIVE THRESHOLD":
-                        "Local-threshold parameters used as a fallback "
-                        "when trained models aren't available.",
-    "PLOT":             "What spaCR plots inline during a run — "
-                        "channel arrays, mask overlays, per-object "
-                        "diagnostic figures.",
+    "ORGANELLE":        "Everything for the organelle mask, in the order you "
+                        "set it up: shape family and detection method, the "
+                        "background/contrast correction applied first, the "
+                        "knobs belonging to the method you chose (adaptive, "
+                        "spot, ridge/hysteresis, ring, irregular, Cellpose or "
+                        "U-Net), the size/intensity/border filters applied to "
+                        "the objects found, and which parent compartments the "
+                        "organelles are summarised into.",
+    "CELLPOSE":         "Shared Cellpose knobs for the training and "
+                        "mask-finetune tools: model, diameter, cellprob and "
+                        "flow thresholds, resize and normalisation.",
+    "SEGMENTATION QC":  "Automatic pass/fail checks on the finished masks — "
+                        "object counts, size and split ratios, border and "
+                        "foreground fractions, per-plate failure tolerance.",
+    "MEASUREMENTS":     "Which per-object features are computed — intensity, "
+                        "morphology, texture, radial distribution, "
+                        "colocalisation — and which of them survive into the "
+                        "analysis table.",
+    "OBJECT CROPS":     "Per-object crop dimensions, which mask each crop is "
+                        "centred on, and which channels get baked into each "
+                        "saved PNG or array.",
+    "PLATE LAYOUT & CONTROLS":
+                        "The plate map: which wells hold which cell line, "
+                        "pathogen strain and treatment, which wells or gRNAs "
+                        "are the positive and negative controls, and the "
+                        "labels they are given.",
+    "TRAINING DATASET": "How the labelled training set is assembled from the "
+                        "database — annotation column vs well metadata, which "
+                        "crop type, and how many objects to sample.",
+    "MODEL TRAINING":   "The image classifier: backbone, classes, input "
+                        "channels and size, epochs, optimizer, learning-rate "
+                        "schedule, loss, augmentation, and the "
+                        "train/validation/test split.",
+    "ML CLASSIFIER":    "The classical (non-image) screen classifier fitted "
+                        "on measured features — algorithm, tree count, "
+                        "regularisation, feature pruning, and permutation "
+                        "importance.",
+    "EMBEDDING & CLUSTERING":
+                        "UMAP/t-SNE reduction of the feature table and the "
+                        "clustering run on top of it — neighbourhood size, "
+                        "metric, DBSCAN/KMeans parameters, noise handling.",
+    "ACTIVATION MAPS":  "Grad-CAM / saliency settings — attribution method, "
+                        "which layer to hook, overlay rendering, and the "
+                        "input normalisation used at inference.",
+    "PLOT":             "What spaCR plots inline during a run — channel "
+                        "arrays, mask overlays, per-object diagnostic "
+                        "figures — plus the styling of the embedding "
+                        "scatter and the plate heatmaps.",
     "TIMELAPSE":        "Enable + tune temporal linking of masks "
                         "across frames when your data has a T axis.",
     "ADVANCED":         "Rarely-touched knobs — batch sizes, worker "
@@ -94,14 +113,9 @@ SECTION_HINTS = {
     "MOTILITY ADVANCED (BETA)":
                         "Fine-grained control over the beta motility "
                         "pipeline — feature selection, filter windows.",
-    "CROP":             "Per-object crop dimensions + which channels "
-                        "get baked into each saved PNG.",
-    "MEASURE":          "Which per-object measurements to compute — "
-                        "intensity percentiles, morphology, colocalisation.",
-    "CLASSIFY":         "Model type, training epochs, class balance, "
-                        "augmentation, and evaluation split.",
     "REGRESSION":       "Regression model + covariates for mapping "
-                        "screen scores to gRNA effect sizes.",
+                        "screen scores to gRNA effect sizes, plus the "
+                        "control-based threshold used to call hits.",
     "SEQUENCING":       "FASTQ inputs, barcode reference, mapping "
                         "chunk size, and QC thresholds.",
 }
@@ -129,6 +143,7 @@ APP_TITLES = {
     "agreement":       "Annotator Agreement",
     "plate_view":      "Plate Viewer",
     "model_compare":   "Model Compare",
+    "report":          "Report",
 }
 
 
@@ -153,6 +168,7 @@ APP_INTROS = {
     "agreement":       "Score how well two or more annotation passes agree with Cohen's or Fleiss' κ, then review every crop they labelled differently.",
     "plate_view":      "Draw any per-well measurement as a plate heatmap and test whether the outer ring reads differently from the interior — the edge artefact that turns a screen hit into a failed follow-up.",
     "model_compare":   "Segment the same three fields with two Cellpose models and see what changed: masks side by side, object counts, the background-excluded ARI, and whether the extra objects are new cells or fragments of old ones.",
+    "report":          "Turn a finished run folder into one self-contained HTML or PDF file — the QC verdict, the key figures, the statistics, the exact settings and the package versions — that a collaborator can open without spaCR.",
     "analyze_plaques": "Detect and quantify plaques in plaque-assay images.",
     "recruitment":     "Quantify recruitment of a marker to a compartment across conditions.",
 }

@@ -112,6 +112,7 @@ APPS = [
     ("agreement",      "Annotator Agreement", "Cohen's/Fleiss' κ between annotation columns + a disagreement review", "Tools"),
     ("plate_view",     "Plate Viewer",   "Any measurement as a plate heatmap + edge-effect detection",  "Tools"),
     ("model_compare",  "Model Compare",  "Two Cellpose models on the same fields: masks side by side, object-count and ARI deltas", "Tools"),
+    ("report",         "Report",         "One-click shareable HTML/PDF: QC verdict, figures, stats, settings, versions", "Tools"),
     # -- Toxo: Toxoplasma-specific assays --
     ("analyze_plaques", "Plaque Assay",  "Analyze plaque assay data",                                   "Toxo"),
     ("recruitment",    "Recruitment",    "Analyze recruitment data",                                    "Toxo"),
@@ -767,6 +768,9 @@ class MainWindow(QMainWindow):
         if key == "model_compare":
             from .screens.model_compare import ModelCompareScreen
             return ModelCompareScreen()
+        if key == "report":
+            from .screens.report import ReportScreen
+            return ReportScreen()
         from .screens.app_screen import AppScreen
         screen = AppScreen(app_key=key)
         screen.error_explain_requested.connect(self._on_explain_error)

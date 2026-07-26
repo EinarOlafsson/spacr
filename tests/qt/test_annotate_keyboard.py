@@ -617,25 +617,23 @@ def test_focus_ring_is_distinct_from_the_class_border(qtbot, qt_theme_applied,
     """The ring colour is never produced by `label_to_hex`, so focus and
     label can be read off the same crop at once."""
     from spacr.qt.annotate_engine import label_to_hex
-    ring = annotate_mod.FOCUS_RING_COLOR.lower()
+    ring = annotate_mod.current_ring_color().lower()
     assert ring not in {(label_to_hex(v) or "").lower() for v in range(1, 40)}
 
 
-def test_focus_ring_changes_the_rendered_pixmap(qtbot, qt_theme_applied,
-                                                 kbd_source):
+def test_focus_ring_is_reported_by_the_focused_tile(qtbot, qt_theme_applied,
+                                                     kbd_source):
+    """Moving focus moves the ring, and only the focused tile carries it."""
     screen = _open_screen(qtbot, kbd_source)
     try:
-        qtbot.waitUntil(lambda: screen._raw_thumb_images[0] is not None,
-                        timeout=5000)
         screen._set_focus_slot(0)
-        focused = screen._thumb_pixmaps[0]
-        assert focused is not None and not focused.isNull()
-        focused_bytes = focused.toImage().constBits().tobytes()
+        assert screen._thumbs[0].is_current()
+        assert screen._thumbs[0].ring_color() == \
+            annotate_mod.current_ring_color()
         screen._set_focus_slot(1)
-        unfocused_bytes = screen._thumb_pixmaps[0].toImage() \
-            .constBits().tobytes()
-        assert focused_bytes != unfocused_bytes, \
-            "focused and unfocused thumbnails render identically"
+        assert not screen._thumbs[0].is_current()
+        assert screen._thumbs[0].ring_color() is None
+        assert screen._thumbs[1].is_current()
     finally:
         _stop(screen)
 
@@ -643,14 +641,16 @@ def test_focus_ring_changes_the_rendered_pixmap(qtbot, qt_theme_applied,
 def test_focus_visible_before_images_decode(qtbot, qt_theme_applied,
                                              kbd_source):
     """Even with no pixmap yet the focused cell carries a visible ring."""
-    screen = annotate_mod.AnnotateScreen()
-    qtbot.addWidget(screen)
-    screen._settings.grid_rows = ROWS
-    screen._settings.grid_cols = COLS
-    screen._compute_grid_dims = lambda: None
-    screen._rebuild_grid()
-    assert annotate_mod.FOCUS_RING_COLOR in screen._thumbs[0].styleSheet()
-    assert annotate_mod.FOCUS_RING_COLOR not in screen._thumbs[1].styleSheet()
+    screen = _open_screen(qtbot, kbd_source)
+    try:
+        for i in range(len(screen._thumbs)):
+            screen._set_slot_image(i, None)   # undo the decode
+        screen._set_focus_slot(0)
+        assert screen._thumbs[0].pixmap().isNull()
+        assert screen._thumbs[0].is_current()
+        assert not screen._thumbs[1].is_current()
+    finally:
+        _stop(screen)
 
 
 # ---------------------------------------------------------------------------
