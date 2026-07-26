@@ -151,6 +151,11 @@ class _DropzoneFilter(QObject):
         paths = _mime_local_paths(event.mimeData())
         if not paths:
             return
+        # Tell the drag source the drop landed as soon as we know we have
+        # something to do with it. Doing this only at the very end meant a
+        # settings-CSV-only drop (which IS handled below) was reported back
+        # to the OS as rejected.
+        event.acceptProposedAction()
         handler: DropHandler = self._target._dnd_handler
         screen = self._target._dnd_screen
 
@@ -193,7 +198,6 @@ class _DropzoneFilter(QObject):
                         screen, "Nothing to drop into",
                         handler.error_message(p),
                     )
-        event.acceptProposedAction()
 
 
 # ---------------------------------------------------------------------------
@@ -225,9 +229,18 @@ def _apply_settings_csv(path: Path, screen) -> None:
         return
     try:
         from spacr.utils import load_settings
-        loaded = load_settings(str(path),
-                                 setting_key="Key",
-                                 setting_value="Value")
+        # spaCR's own save_settings writes Key/Value columns; other tools
+        # (and older spaCR CSVs) use setting_key/setting_value. load_settings
+        # RAISES on a column mismatch rather than returning something
+        # non-dict, so the second form has to be tried in its own except —
+        # otherwise the fallback was unreachable and every
+        # setting_key/setting_value CSV was reported as a failed import.
+        try:
+            loaded = load_settings(str(path),
+                                     setting_key="Key",
+                                     setting_value="Value")
+        except Exception:
+            loaded = None
         if not isinstance(loaded, dict):
             loaded = load_settings(str(path))
         if isinstance(loaded, dict):

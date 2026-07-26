@@ -166,14 +166,17 @@ class RegexEditorDialog(QDialog):
         pattern, label, hits = rd.auto_detect_regex(self._samples)
         if pattern:
             self._regex_input.setText(pattern)
-            self._preview.appendPlainText(
-                f"[auto] chose regex `{label}` — matched {hits}/"
-                f"{len(self._samples)} sampled filenames.\n"
-            )
+            note = (f"[auto] chose regex `{label}` — matched {hits}/"
+                    f"{len(self._samples)} sampled filenames.\n")
         else:
-            self._preview.setPlainText(
-                "[auto] no regex could be inferred from the sample."
-            )
+            note = "[auto] no regex could be inferred from the sample."
+        # Rebuild the table explicitly rather than relying on setText to
+        # emit textChanged: QLineEdit stays silent when the text is
+        # unchanged, so clicking "Auto detect" a second time used to
+        # stack another status line onto a stale preview, and the
+        # no-pattern branch left the warnings label blank entirely.
+        self._refresh_preview()
+        self._preview.appendPlainText(note)
 
     def _refresh_preview(self) -> None:
         pattern = self._regex_input.text()

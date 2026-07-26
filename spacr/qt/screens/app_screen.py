@@ -308,6 +308,13 @@ class AppScreen(QWidget):
         body.setSizes([400, 800])
         outer.addWidget(body, 1)
 
+        # The live-preview autoload watches ``src``, and can only be wired
+        # once BOTH panels exist: the settings panel owns the src field and
+        # the runtime panel owns the preview. It used to be wired from
+        # _build_empty_state_banner (inside the settings panel), where
+        # ``self._live_preview`` does not exist yet — so it never fired.
+        self._wire_live_preview_autoload()
+
         # Timer to poll RAM/GPU/CPU periodically
         self._usage_timer = QTimer(self)
         self._usage_timer.setInterval(2000)
@@ -469,20 +476,34 @@ class AppScreen(QWidget):
         # Auto-hide once the user sets src
         if isinstance(src_widget, QLineEdit):
             src_widget.textChanged.connect(self._maybe_hide_empty_state)
-            # Feed the first tile in ``src`` into the live-preview panel
-            # so a Mask-app user sees something to segment as soon as
-            # they pick a folder. Deferred to a timer to debounce rapid
-            # typing.
-            if getattr(self, "_live_preview", None) is not None:
-                self._live_src_timer = QTimer(self)
-                self._live_src_timer.setSingleShot(True)
-                self._live_src_timer.setInterval(400)
-                self._live_src_timer.timeout.connect(
-                    lambda w=src_widget: self._autoload_live_preview(w.text()))
-                src_widget.textChanged.connect(
-                    lambda _t: self._live_src_timer.start())
         card.setObjectName("EmptyStateBanner")
         return card
+
+    def _wire_live_preview_autoload(self) -> None:
+        """Feed the first tile under ``src`` into the live-preview panel.
+
+        Called from ``__init__`` once both panels exist. Deferred through a
+        single-shot timer so a user typing a path doesn't trigger a directory
+        walk per keystroke.
+
+        Wiring this from ``_build_empty_state_banner`` (as it used to be) was
+        a no-op twice over: that runs while the SETTINGS panel is being built,
+        before ``_build_runtime_panel`` has created ``_live_preview``, and it
+        only ran at all when the banner was shown — i.e. never for a screen
+        whose ``src`` was already set.
+        """
+        from PySide6.QtWidgets import QLineEdit
+        if getattr(self, "_live_preview", None) is None:
+            return
+        src_widget = getattr(self._settings_model, "_widgets", {}).get("src")
+        if not isinstance(src_widget, QLineEdit):
+            return
+        self._live_src_timer = QTimer(self)
+        self._live_src_timer.setSingleShot(True)
+        self._live_src_timer.setInterval(400)
+        self._live_src_timer.timeout.connect(
+            lambda w=src_widget: self._autoload_live_preview(w.text()))
+        src_widget.textChanged.connect(lambda _t: self._live_src_timer.start())
 
     def _maybe_hide_empty_state(self, text: str) -> None:
         card = getattr(self, "_empty_state_card", None)
@@ -1197,18 +1218,54 @@ class AppScreen(QWidget):
         if not path:
             return
         try:
-            from spacr.utils import load_settings
-            loaded = load_settings(path, setting_key="Key", setting_value="Value")
-            if not isinstance(loaded, dict):
-                loaded = load_settings(path)
-            if isinstance(loaded, dict):
-                applied = self.apply_settings_dict(loaded)
-                self._console.append_stdout(
-                    f"Loaded {applied} settings from {path}\n"
-                )
-                self._warn_about_moved_settings(loaded)
+            loaded = self._load_settings_csv(path)
+            applied = self.apply_settings_dict(loaded)
+            self._console.append_stdout(
+                f"Loaded {applied} settings from {path}\n"
+            )
+            self._warn_about_moved_settings(loaded)
         except Exception as e:
             QMessageBox.warning(self, "Import failed", str(e))
+
+    #: Key/value column-name pairs a spaCR settings CSV can use, in the order
+    #: they are tried. Mirrors ``spacr.cli._CSV_COLUMNS``: ``Key,Value`` is
+    #: what :func:`spacr.utils.save_settings` writes next to every run, while
+    #: ``setting_key,setting_value`` is the documented default of
+    #: :func:`spacr.utils.load_settings` and what ``spacr.io`` /
+    #: ``spacr.object`` / ``spacr.spacr_cellpose`` write.
+    _CSV_COLUMNS = (
+        ("Key", "Value"),
+        ("setting_key", "setting_value"),
+        ("key", "value"),
+        ("Setting", "Value"),
+        ("name", "value"),
+    )
+
+    @classmethod
+    def _load_settings_csv(cls, path: str) -> dict:
+        """Parse a two-column settings CSV, whichever header spelling it uses.
+
+        ``load_settings`` raises when the column names it was told to expect
+        are absent, so trying only ``Key``/``Value`` made every CSV written by
+        ``spacr.io.save_settings_to_db`` — the ``setting_key``/
+        ``setting_value`` spelling — fail to import with "Import failed".
+
+        :param path: path to the CSV.
+        :returns: the parsed settings dict.
+        :raises ValueError: when no recognised column pair is present.
+        """
+        from spacr.utils import load_settings
+        first_error = None
+        for key_col, value_col in cls._CSV_COLUMNS:
+            try:
+                return load_settings(path, setting_key=key_col,
+                                     setting_value=value_col)
+            except ValueError as e:
+                # Wrong header spelling (or an unparseable file) — remember
+                # the first complaint and try the next spelling.
+                if first_error is None:
+                    first_error = e
+        raise first_error
 
     @staticmethod
     def _truthy(val) -> bool:

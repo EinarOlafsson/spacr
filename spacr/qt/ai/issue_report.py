@@ -38,33 +38,95 @@ MAX_URL_LEN = 7500   # GitHub caps the pre-filled issue URL at ~8 KB
 # Sanitisation
 # ---------------------------------------------------------------------------
 
+#: Placeholder substituted for anything that looks like a credential.
+REDACTED = "<REDACTED>"
+
+#: Vendor-specific credential shapes. Matched anywhere in the text —
+#: a traceback, a settings value or a log line can all carry one.
+_TOKEN_PATTERNS = (
+    re.compile(r"github_pat_[A-Za-z0-9_]{16,}"),
+    re.compile(r"\bgh[pousr]_[A-Za-z0-9]{16,}"),
+    re.compile(r"\bsk-ant-[A-Za-z0-9_\-]{8,}"),
+    re.compile(r"\bsk-[A-Za-z0-9_\-]{16,}"),
+    re.compile(r"\bAIza[A-Za-z0-9_\-]{20,}"),
+    re.compile(r"\bxox[abprs]-[A-Za-z0-9\-]{8,}"),
+)
+
+#: ``Authorization: Bearer <token>`` — keep the scheme, drop the secret.
+_BEARER_RE = re.compile(r"(?i)(\bbearer\s+)[A-Za-z0-9._\-]{8,}")
+
+#: ``api_key = 'xxx'`` / ``GITHUB_TOKEN: xxx`` style assignments.
+_ASSIGN_RE = re.compile(
+    r"(?i)"
+    r"([\"']?\b[A-Za-z0-9_\-]*"
+    r"(?:api[_-]?key|secret|passwd|password|token|credential)"
+    r"[A-Za-z0-9_\-]*\b[\"']?\s*[=:]\s*)"
+    r"([\"']?)"
+    r"([^\s,;'\"}\)]{6,})"
+    r"\2"
+)
+
+#: Settings keys whose *value* is dropped wholesale regardless of shape.
+_SECRET_KEY_RE = re.compile(
+    r"(?i)(api[_-]?key|secret|passwd|password|token|credential)"
+)
+
+
+def redact_secrets(s: str) -> str:
+    """Strip anything that looks like an API key / access token.
+
+    The issue body is posted to a PUBLIC GitHub repo, so a token that
+    survived into a traceback, a settings value or a log line would be
+    leaked to the world (and, for GitHub PATs, instantly revoked).
+
+    :param s: arbitrary text.
+    :returns: the same text with credential-shaped substrings replaced
+        by :data:`REDACTED`.
+    """
+    if not s:
+        return s
+    for pat in _TOKEN_PATTERNS:
+        s = pat.sub(REDACTED, s)
+    s = _BEARER_RE.sub(lambda m: m.group(1) + REDACTED, s)
+    s = _ASSIGN_RE.sub(
+        lambda m: f"{m.group(1)}{m.group(2)}{REDACTED}{m.group(2)}", s)
+    return s
+
+
 def sanitize_path(s: str) -> str:
     """Replace absolute paths pointing inside ``$HOME`` with ``~/``.
 
     Also collapses any string that looks like an on-disk ``*.db`` path
     down to ``<DB>`` so lab / patient / experiment identifiers embedded
-    in a filename don't leak.
+    in a filename don't leak, and redacts credential-shaped substrings
+    via :func:`redact_secrets`.
 
     :param s: arbitrary text.
-    :returns: text with home-relative paths abbreviated and DB paths
-        redacted.
+    :returns: text with home-relative paths abbreviated and DB paths +
+        secrets redacted.
     """
     home = str(Path.home())
     s = s.replace(home, "~")
     # Redact any `.db` path suffix even if not under $HOME
     s = re.sub(r"[/\\][^\s'\"]+\.db\b", "<DB>", s)
-    return s
+    return redact_secrets(s)
 
 
 def sanitize_settings(settings: Dict[str, Any]) -> Dict[str, Any]:
     """Return a copy of ``settings`` with paths + DB names sanitized.
+
+    Values whose *key* names a credential (``api_key``, ``GITHUB_TOKEN``,
+    ``password``, …) are dropped entirely — the key name is enough of a
+    hint that the value must never reach a public issue.
 
     :param settings: any pipeline settings dict.
     :returns: sanitized copy safe to include in a public issue.
     """
     out: Dict[str, Any] = {}
     for k, v in (settings or {}).items():
-        if isinstance(v, str):
+        if isinstance(k, str) and _SECRET_KEY_RE.search(k):
+            out[k] = REDACTED
+        elif isinstance(v, str):
             out[k] = sanitize_path(v)
         elif isinstance(v, list):
             out[k] = [sanitize_path(x) if isinstance(x, str) else x
@@ -79,16 +141,40 @@ def sanitize_traceback(tb: str) -> str:
     return sanitize_path(tb or "")
 
 
-def _traceback_hash(tb: str) -> str:
-    """Short deterministic hash of a traceback for dedup coalescing.
+#: ``, line 123,`` inside a traceback frame — volatile, stripped before hashing.
+_LINENO_RE = re.compile(r",\s*line\s+\d+\s*,")
 
-    :returns: first 6 hex chars of sha256(sanitized traceback lines
-        that start with ``File`` — filters out random line-numbers
-        and stack noise so the same error dedupes cleanly).
+
+def _traceback_hash(tb: str) -> str:
+    """Short deterministic fingerprint of a traceback, for dedup coalescing.
+
+    The key is built from the call stack (file + function, with the
+    volatile line NUMBERS removed) plus the exception TYPE. That gives
+    the two properties dedup needs:
+
+    * the same bug still fingerprints the same after an unrelated edit
+      shifts the line numbers above it, and
+    * two genuinely different exceptions raised from the same frame get
+      different fingerprints instead of being merged into one issue.
+
+    The exception *message* is deliberately excluded — it routinely
+    embeds a filename or a plate id, which would fork the fingerprint on
+    every run.
+
+    :returns: first 6 hex chars of sha256 over that key.
     """
-    lines = [ln for ln in tb.splitlines()
-             if ln.strip().startswith(("File", "  File"))
-             or ln.strip().startswith(("Error", "Exception"))]
+    lines: List[str] = []
+    for ln in tb.splitlines():
+        stripped = ln.strip()
+        if not stripped:
+            continue
+        if stripped.startswith("File "):
+            lines.append(_LINENO_RE.sub(",", stripped))
+        elif not ln.startswith((" ", "\t")):
+            if stripped.startswith("Traceback"):
+                continue
+            # "ValueError: channels must be a list" -> "ValueError"
+            lines.append(stripped.split(":", 1)[0])
     key = "\n".join(lines) or tb
     return hashlib.sha256(key.encode()).hexdigest()[:6]
 

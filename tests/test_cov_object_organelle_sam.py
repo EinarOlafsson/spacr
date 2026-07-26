@@ -722,15 +722,13 @@ def test_build_object_settings_maps_organelle_keys():
 
 # --------------------------------------------------------------------------- #
 #  generate_cellpose_masks (the legacy sibling whose save/cleanup tail shares
-#  this line region) — currently unreachable, see the xfail reason.
+#  this line region). It used to call utils._get_cellpose_channels with four
+#  positional arguments left over from an older signature and died with a
+#  TypeError on every call; that is fixed, the xfail(strict=True) marker that
+#  documented it has been retired, and the full behaviour suite for this
+#  generator now lives in tests/test_cov_object_cellpose_masks.py.
 # --------------------------------------------------------------------------- #
 
-@pytest.mark.xfail(strict=True,
-                   reason="BUG: generate_cellpose_masks calls "
-                          "utils._get_cellpose_channels(src, nucleus, pathogen, cell) "
-                          "but that helper takes a single settings dict and returns "
-                          "(channels_to_extract, cellpose_channels) -> TypeError on "
-                          "every call, so the whole function is dead code")
 def test_generate_cellpose_masks_saves_masks_and_counts(tmp_path, monkeypatch):
     from spacr.object import generate_cellpose_masks
     from spacr.settings import set_default_settings_preprocess_generate_masks

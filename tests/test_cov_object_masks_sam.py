@@ -610,12 +610,12 @@ def test_timelapse_motility_hook_runs(tmp_path, fake_model, fake_timelapse):
 
 
 # ---------------------------------------------------------------------------
-# Currently-broken paths — these assert the CORRECT behaviour.
+# Paths that used to be broken. Both bugs are fixed (the plot/save blocks were
+# moved inside the per-batch loop in spacr/object.py); the xfail(strict=True)
+# markers that documented them have been retired and these now assert the
+# correct behaviour directly.
 # ---------------------------------------------------------------------------
 
-@pytest.mark.xfail(strict=True, reason="BUG: the save block sits outside the "
-                                       "per-batch loop, so only the last "
-                                       "batch's masks are written to disk")
 def test_every_batch_of_a_multi_batch_npz_is_saved(tmp_path, fake_model):
     src = tmp_path / "stack"
     _, names = _write_npz(src, n=4)
@@ -629,9 +629,6 @@ def test_every_batch_of_a_multi_batch_npz_is_saved(tmp_path, fake_model):
     assert _mask_files(src) == sorted(names)
 
 
-@pytest.mark.xfail(strict=True, reason="BUG: an empty npz batch leaves "
-                                       "mask_stack unbound -> NameError in the "
-                                       "save block")
 def test_empty_npz_batch_is_handled_gracefully(tmp_path, fake_model):
     src = tmp_path / "stack"
     _write_npz(src, n=0)

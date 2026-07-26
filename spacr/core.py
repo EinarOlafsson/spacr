@@ -340,7 +340,16 @@ def preprocess_generate_masks(settings):
                 if settings['plot']:
                     if not settings['timelapse']:
                         if settings['test_mode'] == True:
-                            settings['examples_to_plot'] = len(os.path.join(src,'merged'))
+                            # Test mode plots every merged field. This used to
+                            # take len() of the merged *path string*, i.e. a
+                            # number that tracks how deeply the run folder is
+                            # nested and has nothing to do with how many
+                            # fields exist.
+                            merged_dir = os.path.join(src, 'merged')
+                            settings['examples_to_plot'] = len(
+                                [f for f in os.listdir(merged_dir)
+                                 if f.endswith('.npy')]
+                            ) if os.path.isdir(merged_dir) else 0
 
                         # A separate ledger: an overlay PDF that fails to
                         # render is cosmetic and must NOT brand the masks
@@ -457,6 +466,81 @@ def preprocess_generate_masks_timelapse(settings):
     return preprocess_generate_masks(settings)
 
 
+def _validate_umap_source_db(db_path, tables):
+    """Fail early — and by name — when a measurements DB cannot back an image UMAP.
+
+    :func:`generate_image_umap` joins the requested feature ``tables`` against
+    ``png_list`` on ``png_list.cell_id`` and then reads ``png_path`` off the
+    result. Every way that can go wrong used to surface far downstream as an
+    exception that named neither the database nor the column:
+
+    * ``png_list`` without ``cell_id`` → ``KeyError("['cell_id'] not in index")``
+      raised inside :func:`spacr.io._read_and_join_tables`;
+    * no ``png_list`` table at all → ``KeyError('png_path')`` in this function;
+    * an empty / never-measured database → ``UnboundLocalError: local variable
+      'image_paths' referenced before assignment`` from
+      :func:`spacr.utils.correct_paths`.
+
+    Feature tables stay optional (a run without a pathogen channel has no
+    ``pathogen`` table and :func:`spacr.io._read_and_join_tables` just skips
+    it), but the join is anchored on ``cell``, so a requested ``cell`` table
+    that is absent is fatal too.
+
+    :param db_path: path of a ``measurements/measurements.db``.
+    :param tables: table names the caller asked to embed, including
+        ``'png_list'``.
+    :returns: None.
+    :raises ValueError: naming ``db_path`` and exactly what is missing.
+    """
+    import sqlite3 as _sqlite3
+
+    if not os.path.isfile(db_path):
+        raise ValueError(
+            f"generate_image_umap: no measurements database at {db_path}. "
+            "Run the Measure module on this source folder (with save_png "
+            "enabled) before embedding it.")
+
+    conn = _sqlite3.connect(db_path)
+    try:
+        present = {row[0] for row in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")}
+        png_cols = {row[1] for row in conn.execute("PRAGMA table_info('png_list')")}
+    finally:
+        conn.close()
+
+    present_desc = ', '.join(sorted(present)) if present else 'none'
+
+    if 'png_list' not in present:
+        raise ValueError(
+            f"generate_image_umap: {db_path} has no 'png_list' table, which "
+            "supplies the single-object PNG paths the embedding plots. "
+            f"Tables present: {present_desc}. Re-run the Measure module with "
+            "save_png=True.")
+
+    missing_cols = [c for c in ('cell_id', 'png_path') if c not in png_cols]
+    if missing_cols:
+        raise ValueError(
+            f"generate_image_umap: the 'png_list' table in {db_path} is "
+            f"missing the column(s) {', '.join(missing_cols)}. 'cell_id' is "
+            "the key the object features are joined on and 'png_path' is the "
+            f"crop location. Columns present: {', '.join(sorted(png_cols))}. "
+            "Re-run the Measure module with save_png=True to rebuild png_list.")
+
+    feature_tables = [t for t in tables if t != 'png_list']
+    found = [t for t in feature_tables if t in present]
+    if not found:
+        raise ValueError(
+            f"generate_image_umap: none of the requested feature tables "
+            f"({', '.join(feature_tables) or 'none requested'}) exist in "
+            f"{db_path}. Tables present: {present_desc}.")
+    if 'cell' in feature_tables and 'cell' not in present:
+        raise ValueError(
+            f"generate_image_umap: {db_path} has no 'cell' table. The "
+            "object join is anchored on cell objects, so nucleus/pathogen/"
+            "cytoplasm features alone cannot be embedded. "
+            f"Tables present: {present_desc}.")
+
+
 def generate_image_umap(settings=None, return_fig=False):
     """Generate a UMAP or tSNE embedding of per-object features and plot it.
 
@@ -473,7 +557,14 @@ def generate_image_umap(settings=None, return_fig=False):
     :param return_fig: When True, return the Matplotlib figure instead of the
         annotated DataFrame.
     :returns: DataFrame of the input rows plus a ``cluster`` column, or a
-        Matplotlib ``Figure`` when ``return_fig`` is True.
+        Matplotlib ``Figure`` when ``return_fig`` is True. With
+        ``remove_cluster_noise`` the noise objects are dropped from the frame
+        as well as from the embedding, so the two always describe the same
+        objects.
+    :raises ValueError: when a source has no usable ``measurements.db`` — see
+        :func:`_validate_umap_source_db` for exactly what is required.
+    :raises NotImplementedError: when ``resnet_features`` is set; embedding
+        raw crops with ResNet features is not implemented.
     """
  
     if settings is None:
@@ -508,6 +599,9 @@ def generate_image_umap(settings=None, return_fig=False):
     all_df = pd.DataFrame()
 
     for i,db_path in enumerate(db_paths):
+        # Say which database is unusable, and why, instead of letting the
+        # join fail with a bare KeyError three modules away.
+        _validate_umap_source_db(db_path, tables)
         df = _read_and_join_tables(db_path, table_names=tables)
         df, image_paths_tmp = correct_paths(df, settings['src'][i])
         all_df = pd.concat([all_df, df], axis=0)
@@ -524,7 +618,15 @@ def generate_image_umap(settings=None, return_fig=False):
             print(f'Excluded {row_count_before - len(all_df)} rows after excluding: {settings["exclude_conditions"]}, rows left: {len(all_df)}')
 
     if settings['row_limit'] is not None:
-        all_df = all_df.sample(n=settings['row_limit'], random_state=42)
+        # row_limit is a cap, not a demand: asking for more rows than the
+        # screen contains used to abort the whole embedding with pandas'
+        # "Cannot take a larger sample than population", which names neither
+        # the setting nor the source.
+        n_rows = min(int(settings['row_limit']), len(all_df))
+        if n_rows < settings['row_limit']:
+            print(f"row_limit={settings['row_limit']} exceeds the {len(all_df)} "
+                  f"rows available; using all {len(all_df)}.")
+        all_df = all_df.sample(n=n_rows, random_state=42)
 
     image_paths = all_df['png_path'].to_list()
 
@@ -570,8 +672,14 @@ def generate_image_umap(settings=None, return_fig=False):
 
     else:
         if settings['resnet_features']:
-            # placeholder for resnet features, not implemented yet
-            pass
+            # Placeholder, never implemented. It used to `pass`, so the run
+            # fell through to `plot_embedding(embedding, ...)` with `embedding`
+            # unbound and died with an UnboundLocalError that pointed at the
+            # plotting code rather than at the setting the user turned on.
+            raise NotImplementedError(
+                "resnet_features is not implemented: spaCR cannot embed raw "
+                "PNG crops with ResNet features yet. Set resnet_features=False "
+                "to embed the measured feature table instead.")
             #numeric_data, embedding, labels = generate_umap_from_images(image_paths, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['clustering'], settings['eps'], settings['min_samples'], settings['n_jobs'], settings['verbose'])
         else:
             # Apply the trained reducer to the entire dataset
@@ -579,16 +687,29 @@ def generate_image_umap(settings=None, return_fig=False):
             embedding, labels, _ = reduction_and_clustering(numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], n_jobs=settings['n_jobs'])
     
     if settings['remove_cluster_noise']:
-        # Remove noise from the clusters (removes -1 labels from DBSCAN)
+        # Remove noise from the clusters (removes -1 labels from DBSCAN).
+        # The frame and the image paths must lose exactly the same rows:
+        # dropping points from the embedding alone left `labels` shorter than
+        # `all_df`, and the `all_df['cluster'] = labels` assignment at the end
+        # of this function then died with "Length of values (50) does not
+        # match length of index (60)" — i.e. this setting was unusable
+        # whenever DBSCAN called *some* (but not all) points noise.
+        keep = np.asarray(labels) != -1
         embedding, labels = remove_noise(embedding, labels)
+        if keep.any():
+            image_paths = [p for p, k in zip(image_paths, keep) if k]
+            all_df = all_df[keep].reset_index(drop=True)
+        # else: every point was noise, so `labels` is now empty and the
+        # single-cluster fallback further down keeps the frame intact
+        # instead of handing back nothing at all.
 
-    # Plot the results
+    # Plot the results. color_by replaces the cluster labels with a metadata
+    # column; how the embedding was fitted makes no difference (the two arms
+    # of the if/else this replaces were character-for-character identical).
     if settings['color_by']:
-        if settings['embedding_by_controls']:
-            labels = all_df[settings['color_by']]
-        else:
-            labels = all_df[settings['color_by']]
-    
+        labels = all_df[settings['color_by']]
+
+
     # Generate colors for the clusters
     colors = generate_colors(len(np.unique(labels)), settings['black_background'])
 
@@ -658,6 +779,10 @@ def reducer_hyperparameter_search(settings=None, reduction_params=None, dbscan_p
     :param show: When True and not saving, call ``plt.show``.
     :param return_fig: When True, return the Matplotlib figure.
     :returns: The figure when ``return_fig`` is True, otherwise None.
+    :raises ValueError: when ``reduction_params`` is missing or empty, when it
+        contains neither ``n_neighbors`` nor ``perplexity``, when it mixes the
+        two, or when ``settings['reduction_method']`` is neither UMAP nor
+        tSNE. All four are checked before any data is read.
     """
     
     if settings is None:
@@ -677,18 +802,47 @@ def reducer_hyperparameter_search(settings=None, reduction_params=None, dbscan_p
     if isinstance(reduction_params, dict):
         reduction_params = [reduction_params]
 
-    # Determine reduction method based on the keys in reduction_param
-    if any('n_neighbors' in param for param in reduction_params):
-        reduction_method = 'umap'
-    elif any('perplexity' in param for param in reduction_params):
-        reduction_method = 'tsne'
-    elif any('perplexity' in param for param in reduction_params) and any('n_neighbors' in param for param in reduction_params):
+    # Determine reduction method based on the keys in reduction_param.
+    # reduction_params is required: iterating None raised a TypeError from the
+    # generator expression below that never mentioned the argument's name.
+    if not reduction_params:
+        raise ValueError(
+            "reducer_hyperparameter_search: reduction_params is required. "
+            "Pass a dict (or list of dicts) containing 'n_neighbors' to sweep "
+            "UMAP or 'perplexity' to sweep tSNE.")
+
+    wants_umap = any('n_neighbors' in param for param in reduction_params)
+    wants_tsne = any('perplexity' in param for param in reduction_params)
+
+    # The both-at-once check has to come FIRST. As a third `elif` after the
+    # UMAP branch it could never fire, so a mixed sweep silently ran as UMAP
+    # and every 'perplexity' value in it was ignored.
+    if wants_umap and wants_tsne:
         raise ValueError("Reduction parameters must include 'n_neighbors' for UMAP or 'perplexity' for tSNE, not both.")
-    
+    elif wants_umap:
+        reduction_method = 'umap'
+    elif wants_tsne:
+        reduction_method = 'tsne'
+    else:
+        # Previously fell through with reduction_method unbound and died on
+        # the next line with an UnboundLocalError.
+        raise ValueError(
+            "Reduction parameters must include 'n_neighbors' for UMAP or "
+            f"'perplexity' for tSNE; got {reduction_params}.")
+
+
+    # Validated here, once, before a single row is read: this check used to
+    # live inside the per-cell loop below, where it could never fire because
+    # the line under it had already overwritten reduction_method with 'umap'
+    # or 'tsne'. An unsupported method was therefore silently swapped out
+    # instead of reported.
+    if str(settings['reduction_method']).lower() not in ('umap', 'tsne'):
+        raise ValueError(f"Unsupported reduction method: {settings['reduction_method']}. Supported methods are 'UMAP' and 'tSNE'")
+
     if settings['reduction_method'].lower() != reduction_method:
         settings['reduction_method'] = reduction_method
         print(f'Changed reduction method to {reduction_method} based on the provided parameters.')
-    
+
     if settings['verbose']:
         display(pd.DataFrame(list(settings.items()), columns=['Key', 'Value']))
 
@@ -711,7 +865,12 @@ def reducer_hyperparameter_search(settings=None, reduction_params=None, dbscan_p
             print(f'Excluded {row_count_before - len(all_df)} rows after excluding: {settings["exclude_conditions"]}, rows left: {len(all_df)}')
 
     if settings['row_limit'] is not None:
-        all_df = all_df.sample(n=settings['row_limit'], random_state=42)
+        # Same cap semantics as generate_image_umap.
+        n_rows = min(int(settings['row_limit']), len(all_df))
+        if n_rows < settings['row_limit']:
+            print(f"row_limit={settings['row_limit']} exceeds the {len(all_df)} "
+                  f"rows available; using all {len(all_df)}.")
+        all_df = all_df.sample(n=n_rows, random_state=42)
 
     numeric_data = preprocess_data(all_df, settings['filter_by'], settings['remove_highly_correlated'], settings['log_data'], settings['exclude'])
 
@@ -753,7 +912,9 @@ def reducer_hyperparameter_search(settings=None, reduction_params=None, dbscan_p
             else:
                 ax = axs[i, j]
 
-            # Perform dimensionality reduction and clustering
+            # Perform dimensionality reduction and clustering. The method is
+            # 'umap' or 'tsne' and nothing else — it is validated once, above,
+            # before any data is read.
             if settings['reduction_method'].lower() == 'umap':
                 n_neighbors = reduction_param.get('n_neighbors', 15)
 
@@ -765,18 +926,15 @@ def reducer_hyperparameter_search(settings=None, reduction_params=None, dbscan_p
                                                                     clustering_param.get('eps', 0.5), clustering_param.get('min_samples', 5), 
                                                                     clustering_param['method'], settings['reduction_method'], settings['verbose'], reduction_param, n_jobs=settings['n_jobs'])
                 
-            elif settings['reduction_method'].lower() == 'tsne':
+            else:  # 'tsne'
                 perplexity = reduction_param.get('perplexity', 30)
 
                 if isinstance(perplexity, float):
                     perplexity = int(perplexity * len(numeric_data))
 
-                embedding, labels = search_reduction_and_clustering(numeric_data, perplexity, 0.1, settings['metric'], 
-                                                                    clustering_param.get('eps', 0.5), clustering_param.get('min_samples', 5), 
+                embedding, labels = search_reduction_and_clustering(numeric_data, perplexity, 0.1, settings['metric'],
+                                                                    clustering_param.get('eps', 0.5), clustering_param.get('min_samples', 5),
                                                                     clustering_param['method'], settings['reduction_method'], settings['verbose'], reduction_param, n_jobs=settings['n_jobs'])
-                
-            else:
-                raise ValueError(f"Unsupported reduction method: {settings['reduction_method']}. Supported methods are 'UMAP' and 'tSNE'")
 
             # Plot the results
             if settings['color_by']:
@@ -803,8 +961,6 @@ def reducer_hyperparameter_search(settings=None, reduction_params=None, dbscan_p
         return fig
     if show and not save:
         plt.show()
-    return
-
     return
 
 def generate_screen_graphs(settings):

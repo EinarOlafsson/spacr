@@ -439,6 +439,10 @@ class AIChatPanel(QWidget):
         self._worker: Optional[StreamWorker] = None
         self._pending_bubble: Optional[_MessageBubble] = None
         self._pending_buf: List[str] = []
+        # (QThread, StreamWorker) pairs whose stream finished but whose OS
+        # thread may still be winding down. Held so Python can't GC a
+        # still-running QThread — see _prune_retired().
+        self._retired: List = []
 
         self._build_ui()
         self.refresh_provider_combo()
@@ -542,6 +546,10 @@ class AIChatPanel(QWidget):
             self._stack.setCurrentWidget(self._chat_scroll)
             self._input.setEnabled(True)
             self._set_send_mode("send")
+            # Re-enable — the empty-state branch below disables the button,
+            # and a later refresh (the Providers dialog's "Refresh", after
+            # the user installed a CLI) has to undo that or Send stays dead.
+            self._btn_send.setEnabled(True)
         else:
             self._stack.setCurrentWidget(self._empty_state)
             self._input.setEnabled(False)
@@ -615,8 +623,12 @@ class AIChatPanel(QWidget):
                                         self._pending_bubble)
         self._scroll_to_bottom()
 
+        # `parent=self` is mandatory: it ties the QThread's C++ lifetime
+        # to the panel instead of to our Python refcount, so dropping
+        # self._thread in _on_stream_finished can't abort with
+        # "QThread: Destroyed while thread is still running".
         thread, worker = make_stream_thread(
-            provider, list(self._messages), system=system
+            provider, list(self._messages), system=system, parent=self,
         )
         worker.stage_changed.connect(self._on_stage_changed)
         worker.chunk_ready.connect(self._on_chunk)
@@ -643,13 +655,20 @@ class AIChatPanel(QWidget):
             self._scroll_to_bottom()
 
     def _on_stream_finished(self, ok: bool, final_text: str):
-        # Reset streaming state FIRST so a fast follow-up send works.
+        # Retire the (thread, worker) pair — keep BOTH Python refs until
+        # the OS thread has actually exited, otherwise Python can drop
+        # the last reference while QThread.isRunning() is still True.
+        self._prune_retired()
+        thread, worker = self._thread, self._worker
+        # Reset streaming state so a fast follow-up send works.
         self._thread = None
         self._worker = None
+        if thread is not None:
+            self._retired.append((thread, worker))
         self._set_send_mode("send")
-        if ok and self._pending_bubble is not None:
+        if ok:
             self._messages.append({"role": "assistant", "content": final_text})
-            if not self._pending_buf:
+            if self._pending_bubble is not None and not self._pending_buf:
                 # Provider returned no chunks — surface an obvious message
                 self._pending_bubble.set_text(
                     "(empty response — try again or switch provider)"
@@ -662,6 +681,64 @@ class AIChatPanel(QWidget):
         self._pending_bubble = None
         self._pending_buf = []
 
+    def _prune_retired(self) -> None:
+        """Forget retired (thread, worker) pairs whose QThread has exited.
+
+        A pair whose C++ object Qt already deleted raises RuntimeError on
+        ``isRunning()`` — that is also safe to drop.
+        """
+        alive = []
+        for thread, worker in self._retired:
+            try:
+                if thread.isRunning():
+                    alive.append((thread, worker))
+            except RuntimeError:
+                pass
+        self._retired = alive
+
+    def is_streaming(self) -> bool:
+        """Return True while a response is being streamed."""
+        return self._thread is not None
+
+    def shutdown(self) -> None:
+        """Cancel any active stream and block until its QThread exits.
+
+        Must run before the panel is destroyed — otherwise Python drops
+        the last reference to a running QThread and Qt aborts with
+        ``QThread: Destroyed while thread '' is still running``.
+        """
+        worker, thread = self._worker, self._thread
+        try:
+            for p in ai_module.list_providers():
+                p.cancel_stream()
+        except Exception:
+            pass
+        if worker is not None:
+            try:
+                worker.cancel()
+            except Exception:
+                pass
+        for t in [thread] + [pair[0] for pair in list(self._retired)]:
+            if t is None:
+                continue
+            try:
+                if t.isRunning():
+                    t.quit()
+                    t.wait(3000)
+                    if t.isRunning():
+                        t.terminate()
+                        t.wait(1000)
+            except RuntimeError:
+                pass
+        self._thread = None
+        self._worker = None
+        self._retired.clear()
+
+    def closeEvent(self, event) -> None:
+        """Drain the streaming thread before Qt destroys the panel."""
+        self.shutdown()
+        super().closeEvent(event)
+
     def _scroll_to_bottom(self):
         sb = self._chat_scroll.verticalScrollBar()
         sb.setValue(sb.maximum())
@@ -669,6 +746,12 @@ class AIChatPanel(QWidget):
     def clear_chat(self) -> None:
         """Discard chat history and remove every bubble from the scroll area."""
         self._messages.clear()
+        # Forget the in-flight assistant bubble BEFORE deleting the widgets.
+        # Keeping the reference would leave _on_chunk writing into a widget
+        # whose C++ half deleteLater() already destroyed, which raises
+        # "Internal C++ object already deleted" inside a Qt slot.
+        self._pending_bubble = None
+        self._pending_buf = []
         while self._chat_layout.count() > 1:
             item = self._chat_layout.takeAt(0)
             w = item.widget() if item else None

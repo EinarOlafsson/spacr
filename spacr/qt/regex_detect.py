@@ -246,7 +246,18 @@ def auto_detect_regex(
     synth = _synthesise_regex(filenames)
     if synth is None:
         return best_pattern, best_label, best_hits
-    return synth, "synthesised", n
+    # Report the TRUE hit count. The synthesiser works from a single
+    # template filename, so it routinely fails to match its siblings —
+    # blindly returning ``n`` told the caller "matched 3/3" for a regex
+    # that matched nothing, and the regex editor printed that lie.
+    try:
+        synth_rx = re.compile(synth)
+    except re.error:
+        return best_pattern, best_label, best_hits
+    synth_hits = sum(1 for f in filenames if synth_rx.match(f))
+    if synth_hits < best_hits:
+        return best_pattern, best_label, best_hits
+    return synth, "synthesised", synth_hits
 
 
 def _synthesise_regex(filenames: Sequence[str]) -> Optional[str]:
@@ -326,6 +337,13 @@ def _synthesise_regex(filenames: Sequence[str]) -> Optional[str]:
         if re.fullmatch(r"[A-Za-z0-9]+", tok) and "plateID" not in used_groups:
             parts.append(r"(?P<plateID>[A-Za-z0-9]+)")
             used_groups.add("plateID")
+            continue
+        # Bare digit run with plateID already spent (e.g. the `0001` in
+        # `IMG_0001.tif`) — vary the digits for the same reason we do it
+        # for `W1`/`M12` above. Escaping the template's literal digits
+        # here produced a regex that matched exactly one file.
+        if tok.isdigit():
+            parts.append(r"\d+")
             continue
         # Fallback: literal escaped shape
         parts.append(re.escape(tok))

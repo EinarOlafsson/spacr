@@ -198,11 +198,13 @@ def _describe_tif(p: Path) -> Optional[DatasetDescription]:
             H, W = page.shape[:2] if hasattr(page, "shape") \
                                   else (page.imagelength, page.imagewidth)
             dtype = str(page.dtype)
-            # Try imagej / ome metadata for axis meaning
-            axes = None
-            for tag_name in ("axes", "ImageJ", "OME"):
-                if hasattr(tf, tag_name):
-                    axes = getattr(tf, tag_name); break
+            # Axis meaning: tifffile parses ImageJ / OME / plain TIFFs into
+            # series, and the series carries the axes string ("ZCYX", "TYX",
+            # "QYX" for an unlabelled stack). TiffFile itself has no `axes`
+            # / `ImageJ` / `OME` attributes — probing for those always came
+            # back empty, so the axis note was never emitted.
+            series = getattr(tf, "series", None)
+            axes = getattr(series[0], "axes", None) if series else None
             notes = [f"pages={n_pages}"]
             if axes:
                 notes.append(f"axes={axes}")

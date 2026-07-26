@@ -8,12 +8,30 @@ targets.
 Every script exercises the same core motion: land on the app, load
 a synthetic demo dataset (via the Demos menu we shipped), highlight
 the interesting parts of the settings form, then click Run.
+
+Two rules keep a script from quietly pointing at nothing:
+
+1. **Never name a widget that does not exist yet.** A Step's list is
+   built before any of its actions have run, so a settings panel or a
+   Run button on a screen the script has not opened yet evaluates to
+   ``None`` at build time and stays ``None`` for the whole render. Pass
+   a zero-argument callable instead — ``target=(lambda: _find_button(
+   screen_ref[0], "Run"), None)`` — and the engine resolves it at
+   capture time. See ``Director._deref``.
+2. **Never hard-code a pixel offset into a container.** Point at the
+   widget itself (``_sidebar_button``, ``_find_button``,
+   ``_menu_target``) and let the engine take its centre. Literal
+   offsets silently drift the moment a row is added to APPS or the
+   font scale changes.
 """
 from __future__ import annotations
 
+import logging
 from typing import Any, Callable, List, Optional
 
 from .engine import Step
+
+LOG = logging.getLogger("spacr.qt.tutorial")
 
 AVAILABLE_TUTORIALS = [
     "home", "mask", "measure", "crop", "classify", "timelapse",
@@ -71,12 +89,27 @@ def _load_demo(window, demo_key: str, tmp_root: str):
 
 
 def _sidebar_button(window, key: str):
-    for btn in window._sidebar.findChildren(type(window._sidebar)):
-        pass  # not enough info without deeper introspection
+    """Return the sidebar row for app ``key``.
+
+    Matches on the ``navKey`` Qt property the sidebar stamps on every
+    row, because app keys are load-bearing while the display names next
+    to them are free to change. Falls back to a label match so a plain
+    display name ("Mask") still works, and finally to the sidebar itself
+    so a stale key degrades to a vague gesture rather than an exception.
+
+    :param window: live MainWindow.
+    :param key: an app key ("mask") or a sidebar label ("Mask").
+    """
     from PySide6.QtWidgets import QPushButton
-    for btn in window._sidebar.findChildren(QPushButton):
+    rows = window._sidebar.findChildren(QPushButton)
+    for btn in rows:
+        if btn.property("navKey") == key:
+            return btn
+    for btn in rows:
         if btn.text().strip().lower() == key.lower():
             return btn
+    LOG.warning("tutorial: no sidebar row for %r — cursor will land on "
+                  "the sidebar as a whole", key)
     return window._sidebar
 
 
@@ -84,16 +117,46 @@ def _menu_bar(window):
     return window.menuBar()
 
 
+def _menu_target(window, title: str):
+    """Return ``(menubar, centre-of-the-<title>-menu)`` for a Step target.
+
+    The point is computed from the menu bar's own action geometry rather
+    than hard-coded, so a longer menu title upstream of it — or a
+    different font scale — cannot leave the cursor pointing at blank
+    chrome.
+
+    :returns: ``(menubar, (x, y))``, or ``(menubar, None)`` when no menu
+        with that title exists (the cursor then aims at the bar centre).
+    """
+    mb = window.menuBar()
+    for act in mb.actions():
+        if act.text().replace("&", "") == title:
+            rect = mb.actionGeometry(act)
+            return (mb, (rect.center().x(), rect.center().y()))
+    LOG.warning("tutorial: menu bar has no %r menu", title)
+    return (mb, None)
+
+
 def _find_button(screen, label: str):
-    """Best-effort: find a QPushButton on `screen` whose text starts
-    with `label` (case-insensitive)."""
+    """Find a QPushButton on ``screen`` whose text matches ``label``.
+
+    An exact (case-insensitive) match wins over a prefix match. Prefix
+    alone is not enough: the Mask and Timelapse screens carry both "Run"
+    and "Run preview", and child order put "Run preview" first — so a
+    step narrating the real run pointed at the preview button instead.
+    """
     from PySide6.QtWidgets import QPushButton
     if screen is None:
         return None
+    wanted = label.strip().lower()
+    prefix_hit = None
     for b in screen.findChildren(QPushButton):
-        if b.text().strip().lower().startswith(label.lower()):
+        text = b.text().strip().lower()
+        if text == wanted:
             return b
-    return None
+        if prefix_hit is None and text.startswith(wanted):
+            prefix_hit = b
+    return prefix_hit
 
 
 # ---------------------------------------------------------------------------
@@ -106,21 +169,21 @@ def _build_home_steps(window) -> List[Step]:
             "Welcome to spaCR — a modern desktop application "
             "for spatial single-cell analysis of microscopy data.",
             action=_go_home(window),
-            target=(window._sidebar, (100, 40)),
+            target=(_sidebar_button(window, "__home__"), None),
             hold_ms=400,
         ),
         Step(
             "The left sidebar gives you quick access to every "
             "pipeline in spaCR — grouped into Core, Analysis, "
             "Cellpose, and Sequencing.",
-            target=(window._sidebar, (100, 200)),
+            target=(window._sidebar, None),
             hold_ms=300,
         ),
         Step(
             "The home page shows every app as a large clickable "
             "tile. Hovering makes each tile pop, and clicking "
             "opens the module.",
-            target=(window._stack, (960, 400)),
+            target=(window._stack, None),
             hold_ms=500,
         ),
         Step(
@@ -128,26 +191,38 @@ def _build_home_steps(window) -> List[Step]:
             "synthetic demo dataset. From the Demos menu you can "
             "generate a working example for any module.",
             action=lambda: _open_demos_menu(window),
-            target=(window.menuBar(), (170, 15)),
+            target=_menu_target(window, "Demos"),
             hold_ms=800,
         ),
         Step(
             "Let's jump into the mask module to see it in action.",
             action=_nav_to(window, "mask"),
-            target=(window._sidebar, (100, 250)),
+            target=(_sidebar_button(window, "mask"), None),
             hold_ms=400,
         ),
     ]
 
 
 def _open_demos_menu(window):
+    """Locate the Demos menu for the narration beat about it.
+
+    Popping the menu up for real would grab input for the rest of the
+    render, so this only resolves it — and returns what it found, so a
+    rename of the menu is detectable instead of silently turning the
+    step into a no-op.
+
+    Returns the menu's ``QAction`` rather than ``act.menu()``: the
+    menu-bar action is owned by the bar and stays valid, whereas the
+    QMenu wrapper handed back by ``QAction.menu()`` can come back
+    already-invalidated after a garbage collection.
+
+    :returns: the ``QAction`` titled "Demos", or ``None``.
+    """
     for act in window.menuBar().actions():
         if act.text().replace("&", "") == "Demos":
-            # Just show its status tip - actually opening the menu
-            # would block. Trigger the first action so we at least
-            # show its effect. Actually we want to just idle here.
-            return
-    return
+            return act
+    LOG.warning("tutorial: no Demos menu on the menu bar")
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -167,7 +242,7 @@ def _build_mask_steps(window) -> List[Step]:
             "segmenting cells, nuclei, and pathogens using "
             "Cellpose.",
             action=_nav_to(window, "mask"),
-            target=(window._sidebar, (100, 250)),
+            target=(_sidebar_button(window, "mask"), None),
             hold_ms=400,
         ),
         Step(
@@ -184,22 +259,22 @@ def _build_mask_steps(window) -> List[Step]:
             "Notice the source folder, the channel layout, "
             "and each object's Cellpose model — cyto for cells, "
             "nuclei for nuclei.",
-            target=(_settings_panel(screen_ref[0]), None),
+            target=(lambda: _settings_panel(screen_ref[0]), None),
             hold_ms=400,
         ),
         Step(
             "The console on the right will stream every log "
             "record — from spaCR itself, from Cellpose, and from "
             "any warnings raised during the run.",
-            target=(_console_panel(screen_ref[0]), None),
+            target=(lambda: _console_panel(screen_ref[0]), None),
             hold_ms=400,
         ),
         Step(
             "When you hit Run, spaCR converts your images to a "
             "Yokogawa-style stack, normalises each channel, and "
             "then hands each field to Cellpose to segment.",
-            target=(_find_button(screen_ref[0], "Run"), None),
-            highlight=_find_button(screen_ref[0], "Run"),
+            target=(lambda: _find_button(screen_ref[0], "Run"), None),
+            highlight=lambda: _find_button(screen_ref[0], "Run"),
             hold_ms=600,
         ),
         Step(
@@ -228,7 +303,7 @@ def _build_measure_steps(window) -> List[Step]:
             "from your segmented images — intensity, morphology, "
             "co-localization, texture, and radial distribution.",
             action=_nav_to(window, "measure"),
-            target=(window._sidebar, (100, 280)),
+            target=(_sidebar_button(window, "measure"), None),
             hold_ms=400,
         ),
         Step(
@@ -244,7 +319,7 @@ def _build_measure_steps(window) -> List[Step]:
             "layout, and every measurement toggle. The cell, "
             "nucleus, and pathogen channels can be tuned "
             "independently.",
-            target=(_settings_panel(screen_ref[0]), None),
+            target=(lambda: _settings_panel(screen_ref[0]), None),
             hold_ms=500,
         ),
         Step(
@@ -256,8 +331,8 @@ def _build_measure_steps(window) -> List[Step]:
             "Hitting Run walks every mask, computes features, and "
             "appends rows to measurements.db — one row per object, "
             "per timepoint if you're doing timelapse.",
-            target=(_find_button(screen_ref[0], "Run"), None),
-            highlight=_find_button(screen_ref[0], "Run"),
+            target=(lambda: _find_button(screen_ref[0], "Run"), None),
+            highlight=lambda: _find_button(screen_ref[0], "Run"),
             hold_ms=500,
         ),
     ]
@@ -280,6 +355,7 @@ def _build_crop_steps(window) -> List[Step]:
             "in spaCR, cropping is one of the outputs of measure, "
             "not a standalone step.",
             action=_nav_to(window, "measure"),
+            target=(_sidebar_button(window, "measure"), None),
             hold_ms=400,
         ),
         Step(
@@ -294,7 +370,7 @@ def _build_crop_steps(window) -> List[Step]:
             "Save PNG is on, PNG size is 64, and PNG dims picks "
             "which channels get baked into the crop. You'll get "
             "one folder of thumbnails per object type.",
-            target=(_settings_panel(screen_ref[0]), None),
+            target=(lambda: _settings_panel(screen_ref[0]), None),
             hold_ms=500,
         ),
         Step(
@@ -323,7 +399,7 @@ def _build_classify_steps(window) -> List[Step]:
             "where you label the crops that measure produced, so "
             "that classify has a training set.",
             action=_nav_to(window, "annotate"),
-            target=(window._sidebar, (100, 300)),
+            target=(_sidebar_button(window, "annotate"), None),
             hold_ms=400,
         ),
         Step(
@@ -344,8 +420,8 @@ def _build_classify_steps(window) -> List[Step]:
             "When you're done, the Train CV and Train XG buttons "
             "hand your annotations off to classify — either as a "
             "CNN or as an XGBoost model.",
-            target=(_find_button(screen_ref[0], "Train"), None),
-            highlight=_find_button(screen_ref[0], "Train"),
+            target=(lambda: _find_button(screen_ref[0], "Train CV"), None),
+            highlight=lambda: _find_button(screen_ref[0], "Train CV"),
             hold_ms=500,
         ),
     ]
@@ -368,6 +444,7 @@ def _build_timelapse_steps(window) -> List[Step]:
             "understands the T dimension in the Yokogawa filename "
             "convention.",
             action=_nav_to(window, "timelapse"),
+            target=(_sidebar_button(window, "timelapse"), None),
             hold_ms=400,
         ),
         Step(
@@ -384,14 +461,15 @@ def _build_timelapse_steps(window) -> List[Step]:
             "tracking knobs — which objects to link, the linking "
             "mode, and how far an object may travel between "
             "frames.",
-            target=(_settings_panel(screen_ref[0]), None),
+            target=(lambda: _settings_panel(screen_ref[0]), None),
             hold_ms=500,
         ),
         Step(
             "Run will then generate a per-frame mask stack, and "
             "measure will produce a longitudinal database with "
             "one row per object per timepoint.",
-            target=(_find_button(screen_ref[0], "Run"), None),
+            target=(lambda: _find_button(screen_ref[0], "Run"), None),
+            highlight=lambda: _find_button(screen_ref[0], "Run"),
             hold_ms=400,
         ),
     ]
@@ -402,13 +480,28 @@ def _build_timelapse_steps(window) -> List[Step]:
 # ---------------------------------------------------------------------------
 
 def _settings_panel(screen):
-    """Return the settings scroll area if we can find it."""
+    """Return the settings scroll area on ``screen``, or ``None``.
+
+    Taking the first ``QScrollArea`` findChildren hands back is wrong:
+    every AppScreen also holds the console's own scroll area
+    ("ConsoleScroll"), and child order puts *that* one first — so the
+    step narrating "the settings panel on the left" aimed the cursor at
+    the console on the right instead. Console descendants are excluded,
+    and of what remains the leftmost wins, which is the settings column
+    by construction.
+    """
     if screen is None:
         return None
     from PySide6.QtWidgets import QScrollArea
-    for w in screen.findChildren(QScrollArea):
-        return w
-    return None
+    console = _console_panel(screen)
+    candidates = [
+        w for w in screen.findChildren(QScrollArea)
+        if not (console is not None and console.isAncestorOf(w))
+    ]
+    if not candidates:
+        return None
+    return min(candidates,
+                 key=lambda w: w.mapTo(screen, w.rect().topLeft()).x())
 
 
 def _console_panel(screen):

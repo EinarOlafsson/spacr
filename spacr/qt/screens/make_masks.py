@@ -13,6 +13,7 @@ dividing line and free-form polygon draw.
 """
 from __future__ import annotations
 
+import logging
 import os
 from typing import List, Optional
 
@@ -31,6 +32,7 @@ from PySide6.QtGui import (
     QWheelEvent,
 )
 from PySide6.QtWidgets import (
+    QApplication,
     QCheckBox,
     QDoubleSpinBox,
     QFileDialog,
@@ -55,6 +57,38 @@ from .. import mask_engine as engine
 from .. import prefs
 from ..theme import PALETTE, SPACING
 from ..widgets import Card, Divider, EmptyState, Section
+
+LOG = logging.getLogger("spacr.qt.make_masks")
+
+# Qt platform plugins that have no way for a human to click a dialog button.
+_HEADLESS_PLATFORMS = ("offscreen", "minimal", "minimalegl", "vnc")
+
+
+def is_headless() -> bool:
+    """Return True when no interactive display is attached to this process.
+
+    A modal ``QMessageBox`` runs its own event loop and only returns once
+    somebody clicks a button. Under the ``offscreen`` / ``minimal`` Qt
+    platform plugins — CI, a headless server, an SSH session with no X —
+    nobody can, so the call never returns and the whole app hangs. Any
+    message triggered by *data* rather than by a user gesture therefore
+    has to degrade to the status line instead.
+
+    Sibling screens (align / batch / convert / report / plate_view / …)
+    solve this by never opening a modal at all — see their ``_set_status``
+    docstrings, which cite this screen as the case that actually hung.
+    That is not sufficient here because "Clear mask" genuinely needs a
+    yes/no answer, so this screen keeps the modal when — and only when —
+    there is somebody able to answer it.
+    """
+    app = QApplication.instance()
+    if app is None:
+        return True
+    try:
+        name = str(app.platformName()).strip().lower()
+    except Exception:
+        return True
+    return (not name) or name in _HEADLESS_PLATFORMS
 
 
 # ---------------------------------------------------------------------------
@@ -177,12 +211,12 @@ class _MaskCanvas(QLabel):
     # Coordinate mapping (widget-local px  ↔  full image px)
     # ------------------------------------------------------------------
     def _canvas_to_image(self, x: float, y: float) -> Optional[tuple]:
-        if self.mask is None or self.pixmap() is None:
-            return None
+        # NB: QLabel.pixmap() returns a *null* QPixmap (never None) when no
+        # pixmap is set, so the emptiness test has to be isNull().
         p = self.pixmap()
-        pw, ph = p.width(), p.height()
-        if pw == 0 or ph == 0:
+        if self.mask is None or p is None or p.isNull():
             return None
+        pw, ph = p.width(), p.height()
         w, h = self.width(), self.height()
         ox = (w - pw) // 2
         oy = (h - ph) // 2
@@ -202,10 +236,8 @@ class _MaskCanvas(QLabel):
     def _mask_radius_for_brush(self) -> int:
         """Scale the brush radius (in screen px) to full-image px, taking
         the current zoom into account."""
-        if self.mask is None or self.pixmap() is None:
-            return self.brush_radius
         p = self.pixmap()
-        if p.width() == 0:
+        if self.mask is None or p is None or p.isNull():
             return self.brush_radius
         x0, _, x1, _ = self._viewport_bounds()
         sub_w = max(1, x1 - x0)
@@ -294,6 +326,10 @@ class _MaskCanvas(QLabel):
             pt = self._canvas_to_image(event.position().x(), event.position().y())
             if pt is None:
                 return
+            # A drag that *began* outside the pixmap never fired
+            # stroke_started, so without this the resulting edit would
+            # never be pushed onto the undo history. Idempotent.
+            self._emit_stroke_start()
             radius = self._mask_radius_for_brush()
             value = 255 if self.mode == MODE_BRUSH else 0
             if self._last_pt is not None:
@@ -674,6 +710,36 @@ class MakeMasksScreen(QWidget):
 
 
     # ------------------------------------------------------------------
+    # User messaging (headless-safe — see :func:`is_headless`)
+    # ------------------------------------------------------------------
+    def _warn(self, title: str, text: str) -> None:
+        """Report a non-fatal failure to the user.
+
+        Shows a modal warning when a display is attached; otherwise the
+        message goes to the status line and the log, because a modal box
+        under the offscreen/minimal platform plugin never returns.
+        """
+        self._status_label.setText(f"{title}: {text}")
+        if is_headless():
+            LOG.warning("%s: %s", title, text)
+            return
+        QMessageBox.warning(self, title, text)
+
+    def _confirm(self, title: str, text: str) -> bool:
+        """Ask the user to approve a destructive action.
+
+        Returns False when headless: with nobody to answer, the safe
+        answer for an irreversible operation is "no".
+        """
+        if is_headless():
+            LOG.warning("%s: no display to confirm on — not proceeding", title)
+            self._status_label.setText(
+                f"{title} cancelled — no display to confirm on"
+            )
+            return False
+        return QMessageBox.question(self, title, text) == QMessageBox.Yes
+
+    # ------------------------------------------------------------------
     # Actions
     # ------------------------------------------------------------------
     def _on_pick_folder(self):
@@ -686,8 +752,7 @@ class MakeMasksScreen(QWidget):
     def _open_folder(self, folder: str):
         files = engine.list_images(folder)
         if not files:
-            QMessageBox.warning(self, "No images",
-                                 f"Found no image files in:\n{folder}")
+            self._warn("No images", f"Found no image files in: {folder}")
             return
         self._folder = folder
         self._image_files = files
@@ -706,7 +771,18 @@ class MakeMasksScreen(QWidget):
                 self._folder, self._image_files[self._current_index]
             )
         except Exception as e:
-            QMessageBox.warning(self, "Load failed", str(e))
+            # Drop whatever is still on the canvas. Leaving the *previous*
+            # field's image/mask up while _current_index already points at
+            # the file that failed would let Save write the old mask out
+            # under the new filename.
+            self._canvas.image = None
+            self._canvas.mask = None
+            self._canvas.reset_zoom(silent=True)
+            self._canvas.clear()
+            self._history.clear()
+            self._refresh_history_buttons()
+            self._btn_reset_zoom.setEnabled(False)
+            self._warn("Load failed", str(e))
             return
         self._canvas.set_image_and_mask(image, mask)
         # Reset undo history for the new image and seed with the loaded mask
@@ -741,7 +817,7 @@ class MakeMasksScreen(QWidget):
                 self._canvas.mask,
             )
         except Exception as e:
-            QMessageBox.warning(self, "Save failed", str(e))
+            self._warn("Save failed", str(e))
             return
         self._status_label.setText(f"Saved → {path}")
 
@@ -770,10 +846,16 @@ class MakeMasksScreen(QWidget):
     def _on_clear_mask(self):
         if self._canvas.mask is None:
             return
-        ans = QMessageBox.question(self, "Clear mask",
-                                    "Zero out the current mask?")
-        if ans != QMessageBox.Yes:
+        if not self._confirm("Clear mask", "Zero out the current mask?"):
             return
+        self.clear_mask()
+
+    def clear_mask(self) -> None:
+        """Zero the current mask *without* asking, recording it in history.
+
+        The confirmation lives in :meth:`_on_clear_mask`; this is the
+        scriptable entry point (and what the undo stack sees).
+        """
         self._apply_op(engine.clear_mask)
 
     def _on_stroke_started(self):

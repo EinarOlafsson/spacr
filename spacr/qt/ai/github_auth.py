@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import urllib.request
 from typing import List, Optional, Tuple
@@ -104,6 +105,33 @@ def auth_source() -> Optional[str]:
 # Issue creation
 # ---------------------------------------------------------------------------
 
+#: Fallback net for any rendering of the credential we didn't anticipate.
+_BEARER_RE = re.compile(r"(?i)(bearer\s+)[^\s'\"]{8,}")
+
+REDACTED = "<REDACTED>"
+
+
+def _scrub(message: str, token: str) -> str:
+    """Remove ``token`` from a message that is about to be shown or logged.
+
+    Some failures echo the outgoing request back at us — most concretely
+    ``http.client.putheader`` raises
+    ``ValueError: Invalid header value b'Bearer ghp_…'`` when a stored PAT
+    contains an embedded newline (a routine copy-paste artefact from a
+    wrapped terminal). Without this scrub that string lands verbatim in
+    the UI status line and in the log.
+
+    Both the literal token and its backslash-escaped (``repr``) rendering
+    are removed, then any surviving ``Bearer …`` value as a backstop.
+    """
+    if token:
+        escaped = token.encode("unicode_escape").decode("ascii", "replace")
+        for form in (token, escaped):
+            if form and form in message:
+                message = message.replace(form, REDACTED)
+    return _BEARER_RE.sub(lambda m: m.group(1) + REDACTED, message)
+
+
 def create_issue(repo: str, title: str, body: str,
                  labels: Optional[List[str]] = None) -> Tuple[bool, str]:
     """Create a GitHub issue directly via the REST API.
@@ -144,6 +172,7 @@ def create_issue(repo: str, title: str, body: str,
             detail = json.loads(e.read().decode("utf-8")).get("message", "")
         except Exception:
             pass
-        return False, f"GitHub API error {e.code}: {detail or e.reason}"
+        return False, _scrub(
+            f"GitHub API error {e.code}: {detail or e.reason}", token)
     except Exception as e:  # noqa: BLE001 — surface any network/parse failure
-        return False, f"Failed to reach GitHub: {e}"
+        return False, _scrub(f"Failed to reach GitHub: {e}", token)

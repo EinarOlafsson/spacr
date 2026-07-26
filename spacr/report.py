@@ -343,12 +343,20 @@ def _read_csv_head(path: Path, max_rows: int,
     half-written result file, and a ragged row is a formatting problem,
     not an exception.
 
+    A file that is damaged rather than merely ragged — an embedded NUL
+    from a half-flushed write, a cell longer than
+    :func:`csv.field_size_limit` — makes :mod:`csv` itself raise. That is
+    caught here and the scan stops: the rows parsed before the damage are
+    still worth showing, and losing the entire report to one corrupt CSV
+    is the opposite of what this function is for.
+
     :param path: CSV file.
     :param max_rows: rows to keep.
     :param max_bytes: stop counting rows past this many bytes read.
     :returns: ``(columns, rows, n_total_rows)``. ``n_total_rows`` is the
         number of data rows seen, which equals the file's row count unless
-        ``max_bytes`` cut the scan short.
+        ``max_bytes`` cut the scan short, or the file is damaged past some
+        row.
     """
     columns: List[str] = []
     rows: List[List[str]] = []
@@ -356,16 +364,19 @@ def _read_csv_head(path: Path, max_rows: int,
     read = 0
     with open(path, newline="", encoding="utf-8", errors="replace") as handle:
         reader = csv.reader(handle)
-        for i, row in enumerate(reader):
-            if i == 0:
-                columns = [str(c) for c in row]
-                continue
-            n_total += 1
-            read += sum(len(c) for c in row) + len(row)
-            if len(rows) < max_rows:
-                rows.append([str(c) for c in row])
-            elif read > max_bytes:
-                break
+        try:
+            for i, row in enumerate(reader):
+                if i == 0:
+                    columns = [str(c) for c in row]
+                    continue
+                n_total += 1
+                read += sum(len(c) for c in row) + len(row)
+                if len(rows) < max_rows:
+                    rows.append([str(c) for c in row])
+                elif read > max_bytes:
+                    break
+        except csv.Error:
+            pass
     return columns, rows, n_total
 
 
@@ -598,7 +609,7 @@ def _load_journal_runs(src: Path, run_dirs: Optional[Sequence[Any]],
     records: List[Dict[str, Any]] = []
     try:
         from . import run_journal as journal
-    except Exception as exc:                       # pragma: no cover - guard
+    except Exception as exc:
         return records, [f"run journal unavailable ({exc.__class__.__name__})"]
 
     candidates: List[Path] = []
@@ -679,7 +690,7 @@ def _read_stamps(paths: Sequence[Path]) -> Tuple[List[Tuple[Path, Dict[str, Any]
     problems: List[str] = []
     try:
         from .errors import read_run_status
-    except Exception as exc:                       # pragma: no cover - guard
+    except Exception as exc:
         return stamps, [f"spacr.errors unavailable ({exc.__class__.__name__})"]
     for path in paths:
         try:
@@ -945,6 +956,12 @@ def _field_qcs_from_csv(path: Path) -> Tuple[List[Any], Optional[str]]:
                 ))
     except OSError as exc:
         return [], f"{path.name} unreadable ({exc.__class__.__name__})"
+    except csv.Error as exc:
+        # A damaged scorecard is reported as unreadable rather than
+        # summarised from the rows that did parse: a plate verdict derived
+        # from half a scorecard is a different verdict, and this module
+        # does not invent one.
+        return [], f"{path.name} is not readable as CSV ({exc})"
     return out, None
 
 
@@ -1096,7 +1113,7 @@ def _collect_plate_qc(src: Path, artifacts: Dict[str, Any],
         try:
             with open(path, newline="", encoding="utf-8", errors="replace") as handle:
                 header = next(csv.reader(handle), [])
-        except OSError:
+        except (OSError, csv.Error):
             continue
         if _LAYOUT_MARKERS.issubset({str(c) for c in header}):
             layouts.append(path)
@@ -1130,7 +1147,10 @@ def _collect_plate_qc(src: Path, artifacts: Dict[str, Any],
                     flag = str(row.get("is_edge", "")).strip().lower()
                     if flag in ("1", "true", "yes"):
                         n_edge += 1
-        except OSError:
+        except (OSError, csv.Error):
+            # Damaged past some row: the wells counted so far are real,
+            # and a layout export that cannot be parsed to the end must
+            # not take the whole report down with it.
             pass
         rows.append([path.name, str(n_total), str(n_edge),
                      _fmt_bytes(path.stat().st_size if path.exists() else 0)])
@@ -1691,7 +1711,11 @@ def collect_report(src: Any,
     src_path = Path(str(src)).expanduser()
     try:
         src_path = src_path.resolve()
-    except OSError:
+    except (OSError, RuntimeError):
+        # RuntimeError is what pathlib raises for a symlink loop (ELOOP),
+        # and this function promises never to raise for bad input: an
+        # unresolvable folder is reported as "does not exist", not as a
+        # traceback in the caller's face.
         pass
 
     artifacts = _find_artifacts(src_path)

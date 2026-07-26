@@ -23,7 +23,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, List, Optional
 
-from PySide6.QtCore import QObject, QThread, Signal
+from PySide6.QtCore import QObject, Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtWidgets import QProgressDialog
 
 LOG = logging.getLogger("spacr.qt.hf_download")
@@ -126,23 +126,149 @@ def _list_files(repo_id: str, subfolder: str) -> List[str]:
     return [f for f in files if f.endswith(".csv")]
 
 
+def _content_length(resp) -> Optional[int]:
+    """Declared body size from the response, or None when unusable.
+
+    Hugging Face always sends ``Content-Length`` for a resolved LFS
+    object, so this doubles as the integrity check for
+    :func:`_download_one`: fewer bytes on disk than advertised means the
+    stream was cut short.
+    """
+    headers = getattr(resp, "headers", None) or {}
+    raw = headers.get("Content-Length")
+    if raw is None:
+        return None
+    try:
+        return int(raw)
+    except (TypeError, ValueError):
+        return None
+
+
 def _download_one(repo_id: str, file_name: str, dest_dir: Path) -> Path:
     """Stream one file from the HF repo to ``dest_dir/basename``.
 
     Uses plain HTTP + streaming so we don't need the full ``hf_hub``
     download machinery (and its cache dir) for a one-shot demo pull.
+
+    The body lands in a sibling ``.part`` file and is only moved onto
+    the final path once every advertised byte has arrived. Writing
+    straight to the destination meant a dropped connection left a
+    truncated image behind that was indistinguishable from a good
+    download — the next pipeline run then failed deep inside the mask
+    stage instead of at the download.
     """
     import requests
     url = (f"https://huggingface.co/datasets/{repo_id}/resolve/main/"
              f"{file_name}?download=true")
     dst = dest_dir / Path(file_name).name
+    part = dst.with_name(dst.name + ".part")
     resp = requests.get(url, stream=True, timeout=30)
     resp.raise_for_status()
-    with dst.open("wb") as fh:
-        for chunk in resp.iter_content(chunk_size=1 << 15):
-            if chunk:
-                fh.write(chunk)
+    expected = _content_length(resp)
+    written = 0
+    try:
+        with part.open("wb") as fh:
+            for chunk in resp.iter_content(chunk_size=1 << 15):
+                if chunk:
+                    fh.write(chunk)
+                    written += len(chunk)
+        if expected is not None and written != expected:
+            raise IOError(
+                f"Truncated download for {file_name}: wrote {written} "
+                f"bytes but the server declared {expected}."
+            )
+        os.replace(part, dst)
+    except BaseException:
+        try:
+            part.unlink()
+        except OSError:
+            pass
+        raise
     return dst
+
+
+# ---------------------------------------------------------------------------
+# GUI-thread receiver
+# ---------------------------------------------------------------------------
+
+class _HFDownloadUI(QObject):
+    """Receives the worker's signals **on the GUI thread**.
+
+    This class exists purely for thread affinity. The worker is moved
+    into a QThread, and Qt picks the connection type from the receiving
+    *QObject's* thread — but a plain Python function is not a QObject,
+    so Qt has no context to compare against and falls back to a DIRECT
+    connection. Wiring the worker straight to closures therefore ran
+    every handler inside the worker thread, where they drove a
+    ``QProgressDialog`` (a QWidget) from off the GUI thread: Qt printed
+    "QWidget::repaint: Recursive repaint detected" and then segfaulted,
+    and ``QThread.wait()`` was being called by the very thread it was
+    waiting on.
+
+    Because these handlers are bound methods of a QObject created on the
+    GUI thread, the connections are queued and the dialog is only ever
+    touched by the thread that owns it.
+    """
+
+    def __init__(self, dlg: QProgressDialog, thread: QThread,
+                 worker: "_HFDownloadWorker", parent,
+                 on_done: Callable[[Optional[DownloadResult], str], None]):
+        super().__init__(parent)
+        self._dlg = dlg
+        self._thread = thread
+        self._worker = worker
+        self._owner = parent
+        self._on_done = on_done
+
+    @Slot(str, int, int)
+    def on_progress(self, name: str, done: int, total: int) -> None:
+        self._dlg.setMaximum(max(1, total))
+        self._dlg.setValue(done)
+        self._dlg.setLabelText(f"Downloading {name}\n({done}/{total} files)")
+
+    @Slot(str)
+    def on_info(self, msg: str) -> None:
+        self._dlg.setLabelText(msg)
+
+    @Slot(bool, str, str, str)
+    def on_finished(self, ok: bool, ds: str, st: str, err: str) -> None:
+        # Close the dialog *before* invoking the user callback — the
+        # callback may open its own modals (Continue/Stop prompts, etc.),
+        # and stacking one modal on top of another confuses Qt into the
+        # "app not responding" state on Linux.
+        dlg = self._dlg
+        try:
+            dlg.setValue(dlg.maximum())
+        except Exception:
+            pass
+        dlg.reset()
+        dlg.close()
+        dlg.deleteLater()
+        self._thread.quit()
+        self._thread.wait(2000)
+        # Drop retained refs on the owner so the QThread + dialog can
+        # be garbage-collected once the download flow ends.
+        for attr in ("_hf_download_thread", "_hf_download_worker",
+                     "_hf_download_dialog", "_hf_download_ui"):
+            try:
+                delattr(self._owner, attr)
+            except Exception:
+                pass
+        on_done = self._on_done
+        self.deleteLater()
+        # Defer the user callback via a 0-ms singleShot so Qt processes
+        # any pending events (close event, deleteLater) before the
+        # chained pipeline modals appear. This is the specific fix for
+        # the "force-quit dialog after download" symptom.
+        if ok:
+            QTimer.singleShot(
+                0,
+                lambda: on_done(DownloadResult(
+                    dataset_path=Path(ds),
+                    settings_path=Path(st)), ""),
+            )
+        else:
+            QTimer.singleShot(0, lambda: on_done(None, err))
 
 
 # ---------------------------------------------------------------------------
@@ -183,56 +309,19 @@ def download_toxo_mito_demo(parent,
     worker = _HFDownloadWorker(dest)
     worker.moveToThread(thread)
 
-    def _on_progress(name: str, done: int, total: int) -> None:
-        dlg.setMaximum(max(1, total))
-        dlg.setValue(done)
-        dlg.setLabelText(f"Downloading {name}\n({done}/{total} files)")
+    # ``ui`` is constructed here, on the GUI thread, so every connection
+    # below is a queued one — see _HFDownloadUI's docstring.
+    ui = _HFDownloadUI(dlg, thread, worker, parent, on_done)
+    worker.progress.connect(ui.on_progress)
+    worker.info.connect(ui.on_info)
+    worker.finished.connect(ui.on_finished)
 
-    def _on_info(msg: str) -> None:
-        dlg.setLabelText(msg)
-
-    def _on_finished(ok: bool, ds: str, st: str, err: str) -> None:
-        # Close the dialog *before* invoking the user callback — the
-        # callback may open its own modals (Continue/Stop prompts, etc.),
-        # and stacking one modal on top of another confuses Qt into the
-        # "app not responding" state on Linux.
-        try:
-            dlg.setValue(dlg.maximum())
-        except Exception:
-            pass
-        dlg.reset()
-        dlg.close()
-        dlg.deleteLater()
-        thread.quit()
-        thread.wait(2000)
-        # Drop retained refs on the parent so the QThread + dialog can
-        # be garbage-collected once the download flow ends.
-        for attr in ("_hf_download_thread", "_hf_download_worker",
-                     "_hf_download_dialog"):
-            try:
-                delattr(parent, attr)
-            except Exception:
-                pass
-        # Defer the user callback via a 0-ms singleShot so Qt processes
-        # any pending events (close event, deleteLater) before the
-        # chained pipeline modals appear. This is the specific fix for
-        # the "force-quit dialog after download" symptom.
-        from PySide6.QtCore import QTimer
-        if ok:
-            QTimer.singleShot(
-                0,
-                lambda: on_done(DownloadResult(
-                    dataset_path=Path(ds),
-                    settings_path=Path(st)), ""),
-            )
-        else:
-            QTimer.singleShot(0, lambda: on_done(None, err))
-
-    worker.progress.connect(_on_progress)
-    worker.info.connect(_on_info)
-    worker.finished.connect(_on_finished)
-
-    dlg.canceled.connect(worker.cancel)
+    # DirectConnection is mandatory here: the worker's event loop is
+    # blocked for the whole of run(), so a queued cancel would not be
+    # delivered until after the download it was meant to abort had
+    # already finished. cancel() only flips a bool, which is safe to do
+    # from the GUI thread.
+    dlg.canceled.connect(worker.cancel, Qt.DirectConnection)
     thread.started.connect(worker.run)
     thread.finished.connect(worker.deleteLater)
     thread.start()
@@ -241,3 +330,4 @@ def download_toxo_mito_demo(parent,
     parent._hf_download_thread = thread
     parent._hf_download_worker = worker
     parent._hf_download_dialog = dlg
+    parent._hf_download_ui = ui

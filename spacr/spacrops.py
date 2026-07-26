@@ -1,4 +1,4 @@
-import os, re, csv, math, time, hashlib, threading, shutil, cv2, tifffile
+import os, re, csv, math, time, hashlib, threading, shutil, zipfile, cv2, tifffile
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from collections import OrderedDict, defaultdict
 from typing import Optional, Tuple, Dict, Union, List, Pattern, Any
@@ -42,16 +42,39 @@ class _DiskFeatureStore:
         # Disk hit (no lock while reading disk)
         pz = self._npz_path(path)
         if os.path.exists(pz):
-            with np.load(pz, allow_pickle=False) as Z:
-                feat = dict(
-                    ds8=Z["ds8"],
-                    pts=Z["pts"].astype(np.float32),
-                    desc=Z["desc"],
-                    Hds=int(Z["Hds"]),
-                    Wds=int(Z["Wds"]),
-                    H=int(Z["H"]),
-                    W=int(Z["W"]),
-                )
+            try:
+                with np.load(pz, allow_pickle=False) as Z:
+                    feat = dict(
+                        ds8=Z["ds8"],
+                        pts=Z["pts"].astype(np.float32),
+                        desc=Z["desc"],
+                        Hds=int(Z["Hds"]),
+                        Wds=int(Z["Wds"]),
+                        H=int(Z["H"]),
+                        W=int(Z["W"]),
+                    )
+            except Exception as e:
+                # A truncated/corrupt NPZ (e.g. a run killed mid-write) must not
+                # poison the cache forever: drop it and report a miss so the
+                # caller recomputes and rewrites the entry.
+                #
+                # But delete ONLY for errors that mean the bytes are bad.
+                # A transient OSError, PermissionError or MemoryError on read
+                # says nothing about the file's contents, and unlinking there
+                # destroys a perfectly good cache entry -- and on a full disk
+                # or under memory pressure it would destroy the whole cache,
+                # one entry per attempt. Those report a miss and leave the file.
+                corrupt = isinstance(e, (ValueError, EOFError, zipfile.BadZipFile,
+                                         KeyError, TypeError))
+                if self.verbose:
+                    what = "discarding" if corrupt else "skipping (kept)"
+                    print(f"[feature-cache] {what} unreadable {pz}: {e}", flush=True)
+                if corrupt:
+                    try:
+                        os.remove(pz)
+                    except OSError:
+                        pass
+                return None
             # insert into LRU
             with self._lru_lock:
                 self._ram[path] = feat
@@ -305,7 +328,9 @@ class spacrStitcher:
         if self.blur_sigma and self.blur_sigma > 0:
             ksz = max(1, int(2 * round(3 * self.blur_sigma) + 1))
             I = cv2.GaussianBlur(I, (ksz, ksz), self.blur_sigma)
-        _, th = cv2.threshold(I, 0, 255, cv2.THRESH_OTSU)
+        # cv2.threshold returns (computed_threshold, binarised_image); the
+        # first value is the Otsu level we need here.
+        th, _ = cv2.threshold(I, 0, 255, cv2.THRESH_OTSU)
         mask = (I >= th)
         if self.dilate_ksize and self.dilate_ksize > 0:
             k = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (self.dilate_ksize, self.dilate_ksize))
@@ -332,7 +357,7 @@ class spacrStitcher:
             if self.blur_sigma and self.blur_sigma > 0:
                 ksz = max(1, int(2 * round(3 * self.blur_sigma) + 1))
                 I = cv2.GaussianBlur(I, (ksz, ksz), self.blur_sigma)
-            _, th = cv2.threshold(I, 0, 255, cv2.THRESH_OTSU)
+            th, _ = cv2.threshold(I, 0, 255, cv2.THRESH_OTSU)
             mask = (I >= th).astype(np.uint8)
     
         # NOTE: use dilate_ksize here (bugfix). line_thickness is for edge thickening later.
@@ -399,11 +424,17 @@ class spacrStitcher:
     
         # Align axes length to array rank
         ax = list(axes)
-        # If too many labels, drop T/C first
+        # If too many labels, drop T/C first.  Stop as soon as a pass removes
+        # nothing, otherwise an axes string with no T/C to give up (e.g.
+        # arr_axes="ZYX" against a 2-D plane) spins forever here.
         while len(ax) > arr.ndim:
+            removed = False
             for d in ("T", "C"):
                 if d in ax and len(ax) > arr.ndim:
                     ax.remove(d)
+                    removed = True
+            if not removed:
+                break
         # If still too many, drop from the left (safest for unexpected leading dims)
         while len(ax) > arr.ndim:
             ax.pop(0)
@@ -572,8 +603,18 @@ class spacrStitcher:
         step = max(1, total // 20)
 
         with ThreadPoolExecutor(max_workers=max(1, num_workers)) as ex:
-            for fut in as_completed([ex.submit(_job, p) for p in todo]):
-                p, feat = fut.result()
+            futs = {ex.submit(_job, p): p for p in todo}
+            for fut in as_completed(futs):
+                try:
+                    p, feat = fut.result()
+                except Exception as e:
+                    # One unreadable tile must not abort a whole plate: report it
+                    # loudly (never silently) and let the pairs that need it fail
+                    # individually in run_folder's per-pair handler.
+                    print(f"[features] WARNING: skipping {os.path.basename(futs[fut])}: {e}",
+                          flush=True)
+                    done += 1
+                    continue
                 if self.feature_cache_mode == "disk":
                     self._store.put(p, feat)
                 else:
@@ -835,7 +876,10 @@ class spacrStitcher:
                 canvas += B_can
                 wgt += maskB
     
-                stitched = np.divide(canvas, np.maximum(wgt, 1e-6))
+                # Pixels no tile covers must stay at background level; dividing
+                # a leaked interpolation value by the 1e-6 floor would saturate
+                # them to the dtype maximum and draw a white seam.
+                stitched = np.where(wgt > 0, np.divide(canvas, np.maximum(wgt, 1e-6)), 0.0)
     
                 stem = f"{os.path.splitext(os.path.basename(pathA))[0]}__{os.path.splitext(os.path.basename(pathB))[0]}"
                 p_tif = os.path.join(self.outdir, f"{stem}__stitched_full.tif")
@@ -1172,8 +1216,14 @@ class spacrStitcher:
                     qc_only_if_score_ge=qc_only_if_score_ge
                 )
             except Exception as e:
-                if self.verbose:
-                    print(f"[run_folder] Pair {os.path.basename(A)} vs {os.path.basename(B)} failed: {e}", flush=True)
+                # ALWAYS report, never only when verbose. This was gated on
+                # self.verbose, so a systematic failure -- every tile
+                # unreadable, a bad channel index -- produced a short or empty
+                # pairwise CSV and a run that looked like it succeeded. A
+                # silently-skipped pair and a pair that genuinely did not
+                # overlap were indistinguishable.
+                print(f"[run_folder] WARNING: pair {os.path.basename(A)} vs "
+                      f"{os.path.basename(B)} failed: {e}", flush=True)
                 return None
     
         done = 0
@@ -1263,7 +1313,9 @@ class spacrStitcher:
                     out_csv=mosaic_csv_out
                 )
             else:
-                mosaic_png = os.path.splitext(mosaic_out)[0] + ".png"
+                # mosaic_out may legitimately be None (manifest-only mode);
+                # os.path.splitext(None) would raise.
+                mosaic_png = (os.path.splitext(mosaic_out)[0] + ".png") if mosaic_out else None
                 if self.verbose:
                     print(f"[run_folder] rendering single-channel mosaic (min_score={min_sc:.4f}) → {mosaic_out}", flush=True)
                 self.render_mosaic_from_csv(
@@ -1353,20 +1405,28 @@ class spacrStitcher:
                 arr = series.asarray()
             if arr.ndim == 2:
                 return arr.astype(np.float32, copy=False)
-            if axes:
-                axes = "".join(a for a in axes.upper() if a in "TCZYX")
-                if "C" in axes:
-                    cidx = axes.index("C")
+            labels = [a for a in (axes or "").upper() if a in "TCZYX"]
+            if len(labels) != arr.ndim:
+                labels = []          # the hint does not describe this array
+            if labels:
+                # Keep the label list in step with the array: slicing out C
+                # shifts every axis after it, so the Z index has to be looked
+                # up again afterwards or the projection hits the wrong axis.
+                if "C" in labels:
+                    cidx = labels.index("C")
                     slicers = [slice(None)] * arr.ndim
                     slicers[cidx] = ch
                     arr = arr[tuple(slicers)]
-                    arr = np.squeeze(arr)
-                    if arr.ndim == 3 and "Z" in axes:
-                        zidx = axes.index("Z")
-                        arr = arr.max(axis=zidx if zidx < arr.ndim else 0)
+                    labels.pop(cidx)
+                if "Z" in labels and arr.ndim > 2:
+                    zidx = labels.index("Z")
+                    arr = arr.max(axis=zidx)
+                    labels.pop(zidx)
+                arr = np.squeeze(arr)
             else:
                 if arr.ndim == 3 and arr.shape[0] <= 8:
                     arr = arr[ch]
+                arr = np.squeeze(arr)
             if arr.ndim != 2:
                 raise ValueError(f"Expected 2D plane from {os.path.basename(path)}, got shape {arr.shape}")
             return arr.astype(np.float32, copy=False)
@@ -1666,8 +1726,11 @@ class spacrStitcher:
         for src, dst, sc, M in cand:
             isrc, idst = idx[src], idx[dst]
             if union(isrc, idst):
-                adj[src].append((dst, M, sc))
-                adj[dst].append((src, self._invert_affine(M), sc))
+                # The BFS below reads adj[u] as (v, M_v_to_u), so each entry must
+                # carry the transform *into* the key's frame: from src that is
+                # dst->src (the inverse of M), and from dst it is src->dst (M).
+                adj[src].append((dst, self._invert_affine(M), sc))
+                adj[dst].append((src, M, sc))
                 used_edges.append((src, dst, sc))
             if len(used_edges) >= N-1:
                 break
@@ -1876,9 +1939,16 @@ class spacrStitcher:
         # If manifest-only, stop here (no mosaic image)
         if manifest_only:
             return out_tif, out_png  # both None in this mode
-    
+
+        if out_tif is None:
+            raise ValueError(
+                "render_mosaic_from_csv: out_tif is None but no out_csv was given; "
+                "pass out_csv to run in manifest-only mode."
+            )
+
         # Otherwise, build and save mosaic image(s)
-        out = np.divide(canvas, np.maximum(wgt, 1e-6))
+        # uncovered canvas stays at background level (see stitch_pair)
+        out = np.where(wgt > 0, np.divide(canvas, np.maximum(wgt, 1e-6)), 0.0)
     
         out_dtype = np.result_type(*[node_dtype[p] for p in kept_nodes])
         tifffile.imwrite(out_tif, _cast(out, out_dtype))
@@ -2079,7 +2149,7 @@ class spacrStitcher:
                 canvas += warped
                 wgt    += cov
     
-            out_stack[ci] = np.divide(canvas, np.maximum(wgt, 1e-6))
+            out_stack[ci] = np.where(wgt > 0, np.divide(canvas, np.maximum(wgt, 1e-6)), 0.0)
     
         tifffile.imwrite(out_tif, _cast(out_stack, out_dtype), metadata={"axes": "CYX"})
         return out_tif
@@ -2228,10 +2298,17 @@ class StitchedMultiAligner:
             axes = self._guess_axes_from_shape(arr.shape)
 
         ax = list(axes)
+        # Stop as soon as a pass removes nothing, otherwise an axes string with
+        # no T/C to give up (e.g. arr_axes="ZYX" against a 2-D plane) spins
+        # forever here.
         while len(ax) > arr.ndim:
+            removed = False
             for d in ("T", "C"):
                 if d in ax and len(ax) > arr.ndim:
                     ax.remove(d)
+                    removed = True
+            if not removed:
+                break
         while len(ax) > arr.ndim:
             ax.pop(0)
         while len(ax) < arr.ndim:
@@ -2513,7 +2590,7 @@ class StitchedMultiAligner:
     
             # score on DS (foreground of ref)
             B_warp_ds = cv2.warpAffine(Iu8, M_ds, (Wds, Hds), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
-            _, th = cv2.threshold(Iref_u8, 0, 255, cv2.THRESH_OTSU)
+            th, _ = cv2.threshold(Iref_u8, 0, 255, cv2.THRESH_OTSU)
             mA = (Iref_u8 >= th)
             score = float(self._edge_zncc(Iref_u8.astype(np.float32), B_warp_ds.astype(np.float32), mask=mA)) * float(inlier_ratio)
     
@@ -3228,7 +3305,7 @@ class FOVAlignAndCropper:
                     # Score on DS (foreground of mosaic nuclei)
                     B_warp_ds = cv2.warpAffine(fov_u8, M_ds, (Wmds, Hmds),
                                                flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
-                    _, th = cv2.threshold(mosa_u8, 0, 255, cv2.THRESH_OTSU)
+                    th, _ = cv2.threshold(mosa_u8, 0, 255, cv2.THRESH_OTSU)
                     mA = (mosa_u8 >= th)
                     score = float(self._edge_zncc(mosa_u8.astype(np.float32),
                                                   B_warp_ds.astype(np.float32),
@@ -3275,8 +3352,11 @@ class FOVAlignAndCropper:
                     ))
     
                 except Exception as e:
-                    # Silent skip unless you want verbose logging:
-                    # print(f"[FOVAlignAndCropper.run] Skipping {os.path.basename(p)}: {e}")
+                    # Skip the FOV, but never silently: an unreadable file or a
+                    # bad transform would otherwise leave an empty manifest with
+                    # no explanation at all.
+                    print(f"[FOVAlignAndCropper.run] Skipping {os.path.basename(p)}: {e}",
+                          flush=True)
                     continue
     
         return csv_path
@@ -3385,7 +3465,13 @@ def align_image_to_stitch(
         if not os.path.isdir(well_dir):
             continue
         mpath = os.path.join(well_dir, "_stitch", "mosaic_allc.tif")
-        if os.path.isfile(mpath):
+        if not os.path.isfile(mpath):
+            # stitch_cycle_wells writes <well>/stitch/<plate>_<well>_mosaic_allc.tif;
+            # without this the two halves of the pipeline never meet.
+            import glob as _glob
+            found = sorted(_glob.glob(os.path.join(well_dir, "stitch", "*mosaic_allc.tif")))
+            mpath = found[0] if found else None
+        if mpath and os.path.isfile(mpath):
             wells_with_mosaic[entry.upper()] = mpath
 
     # ---------- 2) group 20× (align) images by well ----------
@@ -3398,16 +3484,6 @@ def align_image_to_stitch(
     links_root = os.path.join(stitch_dst_root, "_links", "align20x")
     os.makedirs(links_root, exist_ok=True)
 
-    # Instantiate aligner (matches your class' default knobs)
-    aligner = FOVAlignAndCropper(
-        relative_scale=relative_scale,
-        downsample=downsample,
-        nfeatures=nfeatures,
-        ransac_thresh_px=ransac_thresh_px,
-        allow_scale=allow_scale,
-        allow_rotation=allow_rotation,
-    )
-
     for well, mosaic_path in sorted(wells_with_mosaic.items()):
         if well not in by_well_align:
             continue  # no 20× images for this well
@@ -3419,13 +3495,27 @@ def align_image_to_stitch(
         crops_dir = os.path.join(os.path.dirname(mosaic_path), "crops_20x")
         os.makedirs(crops_dir, exist_ok=True)
 
-        manifest_csv = aligner.run(
-            folder=link_well,
-            mosaic_tif=mosaic_path,
+        # Instantiate the aligner per well so its outdir lands next to that
+        # well's mosaic instead of polluting the caller's working directory.
+        aligner = FOVAlignAndCropper(
+            folder_image_scale=relative_scale,
+            downsample=downsample,
+            nfeatures=nfeatures,
+            ransac_thresh_px=ransac_thresh_px,
+            allow_scale=allow_scale,
+            allow_rotation=allow_rotation,
             outdir=crops_dir,
-            channel_index=channel_index,
-            qc_outlines=qc_outlines,
-            meta_regex=meta_regex
+        )
+
+        manifest_csv = aligner.run(
+            mosaic_path,
+            link_well,
+            stitched_nuclei_idx=channel_index,
+            fov_nuclei_idx=channel_index,
+            exts=exts,
+            csv_path=os.path.join(crops_dir, f"{well}_fov_align_manifest.csv"),
+            npy_dir=crops_dir,
+            folder_image_scale=relative_scale,
         )
 
         results[well] = {
