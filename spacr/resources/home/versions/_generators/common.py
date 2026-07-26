@@ -62,12 +62,20 @@ def bootstrap():
         sys.path.insert(0, root)
 
     from PySide6.QtCore import QSettings
-    QSettings.setDefaultFormat(QSettings.IniFormat)
-    QSettings.setPath(QSettings.IniFormat, QSettings.UserScope,
-                      tempfile.mkdtemp(prefix="spacr-home-variants-"))
-
     from PySide6.QtWidgets import QApplication
-    app = QApplication.instance() or QApplication(sys.argv[:1])
+
+    # QSettings.setDefaultFormat / setPath are PROCESS-GLOBAL. Redirecting
+    # them when we did not create the QApplication reaches into a host that
+    # is already running: under pytest-qt it repoints every other test's
+    # preferences at a temp directory mid-session, which is how this file
+    # took the whole tests/qt suite down with a segfault. Only isolate when
+    # this really is our own standalone process.
+    app = QApplication.instance()
+    if app is None:
+        QSettings.setDefaultFormat(QSettings.IniFormat)
+        QSettings.setPath(QSettings.IniFormat, QSettings.UserScope,
+                          tempfile.mkdtemp(prefix="spacr-home-variants-"))
+        app = QApplication(sys.argv[:1])
     _load_fonts()
     return app
 
