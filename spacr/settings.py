@@ -295,6 +295,12 @@ def set_default_settings_preprocess_generate_masks(settings=None):
 
 
 
+    # Fail-loud policy: when True a swallowed setup/config error raises
+    # instead of printing and carrying on with a half-finished result.
+    # spacr.errors.strict_errors() reads this key, then the
+    # SPACR_STRICT_ERRORS env var.
+    settings.setdefault('strict_errors', False)
+    settings.setdefault('max_failure_rate', None)
     return settings
 
 
@@ -502,6 +508,10 @@ def set_default_umap_image_settings(settings=None):
     settings.setdefault('analyze_clusters', False)
     settings.setdefault('resnet_features', False)
     settings.setdefault('verbose',True)
+    # 'auto' uses the PNG crop folder when one exists and falls back to
+    # cutting crops out of merged/*.npy on demand; 'png' and 'merged'
+    # force one source. See spacr.crops.resolve_crop_source.
+    settings.setdefault('crop_source', 'auto')
     return settings
 
 def get_measure_crop_settings(settings=None):
@@ -593,6 +603,12 @@ def get_measure_crop_settings(settings=None):
         test_imgs = settings['test_nr']
         print(f'Test mode enabled with {test_imgs} images, plotting set to True')
 
+    # Fail-loud policy: when True a swallowed setup/config error raises
+    # instead of printing and carrying on with a half-finished result.
+    # spacr.errors.strict_errors() reads this key, then the
+    # SPACR_STRICT_ERRORS env var.
+    settings.setdefault('strict_errors', False)
+    settings.setdefault('max_failure_rate', None)
     return settings
 
 def set_default_analyze_screen(settings):
@@ -670,6 +686,16 @@ def set_default_train_test_model(settings):
     settings.setdefault('class_balance','none')
     settings.setdefault('cross_validation_folds',0)
     settings.setdefault('cv_group_by','well')
+    # Fail-loud policy: when True a swallowed setup/config error raises
+    # instead of printing and carrying on with a half-finished result.
+    # spacr.errors.strict_errors() reads this key, then the
+    # SPACR_STRICT_ERRORS env var.
+    settings.setdefault('strict_errors', False)
+    settings.setdefault('max_failure_rate', None)
+    # 'auto' uses the PNG crop folder when one exists and falls back to
+    # cutting crops out of merged/*.npy on demand; 'png' and 'merged'
+    # force one source. See spacr.crops.resolve_crop_source.
+    settings.setdefault('crop_source', 'auto')
     return settings
 
 def set_generate_training_dataset_defaults(settings):
@@ -964,6 +990,10 @@ def set_generate_dataset_defaults(settings):
     settings.setdefault('file_metadata',None)
     settings.setdefault('experiment','experiment_1')
     settings.setdefault('sample',None)
+    # 'auto' uses the PNG crop folder when one exists and falls back to
+    # cutting crops out of merged/*.npy on demand; 'png' and 'merged'
+    # force one source. See spacr.crops.resolve_crop_source.
+    settings.setdefault('crop_source', 'auto')
     return settings
 
 def get_perform_regression_default_settings(settings):
@@ -1010,6 +1040,12 @@ def get_perform_regression_default_settings(settings):
         settings['agg_type'] = None
         print(f'agg_type set to None for quantile regression')
         
+    # Fail-loud policy: when True a swallowed setup/config error raises
+    # instead of printing and carrying on with a half-finished result.
+    # spacr.errors.strict_errors() reads this key, then the
+    # SPACR_STRICT_ERRORS env var.
+    settings.setdefault('strict_errors', False)
+    settings.setdefault('max_failure_rate', None)
     return settings
 
 def get_check_cellpose_models_default_settings(settings):
@@ -1484,6 +1520,9 @@ expected_types = {
     'summarize_organelles_by':str,
     'early_stopping_patience':int,
     'class_balance':str,
+    'strict_errors':bool,
+    'max_failure_rate':(float, type(None)),
+    'crop_source':str,
     'cross_validation_folds':int,
     'cv_group_by':str,
     'logit_adjust_tau':float,
@@ -2003,6 +2042,9 @@ tooltips = {
     "correlate": "(bool) - Intended to add pairwise correlations between selected measurements to the analysis output, but nothing reads settings['correlate']. Channel/activation correlations are controlled by the separate 'correlation' setting in the activation-map path. Kept only so old settings CSVs still load.",
     'count_data': "(str or list) - CSV(s) of per-well gRNA read counts from the sequencing step (unique_combinations.csv); each must contain grna, count, rowID and columnID columns or the run raises ValueError. These are the regression's independent variable. Pass one path per plate, position-aligned with plates_count; results are written under the first file's folder.",
     'cov_type': "(str) - Heteroscedasticity-robust covariance estimator passed to the OLS fit: 'HC0', 'HC1', 'HC2' or 'HC3', or None for classical non-robust errors. It changes standard errors and p-values only, never the coefficients; reach for 'HC3' when residual variance grows with well cell count. Applies to regression_type 'ols' only. Default None.",
+    'strict_errors': "(bool) - What happens when a step hits a problem it could technically survive. False (the default) keeps today's behaviour: the failure is recorded in the run ledger, printed in the end-of-run summary and stamped into the artifact's run_status, and the run continues on the items that worked. True turns a swallowed setup or configuration error - an unreadable path, a missing column, a database that will not open - into an immediate exception, so a batch job stops at the first sign that its inputs are wrong instead of producing a plausible-looking partial result. Per-item failures such as one corrupt image are still survived either way; only errors that make the whole run meaningless are promoted. Can also be set with the SPACR_STRICT_ERRORS environment variable, which is convenient on a cluster. Default False.",
+    'max_failure_rate': "(float or None) - Fraction of failed items above which the run aborts rather than finishing and reporting. 0.2 means 'stop once more than a fifth of the fields have failed', on the grounds that whatever is left is no longer the experiment. The ledger is stamped into the artifact before the abort, so the evidence survives. None (the default) never aborts on rate alone - every failure is still counted and reported, and the artifact is still marked partial. Default None.",
+    'crop_source': "(str) - Where single-object images come from. 'auto' (the default) uses the pre-generated PNG crop folder when one exists and otherwise cuts each crop out of merged/*.npy on demand; 'png' insists on the folder and fails if it is absent; 'merged' always cuts on demand and ignores the folder even when it is there. On-demand crops are pixel-identical to what the PNG folder would have held for the same settings, so annotations and models stay comparable across the two, and they cost no disk and cannot go stale when crop settings change - at the price of reading the merged array each time. Default 'auto'.",
     'class_balance': "(str) - How skew between the training classes is corrected. 'none' (the default) changes nothing but still prints the per-class counts, the majority-over-minority ratio and a recommendation, so the skew is never invisible. 'weighted_sampler' attaches a WeightedRandomSampler with 1/n weights, drawing every class about equally often; 'sqrt_weighted_sampler' uses 1/sqrt(n) for a gentler pull that avoids showing a tiny class so often the model memorises it; 'weighted_loss' leaves sampling alone and switches loss_type to 'ce_weighted' instead. Resampling is applied to the train loader only - validation and test keep the real prior so their scores stay comparable to the screen.",
     'cross_validation': "(bool) - Score the classifier with 5-fold stratified cross-validation instead of a single train/test split, so every control object receives an out-of-fold prediction and an optimal probability threshold is picked per fold. Gives a far more stable accuracy estimate on small control sets, at roughly 5x the training time. Default True.",
     'cross_validation_folds': "(int) - Number of k-fold splits the vision classifier is trained with in place of the single val_split hold-out. 0 (the default) or 1 keeps today's one random split; 2 or more trains a fresh model per fold, scores each on the fold it never saw, and reports the mean together with the fold-to-fold standard deviation and range - which is the only way to see whether one lucky split was flattering the model. Costs roughly k times the training time. Distinct from 'cross_validation', which is the regression pipeline's own toggle.",
@@ -2080,39 +2122,113 @@ motility_advanced_settings = ['reuse_existing_measurements', 'infection_xgb_min_
                      'infection_pca_umap_search','infection_pca_umap_n_neighbors_grid','infection_pca_umap_min_dist_grid','infection_pca_pathogen_weight', 'infection_pca_log_intensity','infection_pca_tsne_search','infection_pca_tsne_perplexity_grid',
                      'infection_pca_tsne_learning_rate_grid', 'infection_pca_umap_n_neighbors','infection_pca_umap_min_dist','infection_pca_tsne_perplexity', 'infection_pca_min_silhouette','infection_pca_min_gt_separation','infection_pca_max_cells']
 
-categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset","model_path","grna_csv","row_csv","column_csv", "metadata_files", "score_data","count_data"],
-             "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel",  "test_mode", "plot", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "delete_intermediate", "uninfected", "organelle_chann_dim", "timelapse", "model_type_ml"],
-             "Cellpose":["fill_in","from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
-             "Cell": ["cell_diameter","cell_intensity_range", "cell_size_range", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cytoplasm_min_size", "adjust_cells", "cells", "cell_loc", "cell_max_area", "cell_min_area", "cell_remove_border_objects", "cell_min_intensity_percentile", "cell_max_intensity_percentile", "remove_border_cells","cell_perimeter_fraction","cell_intensity_merge", "cell_intensity_split", "cell_area_multiplier", "cell_min_distance", "cell_min_object_area","cell_intensity_threshold_method","cell_intensity_percentile", ],               
-             "Organelle": ["organelle_morphology", "organelle_method", "organelle_diameter", "organelle_min_size", "organelle_max_size", "organelle_remove_border", "summarize_organelles_by", "organelle_max_area", "organelle_min_area", "organelle_remove_border_objects", "organelle_min_intensity_percentile", "organelle_max_intensity_percentile", "organelle_perimeter_fraction", "organelle_intensity_merge", "organelle_intensity_split", "organelle_area_multiplier", "organelle_min_distance", "organelle_min_object_area", "organelle_intensity_threshold_method", "organelle_intensity_percentile", "remove_border_organelles",],
-             "Organelle preprocessing": ["organelle_rolling_ball", "organelle_rolling_ball_radius", "organelle_clahe", "organelle_clahe_clip_limit", "organelle_mask_within_cells"],
-             "Organelle spot detection": ["organelle_tophat_radius", "organelle_watershed_spots", "organelle_log_min_sigma", "organelle_log_max_sigma", "organelle_log_num_sigma", "organelle_log_threshold", "organelle_dog_sigma_low", "organelle_dog_sigma_high"],
-             "Organelle network detection": ["organelle_ridge_filter", "organelle_ridge_sigmas", "organelle_skeletonize", "organelle_network_threshold", "organelle_hysteresis_low", "organelle_hysteresis_high"],
-             "Organelle ring detection": ["organelle_ring_sigma_inner", "organelle_ring_sigma_outer", "organelle_ring_min_prominence", "organelle_ring_fill_method"],
-             "Organelle irregular detection": ["organelle_morph_radius", "organelle_fill_holes"],
-             "Organelle cellpose": ["organelle_model_name", "organelle_CP_prob", "organelle_FT", "organelle_resample"],
-             "Organelle unet": ["organelle_unet_model_path", "organelle_unet_threshold"],
-             "Organelle adaptive threshold": ["organelle_adaptive_block_size", "organelle_adaptive_offset"], 
-             "Nucleus": ["nucleus_diameter","nucleus_intensity_range", "nucleus_size_range", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_loc", "nucleus_min_area", "nucleus_max_area", "nucleus_remove_border_objects", "nucleus_min_intensity_percentile", "nucleus_max_intensity_percentile", "remove_border_nuclei","nucleus_perimeter_fraction", "nucleus_intensity_merge", "nucleus_intensity_split", "nucleus_area_multiplier", "nucleus_min_distance", "nucleus_min_object_area", "nucleus_intensity_percentile", "nucleus_intensity_threshold_method"],
-             "Pathogen": ["pathogen_diameter","pathogen_intensity_range", "pathogen_size_range", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogens", "pathogen_loc", "pathogen_types", "pathogen_plate_metadata", "merge_edge_pathogen_cells", "pathogen_max_area", "pathogen_min_area", "pathogen_remove_border_objects", "pathogen_min_intensity_percentile", "pathogen_max_intensity_percentile", "remove_border_pathogens","pathogen_perimeter_fraction", "pathogen_intensity_merge", "pathogen_intensity_split", "pathogen_area_multiplier", "pathogen_min_distance", "pathogen_min_object_area", "pathogen_intensity_threshold_method", "pathogen_intensity_percentile"],
-             "Measurements": ["remove_image_canvas", "remove_highly_correlated", "homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements", "tables", "image_nr", "dot_size", "filter_by", "remove_highly_correlated_features", "remove_low_variance_features", "channel_of_interest"],
-             "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "crop_mode", "use_bounding_box"],
-             "Sequencing": ["outlier_detection","offset_start","chunk_size","single_direction", "signal_direction","mode","comp_level","comp_type","save_h5","expected_end","offset","target_sequence","regex", "highlight"],
-             "Generate Dataset":["save_to_db","file_metadata","class_metadata", "annotation_column","annotated_classes", "dataset_mode", "metadata_type_by","custom_measurement", "sample", "size"],
-             "Hyperparameters": ["png_type", "score_threshold","file_type", "train_channels", "epochs", "loss_type", "optimizer_type","image_size","val_split","learning_rate","weight_decay","dropout_rate", "init_weights", "train", "classes", "augment", "amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory","class_balance","cross_validation_folds","cv_group_by"],
-             "Hyperparamiters (Embedding)": ["visualize","n_neighbors","min_dist","metric","resnet_features","reduction_method","embedding_by_controls","col_to_compare","log_data"],
-             "Hyperparamiters (Clustering)": ["eps","min_samples","analyze_clusters","clustering","remove_cluster_noise"],
-             "Hyperparamiters (Regression)":["cross_validation","prune_features","reg_lambda","reg_alpha","cov_type", "plate", "other", "fraction_threshold", "alpha", "random_row_column_effects", "regression_type", "min_cell_count", "agg_type", "transform", "dependent_variable"],
-             "Hyperparamiters (Activation)":["cam_type", "overlay", "correlation", "target_layer", "normalize_input"],
-             "Annotation": ["filter_column", "filter_value","volcano", "toxo", "controls", "nc_loc", "pc_loc", "nc", "pc", "cell_plate_metadata","treatment_plate_metadata", "metadata_types", "cell_types", "target","positive_control","negative_control", "location_column", "treatment_loc", "channel_of_interest", "measurement", "treatments", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
-             "Plot": ["split_axis_lims", "x_lim","log_x","log_y", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature","grouping","min_max","save_figure"],
-             "Segmentation QC": ["seg_qc", "seg_qc_min_objects", "seg_qc_count_ratio", "seg_qc_size_ratio", "seg_qc_border_fraction", "seg_qc_outlier_mad", "seg_qc_outlier_fraction", "seg_qc_foreground_fraction", "seg_qc_split_ratio", "seg_qc_min_diameter", "seg_qc_tiny_fraction", "seg_qc_max_object_fraction", "seg_qc_plate_fail_fraction"],
-             "Timelapse": timelapse_settings,
-             "Advanced": ["dry_run", "test_images", "random_test", "test_nr", "test", "test_split", "normalize", "target_unique_count","threshold_multiplier", "threshold_method", "min_n","shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size","exclude","n_repeats","top_features", "model_type","minimum_cell_count","n_estimators","preprocess", "remove_background", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs", "keep_intermediate", "keep_original_images", "compression", "diameter_estimate_n_fields"],
-             "Beta": ["all_to_mip", "upscale", "upscale_factor", "consolidate", "distance_gaussian_sigma","use_sam_pathogen","use_sam_nucleus", "use_sam_cell", "denoise"],
-             "Motility (beta)": motility_settings,
-             "Motility Advanced (beta)": motility_advanced_settings,
-             }
+# How the settings panel is grouped in BOTH GUIs: the Tk category dropdown
+# (gui_core.toggle_settings) and the Qt section boxes
+# (qt/screens/settings_model.SettingsWidgets.build_sections) read this map and
+# nothing else. One entry = one heading, rendered in the order written here.
+#
+# Three rules keep it usable, and tests/test_settings_categories.py enforces
+# all three:
+#   1. Every key produced by a module's set_default_* / get_*_settings helper
+#      appears here. An uncategorised key is not grouped at all: Tk pins it to
+#      the top of the panel as an always-visible field and Qt dumps it in the
+#      trailing "Other" section.
+#   2. No key appears twice. A duplicate renders twice in Tk (and each copy is
+#      shown/hidden by a different heading) and is silently dropped from the
+#      second section in Qt.
+#   3. A setting that TRIGGERS a category - see category_dependencies and
+#      category_integer_dependencies below - must live outside the category it
+#      reveals, or ticking it off hides the control that turns it back on.
+#      That is why `timelapse` sits in General and not in "Timelapse", and why
+#      organelle_channel / organelle_mask_dim sit in General and not in
+#      "Organelle".
+categories = {
+    "Paths": ["src", "grna", "barcodes", "custom_model_path", "dataset", "model_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "score_data", "count_data"],
+
+    "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "channels", "channel_dims", "magnification", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "delete_intermediate", "uninfected"],
+
+    "Cellpose": ["fill_in", "from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
+
+    "Cell": ["cell_diameter", "cell_intensity_range", "cell_size_range", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cytoplasm_min_size", "adjust_cells", "cell_max_area", "cell_min_area", "cell_remove_border_objects", "cell_min_intensity_percentile", "cell_max_intensity_percentile", "remove_border_cells", "cell_perimeter_fraction", "cell_intensity_merge", "cell_intensity_split", "cell_area_multiplier", "cell_min_distance", "cell_min_object_area", "cell_intensity_threshold_method", "cell_intensity_percentile"],
+
+    "Nucleus": ["nucleus_diameter", "nucleus_intensity_range", "nucleus_size_range", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_min_area", "nucleus_max_area", "nucleus_remove_border_objects", "nucleus_min_intensity_percentile", "nucleus_max_intensity_percentile", "remove_border_nuclei", "nucleus_perimeter_fraction", "nucleus_intensity_merge", "nucleus_intensity_split", "nucleus_area_multiplier", "nucleus_min_distance", "nucleus_min_object_area", "nucleus_intensity_percentile", "nucleus_intensity_threshold_method"],
+
+    "Pathogen": ["pathogen_diameter", "pathogen_intensity_range", "pathogen_size_range", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "merge_edge_pathogen_cells", "pathogen_max_area", "pathogen_min_area", "pathogen_remove_border_objects", "pathogen_min_intensity_percentile", "pathogen_max_intensity_percentile", "remove_border_pathogens", "pathogen_perimeter_fraction", "pathogen_intensity_merge", "pathogen_intensity_split", "pathogen_area_multiplier", "pathogen_min_distance", "pathogen_min_object_area", "pathogen_intensity_threshold_method", "pathogen_intensity_percentile"],
+
+    # One heading for the whole organelle workflow, ordered the way it is set
+    # up: what to detect -> clean the image -> the knobs of the chosen
+    # organelle_method -> filter the objects -> what to summarise. The
+    # per-method blocks used to be eight separate headings gated on
+    # organelle_method; they are sub-ordered here instead, so the knobs that do
+    # not apply to your method are simply further down the list.
+    "Organelle": [
+        # what to detect
+        "organelle_morphology", "organelle_method", "organelle_diameter",
+        # clean the image first
+        "organelle_mask_within_cells", "organelle_rolling_ball", "organelle_rolling_ball_radius", "organelle_clahe", "organelle_clahe_clip_limit",
+        # method: adaptive
+        "organelle_adaptive_block_size", "organelle_adaptive_offset",
+        # method: otsu / adaptive / log / dog (spots)
+        "organelle_tophat_radius", "organelle_watershed_spots", "organelle_log_min_sigma", "organelle_log_max_sigma", "organelle_log_num_sigma", "organelle_log_threshold", "organelle_dog_sigma_low", "organelle_dog_sigma_high",
+        # method: ridge / hysteresis (networks)
+        "organelle_ridge_filter", "organelle_ridge_sigmas", "organelle_skeletonize", "organelle_network_threshold", "organelle_hysteresis_low", "organelle_hysteresis_high",
+        # morphology: ring
+        "organelle_ring_sigma_inner", "organelle_ring_sigma_outer", "organelle_ring_min_prominence", "organelle_ring_fill_method",
+        # morphology: irregular
+        "organelle_morph_radius", "organelle_fill_holes",
+        # method: cellpose
+        "organelle_model_name", "organelle_CP_prob", "organelle_FT", "organelle_resample",
+        # method: unet
+        "organelle_unet_model_path", "organelle_unet_threshold",
+        # filter the detected objects
+        "organelle_min_size", "organelle_max_size", "organelle_min_area", "organelle_max_area", "organelle_min_object_area", "organelle_area_multiplier", "organelle_min_distance", "organelle_perimeter_fraction", "organelle_intensity_merge", "organelle_intensity_split", "organelle_intensity_threshold_method", "organelle_intensity_percentile", "organelle_min_intensity_percentile", "organelle_max_intensity_percentile", "organelle_remove_border", "organelle_remove_border_objects", "remove_border_organelles",
+        # what to write out
+        "summarize_organelles_by",
+    ],
+
+    "Segmentation QC": ["seg_qc", "seg_qc_min_objects", "seg_qc_count_ratio", "seg_qc_size_ratio", "seg_qc_border_fraction", "seg_qc_outlier_mad", "seg_qc_outlier_fraction", "seg_qc_foreground_fraction", "seg_qc_split_ratio", "seg_qc_min_diameter", "seg_qc_tiny_fraction", "seg_qc_max_object_fraction", "seg_qc_plate_fail_fraction"],
+
+    "Timelapse": timelapse_settings,
+
+    # Which features are computed, and which of them survive into the analysis
+    # table. Plot-only knobs that used to live here (image_nr, dot_size,
+    # remove_image_canvas) moved to "Plot".
+    "Measurements": ["save_measurements", "calculate_correlation", "manders_thresholds", "homogeneity", "homogeneity_distances", "radial_dist", "tables", "channel_of_interest", "measurement", "filter_by", "exclude", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
+
+    "Object Crops": ["save_png", "crop_mode", "png_size", "png_dims", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "save_arrays"],
+
+    # The plate map: which wells hold which condition, which wells are the
+    # controls, and how they are labelled. Gathers the per-object condition
+    # lists that used to sit inside the Cell / Nucleus / Pathogen segmentation
+    # headings, where they had nothing to do with segmentation.
+    "Plate Layout & Controls": ["plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "nucleus_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "positive_control", "negative_control", "controls", "pc", "nc", "pc_loc", "nc_loc", "pos", "neg", "mix", "exclude_conditions", "filter_column", "filter_value", "target", "metadata_types"],
+
+    "Training Dataset": ["dataset_mode", "annotation_column", "annotated_classes", "class_metadata", "metadata_type_by", "file_metadata", "custom_measurement", "png_type", "file_type", "sample", "size"],
+
+    "Model Training": ["model_type", "classes", "train_channels", "image_size", "init_weights", "train", "test", "val_split", "test_split", "epochs", "optimizer_type", "learning_rate", "schedule", "weight_decay", "dropout_rate", "loss_type", "class_balance", "augment", "amsgrad", "use_checkpoint", "gradient_accumulation", "gradient_accumulation_steps", "pin_memory", "cross_validation_folds", "cv_group_by", "score_threshold", "intermedeate_save"],
+
+    # The classical (non-image) screen classifier fitted on measured features -
+    # spacr's "Classify (ML)" module. These knobs used to be split three ways
+    # between General, Advanced and the regression heading.
+    "ML Classifier": ["model_type_ml", "n_estimators", "test_size", "cross_validation", "prune_features", "top_features", "n_repeats", "reg_lambda", "reg_alpha", "minimum_cell_count", "save_to_db"],
+
+    "Embedding & Clustering": ["reduction_method", "n_neighbors", "min_dist", "metric", "log_data", "embedding_by_controls", "col_to_compare", "resnet_features", "visualize", "clustering", "eps", "min_samples", "remove_cluster_noise", "analyze_clusters"],
+
+    "Regression": ["regression_type", "dependent_variable", "agg_type", "transform", "alpha", "cov_type", "random_row_column_effects", "min_cell_count", "fraction_threshold", "target_unique_count", "outlier_detection", "threshold_method", "threshold_multiplier", "min_n", "volcano", "toxo", "other"],
+
+    "Activation Maps": ["cam_type", "target_layer", "overlay", "correlation", "normalize_input"],
+
+    "Sequencing": ["mode", "single_direction", "signal_direction", "target_sequence", "regex", "offset", "offset_start", "expected_end", "chunk_size", "fill_na", "save_h5", "comp_type", "comp_level"],
+
+    "Plot": ["cmap", "figuresize", "normalize_plots", "black_background", "save_figure", "log_x", "log_y", "x_lim", "split_axis_lims", "examples_to_plot", "plot_control", "plot_nr", "nr_imgs", "um_per_pixel", "image_nr", "dot_size", "img_zoom", "row_limit", "color_by", "plot_images", "remove_image_canvas", "plot_points", "plot_outlines", "smooth_lines", "plot_by_cluster", "plot_cluster_grids", "heatmap_feature", "grouping", "min_max", "highlight"],
+
+    "Advanced": ["strict_errors", "max_failure_rate", "crop_source", "dry_run", "verbose", "n_jobs", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "normalize", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "compression", "diameter_estimate_n_fields", "nuclei_limit", "pathogen_limit", "cells_per_well", "target_intensity_min", "shuffle", "save", "filter", "merge_pathogens"],
+
+    "Beta": ["all_to_mip", "upscale", "upscale_factor", "consolidate", "distance_gaussian_sigma", "use_sam_pathogen", "use_sam_nucleus", "use_sam_cell", "denoise"],
+
+    "Motility (beta)": motility_settings,
+    "Motility Advanced (beta)": motility_advanced_settings,
+}
 
 category_dependencies = {
     'timelapse': ['Timelapse'],
@@ -2127,27 +2243,19 @@ category_integer_dependencies = {
     ('cell_channel', 'cell_mask_dim'): ['Cell'],
     ('nucleus_channel', 'nucleus_mask_dim'): ['Nucleus'],
     ('pathogen_channel', 'pathogen_mask_dim'): ['Pathogen'],
-    ('organelle_channel', 'organelle_mask_dim'): [
-        'Organelle', 'Organelle preprocessing', 'Organelle spot detection',
-        'Organelle network detection', 'Organelle ring detection',
-        'Organelle irregular detection', 'Organelle cellpose',
-        'Organelle unet', 'Organelle adaptive threshold',
-    ],
+    ('organelle_channel', 'organelle_mask_dim'): ['Organelle'],
 }
 
-# categories shown only when a setting equals a specific value
-# Only evaluated when organelle_mask_dim is a valid integer
+# Categories shown only when a setting equals a specific value.
+#
+# gui_core._get_visible_categories blocks the categories of every option that
+# does NOT match the current value, so a category listed under two or more
+# options can never be shown. The eight per-method organelle headings are now a
+# single "Organelle" category (ordered by method instead of gated on it), so
+# organelle_method no longer gates anything and its map is empty. The mechanism
+# itself is still wired up in both GUIs for the next setting that needs it.
 category_value_dependencies = {
-    'organelle_method': {
-        'otsu':       ['Organelle'],
-        'adaptive':   ['Organelle', 'Organelle adaptive threshold'],
-        'log':        ['Organelle', 'Organelle spot detection'],
-        'dog':        ['Organelle', 'Organelle spot detection'],
-        'ridge':      ['Organelle', 'Organelle network detection'],
-        'hysteresis': ['Organelle', 'Organelle network detection'],
-        'cellpose':   ['Organelle', 'Organelle cellpose'],
-        'unet':       ['Organelle', 'Organelle unet'],
-    },
+    'organelle_method': {},
 }
 
 category_keys = list(categories.keys())
@@ -2448,6 +2556,10 @@ def set_annotate_default_settings(settings):
     settings.setdefault('measurement', '') #'cytoplasm_channel_3_mean_intensity,pathogen_channel_3_mean_intensity')
     settings.setdefault('threshold', '') #'2')
     settings.setdefault('threshold_direction', 'higher')
+    # 'auto' uses the PNG crop folder when one exists and falls back to
+    # cutting crops out of merged/*.npy on demand; 'png' and 'merged'
+    # force one source. See spacr.crops.resolve_crop_source.
+    settings.setdefault('crop_source', 'auto')
     return settings
 
 def set_default_generate_barecode_mapping(settings=None):
@@ -2831,7 +2943,7 @@ def _set_organelle_defaults(settings):
         'organelle_morphology': 'spots',
         'organelle_method': 'otsu',
         'organelle_diameter': 30,
-        "organelle_model_name": "(str) - Cellpose model used when organelle_method='cellpose'. Cellpose 4 provides only 'cpsam'; the pre-SAM names are accepted and mapped to it. Change this only to point at a custom CPSAM-architecture checkpoint. Default 'cpsam'.",
+        'organelle_model_name': 'cpsam',
         'organelle_min_size': 10,
         'organelle_max_size': None,
         'organelle_remove_border': False,

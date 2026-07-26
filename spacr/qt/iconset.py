@@ -63,6 +63,7 @@ _NAME_TO_GLYPH = {
     "save":            "fa5s.save",
     "import":          "fa5s.file-import",
     "export":          "fa5s.file-export",
+    "report":          "fa5s.file-alt",
     # Navigation
     "prev":            "fa5s.chevron-left",
     "next":            "fa5s.chevron-right",

@@ -758,12 +758,14 @@ def test_generate_cellpose_masks_saves_masks_and_counts(tmp_path, monkeypatch):
     assert ("f1.npy", "nucleus_before_filtration", 2) in rows
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="BUG: _set_organelle_defaults defaults "
-                          "organelle_model_name to its own help text instead of 'cpsam'")
 def test_default_organelle_model_name_is_a_model_not_a_docstring():
+    """The tooltip text had been pasted in as the value, so the default
+    organelle model name was a paragraph of prose. _choose_model would have
+    treated it as an unknown name and quietly used cpsam anyway — which is
+    what it happens to want, but for the wrong reason and with no warning."""
     from spacr.settings import _set_organelle_defaults
     from spacr.object import _build_object_settings
 
     filled = _set_organelle_defaults({})
+    assert filled["organelle_model_name"] == "cpsam"
     assert _build_object_settings(filled)["model_name"] == "cpsam"
