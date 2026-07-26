@@ -1116,28 +1116,61 @@ def setup_usage_panel(horizontal_container, btn_col, uppdate_frequency):
 
     usg_col = 1
 
+    # One flag per panel: a GPU that stops answering should be reported
+    # once, not once per second for the life of the session.
+    _gpu_poll = {'enabled': True}
+
     def update_usage(ram_bar, vram_bar, gpu_bar, usage_bars, parent_frame):
         """Poll psutil/GPUtil and refresh the RAM/VRAM/GPU/CPU bars, then reschedule."""
         # Update RAM usage
         ram_usage = psutil.virtual_memory().percent
         ram_bar['value'] = ram_usage
 
-        # Update GPU and VRAM usage
-        gpus = GPUtil.getGPUs()
-        if gpus:
-            gpu = gpus[0]
-            vram_usage = gpu.memoryUtil * 100
-            gpu_usage = gpu.load * 100
-            vram_bar['value'] = vram_usage
-            gpu_bar['value'] = gpu_usage
+        # Update GPU and VRAM usage.
+        #
+        # GPUtil.getGPUs() shells out to nvidia-smi and int()s whatever comes
+        # back, so ANY nvidia-smi failure surfaces here as a ValueError on the
+        # error text -- e.g. a driver/library version mismatch after a driver
+        # update without a reboot yields
+        #   ValueError: invalid literal for int() with base 10:
+        #   'Failed to initialize NVML: Driver/library version mismatch'
+        # This runs on a repeating `after` callback, so an exception here is
+        # not a one-off: it lands in the Tk callback handler once a second,
+        # forever, and takes the usage panel down with it. The panel is
+        # decoration -- it must never be able to break the GUI. Report once,
+        # then stop polling the GPU while the bars keep running for RAM/CPU.
+        if _gpu_poll['enabled']:
+            try:
+                gpus = GPUtil.getGPUs()
+            except Exception as e:
+                _gpu_poll['enabled'] = False
+                gpus = []
+                print(f"GPU usage bars disabled -- nvidia-smi is not answering: {e}")
+                print("spaCR will still run, but on CPU. If this is a "
+                      "'Driver/library version mismatch', the loaded kernel "
+                      "module and the userspace driver differ; a reboot "
+                      "normally resolves it.")
+            if gpus:
+                gpu = gpus[0]
+                vram_usage = gpu.memoryUtil * 100
+                gpu_usage = gpu.load * 100
+                vram_bar['value'] = vram_usage
+                gpu_bar['value'] = gpu_usage
 
         # Update CPU usage for each core
         cpu_percentages = psutil.cpu_percent(percpu=True)
         for bar, usage in zip(usage_bars[3:], cpu_percentages):
             bar['value'] = usage
 
-        # Schedule the function to run again after 1000 ms (1 second)
-        parent_frame.after(uppdate_frequency, update_usage, ram_bar, vram_bar, gpu_bar, usage_bars, parent_frame)
+        # Schedule the function to run again after 1000 ms (1 second).
+        # Guarded because a destroyed frame raises TclError here, which is the
+        # same class of "decoration takes down the GUI" failure as the GPU
+        # poll above.
+        try:
+            parent_frame.after(uppdate_frequency, update_usage, ram_bar,
+                               vram_bar, gpu_bar, usage_bars, parent_frame)
+        except Exception:
+            pass
 
     size_dict = set_element_size()
     usage_panel_height = size_dict['panel_height']
