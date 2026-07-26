@@ -659,6 +659,8 @@ def convert_settings_dict_for_gui(settings):
         # on anything outside these lists, so free text is not usable here.
         'class_balance': ('combo', ['none', 'weighted_sampler', 'sqrt_weighted_sampler', 'weighted_loss'], 'none'),
         'cv_group_by': ('combo', ['well', 'field', 'plate', 'none'], 'well'),
+        # spacr.seg_qc.MODES
+        'seg_qc': ('combo', ['off', 'report', 'flag'], 'report'),
         'normalize_by': ('combo', ['fov', 'png'], 'png'),
         'agg_type': ('combo', ['mean', 'median'], 'mean'),
         'grouping': ('combo', ['mean', 'median'], 'mean'),
@@ -720,9 +722,11 @@ def function_gui_wrapper(function=None, settings=None, q=None, fig_queue=None, i
     :param settings: settings dict passed to ``function``.
     :param q: queue for log/error messages sent to the GUI.
     :param fig_queue: queue for matplotlib figures produced during the run.
-    :param imports: 1 to call ``function(settings=...)``; 2 to call
-        ``function(src=settings['src'], settings=...)``.
+    :param imports: call style. 1 -> ``function(settings=...)``;
+        2 -> ``function(src=settings['src'], settings=...)``;
+        3 -> ``function(settings['src'])``, for workers that take a bare path.
     :returns: None.
+    :raises ValueError: if ``imports`` is not one of the three call styles.
     """
 
     # Temporarily override plt.show
@@ -736,6 +740,14 @@ def function_gui_wrapper(function=None, settings=None, q=None, fig_queue=None, i
             function(settings=settings)
         elif imports == 2:
             function(src=settings['src'], settings=settings)
+        elif imports == 3:
+            function(settings['src'])
+        else:
+            # No else used to exist, so an unrecognised call style ran nothing
+            # and returned as though the module had completed successfully.
+            raise ValueError(
+                f"function_gui_wrapper: unknown call style imports={imports!r}; "
+                f"expected 1, 2 or 3")
     except Exception as e:
         # Send the error message to the GUI via the queue
         errorMessage = f"Error during processing: {e}"
@@ -803,8 +815,11 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
         function = generate_barecode_mapping
         imports = 1
     elif settings_type == 'regression':
+        # ml.perform_regression(settings) -- a single positional. imports=2
+        # called it as function(src=..., settings=...) and raised TypeError
+        # every time; the Qt bridge has always called it correctly.
         function = perform_regression
-        imports = 2
+        imports = 1
     elif settings_type == 'recruitment':
         function = analyze_recruitment
         imports = 1
@@ -815,8 +830,11 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
         function = analyze_plaques
         imports = 1
     elif settings_type == 'convert':
+        # io.process_non_tif_non_2D_images(folder) -- a bare path, not a
+        # settings dict. imports=1 called it as function(settings=...) and
+        # raised TypeError, so Convert has never run from either GUI.
         function = process_non_tif_non_2D_images
-        imports = 1
+        imports = 3
     else:
         raise ValueError(f"Error: Invalid settings type: {settings_type}")
     try:

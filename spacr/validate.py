@@ -1267,7 +1267,11 @@ def _describe_workload(settings: Dict[str, Any], app: str,
     return ", ".join(parts)
 
 
-def run_preflight(settings: Dict[str, Any], app_key: str, printer=print) -> List[Problem]:
+DRY_RUN_TRAILER = "dry_run=True — stopping here. Set dry_run=False to run for real."
+
+
+def run_preflight(settings: Dict[str, Any], app_key: str, printer=print,
+                  trailer: str = DRY_RUN_TRAILER) -> List[Problem]:
     """Validate, print the report and the plan, and hand back the problems.
 
     This is what the ``dry_run`` branch of every pipeline entry point calls,
@@ -1276,12 +1280,17 @@ def run_preflight(settings: Dict[str, Any], app_key: str, printer=print) -> List
     :param settings: the settings dict that would have been run.
     :param app_key: which pipeline, as for :func:`validate_settings`.
     :param printer: where the text goes; defaults to ``print``.
+    :param trailer: the closing line. The default names the in-pipeline
+        ``dry_run`` flag, which is the wrong advice for a caller reached some
+        other way -- ``spacr-run --dry-run`` passes its own wording. Pass an
+        empty string to suppress it entirely.
     :returns: the list of :class:`Problem` found.
     """
     problems = validate_settings(settings, app_key)
     printer(format_report(problems, settings, app_key))
     printer("")
     printer(describe_plan(settings, app_key))
-    printer("")
-    printer("dry_run=True — stopping here. Set dry_run=False to run for real.")
+    if trailer:
+        printer("")
+        printer(trailer)
     return problems

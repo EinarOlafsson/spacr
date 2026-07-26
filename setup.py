@@ -111,7 +111,9 @@ setup(
             'make_masks=spacr.app_make_masks:gui_make_masks',
             'annotate=spacr.app_annotate:start_annotate_app',
             'classify=spacr.app_classify:start_classify_app',
-            'sim=spacr.app_sim:gui_sim',
+            # 'sim=spacr.app_sim:gui_sim' removed: spacr/app_sim.py does not
+            # exist, so the installed `sim` command died with ImportError.
+            # Simulations run headless via `spacr-run simulation`.
             # New Qt GUI is the default
             'spacr=spacr.qt:run',
             'spacr-qt=spacr.qt:run',

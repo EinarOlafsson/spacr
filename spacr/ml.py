@@ -1,4 +1,4 @@
-import os, shap, re
+import os, sys, shap, re
 import pandas as pd
 import numpy as np
 from scipy import stats, test
@@ -51,8 +51,12 @@ import statsmodels.api as sm
 
 import matplotlib
 
-#from spacr.spacr import settings
-matplotlib.use('Agg')
+# Only demote to Agg when there is genuinely nowhere to draw. Doing it
+# unconditionally at import time silently killed inline plotting for anyone
+# who imported spacr.ml in a notebook, because it overrode a backend the user
+# had already selected. spacr.cli and both GUIs set their own backend.
+if not (sys.platform.startswith(('win', 'darwin')) or os.environ.get('DISPLAY')):
+    matplotlib.use('Agg')
 
 import warnings
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
