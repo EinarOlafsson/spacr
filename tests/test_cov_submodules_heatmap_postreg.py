@@ -431,3 +431,87 @@ def test_post_regression_analysis_propagation_is_sequential(tmp_path, sns_record
     corr = sns_recorder["heatmap"]
     assert corr.to_numpy().min() == pytest.approx(-1.0)
     assert corr.to_numpy().max() == pytest.approx(1.0)
+
+
+# ---------------------------------------------------------------------------
+# plateID=None must honour the CSV's own plateID
+#
+# `calculate_fraction_mixed_condition` guarded with `if plate not in
+# df.columns:` -- comparing the plate NUMBER against the column NAMES. That is
+# always True, so the CSV's own plateID was always overwritten, and with
+# plateID=None it was overwritten with the literal string "plateNone". Its two
+# sibling helpers guard with `if plate is not None` and leave the CSV alone, so
+# their prc keys stayed "plate7_..." while this one emitted "plateNone_...".
+# The inner merge on 'prc' then matched nothing and the whole function returned
+# an EMPTY frame with no error -- the failure mode the audit flagged.
+# ---------------------------------------------------------------------------
+
+OWN_PLATE = "plate7"
+
+
+def _write_scores_csv_with_plate(path, seed, value_column="pred"):
+    rng = np.random.default_rng(seed)
+    recs = []
+    for r in ROWS:
+        for c in (COL, OTHER_COL):
+            recs.append({"plateID": OWN_PLATE, "columnID": c, "rowID": r,
+                         value_column: round(float(rng.uniform(0, 1)), 6)})
+    pd.DataFrame(recs).to_csv(path, index=False)
+
+
+def _write_mixed_csv_with_plate(path):
+    recs = []
+    for i, r in enumerate(ROWS):
+        cts = _counts(i)
+        for name, key in (("sgA", "A"), ("sgB", "B"), ("sgC", "C")):
+            recs.append({"plateID": OWN_PLATE, "columnID": COL, "rowID": r,
+                         "grna_name": name, "count": cts[key]})
+    pd.DataFrame(recs).to_csv(path, index=False)
+
+
+def test_generate_score_heatmap_plate_none_keeps_the_csv_plate_id(tmp_path):
+    """plateID=None must leave every helper reading the CSV's own plateID.
+
+    Before the fix the reads helper stamped "plateNone" while the score and CV
+    helpers kept "plate7", so the prc join matched zero rows and the function
+    returned an empty frame instead of eight wells.
+    """
+    from spacr.submodules import generate_score_heatmap
+
+    folder = tmp_path / "models"
+    (folder / "modelA").mkdir(parents=True)
+    _write_scores_csv_with_plate(str(folder / "modelA" / "scores.csv"), seed=11)
+    mixed = tmp_path / "mixed.csv"
+    _write_mixed_csv_with_plate(str(mixed))
+    cv = tmp_path / "cv.csv"
+    _write_scores_csv_with_plate(str(cv), seed=5, value_column="pred_cv")
+
+    out = generate_score_heatmap(
+        _settings(tmp_path, [str(folder)], mixed, cv, None, plateID=None)
+    )
+
+    assert not out.empty, "plateID=None produced an empty frame -- the prc keys disagree"
+    assert len(out) == len(ROWS)
+    assert set(out["prc"]) == {f"{OWN_PLATE}_{r}_{COL}" for r in ROWS}
+    # and nothing anywhere invented a plate from the literal None
+    assert not any("None" in p for p in out["prc"])
+
+
+def test_generate_score_heatmap_plate_number_still_overrides(tmp_path):
+    """A real plate number must still be stamped over whatever the CSV says."""
+    from spacr.submodules import generate_score_heatmap
+
+    folder = tmp_path / "models"
+    (folder / "modelA").mkdir(parents=True)
+    _write_scores_csv_with_plate(str(folder / "modelA" / "scores.csv"), seed=11)
+    mixed = tmp_path / "mixed.csv"
+    _write_mixed_csv_with_plate(str(mixed))
+    cv = tmp_path / "cv.csv"
+    _write_scores_csv_with_plate(str(cv), seed=5, value_column="pred_cv")
+
+    out = generate_score_heatmap(
+        _settings(tmp_path, [str(folder)], mixed, cv, None, plateID=2)
+    )
+
+    assert not out.empty
+    assert set(out["prc"]) == {f"plate2_{r}_{COL}" for r in ROWS}

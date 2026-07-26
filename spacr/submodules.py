@@ -4594,7 +4594,12 @@ def generate_score_heatmap(settings):
         if 'columnID' not in df.columns and 'column_name' in df.columns:
             df = df.rename(columns={'column_name': 'columnID'})
         df = df[df['columnID']==column]
-        if plate not in df.columns:
+        # `plate` is a plate NUMBER, not a column name, so `plate not in
+        # df.columns` was always True and the CSV's own plateID was always
+        # overwritten -- stamping the literal "plateNone" when plate is None.
+        # The prc keys then matched nothing downstream and the heatmap came
+        # back empty with no error. Guard the way both sibling helpers do.
+        if plate is not None:
             df['plateID'] = f"plate{plate}"
         df = df[df['grna_name'].str.match(f'^{control_sgrnas[0]}$|^{control_sgrnas[1]}$')]
         grouped_df = df.groupby(['plateID', 'rowID', 'columnID'])['count'].sum().reset_index()
