@@ -19,7 +19,10 @@ Public API::
     from spacr.qt.preferences import (
         get_theme, set_theme,
         get_space_variant, set_space_variant,
-        get_space_seed, set_space_seed, space_background_path,
+        get_cell_variant, set_cell_variant,
+        get_space_seed, set_space_seed,
+        space_background_path, cell_background_path,
+        theme_background_path,
         get_font_scale, set_font_scale,
         get_color_blind_mode, set_color_blind_mode,
         get_db_browser_editable, set_db_browser_editable,
@@ -29,13 +32,16 @@ Public API::
 
 Values:
 
-* ``theme``: ``"dark"`` | ``"light"`` | ``"space"`` | ``"system"``
-  (default ``"dark"``). ``"system"`` follows the reader's OS colour
-  scheme. ``"space"`` is a dark theme over a generated deep-space
-  background — see :mod:`spacr.qt.space`.
-* ``space_variant``: ``"galaxy"`` | ``"sun"`` | ``"stars"`` — which
-  element the generated sky makes its subject.
-* ``space_seed``: int; the sky is deterministic in this.
+* ``theme``: ``"dark"`` | ``"light"`` | ``"space"`` | ``"cell"`` |
+  ``"system"`` (default ``"dark"``). ``"system"`` follows the reader's
+  OS colour scheme. ``"space"`` is a dark theme over a generated
+  deep-space background or a deep-field photograph; ``"cell"`` is a dark
+  theme over one of the bundled fluorescence micrographs — see
+  :mod:`spacr.qt.space` and :mod:`spacr.qt.imagery`.
+* ``space_variant``: ``"galaxy"`` | ``"sun"`` | ``"stars"`` (generated)
+  or ``"deep_field"`` (photograph).
+* ``cell_variant``: ``"microtubules"`` | ``"filopodia"``.
+* ``space_seed``: int; the generated sky is deterministic in this.
 * ``font_scale``: float, 1.0 = 100 %. Clamped to [0.75, 2.0].
 * ``color_blind_mode``: ``"off"`` | ``"deuteranopia"`` | ``"protanopia"``
   | ``"tritanopia"`` (default ``"off"``). Swaps matplotlib rainbow /
@@ -64,15 +70,22 @@ _KEY_CB_MODE     = "prefs/color_blind_mode"
 _KEY_VERBOSE_LOG = "prefs/verbose_logging"
 _KEY_DB_EDIT     = "prefs/db_browser_editable"
 
+#: Themes with a palette of their own — mirrors
+#: :data:`spacr.qt.theme.THEMES`, restated here so importing this module
+#: does not pull in QtGui/QtWidgets.
+PALETTE_THEMES = ("dark", "light", "space", "cell")
+
 #: Persisted values. An existing install has ``prefs/theme`` set to one
-#: of the first three; those keep resolving exactly as before, and an
-#: unrecognised value (hand-edited INI, a downgrade) falls back to
-#: :data:`DEFAULT_THEME` rather than raising.
-VALID_THEMES = ("dark", "light", "system", "space")
+#: of dark/light/system/space; those keep resolving exactly as before,
+#: and an unrecognised value (hand-edited INI, a downgrade from a build
+#: with more themes) falls back to :data:`DEFAULT_THEME` rather than
+#: raising.
+VALID_THEMES = PALETTE_THEMES + ("system",)
 DEFAULT_THEME = "dark"
 
 _KEY_SPACE_VARIANT = "prefs/space_variant"
 _KEY_SPACE_SEED    = "prefs/space_seed"
+_KEY_CELL_VARIANT  = "prefs/cell_variant"
 
 FONT_SCALE_MIN = 0.75
 FONT_SCALE_MAX = 2.00
@@ -178,19 +191,47 @@ def set_theme(theme: str) -> None:
     _settings().setValue(_KEY_THEME, theme)
 
 
+def space_variants() -> tuple:
+    """Every background the Space theme offers.
+
+    The three procedural skies from :mod:`spacr.qt.space` plus the
+    photographic ones from :mod:`spacr.qt.imagery`. The photo keys are
+    kept out of ``space.VARIANTS`` because those three index
+    ``space._VARIANT_MIX`` and a photograph has no mix.
+    """
+    from .imagery import SPACE_PHOTO_VARIANTS
+    from .space import VARIANTS
+    return tuple(VARIANTS) + tuple(SPACE_PHOTO_VARIANTS)
+
+
 def get_space_variant() -> str:
-    """Which element the generated sky makes its subject."""
-    from .space import DEFAULT_VARIANT, VARIANTS
+    """Which background the Space theme uses."""
+    from .space import DEFAULT_VARIANT
     raw = str(_settings().value(_KEY_SPACE_VARIANT, DEFAULT_VARIANT))
-    return raw if raw in VARIANTS else DEFAULT_VARIANT
+    return raw if raw in space_variants() else DEFAULT_VARIANT
 
 
 def set_space_variant(variant: str) -> None:
-    from .space import VARIANTS
-    if variant not in VARIANTS:
+    valid = space_variants()
+    if variant not in valid:
         raise ValueError(f"unknown space variant {variant!r}. "
-                          f"Choose from {VARIANTS}.")
+                          f"Choose from {valid}.")
     _settings().setValue(_KEY_SPACE_VARIANT, variant)
+
+
+def get_cell_variant() -> str:
+    """Which of the user's micrographs the Cell theme uses."""
+    from .imagery import CELL_VARIANTS, DEFAULT_CELL_VARIANT
+    raw = str(_settings().value(_KEY_CELL_VARIANT, DEFAULT_CELL_VARIANT))
+    return raw if raw in CELL_VARIANTS else DEFAULT_CELL_VARIANT
+
+
+def set_cell_variant(variant: str) -> None:
+    from .imagery import CELL_VARIANTS
+    if variant not in CELL_VARIANTS:
+        raise ValueError(f"unknown cell variant {variant!r}. "
+                          f"Choose from {CELL_VARIANTS}.")
+    _settings().setValue(_KEY_CELL_VARIANT, variant)
 
 
 def get_space_seed() -> int:
@@ -209,36 +250,74 @@ def set_space_seed(seed: int) -> None:
 def space_background_path(width: int = 0, height: int = 0):
     """Path of the background image for the Space theme, or ``None``.
 
-    Prefers a NASA image the user downloaded from Preferences; falls
-    back to the procedurally generated sky (cached on disk). Returns
-    ``None`` only when neither can be produced — no image at all, at
-    which point the stylesheet paints a flat gradient instead. **Never
-    raises and never touches the network.**
+    Order of preference: the photographic variant if the user picked one
+    *and* its master is installed, then a NASA image they downloaded
+    from Preferences, then the procedurally generated sky (cached on
+    disk). Returns ``None`` only when none of those can be produced, at
+    which point the stylesheet paints a flat gradient instead.
+
+    A missing photo master is not an error and not a dead end — it
+    simply falls through to the generated sky, which needs no assets and
+    no network. **Never raises and never touches the network.**
     """
     try:
         from . import space
+        variant = get_space_variant()
+        from .imagery import SPACE_PHOTO_VARIANTS, background_path
+        if variant in SPACE_PHOTO_VARIANTS:
+            photo = background_path(variant, width, height)
+            if photo is not None:
+                return photo
         real = space.downloaded_background()
         if real is not None:
             return real
         if width <= 0 or height <= 0:
             width, height = space.screen_size()
         return space.background_path(width, height,
-                                     variant=get_space_variant(),
+                                     variant=variant,
                                      seed=get_space_seed())
     except Exception:
         return None
 
 
+def cell_background_path(width: int = 0, height: int = 0):
+    """Path of the background image for the Cell theme, or ``None``.
+
+    ``None`` when the masters were stripped from the build; the
+    stylesheet then paints the Cell gradient, which is a dark teal wash
+    rather than anything broken.
+    """
+    try:
+        from .imagery import background_path
+        return background_path(get_cell_variant(), width, height)
+    except Exception:
+        return None
+
+
+def theme_background_path(theme: str, width: int = 0, height: int = 0):
+    """Background image for ``theme``, or ``None`` if it does not use one.
+
+    One place for the "which theme wants which picture" question, so
+    :func:`apply_preferences_to_app` and anything else that re-applies
+    the stylesheet cannot drift apart.
+    """
+    if theme == "space":
+        return space_background_path(width, height)
+    if theme == "cell":
+        return cell_background_path(width, height)
+    return None
+
+
 def resolve_effective_theme() -> str:
-    """Return the theme to render — ``"dark"``, ``"light"`` or ``"space"``.
+    """Return the theme to render — one of :data:`PALETTE_THEMES`.
 
     Resolves ``"system"`` to the OS colour scheme, defaulting to dark
     when Qt can't tell. Every other value passes through, so callers
     that only understand light/dark should compare against ``"light"``
-    and treat everything else as dark (Space is a dark theme).
+    and treat everything else as dark (Space and Cell are dark themes).
     """
     theme = get_theme()
-    if theme in ("dark", "light", "space"):
+    if theme in PALETTE_THEMES:
         return theme
     # system — poll Qt's palette hint
     try:
@@ -425,10 +504,14 @@ def apply_preferences_to_app(app=None) -> None:
     theme = resolve_effective_theme()
     scale = get_font_scale()
 
-    # Only the Space theme wants an image, and only Space pays for
-    # generating one. Everything here degrades to None on any failure,
+    # Only the image themes want a picture, and only they pay for
+    # producing one. Everything here degrades to None on any failure,
     # and the stylesheet renders a gradient in that case.
-    background = space_background_path() if theme == "space" else None
+    #
+    # This is also the ONLY call site that can decode a master. It runs
+    # at startup and on a preferences save — never from a resize, never
+    # from a paint. See :func:`spacr.qt.imagery.decode_count`.
+    background = theme_background_path(theme)
 
     apply_qpalette(app, theme=theme)
     app.setStyleSheet(stylesheet(theme=theme, font_scale=scale,
@@ -483,6 +566,7 @@ class PreferencesDialog:
             ("Dark", "dark"),
             ("Light", "light"),
             ("Space", "space"),
+            ("Cell", "cell"),
             ("Follow system", "system"),
         ):
             theme_combo.addItem(label, key)
@@ -493,30 +577,70 @@ class PreferencesDialog:
         form.addRow("Theme", theme_combo)
 
         # Space theme — which sky, and (optionally) real NASA imagery.
-        from .space import VARIANTS, attribution_text
+        from .space import attribution_text
+        space_choices = space_variants()
         space_combo = QComboBox()
         for label, key in (
             ("Spiral galaxy", "galaxy"),
             ("Star and corona", "sun"),
             ("Deep starfield", "stars"),
+            ("Galaxy deep field (photograph)", "deep_field"),
         ):
-            if key in VARIANTS:
+            if key in space_choices:
                 space_combo.addItem(label, key)
         current_space = get_space_variant()
         for i in range(space_combo.count()):
             if space_combo.itemData(i) == current_space:
                 space_combo.setCurrentIndex(i); break
         space_combo.setToolTip(
-            "The Space background is generated on this machine at your "
-            "display's native resolution and cached, so it is sharp on a "
-            "5K panel and costs nothing to ship. Nothing is downloaded "
-            "unless you ask for it below."
+            "The generated skies are computed on this machine at your "
+            "display's native resolution and cached, so they are sharp on "
+            "a 5K panel and cost nothing to ship. The deep field is a "
+            "bundled photograph. Nothing is downloaded unless you ask for "
+            "it below."
         )
         form.addRow("Space background", space_combo)
 
-        credit_label = QLabel(attribution_text())
+        # Cell theme — which micrograph.
+        from .imagery import CELL_VARIANTS, SPACE_PHOTO_VARIANTS, title_for
+        cell_combo = QComboBox()
+        for key in CELL_VARIANTS:
+            cell_combo.addItem(title_for(key), key)
+        current_cell = get_cell_variant()
+        for i in range(cell_combo.count()):
+            if cell_combo.itemData(i) == current_cell:
+                cell_combo.setCurrentIndex(i); break
+        cell_combo.setToolTip(
+            "The Cell theme puts a fluorescence micrograph behind the app. "
+            "Both are cropped and re-exposed so that text drawn straight "
+            "onto them still clears WCAG AA, then scaled to your display "
+            "once and cached — nothing is re-read when you resize a "
+            "window. Drop your own image into ~/.spacr/themes/ under the "
+            "same filename to use it instead."
+        )
+        form.addRow("Cell background", cell_combo)
+
+        credit_label = QLabel()
         credit_label.setWordWrap(True)
         credit_label.setObjectName("Muted")
+
+        def _refresh_credit():
+            """Describe whichever sky is actually selected.
+
+            Leaving this on ``attribution_text()`` alone would tell a
+            user who picked the deep field that they were looking at a
+            procedural render.
+            """
+            key = space_combo.currentData()
+            if key in SPACE_PHOTO_VARIANTS:
+                credit_label.setText(
+                    f"{title_for(key)} — bundled with spaCR, cropped and "
+                    "re-exposed for legibility. Nothing was downloaded.")
+            else:
+                credit_label.setText(attribution_text())
+
+        space_combo.currentIndexChanged.connect(lambda _i: _refresh_credit())
+        _refresh_credit()
 
         nasa_button = QPushButton("Download NASA imagery…")
         nasa_button.setToolTip(
@@ -651,6 +775,7 @@ class PreferencesDialog:
         def _save():
             set_theme(theme_combo.currentData())
             set_space_variant(space_combo.currentData())
+            set_cell_variant(cell_combo.currentData())
             set_font_scale(scale_slider.value() / 100.0)
             set_color_blind_mode(cb_combo.currentData())
             set_verbose_logging(verbose_check.isChecked())

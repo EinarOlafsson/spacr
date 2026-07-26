@@ -6,17 +6,30 @@ custom widgets and screens. Import `PALETTE` for programmatic access and
 `stylesheet()` for the Qt StyleSheet string to hand to
 `QApplication.setStyleSheet`.
 
-Three themes ship: ``"dark"``, ``"light"`` and ``"space"``. (Preferences
-also offers ``"system"``, which resolves to dark or light at runtime —
-it is not a palette of its own.) They are *themes*, not "modes":
-"dark mode" stopped being accurate the moment a third one existed.
+Four themes ship: ``"dark"``, ``"light"``, ``"space"`` and ``"cell"``.
+(Preferences also offers ``"system"``, which resolves to dark or light
+at runtime — it is not a palette of its own.) They are *themes*, not
+"modes": "dark mode" stopped being accurate the moment a third one
+existed.
 
-Space is a dark theme whose window background is a generated deep-space
-image (see :mod:`spacr.qt.space`). Panels, cards, inputs and dialogs are
-drawn as translucent dark scrims so text always lands on a readable
-surface while the imagery shows through the chrome and the empty areas.
-Every one of those scrims is contrast-checked against the *worst case*
-— a pure white star directly behind it — by :func:`contrast_failures`.
+Space and Cell are :data:`IMAGE_THEMES`: dark themes whose window
+background is a picture rather than a colour — a generated deep-space
+render or a downloaded photograph for Space (see :mod:`spacr.qt.space`),
+one of the user's own micrographs for Cell (see
+:mod:`spacr.qt.imagery`). Panels, cards, inputs and dialogs are drawn as
+translucent dark scrims so text always lands on a readable surface while
+the imagery shows through the chrome and the empty areas.
+
+Legibility over a picture is checked two ways, because the two failure
+modes are different:
+
+* :func:`contrast_failures` judges every scrim against the *worst case*
+  a background can present — a pure white pixel directly behind the
+  panel. Passing that means no image can ever make a panel unreadable.
+* :func:`image_contrast_failures` judges the roles that are painted
+  with **nothing** under them against a colour measured from the real
+  wallpaper. That is the case a scrim cannot help with, and
+  :func:`max_background_luma` is what the imagery pipeline dims to.
 """
 from __future__ import annotations
 
@@ -117,29 +130,84 @@ SPACE_PALETTE = {
 }
 
 
+# ---------------------------------------------------------------------------
+# Cell palette — a dark theme layered over the user's own micrographs.
+# ---------------------------------------------------------------------------
+# Same construction as Space (scrim colours, judged composited over a
+# white worst case), re-hued to the imagery: the microtubule network is
+# cyan and the filopodia are cyan-to-green, so a blue accent would fight
+# the picture and a warm one would clash with it.
+#
+# `accent`, `fg_muted` and `error` are *brighter* than their Space
+# counterparts on purpose. They are the roles that get painted straight
+# onto the wallpaper, so their luminance is what
+# :func:`max_background_luma` turns into the exposure the imagery is
+# allowed — a dim accent here would mean a needlessly murky background
+# everywhere. As set, the limit is 0.109 rather than Space's 0.059,
+# which is the difference between the microtubule frame reading as a
+# photograph and reading as a stain.
+CELL_PALETTE = {
+    "bg":          "#02080b",   # fallback flat field when no image is cached
+    "surface":     "#061218",
+    "surface_alt": "#0b1c23",
+    "surface_hi":  "#152d37",
+    "border":      "#33596a",
+    "border_soft": "#1d3a46",
+    "fg":          "#ffffff",
+    "fg_muted":    "#cfe0e6",
+    "fg_dim":      "#a3bbc4",
+    "accent":      "#8fe3f7",
+    "accent_hi":   "#b9f0ff",
+    "accent_lo":   "#4fb3cf",
+    "accent_soft": "#123742",
+    "success":     "#6fe39a",
+    "warning":     "#f2ca5c",
+    "error":       "#ff8f86",
+    "info":        "#8fe3f7",
+}
+
+
 #: The themes with a palette of their own. ``"system"`` is a
-#: *preference* value that resolves to one of these, not a fourth entry.
-THEMES = ("dark", "light", "space")
+#: *preference* value that resolves to one of these, not an entry here.
+THEMES = ("dark", "light", "space", "cell")
 
 _PALETTES = {
     "dark": PALETTE,
     "light": LIGHT_PALETTE,
     "space": SPACE_PALETTE,
+    "cell": CELL_PALETTE,
 }
+
+#: Themes whose window background is an image rather than a flat colour.
+#: They share one treatment — a transparent ``QWidget`` default so the
+#: picture is not covered by every child, translucent scrims on the
+#: panels, and opaque popups — so the QSS branches on membership here
+#: rather than on a theme name.
+IMAGE_THEMES = ("space", "cell")
 
 
 # ---------------------------------------------------------------------------
 # Scrims — per-theme opacity of each surface role
 # ---------------------------------------------------------------------------
-# Only Space is translucent. Everything else resolves to 1.0 and the QSS
-# emits plain hex, byte-identical to what it emitted before scrims
-# existed.
+# Only the image themes are translucent. Everything else resolves to 1.0
+# and the QSS emits plain hex, byte-identical to what it emitted before
+# scrims existed.
 #
 # `elevated` (menus, tooltips, combo popups) is deliberately opaque even
-# in Space: those are separate top-level windows, and a translucent
-# popup without a compositor shows the desktop, not the app.
+# there: those are separate top-level windows, and a translucent popup
+# without a compositor shows the desktop, not the app.
 SCRIM_ALPHA: Dict[str, Dict[str, float]] = {
     "space": {
+        "surface":     0.88,
+        "surface_alt": 0.90,
+        "surface_hi":  0.93,
+        "tile":        0.86,
+        "elevated":    1.00,
+    },
+    # Cell runs the same opacities. They were re-checked against
+    # CELL_PALETTE rather than assumed: `contrast_failures("cell")` is
+    # empty at these values, over a pure white worst case.
+    "cell": {
         "surface":     0.88,
         "surface_alt": 0.90,
         "surface_hi":  0.93,
@@ -288,11 +356,85 @@ def contrast_report(theme: str) -> List[dict]:
 
 def contrast_failures(theme: str) -> List[str]:
     """Human-readable description of every rule ``theme`` fails."""
+    return _describe(contrast_report(theme))
+
+
+def _describe(report: List[dict]) -> List[str]:
     return [
         f"{r['fg']} ({r['fg_color']}) on {r['bg']} ({r['bg_color']}): "
         f"{r['ratio']:.2f}:1 < {r['required']:.1f}:1"
-        for r in contrast_report(theme) if not r["passes"]
+        for r in report if not r["passes"]
     ]
+
+
+# ---------------------------------------------------------------------------
+# Contrast against a *background image*
+# ---------------------------------------------------------------------------
+# :func:`contrast_report` resolves the `bg` role to the palette's flat
+# fallback colour, which is right for the opaque themes and for the
+# gradient an image theme falls back to — but it is not what an image
+# theme actually shows. There, `bg` is the photograph, and text painted
+# with no surface under it (a hero subtitle, a tile caption, a ghost
+# button) lands on whatever pixels happen to be there.
+#
+# So the rules that name `bg` are the ones a wallpaper has to satisfy,
+# and they are read straight out of CONTRAST_RULES rather than restated
+# — a role added there is automatically enforced against the imagery.
+
+def _bare_image_rules() -> Tuple[Tuple[str, float], ...]:
+    return tuple((fg, required)
+                 for fg, surface, required in CONTRAST_RULES
+                 if surface == "bg")
+
+
+#: ``(foreground role, minimum ratio)`` for every role that can end up
+#: painted directly on the window background.
+BARE_IMAGE_RULES: Tuple[Tuple[str, float], ...] = _bare_image_rules()
+
+
+def max_background_luma(theme: str) -> float:
+    """Brightest a background image may be before ``theme`` fails AA.
+
+    Closed form, not a search: for a foreground of relative luminance
+    ``Lf`` and a required ratio ``r``, WCAG allows a background up to
+    ``(Lf + 0.05) / r - 0.05``. The answer is the tightest of those over
+    :data:`BARE_IMAGE_RULES`, and it is what
+    :func:`spacr.qt.imagery.solve_dim` expects as its target.
+    """
+    palette = palette_for(theme)
+    return min((relative_luminance(palette[role]) + 0.05) / required - 0.05
+               for role, required in BARE_IMAGE_RULES)
+
+
+def image_contrast_report(theme: str, under: str) -> List[dict]:
+    """Measured contrast for every rule, judged over a real image colour.
+
+    ``under`` is a colour sampled from the wallpaper — in practice the
+    mean of its brightest text-line-sized region, which is what
+    :func:`spacr.qt.imagery.brightest_window` returns. Rules naming the
+    ``bg`` surface are judged against it directly, because in an image
+    theme nothing is painted between the photograph and the text.
+    Everything else is judged against its scrim composited over it.
+    """
+    palette = palette_for(theme)
+    out: List[dict] = []
+    for fg_role, bg_role, required in CONTRAST_RULES:
+        fg_color = palette[fg_role]
+        bg_color = (under if bg_role == "bg"
+                    else effective_surface(theme, bg_role, under))
+        ratio = contrast_ratio(fg_color, bg_color)
+        out.append({
+            "fg": fg_role, "bg": bg_role,
+            "fg_color": fg_color, "bg_color": bg_color,
+            "ratio": ratio, "required": required,
+            "passes": ratio >= required,
+        })
+    return out
+
+
+def image_contrast_failures(theme: str, under: str) -> List[str]:
+    """Every rule ``theme`` fails over a wallpaper colour ``under``."""
+    return _describe(image_contrast_report(theme, under))
 
 
 # ---------------------------------------------------------------------------
@@ -408,15 +550,15 @@ def _qss_url(path) -> str:
 
 
 def _window_block(theme: str, P: dict, background, body_px: int) -> str:
-    """The base + top-level-window rules, which Space rewrites.
+    """The base + top-level-window rules, which image themes rewrite.
 
-    Space needs three things the opaque themes do not: a background
-    image on the window, ``QWidget`` transparent so the image is not
-    covered by every child, and each top-level window type explicitly
-    re-opaqued so a stray plain ``QWidget`` window does not render as a
-    hole.
+    An image theme needs three things the opaque themes do not: a
+    background image on the window, ``QWidget`` transparent so the image
+    is not covered by every child, and each top-level window type
+    explicitly re-opaqued so a stray plain ``QWidget`` window does not
+    render as a hole.
     """
-    if theme != "space":
+    if theme not in IMAGE_THEMES:
         return f"""QWidget {{
     background-color: {P["bg"]};
     color: {P["fg"]};
@@ -435,16 +577,17 @@ QMainWindow, QDialog {{
                '    background-repeat: no-repeat;')
     else:
         # No cached image (first run mid-generation, unwritable home,
-        # tests): a deep-space gradient. Dimmer than the real thing but
-        # every scrim, border and text colour still lands correctly, so
-        # the theme degrades to "plain dark blue" rather than to broken.
+        # a source build with the masters stripped, tests): a gradient
+        # in the theme's own hues. Dimmer than the real thing but every
+        # scrim, border and text colour still lands correctly, so the
+        # theme degrades to "plain dark" rather than to broken.
         sky = ("background-color: qlineargradient(\n"
                "        x1: 0, y1: 0, x2: 1, y2: 1,\n"
                f'        stop: 0 {P["surface"]}, stop: 0.55 {P["bg"]},\n'
                f'        stop: 1 {P["accent_soft"]});')
 
-    return f"""/* Space: the window paints the sky and every child is
-   transparent by default, so panels are the only opaque things and
+    return f"""/* Image theme: the window paints the picture and every child
+   is transparent by default, so panels are the only opaque things and
    the imagery shows through the gaps. */
 QWidget {{
     background-color: transparent;
@@ -470,9 +613,9 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
     :param theme: one of :data:`THEMES`; unknown values fall back to dark.
     :param font_scale: multiplier applied to every font size in
         :data:`FONT_SIZE`. 1.0 = 100 %.
-    :param background: path to a background image. Only the Space theme
-        uses it; ``None`` (the default, and what an offline first run
-        gets) falls back to a flat deep-space gradient.
+    :param background: path to a background image. Only the themes in
+        :data:`IMAGE_THEMES` use it; ``None`` (the default, and what a
+        first run mid-generation gets) falls back to a flat gradient.
     """
     base = palette_for(theme)
     S = SPACING
@@ -486,13 +629,14 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
         P[role] = css_color(base[role], scrim_alpha(theme, role))
     # Opaque variants for the places translucency would be wrong.
     ELEVATED = css_color(base["surface_alt"], scrim_alpha(theme, "elevated"))
-    TILE_BG = ("transparent" if theme != "space"
-               else css_color(base["surface"], scrim_alpha(theme, "tile")))
+    over_image = theme in IMAGE_THEMES
+    TILE_BG = (css_color(base["surface"], scrim_alpha(theme, "tile"))
+               if over_image else "transparent")
     # Scrollbar troughs and the group-box title notch paint over the
-    # window; in Space they must not be an opaque black block.
-    TROUGH = "transparent" if theme == "space" else base["bg"]
-    NOTCH = P["surface_alt"] if theme == "space" else base["bg"]
-    CONSOLE_BG = (P["surface_alt"] if theme == "space" else "#0a0b0d")
+    # window; over a photograph they must not be an opaque black block.
+    TROUGH = "transparent" if over_image else base["bg"]
+    NOTCH = P["surface_alt"] if over_image else base["bg"]
+    CONSOLE_BG = (P["surface_alt"] if over_image else "#0a0b0d")
     # Scaled font sizes so the "Font scale" preference actually
     # resizes the whole app, not just the base body text.
     F = {k: max(6, int(round(v * font_scale)))
