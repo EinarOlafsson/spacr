@@ -125,6 +125,13 @@ __all__ = [
     'missing_reader_message',
     'target_name',
     'assign_wells',
+    'normalise_well',
+    'well_sequence',
+    'plate_format_for_names',
+    'natural_key',
+    'off_plate_reason',
+    'DEFAULT_PLATE_FORMAT',
+    'WELL_SEQUENCES',
     'IMAGE_EXTENSIONS',
     'MAP_FILENAME',
     'MAP_COLUMNS',
@@ -167,13 +174,46 @@ Z_FIRST = 'first'
 #: Accepted ``z_handling`` values.
 Z_HANDLING: Tuple[str, ...] = (Z_KEEP, Z_MAX, Z_FIRST)
 
-#: 384-well row letters and column numbers, in assignment order.
+#: The plate :func:`assign_wells` uses when nothing in the source asks for
+#: a bigger one. Not a limit — see :func:`plate_format_for_names`, which
+#: grows to 1536 when a real well or the well *count* needs it. It is the
+#: default only so that a source of eight unnamed folders keeps producing
+#: ``A01…A08`` rather than being re-laid-out onto a 6-well plate.
+DEFAULT_PLATE_FORMAT = 384
+
+
+def well_sequence(n_wells: int = DEFAULT_PLATE_FORMAT) -> Tuple[str, ...]:
+    """Return every well id of an ``n_wells`` plate, row-major.
+
+    Built from :data:`spacr.schema.PLATE_FORMATS` and rendered by
+    :func:`spacr.schema.well_id`, so a 1536-well plate's rows past ``Z``
+    come out ``AA``…``AF`` and its columns run to 48. This module used to
+    carry its own ``'ABCDEFGHIJKLMNOP'`` and ``range(1, 25)``, which is
+    exactly why it could not name a well on a plate bigger than 384.
+
+    :param n_wells: a key of :data:`spacr.schema.PLATE_FORMATS`.
+    :returns: the well ids, ``A01`` first.
+    :raises ConfigurationError: for a non-standard plate format.
+    """
+    if n_wells not in schema.PLATE_FORMATS:
+        raise ConfigurationError(
+            f'{n_wells!r} is not a standard plate format; known formats are '
+            f'{sorted(schema.PLATE_FORMATS)}.')
+    n_rows, n_columns = schema.PLATE_FORMATS[n_wells]
+    return tuple(schema.well_id(row, column)
+                 for row in range(1, n_rows + 1)
+                 for column in range(1, n_columns + 1))
+
+
+#: ``n_wells -> every well id of that plate``, row-major — the order names
+#: are handed out in by :func:`assign_wells`.
+WELL_SEQUENCES: Dict[int, Tuple[str, ...]] = {
+    n_wells: well_sequence(n_wells) for n_wells in sorted(schema.PLATE_FORMATS)}
+
+#: The 384-well plate, kept under its old name for callers that imported it.
+WELL_SEQUENCE: Tuple[str, ...] = WELL_SEQUENCES[DEFAULT_PLATE_FORMAT]
 WELL_ROWS = 'ABCDEFGHIJKLMNOP'
 WELL_COLS = tuple(range(1, 25))
-#: Every well id of a 384-well plate, row-major — the order names are
-#: handed out in by :func:`assign_wells`.
-WELL_SEQUENCE: Tuple[str, ...] = tuple(
-    f'{row}{col:02d}' for row in WELL_ROWS for col in WELL_COLS)
 
 #: Well used when the layout has no well folder at all (a flat drop).
 DEFAULT_WELL = 'A01'
@@ -212,11 +252,10 @@ _Z_TOKEN = re.compile(r'(?i)(?<=[_\-. ])(?:z|zs|slice)[_\-]?(\d{1,4})(?=$|[_\-. 
 _T_TOKEN = re.compile(r'(?i)(?<=[_\-. ])(?:t|time|tp)[_\-]?(\d{1,5})(?=$|[_\-. ])')
 
 #: A name that already looks like Yokogawa output. Matched only to warn.
+#: One or two row letters and two-or-more column digits, because a 1536
+#: plate's wells are ``AA01`` and ``A48`` as well as ``A01``.
 _YOKO_NAME = re.compile(
-    r'(?i)^.+_[A-P]\d{2}_T\d{4}F\d{3}L\d{2}(A\d{2})?(Z\d{2})?C\d{2}$')
-
-#: Canonical well id, e.g. ``A01``, ``a1``, ``H-12``.
-_CANONICAL_WELL = re.compile(r'^([A-Pa-p])[ _\-]?(\d{1,2})$')
+    r'(?i)^.+_[A-Z]{1,2}\d{2,}_T\d{4}F\d{3}L\d{2}(A\d{2})?(Z\d{2})?C\d{2}$')
 
 
 # ---------------------------------------------------------------------------
@@ -320,6 +359,12 @@ def _natural_key(text: Any) -> Tuple[Tuple[int, str], ...]:
                  for p in parts)
 
 
+#: Public name for :func:`_natural_key`. :mod:`spacr.io` sorts its own
+#: synthetic well assignment with it, so the two converters hand out ids in
+#: the same order instead of each having an opinion.
+natural_key = _natural_key
+
+
 def _sanitise(token: str) -> str:
     """Return ``token`` reduced to characters that are safe in a filename.
 
@@ -374,62 +419,153 @@ def _strip_tokens(stem: str) -> Tuple[str, Optional[str], Optional[int], Optiona
     return (remaining or stem), channel, z_index, t_index
 
 
-def normalise_well(name: str) -> Optional[str]:
-    """Return ``name`` as a canonical ``A01`` well id, or None.
+def normalise_well(name: str, *, n_wells: Optional[int] = None) -> Optional[str]:
+    """Return ``name`` as a canonical well id (``A01``, ``AA48``), or None.
 
-    ``a1``, ``A-1`` and ``A01`` all normalise to ``A01``. Anything that
-    is not a 384-plate address (``wt``, ``KO_clone3``, ``P25``) returns
-    None and gets a synthetic id from :func:`assign_wells` instead.
+    ``a1``, ``A-1`` and ``A01`` all normalise to ``A01``; ``aa1`` gives
+    ``AA01``, which is a real well of a 1536-plate. Anything that is not a
+    well address at all (``wt``, ``KO_clone3``, ``fov01``) returns None and
+    gets a synthetic id from :func:`assign_wells` instead.
+
+    This used to be a private ``^([A-Pa-p])[ _\\-]?(\\d{1,2})$`` with an
+    extra ``1 <= column <= 24`` check, so ``Q01`` (row 17) and ``A25``
+    (column 25) — both perfectly good wells of the 1536-plate the heatmap
+    already draws — came back None and were *renamed* to the next free
+    synthetic address. :func:`spacr.schema.parse_well` is now the parser,
+    and :func:`spacr.schema.plate_format_for` decides whether the position
+    it produced is a well that exists.
+
+    :param name: the source well-folder name.
+    :param n_wells: restrict to one plate format, e.g. ``384``. The
+        default accepts any address that exists on *some* standard plate,
+        which is to say up to 1536.
+    :returns: the canonical well id, or None when ``name`` is not one.
     """
-    match = _CANONICAL_WELL.match(str(name).strip())
-    if match is None:
+    try:
+        row, column = schema.parse_well(str(name).strip(), strict=True)
+    except schema.WellParseError:
         return None
-    column = int(match.group(2))
-    if not 1 <= column <= 24:
+    plate_format = schema.plate_format_for(row, column)
+    if plate_format is None:
+        # Reads as a position (``ZZ99`` -> r702/c99) but no standard plate
+        # has it. See :func:`off_plate_reason`, which is what the plan says.
         return None
-    return f'{match.group(1).upper()}{column:02d}'
+    if n_wells is not None and plate_format > n_wells:
+        return None
+    return schema.well_id(row, column)
 
 
-def assign_wells(names: Sequence[str]) -> Dict[str, str]:
-    """Map arbitrary well-folder names onto 384-plate well ids.
+def off_plate_reason(name: str) -> Optional[str]:
+    """Say why ``name`` looks like a well but is not one, or return None.
+
+    The dangerous middle case. ``wt`` is obviously not a well and nobody is
+    surprised when it gets a synthetic address; ``ZZ99`` and ``A0`` *parse*
+    into a row and a column and then turn out to sit on no plate that
+    exists, so handing them a synthetic address silently is how a typo
+    becomes a well name nobody can trace.
+
+    :param name: the source well-folder name.
+    :returns: a sentence naming the name and the position it read as, or
+        None when the name either is a real well or is not well-shaped.
+    """
+    try:
+        row, column = schema.parse_well(str(name).strip(), strict=True)
+    except schema.WellParseError:
+        return None
+    if schema.plate_format_for(row, column) is not None:
+        return None
+    return (f'{name!r} reads as row {row} column {column}, which exists on no '
+            f'standard plate (known formats: '
+            f'{", ".join(str(n) for n in sorted(schema.PLATE_FORMATS))} '
+            f'wells)')
+
+
+def plate_format_for_names(n_names: int, wells: Sequence[str],
+                           minimum: int = DEFAULT_PLATE_FORMAT) -> Optional[int]:
+    """Return the plate format that has to be used for one plate's wells.
+
+    The smallest standard format that is at least ``minimum``, holds every
+    address in ``wells``, and has room for ``n_names`` distinct sources.
+    That second clause is the 1536 fix: one folder named ``AA01`` means the
+    plate *is* a 1536, whether or not there are 1536 of them.
+
+    :param n_names: how many distinct source names must be given a well.
+    :param wells: the canonical addresses already claimed by name.
+    :param minimum: never return a format smaller than this.
+    :returns: the well count of the format to use, or None when the names
+        fit no standard plate.
+    """
+    needed = int(minimum)
+    for well in wells:
+        row, column = schema.parse_well(well)
+        # normalise_well is what produced these, so plate_format_for cannot
+        # come back None here.
+        needed = max(needed, schema.plate_format_for(row, column))
+    for n_wells in sorted(schema.PLATE_FORMATS):
+        if n_wells >= needed and n_wells >= n_names:
+            return n_wells
+    return None
+
+
+def assign_wells(names: Sequence[str], *,
+                 n_wells: Optional[int] = None) -> Dict[str, str]:
+    """Map arbitrary well-folder names onto plate well ids.
 
     The rule, in full:
 
     1. A name that already *is* a well address keeps it —
-       :func:`normalise_well` handles ``a1`` / ``A-1`` / ``A01``.
-    2. Every other name is sorted with :func:`_natural_key` and handed
-       the next free id from ``A01, A02, … A24, B01, …``, skipping any
-       id claimed in step 1.
+       :func:`normalise_well` handles ``a1`` / ``A-1`` / ``A01`` / ``aa1``.
+    2. The plate format is chosen by :func:`plate_format_for_names`: 384
+       unless a claimed address or the sheer number of names needs the
+       1536, in which case rows run to ``AF`` and columns to 48.
+    3. Every remaining name is sorted with :func:`_natural_key` and handed
+       the next free id of that plate, skipping any id claimed in step 1.
 
-    Both halves are deterministic — the same folder names always produce
-    the same wells — and step 2 is only *reversible* because the map
-    file records ``source_well`` next to ``well``. Which is the point:
-    after conversion ``plate1_A01`` means nothing without the map.
+    All three are deterministic — the same folder names always produce the
+    same wells — and step 3 is only *reversible* because the map file
+    records ``source_well`` next to ``well``. Which is the point: after
+    conversion ``plate1_A01`` means nothing without the map, so
+    :func:`plan` also reports every synthetic assignment by name.
 
     :param names: the well-folder names found for one plate.
+    :param n_wells: force a plate format instead of choosing one.
     :returns: ``{original name: well id}``.
-    :raises ConfigurationError: when there are more distinct names than
-        a 384-well plate has wells.
+    :raises ConfigurationError: when the names fit no standard plate — the
+        real limit is 1536, not 384.
     """
     unique = sorted({str(n) for n in names}, key=_natural_key)
     assigned: Dict[str, str] = {}
     claimed = set()
     for name in unique:
-        canonical = normalise_well(name)
+        canonical = normalise_well(name, n_wells=n_wells)
         if canonical is not None:
             assigned[name] = canonical
             claimed.add(canonical)
-    free = (well for well in WELL_SEQUENCE if well not in claimed)
+
+    if n_wells is None:
+        plate_format = plate_format_for_names(len(unique), sorted(claimed))
+        limit = max(schema.PLATE_FORMATS)
+    else:
+        # well_sequence validates the format, so a non-standard n_wells is a
+        # ConfigurationError naming the known formats, not a KeyError.
+        limit = len(well_sequence(n_wells))
+        plate_format = n_wells if len(unique) <= limit else None
+    if plate_format is None:
+        n_rows, n_columns = schema.PLATE_FORMATS[limit]
+        raise ConfigurationError(
+            f'{len(unique)} distinct wells were found, but the largest plate '
+            f'available here has {limit} ({n_rows}x{n_columns}); split the '
+            f'source into more plate folders, or pass well_map= explicitly.')
+
+    free = (well for well in WELL_SEQUENCES[plate_format]
+            if well not in claimed)
     for name in unique:
         if name in assigned:
             continue
-        well = next(free, None)
-        if well is None:
-            raise ConfigurationError(
-                f'{len(unique)} wells were found but a 384-well plate only '
-                f'has {len(WELL_SEQUENCE)}; split the source into more '
-                f'plate folders, or pass well_map= explicitly.')
-        assigned[name] = well
+        # plate_format_for_names sized the plate to len(unique), and every
+        # claimed id is one of the names being counted, so the sequence
+        # cannot run dry before the names do.
+        assigned[name] = next(free)
     return assigned
 
 
@@ -1186,6 +1322,31 @@ def plan(sources: Sequence[SourceImage], z_handling: str = Z_KEEP,
             assigned = assign_wells(pending + sorted(claimed))
             for well_key in pending:
                 result.well_map[(plate_key, well_key)] = assigned[well_key]
+
+            # A synthetic address is never handed out silently. A name that
+            # is a well keeps it (including Q01 and A25, which a 1536 plate
+            # has and a 384 does not); everything else is listed here by
+            # name, and a name that *looks* like a well but sits on no plate
+            # at all is a warning of its own — that is the case where a typo
+            # turns into a well id nobody can trace back.
+            synthetic = [(key, assigned[key])
+                         for key in sorted(pending, key=_natural_key)
+                         if normalise_well(key) is None]
+            for name, well in synthetic:
+                reason = off_plate_reason(name)
+                if reason is not None:
+                    result.warnings.append(
+                        f'{reason}. It was given the synthetic address '
+                        f'{well}; the map file records the original name in '
+                        f'source_well.')
+            if synthetic:
+                listed = ', '.join(f'{name!r} -> {well}'
+                                   for name, well in synthetic)
+                result.notes.append(
+                    f'{len(synthetic)} source name(s) under {plate_key!r} are '
+                    f'not well addresses and were given a synthetic one: '
+                    f'{listed}. Only the map file\'s source_well column can '
+                    f'take that back.')
 
     # -- channels, per plate ----------------------------------------------
     for plate_key in plate_keys:

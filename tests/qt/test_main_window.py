@@ -1,4 +1,4 @@
-"""MainWindow + Sidebar + startup screen tests."""
+"""MainWindow + Sidebar + Home screen tests."""
 from __future__ import annotations
 
 import pytest
@@ -6,7 +6,7 @@ import pytest
 from PySide6.QtCore import Qt
 
 from spacr.qt.app import APPS, MainWindow, Sidebar, _icon_for_app
-from spacr.qt.screens.startup import StartupPage
+from spacr.qt.widgets.home import HomePage
 
 
 def test_apps_list_shape():
@@ -42,17 +42,17 @@ def test_main_window_constructs_and_switches(qtbot, qt_theme_applied):
     win._on_nav_selected("mask")
     assert win._stack.count() == starting_count + 1
     assert win._stack.currentWidget() is not None
-    # Switching back to Home selects the startup page.
+    # Switching back to Home selects the Home page.
     win._on_nav_selected("__home__")
     assert win._stack.currentWidget() is win._startup
 
 
-def test_startup_page_emits_tile_clicked(qtbot, qt_theme_applied):
+def test_home_page_emits_tile_clicked(qtbot, qt_theme_applied):
     from spacr.qt.widgets.tile import HTile
-    page = StartupPage(APPS, _icon_for_app)
+    page = HomePage(APPS, _icon_for_app)
     qtbot.addWidget(page)
     tiles = page.findChildren(HTile)
-    assert tiles, "startup page should render tiles"
+    assert tiles, "Home page should render tiles"
     with qtbot.waitSignal(page.tile_clicked, timeout=1000) as blocker:
         tiles[0].click()
     assert isinstance(blocker.args[0], str)

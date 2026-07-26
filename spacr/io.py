@@ -45,6 +45,13 @@ from pylibCZIrw import czi as pyczi
 # artifact it produced, instead of writing a silently-short result.
 from .errors import RunLedger, ConfigurationError, raise_if_strict
 
+# One definition of what a well is called. spacr.convert imports nothing
+# heavier than spacr.schema, so this costs nothing here, and it is the reason
+# the two Yokogawa converters below can name a well on a 1536-well plate:
+# they used to carry three hand-written copies of "ABCDEFGHIJKLMNOP" and
+# range(1, 25), which stop at P24.
+from . import convert as _cv
+
 def process_non_tif_non_2D_images(folder):
     """Split multi-dimensional or non-TIFF images in ``folder`` into per-channel TIFFs.
 
@@ -4794,14 +4801,53 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1):
 
     return os.path.join(dst, 'train'), os.path.join(dst, 'test')
 
+def _next_synthetic_yokogawa_well(used_wells, n_wells=384):
+    """Return the next free ``plate<N>_<well>`` id, and claim it.
+
+    Fills one plate before starting the next, and **never returns an id
+    that is already in** ``used_wells``. The version this replaces fell out
+    of its ``for`` loop and returned ``f"plate{plate}_A01"`` unconditionally,
+    so the 386th caller got ``plate2_A01`` a second time and its TIFF
+    overwrote the 385th's — 386 inputs, 385 outputs, nothing said.
+
+    :param used_wells: set of ids already handed out; mutated in place.
+    :param n_wells: plate format to fill, a key of
+        :data:`spacr.schema.PLATE_FORMATS`.
+    :returns: the claimed ``plate<N>_<well>`` id.
+    """
+    sequence = _cv.well_sequence(n_wells)
+    plate = 1
+    while True:
+        for well in sequence:
+            name = f"plate{plate}_{well}"
+            if name not in used_wells:
+                used_wells.add(name)
+                return name
+        plate += 1
+
+
 def convert_separate_files_to_yokogawa(folder, regex):
     """Rename per-slice TIFFs in ``folder`` into the Yokogawa CV filename convention.
 
     Files are grouped by ``(plateID, wellID, fieldID, timeID, chanID)``
     parsed from the regex. Groups with multiple Z-slices are max-
-    projected before saving; each unique source well is mapped to the
-    next unused Yokogawa well ID and the mapping is logged to
+    projected before saving, and the mapping is logged to
     ``rename_log.csv``.
+
+    Well naming, in full:
+
+    1. A ``wellID`` that **is** a well address keeps it —
+       :func:`spacr.convert.normalise_well` reads ``a1``, ``A-01``, ``Q01``
+       (row 17) and ``AA13`` (row 27) alike. Every one of those used to be
+       thrown away and replaced with the next free synthetic id, so a real
+       1536-plate came out relabelled ``A01, A02, …`` with only
+       ``rename_log.csv`` to say what had happened.
+    2. Anything else — ``1``, ``well_left``, a positional number — is
+       handed a synthetic id, in ``_natural_key`` order so the same folder
+       always converts the same way. It used to follow ``os.listdir`` order,
+       which is the filesystem's business and not reproducible.
+    3. Each distinct source ``plateID`` gets its own ``plate<N>`` token, so
+       well ``A01`` of two source plates stays two wells.
 
     :param folder: Folder containing the source TIFFs.
     :param regex: Pattern with named groups ``wellID`` (required) plus
@@ -4809,20 +4855,6 @@ def convert_separate_files_to_yokogawa(folder, regex):
         ``sliceID``.
     :returns: None
     """
-    ROWS = "ABCDEFGHIJKLMNOP"
-    COLS = [f"{i:02d}" for i in range(1, 25)]
-    WELLS = [f"{r}{c}" for r in ROWS for c in COLS]
-
-    def _get_next_well(used_wells):
-        plate = 1
-        for well in WELLS:
-            well_name = f"plate{plate}_{well}"
-            if well_name not in used_wells:
-                return well_name
-            if well == "P24":
-                plate += 1
-        return f"plate{plate}_A01"
-
     pattern = re.compile(regex, re.I)
 
     files_by_region = {}
@@ -4832,7 +4864,7 @@ def convert_separate_files_to_yokogawa(folder, regex):
     region_to_well = {}
 
     # Group files by (plateID, wellID, fieldID, timeID, chanID)
-    for file in os.listdir(folder):
+    for file in sorted(os.listdir(folder)):
         match = pattern.match(file)
         if not match:
             print(f"Skipping {file}: does not match regex.")
@@ -4858,14 +4890,44 @@ def convert_separate_files_to_yokogawa(folder, regex):
 
         files_by_region.setdefault(region_key, []).append((file, sliceID))
 
-    # Assign wells and process files per region
-    for region, file_list in files_by_region.items():
-        if region[:3] not in region_to_well:
-            next_well = _get_next_well(used_wells)
-            region_to_well[region[:3]] = next_well
-            used_wells.add(next_well)
+    # -- well assignment, before a single file is written ------------------
+    # A well is a well, not a field: keyed on (plateID, wellID) so the two
+    # fields of one well do not become two wells, which is what keying on
+    # (plateID, wellID, fieldID) did.
+    source_wells = sorted({region[:2] for region in files_by_region},
+                          key=lambda pair: (_cv.natural_key(pair[0]),
+                                            _cv.natural_key(pair[1])))
+    plate_tokens = {plate_key: f'plate{index}' for index, plate_key in enumerate(
+        sorted({plate_key for plate_key, _ in source_wells},
+               key=_cv.natural_key), start=1)}
 
-        assigned_well = region_to_well[region[:3]]
+    # Pass 1: every source well that is a real address keeps it. Sized to the
+    # plate the addresses actually need — a folder holding AA13 is a 1536.
+    canonical_wells = {}
+    for plate_key, well_key in source_wells:
+        canonical = _cv.normalise_well(well_key)
+        if canonical is not None:
+            canonical_wells[(plate_key, well_key)] = canonical
+    n_wells = _cv.plate_format_for_names(0, sorted(set(canonical_wells.values())))
+
+    for key, canonical in canonical_wells.items():
+        name = f'{plate_tokens[key[0]]}_{canonical}'
+        if name in used_wells:
+            continue        # two source names for one address; pass 2 splits them
+        region_to_well[key] = name
+        used_wells.add(name)
+
+    # Pass 2: the rest, deterministically, skipping everything pass 1 claimed.
+    for key in source_wells:
+        if key in region_to_well:
+            continue
+        region_to_well[key] = _next_synthetic_yokogawa_well(used_wells, n_wells)
+        print(f"Well {key[1]!r} is not a plate address; converted as "
+              f"{region_to_well[key]} (see {os.path.basename(csv_path)}).")
+
+    # Process files per region
+    for region, file_list in files_by_region.items():
+        assigned_well = region_to_well[region[:2]]
         plateID, wellID, fieldID, timeID, chanID = region
 
         # Check if multiple slices exist and are meaningful
@@ -4917,27 +4979,19 @@ def convert_to_yokogawa(folder):
     """
 
     def _get_next_well(used_wells):
+        """Return the next free well, filling one plate before the next.
+
+        The well ids come from :func:`spacr.convert.well_sequence`, which
+        builds them out of :data:`spacr.schema.PLATE_FORMATS` — one
+        definition instead of the three copies of ``"ABCDEFGHIJKLMNOP"`` and
+        ``range(1, 25)`` this module used to carry.
+
+        The plate format stays 384 here: unlike
+        :func:`convert_separate_files_to_yokogawa`, the inputs carry no well
+        names at all, so nothing in them can ask for a bigger plate and the
+        addresses are synthetic either way.
         """
-        Determines the next available well position across multiple 384-well plates.
-        """
-        ROWS = "ABCDEFGHIJKLMNOP"
-        COLS = [f"{i:02d}" for i in range(1, 25)]
-        WELLS = [f"{r}{c}" for r in ROWS for c in COLS]
-
-        plate = 1
-        while True:
-            for well in WELLS:
-                well_name = f"plate{plate}_{well}"
-                if well_name not in used_wells:
-                    used_wells.add(well_name)
-                    return well_name
-            plate += 1  # All wells exhausted in current plate, increment to next plate
-
-
-    # Define 384-well plate format
-    ROWS = "ABCDEFGHIJKLMNOP"
-    COLS = [f"{i:02d}" for i in range(1, 25)]
-    WELLS = [f"{r}{c}" for r in ROWS for c in COLS]
+        return _next_synthetic_yokogawa_well(used_wells, 384)
 
     filenames = []
     rename_log = []
@@ -4948,7 +5002,7 @@ def convert_to_yokogawa(folder):
     # **Dictionary to store well assignments per original file**
     file_to_well = {}
 
-    for file in os.listdir(folder):
+    for file in sorted(os.listdir(folder)):
         path = os.path.join(folder, file)
         ext = file.lower().split('.')[-1]
 

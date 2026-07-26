@@ -30,7 +30,7 @@ from spacr.qt.app import (
     Sidebar,
     _icon_for_app,
 )
-from spacr.qt.screens.startup import StartupPage
+from spacr.qt.widgets.home import HomePage
 from spacr.qt.widgets.tile import HTile
 
 
@@ -71,7 +71,7 @@ def home(request, qapp, qt_theme_applied):
     theme = request.param
     qss = stylesheet(theme)
 
-    page = StartupPage(APPS, _icon_for_app)
+    page = HomePage(APPS, _icon_for_app)
     page.setStyleSheet(qss)
     page.resize(1400, 900)
     page.show()
@@ -89,7 +89,7 @@ def home(request, qapp, qt_theme_applied):
     qapp.processEvents()
 
 
-def _tiles_by_name(page: StartupPage) -> dict:
+def _tiles_by_name(page: HomePage) -> dict:
     return {t.text_label: t for t in page.findChildren(HTile)}
 
 
@@ -241,8 +241,8 @@ def test_a_pathologically_long_name_elides_instead_of_clipping(
     from spacr.qt.app import SECTION_CORE
 
     long_name = "Extremely Long Hypothetical Module Name For Testing"
-    page = StartupPage([("mask", long_name, "desc", SECTION_CORE)],
-                       _icon_for_app)
+    page = HomePage([("mask", long_name, "desc", SECTION_CORE)],
+                    _icon_for_app)
     qtbot.addWidget(page)
     page.resize(1400, 600)
     page.show()
@@ -256,8 +256,10 @@ def test_a_pathologically_long_name_elides_instead_of_clipping(
     assert label.full_text() == long_name
     assert label.toolTip() == long_name
     # And the tile did not stretch across the whole page to fit it.
+    # The dense Home tile has a hard maximum; the page it replaced had
+    # TILE_CAP_W, which served the same purpose for a row of scrollers.
     from spacr.qt.preferences import scaled_px
-    assert tile.width() <= scaled_px(StartupPage.TILE_CAP_W)
+    assert tile.width() <= scaled_px(HomePage.DENSE_TILE_MAX_W)
 
 
 def test_nothing_clips_at_a_150_percent_font_scale(qtbot, qapp, monkeypatch):
@@ -272,7 +274,7 @@ def test_nothing_clips_at_a_150_percent_font_scale(qtbot, qapp, monkeypatch):
     monkeypatch.setattr(prefs, "get_font_scale", lambda: 1.5)
     qss = stylesheet("dark", 1.5)
 
-    page = StartupPage(APPS, _icon_for_app)
+    page = HomePage(APPS, _icon_for_app)
     qtbot.addWidget(page)
     page.setStyleSheet(qss)
     page.resize(1800, 1200)
@@ -298,12 +300,25 @@ def test_nothing_clips_at_a_150_percent_font_scale(qtbot, qapp, monkeypatch):
 
 
 def test_tile_width_tracks_the_name_it_has_to_draw(home):
-    """A longer name gets a wider tile — that is the actual fix."""
+    """A longer name asks for more room — that is the actual fix.
+
+    ``HTile.sizeHint()`` measures the child ``QLabel`` that paints the
+    name, not just the button's own text; ``required_width()`` is that
+    measurement. The page this test was written against turned it
+    straight into a per-tile width, because each section was a
+    horizontal scroller. Home now lays the tiles out in a uniform grid,
+    so the requirement is satisfied by the *column* rather than by the
+    individual tile — which is why the second assertion is that every
+    tile is at least as wide as the widest name needs, not that one
+    tile is wider than another.
+    """
     _theme, page, _bar = home
     tiles = _tiles_by_name(page)
     short, long = tiles["Mask"], tiles["Annotator Agreement"]
-    assert long.width() > short.width()
     assert long.required_width() > short.required_width()
+    assert long.width() >= long.required_width(), (
+        f"'Annotator Agreement' needs {long.required_width()}px and the "
+        f"grid gave it {long.width()}px")
 
 
 # ---------------------------------------------------------------------------

@@ -99,7 +99,7 @@ class Module:
     :param summary: one line for ``--list``.
     :param entry: ``"module:function"`` of the callable that does the work.
     :param defaults: name of the ``spacr.settings`` helper that fills the
-        defaults, or ``None`` when the pipeline has none.
+        defaults, or ``None`` when the pipeline has none there.
     :param validate_key: app key understood by :mod:`spacr.validate`; empty
         when that module has no specific rules and only generic checks apply.
     :param requires: settings that must be supplied, phrased for a human.
@@ -107,6 +107,12 @@ class Module:
     :param call_style: ``"settings"`` for ``fn(settings_dict)``; ``"folder"``
         for the one entry point that takes a bare path.
     :param note: caveat worth printing in ``--describe``.
+    :param defaults_entry: ``"module:function"`` of a defaults helper that does
+        **not** live in :mod:`spacr.settings`. Two pipelines keep their own
+        (``spacr.foreign.default_settings``, ``spacr.convert.default_settings``)
+        because their keys are theirs alone; without this the CLI would resolve
+        an empty defaults dict for them, and ``--set`` would then reject every
+        one of their keys as a setting that does not exist.
     """
 
     key: str
@@ -118,6 +124,7 @@ class Module:
     writes: Tuple[str, ...] = ()
     call_style: str = "settings"
     note: str = ""
+    defaults_entry: str = ""
 
     @property
     def module_name(self) -> str:
@@ -128,6 +135,15 @@ class Module:
     def func_name(self) -> str:
         """Attribute name of the callable inside :attr:`module_name`."""
         return self.entry.split(":", 1)[1]
+
+    @property
+    def defaults_label(self) -> str:
+        """How ``--describe`` names this module's defaults helper."""
+        if self.defaults_entry:
+            return self.defaults_entry.replace(":", ".") + "()"
+        if self.defaults:
+            return f"spacr.settings.{self.defaults}()"
+        return ""
 
 
 # The mapping below is not invented: every entry is a callable that some
@@ -140,6 +156,14 @@ class Module:
 # and the defaults helper for each is the one the pipeline itself calls to
 # canonicalize its settings (grep "from .settings import" in the target
 # module), not the one a GUI screen happens to show.
+#
+# Every app in spacr.qt.app.APPS is either here or in INTERACTIVE_ONLY below,
+# and tests/test_app_registry_parity.py fails when one is in neither. Three
+# were in neither until that test was written: `invasion` and `replication`
+# (both Toxo assays with a Qt button, a settings panel and a submodules entry
+# point, but no `spacr-run`) and `foreign`, which even had a validate entry.
+# An app that ships with a GUI button and no headless path is an app nobody
+# can run on a cluster, and nothing said so.
 _MODULE_LIST: Tuple[Module, ...] = (
     Module(
         key="mask",
@@ -193,6 +217,24 @@ _MODULE_LIST: Tuple[Module, ...] = (
         requires=("src — folder of .npy/.tif tiles",),
         writes=("<dst>/<plate>_<well>_stitched.npy — the stitched canvas",
                 "align_coordinates in measurements.db when db_path is set"),
+    ),
+    Module(
+        key="foreign",
+        summary="Import someone else's images, masks and measurement table as a spaCR project.",
+        entry="spacr.foreign:import_project",
+        defaults=None,
+        defaults_entry="spacr.foreign:default_settings",
+        validate_key="foreign",
+        requires=("images — their folder of images",
+                  "masks — their mask folder, or a list of them",
+                  "measurements — their measurement table (CSV / TSV / sqlite)",
+                  "column_map — a reviewed map file from a preview_only run"),
+        writes=("<dst>/ (default <images>_spacr) — a spaCR project: renamed images, "
+                "masks, and measurements.db with their columns mapped onto spaCR's",),
+        note=("Takes 'images', not 'src' — there is no spaCR project yet. Run "
+              "it once with --set preview_only=True: that prints the column "
+              "mapping and the join counts, writes nothing, and is the only way "
+              "to see what a column_map would have to fix."),
     ),
     Module(
         key="classify",
@@ -284,6 +326,55 @@ _MODULE_LIST: Tuple[Module, ...] = (
         writes=("recruitment figures and per-condition CSVs next to src",),
     ),
     Module(
+        key="invasion",
+        summary="Red/green invasion assay: score every parasite attached or invaded, per well.",
+        entry="spacr.submodules:analyze_invasion",
+        defaults="set_analyze_invasion_defaults",
+        validate_key="invasion",
+        requires=("src — plate folder holding measurements/measurements.db",
+                  "outside_channel / total_channel — the pre- and "
+                  "post-permeabilisation stain channels",
+                  "pathogen_types + pathogen_plate_metadata — which wells are "
+                  "which condition",
+                  "control_wells — wells whose parasites carry no outside stain, "
+                  "if you have them"),
+        writes=("<src>/results/analyze_invasion/parasite_calls.csv, "
+                "field_thresholds.csv, well_invasion.csv, condition_summary.csv, "
+                "condition_comparisons.csv, chi_squared_results.csv",
+                "<src>/results/analyze_invasion/invasion_per_well.pdf and "
+                "invasion_by_condition.pdf",
+                "<src>/settings/analyze_invasion.csv"),
+        note=("'Invaded' is defined by the ABSENCE of outside stain, so every "
+              "staining or focus failure inflates invasion efficiency and "
+              "nothing pushes it the other way. Headless, set control_wells: "
+              "the threshold is then a quantile of a real negative "
+              "distribution rather than an Otsu cut on whatever the field "
+              "happened to contain, and threshold_source says which you got."),
+    ),
+    Module(
+        key="replication",
+        summary="Endodyogeny: bin pathogen size by log2 doublings and test the bins per group.",
+        entry="spacr.submodules:analyze_endodyogeny",
+        defaults="set_analyze_endodyogeny_defaults",
+        validate_key="replication",
+        requires=("src — plate folder holding measurements/measurements.db",
+                  "cell_types / pathogen_types / treatments and their "
+                  "*_plate_metadata well maps, which define group_column",
+                  "um_per_px — the pixel size the bins are computed in"),
+        writes=("<src>/results/analyze_endodyogeny/data.csv, "
+                "chi_squared_results.csv, chi_squared_pairwise_results.csv",
+                "<src>/results/analyze_endodyogeny/chi_squared_results.pdf",
+                "<src>/settings/analyze_endodyogeny.csv"),
+        note=("save defaults to False, and headless there is nobody to look at "
+              "the figure — pass --set save=True or a batch run writes nothing. "
+              "This is the SIZE-PROXY readout: rows come from "
+              "spacr.io._read_and_merge_data collapsed onto the host cell, so a "
+              "bin is a doubling of area**1.5 summed over every parasite in that "
+              "cell, not a parasite count. Use spacr.submodules"
+              ".analyze_replication when the parasites are individually "
+              "resolvable."),
+    ),
+    Module(
         key="analyze_plaques",
         summary="Segment and quantify plaques in a plaque assay.",
         entry="spacr.submodules:analyze_plaques",
@@ -370,6 +461,17 @@ ALIASES: Dict[str, str] = {
     "embedding": "umap",
     "perform_regression": "regression",
     "analyze_recruitment": "recruitment",
+    "analyze_invasion": "invasion",
+    "invasion_assay": "invasion",
+    # NOT 'analyze_replication': that is a different function in
+    # spacr.submodules, which counts parasites per vacuole. The Replication
+    # Assay app runs analyze_endodyogeny, the size-proxy readout, and pointing
+    # one name at the other would silently swap the assay.
+    "analyze_endodyogeny": "replication",
+    "endodyogeny": "replication",
+    "replication_assay": "replication",
+    "import_project": "foreign",
+    "foreign_import": "foreign",
     "plaques": "analyze_plaques",
     "plaque": "analyze_plaques",
     "motility_assay": "motility",
@@ -445,18 +547,29 @@ def _unknown_module_message(name: str) -> str:
 def module_defaults(module: Module) -> Dict[str, Any]:
     """Return a fresh defaults dict for ``module``.
 
-    Calls the same ``spacr.settings`` helper the pipeline itself uses to
-    canonicalize its settings, so the resolved dict the CLI prints is the one
-    the pipeline will see.
+    Calls the same helper the pipeline itself uses to canonicalize its
+    settings, so the resolved dict the CLI prints is the one the pipeline will
+    see. That is usually a :mod:`spacr.settings` function
+    (:attr:`Module.defaults`); for the pipelines that keep their own it is
+    :attr:`Module.defaults_entry`, imported here rather than at module load so
+    ``--list`` stays instant.
 
     :param module: the module whose defaults are wanted.
     :returns: dict of defaults; empty when the pipeline has no helper.
     """
-    if not module.defaults:
-        return {}
-    from . import settings as _settings
+    fn = None
+    if module.defaults_entry:
+        target, _, name = module.defaults_entry.partition(":")
+        try:
+            fn = getattr(importlib.import_module(target), name, None)
+        except Exception:
+            # A missing optional dependency must not break --describe; the run
+            # itself will fail loudly in import_entry with a real message.
+            return {}
+    elif module.defaults:
+        from . import settings as _settings
 
-    fn = getattr(_settings, module.defaults, None)
+        fn = getattr(_settings, module.defaults, None)
     if fn is None:
         return {}
     try:
@@ -610,20 +723,35 @@ _TYPE_OVERRIDES: Dict[str, Tuple[type, ...]] = {
     "save": (bool, list),
 }
 
+# Per-module narrowings, for keys whose name two pipelines share. Mirrors
+# _APP_TYPE_OVERRIDES in spacr.validate for the same reason as above, and
+# tests/test_app_registry_parity.py asserts the two are equal so the mirror
+# cannot rot: `masks` is declared bool in expected_types (the mask pipeline's
+# save switch), but spacr.foreign.import_project takes it as their mask folder,
+# so `--set masks=/their/masks` was rejected as "cannot be read as bool".
+_APP_TYPE_OVERRIDES: Dict[str, Dict[str, Tuple[type, ...]]] = {
+    "foreign": {"masks": (str, list)},
+}
+
 _TRUE_WORDS = frozenset({"true", "t", "yes", "y", "on", "1"})
 _FALSE_WORDS = frozenset({"false", "f", "no", "n", "off", "0"})
 _NONE_WORDS = frozenset({"none", "null", "nil", ""})
 
 
-def _allowed_types(key: str, current: Any, expected_types: Mapping[str, Any]) -> Tuple[type, ...]:
+def _allowed_types(key: str, current: Any, expected_types: Mapping[str, Any],
+                   app: str = "") -> Tuple[type, ...]:
     """Types ``key`` may take, from ``expected_types`` or the current value.
 
     :param key: settings key being overridden.
     :param current: the value the key holds before the override, used to infer
         a type for keys that ``expected_types`` does not declare.
     :param expected_types: :data:`spacr.settings.expected_types`.
+    :param app: module key, for the per-module narrowings above.
     :returns: tuple of types; empty means "anything, parse it literally".
     """
+    per_app = _APP_TYPE_OVERRIDES.get(app, {})
+    if key in per_app:
+        return per_app[key]
     if key in _TYPE_OVERRIDES:
         return _TYPE_OVERRIDES[key]
     if key in expected_types:
@@ -680,7 +808,7 @@ def _type_label(types: Sequence[type]) -> str:
 
 
 def coerce_value(key: str, text: str, current: Any,
-                 expected_types: Mapping[str, Any]) -> Any:
+                 expected_types: Mapping[str, Any], app: str = "") -> Any:
     """Coerce a ``--set key=value`` string into the type the setting expects.
 
     The type comes from :data:`spacr.settings.expected_types` when the key is
@@ -693,10 +821,12 @@ def coerce_value(key: str, text: str, current: Any,
     :param text: the raw text after the first ``=``.
     :param current: the value ``key`` holds before the override.
     :param expected_types: :data:`spacr.settings.expected_types`.
+    :param app: module key, so a key two pipelines share is read as the module
+        being run means it (see :data:`_APP_TYPE_OVERRIDES`).
     :returns: the coerced value.
     :raises SettingsError: when ``text`` is not a legal value for ``key``.
     """
-    types = _allowed_types(key, current, expected_types)
+    types = _allowed_types(key, current, expected_types, app)
     stripped = text.strip()
     lowered = stripped.lower()
     allow = (lambda t: True) if not types else (lambda t: t in types)
@@ -802,7 +932,8 @@ def apply_overrides(settings: Dict[str, Any], overrides: Sequence[str],
                 f"'{key}'.{hint}\n"
                 f"  Run 'spacr-run --describe {module.key if module else '<module>'}' "
                 f"to list the settings this module accepts.")
-        settings[key] = coerce_value(key, text, settings.get(key), expected_types)
+        settings[key] = coerce_value(key, text, settings.get(key), expected_types,
+                                     module.key if module is not None else "")
     return settings
 
 
@@ -993,8 +1124,8 @@ def render_module_description(module: Module) -> str:
     lines.append(f"  runs        {module.module_name}.{module.func_name}(settings)"
                  if module.call_style == "settings" else
                  f"  runs        {module.module_name}.{module.func_name}(settings['src'])")
-    lines.append(f"  defaults    spacr.settings.{module.defaults}()"
-                 if module.defaults else
+    lines.append(f"  defaults    {module.defaults_label}"
+                 if module.defaults_label else
                  "  defaults    none — every setting must come from the settings file")
     lines.append(f"  pre-flight  spacr.validate rules for '{module.validate_key}'"
                  if module.validate_key else

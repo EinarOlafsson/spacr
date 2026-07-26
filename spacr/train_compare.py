@@ -32,7 +32,13 @@ the ``dst`` level.
 
 The settings that produced a run are *not* in the run folder: ``save_settings``
 writes them to ``<src>/settings/train_test_<model_type>_<epochs>.csv`` as a
-``Key,Value`` CSV. :func:`load_run` walks up from the run folder to find it.
+``Key,Value`` CSV. :func:`load_run` walks up from the run folder to find it —
+but only as far as the run's own project root, which the layout above makes
+identifiable: ``<src>`` is the folder the ``model/`` tree hangs off. An
+ancestor above that belongs to a different project, and reading it would report
+somebody else's settings as this run's provenance, so the settings diff would
+show differences nobody configured and the answer would depend on where in the
+filesystem the project happened to sit. See :func:`_owns_this_run`.
 
 Judgement calls baked in
 ------------------------
@@ -187,7 +193,17 @@ ENV_KEY_TOKENS = frozenset({
 })
 
 #: How many parent folders :func:`load_run` climbs looking for ``settings/``.
+#: Five is the deepest a real run sits below its project root
+#: (``<src>/model/<model_type>/<channels>/epochs_<N>/fold_<i>``); the sixth is
+#: slack. Which of those ancestors may actually be *read* is decided by
+#: :func:`_owns_this_run`, not by this number.
 _SETTINGS_SEARCH_DEPTH = 6
+
+#: The directory :func:`spacr.deep_spacr.train_test_model` roots every run
+#: under — ``dst = <src>/model/<model_type>/<channels>/epochs_<N>``. It is what
+#: makes the project root identifiable from the run folder alone, and so what
+#: bounds the settings climb; see :func:`_owns_this_run`.
+_RUN_TREE_ROOT_DIR = "model"
 
 #: Default recursion depth for :func:`find_runs`.
 DEFAULT_SCAN_DEPTH = 6
@@ -552,12 +568,10 @@ def _read_curve_csv(path: Path) -> Tuple[Optional[pd.DataFrame], List[str]]:
 def _is_outside_any_project(node: Path) -> bool:
     """True when ``node`` is too high up to be a spaCR project folder.
 
-    The settings climb walks parents looking for ``<ancestor>/settings/*.csv``.
-    Left unbounded it reaches the filesystem root, the user's home and the
-    system temp directory — none of which is ever a project, and any of which
-    might hold an unrelated ``settings/`` folder that would then be reported as
-    this run's provenance. That is worse than reporting none, because the
-    settings diff would show differences that were never configured.
+    A hard backstop on the settings climb, underneath the ownership rule in
+    :func:`_owns_this_run`: the filesystem root, the user's home and the system
+    temp directory are never a project, so the walk stops there whatever the
+    layout looks like.
 
     :param node: a candidate ancestor directory.
     :returns: True to stop climbing.
@@ -578,14 +592,47 @@ def _is_outside_any_project(node: Path) -> bool:
     return resolved in stops
 
 
+def _owns_this_run(child: Path, steps: int) -> bool:
+    """True when the ancestor just stepped onto could hold *this* run's settings.
+
+    ``child`` is the directory the climb came up out of and ``steps`` is how far
+    it has climbed, so the ancestor under test is ``child.parent``. Two — and
+    only two — ancestors can own a run:
+
+    * ``steps == 1``: the run folder's own parent. Whatever the layout,
+      ``<x>/settings`` beside ``<x>/<run>`` is the folder
+      :func:`spacr.utils.save_settings` wrote for a run whose ``dst`` is that
+      run folder.
+    * the project root of the training output tree, which
+      :func:`spacr.deep_spacr.train_test_model` builds as
+      ``<src>/model/<model_type>/<channels>/epochs_<N>`` (plus ``fold_<i>`` for
+      a k-fold run). ``src`` is therefore the ancestor the climb enters by
+      stepping up out of :data:`_RUN_TREE_ROOT_DIR`, and that is the *only*
+      other one, because ``save_settings`` writes ``<src>/settings``.
+
+    Everything above those is somebody else's directory. Accepting it is not a
+    harmless miss: the settings diff would report differences that were never
+    configured, and the reported provenance would depend on where in the
+    filesystem the project happens to sit — a run under ``/data/plate1``
+    picking up ``/data/settings/*.csv`` from an unrelated pipeline. No settings
+    is better than someone else's.
+
+    :param child: the directory the climb has just left.
+    :param steps: 1 for the run folder's parent, 2 for its grandparent, ...
+    :returns: True when ``child.parent`` may be searched for ``settings/``.
+    """
+    return steps == 1 or child.name == _RUN_TREE_ROOT_DIR
+
+
 def _load_settings(path: Path) -> Tuple[Dict[str, Any], str, List[str]]:
     """Recover the settings that produced the run in ``path``.
 
     Looks, in order: a run-journal ``settings.json`` / ``settings.csv`` inside
-    the folder, then ``<ancestor>/settings/*.csv`` climbing up to
-    :data:`_SETTINGS_SEARCH_DEPTH` parents — which is where
+    the folder, then ``<ancestor>/settings/*.csv`` — where
     :func:`spacr.utils.save_settings` puts a training snapshot
-    (``<src>/settings/train_test_<model_type>_<epochs>.csv``).
+    (``<src>/settings/train_test_<model_type>_<epochs>.csv``) — for the
+    ancestors :func:`_owns_this_run` accepts, within
+    :data:`_SETTINGS_SEARCH_DEPTH` parents.
     """
     notes: List[str] = []
 
@@ -609,15 +656,17 @@ def _load_settings(path: Path) -> Tuple[Dict[str, Any], str, List[str]]:
 
     model_type, epochs = _run_shape_from_path(path)
     node = path
-    for _ in range(_SETTINGS_SEARCH_DEPTH):
-        node = node.parent
+    for steps in range(1, _SETTINGS_SEARCH_DEPTH + 1):
+        node, child = node.parent, node
         if _is_outside_any_project(node):
-            # The climb has left anything that could be a spaCR project. A run
-            # at ~/data/plate1/model/<mt>/<ch>/epochs_5 reaches ~/data, then
-            # ~, then /home, then / inside the search depth — and a settings/
-            # folder in any of those would be reported as THIS run's
-            # provenance. No settings is better than someone else's.
+            # Backstop: the climb has left anything that could be a spaCR
+            # project at all (root / home / the temp directory).
             break
+        if not _owns_this_run(child, steps):
+            # An ancestor that cannot have written this run's snapshot. Keep
+            # climbing — <src> is still four or five steps up a training tree —
+            # but do not read what is in this one.
+            continue
         sdir = node / "settings"
         if not sdir.is_dir():
             continue
@@ -640,8 +689,9 @@ def _load_settings(path: Path) -> Tuple[Dict[str, Any], str, List[str]]:
         return settings, str(picked), notes
 
     notes.append("no settings found (looked for settings.json/settings.csv in "
-                 "the run folder and <parent>/settings/*.csv above it) — this "
-                 "run is excluded from the settings diff")
+                 "the run folder, settings/*.csv beside it, and "
+                 "<src>/settings/*.csv at the root of this run's model/ tree) "
+                 "— this run is excluded from the settings diff")
     return {}, "", notes
 
 

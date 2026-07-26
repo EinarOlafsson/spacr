@@ -55,7 +55,7 @@ from spacr.qt.app import (
     _icon_for_app,
     _load_bundled_fonts,
 )
-from spacr.qt.screens.startup import StartupPage
+from spacr.qt.widgets.home import HomePage
 from spacr.qt.widgets.tile import HTile
 
 
@@ -156,7 +156,7 @@ def _img(icon: QIcon, px: int = 24):
     return icon.pixmap(px, px).toImage()
 
 
-def _tiles(page: StartupPage) -> dict:
+def _tiles(page: HomePage) -> dict:
     return {t.text_label: t for t in page.findChildren(HTile)}
 
 
@@ -389,7 +389,7 @@ def test_no_shipping_sidebar_label_is_clipped(qtbot, qapp, qt_theme_applied):
 
 @pytest.fixture(scope="module")
 def home_page(qapp, qt_theme_applied):
-    page = StartupPage(APPS, _icon_for_app)
+    page = HomePage(APPS, _icon_for_app)
     page.resize(1500, 950)
     page.show()
     qapp.processEvents()
@@ -430,18 +430,26 @@ def test_todays_names_all_fit_without_eliding(home_page):
 
 
 def test_a_tile_is_as_wide_as_the_name_it_has_to_draw(home_page):
+    """The longest name asks for more, and gets at least what it asks.
+
+    Home lays its tiles out in a uniform grid, so a longer name no
+    longer produces a visibly wider tile than its neighbour — the
+    column carries the requirement for all of them. What still has to
+    hold, and is what the original bug broke, is that the requirement
+    reaches the layout at all.
+    """
     tiles = _tiles(home_page)
-    assert tiles["Annotator Agreement"].width() > tiles["Mask"].width()
-    assert (tiles["Annotator Agreement"].required_width()
-            > tiles["Mask"].required_width())
+    longest = tiles["Annotator Agreement"]
+    assert longest.required_width() > tiles["Mask"].required_width()
+    assert longest.width() >= longest.required_width()
 
 
 def test_an_unfittable_name_elides_and_keeps_the_row_sane(
         qtbot, qt_theme_applied):
     from spacr.qt.preferences import scaled_px
     long_name = "Extremely Long Hypothetical Module Name For Testing"
-    page = StartupPage([("mask", long_name, "d", SECTION_CORE)],
-                       _icon_for_app)
+    page = HomePage([("mask", long_name, "d", SECTION_CORE)],
+                    _icon_for_app)
     qtbot.addWidget(page)
     page.resize(1400, 600)
     page.show()
@@ -452,7 +460,7 @@ def test_an_unfittable_name_elides_and_keeps_the_row_sane(
     assert "…" in label.text() and label.text() != long_name
     assert label.full_text() == long_name == label.toolTip()
     assert page.findChildren(HTile)[0].width() <= scaled_px(
-        StartupPage.TILE_CAP_W)
+        HomePage.DENSE_TILE_MAX_W)
 
 
 # ===========================================================================
