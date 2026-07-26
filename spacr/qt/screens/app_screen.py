@@ -167,6 +167,7 @@ APP_TITLES = {
     "activation":      "Activation Maps",
     "analyze_plaques": "Plaque Analysis",
     "invasion":        "Invasion Assay",
+    "replication":     "Replication Assay",
     "annotate":        "Annotate",
     "make_masks":      "Make Masks",
     "db_browser":      "Database Browser",
@@ -214,6 +215,7 @@ APP_INTROS = {
     "analyze_plaques": "Detect and quantify plaques in plaque-assay images.",
     "recruitment":     "Quantify recruitment of a marker to a compartment across conditions.",
     "invasion":        "Score every parasite attached or invaded from a two-colour outside/inside stain, with the threshold derived per field and flagged when the two populations it assumes are not actually there.",
+    "replication":     "Count the parasites in every vacuole and turn that into a replication rate: endodyogeny doubles a vacuole 1 -> 2 -> 4 -> 8, so the distribution of counts per vacuole is the readout, not the mean.",
 }
 
 

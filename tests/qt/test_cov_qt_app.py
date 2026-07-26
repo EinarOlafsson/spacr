@@ -197,6 +197,7 @@ EXPECTED_SECTIONS = {
     "analyze_plaques": SECTION_TOXO,
     "recruitment":     SECTION_TOXO,
     "invasion":        SECTION_TOXO,
+    "replication":     SECTION_TOXO,
 }
 
 
@@ -272,7 +273,11 @@ def test_sidebar_has_one_row_per_app_plus_home_in_apps_order(
         assert btn.accessibleName() == name
         assert btn.accessibleDescription() == desc
         assert btn.toolTip() == f"{name} — {desc}"
-        assert btn.full_text() == f"  {name}"
+        # "&&" is how Qt is told to DRAW an ampersand: a lone "&" is a
+        # mnemonic, and "Align & Stitch" was rendering as "Align _Stitch"
+        # in this column. The accessible name and the tooltip above
+        # carry the real string.
+        assert btn.full_text() == f"  {name}".replace("&", "&&")
 
 
 def test_sidebar_emits_the_key_of_the_row_that_was_clicked(
@@ -471,7 +476,7 @@ def test_icon_overrides_all_point_at_files_that_exist():
     ("train_cellpose", "cellpose_masks"),   # shares the Cellpose glyph
     ("agreement",      "annotate"),         # scores annotation columns
     ("plate_view",     "map_barcodes"),     # ruled bars read as a well grid
-    ("align",          "model_compare"),    # both point at cellpose_all.png
+        ("model_compare",  "mask"),             # one field, segmented two ways
 ])
 def test_an_override_makes_two_keys_share_one_glyph(key, twin):
     """The override table is the only reason these render alike; a typo in
@@ -487,8 +492,13 @@ def test_apps_without_a_shared_source_do_not_render_alike():
 
 
 def test_forced_glyph_keys_ignore_the_bundled_pngs():
+    """One key has no bundled artwork that says the right thing:
+    ``align`` — tiles registered into ONE canvas. It joined the set when
+    cellpose_all.png was redrawn as a batch of frames. ``invasion`` used
+    to be here too and left it when it got artwork of its own; see
+    tests/qt/test_home_v2.py."""
     from spacr.qt import iconset
-    assert _FORCE_GLYPH == {"invasion"}
+    assert _FORCE_GLYPH == {"align"}
     for key in _FORCE_GLYPH:
         assert _img(_icon_for_app(key)) == _img(iconset.icon(key))
         assert key not in _ICON_OVERRIDES

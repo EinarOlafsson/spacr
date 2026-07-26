@@ -28,12 +28,21 @@ class TestHeroLayout:
 class TestReservedSurface:
     def test_reserved_placeholder_shows_caption(self, qtbot,
                                                     _empty_journal):
+        """The reserved surface survived the Home redesign — it moved.
+
+        It used to be a full-width grey box captioned "FEATURED" below
+        the app rows. It is now the News panel in the right-hand column:
+        same escape hatch (``set_reserved_content``), same placeholder
+        wording, but a heading that says what would actually go there.
+        A panel headed FEATURED with nothing featured in it was 140 px
+        of page saying nothing.
+        """
         from spacr.qt.app import MainWindow
         win = MainWindow()
         qtbot.addWidget(win)
         labels = [w.text() for w in win._startup.findChildren(QLabel)]
         assert any("Reserved for featured" in lbl for lbl in labels)
-        assert any(lbl == "FEATURED" for lbl in labels)
+        assert any(lbl.startswith("NEWS") for lbl in labels)
 
     def test_set_reserved_content_swaps_widget(self, qtbot,
                                                    _empty_journal):

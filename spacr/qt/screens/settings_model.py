@@ -120,6 +120,9 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
         return get_default_generate_activation_map_settings(settings={})
     if app_key == "invasion":
         return set_analyze_invasion_defaults(settings={})
+    if app_key == "replication":
+        from spacr.settings import set_analyze_endodyogeny_defaults
+        return set_analyze_endodyogeny_defaults(settings={})
     if app_key == "analyze_plaques":
         return get_analyze_plaque_settings(settings={})
     if app_key in ("annotate", "make_masks"):
