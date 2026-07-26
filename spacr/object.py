@@ -319,7 +319,13 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                 channel_axis=-1,
                 min_size=object_settings['min_size'],
                 progress=True,
-                diameter=None,
+                # Cellpose 4 still honours `diameter` in eval() — it rescales
+                # the image by 30/diameter. Only diam_mean at construction is
+                # ignored. This was hard-coded to None, so an explicitly-set
+                # <obj>_diameter (and anything spacr.diameter proposes) never
+                # reached Cellpose. The setting defaults to None, so None here
+                # still means "let CPSAM work at native scale".
+                diameter=settings.get(f'{object_type}_diameter'),
                 flow_threshold=flow_threshold,
                 cellprob_threshold=cellprob_threshold,
                 resample=object_settings['resample']
