@@ -1572,10 +1572,36 @@ def _generate_representative_images(db_path, cells=None, cell_loc=None, pathogen
     if update_db:
         _update_database_with_merged_info(db_path, df, table='png_list', columns=['pathogen', 'treatment', 'host_cells', 'condition', 'prcfo'])
     
+    def _compartment_column(compartment):
+        suffix = f'_channel_{channel_of_interest}_{measurement}'
+        col = f'{compartment}{suffix}'
+        if col not in df.columns:
+            available = sorted({c.split('_channel_')[0] for c in df.columns
+                                if c.endswith(suffix)})
+            raise KeyError(
+                f"compartment {compartment!r} has no column {col!r} in the "
+                f"joined measurement tables. Available compartments for "
+                f"channel {channel_of_interest} / measurement {measurement!r}: "
+                f"{', '.join(available) if available else '(none)'}")
+        return df[col]
+
     if isinstance(compartments, list):
         if len(compartments) > 1:
-            df['new_measurement'] = df[f'{compartments[0]}_channel_{channel_of_interest}_{measurement}']/df[f'{compartments[1]}_channel_{channel_of_interest}_{measurement}']
+            # Two or more compartments: rank on the ratio between the first two.
+            df['new_measurement'] = (_compartment_column(compartments[0])
+                                     / _compartment_column(compartments[1]))
+        elif len(compartments) == 1:
+            # A single named compartment has no ratio partner, so rank on its
+            # own measurement. This branch used to be missing entirely: a
+            # one-element list satisfied the isinstance check, failed the
+            # len > 1 check and skipped the else, so 'new_measurement' was
+            # never created and _filter_closest_to_stat raised KeyError below.
+            df['new_measurement'] = _compartment_column(compartments[0])
+        else:
+            df['new_measurement'] = df['cell_area']
     else:
+        # Unrecognised input (a bare string, None, anything else): fall back to
+        # a generic ranking rather than guessing which compartment was meant.
         df['new_measurement'] = df['cell_area']
     dfs = {condition: df_group for condition, df_group in df.groupby('condition')}
     conditions = df['condition'].dropna().unique().tolist()

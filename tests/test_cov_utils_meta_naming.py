@@ -586,15 +586,15 @@ def test_generate_representative_images_scalar_compartment_uses_cell_area(
     assert "condition" not in cols
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: _generate_representative_images only sets 'new_measurement' when "
-           "compartments is a list of >1 entries; a single-element list falls "
-           "through both branches and blows up with KeyError('new_measurement').",
-)
 def test_generate_representative_images_single_element_compartment_list(
     repr_db, stub_grid_plot
 ):
+    """One compartment has no ratio partner, so it ranks on its own column.
+
+    This used to raise KeyError('new_measurement'): a one-element list passed
+    the isinstance check, failed `len > 1`, and skipped the else, so the
+    ranking column was never created.
+    """
     from spacr.utils import _generate_representative_images
 
     _generate_representative_images(
@@ -608,6 +608,49 @@ def test_generate_representative_images_single_element_compartment_list(
         update_db=False,
     )
     assert list((repr_db["src"] / "figure").glob("*.pdf"))
+    assert all(len(c["files"]) == 2 for c in stub_grid_plot)
+
+
+def test_generate_representative_images_empty_compartment_list_uses_cell_area(
+    repr_db, stub_grid_plot
+):
+    """No compartment named at all -> the generic cell_area fallback."""
+    from spacr.utils import _generate_representative_images
+
+    _generate_representative_images(
+        repr_db["db_path"],
+        cells="HeLa",
+        pathogens=["rh"],
+        treatments=["ctrl"],
+        compartments=[],
+        nr_imgs=2,
+        channel_indices=[0],
+        update_db=False,
+    )
+    assert list((repr_db["src"] / "figure").glob("*.pdf"))
+
+
+def test_generate_representative_images_unknown_compartment_names_the_options(
+    repr_db, stub_grid_plot
+):
+    """A typo'd compartment must say which ones exist, not KeyError on an
+    f-string built deep inside the function."""
+    from spacr.utils import _generate_representative_images
+
+    with pytest.raises(KeyError) as exc:
+        _generate_representative_images(
+            repr_db["db_path"],
+            cells="HeLa",
+            pathogens=["rh"],
+            treatments=["ctrl"],
+            compartments=["nucleuss"],   # typo
+            nr_imgs=2,
+            channel_indices=[0],
+            update_db=False,
+        )
+    msg = str(exc.value)
+    assert "nucleuss" in msg
+    assert "no column" in msg
 
 
 # ---------------------------------------------------------------------------
