@@ -65,6 +65,40 @@ and the four ways that goes silently wrong:
    :class:`Conflict` that either refuses the import (``on_conflict='refuse'``,
    the default) or renames the column (``on_conflict='rename'``) — never
    an overwrite.
+5. **A destination that is already somebody's project.** The same
+   argument one level up: a *table* collision. See below.
+
+Their table never replaces spaCR's
+----------------------------------
+
+Their measurements are always written to ``foreign_<object>``. The
+canonical ``cell`` / ``nucleus`` / ``pathogen`` tables are spaCR's, and
+:func:`run_import` writes one only when it is empty of anyone else's
+work — either because the destination is a fresh project (an import-only
+project needs a ``cell`` table for the rest of spaCR to read, and gets a
+copy of the foreign rows) or because a previous run of *this* importer
+wrote it and it has not been added to since.
+
+When the destination already holds measurements:
+
+* **the same fields** — their columns arrive beside spaCR's, not on top
+  of them. ``<object>`` is left byte-for-byte as it was, ``foreign_<object>``
+  holds their rows, and the ``<object>_with_foreign`` view joins the two
+  on ``(prcf, object_label)`` — the same key
+  :func:`spacr.utils._merge_and_save_to_database` writes.
+* **different fields** — there is nothing to reconcile and no shape in
+  which two experiments belong in one database, so the import refuses,
+  naming the tables, their row counts and the fields on each side, and
+  writes nothing at all.
+
+This is a merge onto the canonical keys rather than a substitution for
+them because the canonical tables carry things a foreign table cannot
+reproduce: every spaCR feature column, and ``cell_id``, the link from a
+nucleus or pathogen back to the cell that contains it. Replacing the
+table dropped both, and a parent-child link is not recoverable from what
+is left. ``conversion_map`` gets the same treatment — merged on the
+output filename, never replaced — so a project's provenance back to its
+own original files survives an import into it.
 
 Object identity is the join
 ---------------------------
@@ -138,6 +172,7 @@ __all__ = [
     'COLUMN_MAP_FILENAME',
     'FOREIGN_COLUMNS_TABLE',
     'IMPORT_TABLE',
+    'METADATA_COLUMNS',
     'RESERVED_COLUMNS',
     'TRANSFORMS',
     'IMAGES_DIRNAME',
@@ -169,8 +204,22 @@ FOREIGN_COLUMNS_TABLE = 'foreign_columns'
 #: Table recording the import run itself.
 IMPORT_TABLE = 'foreign_import'
 
+#: Scratch table a conversion map is staged in while it is merged into one
+#: that is already there. Dropped in the same transaction as the merge.
+_CONVERSION_STAGING = '_foreign_conversion_map_staging'
+
 #: Sub-folder of the destination holding the converted Yokogawa TIFFs.
 IMAGES_DIRNAME = 'images'
+
+#: The spaCR metadata every imported row carries, in the order
+#: :func:`spacr.utils._merge_and_save_to_database` writes them. They are
+#: the importer's own work rather than the foreign table's, they are what
+#: ``<object>`` and ``foreign_<object>`` have in common, and they are
+#: therefore listed once here rather than in each of the three places that
+#: need to agree about them.
+METADATA_COLUMNS: Tuple[str, ...] = (
+    'object_label', 'plateID', 'rowID', 'columnID', 'fieldID', 'prc',
+    'prcf', 'file_name', 'path_name')
 
 #: Columns a foreign mapping may never target: they are the join keys the
 #: whole database is addressed by, and a foreign value in one of them
@@ -344,6 +393,22 @@ def _stem_of(plate: str, well: str, field: Any) -> str:
     array named this way produces the same ``prcf`` as a native run.
     """
     return f'{plate}_{well}_{int(field)}'
+
+
+def _keys_of_stem(stem: str) -> Tuple[str, str, str, int, str, str]:
+    """``(plate, rowID, columnID, field, prc, prcf)`` for one field stem.
+
+    The single definition of the key an imported row is addressed by. It
+    is used both to build the rows (:func:`_foreign_frame`) and to ask
+    which fields a destination database already holds
+    (:func:`_check_destination`) — two answers that must never drift
+    apart, because one of them decides whether the other is allowed to
+    write.
+    """
+    plate, well, field = str(stem).split('_')
+    row_id, column_id = cv._well_ids(well)
+    prc = f'{plate}_{row_id}_{column_id}'
+    return plate, row_id, column_id, int(field), prc, f'{prc}_f{int(field)}'
 
 
 def _unique(name: str, taken: Set[str]) -> str:
@@ -2023,6 +2088,9 @@ class ImportResult:
     :ivar rows: rows written into each foreign object table.
     :ivar crops: PNG paths cut from the merged arrays, if any.
     :ivar measured: True when spaCR's own measurements were re-extracted.
+    :ivar notes: things that happened and are not problems — chiefly a
+        canonical object table that was already populated and was
+        therefore left exactly as it was found.
     """
 
     plan: ImportPlan
@@ -2038,6 +2106,7 @@ class ImportResult:
     measured: bool = False
     ledger: Optional[RunLedger] = None
     warnings: List[str] = dc_field(default_factory=list)
+    notes: List[str] = dc_field(default_factory=list)
 
     @property
     def n_fields(self) -> int:
@@ -2080,11 +2149,13 @@ class ImportResult:
                      f'plateID/rowID/columnID/fieldID/prcf/object_label keys '
                      f'are spaCR\'s. The {FOREIGN_COLUMNS_TABLE} table says '
                      f'which is which, per column.')
+        for note in self.notes:
+            lines.append(note)
         if self.measured:
             lines.append("spaCR's own measurements were re-extracted into the "
                          "standard object tables; their columns stay in the "
                          "foreign_* tables and join on (prcf, object_label).")
-        else:
+        elif not self.notes:
             lines.append("spaCR's own measurements were NOT re-extracted — "
                          "every feature column in this database is theirs.")
 
@@ -2195,15 +2266,13 @@ def _foreign_frame(plan: ImportPlan, stems: Sequence[str],
     plates, rows_, columns_, fields, prcs, prcfs, files, paths = (
         [], [], [], [], [], [], [], [])
     for stem in resolved_stems:
-        plate, well, field = stem.split('_')
-        row_id, column_id = cv._well_ids(well)
-        prc = f'{plate}_{row_id}_{column_id}'
+        plate, row_id, column_id, field, prc, prcf = _keys_of_stem(stem)
         plates.append(plate)
         rows_.append(row_id)
         columns_.append(column_id)
-        fields.append(f'f{int(field)}')
+        fields.append(f'f{field}')
         prcs.append(prc)
-        prcfs.append(f'{prc}_f{int(field)}')
+        prcfs.append(prcf)
         files.append(stem)
         paths.append(os.path.join(merged_dir, f'{stem}.npy'))
     out['plateID'] = plates
@@ -2223,18 +2292,320 @@ def _foreign_frame(plan: ImportPlan, stems: Sequence[str],
     return out
 
 
+# ---------------------------------------------------------------------------
+# Never writing over what is already there
+# ---------------------------------------------------------------------------
+
+def _db_table_names(connection: 'sqlite3.Connection') -> Set[str]:
+    """Every user table in an open database."""
+    return {str(row[0]) for row in connection.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' "
+        "AND name NOT LIKE 'sqlite_%'")}
+
+
+def _db_columns(connection: 'sqlite3.Connection', table: str) -> List[str]:
+    """Column names of ``table``; ``[]`` when it does not exist."""
+    return [str(row[1]) for row in
+            connection.execute(f'PRAGMA table_info("{table}")')]
+
+
+def _is_importer_table(name: str) -> bool:
+    """True for a table this module owns by its name alone."""
+    text = str(name)
+    return (text.startswith(FOREIGN_PREFIX)
+            or text in (FOREIGN_COLUMNS_TABLE, IMPORT_TABLE))
+
+
+def _importer_owns(connection: 'sqlite3.Connection', table: str) -> bool:
+    """True when ``table`` is one a previous run of *this* importer wrote.
+
+    The ``foreign_columns`` provenance names every column the importer put
+    in every table it wrote, which is what makes a re-run of the same
+    import a replacement rather than a duplication.
+
+    Provenance alone is not enough, though: a user who imports and then
+    runs spaCR's own ``measure_crop`` over the imported project ends up
+    with a ``cell`` table this importer created and ``measure_crop``
+    *appended* to. So the recorded column list is checked against the
+    table as it is now — a table carrying any column this importer never
+    wrote has stopped being ours, and is protected like any other.
+    """
+    if _is_importer_table(table):
+        return True
+    if FOREIGN_COLUMNS_TABLE not in _db_table_names(connection):
+        return False
+    recorded = {str(row[0]) for row in connection.execute(
+        f'SELECT "column" FROM "{FOREIGN_COLUMNS_TABLE}" WHERE "table" = ?',
+        (str(table),))}
+    if not recorded:
+        return False
+    have = set(_db_columns(connection, table))
+    return bool(have) and have <= recorded
+
+
+def _planned_prcfs(plan: ImportPlan) -> Set[str]:
+    """The ``prcf`` of every field this import would write."""
+    return {_keys_of_stem(stem)[5] for stem in plan.masks.fields}
+
+
+def _field_tables(connection: 'sqlite3.Connection') -> List[str]:
+    """Pre-existing tables that say which fields they measure.
+
+    Not this importer's, carrying a ``prcf`` — which is exactly "a table
+    that names the fields it holds", the question the reconciliation turns
+    on — and not empty: a table created and never written has no
+    experiment to be in conflict with.
+    """
+    found: List[str] = []
+    for name in sorted(_db_table_names(connection)):
+        if _is_importer_table(name):
+            continue
+        if 'prcf' not in _db_columns(connection, name):
+            continue
+        if connection.execute(f'SELECT 1 FROM "{name}" '
+                              f'LIMIT 1').fetchone() is None:
+            continue
+        found.append(name)
+    return found
+
+
+#: SQLite's default cap on bound variables in one statement is 999. The
+#: field probe below is chunked well under it so a plate with thousands of
+#: fields cannot turn a safety check into an error.
+_SQL_VARIABLE_CHUNK = 400
+
+
+def _holds_any_field(connection: 'sqlite3.Connection', table: str,
+                     prcfs: Sequence[str]) -> bool:
+    """True when ``table`` holds a row for any of ``prcfs``.
+
+    ``WHERE prcf IN (…) LIMIT 1`` rather than reading every distinct
+    ``prcf``: measurement tables run to millions of rows and this is a
+    guard on the way in, not a report.
+    """
+    ordered = list(prcfs)
+    for start in range(0, len(ordered), _SQL_VARIABLE_CHUNK):
+        chunk = ordered[start:start + _SQL_VARIABLE_CHUNK]
+        marks = ', '.join('?' * len(chunk))
+        found = connection.execute(
+            f'SELECT 1 FROM "{table}" WHERE prcf IN ({marks}) LIMIT 1',
+            chunk).fetchone()
+        if found is not None:
+            return True
+    return False
+
+
+def _describe_table(connection: 'sqlite3.Connection', table: str,
+                    limit: int = 4) -> str:
+    """``cell: 4 row(s), field(s) a, b`` — only ever built for a refusal."""
+    count = int(connection.execute(
+        f'SELECT COUNT(*) FROM "{table}"').fetchone()[0])
+    fields = [str(row[0]) for row in connection.execute(
+        f'SELECT DISTINCT prcf FROM "{table}" WHERE prcf IS NOT NULL '
+        f'ORDER BY prcf LIMIT {int(limit) + 1}')]
+    shown = ', '.join(fields[:limit]) or 'none'
+    if len(fields) > limit:
+        shown += ', …'
+    return f'{table}: {count} row(s), field(s) {shown}'
+
+
+def _sample(values: Iterable[str], limit: int = 4) -> str:
+    """A few values, in order, for an error message."""
+    ordered = sorted(str(v) for v in values)
+    shown = ', '.join(ordered[:limit])
+    if len(ordered) > limit:
+        shown += f', … ({len(ordered) - limit} more)'
+    return shown or 'none'
+
+
+def _may_write_canonical(connection: 'sqlite3.Connection',
+                         object_type: str) -> Tuple[bool, int]:
+    """``(may this importer write <object>, rows it already holds)``.
+
+    True when the table is absent, when a previous run of this importer
+    wrote it and nothing has been added since, or when it is empty — an
+    empty table holds nothing to protect, and a run that died before
+    writing a row must not leave a project that can never be imported
+    into.
+    """
+    if object_type not in _db_table_names(connection):
+        return True, 0
+    count = int(connection.execute(
+        f'SELECT COUNT(*) FROM "{object_type}"').fetchone()[0])
+    if _importer_owns(connection, object_type):
+        return True, count
+    return count == 0, count
+
+
+def _preserve_note(object_type: str, count: int) -> str:
+    """What the user is told when their own table is left alone."""
+    return (f'"{object_type}" already holds {count} row(s) of measurements '
+            f'and was NOT touched. Their measurements went into '
+            f'"{FOREIGN_PREFIX}{object_type}" instead, joined to '
+            f'"{object_type}" on (prcf, object_label) by the view '
+            f'"{object_type}_with_foreign".')
+
+
+def _check_destination(db_path: str, plan: ImportPlan, object_type: str,
+                       measure: bool) -> Tuple[str, List[str]]:
+    """Decide what this import is allowed to write into ``db_path``.
+
+    Returns ``(mode, notes)``. ``mode`` is:
+
+    ``'write'``
+        Nothing of anyone else's is there — the foreign rows are also
+        copied into the canonical ``<object>`` table so that a project
+        built purely by import is readable by every spaCR tool.
+    ``'preserve'``
+        ``<object>`` already holds somebody's measurements. It is left
+        untouched; the foreign rows go into ``foreign_<object>`` only,
+        joined to it by the ``<object>_with_foreign`` view.
+    ``'measure'``
+        ``measure=True``, so spaCR's own measurements will fill
+        ``<object>`` and the importer never writes it.
+
+    :raises ConfigurationError: the destination holds measurements of a
+        *different* experiment — no field in common with this import.
+        There is nothing to reconcile and no shape in which the two
+        belong in one database, so it refuses instead of adding to it.
+    """
+    if not os.path.isfile(db_path):
+        return ('measure' if measure else 'write'), []
+    connection = sqlite3.connect(str(db_path), timeout=30)
+    try:
+        planned = sorted(_planned_prcfs(plan))
+        existing = _field_tables(connection)
+        if existing and planned and not any(
+                _holds_any_field(connection, name, planned)
+                for name in existing):
+            held = '\n'.join(f'    {_describe_table(connection, name)}'
+                             for name in existing)
+            raise ConfigurationError(
+                f'{db_path} already holds measurements, and this import '
+                f'shares no field with them — they are two different '
+                f'experiments, and nothing was written.\n'
+                f'  already there:\n{held}\n'
+                f'  being imported: field(s) {_sample(planned)}\n'
+                f'  Import into a new destination (dst=...), or point this '
+                f'import at the project these fields belong to. Nothing here '
+                f'will overwrite an existing measurement table.')
+
+        if measure:
+            return 'measure', []
+        allowed, count = _may_write_canonical(connection, object_type)
+        if allowed:
+            return 'write', []
+        return 'preserve', [_preserve_note(object_type, count)]
+    finally:
+        connection.close()
+
+
+def _replace_table_atomically(connection: 'sqlite3.Connection', table: str,
+                              frame: 'pd.DataFrame') -> None:
+    """``to_sql(if_exists='replace')``, but all-or-nothing.
+
+    pandas replaces a table with DROP + CREATE + INSERT, and sqlite3 opens
+    an implicit transaction only for DML — so the DROP lands on its own
+    and an interrupted write leaves the table gone. The rows are staged
+    under a scratch name first and swapped in under one explicit
+    transaction, which is the same reasoning as
+    :func:`spacr.utils.rename_columns_in_db`.
+    """
+    staging = f'_staging_{table}'
+    connection.isolation_level = None      # so BEGIN below is really ours
+    cursor = connection.cursor()
+    cursor.execute(f'DROP TABLE IF EXISTS "{staging}"')
+    try:
+        frame.to_sql(staging, connection, if_exists='replace', index=False)
+        cursor.execute('BEGIN')
+        try:
+            cursor.execute(f'DROP TABLE IF EXISTS "{table}"')
+            cursor.execute(f'ALTER TABLE "{staging}" RENAME TO "{table}"')
+            cursor.execute('COMMIT')
+        except BaseException:
+            cursor.execute('ROLLBACK')
+            raise
+    finally:
+        cursor.execute(f'DROP TABLE IF EXISTS "{staging}"')
+
+
+def _populate_conversion_map(db_path: str, map_path: str) -> None:
+    """Load the conversion map without discarding one already there.
+
+    :func:`spacr.convert.populate_db_from_map` replaces ``conversion_map``,
+    which is right for a conversion writing its own database and wrong for
+    an import landing in a project that already converted images of its
+    own: that project's provenance back to its original filenames would
+    go. The new rows are staged through the same function under a scratch
+    table name and merged in under one transaction, so the destination
+    never loses a row it had.
+    """
+    staging = _CONVERSION_STAGING
+    existing = False
+    if os.path.isfile(db_path):
+        connection = sqlite3.connect(str(db_path), timeout=30)
+        try:
+            names = _db_table_names(connection)
+            existing = cv.CONVERSION_TABLE in names
+            if staging in names:
+                connection.execute(f'DROP TABLE IF EXISTS "{staging}"')
+                connection.commit()
+        finally:
+            connection.close()
+    if not existing:
+        cv.populate_db_from_map(db_path, map_path)
+        return
+
+    cv.populate_db_from_map(db_path, map_path, table=staging)
+    connection = sqlite3.connect(str(db_path), timeout=30)
+    connection.isolation_level = None
+    try:
+        cursor = connection.cursor()
+        incoming = _db_columns(connection, staging)
+        held = _db_columns(connection, cv.CONVERSION_TABLE)
+        cursor.execute('BEGIN')
+        try:
+            for column in incoming:
+                if column not in held:
+                    cursor.execute(f'ALTER TABLE "{cv.CONVERSION_TABLE}" '
+                                   f'ADD COLUMN "{column}"')
+                    held.append(column)
+            shared = [c for c in incoming if c in held]
+            if 'target' in shared:
+                cursor.execute(
+                    f'DELETE FROM "{cv.CONVERSION_TABLE}" WHERE target IN '
+                    f'(SELECT target FROM "{staging}")')
+            names = ', '.join(f'"{c}"' for c in shared)
+            cursor.execute(f'INSERT INTO "{cv.CONVERSION_TABLE}" ({names}) '
+                           f'SELECT {names} FROM "{staging}"')
+            cursor.execute(f'DROP TABLE IF EXISTS "{staging}"')
+            cursor.execute('COMMIT')
+        except BaseException:
+            cursor.execute('ROLLBACK')
+            raise
+    finally:
+        connection.close()
+
+
 def _write_provenance(db_path: str, plan: ImportPlan, dst: str,
-                      tables: Sequence[str]) -> None:
+                      tables: Sequence[str], mode: str = 'write') -> None:
     """Write ``foreign_columns`` and ``foreign_import``.
 
     ``foreign_columns`` is the answer to "is this column theirs or
     spaCR's", per column, per table — including the unmapped ones and the
     uncalibrated ones, with the reason in words.
+
+    Both tables are *merged*, not replaced. A database can hold more than
+    one import — their cells from one collaborator, their nuclei from
+    another — and a blanket replace erased the earlier run's record of
+    which columns it had written, which is also the record
+    :func:`_importer_owns` reads to decide what may be rewritten. Only the
+    rows this run supersedes are deleted, under one transaction with the
+    insert.
     """
     records: List[Dict[str, Any]] = []
     for table in tables:
-        for name in ('object_label', 'plateID', 'rowID', 'columnID',
-                     'fieldID', 'prc', 'prcf', 'file_name', 'path_name'):
+        for name in METADATA_COLUMNS:
             records.append({
                 'table': table, 'column': name, 'origin': 'spacr',
                 'source_column': '', 'transform': '', 'factor': None,
@@ -2271,17 +2642,84 @@ def _write_provenance(db_path: str, plan: ImportPlan, dst: str,
         'uncalibrated': ', '.join(r.target for r in plan.uncalibrated),
         'n_conflicts': len(plan.conflicts),
         'conflicts': ' | '.join(str(c) for c in plan.conflicts),
+        'canonical_table': str(plan.join.object_type),
+        'canonical_table_written': int(mode == 'write'),
+        'canonical_table_note': {
+            'write': 'the importer wrote it and may rewrite it',
+            'preserve': 'left as it was found; their rows are in '
+                        f'{FOREIGN_PREFIX}{plan.join.object_type} only',
+            'measure': "filled by spaCR's own measure_crop",
+        }.get(mode, mode),
     }
 
+    columns_frame = pd.DataFrame(records)
+    run_frame = pd.DataFrame([run])
     connection = sqlite3.connect(str(db_path), timeout=30)
     try:
-        pd.DataFrame(records).to_sql(FOREIGN_COLUMNS_TABLE, connection,
-                                     if_exists='replace', index=False)
-        pd.DataFrame([run]).to_sql(IMPORT_TABLE, connection,
-                                   if_exists='replace', index=False)
-        connection.commit()
+        _ensure_schema(connection, FOREIGN_COLUMNS_TABLE, columns_frame)
+        _ensure_schema(connection, IMPORT_TABLE, run_frame)
+        connection.isolation_level = None
+        cursor = connection.cursor()
+        cursor.execute('BEGIN')
+        try:
+            if len(tables):
+                marks = ', '.join('?' * len(tables))
+                cursor.execute(
+                    f'DELETE FROM "{FOREIGN_COLUMNS_TABLE}" '
+                    f'WHERE "table" IN ({marks})', [str(t) for t in tables])
+            _insert_rows(cursor, FOREIGN_COLUMNS_TABLE, columns_frame)
+            cursor.execute(
+                f'DELETE FROM "{IMPORT_TABLE}" '
+                f'WHERE "dst" = ? AND "object_types" = ?',
+                (run['dst'], run['object_types']))
+            _insert_rows(cursor, IMPORT_TABLE, run_frame)
+            cursor.execute('COMMIT')
+        except BaseException:
+            cursor.execute('ROLLBACK')
+            raise
     finally:
         connection.close()
+
+
+def _ensure_schema(connection: 'sqlite3.Connection', table: str,
+                   frame: 'pd.DataFrame') -> None:
+    """Create ``table`` if missing, and widen it for any new column.
+
+    Delegates the widening to :func:`spacr.utils._widen_table_for`, which
+    is what every measurement write already uses — the alternative is a
+    second implementation of "add the columns this frame has and the table
+    lacks" that can disagree with the first.
+    """
+    from .utils import _widen_table_for
+
+    if table not in _db_table_names(connection):
+        frame.head(0).to_sql(table, connection, if_exists='append',
+                             index=False)
+        connection.commit()
+        return
+    _widen_table_for(connection, table, frame)
+
+
+def _insert_rows(cursor: 'sqlite3.Cursor', table: str,
+                 frame: 'pd.DataFrame') -> None:
+    """Insert ``frame`` with an explicit column list, inside the caller's
+    transaction.
+
+    ``to_sql`` commits on its own, which would break the delete/insert
+    pair above in half; this does not.
+    """
+    if frame.empty:
+        return
+    columns = [str(c) for c in frame.columns]
+    names = ', '.join(f'"{c}"' for c in columns)
+    marks = ', '.join('?' * len(columns))
+    rows = [tuple(None if value is None or (not isinstance(value, str)
+                                            and pd.isna(value))
+                  else value.item() if hasattr(value, 'item') else value
+                  for value in record)
+            for record in frame.itertuples(index=False, name=None)]
+    cursor.executemany(f'INSERT INTO "{table}" ({names}) VALUES ({marks})',
+                       rows)
 
 
 def _write_view(db_path: str, object_type: str) -> None:
@@ -2290,19 +2728,39 @@ def _write_view(db_path: str, object_type: str) -> None:
     The view is the answer to "how do I see their number next to spaCR's":
     a join on ``(prcf, object_label)``, which is the same key
     :func:`spacr.utils._merge_and_save_to_database` writes.
+
+    Their columns are listed explicitly rather than taken as ``f.*``: the
+    two tables share the :data:`METADATA_COLUMNS`, and a view that returns
+    each of them twice is one a DataFrame reader cannot address by name.
+    The metadata is taken from spaCR's side; a *measurement* column of
+    theirs that happens to share a name (only possible through
+    ``allow_spacr_targets``) is aliased rather than dropped, because a
+    column no query can reach is a column that was silently lost.
     """
     foreign = f'{FOREIGN_PREFIX}{object_type}'
+    view = f'{object_type}_with_foreign'
     connection = sqlite3.connect(str(db_path), timeout=30)
     try:
-        names = {row[0] for row in connection.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'")}
+        names = _db_table_names(connection)
         if object_type not in names or foreign not in names:
             return
-        connection.execute(f'DROP VIEW IF EXISTS {object_type}_with_foreign')
+        held = set(_db_columns(connection, object_type))
+        taken = set(held)
+        theirs: List[str] = []
+        for column in _db_columns(connection, foreign):
+            if column not in held:
+                theirs.append(f'f."{column}"')
+                taken.add(column)
+            elif column not in METADATA_COLUMNS:
+                alias = _unique(f'{FOREIGN_PREFIX}{column}', taken)
+                taken.add(alias)
+                theirs.append(f'f."{column}" AS "{alias}"')
+        selected = ', '.join(['s.*'] + theirs)
+        connection.execute(f'DROP VIEW IF EXISTS "{view}"')
         connection.execute(
-            f'CREATE VIEW {object_type}_with_foreign AS '
-            f'SELECT s.*, f.* FROM {object_type} AS s '
-            f'JOIN {foreign} AS f '
+            f'CREATE VIEW "{view}" AS '
+            f'SELECT {selected} FROM "{object_type}" AS s '
+            f'JOIN "{foreign}" AS f '
             f'  ON s.prcf = f.prcf AND s.object_label = f.object_label')
         connection.commit()
     finally:
@@ -2376,11 +2834,22 @@ def run_import(plan: ImportPlan, dst: str, *,
     separately — re-extract spaCR's own measurements and cut crops.
 
     Re-running is a no-op rather than a duplication: existing TIFFs are
-    left alone by the converter, and every table this writes is *replaced*,
+    left alone by the converter, and every table this *owns* is replaced,
     never appended to.
 
+    Owning is the whole of it. Their rows go to ``foreign_<object>``, and
+    the canonical ``<object>`` table is written only when it does not
+    exist or when a previous run of this importer wrote it and nothing has
+    been added to it since. A ``<object>`` table holding somebody's
+    measurements is left exactly as it is and joined to theirs by the
+    ``<object>_with_foreign`` view; a destination whose measurements are
+    of a *different* experiment is refused before a single file is
+    written. See the module docstring.
+
     :param plan: a plan from :func:`plan_import` whose ``ok`` is True.
-    :param dst: destination project root. Created if missing.
+    :param dst: destination project root. Created if missing. It may be an
+        existing spaCR project of the same experiment, and nothing in it
+        will be overwritten.
     :param overwrite: rewrite converted images that already exist.
     :param measure: also run :func:`spacr.measure.measure_crop` over the
         imported project. Off by default, and *separate*: when it is on,
@@ -2391,7 +2860,8 @@ def run_import(plan: ImportPlan, dst: str, *,
     :param progress: ``progress(done, total, message)``.
     :param ledger: reuse an existing :class:`spacr.errors.RunLedger`.
     :returns: an :class:`ImportResult`.
-    :raises ConfigurationError: the plan is not ``ok``.
+    :raises ConfigurationError: the plan is not ``ok``, or ``dst`` already
+        holds measurements of a different experiment.
     """
     if not plan.ok:
         problems = list(plan.images.errors) + list(plan.errors)
@@ -2401,9 +2871,19 @@ def run_import(plan: ImportPlan, dst: str, *,
             + '\n  '.join(problems))
 
     dst = os.path.abspath(str(dst))
+    object_type = plan.join.object_type
+    db_dir = os.path.join(dst, 'measurements')
+    db_path = os.path.join(db_dir, 'measurements.db')
+
+    # Asked and answered before a single file is written: a destination
+    # that cannot take this import must not be left holding half of it.
+    mode, destination_notes = _check_destination(db_path, plan, object_type,
+                                                 bool(measure))
+
     os.makedirs(dst, exist_ok=True)
     run = ledger if ledger is not None else RunLedger('foreign_import')
     result = ImportResult(plan=plan, dst=dst, ledger=run)
+    result.notes.extend(destination_notes)
     steps = ['converting images', 'writing stacks', 'writing masks',
              'merging arrays', 'writing measurements']
     total = len(steps) + int(bool(measure)) + int(bool(crops))
@@ -2476,39 +2956,55 @@ def run_import(plan: ImportPlan, dst: str, *,
 
     # -- 5. the database -----------------------------------------------------
     _step(5, 'writing measurements')
-    db_dir = os.path.join(dst, 'measurements')
     os.makedirs(db_dir, exist_ok=True)
-    db_path = os.path.join(db_dir, 'measurements.db')
     result.db_path = db_path
 
-    cv.populate_db_from_map(db_path, result.conversion.map_path)
+    _populate_conversion_map(db_path, result.conversion.map_path)
 
-    object_type = plan.join.object_type
     frame = _foreign_frame(plan, sorted(merged_stems),
                            os.path.join(dst, 'merged'))
     table = f'{FOREIGN_PREFIX}{object_type}'
     connection = sqlite3.connect(db_path, timeout=30)
+    connection.isolation_level = None
     try:
         # replace, never append: a second run of the same import must not
-        # leave two generations of the same rows behind.
-        frame.to_sql(table, connection, if_exists='replace', index=False)
+        # leave two generations of the same rows behind. This table is the
+        # importer's own, which is the only reason replacing it is safe.
+        _replace_table_atomically(connection, table, frame)
         connection.execute(
             f'CREATE INDEX IF NOT EXISTS idx_{table}_prcf_obj '
-            f'ON {table} (prcf, object_label)')
-        if not measure:
-            frame.to_sql(object_type, connection, if_exists='replace',
-                         index=False)
-            connection.execute(
-                f'CREATE INDEX IF NOT EXISTS idx_{object_type}_prcf_obj '
-                f'ON {object_type} (prcf, object_label)')
-        connection.commit()
+            f'ON "{table}" (prcf, object_label)')
+        if mode == 'write':
+            # A project built purely by import has no spaCR measurements of
+            # its own, so the same rows are copied into the canonical table
+            # to make it readable by every tool that reads one.
+            #
+            # The question was already answered before any file was
+            # written, and it is asked again here against the database as
+            # it is now: minutes of image conversion separate the two, and
+            # a measure_crop running alongside would have created that
+            # table in between. The check that decides whether a table may
+            # be dropped has to be the one taken at the moment it is
+            # dropped.
+            allowed, held = _may_write_canonical(connection, object_type)
+            if allowed:
+                _replace_table_atomically(connection, object_type, frame)
+                connection.execute(
+                    f'CREATE INDEX IF NOT EXISTS idx_{object_type}_prcf_obj '
+                    f'ON "{object_type}" (prcf, object_label)')
+            else:
+                mode = 'preserve'
+                result.notes.append(_preserve_note(object_type, held))
     finally:
         connection.close()
     result.rows[table] = int(len(frame))
-    if not measure:
+    if mode == 'write':
         result.rows[object_type] = int(len(frame))
 
-    _write_provenance(db_path, plan, dst, sorted(set(result.rows)))
+    if mode == 'preserve':
+        _write_view(db_path, object_type)
+
+    _write_provenance(db_path, plan, dst, sorted(set(result.rows)), mode=mode)
     result.column_map_path = str(save_column_map(
         plan.column_maps, os.path.join(dst, COLUMN_MAP_FILENAME)))
 
@@ -2636,6 +3132,16 @@ def import_project(settings: Optional[TMapping[str, Any]] = None,
             'Import refused — nothing was written:\n  '
             + '\n  '.join(list(plan.images.errors) + list(plan.errors)
                           + [str(c) for c in plan.blocking_conflicts]))
+
+    # What the destination already holds is part of the plan a user reads,
+    # so it is checked here too and not only inside run_import — a preview
+    # that does not mention the table it will refuse to touch is not a
+    # preview of this import.
+    for note in _check_destination(
+            os.path.join(dst, 'measurements', 'measurements.db'), plan,
+            plan.join.object_type, bool(resolved.get('measure')))[1]:
+        print(note)
+
     if resolved.get('preview_only'):
         print(f'preview_only is set — nothing was written. The project would '
               f'go to {dst}.')
