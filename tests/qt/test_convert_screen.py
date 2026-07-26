@@ -146,14 +146,15 @@ def test_an_unknown_option_value_is_refused(screen):
         screen.set_z_handling("average")
 
 
-def test_it_is_registered_as_a_tools_app():
+def test_it_is_registered_under_data_and_batch_runs():
     """Registration lives in spacr.qt.app.APPS."""
     from spacr.qt.app import APPS
     entry = next((a for a in APPS if a[0] == "convert"), None)
     if entry is None:
         pytest.skip("convert not registered in spacr.qt.app.APPS yet")
     assert entry[1] == "Format Converter"
-    assert entry[3] == "Tools"
+    from spacr.qt.app import SECTION_DATA
+    assert entry[3] == SECTION_DATA
     assert entry[2].strip()
 
 

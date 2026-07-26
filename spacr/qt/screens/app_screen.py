@@ -160,6 +160,7 @@ APP_TITLES = {
     "cellpose_masks":  "Cellpose Masks",
     "cellpose_all":    "Cellpose (All)",
     "map_barcodes":    "Map Barcodes",
+    "queue":           "Plate Queue",
     "ml_analyze":      "Classify (ML)",
     "regression":      "Regression",
     "recruitment":     "Recruitment",

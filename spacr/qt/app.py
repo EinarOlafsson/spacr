@@ -29,6 +29,7 @@ from PySide6.QtWidgets import (
 
 from . import iconset
 from .theme import PALETTE, SPACING, apply_qpalette, stylesheet
+from .widgets.eliding import ElidingPushButton
 
 
 class _PipelinePreloader:
@@ -89,39 +90,85 @@ class _PipelinePreloader:
         QTimer.singleShot(50, self._step)
 
 
+# ---------------------------------------------------------------------------
+# The app registry
+# ---------------------------------------------------------------------------
+#
+# Sections are how the home page and the sidebar group the apps. They are
+# named for what a biologist is looking for, not for the code behind them,
+# and they run in workflow order: the end-to-end pipeline first, then
+# getting data in and running it at scale, then the segmentation models
+# that pipeline depends on, then reading the results, then the
+# Toxoplasma-specific assays.
+#
+# A section holds AT MOST `MAX_APPS_PER_SECTION` apps. Past that nobody
+# reads the row — which is exactly how "Tools" grew to sixteen entries and
+# became unusable. If a section is full, the honest fix is a new section
+# with a name that means something, not a longer row. Sections with only
+# one or two entries aren't worth a heading either (the same finding as
+# the settings-category audit), so fold those into a neighbour instead.
+SECTION_CORE = "Core pipeline"
+SECTION_DATA = "Data & batch runs"
+SECTION_MODELS = "Segmentation models"
+SECTION_RESULTS = "Results & QC"
+SECTION_TOXO = "Toxoplasma assays"
+
+#: Section render order — the home page and the sidebar follow APPS order,
+#: which follows this.
+SECTIONS = (SECTION_CORE, SECTION_DATA, SECTION_MODELS, SECTION_RESULTS,
+            SECTION_TOXO)
+
+#: Hard cap on apps per section. Enforced by tests, not at runtime — a
+#: violation is a design mistake to fix in this table, not something to
+#: discover at startup.
+MAX_APPS_PER_SECTION = 9
+
 APPS = [
     # (key, human name, description, section)
-    # -- Core: the main end-to-end screening workflow --
-    ("mask",           "Mask",           "Generate cellpose masks for cells, nuclei and pathogens",   "Core"),
-    ("timelapse",      "Timelapse",      "Segment and track objects across the frames of a time series", "Core"),
-    ("motility",       "Motility Assay", "Automated motility assay: track velocity + infection QC",     "Core"),
-    ("measure",        "Measure",        "Measure single-object intensity + morphology features",       "Core"),
-    ("annotate",       "Annotate",       "Annotate single-object images on a grid; save to database",  "Core"),
-    ("classify",       "Classify (CV)",  "Train Torch CNNs/Transformers to classify single objects",   "Core"),
-    ("ml_analyze",     "Classify (ML)",  "Classical ML (XGBoost / random forest / …) on screen features", "Core"),
-    ("map_barcodes",   "Map Barcodes",   "Map sequencing barcodes to screen data",                      "Core"),
-    ("regression",     "Regression",     "Regression analysis of screen scores",                        "Core"),
-    # -- Tools: supporting / specialised utilities --
-    ("make_masks",     "Make Masks",     "Fine-tune Cellpose models for your dataset",                  "Tools"),
-    ("train_cellpose", "Train Cellpose", "Train custom Cellpose models",                                "Tools"),
-    ("cellpose_masks", "Cellpose Masks", "Cellpose mask generation",                                    "Tools"),
-    ("activation",     "Activation",     "Generate activation maps",                                    "Tools"),
-    ("umap",           "Image UMAP",     "Generate UMAP embeddings with image glyphs",                  "Tools"),
-    ("queue",          "Plate Queue",    "Chain multiple plates through the same pipeline",             "Tools"),
-    ("convert",        "Format Converter", "ND2/CZI/LIF/OME-TIFF into Yokogawa TIFFs: preview the mapping, then a map file back to the originals", "Tools"),
-    ("foreign",        "Import Project", "Someone else's images, masks and measurement table into a spaCR project, with their columns mapped onto spaCR's", "Tools"),
-    ("batch",          "Batch Runner",   "Queue any modules, plates and settings and run them overnight", "Tools"),
-    ("db_browser",     "Database Browser", "Browse and export measurements.db without the sqlite3 CLI", "Tools"),
-    ("agreement",      "Annotator Agreement", "Cohen's/Fleiss' κ between annotation columns + a disagreement review", "Tools"),
-    ("plate_view",     "Plate Viewer",   "Any measurement as a plate heatmap + edge-effect detection",  "Tools"),
-    ("model_compare",  "Model Compare",  "Two Cellpose models on the same fields: masks side by side, object-count and ARI deltas", "Tools"),
-    ("model_zoo",      "Model Zoo",      "Browse, verify, download and bench Cellpose + classifier models on three of your fields", "Tools"),
-    ("report",         "Report",         "One-click shareable HTML/PDF: QC verdict, figures, stats, settings, versions", "Tools"),
-    ("train_compare",  "Training Runs",  "Overlay several training runs' curves with their settings diffed side by side", "Tools"),
-    # -- Toxo: Toxoplasma-specific assays --
-    ("analyze_plaques", "Plaque Assay",  "Analyze plaque assay data",                                   "Toxo"),
-    ("recruitment",    "Recruitment",    "Analyze recruitment data",                                    "Toxo"),
-    ("invasion",       "Invasion Assay", "Two-colour outside/inside stain: attached vs invaded parasites, invasion efficiency per well", "Toxo"),
+    #
+    # NOTE: keys are load-bearing. bridge.resolve_pipeline_entry,
+    # cli.INTERACTIVE_ONLY, validate.APP_FUNCTIONS, dnd_handlers,
+    # settings_model.resolve_default_settings and saved user state all
+    # key off them. Renaming a key silently breaks those; renaming the
+    # display name or moving an app between sections is free.
+    #
+    # -- Core pipeline: images in, single-object measurements out, hits
+    #    called. Ctrl+1..9 map to these nine, in this order.
+    ("mask",           "Mask",           "Generate cellpose masks for cells, nuclei and pathogens",   SECTION_CORE),
+    ("timelapse",      "Timelapse",      "Segment and track objects across the frames of a time series", SECTION_CORE),
+    ("motility",       "Motility Assay", "Automated motility assay: track velocity + infection QC",     SECTION_CORE),
+    ("measure",        "Measure",        "Measure single-object intensity + morphology features",       SECTION_CORE),
+    ("annotate",       "Annotate",       "Annotate single-object images on a grid; save to database",  SECTION_CORE),
+    ("classify",       "Classify (CV)",  "Train Torch CNNs/Transformers to classify single objects",   SECTION_CORE),
+    ("ml_analyze",     "Classify (ML)",  "Classical ML (XGBoost / random forest / …) on screen features", SECTION_CORE),
+    ("map_barcodes",   "Map Barcodes",   "Map sequencing barcodes to screen data",                      SECTION_CORE),
+    ("regression",     "Regression",     "Regression analysis of screen scores",                        SECTION_CORE),
+    # -- Data & batch runs: get images and tables into a spaCR project,
+    #    run many plates unattended, get the numbers back out.
+    ("convert",        "Format Converter", "ND2/CZI/LIF/OME-TIFF into Yokogawa TIFFs: preview the mapping, then a map file back to the originals", SECTION_DATA),
+    ("foreign",        "Import Project", "Someone else's images, masks and measurement table into a spaCR project, with their columns mapped onto spaCR's", SECTION_DATA),
+    ("queue",          "Plate Queue",    "Chain multiple plates through the same pipeline",             SECTION_DATA),
+    ("batch",          "Batch Runner",   "Queue any modules, plates and settings and run them overnight", SECTION_DATA),
+    ("db_browser",     "Database Browser", "Browse and export measurements.db without the sqlite3 CLI", SECTION_DATA),
+    # -- Segmentation models: build, train, pick and check the Cellpose
+    #    models the Mask step runs.
+    ("make_masks",     "Make Masks",     "Fine-tune Cellpose models for your dataset",                  SECTION_MODELS),
+    ("train_cellpose", "Train Cellpose", "Train custom Cellpose models",                                SECTION_MODELS),
+    ("cellpose_masks", "Cellpose Masks", "Cellpose mask generation",                                    SECTION_MODELS),
+    ("model_compare",  "Model Compare",  "Two Cellpose models on the same fields: masks side by side, object-count and ARI deltas", SECTION_MODELS),
+    ("model_zoo",      "Model Zoo",      "Browse, verify, download and bench Cellpose + classifier models on three of your fields", SECTION_MODELS),
+    # -- Results & QC: look at what came out, decide whether to believe it,
+    #    and hand it to someone else.
+    ("plate_view",     "Plate Viewer",   "Any measurement as a plate heatmap + edge-effect detection",  SECTION_RESULTS),
+    ("agreement",      "Annotator Agreement", "Cohen's/Fleiss' κ between annotation columns + a disagreement review", SECTION_RESULTS),
+    ("umap",           "Image UMAP",     "Generate UMAP embeddings with image glyphs",                  SECTION_RESULTS),
+    ("activation",     "Activation",     "Generate activation maps",                                    SECTION_RESULTS),
+    ("train_compare",  "Training Runs",  "Overlay several training runs' curves with their settings diffed side by side", SECTION_RESULTS),
+    ("report",         "Report",         "One-click shareable HTML/PDF: QC verdict, figures, stats, settings, versions", SECTION_RESULTS),
+    # -- Toxoplasma assays: parasite-specific readouts.
+    ("analyze_plaques", "Plaque Assay",  "Analyze plaque assay data",                                   SECTION_TOXO),
+    ("recruitment",    "Recruitment",    "Analyze recruitment data",                                    SECTION_TOXO),
+    ("invasion",       "Invasion Assay", "Two-colour outside/inside stain: attached vs invaded parasites, invasion efficiency per well", SECTION_TOXO),
 ]
 
 
@@ -177,14 +224,15 @@ class Sidebar(QWidget):
     from PySide6.QtCore import Signal
     nav_selected = Signal(str)
 
+    #: Width bounds in px at 100 % font scale. The column starts at
+    #: ``WIDTH_MIN`` and widens — up to ``WIDTH_MAX`` — if the longest app
+    #: name needs it, so a new long name can't quietly get cut in half.
+    WIDTH_MIN = 220
+    WIDTH_MAX = 320
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("Sidebar")
-        # Sidebar width tracks the user's font scale so at 150 % the
-        # labels still fit without being clipped mid-word. See
-        # preferences.scaled_px for the helper.
-        from .preferences import scaled_px
-        self.setFixedWidth(scaled_px(220))
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -194,9 +242,9 @@ class Sidebar(QWidget):
         title.setObjectName("SidebarTitle")
         layout.addWidget(title)
 
-        home = QPushButton("  Home")
-        home.setObjectName("SidebarItem")
-        home.setCursor(Qt.PointingHandCursor)
+        self._items: list[ElidingPushButton] = []
+
+        home = self._make_item("Home", "Back to the start page", "__home__")
         home.setIcon(iconset.icon("home"))
         home.clicked.connect(lambda: self.nav_selected.emit("__home__"))
         layout.addWidget(home)
@@ -209,14 +257,7 @@ class Sidebar(QWidget):
                 header.setObjectName("SidebarSection")
                 layout.addWidget(header)
                 current_section = section
-            btn = QPushButton(f"  {name}")
-            btn.setObjectName("SidebarItem")
-            btn.setCursor(Qt.PointingHandCursor)
-            btn.setToolTip(desc)
-            # Accessibility — screen readers announce the app name +
-            # its one-line description as the button's role.
-            btn.setAccessibleName(name)
-            btn.setAccessibleDescription(desc)
+            btn = self._make_item(name, desc, key)
             icon = _icon_for_app(key)
             if icon is not None:
                 btn.setIcon(icon)
@@ -225,6 +266,52 @@ class Sidebar(QWidget):
             layout.addWidget(btn)
 
         layout.addStretch(1)
+        self.setFixedWidth(self._fitting_width())
+
+    def _make_item(self, name: str, desc: str,
+                   nav_key: str) -> "ElidingPushButton":
+        """Build one navigation row.
+
+        The label elides instead of clipping, and the tooltip leads with
+        the app NAME (not just its description) so a shortened label is
+        still identifiable on hover.
+
+        :param nav_key: the app key this row navigates to, exposed as the
+            ``navKey`` Qt property so callers (and tests) can tell app
+            rows apart from the Home row without parsing labels.
+        """
+        btn = ElidingPushButton(f"  {name}")
+        btn.setObjectName("SidebarItem")
+        btn.setProperty("navKey", nav_key)
+        btn.setCursor(Qt.PointingHandCursor)
+        btn.setToolTip(f"{name} — {desc}" if desc else name)
+        # Accessibility — screen readers announce the app name +
+        # its one-line description as the button's role.
+        btn.setAccessibleName(name)
+        btn.setAccessibleDescription(desc)
+        self._items.append(btn)
+        return btn
+
+    def _fitting_width(self) -> int:
+        """Width that shows the longest nav label in full, within bounds.
+
+        Font scale moves both bounds (a 150 % font needs a 150 % column),
+        and the widest button's own size hint moves the result inside
+        them. Names longer than ``WIDTH_MAX`` elide with a tooltip rather
+        than pushing the column across the window.
+        """
+        from .preferences import scaled_px
+        widest = max((b.sizeHint().width() for b in self._items), default=0)
+        return max(scaled_px(self.WIDTH_MIN),
+                   min(widest + scaled_px(12), scaled_px(self.WIDTH_MAX)))
+
+    def clipped_items(self) -> list:
+        """Nav buttons whose label had to be shortened to fit.
+
+        Empty in a healthy layout; a test asserts that, and anything in
+        here still carries its full name in its tooltip.
+        """
+        return [b for b in self._items if b.is_elided()]
 
 
 class MainWindow(QMainWindow):
@@ -254,7 +341,10 @@ class MainWindow(QMainWindow):
 
         splitter.setStretchFactor(0, 0)
         splitter.setStretchFactor(1, 1)
-        splitter.setSizes([220, 980])
+        # Ask the sidebar how wide it needs to be rather than hard-coding
+        # 220: it sizes itself to the longest app name and to the user's
+        # font scale, and a stale literal here would squeeze it.
+        splitter.setSizes([self._sidebar.width(), 980])
         self.setCentralWidget(splitter)
 
         # Register screens lazily — created on first navigation.

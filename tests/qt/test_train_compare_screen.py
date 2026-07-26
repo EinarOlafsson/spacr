@@ -129,10 +129,12 @@ def test_screen_builds_offscreen_without_raising(qtbot, qt_theme_applied):
     assert w.comparison() is None
 
 
-def test_registration_constants_are_a_tools_app():
+def test_registration_constants_put_it_in_results_and_qc():
     assert APP_KEY == "train_compare"
     assert APP_NAME == "Training Runs"
-    assert APP_SECTION == "Tools"
+    # Comparing training runs is reading a result, not running a tool —
+    # it lives with the other "did this work?" screens.
+    assert APP_SECTION == "Results & QC"
     assert APP_INTRO.strip()
 
 

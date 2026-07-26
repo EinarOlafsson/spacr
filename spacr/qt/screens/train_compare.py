@@ -88,7 +88,7 @@ __all__ = ["TrainCompareScreen", "APP_KEY", "APP_NAME", "APP_SECTION",
 #: screen and the registry can be checked against each other.
 APP_KEY = "train_compare"
 APP_NAME = "Training Runs"
-APP_SECTION = "Tools"
+APP_SECTION = "Results & QC"
 APP_INTRO = (
     "Overlay the loss and accuracy curves of several training runs on one "
     "axis and see, beside them, exactly which settings differed — with "

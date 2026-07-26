@@ -160,7 +160,7 @@ def test_the_two_panels_start_on_different_settings(screen):
     assert config_a.diameter != config_b.diameter
 
 
-def test_the_screen_is_registered_as_a_tools_app(qtbot, qt_theme_applied):
+def test_the_screen_is_registered_under_segmentation_models(qtbot, qt_theme_applied):
     from spacr.qt.app import APPS, _icon_for_app
     from spacr.qt.screens.app_screen import APP_INTROS, APP_TITLES
 
@@ -168,7 +168,8 @@ def test_the_screen_is_registered_as_a_tools_app(qtbot, qt_theme_applied):
     assert entry is not None, "model_compare missing from APPS"
     key, name, description, section = entry
     assert name == "Model Compare"
-    assert section == "Tools"
+    from spacr.qt.app import SECTION_MODELS
+    assert section == SECTION_MODELS
     assert description
     assert APP_TITLES[key] == "Model Compare"
     assert APP_INTROS[key]

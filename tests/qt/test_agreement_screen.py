@@ -182,14 +182,17 @@ def screen(qtbot, qt_theme_applied):
 # Registration
 # ---------------------------------------------------------------------------
 
-def test_agreement_is_registered_as_a_tools_app():
+def test_agreement_is_registered_under_results_and_qc():
     from spacr.qt.app import APPS
     entry = next((a for a in APPS if a[0] == "agreement"), None)
     assert entry is not None, "agreement missing from APPS"
     key, name, desc, section = entry
     assert name == "Annotator Agreement"
     assert desc and desc.strip()
-    assert section == "Tools", f"agreement filed under {section!r}, want Tools"
+    from spacr.qt.app import SECTION_RESULTS
+    assert section == SECTION_RESULTS, (
+        f"agreement filed under {section!r}; scoring annotation passes is "
+        "reading a result")
 
 
 def test_agreement_has_a_title_and_an_intro():

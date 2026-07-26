@@ -36,7 +36,8 @@ def test_new_module_is_on_the_home_screen(key):
     assert entry is not None, f"{key!r} missing from APPS"
     app_key, name, desc, section = entry
     assert name and desc
-    assert section == "Core", (
+    from spacr.qt.app import SECTION_CORE
+    assert section == SECTION_CORE, (
         f"{key!r} is a first-class workflow, not a Tool — got section {section!r}")
 
 
