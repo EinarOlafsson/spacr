@@ -701,18 +701,24 @@ def plate_layout(df: pd.DataFrame,
 
     Aggregation and the well-identifier handling follow
     :func:`spacr.plot.generate_plate_heatmap` so the two agree well for
-    well, with three deliberate departures, each of which fixes a way the
-    original misleads:
+    well, with two deliberate departures, each of which fixes a way the
+    plotter misleads:
 
     * **Missing wells stay missing.** ``generate_plate_heatmap`` ends in
       ``.fillna(0)``, which paints an unpipetted or filtered-out well as
       a real measurement of zero. Here an absent well is absent.
-    * **The grid is not hard-coded.** The original pins rows to
-      ``r1..r16`` and columns to ``c1..c27``, silently dropping every
-      well of a 1536 plate past row 16. The geometry here comes from
-      :func:`infer_plate_format`.
-    * **Letters count as labels.** ``'B'``/``'A01'`` parse as well
-      positions, not just ``'r2'``/``'c1'``.
+    * **The grid is nominal, not observed.** The plotter's axes span the
+      wells that are present; these span the whole inferred format, so a
+      row nobody pipetted still holds its place on the plate and the ring
+      geometry :func:`detect_edge_effect` needs stays intact.
+
+    The third departure has since been closed from the other side. The
+    plotter used to pin rows to ``r1..r16`` and columns to ``c1..c27``,
+    silently dropping every well of a 1536 plate past row P; it now reads
+    its axes off the data through :func:`parse_row_label` /
+    :func:`parse_column_label` — these functions — so ``'B'`` and ``'AA'``
+    are row labels in both places, and neither module owns a private
+    letter walk.
 
     :param df: long frame with a ``prc`` identifier (or ``rowID`` +
         ``columnID``, or a ``well`` column) and ``value_col``. A layout

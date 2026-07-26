@@ -2107,8 +2107,57 @@ def _reg_v_plot(df, grouping=None, variable=None, plate_number=None):
     plt.axhline(y=-np.log10(0.05), color='gray', linestyle='--')  # line for p=0.05
     plt.show()
 
+def _well_axis_labels(tokens, parse, render):
+    """Map raw row (or column) tokens onto ``(index, canonical label)``.
+
+    Two rules, and both of them matter:
+
+    * **The letter walk is borrowed, never rewritten.** ``parse`` is
+      :func:`spacr.plate_qc.parse_row_label` / ``parse_column_label`` and
+      ``render`` is :func:`spacr.schema.row_id` / ``column_id``, so
+      ``'AA'``, ``'r27'`` and ``'row27'`` are one row here, in QC and in
+      the database. A hand-rolled ``chr(ord('A') + n)`` produces ``'['``
+      for row 27, which is how this class of bug started.
+    * **Each distinct token is parsed once.** A measurement frame is a
+      million object rows over a few hundred wells; parsing per row would
+      run the regexes a million times for a few hundred answers.
+
+    :param tokens: sequence of raw tokens as they appear in ``prc``.
+    :param parse: label reader returning a 1-based index or ``None``.
+    :param render: id builder turning that index into ``'r<N>'``/``'c<N>'``.
+    :returns: ``(indices, labels)`` object arrays. An unreadable token has
+        index ``None`` and keeps its raw text as its label, so a caller can
+        name it in a report instead of dropping it namelessly.
+    """
+    cache = {}
+    for token in set(tokens):
+        index = parse(token)
+        cache[token] = (index, token if index is None else render(int(index)))
+    indices = np.array([cache[t][0] for t in tokens], dtype=object)
+    labels = np.array([cache[t][1] for t in tokens], dtype=object)
+    return indices, labels
+
+
 def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_count):
     """Aggregate a well-level DataFrame into a plate-shaped heatmap.
+
+    The grid is **read off the data**. It used to be pinned to ``r1..r16``
+    by ``c1..c27``, so every well of a 1536 plate past row P or past column
+    27 fell outside the ``Categorical``, became NaN, and was dropped by the
+    groupby — measured, in the database, and simply absent from the figure
+    with nothing said. Rows and columns now go through
+    :func:`spacr.plate_qc.parse_row_label` / ``parse_column_label`` (which
+    is :mod:`spacr.schema`'s letter walk, so ``AA``…``AF`` and beyond are
+    real rows), and the axes span exactly the wells present: a 96 plate is
+    still 8x12 and a 384 still 16x24, because nothing is padded out to the
+    largest format that exists.
+
+    A well that genuinely cannot be placed — a ``prc`` with too few parts,
+    or a row/column token holding no position — is reported through
+    :func:`spacr.errors.raise_if_strict` (an ``ERROR`` on
+    ``spacr.errors``, or a raise under ``SPACR_STRICT_ERRORS``) naming the
+    identifiers concerned. Replacing a silent drop with a quieter silent
+    drop would fix nothing.
 
     :param df: Long-format DataFrame with a ``prc`` (plate_row_column)
         identifier and the requested ``variable`` column.
@@ -2119,21 +2168,39 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
     :param min_max: Colour scale spec — ``'all'``, ``'allq'``, or a
         two-element list ``[vmin, vmax]`` (floats treated as quantiles).
     :param min_count: Drop wells with fewer than this many rows.
-    :returns: ``(plate_map, (vmin, vmax))`` — the pivoted matrix and
-        the colour-limit tuple.
+    :returns: ``(plate_map, (vmin, vmax))`` — the pivoted matrix, indexed
+        ``'r<N>'`` by ``'c<N>'``, and the colour-limit tuple.
     :raises ValueError: if ``grouping`` is not one of the accepted values.
     :raises KeyError: if ``variable`` is missing and required.
     """
+    from . import plate_qc as _plate_qc
+    from . import schema as _schema
+
     if not isinstance(min_count, (int, float)):
         min_count = 0
 
-    # If prc has 4 parts, rebuild it using the passed plate_number
-    num_parts = len(df['prc'].iloc[0].split('_'))
-    if num_parts == 4:
-        split = df['prc'].str.split('_', expand=True)
+    # -- read the well out of prc -----------------------------------------
+    # prc is <plate>_<row>_<column>, read right to left: the last two tokens
+    # are the position and whatever precedes them is the plate. Left-to-right
+    # unpacking put the *row* in the plate slot for any identifier carrying
+    # an experiment prefix, and only ``prc.iloc[0]`` was ever probed for its
+    # length, so a frame mixing 3- and 4-token identifiers misaligned every
+    # row of the minority shape.
+    prc_text = df['prc'].astype(str)
+    parts = [text.split(_schema.KEY_SEPARATOR) for text in prc_text]
+    # A longer identifier carries an experiment prefix; the plate the caller
+    # asked for is then the authority on which plate it is, which is what the
+    # old 4-part rebuild did. Too short and there is no position at all — the
+    # rows are kept here precisely so they can be reported below.
+    plate_token = np.array(
+        [p[0] if len(p) == 3 else str(plate_number) for p in parts], dtype=object)
+    row_token = np.array([p[-2] if len(p) >= 3 else '' for p in parts], dtype=object)
+    col_token = np.array([p[-1] if len(p) >= 3 else '' for p in parts], dtype=object)
+
+    if not all(len(p) == 3 for p in parts):
+        # A rebuilt identifier must not be written back onto the caller's
+        # frame. The plain 3-token path always has done, and is pinned.
         df = df.copy()
-        df['rowID'] = split[2]
-        df['prc']   = f"{plate_number}" + '_' + split[2] + '_' + split[3]
 
     # Derive plateID,rowID,columnID from prc if not already present
     if 'column_name' not in df.columns:
@@ -2150,23 +2217,46 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
         else:
             df['plateID'] = 'p1'
 
-    df['plateID'], df['rowID'], df['columnID'] = zip(*df['prc'].str.split('_'))
+    row_index, row_label = _well_axis_labels(
+        row_token, _plate_qc.parse_row_label, _schema.row_id)
+    col_index, col_label = _well_axis_labels(
+        col_token, _plate_qc.parse_column_label, _schema.column_id)
 
-    # Filter one plate
-    df = df[df['plateID'] == plate_number].copy()
+    df['plateID'], df['rowID'], df['columnID'] = plate_token, row_label, col_label
 
-    # Order rows/cols
-    row_order = [f'r{i}' for i in range(1, 17)]
-    col_order = [f'c{i}' for i in range(1, 28)]
-    df['rowID']    = pd.Categorical(df['rowID'], categories=row_order, ordered=True)
-    df['columnID'] = pd.Categorical(df['columnID'], categories=col_order, ordered=True)
+    # -- filter one plate, and say what could not be drawn ------------------
+    # dtype=bool explicitly: an empty frame gives an empty float array, and
+    # `~` on a float array is a TypeError rather than "nothing to report".
+    on_plate = np.asarray(plate_token == str(plate_number), dtype=bool)
+    placeable = np.array([r is not None and c is not None
+                          for r, c in zip(row_index, col_index)], dtype=bool)
+    lost = on_plate & ~placeable
+    if lost.any():
+        names = sorted(set(prc_text.to_numpy()[lost]))
+        shown = ', '.join(names[:12]) + (' …' if len(names) > 12 else '')
+        raise_if_strict(
+            f"plate {plate_number!r}: {int(lost.sum())} row(s) covering "
+            f"{len(names)} identifier(s) hold no well position and are "
+            f"missing from the heatmap: {shown}. A prc must be "
+            f"<plate>_<row>_<column> with a readable row ('r3', 'C', 'AA') "
+            f"and column ('c7', '7'); a well drawn nowhere is "
+            f"indistinguishable from a well that was never measured.")
+
+    keep = on_plate & placeable
+    df = df[keep].copy()
+    # Group on the integer position, not on the label: 'c10' sorts before
+    # 'c2' as text, and a Categorical of hard-coded labels was what silently
+    # deleted rows past P in the first place.
+    df['_row_index'] = row_index[keep].astype(int)
+    df['_col_index'] = col_index[keep].astype(int)
+    keys = ['_row_index', '_col_index']
 
     # Optional min_count filter on true per-well counts
-    df['_well_count'] = df.groupby(['rowID','columnID'], observed=True)['rowID'].transform('count')
+    df['_well_count'] = df.groupby(keys)['_row_index'].transform('count')
     if min_count > 0:
         df = df[df['_well_count'] >= min_count]
 
-    grouped = df.groupby(['rowID','columnID'], observed=True)
+    grouped = df.groupby(keys)
 
     # --- Aggregation ---
     if grouping == 'count':
@@ -2177,15 +2267,19 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
         vals = pd.to_numeric(df[variable], errors='coerce')            # ensure numeric
         tmp  = df.assign(__val__=vals)
         if grouping == 'mean':
-            plate = tmp.groupby(['rowID','columnID'], observed=True)['__val__'] \
-                       .mean().reset_index(name='value')
+            plate = tmp.groupby(keys)['__val__'].mean().reset_index(name='value')
         else:  # sum
-            plate = tmp.groupby(['rowID','columnID'], observed=True)['__val__'] \
-                       .sum().reset_index(name='value')
+            plate = tmp.groupby(keys)['__val__'].sum().reset_index(name='value')
     else:
         raise ValueError("grouping must be 'count', 'sum', or 'mean'")
 
-    plate_map = pd.pivot_table(plate, values='value', index='rowID', columns='columnID').fillna(0)
+    plate_map = pd.pivot_table(plate, values='value', index='_row_index',
+                               columns='_col_index').fillna(0)
+    # Back to the ids the rest of spaCR speaks, in numeric order.
+    plate_map.index = pd.Index([_schema.row_id(int(i)) for i in plate_map.index],
+                               name='rowID')
+    plate_map.columns = pd.Index([_schema.column_id(int(i)) for i in plate_map.columns],
+                                 name='columnID')
 
     # vmin/vmax selection. Guard against an empty pivot (e.g. a tiny plate
     # where every well was filtered out): np.quantile / np.nanmin on a
@@ -2219,6 +2313,11 @@ def plot_plates(df, variable, grouping, min_max, cmap, min_count=0, verbose=True
     according to ``grouping``, and lays the plates out four-per-row on
     a single figure. Optionally writes the figure to
     ``<dst>/plate_heatmap_<n>.pdf``.
+
+    Each panel's own grid comes from :func:`generate_plate_heatmap`, which
+    reads it off the wells present — 8x12, 16x24, 32x48 or whatever the
+    data says — so a 1536 plate draws all 32 of its rows and a 96 plate is
+    not padded out to match it.
 
     :param df: Long-format DataFrame with a ``prc`` column of the form
         ``plateID_rowID_columnID`` and the column named by ``variable``.
