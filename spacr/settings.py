@@ -314,6 +314,10 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     # here is an explicit per-run choice and wins over the environment.
     settings.setdefault('strict_errors', None)
     settings.setdefault('max_failure_rate', None)
+    # Continue an interrupted run instead of starting over. Opt-in:
+    # spacr.resume validates what is already on disk rather than trusting it,
+    # and clears a field's existing rows before re-measuring it.
+    settings.setdefault('resume', False)
     return settings
 
 
@@ -622,6 +626,10 @@ def get_measure_crop_settings(settings=None):
     # here is an explicit per-run choice and wins over the environment.
     settings.setdefault('strict_errors', None)
     settings.setdefault('max_failure_rate', None)
+    # Continue an interrupted run instead of starting over. Opt-in:
+    # spacr.resume validates what is already on disk rather than trusting it,
+    # and clears a field's existing rows before re-measuring it.
+    settings.setdefault('resume', False)
     return settings
 
 def set_default_analyze_screen(settings):
@@ -1386,6 +1394,7 @@ expected_types = {
     "save_to_db":bool,
     "test_mode":bool,
     "dry_run":bool,
+    "resume":bool,
     "test_images":int,
     "remove_background_cell":bool,
     "remove_background_nucleus":bool,
@@ -2079,6 +2088,7 @@ tooltips = {
     "correlate": "(bool) - Intended to add pairwise correlations between selected measurements to the analysis output, but nothing reads settings['correlate']. Channel/activation correlations are controlled by the separate 'correlation' setting in the activation-map path. Kept only so old settings CSVs still load.",
     'count_data': "(str or list) - CSV(s) of per-well gRNA read counts from the sequencing step (unique_combinations.csv); each must contain grna, count, rowID and columnID columns or the run raises ValueError. These are the regression's independent variable. Pass one path per plate, position-aligned with plates_count; results are written under the first file's folder.",
     'cov_type': "(str) - Heteroscedasticity-robust covariance estimator passed to the OLS fit: 'HC0', 'HC1', 'HC2' or 'HC3', or None for classical non-robust errors. It changes standard errors and p-values only, never the coefficients; reach for 'HC3' when residual variance grows with well cell count. Applies to regression_type 'ols' only. Default None.",
+    "resume": "(bool) - Continue an interrupted run instead of starting over. Mask generation skips fields whose merged/ stack is already present AND verifies complete; measure-and-crop skips fields already present in every table of measurements.db. Fields that are present but unusable - a .npy truncated by a crash mid-write, or a field with rows in some tables and not others - are redone rather than trusted, and the count of each is reported. Every field about to be redone has its existing rows deleted first, so resuming cannot duplicate objects or inflate the per-well counts every downstream analysis is computed from. Refuses to resume at all if the recorded settings differ materially from the current ones, because half a dataset made one way and half another is not a dataset. Default False.",
     'strict_errors': "(bool or None) - What happens when a step hits a problem it could technically survive. None (the default) defers to the SPACR_STRICT_ERRORS environment variable, which is how a cluster turns this on for a whole batch without editing every settings file; False and True are explicit per-run choices and override it. When off, the failure is recorded in the run ledger, printed in the end-of-run summary and stamped into the artifact's run_status, and the run continues on the items that worked. When on, a swallowed setup or configuration error - an unreadable path, a missing column, a database that will not open - raises immediately, so a batch job stops at the first sign its inputs are wrong instead of producing a plausible-looking partial result. Per-item failures such as one corrupt image are still survived either way. Default None.",
     'max_failure_rate': "(float or None) - Fraction of failed items above which the run aborts rather than finishing and reporting. 0.2 means 'stop once more than a fifth of the fields have failed', on the grounds that whatever is left is no longer the experiment. The ledger is stamped into the artifact before the abort, so the evidence survives. None (the default) never aborts on rate alone - every failure is still counted and reported, and the artifact is still marked partial. Default None.",
     'queue_by_uncertainty': "(bool) - Reorder the Annotate grid so the crops the classifier is least sure about come first, instead of showing them in database order. Labelling a crop the model already calls correctly with 99% probability teaches it nothing; the ones near the decision boundary are where a human's time actually moves the model. Needs model scores in png_list, so Classify (CV) has to have run - with none present the grid falls back to page order and says so rather than coming up empty. Crops that already carry an annotation are excluded. Default False.",
@@ -2263,7 +2273,7 @@ categories = {
 
     "Plot": ["cmap", "figuresize", "normalize_plots", "black_background", "save_figure", "log_x", "log_y", "x_lim", "split_axis_lims", "examples_to_plot", "plot_control", "plot_nr", "nr_imgs", "um_per_pixel", "image_nr", "dot_size", "img_zoom", "row_limit", "color_by", "plot_images", "remove_image_canvas", "plot_points", "plot_outlines", "smooth_lines", "plot_by_cluster", "plot_cluster_grids", "heatmap_feature", "grouping", "min_max", "highlight"],
 
-    "Advanced": ["strict_errors", "max_failure_rate", "crop_source", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "normalize", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "compression", "diameter_estimate_n_fields", "nuclei_limit", "pathogen_limit", "cells_per_well", "target_intensity_min", "shuffle", "save", "filter", "merge_pathogens"],
+    "Advanced": ["resume", "strict_errors", "max_failure_rate", "crop_source", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "normalize", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "compression", "diameter_estimate_n_fields", "nuclei_limit", "pathogen_limit", "cells_per_well", "target_intensity_min", "shuffle", "save", "filter", "merge_pathogens"],
 
     # The 3D (Beta) keys lead this list: `z_stack` is the master switch and
     # the rest only mean anything once it is on. They are filed here rather

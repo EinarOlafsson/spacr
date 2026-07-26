@@ -22,6 +22,7 @@ from . import settings
 # at the end of the run, and stamped into measurements.db so a downstream
 # regression cannot silently analyse 344 of 384 wells.
 from .errors import RunLedger, ConfigurationError, raise_if_strict
+from .resume import plan_measure_resume
 
 
 def get_components(cell_mask, nucleus_mask, pathogen_mask):
@@ -1565,9 +1566,16 @@ def measure_crop(settings):
                 settings['crop_mode'] = [str(crop_mode) for crop_mode in settings['crop_mode']]
                 print(f"Converted crop_mode to list: {settings['crop_mode']}")
             
+            # MUST come before _save_settings_to_db: that writes the settings
+            # table with if_exists='replace', destroying the record of the run
+            # being resumed — which is what the settings comparison reads.
+            resume_plan = plan_measure_resume(settings)
+
             _save_settings_to_db(settings)
 
             files = [f for f in os.listdir(settings['src']) if f.endswith('.npy')]
+            if resume_plan is not None:
+                files = resume_plan.filter_files(files)
             n_jobs = settings['n_jobs']
             print(f'using {n_jobs} cpu cores')
             print_progress(files_processed=0, files_to_process=len(files), n_jobs=n_jobs, time_ls=[], operation_type='Measure and Crop')

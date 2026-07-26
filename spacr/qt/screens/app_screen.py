@@ -581,6 +581,17 @@ class AppScreen(QWidget):
         self._console.setMinimumHeight(180)
         console_col.addWidget(self._console, 1)
 
+        # Exactly one of these cards occupies the slot above the console.
+        # Nulled here rather than in every branch: the chain has grown to six
+        # arms and a branch that forgets one leaves a stale attribute from a
+        # previous screen.
+        self._live_preview = self._live_preview_card = None
+        self._measure_preview = self._measure_preview_card = None
+        self._hyperparam = self._hyperparam_card = None
+        self._timelapse_preview = self._timelapse_preview_card = None
+        self._motility_preview = self._motility_preview_card = None
+        self._runtime_splitter = None
+
         if self.app_key == "mask":
             splitter = QSplitter(Qt.Vertical)
             splitter.setChildrenCollapsible(False)
@@ -596,8 +607,40 @@ class AppScreen(QWidget):
             splitter.setStretchFactor(1, 1)
             splitter.setSizes([420, 320])
             layout.addWidget(splitter, 1)
-            self._hyperparam = None
-            self._hyperparam_card = None
+            self._runtime_splitter = splitter
+        elif self.app_key == "timelapse":
+            # Timelapse takes the same slot Mask and Measure use for Live
+            # Preview. Segmenting the sequence is the expensive half and is
+            # cached on a signature that deliberately excludes the tracking
+            # settings, so re-linking while tuning them costs nothing.
+            from ..widgets.timelapse_preview import build_timelapse_preview_card
+            splitter = QSplitter(Qt.Vertical)
+            splitter.setChildrenCollapsible(False)
+            self._timelapse_preview, self._timelapse_preview_card = (
+                build_timelapse_preview_card(self))
+            self._timelapse_preview.set_propagate_callback(
+                self._propagate_live_settings)
+            splitter.addWidget(self._timelapse_preview_card)
+            splitter.addWidget(console_wrap)
+            splitter.setStretchFactor(0, 1)
+            splitter.setStretchFactor(1, 1)
+            splitter.setSizes([420, 320])
+            layout.addWidget(splitter, 1)
+            self._runtime_splitter = splitter
+        elif self.app_key == "motility":
+            from ..widgets.motility_preview import build_motility_preview_card
+            splitter = QSplitter(Qt.Vertical)
+            splitter.setChildrenCollapsible(False)
+            self._motility_preview, self._motility_preview_card = (
+                build_motility_preview_card(self))
+            self._motility_preview.set_propagate_callback(
+                self._propagate_live_settings)
+            splitter.addWidget(self._motility_preview_card)
+            splitter.addWidget(console_wrap)
+            splitter.setStretchFactor(0, 1)
+            splitter.setStretchFactor(1, 1)
+            splitter.setSizes([420, 320])
+            layout.addWidget(splitter, 1)
             self._runtime_splitter = splitter
         elif self.app_key == "measure":
             splitter = QSplitter(Qt.Vertical)
@@ -612,10 +655,6 @@ class AppScreen(QWidget):
             splitter.setStretchFactor(1, 1)
             splitter.setSizes([420, 320])
             layout.addWidget(splitter, 1)
-            self._live_preview = None
-            self._live_preview_card = None
-            self._hyperparam = None
-            self._hyperparam_card = None
             self._runtime_splitter = splitter
         elif _hyperparam_searchable(self.app_key):
             # umap / classify / ml_analyze get a Hyperparameter search card in
@@ -633,19 +672,8 @@ class AppScreen(QWidget):
             splitter.setStretchFactor(1, 1)
             splitter.setSizes([420, 320])
             layout.addWidget(splitter, 1)
-            self._live_preview = None
-            self._live_preview_card = None
-            self._measure_preview = None
-            self._measure_preview_card = None
             self._runtime_splitter = splitter
         else:
-            self._live_preview = None
-            self._live_preview_card = None
-            self._measure_preview = None
-            self._measure_preview_card = None
-            self._hyperparam = None
-            self._hyperparam_card = None
-            self._runtime_splitter = None
             layout.addWidget(console_wrap, 1)
 
         # Route the verbose logger (if the user turned it on in
