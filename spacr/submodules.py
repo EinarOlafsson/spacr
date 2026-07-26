@@ -2921,6 +2921,1521 @@ def analyze_replication(settings):
     return output
 
 
+# ===========================================================================
+# Invasion assay (Toxoplasma) — two-colour outside/inside stain
+# ===========================================================================
+
+def _set_analyze_invasion_defaults(settings):
+    """Fallback defaults for :func:`analyze_invasion`.
+
+    The canonical copy of every pipeline's defaults lives in
+    :mod:`spacr.settings`; this one is used only while
+    ``spacr.settings.set_analyze_invasion_defaults`` does not exist yet, so the
+    assay is runnable from the API before the GUI knobs are registered. Once
+    :mod:`spacr.settings` defines it, that version wins.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
+    settings.setdefault('src', 'path')
+    settings.setdefault('parasite_table', 'pathogen')
+    settings.setdefault('compartment', 'pathogen')
+    settings.setdefault('outside_channel', 1)
+    settings.setdefault('total_channel', 0)
+    settings.setdefault('intensity_statistic', 'auto')
+    settings.setdefault('background_correction', 'none')
+    settings.setdefault('outside_threshold_method', 'otsu')
+    settings.setdefault('outside_threshold', None)
+    settings.setdefault('control_wells', None)
+    settings.setdefault('control_quantile', 0.99)
+    settings.setdefault('min_control_objects', 10)
+    settings.setdefault('min_objects_for_threshold', 10)
+    settings.setdefault('min_objects_for_bimodality', 30)
+    settings.setdefault('bimodality_cutoff', 5.0 / 9.0)
+    settings.setdefault('threshold_agreement_tolerance', 0.5)
+    settings.setdefault('threshold_sensitivity', 0.25)
+    settings.setdefault('inflation_warn', 0.05)
+    settings.setdefault('min_parasites_per_well', 50)
+    settings.setdefault('min_parasite_area', 0)
+    settings.setdefault('max_parasite_area', None)
+    settings.setdefault('min_total_intensity', None)
+    settings.setdefault('extracellular_class', 'attached')
+    settings.setdefault('seed_wells_from_cells', True)
+    settings.setdefault('cell_types', ['Hela'])
+    settings.setdefault('cell_plate_metadata', None)
+    settings.setdefault('pathogen_types', ['nc', 'pc'])
+    settings.setdefault('pathogen_plate_metadata', [['c1'], ['c2']])
+    settings.setdefault('treatments', None)
+    settings.setdefault('treatment_plate_metadata', None)
+    settings.setdefault('group_column', 'condition')
+    settings.setdefault('level', 'object')
+    settings.setdefault('change_plate', False)
+    settings.setdefault('qc_plot_max_panels', 12)
+    settings.setdefault('cmap', 'viridis')
+    settings.setdefault('save', True)
+    settings.setdefault('verbose', False)
+    return settings
+
+
+# Per-object statistics of the outside-stain channel, in the naming
+# :func:`spacr.measure._intensity_measurements` actually writes.
+#
+# Careful with the word "outside": measure.py's ``<object>_channel_<n>_outside_*``
+# columns are the intensity of a five-pixel ring *outside the object's own
+# mask* (:func:`spacr.measure._outside_intensity`) in whatever channel is
+# named. They are a local background estimate, and they have nothing to do
+# with the outside/inside *stain* of this assay. The assay's outside stain is
+# a channel, selected with ``outside_channel``; the statistics below read the
+# parasite's own pixels in that channel.
+_INVASION_STATISTIC_TEMPLATES = {
+    'periphery_95': '{compartment}_channel_{channel}_periphery_95_percentile',
+    'periphery_85': '{compartment}_channel_{channel}_periphery_85_percentile',
+    'periphery_mean': '{compartment}_channel_{channel}_periphery_mean',
+    'percentile_95': '{compartment}_channel_{channel}_percentile_95',
+    'percentile_85': '{compartment}_channel_{channel}_percentile_85',
+    'max': '{compartment}_channel_{channel}_max_intensity',
+    'mean': '{compartment}_channel_{channel}_mean_intensity',
+    'median': '{compartment}_channel_{channel}_median_intensity',
+    'integrated': '{compartment}_channel_{channel}_integrated_intensity',
+}
+
+# Resolution order for intensity_statistic='auto'. The order is the argument
+# in :func:`_resolve_invasion_intensity_column`.
+_INVASION_STATISTIC_AUTO_ORDER = ('periphery_95', 'percentile_95', 'mean')
+
+_INVASION_CLASSES = ['attached', 'invaded']
+
+
+def _resolve_invasion_intensity_column(df, compartment, channel,
+                                       statistic='auto', verbose=False):
+    """Pick the per-object outside-channel statistic and say which one it is.
+
+    **An outside stain is a rim stain**, and that fact decides this entirely.
+    The antibody binds the parasite surface before permeabilisation, so the
+    signal lives on the object's boundary while the object's interior stays at
+    background. Three consequences, in the order that matters:
+
+    * ``mean_intensity`` averages the rim over the *whole* object. Signal
+      scales with the perimeter and the denominator with the area, so the mean
+      of a fixed surface stain falls roughly as ``1/radius``: a bigger parasite
+      reads dimmer than a smaller one that is stained identically. That is a
+      size-dependent bias pushing objects *below* the threshold, which is the
+      exact direction that manufactures false "invaded" calls. It is the last
+      resort, and choosing it prints a warning.
+    * ``max_intensity`` is one pixel, so one hot pixel or cosmic ray sets it.
+    * ``percentile_95`` samples the brightest 5% of the object's pixels —
+      which is where a rim sits — over enough pixels to be stable. It is the
+      right default when nothing better exists.
+    * ``periphery_95_percentile`` (:func:`spacr.measure._periphery_intensity`)
+      is measured *only* on the object's boundary ring, so it does not depend
+      on the object's area at all. When measure_crop wrote it, it wins.
+
+    :param df: Raw per-parasite DataFrame.
+    :param compartment: Object prefix, e.g. ``'pathogen'``.
+    :param channel: Index of the outside-stain channel.
+    :param statistic: ``'auto'``, a key of
+        :data:`_INVASION_STATISTIC_TEMPLATES`, or a literal column name.
+    :param verbose: Print the resolved column.
+    :returns: ``(column_name, statistic_name)``.
+    :raises KeyError: when the requested statistic is not in the table.
+    """
+    def _template(name):
+        return _INVASION_STATISTIC_TEMPLATES[name].format(
+            compartment=compartment, channel=channel)
+
+    if statistic == 'auto':
+        for name in _INVASION_STATISTIC_AUTO_ORDER:
+            column = _template(name)
+            if column in df.columns and df[column].notna().any():
+                if name == 'mean':
+                    print(
+                        "WARNING: falling back to the object MEAN of the "
+                        f"outside channel ('{column}'). An outside stain is a "
+                        "rim stain, so the mean is diluted by the parasite's "
+                        "unstained interior and large parasites read dimmer "
+                        "than small ones stained identically — a bias toward "
+                        "calling outside parasites invaded. Re-run measure "
+                        "with intensity features so percentile_95 / "
+                        "periphery_95_percentile exist."
+                    )
+                if verbose:
+                    print(f"Outside-stain statistic: '{column}' ({name})")
+                return column, name
+        raise KeyError(
+            f"No usable outside-channel statistic for compartment "
+            f"'{compartment}' channel {channel}. Tried "
+            + ', '.join(_template(n) for n in _INVASION_STATISTIC_AUTO_ORDER)
+            + ". Check 'outside_channel', or name a column with "
+              "'intensity_statistic'."
+        )
+
+    if statistic in _INVASION_STATISTIC_TEMPLATES:
+        column = _template(statistic)
+        if column not in df.columns:
+            raise KeyError(
+                f"intensity_statistic '{statistic}' resolves to column "
+                f"'{column}', which is not in the parasite table."
+            )
+        if verbose:
+            print(f"Outside-stain statistic: '{column}' ({statistic})")
+        return column, statistic
+
+    if statistic in df.columns:
+        if verbose:
+            print(f"Outside-stain statistic: '{statistic}' (custom column)")
+        return statistic, 'custom'
+
+    raise KeyError(
+        f"intensity_statistic '{statistic}' is neither one of "
+        f"{sorted(_INVASION_STATISTIC_TEMPLATES)} nor a column of the "
+        f"parasite table."
+    )
+
+
+def _resolve_invasion_background_column(df, compartment, channel,
+                                        background='none'):
+    """Locate the per-object local-background column, or ``None``.
+
+    ``'auto'`` uses ``<compartment>_channel_<n>_outside_50_percentile`` — the
+    median of the five-pixel ring *outside* the parasite mask in the outside
+    stain's channel — which removes a per-field background offset without a
+    flat-field image.
+
+    It is off by default on purpose. A brightly stained *attached* parasite
+    carries an antibody halo that reaches into that same ring, so subtracting
+    the ring suppresses exactly the objects the assay must keep above the
+    threshold. Turn it on when the background varies more than the halo
+    bleeds, and check the per-field thresholds afterwards.
+
+    :param df: Raw per-parasite DataFrame.
+    :param compartment: Object prefix.
+    :param channel: Outside-stain channel index.
+    :param background: ``'none'``/``None``/``False``, ``'auto'``, or a column name.
+    :returns: column name or ``None``.
+    :raises KeyError: when a named column is not in the table.
+    """
+    if background in (None, False, 'none', 'None', ''):
+        return None
+    if background == 'auto':
+        for suffix in ('outside_50_percentile', 'outside_mean'):
+            column = f'{compartment}_channel_{channel}_{suffix}'
+            if column in df.columns and df[column].notna().any():
+                return column
+        print(
+            "WARNING: background_correction='auto' found no "
+            f"'{compartment}_channel_{channel}_outside_*' column; continuing "
+            "with raw intensities."
+        )
+        return None
+    if background in df.columns:
+        return background
+    raise KeyError(
+        f"background_correction '{background}' is not a column of the "
+        f"parasite table."
+    )
+
+
+def _bimodality_coefficient(values, min_objects=30):
+    """Sarle's bimodality coefficient ``(skew**2 + 1) / kurtosis``, uncorrected.
+
+    This is the assay's own answer to "are there two populations here at all?".
+    A perfect two-point mixture returns exactly 1.0 at any sample size and any
+    mixing ratio — 90/10 scores the same as 50/50 — while a single normal
+    population returns about 1/3. The conventional cutoff is 5/9.
+
+    The *small-sample-corrected* form usually quoted as Sarle's coefficient
+    divides by ``kurtosis + 3(n-1)**2/((n-2)(n-3))``. It is not used here
+    because that correction cannot reach 5/9 below roughly fifteen objects: a
+    field holding a dozen parasites split perfectly into two populations would
+    score 0.35 and be reported as unimodal. The uncorrected form has the
+    opposite failure — on a genuinely unimodal sample it exceeds 5/9 about 45%
+    of the time at n=10 and 15% at n=20 — so it is simply refused below
+    ``min_objects``, which is the honest answer rather than a confident wrong
+    one.
+
+    :param values: 1-D array of the outside-channel statistic.
+    :param min_objects: Below this many finite values, return NaN rather than
+        a number the sample cannot support. Default 30, where a unimodal
+        sample false-passes about 5% of the time.
+    :returns: float coefficient, or NaN when it cannot be computed.
+    """
+    from scipy.stats import kurtosis, skew
+
+    values = np.asarray(values, dtype=float)
+    values = values[np.isfinite(values)]
+    if values.size < max(4, int(min_objects)):
+        return float('nan')
+    if np.ptp(values) == 0:
+        # One value repeated is one population, but skew/kurtosis are 0/0
+        # there; say "no evidence of two populations" explicitly.
+        return 0.0
+    g1 = float(skew(values, bias=True))
+    g2 = float(kurtosis(values, fisher=True, bias=True))
+    denominator = g2 + 3.0
+    if not np.isfinite(denominator) or denominator <= 0:
+        return float('nan')
+    return float((g1 ** 2 + 1.0) / denominator)
+
+
+def _invasion_centre_threshold(values, threshold):
+    """Move ``threshold`` to the middle of the gap it opens, keeping the split identical.
+
+    skimage's threshold functions histogram their input and return the centre
+    of a bin, so on a clean two-population field the returned value lands on
+    the *upper edge of the dim population* rather than in the empty space
+    between the two. The split is right and the placement is an artefact of
+    the 256-bin histogram, but the placement is what the sensitivity bracket
+    in :func:`_invasion_threshold_span` perturbs: a threshold sitting on top
+    of the dim population reclassifies that whole population the moment it is
+    nudged down, and the assay would report every clean field as
+    threshold-sensitive.
+
+    Recentring is exact rather than cosmetic. Everything at or below the
+    original threshold stays below the new one and everything above stays
+    above — the midpoint of ``(max below, min above)`` lies strictly between
+    them — so the classification is untouched and only the margin changes,
+    to the largest margin the data allow.
+
+    :param values: 1-D array the threshold was derived from.
+    :param threshold: Threshold returned by the chosen method.
+    :returns: float, recentred where possible and unchanged otherwise.
+    """
+    values = np.asarray(values, dtype=float)
+    values = values[np.isfinite(values)]
+    if not np.isfinite(threshold) or values.size == 0:
+        return float(threshold)
+    below = values[values <= threshold]
+    above = values[values > threshold]
+    if below.size == 0 or above.size == 0:
+        return float(threshold)
+    return float((below.max() + above.min()) / 2.0)
+
+
+def _invasion_threshold(values, method='otsu'):
+    """Derive an outside-channel cut from the data alone.
+
+    Every method here is a histogram/valley method that returns a value inside
+    the gap between two populations. None of them can tell you whether that
+    gap exists — that is what :func:`_bimodality_coefficient` is for, and why
+    a threshold is never reported without it.
+
+    The chosen cut is recentred in its own gap by
+    :func:`_invasion_centre_threshold`, which changes no classification and
+    makes the margin the widest the data support.
+
+    :param values: 1-D array of the outside-channel statistic.
+    :param method: ``'otsu'``, ``'triangle'``, ``'li'``, ``'yen'`` or ``'mean'``.
+    :returns: float threshold, or NaN when the values cannot support one.
+    :raises ValueError: for an unknown method.
+    """
+    values = np.asarray(values, dtype=float)
+    values = values[np.isfinite(values)]
+
+    if method == 'mean':
+        if values.size == 0:
+            return float('nan')
+        return _invasion_centre_threshold(values, float(values.mean()))
+
+    from skimage.filters import (threshold_li, threshold_otsu,
+                                 threshold_triangle, threshold_yen)
+    functions = {'otsu': threshold_otsu, 'triangle': threshold_triangle,
+                 'li': threshold_li, 'yen': threshold_yen}
+    if method not in functions:
+        raise ValueError(
+            f"outside_threshold_method '{method}' is not one of "
+            f"{sorted(list(functions) + ['mean'])}."
+        )
+    if values.size < 2 or np.unique(values).size < 2:
+        return float('nan')
+    try:
+        threshold = float(functions[method](values))
+    except (ValueError, RuntimeError):
+        return float('nan')
+    return _invasion_centre_threshold(values, threshold)
+
+
+def _invasion_relative_difference(used, reference):
+    """Scale-free distance between two thresholds, in ``[0, 2]``.
+
+    Symmetric in its arguments and defined when either is negative (which a
+    background-corrected threshold can be), so it never divides by a value
+    that happens to sit near zero.
+
+    :param used: Threshold actually applied.
+    :param reference: Threshold it is being judged against.
+    :returns: float, or NaN when either input is not finite.
+    """
+    if not np.isfinite(used) or not np.isfinite(reference):
+        return float('nan')
+    scale = max(abs(float(used)), abs(float(reference)))
+    if scale == 0:
+        return 0.0
+    return float(abs(float(used) - float(reference)) / scale)
+
+
+def _invasion_threshold_span(threshold, values, sensitivity):
+    """Return the thresholds ``sensitivity`` either side of ``threshold``.
+
+    Reclassifying at these two values is what turns the assay's central
+    asymmetry into a number. Raising the outside-channel threshold can only
+    move objects from *attached* to *invaded*, so invasion efficiency is
+    monotonically non-decreasing in the threshold — and only the upward move
+    is dangerous. Lowering it can merely deflate the efficiency, which is the
+    conservative direction and never manufactures a result, which is why the
+    QC flag built from this pair (``qc_flag_threshold_inflates``) watches the
+    high side alone while the low side is reported for context.
+
+    :param threshold: Threshold actually used.
+    :param values: The field's outside-channel statistics, used to set a scale
+        when the threshold itself is zero.
+    :param sensitivity: Relative perturbation, e.g. 0.25 for +/-25%.
+    :returns: ``(low, high)`` floats, or ``(nan, nan)``.
+    """
+    if not np.isfinite(threshold):
+        return float('nan'), float('nan')
+    scale = abs(float(threshold))
+    if scale == 0:
+        finite = np.asarray(values, dtype=float)
+        finite = finite[np.isfinite(finite)]
+        scale = float(np.std(finite)) if finite.size else 0.0
+    delta = float(sensitivity) * scale
+    return float(threshold) - delta, float(threshold) + delta
+
+
+def _invasion_control_mask(df, control_wells):
+    """Boolean mask selecting the staining-control wells named in ``control_wells``.
+
+    Accepts, per entry, a plate-row-column key (``'plate1_r1_c12'``), a
+    row-column well (``'r1_c12'``), a whole row (``'r1'``) or a whole column
+    (``'c12'``) — the same vocabulary the ``*_plate_metadata`` well maps use.
+
+    :param df: Parasite DataFrame carrying ``prc``, ``rowID`` and ``columnID``.
+    :param control_wells: str or iterable of str, or None.
+    :returns: boolean Series aligned to ``df``.
+    """
+    mask = pd.Series(False, index=df.index)
+    if control_wells is None:
+        return mask
+    if isinstance(control_wells, str):
+        control_wells = [control_wells]
+    if len(control_wells) == 0:
+        return mask
+
+    prc = df['prc'].astype(str)
+    rows = df['rowID'].astype(str)
+    columns = df['columnID'].astype(str)
+    wells = rows + '_' + columns
+    for spec in control_wells:
+        spec = str(spec)
+        mask |= (prc == spec) | (wells == spec) | (rows == spec) | (columns == spec)
+    return mask
+
+
+def _invasion_field_thresholds(df, value_column, settings, control_thresholds):
+    """Resolve the outside-channel threshold for every field, and say where it came from.
+
+    **The threshold is per field, not per plate.** Illumination and antibody
+    penetration vary field to field; a single plate-wide cut turns an
+    illumination gradient into an invasion gradient, because the dim corner of
+    the plate loses its outside signal first and its parasites are then all
+    scored as invaded. The one exception is a control-derived threshold, which
+    is global by construction — the controls are separate wells — and which is
+    therefore cross-checked against each field's own automatic threshold by
+    the ``qc_flag_threshold_disagrees`` column rather than trusted blindly.
+
+    Resolution order, per field:
+
+    1. ``outside_threshold`` when the caller fixed one (source ``'fixed'``).
+    2. the control-derived cut for that plate (source ``'control'``).
+    3. the field's own automatic threshold (source ``'field'``), falling back
+       to the well's (``'well'``) and then the plate's (``'plate'``) when the
+       field holds fewer than ``min_objects_for_threshold`` objects — Otsu on
+       four parasites is not a threshold.
+    4. nothing (source ``'none'``): the objects are left unclassified rather
+       than split on a number that does not exist.
+
+    :param df: Per-parasite DataFrame with ``prcf``, ``prc``, ``plateID``.
+    :param value_column: Column holding the outside-channel statistic.
+    :param settings: Resolved settings dict.
+    :param control_thresholds: ``{plateID: threshold}`` from the control wells.
+    :returns: DataFrame with one row per field.
+    """
+    method = settings['outside_threshold_method']
+    floor = int(settings['min_objects_for_threshold'])
+    fixed = settings['outside_threshold']
+    cutoff = float(settings['bimodality_cutoff'])
+    min_bimodal = int(settings['min_objects_for_bimodality'])
+    tolerance = float(settings['threshold_agreement_tolerance'])
+
+    def _auto(values):
+        values = np.asarray(values, dtype=float)
+        values = values[np.isfinite(values)]
+        if values.size < floor:
+            return float('nan')
+        return _invasion_threshold(values, method)
+
+    plate_auto = {str(key): _auto(group[value_column])
+                  for key, group in df.groupby('plateID', sort=False)}
+    well_auto = {str(key): _auto(group[value_column])
+                 for key, group in df.groupby('prc', sort=False)}
+
+    identity = ['plateID', 'rowID', 'columnID', 'fieldID', 'prc', 'prcf']
+    rows = []
+    for _, group in df.groupby('prcf', sort=False):
+        values = group[value_column].to_numpy(dtype=float)
+        record = {column: group[column].iloc[0] for column in identity}
+
+        automatic = _auto(values)
+        automatic_source = 'field'
+        if not np.isfinite(automatic):
+            automatic = well_auto.get(str(record['prc']), float('nan'))
+            automatic_source = 'well'
+        if not np.isfinite(automatic):
+            automatic = plate_auto.get(str(record['plateID']), float('nan'))
+            automatic_source = 'plate'
+        if not np.isfinite(automatic):
+            automatic_source = 'none'
+
+        control = control_thresholds.get(str(record['plateID']), float('nan'))
+
+        if fixed is not None:
+            threshold, source = float(fixed), 'fixed'
+        elif np.isfinite(control):
+            threshold, source = float(control), 'control'
+        else:
+            threshold, source = automatic, automatic_source
+
+        # A control-derived cut is the honest negative distribution, so it is
+        # what an automatic cut should be judged against when it exists.
+        reference = control if np.isfinite(control) else automatic
+
+        low, high = _invasion_threshold_span(
+            threshold, values, settings['threshold_sensitivity'])
+        coefficient = _bimodality_coefficient(values, min_bimodal)
+        difference = _invasion_relative_difference(threshold, reference)
+
+        record.update({
+            'n_objects': int(len(group)),
+            'threshold': float(threshold),
+            'threshold_source': source,
+            'threshold_low': low,
+            'threshold_high': high,
+            'automatic_threshold': float(automatic),
+            'automatic_source': automatic_source,
+            'control_threshold': float(control),
+            'reference_threshold': float(reference),
+            'threshold_relative_difference': difference,
+            'bimodality_coefficient': coefficient,
+            'qc_flag_unimodal': bool(not (coefficient > cutoff)),
+            'qc_flag_threshold_disagrees': bool(
+                np.isfinite(difference) and difference > tolerance),
+            'qc_flag_no_threshold': bool(not np.isfinite(threshold)),
+        })
+        rows.append(record)
+
+    return pd.DataFrame(rows)
+
+
+def _invasion_classify(df, fields, value_column, extracellular_class):
+    """Attach ``invasion_class`` and the threshold that produced it to every parasite.
+
+    An object is called **outside/attached** when its outside-channel
+    statistic is strictly greater than its field's threshold, and
+    **inside/invaded** when it is not. Note which way round the evidence runs:
+    *attached* is a positive observation, *invaded* is the absence of one. A
+    parasite that is genuinely outside but stained weakly — poor antibody
+    penetration, a focal plane away from its equator, photobleaching, a
+    low-expressing strain — falls below the threshold and is scored invaded,
+    so every failure of the outside stain inflates invasion efficiency and
+    none of them deflate it.
+
+    Objects that overlap no host cell cannot have invaded anything, and
+    ``extracellular_class`` decides what happens to them: ``'attached'``
+    scores them attached whatever the stain says (the default, and the
+    biologically literal reading), ``'exclude'`` drops them before the caller
+    gets here, and ``'classify'`` leaves them to the stain, which is what you
+    want when the cell mask is the unreliable part.
+
+    :param df: Per-parasite DataFrame with ``prcf`` and ``no_host_cell``.
+    :param fields: Per-field threshold table from :func:`_invasion_field_thresholds`.
+    :param value_column: Column holding the outside-channel statistic.
+    :param extracellular_class: ``'attached'``, ``'classify'`` (``'exclude'``
+        is applied by the caller).
+    :returns: DataFrame copy with the classification columns added.
+    """
+    columns = ['prcf', 'threshold', 'threshold_source', 'threshold_low',
+               'threshold_high', 'automatic_threshold', 'reference_threshold',
+               'bimodality_coefficient']
+    df = df.merge(fields[columns], on='prcf', how='left')
+
+    values = df[value_column].to_numpy(dtype=float)
+    thresholds = df['threshold'].to_numpy(dtype=float)
+    usable = np.isfinite(values) & np.isfinite(thresholds)
+
+    is_outside = values > thresholds
+    outside_low = values > df['threshold_low'].to_numpy(dtype=float)
+    outside_high = values > df['threshold_high'].to_numpy(dtype=float)
+
+    if extracellular_class == 'attached':
+        forced = df['no_host_cell'].to_numpy(dtype=bool)
+        is_outside = is_outside | forced
+        outside_low = outside_low | forced
+        outside_high = outside_high | forced
+        usable = usable | forced
+
+    df['is_outside'] = np.where(usable, is_outside, np.nan)
+    df['invasion_class'] = np.where(
+        ~usable, 'unclassified', np.where(is_outside, 'attached', 'invaded'))
+    df['invasion_class'] = pd.Categorical(
+        df['invasion_class'],
+        categories=_INVASION_CLASSES + ['unclassified'], ordered=False)
+    # The two sensitivity columns exist so a reader can see how much of the
+    # reported efficiency is the threshold rather than the biology.
+    df['is_outside_low_threshold'] = np.where(usable, outside_low, np.nan)
+    df['is_outside_high_threshold'] = np.where(usable, outside_high, np.nan)
+    return df
+
+
+def _invasion_efficiency(n_invaded, n_total):
+    """``n_invaded / n_total``, or NaN when the well scored nothing.
+
+    NaN rather than 0.0 on purpose: a well with no classified parasites has
+    not observed zero invasion, it has observed nothing, and 0.0 would read as
+    a result in every downstream mean and plot.
+
+    :param n_invaded: Parasites scored invaded.
+    :param n_total: Parasites scored at all (attached + invaded).
+    :returns: float efficiency or NaN.
+    """
+    n_total = int(n_total)
+    if n_total <= 0:
+        return float('nan')
+    return float(n_invaded) / float(n_total)
+
+
+def _invasion_well_table(parasites, fields, group_column, settings,
+                         seed_wells=None):
+    """Summarize invasion per well, with the denominator and the QC in the same row.
+
+    Invasion efficiency is a proportion and it is quoted here **with
+    ``n_total``**, because 90% from ten parasites and 90% from four thousand
+    are not the same result and nothing downstream can tell them apart from
+    the ratio alone. Four QC columns say when the ratio should not be quoted
+    at all:
+
+    * ``qc_flag_low_total`` — fewer than ``min_parasites_per_well`` scored
+      parasites. At n=50 the 95% interval on a proportion near a half is still
+      about +/-14 percentage points, which is wider than most real effects.
+    * ``qc_flag_unimodal`` — the well's outside-channel distribution shows no
+      two populations, so the threshold splits one population at an arbitrary
+      place. Note that an all-invaded well is legitimately unimodal and will
+      flag: it carries no internal evidence that its own threshold is right.
+    * ``qc_flag_threshold_disagrees`` — the threshold applied sits further
+      than ``threshold_agreement_tolerance`` from the reference (the
+      control-derived cut when controls exist, otherwise the field's own
+      automatic cut).
+    * ``qc_flag_threshold_inflates`` — raising the threshold by
+      ``threshold_sensitivity`` would add more than ``inflation_warn`` to this
+      well's efficiency, so the threshold is sitting inside the data rather
+      than in a gap. Only the upward move is watched: lowering a threshold can
+      only turn invaded back into attached, which is the safe direction.
+
+    :param parasites: Classified per-parasite DataFrame.
+    :param fields: Per-field threshold table.
+    :param group_column: Condition column carried onto each well row.
+    :param settings: Resolved settings dict.
+    :param seed_wells: Optional ``(plateID, rowID, columnID, prc,
+        group_column)`` rows so wells holding host cells but no parasites
+        appear with a zero denominator instead of vanishing.
+    :returns: per-well DataFrame.
+    """
+    identity = ['plateID', 'rowID', 'columnID', 'prc', group_column]
+    cutoff = float(settings['bimodality_cutoff'])
+    min_bimodal = int(settings['min_objects_for_bimodality'])
+    tolerance = float(settings['threshold_agreement_tolerance'])
+    warn = float(settings['inflation_warn'])
+    minimum = int(settings['min_parasites_per_well'])
+
+    seeded = {}
+    if seed_wells is not None and len(seed_wells) > 0:
+        for record in seed_wells[identity].drop_duplicates().to_dict('records'):
+            seeded[(record['prc'], record[group_column])] = record
+    if len(parasites) > 0:
+        for key, group in parasites.groupby(['prc', group_column],
+                                            dropna=False, sort=False):
+            seeded[key] = {column: group[column].iloc[0] for column in identity}
+
+    field_index = fields.set_index('prcf') if len(fields) else fields
+
+    rows = []
+    for key, record in seeded.items():
+        prc, group_value = key
+        subset = parasites[(parasites['prc'] == prc)
+                           & (parasites[group_column] == group_value)]
+        classes = subset['invasion_class'].astype(str)
+        n_attached = int((classes == 'attached').sum())
+        n_invaded = int((classes == 'invaded').sum())
+        n_total = n_attached + n_invaded
+
+        row = dict(record)
+        row['n_objects'] = int(len(subset))
+        row['n_attached'] = n_attached
+        row['n_invaded'] = n_invaded
+        row['n_total'] = n_total
+        row['n_unclassified'] = int(len(subset)) - n_total
+        row['n_no_host_cell'] = (int(subset['no_host_cell'].sum())
+                                 if len(subset) else 0)
+        row['n_fields'] = int(subset['prcf'].nunique()) if len(subset) else 0
+        row['invasion_efficiency'] = _invasion_efficiency(n_invaded, n_total)
+
+        low = int((subset['is_outside_low_threshold'] == 0).sum()) if len(subset) else 0
+        high = int((subset['is_outside_high_threshold'] == 0).sum()) if len(subset) else 0
+        row['invasion_efficiency_low_threshold'] = _invasion_efficiency(low, n_total)
+        row['invasion_efficiency_high_threshold'] = _invasion_efficiency(high, n_total)
+
+        if len(subset):
+            row['outside_intensity_median'] = float(
+                np.nanmedian(subset['outside_intensity'].to_numpy(dtype=float)))
+            row['bimodality_coefficient'] = _bimodality_coefficient(
+                subset['outside_intensity'].to_numpy(dtype=float), min_bimodal)
+            row['threshold_median'] = float(
+                np.nanmedian(subset['threshold'].to_numpy(dtype=float)))
+            row['reference_threshold_median'] = float(np.nanmedian(
+                subset['reference_threshold'].to_numpy(dtype=float)))
+            sources = sorted(set(subset['threshold_source'].astype(str)))
+            row['threshold_source'] = sources[0] if len(sources) == 1 else 'mixed'
+        else:
+            row['outside_intensity_median'] = float('nan')
+            row['bimodality_coefficient'] = float('nan')
+            row['threshold_median'] = float('nan')
+            row['reference_threshold_median'] = float('nan')
+            row['threshold_source'] = 'none'
+
+        row['threshold_relative_difference'] = _invasion_relative_difference(
+            row['threshold_median'], row['reference_threshold_median'])
+
+        if len(field_index) and len(subset):
+            prcfs = [p for p in subset['prcf'].unique() if p in field_index.index]
+            row['n_fields_unimodal'] = int(
+                field_index.loc[prcfs, 'qc_flag_unimodal'].sum()) if prcfs else 0
+        else:
+            row['n_fields_unimodal'] = 0
+
+        # Only the upward move counts. Raising the threshold turns attached
+        # into invaded and inflates the efficiency; lowering it can only do
+        # the opposite, which is the direction that never invents a result.
+        inflation = (row['invasion_efficiency_high_threshold']
+                     - row['invasion_efficiency'])
+        row['invasion_efficiency_inflation'] = inflation
+
+        row['qc_flag_low_total'] = bool(n_total < minimum)
+        row['qc_flag_unimodal'] = bool(
+            not (row['bimodality_coefficient'] > cutoff))
+        row['qc_flag_threshold_disagrees'] = bool(
+            np.isfinite(row['threshold_relative_difference'])
+            and row['threshold_relative_difference'] > tolerance)
+        row['qc_flag_threshold_inflates'] = bool(
+            np.isfinite(inflation) and inflation > warn)
+        flags = [name.replace('qc_flag_', '') for name in
+                 ('qc_flag_low_total', 'qc_flag_unimodal',
+                  'qc_flag_threshold_disagrees', 'qc_flag_threshold_inflates')
+                 if row[name]]
+        row['qc_flags'] = ';'.join(flags)
+        row['qc_pass'] = not flags
+        rows.append(row)
+
+    columns = identity + [
+        'n_objects', 'n_attached', 'n_invaded', 'n_total', 'n_unclassified',
+        'n_no_host_cell', 'n_fields', 'invasion_efficiency',
+        'invasion_efficiency_low_threshold', 'invasion_efficiency_high_threshold',
+        'invasion_efficiency_inflation', 'outside_intensity_median',
+        'bimodality_coefficient', 'threshold_median', 'threshold_source',
+        'reference_threshold_median', 'threshold_relative_difference',
+        'n_fields_unimodal', 'qc_flag_low_total', 'qc_flag_unimodal',
+        'qc_flag_threshold_disagrees', 'qc_flag_threshold_inflates',
+        'qc_flags', 'qc_pass']
+    return pd.DataFrame(rows, columns=columns)
+
+
+def _invasion_summary(wells, group_column):
+    """Collapse the per-well table to one row per experimental condition.
+
+    Two efficiencies are reported and they answer different questions.
+    ``invasion_efficiency`` is the mean of the per-well efficiencies — the
+    well is the unit of replication, so this is the number to quote, and it
+    comes with an SD, an SEM and ``n_wells`` to go with it.
+    ``invasion_efficiency_pooled`` pools every parasite in the condition; it
+    is the number a chi-squared on raw counts is implicitly about, and it is
+    here so the two can be compared rather than confused.
+
+    :param wells: Per-well DataFrame.
+    :param group_column: Condition column.
+    :returns: per-condition DataFrame.
+    """
+    rows = []
+    for group_value, subset in wells.groupby(group_column, dropna=False,
+                                             sort=False):
+        efficiencies = subset['invasion_efficiency'].to_numpy(dtype=float)
+        efficiencies = efficiencies[np.isfinite(efficiencies)]
+        n_attached = int(subset['n_attached'].sum())
+        n_invaded = int(subset['n_invaded'].sum())
+        n_total = n_attached + n_invaded
+        rows.append({
+            group_column: group_value,
+            'n_wells': int(len(subset)),
+            'n_wells_scored': int(len(efficiencies)),
+            'n_wells_flagged': int((~subset['qc_pass']).sum()),
+            'n_attached': n_attached,
+            'n_invaded': n_invaded,
+            'n_total': n_total,
+            'n_objects': int(subset['n_objects'].sum()),
+            'invasion_efficiency': (float(efficiencies.mean())
+                                    if efficiencies.size else float('nan')),
+            'invasion_efficiency_median': (float(np.median(efficiencies))
+                                           if efficiencies.size else float('nan')),
+            'invasion_efficiency_sd': (float(efficiencies.std(ddof=1))
+                                       if efficiencies.size > 1 else float('nan')),
+            'invasion_efficiency_sem': (
+                float(efficiencies.std(ddof=1) / np.sqrt(efficiencies.size))
+                if efficiencies.size > 1 else float('nan')),
+            'invasion_efficiency_pooled': _invasion_efficiency(n_invaded, n_total),
+            'n_wells_low_total': int(subset['qc_flag_low_total'].sum()),
+            'n_wells_unimodal': int(subset['qc_flag_unimodal'].sum()),
+        })
+    return pd.DataFrame(rows)
+
+
+def _invasion_compare_conditions(wells, group_column, min_wells=2,
+                                 verbose=False):
+    """Compare invasion efficiency between conditions, **using the well as the unit**.
+
+    Parasites inside one well are not independent observations. They share a
+    coverslip, a field of antibody, a focal plane, a monolayer and a
+    multiplicity of infection, so the well is the unit of replication and the
+    number of wells is the sample size. A chi-squared on pooled parasite
+    counts treats four thousand parasites in three wells as four thousand
+    independent draws; its standard error is therefore too small by roughly
+    the square root of the number of parasites per well, and it will call
+    almost any pair of conditions significantly different — including two
+    halves of the same plate.
+
+    So the reported test is a **Mann-Whitney U on the per-well invasion
+    efficiencies**, ``n1`` and ``n2`` being wells and not parasites. It is
+    rank-based, so it needs no normality assumption on a bounded proportion,
+    and it matches the ordered comparison used by
+    :func:`_replication_compare_conditions`. Three wells against three wells
+    cannot reach p < 0.05 two-sided, and that is the honest answer rather than
+    a defect.
+
+    ``pooled_chi_squared_p_value`` is computed on the pooled parasite counts
+    and reported alongside **only** so the inflation is visible. It is not the
+    result. The per-well counts travel in the ``wells`` table for anyone who
+    wants to weight the wells or fit a mixed model.
+
+    :param wells: Per-well DataFrame with ``invasion_efficiency``,
+        ``n_attached`` and ``n_invaded``.
+    :param group_column: Condition column.
+    :param min_wells: Wells required per side before the test is run. Default 2.
+    :param verbose: Print the resulting table.
+    :returns: DataFrame with one row per condition pair; empty (with the full
+        column set) when there are fewer than two conditions.
+    """
+    from scipy.stats import mannwhitneyu
+    from statsmodels.stats.multitest import multipletests
+    from .sp_stats import choose_p_adjust_method
+
+    columns = ['group1', 'group2', 'test', 'unit_of_replication',
+               'n_wells_1', 'n_wells_2', 'n_parasites_1', 'n_parasites_2',
+               'mean_efficiency_1', 'mean_efficiency_2',
+               'median_efficiency_1', 'median_efficiency_2',
+               'efficiency_difference', 'u_statistic', 'p_value',
+               'rank_biserial', 'pooled_efficiency_1', 'pooled_efficiency_2',
+               'pooled_chi_squared_stat', 'pooled_chi_squared_p_value',
+               'n_wells_flagged_1', 'n_wells_flagged_2',
+               'p_value_adj', 'adj']
+
+    groups = list(pd.unique(wells[group_column].dropna()))
+    if len(groups) < 2:
+        return pd.DataFrame(columns=columns)
+
+    results = []
+    for group1, group2 in itertools.combinations(groups, 2):
+        left = wells[wells[group_column] == group1]
+        right = wells[wells[group_column] == group2]
+        left_efficiency = left['invasion_efficiency'].to_numpy(dtype=float)
+        right_efficiency = right['invasion_efficiency'].to_numpy(dtype=float)
+        left_efficiency = left_efficiency[np.isfinite(left_efficiency)]
+        right_efficiency = right_efficiency[np.isfinite(right_efficiency)]
+
+        if len(left_efficiency) >= min_wells and len(right_efficiency) >= min_wells:
+            statistic, p_value = mannwhitneyu(left_efficiency, right_efficiency,
+                                              alternative='two-sided')
+            rank_biserial = (2.0 * statistic
+                             / (len(left_efficiency) * len(right_efficiency)) - 1.0)
+        else:
+            statistic, p_value, rank_biserial = np.nan, np.nan, np.nan
+
+        attached1, invaded1 = int(left['n_attached'].sum()), int(left['n_invaded'].sum())
+        attached2, invaded2 = int(right['n_attached'].sum()), int(right['n_invaded'].sum())
+        table = np.array([[invaded1, attached1], [invaded2, attached2]],
+                         dtype=float)
+        if np.all(table.sum(axis=0) > 0) and np.all(table.sum(axis=1) > 0):
+            chi2, chi2_p, _, _ = chi2_contingency(table)
+        else:
+            chi2, chi2_p = np.nan, np.nan
+
+        mean1 = float(left_efficiency.mean()) if len(left_efficiency) else np.nan
+        mean2 = float(right_efficiency.mean()) if len(right_efficiency) else np.nan
+
+        results.append({
+            'group1': group1,
+            'group2': group2,
+            'test': 'Mann-Whitney U on per-well invasion efficiency',
+            'unit_of_replication': 'well',
+            'n_wells_1': int(len(left_efficiency)),
+            'n_wells_2': int(len(right_efficiency)),
+            'n_parasites_1': attached1 + invaded1,
+            'n_parasites_2': attached2 + invaded2,
+            'mean_efficiency_1': mean1,
+            'mean_efficiency_2': mean2,
+            'median_efficiency_1': (float(np.median(left_efficiency))
+                                    if len(left_efficiency) else np.nan),
+            'median_efficiency_2': (float(np.median(right_efficiency))
+                                    if len(right_efficiency) else np.nan),
+            'efficiency_difference': mean1 - mean2,
+            'u_statistic': statistic,
+            'p_value': p_value,
+            'rank_biserial': rank_biserial,
+            'pooled_efficiency_1': _invasion_efficiency(invaded1,
+                                                        invaded1 + attached1),
+            'pooled_efficiency_2': _invasion_efficiency(invaded2,
+                                                        invaded2 + attached2),
+            'pooled_chi_squared_stat': chi2,
+            'pooled_chi_squared_p_value': chi2_p,
+            'n_wells_flagged_1': int((~left['qc_pass']).sum()),
+            'n_wells_flagged_2': int((~right['qc_pass']).sum()),
+        })
+
+    results_df = pd.DataFrame(results)
+    method = choose_p_adjust_method(
+        len(groups), float(wells['n_total'].mean()) if len(wells) else 0.0)
+    finite = results_df['p_value'].notna()
+    results_df['p_value_adj'] = np.nan
+    if finite.any():
+        results_df.loc[finite, 'p_value_adj'] = multipletests(
+            results_df.loc[finite, 'p_value'].to_numpy(dtype=float),
+            method=method
+        )[1]
+    results_df['adj'] = method
+
+    results_df = results_df[columns]
+    if verbose:
+        print("\nInvasion efficiency comparisons (unit of replication: well):")
+        print(results_df.to_string(index=False))
+    return results_df
+
+
+def _invasion_stacked_bars(settings, parasites, group_column, prc_column,
+                           level, cmap, title, denominators=None):
+    """Draw stacked attached/invaded proportion bars, reusing the shared plot helper.
+
+    Delegates to :func:`spacr.plot.plot_proportion_stacked_bars` whenever its
+    contingency table is well formed — see :func:`_chi_pairwise_is_safe` — and
+    draws the bars here when it is not, so a single-condition run or a well
+    where every parasite landed in one class still produces a figure instead
+    of dying inside the helper.
+
+    Every bar is annotated with its denominator, because a proportion without
+    one is not a result.
+
+    :param settings: Settings dict (``verbose`` is read by the helper).
+    :param parasites: Classified per-parasite DataFrame, unclassified rows dropped.
+    :param group_column: Column forming the bar axis.
+    :param prc_column: Per-well identifier used when ``level`` aggregates.
+    :param level: ``'object'``, ``'well'`` or ``'plateID'``.
+    :param cmap: Matplotlib colormap name.
+    :param title: Axes title.
+    :param denominators: ``{bar label: n}`` written above each bar.
+    :returns: ``(results_df, pairwise_df, fig)``.
+    """
+    from .plot import plot_proportion_stacked_bars
+
+    working = parasites.copy()
+    working['invasion_class'] = (
+        working['invasion_class'].cat.remove_unused_categories())
+    counts = working.groupby([group_column, 'invasion_class'],
+                             observed=True).size().unstack(fill_value=0)
+
+    if counts.size == 0:
+        # Nothing was classifiable anywhere — no threshold existed. Say that
+        # on the axes rather than dying inside pandas' bar plot, because the
+        # unclassified count in the well table is the real answer here.
+        fig, axes = plt.subplots(figsize=(12, 8))
+        axes.text(0.5, 0.5, 'No parasite could be classified:\nno usable '
+                            'outside-stain threshold', ha='center',
+                  va='center', transform=axes.transAxes)
+        axes.set_xlabel('Group')
+        axes.set_ylabel('Proportion')
+        axes.set_title(title)
+        axes.set_ylim(0, 1.15)
+        results_df = pd.DataFrame({'chi_squared_stat': [np.nan],
+                                   'p_value': [np.nan],
+                                   'degrees_of_freedom': [np.nan]})
+        pairwise_df = pd.DataFrame(columns=['Group 1', 'Group 2', 'Test Name',
+                                            'p-value', 'p-value_adj', 'adj'])
+        return results_df, pairwise_df, fig
+
+    if _chi_pairwise_is_safe(counts):
+        results_df, pairwise_df, fig = plot_proportion_stacked_bars(
+            settings, working, group_column, bin_column='invasion_class',
+            prc_column=prc_column, level=level, cmap=cmap
+        )
+    else:
+        proportions = counts.div(counts.sum(axis=1), axis=0)
+        axes = proportions.plot(kind='bar', stacked=True, colormap=cmap,
+                                figsize=(12, 8))
+        axes.set_xlabel('Group')
+        axes.set_ylabel('Proportion')
+        fig = plt.gcf()
+        results_df = pd.DataFrame({'chi_squared_stat': [np.nan],
+                                   'p_value': [np.nan],
+                                   'degrees_of_freedom': [np.nan]})
+        pairwise_df = pd.DataFrame(columns=['Group 1', 'Group 2', 'Test Name',
+                                            'p-value', 'p-value_adj', 'adj'])
+
+    axes = fig.axes[0]
+    axes.set_title(title)
+    axes.set_ylim(0, 1.15)
+    axes.legend(title='Parasite class', bbox_to_anchor=(1.05, 1),
+                loc='upper left')
+
+    if denominators:
+        for position, label in enumerate(axes.get_xticklabels()):
+            total = denominators.get(label.get_text())
+            if total is None:
+                continue
+            axes.text(position, 1.02, f'n={int(total)}', ha='center',
+                      va='bottom', fontsize=8, rotation=90)
+    return results_df, pairwise_df, fig
+
+
+def _invasion_threshold_panels(parasites, wells, max_panels=12, cmap='viridis'):
+    """Histogram the outside-channel signal per well with the threshold drawn on it.
+
+    This is the figure that lets a reader disagree with the classification.
+    Each panel is one well: the distribution the threshold was taken from, a
+    solid line at the threshold applied, a dashed line at the reference it was
+    judged against, and the well's bimodality coefficient in the title so a
+    single smear of signal is visible as a single smear rather than as a
+    confident efficiency.
+
+    :param parasites: Classified per-parasite DataFrame.
+    :param wells: Per-well DataFrame.
+    :param max_panels: Largest number of wells drawn, taken in sorted well
+        order so a 384-well plate does not produce a 384-panel figure.
+    :param cmap: Matplotlib colormap the histogram bars are drawn from.
+    :returns: matplotlib Figure.
+    """
+    try:
+        face = plt.get_cmap(cmap)(0.5)
+    except ValueError:
+        face = '0.6'
+    order = sorted(str(value) for value in wells['prc'].unique())
+    truncated = len(order) > int(max_panels)
+    order = order[:int(max_panels)]
+
+    n_panels = max(1, len(order))
+    n_columns = min(4, n_panels)
+    n_rows = int(np.ceil(n_panels / n_columns))
+    fig, axes = plt.subplots(n_rows, n_columns,
+                             figsize=(4.0 * n_columns, 3.0 * n_rows),
+                             squeeze=False)
+    flat = axes.ravel()
+
+    lookup = wells.set_index(wells['prc'].astype(str))
+    for index, prc in enumerate(order):
+        axis = flat[index]
+        subset = parasites[parasites['prc'].astype(str) == prc]
+        values = subset['outside_intensity'].to_numpy(dtype=float)
+        values = values[np.isfinite(values)]
+        if values.size:
+            axis.hist(values, bins=min(40, max(5, values.size // 3)),
+                      color=face, edgecolor='none')
+        row = lookup.loc[prc]
+        if isinstance(row, pd.DataFrame):
+            row = row.iloc[0]
+        threshold = float(row['threshold_median'])
+        reference = float(row['reference_threshold_median'])
+        if np.isfinite(threshold):
+            axis.axvline(threshold, color='crimson', linewidth=1.5,
+                         label=f"threshold ({row['threshold_source']})")
+        if np.isfinite(reference) and reference != threshold:
+            axis.axvline(reference, color='steelblue', linewidth=1.2,
+                         linestyle='--', label='reference')
+        coefficient = float(row['bimodality_coefficient'])
+        axis.set_title(
+            f"{prc}\nn={int(row['n_total'])}  BC="
+            + ('n/a' if not np.isfinite(coefficient) else f'{coefficient:.2f}'),
+            fontsize=9)
+        axis.set_xlabel('Outside-channel signal')
+        axis.set_ylabel('Parasites')
+        axis.legend(fontsize=7)
+
+    for index in range(len(order), len(flat)):
+        flat[index].axis('off')
+    if truncated:
+        fig.suptitle(f'Outside-stain thresholds (first {len(order)} wells)')
+    else:
+        fig.suptitle('Outside-stain thresholds')
+    fig.tight_layout()
+    return fig
+
+
+def analyze_invasion(settings):
+    """Invasion assay: score every parasite attached or invaded and report efficiency per well.
+
+    The red/green invasion assay stains twice. Before permeabilisation an
+    antibody reaches only the parasites still **outside** the host cell, so
+    those are positive in both channels; the cells are then permeabilised and
+    a second antibody stains **all** parasites, so a parasite positive only in
+    the post-permeabilisation channel was inside. Hence:
+
+    * **attached / outside** = present in the outside-stain channel;
+    * **invaded / inside** = *absent* from the outside-stain channel.
+
+    Read that asymmetry carefully, because the whole design follows from it.
+    "Inside" is defined by an absence, and absence is the unreliable
+    direction. Poor antibody penetration, a focal plane off the parasite's
+    equator, photobleaching, a low-expressing parasite — every one of them
+    removes outside signal from a parasite that is genuinely outside, and
+    every one of them therefore *inflates* invasion efficiency. Nothing
+    plausible pushes the error the other way. The threshold on the outside
+    channel is the single number the assay rests on, so it is derived from the
+    data, reported per field in ``fields``, cross-checked against a
+    control-derived cut when one exists, and bracketed by a sensitivity pair
+    that says how much of the answer is the threshold.
+
+    Three design decisions worth stating outright:
+
+    * **The threshold is per field.** Illumination and staining vary field to
+      field, and a plate-wide cut turns an illumination gradient into an
+      invasion gradient. See :func:`_invasion_field_thresholds`.
+    * **Controls beat any automatic method.** ``control_wells`` names wells
+      whose parasites are known to carry no outside stain; the threshold is
+      then a high quantile of that honest negative distribution
+      (``control_quantile``), the control wells are excluded from the results,
+      and ``threshold_source`` says ``'control'`` so the report cannot be
+      mistaken for an automatic run.
+    * **A threshold without two populations is arbitrary.** Otsu will happily
+      split a single smear of signal down the middle and return a confident
+      number. ``bimodality_coefficient`` and ``qc_flag_unimodal`` say when
+      that has happened, per field and per well, instead of letting it pass
+      silently. See :func:`_bimodality_coefficient`.
+
+    ``invasion_efficiency = n_invaded / (n_invaded + n_attached)`` and it is
+    always reported next to ``n_total``: 90% from ten parasites and 90% from
+    four thousand are not the same result. A well that scored nothing gets
+    NaN, not 0.0.
+
+    **Statistics use the well as the unit of replication.** Parasites within a
+    well share a coverslip, an antibody bath and a focal plane, so they are
+    not independent; the reported test is a Mann-Whitney U on the per-well
+    efficiencies. A pooled-parasite chi-squared is reported beside it purely
+    so its inflation is visible. See :func:`_invasion_compare_conditions`.
+
+    :param settings: dict of invasion settings; see
+        ``set_analyze_invasion_defaults``. Key entries:
+
+        - ``src`` — plate directory (or list) holding
+          ``measurements/measurements.db``.
+        - ``parasite_table`` / ``compartment`` — table and column prefix with
+          one row per segmented parasite. Default ``'pathogen'``.
+        - ``outside_channel`` / ``total_channel`` — the pre- and
+          post-permeabilisation stain channels.
+        - ``intensity_statistic`` — which per-object statistic of the outside
+          channel to threshold; ``'auto'`` prefers the boundary-restricted
+          one. See :func:`_resolve_invasion_intensity_column`.
+        - ``background_correction`` — optional per-object local background.
+        - ``outside_threshold_method`` / ``outside_threshold`` — automatic method, or
+          a fixed cut that overrides it.
+        - ``control_wells`` / ``control_quantile`` / ``min_control_objects``.
+        - ``min_objects_for_threshold`` / ``min_objects_for_bimodality`` /
+          ``bimodality_cutoff`` / ``threshold_agreement_tolerance`` /
+          ``threshold_sensitivity`` / ``inflation_warn`` /
+          ``min_parasites_per_well`` — the QC thresholds.
+        - ``extracellular_class`` — how parasites with no host cell are scored.
+        - ``cell_types`` / ``pathogen_types`` / ``treatments`` and their
+          ``*_plate_metadata`` well maps, plus ``group_column`` and ``level``.
+        - ``save`` — write the CSVs and figures under
+          ``<src>/results/analyze_invasion``.
+
+    :returns: dict with ``parasites`` (per-object classification), ``fields``
+        (per-field thresholds and QC), ``wells`` (per-well efficiency,
+        denominators and QC flags), ``summary`` (per condition),
+        ``comparisons`` (per-well statistics), ``chi_squared`` /
+        ``chi_squared_pairwise`` (the shared proportion-bar omnibus tests),
+        ``controls`` (the control-well objects, if any),
+        ``control_thresholds``, ``intensity_column``, ``intensity_statistic``
+        and ``figures``.
+    :raises ValueError: when the parasite table holds no usable rows.
+    :raises KeyError: when the requested statistic or group column is absent.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.submodules import analyze_invasion
+            out = analyze_invasion({
+                'src': '/data/plate1',
+                'outside_channel': 1,
+                'total_channel': 0,
+                'control_wells': ['c12'],
+                'pathogen_types': ['dmso', 'inhibitor'],
+                'pathogen_plate_metadata': [['c1'], ['c2']],
+            })
+            print(out['wells'][['prc', 'n_total', 'invasion_efficiency',
+                                'qc_flags']])
+
+    See Also:
+        :func:`analyze_replication` — the parasites-per-vacuole assay, whose
+        table reading, condition annotation and output layout this follows.
+    """
+    from .utils import annotate_conditions, save_settings
+    from .io import _read_db
+    from . import settings as settings_module
+
+    # spacr.settings owns every pipeline's defaults and wins wherever it
+    # defines one; the local copy runs afterwards purely as a gap-filler, so
+    # the assay is callable before the GUI knobs are registered. Both use
+    # setdefault, so running settings.py first makes its values authoritative.
+    apply_defaults = getattr(settings_module, 'set_analyze_invasion_defaults',
+                             None)
+    if apply_defaults is not None:
+        settings = apply_defaults(settings)
+    settings = _set_analyze_invasion_defaults(settings)
+    save_settings(settings, name='analyze_invasion', show=settings['verbose'])
+
+    if not isinstance(settings['src'], list):
+        settings['src'] = [settings['src']]
+
+    compartment = settings['compartment']
+    parasite_table = settings['parasite_table']
+    group_column = settings['group_column']
+
+    if settings['extracellular_class'] not in ('attached', 'exclude',
+                                               'classify'):
+        raise ValueError(
+            "extracellular_class must be 'attached', 'exclude' or 'classify', "
+            f"got {settings['extracellular_class']!r}."
+        )
+
+    # ---- read one row per segmented parasite ----------------------------
+    # Deliberately NOT _read_and_merge_data: that helper collapses the
+    # pathogen table onto the host cell (prcfo is built from cell_id), which
+    # would sum several parasites' outside-stain intensities into one row and
+    # destroy the per-parasite call this assay exists to make.
+    parasite_frames, cell_frames = [], []
+    for index, source in enumerate(settings['src']):
+        location = os.path.join(source, 'measurements/measurements.db')
+        frame = _read_db(location, [parasite_table])[0]
+        if settings['change_plate']:
+            # prcf carries the ORIGINAL plate name and is what the per-field
+            # threshold is keyed on, so relabelling plateID alone would let
+            # two plates that share a well/field pool their fields.
+            frame['plateID'] = f'plate{index + 1}'
+            frame = frame.drop(columns=['prcf'], errors='ignore')
+        parasite_frames.append(frame)
+        if settings['seed_wells_from_cells']:
+            try:
+                cell_frame = _read_db(location, ['cell'])[0]
+            except ValueError:
+                cell_frame = None
+            if cell_frame is not None:
+                if settings['change_plate']:
+                    cell_frame['plateID'] = f'plate{index + 1}'
+                cell_frames.append(cell_frame)
+
+    df = pd.concat(parasite_frames, axis=0, ignore_index=True)
+
+    for column in ('plateID', 'rowID', 'columnID', 'fieldID'):
+        if column not in df.columns:
+            raise ValueError(
+                f"Table '{parasite_table}' has no '{column}' column; it does "
+                f"not look like a spacr measurements table."
+            )
+    if 'prcf' not in df.columns:
+        df['prcf'] = (df['plateID'].astype(str) + '_' + df['rowID'].astype(str)
+                      + '_' + df['columnID'].astype(str) + '_'
+                      + df['fieldID'].astype(str))
+    df['prc'] = (df['plateID'].astype(str) + '_' + df['rowID'].astype(str)
+                 + '_' + df['columnID'].astype(str))
+
+    # ---- object filters --------------------------------------------------
+    area_column = f'{compartment}_area'
+    if area_column in df.columns:
+        if settings['min_parasite_area']:
+            df = df[df[area_column] >= settings['min_parasite_area']]
+        if settings['max_parasite_area'] is not None:
+            df = df[df[area_column] <= settings['max_parasite_area']]
+
+    if settings['min_total_intensity'] is not None:
+        total_column = (f"{compartment}_channel_{settings['total_channel']}"
+                        f"_mean_intensity")
+        if total_column not in df.columns:
+            raise KeyError(
+                f"min_total_intensity needs '{total_column}', which is not in "
+                f"the parasite table. Check 'total_channel'."
+            )
+        df = df[pd.to_numeric(df[total_column], errors='coerce')
+                >= settings['min_total_intensity']]
+
+    df = df.copy()
+    if len(df) == 0:
+        raise ValueError(
+            f"No parasite objects left in '{parasite_table}' after filtering. "
+            f"Check min_parasite_area / max_parasite_area / min_total_intensity."
+        )
+
+    # ---- the outside-channel signal --------------------------------------
+    value_column, statistic_name = _resolve_invasion_intensity_column(
+        df, compartment, settings['outside_channel'],
+        settings['intensity_statistic'], verbose=settings['verbose'])
+    background_column = _resolve_invasion_background_column(
+        df, compartment, settings['outside_channel'],
+        settings['background_correction'])
+
+    df['outside_intensity_raw'] = pd.to_numeric(df[value_column],
+                                                errors='coerce')
+    if background_column is None:
+        df['outside_background'] = 0.0
+    else:
+        df['outside_background'] = pd.to_numeric(df[background_column],
+                                                 errors='coerce').fillna(0.0)
+    df['outside_intensity'] = (df['outside_intensity_raw']
+                               - df['outside_background'])
+
+    # ---- staining controls ----------------------------------------------
+    # Split them off before conditions are annotated: a no-primary or
+    # no-permeabilisation control is a staining control, not an experimental
+    # condition, so it has no entry in the well maps and must not appear in
+    # any efficiency.
+    control_mask = _invasion_control_mask(df, settings['control_wells'])
+    controls = df[control_mask].copy()
+    df = df[~control_mask].copy()
+    if len(df) == 0:
+        raise ValueError(
+            "Every parasite row fell inside 'control_wells'; there is nothing "
+            "left to score."
+        )
+
+    control_thresholds = {}
+    if len(controls) > 0:
+        for plate, subset in controls.groupby('plateID', sort=False):
+            values = subset['outside_intensity'].to_numpy(dtype=float)
+            values = values[np.isfinite(values)]
+            if values.size >= int(settings['min_control_objects']):
+                control_thresholds[str(plate)] = float(
+                    np.quantile(values, float(settings['control_quantile'])))
+            else:
+                print(
+                    f"WARNING: control wells on plate {plate} hold only "
+                    f"{values.size} object(s), below min_control_objects="
+                    f"{settings['min_control_objects']}; falling back to the "
+                    f"automatic per-field threshold for that plate."
+                )
+        if control_thresholds:
+            print(
+                "Outside-stain threshold taken from the control wells "
+                f"(quantile {settings['control_quantile']:.3g} of the negative "
+                f"distribution): "
+                + ', '.join(f'{plate}={value:.4g}'
+                            for plate, value in control_thresholds.items())
+            )
+    if settings['outside_threshold'] is not None and control_thresholds:
+        print(
+            "NOTE: 'outside_threshold' is set, so the fixed value is used and "
+            "the control-derived cut becomes the reference the QC judges it "
+            "against."
+        )
+
+    # ---- host cell -------------------------------------------------------
+    if 'cell_id' in df.columns:
+        host = pd.to_numeric(df['cell_id'], errors='coerce')
+        df['cell_id'] = host.fillna(0).astype(int)
+        df['no_host_cell'] = (~host.notna()) | (host == 0)
+    else:
+        # No cell mask at all: nothing is known about host association, so
+        # nothing is forced and the stain decides every call.
+        df['no_host_cell'] = False
+    if settings['extracellular_class'] == 'exclude':
+        df = df[~df['no_host_cell']].copy()
+        if len(df) == 0:
+            raise ValueError(
+                "extracellular_class='exclude' removed every parasite: none "
+                "of them overlap a host cell."
+            )
+
+    # ---- conditions ------------------------------------------------------
+    df = annotate_conditions(
+        df=df,
+        cells=settings['cell_types'],
+        cell_loc=settings['cell_plate_metadata'],
+        pathogens=settings['pathogen_types'],
+        pathogen_loc=settings['pathogen_plate_metadata'],
+        treatments=settings['treatments'],
+        treatment_loc=settings['treatment_plate_metadata'],
+    )
+    if group_column not in df.columns:
+        raise KeyError(
+            f"'{group_column}' not found in the parasite table. "
+            f"Available columns: {', '.join(map(str, df.columns))}"
+        )
+    df = df.dropna(subset=[group_column])
+    if len(df) == 0:
+        raise ValueError(
+            f"Every parasite row has an empty '{group_column}'. Check the "
+            f"cell_plate_metadata / pathogen_plate_metadata / "
+            f"treatment_plate_metadata well maps."
+        )
+
+    # ---- thresholds and classification -----------------------------------
+    fields = _invasion_field_thresholds(df, 'outside_intensity', settings,
+                                        control_thresholds)
+    parasites = _invasion_classify(df, fields, 'outside_intensity',
+                                   settings['extracellular_class'])
+
+    field_classes = parasites.groupby('prcf', sort=False)['invasion_class']
+    field_counts = field_classes.value_counts().unstack(fill_value=0)
+    for name in _INVASION_CLASSES:
+        if name not in field_counts.columns:
+            field_counts[name] = 0
+    fields = fields.merge(
+        field_counts[_INVASION_CLASSES].rename(
+            columns={'attached': 'n_attached', 'invaded': 'n_invaded'}
+        ).reset_index(), on='prcf', how='left')
+    fields[['n_attached', 'n_invaded']] = (
+        fields[['n_attached', 'n_invaded']].fillna(0).astype(int))
+    fields['n_total'] = fields['n_attached'] + fields['n_invaded']
+    fields['invasion_efficiency'] = [
+        _invasion_efficiency(invaded, total)
+        for invaded, total in zip(fields['n_invaded'], fields['n_total'])
+    ]
+    field_group = parasites.groupby('prcf', sort=False)[group_column].first()
+    fields[group_column] = fields['prcf'].map(field_group)
+
+    # ---- wells that hold host cells but no parasites ----------------------
+    seed_wells = None
+    if cell_frames:
+        cells = pd.concat(cell_frames, axis=0, ignore_index=True)
+        cells['prc'] = (cells['plateID'].astype(str) + '_'
+                        + cells['rowID'].astype(str) + '_'
+                        + cells['columnID'].astype(str))
+        cells = cells[~_invasion_control_mask(cells, settings['control_wells'])]
+        cells = annotate_conditions(
+            df=cells,
+            cells=settings['cell_types'],
+            cell_loc=settings['cell_plate_metadata'],
+            pathogens=settings['pathogen_types'],
+            pathogen_loc=settings['pathogen_plate_metadata'],
+            treatments=settings['treatments'],
+            treatment_loc=settings['treatment_plate_metadata'],
+        )
+        if group_column in cells.columns:
+            seed_wells = cells.dropna(subset=[group_column])[
+                ['plateID', 'rowID', 'columnID', 'prc', group_column]
+            ].drop_duplicates()
+
+    wells = _invasion_well_table(parasites, fields, group_column, settings,
+                                 seed_wells=seed_wells)
+    summary = _invasion_summary(wells, group_column)
+    comparisons = _invasion_compare_conditions(wells, group_column,
+                                               verbose=settings['verbose'])
+
+    # ---- figures ---------------------------------------------------------
+    prc_column = 'plateID' if settings['level'] == 'plate' else 'prc'
+    scored = parasites[parasites['invasion_class'].astype(str)
+                       != 'unclassified'].copy()
+
+    well_totals = dict(zip(wells['prc'].astype(str), wells['n_total']))
+    condition_totals = dict(zip(summary[group_column].astype(str),
+                                summary['n_total']))
+
+    _, _, well_fig = _invasion_stacked_bars(
+        settings, scored, group_column='prc', prc_column='prc',
+        level='object', cmap=settings['cmap'],
+        title='Invasion — per well', denominators=well_totals,
+    )
+    results_df, pairwise_df, group_fig = _invasion_stacked_bars(
+        settings, scored, group_column=group_column, prc_column=prc_column,
+        level=settings['level'], cmap=settings['cmap'],
+        title='Invasion — by condition', denominators=condition_totals,
+    )
+    threshold_fig = _invasion_threshold_panels(
+        parasites, wells, max_panels=settings['qc_plot_max_panels'],
+        cmap=settings['cmap'])
+
+    output = {
+        'parasites': parasites,
+        'fields': fields,
+        'wells': wells,
+        'summary': summary,
+        'comparisons': comparisons,
+        'chi_squared': results_df,
+        'chi_squared_pairwise': pairwise_df,
+        'controls': controls,
+        'control_thresholds': control_thresholds,
+        'intensity_column': value_column,
+        'intensity_statistic': statistic_name,
+        'figures': {'per_well': well_fig, 'by_condition': group_fig,
+                    'thresholds': threshold_fig},
+    }
+
+    if settings['save']:
+        output_dir = os.path.join(settings['src'][0], 'results',
+                                  'analyze_invasion')
+        os.makedirs(output_dir, exist_ok=True)
+        parasites.to_csv(os.path.join(output_dir, 'parasite_calls.csv'),
+                         index=False)
+        fields.to_csv(os.path.join(output_dir, 'field_thresholds.csv'),
+                      index=False)
+        wells.to_csv(os.path.join(output_dir, 'well_invasion.csv'), index=False)
+        summary.to_csv(os.path.join(output_dir, 'condition_summary.csv'),
+                       index=False)
+        comparisons.to_csv(os.path.join(output_dir, 'condition_comparisons.csv'),
+                           index=False)
+        results_df.to_csv(os.path.join(output_dir, 'chi_squared_results.csv'),
+                          index=False)
+        pairwise_df.to_csv(
+            os.path.join(output_dir, 'chi_squared_pairwise_results.csv'),
+            index=False)
+        well_fig.savefig(os.path.join(output_dir, 'invasion_per_well.pdf'),
+                         dpi=300, bbox_inches='tight')
+        group_fig.savefig(os.path.join(output_dir, 'invasion_by_condition.pdf'),
+                          dpi=300, bbox_inches='tight')
+        threshold_fig.savefig(
+            os.path.join(output_dir, 'outside_stain_thresholds.pdf'),
+            dpi=300, bbox_inches='tight')
+        print(f"Invasion assay results saved to {output_dir}")
+
+    if settings['verbose']:
+        print(f"Outside-stain statistic: '{value_column}' ({statistic_name})")
+        print("Per-field thresholds:")
+        print(fields[['prcf', 'n_total', 'threshold', 'threshold_source',
+                      'automatic_threshold', 'bimodality_coefficient',
+                      'invasion_efficiency']].to_string(index=False))
+        flagged = wells.loc[~wells['qc_pass'], ['prc', 'n_total', 'qc_flags']]
+        if len(flagged):
+            print(f"QC: {len(flagged)} well(s) flagged:")
+            print(flagged.to_string(index=False))
+
+    plt.show()
+    # The figures stay usable (savefig works on a closed figure); closing them
+    # keeps a batch run over many plates from accumulating open figures.
+    for figure in (well_fig, group_fig, threshold_fig):
+        plt.close(figure)
+
+    return output
+
+
 def analyze_class_proportion(settings):
     """Test whether classifier class proportions differ between experimental groups.
 
