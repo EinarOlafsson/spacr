@@ -58,6 +58,47 @@ import warnings
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
 
 
+class _DispersedVariance:
+    """Scale a statsmodels variance function by a constant dispersion factor.
+
+    ``Binomial.__init__`` stores a ``varfuncs`` callable in the *instance*
+    ``__dict__`` under the name ``variance``, and an instance attribute
+    always wins over a subclass method of the same name. Overriding
+    ``variance`` in a subclass therefore has no effect on anything
+    statsmodels does. Wrapping the stored callable is the only way to make
+    the factor reach the fit, and delegating attribute lookups keeps
+    ``family.variance.deriv`` — which ``GLM`` calls — working.
+
+    :param varfunc: The variance callable installed by statsmodels.
+    :param dispersion: Multiplicative variance scaling.
+    """
+
+    def __init__(self, varfunc, dispersion):
+        self._varfunc = varfunc
+        self.dispersion = dispersion
+
+    def __call__(self, mu):
+        """Return ``dispersion * varfunc(mu)``."""
+        return self.dispersion * self._varfunc(mu)
+
+    def deriv(self, mu):
+        """Return the dispersion-scaled derivative of the variance function."""
+        return self.dispersion * self._varfunc.deriv(mu)
+
+    def __getattr__(self, name):
+        """Delegate every other attribute to the wrapped variance function.
+
+        Raises ``AttributeError`` - never ``KeyError`` - when ``_varfunc`` is
+        not set yet, so ``copy``/``pickle`` can probe for ``__setstate__`` and
+        friends on a half-built instance without blowing up.
+        """
+        try:
+            varfunc = self.__dict__['_varfunc']
+        except KeyError:
+            raise AttributeError(name) from None
+        return getattr(varfunc, name)
+
+
 class QuasiBinomial(Binomial):
     """Binomial GLM family scaled by a dispersion parameter (quasi-binomial).
 
@@ -69,11 +110,15 @@ class QuasiBinomial(Binomial):
         """Store the dispersion factor after delegating to ``Binomial``."""
         super().__init__(link=link)
         self.dispersion = dispersion
+        # See _DispersedVariance: without this the method below is shadowed
+        # by the instance attribute statsmodels just installed, so the
+        # dispersion was silently ignored by every fit using this family.
+        self.variance = _DispersedVariance(self.__dict__['variance'], dispersion)
 
     def variance(self, mu):
         """Adjust the variance with the dispersion parameter."""
         return self.dispersion * super().variance(mu)
-    
+
 def calculate_p_values(X, y, model):
     """Return OLS-style p-values for a fitted model's coefficients.
 
@@ -273,13 +318,21 @@ def check_and_clean_data(df, dependent_variable):
 
         print("Variance Inflation Factor (VIF) for each feature:")
         print(vif_data)
-        
-        # Drop columns with VIF > 10 (a common threshold to identify multicollinearity)
+
+        # Report high VIF (> 10) but do NOT drop. The only columns checked
+        # here are 'fraction' and the dependent variable, and both are
+        # required downstream: 'gene_fraction' is derived from 'fraction'
+        # and the regression formula regresses the dependent variable on
+        # it. The previous revision dropped every column above the
+        # threshold, so any dependent variable even approximately
+        # proportional to 'fraction' (VIF -> inf) dropped both and made the
+        # caller die on KeyError: 'Column not found: fraction'.
         high_vif_columns = vif_data[vif_data["VIF"] > 10]["Feature"].tolist()
         if high_vif_columns:
-            print(f"Dropping columns with high VIF: {high_vif_columns}")
-            df_encoded.drop(columns=high_vif_columns, inplace=True)
-        
+            print(f"Warning: high collinearity (VIF > 10) for: {high_vif_columns}. "
+                  f"Keeping them - the regression formula requires both - but "
+                  f"coefficient estimates may be unstable.")
+
         return df_encoded
     
     # Step 1: Handle missing values in relevant fields
@@ -298,6 +351,13 @@ def check_and_clean_data(df, dependent_variable):
     df_cleaned['plateID'] = df['plateID']
     df_cleaned['rowID'] = df['rowID']
     df_cleaned['columnID'] = df['columnID']
+
+    # check_collinearity only returns 'fraction' and the dependent variable,
+    # so 'cell_count' used to be stripped unconditionally. regression() then
+    # found no 'cell_count' column and passed weights=None, which made the
+    # documented GLM-binomial var_weights=cell_count path dead code.
+    if 'cell_count' in df.columns:
+        df_cleaned['cell_count'] = df['cell_count']
 
     # Create a new column 'gene_fraction' that sums the fractions by gene within the same well
     df_cleaned['gene_fraction'] = df_cleaned.groupby(['prc', 'gene'])['fraction'].transform('sum')
@@ -695,6 +755,10 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     else:
         formula = prepare_formula(dependent_variable, random_row_column_effects=False)
         y, X = dmatrices(formula, data=df, return_type='dataframe')
+        # Rows patsy actually kept, captured before any scaling: scale_variables
+        # returns a RangeIndex-ed X and a bare ndarray y, so y.index no longer
+        # exists by the time the weights below are built.
+        model_index = y.index
 
         plot_histogram(y, dependent_variable, dst=dst)
         plot_histogram(df, 'fraction', dst=dst)
@@ -709,7 +773,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
 
         # Cell count weights for GLM-Binomial (logit, probit). For other models
         # this is ignored.
-        weights = df['cell_count'].loc[y.index] if 'cell_count' in df.columns else None
+        weights = df['cell_count'].loc[model_index] if 'cell_count' in df.columns else None
         groups = df['prc'] if regression_type == 'mixed' else None
 
         print(f'Performing {regression_type} regression')
@@ -726,7 +790,22 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         display(coef_df)
 
     if plot:
-        volcano_plot(coef_df, volcano_path)
+        # plot.volcano_plot is keyword-only past its first argument and has no
+        # defaults for the two column names, so the old positional
+        # volcano_plot(coef_df, volcano_path) raised TypeError on every
+        # plot=True call. coef_df is the frame built by
+        # process_model_coefficients / fit_mixed_model, whose columns are
+        # feature / coefficient / p_value; the coefficients are already on a
+        # signed log-odds-style scale, so no x transform is applied.
+        volcano_plot(
+            coef_df,
+            fold_change_col='coefficient',
+            p_value_col='p_value',
+            name_col='feature',
+            x_transform='none',
+            save_path=volcano_path,
+            show=False,
+        )
 
     return model, coef_df, regression_type
 
@@ -888,20 +967,14 @@ def perform_regression(settings):
             return count_data_df, score_data_df
     
     def _perform_regression_set_paths(settings):
-
-        if isinstance(settings['score_data'], list):
-            score_data = settings['score_data'][0]
-        else:
-            score_data = settings['score_data']
-        
+        # _perform_regression_read_data has already normalised both keys to
+        # lists by the time this runs, so the old scalar fallbacks here were
+        # unreachable.
+        score_data = settings['score_data'][0]
         score_source = os.path.splitext(os.path.basename(score_data))[0]
-        
-        if isinstance(settings['count_data'], list):
-            src = os.path.dirname(settings['count_data'][0])
-            csv_path = settings['count_data'][0]
-        else:
-            src = os.path.dirname(settings['count_data'])
-            csv_path = settings['count_data']
+
+        src = os.path.dirname(settings['count_data'][0])
+        csv_path = settings['count_data'][0]
 
         settings['src'] = src
     
@@ -927,31 +1000,40 @@ def perform_regression(settings):
     
     
     def _count_variable_instances(df, column_1, column_2):
-        n_grna, n_gene = None, None
-
+        # The single call site always passes both column names, so the
+        # variable-arity returns this used to carry (two-tuple / bare df) were
+        # unreachable; it now always returns the three-tuple its caller
+        # unpacks.
         for col in (column_1, column_2):
-            if col is not None and col not in df.columns:
+            if col not in df.columns:
                 raise KeyError(
                     f"Column '{col}' not found in independent_df. "
                     f"Available columns: {list(df.columns)}"
                 )
 
-        if column_1 is not None:
-            n_grna = df[column_1].value_counts().reset_index()
-            n_grna.columns = [column_1, f"n_{column_1}"]
+        n_grna = df[column_1].value_counts().reset_index()
+        n_grna.columns = [column_1, f"n_{column_1}"]
 
-        if column_2 is not None:
-            n_gene = df[column_2].value_counts().reset_index()
-            n_gene.columns = [column_2, f"n_{column_2}"]
+        n_gene = df[column_2].value_counts().reset_index()
+        n_gene.columns = [column_2, f"n_{column_2}"]
 
-        if column_1 is not None and column_2 is not None:
-            return df, n_grna, n_gene
-        if column_1 is not None:
-            return df, n_grna
-        if column_2 is not None:
-            return df, n_gene
-        return df
-        
+        return df, n_grna, n_gene
+
+
+    def _qc_plot(plot_settings):
+        """Render one QC plot, reporting - not raising - on failure.
+
+        The QC tables written between these calls are data outputs, so a
+        plotting failure must not cost them. spacrGraph runs a group
+        comparison, which scipy rejects with "Must enter at least two input
+        sample vectors" on the very common single-plate run.
+        """
+        try:
+            return plot_data_from_csv(settings=plot_settings)
+        except Exception as e:
+            print(f"Skipping QC plot {plot_settings['graph_name']!r}: {e}")
+            return None, None
+
     def grna_metricks(df):
         """Return per-gRNA and per-well coverage counts derived from a long ``prc`` DataFrame.
 
@@ -1174,10 +1256,13 @@ def perform_regression(settings):
         filter_value = settings['filter_value']
     else:
         filter_value = []
-    if isinstance(settings['filter_column'], str):
-        filter_column = settings['filter_column']
-    
-    score_data_df = clean_controls(score_data_df, settings['filter_value'], settings['filter_column'])
+    # filter_column used to be bound only in the `isinstance(..., str)` branch,
+    # so both None (the natural "do not filter" value) and the list form that
+    # process_reads documents left it unbound and the process_reads call below
+    # raised UnboundLocalError. clean_controls handles str / list / None.
+    filter_column = settings['filter_column']
+
+    score_data_df = clean_controls(score_data_df, settings['filter_value'], filter_column)
     
     if settings['verbose']:
         print(f"Dependent variable after clean_controls: {len(score_data_df)}")
@@ -1231,6 +1316,11 @@ def perform_regression(settings):
         merged_df.to_csv(data_path, index=False)
         print(f"Saved regression data to {data_path}")
         
+        # plot_data_from_csv reads settings['remove_outliers'] directly and
+        # never applies its own defaults, so omitting the key raised KeyError
+        # on the very first QC plot; combined with the swallow-everything
+        # try/except around this block, grna_well.csv and well_grna.csv were
+        # then silently never written.
         cell_settings = {'src':data_path,
                         'graph_name':'cell_count',
                         'data_column':['cell_count'],
@@ -1242,9 +1332,10 @@ def perform_regression(settings):
                         'log_y':False,
                         'log_x':False,
                         'representation':'well',
+                        'remove_outliers':False,
                         'verbose':False}
         
-        _, _ = plot_data_from_csv(settings=cell_settings)
+        _, _ = _qc_plot(cell_settings)
         
         final_grna_df, prc_gene_count_df = grna_metricks(merged_df)
         
@@ -1271,9 +1362,10 @@ def perform_regression(settings):
                                 'log_y':False,
                                 'log_x':False,
                                 'representation':'object',
+                                'remove_outliers':False,
                                 'verbose':True}
         
-        _, _ = plot_data_from_csv(settings=wells_per_gene_settings)
+        _, _ = _qc_plot(wells_per_gene_settings)
         
         grna_well_data_path = os.path.join(res_folder, 'well_grna.csv')
         prc_gene_count_df.to_csv(grna_well_data_path, index=False)
@@ -1290,9 +1382,10 @@ def perform_regression(settings):
                                 'log_y':False,
                                 'log_x':False,
                                 'representation':'well',
+                                'remove_outliers':False,
                                 'verbose':False}
         
-        _, _ = plot_data_from_csv(settings=grna_per_well_settings)
+        _, _ = _qc_plot(grna_per_well_settings)
         
     except Exception as e:
         print(e)
@@ -1312,6 +1405,14 @@ def perform_regression(settings):
     gene_coef_df = gene_coef_df.dropna(subset=['n_gene'])
     grna_coef_df = grna_coef_df.dropna(subset=['n_grna'])
     
+    # reg_threshold used to be bound only inside the branch below, so a
+    # control-free screen (settings['controls'] is None) hit UnboundLocalError
+    # as soon as the toxo volcano block read it. 0 is custom_volcano_plot's own
+    # default and means "no coefficient cut-off, select on p <= 0.05 alone",
+    # which is the only sensible threshold when there are no controls to
+    # calibrate against.
+    reg_threshold = 0
+
     if settings['controls'] is not None:
 
         control_coef_df = grna_coef_df[grna_coef_df['grna'].isin(settings['controls'])]
@@ -1648,14 +1749,22 @@ def clean_controls(df,values, column):
 
     :param df: Source DataFrame.
     :param values: Value or list of values to remove.
-    :param column: Column to check.
+    :param column: Column, or list of columns, to check. ``None`` is a
+        no-op.
     :returns: Filtered DataFrame (unchanged if ``column`` is missing).
     """
-    if column in df.columns:
-        if isinstance(values, list):
-            for value in values:
-                df = df[~df[column].isin([value])]
-                print(f'Removed data from {value}')
+    if column is None:
+        return df
+    # A bare `column in df.columns` raised "TypeError: unhashable type: 'list'"
+    # for the list form that process_reads accepts and documents. Anything
+    # that is not a sequence of names stays a single name, as before.
+    columns = list(column) if isinstance(column, (list, tuple, set)) else [column]
+    if isinstance(values, list):
+        for col in columns:
+            if col in df.columns:
+                for value in values:
+                    df = df[~df[col].isin([value])]
+                    print(f'Removed data from {value}')
     return df
 
 def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='mean', transform=None, regression_type='ols', invert_dependent_variable=False):
@@ -1940,8 +2049,14 @@ def generate_ml_scores(settings):
             print(f"Automatically set positive control to {settings['positive_control']} and negative control to {settings['negative_control']} based on unique values in annotation column.")
     
     if settings['channel_of_interest'] in [0,1,2,3]:
-        if f"pathogen_channel_{settings['channel_of_interest']}_mean_intensity" and f"cytoplasm_channel_{settings['channel_of_interest']}_mean_intensity" in df.columns:
-            df['recruitment'] = df[f"pathogen_channel_{settings['channel_of_interest']}_mean_intensity"]/df[f"cytoplasm_channel_{settings['channel_of_interest']}_mean_intensity"]
+        # `if "a" and "b" in df.columns` only membership-tests "b": the first
+        # operand is a non-empty literal and therefore always truthy. A
+        # measurements DB whose pathogen table lacks the channel mean
+        # intensity died with KeyError instead of skipping recruitment.
+        pathogen_col = f"pathogen_channel_{settings['channel_of_interest']}_mean_intensity"
+        cytoplasm_col = f"cytoplasm_channel_{settings['channel_of_interest']}_mean_intensity"
+        if pathogen_col in df.columns and cytoplasm_col in df.columns:
+            df['recruitment'] = df[pathogen_col]/df[cytoplasm_col]
     
     output, figs = ml_analysis(df,
                                settings['channel_of_interest'],
@@ -2402,7 +2517,16 @@ def find_optimal_threshold(y_true, y_pred_proba):
     :returns: Optimal probability threshold.
     """
     precision, recall, thresholds = precision_recall_curve(y_true, y_pred_proba)
-    f1_scores = 2 * (precision * recall) / (precision + recall)
+    # A precision-recall sweep can contain points where precision and recall
+    # are both 0 (every predicted positive is a true negative). The plain
+    # 2*(p*r)/(p+r) produced NaN there, and np.argmax returns the index of the
+    # first NaN rather than the true F1 maximum, so the returned threshold
+    # could be one whose F1 is 0. F1 is 0 by definition when p + r == 0.
+    denominator = precision + recall
+    with np.errstate(divide='ignore', invalid='ignore'):
+        f1_scores = np.where(denominator > 0,
+                             2 * (precision * recall) / denominator,
+                             0.0)
     optimal_idx = np.argmax(f1_scores)
     optimal_threshold = thresholds[optimal_idx]
     return optimal_threshold
@@ -2472,6 +2596,21 @@ def _calculate_similarity(df, features, col_to_compare, val1, val2):
         print(f"Error calculating similarity scores: {e}")    
     return df
 
+def _save_importance_csv(df, src, filename):
+    """Write an importance table to ``<src>/results/<filename>``.
+
+    :param df: Importance DataFrame with ``feature`` / ``importance``.
+    :param src: Plate folder the explained model was scored from.
+    :param filename: Basename of the CSV to write.
+    :returns: The full path written.
+    """
+    results_loc = os.path.join(src, 'results')
+    os.makedirs(results_loc, exist_ok=True)
+    out_path = os.path.join(results_loc, filename)
+    df.to_csv(out_path, index=False)
+    print(f"Saved {out_path}")
+    return out_path
+
 def interperate_vision_model(settings=None):
     """Explain a spacr vision-model score using RF, permutation and SHAP importance, with per-compartment / per-channel radar plots.
 
@@ -2517,7 +2656,12 @@ def interperate_vision_model(settings=None):
     """
     if settings is None:
         settings = {}
-    from .io import _read_and_merge_data, _results_to_csv
+    # io._results_to_csv has the signature (src, df, df_well) and writes
+    # cells.csv / wells.csv; it was being called as (df, filename=...), which
+    # raised TypeError on every save=True run. The importance tables get their
+    # own writer, _save_importance_csv, which follows the same <src>/results
+    # convention.
+    from .io import _read_and_merge_data
     from .settings import set_interperate_vision_model_defaults
     from .utils import save_settings
 
@@ -2622,15 +2766,23 @@ def interperate_vision_model(settings=None):
     X, y, merged_df = read_and_preprocess_data(settings)
     
     # Step 1: Feature Importance using Random Forest
-    if settings['feature_importance'] or settings['feature_importance']:
+    # The outer guard used to read `feature_importance or feature_importance`
+    # — the same key OR'd with itself — so the forest was never fitted unless
+    # feature importance was explicitly requested. Permutation importance then
+    # hit UnboundLocalError on `model`, and SHAP on `feature_importance_df`,
+    # even though the docstring documents the three explainers as independent
+    # toggles. The forest and the importance frame are shared by all three;
+    # only the reporting and the CSV write belong to feature_importance itself.
+    if settings['feature_importance'] or settings['permutation_importance'] or settings['shap']:
         model = RandomForestClassifier(random_state=42, n_jobs=settings['n_jobs'])
         model.fit(X, y)
-        
+
+        feature_importances = model.feature_importances_
+        feature_importance_df = pd.DataFrame({'feature': X.columns, 'importance': feature_importances})
+        feature_importance_df = feature_importance_df.sort_values(by='importance', ascending=False)
+
         if settings['feature_importance']:
             print(f"Feature Importance ...")
-            feature_importances = model.feature_importances_
-            feature_importance_df = pd.DataFrame({'feature': X.columns, 'importance': feature_importances})
-            feature_importance_df = feature_importance_df.sort_values(by='importance', ascending=False)
             top_feature_importance_df = feature_importance_df.head(settings['top_features'])
 
             # Plot Feature Importance
@@ -2640,10 +2792,10 @@ def interperate_vision_model(settings=None):
             plt.title(f"Top {settings['top_features']} Features - Feature Importance")
             plt.gca().invert_yaxis()
             plt.show()
-        
-        if settings['save']:
-            _results_to_csv(feature_importance_df, filename='feature_importance.csv')
-    
+
+            if settings['save']:
+                _save_importance_csv(feature_importance_df, settings['src'], 'feature_importance.csv')
+
     # Step 2: Permutation Importance
     if settings['permutation_importance']:
         print(f"Permutation Importance ...")
@@ -2661,8 +2813,8 @@ def interperate_vision_model(settings=None):
         plt.show()
         
         if settings['save']:
-            _results_to_csv(perm_importance_df, filename='permutation_importance.csv')
-    
+            _save_importance_csv(perm_importance_df, settings['src'], 'permutation_importance.csv')
+
     # Step 3: SHAP Analysis
     if settings['shap']:
         print(f"SHAP Analysis ...")
@@ -2677,8 +2829,12 @@ def interperate_vision_model(settings=None):
 
         # Sample a smaller subset of rows to speed up SHAP
         if settings['shap_sample']:
-            sample = int(len(X_top) / 100)
-            X_sample = X_top.sample(min(sample, len(X_top)), random_state=42)
+            # int(len/100) floors to 0 for any experiment with fewer than
+            # 100 objects, which handed shap an empty background AND an
+            # empty matrix to explain -> IndexError. Clamp to at least one
+            # row; for >=100 objects the clamp is a no-op.
+            sample = max(1, min(int(len(X_top) / 100), len(X_top)))
+            X_sample = X_top.sample(sample, random_state=42)
         else:
             X_sample = X_top
 

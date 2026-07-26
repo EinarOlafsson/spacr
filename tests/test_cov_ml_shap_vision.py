@@ -232,10 +232,6 @@ def test_find_optimal_threshold_picks_the_f1_maximising_cut():
     assert f1_score(y_true, (proba >= t).astype(int)) == pytest.approx(1.0)
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: find_optimal_threshold computes 2*(p*r)/(p+r) without guarding "
-    "p+r == 0, so a NaN enters f1_scores and np.argmax returns the NaN "
-    "index instead of the true F1 maximum"))
 def test_find_optimal_threshold_ignores_undefined_f1_points():
     """Precision-recall sweeps can contain points where precision and recall
     are both 0; the F1 there is undefined and must not win the argmax."""
@@ -533,10 +529,6 @@ def test_interperate_vision_model_shap_without_subsampling(tmp_path, monkeypatch
                         "channel_1 + morphology"}
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: with shap_sample=True the sample size is int(len(X_top) / 100), "
-    "which floors to 0 for any experiment with fewer than 100 merged "
-    "objects -> shap gets an empty background and raises IndexError"))
 def test_interperate_vision_model_shap_sample_on_a_small_plate(tmp_path, monkeypatch):
     """shap_sample must degrade gracefully when there are <100 objects."""
     from spacr.ml import interperate_vision_model
@@ -597,25 +589,12 @@ def test_interperate_vision_model_none_settings_uses_defaults(tmp_path, monkeypa
 
 
 def test_interperate_vision_model_save_writes_importance_tables(tmp_path, monkeypatch):
-    """With save=True both importance tables are handed to io._results_to_csv.
-
-    ``spacr.io._results_to_csv`` is stubbed with a ``(df, filename=...)``
-    compatible recorder because the real helper takes ``(src, df, df_well)``
-    — see the strict-xfail test below, which pins the correct behaviour.
-    """
+    """With save=True both importance tables are written under ``<src>/results``."""
     from spacr.ml import interperate_vision_model
 
     rng = np.random.default_rng(15)
     df, grid, labels = _fake_merged_frame(24, rng)
     _install_fake_merge(monkeypatch, df, {})
-
-    written = {}
-
-    def _fake_results_to_csv(frame, filename=None):
-        written[filename] = frame.copy()
-        frame.to_csv(tmp_path / filename, index=False)
-
-    monkeypatch.setattr(spacr.io, "_results_to_csv", _fake_results_to_csv)
 
     src = tmp_path / "plateD"
     src.mkdir()
@@ -639,12 +618,13 @@ def test_interperate_vision_model_save_writes_importance_tables(tmp_path, monkey
         "save": True,
     })
 
+    results_dir = src / "results"
+    written = {p.name: pd.read_csv(p) for p in results_dir.glob("*.csv")}
     assert set(written) == {"feature_importance.csv", "permutation_importance.csv"}
-    for name, frame in written.items():
+    for frame in written.values():
         assert list(frame.columns) == ["feature", "importance"]
         assert len(frame) == 3            # the full table, not the top-N slice
         assert frame["importance"].is_monotonic_decreasing
-        assert (tmp_path / name).is_file()
     assert set(written["feature_importance.csv"]["feature"]) == {
         "cell_channel_0_mean_intensity",
         "nucleus_channel_1_mean_intensity",
@@ -652,10 +632,6 @@ def test_interperate_vision_model_save_writes_importance_tables(tmp_path, monkey
     }
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: interperate_vision_model calls io._results_to_csv(df, "
-    "filename='feature_importance.csv') but the helper's signature is "
-    "(src, df, df_well) -> TypeError whenever settings['save'] is True"))
 def test_interperate_vision_model_save_true_writes_a_real_csv(tmp_path, monkeypatch):
     """settings['save']=True must persist the importance table to disk."""
     from spacr.ml import interperate_vision_model
@@ -691,10 +667,6 @@ def test_interperate_vision_model_save_true_writes_a_real_csv(tmp_path, monkeypa
     assert hits, "save=True should have written feature_importance.csv"
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: the permutation-importance block reuses `model`, which is only "
-    "bound inside the `if settings['feature_importance']` block, so "
-    "feature_importance=False + permutation_importance=True raises NameError"))
 def test_interperate_vision_model_permutation_without_feature_importance(
         tmp_path, monkeypatch):
     """permutation_importance must be usable on its own."""
@@ -730,10 +702,6 @@ def test_interperate_vision_model_permutation_without_feature_importance(
     assert len(merged) == len(grid)
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: the SHAP block reads `feature_importance_df`, which is only bound "
-    "inside the `if settings['feature_importance']` block, so "
-    "feature_importance=False + shap=True raises NameError"))
 def test_interperate_vision_model_shap_without_feature_importance(
         tmp_path, monkeypatch):
     """shap must be usable without also asking for RF feature importance."""

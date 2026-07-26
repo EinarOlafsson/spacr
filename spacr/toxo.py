@@ -590,6 +590,12 @@ def generate_score_heatmap(settings):
         :param column: Plate column to filter on (default ``'c3'``).
         :returns: The generated Matplotlib figure.
         """
+        # Copy first: this assignment used to mutate the CALLER's frame,
+        # so the temporary sort column survived in merged_df (the drop
+        # below only affects the local slice) and leaked into the returned
+        # frame, the saved *_data.csv and the MAE table as a bogus channel.
+        df = df.copy()
+
         # Extract row number and convert to integer for sorting
         df['row_num'] = df['rowID'].str.extract(r'(\d+)').astype(int)
 
@@ -705,12 +711,17 @@ def generate_score_heatmap(settings):
     merged_df = pd.merge(merged_df, cv_df, on=['prc'])
     
     fig = plot_multi_channel_heatmap(merged_df, settings['columnID'])
-    if 'row_number' in merged_df.columns:
+    # The guard used to test for 'row_number' while the helper adds
+    # 'row_num', so it never fired for the column it meant to drop and
+    # would KeyError on a frame that genuinely carries a 'row_number'
+    # data column. With the copy in the helper this is now a no-op kept
+    # as cheap defence. The matching mae_df guard was deleted: calculate_mae
+    # only ever emits Channel/MAE/Row, so it was dead and, if it had ever
+    # fired, would have dropped a differently-named column.
+    if 'row_num' in merged_df.columns:
         merged_df = merged_df.drop('row_num', axis=1)
     mae_df = calculate_mae(merged_df)
-    if 'row_number' in mae_df.columns:
-        mae_df = mae_df.drop('row_num', axis=1)
-        
+
     if not settings['dst'] is None:
         mae_dst = os.path.join(settings['dst'], f"mae_scores_comparison_plate_{settings['plateID']}.csv")
         merged_dst = os.path.join(settings['dst'], f"scores_comparison_plate_{settings['plateID']}_data.csv")

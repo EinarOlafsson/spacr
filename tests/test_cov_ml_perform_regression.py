@@ -632,9 +632,14 @@ def test_outlier_detection_drops_sparsely_covered_grnas(tmp_path, stubs):
     assert len(grna_well) == 2 * (len(GENES) * N_GRNA_PER_GENE - 1)
 
 
-def test_qc_block_failure_is_swallowed_and_the_run_continues(screen, heavy_stubs,
-                                                             monkeypatch, capsys):
-    """An exception inside the QC block is printed, not propagated."""
+def test_qc_plot_failure_does_not_cost_the_qc_tables(screen, heavy_stubs,
+                                                     monkeypatch, capsys):
+    """A failing QC *plot* is reported; the QC *tables* are still written.
+
+    The tables are data outputs interleaved with the plots inside one big
+    try/except, so a single bad plot used to take out every write that came
+    after it.
+    """
     from spacr.ml import perform_regression
     import spacr.plot as P
 
@@ -644,9 +649,35 @@ def test_qc_block_failure_is_swallowed_and_the_run_continues(screen, heavy_stubs
     monkeypatch.setattr(P, "plot_data_from_csv", boom)
 
     out = perform_regression(base_settings(screen))
-    assert "qc plot exploded" in capsys.readouterr().out
-    # the QC tables produced after the failing call were never written ...
-    assert not os.path.exists(os.path.join(screen["res"], "grna_well.csv"))
+    printed = capsys.readouterr().out
+    assert "qc plot exploded" in printed
+    assert "Skipping QC plot 'cell_count'" in printed
+    # every QC table still made it to disk ...
+    assert os.path.isfile(os.path.join(screen["res"], "grna_well.csv"))
+    assert os.path.isfile(os.path.join(screen["res"], "well_grna.csv"))
+    # ... and the regression itself still completed.
+    assert os.path.isfile(os.path.join(screen["res"], "results.csv"))
+    assert len(out["results"]) > 0
+
+
+def test_qc_block_failure_is_swallowed_and_the_run_continues(screen, heavy_stubs,
+                                                             monkeypatch, capsys):
+    """A non-plot failure inside the QC block is printed, not propagated."""
+    from spacr.ml import perform_regression
+
+    real_to_csv = pd.DataFrame.to_csv
+
+    def exploding_to_csv(self, path_or_buf=None, *args, **kwargs):
+        if isinstance(path_or_buf, str) and path_or_buf.endswith("grna_well.csv"):
+            raise RuntimeError("qc table exploded")
+        return real_to_csv(self, path_or_buf, *args, **kwargs)
+
+    monkeypatch.setattr(pd.DataFrame, "to_csv", exploding_to_csv)
+
+    out = perform_regression(base_settings(screen))
+    assert "qc table exploded" in capsys.readouterr().out
+    # the QC tables produced after the failing write were never written ...
+    assert not os.path.exists(os.path.join(screen["res"], "well_grna.csv"))
     # ... but the regression itself still completed.
     assert os.path.isfile(os.path.join(screen["res"], "results.csv"))
     assert len(out["results"]) > 0
@@ -925,15 +956,15 @@ def test_toxo_block_with_empty_gene_list(screen, toxo_stubs, capsys):
 
 
 # ---------------------------------------------------------------------------
-# Known defects -- these assert the CORRECT behaviour and currently fail.
+# filter_column shapes
 # ---------------------------------------------------------------------------
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: a list filter_column is passed straight to clean_controls "
-    "(TypeError: unhashable type: 'list'), and the local filter_column is "
-    "only bound in the str branch, so process_reads would see it unbound"))
 def test_filter_column_may_be_a_list(screen, stubs):
-    """process_reads accepts a list of filter columns; so should the caller."""
+    """process_reads accepts a list of filter columns; so should the caller.
+
+    The list used to reach clean_controls' `column in df.columns` membership
+    test and raise "unhashable type: 'list'".
+    """
     from spacr.ml import perform_regression
 
     settings = base_settings(screen, filter_column=["columnID"])
@@ -941,10 +972,23 @@ def test_filter_column_may_be_a_list(screen, stubs):
     assert len(out["results"]) > 0
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: the plot_data_from_csv settings built by perform_regression omit "
-    "'remove_outliers', so the whole QC block dies on KeyError and "
-    "grna_well.csv / well_grna.csv are never written"))
+def test_filter_column_may_be_none(screen, stubs, capsys):
+    """filter_column=None means 'drop no control wells'.
+
+    The local `filter_column` was only bound in the `isinstance(..., str)`
+    branch, so None fell through and the process_reads call below raised
+    UnboundLocalError before any filtering decision was made.
+    """
+    from spacr.ml import perform_regression
+
+    settings = base_settings(screen, filter_column=None)
+    out = perform_regression(settings)
+
+    assert len(out["results"]) > 0
+    # clean_controls announces every value it drops; None must drop nothing.
+    assert "Removed data from" not in capsys.readouterr().out
+
+
 def test_qc_tables_are_written_with_the_real_plot_helper(screen, heavy_stubs):
     """The gRNA-coverage QC tables must survive a real plot_data_from_csv."""
     from spacr.ml import perform_regression
@@ -954,10 +998,6 @@ def test_qc_tables_are_written_with_the_real_plot_helper(screen, heavy_stubs):
     assert os.path.isfile(os.path.join(screen["res"], "well_grna.csv"))
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: reg_threshold is only bound when settings['controls'] is not None, "
-    "so the toxo volcano branch raises UnboundLocalError for control-free "
-    "screens"))
 def test_toxo_volcano_without_controls(screen, toxo_stubs):
     """A screen with no control gRNAs should still be able to plot a volcano."""
     from spacr.ml import perform_regression

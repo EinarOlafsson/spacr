@@ -102,10 +102,6 @@ def test_quasibinomial_variance_method_scales_binomial_variance():
     assert np.allclose(plain, mu * (1.0 - mu))
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: QuasiBinomial.variance is shadowed by the varfuncs instance "
-    "attribute statsmodels sets in Binomial.__init__, so the dispersion "
-    "factor is silently ignored by every GLM fit that uses this family"))
 def test_quasibinomial_family_applies_dispersion_when_called_normally():
     """A dispersion of 3.0 must triple the binomial variance."""
     from spacr.ml import QuasiBinomial
@@ -113,6 +109,72 @@ def test_quasibinomial_family_applies_dispersion_when_called_normally():
     fam = QuasiBinomial(dispersion=3.0)
     mu = np.array([0.25, 0.5, 0.75])
     assert np.allclose(fam.variance(mu), 3.0 * mu * (1.0 - mu))
+
+
+def test_quasibinomial_variance_wrapper_scales_deriv_and_delegates_attributes():
+    """statsmodels' GLM calls family.variance.deriv and reads varfunc state,
+    so the dispersion wrapper has to scale the derivative and pass the rest
+    of the varfunc's attribute surface straight through."""
+    from spacr.ml import QuasiBinomial
+
+    mu = np.array([0.25, 0.5, 0.75])
+    plain = QuasiBinomial(dispersion=1.0)
+    fam = QuasiBinomial(dispersion=4.0)
+
+    # d/dmu [mu(1-mu)] = 1 - 2mu, scaled by the dispersion.
+    assert np.allclose(fam.variance.deriv(mu), 4.0 * (1.0 - 2.0 * mu))
+    assert np.allclose(fam.variance.deriv(mu), 4.0 * plain.variance.deriv(mu))
+    # 'n' lives on the wrapped varfuncs.Binomial instance, not on the wrapper.
+    assert 'n' not in fam.variance.__dict__
+    assert fam.variance.n == plain.variance.n
+    with pytest.raises(AttributeError):
+        fam.variance.not_a_varfunc_attribute
+
+
+def test_quasibinomial_survives_pickle_and_deepcopy():
+    """statsmodels results hold on to the family, and those get pickled, so
+    the variance wrapper must not turn copy/pickle's __setstate__ probe into
+    a KeyError on a half-built instance."""
+    import copy
+    import pickle
+
+    from spacr.ml import QuasiBinomial
+
+    mu = np.array([0.25, 0.5, 0.75])
+    fam = QuasiBinomial(dispersion=2.0)
+
+    restored = pickle.loads(pickle.dumps(fam))
+    assert np.allclose(restored.variance(mu), 2.0 * mu * (1.0 - mu))
+    assert np.allclose(restored.variance.deriv(mu), 2.0 * (1.0 - 2.0 * mu))
+
+    cloned = copy.deepcopy(fam)
+    assert np.allclose(cloned.variance(mu), 2.0 * mu * (1.0 - mu))
+
+
+def test_quasibinomial_dispersion_one_matches_plain_binomial_glm():
+    """The only dispersion spacr constructs is 1.0, which must fit exactly
+    like statsmodels' own Binomial family."""
+    import statsmodels.api as sm
+
+    from spacr.ml import QuasiBinomial
+
+    rng = np.random.default_rng(0)
+    n = 200
+    X = sm.add_constant(rng.normal(size=(n, 2)))
+    p = 1.0 / (1.0 + np.exp(-(X @ np.array([0.2, 0.5, -0.3]))))
+    y = rng.binomial(1, p).astype(float)
+
+    quasi = sm.GLM(y, X, family=QuasiBinomial()).fit()
+    plain = sm.GLM(y, X, family=sm.families.Binomial()).fit()
+
+    assert np.allclose(quasi.params, plain.params)
+    assert np.allclose(quasi.bse, plain.bse)
+
+    # Dispersion 3 leaves the point estimates alone and inflates the standard
+    # errors by sqrt(3) -- the whole point of a quasi-binomial fit.
+    over = sm.GLM(y, X, family=QuasiBinomial(dispersion=3.0)).fit()
+    assert np.allclose(over.params, plain.params)
+    assert np.allclose(over.bse / plain.bse, np.sqrt(3.0))
 
 
 # ---------------------------------------------------------------------------
@@ -314,8 +376,8 @@ def test_check_and_clean_data_flags_rank_deficiency(capsys):
 
     printed = capsys.readouterr().out
     assert "Perfect multicollinearity detected" in printed
-    # Neither column has a finite VIF > 10, so nothing is dropped.
-    assert "Dropping columns with high VIF" not in printed
+    # Neither column exceeds the VIF threshold, so no collinearity warning.
+    assert "high collinearity (VIF > 10)" not in printed
     assert list(out.columns) == ["fraction", "prediction", "gene", "grna",
                                  "prc", "plateID", "rowID", "columnID",
                                  "gene_fraction"]
@@ -344,13 +406,11 @@ def test_check_and_clean_data_survives_linalgerror_from_vif(monkeypatch, capsys)
     assert np.allclose(out["fraction"].values, df["fraction"].values)
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: check_and_clean_data drops EVERY column whose VIF > 10 - including "
-    "'fraction' - and then unconditionally computes gene_fraction from "
-    "df_cleaned['fraction'], raising KeyError: 'Column not found: fraction'"))
-def test_check_and_clean_data_high_vif_keeps_fraction_column():
+def test_check_and_clean_data_high_vif_keeps_fraction_column(capsys):
     """A dependent variable proportional to fraction is perfectly collinear
-    (VIF = inf). Cleaning should still return a usable frame."""
+    (VIF = inf). The collinearity is reported, but neither column may be
+    dropped: the regression formula needs both, and dropping 'fraction' used
+    to make the gene_fraction line raise KeyError."""
     from spacr.ml import check_and_clean_data
 
     df = _well_frame(seed=6)
@@ -358,16 +418,18 @@ def test_check_and_clean_data_high_vif_keeps_fraction_column():
 
     out = check_and_clean_data(df, "prediction")
 
+    printed = capsys.readouterr().out
+    assert "high collinearity (VIF > 10)" in printed
     assert "fraction" in out.columns
+    assert "prediction" in out.columns
     assert "gene_fraction" in out.columns
     assert len(out) == len(df)
+    assert np.allclose(out["fraction"].values, df["fraction"].values)
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: same high-VIF drop as above, reached without rank deficiency - "
-    "check_and_clean_data raises KeyError instead of returning the frame"))
-def test_check_and_clean_data_near_collinear_dependent_variable():
-    """Near- (but not exactly-) collinear columns give a huge finite VIF."""
+def test_check_and_clean_data_near_collinear_dependent_variable(capsys):
+    """Near- (but not exactly-) collinear columns give a huge finite VIF and
+    take the same keep-and-warn path without the rank-deficiency branch."""
     from spacr.ml import check_and_clean_data
 
     rng = np.random.default_rng(7)
@@ -378,5 +440,10 @@ def test_check_and_clean_data_near_collinear_dependent_variable():
 
     out = check_and_clean_data(df, "prediction")
 
+    printed = capsys.readouterr().out
+    assert "Perfect multicollinearity detected" not in printed
+    assert "high collinearity (VIF > 10)" in printed
     assert "fraction" in out.columns
+    assert "prediction" in out.columns
     assert "gene_fraction" in out.columns
+    assert len(out) == len(df)
