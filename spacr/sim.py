@@ -167,6 +167,11 @@ def run_experiment(plate_map, number_of_genes, active_gene_list, avg_genes_per_w
         per-well Gini values, per-gene Gini values, gene weights and well weights.
     """
 
+    # The per-well loops below address wells positionally (``plate_map.loc[i]``
+    # for i in range(len(plate_map))), so a caller-filtered plate map with a
+    # non-contiguous index would raise KeyError. Renumber defensively.
+    plate_map = plate_map.reset_index(drop=True)
+
     #generate primary distributions and genes
     cpw, _ = dist_gen(avg_cells_per_well, sd_cells_per_well, plate_map)
     gpw, _ = dist_gen(avg_genes_per_well, sd_genes_per_well, plate_map)
@@ -330,7 +335,11 @@ def compute_precision_recall(cell_scores):
         ``f1_score``, ``pr_auc``.
     """
     pr, re, th = precision_recall_curve(cell_scores['is_active'], cell_scores['score'])
-    th = np.insert(th, 0, 0)
+    # sklearn returns one more precision/recall point than thresholds, and
+    # pr[i]/re[i] belong to th[i]. The trailing point (precision 1, recall 0)
+    # is "predict nothing positive", so pad at the END — padding at the front
+    # shifts every row onto the threshold below it.
+    th = np.append(th, 1.0)
     f1_score = 2 * (pr * re) / (pr + re)
     pr_auc = auc(re, pr)
     cell_pr_dict = {'threshold':th,'precision': pr,'recall': re, 'f1_score':f1_score, 'pr_auc': pr_auc}
@@ -409,7 +418,6 @@ def sequence_plates(well_score, number_of_genes, avg_reads_per_gene, sd_reads_pe
     all_wells = well_score.index
 
     gene_counts_map = pd.DataFrame(np.zeros((len(all_wells), number_of_genes+1)), columns=gene_names, index=all_wells)
-    sum_reads = []
 
     for _, row in well_score.iterrows():
         gene_list = row['gene_list']
@@ -426,8 +434,6 @@ def sequence_plates(well_score, number_of_genes, avg_reads_per_gene, sd_reads_pe
                     gene_counts_map.loc[wrong_well, f'gene_{int(gene)}'] += gene_count
                 else:
                     gene_counts_map.loc[_, f'gene_{int(gene)}'] += gene_count
-        
-        sum_reads.append(np.sum(gene_counts_map.loc[_, :]))
 
     gene_fraction_map = gene_counts_map.div(gene_counts_map.sum(axis=1), axis=0)
     gene_fraction_map = gene_fraction_map.fillna(0)
@@ -435,7 +441,9 @@ def sequence_plates(well_score, number_of_genes, avg_reads_per_gene, sd_reads_pe
     metadata = pd.DataFrame(index=well_score.index)
     metadata['genes_in_well'] = gene_fraction_map.astype(bool).sum(axis=1)
     metadata['sum_fractions'] = gene_fraction_map.sum(axis=1)
-    metadata['sum_reads'] = sum_reads
+    # Totalled after the loop: a mis-assigned read can land in a well that has
+    # already been visited, so a running per-iteration total under-reports it.
+    metadata['sum_reads'] = gene_counts_map.sum(axis=1)
 
     return gene_fraction_map, metadata
 
@@ -461,7 +469,7 @@ def regression_roc_auc(results_df, active_gene_list, control_gene_list, alpha = 
     # asign active genes a value of 1 and inactive genes a value of 0
     actives_list = ['gene_' + str(i) for i in active_gene_list]
     results_df['active'] = results_df['gene'].apply(lambda x: 1 if x in actives_list else 0)
-    results_df['active'].fillna(0, inplace=True)
+    results_df['active'] = results_df['active'].fillna(0)
     
     #generate a colun to color control,active and inactive genes
     controls_list = ['gene_' + str(i) for i in control_gene_list]
@@ -500,12 +508,15 @@ def regression_roc_auc(results_df, active_gene_list, control_gene_list, alpha = 
     reg_roc_dict_df = pd.DataFrame({'threshold':thresh, 'tpr': tpr, 'fpr': fpr, 'roc_auc':roc_auc})
 
     pr, re, th = precision_recall_curve(results_df['active'], results_df['score'])
-    th = np.insert(th, 0, 0)
+    th = np.append(th, 1.0)  # pr[i]/re[i] pair with th[i]; the extra point is the "predict nothing" end
     f1_score = 2 * (pr * re) / (pr + re)
     pr_auc = auc(re, pr)
     reg_pr_dict_df = pd.DataFrame({'threshold':th, 'precision': pr, 'recall': re, 'f1_score':f1_score, 'pr_auc': pr_auc})
 
-    optimal_threshold = reg_pr_dict_df['f1_score'].idxmax()
+    # ``idxmax`` gives the row of the best F1, not the threshold itself — take
+    # the threshold recorded on that row so the value is a usable score cutoff.
+    optimal_row = reg_pr_dict_df['f1_score'].idxmax()
+    optimal_threshold = float(reg_pr_dict_df.loc[optimal_row, 'threshold'])
     if optimal:
         results_df[optimal_threshold] = results_df.score.apply(lambda x: 1 if x >= optimal_threshold else 0)
         reg_cm = confusion_matrix(results_df.active, results_df[optimal_threshold])
@@ -621,8 +632,10 @@ def run_simulation(settings):
     control_gene_list = generate_gene_list(settings['number_of_control_genes'], settings['number_of_genes'])
     plate_map = generate_plate_map(settings['nr_plates'])
 
-    #control_map = plate_map[plate_map['column_id'].isin(['c1', 'c2', 'c3', 'c23', 'c24'])] # Extract rows where 'column_id' is in [1,2,3,23,24]
-    plate_map = plate_map[~plate_map['column_id'].isin(['c1', 'c2', 'c3', 'c23', 'c24'])] # Extract rows where 'column_id' is not in [1,2,3,23,24]
+    # generate_plate_map writes bare column numbers ('1' ... '24'), so the
+    # outer control columns have to be matched without a 'c' prefix.
+    control_columns = ['1', '2', '3', '23', '24']
+    plate_map = plate_map[~plate_map['column_id'].isin(control_columns)].reset_index(drop=True) # Drop rows where 'column_id' is in [1,2,3,23,24]
 
     cell_level, genes_per_well_df, wells_per_gene_df, dists = run_experiment(plate_map, settings['number_of_genes'], active_gene_list, settings['avg_genes_per_well'], settings['sd_genes_per_well'], settings['avg_cells_per_well'], settings['sd_cells_per_well'], settings['well_ineq_coeff'], settings['gene_ineq_coeff'])
     cell_scores = classifier(settings['positive_mean'], settings['positive_variance'], settings['negative_mean'], settings['negative_variance'], settings['classifier_accuracy'], df=cell_level)
@@ -797,7 +810,7 @@ def visualize_all(output):
     n+=1
 
     # error plot
-    df = results_df[['gene', 'coef', 'std err', 'p']]
+    df = results_df[['gene', 'coef', 'std err', 'p']].copy()
     df = df.sort_values(by = ['coef', 'p'], ascending = [True, False], na_position = 'first')
     df['rank'] = [*range(0,len(df),1)]
     
@@ -863,13 +876,16 @@ def append_database(src, table, table_name):
     :param table_name: Target table name in the SQLite database.
     :returns: None.
     """
+    conn = None
     try:
         conn = sqlite3.connect(f'{src}/simulations.db', timeout=3600)
         table.to_sql(table_name, conn, if_exists='append', index=False)
     except sqlite3.OperationalError as e:
         print("SQLite error:", e)
     finally:
-        conn.close()
+        # connect() itself can fail (unwritable directory), leaving conn unbound.
+        if conn is not None:
+            conn.close()
     return
 
 def save_data(src, output, settings, save_all=False, i=0, variable='all'):
@@ -924,8 +940,7 @@ def save_data(src, output, settings, save_all=False, i=0, variable='all'):
     except Exception as e:
         print(f"An error occurred while saving data: {e}")
         print(traceback.format_exc())
-    
-    del output, settings_df
+
     return
 
 def save_plot(fig, src, variable, i):
@@ -953,9 +968,8 @@ def run_and_save(i, settings, time_ls, total_sims):
     """
     #print(f'Runnings simulation with the following paramiters')
     #print(settings)
-    settings['random_seed'] = False
-    if settings['random_seed']:
-        random.seed(42) # sims will be too similar with random seed
+    if settings.get('random_seed'):
+        random.seed(42) # sims will be too similar with a fixed seed — opt-in only
     src = settings['src']
     plot = settings['plot']
     v = settings['variable']
@@ -1022,7 +1036,10 @@ def generate_paramiters(settings):
         :func:`validate_and_adjust_beta_params`.
     """
     
-    settings['positive_mean'] = [0.8]
+    # positive_mean is sweepable like every other key, but callers historically
+    # pass a bare float (or omit it) — only supply the default in that case.
+    if not isinstance(settings.get('positive_mean'), (list, tuple)):
+        settings['positive_mean'] = [0.8]
 
     sim_ls = []
     for avg_genes_per_well in settings['avg_genes_per_well']:
@@ -1083,7 +1100,7 @@ def run_multiple_simulations(settings):
     sim_ls = generate_paramiters(settings)
     #print(f'Running {len(sim_ls)} simulations.')
 
-    max_workers = settings['max_workers'] or cpu_count() - 4
+    max_workers = settings['max_workers'] or max(1, cpu_count() - 4)
     with Manager() as manager:
         time_ls = manager.list()
         total_sims = len(sim_ls)
@@ -1115,13 +1132,15 @@ def generate_floats(start, stop, step):
     # Determine the number of decimal places in 'step'
     num_decimals = str(step)[::-1].find('.')
     
-    current = start
-    floats_list = []
-    while current <= stop:
-        # Round each float to the appropriate number of decimal places
-        floats_list.append(round(current, num_decimals))
-        current += step
-    
+    if num_decimals < 0:
+        num_decimals = 0  # integral step (e.g. 1) — str(step) has no '.' at all
+
+    # Repeated `current += step` accumulates float error (0.1 three times is
+    # 0.30000000000000004), which silently drops the inclusive upper bound.
+    # Step off the index instead so `stop` is always reached.
+    n_steps = int(math.floor(round((stop - start) / step, 9))) + 1
+    floats_list = [round(start + i * step, num_decimals) for i in range(max(n_steps, 0))]
+
     return floats_list
 
 def remove_columns_with_single_value(df):
@@ -1172,21 +1191,27 @@ def plot_simulations(df, variable, x_rotation=None, legend=False, grid=False, cl
                      'classifier_accuracy', 'nr_plates', 'number_of_genes', 'avg_genes_per_well',
                      'avg_cells_per_well', 'sequencing_error', 'well_ineq_coeff', 'gene_ineq_coeff']
     
-    if clean:
-        relevant_data = remove_columns_with_single_value(relevant_data)
-    
     grouping_vars = [col for col in grouping_vars if col != variable]
-    
+
     # Check if the necessary columns are present in the DataFrame
     required_columns = {variable, 'prauc'} | set(grouping_vars)
     if not required_columns.issubset(df.columns):
         missing_cols = required_columns - set(df.columns)
         raise ValueError(f"DataFrame must contain {missing_cols} columns")
-        
+
+    if clean:
+        # Grouping on a column that never varies just adds a constant to every
+        # subplot title; drop those so the panel grid reflects real conditions.
+        grouping_vars = [col for col in grouping_vars if df[col].nunique() > 1]
+
     #if not dependent is None:
-    
+
     # Get unique combinations of conditions from grouping_vars
-    unique_combinations = df[grouping_vars].drop_duplicates()
+    if grouping_vars:
+        unique_combinations = df[grouping_vars].drop_duplicates()
+    else:
+        # Nothing to split on — a single panel over the whole DataFrame.
+        unique_combinations = df.iloc[[0]][[]]
     num_combinations = len(unique_combinations)
 
     # Determine the layout of the subplots
@@ -1199,6 +1224,7 @@ def plot_simulations(df, variable, x_rotation=None, legend=False, grid=False, cl
     else:
         axes = [axes]
 
+    idx = -1
     for idx, (ax, (_, row)) in enumerate(zip(axes, unique_combinations.iterrows())):
 
         # Filter the DataFrame for the current combination of variables
@@ -1318,7 +1344,8 @@ def plot_feature_importance(df, target='prauc', exclude=None, clean=True):
     # Plot horizontal bar chart
     fig = plt.figure(figsize=(12, 6))
     plt.barh(range(len(indices)), importances[indices], color="teal", align="center", alpha=0.6)
-    plt.yticks(range(len(indices)), [features[i] for i in indices[::-1]])  # Invert y-axis to match the order
+    # Bar k carries importances[indices][k], so its label must be features[indices[k]].
+    plt.yticks(range(len(indices)), [features[i] for i in indices])
     plt.gca().invert_yaxis()  # Invert the axis to have the highest importance at the top
     plt.xlabel('Feature Importance')
     plt.title('Feature Importances')
@@ -1347,11 +1374,10 @@ def calculate_permutation_importance(df, target='prauc', exclude=None, n_repeats
         features = [feature for feature in features if feature in df.columns]
     
     if isinstance(exclude, list):
-        for ex in exclude:
-            features.remove(ex)
-    if not exclude is None:
-        features.remove(exclude)
-    
+        features = [feature for feature in features if feature not in exclude]
+    elif exclude is not None:
+        features = [feature for feature in features if feature != exclude]
+
     X = df[features]
     y = df[target]
 
@@ -1368,7 +1394,9 @@ def calculate_permutation_importance(df, target='prauc', exclude=None, n_repeats
     fig, ax = plt.subplots()
     ax.barh(range(len(sorted_idx)), perm_importance.importances_mean[sorted_idx], color="teal", align="center", alpha=0.6)
     ax.set_yticks(range(len(sorted_idx)))
-    ax.set_yticklabels([df.columns[i] for i in sorted_idx])
+    # sorted_idx indexes the feature list that was fitted, not df.columns —
+    # those only coincide when df happens to start with exactly these columns.
+    ax.set_yticklabels([features[i] for i in sorted_idx])
     ax.set_xlabel('Permutation Importance')
     plt.tight_layout()
     plt.show()
@@ -1407,8 +1435,9 @@ def plot_partial_dependences(df, target='prauc', clean=True):
     fig, axs = plt.subplots(nrows=n_rows, ncols=n_cols, figsize=(5 * n_cols, 5 * n_rows))
     fig.suptitle('Partial Dependence Plots', fontsize=20, y=1.03)
     
-    # Flatten the array of axes if it's multidimensional
-    axs = axs.flatten() if n_rows > 1 else [axs]
+    # Flatten the array of axes (subplots always returns an array here, since
+    # ncols > 1 — a bare `[axs]` would hand the whole row to a single feature).
+    axs = np.atleast_1d(axs).flatten()
     
     for i, feature in enumerate(features):
         ax = axs[i]

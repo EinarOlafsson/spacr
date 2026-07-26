@@ -89,10 +89,17 @@ COMPARTMENT_FIELDS = (
     ("min_object_area",            "Min object area",       "int",   (0, 100_000_000, 100)),
     ("min_distance",               "Min distance",          "int",   (0, 100_000, 10)),
     ("area_multiplier",            "Area multiplier",       "float", (0.0, 1000.0, 2.0)),
-    ("perimeter_fraction",         "Perimeter fraction",    "float", (0.0, 1.0, 0.5)),
-    ("min_intensity_percentile",   "Min intensity pct",     "int",   (0, 100, 1)),
-    ("max_intensity_percentile",   "Max intensity pct",     "int",   (0, 100, 99)),
-    ("intensity_percentile",       "Intensity percentile",  "int",   (0, 100, 50)),
+    # Defaults MUST match spacr.settings.set_default_settings_preprocess_generate_masks.
+    # They are both what the preview filters with and what the Propagate
+    # button writes into the main settings panel, so any drift silently
+    # re-tunes the real run. The intensity percentiles in particular used to
+    # default to 1/99 rather than the pipeline's 0/100 — which switched
+    # `_filter_objects`' intensity filter ON for every preview and dropped the
+    # dimmest and brightest object found (with two objects, all of them).
+    ("perimeter_fraction",         "Perimeter fraction",    "float", (0.0, 1.0, 0.0)),
+    ("min_intensity_percentile",   "Min intensity pct",     "int",   (0, 100, 0)),
+    ("max_intensity_percentile",   "Max intensity pct",     "int",   (0, 100, 100)),
+    ("intensity_percentile",       "Intensity percentile",  "int",   (0, 100, 75)),
     ("intensity_threshold_method", "Intensity threshold",   "method", None),
     ("intensity_merge",            "Intensity merge",       "bool",  None),
     ("intensity_split",            "Intensity split",       "bool",  None),
@@ -151,8 +158,18 @@ def _to_uint8(img: np.ndarray, normalise: bool = True,
     :param lo_pct: lower percentile for the stretch (default 2 %).
     :param hi_pct: upper percentile for the stretch (default 98 %).
     """
+    # Channels-last is this module's convention everywhere else (see
+    # :func:`_select_channel` and :meth:`LivePreviewPanel._label_rgb`), so a
+    # single-channel tile collapses to grayscale and anything wider maps its
+    # first three channels onto R/G/B. This used to be gated on
+    # ``shape[-1] in (2, 3, 4)``, which sent (H, W, 1) and (H, W, 5+) tiles
+    # down the 2-D branch and returned an array with a trailing channel axis —
+    # :func:`numpy_to_qpixmap` then handed Qt a stride three times the real
+    # row length and read past the end of the buffer.
+    if img.ndim == 3 and img.shape[-1] == 1:
+        img = img[..., 0]
     full_max = _full_range_max(img) or 1.0
-    if img.ndim == 3 and img.shape[-1] in (2, 3, 4):
+    if img.ndim == 3:
         out = np.zeros(img.shape[:2] + (3,), dtype=np.uint8)
         for c in range(min(3, img.shape[-1])):
             slice_ = img[..., c].astype(np.float32)
@@ -215,7 +232,17 @@ def overlay_masks(image: np.ndarray,
         rgb = base[..., :3].copy()
     outline_thickness = max(1, min(5, int(outline_thickness)))
     for obj_type, mask in masks.items():
-        if mask is None or not mask.any():
+        if mask is None:
+            continue
+        mask = np.asarray(mask)
+        if mask.ndim != 2 or mask.shape != rgb.shape[:2]:
+            # A mask left over from a previously loaded image. Drawing it
+            # raised ``IndexError: boolean index did not match indexed array``
+            # (or a broadcast ValueError) instead of simply being ignored.
+            LOG.debug("overlay_masks: skipping %s mask %s — image is %s",
+                      obj_type, mask.shape, rgb.shape[:2])
+            continue
+        if not mask.any():
             continue
         boundary = _boundary_mask(mask.astype(np.int32))
         for _ in range(outline_thickness - 1):
@@ -235,12 +262,28 @@ def overlay_masks(image: np.ndarray,
 def numpy_to_qpixmap(arr: np.ndarray, normalise: bool = True,
                         lo_pct: float = 2.0,
                         hi_pct: float = 98.0) -> QPixmap:
-    """Convert an (H, W) or (H, W, 3) array to a :class:`QPixmap`."""
-    if arr.ndim == 2:
-        arr = np.stack([arr, arr, arr], axis=-1)
+    """Convert an (H, W) or (H, W, C) array to a :class:`QPixmap`.
+
+    The result is always RGB888, so the caller cannot hand Qt a buffer whose
+    real row length disagrees with the ``w * 3`` stride below. Channel counts
+    other than three are reconciled here — extra channels are dropped, missing
+    ones are filled with black — because a mismatch made ``QImage`` read
+    ``h * w * 3`` bytes out of a buffer that only held ``h * w``.
+    """
+    arr = np.asarray(arr)
     if arr.dtype != np.uint8:
         arr = _to_uint8(arr, normalise=normalise,
                           lo_pct=lo_pct, hi_pct=hi_pct)
+    if arr.ndim == 3 and arr.shape[-1] == 1:
+        arr = arr[..., 0]
+    if arr.ndim == 2:
+        arr = np.stack([arr, arr, arr], axis=-1)
+    elif arr.shape[-1] > 3:
+        arr = arr[..., :3]
+    elif arr.shape[-1] < 3:
+        pad = np.zeros(arr.shape[:2] + (3 - arr.shape[-1],), dtype=arr.dtype)
+        arr = np.concatenate([arr, pad], axis=-1)
+    arr = np.ascontiguousarray(arr, dtype=np.uint8)
     h, w, _ = arr.shape
     img = QImage(arr.tobytes(), w, h, w * 3, QImage.Format_RGB888)
     return QPixmap.fromImage(img.copy())
@@ -271,12 +314,20 @@ class PreviewRequest:
 class _PreviewWorker(QThread):
     """Runs one (or two) Cellpose passes in the background."""
 
-    finished_masks = Signal(object, str)   # ({obj: mask, ...} or None, err)
-    flows_ready = Signal(object)           # {obj: flow_rgb} (may be empty)
+    # ({obj: mask, ...} or None, err, run token)
+    finished_masks = Signal(object, str, int)
+    # ({obj: flow_rgb} — may be empty, run token)
+    flows_ready = Signal(object, int)
 
-    def __init__(self, request: PreviewRequest, parent=None):
+    def __init__(self, request: PreviewRequest, parent=None, token: int = 0):
+        """:param token: the panel's run token at the moment this worker was
+        started. It rides back out on both result signals so the panel can
+        recognise — and drop — a result produced for an image it has since
+        replaced. Cellpose has no interrupt, so this is what "cancel" means
+        here: the thread runs itself out and its answer lands as a no-op."""
         super().__init__(parent)
         self._request = request
+        self.token = int(token)
 
     def run(self):
         try:
@@ -287,12 +338,12 @@ class _PreviewWorker(QThread):
                 masks, flows = res
             else:
                 masks, flows = res, {}
-            self.finished_masks.emit(masks, "")
-            self.flows_ready.emit(flows or {})
+            self.finished_masks.emit(masks, "", self.token)
+            self.flows_ready.emit(flows or {}, self.token)
         except Exception as e:
             LOG.info("live-preview segmentation failed: %s", e,
                        exc_info=True)
-            self.finished_masks.emit(None, str(e))
+            self.finished_masks.emit(None, str(e), self.token)
 
 
 def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
@@ -508,9 +559,15 @@ class _ZoomView(QGraphicsView):
         self._user_zoomed = True
         self.zoom_changed.emit(self._scale)
         if broadcast and self._peer is not None:
-            self._peer._syncing = True
-            self._peer._apply_zoom(factor, broadcast=False)
-            self._peer._syncing = False
+            # Guard THIS view while the peer catches up, not the peer: the
+            # flag makes _apply_zoom a no-op, so setting it on the peer meant
+            # the peer's own zoom was skipped and the twin canvases never
+            # actually tracked each other.
+            self._syncing = True
+            try:
+                self._peer._apply_zoom(factor, broadcast=False)
+            finally:
+                self._syncing = False
 
     def mouseMoveEvent(self, event):
         if self._pixmap_item is not None:
@@ -539,6 +596,10 @@ class LivePreviewPanel(QWidget):
         self._flows: Dict[str, np.ndarray] = {}
         self._settings: Dict[str, Any] = {}
         self._worker: Optional[_PreviewWorker] = None
+        # Bumped whenever the run in flight is superseded (a new image, an
+        # explicit cancel). A worker's result is only accepted when the token
+        # it carries still matches.
+        self._run_token: int = 0
         # Callback(dict) that pushes tuned live settings into the main panel.
         self._propagate_cb = None
         self._build_ui()
@@ -786,9 +847,17 @@ class LivePreviewPanel(QWidget):
         except Exception as e:
             self._status.setText(f"Load failed: {e}")
             return False
+        # A new image invalidates everything derived from the old one,
+        # including the run in flight. The raw masks and the flow images used
+        # to survive this, so the next filter change — or an in-flight preview
+        # landing a moment later — re-drew the previous image's masks over the
+        # new one and raised IndexError as soon as the two differed in size.
+        self.cancel_preview()
         self._image = arr
         self._image_path = Path(path)
         self._masks = {}
+        self._raw_masks = {}
+        self._flows = {}
         self._path_label.setText(str(path))
         self._status.setText(f"Loaded {arr.shape} {arr.dtype}")
         self._refresh_canvases()
@@ -867,6 +936,22 @@ class LivePreviewPanel(QWidget):
             "outline_colour": self._outline_colour.currentText(),
         }
 
+    def cancel_preview(self) -> bool:
+        """Abandon the preview run in flight, if there is one.
+
+        Cellpose exposes no interrupt, so the thread is left to run itself
+        out; bumping the run token is what makes its answer land as a no-op
+        (:meth:`_on_worker_done` drops results carrying a stale token).
+
+        :returns: True when a running worker was abandoned.
+        """
+        self._run_token += 1
+        if self._worker is not None and self._worker.isRunning():
+            self._status.setText("Preview cancelled.")
+            self._run_btn.setEnabled(True)
+            return True
+        return False
+
     def run_preview(self):
         if self._image is None:
             self._status.setText("Load an image first.")
@@ -874,15 +959,51 @@ class LivePreviewPanel(QWidget):
         if self._worker is not None and self._worker.isRunning():
             self._status.setText("Preview already running.")
             return
+        self._release_worker()
         req = self._build_request()
         self._run_btn.setEnabled(False)
         self._status.setText("Running preview…")
-        worker = _PreviewWorker(req, self)
+        worker = _PreviewWorker(req, self, token=self._run_token)
         worker.finished_masks.connect(self._on_worker_done)
         worker.flows_ready.connect(self._on_flows_ready)
-        worker.finished.connect(worker.deleteLater)
+        # NOT worker.deleteLater. ``finished`` is emitted from inside the
+        # worker thread, so scheduling the object's C++ deletion off it hands
+        # Qt a second owner for an object Python already owns, and the two
+        # race — see the measured account in spacr.qt.bridge.make_thread
+        # (3 crashes in 8 runs of the stress harness). The relay below is a
+        # bound method rather than a lambda so Qt can see a receiving QObject
+        # with GUI-thread affinity and queues the call onto the GUI thread; a
+        # plain closure would be invoked directly on the worker thread.
+        worker.finished.connect(self._on_worker_finished)
         self._worker = worker
         worker.start()
+
+    def _release_worker(self) -> None:
+        """Free the previous worker, whose thread has already finished.
+
+        The worker is parented to the panel, so C++ owns it and it would
+        otherwise live — holding a reference to a full-size preview image —
+        until the panel itself is destroyed. Unparenting hands ownership back
+        to Python, which frees it here, on the thread that holds it. Only ever
+        called for a worker that is no longer running, so ``wait`` returns at
+        once.
+        """
+        old = self._worker
+        self._worker = None
+        if old is None:
+            return
+        old.wait()
+        old.setParent(None)
+
+    def _on_worker_finished(self) -> None:
+        """Relay for the worker thread's own ``finished`` signal.
+
+        A bound method on purpose (see :meth:`run_preview`). Re-enabling Run
+        here as well as in :meth:`_on_worker_done` is what keeps the button
+        usable after a run whose result was discarded as stale, or a worker
+        that died without emitting a result at all.
+        """
+        self._run_btn.setEnabled(True)
 
     # -- internals ---------------------------------------------------------
 
@@ -1082,8 +1203,10 @@ class LivePreviewPanel(QWidget):
         else:
             self._mask_view.set_pixmap(src_pix)
 
-    def _on_flows_ready(self, flows) -> None:
+    def _on_flows_ready(self, flows, token: int = -1) -> None:
         """Store the per-object Cellpose flow RGB images from a preview run."""
+        if self._stale(token):
+            return
         self._flows = flows or {}
         if hasattr(self, "_view_mode") and self._view_mode.currentText() == "Flows":
             self._refresh_canvases()
@@ -1197,9 +1320,20 @@ class LivePreviewPanel(QWidget):
         obj_str = f"  {'  '.join(hits)}" if hits else ""
         self._hover_label.setText(f"(x={x:>4d}, y={y:>4d})  {i_str}{obj_str}")
 
-    def _on_worker_done(self, masks, err):
+    def _stale(self, token: int) -> bool:
+        """True when ``token`` belongs to a superseded run.
+
+        ``-1`` is the direct-call escape hatch used by tests and by callers
+        that push a result in by hand; those are never stale.
+        """
+        return token >= 0 and token != self._run_token
+
+    def _on_worker_done(self, masks, err, token: int = -1):
+        if self._stale(token):
+            LOG.debug("dropping stale preview result (token %s, now %s)",
+                      token, self._run_token)
+            return
         self._run_btn.setEnabled(True)
-        self._worker = None
         if err:
             self._status.setText(f"Preview failed: {err}")
             self.preview_ready.emit(None)

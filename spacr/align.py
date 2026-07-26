@@ -557,8 +557,8 @@ class AlignResult:
 def _human_bytes(n: Union[int, float]) -> str:
     """Format a byte count for a log line."""
     value = float(n)
-    for unit in ('B', 'KB', 'MB', 'GB', 'TB'):
-        if value < 1024 or unit == 'TB':
+    for unit in ('B', 'KB', 'MB', 'GB'):
+        if value < 1024:
             return f'{value:.1f} {unit}' if unit != 'B' else f'{int(value)} B'
         value /= 1024
     return f'{value:.1f} TB'

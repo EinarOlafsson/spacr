@@ -165,8 +165,12 @@ class TileLayoutWidget(QWidget):
             painter.fillRect(rect, QBrush(colour))
             if placement.method == align_mod.METHOD_NOMINAL:
                 # Hatch as well as colour: a colour-vision-impaired reader
-                # must still be able to count the fallbacks.
-                painter.fillRect(rect, QBrush(QColor(PALETTE["warning"]),
+                # must still be able to count the fallbacks. The hatch is
+                # drawn in the *surface* colour, not the warning colour —
+                # warning-on-warning is the same colour twice and paints
+                # nothing at all, which is exactly as much help to that
+                # reader as leaving the hatch out.
+                painter.fillRect(rect, QBrush(QColor(PALETTE["surface"]),
                                               Qt.BDiagPattern))
             painter.setPen(QPen(QColor(PALETTE["border"]), 1))
             painter.drawRect(rect)

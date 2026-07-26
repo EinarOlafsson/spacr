@@ -291,6 +291,11 @@ def _report_folder_structure(path, screen) -> None:
         _log(screen, f"[drop] folder-structure preview unavailable: {e}\n")
 
 
+#: Fallback owner for metadata dialogs whose screen cannot hold a reference.
+#: Entries are removed again when the dialog emits ``finished``.
+_ORPHAN_DIALOGS: List = []
+
+
 def _open_metadata_table(rows, dst, screen) -> None:
     """Open the editable metadata table so the user can review/correct the
     inferred plate/well/field/channel assignment before extraction.
@@ -301,6 +306,14 @@ def _open_metadata_table(rows, dst, screen) -> None:
     """
     def _on_apply(csv_path):
         _log(screen, f"[drop] wrote metadata map → {csv_path}\n")
+
+    # ``dst`` arrives as the FOLDER the data lives in, but the dialog hands
+    # it straight to folder_metadata.save_filename_map(), which treats its
+    # argument as the CSV file to open() for writing. Passing a directory
+    # made every Apply raise IsADirectoryError and silently write nothing.
+    dst = Path(dst)
+    if dst.is_dir() or dst.suffix.lower() != ".csv":
+        dst = dst / "filename_map.csv"
 
     try:
         from .widgets.metadata_table import MetadataTableDialog
@@ -322,7 +335,11 @@ def _open_metadata_table(rows, dst, screen) -> None:
             try:
                 screen._metadata_dialogs = holder
             except Exception:
-                pass
+                # The screen refuses new attributes (__slots__, proxy, …).
+                # Park the reference module-side: the dialog is parentless
+                # here, so without SOME live reference it is collected the
+                # moment this function returns and the user never sees it.
+                holder = _ORPHAN_DIALOGS
         holder.append(dlg)
         dlg.finished.connect(lambda *_: holder.remove(dlg)
                              if dlg in holder else None)
@@ -430,9 +447,15 @@ class AnnotateDropHandler(DropHandler):
                 "measure module).")
 
     def apply(self, path: Path, screen) -> None:
-        # Drop-db: use its containing plate folder as src
+        # Drop-db: use its containing plate folder as src.
+        # The canonical layout is <plate>/measurements/measurements.db, so
+        # climb two levels ONLY when the db really sits in a measurements/
+        # folder — a loose .db (which can_accept also allows) must resolve
+        # to its own directory, not that directory's parent.
         if path.is_file() and path.suffix.lower() == ".db":
-            path = path.parent.parent
+            path = (path.parent.parent
+                    if path.parent.name == "measurements"
+                    else path.parent)
         _set_src_on(screen, str(path))
         _log(screen, f"[drop] annotate src = {path}\n")
 

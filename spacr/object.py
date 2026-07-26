@@ -991,32 +991,38 @@ def generate_cellpose_masks_sam(src, settings, object_type):
             overall_average_count = np.mean(average_count) if len(average_count) > 0 else 0
             print(f'Found {overall_average_count} {object_type}/FOV. average size: {overall_average_size:.3f} px2')
 
-        if not timelapse:
-            if settings['plot']:
-                if flows is None:
-                    # plot_cellpose4_output draws the per-image flow field
-                    # beside each mask; the z paths call eval once per volume
-                    # and do not collect one, and in the stitch/volumetric
-                    # modes the mask is a (Z, Y, X) volume it cannot render
-                    # beside a 2-D field either.
-                    reason = (f"z_segmentation_mode='{beta_mode}'"
-                              if beta_mode else "the 4D path")
-                    print(
-                        f"plot skipped: {reason} does not produce the "
-                        f"per-image flow images this plot needs. Inspect the "
-                        f"saved .npy masks instead."
-                    )
-                else:
-                    plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=len(batch_list))
-                
-        if settings['save']:
-            for mask_index, mask in enumerate(mask_stack):
-                output_filename = os.path.join(output_folder, batch_filenames[mask_index])
-                mask = mask.astype(np.uint16)
-                np.save(output_filename, mask)
-            mask_stack = []
-            batch_filenames = []
-    
+            # Plot and save inside the per-batch loop. Both blocks used to sit
+            # one level out, at the .npz level: an .npz holding more batches
+            # than `batch_size` therefore ran every batch but only ever wrote
+            # the last one's masks to disk (the earlier mask_stacks were
+            # rebound and lost), while an empty .npz never entered this loop at
+            # all and hit the save block with mask_stack unbound -> NameError.
+            if not timelapse:
+                if settings['plot']:
+                    if flows is None:
+                        # plot_cellpose4_output draws the per-image flow field
+                        # beside each mask; the z paths call eval once per volume
+                        # and do not collect one, and in the stitch/volumetric
+                        # modes the mask is a (Z, Y, X) volume it cannot render
+                        # beside a 2-D field either.
+                        reason = (f"z_segmentation_mode='{beta_mode}'"
+                                  if beta_mode else "the 4D path")
+                        print(
+                            f"plot skipped: {reason} does not produce the "
+                            f"per-image flow images this plot needs. Inspect the "
+                            f"saved .npy masks instead."
+                        )
+                    else:
+                        plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=len(batch_list))
+
+            if settings['save']:
+                for mask_index, mask in enumerate(mask_stack):
+                    output_filename = os.path.join(output_folder, batch_filenames[mask_index])
+                    mask = mask.astype(np.uint16)
+                    np.save(output_filename, mask)
+                mask_stack = []
+                batch_filenames = []
+
         gc.collect()
 
     torch.cuda.empty_cache()
@@ -1098,13 +1104,14 @@ def generate_cellpose_masks(src, settings, object_type):
     if settings.get('cellpose_pathogen_channel') is None and settings.get('pathogen_channel') is not None:
         settings['cellpose_pathogen_channel'] = settings['pathogen_channel']
 
-    cellpose_channels = _get_cellpose_channels(
-        src,
-        settings.get('cellpose_nucleus_channel'),
-        settings.get('cellpose_pathogen_channel'),
-        settings.get('cellpose_cell_channel')
-    )
-        
+    # _get_cellpose_channels takes the settings dict and returns
+    # (channels_to_extract, cellpose_channels). It used to be called here with
+    # four positional arguments (src, nucleus, pathogen, cell) left over from an
+    # older signature, which raised TypeError on every single call — this whole
+    # generator was unreachable. Same call as generate_cellpose_masks_sam makes,
+    # so the two cannot pick different channels for the same settings.
+    channels_to_extract, cellpose_channels = _get_cellpose_channels(settings)
+
     if settings['verbose']:
         print(cellpose_channels)
         
@@ -1196,6 +1203,12 @@ def generate_cellpose_masks(src, settings, object_type):
                                 normalize=False,
                                 channel_axis=-1,
                                 channels=channels,
+                                # <obj>_min_area is documented as "passed to
+                                # Cellpose as min_size"; this generator never
+                                # passed it, so Cellpose used its own default of
+                                # 15 px and the setting did nothing here. The
+                                # SAM generator has always passed it.
+                                min_size=object_settings['min_size'],
                                 diameter=object_settings['diameter'],
                                 flow_threshold=flow_threshold,
                                 cellprob_threshold=cellprob_threshold,
@@ -1262,7 +1275,21 @@ def generate_cellpose_masks(src, settings, object_type):
                 _save_object_counts_to_database(masks, object_type, batch_filenames, count_loc, added_string='_before_filtration')
                 if object_settings['merge'] and not settings['filter']:
                     mask_stack = _filter_cp_masks(masks=masks,
-                                                flows=flows,
+                                                # _filter_cp_masks iterates
+                                                # zip(masks, flows[0], batch),
+                                                # i.e. it wants the per-image
+                                                # flow list nested one deep.
+                                                # `flows` here is already that
+                                                # per-image list, so passing it
+                                                # bare made flows[0] the FIRST
+                                                # IMAGE's flow array and the zip
+                                                # ran over its rows: any batch
+                                                # with more fields than the
+                                                # images are tall silently lost
+                                                # the trailing masks, and every
+                                                # plot got a single pixel row
+                                                # where a flow image belonged.
+                                                flows=[flows],
                                                 filter_size=False,
                                                 filter_intensity=False,
                                                 minimum_size=object_settings['minimum_size'],
@@ -1275,7 +1302,9 @@ def generate_cellpose_masks(src, settings, object_type):
 
                 if settings['filter']:
                     mask_stack = _filter_cp_masks(masks=masks,
-                                                flows=flows,
+                                                # Nested one deep — see the
+                                                # merge branch above.
+                                                flows=[flows],
                                                 filter_size=object_settings['filter_size'],
                                                 filter_intensity=object_settings['filter_intensity'],
                                                 minimum_size=object_settings['minimum_size'],
@@ -1287,7 +1316,13 @@ def generate_cellpose_masks(src, settings, object_type):
                                                 figuresize=figuresize)
                     
                     _save_object_counts_to_database(mask_stack, object_type, batch_filenames, count_loc, added_string='_after_filtration')
-                else:
+                elif not object_settings['merge']:
+                    # `elif not ...merge`, not a bare `else`: with merge on and
+                    # filter off the block above has already produced the
+                    # merged stack, and an unconditional else rebound
+                    # mask_stack to the raw Cellpose masks right after,
+                    # throwing the merge away. `merge_pathogens` was therefore
+                    # a no-op in this generator.
                     mask_stack = _masks_to_masks_stack(masks)
         
             # Legacy inline hook: the automated motility assay is now the
@@ -1309,18 +1344,22 @@ def generate_cellpose_masks(src, settings, object_type):
             overall_average_count = np.mean(average_count) if len(average_count) > 0 else 0
             print(f'Found {overall_average_count} {object_type}/FOV. average size: {overall_average_size:.3f} px2')
 
-        if not timelapse:
-            if settings['plot']:
-                print(f"plotting")
-                plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=batch_size)
-                
-        if settings['save']:
-            for mask_index, mask in enumerate(mask_stack):
-                output_filename = os.path.join(output_folder, batch_filenames[mask_index])
-                mask = mask.astype(np.uint16)
-                np.save(output_filename, mask)
-            mask_stack = []
-            batch_filenames = []
+            # Inside the per-batch loop, for the same reason as in
+            # generate_cellpose_masks_sam: at the .npz level only the last
+            # batch of a multi-batch file was ever written, and an empty .npz
+            # reached the save block with mask_stack unbound.
+            if not timelapse:
+                if settings['plot']:
+                    print(f"plotting")
+                    plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=batch_size)
+
+            if settings['save']:
+                for mask_index, mask in enumerate(mask_stack):
+                    output_filename = os.path.join(output_folder, batch_filenames[mask_index])
+                    mask = mask.astype(np.uint16)
+                    np.save(output_filename, mask)
+                mask_stack = []
+                batch_filenames = []
 
         gc.collect()
     torch.cuda.empty_cache()

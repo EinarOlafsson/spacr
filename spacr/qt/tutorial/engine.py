@@ -56,11 +56,16 @@ class Step:
                       animates to before the action fires. Point is
                       relative to `widget`. Pass a QWidget with point
                       omitted to target its center.
+                      `widget` may also be a zero-argument callable
+                      returning the widget, for targets that only come
+                      into existence once an earlier step has run —
+                      see Director._deref.
         hold_ms:      extra silence at the end of the step, in ms.
                       Useful to let a UI change settle before the next
                       step begins.
         highlight:    optional widget to draw a soft highlight ring
-                      around while this step runs.
+                      around while this step runs. Also accepts a
+                      zero-argument callable, same as `target`.
     """
     narration: str
     action: Optional[Callable[[], None]] = None
@@ -358,11 +363,45 @@ class Director:
 
         LOG.info("captured %d frames", self._recorder.frame_idx)
 
+    @staticmethod
+    def _deref(widget):
+        """Resolve a possibly-deferred widget reference to a live widget.
+
+        Scripts routinely name a widget that does not exist yet when the
+        Step list is built — a settings panel or a Run button only exists
+        once an earlier step has navigated to the screen. Such steps pass
+        a zero-argument callable instead of the widget itself; it is
+        invoked here, at capture time, when the widget does exist.
+
+        Passing the widget eagerly is the bug this exists to prevent: the
+        expression evaluates to ``None`` while the Step list is being
+        built, and the step then silently targets nothing for the whole
+        render.
+
+        :param widget: a live QWidget, ``None``, or a zero-arg callable
+            returning either.
+        :returns: the resolved widget, or ``None``.
+        """
+        from PySide6.QtWidgets import QWidget
+        if widget is None or isinstance(widget, QWidget):
+            return widget
+        if callable(widget):
+            return widget()
+        return widget
+
+    def _scale_factors(self) -> Tuple[float, float]:
+        """Window-pixels → frame-pixels scale. Frames are VIDEO_SIZE even
+        when the window could not be resized that large."""
+        wsize = self.window.size()
+        return (VIDEO_SIZE[0] / max(1, wsize.width()),
+                VIDEO_SIZE[1] / max(1, wsize.height()))
+
     def _resolve_target(self, step: Step) -> Optional[Tuple[float, float]]:
         if step.target is None:
             return None
         widget, offset = (step.target if isinstance(step.target, tuple)
                             else (step.target, None))
+        widget = self._deref(widget)
         if widget is None:
             return None
         try:
@@ -375,30 +414,33 @@ class Director:
             win_pt = self.window.mapFromGlobal(global_pt)
             # Scale window coords to VIDEO_SIZE (they should already match
             # since we resized, but be defensive)
-            wsize = self.window.size()
-            sx = VIDEO_SIZE[0] / max(1, wsize.width())
-            sy = VIDEO_SIZE[1] / max(1, wsize.height())
+            sx, sy = self._scale_factors()
             return (win_pt.x() * sx, win_pt.y() * sy)
         except Exception:
+            # Never let a stale target abort a render — but never let it
+            # pass unnoticed either. A silent None here is exactly how a
+            # tutorial ends up pointing at nothing.
+            LOG.warning("tutorial step target did not resolve (%r): %s",
+                          step.narration[:60], widget, exc_info=True)
             return None
 
     def _resolve_highlight_rect(self, step: Step
                                   ) -> Optional[Tuple[int, int, int, int]]:
-        if step.highlight is None:
+        widget = self._deref(step.highlight)
+        if widget is None:
             return None
         try:
-            widget = step.highlight
             from PySide6.QtCore import QPoint
             top_left = self.window.mapFromGlobal(
                 widget.mapToGlobal(QPoint(0, 0))
             )
-            wsize = self.window.size()
-            sx = VIDEO_SIZE[0] / max(1, wsize.width())
-            sy = VIDEO_SIZE[1] / max(1, wsize.height())
+            sx, sy = self._scale_factors()
             return (int(top_left.x() * sx), int(top_left.y() * sy),
                      int(widget.width() * sx),
                      int(widget.height() * sy))
         except Exception:
+            LOG.warning("tutorial step highlight did not resolve (%r): %s",
+                          step.narration[:60], widget, exc_info=True)
             return None
 
     def _animate_cursor(self, target: Tuple[float, float], frames: int,
@@ -511,19 +553,29 @@ class Director:
             frames=self._recorder.frame_idx,
             duration_s=total_audio,
         )
-        # Cleanup scratch dir
+        # Cleanup scratch dir. A render that succeeded must not fail
+        # because its temp dir could not be removed — but say so, or the
+        # frames quietly pile up in /tmp for the rest of the session.
         try:
             shutil.rmtree(self._workdir)
-        except Exception:
-            pass
+        except Exception as e:
+            LOG.warning("could not remove tutorial scratch dir %s: %s",
+                          self._workdir, e)
         return result
 
 
 def _srt_ts(seconds: float) -> str:
-    h = int(seconds // 3600)
-    m = int((seconds % 3600) // 60)
-    s = int(seconds % 60)
-    ms = int(round((seconds - int(seconds)) * 1000))
+    """Format ``seconds`` as an SRT timestamp ``HH:MM:SS,mmm``.
+
+    Rounding happens once, in milliseconds, before the value is split
+    into fields. Rounding the fractional part on its own overflows:
+    0.9999 s rounds to 1000 ms and emits ``00:00:00,1000``, a four-digit
+    millisecond field that no subtitle parser accepts.
+    """
+    total_ms = int(round(max(0.0, seconds) * 1000))
+    h, rem = divmod(total_ms, 3_600_000)
+    m, rem = divmod(rem, 60_000)
+    s, ms = divmod(rem, 1000)
     return f"{h:02d}:{m:02d}:{s:02d},{ms:03d}"
 
 
@@ -540,7 +592,14 @@ def render_tutorial(app_key: str, out_dir: Optional[Path] = None,
     """
     from PySide6.QtWidgets import QApplication
     from ..app import MainWindow
-    from .scripts import build_steps
+    from .scripts import AVAILABLE_TUTORIALS, build_steps
+
+    # Validate before booting: MainWindow takes ~10 s to construct, and
+    # a typo should not cost that before it is reported. build_steps
+    # stays the authority — this only front-runs it.
+    if app_key not in AVAILABLE_TUTORIALS:
+        raise ValueError(f"unknown tutorial: {app_key}. "
+                           f"Choose from {AVAILABLE_TUTORIALS}")
 
     out_dir = Path(out_dir or Path.home() / "spacr-tutorials")
     out_dir.mkdir(parents=True, exist_ok=True)
