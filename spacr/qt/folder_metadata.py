@@ -145,14 +145,20 @@ class NameMapping:
 
 
 def _well_from_index(idx: int) -> str:
-    """Return the 384-well-plate name for ``idx`` (0-based, row-major)."""
+    """Return the 384-well-plate name for ``idx`` (0-based, row-major).
+
+    Past ``P24`` this used to fall through to ``f"E{idx + 1:03d}"``, which is
+    not a fallback at all: ``spacr.schema.parse_well('E001')`` reads it as
+    row E column 1, so the 385th folder was given the name of a well that
+    already exists. :func:`spacr.schema.well_id` just keeps counting rows
+    (``Q``, ``R`` … ``AA``), which stays unique and stays a real well name a
+    1536 plate can have.
+    """
+    from spacr import schema
+
     row = idx // len(WELL_COLS)
     col = idx % len(WELL_COLS) + 1
-    if row >= len(WELL_ROWS):
-        # Fall through to a plain running counter once we exhaust
-        # A01..P24 — real 384-well runs never do this.
-        return f"E{idx + 1:03d}"
-    return f"{WELL_ROWS[row]}{col:02d}"
+    return schema.well_id(row + 1, col)
 
 
 def assign_missing_fields(

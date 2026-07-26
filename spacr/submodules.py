@@ -642,10 +642,11 @@ def analyze_percent_positive(settings):
         ``src``, ``tables``, ``value_col``, ``threshold`` and ``filter_1``.
     :returns: DataFrame of annotated per-well positive/negative counts and fractions.
     """
+    from . import schema
     from .io import _read_and_merge_data
     from .utils import save_settings
     from .settings import default_settings_analyze_percent_positive
-    
+
     settings = default_settings_analyze_percent_positive(settings)
     
     def translate_well_in_df(csv_loc):
@@ -662,12 +663,17 @@ def analyze_percent_positive(settings):
         # Retain one row per plate_well
         df_2 = df.drop_duplicates(subset='plate_well').copy()
 
-        # Translate well to row and column
-        df_2['rowID'] = 'r' + df_2['well'].str[0].map(lambda x: str(string.ascii_uppercase.index(x) + 1))
-        df_2['column_name'] = 'c' + df_2['well'].str[1:].astype(int).astype(str)
+        # Translate well to row and column. Through spacr.schema, so that a
+        # lowercase well, a 1536-plate row ('AA01') and a separator-bearing
+        # one ('A-01') get the same rowID here as they do in measurements.db.
+        # The hand-rolled version used string.ascii_uppercase.index, which
+        # raised ValueError on all three and took the whole CSV with it.
+        wells = df_2['well'].map(lambda w: schema.parse_well(w))
+        df_2['rowID'] = wells.map(lambda rc: rc[0])
+        df_2['column_name'] = wells.map(lambda rc: rc[1])
 
         # Optional: add prcf ID (plate_row_column_field)
-        df_2['fieldID'] = 'f1'  # default or extract from filename if needed
+        df_2['fieldID'] = schema.field_id(1)  # default or extract from filename if needed
         df_2['prc'] = 'p' + df_2['plateID'].str.extract(r'(\d+)')[0] + '_' + df_2['rowID'] + '_' + df_2['column_name']
 
         return df_2

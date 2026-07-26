@@ -26,6 +26,7 @@ except ImportError:
 import matplotlib.pyplot as plt
 
 import logging
+from spacr import schema
 from spacr.utils import debug
 
 
@@ -1620,21 +1621,25 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
 
     # Continue with your existing processing on cell_df now containing merged data...
     # Prepare DataFrame (use cell_df instead of df)
-    prcf_components = cell_df['prcf'].str.split('_', expand=True)
-    cell_df['plateID'] = prcf_components[0]
-    cell_df['rowID'] = prcf_components[1]
-    cell_df['columnID'] = prcf_components[2]
-    cell_df['fieldID'] = prcf_components[3]
+    # schema.parse_prcf reads the key right to left, so a plate id that itself
+    # contains an underscore does not shift every column one place along, and
+    # the optional timepoint is recognised by being a 't<N>' rather than by
+    # being the fifth token.
+    parsed_prcf = [schema.parse_prcf(value) for value in cell_df['prcf']]
+    for key in schema.FIELD_KEY_COLUMNS:
+        cell_df[key] = [getattr(field, key) for field in parsed_prcf]
     # The time axis comes from the timeID column when the database has one and
     # from the trailing 't<N>' element of prcf otherwise. A non-timelapse
-    # database has neither, and prcf_components[4] used to raise a bare
-    # KeyError(4) on it; there is no oscillation to measure without a time
-    # axis, so say so and stop like the other unanalysable cases below.
+    # database has neither, and the old positional prcf_components[4] used to
+    # raise a bare KeyError(4) on it; there is no oscillation to measure
+    # without a time axis, so say so and stop like the other unanalysable
+    # cases below.
     time_key = _resolve_time_key(cell_df)
+    prcf_times = [field.timeID for field in parsed_prcf]
     if time_key is not None:
         cell_df['time'] = cell_df[time_key].astype(str).str.extract(r'(\d+)')[0].astype(int)
-    elif prcf_components.shape[1] > 4:
-        cell_df['time'] = prcf_components[4].str.extract(r't(\d+)')[0].astype(int)
+    elif all(t is not None for t in prcf_times) and prcf_times:
+        cell_df['time'] = [schema.time_index(t) for t in prcf_times]
     else:
         print(f"No time axis in {db_loc}: the cell table has no timeID column "
               "and its prcf values carry no t<N> element, so this is not a "
@@ -1647,7 +1652,10 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
     # can no longer be misread as a fifth well coordinate. This key
     # deliberately omits the time element: it identifies one cell's track
     # ACROSS time, which is what the per-track groupby below needs.
-    cell_df['plate_row_column_field_object'] = cell_df['plateID'].astype(str) + '_' + cell_df['rowID'].astype(str) + '_' + cell_df['columnID'].astype(str) + '_' + cell_df['fieldID'].astype(str) + '_o' + cell_df['object_label'].astype(str)
+    cell_df['plate_row_column_field_object'] = [
+        schema.KEY_SEPARATOR.join([field.prc, field.fieldID,
+                                   schema.object_id(label)])
+        for field, label in zip(parsed_prcf, cell_df['object_label'])]
 
     # 'parasite_count' only exists when the (optional) pathogen table was merged
     # above. The per-track loop below reads it unconditionally, so the documented
@@ -2775,6 +2783,29 @@ def _parse_merged_filename(fname):
 
     Returns a dict with:
         plateID, wellID, rowID, columnID, fieldID, timeID, prcf, prcft, filename
+
+    .. warning::
+
+       **These are not the canonical spaCR keys and must never be written to
+       a database or joined on.** This is a grouping-and-sorting helper for
+       the motility/track summaries, and it deliberately does not go through
+       :mod:`spacr.schema`:
+
+       * ``rowID`` here is the row *letter* (``'B'``), not ``'r2'``;
+       * ``columnID`` is an ``int`` (``3``), not ``'c3'``;
+       * ``timeID`` is an ``int``, because the callers sort on it and
+         ``'t10' < 't2'`` as a string;
+       * ``prcf`` here is ``plate_well_field``, **not** the canonical
+         ``plate_row_column_field``, and ``prcft`` appends the bare integer
+         timepoint.
+
+       Only ``plateID`` / ``wellID`` / ``fieldID`` / ``timeID`` / ``filename``
+       are read by any caller (``_process_merged_group``,
+       ``summarise_tracks_from_merged`` and the Qt motility preview all group
+       on ``(plateID, wellID, fieldID)`` and sort on ``timeID``). If you need
+       a real key from one of these names, call
+       :func:`spacr.schema.parse_field_stem`, which returns the same identity
+       the measurement tables carry.
     """
     base = os.path.splitext(os.path.basename(fname))[0]
     parts = base.split("_")

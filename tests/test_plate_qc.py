@@ -508,6 +508,39 @@ def test_well_id(row, col, expected):
     assert well_id(row, col) == expected
 
 
+@pytest.mark.parametrize("row,col,expected", [
+    (0, 5, "?05"),          # no such row
+    (3, 0, "C00"),          # no such column
+    (-2, 3, "?03"),
+])
+def test_well_id_renders_an_impossible_position_rather_than_raising(
+        row, col, expected):
+    """A layout table has to render every cell it was handed.
+
+    :func:`spacr.schema.well_id` is the definition and it *raises* for a
+    position that is not a well — right for a key, wrong for a report. This
+    wrapper keeps the ``'?'`` so a QC figure still draws.
+    """
+    assert well_id(row, col) == expected
+
+
+def test_well_id_agrees_with_schema_on_every_real_well():
+    """One definition: QC and the database must name a well the same way."""
+    from spacr import schema
+
+    for row in range(1, 33):
+        for col in (1, 12, 24, 48):
+            assert well_id(row, col) == schema.well_id(row, col)
+
+
+def test_plate_formats_are_schemas_plate_formats():
+    """Two copies of the plate geometry is two answers to "does c30 exist?"."""
+    from spacr import schema
+
+    assert dict(PLATE_FORMATS) == schema.PLATE_FORMATS
+    assert [n for n, _ in PLATE_FORMATS] == sorted(schema.PLATE_FORMATS)
+
+
 def test_wells_can_come_from_prc_from_row_column_or_from_a_well_column():
     """All three spellings must land on the same grid."""
     from_prc = plate_layout(

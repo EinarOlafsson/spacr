@@ -45,6 +45,8 @@ from sklearn.preprocessing import MinMaxScaler
 from scipy.spatial.distance import cosine, euclidean, mahalanobis, cityblock, minkowski, chebyshev, braycurtis
 from xgboost import XGBClassifier
 
+from . import schema
+
 import numpy as np
 from scipy.stats import kstest, normaltest
 import statsmodels.api as sm
@@ -1183,24 +1185,34 @@ def perform_regression(settings):
         # Parse rowID and columnID from the well token in 'path'
         # (e.g. PLATE1_A14_1_1_111.png -> well = 'A14' -> rowID='r1', columnID='c14').
         if 'path' in score_data_df.columns:
-            well = (
-                score_data_df['path']
-                .astype(str)
-                .str.extract(r'^(?i:plate)\d+_([A-Pa-p])(\d+)_', expand=True)
-            )
-            well.columns = ['row_letter', 'column_number']
-            missing = well['row_letter'].isna().sum()
+            # The well is the second underscore-separated token of the crop
+            # name, and spacr.schema decides what it means. The inline
+            # `([A-Pa-p])(\d+)` + `ord(x) - ord('A')` this replaces understood
+            # only rows A..P of a plate literally named "plate<n>": a 384-plate
+            # row past P, a 1536 row ('AA14') and any plate called anything
+            # else all failed to match and silently kept whatever rowID and
+            # columnID they already had.
+            def _row_column(path):
+                stem = os.path.splitext(os.path.basename(str(path)))[0]
+                parts = stem.split(schema.KEY_SEPARATOR)
+                if len(parts) < 2:
+                    return (None, None)
+                try:
+                    return schema.parse_well(parts[1], strict=True)
+                except schema.WellParseError:
+                    return (None, None)
+
+            well = pd.DataFrame(
+                [_row_column(p) for p in score_data_df['path']],
+                columns=['row_id', 'column_id'], index=score_data_df.index)
+            missing = well['row_id'].isna().sum()
             if missing:
                 print(f"Warning: {missing} of {len(score_data_df)} rows did not match "
                       f"the expected PLATEn_<letter><digits>_ pattern in 'path'; "
                       f"their rowID and columnID will be left unchanged.")
 
-            row_ids = well['row_letter'].str.upper().apply(
-                lambda x: f"r{ord(x) - ord('A') + 1}" if pd.notna(x) else None
-            )
-            col_ids = well['column_number'].apply(
-                lambda x: f"c{int(x)}" if pd.notna(x) else None
-            )
+            row_ids = well['row_id']
+            col_ids = well['column_id']
 
             if 'rowID' in score_data_df.columns:
                 score_data_df['rowID'] = row_ids.fillna(score_data_df['rowID'].astype(str))
@@ -1599,7 +1611,7 @@ def perform_regression(settings):
 #: The fixed head of a ``prcfo`` key, in order. The object id is always the
 #: LAST token and anything between the two is the timepoint, which is how a
 #: five-token and a six-token key are told apart without guessing.
-_PRCFO_HEAD = ('plateID', 'rowID', 'columnID', 'fieldID')
+_PRCFO_HEAD = schema.FIELD_KEY_COLUMNS
 
 
 def _assign_prcfo_parts(df, object_column='objectID'):
@@ -1653,7 +1665,7 @@ def _assign_prcfo_parts(df, object_column='objectID'):
     from .utils import _time_column
 
     values = df['prcfo']
-    tokens = values.astype(str).str.split('_')
+    tokens = values.astype(str).str.split(schema.KEY_SEPARATOR)
     widths = tokens.map(len)
     seen = set(widths.unique().tolist())
 
@@ -1674,11 +1686,19 @@ def _assign_prcfo_parts(df, object_column='objectID'):
             f"re-run the non-timelapse half rather than splitting this."
         )
 
-    for position, name in enumerate(_PRCFO_HEAD):
-        df[name] = tokens.str[position]
-    df[object_column] = tokens.str[-1]
+    # The width check above answers "do these rows agree with each other?",
+    # which schema deliberately does not; schema.parse_prcfo answers "what is
+    # this one key?", which this used to do positionally. Parsing right to
+    # left is what makes the six-token form safe: the timepoint is optional
+    # and in the middle, so counting from the left puts the object id in
+    # 'timeID' and drops it.
+    parsed = [schema.parse_prcfo(value) for value in values.astype(str)]
+    for name in _PRCFO_HEAD:
+        df[name] = [getattr(obj, name) for obj in parsed]
+    df[object_column] = [obj.objectID for obj in parsed]
     if seen == {6}:
-        df[_time_column(df.columns) or 'timeID'] = tokens.str[4]
+        df[_time_column(df.columns) or schema.TIME_KEY] = [
+            obj.timeID for obj in parsed]
     return df
 
 

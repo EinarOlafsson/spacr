@@ -1379,11 +1379,16 @@ def test_a_non_timelapse_scores_join_is_unchanged(tmp_path):
 
 
 def test_a_timelapse_crops_object_id_comes_from_the_name_not_a_position(tmp_path):
-    """``process_vision_results`` reads the timepoint as the object id.
+    """The object id is the LAST token of a crop name, never the fourth.
 
-    ``path.split('_')[3]`` is the object on ``plate_well_field_object`` and the
-    *timepoint* on ``plate_well_field_time_object``. Rebuilding the metadata
-    with the writer's own parser is what makes the join land on the right row.
+    ``path.split('_')[3]`` is the object on ``plate_well_field_object`` and
+    the *timepoint* on ``plate_well_field_time_object``.
+    ``process_vision_results`` used to take ``[3]`` and so read the timepoint
+    (MEASURED: ``['2', '3']`` for these two names, whose objects are 7 and 9);
+    it splits from the right now, which is correct for both layouts. This
+    assertion had been left pinning the old answer. Rebuilding the metadata
+    with the writer's own parser is what makes the join land on the right
+    row, and both derivations must agree.
     """
     from spacr.predictions import crop_name_metadata
     from spacr.utils import process_vision_results
@@ -1391,13 +1396,15 @@ def test_a_timelapse_crops_object_id_comes_from_the_name_not_a_position(tmp_path
     names = ["plate1_A1_1_2_7.png", "plate1_A1_1_3_9.png"]
     positional = process_vision_results(
         pd.DataFrame({"path": names, "pred": [0.1, 0.9]}), 0.5)
-    assert positional["object"].tolist() == ["2", "3"], "the timepoint"
+    assert positional["object"].tolist() == ["7", "9"], "not the timepoint"
 
     parsed = crop_name_metadata(names, timelapse=True)
     assert parsed["object_label"].tolist() == ["7", "9"]
     assert parsed["timeID"].tolist() == ["t2", "t3"]
     assert parsed["prcfo"].tolist() == ["plate1_r1_c1_f1_t2_o7",
                                         "plate1_r1_c1_f1_t3_o9"]
+    # The two derivations of the object id are one answer now.
+    assert positional["object"].tolist() == parsed["object_label"].tolist()
 
 
 def test_crop_name_metadata_marks_a_name_it_cannot_parse(tmp_path):

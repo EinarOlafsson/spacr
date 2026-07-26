@@ -1,23 +1,27 @@
 """``spacr.schema`` — the one definition of what a spaCR key is.
 
-The reproduction
-----------------
+The reproductions, and their repair
+-----------------------------------
 ``_map_wells`` was reimplemented five times and the copies disagreed about
-malformed wells. This file proves it against **real databases built by the
+malformed wells. This file proved it against **real databases built by the
 real writers** (``utils._merge_and_save_to_database`` and
-``utils.filepaths_to_database``), never a hand-built schema:
+``utils.filepaths_to_database``), never a hand-built schema. Every one of
+those call sites is now routed through :mod:`spacr.schema`, so the tests that
+pinned the damage now pin the fix — against the same real writers, with the
+measured before-value kept in each docstring so the repair stays legible:
 
-* :func:`test_repro_object_table_and_png_list_disagree_on_a_1536_well` — one
-  field, both writers, two different identities, and a join that returns
-  **0 rows out of 2 x 2**.
-* :func:`test_repro_three_sites_collapse_onto_one_prcf` — three ImageXpress
-  sites go in, **one** ``prcf`` comes out.
-* :func:`test_repro_a_whole_timelapse_collapses_onto_t0` — three timepoints
-  go in, **one** ``timeID`` comes out.
+* :func:`test_object_table_and_png_list_agree_on_a_1536_well` — one field,
+  both writers, one identity. It used to be two identities and a join that
+  returned **0 rows out of 2 x 2**.
+* :func:`test_three_sites_stay_three_fields` — three ImageXpress sites go in,
+  three ``prcf`` come out. It used to be one.
+* :func:`test_a_whole_timelapse_survives` — three timepoints go in, three
+  ``timeID`` come out. They used to be one.
 
 Then the canonical module is tested against every malformed input, and pinned
-against the legacy implementation on every input the legacy one gets right,
-so the migration is provably a repair and not a change of contract.
+against :func:`spacr.schema.legacy_map_wells` — a bug-compatible copy of the
+pre-migration ``_map_wells`` — on every input the legacy one got right, so
+the migration is provably a repair and not a change of contract.
 """
 
 from __future__ import annotations
@@ -73,17 +77,24 @@ def _write_png_list(root, names, crop_mode='cell', timelapse=False):
 
 
 # ===========================================================================
-# REPRODUCTION -- against real databases
+# THE REPAIR -- against real databases
 # ===========================================================================
 
-def test_repro_object_table_and_png_list_disagree_on_a_1536_well(tmp_path):
-    """One field, two writers, two identities, and a join that finds nothing.
+def test_object_table_and_png_list_agree_on_a_1536_well(tmp_path):
+    """One field, two writers, one identity, and a join that finds everything.
 
     ``AA01`` is an ordinary well of a 1536 plate (32 rows: A..Z, AA..AF).
-    ``_map_wells`` raises inside and returns ``'error'`` in every slot --
-    destroying the *plate* along with the well -- while ``_map_wells_png``
-    silently reads ``well[1:] == 'A01'`` through ``_safe_int_convert`` and
-    gets column ``0``.
+    Before the migration ``_map_wells`` raised inside and returned ``'error'``
+    in every slot -- destroying the *plate* along with the well -- while
+    ``_map_wells_png`` silently read ``well[1:] == 'A01'`` through
+    ``_safe_int_convert`` and got column ``0``. MEASURED, then::
+
+        cell     : ('error', 'error', 'error', 'error')
+        png_list : ('plate1', 'r1', 'c0', 'f1')
+        join     : 0 rows out of 2 x 2
+
+    Both writers now go through :func:`spacr.schema.parse_field_stem` /
+    :func:`spacr.schema.parse_object_stem`.
     """
     root = str(tmp_path)
     stem = 'plate1_AA01_1'
@@ -94,19 +105,19 @@ def test_repro_object_table_and_png_list_disagree_on_a_1536_well(tmp_path):
     png = _read(db, 'png_list')
     assert len(cell) == 2 and len(png) == 2
 
-    # MEASURED: the object table lost every key, including the plate.
+    # MEASURED: the object table now carries the real well.
     assert cell[['plateID', 'rowID', 'columnID', 'fieldID', 'prcf']] \
-        .drop_duplicates().values.tolist() == [['error'] * 5]
-    # MEASURED: png_list kept the plate but invented column 0.
+        .drop_duplicates().values.tolist() == [
+            ['plate1', 'r27', 'c1', 'f1', 'plate1_r27_c1_f1']]
+    # MEASURED: png_list agrees, token for token.
     assert png[['plateID', 'rowID', 'columnID', 'fieldID']] \
-        .drop_duplicates().values.tolist() == [['plate1', 'r1', 'c0', 'f1']]
+        .drop_duplicates().values.tolist() == [['plate1', 'r27', 'c1', 'f1']]
 
-    # MEASURED: the join between them is empty. 2 x 2 rows -> 0.
+    # MEASURED: the join now matches. 2 crops x 2 objects, no key lost.
     joined = png.merge(cell, on=['plateID', 'rowID', 'columnID', 'fieldID'])
-    assert len(joined) == 0
+    assert len(joined) == 4
 
-    # The canonical parser gives both halves the same, correct identity,
-    # and the same join would then match every row.
+    # And both halves are exactly what schema says they are.
     field = S.parse_field_stem(stem)
     obj = S.parse_object_stem(f'{stem}_1.png')
     assert field.to_dict() == {'plateID': 'plate1', 'rowID': 'r27',
@@ -115,12 +126,13 @@ def test_repro_object_table_and_png_list_disagree_on_a_1536_well(tmp_path):
     assert field.well == 'AA01'
 
 
-def test_repro_three_sites_collapse_onto_one_prcf(tmp_path):
-    """Three ImageXpress sites become one field, silently.
+def test_three_sites_stay_three_fields(tmp_path):
+    """Three ImageXpress sites go in, three fields come out.
 
-    ``_safe_int_convert('s1')`` is ``0``, so ``s1``, ``s2`` and ``s3`` all
-    become ``f0`` and share a ``prcf``. Object 1 of each becomes the same
-    ``prcfo``: three different cells with one identity.
+    ``_safe_int_convert('s1')`` was ``0``, so ``s1``, ``s2`` and ``s3`` all
+    became ``f0`` and shared a ``prcf`` (MEASURED: ``fieldID`` was
+    ``['f0', 'f0', 'f0']`` and ``prcf.nunique()`` was 1). Object 1 of each
+    then became the same ``prcfo``: three different cells, one identity.
     """
     root = str(tmp_path)
     for site in ('s1', 's2', 's3'):
@@ -130,22 +142,23 @@ def test_repro_three_sites_collapse_onto_one_prcf(tmp_path):
     # MEASURED: three rows from three distinct files ...
     assert sorted(cell['file_name']) == ['plate1_A01_s1', 'plate1_A01_s2',
                                          'plate1_A01_s3']
-    # ... one field id and one prcf between them.
-    assert cell['fieldID'].tolist() == ['f0', 'f0', 'f0']
-    assert cell['prcf'].nunique() == 1
-    assert cell['prcf'].iloc[0] == 'plate1_r1_c1_f0'
+    # ... and now three field ids and three prcf between them.
+    assert sorted(cell['fieldID']) == ['f1', 'f2', 'f3']
+    assert cell['prcf'].nunique() == 3
+    assert set(cell['prcf']) == {'plate1_r1_c1_f1', 'plate1_r1_c1_f2',
+                                 'plate1_r1_c1_f3'}
 
-    # And the objects collide: same prcf, same label -> same prcfo.
-    assert len({S.compose_prcfo('plate1', 'r1', 'c1', 'f0', 1)}) == 1
-
-    # Canonically the three sites stay three fields.
-    prcfs = {S.parse_field_stem(f'plate1_A01_{s}').prcf
-             for s in ('s1', 's2', 's3')}
-    assert prcfs == {'plate1_r1_c1_f1', 'plate1_r1_c1_f2', 'plate1_r1_c1_f3'}
+    # The database agrees with schema, name for name.
+    assert {S.parse_field_stem(f'plate1_A01_{s}').prcf
+            for s in ('s1', 's2', 's3')} == set(cell['prcf'])
 
 
-def test_repro_a_whole_timelapse_collapses_onto_t0(tmp_path):
-    """Three timepoints, one ``timeID``. ``_safe_int_convert('T0001') == 0``."""
+def test_a_whole_timelapse_survives(tmp_path):
+    """Three timepoints go in, three ``timeID`` come out.
+
+    ``_safe_int_convert('T0001')`` was ``0``, so every frame became ``t0``
+    (MEASURED: ``timeID`` was ``['t0', 't0', 't0']``, ``prcf.nunique()`` 1).
+    """
     root = str(tmp_path)
     for stamp in ('T0001', 'T0002', 'T0003'):
         db = _write_object_table(root, f'plate1_A01_1_{stamp}',
@@ -155,62 +168,61 @@ def test_repro_a_whole_timelapse_collapses_onto_t0(tmp_path):
     assert sorted(cell['file_name']) == ['plate1_A01_1_T0001',
                                          'plate1_A01_1_T0002',
                                          'plate1_A01_1_T0003']
-    # MEASURED: 3 distinct timepoints on disk, 1 in the database.
-    assert cell['timeID'].tolist() == ['t0', 't0', 't0']
-    assert cell['timeID'].nunique() == 1
-    assert cell['prcf'].nunique() == 1
+    # MEASURED: 3 distinct timepoints on disk, 3 in the database.
+    assert sorted(cell['timeID']) == ['t1', 't2', 't3']
+    assert cell['timeID'].nunique() == 3
+    assert cell['prcf'].nunique() == 3
 
-    # Canonically the timelapse survives.
-    times = [S.parse_field_stem(f'plate1_A01_1_{s}', timelapse=True).timeID
-             for s in ('T0001', 'T0002', 'T0003')]
-    assert times == ['t1', 't2', 't3']
+    assert [S.parse_field_stem(f'plate1_A01_1_{s}', timelapse=True).timeID
+            for s in ('T0001', 'T0002', 'T0003')] == ['t1', 't2', 't3']
 
 
-def test_repro_an_unparseable_field_is_written_into_the_database_as_error(
-        tmp_path):
-    """A lowercase well makes the *whole* identity the string ``'error'``.
+def test_a_lowercase_well_is_just_a_well(tmp_path):
+    """A lowercase well used to make the *whole* identity the string ``'error'``.
 
-    Those five ``'error'`` strings are not a sentinel any reader checks --
-    they are appended to the table as if they were a plate, a row, a column
-    and a field, so the rows are unfindable and pollute every group-by.
+    Those five ``'error'`` strings were not a sentinel any reader checks --
+    they were appended to the table as if they were a plate, a row, a column
+    and a field, so the rows were unfindable and polluted every group-by.
     """
     root = str(tmp_path)
     db = _write_object_table(root, 'plate1_a01_1', labels=(1, 2, 3))
     cell = _read(db, 'cell')
 
     assert len(cell) == 3
-    assert set(cell['plateID']) == {'error'}
-    assert set(cell['prcf']) == {'error'}
-    # Three real objects, all reachable only under a plate called "error".
+    assert set(cell['plateID']) == {'plate1'}
+    assert set(cell['prcf']) == {'plate1_r1_c1_f1'}
     assert sorted(cell['object_label']) == [1, 2, 3]
 
-    # Canonically a lowercase well is just a well.
     assert S.parse_field_stem('plate1_a01_1').prcf == 'plate1_r1_c1_f1'
 
 
-def test_repro_png_list_reads_the_field_token_as_the_object_too(tmp_path):
-    """``plate1_A01_5.png`` becomes field 5 *and* object 5.
+def test_png_list_no_longer_reads_the_field_token_as_the_object_too(tmp_path):
+    """``plate1_A01_5.png`` used to become field 5 *and* object 5.
 
-    ``_map_wells_png`` takes the field from ``parts[2]`` and the object from
-    ``parts[-1]``; in a three-part name those are one token.
+    ``_map_wells_png`` took the field from ``parts[2]`` and the object from
+    ``parts[-1]``; in a three-part name those are one token, and it produced
+    ``fieldID='f5'``, ``cell_id='o5'``, ``prcfo='plate1_r1_c1_f5_o5'`` -- a
+    complete identity for an object that was never identified.
+
+    ``utils._generate_names`` never emits a three-part crop name (it is always
+    ``<stem>_<cell_id>``), so refusing costs nothing, and refusing means the
+    row is visibly broken rather than invisibly wrong.
     """
     root = str(tmp_path)
     db = _write_png_list(root, ['plate1_A01_5.png'])
     png = _read(db, 'png_list')
     row = png.iloc[0]
 
-    # MEASURED: one token, used twice.
-    assert row['fieldID'] == 'f5'
-    assert row['cell_id'] == 'o5'
-    assert row['prcfo'] == 'plate1_r1_c1_f5_o5'
+    assert row['fieldID'] == 'error'
+    assert row['cell_id'] == 'error'
+    assert row['prcfo'] == 'error'
 
-    # Canonically a name that short is not an object name at all.
     with pytest.raises(KeyParseError, match='plate_well_field_object'):
         S.parse_object_stem('plate1_A01_5.png')
 
 
-def test_repro_the_five_implementations_disagree():
-    """The disagreement itself, as a table. Every row here is a real answer.
+def test_the_five_implementations_now_agree():
+    """The disagreement, gone. Every cell here was a different real answer.
 
     ================  ==================  ======================  ====================
     well              ``_map_wells``      ``_map_wells_png``      ``align._well_ids``
@@ -220,10 +232,11 @@ def test_repro_the_five_implementations_disagree():
     ``'AA01'``        ``error``           ``r1,c0``               ``AA01,AA01``
     ================  ==================  ======================  ====================
 
-    This test is also the **migration tripwire**. It pins the pre-migration
-    behaviour of every copy, so the first call site that is switched over to
-    :mod:`spacr.schema` makes it fail — which is the signal to delete that
-    copy's row here rather than to loosen the assertion.
+    All five now delegate to :mod:`spacr.schema`. The one remaining
+    difference is deliberate and asserted below: ``align._well_ids`` and
+    ``convert._well_ids`` keep the legacy passthrough for a well with no
+    column, because a stitch and a conversion must emit a row for every input
+    file, whereas a *key writer* must not invent an identity for one.
     """
     from spacr.align import _well_ids as align_well_ids
     from spacr.convert import _well_ids as convert_well_ids
@@ -242,30 +255,29 @@ def test_repro_the_five_implementations_disagree():
         out = field_identity(f'plate1_{well}_3')
         return out['rowID'], out['columnID']
 
-    # 'A' -- letters, no column.
+    # 'A' -- letters, no column. Not a well: the three key writers refuse it
+    # and the two passthrough sites echo it back unchanged.
     assert utils_stack('A') == ('error', 'error')
-    assert utils_png('A') == ('r1', 'c0')
-    assert resume_ids('A') == ('r1', 'c0')
+    assert utils_png('A') == ('error', 'error')
+    with pytest.raises(WellParseError, match='no column'):
+        field_identity('plate1_A_3')
     assert align_well_ids('A') == ('A', 'A')
     assert convert_well_ids('A') == ('A', 'A')
     with pytest.raises(WellParseError, match='no column'):
         S.parse_well('A')
 
-    # lowercase -- two of five raise into 'error', three uppercase it.
-    assert utils_stack('a01') == ('error', 'error')
-    assert utils_png('a01') == ('error', 'error')
-    assert resume_ids('a01') == ('r1', 'c1')
-    assert align_well_ids('a01') == ('r1', 'c1')
-    assert S.parse_well('a01') == ('r1', 'c1')
+    # lowercase -- all five now read it as the well it is.
+    for reader in (utils_stack, utils_png, resume_ids, align_well_ids,
+                   convert_well_ids):
+        assert reader('a01') == ('r1', 'c1'), reader
 
-    # a 1536-plate row -- three different answers.
-    assert utils_stack('AA01') == ('error', 'error')
-    assert utils_png('AA01') == ('r1', 'c0')
-    assert resume_ids('AA01') == ('r1', 'c0')
-    assert align_well_ids('AA01') == ('AA01', 'AA01')
+    # a 1536-plate row -- one answer, and it is the right one.
+    for reader in (utils_stack, utils_png, resume_ids, align_well_ids,
+                   convert_well_ids):
+        assert reader('AA01') == ('r27', 'c1'), reader
     assert S.parse_well('AA01') == ('r27', 'c1')
 
-    # ... and the cases they all agree on, which the canonical one keeps.
+    # ... and the cases they always agreed on, unchanged.
     for well in ('A01', 'A1', 'P24', 'Z01', 'A48'):
         assert utils_stack(well) == utils_png(well) == resume_ids(well) \
             == align_well_ids(well) == convert_well_ids(well) \
@@ -274,6 +286,10 @@ def test_repro_the_five_implementations_disagree():
 
 # ===========================================================================
 # the canonical parser is a strict repair of the legacy one
+#
+# Pinned against schema.legacy_map_wells, which reproduces the pre-migration
+# _map_wells bit for bit. Pinning against utils._map_wells would now be
+# pinning schema against itself.
 # ===========================================================================
 
 _LEGACY_GOOD_WELLS = ['A01', 'A1', 'A12', 'B03', 'H12', 'P24', 'Z01', 'A48',
@@ -284,17 +300,19 @@ _LEGACY_GOOD_WELLS = ['A01', 'A1', 'A12', 'B03', 'H12', 'P24', 'Z01', 'A48',
 @pytest.mark.parametrize('field', ['1', '01', '007', '12'])
 def test_canonical_agrees_with_legacy_on_every_name_legacy_gets_right(well,
                                                                       field):
-    """No contract change: where ``_map_wells`` works, the answers are equal."""
+    """No contract change: where the old ``_map_wells`` worked, so does this."""
     from spacr.utils import _map_wells
 
     name = f'plate1_{well}_{field}'
-    plate, row, column, fld, prcf = _map_wells(name)
+    plate, row, column, fld, prcf = S.legacy_map_wells(name)
     assert (plate, row, column, fld) != ('error',) * 4  # legacy did work
 
     parsed = S.parse_field_stem(name)
     assert (parsed.plateID, parsed.rowID, parsed.columnID, parsed.fieldID) \
         == (plate, row, column, fld)
     assert parsed.prcf == prcf
+    # ... and the migrated writer still answers exactly that.
+    assert _map_wells(name) == (plate, row, column, fld, prcf)
 
 
 @pytest.mark.parametrize('well', _LEGACY_GOOD_WELLS)
@@ -303,16 +321,20 @@ def test_canonical_agrees_with_legacy_timelapse_ordering(well):
     from spacr.utils import _map_wells
 
     name = f'plate1_{well}_2_5'
-    plate, row, column, fld, timeid, prcf = _map_wells(name, timelapse=True)
+    plate, row, column, fld, timeid, prcf = S.legacy_map_wells(
+        name, timelapse=True)
     parsed = S.parse_field_stem(name, timelapse=True)
     assert (parsed.plateID, parsed.rowID, parsed.columnID, parsed.fieldID,
             parsed.timeID) == (plate, row, column, fld, timeid)
     assert parsed.prcf == prcf
     assert parsed.prcf.endswith('_f2_t5')
+    assert _map_wells(name, timelapse=True) == (plate, row, column, fld,
+                                                timeid, prcf)
 
 
 @pytest.mark.parametrize('well', _LEGACY_GOOD_WELLS)
 def test_canonical_prcfo_agrees_with_legacy_png(well):
+    """The migrated ``_map_wells_png`` still answers every good name the same."""
     from spacr.utils import _map_wells_png
 
     name = f'plate1_{well}_3_17.png'
@@ -321,35 +343,45 @@ def test_canonical_prcfo_agrees_with_legacy_png(well):
     assert (parsed.plateID, parsed.rowID, parsed.columnID, parsed.fieldID,
             parsed.objectID) == (plate, row, column, fld, obj)
     assert parsed.prcfo == prcfo
+    # ... and the pre-migration parser said the same about the field half.
+    assert S.legacy_map_wells(f'plate1_{well}_3')[:4] == (plate, row, column,
+                                                          fld)
 
 
-def test_repro_the_two_safe_int_copies_disagree_on_none():
-    """``_safe_int_convert`` and ``resume._safe_int`` are the same bug, twice.
+def test_the_two_safe_int_copies_no_longer_disagree_on_none():
+    """``resume._safe_int`` is gone and ``_safe_int_convert`` is not a key.
 
-    Both return ``0``; only one of them catches ``TypeError``. So ``None``
-    is a crash in one code path and field ``f0`` in the other.
+    They were the same bug twice: both returned ``0``, and only one of them
+    caught ``TypeError``, so ``None`` was a crash in one code path and field
+    ``f0`` in the other. ``resume.field_identity`` now calls
+    :func:`spacr.schema.parse_field_stem`; ``_safe_int_convert`` survives only
+    as a de-zero-padding helper and answers "is there an integer here?"
+    through :func:`spacr.schema.parse_int_token`.
     """
-    from spacr.resume import _safe_int
+    import spacr.resume as resume
     from spacr.utils import _safe_int_convert
 
-    assert _safe_int(None) == 0
-    with pytest.raises(TypeError):
-        _safe_int_convert(None)
-
+    assert not hasattr(resume, '_safe_int')
+    assert _safe_int_convert(None) == 0            # no longer a TypeError
+    assert _safe_int_convert(None, default=-1) == -1
+    assert _safe_int_convert('x') == 0
     # Neither ever says "there is no number here". schema does.
-    assert _safe_int('x') == 0 and _safe_int_convert('x') == 0
     assert S.parse_int_token('x') is None
 
 
-def test_repro_the_ml_regex_only_understands_rows_a_to_p():
-    """``ml.py``'s inline copy silently leaves rows past P unchanged."""
+def test_the_ml_regex_that_only_understood_rows_a_to_p_is_gone():
+    """``ml.py``'s inline copy silently left rows past P unchanged."""
     import re
 
-    pattern = re.compile(r'^(?i:plate)\d+_([A-Pa-p])(\d+)_')
+    from spacr import ml
 
+    pattern_source = r"^(?i:plate)\d+_([A-Pa-p])(\d+)_"
+    assert pattern_source not in open(ml.__file__).read()
+
+    pattern = re.compile(pattern_source)
     assert pattern.match('PLATE1_A14_1_1_111.png').groups() == ('A', '14')
     # MEASURED: a 384-plate row past P, and any plate not named "plate<n>",
-    # do not match -- rowID/columnID are then left as they were.
+    # did not match -- rowID/columnID were then left as they were.
     assert pattern.match('PLATE1_Q14_1_1_111.png') is None
     assert pattern.match('PLATE1_AA14_1_1_111.png') is None
     assert pattern.match('exp3_A14_1_1_111.png') is None
@@ -363,16 +395,25 @@ def test_repro_the_ml_regex_only_understands_rows_a_to_p():
         assert (parsed.rowID, parsed.columnID) == expected, stem
 
 
-def test_legacy_helpers_reproduce_utils_exactly():
-    """The bug-compatible copies really are bug compatible."""
-    from spacr.utils import _map_wells
+def test_legacy_helpers_still_reproduce_the_pre_migration_behaviour():
+    """The bug-compatible copies are the only remaining record of the old keys.
 
-    for name in ['plate1_A01_1', 'plate1_a01_1', 'plate1_AA01_1',
-                 'plate1_A_1', 'plate1__1', 'plate1_A01_x', 'garbage',
-                 'plate1_A01', 'plate1_12_3', 'plate1_ A01 _1']:
-        assert S.legacy_map_wells(name) == _map_wells(name), name
-        assert S.legacy_map_wells(name + '_9', timelapse=True) == \
-            _map_wells(name + '_9', timelapse=True), name
+    A database written before the migration carries them, so a reader has to
+    be able to reproduce them; that is the whole reason they exist. They are
+    pinned here against the measured pre-migration answers rather than against
+    ``utils``, which no longer produces them.
+    """
+    assert S.legacy_map_wells('plate1_A01_1') == (
+        'plate1', 'r1', 'c1', 'f1', 'plate1_r1_c1_f1')
+    for name in ['plate1_a01_1', 'plate1_AA01_1', 'plate1_A_1', 'plate1__1',
+                 'garbage', 'plate1_A01']:
+        assert S.legacy_map_wells(name) == ('error',) * 5, name
+        assert S.legacy_map_wells(name, timelapse=True) == ('error',) * 6, name
+    # The f0 collapse and the t0 collapse, exactly as they were written.
+    assert S.legacy_map_wells('plate1_A01_s3')[3] == 'f0'
+    assert S.legacy_map_wells('plate1_A01_1_T0003', timelapse=True)[4] == 't0'
+    assert S.legacy_map_wells('plate1_12_3') == (
+        'plate1', '12', '12', 'f3', 'plate1_12_12_f3')
 
     assert S.legacy_safe_int_convert('x') == 0
     assert S.legacy_safe_int_convert('x', default=7) == 7
@@ -563,16 +604,18 @@ def test_letters_from_row_index_rejects_a_non_row():
             S.letters_from_row_index(value)
 
 
-def test_repro_the_inverse_direction_is_broken_past_row_z():
-    """Going ``rowID -> well`` uses ``chr(ord('A') + n - 1)`` in two places.
+def test_the_inverse_direction_no_longer_breaks_past_row_z(tmp_path):
+    """Going ``rowID -> well`` used ``chr(ord('A') + n - 1)`` in two places.
 
-    ``crops.py`` rebuilds a merged-stack path from a row id that way and
-    ``utils._convert_cq1_well_id`` builds a CQ1 well from a linear index
-    that way. Both walk straight off the end of the alphabet.
+    ``crops.py`` rebuilt a merged-stack path from a row id that way and
+    ``utils._convert_cq1_well_id`` built a CQ1 well from a linear index that
+    way. Both walked straight off the end of the alphabet; both now call
+    :func:`spacr.schema.well_id`.
     """
+    from spacr.crops import MergedCropSource
     from spacr.utils import _convert_cq1_well_id
 
-    # crops.py:2244, verbatim.
+    # The old crops.py:2244 expression, kept here as the measurement.
     def crops_style(rowid):
         return chr(ord('A') + int(str(rowid).lstrip('r')) - 1)
 
@@ -582,11 +625,20 @@ def test_repro_the_inverse_direction_is_broken_past_row_z():
     assert S.letters_from_row_index(27) == 'AA'
     assert S.letters_from_row_index(32) == 'AF'
 
-    # utils._convert_cq1_well_id: 24 columns hardcoded, so a 1536 plate
-    # walks past Z after well 624.
+    # crops now rebuilds the real 1536 well.
+    cropper = MergedCropSource(merged_root=str(tmp_path))
+    rebuilt = cropper.resolve_path({'plateID': 'plate1', 'rowID': 'r27',
+                                    'columnID': 'c1', 'fieldID': 'f3'})
+    assert os.path.basename(rebuilt) == 'plate1_AA01_3.npy'
+    assert S.parse_field_stem(rebuilt).prcf == 'plate1_r27_c1_f3'
+
+    # utils._convert_cq1_well_id: 24 columns per row is the CQ1's own layout
+    # and stays, but the row letter no longer leaves the alphabet.
+    # MEASURED before: _convert_cq1_well_id(1536) == '\x8024'.
     assert _convert_cq1_well_id(1) == 'A01'
     assert _convert_cq1_well_id(384) == 'P24'
-    assert _convert_cq1_well_id(1536) == '\x8024'   # MEASURED
+    assert _convert_cq1_well_id(1536) == 'BL24'
+    assert S.parse_well(_convert_cq1_well_id(1536)) == ('r64', 'c24')
 
     # The canonical inverse stays inside the alphabet for every 1536 well.
     for index in range(1, 1537):
@@ -1020,16 +1072,24 @@ def test_add_identity_columns_reproduces_the_writer_on_good_names(tmp_path):
 
 
 def test_add_identity_columns_keeps_three_sites_apart(tmp_path):
-    """The f0 collapse, undone."""
+    """The f0 collapse, undone — and the vectorised helper agrees.
+
+    ``cell['prcf'].nunique()`` was 1 here before the migration: ``s1``,
+    ``s2`` and ``s3`` all became ``f0``. Now the writer and
+    :func:`add_identity_columns` derive the same three fields from the same
+    three names, which is the point — a reader that re-derives the key must
+    land on the one already in the table.
+    """
     root = str(tmp_path)
     for site in ('s1', 's2', 's3'):
         db = _write_object_table(root, f'plate1_A01_{site}')
     cell = _read(db, 'cell')
-    assert cell['prcf'].nunique() == 1            # what is on disk
+    assert cell['prcf'].nunique() == 3
 
     fixed = S.add_identity_columns(cell[['file_name']].copy())
-    assert fixed['prcf'].nunique() == 3           # what it should have been
+    assert fixed['prcf'].nunique() == 3
     assert sorted(fixed['fieldID']) == ['f1', 'f2', 'f3']
+    assert fixed['prcf'].tolist() == cell['prcf'].tolist()
 
 
 def test_add_identity_columns_objects_and_timelapse(tmp_path):

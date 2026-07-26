@@ -95,7 +95,6 @@ import json
 import os
 import re
 import sqlite3
-import string
 import sys
 import tempfile
 from dataclasses import dataclass, field as dc_field
@@ -105,6 +104,7 @@ from typing import Any, Callable, Dict, List, Mapping as TMapping, Optional, Seq
 import numpy as np
 import pandas as pd
 
+from . import schema
 from .errors import ConfigurationError, RunLedger
 
 __all__ = [
@@ -457,18 +457,19 @@ def target_name(plate: str, well: str, field: int, channel: int,
 def _well_ids(well: str) -> Tuple[str, str]:
     """Return ``(rowID, columnID)`` in spaCR's ``r1`` / ``c1`` form.
 
-    Mirrors :func:`spacr.utils._map_wells` exactly, so the keys written
-    into the map line up with the ones in ``measurements.db``.
+    :func:`spacr.schema.parse_well` is the definition; this wrapper only adds
+    the passthrough for a well with no column at all, which the map file needs
+    because a conversion must produce a row for every source file even when
+    the source folder is named something spaCR cannot read as a well.
+
+    :param well: well identifier.
+    :returns: ``(rowID, columnID)``.
     """
-    text = str(well)
-    if text[:1].isalpha():
-        try:
-            row = f'r{string.ascii_uppercase.index(text[0].upper()) + 1}'
-            column = f'c{int(text[1:])}'
-            return row, column
-        except (ValueError, IndexError):
-            return text, text
-    return text, text
+    try:
+        return schema.parse_well(well)
+    except schema.WellParseError:
+        text = str(well)
+        return text, text
 
 
 # ---------------------------------------------------------------------------
@@ -576,7 +577,11 @@ class Mapping:
         :param status: ``'converted'``, ``'existing'`` or ``'failed'``.
         """
         row_id, column_id = _well_ids(self.well)
-        prc = f'{self.plate}_{row_id}_{column_id}'
+        field_key = schema.field_id(self.field)
+        # Joined here rather than through schema.compose_prc: the plate token
+        # is a sanitised source folder name and must be allowed to be anything
+        # a conversion can produce, including a name schema would refuse.
+        prc = schema.KEY_SEPARATOR.join([str(self.plate), row_id, column_id])
         return {
             'target': self.target,
             'target_path': os.path.join(dst, self.target) if dst else self.target,
@@ -595,12 +600,12 @@ class Mapping:
             'source_channel': self.source_channel,
             'source_z': self.source_z,
             'source_t': self.source_t,
-            'plateID': self.plate,
-            'rowID': row_id,
-            'columnID': column_id,
-            'fieldID': f'f{int(self.field)}',
-            'prc': prc,
-            'prcf': f'{prc}_f{int(self.field)}',
+            schema.PLATE_KEY: self.plate,
+            schema.ROW_KEY: row_id,
+            schema.COLUMN_KEY: column_id,
+            schema.FIELD_KEY: field_key,
+            schema.PRC_KEY: prc,
+            schema.PRCF_KEY: schema.KEY_SEPARATOR.join([prc, field_key]),
             'z_handling': self.z_handling,
             'n_z_planes': int(self.n_z_planes),
             'n_timepoints': int(self.n_timepoints),

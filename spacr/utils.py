@@ -98,6 +98,11 @@ from skimage.feature import peak_local_max
 from joblib import Parallel, delayed
 import tifffile
 
+# The one definition of what a spaCR database key is. Imported at module
+# scope rather than lazily because every key built in this file goes through
+# it and it costs nothing: schema.py is stdlib-only by design.
+from . import schema
+
 
 def _load_image(filepath):
     """Load a .tif or .npy image."""
@@ -1414,17 +1419,33 @@ def _outline_and_overlay(image, rgb_image, mask_dims, outline_colors, outline_th
     return overlayed_image, outlines, image
 
 def _convert_cq1_well_id(well_id):
-    """Convert a linear well index to the CQ1 ``<row_letter><col>`` well format."""
-    well_id = int(well_id)
-    # ASCII code for 'A'
-    ascii_A = ord('A')
-    # Calculate row and column
-    row, col = divmod(well_id - 1, 24)
-    # Convert row to letter (A-P) and adjust col to start from 1
-    row_letter = chr(ascii_A + row)
-    # Format column as two digits
-    well_format = f"{row_letter}{col + 1:02d}" 
-    return well_format
+    """Convert a linear well index to the CQ1 ``<row_letter><col>`` well format.
+
+    24 columns per row is the CQ1's own layout, not an assumption about the
+    plate, so it stays. What changed is the row letter: ``chr(ord('A') + n)``
+    walked off the end of the alphabet, so index 1536 came back as
+    ``'\\x8024'`` — a control character where a row label should be.
+    :func:`spacr.schema.well_id` is bijective base 26 and stays inside the
+    alphabet however far the index runs.
+
+    A token that is not a 1-based index is returned unchanged rather than
+    converted. The old arithmetic turned index ``0`` into ``'@24'`` — a well
+    name with a punctuation mark for a row — and, now that
+    ``_extract_filename_metadata`` keeps an unreadable well token instead of
+    substituting ``'0'``, it would be handed things like ``'1a'``. Keeping the
+    token leaves two odd wells as two odd wells and never invents a name.
+
+    :param well_id: 1-based linear well index.
+    :returns: the well name, e.g. ``1`` -> ``'A01'``, ``384`` -> ``'P24'``;
+        or ``str(well_id)`` when it names no well.
+    """
+    index = schema.parse_int_token(well_id, allow_prefix=False)
+    if index is None or index < 1:
+        print(f'Not a CQ1 well index: {well_id!r}; keeping it as it is',
+              flush=True)
+        return str(well_id)
+    row, col = divmod(index - 1, 24)
+    return schema.well_id(row + 1, col + 1)
 
 def _get_cellpose_batch_size():
     try:
@@ -1465,32 +1486,35 @@ def _extract_filename_metadata(filenames, src, regular_expression, metadata_type
                 except Exception:
                     plate = os.path.basename(src)
 
+                # Undo zero padding so '001' and '1' are one key. _int_or_token
+                # keeps a token it cannot read instead of substituting '0':
+                # every unreadable well used to collapse onto well '0'.
                 well = match.group('wellID')
                 if well[0].isdigit():
-                    well = str(_safe_int_convert(well))
-                
+                    well = _int_or_token(well)
+
                 field = match.group('fieldID')
                 if field[0].isdigit():
-                    field = str(_safe_int_convert(field))
-                    
+                    field = _int_or_token(field)
+
                 channel = match.group('chanID')
                 if channel[0].isdigit():
-                    channel = str(_safe_int_convert(channel))
-                    
+                    channel = _int_or_token(channel)
+
                 if 'timeID' in match.groupdict():
                     timeID = match.group('timeID')
                     if timeID[0].isdigit():
-                        timeID = str(_safe_int_convert(timeID))
+                        timeID = _int_or_token(timeID)
                 else:
                     timeID = None
-                        
+
                 if 'sliceID' in match.groupdict():
                     sliceID = match.group('sliceID')
                     if sliceID[0].isdigit():
-                        sliceID = str(_safe_int_convert(sliceID))
+                        sliceID = _int_or_token(sliceID)
                 else:
                     sliceID = None
-                    
+
                 if metadata_type =='cq1':
                     orig_well = well
                     well = _convert_cq1_well_id(well)
@@ -2128,73 +2152,137 @@ def _append_to_measurements_db(db_path, table, frame, required=True):
                 conn.close()
 
 def _safe_int_convert(value, default=0):
-    """Return ``int(value)`` on success, otherwise ``default``."""
-    try:
-        return int(value)
-    except ValueError:
-        print(f'Could not convert {value} to int using {default}', end='\r', flush=True)
+    """Return the integer ``value`` denotes, otherwise ``default``.
+
+    **This is not a key builder.** It used to be — ``_map_wells`` built
+    ``fieldID`` and ``timeID`` out of it — and because its default is ``0``
+    and ``0`` is a perfectly good field id, every token it could not read
+    became field ``f0``: three ImageXpress sites ``s1``/``s2``/``s3`` went in
+    and one ``prcf`` came out, and a whole ``T0001``/``T0002``/``T0003``
+    timelapse collapsed onto ``t0``. Nothing said so. Key construction now
+    goes through :mod:`spacr.schema`, which never invents a number; see
+    :func:`spacr.schema.field_id` for the graded policy that replaced it.
+
+    What is left is the one honest use: undoing zero padding on a regex group
+    that has already been checked to start with a digit
+    (``_extract_filename_metadata``, ``io._move_to_chan_folder``). Even there
+    spaCR no longer relies on ``default`` — those call sites keep the original
+    token when it holds no integer, because two unreadable wells that both
+    became ``'0'`` were two wells merged into one.
+
+    "Is this an integer?" is answered by :func:`spacr.schema.parse_int_token`,
+    so that this function and every key in the database agree on the question.
+    That makes it stricter than the old bare ``int()`` in two inert ways:
+    ``3.7`` and ``True`` now take the default rather than silently becoming
+    ``3`` and ``1``. Inventing ``3`` from ``3.7`` is the same species of lie
+    as inventing ``0`` from ``'x'``.
+
+    :param value: token to convert.
+    :param default: returned when ``value`` holds no integer. ``None`` takes
+        it too — the old form raised :class:`TypeError` there while
+        ``resume._safe_int`` returned the default, so ``None`` was a crash in
+        one code path and field ``f0`` in the other.
+    :returns: the integer, or ``default``.
+    """
+    parsed = schema.parse_int_token(value, allow_prefix=False)
+    if parsed is None:
         return default
+    return parsed
+
+
+def _int_or_token(value):
+    """Undo zero padding, or return the token unchanged when it is not a number.
+
+    The replacement for ``str(_safe_int_convert(x))`` in the filename-metadata
+    parsers: ``'001'`` becomes ``'1'`` so that ``'001'`` and ``'1'`` are one
+    field, while ``'1a'`` stays ``'1a'`` instead of becoming ``'0'`` — which
+    is the difference between two odd fields staying two fields and every odd
+    field in the run merging into one.
+
+    :param value: a token from a filename regex group.
+    :returns: the token's integer as a string, or the token unchanged.
+    """
+    parsed = schema.parse_int_token(value, allow_prefix=False)
+    return str(value) if parsed is None else str(parsed)
+
 
 def _map_wells(file_name, timelapse=False):
-    """Parse a stack file name into ``(plate, row, column, field[, timeid], prcf)``."""
+    """Parse a stack file name into ``(plate, row, column, field[, timeid], prcf)``.
+
+    A thin adapter over :func:`spacr.schema.parse_field_stem`, which is the
+    single definition of what those keys are. The tuple shape and the
+    ``'error'`` fallback are unchanged, because callers
+    (:func:`spacr.predictions.crop_name_metadata`,
+    :func:`process_vision_results`) read both.
+
+    Every difference from the previous hand-rolled body is a case the old one
+    got wrong, not a change of contract — ``tests/test_schema.py`` pins the
+    agreement on every name the old one handled:
+
+    * ``'AA01'`` (an ordinary 1536-plate well) now parses to ``r27``; it used
+      to raise inside and destroy the *plate* along with the well.
+    * a lowercase or whitespace-padded well now parses.
+    * a vendor-prefixed field parses — ``s3``/``F003``/``T0003`` are field 3,
+      not field 0 — and a field token holding no integer at all is preserved
+      (``'xy'`` -> ``'fxy'``) instead of colliding on ``f0``.
+    * the name is reduced to its basename and stem first, so a full path or a
+      trailing ``.npy`` no longer leaks a directory into ``plateID`` or turns
+      ``'3.npy'`` into field 0.
+
+    :param file_name: stack file name, stem or path.
+    :param timelapse: parse a fourth component as the timepoint.
+    :returns: the key tuple, or ``'error'`` in every slot.
+    """
     try:
-        parts = file_name.split('_')
-        plate = parts[0]
-        #plate = 'p' + parts[0]
-        well = parts[1]
-        field = 'f' + str(_safe_int_convert(parts[2]))
-        if timelapse:
-            timeid = 't' + str(_safe_int_convert(parts[3]))
-        if well[0].isalpha():
-            row = 'r' + str(string.ascii_uppercase.index(well[0]) + 1)
-            column = 'c' + str(int(well[1:]))
-        else:
-            row, column = well, well
-        if timelapse:    
-            prcf = '_'.join([plate, row, column, field, timeid])
-        else:
-            prcf = '_'.join([plate, row, column, field])
-    except Exception as e:
+        field = schema.parse_field_stem(file_name, timelapse=timelapse)
+    except schema.SchemaError as e:
         print(f"Error processing filename: {file_name}")
         print(f"Error: {e}")
-        plate, row, column, field, timeid, prcf = 'error','error','error','error','error', 'error'
+        return ('error',) * (6 if timelapse else 5)
     if timelapse:
-        return plate, row, column, field, timeid, prcf
-    else:
-        return plate, row, column, field, prcf
+        return (field.plateID, field.rowID, field.columnID, field.fieldID,
+                field.timeID, field.prcf)
+    return (field.plateID, field.rowID, field.columnID, field.fieldID,
+            field.prcf)
 
 def _map_wells_png(file_name, timelapse=False):
-    """Parse a cropped-object PNG file name into well identifiers plus ``prcfo`` and object id."""
+    """Parse a cropped-object PNG name into well ids plus ``prcfo`` and object id.
+
+    A thin adapter over :func:`spacr.schema.parse_object_stem`; see
+    :func:`_map_wells` for why. The differences from the previous body, all of
+    them repairs:
+
+    * ``'AA01'`` gave ``('r1', 'c0')`` — the second row letter dropped *and*
+      a column 0 invented. It now gives ``('r27', 'c1')``, which is what the
+      object tables carry, so ``png_list`` and ``cell`` join again.
+    * a well with letters but no column (``'A'``) gave ``'c0'``, which is
+      indistinguishable from a real column 0; it is now an ``'error'`` row,
+      the same answer :func:`_map_wells` has always given it.
+    * an object token holding no integer gave ``'onone'`` whatever it said, so
+      a nucleus crop overlapping several nuclei (``..._multi.png``) and one
+      overlapping none (``..._none.png``) shared a ``prcfo``. The token is now
+      preserved: ``'omulti'`` and ``'onone'``.
+    * a three-part name (``'plate1_A01_5.png'``) read one token as both the
+      field *and* the object. ``_generate_names`` never emits one, so it is
+      now an ``'error'`` row rather than a fabricated identity.
+
+    :param file_name: crop PNG name or path.
+    :param timelapse: parse a timepoint between the field and the object.
+    :returns: the key tuple, or ``'error'`` in every slot.
+    """
     try:
-        root, ext = os.path.splitext(file_name)
-        parts = root.split('_')
-        #plate = 'p' + parts[0]
-        plate = parts[0]
-        well = parts[1]
-        field = 'f' + str(_safe_int_convert(parts[2]))
-        if timelapse:
-            timeid = 't' + str(_safe_int_convert(parts[3]))
-        object_id = 'o' + str(_safe_int_convert(parts[-1], default='none'))
-        if well[0].isalpha():
-            row = 'r' + str(string.ascii_uppercase.index(well[0]) + 1)
-            column = 'c' + str(_safe_int_convert(well[1:]))
-        else:
-            row, column = well, well
-        if timelapse:
-            prcfo = '_'.join([plate, row, column, field, timeid, object_id])
-        else:
-            prcfo = '_'.join([plate, row, column, field, object_id])
-    except Exception as e:
+        obj = schema.parse_object_stem(file_name, timelapse=timelapse)
+    except schema.SchemaError as e:
         print(f"Error processing filename: {file_name}")
         print(f"Error: {e}")
-        # `timeid` must be bound here too: the timelapse return path reads it,
-        # and on the error path it was only ever assigned inside the try.
-        plate, row, column, field, timeid, object_id, prcfo = ('error',) * 7
+        return ('error',) * (7 if timelapse else 6)
     if timelapse:
-        return plate, row, column, field, timeid, prcfo, object_id
-    else:
-        return plate, row, column, field, prcfo, object_id
-        
+        return (obj.plateID, obj.rowID, obj.columnID, obj.fieldID, obj.timeID,
+                obj.prcfo, obj.objectID)
+    return (obj.plateID, obj.rowID, obj.columnID, obj.fieldID, obj.prcfo,
+            obj.objectID)
+
+
 DUPLICATE_COLUMN_SUFFIX = "__dup"
 
 

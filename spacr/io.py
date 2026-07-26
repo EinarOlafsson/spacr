@@ -957,8 +957,8 @@ def _generate_time_lists(file_list):
 
 def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
     
-    from .utils import _safe_int_convert, _convert_cq1_well_id
-    
+    from .utils import _int_or_token, _convert_cq1_well_id
+
     src_path = src
     src = Path(src)
     valid_exts = ['.tif', '.png']
@@ -984,14 +984,17 @@ def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
                         chanID = metadata.group('chanID')
                         timeID = metadata.group('timeID')
 
+                        # Undo zero padding, but keep a token that holds no
+                        # integer rather than turning it into '0' — see
+                        # utils._int_or_token.
                         if wellID[0].isdigit():
-                            wellID = str(_safe_int_convert(wellID))
+                            wellID = _int_or_token(wellID)
                         if fieldID[0].isdigit():
-                            fieldID = str(_safe_int_convert(fieldID))
+                            fieldID = _int_or_token(fieldID)
                         if chanID[0].isdigit():
-                            chanID = str(_safe_int_convert(chanID))
+                            chanID = _int_or_token(chanID)
                         if timeID[0].isdigit():
-                            timeID = str(_safe_int_convert(timeID))
+                            timeID = _int_or_token(timeID)
 
                         if metadata_type =='cq1':
                             orig_wellID = wellID

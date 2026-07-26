@@ -2216,7 +2216,15 @@ class MergedCropSource(CropSource):
 
     # -- row -> spec -------------------------------------------------------
     def resolve_path(self, row: Any) -> str:
-        """Return the merged ``.npy`` path for ``row``."""
+        """Return the merged ``.npy`` path for ``row``.
+
+        The rowID -> well-letter step goes through :mod:`spacr.schema`, which
+        is imported lazily *inside* this method on purpose: this module's
+        contract is that importing it costs nothing (``tests/test_crops.py``
+        loads it standalone, outside the package, and asserts the sys.modules
+        delta is empty), and a module-scope relative import would break that
+        probe. Nothing above this point needs schema.
+        """
         path = _row_get(row, "merged_path", "path_name")
         if path:
             path = str(path)
@@ -2241,8 +2249,22 @@ class MergedCropSource(CropSource):
                 raise CropError(
                     "row has no 'path_name' and not enough metadata "
                     "(plateID/rowID/columnID/fieldID) to rebuild it")
-            well = f"{chr(ord('A') + int(str(rowid).lstrip('r')) - 1)}{int(str(colid).lstrip('c')):02d}"
-            stem = f"{plate}_{well}_{int(str(fieldid).lstrip('f'))}"
+            from . import schema
+            # chr(ord('A') + n - 1) walked straight off the end of the
+            # alphabet: rowID 'r27' -- an ordinary 1536-plate row -- came back
+            # as '[', and the rebuilt path pointed at a file that cannot
+            # exist. schema.well_id is bijective base 26, so r27 is 'AA'.
+            try:
+                well = schema.well_id(rowid, colid)
+                field = schema.field_index(fieldid)
+                if field is None:
+                    raise schema.KeyParseError(
+                        f"fieldID {fieldid!r} holds no field number")
+            except schema.SchemaError as exc:
+                raise CropError(
+                    f"row has no 'path_name' and its metadata does not name a "
+                    f"field: {exc}") from exc
+            stem = f"{plate}_{well}_{field}"
         return os.path.join(self.merged_root, f"{stem}.npy")
 
     def spec_for(self, row: Any) -> CropSpec:
