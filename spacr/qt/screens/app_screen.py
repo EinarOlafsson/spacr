@@ -543,6 +543,8 @@ class AppScreen(QWidget):
             splitter.setStretchFactor(1, 1)
             splitter.setSizes([420, 320])
             layout.addWidget(splitter, 1)
+            self._hyperparam = None
+            self._hyperparam_card = None
             self._runtime_splitter = splitter
         elif self.app_key == "measure":
             splitter = QSplitter(Qt.Vertical)
@@ -559,12 +561,37 @@ class AppScreen(QWidget):
             layout.addWidget(splitter, 1)
             self._live_preview = None
             self._live_preview_card = None
+            self._hyperparam = None
+            self._hyperparam_card = None
+            self._runtime_splitter = splitter
+        elif _hyperparam_searchable(self.app_key):
+            # umap / classify / ml_analyze get a Hyperparameter search card in
+            # the slot Mask and Measure use for Live Preview: same shape, same
+            # threading contract, and its Apply reuses the same route back into
+            # the settings panel.
+            from .hyperparam import build_hyperparam_card
+            splitter = QSplitter(Qt.Vertical)
+            splitter.setChildrenCollapsible(False)
+            self._hyperparam, self._hyperparam_card = build_hyperparam_card(self)
+            self._hyperparam.set_apply_callback(self._propagate_live_settings)
+            splitter.addWidget(self._hyperparam_card)
+            splitter.addWidget(console_wrap)
+            splitter.setStretchFactor(0, 1)
+            splitter.setStretchFactor(1, 1)
+            splitter.setSizes([420, 320])
+            layout.addWidget(splitter, 1)
+            self._live_preview = None
+            self._live_preview_card = None
+            self._measure_preview = None
+            self._measure_preview_card = None
             self._runtime_splitter = splitter
         else:
             self._live_preview = None
             self._live_preview_card = None
             self._measure_preview = None
             self._measure_preview_card = None
+            self._hyperparam = None
+            self._hyperparam_card = None
             self._runtime_splitter = None
             layout.addWidget(console_wrap, 1)
 
@@ -694,6 +721,16 @@ class AppScreen(QWidget):
             self._lp_switch.toggled.connect(self._on_lp_switch)
             row.addWidget(self._lp_switch)
             self._on_lp_switch(False)   # hide the LP card initially
+
+        # Same slot, same behaviour, for the apps that have a hyperparameter
+        # search instead of a live preview.
+        if getattr(self, "_hyperparam", None) is not None:
+            from .hyperparam import TOGGLE_TEXT, TOGGLE_TOOLTIP
+            self._hp_switch = AiToggleLabel(text=TOGGLE_TEXT,
+                                            tooltip=TOGGLE_TOOLTIP)
+            self._hp_switch.toggled.connect(self._on_hyperparam_switch)
+            row.addWidget(self._hp_switch)
+            self._on_hyperparam_switch(False)   # start collapsed, like LP
 
         # AI toggle + provider dropdown, bottom-right of the actions row.
         # AI switch is a plain clickable text label — white when off,
@@ -857,6 +894,19 @@ class AppScreen(QWidget):
         if card is None:
             return
         card.setVisible(on)
+
+    def _on_hyperparam_switch(self, on: bool) -> None:
+        """Show/hide the Hyperparameter search card when its toggle flips."""
+        card = getattr(self, "_hyperparam_card", None)
+        if card is None:
+            return
+        card.setVisible(on)
+        if on:
+            # Seed the search space from whatever is currently in the panel, so
+            # the sweep starts from the user's settings rather than defaults.
+            model = getattr(self, "_settings_model", None)
+            if model is not None:
+                self._hyperparam.apply_settings(model.collect())
 
     def _on_ai_switch(self, on: bool) -> None:
         self._console.set_ai_active(on)
@@ -1205,6 +1255,20 @@ def QtGui_QListWidgetItem_helper(fig, idx: int):
     except Exception:
         pass
     return item
+
+
+def _hyperparam_searchable(app_key: str) -> bool:
+    """Whether ``app_key`` has a hyperparameter search, without paying for it.
+
+    Imported lazily: spacr.qt.screens.hyperparam pulls spacr.hyperparam, and
+    every screen construction would otherwise carry that cost whether or not
+    the app can be searched.
+    """
+    try:
+        from .hyperparam import searchable
+    except Exception:
+        return False
+    return searchable(app_key)
 
 
 def _build_live_preview_card(host):
