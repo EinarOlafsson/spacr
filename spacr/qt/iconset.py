@@ -11,12 +11,15 @@ Two sources of icons, both made theme-aware here:
   artwork baked at a fixed colour.
 
 The bundled PNGs were *theme-blind*, and it showed: ``convert.png``
-(Format Converter) is solid black with an alpha mask, so on the black
-home page it rendered as nothing at all. The other twenty-odd are solid
-white, which is the same bug pointed the other way — invisible on the
-light theme, nobody had noticed because nobody used it. A third theme
-made this unavoidable, so :func:`themed_qimage` now re-inks every
-bundled PNG for the active theme:
+(Format Converter) shipped as solid black with an alpha mask, so on the
+black home page it rendered as nothing at all. The other twenty-odd were
+solid white, which is the same bug pointed the other way — invisible on
+the light theme, nobody had noticed because nobody used it. A third
+theme made this unavoidable, so :func:`themed_qimage` now re-inks every
+bundled PNG for the active theme. **This is what makes the artwork
+swappable**: seventeen icons were redrawn and reinstalled without a line
+of change here, because nothing in this module knows what any of them
+look like.
 
 * the artwork's ink polarity is detected from its own alpha-weighted
   mean luminance, so black-on-transparent and white-on-transparent are
@@ -501,6 +504,11 @@ _NAME_TO_GLYPH = {
     "train_cellpose":  "fa5s.brain",
     "cellpose_masks":  "fa5s.shapes",
     "cellpose_all":    "fa5s.th",
+    # One square divided into four by its own seams: tiles registered into
+    # a single canvas. Align & Stitch renders this glyph rather than a
+    # bundled PNG (spacr.qt.app._FORCE_GLYPH) because no bundled artwork
+    # says "stitched mosaic".
+    "align":           "fa5s.border-all",
     "map_barcodes":    "fa5s.barcode",
     "ai_console":      "fa5s.robot",
 }
