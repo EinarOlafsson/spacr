@@ -71,9 +71,9 @@ def _build_calcium_db(dirpath, with_pathogen=True, with_cytoplasm=True):
                 "prcf": f"{PLATE}_{row_id}_{COLUMN}_{FIELD}_t{int(ti)}",
                 "plateID": PLATE,
                 "rowID": row_id,
-                "column_name": COLUMN,
+                "columnID": COLUMN,
                 "fieldID": FIELD,
-                "timeid": int(ti),
+                "timeID": f"t{int(ti)}",
                 "object_label": obj_label,
                 "cell_area": float(area[i]),
                 MEASUREMENT: float(intensity[i]),
@@ -114,17 +114,17 @@ def _build_calcium_db(dirpath, with_pathogen=True, with_cytoplasm=True):
             for ti in t:
                 for parasite in (1, 2):  # two parasites inside host cell 1
                     prows.append({
-                        "plateID": PLATE, "rowID": "r1", "column_name": COLUMN,
-                        "fieldID": FIELD, "timeid": int(ti),
-                        "pathogen_cell_id": 1,
+                        "plateID": PLATE, "rowID": "r1", "columnID": COLUMN,
+                        "fieldID": FIELD, "timeID": f"t{int(ti)}",
+                        "cell_id": 1,
                         "object_label": parasite,
                         "pathogen_area": 30.0 + parasite,
                     })
             pd.DataFrame(prows).to_sql("pathogen", con, index=False)
 
         if with_cytoplasm:
-            cyto = cell[["plateID", "rowID", "column_name", "fieldID",
-                         "timeid", "object_label"]].copy()
+            cyto = cell[["plateID", "rowID", "columnID", "fieldID",
+                         "timeID", "object_label"]].copy()
             cyto["cytoplasm_area"] = 200.0
             cyto.to_sql("cytoplasm", con, index=False)
     finally:
@@ -378,10 +378,10 @@ def test_preprocess_pathogen_data_counts_parasites_and_renames_cell_id():
     df = pd.DataFrame({
         "plateID": [PLATE] * 5,
         "rowID": ["r1"] * 5,
-        "column_name": [COLUMN] * 5,
+        "columnID": [COLUMN] * 5,
         "fieldID": [FIELD] * 5,
-        "timeid": [1, 1, 1, 1, 2],
-        "pathogen_cell_id": [7, 7, 7, 9, 7],
+        "timeID": ["t1", "t1", "t1", "t1", "t2"],
+        "cell_id": [7, 7, 7, 9, 7],
         "object_label": [1, 2, 3, 1, 1],   # parasite ids, must be dropped
         "pathogen_area": [10.0, 20.0, 30.0, 5.0, 40.0],
         "note": ["a", "b", "c", "d", "e"],
@@ -390,8 +390,8 @@ def test_preprocess_pathogen_data_counts_parasites_and_renames_cell_id():
 
     # object_label now holds the HOST cell id, not the parasite id.
     assert sorted(out["object_label"]) == [7, 7, 9]
-    assert "pathogen_cell_id" not in out.columns
-    t1_host7 = out[(out["timeid"] == 1) & (out["object_label"] == 7)].iloc[0]
+    assert "cell_id" not in out.columns
+    t1_host7 = out[(out["timeID"] == "t1") & (out["object_label"] == 7)].iloc[0]
     assert t1_host7["parasite_count"] == 3
     # numeric columns are averaged, object columns take the first value
     assert t1_host7["pathogen_area"] == pytest.approx(20.0)
@@ -415,21 +415,21 @@ def test_analyze_calcium_oscillations_full_run(tmp_path, capsys):
 
     # --- tracks that survived the transience + size filters --------------
     kept = set(result_df["plate_row_column_field_object"].unique())
-    assert kept == {f"{PLATE}_r1_{COLUMN}_{FIELD}_1",
-                    f"{PLATE}_r1_{COLUMN}_{FIELD}_2",
-                    f"{PLATE}_r2_{COLUMN}_{FIELD}_3"}
+    assert kept == {f"{PLATE}_r1_{COLUMN}_{FIELD}_o1",
+                    f"{PLATE}_r1_{COLUMN}_{FIELD}_o2",
+                    f"{PLATE}_r2_{COLUMN}_{FIELD}_o3"}
     assert len(result_df) == 3 * N_TIMEPOINTS
     # delta is the first difference of the bleach-corrected trace
     assert "corrected_" + MEASUREMENT in result_df.columns
     assert "delta_" + MEASUREMENT in result_df.columns
 
     # --- peak table -------------------------------------------------------
-    obj1 = peak_details_df[peak_details_df["ID"].str.endswith("_1")]
+    obj1 = peak_details_df[peak_details_df["ID"].str.endswith("_o1")]
     assert list(obj1["time"]) == [4, 8]          # the two injected spikes
     assert (obj1["amplitude"] > 0.2).all()
     assert (obj1["infected"] == 2).all()         # two parasites in host cell 1
 
-    obj2 = peak_details_df[peak_details_df["ID"].str.endswith("_2")]
+    obj2 = peak_details_df[peak_details_df["ID"].str.endswith("_o2")]
     assert len(obj2) == 1                        # the no-peak placeholder row
     assert np.isnan(obj2["amplitude"].iloc[0])
     assert np.isnan(obj2["AUC_peak"].iloc[0])
@@ -438,7 +438,7 @@ def test_analyze_calcium_oscillations_full_run(tmp_path, capsys):
     # clipping negatives can only raise the AUC
     assert obj2["AUC_positive"].iloc[0] >= obj2["AUC"].iloc[0]
 
-    obj3 = peak_details_df[peak_details_df["ID"].str.endswith("_3")]
+    obj3 = peak_details_df[peak_details_df["ID"].str.endswith("_o3")]
     assert list(obj3["time"]) == [6]
     assert obj3["infected"].iloc[0] == 0
 
@@ -525,7 +525,7 @@ def test_analyze_calcium_oscillations_keeps_transient_tracks_when_disabled(tmp_p
         db, pathogen="pathogen", remove_transient=False)
 
     kept = set(result_df["plate_row_column_field_object"].unique())
-    assert f"{PLATE}_r1_{COLUMN}_{FIELD}_5" in kept
+    assert f"{PLATE}_r1_{COLUMN}_{FIELD}_o5" in kept
     assert len(kept) == 4
     assert set(peak_details_df["ID"]) == kept
 
@@ -537,7 +537,7 @@ def test_analyze_calcium_oscillations_loose_size_filter_keeps_wobbly_cell(tmp_pa
     result_df, _, _ = analyze_calcium_oscillations(
         db, pathogen="pathogen", fluctuation_threshold=5.0)
 
-    assert f"{PLATE}_r2_{COLUMN}_{FIELD}_4" in set(
+    assert f"{PLATE}_r2_{COLUMN}_{FIELD}_o4" in set(
         result_df["plate_row_column_field_object"].unique())
 
 

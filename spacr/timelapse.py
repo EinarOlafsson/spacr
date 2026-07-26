@@ -1316,29 +1316,90 @@ def exponential_decay(x, a, b, c):
     """Return ``a * exp(-b * x) + c`` for curve fitting."""
     return a * np.exp(-b * x) + c
 
+#: Well-identifier columns every spaCR object table carries, in the spelling
+#: :func:`spacr.utils._merge_and_save_to_database` writes them.
+_OBJECT_WELL_KEYS = ['plateID', 'rowID', 'columnID', 'fieldID']
+
+#: Spellings of the timepoint column, most canonical first. The measurement
+#: writer emits ``timeID``; ``filepaths_to_database`` spells the same thing
+#: ``time_id`` in ``png_list``; ``timeid`` was this module's own private
+#: spelling and is accepted so an older hand-built table still reads.
+_TIME_KEY_ALIASES = ('timeID', 'time_id', 'timeid')
+
+
+def _resolve_time_key(df):
+    """Return the timepoint column ``df`` carries, or ``None`` if it has none.
+
+    A non-timelapse measurements database has no timepoint column at all --
+    ``_merge_and_save_to_database`` only adds one when ``timelapse=True`` --
+    so callers must treat the time key as optional rather than assume it.
+
+    :param df: a measurements DataFrame.
+    :returns: the column name, or ``None`` when the frame has no time axis.
+    """
+    for key in _TIME_KEY_ALIASES:
+        if key in df.columns:
+            return key
+    return None
+
+
+def _object_group_keys(df, object_key):
+    """Return the identifier columns that address one object in ``df``.
+
+    ``plateID``/``rowID``/``columnID``/``fieldID``, the timepoint column when
+    the frame has one, then ``object_key``.
+
+    :param df: a measurements DataFrame.
+    :param object_key: the per-object identifier column, e.g. ``'object_label'``
+        or ``'cell_id'``.
+    :returns: list of column names.
+    :raises KeyError: when the frame is missing a required identifier column.
+    """
+    time_key = _resolve_time_key(df)
+    keys = list(_OBJECT_WELL_KEYS) + ([time_key] if time_key else []) + [object_key]
+    missing = [key for key in keys if key not in df.columns]
+    if missing:
+        raise KeyError(
+            f"measurements frame is missing identifier column(s) {missing}; "
+            f"a spaCR object table carries {_OBJECT_WELL_KEYS} plus "
+            f"{object_key} (and timeID for a timelapse run). "
+            f"Got: {list(df.columns)[:12]}"
+            + (" ..." if len(df.columns) > 12 else ""))
+    return keys
+
+
 def preprocess_pathogen_data(pathogen_df):
     """Aggregate a per-parasite table to one row per host cell with a parasite count.
+
+    Keys on the column names the measurement writer actually emits:
+    ``columnID`` (not ``column_name``), ``timeID`` (not ``timeid``, and absent
+    altogether outside a timelapse run) and ``cell_id`` -- the child table's
+    link to its host cell -- not ``pathogen_cell_id``, which no writer has ever
+    produced. Under the old names every call died with ``KeyError``.
 
     :param pathogen_df: per-parasite measurements DataFrame with plate/well/field/time/cell identifiers.
     :returns: DataFrame aggregated to (plate, row, column, field, time, host cell) with a ``parasite_count`` column.
     """
+    group_keys = _object_group_keys(pathogen_df, 'cell_id')
+
     # Group by identifiers and count the number of parasites
-    parasite_counts = pathogen_df.groupby(['plateID', 'rowID', 'column_name', 'fieldID', 'timeid', 'pathogen_cell_id']).size().reset_index(name='parasite_count')
+    parasite_counts = pathogen_df.groupby(group_keys).size().reset_index(name='parasite_count')
 
     # Aggregate numerical columns and take the first of object columns
-    agg_funcs = {col: 'mean' if np.issubdtype(pathogen_df[col].dtype, np.number) else 'first' for col in pathogen_df.columns if col not in ['plateID', 'rowID', 'column_name', 'fieldID', 'timeid', 'pathogen_cell_id', 'parasite_count']}
-    pathogen_agg = pathogen_df.groupby(['plateID', 'rowID', 'column_name', 'fieldID', 'timeid', 'pathogen_cell_id']).agg(agg_funcs).reset_index()
+    agg_funcs = {col: 'mean' if np.issubdtype(pathogen_df[col].dtype, np.number) else 'first' for col in pathogen_df.columns if col not in group_keys + ['parasite_count']}
+    pathogen_agg = pathogen_df.groupby(group_keys).agg(agg_funcs).reset_index()
 
     # Merge the counts back into the aggregated data
-    pathogen_agg = pathogen_agg.merge(parasite_counts, on=['plateID', 'rowID', 'column_name', 'fieldID', 'timeid', 'pathogen_cell_id'])
-    
+    pathogen_agg = pathogen_agg.merge(parasite_counts, on=group_keys)
+
 
     # Remove the object_label column as it corresponds to the pathogen ID not the cell ID
     if 'object_label' in pathogen_agg.columns:
         pathogen_agg.drop(columns=['object_label'], inplace=True)
-    
-    # Change the name of pathogen_cell_id to object_label
-    pathogen_agg.rename(columns={'pathogen_cell_id': 'object_label'}, inplace=True)
+
+    # The host-cell link becomes this frame's object_label, so it merges
+    # straight onto the cell table's own object_label.
+    pathogen_agg.rename(columns={'cell_id': 'object_label'}, inplace=True)
 
     return pathogen_agg
 
@@ -1524,11 +1585,26 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
     # Load cell table
     cell_df = pd.read_sql(f"SELECT * FROM {'cell'}", conn)
     
+    # The merge keys are the ones the measurement writer emits: columnID (not
+    # column_name), timeID (not timeid) and, in the child tables, cell_id (not
+    # pathogen_cell_id). Every one of the old names was absent from a real
+    # measurements.db, so this function raised KeyError before it ever merged.
+    # timeID is only present for a timelapse run, hence resolved per frame.
+    merge_keys = _object_group_keys(cell_df, 'object_label')
+
     if pathogen:
         pathogen_df = pd.read_sql("SELECT * FROM pathogen", conn)
-        pathogen_df['pathogen_cell_id'] = pathogen_df['pathogen_cell_id'].astype(float).astype('Int64')
+        if 'cell_id' not in pathogen_df.columns:
+            conn.close()
+            raise KeyError(
+                "the 'pathogen' table has no 'cell_id' column, so parasites "
+                "cannot be attributed to host cells. That link is only written "
+                "when the field was measured with a cell mask "
+                "(settings['cell_mask_dim']); re-run measure_crop with one, or "
+                "call analyze_calcium_oscillations with pathogen=None.")
+        pathogen_df['cell_id'] = pathogen_df['cell_id'].astype(float).astype('Int64')
         pathogen_df = preprocess_pathogen_data(pathogen_df)
-        cell_df = cell_df.merge(pathogen_df, on=['plateID', 'rowID', 'column_name', 'fieldID', 'timeid', 'object_label'], how='left', suffixes=('', '_pathogen'))
+        cell_df = cell_df.merge(pathogen_df, on=merge_keys, how='left', suffixes=('', '_pathogen'))
         cell_df['parasite_count'] = cell_df['parasite_count'].fillna(0)
         print(f'After pathogen merge: {len(cell_df)} objects')
 
@@ -1536,10 +1612,10 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
     if cytoplasm:
         cytoplasm_df = pd.read_sql(f"SELECT * FROM {'cytoplasm'}", conn)
         # Merge on specified columns
-        cell_df = cell_df.merge(cytoplasm_df, on=['plateID', 'rowID', 'column_name', 'fieldID', 'timeid', 'object_label'], how='left', suffixes=('', '_cytoplasm'))
+        cell_df = cell_df.merge(cytoplasm_df, on=merge_keys, how='left', suffixes=('', '_cytoplasm'))
 
         print(f'After cytoplasm merge: {len(cell_df)} objects')
-    
+
     conn.close()
 
     # Continue with your existing processing on cell_df now containing merged data...
@@ -1549,9 +1625,29 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
     cell_df['rowID'] = prcf_components[1]
     cell_df['columnID'] = prcf_components[2]
     cell_df['fieldID'] = prcf_components[3]
-    cell_df['time'] = prcf_components[4].str.extract('t(\d+)').astype(int)
+    # The time axis comes from the timeID column when the database has one and
+    # from the trailing 't<N>' element of prcf otherwise. A non-timelapse
+    # database has neither, and prcf_components[4] used to raise a bare
+    # KeyError(4) on it; there is no oscillation to measure without a time
+    # axis, so say so and stop like the other unanalysable cases below.
+    time_key = _resolve_time_key(cell_df)
+    if time_key is not None:
+        cell_df['time'] = cell_df[time_key].astype(str).str.extract(r'(\d+)')[0].astype(int)
+    elif prcf_components.shape[1] > 4:
+        cell_df['time'] = prcf_components[4].str.extract(r't(\d+)')[0].astype(int)
+    else:
+        print(f"No time axis in {db_loc}: the cell table has no timeID column "
+              "and its prcf values carry no t<N> element, so this is not a "
+              "timelapse measurement and calcium oscillations cannot be "
+              "measured.")
+        return
     cell_df['object_number'] = cell_df['object_label']
-    cell_df['plate_row_column_field_object'] = cell_df['plateID'].astype(str) + '_' + cell_df['rowID'].astype(str) + '_' + cell_df['columnID'].astype(str) + '_' + cell_df['fieldID'].astype(str) + '_' + cell_df['object_label'].astype(str)
+    # 'o' prefixes the object index the way every other spaCR object key spells
+    # it (prcfo is plate_row_column_field[_time]_o<N>), so plate1_r1_c1_f1_o2
+    # can no longer be misread as a fifth well coordinate. This key
+    # deliberately omits the time element: it identifies one cell's track
+    # ACROSS time, which is what the per-track groupby below needs.
+    cell_df['plate_row_column_field_object'] = cell_df['plateID'].astype(str) + '_' + cell_df['rowID'].astype(str) + '_' + cell_df['columnID'].astype(str) + '_' + cell_df['fieldID'].astype(str) + '_o' + cell_df['object_label'].astype(str)
 
     # 'parasite_count' only exists when the (optional) pathogen table was merged
     # above. The per-track loop below reads it unconditionally, so the documented
@@ -5157,6 +5253,44 @@ def _compute_velocities_and_well_summary(
     return track_df, per_well_tracks, well_summary_df, vel_unit
 
 
+#: Tables in ``measurements.db`` that spaCR itself writes and reads. The
+#: motility summary writes its table with ``if_exists='replace'``, so letting
+#: the free-text ``db_table_name`` setting name one of these would drop it and
+#: everything measured into it.
+RESERVED_DB_TABLE_NAMES = (
+    'cell',
+    'cytoplasm',
+    'nucleus',
+    'object_counts',
+    'organelle',
+    'pathogen',
+    'png_list',
+    'run_status',
+    'settings',
+)
+
+
+def _validate_db_table_name(db_table_name):
+    """Refuse a ``db_table_name`` that would overwrite a spaCR-owned table.
+
+    :param db_table_name: the value of ``settings['db_table_name']``.
+    :returns: ``db_table_name`` unchanged when it is safe to write.
+    :raises ValueError: when it names one of :data:`RESERVED_DB_TABLE_NAMES`.
+    """
+    # SQLite table names are case-insensitive, so 'Cell' would replace 'cell'
+    # just as thoroughly.
+    if str(db_table_name).strip().lower() in RESERVED_DB_TABLE_NAMES:
+        raise ValueError(
+            f"settings['db_table_name'] = {db_table_name!r} names a table spaCR "
+            "owns. The motility summary writes that table with "
+            "if_exists='replace', which would drop the existing "
+            f"{db_table_name!r} table and every measurement in it. Choose a "
+            "name of your own, e.g. the default "
+            "'timelapse_object_measurements'. Reserved names: "
+            + ', '.join(RESERVED_DB_TABLE_NAMES) + '.')
+    return db_table_name
+
+
 def _save_measurements_and_well_summary(
     all_df,
     well_summary_df,
@@ -5166,9 +5300,14 @@ def _save_measurements_and_well_summary(
     """
     Save per-frame measurements and well-level motility summary to SQLite.
     Returns (measurements_dir, db_path).
+
+    :raises ValueError: when ``db_table_name`` names a spaCR-owned table; see
+        :func:`_validate_db_table_name`.
     """
     import os
     import sqlite3
+
+    _validate_db_table_name(db_table_name)
 
     measurements_dir = os.path.join(src, "measurements")
     os.makedirs(measurements_dir, exist_ok=True)
@@ -7144,6 +7283,8 @@ def automated_motility_assay(settings):
         ``reuse_existing_measurements``.
     :returns: None. Writes measurements and summary tables to
         ``measurements/measurements.db`` and saves panel PDFs under ``src``.
+    :raises ValueError: when ``settings['db_table_name']`` names a spaCR-owned
+        table; see :func:`_validate_db_table_name`.
     """
     import matplotlib.pyplot as plt  # noqa: F401 (used in helpers)
     from matplotlib import patches  # noqa: F401 (used in helpers)
@@ -7152,13 +7293,15 @@ def automated_motility_assay(settings):
     import os
     from multiprocessing import Pool, cpu_count
     import sqlite3
-    
+
     from .settings import get_automated_motility_assay_default_settings
 
     settings = get_automated_motility_assay_default_settings(settings)
 
     src = settings["src"]
-    db_table_name = settings["db_table_name"]
+    # Checked here as well as at the write, so a run that would destroy the
+    # cell table stops before the hours of regionprops rather than after them.
+    db_table_name = _validate_db_table_name(settings["db_table_name"])
     n_jobs = settings["n_jobs"]
     max_displacement = settings["max_displacement"]
     zscore_thresh = settings["zscore_thresh"]
