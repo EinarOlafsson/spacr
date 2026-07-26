@@ -186,6 +186,15 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # The 3D (Beta) z-axis controls (spacr.zstack), filed under "Beta".
     "z_stack", "z_segmentation_mode", "z_axis", "z_projection",
     "anisotropy", "voxel_size_z_um", "voxel_size_xy_um", "stitch_threshold",
+    # and the 4D (Beta) time-axis controls on top of them (the t half of
+    # spacr.zstack), filed under "Beta" too rather than under a heading of
+    # their own -- a new category with no SECTION_HINTS entry silently falls
+    # back to the generic tooltip, which is what the two tests at the bottom
+    # of this file are about. `z_axis` is shared with the 3D block above and
+    # so is not repeated here.
+    "t_stack", "t_axis_order", "t_axis", "frame_interval_s",
+    "t_track_backend", "t_link_threshold", "t_max_displacement_px",
+    "t_max_displacement_um", "t_project_for_tracking",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six

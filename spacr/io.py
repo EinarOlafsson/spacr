@@ -5049,9 +5049,33 @@ def convert_to_yokogawa(folder):
                             rename_log.append({"Original File": file, "Renamed TIFF": filename})
 
                     elif ndim == 4:
-                        t_dim, z_dim, y_dim, x_dim = images.shape
+                        # The two leading axes are t and z, in an order the
+                        # SHAPE cannot reveal. This used to assume TZYX
+                        # unconditionally, so a genuine (Z, T, Y, X) file had
+                        # every z-plane written out as a "timepoint" and every
+                        # projection taken over TIME rather than over z - wrong
+                        # data under a confident filename, with nothing saying
+                        # so. tifffile records the real order; ask it, and when
+                        # the file does not declare one, say which way it was
+                        # read and what that means if it is wrong.
+                        try:
+                            axes = (tif.series[0].axes or '').upper()
+                        except Exception:
+                            axes = ''
+                        t_axis = 0
+                        if axes[:2] == 'ZT':
+                            t_axis = 1
+                        elif axes[:2] != 'TZ':
+                            print(f"WARNING: {file} is 4-D but declares axes "
+                                  f"{axes or '(none)'}; reading it as "
+                                  f"(T, Z, Y, X). If it is really (Z, T, Y, X), "
+                                  f"every timepoint written below is a z-plane "
+                                  f"and every projection is over time.")
+                        t_dim = images.shape[t_axis]
+                        z_dim = images.shape[1 - t_axis]
                         for t in range(t_dim):
-                            mip_image = np.max(images[t, :, :, :], axis=0)
+                            plane_stack = images[t] if t_axis == 0 else images[:, t]
+                            mip_image = np.max(plane_stack, axis=0)
                             filename = f"{well}_T{t+1:04d}F001L01C01.tif"
                             tifffile.imwrite(os.path.join(folder, filename), mip_image)
                             rename_log.append({"Original File": file, "Renamed TIFF": filename})

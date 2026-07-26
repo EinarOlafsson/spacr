@@ -182,6 +182,25 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('voxel_size_z_um', None)
     settings.setdefault('voxel_size_xy_um', None)
     settings.setdefault('stitch_threshold', 0.25)
+
+    # 4D (Beta). The time axis on top of the z axis, read only through
+    # spacr.zstack.plan_4d_from_settings, which returns None whenever
+    # `t_stack` is falsy -- so with these defaults not one line of 4-D code
+    # executes and both the 2-D and the 3-D path stay bit-identical to a run
+    # from before these keys existed. `t_axis_order` deliberately has no
+    # usable default: (T,Z,Y,X) and (Z,T,Y,X) are both written by real
+    # microscopes and a 4-D shape cannot tell them apart, so a run that turns
+    # t_stack on without saying which it has is stopped rather than guessed
+    # at -- guessing wrong links objects across z and calls it a trajectory.
+    settings.setdefault('t_stack', False)
+    settings.setdefault('t_axis_order', None)
+    settings.setdefault('t_axis', None)
+    settings.setdefault('frame_interval_s', None)
+    settings.setdefault('t_track_backend', 'iou')
+    settings.setdefault('t_link_threshold', 0.25)
+    settings.setdefault('t_max_displacement_px', None)
+    settings.setdefault('t_max_displacement_um', None)
+    settings.setdefault('t_project_for_tracking', False)
     #settings.setdefault('use_sam_cell', False)
     #settings.setdefault('use_sam_nucleus', False)
     #settings.setdefault('use_sam_pathogen', False)
@@ -1182,6 +1201,16 @@ expected_types = {
     "voxel_size_z_um": (int, float, type(None)),
     "voxel_size_xy_um": (int, float, type(None)),
     "stitch_threshold": (int, float),
+    # 4D (Beta)
+    "t_stack": bool,
+    "t_axis_order": (str, type(None)),
+    "t_axis": (int, type(None)),
+    "frame_interval_s": (int, float, type(None)),
+    "t_track_backend": str,
+    "t_link_threshold": (int, float),
+    "t_max_displacement_px": (int, float, type(None)),
+    "t_max_displacement_um": (int, float, type(None)),
+    "t_project_for_tracking": bool,
     "save_original_images": bool,
     "keep_intermediate": bool,
     "keep_original_images": bool,
@@ -1730,6 +1759,19 @@ tooltips = {
     "voxel_size_z_um": "(float or None) - Spacing between consecutive z planes in micrometres, straight off the acquisition settings. Together with voxel_size_xy_um it derives anisotropy, so setting these two is the safer way to get it right, and it is also what converts object volumes from voxel counts into um3. Changing it rescales every physical z quantity and the anisotropy used for segmentation; it has no effect on a 'project' run. Default None.",
     "voxel_size_xy_um": "(float or None) - Width of one pixel in micrometres in the image plane, assumed square. Used with voxel_size_z_um to derive anisotropy and to turn voxel counts into physical volumes and surface areas. Note this is a different setting from um_per_pixel, which only sizes the scale bar drawn on figures and never reaches a measurement. Default None.",
     "stitch_threshold": "(float) - Minimum overlap, as an intersection-over-union between 0 and 1, for a label in one plane to be treated as the same object as a label in the plane below when z_segmentation_mode is 'stitch'. Raising it splits objects that drift or change shape between planes into several shorter ones; lowering it fuses neighbouring objects that merely overlap in projection. Matching is one-to-one, so when two objects both overlap the same object below only the better match inherits its label and the other starts a new one. Ignored by the other two modes. Default 0.25.",
+    # --- 4D (Beta) -------------------------------------------------------
+    # The time axis on top of the z axis. These say plainly where the 4-D
+    # plumbing stops, for the same reason the 3D ones above do: a user must
+    # not read them and believe spaCR tracks objects through volumes today.
+    "t_stack": "(bool) - Treat each field as a time series of z-stacks rather than as one flat image, turning on the axis-order, backend and displacement controls below. Off, spaCR runs whatever 2-D or 3-D path you already had and not one line of the 4-D code executes, so your masks and tracks are identical to a run from before this setting existed. On, spaCR requires an array that still has both a time axis and a z axis when it reaches segmentation and stops with an error naming the cause if it does not; the standard image ingest writes one maximum-intensity plane per timepoint while organising the raw files, so this only has something to work with when you hand spaCR whole volumes through the Python API. Default False.",
+    "t_axis_order": "(str or None) - Which of the two leading axes of your data is time and which is z: 'TZYX' for a stack per timepoint, 'ZTYX' for a time series per plane. Both are written by real microscopes and the array shape cannot distinguish them, so spaCR refuses to guess and stops until you say which you have. Getting this wrong does not crash: it links each object to whatever sits above it in the next z plane and reports that as motion, which produces smooth, entirely plausible, entirely fictional trajectories. Leave it None only when you are setting t_axis directly instead. Default None.",
+    "t_axis": "(int or None) - Index of the time axis in the incoming array, as an alternative to spelling out the whole order in t_axis_order; the z axis is then taken to be the other of the two leading axes, or whatever z_axis says. Use it for an acquisition whose axes are not in either of the two standard orders. When both this and t_axis_order are set they must agree, and spaCR stops if they do not rather than silently preferring one. Default None.",
+    "frame_interval_s": "(float or None) - Seconds between consecutive timepoints, straight off the acquisition settings. It converts the frame index into a real time column in the tracks table and is what turns a displacement per frame into a speed; no linking decision depends on it, so a wrong value rescales reported velocities without changing which objects were joined to which. Left None, spaCR falls back to the motility module's seconds_per_frame rather than becoming a second source of truth for the same number. Default None.",
+    "t_track_backend": "(str) - Which linker joins objects between consecutive timepoints once they have been segmented in 3-D. 'iou' overlaps whole volumes and needs no distance, no anisotropy and no tuning, but loses anything that moves further than its own width between frames; 'centroid' links nearest centroids under the displacement gate below and handles fast movement, at the cost of needing that gate set correctly; 'trackpy' does the same through trackpy's linker. The btrack, trackastra and ultrack backends all handle volumes upstream but spaCR's adapters for them require a flat time series, so asking for one of them on volumetric masks stops the run instead of quietly flattening it. Default 'iou'.",
+    "t_link_threshold": "(float) - Minimum overlap, as an intersection-over-union between 0 and 1, for an object at one timepoint to be treated as the same object at the next when t_track_backend is 'iou'. Raising it breaks a moving or growing object into several short tracks; lowering it fuses neighbouring objects whose volumes happen to touch. Kept separate from stitch_threshold on purpose, because consecutive z planes and consecutive timepoints do not overlap by anything like the same amount. Matching is one-to-one, so two objects cannot both inherit one identity. Default 0.25.",
+    "t_max_displacement_px": "(float or None) - How far an object may move between consecutive timepoints and still be considered the same object, in image pixels, for the distance-based backends. The z component of every displacement is multiplied by the anisotropy first, so that a one-plane move on a stack with a 5x z step counts as five pixels rather than one, which is what stops objects five times too far apart from linking. Set this or t_max_displacement_um but not both; spaCR will not pick a default, because too large fuses neighbours into one track and too small breaks one object into a track per frame. Default None.",
+    "t_max_displacement_um": "(float or None) - The same maximum between-frame movement as t_max_displacement_px but expressed in micrometres, which is usually the number you actually know from the biology. It needs voxel_size_z_um and voxel_size_xy_um to convert, and once those are set it is the safer of the two because the anisotropy is already baked into the physical coordinates instead of being applied as a correction. Set this or t_max_displacement_px but never both, since they are one gate in two units. Default None.",
+    "t_project_for_tracking": "(bool) - Collapse each timepoint's z-stack to one plane before linking, so tracking happens on the projection while segmentation still happened on the volume. Turn it on when the volumetric linking is too slow or you do not trust the anisotropy, and accept the cost: two objects that sit above one another become one object and nothing computed downstream can tell that it happened. It does not enable the backends spaCR cannot drive on volumes, which are refused whatever this is set to. Default False.",
     "save_original_images": "(bool) - After each batch is MIP-projected and merged into stack/, either move the raw input images into src/orig/ (True) or delete them so the pixels live only in stack/ (False). Set False on large screens where the duplicate raw copy will not fit on disk; the deletion is not reversible. Default True.",
     "keep_intermediate": "(bool) - Keep the intermediate stack/ and masks/ folders after the merged/ arrays are built. Off by default: only merged/ is kept (masks are embedded in merged and recorded in the database).",
     "keep_original_images": "(bool) - Keep the original raw input images (in orig/). Off by default to save disk space; the pixel data lives in merged/.",
@@ -2346,12 +2388,18 @@ categories = {
 
     "Advanced": ["resume", "strict_errors", "max_failure_rate", "crop_source", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "normalize", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "compression", "diameter_estimate_n_fields", "nuclei_limit", "pathogen_limit", "cells_per_well", "target_intensity_min", "shuffle", "save", "filter", "merge_pathogens"],
 
-    # The 3D (Beta) keys lead this list: `z_stack` is the master switch and
-    # the rest only mean anything once it is on. They are filed here rather
-    # than under a heading of their own because a new category with no
-    # SECTION_HINTS entry in qt/screens/app_screen.py silently falls back to a
-    # generic tooltip (see tests/test_settings_categories.py).
-    "Beta": ["z_stack", "z_segmentation_mode", "z_axis", "z_projection", "anisotropy", "voxel_size_z_um", "voxel_size_xy_um", "stitch_threshold", "all_to_mip", "upscale", "upscale_factor", "consolidate", "distance_gaussian_sigma", "use_sam_pathogen", "use_sam_nucleus", "use_sam_cell", "denoise"],
+    # The 3D (Beta) keys lead this list and the 4D (Beta) keys follow them:
+    # `z_stack` and `t_stack` are the two master switches and the rest only
+    # mean anything once one of them is on. `z_axis` is shared -- it names the
+    # z axis for both -- so it is listed once, with the 3D block. They are all
+    # filed here rather than under headings of their own because a new
+    # category with no SECTION_HINTS entry in qt/screens/app_screen.py
+    # silently falls back to a generic tooltip (see
+    # tests/test_settings_categories.py), which is why the 4D keys follow the
+    # 3D precedent rather than opening a "4D (Beta)" section.
+    "Beta": ["z_stack", "z_segmentation_mode", "z_axis", "z_projection", "anisotropy", "voxel_size_z_um", "voxel_size_xy_um", "stitch_threshold",
+             "t_stack", "t_axis_order", "t_axis", "frame_interval_s", "t_track_backend", "t_link_threshold", "t_max_displacement_px", "t_max_displacement_um", "t_project_for_tracking",
+             "all_to_mip", "upscale", "upscale_factor", "consolidate", "distance_gaussian_sigma", "use_sam_pathogen", "use_sam_nucleus", "use_sam_cell", "denoise"],
 
     "Motility (beta)": motility_settings,
     "Motility Advanced (beta)": motility_advanced_settings,
