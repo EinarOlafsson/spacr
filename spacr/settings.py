@@ -648,6 +648,9 @@ def set_default_train_test_model(settings):
     settings.setdefault('train_channels',['r','g','b'])
     settings.setdefault('augment',False)
     settings.setdefault('verbose',False)
+    settings.setdefault('class_balance','none')
+    settings.setdefault('cross_validation_folds',0)
+    settings.setdefault('cv_group_by','well')
     return settings
 
 def set_generate_training_dataset_defaults(settings):
@@ -739,6 +742,9 @@ def deep_spacr_defaults(settings):
     settings.setdefault('model_path','')
     settings.setdefault('file_type','cell_png')
     settings.setdefault('generate_training_dataset', True)
+    settings.setdefault('class_balance','none')
+    settings.setdefault('cross_validation_folds',0)
+    settings.setdefault('cv_group_by','well')
     return settings
 
 def get_train_test_model_settings(settings):
@@ -781,6 +787,9 @@ def get_train_test_model_settings(settings):
      settings.setdefault('focal_alpha', None)
      settings.setdefault('logit_adjust_tau', 1.0)
      settings.setdefault('early_stopping_patience', 0)
+     settings.setdefault('class_balance', 'none')
+     settings.setdefault('cross_validation_folds', 0)
+     settings.setdefault('cv_group_by', 'well')
      return settings
 
 
@@ -1442,6 +1451,9 @@ expected_types = {
     'organelle_ring_fill_method':str,
     'summarize_organelles_by':str,
     'early_stopping_patience':int,
+    'class_balance':str,
+    'cross_validation_folds':int,
+    'cv_group_by':str,
     'logit_adjust_tau':float,
     'focal_alpha':( float, type(None)),
     'focal_gamma':float,
@@ -1946,7 +1958,10 @@ tooltips = {
     "correlate": "(bool) - Intended to add pairwise correlations between selected measurements to the analysis output, but nothing reads settings['correlate']. Channel/activation correlations are controlled by the separate 'correlation' setting in the activation-map path. Kept only so old settings CSVs still load.",
     'count_data': "(str or list) - CSV(s) of per-well gRNA read counts from the sequencing step (unique_combinations.csv); each must contain grna, count, rowID and columnID columns or the run raises ValueError. These are the regression's independent variable. Pass one path per plate, position-aligned with plates_count; results are written under the first file's folder.",
     'cov_type': "(str) - Heteroscedasticity-robust covariance estimator passed to the OLS fit: 'HC0', 'HC1', 'HC2' or 'HC3', or None for classical non-robust errors. It changes standard errors and p-values only, never the coefficients; reach for 'HC3' when residual variance grows with well cell count. Applies to regression_type 'ols' only. Default None.",
+    'class_balance': "(str) - How skew between the training classes is corrected. 'none' (the default) changes nothing but still prints the per-class counts, the majority-over-minority ratio and a recommendation, so the skew is never invisible. 'weighted_sampler' attaches a WeightedRandomSampler with 1/n weights, drawing every class about equally often; 'sqrt_weighted_sampler' uses 1/sqrt(n) for a gentler pull that avoids showing a tiny class so often the model memorises it; 'weighted_loss' leaves sampling alone and switches loss_type to 'ce_weighted' instead. Resampling is applied to the train loader only - validation and test keep the real prior so their scores stay comparable to the screen.",
     'cross_validation': "(bool) - Score the classifier with 5-fold stratified cross-validation instead of a single train/test split, so every control object receives an out-of-fold prediction and an optimal probability threshold is picked per fold. Gives a far more stable accuracy estimate on small control sets, at roughly 5x the training time. Default True.",
+    'cross_validation_folds': "(int) - Number of k-fold splits the vision classifier is trained with in place of the single val_split hold-out. 0 (the default) or 1 keeps today's one random split; 2 or more trains a fresh model per fold, scores each on the fold it never saw, and reports the mean together with the fold-to-fold standard deviation and range - which is the only way to see whether one lucky split was flattering the model. Costs roughly k times the training time. Distinct from 'cross_validation', which is the regression pipeline's own toggle.",
+    'cv_group_by': "(str) - Which metadata level is kept intact inside a single fold when cross_validation_folds is active: 'well' (the default and the right choice for object crops), 'field', 'plate', or 'none' for a plain stratified split. Crops from one well share focus, illumination, seeding density and edge effects, so letting them straddle a fold lets the model recognise the well instead of the phenotype and inflates every score. The level is parsed from the crop filename, which spaCR writes as plate_well_field_object.png.",
     'custom_measurement': "(str) - Optional measurement-column name intended for class assignment; the Tk dataset dialog collects it but no pipeline code reads the key, so it currently has no effect. To select classes by a measured feature use dataset_mode 'measurement' with measurement_rules instead. Default None.",
     'denoise': "(bool) - Legacy denoising toggle for the mask pipeline: no code reads this key, so it has no effect. To actually denoise, set the per-object restore settings (cell_restore_type / nucleus_restore_type / pathogen_restore_type) to 'denoise', which routes segmentation through Cellpose's CellposeDenoiseModel. Default False.",
     'early_stopping_patience': "(int) - Stop training after this many consecutive epochs in which validation accuracy fails to beat the best value so far; the best checkpoint is still kept. 0 (default) disables it and always runs the full 'epochs' budget. Set 10-20 on long runs to cut wasted epochs once the model plateaus.",
@@ -2039,7 +2054,7 @@ categories = {"Paths":[ "src", "grna", "barcodes", "custom_model_path", "dataset
              "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "crop_mode", "use_bounding_box"],
              "Sequencing": ["outlier_detection","offset_start","chunk_size","single_direction", "signal_direction","mode","comp_level","comp_type","save_h5","expected_end","offset","target_sequence","regex", "highlight"],
              "Generate Dataset":["save_to_db","file_metadata","class_metadata", "annotation_column","annotated_classes", "dataset_mode", "metadata_type_by","custom_measurement", "sample", "size"],
-             "Hyperparameters": ["png_type", "score_threshold","file_type", "train_channels", "epochs", "loss_type", "optimizer_type","image_size","val_split","learning_rate","weight_decay","dropout_rate", "init_weights", "train", "classes", "augment", "amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory"],
+             "Hyperparameters": ["png_type", "score_threshold","file_type", "train_channels", "epochs", "loss_type", "optimizer_type","image_size","val_split","learning_rate","weight_decay","dropout_rate", "init_weights", "train", "classes", "augment", "amsgrad","use_checkpoint","gradient_accumulation","gradient_accumulation_steps","intermedeate_save","pin_memory","class_balance","cross_validation_folds","cv_group_by"],
              "Hyperparamiters (Embedding)": ["visualize","n_neighbors","min_dist","metric","resnet_features","reduction_method","embedding_by_controls","col_to_compare","log_data"],
              "Hyperparamiters (Clustering)": ["eps","min_samples","analyze_clusters","clustering","remove_cluster_noise"],
              "Hyperparamiters (Regression)":["cross_validation","prune_features","reg_lambda","reg_alpha","cov_type", "plate", "other", "fraction_threshold", "alpha", "random_row_column_effects", "regression_type", "min_cell_count", "agg_type", "transform", "dependent_variable"],

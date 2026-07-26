@@ -31,7 +31,7 @@ except Exception:
     def display(*args, **kwargs):
         pass
 from multiprocessing import Pool, cpu_count, Process, Queue, Value, Lock
-from torch.utils.data import Dataset, DataLoader, random_split
+from torch.utils.data import Dataset, DataLoader, random_split, Subset, WeightedRandomSampler
 import matplotlib.pyplot as plt
 from torchvision.transforms import ToTensor
 import seaborn as sns 
@@ -3175,60 +3175,518 @@ def generate_dataset(settings=None):
 
     return tar_name
 
-def generate_loaders(src, mode='train', image_size=224, batch_size=32,
-                     classes=None, n_jobs=None, validation_split=0.0,
-                     pin_memory=False, normalize=False, channels=None,
-                     augment=False, verbose=False):
-    """Build ``spacrDataLoader`` objects for training, validation, or testing.
+# ---------------------------------------------------------------------------
+# Class-imbalance handling and cross-validation splitting
+#
+# Both live here because both change *how the training data is split and
+# weighted* — the one place that decision is made is generate_loaders.
+#
+# Two rules are load-bearing and are enforced by tests:
+#   1. A WeightedRandomSampler is only ever attached to the TRAIN loader.
+#      Resampling validation or test data changes the class prior the metrics
+#      are measured against, so a "balanced" accuracy would no longer describe
+#      the real screen.
+#   2. Cross-validation folds are group-aware by default. Crops taken from the
+#      same well (or field, or plate) share illumination, focus, seeding
+#      density and edge effects; splitting them across folds lets the model
+#      recognise the well rather than the phenotype and inflates every score.
+# ---------------------------------------------------------------------------
 
-    Reads class subfolders under ``src/<mode>``, applies the requested
-    transforms (channel selection, optional normalisation, optional
-    augmentation) and returns loaders sized to ``batch_size``.
+#: Accepted values for the ``class_balance`` setting.
+CLASS_BALANCE_MODES = ('none', 'weighted_sampler', 'sqrt_weighted_sampler', 'weighted_loss')
 
-    :param src: Root folder containing ``train``/``test`` subfolders.
-    :param mode: Which split to load — ``'train'`` or ``'test'``.
-    :param image_size: Square resize target in pixels. Default ``224``.
-    :param batch_size: Loader batch size. Default ``32``.
-    :param classes: Ordered class names. Default ``['nc', 'pc']``.
-    :param n_jobs: DataLoader worker count. Default: derived from CPU count.
-    :param validation_split: Fraction of the train split to hold out.
-    :param pin_memory: If True, pin batches to page-locked memory.
-    :param normalize: If True, apply per-channel normalisation.
-    :param channels: Subset of RGB channels to keep, e.g. ``['r', 'g']``.
-    :param augment: If True, apply the training augmentation pipeline.
-    :param verbose: If True, log configuration to stdout.
-    :returns: For ``mode='train'``, a tuple of loaders and a plot handle;
-        for ``mode='test'``, the test loader (plus optional metadata).
+#: Accepted values for the ``cv_group_by`` setting.
+CV_GROUP_LEVELS = ('none', 'field', 'well', 'plate')
+
+#: max/min class-count ratio at or above which the data is called skewed.
+IMBALANCE_RATIO_WARN = 1.5
+
+#: max/min class-count ratio at or above which the skew is called severe.
+IMBALANCE_RATIO_SEVERE = 10.0
+
+
+def _png_group_id(path, level):
+    """Return the plate / well / field group id encoded in a spacr crop filename.
+
+    spacr object crops are named ``<plate>_<well>_<field>_..._<object>.png``
+    (see ``spacr.utils._generate_names``), so the grouping key is a prefix of
+    the underscore-separated basename.
+
+    :param path: image path or bare filename.
+    :param level: ``'plate'``, ``'well'`` or ``'field'``.
+    :returns: group id string, or None when the name has too few parts to
+        carry the requested level.
+    :raises ValueError: if ``level`` is not a supported grouping level.
     """
+    if level not in ('plate', 'well', 'field'):
+        raise ValueError(
+            f"group level {level!r} is not one of {('plate', 'well', 'field')}")
+    stem = os.path.splitext(os.path.basename(str(path)))[0]
+    parts = stem.split('_')
+    n_needed = {'plate': 1, 'well': 2, 'field': 3}[level]
+    if len(parts) < n_needed or any(p == '' for p in parts[:n_needed]):
+        return None
+    return '_'.join(parts[:n_needed])
 
+
+def dataset_labels(dataset):
+    """Return the integer class label of every sample in ``dataset``.
+
+    Handles the three shapes that flow through the training path: a
+    ``spacrDataset`` (labels are already a list), a ``torch.utils.data.Subset``
+    of one (produced by ``random_split`` and by the fold splitter), and the
+    plain list of ``(image, label, filename)`` tuples that ``augment_dataset``
+    returns. Only the last shape has to be walked, and it holds tensors in
+    memory already, so nothing here decodes an image.
+
+    :param dataset: dataset, Subset, or sequence of ``(img, label, name)``.
+    :returns: list of int labels, positionally aligned with the dataset.
+    """
+    if isinstance(dataset, Subset):
+        parent = dataset_labels(dataset.dataset)
+        return [parent[i] for i in dataset.indices]
+    labels = getattr(dataset, 'labels', None)
+    if labels is not None:
+        return [int(v) for v in labels]
+    return [int(item[1]) for item in dataset]
+
+
+def dataset_filenames(dataset):
+    """Return the source filename of every sample in ``dataset``.
+
+    Mirrors :func:`dataset_labels` so group ids can be derived without
+    touching pixels.
+
+    :param dataset: dataset, Subset, or sequence of ``(img, label, name)``.
+    :returns: list of filename strings, positionally aligned with the dataset.
+    """
+    if isinstance(dataset, Subset):
+        parent = dataset_filenames(dataset.dataset)
+        return [parent[i] for i in dataset.indices]
+    names = getattr(dataset, 'filenames', None)
+    if names is not None:
+        return [str(v) for v in names]
+    return [str(item[2]) for item in dataset]
+
+
+def summarize_class_imbalance(labels, classes=None):
+    """Measure the class skew of a label vector.
+
+    :param labels: iterable of integer class labels.
+    :param classes: ordered class names; index i names label i. Defaults to
+        ``['class_0', ...]`` sized to the largest label seen.
+    :returns: dict with ``counts``, ``fractions``, ``imbalance_ratio``
+        (majority/minority, ``inf`` when a class is empty), ``minority``,
+        ``majority``, ``empty_classes``, ``skewed`` and ``severe``.
+    """
+    labels = [int(v) for v in labels]
     if classes is None:
-        classes = ['nc', 'pc']
+        n_classes = (max(labels) + 1) if labels else 0
+        classes = [f'class_{i}' for i in range(n_classes)]
+    classes = list(classes)
+    counts = [0] * len(classes)
+    unknown = 0
+    for v in labels:
+        if 0 <= v < len(counts):
+            counts[v] += 1
+        else:
+            unknown += 1
+
+    total = sum(counts)
+    fractions = [(c / total) if total else 0.0 for c in counts]
+    hi = max(counts) if counts else 0
+    lo = min(counts) if counts else 0
+    if lo > 0:
+        ratio = hi / lo
+    elif hi > 0:
+        ratio = float('inf')
+    else:
+        ratio = 1.0
+
+    empty = [classes[i] for i, c in enumerate(counts) if c == 0]
+    return {
+        'classes': classes,
+        'counts': counts,
+        'fractions': fractions,
+        'n': total,
+        'unknown_labels': unknown,
+        'imbalance_ratio': ratio,
+        'majority': classes[counts.index(hi)] if counts else None,
+        'minority': classes[counts.index(lo)] if counts else None,
+        'minority_fraction': (lo / total) if total else 0.0,
+        'empty_classes': empty,
+        'skewed': bool(counts) and ratio >= IMBALANCE_RATIO_WARN,
+        'severe': bool(counts) and ratio >= IMBALANCE_RATIO_SEVERE,
+    }
+
+
+def class_sampling_weights(counts, mode):
+    """Per-class sampling weight for a ``WeightedRandomSampler``.
+
+    ``'weighted_sampler'`` uses ``1/n_c``, which makes every class equally
+    likely to be drawn. ``'sqrt_weighted_sampler'`` uses ``1/sqrt(n_c)``, a
+    partial correction that moves the realised frequencies toward balance
+    without oversampling a tiny class so hard that the model memorises its
+    handful of crops.
+
+    :param counts: per-class sample counts.
+    :param mode: ``'weighted_sampler'`` or ``'sqrt_weighted_sampler'``.
+    :returns: list of per-class weights, scaled so they sum to 1.
+    :raises ValueError: if ``mode`` does not describe a sampler.
+    """
+    if mode == 'weighted_sampler':
+        power = 1.0
+    elif mode == 'sqrt_weighted_sampler':
+        power = 0.5
+    else:
+        raise ValueError(
+            f"class_balance mode {mode!r} does not build a sampler; "
+            f"expected 'weighted_sampler' or 'sqrt_weighted_sampler'")
+    raw = [(1.0 / (float(c) ** power)) if c > 0 else 0.0 for c in counts]
+    total = sum(raw)
+    return [w / total for w in raw] if total > 0 else raw
+
+
+def expected_sampled_fractions(counts, mode):
+    """Class frequencies the loader is expected to realise under ``mode``.
+
+    This is what makes the effect visible before a single epoch runs: the
+    report prints the observed fractions next to these.
+
+    :param counts: per-class sample counts.
+    :param mode: any value of ``CLASS_BALANCE_MODES``.
+    :returns: list of expected per-class draw probabilities.
+    """
+    total = sum(counts)
+    if mode not in ('weighted_sampler', 'sqrt_weighted_sampler'):
+        return [(c / total) if total else 0.0 for c in counts]
+    per_class = class_sampling_weights(counts, mode)
+    # every sample of class c carries weight per_class[c]; class c therefore
+    # attracts n_c * per_class[c] of the total probability mass.
+    mass = [n * w for n, w in zip(counts, per_class)]
+    s = sum(mass)
+    return [m / s for m in mass] if s > 0 else mass
+
+
+def make_class_balance_sampler(labels, mode, num_samples=None, generator=None):
+    """Build the ``WeightedRandomSampler`` for a class-balance mode.
+
+    :param labels: integer labels of the split being sampled.
+    :param mode: any value of ``CLASS_BALANCE_MODES``; the non-sampler modes
+        return ``(None, None)``.
+    :param num_samples: draws per epoch. Defaults to ``len(labels)`` so the
+        epoch keeps its usual length.
+    :param generator: optional ``torch.Generator`` for reproducible draws.
+    :returns: ``(sampler, per_sample_weights)``, or ``(None, None)``.
+    :raises ValueError: if ``mode`` is not a recognised class-balance mode.
+    """
+    if mode not in CLASS_BALANCE_MODES:
+        raise ValueError(
+            f"class_balance {mode!r} is not one of {CLASS_BALANCE_MODES}")
+    if mode in ('none', 'weighted_loss'):
+        return None, None
+    labels = [int(v) for v in labels]
+    if not labels:
+        return None, None
+    n_classes = max(labels) + 1
+    counts = [0] * n_classes
+    for v in labels:
+        counts[v] += 1
+    per_class = class_sampling_weights(counts, mode)
+    weights = torch.as_tensor([per_class[v] for v in labels], dtype=torch.double)
+    sampler = WeightedRandomSampler(
+        weights=weights,
+        num_samples=int(num_samples) if num_samples is not None else len(labels),
+        replacement=True,
+        generator=generator,
+    )
+    return sampler, weights
+
+
+def format_class_balance_report(summary, class_balance='none', split_name='train'):
+    """Render the human-readable skew report printed on every training run.
+
+    :param summary: dict from :func:`summarize_class_imbalance`.
+    :param class_balance: the mode that was requested.
+    :param split_name: which split is being described, e.g. ``'train'``.
+    :returns: multi-line report string.
+    """
+    counts = summary['counts']
+    ratio = summary['imbalance_ratio']
+    ratio_txt = 'inf' if ratio == float('inf') else f"{ratio:.2f}"
+    lines = [f"--- Class balance ({split_name}, n={summary['n']}) ---"]
+    # Only the train split is ever resampled, so only it can show moved
+    # frequencies; showing them for validation/test would be a lie.
+    effective = class_balance if split_name == 'train' else 'none'
+    expected = expected_sampled_fractions(counts, effective)
+    for name, count, frac, exp in zip(summary['classes'], counts,
+                                      summary['fractions'], expected):
+        line = f"  {name}: {count} ({frac * 100:.1f}%)"
+        if abs(exp - frac) > 1e-9:
+            line += f" -> sampled at ~{exp * 100:.1f}%"
+        lines.append(line)
+    lines.append(f"  imbalance ratio (majority/minority): {ratio_txt}"
+                 f"  [majority={summary['majority']}, minority={summary['minority']}]")
+    if summary['empty_classes']:
+        lines.append(f"  WARNING: classes with no {split_name} samples: "
+                     f"{summary['empty_classes']}")
+    lines.append(f"  action: {summary['action']}")
+    if summary.get('recommendation'):
+        lines.append(f"  recommendation: {summary['recommendation']}")
+    return '\n'.join(lines)
+
+
+def report_class_balance(labels, classes=None, class_balance='none',
+                         split_name='train', verbose=True):
+    """Measure class skew, decide what was done about it, and say so out loud.
+
+    A silent auto-fix is worse than none: the printed report always names the
+    per-class counts, the imbalance ratio and the concrete action taken, and
+    when ``class_balance='none'`` on skewed data it names the modes that would
+    have helped instead of quietly doing nothing.
+
+    :param labels: integer labels of the split.
+    :param classes: ordered class names.
+    :param class_balance: requested mode, one of ``CLASS_BALANCE_MODES``.
+    :param split_name: split being described (``'train'``, ``'validation'``, ``'test'``).
+    :param verbose: print the report. The dict is returned either way.
+    :returns: the summary dict, extended with ``mode``, ``action``,
+        ``recommendation`` and ``report``.
+    :raises ValueError: if ``class_balance`` is not a recognised mode.
+    """
+    if class_balance not in CLASS_BALANCE_MODES:
+        raise ValueError(
+            f"class_balance {class_balance!r} is not one of {CLASS_BALANCE_MODES}")
+
+    summary = summarize_class_imbalance(labels, classes=classes)
+    summary['mode'] = class_balance
+    summary['split'] = split_name
+    recommendation = ''
+
+    if split_name != 'train':
+        summary['action'] = (f"none - {split_name} data is never resampled or "
+                             f"reweighted, so its metrics keep the real class prior")
+    elif class_balance == 'weighted_sampler':
+        summary['action'] = ("WeightedRandomSampler on the train loader only "
+                             "(per-class weight 1/n, draws ~uniform across classes)")
+    elif class_balance == 'sqrt_weighted_sampler':
+        summary['action'] = ("WeightedRandomSampler on the train loader only "
+                             "(per-class weight 1/sqrt(n), partial correction)")
+    elif class_balance == 'weighted_loss':
+        summary['action'] = ("loss reweighting - loss_type switched to "
+                             "'ce_weighted' (inverse-frequency class weights); "
+                             "sampling is unchanged")
+    elif summary['severe']:
+        summary['action'] = 'none (no rebalancing applied)'
+        recommendation = (
+            "severe skew - set class_balance='weighted_sampler' to draw classes "
+            "uniformly, or 'weighted_loss' to reweight cross-entropy instead; "
+            "'sqrt_weighted_sampler' is the safer choice when the minority class "
+            "is small enough to be memorised")
+    elif summary['skewed']:
+        summary['action'] = 'none (no rebalancing applied)'
+        recommendation = (
+            "the data is skewed - consider class_balance='sqrt_weighted_sampler' "
+            "or 'weighted_loss'; accuracy will flatter the majority class as it is")
+    else:
+        summary['action'] = 'none needed (classes are within 1.5x of each other)'
+
+    if summary['empty_classes'] and not recommendation:
+        recommendation = (f"classes {summary['empty_classes']} have no {split_name} "
+                          f"samples and cannot be learned or scored")
+    summary['recommendation'] = recommendation
+    summary['report'] = format_class_balance_report(summary, class_balance, split_name)
+    if verbose:
+        print(summary['report'])
+    return summary
+
+
+def make_cv_folds(labels, n_splits, groups=None, seed=0):
+    """Split indices into ``n_splits`` class-stratified, optionally grouped folds.
+
+    Every index lands in exactly one validation fold, so the k folds partition
+    the dataset. With ``groups`` supplied, a whole group is assigned to a
+    single fold — crops from the same well never straddle the train/val line —
+    and groups are placed greedily into whichever fold currently leaves the
+    per-class proportions most even, which is how stratification survives
+    grouping.
+
+    :param labels: integer labels, one per sample.
+    :param n_splits: number of folds, must be >= 2.
+    :param groups: optional group id per sample (same length as ``labels``).
+    :param seed: seed for the deterministic shuffle.
+    :returns: list of ``(train_idx, val_idx)`` numpy integer arrays.
+    :raises ValueError: if ``n_splits`` < 2, if ``groups`` is the wrong
+        length, or if there are fewer samples/groups than folds.
+    """
+    labels = np.asarray([int(v) for v in labels])
+    n = len(labels)
+    k = int(n_splits)
+    if k < 2:
+        raise ValueError(f"n_splits must be >= 2 for k-fold, got {n_splits!r}")
+    if n < k:
+        raise ValueError(f"cannot build {k} folds from {n} samples")
+    if groups is not None and len(groups) != n:
+        raise ValueError(
+            f"groups has {len(groups)} entries but there are {n} samples")
+
+    rng = np.random.default_rng(seed)
+    n_classes = int(labels.max()) + 1 if n else 0
+    fold_of = np.empty(n, dtype=int)
+
+    if groups is None:
+        # Plain stratified k-fold: deal each class round-robin into the folds,
+        # starting at a per-class offset so fold 0 does not collect the
+        # remainder of every class.
+        for c in range(n_classes):
+            idx = np.flatnonzero(labels == c)
+            if idx.size == 0:
+                continue
+            rng.shuffle(idx)
+            offset = int(rng.integers(k))
+            fold_of[idx] = (np.arange(idx.size) + offset) % k
+    else:
+        groups = np.asarray([str(g) for g in groups])
+        uniq = np.unique(groups)
+        if uniq.size < k:
+            raise ValueError(
+                f"cannot build {k} group-aware folds from {uniq.size} distinct "
+                f"group(s); lower cross_validation_folds or group at a finer "
+                f"level (e.g. cv_group_by='field')")
+        # Per-group class histogram, then greedy assignment largest-first.
+        hist = {g: np.zeros(n_classes, dtype=float) for g in uniq}
+        members = {g: np.flatnonzero(groups == g) for g in uniq}
+        for g in uniq:
+            for c in labels[members[g]]:
+                hist[g][c] += 1.0
+        order = sorted(uniq, key=lambda g: (-hist[g].sum(), str(g)))
+
+        class_totals = np.bincount(labels, minlength=n_classes).astype(float)
+        class_totals[class_totals == 0] = 1.0
+        fold_class = np.zeros((k, n_classes), dtype=float)
+        fold_size = np.zeros(k, dtype=float)
+        for g in order:
+            best_f, best_cost = None, None
+            for f in range(k):
+                fold_class[f] += hist[g]
+                # Spread of each class across folds, as a fraction of that
+                # class's total; lower is a more even stratification.
+                cost = float(np.mean(np.std(fold_class / class_totals, axis=0)))
+                fold_class[f] -= hist[g]
+                key = (cost, fold_size[f], f)
+                if best_cost is None or key < best_cost:
+                    best_cost, best_f = key, f
+            fold_class[best_f] += hist[g]
+            fold_size[best_f] += hist[g].sum()
+            fold_of[members[g]] = best_f
+
+    all_idx = np.arange(n)
+    folds = []
+    for f in range(k):
+        val_idx = all_idx[fold_of == f]
+        train_idx = all_idx[fold_of != f]
+        folds.append((train_idx, val_idx))
+    return folds
+
+
+def summarize_cv_folds(labels, folds, classes=None, groups=None):
+    """Tabulate fold sizes and per-class validation counts.
+
+    :param labels: integer labels, one per sample.
+    :param folds: list of ``(train_idx, val_idx)`` from :func:`make_cv_folds`.
+    :param classes: ordered class names.
+    :param groups: optional group id per sample; adds a distinct-group column.
+    :returns: DataFrame with one row per fold.
+    """
+    labels = np.asarray([int(v) for v in labels])
+    if classes is None:
+        classes = [f'class_{i}' for i in range(int(labels.max()) + 1 if labels.size else 0)]
+    rows = []
+    for i, (train_idx, val_idx) in enumerate(folds, start=1):
+        y_val = labels[val_idx]
+        row = {'fold': i, 'n_train': len(train_idx), 'n_val': len(val_idx)}
+        missing = []
+        for c, name in enumerate(classes):
+            cnt = int(np.sum(y_val == c))
+            row[f'val_{name}'] = cnt
+            if cnt == 0:
+                missing.append(name)
+        if groups is not None:
+            g = np.asarray([str(x) for x in groups])
+            row['val_groups'] = int(np.unique(g[val_idx]).size)
+        row['val_classes_missing'] = ','.join(missing)
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def report_cv_folds(labels, folds, classes=None, groups=None, group_by='none',
+                    verbose=True):
+    """Print the fold table and every warning the split earned.
+
+    Two failure modes are called out rather than allowed to surface later as
+    mysterious metrics: a class too rare to reach every fold's validation set
+    (its recall is undefined there), and ungrouped folds on object crops
+    (which leak well identity between train and validation).
+
+    :param labels: integer labels, one per sample.
+    :param folds: list of ``(train_idx, val_idx)``.
+    :param classes: ordered class names.
+    :param groups: optional group id per sample.
+    :param group_by: the grouping level that produced ``groups``.
+    :param verbose: print the table and warnings.
+    :returns: ``(fold_table, warnings)``.
+    """
+    table = summarize_cv_folds(labels, folds, classes=classes, groups=groups)
+    warnings_out = []
+
+    missing = table[table['val_classes_missing'] != '']
+    for _, row in missing.iterrows():
+        warnings_out.append(
+            f"fold {int(row['fold'])}: no validation samples for class(es) "
+            f"{row['val_classes_missing']} - per-class scores for those classes "
+            f"are undefined in this fold and are dropped from the fold spread")
+    if (table['n_val'] == 0).any():
+        bad = table.loc[table['n_val'] == 0, 'fold'].tolist()
+        warnings_out.append(f"fold(s) {bad} have an empty validation set")
+    if groups is None or group_by == 'none':
+        warnings_out.append(
+            "folds are NOT group-aware: crops from the same well or field can "
+            "land on both sides of a fold, which leaks and inflates every "
+            "score - set cv_group_by to 'field', 'well' or 'plate' for object crops")
+
+    if verbose:
+        print(f"--- Cross-validation folds (k={len(folds)}, "
+              f"grouping={group_by}) ---")
+        print(table.to_string(index=False))
+        for w in warnings_out:
+            print(f"  WARNING: {w}")
+    return table, warnings_out
+
+
+def _resolve_channel_indices(channels, verbose=False):
+    """Map ``['r','g','b']``-style channel names to tensor channel indices."""
     if channels is None:
         channels = ['r', 'g', 'b']
-    from .utils import SelectChannels, augment_dataset
-
     chans = []
     if 'r' in channels: chans.append(1)
     if 'g' in channels: chans.append(2)
     if 'b' in channels: chans.append(3)
-    channels = chans
-
     if verbose:
-        print(f'Training a network on channels: {channels}')
+        print(f'Training a network on channels: {chans}')
         print(f'Channel 1: Red, Channel 2: Green, Channel 3: Blue')
+    return chans
 
-    if mode == 'train':
-        data_dir = os.path.join(src, 'train')
-        shuffle = True
-        print('Loading Train and validation datasets')
-    elif mode == 'test':
-        data_dir = os.path.join(src, 'test')
-        validation_split = 0.0
-        shuffle = True
-        print('Loading test dataset')
-    else:
-        print(f'mode:{mode} is not valid, use mode = train or test')
-        return
+
+def _classification_data_dir(src, mode, classes):
+    """Return ``src/<mode>`` after checking it and every class subfolder exists.
+
+    :param src: dataset root holding ``train/`` and ``test/``.
+    :param mode: ``'train'`` or ``'test'``.
+    :param classes: ordered class-folder names.
+    :returns: validated path to the split folder.
+    :raises FileNotFoundError: if the split folder or any class folder is absent.
+    """
+    data_dir = os.path.join(src, mode)
 
     # Clear, actionable error when the train/test split hasn't been generated
     # yet — the most common Train-CV mistake is pointing src at the plate folder
@@ -3256,6 +3714,12 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
             f"  Missing:   {missing}\n"
             f"  Available: {available}"
         )
+    return data_dir
+
+
+def _classification_transform(image_size, channel_idx, normalize):
+    """Compose the resize / channel-select / normalise transform for crops."""
+    from .utils import SelectChannels
 
     # FIX: match normalization mean/std tuple length to the actual number of
     #      selected channels, not a hardcoded 3
@@ -3263,22 +3727,210 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
     #      Normalize(mean=(0.5,0.5,0.5), std=(0.5,0.5,0.5)) will crash or
     #      silently produce wrong values because the tensor has 1 channel but
     #      normalize expects 3
-    n_ch = len(channels)
+    n_ch = len(channel_idx)
     norm_transforms = (
         [transforms.Normalize(mean=(0.5,) * n_ch, std=(0.5,) * n_ch)]
         if normalize else []
     )
-
-    transform = transforms.Compose([
+    return transforms.Compose([
         transforms.ToTensor(),
         transforms.CenterCrop(size=(image_size, image_size)),
-        SelectChannels(channels),
+        SelectChannels(channel_idx),
         *norm_transforms,  # FIX: uses channel-count-aware normalization
     ])
 
+
+def _cv_group_ids(filenames, group_by, verbose=True):
+    """Derive per-sample group ids at the requested plate/well/field level.
+
+    Filenames that do not carry the level fall back to their own basename, so
+    they simply behave as an ungrouped sample rather than being silently
+    lumped together with unrelated crops. The count of such files is reported,
+    because it is exactly the number of crops whose independence is unproven.
+
+    :param filenames: image paths.
+    :param group_by: one of ``CV_GROUP_LEVELS``.
+    :param verbose: print the grouping summary.
+    :returns: ``(group_ids, n_unparsed)`` — ``(None, 0)`` when ``group_by='none'``.
+    :raises ValueError: if ``group_by`` is not a supported level.
+    """
+    if group_by not in CV_GROUP_LEVELS:
+        raise ValueError(f"cv_group_by {group_by!r} is not one of {CV_GROUP_LEVELS}")
+    if group_by == 'none':
+        return None, 0
+    ids, unparsed = [], 0
+    for p in filenames:
+        gid = _png_group_id(p, group_by)
+        if gid is None:
+            unparsed += 1
+            gid = os.path.splitext(os.path.basename(str(p)))[0]
+        ids.append(gid)
+    if verbose:
+        print(f"Grouping folds by {group_by}: {len(set(ids))} distinct "
+              f"{group_by}(s) across {len(ids)} crops")
+        if unparsed:
+            print(f"  WARNING: {unparsed} filename(s) do not encode a "
+                  f"{group_by} (expected <plate>_<well>_<field>_..._<object>.png); "
+                  f"each is treated as its own group, so their independence is "
+                  f"not enforced")
+    return ids, unparsed
+
+
+def generate_cv_loaders(src, n_splits, mode='train', image_size=224, batch_size=32,
+                        classes=None, n_jobs=None, pin_memory=False, normalize=False,
+                        channels=None, augment=False, verbose=False,
+                        group_by='well', class_balance='none', seed=0):
+    """Build one ``(train_loader, val_loader)`` pair per cross-validation fold.
+
+    The dataset under ``src/<mode>`` is read once and then re-split k ways, so
+    every crop is used for validation exactly once. Folds are class-stratified
+    and, by default, grouped by well so that crops from the same well stay on
+    one side of the split. Class balancing is applied to the fold's train
+    loader only.
+
+    :param src: dataset root containing ``train``/``test`` subfolders.
+    :param n_splits: number of folds, must be >= 2.
+    :param mode: which split to fold — normally ``'train'``.
+    :param image_size: square resize target in pixels.
+    :param batch_size: loader batch size.
+    :param classes: ordered class names matching the subfolder names.
+    :param n_jobs: DataLoader worker count.
+    :param pin_memory: if True, pin batches to page-locked memory.
+    :param normalize: if True, apply per-channel normalisation.
+    :param channels: subset of RGB channels to keep.
+    :param augment: if True, 8-fold augment each fold's train split.
+    :param verbose: log configuration to stdout.
+    :param group_by: fold grouping level, one of ``CV_GROUP_LEVELS``.
+    :param class_balance: one of ``CLASS_BALANCE_MODES``, train loaders only.
+    :param seed: seed for the deterministic fold assignment.
+    :returns: ``(fold_loaders, info)`` where ``fold_loaders`` is a list of
+        ``(train_loader, val_loader)`` and ``info`` holds ``fold_table``,
+        ``warnings``, ``imbalance`` and ``groups``.
+    :raises ValueError: if ``n_splits`` < 2 or a setting value is unknown.
+    """
+    from .utils import augment_dataset
+
+    if int(n_splits) < 2:
+        raise ValueError(
+            f"cross_validation_folds must be >= 2 to build folds, got {n_splits!r}; "
+            f"0 or 1 means the single train/validation split")
+    if classes is None:
+        classes = ['nc', 'pc']
+
+    channel_idx = _resolve_channel_indices(channels, verbose=verbose)
+    data_dir = _classification_data_dir(src, mode, classes)
+    transform = _classification_transform(image_size, channel_idx, normalize)
     data = spacrDataset(data_dir, classes, transform=transform,
                         shuffle=True, pin_memory=pin_memory)
-    
+
+    labels = dataset_labels(data)
+    filenames = dataset_filenames(data)
+    groups, _ = _cv_group_ids(filenames, group_by, verbose=True)
+
+    folds = make_cv_folds(labels, int(n_splits), groups=groups, seed=seed)
+    fold_table, fold_warnings = report_cv_folds(
+        labels, folds, classes=classes, groups=groups, group_by=group_by,
+        verbose=True)
+
+    imbalance = report_class_balance(labels, classes=classes,
+                                     class_balance=class_balance,
+                                     split_name='train', verbose=True)
+
+    num_workers = max(n_jobs, 4) if n_jobs is not None else 0
+    use_persistent = num_workers > 0
+
+    fold_loaders = []
+    for train_idx, val_idx in folds:
+        train_dataset = Subset(data, list(train_idx))
+        val_dataset = Subset(data, list(val_idx))
+        if augment:
+            train_dataset = augment_dataset(
+                train_dataset, is_grayscale=(len(channel_idx) == 1))
+
+        sampler, _ = make_class_balance_sampler(
+            dataset_labels(train_dataset), class_balance)
+        train_loader = DataLoader(
+            train_dataset, batch_size=batch_size,
+            shuffle=(sampler is None), sampler=sampler,
+            num_workers=num_workers, pin_memory=pin_memory,
+            persistent_workers=use_persistent)
+        # The validation loader is never sampled and never shuffled: its job is
+        # to measure the model against the real class prior.
+        val_loader = DataLoader(
+            val_dataset, batch_size=batch_size, shuffle=False,
+            num_workers=num_workers, pin_memory=pin_memory,
+            persistent_workers=use_persistent)
+        fold_loaders.append((train_loader, val_loader))
+
+    info = {
+        'fold_table': fold_table,
+        'warnings': fold_warnings,
+        'imbalance': imbalance,
+        'groups': groups,
+        'group_by': group_by,
+        'labels': labels,
+        'folds': folds,
+        'classes': list(classes),
+    }
+    return fold_loaders, info
+
+
+def generate_loaders(src, mode='train', image_size=224, batch_size=32,
+                     classes=None, n_jobs=None, validation_split=0.0,
+                     pin_memory=False, normalize=False, channels=None,
+                     augment=False, verbose=False, class_balance='none'):
+    """Build ``spacrDataLoader`` objects for training, validation, or testing.
+
+    Reads class subfolders under ``src/<mode>``, applies the requested
+    transforms (channel selection, optional normalisation, optional
+    augmentation) and returns loaders sized to ``batch_size``.
+
+    :param src: Root folder containing ``train``/``test`` subfolders.
+    :param mode: Which split to load — ``'train'`` or ``'test'``.
+    :param image_size: Square resize target in pixels. Default ``224``.
+    :param batch_size: Loader batch size. Default ``32``.
+    :param classes: Ordered class names. Default ``['nc', 'pc']``.
+    :param n_jobs: DataLoader worker count. Default: derived from CPU count.
+    :param validation_split: Fraction of the train split to hold out.
+    :param pin_memory: If True, pin batches to page-locked memory.
+    :param normalize: If True, apply per-channel normalisation.
+    :param channels: Subset of RGB channels to keep, e.g. ``['r', 'g']``.
+    :param augment: If True, apply the training augmentation pipeline.
+    :param verbose: If True, log configuration to stdout.
+    :param class_balance: One of ``CLASS_BALANCE_MODES``. ``'none'`` (default)
+        leaves sampling untouched; the sampler modes attach a
+        ``WeightedRandomSampler`` to the TRAIN loader only. The skew is
+        reported either way.
+    :returns: For ``mode='train'``, a tuple of loaders and a plot handle;
+        for ``mode='test'``, the test loader (plus optional metadata).
+    :raises ValueError: if ``class_balance`` is not a recognised mode.
+    """
+
+    if classes is None:
+        classes = ['nc', 'pc']
+    from .utils import augment_dataset
+
+    if class_balance not in CLASS_BALANCE_MODES:
+        raise ValueError(
+            f"class_balance {class_balance!r} is not one of {CLASS_BALANCE_MODES}")
+
+    channels = _resolve_channel_indices(channels, verbose=verbose)
+
+    if mode == 'train':
+        print('Loading Train and validation datasets')
+    elif mode == 'test':
+        validation_split = 0.0
+        print('Loading test dataset')
+    else:
+        print(f'mode:{mode} is not valid, use mode = train or test')
+        return
+
+    data_dir = _classification_data_dir(src, mode, classes)
+    transform = _classification_transform(image_size, channels, normalize)
+
+    data = spacrDataset(data_dir, classes, transform=transform,
+                        shuffle=True, pin_memory=pin_memory)
+
     #num_workers = n_jobs if n_jobs is not None else 0
     num_workers = max(n_jobs, 4) if n_jobs is not None else 0
     use_persistent = num_workers > 0
@@ -3295,8 +3947,22 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
             train_dataset = augment_dataset(train_dataset, is_grayscale=(len(channels) == 1))
             print(f'Data after augmentation: Train: {len(train_dataset)}')
 
+        # Skew is measured on the labels the model will actually see, after the
+        # split and after augmentation, and reported on every run.
+        report_class_balance(dataset_labels(train_dataset), classes=classes,
+                             class_balance=class_balance, split_name='train')
+        report_class_balance(dataset_labels(val_dataset), classes=classes,
+                             class_balance='none', split_name='validation')
+
+        # A sampler and shuffle=True are mutually exclusive in DataLoader; the
+        # sampler already draws in random order.
+        sampler, _ = make_class_balance_sampler(
+            dataset_labels(train_dataset), class_balance)
+
         print(f'Generating Dataloader with {num_workers} workers')
-        train_loaders = DataLoader(train_dataset, batch_size=batch_size, shuffle=True,
+        train_loaders = DataLoader(train_dataset, batch_size=batch_size,
+                                   shuffle=(sampler is None),
+                                   sampler=sampler,
                                    num_workers=num_workers,  # FIX: was hardcoded to 1
                                    pin_memory=pin_memory,
                                    persistent_workers=use_persistent)
@@ -3304,6 +3970,9 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
         # FIX: don't shuffle the validation DataLoader
         # WHY: shuffling validation data wastes time and has zero benefit —
         #      evaluation metrics are computed over the entire set regardless of order
+        # The validation loader also never receives the sampler: resampling it
+        # would change the class prior the reported metrics are measured
+        # against, so a "balanced" accuracy would stop describing the screen.
         val_loaders = DataLoader(val_dataset, batch_size=batch_size,
                                  shuffle=False,  # FIX: was True
                                  num_workers=num_workers,  # FIX: was hardcoded to 1
@@ -3313,7 +3982,19 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
         return train_loaders, val_loaders, train_fig
 
     else:
-        train_loaders = DataLoader(data, batch_size=batch_size, shuffle=True,
+        split_name = 'train' if mode == 'train' else 'test'
+        # Held-out test data is reported but never resampled.
+        effective_balance = class_balance if split_name == 'train' else 'none'
+        report_class_balance(dataset_labels(data), classes=classes,
+                             class_balance=effective_balance,
+                             split_name=split_name)
+        sampler = None
+        if split_name == 'train':
+            sampler, _ = make_class_balance_sampler(dataset_labels(data),
+                                                    class_balance)
+        train_loaders = DataLoader(data, batch_size=batch_size,
+                                   shuffle=(sampler is None),
+                                   sampler=sampler,
                                    num_workers=num_workers,  # FIX: was hardcoded to 1
                                    pin_memory=pin_memory,
                                    persistent_workers=use_persistent)

@@ -508,6 +508,209 @@ def test_model_performance(loaders, model, loader_name_list, epoch, loss_type):
     result_df = pd.DataFrame([data_dict])
     return result_df, results_df
 
+#: Scalar metrics worth aggregating across folds. ``Accuracy`` is a duplicate
+#: of ``accuracy`` and ``epoch``/``num_classes`` are bookkeeping, so neither
+#: belongs in a spread statistic.
+CV_METRIC_KEYS = ('accuracy', 'loss', 'prauc', 'neg_accuracy', 'pos_accuracy')
+
+
+def resolve_class_balance_loss(loss_type, class_balance, num_classes):
+    """Translate ``class_balance='weighted_loss'`` into a concrete loss type.
+
+    The weighted losses already exist in :func:`spacr.utils.build_loss`; this
+    only steers to them, so nothing about the loss maths changes here.
+
+    :param loss_type: the loss the user asked for.
+    :param class_balance: one of ``spacr.io.CLASS_BALANCE_MODES``.
+    :param num_classes: size of the classifier head.
+    :returns: ``(loss_type, message)`` — ``message`` is '' when nothing changed.
+    """
+    #: Losses that already correct for class frequency on their own.
+    reweighting = ('ce_weighted', 'logit_adjust_ce', 'la_ce')
+
+    if class_balance in ('weighted_sampler', 'sqrt_weighted_sampler'):
+        if loss_type in reweighting:
+            # Both corrections multiply: the rare class ends up over-weighted
+            # and the model swings to over-predicting it.
+            return loss_type, (
+                f"WARNING: class_balance={class_balance!r} resamples the train "
+                f"loader while loss_type={loss_type!r} also reweights by class "
+                f"frequency - the two corrections compound. Pick one: either "
+                f"class_balance='none' with this loss, or a frequency-neutral "
+                f"loss such as 'cross_entropy' with this sampler.")
+        return loss_type, ''
+    if class_balance != 'weighted_loss':
+        return loss_type, ''
+    if int(num_classes) < 2:
+        return loss_type, (
+            "class_balance='weighted_loss' needs a 2+ class head; a single-logit "
+            f"head keeps loss_type={loss_type!r}. Use focal_alpha to weight the "
+            "positive class instead.")
+    if loss_type == 'ce_weighted':
+        return loss_type, ("class_balance='weighted_loss': loss_type is already "
+                           "'ce_weighted' (inverse-frequency class weights)")
+    return 'ce_weighted', (
+        f"class_balance='weighted_loss': loss_type {loss_type!r} -> 'ce_weighted' "
+        f"(inverse-frequency class weights from the train-split counts)")
+
+
+def summarize_cv_metrics(fold_df, metric_keys=None):
+    """Reduce per-fold metrics to mean plus the spread around it.
+
+    The spread is the whole point of k-fold: a single split can be lucky, and
+    only the fold-to-fold standard deviation and range say by how much.
+
+    :param fold_df: DataFrame with one row per fold.
+    :param metric_keys: metric columns to summarise. Defaults to
+        ``CV_METRIC_KEYS`` intersected with the columns present.
+    :returns: DataFrame indexed by metric with ``n_folds``, ``mean``, ``std``,
+        ``min``, ``max``, ``range`` and ``cv_percent`` columns.
+    """
+    if metric_keys is None:
+        metric_keys = [k for k in CV_METRIC_KEYS if k in fold_df.columns]
+    rows = []
+    for key in metric_keys:
+        vals = pd.to_numeric(fold_df[key], errors='coerce').dropna()
+        if vals.empty:
+            continue
+        mean = float(vals.mean())
+        # ddof=1: folds are a sample of the possible splits, not the population.
+        std = float(vals.std(ddof=1)) if len(vals) > 1 else float('nan')
+        rows.append({
+            'metric': key,
+            'n_folds': int(len(vals)),
+            'mean': mean,
+            'std': std,
+            'min': float(vals.min()),
+            'max': float(vals.max()),
+            'range': float(vals.max() - vals.min()),
+            'cv_percent': (abs(std / mean) * 100.0) if (mean and std == std) else float('nan'),
+        })
+    return pd.DataFrame(rows)
+
+
+def _print_cv_report(fold_df, summary_df, k):
+    """Print the per-fold table and the fold-to-fold spread."""
+    print(f"\n=== Cross-validation results ({k} folds) ===")
+    print(fold_df.to_string(index=False))
+    print("\n--- Fold-to-fold spread ---")
+    if summary_df.empty:
+        print("  no numeric metrics were produced by any fold")
+        return
+    print(summary_df.to_string(index=False))
+    acc = summary_df[summary_df['metric'] == 'accuracy']
+    if not acc.empty:
+        row = acc.iloc[0]
+        print(f"\n  accuracy across folds: {row['mean']:.4f} +/- {row['std']:.4f} "
+              f"(sd), range {row['min']:.4f}-{row['max']:.4f}")
+        print("  A single train/val split reports one number from this range; "
+              "the spread is how lucky that number could have been.")
+
+
+def _cross_validate_model(settings, num_classes):
+    """Run k-fold cross-validation and report per-fold metrics plus their spread.
+
+    Each fold trains a fresh model on its own train split and is scored on the
+    held-out fold, which is never resampled. Folds are group-aware by default
+    (see ``cv_group_by``), so crops from one well cannot appear on both sides.
+
+    :param settings: the canonicalised train/test settings dict.
+    :param num_classes: size of the classifier head.
+    :returns: path to the written per-fold CSV, or None if no fold trained.
+    """
+    from .io import generate_cv_loaders
+
+    src = settings['src']
+    dst = settings['dst']
+    k = int(settings.get('cross_validation_folds', 0) or 0)
+
+    fold_loaders, info = generate_cv_loaders(
+        src,
+        n_splits=k,
+        mode='train',
+        image_size=settings['image_size'],
+        batch_size=settings['batch_size'],
+        classes=settings['classes'],
+        n_jobs=settings['n_jobs'],
+        pin_memory=settings['pin_memory'],
+        normalize=settings['normalize'],
+        channels=settings['train_channels'],
+        augment=settings['augment'],
+        verbose=settings['verbose'],
+        group_by=settings.get('cv_group_by', 'well'),
+        class_balance=settings.get('class_balance', 'none'),
+    )
+
+    rows = []
+    for i, (train_loader, val_loader) in enumerate(fold_loaders, start=1):
+        fold_dst = os.path.join(dst, f'fold_{i}')
+        os.makedirs(fold_dst, exist_ok=True)
+        print(f"\n--- Fold {i}/{k} ---")
+        model, _ = train_model(
+            src=src,
+            dst=fold_dst,
+            model_type=settings['model_type'],
+            train_loaders=train_loader,
+            epochs=settings['epochs'],
+            learning_rate=settings['learning_rate'],
+            init_weights=settings['init_weights'],
+            weight_decay=settings['weight_decay'],
+            amsgrad=settings['amsgrad'],
+            optimizer_type=settings['optimizer_type'],
+            use_checkpoint=settings['use_checkpoint'],
+            dropout_rate=settings['dropout_rate'],
+            n_jobs=settings['n_jobs'],
+            val_loaders=val_loader,
+            test_loaders=None,
+            intermedeate_save=settings['intermedeate_save'],
+            schedule=settings['schedule'],
+            loss_type=settings['loss_type'],
+            gradient_accumulation=settings['gradient_accumulation'],
+            gradient_accumulation_steps=settings['gradient_accumulation_steps'],
+            channels=settings['train_channels'],
+            num_classes=num_classes,
+            image_size=settings.get('image_size', 224),
+            plot=settings.get('plot', False),
+            early_stopping_patience=settings.get('early_stopping_patience', 0),
+        )
+        if model is None:
+            print(f"Fold {i}: model_type {settings['model_type']!r} could not be "
+                  f"built; fold skipped.")
+            continue
+        metrics, _ = evaluate_model_performance(
+            model, val_loader, epoch=1,
+            loss_type='ce' if num_classes >= 2 else 'bce',
+            num_classes=num_classes)
+        row = {'fold': i,
+               'n_train': len(train_loader.dataset),
+               'n_val': len(val_loader.dataset)}
+        for key in CV_METRIC_KEYS:
+            if key in metrics:
+                row[key] = metrics[key]
+        rows.append(row)
+
+    if not rows:
+        print("Cross-validation produced no fold results.")
+        return None
+
+    fold_df = pd.DataFrame(rows)
+    summary_df = summarize_cv_metrics(fold_df)
+    _print_cv_report(fold_df, summary_df, k)
+
+    time_now = datetime.date.today().strftime('%y%m%d')
+    stem = f"{settings['model_type']}_time_{time_now}_cv{k}"
+    folds_loc = os.path.join(dst, f"{stem}_per_fold.csv")
+    summary_loc = os.path.join(dst, f"{stem}_spread.csv")
+    split_loc = os.path.join(dst, f"{stem}_fold_composition.csv")
+    fold_df.to_csv(folds_loc, index=False)
+    summary_df.to_csv(summary_loc, index=False)
+    info['fold_table'].to_csv(split_loc, index=False)
+    print(f"\nPer-fold metrics: {folds_loc}")
+    print(f"Fold spread:      {summary_loc}")
+    print(f"Fold composition: {split_loc}")
+    return folds_loc
+
+
 def train_test_model(settings):
     """Train a vision classifier on a spacr training dataset and/or evaluate it on the held-out ``test/`` split.
 
@@ -560,7 +763,7 @@ def train_test_model(settings):
     """
     from .io import _copy_missclassified
     from .utils import pick_best_model, save_settings
-    from .io import generate_loaders
+    from .io import generate_loaders, CLASS_BALANCE_MODES
     from .settings import get_train_test_model_settings
 
     settings = get_train_test_model_settings(settings)
@@ -584,6 +787,26 @@ def train_test_model(settings):
     if settings.get('loss_type') in (None, 'auto'):
         settings['loss_type'] = 'cross_entropy' if num_classes > 1 else 'binary_cross_entropy_with_logits'
 
+    # Class-imbalance steering: 'weighted_loss' is expressed as a loss_type, the
+    # sampler modes as a DataLoader sampler inside generate_loaders. Either way
+    # the change is announced before the settings snapshot is written, so the
+    # saved settings record what actually ran.
+    class_balance = settings.get('class_balance', 'none')
+    if class_balance not in CLASS_BALANCE_MODES:
+        raise ValueError(
+            f"class_balance {class_balance!r} is not one of {CLASS_BALANCE_MODES}")
+    settings['loss_type'], balance_msg = resolve_class_balance_loss(
+        settings['loss_type'], class_balance, num_classes)
+    if balance_msg:
+        print(balance_msg)
+
+    cv_folds = int(settings.get('cross_validation_folds', 0) or 0)
+    if cv_folds == 1:
+        print("cross_validation_folds=1 is not a cross-validation; falling back "
+              "to the single train/validation split (val_split="
+              f"{settings.get('val_split')}).")
+        cv_folds = 0
+
     # This ladder used to sit inside an outer `if settings['train']:`, which made
     # the test-only arm unreachable (a test-only run snapshotted nothing), and the
     # `is True` comparisons also skipped the snapshot for truthy-but-not-True flags
@@ -597,8 +820,15 @@ def train_test_model(settings):
 
     model = None
     model_path = None
+    cv_result_loc = None
 
-    if settings['train']:
+    if settings['train'] and cv_folds >= 2:
+        # k-fold replaces the single split entirely: every crop is validated
+        # once, and the reported number is a mean with its fold-to-fold spread
+        # rather than one draw from it.
+        cv_result_loc = _cross_validate_model(settings, num_classes)
+
+    elif settings['train']:
         train, val, _ = generate_loaders(
             src,
             mode='train',
@@ -611,7 +841,8 @@ def train_test_model(settings):
             normalize=settings['normalize'],
             channels=settings['train_channels'],
             augment=settings['augment'],
-            verbose=settings['verbose']
+            verbose=settings['verbose'],
+            class_balance=class_balance,
         )
 
         model, model_path = train_model(
@@ -692,10 +923,12 @@ def train_test_model(settings):
     gc.collect()
 
     if settings['train']:
-        return model_path
+        # In k-fold mode there is no single "the model"; the per-fold metric
+        # CSV is the artefact worth handing back.
+        return cv_result_loc if cv_folds >= 2 else model_path
     if settings['test']:
         return result_loc
-    
+
 def _plot_training_curves(train_hist, val_hist, total_epochs=None):
     """Render live loss + accuracy curves for the training run.
 
