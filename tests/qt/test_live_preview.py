@@ -379,12 +379,26 @@ class TestAppScreenIntegration:
 
     # measure now has its own crop preview (a splitter) — covered separately in
     # test_measure_preview.py — so it's excluded here.
-    @pytest.mark.parametrize("app_key", ["classify", "umap"])
-    def test_other_screens_omit_live_preview(self, qtbot, app_key):
+    @pytest.mark.parametrize("app_key", ["classify", "umap", "ml_analyze"])
+    def test_searchable_screens_get_hyperparam_search_not_live_preview(
+            self, qtbot, app_key):
+        """These three occupy the LP slot with a Hyperparameter search card
+        instead — same splitter, same toggle, different contents."""
         from spacr.qt.screens.app_screen import AppScreen
         scr = AppScreen(app_key)
         qtbot.addWidget(scr)
         assert getattr(scr, "_live_preview", None) is None
+        assert getattr(scr, "_measure_preview", None) is None
+        assert getattr(scr, "_hyperparam", None) is not None
+        assert getattr(scr, "_runtime_splitter", None) is not None
+
+    @pytest.mark.parametrize("app_key", ["regression", "map_barcodes"])
+    def test_screens_with_neither_get_a_bare_console(self, qtbot, app_key):
+        from spacr.qt.screens.app_screen import AppScreen
+        scr = AppScreen(app_key)
+        qtbot.addWidget(scr)
+        assert getattr(scr, "_live_preview", None) is None
+        assert getattr(scr, "_hyperparam", None) is None
         assert getattr(scr, "_runtime_splitter", None) is None
 
     def test_autoload_from_folder(self, qtbot, tmp_path, sample_tif):

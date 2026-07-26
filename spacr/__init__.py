@@ -44,6 +44,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "crops",
     "report",
     "train_compare",
+    "hyperparam",
     "agreement",
     "active_learning",
     "plate_qc",
