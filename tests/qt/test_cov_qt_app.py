@@ -40,11 +40,11 @@ from PySide6.QtWidgets import (
 from spacr.qt import app as app_mod
 from spacr.qt.app import (
     APPS,
+    MATURITY_SECTIONS,
     MAX_APPS_PER_SECTION,
+    SECTION_ALPHA,
+    SECTION_BETA,
     SECTION_CORE,
-    SECTION_DATA,
-    SECTION_MODELS,
-    SECTION_RESULTS,
     SECTION_TOXO,
     SECTIONS,
     MainWindow,
@@ -54,6 +54,9 @@ from spacr.qt.app import (
     _PipelinePreloader,
     _icon_for_app,
     _load_bundled_fonts,
+    home_bands,
+    make_home_page,
+    section_members,
 )
 from spacr.qt.widgets.home import HomePage
 from spacr.qt.widgets.tile import HTile
@@ -167,37 +170,46 @@ def _tiles(page: HomePage) -> dict:
 #: The section every app is filed under. This is a deliberate ledger, not
 #: a mirror of the code: moving an app between sections is a product
 #: decision, and this table is where it gets recorded.
+#:
+#: #16i rewrote 22 of these 30 rows. Everything that is not signed off
+#: moved into the two maturity sections, which emptied Data, Segmentation
+#: models and Results & QC completely — those three constants are gone.
+#: Where they went: all of Data → alpha; Segmentation models → alpha
+#: (Model Compare, Model Zoo) and beta (the three Cellpose ones);
+#: Results & QC → alpha except Image UMAP and Activation, which went to
+#: beta; and three of the four Toxoplasma assays staged out, leaving
+#: Recruitment. Core lost Timelapse and Motility Assay to beta.
 EXPECTED_SECTIONS = {
     "mask":            SECTION_CORE,
-    "timelapse":       SECTION_CORE,
-    "motility":        SECTION_CORE,
     "measure":         SECTION_CORE,
     "annotate":        SECTION_CORE,
     "classify":        SECTION_CORE,
     "ml_analyze":      SECTION_CORE,
     "map_barcodes":    SECTION_CORE,
     "regression":      SECTION_CORE,
-    "align":           SECTION_DATA,
-    "convert":         SECTION_DATA,
-    "foreign":         SECTION_DATA,
-    "queue":           SECTION_DATA,
-    "batch":           SECTION_DATA,
-    "db_browser":      SECTION_DATA,
-    "make_masks":      SECTION_MODELS,
-    "train_cellpose":  SECTION_MODELS,
-    "cellpose_masks":  SECTION_MODELS,
-    "model_compare":   SECTION_MODELS,
-    "model_zoo":       SECTION_MODELS,
-    "plate_view":      SECTION_RESULTS,
-    "agreement":       SECTION_RESULTS,
-    "umap":            SECTION_RESULTS,
-    "activation":      SECTION_RESULTS,
-    "train_compare":   SECTION_RESULTS,
-    "report":          SECTION_RESULTS,
-    "analyze_plaques": SECTION_TOXO,
     "recruitment":     SECTION_TOXO,
-    "invasion":        SECTION_TOXO,
-    "replication":     SECTION_TOXO,
+    "align":           SECTION_ALPHA,
+    "model_zoo":       SECTION_ALPHA,
+    "convert":         SECTION_ALPHA,
+    "foreign":         SECTION_ALPHA,
+    "model_compare":   SECTION_ALPHA,
+    "queue":           SECTION_ALPHA,
+    "batch":           SECTION_ALPHA,
+    "invasion":        SECTION_ALPHA,
+    "db_browser":      SECTION_ALPHA,
+    "plate_view":      SECTION_ALPHA,
+    "agreement":       SECTION_ALPHA,
+    "train_compare":   SECTION_ALPHA,
+    "report":          SECTION_ALPHA,
+    "make_masks":      SECTION_BETA,
+    "train_cellpose":  SECTION_BETA,
+    "cellpose_masks":  SECTION_BETA,
+    "timelapse":       SECTION_BETA,
+    "motility":        SECTION_BETA,
+    "analyze_plaques": SECTION_BETA,
+    "replication":     SECTION_BETA,
+    "umap":            SECTION_BETA,
+    "activation":      SECTION_BETA,
 }
 
 
@@ -211,31 +223,74 @@ def test_every_app_is_filed_under_the_section_it_belongs_to():
 
 
 def test_no_section_is_used_that_was_never_declared():
+    """Was ``used == set(SECTIONS)``.
+
+    Since #16i the two are not equal and must not be: Data, Segmentation
+    models and Results & QC are declared and nothing is filed under them
+    — every one of their apps is staged into Alpha or Beta modules — and
+    they keep their tabs because a subject is not a status. What has to
+    hold is that nothing is filed under a section that was never
+    declared, and that every declared one is reachable as a tab.
+    """
     used = {section for *_r, section in APPS}
-    assert used == set(SECTIONS)
+    assert used <= set(SECTIONS), f"undeclared sections in APPS: {used - set(SECTIONS)}"
     assert len(SECTIONS) == len(set(SECTIONS)), "duplicate section name"
+    assert {s for s, _rows in home_bands()} == used, (
+        "Home bands and the filed sections have come apart")
+    for section in SECTIONS:
+        assert section_members(section), f"{section} has no tab to open"
 
 
 def test_no_section_holds_more_than_the_cap():
+    """The cap was 9 and is now 13.
+
+    Nine was the width of the old Core pipeline. The number now comes
+    from Alpha modules, which is thirteen apps because thirteen apps are
+    unfinished — splitting it into "Alpha" and "More alpha" would honour
+    the old constant and tell the user nothing. The cap is still a real
+    guard for the *workflow* sections, which are far below it."""
     counts = _counts()
-    assert MAX_APPS_PER_SECTION == 9
+    assert MAX_APPS_PER_SECTION == 13
     over = {s: n for s, n in counts.items() if n > MAX_APPS_PER_SECTION}
     assert not over, (
         f"sections over the {MAX_APPS_PER_SECTION}-app cap: {over}. Add a "
         "section with a name that means something instead of lengthening "
         "a row nobody reads to the end of.")
+    # The cap moved for the maturity buckets, not for the categories a
+    # reader scans: those must still fit the original nine.
+    workflow = {s: n for s, n in counts.items()
+                if s not in MATURITY_SECTIONS and n > 9}
+    assert not workflow, (
+        f"a workflow section grew past nine: {workflow}. The cap was "
+        "raised for Alpha/Beta modules, not for these.")
 
 
-def test_the_core_section_is_exactly_the_nine_ctrl_number_slots():
-    """Ctrl+1..9 address APPS[0..8]; those must be the core pipeline."""
+def test_the_core_section_leads_the_ctrl_number_slots():
+    """Ctrl+1..9 address APPS[0..8]; Core has to lead them.
+
+    This used to assert ``len(core) == MAX_APPS_PER_SECTION == 9`` and
+    that APPS[:9] was exactly Core. #16i staged Timelapse and Motility
+    Assay into beta, so Core is seven — the ninth Ctrl slot now falls
+    into the section after it, which is fine (the shortcut is documented
+    as "the Nth app in the sidebar"). What has to stay true is that Core
+    is the first block, so the low numbers reach the pipeline."""
     core = [k for k, _n, _d, s in APPS if s == SECTION_CORE]
-    assert len(core) == MAX_APPS_PER_SECTION == 9
-    assert [k for k, *_r in APPS[:9]] == core
+    assert 0 < len(core) <= MAX_APPS_PER_SECTION
+    assert [k for k, *_r in APPS[:len(core)]] == core
 
 
-def test_no_section_is_too_small_to_deserve_a_heading():
-    tiny = {s: n for s, n in _counts().items() if n < 3}
-    assert not tiny, f"sections too small to justify a heading: {tiny}"
+def test_no_section_is_empty():
+    """It used to require three per section ("too small to deserve a
+    heading"), counting ``APPS[i][3]``. #16i staged 22 of the 30 apps,
+    which by that count leaves three sections at zero — so the count
+    changed rather than the sections: a tab's members are its SUBJECT
+    members, staged or not, and the floor that survives is one.
+
+    Both halves are checked. No tab opens on an empty pane, and no Home
+    band is drawn with nothing under it."""
+    empty = sorted(s for s in SECTIONS if not section_members(s))
+    assert not empty, f"declared sections with no members: {empty}"
+    assert all(rows for _s, rows in home_bands()), "an empty Home band"
 
 
 def test_sections_are_contiguous_blocks_in_declaration_order():
@@ -246,7 +301,10 @@ def test_sections_are_contiguous_blocks_in_declaration_order():
     for *_r, section in APPS:
         if not order or order[-1] != section:
             order.append(section)
-    assert order == list(SECTIONS)
+    # A SUBSEQUENCE of SECTIONS, not all of it — the three sections that
+    # staging drained are declared (they have tabs) but nothing is filed
+    # under them, so they are absent here. Was ``order == list(SECTIONS)``.
+    assert order == [s for s in SECTIONS if s in set(order)]
     assert len(order) == len(set(order)), (
         f"a section appears in two separate runs of APPS: {order}")
 
@@ -257,7 +315,10 @@ def test_sidebar_draws_exactly_one_heading_per_section_in_order(
     qtbot.addWidget(bar)
     headings = [lbl.text() for lbl in bar.findChildren(QLabel)
                 if lbl.objectName() == "SidebarSection"]
-    assert headings == list(SECTIONS)
+    # Was ``list(SECTIONS)``. The sidebar walks APPS and heads each run,
+    # so it shows the sections apps are FILED under — the same four Home
+    # bands, and not the three subject-only tabs.
+    assert headings == [s for s, _rows in home_bands()]
 
 
 def test_sidebar_has_one_row_per_app_plus_home_in_apps_order(
@@ -389,7 +450,7 @@ def test_no_shipping_sidebar_label_is_clipped(qtbot, qapp, qt_theme_applied):
 
 @pytest.fixture(scope="module")
 def home_page(qapp, qt_theme_applied):
-    page = HomePage(APPS, _icon_for_app)
+    page = make_home_page()  # the page MainWindow ships
     page.resize(1500, 950)
     page.show()
     qapp.processEvents()
@@ -499,17 +560,33 @@ def test_apps_without_a_shared_source_do_not_render_alike():
     assert _img(_icon_for_app("mask")) != _img(_icon_for_app("measure"))
 
 
-def test_forced_glyph_keys_ignore_the_bundled_pngs():
-    """One key has no bundled artwork that says the right thing:
-    ``align`` — tiles registered into ONE canvas. It joined the set when
-    cellpose_all.png was redrawn as a batch of frames. ``invasion`` used
-    to be here too and left it when it got artwork of its own; see
-    tests/qt/test_home_v2.py."""
+def test_forced_glyph_keys_ignore_the_bundled_pngs(qapp, monkeypatch):
+    """The set is empty, and the mechanism still works when it is not.
+
+    It used to assert ``_FORCE_GLYPH == {"align"}``: no bundled artwork
+    said "tiles registered into ONE canvas", so Align & Stitch drew a
+    qtawesome glyph. The user then picked ``cellpose_all_01`` for it,
+    which is that call overruled by the person whose app it is, and
+    ``align.png`` is installed. ``invasion`` had left the set earlier
+    for the same reason.
+
+    The loop below is what actually matters and is kept rather than
+    deleted with the last entry — it is the contract any future member
+    has to satisfy, exercised here against a key put in temporarily."""
     from spacr.qt import iconset
-    assert _FORCE_GLYPH == {"align"}
-    for key in _FORCE_GLYPH:
-        assert _img(_icon_for_app(key)) == _img(iconset.icon(key))
-        assert key not in _ICON_OVERRIDES
+    assert _FORCE_GLYPH == set()
+
+    # `mask` has a bundled PNG and no override, so "the glyph won" is a
+    # real observation about it rather than a fallback that would have
+    # happened anyway.
+    assert _img(_icon_for_app("mask")) != _img(iconset.icon("mask"))
+    monkeypatch.setattr(app_mod, "_FORCE_GLYPH", {"mask"})
+    assert _img(_icon_for_app("mask")) == _img(iconset.icon("mask")), (
+        "a key in _FORCE_GLYPH still drew its PNG")
+
+    # …and nothing in the set may also carry an override: the two
+    # mechanisms would silently disagree about which picture wins.
+    assert not (set(app_mod._FORCE_GLYPH) & set(_ICON_OVERRIDES))
 
 
 def test_an_unknown_key_falls_back_to_a_themed_glyph():

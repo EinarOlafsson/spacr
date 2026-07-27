@@ -29,7 +29,8 @@ from PySide6.QtGui import QEnterEvent
 from PySide6.QtWidgets import QLabel, QPushButton
 
 from spacr.qt import bridge, iconset
-from spacr.qt.app import APPS, SECTIONS, _FORCE_GLYPH, _ICON_OVERRIDES
+from spacr.qt.app import (APPS, SECTIONS, _FORCE_GLYPH, _ICON_OVERRIDES,
+                          make_home_page, section_members)
 from spacr.qt.widgets.drawer import EdgeDrawer
 from spacr.qt.widgets.home import HomePage, PAUSE_UNAVAILABLE
 from spacr.qt.widgets.tile import HTile
@@ -49,7 +50,6 @@ CHOSEN = {
     "download":     "download_05.png",
     "make_masks":   "make_masks_09.png",
     "map_barcodes": "map_barcodes_05.png",
-    "recruitment":  "recruitment_02.png",
     "regression":   "regression_03.png",
     "run":          "run_03.png",
     "sequencing":   "sequencing_06.png",
@@ -61,7 +61,37 @@ CHOSEN = {
     "queue":        "queue_01.png",
     "batch":        "batch_07.png",
     "invasion":     "invasion_01.png",
-    "replication":  "replication_02.png",
+    # Re-picked later: classify was classify_05, replication was
+    # replication_02. `recruitment` left this table entirely — its new
+    # artwork comes from another family, so it lives in CROSS_FAMILY.
+    "classify":     "classify_06.png",
+    "replication":  "replication_04.png",
+}
+
+#: Installed name -> (backup family, candidate) for the picks that do
+#: NOT come from a folder named after the app.
+#:
+#: :data:`CHOSEN` derives the source folder from the installed name, so
+#: it can only express "the user picked one of *this* app's candidates".
+#: Half of the later round were cross-picks — Align & Stitch got a
+#: cellpose_all drawing, Import Project a download one — and without a
+#: table that can say so, those files would be installed and asserted by
+#: nothing.
+#:
+#: ``motility`` is the odd one: it is not a new pick at all. It rendered
+#: ``recruitment.png`` through an override, and when Recruitment was
+#: given new artwork Motility Assay would have silently followed it —
+#: two apps, one picture, neither of them asked for it. Installing the
+#: artwork Motility was already showing under its own name keeps the
+#: pixels identical and breaks the link.
+CROSS_FAMILY = {
+    "align":         ("cellpose_all",   "cellpose_all_01.png"),
+    "recruitment":   ("cellpose_masks", "cellpose_masks_06.png"),
+    "foreign":       ("download",       "download_03.png"),
+    "train_compare": ("settings",       "settings_07.png"),
+    "db_browser":    ("batch",          "batch_01.png"),
+    "timelapse":     ("convert",        "convert_09.png"),
+    "motility":      ("recruitment",    "recruitment_02.png"),
 }
 
 #: Candidates were generated for these too and the user picked none, so
@@ -93,7 +123,7 @@ def _empty_journal(tmp_path, monkeypatch):
 @pytest.fixture
 def home(qtbot, qt_theme_applied, _empty_journal):
     from spacr.qt.app import _icon_for_app
-    page = HomePage(APPS, _icon_for_app)
+    page = make_home_page()  # the page MainWindow ships
     qtbot.addWidget(page)
     page.resize(1200, 860)
     page.show()
@@ -113,6 +143,66 @@ def test_the_chosen_icon_is_the_one_installed(name, candidate):
     assert os.path.isfile(source), f"{candidate} vanished from backup_icons"
     assert _digest(installed) == _digest(source), (
         f"{name}.png is not {candidate} — the chosen artwork was replaced")
+
+
+@pytest.mark.parametrize("name,family,candidate",
+                         sorted((n, f, c) for n, (f, c)
+                                in CROSS_FAMILY.items()))
+def test_a_cross_family_pick_is_installed_under_its_own_name(
+        name, family, candidate):
+    """The artwork is the chosen one, and it is filed under the app.
+
+    The second half matters as much as the first: leaving these as
+    ``cellpose_all.png`` and reaching them through ``_ICON_OVERRIDES``
+    is how ``timelapse`` ended up pointing at ``run.png`` with a comment
+    explaining that ``convert.png`` belonged to somebody else. An app
+    with its own picture should have its own file."""
+    installed = os.path.join(iconset.RESOURCE_DIR, f"{name}.png")
+    source = os.path.join(BACKUP_DIR, family, candidate)
+    assert os.path.isfile(source), f"{family}/{candidate} vanished"
+    assert os.path.isfile(installed), f"{name}.png is missing"
+    assert _digest(installed) == _digest(source), (
+        f"{name}.png is not {family}/{candidate}")
+
+    from spacr.qt.app import _FORCE_GLYPH, _ICON_OVERRIDES
+    assert name not in _ICON_OVERRIDES, (
+        f"{name} has its own artwork; the override is stale")
+    assert name not in _FORCE_GLYPH, (
+        f"{name} has its own artwork; the glyph would hide it")
+
+
+def test_the_glyph_escape_hatch_is_kept_even_though_it_is_empty():
+    """``align`` was the last entry, and the user overruled it.
+
+    The set stays: it is the documented route for an app whose meaning
+    no bundled artwork carries, and a mechanism deleted the moment it is
+    unused is a mechanism the next person re-invents."""
+    from spacr.qt.app import _FORCE_GLYPH
+    assert _FORCE_GLYPH == set()
+
+
+def test_no_two_apps_render_the_same_picture_by_accident(qapp):
+    """Every duplicate is a deliberate, documented borrowing.
+
+    Four apps share another app's artwork on purpose (an override with a
+    reason next to it). Anything else is two tiles a user cannot tell
+    apart — which is what ``queue`` and ``batch`` both aliasing
+    sequencing.png looked like, and what Motility Assay would have
+    become when Recruitment was re-skinned."""
+    from spacr.qt.app import APPS, _icon_for_app
+    by_pixels: dict = {}
+    for key, name, *_rest in APPS:
+        icon = _icon_for_app(key)
+        assert icon is not None and not icon.isNull(), f"{name} has no icon"
+        blob = bytes(icon.pixmap(48, 48).toImage().constBits())
+        by_pixels.setdefault(blob, []).append(name)
+    shared = {frozenset(v) for v in by_pixels.values() if len(v) > 1}
+    assert shared == {
+        frozenset({"Mask", "Model Compare"}),
+        frozenset({"Annotate", "Annotator Agreement"}),
+        frozenset({"Map Barcodes", "Plate Viewer"}),
+        frozenset({"Cellpose Masks", "Train Cellpose"}),
+    }, f"unexpected identical artwork: {shared}"
 
 
 @pytest.mark.parametrize("name", KEPT)
@@ -254,16 +344,31 @@ def test_model_compare_no_longer_borrows_the_batch_icon():
     assert "cellpose_all.png" not in _ICON_OVERRIDES.values()
 
 
-def test_align_renders_a_glyph_because_no_png_says_stitched_mosaic(qapp):
+def test_align_has_real_artwork_now_and_no_longer_needs_a_glyph(qapp):
+    """Was ``test_align_renders_a_glyph_because_no_png_says_stitched_
+    mosaic``, asserting ``"align" in _FORCE_GLYPH``.
+
+    That was a judgement — no bundled PNG read as "tiles registered into
+    ONE canvas", so Align & Stitch drew ``fa5s.border-all``. The user has
+    since chosen ``cellpose_all_01`` for it, which overrules the
+    judgement, and ``align.png`` is installed. The glyph mapping stays in
+    the iconset (it is still the right glyph if the PNG ever goes), so
+    that is asserted separately from what actually renders."""
     from spacr.qt.app import _icon_for_app
-    assert "align" in _FORCE_GLYPH
+    assert "align" not in _FORCE_GLYPH
     assert "align" not in _ICON_OVERRIDES
+    assert os.path.isfile(os.path.join(iconset.RESOURCE_DIR, "align.png"))
+    assert not _icon_for_app("align").pixmap(24, 24).isNull()
+    # The glyph it used to draw is still mapped, and is still a real one
+    # rather than the puzzle-piece fallback — that is what makes
+    # _FORCE_GLYPH a usable escape hatch if the PNG is ever withdrawn.
     assert iconset._NAME_TO_GLYPH["align"] == "fa5s.border-all"
-    # And it is a real glyph, not the puzzle-piece fallback.
     assert (iconset._NAME_TO_GLYPH["align"]
             != iconset._NAME_TO_GLYPH.get("__missing__",
                                           "fa5s.puzzle-piece"))
-    assert not _icon_for_app("align").pixmap(24, 24).isNull()
+    # …and the PNG is what is on screen, not that glyph.
+    assert (_icon_for_app("align").pixmap(24, 24).toImage()
+            != iconset.icon("align").pixmap(24, 24).toImage())
 
 
 def test_invasion_has_real_artwork_now_and_no_longer_needs_a_glyph(qapp):
@@ -316,15 +421,22 @@ def test_invasion_and_replication_are_not_the_same_picture(qapp):
 def test_the_replication_assay_is_a_first_class_module():
     """``spacr.submodules.analyze_endodyogeny`` existed with no way to
     reach it: no APPS row, no title, no intro, no dispatch, no settings.
-    Every one of those is asserted here, the same way the other three
-    Toxoplasma assays are."""
-    from spacr.qt.app import SECTION_TOXO
+    Every one of those is asserted here.
+
+    It used to assert ``row[3] == SECTION_TOXO``, "the same way the other
+    three Toxoplasma assays are". #16i staged this module (and Plaque
+    Assay) into beta and Invasion Assay into alpha, so Toxoplasma is
+    down to Recruitment. The point of this test is that the module is
+    *reachable*, not where it is filed — the filing is the ledger's job
+    (``test_cov_qt_app.EXPECTED_SECTIONS``)."""
+    from spacr.qt.app import SECTION_BETA
     from spacr.qt.screens.app_screen import APP_INTROS, APP_TITLES
     from spacr.qt.screens.settings_model import resolve_default_settings
 
     row = next((a for a in APPS if a[0] == "replication"), None)
     assert row is not None, "replication is not in the app registry"
-    assert row[3] == SECTION_TOXO
+    assert row[3] == SECTION_BETA
+    assert row[3] in SECTIONS
     assert row[1] and row[2]
     assert APP_TITLES.get("replication")
     assert APP_INTROS.get("replication")
@@ -354,21 +466,64 @@ def test_the_replication_screen_opens(qtbot, qt_theme_applied,
 # 2. The Home layout
 # ===========================================================================
 
-def test_the_categories_were_renamed_as_asked():
+def test_the_categories_are_the_ones_that_were_asked_for():
+    """The section vocabulary, recorded so a rename is deliberate.
+
+    This used to assert five names. #16i added two — Alpha modules and
+    Beta modules — for eight tabs counting Home, which is what the user
+    asked for by name.
+
+    All five originals stay, and that is the decision worth pinning.
+    Staging took *every* app out of Data, Segmentation models and
+    Results & QC by the fourth column of ``APPS``, so the tempting move
+    was to retire the three. They are subjects, not statuses: "where is
+    the format converter" is a question about what the app does, and
+    answering it should not require knowing the app is unfinished. See
+    ``section_members``.
+    """
     from spacr.qt import app as app_mod
     assert app_mod.SECTION_CORE == "Core"
     assert app_mod.SECTION_DATA == "Data"
-    assert app_mod.SECTION_TOXO == "Toxoplasma"
-    # The two that were not renamed.
     assert app_mod.SECTION_MODELS == "Segmentation models"
     assert app_mod.SECTION_RESULTS == "Results & QC"
+    assert app_mod.SECTION_TOXO == "Toxoplasma"
+    assert app_mod.SECTION_ALPHA == "Alpha modules"
+    assert app_mod.SECTION_BETA == "Beta modules"
+    assert app_mod.SECTIONS == (
+        "Core", "Data", "Segmentation models", "Results & QC", "Toxoplasma",
+        "Alpha modules", "Beta modules")
+    assert (app_mod.FUNCTION_SECTIONS + app_mod.MATURITY_SECTIONS
+            == app_mod.SECTIONS)
+    assert app_mod.MATURITY_SECTIONS == ("Alpha modules", "Beta modules")
+    # Eight tabs counting Home. The number is in the user's request.
+    assert len(app_mod.SECTIONS) + 1 == 8
+
+
+def test_a_staged_app_keeps_the_subject_it_was_staged_out_of():
+    """``STAGED_FROM`` is what holds the three drained tabs up.
+
+    One entry per staged app and none for anything else: an unstaged
+    app is already filed under its subject, so a second copy of that
+    fact here could only ever go stale.
+    """
+    from spacr.qt.app import (FUNCTION_SECTIONS, MATURITY_SECTIONS,
+                              STAGED_FROM, subject_section)
+
+    staged = {k for k, _n, _d, s in APPS if s in MATURITY_SECTIONS}
+    assert set(STAGED_FROM) == staged, (
+        "STAGED_FROM lists an app that is not staged, or misses one that "
+        "is — the drained subject tabs are built from it")
+    assert set(STAGED_FROM.values()) <= set(FUNCTION_SECTIONS)
+    for key, name, _desc, section in APPS:
+        assert subject_section(key, section) in FUNCTION_SECTIONS, (
+            f"{name} has no subject tab to live on")
 
 
 def test_home_is_the_first_tab_and_holds_everything(home):
-    """Six tabs, and the first is not a category — it is all of them.
+    """The first tab is not a category — it is all of them.
 
-    The five-tab version (categories only) is the one the user rejected
-    as "too empty": nine tiles and a blank half-page, with no view that
+    The categories-only version is the one the user rejected as "too
+    empty": a handful of tiles and a blank half-page, with no view that
     showed what spaCR can do."""
     assert home._tabs.count() == len(SECTIONS) + 1
     assert home._tabs.tabText(0) == f"Home  ({len(APPS)})"
@@ -378,40 +533,88 @@ def test_home_is_the_first_tab_and_holds_everything(home):
 
 
 def test_the_category_tabs_follow_the_workflow_order(home):
+    """Eight tabs, and the count in each label is the tab's own size.
+
+    The count used to be ``sum(a[3] == section)``. Since #16i that is
+    the number of apps FILED under the section, which for Data,
+    Segmentation models and Results & QC is zero while their tabs each
+    hold six, five and six. ``section_members`` is what the tab draws,
+    so it is what the label has to count.
+    """
     labels = [home._tabs.tabText(i) for i in range(1, home._tabs.count())]
-    assert len(labels) == len(SECTIONS)
+    assert len(labels) == len(SECTIONS) == 7
     for label, section in zip(labels, SECTIONS):
         # "&&" is how Qt is told to draw a literal ampersand.
         assert label.startswith(section.replace("&", "&&"))
-        assert label.endswith(f"({sum(1 for a in APPS if a[3] == section)})")
+        assert label.endswith(f"({len(section_members(section))})")
 
 
 def test_a_tab_label_draws_its_ampersand_instead_of_eating_it(home):
-    """A lone & is a mnemonic: "Results & QC" would render "Results  QC"."""
+    """A lone & is a mnemonic: "Results & QC" rendered as "Results  QC".
+
+    Exactly one of the eight labels is affected, which is exactly the
+    kind of thing that ships unnoticed. Both halves are asserted: the
+    helper does the doubling, and no label on screen carries a lone
+    ampersand."""
+    from spacr.qt.widgets.home import _escape_amp
+    assert _escape_amp("Results & QC") == "Results && QC"
+
     labels = [home._tabs.tabText(i) for i in range(home._tabs.count())]
-    assert any("Results && QC" in label for label in labels)
+    ampersanded = [s for s in SECTIONS if "&" in s]
+    assert ampersanded, (
+        "no section name has an ampersand any more — this test is the "
+        "only thing keeping the escaping honest, so say so here")
+    for section in ampersanded:
+        assert any(section.replace("&", "&&") in label
+                   for label in labels)
     assert not any(label.count("&") == 1 for label in labels)
 
 
-def test_the_home_tab_bands_cover_every_section(home):
-    """The Home tab groups thirty apps into three bands by *section*, so
-    a renamed section would silently drop its apps into the fallback
-    band. The widget stays decoupled from the app registry; this test is
-    what keeps the two tables honest with each other."""
-    assert set(HomePage._BAND_FOR_SECTION) == set(SECTIONS), (
-        "a section has no band — apps would land in the fallback")
-    assert set(HomePage._BAND_FOR_SECTION.values()) <= set(HomePage.BANDS)
-    assert set(HomePage._BAND_OVERRIDE.values()) <= set(HomePage.BANDS)
-    assert {k for k in HomePage._BAND_OVERRIDE} <= {a[0] for a in APPS}
+def test_the_home_tab_bands_are_the_categories_themselves(home):
+    """Home bands by *section*, with no second membership table.
+
+    It used to band into Prepare / Run / Review through
+    ``HomePage._BAND_FOR_SECTION`` plus a three-app ``_BAND_OVERRIDE``,
+    which meant Plate Queue was "Data" on its own tab and "Run" on Home,
+    and a renamed section dropped its apps into a fallback band. The
+    bands are now handed to the page by the registry, so this asserts
+    what is on screen rather than that two tables agree.
+
+    Was ``headings == [s.upper() for s in SECTIONS]``: Home draws a band
+    only where apps are actually filed, which is four of the seven —
+    a heading with nothing under it is worse than no heading. The three
+    that are missing are the ones whose apps are all staged, and they
+    keep their tabs."""
+    from spacr.qt.app import home_bands
+    assert not hasattr(HomePage, "_BAND_FOR_SECTION")
+    assert not hasattr(HomePage, "_BAND_OVERRIDE")
+    assert not hasattr(HomePage, "BANDS")
+
+    # Every band heading on the Home tab is a section name, in order…
+    page = home._tabs.widget(0)
+    headings = [lbl.text() for lbl in page.findChildren(QLabel)
+                if lbl.text() in {s.upper() for s in SECTIONS}]
+    assert headings == [s.upper() for s, _rows in home_bands()]
+    assert headings == [s.upper() for s in SECTIONS
+                        if any(a[3] == s for a in APPS)]
 
     # …and every app really does land in exactly one band on screen.
     from spacr.qt.widgets.home import DenseTile
-    tiles = home._tabs.widget(0).findChildren(DenseTile)
+    tiles = page.findChildren(DenseTile)
     assert len(tiles) == len(APPS)
     assert len({t.text_label for t in tiles}) == len(APPS)
 
 
-def test_every_app_is_on_home_and_on_exactly_one_category_tab(home):
+def test_every_app_is_on_home_and_on_at_least_one_category_tab(home):
+    """Was ``..._on_exactly_one_category_tab``.
+
+    Exactly one stopped being right when Alpha and Beta modules were
+    added: a staged app is on its subject tab AND on its staging tab,
+    on purpose, and that is the second place to find it rather than a
+    duplicate. What is still asserted is that nothing appears on three
+    tabs, and that the apps on two are precisely the staged 22.
+    """
+    from spacr.qt.app import MATURITY_SECTIONS
     from spacr.qt.widgets.home import TallTile
     placement: dict = {}
     for index in range(1, home._tabs.count()):
@@ -421,19 +624,107 @@ def test_every_app_is_on_home_and_on_exactly_one_category_tab(home):
     assert set(placement) == expected, (
         f"missing: {expected - set(placement)}; "
         f"unexpected: {set(placement) - expected}")
-    duplicated = {n: t for n, t in placement.items() if len(t) > 1}
-    assert not duplicated, f"apps on more than one category tab: {duplicated}"
+
+    twice = {n for n, t in placement.items() if len(t) == 2}
+    assert not {n for n, t in placement.items() if len(t) > 2}, (
+        f"apps on three or more tabs: {placement}")
+    staged = {a[1] for a in APPS if a[3] in MATURITY_SECTIONS}
+    assert twice == staged, (
+        "the apps on two tabs should be exactly the staged ones")
 
 
-def test_each_tab_holds_exactly_its_own_section(home):
-    by_section: dict = {}
-    for _key, name, _desc, section in APPS:
-        by_section.setdefault(section, set()).add(name)
+def test_each_tab_holds_exactly_its_own_members(home):
+    """Was ``..._its_own_section``, comparing against ``a[3] == section``.
+
+    That is the filed section, which for the three drained subject tabs
+    is nobody — the test would have compared six tiles against an empty
+    set. ``section_members`` is the registry's answer to "what does this
+    tab show", so it is what the drawn tiles are checked against.
+    """
     from spacr.qt.widgets.home import TallTile
     for index, section in enumerate(SECTIONS, start=1):
         page = home._tabs.widget(index)
         drawn = {t.text_label for t in page.findChildren(TallTile)}
-        assert drawn == by_section[section], f"{section} tab is wrong"
+        expected = {row[1] for row in section_members(section)}
+        assert drawn == expected, f"{section} tab is wrong"
+
+
+#: The two staging lists, in the user's own words. This is the record of
+#: what #16i was asked for, so a later move out of alpha or beta has to
+#: be made here as well as in the registry.
+ALPHA_MODULES = {
+    "Align & Stitch", "Model Zoo", "Format Converter", "Import Project",
+    "Model Compare", "Plate Queue", "Batch Runner", "Invasion Assay",
+    "Database Browser", "Plate Viewer", "Annotator Agreement",
+    "Training Runs", "Report",
+}
+BETA_MODULES = {
+    "Make Masks", "Train Cellpose", "Cellpose Masks", "Timelapse",
+    "Motility Assay", "Plaque Assay", "Replication Assay", "Image UMAP",
+    "Activation",
+}
+
+
+def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
+    """13 alpha, 9 beta, named one at a time.
+
+    22 of the 30 apps moved, which is what emptied three of the five
+    original categories. Spelling the lists out means a quiet drift back
+    fails here rather than being noticed in a screenshot."""
+    from spacr.qt.app import SECTION_ALPHA, SECTION_BETA
+    by_section: dict = {}
+    for _key, name, _desc, section in APPS:
+        by_section.setdefault(section, set()).add(name)
+    assert by_section[SECTION_ALPHA] == ALPHA_MODULES
+    assert by_section[SECTION_BETA] == BETA_MODULES
+    assert len(ALPHA_MODULES) == 13 and len(BETA_MODULES) == 9
+
+
+def test_a_thin_category_says_where_the_rest_of_it_went(window):
+    """Toxoplasma is one app; on its own that reads as a broken tab.
+
+    Every category carries a one-line note under its heading, and the
+    Toxoplasma one names the three assays that were staged — which is
+    the difference between "is that all spaCR does?" and "the rest are
+    in alpha and beta"."""
+    from spacr.qt.app import SECTION_NOTES, SECTION_TOXO
+
+    assert set(SECTION_NOTES) == set(SECTIONS), (
+        "a category has no note — a thin tab would explain nothing")
+    for assay in ("plaque", "invasion", "replication"):
+        assert assay in SECTION_NOTES[SECTION_TOXO].lower(), (
+            f"the Toxoplasma note does not say where {assay} went")
+
+    tabs = window._startup._tabs
+    for index, section in enumerate(SECTIONS, start=1):
+        notes = [lbl.text() for lbl in tabs.widget(index).findChildren(QLabel)
+                 if lbl.objectName() == "HomeSectionNote"]
+        assert notes == [SECTION_NOTES[section]], (
+            f"{section} tab drew {notes!r}")
+
+
+def test_no_category_tab_needs_a_scrollbar_on_a_laptop(window, qapp):
+    """1440x900 is the size this layout is dimensioned for.
+
+    Alpha modules is thirteen cards — four rows — and it fit with
+    nothing to spare, so the note under the heading pushed it 25 px over
+    and grew a scrollbar. The card height and the gaps around it were
+    tightened to pay for the note; this is the test that says so."""
+    window.resize(1440, 900)
+    window.show()
+    qapp.processEvents()
+    tabs = window._startup._tabs
+    overflowing = {}
+    for index in range(tabs.count()):
+        tabs.setCurrentIndex(index)
+        qapp.processEvents()
+        bar = tabs.widget(index).verticalScrollBar()
+        if bar.maximum() > 0:
+            overflowing[tabs.tabText(index)] = bar.maximum()
+    tabs.setCurrentIndex(0)
+    assert not overflowing, (
+        f"tabs that scroll at 1440x900: {overflowing}. Take the room out "
+        "of the card or the gaps, not out of the app list.")
 
 
 def test_core_is_the_first_category_tab_and_carries_the_large_cards(home):
@@ -443,7 +734,11 @@ def test_core_is_the_first_category_tab_and_carries_the_large_cards(home):
     from spacr.qt.widgets.home import TallTile
     assert home._tabs.tabText(1).startswith("Core")
     core = home._tabs.widget(1).findChildren(TallTile)
-    assert len(core) == sum(1 for a in APPS if a[3] == "Core")
+    # Was ``sum(a[3] == "Core")`` = the seven filed under Core. The tab
+    # holds nine: Timelapse and Motility Assay are Core apps staged into
+    # Beta modules, and the Core *tab* is where a Core app is looked for
+    # whether or not it is finished.
+    assert len(core) == len(section_members("Core")) == 9
     for tile in core:
         assert tile.sizeHint().height() >= scaled_px(HomePage.TILE_H)
         assert tile.sizeHint().width() >= scaled_px(HomePage.TILE_MIN_W)
@@ -512,9 +807,33 @@ def test_a_long_description_is_shortened_rather_than_cut_off(qtbot,
 def test_the_aside_carries_recent_runs_system_and_news(home):
     headers = {lbl.text() for lbl in home.findChildren(QLabel)
                if lbl.objectName() == "HomePanelHeader"}
-    assert "RECENT RUNS" in headers
+    assert "RECENT RUNS (beta)" in headers
     assert "SYSTEM" in headers
     assert any(h.startswith("NEWS") for h in headers)
+
+
+def test_the_unfinished_aside_panels_say_so(home):
+    """Recent runs, News and Totals are marked ``(beta)``; the two that
+    read live state (Queued, System) are not — a mark on everything is a
+    mark on nothing.
+
+    Lower case on purpose: the header is upper-cased and letter-spaced,
+    so "(BETA)" would read as another word in the heading."""
+    from spacr.qt.widgets.home import BETA_PANEL_TOOLTIP, BETA_SUFFIX, Panel
+
+    marked, plain = {}, {}
+    for panel in home.findChildren(Panel):
+        (marked if panel.is_beta else plain)[panel.header.text()] = panel
+    assert all(h.endswith(BETA_SUFFIX) for h in marked)
+    assert not any(h.endswith(BETA_SUFFIX) for h in plain)
+    assert BETA_SUFFIX == " (beta)" and BETA_SUFFIX.islower()
+
+    assert {h.replace(BETA_SUFFIX, "").split(" ·")[0] for h in marked} == {
+        "RECENT RUNS", "NEWS", "TOTALS"}
+    assert set(plain) == {"QUEUED", "SYSTEM"}
+    # The mark explains itself rather than just labelling.
+    for panel in marked.values():
+        assert panel.header.toolTip() == BETA_PANEL_TOOLTIP
 
 
 def test_the_news_surface_is_the_reserved_slot(home):
@@ -861,7 +1180,7 @@ def test_a_click_inside_the_panel_pins_it_against_the_close_timer(window):
 
 def test_the_app_list_is_reachable_without_a_mouse(window, qapp):
     """A reveal you can only hover is a reveal a keyboard user does not
-    have — every app but the nine on the Core tab would be unreachable."""
+    have — every app but the ones on the open tab would be unreachable."""
     drawer = window._app_drawer
     window.toggle_app_drawer()
     qapp.processEvents()

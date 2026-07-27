@@ -40,8 +40,7 @@ from PySide6.QtGui import QColor, QPalette
 from PySide6.QtWidgets import QLabel, QWidget
 
 from spacr.qt import bridge, preferences, theme
-from spacr.qt.app import APPS, _icon_for_app
-from spacr.qt.widgets.home import HomePage
+from spacr.qt.app import make_home_page
 
 #: AA for body text (WCAG 1.4.3) — the same number
 #: :data:`spacr.qt.theme.CONTRAST_RULES` demands of `fg` on a surface.
@@ -80,7 +79,7 @@ def themed_home(qtbot, qapp, monkeypatch, _empty_journal):
     """
     def build(theme_name: str) -> QWidget:
         monkeypatch.setattr(preferences, "get_theme", lambda: theme_name)
-        page = HomePage(APPS, _icon_for_app)
+        page = make_home_page()  # the page MainWindow ships
         qtbot.addWidget(page)
         page.setStyleSheet(theme.stylesheet(theme_name))
         page.resize(1400, 900)
@@ -351,8 +350,21 @@ def test_the_deleted_home_screen_is_gone_and_unreferenced():
 
 
 def test_home_is_the_only_home_the_window_installs():
+    """Was a grep of ``_install_startup_page`` alone for "HomePage".
+
+    That method now calls ``make_home_page``, the single constructor the
+    window and the suite share: the two groupings, the notes and the
+    icon provider are four arguments that have to agree, and a test that
+    assembled its own HomePage was exercising a page nobody ships. The
+    indirection is followed rather than trusted.
+    """
     import inspect
     from spacr.qt import app as qt_app
+    from spacr.qt.widgets.home import HomePage as _HomePage
     source = inspect.getsource(qt_app.MainWindow._install_startup_page)
+    source += inspect.getsource(qt_app.make_home_page)
     assert "HomePage" in source
     assert "StartupPage" not in source
+    page = qt_app.make_home_page()
+    assert isinstance(page, _HomePage)
+    page.deleteLater()

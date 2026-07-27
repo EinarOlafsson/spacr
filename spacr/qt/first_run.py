@@ -93,12 +93,20 @@ def _section_names_sentence() -> str:
 
     Hard-coding them here is how this line came to advertise "Core,
     Analysis, Cellpose and Sequencing" long after those sections stopped
-    existing. Reading :data:`spacr.qt.app.SECTIONS` keeps the tour honest
-    the next time the grouping changes.
+    existing. Reading the registry keeps the tour honest the next time
+    the grouping changes.
+
+    The headings the sidebar *draws* are the sections apps are filed
+    under, which since #16i is a subset of :data:`spacr.qt.app.SECTIONS`
+    — the three subject categories that staging emptied keep their tabs
+    on Home but have no sidebar heading, and naming them in a sentence
+    about the sidebar would send the reader looking for something that
+    is not there. So this walks :data:`spacr.qt.app.APPS` in APPS order,
+    exactly as ``Sidebar`` does.
     """
     try:
-        from .app import SECTIONS
-        names = [str(s) for s in SECTIONS]
+        from .app import APPS
+        names = list(dict.fromkeys(str(row[3]) for row in APPS))
     except Exception:
         names = []
     if not names:

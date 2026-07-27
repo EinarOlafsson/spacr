@@ -3,33 +3,54 @@
     ┌────────────────────────────────────────────────────────────────┐
     │ 🖼 spaCR   End-to-end microscopy → single-cell measurements …   │
     │ ┌ Mask · running ────── 41 of 96 ──── [Open] [Pause] ────────┐ │
-    │ │ Home │ Core │ Data │ Segmentation models │ Results │ Toxo │ │  QUEUED
-    │ │ PREPARE 8 ─────────────────────────────────────────────── │ │  RECENT
-    │ │  ▢ Format Converter  ▢ Align & Stitch  ▢ Import Project … │ │  SYSTEM
-    │ │ RUN 15 ─────────────────────────────────────────────────── │ │  NEWS
-    │ │  ▢ Mask  ▢ Timelapse  ▢ Motility  ▢ Measure  ▢ Annotate … │ │  TOTALS
-    │ │ REVIEW 7 ───────────────────────────────────────────────── │ │
-    │ │  ▢ Plate Viewer  ▢ Annotator Agreement  ▢ Image UMAP …     │ │
+    │ │ Home │ Core │ Data │ … │ Alpha modules │ Beta modules      │ │  QUEUED
+    │ │ CORE 7 ────────────────────────────────────────────────── │ │  RECENT
+    │ │  ▢ Mask  ▢ Measure  ▢ Annotate  ▢ Classify (CV) …         │ │  SYSTEM
+    │ │ TOXOPLASMA 1 ─────────────────────────────────────────────│ │  NEWS
+    │ │  ▢ Recruitment                                            │ │  TOTALS
+    │ │ ALPHA MODULES 13 ─────────────────────────────────────────│ │
+    │ │  ▢ Align & Stitch  ▢ Model Zoo  ▢ Format Converter …      │ │
+    │ │ BETA MODULES 9 ───────────────────────────────────────────│ │
+    │ │  ▢ Make Masks  ▢ Train Cellpose  ▢ Cellpose Masks …       │ │
     │ └────────────────────────────────────────────────────────────┘ │
     │  Hover a tile to see what it does.                             │
     └────────────────────────────────────────────────────────────────┘
 
 Six decisions worth knowing about before editing this file:
 
-1. **Six tabs, and the first one is everything.** Home is not a summary
-   of the other five — it holds every app, in three broad bands, at a
-   density that fits one screen. The categories are then a *filter*, not
-   a hierarchy you have to descend. Five tabs of nine apps with no
-   "everything" view read as an empty page, which is the version this
-   one replaced.
+1. **The first tab is everything, in the same categories as the rest.**
+   Home is not a summary of the other tabs — it holds every app, at a
+   density that fits one screen, banded by the *same* sections the
+   category tabs use. It used to band them into Prepare / Run / Review
+   instead, a second grouping that existed nowhere else: an app read as
+   "Prepare" on the first tab and "Data" on the second, and adding a
+   section meant editing two tables that could disagree. There is one
+   table now (:data:`spacr.qt.app.APPS`) and both the bands and the
+   tabs are computed from it, by the *registry*, and handed in — this
+   widget takes ``categories`` and ``bands`` already grouped and does
+   not know what a section means.
+
+   The two are not the same list, and that is the point. Home files
+   each app ONCE, so a staged app appears under Alpha or Beta modules
+   and nowhere else, which is why Home has fewer bands than there are
+   tabs. A *tab* is a place to go looking, so the Data tab still lists
+   every Data app even though all six are staged. Two copies of Format
+   Converter on one page would be two things to click that do the same
+   thing; a Data tab with nothing under it would be a question with no
+   answer.
+
+   The categories are a *filter*, not a hierarchy you have to descend;
+   category tabs with no "everything" view read as an empty page, which
+   is the version this one replaced.
 2. **Two tile sizes, on purpose.** The Home tab uses :class:`DenseTile`
    (icon + name, five to a row) because thirty tiles have to fit. Each
    category tab uses :class:`TallTile` (icon over name over the one-line
-   description) because nine tiles have room to explain themselves —
-   and explaining themselves is why the categories are worth a tab.
+   description) because a category has room to explain itself — and
+   explaining itself is why a category is worth a tab.
 3. **The right-hand column is state, not navigation.** Queue, recent
    runs, machine, release. Putting it *beside* the apps rather than
-   under them is what stops it pushing the tiles off the page.
+   under them is what stops it pushing the tiles off the page. Three of
+   those panels are marked ``(beta)`` — see :data:`BETA_SUFFIX`.
 4. **A running job is shown here even though Home did not start it.**
    ``spacr.qt.bridge.registry`` knows, because every screen goes through
    ``make_thread``. Home subscribes; nothing had to report in.
@@ -42,7 +63,7 @@ Six decisions worth knowing about before editing this file:
 from __future__ import annotations
 
 import os
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
 from PySide6.QtCore import QEvent, QSize, Qt, QTimer, Signal
 from PySide6.QtGui import QIcon, QPixmap
@@ -101,14 +122,27 @@ PAUSE_UNAVAILABLE = (
 
 PAUSE_AVAILABLE = "Hold this run at its next safe checkpoint."
 
+#: Appended to the header of an aside panel whose numbers are not yet
+#: trusted. Lower-case on purpose: the header is upper-cased and
+#: letter-spaced, so a lower-case marker reads as an annotation ON the
+#: heading rather than as another word IN it.
+BETA_SUFFIX = " (beta)"
+
+#: Why those panels carry it. Shown as the header's tooltip, so the mark
+#: is an explanation rather than a shrug.
+BETA_PANEL_TOOLTIP = (
+    "Beta: this panel is still being worked on and its numbers may be "
+    "incomplete or wrong. Nothing else on this page depends on it.")
+
 
 def _escape_amp(text: str) -> str:
     """Double any ``&`` so Qt draws it instead of eating it.
 
     ``QTabBar`` (like ``QToolButton``) reads a lone ``&`` as a mnemonic:
-    "Results & QC" renders as "Results  QC" with an underlined Q. Only
-    one of the six tab labels is affected today, which is exactly the
-    kind of thing that ships unnoticed.
+    "Results & QC" rendered as "Results  QC" with an underlined Q. No
+    tab label carries an ampersand today — that section was retired —
+    which is exactly when this stops being applied and the next name
+    with one in it ships broken. It stays, and it stays tested.
     """
     return text.replace("&", "&&")
 
@@ -246,7 +280,11 @@ class TallTile(QPushButton):
         self.setToolTip(f"{text} — {description}" if description else text)
 
         col = QVBoxLayout(self)
-        col.setContentsMargins(12, 12, 12, 12)
+        # 10 px top/bottom, not 12: thirteen cards is four rows on a
+        # 1440x900 pane, and 2 px off each end of a card is 16 px across
+        # four rows — most of the ~25 that separated "fits" from "has a
+        # scrollbar" once the category note was added.
+        col.setContentsMargins(12, 10, 12, 10)
         col.setSpacing(6)
         col.addStretch(1)
 
@@ -333,21 +371,29 @@ class Panel(QWidget):
     rule is scoped to it. An unscoped border rule cascades into every
     child row and outlines each one — a mistake this codebase has
     already made once on the Home dashboard.
+
+    :param beta: mark the header with :data:`BETA_SUFFIX`. The suffix is
+        appended *after* the upper-casing, so it stays lower case and
+        reads as a mark on the heading rather than part of it.
     """
 
-    def __init__(self, title: str, parent=None):
+    def __init__(self, title: str, parent=None, *, beta: bool = False):
         super().__init__(parent)
         P = active_palette()
+        self.is_beta = bool(beta)
         col = QVBoxLayout(self)
         col.setContentsMargins(0, 0, 0, 0)
         col.setSpacing(SPACING["xs"])
 
-        self.header = QLabel(title.upper())
+        self.header = QLabel(title.upper()
+                             + (BETA_SUFFIX if self.is_beta else ""))
         self.header.setObjectName("HomePanelHeader")
         self.header.setStyleSheet(
             "font-family: 'Open Sans', sans-serif; font-weight: 600;"
             "font-size: 10px; letter-spacing: 2px; background: transparent;"
             f"color: {P['fg_muted']};")
+        if self.is_beta:
+            self.header.setToolTip(BETA_PANEL_TOOLTIP)
         col.addWidget(self.header)
 
         box = QFrame()
@@ -617,12 +663,17 @@ class QueuedPanel(Panel):
 
 
 class RecentRunsPanel(Panel):
-    """Last few runs from the run journal; each row navigates."""
+    """Last few runs from the run journal; each row navigates.
+
+    Marked ``(beta)``: the journal is written by whichever screens
+    remembered to write to it, so "the last four runs" is the last four
+    *recorded* runs, which is not always the same thing.
+    """
 
     run_clicked = Signal(str)
 
     def __init__(self, limit: int = 4, parent=None):
-        super().__init__("Recent runs", parent)
+        super().__init__("Recent runs", parent, beta=True)
         self._limit = limit
         self.refresh()
 
@@ -744,10 +795,14 @@ class SystemPanel(Panel):
 
 
 class TotalsPanel(Panel):
-    """Aggregate journal counts."""
+    """Aggregate journal counts.
+
+    Marked ``(beta)`` for the same reason as :class:`RecentRunsPanel`:
+    it sums the same journal, so it inherits the same gaps.
+    """
 
     def __init__(self, parent=None):
-        super().__init__("Totals", parent)
+        super().__init__("Totals", parent, beta=True)
         self.refresh()
 
     def refresh(self) -> None:
@@ -785,7 +840,7 @@ class NewsPanel(Panel):
 
     def __init__(self, version: str = "", parent=None):
         super().__init__(f"News · spaCR {version}" if version else "News",
-                         parent)
+                         parent, beta=True)
         P = active_palette()
         self.content: Optional[QWidget] = None
         self._placeholder = QLabel(
@@ -826,6 +881,19 @@ class HomePage(QWidget):
 
     :param apps: ``(key, name, description, section)`` per app.
     :param icon_provider: app key → QIcon (or ``None``).
+    :param section_notes: optional section → one line, drawn under that
+        category's heading on its own tab. A category with two apps in
+        it looks broken until it says why; passed in rather than
+        imported so this widget still knows nothing about
+        :mod:`spacr.qt.app`.
+    :param categories: optional ordered ``(title, [app key])`` — one
+        entry per tab after Home. Defaults to grouping ``apps`` by their
+        section in first-appearance order, which is what every test that
+        builds a HomePage out of a handful of tuples wants.
+    :param bands: optional ordered ``(title, [app key])`` for the Home
+        tab. Same default. Kept separate from ``categories`` because the
+        two genuinely differ: an app is on Home once and can be on two
+        tabs. See the module docstring.
     """
 
     tile_clicked = Signal(str)
@@ -835,8 +903,19 @@ class HomePage(QWidget):
     #: Category-tab card, at 100 % font scale — the rail-and-pane size:
     #: big enough to carry the one-line description, which is the whole
     #: point of giving each category its own tab.
+    #:
+    #: 164, down from 172: the biggest category is now thirteen apps —
+    #: four rows at 1440x900 — and four rows of 172 plus a heading, a
+    #: note and a rule is 25 px more than the pane holds, i.e. a
+    #: scrollbar on the tab with the most to show.
+    #:
+    #: 164 is as low as this constant does anything: below it the card's
+    #: own contents (52 px icon, name, three-line blurb, margins) set the
+    #: height through ``TallTile.heightForWidth`` and the number is
+    #: ignored. It is a floor, never a clip — which is why the rest of
+    #: the room came out of the gaps around the cards instead.
     TILE_MIN_W = 246
-    TILE_H = 172
+    TILE_H = 164
     TALL_ICON_PX = 52
     #: Home-tab tile. Small name, small icon, five to a row — the size
     #: that gets every app onto one screen next to the aside.
@@ -855,11 +934,19 @@ class HomePage(QWidget):
         apps: List[Tuple[str, str, str, str]],
         icon_provider: Callable[[str], Optional[QIcon]],
         parent=None,
+        *,
+        section_notes: Optional[Dict[str, str]] = None,
+        categories: Optional[Sequence[Tuple[str, Sequence[str]]]] = None,
+        bands: Optional[Sequence[Tuple[str, Sequence[str]]]] = None,
     ):
         super().__init__(parent)
         self._P = active_palette()
         self._apps = list(apps)
         self._icon_provider = icon_provider
+        self._section_notes = dict(section_notes or {})
+        self._by_key = {k: (k, n, d) for k, n, d, _s in self._apps}
+        self._categories = self._grouping(categories)
+        self._bands = self._grouping(bands)
         self._names = {k: n for k, n, _d, _s in self._apps}
         self._tile_hints: dict = {}
         #: (holder, grid, tiles, tile_width, fill) per grid, so a resize
@@ -913,6 +1000,33 @@ class HomePage(QWidget):
         self._on_runs_changed()
 
     # -- pieces --------------------------------------------------------
+    def _grouping(
+        self,
+        given: Optional[Sequence[Tuple[str, Sequence[str]]]],
+    ) -> List[Tuple[str, List[Tuple[str, str, str]]]]:
+        """Normalise a caller's grouping into ``(title, [entry])``.
+
+        ``None`` means "group ``apps`` by their own section, in the
+        order the sections first appear" — the pre-#16i behaviour, and
+        the only sensible default for the many tests that hand this
+        widget four hand-written tuples.
+
+        Unknown keys are dropped rather than raised on: a grouping is a
+        *view* of the registry, and a view that names an app that no
+        longer exists should lose the tile, not the page.
+        """
+        if given is None:
+            grouped: Dict[str, List[Tuple[str, str, str]]] = {}
+            for key, name, desc, section in self._apps:
+                grouped.setdefault(section, []).append((key, name, desc))
+            return list(grouped.items())
+        out = []
+        for title, keys in given:
+            entries = [self._by_key[k] for k in keys if k in self._by_key]
+            if entries:
+                out.append((title, entries))
+        return out
+
     def _build_hero(self) -> QWidget:
         P = self._P
         hero = QWidget()
@@ -949,14 +1063,23 @@ class HomePage(QWidget):
         return hero
 
     def _build_tabs(self) -> QWidget:
-        """Six tabs: Home (everything), then one per category.
+        """Home (everything), then one tab per category.
 
         Home is not a summary of the categories, it *is* every app —
         which is what makes the categories optional rather than a
-        hierarchy you have to navigate. It groups them into three broad
-        bands because thirty unlabelled tiles is a wall, and three
-        headings is about as many as anyone holds in their head while
-        scanning.
+        hierarchy you have to navigate. It bands them by the same
+        categories the tabs use, because thirty unlabelled tiles is a
+        wall and because two groupings of the same thirty apps is one
+        grouping too many.
+
+        The tab list is *derived*: a category with no members gets no
+        tab. That is not a special case to maintain, it is the reason
+        there is no empty pane to open when a category's last app moves
+        elsewhere. What counts as a member is the registry's business —
+        see ``categories`` — and the answer is deliberately not "apps
+        whose section is this", or the three categories that staging
+        emptied would have vanished along with the question "where did
+        the format converter go".
         """
         self._tabs = QTabWidget()
         self._tabs.setObjectName("HomeTabs")
@@ -965,41 +1088,24 @@ class HomePage(QWidget):
         self._tabs.setDocumentMode(False)
         self._tabs.setStyleSheet(_tab_qss(self._P))
 
-        sections: Dict[str, List[Tuple[str, str, str]]] = {}
-        for key, name, desc, section in self._apps:
-            sections.setdefault(section, []).append((key, name, desc))
-        self._section_names = list(sections)
+        self._section_names = [title for title, _e in self._categories]
 
         self._tabs.addTab(self._build_home_tab(),
                           f"Home  ({len(self._apps)})")
-        for section, entries in sections.items():
+        for section, entries in self._categories:
             self._tabs.addTab(self._build_category_tab(section, entries),
                               _escape_amp(f"{section}  ({len(entries)})"))
         return self._tabs
 
     # -- tab 1: everything ---------------------------------------------
     #
-    # Three broad bands. Membership follows the five sections so a new
-    # app lands somewhere sensible without anyone editing a second
-    # table; the three exceptions below are the apps whose *section* and
-    # whose *stage of work* genuinely disagree.
-    _BAND_OVERRIDE = {
-        "queue":      "Run",      # Data by kind, but it runs plates
-        "batch":      "Run",      # ditto
-        "db_browser": "Review",   # Data by kind, but you open it to read
-    }
-    _BAND_FOR_SECTION = {
-        "Core": "Run",
-        "Data": "Prepare",
-        "Segmentation models": "Prepare",
-        "Results & QC": "Review",
-        "Toxoplasma": "Run",
-    }
-    BANDS = ("Prepare", "Run", "Review")
-
-    def _band_of(self, key: str, section: str) -> str:
-        return self._BAND_OVERRIDE.get(
-            key, self._BAND_FOR_SECTION.get(section, "Run"))
+    # One band per category, in the order the app registry hands them
+    # over, each app in exactly one. There is deliberately no membership
+    # table here: the page this replaced had Prepare/Run/Review bands
+    # with a section→band map and a three-app override list *in this
+    # file*, so "which group is Plate Queue in" had two answers
+    # depending on which tab you were looking at, and a renamed section
+    # silently dropped its apps into a fallback band.
 
     def _build_home_tab(self) -> QWidget:
         from ..preferences import scaled_px
@@ -1009,15 +1115,7 @@ class HomePage(QWidget):
                                SPACING["md"], SPACING["sm"])
         col.setSpacing(SPACING["xs"])
 
-        bands: Dict[str, List[Tuple[str, str, str]]] = {
-            band: [] for band in self.BANDS}
-        for key, name, desc, section in self._apps:
-            bands[self._band_of(key, section)].append((key, name, desc))
-
-        for band in self.BANDS:
-            entries = bands[band]
-            if not entries:
-                continue
+        for band, entries in self._bands:
             col.addWidget(self._band_header(band, len(entries)))
             holder = QWidget()
             grid = QGridLayout(holder)
@@ -1079,23 +1177,52 @@ class HomePage(QWidget):
         col = QVBoxLayout(page)
         col.setContentsMargins(SPACING["md"], SPACING["sm"],
                                SPACING["md"], SPACING["sm"])
-        col.setSpacing(SPACING["sm"])
+        # `xs`, not `sm`: the heading block, the rule and the grid are one
+        # unit, and the largest category (13 cards, four rows) fills the
+        # pane at 1440x900 with about 20 px to spare. Every gap above the
+        # grid is a gap that decides whether that tab scrolls.
+        col.setSpacing(SPACING["xs"])
 
-        # Redundant with the tab label for a sighted user, but it is what
-        # a screen reader lands on inside the page and what the
-        # category-coverage test reads.
+        # Heading + note in one block on 2 px, so adding the note costs a
+        # line rather than a line plus a layout gap.
+        #
+        # The heading is redundant with the tab label for a sighted user,
+        # but it is what a screen reader lands on inside the page and
+        # what the category-coverage test reads.
+        head = QWidget()
+        head_col = QVBoxLayout(head)
+        head_col.setContentsMargins(0, 0, 0, 0)
+        head_col.setSpacing(2)
         heading = QLabel(section.upper())
         heading.setStyleSheet(
             "font-family: 'Open Sans', sans-serif; font-weight: 600;"
             "font-size: 11px; letter-spacing: 2px; background: transparent;"
             f"color: {P['fg_muted']};")
-        col.addWidget(heading)
+        head_col.addWidget(heading)
+
+        note = self._section_notes.get(section)
+        if note:
+            caption = QLabel(note)
+            caption.setObjectName("HomeSectionNote")
+            caption.setWordWrap(True)
+            caption.setStyleSheet(
+                f"color: {P['fg_dim']}; font-size: 12px;"
+                "background: transparent;")
+            head_col.addWidget(caption)
+        col.addWidget(head)
+
         col.addWidget(Divider())
 
         holder = QWidget()
         grid = QGridLayout(holder)
         grid.setContentsMargins(0, SPACING["xs"], 0, 0)
-        grid.setSpacing(SPACING["sm"])
+        # Rows sit closer than columns. The cards are already separated
+        # vertically by their own 12 px padding and by the fact that a
+        # row is a row; the horizontal gap is the one doing the work of
+        # telling two cards apart. Four rows at `sm` is 12 px this pane
+        # does not have.
+        grid.setHorizontalSpacing(SPACING["sm"])
+        grid.setVerticalSpacing(SPACING["xs"])
         tiles = [self._make_tall_tile(k, n, d) for k, n, d in entries]
         self._grids.append((holder, grid, tiles, scaled_px(self.TILE_MIN_W),
                             False))
@@ -1166,7 +1293,16 @@ class HomePage(QWidget):
         for row in range(grid.rowCount()):
             grid.setRowStretch(row, 0)
         grid.setRowStretch(rows + 1, 1)
-        for column in range(grid.columnCount()):
+        # Stretch is set over `columns` columns even when fewer are
+        # occupied. ``grid.columnCount()`` counts columns that HAVE an
+        # item, so a band with a single app (Toxoplasma, once the other
+        # assays were staged) got one column, that column took the whole
+        # width, and the unaligned fill-mode tile floated to the middle
+        # of the page under a left-aligned heading. Naming the empty
+        # columns puts the tile back at the left edge where the heading
+        # is.
+        span = max(grid.columnCount(), columns)
+        for column in range(span):
             if fill:
                 grid.setColumnStretch(column, 1 if column < columns else 0)
             else:

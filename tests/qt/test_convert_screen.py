@@ -146,15 +146,22 @@ def test_an_unknown_option_value_is_refused(screen):
         screen.set_z_handling("average")
 
 
-def test_it_is_registered_under_data_and_batch_runs():
-    """Registration lives in spacr.qt.app.APPS."""
+def test_it_is_registered_under_alpha_modules():
+    """Registration lives in spacr.qt.app.APPS.
+
+    Was ``..._under_data_and_batch_runs``, asserting ``SECTION_DATA``.
+    #16i staged the Format Converter into Alpha modules along with every
+    other app in Data. Data keeps its tab and still lists all six —
+    "where is the format converter" is a question about the subject, not
+    about how finished it is."""
     from spacr.qt.app import APPS
     entry = next((a for a in APPS if a[0] == "convert"), None)
     if entry is None:
         pytest.skip("convert not registered in spacr.qt.app.APPS yet")
     assert entry[1] == "Format Converter"
-    from spacr.qt.app import SECTION_DATA
-    assert entry[3] == SECTION_DATA
+    from spacr.qt.app import SECTION_ALPHA, SECTION_DATA, subject_section
+    assert entry[3] == SECTION_ALPHA
+    assert subject_section(entry[0], entry[3]) == SECTION_DATA
     assert entry[2].strip()
 
 

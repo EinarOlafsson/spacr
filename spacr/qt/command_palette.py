@@ -108,17 +108,31 @@ class CommandPalette(QDialog):
     # -- collection --------------------------------------------------------
     def _collect_commands(self) -> None:
         try:
-            from .app import APPS
+            from .app import APPS, subject_section
         except Exception:
             APPS = []
 
+            def subject_section(_key, section):
+                return section
+
         # Apps
         for key, name, desc, section in APPS:
+            # Two section words per app, not one. The BADGE is where the
+            # app is filed, so the palette groups the way Home and the
+            # sidebar do. The KEYWORDS also carry the subject it was
+            # staged out of, because #16i filed 22 apps under "Alpha
+            # modules"/"Beta modules" and without this, typing "Data" —
+            # which used to find all six Data apps — found nothing at
+            # all, silently.
+            subject = subject_section(key, section)
+            words = [key, desc, section, name.lower()]
+            if subject != section:
+                words.append(subject)
             self._commands.append(Command(
                 label=f"Go to  {name}",
                 section=f"Apps · {section}",
                 action=lambda k=key: self._nav(k),
-                keywords=[key, desc, section, name.lower()],
+                keywords=words,
             ))
 
         # Home

@@ -153,16 +153,23 @@ def test_the_screen_builds_offscreen_and_asks_for_a_database(screen):
     assert not screen._btn_export.isEnabled()
 
 
-def test_it_is_registered_under_results_and_qc():
-    """Wiring check — asserts the registration once app.py carries it."""
+def test_it_is_registered_under_alpha_modules():
+    """Wiring check — asserts the registration once app.py carries it.
+
+    Was ``..._under_results_and_qc`` / ``SECTION_RESULTS``. Alpha and
+    Beta modules took every app out of that section, but not its tab:
+    a plate heatmap is reading a result whether or not the screen is
+    finished."""
     from spacr.qt.app import APPS
     entry = next((a for a in APPS if a[0] == "plate_view"), None)
     if entry is None:
         pytest.skip("plate_view not registered in spacr.qt.app.APPS yet")
     key, name, description, section = entry
     assert name == "Plate Viewer"
-    from spacr.qt.app import SECTION_RESULTS
-    assert section == SECTION_RESULTS
+    from spacr.qt.app import (SECTION_ALPHA, SECTION_RESULTS,
+                              subject_section)
+    assert section == SECTION_ALPHA
+    assert subject_section(key, section) == SECTION_RESULTS
     assert description
     from spacr.qt.screens.app_screen import APP_INTROS, APP_TITLES
     assert APP_TITLES.get("plate_view")

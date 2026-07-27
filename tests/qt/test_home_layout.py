@@ -2,8 +2,11 @@
 
 Two invariants live here, both of which were broken before item #16c:
 
-1. **No category holds more than nine apps.** "Tools" had grown to
-   sixteen — a horizontal row nobody could read to the end of.
+1. **No category holds more than ``MAX_APPS_PER_SECTION`` apps.**
+   "Tools" had grown to sixteen — a horizontal row nobody could read to
+   the end of. The cap was nine until #16i raised it to thirteen for
+   the Alpha modules staging list, which is deliberately the *whole*
+   list of what is not finished.
 2. **No app name is silently clipped.** ``HTile`` paints its name in a
    child ``QLabel``, but ``QPushButton.sizeHint()`` only measures the
    button's *own* text and icon, so the label's width requirement never
@@ -25,10 +28,15 @@ from PySide6.QtWidgets import QLabel, QPushButton
 
 from spacr.qt.app import (
     APPS,
+    MATURITY_SECTIONS,
     MAX_APPS_PER_SECTION,
+    SECTION_CORE,
     SECTIONS,
     Sidebar,
     _icon_for_app,
+    home_bands,
+    make_home_page,
+    section_members,
 )
 from spacr.qt.widgets.home import HomePage
 from spacr.qt.widgets.tile import HTile
@@ -48,10 +56,15 @@ def _sections_in_order() -> list[str]:
 
 
 def _counts() -> dict[str, int]:
-    counts: dict[str, int] = {}
-    for *_rest, section in APPS:
-        counts[section] = counts.get(section, 0) + 1
-    return counts
+    """Apps per category *tab*, which is not apps per ``APPS`` section.
+
+    Derived from ``section_members`` rather than by counting the fourth
+    column, because since #16i the two differ: a staged app is filed
+    under Alpha or Beta modules but still belongs to the subject tab it
+    was staged out of. Counting the column said Data held zero apps,
+    which is true of the column and false of the tab.
+    """
+    return {s: len(section_members(s)) for s in SECTIONS}
 
 
 @pytest.fixture(scope="module", params=["dark", "light"])
@@ -71,7 +84,7 @@ def home(request, qapp, qt_theme_applied):
     theme = request.param
     qss = stylesheet(theme)
 
-    page = HomePage(APPS, _icon_for_app)
+    page = make_home_page()  # the page MainWindow ships
     page.setStyleSheet(qss)
     page.resize(1400, 900)
     page.show()
@@ -103,8 +116,13 @@ def _nav_buttons_by_name(bar: Sidebar) -> dict:
 # Part B — categories
 # ---------------------------------------------------------------------------
 
-def test_no_category_holds_more_than_nine_apps():
-    """The invariant the whole regrouping exists to satisfy."""
+def test_no_category_holds_more_than_the_cap():
+    """The invariant the whole regrouping exists to satisfy.
+
+    Named for nine until #16i, which raised the cap to thirteen for
+    Alpha modules. The number lives in ``MAX_APPS_PER_SECTION``; the
+    name no longer repeats it, so raising it again does not leave a test
+    called ``..._more_than_nine_apps`` asserting something else."""
     oversized = {s: n for s, n in _counts().items()
                  if n > MAX_APPS_PER_SECTION}
     assert not oversized, (
@@ -113,16 +131,65 @@ def test_no_category_holds_more_than_nine_apps():
         "letting a row grow past what anyone reads.")
 
 
-def test_every_category_is_big_enough_to_deserve_a_heading():
-    """A one- or two-entry section is noise, not navigation (cf. #12b)."""
-    tiny = {s: n for s, n in _counts().items() if n < 3}
-    assert not tiny, (
-        f"sections too small to justify their own heading: {tiny}")
+def test_no_category_tab_is_empty():
+    """A section with no members is a tab that opens on an empty pane.
+
+    This used to be ``test_every_category_is_big_enough_to_deserve_a_
+    heading``, which required three (a one- or two-entry section is
+    noise, not navigation — cf. #12b). #16i staged 22 of the 30 apps
+    into Alpha/Beta modules, which by the fourth column of ``APPS``
+    empties Data, Segmentation models and Results & QC outright, so the
+    floor that survives is the one that actually matters: a tab is its
+    members, and zero members is nothing to open.
+
+    They are not empty, because a tab's members are its *subject*
+    members — see ``section_members``. That is the whole reason the
+    three survived staging.
+    """
+    empty = sorted(s for s, n in _counts().items() if not n)
+    assert not empty, (
+        f"declared sections with no members: {empty}. Either file an app "
+        "under them or drop the constant — an empty tab is worse than "
+        "no tab.")
+
+
+def test_every_app_is_on_exactly_one_subject_tab_and_one_home_band():
+    """The two groupings partition the registry, each in its own way.
+
+    Home files an app once so there is never a second copy of the same
+    tile to click. The subject tabs file it once so there is never a
+    subject you cannot find it under. The staging tabs are the only
+    place an app is allowed to appear twice, and only for the 22 that
+    are staged.
+    """
+    keys = [a[0] for a in APPS]
+
+    subject = [k for s in SECTIONS if s not in MATURITY_SECTIONS
+               for k, *_ in section_members(s)]
+    assert sorted(subject) == sorted(keys), (
+        "an app is on no subject tab, or on two")
+
+    banded = [k for _s, rows in home_bands() for k, *_ in rows]
+    assert sorted(banded) == sorted(keys), (
+        "an app is missing from Home, or drawn on it twice")
+
+    staged = [k for s in MATURITY_SECTIONS for k, *_ in section_members(s)]
+    assert len(staged) == len(set(staged)), "an app is in alpha AND beta"
+    assert len(staged) == 22, (
+        f"{len(staged)} apps staged, not 22 — if that is intended, say so "
+        "here; the count is the user's list from #16i")
 
 
 def test_sections_appear_in_the_declared_workflow_order():
-    """APPS order drives both Home and the sidebar, so it is the order."""
-    assert _sections_in_order() == list(SECTIONS)
+    """APPS order drives both Home and the sidebar, so it is the order.
+
+    A *subsequence* of SECTIONS, not all of it: the three sections that
+    staging emptied appear in SECTIONS (they still have tabs) and not in
+    APPS (nothing is filed under them). What must not happen is APPS
+    running them out of order, which would draw a heading twice.
+    """
+    order = _sections_in_order()
+    assert order == [s for s in SECTIONS if s in set(order)]
 
 
 def test_every_app_is_in_a_declared_section():
@@ -130,10 +197,20 @@ def test_every_app_is_in_a_declared_section():
     assert not stray, f"apps in undeclared sections: {stray}"
 
 
-def test_the_first_nine_apps_are_the_core_pipeline():
-    """Ctrl+1..9 map to APPS[0..8]; keep that the end-to-end pipeline."""
-    from spacr.qt.app import SECTION_CORE
-    assert [a[3] for a in APPS[:9]] == [SECTION_CORE] * 9
+def test_the_core_pipeline_comes_first_and_is_unbroken():
+    """Ctrl+1..9 map to APPS[0..8], so Core has to lead the table.
+
+    It used to assert all nine of those slots were Core, because Core
+    held exactly nine apps. #16i staged Timelapse and Motility Assay
+    into beta, so Core is seven and the last two Ctrl slots fall through
+    into what follows. What still has to hold is that Core is first and
+    contiguous — a Core app at APPS[20] would be unreachable by keyboard
+    number and would also draw a second "Core" heading in the sidebar.
+    """
+    core = [a for a in APPS if a[3] == SECTION_CORE]
+    assert core, "Core lost all its apps"
+    assert [a[3] for a in APPS[:len(core)]] == [SECTION_CORE] * len(core)
+    assert SECTIONS[0] == SECTION_CORE
 
 
 def test_app_keys_are_unique():
@@ -274,7 +351,7 @@ def test_nothing_clips_at_a_150_percent_font_scale(qtbot, qapp, monkeypatch):
     monkeypatch.setattr(prefs, "get_font_scale", lambda: 1.5)
     qss = stylesheet("dark", 1.5)
 
-    page = HomePage(APPS, _icon_for_app)
+    page = make_home_page()  # the page MainWindow ships
     qtbot.addWidget(page)
     page.setStyleSheet(qss)
     page.resize(1800, 1200)
@@ -325,24 +402,38 @@ def test_tile_width_tracks_the_name_it_has_to_draw(home):
 # Everything that iterates APPS still sees every app
 # ---------------------------------------------------------------------------
 
-def test_home_renders_every_app_under_every_section_heading(home):
+def test_home_renders_every_app_under_every_band_heading(home):
+    """Every app once on Home, under a heading for every non-empty band.
+
+    Was ``..._under_every_section_heading``, asserting a heading for
+    every entry in SECTIONS. Three of those now have no apps filed under
+    them, so Home draws no band for them — deliberately: a heading with
+    nothing under it is worse than no heading. They keep their tabs,
+    which is what ``test_no_category_tab_is_empty`` covers.
+    """
     _theme, page, _bar = home
     rendered = set(_tiles_by_name(page))
     assert rendered == {a[1] for a in APPS}
 
     headings = {lbl.text() for lbl in page.findChildren(QLabel)}
-    for section in SECTIONS:
+    for section, _rows in home_bands():
         assert section.upper() in headings, (
-            f"no '{section}' heading on Home")
+            f"no '{section}' band heading on Home")
 
 
 def test_sidebar_renders_every_app_under_every_section_heading(home):
+    """Was ``headings == set(SECTIONS)``.
+
+    The sidebar walks ``APPS`` and heads each run of filed sections, so
+    it shows the four that apps are actually filed under — not the three
+    that only exist as subject tabs.
+    """
     _theme, _page, bar = home
     assert set(_nav_buttons_by_name(bar)) == {a[1] for a in APPS}
 
     headings = {lbl.text() for lbl in bar.findChildren(QLabel)
                 if lbl.objectName() == "SidebarSection"}
-    assert headings == set(SECTIONS)
+    assert headings == set(_sections_in_order())
 
 
 def test_sidebar_still_has_a_home_button(home):
@@ -366,38 +457,60 @@ def test_command_palette_finds_every_app_after_the_regrouping(
         assert f"Go to  {name}" in labels, f"{name} missing from the palette"
 
     # The section badge follows the app table, so the new names show up.
+    # Only the sections apps are FILED under get a badge; the three that
+    # exist as subject tabs alone are reachable by search, below.
     badges = {c.section for c in palette._commands}
-    for section in SECTIONS:
+    for section in _sections_in_order():
         assert f"Apps · {section}" in badges
 
 
-def test_command_palette_filters_by_the_new_section_names(
-        qtbot, qt_theme_applied):
-    """Section names are searchable keywords — typing "batch" finds them."""
-    from spacr.qt.app import MainWindow, SECTION_DATA
+@pytest.mark.parametrize("section", SECTIONS)
+def test_command_palette_filters_by_the_section_names(
+        qtbot, qt_theme_applied, section):
+    """Section names are searchable keywords — typing "Data" finds them.
+
+    Was pinned to SECTION_DATA and to ``a[3] == section``. #16i files
+    the six Data apps under "Alpha modules", so matching on the fourth
+    column alone made this a search for a name nothing carries — it
+    would have passed vacuously while typing "Data" found nothing at
+    all. Parametrised over SECTIONS and asserting the expectation is
+    non-empty, so a category that stops being findable fails here.
+    """
+    from spacr.qt.app import MainWindow
     from spacr.qt.command_palette import CommandPalette
 
     win = MainWindow()
     qtbot.addWidget(win)
     palette = CommandPalette(win)
     qtbot.addWidget(palette)
-    palette._on_filter(SECTION_DATA)
+    palette._on_filter(section)
     visible = [palette._list.item(i).text()
                for i in range(palette._list.count())]
-    expected = {a[1] for a in APPS if a[3] == SECTION_DATA}
+    expected = {row[1] for row in section_members(section)}
+    assert expected, f"{section} has no apps to find"
     for name in expected:
         assert any(name in v for v in visible), (
-            f"{name} not found when filtering on its own section")
+            f"{name} not found when filtering on {section!r}")
 
 
 def test_the_first_run_tour_names_the_real_sections():
-    """The tour used to advertise sections that no longer existed."""
+    """The tour used to advertise sections that no longer existed.
+
+    Was ``for section in SECTIONS``. The step describes the SIDEBAR, and
+    the sidebar heads the sections apps are filed under — naming the
+    three subject-only tabs there would send a first-time user looking
+    down the sidebar for a "Data" heading that is not in it.
+    """
     from spacr.qt.first_run import DEFAULT_TOUR
 
     step = next(s for s in DEFAULT_TOUR if "Sidebar" in s.title)
-    for section in SECTIONS:
+    for section in _sections_in_order():
         assert section in step.body, (
             f"the sidebar tour step does not mention {section!r}")
+    for absent in set(SECTIONS) - set(_sections_in_order()):
+        assert absent not in step.body, (
+            f"the sidebar tour names {absent!r}, which has no sidebar "
+            "heading")
 
 
 def test_ctrl_number_shortcuts_still_reach_the_first_nine_apps(
