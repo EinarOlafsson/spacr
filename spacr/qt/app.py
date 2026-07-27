@@ -9,7 +9,7 @@ from __future__ import annotations
 import os
 import sys
 import threading
-from typing import Optional
+from typing import List, Optional, Tuple
 
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QAction, QIcon, QKeySequence, QPixmap
@@ -95,43 +95,96 @@ class _PipelinePreloader:
 # The app registry
 # ---------------------------------------------------------------------------
 #
-# Sections are how the home page and the sidebar group the apps. They are
-# named for what a biologist is looking for, not for the code behind them,
-# and they run in workflow order: the end-to-end pipeline first, then
-# getting data in and running it at scale, then the segmentation models
-# that pipeline depends on, then reading the results, then the
-# Toxoplasma-specific assays.
+# Two axes, not one, and the difference is the whole of #16i.
+#
+# An app is filed under WHAT IT DOES — Core, Data, Segmentation models,
+# Results & QC, Toxoplasma. That is stable: Format Converter is a Data
+# app whether or not anyone has finished it.
+#
+# An app is *also* staged by HOW FINISHED IT IS — Alpha modules or Beta
+# modules — and 22 of the 30 currently are. That is not stable, and it
+# is not a property of the app's subject: it changes the day someone
+# signs the app off, and when it does the app should not need its
+# subject re-assigned to get out of staging.
+#
+# So the STAGE is what an app is filed under (``APPS[i][3]``, and what
+# Home, the sidebar and the command palette group by), and the FUNCTION
+# it was staged out of is remembered in :data:`STAGED_FROM`. An app
+# graduating is one line deleted from that table.
+#
+#   Core            the end-to-end pipeline: images in, single-object
+#                   measurements out, hits called.
+#   Data            get images and tables in, run many plates, get the
+#                   numbers back out.
+#   Segmentation    build, train, pick and check the Cellpose models
+#     models        the Mask step runs.
+#   Results & QC    read what came out and decide whether to believe it.
+#   Toxoplasma      parasite-specific readouts.
+#   Alpha modules   built and reachable, not yet trusted end to end.
+#   Beta modules    further along than alpha, still not signed off.
+#
+# WHY BOTH ARE KEPT AS TABS. Staging drained three of the five subject
+# categories completely — Data lost all six of its apps, Segmentation
+# models all five, Results & QC all six — and the obvious move was to
+# retire them. It is the wrong move. "Where is the format converter"
+# is a question about the subject, and a user who knows they want the
+# converter should not have to know it is unfinished to find it. The
+# subject tabs list every app that IS that subject, staged or not; the
+# two staging tabs list everything that is not signed off. Every app
+# appears on exactly one subject tab, on at most one staging tab, and
+# exactly once on Home.
 #
 # A section holds AT MOST `MAX_APPS_PER_SECTION` apps. Past that nobody
 # reads the row — which is exactly how "Tools" grew to sixteen entries and
 # became unusable. If a section is full, the honest fix is a new section
-# with a name that means something, not a longer row. Sections with only
-# one or two entries aren't worth a heading either (the same finding as
-# the settings-category audit), so fold those into a neighbour instead.
+# with a name that means something, not a longer row.
 #
 # The names are as short as they can be and still mean something: they
-# are now TAB LABELS on Home, where five long names would not fit on one
-# line, and a tab that has to elide is a tab nobody can read. "Core
-# pipeline", "Data & batch runs" and "Toxoplasma assays" lost their
-# qualifiers; the other two are already short.
+# are TAB LABELS on Home, where long names would not fit on one line, and
+# a tab that has to elide is a tab nobody can read.
 SECTION_CORE = "Core"
 SECTION_DATA = "Data"
 SECTION_MODELS = "Segmentation models"
 SECTION_RESULTS = "Results & QC"
 SECTION_TOXO = "Toxoplasma"
+SECTION_ALPHA = "Alpha modules"
+SECTION_BETA = "Beta modules"
 
-#: Section render order — the home page and the sidebar follow APPS order,
-#: which follows this.
-SECTIONS = (SECTION_CORE, SECTION_DATA, SECTION_MODELS, SECTION_RESULTS,
-            SECTION_TOXO)
+#: The subject categories, in workflow order: the end-to-end pipeline
+#: first, then getting data in and running it at scale, then the
+#: segmentation models that pipeline depends on, then reading the
+#: results, then the Toxoplasma-specific assays.
+FUNCTION_SECTIONS = (SECTION_CORE, SECTION_DATA, SECTION_MODELS,
+                     SECTION_RESULTS, SECTION_TOXO)
+
+#: The staging categories — grouped by how finished an app is rather
+#: than by what it does. Deliberately a COMPLETE list of what is not
+#: signed off, which is why the readability cap below is the wrong
+#: instrument for them: splitting "Alpha modules" in two would only
+#: hide half of it.
+MATURITY_SECTIONS = (SECTION_ALPHA, SECTION_BETA)
+
+#: Tab and heading order. Subjects first, then the staging areas, so
+#: the list does not open on the things that might not work.
+SECTIONS = FUNCTION_SECTIONS + MATURITY_SECTIONS
 
 #: Hard cap on apps per section. Enforced by tests, not at runtime — a
 #: violation is a design mistake to fix in this table, not something to
 #: discover at startup.
-MAX_APPS_PER_SECTION = 9
+#:
+#: Raised from 9 to 13 by #16i. Nine was the width of the Core pipeline;
+#: the number now comes from Alpha modules, which is thirteen apps
+#: because thirteen apps are unfinished. Splitting that into "Alpha
+#: modules" and "More alpha modules" would satisfy the constant and tell
+#: the user nothing, so the constant moved instead.
+MAX_APPS_PER_SECTION = 13
 
 APPS = [
     # (key, human name, description, section)
+    #
+    # `section` here is where the app is FILED — its staging category if
+    # it has one, otherwise its subject. What subject a staged app came
+    # from is in STAGED_FROM below; nothing is lost by staging it.
     #
     # NOTE: keys are load-bearing. bridge.resolve_pipeline_entry,
     # cli.INTERACTIVE_ONLY, validate.APP_FUNCTIONS, dnd_handlers,
@@ -140,45 +193,214 @@ APPS = [
     # display name or moving an app between sections is free.
     #
     # -- Core pipeline: images in, single-object measurements out, hits
-    #    called. Ctrl+1..9 map to these nine, in this order.
+    #    called. Ctrl+1..9 address APPS[0..8], so the first seven of those
+    #    nine are this section and the last two spill into what follows.
     ("mask",           "Mask",           "Generate cellpose masks for cells, nuclei and pathogens",   SECTION_CORE),
-    ("timelapse",      "Timelapse",      "Segment and track objects across the frames of a time series", SECTION_CORE),
-    ("motility",       "Motility Assay", "Automated motility assay: track velocity + infection QC",     SECTION_CORE),
     ("measure",        "Measure",        "Measure single-object intensity + morphology features",       SECTION_CORE),
     ("annotate",       "Annotate",       "Annotate single-object images on a grid; save to database",  SECTION_CORE),
     ("classify",       "Classify (CV)",  "Train Torch CNNs/Transformers to classify single objects",   SECTION_CORE),
     ("ml_analyze",     "Classify (ML)",  "Classical ML (XGBoost / random forest / …) on screen features", SECTION_CORE),
     ("map_barcodes",   "Map Barcodes",   "Map sequencing barcodes to screen data",                      SECTION_CORE),
     ("regression",     "Regression",     "Regression analysis of screen scores",                        SECTION_CORE),
-    # -- Data & batch runs: get images and tables into a spaCR project,
-    #    run many plates unattended, get the numbers back out.
-    ("align",          "Align & Stitch", "Register tiles into one stitched canvas, written incrementally so a 20000x20000 mosaic never has to fit in RAM", SECTION_DATA),
-    ("convert",        "Format Converter", "ND2/CZI/LIF/OME-TIFF into Yokogawa TIFFs: preview the mapping, then a map file back to the originals", SECTION_DATA),
-    ("foreign",        "Import Project", "Someone else's images, masks and measurement table into a spaCR project, with their columns mapped onto spaCR's", SECTION_DATA),
-    ("queue",          "Plate Queue",    "Chain multiple plates through the same pipeline",             SECTION_DATA),
-    ("batch",          "Batch Runner",   "Queue any modules, plates and settings and run them overnight", SECTION_DATA),
-    ("db_browser",     "Database Browser", "Browse and export measurements.db without the sqlite3 CLI", SECTION_DATA),
-    # -- Segmentation models: build, train, pick and check the Cellpose
-    #    models the Mask step runs.
-    ("make_masks",     "Make Masks",     "Fine-tune Cellpose models for your dataset",                  SECTION_MODELS),
-    ("train_cellpose", "Train Cellpose", "Train custom Cellpose models",                                SECTION_MODELS),
-    ("cellpose_masks", "Cellpose Masks", "Cellpose mask generation",                                    SECTION_MODELS),
-    ("model_compare",  "Model Compare",  "Two Cellpose models on the same fields: masks side by side, object-count and ARI deltas", SECTION_MODELS),
-    ("model_zoo",      "Model Zoo",      "Browse, verify, download and bench Cellpose + classifier models on three of your fields", SECTION_MODELS),
-    # -- Results & QC: look at what came out, decide whether to believe it,
-    #    and hand it to someone else.
-    ("plate_view",     "Plate Viewer",   "Any measurement as a plate heatmap + edge-effect detection",  SECTION_RESULTS),
-    ("agreement",      "Annotator Agreement", "Cohen's/Fleiss' κ between annotation columns + a disagreement review", SECTION_RESULTS),
-    ("umap",           "Image UMAP",     "Generate UMAP embeddings with image glyphs",                  SECTION_RESULTS),
-    ("activation",     "Activation",     "Generate activation maps",                                    SECTION_RESULTS),
-    ("train_compare",  "Training Runs",  "Overlay several training runs' curves with their settings diffed side by side", SECTION_RESULTS),
-    ("report",         "Report",         "One-click shareable HTML/PDF: QC verdict, figures, stats, settings, versions", SECTION_RESULTS),
-    # -- Toxoplasma assays: parasite-specific readouts.
-    ("analyze_plaques", "Plaque Assay",  "Analyze plaque assay data",                                   SECTION_TOXO),
+    # -- Toxoplasma assays: parasite-specific readouts. The other three
+    #    (plaque, invasion, replication) are staged in Alpha/Beta below.
     ("recruitment",    "Recruitment",    "Analyze recruitment data",                                    SECTION_TOXO),
-    ("invasion",       "Invasion Assay", "Two-colour outside/inside stain: attached vs invaded parasites, invasion efficiency per well", SECTION_TOXO),
-    ("replication",    "Replication Assay", "Endodyogeny: parasites per vacuole, scored into replication rate per condition", SECTION_TOXO),
+    # -- Alpha modules: built and reachable, not yet trusted end to end.
+    #    Listed in the order they were staged.
+    ("align",          "Align & Stitch", "Register tiles into one stitched canvas, written incrementally so a 20000x20000 mosaic never has to fit in RAM", SECTION_ALPHA),
+    ("model_zoo",      "Model Zoo",      "Browse, verify, download and bench Cellpose + classifier models on three of your fields", SECTION_ALPHA),
+    ("convert",        "Format Converter", "ND2/CZI/LIF/OME-TIFF into Yokogawa TIFFs: preview the mapping, then a map file back to the originals", SECTION_ALPHA),
+    ("foreign",        "Import Project", "Someone else's images, masks and measurement table into a spaCR project, with their columns mapped onto spaCR's", SECTION_ALPHA),
+    ("model_compare",  "Model Compare",  "Two Cellpose models on the same fields: masks side by side, object-count and ARI deltas", SECTION_ALPHA),
+    ("queue",          "Plate Queue",    "Chain multiple plates through the same pipeline",             SECTION_ALPHA),
+    ("batch",          "Batch Runner",   "Queue any modules, plates and settings and run them overnight", SECTION_ALPHA),
+    ("invasion",       "Invasion Assay", "Two-colour outside/inside stain: attached vs invaded parasites, invasion efficiency per well", SECTION_ALPHA),
+    ("db_browser",     "Database Browser", "Browse and export measurements.db without the sqlite3 CLI", SECTION_ALPHA),
+    ("plate_view",     "Plate Viewer",   "Any measurement as a plate heatmap + edge-effect detection",  SECTION_ALPHA),
+    ("agreement",      "Annotator Agreement", "Cohen's/Fleiss' κ between annotation columns + a disagreement review", SECTION_ALPHA),
+    ("train_compare",  "Training Runs",  "Overlay several training runs' curves with their settings diffed side by side", SECTION_ALPHA),
+    ("report",         "Report",         "One-click shareable HTML/PDF: QC verdict, figures, stats, settings, versions", SECTION_ALPHA),
+    # -- Beta modules: further along than alpha, still not signed off.
+    ("make_masks",     "Make Masks",     "Fine-tune Cellpose models for your dataset",                  SECTION_BETA),
+    ("train_cellpose", "Train Cellpose", "Train custom Cellpose models",                                SECTION_BETA),
+    ("cellpose_masks", "Cellpose Masks", "Cellpose mask generation",                                    SECTION_BETA),
+    ("timelapse",      "Timelapse",      "Segment and track objects across the frames of a time series", SECTION_BETA),
+    ("motility",       "Motility Assay", "Automated motility assay: track velocity + infection QC",     SECTION_BETA),
+    ("analyze_plaques", "Plaque Assay",  "Analyze plaque assay data",                                   SECTION_BETA),
+    ("replication",    "Replication Assay", "Endodyogeny: parasites per vacuole, scored into replication rate per condition", SECTION_BETA),
+    ("umap",           "Image UMAP",     "Generate UMAP embeddings with image glyphs",                  SECTION_BETA),
+    ("activation",     "Activation",     "Generate activation maps",                                    SECTION_BETA),
 ]
+
+
+#: app key → the subject category it is staged out of.
+#:
+#: One entry per app whose ``APPS`` section is a staging category, and
+#: none for any other — an app that is not staged is already filed under
+#: its subject, so a second copy of that fact here could only ever go
+#: stale. This is the ONLY record of what Data, Segmentation models and
+#: Results & QC contain, because staging emptied all three of them.
+#:
+#: Signing an app off is deleting its line here and setting its section
+#: back to the value that line held.
+STAGED_FROM = {
+    # -- out of Core
+    "timelapse":       SECTION_CORE,
+    "motility":        SECTION_CORE,
+    # -- out of Data (all six)
+    "align":           SECTION_DATA,
+    "convert":         SECTION_DATA,
+    "foreign":         SECTION_DATA,
+    "queue":           SECTION_DATA,
+    "batch":           SECTION_DATA,
+    "db_browser":      SECTION_DATA,
+    # -- out of Segmentation models (all five)
+    "make_masks":      SECTION_MODELS,
+    "train_cellpose":  SECTION_MODELS,
+    "cellpose_masks":  SECTION_MODELS,
+    "model_compare":   SECTION_MODELS,
+    "model_zoo":       SECTION_MODELS,
+    # -- out of Results & QC (all six)
+    "plate_view":      SECTION_RESULTS,
+    "agreement":       SECTION_RESULTS,
+    "umap":            SECTION_RESULTS,
+    "activation":      SECTION_RESULTS,
+    "train_compare":   SECTION_RESULTS,
+    "report":          SECTION_RESULTS,
+    # -- out of Toxoplasma
+    "analyze_plaques": SECTION_TOXO,
+    "invasion":        SECTION_TOXO,
+    "replication":     SECTION_TOXO,
+}
+
+
+def subject_section(key: str, section: str) -> str:
+    """The subject category an app belongs to, staged or not.
+
+    ``section`` is the app's :data:`APPS` section, passed in rather than
+    looked up so this stays a pure function over one row.
+    """
+    return STAGED_FROM.get(key, section)
+
+
+def section_members(section: str) -> List[Tuple[str, str, str, str]]:
+    """The ``APPS`` rows a category's tab shows, in registry order.
+
+    A staging category shows what is filed under it. A subject category
+    shows every app *about* that subject, including the ones currently
+    staged — which is the whole reason Data, Segmentation models and
+    Results & QC still have anything to show.
+    """
+    if section in MATURITY_SECTIONS:
+        return [row for row in APPS if row[3] == section]
+    return [row for row in APPS if subject_section(row[0], row[3]) == section]
+
+
+def home_categories() -> List[Tuple[str, List[str]]]:
+    """``(section, [app key])`` for every tab after Home, in tab order.
+
+    All seven are populated — the three that staging emptied are held up
+    by :data:`STAGED_FROM` — so nothing here is ever dropped for being
+    blank. It is computed rather than written down so that it cannot be.
+    """
+    return [(s, [row[0] for row in section_members(s)]) for s in SECTIONS]
+
+
+def home_bands() -> List[Tuple[str, List[Tuple[str, str, str, str]]]]:
+    """``(band, rows)`` for the Home tab, in :data:`SECTIONS` order.
+
+    Home files each app ONCE, under the section it is filed in — so a
+    staged app appears under Alpha or Beta modules and not also under
+    its subject. Two copies of Format Converter on one page would be
+    two things to click that do the same thing.
+
+    Bands with no apps are dropped rather than drawn empty: with 22 of
+    the 30 apps staged, Data, Segmentation models and Results & QC have
+    nothing to put in a band. They keep their *tabs* — see
+    :func:`section_members` — because a tab is a place to look and a
+    band is a place to list.
+    """
+    grouped = [(s, [row for row in APPS if row[3] == s]) for s in SECTIONS]
+    return [(s, rows) for s, rows in grouped if rows]
+
+
+#: The subject half of each category's one-line note. The staging half
+#: is computed, because a hand-written "all six are in Alpha modules"
+#: is a sentence that goes quietly wrong the day one of them graduates.
+_SECTION_BLURBS = {
+    SECTION_CORE: "Images in, single-object measurements out, hits called.",
+    SECTION_DATA: ("Images and tables into a spaCR project, many plates run "
+                   "unattended, the numbers back out."),
+    SECTION_MODELS: ("Build, train, pick and check the Cellpose models the "
+                     "Mask step runs."),
+    SECTION_RESULTS: ("Read what came out, decide whether to believe it, "
+                      "hand it to someone else."),
+    SECTION_TOXO: "Parasite-specific readouts.",
+    SECTION_ALPHA: ("Built and reachable, not yet trusted end to end. Expect "
+                    "rough edges, and check the numbers before you rely on "
+                    "them."),
+    SECTION_BETA: ("Further along than alpha and in regular use, but not "
+                   "signed off yet."),
+}
+
+
+def _staging_note(section: str) -> str:
+    """"…all six are staged in Alpha modules." — or "" if none are.
+
+    A subject tab whose apps are all staged looks like a mistake until
+    it says so, and one where only some are looks like the rest are
+    fine. Both sentences are derived from the tables so neither can
+    disagree with them.
+    """
+    if section in MATURITY_SECTIONS:
+        return ""
+    rows = section_members(section)
+    staged = [row for row in rows if row[3] in MATURITY_SECTIONS]
+    if not staged:
+        return ""
+    where = [s for s in MATURITY_SECTIONS if any(r[3] == s for r in staged)]
+    #: "Alpha and Beta modules", not "Alpha modules and Beta modules" —
+    #: the word both share is said once.
+    listed = ("Alpha and Beta modules" if len(where) == 2
+              else where[0])
+    #: Named while a reader can hold the list, counted after. "3 of them
+    #: are staged" answers a question nobody asked; "Invasion Assay,
+    #: Plaque Assay and Replication Assay are staged" is the sentence
+    #: that stops someone hunting for the invasion assay.
+    names = [row[1] for row in staged]
+    if len(staged) == len(rows):
+        who = "All of them are"
+    elif len(names) == 1:
+        who = f"{names[0]} is"
+    elif len(names) <= 3:
+        who = f"{', '.join(names[:-1])} and {names[-1]} are"
+    else:
+        who = f"{len(staged)} of them are"
+    return f" {who} staged in {listed} until signed off."
+
+
+#: One line per section, drawn under its heading on that category's tab.
+#: A category with two apps in it looks broken until it says why.
+SECTION_NOTES = {s: (_SECTION_BLURBS[s] + _staging_note(s)).strip()
+                 for s in SECTIONS}
+
+
+def make_home_page(parent=None):
+    """Build the Home page exactly as the running app builds it.
+
+    The two groupings, the notes and the icon provider are four
+    arguments that have to agree, and a test that assembles its own
+    HomePage is testing a page that does not ship — which is the exact
+    class of bug #16i was: Home grouped by one table and the tabs by
+    another. One constructor call, used by :class:`MainWindow` and by
+    the suite.
+    """
+    from .widgets.home import HomePage
+    return HomePage(
+        APPS, _icon_for_app, parent,
+        section_notes=SECTION_NOTES,
+        categories=home_categories(),
+        bands=[(s, [r[0] for r in rows]) for s, rows in home_bands()])
 
 
 # Explicit key -> icon-filename overrides for cases where the app_key
@@ -187,23 +409,39 @@ APPS = [
 _ICON_OVERRIDES = {
     "analyze_plaques": "plaque.png",
     "train_cellpose":  "cellpose_masks.png",  # share the Cellpose Masks icon
-    "timelapse":       "run.png",          # convert.png now belongs to Format Converter
-    "motility":        "recruitment.png",  # closest "things moving" glyph
-    "db_browser":      "map_barcodes.png", # ruled bars read as table columns
     "agreement":       "annotate.png",     # shares the Annotate glyph: it
                                            # scores annotation columns
     "plate_view":      "map_barcodes.png", # ruled bars read as a well grid
-    "train_compare":   "classify.png",     # it compares Classify (CV) runs
     "model_compare":   "mask.png",         # mask.png is one field split down
                                            # the middle -- raw objects on one
                                            # side, contours on the other. That
                                            # IS Model Compare: the same field,
                                            # segmented two ways, side by side.
-                                           # (It used to borrow cellpose_all,
-                                           # which is now drawn as a whole
-                                           # BATCH of frames and so reads as
-                                           # "segment the lot", not "compare".)
     "model_zoo":       "download.png",     # the zoo is where models come from
+    #
+    # FOUR entries were REMOVED here — `timelapse`→run.png,
+    # `motility`→recruitment.png, `db_browser`→map_barcodes.png and
+    # `train_compare`→classify.png — because the user chose artwork for
+    # each and it is now installed as `<key>.png`, which `app_icon`
+    # finds without being told. An override is for an app that BORROWS
+    # another app's picture; it is not the place to record "this app has
+    # an icon". (`align` and `foreign` gained artwork in the same round;
+    # neither was ever in this table — `align` was in _FORCE_GLYPH below
+    # and `foreign` had nothing at all.)
+    #
+    # `motility` is the one worth remembering. It borrowed
+    # recruitment.png, so re-skinning Recruitment silently re-skinned
+    # Motility Assay as well — the old recruitment drawing had to be
+    # kept and installed as motility.png to stop that. A borrowed icon
+    # is a coupling between two apps that nothing declares.
+    #
+    # Of the six left, FOUR are genuine sharing and are a debt:
+    # `train_cellpose` shows Cellpose Masks' picture, `agreement` shows
+    # Annotate's, `plate_view` shows Map Barcodes', `model_compare`
+    # shows Mask's. The other two are only renames — no app is keyed
+    # `plaque` or `download`, so `analyze_plaques` and `model_zoo` are
+    # the sole users of that artwork and share it with nobody.
+    #
     # queue.png / batch.png / invasion.png / replication.png are drawn for
     # these apps and named after them, so they need no override. They used
     # to: `queue` and `batch` BOTH aliased sequencing.png (a DNA helix,
@@ -215,16 +453,27 @@ _ICON_OVERRIDES = {
 
 # Keys that render their qtawesome glyph instead of a bundled PNG.
 #
-# * ``align`` — no bundled PNG reads as "tiles registered into ONE canvas".
-#   It borrowed cellpose_all until that artwork was redrawn as a batch of
-#   frames with the front one segmented, which says "segment the whole
-#   dataset", not "stitch a mosaic". ``fa5s.border-all`` is a single square
-#   divided into four by its own seams — one canvas made of tiles, which is
-#   exactly what Align & Stitch produces.
+# EMPTY, deliberately, and kept rather than deleted: it is the documented
+# fallback for an app whose meaning no bundled artwork carries, and
+# emptying the set is not the same as removing the escape hatch.
 #
-# ``invasion`` used to be here for the same reason ("no bundled PNG reads
-# as inside vs outside") — it now has artwork that does exactly that.
-_FORCE_GLYPH = {"align"}
+# ``align`` was the last entry. No bundled PNG read as "tiles registered
+# into ONE canvas", so it drew ``fa5s.border-all`` — a square divided
+# into four by its own seams. The user has since chosen
+# ``cellpose_all_01`` for it, which is that judgement overruled by the
+# person whose app it is; the PNG is installed as ``align.png`` and the
+# glyph is out of the way.
+#
+# WORTH KNOWING: ``cellpose_all_01.png`` was already installed as
+# ``cellpose_all.png``, so ``align.png`` is now byte-identical to it.
+# No two Qt tiles collide — ``cellpose_all`` is a Tk-only module and is
+# not in :data:`APPS` — but the Tk GUI's "Cellpose All" and Qt's
+# Align & Stitch draw the same picture, and re-inking one re-inks both.
+# The user chose it explicitly; this is the note, not an objection.
+#
+# ``invasion`` left for the same reason earlier ("no bundled PNG reads
+# as inside vs outside") once it had artwork that did.
+_FORCE_GLYPH: set = set()
 
 
 def _icon_for_app(key: str) -> Optional[QIcon]:
@@ -269,10 +518,10 @@ class Sidebar(QWidget):
         outer.addWidget(title)
 
         # The nav rows scroll. Measured at 1440x900 -- the realistic laptop
-        # size -- this column stacks 29 rows, 5 section headings and the title
-        # in a plain QVBoxLayout and asks for 1356 px against 850 available,
-        # so the last three apps (Plaque Assay, Recruitment, Invasion Assay)
-        # were simply UNREACHABLE. The title stays pinned; only the rows move.
+        # size -- this column stacks a row per app, a heading per section
+        # and the title in a plain QVBoxLayout and asks for ~1300 px against
+        # 850 available, so the last few apps were simply UNREACHABLE. The
+        # title stays pinned; only the rows move.
         #
         # No stylesheet is set on the scroll area on purpose: an unscoped
         # `background: transparent` on a QScrollArea cascades to every
@@ -966,8 +1215,7 @@ class MainWindow(QMainWindow):
     # -- navigation -------------------------------------------------------
     def _install_startup_page(self):
         """Instantiate the Home page and add it to the stack."""
-        from .widgets.home import HomePage
-        self._startup = HomePage(APPS, _icon_for_app)
+        self._startup = make_home_page()
         self._startup.tile_clicked.connect(self._on_nav_selected)
         self._startup.update_check_requested.connect(self._check_for_updates)
         # The hero's "All apps" button is the labelled twin of the edge

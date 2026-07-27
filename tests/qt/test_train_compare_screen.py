@@ -130,10 +130,15 @@ def test_screen_builds_offscreen_without_raising(qtbot, qt_theme_applied):
 
 
 def test_registration_constants_put_it_in_results_and_qc():
+    """``APP_SECTION`` is the SUBJECT, not the staging bucket.
+
+    #16i staged this screen into Alpha modules, so for a while this
+    asserted ``"Alpha modules"``. That conflates two different axes:
+    staging says how finished the app is and moves the day it is signed
+    off, while the subject says what it does and does not. Comparing
+    training runs is reading a result, and this constant says so."""
     assert APP_KEY == "train_compare"
     assert APP_NAME == "Training Runs"
-    # Comparing training runs is reading a result, not running a tool —
-    # it lives with the other "did this work?" screens.
     assert APP_SECTION == "Results & QC"
     assert APP_INTRO.strip()
 
@@ -145,13 +150,17 @@ def test_registration_matches_the_app_registry_when_it_is_wired_up():
     rather than existence — it turns into a real check the moment the entry
     lands, and never a false red before then.
     """
-    from spacr.qt.app import APPS
+    from spacr.qt.app import APPS, SECTION_ALPHA, subject_section
     entry = next((a for a in APPS if a[0] == APP_KEY), None)
     if entry is None:
         pytest.skip("train_compare not yet registered in spacr.qt.app.APPS")
     key, name, desc, section = entry
     assert name == APP_NAME
-    assert section == APP_SECTION
+    # Was ``section == APP_SECTION``. The registry files this app under
+    # its staging bucket; ``subject_section`` is the axis APP_SECTION is
+    # on. Both are asserted so neither can drift unnoticed.
+    assert section == SECTION_ALPHA
+    assert subject_section(key, section) == APP_SECTION
     assert desc and desc.strip()
 
 

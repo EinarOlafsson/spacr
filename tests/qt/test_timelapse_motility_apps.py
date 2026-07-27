@@ -31,22 +31,42 @@ NEW_APPS = ("timelapse", "motility")
 
 @pytest.mark.parametrize("key", NEW_APPS)
 def test_new_module_is_on_the_home_screen(key):
+    """Both modules are in the registry, and in Beta modules.
+
+    This asserted ``SECTION_CORE`` — "a first-class workflow, not a
+    Tool". #16i is the same user moving them: Timelapse and Motility
+    Assay are both on the Beta modules list they wrote. Beta is not the
+    Tools drawer the original assertion was defending against; it is a
+    maturity label, and both are still full entries with their own
+    screen, title, intro and settings, as the rest of this file checks.
+    """
     from spacr.qt.app import APPS
     entry = next((a for a in APPS if a[0] == key), None)
     assert entry is not None, f"{key!r} missing from APPS"
     app_key, name, desc, section = entry
     assert name and desc
-    from spacr.qt.app import SECTION_CORE
-    assert section == SECTION_CORE, (
-        f"{key!r} is a first-class workflow, not a Tool — got section {section!r}")
+    from spacr.qt.app import SECTION_BETA, SECTION_CORE, subject_section
+    assert section == SECTION_BETA, (
+        f"{key!r} was staged into beta by the user — got {section!r}")
+    # …and it is still a Core app by subject, which is why the Core tab
+    # holds nine and the Core band on Home holds seven. Staging says how
+    # finished it is; the subject says it is part of the pipeline.
+    assert subject_section(app_key, section) == SECTION_CORE, (
+        f"{key!r} is a first-class workflow, not a Tool")
 
 
-def test_timelapse_is_not_filed_as_legacy_or_beta():
-    """The user's ask: timelapse is a first-class capability."""
+def test_timelapse_is_not_filed_as_legacy_or_deprecated():
+    """The user's ask: timelapse is a first-class capability.
+
+    Still true, and still worth guarding. What changed in #16i is that
+    the user put it on the *beta* list, so "beta" is no longer one of
+    the words this test may refuse — staged is not deprecated. The
+    section is asserted above; this is about how the entry describes
+    itself."""
     from spacr.qt.app import APPS
     _, name, desc, _ = next(a for a in APPS if a[0] == "timelapse")
     blob = f"{name} {desc}".lower()
-    for word in ("legacy", "deprecated", "beta", "experimental"):
+    for word in ("legacy", "deprecated", "experimental"):
         assert word not in blob, f"timelapse entry calls itself {word!r}"
 
 
@@ -62,13 +82,21 @@ def test_new_module_has_a_title_and_an_intro(key):
 
 @pytest.mark.parametrize("key", NEW_APPS)
 def test_new_module_icon_resolves_to_a_real_resource_file(key):
+    """A file on disk backs the tile, wherever the name comes from.
+
+    This used to *require* an ``_ICON_OVERRIDES`` entry, because both
+    modules borrowed somebody else's picture (timelapse→run.png,
+    motility→recruitment.png). The user has since chosen artwork for
+    both, and it is installed as ``<key>.png`` — which ``app_icon``
+    finds with no override at all. Demanding an override entry would now
+    mean demanding the borrowing back, so what is asserted is the thing
+    that was always the point: the resolved filename exists."""
     from spacr.qt import app as qt_app
-    assert key in qt_app._ICON_OVERRIDES, (
-        f"{key} has no dedicated icon; add an _ICON_OVERRIDES entry")
     here = os.path.dirname(os.path.abspath(qt_app.__file__))
-    path = os.path.join(here, "..", "resources", "icons",
-                        qt_app._ICON_OVERRIDES[key])
-    assert os.path.isfile(os.path.normpath(path)), f"missing icon file: {path}"
+    filename = qt_app._ICON_OVERRIDES.get(key, f"{key}.png")
+    path = os.path.normpath(
+        os.path.join(here, "..", "resources", "icons", filename))
+    assert os.path.isfile(path), f"missing icon file: {path}"
 
 
 @pytest.mark.parametrize("key", NEW_APPS)
@@ -82,8 +110,7 @@ def test_icon_provider_returns_an_icon(qtbot, qt_theme_applied, key):
 
 def test_sidebar_and_home_page_render_the_new_modules(qtbot, qt_theme_applied):
     from PySide6.QtWidgets import QPushButton
-    from spacr.qt.app import APPS, Sidebar, _icon_for_app
-    from spacr.qt.widgets.home import HomePage
+    from spacr.qt.app import Sidebar, make_home_page
 
     bar = Sidebar()
     qtbot.addWidget(bar)
@@ -91,7 +118,7 @@ def test_sidebar_and_home_page_render_the_new_modules(qtbot, qt_theme_applied):
     assert "Timelapse" in labels
     assert "Motility Assay" in labels
 
-    page = HomePage(APPS, _icon_for_app)
+    page = make_home_page()  # the page MainWindow ships
     qtbot.addWidget(page)
     from spacr.qt.widgets.tile import HTile
     tiles = {t.text_label for t in page.findChildren(HTile)}

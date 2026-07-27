@@ -5,8 +5,8 @@ import pytest
 
 from PySide6.QtCore import Qt
 
-from spacr.qt.app import APPS, MainWindow, Sidebar, _icon_for_app
-from spacr.qt.widgets.home import HomePage
+from spacr.qt.app import (APPS, MainWindow, Sidebar, _icon_for_app,
+                          make_home_page)
 
 
 def test_apps_list_shape():
@@ -49,7 +49,7 @@ def test_main_window_constructs_and_switches(qtbot, qt_theme_applied):
 
 def test_home_page_emits_tile_clicked(qtbot, qt_theme_applied):
     from spacr.qt.widgets.tile import HTile
-    page = HomePage(APPS, _icon_for_app)
+    page = make_home_page()  # the page MainWindow ships
     qtbot.addWidget(page)
     tiles = page.findChildren(HTile)
     assert tiles, "Home page should render tiles"

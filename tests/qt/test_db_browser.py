@@ -272,17 +272,25 @@ def editable(screen, measdb, allow_editing):
 # Registration: APPS / titles / intro / icon / MainWindow wiring
 # ---------------------------------------------------------------------------
 
-def test_db_browser_is_registered_under_data_and_batch_runs():
+def test_db_browser_is_registered_under_alpha_modules():
+    """Was ``..._under_data_and_batch_runs`` / ``SECTION_DATA``.
+
+    #16i staged the Database Browser into Alpha modules with the rest of
+    the Data section. It is still how measurements get back out of a
+    project — it is just not signed off yet, so it is on both the Data
+    tab and the Alpha modules tab."""
     from spacr.qt.app import APPS
     entry = next((a for a in APPS if a[0] == "db_browser"), None)
     assert entry is not None, "db_browser missing from APPS"
     key, name, desc, section = entry
     assert name == "Database Browser"
     assert desc and desc.strip()
-    from spacr.qt.app import SECTION_DATA
-    assert section == SECTION_DATA, (
-        f"db_browser filed under {section!r}; it is how measurements get "
-        "back out of a project")
+    from spacr.qt.app import SECTION_ALPHA, SECTION_DATA, subject_section
+    assert section == SECTION_ALPHA, (
+        f"db_browser filed under {section!r}; it was staged into alpha "
+        "and nothing has moved it back")
+    assert subject_section(key, section) == SECTION_DATA, (
+        "it is how measurements get back out of a project")
 
 
 def test_db_browser_has_a_title_and_an_intro():
@@ -294,12 +302,19 @@ def test_db_browser_has_a_title_and_an_intro():
 
 
 def test_db_browser_icon_resolves_to_a_real_resource_file():
+    """A file on disk backs the tile, wherever the name comes from.
+
+    This used to *require* an ``_ICON_OVERRIDES`` entry, because no
+    binary had been added and the screen borrowed ``map_barcodes.png``
+    (ruled bars read as table columns) — which meant Database Browser
+    and Map Barcodes drew the same picture. The user has since chosen
+    artwork for it, installed as ``db_browser.png``, which ``app_icon``
+    finds with no override at all."""
     from spacr.qt import app as qt_app
-    assert "db_browser" in qt_app._ICON_OVERRIDES, (
-        "db_browser needs an _ICON_OVERRIDES entry — no binary was added")
     here = os.path.dirname(os.path.abspath(qt_app.__file__))
-    path = os.path.normpath(os.path.join(
-        here, "..", "resources", "icons", qt_app._ICON_OVERRIDES["db_browser"]))
+    filename = qt_app._ICON_OVERRIDES.get("db_browser", "db_browser.png")
+    path = os.path.normpath(
+        os.path.join(here, "..", "resources", "icons", filename))
     assert os.path.isfile(path), f"missing icon file: {path}"
 
 

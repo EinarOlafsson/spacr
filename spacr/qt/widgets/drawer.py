@@ -199,7 +199,8 @@ class EdgeDrawer(QWidget):
         """Open, pin, and move focus into the panel.
 
         Without this the reveal is mouse-only, which makes every app
-        except the nine on the Home tabs unreachable without a pointer.
+        that is not on the tab currently open unreachable without a
+        pointer.
         """
         self.open()
         self.hold(True)

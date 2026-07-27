@@ -88,6 +88,12 @@ __all__ = ["TrainCompareScreen", "APP_KEY", "APP_NAME", "APP_SECTION",
 #: screen and the registry can be checked against each other.
 APP_KEY = "train_compare"
 APP_NAME = "Training Runs"
+#: The SUBJECT category: comparing training runs is reading a result.
+#: #16i staged this app into Alpha modules — which is where
+#: ``spacr.qt.app.APPS`` files it and where Home lists it — but staging
+#: says how finished an app is and this constant says what it does, so
+#: it did not move. ``spacr.qt.app.subject_section`` is what the suite
+#: checks it against.
 APP_SECTION = "Results & QC"
 APP_INTRO = (
     "Overlay the loss and accuracy curves of several training runs on one "

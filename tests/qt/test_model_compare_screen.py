@@ -160,7 +160,13 @@ def test_the_two_panels_start_on_different_settings(screen):
     assert config_a.diameter != config_b.diameter
 
 
-def test_the_screen_is_registered_under_segmentation_models(qtbot, qt_theme_applied):
+def test_the_screen_is_registered_under_alpha_modules(qtbot, qt_theme_applied):
+    """Was ``..._under_segmentation_models`` / ``SECTION_MODELS``.
+
+    #16i staged that whole section by maturity — Model Compare and Model
+    Zoo into alpha, the three Cellpose apps into beta — so nothing is
+    FILED under Segmentation models any more. Its tab still lists all
+    five, which is the axis this second assertion pins."""
     from spacr.qt.app import APPS, _icon_for_app
     from spacr.qt.screens.app_screen import APP_INTROS, APP_TITLES
 
@@ -168,8 +174,10 @@ def test_the_screen_is_registered_under_segmentation_models(qtbot, qt_theme_appl
     assert entry is not None, "model_compare missing from APPS"
     key, name, description, section = entry
     assert name == "Model Compare"
-    from spacr.qt.app import SECTION_MODELS
-    assert section == SECTION_MODELS
+    from spacr.qt.app import (SECTION_ALPHA, SECTION_MODELS,
+                              subject_section)
+    assert section == SECTION_ALPHA
+    assert subject_section(key, section) == SECTION_MODELS
     assert description
     assert APP_TITLES[key] == "Model Compare"
     assert APP_INTROS[key]

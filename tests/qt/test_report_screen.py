@@ -517,9 +517,16 @@ def test_report_registration_is_complete_if_it_is_registered():
     key, name, desc, section = entry
     assert name == "Report"
     assert desc and desc.strip()
-    from spacr.qt.app import SECTION_RESULTS
-    assert section == SECTION_RESULTS, (
-        f"report filed under {section!r}; it packages up results")
+    # Was SECTION_RESULTS ("it packages up results"). #16i staged the
+    # Report screen into Alpha modules; Results & QC lost every one of
+    # its apps that way but kept its tab, so both axes are asserted.
+    from spacr.qt.app import (SECTION_ALPHA, SECTION_RESULTS,
+                              subject_section)
+    assert section == SECTION_ALPHA, (
+        f"report filed under {section!r}; it was staged into alpha and "
+        "nothing has moved it back")
+    assert subject_section(key, section) == SECTION_RESULTS, (
+        "it packages up results")
 
     from spacr.qt.screens.app_screen import APP_INTROS, APP_TITLES
     assert APP_TITLES.get("report", "").strip() == "Report"
