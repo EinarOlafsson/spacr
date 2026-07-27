@@ -193,7 +193,8 @@ def test_train_cellpose_builds_batch_and_calls_train_seg(tmp_path, cp_stub):
     assert call["learning_rate"] == 0.05
     assert call["weight_decay"] == 1e-4
     assert call["save_every"] == 2                     # n_epochs // 10
-    assert call["model_name"] == "mymodel_cyto_e20_X16_Y16.CP_model"
+    # train_cellpose fine-tunes cpsam; `_cyto_` was a Cellpose-3 leftover.
+    assert call["model_name"] == "mymodel_cpsam_e20_X16_Y16.CP_model"
     assert call["save_path"] == os.path.join(str(tmp_path), "models", "cellpose_model")
     assert os.path.isdir(call["save_path"])
 
@@ -209,7 +210,7 @@ def test_train_cellpose_builds_batch_and_calls_train_seg(tmp_path, cp_stub):
         assert lbl.dtype == np.uint16
 
     # -- the resolved settings were snapshotted next to the data
-    saved = tmp_path / "settings" / "mymodel_cyto_e20_X16_Y16.CP_model.csv"
+    saved = tmp_path / "settings" / "mymodel_cpsam_e20_X16_Y16.CP_model.csv"
     assert saved.exists()
     saved_df = pd.read_csv(saved)
     assert set(saved_df["Key"]) >= {"src", "model_name", "n_epochs", "target_size",

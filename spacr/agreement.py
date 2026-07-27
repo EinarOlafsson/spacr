@@ -114,7 +114,82 @@ _METADATA_COLUMNS = frozenset({
     "prcfo", "prc", "cell_id", "nucleus_id", "pathogen_id",
     "cytoplasm_id", "object_label", "plate", "row", "column", "field",
     "well", "id", "index", "level_0",
+    # spacr.crops.CROP_FORMAT_DB_COLUMN, the channel-order version marker
+    # stamp_crop_format_in_db adds to png_list. One or two distinct small
+    # integers over every row -- the exact shape of an annotation pass, and
+    # not one.
+    "crop_format",
 })
+
+#: Columns of ``png_list`` written by a **model**, not by a person.
+#:
+#: This is the same bug as ``timeID`` and one worse. ``png_list`` is the only
+#: table in spaCR that both the Annotate app and every classifier write into,
+#: and the classifier's columns look exactly like an annotation pass: an
+#: ``INTEGER`` class column with two distinct values and no NULLs. So
+#: :func:`annotation_columns` offered them, and the resulting κ was not
+#: inter-annotator agreement at all -- it silently added the model as a third
+#: annotator.
+#:
+#: Measured on a two-well database built by the real writers, two human
+#: annotators and one CV run merged in by :func:`spacr.predictions.merge_cv_predictions`:
+#: candidates came back as ``['annotator_ann', 'annotator_bob', 'pred',
+#: 'cv_predictions']``, and the overall κ over all four was **-0.004**
+#: ("poor (no better than chance)") where the two humans alone agree at
+#: **0.471** ("moderate"). The number a user would have quoted was the
+#: classifier's disagreement with the people, reported as the people's
+#: disagreement with each other.
+#:
+#: Names are kept in step with their writers by
+#: ``tests/test_agreement_excludes_the_model.py``, which imports the constants
+#: from :mod:`spacr.predictions` and :mod:`spacr.active_learning` and asserts
+#: every one of them is listed here. They are duplicated rather than imported
+#: so that this module keeps its promise of importing nothing but pandas,
+#: numpy and the standard library.
+_MODEL_COLUMNS = frozenset({
+    # spacr.predictions: the convolutional classifier
+    "pred", "cv_predictions",
+    # spacr.predictions: the classical-ML classifier
+    "ml_pred", "predictions",
+    # spacr.active_learning.PRED_COLUMN_CANDIDATES, the two not already above
+    "prediction", "score",
+    # spacr.gui_elements: the Annotate app's built-in XGBoost pass. The name
+    # says "annotation" and it is not one -- it is a model's call, derived
+    # from a score in the very next column.
+    "XGboost_annotation", "XGboost_score",
+})
+
+#: Per-class probability columns ``spacr.ml.ml_analysis`` produces
+#: (``prediction_probability_class_0``, ``..._1``, ...). A prefix rather than
+#: a name because the count follows the number of classes.
+_MODEL_COLUMN_PREFIXES = ("prediction_probability_class_",)
+
+#: Suffix of the sampled-negatives column ``spacr.io.generate_training_dataset``
+#: writes next to an annotation column (``<col>_random``): 1 for the rows it
+#: drew as controls, NULL everywhere else. Excluded only when ``<col>`` is
+#: itself a column of the same table, so a genuine annotator who happens to be
+#: called ``blind_random`` is still offered.
+_SAMPLED_COLUMN_SUFFIX = "_random"
+
+
+def _is_model_column(name: str, table_columns: Sequence[str] = ()) -> bool:
+    """True when ``name`` is written by a model rather than by an annotator.
+
+    :param name: candidate column name.
+    :param table_columns: the table's other columns, used to recognise a
+        ``<col>_random`` sampling column by the column it was derived from.
+    :returns: True to exclude it from the annotation-column guess.
+    """
+    if name in _MODEL_COLUMNS:
+        return True
+    if any(name.startswith(prefix) for prefix in _MODEL_COLUMN_PREFIXES):
+        return True
+    if name.endswith(_SAMPLED_COLUMN_SUFFIX):
+        base = name[: -len(_SAMPLED_COLUMN_SUFFIX)]
+        if base and base in set(table_columns):
+            return True
+    return False
+
 
 #: Landis & Koch (1977) bands, as ``(upper_bound, label)`` pairs. A
 #: **convention** — see :data:`CONVENTION`.
@@ -571,12 +646,23 @@ def table_columns(db_path: str, table: str = PNG_TABLE) -> List[str]:
 
 def annotation_columns(db_path: str, table: str = PNG_TABLE,
                        key: str = PNG_KEY, max_classes: int = 20,
-                       min_labelled: int = 1) -> List[str]:
-    """Guess which columns of ``table`` hold annotations.
+                       min_labelled: int = 1,
+                       include_model_columns: bool = False) -> List[str]:
+    """Guess which columns of ``table`` hold **human** annotations.
 
     The Annotate app adds a plain ``INTEGER`` column per annotation pass,
     so an annotation column is one that is *not* part of the crop
-    metadata, holds few distinct values, and has at least one non-NULL.
+    metadata, *not* written by a model, holds few distinct values, and has
+    at least one non-NULL.
+
+    The model exclusion is the point. A classifier writes into this same
+    table — ``pred``/``cv_predictions`` from the CV stage,
+    ``predictions``/``ml_pred`` from the ML one — and its class column is
+    indistinguishable *by shape* from an annotation pass. Offering it made
+    ``agreement_report`` score the classifier as a third annotator, which
+    is a different question with the same units: on a real database, four
+    "annotators" gave κ = -0.004 where the two humans agree at 0.471. See
+    :data:`_MODEL_COLUMNS`.
 
     :param db_path: path to ``measurements.db``.
     :param table: table to inspect (default ``png_list``).
@@ -584,6 +670,11 @@ def annotation_columns(db_path: str, table: str = PNG_TABLE,
     :param max_classes: reject columns with more distinct values than
         this — a continuous measurement is not an annotation.
     :param min_labelled: reject columns with fewer labelled rows.
+    :param include_model_columns: offer the model's own columns too. For
+        the deliberate question "how well does the classifier agree with
+        the annotators?", which is model validation, not inter-annotator
+        agreement. Off by default because it is never the question
+        somebody means when they ask for agreement between annotators.
     :returns: candidate column names, in table order.
     """
     columns = table_columns(db_path, table)
@@ -592,6 +683,8 @@ def annotation_columns(db_path: str, table: str = PNG_TABLE,
     try:
         for col in columns:
             if col == key or col in _METADATA_COLUMNS:
+                continue
+            if not include_model_columns and _is_model_column(col, columns):
                 continue
             q = _quote_ident(col)
             n_labelled, n_distinct = con.execute(
@@ -908,6 +1001,19 @@ def agreement_report(db_path: str, columns: Sequence[str],
         warnings.append(
             f"Only {n_complete} row(s) are labelled by every annotator; κ is "
             f"very noisy at that size. Treat the value as indicative.")
+
+    # A caller can always name columns explicitly, and the Qt screen lets one
+    # be ticked. Saying so is the difference between a deliberate model
+    # validation and a κ quoted as inter-annotator agreement that is not one.
+    model_cols = [c for c in cols if _is_model_column(c, table_columns(db_path, table))]
+    if model_cols:
+        warnings.append(
+            f"{', '.join(model_cols)} {'is' if len(model_cols) == 1 else 'are'} "
+            f"written by a model, not by an annotator, so this κ measures how "
+            f"far the classifier is from the people — not how far the people "
+            f"are from each other. Drop "
+            f"{'it' if len(model_cols) == 1 else 'them'} for inter-annotator "
+            f"agreement.")
 
     return AgreementReport(
         db_path=str(db_path), table=table, key=key, columns=cols,

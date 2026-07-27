@@ -167,30 +167,42 @@ class CellposeLazyDataset(Dataset):
         return image, label
 
 def train_cellpose(settings):
-    """Train a Cellpose ``cyto`` segmentation model from images and paired masks.
+    """Fine-tune the Cellpose-SAM (``cpsam``) segmentation model from images and paired masks.
 
     :param settings: dict of training settings; see
         ``get_train_cellpose_default_settings`` for keys including ``src``,
         ``model_name``, ``target_size``, ``n_epochs``, ``batch_size``,
         ``learning_rate``, ``weight_decay``, and ``augment``.
-    :returns: None. Saves the trained model under ``<src>/models/cellpose_model``.
+    :returns: None. Saves the trained model under ``<src>/models/cellpose_model``,
+        named ``<model_name>_cpsam_e<n_epochs>_X<w>_Y<h>.CP_model``.
     """
     from .settings import get_train_cellpose_default_settings
     from .utils import save_settings
-    
+
     settings = get_train_cellpose_default_settings(settings)
     img_src = os.path.join(settings['src'], 'train', 'images')
     mask_src = os.path.join(settings['src'], 'train', 'masks')
     target_size = settings['target_size']
 
-    model_name = f"{settings['model_name']}_cyto_e{settings['n_epochs']}_X{target_size}_Y{target_size}.CP_model"
+    # `_cyto_` was a Cellpose-3 leftover: it named the cyto model this
+    # function used to fine-tune. It fine-tunes 'cpsam' (below) and has done
+    # since the Cellpose 4 port, so the old infix stamped 'cyto' onto a
+    # CPSAM checkpoint and a user reading the filename was told the wrong
+    # architecture. New checkpoints say cpsam.
+    #
+    # Names written before this change keep working: nothing parses the
+    # infix. spacr.model_zoo recognises a Cellpose checkpoint by its
+    # ``.CP_model`` / ``.CPmodel`` SUFFIX (model_zoo.CELLPOSE_SUFFIXES) or by
+    # the folder it sits in, and _resolve_cellpose_pretrained loads any
+    # existing path as given -- so `foo_cyto_e500_X1120_Y1120.CP_model` on
+    # disk still resolves, still loads, and still versions.
+    model_name = f"{settings['model_name']}_cpsam_e{settings['n_epochs']}_X{target_size}_Y{target_size}.CP_model"
     model_save_path = os.path.join(settings['src'], 'models', 'cellpose_model')
     os.makedirs(model_save_path, exist_ok=True)
 
     save_settings(settings, name=model_name)
 
     model = cp_models.CellposeModel(gpu=True, pretrained_model='cpsam')
-    cp_channels = [0, 0]
 
     #train_image_files = sorted([os.path.join(img_src, f) for f in os.listdir(img_src) if f.endswith('.tif')])
     #train_label_files = sorted([os.path.join(mask_src, f) for f in os.listdir(mask_src) if f.endswith('.tif')])

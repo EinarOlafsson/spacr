@@ -1,4 +1,4 @@
-import os, re, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, cellpose, glob, queue, threading, tifffile, czifile, atexit, datetime, readlif, tempfile
+import os, re, json, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, cellpose, glob, queue, threading, tifffile, czifile, atexit, datetime, readlif, tempfile
 import numpy as np
 import pandas as pd
 from PIL import Image, ImageOps
@@ -440,10 +440,14 @@ class NoClassDataset(Dataset):
         self.transform = transform
         self.shuffle = shuffle
         self.load_to_memory = load_to_memory
+        # Hidden files are not images. A crop folder carries a
+        # `.spacr_crop_format.json` sidecar (spacr.crops), and a folder that
+        # has been near a Mac or Windows carries .DS_Store / Thumbs.db; every
+        # one of them used to be handed to Image.open as a sample.
         self.filenames = [
-            os.path.join(data_dir, f) 
-            for f in os.listdir(data_dir) 
-            if os.path.isfile(os.path.join(data_dir, f))
+            os.path.join(data_dir, f)
+            for f in os.listdir(data_dir)
+            if os.path.isfile(os.path.join(data_dir, f)) and not f.startswith('.')
         ]
         if self.shuffle:
             self.shuffle_dataset()
@@ -518,7 +522,13 @@ class spacrDataset(Dataset):
         else:
             for class_name in self.classes:
                 class_path = os.path.join(data_dir, class_name)
-                class_files = [os.path.join(class_path, f) for f in os.listdir(class_path) if os.path.isfile(os.path.join(class_path, f))]
+                # Hidden files are not samples: a class folder written by
+                # generate_dataset_from_lists carries the crop-format sidecar
+                # `.spacr_crop_format.json`, and any folder that has been near
+                # a Mac carries .DS_Store. Both used to reach Image.open.
+                class_files = [os.path.join(class_path, f) for f in os.listdir(class_path)
+                               if os.path.isfile(os.path.join(class_path, f))
+                               and not f.startswith('.')]
                 self.filenames.extend(class_files)
                 self.labels.extend([self.classes.index(class_name)] * len(class_files))
         
@@ -687,6 +697,19 @@ class spacrDataLoader(DataLoader):
 class TarImageDataset(Dataset):
     """Image dataset backed by a tar archive, decoded on demand.
 
+    A tar written by :func:`generate_dataset` from on-demand crops carries a
+    ``.spacr_crop_format.json`` member -- the same marker
+    :mod:`spacr.crops` writes into a crop folder, travelling with the bytes it
+    describes. It is **not** an image, so it is excluded from the sample list
+    and surfaced as :attr:`crop_format` instead; an archive without one
+    reports None, which is every tar written before this existed.
+
+    The pixels are handed over exactly as they are stored. A legacy archive is
+    NOT silently un-reversed here: a model's weights are tied to the channel
+    order it was trained on, so correcting the order at inference time would
+    quietly invalidate every model trained before the fix. :attr:`crop_format`
+    is what lets a caller notice.
+
     :param tar_path: Path to the tar archive.
     :param transform: Optional callable applied to each PIL image.
     """
@@ -695,10 +718,23 @@ class TarImageDataset(Dataset):
         """Enumerate archive members without extracting."""
         self.tar_path = tar_path
         self.transform = transform
+        self.crop_format = None
 
         # Open the tar file just to build the list of members
+        from . import crops
         with tarfile.open(self.tar_path, 'r') as f:
-            self.members = [m for m in f.getmembers() if m.isfile()]
+            self.members = []
+            for m in f.getmembers():
+                if not m.isfile():
+                    continue
+                if os.path.basename(m.name) == crops.CROP_FORMAT_SIDECAR:
+                    try:
+                        payload = json.loads(f.extractfile(m).read().decode('utf-8'))
+                        self.crop_format = int(payload.get('spacr_crop_format'))
+                    except Exception:
+                        self.crop_format = None
+                    continue
+                self.members.append(m)
 
     def __len__(self):
         """Return the number of image members in the archive."""
@@ -2139,6 +2175,27 @@ class JoinFanOut(ValueError):
     """
 
 
+class CropModeMismatch(ValueError):
+    """``png_list`` holds no crops of the object this join is anchored on.
+
+    ``measure_crop`` writes one object-id column per ``crop_mode`` --
+    ``cell_id`` for ``crop_mode=['cell']``, ``nucleus_id`` for ``['nucleus']``
+    and so on; the mapping is :data:`spacr.utils.PNG_OBJECT_ID_COLUMNS`.
+    :func:`_read_and_join_tables` anchors on the ``cell`` table, so it needs
+    ``cell_id``. A database measured only with nucleus crops does not have that
+    column, and used to fail with ``KeyError: "['cell_id'] not in index"`` --
+    which names neither the table, nor the column's absence, nor the setting
+    that caused it.
+
+    The cell a nucleus crop belongs to *is* in the crop's file name --
+    :func:`spacr.utils._generate_names` writes
+    ``<field>_<cell>_<nucleus>.png`` -- but it is not stored:
+    :func:`spacr.utils.filepaths_to_database` keeps only the last token.
+    Recovering it would mean a second file-name parser beside
+    :mod:`spacr.schema`, so this is a refusal rather than a guess.
+    """
+
+
 def _report_fan_out(left, merged, join_cols, left_name='cell',
                     right_name='png_list'):
     """Raise :class:`JoinFanOut` if ``merged`` grew, naming the offending keys.
@@ -2181,6 +2238,19 @@ def _read_and_join_tables(db_path, table_names=None):
     repairs an old database in place, but a database opened read-only, or one
     carrying both spellings, still reads correctly here.
 
+    **The object id is migrated, not assumed.** ``png_list.cell_id`` is text
+    (``'o5'``) and every object table's key is an integer, so the two are
+    reconciled through :func:`spacr.utils.object_label_from_png_id` -- one
+    implementation, shared with anything else that has to cross that boundary.
+    The migration this replaces was ``.str[1:].astype(int)``, which died on
+    four values the real writers produce every day: ``'omulti'`` and
+    ``'onone'`` (a crop overlapping several cells, or none), ``'error'`` (an
+    unparseable crop name) and ``NULL`` (any row belonging to a *different*
+    crop mode, in a database measured with more than one). Those rows are now
+    dropped from the ``png_list`` side and counted out loud: the object keeps
+    its measurements and simply has no crop path, which is the same state as a
+    crop that was never written.
+
     Args:
         db_path (str): The path to the SQLite database file.
         table_names (list, optional): The names of the tables to read and join. Defaults to ['cell', 'cytoplasm', 'nucleus', 'pathogen', 'png_list'].
@@ -2192,11 +2262,14 @@ def _read_and_join_tables(db_path, table_names=None):
         TimelapseKeyMismatch: when exactly one of ``png_list`` and ``cell``
             carries a timepoint column.
         JoinFanOut: when the join returns more rows than the object table had.
+        CropModeMismatch: when ``png_list`` carries no ``cell_id`` column, i.e.
+            it holds crops of some other object.
     """
     if table_names is None:
         table_names = ['cell', 'cytoplasm', 'nucleus', 'pathogen', 'png_list']
-    from .utils import (TIME_COLUMN_ALIASES, rename_columns_in_db,
-                        _time_column)
+    from .utils import (PNG_CROP_MODE_BY_ID_COLUMN, PNG_OBJECT_ID_COLUMNS,
+                        TIME_COLUMN_ALIASES, object_label_from_png_id,
+                        rename_columns_in_db, _time_column)
     rename_columns_in_db(db_path)
 
     conn = sqlite3.connect(db_path)
@@ -2209,13 +2282,55 @@ def _read_and_join_tables(db_path, table_names=None):
             print(e)
     conn.close()
     if 'png_list' in dataframes:
-        png_cols = ['cell_id', 'png_path', 'plateID', 'rowID', 'columnID', 'fieldID']
-        png_time = _time_column(dataframes['png_list'].columns)
+        png_raw = dataframes['png_list']
+        id_column = PNG_OBJECT_ID_COLUMNS['cell']          # 'cell_id'
+        if id_column not in png_raw.columns:
+            present = [c for c in png_raw.columns
+                       if c in PNG_CROP_MODE_BY_ID_COLUMN]
+            modes = sorted(PNG_CROP_MODE_BY_ID_COLUMN[c] for c in present)
+            raise CropModeMismatch(
+                f"png_list in {db_path} has no {id_column!r} column, so its "
+                f"crops cannot be attached to the cell table this join is "
+                f"anchored on. It holds "
+                + (f"{', '.join(modes)} crops ({', '.join(present)})"
+                   if present else "no object-id column at all")
+                + f". Re-run the Measure module with 'cell' in crop_mode to "
+                  f"write cell crops alongside the ones already there."
+            )
+        png_cols = [id_column, 'png_path', 'plateID', 'rowID', 'columnID',
+                    'fieldID']
+        png_time = _time_column(png_raw.columns)
         if png_time is not None:
             png_cols = png_cols + [png_time]
-        png_list_df = dataframes['png_list'][png_cols].copy()
-        png_list_df['cell_id'] = png_list_df['cell_id'].str[1:].astype(int)
-        png_list_df.rename(columns={'cell_id': 'object_label'}, inplace=True)
+        png_list_df = png_raw[png_cols].copy()
+
+        labels = object_label_from_png_id(png_list_df[id_column])
+        usable = labels.notna()
+        if not usable.all():
+            # Two different reasons, reported separately because they call for
+            # two different actions: NULL means "this row is another crop
+            # mode's" and is expected in a multi-mode database, while a token
+            # that is not a number means the crop's own name could not be read.
+            raw = png_list_df[id_column]
+            other_mode = int((raw.isna() & ~usable).sum())
+            unreadable = raw[~usable & raw.notna()]
+            if other_mode:
+                print(f"png_list: {other_mode} of {len(png_list_df)} rows have "
+                      f"no {id_column} and belong to another crop mode; they "
+                      f"are not cell crops and take no part in this join.")
+            if len(unreadable):
+                sample = ', '.join(repr(v) for v in unreadable.unique()[:4])
+                print(f"png_list: {len(unreadable)} row(s) carry a "
+                      f"{id_column} that is not an object number ({sample}"
+                      f"{' ...' if unreadable.nunique() > 4 else ''}); those "
+                      f"crops cannot be matched to an object and are skipped. "
+                      f"'omulti'/'onone' mean the crop overlapped several "
+                      f"cells or none, 'error' means its file name could not "
+                      f"be parsed.")
+            png_list_df = png_list_df.loc[usable].copy()
+            labels = labels.loc[usable]
+        png_list_df[id_column] = labels.astype('int64')
+        png_list_df.rename(columns={id_column: 'object_label'}, inplace=True)
         if 'cell' in dataframes:
             join_cols = ['object_label', 'plateID', 'rowID', 'columnID','fieldID']
             cell_time = _time_column(dataframes['cell'].columns)
@@ -2245,6 +2360,19 @@ def _read_and_join_tables(db_path, table_names=None):
             return png_list_df
     for entity in ['nucleus', 'pathogen']:
         if entity in dataframes:
+            if 'cell_id' not in dataframes[entity].columns:
+                # A child table measured with cell_mask_dim=None has no parent
+                # link at all -- _merge_and_save_to_database drops 'cell_id'
+                # from its key columns in exactly that case, deliberately. The
+                # roll-up onto the cell is then not merely empty, it is
+                # undefined, and this used to be a bare KeyError('cell_id')
+                # naming neither the table nor the setting behind it.
+                print(f"{entity} was measured without a cell mask, so its rows "
+                      f"carry no cell_id and cannot be rolled up onto the cell "
+                      f"table; {entity} features are left out of the join. "
+                      f"Re-run Measure with cell_mask_dim set to link them.")
+                del dataframes[entity]
+                continue
             numeric_cols = dataframes[entity].select_dtypes(include=[np.number]).columns.tolist()
             non_numeric_cols = dataframes[entity].select_dtypes(exclude=[np.number]).columns.tolist()
             agg_dict = {col: 'mean' for col in numeric_cols}
@@ -2263,16 +2391,115 @@ def _read_and_join_tables(db_path, table_names=None):
             joined_df = pd.merge(joined_df, dataframes[entity], left_on=['object_label', 'prcf'], right_index=True, how='left', suffixes=('', f'_{entity}'))
     return joined_df
     
-def _save_settings_to_db(settings):
-    """
-    Save the settings dictionary to a SQLite database.
+#: Table holding the settings of the run that wrote the database **last**.
+#: Two columns, ``setting_key`` / ``setting_value``, one row per setting.
+SETTINGS_TABLE = 'settings'
 
-    Args:
-        settings (dict): A dictionary containing the settings.
+#: Append-only companion to :data:`SETTINGS_TABLE`: every stage that has ever
+#: written settings into this database, oldest first.
+SETTINGS_HISTORY_TABLE = 'settings_history'
 
-    Returns:
-        None
+#: Columns of :data:`SETTINGS_HISTORY_TABLE`. ``setting_key`` /
+#: ``setting_value`` come last and are spelled identically to the ``settings``
+#: table, so ``SELECT setting_key, setting_value FROM settings_history`` reads
+#: exactly like the table it archives.
+SETTINGS_HISTORY_COLUMNS = ('run_id', 'stage', 'stamped_utc', 'setting_key',
+                            'setting_value')
+
+
+def _settings_history_rows(conn):
+    """Read :data:`SETTINGS_HISTORY_TABLE`, or ``[]`` when there is none."""
+    try:
+        return conn.execute(
+            f'SELECT {", ".join(SETTINGS_HISTORY_COLUMNS)} '
+            f'FROM "{SETTINGS_HISTORY_TABLE}" ORDER BY rowid').fetchall()
+    except sqlite3.Error:
+        return []
+
+
+def read_settings_history(db_path):
+    """Every settings snapshot ever written into ``db_path``, oldest first.
+
+    :param db_path: path to a ``measurements.db``.
+    :returns: list of ``{'run_id', 'stage', 'stamped_utc', 'settings'}``, one
+        entry per recorded run, oldest first. A database that predates the
+        history table returns ``[]``.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.io import read_settings_history
+            for run in read_settings_history('.../measurements/measurements.db'):
+                print(run['stamped_utc'], run['stage'],
+                      run['settings'].get('crop_mode'))
     """
+    if not os.path.isfile(str(db_path)):
+        return []
+    conn = sqlite3.connect(str(db_path), timeout=5)
+    try:
+        rows = _settings_history_rows(conn)
+    finally:
+        conn.close()
+    runs = []
+    index = {}
+    for run_id, stage, stamped, key, value in rows:
+        marker = (run_id, stage, stamped)
+        if marker not in index:
+            index[marker] = {'run_id': run_id, 'stage': stage,
+                             'stamped_utc': stamped, 'settings': {}}
+            runs.append(index[marker])
+        index[marker]['settings'][key] = value
+    return runs
+
+
+def _save_settings_to_db(settings, stage=None):
+    """Record this run's settings in the database it is about to write.
+
+    Two tables, because two different questions are being asked:
+
+    * ``settings`` — what the **most recent** run was configured with.
+      Replaced, which is what :func:`spacr.resume.read_recorded_settings`
+      reads and compares against before a resume; it has to be exactly one
+      run's settings or that comparison means nothing.
+    * ``settings_history`` — **every** run that has ever written settings
+      here, appended, each tagged with a ``run_id``, a stage name and a UTC
+      timestamp.
+
+    The second is the repair. ``settings`` alone is replace-only, so a database
+    written by more than one stage — or measured twice, once for cell crops and
+    once for pathogen crops, both appending to the same ``png_list`` — kept the
+    last stage's settings only, and every row the earlier ones wrote was left
+    with no record of how it was produced. Worse, this call happens *before*
+    any field is measured, so a run that recorded its settings and then died
+    replaced the settings of the run that actually produced the rows on disk.
+    Measured on two saves with different ``crop_mode``/``channels``: 1 of 2
+    stages recoverable before, 2 of 2 after.
+
+    A ``settings`` table written before this history existed is copied into the
+    history the first time this runs, so a database already on disk keeps its
+    one snapshot instead of losing it to the next run.
+
+    :param settings: settings dict; must contain ``src``.
+    :param stage: name of the pipeline stage, e.g. ``'measure_crop'``. When
+        None it is taken from ``settings['stage']`` or ``settings['module']``
+        if either is set, and recorded as ``'unknown'`` otherwise — ``run_id``
+        and ``stamped_utc`` still keep the runs apart.
+    :returns: None.
+    """
+    import uuid
+
+    from .errors import _utcnow
+
+    if stage is None:
+        for key in ('stage', 'module'):
+            candidate = settings.get(key)
+            if isinstance(candidate, str) and candidate.strip():
+                stage = candidate.strip()
+                break
+    stage = stage or 'unknown'
+    run_id = uuid.uuid4().hex
+    stamped = _utcnow()
+
     # Convert the settings dictionary into a DataFrame
     settings_df = pd.DataFrame(list(settings.items()), columns=['setting_key', 'setting_value'])
     # Convert all values in the 'setting_value' column to strings
@@ -2286,8 +2513,37 @@ def _save_settings_to_db(settings):
     os.makedirs(directory, exist_ok=True)
     # Database connection and saving the settings DataFrame
     conn = sqlite3.connect(f'{directory}/measurements.db', timeout=5)
-    settings_df.to_sql('settings', conn, if_exists='replace', index=False)  # Replace the table if it already exists
-    conn.close()
+    try:
+        conn.execute(
+            f'CREATE TABLE IF NOT EXISTS "{SETTINGS_HISTORY_TABLE}" ('
+            'run_id TEXT, stage TEXT, stamped_utc TEXT, '
+            'setting_key TEXT, setting_value TEXT)')
+        insert = (f'INSERT INTO "{SETTINGS_HISTORY_TABLE}" '
+                  f'({", ".join(SETTINGS_HISTORY_COLUMNS)}) VALUES (?,?,?,?,?)')
+        # Migrate what is already on disk before it is replaced. A database
+        # written before the history table existed carries exactly one
+        # snapshot, in `settings`; without this it would be the one run that
+        # still gets forgotten.
+        if not _settings_history_rows(conn):
+            try:
+                previous = conn.execute(
+                    f'SELECT setting_key, setting_value '
+                    f'FROM "{SETTINGS_TABLE}"').fetchall()
+            except sqlite3.Error:
+                previous = []
+            if previous:
+                conn.executemany(insert, [('', 'before-history', '', key, value)
+                                          for key, value in previous])
+        conn.executemany(insert, [(run_id, stage, stamped, key, value)
+                                  for key, value
+                                  in zip(settings_df['setting_key'],
+                                         settings_df['setting_value'])])
+        settings_df.to_sql(SETTINGS_TABLE, conn, if_exists='replace', index=False)  # Replace the table if it already exists
+        conn.commit()
+    finally:
+        # Closed on every path: an open connection holds the lock, and this
+        # runs immediately before measure_crop's workers start writing.
+        conn.close()
 
 def _save_mask_timelapse_as_gif(masks, tracks_df, path, cmap, norm, filenames):
     """
@@ -3062,8 +3318,37 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_
         # -----------------------------------------------------------------------
 
     if 'png_list' in data_dict:
+        from .utils import (PNG_CROP_MODE_BY_ID_COLUMN, PNG_OBJECT_ID_COLUMNS,
+                            object_label_from_png_id)
+
         png_list = data_dict['png_list'].copy()
-        png_list_g_df_numeric, png_list_g_df_non_numeric = _split_data(png_list, 'prcfo', 'cell_id')
+        id_column = PNG_OBJECT_ID_COLUMNS['cell']          # 'cell_id'
+        if id_column not in png_list.columns:
+            # Same contract as _read_and_join_tables, same refusal. This used
+            # to be a bare KeyError('cell_id') raised inside _split_data.
+            present = [c for c in png_list.columns
+                       if c in PNG_CROP_MODE_BY_ID_COLUMN]
+            modes = sorted(PNG_CROP_MODE_BY_ID_COLUMN[c] for c in present)
+            raise CropModeMismatch(
+                f"png_list has no {id_column!r} column, so its crops cannot be "
+                f"keyed onto the objects being merged. It holds "
+                + (f"{', '.join(modes)} crops ({', '.join(present)})"
+                   if present else "no object-id column at all")
+                + ". Re-run the Measure module with 'cell' in crop_mode.")
+        # Rows of another crop mode carry NULL here. _split_data rebuilds
+        # prcfo as prcf + '_' + cell_id, so every one of them collapsed onto
+        # one '<field>_None' key per field, was aggregated together, and then
+        # missed the merge. The right answer came out for the wrong reason --
+        # it depended on str(None) not colliding with a real object id -- and
+        # the rows silently averaged each other on the way. Drop them on
+        # purpose instead.
+        keep = object_label_from_png_id(png_list[id_column]).notna()
+        if not keep.all():
+            print(f"png_list: {int((~keep).sum())} of {len(png_list)} rows are "
+                  f"not usable cell crops (another crop mode, or an object id "
+                  f"that is not a number); they take no part in the merge.")
+            png_list = png_list.loc[keep].copy()
+        png_list_g_df_numeric, png_list_g_df_non_numeric = _split_data(png_list, 'prcfo', id_column)
         png_list_g_df_non_numeric.drop(
             columns=['plateID', 'rowID', 'columnID', 'fieldID', 'file_name', 'cell_id', 'prcf'],
             inplace=True,
@@ -3238,6 +3523,575 @@ def parse_gz_files(folder_path):
             samples_dict[sample_name]['R2'] = os.path.join(folder_path, gz_file)
     return samples_dict
 
+
+# ===========================================================================
+# On-demand crops
+#
+# :mod:`spacr.crops` cuts a single object straight out of ``merged/*.npy`` --
+# the array already holds both the intensity planes and the integer label-mask
+# planes, so the crop the PNG folder holds can be reproduced on demand,
+# pixel for pixel, without the folder existing. Until now only the Qt Annotate
+# screen was wired to it; the image UMAP and the Classify dataset builders
+# still required a pre-generated folder, which costs disk, has to be
+# regenerated whenever a crop setting changes, and goes stale silently.
+#
+# Everything below is the seam those consumers use. It is deliberately
+# **additive**: ``crop_source='png'`` (and ``'auto'`` on any project that has
+# a crop folder) behaves exactly as before, byte for byte.
+#
+# Two rules hold everywhere in this section:
+#
+#   1. A crop is only ever produced by :mod:`spacr.crops`. On-demand crops go
+#      through ``CropSource.get`` -> ``crops.png_view``; crops read back off
+#      disk go through ``crops.read_crop_png``. Neither path re-implements the
+#      channel handling, and neither goes around the format versioning added
+#      in 341f446.
+#   2. Any folder of crop PNGs spaCR *writes* is stamped with the crop-format
+#      sidecar before it is filled -- with the current (RGB) format when the
+#      crops were cut here, and with the SOURCE folder's format when they were
+#      byte-copied out of one. An unmarked folder means legacy, so leaving a
+#      freshly written folder unmarked is the one mistake that silently
+#      reverses everything downstream.
+# ===========================================================================
+
+#: Object types that can be cut on demand.
+CROP_OBJECT_TYPES = ('cell', 'nucleus', 'pathogen', 'cytoplasm', 'organelle')
+
+#: ``png_list`` column holding the object id (``'o<N>'``) for each crop mode,
+#: as written by :func:`spacr.utils.filepaths_to_database`.
+PNG_LIST_ID_COLUMNS = {
+    'cell': 'cell_id', 'nucleus': 'nucleus_id', 'pathogen': 'pathogen_id',
+    'cytoplasm': 'cytoplasm_id', 'organelle': 'organelle_id',
+}
+
+#: Column name used to carry a per-row crop handle through the frames in this
+#: module without colliding with a measurement column.
+CROP_REF_COLUMN = '_spacr_crop_ref'
+
+
+def crop_object_type(png_type, default='cell'):
+    """Return the object type named by a ``png_type`` / ``file_metadata`` string.
+
+    ``'cell_png'`` -> ``'cell'``, ``'…/nucleus_png/…'`` -> ``'nucleus'``. A
+    string that names no object type (a plate prefix, say) falls back to
+    ``default``, because that filter is about *which rows*, not *which mask*.
+
+    :param png_type: the setting value, or any path/substring containing it.
+    :param default: object type to assume when nothing is named.
+    :returns: one of :data:`CROP_OBJECT_TYPES`.
+    """
+    text = str(png_type or '').lower()
+    for obj in CROP_OBJECT_TYPES:
+        if f'{obj}_png' in text:
+            return obj
+    return default
+
+
+#: ``measure_crop`` settings that shape a crop, and that a later run may
+#: legitimately override when cutting one on demand.
+CROP_SHAPE_KEYS = ('png_dims', 'png_size', 'normalize', 'normalize_by',
+                   'crop_mode', 'use_bounding_box', 'dialate_pngs',
+                   'dialate_png_ratios', 'cell_mask_dim', 'nucleus_mask_dim',
+                   'pathogen_mask_dim', 'organelle_mask_dim')
+
+
+def _crop_shape_overrides(settings):
+    """Return the crop-shaping settings that may override the saved snapshot.
+
+    Only the keys that mean the same thing to a crop as they do to
+    ``measure_crop``. ``normalize`` is the trap and the reason this function
+    exists: ``measure_crop`` writes a ``[p1, p2]`` percentile pair, and
+    ``train_test_model`` / ``deep_spacr`` write a **bool** meaning "normalise
+    the tensor". Forwarding the bool would replace the ``[1, 99]`` stretch the
+    PNG folder was written with by a full 0-100 one and change every pixel,
+    silently, on the one path whose entire purpose is to be pixel-identical
+    to that folder.
+    """
+    out = {}
+    for key in CROP_SHAPE_KEYS:
+        if key not in settings:
+            continue
+        value = settings[key]
+        if key == 'normalize' and not (
+                value is False
+                or (isinstance(value, (list, tuple)) and len(value) == 2)):
+            continue
+        out[key] = value
+    return out
+
+
+def open_crop_source(settings, src=None, object_type=None, verbose=True):
+    """Return the :class:`spacr.crops.CropSource` a run should read crops from.
+
+    Thin, non-raising wrapper over :func:`spacr.crops.resolve_crop_source`:
+    it reads ``settings['crop_source']`` (``'auto'`` | ``'png'`` |
+    ``'merged'``), prints which source was chosen and why, and returns None
+    when neither is available -- so a caller can fall back to whatever it did
+    before instead of failing on a project that predates ``merged/``.
+
+    The run's own crop-shaping settings are forwarded (see
+    :func:`_crop_shape_overrides`), which is what makes "cut fresh at the
+    current crop settings" true rather than a slogan:
+    ``resolve_crop_source`` starts from the ``measure_crop`` snapshot in
+    ``measurements.db`` and lets those override it, so a run that asks for
+    96 px crops gets 96 px crops out of ``merged/`` even though the folder on
+    disk holds 48 px ones.
+
+    :param settings: settings dict (or a source path) holding ``crop_source``.
+    :param src: the experiment root; defaults to ``settings['src']`` (its
+        first entry when that is a list).
+    :param object_type: default object type for a merged source.
+    :param verbose: print the chosen source.
+    :returns: a :class:`spacr.crops.CropSource`, or None.
+    """
+    from . import crops
+
+    if isinstance(settings, dict):
+        request = _crop_shape_overrides(settings)
+        choice = settings.get('crop_source') or 'auto'
+        if src is None:
+            src = settings.get('src')
+    else:
+        request = {}
+        choice = 'auto'
+        if src is None:
+            src = settings
+    if isinstance(src, (list, tuple)):
+        src = src[0] if len(src) else None
+    if not src:
+        return None
+    request['src'] = src
+    request['crop_source'] = choice
+    try:
+        source = crops.resolve_crop_source(request, object_type=object_type)
+    except crops.CropError as exc:
+        if verbose:
+            print(f"crop_source={choice!r}: {exc}")
+        return None
+    if verbose:
+        print(f"Crop source: {source.describe()}")
+    return source
+
+
+class LazyCropPNG:
+    """A PNG-shaped byte stream that is only produced when something opens it.
+
+    ``spacr.utils.plot_umap_images`` and ``spacr.utils.plot_clusters_grid``
+    reach for every thumbnail with ``PIL.Image.open(image_paths[i])``.
+    ``Image.open`` accepts a path *or* any seekable binary stream, so an
+    instance of this class can sit in that list exactly where a path string
+    used to and the plotting code needs no change -- which is the point: the
+    PNG list and the on-demand list have to be interchangeable, or the two
+    sources are not really alternatives.
+
+    Nothing is read until something opens the object, so building one per row
+    of a large screen costs a small dict and only the handful of thumbnails
+    actually drawn ever touch ``merged/``.
+
+    The bytes are always a **current-format (RGB) crop PNG**: the array comes
+    from ``CropSource.get``, which is ``crops.png_view`` for the merged source
+    and ``crops.read_crop_png`` for the PNG one, and both of those return the
+    corrected order. A legacy folder is therefore corrected on the way through
+    here, the same way the Annotate screen corrects it.
+
+    :param source: the :class:`spacr.crops.CropSource` to cut/read with.
+    :param row: the row mapping identifying the object.
+    :param name: the crop's file name, for messages and tar members.
+    """
+
+    __slots__ = ('source', 'row', 'name', '_buf')
+
+    def __init__(self, source, row, name=''):
+        """Record the source and row; produce nothing yet."""
+        self.source = source
+        self.row = row
+        self.name = name
+        self._buf = None
+
+    # -- production --------------------------------------------------------
+    def array(self):
+        """Return the crop as an ``(H, W, 3)`` uint8 RGB array."""
+        return self.source.get(self.row)
+
+    def png_bytes(self):
+        """Return the crop encoded as a current-format (RGB) PNG."""
+        return self._stream().getvalue()
+
+    def _raw_bytes(self):
+        """Return the bytes already on disk, for a PNG source. None otherwise."""
+        resolve = getattr(self.source, 'resolve', None)
+        if resolve is None:
+            return None
+        try:
+            with open(resolve(self.row), 'rb') as handle:
+                return handle.read()
+        except Exception:
+            return None
+
+    def _stream(self):
+        """Materialise (once) and return the BytesIO holding the PNG."""
+        if self._buf is None:
+            buf = BytesIO()
+            try:
+                Image.fromarray(self.array()).save(buf, format='PNG')
+            except Exception:
+                # A crop PNG that spacr.crops cannot decode still has bytes on
+                # disk. Hand those over rather than losing the thumbnail: this
+                # is a display path, and a file that is merely unusual should
+                # not take the whole figure down.
+                raw = self._raw_bytes()
+                if raw is None:
+                    raise
+                buf = BytesIO(raw)
+            buf.seek(0)
+            self._buf = buf
+        return self._buf
+
+    # -- the file protocol PIL needs ---------------------------------------
+    def read(self, size=-1):
+        """Read up to ``size`` bytes of the PNG."""
+        return self._stream().read(size)
+
+    def seek(self, offset, whence=0):
+        """Seek within the PNG."""
+        return self._stream().seek(offset, whence)
+
+    def tell(self):
+        """Return the current offset."""
+        return self._stream().tell()
+
+    def readable(self):
+        """Return True -- the stream is readable."""
+        return True
+
+    def seekable(self):
+        """Return True -- the stream is seekable."""
+        return True
+
+    def writable(self):
+        """Return False -- the stream is read-only."""
+        return False
+
+    def close(self):
+        """Drop the materialised bytes; a later read produces them again."""
+        self._buf = None
+
+    @property
+    def closed(self):
+        """Return False -- this object is never permanently closed."""
+        return False
+
+    def __enter__(self):
+        """Return self, so the object can be used as a context manager."""
+        return self
+
+    def __exit__(self, *exc):
+        """Release the materialised bytes."""
+        self.close()
+        return False
+
+    def __repr__(self):
+        """Return a short description naming the crop."""
+        kind = getattr(self.source, 'kind', '?')
+        return f"<LazyCropPNG {self.name or '?'} from {kind}>"
+
+
+def _object_id_int(value):
+    """Return the integer in a ``png_list`` object id (``'o12'`` -> ``12``).
+
+    ``'omulti'`` / ``'onone'`` -- a crop that overlaps several objects or none
+    -- have no single label to cut, and come back as None.
+    """
+    if value is None:
+        return None
+    if isinstance(value, (int, np.integer)):
+        return int(value)
+    if isinstance(value, float):
+        return None if np.isnan(value) else int(value)
+    text = str(value).strip()
+    if text[:1] in ('o', 'O'):
+        text = text[1:]
+    try:
+        return int(text)
+    except (TypeError, ValueError):
+        return None
+
+
+def _merged_field_paths(db_path, object_type='cell'):
+    """Return ``{(plateID, rowID, columnID, fieldID): (path_name, file_name)}``.
+
+    Read off a measurement table, which is where
+    :func:`spacr.utils._merge_and_save_to_database` records the merged array
+    each object came from. ``png_list`` records neither, so this is the join
+    that lets a ``png_list`` row be cut on demand.
+
+    The requested object's own table is preferred and the other object tables
+    are tried in turn, because every one of them names the same field.
+    """
+    out = {}
+    if not os.path.isfile(db_path):
+        return out
+    order = [object_type] + [t for t in ('cell', 'cytoplasm', 'nucleus',
+                                         'pathogen', 'organelle')
+                             if t != object_type]
+    conn = sqlite3.connect(db_path)
+    try:
+        for table in order:
+            try:
+                rows = conn.execute(
+                    f'SELECT DISTINCT plateID, rowID, columnID, fieldID, '
+                    f'path_name, file_name FROM "{table}"').fetchall()
+            except sqlite3.Error:
+                continue
+            for plate, row, col, field, path_name, file_name in rows:
+                out.setdefault((plate, row, col, field), (path_name, file_name))
+            if out:
+                break
+    finally:
+        conn.close()
+    return out
+
+
+def crop_png_name(file_name, object_type, object_label, cell_id=None):
+    """Return the file name :func:`spacr.utils._generate_names` gives this crop.
+
+    The name matters downstream: :func:`_png_group_id` parses the plate / well
+    / field out of it for group-aware cross-validation, and
+    :func:`spacr.utils.process_vision_results` parses the ``prcfo`` that
+    :func:`spacr.deep_spacr.merge_predictions_into_db` merges on. A crop cut
+    on demand has to carry the same name as the one the PNG folder would have
+    held or those two stop lining up.
+
+    :param file_name: the merged array's stem (``plate1_A01_1``).
+    :param object_type: which crop mode this is.
+    :param object_label: the object's integer label.
+    :param cell_id: the parent cell label, for nucleus/pathogen crops.
+    :returns: the crop's file name, ending in ``.png``.
+    """
+    stem = os.path.splitext(os.path.basename(str(file_name)))[0]
+    label = int(object_label)
+    if object_type in ('nucleus', 'pathogen'):
+        parent = _object_id_int(cell_id)
+        parent_str = 'none' if not parent else str(parent)
+        return f"{stem}_{parent_str}_{label}.png"
+    return f"{stem}_{label}.png"
+
+
+def crop_rows_from_png_list(db_path, png_df, object_type='cell', verbose=True):
+    """Give ``png_list`` rows the keys a crop has to be cut from ``merged/``.
+
+    ``png_list`` records where a crop was *written* and which object it came
+    from (``<object>_id``), but not which merged array produced it. This joins
+    the object table on plate/row/column/field to recover ``path_name``, and
+    turns ``'o12'`` into ``12``.
+
+    Rows whose object id is ``'omulti'`` / ``'onone'`` (a crop overlapping
+    several objects or none) cannot be cut from a single label and are
+    dropped, with a count, rather than silently producing the wrong object.
+
+    :param db_path: the ``measurements.db`` ``png_df`` came from.
+    :param png_df: the ``png_list`` frame.
+    :param object_type: which crop mode the rows describe.
+    :param verbose: report dropped rows.
+    :returns: a copy of ``png_df`` with ``path_name``, ``object_label`` and
+        ``object_type`` columns, minus the rows that cannot be cut.
+    """
+    df = png_df.copy()
+    id_col = PNG_LIST_ID_COLUMNS.get(object_type, 'cell_id')
+    if id_col not in df.columns:
+        # A png_list written for one crop mode carries only that mode's id
+        # column; fall back to whichever object column it does have.
+        for candidate in PNG_LIST_ID_COLUMNS.values():
+            if candidate in df.columns:
+                id_col = candidate
+                break
+    if id_col in df.columns:
+        labels = df[id_col].map(_object_id_int)
+    elif 'object_label' in df.columns:
+        # Not a png_list at all: a frame that already came off the object
+        # table (crop_rows_from_object_table) carries the integer label
+        # directly. Looking up a column that is not there would drop every row.
+        labels = df['object_label'].map(_object_id_int)
+    else:
+        labels = pd.Series([None] * len(df), index=df.index)
+
+    key_cols = ['plateID', 'rowID', 'columnID', 'fieldID']
+    if 'path_name' in df.columns and df['path_name'].notna().any():
+        pass                    # the frame already names its merged array
+    elif all(c in df.columns for c in key_cols):
+        # png_list records where a crop was written, never which merged array
+        # produced it; the object table is the only place that link exists.
+        fields = _merged_field_paths(db_path, object_type)
+        keys = list(zip(*(df[c] for c in key_cols)))
+        df['path_name'] = [fields.get(k, (None, None))[0] for k in keys]
+    else:
+        df['path_name'] = None
+    df['object_label'] = labels
+    df['object_type'] = object_type
+
+    usable = df['object_label'].notna() & df['path_name'].notna()
+    dropped = int((~usable).sum())
+    if dropped and verbose:
+        print(f"crop_rows_from_png_list: {dropped} of {len(df)} png_list rows "
+              f"cannot be cut from merged/ (no single object label, or no "
+              f"matching row in the '{object_type}' table); they are skipped.")
+    return df[usable].copy()
+
+
+def crop_rows_from_object_table(db_path, object_type='cell', verbose=True):
+    """Return one crop row per object, straight off the measurement table.
+
+    This is the path for a project that never wrote a PNG folder at all, so
+    there is no ``png_list`` to start from: ``object_label``, ``path_name``
+    and the well keys are already on every measurement row.
+
+    :param db_path: the ``measurements.db``.
+    :param object_type: which object table to read.
+    :param verbose: print what was found.
+    :returns: a DataFrame with ``path_name``, ``object_label``, the well keys,
+        ``png_name`` and ``png_path`` (the path the crop *would* have had).
+    """
+    if not os.path.isfile(db_path):
+        return pd.DataFrame()
+    select = ('object_label, plateID, rowID, columnID, fieldID, prcf, '
+              'file_name, path_name')
+    conn = sqlite3.connect(db_path)
+    try:
+        try:
+            df = pd.read_sql(f'SELECT {select} FROM "{object_type}"', conn)
+        except Exception:
+            try:
+                df = pd.read_sql(
+                    f'SELECT object_label, plateID, rowID, columnID, fieldID, '
+                    f'file_name, path_name FROM "{object_type}"', conn)
+            except Exception:
+                if verbose:
+                    print(f"crop_rows_from_object_table: no '{object_type}' "
+                          f"table in {db_path}")
+                return pd.DataFrame()
+        parents = {}
+        if object_type in ('nucleus', 'pathogen'):
+            try:
+                link = pd.read_sql(
+                    f'SELECT object_label, prcf, cell_id FROM "{object_type}"',
+                    conn)
+                parents = {(r.prcf, r.object_label): r.cell_id
+                           for r in link.itertuples()}
+            except Exception:
+                parents = {}
+    finally:
+        conn.close()
+    if df.empty:
+        return df
+    df['object_type'] = object_type
+    df['png_name'] = [
+        crop_png_name(row.file_name, object_type, row.object_label,
+                      parents.get((getattr(row, 'prcf', None), row.object_label)))
+        for row in df.itertuples()
+    ]
+    df['png_path'] = [
+        os.path.join(str(plate) + '_' + str(well), f'{object_type}_png', name)
+        for plate, well, name in zip(df['plateID'], df['rowID'], df['png_name'])
+    ]
+    if verbose:
+        print(f"crop_rows_from_object_table: {len(df)} '{object_type}' objects "
+              f"in {db_path}")
+    return df
+
+
+def crop_refs_for_rows(source, df, object_type='cell', name_column=None):
+    """Return one :class:`LazyCropPNG` per row of ``df``.
+
+    :param source: the crop source to cut/read with.
+    :param df: rows carrying whatever the source needs (``png_path`` for the
+        PNG source, ``path_name`` + ``object_label`` for the merged one).
+    :param object_type: object type stamped onto each row.
+    :param name_column: column holding the crop's file name; defaults to
+        the basename of ``png_path``.
+    :returns: list of :class:`LazyCropPNG`.
+    """
+    n = len(df)
+
+    def _col(name):
+        # Columns are pulled out as plain lists rather than walked with
+        # itertuples(): the joined UMAP frame carries a couple of hundred
+        # columns, and building a namedtuple per row of it costs more than
+        # the crops themselves do -- and itertuples silently renames any
+        # column whose name is not a valid identifier.
+        if name and name in df.columns:
+            return df[name].tolist()
+        return [None] * n
+
+    def _missing(value):
+        return value is None or (isinstance(value, float) and np.isnan(value))
+
+    png_paths = _col('png_path')
+    path_names = _col('path_name')
+    labels = _col('object_label')
+    names = _col(name_column)
+
+    refs = []
+    for i in range(n):
+        entry = {'object_type': object_type}
+        if not _missing(png_paths[i]):
+            entry['png_path'] = png_paths[i]
+        if not _missing(path_names[i]):
+            entry['path_name'] = path_names[i]
+        if not _missing(labels[i]):
+            entry['object_label'] = int(labels[i])
+        if not _missing(names[i]):
+            name = str(names[i])
+        elif not _missing(png_paths[i]):
+            name = os.path.basename(str(png_paths[i]))
+        else:
+            name = ''
+        refs.append(LazyCropPNG(source, entry, name=name))
+    return refs
+
+
+def mark_crop_output_folder(folder, fmt=None, source_folder=None,
+                            db_path=None, **extra):
+    """Stamp a folder spaCR has just filled with crop PNGs.
+
+    Called *before* the folder is filled, exactly as
+    :func:`spacr.crops.stamp_crop_folder` is on the measure path, so an
+    interrupted run leaves a marked folder holding fewer crops rather than an
+    unmarked folder of corrected ones -- the one state that is silently
+    misread.
+
+    ``fmt=None`` inherits the format from ``source_folder``. That is what
+    keeps a byte-for-byte copy honestly labelled: copying legacy crops into a
+    training folder produces legacy crops, and marking that folder as current
+    would reverse every channel name attached to the model trained on it.
+
+    :param folder: the folder about to be filled.
+    :param fmt: the format to record; None inherits from ``source_folder``.
+    :param source_folder: the folder the crops are being copied from.
+    :param db_path: ``measurements.db`` consulted when ``source_folder``
+        carries no sidecar.
+    :param extra: extra keys recorded in the sidecar.
+    :returns: the sidecar path, or None when it could not be written.
+    """
+    from . import crops
+
+    if fmt is None:
+        if source_folder:
+            try:
+                fmt = crops.crop_folder_format(source_folder, db_path=db_path)
+            except Exception:
+                fmt = crops.CROP_FORMAT_LEGACY_BGR
+        else:
+            fmt = crops.CROP_FORMAT_CURRENT
+    try:
+        return crops.write_crop_folder_marker(folder, fmt=int(fmt), **extra)
+    except Exception as exc:
+        # Loud, never silent: the consequence of a missing marker is that the
+        # crops read back reversed. But failing a whole training run over a
+        # 300-byte sidecar helps nobody.
+        print(f"Warning: could not stamp the crop format on {folder}: {exc}")
+        return None
+
+
 def generate_dataset(settings=None):
     """Pack per-object PNGs referenced by one or more ``measurements.db`` files into a single tar for inference or upload.
 
@@ -3247,6 +4101,17 @@ def generate_dataset(settings=None):
     into a dated tar under the first source's ``datasets/`` folder.
     Use this to produce the ``tar_path`` consumed by
     :func:`spacr.deep_spacr.deep_spacr` / ``apply_model_to_tar``.
+
+    ``crop_source`` chooses where the images come from. ``'png'`` (and
+    ``'auto'`` wherever a crop folder exists) is the behaviour above,
+    unchanged: the files are byte-copied into the tar. ``'merged'`` (and
+    ``'auto'`` on a project with no crop folder) cuts every crop out of
+    ``merged/*.npy`` through :mod:`spacr.crops` instead, so the tar can be
+    built with no PNG folder on disk at all, and is rebuilt at the *current*
+    crop settings rather than whatever the folder was generated with. The
+    members are named exactly as the PNG folder would have named them, so
+    everything that parses a crop file name downstream -- fold grouping,
+    ``prcfo``, the prediction merge -- keeps working either way.
 
     :param settings: Settings dict, canonicalized via
         :func:`spacr.settings.set_generate_dataset_defaults`. Key
@@ -3259,12 +4124,13 @@ def generate_dataset(settings=None):
         - ``sample`` — ``int`` or ``[int]`` cap on selected PNGs
           (random subsample); omit for all.
         - ``experiment`` — string suffix used in the tar filename.
+        - ``crop_source`` — ``'auto'`` | ``'png'`` | ``'merged'``.
 
     :returns: Absolute path to the created ``…/datasets/<date>_<
         experiment>.tar``.
     :raises RuntimeError: if ``src`` is not a string / list of strings,
-        no images are selected, or the destination folder cannot be
-        resolved.
+        no images are selected, no image could be written, or the
+        destination folder cannot be resolved.
 
     Example:
         .. code-block:: python
@@ -3299,14 +4165,30 @@ def generate_dataset(settings=None):
     if isinstance(settings['src'], str):
         settings['src'] = [settings['src']]
 
+    object_type = crop_object_type(
+        settings.get('file_metadata') or settings.get('png_type'))
+
     if isinstance(settings['src'], list):
         all_paths = []
+        n_on_demand = 0
         dst = None
         for i, src in enumerate(settings['src']):
             db_path = os.path.join(src, 'measurements', 'measurements.db')
             if i == 0:
                 dst = os.path.join(src, 'datasets')
+            source = open_crop_source(settings, src, object_type=object_type)
+            if source is not None and getattr(source, 'kind', 'png') == 'merged':
+                refs = _dataset_crop_refs(db_path, source, settings, object_type)
+                n_on_demand += len(refs)
+                all_paths.extend(refs)
+                continue
             paths = generate_path_list_from_db(db_path, file_metadata=settings['file_metadata'])
+            # generate_path_list_from_db returns None when the query fails
+            # (a database with no png_list, say). correct_paths then died on
+            # an unbound local three frames away instead of saying so.
+            if not paths:
+                print(f"No png_list rows selected from {db_path}.")
+                continue
             paths = correct_paths(paths, src)  # <- capture corrected paths
             all_paths.extend(paths)
 
@@ -3335,6 +4217,37 @@ def generate_dataset(settings=None):
     if dst is None:
         raise RuntimeError("Destination folder (dst) was not set.")
     os.makedirs(dst, exist_ok=True)
+
+    # Combine the temporary tar files into a final tar
+    date_name = datetime.date.today().strftime('%y%m%d')
+    if len(settings['src']) > 1:
+        date_name = f"{date_name}_combined"
+
+    tar_name = f"{date_name}_{settings['experiment']}.tar"
+    tar_name = os.path.join(dst, tar_name)
+    if os.path.exists(tar_name):
+        number = random.randint(1, 100)
+        tar_name_2 = f"{date_name}_{settings['experiment']}_{settings['file_metadata']}_{number}.tar"
+        print(f"Warning: {os.path.basename(tar_name)} exists, saving as {os.path.basename(tar_name_2)} ")
+        tar_name = os.path.join(dst, tar_name_2)
+
+    if n_on_demand:
+        # On-demand crops are cut here, in this process: a CropSource holds
+        # memory-mapped merged arrays and a per-field label index, and neither
+        # survives a fork usefully -- every worker would re-open and re-index
+        # every field it touched. The reads are the cost either way, so the
+        # pool buys nothing and the bookkeeping is simpler without it.
+        written, skipped = _write_crop_tar(selected_paths, tar_name, settings)
+        if written == 0:
+            raise RuntimeError(
+                f"No image could be written to {tar_name}: all "
+                f"{total_images} selected crops failed. Check that "
+                f"merged/*.npy is where measurements.db says it is.")
+        if skipped:
+            print(f"Warning: {skipped} of {total_images} crops could not be "
+                  f"produced and are NOT in the tar.")
+        print(f"\nSaved {written} images to {tar_name}")
+        return tar_name
 
     # Create a temp folder in dst
     temp_dir = os.path.join(dst, "temp_tars")
@@ -3367,21 +4280,9 @@ def generate_dataset(settings=None):
             [(paths_chunks[i], temp_tar_files[i], total_images) for i in range(num_procs)]
         )
 
-    # Combine the temporary tar files into a final tar
-    date_name = datetime.date.today().strftime('%y%m%d')
-    if len(settings['src']) > 1:
-        date_name = f"{date_name}_combined"
-
-    tar_name = f"{date_name}_{settings['experiment']}.tar"
-    tar_name = os.path.join(dst, tar_name)
-    if os.path.exists(tar_name):
-        number = random.randint(1, 100)
-        tar_name_2 = f"{date_name}_{settings['experiment']}_{settings['file_metadata']}_{number}.tar"
-        print(f"Warning: {os.path.basename(tar_name)} exists, saving as {os.path.basename(tar_name_2)} ")
-        tar_name = os.path.join(dst, tar_name_2)
-
     print(f"Merging temporary files")
 
+    written = 0
     with tarfile.open(tar_name, 'w') as final_tar:
         for temp_tar_path in temp_tar_files:
             with tarfile.open(temp_tar_path, 'r') as temp_tar:
@@ -3389,13 +4290,146 @@ def generate_dataset(settings=None):
                     if member.isfile():
                         file_obj = temp_tar.extractfile(member)
                         final_tar.addfile(member, file_obj)
+                        written += 1
             os.remove(temp_tar_path)
 
     # Delete the temp folder
     shutil.rmtree(temp_dir)
-    print(f"\nSaved {total_images} images to {tar_name}")
+    # `written`, not `total_images`: add_images_to_tar swallows a missing file
+    # with a print, so a tar built against a crop folder that has been deleted
+    # or moved used to be announced as "Saved 48 images" while holding none,
+    # and the run only failed later, inside inference, on an empty dataset.
+    if written == 0:
+        raise RuntimeError(
+            f"No image could be written to {tar_name}: none of the "
+            f"{total_images} selected PNG paths exist on disk. The crop "
+            f"folder has been deleted or moved -- set crop_source='merged' "
+            f"to cut the crops out of merged/*.npy instead.")
+    if written < total_images:
+        print(f"Warning: {total_images - written} of {total_images} selected "
+              f"PNGs were missing and are NOT in the tar.")
+    print(f"\nSaved {written} images to {tar_name}")
 
     return tar_name
+
+
+def _dataset_crop_refs(db_path, source, settings, object_type, verbose=True):
+    """Return the on-demand crops one source folder contributes to a dataset tar.
+
+    Prefers ``png_list`` when there is one, so the tar holds exactly the crops
+    the PNG path would have held, under exactly the same names and the same
+    ``file_metadata`` filter. Falls back to the object measurement table for a
+    project that never wrote a PNG folder at all.
+
+    :param db_path: the source's ``measurements/measurements.db``.
+    :param source: the merged :class:`spacr.crops.CropSource`.
+    :param settings: the ``generate_dataset`` settings.
+    :param object_type: which crop mode to cut.
+    :param verbose: print what was selected.
+    :returns: list of :class:`LazyCropPNG`.
+    """
+    file_metadata = settings.get('file_metadata')
+    png_df = None
+    if os.path.isfile(db_path):
+        conn = sqlite3.connect(db_path)
+        try:
+            png_df = pd.read_sql('SELECT * FROM png_list', conn)
+        except Exception:
+            png_df = None
+        finally:
+            conn.close()
+
+    def _filter(frame, column):
+        if not file_metadata or column not in frame.columns:
+            return frame
+        terms = file_metadata if isinstance(file_metadata, (list, tuple)) else [file_metadata]
+        text = frame[column].astype(str)
+        mask = np.zeros(len(frame), dtype=bool)
+        for term in terms:
+            mask |= text.str.contains(str(term), regex=False, na=False).to_numpy()
+        return frame[mask]
+
+    if png_df is not None and len(png_df):
+        png_df = _filter(png_df, 'png_path')
+        rows = crop_rows_from_png_list(db_path, png_df, object_type,
+                                       verbose=verbose)
+        return crop_refs_for_rows(source, rows, object_type)
+
+    rows = crop_rows_from_object_table(db_path, object_type, verbose=verbose)
+    if len(rows):
+        rows = _filter(rows, 'png_path')
+    return crop_refs_for_rows(source, rows, object_type,
+                              name_column='png_name')
+
+
+def _write_crop_tar(items, tar_name, settings=None):
+    """Write ``items`` into ``tar_name``, cutting on-demand crops as it goes.
+
+    ``items`` may mix plain PNG paths (byte-copied, exactly as the parallel
+    path does) and :class:`LazyCropPNG` handles (cut out of ``merged/*.npy``
+    and stored as current-format RGB PNGs).
+
+    The archive also carries a ``.spacr_crop_format.json`` member, the same
+    marker :mod:`spacr.crops` writes into a crop folder, so "which channel
+    order is this tar in?" is answerable from the tar alone.
+    :class:`TarImageDataset` skips it and reports it as ``crop_format``.
+
+    :param items: paths and/or :class:`LazyCropPNG` handles.
+    :param tar_name: destination archive.
+    :param settings: optional settings, recorded in the marker.
+    :returns: ``(written, skipped)`` counts.
+    """
+    from . import crops
+    from .utils import print_progress
+
+    total = len(items)
+    written = 0
+    skipped = 0
+    used = set()
+    with tarfile.open(tar_name, 'w') as tar:
+        marker = json.dumps({
+            'spacr_crop_format': crops.CROP_FORMAT_CURRENT,
+            'channel_order': 'rgb',
+            'narrowing': 'high-byte',
+            'note': ('Cut on demand from merged/*.npy by spacr.io.'
+                     'generate_dataset; png_dims[0] is each member\'s red '
+                     'channel.'),
+            'png_dims': list((settings or {}).get('png_dims') or []),
+        }, indent=2, sort_keys=True).encode('utf-8')
+        info = tarfile.TarInfo(crops.CROP_FORMAT_SIDECAR)
+        info.size = len(marker)
+        tar.addfile(info, BytesIO(marker))
+
+        for i, item in enumerate(items):
+            try:
+                if isinstance(item, LazyCropPNG):
+                    payload = item.png_bytes()
+                    name = item.name or f"crop_{i}.png"
+                else:
+                    name = os.path.basename(str(item))
+                    with open(str(item), 'rb') as handle:
+                        payload = handle.read()
+            except Exception as exc:
+                skipped += 1
+                if skipped <= 5:
+                    print(f"Could not read crop {item!r}: {exc}")
+                continue
+            # Two crops sharing a basename would overwrite each other inside
+            # the archive, which is exactly the collision spacr.predictions
+            # documents. Make the second one distinct instead of losing it.
+            if name in used:
+                stem, ext = os.path.splitext(name)
+                name = f"{stem}__{i}{ext}"
+            used.add(name)
+            info = tarfile.TarInfo(name)
+            info.size = len(payload)
+            tar.addfile(info, BytesIO(payload))
+            written += 1
+            if written % 100 == 0 or written == total:
+                print_progress(written, total, n_jobs=1, time_ls=None,
+                               batch_size=None,
+                               operation_type="generating .tar dataset")
+    return written, skipped
 
 # ---------------------------------------------------------------------------
 # Class-imbalance handling and cross-validation splitting
@@ -4236,6 +5270,16 @@ def generate_training_dataset(settings):
         '<column>_random' class using unannotated rows for that column (same size as positives).
       - Optional: persist that random selection into DB as a new INT column named '<column>_random' with 1's.
 
+    ``crop_source`` chooses where the pixels come from. ``'png'`` (and
+    ``'auto'`` wherever a crop folder exists) copies the pre-generated PNGs,
+    unchanged. ``'merged'`` (and ``'auto'`` with no crop folder) cuts each
+    selected crop out of ``merged/*.npy`` through :mod:`spacr.crops` instead:
+    the labels still come from ``png_list``, but the pixels are cut fresh at
+    the current crop settings, so the training set costs no standing disk and
+    cannot be built out of a folder that has gone stale. A project with no
+    ``png_list`` at all falls back to the object measurement table, which
+    still carries everything the metadata rules select on.
+
     Required helpers:
       - _read_and_merge_data, _read_db (from .io)
       - generate_dataset_from_lists(dst, class_data, classes, test_split)
@@ -4280,10 +5324,33 @@ def generate_training_dataset(settings):
                     break
         return dst
 
-    def _load_png_table(db_path):
+    def _load_png_table(db_path, object_type='cell'):
         # read only png_list (we don't force-meet with measurements; keep it permissive)
-        [png_df] = _read_db(db_loc=db_path, tables=['png_list'])
-        return png_df.copy()
+        try:
+            [png_df] = _read_db(db_loc=db_path, tables=['png_list'])
+            png_df = png_df.copy()
+        except Exception:
+            png_df = pd.DataFrame()
+        if len(png_df):
+            return png_df
+        # No png_list means no PNG folder was ever written. The objects are
+        # still in the measurement table, with the same well metadata the
+        # metadata rules select on, so fall back to those rather than
+        # returning "0 classes" for a project that has everything it needs.
+        print(f"No 'png_list' rows in {db_path}; falling back to the "
+              f"'{object_type}' measurement table for the crop list.")
+        return crop_rows_from_object_table(db_path, object_type)
+
+    def _class_items(frame):
+        """Return the per-row crop entries a class list is built from.
+
+        On-demand handles when the merged source is in play, PNG paths
+        otherwise -- generate_dataset_from_lists takes either.
+        """
+        if CROP_REF_COLUMN in frame.columns:
+            return [ref for ref in frame[CROP_REF_COLUMN].tolist()
+                    if ref is not None]
+        return frame['png_path'].dropna().tolist()
 
     def _fix_path_under_src(src_root, p):
         """Make sure png_path lives under the current src root (portable absolute fix)."""
@@ -4356,8 +5423,10 @@ def generate_training_dataset(settings):
 
         # Work with numeric-ish annotations 1/2; accept strings that can be cast to int.
         df = png_df.copy()
-        # We only care about png_path and the annotation cols
-        keep_cols = ['png_path'] + [c for c in ann_cols if c in df.columns]
+        # We only care about png_path, the crop handle and the annotation cols
+        keep_cols = ['png_path'] + (
+            [CROP_REF_COLUMN] if CROP_REF_COLUMN in df.columns else []
+        ) + [c for c in ann_cols if c in df.columns]
         df = df[keep_cols]
 
         # For lookups by path when writing back random labels
@@ -4385,7 +5454,7 @@ def generate_training_dataset(settings):
             distinct_vals = []
             for v in vals:
                 cls_name = f"{col}_{v}"
-                sel = df[df[col] == v]['png_path'].dropna().tolist()
+                sel = _class_items(df[df[col] == v])
                 distinct_vals.append((v, sel))
                 names.append(cls_name)
                 lists.append(sel)
@@ -4396,7 +5465,7 @@ def generate_training_dataset(settings):
                 pos_n = len(pos_paths)
 
                 # Unannotated = rows where column is NULL/NaN
-                unann_paths = df[df[col].isna()]['png_path'].dropna().tolist()
+                unann_paths = _class_items(df[df[col].isna()])
                 if not unann_paths:
                     print(f"Column '{col}': no unannotated rows available for <{col}_random>; skipping random class.")
                     continue
@@ -4427,11 +5496,18 @@ def generate_training_dataset(settings):
                             cur.execute(f'ALTER TABLE "png_list" ADD COLUMN "{qcol}" INTEGER')
                             conn.commit()
 
-                        # write 1 for sampled paths; NULL elsewhere (default)
+                        # write 1 for sampled paths; NULL elsewhere (default).
+                        # An on-demand handle carries the png_path its row
+                        # named, so the column is written the same way
+                        # whichever source produced the pixels.
                         for p in rand_paths:
+                            png_path = (p.row.get('png_path')
+                                        if isinstance(p, LazyCropPNG) else p)
+                            if not png_path:
+                                continue
                             cur.execute(
                                 f'UPDATE "png_list" SET "{qcol}" = 1 WHERE png_path = ?',
-                                (p,)
+                                (png_path,)
                             )
                         conn.commit()
 
@@ -4441,6 +5517,7 @@ def generate_training_dataset(settings):
     class_path_list = None
     class_names = None
     dst_final = None  # last destination
+    crop_db_path = None  # last measurements.db, for the crop-format lookup
 
     for i, src in enumerate(settings['src']):
         db_path = os.path.join(src, 'measurements', 'measurements.db')
@@ -4452,7 +5529,8 @@ def generate_training_dataset(settings):
         dst = _ensure_unique_dir(dst)
         dst_final = dst
 
-        png_df = _load_png_table(db_path)
+        object_type = crop_object_type(png_type)
+        png_df = _load_png_table(db_path, object_type)
 
         # Fix/normalize paths under this src
         fixed_paths = [ _fix_path_under_src(src, p) for p in png_df['png_path'] ]
@@ -4461,6 +5539,19 @@ def generate_training_dataset(settings):
         # Filter by image type if requested
         if png_type:
             png_df = png_df[png_df['png_path'].astype(str).str.contains(png_type, na=False)]
+
+        # Where the pixels come from. 'png' (and 'auto' with a crop folder
+        # present) leaves every list below holding plain paths, which
+        # generate_dataset_from_lists copies exactly as it always has. Only
+        # the merged source replaces them with on-demand handles.
+        source = open_crop_source(settings, src, object_type=object_type)
+        if source is not None and getattr(source, 'kind', 'png') == 'merged':
+            rows = crop_rows_from_png_list(db_path, png_df, object_type)
+            refs = crop_refs_for_rows(source, rows, object_type)
+            rows = rows.copy()
+            rows[CROP_REF_COLUMN] = refs
+            png_df = rows
+        crop_db_path = db_path if os.path.isfile(db_path) else None
 
         mode = str(settings['dataset_mode']).lower()
         this_names, this_lists = [], []
@@ -4476,14 +5567,14 @@ def generate_training_dataset(settings):
                             where = [{'column': col, 'op': op, 'value': val}]
                         df_sel = _apply_where(png_df, where)
                         this_names.append(r['name'])
-                        this_lists.append(df_sel['png_path'].dropna().tolist())
+                        this_lists.append(_class_items(df_sel))
                 else:
                     for r in rules:
                         col, op, val = r['column'], r['op'], r['value']
                         df_sel = _apply_where(png_df, [{'column': col, 'op': op, 'value': val}])
                         name = r.get('name', f"{col}{op}{val}")
                         this_names.append(name)
-                        this_lists.append(df_sel['png_path'].dropna().tolist())
+                        this_lists.append(_class_items(df_sel))
             else:
                 class_meta = settings.get('class_metadata') or []
                 if 'condition' not in png_df.columns:
@@ -4492,7 +5583,7 @@ def generate_training_dataset(settings):
                     cm_key = cm if isinstance(cm, str) else str(cm)
                     sel = png_df[png_df['condition'] == cm_key]
                     this_names.append(cm_key)
-                    this_lists.append(sel['png_path'].dropna().tolist())
+                    this_lists.append(_class_items(sel))
 
         elif mode == 'annotation':
             ann_cols = settings.get('annotation_columns')
@@ -4513,7 +5604,7 @@ def generate_training_dataset(settings):
                 where = r.get('where', [])
                 df_sel = _apply_where(png_df, where)
                 this_names.append(name)
-                this_lists.append(df_sel['png_path'].dropna().tolist())
+                this_lists.append(_class_items(df_sel))
 
         else:
             print(f"Invalid dataset_mode: {settings['dataset_mode']}. Use 'metadata'|'annotation'|'measurement'.")
@@ -4548,7 +5639,8 @@ def generate_training_dataset(settings):
         dst_final,
         class_data=class_path_list,
         classes=final_names,
-        test_split=settings['test_split']
+        test_split=settings['test_split'],
+        db_path=crop_db_path,
     )
 
     # expose actual disk classes for downstream training
@@ -4744,14 +5836,70 @@ def training_dataset_from_annotation_metadata(db_path, dst, annotation_column='t
         
     return class_paths
 
-def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1):
-    """Copy files listed per-class into ``dst/train/<class>`` and ``dst/test/<class>`` folders.
+def _crop_format_of_items(items, db_path=None):
+    """Return the crop format the items share, or None when they disagree.
+
+    Copied PNGs keep whatever format the folder they came from was in, so the
+    destination has to be stamped with *that*, not with the current one --
+    marking a folder of legacy crops as RGB reverses every channel name
+    attached to a model trained on it. Crops cut on demand are always current.
+    """
+    from . import crops
+
+    formats = set()
+    folders = set()
+    for item in items:
+        if isinstance(item, LazyCropPNG):
+            formats.add(crops.CROP_FORMAT_CURRENT)
+        else:
+            folders.add(os.path.dirname(os.path.abspath(str(item))))
+    for folder in folders:
+        try:
+            formats.add(crops.crop_folder_format(folder, db_path=db_path))
+        except Exception:
+            formats.add(crops.CROP_FORMAT_LEGACY_BGR)
+    if len(formats) == 1:
+        return formats.pop()
+    return None
+
+
+def _write_class_item(item, dst_dir):
+    """Put one crop into ``dst_dir``: copy a path, cut a :class:`LazyCropPNG`."""
+    if isinstance(item, LazyCropPNG):
+        out = os.path.join(dst_dir, item.name or 'crop.png')
+        with open(out, 'wb') as handle:
+            handle.write(item.png_bytes())
+        return out
+    out = os.path.join(dst_dir, os.path.basename(str(item)))
+    shutil.copy(str(item), out)
+    return out
+
+
+def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
+                                db_path=None):
+    """Put the crops listed per class into ``dst/train/<class>`` and ``dst/test/<class>``.
+
+    An entry may be a **path**, which is copied byte for byte exactly as
+    before, or a :class:`LazyCropPNG`, which is cut out of ``merged/*.npy``
+    through :mod:`spacr.crops` and written as a current-format (RGB) crop PNG.
+    The two are interchangeable, so a training set can be built with no crop
+    folder on disk at all.
+
+    Each destination class folder is stamped with the crop-format sidecar
+    *before* it is filled: with the current format when the crops were cut
+    here, with the source folder's format when they were copied out of one,
+    and not at all (loudly) when one class mixes the two. Leaving a folder of
+    crops unmarked is what makes it legacy by default, which is the one
+    outcome that silently reverses the channels a model is trained on.
 
     :param dst: Output root; ``train`` and ``test`` subfolders are created.
-    :param class_data: Sequence of path lists, one per class.
+    :param class_data: Sequence of per-class lists of paths and/or
+        :class:`LazyCropPNG` handles.
     :param classes: Class names paired positionally with ``class_data``.
     :param test_split: Fraction of each class routed to ``test/``.
         Default ``0.1``.
+    :param db_path: optional ``measurements.db`` consulted for the crop format
+        of a source folder that carries no sidecar.
     :returns: ``(train_dir, test_dir)`` tuple of the top-level split paths.
     :raises ValueError: if ``len(class_data) != len(classes)``.
     """
@@ -4763,41 +5911,101 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1):
     total_files = sum(len(data) for data in class_data)
     processed_files = 0
     time_ls = []
-    
+    failed = 0
+
+    # Stamp BEFORE the first crop lands, for the reason
+    # spacr.crops.stamp_crop_folder gives: a run killed part-way through
+    # leaves a marked tree holding fewer crops, never an unmarked tree of
+    # corrected ones. The marker goes at the dataset root and describes the
+    # whole split -- not inside train/<class>/, because the class folders are
+    # enumerated as "the classes" and as "the samples", and a sidecar there
+    # would be counted as one of each.
+    every_item = [item for data in class_data for item in data]
+    fmt = _crop_format_of_items(every_item, db_path=db_path)
+    if every_item and fmt is None:
+        print(f"Warning: this dataset mixes crops of more than one format, so "
+              f"{dst} is left unmarked. Migrate the legacy folders first: "
+              f"python -m spacr.crops <root>")
+    elif every_item:
+        os.makedirs(dst, exist_ok=True)
+        mark_crop_output_folder(dst, fmt=fmt, classes=list(map(str, classes)),
+                                split='train/test')
+
     for cls, data in zip(classes, class_data):
         # Create directories
         train_class_dir = os.path.join(dst, f'train/{cls}')
         test_class_dir = os.path.join(dst, f'test/{cls}')
         os.makedirs(train_class_dir, exist_ok=True)
         os.makedirs(test_class_dir, exist_ok=True)
-                
+
         # Split the data
         print('data',len(data), test_split)
+        if not data:
+            # sklearn answers an empty class with "With n_samples=0,
+            # test_size=0.25 ... the resulting train set will be empty", which
+            # names the splitter's parameters rather than the rule that
+            # selected nothing. Say which class, keep the folder so the class
+            # list still matches the tree, and let the summary below flag it.
+            print(f"Class {cls!r} selected no crops; its folders are empty.")
+            continue
         train_data, test_data = train_test_split(data, test_size=test_split, shuffle=True, random_state=42)
-        
-        # Copy train files
-        for path in train_data:
+
+        # Write train files
+        for item in train_data:
             start = time.time()
-            shutil.copy(path, os.path.join(train_class_dir, os.path.basename(path)))
+            try:
+                _write_class_item(item, train_class_dir)
+            except Exception as exc:
+                failed += 1
+                if failed <= 5:
+                    print(f"Could not add {item!r} to {train_class_dir}: {exc}")
             duration = time.time() - start
             time_ls.append(duration)
             print_progress(processed_files, total_files, n_jobs=1, time_ls=None, batch_size=None, operation_type="Copying files for Train dataset")
             processed_files += 1
 
-        # Copy test files
-        for path in test_data:
+        # Write test files
+        for item in test_data:
             start = time.time()
-            shutil.copy(path, os.path.join(test_class_dir, os.path.basename(path)))
+            try:
+                _write_class_item(item, test_class_dir)
+            except Exception as exc:
+                failed += 1
+                if failed <= 5:
+                    print(f"Could not add {item!r} to {test_class_dir}: {exc}")
             duration = time.time() - start
             time_ls.append(duration)
             print_progress(processed_files, total_files, n_jobs=1, time_ls=None, batch_size=None, operation_type="Copying files for Test dataset")
             processed_files += 1
 
-    # Print summary
+    # Print summary. The sidecar is not a crop, so it is not counted.
+    empty = []
     for cls in classes:
         train_class_dir = os.path.join(dst, f'train/{cls}')
         test_class_dir = os.path.join(dst, f'test/{cls}')
-        print(f'Train class {cls}: {len(os.listdir(train_class_dir))}, Test class {cls}: {len(os.listdir(test_class_dir))}')
+        n_train = len([f for f in os.listdir(train_class_dir) if not f.startswith('.')])
+        n_test = len([f for f in os.listdir(test_class_dir) if not f.startswith('.')])
+        print(f'Train class {cls}: {n_train}, Test class {cls}: {n_test}')
+        if n_train == 0:
+            empty.append(cls)
+
+    if failed:
+        # A crop that cannot be written used to take the whole run down with a
+        # bare FileNotFoundError from shutil.copy, naming one file and not the
+        # scale of the problem. Say how many, and finish the split -- unless
+        # nothing landed at all, which is not a partial result but a broken
+        # input, and training on it would just be training on nothing.
+        print(f"Warning: {failed} of {total_files} crops could not be written "
+              f"into {dst}.")
+        if failed == total_files:
+            raise RuntimeError(
+                f"No crop could be written into {dst}: all {total_files} "
+                f"selected crops failed. If the PNG crop folder has been "
+                f"deleted or moved, set crop_source='merged' to cut the crops "
+                f"out of merged/*.npy instead.")
+    if empty:
+        print(f"Warning: class(es) {', '.join(map(str, empty))} have no "
+              f"training images; the model cannot learn them.")
 
     return os.path.join(dst, 'train'), os.path.join(dst, 'test')
 

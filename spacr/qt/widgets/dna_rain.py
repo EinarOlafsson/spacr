@@ -65,6 +65,10 @@ than assumed (1920x1080, 120 columns, 67 rows):
    is why the alpha is baked in rather than applied by the painter.
    A strip is re-rendered only when its column respawns or the
    styling changes; the cache is ~7 MB at 1920x1080.
+   :meth:`DnaRainWidget.set_backdrop` gives that up deliberately — a
+   picture under the rain is not a constant to bake against — so the
+   translucent path is taken only by the themes that have a wallpaper
+   to show, and dark and light keep the numbers above.
 3. *Only the columns that moved are repainted.* Positions are
    quantised to whole cells, so a column is dirty only when its
    integer row changes — slow columns cost nothing on most ticks. See
@@ -80,9 +84,10 @@ import random
 from dataclasses import dataclass
 from typing import List, Optional, Tuple, Union
 
-from PySide6.QtCore import QElapsedTimer, QEvent, QRect, Qt, QTimer, Signal
+from PySide6.QtCore import (QElapsedTimer, QEvent, QPoint, QRect, Qt, QTimer,
+                            Signal)
 from PySide6.QtGui import (QColor, QFont, QFontDatabase, QFontMetricsF,
-                           QPainter, QPen, QPixmap)
+                           QImage, QPainter, QPen, QPixmap)
 from PySide6.QtWidgets import (QColorDialog, QHBoxLayout, QLabel, QPushButton,
                                QSizePolicy, QSlider, QWidget)
 
@@ -255,6 +260,28 @@ def _as_color(value: Union[QColor, str, None], fallback: QColor) -> QColor:
         return QColor(fallback)
     color = QColor(value)
     return color if color.isValid() else QColor(fallback)
+
+
+def _as_pixmap(value) -> Optional[QPixmap]:
+    """Coerce a path / QPixmap / QImage to a usable QPixmap, or ``None``.
+
+    Never raises and never returns a null pixmap: a wallpaper that has
+    been deleted between the stylesheet being built and this widget
+    being constructed is a cosmetic miss, not a crash, and the rain
+    falls back to its flat background colour.
+    """
+    if value is None:
+        return None
+    try:
+        if isinstance(value, QPixmap):
+            pixmap = value
+        elif isinstance(value, QImage):
+            pixmap = QPixmap.fromImage(value)
+        else:
+            pixmap = QPixmap(str(value))
+    except Exception:
+        return None
+    return None if pixmap.isNull() else pixmap
 
 
 def _region_rects(region, fallback: QRect) -> List[QRect]:
@@ -529,6 +556,9 @@ class DnaRainWidget(QWidget):
     :param color: trail colour; defaults to the theme accent.
     :param background: colour painted under the glyphs; defaults to the
         theme background.
+    :param backdrop: image painted under the glyphs instead of the flat
+        colour — a path, a ``QPixmap``/``QImage``, or ``None``. Give it
+        the image theme's wallpaper and the rain stops hiding it.
     :param opacity: glyph alpha in ``0..1``.
     :param spacr_probability: per-respawn chance of a ``spaCR`` splice.
     :param theme: palette to take defaults from; defaults to the user's
@@ -541,6 +571,7 @@ class DnaRainWidget(QWidget):
                  fps: int = DEFAULT_FPS,
                  color: Union[QColor, str, None] = None,
                  background: Union[QColor, str, None] = None,
+                 backdrop=None,
                  opacity: float = DEFAULT_OPACITY,
                  spacr_probability: float = SPACR_SPLICE_PROBABILITY,
                  theme: Optional[str] = None):
@@ -550,6 +581,7 @@ class DnaRainWidget(QWidget):
         self._bg.setAlpha(255)
         self._color = _as_color(color, QColor(palette["accent"]))
         self._opacity = max(0.0, min(1.0, float(opacity)))
+        self._backdrop: Optional[QPixmap] = _as_pixmap(backdrop)
 
         # Never in front of, never in the way of, the real content.
         self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
@@ -621,6 +653,80 @@ class DnaRainWidget(QWidget):
         self._bg.setAlpha(255)
         self._rebuild_pens()
         self.update()
+
+    def backdrop(self) -> Optional[QPixmap]:
+        """The image painted under the glyphs, or ``None`` for a flat fill."""
+        return self._backdrop
+
+    def set_backdrop(self, source) -> None:
+        """Paint ``source`` under the glyphs instead of a flat colour.
+
+        The rain is an opaque backdrop by construction — it repaints
+        only the cells that changed, so it has to be able to *clear*
+        them, and clearing to a translucent colour smears the previous
+        frame. That is the right trade on the dark and light themes,
+        where the thing behind it is a flat ``bg`` the rain can
+        reproduce exactly. On an image theme it is not: the flat colour
+        is nothing like the wallpaper, and an opaque rain hid the
+        photograph completely on the one screen that has a rain.
+
+        Handing the wallpaper in fixes that without giving up the
+        dirty-rectangle repaint: the clear becomes a blit of the
+        corresponding piece of the image, aligned to where the window's
+        own stylesheet paints it, and the strips switch to per-pixel
+        alpha so the glyphs composite over the picture instead of over
+        a colour baked into them.
+
+        The cost is the one the module docstring quantifies: a
+        translucent strip is roughly 25x more expensive to blit than an
+        opaque one, so this path is used *only* when there is a picture
+        to show. ``set_backdrop(None)`` puts the fast path back.
+
+        :param source: a path, a ``QPixmap``, a ``QImage`` or ``None``.
+        """
+        self._backdrop = _as_pixmap(source)
+        self._invalidate_strips()
+        self.update()
+
+    def _backdrop_origin(self) -> QPoint:
+        """Top-left of the backdrop in this widget's own coordinates.
+
+        The window paints its wallpaper centred on itself
+        (``background-position: center center`` in the QSS, which does
+        not repeat), and the rain has to land on exactly the same
+        pixels or the picture visibly jumps at the widget's edge. So:
+        centre the image on the *window*, then subtract where this
+        widget sits inside it.
+        """
+        pixmap = self._backdrop
+        # `window()` is the widget itself when it has no parent, never
+        # None, so a parentless rain centres the image on itself.
+        window = self.window()
+        x = (window.width() - pixmap.width()) // 2
+        y = (window.height() - pixmap.height()) // 2
+        offset = self.mapTo(window, QPoint(0, 0))
+        return QPoint(x - offset.x(), y - offset.y())
+
+    def _clear(self, painter: QPainter, rect: QRect) -> None:
+        """Reset ``rect`` to whatever sits *under* the glyphs.
+
+        The flat colour, or the matching piece of the backdrop. Any part
+        of ``rect`` the backdrop does not reach — a window wider than
+        the wallpaper — still gets the flat colour, so the widget stays
+        fully opaque and ``WA_OpaquePaintEvent`` remains honest.
+        """
+        pixmap = self._backdrop
+        if pixmap is None:
+            painter.fillRect(rect, self._bg)
+            return
+        origin = self._backdrop_origin()
+        covered = rect.intersected(
+            QRect(origin.x(), origin.y(), pixmap.width(), pixmap.height()))
+        if covered != rect:
+            painter.fillRect(rect, self._bg)
+        if not covered.isEmpty():
+            painter.drawPixmap(covered, pixmap,
+                               covered.translated(-origin.x(), -origin.y()))
 
     def set_opacity(self, value: float) -> None:
         """Set glyph alpha in ``0..1``. Low keeps content in front legible."""
@@ -864,10 +970,16 @@ class DnaRainWidget(QWidget):
         background *here*, once per respawn, so the per-frame blit is a
         straight copy instead of an alpha blend. That is the difference
         between 0.46 ms and 12 ms for a full canvas.
+
+        With a backdrop set there is nothing constant to bake the alphas
+        against — the picture under a string changes as the string
+        falls — so the strip keeps its own transparency and the blend
+        happens at blit time. That is the expensive path, and it is
+        taken only by the themes that have a wallpaper to show.
         """
         cell = self._engine.cell_size
         strip = QPixmap(cell, max(1, column.length * cell))
-        strip.fill(self._bg)
+        strip.fill(Qt.transparent if self._backdrop is not None else self._bg)
         painter = QPainter(strip)
         painter.setFont(self._font)
         fade_cells = max(1, int(column.length * TAIL_FADE_FRACTION))
@@ -922,7 +1034,7 @@ class DnaRainWidget(QWidget):
         touched = set()
         last = engine.n_columns - 1
         for rect in rects:
-            painter.fillRect(rect, self._bg)
+            self._clear(painter, rect)
             # Reach a few columns further left than the region starts:
             # a spaCR splice over there draws across into this one.
             first = max(0, rect.left() // cell - self._word_cols)
@@ -949,7 +1061,7 @@ class DnaRainWidget(QWidget):
                 continue
             x = index * cell
             y = (column.row - column.length + 1 + column.word_index) * cell
-            painter.fillRect(QRect(x, y, self._word_px, cell), self._bg)
+            self._clear(painter, QRect(x, y, self._word_px, cell))
             painter.drawText(x, y + self._ascent, SPACR_TOKEN)
 
 
@@ -1165,7 +1277,9 @@ def install_dna_rain(host: QWidget, layout=None, **kwargs) -> DnaRainWidget:
     :param layout: optional layout to append the settings bar to; when
         ``None`` the bar is created but not placed, and is reachable as
         ``rain.settings_bar``.
-    :param kwargs: forwarded to :class:`DnaRainWidget`.
+    :param kwargs: forwarded to :class:`DnaRainWidget`. Pass
+        ``backdrop=<wallpaper path>`` on an image theme so the rain
+        shows the picture through itself rather than replacing it.
     :returns: the rain widget, with ``.settings_bar`` attached.
     """
     rain = DnaRainWidget(host, **kwargs)

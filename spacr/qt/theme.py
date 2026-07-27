@@ -36,13 +36,24 @@ the imagery shows through the chrome and the empty areas.
 Legibility over a picture is checked two ways, because the two failure
 modes are different:
 
-* :func:`contrast_failures` judges every scrim against the *worst case*
-  a background can present — a pure white pixel directly behind the
-  panel. Passing that means no image can ever make a panel unreadable.
+* :func:`contrast_failures` judges every scrim against the worst case
+  *that theme's wallpaper pipeline can actually produce* — see
+  :func:`scrim_under`. Space's procedural sky keeps its sun blown out on
+  purpose, so Space is judged against a pure white pixel; every Cell
+  wallpaper goes through :func:`spacr.qt.imagery.render`, which
+  exposure-solves it, so Cell is judged against that ceiling.
 * :func:`image_contrast_failures` judges the roles that are painted
   with **nothing** under them against a colour measured from the real
   wallpaper. That is the case a scrim cannot help with, and
   :func:`max_background_luma` is what the imagery pipeline dims to.
+
+The scrim opacities themselves are **solved from those two facts plus
+one more** — :data:`MIN_PICTURE_CONTRAST`, how much of the picture a
+panel must still transmit — rather than picked by eye. See
+:func:`solve_scrim_alpha`, and :func:`scrim_report` for the audit
+trail. Picking them by eye is what produced a set of panels that passed
+every contrast rule and showed 10 % of the photograph underneath, which
+users read, reasonably, as the image themes not working.
 """
 from __future__ import annotations
 
@@ -217,33 +228,285 @@ IMAGE_THEMES = ("space", "cell")
 # and the QSS emits plain hex, byte-identical to what it emitted before
 # scrims existed.
 #
+# The alphas are **solved, not chosen** — see :func:`solve_scrim_alpha`.
+# The first cut of them was a hand-picked 0.86/0.88/0.90/0.93, which
+# passes every contrast rule and hides the wallpaper: a 0.90 scrim
+# transmits a 1.10:1 range of the picture, i.e. a ghost. Users reported
+# the image themes as "not implemented — I can't see the cells", which
+# was a fair reading of a 10 % image.
+#
 # `elevated` (menus, tooltips, combo popups) is deliberately opaque even
 # there: those are separate top-level windows, and a translucent popup
 # without a compositor shows the desktop, not the app.
-SCRIM_ALPHA: Dict[str, Dict[str, float]] = {
-    "space": {
-        "surface":     0.88,
-        "surface_alt": 0.90,
-        "surface_hi":  0.93,
-        "tile":        0.86,
-        "elevated":    1.00,
-    },
-    # Cell runs the same opacities. They were re-checked against
-    # CELL_PALETTE rather than assumed: `contrast_failures("cell")` is
-    # empty at these values, over a pure white worst case.
-    "cell": {
-        "surface":     0.88,
-        "surface_alt": 0.90,
-        "surface_hi":  0.93,
-        "tile":        0.86,
-        "elevated":    1.00,
-    },
+
+#: Worst-case pixel that a scrim can be composited over when nothing
+#: bounds the wallpaper's brightness. A star core is pure white, so that
+#: is what the contrast check assumes sits behind every panel —
+#: anything dimmer only helps.
+WORST_CASE_UNDER = "#ffffff"
+
+#: How much of the wallpaper a scrim must still let through, as the WCAG
+#: contrast ratio between a panel sitting over the brightest background
+#: its theme can present and the same panel over black. It is the
+#: dynamic range of the picture as seen *through* the panel.
+#:
+#: 1.5:1 is well above the ~1.1:1 at which a large-area luminance step
+#: becomes visible at all — so the image is unambiguously present rather
+#: than a ghost — and well below the 3:1 that WCAG 1.4.11 asks of a
+#: meaningful UI boundary, so a card still reads as a card and not as a
+#: hole. At the old 0.90 the same number was 1.10:1: right at the
+#: threshold of visible, which is what the bug reports were about.
+MIN_PICTURE_CONTRAST = 1.5
+
+#: Multiplier applied to every WCAG minimum when solving an alpha, so a
+#: solved scrim is not sitting exactly on the line. Qt composites
+#: ``rgba()`` in 8-bit, and the solver's arithmetic is exact, so the
+#: drift is a fraction of a level — but a rule that passes at 4.50:1 and
+#: fails at 4.49:1 should not be the thing standing between the user and
+#: a readable panel.
+SCRIM_HEADROOM = 1.05
+
+#: Themes whose wallpaper is *guaranteed* to stay under
+#: :func:`max_background_luma` — every frame they can show has been
+#: through :func:`spacr.qt.imagery.render`, which exposure-solves the
+#: shipped masters and a user's own drop-in alike. Only these may have
+#: their scrims judged against that ceiling instead of against white;
+#: see :func:`scrim_under` for why Space is not one of them.
+#:
+#: A theme joins this set by having its wallpaper solved, not by being
+#: added here. Adding one whose picture is not bounded would silently
+#: thin its panels past what its own background can survive.
+EXPOSURE_BOUNDED_THEMES = ("cell",)
+
+
+def _grey_for_luminance(luminance: float) -> str:
+    """The neutral grey whose WCAG relative luminance is ``luminance``.
+
+    A grey has equal linear channels, and the luminance weights sum to
+    1, so its relative luminance *is* its linear channel value — the
+    inverse is just the sRGB transfer function.
+    """
+    value = max(0.0, min(1.0, float(luminance)))
+    srgb = (value * 12.92 if value <= 0.0031308
+            else 1.055 * value ** (1 / 2.4) - 0.055)
+    level = max(0, min(255, int(round(srgb * 255.0))))
+    return "#%02x%02x%02x" % (level, level, level)
+
+
+def scrim_under(theme: str) -> str:
+    """Brightest colour ``theme``'s wallpaper can put behind a panel.
+
+    This is the whole reason the two image themes do not end up with the
+    same alphas, and it is a property of the *pipeline that produces the
+    wallpaper*, not of the palette:
+
+    * **Cell** wallpapers always come out of :func:`spacr.qt.imagery.render`,
+      which exposure-solves every frame it returns — the shipped masters
+      and the user's own drop-in alike. No text-line-sized region of a
+      Cell background can therefore exceed :func:`max_background_luma`,
+      and that ceiling, not white, is the worst case a Cell panel has to
+      survive. Measured: the shipped ``microtubules`` master peaks at
+      0.098 against a 0.109 limit, ``filopodia`` at 0.073.
+
+    * **Space** can be the procedurally generated sky, whose exposure is
+      anchored on the 40th percentile *precisely so a sun stays
+      white-hot* (:data:`spacr.qt.space.TARGET_SKY_PERCENTILE`). That is
+      a deliberate look, and it means the sky really does present a
+      near-white region the size of a line of text: the 1440x900 galaxy
+      sky measures 0.49 over a text window, colour ``#bab9b9``. Only a
+      strong scrim saves text over that, so Space is judged against
+      white and its panels stay much more opaque than Cell's.
+
+    Anything that is not an image theme gets white; its alphas are 1.0
+    and the answer is never used.
+    """
+    if theme not in EXPOSURE_BOUNDED_THEMES:
+        return WORST_CASE_UNDER
+    return _grey_for_luminance(max_background_luma(theme))
+
+
+def _scrim_rules(role: str) -> Tuple[Tuple[str, float], ...]:
+    """``(foreground role, minimum ratio)`` for text on surface ``role``."""
+    return tuple((fg, required)
+                 for fg, surface, required in CONTRAST_RULES
+                 if surface == role)
+
+
+def legible_scrim_floor(theme: str, role: str,
+                        colour_role: Optional[str] = None) -> float:
+    """Thinnest scrim for ``role`` that text is still readable over.
+
+    Every rule in :data:`CONTRAST_RULES` that paints text on this
+    surface must clear its WCAG minimum (times :data:`SCRIM_HEADROOM`)
+    with the surface composited over :func:`scrim_under` — the brightest
+    thing the theme's wallpaper pipeline can put behind it. Below this
+    number the panel stops being readable; it is a hard lower bound.
+
+    :param colour_role: palette entry the surface is painted with, when
+        it differs from ``role`` — ``tile`` is painted with ``surface``.
+    """
+    palette = palette_for(theme)
+    base = palette[colour_role or role]
+    under = scrim_under(theme)
+    rules = _scrim_rules(colour_role or role)
+    for step in range(0, 1001):
+        alpha = step / 1000.0
+        over_worst = composite(base, alpha, under)
+        if all(contrast_ratio(palette[fg], over_worst)
+               >= required * SCRIM_HEADROOM for fg, required in rules):
+            return alpha
+    return 1.0
+
+
+def picture_contrast(theme: str, role: str, alpha: float,
+                     colour_role: Optional[str] = None) -> float:
+    """How much of the wallpaper survives ``role`` at ``alpha``.
+
+    The WCAG ratio between the panel sitting over the brightest thing
+    the theme can put behind it and the same panel over black: the
+    dynamic range of the picture as seen *through* the panel. 1.0 is an
+    opaque panel — no picture at all.
+    """
+    base = palette_for(theme)[colour_role or role]
+    return contrast_ratio(composite(base, alpha, scrim_under(theme)),
+                          composite(base, alpha, "#000000"))
+
+
+def present_scrim_ceiling(theme: str, role: str,
+                          colour_role: Optional[str] = None) -> float:
+    """Thickest scrim for ``role`` that the picture still reads through.
+
+    The largest alpha whose :func:`picture_contrast` is still at least
+    :data:`MIN_PICTURE_CONTRAST`. Above this number the wallpaper is a
+    ghost — which is the bug this whole solver exists to close.
+    """
+    for step in range(1000, -1, -1):
+        alpha = step / 1000.0
+        if picture_contrast(theme, role, alpha, colour_role) \
+                >= MIN_PICTURE_CONTRAST:
+            return alpha
+    return 0.0
+
+
+def solve_scrim_alpha(theme: str, role: str,
+                      colour_role: Optional[str] = None) -> float:
+    """The opacity ``role`` should be painted at in ``theme``.
+
+    Two bounds, pulling opposite ways:
+
+    * :func:`legible_scrim_floor` is a **lower** bound — thinner than
+      that and text on the panel stops clearing AA over the worst thing
+      the wallpaper can present.
+    * :func:`present_scrim_ceiling` is an **upper** bound — thicker than
+      that and the picture stops reading through the panel.
+
+    The answer is the ceiling, clamped up to the floor: as solid a panel
+    as the picture can afford, and never thinner than legibility allows.
+    Every alpha in that window satisfies both constraints, so the choice
+    within it is which one to spend the slack on, and it goes to the
+    panel: the settings form sits on this surface and the user asked for
+    the grey categories to stay grey categories. Taking the floor
+    instead would show *more* picture — Cell's floor is 0.05, a panel
+    that is not there — at the cost of the form dissolving into the
+    wallpaper.
+
+    When the floor lands *above* the ceiling the theme cannot do both,
+    legibility wins, and the shortfall is visible in
+    :func:`scrim_report`.
+
+    :param colour_role: palette entry the surface is painted with, when
+        it differs from ``role`` — ``tile`` is painted with ``surface``.
+    """
+    return max(legible_scrim_floor(theme, role, colour_role),
+               present_scrim_ceiling(theme, role, colour_role))
+
+
+#: The roles :func:`_solve_scrims` solves, and the palette entry each
+#: one is painted with. ``tile`` is the odd one out: the home-screen
+#: tiles are painted with the ``surface`` colour, so they are judged
+#: against the ``surface`` rules.
+SCRIM_ROLES: Dict[str, str] = {
+    "surface":     "surface",
+    "surface_alt": "surface_alt",
+    "surface_hi":  "surface_hi",
+    "tile":        "surface",
 }
 
-#: Worst-case pixel that a scrim can be composited over. A star core is
-#: pure white, so that is what the contrast check assumes sits behind
-#: every panel — anything dimmer only helps.
-WORST_CASE_UNDER = "#ffffff"
+
+def scrim_report(theme: str) -> List[dict]:
+    """Both bounds, the solved alpha and what it buys, for every role.
+
+    Each entry is ``{"role", "colour_role", "alpha", "floor", "ceiling",
+    "picture", "worst_fg", "worst_ratio", "required", "legible",
+    "shows_picture"}``. This is the audit trail for
+    :data:`SCRIM_ALPHA` — the numbers a reviewer would otherwise have to
+    re-derive to check that a solved alpha is the right one.
+    """
+    palette = palette_for(theme)
+    out: List[dict] = []
+    for role, colour_role in SCRIM_ROLES.items():
+        alpha = scrim_alpha(theme, role)
+        over_worst = composite(palette[colour_role], alpha,
+                               scrim_under(theme))
+        worst = min(((contrast_ratio(palette[fg], over_worst) / required,
+                      fg, required)
+                     for fg, required in _scrim_rules(colour_role)),
+                    default=(float("inf"), "", 0.0))
+        picture = picture_contrast(theme, role, alpha, colour_role)
+        out.append({
+            "role": role, "colour_role": colour_role, "alpha": alpha,
+            "floor": legible_scrim_floor(theme, role, colour_role),
+            "ceiling": present_scrim_ceiling(theme, role, colour_role),
+            "surface_color": over_worst,
+            "picture": picture,
+            "worst_fg": worst[1],
+            "worst_ratio": worst[0] * worst[2],
+            "required": worst[2],
+            "legible": worst[0] >= 1.0,
+            "shows_picture": picture >= MIN_PICTURE_CONTRAST,
+        })
+    return out
+
+
+def scrim_failures(theme: str) -> List[str]:
+    """Every role of ``theme`` that cannot be both legible and see-through.
+
+    Empty when the theme manages both. A non-empty result is not a
+    crash — legibility wins and the entry says by how much the picture
+    misses — but it means the wallpaper is a ghost under that role and
+    something upstream (the palette, or the exposure the imagery is
+    solved to) has to give.
+    """
+    return [
+        f"{theme}.{row['role']}: alpha {row['alpha']:.3f} shows the picture "
+        f"at {row['picture']:.2f}:1 < {MIN_PICTURE_CONTRAST:.2f}:1 "
+        f"(legibility floor {row['floor']:.3f} is above the "
+        f"see-through ceiling {row['ceiling']:.3f})"
+        for row in scrim_report(theme)
+        if not row["shows_picture"]
+    ]
+
+
+def _solve_scrims() -> Dict[str, Dict[str, float]]:
+    """Solve every translucent role of every image theme, once, at import.
+
+    Pure colour arithmetic over a thousand-step sweep of four roles and
+    two themes: a few milliseconds, no Qt, no I/O. Solved rather than
+    tabulated so that re-hueing a palette moves its scrims with it
+    instead of silently invalidating a comment.
+    """
+    out: Dict[str, Dict[str, float]] = {}
+    for name in IMAGE_THEMES:
+        solved = {role: solve_scrim_alpha(name, role, colour_role)
+                  for role, colour_role in SCRIM_ROLES.items()}
+        # Popups are separate top-level windows. Translucency there
+        # shows the desktop, not the wallpaper.
+        solved["elevated"] = 1.00
+        out[name] = solved
+    return out
+
+
+SCRIM_ALPHA: Dict[str, Dict[str, float]] = {}
 
 
 def scrim_alpha(theme: str, role: str) -> float:
@@ -383,14 +646,20 @@ def css_color(color: str, alpha: float = 1.0) -> str:
 
 
 def effective_surface(theme: str, role: str,
-                      under: str = WORST_CASE_UNDER) -> str:
+                      under: Optional[str] = None) -> str:
     """The colour a surface role *actually* presents to the eye.
 
-    For opaque themes that is just the palette entry. For Space it is
-    the scrim composited over ``under`` — by default a white star, the
-    worst case the background image can put behind a panel.
+    For opaque themes that is just the palette entry — ``under`` cannot
+    reach through an alpha of 1.0. For an image theme it is the scrim
+    composited over ``under``, which defaults to :func:`scrim_under`:
+    the brightest thing *that theme's* wallpaper pipeline can put behind
+    a panel. White for Space, whose sky blows its sun out on purpose;
+    the exposure ceiling for Cell, whose every wallpaper is solved down
+    to it.
     """
     palette = palette_for(theme)
+    if under is None:
+        under = scrim_under(theme)
     return composite(palette[role], scrim_alpha(theme, role), under)
 
 
@@ -554,6 +823,16 @@ CONSTANT_ROLES = {
 }
 
 
+# Every ingredient the scrim solver needs — the palettes (including
+# these constant roles, which `palette_for` folds in), the contrast
+# rules, the colour maths and the exposure ceiling — exists by this
+# point, so the alphas can be solved. Done at import so that
+# `scrim_alpha` stays a dict lookup on the hot path (the QSS asks for it
+# once per role per theme change) and so a palette edit that makes a
+# theme unsolvable fails loudly here rather than three screens later.
+SCRIM_ALPHA.update(_solve_scrims())
+
+
 # ---------------------------------------------------------------------------
 # Spacing / radius scale — 4/8-based, matches Tk gui_elements.
 # ---------------------------------------------------------------------------
@@ -627,6 +906,50 @@ def apply_qpalette(app: QApplication, theme: str = "dark") -> None:
     p.setColor(QPalette.Dark,            QColor(P["surface_alt"]))
     p.setColor(QPalette.Shadow,          QColor("#000000"))
     app.setPalette(p)
+
+
+#: Dynamic property that marks a widget as a *page surface*: something
+#: that lays other widgets out but must not paint anything itself.
+TRANSPARENT_PROPERTY = "spacrTransparent"
+
+
+def make_transparent(*widgets) -> None:
+    """Stop ``widgets`` painting a background of their own.
+
+    A backdrop — the theme's wallpaper, or the DNA rain on the
+    sequencing screen — is behind the *page*, and in the opaque themes
+    every container between it and the eye is an opaque ``bg`` by
+    virtue of the blanket ``QWidget`` rule. One container is enough to
+    bury it: a screen's header widget, its splitter, a scroll area and
+    that scroll area's viewport are each a QWidget, and each one used to
+    paint solid black over the animation the screen had just installed.
+
+    Tag the layout containers with this and the backdrop reaches the
+    eye; leave the cards, panels and inputs alone and they stay the
+    readable surface on top of it. Safe to call on a widget that is
+    already visible — the style is re-polished so the change takes
+    effect immediately rather than at the next theme switch.
+
+    A ``QScrollArea``'s ``viewport()`` is tagged automatically along
+    with it: they are two widgets, the viewport is the one that
+    actually paints, and forgetting it is the obvious way to get this
+    wrong.
+    """
+    from PySide6.QtWidgets import QAbstractScrollArea
+    for widget in widgets:
+        if widget is None:
+            continue
+        targets = [widget]
+        if isinstance(widget, QAbstractScrollArea):
+            targets.append(widget.viewport())
+        for target in targets:
+            if target is None:
+                continue
+            target.setProperty(TRANSPARENT_PROPERTY, True)
+            style = target.style()
+            if style is not None:
+                style.unpolish(target)
+                style.polish(target)
 
 
 def _qss_url(path) -> str:
@@ -736,6 +1059,19 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
  *  Base
  * ----------------------------------------------------------------- */
 {_window_block(theme, base, background, F["body"])}
+/* Page surfaces — see `make_transparent`. A widget carrying this
+ * property paints nothing at all, so whatever sits behind the page
+ * shows through it: the wallpaper in an image theme, the DNA rain on
+ * the sequencing screen. Cards, panels and inputs are NOT tagged, so
+ * they keep their surface and stay the readable thing on top.
+ *
+ * An attribute selector outranks the bare `QWidget` type selector in
+ * QSS specificity, so this wins in every theme whatever the rule order
+ * — which matters for dark and light, where `QWidget` is an opaque
+ * `bg` and used to bury the rain under the first container it met. */
+*[{TRANSPARENT_PROPERTY}="true"] {{
+    background: transparent;
+}}
 /* Every QLabel is transparent by default so it inherits the bg of
  * whatever container it lives in (surface, surface_alt, hero card,
  * etc). Individual labels can override with their own object name. */

@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from PySide6.QtCore import QSize, Qt, QTimer, QThread, Signal
+from PySide6.QtCore import QEvent, QSize, Qt, QTimer, QThread, Signal
 from PySide6.QtGui import QFontDatabase, QIcon, QPixmap
 from PySide6.QtWidgets import (
     QHBoxLayout,
@@ -226,6 +226,27 @@ APP_INTROS = {
 DNA_RAIN_APPS = frozenset({"map_barcodes"})
 
 
+def _theme_wallpaper():
+    """Path of the wallpaper the current theme is painting, or ``None``.
+
+    ``None`` for dark and light, which have no picture — and the rain
+    then keeps its cheap opaque-strip fast path. For Space and Cell this
+    is the *same* cached file the stylesheet points at: the theme has
+    already been applied by the time any screen is built, so the cache
+    is warm and this resolves without decoding a master. Handing it to
+    the rain is what stops the rain painting flat black over the very
+    image the theme exists to show.
+
+    Never raises: no wallpaper is a cosmetic miss, not a broken screen.
+    """
+    try:
+        from ..preferences import (resolve_effective_theme,
+                                   theme_background_path)
+        return theme_background_path(resolve_effective_theme())
+    except Exception:
+        return None
+
+
 class AppScreen(QWidget):
     """Generic settings + runtime screen used by every non-interactive app.
 
@@ -260,6 +281,7 @@ class AppScreen(QWidget):
         # single-line "what this does" blurb and a docs link. Everything is
         # left-aligned; the trailing stretch takes up the slack.
         header = QWidget()
+        self._header = header
         header_layout = QHBoxLayout(header)
         header_layout.setContentsMargins(0, 0, 0, 0)
         header_layout.setSpacing(SPACING["lg"])
@@ -305,6 +327,7 @@ class AppScreen(QWidget):
 
         # ─── Body splitter ────────────────────────────────────────────
         body = QSplitter(Qt.Horizontal)
+        self._body_splitter = body
         body.setChildrenCollapsible(False)
 
         # Settings panel (left)
@@ -353,19 +376,83 @@ class AppScreen(QWidget):
         if self.app_key in DNA_RAIN_APPS:
             try:
                 from ..widgets.dna_rain import install_dna_rain
-                self._dna_rain = install_dna_rain(self, outer)
+                # The rain is lowered behind its siblings, so it is only
+                # ever as visible as those siblings are transparent.
+                # Under dark and light every container is an opaque `bg`
+                # and it was buried completely: the animation ran, cost
+                # its frames, and reached the eye only through the few
+                # pixels of layout spacing between widgets.
+                self._clear_page_surfaces()
+                self._dna_rain = install_dna_rain(
+                    self, outer, backdrop=_theme_wallpaper())
             except Exception:
                 self._dna_rain = None
+
+    def changeEvent(self, event) -> None:
+        """Follow a live theme switch.
+
+        Only Home is rebuilt when the theme changes; every other screen
+        is re-styled in place by re-applying the QSS. That is enough for
+        anything whose colours come from the stylesheet, and not enough
+        for the DNA rain, which paints itself: its flat fill colour and
+        its wallpaper were both captured at construction. Switching from
+        dark to light left a black rain rectangle on a white page, and
+        switching into Cell left the rain painting flat black over the
+        micrograph the theme had just loaded.
+
+        The trail colour is deliberately *not* re-applied: it is a
+        user-facing control with a swatch in the settings bar, and
+        silently resetting a colour the user picked is worse than a
+        slightly off-theme one.
+        """
+        super().changeEvent(event)
+        if event.type() != QEvent.ApplicationPaletteChange:
+            return
+        rain = getattr(self, "_dna_rain", None)
+        if rain is None:
+            return
+        try:
+            from ..theme import palette_for
+            from ..preferences import resolve_effective_theme
+            rain.set_background_color(palette_for(
+                resolve_effective_theme())["bg"])
+            rain.set_backdrop(_theme_wallpaper())
+        except Exception:
+            pass
+
+    def _clear_page_surfaces(self) -> None:
+        """Stop this screen's layout containers painting over the backdrop.
+
+        The header (which carries the screen title), the body splitter,
+        the settings scroll area with its viewport and content widget,
+        and the two runtime wrappers are *pages*: they position things
+        and should show whatever is behind them. The cards inside them —
+        ``Section``, ``Card``, the console — are not tagged and stay the
+        opaque, readable surface the settings form sits on, which is
+        exactly the "grey categories on top of the animated black"
+        layering this screen is supposed to have.
+        """
+        from ..theme import make_transparent
+        make_transparent(
+            getattr(self, "_header", None),
+            getattr(self, "_body_splitter", None),
+            getattr(self, "_settings_scroll", None),
+            getattr(self, "_settings_content", None),
+            getattr(self, "_runtime_wrap", None),
+            getattr(self, "_console_wrap", None),
+        )
 
     # ------------------------------------------------------------------
     # Panels
     # ------------------------------------------------------------------
     def _build_settings_panel(self) -> QWidget:
         scroll = QScrollArea()
+        self._settings_scroll = scroll
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QScrollArea.NoFrame)
 
         content = QWidget()
+        self._settings_content = content
         layout = QVBoxLayout(content)
         layout.setContentsMargins(0, 0, SPACING["sm"], 0)
         layout.setSpacing(SPACING["sm"])
@@ -599,6 +686,7 @@ class AppScreen(QWidget):
 
     def _build_runtime_panel(self) -> QWidget:
         wrap = QWidget()
+        self._runtime_wrap = wrap
         layout = QVBoxLayout(wrap)
         # Small left inset so the console, chat and button row sit slightly
         # away from the container's left edge (aligned with each other).
@@ -627,6 +715,7 @@ class AppScreen(QWidget):
         from ..widgets import ConsolePanel
         app_title = APP_TITLES.get(self.app_key, self.app_key.title())
         console_wrap = QWidget()
+        self._console_wrap = console_wrap
         console_col = QVBoxLayout(console_wrap)
         console_col.setContentsMargins(0, 0, 0, 0)
         console_col.setSpacing(4)

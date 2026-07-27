@@ -162,6 +162,20 @@ def apply_model_to_tar(settings=None):
     model = torch.load(settings['model_path'], map_location=device, weights_only=False)
 
     dataset = TarImageDataset(tar_path, transform=transform)
+    # A tar built from on-demand crops carries the crop-format marker, so say
+    # which channel ordering the model is about to be shown. The pixels are
+    # NOT re-ordered here: a model's weights are tied to the order it was
+    # trained on, and quietly correcting a legacy archive at inference time
+    # would invalidate every model trained before spaCR grew the marker.
+    if getattr(dataset, 'crop_format', None) is not None:
+        from .crops import CROP_FORMAT_RGB
+        order = 'rgb' if dataset.crop_format == CROP_FORMAT_RGB else 'bgr (legacy)'
+        print(f"Tar crop format {dataset.crop_format} ({order}); images are "
+              f"scored in the order they are stored.")
+    elif settings.get('verbose'):
+        print("Tar carries no crop-format marker, so its channel order is "
+              "whatever wrote it (crops written before spacr 341f446 are "
+              "BGR). Rebuild it with spacr.io.generate_dataset for one.")
     data_loader = DataLoader(
         dataset,
         batch_size=settings['batch_size'],
@@ -1978,6 +1992,12 @@ def deep_spacr(settings=None):
         - ``tar_path`` — pre-built dataset tar; regenerated if missing.
         - ``n_top_examples`` — how many top-confidence images per class
           to copy into ``top_examples/``.
+        - ``crop_source`` — ``'auto'`` | ``'png'`` | ``'merged'``, passed
+          straight through to :func:`spacr.io.generate_training_dataset`
+          and :func:`spacr.io.generate_dataset`. ``'merged'`` builds both
+          the training split and the inference tar by cutting each crop out
+          of ``merged/*.npy`` through :mod:`spacr.crops`, so neither needs a
+          pre-generated PNG folder and neither can be built from a stale one.
         - Plus every key consumed by :func:`train_test_model`,
           :func:`spacr.io.generate_training_dataset`, and
           :func:`spacr.io.generate_dataset`.

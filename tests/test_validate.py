@@ -480,14 +480,30 @@ def test_crop_mode_without_the_matching_mask_dim_is_an_error(tmp_path):
     assert settings_named(errors(validate_settings(settings, "measure")), "nucleus_mask_dim")
 
 
-def test_dialate_png_ratios_shorter_than_crop_mode_is_an_error(tmp_path):
-    """The shipped default [0.2] IndexErrors as soon as two modes are listed."""
+def test_the_shipped_single_dialate_png_ratio_is_not_an_error(tmp_path):
+    """[0.2] broadcasts to every crop mode, so it must not block a run.
+
+    It used to raise IndexError on the second mode, which is what this rule
+    was guarding; measure._per_crop_mode broadcasts it now.
+    """
     _plate, merged = make_merged_plate(tmp_path, n_planes=7)
     settings = valid_measure_settings(merged)
     settings["crop_mode"] = ["cell", "nucleus"]
     settings["dialate_pngs"] = True
     settings["dialate_png_ratios"] = [0.2]
-    assert settings_named(errors(validate_settings(settings, "measure")), "dialate_png_ratios")
+    assert not settings_named(errors(validate_settings(settings, "measure")), "dialate_png_ratios")
+
+
+def test_dialate_png_ratios_shorter_than_crop_mode_warns(tmp_path):
+    """Short but not a single value: the last entry is reused -- say so."""
+    _plate, merged = make_merged_plate(tmp_path, n_planes=7)
+    settings = valid_measure_settings(merged)
+    settings["crop_mode"] = ["cell", "nucleus", "pathogen"]
+    settings["dialate_pngs"] = True
+    settings["dialate_png_ratios"] = [0.2, 0.3]
+    problems = validate_settings(settings, "measure")
+    assert not settings_named(errors(problems), "dialate_png_ratios")
+    assert settings_named(warnings_of(problems), "dialate_png_ratios")
 
 
 def test_sequencing_requires_the_three_barcode_csvs(tmp_path):
