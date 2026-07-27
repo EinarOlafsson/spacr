@@ -89,8 +89,12 @@ def preprocess_generate_masks(settings):
     from .object import generate_cellpose_masks, generate_organelle_masks_sam, generate_cellpose_masks_sam
     from .io import preprocess_img_data, _load_and_concatenate_arrays, convert_to_yokogawa, convert_separate_files_to_yokogawa
     from .plot import plot_image_mask_overlay, plot_arrays
-    from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, delete_intermedeate_files, format_path_for_system, normalize_src_path, generate_image_path_map, copy_images_to_consolidated, merge_split_objects
+    from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, delete_intermedeate_files, format_path_for_system, normalize_src_path, generate_image_path_map, copy_images_to_consolidated, merge_split_objects, reset_cellpose_model_reports
     from .settings import set_default_settings_preprocess_generate_masks, _set_organelle_defaults
+
+    # A new run gets to state its model choice again; within one run each
+    # notice is printed once per object type rather than once per field.
+    reset_cellpose_model_reports()
 
     # These previously *constructed* a ValueError without raising it (and then
     # returned None), silently swallowing bad input despite the docstring

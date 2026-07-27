@@ -4054,7 +4054,13 @@ def _infection_qc_pca_clustering(
         TSNE = None
 
     try:
-        import umap  # type: ignore
+        # Through spacr.utils, never a bare `import umap`: umap's package
+        # __init__ imports umap.parametric_umap -> tensorflow, and TF is not
+        # a spaCR dependency. The lazy wrapper blocks it for that import.
+        from .utils import umap  # type: ignore
+        # Force the deferred import here, where this except clause can still
+        # turn a failure into umap = None.
+        umap.UMAP  # noqa: B018
     except Exception:  # optional
         umap = None
 

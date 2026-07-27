@@ -87,7 +87,8 @@ def identify_masks_finetune(settings):
     :returns: None.
     """
     from .plot import print_mask_and_flows
-    from .utils import resize_images_and_labels, print_progress, save_settings, fill_holes_in_mask
+    from .utils import (resize_images_and_labels, print_progress, save_settings,
+                        fill_holes_in_mask, _resolve_cellpose_pretrained)
     from .io import _load_normalized_images_and_labels, _load_images_and_labels
     from .settings import get_identify_masks_finetune_default_settings
 
@@ -106,23 +107,33 @@ def identify_masks_finetune(settings):
     
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     
-    if settings['custom_model'] == None:
-        model = cp_models.CellposeModel(gpu=True, pretrained_model='cpsam', device=device)
-        print(f"Loaded model: {settings['model_name']}")
+    # 'cpsam' unless the user pointed at a checkpoint. custom_model wins when
+    # set (its existence was checked above); otherwise model_name is resolved,
+    # which maps a pre-SAM name forward and reports it once.
+    if settings['custom_model'] is None:
+        pretrained = _resolve_cellpose_pretrained(settings['model_name'])
     else:
-        model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), model_type=None, pretrained_model=settings['custom_model'], diam_mean=settings['diameter'], device=device)
-        print("Pretrained Model Loaded:", model.pretrained_model)
+        pretrained = settings['custom_model']
 
-    chans = [2, 1] if settings['model_name'] == 'cyto2' else [0,0] if settings['model_name'] == 'nucleus' else [1,0] if settings['model_name'] == 'cyto' else [2, 0]
-    
+    # No model_type= / diam_mean= : Cellpose 4 logs "not used in v4.0.1+" and
+    # drops both. diameter is NOT dropped — it is passed to eval() below,
+    # where the image is rescaled by 30/diameter, and that still works.
+    model = cp_models.CellposeModel(gpu=torch.cuda.is_available(),
+                                    pretrained_model=pretrained,
+                                    device=device)
+    print(f"Loaded model: {getattr(model, 'pretrained_model', pretrained)}")
+
     if settings['grayscale']:
-        chans=[0, 0]
-    
-    print(f"Using channels: {chans} for model of type {settings['model_name']}")
-    
+        # The [cytoplasm, nucleus] channel pair went away with Cellpose 4:
+        # eval(channels=...) logs "channels deprecated in v4.0.1+" and uses
+        # the first three channels regardless. Say so rather than printing a
+        # channel pair the network never sees.
+        print("grayscale=True has no effect under Cellpose 4: the channel "
+              "pair (eval channels=) is deprecated and ignored.")
+
     if settings['verbose'] == True:
-        print(f"Cellpose settings: Model: {settings['model_name']}, channels: {settings['channels']}, cellpose_chans: {chans}, diameter:{settings['diameter']}, flow_threshold:{settings['flow_threshold']}, cellprob_threshold:{settings['CP_prob']}")
-        
+        print(f"Cellpose settings: Model: {pretrained}, channels: {settings['channels']}, diameter:{settings['diameter']}, flow_threshold:{settings['flow_threshold']}, cellprob_threshold:{settings['CP_prob']}")
+
     image_files = [os.path.join(settings['src'], f) for f in os.listdir(settings['src']) if f.endswith('.tif')]
     mask_files = set(os.listdir(os.path.join(settings['src'], 'masks')))
     all_image_files = [f for f in image_files if os.path.basename(f) not in mask_files]
@@ -167,7 +178,6 @@ def identify_masks_finetune(settings):
             start = time.time()
             output = model.eval(x=stack,
                          normalize=False,
-                         channels=chans,
                          channel_axis=3,
                          diameter=settings['diameter'],
                          flow_threshold=settings['flow_threshold'],
@@ -212,13 +222,14 @@ def identify_masks_finetune(settings):
 def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellprob_threshold, flow_threshold, grayscale, save, normalize, channels, percentiles, invert, plot, resize, target_height, target_width, remove_background, background, Signal_to_noise, verbose):
     """Run a Cellpose model over every ``.tif`` in ``src`` and optionally save masks.
 
-    Batches the workload, respects the model-specific channel convention, and
-    writes results to ``<src>/<model_name>``.
+    Batches the workload and writes results to ``<src>/<model_name>``.
 
     :param src: Directory containing input ``.tif`` images.
     :param model: Instantiated ``cellpose.models.CellposeModel``.
-    :param model_name: Model identifier, used both for channel defaults and the
-        output subdirectory name.
+    :param model_name: Model identifier; names the output subdirectory. It no
+        longer selects a channel pair — Cellpose 4 deprecated
+        ``eval(channels=...)``, so the pre-SAM ``cyto``/``cyto2``/``nucleus``
+        channel conventions had no effect on the network's input.
     :param batch_size: Number of images loaded per iteration.
     :param diameter: Estimated object diameter in pixels.
     :param cellprob_threshold: Cell probability threshold passed to Cellpose.
@@ -246,16 +257,17 @@ def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellp
     dst = os.path.join(src, model_name)
     os.makedirs(dst, exist_ok=True)
 
-    chans = [2, 1] if model_name == 'cyto2' else [0,0] if model_name == 'nucleus' else [1,0] if model_name == 'cyto' else [2, 0]
-
     if grayscale:
-        chans=[0, 0]
-    
+        # See identify_masks_finetune: eval(channels=) is deprecated and
+        # ignored by Cellpose 4, so there is no channel pair left to force.
+        print("grayscale=True has no effect under Cellpose 4: the channel "
+              "pair (eval channels=) is deprecated and ignored.")
+
     all_image_files = [os.path.join(src, f) for f in os.listdir(src) if f.endswith('.tif')]
     random.shuffle(all_image_files)
         
     if verbose == True:
-        print(f'Cellpose settings: Model: {model_name}, channels: {channels}, cellpose_chans: {chans}, diameter:{diameter}, flow_threshold:{flow_threshold}, cellprob_threshold:{cellprob_threshold}')
+        print(f'Cellpose settings: Model: {model_name}, channels: {channels}, diameter:{diameter}, flow_threshold:{flow_threshold}, cellprob_threshold:{cellprob_threshold}')
     
     time_ls = []
     for i in range(0, len(all_image_files), batch_size):
@@ -276,7 +288,6 @@ def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellp
             start = time.time()
             output = model.eval(x=stack,
                          normalize=False,
-                         channels=chans,
                          channel_axis=3,
                          diameter=diameter,
                          flow_threshold=flow_threshold,
@@ -328,12 +339,17 @@ def check_cellpose_models(settings):
     settings_df['setting_value'] = settings_df['setting_value'].apply(str)
     display(settings_df)
 
+    # Cellpose 4 ships one stock model, so "check the models" is a list of
+    # one. It is left as a list rather than collapsed so a future release
+    # that ships more than one needs no other change here.
     cellpose_models = ['cpsam']
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    
+
     for model_name in cellpose_models:
 
-        model = cp_models.CellposeModel(gpu=True, pretrained_model='cpsam', device=device)
+        model = cp_models.CellposeModel(gpu=torch.cuda.is_available(),
+                                        pretrained_model=model_name,
+                                        device=device)
         print(f'Using {model_name}')
         generate_masks_from_imgs(src, model, model_name, settings['batch_size'], settings['diameter'], settings['CP_prob'], settings['flow_threshold'], settings['grayscale'], settings['save'], settings['normalize'], settings['channels'], settings['percentiles'], settings['invert'], settings['plot'], settings['resize'], settings['target_height'], settings['target_width'], settings['remove_background'], settings['background'], settings['Signal_to_noise'], settings['verbose'])
 

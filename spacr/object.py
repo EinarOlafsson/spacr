@@ -609,7 +609,9 @@ def _refuse_t_stack(settings, where):
 def generate_cellpose_masks_sam(src, settings, object_type):
     """Segment one object channel across all ``.npz`` batches under ``src`` using Cellpose-SAM.
 
-    Loads the ``cpsam`` pretrained model, iterates over each pre-batched
+    Loads the ``cpsam`` pretrained model — or, when
+    ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint
+    the user trained, that checkpoint — iterates over each pre-batched
     ``.npz`` file, runs merge/split/filter on the resulting masks, optionally
     tracks timelapse objects, saves per-image ``.npy`` masks, and records
     per-object counts to the run's SQLite database.
@@ -621,7 +623,9 @@ def generate_cellpose_masks_sam(src, settings, object_type):
         ``'organelle'``; drives channel/threshold lookups and output folder name.
     :returns: None.
     """
-    from .utils import _masks_to_masks_stack, all_elements_match, prepare_batch_for_segmentation, _get_cellpose_channels
+    from .utils import (_masks_to_masks_stack, all_elements_match,
+                        prepare_batch_for_segmentation, _get_cellpose_channels,
+                        _resolve_cellpose_pretrained)
     from .io import _create_database, _save_object_counts_to_database, _check_masks, _get_avg_object_size
     from .timelapse import (_npz_to_movie, _btrack_track_cells, _trackpy_track_cells,
                             _trackastra_track_cells, _ultrack_track_cells)
@@ -704,8 +708,18 @@ def generate_cellpose_masks_sam(src, settings, object_type):
         print(channels)
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), pretrained_model='cpsam', device=device)
-    paths = [os.path.join(src, file) for file in os.listdir(src) if file.endswith('.npz')]    
+
+    # pretrained_model used to be the literal 'cpsam' here, so a checkpoint
+    # from spaCR's own Train Cellpose module was discarded and the stock
+    # weights ran instead — silently, on the pipeline's DEFAULT path.
+    # _resolve_cellpose_pretrained keeps 'cpsam' for the stock case and
+    # returns the checkpoint path when the user named one.
+    model_name = object_settings['model_name']
+    if object_type == 'pathogen' and settings.get('pathogen_model') is not None:
+        model_name = settings['pathogen_model']
+    pretrained = _resolve_cellpose_pretrained(model_name, object_type=object_type)
+    model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), pretrained_model=pretrained, device=device)
+    paths = [os.path.join(src, file) for file in os.listdir(src) if file.endswith('.npz')]
     
     count_loc = os.path.dirname(src)+'/measurements/measurements.db'
     os.makedirs(os.path.dirname(src)+'/measurements', exist_ok=True)

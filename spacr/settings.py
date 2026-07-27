@@ -93,6 +93,14 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('pathogen_diameter', None)
     settings.setdefault('diameter_estimate_n_fields', 5)
 
+    # Cellpose 4 ships one stock model, so the only real choice these keys
+    # carry is "stock weights" vs "the checkpoint I trained". A legacy value
+    # in an old settings file is mapped forward by
+    # normalize_cellpose_model_name when _get_object_settings reads it.
+    settings.setdefault('cell_model_name', 'cpsam')
+    settings.setdefault('nucleus_model_name', 'cpsam')
+    settings.setdefault('pathogen_model_name', 'cpsam')
+
     # Segmentation QC — scored on the masks the moment they exist, so a plate
     # that segmented badly is caught here rather than after measure_crop has
     # spent hours on it. 'report' computes, saves and prints; it never filters.
@@ -420,6 +428,52 @@ def set_default_settings_preprocess_img_data(settings):
     return settings
 
 
+#: What a Cellpose model setting may be, now that Cellpose 4 exists: the one
+#: stock model, or a path to a checkpoint the user trained themselves. There
+#: is no third option, so no dropdown in spaCR offers one.
+CELLPOSE_MODEL_CHOICES = ('cpsam',)
+
+
+def normalize_cellpose_model_name(value, object_type=None, key=None):
+    """Map a stored Cellpose model setting forward onto what Cellpose 4 has.
+
+    Cellpose 4 ships exactly one stock model, ``cpsam``
+    (``cellpose.models.MODEL_NAMES == ['cpsam']``), and
+    ``CellposeModel(model_type=...)`` is accepted-and-ignored. So 'cyto',
+    'cyto2', 'cyto3' and 'nuclei' are not four choices, they are four spellings
+    of cpsam — offering them in a dropdown invited users to tune a setting that
+    does nothing.
+
+    They are kept as accepted-but-mapped ALIASES rather than removed outright:
+    settings CSVs written years ago must still load. What changes is that they
+    are mapped here, on the way in, instead of being carried around as if they
+    still meant something. A path to a user-trained checkpoint is passed
+    through untouched — that is the one model choice that is still real.
+
+    :param value: the stored setting, e.g. 'cyto2' or '/models/my_cells.pth'.
+    :param object_type: 'cell'/'nucleus'/'pathogen'/'organelle' if known; used
+        only to make the substitution notice name the right object.
+    :param key: settings key the value came from, for the notice.
+    :returns: 'cpsam', or the checkpoint path unchanged.
+    """
+    from .utils import LEGACY_CELLPOSE_MODELS, CPSAM_MODEL, _report_cellpose_once
+
+    if value is None:
+        return CPSAM_MODEL
+    name = str(value).strip()
+    if not name:
+        return CPSAM_MODEL
+    if name in LEGACY_CELLPOSE_MODELS:
+        where = f" ({key})" if key else ""
+        clause = f" for {object_type}" if object_type else ""
+        _report_cellpose_once(
+            ('settings-legacy', name, object_type, key),
+            f"Cellpose model {name!r}{where} predates Cellpose-SAM and is no "
+            f"longer available; using 'cpsam'{clause}.")
+        return CPSAM_MODEL
+    return name
+
+
 def _get_object_settings(object_type, settings):
     """Build per-object Cellpose/segmentation settings for cell/nucleus/pathogen."""
     from .utils import _get_diam
@@ -431,13 +485,14 @@ def _get_object_settings(object_type, settings):
     object_settings['merge'] = False
     object_settings['resample'] = True
     object_settings['remove_border_objects'] = False
-    object_settings['model_name'] = 'cpsam'
-    
+    # 'cpsam' unless the user pointed at their own checkpoint. A legacy name
+    # from an old settings file is mapped forward here rather than carried
+    # into segmentation as if it still selected different weights.
+    object_settings['model_name'] = normalize_cellpose_model_name(
+        settings.get(f'{object_type}_model_name'),
+        object_type=object_type, key=f'{object_type}_model_name')
+
     if object_type == 'cell':
-        if settings['nucleus_channel'] is None:
-            object_settings['model_name'] = 'cpsam'
-        else:
-            object_settings['model_name'] = 'cpsam'
         object_settings['min_size'] = settings['cell_min_area']
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
@@ -453,7 +508,6 @@ def _get_object_settings(object_type, settings):
 
     elif object_type == 'nucleus':
         object_settings['min_size'] = settings['nucleus_min_area']
-        object_settings['model_name'] = 'cpsam'
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
         object_settings['restore_type'] = settings.get('nucleus_restore_type', None)
@@ -465,12 +519,13 @@ def _get_object_settings(object_type, settings):
                 object_settings['maximum_size'] = (object_settings['diameter']**2)*10
             except (TypeError, ValueError):
                 print(f'Nucleus diameter must be an integer or float, got {settings["nucleus_diameter"]!r}')
-        #if settings['use_sam_nucleus']:
-        #    object_settings['model_name'] = 'sam'
+        # (A commented-out `use_sam_nucleus -> model_name = 'sam'` sat here.
+        #  There is no model named 'sam': Cellpose 4 IS SAM and calls its one
+        #  model 'cpsam', which is already what nucleus_model_name defaults
+        #  to. Removed rather than left as a suggestion that would not work.)
 
     elif object_type == 'pathogen':
         object_settings['min_size'] = settings['pathogen_min_area']
-        object_settings['model_name'] = 'cpsam'
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
         object_settings['resample'] = False
@@ -484,10 +539,10 @@ def _get_object_settings(object_type, settings):
                 object_settings['maximum_size'] = (object_settings['diameter']**2)*10
             except (TypeError, ValueError):
                 print(f'Pathogen diameter must be an integer or float, got {settings["pathogen_diameter"]!r}')
-                
-        #if settings['use_sam_pathogen']:
-        #    object_settings['model_name'] = 'sam'
-        
+
+        # (Same for the commented-out `use_sam_pathogen` branch — see above.)
+
+
     else:
         print(f'Object type: {object_type} not supported. Supported object types are : cell, nucleus and pathogen')
         
@@ -1478,6 +1533,9 @@ expected_types = {
     "figuresize":int,
     "cmap":str,
     "pathogen_model":str,
+    "cell_model_name":str,
+    "nucleus_model_name":str,
+    "pathogen_model_name":str,
     "normalize_input":bool,
     "filter_column":str,
     "target_unique_count":int,
@@ -1706,6 +1764,9 @@ expected_types = {
 tooltips = {
     "threshold_direction": "(list, list-of-lists, int or None) - Which side of 'threshold' to keep when prefiltering objects for annotation: 'higher' keeps rows whose measurement is >= the threshold, 'lower' keeps rows <= it. Give one value, or one per entry in 'measurement' (a single string is broadcast to the whole list). Default 'higher'.",
     "threshold": "(list, list-of-lists, int or None) - Cut-off applied to 'measurement' before the annotation grid loads, so you only label the objects you care about. Accepts a number or a quantile code 'q1'-'q9' (q3 = the 30th percentile of that column), or one entry per measurement when measurement is a list. Empty or None loads every object unfiltered.",
+    "cell_model_name": "(str) - Which weights segment cells. Cellpose 4 ships exactly one stock model, 'cpsam', so the only other value that means anything is a path to a checkpoint you trained yourself in Train Cellpose - that path is loaded as pretrained_model and honoured. The pre-SAM names ('cyto', 'cyto2', 'cyto3', 'nuclei') are still accepted so old settings files load, but they are mapped to 'cpsam' on the way in and reported once: Cellpose 4 would have resolved them to cpsam silently anyway. Note what Cellpose 4 does and does not still read: diameter IS honoured (eval rescales the image by 30/diameter), while model_type and diam_mean are accepted-and-ignored with a 'not used in v4.0.1+' log line. Default 'cpsam'.",
+    "nucleus_model_name": "(str) - Which weights segment nuclei. 'cpsam' or a path to your own Train Cellpose checkpoint; there is no third option, because Cellpose 4 removed every pre-SAM model. 'nuclei'/'nucleus' from an older settings file is accepted and mapped to 'cpsam'. Set nucleus_diameter rather than expecting a nucleus-specific model - diameter is the parameter Cellpose 4 still acts on. Default 'cpsam'.",
+    "pathogen_model_name": "(str) - Which weights segment pathogens. 'cpsam' or a path to your own Train Cellpose checkpoint. The bundled toxo_pv_lumen / toxo_cyto checkpoints were Cellpose-3 CPnet and cannot load into CPSAM's transformer, so they are mapped to 'cpsam' and reported. The older 'pathogen_model' key still overrides this one when set. Default 'cpsam'.",
     "cell_diameter": "(int or None) - Expected cell diameter in pixels. Cellpose 4 rescales the image by 30/diameter before segmenting, so setting it makes objects land near the size CPSAM was trained on; leave it None to segment at native scale. Set it when cells are much larger or smaller than ~30 px and masks come back fragmented or merged. spacr.diameter.estimate_diameters proposes a value from your own fields. Default None.",
     "nucleus_diameter": "(int or None) - Expected nucleus diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmenting. None segments at native scale. Nuclei are usually the smallest object you segment, so this is the one most likely to need setting on low-magnification plates. spacr.diameter.estimate_diameters proposes a value. Default None.",
     "pathogen_diameter": "(int or None) - Expected pathogen diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmenting. None segments at native scale. Intracellular parasites are often only a few pixels across at low magnification, where rescaling matters most. spacr.diameter.estimate_diameters proposes a value. Default None.",
@@ -1881,7 +1942,7 @@ tooltips = {
     "min_max": "(str) - Color limits for the plate heatmap: 'allq' scales to the 2nd-98th percentile of well values so a handful of extreme wells cannot flatten the rest, 'all' scales to the true min and max. A two-element list is also accepted, where floats are read as quantiles and integers as absolute vmin/vmax. Default 'allq'.",
     "min_samples": "(int) - Meaning depends on 'clustering': for DBSCAN it is how many points must fall within eps for a point to count as a core point, so raising it yields fewer, denser clusters and more noise; for KMeans this same value is reused as n_clusters, the exact number of clusters produced. Lower it (or raise eps) when no clusters are found. Default 100.",
     "mix": "(str) - Plate column ID whose wells hold a mixed positive/negative population; rows with this columnID are labelled cond='mix' for the image UMAP, so they can be coloured separately or dropped via exclude_conditions. Any column matching none of pos, neg or mix is labelled 'screen'. Default 'c3'.",
-    "model_name": "(str) - Cellpose model to segment with. Cellpose 4 ships exactly one, 'cpsam', and the pre-SAM names ('cyto', 'cyto2', 'cyto3', 'nuclei') are mapped to it automatically because Cellpose silently resolves them to cpsam anyway. Leave at 'cpsam' unless you are loading a custom CPSAM checkpoint. Default 'cpsam'.",
+    "model_name": "(str) - Cellpose model to segment with. Cellpose 4 ships exactly one, 'cpsam'; the pre-SAM names ('cyto', 'cyto2', 'cyto3', 'nuclei') are accepted so old settings files load, but they are mapped to 'cpsam' and reported, because Cellpose resolves them to cpsam silently anyway. Of the three parameters that used to distinguish models, only diameter still does anything under Cellpose 4 (eval rescales the image by 30/diameter); model_type and diam_mean are logged as 'not used in v4.0.1+' and dropped. Leave at 'cpsam' unless you are loading a custom CPSAM checkpoint. Default 'cpsam'.",
     "model_type": "(str) - Backbone architecture for the single-object image classifier, passed to choose_model: any TorchVision classification model name (resnet50, maxvit_t, densenet121, ...). An unrecognised name is not fatal at call time - choose_model prints 'Invalid model_type' and returns None, so training then fails; the special name 'custom' passes the name check but raises NotImplementedError. Bigger backbones capture subtler phenotypes but cost VRAM and epochs, and the name becomes part of the output model folder path (src/model/<model_type>/...). Default 'maxvit_t' in the training pipelines; the activation-map tool defaults to 'maxvit', and only that exact string triggers its automatic target-layer pick; the Tk/Qt combo preselects 'resnet50'.",
     "model_type_ml": "(str) - Which classifier ml_analysis fits to separate positive- from negative-control wells and rank per-object features by permutation importance. One of xgboost (default), lightgbm, catboost, random_forest, extra_trees, gradient_boosting, logistic_regression, svm, mlp; lightgbm and catboost need their optional packages. reg_alpha, reg_lambda and learning_rate only affect the boosted models; logistic_regression is a good linear sanity check.",
     "nc": "(str) - Negative control identifier.",
@@ -1976,7 +2037,7 @@ tooltips = {
     "dataset_mode": "(str) - How training classes are defined: 'metadata' splits crops by well metadata (class_metadata or metadata_rules), 'annotation' by the values in one or more annotation columns of png_list, 'measurement' by threshold rules on measured features (measurement_rules). Any other value aborts and returns no dataset. Default 'metadata'.",
     "annotated_classes": "(list) - Currently inert: the Tk 'Generate Dataset' form collects it and the defaults set [1,2], but no code reads settings['annotated_classes']. The two io.py helpers with a same-named parameter (training_dataset_from_annotation and training_dataset_from_annotation_metadata, default (1,2)) have no callers anywhere in the package. The live dataset builder selects classes from dataset_mode instead - annotation_columns/annotation_values under 'annotation', class_metadata or the rule lists under 'metadata'/'measurement'. Default [1,2], with no effect.",
     "um_per_pixel": "(float) - Physical size of one image pixel in micrometres, taken from your objective and camera. It is used only to convert scale_bar_length_um into pixels when a scale bar is drawn on representative-image grids, so a wrong value gives a wrong-length bar; it never rescales or resamples the images. The plotting helpers default to 0.1.",
-    "pathogen_model": "(str) - use a custom cellpose model to detect pathogen objects.",
+    "pathogen_model": "(str or None) - Path to a custom Cellpose checkpoint used to detect pathogen objects, overriding pathogen_model_name when set. It must be a CPSAM-architecture checkpoint (one your own Train Cellpose run produced); a Cellpose-3 CPnet file cannot load into Cellpose 4. A path that does not exist stops the run rather than falling back to the stock weights silently. Default None.",
     "timelapse_displacement": "(int or None) - Maximum distance in pixels an object may travel between consecutive frames when linking: trackpy's search_range, or btrack's max search radius. Too small fragments tracks, too large causes identity swaps and SubnetOversize failures. None auto-searches downward from 500 for trackpy and falls back to 100 for btrack. Default None.",
     "timelapse_memory": "(int) - Number of consecutive frames an object may vanish (e.g. missed by segmentation) and still be re-linked to the same track by trackpy. Raise it when tracks fragment because objects blink out; too high risks merging two different objects into one track. Not used by the btrack mode. Default 3.",
     "timelapse_mode": "(str) - Which tracker links objects between frames. 'trackastra' is a transformer that tops the Cell Tracking Challenge leaderboard, needs no tuning and links divisions natively; 'ultrack' solves segmentation and linking as one integer program and wins on densely packed or 3D data at the cost of a longer solve; 'trackpy' needs a search radius and memory; 'btrack' needs a motion model; 'iou' just overlaps consecutive frames and drifts under fast motion. Default 'trackastra'.",
@@ -2326,11 +2387,11 @@ categories = {
 
     "Cellpose": ["fill_in", "from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
 
-    "Cell": ["cell_diameter", "cell_intensity_range", "cell_size_range", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cytoplasm_min_size", "adjust_cells", "cell_max_area", "cell_min_area", "cell_remove_border_objects", "cell_min_intensity_percentile", "cell_max_intensity_percentile", "remove_border_cells", "cell_perimeter_fraction", "cell_intensity_merge", "cell_intensity_split", "cell_area_multiplier", "cell_min_distance", "cell_min_object_area", "cell_intensity_threshold_method", "cell_intensity_percentile"],
+    "Cell": ["cell_model_name", "cell_diameter", "cell_intensity_range", "cell_size_range", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cytoplasm_min_size", "adjust_cells", "cell_max_area", "cell_min_area", "cell_remove_border_objects", "cell_min_intensity_percentile", "cell_max_intensity_percentile", "remove_border_cells", "cell_perimeter_fraction", "cell_intensity_merge", "cell_intensity_split", "cell_area_multiplier", "cell_min_distance", "cell_min_object_area", "cell_intensity_threshold_method", "cell_intensity_percentile"],
 
-    "Nucleus": ["nucleus_diameter", "nucleus_intensity_range", "nucleus_size_range", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_min_area", "nucleus_max_area", "nucleus_remove_border_objects", "nucleus_min_intensity_percentile", "nucleus_max_intensity_percentile", "remove_border_nuclei", "nucleus_perimeter_fraction", "nucleus_intensity_merge", "nucleus_intensity_split", "nucleus_area_multiplier", "nucleus_min_distance", "nucleus_min_object_area", "nucleus_intensity_percentile", "nucleus_intensity_threshold_method"],
+    "Nucleus": ["nucleus_model_name", "nucleus_diameter", "nucleus_intensity_range", "nucleus_size_range", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_min_area", "nucleus_max_area", "nucleus_remove_border_objects", "nucleus_min_intensity_percentile", "nucleus_max_intensity_percentile", "remove_border_nuclei", "nucleus_perimeter_fraction", "nucleus_intensity_merge", "nucleus_intensity_split", "nucleus_area_multiplier", "nucleus_min_distance", "nucleus_min_object_area", "nucleus_intensity_percentile", "nucleus_intensity_threshold_method"],
 
-    "Pathogen": ["pathogen_diameter", "pathogen_intensity_range", "pathogen_size_range", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "merge_edge_pathogen_cells", "pathogen_max_area", "pathogen_min_area", "pathogen_remove_border_objects", "pathogen_min_intensity_percentile", "pathogen_max_intensity_percentile", "remove_border_pathogens", "pathogen_perimeter_fraction", "pathogen_intensity_merge", "pathogen_intensity_split", "pathogen_area_multiplier", "pathogen_min_distance", "pathogen_min_object_area", "pathogen_intensity_threshold_method", "pathogen_intensity_percentile"],
+    "Pathogen": ["pathogen_model_name", "pathogen_diameter", "pathogen_intensity_range", "pathogen_size_range", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "merge_edge_pathogen_cells", "pathogen_max_area", "pathogen_min_area", "pathogen_remove_border_objects", "pathogen_min_intensity_percentile", "pathogen_max_intensity_percentile", "remove_border_pathogens", "pathogen_perimeter_fraction", "pathogen_intensity_merge", "pathogen_intensity_split", "pathogen_area_multiplier", "pathogen_min_distance", "pathogen_min_object_area", "pathogen_intensity_threshold_method", "pathogen_intensity_percentile"],
 
     # One heading for the whole organelle workflow, ordered the way it is set
     # up: what to detect -> clean the image -> the knobs of the chosen
