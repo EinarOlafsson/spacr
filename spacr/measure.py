@@ -105,6 +105,88 @@ def _ndim_of(mask):
 #: machine stays usable during a measure run.
 N_JOBS_HEADROOM = 4
 
+#: Environment variable that overrides the multiprocessing start method the
+#: measure pool runs in. Accepts any name :func:`multiprocessing.get_context`
+#: accepts on the platform -- ``fork``, ``spawn`` or ``forkserver``. Unset (the
+#: normal case) means "whatever this interpreter's default is", which is
+#: ``fork`` on Linux today, ``spawn`` on Windows and macOS.
+START_METHOD_ENV_VAR = 'SPACR_START_METHOD'
+
+
+def _pool_context():
+    """Return the multiprocessing context :func:`measure_crop` runs its pool in.
+
+    spaCR deliberately does **not** call ``set_start_method(force=True)`` here.
+    That mutates ``multiprocessing._default_context`` for the whole
+    interpreter, irreversibly and invisibly to whoever imported spaCR, and it
+    is what makes the start method impossible to reason about once the Tk GUI
+    has been opened once. Taking a context object instead keeps the decision
+    local to this pool.
+
+    With :data:`START_METHOD_ENV_VAR` unset this returns the
+    :mod:`multiprocessing` module itself rather than a context object. That is
+    not laziness: ``mp.Pool`` / ``mp.Manager`` are then looked up exactly as
+    they were before this function existed, so the default behaviour -- and
+    anything that patches those two names -- is unchanged. A context is only
+    substituted when a start method was asked for explicitly.
+
+    :returns: an object exposing ``Pool``, ``Manager`` and ``get_start_method``
+        -- either a :class:`multiprocessing.context.BaseContext` or the
+        :mod:`multiprocessing` module.
+    """
+    method = os.environ.get(START_METHOD_ENV_VAR, '').strip().lower()
+    if not method:
+        return mp
+    try:
+        return mp.get_context(method)
+    except ValueError:
+        # An unusable name (``fork`` on Windows, a typo) must not take the run
+        # down: the platform default measures the same rows.
+        print(f"WARNING: {START_METHOD_ENV_VAR}={method!r} is not a "
+              f"multiprocessing start method on this platform; using the "
+              f"default ({mp.get_start_method()}).")
+        return mp
+
+
+def resolve_pool_size(n_jobs, n_files, start_method=None):
+    """Return how many worker processes to actually start for ``n_files`` fields.
+
+    Under ``fork`` a surplus worker is nearly free -- it is a page-table copy of
+    a process that has already imported everything -- so spaCR has always
+    started exactly the requested number and existing behaviour is preserved.
+
+    Under ``spawn`` and ``forkserver`` it is not free. Each worker is a fresh
+    interpreter that re-imports the whole measure chain from scratch; measured
+    on a developer box that was **8.1 s and ~1.54 GB of RSS per worker**, and
+    is **3.5 s and ~930 MB** now that ``spacr.plot`` and umap (and, through
+    umap, TensorFlow) are off that path. Either way it is paid before a single
+    field is read. A default ``n_jobs`` of ``cpu_count - 4`` on a 16-core
+    Windows machine therefore boots 12 interpreters and reserves 11-18 GB to
+    measure a 4-field test plate, and the run either swaps itself to a
+    standstill or has workers killed out from under it -- which presents as
+    "Measure prints 'using 12 cpu cores' and then nothing happens", because a
+    pool worker that dies at bootstrap is silently replaced and dies again.
+    Windows and macOS default to ``spawn``; Linux does not, which is exactly
+    why this only ever bit the other two.
+
+    A worker with no field to measure cannot contribute, so capping at the
+    number of fields costs nothing and is the whole fix.
+
+    :param n_jobs: the resolved worker count from :func:`resolve_n_jobs`.
+    :param n_files: how many fields there are to measure.
+    :param start_method: start method name to decide against; defaults to the
+        interpreter's current default.
+    :returns: an int >= 1.
+    """
+    n_jobs = max(1, int(n_jobs))
+    if start_method is None:
+        start_method = mp.get_start_method()
+    if start_method == 'fork':
+        return n_jobs
+    # max(1, ...) because Pool(0) raises ValueError, and a folder that turned
+    # out to hold no unmeasured fields must finish quietly rather than crash.
+    return max(1, min(n_jobs, int(n_files)))
+
 
 def resolve_n_jobs(n_jobs, cpu_count=None):
     """Return the number of worker processes ``measure_crop`` will actually use.
@@ -1545,7 +1627,11 @@ def _measure_crop_core(index, time_ls, file, settings):
         A list of cropped images.
     """
     
-    from .plot import _plot_cropped_arrays
+    # spacr.plot is imported where it is used, not here: it is only reachable
+    # behind settings['plot'], and under a spawn/forkserver pool every worker
+    # pays for every import in this function from a cold interpreter. Measured
+    # on a developer box, spacr.plot alone is ~1.9 s and ~720 MB per worker --
+    # for a default run that never draws anything.
     from .utils import _merge_overlapping_objects, _filter_object, _relabel_parent_with_child_labels, _exclude_objects, normalize_to_dtype, filepaths_to_database
     from .utils import _merge_and_save_to_database, _crop_center, _find_bounding_box, _generate_names, _get_percentiles
 
@@ -1592,6 +1678,7 @@ def _measure_crop_core(index, time_ls, file, settings):
             print(f"3-D field {file_name}: skipping the cropped-array plots "
                   f"(spacr.plot renders 2-D fields).")
         elif settings['plot']:
+            from .plot import _plot_cropped_arrays
             if len(data.shape) == 3:
                 figuresize = data.shape[2]*10
             else:
@@ -1687,6 +1774,7 @@ def _measure_crop_core(index, time_ls, file, settings):
             data = np.concatenate((data, cytoplasm_mask[..., np.newaxis]), axis=-1)
 
         if settings['plot'] and not volumetric:
+            from .plot import _plot_cropped_arrays
             fig = _plot_cropped_arrays(data, file, figuresize)
             figs[f'{file_name}__after_filtration'] = fig
 
@@ -2151,11 +2239,19 @@ def measure_crop(settings):
                     ledger.record_failure(job_file, stage='measure_worker', exc=exc)
                 return _on_error
 
-            with mp.Manager() as manager:
+            # One explicit context for both the Manager and the Pool. Mixing
+            # them -- a fork Manager serving a spawn Pool, say -- is how the
+            # shared time_ls proxy ends up unreachable from a worker.
+            ctx = _pool_context()
+            start_method = ctx.get_start_method()
+            pool_jobs = resolve_pool_size(n_jobs, len(files),
+                                          start_method=start_method)
+
+            with ctx.Manager() as manager:
                 time_ls = manager.list()
                 completed_jobs = set()  # Set to keep track of completed jobs
 
-                with mp.Pool(n_jobs) as pool:
+                with ctx.Pool(pool_jobs) as pool:
                     for index, file in enumerate(files):
                         pool.apply_async(_measure_crop_core, args=(index, time_ls, file, settings),
                                          callback=job_callback,
