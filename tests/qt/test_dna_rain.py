@@ -921,3 +921,66 @@ def test_hook_attaches_to_the_real_sequencing_screen(qtbot, qt_theme_applied):
         rain.advance_frame(DT)
     screen.hide()
     assert not rain.is_running()
+
+
+# ---------------------------------------------------------------------------
+# Visibility
+#
+# The user reported the rain was too faint to read as an effect. It was 0.22 --
+# a low-alpha accent colour, which has almost nothing to spend on a light
+# theme in particular. Raised, and exposed as a control so it can be dialled
+# per theme rather than guessed at once in a constant.
+# ---------------------------------------------------------------------------
+
+def test_the_default_is_visible_enough_to_read_as_an_effect():
+    from spacr.qt.widgets import dna_rain as dr
+    assert dr.DEFAULT_OPACITY > 0.22, (
+        "0.22 is the value the user called too faint; the default must exceed it")
+    assert dr.DEFAULT_OPACITY <= 0.6, (
+        "the rain sits BEHIND the settings; past ~0.6 it competes with them")
+
+
+def test_the_bar_exposes_a_visibility_control(qtbot):
+    from spacr.qt.widgets.dna_rain import DnaRainSettingsBar, DEFAULT_OPACITY
+    bar = DnaRainSettingsBar()
+    qtbot.addWidget(bar)
+    assert bar.opacity() == pytest.approx(DEFAULT_OPACITY, abs=0.01)
+
+
+def test_the_control_reaches_the_painted_output(qtbot):
+    """A slider that does not change the render is decoration."""
+    from spacr.qt.widgets.dna_rain import DnaRainSettingsBar, DnaRainWidget
+    rain = DnaRainWidget(seed=11)
+    bar = DnaRainSettingsBar()
+    qtbot.addWidget(rain)
+    qtbot.addWidget(bar)
+    bar.bind(rain)
+
+    bar.set_opacity(0.75)
+    assert rain.opacity() == pytest.approx(0.75, abs=0.01)
+    bar.set_opacity(0.10)
+    assert rain.opacity() == pytest.approx(0.10, abs=0.01)
+
+
+def test_binding_seeds_the_control_from_the_rain(qtbot):
+    from spacr.qt.widgets.dna_rain import DnaRainSettingsBar, DnaRainWidget
+    rain = DnaRainWidget(seed=3, opacity=0.33)
+    bar = DnaRainSettingsBar()
+    qtbot.addWidget(rain)
+    qtbot.addWidget(bar)
+    bar.bind(rain)
+    assert bar.opacity() == pytest.approx(0.33, abs=0.01)
+
+
+def test_the_slider_cannot_reach_fully_transparent_or_opaque(qtbot):
+    """0% is an invisible effect; 100% would bury the settings behind it."""
+    from spacr.qt.widgets.dna_rain import (DnaRainSettingsBar,
+                                           MIN_OPACITY_PCT, MAX_OPACITY_PCT)
+    bar = DnaRainSettingsBar()
+    qtbot.addWidget(bar)
+    assert MIN_OPACITY_PCT > 0
+    assert MAX_OPACITY_PCT < 100
+    bar.set_opacity(0.0)
+    assert bar.opacity() >= MIN_OPACITY_PCT / 100
+    bar.set_opacity(1.0)
+    assert bar.opacity() <= MAX_OPACITY_PCT / 100

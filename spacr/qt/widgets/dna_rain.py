@@ -149,8 +149,17 @@ DEFAULT_FPS = 24
 MIN_FPS = 1
 MAX_FPS = 60
 
-#: Glyph opacity. Low by default — screen content sits in front.
-DEFAULT_OPACITY = 0.22
+#: Glyph opacity. The rain sits BEHIND the screen content, so this trades
+#: visibility against the legibility of whatever is in front of it. It began
+#: at 0.22, which the user found too faint to read as an effect at all --
+#: especially over a light theme, where a low-alpha accent colour on a pale
+#: surface has almost no contrast to spend. Raised, and exposed as a slider so
+#: it can be dialled per taste and per theme rather than guessed at once here.
+DEFAULT_OPACITY = 0.42
+
+#: Slider bounds for the opacity control, as whole percent.
+MIN_OPACITY_PCT = 5
+MAX_OPACITY_PCT = 90
 
 #: The head glyph is drawn at this multiple of the trail opacity
 #: (clamped to 1.0) so it stays the brightest thing in the column.
@@ -967,11 +976,13 @@ class DnaRainSettingsBar(QWidget):
     color_changed = Signal(QColor)
     speed_changed = Signal(float)
     font_size_changed = Signal(int)
+    opacity_changed = Signal(float)
 
     def __init__(self, parent: Optional[QWidget] = None, *,
                  color: Union[QColor, str, None] = None,
                  speed: float = 1.0,
                  font_size: int = DEFAULT_FONT_PX,
+                 opacity: float = DEFAULT_OPACITY,
                  theme: Optional[str] = None):
         super().__init__(parent)
         palette = palette_for(theme or _effective_theme())
@@ -1019,6 +1030,21 @@ class DnaRainSettingsBar(QWidget):
         self._speed_value = _muted_label("")
         layout.addWidget(self._speed_value)
 
+        layout.addWidget(_muted_label("Visibility"))
+        self._opacity = QSlider(Qt.Horizontal)
+        self._opacity.setToolTip(
+            "How strongly the rain shows through behind the screen content. "
+            "Higher is more visible; too high and the settings in front of it "
+            "get harder to read.")
+        self._opacity.setRange(MIN_OPACITY_PCT, MAX_OPACITY_PCT)
+        self._opacity.setValue(_clamp_int(round(opacity * 100),
+                                          MIN_OPACITY_PCT, MAX_OPACITY_PCT))
+        self._opacity.setFixedWidth(120)
+        self._opacity.valueChanged.connect(self._on_opacity)
+        layout.addWidget(self._opacity)
+        self._opacity_value = _muted_label("")
+        layout.addWidget(self._opacity_value)
+
         layout.addWidget(_muted_label("Font"))
         self._font = QSlider(Qt.Horizontal)
         self._font.setToolTip("Glyph size, which is also the column stride")
@@ -1043,6 +1069,9 @@ class DnaRainSettingsBar(QWidget):
     def font_size(self) -> int:
         return self._font.value()
 
+    def opacity(self) -> float:
+        return self._opacity.value() / 100.0
+
     def _paint_swatch(self) -> None:
         self._swatch.setStyleSheet(
             "QPushButton#DnaRainSwatch {"
@@ -1053,6 +1082,7 @@ class DnaRainSettingsBar(QWidget):
     def _refresh_readouts(self) -> None:
         self._speed_value.setText(f"{self.speed():.1f}x")
         self._font_value.setText(f"{self.font_size()} px")
+        self._opacity_value.setText(f"{round(self.opacity() * 100)}%")
 
     # -- controls ------------------------------------------------------
     def set_color(self, color: Union[QColor, str]) -> None:
@@ -1077,9 +1107,18 @@ class DnaRainSettingsBar(QWidget):
         self._refresh_readouts()
         self.speed_changed.emit(self.speed())
 
+    def set_opacity(self, value: float) -> None:
+        self._opacity.setValue(
+            _clamp_int(round(float(value) * 100), MIN_OPACITY_PCT,
+                       MAX_OPACITY_PCT))
+
     def _on_font(self, value: int) -> None:
         self._refresh_readouts()
         self.font_size_changed.emit(int(value))
+
+    def _on_opacity(self, _value: int) -> None:
+        self._refresh_readouts()
+        self.opacity_changed.emit(self.opacity())
 
     # -- wiring --------------------------------------------------------
     def bind(self, rain: DnaRainWidget) -> None:
@@ -1093,10 +1132,16 @@ class DnaRainSettingsBar(QWidget):
         self._font.blockSignals(True)
         self._font.setValue(rain.font_size())
         self._font.blockSignals(False)
+        self._opacity.blockSignals(True)
+        self._opacity.setValue(
+            _clamp_int(round(rain.opacity() * 100), MIN_OPACITY_PCT,
+                       MAX_OPACITY_PCT))
+        self._opacity.blockSignals(False)
         self._refresh_readouts()
         self.color_changed.connect(rain.set_color)
         self.speed_changed.connect(rain.set_speed)
         self.font_size_changed.connect(rain.set_font_size)
+        self.opacity_changed.connect(rain.set_opacity)
 
 
 def _muted_label(text: str) -> QLabel:
