@@ -182,28 +182,25 @@ def screen(qtbot, qt_theme_applied):
 # Registration
 # ---------------------------------------------------------------------------
 
-def test_agreement_is_registered_under_alpha_modules():
-    """Was ``..._under_results_and_qc`` / ``SECTION_RESULTS``.
+def test_agreement_is_registered_under_results_and_qc_as_alpha():
+    """Both axes, which are no longer the same kind of thing.
 
-    #16i staged this screen into Alpha modules, which is what ``APPS``
-    files it under. Scoring annotation passes is still reading a result,
-    and Results & QC still has a tab holding all six of its apps —
-    staging says how finished the app is, not what it does. Both axes
-    are asserted so neither can drift."""
+    #16i briefly made "Alpha modules" a SECTION and filed this screen
+    there; #16j put it back under Results & QC — scoring annotation
+    passes is reading a result — and kept alpha as a maturity stage that
+    the Home tile draws as a hover colour."""
     from spacr.qt.app import APPS
     entry = next((a for a in APPS if a[0] == "agreement"), None)
     assert entry is not None, "agreement missing from APPS"
     key, name, desc, section = entry
     assert name == "Annotator Agreement"
     assert desc and desc.strip()
-    from spacr.qt.app import (SECTION_ALPHA, SECTION_RESULTS,
-                              subject_section)
-    assert section == SECTION_ALPHA, (
-        f"agreement filed under {section!r}; it was staged into alpha "
-        "and nothing has moved it back")
-    assert subject_section(key, section) == SECTION_RESULTS, (
-        "scoring annotation passes is reading a result — that is the "
-        "subject tab it has to stay on while it is staged")
+    from spacr.qt.app import SECTION_RESULTS, app_stage
+    assert section == SECTION_RESULTS, (
+        f"agreement filed under {section!r}; scoring annotation passes "
+        "is reading a result")
+    assert app_stage(key) == "alpha", (
+        "it is not signed off, and the tile colour is what says so")
 
 
 def test_agreement_has_a_title_and_an_intro():

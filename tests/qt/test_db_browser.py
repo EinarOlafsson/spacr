@@ -272,25 +272,23 @@ def editable(screen, measdb, allow_editing):
 # Registration: APPS / titles / intro / icon / MainWindow wiring
 # ---------------------------------------------------------------------------
 
-def test_db_browser_is_registered_under_alpha_modules():
-    """Was ``..._under_data_and_batch_runs`` / ``SECTION_DATA``.
+def test_db_browser_is_registered_under_data_as_alpha():
+    """It is how measurements get back out of a project — that is Data.
 
-    #16i staged the Database Browser into Alpha modules with the rest of
-    the Data section. It is still how measurements get back out of a
-    project — it is just not signed off yet, so it is on both the Data
-    tab and the Alpha modules tab."""
+    It spent #16i filed under "Alpha modules", a section that no longer
+    exists. Not signed off is a stage now, drawn as the tile's hover
+    colour, and it is asserted separately here."""
     from spacr.qt.app import APPS
     entry = next((a for a in APPS if a[0] == "db_browser"), None)
     assert entry is not None, "db_browser missing from APPS"
     key, name, desc, section = entry
     assert name == "Database Browser"
     assert desc and desc.strip()
-    from spacr.qt.app import SECTION_ALPHA, SECTION_DATA, subject_section
-    assert section == SECTION_ALPHA, (
-        f"db_browser filed under {section!r}; it was staged into alpha "
-        "and nothing has moved it back")
-    assert subject_section(key, section) == SECTION_DATA, (
-        "it is how measurements get back out of a project")
+    from spacr.qt.app import SECTION_DATA, app_stage
+    assert section == SECTION_DATA, (
+        f"db_browser filed under {section!r}; it is how measurements "
+        "get back out of a project")
+    assert app_stage(key) == "alpha"
 
 
 def test_db_browser_has_a_title_and_an_intro():

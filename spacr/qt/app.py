@@ -16,6 +16,7 @@ from PySide6.QtGui import QAction, QIcon, QKeySequence, QPixmap
 from PySide6.QtWidgets import (
     QApplication,
     QFrame,
+    QHBoxLayout,
     QLabel,
     QMainWindow,
     QMessageBox,
@@ -29,7 +30,11 @@ from PySide6.QtWidgets import (
 
 
 from . import iconset
-from .theme import PALETTE, SPACING, apply_qpalette, stylesheet
+# Nothing in this module uses a colour, a spacing or the palette API any
+# more — the Home page, the sidebar QSS and `apply_preferences_to_app`
+# each own their own. The import stayed behind after they moved out, and
+# because it named `PALETTE` it fired the deprecation warning on every
+# `import spacr.qt.app` for a value nobody read.
 from .widgets.eliding import ElidingPushButton
 
 
@@ -95,22 +100,21 @@ class _PipelinePreloader:
 # The app registry
 # ---------------------------------------------------------------------------
 #
-# Two axes, not one, and the difference is the whole of #16i.
+# Two axes, and only ONE of them is a place.
 #
 # An app is filed under WHAT IT DOES — Core, Data, Segmentation models,
 # Results & QC, Toxoplasma. That is stable: Format Converter is a Data
-# app whether or not anyone has finished it.
+# app whether or not anyone has finished it, and it is the axis the
+# sidebar, the command palette and the Home tabs all group by.
 #
-# An app is *also* staged by HOW FINISHED IT IS — Alpha modules or Beta
-# modules — and 22 of the 30 currently are. That is not stable, and it
-# is not a property of the app's subject: it changes the day someone
-# signs the app off, and when it does the app should not need its
-# subject re-assigned to get out of staging.
-#
-# So the STAGE is what an app is filed under (``APPS[i][3]``, and what
-# Home, the sidebar and the command palette group by), and the FUNCTION
-# it was staged out of is remembered in :data:`STAGED_FROM`. An app
-# graduating is one line deleted from that table.
+# An app is *also* staged by HOW FINISHED IT IS — alpha, beta or stable
+# — and 22 of the 30 are not yet signed off. #16i made that second axis
+# two extra CATEGORIES, which meant three of the five subject tabs
+# drained to nothing and "where is the format converter" acquired two
+# answers. #16j undoes exactly that: maturity is now drawn as the
+# tile's HOVER COLOUR, with a legend beside the tiles, so it is visible
+# on the same tile that is in the right category. One table
+# (:data:`APP_STAGE`), one place per app, no second grouping.
 #
 #   Core            the end-to-end pipeline: images in, single-object
 #                   measurements out, hits called.
@@ -120,19 +124,6 @@ class _PipelinePreloader:
 #     models        the Mask step runs.
 #   Results & QC    read what came out and decide whether to believe it.
 #   Toxoplasma      parasite-specific readouts.
-#   Alpha modules   built and reachable, not yet trusted end to end.
-#   Beta modules    further along than alpha, still not signed off.
-#
-# WHY BOTH ARE KEPT AS TABS. Staging drained three of the five subject
-# categories completely — Data lost all six of its apps, Segmentation
-# models all five, Results & QC all six — and the obvious move was to
-# retire them. It is the wrong move. "Where is the format converter"
-# is a question about the subject, and a user who knows they want the
-# converter should not have to know it is unfinished to find it. The
-# subject tabs list every app that IS that subject, staged or not; the
-# two staging tabs list everything that is not signed off. Every app
-# appears on exactly one subject tab, on at most one staging tab, and
-# exactly once on Home.
 #
 # A section holds AT MOST `MAX_APPS_PER_SECTION` apps. Past that nobody
 # reads the row — which is exactly how "Tools" grew to sixteen entries and
@@ -147,44 +138,29 @@ SECTION_DATA = "Data"
 SECTION_MODELS = "Segmentation models"
 SECTION_RESULTS = "Results & QC"
 SECTION_TOXO = "Toxoplasma"
-SECTION_ALPHA = "Alpha modules"
-SECTION_BETA = "Beta modules"
 
-#: The subject categories, in workflow order: the end-to-end pipeline
-#: first, then getting data in and running it at scale, then the
-#: segmentation models that pipeline depends on, then reading the
+#: Tab, sidebar and heading order, in workflow order: the end-to-end
+#: pipeline first, then getting data in and running it at scale, then
+#: the segmentation models that pipeline depends on, then reading the
 #: results, then the Toxoplasma-specific assays.
-FUNCTION_SECTIONS = (SECTION_CORE, SECTION_DATA, SECTION_MODELS,
-                     SECTION_RESULTS, SECTION_TOXO)
-
-#: The staging categories — grouped by how finished an app is rather
-#: than by what it does. Deliberately a COMPLETE list of what is not
-#: signed off, which is why the readability cap below is the wrong
-#: instrument for them: splitting "Alpha modules" in two would only
-#: hide half of it.
-MATURITY_SECTIONS = (SECTION_ALPHA, SECTION_BETA)
-
-#: Tab and heading order. Subjects first, then the staging areas, so
-#: the list does not open on the things that might not work.
-SECTIONS = FUNCTION_SECTIONS + MATURITY_SECTIONS
+SECTIONS = (SECTION_CORE, SECTION_DATA, SECTION_MODELS, SECTION_RESULTS,
+            SECTION_TOXO)
 
 #: Hard cap on apps per section. Enforced by tests, not at runtime — a
 #: violation is a design mistake to fix in this table, not something to
 #: discover at startup.
 #:
-#: Raised from 9 to 13 by #16i. Nine was the width of the Core pipeline;
-#: the number now comes from Alpha modules, which is thirteen apps
-#: because thirteen apps are unfinished. Splitting that into "Alpha
-#: modules" and "More alpha modules" would satisfy the constant and tell
-#: the user nothing, so the constant moved instead.
+#: Raised from 9 to 13 by #16i and kept there. Nine was the width of the
+#: Core pipeline and nothing more; a cap that is exactly the size of the
+#: biggest section is a cap that fires on the next app added rather than
+#: when a section stops being readable.
 MAX_APPS_PER_SECTION = 13
 
 APPS = [
     # (key, human name, description, section)
     #
-    # `section` here is where the app is FILED — its staging category if
-    # it has one, otherwise its subject. What subject a staged app came
-    # from is in STAGED_FROM below; nothing is lost by staging it.
+    # `section` is what the app IS ABOUT. How finished it is lives in
+    # APP_STAGE below and is drawn as a colour, not as a place.
     #
     # NOTE: keys are load-bearing. bridge.resolve_pipeline_entry,
     # cli.INTERACTIVE_ONLY, validate.APP_FUNCTIONS, dnd_handlers,
@@ -193,115 +169,127 @@ APPS = [
     # display name or moving an app between sections is free.
     #
     # -- Core pipeline: images in, single-object measurements out, hits
-    #    called. Ctrl+1..9 address APPS[0..8], so the first seven of those
-    #    nine are this section and the last two spill into what follows.
+    #    called. Ctrl+1..9 map to these nine, in this order.
     ("mask",           "Mask",           "Generate cellpose masks for cells, nuclei and pathogens",   SECTION_CORE),
+    ("timelapse",      "Timelapse",      "Segment and track objects across the frames of a time series", SECTION_CORE),
+    ("motility",       "Motility Assay", "Automated motility assay: track velocity + infection QC",     SECTION_CORE),
     ("measure",        "Measure",        "Measure single-object intensity + morphology features",       SECTION_CORE),
     ("annotate",       "Annotate",       "Annotate single-object images on a grid; save to database",  SECTION_CORE),
     ("classify",       "Classify (CV)",  "Train Torch CNNs/Transformers to classify single objects",   SECTION_CORE),
     ("ml_analyze",     "Classify (ML)",  "Classical ML (XGBoost / random forest / …) on screen features", SECTION_CORE),
     ("map_barcodes",   "Map Barcodes",   "Map sequencing barcodes to screen data",                      SECTION_CORE),
     ("regression",     "Regression",     "Regression analysis of screen scores",                        SECTION_CORE),
-    # -- Toxoplasma assays: parasite-specific readouts. The other three
-    #    (plaque, invasion, replication) are staged in Alpha/Beta below.
+    # -- Data & batch runs: get images and tables into a spaCR project,
+    #    run many plates unattended, get the numbers back out.
+    ("align",          "Align & Stitch", "Register tiles into one stitched canvas, written incrementally so a 20000x20000 mosaic never has to fit in RAM", SECTION_DATA),
+    ("convert",        "Format Converter", "ND2/CZI/LIF/OME-TIFF into Yokogawa TIFFs: preview the mapping, then a map file back to the originals", SECTION_DATA),
+    ("foreign",        "Import Project", "Someone else's images, masks and measurement table into a spaCR project, with their columns mapped onto spaCR's", SECTION_DATA),
+    ("queue",          "Plate Queue",    "Chain multiple plates through the same pipeline",             SECTION_DATA),
+    ("batch",          "Batch Runner",   "Queue any modules, plates and settings and run them overnight", SECTION_DATA),
+    ("db_browser",     "Database Browser", "Browse and export measurements.db without the sqlite3 CLI", SECTION_DATA),
+    # -- Segmentation models: build, train, pick and check the Cellpose
+    #    models the Mask step runs.
+    ("make_masks",     "Make Masks",     "Fine-tune Cellpose models for your dataset",                  SECTION_MODELS),
+    ("train_cellpose", "Train Cellpose", "Train custom Cellpose models",                                SECTION_MODELS),
+    ("cellpose_masks", "Cellpose Masks", "Cellpose mask generation",                                    SECTION_MODELS),
+    ("model_compare",  "Model Compare",  "Two Cellpose models on the same fields: masks side by side, object-count and ARI deltas", SECTION_MODELS),
+    ("model_zoo",      "Model Zoo",      "Browse, verify, download and bench Cellpose + classifier models on three of your fields", SECTION_MODELS),
+    # -- Results & QC: look at what came out, decide whether to believe it,
+    #    and hand it to someone else.
+    ("plate_view",     "Plate Viewer",   "Any measurement as a plate heatmap + edge-effect detection",  SECTION_RESULTS),
+    ("agreement",      "Annotator Agreement", "Cohen's/Fleiss' κ between annotation columns + a disagreement review", SECTION_RESULTS),
+    ("umap",           "Image UMAP",     "Generate UMAP embeddings with image glyphs",                  SECTION_RESULTS),
+    ("activation",     "Activation",     "Generate activation maps",                                    SECTION_RESULTS),
+    ("train_compare",  "Training Runs",  "Overlay several training runs' curves with their settings diffed side by side", SECTION_RESULTS),
+    ("report",         "Report",         "One-click shareable HTML/PDF: QC verdict, figures, stats, settings, versions", SECTION_RESULTS),
+    # -- Toxoplasma assays: parasite-specific readouts.
+    ("analyze_plaques", "Plaque Assay",  "Analyze plaque assay data",                                   SECTION_TOXO),
     ("recruitment",    "Recruitment",    "Analyze recruitment data",                                    SECTION_TOXO),
-    # -- Alpha modules: built and reachable, not yet trusted end to end.
-    #    Listed in the order they were staged.
-    ("align",          "Align & Stitch", "Register tiles into one stitched canvas, written incrementally so a 20000x20000 mosaic never has to fit in RAM", SECTION_ALPHA),
-    ("model_zoo",      "Model Zoo",      "Browse, verify, download and bench Cellpose + classifier models on three of your fields", SECTION_ALPHA),
-    ("convert",        "Format Converter", "ND2/CZI/LIF/OME-TIFF into Yokogawa TIFFs: preview the mapping, then a map file back to the originals", SECTION_ALPHA),
-    ("foreign",        "Import Project", "Someone else's images, masks and measurement table into a spaCR project, with their columns mapped onto spaCR's", SECTION_ALPHA),
-    ("model_compare",  "Model Compare",  "Two Cellpose models on the same fields: masks side by side, object-count and ARI deltas", SECTION_ALPHA),
-    ("queue",          "Plate Queue",    "Chain multiple plates through the same pipeline",             SECTION_ALPHA),
-    ("batch",          "Batch Runner",   "Queue any modules, plates and settings and run them overnight", SECTION_ALPHA),
-    ("invasion",       "Invasion Assay", "Two-colour outside/inside stain: attached vs invaded parasites, invasion efficiency per well", SECTION_ALPHA),
-    ("db_browser",     "Database Browser", "Browse and export measurements.db without the sqlite3 CLI", SECTION_ALPHA),
-    ("plate_view",     "Plate Viewer",   "Any measurement as a plate heatmap + edge-effect detection",  SECTION_ALPHA),
-    ("agreement",      "Annotator Agreement", "Cohen's/Fleiss' κ between annotation columns + a disagreement review", SECTION_ALPHA),
-    ("train_compare",  "Training Runs",  "Overlay several training runs' curves with their settings diffed side by side", SECTION_ALPHA),
-    ("report",         "Report",         "One-click shareable HTML/PDF: QC verdict, figures, stats, settings, versions", SECTION_ALPHA),
-    # -- Beta modules: further along than alpha, still not signed off.
-    ("make_masks",     "Make Masks",     "Fine-tune Cellpose models for your dataset",                  SECTION_BETA),
-    ("train_cellpose", "Train Cellpose", "Train custom Cellpose models",                                SECTION_BETA),
-    ("cellpose_masks", "Cellpose Masks", "Cellpose mask generation",                                    SECTION_BETA),
-    ("timelapse",      "Timelapse",      "Segment and track objects across the frames of a time series", SECTION_BETA),
-    ("motility",       "Motility Assay", "Automated motility assay: track velocity + infection QC",     SECTION_BETA),
-    ("analyze_plaques", "Plaque Assay",  "Analyze plaque assay data",                                   SECTION_BETA),
-    ("replication",    "Replication Assay", "Endodyogeny: parasites per vacuole, scored into replication rate per condition", SECTION_BETA),
-    ("umap",           "Image UMAP",     "Generate UMAP embeddings with image glyphs",                  SECTION_BETA),
-    ("activation",     "Activation",     "Generate activation maps",                                    SECTION_BETA),
+    ("invasion",       "Invasion Assay", "Two-colour outside/inside stain: attached vs invaded parasites, invasion efficiency per well", SECTION_TOXO),
+    ("replication",    "Replication Assay", "Endodyogeny: parasites per vacuole, scored into replication rate per condition", SECTION_TOXO),
 ]
 
 
-#: app key → the subject category it is staged out of.
+# ---------------------------------------------------------------------------
+# Maturity — the second axis, drawn as colour rather than as a place
+# ---------------------------------------------------------------------------
+
+STAGE_STABLE = "stable"
+STAGE_BETA = "beta"
+STAGE_ALPHA = "alpha"
+
+#: Every stage, least finished first — the order the legend lists them.
+STAGES = (STAGE_ALPHA, STAGE_BETA, STAGE_STABLE)
+
+#: **The** classification. app key → :data:`STAGE_ALPHA` or
+#: :data:`STAGE_BETA`; anything absent is :data:`STAGE_STABLE`.
 #:
-#: One entry per app whose ``APPS`` section is a staging category, and
-#: none for any other — an app that is not staged is already filed under
-#: its subject, so a second copy of that fact here could only ever go
-#: stale. This is the ONLY record of what Data, Segmentation models and
-#: Results & QC contain, because staging emptied all three of them.
+#: This is the single table the hover colour and the legend both read
+#: (through :func:`app_stage` and :func:`home_stages`), and it is the
+#: only place maturity is written down — #16i's mistake was that
+#: maturity was *also* a section, so an app could be alpha in one table
+#: and Data in another and the two could disagree.
 #:
-#: Signing an app off is deleting its line here and setting its section
-#: back to the value that line held.
-STAGED_FROM = {
-    # -- out of Core
-    "timelapse":       SECTION_CORE,
-    "motility":        SECTION_CORE,
-    # -- out of Data (all six)
-    "align":           SECTION_DATA,
-    "convert":         SECTION_DATA,
-    "foreign":         SECTION_DATA,
-    "queue":           SECTION_DATA,
-    "batch":           SECTION_DATA,
-    "db_browser":      SECTION_DATA,
-    # -- out of Segmentation models (all five)
-    "make_masks":      SECTION_MODELS,
-    "train_cellpose":  SECTION_MODELS,
-    "cellpose_masks":  SECTION_MODELS,
-    "model_compare":   SECTION_MODELS,
-    "model_zoo":       SECTION_MODELS,
-    # -- out of Results & QC (all six)
-    "plate_view":      SECTION_RESULTS,
-    "agreement":       SECTION_RESULTS,
-    "umap":            SECTION_RESULTS,
-    "activation":      SECTION_RESULTS,
-    "train_compare":   SECTION_RESULTS,
-    "report":          SECTION_RESULTS,
-    # -- out of Toxoplasma
-    "analyze_plaques": SECTION_TOXO,
-    "invasion":        SECTION_TOXO,
-    "replication":     SECTION_TOXO,
+#: Signing an app off is deleting its line here. Nothing else moves: the
+#: app is already filed under what it does.
+APP_STAGE = {
+    # -- alpha: built and reachable, not yet trusted end to end (13)
+    "align":           STAGE_ALPHA,
+    "model_zoo":       STAGE_ALPHA,
+    "convert":         STAGE_ALPHA,
+    "foreign":         STAGE_ALPHA,
+    "model_compare":   STAGE_ALPHA,
+    "queue":           STAGE_ALPHA,
+    "batch":           STAGE_ALPHA,
+    "invasion":        STAGE_ALPHA,
+    "db_browser":      STAGE_ALPHA,
+    "plate_view":      STAGE_ALPHA,
+    "agreement":       STAGE_ALPHA,
+    "train_compare":   STAGE_ALPHA,
+    "report":          STAGE_ALPHA,
+    # -- beta: further along, in regular use, still not signed off (9)
+    "make_masks":      STAGE_BETA,
+    "train_cellpose":  STAGE_BETA,
+    "cellpose_masks":  STAGE_BETA,
+    "timelapse":       STAGE_BETA,
+    "motility":        STAGE_BETA,
+    "analyze_plaques": STAGE_BETA,
+    "replication":     STAGE_BETA,
+    "umap":            STAGE_BETA,
+    "activation":      STAGE_BETA,
 }
 
 
-def subject_section(key: str, section: str) -> str:
-    """The subject category an app belongs to, staged or not.
+def app_stage(key: str) -> str:
+    """How finished ``key`` is — one of :data:`STAGES`.
 
-    ``section`` is the app's :data:`APPS` section, passed in rather than
-    looked up so this stays a pure function over one row.
+    Unknown keys read as stable rather than raising: a stage is an
+    annotation on an app, and an app with no annotation is one nobody
+    has flagged.
     """
-    return STAGED_FROM.get(key, section)
+    return APP_STAGE.get(key, STAGE_STABLE)
+
+
+def home_stages() -> dict:
+    """app key → stage, for every app in :data:`APPS`.
+
+    What :func:`make_home_page` hands the Home page, so the tiles and
+    the legend colour from the same table this module owns and the
+    widget still knows nothing about what a stage means.
+    """
+    return {row[0]: app_stage(row[0]) for row in APPS}
 
 
 def section_members(section: str) -> List[Tuple[str, str, str, str]]:
-    """The ``APPS`` rows a category's tab shows, in registry order.
-
-    A staging category shows what is filed under it. A subject category
-    shows every app *about* that subject, including the ones currently
-    staged — which is the whole reason Data, Segmentation models and
-    Results & QC still have anything to show.
-    """
-    if section in MATURITY_SECTIONS:
-        return [row for row in APPS if row[3] == section]
-    return [row for row in APPS if subject_section(row[0], row[3]) == section]
+    """The ``APPS`` rows a category's tab shows, in registry order."""
+    return [row for row in APPS if row[3] == section]
 
 
 def home_categories() -> List[Tuple[str, List[str]]]:
     """``(section, [app key])`` for every tab after Home, in tab order.
 
-    All seven are populated — the three that staging emptied are held up
-    by :data:`STAGED_FROM` — so nothing here is ever dropped for being
-    blank. It is computed rather than written down so that it cannot be.
+    Computed rather than written down, so a section cannot acquire a tab
+    it has no apps for or lose one it does.
     """
     return [(s, [row[0] for row in section_members(s)]) for s in SECTIONS]
 
@@ -309,25 +297,21 @@ def home_categories() -> List[Tuple[str, List[str]]]:
 def home_bands() -> List[Tuple[str, List[Tuple[str, str, str, str]]]]:
     """``(band, rows)`` for the Home tab, in :data:`SECTIONS` order.
 
-    Home files each app ONCE, under the section it is filed in — so a
-    staged app appears under Alpha or Beta modules and not also under
-    its subject. Two copies of Format Converter on one page would be
-    two things to click that do the same thing.
+    The same grouping the tabs use — every app once, under what it is
+    about. Home is the "all of it" view and each later tab is a filter
+    of it, which is only true while both read this one table.
 
-    Bands with no apps are dropped rather than drawn empty: with 22 of
-    the 30 apps staged, Data, Segmentation models and Results & QC have
-    nothing to put in a band. They keep their *tabs* — see
-    :func:`section_members` — because a tab is a place to look and a
-    band is a place to list.
+    Bands with no apps are dropped rather than drawn empty. None are,
+    today; the guard is what stops a heading appearing over nothing the
+    day a section's last app is retired.
     """
-    grouped = [(s, [row for row in APPS if row[3] == s]) for s in SECTIONS]
+    grouped = [(s, section_members(s)) for s in SECTIONS]
     return [(s, rows) for s, rows in grouped if rows]
 
 
-#: The subject half of each category's one-line note. The staging half
-#: is computed, because a hand-written "all six are in Alpha modules"
-#: is a sentence that goes quietly wrong the day one of them graduates.
-_SECTION_BLURBS = {
+#: One line per section, drawn under its heading on that category's tab.
+#: A category with two apps in it looks broken until it says why.
+SECTION_NOTES = {
     SECTION_CORE: "Images in, single-object measurements out, hits called.",
     SECTION_DATA: ("Images and tables into a spaCR project, many plates run "
                    "unattended, the numbers back out."),
@@ -336,59 +320,13 @@ _SECTION_BLURBS = {
     SECTION_RESULTS: ("Read what came out, decide whether to believe it, "
                       "hand it to someone else."),
     SECTION_TOXO: "Parasite-specific readouts.",
-    SECTION_ALPHA: ("Built and reachable, not yet trusted end to end. Expect "
-                    "rough edges, and check the numbers before you rely on "
-                    "them."),
-    SECTION_BETA: ("Further along than alpha and in regular use, but not "
-                   "signed off yet."),
 }
-
-
-def _staging_note(section: str) -> str:
-    """"…all six are staged in Alpha modules." — or "" if none are.
-
-    A subject tab whose apps are all staged looks like a mistake until
-    it says so, and one where only some are looks like the rest are
-    fine. Both sentences are derived from the tables so neither can
-    disagree with them.
-    """
-    if section in MATURITY_SECTIONS:
-        return ""
-    rows = section_members(section)
-    staged = [row for row in rows if row[3] in MATURITY_SECTIONS]
-    if not staged:
-        return ""
-    where = [s for s in MATURITY_SECTIONS if any(r[3] == s for r in staged)]
-    #: "Alpha and Beta modules", not "Alpha modules and Beta modules" —
-    #: the word both share is said once.
-    listed = ("Alpha and Beta modules" if len(where) == 2
-              else where[0])
-    #: Named while a reader can hold the list, counted after. "3 of them
-    #: are staged" answers a question nobody asked; "Invasion Assay,
-    #: Plaque Assay and Replication Assay are staged" is the sentence
-    #: that stops someone hunting for the invasion assay.
-    names = [row[1] for row in staged]
-    if len(staged) == len(rows):
-        who = "All of them are"
-    elif len(names) == 1:
-        who = f"{names[0]} is"
-    elif len(names) <= 3:
-        who = f"{', '.join(names[:-1])} and {names[-1]} are"
-    else:
-        who = f"{len(staged)} of them are"
-    return f" {who} staged in {listed} until signed off."
-
-
-#: One line per section, drawn under its heading on that category's tab.
-#: A category with two apps in it looks broken until it says why.
-SECTION_NOTES = {s: (_SECTION_BLURBS[s] + _staging_note(s)).strip()
-                 for s in SECTIONS}
 
 
 def make_home_page(parent=None):
     """Build the Home page exactly as the running app builds it.
 
-    The two groupings, the notes and the icon provider are four
+    The grouping, the stages, the notes and the icon provider are four
     arguments that have to agree, and a test that assembles its own
     HomePage is testing a page that does not ship — which is the exact
     class of bug #16i was: Home grouped by one table and the tabs by
@@ -400,7 +338,8 @@ def make_home_page(parent=None):
         APPS, _icon_for_app, parent,
         section_notes=SECTION_NOTES,
         categories=home_categories(),
-        bands=[(s, [r[0] for r in rows]) for s, rows in home_bands()])
+        bands=[(s, [r[0] for r in rows]) for s, rows in home_bands()],
+        stages=home_stages())
 
 
 # Explicit key -> icon-filename overrides for cases where the app_key
@@ -565,7 +504,7 @@ class Sidebar(QWidget):
             layout.addWidget(btn)
 
         layout.addStretch(1)
-        self.setFixedWidth(self._fitting_width())
+        self.setFixedWidth(self.fitting_width())
 
     def refresh_icons(self) -> None:
         """Re-ink every nav icon for the current theme.
@@ -615,13 +554,17 @@ class Sidebar(QWidget):
         self._items.append(btn)
         return btn
 
-    def _fitting_width(self) -> int:
+    def fitting_width(self) -> int:
         """Width that shows the longest nav label in full, within bounds.
 
         Font scale moves both bounds (a 150 % font needs a 150 % column),
         and the widest button's own size hint moves the result inside
         them. Names longer than ``WIDTH_MAX`` elide with a tooltip rather
         than pushing the column across the window.
+
+        Public because the locked dock has to re-apply it: the sidebar is
+        re-parented out of the drawer, which had resized it to the
+        drawer's width.
         """
         from .preferences import scaled_px
         widest = max((b.sizeHint().width() for b in self._items), default=0)
@@ -651,9 +594,9 @@ class MainWindow(QMainWindow):
 
         self._build_menu_bar()
 
-        # Central layout: the screen stack fills the window, and the app
-        # list is a REVEAL over its left edge rather than a permanent
-        # column.
+        # Central layout: a row that holds an (initially empty) dock slot
+        # and the screen stack. By default the app list is a REVEAL over
+        # the stack's left edge rather than anything in that slot.
         #
         # The column was 220-320 px of the 1440 a laptop has, on every
         # screen, holding a list most sessions never touch — and it is
@@ -661,11 +604,31 @@ class MainWindow(QMainWindow):
         # column without scrolling. As a drawer it costs 6 px of trigger
         # strip and is one hover, one click, or Ctrl+B away.
         #
+        # The slot is what "lock the dock" fills: see
+        # :meth:`apply_dock_mode`. It exists whatever the mode, because a
+        # QMainWindow's central widget cannot be swapped without
+        # re-parenting the stack, and re-parenting a stack that already
+        # holds live screens is how a locked dock would cost you the
+        # screen you were looking at.
+        #
         # `self._sidebar` is the SAME `Sidebar` object it always was, only
         # reparented: the tutorial highlights it, the command palette and
         # the tests all reach it by that name.
         self._stack = QStackedWidget()
-        self.setCentralWidget(self._stack)
+        central = QWidget()
+        central.setObjectName("CentralRow")
+        row = QHBoxLayout(central)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(0)
+        self._dock_slot = QWidget()
+        self._dock_slot.setObjectName("DockSlot")
+        slot_col = QVBoxLayout(self._dock_slot)
+        slot_col.setContentsMargins(0, 0, 0, 0)
+        slot_col.setSpacing(0)
+        self._dock_slot.hide()
+        row.addWidget(self._dock_slot)
+        row.addWidget(self._stack, 1)
+        self.setCentralWidget(central)
 
         self._sidebar = Sidebar()
         self._sidebar.nav_selected.connect(self._on_nav_selected)
@@ -674,6 +637,7 @@ class MainWindow(QMainWindow):
         from .widgets.drawer import EdgeDrawer
         self._app_drawer = EdgeDrawer(self._stack, self._sidebar,
                                       width=self._sidebar.width())
+        self.apply_dock_mode()
 
         # Register screens lazily — created on first navigation.
         self._screens: dict[str, QWidget] = {}
@@ -762,6 +726,10 @@ class MainWindow(QMainWindow):
         act_all.triggered.connect(self.toggle_app_drawer)
         app_menu.addAction(act_all)
         self.addAction(act_all)
+        #: Kept so :meth:`apply_dock_mode` can grey it out — a Ctrl+B that
+        #: silently does nothing because the dock is hidden is worse than
+        #: a menu entry that says so.
+        self._act_all_apps = act_all
         app_menu.addSeparator()
         act_prefs = QAction("Preferences…", self)
         act_prefs.setShortcut(QKeySequence("Ctrl+,"))
@@ -1081,15 +1049,21 @@ class MainWindow(QMainWindow):
     def refresh_theme(self) -> None:
         """Rebuild everything the stylesheet alone cannot restyle.
 
-        Two things do not follow a ``setStyleSheet`` call: the Home
-        tiles set sizes/margins from the font scale in Python, and every
-        QIcon baked its pixmap at the theme in force when it was built.
-        Called after the Preferences dialog closes, and found by
-        duck-typing from :func:`spacr.qt.preferences.apply_preferences_to_app`
-        so a theme change from anywhere reaches the widgets.
+        Three things do not follow a ``setStyleSheet`` call: the Home
+        tiles set sizes/margins from the font scale in Python, every
+        QIcon baked its pixmap at the theme in force when it was built,
+        and the dock's mode and the page's opacity are layout decisions
+        rather than colours. Called after the Preferences dialog closes,
+        and found by duck-typing from
+        :func:`spacr.qt.preferences.apply_preferences_to_app` so a
+        preference change from anywhere reaches the widgets.
         """
         try:
             self._sidebar.refresh_icons()
+        except Exception:
+            pass
+        try:
+            self.apply_dock_mode()
         except Exception:
             pass
         try:
@@ -1192,6 +1166,71 @@ class MainWindow(QMainWindow):
         super().closeEvent(event)
 
     # -- the app-list drawer ----------------------------------------------
+    def dock_mode(self) -> str:
+        """The user's dock preference — ``auto`` / ``locked`` / ``hidden``.
+
+        Read through here rather than inlined so a headless build, or one
+        with an unwritable settings file, still gets the default rather
+        than an exception during ``__init__``.
+        """
+        try:
+            from .preferences import get_dock_mode
+            return get_dock_mode()
+        except Exception:
+            return "auto"
+
+    def apply_dock_mode(self, mode: Optional[str] = None) -> None:
+        """Put the app list where the preference says it goes.
+
+        Three modes, one ``Sidebar`` object:
+
+        ``auto``    the sidebar lives inside the :class:`EdgeDrawer` and
+                    reveals on dwell against the left edge.
+        ``locked``  the sidebar is re-parented into the window's dock
+                    slot, where it is an ordinary column: it never
+                    animates, never overlays the page, and the hot strip
+                    is switched off so it cannot also slide in on top of
+                    itself.
+        ``hidden``  the drawer is closed, its hot strip hidden, and the
+                    slot stays empty. The "All apps" action is disabled
+                    with a tooltip that says where to turn it back on —
+                    a control that silently does nothing is worse than
+                    one that is greyed out.
+
+        Idempotent, and safe to call before the menu exists.
+        """
+        mode = mode or self.dock_mode()
+        drawer = getattr(self, "_app_drawer", None)
+        sidebar = getattr(self, "_sidebar", None)
+        slot = getattr(self, "_dock_slot", None)
+        if drawer is None or sidebar is None or slot is None:
+            return
+        self._dock_mode = mode
+
+        if mode == "locked":
+            drawer.close()
+            drawer.set_enabled(False)
+            if sidebar.parent() is not slot:
+                slot.layout().addWidget(sidebar)
+            sidebar.setFixedWidth(sidebar.fitting_width())
+            sidebar.show()
+            slot.show()
+        else:
+            if sidebar.parent() is not drawer:
+                drawer.adopt(sidebar)
+            slot.hide()
+            drawer.set_enabled(mode == "auto")
+            if mode == "hidden":
+                drawer.close()
+
+        action = getattr(self, "_act_all_apps", None)
+        if action is not None:
+            action.setEnabled(mode != "hidden")
+            action.setToolTip(
+                "The app dock is hidden. Turn it back on in Preferences → "
+                "App dock." if mode == "hidden" else
+                "Show the full app list.")
+
     def toggle_app_drawer(self) -> None:
         """Open (and focus) or close the slide-in app list.
 
@@ -1201,13 +1240,26 @@ class MainWindow(QMainWindow):
         list on **every other screen** — the replacement for the
         permanent 220 px column. From inside Mask, this is the only
         pointer-driven way to reach Measure without going Home first.
+
+        A no-op when the dock is locked (it is already on screen and not
+        going anywhere) or hidden (the user asked for it not to be
+        there; a shortcut that overrules a preference is a bug).
         """
+        if getattr(self, "_dock_mode", "auto") != "auto":
+            return
         drawer = getattr(self, "_app_drawer", None)
         if drawer is not None:
             drawer.toggle()
 
     def _on_drawer_navigated(self, _key: str) -> None:
-        """A row in the drawer was clicked — it has done its job, close it."""
+        """A row in the drawer was clicked — it has done its job, close it.
+
+        Nothing to close when the dock is locked: it is a column, and a
+        column that vanished every time you used it would be worse than
+        the reveal it replaced.
+        """
+        if getattr(self, "_dock_mode", "auto") != "auto":
+            return
         drawer = getattr(self, "_app_drawer", None)
         if drawer is not None:
             drawer.close()

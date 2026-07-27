@@ -48,10 +48,10 @@ def test_main_window_constructs_and_switches(qtbot, qt_theme_applied):
 
 
 def test_home_page_emits_tile_clicked(qtbot, qt_theme_applied):
-    from spacr.qt.widgets.tile import HTile
+    from spacr.qt.widgets.home import AppTile
     page = make_home_page()  # the page MainWindow ships
     qtbot.addWidget(page)
-    tiles = page.findChildren(HTile)
+    tiles = page.findChildren(AppTile)
     assert tiles, "Home page should render tiles"
     with qtbot.waitSignal(page.tile_clicked, timeout=1000) as blocker:
         tiles[0].click()

@@ -899,11 +899,32 @@ class TestStylesheet:
 
     def test_opaque_themes_still_emit_plain_hex(self):
         """The scrim machinery must be byte-for-byte invisible to the
-        themes that predate it."""
+        themes that predate it.
+
+        Was a flat ``"rgba(" not in qss``. #16j introduced translucency
+        that has nothing to do with scrims — the hairline rim every
+        module tile carries, and the three maturity tints its hover
+        fills with — and those are translucent in *every* theme on
+        purpose: a tint that is a solid colour is not a tint. So the
+        assertion names them and demands they are the only ones, which
+        is the same guarantee stated precisely rather than a blanket ban
+        that a rule about something else happened to trip.
+        """
+        import re
         for name in ("dark", "light"):
             qss = theme.stylesheet(name)
-            assert "rgba(" not in qss
+            allowed = {theme.css_color(theme.rim_colour(name), 0.35)}
+            for hue in theme.STAGE_HOVER.values():
+                allowed.add(theme.css_color(hue, 0.22))
+                allowed.add(theme.css_color(hue, 0.40))
+            found = set(re.findall(r"rgba\([^)]*\)", qss))
+            assert found <= allowed, (
+                f"{name} emits translucency the scrim solver did not "
+                f"authorise: {sorted(found - allowed)}")
             assert theme.palette_for(name)["bg"] in qss
+            for role in ("surface", "surface_alt", "surface_hi"):
+                assert theme.palette_for(name)[role] in qss, (
+                    f"{name}.{role} came out as anything but plain hex")
 
     def test_image_themes_keep_their_popups_opaque(self):
         for name in theme.IMAGE_THEMES:

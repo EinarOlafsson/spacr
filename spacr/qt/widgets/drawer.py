@@ -74,6 +74,9 @@ class EdgeDrawer(QWidget):
         self._host = host
         self._panel = panel
         self._held = False
+        #: Whether the edge reveal is armed at all. False when the user
+        #: locked the dock open or hid it — see :meth:`set_enabled`.
+        self._enabled = True
         #: Whether the drawer is *meant* to be on screen. Not derived
         #: from ``x()``: the slide takes 170 ms, and for those 170 ms a
         #: position-derived answer would say "closed" about a drawer
@@ -118,14 +121,63 @@ class EdgeDrawer(QWidget):
         self.setAttribute(Qt.WA_Hover, True)
 
     # -- geometry ------------------------------------------------------
+    def _owns_panel(self) -> bool:
+        """True while the panel is still ours to size.
+
+        The locked dock re-parents the sidebar into the window's own
+        layout. Resizing it from here after that would fight the layout
+        on every window resize — the column would snap to the drawer's
+        width and back again.
+        """
+        return self._panel.parent() is self
+
     def relayout(self) -> None:
         """Re-fit to the host. Called on every host resize."""
         h = self._host.height()
         self.resize(self._width, h)
-        self._panel.resize(self._width, h)
+        if self._owns_panel():
+            self._panel.resize(self._width, h)
         self._trigger.setGeometry(0, 0, self.TRIGGER_W, h)
         self._trigger.raise_()
         self.move(0 if self.is_open() else -self._width, 0)
+
+    # -- the preference: locked, hidden, or the reveal ------------------
+    def set_enabled(self, enabled: bool) -> None:
+        """Arm or disarm the whole reveal.
+
+        Disabled, the hot strip is hidden and the dwell/close timers are
+        stopped, so nothing can slide in — which is what both the
+        "locked" dock (the panel is a column elsewhere; a second copy
+        sliding over it would be absurd) and the "hidden" dock need.
+
+        Not the same as ``setEnabled``: that greys a widget out and
+        leaves it on screen. This takes the *trigger* away and leaves
+        :meth:`open` working, so a caller that means to open it anyway
+        still can.
+        """
+        self._enabled = bool(enabled)
+        self._trigger.setVisible(self._enabled)
+        if not self._enabled:
+            self._open_timer.stop()
+            self._close_timer.stop()
+
+    def is_enabled(self) -> bool:
+        """True while the edge reveal is armed."""
+        return self._enabled
+
+    def adopt(self, panel: QWidget) -> None:
+        """Take ``panel`` back after something else re-parented it.
+
+        The locked dock moves the sidebar into the window's own layout;
+        switching back to the reveal has to move the *same* object here
+        again — building a second Sidebar would leave the tutorial, the
+        command palette and every test pointing at the dead one.
+        """
+        self._panel = panel
+        panel.setParent(self)
+        panel.move(0, 0)
+        panel.resize(self._width, self.height())
+        panel.show()
 
     def is_open(self) -> bool:
         """True while the panel is on screen, or sliding on."""
@@ -138,6 +190,8 @@ class EdgeDrawer(QWidget):
     # -- open / close --------------------------------------------------
     def arm(self) -> None:
         """Pointer entered the hot strip — start the dwell timer."""
+        if not self._enabled:
+            return
         self._close_timer.stop()
         if not self.is_open():
             self._open_timer.start()
@@ -160,7 +214,8 @@ class EdgeDrawer(QWidget):
     def relayout_for_open(self) -> None:
         h = self._host.height()
         self.resize(self._width, h)
-        self._panel.resize(self._width, h)
+        if self._owns_panel():
+            self._panel.resize(self._width, h)
 
     def close(self) -> None:
         """Slide the panel back out and unpin it."""
@@ -282,6 +337,9 @@ class _EdgeTrigger(QWidget):
 
     def mousePressEvent(self, event):
         """A deliberate click on the strip opens immediately and pins."""
+        if not self._drawer.is_enabled():
+            event.ignore()
+            return
         self._drawer.open()
         self._drawer.hold(True)
         event.accept()

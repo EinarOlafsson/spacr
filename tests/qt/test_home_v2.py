@@ -32,8 +32,7 @@ from spacr.qt import bridge, iconset
 from spacr.qt.app import (APPS, SECTIONS, _FORCE_GLYPH, _ICON_OVERRIDES,
                           make_home_page, section_members)
 from spacr.qt.widgets.drawer import EdgeDrawer
-from spacr.qt.widgets.home import HomePage, PAUSE_UNAVAILABLE
-from spacr.qt.widgets.tile import HTile
+from spacr.qt.widgets.home import AppTile, HomePage, PAUSE_UNAVAILABLE
 
 BACKUP_DIR = os.path.join(iconset.RESOURCE_DIR, "backup_icons")
 
@@ -423,19 +422,18 @@ def test_the_replication_assay_is_a_first_class_module():
     reach it: no APPS row, no title, no intro, no dispatch, no settings.
     Every one of those is asserted here.
 
-    It used to assert ``row[3] == SECTION_TOXO``, "the same way the other
-    three Toxoplasma assays are". #16i staged this module (and Plaque
-    Assay) into beta and Invasion Assay into alpha, so Toxoplasma is
-    down to Recruitment. The point of this test is that the module is
-    *reachable*, not where it is filed — the filing is the ledger's job
-    (``test_cov_qt_app.EXPECTED_SECTIONS``)."""
-    from spacr.qt.app import SECTION_BETA
+    It briefly asserted ``row[3] == SECTION_BETA`` while #16i had staging
+    as a section. #16j put every app back under what it is *about* and
+    made maturity a colour, so this is a Toxoplasma assay again — and
+    separately a beta one, which is now a lookup in ``APP_STAGE``."""
+    from spacr.qt.app import SECTION_TOXO, app_stage
     from spacr.qt.screens.app_screen import APP_INTROS, APP_TITLES
     from spacr.qt.screens.settings_model import resolve_default_settings
 
     row = next((a for a in APPS if a[0] == "replication"), None)
     assert row is not None, "replication is not in the app registry"
-    assert row[3] == SECTION_BETA
+    assert row[3] == SECTION_TOXO
+    assert app_stage("replication") == "beta"
     assert row[3] in SECTIONS
     assert row[1] and row[2]
     assert APP_TITLES.get("replication")
@@ -469,17 +467,14 @@ def test_the_replication_screen_opens(qtbot, qt_theme_applied,
 def test_the_categories_are_the_ones_that_were_asked_for():
     """The section vocabulary, recorded so a rename is deliberate.
 
-    This used to assert five names. #16i added two — Alpha modules and
-    Beta modules — for eight tabs counting Home, which is what the user
-    asked for by name.
+    Five names and six tabs counting Home.
 
-    All five originals stay, and that is the decision worth pinning.
-    Staging took *every* app out of Data, Segmentation models and
-    Results & QC by the fourth column of ``APPS``, so the tempting move
-    was to retire the three. They are subjects, not statuses: "where is
-    the format converter" is a question about what the app does, and
-    answering it should not require knowing the app is unfinished. See
-    ``section_members``.
+    It briefly asserted seven and eight. #16i added "Alpha modules" and
+    "Beta modules" as CATEGORIES, which took every app out of Data,
+    Segmentation models and Results & QC and gave "where is the format
+    converter" two answers. #16j deleted those two tabs and kept the
+    classification, as a hover colour — see
+    ``test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for``.
     """
     from spacr.qt import app as app_mod
     assert app_mod.SECTION_CORE == "Core"
@@ -487,36 +482,36 @@ def test_the_categories_are_the_ones_that_were_asked_for():
     assert app_mod.SECTION_MODELS == "Segmentation models"
     assert app_mod.SECTION_RESULTS == "Results & QC"
     assert app_mod.SECTION_TOXO == "Toxoplasma"
-    assert app_mod.SECTION_ALPHA == "Alpha modules"
-    assert app_mod.SECTION_BETA == "Beta modules"
     assert app_mod.SECTIONS == (
-        "Core", "Data", "Segmentation models", "Results & QC", "Toxoplasma",
-        "Alpha modules", "Beta modules")
-    assert (app_mod.FUNCTION_SECTIONS + app_mod.MATURITY_SECTIONS
-            == app_mod.SECTIONS)
-    assert app_mod.MATURITY_SECTIONS == ("Alpha modules", "Beta modules")
-    # Eight tabs counting Home. The number is in the user's request.
-    assert len(app_mod.SECTIONS) + 1 == 8
+        "Core", "Data", "Segmentation models", "Results & QC", "Toxoplasma")
+    # The staging categories are gone as *places*. Named here so that
+    # re-adding one has to argue with this line first.
+    assert not hasattr(app_mod, "SECTION_ALPHA")
+    assert not hasattr(app_mod, "SECTION_BETA")
+    assert not hasattr(app_mod, "MATURITY_SECTIONS")
+    assert not hasattr(app_mod, "STAGED_FROM")
+    assert len(app_mod.SECTIONS) + 1 == 6
 
 
-def test_a_staged_app_keeps_the_subject_it_was_staged_out_of():
-    """``STAGED_FROM`` is what holds the three drained tabs up.
+def test_every_app_has_a_stage_and_it_is_written_down_once():
+    """``APP_STAGE`` is the only record of how finished an app is.
 
-    One entry per staged app and none for anything else: an unstaged
-    app is already filed under its subject, so a second copy of that
-    fact here could only ever go stale.
+    It replaced ``STAGED_FROM``, which recorded the opposite thing: what
+    subject an app had been taken *out of*. Nothing is taken out of
+    anything now, so the table only has to say what is not signed off —
+    and signing an app off is deleting its line.
     """
-    from spacr.qt.app import (FUNCTION_SECTIONS, MATURITY_SECTIONS,
-                              STAGED_FROM, subject_section)
+    from spacr.qt.app import APP_STAGE, STAGES, app_stage
 
-    staged = {k for k, _n, _d, s in APPS if s in MATURITY_SECTIONS}
-    assert set(STAGED_FROM) == staged, (
-        "STAGED_FROM lists an app that is not staged, or misses one that "
-        "is — the drained subject tabs are built from it")
-    assert set(STAGED_FROM.values()) <= set(FUNCTION_SECTIONS)
-    for key, name, _desc, section in APPS:
-        assert subject_section(key, section) in FUNCTION_SECTIONS, (
-            f"{name} has no subject tab to live on")
+    assert set(APP_STAGE.values()) == {"alpha", "beta"}, (
+        "a stable app has a line in APP_STAGE — 'stable' is the absence "
+        "of one, or the table grows a second way to say the same thing")
+    keys = {row[0] for row in APPS}
+    assert set(APP_STAGE) <= keys, (
+        f"APP_STAGE names apps that do not exist: {set(APP_STAGE) - keys}")
+    for key in keys:
+        assert app_stage(key) in STAGES
+    assert app_stage("no such app") == "stable"
 
 
 def test_home_is_the_first_tab_and_holds_everything(home):
@@ -528,21 +523,18 @@ def test_home_is_the_first_tab_and_holds_everything(home):
     assert home._tabs.count() == len(SECTIONS) + 1
     assert home._tabs.tabText(0) == f"Home  ({len(APPS)})"
     assert home._tabs.currentIndex() == 0
-    drawn = {t.text_label for t in home._tabs.widget(0).findChildren(HTile)}
+    drawn = {t.text_label for t in home._tabs.widget(0).findChildren(AppTile)}
     assert drawn == {name for _k, name, *_r in APPS}
 
 
 def test_the_category_tabs_follow_the_workflow_order(home):
-    """Eight tabs, and the count in each label is the tab's own size.
+    """Six tabs, and the count in each label is the tab's own size.
 
-    The count used to be ``sum(a[3] == section)``. Since #16i that is
-    the number of apps FILED under the section, which for Data,
-    Segmentation models and Results & QC is zero while their tabs each
-    hold six, five and six. ``section_members`` is what the tab draws,
-    so it is what the label has to count.
+    Was seven while Alpha and Beta had tabs of their own. ``section_members``
+    is what the tab draws, so it is what the label has to count.
     """
     labels = [home._tabs.tabText(i) for i in range(1, home._tabs.count())]
-    assert len(labels) == len(SECTIONS) == 7
+    assert len(labels) == len(SECTIONS) == 5
     for label, section in zip(labels, SECTIONS):
         # "&&" is how Qt is told to draw a literal ampersand.
         assert label.startswith(section.replace("&", "&&"))
@@ -552,7 +544,7 @@ def test_the_category_tabs_follow_the_workflow_order(home):
 def test_a_tab_label_draws_its_ampersand_instead_of_eating_it(home):
     """A lone & is a mnemonic: "Results & QC" rendered as "Results  QC".
 
-    Exactly one of the eight labels is affected, which is exactly the
+    Exactly one of the six labels is affected, which is exactly the
     kind of thing that ships unnoticed. Both halves are asserted: the
     helper does the doubling, and no label on screen carries a lone
     ampersand."""
@@ -580,11 +572,10 @@ def test_the_home_tab_bands_are_the_categories_themselves(home):
     bands are now handed to the page by the registry, so this asserts
     what is on screen rather than that two tables agree.
 
-    Was ``headings == [s.upper() for s in SECTIONS]``: Home draws a band
-    only where apps are actually filed, which is four of the seven —
-    a heading with nothing under it is worse than no heading. The three
-    that are missing are the ones whose apps are all staged, and they
-    keep their tabs."""
+    All five bands are drawn again. While staging was a section, three
+    of them were empty and Home drew four bands out of seven headings;
+    the guard for an empty band stays, because a heading with nothing
+    under it is worse than no heading."""
     from spacr.qt.app import home_bands
     assert not hasattr(HomePage, "_BAND_FOR_SECTION")
     assert not hasattr(HomePage, "_BAND_OVERRIDE")
@@ -599,101 +590,88 @@ def test_the_home_tab_bands_are_the_categories_themselves(home):
                         if any(a[3] == s for a in APPS)]
 
     # …and every app really does land in exactly one band on screen.
-    from spacr.qt.widgets.home import DenseTile
-    tiles = page.findChildren(DenseTile)
+    tiles = page.findChildren(AppTile)
     assert len(tiles) == len(APPS)
     assert len({t.text_label for t in tiles}) == len(APPS)
 
 
-def test_every_app_is_on_home_and_on_at_least_one_category_tab(home):
-    """Was ``..._on_exactly_one_category_tab``.
+def test_every_app_is_on_home_and_on_exactly_one_category_tab(home):
+    """Back to *exactly* one.
 
-    Exactly one stopped being right when Alpha and Beta modules were
-    added: a staged app is on its subject tab AND on its staging tab,
-    on purpose, and that is the second place to find it rather than a
-    duplicate. What is still asserted is that nothing appears on three
-    tabs, and that the apps on two are precisely the staged 22.
+    It was relaxed to "at least one" for #16i, where a staged app was on
+    its subject tab and again on its staging tab. With the staging tabs
+    gone there is one place per app, which is the property that makes
+    the tabs a filter of Home rather than a second index of it.
     """
-    from spacr.qt.app import MATURITY_SECTIONS
-    from spacr.qt.widgets.home import TallTile
     placement: dict = {}
     for index in range(1, home._tabs.count()):
-        for tile in home._tabs.widget(index).findChildren(TallTile):
+        for tile in home._tabs.widget(index).findChildren(AppTile):
             placement.setdefault(tile.text_label, []).append(index)
     expected = {name for _k, name, *_r in APPS}
     assert set(placement) == expected, (
         f"missing: {expected - set(placement)}; "
         f"unexpected: {set(placement) - expected}")
-
-    twice = {n for n, t in placement.items() if len(t) == 2}
-    assert not {n for n, t in placement.items() if len(t) > 2}, (
-        f"apps on three or more tabs: {placement}")
-    staged = {a[1] for a in APPS if a[3] in MATURITY_SECTIONS}
-    assert twice == staged, (
-        "the apps on two tabs should be exactly the staged ones")
+    assert not {n: t for n, t in placement.items() if len(t) != 1}, (
+        f"apps on more than one tab: {placement}")
 
 
 def test_each_tab_holds_exactly_its_own_members(home):
-    """Was ``..._its_own_section``, comparing against ``a[3] == section``.
-
-    That is the filed section, which for the three drained subject tabs
-    is nobody — the test would have compared six tiles against an empty
-    set. ``section_members`` is the registry's answer to "what does this
-    tab show", so it is what the drawn tiles are checked against.
-    """
-    from spacr.qt.widgets.home import TallTile
+    """``section_members`` is the registry's answer to "what does this
+    tab show", so it is what the drawn tiles are checked against."""
     for index, section in enumerate(SECTIONS, start=1):
         page = home._tabs.widget(index)
-        drawn = {t.text_label for t in page.findChildren(TallTile)}
+        drawn = {t.text_label for t in page.findChildren(AppTile)}
         expected = {row[1] for row in section_members(section)}
         assert drawn == expected, f"{section} tab is wrong"
 
 
-#: The two staging lists, in the user's own words. This is the record of
-#: what #16i was asked for, so a later move out of alpha or beta has to
-#: be made here as well as in the registry.
+#: The two maturity lists, in the user's own words. This is the record of
+#: what was asked for, so a later move out of alpha or beta has to be
+#: made here as well as in the registry.
+#:
+#: They were briefly SECTIONS. They are stages now, and the difference is
+#: that an app in one of these lists is still filed under what it does —
+#: it just lights a different colour on hover.
 ALPHA_MODULES = {
-    "Align & Stitch", "Model Zoo", "Format Converter", "Import Project",
-    "Model Compare", "Plate Queue", "Batch Runner", "Invasion Assay",
-    "Database Browser", "Plate Viewer", "Annotator Agreement",
-    "Training Runs", "Report",
+    "align", "model_zoo", "convert", "foreign", "model_compare", "queue",
+    "batch", "invasion", "db_browser", "plate_view", "agreement",
+    "train_compare", "report",
 }
 BETA_MODULES = {
-    "Make Masks", "Train Cellpose", "Cellpose Masks", "Timelapse",
-    "Motility Assay", "Plaque Assay", "Replication Assay", "Image UMAP",
-    "Activation",
+    "make_masks", "train_cellpose", "cellpose_masks", "timelapse",
+    "motility", "analyze_plaques", "replication", "umap", "activation",
 }
 
 
 def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
     """13 alpha, 9 beta, named one at a time.
 
-    22 of the 30 apps moved, which is what emptied three of the five
-    original categories. Spelling the lists out means a quiet drift back
-    fails here rather than being noticed in a screenshot."""
-    from spacr.qt.app import SECTION_ALPHA, SECTION_BETA
-    by_section: dict = {}
-    for _key, name, _desc, section in APPS:
-        by_section.setdefault(section, set()).add(name)
-    assert by_section[SECTION_ALPHA] == ALPHA_MODULES
-    assert by_section[SECTION_BETA] == BETA_MODULES
+    Spelling the lists out means a quiet drift fails here rather than
+    being noticed in a screenshot."""
+    from spacr.qt.app import app_stage
+    by_stage: dict = {}
+    for key, _name, _desc, _section in APPS:
+        by_stage.setdefault(app_stage(key), set()).add(key)
+    assert by_stage["alpha"] == ALPHA_MODULES
+    assert by_stage["beta"] == BETA_MODULES
     assert len(ALPHA_MODULES) == 13 and len(BETA_MODULES) == 9
+    assert by_stage["stable"] == (
+        {row[0] for row in APPS} - ALPHA_MODULES - BETA_MODULES)
 
 
-def test_a_thin_category_says_where_the_rest_of_it_went(window):
-    """Toxoplasma is one app; on its own that reads as a broken tab.
+def test_every_category_carries_its_one_line_note(window):
+    """A category with a handful of apps in it looks thin until it says
+    what it is for.
 
-    Every category carries a one-line note under its heading, and the
-    Toxoplasma one names the three assays that were staged — which is
-    the difference between "is that all spaCR does?" and "the rest are
-    in alpha and beta"."""
-    from spacr.qt.app import SECTION_NOTES, SECTION_TOXO
+    It used to also assert that the Toxoplasma note named the three
+    assays staged out of it. There is nothing staged out of anything
+    now — all four assays are on the Toxoplasma tab — so the note is
+    back to being a description of the subject."""
+    from spacr.qt.app import SECTION_NOTES
 
     assert set(SECTION_NOTES) == set(SECTIONS), (
         "a category has no note — a thin tab would explain nothing")
-    for assay in ("plaque", "invasion", "replication"):
-        assert assay in SECTION_NOTES[SECTION_TOXO].lower(), (
-            f"the Toxoplasma note does not say where {assay} went")
+    assert all(SECTION_NOTES.values())
 
     tabs = window._startup._tabs
     for index, section in enumerate(SECTIONS, start=1):
@@ -706,16 +684,19 @@ def test_a_thin_category_says_where_the_rest_of_it_went(window):
 def test_no_category_tab_needs_a_scrollbar_on_a_laptop(window, qapp):
     """1440x900 is the size this layout is dimensioned for.
 
-    Alpha modules is thirteen cards — four rows — and it fit with
-    nothing to spare, so the note under the heading pushed it 25 px over
-    and grew a scrollbar. The card height and the gaps around it were
-    tightened to pay for the note; this is the test that says so."""
+    **The Home tab is exempt, and that is a decision, not an oversight.**
+    Thirty tiles at the size the user asked for — icon over name, packed
+    tight — is eight rows plus five headings, about 1200 px of content.
+    No arrangement of thirty large tiles fits 670 px of pane; the only
+    way to make Home not scroll is to make its tiles small again, which
+    is the thing #16j exists to undo. Every *category* tab still fits,
+    and that is what this checks."""
     window.resize(1440, 900)
     window.show()
     qapp.processEvents()
     tabs = window._startup._tabs
     overflowing = {}
-    for index in range(tabs.count()):
+    for index in range(1, tabs.count()):
         tabs.setCurrentIndex(index)
         qapp.processEvents()
         bar = tabs.widget(index).verticalScrollBar()
@@ -724,84 +705,57 @@ def test_no_category_tab_needs_a_scrollbar_on_a_laptop(window, qapp):
     tabs.setCurrentIndex(0)
     assert not overflowing, (
         f"tabs that scroll at 1440x900: {overflowing}. Take the room out "
-        "of the card or the gaps, not out of the app list.")
+        "of the tile or the gaps, not out of the app list.")
 
 
-def test_core_is_the_first_category_tab_and_carries_the_large_cards(home):
-    """The category tabs use the rail-and-pane card: big enough to read
-    the description off, which is the point of giving them a tab."""
+def test_every_tab_uses_the_same_large_tile(home):
+    """One tile class, one size, every tab including Home.
+
+    Was ``..._carries_the_large_cards`` plus
+    ``..._home_tab_tiles_are_the_dense_ones``: a 62 px icon-beside-name
+    row on Home and a 164 px card with a three-line description on the
+    category tabs. The user asked for one size — "all buttons, including
+    the home screen, should look like the buttons in the other tabs" —
+    and for the description to go, since the tooltip and the hint bar
+    already carry it."""
     from spacr.qt.preferences import scaled_px
-    from spacr.qt.widgets.home import TallTile
     assert home._tabs.tabText(1).startswith("Core")
-    core = home._tabs.widget(1).findChildren(TallTile)
-    # Was ``sum(a[3] == "Core")`` = the seven filed under Core. The tab
-    # holds nine: Timelapse and Motility Assay are Core apps staged into
-    # Beta modules, and the Core *tab* is where a Core app is looked for
-    # whether or not it is finished.
+    core = home._tabs.widget(1).findChildren(AppTile)
     assert len(core) == len(section_members("Core")) == 9
-    for tile in core:
-        assert tile.sizeHint().height() >= scaled_px(HomePage.TILE_H)
-        assert tile.sizeHint().width() >= scaled_px(HomePage.TILE_MIN_W)
-    # …and every one of them actually shows its description.
-    blurbs = [lbl for lbl in core[0].findChildren(QLabel) if lbl.text()]
-    assert any(lbl.text() for lbl in blurbs)
+    for index in range(home._tabs.count()):
+        for tile in home._tabs.widget(index).findChildren(AppTile):
+            assert tile.sizeHint().height() >= scaled_px(HomePage.TILE_H)
+            assert tile.sizeHint().width() >= scaled_px(HomePage.TILE_MIN_W)
+            # Icon + name, and nothing else. Two labels: the pixmap and
+            # the name. A third would be the description coming back.
+            labels = tile.findChildren(QLabel)
+            assert len(labels) == 2, (
+                f"{tile.text_label} draws {[l.text() for l in labels]}")
+            assert sum(1 for lbl in labels if lbl.pixmap()) == 1
+            assert tile.name_label.full_text() == tile.text_label
 
 
-def test_the_home_tab_tiles_are_the_dense_ones(home):
-    """Thirty tiles only fit if they are small; a category of nine does
-    not have that problem. The two sizes are the whole trade."""
-    from spacr.qt.widgets.home import DenseTile, TallTile
-    dense = home._tabs.widget(0).findChildren(DenseTile)
-    assert len(dense) == len(APPS)
-    assert not home._tabs.widget(0).findChildren(TallTile)
-    for tile in dense:
-        # Name only — no description label on a horizontal row.
-        assert not [c for c in tile.findChildren(QLabel)
-                    if c.objectName() == "HTileDesc"]
-        assert tile.iconSize().width() >= 36
+def test_the_dense_and_tall_tiles_are_gone():
+    """Both old tile classes, named so that re-adding one is deliberate."""
+    from spacr.qt.widgets import home as home_mod
+    assert not hasattr(home_mod, "DenseTile")
+    assert not hasattr(home_mod, "TallTile")
+    # `elide_to_lines` went with them: it shortened the tile blurb, and
+    # there is no fixed-height wrapped label left on the page.
+    assert not hasattr(home_mod, "elide_to_lines")
 
 
 def test_no_tile_name_is_clipped_on_any_tab(home, qtbot, qapp):
-    from spacr.qt.widgets.home import TallTile
     clipped = []
     for index in range(home._tabs.count()):
         home._tabs.setCurrentIndex(index)
         qapp.processEvents()
         page = home._tabs.widget(index)
-        for tile in page.findChildren(HTile) + page.findChildren(TallTile):
+        for tile in page.findChildren(AppTile):
             if tile.is_name_elided():
                 clipped.append(tile.text_label)
     home._tabs.setCurrentIndex(0)
     assert not clipped, f"clipped tile names: {clipped}"
-
-
-def test_a_long_description_is_shortened_rather_than_cut_off(qtbot,
-                                                             qt_theme_applied):
-    """A word-wrapped QLabel in a fixed box does not elide, it just stops
-    painting — which is how "…invasion efficiency per we" happened."""
-    from PySide6.QtGui import QFontMetrics
-    from spacr.qt.widgets.home import TallTile, elide_to_lines
-
-    long_text = ("A description far longer than any tile could hold, "
-                 "written specifically so that it has to be shortened "
-                 "before it is drawn, several times over, at least.")
-    tile = TallTile("Test", long_text, None, width=246, height=172)
-    qtbot.addWidget(tile)
-    tile.show()
-    qtbot.waitExposed(tile)
-    blurb = [c for c in tile.findChildren(QLabel) if c.wordWrap()][0]
-    assert blurb.text() != long_text
-    assert blurb.text().endswith("…")
-    metrics = QFontMetrics(blurb.font())
-    assert blurb.height() == metrics.lineSpacing() * TallTile.BLURB_LINES
-    # It fits the box it was given — that is the whole assertion.
-    needed = metrics.boundingRect(
-        0, 0, blurb.width(), 10000,
-        int(Qt.TextWordWrap | Qt.AlignHCenter), blurb.text()).height()
-    assert needed <= blurb.height()
-    # …and the full text is still reachable.
-    assert long_text in tile.toolTip()
-    assert elide_to_lines("short", blurb.font(), 400, 3) == "short"
 
 
 def test_the_aside_carries_recent_runs_system_and_news(home):
@@ -830,7 +784,10 @@ def test_the_unfinished_aside_panels_say_so(home):
 
     assert {h.replace(BETA_SUFFIX, "").split(" ·")[0] for h in marked} == {
         "RECENT RUNS", "NEWS", "TOTALS"}
-    assert set(plain) == {"QUEUED", "SYSTEM"}
+    # MODULE STATE joined the unmarked set with #16j. It is not a panel
+    # of numbers at all — it is the legend for the tile hover colours —
+    # so there is nothing about it that could be provisional.
+    assert set(plain) == {"QUEUED", "SYSTEM", "MODULE STATE"}
     # The mark explains itself rather than just labelling.
     for panel in marked.values():
         assert panel.header.toolTip() == BETA_PANEL_TOOLTIP
@@ -846,7 +803,8 @@ def test_the_news_surface_is_the_reserved_slot(home):
 
 
 def test_hovering_a_tile_explains_it_in_the_hint_bar(home):
-    tile = next(t for t in home.findChildren(HTile) if t.text_label == "Mask")
+    tile = next(t for t in home.findChildren(AppTile)
+                if t.text_label == "Mask")
     desc = next(d for k, _n, d, _s in APPS if k == "mask")
     home.eventFilter(tile, QEvent(QEvent.Enter))
     assert home._hint_bar.text() == desc
@@ -1221,9 +1179,8 @@ def test_choosing_an_app_from_the_drawer_navigates_and_closes_it(
 def test_the_drawer_is_not_the_only_way_to_reach_every_app(window, qapp):
     """The reveal is now a convenience, not the only route: the Home tab
     lists all thirty apps, and so does the spaCR menu."""
-    from spacr.qt.widgets.home import DenseTile
     home_tab = window._startup._tabs.widget(0)
-    assert {t.text_label for t in home_tab.findChildren(DenseTile)} == {
+    assert {t.text_label for t in home_tab.findChildren(AppTile)} == {
         name for _k, name, *_r in APPS}
     menu_labels = set()
     for top in window.menuBar().actions():
