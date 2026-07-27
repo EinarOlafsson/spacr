@@ -667,6 +667,11 @@ class LivePreviewPanel(QWidget):
         # them back on close so their values persist across opens.
         # All widgets are children of `self` so they're never
         # garbage-collected while re-parented.
+        # cyto3/cyto2/nuclei are kept here only as accepted-but-mapped
+        # aliases, so a saved preview setting still loads. They are NOT four
+        # choices: Cellpose 4 drops model_type= with a "not used in v4.0.1+"
+        # log line, so all four entries run the same cpsam weights. The
+        # pipeline maps them forward in settings.normalize_cellpose_model_name.
         self._model_box = QComboBox(self)
         self._model_box.addItems(["cpsam", "cyto3", "cyto2", "nuclei"])
         self._model_box.currentIndexChanged.connect(
@@ -720,8 +725,14 @@ class LivePreviewPanel(QWidget):
 
         # Tooltips for the segmentation controls (type + what they do).
         self._model_box.setToolTip(
-            "(str) Cellpose model: cpsam (SAM, auto-diameter), cyto3/cyto2 "
-            "(cytoplasm), nuclei.")
+            "(str) Cellpose model. Cellpose 4 ships exactly one, 'cpsam'. "
+            "cyto3/cyto2/nuclei are kept only so older saved settings still "
+            "load — Cellpose removed those weights and resolves all of them "
+            "to cpsam, so picking one does not change the segmentation. Of "
+            "the parameters that used to differ per model, only diameter "
+            "still does anything (the image is rescaled by 30/diameter); "
+            "model_type and diam_mean are logged as 'not used in v4.0.1+' "
+            "and dropped.")
         self._object_box.setToolTip(
             "(str) Object(s) to segment. 'cell + nucleus' runs both passes.")
         self._cell_channel.setToolTip(

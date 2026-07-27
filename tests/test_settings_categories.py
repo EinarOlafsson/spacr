@@ -205,6 +205,13 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "t_stack", "t_axis_order", "t_axis", "frame_interval_s",
     "t_track_backend", "t_link_threshold", "t_max_displacement_px",
     "t_max_displacement_um", "t_project_for_tracking",
+    # The per-object Cellpose model keys. core.py already read
+    # cell_model_name and the Qt synthetic-settings fixture already wrote
+    # nucleus_model_name, but no category, defaults block or expected_types
+    # entry declared any of them -- so _get_object_settings could only
+    # hard-code 'cpsam' and a checkpoint from Train Cellpose had nowhere to
+    # be named. Filed with the rest of each object's segmentation knobs.
+    "cell_model_name", "nucleus_model_name", "pathogen_model_name",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six

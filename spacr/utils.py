@@ -85,7 +85,113 @@ from huggingface_hub import list_repo_files
 #from spacr import __file__ as spacr_path
 spacr_path = os.path.join(os.path.dirname(__file__), '__init__.py')
 
-import umap.umap_ as umap
+#: Import roots spaCR refuses to let an optional dependency drag in.
+#: TensorFlow is not a spaCR dependency -- setup.py has it commented out --
+#: it is merely installed in some environments. It costs ~2.6 s of import
+#: (TF plus the Keras it pulls), prints its cpu_feature_guard banner over the
+#: run log, and is a known off-main-thread segfault vector in a GUI process.
+_TF_BACKED_ROOTS = ('tensorflow', 'keras', 'tf_keras')
+
+
+class _TensorFlowIsNotADependency(ImportError):
+    """Raised instead of importing TensorFlow inside a spaCR import."""
+
+
+class _BlockTensorFlowFinder:
+    """``sys.meta_path`` finder that refuses TF-backed imports.
+
+    Installed only for the duration of one wrapped import and removed
+    immediately afterwards, so it can never affect code that genuinely wants
+    TensorFlow. Optional-dependency probes already handle ``ImportError``
+    -- ``umap/__init__.py`` catches it and substitutes a stub
+    ``ParametricUMAP`` -- so raising one simply gives them the behaviour they
+    have on a machine where TF was never installed.
+    """
+
+    def find_spec(self, fullname, path=None, target=None):
+        """Raise for a TF-backed root; defer to the next finder otherwise."""
+        if fullname.split('.')[0] in _TF_BACKED_ROOTS:
+            raise _TensorFlowIsNotADependency(
+                f"{fullname} is not a spaCR dependency and is never imported "
+                f"by spaCR; see spacr.utils._BlockTensorFlowFinder.")
+        return None
+
+
+class _LazyModule:
+    """Import a module the first time an attribute is read off it.
+
+    ``import umap.umap_ as umap`` at module scope makes every importer of
+    ``spacr.utils`` pay for umap, and umap pays for numba, pynndescent and --
+    through ``umap.parametric_umap`` -- TensorFlow when it happens to be
+    installed. Measured on a developer box that is **6.5 s and ~1.4 GB**, and
+    it lands on processes that will never embed anything: every field-measuring
+    worker of a ``spawn`` or ``forkserver`` pool re-imports the whole chain
+    from a cold interpreter, so the cost is paid once *per worker*.
+
+    Deferring it keeps the two real call sites
+    (:func:`reduction_and_clustering` and :func:`generate_image_umap`) written
+    exactly as they were -- ``umap.UMAP(...)`` still works -- while an
+    ``ImportError`` now surfaces where UMAP is actually asked for rather than
+    at ``import spacr.utils``.
+
+    Deferring alone is not enough for umap, though: the TensorFlow import is
+    postponed, not prevented, and reappears the moment anything reads
+    ``umap.UMAP``. ``block_roots`` closes that -- the wrapped import runs with
+    those roots refused, which is why spaCR can use umap without TensorFlow
+    ever entering the process.
+
+    :param name: dotted module name to import on first attribute access.
+    :param block_roots: import roots refused for the duration of that import.
+    """
+
+    def __init__(self, name, block_roots=()):
+        self.__dict__['_name'] = name
+        self.__dict__['_module'] = None
+        self.__dict__['_block_roots'] = tuple(block_roots)
+
+    def _load(self):
+        """Import and cache the wrapped module, blocking ``block_roots``."""
+        module = self.__dict__['_module']
+        if module is None:
+            from importlib import import_module
+            if self.__dict__['_block_roots']:
+                import sys as _sys
+                blocker = _BlockTensorFlowFinder()
+                _sys.meta_path.insert(0, blocker)
+                try:
+                    module = import_module(self.__dict__['_name'])
+                finally:
+                    try:
+                        _sys.meta_path.remove(blocker)
+                    except ValueError:
+                        pass
+            else:
+                module = import_module(self.__dict__['_name'])
+            self.__dict__['_module'] = module
+        return module
+
+    def __getattr__(self, item):
+        return getattr(self._load(), item)
+
+    def __setattr__(self, item, value):
+        setattr(self._load(), item, value)
+
+    def __dir__(self):
+        return dir(self._load())
+
+    def __repr__(self):
+        loaded = self.__dict__['_module'] is not None
+        state = 'loaded' if loaded else 'not yet imported'
+        return f"<lazy module {self.__dict__['_name']!r} ({state})>"
+
+
+#: ``umap.umap_``, imported on first use and without TensorFlow.
+#: ``import umap.umap_`` runs ``umap/__init__.py``, which imports
+#: ``umap.parametric_umap`` -> ``tensorflow``. spaCR uses only
+#: ``umap.umap_.UMAP`` and never ``ParametricUMAP``, so the TF-backed roots
+#: are blocked for that import and umap takes its own documented no-TF path.
+#: See :class:`_LazyModule`.
+umap = _LazyModule('umap.umap_', block_roots=_TF_BACKED_ROOTS)
 
 import logging
 from functools import wraps
@@ -1128,13 +1234,86 @@ def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_
 
     return result_dict
 
+def console_encoding(stream=None):
+    """Return the codec text printed to ``stream`` has to survive.
+
+    :param stream: a text stream; defaults to ``sys.stdout``.
+    :returns: a codec name, ``'utf-8'`` when the stream does not declare one
+        (a queue-backed GUI console, a StringIO, a captured pipe).
+    """
+    import sys
+    if stream is None:
+        stream = getattr(sys, 'stdout', None)
+    return getattr(stream, 'encoding', None) or 'utf-8'
+
+
+def console_can_encode(text, stream=None):
+    """Return ``True`` when ``text`` can be printed to ``stream`` as-is.
+
+    :param text: the string about to be printed.
+    :param stream: text stream to test against; defaults to ``sys.stdout``.
+    :returns: bool.
+    """
+    try:
+        text.encode(console_encoding(stream))
+    except (UnicodeEncodeError, LookupError):
+        return False
+    return True
+
+
+def console_safe(text, stream=None):
+    """Return ``text`` with anything the console cannot encode replaced by ``?``.
+
+    Console decoration must never be able to end a run. No Windows codepage
+    encodes spaCR's own output set -- ``▸`` (U+25B8) is absent from cp1252,
+    cp437, cp850, cp932 *and* cp936, and the box-drawing frame is absent from
+    cp1252 -- and neither does any of them encode the domain vocabulary that
+    ends up in settings values, such as the parental strain ``Δku80`` or a
+    ``µm`` voxel size. Printing either to a non-UTF-8 stream raises
+    ``UnicodeEncodeError``, and on Windows that is the normal case the moment
+    stdout is redirected: a batch-queue job, ``spacr-run``, a legacy console.
+
+    :param text: the string about to be printed.
+    :param stream: text stream to encode against; defaults to ``sys.stdout``.
+    :returns: ``text`` unchanged when it is printable, otherwise a lossy but
+        printable version of it.
+    """
+    encoding = console_encoding(stream)
+    try:
+        text.encode(encoding)
+    except UnicodeEncodeError:
+        return text.encode(encoding, errors='replace').decode(encoding,
+                                                              errors='replace')
+    except LookupError:
+        return text.encode('ascii', errors='replace').decode('ascii')
+    return text
+
+
+#: Frame glyphs for :func:`pretty_print_settings`: the pretty set, and the
+#: ASCII set used when the console cannot encode the pretty one.
+_BOX_GLYPHS = {
+    'unicode': {'tl': '┌', 'tr': '┐', 'bl': '└', 'br': '┘',
+                'h': '─', 'v': '│', 'bullet': '▸', 'ellipsis': '…'},
+    'ascii': {'tl': '+', 'tr': '+', 'bl': '+', 'br': '+',
+              'h': '-', 'v': '|', 'bullet': '>', 'ellipsis': '...'},
+}
+
+
 def pretty_print_settings(settings, title="Settings"):
     """Print a settings dict to the console as a tidy, aligned table.
 
     Nicer than dumping a truncated pandas DataFrame: values are grouped by the
     spacr settings categories, keys are aligned in a column, long values are
-    clipped, and the whole thing sits under a boxed title. Purely cosmetic —
+    clipped, and the whole thing sits under a boxed title. Purely cosmetic --
     used wherever "Saving settings" is shown.
+
+    Purely cosmetic, and it stays that way: the frame degrades to ASCII and
+    every line goes out through :func:`console_safe`, so a console that cannot
+    encode the decoration prints a plainer table instead of raising
+    ``UnicodeEncodeError``. :func:`spacr.measure.measure_crop` calls this
+    (through :func:`save_settings`) before it does any work at all, so a
+    decoration character was enough to end a whole run before the first field
+    was read.
 
     :param settings: the settings dict to render.
     :param title: heading shown in the box.
@@ -1149,33 +1328,39 @@ def pretty_print_settings(settings, title="Settings"):
     key_w = min(38, max((len(str(k)) for k in items), default=10))
     line_w = max(len(title) + 4, key_w + 46)
 
+    pretty = ''.join(_BOX_GLYPHS['unicode'].values())
+    g = _BOX_GLYPHS['unicode'] if console_can_encode(pretty) else _BOX_GLYPHS['ascii']
+
+    def _say(line):
+        print(console_safe(line))
+
     def _fmt(v):
         s = str(v)
-        return s if len(s) <= 44 else s[:41] + "…"
+        return s if len(s) <= 44 else s[:41] + g['ellipsis']
 
     def _row(k, v):
         return f"  {str(k):<{key_w}}  {_fmt(v)}"
 
-    bar = "─" * line_w
-    print(f"┌{bar}┐")
-    print(f"│ {title.ljust(line_w - 1)}│")
-    print(f"└{bar}┘")
+    bar = g['h'] * line_w
+    _say(f"{g['tl']}{bar}{g['tr']}")
+    _say(f"{g['v']} {title.ljust(line_w - 1)}{g['v']}")
+    _say(f"{g['bl']}{bar}{g['br']}")
 
     shown = set()
     for cat, keys in categories.items():
         rows = [k for k in keys if k in items and k not in shown]
         if not rows:
             continue
-        print(f"▸ {cat}")
+        _say(f"{g['bullet']} {cat}")
         for k in rows:
-            print(_row(k, items[k]))
+            _say(_row(k, items[k]))
             shown.add(k)
     leftover = [k for k in items if k not in shown]
     if leftover:
         if shown:
-            print("▸ Other")
+            _say(f"{g['bullet']} Other")
         for k in leftover:
-            print(_row(k, items[k]))
+            _say(_row(k, items[k]))
     print("")
 
 
@@ -2415,25 +2600,25 @@ def _get_object_settings(object_type, settings):
     object_settings['merge'] = False
     object_settings['resample'] = True
     object_settings['remove_border_objects'] = False
-    object_settings['model_name'] = 'cpsam'
-    
+    # 'cpsam' unless the user pointed at their own checkpoint; a pre-SAM name
+    # left in an old settings file is mapped forward here, once, rather than
+    # carried into segmentation as if it still chose different weights.
+    from .settings import normalize_cellpose_model_name
+    object_settings['model_name'] = normalize_cellpose_model_name(
+        settings.get(f'{object_type}_model_name'),
+        object_type=object_type, key=f'{object_type}_model_name')
+
     if object_type == 'cell':
-        if settings['nucleus_channel'] is None:
-            object_settings['model_name'] = 'cpsam'
-        else:
-            object_settings['model_name'] = 'cpsam'
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
         object_settings['restore_type'] = settings.get('cell_restore_type', None)
 
     elif object_type == 'nucleus':
-        object_settings['model_name'] = 'cpsam'
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
         object_settings['restore_type'] = settings.get('nucleus_restore_type', None)
 
     elif object_type == 'pathogen':
-        object_settings['model_name'] = 'cpsam'
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
         object_settings['resample'] = False
@@ -5248,71 +5433,147 @@ def _run_test_mode(src, regex, timelapse=False, test_images=10, random_test=True
 
     return test_folder_path
 
+#: The only stock Cellpose weights that exist from Cellpose 4 (SAM) onward.
+CPSAM_MODEL = 'cpsam'
+
 #: Pre-SAM Cellpose model names that older settings files may still carry.
 #: Cellpose 4 removed every one of them — ``models.MODEL_NAMES == ['cpsam']``
 #: — and silently resolves an unknown name to cpsam, so honouring them would
-#: only mislead. They are accepted and mapped forward.
+#: only mislead. They are ACCEPTED-BUT-MAPPED aliases: a settings CSV written
+#: against Cellpose 3 still loads and still runs, it just runs the model that
+#: actually exists and says so. They are deliberately NOT offered anywhere in
+#: the UI — see ``spacr.settings.normalize_cellpose_model_name``.
 LEGACY_CELLPOSE_MODELS = ('cyto', 'cyto2', 'cyto3', 'cyto_2', 'cyto_3',
                           'nuclei', 'nucleus', 'toxo_pv_lumen', 'toxo_cyto')
 
+#: Notices already printed by :func:`_resolve_cellpose_pretrained` this run.
+#: A plate is segmented field by field but the model choice is made from the
+#: same settings every time, so the substitution notice is worth exactly one
+#: line per (message, object type) — not one per field, which on a 1000-field
+#: plate buried the run log under thousands of identical warnings.
+_REPORTED_CELLPOSE_NOTICES = set()
 
-def _choose_model(model_name, device, object_type='cell', restore_type=None, object_settings=None):
-    """Return the Cellpose model to segment ``object_type`` with.
+
+def reset_cellpose_model_reports():
+    """Forget which Cellpose model notices have already been printed.
+
+    Call this at the start of a run so a second run in the same process (a
+    GUI session segmenting a second plate) reports its model choice again
+    instead of inheriting the first run's silence.
+    """
+    _REPORTED_CELLPOSE_NOTICES.clear()
+
+
+def _report_cellpose_once(key, message):
+    """Print ``message`` the first time ``key`` is seen this run.
+
+    :param key: hashable identity of the notice; repeats are dropped.
+    :param message: text to print.
+    :returns: True if it was printed, False if it was suppressed as a repeat.
+    """
+    if key in _REPORTED_CELLPOSE_NOTICES:
+        return False
+    _REPORTED_CELLPOSE_NOTICES.add(key)
+    print(message)
+    return True
+
+
+def _for_object(object_type):
+    """Return ``' for <object_type>'``, or ``''`` when the caller did not say.
+
+    ``_choose_model`` used to default ``object_type='cell'``, so a call that
+    never named an object type still announced one: asking for the nucleus
+    model printed "using 'cpsam' for cell". An unnamed object type is now
+    left unnamed rather than guessed.
+    """
+    return f" for {object_type}" if object_type else ""
+
+
+def _resolve_cellpose_pretrained(model_name, object_type=None, restore_type=None):
+    """Return the ``pretrained_model`` string Cellpose 4 should actually load.
 
     Cellpose 4 ships exactly one model, ``cpsam``. ``model_type=`` and
-    ``diam_mean=`` are accepted-and-ignored by ``CellposeModel``, and an
-    unrecognised ``pretrained_model`` resolves to cpsam with only a log
-    warning — so the pre-SAM names were never actually loading the model they
-    named. Every legacy name is therefore mapped to cpsam explicitly, and said
-    out loud once, rather than pretending.
-
-    ``restore_type`` (denoise/deblur/upsample) drove the Cellpose 3
-    ``CellposeDenoiseModel`` restore checkpoints, which are pre-SAM and no
-    longer available; it is reported and ignored.
+    ``diam_mean=`` are accepted-and-ignored by ``CellposeModel`` (it logs
+    "not used in v4.0.1+"), and an unrecognised ``pretrained_model`` resolves
+    to cpsam with only a log warning — so the pre-SAM names were never
+    actually loading the model they named. ``diameter``, by contrast, is
+    still honoured: ``CellposeModel.eval`` rescales the image by
+    ``30. / diameter``. Every legacy name is therefore mapped to cpsam
+    explicitly, and said out loud once, rather than pretending.
 
     A ``model_name`` that names an existing FILE is treated as a fine-tuned
-    checkpoint and loaded. ``pretrained_model`` used to be hard-coded to
-    'cpsam', so every model produced by spaCR's own Train Cellpose module was
-    silently discarded and the stock weights were used instead — the trained
+    checkpoint and returned as-is. ``pretrained_model`` used to be hard-coded
+    to 'cpsam', so every model produced by spaCR's own Train Cellpose module
+    was silently discarded and the stock weights used instead — the trained
     model could never actually be applied to anything.
 
     :param model_name: 'cpsam', a legacy pre-SAM name (mapped to cpsam), or a
         path to a fine-tuned checkpoint.
-    :param device: torch device passed through to Cellpose.
-    :param object_type: 'cell' / 'nucleus' / 'pathogen' / 'organelle'.
+    :param object_type: 'cell' / 'nucleus' / 'pathogen' / 'organelle', or None
+        when the caller genuinely has no object type to name.
     :param restore_type: unsupported under Cellpose 4; reported and ignored.
-    :param object_settings: unused, kept for call-site compatibility.
-    :returns: a ``CellposeModel``.
+    :returns: the string to pass as ``pretrained_model``.
     :raises FileNotFoundError: if ``model_name`` looks like a path but no file
         is there. Falling back to cpsam would silently segment with the wrong
         weights, which is worse than stopping.
     """
-    if object_settings is None:
-        object_settings = {}
+    clause = _for_object(object_type)
 
     if restore_type is not None:
-        print(f"restore_type={restore_type!r} is not supported on Cellpose 4 "
-              f"(the denoise/deblur/upsample checkpoints are pre-SAM). Ignoring it.")
+        _report_cellpose_once(
+            ('restore', restore_type, object_type),
+            f"restore_type={restore_type!r} is not supported on Cellpose 4 "
+            f"(the denoise/deblur/upsample checkpoints are pre-SAM). Ignoring it.")
 
-    pretrained = 'cpsam'
     name = str(model_name).strip() if model_name else ''
 
-    if name and name not in LEGACY_CELLPOSE_MODELS and name != 'cpsam':
+    if name and name not in LEGACY_CELLPOSE_MODELS and name != CPSAM_MODEL:
         # Anything that is not a known model name is meant to be a checkpoint.
         if os.path.isfile(name):
-            print(f"Loading fine-tuned Cellpose checkpoint for {object_type}: {name}")
-            pretrained = name
-        elif os.sep in name or name.endswith(('.pth', '.pt')):
+            _report_cellpose_once(
+                ('checkpoint', name, object_type),
+                f"Loading fine-tuned Cellpose checkpoint{clause}: {name}")
+            return name
+        if os.sep in name or name.endswith(('.pth', '.pt')):
             raise FileNotFoundError(
-                f"Cellpose model {name!r} for {object_type} looks like a "
+                f"Cellpose model {name!r}{clause} looks like a "
                 f"checkpoint path but no file is there. Cellpose would quietly "
                 f"fall back to the stock cpsam weights, so this stops instead. "
                 f"Check the path, or use 'cpsam' for the stock model.")
-        else:
-            print(f"Unknown Cellpose model {name!r}; using 'cpsam' for {object_type}.")
+        _report_cellpose_once(
+            ('unknown', name, object_type),
+            f"Unknown Cellpose model {name!r}; using 'cpsam'{clause}.")
     elif name in LEGACY_CELLPOSE_MODELS:
-        print(f"Cellpose model {name!r} predates Cellpose-SAM and is no longer "
-              f"available; using 'cpsam' for {object_type}.")
+        _report_cellpose_once(
+            ('legacy', name, object_type),
+            f"Cellpose model {name!r} predates Cellpose-SAM and is no longer "
+            f"available; using 'cpsam'{clause}.")
+
+    return CPSAM_MODEL
+
+
+def _choose_model(model_name, device, object_type=None, restore_type=None, object_settings=None):
+    """Return the Cellpose model to segment ``object_type`` with.
+
+    Thin wrapper over :func:`_resolve_cellpose_pretrained` — see there for
+    what Cellpose 4 does and does not still honour.
+
+    :param model_name: 'cpsam', a legacy pre-SAM name (mapped to cpsam), or a
+        path to a fine-tuned checkpoint.
+    :param device: torch device passed through to Cellpose.
+    :param object_type: 'cell' / 'nucleus' / 'pathogen' / 'organelle'. Left
+        unset it is reported as unset rather than guessed as 'cell'.
+    :param restore_type: unsupported under Cellpose 4; reported and ignored.
+    :param object_settings: unused, kept for call-site compatibility.
+    :returns: a ``CellposeModel``.
+    :raises FileNotFoundError: if ``model_name`` looks like a path but no file
+        is there.
+    """
+    if object_settings is None:
+        object_settings = {}
+
+    pretrained = _resolve_cellpose_pretrained(
+        model_name, object_type=object_type, restore_type=restore_type)
 
     return cp_models.CellposeModel(
         gpu=torch.cuda.is_available(),

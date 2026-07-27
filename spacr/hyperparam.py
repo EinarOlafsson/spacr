@@ -781,7 +781,11 @@ def umap_available() -> Tuple[bool, str]:
         carrying :data:`UMAP_MISSING_MESSAGE`.
     """
     try:
-        import umap  # noqa: F401
+        # Through spacr.utils, never a bare `import umap`: umap's package
+        # __init__ imports umap.parametric_umap -> tensorflow, and TF is not
+        # a spaCR dependency. The lazy wrapper blocks it for that import.
+        from .utils import umap
+        umap.UMAP  # noqa: B018 - forces the deferred import
     except Exception:
         return False, UMAP_MISSING_MESSAGE
     return True, ""
@@ -795,7 +799,7 @@ def _default_umap_embed(features, params: Dict[str, Any], seed: int):
     :param seed: ``random_state`` so a repeated sweep reproduces.
     :returns: the 2-D embedding.
     """
-    import umap
+    from .utils import umap  # never a bare `import umap` — see umap_available
     kwargs = dict(params)
     kwargs.setdefault("n_components", 2)
     kwargs.setdefault("random_state", seed)

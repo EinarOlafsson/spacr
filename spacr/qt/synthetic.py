@@ -354,8 +354,13 @@ def demo_settings(app_key: str, src: str) -> Dict[str, Any]:
             "cell_signal_to_noise": 10,
             "cell_CP_prob": 0.0,
             "cell_FT": 1.0,
-            "cell_model_name": "cyto",
-            "nucleus_model_name": "nuclei",
+            # 'cyto' / 'nuclei' until Cellpose 4 removed them. The demo
+            # settings are what a new user copies, so they name the model
+            # that exists; a legacy value in a real settings file is still
+            # accepted and mapped forward by
+            # settings.normalize_cellpose_model_name.
+            "cell_model_name": "cpsam",
+            "nucleus_model_name": "cpsam",
         }
     if app_key == "measure":
         return {
