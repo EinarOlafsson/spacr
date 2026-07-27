@@ -31,38 +31,36 @@ NEW_APPS = ("timelapse", "motility")
 
 @pytest.mark.parametrize("key", NEW_APPS)
 def test_new_module_is_on_the_home_screen(key):
-    """Both modules are in the registry, and in Beta modules.
+    """Both modules are in the registry, under Core, marked beta.
 
-    This asserted ``SECTION_CORE`` — "a first-class workflow, not a
-    Tool". #16i is the same user moving them: Timelapse and Motility
-    Assay are both on the Beta modules list they wrote. Beta is not the
-    Tools drawer the original assertion was defending against; it is a
-    maturity label, and both are still full entries with their own
-    screen, title, intro and settings, as the rest of this file checks.
+    ``SECTION_CORE`` — "a first-class workflow, not a Tool" — is the
+    original assertion, and it holds again: #16i moved both into a "Beta
+    modules" section and #16j turned beta back into a maturity mark that
+    leaves the app where it belongs. Both are full entries with their
+    own screen, title, intro and settings, as the rest of this file
+    checks.
     """
     from spacr.qt.app import APPS
     entry = next((a for a in APPS if a[0] == key), None)
     assert entry is not None, f"{key!r} missing from APPS"
     app_key, name, desc, section = entry
     assert name and desc
-    from spacr.qt.app import SECTION_BETA, SECTION_CORE, subject_section
-    assert section == SECTION_BETA, (
-        f"{key!r} was staged into beta by the user — got {section!r}")
-    # …and it is still a Core app by subject, which is why the Core tab
-    # holds nine and the Core band on Home holds seven. Staging says how
-    # finished it is; the subject says it is part of the pipeline.
-    assert subject_section(app_key, section) == SECTION_CORE, (
-        f"{key!r} is a first-class workflow, not a Tool")
+    from spacr.qt.app import SECTION_CORE, app_stage
+    assert section == SECTION_CORE, (
+        f"{key!r} is a first-class workflow, not a Tool — got {section!r}")
+    # …and the user put both on the beta list. That says how finished it
+    # is, which the Home tile draws as a magenta hover.
+    assert app_stage(app_key) == "beta", (
+        f"{key!r} was staged into beta by the user")
 
 
 def test_timelapse_is_not_filed_as_legacy_or_deprecated():
     """The user's ask: timelapse is a first-class capability.
 
-    Still true, and still worth guarding. What changed in #16i is that
-    the user put it on the *beta* list, so "beta" is no longer one of
-    the words this test may refuse — staged is not deprecated. The
-    section is asserted above; this is about how the entry describes
-    itself."""
+    Still true, and still worth guarding. The user put it on the *beta*
+    list, so "beta" is not one of the words this test may refuse —
+    staged is not deprecated. The section and the stage are asserted
+    above; this is about how the entry describes itself."""
     from spacr.qt.app import APPS
     _, name, desc, _ = next(a for a in APPS if a[0] == "timelapse")
     blob = f"{name} {desc}".lower()
@@ -120,8 +118,8 @@ def test_sidebar_and_home_page_render_the_new_modules(qtbot, qt_theme_applied):
 
     page = make_home_page()  # the page MainWindow ships
     qtbot.addWidget(page)
-    from spacr.qt.widgets.tile import HTile
-    tiles = {t.text_label for t in page.findChildren(HTile)}
+    from spacr.qt.widgets.home import AppTile
+    tiles = {t.text_label for t in page.findChildren(AppTile)}
     assert tiles, "Home page rendered no tiles"
     # The two new modules are on Home, not only in the sidebar.
     assert {"Timelapse", "Motility Assay"} <= tiles

@@ -66,12 +66,25 @@ class TestPalettes:
         assert theme.palette_for("chartreuse") == theme.palette_for("dark")
 
     def test_space_uses_translucent_surfaces_and_others_do_not(self):
+        """The SURFACE roles, specifically.
+
+        This used to say "no rgba() anywhere in the dark stylesheet",
+        which stopped being the same claim once #16j gave every module
+        tile a translucent rim and three translucent hover tints. Those
+        are translucent in every theme by design, so the assertion moved
+        onto the thing it was actually about: an opaque theme paints its
+        surfaces as plain hex.
+        """
         assert theme.scrim_alpha("space", "surface_alt") < 1.0
         assert theme.scrim_alpha("dark", "surface_alt") == 1.0
         assert theme.scrim_alpha("light", "surface_alt") == 1.0
         assert "rgba(" in theme.stylesheet("space")
-        assert "rgba(" not in theme.stylesheet("dark")
-        assert "rgba(" not in theme.stylesheet("light")
+        for name in ("dark", "light"):
+            qss = theme.stylesheet(name)
+            for role in ("surface", "surface_alt", "surface_hi"):
+                colour = theme.palette_for(name)[role]
+                assert colour in qss
+                assert theme.css_color(colour, 1.0) == colour
 
 
 # ---------------------------------------------------------------------------
@@ -783,21 +796,66 @@ class TestIconVisibility:
         first = iconset.themed_array(path, "dark")
         assert iconset.themed_array(path, "dark") is first
 
+    def _fills(self, qss: str, selector: str) -> list:
+        start = qss.index(selector)
+        block = qss[start:qss.index("}", start)]
+        return [line.strip() for line in block.splitlines()
+                if line.strip().startswith("background")]
+
     def test_space_icons_never_sit_on_bare_imagery(self):
         """Icons are flat ink, so they rely on their container being
-        scrimmed. Every container that holds one must be."""
+        scrimmed. Every container that holds one must be.
+
+        ``#Sidebar`` used to be on this list and is now on the one
+        below: the user asked for the dock never to be transparent, in
+        any theme, so it is opaque rather than scrimmed. Opaque still
+        satisfies what this test is defending — an icon on it never
+        meets raw sky — it just satisfies it more strongly, which is why
+        the two cases are asserted separately instead of loosening this
+        one to accept both.
+        """
         qss = theme.stylesheet("space")
-        for selector in ("QPushButton#HTile", "#Sidebar", "QPushButton#Tile",
-                         "QFrame#Card", "QFrame#ConsoleBox"):
-            start = qss.index(selector)
-            block = qss[start:qss.index("}", start)]
-            fills = [line.strip() for line in block.splitlines()
-                     if line.strip().startswith("background")]
+        for selector in ("QPushButton#HTile", "QPushButton#AppTile",
+                         "QPushButton#Tile", "QFrame#Card",
+                         "QFrame#ConsoleBox"):
+            fills = self._fills(qss, selector)
             assert fills, f"{selector} has no background"
             assert not any("transparent" in f for f in fills), \
                 f"{selector} is transparent — icons would meet raw sky"
             assert any("rgba(" in f or "qlineargradient" in f for f in fills), \
                 f"{selector} is not scrimmed: {fills}"
+
+    def test_the_dock_is_opaque_in_every_theme(self):
+        """"the dock to the left should never have a transparent
+        background, either dark gray or white" — the user, #16j.
+
+        A navigation column is chrome: it is what you look at when you
+        have lost your place, and it has to be a solid edge for the page
+        to end at. It used to paint ``surface``, which the image themes
+        re-render through ``scrim_alpha`` — so on Space the app list was
+        a ghost with a galaxy behind every row.
+        """
+        for name in theme.THEMES:
+            qss = theme.stylesheet(name)
+            expected = theme.dock_colour(name)
+            assert expected.startswith("#"), (
+                f"{name} dock colour {expected!r} is not a plain hex")
+            assert theme.scrim_alpha(name, "surface") <= 1.0
+            for selector in ("#EdgeDrawer, #Sidebar, #SidebarScroll",
+                             "#SidebarTitle", "#SidebarSection"):
+                fills = self._fills(qss, selector)
+                assert fills, f"{name}: {selector} has no background"
+                for fill in fills:
+                    assert expected in fill, (
+                        f"{name}: {selector} paints {fill!r}, not the "
+                        f"opaque dock colour {expected}")
+                    assert "rgba(" not in fill and "transparent" not in fill
+        # White under the light theme, a dark grey everywhere else —
+        # both taken from the palette, never written down as a hex.
+        assert theme.dock_colour("light") == theme.LIGHT_PALETTE["surface"]
+        for name in ("dark", "space", "cell"):
+            assert theme.dock_colour(name) == \
+                theme.palette_for(name)["surface_alt"]
 
     def test_polarity_is_detected_per_icon(self, qapp):
         """White-on-transparent and black-on-transparent must both end

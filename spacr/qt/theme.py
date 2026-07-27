@@ -222,6 +222,110 @@ IMAGE_THEMES = ("space", "cell")
 
 
 # ---------------------------------------------------------------------------
+# Two colours that are a *function of the theme*, not entries in it
+# ---------------------------------------------------------------------------
+# Both used to be inlined at the call site, which is the exact mistake
+# `PALETTE` exists as a warning about: a hex typed into a widget is a
+# hex that stays dark on the light theme. Neither is a palette role
+# because neither is a colour you would ever choose independently —
+# each is derived from one that is already there.
+
+def rim_colour(theme: str = "dark") -> str:
+    """The hairline that outlines every tile — the theme's own ink.
+
+    White in the dark themes, near-black in the light one, because that
+    is what ``fg`` already is. Asked for as "a thin white rim, black in
+    white mode"; deriving it from ``fg`` rather than writing ``#ffffff``
+    means Space and Cell get it for free and no theme can be added that
+    silently draws an invisible rim.
+    """
+    return palette_for(theme)["fg"]
+
+
+def dock_colour(theme: str = "dark") -> str:
+    """The left dock's background. **Never translucent, in any theme.**
+
+    The dock used to paint ``surface``, which the image themes re-render
+    through :func:`scrim_alpha` — so on Space and Cell the app list was a
+    ghost with a galaxy behind every row. A navigation column is chrome:
+    it is the thing you look at when you have lost your place, and it has
+    to be a solid edge for the page to end at.
+
+    White under the light theme (its ``surface``), a dark grey everywhere
+    else (``surface_alt``, one step up from the near-black window so the
+    dock reads as a separate plane rather than as more page).
+    """
+    base = palette_for(theme)
+    return base["surface"] if theme == "light" else base["surface_alt"]
+
+
+# ---------------------------------------------------------------------------
+# Maturity — how finished a module is, drawn as a colour
+# ---------------------------------------------------------------------------
+# The app→stage table lives in :data:`spacr.qt.app.APP_STAGE`; this is
+# only what each stage LOOKS like. Both the tile hover and the legend
+# under the Home aside read these, so a stage cannot be one colour in
+# the legend and another on the tile.
+#
+# The three hues were chosen by the user. They are deliberately not
+# palette accents: the point is that "this module is alpha" is not a
+# theme decision, and the same green means the same thing on Space as on
+# Light.
+
+STAGE_HOVER = {
+    "stable": "#3B82F6",   # blue
+    "beta":   "#FF00FF",   # magenta
+    "alpha":  "#00CEC8",   # green-cyan
+}
+
+#: What the legend writes next to each swatch.
+STAGE_LABEL = {
+    "stable": "Stable",
+    "beta":   "Beta",
+    "alpha":  "Alpha",
+}
+
+#: The legend's tooltip per stage — the sentence the colour stands in for.
+STAGE_NOTE = {
+    "stable": "Signed off and in normal use.",
+    "beta":   ("Further along than alpha and in regular use, but not "
+               "signed off yet."),
+    "alpha":  ("Built and reachable, not yet trusted end to end. Expect "
+               "rough edges, and check the numbers before you rely on "
+               "them."),
+}
+
+
+def stage_hover(stage: str) -> str:
+    """Hover colour for ``stage``; unknown stages read as stable."""
+    return STAGE_HOVER.get(stage, STAGE_HOVER["stable"])
+
+
+# ---------------------------------------------------------------------------
+# The module tile's geometry — here, because the QSS needs it too
+# ---------------------------------------------------------------------------
+# These would live happily in :class:`spacr.qt.widgets.home.HomePage`
+# were it not for `min-height`, and `min-height` is not optional.
+#
+# The app stylesheet carries `QPushButton { min-height: 22px }`, and
+# QStyleSheetStyle turns that into a real `setMinimumHeight(22)` on every
+# button when it polishes it. `qSmartMinSize` lets an EXPLICIT minimum
+# override the widget's own `minimumSizeHint()`, so a tile that answers
+# "124 px" through its hints is still, as far as the layout is concerned,
+# collapsible to 22 — and on a page that does not fit, it collapses. The
+# symptom is not a clipped tile: it is the name label drawn on top of the
+# icon, with no warning and no scrollbar.
+#
+# The fix is for the QSS to state the floor itself, which means the QSS
+# has to know the number. So the number lives here, the widget reads it
+# from here, and there is one of it.
+TILE_W = 172
+TILE_MAX_W = 260
+TILE_H = 124
+TILE_ICON_PX = 48
+
+
+# ---------------------------------------------------------------------------
 # Scrims — per-theme opacity of each surface role
 # ---------------------------------------------------------------------------
 # Only the image themes are translucent. Everything else resolves to 1.0
@@ -333,7 +437,8 @@ def _scrim_rules(role: str) -> Tuple[Tuple[str, float], ...]:
 
 
 def legible_scrim_floor(theme: str, role: str,
-                        colour_role: Optional[str] = None) -> float:
+                        colour_role: Optional[str] = None,
+                        under: Optional[str] = None) -> float:
     """Thinnest scrim for ``role`` that text is still readable over.
 
     Every rule in :data:`CONTRAST_RULES` that paints text on this
@@ -344,10 +449,16 @@ def legible_scrim_floor(theme: str, role: str,
 
     :param colour_role: palette entry the surface is painted with, when
         it differs from ``role`` — ``tile`` is painted with ``surface``.
+    :param under: what is actually behind the surface, when it is not
+        the wallpaper. :func:`pane_alpha_floor` passes the flat window
+        colour for the opaque themes; judging a dark panel over a *dark*
+        window against a white worst case would report a 0.92 floor for
+        a surface that is legible at any alpha at all.
     """
     palette = palette_for(theme)
     base = palette[colour_role or role]
-    under = scrim_under(theme)
+    if under is None:
+        under = scrim_under(theme)
     rules = _scrim_rules(colour_role or role)
     for step in range(0, 1001):
         alpha = step / 1000.0
@@ -512,6 +623,61 @@ SCRIM_ALPHA: Dict[str, Dict[str, float]] = {}
 def scrim_alpha(theme: str, role: str) -> float:
     """Opacity of surface ``role`` in ``theme``. 1.0 unless translucent."""
     return SCRIM_ALPHA.get(theme, {}).get(role, 1.0)
+
+
+# ---------------------------------------------------------------------------
+# The page pane — the one surface whose opacity the USER sets
+# ---------------------------------------------------------------------------
+# Everything above solves an alpha. This does not: the rounded box
+# behind Home's tiles is the one surface the user asked to be able to
+# see through, and the whole point of a preference is that the answer is
+# theirs.
+#
+# What the solver still owns is the FLOOR. `legible_scrim_floor` is the
+# thinnest this pane can be painted and still have the tile names on it
+# clear WCAG AA over the worst pixel that theme's wallpaper can present,
+# so the preference is clamped UP to it and text can never be dragged
+# into illegibility.
+#
+# The solver's other bound, `present_scrim_ceiling`, is deliberately NOT
+# applied. That one exists to guarantee the wallpaper is still visible
+# through a panel — and a user who drags this slider to 100 % is
+# explicitly asking for the wallpaper to be hidden behind the app they
+# are trying to use. A floor protects them from a mistake; a ceiling
+# would only overrule a choice.
+
+#: What the preference means at each end. 100 % is a solid panel — the
+#: default, and what every theme drew before the slider existed.
+PANE_OPACITY_MIN = 0.0
+PANE_OPACITY_MAX = 1.0
+DEFAULT_PANE_OPACITY = 1.0
+
+
+def pane_alpha_floor(theme: str) -> float:
+    """Thinnest the Home pane may be painted and stay readable.
+
+    An image theme is judged against :func:`scrim_under`, the brightest
+    thing its wallpaper can put behind the panel. Everything else is
+    judged against its own flat window colour, which is where the answer
+    goes to (near) zero: a dark panel fading into a dark window cannot
+    make white text harder to read, so those themes let the user take
+    the box away entirely.
+    """
+    under = (scrim_under(theme) if theme in IMAGE_THEMES
+             else palette_for(theme)["bg"])
+    return legible_scrim_floor(theme, "surface", under=under)
+
+
+def pane_alpha(theme: str, opacity: Optional[float] = None) -> float:
+    """The alpha the Home pane is actually painted at.
+
+    The user's ``opacity`` (0..1), clamped up to :func:`pane_alpha_floor`.
+    ``None`` means :data:`DEFAULT_PANE_OPACITY`.
+    """
+    if opacity is None:
+        opacity = DEFAULT_PANE_OPACITY
+    wanted = max(PANE_OPACITY_MIN, min(PANE_OPACITY_MAX, float(opacity)))
+    return max(wanted, pane_alpha_floor(theme))
 
 
 def palette_for(theme: str = "dark") -> dict:
@@ -1050,6 +1216,28 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
     TROUGH = "transparent" if over_image else base["bg"]
     NOTCH = P["surface_alt"] if over_image else base["bg"]
     CONSOLE_BG = (P["surface_alt"] if over_image else "#0a0b0d")
+    # The dock never goes through a scrim — see `dock_colour`.
+    DOCK_BG = dock_colour(theme)
+    # The hairline every tile carries, and the three maturity hues its
+    # hover switches to. `RIM` is the theme's ink; the hover fill is the
+    # stage colour at a low alpha so the tile lights UP rather than being
+    # replaced by a block of magenta.
+    RIM = rim_colour(theme)
+    STAGE_RULES = "\n".join(
+        f"""QPushButton#AppTile[stage="{stage}"]:hover {{
+    background-color: {css_color(hue, 0.22)};
+    border: 1px solid {hue};
+}}
+QPushButton#AppTile[stage="{stage}"]:pressed {{
+    background-color: {css_color(hue, 0.40)};
+    border: 1px solid {hue};
+}}"""
+        for stage, hue in STAGE_HOVER.items())
+    # Scaled with the font, like every other Python-set size: a 150 %
+    # font makes the name taller, and a tile that did not grow with it
+    # would clip the thing it exists to show.
+    TILE_MIN_H = max(1, int(round(TILE_H * font_scale)))
+    TILE_MIN_W_PX = max(1, int(round(TILE_W * font_scale)))
     # Scaled font sizes so the "Font scale" preference actually
     # resizes the whole app, not just the base body text.
     F = {k: max(6, int(round(v * font_scale)))
@@ -1130,8 +1318,14 @@ QMenu::separator {{
 /* -----------------------------------------------------------------
  *  Sidebar (main window navigation)
  * ----------------------------------------------------------------- */
+/* NEVER translucent, in any theme — see `dock_colour`. Every widget
+   between the dock's edge and its rows is named here, because the
+   image themes make `QWidget` transparent by default and one unnamed
+   container is enough to put the galaxy back behind the app list. */
+#EdgeDrawer, #Sidebar, #SidebarScroll, #SidebarInner {{
+    background-color: {DOCK_BG};
+}}
 #Sidebar {{
-    background-color: {P["surface"]};
     border-right: 1px solid {P["border_soft"]};
 }}
 #SidebarTitle {{
@@ -1141,7 +1335,7 @@ QMenu::separator {{
     font-weight: 300;                 /* Light */
     letter-spacing: -0.5px;
     padding: {S["lg"]}px {S["md"]}px {S["md"]}px;
-    background: {P["surface"]};
+    background: {DOCK_BG};
 }}
 #SidebarSection {{
     color: {P["fg_dim"]};
@@ -1150,7 +1344,7 @@ QMenu::separator {{
     padding: {S["md"]}px {S["md"]}px {S["xs"]}px;
     text-transform: uppercase;
     letter-spacing: 1px;
-    background: {P["surface"]};
+    background: {DOCK_BG};
 }}
 QPushButton#SidebarItem {{
     text-align: left;
@@ -1162,12 +1356,14 @@ QPushButton#SidebarItem {{
     border-radius: 0px;
     font-size: {F["body"]}px;
 }}
+/* `surface_hi`, not `surface_alt`: the dock IS `surface_alt` now, and a
+   hover the same colour as the thing under it is no hover at all. */
 QPushButton#SidebarItem:hover {{
-    background: {P["surface_alt"]};
+    background: {P["surface_hi"]};
     color: {P["fg"]};
 }}
 QPushButton#SidebarItem:checked, QPushButton#SidebarItem[selected="true"] {{
-    background: {P["surface_alt"]};
+    background: {P["surface_hi"]};
     color: {P["accent"]};
     border-left: 3px solid {P["accent"]};
 }}
@@ -1248,23 +1444,64 @@ QLabel#TileCaption {{
 /* -----------------------------------------------------------------
  *  Horizontal tiles (HTile) — icons-left cards on the home screen
  * ----------------------------------------------------------------- */
+/* Every tile carries a hairline rim in the theme's ink — white on the
+   dark themes, near-black on the light one. It is not decoration: with
+   the descriptions gone the tiles are icon + name on the pane's own
+   colour, and the rim is the only thing that says where one button ends
+   and the next begins. `border: 1px solid transparent` (what this used
+   to be) drew nothing at all until you hovered. */
 QPushButton#HTile {{
     background-color: {TILE_BG};
     color: {P["fg"]};
-    border: 1px solid transparent;
+    border: 1px solid {css_color(RIM, 0.35)};
     border-radius: {R["lg"]}px;
     padding: 12px 14px 12px 20px;
     text-align: left;
     font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
 }}
 QPushButton#HTile:hover {{
-    background-color: {P["surface_alt"]};
-    border: 1px solid {P["border_soft"]};
+    background-color: {css_color(STAGE_HOVER["stable"], 0.22)};
+    border: 1px solid {STAGE_HOVER["stable"]};
 }}
 QPushButton#HTile:pressed {{
-    background-color: {P["accent_lo"]};
-    border: 1px solid {P["accent"]};
+    background-color: {css_color(STAGE_HOVER["stable"], 0.40)};
+    border: 1px solid {STAGE_HOVER["stable"]};
 }}
+
+/* -----------------------------------------------------------------
+ *  Module tiles (AppTile) — icon over name, one size, every Home tab
+ * ----------------------------------------------------------------- */
+/* `min-height` and `min-width` are the point of this rule existing
+   separately from `#HTile`. See TILE_H in theme.py: without them the
+   blanket 22 px QPushButton minimum lets a full page squash every tile
+   and draw the name over the icon. Zero padding, because the tile's own
+   QVBoxLayout owns its margins — inheriting HTile's left-weighted
+   padding would push a centred icon off centre. */
+QPushButton#AppTile {{
+    background-color: {TILE_BG};
+    color: {P["fg"]};
+    border: 1px solid {css_color(RIM, 0.35)};
+    border-radius: {R["lg"]}px;
+    padding: 0px;
+    min-height: {TILE_MIN_H}px;
+    min-width: {TILE_MIN_W_PX}px;
+    text-align: center;
+    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+}}
+/* Fallback hover, for a tile whose `stage` property was never set. The
+   three stage rules below win over it wherever it was. */
+QPushButton#AppTile:hover {{
+    background-color: {css_color(STAGE_HOVER["stable"], 0.22)};
+    border: 1px solid {STAGE_HOVER["stable"]};
+}}
+QPushButton#AppTile:pressed {{
+    background-color: {css_color(STAGE_HOVER["stable"], 0.40)};
+    border: 1px solid {STAGE_HOVER["stable"]};
+}}
+/* Maturity, as colour. See `STAGE_HOVER` and the legend under the Home
+   aside — a tile that lights magenta is a beta module, and the legend
+   beside it is what says so. */
+{STAGE_RULES}
 QLabel#HTileName {{
     color: {P["fg"]};
     font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;

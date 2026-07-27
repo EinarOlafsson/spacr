@@ -96,13 +96,11 @@ def _section_names_sentence() -> str:
     existing. Reading the registry keeps the tour honest the next time
     the grouping changes.
 
-    The headings the sidebar *draws* are the sections apps are filed
-    under, which since #16i is a subset of :data:`spacr.qt.app.SECTIONS`
-    — the three subject categories that staging emptied keep their tabs
-    on Home but have no sidebar heading, and naming them in a sentence
-    about the sidebar would send the reader looking for something that
-    is not there. So this walks :data:`spacr.qt.app.APPS` in APPS order,
-    exactly as ``Sidebar`` does.
+    It walks :data:`spacr.qt.app.APPS` in APPS order rather than
+    :data:`spacr.qt.app.SECTIONS`, because the headings the sidebar
+    *draws* are the ones its rows produce — naming a section with no
+    rows under it would send the reader looking for a heading that is
+    not there.
     """
     try:
         from .app import APPS

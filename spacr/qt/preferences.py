@@ -26,6 +26,8 @@ Public API::
         get_font_scale, set_font_scale,
         get_color_blind_mode, set_color_blind_mode,
         get_db_browser_editable, set_db_browser_editable,
+        get_dock_mode, set_dock_mode,
+        get_pane_opacity, set_pane_opacity, effective_pane_alpha,
         apply_preferences_to_app,
         PreferencesDialog,
     )
@@ -50,6 +52,13 @@ Values:
 * ``db_browser_editable``: bool, default ``False``. Permits the
   Database Browser to open a read-write connection at all; see
   :func:`get_db_browser_editable`.
+* ``dock_mode``: ``"auto"`` | ``"locked"`` | ``"hidden"`` (default
+  ``"auto"``). Whether the left app dock reveals on hover, is pinned
+  open as a permanent column, or is not there at all.
+* ``pane_opacity``: int percent, default ``100``. How solid the rounded
+  panel behind the Home tiles is. Clamped up to
+  :func:`spacr.qt.theme.pane_alpha_floor` at paint time — the
+  preference is a request, legibility is not negotiable.
 """
 from __future__ import annotations
 
@@ -69,6 +78,8 @@ _KEY_FONT_SCALE  = "prefs/font_scale"
 _KEY_CB_MODE     = "prefs/color_blind_mode"
 _KEY_VERBOSE_LOG = "prefs/verbose_logging"
 _KEY_DB_EDIT     = "prefs/db_browser_editable"
+_KEY_DOCK_MODE   = "prefs/dock_mode"
+_KEY_PANE_OPACITY = "prefs/pane_opacity"
 
 #: Themes with a palette of their own — mirrors
 #: :data:`spacr.qt.theme.THEMES`, restated here so importing this module
@@ -365,6 +376,91 @@ def scaled_px(base_px: int) -> int:
     scale doesn't collapse things to zero.
     """
     return max(1, int(round(base_px * get_font_scale())))
+
+
+# ---------------------------------------------------------------------------
+# The left dock — revealed, pinned, or gone
+# ---------------------------------------------------------------------------
+
+#: ``"auto"``    the 6 px hot strip on the left edge reveals the app list
+#:               on dwell and hides it again. The default, and what the
+#:               app has done since the permanent column was retired.
+#: ``"locked"``  the app list is a real column in the window layout: it
+#:               never slides, never covers the page, and never has to be
+#:               summoned. Costs 220-320 px of width, which is exactly
+#:               why it is a choice and not the default.
+#: ``"hidden"``  no strip, no reveal, no column. Apps stay reachable from
+#:               the spaCR menu, Ctrl+1..9 and the command palette — a
+#:               dock you cannot summon must not be a dead end.
+VALID_DOCK_MODES = ("auto", "locked", "hidden")
+DEFAULT_DOCK_MODE = "auto"
+
+
+def get_dock_mode() -> str:
+    """How the left app dock behaves — one of :data:`VALID_DOCK_MODES`."""
+    raw = str(_settings().value(_KEY_DOCK_MODE, DEFAULT_DOCK_MODE))
+    return raw if raw in VALID_DOCK_MODES else DEFAULT_DOCK_MODE
+
+
+def set_dock_mode(mode: str) -> None:
+    if mode not in VALID_DOCK_MODES:
+        raise ValueError(f"unknown dock mode {mode!r}. "
+                          f"Choose from {VALID_DOCK_MODES}.")
+    _settings().setValue(_KEY_DOCK_MODE, mode)
+
+
+# ---------------------------------------------------------------------------
+# Page opacity — how solid the rounded box behind Home's tiles is
+# ---------------------------------------------------------------------------
+
+#: 0 = the box is not painted at all, 100 = solid. Stored as a percent
+#: because that is what the slider shows and what a user reading the INI
+#: would expect to find.
+#:
+#: **This is a request, not the final alpha.** It is clamped up to
+#: :func:`spacr.qt.theme.pane_alpha_floor` before anything is painted, so
+#: dragging it to zero on the Space theme thins the panel to the point
+#: where the tile names still clear WCAG AA over the brightest star the
+#: sky can put behind them, and no further. See
+#: :func:`spacr.qt.theme.pane_alpha` for why the solver's *upper* bound
+#: is deliberately not applied to it.
+DEFAULT_PANE_OPACITY_PCT = 100
+
+
+def get_pane_opacity() -> float:
+    """The user's requested page-panel opacity, 0.0-1.0.
+
+    Un-clamped: the floor belongs to the theme, which is the only thing
+    that knows what is behind the panel. Callers want
+    :func:`spacr.qt.theme.pane_alpha`, which applies it.
+    """
+    try:
+        raw = int(_settings().value(_KEY_PANE_OPACITY,
+                                    DEFAULT_PANE_OPACITY_PCT))
+    except (TypeError, ValueError):
+        raw = DEFAULT_PANE_OPACITY_PCT
+    return max(0, min(100, raw)) / 100.0
+
+
+def set_pane_opacity(fraction: float) -> None:
+    """Store the requested opacity. Accepts 0.0-1.0; clamped, then rounded."""
+    try:
+        value = float(fraction)
+    except (TypeError, ValueError):
+        value = DEFAULT_PANE_OPACITY_PCT / 100.0
+    _settings().setValue(_KEY_PANE_OPACITY,
+                         int(round(max(0.0, min(1.0, value)) * 100)))
+
+
+def effective_pane_alpha() -> float:
+    """The opacity the page panel is actually painted at, this theme.
+
+    The user's request put through :func:`spacr.qt.theme.pane_alpha`.
+    One call so the Home page and any test asking "what will it look
+    like" get the same number.
+    """
+    from .theme import pane_alpha
+    return pane_alpha(resolve_effective_theme(), get_pane_opacity())
 
 
 # ---------------------------------------------------------------------------
@@ -691,6 +787,67 @@ class PreferencesDialog:
         _wrap = _hbox_wrap(scale_row)
         form.addRow("Font scale", _wrap)
 
+        # The left dock — revealed on hover, pinned open, or gone.
+        dock_combo = QComboBox()
+        for label, key in (
+            ("Reveal on hover", "auto"),
+            ("Locked open",     "locked"),
+            ("Hidden",          "hidden"),
+        ):
+            dock_combo.addItem(label, key)
+        current_dock = get_dock_mode()
+        for i in range(dock_combo.count()):
+            if dock_combo.itemData(i) == current_dock:
+                dock_combo.setCurrentIndex(i); break
+        dock_combo.setToolTip(
+            "Reveal on hover: the app list slides in when you rest the "
+            "pointer against the left edge, and slides out again.\n"
+            "Locked open: it is a permanent column instead — it never "
+            "covers the page, and costs its own width.\n"
+            "Hidden: no edge strip and no column. Apps stay reachable "
+            "from the spaCR menu, Ctrl+1..9 and Ctrl+K."
+        )
+        form.addRow("App dock", dock_combo)
+
+        # Page opacity — how solid the rounded box behind Home's tiles is.
+        opacity_slider = QSlider(Qt.Horizontal)
+        opacity_slider.setRange(0, 100)
+        opacity_slider.setSingleStep(5)
+        opacity_slider.setPageStep(10)
+        opacity_slider.setTickInterval(25)
+        opacity_slider.setValue(int(round(get_pane_opacity() * 100)))
+        opacity_value = QLabel()
+
+        def _update_opacity_lbl(v):
+            """Show what was asked for, and what the theme will allow.
+
+            The floor is the whole design of this control: on Space it
+            is 78 %, so "20 %" would otherwise be a number the user set
+            and the app quietly ignored.
+            """
+            from .theme import pane_alpha
+            actual = pane_alpha(resolve_effective_theme(), v / 100.0)
+            shown = int(round(actual * 100))
+            opacity_value.setText(
+                f"{v}%" if shown == v else
+                f"{v}% — held at {shown}% so the text stays readable "
+                "over the background")
+
+        opacity_slider.valueChanged.connect(_update_opacity_lbl)
+        _update_opacity_lbl(opacity_slider.value())
+        opacity_value.setWordWrap(True)
+        opacity_slider.setToolTip(
+            "How solid the rounded panel behind the Home tiles is. "
+            "Lower it to let the Space or Cell wallpaper through. It "
+            "will not go thinner than the point where the tile names "
+            "stop clearing WCAG AA over the brightest thing that "
+            "background can put behind them."
+        )
+        opacity_col = QVBoxLayout()
+        opacity_col.addWidget(opacity_slider)
+        opacity_col.addWidget(opacity_value)
+        form.addRow("Page opacity", _hbox_wrap(opacity_col))
+
         # Colour-blind mode
         cb_combo = QComboBox()
         for label, key in (
@@ -777,6 +934,8 @@ class PreferencesDialog:
             set_space_variant(space_combo.currentData())
             set_cell_variant(cell_combo.currentData())
             set_font_scale(scale_slider.value() / 100.0)
+            set_dock_mode(dock_combo.currentData())
+            set_pane_opacity(opacity_slider.value() / 100.0)
             set_color_blind_mode(cb_combo.currentData())
             set_verbose_logging(verbose_check.isChecked())
             set_db_browser_editable(db_edit_check.isChecked())

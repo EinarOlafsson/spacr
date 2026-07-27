@@ -150,17 +150,17 @@ def test_registration_matches_the_app_registry_when_it_is_wired_up():
     rather than existence — it turns into a real check the moment the entry
     lands, and never a false red before then.
     """
-    from spacr.qt.app import APPS, SECTION_ALPHA, subject_section
+    from spacr.qt.app import APPS, app_stage
     entry = next((a for a in APPS if a[0] == APP_KEY), None)
     if entry is None:
         pytest.skip("train_compare not yet registered in spacr.qt.app.APPS")
     key, name, desc, section = entry
     assert name == APP_NAME
-    # Was ``section == APP_SECTION``. The registry files this app under
-    # its staging bucket; ``subject_section`` is the axis APP_SECTION is
-    # on. Both are asserted so neither can drift unnoticed.
-    assert section == SECTION_ALPHA
-    assert subject_section(key, section) == APP_SECTION
+    # ``section == APP_SECTION`` again. #16i filed this app under its
+    # staging bucket instead; maturity is a stage rather than a section
+    # now, so both axes are asserted and neither can drift unnoticed.
+    assert section == APP_SECTION
+    assert app_stage(key) == "alpha"
     assert desc and desc.strip()
 
 

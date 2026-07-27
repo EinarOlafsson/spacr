@@ -108,26 +108,21 @@ class CommandPalette(QDialog):
     # -- collection --------------------------------------------------------
     def _collect_commands(self) -> None:
         try:
-            from .app import APPS, subject_section
+            from .app import APPS, app_stage
         except Exception:
             APPS = []
 
-            def subject_section(_key, section):
-                return section
+            def app_stage(_key):
+                return "stable"
 
         # Apps
         for key, name, desc, section in APPS:
-            # Two section words per app, not one. The BADGE is where the
-            # app is filed, so the palette groups the way Home and the
-            # sidebar do. The KEYWORDS also carry the subject it was
-            # staged out of, because #16i filed 22 apps under "Alpha
-            # modules"/"Beta modules" and without this, typing "Data" —
-            # which used to find all six Data apps — found nothing at
-            # all, silently.
-            subject = subject_section(key, section)
-            words = [key, desc, section, name.lower()]
-            if subject != section:
-                words.append(subject)
+            # The badge is the app's category — the same single grouping
+            # Home and the sidebar use, now that maturity is a colour
+            # rather than a second set of sections. How finished an app
+            # is is a KEYWORD instead: "alpha" is a useful thing to be
+            # able to type, and a useless thing to sort a list by.
+            words = [key, desc, section, name.lower(), app_stage(key)]
             self._commands.append(Command(
                 label=f"Go to  {name}",
                 section=f"Apps · {section}",

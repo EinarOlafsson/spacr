@@ -4,16 +4,16 @@ Two invariants live here, both of which were broken before item #16c:
 
 1. **No category holds more than ``MAX_APPS_PER_SECTION`` apps.**
    "Tools" had grown to sixteen — a horizontal row nobody could read to
-   the end of. The cap was nine until #16i raised it to thirteen for
-   the Alpha modules staging list, which is deliberately the *whole*
-   list of what is not finished.
-2. **No app name is silently clipped.** ``HTile`` paints its name in a
-   child ``QLabel``, but ``QPushButton.sizeHint()`` only measures the
-   button's *own* text and icon, so the label's width requirement never
-   reached the layout: every tile was pinned to the 210 px floor and any
-   name wider than the 118 px that left over ("Annotator Agreement",
-   "Database Browser", "Format Converter", "Model Compare", "Cellpose
-   Masks") lost its tail with no ellipsis and no warning.
+   the end of. The cap was nine until #16i raised it to thirteen; #16j
+   deleted the staging sections that needed thirteen but kept the
+   number, because a cap that is exactly the size of the biggest section
+   fires on the next app added rather than when a row stops being
+   readable.
+2. **No app name is silently clipped.** ``AppTile`` paints its name in a
+   child ``ElidingLabel`` of fixed width. A plain ``QLabel`` there does
+   not elide — it stops painting — which is how "Annotator Agreement",
+   "Database Browser", "Format Converter", "Model Compare" and "Cellpose
+   Masks" lost their tails with no ellipsis and no warning.
 
 The label-fit test is parametrised over every entry in ``APPS`` and runs
 under both themes, so a new app with a long name fails here rather than
@@ -28,7 +28,6 @@ from PySide6.QtWidgets import QLabel, QPushButton
 
 from spacr.qt.app import (
     APPS,
-    MATURITY_SECTIONS,
     MAX_APPS_PER_SECTION,
     SECTION_CORE,
     SECTIONS,
@@ -38,8 +37,7 @@ from spacr.qt.app import (
     make_home_page,
     section_members,
 )
-from spacr.qt.widgets.home import HomePage
-from spacr.qt.widgets.tile import HTile
+from spacr.qt.widgets.home import AppTile, HomePage
 
 
 # ---------------------------------------------------------------------------
@@ -59,10 +57,9 @@ def _counts() -> dict[str, int]:
     """Apps per category *tab*, which is not apps per ``APPS`` section.
 
     Derived from ``section_members`` rather than by counting the fourth
-    column, because since #16i the two differ: a staged app is filed
-    under Alpha or Beta modules but still belongs to the subject tab it
-    was staged out of. Counting the column said Data held zero apps,
-    which is true of the column and false of the tab.
+    column. The two are the same thing again now that staging is a
+    colour rather than a section, but the tab is what the cap is about,
+    so the tab is what is counted.
     """
     return {s: len(section_members(s)) for s in SECTIONS}
 
@@ -103,7 +100,7 @@ def home(request, qapp, qt_theme_applied):
 
 
 def _tiles_by_name(page: HomePage) -> dict:
-    return {t.text_label: t for t in page.findChildren(HTile)}
+    return {t.text_label: t for t in page.findChildren(AppTile)}
 
 
 def _nav_buttons_by_name(bar: Sidebar) -> dict:
@@ -119,10 +116,10 @@ def _nav_buttons_by_name(bar: Sidebar) -> dict:
 def test_no_category_holds_more_than_the_cap():
     """The invariant the whole regrouping exists to satisfy.
 
-    Named for nine until #16i, which raised the cap to thirteen for
-    Alpha modules. The number lives in ``MAX_APPS_PER_SECTION``; the
-    name no longer repeats it, so raising it again does not leave a test
-    called ``..._more_than_nine_apps`` asserting something else."""
+    Named for nine until #16i raised the cap to thirteen. The number
+    lives in ``MAX_APPS_PER_SECTION``; the name no longer repeats it, so
+    changing it again does not leave a test called
+    ``..._more_than_nine_apps`` asserting something else."""
     oversized = {s: n for s, n in _counts().items()
                  if n > MAX_APPS_PER_SECTION}
     assert not oversized, (
@@ -136,15 +133,9 @@ def test_no_category_tab_is_empty():
 
     This used to be ``test_every_category_is_big_enough_to_deserve_a_
     heading``, which required three (a one- or two-entry section is
-    noise, not navigation — cf. #12b). #16i staged 22 of the 30 apps
-    into Alpha/Beta modules, which by the fourth column of ``APPS``
-    empties Data, Segmentation models and Results & QC outright, so the
-    floor that survives is the one that actually matters: a tab is its
-    members, and zero members is nothing to open.
-
-    They are not empty, because a tab's members are its *subject*
-    members — see ``section_members``. That is the whole reason the
-    three survived staging.
+    noise, not navigation — cf. #12b). The floor that survives is the
+    one that actually matters: a tab is its members, and zero members is
+    nothing to open.
     """
     empty = sorted(s for s, n in _counts().items() if not n)
     assert not empty, (
@@ -154,39 +145,38 @@ def test_no_category_tab_is_empty():
 
 
 def test_every_app_is_on_exactly_one_subject_tab_and_one_home_band():
-    """The two groupings partition the registry, each in its own way.
+    """One tile per app on Home, one tab per app after it.
 
-    Home files an app once so there is never a second copy of the same
-    tile to click. The subject tabs file it once so there is never a
-    subject you cannot find it under. The staging tabs are the only
-    place an app is allowed to appear twice, and only for the 22 that
-    are staged.
+    While staging was a section this had to allow an app on two tabs —
+    its subject and its stage. There is one grouping again, so both
+    halves are back to a straight partition of the registry, and how
+    finished an app is is asserted separately over ``APP_STAGE``.
     """
+    from spacr.qt.app import app_stage
+
     keys = [a[0] for a in APPS]
 
-    subject = [k for s in SECTIONS if s not in MATURITY_SECTIONS
-               for k, *_ in section_members(s)]
+    subject = [k for s in SECTIONS for k, *_ in section_members(s)]
     assert sorted(subject) == sorted(keys), (
-        "an app is on no subject tab, or on two")
+        "an app is on no category tab, or on two")
 
     banded = [k for _s, rows in home_bands() for k, *_ in rows]
     assert sorted(banded) == sorted(keys), (
         "an app is missing from Home, or drawn on it twice")
 
-    staged = [k for s in MATURITY_SECTIONS for k, *_ in section_members(s)]
-    assert len(staged) == len(set(staged)), "an app is in alpha AND beta"
+    staged = [k for k in keys if app_stage(k) != "stable"]
     assert len(staged) == 22, (
         f"{len(staged)} apps staged, not 22 — if that is intended, say so "
-        "here; the count is the user's list from #16i")
+        "here; the count is the user\'s list")
 
 
 def test_sections_appear_in_the_declared_workflow_order():
     """APPS order drives both Home and the sidebar, so it is the order.
 
-    A *subsequence* of SECTIONS, not all of it: the three sections that
-    staging emptied appear in SECTIONS (they still have tabs) and not in
-    APPS (nothing is filed under them). What must not happen is APPS
-    running them out of order, which would draw a heading twice.
+    Compared as a subsequence rather than as equality: a section that
+    lost its last app would drop out of APPS and keep its constant, and
+    that is not this test\'s complaint. What must not happen is APPS
+    running the sections out of order, which would draw a heading twice.
     """
     order = _sections_in_order()
     assert order == [s for s in SECTIONS if s in set(order)]
@@ -200,12 +190,12 @@ def test_every_app_is_in_a_declared_section():
 def test_the_core_pipeline_comes_first_and_is_unbroken():
     """Ctrl+1..9 map to APPS[0..8], so Core has to lead the table.
 
-    It used to assert all nine of those slots were Core, because Core
-    held exactly nine apps. #16i staged Timelapse and Motility Assay
-    into beta, so Core is seven and the last two Ctrl slots fall through
-    into what follows. What still has to hold is that Core is first and
-    contiguous — a Core app at APPS[20] would be unreachable by keyboard
-    number and would also draw a second "Core" heading in the sidebar.
+    Core is nine apps and they are APPS[0..8], so the nine Ctrl slots
+    are exactly the Core pipeline again — #16i staged Timelapse and
+    Motility Assay out of it and #16j put them back. The assertion is
+    written to survive either: Core first, and contiguous. A Core app at
+    APPS[20] would be unreachable by keyboard number and would also draw
+    a second "Core" heading in the sidebar.
     """
     core = [a for a in APPS if a[3] == SECTION_CORE]
     assert core, "Core lost all its apps"
@@ -307,7 +297,7 @@ def test_no_sidebar_item_needs_eliding_at_the_default_font(home):
 def test_no_home_tile_needs_eliding_at_the_default_font(home):
     """Same for Home: today's names all fit a tile that sizes to them."""
     _theme, page, _bar = home
-    clipped = [t.text_label for t in page.findChildren(HTile)
+    clipped = [t.text_label for t in page.findChildren(AppTile)
                if t.is_name_elided()]
     assert not clipped, f"Home had to shorten {clipped}"
 
@@ -325,7 +315,11 @@ def test_a_pathologically_long_name_elides_instead_of_clipping(
     page.show()
     qtbot.waitExposed(page)
 
-    tile = page.findChildren(HTile)[0]
+    # The tile on the CURRENT tab. Every app is drawn twice — once on
+    # Home and once on its category tab — and the one on the tab that is
+    # not showing has never been laid out, so it has nothing to elide
+    # against.
+    tile = next(t for t in page.findChildren(AppTile) if t.isVisible())
     label = tile.name_label
     assert label.is_elided(), "expected the label to elide"
     assert "…" in label.text()
@@ -333,10 +327,10 @@ def test_a_pathologically_long_name_elides_instead_of_clipping(
     assert label.full_text() == long_name
     assert label.toolTip() == long_name
     # And the tile did not stretch across the whole page to fit it.
-    # The dense Home tile has a hard maximum; the page it replaced had
-    # TILE_CAP_W, which served the same purpose for a row of scrollers.
+    # ``TILE_MAX_W`` is the cap that stops a band of one drawing one tile
+    # the width of the pane.
     from spacr.qt.preferences import scaled_px
-    assert tile.width() <= scaled_px(HomePage.DENSE_TILE_MAX_W)
+    assert tile.width() <= scaled_px(HomePage.TILE_MAX_W)
 
 
 def test_nothing_clips_at_a_150_percent_font_scale(qtbot, qapp, monkeypatch):
@@ -365,7 +359,7 @@ def test_nothing_clips_at_a_150_percent_font_scale(qtbot, qapp, monkeypatch):
     qapp.processEvents()
 
     clipped = []
-    for tile in page.findChildren(HTile):
+    for tile in page.findChildren(AppTile):
         label = tile.name_label
         needed = QFontMetrics(label.font()).horizontalAdvance(tile.text_label)
         if needed > label.available_text_width() and not label.is_elided():
@@ -376,26 +370,31 @@ def test_nothing_clips_at_a_150_percent_font_scale(qtbot, qapp, monkeypatch):
     assert bar.width() == prefs.scaled_px(Sidebar.WIDTH_MIN)
 
 
-def test_tile_width_tracks_the_name_it_has_to_draw(home):
-    """A longer name asks for more room — that is the actual fix.
+def test_the_widest_name_fits_the_tile_the_grid_gives_it(home):
+    """Was ``test_tile_width_tracks_the_name_it_has_to_draw``.
 
-    ``HTile.sizeHint()`` measures the child ``QLabel`` that paints the
-    name, not just the button's own text; ``required_width()`` is that
-    measurement. The page this test was written against turned it
-    straight into a per-tile width, because each section was a
-    horizontal scroller. Home now lays the tiles out in a uniform grid,
-    so the requirement is satisfied by the *column* rather than by the
-    individual tile — which is why the second assertion is that every
-    tile is at least as wide as the widest name needs, not that one
-    tile is wider than another.
+    That version asserted ``HTile.required_width()``, a per-tile
+    measurement that made sense when each section was a horizontal
+    scroller and every tile sized itself. Every tile is now the same
+    size, laid out in a uniform grid, so "wider name, wider tile" is not
+    the contract any more — what is, is that the *widest* name still
+    fits the one size they all share.
     """
+    from spacr.qt.preferences import scaled_px
     _theme, page, _bar = home
     tiles = _tiles_by_name(page)
-    short, long = tiles["Mask"], tiles["Annotator Agreement"]
-    assert long.required_width() > short.required_width()
-    assert long.width() >= long.required_width(), (
-        f"'Annotator Agreement' needs {long.required_width()}px and the "
-        f"grid gave it {long.width()}px")
+    floor, cap = scaled_px(HomePage.TILE_MIN_W), scaled_px(HomePage.TILE_MAX_W)
+    for name, tile in tiles.items():
+        if not tile.isVisible():
+            continue        # a tile on a tab that is not the current one
+        assert floor <= tile.width() <= cap, (
+            f"{name} is {tile.width()} px wide, outside {floor}..{cap}")
+    for name in ("Mask", "Annotator Agreement", "Format Converter"):
+        label = tiles[name].name_label
+        needed = QFontMetrics(label.font()).horizontalAdvance(name)
+        assert needed <= label.available_text_width(), (
+            f"{name!r} needs {needed} px and the tile gives it "
+            f"{label.available_text_width()} px")
 
 
 # ---------------------------------------------------------------------------

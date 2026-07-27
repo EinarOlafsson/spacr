@@ -40,11 +40,11 @@ from PySide6.QtWidgets import (
 from spacr.qt import app as app_mod
 from spacr.qt.app import (
     APPS,
-    MATURITY_SECTIONS,
     MAX_APPS_PER_SECTION,
-    SECTION_ALPHA,
-    SECTION_BETA,
     SECTION_CORE,
+    SECTION_DATA,
+    SECTION_MODELS,
+    SECTION_RESULTS,
     SECTION_TOXO,
     SECTIONS,
     MainWindow,
@@ -54,12 +54,12 @@ from spacr.qt.app import (
     _PipelinePreloader,
     _icon_for_app,
     _load_bundled_fonts,
+    app_stage,
     home_bands,
     make_home_page,
     section_members,
 )
-from spacr.qt.widgets.home import HomePage
-from spacr.qt.widgets.tile import HTile
+from spacr.qt.widgets.home import AppTile, HomePage
 
 
 # ---------------------------------------------------------------------------
@@ -160,7 +160,7 @@ def _img(icon: QIcon, px: int = 24):
 
 
 def _tiles(page: HomePage) -> dict:
-    return {t.text_label: t for t in page.findChildren(HTile)}
+    return {t.text_label: t for t in page.findChildren(AppTile)}
 
 
 # ===========================================================================
@@ -171,45 +171,56 @@ def _tiles(page: HomePage) -> dict:
 #: a mirror of the code: moving an app between sections is a product
 #: decision, and this table is where it gets recorded.
 #:
-#: #16i rewrote 22 of these 30 rows. Everything that is not signed off
-#: moved into the two maturity sections, which emptied Data, Segmentation
-#: models and Results & QC completely — those three constants are gone.
-#: Where they went: all of Data → alpha; Segmentation models → alpha
-#: (Model Compare, Model Zoo) and beta (the three Cellpose ones);
-#: Results & QC → alpha except Image UMAP and Activation, which went to
-#: beta; and three of the four Toxoplasma assays staged out, leaving
-#: Recruitment. Core lost Timelapse and Motility Assay to beta.
+#: #16i rewrote 22 of these 30 rows into two maturity sections, which
+#: emptied Data, Segmentation models and Results & QC completely. #16j
+#: put every one of them back: an app is filed under what it DOES, and
+#: how finished it is lives in :data:`EXPECTED_STAGES` below and is
+#: drawn as the tile's hover colour rather than as a place.
 EXPECTED_SECTIONS = {
     "mask":            SECTION_CORE,
+    "timelapse":       SECTION_CORE,
+    "motility":        SECTION_CORE,
     "measure":         SECTION_CORE,
     "annotate":        SECTION_CORE,
     "classify":        SECTION_CORE,
     "ml_analyze":      SECTION_CORE,
     "map_barcodes":    SECTION_CORE,
     "regression":      SECTION_CORE,
+    "align":           SECTION_DATA,
+    "convert":         SECTION_DATA,
+    "foreign":         SECTION_DATA,
+    "queue":           SECTION_DATA,
+    "batch":           SECTION_DATA,
+    "db_browser":      SECTION_DATA,
+    "make_masks":      SECTION_MODELS,
+    "train_cellpose":  SECTION_MODELS,
+    "cellpose_masks":  SECTION_MODELS,
+    "model_compare":   SECTION_MODELS,
+    "model_zoo":       SECTION_MODELS,
+    "plate_view":      SECTION_RESULTS,
+    "agreement":       SECTION_RESULTS,
+    "umap":            SECTION_RESULTS,
+    "activation":      SECTION_RESULTS,
+    "train_compare":   SECTION_RESULTS,
+    "report":          SECTION_RESULTS,
+    "analyze_plaques": SECTION_TOXO,
     "recruitment":     SECTION_TOXO,
-    "align":           SECTION_ALPHA,
-    "model_zoo":       SECTION_ALPHA,
-    "convert":         SECTION_ALPHA,
-    "foreign":         SECTION_ALPHA,
-    "model_compare":   SECTION_ALPHA,
-    "queue":           SECTION_ALPHA,
-    "batch":           SECTION_ALPHA,
-    "invasion":        SECTION_ALPHA,
-    "db_browser":      SECTION_ALPHA,
-    "plate_view":      SECTION_ALPHA,
-    "agreement":       SECTION_ALPHA,
-    "train_compare":   SECTION_ALPHA,
-    "report":          SECTION_ALPHA,
-    "make_masks":      SECTION_BETA,
-    "train_cellpose":  SECTION_BETA,
-    "cellpose_masks":  SECTION_BETA,
-    "timelapse":       SECTION_BETA,
-    "motility":        SECTION_BETA,
-    "analyze_plaques": SECTION_BETA,
-    "replication":     SECTION_BETA,
-    "umap":            SECTION_BETA,
-    "activation":      SECTION_BETA,
+    "invasion":        SECTION_TOXO,
+    "replication":     SECTION_TOXO,
+}
+
+#: How finished every app is, as a second ledger on the same 30 keys.
+#: Absent from ``APP_STAGE`` means stable, so the two are checked
+#: against each other rather than against a copy of the same dict.
+EXPECTED_STAGES = {
+    "align": "alpha", "model_zoo": "alpha", "convert": "alpha",
+    "foreign": "alpha", "model_compare": "alpha", "queue": "alpha",
+    "batch": "alpha", "invasion": "alpha", "db_browser": "alpha",
+    "plate_view": "alpha", "agreement": "alpha", "train_compare": "alpha",
+    "report": "alpha",
+    "make_masks": "beta", "train_cellpose": "beta", "cellpose_masks": "beta",
+    "timelapse": "beta", "motility": "beta", "analyze_plaques": "beta",
+    "replication": "beta", "umap": "beta", "activation": "beta",
 }
 
 
@@ -222,18 +233,35 @@ def test_every_app_is_filed_under_the_section_it_belongs_to():
         "recorded rather than accidental.")
 
 
-def test_no_section_is_used_that_was_never_declared():
-    """Was ``used == set(SECTIONS)``.
+def test_every_app_carries_the_maturity_it_was_given():
+    """The other axis, one entry at a time.
 
-    Since #16i the two are not equal and must not be: Data, Segmentation
-    models and Results & QC are declared and nothing is filed under them
-    — every one of their apps is staged into Alpha or Beta modules — and
-    they keep their tabs because a subject is not a status. What has to
-    hold is that nothing is filed under a section that was never
-    declared, and that every declared one is reachable as a tab.
+    Thirteen alpha, nine beta, eight stable. Signing an app off is
+    deleting a line from ``APP_STAGE`` and from here; nothing else
+    moves, which is the whole point of maturity not being a section."""
+    actual = {key: app_stage(key) for key, *_r in APPS}
+    expected = {key: EXPECTED_STAGES.get(key, "stable")
+                for key, *_r in APPS}
+    assert actual == expected, (
+        "an app changed maturity. That is allowed — record it in "
+        "EXPECTED_STAGES in the same commit.")
+    counts = {s: sum(1 for v in actual.values() if v == s)
+              for s in ("alpha", "beta", "stable")}
+    assert counts == {"alpha": 13, "beta": 9, "stable": 8}
+
+
+def test_no_section_is_used_that_was_never_declared():
+    """Every declared section is used, and nothing else is.
+
+    It was relaxed to a subset for #16i, when three declared sections
+    had nothing filed under them. They are all populated again, so the
+    equality is back — with the subset check kept as the first, more
+    specific failure message.
     """
     used = {section for *_r, section in APPS}
     assert used <= set(SECTIONS), f"undeclared sections in APPS: {used - set(SECTIONS)}"
+    assert used == set(SECTIONS), (
+        f"declared sections nothing is filed under: {set(SECTIONS) - used}")
     assert len(SECTIONS) == len(set(SECTIONS)), "duplicate section name"
     assert {s for s, _rows in home_bands()} == used, (
         "Home bands and the filed sections have come apart")
@@ -244,11 +272,12 @@ def test_no_section_is_used_that_was_never_declared():
 def test_no_section_holds_more_than_the_cap():
     """The cap was 9 and is now 13.
 
-    Nine was the width of the old Core pipeline. The number now comes
-    from Alpha modules, which is thirteen apps because thirteen apps are
-    unfinished — splitting it into "Alpha" and "More alpha" would honour
-    the old constant and tell the user nothing. The cap is still a real
-    guard for the *workflow* sections, which are far below it."""
+    Nine was the width of the Core pipeline and nothing more, so it
+    would have fired on the next Core app rather than when a row stopped
+    being readable. #16i raised it to thirteen for a staging section
+    that no longer exists; the number stays, because thirteen is still
+    about where a row stops being scannable and nine was never about
+    anything but a coincidence."""
     counts = _counts()
     assert MAX_APPS_PER_SECTION == 13
     over = {s: n for s, n in counts.items() if n > MAX_APPS_PER_SECTION}
@@ -256,24 +285,16 @@ def test_no_section_holds_more_than_the_cap():
         f"sections over the {MAX_APPS_PER_SECTION}-app cap: {over}. Add a "
         "section with a name that means something instead of lengthening "
         "a row nobody reads to the end of.")
-    # The cap moved for the maturity buckets, not for the categories a
-    # reader scans: those must still fit the original nine.
-    workflow = {s: n for s, n in counts.items()
-                if s not in MATURITY_SECTIONS and n > 9}
-    assert not workflow, (
-        f"a workflow section grew past nine: {workflow}. The cap was "
-        "raised for Alpha/Beta modules, not for these.")
 
 
 def test_the_core_section_leads_the_ctrl_number_slots():
     """Ctrl+1..9 address APPS[0..8]; Core has to lead them.
 
-    This used to assert ``len(core) == MAX_APPS_PER_SECTION == 9`` and
-    that APPS[:9] was exactly Core. #16i staged Timelapse and Motility
-    Assay into beta, so Core is seven — the ninth Ctrl slot now falls
-    into the section after it, which is fine (the shortcut is documented
-    as "the Nth app in the sidebar"). What has to stay true is that Core
-    is the first block, so the low numbers reach the pipeline."""
+    Core is nine again — #16i staged Timelapse and Motility Assay out of
+    it and #16j put them back — so the nine slots are exactly the
+    pipeline. The assertion is written not to care either way: what has
+    to stay true is that Core is the first contiguous block, so the low
+    numbers reach the pipeline."""
     core = [k for k, _n, _d, s in APPS if s == SECTION_CORE]
     assert 0 < len(core) <= MAX_APPS_PER_SECTION
     assert [k for k, *_r in APPS[:len(core)]] == core
@@ -281,13 +302,8 @@ def test_the_core_section_leads_the_ctrl_number_slots():
 
 def test_no_section_is_empty():
     """It used to require three per section ("too small to deserve a
-    heading"), counting ``APPS[i][3]``. #16i staged 22 of the 30 apps,
-    which by that count leaves three sections at zero — so the count
-    changed rather than the sections: a tab's members are its SUBJECT
-    members, staged or not, and the floor that survives is one.
-
-    Both halves are checked. No tab opens on an empty pane, and no Home
-    band is drawn with nothing under it."""
+    heading"). The floor that survives is one: no tab opens on an empty
+    pane, and no Home band is drawn with nothing under it."""
     empty = sorted(s for s in SECTIONS if not section_members(s))
     assert not empty, f"declared sections with no members: {empty}"
     assert all(rows for _s, rows in home_bands()), "an empty Home band"
@@ -301,9 +317,9 @@ def test_sections_are_contiguous_blocks_in_declaration_order():
     for *_r, section in APPS:
         if not order or order[-1] != section:
             order.append(section)
-    # A SUBSEQUENCE of SECTIONS, not all of it — the three sections that
-    # staging drained are declared (they have tabs) but nothing is filed
-    # under them, so they are absent here. Was ``order == list(SECTIONS)``.
+    # Compared as a subsequence, which is the same as equality while
+    # every section has apps in it — and stays a statement about ORDER
+    # rather than about population if one ever does not.
     assert order == [s for s in SECTIONS if s in set(order)]
     assert len(order) == len(set(order)), (
         f"a section appears in two separate runs of APPS: {order}")
@@ -315,9 +331,8 @@ def test_sidebar_draws_exactly_one_heading_per_section_in_order(
     qtbot.addWidget(bar)
     headings = [lbl.text() for lbl in bar.findChildren(QLabel)
                 if lbl.objectName() == "SidebarSection"]
-    # Was ``list(SECTIONS)``. The sidebar walks APPS and heads each run,
-    # so it shows the sections apps are FILED under — the same four Home
-    # bands, and not the three subject-only tabs.
+    # The sidebar walks APPS and heads each run, so it shows exactly the
+    # sections apps are filed under — the same list as the Home bands.
     assert headings == [s for s, _rows in home_bands()]
 
 
@@ -486,23 +501,27 @@ def test_no_home_tile_label_is_silently_clipped(home_page):
 
 
 def test_todays_names_all_fit_without_eliding(home_page):
-    assert [t.text_label for t in home_page.findChildren(HTile)
+    assert [t.text_label for t in home_page.findChildren(AppTile)
             if t.is_name_elided()] == []
 
 
-def test_a_tile_is_as_wide_as_the_name_it_has_to_draw(home_page):
-    """The longest name asks for more, and gets at least what it asks.
+def test_a_tile_is_wide_enough_for_the_longest_name(home_page):
+    """Was ``test_a_tile_is_as_wide_as_the_name_it_has_to_draw``.
 
-    Home lays its tiles out in a uniform grid, so a longer name no
-    longer produces a visibly wider tile than its neighbour — the
-    column carries the requirement for all of them. What still has to
-    hold, and is what the original bug broke, is that the requirement
-    reaches the layout at all.
+    That version asked ``HTile.required_width()`` — a per-tile
+    measurement from when each section was a horizontal scroller and
+    every tile sized itself to its own name. Every tile is the same size
+    now, so the contract is that the ONE size fits the longest name; a
+    tile that were wider than its neighbour would be the bug.
     """
+    from spacr.qt.preferences import scaled_px
     tiles = _tiles(home_page)
     longest = tiles["Annotator Agreement"]
-    assert longest.required_width() > tiles["Mask"].required_width()
-    assert longest.width() >= longest.required_width()
+    label = longest.name_label
+    assert QFontMetrics(label.font()).horizontalAdvance(
+        "Annotator Agreement") <= label.available_text_width()
+    assert not label.is_elided()
+    assert longest.width() <= scaled_px(HomePage.TILE_MAX_W)
 
 
 def test_an_unfittable_name_elides_and_keeps_the_row_sane(
@@ -516,12 +535,15 @@ def test_an_unfittable_name_elides_and_keeps_the_row_sane(
     page.show()
     qtbot.waitExposed(page)
 
-    label = page.findChildren(HTile)[0].name_label
+    # The tile on the CURRENT tab: every app is drawn once on Home and
+    # once on its category tab, and the one on the hidden tab has never
+    # been laid out, so it has nothing to elide against.
+    tile = next(t for t in page.findChildren(AppTile) if t.isVisible())
+    label = tile.name_label
     assert label.is_elided()
     assert "…" in label.text() and label.text() != long_name
     assert label.full_text() == long_name == label.toolTip()
-    assert page.findChildren(HTile)[0].width() <= scaled_px(
-        HomePage.DENSE_TILE_MAX_W)
+    assert tile.width() <= scaled_px(HomePage.TILE_MAX_W)
 
 
 # ===========================================================================

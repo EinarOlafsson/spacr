@@ -3,20 +3,19 @@
     ┌────────────────────────────────────────────────────────────────┐
     │ 🖼 spaCR   End-to-end microscopy → single-cell measurements …   │
     │ ┌ Mask · running ────── 41 of 96 ──── [Open] [Pause] ────────┐ │
-    │ │ Home │ Core │ Data │ … │ Alpha modules │ Beta modules      │ │  QUEUED
-    │ │ CORE 7 ────────────────────────────────────────────────── │ │  RECENT
-    │ │  ▢ Mask  ▢ Measure  ▢ Annotate  ▢ Classify (CV) …         │ │  SYSTEM
-    │ │ TOXOPLASMA 1 ─────────────────────────────────────────────│ │  NEWS
-    │ │  ▢ Recruitment                                            │ │  TOTALS
-    │ │ ALPHA MODULES 13 ─────────────────────────────────────────│ │
-    │ │  ▢ Align & Stitch  ▢ Model Zoo  ▢ Format Converter …      │ │
-    │ │ BETA MODULES 9 ───────────────────────────────────────────│ │
-    │ │  ▢ Make Masks  ▢ Train Cellpose  ▢ Cellpose Masks …       │ │
-    │ └────────────────────────────────────────────────────────────┘ │
+    │ │ Home │ Core │ Data │ Segmentation models │ Results │ Toxo  │ │  QUEUED
+    │ │ CORE 9 ────────────────────────────────────────────────── │ │  RECENT
+    │ │  ┌────┐ ┌────┐ ┌────┐ ┌────┐ ┌────┐                       │ │  SYSTEM
+    │ │  │ ▧  │ │ ▧  │ │ ▧  │ │ ▧  │ │ ▧  │                       │ │  NEWS
+    │ │  │Mask│ │Time│ │Moti│ │Meas│ │Anno│                       │ │  TOTALS
+    │ │  └────┘ └────┘ └────┘ └────┘ └────┘                       │ │  ────────
+    │ │ DATA 6 ───────────────────────────────────────────────────│ │  ● Alpha
+    │ │  ┌────┐ ┌────┐ …                                          │ │  ● Beta
+    │ └────────────────────────────────────────────────────────────┘ │  ● Stable
     │  Hover a tile to see what it does.                             │
     └────────────────────────────────────────────────────────────────┘
 
-Six decisions worth knowing about before editing this file:
+Seven decisions worth knowing about before editing this file:
 
 1. **The first tab is everything, in the same categories as the rest.**
    Home is not a summary of the other tabs — it holds every app, at a
@@ -30,33 +29,43 @@ Six decisions worth knowing about before editing this file:
    widget takes ``categories`` and ``bands`` already grouped and does
    not know what a section means.
 
-   The two are not the same list, and that is the point. Home files
-   each app ONCE, so a staged app appears under Alpha or Beta modules
-   and nowhere else, which is why Home has fewer bands than there are
-   tabs. A *tab* is a place to go looking, so the Data tab still lists
-   every Data app even though all six are staged. Two copies of Format
-   Converter on one page would be two things to click that do the same
-   thing; a Data tab with nothing under it would be a question with no
-   answer.
+   ``bands`` and ``categories`` are therefore the same list today, and
+   the two arguments are kept apart anyway: they answer different
+   questions ("what does Home list" and "what tabs are there"), and the
+   version of this file that assumed they could not differ is the one
+   that had to be undone.
 
    The categories are a *filter*, not a hierarchy you have to descend;
    category tabs with no "everything" view read as an empty page, which
    is the version this one replaced.
-2. **Two tile sizes, on purpose.** The Home tab uses :class:`DenseTile`
-   (icon + name, five to a row) because thirty tiles have to fit. Each
-   category tab uses :class:`TallTile` (icon over name over the one-line
-   description) because a category has room to explain itself — and
-   explaining itself is why a category is worth a tab.
-3. **The right-hand column is state, not navigation.** Queue, recent
-   runs, machine, release. Putting it *beside* the apps rather than
-   under them is what stops it pushing the tiles off the page. Three of
-   those panels are marked ``(beta)`` — see :data:`BETA_SUFFIX`.
-4. **A running job is shown here even though Home did not start it.**
+2. **One tile, everywhere.** :class:`AppTile` — icon over name, nothing
+   else — on Home and on every category tab alike. There used to be two
+   sizes: a dense icon-beside-name row on Home and a tall card carrying
+   the one-line description on the category tabs. That made the first
+   tab look like a list of links and the rest like a launcher, and the
+   description was a third copy of text already in the tooltip and in
+   the hint bar. The tiles are large, packed tight, and say the module's
+   name; :attr:`HomePage._hint_bar` and the tooltip say the rest.
+3. **Maturity is a colour, not a place.** Every tile carries a ``stage``
+   property (``stable`` / ``beta`` / ``alpha``) which the app
+   stylesheet turns into its hover colour, and the legend at the foot of
+   the right-hand column says what each colour means. #16i made staging
+   two extra TABS instead, which drained three of the five real
+   categories and gave "where is the format converter" two answers.
+   The classification lives in :data:`spacr.qt.app.APP_STAGE`; the
+   colours in :data:`spacr.qt.theme.STAGE_HOVER`. This widget only
+   passes them on.
+4. **The right-hand column is state, not navigation.** Queue, recent
+   runs, machine, release, then the legend. Putting it *beside* the apps
+   rather than under them is what stops it pushing the tiles off the
+   page. Three of those panels are marked ``(beta)`` — see
+   :data:`BETA_SUFFIX`.
+5. **A running job is shown here even though Home did not start it.**
    ``spacr.qt.bridge.registry`` knows, because every screen goes through
    ``make_thread``. Home subscribes; nothing had to report in.
-5. **Pause is disabled, on purpose, and says why.** See
+6. **Pause is disabled, on purpose, and says why.** See
    :class:`RunningBanner` and :class:`spacr.qt.bridge.PauseGate`.
-6. **Every colour is resolved per instance, not imported.** See
+7. **Every colour is resolved per instance, not imported.** See
    :func:`active_palette` — ``theme.PALETTE`` is a frozen dark palette
    and inlining it renders black-on-black in the light theme.
 """
@@ -81,9 +90,10 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..theme import SPACING, palette_for
+from ..theme import (
+    SPACING, TILE_H, TILE_ICON_PX, TILE_MAX_W, TILE_W, palette_for,
+)
 from .divider import Divider
-from .tile import HTile
 
 
 def active_palette() -> dict:
@@ -162,35 +172,15 @@ def _find_logo_pixmap() -> Optional[QPixmap]:
     return None
 
 
-def elide_to_lines(text: str, font, width: int, lines: int) -> str:
-    """Shorten ``text`` until it wraps into at most ``lines`` lines.
-
-    A word-wrapped ``QLabel`` in a fixed-height box does not elide — it
-    just stops painting, which is the silent clipping this whole layout
-    effort exists to remove ("… invasion efficiency per we"). Shortening
-    the string up front instead means the box can be a fixed height and
-    still never cut a word in half; the full text stays on the tile's
-    tooltip.
-    """
-    from PySide6.QtGui import QFontMetrics
-    metrics = QFontMetrics(font)
-
-    def wrapped_lines(value: str) -> int:
-        rect = metrics.boundingRect(
-            0, 0, max(1, width), 10000,
-            int(Qt.TextWordWrap | Qt.AlignHCenter | Qt.AlignTop), value)
-        return max(1, round(rect.height() / max(1, metrics.lineSpacing())))
-
-    if wrapped_lines(text) <= lines:
-        return text
-    words = text.split()
-    kept: list = []
-    for word in words:
-        candidate = " ".join(kept + [word]) + "…"
-        if wrapped_lines(candidate) > lines:
-            break
-        kept.append(word)
-    return (" ".join(kept) + "…") if kept else text[:1] + "…"
+# `elide_to_lines` used to live here. It shortened a tile's one-line
+# description until it wrapped into at most three lines, because a
+# word-wrapped QLabel in a fixed-height box does not elide — it just
+# stops painting. #16j removed the descriptions from the tiles, so there
+# is no fixed-height wrapped label left on this page and nothing to
+# shorten. The identical helper in
+# `spacr/resources/home/versions/_generators/parts.py` is still live:
+# that renders the archived home-screen candidates, several of which do
+# carry a blurb.
 
 
 def _fmt_elapsed(seconds: float) -> str:
@@ -206,86 +196,73 @@ def _fmt_elapsed(seconds: float) -> str:
 # Tiles
 # ---------------------------------------------------------------------------
 
-class DenseTile(HTile):
-    """The Home tab's tile: icon, name, nothing else — packed tight.
+class AppTile(QPushButton):
+    """**The** tile: a large square-ish button, icon over module name.
 
-    An :class:`HTile` whose height and name size it actually keeps.
-    ``setFixedSize`` does not survive the app stylesheet:
-    ``theme.stylesheet()`` carries ``QPushButton { min-height: 22px }``
-    and ``QStyleSheetStyle`` re-applies that rule's geometry on polish,
-    wiping the minimum. A tile then reports 40 px to its layout and gets
-    squashed — painted, just cropped, with no warning. The supported
-    route is to answer through ``sizeHint`` / ``minimumSizeHint``, which
-    is what this does. The height is a literal rather than
-    ``self.minimumHeight()`` for the same reason: that is exactly the
-    value the stylesheet overwrites.
+    One class for every tab including Home. There used to be two — a
+    dense icon-beside-name row for Home and a tall card carrying the
+    app's one-line description everywhere else — and the difference
+    made the first tab read as a list and the rest as a launcher. The
+    description is gone with them: it was a third copy of a sentence
+    already on the tooltip and in the hint bar at the foot of the page,
+    and three lines of 11 px grey under every tile is what made the
+    tiles small enough to need two sizes in the first place.
 
-    ``name_px`` restyles the name label down from the 17 px "subtitle"
-    size. That size is what forces a 255 px minimum tile width — with a
-    300 px aside beside it, thirty tiles at 255 px would not fit the
-    page without scrolling. At 13 px the longest name ("Annotator
-    Agreement") needs about 205 px, which is what gets all thirty onto
-    one screen.
+    Deliberately **not** an :class:`HTile` subclass. ``HTile`` is a
+    horizontal row whose name and description live in a ``QLabel``
+    stack beside the button's own icon; this is a vertical stack with
+    the icon drawn as a child label. It has its own object name,
+    ``AppTile``, so the stylesheet can give it a height floor without
+    giving one to every horizontal tile in the app.
+
+    **Its height floor is in the QSS, not here, and that is not a
+    style choice.** ``setFixedSize`` does not survive polish, and
+    neither does answering through ``sizeHint`` /
+    ``minimumSizeHint``: the app stylesheet's blanket
+    ``QPushButton { min-height: 22px }`` becomes a real
+    ``setMinimumHeight(22)``, and ``qSmartMinSize`` lets an explicit
+    minimum override the hints. On a page that does not fit, every tile
+    then collapses to 22 px and paints its name over its icon. See
+    :data:`spacr.qt.theme.TILE_H`. The hints below are still worth
+    having — they are what the layout *prefers* — and
+    ``heightForWidth`` is overridden with them because
+    ``QWidgetItem::sizeHint`` reads it in preference to
+    ``sizeHint().height()`` whenever it is available.
+
+    :param stage: ``stable`` / ``beta`` / ``alpha``. Set as a Qt
+        property, which is what the stylesheet's
+        ``QPushButton#AppTile[stage="alpha"]:hover`` rule selects on. Set
+        *before* the widget is first polished, or the rule does not
+        apply until something else forces a repolish.
     """
-
-    def __init__(self, *args, tile_height: int = 66, name_px: int = 0,
-                 ink: str = "", **kwargs):
-        self._tile_height = int(tile_height)
-        super().__init__(*args, **kwargs)
-        if name_px and self._name_lbl is not None:
-            self._name_lbl.setStyleSheet(
-                f"font-size: {name_px}px; font-weight: 500;"
-                f"color: {ink or active_palette()['fg']};"
-                "background: transparent;")
-
-    def sizeHint(self) -> QSize:               # noqa: N802 (Qt casing)
-        base = super().sizeHint()
-        return QSize(base.width(), max(base.height(), self._tile_height))
-
-    def minimumSizeHint(self) -> QSize:        # noqa: N802
-        base = super().minimumSizeHint()
-        return QSize(base.width(), max(base.height(), self._tile_height))
-
-
-class TallTile(QPushButton):
-    """The category tabs' tile: icon over name over description.
-
-    The rail-and-pane card. Deliberately **not** an ``HTile`` subclass:
-    ``HTile`` is a horizontal row and its description lives in a
-    ``QLabel#HTileDesc``, which the Home layout contract says a
-    horizontal row must not carry. This is a different shape with a
-    different contract — a launcher card big enough to read the
-    one-line description off, which is the whole reason the categories
-    got their own tabs.
-
-    Sized through ``sizeHint``/``minimumSizeHint`` for the same reason
-    as :class:`DenseTile`.
-    """
-
-    #: Lines the one-line description is allowed to wrap into. Anything
-    #: longer is elided; the tooltip keeps the whole thing.
-    BLURB_LINES = 3
 
     def __init__(self, text: str, description: str = "",
                  icon: Optional[QIcon] = None, *, width: int, height: int,
-                 icon_px: int = 52, parent=None):
+                 icon_px: int = 52, stage: str = "stable", parent=None):
         super().__init__(parent)
         P = active_palette()
         self._text = text
+        self._stage = str(stage or "stable")
         self._size = QSize(int(width), int(height))
-        self.setObjectName("HTile")          # inherits the tile styling
+        self.setObjectName("AppTile")
+        self.setProperty("stage", self._stage)
         self.setCursor(Qt.PointingHandCursor)
         self.setAccessibleName(text)
-        self.setAccessibleDescription(description)
-        self.setToolTip(f"{text} — {description}" if description else text)
+        # The stage goes in the accessible description as a WORD, not
+        # only as a colour: a legend keyed on hue is no legend at all to
+        # a screen reader, and colour alone fails WCAG 1.4.1.
+        from ..theme import STAGE_LABEL
+        mark = STAGE_LABEL.get(self._stage, "")
+        self.setAccessibleDescription(
+            f"{mark} — {description}" if description and mark else
+            (description or mark))
+        self.setToolTip(
+            f"{text} ({mark.lower()}) — {description}" if description
+            else f"{text} ({mark.lower()})")
 
         col = QVBoxLayout(self)
-        # 10 px top/bottom, not 12: thirteen cards is four rows on a
-        # 1440x900 pane, and 2 px off each end of a card is 16 px across
-        # four rows — most of the ~25 that separated "fits" from "has a
-        # scrollbar" once the category note was added.
-        col.setContentsMargins(12, 10, 12, 10)
-        col.setSpacing(6)
+        col.setContentsMargins(10, 10, 10, 10)
+        col.setSpacing(8)
         col.addStretch(1)
 
         if icon is not None:
@@ -298,37 +275,39 @@ class TallTile(QPushButton):
         from .eliding import ElidingLabel
         name = ElidingLabel(text)
         name.setAlignment(Qt.AlignHCenter)
-        name.setFixedWidth(width - 24)
+        # `Ignored` horizontally, and added with NO alignment flag, so
+        # the layout hands it the tile's whole content width. Both halves
+        # matter:
+        #
+        # * ``setFixedWidth`` — the obvious way to write this, and what
+        #   this line used to be — leaves the label at that width with
+        #   ``WA_Resized`` still FALSE (``setMaximumSize`` restores the
+        #   flag after the resize it does internally). ``ElidingLabel``
+        #   deliberately does not elide before its first real layout
+        #   pass, so a fixed-width label never elides at all: a long name
+        #   is painted and cut off, which is the exact bug this widget
+        #   family exists to prevent.
+        # * an alignment flag would make QGridLayout/QBoxLayout give the
+        #   item only its ``sizeHint`` — which for an ElidingLabel is the
+        #   width of the FULL text — and the tile would be dragged wider
+        #   by its longest name.
+        name.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
         name.setStyleSheet(
             f"color: {P['fg']}; font-size: 14px; font-weight: 500;"
             "background: transparent;")
-        col.addWidget(name, 0, Qt.AlignHCenter)
+        col.addWidget(name)
         self._name_lbl = name
-
-        if description:
-            blurb = QLabel()
-            blurb.setWordWrap(True)
-            blurb.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
-            blurb.setFixedWidth(width - 24)
-            blurb.setStyleSheet(
-                f"color: {P['fg_muted']}; font-size: 11px;"
-                "background: transparent;")
-            blurb.ensurePolished()
-            from PySide6.QtGui import QFontMetrics
-            blurb.setText(elide_to_lines(description, blurb.font(),
-                                         width - 24, self.BLURB_LINES))
-            # A fixed height, so every card in a row is the same height
-            # and none of them can grow into its neighbour's space. The
-            # text was already shortened to fit it.
-            blurb.setFixedHeight(
-                QFontMetrics(blurb.font()).lineSpacing() * self.BLURB_LINES)
-            col.addWidget(blurb, 0, Qt.AlignHCenter)
         col.addStretch(1)
 
     @property
     def text_label(self) -> str:
         """The tile's app name, matching ``HTile.text_label``."""
         return self._text
+
+    @property
+    def stage(self) -> str:
+        """``stable`` / ``beta`` / ``alpha`` — what the hover colour says."""
+        return self._stage
 
     @property
     def name_label(self):
@@ -338,17 +317,8 @@ class TallTile(QPushButton):
         return self._name_lbl.is_elided()
 
     # -- geometry ------------------------------------------------------
-    #
-    # The wrapped description makes this widget height-for-width, and
-    # ``QWidgetItem::sizeHint`` *prefers* ``heightForWidth`` over
-    # ``sizeHint().height()`` whenever it is available. Overriding
-    # sizeHint alone therefore did nothing: the cards rendered 34 px
-    # shorter than asked for, and a longer blurb would have been
-    # silently clipped instead of given a taller card. So the floor goes
-    # into heightForWidth, where the layout actually reads it.
-
     def heightForWidth(self, width: int) -> int:   # noqa: N802
-        """At least the card height, more when the blurb needs more."""
+        """At least the tile height, more if a child somehow needs it."""
         natural = super().heightForWidth(width)
         return max(self._size.height(), natural)
 
@@ -823,6 +793,87 @@ class TotalsPanel(Panel):
         self.add(_row("Models", str(totals.get("models_recorded", 0))))
 
 
+class StageLegend(Panel):
+    """What the three hover colours mean. One row per stage.
+
+    Sits under the rest of the right-hand column because that is where
+    the user asked for it, and because it is the only panel there that
+    is not a number: it explains the tiles rather than reporting on the
+    machine, so it belongs at the end of the column rather than at the
+    top of it.
+
+    Each row draws the stage's hue as a filled swatch *and* names the
+    stage in words. Colour alone would fail WCAG 1.4.1 and would be
+    invisible to the colour-blind mode this app already ships — the
+    words are what make it a legend rather than a palette.
+
+    The rows are built from :data:`spacr.qt.theme.STAGE_HOVER`, which is
+    the same table the stylesheet builds the hover rules from, so the
+    swatch and the tile it explains cannot drift apart.
+    """
+
+    #: Side of the colour chip in px, at 100 % font scale.
+    SWATCH = 12
+
+    def __init__(self, parent=None):
+        super().__init__("Module state", parent)
+        from ..theme import STAGE_LABEL, STAGE_NOTE
+        self.header.setToolTip(
+            "Hover any module tile and it lights up in the colour of "
+            "how finished it is.")
+        self._rows: Dict[str, QWidget] = {}
+        # Least finished first: the row a user needs to have read before
+        # they trust a number is the one they should meet first.
+        for stage in ("alpha", "beta", "stable"):
+            row = self._legend_row(stage, self.swatch_colour(stage),
+                                   STAGE_LABEL[stage], STAGE_NOTE[stage])
+            self._rows[stage] = self.add(row)
+
+    def _legend_row(self, stage: str, colour: str, label: str,
+                    note: str) -> QWidget:
+        from ..preferences import scaled_px
+        P = active_palette()
+        row = QWidget()
+        row.setToolTip(note)
+        lay = QHBoxLayout(row)
+        lay.setContentsMargins(0, 0, 0, 0)
+        lay.setSpacing(SPACING["sm"])
+        side = scaled_px(self.SWATCH)
+        chip = QLabel()
+        name_id = f"StageSwatch_{stage}"
+        chip.setObjectName(name_id)
+        chip.setFixedSize(side, side)
+        # Filled with the hue and rimmed like the tiles, so the swatch
+        # is a small picture of the thing it stands for.
+        #
+        # The rule is scoped to the chip's own object name on purpose:
+        # ``Panel.add`` sets an unscoped ``background: transparent`` on
+        # the row this chip lives in, and an unscoped rule on a parent
+        # is exactly what strips the fill off its children.
+        chip.setStyleSheet(
+            f"QLabel#{name_id} {{ background: {colour};"
+            f" border: 1px solid {P['border']}; border-radius: 3px; }}")
+        name = QLabel(label)
+        name.setStyleSheet(f"color: {P['fg']}; font-size: 12px;"
+                           "font-weight: 500; background: transparent;")
+        lay.addWidget(chip)
+        lay.addWidget(name, 1)
+        return row
+
+    @staticmethod
+    def swatch_colour(stage: str) -> str:
+        """The hex this legend draws for ``stage``.
+
+        The same function the stylesheet builds the hover rules from, so
+        the swatch and the tile it explains cannot come apart.
+        """
+        from ..theme import stage_hover
+        return stage_hover(stage)
+
+    def row_for(self, stage: str) -> Optional[QWidget]:
+        return self._rows.get(stage)
+
+
 class NewsPanel(Panel):
     """What changed in this release — and the slot for it.
 
@@ -892,38 +943,33 @@ class HomePage(QWidget):
         builds a HomePage out of a handful of tuples wants.
     :param bands: optional ordered ``(title, [app key])`` for the Home
         tab. Same default. Kept separate from ``categories`` because the
-        two genuinely differ: an app is on Home once and can be on two
-        tabs. See the module docstring.
+        two answer different questions, even when — as today — they
+        return the same list. See the module docstring.
+    :param stages: optional app key → ``stable`` / ``beta`` / ``alpha``.
+        Becomes each tile's ``stage`` property, which is what the app
+        stylesheet turns into its hover colour, and what the legend at
+        the foot of the aside is drawn from. Anything missing is stable.
     """
 
     tile_clicked = Signal(str)
     #: Emitted when the page wants the window to run its update check.
     update_check_requested = Signal()
 
-    #: Category-tab card, at 100 % font scale — the rail-and-pane size:
-    #: big enough to carry the one-line description, which is the whole
-    #: point of giving each category its own tab.
+    #: The tile, at 100 % font scale. One size for every tab, and read
+    #: from :mod:`spacr.qt.theme` rather than written here, because the
+    #: stylesheet needs the same numbers — see
+    #: :data:`spacr.qt.theme.TILE_H` for why the height floor has to be
+    #: expressible in QSS.
     #:
-    #: 164, down from 172: the biggest category is now thirteen apps —
-    #: four rows at 1440x900 — and four rows of 172 plus a heading, a
-    #: note and a rule is 25 px more than the pane holds, i.e. a
-    #: scrollbar on the tab with the most to show.
-    #:
-    #: 164 is as low as this constant does anything: below it the card's
-    #: own contents (52 px icon, name, three-line blurb, margins) set the
-    #: height through ``TallTile.heightForWidth`` and the number is
-    #: ignored. It is a floor, never a clip — which is why the rest of
-    #: the room came out of the gaps around the cards instead.
-    TILE_MIN_W = 246
-    TILE_H = 164
-    TALL_ICON_PX = 52
-    #: Home-tab tile. Small name, small icon, five to a row — the size
-    #: that gets every app onto one screen next to the aside.
-    DENSE_TILE_W = 205
-    DENSE_TILE_MAX_W = 300
-    DENSE_TILE_H = 62
-    DENSE_ICON_PX = 40
-    DENSE_NAME_PX = 13
+    #: ``TILE_MAX_W`` is how far a tile may stretch to reach the
+    #: right-hand edge of its row. Without a cap, a band with two apps in
+    #: it draws two tiles half a metre wide; without any stretch at all
+    #: every row stops short of the pane's edge and the page reads as
+    #: sparse, which is the complaint that started this redesign.
+    TILE_MIN_W = TILE_W
+    TILE_MAX_W = TILE_MAX_W
+    TILE_H = TILE_H
+    TILE_ICON_PX = TILE_ICON_PX
 
     #: Right-hand column width. Fixed: it holds numbers, and a column of
     #: numbers that reflows on every window resize is unreadable.
@@ -938,21 +984,22 @@ class HomePage(QWidget):
         section_notes: Optional[Dict[str, str]] = None,
         categories: Optional[Sequence[Tuple[str, Sequence[str]]]] = None,
         bands: Optional[Sequence[Tuple[str, Sequence[str]]]] = None,
+        stages: Optional[Dict[str, str]] = None,
     ):
         super().__init__(parent)
         self._P = active_palette()
         self._apps = list(apps)
         self._icon_provider = icon_provider
         self._section_notes = dict(section_notes or {})
+        self._stages = dict(stages or {})
         self._by_key = {k: (k, n, d) for k, n, d, _s in self._apps}
         self._categories = self._grouping(categories)
         self._bands = self._grouping(bands)
         self._names = {k: n for k, n, _d, _s in self._apps}
         self._tile_hints: dict = {}
-        #: (holder, grid, tiles, tile_width, fill) per grid, so a resize
-        #: can rewrap each one at its own column width.
-        self._grids: List[Tuple[QWidget, QGridLayout, list, int,
-                        bool]] = []
+        #: (holder, grid, tiles, tile_width) per grid, so a resize can
+        #: rewrap each one at its own column width.
+        self._grids: List[Tuple[QWidget, QGridLayout, list, int]] = []
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
@@ -1076,17 +1123,22 @@ class HomePage(QWidget):
         tab. That is not a special case to maintain, it is the reason
         there is no empty pane to open when a category's last app moves
         elsewhere. What counts as a member is the registry's business —
-        see ``categories`` — and the answer is deliberately not "apps
-        whose section is this", or the three categories that staging
-        emptied would have vanished along with the question "where did
-        the format converter go".
+        see ``categories``.
         """
         self._tabs = QTabWidget()
         self._tabs.setObjectName("HomeTabs")
         # documentMode(True) suppresses the pane frame, and without the
         # frame the tab strip floats with nothing under it.
         self._tabs.setDocumentMode(False)
-        self._tabs.setStyleSheet(_tab_qss(self._P))
+        self._tabs.setStyleSheet(_tab_qss(self._P, self._pane_alpha()))
+        # The QStackedWidget QTabWidget keeps its pages in is a plain
+        # QWidget, and the blanket `QWidget { background-color: bg }`
+        # rule makes it paint the window colour over the ::pane it sits
+        # on. Every other layer between the pane and the tiles is tagged
+        # in `_scrolled`; this is the one that is not ours to construct.
+        from PySide6.QtWidgets import QStackedWidget
+        from ..theme import make_transparent
+        make_transparent(*self._tabs.findChildren(QStackedWidget))
 
         self._section_names = [title for title, _e in self._categories]
 
@@ -1115,18 +1167,21 @@ class HomePage(QWidget):
                                SPACING["md"], SPACING["sm"])
         col.setSpacing(SPACING["xs"])
 
+        width = scaled_px(self.TILE_MIN_W)
         for band, entries in self._bands:
             col.addWidget(self._band_header(band, len(entries)))
             holder = QWidget()
             grid = QGridLayout(holder)
-            grid.setContentsMargins(0, 0, 0, SPACING["sm"])
-            grid.setHorizontalSpacing(SPACING["sm"])
+            grid.setContentsMargins(0, 0, 0, SPACING["xs"])
+            # Tiles are packed tight — the rim is what separates them
+            # now, not the gap, so the gap only has to stop two rims
+            # touching and reading as one line.
+            grid.setHorizontalSpacing(SPACING["xs"])
             grid.setVerticalSpacing(SPACING["xs"])
-            tiles = [self._make_dense_tile(k, n, d) for k, n, d in entries]
-            self._grids.append((holder, grid, tiles,
-                                scaled_px(self.DENSE_TILE_W), True))
-            self._fill_grid(grid, tiles, self._columns_for(
-                self.width(), scaled_px(self.DENSE_TILE_W)))
+            tiles = [self._make_tile(k, n, d) for k, n, d in entries]
+            self._grids.append((holder, grid, tiles, width))
+            self._fill_grid(grid, tiles,
+                            self._columns_for(self.width(), width))
             col.addWidget(holder)
         col.addStretch(1)
         return self._scrolled(page)
@@ -1155,19 +1210,6 @@ class HomePage(QWidget):
         col.addWidget(Divider())
         return wrap
 
-    def _make_dense_tile(self, key: str, name: str, desc: str) -> DenseTile:
-        from ..preferences import scaled_px
-        icon = self._icon_provider(key) if self._icon_provider else None
-        tile = DenseTile(text=name, description="", icon=icon,
-                         icon_size=self.DENSE_ICON_PX,
-                         tile_height=scaled_px(self.DENSE_TILE_H),
-                         name_px=self.DENSE_NAME_PX, ink=self._P["fg"])
-        width = scaled_px(self.DENSE_TILE_W)
-        tile.setMinimumWidth(width)
-        tile.setMaximumWidth(max(width, scaled_px(self.DENSE_TILE_MAX_W)))
-        tile.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        return self._wire_tile(tile, key, desc)
-
     # -- tabs 2..6: one category each -----------------------------------
     def _build_category_tab(self, section: str,
                             entries: List[Tuple[str, str, str]]) -> QWidget:
@@ -1178,9 +1220,8 @@ class HomePage(QWidget):
         col.setContentsMargins(SPACING["md"], SPACING["sm"],
                                SPACING["md"], SPACING["sm"])
         # `xs`, not `sm`: the heading block, the rule and the grid are one
-        # unit, and the largest category (13 cards, four rows) fills the
-        # pane at 1440x900 with about 20 px to spare. Every gap above the
-        # grid is a gap that decides whether that tab scrolls.
+        # unit, and every gap above the grid is a gap that decides
+        # whether the biggest tab scrolls.
         col.setSpacing(SPACING["xs"])
 
         # Heading + note in one block on 2 px, so adding the note costs a
@@ -1216,31 +1257,33 @@ class HomePage(QWidget):
         holder = QWidget()
         grid = QGridLayout(holder)
         grid.setContentsMargins(0, SPACING["xs"], 0, 0)
-        # Rows sit closer than columns. The cards are already separated
-        # vertically by their own 12 px padding and by the fact that a
-        # row is a row; the horizontal gap is the one doing the work of
-        # telling two cards apart. Four rows at `sm` is 12 px this pane
-        # does not have.
-        grid.setHorizontalSpacing(SPACING["sm"])
+        # Packed tight, in both axes: each tile carries its own rim, so
+        # the gap no longer has to do the work of telling two of them
+        # apart — it only has to stop two rims reading as one line.
+        grid.setHorizontalSpacing(SPACING["xs"])
         grid.setVerticalSpacing(SPACING["xs"])
-        tiles = [self._make_tall_tile(k, n, d) for k, n, d in entries]
-        self._grids.append((holder, grid, tiles, scaled_px(self.TILE_MIN_W),
-                            False))
-        self._fill_grid(grid, tiles,
-                        self._columns_for(self.width(),
-                                          scaled_px(self.TILE_MIN_W)),
-                        fill=False)
+        width = scaled_px(self.TILE_MIN_W)
+        tiles = [self._make_tile(k, n, d) for k, n, d in entries]
+        self._grids.append((holder, grid, tiles, width))
+        self._fill_grid(grid, tiles, self._columns_for(self.width(), width))
         col.addWidget(holder)
         col.addStretch(1)
         return self._scrolled(page)
 
-    def _make_tall_tile(self, key: str, name: str, desc: str) -> TallTile:
+    def _make_tile(self, key: str, name: str, desc: str) -> AppTile:
+        """One tile. Same class, same size, on every tab."""
         from ..preferences import scaled_px
         icon = self._icon_provider(key) if self._icon_provider else None
-        tile = TallTile(name, desc, icon,
-                        width=scaled_px(self.TILE_MIN_W),
-                        height=scaled_px(self.TILE_H),
-                        icon_px=scaled_px(self.TALL_ICON_PX))
+        tile = AppTile(name, desc, icon,
+                       width=scaled_px(self.TILE_MIN_W),
+                       height=scaled_px(self.TILE_H),
+                       icon_px=scaled_px(self.TILE_ICON_PX),
+                       stage=self._stages.get(key, "stable"))
+        # Preferred/Fixed + a maximum: the tile widens to reach the edge
+        # of its column (see ``_fill_grid``) but stops at TILE_MAX_W, and
+        # never changes height.
+        tile.setMaximumWidth(scaled_px(self.TILE_MAX_W))
+        tile.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         return self._wire_tile(tile, key, desc)
 
     # -- shared ---------------------------------------------------------
@@ -1258,55 +1301,62 @@ class HomePage(QWidget):
         # No stylesheet on the scroll area: an unscoped
         # `background: transparent` on a QScrollArea cascades to every
         # descendant and strips the fill off the tiles inside it.
+        # `make_transparent` tags each widget with a property instead,
+        # and the QSS rule matches only widgets carrying it.
+        #
+        # This is what lets the pane's colour reach the eye. In the two
+        # opaque themes the blanket `QWidget { background-color: bg }`
+        # rule made this page — and its scroll viewport — paint the
+        # window colour straight over the rounded box behind them, so
+        # the box was a border around nothing and the opacity preference
+        # could not have shown a difference at any setting.
+        from ..theme import make_transparent
+        make_transparent(page, scroll)
         scroll.viewport().setAutoFillBackground(False)
         scroll.setWidget(page)
         return scroll
 
     @staticmethod
-    def _fill_grid(grid: QGridLayout, tiles: list, columns: int,
-                   fill: bool = True) -> None:
+    def _fill_grid(grid: QGridLayout, tiles: list, columns: int) -> None:
         """(Re)place ``tiles`` into ``columns`` columns, packed to the top.
 
         Rows get zero stretch and one extra row takes all of it,
         otherwise QGridLayout shares the leftover height between the rows
         and the tiles drift apart down the page.
 
-        :param fill: when True the tiles widen to their column (up to
-            their own maximum), so a row reaches both edges instead of
-            leaving a ragged gap after each tile — the difference
-            between a page that reads as full and one that reads as
-            sparse. Fixed-size cards pass False and pack to the left.
+        The tiles widen to their column, up to ``AppTile``'s own maximum,
+        so a row reaches both edges instead of leaving a ragged gap after
+        each tile — the difference between a page that reads as full and
+        one that reads as sparse. There used to be a second mode that
+        packed fixed-size cards to the left; every tile is the same class
+        now and every grid wants the same behaviour, so the flag went
+        with the second tile size.
         """
         for tile in tiles:
             grid.removeWidget(tile)
-        # No alignment flags at all in fill mode: QGridLayout gives an
-        # *aligned* item exactly its sizeHint and positions it in the
-        # cell, so even Qt.AlignTop alone leaves a 205 px tile sitting in
-        # a 262 px column with a gap after it. Unaligned, the item is
-        # handed the whole cell; the tile's Fixed vertical policy keeps
-        # the height, and its maximumWidth caps how far it stretches.
-        align = Qt.Alignment() if fill else (Qt.AlignLeft | Qt.AlignTop)
+        # No alignment flags at all: QGridLayout gives an *aligned* item
+        # exactly its sizeHint and positions it in the cell, so even
+        # Qt.AlignTop alone leaves a 172 px tile sitting in a 205 px
+        # column with a gap after it. Unaligned, the item is handed the
+        # whole cell; the tile's Fixed vertical policy keeps the height,
+        # and its maximumWidth caps how far it stretches.
         rows = 0
         for index, tile in enumerate(tiles):
             rows = index // columns
-            grid.addWidget(tile, rows, index % columns, align)
+            grid.addWidget(tile, rows, index % columns)
         for row in range(grid.rowCount()):
             grid.setRowStretch(row, 0)
         grid.setRowStretch(rows + 1, 1)
         # Stretch is set over `columns` columns even when fewer are
         # occupied. ``grid.columnCount()`` counts columns that HAVE an
-        # item, so a band with a single app (Toxoplasma, once the other
-        # assays were staged) got one column, that column took the whole
-        # width, and the unaligned fill-mode tile floated to the middle
-        # of the page under a left-aligned heading. Naming the empty
-        # columns puts the tile back at the left edge where the heading
-        # is.
+        # item, so a band with a single app got one column, that column
+        # took the whole width, and the unaligned tile floated to the
+        # middle of the page under a left-aligned heading. Naming the
+        # empty columns puts the tile back at the left edge where the
+        # heading is.
         span = max(grid.columnCount(), columns)
         for column in range(span):
-            if fill:
-                grid.setColumnStretch(column, 1 if column < columns else 0)
-            else:
-                grid.setColumnStretch(column, 0 if column < columns else 1)
+            grid.setColumnStretch(column, 1 if column < columns else 0)
 
     def _columns_for(self, width: int, tile_w: int) -> int:
         """How many ``tile_w``-wide tiles fit beside the aside.
@@ -1318,7 +1368,26 @@ class HomePage(QWidget):
         available = max(1, width - scaled_px(self.ASIDE_W)
                         - SPACING["xl"] * 2 - SPACING["lg"]
                         - SPACING["md"] * 2 - 4)
-        return max(1, min(6, available // (tile_w + SPACING["sm"])))
+        # No cap at six any more: the tiles are 172 px, and capping the
+        # count is how a wide window ends up with a row that stops
+        # two-thirds of the way across and a page that reads as empty.
+        return max(1, available // (tile_w + SPACING["xs"]))
+
+    @staticmethod
+    def _pane_alpha() -> float:
+        """Opacity of the rounded box behind the tiles.
+
+        The user's ``pane_opacity`` preference, already clamped up to the
+        theme's legibility floor by
+        :func:`spacr.qt.preferences.effective_pane_alpha`. Falls back to
+        fully opaque — what the page looked like before the preference
+        existed — if preferences cannot be read at all.
+        """
+        try:
+            from ..preferences import effective_pane_alpha
+            return effective_pane_alpha()
+        except Exception:
+            return 1.0
 
     def _build_aside(self) -> QWidget:
         from ..preferences import scaled_px
@@ -1335,12 +1404,18 @@ class HomePage(QWidget):
         self._news = NewsPanel(self._version())
         self._news.check_requested.connect(self.update_check_requested)
         self._totals = TotalsPanel()
+        self._legend = StageLegend()
 
         for panel in (self._queued, self._recent, self._system,
-                      self._news, self._totals):
+                      self._news, self._totals, self._legend):
             col.addWidget(panel)
         col.addStretch(1)
         return aside
+
+    @property
+    def legend(self) -> "StageLegend":
+        """The colour-to-maturity key at the foot of the right column."""
+        return self._legend
 
     @staticmethod
     def _version() -> str:
@@ -1385,10 +1460,9 @@ class HomePage(QWidget):
     # -- events --------------------------------------------------------
     def resizeEvent(self, event):               # noqa: N802
         super().resizeEvent(event)
-        for _holder, grid, tiles, tile_w, fill in self._grids:
+        for _holder, grid, tiles, tile_w in self._grids:
             self._fill_grid(grid, tiles,
-                            self._columns_for(self.width(), tile_w),
-                            fill=fill)
+                            self._columns_for(self.width(), tile_w))
 
     def eventFilter(self, obj, event):          # noqa: N802
         if event.type() == QEvent.Enter:
@@ -1408,16 +1482,28 @@ class HomePage(QWidget):
         super().closeEvent(event)
 
 
-def _tab_qss(P: dict) -> str:
+def _tab_qss(P: dict, pane_alpha: float = 1.0) -> str:
+    """QSS for the Home tab widget.
+
+    :param pane_alpha: opacity of the rounded box behind the tiles. This
+        is the user's ``pane_opacity`` preference *after*
+        :func:`spacr.qt.theme.pane_alpha` has clamped it up to the
+        theme's legibility floor, so it is safe to paint as given.
+
+    The pane is a *surface*, not the page background. It used to be
+    ``bg`` on the reasoning that the tiles were drawn on ``surface`` and
+    a surface pane would erase the only separation they had. The tiles
+    now carry their own rim, so the separation no longer comes from the
+    fill — and a pane painted in ``bg`` is a box the same colour as the
+    window, i.e. a preference for its opacity that could never show a
+    difference on the two opaque themes.
+    """
+    from ..theme import css_color
     return f"""
-/* The pane keeps the PAGE background, not a surface colour: the tiles
-   are themselves drawn on `surface`, and a surface pane behind them
-   would erase the only separation they have. All the pane contributes
-   is an edge, so the tab strip has something to sit on. */
 QTabWidget#HomeTabs::pane {{
     border: 1px solid {P['border_soft']};
     border-radius: 8px;
-    background: {P['bg']};
+    background: {css_color(P['surface'], pane_alpha)};
     top: -1px;
 }}
 QTabWidget#HomeTabs > QTabBar::tab {{
