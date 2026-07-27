@@ -26,6 +26,16 @@ Streaming state
 ---------------
 The panel owns the AI thread+worker itself so state stays coherent
 even as the user switches between pipeline apps.
+
+Threading
+---------
+Every entry in this console is a QWidget, so every method that appends
+one has to run on the GUI thread. Log records do not: Python's logging
+module calls handlers inline on whatever thread logged, and a pipeline
+worker logging a warning used to reach :meth:`ConsolePanel.append_stdout`
+directly. :meth:`ConsolePanel.append_stdout` and
+:meth:`ConsolePanel.append_error` therefore bounce off-thread calls back
+through a queued signal instead of building the widget where they stand.
 """
 from __future__ import annotations
 
@@ -50,17 +60,61 @@ from .. import iconset
 from ..ai import settings as ai_settings
 from ..ai.providers import ChatProvider
 from ..ai.worker import StreamWorker, make_stream_thread
-from ..theme import FONT_SIZE, PALETTE, SPACING
+from ..theme import FONT_SIZE, SPACING, active_palette
 
 
 # ---------------------------------------------------------------------------
 # Console text colours (per the output type) — we colour the *text*, not the
 # background, so there are no coloured boxes.
+#
+# Resolved through `active_palette()` on every call rather than captured
+# at import time. They used to be three module-level constants read off
+# `theme.PALETTE`, which is the frozen DARK palette, so the console
+# painted the same dark chrome on every theme. Measured on light:
+# `_StdoutBlock` filled itself `#161719` inside a `#fafafa` page (a black
+# rectangle in a white one), and `_Bubble` inked `#ffffff` text on the
+# `#dbe8fb` bubble the app stylesheet paints — 1.24:1. Now 15.59:1.
+#
+# `COLOR_OUTPUT` / `COLOR_USER` / `COLOR_ERROR` are still importable —
+# module __getattr__ below serves them live — because they read well at
+# the call sites and existing callers spell them that way.
 # ---------------------------------------------------------------------------
 
-COLOR_OUTPUT = PALETTE["accent"]    # spaCR output  → blue   (#4A9EFF)
-COLOR_USER   = PALETTE["success"]   # user input    → green  (#3fb950)
-COLOR_ERROR  = PALETTE["error"]     # errors        → red    (#f85149)
+#: Palette role behind each of the three legacy ``COLOR_*`` names.
+_TEXT_ROLES = {
+    "COLOR_OUTPUT": "accent",     # spaCR output  → blue
+    "COLOR_USER":   "success",    # user input    → green
+    "COLOR_ERROR":  "error",      # errors        → red
+}
+
+
+def color_output() -> str:
+    """Pipeline stdout colour for the theme on screen right now."""
+    return active_palette()["accent"]
+
+
+def color_user() -> str:
+    """User-input colour for the theme on screen right now."""
+    return active_palette()["success"]
+
+
+def color_error() -> str:
+    """Error colour for the theme on screen right now."""
+    return active_palette()["error"]
+
+
+def __getattr__(name: str) -> str:
+    """Serve ``COLOR_OUTPUT`` / ``COLOR_USER`` / ``COLOR_ERROR`` live.
+
+    PEP 562. Reading one of the three resolves it against the current
+    theme, so ``from ...console_panel import COLOR_USER`` can no longer
+    freeze a dark-theme hex into a caller at import time.
+    """
+    role = _TEXT_ROLES.get(name)
+    if role is None:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    return active_palette()[role]
+
 
 # spaCR AI text colour depends on the backing provider.
 AI_COLOR_CLAUDE = "#DE7356"         # Anthropic terracotta / peach
@@ -186,12 +240,13 @@ class _StdoutBlock(QLabel):
         # Colour the TEXT (not a coloured box): each output type gets its own
         # foreground colour while the block background stays neutral.
         if text_color is None:
-            text_color = COLOR_ERROR if error else COLOR_OUTPUT
+            text_color = color_error() if error else color_output()
         self.setStyleSheet(
             "QLabel#%s { color: %s; background-color: %s; "
             "font-family: 'JetBrains Mono','Menlo','Consolas',monospace; "
             "padding: %dpx %dpx; }" % (
-                self.objectName(), text_color, PALETTE["surface_alt"],
+                self.objectName(), text_color,
+                active_palette()["surface_alt"],
                 SPACING["sm"], SPACING["md"]))
         self._buf: List[str] = []
         if text:
@@ -243,7 +298,7 @@ class _Bubble(QFrame):
         self._label.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
         self._label.setStyleSheet(
             "QLabel#ConsoleBubbleText {"
-            f"  color: {PALETTE['fg']};"
+            f"  color: {active_palette()['fg']};"
             f"  font-size: {FONT_SIZE['body']}px;"
             "  background: transparent;"
             "  border: none;"
@@ -360,6 +415,15 @@ class ConsolePanel(QWidget):
     # actions row can flip a Cancel button back to something else.
     ai_stream_finished = Signal()
 
+    #: Internal relays used by :meth:`append_stdout` / :meth:`append_error`
+    #: to hop a call made on a worker thread onto the thread that owns
+    #: this widget. Both are connected to the very method that emits
+    #: them — a bound method of this QObject, so Qt queues the delivery
+    #: rather than running it inline — and the second entry finds itself
+    #: on the GUI thread and falls through to the real body.
+    _relay_stdout = Signal(str)
+    _relay_error = Signal(str)
+
     def __init__(self, active_app_label: str = "", parent=None):
         super().__init__(parent)
         self.setObjectName("ConsolePanel")
@@ -386,6 +450,11 @@ class ConsolePanel(QWidget):
         # what causes `QThread: Destroyed while thread '' is still
         # running / Aborted` on the second consecutive AI request).
         self._retired: List = []
+
+        # Wired before anything can append: a log record can arrive the
+        # instant this panel is registered as the console target.
+        self._relay_stdout.connect(self.append_stdout)
+        self._relay_error.connect(self.append_error)
 
         self._build_ui()
         # Pipe records from the global logger into this console. Every
@@ -521,6 +590,18 @@ class ConsolePanel(QWidget):
     def _needs_topic(self, kind: str) -> bool:
         return self._last_entry_kind != kind
 
+    def _on_gui_thread(self) -> bool:
+        """True when the caller is on the thread that owns this widget.
+
+        Everything this panel appends is a QWidget, and Qt only allows a
+        QWidget to be built on the GUI thread. Python's logging module
+        does not care: it runs handlers inline on whatever thread logged
+        the record, so a pipeline worker's ``LOG.warning`` used to land
+        in :meth:`append_stdout` on the worker thread and construct a
+        ``_TopicBar`` there.
+        """
+        return QThread.currentThread() is self.thread()
+
     # ------------------------------------------------------------------
     # Public: pipeline hooks
     # ------------------------------------------------------------------
@@ -555,15 +636,24 @@ class ConsolePanel(QWidget):
         self._current_stdout = None
 
     def append_stdout(self, text: str) -> None:
-        """Append pipeline output as blue text under a 'spaCR output' banner."""
+        """Append pipeline output as blue text under a 'spaCR output' banner.
+
+        Safe to call from any thread: an off-thread call is re-posted to
+        the GUI thread through :attr:`_relay_stdout` and returns without
+        touching a widget. See :meth:`_on_gui_thread`.
+        """
         if not text:
+            return
+        if not self._on_gui_thread():
+            self._relay_stdout.emit(text)
             return
         if self._current_stdout is None:
             # Open a "spaCR output — <module> — <function>" banner + a fresh
             # blue-text block. Reused until a different entry type breaks it.
+            accent = color_output()
             self.begin_topic(self._output_banner("spaCR output"),
-                             accent=COLOR_OUTPUT)
-            self._current_stdout = _StdoutBlock(text_color=COLOR_OUTPUT)
+                             accent=accent)
+            self._current_stdout = _StdoutBlock(text_color=accent)
             self._insert_entry(self._current_stdout)
             self._last_entry_kind = "stdout"
         self._current_stdout.append(text)
@@ -583,11 +673,17 @@ class ConsolePanel(QWidget):
         banner.
 
         :param tb: traceback text; empty strings are ignored.
+
+        Thread-safe in the same way as :meth:`append_stdout`.
         """
         if not tb:
             return
-        self.begin_topic(self._output_banner("spaCR ERROR"), accent=COLOR_ERROR)
-        block = _StdoutBlock(tb, error=True, text_color=COLOR_ERROR)
+        if not self._on_gui_thread():
+            self._relay_error.emit(tb)
+            return
+        red = color_error()
+        self.begin_topic(self._output_banner("spaCR ERROR"), accent=red)
+        block = _StdoutBlock(tb, error=True, text_color=red)
         self._insert_entry(block)
         self._last_entry_kind = "stdout"
 
@@ -636,8 +732,9 @@ class ConsolePanel(QWidget):
 
     def _append_user(self, text: str) -> None:
         """Insert a 'spaCR user' banner + green user text."""
-        self.begin_topic("spaCR user", accent=COLOR_USER)
-        block = _StdoutBlock(text, text_color=COLOR_USER)
+        green = color_user()
+        self.begin_topic("spaCR user", accent=green)
+        block = _StdoutBlock(text, text_color=green)
         self._insert_entry(block)
         self._current_stdout = None
         self._last_entry_kind = "user"

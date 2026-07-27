@@ -257,22 +257,58 @@ class TestPanel:
 # ---------------------------------------------------------------------------
 
 class TestModelAwareOptions:
-    def test_cpsam_disables_only_diameter_in_dialog(self, qtbot):
-        # Cellpose-SAM auto-estimates object size, so only the diameter is
-        # ignored; flow threshold + cell probability remain in use.
+    def test_cpsam_leaves_every_segmentation_knob_live(self, qtbot):
+        """cpsam greys nothing out in the Segmentation group.
+
+        This test used to be ``test_cpsam_disables_only_diameter_in_dialog``
+        and asserted ``not panel._diameter.isEnabled()`` — it pinned the
+        bug. The premise ("Cellpose-SAM auto-estimates object size") is
+        false: ``CellposeModel._run_cp`` in cellpose 4.0.7 runs
+        ``image_scaling = 30. / diameter`` whenever diameter is not None.
+        Measured on an RTX 3090 over a real 1994x1994 micrograph with
+        cpsam, flow 0.4, cellprob 0.0 — unset: 66 cells / 65 nuclei;
+        diameter 60: 71 / 63. The dialog was disabling a control that
+        measurably changes the result.
+
+        ``diameter=30`` gives the same masks as unset, because 30/30 is a
+        no-op rescale. That is the only reason the control ever looked
+        inert.
+        """
         panel = live_preview.LivePreviewPanel()
         qtbot.addWidget(panel)
         panel._model_box.setCurrentIndex(panel._model_box.findText("cpsam"))
         panel.open_live_settings()
         try:
-            assert not panel._diameter.isEnabled(), (
-                "diameter should be disabled for cpsam")
+            assert panel._diameter.isEnabled(), (
+                "cpsam rescales by 30/diameter — the control must stay live")
             assert panel._flow.isEnabled(), (
                 "flow threshold should stay enabled for cpsam")
             assert panel._prob.isEnabled(), (
                 "cell probability should stay enabled for cpsam")
         finally:
             panel._live_settings_dialog.close()
+
+    def test_the_diameter_tooltip_does_not_claim_cpsam_ignores_it(self,
+                                                                  qtbot):
+        """The tooltip is the other half of the lie, and it is shipped UI.
+
+        It read "Ignored by Cellpose-SAM" while the dialog was open on
+        cpsam. Both the resting tooltip and the one ``refresh_visibility``
+        installs must say what Cellpose 4 actually does.
+        """
+        panel = live_preview.LivePreviewPanel()
+        qtbot.addWidget(panel)
+        assert panel._diameter.toolTip() == live_preview.DIAMETER_TOOLTIP
+
+        panel._model_box.setCurrentIndex(panel._model_box.findText("cpsam"))
+        panel.open_live_settings()
+        try:
+            tip = panel._diameter.toolTip()
+        finally:
+            panel._live_settings_dialog.close()
+
+        assert "ignored by cellpose-sam" not in tip.lower()
+        assert "30/diameter" in tip
 
     def test_legacy_model_enables_all_options(self, qtbot):
         panel = live_preview.LivePreviewPanel()

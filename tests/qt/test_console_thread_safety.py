@@ -1,0 +1,335 @@
+"""A log record from a worker thread must not build a QWidget there.
+
+Python's logging module calls handlers **inline, on whatever thread
+logged the record**. :class:`spacr.qt.widgets.console_panel.ConsolePanel`
+answers ``append_stdout`` by constructing widgets — a ``_TopicBar`` and a
+``_StdoutBlock``. Qt forbids constructing a QWidget anywhere but the GUI
+thread, so the two facts together were a crash waiting for a caller.
+
+The caller was
+:meth:`spacr.qt.hf_download._HFDownloadWorker.run`, whose failure path
+does ``LOG.warning(..., exc_info=True)`` from inside the download thread::
+
+    worker thread -> logging.warning
+                  -> verbose_logger._ConsoleForwarder.emit
+                  -> ConsolePanel.append_stdout
+                  -> begin_topic -> _TopicBar(...)      # QWidget, wrong thread
+
+Measured before the fix, driving the real ``download_toxo_mito_demo``
+against a ``_list_files`` that raises: Qt printed ``QObject::setParent:
+Cannot set parent, new parent is in a different thread`` twice and both
+console entries were constructed on the download thread. It killed the
+test process at
+``test_hf_download.py::test_demo_download_reports_a_network_failure_through_the_callback``
+when that test ran after the rest of the suite, and passed in isolation.
+
+Two independent layers are asserted here, because either one alone would
+leave a hole:
+
+1. :class:`spacr.qt.verbose_logger._ConsoleRelay` hops the formatted line
+   onto the GUI thread through a queued signal, so nothing downstream of
+   the logging handler runs on the worker thread.
+2. ``ConsolePanel.append_stdout`` / ``append_error`` re-post themselves
+   when they are entered off-thread, so *any* caller is safe — not just
+   the logging one.
+"""
+from __future__ import annotations
+
+import logging
+import threading
+from pathlib import Path
+
+import pytest
+
+from PySide6.QtCore import QCoreApplication, QThread
+from PySide6.QtWidgets import QWidget
+from shiboken6 import isValid       # ships with PySide6
+
+from spacr.qt import hf_download as hf
+from spacr.qt import verbose_logger as vl
+from spacr.qt.widgets import console_panel as cp
+
+
+@pytest.fixture(autouse=True)
+def _restore_console_target():
+    """``_console_ref`` is process-wide; never leak a panel between tests."""
+    before = vl._console_ref
+    yield
+    vl._console_ref = before
+
+
+@pytest.fixture
+def widget_threads(monkeypatch):
+    """Record the thread every console entry widget is constructed on."""
+    seen: list = []
+    for cls in (cp._TopicBar, cp._StdoutBlock):
+        original = cls.__init__
+
+        def spy(self, *args, _orig=original, _name=cls.__name__, **kwargs):
+            seen.append((_name, threading.get_ident()))
+            return _orig(self, *args, **kwargs)
+        monkeypatch.setattr(cls, "__init__", spy)
+    return seen
+
+
+def _off_gui(seen, gui_thread):
+    return [entry for entry in seen if entry[1] != gui_thread]
+
+
+# ===========================================================================
+# 1. The reported crash, end to end
+# ===========================================================================
+
+def test_a_failed_download_logs_from_its_worker_thread(qtbot, tmp_path,
+                                                       monkeypatch,
+                                                       widget_threads):
+    """The whole path, driven by the shipped entry point.
+
+    ``download_toxo_mito_demo`` -> worker thread -> ``LOG.warning`` ->
+    console. The console entries must exist (the user has to see the
+    failure) and must have been built on the GUI thread.
+    """
+    gui_thread = threading.get_ident()
+    panel = cp.ConsolePanel("mask")
+    qtbot.addWidget(panel)
+    vl.register_console_target(panel)
+
+    def offline(repo, sub):
+        raise ConnectionError("Max retries exceeded with url: /api/datasets")
+    monkeypatch.setattr(hf, "_list_files", offline)
+
+    parent = QWidget()
+    qtbot.addWidget(parent)
+    outcome: list = []
+    hf.download_toxo_mito_demo(parent, tmp_path,
+                               lambda r, e: outcome.append((r, e)))
+    qtbot.waitUntil(lambda: bool(outcome), timeout=10000)
+    # The relay is queued — let the GUI thread drain it.
+    qtbot.waitUntil(lambda: bool(widget_threads), timeout=10000)
+
+    assert outcome[0][0] is None
+    assert "Max retries exceeded" in outcome[0][1]
+    assert not _off_gui(widget_threads, gui_thread), (
+        "console entries were constructed off the GUI thread: "
+        f"{_off_gui(widget_threads, gui_thread)}")
+    text = " ".join(b.text() for b in panel.findChildren(cp._StdoutBlock))
+    assert "hf download failed" in text, \
+        "the user never saw the download failure"
+
+
+def test_the_download_worker_is_never_scheduled_for_deletion(qtbot, tmp_path,
+                                                             monkeypatch):
+    """``thread.finished.connect(worker.deleteLater)`` is the measured bug.
+
+    :func:`spacr.qt.bridge.make_thread` documents it: the worker's
+    affinity is the worker thread, so the deferred delete is flushed by
+    a loop that is shutting down while the GUI thread still holds the
+    only Python reference. Two owners, one object. Chaining off
+    ``thread.finished`` instead of ``worker.finished`` was measured at 2
+    crashes in 20 runs and is *not* a fix.
+
+    So: once the flow is over and the thread has exited, the worker's
+    C++ half is still alive. Python frees it, on the thread that holds
+    it.
+    """
+    monkeypatch.setattr(hf, "_list_files", lambda repo, sub: [])
+    parent = QWidget()
+    qtbot.addWidget(parent)
+    outcome: list = []
+    hf.download_toxo_mito_demo(parent, tmp_path,
+                               lambda r, e: outcome.append((r, e)))
+    worker = parent._hf_download_worker      # keep it alive ourselves
+    thread = parent._hf_download_thread
+
+    qtbot.waitUntil(lambda: bool(outcome), timeout=10000)
+    qtbot.waitUntil(lambda: not thread.isRunning(), timeout=10000)
+    qtbot.wait(50)                           # let any deferred delete flush
+
+    assert isValid(worker), (
+        "the worker's C++ half was deleted while Python still held it — "
+        "someone re-added worker.deleteLater")
+
+
+# ===========================================================================
+# 2. The relay
+# ===========================================================================
+
+def test_the_relay_lives_on_the_gui_thread_even_if_built_elsewhere(qapp,
+                                                                   monkeypatch):
+    """Affinity must not depend on which thread logged first.
+
+    A worker thread can be the first to touch the relay (that is exactly
+    the crashing scenario), and an object created there would deliver
+    inline on that thread — the bug, reintroduced through the fix.
+    """
+    monkeypatch.setattr(vl, "_relay", None)
+    built: dict = {}
+
+    class Builder(QThread):
+        def run(self):
+            built["relay"] = vl._ensure_relay()
+
+    t = Builder()
+    t.start()
+    assert t.wait(10000)
+
+    relay = built["relay"]
+    assert relay is vl._ensure_relay(), "the relay is not a singleton"
+    assert relay.thread() is qapp.thread()
+    assert relay.thread() is not t
+
+
+def test_a_record_logged_off_thread_reaches_the_console_on_the_gui_thread(
+        qtbot, widget_threads):
+    """The logging handler itself, without the download machinery."""
+    gui_thread = threading.get_ident()
+    panel = cp.ConsolePanel()
+    qtbot.addWidget(panel)
+    vl.register_console_target(panel)
+    vl._ensure_handler()
+
+    class Logger(QThread):
+        def run(self):
+            logging.getLogger("spacr.qt.hf_download").warning(
+                "worker-thread breadcrumb")
+
+    t = Logger()
+    t.start()
+    assert t.wait(10000)
+
+    qtbot.waitUntil(lambda: bool(widget_threads), timeout=10000)
+    assert not _off_gui(widget_threads, gui_thread)
+    text = " ".join(b.text() for b in panel.findChildren(cp._StdoutBlock))
+    assert "worker-thread breadcrumb" in text
+
+
+def test_a_record_logged_on_the_gui_thread_is_delivered_synchronously():
+    """Direct connection on the GUI thread — no event-loop round trip.
+
+    The console is where a user watches a run; a queued hop for every
+    line would reorder output against anything appended directly.
+    """
+    class FakeConsole:
+        def __init__(self):
+            self.lines: list = []
+
+        def append_stdout(self, text):
+            self.lines.append(text)
+
+    fake = FakeConsole()
+    vl.register_console_target(fake)
+    vl._ensure_handler()
+    logging.getLogger("spacr.qt.hf_download").warning("same-thread line")
+    assert any("same-thread line" in line for line in fake.lines)
+
+
+def test_a_collected_console_target_is_dropped_rather_than_resurrected():
+    """The weak reference still holds after the relay was introduced."""
+    class FakeConsole:
+        def append_stdout(self, text):
+            raise AssertionError("delivered to a dead console")
+
+    vl.register_console_target(FakeConsole())     # no strong reference kept
+    vl._ensure_handler()
+    import gc
+    gc.collect()
+    logging.getLogger("spacr.qt.hf_download").warning("into the void")
+
+
+def test_the_relay_swallows_an_exploding_console(qtbot):
+    """A broken console must never take the logging call down with it."""
+    class Angry:
+        def append_stdout(self, text):
+            raise RuntimeError("Internal C++ object already deleted.")
+
+    angry = Angry()
+    vl.register_console_target(angry)
+    vl._ensure_handler()
+    logging.getLogger("spacr.qt.hf_download").warning("boom")
+
+    # And a target with no append_stdout at all is simply skipped.
+    class Mute:
+        pass
+    mute = Mute()
+    vl.register_console_target(mute)
+    logging.getLogger("spacr.qt.hf_download").warning("also fine")
+
+
+# ===========================================================================
+# 3. The panel's own guard
+# ===========================================================================
+
+@pytest.mark.parametrize("method,probe", [
+    ("append_stdout", "stdout from a worker"),
+    ("append_error", "Traceback from a worker"),
+])
+def test_the_panel_reposts_an_off_thread_append(qtbot, widget_threads,
+                                                method, probe):
+    """Any caller, not just the logging one, is bounced to the GUI thread."""
+    gui_thread = threading.get_ident()
+    panel = cp.ConsolePanel()
+    qtbot.addWidget(panel)
+
+    class Caller(QThread):
+        def run(self):
+            getattr(panel, method)(probe)
+
+    t = Caller()
+    t.start()
+    assert t.wait(10000)
+
+    qtbot.waitUntil(lambda: bool(widget_threads), timeout=10000)
+    assert not _off_gui(widget_threads, gui_thread)
+    text = " ".join(b.text() for b in panel.findChildren(cp._StdoutBlock))
+    assert probe in text
+
+
+def test_the_guard_reports_the_gui_thread_correctly(qtbot):
+    """``_on_gui_thread`` is the whole fix — assert it directly."""
+    panel = cp.ConsolePanel()
+    qtbot.addWidget(panel)
+    assert panel._on_gui_thread() is True
+
+    answers: list = []
+
+    class Asker(QThread):
+        def run(self):
+            answers.append(panel._on_gui_thread())
+
+    t = Asker()
+    t.start()
+    assert t.wait(10000)
+    assert answers == [False]
+
+
+def test_an_empty_append_is_still_a_no_op_from_a_worker_thread(qtbot,
+                                                               widget_threads):
+    """The empty-string early return must come before the relay hop."""
+    panel = cp.ConsolePanel()
+    qtbot.addWidget(panel)
+
+    class Caller(QThread):
+        def run(self):
+            panel.append_stdout("")
+            panel.append_error("")
+
+    t = Caller()
+    t.start()
+    assert t.wait(10000)
+    qtbot.wait(100)
+    assert widget_threads == []
+
+
+def test_hf_download_still_reports_the_failure_text(qapp, tmp_path,
+                                                    monkeypatch, caplog):
+    """The warning that triggers all of this is worth keeping."""
+    monkeypatch.setattr(
+        hf, "_list_files",
+        lambda repo, sub: (_ for _ in ()).throw(ConnectionError("no dns")))
+    worker = hf._HFDownloadWorker(Path(tmp_path))
+    seen: list = []
+    worker.finished.connect(lambda *a: seen.append(a))
+    with caplog.at_level(logging.WARNING, logger="spacr.qt.hf_download"):
+        worker.run()
+    assert seen == [(False, "", "", "no dns")]
+    assert any("hf download failed" in r.message for r in caplog.records)

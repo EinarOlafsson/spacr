@@ -17,13 +17,33 @@ record fires mid-toggle.
 Design:
 
 * One :class:`_ConsoleForwarder` handler is added to the root ``spacr``
-  logger (and to ``spacr.qt``). Its emit() forwards to whatever
-  ConsolePanel is registered via :func:`register_console_target`.
+  logger (and to ``spacr.qt``). Its emit() hands the formatted line to
+  :class:`_ConsoleRelay`, which delivers it to whatever ConsolePanel is
+  registered via :func:`register_console_target`.
 * Registration is a weak reference to avoid keeping a closed screen
   alive. If the target has been garbage-collected the record is
   silently dropped.
 * Level and format are set once at first registration; only the
   ``verbose`` gate flips DEBUG ↔ INFO afterwards.
+
+.. warning::
+
+   ``emit()`` runs on **whatever thread logged the record** — Python's
+   logging module calls handlers inline. A ConsolePanel answers
+   ``append_stdout`` by *constructing QWidgets* (a topic bar and a text
+   block), and Qt forbids building a QWidget anywhere but the GUI
+   thread. Calling the panel straight from ``emit()`` therefore built
+   widgets on a worker thread; Qt printed ``QObject::setParent: Cannot
+   set parent, new parent is in a different thread`` and then took the
+   process down. It was reproducible from
+   :meth:`spacr.qt.hf_download._HFDownloadWorker.run`, whose exception
+   path logs a warning from inside the download thread.
+
+   :class:`_ConsoleRelay` is the fix: a QObject pinned to the GUI
+   thread whose ``line`` signal is connected to its own **bound
+   method**, so Qt queues the delivery whenever the emitting thread is
+   not the GUI thread and the panel only ever touches widgets on the
+   thread that owns them.
 """
 from __future__ import annotations
 
@@ -36,6 +56,8 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any, Callable, Optional
 
+from PySide6.QtCore import QCoreApplication, QObject, Signal
+
 
 # ---------------------------------------------------------------------------
 # The single handler instance
@@ -43,6 +65,7 @@ from typing import Any, Callable, Optional
 
 _console_ref: "Optional[weakref.ReferenceType[Any]]" = None
 _handler: "Optional[_ConsoleForwarder]" = None
+_relay: "Optional[_ConsoleRelay]" = None
 _file_handler: "Optional[RotatingFileHandler]" = None
 _ATTACHED_LOGGERS = ("spacr", "spacr.qt", "spacr.pipeline_v2",
                         "spacr.qt.plate_queue", "spacr.qt.hf_download",
@@ -115,26 +138,77 @@ def _ensure_file_handler() -> RotatingFileHandler:
     return handler
 
 
+class _ConsoleRelay(QObject):
+    """Carries one formatted log line onto the GUI thread.
+
+    ``line`` is emitted by :meth:`_ConsoleForwarder.emit`, which runs on
+    whatever thread produced the record. :meth:`_deliver` is a **bound
+    method of this QObject**, not a closure, so Qt can see the receiver's
+    thread affinity and picks the connection type from it: direct when
+    the record was logged on the GUI thread, queued when it was not.
+
+    The object is pushed onto the QApplication's thread at construction
+    so its affinity does not depend on which thread happened to log
+    first. Without that hop the delivery ran inline on the worker
+    thread, where ``ConsolePanel.append_stdout`` builds a ``_TopicBar``
+    and a ``_StdoutBlock`` — QWidgets, off the GUI thread. That is
+    undefined behaviour in Qt and it killed the test process.
+
+    Delivery still goes through the module's weak reference rather than
+    a connection to the panel itself, so a closed screen is not kept
+    alive by the relay and a record that arrives after the panel is gone
+    is dropped instead of resurrecting it.
+    """
+
+    line = Signal(str)
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.line.connect(self._deliver)
+        app = QCoreApplication.instance()
+        if app is not None and app.thread() is not self.thread():
+            self.moveToThread(app.thread())
+
+    def _deliver(self, text: str) -> None:
+        """Append ``text`` to the registered console. GUI thread only."""
+        target = _console_ref() if _console_ref is not None else None
+        if target is None:
+            return
+        append = getattr(target, "append_stdout", None)
+        if append is None:
+            return
+        try:
+            append(text)
+        except Exception:
+            # Never let a logging failure escape into the app.
+            pass
+
+
+def _ensure_relay() -> "_ConsoleRelay":
+    """Return the single :class:`_ConsoleRelay`, creating it on demand."""
+    global _relay
+    if _relay is None:
+        _relay = _ConsoleRelay()
+    return _relay
+
+
 class _ConsoleForwarder(logging.Handler):
     """Forward every record it sees to the currently-registered ConsolePanel.
 
     Format: ``[HH:MM:SS] name LEVEL  message``. Keeping the timestamp
     short — the console already scrolls fast when verbose is on.
+
+    The panel is never called from here: ``emit`` runs on the logging
+    thread and the panel builds widgets. The line goes over
+    :attr:`_ConsoleRelay.line` instead — see the module docstring.
     """
 
     def emit(self, record: logging.LogRecord) -> None:
-        target = _console_ref() if _console_ref is not None else None
-        if target is None:
+        if _console_ref is None or _console_ref() is None:
             return
         try:
             msg = self.format(record)
-            # ``append_stdout`` is a slot; safe from the Python logging
-            # threading model as long as it's Qt::Auto-connected (it is
-            # in ConsolePanel — the emit lives in the main thread).
-            append = getattr(target, "append_stdout", None)
-            if append is None:
-                return
-            append(msg + "\n")
+            _ensure_relay().line.emit(msg + "\n")
         except Exception:
             # Never let a logging failure escape into the app.
             pass
@@ -162,9 +236,13 @@ def register_console_target(panel: Any) -> None:
 
     The target is stored as a :class:`weakref.ref` so a closed screen
     doesn't keep the panel alive. Any earlier target is replaced.
+
+    Called from the GUI thread (the AppScreen constructor), which is
+    where the relay wants to be built — see :class:`_ConsoleRelay`.
     """
     global _console_ref
     _ensure_handler()
+    _ensure_relay()
     _console_ref = weakref.ref(panel)
 
 

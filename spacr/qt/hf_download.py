@@ -323,7 +323,18 @@ def download_toxo_mito_demo(parent,
     # from the GUI thread.
     dlg.canceled.connect(worker.cancel, Qt.DirectConnection)
     thread.started.connect(worker.run)
-    thread.finished.connect(worker.deleteLater)
+    # NOTE the absence of `thread.finished.connect(worker.deleteLater)`.
+    # `spacr.qt.bridge.make_thread` documents why, from a measured crash:
+    # the worker's affinity is the WORKER thread, so a deferred delete is
+    # posted into a loop that is stopping, and it races the GUI thread
+    # dropping the object's last Python reference in `on_finished`. Two
+    # owners, one object — gdb put it in
+    # `QThread -> sendPostedEvents -> ~QObject`. Chaining off
+    # `thread.finished` rather than `worker.finished` does not help; that
+    # exact variant was measured at 2 crashes in 20 runs. The worker is a
+    # Python-constructed PySide6 object, so Python already owns it: the
+    # last reference (held by `_HFDownloadUI`) frees it, on the thread
+    # that holds it.
     thread.start()
     # Retain references on the parent so the QThread + worker + dialog
     # aren't garbage-collected while the download is in flight.
