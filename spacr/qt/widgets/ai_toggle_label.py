@@ -2,18 +2,29 @@
 AiToggleLabel — a clickable text label used in place of a QCheckBox
 for the "AI" switch that sits at the bottom-right of every AppScreen.
 
-* Reads "AI" in white when off.
+* Reads "AI" in the current theme's foreground colour when off — white
+  on the dark themes, near-black on light.
 * Reads "AI" in the accent blue when on.
 * Emits `toggled(bool)` on click; also exposes a QCheckBox-compatible
   `isChecked()` / `setChecked()` API so the AppScreen doesn't care
   which widget it's talking to.
+
+.. note::
+
+   The OFF colour is resolved through :func:`spacr.qt.theme.active_palette`
+   (i.e. ``palette_for(resolve_effective_theme())``) every time the style
+   is rebuilt, never imported from ``theme.PALETTE``. That module-level
+   name is the *dark* palette and nothing updates it, so importing it
+   painted ``#ffffff`` "AI" text onto the light theme's ``#fafafa`` page:
+   **1.04:1** measured, white on near-white, invisible. It is 18.50:1
+   now. See :mod:`tests.qt.test_theme_blind_console_widgets`.
 """
 from __future__ import annotations
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QLabel
 
-from ..theme import FONT_SIZE, PALETTE
+from ..theme import FONT_SIZE, active_palette
 
 
 class AiToggleLabel(QLabel):
@@ -72,12 +83,15 @@ class AiToggleLabel(QLabel):
     # -- style ---------------------------------------------------------
     def _refresh_style(self) -> None:
         # Use the theme-invariant ``button_accent`` for the ON colour so
-        # the toggle looks identical in every theme. OFF colour
-        # is theme-aware (fg) — that's fine, the user recognises "on"
-        # by the blue.
-        from ..theme import CONSTANT_ROLES
-        on_color = CONSTANT_ROLES["button_accent"]
-        color = on_color if self._on else PALETTE["fg"]
+        # the toggle looks identical in every theme. The OFF colour is
+        # the theme's own ``fg``, resolved HERE rather than imported:
+        # `active_palette()` reads the preference that is in force right
+        # now, so the label inks white on dark and near-black on light.
+        # It used to come from `theme.PALETTE`, which is frozen dark —
+        # white "AI" on the light theme's #fafafa page.
+        palette = active_palette()
+        on_color = palette["button_accent"]
+        color = on_color if self._on else palette["fg"]
         self.setStyleSheet(
             f"QLabel#AiToggleLabel {{"
             f"  color: {color};"

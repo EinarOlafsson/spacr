@@ -14,10 +14,10 @@ their first run through the panel:
   tion. Same tooltip regardless of which view holds the cursor.
 * **Normalise toggle.** Optional 2–98 % percentile stretch (per channel
   for RGB) so raw low-contrast tiles are legible.
-* **Model-aware options.** Selecting ``cpsam`` hides the parameters
-  Cellpose-SAM ignores (``flow_threshold``, ``cellprob``, ``diameter``)
-  and shows only the ones it actually uses. Legacy models get the full
-  set.
+* **Model-aware options.** Every model shows the full segmentation set.
+  Cellpose-SAM does *not* ignore ``flow_threshold``, ``cellprob`` or
+  ``diameter`` — see :data:`DIAMETER_TOOLTIP` for the measurement that
+  killed that belief.
 * **Outline colour + thickness.** Chosen from the toolbar; effect is
   live once a mask exists.
 * **Multi-object segmentation.** An "object type" combo picks between
@@ -57,6 +57,36 @@ from PySide6.QtWidgets import (
 LOG = logging.getLogger("spacr.qt.live_preview")
 
 SUPPORTED_SUFFIXES = (".tif", ".tiff", ".png", ".jpg", ".jpeg")
+
+#: Tooltip for the diameter spinner, in every model.
+#:
+#: The panel used to disable this control for ``cpsam`` and label it
+#: "Ignored by Cellpose-SAM". That is false. ``CellposeModel._run_cp``
+#: in cellpose 4.0.7 still does ``image_scaling = 30. / diameter``
+#: whenever ``diameter is not None``, so the value decides the scale the
+#: image is segmented at. Measured on an RTX 3090 against a real
+#: micrograph (``plate1_E01_10.tif``, 1994x1994, cpsam, flow 0.4,
+#: cellprob 0.0), counting objects per pass:
+#:
+#: ===============  ========  ===========
+#: diameter         cells     nuclei
+#: ===============  ========  ===========
+#: unset (``None``)       66           65
+#: 30                     66           65
+#: 60                     71           63
+#: ===============  ========  ===========
+#:
+#: 30 matches "unset" because 30/30 is a no-op rescale. That is the only
+#: reason the control ever looked inert, and 30 is the spinner's default
+#: — anyone who checked the claim without moving the value saw no change
+#: and believed it. Greying it out took away a control that measurably
+#: changes what cpsam finds.
+DIAMETER_TOOLTIP = (
+    "(float, px) Expected object diameter. Cellpose-SAM uses it: the "
+    "image is rescaled by 30/diameter before segmentation, so raising it "
+    "finds bigger objects and lowering it finds smaller ones. 30 is the "
+    "no-op (30/30 = 1) and 0 means 'unset', which is the same thing."
+)
 
 # Object types the panel understands. Order matters — it drives the
 # order of the combo. cell/nucleus can be previewed together; pathogen and
@@ -739,9 +769,7 @@ class LivePreviewPanel(QWidget):
             "(int) Image channel index used for cell segmentation.")
         self._nucleus_channel.setToolTip(
             "(int) Image channel index used for nucleus segmentation.")
-        self._diameter.setToolTip(
-            "(float, px) Expected object diameter. Ignored by Cellpose-SAM "
-            "(cpsam), which estimates it automatically.")
+        self._diameter.setToolTip(DIAMETER_TOOLTIP)
         self._flow.setToolTip(
             "(float) Cellpose flow threshold — higher keeps more masks.")
         self._prob.setToolTip(
@@ -1611,8 +1639,10 @@ class LiveSettingsDialog(QDialog):
         """Grey out settings that don't apply to the current selection.
 
         Rules (mirroring the pipeline's own relevance):
-          * Segmentation knobs (diameter / flow / cell-prob) are ignored by
-            Cellpose-SAM, so they grey out when the SAM model is picked.
+          * Nothing in the Segmentation group greys out for the model.
+            Cellpose 4 ships one set of weights and all three knobs
+            (diameter / flow / cell-prob) still reach it — see
+            :data:`DIAMETER_TOOLTIP` for the measurement.
           * The object type decides which channel spinners are live: the cell
             channel greys out for a nucleus-only object and vice-versa.
           * Pre-processing knobs (normalise + its two percentiles) are only
@@ -1622,11 +1652,13 @@ class LiveSettingsDialog(QDialog):
         """
         p = self._panel
 
-        # -- model: SAM still uses flow threshold + cell probability; only the
-        #    diameter is ignored (SAM auto-estimates object size) --
-        is_sam = p._model_box.currentText() == "cpsam"
-        p._diameter.setEnabled(not is_sam)
-        p._diameter.setToolTip("Ignored by Cellpose-SAM" if is_sam else "")
+        # -- model: cpsam uses all three. `diameter` used to be disabled
+        #    here with the tooltip "Ignored by Cellpose-SAM", which was
+        #    false: Cellpose 4 rescales the image by 30/diameter before
+        #    it runs (see DIAMETER_TOOLTIP for the measured counts), so
+        #    the UI was greying out a control that changes the result. --
+        p._diameter.setEnabled(True)
+        p._diameter.setToolTip(DIAMETER_TOOLTIP)
         p._flow.setEnabled(True)
         p._prob.setEnabled(True)
         p._flow.setToolTip("")
