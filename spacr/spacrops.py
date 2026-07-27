@@ -143,6 +143,11 @@ class spacrStitcher:
                  allow_rotation: bool = False,
                  # QC outlines (DS)
                  outline_source: str = "otsu",
+                 # Only read when outline_source='cellpose'. 'cpsam' is the
+                 # one model Cellpose 4 ships; a path to a .CP_model / .pth
+                 # checkpoint from Train Cellpose is loaded as given.
+                 cellpose_model: str = "cpsam",
+                 cellpose_diameter: Optional[float] = None,
                  canny: Tuple[int, int] = (40, 120),
                  blur_sigma: float = 0.0,
                  dilate_ksize: int = 0,
@@ -180,6 +185,11 @@ class spacrStitcher:
         self.allow_rotation = bool(allow_rotation)
     
         self.outline_source = outline_source.lower()
+        self.cellpose_model = cellpose_model
+        self.cellpose_diameter = (None if cellpose_diameter is None
+                                  else float(cellpose_diameter))
+        # Built lazily by _get_cellpose_model and reused for every tile.
+        self._cp_model = None
         self.canny = tuple(canny)
         self.blur_sigma = float(blur_sigma)
         self.dilate_ksize = int(dilate_ksize)
@@ -307,21 +317,77 @@ class spacrStitcher:
         return A
 
     # --------------------------- masks (Otsu/Cellpose) -------------------
+    def _get_cellpose_model(self):
+        """Return this stitcher's ``CellposeModel``, building it once.
+
+        Both mask helpers used to construct ``models.Cellpose(model_type=
+        "nuclei")`` per tile. Three things were wrong with that:
+
+        * ``models.Cellpose`` does not exist in Cellpose 4 — the wrapper
+          class was removed with the pre-SAM model zoo, leaving only
+          ``CellposeModel``. ``outline_source='cellpose'`` therefore raised
+          ``AttributeError: module 'cellpose.models' has no attribute
+          'Cellpose'`` and could not run at all.
+        * ``model_type='nuclei'`` names weights Cellpose 4 no longer ships,
+          and ``model_type=`` is itself accepted-and-ignored ("not used in
+          v4.0.1+"). Resolution goes through
+          :func:`spacr.utils._resolve_cellpose_pretrained`, the same place
+          the mask pipeline resolves it, so a checkpoint the user trained
+          with spaCR's Train Cellpose is honoured here too and a bad path
+          stops the run instead of silently segmenting with stock weights.
+        * a fresh model per tile re-loaded the cpsam weights for every
+          image in the well. It is built once and cached on the instance.
+
+        :returns: a ready ``cellpose.models.CellposeModel``.
+        :raises RuntimeError: if ``cellpose`` is not installed.
+        """
+        if getattr(self, "_cp_model", None) is not None:
+            return self._cp_model
+        try:
+            from cellpose import models as cp_models
+        except Exception:
+            raise RuntimeError("outline_source='cellpose' requires `cellpose` installed.")
+        from .utils import _resolve_cellpose_pretrained
+
+        pretrained = _resolve_cellpose_pretrained(self.cellpose_model)
+        try:
+            import torch
+            gpu = torch.cuda.is_available()
+        except Exception:
+            gpu = False
+        # No model_type= / diam_mean=: Cellpose 4 logs "not used in v4.0.1+"
+        # and drops both.
+        self._cp_model = cp_models.CellposeModel(gpu=gpu, pretrained_model=pretrained)
+        return self._cp_model
+
+    def _cellpose_labels(self, img_u8: np.ndarray) -> np.ndarray:
+        """Segment ``img_u8`` with Cellpose and return the label image.
+
+        :param img_u8: 2-D uint8 image.
+        :returns: int32 label array, 0 = background.
+        """
+        model = self._get_cellpose_model()
+        x = img_u8.astype(np.float32) / 255.0
+        # eval(channels=) went away with Cellpose 4 ("channels deprecated in
+        # v4.0.1+"): the network takes up to three channels as given. The
+        # old [0, 0] pair reached a parameter Cellpose ignores. diameter,
+        # by contrast, is still honoured — the image is rescaled by
+        # 30/diameter — so it is exposed as cellpose_diameter.
+        out = model.eval(x, diameter=self.cellpose_diameter,
+                         flow_threshold=0.4, cellprob_threshold=0.0)
+        # Cellpose 4 returns (masks, flows, styles); Cellpose 3 returned a
+        # fourth `diams`. The old `masks, _, _, _ = ...` unpack would have
+        # raised on 4.x even if the Cellpose class had survived.
+        masks = out[0]
+        return np.asarray(masks).astype(np.int32)
+
     def _foreground_mask(self, img_u8: np.ndarray) -> np.ndarray:
         """Binary foreground mask; used at DS or full-res depending on caller."""
         if self.outline_source == "none":
             return np.zeros_like(img_u8, dtype=bool)
 
         if self.outline_source == "cellpose":
-            try:
-                from cellpose import models
-            except Exception:
-                raise RuntimeError("outline_source='cellpose' requires `cellpose` installed.")
-            x = img_u8.astype(np.float32) / 255.0
-            model = models.Cellpose(model_type="nuclei")
-            masks, _, _, _ = model.eval(x, diameter=None, channels=[0,0],
-                                        flow_threshold=0.4, cellprob_threshold=0.0)
-            return (masks.astype(np.int32) > 0)
+            return self._cellpose_labels(img_u8) > 0
 
         # Otsu (default)
         I = img_u8
@@ -343,15 +409,7 @@ class spacrStitcher:
             return np.zeros_like(img_u8, dtype=bool)
     
         if self.outline_source == "cellpose":
-            try:
-                from cellpose import models
-            except Exception:
-                raise RuntimeError("outline_source='cellpose' requires `cellpose` installed.")
-            x = img_u8.astype(np.float32) / 255.0
-            model = models.Cellpose(model_type="nuclei")
-            masks, _, _, _ = model.eval(x, diameter=None, channels=[0, 0],
-                                        flow_threshold=0.4, cellprob_threshold=0.0)
-            mask = (masks.astype(np.int32) > 0).astype(np.uint8)
+            mask = (self._cellpose_labels(img_u8) > 0).astype(np.uint8)
         else:
             I = img_u8.copy()
             if self.blur_sigma and self.blur_sigma > 0:
@@ -2873,6 +2931,11 @@ def stitch_cycle_wells(settings):
             allow_scale=bool(settings.get("allow_scale", False)),
             allow_rotation=bool(settings.get("allow_rotation", False)),
             outline_source=str(settings.get("outline_source", "otsu")),
+            # Not str(...): str(None) is the four-character string "None",
+            # which _resolve_cellpose_pretrained would report as an unknown
+            # model name rather than as "no model named".
+            cellpose_model=settings.get("cellpose_model") or "cpsam",
+            cellpose_diameter=settings.get("cellpose_diameter", None),
             canny=tuple(settings.get("canny", (40, 120))),
             blur_sigma=float(settings.get("blur_sigma", 0.0)),
             dilate_ksize=int(settings.get("dilate_ksize", 0)),
@@ -3030,6 +3093,10 @@ def get_preprocess_ops_settings(settings):
     settings.setdefault("score_threshold", 0.001)
     settings.setdefault("all_scores", False)
     settings.setdefault("outline_source", "otsu")
+    # Only read when outline_source='cellpose'. 'cpsam' is the stock Cellpose
+    # 4 model; a path here loads a checkpoint from Train Cellpose instead.
+    settings.setdefault("cellpose_model", "cpsam")
+    settings.setdefault("cellpose_diameter", None)
     settings.setdefault("save_qc", False)
     settings.setdefault("save_stitched_default", False)
     settings.setdefault("canny", (40, 120))

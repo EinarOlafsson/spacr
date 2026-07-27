@@ -729,7 +729,10 @@ def _summarize_organelles_per_parent(organelle_mask, parent_mask, channel_arrays
                 intensities.append(channel[region].mean())
             else:
                 intensities.append(0.0)
-        organelle_df[f'organelle_ch{ch}_mean_intensity'] = intensities
+        # 'channel_<c>', not 'ch<c>'. Every other feature family in the
+        # database spells it out; this one did not, so the same idea had two
+        # names. utils.rename_columns_in_db migrates the old spelling.
+        organelle_df[f'organelle_channel_{ch}_mean_intensity'] = intensities
 
     # Get parent areas for fraction calculation
     parent_props = pd.DataFrame(regionprops_table(parent_mask, properties=['label', 'area'], spacing=spacing))
@@ -756,9 +759,9 @@ def _summarize_organelles_per_parent(organelle_mask, parent_mask, channel_arrays
         row['organelle_mean_minor_axis'] = org_subset['minor_axis_length'].mean() if len(org_subset) > 0 else 0.0
 
         for ch in range(channel_arrays.shape[-1]):
-            col = f'organelle_ch{ch}_mean_intensity'
-            row[f'organelle_ch{ch}_mean_intensity_per_{parent_name}'] = org_subset[col].mean() if len(org_subset) > 0 else 0.0
-            row[f'organelle_ch{ch}_std_intensity_per_{parent_name}'] = org_subset[col].std() if len(org_subset) > 1 else 0.0
+            col = f'organelle_channel_{ch}_mean_intensity'
+            row[f'organelle_channel_{ch}_mean_intensity_per_{parent_name}'] = org_subset[col].mean() if len(org_subset) > 0 else 0.0
+            row[f'organelle_channel_{ch}_std_intensity_per_{parent_name}'] = org_subset[col].std() if len(org_subset) > 1 else 0.0
 
         summary_rows.append(row)
 
@@ -816,7 +819,13 @@ def _intensity_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_ma
         homogeneity = False
 
     intensity_props = ["label", "centroid_weighted", "centroid_weighted_local", "max_intensity", "mean_intensity", "min_intensity"]
-    col_lables = ['region_label', 'mean', '5_percentile', '10_percentile', '25_percentile', '50_percentile', '75_percentile', '85_percentile', '95_percentile']
+    # 'percentile_<p>', not '<p>_percentile'. The object interior has always
+    # been written 'percentile_5' (_extended_regionprops_table); the periphery
+    # and outside rings used the reversed word order, so one database carried
+    # 'cell_channel_0_percentile_5' next to
+    # 'nucleus_channel_0_periphery_5_percentile' for the same statistic.
+    # utils.rename_columns_in_db migrates the old spelling on first read.
+    col_lables = ['region_label', 'mean', 'percentile_5', 'percentile_10', 'percentile_25', 'percentile_50', 'percentile_75', 'percentile_85', 'percentile_95']
     cell_dfs, nucleus_dfs, pathogen_dfs, organelle_dfs, cytoplasm_dfs = [], [], [], [], []
     ls = ['cell', 'nucleus', 'pathogen', 'organelle', 'cytoplasm']
     labels = [cell_mask, nucleus_mask, pathogen_mask, organelle_mask, cytoplasm_mask]
@@ -1606,6 +1615,63 @@ def img_list_to_grid(grid, titles=None):
     plt.tight_layout(pad=0.2)
     return fig
 
+
+#: crop_mode entries that name a mask _measure_crop_core knows how to crop.
+CROP_MODES = ('cell', 'nucleus', 'pathogen', 'cytoplasm', 'organelle')
+
+
+def _per_crop_mode(value, n_modes, name):
+    """Return ``value`` as a list with exactly one entry per ``crop_mode``.
+
+    ``crop_mode`` is a list and every per-crop setting is indexed by its
+    position in that list. ``png_size`` has had the ``* len(crop_ls)``
+    broadcast since forever; ``dialate_pngs`` and ``dialate_png_ratios``
+    never did. A scalar was hard-broadcast to LENGTH 3 (why 3? there were
+    three object types when it was written) and a list was taken as given,
+    so the shipped default ``dialate_png_ratios=[0.2]`` raised
+    ``IndexError: list index out of range`` on the second crop mode of
+    every field the moment a user listed two -- a top-level setting that
+    simply did not work, and did not say so: ``_measure_crop_core`` catches
+    the IndexError per field, so the run wrote the first mode's crops,
+    skipped the rest, and finished reporting failed fields rather than a
+    bad setting.
+
+    A single value -- scalar or one-element list -- means "the same for
+    every mode" and is broadcast silently, which is what ``png_size`` has
+    always done. A list that is short but not length 1 is a real mistake:
+    it is padded with its last entry so the run still produces crops, and
+    said out loud, because losing every crop on a 1000-field plate to a
+    typo'd list is worse than cropping two modes at the same ratio.
+
+    :param value: the setting as the user wrote it; scalar or sequence.
+    :param n_modes: ``len(crop_mode)``.
+    :param name: setting name, for the message.
+    :returns: list of length ``n_modes``.
+    """
+    values = list(value) if isinstance(value, (list, tuple)) else [value]
+
+    if not n_modes:
+        # crop_mode is empty, so nothing is cropped and nothing indexes this.
+        return []
+    if not values:
+        raise ValueError(
+            f"Setting: {name} is empty but crop_mode asks for {n_modes} crop "
+            f"mode(s); give it one value, or one per crop mode.")
+    if len(values) == 1:
+        return values * n_modes
+    if len(values) < n_modes:
+        print(f"Setting: {name}={value} has {len(values)} entries but "
+              f"crop_mode has {n_modes}; reusing {values[-1]!r} for the "
+              f"remaining {n_modes - len(values)}. Give {name} one value, or "
+              f"one per crop mode, to choose them yourself.")
+        return values + [values[-1]] * (n_modes - len(values))
+    if len(values) > n_modes:
+        print(f"Setting: {name}={value} has {len(values)} entries but "
+              f"crop_mode has only {n_modes}; ignoring the extra "
+              f"{len(values) - n_modes}.")
+    return values[:n_modes]
+
+
 #@log_function_call
 def _measure_crop_core(index, time_ls, file, settings):
 
@@ -1841,153 +1907,174 @@ def _measure_crop_core(index, time_ls, file, settings):
                 f"{file_name}, but spaCR crops 2-D fields only. Measurements "
                 f"were written; no crops were.", settings=settings)
         elif settings['save_png'] or settings['save_arrays'] or settings['plot']:
-            if isinstance(settings['dialate_pngs'], bool):
-                dialate_pngs = [settings['dialate_pngs'], settings['dialate_pngs'], settings['dialate_pngs']]
-            if isinstance(settings['dialate_pngs'], list):
-                dialate_pngs = settings['dialate_pngs']
+            # A bare string crop_mode used to be assigned to a local named
+            # `crop_mode` and then thrown away: the very next line re-tested
+            # settings['crop_mode'] for list-ness, which a string never is,
+            # so the entire crop block was skipped. crop_mode='cell' wrote
+            # the measurements and NOT ONE PNG, without an error.
+            crop_ls = settings['crop_mode']
+            if isinstance(crop_ls, str):
+                crop_ls = [crop_ls]
+            crop_ls = list(crop_ls)
 
-            if isinstance(settings['dialate_png_ratios'], float):
-                dialate_png_ratios = [settings['dialate_png_ratios'], settings['dialate_png_ratios'], settings['dialate_png_ratios']]
+            size_ls = settings['png_size']
+            if not size_ls:
+                raise ValueError(
+                    "Setting: png_size is empty; give it [width, height], or "
+                    "a [width, height] pair per crop_mode entry.")
+            # `isinstance(size_ls[0], int)` missed a float or a numpy int, and
+            # then `width, height = size_ls[crop_idx]` tried to unpack a
+            # scalar. Ask what it IS -- a pair, or a list of pairs.
+            if not isinstance(size_ls[0], (list, tuple)):
+                size_ls = [size_ls]
 
-            if isinstance(settings['dialate_png_ratios'], list):
-                dialate_png_ratios = settings['dialate_png_ratios']
+            # All three per-mode settings now broadcast the same way, so
+            # png_size no longer prints a mismatch warning and then raises
+            # IndexError on the very next line.
+            size_ls = _per_crop_mode(size_ls, len(crop_ls), 'png_size')
+            dialate_pngs = _per_crop_mode(
+                settings['dialate_pngs'], len(crop_ls), 'dialate_pngs')
+            dialate_png_ratios = _per_crop_mode(
+                settings['dialate_png_ratios'], len(crop_ls),
+                'dialate_png_ratios')
 
-            if isinstance(settings['crop_mode'], str):
-                crop_mode = [settings['crop_mode']]
-            if isinstance(settings['crop_mode'], list):
-                crop_ls = settings['crop_mode']
-                size_ls = settings['png_size']
+            for crop_idx, crop_mode in enumerate(crop_ls):
+                # An unrecognised crop mode used to print and fall
+                # through, so crop_mask/dialate_png kept the PREVIOUS
+                # mode's values: crop_mode=['cell','banana'] cropped the
+                # cell mask a second time under the name 'banana'. Skip
+                # it instead, and name the modes that exist.
+                if crop_mode not in CROP_MODES:
+                    print(f"Setting: crop_mode entry {crop_mode!r} is not "
+                          f"one of {', '.join(CROP_MODES)}; skipping it. "
+                          f"No {crop_mode}_png crops were written.")
+                    continue
+
+                width, height = size_ls[crop_idx]
+
+                if crop_mode == 'cell':
+                    crop_mask = cell_mask.copy()
+                    dialate_png = dialate_pngs[crop_idx]
+                    dialate_png_ratio = dialate_png_ratios[crop_idx]
+
+                elif crop_mode == 'nucleus':
+                    crop_mask = nucleus_mask.copy()
+                    dialate_png = dialate_pngs[crop_idx]
+                    dialate_png_ratio = dialate_png_ratios[crop_idx]
+                elif crop_mode == 'pathogen':
+                    crop_mask = pathogen_mask.copy()
+                    dialate_png = dialate_pngs[crop_idx]
+                    dialate_png_ratio = dialate_png_ratios[crop_idx]
+                elif crop_mode == 'organelle':
+                    crop_mask = organelle_mask.copy()
+                    dialate_png = dialate_pngs[crop_idx]
+                    dialate_png_ratio = dialate_png_ratios[crop_idx]
+                else:  # cytoplasm -- dilation is forced off, see below.
+                    crop_mask = cytoplasm_mask.copy()
+                    # Dilating a cytoplasm ring grows it into the nucleus
+                    # it is defined as excluding, so the crop would no
+                    # longer be cytoplasm. Not a user choice.
+                    dialate_png = False
+                    # Assigned even though dilation is off, so the name never
+                    # carries a previous crop mode's ratio into this one.
+                    dialate_png_ratio = dialate_png_ratios[crop_idx]
+
+                objects_in_image = np.unique(crop_mask)
+                objects_in_image = objects_in_image[objects_in_image != 0]
+                img_paths = []
                 
-                if isinstance(size_ls[0], int):
-                    size_ls = [size_ls]
-                if len(crop_ls) > 1 and len(size_ls) == 1:
-                    size_ls = size_ls * len(crop_ls)
+                for _id in objects_in_image:
                     
-                if len(crop_ls) != len(size_ls):
-                    print(f"Setting: size_ls: {settings['png_size']} should be a list of integers, or a list of lists of integers if crop_ls: {settings['crop_mode']} has multiple elements")
-                
-                for crop_idx, crop_mode in enumerate(crop_ls):
-                    width, height = size_ls[crop_idx]
+                    region = (crop_mask == _id)
 
-                    if crop_mode == 'cell':
-                        crop_mask = cell_mask.copy()
-                        dialate_png = dialate_pngs[crop_idx]
-                        dialate_png_ratio = dialate_png_ratios[crop_idx]
+                    # Use the boolean mask to filter the cell_mask and then find unique IDs
+                    region_cell_ids = np.atleast_1d(np.unique(cell_mask[region]))
+                    region_nucleus_ids = np.atleast_1d(np.unique(nucleus_mask[region]))
+                    region_pathogen_ids = np.atleast_1d(np.unique(pathogen_mask[region]))
 
-                    elif crop_mode == 'nucleus':
-                        crop_mask = nucleus_mask.copy()
-                        dialate_png = dialate_pngs[crop_idx]
-                        dialate_png_ratio = dialate_png_ratios[crop_idx]
-                    elif crop_mode == 'pathogen':
-                        crop_mask = pathogen_mask.copy()
-                        dialate_png = dialate_pngs[crop_idx]
-                        dialate_png_ratio = dialate_png_ratios[crop_idx]
-                    elif crop_mode == 'organelle':
-                        crop_mask = organelle_mask.copy()
-                        dialate_png = dialate_pngs[crop_idx]
-                        dialate_png_ratio = dialate_png_ratios[crop_idx]
-                    elif crop_mode == 'cytoplasm':
-                        crop_mask = cytoplasm_mask.copy()
-                        dialate_png = False
-                    else:
-                        print(f'Value error: Posseble values for crop_mode are: cell, nucleus, pathogen, cytoplasm')
+                    if settings['use_bounding_box']:
+                        region = _find_bounding_box(crop_mask, _id, buffer=10)
 
-                    objects_in_image = np.unique(crop_mask)
-                    objects_in_image = objects_in_image[objects_in_image != 0]
-                    img_paths = []
-                    
-                    for _id in objects_in_image:
-                        
-                        region = (crop_mask == _id)
+                    img_name, fldr, table_name = _generate_names(file_name=file_name, cell_id = region_cell_ids, cell_nucleus_ids=region_nucleus_ids, cell_pathogen_ids=region_pathogen_ids, source_folder=source_folder, crop_mode=crop_mode, timelapse=settings['timelapse'])
 
-                        # Use the boolean mask to filter the cell_mask and then find unique IDs
-                        region_cell_ids = np.atleast_1d(np.unique(cell_mask[region]))
-                        region_nucleus_ids = np.atleast_1d(np.unique(nucleus_mask[region]))
-                        region_pathogen_ids = np.atleast_1d(np.unique(pathogen_mask[region]))
+                    if dialate_png:
+                        # count_nonzero, not np.sum: when use_bounding_box is
+                        # on, _find_bounding_box fills the box with the LABEL
+                        # VALUE rather than with True, so np.sum gave
+                        # pixels * label and object 100 dilated sqrt(100)=10x
+                        # more than object 1 -- the crop depended on an
+                        # arbitrary label id.
+                        region_area = np.count_nonzero(region)
+                        # The diameter of an object from its size is the
+                        # ndim-th root of that size, not always the square
+                        # root: a voxel count is a volume, and sqrt of a
+                        # volume is not a length. Unreachable for a 3-D
+                        # field today (the whole crop block is refused
+                        # above), but wrong is wrong.
+                        if region.ndim == 3:
+                            approximate_diameter = np.cbrt(region_area)
+                        else:
+                            approximate_diameter = np.sqrt(region_area)
+                        dialate_png_px = int(approximate_diameter * dialate_png_ratio)
+                        # scipy reads iterations=0 as "repeat until nothing
+                        # changes", NOT as "do nothing", so a radius that
+                        # rounded down to 0 -- every object under 25 px at the
+                        # default ratio 0.2 -- grew to fill the entire field.
+                        # The crop then became an unmasked window centred on
+                        # the middle of the field instead of on the object.
+                        if dialate_png_px > 0:
+                            # scipy requires the structuring element to have
+                            # the same rank as the input; a fixed (2, 2)
+                            # raises "structure and input must have same
+                            # dimensionality" on a volume.
+                            struct = generate_binary_structure(region.ndim, region.ndim)
+                            region = binary_dilation(region, structure=struct, iterations=dialate_png_px)
 
-                        if settings['use_bounding_box']:
-                            region = _find_bounding_box(crop_mask, _id, buffer=10)
+                    if settings['save_png']:
+                        fldr_type = f"{crop_mode}_png/"
+                        png_folder = os.path.join(fldr,fldr_type)
+                        img_path = os.path.join(png_folder, img_name)
+                        img_paths.append(img_path)
 
-                        img_name, fldr, table_name = _generate_names(file_name=file_name, cell_id = region_cell_ids, cell_nucleus_ids=region_nucleus_ids, cell_pathogen_ids=region_pathogen_ids, source_folder=source_folder, crop_mode=crop_mode, timelapse=settings['timelapse'])
+                        png_channels = data[:, :, settings['png_dims']].astype(data_type)
 
-                        if dialate_png:
-                            # count_nonzero, not np.sum: when use_bounding_box is
-                            # on, _find_bounding_box fills the box with the LABEL
-                            # VALUE rather than with True, so np.sum gave
-                            # pixels * label and object 100 dilated sqrt(100)=10x
-                            # more than object 1 -- the crop depended on an
-                            # arbitrary label id.
-                            region_area = np.count_nonzero(region)
-                            # The diameter of an object from its size is the
-                            # ndim-th root of that size, not always the square
-                            # root: a voxel count is a volume, and sqrt of a
-                            # volume is not a length. Unreachable for a 3-D
-                            # field today (the whole crop block is refused
-                            # above), but wrong is wrong.
-                            if region.ndim == 3:
-                                approximate_diameter = np.cbrt(region_area)
-                            else:
-                                approximate_diameter = np.sqrt(region_area)
-                            dialate_png_px = int(approximate_diameter * dialate_png_ratio)
-                            # scipy reads iterations=0 as "repeat until nothing
-                            # changes", NOT as "do nothing", so a radius that
-                            # rounded down to 0 -- every object under 25 px at the
-                            # default ratio 0.2 -- grew to fill the entire field.
-                            # The crop then became an unmasked window centred on
-                            # the middle of the field instead of on the object.
-                            if dialate_png_px > 0:
-                                # scipy requires the structuring element to have
-                                # the same rank as the input; a fixed (2, 2)
-                                # raises "structure and input must have same
-                                # dimensionality" on a volume.
-                                struct = generate_binary_structure(region.ndim, region.ndim)
-                                region = binary_dilation(region, structure=struct, iterations=dialate_png_px)
+                        if settings['normalize_by'] == 'fov':
+                            if not settings['normalize'] is False:
+                                percentile_list = _get_percentiles(png_channels, settings['normalize'][0], settings['normalize'][1])
 
-                        if settings['save_png']:
-                            fldr_type = f"{crop_mode}_png/"
-                            png_folder = os.path.join(fldr,fldr_type)
-                            img_path = os.path.join(png_folder, img_name)
-                            img_paths.append(img_path)
-
-                            png_channels = data[:, :, settings['png_dims']].astype(data_type)
+                        png_channels = _crop_center(png_channels, region, new_width=width, new_height=height)
+                        if isinstance(settings['normalize'], list):
+                            if settings['normalize_by'] == 'png':
+                                png_channels = normalize_to_dtype(png_channels, settings['normalize'][0], settings['normalize'][1])
 
                             if settings['normalize_by'] == 'fov':
-                                if not settings['normalize'] is False:
-                                    percentile_list = _get_percentiles(png_channels, settings['normalize'][0], settings['normalize'][1])
+                                png_channels = normalize_to_dtype(png_channels, settings['normalize'][0], settings['normalize'][1], percentile_list=percentile_list)
+                        else:
+                            png_channels = normalize_to_dtype(png_channels, 0, 100)
+                        os.makedirs(png_folder, exist_ok=True)
 
-                            png_channels = _crop_center(png_channels, region, new_width=width, new_height=height)
-                            if isinstance(settings['normalize'], list):
-                                if settings['normalize_by'] == 'png':
-                                    png_channels = normalize_to_dtype(png_channels, settings['normalize'][0], settings['normalize'][1])
-
-                                if settings['normalize_by'] == 'fov':
-                                    png_channels = normalize_to_dtype(png_channels, settings['normalize'][0], settings['normalize'][1], percentile_list=percentile_list)
-                            else:
-                                png_channels = normalize_to_dtype(png_channels, 0, 100)
-                            os.makedirs(png_folder, exist_ok=True)
-
-                            if png_channels.shape[2] == 2:
-                                dummy_channel = np.zeros_like(png_channels[:,:,0])  # Create a 2D zero array with same shape as one channel
-                                png_channels = np.dstack((png_channels, dummy_channel))
-                                grid = save_and_add_image_to_grid(png_channels, img_path, grid, settings['plot'])
-                            else:
-                                grid = save_and_add_image_to_grid(png_channels, img_path, grid, settings['plot'])
-
-                            if len(img_paths) == len(objects_in_image):
-                                filepaths_to_database(img_paths, settings, source_folder, crop_mode)
-
-                        if settings['save_arrays']:
-                            row_idx, col_idx = np.where(region)
-                            region_array = data[row_idx.min():row_idx.max()+1, col_idx.min():col_idx.max()+1, :]
-                            array_folder = f"{fldr}/region_array/"            
-                            os.makedirs(array_folder, exist_ok=True)
-                            np.save(os.path.join(array_folder, img_name), region_array)
-
+                        if png_channels.shape[2] == 2:
+                            dummy_channel = np.zeros_like(png_channels[:,:,0])  # Create a 2D zero array with same shape as one channel
+                            png_channels = np.dstack((png_channels, dummy_channel))
+                            grid = save_and_add_image_to_grid(png_channels, img_path, grid, settings['plot'])
+                        else:
                             grid = save_and_add_image_to_grid(png_channels, img_path, grid, settings['plot'])
 
-                            img_paths.append(img_path)
-                            if len(img_paths) == len(objects_in_image):
-                                filepaths_to_database(img_paths, settings, source_folder, crop_mode)
+                        if len(img_paths) == len(objects_in_image):
+                            filepaths_to_database(img_paths, settings, source_folder, crop_mode)
+
+                    if settings['save_arrays']:
+                        row_idx, col_idx = np.where(region)
+                        region_array = data[row_idx.min():row_idx.max()+1, col_idx.min():col_idx.max()+1, :]
+                        array_folder = f"{fldr}/region_array/"            
+                        os.makedirs(array_folder, exist_ok=True)
+                        np.save(os.path.join(array_folder, img_name), region_array)
+
+                        grid = save_and_add_image_to_grid(png_channels, img_path, grid, settings['plot'])
+
+                        img_paths.append(img_path)
+                        if len(img_paths) == len(objects_in_image):
+                            filepaths_to_database(img_paths, settings, source_folder, crop_mode)
 
         cells = np.unique(cell_mask)
     except Exception as e:

@@ -932,6 +932,107 @@ def _generate_mask_random_cmap(mask):
     random_cmap = mpl.colors.ListedColormap(random_colors)
     return random_cmap
 
+
+#: The ``png_list`` object-id column each ``crop_mode`` writes, and the object
+#: table whose rows that column identifies.
+#:
+#: One dict rather than a chain of ``if crop_mode ==`` because both directions
+#: are needed and they must not drift: :func:`filepaths_to_database` writes the
+#: column, and :func:`spacr.io._read_and_join_tables` has to work out, from a
+#: database it did not write, which crop mode produced which rows. A database
+#: measured with ``crop_mode=['cell','nucleus']`` carries **both** columns, each
+#: NULL on the other mode's rows.
+PNG_OBJECT_ID_COLUMNS = {
+    'cell': 'cell_id',
+    'nucleus': 'nucleus_id',
+    'pathogen': 'pathogen_id',
+    'cytoplasm': 'cytoplasm_id',
+    # 'organelle' was missing, and _map_wells_png always returns an object id,
+    # so `columns` came out one short of `parts` and filepaths_to_database
+    # raised "Columns must be same length as key" -- AFTER the organelle PNGs
+    # were on disk but before any of them was registered in png_list.
+    'organelle': 'organelle_id',
+}
+
+#: Reverse of :data:`PNG_OBJECT_ID_COLUMNS`.
+PNG_CROP_MODE_BY_ID_COLUMN = {v: k for k, v in PNG_OBJECT_ID_COLUMNS.items()}
+
+
+def object_label_from_png_id(values):
+    """Migrate ``png_list``'s ``'o<N>'`` text ids onto the integer object label.
+
+    ``png_list`` stores an object id as **text** (``'o5'``) because it is the
+    last component of ``prcfo``; every object table stores the same object as
+    an **integer** ``object_label``, and the child tables store their parent as
+    an integer (in practice a float, since ``measure`` writes NaN for "no
+    overlapping cell") ``cell_id``. Two types for one identity, which is why a
+    plain SQL ``png_list.cell_id = nucleus.cell_id`` matches **zero rows**
+    rather than failing: SQLite compares a TEXT value with an INTEGER one by
+    type class, and text always sorts after numbers. Measured on a database
+    built by the real writers: 6 crops, 6 nuclei, 0 rows joined.
+
+    The integer is canonical — it is what the measurement tables key on — so
+    this is the one migration, applied on read. It replaces
+    ``series.str[1:].astype(int)``, which crashed on four values the real
+    writers genuinely produce:
+
+    * ``'omulti'`` and ``'onone'`` — :func:`_generate_names` names a crop that
+      overlaps several cells ``..._multi.png`` and one that overlaps none
+      ``..._none.png``. Both are ordinary outcomes of a real segmentation.
+      ``ValueError: invalid literal for int() with base 10: 'multi'``;
+    * ``'error'`` — what :func:`_map_wells_png` writes for a name it cannot
+      parse. ``.str[1:]`` turned it into ``'rror'``, so the exception did not
+      even name the problem;
+    * ``NULL`` — every row of a *different* crop mode, in a database measured
+      with more than one. ``TypeError: int() argument must be ... not
+      'NoneType'``;
+    * an already-integer column, from a database whose ids were migrated
+      elsewhere: ``.str`` raises ``AttributeError`` on a numeric Series.
+
+    All four now come back as ``NaN``, which a caller can count and drop —
+    losing the crop's path for those objects, never the whole read.
+
+    :param values: a ``png_list`` object-id column (``cell_id``,
+        ``nucleus_id``, ...), of any dtype.
+    :returns: a float ``Series`` of object labels, ``NaN`` where the id holds
+        no integer. Float rather than int because ``NaN`` has no int64.
+    """
+    series = values if isinstance(values, pd.Series) else pd.Series(values)
+    if series.empty:
+        return pd.Series([], dtype=float, index=series.index)
+    # map, not a vectorised .str: the column's dtype is whatever SQLite and
+    # pandas agreed on for the values that happen to be in it, and the point
+    # is to accept all of them. The index is preserved so a caller can line
+    # the result back up with the rows it came from.
+    return series.map(_one_object_label).astype(float)
+
+
+def _one_object_label(value):
+    """``'o5'`` / ``5`` / ``5.0`` -> ``5.0``; anything else -> ``NaN``.
+
+    The scalar half of :func:`object_label_from_png_id`. Numbers are taken
+    directly rather than routed through :func:`spacr.schema.object_index`,
+    which reads a *token*: ``str(5.0)`` is ``'5.0'`` and
+    :func:`spacr.schema.parse_int_token` deliberately refuses that (inventing
+    ``3`` from ``3.7`` is the lie it exists to prevent). A whole-numbered float
+    in this column is not a fractional label, it is SQLite's REAL affinity, so
+    it is read as the label it is; a genuinely fractional one is ``NaN``.
+    """
+    if value is None:
+        return np.nan
+    if isinstance(value, bool):
+        return np.nan           # True is not object 1
+    if isinstance(value, (int, np.integer)):
+        return float(value)
+    if isinstance(value, (float, np.floating)):
+        number = float(value)
+        if np.isnan(number) or not number.is_integer():
+            return np.nan
+        return number
+    parsed = schema.object_index(value)
+    return np.nan if parsed is None else float(parsed)
+
+
 def filepaths_to_database(img_paths, settings, source_folder, crop_mode):
     """Insert cropped PNG filepaths and parsed well/object IDs into the measurements DB.
 
@@ -961,17 +1062,9 @@ def filepaths_to_database(img_paths, settings, source_folder, crop_mode):
 
     columns = columns + ['prcfo']
 
-    if crop_mode == 'cell':
-        columns = columns + ['cell_id']
-
-    if crop_mode == 'nucleus':
-        columns = columns + ['nucleus_id']
-
-    if crop_mode == 'pathogen':
-        columns = columns + ['pathogen_id']
-
-    if crop_mode == 'cytoplasm':
-        columns = columns + ['cytoplasm_id']
+    # Same column set as before, from the single mapping the readers use.
+    if crop_mode in PNG_OBJECT_ID_COLUMNS:
+        columns = columns + [PNG_OBJECT_ID_COLUMNS[crop_mode]]
 
     png_df[columns] = parts
 
@@ -1935,10 +2028,21 @@ def _generate_names(file_name, cell_id, cell_nucleus_ids, cell_pathogen_ids, sou
         img_name = f"{file_name}_{cell_id_str}_{cell_pathogen_id_str}.png"
         fldr += "single_nucleus/" if cell_nucleus_ids.size == 1 else "multiple_nucleus/" if cell_nucleus_ids.size > 1 else "no_nucleus/"
         fldr += "infected/" if cell_pathogen_ids.size >= 1 else "uninfected/"
-    elif crop_mode == 'cell' or crop_mode == 'cytoplasm':
+    elif crop_mode == 'cell' or crop_mode == 'cytoplasm' or crop_mode == 'organelle':
         img_name = f"{file_name}_{cell_id_str}.png"
         fldr += "single_nucleus/" if cell_nucleus_ids.size == 1 else "multiple_nucleus/" if cell_nucleus_ids.size > 1 else "no_nucleus/"
         fldr += "single_pathogen/" if cell_pathogen_ids.size == 1 else "multiple_pathogens/" if cell_pathogen_ids.size > 1 else "uninfected/"
+    else:
+        # Every caller reaches cv2.imwrite(os.path.join(fldr, img_name), ...).
+        # 'organelle' is a declared crop_mode -- settings.py lists it,
+        # validate.py allows it and measure.py has a branch for its mask --
+        # but it had no branch HERE, so img_name stayed "" and OpenCV died
+        # with "could not find a writer for the specified extension", taking
+        # the whole field down after the measurements were already written.
+        # An empty name is never something to hand to a file writer.
+        raise ValueError(
+            f"_generate_names has no naming rule for crop_mode={crop_mode!r}. "
+            f"Known crop modes: cell, nucleus, pathogen, cytoplasm, organelle.")
     parts = file_name.split('_')
     plate = parts[0]
     well = parts[1] 
@@ -2866,7 +2970,15 @@ def _split_data(df, group_by, object_type):
 
     
 def _calculate_recruitment(df, channel):
-    """Add pathogen-to-compartment recruitment ratio columns for the given intensity channel."""
+    """Add pathogen-to-compartment recruitment ratio columns for the given intensity channel.
+
+    The frame is canonicalised first, so a table written before the ring
+    percentiles were renamed (``outside_75_percentile``) divides correctly
+    rather than raising ``KeyError`` on the new name. A database read through
+    ``io._read_db`` has already been migrated; a CSV handed in directly has
+    not.
+    """
+    canonicalize_measurement_columns(df)
     df['pathogen_cell_mean_mean'] = df[f'pathogen_channel_{channel}_mean_intensity']/df[f'cell_channel_{channel}_mean_intensity']
     df['pathogen_cytoplasm_mean_mean'] = df[f'pathogen_channel_{channel}_mean_intensity']/df[f'cytoplasm_channel_{channel}_mean_intensity']
     df['pathogen_nucleus_mean_mean'] = df[f'pathogen_channel_{channel}_mean_intensity']/df[f'nucleus_channel_{channel}_mean_intensity']
@@ -2879,9 +2991,9 @@ def _calculate_recruitment(df, channel):
     df['pathogen_outside_cytoplasm_mean_mean'] = df[f'pathogen_channel_{channel}_outside_mean']/df[f'cytoplasm_channel_{channel}_mean_intensity']
     df['pathogen_outside_nucleus_mean_mean'] = df[f'pathogen_channel_{channel}_outside_mean']/df[f'nucleus_channel_{channel}_mean_intensity']
 
-    df['pathogen_outside_cell_q75_mean'] = df[f'pathogen_channel_{channel}_outside_75_percentile']/df[f'cell_channel_{channel}_mean_intensity']
-    df['pathogen_outside_cytoplasm_q75_mean'] = df[f'pathogen_channel_{channel}_outside_75_percentile']/df[f'cytoplasm_channel_{channel}_mean_intensity']
-    df['pathogen_outside_nucleus_q75_mean'] = df[f'pathogen_channel_{channel}_outside_75_percentile']/df[f'nucleus_channel_{channel}_mean_intensity']
+    df['pathogen_outside_cell_q75_mean'] = df[f'pathogen_channel_{channel}_outside_percentile_75']/df[f'cell_channel_{channel}_mean_intensity']
+    df['pathogen_outside_cytoplasm_q75_mean'] = df[f'pathogen_channel_{channel}_outside_percentile_75']/df[f'cytoplasm_channel_{channel}_mean_intensity']
+    df['pathogen_outside_nucleus_q75_mean'] = df[f'pathogen_channel_{channel}_outside_percentile_75']/df[f'nucleus_channel_{channel}_mean_intensity']
 
     df['pathogen_periphery_cell_mean_mean'] = df[f'pathogen_channel_{channel}_periphery_mean']/df[f'cell_channel_{channel}_mean_intensity']
     df['pathogen_periphery_cytoplasm_mean_mean'] = df[f'pathogen_channel_{channel}_periphery_mean']/df[f'cytoplasm_channel_{channel}_mean_intensity']
@@ -6623,13 +6735,38 @@ def delete_folder(folder_path):
 def measure_test_mode(settings):
     """Copy a random subset of source files into a ``test/merged`` folder when ``test_mode`` is on.
 
+    Fewer files than ``test_nr`` is not an error. test_mode is the setting a
+    user reaches for on a SMALL plate, and ``random.sample`` raised
+    ``ValueError: Sample larger than population or is negative`` on exactly
+    that case -- so the one folder you most want to smoke-test first was the
+    one folder test_mode refused to run on.
+
     :param settings: settings dict; must contain ``src``, ``test_mode``, ``test_nr``.
     :returns: settings dict with ``src`` optionally redirected to the test folder.
+    :raises ValueError: if there is nothing to sample -- an empty ``src``, or a
+        ``test_nr`` below 1. Sampling zero files would point ``src`` at an
+        empty ``test/merged`` and the run would report "no fields found",
+        blaming the wrong thing.
     """
     if settings['test_mode']:
         if not os.path.basename(settings['src']) == 'test':
-            all_files = os.listdir(settings['src'])
-            random_files = random.sample(all_files, settings['test_nr'])
+            # isfile: os.listdir also returns subdirectories, and shutil.copy
+            # on one raises IsADirectoryError -- one stray folder under
+            # merged/ took the whole run down.
+            all_files = [f for f in os.listdir(settings['src'])
+                         if os.path.isfile(os.path.join(settings['src'], f))]
+            n_test = min(int(settings['test_nr']), len(all_files))
+            if n_test < 1:
+                raise ValueError(
+                    f"test_mode is on but nothing can be sampled from "
+                    f"{settings['src']}: it holds {len(all_files)} file(s) and "
+                    f"test_nr is {settings['test_nr']}. Point src at a folder "
+                    f"with merged arrays in it, and set test_nr to at least 1.")
+            if n_test < int(settings['test_nr']):
+                print(f"test_mode: {settings['src']} holds {len(all_files)} "
+                      f"file(s), fewer than test_nr={settings['test_nr']}; "
+                      f"measuring all {n_test}.")
+            random_files = random.sample(all_files, n_test)
 
             src = os.path.join(os.path.dirname(settings['src']),'test', 'merged')
             if os.path.exists(src):
@@ -7940,12 +8077,101 @@ DB_COLUMN_RENAMES = {
 }
 
 
-def rename_columns_in_db(db_path):
-    """Rename legacy plate-metadata columns across every table in a SQLite database.
+#: Legacy *feature* spellings, as ``(pattern, replacement)`` pairs applied by
+#: :func:`rename_columns_in_db` after :data:`DB_COLUMN_RENAMES`.
+#:
+#: The metadata renames above are a fixed list of ten names. A feature column
+#: is not: its name carries the object type, the channel index and the
+#: percentile, so the ring percentiles alone are
+#: ``<object>_channel_<c>_periphery_<p>_percentile`` over three object types
+#: (nucleus, pathogen, organelle), seven percentiles, two rings and however
+#: many channels the run had — 84 columns on a two-channel run and 168 on a
+#: four-channel one. Enumerating that into a dict would mean guessing the
+#: channel count, so the two families that were spelled inconsistently are
+#: matched by pattern instead.
+#:
+#: 1. **Percentile word order.** The object interior has always been written
+#:    ``percentile_5``; the periphery and outside rings were written
+#:    ``periphery_5_percentile`` / ``outside_5_percentile``. One database, one
+#:    statistic, two word orders — so ``sorted()`` scattered them, a
+#:    ``percentile`` prefix search found only half of them, and anything
+#:    building a column name from a percentile had to know which ring it was
+#:    asking about. ``percentile_<p>`` wins because it is what the interior
+#:    columns, and hence the majority, already used.
+#: 2. **Channel spelling.** ``organelle_summary_organelle_ch<c>_..._per_<parent>``
+#:    was the only family in the database that abbreviated the channel;
+#:    everything else writes ``channel_<c>``. Note it is anchored on the whole
+#:    ``organelle_summary_organelle_ch`` prefix rather than on a bare ``_ch``,
+#:    which would also fire on any user-supplied feature that happens to
+#:    contain it.
+#:
+#: Each replacement is a pure rewrite of the name — no column is dropped and
+#: no value is touched — and each is skipped when the new name already exists,
+#: exactly as the metadata renames are.
+DB_COLUMN_RENAME_PATTERNS = (
+    (re.compile(r"^(?P<head>.*?)(?P<ring>periphery|outside)_(?P<p>\d+)_percentile$"),
+     r"\g<head>\g<ring>_percentile_\g<p>"),
+    (re.compile(r"^organelle_summary_organelle_ch(?P<c>\d+)_(?P<rest>.+)$"),
+     r"organelle_summary_organelle_channel_\g<c>_\g<rest>"),
+)
 
-    Applies :data:`DB_COLUMN_RENAMES` to every user table. A rename is skipped
-    when the target name already exists in that table, which gives three
-    properties worth relying on:
+
+def canonical_column_name(name):
+    """Return the canonical spaCR spelling of one column name.
+
+    Applies :data:`DB_COLUMN_RENAMES` and then
+    :data:`DB_COLUMN_RENAME_PATTERNS`; a name that is already canonical, or
+    that spaCR does not recognise, is returned unchanged. At most one pattern
+    fires, because the two are mutually exclusive.
+
+    :param name: A column name, from a database or a DataFrame.
+    :returns: The canonical name.
+    """
+    renamed = DB_COLUMN_RENAMES.get(name)
+    if renamed is not None:
+        return renamed
+    for pattern, replacement in DB_COLUMN_RENAME_PATTERNS:
+        new_name, n_subs = pattern.subn(replacement, name)
+        if n_subs:
+            return new_name
+    return name
+
+
+def canonicalize_measurement_columns(df):
+    """Rename legacy column spellings on an in-memory measurement frame.
+
+    The DataFrame counterpart of :func:`rename_columns_in_db`, for frames that
+    did not come from a spaCR database and so never passed through it — a CSV
+    exported by an older release, or a frame a user assembled themselves.
+
+    Follows the same never-destructive rule: a rename whose target is already
+    present is skipped, so a frame carrying both spellings keeps both rather
+    than losing one to a silently dropped duplicate.
+
+    :param df: A measurement DataFrame.
+    :returns: ``df`` with legacy column names replaced (a copy is not made;
+        the frame is renamed in place and returned).
+    """
+    existing = set(df.columns)
+    mapping = {}
+    for name in df.columns:
+        new_name = canonical_column_name(name)
+        if new_name != name and new_name not in existing:
+            mapping[name] = new_name
+            existing.add(new_name)
+    if mapping:
+        df.columns = [mapping.get(name, name) for name in df.columns]
+    return df
+
+
+def rename_columns_in_db(db_path):
+    """Rename legacy column spellings across every table in a SQLite database.
+
+    Applies :data:`DB_COLUMN_RENAMES` — the plate-metadata names — and then
+    :data:`DB_COLUMN_RENAME_PATTERNS` — the two feature families that were
+    spelled inconsistently — to every user table. A rename is skipped when the
+    target name already exists in that table, which gives three properties
+    worth relying on:
 
     * **Idempotent.** After a rename the legacy name is gone, so a second run
       finds nothing to do. Running it on every read is therefore free after the
@@ -8001,6 +8227,21 @@ def rename_columns_in_db(db_path):
                         # cannot both fire and collide.
                         cols[cols.index(old)] = new
                         renamed.append((table, old, new))
+
+                # 4) the pattern-matched feature families. Driven off the
+                #    column list rather than off a name list, because the
+                #    channel index and the percentile are part of the name and
+                #    the set of them is a property of the run, not of spaCR.
+                #    `cols` is snapshotted first: it is mutated in the loop for
+                #    the same collision reason as above.
+                for old in list(cols):
+                    new = canonical_column_name(old)
+                    if new == old or new in cols:
+                        continue
+                    cur.execute(
+                        f"ALTER TABLE `{table}` RENAME COLUMN `{old}` TO `{new}`;")
+                    cols[cols.index(old)] = new
+                    renamed.append((table, old, new))
             cur.execute("COMMIT")
         except BaseException:
             cur.execute("ROLLBACK")
@@ -8008,8 +8249,23 @@ def rename_columns_in_db(db_path):
     finally:
         con.close()
 
-    for table, old, new in renamed:
+    metadata = [entry for entry in renamed if entry[1] in DB_COLUMN_RENAMES]
+    features = [entry for entry in renamed if entry[1] not in DB_COLUMN_RENAMES]
+    for table, old, new in metadata:
         print(f"Renamed `{table}`.`{old}` → `{new}`")
+    if features:
+        # A measurements table carries one of these per object type, per
+        # channel and per percentile — several hundred on a four-channel run —
+        # so a line each would bury everything else the read prints. One line
+        # per table with an example says the same thing; the full list is the
+        # return value.
+        by_table = {}
+        for table, old, new in features:
+            by_table.setdefault(table, []).append((old, new))
+        for table, pairs in by_table.items():
+            old, new = pairs[0]
+            print(f"Renamed {len(pairs)} legacy feature column(s) in `{table}` "
+                  f"to the canonical spelling, e.g. `{old}` → `{new}`")
     return renamed
 
 

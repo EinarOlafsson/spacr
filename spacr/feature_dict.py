@@ -898,7 +898,7 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "Only emitted for nucleus, pathogen and organelle objects "
         "(measure.py:383). NaN when the rim is empty.",
     ),
-    "periphery_<p>_percentile": PropertyInfo(
+    "periphery_percentile_<p>": PropertyInfo(
         "intensity",
         "{p}th percentile of this channel's intensity along the object's own "
         "outer rim (the single-pixel boundary band inside the object).",
@@ -906,8 +906,29 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "numpy.percentile over the boundary band in "
         "spacr.measure._periphery_intensity",
         "Emitted for p in 5, 10, 25, 50, 75, 85, 95. Only for nucleus, "
-        "pathogen and organelle objects. Note the word order is the reverse of "
-        "the object-interior percentiles, which are named percentile_<p>.",
+        "pathogen and organelle objects. Databases written before this "
+        "spelling spell it periphery_{p}_percentile; "
+        "spacr.utils.rename_columns_in_db renames them on first read.",
+    ),
+    # Retained so that a column read out of a database that has not been
+    # migrated yet — an old file opened outside spaCR, a CSV exported by an
+    # older release — is still explained rather than reported as unknown. The
+    # description is the same measurement; only the spelling differs.
+    "periphery_<p>_percentile": PropertyInfo(
+        "intensity",
+        "{p}th percentile of this channel's intensity along the object's own "
+        "outer rim (the single-pixel boundary band inside the object). LEGACY "
+        "SPELLING of periphery_percentile_{p}.",
+        _INTENSITY,
+        "numpy.percentile over the boundary band in "
+        "spacr.measure._periphery_intensity",
+        "This is the pre-migration name: the ring percentiles used to reverse "
+        "the word order of the object-interior percentile_<p> columns. "
+        "measure.py now writes periphery_percentile_{p} and "
+        "spacr.utils.rename_columns_in_db renames the old form the first time "
+        "the database is read, so a column with this name means the database "
+        "has not been through spaCR since the change. The values are "
+        "identical; only the name differs.",
     ),
     "outside_mean": PropertyInfo(
         "intensity",
@@ -924,7 +945,7 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "dilation on a stack would grow the shell dz/dxy times further in z, "
         "so the 3-D ring is built from a sampled distance transform instead.",
     ),
-    "outside_<p>_percentile": PropertyInfo(
+    "outside_percentile_<p>": PropertyInfo(
         "intensity",
         "{p}th percentile of this channel's intensity in a ring extending 5 px "
         "outward from the object.",
@@ -933,8 +954,23 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "distance-transform ring) in spacr.measure._outside_intensity",
         "Emitted for p in 5, 10, 25, 50, 75, 85, 95. Only for nucleus, "
         "pathogen and organelle objects. The ring is not masked against "
-        "neighbouring objects. Note the reversed word order compared with the "
-        "object-interior percentile_<p> columns.",
+        "neighbouring objects. Databases written before this spelling spell it "
+        "outside_{p}_percentile; spacr.utils.rename_columns_in_db renames them "
+        "on first read.",
+    ),
+    "outside_<p>_percentile": PropertyInfo(
+        "intensity",
+        "{p}th percentile of this channel's intensity in a ring extending 5 px "
+        "outward from the object. LEGACY SPELLING of outside_percentile_{p}.",
+        _INTENSITY,
+        "numpy.percentile over the dilation ring (3-D: the sampled "
+        "distance-transform ring) in spacr.measure._outside_intensity",
+        "This is the pre-migration name: the ring percentiles used to reverse "
+        "the word order of the object-interior percentile_<p> columns. "
+        "measure.py now writes outside_percentile_{p} and "
+        "spacr.utils.rename_columns_in_db renames the old form the first time "
+        "the database is read. The ring is not masked against neighbouring "
+        "objects. The values are identical; only the name differs.",
     ),
     # ---------------- radial distribution (measure.py:438-449, 605-663)
     "rad_dist_channel_<c>_bin_<b>": PropertyInfo(
@@ -1076,25 +1112,53 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "spacr.measure._summarize_organelles_per_parent",
         "0.0 when the parent has no organelles.",
     ),
-    "organelle_summary_organelle_ch<c>_mean_intensity_per_<parent>": PropertyInfo(
+    "organelle_summary_organelle_channel_<c>_mean_intensity_per_<parent>": PropertyInfo(
         "intensity",
         "Mean over this {parent}'s organelles of each organelle's own mean "
         "intensity in channel {c}.",
         _INTENSITY,
         "spacr.measure._summarize_organelles_per_parent",
         "A mean of per-organelle means, so large and small organelles are "
-        "weighted equally. 0.0 when the parent has no organelles. Note this "
-        "family spells the channel ch<c>, not channel_<c>, unlike every other "
-        "feature family.",
+        "weighted equally. 0.0 when the parent has no organelles. Databases "
+        "written before this spelling abbreviate the channel as ch{c}; "
+        "spacr.utils.rename_columns_in_db renames them on first read.",
     ),
-    "organelle_summary_organelle_ch<c>_std_intensity_per_<parent>": PropertyInfo(
+    "organelle_summary_organelle_channel_<c>_std_intensity_per_<parent>": PropertyInfo(
         "intensity",
         "Standard deviation across this {parent}'s organelles of their "
         "individual mean intensities in channel {c}.",
         _INTENSITY,
         "spacr.measure._summarize_organelles_per_parent",
-        "0.0 when the parent has fewer than 2 organelles. Note the ch<c> "
-        "channel spelling.",
+        "0.0 when the parent has fewer than 2 organelles. Databases written "
+        "before this spelling abbreviate the channel as ch{c}.",
+    ),
+    # Legacy spellings, kept so an un-migrated database is still described.
+    "organelle_summary_organelle_ch<c>_mean_intensity_per_<parent>": PropertyInfo(
+        "intensity",
+        "Mean over this {parent}'s organelles of each organelle's own mean "
+        "intensity in channel {c}. LEGACY SPELLING of "
+        "organelle_summary_organelle_channel_{c}_mean_intensity_per_{parent}.",
+        _INTENSITY,
+        "spacr.measure._summarize_organelles_per_parent",
+        "A mean of per-organelle means, so large and small organelles are "
+        "weighted equally. 0.0 when the parent has no organelles. This family "
+        "was the only one in the database that abbreviated the channel as "
+        "ch<c> rather than channel_<c>; measure.py now writes channel_<c> and "
+        "spacr.utils.rename_columns_in_db renames the old form the first time "
+        "the database is read. The values are identical; only the name "
+        "differs.",
+    ),
+    "organelle_summary_organelle_ch<c>_std_intensity_per_<parent>": PropertyInfo(
+        "intensity",
+        "Standard deviation across this {parent}'s organelles of their "
+        "individual mean intensities in channel {c}. LEGACY SPELLING of "
+        "organelle_summary_organelle_channel_{c}_std_intensity_per_{parent}.",
+        _INTENSITY,
+        "spacr.measure._summarize_organelles_per_parent",
+        "0.0 when the parent has fewer than 2 organelles. The ch<c> channel "
+        "abbreviation is the pre-migration name; measure.py now writes "
+        "channel_<c> and spacr.utils.rename_columns_in_db renames the old form "
+        "on first read.",
     ),
     # ---------------- cytoskeleton (measure.py:82-147)
     "skeleton_length": PropertyInfo(
@@ -1636,6 +1700,14 @@ _DOUBLE_PREFIX_BLUR_RE = re.compile(
 _PLAIN_BLUR_RE = re.compile(r"^blur$")
 _RAD_DIST_RE = re.compile(r"^rad_dist_channel_(?P<c>\d+)_bin_(?P<b>\d+)$")
 _ORG_SUMMARY_CH_RE = re.compile(
+    r"^organelle_summary_organelle_channel_(?P<c>\d+)_(?P<stat>mean|std)"
+    r"_intensity_per_(?P<parent>cell|nucleus|pathogen|cytoplasm)$"
+)
+#: The pre-migration spelling of the family above, which abbreviated the
+#: channel as ``ch<c>``. Kept so that a database that has not yet been through
+#: :func:`spacr.utils.rename_columns_in_db` is described rather than reported
+#: as unknown.
+_ORG_SUMMARY_LEGACY_CH_RE = re.compile(
     r"^organelle_summary_organelle_ch(?P<c>\d+)_(?P<stat>mean|std)_intensity_per_"
     r"(?P<parent>cell|nucleus|pathogen|cytoplasm)$"
 )
@@ -1650,6 +1722,10 @@ _PARAMETERIZED: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"^zernike_(?P<i>\d+)$"), "zernike_<i>"),
     (re.compile(r"^percentile_(?P<p>\d+)$"), "percentile_<p>"),
     (re.compile(r"^homogeneity_distance_(?P<d>\d+)$"), "homogeneity_distance_<d>"),
+    (re.compile(r"^periphery_percentile_(?P<p>\d+)$"), "periphery_percentile_<p>"),
+    (re.compile(r"^outside_percentile_(?P<p>\d+)$"), "outside_percentile_<p>"),
+    # Pre-migration word order. Still matched so an un-migrated database is
+    # described; spacr.utils.rename_columns_in_db renames these on first read.
     (re.compile(r"^periphery_(?P<p>\d+)_percentile$"), "periphery_<p>_percentile"),
     (re.compile(r"^outside_(?P<p>\d+)_percentile$"), "outside_<p>_percentile"),
     (re.compile(r"^M1_correlation_(?P<t>\d+)$"), "M1_correlation_<t>"),
@@ -1747,9 +1823,17 @@ def _parse_organelle_summary(name: str, measurement_units: str | None = None
     if not name.startswith("organelle_summary_"):
         return None
     m = _ORG_SUMMARY_CH_RE.match(name)
+    channel_token = "channel_<c>"
+    if m is None:
+        # The pre-migration ch<c> spelling resolves to its own curated entry,
+        # which says so — reporting it under the canonical key would tell a
+        # user reading an old database that they are looking at a name their
+        # file does not contain.
+        m = _ORG_SUMMARY_LEGACY_CH_RE.match(name)
+        channel_token = "ch<c>"
     if m:
         key = (
-            "organelle_summary_organelle_ch<c>_"
+            f"organelle_summary_organelle_{channel_token}_"
             f"{m.group('stat')}_intensity_per_<parent>"
         )
         return _entry(

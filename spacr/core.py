@@ -470,7 +470,7 @@ def preprocess_generate_masks_timelapse(settings):
     return preprocess_generate_masks(settings)
 
 
-def _validate_umap_source_db(db_path, tables):
+def _validate_umap_source_db(db_path, tables, require_png_list=True):
     """Fail early — and by name — when a measurements DB cannot back an image UMAP.
 
     :func:`generate_image_umap` joins the requested feature ``tables`` against
@@ -490,9 +490,17 @@ def _validate_umap_source_db(db_path, tables):
     it), but the join is anchored on ``cell``, so a requested ``cell`` table
     that is absent is fatal too.
 
+    ``png_list`` is only required when the crops come out of the PNG folder.
+    With ``crop_source='merged'`` the thumbnails are cut out of
+    ``merged/*.npy`` on demand and the object table alone carries everything
+    that needs — ``object_label`` and ``path_name`` — so requiring a table
+    that run never wrote would be refusing a database that is complete.
+
     :param db_path: path of a ``measurements/measurements.db``.
     :param tables: table names the caller asked to embed, including
         ``'png_list'``.
+    :param require_png_list: demand ``png_list`` and its two columns. False
+        when the crops are being cut on demand.
     :returns: None.
     :raises ValueError: naming ``db_path`` and exactly what is missing.
     """
@@ -514,21 +522,23 @@ def _validate_umap_source_db(db_path, tables):
 
     present_desc = ', '.join(sorted(present)) if present else 'none'
 
-    if 'png_list' not in present:
-        raise ValueError(
-            f"generate_image_umap: {db_path} has no 'png_list' table, which "
-            "supplies the single-object PNG paths the embedding plots. "
-            f"Tables present: {present_desc}. Re-run the Measure module with "
-            "save_png=True.")
+    if require_png_list:
+        if 'png_list' not in present:
+            raise ValueError(
+                f"generate_image_umap: {db_path} has no 'png_list' table, which "
+                "supplies the single-object PNG paths the embedding plots. "
+                f"Tables present: {present_desc}. Re-run the Measure module with "
+                "save_png=True, or set crop_source='merged' to cut the crops "
+                "out of merged/*.npy instead.")
 
-    missing_cols = [c for c in ('cell_id', 'png_path') if c not in png_cols]
-    if missing_cols:
-        raise ValueError(
-            f"generate_image_umap: the 'png_list' table in {db_path} is "
-            f"missing the column(s) {', '.join(missing_cols)}. 'cell_id' is "
-            "the key the object features are joined on and 'png_path' is the "
-            f"crop location. Columns present: {', '.join(sorted(png_cols))}. "
-            "Re-run the Measure module with save_png=True to rebuild png_list.")
+        missing_cols = [c for c in ('cell_id', 'png_path') if c not in png_cols]
+        if missing_cols:
+            raise ValueError(
+                f"generate_image_umap: the 'png_list' table in {db_path} is "
+                f"missing the column(s) {', '.join(missing_cols)}. 'cell_id' is "
+                "the key the object features are joined on and 'png_path' is the "
+                f"crop location. Columns present: {', '.join(sorted(png_cols))}. "
+                "Re-run the Measure module with save_png=True to rebuild png_list.")
 
     feature_tables = [t for t in tables if t != 'png_list']
     found = [t for t in feature_tables if t in present]
@@ -552,12 +562,22 @@ def generate_image_umap(settings=None, return_fig=False):
     dimensionality reduction, clusters the embedding, and renders scatter/grid
     plots of the resulting clusters.
 
+    The thumbnails overlaid on the embedding come from whichever crop source
+    ``crop_source`` names: ``'png'`` (and ``'auto'`` wherever a crop folder
+    exists) reads the pre-generated PNGs, ``'merged'`` (and ``'auto'`` with no
+    folder) cuts each one out of ``merged/*.npy`` on demand through
+    :mod:`spacr.crops`, so the embedding can be drawn on a project that never
+    kept a crop folder — ``png_list`` is not required in that case. Either way
+    the pixels arrive through :mod:`spacr.crops`, so a legacy (pre-341f446)
+    crop folder is channel-corrected on load and the montage shows the same
+    image the Annotate screen does.
+
     :param settings: Configuration dict; canonicalized via
         :func:`spacr.settings.set_default_umap_image_settings`. Common keys:
         ``src``, ``tables``, ``row_limit``, ``clustering``,
         ``reduction_method`` (``'UMAP'`` or ``'tSNE'``),
         ``embedding_by_controls``, ``col_to_compare``, ``pos``, ``neg``,
-        ``plot_images``, ``save_figure``, ``exclude``.
+        ``plot_images``, ``save_figure``, ``exclude``, ``crop_source``.
     :param return_fig: When True, return the Matplotlib figure instead of the
         annotated DataFrame.
     :returns: DataFrame of the input rows plus a ``cluster`` column, or a
@@ -601,16 +621,39 @@ def generate_image_umap(settings=None, return_fig=False):
     db_paths = get_db_paths(settings['src'])
     tables = settings['tables'] + ['png_list']
     all_df = pd.DataFrame()
+    # Where the thumbnails come from. 'png' (and 'auto' on any project that
+    # has a crop folder) reads the folder, exactly as before; 'merged' (and
+    # 'auto' with no folder) cuts each thumbnail out of merged/*.npy on
+    # demand, so the embedding can be drawn with no crop folder on disk.
+    # Either way the pixels arrive through spacr.crops, so a legacy folder is
+    # channel-corrected on load and the two sources show the same image.
+    from .io import open_crop_source, crop_refs_for_rows, CROP_REF_COLUMN
+    # 'cell', not settings['visualize']: _read_and_join_tables anchors the join
+    # on the cell table, so every row's object_label IS a cell label. Cutting
+    # the nucleus plane with a cell label would return a different object --
+    # or none -- for every point on the map.
+    crop_object = 'cell'
 
     for i,db_path in enumerate(db_paths):
+        source = open_crop_source(settings, settings['src'][i],
+                                  object_type=crop_object,
+                                  verbose=bool(settings.get('verbose', True)))
+        on_demand = source is not None and getattr(source, 'kind', 'png') == 'merged'
         # Say which database is unusable, and why, instead of letting the
         # join fail with a bare KeyError three modules away.
-        _validate_umap_source_db(db_path, tables)
+        _validate_umap_source_db(db_path, tables,
+                                 require_png_list=not on_demand)
         df = _read_and_join_tables(db_path, table_names=tables)
         df, image_paths_tmp = correct_paths(df, settings['src'][i])
+        if source is not None and settings['plot_images']:
+            # No .copy(): _read_and_join_tables hands back a fresh frame that
+            # correct_paths already writes into, and copying a 200-column
+            # screen-sized frame to add one column is gigabytes for nothing.
+            df[CROP_REF_COLUMN] = crop_refs_for_rows(source, df,
+                                                     object_type=crop_object)
         all_df = pd.concat([all_df, df], axis=0)
         #image_paths.extend(image_paths_tmp)
-        
+
     all_df['cond'] = all_df['columnID'].apply(map_condition, neg=settings['neg'], pos=settings['pos'], mix=settings['mix'])
 
     if settings['exclude_conditions']:
@@ -632,7 +675,21 @@ def generate_image_umap(settings=None, return_fig=False):
                   f"rows available; using all {len(all_df)}.")
         all_df = all_df.sample(n=n_rows, random_state=42)
 
-    image_paths = all_df['png_path'].to_list()
+    # The handles are pulled off the frame here, after every row filter above
+    # and before the numeric preprocessing below, and the column is dropped in
+    # the same breath: it holds Python objects, so leaving it on the frame
+    # would put `<LazyCropPNG …>` into embedding_results.csv.
+    if CROP_REF_COLUMN in all_df.columns:
+        image_paths = all_df[CROP_REF_COLUMN].to_list()
+        all_df = all_df.drop(columns=[CROP_REF_COLUMN])
+    elif 'png_path' in all_df.columns:
+        image_paths = all_df['png_path'].to_list()
+    else:
+        # No crop source and no png_path: the embedding still means something,
+        # the montage does not.
+        print("No crop source and no 'png_path' column; plotting points only.")
+        image_paths = None
+        settings['plot_images'] = False
 
     if settings['embedding_by_controls']:
         
@@ -701,7 +758,8 @@ def generate_image_umap(settings=None, return_fig=False):
         keep = np.asarray(labels) != -1
         embedding, labels = remove_noise(embedding, labels)
         if keep.any():
-            image_paths = [p for p, k in zip(image_paths, keep) if k]
+            if image_paths is not None:
+                image_paths = [p for p, k in zip(image_paths, keep) if k]
             all_df = all_df[keep].reset_index(drop=True)
         # else: every point was noise, so `labels` is now empty and the
         # single-cluster fallback further down keeps the frame intact

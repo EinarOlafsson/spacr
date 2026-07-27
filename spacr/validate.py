@@ -1059,16 +1059,33 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
                 problems.append(Problem(
                     ERROR, "crop_mode", f"crop_mode contains unsupported entries: {bad}.",
                     f"crop_mode entries must come from {sorted(allowed)}."))
-            # dialate_png_ratios is indexed per crop mode with no broadcast.
+            # dialate_png_ratios is indexed per crop mode. A single value --
+            # scalar or one-element list, which is the shipped default [0.2] --
+            # now broadcasts to every mode, exactly as png_size always has, so
+            # it is no longer an error. This used to be an ERROR, which BLOCKED
+            # a run that is now correct; it was written when measure.py raised
+            # IndexError on the second mode.
             ratios = settings.get("dialate_png_ratios")
             if settings.get("dialate_pngs") and isinstance(ratios, (list, tuple)):
                 needed = len([m for m in crop_mode if m != "cytoplasm"])
-                if needed > len(ratios):
+                if 1 < len(ratios) < needed:
+                    # Short but not a single value: measure.py reuses the last
+                    # entry for the remaining modes and says so. Worth a
+                    # warning, not a refusal.
                     problems.append(Problem(
-                        ERROR, "dialate_png_ratios",
-                        f"dialate_png_ratios has {len(ratios)} entr"
-                        f"{'y' if len(ratios) == 1 else 'ies'} but {needed} crop modes need one each.",
-                        f"Give dialate_png_ratios one value per crop mode, e.g. {[0.2] * needed}."))
+                        WARNING, "dialate_png_ratios",
+                        f"dialate_png_ratios has {len(ratios)} entries but "
+                        f"{needed} crop modes are indexed against it; the last "
+                        f"value will be reused for the rest.",
+                        f"Give dialate_png_ratios one value (broadcast to every "
+                        f"mode) or one per crop mode, e.g. {[0.2] * needed}."))
+                elif len(ratios) > needed:
+                    problems.append(Problem(
+                        WARNING, "dialate_png_ratios",
+                        f"dialate_png_ratios has {len(ratios)} entries but only "
+                        f"{needed} crop mode(s) read it; the extras are ignored.",
+                        f"Trim dialate_png_ratios to {needed} value(s), or to a "
+                        f"single value broadcast to every mode."))
             for mode in crop_mode:
                 key = f"{mode}_mask_dim"
                 if mode in OBJECT_NAMES and settings.get(key) is None and key in settings:

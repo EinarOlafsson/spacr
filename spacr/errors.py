@@ -70,6 +70,7 @@ __all__ = [
     'ConfigurationError',
     'DataIntegrityError',
     'PartialRunError',
+    'RunStatusUnreadable',
     'Failure',
     'RunLedger',
     'read_run_status',
@@ -79,6 +80,7 @@ __all__ = [
     'raise_if_strict',
     'RUN_STATUS_TABLE',
     'RUN_STATUS_SUFFIX',
+    'RUN_STATUS_READ_TIMEOUT',
     'STATUS_COMPLETE',
     'STATUS_PARTIAL',
     'STATUS_EMPTY',
@@ -95,6 +97,12 @@ RUN_STATUS_SUFFIX = '.run_status.json'
 
 #: Path suffixes treated as SQLite databases by :meth:`RunLedger.stamp`.
 DB_SUFFIXES = ('.db', '.sqlite', '.sqlite3')
+
+#: Seconds :func:`read_run_status` waits for a locked database before it
+#: gives up and says so. SQLite's own default is 5 s; the point of naming
+#: it is that "how long do we wait" and "what do we conclude if we never
+#: got in" are two different decisions, and only the second one was wrong.
+RUN_STATUS_READ_TIMEOUT = 5.0
 
 STATUS_COMPLETE = 'complete'
 STATUS_PARTIAL = 'partial'
@@ -144,6 +152,26 @@ class PartialRunError(DataIntegrityError):
 
     A subclass of :class:`DataIntegrityError` so callers that only care
     about "the answer is wrong" can catch the parent.
+    """
+
+
+class RunStatusUnreadable(DataIntegrityError):
+    """The stamp could not be read, so the run's verdict is unknown.
+
+    Distinct from "this artifact was never stamped", which is a perfectly
+    ordinary state and reads as ``[]`` / complete. This one means the
+    reader was *stopped*: the database is locked by a writer that still
+    holds it, or the file is truncated or otherwise not a database.
+
+    Both of those are what an interrupted run leaves behind, and both used
+    to be swallowed by one ``except sqlite3.Error: return []`` and reported
+    as "no stamps, therefore complete" — so a run killed mid-write, whose
+    process still held the lock, read as finished. Measured on a real
+    measurements.db stamped ``partial``: ``run_is_complete`` said ``False``
+    when nothing held the file, and ``True`` — with ``assert_run_complete``
+    passing — while a second connection held ``BEGIN EXCLUSIVE``. The
+    database said the run failed a field either way; the lock is what
+    stopped anyone hearing it.
     """
 
 
@@ -611,18 +639,52 @@ _STATUS_COLUMNS = ('run_id', 'name', 'status', 'n_attempted', 'n_succeeded',
                    'failures_json', 'summary')
 
 
-def read_run_status(artifact: Union[str, os.PathLike]) -> List[Dict[str, Any]]:
+def _has_run_status_table(conn: sqlite3.Connection) -> bool:
+    """True when this database declares a :data:`RUN_STATUS_TABLE`.
+
+    Asked separately from the ``SELECT`` so that "there is no such table"
+    (an ordinary, informative answer) stops being indistinguishable from
+    "the database would not let me look" — which is what a locked or
+    truncated file gives, and which used to be reported as *complete*.
+    Both questions go through the same connection, so a database that
+    cannot be opened at all fails on this one and never reaches the read.
+    """
+    row = conn.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name = ?",
+        (RUN_STATUS_TABLE,)).fetchone()
+    return row is not None
+
+
+def read_run_status(artifact: Union[str, os.PathLike],
+                    timeout: float = RUN_STATUS_READ_TIMEOUT
+                    ) -> List[Dict[str, Any]]:
     """Read back every :meth:`RunLedger.stamp` recorded for ``artifact``.
 
     Works for both stamp flavours: a SQLite path is read from its
     :data:`RUN_STATUS_TABLE`, anything else from its
     ``<stem>.run_status.json`` sidecar.
 
+    Three outcomes, deliberately kept apart:
+
+    * **stamps exist** — they are returned, oldest first;
+    * **the artifact exists and holds no stamp** — ``[]``, meaning "no
+      information". Stamping is opt-in, so this covers every output
+      written before a ledger reached that code path;
+    * **the artifact could not be read** — :class:`RunStatusUnreadable`.
+      A database still locked by its writer, or truncated by a ``kill``
+      mid-write, is exactly what an *interrupted* run leaves, and folding
+      it into the second case is how an interrupted run came back
+      "complete".
+
     :param artifact: path of a spaCR output — e.g. ``measurements.db``.
+    :param timeout: seconds to wait for a locked database before giving
+        up. Default :data:`RUN_STATUS_READ_TIMEOUT`.
     :returns: one dict per recorded run, oldest first. Each has
         ``status`` / ``n_attempted`` / ``n_succeeded`` / ``n_failed`` /
         ``failure_rate`` / ``summary`` and a ``failures`` list. An
         artifact that was never stamped returns ``[]``.
+    :raises RunStatusUnreadable: when the artifact exists but cannot be
+        read — locked, truncated, corrupt, or malformed JSON.
 
     Example:
         .. code-block:: python
@@ -636,18 +698,26 @@ def read_run_status(artifact: Union[str, os.PathLike]) -> List[Dict[str, Any]]:
     if target.suffix.lower() in DB_SUFFIXES:
         if not target.is_file():
             return []
-        conn = sqlite3.connect(str(target))
+        conn = None
         try:
-            cursor = conn.execute(
+            conn = sqlite3.connect(str(target), timeout=timeout)
+            if not _has_run_status_table(conn):
+                # Never stamped. The artifact predates stamping, or was
+                # written by a code path that does not stamp yet.
+                return []
+            rows = conn.execute(
                 f'SELECT {", ".join(_STATUS_COLUMNS)} FROM {RUN_STATUS_TABLE} '
-                'ORDER BY rowid')
-            rows = cursor.fetchall()
-        except sqlite3.Error:
-            # No run_status table: the artifact predates stamping, or
-            # was written by a code path that does not stamp yet.
-            return []
+                'ORDER BY rowid').fetchall()
+        except sqlite3.Error as exc:
+            raise RunStatusUnreadable(
+                f'{target} exists but its run status cannot be read: {exc}. '
+                f'A database still held by the process that was writing it, '
+                f'or one truncated by a crash, fails here — so this is "the '
+                f'run may not have finished", not "the run finished". Wait '
+                f'for the writer to exit, or check the file.') from exc
         finally:
-            conn.close()
+            if conn is not None:
+                conn.close()
         records = []
         for row in rows:
             record = dict(zip(_STATUS_COLUMNS, row))
@@ -658,13 +728,23 @@ def read_run_status(artifact: Union[str, os.PathLike]) -> List[Dict[str, Any]]:
     sidecar = _sidecar_path(target)
     if not sidecar.is_file():
         return []
-    payload = json.loads(sidecar.read_text(encoding='utf-8'))
+    try:
+        payload = json.loads(sidecar.read_text(encoding='utf-8'))
+    except (OSError, ValueError) as exc:
+        # A sidecar half-written by an interrupted run is the same
+        # species of evidence as a locked database, and gets the same
+        # answer: unknown, never "complete".
+        raise RunStatusUnreadable(
+            f'{sidecar} exists but cannot be read: {exc}. A run status '
+            f'sidecar truncated mid-write means the run that was writing '
+            f'it did not finish.') from exc
     if isinstance(payload, list):
         return payload
     return [payload]
 
 
-def run_is_complete(artifact: Union[str, os.PathLike]) -> bool:
+def run_is_complete(artifact: Union[str, os.PathLike],
+                    timeout: float = RUN_STATUS_READ_TIMEOUT) -> bool:
     """True when no stamp on ``artifact`` recorded a failure.
 
     An artifact that was never stamped reads as complete — stamping is
@@ -673,22 +753,40 @@ def run_is_complete(artifact: Union[str, os.PathLike]) -> bool:
     :func:`read_run_status` when you need to distinguish "verified
     clean" from "no information".
 
+    An artifact whose status *cannot be read* reads as **not** complete.
+    That is the one case where the two answers differ in consequence: an
+    unstamped file is silent, whereas a locked or truncated one is
+    positive evidence that something was interrupted, and answering
+    "complete" there is how a killed run passed for a finished one.
+
     :param artifact: path of a spaCR output.
+    :param timeout: seconds to wait for a locked database.
     """
+    try:
+        records = read_run_status(artifact, timeout=timeout)
+    except RunStatusUnreadable:
+        return False
     return all(int(record.get('n_failed', 0) or 0) == 0
-               for record in read_run_status(artifact))
+               for record in records)
 
 
-def assert_run_complete(artifact: Union[str, os.PathLike]) -> None:
+def assert_run_complete(artifact: Union[str, os.PathLike],
+                        timeout: float = RUN_STATUS_READ_TIMEOUT) -> None:
     """Raise :class:`DataIntegrityError` if ``artifact`` is stamped partial.
 
     The one-liner for downstream code that must not silently analyse a
-    subset.
+    subset. An artifact whose status cannot be read raises
+    :class:`RunStatusUnreadable`, which is a
+    :class:`DataIntegrityError` too — so ``except DataIntegrityError``
+    catches both "this run failed items" and "I cannot tell whether it
+    did", which are the two cases a caller must not proceed past.
 
     :param artifact: path of a spaCR output.
+    :param timeout: seconds to wait for a locked database.
     :raises DataIntegrityError: when any stamp recorded a failure.
+    :raises RunStatusUnreadable: when the status cannot be read at all.
     """
-    records = read_run_status(artifact)
+    records = read_run_status(artifact, timeout=timeout)
     bad = [r for r in records if int(r.get('n_failed', 0) or 0) > 0]
     if not bad:
         return

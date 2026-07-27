@@ -984,3 +984,288 @@ def test_the_slider_cannot_reach_fully_transparent_or_opaque(qtbot):
     assert bar.opacity() >= MIN_OPACITY_PCT / 100
     bar.set_opacity(1.0)
     assert bar.opacity() <= MAX_OPACITY_PCT / 100
+
+
+# ---------------------------------------------------------------------------
+# Backdrop
+#
+# The rain is opaque by construction: it repaints only the cells that
+# changed, so it has to be able to *clear* them, and clearing to a
+# translucent colour smears the previous frame. On dark and light that is
+# free — the thing behind it is a flat `bg` the rain reproduces exactly.
+# On Space and Cell it is not, and the consequence was that the one screen
+# with a rain was the one screen that never showed the theme's wallpaper:
+# `map_barcodes` under Cell painted flat black over the micrograph.
+#
+# Handing the wallpaper in keeps the dirty-rectangle repaint and gets the
+# picture back.
+# ---------------------------------------------------------------------------
+
+def _backdrop(width=64, height=48, color="#c81e64"):
+    from PySide6.QtGui import QPixmap
+    pixmap = QPixmap(width, height)
+    pixmap.fill(QColor(color))
+    return pixmap
+
+
+def test_no_backdrop_by_default(qtbot):
+    rain = make_widget(qtbot)
+    assert rain.backdrop() is None
+
+
+def test_a_backdrop_can_be_handed_in_at_construction(qtbot):
+    rain = make_widget(qtbot, backdrop=_backdrop())
+    assert rain.backdrop() is not None
+    assert rain.backdrop().size().width() == 64
+
+
+def test_set_backdrop_round_trips_and_can_be_cleared(qtbot):
+    rain = make_widget(qtbot)
+    rain.set_backdrop(_backdrop())
+    assert rain.backdrop() is not None
+    rain.set_backdrop(None)
+    assert rain.backdrop() is None, "clearing must restore the fast path"
+
+
+def test_a_backdrop_accepts_a_path_a_pixmap_or_an_image(qtbot, tmp_path):
+    from PySide6.QtGui import QImage, QPixmap
+    path = tmp_path / "wall.png"
+    _backdrop().save(str(path))
+    for source in (str(path), path, _backdrop(),
+                   QImage(str(path))):
+        rain = make_widget(qtbot)
+        rain.set_backdrop(source)
+        assert rain.backdrop() is not None, f"{source!r} did not load"
+
+
+def test_a_missing_or_broken_wallpaper_is_not_fatal(qtbot, tmp_path):
+    """The file can be deleted between the stylesheet being built and the
+    screen being constructed. That is a cosmetic miss, not a crash."""
+    rain = make_widget(qtbot)
+    rain.set_backdrop(tmp_path / "does-not-exist.png")
+    assert rain.backdrop() is None
+    junk = tmp_path / "junk.png"
+    junk.write_bytes(b"not an image")
+    rain.set_backdrop(junk)
+    assert rain.backdrop() is None
+
+
+def test_a_backdrop_that_cannot_be_coerced_at_all_is_survivable(qtbot):
+    class Hostile:
+        def __str__(self):
+            raise RuntimeError("not stringifiable")
+
+    rain = make_widget(qtbot)
+    rain.set_backdrop(object())          # coerces, loads nothing
+    assert rain.backdrop() is None
+    rain.set_backdrop(Hostile())         # cannot even be coerced
+    assert rain.backdrop() is None
+
+
+def test_strips_stay_opaque_without_a_backdrop(qtbot):
+    """The fast path: the trail alphas are baked against a constant
+    background so the per-frame blit is a straight copy."""
+    rain = make_widget(qtbot)
+    rain.advance_frame(DT)
+    strip = rain._strip_for(0)
+    image = strip.toImage()
+    assert not image.hasAlphaChannel() or \
+        QColor(image.pixelColor(0, 0)).alpha() == 255
+
+
+def test_strips_carry_alpha_once_there_is_a_picture_under_them(qtbot):
+    """There is nothing constant to bake against when the thing under a
+    string changes as the string falls."""
+    rain = make_widget(qtbot, backdrop=_backdrop())
+    rain.advance_frame(DT)
+    image = rain._strip_for(0).toImage()
+    assert image.hasAlphaChannel()
+    corners = [image.pixelColor(0, y).alpha()
+               for y in range(0, image.height(), 7)]
+    assert min(corners) < 255, "a strip over a picture must not be opaque"
+
+
+def test_the_backdrop_lands_where_the_window_paints_it(qtbot):
+    """The window centres its wallpaper on itself and does not repeat it.
+    The rain has to hit exactly the same pixels or the picture visibly
+    jumps at the widget's edge."""
+    from PySide6.QtCore import QPoint
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(200, 100)
+    rain = DnaRainWidget(host, seed=1, backdrop=_backdrop(100, 40))
+    rain.setGeometry(20, 10, 180, 90)
+    # Image centred on the 200x100 window -> (50, 30); the rain starts at
+    # (20, 10), so in its own coordinates the image starts at (30, 20).
+    assert rain._backdrop_origin() == QPoint(30, 20)
+
+
+def test_a_rain_with_no_window_still_places_its_backdrop(qtbot):
+    from PySide6.QtCore import QPoint
+    rain = make_widget(qtbot, backdrop=_backdrop(64, 48), _w=100, _h=80)
+    assert rain._backdrop_origin() == QPoint(18, 16)
+
+
+def test_clearing_paints_the_picture_not_the_flat_colour(qtbot):
+    from PySide6.QtGui import QImage, QPainter
+    rain = make_widget(qtbot, backdrop=_backdrop(640, 480), _w=640, _h=480)
+    image = QImage(640, 480, QImage.Format_RGB32)
+    image.fill(QColor("#000000"))
+    painter = QPainter(image)
+    rain._clear(painter, QRect(0, 0, 640, 480))
+    painter.end()
+    assert QColor(image.pixel(320, 240)).name() == "#c81e64"
+
+
+def test_a_backdrop_smaller_than_the_widget_still_covers_it(qtbot):
+    """`WA_OpaquePaintEvent` promises every pixel of the dirty rect is
+    written. A wallpaper narrower than the window must not leave the
+    previous frame showing through the margins."""
+    from PySide6.QtGui import QImage, QPainter
+    rain = make_widget(qtbot, backdrop=_backdrop(40, 30), _w=200, _h=150)
+    image = QImage(200, 150, QImage.Format_RGB32)
+    image.fill(QColor("#00ff00"))
+    painter = QPainter(image)
+    rain._clear(painter, QRect(0, 0, 200, 150))
+    painter.end()
+    assert QColor(image.pixel(100, 75)).name() == "#c81e64", "picture"
+    assert QColor(image.pixel(2, 2)).name() == \
+        QColor(rain.background_color()).name(), "flat fill outside it"
+
+
+def test_a_backdrop_entirely_outside_the_dirty_rect_falls_back_to_flat(qtbot):
+    from PySide6.QtGui import QImage, QPainter
+    rain = make_widget(qtbot, backdrop=_backdrop(20, 20), _w=400, _h=400)
+    image = QImage(400, 400, QImage.Format_RGB32)
+    image.fill(QColor("#00ff00"))
+    painter = QPainter(image)
+    rain._clear(painter, QRect(0, 0, 40, 40))
+    painter.end()
+    assert QColor(image.pixel(5, 5)).name() == \
+        QColor(rain.background_color()).name()
+
+
+def test_the_whole_frame_paints_over_a_backdrop(qtbot):
+    """End to end: a real paintEvent, splices included, with a picture
+    under it. Nothing here may raise and the picture must survive."""
+    from PySide6.QtCore import QPoint
+    from PySide6.QtGui import QImage, QPainter
+    rain = make_widget(qtbot, backdrop=_backdrop(640, 480), _w=640, _h=480,
+                       spacr_probability=1.0)
+    for _ in range(20):
+        rain.advance_frame(DT)
+    image = QImage(640, 480, QImage.Format_RGB32)
+    image.fill(QColor("#000000"))
+    painter = QPainter(image)
+    rain.render(painter, QPoint(0, 0))
+    painter.end()
+    pixels = {QColor(image.pixel(x, y)).name()
+              for x in range(0, 640, 17) for y in range(0, 480, 13)}
+    assert "#c81e64" in pixels, "the wallpaper must survive the rain"
+    assert len(pixels) > 1, "and the rain must survive the wallpaper"
+
+
+def test_the_sequencing_screen_hands_the_rain_its_wallpaper(qtbot,
+                                                            qt_theme_applied,
+                                                            tmp_path,
+                                                            monkeypatch):
+    """The wiring, on the real screen: `map_barcodes` under an image
+    theme used to paint flat black over the theme's own picture."""
+    from spacr.qt.screens import app_screen
+    from spacr.qt.screens.app_screen import AppScreen
+    path = tmp_path / "wall.png"
+    _backdrop(320, 240).save(str(path))
+    monkeypatch.setattr(app_screen, "_theme_wallpaper", lambda: str(path))
+    screen = AppScreen("map_barcodes")
+    qtbot.addWidget(screen)
+    assert screen._dna_rain is not None
+    assert screen._dna_rain.backdrop() is not None
+
+
+def test_the_opaque_themes_keep_the_cheap_path(qtbot, qt_theme_applied,
+                                               monkeypatch):
+    from spacr.qt.screens import app_screen
+    from spacr.qt.screens.app_screen import AppScreen
+    monkeypatch.setattr(app_screen, "_theme_wallpaper", lambda: None)
+    screen = AppScreen("map_barcodes")
+    qtbot.addWidget(screen)
+    assert screen._dna_rain is not None
+    assert screen._dna_rain.backdrop() is None
+
+
+def test_a_theme_switch_re_backdrops_the_rain(qtbot, qt_theme_applied,
+                                              tmp_path, monkeypatch):
+    """Only Home is rebuilt on a theme change; every other screen is
+    re-styled in place. That covers everything whose colours come from
+    the QSS and nothing that paints itself, so the rain kept the flat
+    fill and the wallpaper it was constructed with — a black rectangle
+    on the light page, or flat black over a freshly-loaded micrograph."""
+    from PySide6.QtCore import QEvent
+    from spacr.qt.screens import app_screen
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.theme import palette_for
+
+    monkeypatch.setattr(app_screen, "_theme_wallpaper", lambda: None)
+    screen = AppScreen("map_barcodes")
+    qtbot.addWidget(screen)
+    rain = screen._dna_rain
+    assert rain is not None and rain.backdrop() is None
+    chosen = QColor("#ff00ff")
+    rain.set_color(chosen)
+
+    path = tmp_path / "wall.png"
+    _backdrop(320, 240).save(str(path))
+    monkeypatch.setattr(app_screen, "_theme_wallpaper", lambda: str(path))
+    monkeypatch.setattr(
+        "spacr.qt.preferences.resolve_effective_theme", lambda: "light")
+    screen.changeEvent(QEvent(QEvent.ApplicationPaletteChange))
+
+    assert rain.backdrop() is not None, "the new wallpaper must reach it"
+    assert rain.background_color().name() == \
+        QColor(palette_for("light")["bg"]).name()
+    assert rain.color().name() == chosen.name(), \
+        "a colour the user picked must survive a theme switch"
+
+
+def test_unrelated_change_events_are_ignored(qtbot, qt_theme_applied,
+                                             monkeypatch):
+    from PySide6.QtCore import QEvent
+    from spacr.qt.screens import app_screen
+    from spacr.qt.screens.app_screen import AppScreen
+
+    monkeypatch.setattr(app_screen, "_theme_wallpaper", lambda: None)
+    screen = AppScreen("map_barcodes")
+    qtbot.addWidget(screen)
+
+    def explode():
+        raise AssertionError("re-themed on the wrong event")
+    monkeypatch.setattr(app_screen, "_theme_wallpaper", explode)
+    screen.changeEvent(QEvent(QEvent.EnabledChange))
+    screen.changeEvent(QEvent(QEvent.FontChange))
+
+
+def test_a_screen_with_no_rain_shrugs_off_a_theme_switch(qtbot,
+                                                         qt_theme_applied):
+    from PySide6.QtCore import QEvent
+    from spacr.qt.screens.app_screen import AppScreen
+    screen = AppScreen("measure")
+    qtbot.addWidget(screen)
+    assert screen._dna_rain is None
+    screen.changeEvent(QEvent(QEvent.ApplicationPaletteChange))
+
+
+def test_a_broken_theme_lookup_does_not_break_the_switch(qtbot,
+                                                         qt_theme_applied,
+                                                         monkeypatch):
+    from PySide6.QtCore import QEvent
+    from spacr.qt.screens import app_screen
+    from spacr.qt.screens.app_screen import AppScreen
+
+    monkeypatch.setattr(app_screen, "_theme_wallpaper", lambda: None)
+    screen = AppScreen("map_barcodes")
+    qtbot.addWidget(screen)
+
+    def boom():
+        raise RuntimeError("preferences are gone")
+    monkeypatch.setattr("spacr.qt.preferences.resolve_effective_theme", boom)
+    screen.changeEvent(QEvent(QEvent.ApplicationPaletteChange))

@@ -85,8 +85,23 @@ class TestPalettes:
             for fg, surface, _ in theme.CONTRAST_RULES:
                 theme.contrast_ratio(palette[fg], palette[surface])
 
-    def test_cell_clears_aa_against_a_pure_white_background(self):
-        """The worst case any photograph can put behind a panel."""
+    def test_cell_clears_aa_against_the_worst_case_it_can_actually_meet(self):
+        """Renamed, and it now means something different.
+
+        It used to read ``..._against_a_pure_white_background`` and it
+        pinned the Cell scrims against ``#ffffff``. White is the worst
+        case for *Space*, whose procedural sky keeps its sun blown out;
+        it is not one Cell can produce, because every Cell wallpaper is
+        exposure-solved down to :func:`theme.max_background_luma`.
+        Judging Cell against white cost a 0.90 scrim and, with it, the
+        picture. ``contrast_failures`` now resolves the worst case per
+        theme (:func:`theme.scrim_under`), and this asserts the thing
+        that was always the point: text on a Cell panel is readable over
+        anything a Cell wallpaper can put behind it.
+        """
+        assert theme.scrim_under("cell") != theme.WORST_CASE_UNDER
+        assert theme.relative_luminance(theme.scrim_under("cell")) == \
+            pytest.approx(theme.max_background_luma("cell"), abs=0.005)
         assert theme.contrast_failures("cell") == []
 
     def test_scrims_are_declared_for_every_image_theme(self):
@@ -136,9 +151,36 @@ class TestMaxBackgroundLuma:
         assert scrimmed and all(r["bg_color"] != "#ffffff" for r in scrimmed)
 
     def test_a_white_wallpaper_is_reported_as_a_failure(self):
+        """A pure white Cell wallpaper breaks the *panels* too, now.
+
+        This used to assert every failure named ``on bg`` — i.e. that
+        only bare text suffered and the scrims shrugged a white
+        wallpaper off. That was true when the Cell scrims were 0.88-0.93
+        and it is why they were, and it is exactly the trade the user
+        saw as "the themes aren't implemented, I can't see the cells":
+        a scrim thick enough to survive a hypothetical white photograph
+        transmits 10 % of a real one.
+
+        Cell's scrims are now solved against
+        :func:`theme.scrim_under`, which for Cell is the exposure
+        ceiling every Cell wallpaper is *guaranteed* to be under
+        (`imagery.render` solves the shipped masters and the user's own
+        drop-in alike), so white is out of contract. Feeding it in
+        anyway must therefore report the panels as well — and this test
+        pins that, because the day a Cell wallpaper can reach white is
+        the day the scrims have to go back up.
+        """
         failures = theme.image_contrast_failures("cell", "#ffffff")
         assert failures, "white behind bare text must not be reported as fine"
-        assert all("on bg" in line for line in failures)
+        assert any("on bg" in line for line in failures)
+        assert any("on surface" in line for line in failures), \
+            "a thin scrim cannot save text over white; say so"
+        # Space is the theme that really can be handed a white pixel —
+        # its sky blows its sun out on purpose — so its scrims are
+        # solved against white and they hold.
+        assert all("on bg" in line
+                   for line in theme.image_contrast_failures(
+                       "space", "#ffffff"))
 
     def test_a_black_wallpaper_passes_everything(self):
         assert theme.image_contrast_failures("cell", "#000000") == []
@@ -713,13 +755,24 @@ class TestDegradesWithoutMasters:
         assert "qlineargradient" in qss
         assert theme.CELL_PALETTE["accent_soft"] in qss
 
-    def test_nothing_here_touches_the_network(self, no_masters, monkeypatch):
+    def test_nothing_here_touches_the_network(self, no_masters, cache_dir,
+                                               monkeypatch):
+        """`cache_dir` was missing here and the test was reading the
+        developer's real ~/.spacr/backgrounds. It passed only while that
+        directory happened not to hold a deep_field render at exactly
+        1920x1200 — rendering one at that size (which any 1920x1200
+        screen does on first launch) turned it red, because
+        `background_path` correctly returns the *cached* file whether or
+        not a master is installed. Redirect the cache as well as the
+        masters and it tests what it says it tests."""
         import urllib.request
 
         def forbidden(*args, **kwargs):
             raise AssertionError("the imagery pipeline opened a socket")
 
         monkeypatch.setattr(urllib.request, "urlopen", forbidden)
+        assert not (cache_dir / imagery.cache_name(
+            "deep_field", 1920, 1200)).exists()
         assert imagery.background_path("deep_field", 1920, 1200) is None
         assert imagery.legibility("deep_field") is None
 

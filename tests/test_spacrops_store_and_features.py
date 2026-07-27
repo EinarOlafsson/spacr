@@ -330,21 +330,38 @@ def test_outline_mask_dilate_ksize_grows_before_canny(tmp_path):
     assert np.nonzero(dil)[0].max() > np.nonzero(plain)[0].max()
 
 
-def _install_fake_cellpose(monkeypatch, mask):
+def _install_fake_cellpose(monkeypatch, mask, n_returns=3):
+    """Stand in for the Cellpose 4 API.
+
+    This used to fake ``models.Cellpose`` -- the pre-SAM wrapper class -- with
+    a four-value ``eval``, which is exactly the Cellpose-3 call spacrops.py
+    was making. The mock and the code agreed with each other and with nothing
+    else, so these tests passed green while ``outline_source='cellpose'``
+    raised ``AttributeError: module 'cellpose.models' has no attribute
+    'Cellpose'`` against every installed Cellpose 4. Cellpose 4 ships
+    ``CellposeModel`` only, and its ``eval`` returns three values.
+    """
+    # spacrops resolves the model name through spacr.utils, which imports
+    # cellpose at module level. Load the REAL spacr.utils before the fake goes
+    # into sys.modules -- in a run it is imported long before any stitching.
+    import spacr.utils  # noqa: F401
+
     cellpose = types.ModuleType("cellpose")
     models = types.ModuleType("cellpose.models")
     seen = {}
 
-    class Cellpose:
-        def __init__(self, model_type=None):
-            seen["model_type"] = model_type
+    class CellposeModel:
+        def __init__(self, **kwargs):
+            seen["init_kwargs"] = kwargs
 
         def eval(self, x, **kw):
             seen["x_max"] = float(np.max(x))
             seen["kw"] = kw
-            return mask, None, None, None
+            if n_returns == 4:
+                return mask, None, None, 30.0
+            return mask, None, None
 
-    models.Cellpose = Cellpose
+    models.CellposeModel = CellposeModel
     cellpose.models = models
     monkeypatch.setitem(sys.modules, "cellpose", cellpose)
     monkeypatch.setitem(sys.modules, "cellpose.models", models)
@@ -361,8 +378,23 @@ def test_foreground_mask_cellpose_uses_the_model_labels(tmp_path, monkeypatch):
     m = st._foreground_mask(img)
     assert m.dtype == bool and m.sum() == 16
     assert m[5, 5] and not m[0, 0]
-    assert seen["model_type"] == "nuclei"
+    # cpsam, not 'nuclei': Cellpose 4 ships one model, and model_type= is
+    # accepted-and-ignored, so passing it named weights that never loaded.
+    assert seen["init_kwargs"]["pretrained_model"] == "cpsam"
+    assert "model_type" not in seen["init_kwargs"]
+    # eval(channels=) was dropped in v4.0.1+; diameter still does something.
+    assert "channels" not in seen["kw"]
+    assert seen["kw"]["diameter"] is None
     assert seen["x_max"] == pytest.approx(1.0)     # scaled to 0..1 before eval
+
+
+def test_foreground_mask_cellpose_accepts_a_four_value_eval(tmp_path, monkeypatch):
+    """Cellpose 3 returned a fourth value, diams; the unpack must tolerate it."""
+    labels = np.zeros((16, 16), np.int32)
+    labels[4:8, 4:8] = 3
+    _install_fake_cellpose(monkeypatch, labels, n_returns=4)
+    st = _stitcher(tmp_path, outline_source="cellpose")
+    assert st._foreground_mask(np.full((16, 16), 255, np.uint8)).sum() == 16
 
 
 def test_outline_mask_cellpose_outlines_the_model_labels(tmp_path, monkeypatch):
@@ -372,6 +404,34 @@ def test_outline_mask_cellpose_outlines_the_model_labels(tmp_path, monkeypatch):
     st = _stitcher(tmp_path, outline_source="cellpose")
     edges = st._outline_mask(np.full((40, 40), 128, np.uint8))
     assert edges.sum() > 0 and not edges[20, 20]
+
+
+def test_cellpose_model_is_built_once_per_stitcher(tmp_path, monkeypatch):
+    """It used to be constructed inside the per-tile mask helpers.
+
+    cpsam is a 1.2 GB checkpoint; rebuilding it per image in a well is the
+    difference between a stitch that finishes and one that does not.
+    """
+    built = []
+    labels = np.zeros((16, 16), np.int32)
+    labels[4:8, 4:8] = 1
+    seen = _install_fake_cellpose(monkeypatch, labels)
+    real_models = sys.modules["cellpose.models"]
+    original = real_models.CellposeModel
+
+    class Counting(original):
+        def __init__(self, **kwargs):
+            built.append(kwargs)
+            super().__init__(**kwargs)
+
+    real_models.CellposeModel = Counting
+    st = _stitcher(tmp_path, outline_source="cellpose")
+    img = np.full((16, 16), 255, np.uint8)
+    for _ in range(3):
+        st._foreground_mask(img)
+    st._outline_mask(img)
+    assert len(built) == 1
+    assert seen["init_kwargs"]["pretrained_model"] == "cpsam"
 
 
 def test_masks_raise_a_clear_error_when_cellpose_is_missing(tmp_path, monkeypatch):
