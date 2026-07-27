@@ -1,36 +1,41 @@
-statsmodels>=0.14.1,<1.0
-scikit-image>=0.22.0,<1.0
-scikit-learn>=1.4.1,<2.0
-seaborn>=0.13.2,<1.0
-matplotlib>=3.8.3,<4.0
-shap>=0.45.0,<1.0
-pillow>=10.2.0,<11.0
-imageio>=2.34.0,<3.0
-scipy>=1.12.0,<2.0
-ipywidgets>=8.1.2,<9.0
-mahotas>=1.4.13,<2.0
-btrack>=0.6.5,<1.0
-trackpy>=0.6.2,<1.0
-cellpose>=3.0.6,<4.0
-IPython>=8.18.1,<9.0
-opencv-python-headless>=4.9.0.80,<5.0
-umap-learn>=0.5.6,<1.0
-ttkthemes>=3.2.2,<4.0
-xgboost>=2.0.3,<3.0
-PyWavelets>=1.6.0,<2.0
-torchcam>=0.4.0,<1.0
-ttf_opensans>=2020.10.30
-customtkinter>=5.2.2,<6.0
-biopython>=1.80,<2.0
-lxml>=5.1.0,<6.0
-psutil>=5.9.8,<6.0
-gputil>=1.4.0,<2.0
-gpustat>=1.1.1,<2.0
-tables>=3.8.0,<4.0
-rapidfuzz>=3.9,<4.0
-huggingface-hub>=0.24.0,<0.25
-pyqtgraph>=0.13.7,<0.14
-pyqt6>=6.7.1,<6.8
-pyqt6.sip
-qtpy>=2.4.1,<2.5
-superqt>=0.6.7,<0.7
+# requirements.txt is NOT the source of truth for spaCR's dependencies.
+#
+# setup.py's `dependencies` list is. This file exists only for the tools and
+# habits that reach for a requirements.txt anyway (`pip install -r`, some CI
+# caches, a few IDE integrations), and it earns its place only by agreeing
+# with setup.py. It had stopped agreeing, in three ways that all pointed the
+# same direction — it was a snapshot from before the cellpose 4 migration and
+# nobody had touched it since:
+#
+#   1. `cellpose>=3.0.6,<4.0` directly CONTRADICTED setup.py's
+#      `cellpose>=4.0,<5.0`. Installing from this file produced an environment
+#      in which spaCR's own cellpose code cannot run, and installing from both
+#      produced an unsatisfiable resolve.
+#   2. It re-declared the entire second Qt binding that was deleted from
+#      setup.py — pyqtgraph, pyqt6, pyqt6.sip, qtpy, superqt. 75 files under
+#      spacr/ import PySide6; zero import any of those five. Anyone who ran
+#      `pip install -r requirements.txt` got ~100 MB of an unused, ABI-hazardous
+#      second Qt on top of the one spaCR actually uses.
+#   3. Fourteen further bounds were stale relative to the 2026-07-26 audit
+#      (pillow <11, psutil <6, IPython <9, xgboost <3, lxml <6, statsmodels
+#      <1.0, scikit-image <1.0, scikit-learn >=1.4.1, btrack >=0.6.5,
+#      huggingface-hub <0.25 ...), and it still listed mahotas, torchcam,
+#      ttkthemes, PyWavelets, ttf_opensans, customtkinter, gpustat and
+#      rapidfuzz — four of which are now removed outright and two of which
+#      have moved to extras.
+#
+# Rather than re-synchronise 36 lines by hand and let them rot again, this
+# file now delegates. `-e .` installs exactly what setup.py declares, so the
+# two cannot drift apart, and the qt/dev extras are named explicitly because
+# they are what a developer checkout wants.
+#
+# tests/test_packaging_metadata.py::test_no_second_qt_binding_is_declared and
+# ::test_requirements_txt_does_not_contradict_setup_py both read this file, so
+# a hand-written dependency list reappearing here fails CI rather than
+# silently shipping.
+#
+#   pip install -r requirements.txt     # editable dev install, Qt + tests
+#   pip install spacr                   # users; core only, no Qt
+#   pip install "spacr[all]"            # every optional feature
+
+-e .[qt,dev]

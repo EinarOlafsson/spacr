@@ -63,16 +63,18 @@ def _core_dependencies() -> list[str]:
     pytest.fail("could not find the `dependencies` list in setup.py")
 
 
+def _norm(n: str) -> str:
+    """PEP 503 normalised project name."""
+    return re.sub(r"[-_.]+", "-", n).lower()
+
+
 def _spec_for(name: str) -> SpecifierSet:
     """The declared SpecifierSet for one distribution, by normalised name."""
     from packaging.requirements import Requirement
 
-    def norm(n: str) -> str:
-        return re.sub(r"[-_.]+", "-", n).lower()
-
     for dep in _core_dependencies():
         req = Requirement(dep)
-        if norm(req.name) == norm(name):
+        if _norm(req.name) == _norm(name):
             return req.specifier
     pytest.fail(f"{name!r} is not in setup.py's core dependencies")
 
@@ -218,90 +220,216 @@ def test_torchvision_floor_covers_the_multi_weight_api():
 # 3. numpy: the pin and the code that forces it, asserted together
 # ---------------------------------------------------------------------------
 
-#: The three things that must be fixed before `numpy<2.0` can move. Proven on
-#: 2026-07-26: with these done, the full dependency set installs and every
-#: spaCR module imports under numpy 2.4.4 on CPython 3.12 and 3.13.
+#: The three modules that called ``np.trapz``, with the pattern that detects
+#: an UNGUARDED use — one that would raise ``AttributeError`` on numpy 2.
+#:
+#: The distinction matters, and getting it wrong is what this test used to do.
+#: Its old patterns were ``np\.trapz\(`` for utils.py and attribution.py and
+#: the bare string ``from numpy import trapz`` for timelapse.py. The first two
+#: are still right. The third was not: after the fix, spacr/timelapse.py:25-28
+#: reads
+#:
+#:     try:
+#:         from numpy import trapezoid as trapz
+#:     except ImportError:                     # numpy < 2.0
+#:         from numpy import trapz
+#:
+#: — and the ``except ImportError`` branch, which is the numpy 1.x fallback and
+#: is exactly what makes the module work on BOTH numpy lines, matched the old
+#: pattern. So the test went on reporting timelapse.py as an unfixed blocker
+#: and holding ``numpy<2.0`` shut against a file that had already been fixed.
+#: It was pinning the shape of the bug rather than the bug.
+#:
+#: The patterns below therefore look for a *bare* ``np.trapz(`` call and for a
+#: ``from numpy import trapz`` that is NOT the fallback arm of a
+#: ``trapezoid``-preferring try/except.
 _NUMPY2_BLOCKERS = (
-    ("utils.py", r"np\.trapz\("),
-    ("attribution.py", r"np\.trapz\("),
-    ("timelapse.py", r"from numpy import trapz"),
+    ("utils.py", r"(?<![\w.])np\.trapz\("),
+    ("attribution.py", r"(?<![\w.])np\.trapz\("),
+    ("timelapse.py", r"(?<![\w.])np\.trapz\("),
 )
 
+#: A module is exempt from the ``from numpy import trapz`` check when it
+#: prefers ``trapezoid`` first — that is the documented, working pattern.
+_TRAPEZOID_PREFERRED = r"from numpy import trapezoid"
 
-def test_numpy_cap_stays_while_the_np_trapz_call_sites_remain():
+
+def test_no_module_calls_the_np_trapz_removed_in_numpy_2():
     """``np.trapz`` was removed in numpy 2.0; ``np.trapezoid`` replaces it.
 
-    ``spacr/timelapse.py`` is the acute case: it guards the import with a
-    ``from scipy.integrate import trapz`` fallback that is **already dead**,
-    because SciPy removed ``integrate.trapz`` in 1.14 and ``scipy<2.0`` here
-    resolves 1.18. Under numpy 2 that module is the one import failure in the
-    whole package.
+    This is the assertion the old
+    ``test_numpy_cap_stays_while_the_np_trapz_call_sites_remain`` was reaching
+    for, stated directly. The old test said "IF a call site remains THEN the
+    numpy cap must stay below 2.0", which made it a cap-guard that could never
+    do anything once the cap moved, and — because its timelapse.py pattern
+    matched that module's numpy-1 *fallback* — it never let the cap move at
+    all.
+
+    ``spacr/timelapse.py`` was the acute case. Before the fix it guarded the
+    import with ``from scipy.integrate import trapz``, which was **already
+    dead**: SciPy removed ``integrate.trapz`` in 1.14 and ``scipy<2.0``
+    resolves 1.18. Under numpy 2 it was the one import failure in the whole
+    package. It now prefers ``numpy.trapezoid`` and falls back to
+    ``numpy.trapz`` only on numpy 1.x.
     """
-    remaining = [(f, p) for f, p in _NUMPY2_BLOCKERS
-                 if re.search(p, _src(f))]
-
-    if remaining:
-        assert not _admits("numpy", "2.0.0"), (
-            "numpy's cap admits 2.x, but np.trapz (removed in numpy 2.0) is "
-            f"still called at: {[f for f, _ in remaining]}. Replace it with "
-            "np.trapezoid first — spacr/timelapse.py additionally needs its "
-            "dead scipy.integrate.trapz fallback removed."
-        )
-    else:
-        pytest.fail(
-            "No np.trapz call sites remain. That was blocker 1 of 3 for "
-            "numpy 2. Blockers 2 and 3: torchcam declares `numpy<2.0.0` at "
-            "every release satisfying its pin, so it must leave the core "
-            "dependencies; and tests/test_diameter_estimator.py calls the "
-            "removed `ndarray.ptp()` method. With all three done, "
-            "`numpy>=1.26.4,<3.0` and `requires-python = '>=3.10,<3.14'` "
-            "were both verified working."
-        )
-
-
-def test_torchcam_is_the_other_numpy2_blocker_and_is_still_in_core():
-    """torchcam 0.4.0 and 0.4.1 both declare ``numpy<2.0.0``.
-
-    The pin is spurious — torchcam touches numpy only in an overlay helper,
-    and GradCAM was verified running correctly under numpy 2.4.4 — but pip
-    cannot be argued with. This test exists so that whoever widens numpy is
-    reminded that torchcam has to move to an extra in the same commit.
-    """
-    core = {re.split(r"[<>=!~ ,\[]", d.strip())[0].lower()
-            for d in _core_dependencies()}
-    if "torchcam" not in core:
-        pytest.skip("torchcam has left the core dependencies")
-
-    assert not _admits("numpy", "2.0.0"), (
-        "numpy's cap admits 2.x while torchcam is still a core dependency. "
-        "Every torchcam release satisfying `>=0.4.0,<1.0` declares "
-        "`numpy<2.0.0`, so pip will resolve numpy back to 1.26.4 — and on "
-        "Python 3.13, where 1.26.4 has no wheel, drop the user into the numpy "
-        "source build the cap exists to prevent."
+    offenders = [f for f, p in _NUMPY2_BLOCKERS if re.search(p, _src(f))]
+    assert not offenders, (
+        f"np.trapz (removed in numpy 2.0) is called unguarded in: {offenders}. "
+        f"spacr/utils.py and spacr/attribution.py resolve it once at module "
+        f"scope with `_trapezoid = getattr(np, 'trapezoid', None) or np.trapz`; "
+        f"use that, or np.trapezoid directly. The numpy pin admits 2.x, so "
+        f"this is an AttributeError at runtime, not a theoretical risk."
     )
+
+    tl = _src("timelapse.py")
+    if re.search(r"^\s*from numpy import trapz\s*$", tl, re.MULTILINE):
+        assert re.search(_TRAPEZOID_PREFERRED, tl), (
+            "spacr/timelapse.py imports `trapz` from numpy without preferring "
+            "`trapezoid` first. On numpy 2 that is an ImportError at module "
+            "scope, which makes `import spacr.timelapse` fail outright."
+        )
+
+
+def test_numpy_admits_2x_now_that_all_three_blockers_are_closed():
+    """The widening itself, asserted rather than assumed.
+
+    Three things blocked ``numpy>=1.26.4,<2.0`` from moving, and this test
+    fails if any of them silently comes back:
+
+    1. ``np.trapz`` at three call sites — covered by the test above.
+    2. ``torchcam``, every release of which declares ``numpy<2.0.0``. It is
+       now in the ``attribution`` extra.
+    3. ``tests/test_diameter_estimator.py`` calling the removed
+       ``ndarray.ptp()`` method — now ``np.ptp(field)``.
+
+    The old ``test_torchcam_is_the_other_numpy2_blocker_and_is_still_in_core``
+    asserted (2) from the other side: it required the numpy cap to stay below
+    2.0 *while* torchcam was in core, and ``pytest.skip``-ed the moment
+    torchcam left — becoming a test that could never fail again. Replaced with
+    the invariant that actually needs holding: while numpy admits 2.x,
+    torchcam must NOT be a core dependency.
+    """
+    assert _admits("numpy", "2.0.0"), (
+        "the numpy cap no longer admits 2.x. If that is a deliberate revert, "
+        "say why here — it re-caps Python at 3.12, because numpy 1.26.4 is "
+        "the only release satisfying `<2.0` and its wheels stop at cp312."
+    )
+
+    core = {re.split(r"[<>=!~ ,\[;]", d.strip())[0].lower()
+            for d in _core_dependencies()}
+    assert "torchcam" not in core, (
+        "torchcam is back in the core dependencies while numpy admits 2.x. "
+        "Every release satisfying `>=0.4.0,<1.0` declares `numpy<2.0.0`, so "
+        "pip resolves numpy back to 1.26.4 — and on Python 3.13, where 1.26.4 "
+        "has no wheel, that is a numpy source build. Measured 2026-07-27 in a "
+        "3.13.14 env: `pip install torchcam` is ResolutionImpossible. It "
+        "belongs in the `attribution` extra."
+    )
+    assert "mahotas" not in core, (
+        "mahotas is back in the core dependencies. It has never published a "
+        "cp313 wheel at any version, so in the core list it forces a C++ "
+        "source build on every Python 3.13 install — including on machines "
+        "with no toolchain, where it simply fails. It belongs in the "
+        "`zernike` extra."
+    )
+
+    ptp_test = (REPO_ROOT / "tests" / "test_diameter_estimator.py")
+    if ptp_test.exists():
+        # Comments are stripped before matching, and that is not a detail.
+        # The line that fixed this bug carries the trailing comment
+        # `# ndarray.ptp() removed in numpy 2.0`, so a naive search finds
+        # "...ay.ptp()" inside the *explanation of the fix* and reports the
+        # fixed file as broken. Matching prose about a bug instead of the bug
+        # is precisely what the old timelapse.py pattern did a few tests up;
+        # doing it again here would be poor form.
+        code = "\n".join(
+            re.sub(r"#.*$", "", ln)
+            for ln in ptp_test.read_text(encoding="utf-8").splitlines()
+        )
+        assert not re.search(r"\w\.ptp\(\s*\)", code), (
+            "tests/test_diameter_estimator.py calls the `ndarray.ptp()` "
+            "method, removed in numpy 2.0. Use the `np.ptp(x)` function form."
+        )
 
 
 # ---------------------------------------------------------------------------
 # 4. Ceilings that must EXIST, because their absence changes other pins
 # ---------------------------------------------------------------------------
 
-def test_monai_is_capped_so_it_cannot_raise_the_torch_floor():
-    """monai 1.6.0 requires ``torch>=2.8.0``; monai 1.5.1 requires >=2.4.1.
+def test_the_unimported_dependencies_stay_removed():
+    """The 18 distributions with zero imports do not come back.
 
-    Uncapped, ``monai>=1.3.0`` silently overrode the ``torch>=2.0`` declared
-    a few lines above it and dragged torchvision along — a multi-GB resolver
-    swing for a package spaCR imports in zero files.
+    This replaces ``test_monai_is_capped_so_it_cannot_raise_the_torch_floor``,
+    which asserted that ``monai`` carried an upper bound — monai 1.6.0
+    requires ``torch>=2.8.0`` and 1.5.1 requires >=2.4.1, so an uncapped
+    ``monai>=1.3.0`` silently overrode the ``torch>=2.0`` declared a few lines
+    above it. That test is obsolete for the best possible reason: capping a
+    package spaCR imports in zero files was treating the symptom. monai is
+    gone, so there is no cap to check.
+
+    The census that removed these was run over all 159 files under ``spacr/``
+    with ``ast.walk`` (so imports inside functions and ``try``/``except``
+    bodies count, not just module scope), then re-checked with a raw
+    ``grep -rIn -w`` across the whole tree including non-Python files. Each
+    name below had zero import statements, zero dynamic references and zero
+    string references that were not prose.
+
+    The census is fallible in one specific direction, and the guard against
+    re-adding something must not become a guard against noticing that:
+    ``umap-learn`` has zero import statements too, and is nonetheless a real,
+    load-bearing core dependency, because spaCR reaches it through
+    ``umap = _LazyModule('umap.umap_', ...)`` at spacr/utils.py:197 — a string
+    literal no import census can see. Before deleting anything from this list,
+    grep for the string form as well.
     """
-    spec = _spec_for("monai")
-    has_cap = any(s.operator in ("<", "<=", "==") for s in spec)
-    assert has_cap, (
-        "monai has no upper bound. It raised its own torch floor to 2.4.1 in "
-        "1.5.1 and to 2.8.0 in 1.6.0, so an uncapped monai silently overrides "
-        "spaCR's declared `torch>=2.0`."
+    removed = {
+        "transformers", "monai", "segmentation-models-pytorch",
+        "torch-geometric", "pywavelets", "rapidfuzz", "wandb", "gdown",
+        "pytz", "ipykernel", "ttkthemes", "ttf-opensans", "brokenaxes",
+        "gpustat", "customtkinter", "openai", "keyring", "importlib-metadata",
+    }
+    core = {_norm(re.split(r"[<>=!~ ,\[;]", d.strip())[0])
+            for d in _core_dependencies()}
+    back = sorted(removed & core)
+    assert not back, (
+        f"{back} returned to setup.py's core dependencies. Each was removed "
+        f"on 2026-07-27 for having zero imports, zero string references and "
+        f"zero dynamic references anywhere under spacr/. If one is genuinely "
+        f"needed now, add the import in the same commit — and if it is needed "
+        f"through a string literal the way umap-learn is, say so in a comment "
+        f"next to the pin, because the next census will not be able to tell."
     )
-    assert not _admits("monai", "1.6.0"), (
-        "the monai cap admits 1.6.0, which requires torch>=2.8.0 and so "
-        "contradicts the `torch>=2.0` declared in the same list."
+
+
+def test_every_directly_imported_third_party_module_is_declared():
+    """The other half: an import with no declaration is a latent break.
+
+    Five of spaCR's module-scope imports were undeclared until 2026-07-27 and
+    worked only because something else dragged them in — ``requests`` via
+    huggingface-hub (which drops requests for httpx at 1.0), ``joblib`` via
+    scikit-learn, ``natsort`` via cellpose, ``patsy`` via statsmodels and
+    ``sympy`` via torch. Every one of those was a dependency-of-a-dependency
+    away from an ImportError at ``import spacr.utils``.
+    """
+    declared = {_norm(re.split(r"[<>=!~ ,\[;]", d.strip())[0])
+                for d in _core_dependencies()}
+    must_be_declared = {
+        # distribution name -> the file that imports it at module scope
+        "requests": "utils.py",
+        "joblib": "utils.py",
+        "natsort": "submodules.py",
+        "patsy": "ml.py",
+        "sympy": "gui_elements.py",
+    }
+    missing = []
+    for dist, where in sorted(must_be_declared.items()):
+        if re.search(rf"^\s*(import|from)\s+{dist}\b", _src(where), re.MULTILINE):
+            if _norm(dist) not in declared:
+                missing.append((dist, where))
+    assert not missing, (
+        f"imported at module scope but not declared: {missing}. These arrive "
+        f"transitively today and vanish the day the package that brings them "
+        f"changes its own dependencies."
     )
 
 

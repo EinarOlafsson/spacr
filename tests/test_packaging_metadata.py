@@ -47,6 +47,7 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SETUP_PY = REPO_ROOT / "setup.py"
 PYPROJECT = REPO_ROOT / "pyproject.toml"
+REQUIREMENTS_TXT = REPO_ROOT / "requirements.txt"
 WORKFLOWS = REPO_ROOT / ".github" / "workflows"
 
 
@@ -175,24 +176,35 @@ def test_pyproject_declares_requires_python():
     assert spec.strip(), "requires-python is empty"
 
 
-def test_requires_python_admits_310_through_312_and_nothing_else():
+def test_requires_python_admits_310_through_313_and_nothing_else():
     """The supported range is evidence-bounded, in both directions.
 
     Floor 3.10: 3.9 is *resolvable* (torch 2.8.0 still ships cp39 wheels) but
-    no spaCR test has ever run on it, and keeping it drags monai,
-    torch-geometric, torchcam, numba, llvmlite, pingouin and gdown backwards.
+    no spaCR test has ever run on it, and keeping it drags numba, llvmlite and
+    pingouin backwards.
 
-    Ceiling <3.13: ``numpy>=1.26.4,<2.0`` is satisfied only by 1.26.4, whose
-    wheels stop at cp312, and mahotas has never published a cp313 wheel at any
-    version. Widening this line before those two are dealt with restores the
-    numpy-source-build failure.
+    Ceiling <3.14: pylibCZIrw publishes no cp314 wheel at any version (checked
+    through 6.1.0) and ``spacr/io.py`` imports it at module scope, so 3.14
+    would install and then fail to import.
+
+    This test used to be called
+    ``test_requires_python_admits_310_through_312_and_nothing_else`` and it
+    asserted the opposite of what it asserts now: that 3.13 was **not**
+    admitted. That was correct while ``numpy>=1.26.4,<2.0`` admitted only
+    1.26.4 (cp39-cp312 wheels) and while mahotas — which has never published a
+    cp313 wheel at any version — was a core dependency. Both facts changed on
+    2026-07-27: numpy is ``>=1.26.4,<3.0``, mahotas moved to the ``zernike``
+    extra and torchcam (which declares ``numpy<2.0.0``) moved to
+    ``attribution``. 3.13 therefore moved from the ``unsupported`` list to the
+    ``supported`` one, and ``.github/workflows/compat-matrix.yml`` grew a real
+    3.13 install cell in place of the job that asserted 3.13 was refused.
     """
     from packaging.specifiers import SpecifierSet
     from packaging.version import Version
 
     spec = SpecifierSet(_requires_python())
-    supported = ["3.10", "3.11", "3.12"]
-    unsupported = ["3.7", "3.8", "3.9", "3.13", "3.14"]
+    supported = ["3.10", "3.11", "3.12", "3.13"]
+    unsupported = ["3.7", "3.8", "3.9", "3.14"]
 
     for v in supported:
         assert spec.contains(Version(v + ".0")), \
@@ -409,6 +421,15 @@ def test_no_second_qt_binding_is_declared(banned):
     The old subprocess loop installed all four (plus pyqt6.sip), which is
     ~100 MB of second Qt binding, an ABI hazard next to PySide6, and a
     guaranteed failure on any platform where PyQt6 has no wheel.
+
+    Extended on 2026-07-27 to cover ``requirements.txt`` as well. Until then
+    this test guarded ``setup.py`` only — and the whole banned block was
+    sitting in ``requirements.txt`` the entire time, untouched, because
+    nothing read it. Anyone who ran ``pip install -r requirements.txt``
+    (a normal thing to do, and what several CI templates do by default) got
+    pyqtgraph, pyqt6, pyqt6.sip, qtpy and superqt installed next to PySide6.
+    A guard that checks one of the two files that can declare a dependency is
+    a guard that has a hole in it.
     """
     specs = list(_core_dependencies())
     for extra in _extras().values():
@@ -416,11 +437,114 @@ def test_no_second_qt_binding_is_declared(banned):
     offenders = [s for s in specs if _name_of(s).startswith(banned)]
     assert not offenders, f"{banned} re-declared: {offenders}"
 
-    src = SETUP_PY.read_text(encoding="utf-8")
-    code = "\n".join(
-        ln for ln in src.splitlines() if not ln.lstrip().startswith("#")
+    for path in (SETUP_PY, REQUIREMENTS_TXT):
+        if not path.exists():
+            continue
+        code = "\n".join(
+            ln for ln in path.read_text(encoding="utf-8").splitlines()
+            if not ln.lstrip().startswith("#")
+        )
+        assert banned not in code.lower(), (
+            f"{banned} re-appeared in {path.name}"
+        )
+
+
+def test_requirements_txt_does_not_contradict_setup_py():
+    """``requirements.txt`` must not hand-copy the dependency list.
+
+    It used to, and the copy had gone stale in the worst possible way:
+    ``cellpose>=3.0.6,<4.0`` where setup.py declares ``cellpose>=4.0,<5.0``.
+    Those two cannot both be satisfied, so ``pip install -r requirements.txt``
+    built an environment in which spaCR's own cellpose code cannot run, and
+    installing from both files was an unsatisfiable resolve. Fourteen other
+    bounds were stale in the same direction, and eight named packages that are
+    now removed or moved to extras.
+
+    The fix is structural rather than clerical: requirements.txt delegates to
+    setup.py with ``-e .[qt,dev]``, so there is exactly one dependency list in
+    the repository. This test keeps it that way — any line that pins a version
+    is a hand-written dependency creeping back in.
+    """
+    if not REQUIREMENTS_TXT.exists():
+        pytest.skip("no requirements.txt")
+
+    lines = [
+        ln.strip() for ln in REQUIREMENTS_TXT.read_text(encoding="utf-8").splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    ]
+    assert lines, "requirements.txt declares nothing at all"
+
+    pinned = [ln for ln in lines if re.search(r"[<>=!~]=?\s*\d", ln)]
+    assert not pinned, (
+        "requirements.txt pins versions again: "
+        f"{pinned}\nsetup.py's `dependencies` list is the single source of "
+        "truth. A second copy drifts — last time it drifted to "
+        "`cellpose<4.0` against setup.py's `cellpose>=4.0`, which is an "
+        "unsatisfiable pair. Delegate with `-e .[qt,dev]` instead."
     )
-    assert banned not in code.lower(), f"{banned} re-appeared in setup.py"
+    assert any(ln.startswith("-e") or ln == "." for ln in lines), (
+        "requirements.txt no longer delegates to setup.py. It should contain "
+        "`-e .[qt,dev]` so the two files cannot disagree."
+    )
+
+
+def test_attribution_extra_is_not_in_all():
+    """``spacr[all]`` must stay installable on every supported Python.
+
+    torchcam declares ``numpy<2.0.0`` at every release satisfying spaCR's pin,
+    and no numpy satisfying that publishes a cp313 wheel. Measured in a
+    throwaway CPython 3.13.14 env on 2026-07-27, ``pip install torchcam`` is a
+    hard ``ResolutionImpossible``, not a slow build. Aggregating it into
+    ``all`` would therefore break ``pip install spacr[all]`` on Python 3.13
+    outright — reintroducing, through the extra most likely to be typed by
+    someone who just wants everything, the failure that moving torchcam out of
+    the core dependencies removed.
+    """
+    extras = _extras()
+    assert "attribution" in extras, "the `attribution` extra disappeared"
+    assert any(_name_of(s) == "torchcam" for s in extras["attribution"]), \
+        "the `attribution` extra no longer provides torchcam"
+    in_all = [s for s in extras.get("all", []) if _name_of(s) == "torchcam"]
+    assert not in_all, (
+        f"torchcam is in `all` ({in_all}). On Python 3.13 — which "
+        "requires-python and the classifiers both claim — that makes "
+        "`pip install spacr[all]` backtrack into a SOURCE BUILD of numpy "
+        "1.26.4 (measured: pip reports `Would install ... numpy-1.26.4 "
+        "torchcam-0.4.1`), which is the failure moving torchcam out of the "
+        "core dependencies removed. Keep it in `attribution` only."
+    )
+
+
+def test_the_python_313_limits_of_the_extras_are_written_down():
+    """Two extras cannot be installed on Python 3.13, and both are upstream.
+
+    This test does not assert the limitation — it asserts that the limitation
+    is *documented next to the pin*, because the failure mode it guards is
+    somebody re-deriving it from a confusing pip error six months from now.
+    Both were measured in a throwaway CPython 3.13.14 env on 2026-07-27:
+
+    * ``ultrack`` — every release from 0.1.0 through 0.7.2 declares
+      ``requires-python >=3.9,<3.13``. pip refuses cleanly. This is what makes
+      ``spacr[all]`` uninstallable on 3.13, *not* torchcam.
+    * ``torchcam`` — declares ``numpy<2.0.0``, which has no cp313 wheel, so a
+      plain install backtracks into a numpy 1.26.4 source build.
+
+    Neither is a spaCR bug and neither blocks ``pip install spacr``, which is
+    the promise that matters and which resolves entirely to wheels on 3.13.
+    """
+    src = SETUP_PY.read_text(encoding="utf-8")
+    for needle, why in (
+        ("requires-python >=3.9,<3.13",
+         "ultrack's own Python ceiling, which is what stops spacr[all] on 3.13"),
+        ("numpy<2.0.0",
+         "torchcam's spurious numpy pin, the reason it is an extra at all"),
+    ):
+        assert needle in src, (
+            f"setup.py no longer documents {needle!r} ({why}). If the upstream "
+            f"limitation is gone, say so and widen the extra; do not just "
+            f"delete the note — the next person will hit the same pip error "
+            f"with no explanation."
+        )
 
 
 @pytest.mark.parametrize(
@@ -517,10 +641,24 @@ def test_extras_do_not_contradict_the_core_pins():
 
 def test_all_extra_is_exactly_the_union_of_what_it_aggregates():
     """``spacr[all]`` is spelled out rather than recursive, so it can drift.
-    This is the thing that stops it."""
+    This is the thing that stops it.
+
+    ``boosting`` joined the aggregation on 2026-07-27, when catboost and
+    lightgbm were declared for the first time (both are imported inside the
+    ``elif`` that selects them, in spacr/ml.py and spacr/hyperparam.py, and
+    neither was declared anywhere).
+
+    ``attribution`` is deliberately NOT aggregated, and that is the
+    interesting entry. torchcam declares ``numpy<2.0.0``; no numpy satisfying
+    that has a cp313 wheel; so putting it in ``all`` would make
+    ``pip install spacr[all]`` a hard ResolutionImpossible on Python 3.13 —
+    reintroducing, through the extra most likely to be typed by someone who
+    just wants everything, exactly the failure that moving torchcam out of the
+    core dependencies removed. See ``test_attribution_extra_is_not_in_all``.
+    """
     extras = _extras()
     assert "all" in extras, "the `all` extra disappeared"
-    aggregated = ("qt", "tutorial", "trackastra", "ultrack",
+    aggregated = ("qt", "tutorial", "trackastra", "ultrack", "boosting",
                   "czi", "nd2", "lif", "zernike")
     expected = set()
     for name in aggregated:
