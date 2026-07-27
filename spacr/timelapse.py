@@ -18,10 +18,14 @@ from sklearn.model_selection import train_test_split
 from multiprocessing import Pool, cpu_count
 import logging
 
+# np.trapz was REMOVED in numpy 2.0 and np.trapezoid is its replacement. The
+# old fallback here was already dead: scipy.integrate.trapz went in SciPy 1.14
+# and the declared scipy>=1.12,<2.0 resolves 1.18, so under numpy 2 this module
+# failed to import at all -- the single module in spaCR that did.
 try:
+    from numpy import trapezoid as trapz
+except ImportError:                     # numpy < 2.0
     from numpy import trapz
-except ImportError:
-    from scipy.integrate import trapz
     
 import matplotlib.pyplot as plt
 
