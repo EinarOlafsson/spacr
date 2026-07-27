@@ -61,6 +61,9 @@ from typing import (Any, Callable, Dict, List, Optional, Sequence, Tuple,
                     Union)
 
 import numpy as np
+
+# np.trapz was removed in numpy 2.0; np.trapezoid is the replacement.
+_trapezoid = getattr(np, 'trapezoid', None) or np.trapz
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -1407,7 +1410,7 @@ def _perturbation_curve(model: nn.Module, image: Any, amap: Any, kind: str, *,
 
     frac = np.asarray(fractions, dtype=np.float64)
     sc = np.asarray(scores, dtype=np.float64)
-    auc = float(np.trapz(sc, frac)) if frac.size > 1 else float(sc[0])
+    auc = float(_trapezoid(sc, frac)) if frac.size > 1 else float(sc[0])
     label = (str(baseline) if isinstance(baseline, (str, int, float))
              else "custom tensor")
     return Curve(kind=kind, fractions=frac, scores=sc, auc=auc,

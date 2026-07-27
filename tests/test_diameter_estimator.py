@@ -1080,7 +1080,7 @@ def test_illumination_matches_a_direct_gaussian_on_a_smooth_field():
     fast = _illumination(field, 128.0)
     slow = gaussian_filter(field, 128.0, mode="nearest")
     inner = (slice(64, 448), slice(64, 448))
-    assert np.abs(fast[inner] - slow[inner]).max() < 0.02 * field.ptp()
+    assert np.abs(fast[inner] - slow[inner]).max() < 0.02 * np.ptp(field)  # ndarray.ptp() removed in numpy 2.0
 
 
 def test_region_diameters_handles_the_empty_cases():

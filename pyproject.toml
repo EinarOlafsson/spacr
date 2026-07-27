@@ -30,9 +30,34 @@ name = "spacr"
 #   * packaging/build_debian.sh already declares `python3 (>= 3.10)`, and
 #     packaging/build_macos.sh and build_windows.ps1 agree.
 #
-# The ceiling moves to <3.14 once numpy/pillow/lxml/psutil are unpinned and
-# mahotas + pylibCZIrw move to extras, and to <3.15 only once a 3.14 CI cell
-# is green. Do not widen it ahead of the evidence.
+# The ceiling. A 2026-07-26 audit built the whole dependency set in throwaway
+# conda envs on CPython 3.12 and 3.13 and replaced the guesses that used to be
+# written here with measurements:
+#
+#   * pillow, lxml and psutil are NOT 3.13 blockers and never were. All three
+#     publish cp313 and cp314 wheels; their caps in setup.py were conventions,
+#     and have now been widened (pillow <13, psutil <8, lxml uncapped).
+#   * mahotas is NOT a numpy-2 blocker either — 1.4.18 imports and computes
+#     Zernike moments correctly under numpy 2.4.4, because its wheels are
+#     numpy-2 ABI clean. What mahotas actually is, is a *wheel* blocker: it has
+#     never published cp313 or cp314, so on 3.13 it builds from sdist. That
+#     succeeds where a C++ toolchain exists (verified) and fails, confusingly,
+#     where one does not. It belongs in an extra before 3.13 is claimed.
+#   * The real numpy-2 blockers are three, and all three are small:
+#     `np.trapz` at spacr/utils.py:4930, spacr/attribution.py:1410 and
+#     spacr/timelapse.py:22 (removed in numpy 2.0 — and timelapse.py's
+#     `scipy.integrate.trapz` fallback is already dead, scipy removed it in
+#     1.14); `torchcam`, every release of which declares `numpy<2.0.0`
+#     spuriously, so it must move to an extra; and the `ndarray.ptp()` method
+#     call at tests/test_diameter_estimator.py:1083.
+#
+# With those three done, `numpy>=1.26.4,<3.0` was verified installing and
+# importing every spaCR module on both 3.12 and 3.13, which is what makes
+# `<3.14` reachable. The remaining work for that move is not research:
+# mahotas + pylibCZIrw to extras (pylibCZIrw already ships cp313; it blocks
+# only 3.14), and a real 3.13 cell in .github/workflows/compat-matrix.yml —
+# which today asserts the *opposite*, that pip refuses 3.13 cleanly. Widen
+# requires-python and that job in the same commit, or CI goes red.
 # ---------------------------------------------------------------------------
 requires-python = ">=3.10,<3.13"
 

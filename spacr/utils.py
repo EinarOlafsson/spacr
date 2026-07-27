@@ -2,6 +2,9 @@
 import os, re, sqlite3, torch, torchvision, random, string, shutil, cv2, tarfile, glob, psutil, platform, gzip, subprocess, time, requests, ast, traceback
 
 import numpy as np
+
+# np.trapz was removed in numpy 2.0; np.trapezoid is the replacement.
+_trapezoid = getattr(np, 'trapezoid', None) or np.trapz
 import pandas as pd
 from cellpose import models as cp_models
 from cellpose import denoise
@@ -4927,7 +4930,7 @@ def compute_ap_over_iou_thresholds(true_masks, pred_masks, iou_thresholds):
     precision_recall_pairs = sorted(precision_recall_pairs, key=lambda x: x[1])
     sorted_precisions = [p[0] for p in precision_recall_pairs]
     sorted_recalls = [p[1] for p in precision_recall_pairs]
-    return np.trapz(sorted_precisions, x=sorted_recalls)
+    return _trapezoid(sorted_precisions, x=sorted_recalls)
     
 def compute_segmentation_ap(true_masks, pred_masks, iou_thresholds=np.linspace(0.5, 0.95, 10)):
     """Return the COCO-style segmentation AP by matching connected components across IoU thresholds."""
