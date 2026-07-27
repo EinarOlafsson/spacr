@@ -103,23 +103,41 @@ jobs:
         run: python -m pytest tests/test_packaging_metadata.py -q --no-header
 
   # -------------------------------------------------------------------------
-  # 2. The requires-python guard, proved rather than asserted.
+  # 2. Python 3.13 installs, and installs WITHOUT A COMPILER.
   #
-  # This is the inverse of a normal test: it is GREEN when the install
-  # correctly REFUSES. Python 3.13 is outside `requires-python`, so pip must
-  # decline in seconds with a Requires-Python message instead of grinding
-  # through a numpy source build.
+  # This job is the inversion of the one it replaces. Until 2026-07-27 it was
+  # called "3.13 install is refused cleanly" and it was GREEN when pip
+  # DECLINED: 3.13 was outside `requires-python`, and the job asserted that
+  # pip said so in one sentence rather than grinding through a source build of
+  # numpy 1.26.4 and dying on a compiler error.
   #
-  # When Wave 3 lands (numpy/pillow/lxml/psutil unpinned, mahotas and
-  # pylibCZIrw moved to extras) and requires-python widens to <3.14, this job
-  # becomes a real 3.13 install cell in the matrix below and this job is
-  # deleted. Until then it is the only thing standing between a 3.13 user and
-  # a compiler traceback.
+  # That assertion is now false by design. numpy is `>=1.26.4,<3.0`, mahotas
+  # (no cp313 wheel, ever) is in the `zernike` extra and torchcam (which
+  # declares `numpy<2.0.0`) is in the `attribution` extra, so 3.13 resolves to
+  # wheels the whole way down. Keeping the old job would have made this
+  # workflow red the moment requires-python widened — which is exactly what
+  # the note in pyproject.toml warned about.
+  #
+  # Two assertions, and the second is the one that matters:
+  #
+  #   a) the resolve succeeds on 3.13 at all; and
+  #   b) it succeeds with `--only-binary :all:`, i.e. every package in the
+  #      graph has a cp313 wheel and NOTHING is built from source.
+  #
+  # (b) is the real user-facing promise. The failure mode this whole exercise
+  # existed to kill was never "pip refuses" — it was a scientist on a cluster
+  # login node with no gcc watching a numpy or mahotas sdist explode fifteen
+  # minutes in. A green (a) with a red (b) means we have moved the compiler
+  # requirement rather than removed it, so (b) is blocking too.
+  #
+  # Deliberately `--dry-run`: this job answers "does the graph resolve to
+  # wheels", and it must answer in under a minute. The *real* 3.13 install and
+  # import sweep is a cell in the matrix below.
   # -------------------------------------------------------------------------
-  requires-python-guard:
-    name: 3.13 install is refused cleanly
+  python-313-installs:
+    name: 3.13 installs, from wheels only
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v4
@@ -128,7 +146,7 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: pip must decline, not compile
+      - name: pip must accept spacr on 3.13
         run: |
           python -m pip install --upgrade pip
           set +e
@@ -136,16 +154,81 @@ jobs:
           rc=$?
           set -e
           echo "$out"
-          if [ $rc -eq 0 ]; then
-            echo "::error::pip accepted spacr on Python 3.13 -- requires-python is missing or too wide"
+          if [ $rc -ne 0 ]; then
+            echo "::error::pip refused spacr on Python 3.13. requires-python claims >=3.10,<3.14 and the classifiers claim 3.13."
             exit 1
           fi
-          echo "$out" | grep -qi "requires-python\|requires a different python" || {
-            echo "::error::pip failed on 3.13, but not because of Requires-Python."
-            echo "::error::That means a user gets a confusing failure (probably a numpy source build) instead of one clear sentence."
+          echo "OK: pip accepted spacr on 3.13."
+
+      - name: no COMPILED dependency may build from source
+        # --only-binary :all: makes pip fail rather than fall back to a source
+        # build. That is the entire point: a user without a C++ toolchain must
+        # be able to `pip install spacr` on 3.13.
+        #
+        # Three core dependencies are exempted by --no-binary, and the reason
+        # is not "they were in the way". trackpy, matplotlib-venn and gputil
+        # publish an sdist and no wheel AT ALL, on any Python — trackpy's
+        # newest wheel is 0.3.3, matplotlib-venn and GPUtil have never shipped
+        # one. All three are pure Python: their "build" is setuptools copying
+        # .py files, it needs no compiler, and it is what every spaCR install
+        # on every version has always done. Excluding them keeps this step
+        # asking the question that matters (does anything need a COMPILER)
+        # instead of a question with a known, harmless answer.
+        #
+        # If you add a package here, prove it is pure Python first. A wheel-less
+        # package with a C extension is exactly the failure this step exists to
+        # catch, and adding it to this list is how you would hide one.
+        #
+        # torch comes from the CPU index because the default CUDA wheel is
+        # ~2.5 GB and would exhaust the runner disk; it is not part of what is
+        # being tested here.
+        #
+        # Verified by hand on 2026-07-27 in throwaway conda envs on CPython
+        # 3.10.20, 3.11.15, 3.12.13 and 3.13.14: all four resolve, landing on
+        # numpy 2.2.6 (3.10) and numpy 2.4.6 (3.11-3.13).
+        run: |
+          set +e
+          out=$(python -m pip install --dry-run \
+                  --only-binary :all: \
+                  --no-binary trackpy,matplotlib-venn,gputil \
+                  --extra-index-url https://download.pytorch.org/whl/cpu \
+                  ".[qt]" 2>&1)
+          rc=$?
+          set -e
+          echo "$out"
+          if [ $rc -ne 0 ]; then
+            echo "::error::spacr does not resolve to wheels on Python 3.13 -- something in the graph needs a compiler."
+            echo "::error::Find the package with no cp313 wheel in the log above and move it to an extra, the way mahotas and torchcam were."
             exit 1
-          }
-          echo "OK: pip declined with a Requires-Python message."
+          fi
+          echo "$out" | grep -oE "Would install .*" | tr ' ' '\n' | grep -E "^numpy-" || true
+          echo "OK: every compiled package in the core+qt graph has a cp313 wheel."
+
+      - name: mahotas and torchcam must NOT be in the core resolve
+        # The two packages whose absence from the core install is what makes
+        # 3.13 work. If either reappears in `dependencies`, the step above
+        # would still pass on a runner that has gcc -- it would just silently
+        # start compiling. This step names them, so the regression is legible
+        # instead of showing up as a slow build.
+        run: |
+          python - <<'PY'
+          import ast, pathlib, re, sys
+          tree = ast.parse(pathlib.Path("setup.py").read_text(encoding="utf-8"))
+          deps = next(
+              ast.literal_eval(n.value)
+              for n in tree.body
+              if isinstance(n, ast.Assign)
+              and any(getattr(t, "id", None) == "dependencies" for t in n.targets)
+          )
+          names = {re.split(r"[<>=!~;\[ ]", d.strip())[0].lower() for d in deps}
+          back = sorted({"mahotas", "torchcam"} & names)
+          if back:
+              print(f"::error::{back} is back in setup.py's core dependencies. "
+                    f"mahotas has no cp313 wheel at any version and torchcam "
+                    f"declares numpy<2.0.0; either one re-breaks Python 3.13.")
+              sys.exit(1)
+          print("OK: mahotas and torchcam are extras-only.")
+          PY
 
   # -------------------------------------------------------------------------
   # 3. The platform grid: install, import, and (off Linux) the full suite as
@@ -193,23 +276,44 @@ jobs:
             experimental: false
             why: "control"
 
+          # --- Linux x86-64 / 3.13 ------------------------------------------
+          # The newest Python spaCR claims, and the reason this workflow was
+          # rewritten. BLOCKING, not experimental: 3.13 now has a classifier
+          # and a requires-python that admits it, so if this cell is red the
+          # claim is false and we want to know loudly.
+          #
+          # It installs `.[qt,dev,zernike]` rather than `.[qt,dev]` on purpose.
+          # mahotas has no cp313 wheel and builds from sdist; this runner has
+          # a toolchain, so asking for the extra here is what keeps
+          # spacr.measure and the Zernike features under test on 3.13 instead
+          # of quietly untested. The promise that a 3.13 user needs no
+          # compiler is a promise about the CORE install, and the
+          # `python-313-installs` job above proves that separately with
+          # `--only-binary :all:`.
+          - label: "Linux x86-64 / py3.13"
+            os: ubuntu-22.04
+            python-version: "3.13"
+            experimental: false
+            why: "newest claimed Python; blocking"
+
           # --- Linux ARM64 --------------------------------------------------
-          # Expected RED on first run, and the reason is upstream, not spaCR:
+          # Previously expected red, for two reasons that are now both gone:
           #   * mahotas 1.4.18 publishes NO aarch64 wheel at all (the last
-          #     aarch64 build was 1.4.13, cp36-cp39), so it must compile from
-          #     source against numpy headers.
-          #   * psutil 5.9.8 (the `<6.0` pin) publishes manylinux x86_64 and
-          #     i686 only.
-          # Both have sdists and the runner has gcc, so this may well go
-          # green — which is exactly why it is worth running rather than
-          # guessing. What it will NOT do is install on a bare ARM node with
-          # no toolchain, which is the actual user complaint.
-          # Cleared by: Wave 3 (mahotas -> extras, psutil pin lifted to <8).
+          #     aarch64 build was 1.4.13, cp36-cp39). It has left the core
+          #     dependencies for the `zernike` extra, so a core install on ARM
+          #     no longer compiles it.
+          #   * psutil 5.9.8 (the old `<6.0` pin, which admitted exactly one
+          #     release) publishes manylinux x86_64 and i686 only. The pin is
+          #     now `<8`, and psutil 6/7 publish aarch64.
+          # It stays `experimental: true` for one more run rather than being
+          # promoted on the strength of the argument: no aarch64 install has
+          # actually been observed green yet. Promote it the first time it
+          # passes, and delete this paragraph when you do.
           - label: "Linux ARM64 / py3.11"
             os: ubuntu-24.04-arm
             python-version: "3.11"
             experimental: true
-            why: "mahotas has no aarch64 wheel; psutil<6.0 has no aarch64 wheel"
+            why: "both known aarch64 blockers (mahotas, psutil<6.0) are resolved; awaiting a first green run before promoting to blocking"
 
           # --- Windows x86-64 -----------------------------------------------
           # The install is expected to succeed. The *suite* is expected to
@@ -293,8 +397,16 @@ jobs:
           python -m pip install "torch>=2.0" "torchvision"
 
       - name: Install spacr
+        # `zernike` is requested explicitly because mahotas is no longer a
+        # core dependency, and spacr/measure.py still imports
+        # `mahotas.features.zernike_moments` at module scope. Without the
+        # extra, `import spacr.measure` in the next step would fail on EVERY
+        # cell, which would say nothing about the platform. On 3.13 this
+        # compiles mahotas from sdist (no cp313 wheel exists); these runners
+        # have a toolchain, and the no-compiler promise for the core install
+        # is proved by the `python-313-installs` job instead.
         shell: bash
-        run: python -m pip install -e ".[qt,dev]"
+        run: python -m pip install -e ".[qt,dev,zernike]"
 
       - name: Show the pins that gate this cell
         shell: bash
@@ -307,13 +419,21 @@ jobs:
         # `import spacr` alone is a meaningful test on a new platform: it is
         # what fails when a module-scope `from mahotas.features import
         # zernike_moments` or `from pylibCZIrw import czi` has no wheel.
+        #
+        # spacr.timelapse is listed explicitly because it was the single
+        # module that failed to import under numpy 2 (a `np.trapz` that numpy
+        # 2.0 removed, behind a `scipy.integrate.trapz` fallback that SciPy
+        # 1.14 had already removed). With numpy widened to `<3.0` this is the
+        # import that proves the fix on every platform rather than just on the
+        # machine where it was written.
         shell: bash
         env:
           QT_QPA_PLATFORM: offscreen
           MPLBACKEND: Agg
         run: |
           python -c "import spacr; print('spacr', spacr.__version__)"
-          python -c "import spacr.io, spacr.measure, spacr.utils; print('core modules import')"
+          python -c "import spacr.io, spacr.measure, spacr.utils, spacr.timelapse; print('core modules import')"
+          python -c "import numpy; print('numpy', numpy.__version__)"
 
       - name: Packaging + smoke subset (decides this cell)
         shell: bash

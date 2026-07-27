@@ -39,13 +39,56 @@ jobs:
         # 3.10 is the historical cell — before this matrix existed it was the
         # only cell of the 36 in the compatibility grid that had ever been
         # executed. It stays, unchanged, and stays blocking so nothing
-        # regresses. 3.11 and 3.12 are new: both sit inside requires-python
-        # (>=3.10,<3.13) and every core dependency publishes cp311/cp312
-        # wheels, so both are *expected to pass*. If one is red on first run
-        # that is a real finding — do not paper over it with
-        # continue-on-error, which is reserved for cells whose failure is
-        # already understood and documented in compat-matrix.yml.
-        python-version: ["3.10", "3.11", "3.12"]
+        # regresses. 3.11 and 3.12 sit inside requires-python and every core
+        # dependency publishes cp311/cp312 wheels, so both are *expected to
+        # pass*.
+        #
+        # 3.13 was added on 2026-07-27, together with `numpy>=1.26.4,<3.0`,
+        # `requires-python = ">=3.10,<3.14"` and the move of mahotas and
+        # torchcam into extras. It is the cell that makes the new classifier
+        # a fact rather than a claim, and it is where the numpy-2 code paths
+        # (np.trapezoid, np.ptp) are actually executed rather than argued
+        # about — on 3.10 pip still resolves numpy 2.2.6, but 3.13 is where
+        # the newest numpy lands.
+        #
+        # Every cell here is blocking. If one is red on first run that is a
+        # real finding — do not paper over it with continue-on-error, which is
+        # reserved for cells whose failure is already understood and
+        # documented in compat-matrix.yml.
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+
+        # The extras each cell installs. They differ for ONE measured reason,
+        # and it is not a convenience: `torchcam` cannot be had on Python 3.13.
+        # Every release satisfying `>=0.4.0,<1.0` declares `numpy<2.0.0`, and
+        # no numpy satisfying that publishes a cp313 wheel. Both halves were
+        # reproduced in a throwaway CPython 3.13.14 env on 2026-07-27, and
+        # they fail DIFFERENTLY, which is why the extra is dropped rather than
+        # merely expected to be slow:
+        #
+        #   with --only-binary :all: -> clean refusal
+        #     ERROR: ResolutionImpossible
+        #     torchcam 0.4.1 depends on numpy<2.0.0 and >=1.17.2
+        #     ... no matching distributions available for your environment:
+        #         numpy
+        #
+        #   without it -> pip backtracks and accepts, reporting
+        #     Would install ... numpy-1.26.4 torchcam-0.4.1
+        #   i.e. it would spend this job's 60-minute budget compiling numpy
+        #   1.26.4 from source, and would then run the whole suite against
+        #   numpy 1.x on the one cell that exists to test numpy 2.
+        #
+        # The five torchcam CAM variants stay covered by the 3.10-3.12 cells;
+        # spaCR's own `smoothgrad` and the captum backends are core and run on
+        # all four.
+        include:
+          - python-version: "3.10"
+            extras: "qt,dev,zernike,attribution"
+          - python-version: "3.11"
+            extras: "qt,dev,zernike,attribution"
+          - python-version: "3.12"
+            extras: "qt,dev,zernike,attribution"
+          - python-version: "3.13"
+            extras: "qt,dev,zernike"
 
     steps:
       - uses: actions/checkout@v4
@@ -76,9 +119,19 @@ jobs:
           python -m pip install --index-url https://download.pytorch.org/whl/cpu \
             "torch>=2.0" "torchvision"
           # Full install pulls every dep from setup.py's install_requires:
-          # IPython, mahotas, czifile, readlif, statsmodels, cellpose,
-          # transformers, monai, xgboost, umap, seaborn, biopython, etc.
-          python -m pip install -e ".[qt,dev]"
+          # IPython, czifile, readlif, statsmodels, cellpose, xgboost, umap,
+          # seaborn, biopython, etc.
+          #
+          # `zernike` (and `attribution`, where it can be installed at all —
+          # see the matrix note) are requested explicitly because mahotas and
+          # torchcam are no longer core dependencies. They moved to extras so
+          # that a plain `pip install spacr` on Python 3.13 needs no C++
+          # toolchain (mahotas has never published a cp313 wheel) and is not
+          # dragged back to numpy 1.26.4 (every torchcam release declares
+          # `numpy<2.0.0`). The suite still has to exercise them:
+          # spacr/measure.py imports mahotas at module scope, so without
+          # `zernike` this whole suite would fail at collection, not degrade.
+          python -m pip install -e ".[${{ matrix.extras }}]"
 
       - name: Show the pins that gate the compatibility matrix
         # One line per dependency whose wheel availability decides which

@@ -13,53 +13,56 @@ name = "spacr"
 # ---------------------------------------------------------------------------
 # requires-python: the single most valuable line in this file.
 #
-# Without it, `pip install spacr` on Python 3.13 resolves happily, downloads
-# several hundred MB, and then dies inside a *source build of numpy 1.26.4*
-# with a compiler error — which reads to a user as "spaCR is broken".
-# numpy 1.26.4 (the only release satisfying `numpy>=1.26.4,<2.0`) publishes
-# cp39-cp312 wheels and nothing else; mahotas has never published a cp313
-# wheel at any version. With this line, pip declines in under two seconds
-# with one clear sentence.
+# It used to read `>=3.10,<3.13`, and that ceiling was correct at the time for
+# a reason worth remembering: without it, `pip install spacr` on Python 3.13
+# resolved happily, downloaded several hundred MB, and then died inside a
+# *source build of numpy 1.26.4* with a compiler error — which reads to a user
+# as "spaCR is broken". numpy 1.26.4 was the only release satisfying the old
+# `numpy>=1.26.4,<2.0`, and its wheels stop at cp312.
 #
 # The floor is 3.10, not 3.9, deliberately:
 #   * 3.9 is *resolvable* (torch 2.8.0 still ships cp39 wheels), but keeping
-#     it freezes torch at 2.8, caps PySide6 at 6.10, and forces monai,
-#     torch-geometric, torchcam, numba, llvmlite, pingouin and gdown to
-#     backtrack — six resolver branches nothing has ever exercised.
+#     it freezes torch at 2.8, caps PySide6 at 6.10, and forces numba,
+#     llvmlite and pingouin to backtrack — resolver branches nothing has ever
+#     exercised.
 #   * No spaCR test has ever run on 3.9.
 #   * packaging/build_debian.sh already declares `python3 (>= 3.10)`, and
 #     packaging/build_macos.sh and build_windows.ps1 agree.
 #
-# The ceiling. A 2026-07-26 audit built the whole dependency set in throwaway
-# conda envs on CPython 3.12 and 3.13 and replaced the guesses that used to be
-# written here with measurements:
+# The ceiling is now 3.14, and every blocker that held it at 3.13 was closed
+# rather than reasoned away. Measured in throwaway conda envs, never in the
+# working one:
 #
-#   * pillow, lxml and psutil are NOT 3.13 blockers and never were. All three
-#     publish cp313 and cp314 wheels; their caps in setup.py were conventions,
-#     and have now been widened (pillow <13, psutil <8, lxml uncapped).
-#   * mahotas is NOT a numpy-2 blocker either — 1.4.18 imports and computes
-#     Zernike moments correctly under numpy 2.4.4, because its wheels are
-#     numpy-2 ABI clean. What mahotas actually is, is a *wheel* blocker: it has
-#     never published cp313 or cp314, so on 3.13 it builds from sdist. That
-#     succeeds where a C++ toolchain exists (verified) and fails, confusingly,
-#     where one does not. It belongs in an extra before 3.13 is claimed.
-#   * The real numpy-2 blockers are three, and all three are small:
-#     `np.trapz` at spacr/utils.py:4930, spacr/attribution.py:1410 and
-#     spacr/timelapse.py:22 (removed in numpy 2.0 — and timelapse.py's
-#     `scipy.integrate.trapz` fallback is already dead, scipy removed it in
-#     1.14); `torchcam`, every release of which declares `numpy<2.0.0`
-#     spuriously, so it must move to an extra; and the `ndarray.ptp()` method
-#     call at tests/test_diameter_estimator.py:1083.
+#   * pillow, lxml and psutil were never 3.13 blockers. All three publish
+#     cp313 and cp314 wheels; their caps in setup.py were conventions, and
+#     were widened on 2026-07-26 (pillow <13, psutil <8, lxml uncapped).
+#   * numpy is now `>=1.26.4,<3.0`. The three things that blocked it are
+#     fixed: `np.trapz` is gone from spacr/utils.py, spacr/attribution.py and
+#     spacr/timelapse.py (all three now prefer `np.trapezoid`; timelapse.py's
+#     old `scipy.integrate.trapz` fallback was already dead, SciPy removed it
+#     in 1.14); `torchcam`, every release of which declares `numpy<2.0.0`
+#     spuriously, has moved to the `attribution` extra; and
+#     tests/test_diameter_estimator.py:1083 now calls `np.ptp(field)` instead
+#     of the removed `ndarray.ptp()` method.
+#   * mahotas was never a numpy-2 blocker — 1.4.18 computes Zernike moments
+#     correctly under numpy 2.4.4, because its wheels are numpy-2 ABI clean.
+#     What it is, is a *wheel* blocker: no cp313 or cp314 has ever been
+#     published, so on 3.13 it builds from sdist, which succeeds where a C++
+#     toolchain exists and fails confusingly where one does not. It has moved
+#     to the `zernike` extra, so a plain `pip install spacr` on 3.13 never
+#     reaches a compiler.
+#   * pylibCZIrw is NOT a 3.13 blocker: 5.1.1 (inside the declared `<6.0`)
+#     ships cp39-cp313 including manylinux aarch64 and macOS arm64. It stays
+#     in the core deps because spacr/io.py imports it at module scope.
 #
-# With those three done, `numpy>=1.26.4,<3.0` was verified installing and
-# importing every spaCR module on both 3.12 and 3.13, which is what makes
-# `<3.14` reachable. The remaining work for that move is not research:
-# mahotas + pylibCZIrw to extras (pylibCZIrw already ships cp313; it blocks
-# only 3.14), and a real 3.13 cell in .github/workflows/compat-matrix.yml —
-# which today asserts the *opposite*, that pip refuses 3.13 cleanly. Widen
-# requires-python and that job in the same commit, or CI goes red.
+# What stops this being `<3.15` rather than `<3.14`: pylibCZIrw publishes no
+# cp314 at any version (checked through 6.1.0), and it is a module-scope
+# import in spacr/io.py. That is the next thing to move, and it is the same
+# shape of change mahotas just had.
+#
+# Every version admitted here has a CI cell — see the classifier note below.
 # ---------------------------------------------------------------------------
-requires-python = ">=3.10,<3.13"
+requires-python = ">=3.10,<3.14"
 
 authors = [
     { name = "Einar Birnir Olafsson", email = "olafsson@med.umich.com" },
@@ -75,6 +78,14 @@ authors = [
 # Every Python classifier below is covered by a CI cell in
 # .github/workflows/tests.yml (full suite) or compat-matrix.yml (install +
 # import + packaging subset). If you add a classifier, add the cell first.
+# tests/test_packaging_metadata.py asserts the two agree exactly, in both
+# directions — a classifier requires-python does not admit is as much a bug as
+# a version admitted with no classifier.
+#
+# 3.13 was added on 2026-07-27 together with the numpy widening, the mahotas
+# and torchcam moves to extras, a full-suite cell in tests.yml and a real
+# install cell in compat-matrix.yml (replacing the job that used to assert
+# 3.13 was refused).
 # ---------------------------------------------------------------------------
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -88,6 +99,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Bio-Informatics",
     "Topic :: Scientific/Engineering :: Image Recognition",
 ]
