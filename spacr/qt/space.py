@@ -46,6 +46,58 @@ as three clip-art assets. ``variant`` re-weights the composition
 (which element is the subject) rather than switching elements on and
 off, so no variant ever loses the stars.
 
+Legibility is solved here too, not only for the photographs
+-----------------------------------------------------------
+:mod:`spacr.qt.imagery` has always run every photographic master
+through :func:`spacr.qt.imagery.solve_dim` against
+:func:`spacr.qt.imagery.exposure_target` — the brightest a bare window
+background may be before white text on it drops under WCAG AA. The
+generated sky never went through it, and it showed: measured at
+1440x900, the brightest text-line-sized region of the ``galaxy`` sky was
+0.4879 against a 0.0586 limit (8.3x over), ``sun`` 0.8201 (14.0x) and
+``stars`` 0.5041 (8.6x). Bare white text over that measured 1.20-1.96:1
+where 4.5:1 is required — the "AI" toggle in the title bar sat on the
+sun's halo. :func:`render` now solves it, and :func:`legibility` reports
+the same measured dict :func:`spacr.qt.imagery.legibility` returns for a
+photograph.
+
+Reconciling the limit with the 40th-percentile anchor
+-----------------------------------------------------
+:data:`TARGET_SKY_PERCENTILE` exposes the frame so that *empty sky* —
+not the mean — lands on :data:`TARGET_SKY_LUMA`, deliberately, so that a
+sun stays blown out instead of dragging the whole frame to black. Taken
+as a statement about one global exposure that is now flatly incompatible
+with the limit, and both of the obvious ways to force it are ruined
+pictures. Re-solving the exposure, or dimming the finished frame with
+:func:`spacr.qt.imagery.solve_dim`, needs a factor of 0.064-0.108; both
+take the sky's own 40th percentile from 0.00091 to 0.00000, i.e. every
+faint star and the whole nebula go to pure black, and the peak pixel
+falls from 236-252 to 67-90. Measured, rendered and looked at: a dark
+grey smudge.
+
+The reconciliation is that the two rules are about different things.
+The exposure anchor is about a *pixel with nothing in it*; the WCAG
+limit is about the mean over a **region the size of a line of text**
+(:data:`spacr.qt.imagery.TEXT_WINDOW`), which is the point
+:mod:`spacr.qt.imagery` already makes about photographs — every
+photograph has a white pixel somewhere and it is a bright *patch* that
+makes a caption unreadable. A 3 px star inside a 202x48 px text window
+moves that window's mean by a quarter of one per cent; the whole
+starfield measured on its own comes to 0.0007-0.0067, i.e. 1-11 % of the
+limit. A 207 px sun disc fills the window completely and cannot.
+
+So the exposure anchor is kept exactly as it was — the sky background is
+unchanged, to the byte — and the limit is enforced where it is actually
+violated, by compressing the highlights of the **smooth** layers only
+(:func:`_compress_highlights`, applied to nebula + galaxy + sun + bloom,
+never to the starfield). The sun therefore does get noticeably darker,
+which is the accepted cost; the galaxy is barely touched because it was
+never the offender; the stars keep white cores and diffraction spikes.
+:func:`_enforce_legibility` then measures the finished frame with the
+same :func:`spacr.qt.imagery.brightest_window` used on the photographs
+and applies whatever residual dim is left, so the guarantee is a
+measurement and not an argument.
+
 Real imagery
 ------------
 :func:`download_nasa_background` optionally fetches a public-domain
@@ -70,7 +122,12 @@ import numpy as np
 
 #: Bumped whenever the generators change output, so old cached PNGs are
 #: not reused for a different-looking sky.
-CACHE_VERSION = 1
+#:
+#: v2: the sky is exposure-solved against the palette's bare-text limit.
+#: Without this bump every existing user keeps the old, 8-14x too bright
+#: sky forever — the cache is keyed by size, variant and seed, all of
+#: which are unchanged, so nothing else would ever invalidate it.
+CACHE_VERSION = 2
 
 VARIANTS = ("galaxy", "sun", "stars")
 DEFAULT_VARIANT = "galaxy"
@@ -588,6 +645,14 @@ _VARIANT_MIX = {
 #: on the mean is what lets a big bright sun stay white-hot without
 #: dragging the rest of the frame to black: a few per cent of the
 #: pixels being a star must not re-expose the other 95 %.
+#:
+#: This still does exactly that, and it is still the *only* thing that
+#: sets how dark the empty sky is — :func:`_compress_highlights` runs
+#: strictly above :data:`HIGHLIGHT_KNEE` of the ceiling and cannot reach
+#: down here. What it no longer implies is that the sun stays blown out
+#: over an area the size of a line of text; see the module docstring for
+#: why those are separable and what happens if you try to satisfy the
+#: WCAG limit by moving this number instead.
 TARGET_SKY_PERCENTILE = 40.0
 TARGET_SKY_LUMA = 0.013
 
@@ -596,6 +661,26 @@ TARGET_SKY_LUMA = 0.013
 #: unreadable. If the sky anchor lands above this, the exposure is
 #: re-solved against the mean instead.
 MAX_MEAN_LUMA = 0.075
+
+
+#: Fraction of the highlight ceiling below which :func:`_compress_highlights`
+#: is the identity. Above it the curve bends; below it nothing moves, so
+#: the sky anchor, the nebula and the galaxy's arms — all of which live
+#: two orders of magnitude below the ceiling — come out untouched.
+#:
+#: 0.55 rather than something lower because the alternative was measured:
+#: a power-law highlight gamma, which starts compressing at the knee and
+#: keeps compressing all the way up, preserves the *sun's* limb but takes
+#: the galaxy down with it (its brightest text window fell to 0.41x the
+#: limit against 0.69x here, and the arms visibly washed out). The galaxy
+#: was never what broke the limit and should not pay for the sun.
+HIGHLIGHT_KNEE = 0.55
+
+
+def _luma(img: np.ndarray) -> np.ndarray:
+    """Relative-luminance channel of an (h, w, 3) buffer."""
+    return (0.2126 * img[:, :, 0] + 0.7152 * img[:, :, 1]
+            + 0.0722 * img[:, :, 2])
 
 
 def _tone_stat(mapped: np.ndarray, percentile: Optional[float]) -> float:
@@ -628,17 +713,180 @@ def _solve_exposure(luma: np.ndarray, target: float,
     return float(np.sqrt(lo * hi))
 
 
-def _tone_map(hdr: np.ndarray) -> np.ndarray:
-    """Filmic compression to [0, 1] at an auto-solved exposure."""
-    luma = (0.2126 * hdr[:, :, 0] + 0.7152 * hdr[:, :, 1]
-            + 0.0722 * hdr[:, :, 2])
+def tone_exposure(luma: np.ndarray) -> float:
+    """The exposure :func:`_tone_map` would use for this frame.
+
+    Split out of :func:`_tone_map` because :func:`render` needs the
+    number itself: the highlight ceiling is a luminance in *HDR* units,
+    and converting the palette's limit — which is a luminance in the
+    finished, tone-mapped image — back into HDR units is exactly
+    inverting this curve at this exposure.
+    """
     exposure = _solve_exposure(luma, TARGET_SKY_LUMA, TARGET_SKY_PERCENTILE)
     sample = luma[::4, ::4]
     if sample.size and float((1.0 - np.exp(-sample * exposure)).mean()) > MAX_MEAN_LUMA:
         exposure = _solve_exposure(luma, MAX_MEAN_LUMA, None)
+    return exposure
+
+
+def _apply_tone_curve(hdr: np.ndarray, exposure: float) -> np.ndarray:
     out = 1.0 - np.exp(-hdr * exposure)
     np.clip(out, 0.0, 1.0, out=out)
     return out.astype(np.float32, copy=False)
+
+
+def _tone_map(hdr: np.ndarray) -> np.ndarray:
+    """Filmic compression to [0, 1] at an auto-solved exposure."""
+    return _apply_tone_curve(hdr, tone_exposure(_luma(hdr)))
+
+
+# ---------------------------------------------------------------------------
+# The legibility solve
+# ---------------------------------------------------------------------------
+
+def exposure_target() -> float:
+    """Luminance the brightest text-line-sized region is aimed at.
+
+    The Space palette's own limit from
+    :func:`spacr.qt.theme.max_background_luma`, backed off by
+    :data:`spacr.qt.imagery.SAFETY_MARGIN` — the identical number the
+    photographic masters are solved to, fetched from the identical
+    function, so the two pipelines cannot drift apart.
+
+    :mod:`spacr.qt.imagery` imports *this* module at module scope, so
+    the import has to be deferred to call time. By then ``space`` is
+    fully loaded whichever of the two the caller reached first.
+    """
+    from . import imagery
+    return imagery.exposure_target("space")
+
+
+def highlight_ceiling(exposure: float, target: Optional[float] = None
+                      ) -> float:
+    """HDR luminance that tone-maps to ``target``'s encoded value.
+
+    :func:`exposure_target` is a *linear-light* relative luminance of the
+    finished image. ``_tone_map``'s output is written straight to 8-bit
+    without a gamma encode, so it is an **sRGB signal value**, and the
+    two are a transfer function apart — the 0.0586 limit is a mid-dark
+    grey around ``#444444``, not a 6 % signal. Encode first, then invert
+    ``1 - exp(-x·E)``.
+
+    :returns: ``inf`` when there is nothing to solve for — a palette
+        that admits no wallpaper at all (:func:`spacr.qt.theme.max_background_luma`
+        is *negative* for the light theme) or a zero exposure. Callers
+        read that as "no ceiling", never as "clamp everything to zero".
+        A palette that admits a white wallpaper lands on a ceiling far
+        above anything the generators emit, which comes to the same
+        thing without a second branch to leave untested.
+    """
+    from . import imagery
+    target = exposure_target() if target is None else target
+    if target <= 0.0 or exposure <= 0.0:
+        return float("inf")
+    headroom = max(1e-12, 1.0 - imagery.srgb_encode(target))
+    return float(-np.log(headroom) / exposure)
+
+
+def _compress_highlights(smooth: np.ndarray, ceiling: float,
+                         knee: float = HIGHLIGHT_KNEE) -> np.ndarray:
+    """Bend ``smooth``'s luminance so no pixel of it exceeds ``ceiling``.
+
+    Pointwise, monotone and hue-preserving: every pixel is scaled by the
+    ratio its own luminance is compressed by, so nothing in the frame
+    changes colour and — this is the whole reason it is pointwise —
+    nothing gains a halo. Two spatial alternatives were built and looked
+    at first: a local gain solved from the sliding window mean rings the
+    sun's limb, and taking the max envelope of that gain to kill the ring
+    stamps a visible dark *square* around the sun, the shape of its own
+    structuring element.
+
+    Only the smooth layers are handed to this. The starfield is added
+    afterwards and keeps its saturated white cores, because a point
+    source does not move a text-window mean (measured: 0.0007-0.0067
+    for the whole starfield, against a 0.0586 limit).
+
+    Modifies ``smooth`` in place and returns it — at 3840x2400 a copy is
+    another 110 MB for no gain.
+    """
+    if not np.isfinite(ceiling) or ceiling <= 0.0:
+        return smooth
+    luma = _luma(smooth)
+    if float(luma.max()) <= ceiling:
+        return smooth
+    foot = ceiling * knee
+    span = ceiling - foot
+    # Exponential shoulder: identity below `foot`, asymptotic to
+    # `ceiling`, C1 at the join (both value and slope match), so a
+    # smooth gradient crossing it gains no Mach band.
+    bent = foot + span * (1.0 - np.exp(-np.maximum(luma - foot, 0.0) / span))
+    scale = np.where(luma <= foot, np.float32(1.0),
+                     bent / np.maximum(luma, 1e-9)).astype(np.float32)
+    smooth *= scale[:, :, None]
+    return smooth
+
+
+def _measure_probe(arr: np.ndarray, long_edge: int = 480) -> np.ndarray:
+    """Box-averaged thumbnail of a uint8 frame, for measurement only.
+
+    Same trick, and the same 480 px, as :func:`spacr.qt.imagery._probe`:
+    every number measured off this is a mean over a region hundreds of
+    pixels across, and a box average answers those to several decimals
+    without building a 221 MB float array at 4K.
+    """
+    factor = max(1, int(max(arr.shape[:2]) // max(1, long_edge)))
+    if factor <= 1:
+        return arr
+    small = _area_downsample(arr.astype(np.float32), factor)
+    return np.clip(small + 0.5, 0, 255).astype(np.uint8)
+
+
+def _enforce_legibility(arr: np.ndarray,
+                        target: Optional[float] = None) -> np.ndarray:
+    """Final measured guarantee: dim ``arr`` until it is under ``target``.
+
+    :func:`_compress_highlights` bounds the smooth layers by
+    construction and in practice lands the finished frame at 0.69-0.78x
+    the limit with nothing left to do, so this normally resolves to a
+    factor of exactly 1.0 and returns ``arr`` untouched. It is here
+    because "by construction" is an argument and this is a measurement:
+    the starfield, the bloom and the vignette all land on the frame
+    after the ceiling is chosen, and an unusual size or seed is allowed
+    to put them somewhere the argument did not anticipate.
+
+    It is the same measure-and-solve pair the photographic masters get —
+    :func:`spacr.qt.imagery.brightest_window` into
+    :func:`spacr.qt.imagery.solve_dim` — run over the same
+    :data:`spacr.qt.imagery.TEXT_WINDOW`.
+    """
+    from . import imagery
+    target = exposure_target() if target is None else target
+    if target <= 0.0:
+        return arr
+    measured, _ = imagery.brightest_window(_measure_probe(arr))
+    factor = imagery.solve_dim(measured, target)
+    if factor >= 1.0:
+        return arr
+    return imagery.dim(arr, factor)
+
+
+def legibility(variant: str = DEFAULT_VARIANT, width: int = 0,
+               height: int = 0, seed: int = DEFAULT_SEED) -> dict:
+    """Measure how readable the generated sky actually is.
+
+    The same dict, measured the same way over the same region, that
+    :func:`spacr.qt.imagery.legibility` returns for a photographic
+    master — so "is the wallpaper legible" is one question with one
+    answer shape whether the pixels were generated or photographed.
+
+    ``width``/``height`` default to :func:`screen_size`.
+    """
+    from . import imagery
+    if width <= 0 or height <= 0:
+        width, height = screen_size()
+    arr = render(width, height, variant=variant, seed=seed)
+    return imagery.legibility_of(_measure_probe(arr), "space",
+                                 key=f"space:{variant}")
 
 
 def _vignette(width: int, height: int) -> np.ndarray:
@@ -649,23 +897,36 @@ def _vignette(width: int, height: int) -> np.ndarray:
 
 
 def render(width: int, height: int, variant: str = DEFAULT_VARIANT,
-           seed: int = DEFAULT_SEED) -> np.ndarray:
+           seed: int = DEFAULT_SEED, legible: bool = True) -> np.ndarray:
     """Render the composed sky as an (height, width, 3) uint8 array.
 
     Deterministic: identical arguments always give identical bytes.
+
+    :param legible: when true (always, outside the tests) the finished
+        frame is bounded by the Space palette's bare-text limit — see
+        :func:`_compress_highlights` and :func:`_enforce_legibility`.
+        ``False`` renders the unbounded sky, which exists so the test
+        suite can measure what the bound is worth rather than assert
+        that it was called.
+
+    The starfield is kept in its own buffer to the very end. That is not
+    tidiness: it is the one layer the highlight ceiling must not touch,
+    and keeping it separate is what lets a star core stay at 255 while
+    the sun beside it comes down by two and a half stops.
     """
     width = _clampi(width, MIN_DIM[0], MAX_DIM[0])
     height = _clampi(height, MIN_DIM[1], MAX_DIM[1])
     mix = _VARIANT_MIX.get(variant, _VARIANT_MIX[DEFAULT_VARIANT])
 
-    hdr = np.zeros((height, width, 3), dtype=np.float32)
-    hdr += _nebula(width, height, seed) * mix["nebula"]
-    hdr += galaxy(width, height, seed=seed,
-                  radius_frac=mix["galaxy_radius"]) * mix["galaxy"]
-    hdr += sun(width, height, seed=seed,
-               radius_frac=mix["sun_radius"]) * mix["sun"]
-    hdr += starfield(width, height, seed=seed,
-                     density=STAR_DENSITY * mix["stars"])
+    smooth = np.zeros((height, width, 3), dtype=np.float32)
+    smooth += _nebula(width, height, seed) * mix["nebula"]
+    smooth += galaxy(width, height, seed=seed,
+                     radius_frac=mix["galaxy_radius"]) * mix["galaxy"]
+    smooth += sun(width, height, seed=seed,
+                  radius_frac=mix["sun_radius"]) * mix["sun"]
+    stars = starfield(width, height, seed=seed,
+                      density=STAR_DENSITY * mix["stars"])
+    hdr = smooth + stars
 
     # Mild bloom so bright things bleed the way a lens does. The
     # downsample has to *average* — point-sampling a 1 px star into a
@@ -673,13 +934,26 @@ def render(width: int, height: int, variant: str = DEFAULT_VARIANT,
     # square, which is how the first cut of this looked. Two blur
     # passes then turn the box kernel into a tent so no hard edge
     # survives the upsample.
+    #
+    # Bloom counts as a smooth layer: it is a blur, it has no detail
+    # finer than ~100 px by construction, and a star's bloom really does
+    # cover a text window even though the star itself does not.
     small = _area_downsample(hdr, 8)
     small = _box_blur(_box_blur(small, 3), 3)
-    hdr += _bilinear_upsample(small, width, height) * 0.85
+    smooth += _bilinear_upsample(small, width, height) * 0.85
+    np.add(smooth, stars, out=hdr)
 
-    ldr = _tone_map(hdr)
+    # Solved on the composed frame, before any ceiling, so the sky
+    # anchor sees exactly what it always saw.
+    exposure = tone_exposure(_luma(hdr))
+    if legible:
+        _compress_highlights(smooth, highlight_ceiling(exposure))
+        np.add(smooth, stars, out=hdr)
+
+    ldr = _apply_tone_curve(hdr, exposure)
     ldr *= _vignette(width, height)[:, :, None]
-    return np.clip(ldr * 255.0 + 0.5, 0, 255).astype(np.uint8)
+    arr = np.clip(ldr * 255.0 + 0.5, 0, 255).astype(np.uint8)
+    return _enforce_legibility(arr) if legible else arr
 
 
 def to_qimage(arr: np.ndarray):
@@ -926,6 +1200,16 @@ def download_nasa_background(key: str = "carina", timeout: float = 20.0,
         from PySide6.QtGui import QImage
         probe = QImage()
         if not probe.load(str(tmp)):
+            tmp.unlink(missing_ok=True)
+            return None
+        # This file becomes the Space wallpaper *directly* — the
+        # stylesheet points at it, nothing renders it per screen — so it
+        # is the one path by which an unbounded picture could still get
+        # behind the app's text. A solar flare frame is exactly that.
+        # Solve it here or refuse it; the procedural sky is the fallback
+        # and it is bounded.
+        from . import imagery
+        if not imagery.solve_image_file(tmp, "space"):
             tmp.unlink(missing_ok=True)
             return None
         os.replace(tmp, directory / fname)

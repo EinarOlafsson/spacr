@@ -63,6 +63,15 @@ The same solve runs again in :func:`render`, where it is a no-op on the
 shipped masters and the whole guarantee for an image the user dropped
 into ``~/.spacr/themes`` themselves.
 
+:mod:`spacr.qt.space` now uses the same three functions —
+:func:`exposure_target`, :func:`brightest_window` and :func:`solve_dim`
+— on its generated sky, which for a long time was the one wallpaper in
+the app that had never been measured against the rule the photographs
+were held to. It cannot simply call :func:`solve_dim` on the finished
+frame (that lands the sky on a solid black rectangle; the numbers are in
+that module's docstring), so it applies the ceiling where the frame
+actually breaks the rule and then measures the result here.
+
 Scrimmed surfaces need no such treatment: :func:`spacr.qt.theme.contrast_report`
 already judges every panel against a **pure white** background, which is
 the worst case any photograph can present.
@@ -293,6 +302,22 @@ def _linear_to_srgb(value: np.ndarray) -> np.ndarray:
     value = np.clip(value, 0.0, 1.0)
     return np.where(value <= 0.0031308, value * 12.92,
                     1.055 * np.power(value, 1.0 / 2.4) - 0.055)
+
+
+def srgb_encode(linear: float) -> float:
+    """Encode one linear-light value as an sRGB signal value in [0, 1].
+
+    Public because :mod:`spacr.qt.space` needs it, and because the
+    distinction it carries is the one that is easiest to get wrong here:
+    every limit in this module — :func:`exposure_target`,
+    :func:`spacr.qt.theme.max_background_luma` — is a *linear* relative
+    luminance, while the sky generator's tone map emits an sRGB signal
+    value. Space's 0.0586 limit is ``#444444``, not a 6 % signal; the two
+    readings are a factor of 4.6 apart, which is the difference between
+    a dimmed sun and a black rectangle.
+    """
+    return float(_linear_to_srgb(np.asarray(float(linear),
+                                            dtype=np.float64)))
 
 
 def linear_rgb(arr: np.ndarray) -> np.ndarray:
@@ -675,8 +700,9 @@ def master_array(key: str) -> Optional[np.ndarray]:
     return arr
 
 
-def legibility(key: str) -> Optional[dict]:
-    """Measure how readable ``key``'s wallpaper actually is.
+def legibility_of(arr: np.ndarray, theme: str,
+                  key: str = "") -> dict:
+    """Measure how readable a wallpaper's pixels actually are.
 
     Everything in the returned dict comes from the real image data:
 
@@ -687,13 +713,13 @@ def legibility(key: str) -> Optional[dict]:
     ``passes``      whether it is within the limit
     ``failures``    every WCAG rule the theme fails **over that region**
 
-    ``None`` when the master is not installed.
+    Takes an array rather than a registry key so the *generated* sky can
+    be held to the identical measurement — :func:`spacr.qt.space.legibility`
+    is this function over a rendered frame. Until it was, the sky was the
+    one background in the app that had never been measured, and it was
+    8-14x over the limit.
     """
     from .theme import image_contrast_failures, max_background_luma
-    arr = master_array(key)
-    if arr is None:
-        return None
-    theme = MASTERS[key]["theme"]
     value, color = brightest_window(arr)
     limit = max_background_luma(theme)
     return {
@@ -708,9 +734,58 @@ def legibility(key: str) -> Optional[dict]:
     }
 
 
+def legibility(key: str) -> Optional[dict]:
+    """Measure how readable ``key``'s master actually is.
+
+    See :func:`legibility_of` for the returned dict. ``None`` when the
+    master is not installed.
+    """
+    arr = master_array(key)
+    if arr is None:
+        return None
+    return legibility_of(arr, MASTERS[key]["theme"], key=key)
+
+
 # ---------------------------------------------------------------------------
 # Build-time: originals -> shipped masters
 # ---------------------------------------------------------------------------
+
+def solve_image_file(path, theme: str, fmt: str = "JPEG") -> bool:
+    """Exposure-solve an image file *in place*. ``True`` when it is legible.
+
+    For pixels that arrive at runtime rather than in the wheel — today
+    that is the optional NASA/ESA download in
+    :func:`spacr.qt.space.download_nasa_background`. :func:`render`
+    cannot help there: that file is handed to the stylesheet directly,
+    at whatever size it arrived, so the solve has to happen to the file.
+
+    ``False`` — never an exception — when it cannot be read, solved or
+    rewritten. A caller must then **refuse** the image rather than
+    install it. A wallpaper that is not bounded, under a theme whose
+    scrims are solved against the bound, is precisely the failure
+    :data:`spacr.qt.theme.EXPOSURE_BOUNDED_THEMES` warns about: panels
+    thinned to what a dark sky can carry, with a solar flare behind them.
+    """
+    try:
+        from PIL import Image
+        path = Path(path)
+        Image.MAX_IMAGE_PIXELS = None       # NASA masters are huge
+        with Image.open(path) as handle:
+            image = handle.convert("RGB")
+        try:
+            measured, _ = brightest_window(_probe(image))
+            factor = solve_dim(measured, exposure_target(theme))
+            if factor >= 1.0:
+                return True
+            arr = dim(np.asarray(image, dtype=np.uint8), factor)
+        finally:
+            image.close()
+        Image.fromarray(arr).save(path, fmt, quality=JPEG_QUALITY,
+                                  subsampling=JPEG_SUBSAMPLING, optimize=True)
+        return True
+    except Exception:
+        return False
+
 
 def build_master(key: str, src_dir, dst_dir) -> Optional[Path]:
     """Turn one original into the master that ships in the wheel.
