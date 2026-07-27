@@ -43,3 +43,31 @@ prune spacr/notebooks
 prune spacr/notebooks/submodules
 prune spacr/notebooks/old
 
+# ---------------------------------------------------------------------------
+# Review artefacts: kept in git, deliberately NOT shipped.
+#
+# `recursive-include spacr/resources/icons *` above sweeps in backup_icons/
+# (240 candidate icons, 22 MB) and spacr/resources/home/versions/ holds 90
+# home-screen renders (13 MB). Together they took the sdist to 93 MB -- close
+# to PyPI's 100 MB per-file limit -- and made every user download 35 MB of
+# images they will never open. They exist for the maintainer to choose from,
+# so they belong in the repository and not in the distribution.
+# ---------------------------------------------------------------------------
+prune spacr/resources/icons/backup_icons
+prune spacr/resources/home
+
+# Unreferenced spinner variants: 21.5 MB of the wheel between them, and
+# `grep -r` finds zero references to any of the three. Only
+# loading_spinner.gif is used (gui_core.py:69). Kept in git, not shipped.
+exclude spacr/resources/icons/loading_spinner_1.gif
+exclude spacr/resources/icons/loading_spinner_logo.gif
+exclude spacr/resources/icons/loading_spinner_logo (1).gif
+exclude spacr/resources/icons/loading_spinner_logo
+
+# The built docs are not a distribution artefact. `recursive-include docs *.png`
+# above pulls in the tutorial screenshots (~20 MB) and Sphinx's own
+# environment.pickle is 8.4 MB of build cache. Docs live at
+# https://einarolafsson.github.io/spacr/ and in the repository.
+prune docs/.doctrees
+prune docs/_build
+prune docs/resources/tutorial
