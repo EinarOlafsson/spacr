@@ -2640,6 +2640,15 @@ def shap_analysis(model, X_train, X_test):
     
     explainer = shap.Explainer(model, X_train)
     shap_values = explainer(X_test)
+    # TreeExplainer returns one output axis for every classifier class in
+    # recent SHAP releases: (samples, features, classes).  summary_plot treats
+    # any 3-D input as interaction values, which both misrepresents the data
+    # and crashes when feature_names is a plain list.  The classifiers used by
+    # this pipeline are binary, so explain the positive class.  Keep the only
+    # output for estimators that expose a singleton output axis.
+    if len(shap_values.shape) == 3:
+        output_index = 1 if shap_values.shape[-1] > 1 else 0
+        shap_values = shap_values[..., output_index]
     # Create a new figure
     fig, ax = plt.subplots()
     # Summary plot
