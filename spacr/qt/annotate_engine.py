@@ -131,10 +131,19 @@ def filter_channels_pil(
 
 
 _cellpose_outline_model = None
+# outline_image runs on every thread in the page worker's pool concurrently
+# (one call per image in the page). Building the model is a check-then-set
+# on a module global with no lock, and Cellpose's eval() is not documented
+# as safe to call concurrently from multiple threads on one model instance
+# either, so both the lazy build and every eval() are serialized here.
+_cellpose_outline_lock = threading.Lock()
 
 
 def _get_cellpose_outline_model():
-    """Lazily build + cache a small Cellpose (SAM) model for outline masks."""
+    """Lazily build + cache a small Cellpose (SAM) model for outline masks.
+
+    Caller must hold ``_cellpose_outline_lock``.
+    """
     global _cellpose_outline_model
     if _cellpose_outline_model is None:
         from cellpose import models as cp_models
@@ -150,9 +159,10 @@ def _get_cellpose_outline_model():
 
 def _cellpose_foreground(channel_2d) -> "np.ndarray":
     """Return a boolean foreground mask for one channel using Cellpose."""
-    model = _get_cellpose_outline_model()
-    res = model.eval(channel_2d.astype(np.float32),
-                     diameter=None, flow_threshold=0.4, cellprob_threshold=0.0)
+    with _cellpose_outline_lock:
+        model = _get_cellpose_outline_model()
+        res = model.eval(channel_2d.astype(np.float32),
+                         diameter=None, flow_threshold=0.4, cellprob_threshold=0.0)
     mask = res[0]
     if isinstance(mask, list):
         mask = mask[0]
