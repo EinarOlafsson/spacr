@@ -71,6 +71,7 @@ import json
 import os
 import sqlite3
 import tempfile
+import threading
 from dataclasses import dataclass, field as _dc_field, replace
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
 
@@ -441,6 +442,12 @@ class MergedField:
         self.array = array
         self._indices: Dict[int, _LabelIndex] = {}
         self._derived: Dict[str, np.ndarray] = {}
+        # A cached field is shared across every thread loading a crop from
+        # it; mask_plane's and label_index's check-then-cache pattern on
+        # _derived/_indices is not safe unguarded from multiple threads.
+        # RLock, not Lock: label_index("cytoplasm") calls mask_plane("cytoplasm")
+        # while already holding this lock.
+        self._lock = threading.RLock()
 
     # -- geometry ----------------------------------------------------------
     @property
@@ -495,30 +502,32 @@ class MergedField:
         """
         if object_type != "cytoplasm":
             return np.asarray(self.array[:, :, self.mask_dim(object_type)])
-        if "cytoplasm" in self._derived:
-            return self._derived["cytoplasm"]
-        cell = np.asarray(self.array[:, :, self.mask_dim("cell")])
-        interior = np.zeros(cell.shape, dtype=bool)
-        for other in ("nucleus", "pathogen", "organelle"):
-            if self.mask_dims.get(other) is None:
-                continue
-            try:
-                dim = self.mask_dim(other)
-            except MaskPlaneMissing:
-                continue
-            interior |= np.asarray(self.array[:, :, dim]) != 0
-        cyto = np.where(interior, 0, cell)
-        self._derived["cytoplasm"] = cyto
-        return cyto
+        with self._lock:
+            if "cytoplasm" in self._derived:
+                return self._derived["cytoplasm"]
+            cell = np.asarray(self.array[:, :, self.mask_dim("cell")])
+            interior = np.zeros(cell.shape, dtype=bool)
+            for other in ("nucleus", "pathogen", "organelle"):
+                if self.mask_dims.get(other) is None:
+                    continue
+                try:
+                    dim = self.mask_dim(other)
+                except MaskPlaneMissing:
+                    continue
+                interior |= np.asarray(self.array[:, :, dim]) != 0
+            cyto = np.where(interior, 0, cell)
+            self._derived["cytoplasm"] = cyto
+            return cyto
 
     def label_index(self, object_type: str) -> _LabelIndex:
         """Return the cached :class:`_LabelIndex` for ``object_type``'s plane."""
         key = -1 if object_type == "cytoplasm" else self.mask_dim(object_type)
-        idx = self._indices.get(key)
-        if idx is None:
-            idx = _LabelIndex(self.mask_plane(object_type))
-            self._indices[key] = idx
-        return idx
+        with self._lock:
+            idx = self._indices.get(key)
+            if idx is None:
+                idx = _LabelIndex(self.mask_plane(object_type))
+                self._indices[key] = idx
+            return idx
 
     def labels(self, object_type: str = "cell") -> List[int]:
         """Return every non-zero label present in ``object_type``'s plane."""
@@ -591,13 +600,25 @@ def _load_mmap(path: str):
 # A tiny LRU of open fields, so a grid that walks a handful of fields keeps
 # their label indices between calls. Keyed on (path, mtime, size) so a
 # regenerated merged file is never served from a stale entry.
+#
+# The annotate grid loads a page of crops on a pool of worker threads, all
+# of which call open_merged_field concurrently. This cache used to have no
+# lock: the evict-oldest line in particular is a check-then-act
+# (next(iter(...)) then .pop()) that is not safe against another thread
+# mutating the dict in between, and CPython does not guarantee a dict
+# survives concurrent structural changes from multiple threads without one.
+# With enough images open at once (enough threads racing the same 8-slot
+# cache) this corrupted memory and crashed the process, in code unrelated
+# to crop loading.
 _FIELD_CACHE: "Dict[Tuple[str, int, int], MergedField]" = {}
 _FIELD_CACHE_MAX = 8
+_FIELD_CACHE_LOCK = threading.Lock()
 
 
 def clear_field_cache() -> None:
     """Drop every cached :class:`MergedField` (and its label indices)."""
-    _FIELD_CACHE.clear()
+    with _FIELD_CACHE_LOCK:
+        _FIELD_CACHE.clear()
 
 
 def _cache_key(path: str) -> Tuple[str, int, int]:
@@ -623,14 +644,15 @@ def open_merged_field(path: str, mask_dims: Optional[Mapping[str, int]] = None,
     if not use_cache:
         return MergedField(path, mask_dims=dims)
     key = _cache_key(path)
-    cached = _FIELD_CACHE.get(key)
-    if cached is not None and cached.mask_dims == dims:
-        return cached
-    fld = MergedField(path, mask_dims=dims)
-    if len(_FIELD_CACHE) >= _FIELD_CACHE_MAX:
-        _FIELD_CACHE.pop(next(iter(_FIELD_CACHE)))
-    _FIELD_CACHE[key] = fld
-    return fld
+    with _FIELD_CACHE_LOCK:
+        cached = _FIELD_CACHE.get(key)
+        if cached is not None and cached.mask_dims == dims:
+            return cached
+        fld = MergedField(path, mask_dims=dims)
+        if len(_FIELD_CACHE) >= _FIELD_CACHE_MAX:
+            _FIELD_CACHE.pop(next(iter(_FIELD_CACHE)))
+        _FIELD_CACHE[key] = fld
+        return fld
 
 
 # ---------------------------------------------------------------------------
