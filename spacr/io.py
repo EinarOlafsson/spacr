@@ -3219,11 +3219,11 @@ def _read_db(db_loc, tables):
 
 def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_limit=10, change_plate=False):
 
-    from .utils import _split_data
+    from .utils import MEASUREMENT_STAMP_COLUMNS, _split_data
 
     pathogen_counts = None
     metadata_key = 'object_label'
-    shared_metadata_columns = {'measurement_ndim', 'n_z'}
+    shared_metadata_columns = set(MEASUREMENT_STAMP_COLUMNS)
 
     def _merge_grouped(left, right):
         """Merge grouped tables while keeping only one copy of shared acquisition metadata."""
@@ -6899,4 +6899,3 @@ def prepare_cellpose_dataset(input_root, augment_data=False, train_fraction=0.8,
             print_progress(i, len(instructions), n_jobs=n_jobs, time_ls=time_ls, batch_size=None, operation_type="cellpose dataset")
 
     print(f"Done. Dataset saved to: {output_root}")
-
