@@ -70,6 +70,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..annotate_engine import (
+    DEFAULT_DISPLAY_ORDER,
     AnnotateSettings,
     SaveWorker,
     class_counts,
@@ -84,6 +85,7 @@ from ..annotate_engine import (
     load_crop_image,
     normalize_pil,
     outline_image,
+    reorder_channels_pil,
 )
 from .. import iconset, prefs
 from ..theme import SPACING, palette_for
@@ -544,6 +546,16 @@ class _SettingsDialog(QDialog):
         self._channels.setPlaceholderText("r, g, b (blank = all)")
         form.addRow("Show channels", self._channels)
 
+        self._display_order = QLineEdit(
+            _list_to_csv(getattr(settings, "display_order", None)))
+        self._display_order.setPlaceholderText("r, g, b (blank = no change)")
+        self._display_order.setToolTip(
+            "Which source channel is drawn in each slot: first entry renders "
+            "as red, second green, third blue.\n"
+            "Use b, g, r if your png_dims was written before spaCR corrected "
+            "the crop channel order and your stains now appear swapped.")
+        form.addRow("Display order", self._display_order)
+
         self._norm_channels = QLineEdit(_list_to_csv(settings.normalize_channels))
         self._norm_channels.setPlaceholderText("r, g, b (blank = off)")
         form.addRow("Normalize channels", self._norm_channels)
@@ -710,6 +722,10 @@ class _SettingsDialog(QDialog):
         s.image_size = (size, size)
         s.image_type = self._image_type.text().strip() or None
         s.channels = _csv_to_list(self._channels.text())
+        # A blank field means "leave the channels where they are", which is
+        # what the identity permutation does.
+        s.display_order = (_csv_to_list(self._display_order.text())
+                           or list(DEFAULT_DISPLAY_ORDER))
         s.normalize_channels = _csv_to_list(self._norm_channels.text())
         s.percentiles = (float(self._pct_lo.value()), float(self._pct_hi.value()))
         s.outline = _csv_to_list(self._outline.text())
@@ -1485,6 +1501,9 @@ class AnnotateScreen(QWidget):
                 img = load_crop_image(path, db_path=s.db_path)
             except Exception:
                 return Image.new("RGB", s.image_size, (30, 30, 30)), annotation
+        # Before normalisation and filtering, so "Show channels", "Normalize
+        # channels" and "Outline channels" all name slots as they appear.
+        img = reorder_channels_pil(img, getattr(s, "display_order", None))
         img = normalize_pil(img, s.percentiles, s.normalize_channels)
         # Full-quality image before channel filter — used as the outline
         # detection source so outlines still find features on channels the

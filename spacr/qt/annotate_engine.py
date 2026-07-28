@@ -114,6 +114,53 @@ def normalize_pil(
     return Image.fromarray(np.clip(out, 0, 255).astype("uint8"))
 
 
+#: Display slot order meaning "no permutation" -- red shows red, and so on.
+DEFAULT_DISPLAY_ORDER: Tuple[str, str, str] = ("r", "g", "b")
+
+_CHANNEL_INDEX = {"r": 0, "g": 1, "b": 2}
+
+
+def reorder_channels_pil(
+    img: Image.Image, order: Optional[Iterable[str]] = None
+) -> Image.Image:
+    """Permute which source channel renders in each display slot.
+
+    ``order[0]`` names the source channel drawn as **red**, ``[1]`` as green,
+    ``[2]`` as blue. ``('r','g','b')`` is the identity and returns ``img``
+    untouched; ``('b','g','r')`` swaps red and blue.
+
+    This exists because ``png_dims`` only fixes the stain->slot mapping at the
+    moment crops are *written*. A project whose ``png_dims`` was authored
+    before 341f446 (when ``cv2.imwrite``'s BGR reading put ``png_dims[0]`` in
+    the file's blue slot) renders with red and blue swapped relative to what
+    its author intended, and the only other ways to correct that are re-running
+    measurement or mislabelling the folder's crop format. Neither is
+    reasonable to ask of someone who just wants their parasite stain drawn in
+    red, so the permutation is a display control.
+
+    Applied before normalisation and channel filtering, so every other
+    ``"r"``/``"g"``/``"b"`` control on the screen addresses the image the user
+    is actually looking at.
+
+    :param img: an RGB image.
+    :param order: three channel letters. ``None``, empty, malformed or the
+        identity all return ``img`` unchanged -- a half-typed setting must not
+        blank the screen.
+    :returns: the permuted image, or ``img`` itself when there is nothing to do.
+    """
+    if not order or img.mode != "RGB":
+        return img
+    letters = [
+        str(c).strip().lower() for c in order if c is not None and str(c).strip()
+    ]
+    if len(letters) != 3 or any(c not in _CHANNEL_INDEX for c in letters):
+        return img
+    if tuple(letters) == DEFAULT_DISPLAY_ORDER:
+        return img
+    bands = img.split()
+    return Image.merge("RGB", tuple(bands[_CHANNEL_INDEX[c]] for c in letters))
+
+
 def filter_channels_pil(
     img: Image.Image, channels: Optional[Iterable[str]] = None
 ) -> Image.Image:
@@ -299,6 +346,11 @@ class AnnotateSettings:
     # Default to showing + normalising R,G,B so object crops are visible out of
     # the box (unnormalised crops render as near-black/grey otherwise).
     channels: List[str] = field(default_factory=lambda: ["r", "g", "b"])
+    # Which source channel renders in each display slot -- see
+    # reorder_channels_pil. The identity by default, so nothing moves for a
+    # project whose png_dims already names the stains in the order it wants
+    # them drawn.
+    display_order: List[str] = field(default_factory=lambda: ["r", "g", "b"])
     percentiles: Tuple[float, float] = (1.0, 99.0)
     normalize_channels: List[str] = field(
         default_factory=lambda: ["r", "g", "b"])

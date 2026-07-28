@@ -130,3 +130,86 @@ def test_default_channels_are_rgb_and_normalized():
     out = filter_channels_pil(
         normalize_pil(dim, s.percentiles, s.normalize_channels), s.channels)
     assert np.array(out).max() > 200   # stretched to a visible range
+
+
+# ---------------------------------------------------------------------------
+# Display channel order
+# ---------------------------------------------------------------------------
+
+def _slot_values(img):
+    """Return the three channel values of a uniform test image."""
+    import numpy as np
+    arr = np.asarray(img)
+    return [int(arr[0, 0, i]) for i in range(3)]
+
+
+def _stain_image(first=10, second=20, third=30):
+    """A uniform crop whose three channels are individually identifiable."""
+    import numpy as np
+    from PIL import Image
+    arr = np.zeros((4, 4, 3), "uint8")
+    arr[..., 0], arr[..., 1], arr[..., 2] = first, second, third
+    return Image.fromarray(arr)
+
+
+def test_display_order_default_is_identity():
+    """An untouched project must render exactly as it did before the setting
+    existed -- the identity permutation returns the same image object."""
+    from spacr.qt.annotate_engine import (
+        AnnotateSettings, DEFAULT_DISPLAY_ORDER, reorder_channels_pil)
+    s = AnnotateSettings()
+    assert s.display_order == ["r", "g", "b"]
+    assert tuple(s.display_order) == DEFAULT_DISPLAY_ORDER
+    img = _stain_image()
+    assert reorder_channels_pil(img, s.display_order) is img
+    assert _slot_values(reorder_channels_pil(img, s.display_order)) == [10, 20, 30]
+
+
+def test_display_order_bgr_swaps_red_and_blue():
+    """b,g,r draws the source's blue channel as red. This is what a project
+    whose png_dims predates the 341f446 crop-format correction needs to get
+    its first stain back into the red slot."""
+    from spacr.qt.annotate_engine import reorder_channels_pil
+    out = reorder_channels_pil(_stain_image(), ["b", "g", "r"])
+    assert _slot_values(out) == [30, 20, 10]
+
+
+def test_display_order_applies_before_channel_filter():
+    """The permutation has to run first, or "Show channels" would name slots
+    the user isn't looking at. With b,g,r selecting r,g must light up the
+    source's third and second channels."""
+    from spacr.qt.annotate_engine import filter_channels_pil, reorder_channels_pil
+    out = filter_channels_pil(
+        reorder_channels_pil(_stain_image(), ["b", "g", "r"]), ["r", "g"])
+    assert _slot_values(out) == [30, 20, 0]
+
+
+def test_display_order_supports_arbitrary_permutation():
+    """Not just the reversal -- any of the six orders is expressible."""
+    from spacr.qt.annotate_engine import reorder_channels_pil
+    assert _slot_values(reorder_channels_pil(_stain_image(), ["g", "b", "r"])) \
+        == [20, 30, 10]
+
+
+def test_display_order_ignores_malformed_input():
+    """A half-typed or nonsense order must leave the image alone rather than
+    blank the screen mid-edit."""
+    from spacr.qt.annotate_engine import reorder_channels_pil
+    img = _stain_image()
+    for bad in (None, [], ["r", "g"], ["x", "y", "z"], ["r", "g", "b", "r"], ["", " "]):
+        assert _slot_values(reorder_channels_pil(img, bad)) == [10, 20, 30]
+
+
+def test_display_order_is_case_and_space_insensitive():
+    """Typed settings arrive with whatever spacing and case the user used."""
+    from spacr.qt.annotate_engine import reorder_channels_pil
+    out = reorder_channels_pil(_stain_image(), [" B ", "G", "r"])
+    assert _slot_values(out) == [30, 20, 10]
+
+
+def test_display_order_leaves_non_rgb_untouched():
+    """Only an RGB image has three slots to permute."""
+    from PIL import Image
+    from spacr.qt.annotate_engine import reorder_channels_pil
+    grey = Image.new("L", (4, 4), 12)
+    assert reorder_channels_pil(grey, ["b", "g", "r"]) is grey
