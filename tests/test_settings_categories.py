@@ -212,6 +212,13 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # hard-code 'cpsam' and a checkpoint from Train Cellpose had nowhere to
     # be named. Filed with the rest of each object's segmentation knobs.
     "cell_model_name", "nucleus_model_name", "pathogen_model_name",
+    # The four metadata_item_* keys set_generate_training_dataset_defaults
+    # returns. They name the classes and the wells behind them for the CV
+    # dataset builder and had no category at all, so the Classify (CV) dataset
+    # settings printed them under "Other" -- four keys away from the
+    # class_metadata they belong beside. Filed with "Training Dataset".
+    "metadata_item_1_name", "metadata_item_1_value",
+    "metadata_item_2_name", "metadata_item_2_value",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six
@@ -568,11 +575,10 @@ def test_category_keys_list_matches_the_map():
 # curated blurb with no error and no test failure. These two tests close the
 # loop in both directions.
 #
-# Both are xfail(strict=True) because SECTION_HINTS is owned by another module
-# and is already out of sync on this tree (it carries "CROP", "MEASURE" and
-# "CLASSIFY", which have never been category names, and has no entry for
-# Cellpose, Measurements or Segmentation QC). They flip to XPASS - loudly - the
-# moment SECTION_HINTS is brought back in line.
+# They were xfail(strict=True) when SECTION_HINTS carried "CROP", "MEASURE"
+# and "CLASSIFY" -- names that had never been category names -- and had no
+# entry for Cellpose, Measurements or Segmentation QC. It is in line now, and
+# they are ordinary passing tests that keep it that way.
 
 def _section_hints():
     pytest.importorskip("PySide6")
@@ -596,3 +602,98 @@ def test_every_qt_section_hint_names_a_real_category():
     assert not dead, (
         f"SECTION_HINTS entries that match no settings section: {dead}"
     )
+
+
+# ---------------------------------------------------------------------------
+# 9. The regroup: no module renders an "Other" section, and the settings the
+#    user called out are where they belong
+# ---------------------------------------------------------------------------
+#
+# "Other" is what Qt calls the trailing bucket for keys in no category, and
+# what utils.pretty_print_settings calls the same leftovers. It is not a
+# heading anyone chose -- it is the absence of one. Classify (CV) rendered it
+# holding exactly one setting, `custom_model`, because that key was filed
+# under "Cellpose" and Classify hides Cellpose.
+
+def _rendered_sections(app_key):
+    """(title, keys) per section, exactly as SettingsWidgets.build_sections
+    would bucket them -- including the trailing "Other"."""
+    pytest.importorskip("PySide6")
+    from spacr.qt.screens.settings_model import (
+        _APP_HIDDEN_CATEGORIES, resolve_default_settings,
+    )
+    defaults = resolve_default_settings(app_key)
+    hidden = _APP_HIDDEN_CATEGORIES.get(app_key, set())
+    used, sections = set(), []
+    for name, keys in S.categories.items():
+        if name in hidden:
+            continue
+        rows = [k for k in keys if k in defaults and k not in used]
+        used.update(rows)
+        if rows:
+            sections.append((name, rows))
+    leftover = [k for k in defaults if k not in used]
+    if leftover:
+        sections.append(("Other", leftover))
+    return sections
+
+
+@pytest.mark.parametrize("app_key", sorted(GUI_MODULE_DEFAULTS))
+def test_no_module_renders_an_other_section(app_key):
+    sections = dict(_rendered_sections(app_key))
+    assert "Other" not in sections, (
+        f"{app_key} shows an ungrouped 'Other' section holding "
+        f"{sections['Other']}"
+    )
+
+
+def test_the_model_a_module_runs_is_filed_under_model_training():
+    """`custom_model` and `model_name` answer the same question `model_type`
+    does. Under "Cellpose" they were invisible to Classify, which hides that
+    category, and mis-titled for Train Cellpose, which does not."""
+    assert "custom_model" in S.categories["Model Training"]
+    assert "model_name" in S.categories["Model Training"]
+    assert "custom_model" not in S.categories["Cellpose"]
+    assert "model_name" not in S.categories["Cellpose"]
+
+
+def test_the_cv_dataset_class_keys_are_grouped_with_the_dataset():
+    """The four metadata_item_* keys name the classes and the wells behind
+    them; they printed under "Other", away from class_metadata."""
+    training = S.categories["Training Dataset"]
+    for key in ("metadata_item_1_name", "metadata_item_1_value",
+                "metadata_item_2_name", "metadata_item_2_value"):
+        assert key in training, key
+    assert "class_metadata" in training
+    assert "metadata_type_by" in training
+
+
+def test_dataset_shaping_settings_are_not_filed_as_advanced():
+    """normalize scales every image; nuclei_limit / pathogen_limit decide
+    which rows exist at all. None of the three is a tuning knob."""
+    advanced = set(S.categories["Advanced"])
+    assert "normalize" not in advanced
+    assert "nuclei_limit" not in advanced
+    assert "pathogen_limit" not in advanced
+    assert "normalize" in S.categories["General"]
+    assert {"nuclei_limit", "pathogen_limit"} <= set(S.categories["Measurements"])
+
+
+def test_the_replication_module_shows_no_invasion_heading():
+    """compartment / group_column / level / change_plate are shared by both
+    assays, so filing them under "Invasion Assay" made the Replication panel
+    render a heading for an assay it does not run."""
+    titles = [t for t, _ in _rendered_sections("replication")]
+    assert "Invasion Assay" not in titles, titles
+
+
+def test_the_measure_module_shows_no_segmentation_headings():
+    """The per-object minimum sizes are measurement filters that only
+    measure_crop sets; under Cell / Nucleus / Pathogen they gave Measure three
+    headings holding one or two size fields and no segmentation."""
+    titles = [t for t, _ in _rendered_sections("measure")]
+    for gone in ("Cell", "Nucleus", "Pathogen"):
+        assert gone not in titles, titles
+    measurements = set(S.categories["Measurements"])
+    assert {"cell_min_size", "nucleus_min_size", "pathogen_min_size",
+            "cytoplasm_min_size", "merge_edge_pathogen_cells"} <= measurements

@@ -626,13 +626,35 @@ def test_generate_training_dataset_unnamed_rules_get_derived_names(tmp_path, rng
     assert _class_counts(train_dir, test_dir)["columnID==c1"] == (16, 4)
 
 
-def test_generate_training_dataset_legacy_metadata_without_condition(tmp_path, rng, capsys):
-    """Legacy metadata mode warns when png_list has no 'condition' column."""
+def test_generate_training_dataset_metadata_mode_with_no_classes(tmp_path, rng, capsys):
+    """An empty class_metadata selects nothing and aborts, saying so.
+
+    This used to assert that the run PRINTED ``'condition' column not found``.
+    That message came from a guard which detected the missing column and then
+    let the next line index it anyway -- so the log said "got 0 classes" while
+    the run died of ``KeyError: 'condition'`` two frames down. The column is
+    now taken from ``metadata_type_by`` (``'columnID'`` by default, which this
+    fixture has), and a column that really is absent raises instead of being
+    announced and then used -- see
+    ``test_generate_training_dataset_metadata_column_is_missing`` below and
+    ``tests/test_training_dataset_metadata_column.py``.
+    """
     src, _ = _build_png_src(tmp_path / "plate1", rng)
     out = IO.generate_training_dataset(
         _gtd(src, metadata_rules=None, class_metadata=[]))
     assert out == (None, None)
-    assert "'condition' column not found" in capsys.readouterr().out
+    assert "No class data assembled" in capsys.readouterr().out
+
+
+def test_generate_training_dataset_metadata_column_is_missing(tmp_path, rng):
+    """A metadata_type_by naming a column png_list does not have raises."""
+    src, _ = _build_png_src(tmp_path / "plate1", rng)
+    with pytest.raises(ValueError) as excinfo:
+        IO.generate_training_dataset(
+            _gtd(src, metadata_rules=None, metadata_type_by="condition",
+                 class_metadata=["c1"]))
+    assert "'condition'" in str(excinfo.value)
+    assert "metadata_type_by" in str(excinfo.value)
 
 
 def test_generate_training_dataset_measurement_rules(tmp_path, rng):

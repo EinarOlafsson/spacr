@@ -813,3 +813,36 @@ def test_validate_reads_only_one_array_header_not_the_plate(tmp_path, monkeypatc
     monkeypatch.setattr(_np, "load", counting_load)
     validate_settings(valid_measure_settings(merged), "measure")
     assert len(calls) == 1, f"peeked at {len(calls)} arrays, expected 1"
+
+
+# ---------------------------------------------------------------------------
+# expected_types must contain TYPES
+# ---------------------------------------------------------------------------
+
+def test_every_expected_type_is_actually_a_type():
+    """``validate_settings`` ends in ``isinstance(value, types)``.
+
+    Two entries used to hold the *value* ``None`` rather than ``type(None)``
+    -- ``'sample': None`` and ``"x_lim": (list, None)`` -- and isinstance
+    rejects that with ``TypeError: isinstance() arg 2 must be a type``. The
+    preflight check crashed on any run that set ``sample``, which is the one
+    place it must not: it exists to report problems, not to raise them.
+    """
+    from spacr.settings import expected_types
+
+    bad = {}
+    for key, declared in expected_types.items():
+        for entry in (declared if isinstance(declared, tuple) else (declared,)):
+            if not isinstance(entry, type):
+                bad.setdefault(key, []).append(entry)
+    assert not bad, bad
+
+
+def test_a_declared_sample_does_not_crash_the_preflight(tmp_path):
+    from spacr.validate import validate_settings
+
+    # The call itself is the assertion: it used to raise TypeError.
+    problems = validate_settings({"src": str(tmp_path), "sample": 500,
+                                  "x_lim": [-1, 1]}, "classify")
+    typed = [p for p in problems if p.setting in ("sample", "x_lim")]
+    assert not typed, [str(p) for p in typed]

@@ -45,7 +45,8 @@ SECTION_HINTS = {
                         "sub-folders spaCR should read images from.",
     "GENERAL":          "High-level knobs: metadata source (Yokogawa "
                         "vs Cellvoyager vs custom regex), channel "
-                        "layout, magnification, plotting toggles.",
+                        "layout, magnification, image normalisation, "
+                        "plotting toggles.",
     "CELL":             "Cellpose settings for the *cell* mask: "
                         "channel, model, diameter, cellprob threshold, "
                         "background floor.",
@@ -63,31 +64,38 @@ SECTION_HINTS = {
                         "U-Net), the size/intensity/border filters applied to "
                         "the objects found, and which parent compartments the "
                         "organelles are summarised into.",
-    "CELLPOSE":         "Shared Cellpose knobs for the training and "
-                        "mask-finetune tools: model, diameter, cellprob and "
-                        "flow thresholds, resize and normalisation.",
+    "CELLPOSE":         "How Cellpose runs on the training and mask-finetune "
+                        "tools: diameter, cellprob and flow thresholds, "
+                        "resize, rescale and inversion. Which model it runs "
+                        "is under Model Training.",
     "SEGMENTATION QC":  "Automatic pass/fail checks on the finished masks — "
                         "object counts, size and split ratios, border and "
                         "foreground fractions, per-plate failure tolerance.",
-    "MEASUREMENTS":     "Which per-object features are computed — intensity, "
-                        "morphology, texture, radial distribution, "
-                        "colocalisation — and which of them survive into the "
-                        "analysis table.",
+    "MEASUREMENTS":     "Which objects are measured — the per-compartment "
+                        "size and intensity filters, and whether the nucleus "
+                        "and pathogen tables are joined on — then which "
+                        "features are computed (intensity, morphology, "
+                        "texture, radial distribution, colocalisation) and "
+                        "which of them survive into the analysis table.",
     "OBJECT CROPS":     "Per-object crop dimensions, which mask each crop is "
                         "centred on, and which channels get baked into each "
                         "saved PNG or array.",
     "PLATE LAYOUT & CONTROLS":
                         "The plate map: which wells hold which cell line, "
                         "pathogen strain and treatment, which wells or gRNAs "
-                        "are the positive and negative controls, and the "
-                        "labels they are given.",
+                        "are the positive and negative controls, the labels "
+                        "they are given, and how wells are grouped for "
+                        "reporting.",
     "TRAINING DATASET": "How the labelled training set is assembled from the "
                         "database — annotation column vs well metadata, which "
-                        "crop type, and how many objects to sample.",
-    "MODEL TRAINING":   "The image classifier: backbone, classes, input "
+                        "metadata column the classes are keyed on, which crop "
+                        "type, how many objects to sample, and how much of it "
+                        "is held back for testing.",
+    "MODEL TRAINING":   "Which model, and how it is fitted: backbone or "
+                        "Cellpose model name, custom weights, classes, input "
                         "channels and size, epochs, optimizer, learning-rate "
                         "schedule, loss, augmentation, and the "
-                        "train/validation/test split.",
+                        "train/validation split.",
     "ML CLASSIFIER":    "The classical (non-image) screen classifier fitted "
                         "on measured features — algorithm, tree count, "
                         "regularisation, feature pruning, and permutation "
@@ -120,7 +128,8 @@ SECTION_HINTS = {
     "INVASION ASSAY":   "The two-colour invasion assay: which channels hold the "
                         "outside and total stains, how the outside signal is "
                         "measured, how its threshold is chosen and checked, and "
-                        "which objects count as parasites at all.",
+                        "which objects count as parasites at all. The table the "
+                        "parasites are read from is under Measurements.",
     "SEQUENCING":       "FASTQ inputs, barcode reference, mapping "
                         "chunk size, and QC thresholds.",
 }
@@ -1215,6 +1224,12 @@ class AppScreen(QWidget):
                         settings_snapshot[k] = w.value()
                     elif isinstance(w, QComboBox):
                         settings_snapshot[k] = w.currentText()
+                    elif hasattr(w, "get_value"):
+                        # The chip editor is a QWidget, not a QLineEdit; a
+                        # bug report that omitted every list setting was how
+                        # the class_metadata crash arrived without its own
+                        # value attached.
+                        settings_snapshot[k] = w.get_value()
                     elif isinstance(w, QLineEdit):
                         settings_snapshot[k] = w.text()
         except Exception:
@@ -1445,6 +1460,13 @@ class AppScreen(QWidget):
                 if widget.itemText(i) == str(val):
                     widget.setCurrentIndex(i)
                     break
+        elif hasattr(widget, "set_value"):
+            # _ListEditor / _ListEdit / _ScalarEdit all round-trip their own
+            # value. Importing a settings CSV used to go through the plain
+            # QLineEdit branch below, which str()'d a list back into the box;
+            # the chip editor is not a QLineEdit at all, so it would have been
+            # skipped entirely.
+            widget.set_value(val)
         elif isinstance(widget, QLineEdit):
             widget.setText("" if val is None else str(val))
 
