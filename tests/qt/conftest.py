@@ -5,15 +5,23 @@ pytest-qt is not installed so the rest of the suite still runs.
 """
 from __future__ import annotations
 
+from importlib.util import find_spec
 import os
-import sys
 
 import pytest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-pytest.importorskip("PySide6", reason="PySide6 not installed; skipping Qt tests")
-pytest.importorskip("pytestqt", reason="pytest-qt not installed; skipping Qt tests")
+# Skipping while this conftest is imported aborts collection of the entire
+# repository on pytest 7, leaving pytest with exit code 5 ("no tests
+# collected").  Ignore only this directory's test modules when an optional Qt
+# test dependency is absent so the non-Qt suite can still run.
+_QT_TEST_DEPENDENCIES = ("PySide6", "pytestqt")
+collect_ignore_glob = (
+    ["test_*.py"]
+    if any(find_spec(module) is None for module in _QT_TEST_DEPENDENCIES)
+    else []
+)
 
 
 @pytest.fixture(scope="session")
