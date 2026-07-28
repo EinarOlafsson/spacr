@@ -659,18 +659,13 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('voxel_size_xy_um', None)
     settings.setdefault('anisotropy', None)
 
-    # Cropping settings    # Cropping settings
+    # Cropping settings
     settings.setdefault('save_arrays', False)
     settings.setdefault('save_png',True)
     settings.setdefault('use_bounding_box',False)
     settings.setdefault('png_size',[224,224])
     settings.setdefault('png_dims',[0,1,2])
-    settings.setdefault('normalize',False)    # Cropping settings
-    settings.setdefault('save_arrays', False)
-    settings.setdefault('save_png',True)
-    settings.setdefault('use_bounding_box',False)
-    settings.setdefault('png_size',[224,224])
-    settings.setdefault('png_dims',[0,1,2])
+    settings.setdefault('normalize',False)
     settings.setdefault('normalize_by','png')
     settings.setdefault('crop_mode',['cell'])
     settings.setdefault('dialate_pngs', False)
@@ -814,7 +809,13 @@ def set_generate_training_dataset_defaults(settings):
     settings.setdefault('dataset_mode','metadata')
     settings.setdefault('annotation_column','test')
     settings.setdefault('annotated_classes',[1,2])
-    settings.setdefault('class_metadata',['nc','pc'])
+    # class_metadata holds VALUES OF metadata_type_by ('columnID'), so the
+    # entries have to be well ids. It was set twice, and the first call won:
+    # ['nc','pc'] -- the CLASS NAMES from deep_spacr_defaults' 'classes' key,
+    # pasted onto the wrong setting. No columnID is ever 'nc', so the shipped
+    # default selected zero crops in both classes and the second, correct
+    # assignment below was dead. Same for 'tables', set to the four object
+    # tables and then to None.
     settings.setdefault('metadata_item_1_name',None) # e.g. ['nc','pc']
     settings.setdefault('metadata_item_1_value',None) # e.g. [['c19','c2'],['c3','c4']]
     settings.setdefault('metadata_item_2_name',None) # e.g. ['sample1','sample2']
@@ -825,7 +826,6 @@ def set_generate_training_dataset_defaults(settings):
     settings.setdefault('metadata_type_by','columnID')
     settings.setdefault('channel_of_interest',3)
     settings.setdefault('custom_measurement',None)
-    settings.setdefault('tables',None)
     settings.setdefault('nuclei_limit',True)
     settings.setdefault('pathogen_limit',True)
     settings.setdefault('png_type','cell_png')
@@ -1465,7 +1465,12 @@ expected_types = {
     'model_path':str,
     'dataset':str,
     'score_threshold':float,
-    'sample':None,
+    # (int, list or None), as the description says. It was the VALUE None,
+    # which is not a type at all: validate.validate_settings does
+    # `isinstance(value, (None,))` on it and died with
+    # "TypeError: isinstance() arg 2 must be a type" -- the preflight check
+    # crashed on any run that set 'sample'.
+    'sample':(int, list, type(None)),
     'file_metadata':(str, type(None), list),
     "train":bool,
     "test":bool,
@@ -1550,7 +1555,7 @@ expected_types = {
     "metadata_files":list,
     "filter_value":list,
     "split_axis_lims":str,
-    "x_lim":(list,None),
+    "x_lim":(list, type(None)),   # was (list, None) -- None is not a type
     "log_x":bool,
     "log_y":bool,
     "reg_alpha":(int,float),
@@ -2302,7 +2307,7 @@ tooltips = {
     'logit_adjust_tau': "(float) - Strength of the Menon-et-al. logit adjustment: tau * log(class prior) is added to the logits during training, pulling decisions toward rare classes. Only used when loss_type resolves to logit_adjust_ce, which 'auto' picks when the smallest class is under 10% of the data. Higher tau corrects harder; 0 disables. Default 1.0.",
     'loss_type': "(str) - Which loss build_loss constructs for the classifier. For a 2+ class head the working values are 'focal_loss'/'focal_ce' (down-weights easy examples), 'cross_entropy'/'ce', 'label_smoothing'/'ce_smooth' (epsilon fixed at 0.1), 'ce_weighted' (inverse-frequency class weights), 'logit_adjust_ce' and 'asl'; 'binary_cross_entropy_with_logits'/'bce' is legal only for a single-logit head and raises otherwise. 'auto' is rewritten to 'cross_entropy' before training starts, so build_loss's rare-class switch to logit_adjust_ce never fires from this path. Reach for 'focal_loss' or 'ce_weighted' when one class dominates and the model collapses to predicting it. Default 'focal_loss' ('auto' only in deep_spacr_defaults).",
     'metadata_files': "(list) - Gene-annotation CSVs, each with a 'Gene ID' column, that are joined onto the regression results by gene, writing an extra results CSV per file. These are gene tables, not plate/well metadata. When toxo is True the order matters: index 0 is read as the ME49 transcription table and index 1 as the GT1 phenotype table.",
-    'metadata_type_by': "(str) - Which plate-metadata column the class_metadata values are matched against when building a dataset from annotations: 'rowID' or 'columnID' only - anything else raises ValueError. Read only by the legacy training_dataset_from_annotation_metadata helper, not by the current generate_training_dataset. Default 'columnID'.",
+    'metadata_type_by': "(str) - Which png_list column the class_metadata values are matched against when dataset_mode is 'metadata'. Normally 'columnID' or 'rowID' - the two well-metadata columns filepaths_to_database writes - but any png_list column is accepted, including 'condition' if annotate_conditions has added it. generate_training_dataset selects on this column and raises with the list of available columns when it is missing; it used to ignore this setting entirely and select on a hard-coded 'condition' column, which no writer creates, so a default configuration died with KeyError('condition'). The legacy training_dataset_from_annotation_metadata helper still accepts 'rowID'/'columnID' only. Default 'columnID'.",
     'min_n': "(int) - Observation count a significant hit must strictly exceed to appear in results_significant_filtered.csv: gRNA hits need n_grna > min_n, gene hits need n_gene > min_n. The unfiltered hit list is still written alongside it. Raise it to drop hits resting on one or two wells. Default 0, which filters nothing.",
     'normalization_percentiles': "(list) - Two-element [low, high] percentile pair used to stretch each channel's non-zero pixels to the full display range in plot_merged; applied only when normalize is True. Narrowing the pair (e.g. [5, 95]) boosts contrast but saturates bright objects; widening it flattens the image. Default [2, 98].",
     'nr_imgs': "(int) - How many object crops are pulled into each representative-image grid: the sampler takes this many per condition, or all of them if fewer exist. Raise it for a more representative panel at the cost of a bigger, slower figure; lower it for a quick look. Positive integer; the plotting helpers default to 16.",
@@ -2383,15 +2388,24 @@ motility_advanced_settings = ['reuse_existing_measurements', 'infection_xgb_min_
 categories = {
     "Paths": ["src", "grna", "barcodes", "custom_model_path", "dataset", "model_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "score_data", "count_data"],
 
-    "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "channels", "channel_dims", "magnification", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "delete_intermediate", "uninfected"],
+    # 'normalize' moved here from "Advanced". It is a top-level toggle for how
+    # every image in the run is scaled, set by seven different modules, and
+    # burying it under "rarely-touched knobs" was wrong in all of them - not
+    # least Classify, where it shapes the training set.
+    "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "channels", "channel_dims", "normalize", "magnification", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "delete_intermediate", "uninfected"],
 
-    "Cellpose": ["fill_in", "from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
+    # How Cellpose RUNS. Which model it runs (model_name / custom_model) moved
+    # to "Model Training": they are the same question the torch classifier's
+    # model_type answers, and 'custom_model' under a "Cellpose" heading was the
+    # only reason the Classify (CV) panel had an "Other" section at all - that
+    # module hides "Cellpose", so its one key fell out of every group.
+    "Cellpose": ["fill_in", "from_scratch", "n_epochs", "width_height", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
 
-    "Cell": ["cell_model_name", "cell_diameter", "cell_intensity_range", "cell_size_range", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cytoplasm_min_size", "adjust_cells", "cell_max_area", "cell_min_area", "cell_remove_border_objects", "cell_min_intensity_percentile", "cell_max_intensity_percentile", "remove_border_cells", "cell_perimeter_fraction", "cell_intensity_merge", "cell_intensity_split", "cell_area_multiplier", "cell_min_distance", "cell_min_object_area", "cell_intensity_threshold_method", "cell_intensity_percentile"],
+    "Cell": ["cell_model_name", "cell_diameter", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "adjust_cells", "cell_max_area", "cell_min_area", "cell_remove_border_objects", "cell_min_intensity_percentile", "cell_max_intensity_percentile", "remove_border_cells", "cell_perimeter_fraction", "cell_intensity_merge", "cell_intensity_split", "cell_area_multiplier", "cell_min_distance", "cell_min_object_area", "cell_intensity_threshold_method", "cell_intensity_percentile"],
 
-    "Nucleus": ["nucleus_model_name", "nucleus_diameter", "nucleus_intensity_range", "nucleus_size_range", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_min_area", "nucleus_max_area", "nucleus_remove_border_objects", "nucleus_min_intensity_percentile", "nucleus_max_intensity_percentile", "remove_border_nuclei", "nucleus_perimeter_fraction", "nucleus_intensity_merge", "nucleus_intensity_split", "nucleus_area_multiplier", "nucleus_min_distance", "nucleus_min_object_area", "nucleus_intensity_percentile", "nucleus_intensity_threshold_method"],
+    "Nucleus": ["nucleus_model_name", "nucleus_diameter", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_area", "nucleus_max_area", "nucleus_remove_border_objects", "nucleus_min_intensity_percentile", "nucleus_max_intensity_percentile", "remove_border_nuclei", "nucleus_perimeter_fraction", "nucleus_intensity_merge", "nucleus_intensity_split", "nucleus_area_multiplier", "nucleus_min_distance", "nucleus_min_object_area", "nucleus_intensity_percentile", "nucleus_intensity_threshold_method"],
 
-    "Pathogen": ["pathogen_model_name", "pathogen_diameter", "pathogen_intensity_range", "pathogen_size_range", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "merge_edge_pathogen_cells", "pathogen_max_area", "pathogen_min_area", "pathogen_remove_border_objects", "pathogen_min_intensity_percentile", "pathogen_max_intensity_percentile", "remove_border_pathogens", "pathogen_perimeter_fraction", "pathogen_intensity_merge", "pathogen_intensity_split", "pathogen_area_multiplier", "pathogen_min_distance", "pathogen_min_object_area", "pathogen_intensity_threshold_method", "pathogen_intensity_percentile"],
+    "Pathogen": ["pathogen_model_name", "pathogen_diameter", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_max_area", "pathogen_min_area", "pathogen_remove_border_objects", "pathogen_min_intensity_percentile", "pathogen_max_intensity_percentile", "remove_border_pathogens", "pathogen_perimeter_fraction", "pathogen_intensity_merge", "pathogen_intensity_split", "pathogen_area_multiplier", "pathogen_min_distance", "pathogen_min_object_area", "pathogen_intensity_threshold_method", "pathogen_intensity_percentile"],
 
     # One heading for the whole organelle workflow, ordered the way it is set
     # up: what to detect -> clean the image -> the knobs of the chosen
@@ -2428,10 +2442,22 @@ categories = {
 
     "Timelapse": timelapse_settings,
 
-    # Which features are computed, and which of them survive into the analysis
-    # table. Plot-only knobs that used to live here (image_nr, dot_size,
-    # remove_image_canvas) moved to "Plot".
-    "Measurements": ["save_measurements", "calculate_correlation", "manders_thresholds", "homogeneity", "homogeneity_distances", "radial_dist", "tables", "channel_of_interest", "measurement", "filter_by", "exclude", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
+    # Which objects are measured, which features are computed, and which of
+    # them survive into the analysis table. Plot-only knobs that used to live
+    # here (image_nr, dot_size, remove_image_canvas) moved to "Plot".
+    #
+    # Three groups arrived here in the regroup:
+    #   * the per-object minimum sizes and merge_edge_pathogen_cells, which
+    #     only measure_crop sets. They sat under the Cell / Nucleus / Pathogen
+    #     SEGMENTATION headings, so the Measure module rendered three headings
+    #     holding one or two size filters each and no segmentation at all.
+    #   * nuclei_limit / pathogen_limit, from "Advanced". They decide whether
+    #     the nucleus and pathogen tables are joined onto the object table --
+    #     which rows exist, not a tuning knob.
+    #   * parasite_table / compartment, from "Invasion Assay", which name the
+    #     table and compartment the objects are read from. Leaving them there
+    #     made the Replication module render a heading called "Invasion Assay".
+    "Measurements": ["save_measurements", "calculate_correlation", "manders_thresholds", "homogeneity", "homogeneity_distances", "radial_dist", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
     "Object Crops": ["save_png", "crop_mode", "png_size", "png_dims", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "save_arrays"],
 
@@ -2439,11 +2465,23 @@ categories = {
     # controls, and how they are labelled. Gathers the per-object condition
     # lists that used to sit inside the Cell / Nucleus / Pathogen segmentation
     # headings, where they had nothing to do with segmentation.
-    "Plate Layout & Controls": ["plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "nucleus_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "positive_control", "negative_control", "controls", "pc", "nc", "pc_loc", "nc_loc", "pos", "neg", "mix", "exclude_conditions", "filter_column", "filter_value", "target", "metadata_types"],
+    # ...plus how the wells are grouped for reporting: group_column / level /
+    # change_plate came from "Invasion Assay", where they were shared with the
+    # replication assay and so gave that module a heading named after an assay
+    # it does not run.
+    "Plate Layout & Controls": ["plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "nucleus_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control", "negative_control", "controls", "pc", "nc", "pc_loc", "nc_loc", "pos", "neg", "mix", "exclude_conditions", "filter_column", "filter_value", "target", "metadata_types"],
 
-    "Training Dataset": ["dataset_mode", "annotation_column", "annotated_classes", "class_metadata", "metadata_type_by", "file_metadata", "custom_measurement", "png_type", "file_type", "sample", "size"],
+    # How the labelled set is assembled, in the order it is assembled:
+    # which rule defines a class -> what the classes are -> which crops ->
+    # how many -> how they are split. 'test_split' came from "Model Training":
+    # generate_training_dataset is what consumes it, writing the train/ and
+    # test/ folders before any model exists. The four metadata_item_* keys had
+    # no category at all and printed under "Other".
+    "Training Dataset": ["dataset_mode", "annotation_column", "annotated_classes", "class_metadata", "metadata_type_by", "metadata_item_1_name", "metadata_item_1_value", "metadata_item_2_name", "metadata_item_2_value", "file_metadata", "custom_measurement", "png_type", "file_type", "sample", "size", "test_split"],
 
-    "Model Training": ["model_type", "classes", "train_channels", "image_size", "init_weights", "train", "test", "val_split", "test_split", "epochs", "optimizer_type", "learning_rate", "schedule", "weight_decay", "dropout_rate", "loss_type", "class_balance", "augment", "amsgrad", "use_checkpoint", "gradient_accumulation", "gradient_accumulation_steps", "pin_memory", "cross_validation_folds", "cv_group_by", "score_threshold", "intermedeate_save"],
+    # Which model, and how it is fitted. 'model_name' and 'custom_model' moved
+    # here from "Cellpose" -- they answer the same question 'model_type' does.
+    "Model Training": ["model_type", "model_name", "custom_model", "classes", "train_channels", "image_size", "init_weights", "train", "test", "val_split", "epochs", "optimizer_type", "learning_rate", "schedule", "weight_decay", "dropout_rate", "loss_type", "class_balance", "augment", "amsgrad", "use_checkpoint", "gradient_accumulation", "gradient_accumulation_steps", "pin_memory", "cross_validation_folds", "cv_group_by", "score_threshold", "intermedeate_save"],
 
     # The classical (non-image) screen classifier fitted on measured features -
     # spacr's "Classify (ML)" module. These knobs used to be split three ways
@@ -2468,7 +2506,7 @@ categories = {
         "min_area_bin", "max_area", "max_bins",
     ],
     "Invasion Assay": [
-        "parasite_table", "compartment", "outside_channel", "total_channel",
+        "outside_channel", "total_channel",
         "intensity_statistic", "background_correction",
         "outside_threshold_method", "outside_threshold", "control_wells",
         "control_quantile", "min_control_objects", "min_objects_for_threshold",
@@ -2477,11 +2515,15 @@ categories = {
         "inflation_warn", "min_parasites_per_well",
         "min_parasite_area", "max_parasite_area", "min_total_intensity",
         "extracellular_class",
-        "seed_wells_from_cells", "group_column", "level", "change_plate",
+        "seed_wells_from_cells",
         "qc_plot_max_panels",
     ],
 
-    "Advanced": ["resume", "strict_errors", "max_failure_rate", "crop_source", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "normalize", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "compression", "diameter_estimate_n_fields", "nuclei_limit", "pathogen_limit", "cells_per_well", "target_intensity_min", "shuffle", "save", "filter", "merge_pathogens"],
+    # Rarely-touched knobs only. 'normalize' left for "General" and
+    # nuclei_limit / pathogen_limit for "Measurements": all three change what
+    # the run produces rather than how it is tuned, and hiding them here is
+    # what put them at the bottom of the Classify (CV) dataset settings.
+    "Advanced": ["resume", "strict_errors", "max_failure_rate", "crop_source", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "compression", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens"],
 
     # The 3D (Beta) keys lead this list and the 4D (Beta) keys follow them:
     # `z_stack` and `t_stack` are the two master switches and the rest only
