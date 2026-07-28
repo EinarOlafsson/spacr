@@ -522,6 +522,13 @@ class spacrDataset(Dataset):
         else:
             for class_name in self.classes:
                 class_path = os.path.join(data_dir, class_name)
+                # A class folder that was never created is a real condition,
+                # not a crash: generate_training_dataset only makes a folder
+                # for a class it actually selected rows for. Skip it so the
+                # empty-dataset guard below can report every class at once,
+                # rather than dying on os.listdir of the first missing one.
+                if not os.path.isdir(class_path):
+                    continue
                 # Hidden files are not samples: a class folder written by
                 # generate_dataset_from_lists carries the crop-format sidecar
                 # `.spacr_crop_format.json`, and any folder that has been near
@@ -532,6 +539,34 @@ class spacrDataset(Dataset):
                 self.filenames.extend(class_files)
                 self.labels.extend([self.classes.index(class_name)] * len(class_files))
         
+        # An empty dataset must say so HERE, where the directory and the class
+        # names are still in hand. Left to run on, shuffle_dataset() does
+        # `zip(*[])` and dies with "not enough values to unpack (expected 2,
+        # got 0)" -- which tells the user nothing about which folder was empty
+        # or which classes were looked for. This is reachable whenever
+        # generate_training_dataset selects no rows: a class_metadata value
+        # that matches nothing, an annotation column with no positives, or a
+        # filter that removed everything.
+        if not self.filenames:
+            looked = []
+            for class_name in self.classes:
+                cp = os.path.join(data_dir, class_name)
+                if not os.path.isdir(cp):
+                    looked.append(f"  {class_name}: NO SUCH FOLDER ({cp})")
+                else:
+                    n = len([f for f in os.listdir(cp) if not f.startswith('.')])
+                    looked.append(f"  {class_name}: {n} file(s) in {cp}")
+            raise ValueError(
+                "The training dataset is empty -- no images were found for any "
+                "class, so there is nothing to train on.\n"
+                f"Looked under {data_dir} for classes {list(self.classes)}:\n"
+                + "\n".join(looked) +
+                "\n\nThis usually means the dataset-generation step selected no "
+                "rows. Check that class_metadata values actually occur in the "
+                "column named by metadata_type_by, that the annotation column "
+                "holds the classes in annotated_classes, and that png_type "
+                "matches the crops that exist.")
+
         if self.shuffle:
             self.shuffle_dataset()
 
