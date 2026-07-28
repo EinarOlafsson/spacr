@@ -497,26 +497,46 @@ def find_last_annotated_offset(
     page_size: int,
     image_type: Optional[str] = None,
 ) -> Optional[int]:
-    """Return the page-aligned offset of the last annotated row, or None."""
+    """Return the page-aligned offset of the last annotated row, or None.
+
+    Uses two narrow aggregate queries (MAX/COUNT) instead of pulling every
+    row into Python: a project can have hundreds of thousands of rows, and
+    an unbounded ``fetchall()`` over a second connection to a WAL-mode
+    database sitting on a network share (SMB/NFS) is exactly the load that
+    trips SQLite's well-documented unreliability there — it was crashing
+    the whole process (memory corruption surfacing as a segfault, often in
+    unrelated Qt cleanup code shortly after) rather than raising cleanly.
+
+    Uses ``_ROWID_`` rather than ``rowid``: some projects' ``png_list`` has
+    its own ``rowID`` column (the plate row label, e.g. ``"r8"``) which
+    shadows the ``rowid``/``ROWID`` keyword and silently sorts by that text
+    label instead of physical row position.
+    """
     if not os.path.isfile(db_path):
         return None
     col = (annotation_column or "").replace('"', '""')
+    where = 'WHERE png_path LIKE ?' if image_type else ''
+    params = [f"%{image_type}%"] if image_type else []
+    ann_cond = f'"{col}" IS NOT NULL AND "{col}" != 0'
+    last_cond = f'{where} AND {ann_cond}' if where else f'WHERE {ann_cond}'
     with sqlite3.connect(db_path, timeout=30) as conn:
         cur = conn.cursor()
-        if image_type:
-            cur.execute(
-                f'SELECT "{col}" FROM "png_list" WHERE png_path LIKE ?',
-                (f"%{image_type}%",),
-            )
-        else:
-            cur.execute(f'SELECT "{col}" FROM "png_list"')
-        rows = cur.fetchall()
-    last = None
-    for i, (val,) in enumerate(rows):
-        if val is not None and val != 0:
-            last = i
-    if last is None:
-        return None
+        cur.execute(
+            f'SELECT _ROWID_ FROM "png_list" {last_cond} '
+            f'ORDER BY _ROWID_ DESC LIMIT 1',
+            params,
+        )
+        row = cur.fetchone()
+        if row is None:
+            return None
+        last_rowid = row[0]
+        count_cond = (f'{where} AND _ROWID_ <= ?' if where
+                      else 'WHERE _ROWID_ <= ?')
+        cur.execute(
+            f'SELECT COUNT(*) FROM "png_list" {count_cond}',
+            params + [last_rowid],
+        )
+        last = cur.fetchone()[0] - 1
     return (last // page_size) * page_size
 
 
