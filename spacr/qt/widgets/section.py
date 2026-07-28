@@ -39,7 +39,14 @@ class Section(QFrame):
         # Header
         self._header = QToolButton(self)
         self._header.setObjectName("SectionHeader")
-        self._header.setText(title.upper())
+        # A QToolButton reads '&' as a mnemonic marker, so the categories
+        # named "Plate Layout & Controls" and "Embedding & Clustering"
+        # rendered as "PLATE LAYOUT _CONTROLS" -- the ampersand swallowed and
+        # the following letter underlined as an accelerator that goes
+        # nowhere. Section headers are not keyboard shortcuts, so the '&' is
+        # escaped for display. `title()` still answers with the real text.
+        self._title = title.upper()
+        self._header.setText(self._title.replace("&", "&&"))
         self._header.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self._header.setArrowType(Qt.RightArrow)
         self._header.setCheckable(True)
@@ -78,8 +85,8 @@ class Section(QFrame):
         self._form.addRow(widget)
 
     def title(self) -> str:
-        """Return the section's header text."""
-        return self._header.text()
+        """Return the section's header text, un-escaped."""
+        return self._title
 
     def set_hint(self, text: str) -> None:
         """Attach a hover tooltip to the section's header.

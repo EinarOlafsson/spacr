@@ -1249,7 +1249,15 @@ class AnnotateScreen(QWidget):
         seed = {
             "src": self._settings.src,
             "annotation_column": self._settings.annotation_column,
-            # nudge the train pipeline into the "annotation → train → apply" mode
+            # nudge the train pipeline into the "annotation → train → apply"
+            # mode. dataset_mode is what actually selects the classes:
+            # generate_training_dataset alone left it at the Classify panel's
+            # default, 'metadata', so "Train CV" from the Annotate app built
+            # its classes from well metadata and ignored the annotations that
+            # had just been made. It used to die on the way there
+            # (KeyError: 'condition'); now that metadata mode works, leaving
+            # this unset would silently train on the wrong labels.
+            "dataset_mode": "annotation",
             "generate_training_dataset": True,
             "train": True,
             "apply_model_to_dataset": True,
