@@ -1392,11 +1392,19 @@ class AnnotateScreen(QWidget):
         # superseded.
         self._page_gen += 1
         self._page_label.setText(f"Loading {len(self._page_paths)} images…")
+        # Resolved once, here, on the GUI thread — _load_thumb_image runs on
+        # every thread in the page worker's pool concurrently, and reading
+        # this via self._crop_source() from all of them raced on the same
+        # cached self._cropsrc/_cropsrc_key attributes with no lock. That
+        # corrupted this widget badly enough to crash the process later, in
+        # unrelated code, which made it look unrelated to crop loading.
+        crop_src = self._crop_source()
+        load_fn = lambda row, _src=crop_src: self._load_thumb_image(row, _src)
         # No parent — so the widget being torn down can't destroy a still-
         # running QThread (which aborts the process). Held in a list until it
         # finishes; dropped in _retire_page_worker.
         worker = _PageLoadWorker(self._page_gen, list(self._page_paths),
-                                 self._load_thumb_image)
+                                 load_fn)
         worker.done.connect(self._on_page_loaded)
         worker.finished.connect(lambda w=worker: self._retire_page_worker(w))
         self._page_workers.append(worker)
@@ -1447,9 +1455,12 @@ class AnnotateScreen(QWidget):
             self._cropsrc_key = key
         return self._cropsrc
 
-    def _load_thumb_image(self, row):
+    def _load_thumb_image(self, row, src):
         # Rows are (png_path, annotation) from the plain page fetch, or a dict
         # carrying path_name/object_label when the merged source is in play.
+        # `src` is resolved once on the GUI thread by _load_page — this runs
+        # concurrently on every thread in the page worker's pool, and must
+        # not touch shared widget state.
         if isinstance(row, dict):
             annotation = row.get("annotation")
         else:
@@ -1457,7 +1468,6 @@ class AnnotateScreen(QWidget):
             row = {"png_path": path}
         s = self._settings
 
-        src = self._crop_source()
         if src is not None and getattr(src, "kind", "png") == "merged":
             try:
                 img = Image.fromarray(src.get(row)).convert("RGB")
