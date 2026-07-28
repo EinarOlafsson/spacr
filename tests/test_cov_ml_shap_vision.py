@@ -212,6 +212,27 @@ def test_shap_analysis_tree_model_labels_every_feature():
     assert set(feats) <= tick_text
 
 
+def test_shap_analysis_tree_classifier_selects_the_positive_class():
+    """A binary tree explainer's output axis is not an interaction matrix."""
+    from sklearn.ensemble import RandomForestClassifier
+
+    from spacr.ml import shap_analysis
+
+    rng = np.random.default_rng(2)
+    feats = ["cell_area", "pathogen_area", "nucleus_area"]
+    X = pd.DataFrame(rng.normal(size=(40, 3)), columns=feats)
+    y = (X["cell_area"] - X["pathogen_area"] > 0).astype(int)
+    model = RandomForestClassifier(
+        n_estimators=8, random_state=0, n_jobs=1
+    ).fit(X, y)
+
+    fig = shap_analysis(model, X, X.iloc[:10])
+
+    assert isinstance(fig, matplotlib.figure.Figure)
+    tick_text = {t.get_text() for ax in fig.axes for t in ax.get_yticklabels()}
+    assert set(feats) <= tick_text
+
+
 # ===========================================================================
 # find_optimal_threshold
 # ===========================================================================
