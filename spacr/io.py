@@ -3221,6 +3221,206 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_
 
     from .utils import _split_data
 
+    pathogen_counts = None
+    metadata_key = 'object_label'
+    shared_metadata_columns = {'measurement_ndim', 'n_z'}
+
+    def _merge_grouped(left, right):
+        """Merge grouped tables while keeping only one copy of shared acquisition metadata."""
+        if left.empty:
+            return right.copy()
+        if right.empty:
+            return left.copy()
+
+        shared = [col for col in shared_metadata_columns if col in left.columns and col in right.columns]
+
+        for col in shared:
+            common_idx = left.index.intersection(right.index)
+            if len(common_idx):
+                a = left.loc[common_idx, col]
+                b = right.loc[common_idx, col]
+                mismatch = a.notna() & b.notna() & a.ne(b)
+                if mismatch.any():
+                    print(f"Warning: {int(mismatch.sum())} mismatched values for shared metadata column {col!r}; keeping the first.")
+
+        right = right.drop(columns=shared)
+        return left.merge(right, left_index=True, right_index=True)
+
+    data_dict = {table: [] for table in tables}
+
+    for idx, loc in enumerate(locs):
+        db_dfs = _read_db(loc, tables)
+
+        if change_plate:
+            for df in db_dfs:
+                df['plateID'] = f'plate{idx+1}'
+                df['prc'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str)
+
+        for table, df in zip(tables, db_dfs):
+            data_dict[table].append(df)
+
+    for table, dfs in data_dict.items():
+        if dfs:
+            data_dict[table] = pd.concat(dfs, axis=0)
+        if verbose:
+            print(f"{table}: {len(data_dict[table])}")
+
+    merged_df = pd.DataFrame()
+
+    if 'cell' in data_dict:
+        cells = data_dict['cell'].copy()
+        cells = cells.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
+        cells = cells.assign(prcfo=lambda x: x['prcf'] + '_' + x['object_label'])
+        cells_g_df, metadata = _split_data(cells, 'prcfo', 'object_label')
+        merged_df = cells_g_df.copy()
+
+        if verbose:
+            print(f'cells: {len(cells)}, cells grouped: {len(cells_g_df)}')
+
+    if 'cytoplasm' in data_dict:
+        cytoplasms = data_dict['cytoplasm'].copy()
+        cytoplasms = cytoplasms.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
+        cytoplasms = cytoplasms.assign(prcfo=lambda x: x['prcf'] + '_' + x['object_label'])
+
+        if 'cell' not in data_dict:
+            merged_df, metadata = _split_data(cytoplasms, 'prcfo', 'object_label')
+
+            if verbose:
+                print(f'cytoplasms: {len(cytoplasms)}, cytoplasms grouped: {len(merged_df)}')
+
+        else:
+            cytoplasms_g_df, _ = _split_data(cytoplasms, 'prcfo', 'object_label')
+            merged_df = _merge_grouped(merged_df, cytoplasms_g_df)
+
+            if verbose:
+                print(f'cytoplasms: {len(cytoplasms)}, cytoplasms grouped: {len(cytoplasms_g_df)}')
+
+    if 'nucleus' in data_dict:
+        nucleus = data_dict['nucleus'].copy()
+        nucleus = nucleus.dropna(subset=['cell_id'])
+        nucleus = nucleus.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
+        nucleus = nucleus.assign(cell_id=lambda x: 'o' + x['cell_id'].astype(int).astype(str))
+        nucleus = nucleus.assign(prcfo=lambda x: x['prcf'] + '_' + x['cell_id'])
+        nucleus['nucleus_prcfo_count'] = nucleus.groupby('prcfo')['prcfo'].transform('count')
+
+        if nuclei_limit is not None:
+            if nuclei_limit is True:
+                nucleus = nucleus[nucleus['nucleus_prcfo_count'] == 1]
+            elif isinstance(nuclei_limit, (float, int)):
+                nucleus = nucleus[nucleus['nucleus_prcfo_count'] <= int(nuclei_limit)]
+
+        if all(key not in data_dict for key in ['cell', 'cytoplasm']):
+            merged_df, metadata = _split_data(nucleus, 'prcfo', 'cell_id')
+            metadata_key = 'cell_id'
+
+            if verbose:
+                print(f'nucleus: {len(nucleus)}, nucleus grouped: {len(merged_df)}')
+
+        else:
+            nucleus_g_df, _ = _split_data(nucleus, 'prcfo', 'cell_id')
+            merged_df = _merge_grouped(merged_df, nucleus_g_df)
+
+            if verbose:
+                print(f'nucleus: {len(nucleus)}, nucleus grouped: {len(nucleus_g_df)}')
+
+    if 'pathogen' in data_dict:
+        pathogens = data_dict['pathogen'].copy()
+        pathogens = pathogens.dropna(subset=['cell_id'])
+        pathogens = pathogens.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
+        pathogens = pathogens.assign(cell_id=lambda x: 'o' + x['cell_id'].astype(int).astype(str))
+        pathogens = pathogens.assign(prcfo=lambda x: x['prcf'] + '_' + x['cell_id'])
+        pathogens['pathogen_prcfo_count'] = pathogens.groupby('prcfo')['prcfo'].transform('count')
+
+        if pathogen_limit is not None:
+            if pathogen_limit is True:
+                pathogens = pathogens[pathogens['pathogen_prcfo_count'] <= 1]
+            elif isinstance(pathogen_limit, (float, int)):
+                pathogens = pathogens[pathogens['pathogen_prcfo_count'] <= int(pathogen_limit)]
+
+        if all(key not in data_dict for key in ['cell', 'cytoplasm', 'nucleus']):
+            merged_df, metadata = _split_data(pathogens, 'prcfo', 'cell_id')
+            metadata_key = 'cell_id'
+
+            if verbose:
+                print(f'pathogens: {len(pathogens)}, pathogens grouped: {len(merged_df)}')
+
+        else:
+            pathogens_g_df, _ = _split_data(pathogens, 'prcfo', 'cell_id')
+            merged_df = _merge_grouped(merged_df, pathogens_g_df)
+
+            if verbose:
+                print(f'pathogens: {len(pathogens)}, pathogens grouped: {len(pathogens_g_df)}')
+
+        pathogen_counts = pathogens.groupby('prcfo')['prcfo'].size().rename('pathogen_prcfo_count')
+
+    if 'png_list' in data_dict:
+        from .utils import PNG_CROP_MODE_BY_ID_COLUMN, PNG_OBJECT_ID_COLUMNS, object_label_from_png_id
+
+        png_list = data_dict['png_list'].copy()
+        id_column = PNG_OBJECT_ID_COLUMNS['cell']
+
+        if id_column not in png_list.columns:
+            present = [c for c in png_list.columns if c in PNG_CROP_MODE_BY_ID_COLUMN]
+            modes = sorted(PNG_CROP_MODE_BY_ID_COLUMN[c] for c in present)
+            raise CropModeMismatch(
+                f"png_list has no {id_column!r} column, so its crops cannot be keyed onto the objects being merged. It holds "
+                + (f"{', '.join(modes)} crops ({', '.join(present)})" if present else "no object-id column at all")
+                + ". Re-run the Measure module with 'cell' in crop_mode."
+            )
+
+        keep = object_label_from_png_id(png_list[id_column]).notna()
+
+        if not keep.all():
+            print(
+                f"png_list: {int((~keep).sum())} of {len(png_list)} rows are not usable cell crops "
+                f"(another crop mode, or an object id that is not a number); they take no part in the merge."
+            )
+            png_list = png_list.loc[keep].copy()
+
+        png_list_g_df_numeric, png_list_g_df_non_numeric = _split_data(png_list, 'prcfo', id_column)
+        png_list_g_df_non_numeric.drop(
+            columns=['plateID', 'rowID', 'columnID', 'fieldID', 'file_name', 'cell_id', 'prcf'],
+            inplace=True,
+            errors='ignore',
+        )
+
+        if verbose:
+            print(f'png_list: {len(png_list)}, png_list grouped: {len(png_list_g_df_numeric)}')
+            print(f"Added png_list columns: {png_list_g_df_numeric.columns}, {png_list_g_df_non_numeric.columns}")
+
+        merged_df = _merge_grouped(merged_df, png_list_g_df_numeric)
+        merged_df = _merge_grouped(merged_df, png_list_g_df_non_numeric)
+
+    metadata = metadata.assign(prc=lambda x: x['plateID'] + '_' + x['rowID'] + '_' + x['columnID'])
+    cells_well = metadata.groupby('prc')[metadata_key].nunique().reset_index(name='cells_per_well')
+    metadata = metadata.merge(cells_well, on='prc')
+
+    if 'prcf' in metadata.columns:
+        metadata = metadata.assign(prcfo=lambda x: x['prcf'] + '_' + x[metadata_key])
+    else:
+        metadata = metadata.assign(
+            prcfo=lambda x: x['plateID'] + '_' + x['rowID'] + '_' + x['columnID'] + '_' + x['fieldID'] + '_' + x[metadata_key]
+        )
+
+    metadata.set_index('prcfo', inplace=True)
+
+    merged_df = metadata.merge(merged_df, left_index=True, right_index=True)
+    merged_df.drop(columns=['label_list_morphology', 'label_list_intensity'], errors='ignore', inplace=True)
+
+    if pathogen_counts is not None:
+        merged_df['pathogen_prcfo_count'] = merged_df.index.to_series().map(pathogen_counts).fillna(0).astype('Int64')
+
+    if verbose:
+        print(f'Generated dataframe with: {len(merged_df.columns)} columns and {len(merged_df)} rows')
+
+    obj_df_ls = [data_dict[table] for table in ['cell', 'cytoplasm', 'nucleus', 'pathogen'] if table in data_dict]
+
+    return merged_df, obj_df_ls
+
+def _read_and_merge_data_v1(locs, tables, verbose=False, nuclei_limit=10, pathogen_limit=10, change_plate=False):
+
+    from .utils import _split_data
+
     # keep final integer counts per prcfo for pathogens
     pathogen_counts = None
 
