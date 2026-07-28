@@ -5577,12 +5577,57 @@ def generate_training_dataset(settings):
                         this_lists.append(_class_items(df_sel))
             else:
                 class_meta = settings.get('class_metadata') or []
-                if 'condition' not in png_df.columns:
-                    print("metadata mode (legacy): 'condition' column not found in png_list; got 0 classes.")
+                if isinstance(class_meta, str):
+                    # A settings CSV stores the repr, and a caller that hands
+                    # the string straight through used to be iterated one
+                    # CHARACTER at a time -- "[['c1'], ['c2']]" became
+                    # seventeen classes named '[', '[', "'", 'c', ... The Qt
+                    # panel now collects a real list; this covers the CSV and
+                    # CLI paths that do not go through it.
+                    import ast as _ast
+                    try:
+                        parsed = _ast.literal_eval(class_meta.strip())
+                    except (ValueError, SyntaxError):
+                        parsed = [p.strip() for p in class_meta.split(',') if p.strip()]
+                    class_meta = parsed if isinstance(parsed, (list, tuple)) else [parsed]
+                # The column the class_metadata values are matched against is
+                # the one the user named in 'metadata_type_by'. It used to be
+                # hard-coded to 'condition' -- a column no spaCR writer puts
+                # in png_list unless annotate_conditions has been run -- so a
+                # run configured with metadata_type_by='columnID' selected on
+                # a column it was never pointed at, and the guard below
+                # printed "got 0 classes" and then indexed the missing column
+                # anyway, turning a diagnosable misconfiguration into a bare
+                # KeyError several frames down.
+                meta_col = settings.get('metadata_type_by') or 'condition'
+                meta_col = str(meta_col).strip() or 'condition'
+                if meta_col not in png_df.columns:
+                    raise ValueError(
+                        f"metadata mode: column '{meta_col}' is not in png_list, "
+                        f"so no class can be selected. Present columns: "
+                        f"{sorted(map(str, png_df.columns))}. Set "
+                        f"'metadata_type_by' to one of those (usually 'columnID' "
+                        f"or 'rowID'), or switch 'dataset_mode' to "
+                        f"'annotation'/'measurement'."
+                    )
+                # Compare as text: png_list holds 'c1'/'r1' strings but a
+                # fallback to the object table can hand back a numeric column,
+                # and class_metadata is whatever the settings CSV parsed to.
+                meta_values = png_df[meta_col].astype(str)
                 for cm in class_meta:
-                    cm_key = cm if isinstance(cm, str) else str(cm)
-                    sel = png_df[png_df['condition'] == cm_key]
-                    this_names.append(cm_key)
+                    # One class per entry. An entry may be a single value
+                    # ('c1') or a group of values (['c1','c2']) that share one
+                    # label -- the list-of-lists form the GUI defaults to and
+                    # every settings CSV on disk already carries. It used to be
+                    # str()'d whole, so ['c1'] was matched as the literal text
+                    # "['c1']" and selected nothing.
+                    if isinstance(cm, (list, tuple, set)):
+                        wanted = [str(v) for v in cm]
+                    else:
+                        wanted = [str(cm)]
+                    name = wanted[0] if len(wanted) == 1 else '_'.join(wanted)
+                    sel = png_df[meta_values.isin(wanted)]
+                    this_names.append(name)
                     this_lists.append(_class_items(sel))
 
         elif mode == 'annotation':
