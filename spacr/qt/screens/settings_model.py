@@ -12,14 +12,18 @@ from __future__ import annotations
 import ast
 from typing import Any, Dict, List, Optional, Tuple
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QPoint, QRect, QSize, Qt, Signal
 from PySide6.QtGui import QIntValidator, QDoubleValidator
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
+    QFrame,
+    QLayout,
     QLineEdit,
+    QSizePolicy,
     QSpinBox,
     QDoubleSpinBox,
+    QToolButton,
     QVBoxLayout,
     QWidget,
     QHBoxLayout,
@@ -292,6 +296,590 @@ class _ScalarEdit(QLineEdit):
         self.setText("" if v is None else str(v))
 
 
+# ---------------------------------------------------------------------------
+# List / list-of-list editor
+# ---------------------------------------------------------------------------
+#
+# A list setting used to be a text box holding a Python literal:
+#
+#     class_metadata   [['c1'], ['c2']]
+#     train_channels   ['r', 'g', 'b']
+#
+# which is both ugly and unforgiving -- a dropped bracket is a parse
+# failure with no diagnosis, and `_ListEdit.get_value` silently handed the
+# unparseable text through as a plain string. Worse, `_ListEdit` was never
+# reached: `gui_utils.convert_settings_dict_for_gui` stringifies every list
+# default before this module sees it (`('entry', None, str(value))`), so
+# `isinstance(default, list)` in `_widget_for` was always False and every
+# list setting got a `_ScalarEdit`. `collect()` then returned the raw text,
+# because `_coerce_to_expected_type` only ever handled bool/int/float. That
+# is how `class_metadata` reached `io.generate_training_dataset` as the
+# *string* "[['c1'], ['c2']]" and got iterated character by character.
+#
+# The widgets below replace the literal with removable chips -- one chip per
+# value, one row per inner list -- and hand `collect()` a real Python list.
+# The stored value is unchanged, so every settings CSV on disk still loads
+# and every consumer reads what it always did.
+
+#: Keys whose value may be a list of lists even when it is currently flat.
+#: Taken from the same list ``spacr.settings.check_settings`` parses with
+#: ``ast.literal_eval`` for the Tk GUI, so the two front ends agree on which
+#: fields can hold groups.
+NESTED_CAPABLE_KEYS = frozenset({
+    "cell_plate_metadata", "class_metadata", "crop_mode", "dialate_png_ratios",
+    "pathogen_plate_metadata", "png_dims", "png_size", "timelapse_frame_limits",
+    "timelapse_objects", "treatment_plate_metadata",
+    # declared ``(list, list)`` in expected_types, the in-tree marker for
+    # "this can be a list of lists"
+    "cell_loc", "pathogen_loc", "treatment_loc", "barcode_coordinates",
+})
+
+
+class _FlowLayout(QLayout):
+    """A left-to-right layout that wraps onto a new line when it runs out.
+
+    Chips have to wrap: ``controls`` ships thirty of them and a horizontal
+    box would either clip them or force the settings panel wider than the
+    window.
+    """
+
+    def __init__(self, parent=None, spacing: int = 4):
+        super().__init__(parent)
+        self._items: List[Any] = []
+        self._space = spacing
+        self.setContentsMargins(0, 0, 0, 0)
+
+    def addItem(self, item) -> None:            # noqa: N802 (Qt override)
+        """Append a layout item (Qt calls this for every added widget)."""
+        self._items.append(item)
+
+    def count(self) -> int:
+        """Number of items in the layout."""
+        return len(self._items)
+
+    def itemAt(self, index):                    # noqa: N802 (Qt override)
+        """Return the item at ``index``, or None when out of range."""
+        if 0 <= index < len(self._items):
+            return self._items[index]
+        return None
+
+    def takeAt(self, index):                    # noqa: N802 (Qt override)
+        """Remove and return the item at ``index``, or None."""
+        if 0 <= index < len(self._items):
+            return self._items.pop(index)
+        return None
+
+    def expandingDirections(self):              # noqa: N802 (Qt override)
+        """Never ask for extra space in either direction."""
+        return Qt.Orientations(Qt.Orientation(0))
+
+    def hasHeightForWidth(self) -> bool:        # noqa: N802 (Qt override)
+        """Height depends on width -- that is the whole point of wrapping."""
+        return True
+
+    def heightForWidth(self, width: int) -> int:    # noqa: N802 (Qt override)
+        """Height needed to lay the chips out inside ``width``."""
+        return self._do_layout(QRect(0, 0, width, 0), test_only=True)
+
+    def setGeometry(self, rect) -> None:        # noqa: N802 (Qt override)
+        """Place every chip inside ``rect``."""
+        super().setGeometry(rect)
+        self._do_layout(rect, test_only=False)
+
+    def sizeHint(self) -> QSize:                # noqa: N802 (Qt override)
+        """Preferred size -- the minimum, since the height is width-driven."""
+        return self.minimumSize()
+
+    def minimumSize(self) -> QSize:             # noqa: N802 (Qt override)
+        """The largest single chip, plus margins."""
+        size = QSize()
+        for item in self._items:
+            size = size.expandedTo(item.minimumSize())
+        margins = self.contentsMargins()
+        return size + QSize(margins.left() + margins.right(),
+                            margins.top() + margins.bottom())
+
+    def _do_layout(self, rect, test_only: bool) -> int:
+        margins = self.contentsMargins()
+        area = rect.adjusted(margins.left(), margins.top(),
+                             -margins.right(), -margins.bottom())
+        x, y, line_height = area.x(), area.y(), 0
+        for item in self._items:
+            hint = item.sizeHint()
+            next_x = x + hint.width() + self._space
+            if next_x - self._space > area.right() and line_height > 0:
+                x = area.x()
+                y = y + line_height + self._space
+                next_x = x + hint.width() + self._space
+                line_height = 0
+            if not test_only:
+                item.setGeometry(QRect(QPoint(x, y), hint))
+            x = next_x
+            line_height = max(line_height, hint.height())
+        return y + line_height - rect.y() + margins.bottom()
+
+
+class _FlowHost(QWidget):
+    """The widget a :class:`_FlowLayout` lives in.
+
+    Qt only consults a layout's ``heightForWidth`` through the widget that
+    owns it, and only when that widget's size policy says its height depends
+    on its width. Without this the strip reported a one-line height however
+    many chips it held, and ``controls`` (thirty of them) drew off the edge
+    of the settings column instead of wrapping.
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        policy.setHeightForWidth(True)
+        self.setSizePolicy(policy)
+
+    def hasHeightForWidth(self) -> bool:      # noqa: N802 (Qt override)
+        """Yes -- more width means fewer rows of chips."""
+        return True
+
+    def heightForWidth(self, width: int) -> int:   # noqa: N802 (Qt override)
+        """Height the chips need once wrapped into ``width``."""
+        layout = self.layout()
+        if layout is None:
+            return super().heightForWidth(width)
+        return layout.heightForWidth(width)
+
+    def sizeHint(self) -> QSize:              # noqa: N802 (Qt override)
+        """Preferred size at the current width, so the row grows as chips
+        are added rather than clipping them."""
+        layout = self.layout()
+        if layout is None:
+            return super().sizeHint()
+        width = max(self.width(), layout.minimumSize().width())
+        return QSize(width, layout.heightForWidth(width))
+
+
+class _Chip(QFrame):
+    """One value, rendered as a removable pill."""
+
+    removed = Signal(object)
+
+    def __init__(self, text: str, colours: dict, parent=None):
+        super().__init__(parent)
+        self.setObjectName("SettingChip")
+        self._text = text
+        row = QHBoxLayout(self)
+        row.setContentsMargins(8, 1, 3, 1)
+        row.setSpacing(4)
+        label = QLabel(text, self)
+        label.setObjectName("SettingChipText")
+        row.addWidget(label)
+        close = QToolButton(self)
+        close.setObjectName("SettingChipClose")
+        close.setText("×")
+        close.setCursor(Qt.PointingHandCursor)
+        close.setToolTip(f"Remove {text}")
+        close.setFocusPolicy(Qt.NoFocus)
+        close.clicked.connect(lambda: self.removed.emit(self))
+        row.addWidget(close)
+        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.setStyleSheet(
+            f"""
+            QFrame#SettingChip {{
+                background: {colours['accent_soft']};
+                border: 1px solid {colours['border']};
+                border-radius: 9px;
+            }}
+            QLabel#SettingChipText {{
+                color: {colours['fg']};
+                background: transparent;
+                font-size: 12px;
+            }}
+            QToolButton#SettingChipClose {{
+                color: {colours['fg_muted']};
+                background: transparent;
+                border: none;
+                padding: 0px 2px;
+                font-size: 13px;
+            }}
+            QToolButton#SettingChipClose:hover {{ color: {colours['error']}; }}
+            """
+        )
+
+    def text(self) -> str:
+        """The value this chip carries, as typed."""
+        return self._text
+
+
+class _ChipStrip(QWidget):
+    """A wrapping strip of chips plus the field that adds another one."""
+
+    changed = Signal()
+    emptied = Signal(object)
+
+    def __init__(self, placeholder: str = "add value…",
+                 removable: bool = False, parent=None):
+        super().__init__(parent)
+        from ..theme import active_palette
+        self._colours = active_palette()
+        self._chips: List[_Chip] = []
+
+        outer = QHBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.setSpacing(4)
+
+        self._host = _FlowHost(self)
+        self._flow = _FlowLayout(self._host, spacing=4)
+        outer.addWidget(self._host, 1)
+
+        self._entry = QLineEdit(self)
+        self._entry.setObjectName("SettingChipEntry")
+        self._entry.setPlaceholderText(placeholder)
+        self._entry.setMinimumWidth(96)
+        self._entry.returnPressed.connect(self._commit_entry)
+        self._entry.editingFinished.connect(self._commit_entry)
+        self._entry.textEdited.connect(self._on_typed)
+        self._flow.addWidget(self._entry)
+
+        self._drop = None
+        if removable:
+            self._drop = QToolButton(self)
+            self._drop.setText("✕")
+            self._drop.setCursor(Qt.PointingHandCursor)
+            self._drop.setToolTip("Remove this group")
+            self._drop.setFocusPolicy(Qt.NoFocus)
+            self._drop.clicked.connect(lambda: self.emptied.emit(self))
+            outer.addWidget(self._drop, 0, Qt.AlignTop)
+
+    # -- value -----------------------------------------------------------
+    def values(self) -> List[str]:
+        """The chip texts, in order, plus anything still uncommitted."""
+        out = [chip.text() for chip in self._chips]
+        pending = self._entry.text().strip()
+        if pending:
+            out.append(pending)
+        return out
+
+    def set_values(self, values) -> None:
+        """Replace every chip with ``values``."""
+        for chip in list(self._chips):
+            self._remove_chip(chip, notify=False)
+        self._entry.clear()
+        for value in values or []:
+            self._add_chip(str(value), notify=False)
+        self.changed.emit()
+
+    # -- internals -------------------------------------------------------
+    def _on_typed(self, text: str) -> None:
+        """Commit on a comma so a pasted 'c1,c2,c3' becomes three chips."""
+        if "," not in text:
+            return
+        head, _, tail = text.partition(",")
+        self._entry.setText(tail.lstrip())
+        head = head.strip()
+        if head:
+            self._add_chip(head)
+
+    def _commit_entry(self) -> None:
+        text = self._entry.text().strip()
+        if not text:
+            return
+        self._entry.clear()
+        self._add_chip(text)
+
+    def _add_chip(self, text: str, notify: bool = True) -> None:
+        chip = _Chip(text, self._colours, self._host)
+        chip.removed.connect(self._remove_chip)
+        # Keep the entry field last so it always trails the chips.
+        self._flow.removeWidget(self._entry)
+        self._flow.addWidget(chip)
+        self._flow.addWidget(self._entry)
+        self._chips.append(chip)
+        self._host.updateGeometry()
+        self.updateGeometry()
+        if notify:
+            self.changed.emit()
+
+    def _remove_chip(self, chip, notify: bool = True) -> None:
+        if chip in self._chips:
+            self._chips.remove(chip)
+        self._flow.removeWidget(chip)
+        chip.setParent(None)
+        chip.deleteLater()
+        self._host.updateGeometry()
+        self.updateGeometry()
+        if notify:
+            self.changed.emit()
+
+
+class _ListEditor(QWidget):
+    """The widget behind every list-valued setting.
+
+    Flat lists are one strip of chips. Lists of lists are one strip per
+    inner list, stacked, each with its own remove button and a footer that
+    adds another group. A key that *can* hold groups but currently does not
+    gets a "Use groups" button instead, so nothing that was editable as a
+    literal becomes uneditable here.
+
+    ``get_value`` / ``set_value`` mirror ``_ListEdit``'s contract, so the
+    Live Preview propagation path and the settings-CSV import path need no
+    special case beyond knowing the class.
+    """
+
+    def __init__(self, key: str = "", default: Any = None,
+                 nested_capable: bool = False, allow_none: bool = False,
+                 element_type: Any = None, container: Any = list, parent=None):
+        super().__init__(parent)
+        from ..theme import active_palette
+        self._colours = active_palette()
+        self._key = key
+        self._nested_capable = bool(nested_capable)
+        self._allow_none = bool(allow_none)
+        self._element_type = element_type
+        self._container = container if container in (list, tuple) else list
+        self._nested = False
+        self._strips: List[_ChipStrip] = []
+
+        self._outer = QVBoxLayout(self)
+        self._outer.setContentsMargins(0, 0, 0, 0)
+        self._outer.setSpacing(4)
+
+        self._rows = QVBoxLayout()
+        self._rows.setContentsMargins(0, 0, 0, 0)
+        self._rows.setSpacing(4)
+        self._outer.addLayout(self._rows)
+
+        self._footer = QToolButton(self)
+        self._footer.setObjectName("SettingListFooter")
+        self._footer.setCursor(Qt.PointingHandCursor)
+        self._footer.setFocusPolicy(Qt.NoFocus)
+        self._footer.clicked.connect(self._on_footer)
+        self._footer.setStyleSheet(
+            f"QToolButton#SettingListFooter {{ color: {self._colours['accent']};"
+            f" background: transparent; border: none; font-size: 12px;"
+            f" padding: 0px; text-align: left; }}"
+        )
+        self._outer.addWidget(self._footer, 0, Qt.AlignLeft)
+
+        self.set_value(default)
+
+    # -- public contract -------------------------------------------------
+    def get_value(self) -> Any:
+        """Return a real ``list`` (or list of lists); ``None`` when empty
+        and the setting declares ``None`` as legal."""
+        make = self._container
+        if self._nested:
+            groups = [make(self._cast(v) for v in strip.values())
+                      for strip in self._strips]
+            groups = [g for g in groups if g]
+            if not groups:
+                return None if self._allow_none else make()
+            return make(groups)
+        values = [self._cast(v) for v in self._strips[0].values()] \
+            if self._strips else []
+        if not values:
+            return None if self._allow_none else make()
+        return make(values)
+
+    def set_value(self, value: Any) -> None:
+        """Render ``value``; strings are parsed as Python literals first.
+
+        Settings CSVs and the Live Preview both hand back text, so a
+        ``"[['c1'], ['c2']]"`` has to land as two groups rather than as
+        seventeen chips full of punctuation.
+        """
+        value = self._as_sequence(value)
+        nested = bool(value) and all(
+            isinstance(item, (list, tuple)) for item in value)
+        self._rebuild(nested, value)
+
+    # -- shape -----------------------------------------------------------
+    def _rebuild(self, nested: bool, value) -> None:
+        for strip in list(self._strips):
+            # editingFinished fires while a focused QLineEdit is being torn
+            # down, which would call _commit_entry on a half-deleted strip.
+            strip._entry.blockSignals(True)
+            self._rows.removeWidget(strip)
+            strip.setParent(None)
+            strip.deleteLater()
+        self._strips = []
+        self._nested = bool(nested)
+        if nested:
+            for group in value:
+                self._add_strip(list(group))
+            if not self._strips:
+                self._add_strip([])
+        else:
+            self._add_strip(list(value))
+        self._refresh_footer()
+
+    def _add_strip(self, values) -> _ChipStrip:
+        strip = _ChipStrip(placeholder=self._placeholder(),
+                           removable=self._nested, parent=self)
+        strip.emptied.connect(self._drop_strip)
+        self._rows.addWidget(strip)
+        self._strips.append(strip)
+        strip.set_values(values)
+        return strip
+
+    def _drop_strip(self, strip) -> None:
+        if len(self._strips) <= 1:
+            # Removing the only group is how you go back to a flat list.
+            self._rebuild(False, [])
+            return
+        self._strips.remove(strip)
+        strip._entry.blockSignals(True)
+        self._rows.removeWidget(strip)
+        strip.setParent(None)
+        strip.deleteLater()
+        self._refresh_footer()
+
+    def _on_footer(self) -> None:
+        if self._nested:
+            self._add_strip([])
+            return
+        # Flat -> grouped: the values already typed become the first group.
+        current = list(self._strips[0].values()) if self._strips else []
+        self._rebuild(True, [current] if current else [[]])
+
+    def _refresh_footer(self) -> None:
+        if self._nested:
+            self._footer.setText("＋  Add group")
+            self._footer.setToolTip(
+                "Add another group. Each group is one inner list — one "
+                "class, one condition, one crop mode.")
+            self._footer.setVisible(True)
+        elif self._nested_capable:
+            self._footer.setText("⌗  Use groups")
+            self._footer.setToolTip(
+                "This setting also accepts a list of lists. Grouping turns "
+                "the values above into the first group.")
+            self._footer.setVisible(True)
+        else:
+            self._footer.setVisible(False)
+
+    # -- element handling ------------------------------------------------
+    def _placeholder(self) -> str:
+        # Short enough to survive the narrow settings column without
+        # eliding -- the point of the placeholder is to say what KIND of
+        # value belongs here, and an elided "add a whole numb…" says less
+        # than "add number".
+        if self._element_type is int:
+            return "add number"
+        if self._element_type is float:
+            return "add number"
+        if self._element_type is str:
+            return "add text"
+        return "add value"
+
+    def _cast(self, text: str) -> Any:
+        """Turn typed text back into the element type the list holds.
+
+        Inferred from the default value rather than guessed per keystroke,
+        so ``classes = ['1', '2']`` stays strings and ``png_dims = [0, 1, 2]``
+        stays ints.
+        """
+        text = str(text).strip()
+        if self._element_type is str:
+            return text
+        if self._element_type in (int, float):
+            try:
+                return self._element_type(text)
+            except (TypeError, ValueError):
+                return text
+        if text.lower() == "none":
+            return None
+        try:
+            return int(text)
+        except ValueError:
+            pass
+        try:
+            return float(text)
+        except ValueError:
+            return text
+
+    @staticmethod
+    def _as_sequence(value: Any) -> List[Any]:
+        if value is None:
+            return []
+        if isinstance(value, (list, tuple)):
+            return list(value)
+        if isinstance(value, str):
+            text = value.strip()
+            if not text or text == "None":
+                return []
+            try:
+                parsed = ast.literal_eval(text)
+            except (ValueError, SyntaxError):
+                # Not a literal: treat it as a comma-separated list, which is
+                # what a user hand-editing a settings CSV most often means.
+                return [part.strip() for part in text.split(",") if part.strip()]
+            if isinstance(parsed, (list, tuple)):
+                return list(parsed)
+            return [parsed]
+        return [value]
+
+
+def list_shape_for(key: str, default: Any) -> Optional[Tuple[bool, bool, Any, Any]]:
+    """Decide whether ``key`` is a list setting, and of what shape.
+
+    Deliberately conservative. A key qualifies only when its *default* is
+    already a list or tuple, or is ``None`` and the declared type admits
+    nothing but a list. That keeps three groups of keys on their old
+    widgets:
+
+    * ``src`` and ``file_metadata``, declared ``(str, list)`` -- they are
+      normally one path / one substring, and ``src`` in particular has to
+      stay a ``QLineEdit`` for drag-and-drop, the empty-state banner and
+      the column picker's ``_settings_src_path``;
+    * ``count_data`` / ``score_data``, declared ``list`` but shipped with
+      the placeholder *string* ``'list of paths'``;
+    * ``sample``, whose declared "type" is the value ``None``.
+
+    :returns: ``(nested_capable, allow_none, element_type, container)`` when
+        the key holds a list, or ``None`` when it should keep its ordinary
+        widget.
+    """
+    declared = None
+    try:
+        from spacr.settings import expected_types
+        declared = expected_types.get(key)
+    except Exception:
+        declared = None
+    allowed = declared if isinstance(declared, tuple) else (declared,)
+    declares_list = any(t in (list, tuple) for t in allowed)
+    declares_scalar = any(t in (str, int, float, bool, dict) for t in allowed)
+
+    if isinstance(default, (list, tuple)):
+        pass
+    elif default is None and declares_list and not declares_scalar:
+        pass
+    else:
+        return None
+
+    container = tuple if (declares_list and list not in allowed) else list
+    if isinstance(default, tuple) and not declares_list:
+        container = tuple
+    allow_none = (type(None) in allowed) or default is None
+    items = list(default) if isinstance(default, (list, tuple)) else []
+    flat = []
+    nested_now = bool(items) and all(isinstance(i, (list, tuple)) for i in items)
+    for item in items:
+        flat.extend(item if isinstance(item, (list, tuple)) else [item])
+    element_type = None
+    # bool first: bool is a subclass of int, and a list of flags is not a
+    # list of numbers.
+    if flat and all(isinstance(v, str) for v in flat):
+        element_type = str
+    elif flat and all(isinstance(v, bool) for v in flat):
+        element_type = None
+    elif flat and all(isinstance(v, int) for v in flat):
+        element_type = int
+    elif flat and all(isinstance(v, (int, float)) for v in flat):
+        element_type = float
+
+    nested_capable = nested_now or key in NESTED_CAPABLE_KEYS or (
+        isinstance(declared, tuple) and list(declared).count(list) > 1)
+    return nested_capable, allow_none, element_type, container
+
+
 class SettingsWidgets:
     """Container for the Qt widgets bound to a settings dict.
 
@@ -379,13 +967,45 @@ class SettingsWidgets:
             for opt in (options or []):
                 w.addItem("None" if opt is None else str(opt),
                           userData=opt)
-            # Try to pre-select default
+            # Pre-select the value THIS module declares, not the one
+            # hard-coded in gui_utils.convert_settings_dict_for_gui's
+            # special_cases table. That table is one row per key for the whole
+            # app, so it shipped 'resnet50' as the model_type default to
+            # Classify (which sets 'maxvit_t') and to Activation Maps (which
+            # sets 'maxvit'), and '[0,1,2,3]' as the channels default to
+            # Cellpose Masks (which sets [0, 0]).
+            if key in self._defaults:
+                default = self._defaults[key]
             for i in range(w.count()):
                 if w.itemData(i) == default or w.itemText(i) == str(default):
                     w.setCurrentIndex(i)
                     break
+            else:
+                # The default is not one of the curated options. Silently
+                # leaving index 0 selected substitutes a value the module
+                # never asked for -- the activation-map app defaults
+                # channels to [1, 2, 3] and the channel combo only lists
+                # '[0,1,2,3]', so every run started with a different channel
+                # set than the defaults declare. Offer the real default too.
+                if default is not None and str(default) != "":
+                    w.insertItem(0, str(default), userData=default)
+                    w.setCurrentIndex(0)
             return w
         if kind == "entry":
+            # A list setting gets the chip editor, not a text box holding a
+            # Python literal. The shape is decided from expected_types plus
+            # the REAL default (self._defaults), because
+            # convert_settings_dict_for_gui has already str()'d the value
+            # that arrives here as ``default``.
+            shape = list_shape_for(key, self._defaults.get(key, default))
+            if shape is not None:
+                nested_capable, allow_none, element_type, container = shape
+                return _ListEditor(key=key,
+                                   default=self._defaults.get(key, default),
+                                   nested_capable=nested_capable,
+                                   allow_none=allow_none,
+                                   element_type=element_type,
+                                   container=container)
             # Choose widget by inferred type from the DEFAULT value
             if isinstance(default, bool):
                 w = QCheckBox()
@@ -393,7 +1013,12 @@ class SettingsWidgets:
                 return w
             if isinstance(default, int):
                 w = QSpinBox()
-                w.setRange(-1_000_000, 1_000_000)
+                # Wide enough for the defaults the modules actually ship:
+                # the replication assay's max_area is 1e9, and a +/-1e6 range
+                # silently clamped it to 1e6 -- a thousand-fold change to the
+                # largest vacuole the assay will score, applied before the
+                # user touched anything.
+                w.setRange(-2_147_483_648, 2_147_483_647)
                 w.setValue(default)
                 return w
             if isinstance(default, float):
@@ -452,6 +1077,20 @@ class SettingsWidgets:
                     return typ(text)
                 except ValueError:
                     continue
+            if typ in (list, tuple):
+                # The curated combos ('channels', 'crop_mode',
+                # 'train_channels', 'timelapse_objects', ...) offer their
+                # options as TEXT -- "['r','g','b']" -- so a list setting
+                # picked from a dropdown reached the pipeline as a string and
+                # got iterated character by character. The chip editor already
+                # returns a real list; this is the same repair for the combos.
+                try:
+                    parsed = ast.literal_eval(text)
+                except (ValueError, SyntaxError):
+                    continue
+                if isinstance(parsed, (list, tuple)):
+                    return typ(parsed)
+                continue
         return value
 
     def collect(self) -> Dict[str, Any]:
@@ -491,7 +1130,7 @@ class SettingsWidgets:
                     w.setCurrentIndex(idx)
                 else:
                     w.setEditText(str(value))
-            elif isinstance(w, (_ListEdit, _ScalarEdit)):
+            elif isinstance(w, (_ListEditor, _ListEdit, _ScalarEdit)):
                 w.set_value(value)
             elif isinstance(w, QLineEdit):
                 w.setText("" if value is None else str(value))
@@ -527,7 +1166,7 @@ class SettingsWidgets:
             if idx >= 0 and w.itemText(idx) == w.currentText():
                 return w.itemData(idx)
             return w.currentText()
-        if isinstance(w, _ListEdit):
+        if isinstance(w, (_ListEditor, _ListEdit)):
             return w.get_value()
         if isinstance(w, _ScalarEdit):
             return w.get_value()
