@@ -6456,9 +6456,9 @@ def _infection_qc_histogram(
 
     # Now adjusted_infected definitely exists and comes from histogram QC;
     # fill any NaNs (cells not in cell_level) from the original infection_col.
-    all_df["adjusted_infected"] = all_df["adjusted_infected"].fillna(
-        all_df[infection_col]
-    )
+    adjusted = all_df["adjusted_infected"].astype("boolean")
+    fallback = all_df[infection_col].astype("boolean")
+    all_df["adjusted_infected"] = adjusted.fillna(fallback).fillna(False).astype(bool)
     infection_col = "adjusted_infected"
 
     # Decide whether to make / save QC graph
