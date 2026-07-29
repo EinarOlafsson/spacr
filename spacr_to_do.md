@@ -39,7 +39,7 @@ Status: `queued`, `in progress`, `blocked`, or `complete`.
 | 11 | UI-01 | complete | 1–2 d | Add persisted preferences to show or hide Alpha and Beta modules and settings; both visibility options default to enabled. | — |
 | 12 | DATA-03 | complete | 1–2 d | Add merge cardinality validation where table contracts require it. | ARCH-07 |
 | 13 | TEST-04 | complete | 2–4 d | Split fast, integration, slow, GPU, network, NAS, and Qt CI jobs while retaining automatic resource detection. | STAB-04 |
-| 14 | TEST-05 | queued | 2–4 d | Add linting, typing, complexity checks, and a zero-unexpected-failure release gate. | TEST-04 |
+| 14 | TEST-05 | complete | 2–4 d | Add linting, typing, complexity checks, and a zero-unexpected-failure release gate. | TEST-04 |
 
 ## Wave 3 — schema and persistence foundation
 

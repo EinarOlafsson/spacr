@@ -1,7 +1,7 @@
 """Toggle — QCheckBox styled as an iOS-style switch."""
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, QPropertyAnimation, QRect, Property
+from PySide6.QtCore import Qt, QPropertyAnimation, QRect, QSize, Property
 from PySide6.QtGui import QPainter, QColor, QBrush, QPen
 from PySide6.QtWidgets import QCheckBox
 

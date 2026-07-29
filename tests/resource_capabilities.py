@@ -13,7 +13,6 @@ from importlib.util import find_spec
 from typing import Callable, Iterable, Tuple
 from urllib.request import Request, urlopen
 
-
 PathRequirement = Tuple[str, str]
 
 
