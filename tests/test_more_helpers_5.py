@@ -276,8 +276,8 @@ def test_measure_summarize_organelles_per_parent_shape(synth_masks_multi, rng):
     # one row per parent label
     assert len(df) == len(np.unique(cell[cell != 0]))
     # per-channel intensity summaries for both planes of the stack
-    assert any("ch0" in c for c in df.columns)
-    assert any("ch1" in c for c in df.columns)
+    assert any("channel_0" in c for c in df.columns)
+    assert any("channel_1" in c for c in df.columns)
 
 
 # ===========================================================================
