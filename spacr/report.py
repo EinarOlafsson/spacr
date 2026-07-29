@@ -369,6 +369,12 @@ def _read_csv_head(path: Path, max_rows: int,
                 if i == 0:
                     columns = [str(c) for c in row]
                     continue
+                # Python's CSV reader no longer rejects embedded NUL bytes on
+                # every supported version. Treat them as the documented
+                # half-written-file boundary before counting or displaying
+                # the corrupt row.
+                if any("\x00" in cell for cell in row):
+                    break
                 n_total += 1
                 read += sum(len(c) for c in row) + len(row)
                 if len(rows) < max_rows:
@@ -932,6 +938,15 @@ def _field_qcs_from_csv(path: Path) -> Tuple[List[Any], Optional[str]]:
     try:
         with open(path, newline="", encoding="utf-8", errors="replace") as handle:
             for row in csv.DictReader(handle):
+                if any(
+                    "\x00" in str(value)
+                    for value in row.values()
+                    if value is not None
+                ):
+                    return [], (
+                        f"{path.name} is not readable as CSV "
+                        "(embedded NUL byte)"
+                    )
                 metrics: Dict[str, float] = {}
                 for key, value in row.items():
                     if key in reserved or key is None:
