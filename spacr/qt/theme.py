@@ -29,8 +29,8 @@ existed.
 Space, Cell and Glass are :data:`IMAGE_THEMES`: dark themes with a visual
 backdrop — a generated deep-space render or downloaded photograph for
 Space (see :mod:`spacr.qt.space`), one of the user's own micrographs for
-Cell (see :mod:`spacr.qt.imagery`), and a built-in blue depth gradient for
-Glass. Panels, cards and inputs are drawn as translucent dark scrims so
+Cell (see :mod:`spacr.qt.imagery`), and a built-in neutral light field for
+Glass. Panels, cards and inputs are drawn as translucent scrims so
 text always lands on a readable surface while the backdrop shows through
 the chrome and empty areas.
 
@@ -204,33 +204,34 @@ CELL_PALETTE = {
 
 
 # ---------------------------------------------------------------------------
-# Glass palette — translucent blue-grey material over a built-in gradient.
+# Glass palette — neutral translucent material over a built-in light field.
 # ---------------------------------------------------------------------------
 # Qt stylesheets do not expose the compositor's native macOS/iOS backdrop
-# blur. The reliable cross-platform equivalent is a layered, translucent
-# material: a bounded blue gradient behind low-alpha slate surfaces, with
-# cool light rims and high-contrast text. Because the backdrop is generated
-# by `_window_block` from this same palette, its maximum brightness is known
-# and the ordinary scrim solver can make every grey/black module box genuinely
-# see-through without guessing at legibility.
+# blur or Liquid Glass lensing. The cross-platform approximation is a layered
+# material: a bounded neutral light field behind low-alpha charcoal surfaces,
+# brighter top-edge highlights, soft lower shading, generous concentric
+# corners, and selective tint only for actions. This avoids the old result,
+# which was simply opaque navy when the global Page opacity was 100%.
 GLASS_PALETTE = {
-    "bg":          "#07101e",
-    "surface":     "#111b2b",
-    "surface_alt": "#18253a",
-    "surface_hi":  "#243550",
-    "border":      "#7187a5",
-    "border_soft": "#526881",
-    "fg":          "#f7fbff",
-    "fg_muted":    "#c9d3e0",
-    "fg_dim":      "#97a8ba",
-    "accent":      "#78b9ff",
-    "accent_hi":   "#a8d3ff",
-    "accent_lo":   "#3f8fdc",
-    "accent_soft": "#173551",
-    "success":     "#66d995",
-    "warning":     "#f2ca66",
-    "error":       "#ff8f8a",
-    "info":        "#78b9ff",
+    "bg":          "#0b0d11",
+    "surface":     "#25272c",
+    "surface_alt": "#2d3036",
+    "surface_hi":  "#3a3e45",
+    "border":      "#aeb2ba",
+    "border_soft": "#747982",
+    "fg":          "#fafafa",
+    "fg_muted":    "#d5d6d9",
+    "fg_dim":      "#a8abb1",
+    # Tint is deliberately reserved for actions and state. The material
+    # itself stays neutral, matching Apple's guidance not to tint everything.
+    "accent":      "#8cc8ff",
+    "accent_hi":   "#b8dcff",
+    "accent_lo":   "#579fe0",
+    "accent_soft": "#263746",
+    "success":     "#78dfa3",
+    "warning":     "#f5cf72",
+    "error":       "#ff9a95",
+    "info":        "#8cc8ff",
 }
 
 
@@ -415,10 +416,10 @@ SCRIM_HEADROOM = 1.05
 #: thin its panels past what its own background can survive.
 EXPOSURE_BOUNDED_THEMES = ("cell", "glass")
 
-# Brightest stop in Glass's built-in `_window_block` gradient. Unlike Space,
+# Brightest stop in Glass's built-in `_window_block` light field. Unlike Space,
 # Glass cannot accept an arbitrary photograph, so this is a hard rendering
 # contract rather than a hopeful estimate.
-GLASS_BACKDROP_UNDER = "#173551"
+GLASS_BACKDROP_UNDER = "#454950"
 
 
 def _grey_for_luminance(luminance: float) -> str:
@@ -686,8 +687,9 @@ def scrim_alpha(theme: str, role: str) -> float:
 # are trying to use. A floor protects them from a mistake; a ceiling
 # would only overrule a choice.
 
-#: What the preference means at each end. 100 % is a solid panel — the
-#: default, and what every theme drew before the slider existed.
+#: What the preference means at each end. 100 % is a solid panel in the
+#: conventional themes. In Glass it is full *material strength*, whose own
+#: designed alpha remains translucent.
 PANE_OPACITY_MIN = 0.0
 PANE_OPACITY_MAX = 1.0
 DEFAULT_PANE_OPACITY = 1.0
@@ -717,6 +719,12 @@ def pane_alpha(theme: str, opacity: Optional[float] = None) -> float:
     if opacity is None:
         opacity = DEFAULT_PANE_OPACITY
     wanted = max(PANE_OPACITY_MIN, min(PANE_OPACITY_MAX, float(opacity)))
+    if theme == "glass":
+        # Glass has material translucency of its own. Page opacity controls
+        # how strongly that material is present; 100% means the designed
+        # glass, not an opaque navy panel. This keeps the preference and the
+        # theme as two genuinely separate features.
+        wanted *= scrim_alpha("glass", "surface")
     return max(wanted, pane_alpha_floor(theme))
 
 
@@ -728,7 +736,9 @@ def panel_alpha(theme: str, role: str,
     :func:`stylesheet` useful to callers that have no preferences store.
     A numeric value is the user's requested alpha and is honoured for every
     card, settings section, console and preview surface, clamped only where
-    going thinner would make that role's text illegible.
+    going thinner would make that role's text illegible. Glass treats it as
+    relative material strength, because making 100% an opaque fill would
+    remove the defining property of the theme.
 
     Popups stay opaque because they are separate native windows; making those
     translucent reveals the desktop rather than the spaCR backdrop.
@@ -744,6 +754,11 @@ def panel_alpha(theme: str, role: str,
              else palette_for(theme)["bg"])
     floor = legible_scrim_floor(
         theme, role, colour_role=colour_role, under=under)
+    if theme == "glass":
+        # Relative material strength: even the 100% setting retains the
+        # role's designed translucency. Other themes keep literal 0..100%
+        # surface opacity, so this does not change their established control.
+        wanted *= scrim_alpha("glass", role)
     return max(wanted, floor)
 
 
@@ -876,6 +891,36 @@ def css_color(color: str, alpha: float = 1.0) -> str:
         return color
     r, g, b = _channels(color)
     return f"rgba({r}, {g}, {b}, {alpha:.3f})"
+
+
+def _mix_color(a: str, b: str, amount: float) -> str:
+    """Mix two hex colours in sRGB space for small material highlights."""
+    amount = max(0.0, min(1.0, float(amount)))
+    ac = _channels(a)
+    bc = _channels(b)
+    out = tuple(int(round(x * (1.0 - amount) + y * amount))
+                for x, y in zip(ac, bc))
+    return "#%02x%02x%02x" % out
+
+
+def glass_material(color: str, alpha: float) -> str:
+    """Return a neutral, layered QSS brush that suggests optical depth.
+
+    QSS cannot sample and refract pixels behind a widget. A thin bright upper
+    layer, translucent neutral body, and slightly denser lower edge provide
+    the stable cross-platform cues of glass without pretending opacity alone
+    is a material.
+    """
+    alpha = max(0.0, min(1.0, float(alpha)))
+    highlight = _mix_color(color, "#ffffff", 0.16)
+    shade = _mix_color(color, "#000000", 0.18)
+    return (
+        "qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, "
+        f"stop: 0 {css_color(highlight, min(1.0, alpha + 0.10))}, "
+        f"stop: 0.10 {css_color(color, min(1.0, alpha + 0.035))}, "
+        f"stop: 0.72 {css_color(color, alpha)}, "
+        f"stop: 1 {css_color(shade, min(1.0, alpha + 0.065))})"
+    )
 
 
 def effective_surface(theme: str, role: str,
@@ -1221,6 +1266,17 @@ QMainWindow, QDialog {{
                f'    background-image: {_qss_url(background)};\n'
                '    background-position: center center;\n'
                '    background-repeat: no-repeat;')
+    elif theme == "glass":
+        # A neutral off-axis light field gives translucent surfaces something
+        # to optically respond to. It is intentionally not blue: colour belongs
+        # to content and selected actions, not to every piece of chrome.
+        sky = (
+            "background-color: qradialgradient(\n"
+            "        cx: 0.18, cy: 0.12, radius: 1.08,\n"
+            "        fx: 0.14, fy: 0.08,\n"
+            "        stop: 0 #454950, stop: 0.18 #292d33,\n"
+            "        stop: 0.52 #16191e, stop: 0.82 #0e1115,\n"
+            "        stop: 1 #080a0d);")
     else:
         # No cached image (first run mid-generation, unwritable home,
         # a source build with the masters stripped, tests): a gradient
@@ -1250,6 +1306,95 @@ QMainWindow, QDialog {{
 QMenu, QToolTip, QMessageBox, QComboBox QAbstractItemView {{
     background-color: {P["surface_alt"]};
 }}"""
+
+
+def _glass_material_layer(base: dict,
+                          surface_opacity: Optional[float]) -> str:
+    """Final QSS overrides that turn neutral transparency into a material.
+
+    Kept as a last layer so every existing selector still has a conservative
+    fallback. Only Glass receives these rules; Dark, Light, Space, and Cell
+    remain byte-for-byte on their existing paths.
+    """
+    surface = glass_material(
+        base["surface"], panel_alpha("glass", "surface", surface_opacity))
+    alt = glass_material(
+        base["surface_alt"],
+        panel_alpha("glass", "surface_alt", surface_opacity))
+    high = glass_material(
+        base["surface_hi"],
+        panel_alpha("glass", "surface_hi", surface_opacity))
+    tile = glass_material(
+        base["surface"], panel_alpha("glass", "tile", surface_opacity))
+    rim = css_color("#ffffff", 0.27)
+    rim_soft = css_color("#ffffff", 0.16)
+    return f"""
+/* -----------------------------------------------------------------
+ *  Glass material layer
+ *
+ *  Neutral translucent body + a brighter upper stop suggest lensing;
+ *  white rims provide a specular silhouette; larger concentric radii
+ *  make controls float. Accent colour remains reserved for actions.
+ * ----------------------------------------------------------------- */
+QFrame#Card, QFrame#ConsoleBox {{
+    background: {alt};
+    border: 1px solid {rim};
+    border-radius: 14px;
+}}
+QFrame#Hero {{
+    background: {surface};
+    border: 1px solid {rim};
+    border-radius: 18px;
+}}
+QFrame#SectionCard {{
+    background: {surface};
+    border: 1px solid {rim_soft};
+    border-radius: 14px;
+}}
+QFrame#ConsoleTopicBar {{
+    background: {high};
+    border-top: 1px solid {rim_soft};
+    border-bottom: 1px solid {css_color("#000000", 0.24)};
+}}
+QPlainTextEdit#ConsoleStdoutBlock,
+QPlainTextEdit#ConsoleStdoutBlockError {{
+    background: transparent;
+}}
+QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox,
+QPlainTextEdit, QTextEdit {{
+    background: {alt};
+    border: 1px solid {rim_soft};
+    border-radius: 10px;
+}}
+QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus,
+QComboBox:focus, QPlainTextEdit:focus, QTextEdit:focus {{
+    background: {high};
+    border: 1px solid {base["accent"]};
+}}
+QPlainTextEdit#ConsoleChatInput, QTextEdit#ConsoleChatInput {{
+    background: {alt};
+    border: 1px solid {rim};
+    border-radius: 14px;
+}}
+QPushButton {{
+    background: {alt};
+    border: 1px solid {rim_soft};
+    border-radius: 10px;
+}}
+QPushButton:hover {{
+    background: {high};
+    border: 1px solid {rim};
+}}
+QPushButton#Tile, QPushButton#HTile, QPushButton#AppTile {{
+    background: {tile};
+    border: 1px solid {rim};
+    border-radius: 16px;
+}}
+QGroupBox {{
+    border: 1px solid {rim_soft};
+    border-radius: 12px;
+}}
+"""
 
 
 def stylesheet(theme: str = "dark", font_scale: float = 1.0,
@@ -1330,6 +1475,10 @@ QLabel[settingMaturity="{stage}"] {{
     # resizes the whole app, not just the base body text.
     F = {k: max(6, int(round(v * font_scale)))
          for k, v in FONT_SIZE.items()}
+    GLASS_LAYER = (
+        _glass_material_layer(base, surface_opacity)
+        if theme == "glass" else ""
+    )
     return f"""
 /* -----------------------------------------------------------------
  *  Base
@@ -2200,4 +2349,5 @@ QStatusBar {{
     font-size: {F["small"]}px;
     padding: 0px {S["sm"]}px;
 }}
+{GLASS_LAYER}
 """

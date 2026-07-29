@@ -1130,7 +1130,13 @@ class HomePage(QWidget):
         # documentMode(True) suppresses the pane frame, and without the
         # frame the tab strip floats with nothing under it.
         self._tabs.setDocumentMode(False)
-        self._tabs.setStyleSheet(_tab_qss(self._P, self._pane_alpha()))
+        try:
+            from ..preferences import resolve_effective_theme
+            glass = resolve_effective_theme() == "glass"
+        except Exception:
+            glass = False
+        self._tabs.setStyleSheet(
+            _tab_qss(self._P, self._pane_alpha(), glass=glass))
         # The QStackedWidget QTabWidget keeps its pages in is a plain
         # QWidget, and the blanket `QWidget { background-color: bg }`
         # rule makes it paint the window colour over the ::pane it sits
@@ -1482,7 +1488,8 @@ class HomePage(QWidget):
         super().closeEvent(event)
 
 
-def _tab_qss(P: dict, pane_alpha: float = 1.0) -> str:
+def _tab_qss(P: dict, pane_alpha: float = 1.0,
+             glass: bool = False) -> str:
     """QSS for the Home tab widget.
 
     :param pane_alpha: opacity of the rounded box behind the tiles. This
@@ -1498,12 +1505,17 @@ def _tab_qss(P: dict, pane_alpha: float = 1.0) -> str:
     window, i.e. a preference for its opacity that could never show a
     difference on the two opaque themes.
     """
-    from ..theme import css_color
+    from ..theme import css_color, glass_material
+    pane_fill = (glass_material(P["surface"], pane_alpha)
+                 if glass else css_color(P["surface"], pane_alpha))
+    pane_border = (css_color("#ffffff", 0.27)
+                   if glass else P["border_soft"])
+    radius = 14 if glass else 8
     return f"""
 QTabWidget#HomeTabs::pane {{
-    border: 1px solid {P['border_soft']};
-    border-radius: 8px;
-    background: {css_color(P['surface'], pane_alpha)};
+    border: 1px solid {pane_border};
+    border-radius: {radius}px;
+    background: {pane_fill};
     top: -1px;
 }}
 QTabWidget#HomeTabs > QTabBar::tab {{

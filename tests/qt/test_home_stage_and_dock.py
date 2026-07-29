@@ -359,11 +359,17 @@ class TestPaneOpacity:
     is asking for the wallpaper to be hidden.
     """
 
-    def test_the_default_is_a_solid_panel(self):
+    def test_the_default_is_solid_except_for_the_glass_material(self):
         assert theme.DEFAULT_PANE_OPACITY == 1.0
-        for name in theme.THEMES:
+        for name in ("dark", "light", "space", "cell"):
             assert theme.pane_alpha(name) == 1.0
             assert theme.pane_alpha(name, None) == 1.0
+        # Glass owns a translucent material independently of the preference:
+        # 100% means full material strength, not an opaque coloured sheet.
+        assert theme.pane_alpha("glass") == \
+            theme.scrim_alpha("glass", "surface")
+        assert theme.pane_alpha("glass", None) == \
+            theme.scrim_alpha("glass", "surface")
 
     def test_an_opaque_theme_lets_the_user_take_the_box_away(self):
         """Nothing behind a dark panel on the dark theme but more dark
@@ -382,9 +388,16 @@ class TestPaneOpacity:
             assert 0.0 <= floor < 1.0
             assert theme.pane_alpha(name, 0.0) == floor
             assert theme.pane_alpha(name, floor / 2) == floor
-            # Above the floor the user's number is honoured exactly.
             above = min(1.0, floor + 0.1)
-            assert theme.pane_alpha(name, above) == above
+            if name == "glass":
+                # Glass treats the preference as material strength: even
+                # 100% retains the designed translucency.
+                designed = theme.scrim_alpha("glass", "surface")
+                assert theme.pane_alpha(name, above) == max(
+                    floor, above * designed)
+            else:
+                # Conventional image themes honour the literal opacity.
+                assert theme.pane_alpha(name, above) == above
 
     def test_the_floor_is_where_the_text_stops_clearing_aa(self):
         """Not a magic number: re-derived from the contrast rules."""
