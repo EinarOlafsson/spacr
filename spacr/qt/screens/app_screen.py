@@ -159,6 +159,27 @@ COLUMN_TABLES = {
 }
 
 
+def settings_section_maturity(app_key: str, title: str) -> str:
+    """Return the least-mature stage applying to one settings section.
+
+    An alpha or beta module colours every one of its settings. A stable
+    module can still contain an explicitly experimental ``Beta``/``Alpha``
+    category (the 3D/4D mask and measurement controls live in ``Beta``), in
+    which case that section receives the more cautious stage.
+    """
+    from ..app import app_stage
+
+    module_stage = app_stage(app_key)
+    normalized = str(title or "").strip().lower()
+    section_stage = "stable"
+    if normalized == "alpha" or "(alpha)" in normalized:
+        section_stage = "alpha"
+    elif normalized == "beta" or "(beta)" in normalized:
+        section_stage = "beta"
+    risk = {"alpha": 0, "beta": 1, "stable": 2}
+    return min((module_stage, section_stage), key=risk.__getitem__)
+
+
 APP_TITLES = {
     "mask":            "Mask Generation",
     "timelapse":       "Timelapse",
@@ -493,6 +514,9 @@ class AppScreen(QWidget):
         # under the cursor. Initialized in __init__.
         for title, rows in sections:
             section = Section(title)
+            section.set_maturity(
+                settings_section_maturity(self.app_key, title)
+            )
             # Attach a per-section tooltip so hovering the header tells
             # users what the settings inside actually control. Falls
             # back to a generic "settings for <TITLE>" if the section

@@ -1233,6 +1233,21 @@ QPushButton#AppTile[stage="{stage}"]:pressed {{
     border: 1px solid {hue};
 }}"""
         for stage, hue in STAGE_HOVER.items())
+    SECTION_STAGE_RULES = "\n".join(
+        f"""QFrame#SectionCard[maturity="{stage}"] {{
+    border: 1px solid {css_color(hue, 0.72)};
+    border-left: 4px solid {hue};
+}}
+QToolButton#SectionHeader[maturity="{stage}"]:hover,
+QToolButton#SectionHeader[maturity="{stage}"]:checked {{
+    background-color: {css_color(hue, 0.14)};
+}}
+QLabel[settingMaturity="{stage}"] {{
+    border: none;
+    border-left: 2px solid {hue};
+    padding-left: 6px;
+}}"""
+        for stage, hue in STAGE_HOVER.items())
     # Scaled with the font, like every other Python-set size: a 150 %
     # font makes the name taller, and a tile that did not grow with it
     # would clip the thing it exists to show.
@@ -2069,6 +2084,10 @@ QWidget#SectionBody {{
     border-bottom-left-radius: {R["md"]}px;
     border-bottom-right-radius: {R["md"]}px;
 }}
+/* The same maturity colours used by Home, carried into every module's
+   settings. Labels keep the theme's readable text ink; the coloured rule is
+   the maturity signal, so alpha cyan remains legible on the light theme. */
+{SECTION_STAGE_RULES}
 
 /* -----------------------------------------------------------------
  *  Group box (used by settings sections)
