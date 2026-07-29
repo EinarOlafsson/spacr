@@ -9,7 +9,6 @@ from skimage.measure import regionprops, regionprops_table, shannon_entropy
 from skimage.exposure import rescale_intensity
 from skimage.segmentation import find_boundaries
 from skimage.feature import graycomatrix, graycoprops
-from mahotas.features import zernike_moments
 from skimage import morphology, measure, filters
 from skimage.util import img_as_bool
 from skimage.filters import gaussian, threshold_otsu
@@ -426,6 +425,8 @@ def _calculate_zernike(mask, df, degree=8):
         coefficients is set by the degree: 9 for 4, 25 for 8, 49 for 12.
     :returns: ``df`` with ``zernike_i`` columns appended, or unchanged when the
         mask has no regions or the mask is 3-D.
+    :raises ImportError: When a non-empty 2-D mask needs the optional Mahotas
+        implementation but ``spacr[zernike]`` is not installed.
     :raises ValueError: When the Zernike vectors have inconsistent lengths.
 
     .. note::
@@ -440,8 +441,12 @@ def _calculate_zernike(mask, df, degree=8):
     if _ndim_of(mask) != 2:
         return df
 
+    regions = list(regionprops(mask))
+    if not regions:
+        return df
+    zernike_moments = _load_zernike_moments()
     zernike_features = []
-    for region in regionprops(mask):
+    for region in regions:
         # mahotas' signature is zernike_moments(im, radius, degree=8): the
         # moments are computed on a disk of `radius` centred on the object's
         # centre of mass, and pixels outside that disk are ignored. Passing
@@ -469,8 +474,20 @@ def _calculate_zernike(mask, df, degree=8):
 
         zernike_df = pd.DataFrame(zernike_features, columns=[f'zernike_{i}' for i in range(feature_length)])
         return pd.concat([df.reset_index(drop=True), zernike_df], axis=1)
-    else:
-        return df
+    return df
+
+
+def _load_zernike_moments():
+    """Load Mahotas only when its optional descriptor is computed."""
+    try:
+        from mahotas.features import zernike_moments
+    except (ImportError, OSError) as exc:
+        raise ImportError(
+            "Zernike morphology requires the optional Mahotas package. "
+            "Install it with `pip install \"spacr[zernike]\"`, or run "
+            "morphological measurements with zernike=False."
+        ) from exc
+    return zernike_moments
 
 def _analyze_cytoskeleton(array, mask, channel):
     """Extract per-object skeleton length and branch counts from a cytoskeleton channel.
@@ -542,7 +559,7 @@ def _analyze_cytoskeleton(array, mask, channel):
 
     return pd.DataFrame(properties_list)
 
-def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_mask, cytoplasm_mask, settings, zernike=True, degree=8):
+def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_mask, cytoplasm_mask, settings, zernike=None, degree=8):
     """Return morphology + Zernike DataFrames for cells, nuclei, pathogens, organelles, cytoplasm.
 
     :param cell_mask: Label mask of cells.
@@ -552,7 +569,9 @@ def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organell
     :param cytoplasm_mask: Label mask of cytoplasm.
     :param settings: Settings dict; ``<object>_mask_dim`` keys drive whether
         each object type is analysed, ``cytoplasm`` toggles cytoplasm output.
-    :param zernike: When True, append Zernike-moment columns.
+    :param zernike: ``True`` requires and computes Zernike moments; ``False``
+        disables them. ``None`` computes them when Mahotas is installed and
+        otherwise skips them with an actionable console message.
     :param degree: Zernike moment degree.
     :returns: Tuple ``(cell_df, nucleus_df, pathogen_df, organelle_df, cytoplasm_df)``.
 
@@ -565,6 +584,15 @@ def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organell
        explicit ``volume_voxels`` / ``volume_um3`` columns are added. See
        :func:`resolve_measurement_spacing`.
     """
+    if zernike is None:
+        try:
+            _load_zernike_moments()
+        except ImportError as exc:
+            zernike = False
+            print(f"[measure] {exc} Zernike columns will be skipped.")
+        else:
+            zernike = True
+
     ndim = _ndim_of(cell_mask)
     spacing, stamp = resolve_measurement_spacing(settings, ndim)
     morphological_props = list(MORPHOLOGICAL_PROPS)
@@ -589,7 +617,9 @@ def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organell
     if settings['cell_mask_dim'] is not None:
         cell_to_nucleus, cell_to_pathogen = get_components(cell_mask, nucleus_mask, pathogen_mask)
         cell_props = _props(cell_mask)
-        cell_props = _calculate_zernike(cell_mask, cell_props, degree=degree)
+        if zernike:
+            cell_props = _calculate_zernike(
+                cell_mask, cell_props, degree=degree)
         prop_ls.append(cell_props)
         ls.append('cell')
     else:
@@ -598,7 +628,9 @@ def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organell
 
     if settings['nucleus_mask_dim'] is not None:
         nucleus_props = _props(nucleus_mask)
-        nucleus_props = _calculate_zernike(nucleus_mask, nucleus_props, degree=degree)
+        if zernike:
+            nucleus_props = _calculate_zernike(
+                nucleus_mask, nucleus_props, degree=degree)
         if settings['cell_mask_dim'] is not None:
             nucleus_props = pd.merge(nucleus_props, cell_to_nucleus, left_on='label', right_on='nucleus', how='left')
         prop_ls.append(nucleus_props)
@@ -609,7 +641,9 @@ def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organell
 
     if settings['pathogen_mask_dim'] is not None:
         pathogen_props = _props(pathogen_mask)
-        pathogen_props = _calculate_zernike(pathogen_mask, pathogen_props, degree=degree)
+        if zernike:
+            pathogen_props = _calculate_zernike(
+                pathogen_mask, pathogen_props, degree=degree)
         if settings['cell_mask_dim'] is not None:
             pathogen_props = pd.merge(pathogen_props, cell_to_pathogen, left_on='label', right_on='pathogen', how='left')
         prop_ls.append(pathogen_props)
@@ -620,8 +654,9 @@ def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organell
 
     if settings.get('organelle_mask_dim') is not None:
         organelle_props = _props(organelle_mask)
-        if len(organelle_props) > 0:
+        if len(organelle_props) > 0 and zernike:
             organelle_props = _calculate_zernike(organelle_mask, organelle_props, degree=degree)
+        if len(organelle_props) > 0:
             # Map each organelle to its parent cell
             if settings['cell_mask_dim'] is not None:
                 organelle_to_cell = _map_child_to_parent(organelle_mask, cell_mask, child_name='organelle', parent_name='cell')
