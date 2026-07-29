@@ -8810,24 +8810,19 @@ def remove_outliers_by_group(df, group_col, value_col, method='iqr', threshold=1
     Returns:
         pd.DataFrame: A DataFrame with outliers removed.
     """
-    def iqr_filter(subdf):
-        """Return rows of ``subdf`` whose ``value_col`` falls within ``threshold * IQR`` of Q1/Q3."""
-        q1 = subdf[value_col].quantile(0.25)
-        q3 = subdf[value_col].quantile(0.75)
-        iqr = q3 - q1
-        lower = q1 - threshold * iqr
-        upper = q3 + threshold * iqr
-        return subdf[(subdf[value_col] >= lower) & (subdf[value_col] <= upper)]
-
-    def zscore_filter(subdf):
-        """Return rows of ``subdf`` whose ``value_col`` is within ``threshold`` standard deviations of the mean."""
-        mean = subdf[value_col].mean()
-        std = subdf[value_col].std()
-        return subdf[(subdf[value_col] - mean).abs() <= threshold * std]
-
+    grouped = df.groupby(group_col, observed=False)[value_col]
     if method == 'iqr':
-        return df.groupby(group_col, group_keys=False).apply(iqr_filter)
+        q1 = grouped.transform(lambda values: values.quantile(0.25))
+        q3 = grouped.transform(lambda values: values.quantile(0.75))
+        iqr = q3 - q1
+        keep = df[value_col].between(
+            q1 - threshold * iqr,
+            q3 + threshold * iqr,
+        )
     elif method == 'zscore':
-        return df.groupby(group_col, group_keys=False).apply(zscore_filter)
+        mean = grouped.transform('mean')
+        std = grouped.transform('std')
+        keep = (df[value_col] - mean).abs() <= threshold * std
     else:
         raise ValueError("method must be 'iqr' or 'zscore'")
+    return df.loc[keep]
