@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+import sys
 import torch
 import torch.nn as nn
 
@@ -237,6 +238,16 @@ class TestRegistry:
         message = str(excinfo.value)
         assert "grad_cam" in message
         assert "gradcam" in message and "occlusion" in message
+
+    def test_a_missing_torchcam_backend_names_the_install_extra(
+            self, image, monkeypatch):
+        monkeypatch.setitem(sys.modules, "torchcam", None)
+        monkeypatch.setitem(sys.modules, "torchcam.methods", None)
+        with pytest.raises(AttributionError) as excinfo:
+            attribute(TinyCNN(), image, "gradcam")
+        message = str(excinfo.value)
+        assert "spacr[attribution]" in message
+        assert "eigencam" in message
 
 
 # ---------------------------------------------------------------------------

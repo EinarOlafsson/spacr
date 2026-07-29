@@ -9,9 +9,10 @@ DeepLIFT, and SmoothGrad wrapped around any of them), the perturbation family
 (occlusion, feature ablation) and attention rollout for transformer backbones
 that have no convolution for a CAM to hook.
 
-Almost none of it is written here. The CAM variants come from **torchcam**, the
-gradient and perturbation methods from **captum**, both already hard
-dependencies. What is written here is the part no library can supply: the
+Almost none of it is written here. The CAM variants come from the optional
+**torchcam** attribution extra, while the gradient and perturbation methods
+come from the core **captum** dependency. What is written here is the part no
+library can supply: the
 adapters that make every method agree on one output shape, the handling of
 spaCR's two classifier head shapes, and — the reason this module exists — the
 analyses in the second half.
@@ -577,7 +578,15 @@ def _torchcam_cam(spec: "MethodSpec", wrapped: ClassScoreModel,
     *wrapped* model so ``class_idx`` means the same class for a single-logit
     head as for a C-logit one.
     """
-    import torchcam.methods as tcm
+    try:
+        import torchcam.methods as tcm
+    except (ImportError, ModuleNotFoundError) as exc:
+        raise AttributionError(
+            f"{spec.name} requires the optional torchcam backend. Install it "
+            "with `pip install 'spacr[attribution]'`, or choose eigencam, "
+            "saliency, integrated_gradients, occlusion, or another "
+            "non-torchcam attribution method."
+        ) from exc
 
     layer_name, module = _spatial_target_layer(wrapped.model, layer, model_type)
     _check_spatial_activation(module, wrapped, x, layer_name, model_type,
