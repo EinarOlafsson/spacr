@@ -3679,6 +3679,13 @@ def _invasion_efficiency(n_invaded, n_total):
     return float(n_invaded) / float(n_total)
 
 
+def _finite_median(values):
+    """Return the median of finite values, or NaN when none are available."""
+    values = np.asarray(values, dtype=float)
+    finite = values[np.isfinite(values)]
+    return float(np.median(finite)) if finite.size else float('nan')
+
+
 def _invasion_well_table(parasites, fields, group_column, settings,
                          seed_wells=None):
     """Summarize invasion per well, with the denominator and the QC in the same row.
@@ -3760,14 +3767,13 @@ def _invasion_well_table(parasites, fields, group_column, settings,
         row['invasion_efficiency_high_threshold'] = _invasion_efficiency(high, n_total)
 
         if len(subset):
-            row['outside_intensity_median'] = float(
-                np.nanmedian(subset['outside_intensity'].to_numpy(dtype=float)))
+            row['outside_intensity_median'] = _finite_median(
+                subset['outside_intensity'])
             row['bimodality_coefficient'] = _bimodality_coefficient(
                 subset['outside_intensity'].to_numpy(dtype=float), min_bimodal)
-            row['threshold_median'] = float(
-                np.nanmedian(subset['threshold'].to_numpy(dtype=float)))
-            row['reference_threshold_median'] = float(np.nanmedian(
-                subset['reference_threshold'].to_numpy(dtype=float)))
+            row['threshold_median'] = _finite_median(subset['threshold'])
+            row['reference_threshold_median'] = _finite_median(
+                subset['reference_threshold'])
             sources = sorted(set(subset['threshold_source'].astype(str)))
             row['threshold_source'] = sources[0] if len(sources) == 1 else 'mixed'
         else:

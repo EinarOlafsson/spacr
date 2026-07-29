@@ -42,6 +42,13 @@ import spacr.sp_stats  # noqa: E402,F401
 import spacr.submodules  # noqa: E402,F401
 
 
+def test_finite_median_ignores_nonfinite_values_without_warning():
+    from spacr.submodules import _finite_median
+
+    assert _finite_median([1.0, np.nan, np.inf, 3.0]) == pytest.approx(2.0)
+    assert np.isnan(_finite_median([np.nan, np.inf, -np.inf]))
+
+
 # ---------------------------------------------------------------------------
 # Fixtures / helpers
 # ---------------------------------------------------------------------------
