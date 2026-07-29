@@ -2774,7 +2774,7 @@ def _save_importance_csv(df, src, filename):
     print(f"Saved {out_path}")
     return out_path
 
-def interperate_vision_model(settings=None):
+def interpret_vision_model(settings=None):
     """Explain a spacr vision-model score using RF, permutation and SHAP importance, with per-compartment / per-channel radar plots.
 
     Merges per-object measurements from ``measurements.db`` with a CSV of
@@ -2785,7 +2785,7 @@ def interperate_vision_model(settings=None):
     cytoplasm) and which fluorescence channel drives the model.
 
     :param settings: Settings dict, canonicalized via
-        :func:`spacr.settings.set_interperate_vision_model_defaults`.
+        :func:`spacr.settings.set_interpret_vision_model_defaults`.
         Key entries:
 
         - ``src`` — folder containing ``measurements/measurements.db``.
@@ -2805,8 +2805,8 @@ def interperate_vision_model(settings=None):
     Example:
         .. code-block:: python
 
-            from spacr.ml import interperate_vision_model
-            interperate_vision_model({
+            from spacr.ml import interpret_vision_model
+            interpret_vision_model({
                 'src': '/data/plate01',
                 'scores': '/data/plate01/results/pred.csv',
                 'score_column': 'pred',
@@ -2814,7 +2814,7 @@ def interperate_vision_model(settings=None):
             })
 
     See Also:
-        :func:`spacr.submodules.interperate_vision_model` — legacy /
+        :func:`spacr.submodules.interpret_vision_model` — legacy /
         alternative entry point returning result DataFrames.
     """
     if settings is None:
@@ -2826,10 +2826,10 @@ def interperate_vision_model(settings=None):
     # convention.
     from .io import _read_and_merge_data, _report_fan_out, TimelapseKeyMismatch
     from .predictions import crop_name_metadata
-    from .settings import set_interperate_vision_model_defaults
+    from .settings import set_interpret_vision_model_defaults
     from .utils import save_settings, _time_column
 
-    settings = set_interperate_vision_model_defaults(settings)
+    settings = set_interpret_vision_model_defaults(settings)
     save_settings(settings, name='interperate_vision_model', show=True)
 
     # Function to create radar plot for individual and combined values
@@ -3098,3 +3098,7 @@ def interperate_vision_model(settings=None):
         create_extended_radar_plot(all_channel_importance, all_channel_labels, "SHAP Importance by Channel (Individual and Combined)")
     
     return merged_df
+
+
+# Backward compatibility for the misspelling published in earlier releases.
+interperate_vision_model = interpret_vision_model

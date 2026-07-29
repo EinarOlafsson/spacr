@@ -21,7 +21,7 @@ Status: `queued`, `in progress`, `blocked`, or `complete`.
 
 | Order | ID | Status | Effort | Task | Depends on |
 |---:|---|---|---:|---|---|
-| 1 | ARCH-08 | in progress | 1–2 h | Add correctly spelled `interpret_vision_model` APIs while retaining compatibility aliases. | — |
+| 1 | ARCH-08 | complete | 1–2 h | Add correctly spelled `interpret_vision_model` APIs while retaining compatibility aliases. | — |
 | 2 | ARCH-06 | queued | 1–2 h | Remove workstation-specific defaults from settings. | — |
 | 3 | STAB-05 | queued | 2–4 h | Validate count data and minimum sample sizes before fitting Poisson GLMs. | — |
 | 4 | ARCH-07 | queued | 2–4 h | Consolidate the three `MEASUREMENT_STAMP_COLUMNS` definitions. | — |

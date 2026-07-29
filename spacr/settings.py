@@ -3042,7 +3042,7 @@ def set_graph_importance_defaults(settings):
     settings.setdefault('save',False)
     return settings
 
-def set_interperate_vision_model_defaults(settings):
+def set_interpret_vision_model_defaults(settings):
     """Populate default settings for interpreting vision-model predictions.
 
     Covers feature importance, permutation importance, and SHAP explanation
@@ -3066,6 +3066,11 @@ def set_interperate_vision_model_defaults(settings):
     settings.setdefault('shap_approximate',True)
     settings.setdefault('score_column','cv_predictions')
     return settings
+
+
+# Backward compatibility for the misspelling published in earlier releases.
+set_interperate_vision_model_defaults = set_interpret_vision_model_defaults
+
 
 def set_analyze_invasion_defaults(settings):
     """Populate default settings for the two-colour (red/green) invasion assay.
