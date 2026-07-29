@@ -14,6 +14,7 @@ from sklearn.metrics import roc_curve, auc, confusion_matrix, precision_recall_c
 import statsmodels.api as sm
 from multiprocessing import cpu_count, Pool, Manager
 from copy import deepcopy
+from io import StringIO
 
 warnings.filterwarnings("ignore")
 warnings.filterwarnings("ignore", category=RuntimeWarning) # Ignore RuntimeWarning
@@ -666,7 +667,7 @@ def run_simulation(settings):
     #predictions = model.predict(x)
     results_summary = model.summary()
     results_as_html = results_summary.tables[1].as_html()
-    results_df = pd.read_html(results_as_html, header=0, index_col=0)[0]
+    results_df = pd.read_html(StringIO(results_as_html), header=0, index_col=0)[0]
     results_df = results_df.rename_axis("gene").reset_index()
     results_df = results_df.iloc[1: , :]
     results_df, reg_roc_dict_df, reg_pr_dict_df, reg_cm, sim_stats = regression_roc_auc(results_df, active_gene_list, control_gene_list, alpha = 0.05, optimal=False)
