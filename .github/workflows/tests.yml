@@ -29,7 +29,7 @@ on:
 
 jobs:
   tests:
-    name: Full suite (ubuntu-24.04, py${{ matrix.python-version }})
+    name: Newest compatible (ubuntu-24.04, py${{ matrix.python-version }})
     runs-on: ubuntu-24.04
     timeout-minutes: 60
 
@@ -184,4 +184,95 @@ jobs:
         run: |
           python -m pytest tests/ \
             -m "(slow or heavy) and (gpu or network or nas)" \
+            -v --tb=short
+
+  minimum-dependencies:
+    name: Minimum dependencies (ubuntu-24.04, py3.9)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v6
+
+      # Python 3.9 is the oldest supported interpreter. Its constraints file
+      # pins every lower-bounded direct dependency (and every extra installed
+      # here) to the oldest mutually installable release. The normal matrix
+      # above intentionally has no constraints and therefore exercises the
+      # newest compatible resolution on all five supported interpreters.
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.9"
+          cache: pip
+
+      - name: Install system libraries (Qt offscreen + scientific stack)
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            libegl1 libxkbcommon0 libdbus-1-3 libpulse0 \
+            libx11-xcb1 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+            libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-sync1 \
+            libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
+            libgl1 libglib2.0-0t64 libnss3 libxcomposite1 libxcursor1 \
+            libxdamage1 libxi6 libxtst6 libasound2t64 \
+            libsm6 libxext6 libxrender1 ffmpeg
+
+      - name: Install spacr at minimum direct versions
+        run: |
+          python -m pip install --upgrade pip
+          # Install the coupled CPU wheels together first. Their local
+          # ``+cpu`` suffixes still satisfy the public-version constraints.
+          python -m pip install \
+            --index-url https://download.pytorch.org/whl/cpu \
+            "torch==2.1.0" "torchvision==0.16.0"
+          python -m pip install \
+            -c .github/constraints/minimum-py39.txt \
+            -e ".[qt,dev,zernike,attribution]"
+          python -m pip check
+
+      - name: Verify installed minimum profile
+        run: |
+          python - <<'PY'
+          from importlib.metadata import version
+          from pathlib import Path
+          from packaging.requirements import Requirement
+
+          for line in Path(".github/constraints/minimum-py39.txt").read_text().splitlines():
+              line = line.strip()
+              if not line or line.startswith("#"):
+                  continue
+              expected = Requirement(line)
+              actual = version(expected.name)
+              assert actual in expected.specifier, (
+                  f"{expected.name}: installed {actual}, expected {expected.specifier}"
+              )
+              print(f"{expected.name}=={actual}")
+          PY
+
+      - name: Preflight minimum native integrations
+        env:
+          QT_QPA_PLATFORM: offscreen
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          python - <<'PY'
+          from spacr.settings import set_default_settings_preprocess_generate_masks
+          settings = set_default_settings_preprocess_generate_masks({})
+          assert settings["n_jobs"] >= 1, settings["n_jobs"]
+
+          from spacr.utils import umap
+          assert umap.UMAP is not None
+
+          import btrack
+          with btrack.BayesianTracker():
+              pass
+          print("minimum dependency profile: OK")
+          PY
+
+      - name: Run tests at minimum direct versions
+        env:
+          QT_QPA_PLATFORM: offscreen
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          python -m pytest tests/ \
+            -m "not slow and not heavy" \
             -v --tb=short

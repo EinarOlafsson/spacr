@@ -232,6 +232,18 @@ class _LazyModule:
         name = self.__dict__['_name']
         root = name.split('.', 1)[0]
 
+        # ``sys.modules[root] = None`` is Python's explicit "this import is
+        # unavailable" sentinel. Respect it before inspecting distribution
+        # metadata: an explicitly blocked import is absent for this process,
+        # even if an old distribution happens to be present on disk.
+        import sys as _sys
+        if root in _sys.modules and _sys.modules[root] is None:
+            self.__dict__['_module'] = None
+            raise ModuleNotFoundError(
+                f"import of {root!r} halted; None in sys.modules",
+                name=root,
+            )
+
         minimum = self.__dict__['_minimum_distribution']
         if minimum is not None:
             distribution, minimum_version, reason = minimum
@@ -256,18 +268,6 @@ class _LazyModule:
                         f"{reason} Upgrade with `python -m pip install --upgrade "
                         f"'{distribution}>={minimum_version},<1.0'`."
                     )
-
-        # ``sys.modules[root] = None`` is Python's explicit "this import is
-        # unavailable" sentinel.  Respect it even when this proxy succeeded
-        # earlier; otherwise an optional-dependency probe becomes dependent on
-        # which test or application feature happened to touch UMAP first.
-        import sys as _sys
-        if root in _sys.modules and _sys.modules[root] is None:
-            self.__dict__['_module'] = None
-            raise ModuleNotFoundError(
-                f"import of {root!r} halted; None in sys.modules",
-                name=root,
-            )
 
         if module is None:
             from importlib import import_module
@@ -335,7 +335,7 @@ umap = _LazyModule(
     block_roots=_TF_BACKED_ROOTS,
     minimum_distribution=(
         'umap-learn',
-        '0.5.10',
+        '0.5.11',
         "Older releases call scikit-learn's removed `force_all_finite` API.",
     ),
 )
