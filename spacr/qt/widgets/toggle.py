@@ -5,7 +5,7 @@ from PySide6.QtCore import Qt, QPropertyAnimation, QRect, Property
 from PySide6.QtGui import QPainter, QColor, QBrush, QPen
 from PySide6.QtWidgets import QCheckBox
 
-from ..theme import PALETTE
+from ..theme import active_palette
 
 
 class Toggle(QCheckBox):
@@ -36,11 +36,13 @@ class Toggle(QCheckBox):
         """Paint the switch track, knob, and (optional) trailing label."""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
+        palette = active_palette()
         # Track
         checked = self.isChecked()
-        track_color = QColor(PALETTE["accent"]) if checked else QColor(PALETTE["surface_alt"])
+        track_color = (QColor(palette["accent"]) if checked
+                       else QColor(palette["surface_alt"]))
         painter.setBrush(QBrush(track_color))
-        painter.setPen(QPen(QColor(PALETTE["border"]), 1))
+        painter.setPen(QPen(QColor(palette["border"]), 1))
         track_rect = QRect(0, (self.height() - self._track_h) // 2,
                             self._track_w, self._track_h)
         painter.drawRoundedRect(track_rect, self._track_h // 2, self._track_h // 2)
@@ -53,7 +55,7 @@ class Toggle(QCheckBox):
         painter.drawEllipse(QRect(knob_x, knob_y, self._knob_d, self._knob_d))
         # Label
         if self.text():
-            painter.setPen(QColor(PALETTE["fg"]))
+            painter.setPen(QColor(palette["fg"]))
             painter.drawText(
                 self._track_w + 12,
                 (self.height() + painter.fontMetrics().ascent()) // 2 - 2,

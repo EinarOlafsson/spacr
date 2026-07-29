@@ -51,7 +51,7 @@ from ..ai.worker import StreamWorker, make_stream_thread
 def _current_system_prompt() -> str:
     """Delegate to ``ai_settings`` so a user override kicks in when set."""
     return ai_settings.get_system_prompt()
-from ..theme import PALETTE, SPACING
+from ..theme import SPACING, active_palette
 from .divider import Divider
 from .empty_state import EmptyState
 
@@ -383,9 +383,10 @@ class _ProvidersDialog(QDialog):
         login_wrap = QWidget(); login_wrap.setLayout(login_row)
         col.addWidget(login_wrap)
 
+        palette = active_palette()
         card.setStyleSheet(
-            f"QWidget {{background: {PALETTE['surface_alt']}; "
-            f"border: 1px solid {PALETTE['border_soft']}; "
+            f"QWidget {{background: {palette['surface_alt']}; "
+            f"border: 1px solid {palette['border_soft']}; "
             f"border-radius: 6px;}}"
         )
         return card

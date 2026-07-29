@@ -71,7 +71,7 @@ from PySide6.QtWidgets import (
 
 from ... import plate_qc as pqc
 from ..bridge import make_thread
-from ..theme import PALETTE, SPACING
+from ..theme import SPACING, active_palette
 from ..widgets import Divider
 from .db_browser import resolve_db_path
 
@@ -315,10 +315,11 @@ class PlateGridWidget(QWidget):
     def paintEvent(self, event) -> None:  # noqa: N802 (Qt naming)
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, False)
-        painter.fillRect(self.rect(), QColor(PALETTE["surface"]))
+        palette = active_palette()
+        painter.fillRect(self.rect(), QColor(palette["surface"]))
 
         if not self.has_plate():
-            painter.setPen(QColor(PALETTE["fg_muted"]))
+            painter.setPen(QColor(palette["fg_muted"]))
             painter.drawText(self.rect().adjusted(12, 12, -12, -12),
                              Qt.AlignCenter | Qt.TextWordWrap,
                              self._placeholder)
@@ -331,7 +332,8 @@ class PlateGridWidget(QWidget):
         painter.setFont(font)
 
         # Column numbers along the top.
-        painter.setPen(QColor(PALETTE["fg_muted"]))
+        palette = active_palette()
+        painter.setPen(QColor(palette["fg_muted"]))
         for c in range(1, self._n_cols + 1):
             rect = QRectF(_GRID_PAD + _ROW_LABEL_W + (c - 1) * size, _GRID_PAD,
                           size, _COL_LABEL_H)
@@ -342,7 +344,7 @@ class PlateGridWidget(QWidget):
                           _ROW_LABEL_W, size)
             painter.drawText(rect, Qt.AlignCenter, pqc.row_label(r))
 
-        empty_pen = QPen(QColor(PALETTE["border"]))
+        empty_pen = QPen(QColor(palette["border"]))
         empty_pen.setWidth(1)
         for r in range(1, self._n_rows + 1):
             for c in range(1, self._n_cols + 1):
@@ -351,7 +353,7 @@ class PlateGridWidget(QWidget):
                 if value is None:
                     # Blank, and visibly so: an absent well is not a zero.
                     painter.setPen(empty_pen)
-                    painter.setBrush(QBrush(QColor(PALETTE["surface_alt"])))
+                    painter.setBrush(QBrush(QColor(palette["surface_alt"])))
                     painter.drawRect(rect)
                     painter.drawLine(rect.topLeft(), rect.bottomRight())
                 else:
@@ -362,7 +364,7 @@ class PlateGridWidget(QWidget):
         if self._selected is not None:
             r, c = self._selected
             if 1 <= r <= self._n_rows and 1 <= c <= self._n_cols:
-                pen = QPen(QColor(PALETTE["accent"]))
+                pen = QPen(QColor(palette["accent"]))
                 pen.setWidth(2)
                 painter.setPen(pen)
                 painter.setBrush(Qt.NoBrush)
@@ -582,7 +584,8 @@ class PlateViewScreen(QWidget):
         """Report inline. Deliberately never a QMessageBox — a modal dialog
         would hang a headless run (and did, in MakeMasksScreen)."""
         self.last_error = text if error else ""
-        colour = PALETTE["error"] if error else PALETTE["fg_muted"]
+        palette = active_palette()
+        colour = palette["error"] if error else palette["fg_muted"]
         self._status.setStyleSheet(f"color: {colour};")
         self._status.setText(text)
 

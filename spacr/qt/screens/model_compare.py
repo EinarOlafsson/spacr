@@ -85,7 +85,7 @@ from PySide6.QtWidgets import (
 
 from ... import model_compare as mc
 from ..bridge import make_thread
-from ..theme import PALETTE, SPACING
+from ..theme import SPACING, active_palette
 from ..widgets import Divider
 
 __all__ = ["ModelCompareScreen", "FIELD_RANGE", "PREVIEW_PX"]
@@ -420,7 +420,7 @@ class ModelCompareScreen(QWidget):
         canvas.setAlignment(Qt.AlignCenter)
         canvas.setMinimumSize(PREVIEW_PX, PREVIEW_PX)
         canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        canvas.setStyleSheet(f"background: {PALETTE['bg']};")
+        canvas.setStyleSheet(f"background: {active_palette()['bg']};")
         layout.addWidget(canvas, 1)
         parent.addWidget(holder)
         return canvas, caption
@@ -440,7 +440,8 @@ class ModelCompareScreen(QWidget):
         """Report inline. Deliberately never a QMessageBox — a modal dialog
         would hang a headless run (and did, in MakeMasksScreen)."""
         self.last_error = text if error else ""
-        colour = PALETTE["error"] if error else PALETTE["fg_muted"]
+        palette = active_palette()
+        colour = palette["error"] if error else palette["fg_muted"]
         self._status.setStyleSheet(f"color: {colour};")
         self._status.setText(text)
 
@@ -640,7 +641,7 @@ class ModelCompareScreen(QWidget):
             self._warnings.setText("")
             self._warnings.setVisible(False)
             return
-        colour = PALETTE["warning"]
+        colour = active_palette()["warning"]
         self._warnings.setStyleSheet(f"color: {colour};")
         self._warnings.setText("<br>".join(f"! {w}" for w in report.warnings))
         self._warnings.setVisible(True)
@@ -679,10 +680,10 @@ class ModelCompareScreen(QWidget):
             for c, text in enumerate(row):
                 item = _cell(text)
                 if row[3].startswith("no"):
-                    item.setForeground(_brush(PALETTE["warning"]))
+                    item.setForeground(_brush(active_palette()["warning"]))
                     item.setToolTip(row[3])
                 elif row[3].endswith("varied by this run"):
-                    item.setForeground(_brush(PALETTE["accent"]))
+                    item.setForeground(_brush(active_palette()["accent"]))
                 table.setItem(r, c, item)
         table.resizeColumnsToContents()
 

@@ -60,7 +60,7 @@ from PySide6.QtWidgets import (
 from ... import batch as bt
 from ...cli import MODULES
 from ..bridge import make_thread
-from ..theme import PALETTE, SPACING
+from ..theme import SPACING, active_palette
 from ..widgets import Divider
 
 __all__ = ["BatchScreen", "COLUMNS", "ON_ERROR_LABELS", "STATUS_COLOURS"]
@@ -729,9 +729,11 @@ class BatchScreen(QWidget):
             for col, text in enumerate(cells):
                 item = QTableWidgetItem(text)
                 if col == COLUMNS.index("Status"):
-                    colour = PALETTE.get(STATUS_COLOURS.get(job.status, "fg"))
+                    palette = active_palette()
+                    colour = palette.get(
+                        STATUS_COLOURS.get(job.status, "fg"))
                     if job.status == bt.STATUS_SUCCESS and job.is_partial:
-                        colour = PALETTE["warning"]
+                        colour = palette["warning"]
                     if colour:
                         item.setForeground(_brush(colour))
                 if col in (COLUMNS.index("Label"), COLUMNS.index("Status")) and job.error:
@@ -822,7 +824,8 @@ class BatchScreen(QWidget):
         """Report inline. Deliberately never a QMessageBox — a modal dialog
         would hang a headless run (and did, in MakeMasksScreen)."""
         self.last_error = text if error else ""
-        colour = PALETTE["error"] if error else PALETTE["fg_muted"]
+        palette = active_palette()
+        colour = palette["error"] if error else palette["fg_muted"]
         self._status.setStyleSheet(f"color: {colour};")
         self._status.setText(text)
 

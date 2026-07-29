@@ -94,7 +94,7 @@ from PySide6.QtWidgets import (
 
 from ... import model_zoo as zoo
 from ..bridge import make_thread
-from ..theme import PALETTE, SPACING
+from ..theme import SPACING, active_palette
 from ..widgets import Divider
 
 __all__ = ["ModelZooScreen", "DEFAULT_DOWNLOAD_DIR", "FIELD_RANGE",
@@ -374,7 +374,8 @@ class ModelZooScreen(QWidget):
         self._preview.setAlignment(Qt.AlignCenter)
         self._preview.setMinimumSize(PREVIEW_PX, PREVIEW_PX)
         self._preview.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self._preview.setStyleSheet(f"background: {PALETTE['bg']};")
+        self._preview.setStyleSheet(
+            f"background: {active_palette()['bg']};")
         split.addWidget(self._preview)
         split.setSizes([700, 400])
         tl.addWidget(split, 1)
@@ -396,7 +397,8 @@ class ModelZooScreen(QWidget):
     def _set_status(self, text: str, error: bool = False) -> None:
         """Report inline. Never a QMessageBox — a modal hangs a headless run."""
         self.last_error = text if error else ""
-        colour = PALETTE["error"] if error else PALETTE["fg_muted"]
+        palette = active_palette()
+        colour = palette["error"] if error else palette["fg_muted"]
         self._status.setStyleSheet(f"color: {colour};")
         self._status.setText(text)
 
@@ -441,9 +443,9 @@ class ModelZooScreen(QWidget):
                     # Never blank, and never quiet: 'unknown' in the warning
                     # colour, because a model with no provenance is the one you
                     # are most likely to misapply.
-                    item.setForeground(_brush(PALETTE["warning"]))
+                    item.setForeground(_brush(active_palette()["warning"]))
                 if c == 5 and entry.checksum_state == "none":
-                    item.setForeground(_brush(PALETTE["warning"]))
+                    item.setForeground(_brush(active_palette()["warning"]))
                 item.setToolTip(entry.describe())
                 table.setItem(r, c, item)
         table.blockSignals(False)
@@ -785,9 +787,9 @@ class ModelZooScreen(QWidget):
                 item = _cell(text)
                 item.setToolTip(row.note)
                 if row.severity == "fail":
-                    item.setForeground(_brush(PALETTE["error"]))
+                    item.setForeground(_brush(active_palette()["error"]))
                 elif row.severity == "warn":
-                    item.setForeground(_brush(PALETTE["warning"]))
+                    item.setForeground(_brush(active_palette()["warning"]))
                 table.setItem(r, c, item)
         table.blockSignals(False)
         table.resizeColumnsToContents()

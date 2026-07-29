@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..theme import PALETTE, SPACING
+from ..theme import SPACING
 
 
 class _WrappedLabel(QLabel):

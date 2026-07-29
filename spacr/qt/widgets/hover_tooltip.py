@@ -19,7 +19,7 @@ from PySide6.QtCore import QPoint, QTimer, Qt
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import QFrame, QLabel, QVBoxLayout, QWidget
 
-from ..theme import PALETTE, SPACING
+from ..theme import SPACING, active_palette
 
 
 class HoverTooltip(QFrame):
@@ -38,20 +38,7 @@ class HoverTooltip(QFrame):
         )
         self.setObjectName("HoverTooltip")
         self.setAttribute(Qt.WA_ShowWithoutActivating, True)
-        # Inline QSS — this widget lives above the app stylesheet as a
-        # separate top-level window, so app-level QSS doesn't reach it.
-        self.setStyleSheet(
-            f"QFrame#HoverTooltip {{"
-            f"  background-color: {PALETTE['surface_alt']};"
-            f"  border: 1px solid {PALETTE['border']};"
-            f"  border-radius: 6px;"
-            f"}}"
-            f"QLabel {{"
-            f"  color: {PALETTE['fg']};"
-            f"  font-size: 12px;"
-            f"  background: transparent;"
-            f"}}"
-        )
+        self._apply_theme()
         self._label = QLabel(self)
         self._label.setTextFormat(Qt.RichText)
         self._label.setOpenExternalLinks(True)
@@ -68,6 +55,25 @@ class HoverTooltip(QFrame):
         self._hide_timer.setSingleShot(True)
         self._hide_timer.timeout.connect(self._maybe_hide)
         self._anchor: Optional[QWidget] = None
+
+    def _apply_theme(self) -> None:
+        """Refresh the popup's inline style from the theme on screen."""
+        # This widget is a separate top-level window, so app-level QSS does
+        # not reliably reach it. It is also a singleton that survives a
+        # Preferences theme switch, hence this must be refreshed on show.
+        palette = active_palette()
+        self.setStyleSheet(
+            f"QFrame#HoverTooltip {{"
+            f"  background-color: {palette['surface_alt']};"
+            f"  border: 1px solid {palette['border']};"
+            f"  border-radius: 6px;"
+            f"}}"
+            f"QLabel {{"
+            f"  color: {palette['fg']};"
+            f"  font-size: 12px;"
+            f"  background: transparent;"
+            f"}}"
+        )
 
     # ------------------------------------------------------------------
     # Singleton
@@ -90,6 +96,7 @@ class HoverTooltip(QFrame):
         """
         if not html:
             return
+        self._apply_theme()
         self._anchor = anchor
         self._label.setText(html)
         self.adjustSize()

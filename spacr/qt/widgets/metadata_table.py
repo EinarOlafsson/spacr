@@ -65,8 +65,9 @@ class MetadataTablePanel(QWidget):
 
         self._summary = QLabel("", self)
         try:
-            from ..theme import PALETTE
-            self._summary.setStyleSheet(f"color: {PALETTE['fg_muted']};")
+            from ..theme import active_palette
+            self._summary.setStyleSheet(
+                f"color: {active_palette()['fg_muted']};")
         except Exception:
             pass
 
