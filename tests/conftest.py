@@ -102,6 +102,46 @@ def _install_gui_stubs():
 
 _install_gui_stubs()
 
+
+# ---------------------------------------------------------------------------
+# CI suite classification
+# ---------------------------------------------------------------------------
+
+_INTEGRATION_MODULE_TOKENS = (
+    "e2e",
+    "integration",
+    "pipeline",
+    "real_data",
+    "real_dataset",
+)
+
+
+def _automatic_ci_markers(path):
+    """Return path-derived suite markers used to partition CI.
+
+    Resource and duration markers stay explicit on tests because they encode
+    runtime requirements. Qt ownership and integration scope are structural:
+    every module below ``tests/qt`` is a Qt test, while modules whose names
+    advertise an end-to-end, pipeline, integration, or real-data boundary are
+    integration tests. Keeping these two rules here prevents a newly added Qt
+    or end-to-end module from silently leaking into the fast suite.
+    """
+    test_path = Path(str(path))
+    markers = set()
+    if "tests" in test_path.parts and "qt" in test_path.parts:
+        markers.add("qt")
+    if any(token in test_path.stem for token in _INTEGRATION_MODULE_TOKENS):
+        markers.add("integration")
+    return markers
+
+
+def pytest_collection_modifyitems(items):
+    """Apply structural CI markers before pytest evaluates ``-m``."""
+    for item in items:
+        for marker in _automatic_ci_markers(item.path):
+            item.add_marker(getattr(pytest.mark, marker))
+
+
 # Try to import matplotlib once with the Agg backend fixed. If unavailable,
 # individual tests that need it will skip themselves.
 try:  # pragma: no cover - import side effect only
