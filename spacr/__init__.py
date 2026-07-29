@@ -7,14 +7,15 @@ from typing import Final
 from .version import __version__
 
 # Third-party FutureWarnings that fire at import — noise the user
-# can't act on. Silenced before the modules that trigger them import.
+# can't act on from inside spaCR. Silenced before the modules that trigger
+# them import. The Statsmodels warning formerly listed here was fixed at its
+# source by switching from the deprecated ``logit`` alias to ``Logit``.
 # (Users can re-enable with `warnings.filterwarnings("default")` in
 # their own code.)
 _warnings.filterwarnings(
     "ignore",
-    message=r"The logit link alias is deprecated.*",
+    message=r"The pynvml package is deprecated\..*",
     category=FutureWarning,
-    module=r"statsmodels\..*",
 )
 _warnings.filterwarnings(
     "ignore",

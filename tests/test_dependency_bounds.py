@@ -6,8 +6,9 @@ together with the exact call site that justifies it, so the pin and the source
 cannot drift apart in either direction.
 
 That coupling is the point, and it is not theoretical. The 2026-07-26 audit
-found three ceilings that were too **loose** — a decorative ``<1.0`` on a 0.x
-dependency, which protects nothing, because a 0.x project breaks at the MINOR:
+found two active ceilings that were too **loose** — a decorative ``<1.0`` on
+a 0.x dependency, which protects nothing, because a 0.x project breaks at the
+MINOR:
 
   * ``pingouin<1.0`` admitted 0.6.0, which renamed every dashed result column
     (``p-val`` -> ``p_val``). ``spacr/plot.py`` indexes the dashed names
@@ -16,18 +17,20 @@ dependency, which protects nothing, because a 0.x project breaks at the MINOR:
   * ``scikit-image<1.0`` admitted 0.27, which removes
     ``skimage.morphology.square`` — imported at ``spacr/utils.py`` module
     scope, so its removal is an ImportError, not a warning.
-  * ``statsmodels<1.0`` admitted 0.15, which removes the lowercase
-    ``links.logit`` alias that ``spacr/ml.py`` imports at module scope and
-    *calls* as a default argument.
+The third ceiling found in that audit was ``statsmodels<1.0``: it admitted
+0.15, which removes the lowercase ``links.logit`` alias. spaCR has since
+switched to ``links.Logit``. A source-level regression test below keeps that
+startup-warning fix in place while the separate 0.15 compatibility boundary
+remains conservative.
 
-...and two floors that were too **low** to be honest: ``scikit-learn>=1.4.1``
-admitted a release where ``TSNE(max_iter=)`` is a ``TypeError``, and
+Two floors were also too **low** to be honest: ``scikit-learn>=1.4.1`` admitted
+a release where ``TSNE(max_iter=)`` is a ``TypeError``, and
 ``torchvision>=0.1`` named a 2017 release for code that needs the multi-weight
 API.
 
-Each test therefore reads BOTH files and fails with a message naming the other
-half. If someone fixes ``spacr/plot.py`` to use ``p_val``, the pingouin test
-tells them the pin may now be widened; if someone widens the pin without
+The bound tests therefore read BOTH files and fail with a message naming the
+other half. If someone fixes ``spacr/plot.py`` to use ``p_val``, the pingouin
+test tells them the pin may now be widened; if someone widens the pin without
 fixing the source, it tells them what will break. Neither half can move alone.
 
 Like ``test_packaging_metadata.py``, nothing here imports :mod:`spacr` — these
@@ -144,30 +147,24 @@ def test_scikit_image_cap_excludes_the_square_removal():
         )
 
 
-def test_statsmodels_cap_excludes_the_lowercase_link_alias_removal():
-    """statsmodels: "The logit link alias will be removed after 0.15.0."
-
-    ``spacr/ml.py`` imports the alias at module scope *and* calls it as a
-    default argument, so its removal breaks ``import spacr.ml`` outright.
-    """
+def test_statsmodels_uses_the_nondeprecated_logit_link_class():
+    """The lowercase alias warns on 0.14 and is removed after 0.15."""
     ml = _src("ml.py")
     imports_alias = re.search(
         r"^from statsmodels\.genmod\.families\.links import .*\blogit\b",
         ml, re.MULTILINE,
     )
-
-    if imports_alias:
-        assert not _admits("statsmodels", "0.15.0"), (
-            "spacr/ml.py imports the lowercase `logit` link alias at module "
-            "scope, but the statsmodels pin admits 0.15, after which the alias "
-            "is removed. Switch to the CamelCase `Logit` (ml.py already uses "
-            "it elsewhere) before widening the cap."
-        )
-    else:
-        pytest.fail(
-            "spacr/ml.py no longer imports the lowercase `logit` alias — "
-            "widen the statsmodels cap and delete this branch."
-        )
+    assert imports_alias is None, (
+        "spacr/ml.py reintroduced statsmodels' deprecated lowercase `logit` "
+        "alias; it warns during every startup on 0.14 and is removed after "
+        "0.15. Import and construct the CamelCase `Logit` class."
+    )
+    assert re.search(
+        r"^from statsmodels\.genmod\.families\.links import .*\bLogit\b",
+        ml, re.MULTILINE,
+    )
+    assert "links.logit()" not in ml
+    assert "links.Logit()" in ml
 
 
 # ---------------------------------------------------------------------------

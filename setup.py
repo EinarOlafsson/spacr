@@ -90,11 +90,11 @@ with open("README.rst", "r", encoding="utf-8") as fh:
 #     patsy      spacr/ml.py:33 (module scope). Arrived via statsmodels.
 #     sympy      spacr/gui_elements.py:26 (module scope). Arrived via torch.
 # and four are function-local and already guarded, so they are declared for
-# honesty rather than to fix a break: pynvml (spacr/qt/widgets/home.py:708,
-# :722), win10toast (spacr/qt/notify.py:56, behind `if system == "Windows"`,
-# so it carries the marker), and catboost/lightgbm, which are alternative
-# model backends behind a `model_type=` string and live in the `boosting`
-# extra — see the note there.
+# honesty rather than to fix a break: nvidia-ml-py (imported as ``pynvml`` at
+# spacr/qt/widgets/home.py:729 and :743), win10toast (spacr/qt/notify.py:56,
+# behind `if system == "Windows"`, so it carries the marker), and
+# catboost/lightgbm, which are alternative model backends behind a
+# `model_type=` string and live in the `boosting` extra — see the note there.
 # ---------------------------------------------------------------------------
 dependencies = [
     # -----------------------------------------------------------------------
@@ -180,13 +180,12 @@ dependencies = [
     # consumer, so the feature moves with the package.
     'btrack>=0.7.0,<1.0',
     'trackpy>=0.6.2,<1.0',
-    # Ceiling LOWERED from the decorative `<1.0`. spacr/ml.py:28 imports the
-    # lowercase link alias `from statsmodels.genmod.families.links import
-    # logit` at module scope and ml.py:115 *calls* it as a default argument,
-    # so its removal is an ImportError at `import spacr.ml`, not a warning.
-    # statsmodels 0.14.6 says so itself: "The logit link alias will be removed
-    # after the 0.15.0 release." Floor lowered to the release that introduced
-    # `statsmodels.othermod.betareg.BetaModel`, which spacr/ml.py imports.
+    # The deprecated lowercase ``links.logit`` alias is no longer used:
+    # spacr/ml.py imports and constructs ``Logit``. Keep the existing 0.15
+    # boundary until the complete statistical suite has been qualified
+    # against that release; the warning cleanup itself does not claim broader
+    # dependency compatibility. The floor is the release that introduced
+    # ``statsmodels.othermod.betareg.BetaModel``, imported by spacr/ml.py.
     'statsmodels>=0.13.0,<0.15',
     # ADDED. `from patsy import dmatrices` at spacr/ml.py:33 is module scope
     # and unguarded, so `import spacr.ml` needs it. It was arriving only
@@ -332,16 +331,15 @@ dependencies = [
     # utils.py:1508,1518 — for deprecation in 8.0.
     'psutil>=5.9.8,<8',
     'gputil>=1.4.0,<2.0',
-    # ADDED. Function-local and already guarded by a bare `except Exception`
-    # that falls back to torch (spacr/qt/widgets/home.py:708 and :722), so
-    # this fixes nothing — it declares what the GPU/VRAM readout on the home
-    # screen actually uses so the readout is not a lottery. Pure Python, no
-    # wheel constraints. `<14` because pynvml 12.0 was NVIDIA's takeover of
-    # the name and the `nvml*` function surface spaCR calls has been stable
-    # across 11, 12 and 13; a major beyond that is untested here.
-    'pynvml>=11.5,<14',
+    # The import name is ``pynvml``, but the maintained distribution is
+    # ``nvidia-ml-py``. The separate distribution named ``pynvml`` is now a
+    # deprecated compatibility wrapper; declaring it caused both spaCR and
+    # torch.cuda imports to print a FutureWarning at startup. Function-local
+    # imports remain guarded and fall back to torch when NVML is unavailable.
+    # Pure Python, no wheel constraints; major 14 is not yet qualified.
+    'nvidia-ml-py>=11.5,<14',
     # `gpustat` REMOVED: zero imports. GPU state is read through GPUtil,
-    # pynvml and torch.cuda, all declared above.
+    # nvidia-ml-py (imported as pynvml) and torch.cuda, all declared above.
     # KEPT despite zero imports: PyTables is what backs `pd.HDFStore` at
     # spacr/sequencing.py:77, which is how annotated_reads.h5 is written. The
     # `comp_type` setting documented in spacr/settings.py:2070 is passed

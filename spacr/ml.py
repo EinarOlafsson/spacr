@@ -25,7 +25,7 @@ import statsmodels.formula.api as smf
 from statsmodels.regression.mixed_linear_model import MixedLM
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.genmod.families import Binomial
-from statsmodels.genmod.families.links import logit
+from statsmodels.genmod.families.links import Logit
 from statsmodels.othermod.betareg import BetaModel
 from scipy.special import gammaln, psi, expit
 from sklearn.linear_model import Lasso, Ridge
@@ -108,11 +108,11 @@ class _DispersedVariance:
 class QuasiBinomial(Binomial):
     """Binomial GLM family scaled by a dispersion parameter (quasi-binomial).
 
-    :param link: statsmodels link instance. Default ``logit()``.
+    :param link: statsmodels link instance. Default ``Logit()``.
     :param dispersion: Multiplicative variance scaling. Default ``1.0``.
     """
 
-    def __init__(self, link=logit(), dispersion=1.0):
+    def __init__(self, link=Logit(), dispersion=1.0):
         """Store the dispersion factor after delegating to ``Binomial``."""
         super().__init__(link=link)
         self.dispersion = dispersion
@@ -687,7 +687,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         'beta':   lambda: BetaModel(endog=y, exog=X).fit(),
         # logit and probit on a CONTINUOUS fraction y are routed through GLM-Binomial
         # with var_weights = cell_count. sm.Logit / sm.Probit require binary y.
-        'logit':  lambda: _glm_binomial(link=sm.families.links.logit()),
+        'logit':  lambda: _glm_binomial(link=sm.families.links.Logit()),
         'probit': lambda: _glm_binomial(link=sm.families.links.probit()),
         'lasso':  lambda: _find_best_alpha('lasso') if use_auto_alpha
                           else Lasso(alpha=alpha, max_iter=10000).fit(X, np.asarray(y).ravel()),
