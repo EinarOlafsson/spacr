@@ -31,6 +31,7 @@ import matplotlib.pyplot as plt
 
 import logging
 from spacr import schema
+from spacr.image_colors import read_image_rgb, rgb_to_cv2
 from spacr.utils import debug
 
 
@@ -69,8 +70,7 @@ def _npz_to_movie(arrays, filenames, save_path, fps=10):
         # Handling 1-channel (grayscale) or 2-channel images
         if frame.ndim == 2 or (frame.ndim == 3 and frame.shape[2] in [1, 2]):
             if frame.ndim == 2 or frame.shape[2] == 1:
-                # Convert grayscale to RGB
-                frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+                frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2RGB)
             elif frame.shape[2] == 2:
                 # Create an RGB image with the first channel as red, second as green, blue set to zero
                 rgb_frame = np.zeros((height, width, 3), dtype=np.uint8)
@@ -78,14 +78,14 @@ def _npz_to_movie(arrays, filenames, save_path, fps=10):
                 rgb_frame[..., 1] = frame[..., 1]  # Green channel
                 frame = rgb_frame
 
-        # For 3-channel images, ensure it's in BGR format for OpenCV
-        elif frame.shape[2] == 3:
-            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        elif frame.shape[2] >= 3:
+            frame = np.ascontiguousarray(frame[..., :3])
 
         # Add filenames as text on frames
         cv2.putText(frame, filenames[i], (10, height - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
 
-        out.write(frame)
+        # OpenCV's writer is a BGR boundary; the arrays above remain RGB.
+        out.write(rgb_to_cv2(frame))
 
     out.release()
     print(f"Movie saved to {save_path}")
@@ -123,7 +123,7 @@ def _scmovie(folder_paths):
                 # Determine the size to which all images should be padded
                 max_height = max_width = 0
                 for image_path in image_paths:
-                    image = cv2.imread(image_path)
+                    image = read_image_rgb(image_path)
                     h, w, _ = image.shape
                     max_height, max_width = max(max_height, h), max(max_width, w)
                 # Initialize VideoWriter
@@ -134,11 +134,11 @@ def _scmovie(folder_paths):
                 video = cv2.VideoWriter(output_path, fourcc, 10, (max_width, max_height))
                 # Process each image
                 for image_path in image_paths:
-                    image = cv2.imread(image_path)
+                    image = read_image_rgb(image_path)
                     h, w, _ = image.shape
                     padded_image = np.zeros((max_height, max_width, 3), dtype=np.uint8)
                     padded_image[:h, :w, :] = image
-                    video.write(padded_image)
+                    video.write(rgb_to_cv2(padded_image))
                 video.release()
                 
                 

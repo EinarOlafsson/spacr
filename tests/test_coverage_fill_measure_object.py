@@ -273,6 +273,16 @@ def test_img_list_to_grid():
     plt.close(fig)
 
 
+def test_img_list_to_grid_keeps_rgb_channel_order():
+    red = np.zeros((8, 8, 3), dtype=np.uint8)
+    red[..., 0] = 255
+    fig = M.img_list_to_grid([red])
+    shown = np.asarray(fig.axes[0].images[0].get_array())
+    assert shown[0, 0].tolist() == [255, 0, 0]
+    import matplotlib.pyplot as plt
+    plt.close(fig)
+
+
 # ---------------------------------------------------------------------------
 # object._postprocess_masks
 # ---------------------------------------------------------------------------

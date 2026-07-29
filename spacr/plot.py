@@ -31,6 +31,7 @@ from matplotlib_venn import venn2
 # Fail-loud accounting: a missing annotation column silently pools every
 # condition together, which is far worse than a plot that refuses to render.
 from .errors import RunLedger, ConfigurationError, raise_if_strict
+from .image_colors import read_image_rgb, write_image_rgb
 
 def plot_image_mask_overlay(
     file,
@@ -1502,10 +1503,7 @@ def _plot_images_on_grid(image_files, channel_indices, um_per_pixel, scale_bar_l
 
     channel_colors = ['red','green','blue']
     for i, image_file in enumerate(image_files):
-        img_array = cv2.imread(image_file, cv2.IMREAD_UNCHANGED)
-
-        if img_array.ndim == 3 and img_array.shape[2] >= 3:
-            img_array = cv2.cvtColor(img_array, cv2.COLOR_BGR2RGB)
+        img_array = read_image_rgb(image_file, cv2.IMREAD_UNCHANGED)
         # Handle different channel selections
         if channel_indices is not None:
             if len(channel_indices) == 1:  # Single channel (grayscale)
@@ -4723,7 +4721,7 @@ def overlay_masks_on_images(img_folder, normalize=True, resize=True, save=False,
         # Save the overlay if requested
         if save:
             save_path = os.path.join(overlay_folder, filename)
-            cv2.imwrite(save_path, cv2.cvtColor(blended, cv2.COLOR_RGB2BGR))
+            write_image_rgb(save_path, blended)
         
         if plot:
             # Display the result

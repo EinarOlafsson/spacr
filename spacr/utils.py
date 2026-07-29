@@ -42,6 +42,7 @@ except Exception:
     def display(*args, **kwargs):
         pass
 from typing import Optional, Any
+from .image_colors import read_image_rgb, write_image_rgb
 
 from multiprocessing import Pool, cpu_count, set_start_method, get_start_method
 from concurrent.futures import ThreadPoolExecutor
@@ -3961,31 +3962,33 @@ def augment_single_image(args):
     :returns: None.
     """
     img_path, dst = args
-    img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
+    img = read_image_rgb(img_path, cv2.IMREAD_UNCHANGED)
+    if img is None:
+        raise ValueError(f"Could not read image: {img_path}")
     filename = os.path.basename(img_path).split('.')[0]
 
     # Original Image
-    cv2.imwrite(os.path.join(dst, f"{filename}_original.png"), img)
+    write_image_rgb(os.path.join(dst, f"{filename}_original.png"), img)
     
     # 90 degree rotation
     img_rot_90 = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
-    cv2.imwrite(os.path.join(dst, f"{filename}_rot_90.png"), img_rot_90)
+    write_image_rgb(os.path.join(dst, f"{filename}_rot_90.png"), img_rot_90)
     
     # 180 degree rotation
     img_rot_180 = cv2.rotate(img, cv2.ROTATE_180)
-    cv2.imwrite(os.path.join(dst, f"{filename}_rot_180.png"), img_rot_180)
+    write_image_rgb(os.path.join(dst, f"{filename}_rot_180.png"), img_rot_180)
 
     # 270 degree rotation
     img_rot_270 = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
-    cv2.imwrite(os.path.join(dst, f"{filename}_rot_270.png"), img_rot_270)
+    write_image_rgb(os.path.join(dst, f"{filename}_rot_270.png"), img_rot_270)
 
     # Horizontal Flip
     img_flip_hor = cv2.flip(img, 1)
-    cv2.imwrite(os.path.join(dst, f"{filename}_flip_hor.png"), img_flip_hor)
+    write_image_rgb(os.path.join(dst, f"{filename}_flip_hor.png"), img_flip_hor)
 
     # Vertical Flip
     img_flip_ver = cv2.flip(img, 0)
-    cv2.imwrite(os.path.join(dst, f"{filename}_flip_ver.png"), img_flip_ver)
+    write_image_rgb(os.path.join(dst, f"{filename}_flip_ver.png"), img_flip_ver)
 
 def augment_images(file_paths, dst):
     """Run :func:`augment_single_image` in parallel over ``file_paths``.
@@ -5271,7 +5274,7 @@ def _find_similar_sized_images(file_list):
     size_to_paths = defaultdict(list)
     # Iterate over image paths to get their dimensions
     for path in file_list:
-        img = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # Read with unchanged color space to support different image types
+        img = read_image_rgb(path, cv2.IMREAD_UNCHANGED)
         if img is not None:
             # Find indices where the image is not padded (non-zero)
             if img.ndim == 3:  # Color image
@@ -7599,7 +7602,7 @@ def augment_image(image):
     
     # Handle grayscale images
     if len(image.shape) == 2:
-        image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+        image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
 
     # Rotations and reflections
     transformations = [
