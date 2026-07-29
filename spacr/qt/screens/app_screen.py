@@ -35,6 +35,12 @@ from ..widgets import Card, Divider, Section, UsageBar
 from .settings_model import SettingsWidgets
 
 
+# The hover description must never reflow the runtime controls. Four lines
+# are enough to scan the curated setting descriptions while the full rich
+# tooltip remains available beside the field.
+HINT_STRIP_LINES = 4
+
+
 # Hover-tooltip text for each settings section. Keys match the
 # uppercased section title (e.g. "PATHS", "CELL"). Sections that
 # don't have an entry fall back to a generic "Settings that
@@ -1105,7 +1111,11 @@ class AppScreen(QWidget):
         self._hint_strip = QLabel(self._default_hint())
         self._hint_strip.setObjectName("SubtitleSmall")
         self._hint_strip.setWordWrap(True)
-        self._hint_strip.setMinimumHeight(24)
+        hint_height = (
+            self._hint_strip.fontMetrics().lineSpacing() * HINT_STRIP_LINES
+        )
+        self._hint_strip.setFixedHeight(hint_height)
+        self._hint_strip.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self._hint_strip.setOpenExternalLinks(True)
         layout.addWidget(self._hint_strip)
 

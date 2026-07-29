@@ -42,6 +42,7 @@ from spacr.qt.screens.app_screen import (
     APP_INTROS,
     APP_TITLES,
     COLUMN_TABLES,
+    HINT_STRIP_LINES,
     SECTION_HINTS,
     AppScreen,
     QtGui_QListWidgetItem_helper,
@@ -740,6 +741,26 @@ class TestEmptyStateAndSrc:
 # ---------------------------------------------------------------------------
 
 class TestHoverHints:
+
+    def test_hint_strip_reserves_four_lines_without_moving_run_stop(
+            self, qtbot):
+        scr = _make_screen(qtbot, "mask")
+        scr.resize(1200, 900)
+        scr.show()
+        qtbot.wait(1)
+
+        expected_height = (
+            scr._hint_strip.fontMetrics().lineSpacing() * HINT_STRIP_LINES
+        )
+        assert scr._hint_strip.minimumHeight() == expected_height
+        assert scr._hint_strip.maximumHeight() == expected_height
+        before = (scr._btn_run.pos(), scr._btn_stop.pos())
+
+        scr._hint_strip.setText(
+            "A deliberately long setting description. " * 30
+        )
+        qtbot.wait(1)
+        assert (scr._btn_run.pos(), scr._btn_stop.pos()) == before
 
     def test_enter_and_leave_drive_the_hint_strip_and_the_popup(self, qtbot):
         from spacr.qt.widgets.hover_tooltip import HoverTooltip
