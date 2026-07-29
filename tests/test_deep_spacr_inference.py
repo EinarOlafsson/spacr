@@ -198,6 +198,7 @@ def test_gradcam_small_input_1x1_feature_map():
     cam = GradCAM(m, recommended, use_cuda=False)
     out = cam(torch.rand(1, 3, 32, 32), index=0)
     assert out.ndim == 2 and out.shape == (32, 32)
+    assert np.isfinite(out).all()
 
 
 def test_integrated_gradients_class():

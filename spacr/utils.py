@@ -5905,7 +5905,7 @@ class GradCAMGenerator:
             self.gradients = grad_output[0]
 
         self.target_layer_module.register_forward_hook(forward_hook)
-        self.target_layer_module.register_backward_hook(backward_hook)
+        self.target_layer_module.register_full_backward_hook(backward_hook)
 
     def get_layer(self, model, target_layer):
         """Resolve a dotted attribute path into the referenced submodule."""
@@ -5942,7 +5942,12 @@ class GradCAMGenerator:
         gradcam = F.relu(gradcam)
         gradcam = F.interpolate(gradcam, size=X.shape[2:], mode='bilinear')
         gradcam = gradcam.squeeze().cpu().detach().numpy()
-        gradcam = (gradcam - gradcam.min()) / (gradcam.max() - gradcam.min())
+        gradcam -= gradcam.min()
+        peak = gradcam.max()
+        if peak > 0:
+            gradcam /= peak
+        else:
+            gradcam.fill(0.0)
 
         return gradcam
 
@@ -5967,7 +5972,7 @@ class GradCAMGenerator:
             gradcam_map = self.compute_gradcam_maps(X[i].unsqueeze(0), predictions[i])
             gradcam_maps.append(gradcam_map)
 
-        return torch.tensor(gradcam_maps), predictions
+        return torch.from_numpy(np.stack(gradcam_maps)), predictions
 
     def plot_activation_grid(self, X, gradcam, predictions, overlay=True, normalize=False):
         """Render a grid overlaying Grad-CAM maps on inputs with predicted-class labels."""
@@ -6221,7 +6226,11 @@ class GradCAM:
         # cv2.resize rejects it.
         cam = cv2.resize(np.atleast_2d(cam), (x.size(2), x.size(3)))
         cam = cam - np.min(cam)
-        cam = cam / np.max(cam)
+        peak = np.max(cam)
+        if peak > 0:
+            cam = cam / peak
+        else:
+            cam.fill(0.0)
 
         for handle in handles:
             handle.remove()
@@ -6233,7 +6242,11 @@ def show_cam_on_image(img, mask):
     heatmap = cv2.applyColorMap(np.uint8(255 * mask), cv2.COLORMAP_JET)
     heatmap = np.float32(heatmap) / 255
     cam = heatmap + np.float32(img)
-    cam = cam / np.max(cam)
+    peak = np.max(cam)
+    if peak > 0:
+        cam = cam / peak
+    else:
+        cam.fill(0.0)
     return np.uint8(255 * cam)
 
 def recommend_target_layers(model):

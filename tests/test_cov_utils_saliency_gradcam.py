@@ -275,6 +275,7 @@ def test_gradcam_generator_1x1_target_layer():
     gen = GradCAMGenerator(model, "pool")          # AdaptiveAvgPool2d(1) -> 1x1
     cam = gen.compute_gradcam_maps(torch.rand(1, 3, 16, 16), torch.tensor(1))
     assert cam.shape == (16, 16)
+    assert np.isfinite(cam).all()
 
 
 def test_gradcam_generator_plot_activation_grid_overlay_normalized():
