@@ -56,6 +56,12 @@ leave the target as `spacr-nightly`. `.github/workflows/release.yml` then:
 5. publishes to PyPI using trusted publishing; and
 6. tags that exact commit and creates the GitHub release.
 
+GitHub displays manual ``workflow_dispatch`` buttons from the default branch,
+so merge `release.yml` into `main` once to enable that button permanently.
+There is also a branch-native fallback: changing ``VERSION`` in `setup.py`
+and pushing that commit to `spacr-nightly` automatically runs steps 2-6 for
+the already-incremented version.
+
 One-time repository setup:
 
 1. In GitHub **Settings → Actions → General → Workflow permissions**, allow
