@@ -4783,7 +4783,11 @@ def generate_fraction_map(df, gene_column, min_frequency=0.0):
     genes = df[gene_column].unique().tolist()
     wells = df['prc'].unique().tolist()
     print(len(genes),len(wells))
-    independent_variables = pd.DataFrame(columns=genes, index = wells)
+    # An explicit float dtype prevents pandas from creating an object frame
+    # and then silently downcasting it in fillna(), behaviour that is
+    # deprecated and will change in a future pandas release.
+    independent_variables = pd.DataFrame(
+        np.nan, columns=genes, index=wells, dtype=float)
     for index, row in df.iterrows():
         prc = row['prc']
         gene = row[gene_column]

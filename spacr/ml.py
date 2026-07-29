@@ -1581,12 +1581,15 @@ def perform_regression(settings):
         )
         significant = significant[~significant['feature'].str.contains('row|column')]
     else:
-        significant = coef_df[coef_df['p_value']<= 0.05]
+        significant = coef_df.loc[coef_df['p_value'] <= 0.05].copy()
         if settings['controls'] is not None:
-            significant_high = significant[significant['coefficient'] >= reg_threshold]
-            significant_low = significant[significant['coefficient'] <= reg_threshold]
+            significant_high = significant.loc[
+                significant['coefficient'] >= reg_threshold]
+            significant_low = significant.loc[
+                significant['coefficient'] <= reg_threshold]
             significant = pd.concat([significant_high, significant_low])
-        significant.sort_values(by='coefficient', ascending=False, inplace=True)
+        significant = significant.sort_values(
+            by='coefficient', ascending=False)
         significant = significant[~significant['feature'].str.contains('row|column')]
         
     if regression_type in ['ols', 'beta']:
@@ -1846,7 +1849,7 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filte
     if isinstance(filter_column, list):            
         for filter_col in filter_column:
             for value in filter_value:
-                csv_df = csv_df[csv_df[filter_col] != value]
+                csv_df = csv_df.loc[csv_df[filter_col] != value].copy()
 
     # Ensure the necessary columns are present
     if not all(col in csv_df.columns for col in ['rowID','columnID','grna','count']):
