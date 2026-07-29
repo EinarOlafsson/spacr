@@ -147,7 +147,11 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
 def test_one_click_release_orders_version_installers_pypi_and_github():
     workflow = _text(RELEASE_WORKFLOW)
     assert "workflow_dispatch:" in workflow
+    assert "branches: [spacr-nightly]" in workflow
+    assert '"setup.py"' in workflow
     assert "python packaging/release.py bump" in workflow
+    assert "python packaging/release.py version" in workflow
+    assert "if: github.event_name == 'workflow_dispatch'" in workflow
     assert "uses: ./.github/workflows/online-installers.yml" in workflow
     assert "pypa/gh-action-pypi-publish@release/v1" in workflow
     assert "environment:" in workflow and "name: pypi" in workflow
