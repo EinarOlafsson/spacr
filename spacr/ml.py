@@ -2472,7 +2472,15 @@ def ml_analysis(df, channel_of_interest=3, location_column='columnID', positive_
     elif model_type == 'gradient_boosting':
         model = HistGradientBoostingClassifier(max_iter=n_estimators, random_state=random_state)  # Supports n_jobs internally
     elif model_type == 'xgboost':
-        model = XGBClassifier(reg_alpha=reg_alpha, reg_lambda=reg_lambda, learning_rate=learning_rate, n_estimators=n_estimators, random_state=random_state, nthread=n_jobs, use_label_encoder=False, eval_metric='logloss')
+        model = XGBClassifier(
+            reg_alpha=reg_alpha,
+            reg_lambda=reg_lambda,
+            learning_rate=learning_rate,
+            n_estimators=n_estimators,
+            random_state=random_state,
+            nthread=n_jobs,
+            eval_metric='logloss',
+        )
     elif model_type == 'lightgbm':
         try:
             from lightgbm import LGBMClassifier
