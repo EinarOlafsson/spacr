@@ -144,7 +144,9 @@ def make_all_df(
 # ---------------------------------------------------------------------------
 
 def _install_fake_umap(monkeypatch, fail_when=None, scale_by="n_neighbors"):
-    """Inject a deterministic fake ``umap`` module into ``sys.modules``."""
+    """Install a deterministic fake at spaCR's lazy UMAP boundary."""
+    from spacr import utils
+
     mod = types.ModuleType("umap")
     calls = []
 
@@ -162,7 +164,7 @@ def _install_fake_umap(monkeypatch, fail_when=None, scale_by="n_neighbors"):
             return np.asarray(X[:, :2], dtype=float) * float(scale)
 
     mod.UMAP = UMAP
-    monkeypatch.setitem(sys.modules, "umap", mod)
+    monkeypatch.setattr(utils, "umap", mod)
     return calls
 
 
@@ -797,8 +799,9 @@ def test_qc_plot_failure_is_reported_not_raised(tmp_path, capsys):
 
 def test_qc_umap_unavailable_falls_back_to_pca(monkeypatch, capsys):
     from spacr.timelapse import _infection_qc_pca_clustering
+    from spacr import utils
 
-    monkeypatch.setitem(sys.modules, "umap", None)
+    monkeypatch.setattr(utils, "umap", None)
     df = make_all_df(n_infected=60, n_uninfected=60, n_frames=1)
     settings = {"infection_intensity_strategy": "umap"}
     out, col = _infection_qc_pca_clustering(df, settings, "infected", 2, None)
