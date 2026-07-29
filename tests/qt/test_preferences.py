@@ -172,11 +172,11 @@ def test_palette_for_returns_light_for_light(qt_theme_applied):
     returns a NEW dict merging the base palette with the constant
     roles, so identity-compare no longer holds. Value-compare the
     theme-specific colours instead."""
-    from spacr.qt.theme import palette_for, PALETTE, LIGHT_PALETTE
+    from spacr.qt.theme import palette_for, DARK_PALETTE, LIGHT_PALETTE
     for key in ("bg", "surface", "fg", "accent"):
         assert palette_for("light")[key] == LIGHT_PALETTE[key]
-        assert palette_for("dark")[key] == PALETTE[key]
-        assert palette_for("bogus")[key] == PALETTE[key]     # fallback
+        assert palette_for("dark")[key] == DARK_PALETTE[key]
+        assert palette_for("bogus")[key] == DARK_PALETTE[key]     # fallback
 
 
 def test_apply_preferences_to_app_does_not_raise(qt_theme_applied):

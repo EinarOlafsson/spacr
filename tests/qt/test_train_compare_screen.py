@@ -555,7 +555,7 @@ def test_the_plot_follows_the_light_theme_when_that_is_the_preference(
 def test_an_unreadable_theme_preference_falls_back_to_dark(screen, run_root,
                                                            monkeypatch):
     import spacr.qt.preferences as prefs
-    from spacr.qt.theme import PALETTE
+    from spacr.qt.theme import DARK_PALETTE
 
     def boom():
         raise RuntimeError("no QSettings here")
@@ -565,7 +565,7 @@ def test_an_unreadable_theme_preference_falls_back_to_dark(screen, run_root,
     screen.select_runs([_id_for(screen, "dsA")])
     screen.overlay()
     ax = screen.figure().axes[0]
-    assert ax.get_facecolor()[:3] == pytest.approx(_rgb(PALETTE["surface"]),
+    assert ax.get_facecolor()[:3] == pytest.approx(_rgb(DARK_PALETTE["surface"]),
                                                    abs=1e-3)
 
 

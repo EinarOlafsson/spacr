@@ -13,11 +13,11 @@ def test_palette_has_required_keys():
         "accent", "accent_hi", "accent_lo",
         "success", "warning", "error", "info",
     }
-    assert required.issubset(theme.PALETTE.keys())
+    assert required.issubset(theme.DARK_PALETTE.keys())
 
 
 def test_palette_uses_hex_colors():
-    for name, value in theme.PALETTE.items():
+    for name, value in theme.DARK_PALETTE.items():
         assert value.startswith("#") and len(value) == 7, \
             f"{name} = {value!r} is not a #rrggbb hex color"
 
@@ -32,7 +32,7 @@ def test_stylesheet_is_non_empty_and_references_palette():
     qss = theme.stylesheet()
     assert isinstance(qss, str) and len(qss) > 1000
     # Must include the accent color so at least one selector is styled.
-    assert theme.PALETTE["accent"] in qss
+    assert theme.DARK_PALETTE["accent"] in qss
     # Common named selectors we rely on.
     for name in ("#Sidebar", "#SidebarItem", "#Card", "#Tile",
                  "#PrimaryButton", "#DangerButton", "#Console",
@@ -44,6 +44,6 @@ def test_apply_qpalette_sets_expected_colors(qapp):
     from PySide6.QtGui import QPalette, QColor
     theme.apply_qpalette(qapp)
     pal = qapp.palette()
-    assert pal.color(QPalette.Window) == QColor(theme.PALETTE["bg"])
-    assert pal.color(QPalette.WindowText) == QColor(theme.PALETTE["fg"])
-    assert pal.color(QPalette.Highlight) == QColor(theme.PALETTE["accent"])
+    assert pal.color(QPalette.Window) == QColor(theme.DARK_PALETTE["bg"])
+    assert pal.color(QPalette.WindowText) == QColor(theme.DARK_PALETTE["fg"])
+    assert pal.color(QPalette.Highlight) == QColor(theme.DARK_PALETTE["accent"])

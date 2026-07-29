@@ -43,7 +43,7 @@ class TestPalettes:
     def test_every_theme_resolves_to_a_complete_palette(self, name):
         """No theme may be missing a key the stylesheet reaches for."""
         palette = theme.palette_for(name)
-        required = set(theme.PALETTE) | set(theme.CONSTANT_ROLES)
+        required = set(theme.DARK_PALETTE) | set(theme.CONSTANT_ROLES)
         missing = required - set(palette)
         assert not missing, f"{name} palette is missing {sorted(missing)}"
 

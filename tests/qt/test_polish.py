@@ -7,7 +7,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QLabel, QPushButton
 
 from spacr.qt import iconset
-from spacr.qt.theme import PALETTE, TYPOGRAPHY, stylesheet
+from spacr.qt.theme import DARK_PALETTE, TYPOGRAPHY, stylesheet
 from spacr.qt.widgets import EmptyState
 from spacr.qt.widgets.empty_state import _WrappedLabel
 
@@ -54,8 +54,8 @@ def test_typography_roles_defined():
 
 
 def test_palette_gains_surface_hi_and_accent_soft():
-    assert PALETTE["surface_hi"].startswith("#")
-    assert PALETTE["accent_soft"].startswith("#")
+    assert DARK_PALETTE["surface_hi"].startswith("#")
+    assert DARK_PALETTE["accent_soft"].startswith("#")
 
 
 def test_stylesheet_references_new_selectors():

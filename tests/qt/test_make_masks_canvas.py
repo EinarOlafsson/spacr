@@ -34,7 +34,7 @@ from spacr.qt.screens.make_masks import (
     _MaskCanvas,
     is_headless,
 )
-from spacr.qt.theme import PALETTE
+from spacr.qt.theme import DARK_PALETTE
 
 
 # ---------------------------------------------------------------------------
@@ -82,7 +82,7 @@ def accent_pixels(qimg) -> int:
     im = qimg.convertToFormat(QImage.Format_RGB32)
     arr = np.frombuffer(im.constBits(), dtype=np.uint32).reshape(
         im.height(), im.bytesPerLine() // 4)
-    return int((arr == np.uint32(QColor(PALETTE["accent"]).rgb())).sum())
+    return int((arr == np.uint32(QColor(DARK_PALETTE["accent"]).rgb())).sum())
 
 
 def block_image() -> np.ndarray:

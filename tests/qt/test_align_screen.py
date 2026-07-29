@@ -221,24 +221,24 @@ def test_a_tile_that_did_not_register_is_orange_and_named(screen,
     assert "placed by stage position only" in screen.report_text()
 
     # 3. the layout paints them in the warning colour
-    from spacr.qt.theme import PALETTE
+    from spacr.qt.theme import DARK_PALETTE
     for placement in plan.placements:
         colour = confidence_colour(placement.confidence, placement.method)
-        assert colour == QColor(PALETTE["warning"])
+        assert colour == QColor(DARK_PALETTE["warning"])
 
 
 def test_confidence_colour_ramps_and_flags():
-    from spacr.qt.theme import PALETTE
-    warning = QColor(PALETTE["warning"])
+    from spacr.qt.theme import DARK_PALETTE
+    warning = QColor(DARK_PALETTE["warning"])
     assert confidence_colour(0.0, align_mod.METHOD_NOMINAL) == warning
     assert confidence_colour(0.9, align_mod.METHOD_NOMINAL) == warning, \
         "a nominal placement is orange whatever its score"
     assert confidence_colour(0.0, align_mod.METHOD_UNREADABLE) == \
-        QColor(PALETTE["error"])
+        QColor(DARK_PALETTE["error"])
     weak = confidence_colour(0.35, align_mod.METHOD_REGISTRATION)
     strong = confidence_colour(1.0, align_mod.METHOD_REGISTRATION)
     assert weak != strong
-    assert strong == QColor(PALETTE["accent"])
+    assert strong == QColor(DARK_PALETTE["accent"])
 
 
 def test_plan_without_a_source_reports_inline(screen):

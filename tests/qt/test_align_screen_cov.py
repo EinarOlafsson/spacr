@@ -35,7 +35,7 @@ from PySide6.QtWidgets import QFileDialog
 
 from spacr import align as align_mod
 from spacr.qt.screens.align import AlignScreen, TileLayoutWidget
-from spacr.qt.theme import PALETTE
+from spacr.qt.theme import DARK_PALETTE
 
 
 # ---------------------------------------------------------------------------
@@ -133,7 +133,7 @@ def test_the_layout_paints_a_registered_tile_in_the_accent_colour(
     assert image.width() == 420 and image.height() == 420
 
     background = _colour_at(image, QPoint(1, 1))
-    assert background == QColor(PALETTE["surface"]), \
+    assert background == QColor(DARK_PALETTE["surface"]), \
         "the void around the layout is the surface colour"
 
     rects = dict(view.tile_rects())
@@ -147,7 +147,7 @@ def test_the_layout_paints_a_registered_tile_in_the_accent_colour(
                        int(rect.top() + rect.height() * 0.2))
         painted = _colour_at(image, probe)
         assert painted != background, f"tile {index} was not drawn"
-        assert painted == QColor(PALETTE["accent"]), \
+        assert painted == QColor(DARK_PALETTE["accent"]), \
             f"tile {index} registered at {by_index[index].confidence:.2f} " \
             f"but was not painted at full accent"
 
@@ -162,8 +162,8 @@ def test_a_nominal_tile_is_painted_orange_and_hatched(screen, flat_folder):
     view.resize(420, 420)
     image = _painted(view)
 
-    warning = QColor(PALETTE["warning"]).name()
-    surface = QColor(PALETTE["surface"]).name()
+    warning = QColor(DARK_PALETTE["warning"]).name()
+    surface = QColor(DARK_PALETTE["surface"]).name()
     rects = dict(view.tile_rects())
     assert len(rects) == 2
     for index, rect in rects.items():
@@ -190,7 +190,7 @@ def test_the_empty_state_hint_is_painted_when_there_is_no_plan(
     assert view.tile_rects() == []
 
     image = _painted(view)
-    surface = QColor(PALETTE["surface"])
+    surface = QColor(DARK_PALETTE["surface"])
     assert _colour_at(image, QPoint(2, 2)) == surface
     # The hint text is drawn centred, so *something* in the middle band is
     # not the background colour.
@@ -217,7 +217,7 @@ def test_a_canvas_with_no_area_draws_nothing_instead_of_dividing_by_zero(
     assert view.tile_rects() == []
 
     image = _painted(view)
-    assert _colour_at(image, QPoint(1, 1)) == QColor(PALETTE["surface"])
+    assert _colour_at(image, QPoint(1, 1)) == QColor(DARK_PALETTE["surface"])
 
 
 def test_tiny_tiles_are_drawn_without_a_label(qtbot, qt_theme_applied):
@@ -249,7 +249,7 @@ def test_tiny_tiles_are_drawn_without_a_label(qtbot, qt_theme_applied):
     assert image.width() == 120
     names = {image.pixelColor(x, y).name()
              for y in range(10, 110, 2) for x in range(10, 110, 2)}
-    assert QColor(PALETTE["accent"]).name() in names, \
+    assert QColor(DARK_PALETTE["accent"]).name() in names, \
         "the tiles were not painted at all"
     # 400 outlined rectangles in a 120 px box: the antialiased borders
     # leave many blend colours, not a flat wash of accent.
