@@ -1529,7 +1529,8 @@ def generate_shap_summary_plot(df,target='prauc', clean=True, dst=None):
     shap_values = explainer.shap_values(X)
 
     # Summary plot
-    shap.summary_plot(shap_values, X)
+    shap.summary_plot(
+        shap_values, X, rng=np.random.default_rng(42))
     save_shap_plot(plt.gcf(), src=_figures_dst(dst), variable='shap', i=1)
     #save_shap_plot(fig, src, variable, i)
     return plt.gcf()
