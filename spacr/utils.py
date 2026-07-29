@@ -7433,7 +7433,8 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
     :param organelle_folder: optional folder of organelle masks.
     :param overlap_threshold: fractional overlap threshold used by the merger.
     :param perimeter_threshold: shared-perimeter threshold used by the merger.
-    :param n_jobs: worker count; defaults to ``cpu_count() - 2``.
+    :param n_jobs: worker count; ``None`` defaults to ``cpu_count() - 2`` and
+        values below two run inline without starting a child process.
     :returns: None.
     :raises ValueError: if the three folders contain different numbers of files.
     """
@@ -7451,7 +7452,10 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
     else:
         organelle_folder = None
 
-    n_jobs = n_jobs or max(1, cpu_count() - 2)
+    if n_jobs is None:
+        n_jobs = max(1, cpu_count() - 2)
+    else:
+        n_jobs = max(1, int(n_jobs))
 
     time_ls = []
     files_to_process = len(parasite_files)
@@ -7463,10 +7467,20 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
                          overlap_threshold=overlap_threshold,
                          perimeter_threshold=perimeter_threshold)
 
-    with Pool(n_jobs) as pool:
-        for i, duration in enumerate(pool.imap_unordered(process_fn, parasite_files), 1):
+    if n_jobs == 1:
+        durations = map(process_fn, parasite_files)
+        for i, duration in enumerate(durations, 1):
             time_ls.append(duration)
             print_progress(i, files_to_process, n_jobs=n_jobs, time_ls=time_ls, batch_size=None, operation_type='adjust_cell_masks')
+        return
+
+    with Pool(n_jobs) as pool:
+        for i, duration in enumerate(
+                pool.imap_unordered(process_fn, parasite_files), 1):
+            time_ls.append(duration)
+            print_progress(i, files_to_process, n_jobs=n_jobs, time_ls=time_ls,
+                           batch_size=None,
+                           operation_type='adjust_cell_masks')
 
 def process_masks(mask_folder, image_folder, channel, batch_size=50, n_clusters=2, plot=False):
     """Cluster object morphology/intensity across a mask folder and keep the largest cluster in place.
