@@ -895,7 +895,9 @@ class TestUmapMissing:
         assert r.ok
 
     def test_umap_available_is_true_when_it_imports(self):
-        pytest.importorskip("umap")
+        available, message = umap_available()
+        if not available:
+            pytest.skip(message)
         assert umap_available() == (True, "")
 
 
@@ -926,7 +928,7 @@ def test_lazy_module_reports_an_incompatible_installed_version(monkeypatch):
     proxy = U._LazyModule(
         "umap.umap_",
         minimum_distribution=(
-            "umap-learn", "0.5.10",
+            "umap-learn", "0.5.11",
             "Older releases call scikit-learn's removed API.",
         ),
     )
@@ -936,7 +938,7 @@ def test_lazy_module_reports_an_incompatible_installed_version(monkeypatch):
         proxy.UMAP
     message = str(exc.value)
     assert "umap-learn 0.5.6" in message
-    assert "0.5.10" in message
+    assert "0.5.11" in message
     assert "pip install --upgrade" in message
     assert proxy.__dict__["_module"] is None
 
@@ -1251,6 +1253,7 @@ class TestRunSearchForApp:
         import spacr.hyperparam as hp
         X, _y, tear, merge = tear_and_merge
         table = {0.0: tear, 0.5: merge}
+        monkeypatch.setattr(hp, "umap_available", lambda: (True, ""))
         monkeypatch.setattr(
             hp, "_default_umap_embed",
             lambda feats, params, seed: table[params["min_dist"]])
