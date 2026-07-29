@@ -112,8 +112,8 @@ def _nav(window: QMainWindow, key: str) -> None:
 
 def _nav_by_index(window: QMainWindow, idx: int) -> None:
     try:
-        from .app import APPS
-        if 0 <= idx < len(APPS):
+        from .app import APPS, app_is_visible
+        if 0 <= idx < len(APPS) and app_is_visible(APPS[idx][0]):
             _nav(window, APPS[idx][0])
     except Exception:
         pass

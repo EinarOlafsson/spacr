@@ -108,15 +108,19 @@ class CommandPalette(QDialog):
     # -- collection --------------------------------------------------------
     def _collect_commands(self) -> None:
         try:
-            from .app import APPS, app_stage
+            from .app import app_is_visible, app_stage, visible_apps
+            apps = visible_apps()
         except Exception:
-            APPS = []
+            apps = []
 
             def app_stage(_key):
                 return "stable"
 
+            def app_is_visible(_key):
+                return True
+
         # Apps
-        for key, name, desc, section in APPS:
+        for key, name, desc, section in apps:
             # The badge is the app's category — the same single grouping
             # Home and the sidebar use, now that maturity is a colour
             # rather than a second set of sections. How finished an app
@@ -169,6 +173,8 @@ class CommandPalette(QDialog):
         try:
             from ..run_journal import recent_runs
             for r in recent_runs(limit=8):
+                if not app_is_visible(str(r.get("app_key", ""))):
+                    continue
                 dur = f"{r.get('elapsed_s', 0) or 0:.1f}s"
                 status = r.get("status", "?")
                 dir_name = r["dir"].name

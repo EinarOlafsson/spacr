@@ -2,8 +2,8 @@
 User-facing preferences — theme, font scale, colour-blind mode.
 
 Persistent settings backed by :class:`PySide6.QtCore.QSettings`, so
-they survive app restarts. Three knobs today; more can slot in
-alongside without changing consumers thanks to the small typed API
+they survive app restarts. New knobs can slot in alongside the existing
+ones without changing consumers thanks to the small typed API
 (``get_theme()`` / ``set_theme(...)`` etc.).
 
 Wire-up:
@@ -28,6 +28,8 @@ Public API::
         get_db_browser_editable, set_db_browser_editable,
         get_dock_mode, set_dock_mode,
         get_pane_opacity, set_pane_opacity, effective_pane_alpha,
+        get_show_alpha, set_show_alpha,
+        get_show_beta, set_show_beta, maturity_is_visible,
         apply_preferences_to_app,
         PreferencesDialog,
     )
@@ -59,6 +61,9 @@ Values:
   are, or the relative material strength in Glass. Clamped up to
   :func:`spacr.qt.theme.pane_alpha_floor` at paint time — the
   preference is a request, legibility is not negotiable.
+* ``show_alpha`` / ``show_beta``: bool, both default ``True``. Control
+  whether modules and settings at that maturity are shown. Stable features
+  are always visible.
 """
 from __future__ import annotations
 
@@ -80,6 +85,8 @@ _KEY_VERBOSE_LOG = "prefs/verbose_logging"
 _KEY_DB_EDIT     = "prefs/db_browser_editable"
 _KEY_DOCK_MODE   = "prefs/dock_mode"
 _KEY_PANE_OPACITY = "prefs/pane_opacity"
+_KEY_SHOW_ALPHA = "prefs/show_alpha"
+_KEY_SHOW_BETA = "prefs/show_beta"
 
 #: Themes with a palette of their own — mirrors
 #: :data:`spacr.qt.theme.THEMES`, restated here so importing this module
@@ -565,6 +572,50 @@ def set_db_browser_editable(on: bool) -> None:
     settings.sync()
 
 
+# ---------------------------------------------------------------------------
+# Feature maturity — visibility of unfinished modules and settings
+# ---------------------------------------------------------------------------
+
+DEFAULT_SHOW_ALPHA = True
+DEFAULT_SHOW_BETA = True
+
+
+def get_show_alpha() -> bool:
+    """Whether Alpha modules and settings are visible (default: ``True``)."""
+    return _as_bool(_settings().value(_KEY_SHOW_ALPHA, DEFAULT_SHOW_ALPHA),
+                    DEFAULT_SHOW_ALPHA)
+
+
+def set_show_alpha(on: bool) -> None:
+    """Show or hide modules and settings classified as Alpha."""
+    _settings().setValue(_KEY_SHOW_ALPHA, bool(on))
+
+
+def get_show_beta() -> bool:
+    """Whether Beta modules and settings are visible (default: ``True``)."""
+    return _as_bool(_settings().value(_KEY_SHOW_BETA, DEFAULT_SHOW_BETA),
+                    DEFAULT_SHOW_BETA)
+
+
+def set_show_beta(on: bool) -> None:
+    """Show or hide modules and settings classified as Beta."""
+    _settings().setValue(_KEY_SHOW_BETA, bool(on))
+
+
+def maturity_is_visible(stage: str) -> bool:
+    """Return whether a maturity stage should be present in the UI.
+
+    Unknown stages are treated as stable. Stable features cannot be hidden;
+    the two preferences are deliberately scoped to unfinished features.
+    """
+    normalized = str(stage or "stable").strip().lower()
+    if normalized == "alpha":
+        return get_show_alpha()
+    if normalized == "beta":
+        return get_show_beta()
+    return True
+
+
 def color_blind_continuous_cmap() -> str:
     """Return a matplotlib colormap name safe for the active CB mode.
 
@@ -901,6 +952,30 @@ class PreferencesDialog:
         db_edit_check.setChecked(get_db_browser_editable())
         form.addRow("Database Browser", db_edit_check)
 
+        # Feature maturity. Both are opt-out: existing users and fresh
+        # installs continue to see every feature until they choose a quieter,
+        # stable-only interface.
+        alpha_check = QCheckBox("Show Alpha modules and settings")
+        alpha_check.setObjectName("ShowAlphaFeatures")
+        alpha_check.setToolTip(
+            "Hide modules and settings that are built but not yet trusted "
+            "end to end. Stable and Beta features are unaffected."
+        )
+        alpha_check.setChecked(get_show_alpha())
+
+        beta_check = QCheckBox("Show Beta modules and settings")
+        beta_check.setObjectName("ShowBetaFeatures")
+        beta_check.setToolTip(
+            "Hide modules and settings that are in regular use but not yet "
+            "signed off. Stable and Alpha features are unaffected."
+        )
+        beta_check.setChecked(get_show_beta())
+        maturity_col = QVBoxLayout()
+        maturity_col.setContentsMargins(0, 0, 0, 0)
+        maturity_col.addWidget(alpha_check)
+        maturity_col.addWidget(beta_check)
+        form.addRow("Feature maturity", _hbox_wrap(maturity_col))
+
         # Figures — display format (png = lighter / faster, pdf = vector +
         # editable via the figure-settings button) and the PNG resolution.
         fig_format_combo = QComboBox()
@@ -948,6 +1023,8 @@ class PreferencesDialog:
             set_color_blind_mode(cb_combo.currentData())
             set_verbose_logging(verbose_check.isChecked())
             set_db_browser_editable(db_edit_check.isChecked())
+            set_show_alpha(alpha_check.isChecked())
+            set_show_beta(beta_check.isChecked())
             set_figure_format(fig_format_combo.currentData())
             set_figure_png_dpi(png_dpi_combo.currentData())
             apply_preferences_to_app()

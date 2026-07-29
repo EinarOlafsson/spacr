@@ -513,6 +513,13 @@ class AppScreen(QWidget):
         if self._empty_state_card is not None:
             layout.addWidget(self._empty_state_card)
 
+        self._settings_sections = []
+        self._maturity_notice = QLabel()
+        self._maturity_notice.setObjectName("MaturityVisibilityNotice")
+        self._maturity_notice.setWordWrap(True)
+        self._maturity_notice.hide()
+        layout.addWidget(self._maturity_notice)
+
         if not sections:
             layout.addWidget(QLabel("No settings defined for this app."))
         # Map widget → plain-text hint so the bottom hint strip AND our
@@ -523,6 +530,7 @@ class AppScreen(QWidget):
             section.set_maturity(
                 settings_section_maturity(self.app_key, title)
             )
+            self._settings_sections.append(section)
             # Attach a per-section tooltip so hovering the header tells
             # users what the settings inside actually control. Falls
             # back to a generic "settings for <TITLE>" if the section
@@ -555,9 +563,36 @@ class AppScreen(QWidget):
                 self._attach_column_picker(field_key, widget)
             layout.addWidget(section)
 
+        self.refresh_maturity_visibility()
         layout.addStretch(1)
         scroll.setWidget(content)
         return scroll
+
+    def refresh_maturity_visibility(self) -> None:
+        """Show/hide Alpha and Beta settings without discarding typed values."""
+        from ..preferences import maturity_is_visible
+
+        hidden_stages = set()
+        for section in getattr(self, "_settings_sections", []):
+            visible = maturity_is_visible(section.maturity())
+            section.setVisible(visible)
+            if not visible:
+                hidden_stages.add(section.maturity())
+
+        notice = getattr(self, "_maturity_notice", None)
+        if notice is None:
+            return
+        if hidden_stages:
+            labels = " and ".join(stage.title()
+                                  for stage in ("alpha", "beta")
+                                  if stage in hidden_stages)
+            notice.setText(
+                f"{labels} settings are hidden by Preferences. "
+                "Enable them in Preferences → Feature maturity."
+            )
+            notice.show()
+        else:
+            notice.hide()
 
     def _attach_column_picker(self, key, widget) -> None:
         """Give a column-name field its "SQL" button; a no-op for anything else.
