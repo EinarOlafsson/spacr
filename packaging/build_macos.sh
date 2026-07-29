@@ -7,7 +7,7 @@
 #
 # Prerequisites (checked below):
 #   * macOS 11 (Big Sur) or newer
-#   * python3.10+ on PATH
+#   * python3.9+ on PATH
 #   * spacr installed in the current environment
 #   * pyinstaller >= 6.0
 #   * hdiutil (ships with macOS)

@@ -56,9 +56,9 @@ rm -rf deb_dist dist/*.deb
 cat > /tmp/spacr-stdeb.cfg <<'CFG'
 [DEFAULT]
 Package: spacr
-Depends3: python3 (>= 3.10), libgl1, libglib2.0-0, libsm6, libxext6, libxrender1, libxft2, libtk8.6, python3-tk
+Depends3: python3 (>= 3.9), libgl1, libglib2.0-0, libsm6, libxext6, libxrender1, libxft2, libtk8.6, python3-tk
 Suggests3: python3-torch, python3-torchvision
-XS-Python-Version: >= 3.10
+XS-Python-Version: >= 3.9
 CFG
 
 echo "==> running stdeb"

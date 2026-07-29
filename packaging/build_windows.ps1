@@ -1,13 +1,13 @@
 # build_windows.ps1 — produce dist/SpaCR-<version>.exe on Windows 10+
 #
 # Run from the spacr repo root in a "Developer PowerShell" (or plain PS)
-# with a Python 3.10+ interpreter on PATH:
+# with a Python 3.9+ interpreter on PATH:
 #
 #     .\packaging\build_windows.ps1
 #
 # Prerequisites (checked before build):
 #   * Windows 10 or newer (x64)
-#   * python.exe on PATH, version >= 3.10
+#   * python.exe on PATH, version >= 3.9
 #   * spacr installed in a venv (or global)
 #   * pyinstaller >= 6.0
 #

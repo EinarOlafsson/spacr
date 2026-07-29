@@ -3,7 +3,7 @@ name: compat-matrix
 # ---------------------------------------------------------------------------
 # The compatibility grid.
 #
-# spaCR claims Python 3.10-3.12 on Linux, macOS and Windows. Before this
+# spaCR claims Python 3.9-3.13 on Linux, macOS and Windows. Before this
 # workflow existed, exactly one cell of that grid had ever been executed:
 # ubuntu-22.04 / CPython 3.10, in tests.yml. Every other claim in the
 # classifiers, the README and the install docs was inference from wheel
@@ -155,7 +155,7 @@ jobs:
           set -e
           echo "$out"
           if [ $rc -ne 0 ]; then
-            echo "::error::pip refused spacr on Python 3.13. requires-python claims >=3.10,<3.14 and the classifiers claim 3.13."
+            echo "::error::pip refused spacr on Python 3.13. requires-python claims >=3.9,<3.14 and the classifiers claim 3.13."
             exit 1
           fi
           echo "OK: pip accepted spacr on 3.13."
@@ -184,8 +184,8 @@ jobs:
         # being tested here.
         #
         # Verified by hand on 2026-07-27 in throwaway conda envs on CPython
-        # 3.10.20, 3.11.15, 3.12.13 and 3.13.14: all four resolve, landing on
-        # numpy 2.2.6 (3.10) and numpy 2.4.6 (3.11-3.13).
+        # 3.9.25, 3.10.20, 3.11.15, 3.12.13 and 3.13.14: all five resolve,
+        # landing on the newest compatible NumPy line for each interpreter.
         run: |
           set +e
           out=$(python -m pip install --dry-run \

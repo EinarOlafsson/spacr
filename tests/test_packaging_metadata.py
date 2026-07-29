@@ -53,7 +53,7 @@ WORKFLOWS = REPO_ROOT / ".github" / "workflows"
 
 # ---------------------------------------------------------------------------
 # Readers. No dependency on spacr, and no hard dependency on a TOML parser:
-# tomllib is stdlib only from 3.11, and 3.10 is the floor spaCR supports.
+# tomllib is stdlib only from 3.11; spaCR also supports Python 3.9/3.10.
 # ---------------------------------------------------------------------------
 
 def _toml_loads(text: str):
@@ -62,7 +62,7 @@ def _toml_loads(text: str):
         import tomllib  # Python >= 3.11
     except ModuleNotFoundError:
         try:
-            import tomli as tomllib  # declared in the `dev` extra for 3.10
+            import tomli as tomllib  # declared in `dev` below Python 3.11
         except ModuleNotFoundError:
             return None
     return tomllib.loads(text)
@@ -176,12 +176,12 @@ def test_pyproject_declares_requires_python():
     assert spec.strip(), "requires-python is empty"
 
 
-def test_requires_python_admits_310_through_313_and_nothing_else():
+def test_requires_python_admits_39_through_313_and_nothing_else():
     """The supported range is evidence-bounded, in both directions.
 
-    Floor 3.10: 3.9 is *resolvable* (torch 2.8.0 still ships cp39 wheels) but
-    no spaCR test has ever run on it, and keeping it drags numba, llvmlite and
-    pingouin backwards.
+    Floor 3.9: this is a supported interpreter in real use. Its resolver
+    selects torch 2.8 and the last compatible PySide6, numba, llvmlite,
+    pingouin and IPython lines; a blocking CI cell exercises that branch.
 
     Ceiling <3.14: pylibCZIrw publishes no cp314 wheel at any version (checked
     through 6.1.0) and ``spacr/io.py`` imports it at module scope, so 3.14
@@ -203,8 +203,8 @@ def test_requires_python_admits_310_through_313_and_nothing_else():
     from packaging.version import Version
 
     spec = SpecifierSet(_requires_python())
-    supported = ["3.10", "3.11", "3.12", "3.13"]
-    unsupported = ["3.7", "3.8", "3.9", "3.14"]
+    supported = ["3.9", "3.10", "3.11", "3.12", "3.13"]
+    unsupported = ["3.7", "3.8", "3.14"]
 
     for v in supported:
         assert spec.contains(Version(v + ".0")), \
@@ -719,7 +719,8 @@ def test_pyproject_does_not_statically_declare_dynamic_fields():
     """A field cannot be both static and dynamic; setuptools errors out."""
     data = _toml_loads(_pyproject_text())
     if data is None:
-        pytest.skip("no TOML parser available (install tomli on Python 3.10)")
+        pytest.skip(
+            "no TOML parser available (install tomli on Python 3.9/3.10)")
     project = data["project"]
     for field in _dynamic_fields():
         assert field not in project, (
