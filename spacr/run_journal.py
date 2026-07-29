@@ -454,6 +454,8 @@ def _read_settings_csv(path: Path) -> Dict[str, Any]:
     out: Dict[str, Any] = {}
     with open(path) as f:
         for row in csv.reader(f):
+            if any("\x00" in cell for cell in row):
+                raise csv.Error("embedded NUL byte in settings CSV")
             if row and row[0] and row[0] != "Key":
                 out[row[0]] = row[1] if len(row) > 1 else ""
     return out
