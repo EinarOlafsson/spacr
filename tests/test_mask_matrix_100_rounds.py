@@ -21,7 +21,8 @@ Two entry points are exercised:
 
 Marked @slow + @gpu. Full 100-round run is ~6-12 min on a GPU box
 (1 well × 1 field × 96 px keeps each Cellpose call short). Skips
-cleanly without CUDA / cellpose.
+cleanly unless ``SPACR_RUN_GPU_MATRIX=1`` is set and CUDA / Cellpose
+are available.
 
 Because 100 separate pytest params would flood the report, the matrix
 runs as ONE test that collects per-round failures and asserts none —
@@ -47,6 +48,13 @@ import pytest
 # ---------------------------------------------------------------------------
 
 def _require_gpu_cellpose():
+    import os
+
+    if os.environ.get("SPACR_RUN_GPU_MATRIX", "").strip().lower() not in {
+        "1", "true", "yes", "on",
+    }:
+        pytest.skip(
+            "set SPACR_RUN_GPU_MATRIX=1 to run the 100-round GPU matrix")
     try:
         import torch
     except Exception as e:
