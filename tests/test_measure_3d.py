@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import os
 import sqlite3
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -875,17 +876,43 @@ def test_summarize_organelles_drops_eccentricity_in_3d():
     organelle[2, 16:20, 16:20] = 2
     chans = _channels((z, y, x), n=2)
 
-    df = M._summarize_organelles_per_parent(
-        organelle, parent, chans, parent_name='cell', spacing=(4.0, 1.0, 1.0))
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        df = M._summarize_organelles_per_parent(
+            organelle, parent, chans, parent_name='cell',
+            spacing=(4.0, 1.0, 1.0))
     assert df['organelle_count'].iloc[0] == 2
     assert 'organelle_mean_eccentricity' not in df.columns
     assert 'organelle_mean_solidity' in df.columns
+    assert np.isnan(df['organelle_mean_solidity'].iloc[0])
     assert 0 < df['organelle_fraction'].iloc[0] < 1
+    assert not [warning for warning in caught
+                if issubclass(warning.category, (RuntimeWarning, UserWarning))]
 
     # 2-D keeps it.
     flat = M._summarize_organelles_per_parent(
         organelle[2], parent[2], chans[2], parent_name='cell')
     assert 'organelle_mean_eccentricity' in flat.columns
+
+
+def test_flat_3d_morphology_marks_convex_geometry_undefined_without_warning():
+    """A one-plane label is valid 3-D input but has no convex *volume*."""
+    cell = np.zeros((3, 12, 12), np.uint16)
+    cell[1, 3:9, 3:9] = 1
+    zero = np.zeros_like(cell)
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        cell_df, _n, _p, _o, _c = M._morphological_measurements(
+            cell, zero, zero, zero, zero,
+            _settings(cell_mask_dim=0, nucleus_mask_dim=None, anisotropy=1.0),
+            zernike=False)
+
+    assert np.isnan(cell_df['cell_convex_area'].iloc[0])
+    assert np.isnan(cell_df['cell_solidity'].iloc[0])
+    assert np.isnan(cell_df['cell_feret_diameter_max'].iloc[0])
+    assert not [warning for warning in caught
+                if issubclass(warning.category, (RuntimeWarning, UserWarning))]
 
 
 def test_generate_object_dataset_refuses_a_volumetric_array(tmp_path):

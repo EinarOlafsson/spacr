@@ -559,6 +559,46 @@ def _analyze_cytoskeleton(array, mask, channel):
 
     return pd.DataFrame(properties_list)
 
+def _safe_morphology_table(mask, properties, spacing=None):
+    """Return morphology properties without asking Qhull to hull flat volumes.
+
+    A valid 3-D label may occupy one z plane (or form a line).  scikit-image
+    delegates ``convex_area`` and ``solidity`` to Qhull, which warns for those
+    lower-dimensional objects and then reports an empty hull / infinite
+    solidity.  Their 3-D convex volume is undefined, so expose it as NaN while
+    leaving full-dimensional objects and the entire 2-D path unchanged.
+    """
+    guarded = {
+        'convex_area', 'area_convex', 'solidity', 'feret_diameter_max',
+    }
+    requested = list(properties)
+    if _ndim_of(mask) != 3 or not guarded.intersection(requested):
+        return pd.DataFrame(
+            regionprops_table(mask, properties=requested, spacing=spacing))
+
+    safe_properties = [prop for prop in requested if prop not in guarded]
+    frame = pd.DataFrame(
+        regionprops_table(mask, properties=safe_properties, spacing=spacing))
+    regions = regionprops(mask, spacing=spacing)
+    full_dimensional = [
+        np.linalg.matrix_rank(
+            region.coords - region.coords.mean(axis=0)) == 3
+        for region in regions
+    ]
+    for prop in requested:
+        if prop not in guarded:
+            continue
+        region_property = 'area_convex' if prop == 'convex_area' else prop
+        frame[prop] = [
+            float(getattr(region, region_property)) if full_rank else np.nan
+            for region, full_rank in zip(regions, full_dimensional)
+        ]
+
+    # Added guarded columns belong where callers requested them, not at the
+    # end.  (All morphology properties here are scalar columns.)
+    return frame[[prop for prop in requested if prop in frame.columns]]
+
+
 def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_mask, cytoplasm_mask, settings, zernike=None, degree=8):
     """Return morphology + Zernike DataFrames for cells, nuclei, pathogens, organelles, cytoplasm.
 
@@ -602,9 +642,8 @@ def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organell
 
     def _props(mask):
         """regionprops_table + (3-D only) the explicitly-named volume columns."""
-        frame = pd.DataFrame(
-            regionprops_table(mask, properties=morphological_props,
-                              spacing=spacing))
+        frame = _safe_morphology_table(
+            mask, properties=morphological_props, spacing=spacing)
         if ndim == 3 and len(frame) > 0:
             for name, values in _voxel_volume_columns(
                     mask, frame['label'].tolist(), stamp).items():
@@ -734,8 +773,8 @@ def _summarize_organelles_per_parent(organelle_mask, parent_mask, channel_arrays
                                if p not in PROPS_2D_ONLY]
 
     # Get per-organelle morphology
-    organelle_props = regionprops_table(organelle_mask, properties=morphological_props, spacing=spacing)
-    organelle_df = pd.DataFrame(organelle_props)
+    organelle_df = _safe_morphology_table(
+        organelle_mask, properties=morphological_props, spacing=spacing)
 
     # Map each organelle to its parent
     organelle_to_parent = _map_child_to_parent(organelle_mask, parent_mask, 
