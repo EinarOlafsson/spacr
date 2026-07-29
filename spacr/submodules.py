@@ -1423,9 +1423,12 @@ def interperate_vision_model(settings=None):
                         new_col_name = f"{prefix}_{comp0}{base_col_name}"  # Format: prefix_comp0_base
 
                         # Calculate ratio and handle infinite or NaN values
-                        df[new_col_name] = df[related_col] / df[comp0_col]
-                        df[new_col_name].replace([float('inf'), -float('inf')], pd.NA, inplace=True)  # Replace inf values with NA
-                        df[new_col_name].fillna(0, inplace=True)  # Replace NaN values with 0 for ease of further calculations
+                        ratio = (
+                            pd.to_numeric(df[related_col], errors='coerce')
+                            / pd.to_numeric(df[comp0_col], errors='coerce')
+                        )
+                        df[new_col_name] = ratio.replace(
+                            [np.inf, -np.inf], np.nan).fillna(0.0)
 
                 # Generate all-to-all comparisons
                 if related_cols:
@@ -1437,9 +1440,12 @@ def interperate_vision_model(settings=None):
                             new_col_name_all = f"{comp1}_{comp2}{base_col_name}"
 
                             # Calculate pairwise ratio and handle infinite or NaN values
-                            df[new_col_name_all] = df[rel_col_1] / df[rel_col_2]
-                            df[new_col_name_all].replace([float('inf'), -float('inf')], pd.NA, inplace=True)  # Replace inf with NA
-                            df[new_col_name_all].fillna(0, inplace=True)  # Replace NaN with 0
+                            ratio = (
+                                pd.to_numeric(df[rel_col_1], errors='coerce')
+                                / pd.to_numeric(df[rel_col_2], errors='coerce')
+                            )
+                            df[new_col_name_all] = ratio.replace(
+                                [np.inf, -np.inf], np.nan).fillna(0.0)
 
         return df, comparison_dict
 
@@ -1477,7 +1483,7 @@ def interperate_vision_model(settings=None):
         df[name] = df['feature'].apply(lambda x: find_feature_class(x, feature_groups))
 
         if name == 'channel':
-            df['channel'].fillna('morphology', inplace=True)
+            df['channel'] = df['channel'].fillna('morphology')
 
         # Create new DataFrame with summed importance for each compartment and channel
         importance_sum = df.groupby(name)['importance'].sum().reset_index(name=f'{name}_importance_sum')
