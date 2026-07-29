@@ -383,7 +383,15 @@ def test_cellpose_model(settings):
                                           bsize=224)
 
         for j, (img, lbl, pred, flow) in enumerate(zip(images, labels, masks_pred, flows)):
-            score = float(aggregated_jaccard_index([lbl], [pred]))
+            # Cellpose 4 returns one AJI value per mask as a 1-D ndarray;
+            # older releases returned a scalar. Normalise both contracts
+            # without averaging across images (this loop records one row per
+            # image).
+            aji = np.asarray(
+                aggregated_jaccard_index([lbl], [pred]),
+                dtype=float,
+            ).reshape(-1)
+            score = float(aji[0]) if aji.size else float("nan")
             fname = os.path.basename(test_label_files[i + j])
             scores.append(score)
             names.append(fname)
