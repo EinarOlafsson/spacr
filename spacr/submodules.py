@@ -1724,8 +1724,11 @@ def interperate_vision_model(settings=None):
         )
         
         # Aggregate SHAP values by compartment and channel
-        compartment_mean = shap_df.abs().groupby(level='compartment', axis=1).mean().mean(axis=0)
-        channel_mean = shap_df.abs().groupby(level='channel', axis=1).mean().mean(axis=0)
+        shap_features = shap_df.abs().T
+        compartment_mean = (
+            shap_features.groupby(level='compartment').mean().mean(axis=1))
+        channel_mean = (
+            shap_features.groupby(level='channel').mean().mean(axis=1))
 
         # Calculate combined importance for each pair of compartments and channels
         combined_compartment = {}
