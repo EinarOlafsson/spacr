@@ -3108,8 +3108,8 @@ def _set_analyze_invasion_defaults(settings):
 # a channel, selected with ``outside_channel``; the statistics below read the
 # parasite's own pixels in that channel.
 _INVASION_STATISTIC_TEMPLATES = {
-    'periphery_95': '{compartment}_channel_{channel}_periphery_95_percentile',
-    'periphery_85': '{compartment}_channel_{channel}_periphery_85_percentile',
+    'periphery_95': '{compartment}_channel_{channel}_periphery_percentile_95',
+    'periphery_85': '{compartment}_channel_{channel}_periphery_percentile_85',
     'periphery_mean': '{compartment}_channel_{channel}_periphery_mean',
     'percentile_95': '{compartment}_channel_{channel}_percentile_95',
     'percentile_85': '{compartment}_channel_{channel}_percentile_85',
@@ -3122,6 +3122,10 @@ _INVASION_STATISTIC_TEMPLATES = {
 # Resolution order for intensity_statistic='auto'. The order is the argument
 # in :func:`_resolve_invasion_intensity_column`.
 _INVASION_STATISTIC_AUTO_ORDER = ('periphery_95', 'percentile_95', 'mean')
+_INVASION_LEGACY_STATISTIC_TEMPLATES = {
+    'periphery_95': '{compartment}_channel_{channel}_periphery_95_percentile',
+    'periphery_85': '{compartment}_channel_{channel}_periphery_85_percentile',
+}
 
 _INVASION_CLASSES = ['attached', 'invaded']
 
@@ -3146,7 +3150,7 @@ def _resolve_invasion_intensity_column(df, compartment, channel,
     * ``percentile_95`` samples the brightest 5% of the object's pixels —
       which is where a rim sits — over enough pixels to be stable. It is the
       right default when nothing better exists.
-    * ``periphery_95_percentile`` (:func:`spacr.measure._periphery_intensity`)
+    * ``periphery_percentile_95`` (:func:`spacr.measure._periphery_intensity`)
       is measured *only* on the object's boundary ring, so it does not depend
       on the object's area at all. When measure_crop wrote it, it wins.
 
@@ -3163,10 +3167,23 @@ def _resolve_invasion_intensity_column(df, compartment, channel,
         return _INVASION_STATISTIC_TEMPLATES[name].format(
             compartment=compartment, channel=channel)
 
+    def _candidates(name):
+        yield _template(name)
+        legacy = _INVASION_LEGACY_STATISTIC_TEMPLATES.get(name)
+        if legacy is not None:
+            yield legacy.format(compartment=compartment, channel=channel)
+
     if statistic == 'auto':
         for name in _INVASION_STATISTIC_AUTO_ORDER:
-            column = _template(name)
-            if column in df.columns and df[column].notna().any():
+            column = next(
+                (
+                    candidate
+                    for candidate in _candidates(name)
+                    if candidate in df.columns and df[candidate].notna().any()
+                ),
+                None,
+            )
+            if column is not None:
                 if name == 'mean':
                     print(
                         "WARNING: falling back to the object MEAN of the "
@@ -3176,7 +3193,7 @@ def _resolve_invasion_intensity_column(df, compartment, channel,
                         "than small ones stained identically — a bias toward "
                         "calling outside parasites invaded. Re-run measure "
                         "with intensity features so percentile_95 / "
-                        "periphery_95_percentile exist."
+                            "periphery_percentile_95 exist."
                     )
                 if verbose:
                     print(f"Outside-stain statistic: '{column}' ({name})")
@@ -3190,11 +3207,15 @@ def _resolve_invasion_intensity_column(df, compartment, channel,
         )
 
     if statistic in _INVASION_STATISTIC_TEMPLATES:
-        column = _template(statistic)
-        if column not in df.columns:
+        column = next(
+            (candidate for candidate in _candidates(statistic)
+             if candidate in df.columns),
+            None,
+        )
+        if column is None:
             raise KeyError(
                 f"intensity_statistic '{statistic}' resolves to column "
-                f"'{column}', which is not in the parasite table."
+                f"'{_template(statistic)}', which is not in the parasite table."
             )
         if verbose:
             print(f"Outside-stain statistic: '{column}' ({statistic})")
@@ -3216,7 +3237,7 @@ def _resolve_invasion_background_column(df, compartment, channel,
                                         background='none'):
     """Locate the per-object local-background column, or ``None``.
 
-    ``'auto'`` uses ``<compartment>_channel_<n>_outside_50_percentile`` — the
+    ``'auto'`` uses ``<compartment>_channel_<n>_outside_percentile_50`` — the
     median of the five-pixel ring *outside* the parasite mask in the outside
     stain's channel — which removes a per-field background offset without a
     flat-field image.
@@ -3237,7 +3258,14 @@ def _resolve_invasion_background_column(df, compartment, channel,
     if background in (None, False, 'none', 'None', ''):
         return None
     if background == 'auto':
-        for suffix in ('outside_50_percentile', 'outside_mean'):
+        # Measurement columns are canonicalised on database read. Keep the
+        # legacy spelling as a fallback for direct DataFrame callers and old
+        # databases that have not passed through that normalisation yet.
+        for suffix in (
+            'outside_percentile_50',
+            'outside_50_percentile',
+            'outside_mean',
+        ):
             column = f'{compartment}_channel_{channel}_{suffix}'
             if column in df.columns and df[column].notna().any():
                 return column

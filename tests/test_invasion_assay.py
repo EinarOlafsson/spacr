@@ -274,6 +274,17 @@ def test_auto_background_falls_back_to_the_mean_ring_then_gives_up(capsys):
     assert "raw intensities" in capsys.readouterr().out
 
 
+def test_auto_background_prefers_the_canonical_percentile_name():
+    from spacr.submodules import _resolve_invasion_background_column
+
+    frame = _frame(**{
+        "pathogen_channel_1_outside_percentile_50": 3.0,
+        "pathogen_channel_1_outside_50_percentile": 4.0,
+    })
+    assert _resolve_invasion_background_column(frame, "pathogen", 1, "auto") \
+        == "pathogen_channel_1_outside_percentile_50"
+
+
 def test_background_subtraction_shifts_every_object(tmp_path):
     from spacr.submodules import analyze_invasion
 
