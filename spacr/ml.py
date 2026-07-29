@@ -2468,7 +2468,7 @@ def ml_analysis(df, channel_of_interest=3, location_column='columnID', positive_
         from sklearn.ensemble import ExtraTreesClassifier
         model = ExtraTreesClassifier(n_estimators=n_estimators, random_state=random_state, n_jobs=n_jobs)
     elif model_type == 'logistic_regression':
-        model = LogisticRegression(max_iter=1000, random_state=random_state, n_jobs=n_jobs)
+        model = LogisticRegression(max_iter=1000, random_state=random_state)
     elif model_type == 'gradient_boosting':
         model = HistGradientBoostingClassifier(max_iter=n_estimators, random_state=random_state)  # Supports n_jobs internally
     elif model_type == 'xgboost':
