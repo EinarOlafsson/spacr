@@ -19,19 +19,20 @@ string to hand to `QApplication.setStyleSheet`.
    resolves (read-only, with a ``DeprecationWarning``) so the modules
    that have not been migrated yet keep working.
 
-Four themes ship: ``"dark"``, ``"light"``, ``"space"`` and ``"cell"``.
+Five themes ship: ``"dark"``, ``"light"``, ``"space"``, ``"cell"`` and
+``"glass"``.
 (Preferences also offers ``"system"``, which resolves to dark or light
 at runtime — it is not a palette of its own.) They are *themes*, not
 "modes": "dark mode" stopped being accurate the moment a third one
 existed.
 
-Space and Cell are :data:`IMAGE_THEMES`: dark themes whose window
-background is a picture rather than a colour — a generated deep-space
-render or a downloaded photograph for Space (see :mod:`spacr.qt.space`),
-one of the user's own micrographs for Cell (see
-:mod:`spacr.qt.imagery`). Panels, cards, inputs and dialogs are drawn as
-translucent dark scrims so text always lands on a readable surface while
-the imagery shows through the chrome and the empty areas.
+Space, Cell and Glass are :data:`IMAGE_THEMES`: dark themes with a visual
+backdrop — a generated deep-space render or downloaded photograph for
+Space (see :mod:`spacr.qt.space`), one of the user's own micrographs for
+Cell (see :mod:`spacr.qt.imagery`), and a built-in blue depth gradient for
+Glass. Panels, cards and inputs are drawn as translucent dark scrims so
+text always lands on a readable surface while the backdrop shows through
+the chrome and empty areas.
 
 Legibility over a picture is checked two ways, because the two failure
 modes are different:
@@ -202,23 +203,55 @@ CELL_PALETTE = {
 }
 
 
+# ---------------------------------------------------------------------------
+# Glass palette — translucent blue-grey material over a built-in gradient.
+# ---------------------------------------------------------------------------
+# Qt stylesheets do not expose the compositor's native macOS/iOS backdrop
+# blur. The reliable cross-platform equivalent is a layered, translucent
+# material: a bounded blue gradient behind low-alpha slate surfaces, with
+# cool light rims and high-contrast text. Because the backdrop is generated
+# by `_window_block` from this same palette, its maximum brightness is known
+# and the ordinary scrim solver can make every grey/black module box genuinely
+# see-through without guessing at legibility.
+GLASS_PALETTE = {
+    "bg":          "#07101e",
+    "surface":     "#111b2b",
+    "surface_alt": "#18253a",
+    "surface_hi":  "#243550",
+    "border":      "#7187a5",
+    "border_soft": "#526881",
+    "fg":          "#f7fbff",
+    "fg_muted":    "#c9d3e0",
+    "fg_dim":      "#97a8ba",
+    "accent":      "#78b9ff",
+    "accent_hi":   "#a8d3ff",
+    "accent_lo":   "#3f8fdc",
+    "accent_soft": "#173551",
+    "success":     "#66d995",
+    "warning":     "#f2ca66",
+    "error":       "#ff8f8a",
+    "info":        "#78b9ff",
+}
+
+
 #: The themes with a palette of their own. ``"system"`` is a
 #: *preference* value that resolves to one of these, not an entry here.
-THEMES = ("dark", "light", "space", "cell")
+THEMES = ("dark", "light", "space", "cell", "glass")
 
 _PALETTES = {
     "dark": DARK_PALETTE,
     "light": LIGHT_PALETTE,
     "space": SPACE_PALETTE,
     "cell": CELL_PALETTE,
+    "glass": GLASS_PALETTE,
 }
 
-#: Themes whose window background is an image rather than a flat colour.
-#: They share one treatment — a transparent ``QWidget`` default so the
-#: picture is not covered by every child, translucent scrims on the
-#: panels, and opaque popups — so the QSS branches on membership here
-#: rather than on a theme name.
-IMAGE_THEMES = ("space", "cell")
+#: Themes whose window background is an image or depth gradient rather than
+#: a flat colour. They share one treatment — a transparent ``QWidget``
+#: default, translucent scrims on panels, and opaque popups — so the QSS
+#: branches on membership here rather than on a theme name. The public name
+#: is retained because Space and Cell predate the generated Glass backdrop.
+IMAGE_THEMES = ("space", "cell", "glass")
 
 
 # ---------------------------------------------------------------------------
@@ -380,7 +413,12 @@ SCRIM_HEADROOM = 1.05
 #: A theme joins this set by having its wallpaper solved, not by being
 #: added here. Adding one whose picture is not bounded would silently
 #: thin its panels past what its own background can survive.
-EXPOSURE_BOUNDED_THEMES = ("cell",)
+EXPOSURE_BOUNDED_THEMES = ("cell", "glass")
+
+# Brightest stop in Glass's built-in `_window_block` gradient. Unlike Space,
+# Glass cannot accept an arbitrary photograph, so this is a hard rendering
+# contract rather than a hopeful estimate.
+GLASS_BACKDROP_UNDER = "#173551"
 
 
 def _grey_for_luminance(luminance: float) -> str:
@@ -424,6 +462,8 @@ def scrim_under(theme: str) -> str:
     Anything that is not an image theme gets white; its alphas are 1.0
     and the answer is never used.
     """
+    if theme == "glass":
+        return GLASS_BACKDROP_UNDER
     if theme not in EXPOSURE_BOUNDED_THEMES:
         return WORST_CASE_UNDER
     return _grey_for_luminance(max_background_luma(theme))
@@ -602,7 +642,7 @@ def _solve_scrims() -> Dict[str, Dict[str, float]]:
     """Solve every translucent role of every image theme, once, at import.
 
     Pure colour arithmetic over a thousand-step sweep of four roles and
-    two themes: a few milliseconds, no Qt, no I/O. Solved rather than
+    three themes: a few milliseconds, no Qt, no I/O. Solved rather than
     tabulated so that re-hueing a palette moves its scrims with it
     instead of silently invalidating a comment.
     """
