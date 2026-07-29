@@ -167,18 +167,20 @@ def test_assignment_skips_wells_a_canonical_name_already_claimed():
     assert assigned["wt"] == "A02"
 
 
-def test_more_wells_than_a_384_plate_is_a_configuration_error():
+def test_more_wells_than_a_forced_384_plate_is_a_configuration_error():
     with pytest.raises(ConfigurationError) as excinfo:
-        cv.assign_wells([f"sample{i}" for i in range(385)])
+        cv.assign_wells([f"sample{i}" for i in range(385)], n_wells=384)
     assert "384" in str(excinfo.value)
 
 
-def test_normalise_well_rejects_things_that_are_not_wells():
+def test_normalise_well_respects_a_forced_384_plate_boundary():
     assert cv.normalise_well("A01") == "A01"
     assert cv.normalise_well("a1") == "A01"
     assert cv.normalise_well("P24") == "P24"
-    assert cv.normalise_well("P25") is None     # column out of range
-    assert cv.normalise_well("Q01") is None     # row out of range
+    assert cv.normalise_well("P25") == "P25"    # valid on a 1536 plate
+    assert cv.normalise_well("Q01") == "Q01"    # valid on a 1536 plate
+    assert cv.normalise_well("P25", n_wells=384) is None
+    assert cv.normalise_well("Q01", n_wells=384) is None
     assert cv.normalise_well("wt") is None
     assert cv.normalise_well("") is None
 
