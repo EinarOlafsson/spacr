@@ -99,7 +99,13 @@ def test_issue_url_truncates_when_too_long():
 
 def test_file_issue_returns_url_without_opening(monkeypatch):
     from spacr.qt.ai import issue_report as ir
+    from spacr.qt.ai import github_auth
+
     called = {}
+    # A developer workstation may have a stored PAT, GH_TOKEN, or an
+    # authenticated gh CLI. This test exercises the browser fallback and must
+    # never turn those ambient credentials into a real GitHub issue.
+    monkeypatch.setattr(github_auth, "is_authenticated", lambda: False)
     monkeypatch.setattr(
         ir, "open_issue_in_browser",
         lambda url: called.setdefault("url", url) is None,
