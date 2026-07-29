@@ -129,6 +129,8 @@ def test_ci_exercises_minimum_and_newest_dependency_profiles():
         in workflow
     )
     assert 'python-version: "3.14"\n            extras: "qt,dev,zernike,btrack"' in workflow
+    assert "Install runtime-qualified TorchCAM around its stale NumPy cap" in workflow
+    assert 'pip install --no-deps "torchcam>=0.4.0,<1.0"' in workflow
     compat = COMPAT_WORKFLOW.read_text(encoding="utf-8")
     assert 'label: "Linux x86-64 / py3.14"' in compat
     assert 'python-version: "3.14"' in compat

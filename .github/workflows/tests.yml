@@ -58,8 +58,8 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
 
         # The extras each cell installs. They differ for measured packaging
-        # constraints: `torchcam` cannot be installed on Python 3.13 or 3.14,
-        # and pylibCZIrw does not publish a CPython 3.14 wheel.
+        # constraints: the resolver cannot install `torchcam` on Python 3.13
+        # or 3.14, and pylibCZIrw does not publish a CPython 3.14 wheel.
         # Every release satisfying `>=0.4.0,<1.0` declares `numpy<2.0.0`, and
         # no numpy satisfying that publishes a cp313 wheel. Both halves were
         # reproduced in a throwaway CPython 3.13.14 env on 2026-07-27, and
@@ -78,9 +78,10 @@ jobs:
         #   1.26.4 from source, and would then run the whole suite against
         #   numpy 1.x on the one cell that exists to test numpy 2.
         #
-        # The five torchcam CAM variants stay covered by the 3.9-3.12 cells;
-        # spaCR's own `smoothgrad` and the captum backends are core and run on
-        # all four.
+        # The five TorchCAM variants are installed without dependency
+        # resolution below on 3.13/3.14. Its complete attribution test module
+        # passes against NumPy 2; only the upstream dependency metadata is
+        # stale.
         include:
           - python-version: "3.9"
             extras: "qt,dev,zernike,attribution,btrack,czi"
@@ -137,6 +138,15 @@ jobs:
           # spacr/measure.py imports mahotas at module scope, so without
           # `zernike` this whole suite would fail at collection, not degrade.
           python -m pip install -e ".[${{ matrix.extras }}]"
+
+      - name: Install runtime-qualified TorchCAM around its stale NumPy cap
+        if: matrix.python-version == '3.13' || matrix.python-version == '3.14'
+        run: |
+          # torchcam 0.4.1 declares numpy<2 even though its complete spaCR
+          # attribution suite passes with NumPy 2 on CPython 3.13 and 3.14.
+          # Installing without dependencies preserves the already-resolved
+          # scientific stack while retaining CAM coverage on these cells.
+          python -m pip install --no-deps "torchcam>=0.4.0,<1.0"
 
       - name: Show the pins that gate the compatibility matrix
         # One line per dependency whose wheel availability decides which
