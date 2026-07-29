@@ -407,7 +407,13 @@ def margin(probs: Any) -> np.ndarray:
         return np.zeros(0, dtype=float)
     bad = np.all(~np.isfinite(p), axis=1)
     filled = np.sort(np.where(np.isfinite(p), p, -np.inf), axis=1)
-    gap = filled[:, -1] - filled[:, -2]
+    gap = np.zeros(p.shape[0], dtype=float)
+    np.subtract(
+        filled[:, -1],
+        filled[:, -2],
+        out=gap,
+        where=~bad,
+    )
     return np.where(bad, np.nan, 1.0 - gap)
 
 

@@ -222,10 +222,11 @@ def test_measures_accept_one_d_two_d_and_single_column():
 
 def test_measures_return_nan_for_an_unusable_row():
     scores = np.array([np.nan, 0.5])
-    for fn in UNCERTAINTY_MEASURES.values():
-        out = fn(scores)
-        assert math.isnan(out[0])
-        assert np.isfinite(out[1])
+    with np.errstate(all="raise"):
+        for fn in UNCERTAINTY_MEASURES.values():
+            out = fn(scores)
+            assert math.isnan(out[0])
+            assert np.isfinite(out[1])
 
 
 def test_measures_on_empty_input():
