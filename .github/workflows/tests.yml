@@ -44,7 +44,7 @@ jobs:
         # pass*.
         #
         # 3.13 was added on 2026-07-27, together with `numpy>=1.26.4,<3.0`,
-        # `requires-python = ">=3.10,<3.14"` and the move of mahotas and
+        # `requires-python = ">=3.9,<3.14"` and the move of mahotas and
         # torchcam into extras. It is the cell that makes the new classifier
         # a fact rather than a claim, and it is where the numpy-2 code paths
         # (np.trapezoid, np.ptp) are actually executed rather than argued
@@ -55,7 +55,11 @@ jobs:
         # real finding — do not paper over it with continue-on-error, which is
         # reserved for cells whose failure is already understood and
         # documented in compat-matrix.yml.
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        # 3.9 is a supported resolver branch in active use. It lands on
+        # torch 2.8 and the final compatible releases of several scientific
+        # dependencies, so it is blocking rather than merely an install
+        # smoke test.
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
         # The extras each cell installs. They differ for ONE measured reason,
         # and it is not a convenience: `torchcam` cannot be had on Python 3.13.
@@ -77,10 +81,12 @@ jobs:
         #   1.26.4 from source, and would then run the whole suite against
         #   numpy 1.x on the one cell that exists to test numpy 2.
         #
-        # The five torchcam CAM variants stay covered by the 3.10-3.12 cells;
+        # The five torchcam CAM variants stay covered by the 3.9-3.12 cells;
         # spaCR's own `smoothgrad` and the captum backends are core and run on
         # all four.
         include:
+          - python-version: "3.9"
+            extras: "qt,dev,zernike,attribution"
           - python-version: "3.10"
             extras: "qt,dev,zernike,attribution"
           - python-version: "3.11"

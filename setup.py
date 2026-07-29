@@ -224,7 +224,8 @@ dependencies = [
     # `>=0.4.0,<1.0` declares `numpy<2.0.0`, so leaving it here pins numpy to
     # 1.26.4 no matter what this file says, and on 3.13 that means a numpy
     # source build. (0.4.1 additionally declares `requires-python >=3.11`, so
-    # in the core list it also silently backtracked to 0.4.0 on Python 3.10.)
+    # in the core list it also silently backtracked to 0.4.0 on Python
+    # 3.9/3.10.)
     'captum>=0.7.0,<1.0',
     'seaborn>=0.13.2,<1.0',
     'matplotlib>=3.8.3,<4.0',
@@ -304,8 +305,8 @@ dependencies = [
     # (spacr/ml.py:2474, hyperparam.py:1844, gui_elements.py:5461) plus
     # booster-level `xgb.DMatrix`/`xgb.train` (spacr/timelapse.py:7030-7050),
     # all of which survive. The resolver handles the interpreter split by
-    # itself: xgboost 3.3 needs Python >=3.12, so a 3.10/3.11 install lands
-    # on 3.2 without help.
+    # itself: xgboost 3.3 needs Python >=3.12, so a 3.9-3.11 install lands on
+    # an older compatible line without help.
     'xgboost>=2.0.3,<4',
     # `PyWavelets` REMOVED: zero imports and zero references to `pywt`, its
     # import name. It was pulled in as a scikit-image companion; skimage
@@ -406,8 +407,9 @@ dependencies = [
     # display` (plus HTML and Image in two files); all three still exist in
     # IPython 9.x, which removed only shim modules and pre-8.16 deprecations.
     # The cap was also redundant with the resolver: IPython 9 requires Python
-    # >=3.11, so a 3.10 install resolves 8.x on its own. Verified: IPython
-    # 9.15.0 installed, suites green.
+    # >=3.11, while Python 3.9 resolves the supported 8.18 line and 3.10
+    # resolves a later 8.x on its own. Verified: IPython 9.15.0 installed,
+    # suites green.
     'IPython>=8.18.1,<10',
     # `ipykernel` REMOVED: zero imports. Notebooks under Notebooks/ are run by
     # whatever Jupyter the user already has; spaCR is not a kernel provider,
@@ -499,7 +501,7 @@ setup(
         ],
     },
     extras_require={
-        # `tomli` only on 3.10: tests/test_packaging_metadata.py parses
+        # `tomli` on Python 3.9/3.10: tests/test_packaging_metadata.py parses
         # pyproject.toml, and tomllib is stdlib from 3.11. The test degrades
         # to a narrow regex without it, so this is about keeping the strong
         # check on the oldest supported interpreter, not about being able to
@@ -654,7 +656,7 @@ setup(
         #               this change set out to remove, reintroduced through
         #               the extra most likely to be typed by someone who just
         #               wants everything. `spacr[all,attribution]` remains
-        #               available on 3.10-3.12 for anyone who wants both.
+        #               available on 3.9-3.12 for anyone who wants both.
         #
         # Spelled out as concrete requirements rather than a recursive
         # `spacr[qt,tutorial,...]` self-reference so it resolves identically

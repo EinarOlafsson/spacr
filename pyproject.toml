@@ -20,14 +20,12 @@ name = "spacr"
 # as "spaCR is broken". numpy 1.26.4 was the only release satisfying the old
 # `numpy>=1.26.4,<2.0`, and its wheels stop at cp312.
 #
-# The floor is 3.10, not 3.9, deliberately:
-#   * 3.9 is *resolvable* (torch 2.8.0 still ships cp39 wheels), but keeping
-#     it freezes torch at 2.8, caps PySide6 at 6.10, and forces numba,
-#     llvmlite and pingouin to backtrack — resolver branches nothing has ever
-#     exercised.
-#   * No spaCR test has ever run on 3.9.
-#   * packaging/build_debian.sh already declares `python3 (>= 3.10)`, and
-#     packaging/build_macos.sh and build_windows.ps1 agree.
+# The floor is 3.9. spaCR is used successfully on that interpreter, and the
+# dependency graph still has compatible published lines: pip selects torch
+# 2.8, the final Python-3.9-compatible releases of PySide6/numba/llvmlite,
+# and IPython 8.18. Supporting an older interpreter means accepting those
+# resolver branches, so 3.9 has its own blocking CI cell rather than being a
+# README-only claim. The three native packaging scripts carry the same floor.
 #
 # The ceiling is now 3.14, and every blocker that held it at 3.13 was closed
 # rather than reasoned away. Measured in throwaway conda envs, never in the
@@ -62,7 +60,7 @@ name = "spacr"
 #
 # Every version admitted here has a CI cell — see the classifier note below.
 # ---------------------------------------------------------------------------
-requires-python = ">=3.10,<3.14"
+requires-python = ">=3.9,<3.14"
 
 authors = [
     { name = "Einar Birnir Olafsson", email = "olafsson@med.umich.com" },
@@ -96,6 +94,7 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -119,7 +118,7 @@ classifiers = [
 # Declaring them `dynamic` is what PEP 621 provides for exactly this case,
 # and it was verified end-to-end on setuptools 83.0.0: both `pip wheel`
 # (PEP 517) and a direct `python setup.py egg_info` emit
-# `Requires-Python: <3.13,>=3.10` and the classifiers above.
+# `Requires-Python: <3.14,>=3.9` and the classifiers above.
 # ---------------------------------------------------------------------------
 dynamic = [
     "version",
