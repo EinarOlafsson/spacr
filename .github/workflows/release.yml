@@ -1,6 +1,10 @@
 name: release SpaCR
 
 on:
+  push:
+    branches: [spacr-nightly]
+    paths:
+      - "setup.py"
   workflow_dispatch:
     inputs:
       version:
@@ -25,30 +29,34 @@ concurrency:
 
 jobs:
   bump:
-    name: Increment repository version
+    name: Prepare repository version
     runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.version.outputs.version }}
       tag: ${{ steps.version.outputs.tag }}
-      commit_sha: ${{ steps.commit.outputs.commit_sha }}
-      branch: ${{ inputs.target_branch }}
+      commit_sha: ${{ steps.finalize.outputs.commit_sha }}
+      branch: ${{ steps.finalize.outputs.branch }}
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.target_branch }}
+          ref: ${{ inputs.target_branch || github.ref_name }}
           fetch-depth: 0
 
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
-      - name: Validate and increment version
+      - name: Validate release version
         id: version
         env:
           REQUESTED_VERSION: ${{ inputs.version }}
         run: |
           python -m pip install "packaging>=24"
-          version=$(python packaging/release.py bump "$REQUESTED_VERSION")
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            version=$(python packaging/release.py bump "$REQUESTED_VERSION")
+          else
+            version=$(python packaging/release.py version)
+          fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "tag=v$version" >> "$GITHUB_OUTPUT"
           if curl --proto '=https' --tlsv1.2 --fail --silent \
@@ -63,6 +71,7 @@ jobs:
 
       - name: Commit version increment
         id: commit
+        if: github.event_name == 'workflow_dispatch'
         env:
           VERSION: ${{ steps.version.outputs.version }}
           TARGET_BRANCH: ${{ inputs.target_branch }}
@@ -72,6 +81,13 @@ jobs:
           git add setup.py
           git commit -m "chore(release): bump version to $VERSION"
           git push origin "HEAD:$TARGET_BRANCH"
+
+      - name: Export exact release source
+        id: finalize
+        env:
+          TARGET_BRANCH: ${{ inputs.target_branch || github.ref_name }}
+        run: |
+          echo "branch=$TARGET_BRANCH" >> "$GITHUB_OUTPUT"
           echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
   installers:
