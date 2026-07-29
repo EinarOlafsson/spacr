@@ -464,7 +464,7 @@ setup(
     # pyproject config is applied.
     name=name,
     version=VERSION,
-    description="Spatial phenotype analysis of crisp screens (SpaCr)",
+    description="Spatial phenotype analysis of CRISPR screens (spaCR)",
     long_description=long_description,
     long_description_content_type='text/x-rst',
     packages=find_packages(exclude=["tests.*", "tests"]),
