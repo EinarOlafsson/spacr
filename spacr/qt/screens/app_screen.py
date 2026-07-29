@@ -947,7 +947,7 @@ class AppScreen(QWidget):
         self._per_core_layout = QVBoxLayout(self._per_core_wrap)
         self._per_core_layout.setContentsMargins(0, 0, 0, 0)
         self._per_core_layout.setSpacing(2)
-        self._per_core_bars: List[UsageBar] = []
+        self._per_core_bars: list[UsageBar] = []
         self._per_core_wrap.hide()
         usage_card.body_layout.addWidget(self._per_core_wrap)
 

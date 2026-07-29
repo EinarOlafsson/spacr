@@ -135,3 +135,21 @@ Homepage = "https://github.com/EinarOlafsson/spacr"
 Documentation = "https://einarolafsson.github.io/spacr/"
 Source = "https://github.com/EinarOlafsson/spacr"
 Issues = "https://github.com/EinarOlafsson/spacr/issues"
+
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+
+[tool.ruff.lint]
+# CI applies the complete fatal-error set repository-wide and this broader set
+# to .github/quality-targets.txt. Keeping the broad set here makes a plain
+# `ruff check <file>` agree with the maintained-code gate.
+select = ["E4", "E7", "E9", "F", "I", "B"]
+
+[tool.mypy]
+python_version = "3.9"
+check_untyped_defs = true
+follow_imports = "skip"
+ignore_missing_imports = true
+no_error_summary = true
+warn_unused_configs = true

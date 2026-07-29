@@ -5,7 +5,6 @@ from pathlib import Path
 
 from tests.conftest import _automatic_ci_markers
 
-
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = ROOT / ".github" / "workflows" / "tests.yml"
 REUSABLE = ROOT / ".github" / "workflows" / "_pytest-suite.yml"

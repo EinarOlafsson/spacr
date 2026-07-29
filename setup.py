@@ -511,8 +511,17 @@ setup(
         # to a narrow regex without it, so this is about keeping the strong
         # check on the oldest supported interpreter, not about being able to
         # run the suite at all.
-        'dev': ['pytest>=8.0,<9', 'pytest-qt>=4.4,<5',
-                'tomli>=2.0; python_version < "3.11"'],
+        'dev': [
+            'pytest>=8.0,<9',
+            'pytest-qt>=4.4,<5',
+            'tomli>=2.0; python_version < "3.11"',
+            # Quality-gate tooling. These are kept out of core dependencies:
+            # users running microscopy pipelines do not need static-analysis
+            # packages, while contributors get the same versions CI runs.
+            'ruff>=0.9,<1',
+            'mypy>=1.11,<2',
+            'xenon>=0.9,<1',
+        ],
         # Pinned identically to the core dependency. Unpinned, this extra
         # silently widened the core `<5.0` cap to "any opencv", so
         # `pip install spacr[headless]` could resolve a different opencv

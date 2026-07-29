@@ -235,6 +235,49 @@ jobs:
       marker_expression: "nas and not gpu and not gui"
       timeout_minutes: 90
 
+  quality:
+    name: Lint / types / complexity
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install quality tooling
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install \
+            "ruff>=0.9,<1" \
+            "mypy>=1.11,<2" \
+            "xenon>=0.9,<1"
+
+      - name: Enforce repository and maintained-code quality gates
+        shell: bash
+        run: |
+          mapfile -t targets < <(
+            grep -Ev '^[[:space:]]*(#|$)' .github/quality-targets.txt
+          )
+          test "${#targets[@]}" -gt 0
+
+          # Fatal correctness errors are never grandfathered, even in legacy
+          # modules that are not ready for the full style/type ratchet.
+          python -m ruff check spacr tests --select E9,F63,F7,F82
+
+          # The maintained target set is held to broader linting, static
+          # typing, and a maximum per-block/module complexity rank of B.
+          python -m ruff check "${targets[@]}"
+          python -m mypy "${targets[@]}"
+          python -m xenon \
+            --max-absolute B \
+            --max-modules B \
+            --max-average A \
+            "${targets[@]}"
+
   minimum-dependencies:
     name: Minimum dependencies (ubuntu-24.04, py3.9)
     runs-on: ubuntu-24.04
@@ -325,3 +368,42 @@ jobs:
           python -m pytest tests/ \
             -m "not integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui" \
             -v --tb=short
+
+  release-gate:
+    name: Release gate / zero unexpected failures
+    if: always()
+    needs:
+      - quality
+      - fast
+      - minimum-dependencies
+      - integration
+      - slow
+      - qt
+      - gpu
+      - network
+      - nas
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+
+    steps:
+      - name: Require every blocking job to succeed
+        env:
+          NEEDS_CONTEXT: ${{ toJSON(needs) }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import sys
+
+          needs = json.loads(os.environ["NEEDS_CONTEXT"])
+          failed = {
+              name: details["result"]
+              for name, details in needs.items()
+              if details["result"] != "success"
+          }
+          if failed:
+              for name, result in sorted(failed.items()):
+                  print(f"::error::{name} finished with {result}")
+              sys.exit("release gate failed: not every blocking job succeeded")
+          print("release gate passed: every blocking job succeeded")
+          PY

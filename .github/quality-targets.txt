@@ -1,0 +1,13 @@
+# Strict quality ratchet.
+#
+# The complete repository is always checked for syntax errors, undefined
+# names, and invalid control flow. These dependency-light, actively maintained
+# boundary modules additionally pass broad Ruff rules, mypy, and a Xenon
+# complexity ceiling. Add a file when it has been brought under the gate;
+# never remove one to make CI green.
+spacr/measurement_schema.py
+spacr/image_colors.py
+spacr/tiff_io.py
+spacr/qt/prefs.py
+tests/resource_capabilities.py
+tests/test_ci_suite_classification.py
