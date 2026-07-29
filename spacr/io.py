@@ -2209,10 +2209,90 @@ class JoinFanOut(ValueError):
     """A left join returned more rows than the frame it started from.
 
     The object tables carry one row per object per field per timepoint and
-    ``png_list`` carries one crop per the same key, so the join is many-to-one
-    and the row count cannot grow. If it did, the join key does not identify a
-    ``png_list`` row uniquely and every downstream measurement is duplicated.
+    ``png_list`` carries one crop per the same key, so the join is one-to-one
+    (with unmatched rows permitted by the left join) and the row count cannot
+    grow. If it did, a join key is duplicated and every downstream measurement
+    is multiplied.
     """
+
+
+class MergeCardinalityError(JoinFanOut):
+    """A database merge violated its declared relationship.
+
+    This is a :class:`JoinFanOut` for backwards compatibility with callers
+    that already handle duplicate crop rows, but it is used for every
+    explicitly validated object-table relationship.
+    """
+
+
+def _merge_key_details(frame, *, columns=None, use_index=False):
+    """Return a readable key description and duplicate examples for one side."""
+    if use_index:
+        duplicated = frame.index.duplicated(keep=False)
+        examples = frame.index[duplicated].unique().tolist()[:3]
+        return "index", examples
+
+    key_columns = [columns] if isinstance(columns, str) else list(columns or [])
+    if not key_columns:
+        return "unspecified keys", []
+    duplicated = frame.duplicated(subset=key_columns, keep=False)
+    examples = (
+        frame.loc[duplicated, key_columns]
+        .drop_duplicates()
+        .head(3)
+        .itertuples(index=False, name=None)
+    )
+    return repr(key_columns), list(examples)
+
+
+def _merge_with_cardinality(
+        left, right, *, validate, left_name, right_name, **merge_kwargs):
+    """Merge frames under an explicit pandas cardinality contract.
+
+    pandas correctly rejects invalid relationships through ``validate=`` but
+    its error does not name the database tables or show the offending keys.
+    This wrapper retains pandas' enforcement and turns cardinality violations
+    into an actionable spaCR error. Other merge errors (for example, colliding
+    suffixes) remain ordinary :class:`pandas.errors.MergeError` instances.
+    """
+    try:
+        return left.merge(right, validate=validate, **merge_kwargs)
+    except pd.errors.MergeError as exc:
+        on = merge_kwargs.get("on")
+        left_on = merge_kwargs.get("left_on", on)
+        right_on = merge_kwargs.get("right_on", on)
+        left_key, left_examples = _merge_key_details(
+            left,
+            columns=left_on,
+            use_index=bool(merge_kwargs.get("left_index")),
+        )
+        right_key, right_examples = _merge_key_details(
+            right,
+            columns=right_on,
+            use_index=bool(merge_kwargs.get("right_index")),
+        )
+
+        invalid = []
+        if validate in {"one_to_one", "1:1", "one_to_many", "1:m"}:
+            if left_examples:
+                invalid.append(
+                    f"{left_name} has duplicated {left_key}: {left_examples}")
+        if validate in {"one_to_one", "1:1", "many_to_one", "m:1"}:
+            if right_examples:
+                invalid.append(
+                    f"{right_name} has duplicated {right_key}: "
+                    f"{right_examples}")
+        if not invalid:
+            raise
+
+        raise MergeCardinalityError(
+            f"Cannot merge {left_name} with {right_name}: the declared "
+            f"validate={validate!r} relationship was violated; "
+            + "; ".join(invalid)
+            + ". De-duplicate or repair the named source table before "
+              "continuing; otherwise rows and measurements would be "
+              "silently multiplied."
+        ) from exc
 
 
 class CropModeMismatch(ValueError):
@@ -2311,7 +2391,7 @@ def _read_and_join_tables(db_path, table_names=None):
     Raises:
         TimelapseKeyMismatch: when exactly one of ``png_list`` and ``cell``
             carries a timepoint column.
-        JoinFanOut: when the join returns more rows than the object table had.
+        MergeCardinalityError: when either table repeats an object key.
         CropModeMismatch: when ``png_list`` carries no ``cell_id`` column, i.e.
             it holds crops of some other object.
     """
@@ -2402,8 +2482,15 @@ def _read_and_join_tables(db_path, table_names=None):
                     f"to every frame's object. Re-run the missing step with the "
                     f"same 'timelapse' setting."
                 )
-            merged = pd.merge(dataframes['cell'], png_list_df, on=join_cols, how='left')
-            _report_fan_out(dataframes['cell'], merged, join_cols)
+            merged = _merge_with_cardinality(
+                dataframes['cell'],
+                png_list_df,
+                on=join_cols,
+                how='left',
+                validate='one_to_one',
+                left_name='cell',
+                right_name='png_list',
+            )
             dataframes['cell'] = merged
         else:
             print("Cell table not found in database tables.")
@@ -2435,10 +2522,29 @@ def _read_and_join_tables(db_path, table_names=None):
     if 'cell' in dataframes:
         joined_df = dataframes['cell']
     if 'cytoplasm' in dataframes:
-        joined_df = pd.merge(joined_df, dataframes['cytoplasm'], on=['object_label', 'prcf'], how='left', suffixes=('', '_cytoplasm'))
+        joined_df = _merge_with_cardinality(
+            joined_df,
+            dataframes['cytoplasm'],
+            on=['object_label', 'prcf'],
+            how='left',
+            suffixes=('', '_cytoplasm'),
+            validate='one_to_one',
+            left_name='cell',
+            right_name='cytoplasm',
+        )
     for entity in ['nucleus', 'pathogen']:
         if entity in dataframes:
-            joined_df = pd.merge(joined_df, dataframes[entity], left_on=['object_label', 'prcf'], right_index=True, how='left', suffixes=('', f'_{entity}'))
+            joined_df = _merge_with_cardinality(
+                joined_df,
+                dataframes[entity],
+                left_on=['object_label', 'prcf'],
+                right_index=True,
+                how='left',
+                suffixes=('', f'_{entity}'),
+                validate='one_to_one',
+                left_name='cell',
+                right_name=f'aggregated {entity}',
+            )
     return joined_df
     
 #: Table holding the settings of the run that wrote the database **last**.
@@ -3318,7 +3424,15 @@ def _read_and_merge_data(
                     left.loc[fill_index, col] = right.loc[fill_index, col]
 
         right = right.drop(columns=shared)
-        return left.merge(right, left_index=True, right_index=True)
+        return _merge_with_cardinality(
+            left,
+            right,
+            left_index=True,
+            right_index=True,
+            validate="one_to_one",
+            left_name="grouped object data",
+            right_name="grouped object data",
+        )
 
     def _split_object_data(frame, group_by, object_type):
         """Group object data while retaining its complete provenance stamp."""
@@ -3490,7 +3604,14 @@ def _read_and_merge_data(
 
     metadata = metadata.assign(prc=lambda x: x['plateID'] + '_' + x['rowID'] + '_' + x['columnID'])
     cells_well = metadata.groupby('prc')[metadata_key].nunique().reset_index(name='cells_per_well')
-    metadata = metadata.merge(cells_well, on='prc')
+    metadata = _merge_with_cardinality(
+        metadata,
+        cells_well,
+        on='prc',
+        validate='many_to_one',
+        left_name='object metadata',
+        right_name='well counts',
+    )
 
     if 'prcf' in metadata.columns:
         metadata = metadata.assign(prcfo=lambda x: x['prcf'] + '_' + x[metadata_key])
@@ -3580,7 +3701,15 @@ def _read_and_merge_data_v1(locs, tables, verbose=False, nuclei_limit=10, pathog
 
         else:
             cytoplasms_g_df, _ = _split_data(cytoplasms, 'prcfo', 'object_label')
-            merged_df = merged_df.merge(cytoplasms_g_df, left_index=True, right_index=True)
+            merged_df = _merge_with_cardinality(
+                merged_df,
+                cytoplasms_g_df,
+                left_index=True,
+                right_index=True,
+                validate='one_to_one',
+                left_name='grouped object data',
+                right_name='grouped cytoplasm data',
+            )
 
             if verbose:
                 print(f'cytoplasms: {len(cytoplasms)}, cytoplasms grouped: {len(cytoplasms_g_df)}')
@@ -3608,7 +3737,15 @@ def _read_and_merge_data_v1(locs, tables, verbose=False, nuclei_limit=10, pathog
 
         else:
             nucleus_g_df, _ = _split_data(nucleus, 'prcfo', 'cell_id')
-            merged_df = merged_df.merge(nucleus_g_df, left_index=True, right_index=True)
+            merged_df = _merge_with_cardinality(
+                merged_df,
+                nucleus_g_df,
+                left_index=True,
+                right_index=True,
+                validate='one_to_one',
+                left_name='grouped object data',
+                right_name='grouped nucleus data',
+            )
 
             if verbose:
                 print(f'nucleus: {len(nucleus)}, nucleus grouped: {len(nucleus_g_df)}')
@@ -3636,7 +3773,15 @@ def _read_and_merge_data_v1(locs, tables, verbose=False, nuclei_limit=10, pathog
 
         else:
             pathogens_g_df, _ = _split_data(pathogens, 'prcfo', 'cell_id')
-            merged_df = merged_df.merge(pathogens_g_df, left_index=True, right_index=True)
+            merged_df = _merge_with_cardinality(
+                merged_df,
+                pathogens_g_df,
+                left_index=True,
+                right_index=True,
+                validate='one_to_one',
+                left_name='grouped object data',
+                right_name='grouped pathogen data',
+            )
 
             if verbose:
                 print(f'pathogens: {len(pathogens)}, pathogens grouped: {len(pathogens_g_df)}')
@@ -3689,8 +3834,24 @@ def _read_and_merge_data_v1(locs, tables, verbose=False, nuclei_limit=10, pathog
         if verbose:
             print(f'png_list: {len(png_list)}, png_list grouped: {len(png_list_g_df_numeric)}')
             print(f"Added png_list columns: {png_list_g_df_numeric.columns}, {png_list_g_df_non_numeric.columns}")
-        merged_df = merged_df.merge(png_list_g_df_numeric, left_index=True, right_index=True)
-        merged_df = merged_df.merge(png_list_g_df_non_numeric, left_index=True, right_index=True)
+        merged_df = _merge_with_cardinality(
+            merged_df,
+            png_list_g_df_numeric,
+            left_index=True,
+            right_index=True,
+            validate='one_to_one',
+            left_name='grouped object data',
+            right_name='grouped numeric crop data',
+        )
+        merged_df = _merge_with_cardinality(
+            merged_df,
+            png_list_g_df_non_numeric,
+            left_index=True,
+            right_index=True,
+            validate='one_to_one',
+            left_name='grouped object and crop data',
+            right_name='grouped crop metadata',
+        )
 
     # Add prc (plate row column) and prcfo (plate row column field object) columns
     metadata = metadata.assign(
@@ -3700,7 +3861,14 @@ def _read_and_merge_data_v1(locs, tables, verbose=False, nuclei_limit=10, pathog
     # cells per well are the distinct PARENT cells, and prcfo must be rebuilt
     # from the same column the data was grouped on or the merge below is empty.
     cells_well = metadata.groupby('prc')[metadata_key].nunique().reset_index(name='cells_per_well')
-    metadata = metadata.merge(cells_well, on='prc')
+    metadata = _merge_with_cardinality(
+        metadata,
+        cells_well,
+        on='prc',
+        validate='many_to_one',
+        left_name='object metadata',
+        right_name='well counts',
+    )
 
     if 'prcf' in metadata.columns:
         metadata = metadata.assign(prcfo=lambda x: x['prcf'] + '_' + x[metadata_key])
@@ -3713,7 +3881,15 @@ def _read_and_merge_data_v1(locs, tables, verbose=False, nuclei_limit=10, pathog
     metadata.set_index('prcfo', inplace=True)
 
     # Merge metadata with final merged DataFrame
-    merged_df = metadata.merge(merged_df, left_index=True, right_index=True)
+    merged_df = _merge_with_cardinality(
+        metadata,
+        merged_df,
+        left_index=True,
+        right_index=True,
+        validate='one_to_one',
+        left_name='object metadata',
+        right_name='grouped object data',
+    )
     merged_df.drop(columns=['label_list_morphology', 'label_list_intensity'], errors='ignore', inplace=True)
 
     # ---- NEW: overwrite pathogen_prcfo_count with true integer counts ---------

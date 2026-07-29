@@ -27,7 +27,8 @@ import sqlite3
 import pandas as pd
 import pytest
 
-from spacr.io import (JoinFanOut, TimelapseKeyMismatch, _read_and_join_tables,
+from spacr.io import (JoinFanOut, MergeCardinalityError,
+                      TimelapseKeyMismatch, _read_and_join_tables,
                       _read_and_merge_data)
 from spacr.utils import (_merge_and_save_to_database, _split_data,
                          filepaths_to_database)
@@ -385,7 +386,30 @@ def test_duplicate_png_list_rows_are_reported_as_a_fan_out(tmp_path):
 
     message = str(excinfo.value)
     assert 'png_list' in message and 'cell' in message
-    assert '4 cell rows into 8' in message
+    assert "validate='one_to_one'" in message
+    assert 'png_list has duplicated' in message
+    assert "['object_label', 'plateID', 'rowID', 'columnID', 'fieldID']" in message
+
+
+def test_duplicate_cell_keys_are_reported_before_crop_join(tmp_path):
+    """A repeated measurement row violates the left side of the 1:1 join."""
+    db = _build(tmp_path, times=(None,))
+    with sqlite3.connect(db) as conn:
+        columns = [row[1] for row in conn.execute(
+            'PRAGMA table_info("cell")')]
+        quoted = ', '.join(f'"{column}"' for column in columns)
+        conn.execute(
+            f'INSERT INTO "cell" ({quoted}) SELECT {quoted} FROM "cell" '
+            'WHERE object_label = 1 LIMIT 1'
+        )
+
+    with pytest.raises(MergeCardinalityError) as excinfo:
+        _read_and_join_tables(db, table_names=['cell', 'png_list'])
+
+    message = str(excinfo.value)
+    assert "validate='one_to_one'" in message
+    assert 'cell has duplicated' in message
+    assert 'png_list has duplicated' not in message
 
 
 def test_png_list_without_a_cell_table_keeps_its_timepoint(tmp_path):

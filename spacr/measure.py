@@ -659,7 +659,14 @@ def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organell
             nucleus_props = _calculate_zernike(
                 nucleus_mask, nucleus_props, degree=degree)
         if settings['cell_mask_dim'] is not None:
-            nucleus_props = pd.merge(nucleus_props, cell_to_nucleus, left_on='label', right_on='nucleus', how='left')
+            nucleus_props = pd.merge(
+                nucleus_props,
+                cell_to_nucleus,
+                left_on='label',
+                right_on='nucleus',
+                how='left',
+                validate='one_to_one',
+            )
         prop_ls.append(nucleus_props)
         ls.append('nucleus')
     else:
@@ -672,7 +679,14 @@ def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organell
             pathogen_props = _calculate_zernike(
                 pathogen_mask, pathogen_props, degree=degree)
         if settings['cell_mask_dim'] is not None:
-            pathogen_props = pd.merge(pathogen_props, cell_to_pathogen, left_on='label', right_on='pathogen', how='left')
+            pathogen_props = pd.merge(
+                pathogen_props,
+                cell_to_pathogen,
+                left_on='label',
+                right_on='pathogen',
+                how='left',
+                validate='one_to_one',
+            )
         prop_ls.append(pathogen_props)
         ls.append('pathogen')
     else:
@@ -687,7 +701,14 @@ def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organell
             # Map each organelle to its parent cell
             if settings['cell_mask_dim'] is not None:
                 organelle_to_cell = _map_child_to_parent(organelle_mask, cell_mask, child_name='organelle', parent_name='cell')
-                organelle_props = pd.merge(organelle_props, organelle_to_cell, left_on='label', right_on='organelle', how='left')
+                organelle_props = pd.merge(
+                    organelle_props,
+                    organelle_to_cell,
+                    left_on='label',
+                    right_on='organelle',
+                    how='left',
+                    validate='one_to_one',
+                )
         prop_ls.append(organelle_props)
         ls.append('organelle')
     else:
@@ -770,8 +791,14 @@ def _summarize_organelles_per_parent(organelle_mask, parent_mask, channel_arrays
                                                 parent_name=parent_name)
     
     if len(organelle_df) > 0 and len(organelle_to_parent) > 0:
-        organelle_df = pd.merge(organelle_df, organelle_to_parent, 
-                                left_on='label', right_on='organelle_label', how='left')
+        organelle_df = pd.merge(
+            organelle_df,
+            organelle_to_parent,
+            left_on='label',
+            right_on='organelle_label',
+            how='left',
+            validate='one_to_one',
+        )
     else:
         # No organelles — return empty summary for all parents
         rows = []
@@ -1573,7 +1600,8 @@ def _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_
     # Merge all channel dataframes on label
     merged_df = dfs[0]
     for df in dfs[1:]:
-        merged_df = merged_df.merge(df, on='label', how='outer')
+        merged_df = merged_df.merge(
+            df, on='label', how='outer', validate='one_to_one')
 
     return merged_df
 
