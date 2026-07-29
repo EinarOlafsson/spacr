@@ -516,7 +516,9 @@ def test_narrow_to_uint8_rules():
     assert narrow_to_uint8(np.array([[70000]], np.int32))[0, 0] == 255
     assert narrow_to_uint8(np.array([[-5]], np.int32))[0, 0] == 0
     assert narrow_to_uint8(np.array([[300.0]]))[0, 0] == 255
-    assert narrow_to_uint8(np.array([[200]], np.int8))[0, 0] == 0   # int8 max 127
+    # NumPy 2 rejects out-of-range Python integers instead of silently
+    # wrapping 200 to -56. Exercise the same signed-int8 input explicitly.
+    assert narrow_to_uint8(np.array([[-56]], np.int8))[0, 0] == 0
 
 
 def test_read_crop_png_forced_format_and_missing_file(tmp_path):
