@@ -601,8 +601,8 @@ def test_no_duplicate_core_dependencies():
     assert not dupes, f"duplicate core dependencies: {dupes}"
 
 
-def test_native_features_not_qualified_on_python_314_are_optional():
-    """Core imports must not require native features outside the 3.14 profile."""
+def test_native_features_are_optional_on_python_314():
+    """Native feature dependencies must not become core requirements."""
     core = {_name_of(spec) for spec in _core_dependencies()}
     extras = _extras()
     for package, extra in (("pylibczirw", "czi"), ("btrack", "btrack")):

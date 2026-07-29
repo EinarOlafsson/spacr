@@ -41,13 +41,11 @@ jobs:
         # dependency publishes cp311/cp312 wheels, so both are *expected to
         # pass*.
         #
-        # 3.13 was added on 2026-07-27, together with `numpy>=1.26.4,<3.0`,
-        # `requires-python = ">=3.9,<3.14"` and the move of mahotas and
-        # torchcam into extras. It is the cell that makes the new classifier
-        # a fact rather than a claim, and it is where the numpy-2 code paths
-        # (np.trapezoid, np.ptp) are actually executed rather than argued
-        # about — on 3.10 pip still resolves numpy 2.2.6, but 3.13 is where
-        # the newest numpy lands.
+        # 3.13 and 3.14 exercise the numpy-2 code paths (np.trapezoid, np.ptp)
+        # on the newest supported interpreters. Python 3.14 is a full,
+        # blocking fast-suite cell rather than an install-only smoke test.
+        # mahotas 1.4.18 builds successfully from its sdist and btrack 0.7.0
+        # ships a working native tracker for CPython 3.14 on Linux.
         #
         # Every cell here is blocking. If one is red on first run that is a
         # real finding — do not paper over it with continue-on-error, which is
@@ -57,10 +55,11 @@ jobs:
         # torch 2.8 and the final compatible releases of several scientific
         # dependencies, so it is blocking rather than merely an install
         # smoke test.
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
 
-        # The extras each cell installs. They differ for ONE measured reason,
-        # and it is not a convenience: `torchcam` cannot be had on Python 3.13.
+        # The extras each cell installs. They differ for measured packaging
+        # constraints: `torchcam` cannot be installed on Python 3.13 or 3.14,
+        # and pylibCZIrw does not publish a CPython 3.14 wheel.
         # Every release satisfying `>=0.4.0,<1.0` declares `numpy<2.0.0`, and
         # no numpy satisfying that publishes a cp313 wheel. Both halves were
         # reproduced in a throwaway CPython 3.13.14 env on 2026-07-27, and
@@ -93,6 +92,8 @@ jobs:
             extras: "qt,dev,zernike,attribution,btrack,czi"
           - python-version: "3.13"
             extras: "qt,dev,zernike,btrack,czi"
+          - python-version: "3.14"
+            extras: "qt,dev,zernike,btrack"
 
     steps:
       - uses: actions/checkout@v6
