@@ -5127,12 +5127,14 @@ def extract_boundaries(mask, dilation_radius=1):
     :param dilation_radius: half-width of the structuring element.
     :returns: boolean boundary mask.
     """
-    binary_mask = (mask > 0).astype(np.uint8)
-    struct_elem = np.ones((dilation_radius*2+1, dilation_radius*2+1))
+    binary_mask = np.asarray(mask) > 0
+    struct_elem = np.ones(
+        (dilation_radius * 2 + 1, dilation_radius * 2 + 1),
+        dtype=bool,
+    )
     dilated = morphology.dilation(binary_mask, footprint=struct_elem)
     eroded = morphology.erosion(binary_mask, footprint=struct_elem)
-    boundary = dilated ^ eroded
-    return boundary
+    return np.logical_xor(dilated, eroded)
 
 def boundary_f1_score(mask_true, mask_pred, dilation_radius=1):
     """Return the boundary F1 score between two masks with tolerance ``dilation_radius``."""
