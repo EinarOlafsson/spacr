@@ -128,3 +128,14 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
     assert "actions/download-artifact@v6" in workflow
     assert "https://pypi.org/pypi/spacr/$version/json" in workflow
     assert "gh release upload" in workflow
+
+
+def test_builders_read_version_without_importing_setup_py():
+    for path in (
+        ONLINE / "build_linux_online.sh",
+        ONLINE / "build_macos_online.sh",
+        ONLINE / "build_windows_online.ps1",
+    ):
+        source = _text(path)
+        assert 'ast.parse' in source
+        assert "setup.py --version" not in source

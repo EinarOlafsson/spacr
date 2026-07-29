@@ -6,7 +6,7 @@ if [[ "$(uname -s)" != "Darwin" ]]; then
     exit 2
 fi
 
-VERSION="$(python3 setup.py --version)"
+VERSION="$(python3 -c 'import ast,pathlib; t=ast.parse(pathlib.Path("setup.py").read_text()); print(next(ast.literal_eval(n.value) for n in t.body if isinstance(n, ast.Assign) and any(isinstance(x, ast.Name) and x.id == "VERSION" for x in n.targets)))')"
 OUT_DIR="dist/online"
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/spacr-online-pkg.XXXXXX")"
 ROOT="$WORK/root"

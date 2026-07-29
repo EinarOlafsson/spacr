@@ -105,7 +105,7 @@ jobs:
       - uses: actions/checkout@v6
       - name: Require the matching PyPI release
         run: |
-          version=$(python3 setup.py --version)
+          version=$(python3 -c 'import ast,pathlib; t=ast.parse(pathlib.Path("setup.py").read_text()); print(next(ast.literal_eval(n.value) for n in t.body if isinstance(n, ast.Assign) and any(isinstance(x, ast.Name) and x.id == "VERSION" for x in n.targets)))')
           curl --proto '=https' --tlsv1.2 --fail --silent --show-error \
             "https://pypi.org/pypi/spacr/$version/json" >/dev/null
           echo "PyPI spacr==$version is available."
