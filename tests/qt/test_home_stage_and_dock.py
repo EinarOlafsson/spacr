@@ -487,18 +487,28 @@ class TestDockModes:
     rather than build a second one.
     """
 
-    def test_the_default_is_the_edge_reveal(self, tmp_settings):
+    def test_the_default_is_locked_open(self, tmp_settings):
         from spacr.qt import preferences as prefs
-        assert prefs.DEFAULT_DOCK_MODE == "auto"
-        assert prefs.get_dock_mode() == "auto"
+        assert prefs.DEFAULT_DOCK_MODE == "locked"
+        assert prefs.get_dock_mode() == "locked"
 
     def test_an_unknown_mode_falls_back_rather_than_raising(self,
                                                             tmp_settings):
         from spacr.qt import preferences as prefs
         prefs._settings().setValue(prefs._KEY_DOCK_MODE, "sideways")
-        assert prefs.get_dock_mode() == "auto"
+        assert prefs.get_dock_mode() == "locked"
         with pytest.raises(ValueError):
             prefs.set_dock_mode("sideways")
+
+    def test_an_unreadable_preference_also_falls_back_to_locked(
+            self, monkeypatch):
+        from spacr.qt import preferences as prefs
+
+        def unreadable():
+            raise OSError("settings unavailable")
+
+        monkeypatch.setattr(prefs, "get_dock_mode", unreadable)
+        assert MainWindow.dock_mode(object()) == "locked"
 
     def test_auto_keeps_the_sidebar_in_the_drawer(self, qtbot,
                                                   qt_theme_applied,
