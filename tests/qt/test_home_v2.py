@@ -895,6 +895,28 @@ def test_a_running_module_is_reflected_on_home(home, qapp):
     assert not home._banner.isVisible()
 
 
+def test_concurrent_runs_are_stacked_oldest_first_on_home(home, qapp):
+    first, _ = _fake_run("mask")
+    second, _ = _fake_run("measure")
+    third, _ = _fake_run("classify")
+    qapp.processEvents()
+
+    visible = [banner for banner in home._banners if banner.isVisible()]
+    assert len(visible) == 3
+    assert ["Mask", "Measure", "Classify (CV)"] == [
+        banner._title.text().split(" ·", 1)[0] for banner in visible
+    ]
+
+    bridge.registry().unregister(second)
+    qapp.processEvents()
+    visible = [banner for banner in home._banners if banner.isVisible()]
+    assert ["Mask", "Classify (CV)"] == [
+        banner._title.text().split(" ·", 1)[0] for banner in visible
+    ]
+    bridge.registry().unregister(first)
+    bridge.registry().unregister(third)
+
+
 def test_the_banner_shows_progress_scraped_from_the_pipeline(home, qapp):
     handle, worker = _fake_run("measure")
     worker.line_ready.emit(
