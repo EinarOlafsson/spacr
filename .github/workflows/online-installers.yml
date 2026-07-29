@@ -1,0 +1,120 @@
+name: lightweight online installers
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [spacr-codex, spacr-nightly]
+    paths:
+      - ".github/workflows/online-installers.yml"
+      - "packaging/online/**"
+      - "setup.py"
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  linux:
+    name: Linux online installer
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Build versioned .run installer
+        run: packaging/online/build_linux_online.sh
+      - name: Validate shell syntax and dry-run contract
+        run: |
+          installer=$(find dist/online -name '*Linux*x86_64*Online.run' -print -quit)
+          test -n "$installer"
+          bash -n "$installer"
+          "$installer" \
+            --dry-run \
+            --skip-system-deps \
+            --no-launch \
+            --install-root "$RUNNER_TEMP/spacr"
+      - uses: actions/upload-artifact@v6
+        with:
+          name: spacr-online-linux
+          path: dist/online/*Linux*x86_64*Online.run
+          if-no-files-found: error
+
+  windows:
+    name: Windows online installer
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install NSIS
+        shell: powershell
+        run: choco install nsis --yes --no-progress
+      - name: Validate PowerShell bootstrap dry run
+        shell: powershell
+        run: |
+          & .\packaging\online\install_spacr_windows.ps1 `
+            -DryRun `
+            -InstallRoot (Join-Path $env:RUNNER_TEMP "SpaCR") `
+            -Version "1.4.9.8"
+      - name: Build small NSIS web installer
+        shell: powershell
+        run: .\packaging\online\build_windows_online.ps1
+      - uses: actions/upload-artifact@v6
+        with:
+          name: spacr-online-windows
+          path: dist/online/*Windows*Online-Setup.exe
+          if-no-files-found: error
+
+  macos:
+    name: macOS universal online installer
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Build small .pkg web installer
+        run: packaging/online/build_macos_online.sh
+      - name: Inspect package and bootstrap scripts
+        run: |
+          pkg=$(find dist/online -name '*macOS*Online.pkg' -print -quit)
+          test -n "$pkg"
+          pkgutil --check-signature "$pkg" || true
+          pkgutil --payload-files "$pkg" | grep 'Applications/SpaCR.app'
+          bash -n packaging/online/install_spacr_unix.sh
+          packaging/online/install_spacr_unix.sh \
+            --platform macos \
+            --dry-run \
+            --no-launch \
+            --install-root "$RUNNER_TEMP/spacr"
+      - uses: actions/upload-artifact@v6
+        with:
+          name: spacr-online-macos
+          path: dist/online/*macOS*Online.pkg
+          if-no-files-found: error
+
+  attach-to-release:
+    name: Attach installers to GitHub release
+    if: github.event_name == 'release'
+    needs: [linux, windows, macos]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - name: Require the matching PyPI release
+        run: |
+          version=$(python3 setup.py --version)
+          curl --proto '=https' --tlsv1.2 --fail --silent --show-error \
+            "https://pypi.org/pypi/spacr/$version/json" >/dev/null
+          echo "PyPI spacr==$version is available."
+      - uses: actions/download-artifact@v6
+        with:
+          pattern: spacr-online-*
+          path: installers
+          merge-multiple: true
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.release.tag_name }}" installers/* --clobber
