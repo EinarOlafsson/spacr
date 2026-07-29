@@ -1,5 +1,5 @@
 
-import os, random, warnings, traceback, sqlite3, shap, math, gc
+import os, random, warnings, traceback, sqlite3, math, gc
 from time import time, sleep
 from datetime import datetime
 import numpy as np
@@ -1488,7 +1488,8 @@ def generate_shap_summary_plot(df,target='prauc', clean=True, dst=None):
     :param clean: When True, drop constant columns before fitting.
     :returns: The current Matplotlib figure (SHAP creates it as a side effect).
     """
-    
+    import shap
+
     features = ['number_of_active_genes', 'number_of_control_genes', 'avg_reads_per_gene',
                 'classifier_accuracy', 'nr_plates', 'number_of_genes', 'avg_genes_per_well',
                 'avg_cells_per_well', 'sequencing_error', 'well_ineq_coeff', 'gene_ineq_coeff']

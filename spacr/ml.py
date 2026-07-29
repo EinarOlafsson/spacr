@@ -1,4 +1,4 @@
-import os, sys, shap, re
+import os, sys, re
 import pandas as pd
 import numpy as np
 from scipy import stats, test
@@ -2637,7 +2637,8 @@ def shap_analysis(model, X_train, X_test):
     :param X_test: Test features to explain.
     :returns: Matplotlib ``Figure`` holding the summary plot.
     """
-    
+    import shap
+
     explainer = shap.Explainer(model, X_train)
     shap_values = explainer(X_test)
     # TreeExplainer returns one output axis for every classifier class in
@@ -3013,6 +3014,8 @@ def interperate_vision_model(settings=None):
 
     # Step 3: SHAP Analysis
     if settings['shap']:
+        import shap
+
         print(f"SHAP Analysis ...")
 
         # Select top N features based on Random Forest importance and fit the model on these features only

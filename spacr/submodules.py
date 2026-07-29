@@ -1,5 +1,5 @@
 import seaborn as sns
-import os, random, sqlite3, re, shap, string, time, shutil, itertools
+import os, random, sqlite3, re, string, time, shutil, itertools
 import pandas as pd
 import numpy as np
 
@@ -1678,6 +1678,8 @@ def interperate_vision_model(settings=None):
     
     # Step 3: SHAP Analysis
     if settings['shap']:
+        import shap
+
         print(f"SHAP Analysis ...")
 
         # Select top N features based on Random Forest importance and fit the model on these features only
