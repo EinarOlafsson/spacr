@@ -865,17 +865,44 @@ class TestPreferences:
         monkeypatch.setattr(imagery, "background_path", boom)
         assert preferences.cell_background_path(100, 100) is None
 
-    def test_the_dialog_offers_both_new_choices(self, qapp, qtbot):
+    def test_the_dialog_consolidates_image_variants_into_theme(self, qapp, qtbot):
         dialog = preferences.PreferencesDialog()
         qtbot.addWidget(dialog)
-        from PySide6.QtWidgets import QComboBox
+        from PySide6.QtWidgets import QComboBox, QLabel, QPushButton
         values = set()
         for combo in dialog.findChildren(QComboBox):
             for i in range(combo.count()):
                 values.add(combo.itemData(i))
-        assert "cell" in values
-        assert "deep_field" in values
-        assert {"microtubules", "filopodia"} <= values
+        assert "space:deep_field" in values
+        assert {"cell:microtubules", "cell:filopodia"} <= values
+        assert "deep_field" not in values
+        assert "microtubules" not in values
+        labels = {label.text() for label in dialog.findChildren(QLabel)}
+        assert "Space background" not in labels
+        assert "Cell background" not in labels
+        assert not any(
+            "NASA" in button.text()
+            for button in dialog.findChildren(QPushButton))
+
+    def test_composite_theme_choice_round_trips_variants(
+            self, qapp, tmp_path, monkeypatch):
+        from PySide6.QtCore import QSettings
+
+        settings_path = tmp_path / "theme-choice.ini"
+        monkeypatch.setattr(
+            preferences,
+            "_settings",
+            lambda: QSettings(str(settings_path), QSettings.IniFormat),
+        )
+        preferences.set_theme_choice("space:stars")
+        assert preferences.get_theme() == "space"
+        assert preferences.get_space_variant() == "stars"
+        assert preferences.get_theme_choice() == "space:stars"
+
+        preferences.set_theme_choice("cell:filopodia")
+        assert preferences.get_theme() == "cell"
+        assert preferences.get_cell_variant() == "filopodia"
+        assert preferences.get_theme_choice() == "cell:filopodia"
 
 
 # ---------------------------------------------------------------------------
