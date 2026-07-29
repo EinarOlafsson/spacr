@@ -7483,7 +7483,7 @@ def process_masks(mask_folder, image_folder, channel, batch_size=50, n_clusters=
     def measure_morphology_and_intensity(mask, image):
         """Return a list of dicts with area/mean_intensity/perimeter/eccentricity per labeled region."""
         properties = measure.regionprops(mask, intensity_image=image)
-        properties_list = [{'area': p.area, 'mean_intensity': p.mean_intensity, 'perimeter': p.perimeter, 'eccentricity': p.eccentricity} for p in properties]
+        properties_list = [{'area': p.area, 'mean_intensity': p.intensity_mean, 'perimeter': p.perimeter, 'eccentricity': p.eccentricity} for p in properties]
         return properties_list
 
     def cluster_objects(properties, n_clusters=2):
