@@ -3214,19 +3214,31 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
         else:
             raise ValueError(f"Invalid error_bar_type: {error_bar_type}. Choose either 'std' or 'sem'.")
 
-        sns.barplot(x=grouping_column, y=summary_func, data=summary_df.reset_index(), errorbar=None, order=order, palette=color_palette)
+        sns.barplot(
+            x=grouping_column, y=summary_func, hue=grouping_column,
+            data=summary_df.reset_index(), errorbar=None, order=order,
+            palette=color_palette, legend=False)
 
         # Add error bars (standard deviation or standard error of the mean)
         plt.errorbar(x=np.arange(len(summary_df)), y=summary_df[summary_func], yerr=error_bars, fmt='none', c='black', capsize=5)
     
     elif graph_type == 'violin':
-        sns.violinplot(x=grouping_column, y=data_column, data=df, order=order, palette=color_palette)
+        sns.violinplot(
+            x=grouping_column, y=data_column, hue=grouping_column,
+            data=df, order=order, palette=color_palette, legend=False)
     elif graph_type == 'jitter':
-        sns.stripplot(x=grouping_column, y=data_column, data=df, jitter=True, order=order, palette=color_palette)
+        sns.stripplot(
+            x=grouping_column, y=data_column, hue=grouping_column,
+            data=df, jitter=True, order=order, palette=color_palette,
+            legend=False)
     elif graph_type == 'box':
-        sns.boxplot(x=grouping_column, y=data_column, data=df, order=order, palette=color_palette)
+        sns.boxplot(
+            x=grouping_column, y=data_column, hue=grouping_column,
+            data=df, order=order, palette=color_palette, legend=False)
     elif graph_type == 'jitter_box':
-        sns.boxplot(x=grouping_column, y=data_column, data=df, order=order, palette=color_palette)
+        sns.boxplot(
+            x=grouping_column, y=data_column, hue=grouping_column,
+            data=df, order=order, palette=color_palette, legend=False)
         sns.stripplot(x=grouping_column, y=data_column, data=df, jitter=True, color='black', alpha=0.5, order=order)
 
     # Create a DataFrame to summarize the test results
@@ -3851,7 +3863,11 @@ class spacrGraph:
                 ax.set_ylim(self.y_lim[0], None)
 
         sns.despine(ax=ax, top=True, right=True)
-        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), title='Data Column') # Move the legend outside the plot
+        handles, labels = ax.get_legend_handles_labels()
+        if handles:
+            ax.legend(
+                handles, labels, loc='center left',
+                bbox_to_anchor=(1, 0.5), title='Data Column')
         
         if not self.graph_type in ['line','line_std']:
             ax.set_xlabel('')
@@ -3859,8 +3875,12 @@ class spacrGraph:
         x_positions = _get_positions(self, ax)
         
         if len(self.data_column) == 1 and not self.graph_type in ['line','line_std']:
-            ax.legend().remove()
-            ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
+            legend = ax.get_legend()
+            if legend is not None:
+                legend.remove()
+            for label in ax.get_xticklabels():
+                label.set_rotation(45)
+                label.set_ha('right')
 
         elif len(self.data_column) > 1 and not self.graph_type in ['line','line_std']:
             ax.set_xticks([])
@@ -3970,13 +3990,19 @@ class spacrGraph:
             hue = self.hue
             plot_order = self.order
 
+        plot_hue = hue or x_axis_column
+        plot_palette = self.sns_palette[:max(1, len(plot_order))]
+        show_legend = hue is not None
         summary_df = self.df_melted.groupby(
             [x_axis_column], observed=False
         ).agg(mean=('Value', 'mean'), std=('Value', 'std'),
               sem=('Value', 'sem')).reset_index()
         error_bars = summary_df[self.error_bar_type] if self.error_bar_type in ['std', 'sem'] else None
         self.summary_df = summary_df.copy()
-        sns.barplot(data=self.df_melted, x=x_axis_column, y='Value', hue=hue, palette=self.sns_palette, ax=ax, dodge=self.jitter_bar_dodge, errorbar=None, order=plot_order)
+        sns.barplot(
+            data=self.df_melted, x=x_axis_column, y='Value',
+            hue=plot_hue, palette=plot_palette, legend=show_legend, ax=ax,
+            dodge=self.jitter_bar_dodge, errorbar=None, order=plot_order)
         
         # Adjust the bar width manually
         if len(self.data_column) > 1:
@@ -4020,9 +4046,16 @@ class spacrGraph:
             hue = self.hue
             plot_order = self.order
 
+        plot_hue = hue or x_axis_column
+        plot_palette = self.sns_palette[:max(1, len(plot_order))]
+        show_legend = hue is not None
         # Create the jitter plot
         self.summary_df = self.df_melted.copy()
-        sns.stripplot(data=self.df_melted,x=x_axis_column,y='Value',hue=hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax, alpha=0.6, size=16, order=plot_order)
+        sns.stripplot(
+            data=self.df_melted, x=x_axis_column, y='Value',
+            hue=plot_hue, palette=plot_palette, legend=show_legend,
+            dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,
+            alpha=0.6, size=16, order=plot_order)
     
         # Adjust legend and labels
         ax.set_xlabel(self.grouping_column)
@@ -4030,7 +4063,8 @@ class spacrGraph:
         # Manage the legend
         handles, labels = ax.get_legend_handles_labels()
         unique_labels = dict(zip(labels, handles))
-        ax.legend(unique_labels.values(), unique_labels.keys(), loc='best')
+        if unique_labels:
+            ax.legend(unique_labels.values(), unique_labels.keys(), loc='best')
 
         if self.log_y:
             ax.set_yscale('log')
@@ -4061,7 +4095,12 @@ class spacrGraph:
 
         # Create the line graph with one line per group
         self.summary_df = self.df.copy()
-        sns.lineplot(data=self.df,x=x_axis_column,y=y_axis_column,hue=hue,palette=self.sns_palette,ax=ax,marker='o',linewidth=1,markersize=6)
+        line_palette = self.sns_palette[
+            :max(1, self.df[hue].nunique(dropna=True))]
+        sns.lineplot(
+            data=self.df, x=x_axis_column, y=y_axis_column, hue=hue,
+            palette=line_palette, ax=ax, marker='o', linewidth=1,
+            markersize=6)
 
         # Adjust axis labels
         ax.set_xlabel(f"{x_axis_column}")
@@ -4117,9 +4156,15 @@ class spacrGraph:
             hue = self.hue
             plot_order = self.order
 
+        plot_hue = hue or x_axis_column
+        plot_palette = self.sns_palette[:max(1, len(plot_order))]
+        show_legend = hue is not None
         # Create the box plot
         self.summary_df = self.df_melted.copy()
-        sns.boxplot(data=self.df_melted,x=x_axis_column,y='Value',hue=hue,palette=self.sns_palette,ax=ax, order=plot_order)
+        sns.boxplot(
+            data=self.df_melted, x=x_axis_column, y='Value',
+            hue=plot_hue, palette=plot_palette, legend=show_legend,
+            ax=ax, order=plot_order)
 
         # Adjust legend and labels
         ax.set_xlabel(self.grouping_column)
@@ -4127,7 +4172,8 @@ class spacrGraph:
         # Manage the legend
         handles, labels = ax.get_legend_handles_labels()
         unique_labels = dict(zip(labels, handles))
-        ax.legend(unique_labels.values(), unique_labels.keys(), loc='best')
+        if unique_labels:
+            ax.legend(unique_labels.values(), unique_labels.keys(), loc='best')
 
         if self.log_y:
             ax.set_yscale('log')
@@ -4152,9 +4198,15 @@ class spacrGraph:
             hue = self.hue
             plot_order = self.order
 
+        plot_hue = hue or x_axis_column
+        plot_palette = self.sns_palette[:max(1, len(plot_order))]
+        show_legend = hue is not None
         # Create the violin plot
         self.summary_df = self.df_melted.copy()
-        sns.violinplot(data=self.df_melted,x=x_axis_column,y='Value', hue=hue,palette=self.sns_palette,ax=ax, order=plot_order)
+        sns.violinplot(
+            data=self.df_melted, x=x_axis_column, y='Value',
+            hue=plot_hue, palette=plot_palette, legend=show_legend,
+            ax=ax, order=plot_order)
     
         # Adjust legend and labels
         ax.set_xlabel(self.grouping_column)
@@ -4163,7 +4215,8 @@ class spacrGraph:
         # Manage the legend
         handles, labels = ax.get_legend_handles_labels()
         unique_labels = dict(zip(labels, handles))
-        ax.legend(unique_labels.values(), unique_labels.keys(), loc='best')
+        if unique_labels:
+            ax.legend(unique_labels.values(), unique_labels.keys(), loc='best')
 
         if self.log_y:
             ax.set_yscale('log')
@@ -4188,14 +4241,25 @@ class spacrGraph:
             hue = self.hue
             plot_order = self.order
 
+        plot_hue = hue or x_axis_column
+        plot_palette = self.sns_palette[:max(1, len(plot_order))]
+        show_legend = hue is not None
         summary_df = self.df_melted.groupby(
             [x_axis_column], observed=False
         ).agg(mean=('Value', 'mean'), std=('Value', 'std'),
               sem=('Value', 'sem')).reset_index()
         error_bars = summary_df[self.error_bar_type] if self.error_bar_type in ['std', 'sem'] else None
         self.summary_df = summary_df
-        sns.barplot(data=self.df_melted, x=x_axis_column, y='Value', hue=hue, palette=self.sns_palette, ax=ax, dodge=self.jitter_bar_dodge, errorbar=None, order=plot_order)
-        sns.stripplot(data=self.df_melted,x=x_axis_column,y='Value',hue=hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,alpha=0.6, edgecolor='white',linewidth=1, size=16, order=plot_order)
+        sns.barplot(
+            data=self.df_melted, x=x_axis_column, y='Value',
+            hue=plot_hue, palette=plot_palette, legend=show_legend, ax=ax,
+            dodge=self.jitter_bar_dodge, errorbar=None, order=plot_order)
+        sns.stripplot(
+            data=self.df_melted, x=x_axis_column, y='Value',
+            hue=plot_hue, palette=plot_palette, legend=show_legend,
+            dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,
+            alpha=0.6, edgecolor='white', linewidth=1, size=16,
+            order=plot_order)
         
         # Adjust the bar width manually
         if len(self.data_column) > 1:
@@ -4239,10 +4303,21 @@ class spacrGraph:
             hue = self.hue
             plot_order = self.order
 
+        plot_hue = hue or x_axis_column
+        plot_palette = self.sns_palette[:max(1, len(plot_order))]
+        show_legend = hue is not None
         # Create the box plot
         self.summary_df = self.df_melted.copy()
-        sns.boxplot(data=self.df_melted,x=x_axis_column,y='Value',hue=hue,palette=self.sns_palette,ax=ax, order=plot_order)
-        sns.stripplot(data=self.df_melted,x=x_axis_column,y='Value',hue=hue, palette=self.sns_palette, dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,alpha=0.6, edgecolor='white',linewidth=1, size=12, order=plot_order)
+        sns.boxplot(
+            data=self.df_melted, x=x_axis_column, y='Value',
+            hue=plot_hue, palette=plot_palette, legend=show_legend,
+            ax=ax, order=plot_order)
+        sns.stripplot(
+            data=self.df_melted, x=x_axis_column, y='Value',
+            hue=plot_hue, palette=plot_palette, legend=show_legend,
+            dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,
+            alpha=0.6, edgecolor='white', linewidth=1, size=12,
+            order=plot_order)
     
         # Adjust legend and labels
         ax.set_xlabel(self.grouping_column)
@@ -4250,7 +4325,8 @@ class spacrGraph:
         # Manage the legend
         handles, labels = ax.get_legend_handles_labels()
         unique_labels = dict(zip(labels, handles))
-        ax.legend(unique_labels.values(), unique_labels.keys(), loc='best')
+        if unique_labels:
+            ax.legend(unique_labels.values(), unique_labels.keys(), loc='best')
 
         if self.log_y:
             ax.set_yscale('log')
