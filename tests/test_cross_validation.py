@@ -312,6 +312,8 @@ def test_cv_loaders_build_one_pair_per_fold_covering_every_crop(tmp_path, rng):
     total_val = sum(len(v.dataset) for _, v in fold_loaders)
     assert total_val == 48
     for train_loader, val_loader in fold_loaders:
+        assert train_loader.num_workers == 0
+        assert val_loader.num_workers == 0
         assert len(train_loader.dataset) + len(val_loader.dataset) == 48
 
 

@@ -176,6 +176,8 @@ def test_generate_loaders_train_mode(tmp_path, rng):
         pin_memory=False, normalize=True, channels=["r", "g", "b"],
         augment=False, verbose=False)
     assert train is not None and val is not None
+    assert train.num_workers == 0
+    assert val.num_workers == 0
     batch = next(iter(train))
     assert len(batch) >= 2
 
