@@ -3430,9 +3430,13 @@ class spacrGraph:
                 data = self.df.loc[self.df[self.grouping_column] == group, column].dropna()
                 n_samples = len(data)
 
-                if n_samples < 3:
-                    # Skip test if there aren't enough data points
-                    print(f"Skipping normality test for group '{group}' on column '{column}' - Not enough data.")
+                if n_samples < 3 or data.nunique() < 2:
+                    reason = (
+                        "not enough data" if n_samples < 3
+                        else "constant data"
+                    )
+                    print(f"Skipping normality test for group '{group}' on "
+                          f"column '{column}' - {reason}.")
                     normality_results.append({
                         'Comparison': f'Normality test for {group} on {column}',
                         'Test Statistic': None,
@@ -3461,9 +3465,15 @@ class spacrGraph:
                     'n': n_samples
                 })
 
-            # Check if all groups are normally distributed (p > 0.05)
-            normal_p_values = [result['p-value'] for result in normality_results if result['Column'] == column and result['p-value'] is not None]
-            is_normal = all(p > 0.05 for p in normal_p_values)
+        # No successful normality test is not evidence of normality. This
+        # commonly occurs after well-level aggregation leaves one point per
+        # group; the old vacuous ``all([])`` then selected a t-test.
+        normal_p_values = [
+            result['p-value'] for result in normality_results
+            if result['p-value'] is not None
+        ]
+        is_normal = bool(normal_p_values) and all(
+            p > 0.05 for p in normal_p_values)
 
         return is_normal, normality_results
     
@@ -3476,7 +3486,15 @@ class spacrGraph:
         cols = self.data_column if len(self.data_column) > 1 else [self.data_column[0]]
         # If you only support one column at a time in Levene:
         col = cols[0]
-        grouped = [self.df.loc[self.df[self.grouping_column] == g, col].dropna() for g in unique_groups]
+        grouped = [
+            self.df.loc[
+                self.df[self.grouping_column] == g, col].dropna()
+            for g in unique_groups
+        ]
+        if (len(grouped) < 2
+                or any(len(values) < 2 for values in grouped)
+                or not any(values.nunique() > 1 for values in grouped)):
+            return np.nan, np.nan
         stat, p_value = levene(*grouped)
         return stat, p_value
 
@@ -3484,10 +3502,31 @@ class spacrGraph:
         """Perform statistical tests separately for each data column."""
         test_results = []
         for column in self.data_column:  # Iterate over each data column
-            grouped_data = [self.df.loc[self.df[self.grouping_column] == group, column] for group in unique_groups]
+            grouped_data = [
+                self.df.loc[
+                    self.df[self.grouping_column] == group, column].dropna()
+                for group in unique_groups
+            ]
             if len(unique_groups) == 2:  # For two groups: class_0 vs class_1
                 if is_normal:
-                    if self.paired:
+                    parametric_testable = (
+                        all(len(values) >= 2 for values in grouped_data)
+                        and any(values.nunique() > 1
+                                for values in grouped_data)
+                    )
+                    if self.paired and parametric_testable:
+                        parametric_testable = (
+                            len(grouped_data[0]) == len(grouped_data[1])
+                            and np.unique(
+                                grouped_data[0].to_numpy()
+                                - grouped_data[1].to_numpy()
+                            ).size > 1
+                        )
+                    if not parametric_testable:
+                        stat, p = np.nan, np.nan
+                        test_name = (
+                            'Paired T-test' if self.paired else 'T-test')
+                    elif self.paired:
                         stat, p = pg.ttest(grouped_data[0], grouped_data[1], paired=True).iloc[0][['T', 'p-val']]
                         test_name = 'Paired T-test'
                     else:
@@ -3497,18 +3536,46 @@ class spacrGraph:
                     if self.paired:
                         # pingouin's wilcoxon statistic column is 'W-val'; 'T'
                         # belongs to pg.ttest above, so this raised KeyError.
-                        stat, p = pg.wilcoxon(grouped_data[0], grouped_data[1]).iloc[0][['W-val', 'p-val']]
                         test_name = 'Paired Wilcoxon test'
+                        paired_testable = (
+                            all(len(values) > 0 for values in grouped_data)
+                            and len(grouped_data[0]) == len(grouped_data[1])
+                            and np.any(
+                                grouped_data[0].to_numpy()
+                                != grouped_data[1].to_numpy())
+                        )
+                        if not paired_testable:
+                            stat, p = np.nan, np.nan
+                        else:
+                            stat, p = pg.wilcoxon(
+                                grouped_data[0], grouped_data[1]
+                            ).iloc[0][['W-val', 'p-val']]
                     else:
-                        stat, p = mannwhitneyu(grouped_data[0], grouped_data[1])
                         test_name = 'Mann-Whitney U test'
+                        if any(len(values) == 0 for values in grouped_data):
+                            stat, p = np.nan, np.nan
+                        else:
+                            stat, p = mannwhitneyu(
+                                grouped_data[0], grouped_data[1])
             else:
                 if is_normal:
-                    stat, p = f_oneway(*grouped_data)
                     test_name = 'One-way ANOVA'
+                    parametric_testable = (
+                        all(len(values) >= 2 for values in grouped_data)
+                        and any(values.nunique() > 1
+                                for values in grouped_data)
+                    )
+                    if parametric_testable:
+                        stat, p = f_oneway(*grouped_data)
+                    else:
+                        stat, p = np.nan, np.nan
                 else:
-                    stat, p = kruskal(*grouped_data)
                     test_name = 'Kruskal-Wallis test'
+                    if (any(len(values) == 0 for values in grouped_data)
+                            or pd.concat(grouped_data).nunique() < 2):
+                        stat, p = np.nan, np.nan
+                    else:
+                        stat, p = kruskal(*grouped_data)
 
             test_results.append({
                 'Comparison': f'{unique_groups[0]} vs {unique_groups[1]} ({column})',
@@ -3516,9 +3583,10 @@ class spacrGraph:
                 'p-value': p,
                 'Test Name': test_name,
                 'Column': column,
-                'n_object': len(grouped_data[0]) + len(grouped_data[1]),
-                'n_well': len(self.df[self.df[self.grouping_column] == unique_groups[0]]) + 
-                          len(self.df[self.df[self.grouping_column] == unique_groups[1]])})
+                'n_object': sum(len(values) for values in grouped_data),
+                'n_well': sum(
+                    len(self.df[self.df[self.grouping_column] == group])
+                    for group in unique_groups)})
 
         return test_results
     

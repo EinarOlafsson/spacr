@@ -390,6 +390,48 @@ def test_perform_normality_tests_flags_skewed_groups():
     assert all(r["p-value"] < 0.05 for r in results)
 
 
+def test_degenerate_groups_are_not_mistaken_for_normal_data():
+    """One value per well cannot establish normality or equal variance."""
+    import warnings
+    from spacr.plot import spacrGraph
+
+    df = _frame(("a", "b"), [[1.0], [2.0]])
+    graph = spacrGraph(df, "grp", "v1", representation="object")
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        is_normal, _results = graph.perform_normality_tests()
+        levene_stat, levene_p = graph.perform_levene_test(
+            graph.df["grp"].unique())
+        tests = graph.perform_statistical_tests(
+            graph.df["grp"].unique(), is_normal=is_normal)
+
+    assert is_normal is False
+    assert np.isnan(levene_stat) and np.isnan(levene_p)
+    assert tests[0]["Test Name"] == "Mann-Whitney U test"
+    assert not [warning for warning in caught
+                if issubclass(warning.category, RuntimeWarning)]
+
+
+def test_constant_parametric_groups_return_nan_without_scipy_warning():
+    import warnings
+    from spacr.plot import spacrGraph
+
+    df = _frame(("a", "b"), [[1.0] * 5, [1.0] * 5])
+    graph = spacrGraph(df, "grp", "v1", representation="object")
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        results = graph.perform_statistical_tests(
+            graph.df["grp"].unique(), is_normal=True)
+
+    assert results[0]["Test Name"] == "T-test"
+    assert np.isnan(results[0]["Test Statistic"])
+    assert np.isnan(results[0]["p-value"])
+    assert not [warning for warning in caught
+                if issubclass(warning.category, RuntimeWarning)]
+
+
 # ===========================================================================
 # spacrGraph.perform_levene_test / perform_statistical_tests
 # ===========================================================================
@@ -411,6 +453,10 @@ def test_paired_ttest_branch():
     from spacr.plot import spacrGraph
 
     df = normal_df(("a", "b"), n=20)
+    # Avoid a zero-variance paired difference: it has no estimable standard
+    # error and therefore is not a valid t-test fixture.
+    in_b = df["grp"] == "b"
+    df.loc[in_b, "v1"] += np.linspace(-0.1, 0.1, in_b.sum())
     g = spacrGraph(df, "grp", "v1", representation="object", paired=True)
     res = g.perform_statistical_tests(g.df["grp"].unique(), is_normal=True)
 
@@ -419,6 +465,25 @@ def test_paired_ttest_branch():
     assert res[0]["Column"] == "v1"
     assert res[0]["n_object"] == 40
     assert res[0]["p-value"] < 0.05  # b is shifted +2 from a
+
+
+def test_paired_ttest_marks_zero_variance_differences_undefined():
+    import warnings
+    from spacr.plot import spacrGraph
+
+    graph = spacrGraph(
+        normal_df(("a", "b"), n=20), "grp", "v1",
+        representation="object", paired=True)
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        result = graph.perform_statistical_tests(
+            graph.df["grp"].unique(), is_normal=True)[0]
+
+    assert result["Test Name"] == "Paired T-test"
+    assert np.isnan(result["Test Statistic"])
+    assert np.isnan(result["p-value"])
+    assert not [warning for warning in caught
+                if issubclass(warning.category, RuntimeWarning)]
 
 
 def test_paired_wilcoxon_branch():
