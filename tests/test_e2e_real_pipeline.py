@@ -4,8 +4,8 @@ Runs the full spaCR core pipeline sequentially on a small copied subset of
 real cells, exercising core / io / measure / object / ml / utils (and a
 sequencing chunk on the real R1 fastq + toxo analysis on the outputs).
 
-Marked ``slow`` and GPU-backed — opt in with ``pytest -m slow``. Skips
-cleanly when the NAS dataset is not mounted, so it never breaks CI.
+Marked ``slow`` and GPU-backed. It runs automatically when the required NAS
+dataset is reachable and skips cleanly otherwise.
 """
 from __future__ import annotations
 
@@ -16,6 +16,7 @@ import sqlite3
 import numpy as np
 import pandas as pd
 import pytest
+from tests.resource_capabilities import paths_available
 
 import matplotlib
 matplotlib.use("Agg")
@@ -29,26 +30,16 @@ R1_FASTQ = "/nas_mnt/data/sequencing/seq_3/EO1_R1_001.fastq.gz"
 WELLS = ["E01", "E02", "L01", "L02"]     # E→row5(c1/c2), L→row12(c1/c2)
 FIELDS = ["F001", "F009"]                # 2 fields/well → 8 fields, 2 columns
 
-pytestmark = pytest.mark.slow
+pytestmark = [pytest.mark.slow, pytest.mark.nas]
 
-_run_real_e2e = os.environ.get("SPACR_RUN_REAL_E2E", "").strip().lower() in {
-    "1", "true", "yes", "on",
-}
-# Merely stat'ing an unavailable autofs/NAS path can block collection for
-# minutes. Never touch the mount unless the operator explicitly opts in.
-_available = (
-    _run_real_e2e
-    and os.path.isdir(RAW)
-    and os.path.isfile(MASK_SETTINGS)
-)
-_skip_reason = (
-    "NAS plate1 dataset not mounted"
-    if _run_real_e2e
-    else "set SPACR_RUN_REAL_E2E=1 to run the real NAS pipeline"
+# Probe autofs in a bounded child process: a connected NAS enables the suite
+# automatically, while a disconnected mount cannot stall test collection.
+_available = paths_available(
+    ((RAW, "dir"), (MASK_SETTINGS, "file"), (MEASURE_SETTINGS, "file"))
 )
 _skip = pytest.mark.skipif(not _available,
-                           reason=_skip_reason)
-_r1_available = _available and os.path.isfile(R1_FASTQ)
+                           reason="NAS plate1 dataset unavailable")
+_r1_available = _available and paths_available(((R1_FASTQ, "file"),))
 
 
 @pytest.fixture(scope="module")

@@ -143,12 +143,20 @@ jobs:
           python -m pip list --format=freeze | grep -Ei \
             '^(numpy|scipy|torch|torchvision|cellpose|mahotas|opencv-python-headless|pillow|psutil|lxml|PySide6|pandas|scikit-image)=' || true
 
-      - name: Run tests (skip slow / heavy / gpu-only)
+      - name: Run tests (resource tests detect availability)
         env:
           QT_QPA_PLATFORM: offscreen
           PYTHONPATH: ${{ github.workspace }}
         run: |
           python -m pytest tests/ \
-            --ignore=tests/test_gpu_pipeline.py \
             -m "not slow and not heavy" \
+            -v --tb=short
+
+      - name: Run available slow resource integrations
+        env:
+          QT_QPA_PLATFORM: offscreen
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          python -m pytest tests/ \
+            -m "(slow or heavy) and (gpu or network or nas)" \
             -v --tb=short

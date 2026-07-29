@@ -443,7 +443,7 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
         run: |
           python -m pytest tests/test_packaging_metadata.py tests/test_smoke.py \
-            -q --no-header -m "not slow and not heavy and not gpu and not network"
+            -q --no-header -m "not slow and not heavy"
 
       - name: Full suite (informational, never decides)
         # Linux already runs this in tests.yml; running it again here would
@@ -457,8 +457,10 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
         run: |
           python -m pytest tests/ \
-            --ignore=tests/test_gpu_pipeline.py \
-            -m "not slow and not heavy and not gpu and not network" \
+            -m "not slow and not heavy" \
+            -q --no-header --tb=short
+          python -m pytest tests/ \
+            -m "(slow or heavy) and (gpu or network or nas)" \
             -q --no-header --tb=short
 
   # -------------------------------------------------------------------------
