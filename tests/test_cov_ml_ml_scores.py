@@ -427,7 +427,7 @@ def test_ml_analysis_duplicate_location_column_matches_nothing(rng):
                        verbose=False, **COMMON)
 
 
-@pytest.mark.parametrize("model_type,cls_name", [("svm", "SVC"),
+@pytest.mark.parametrize("model_type,cls_name", [("svm", "CalibratedClassifierCV"),
                                                  ("mlp", "MLPClassifier")])
 def test_ml_analysis_models_without_feature_importances(model_type, cls_name, rng):
     """svm / mlp have no feature_importances_ -> empty importance table and
