@@ -301,7 +301,11 @@ def patched_mkdir(monkeypatch):
     calls = []
 
     def shim(path, *args, **kwargs):
-        calls.append(os.fspath(path))
+        # pathlib and lazily imported dependencies also use the process-wide
+        # os.mkdir function. Only record the product directory this fixture is
+        # intended to assert; still delegate every mkdir to the real function.
+        if os.path.basename(os.fspath(path)) == "result":
+            calls.append(os.fspath(path))
         try:
             real_mkdir(path)
         except FileExistsError:
