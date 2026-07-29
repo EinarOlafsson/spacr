@@ -5328,7 +5328,10 @@ def generate_cv_loaders(src, n_splits, mode='train', image_size=224, batch_size=
                                      class_balance=class_balance,
                                      split_name='train', verbose=True)
 
-    num_workers = max(n_jobs, 4) if n_jobs is not None else 0
+    # ``0`` is PyTorch's documented in-process mode and is important for GUI
+    # stability: forcing a minimum of four workers ignored the setting and
+    # created multiprocessing queues/sockets even when callers disabled them.
+    num_workers = max(0, int(n_jobs)) if n_jobs is not None else 0
     use_persistent = num_workers > 0
 
     fold_loaders = []
@@ -5423,8 +5426,10 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
     data = spacrDataset(data_dir, classes, transform=transform,
                         shuffle=True, pin_memory=pin_memory)
 
-    #num_workers = n_jobs if n_jobs is not None else 0
-    num_workers = max(n_jobs, 4) if n_jobs is not None else 0
+    # Honour an explicit zero so callers can keep dataset reads in-process.
+    # A forced four-worker minimum made worker teardown unavoidable and could
+    # deadlock applications that already own GUI or database threads.
+    num_workers = max(0, int(n_jobs)) if n_jobs is not None else 0
     use_persistent = num_workers > 0
 
     if validation_split > 0 and mode == 'train':
