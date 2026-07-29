@@ -2250,11 +2250,12 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
     keys = ['_row_index', '_col_index']
 
     # Optional min_count filter on true per-well counts
-    df['_well_count'] = df.groupby(keys)['_row_index'].transform('count')
+    df['_well_count'] = df.groupby(
+        keys, observed=False)['_row_index'].transform('count')
     if min_count > 0:
         df = df[df['_well_count'] >= min_count]
 
-    grouped = df.groupby(keys)
+    grouped = df.groupby(keys, observed=False)
 
     # --- Aggregation ---
     if grouping == 'count':
@@ -2265,9 +2266,11 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
         vals = pd.to_numeric(df[variable], errors='coerce')            # ensure numeric
         tmp  = df.assign(__val__=vals)
         if grouping == 'mean':
-            plate = tmp.groupby(keys)['__val__'].mean().reset_index(name='value')
+            plate = tmp.groupby(
+                keys, observed=False)['__val__'].mean().reset_index(name='value')
         else:  # sum
-            plate = tmp.groupby(keys)['__val__'].sum().reset_index(name='value')
+            plate = tmp.groupby(
+                keys, observed=False)['__val__'].sum().reset_index(name='value')
     else:
         raise ValueError("grouping must be 'count', 'sum', or 'mean'")
 
@@ -2803,7 +2806,7 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
 
     def remove_outliers_by_wells(data, name_col, wells_col):
         """Remove outliers based on 95% confidence interval for well counts."""
-        well_counts = data.groupby(name_col).size()
+        well_counts = data.groupby(name_col, observed=False).size()
         q1 = well_counts.quantile(0.05)
         q3 = well_counts.quantile(0.95)
         iqr_range = q3 - q1
@@ -2959,7 +2962,8 @@ def read_and_plot__vision_results(base_dir, y_axis='accuracy', name_split='_time
         result_df = pd.concat(data_frames, ignore_index=True)
         
         # Calculate average y_axis per model
-        avg_metric = result_df.groupby('model')[y_axis].mean().reset_index()
+        avg_metric = result_df.groupby(
+            'model', observed=False)[y_axis].mean().reset_index()
         avg_metric = avg_metric.sort_values(by=y_axis)
         print(avg_metric)
         
@@ -3059,7 +3063,9 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
     print(f'Found {min_count} annotated images')
 
     # Randomly sample min_count examples from each group in x_column
-    balanced_df = retained_rows.groupby(x_column).apply(lambda x: x.sample(min_count, random_state=42)).reset_index(drop=True)
+    balanced_df = retained_rows.groupby(
+        x_column, observed=False
+    ).apply(lambda x: x.sample(min_count, random_state=42)).reset_index(drop=True)
 
     # Create the jitter plot
     plt.figure(figsize=(10, 6))
@@ -3196,7 +3202,9 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
     
     # Choose graph type
     if graph_type == 'bar':
-        summary_df = df.groupby(grouping_column)[data_column].agg([summary_func, 'std', 'sem'])
+        summary_df = df.groupby(
+            grouping_column, observed=False)[data_column].agg(
+                [summary_func, 'std', 'sem'])
         
         # Set error bars based on error_bar_type
         if error_bar_type == 'std':
@@ -3378,7 +3386,9 @@ class spacrGraph:
 
         # 3) Perform grouping only if group_cols is set
         if group_cols is not None:
-            df = df.groupby(group_cols)[self.data_column].agg(self.summary_func).reset_index()
+            df = df.groupby(
+                group_cols, observed=False)[self.data_column].agg(
+                    self.summary_func).reset_index()
 
         # 4) Handle ordering if specified (and if the grouping_column still exists)
         if self.order and (self.grouping_column in df.columns):
@@ -3960,7 +3970,10 @@ class spacrGraph:
             hue = self.hue
             plot_order = self.order
 
-        summary_df = self.df_melted.groupby([x_axis_column]).agg(mean=('Value', 'mean'),std=('Value', 'std'),sem=('Value', 'sem')).reset_index()
+        summary_df = self.df_melted.groupby(
+            [x_axis_column], observed=False
+        ).agg(mean=('Value', 'mean'), std=('Value', 'std'),
+              sem=('Value', 'sem')).reset_index()
         error_bars = summary_df[self.error_bar_type] if self.error_bar_type in ['std', 'sem'] else None
         self.summary_df = summary_df.copy()
         sns.barplot(data=self.df_melted, x=x_axis_column, y='Value', hue=hue, palette=self.sns_palette, ax=ax, dodge=self.jitter_bar_dodge, errorbar=None, order=plot_order)
@@ -4175,7 +4188,10 @@ class spacrGraph:
             hue = self.hue
             plot_order = self.order
 
-        summary_df = self.df_melted.groupby([x_axis_column]).agg(mean=('Value', 'mean'),std=('Value', 'std'),sem=('Value', 'sem')).reset_index()
+        summary_df = self.df_melted.groupby(
+            [x_axis_column], observed=False
+        ).agg(mean=('Value', 'mean'), std=('Value', 'std'),
+              sem=('Value', 'sem')).reset_index()
         error_bars = summary_df[self.error_bar_type] if self.error_bar_type in ['std', 'sem'] else None
         self.summary_df = summary_df
         sns.barplot(data=self.df_melted, x=x_axis_column, y='Value', hue=hue, palette=self.sns_palette, ax=ax, dodge=self.jitter_bar_dodge, errorbar=None, order=plot_order)
@@ -4890,12 +4906,14 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
         well_proportions = (
             df.groupby([group_column, prc_column, bin_column], observed=True)
             .size()
-            .groupby(level=[0, 1])
+            .groupby(level=[0, 1], observed=False)
             .apply(lambda x: x / x.sum())
             .unstack(fill_value=0)
         )
-        mean_proportions = well_proportions.groupby(group_column).mean()
-        std_proportions = well_proportions.groupby(group_column).std()
+        mean_proportions = well_proportions.groupby(
+            group_column, observed=False).mean()
+        std_proportions = well_proportions.groupby(
+            group_column, observed=False).std()
 
         ax = mean_proportions.plot(
             kind='bar', stacked=True, yerr=std_proportions, capsize=5, colormap=cmap, figsize=(12, 8)
@@ -4903,7 +4921,8 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
         plt.title('Proportion of Volume Bins by Group (Mean ± SD across wells)')
     else:
         group_counts = df.groupby([group_column, bin_column], observed=True).size()
-        group_totals = group_counts.groupby(level=0).sum()
+        group_totals = group_counts.groupby(
+            level=0, observed=False).sum()
         proportions = group_counts / group_totals
         proportion_df = proportions.unstack(fill_value=0)
 
