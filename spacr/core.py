@@ -838,9 +838,10 @@ def generate_image_umap(settings=None, return_fig=False):
     }
 
     # Plot the embedding
-    umap_plt = plot_embedding(embedding, image_paths, plot_labels, settings['image_nr'], settings['img_zoom'], colors, settings['plot_by_cluster'], settings['plot_outlines'], settings['plot_points'], settings['plot_images'], settings['smooth_lines'], settings['black_background'], settings['figuresize'], settings['dot_size'], settings['remove_image_canvas'], settings['verbose'], interactive_payload=interactive_payload)
+    theme_colors = settings.get('_plot_theme')
+    umap_plt = plot_embedding(embedding, image_paths, plot_labels, settings['image_nr'], settings['img_zoom'], colors, settings['plot_by_cluster'], settings['plot_outlines'], settings['plot_points'], settings['plot_images'], settings['smooth_lines'], settings['black_background'], settings['figuresize'], settings['dot_size'], settings['remove_image_canvas'], settings['verbose'], interactive_payload=interactive_payload, theme_colors=theme_colors)
     if settings['plot_cluster_grids'] and settings['plot_images']:
-        grid_plt = plot_clusters_grid(embedding, plot_labels, settings['image_nr'], image_paths, colors, settings['figuresize'], settings['black_background'], settings['verbose'])
+        grid_plt = plot_clusters_grid(embedding, plot_labels, settings['image_nr'], image_paths, colors, settings['figuresize'], settings['black_background'], settings['verbose'], theme_colors=theme_colors)
     
     # Save figure as PDF if required
     if settings['save_figure']:

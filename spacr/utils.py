@@ -6689,7 +6689,7 @@ def remove_noise(embedding, labels):
     labels = labels[non_noise_indices]
     return embedding, labels
 
-def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors, plot_by_cluster, plot_outlines, plot_points, plot_images, smooth_lines, black_background, figuresize, dot_size, remove_image_canvas, verbose, interactive_payload=None):
+def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors, plot_by_cluster, plot_outlines, plot_points, plot_images, smooth_lines, black_background, figuresize, dot_size, remove_image_canvas, verbose, interactive_payload=None, theme_colors=None):
     """Plot a 2-D embedding with cluster outlines, points, and optional image overlays.
 
     :returns: matplotlib ``Figure``.
@@ -6698,7 +6698,8 @@ def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors, p
     #num_clusters = len(unique_labels[unique_labels != 0])
     colors, label_to_color_index = assign_colors(unique_labels, colors)
     cluster_centers = [np.mean(embedding[labels == cluster_label], axis=0) for cluster_label in unique_labels]
-    fig, ax = setup_plot(figuresize, black_background)
+    fig, ax = setup_plot(
+        figuresize, black_background, theme_colors=theme_colors)
     plot_clusters(ax, embedding, labels, colors, cluster_centers, plot_outlines, plot_points, smooth_lines, figuresize, dot_size, verbose)
     if not image_paths is None and plot_images:
         plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, plot_by_cluster, remove_image_canvas, verbose)
@@ -6711,35 +6712,67 @@ def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors, p
     return fig
 
 def generate_colors(num_clusters, black_background):
-    """Return an RGBA color palette for ``num_clusters`` clusters with fixed accent colors first."""
-    random_colors = np.random.rand(num_clusters + 1, 4)
-    random_colors[:, 3] = 1
-    specific_colors = [
-        [155 / 255, 55 / 255, 155 / 255, 1],
-        [55 / 255, 155 / 255, 155 / 255, 1],
-        [55 / 255, 155 / 255, 255 / 255, 1],
-        [255 / 255, 55 / 255, 155 / 255, 1]
-    ]
-    random_colors = np.vstack((specific_colors, random_colors[len(specific_colors):]))
-    if not black_background:
-        random_colors = np.vstack(([0, 0, 0, 1], random_colors))
-    return random_colors
+    """Return a deterministic Viridis RGBA palette for cluster points."""
+    count = max(int(num_clusters), 1)
+    positions = np.linspace(0.08, 0.92, count)
+    return mpl.colormaps['viridis'](positions)
 
 def assign_colors(unique_labels, random_colors):
     """Return a ``(colors, label_to_index)`` mapping keyed by ``unique_labels``."""
-    normalized_colors = random_colors / 255
-    colors_img = [tuple(color) for color in normalized_colors]
     colors = [tuple(color) for color in random_colors]
     label_to_color_index = {label: index for index, label in enumerate(unique_labels)}
     return colors, label_to_color_index
 
-def setup_plot(figuresize, black_background):
-    """Return a ``(fig, ax)`` with light or dark theme applied globally."""
-    if black_background:
-        plt.rcParams.update({'figure.facecolor': 'black', 'axes.facecolor': 'black', 'text.color': 'white', 'xtick.color': 'white', 'ytick.color': 'white', 'axes.labelcolor': 'white'})
-    else:
-        plt.rcParams.update({'figure.facecolor': 'white', 'axes.facecolor': 'white', 'text.color': 'black', 'xtick.color': 'black', 'ytick.color': 'black', 'axes.labelcolor': 'black'})
+def _plot_theme_colors(black_background, theme_colors=None):
+    """Resolve serializable GUI colors or the historical CLI fallback."""
+    fallback = {
+        'background': 'black' if black_background else 'white',
+        'foreground': 'white' if black_background else 'black',
+        'border': 'white' if black_background else 'black',
+    }
+    if not isinstance(theme_colors, dict):
+        return fallback
+    resolved = fallback.copy()
+    for role in resolved:
+        value = theme_colors.get(role)
+        if value:
+            try:
+                mpl.colors.to_rgba(value)
+            except (TypeError, ValueError):
+                continue
+            resolved[role] = value
+    return resolved
+
+
+def _style_plot_axes(fig, ax, colors):
+    """Apply one theme to a Matplotlib figure, axes, and axis lines."""
+    background = colors['background']
+    foreground = colors['foreground']
+    border = colors['border']
+    fig.patch.set_facecolor(background)
+    ax.set_facecolor(background)
+    ax.tick_params(axis='both', colors=foreground)
+    ax.xaxis.label.set_color(foreground)
+    ax.yaxis.label.set_color(foreground)
+    ax.title.set_color(foreground)
+    for spine in ax.spines.values():
+        spine.set_color(border)
+
+
+def setup_plot(figuresize, black_background, theme_colors=None):
+    """Return a themed ``(fig, ax)`` matching the active GUI container."""
+    colors = _plot_theme_colors(black_background, theme_colors)
+    plt.rcParams.update({
+        'figure.facecolor': colors['background'],
+        'axes.facecolor': colors['background'],
+        'axes.edgecolor': colors['border'],
+        'text.color': colors['foreground'],
+        'xtick.color': colors['foreground'],
+        'ytick.color': colors['foreground'],
+        'axes.labelcolor': colors['foreground'],
+    })
     fig, ax = plt.subplots(1, 1, figsize=(figuresize, figuresize))
+    _style_plot_axes(fig, ax, colors)
     return fig, ax
 
 def plot_clusters(ax, embedding, labels, colors, cluster_centers, plot_outlines, plot_points, smooth_lines, figuresize=10, dot_size=50, verbose=False):
@@ -6769,7 +6802,7 @@ def plot_clusters(ax, embedding, labels, colors, cluster_centers, plot_outlines,
                 try:
                     x_smooth, y_smooth = smooth_hull_lines(cluster_data)
                     if plot_outlines:
-                        plt.plot(x_smooth, y_smooth, color=color, linewidth=2)
+                        ax.plot(x_smooth, y_smooth, color=color, linewidth=2)
                 except Exception:
                     pass
         else:
@@ -6778,7 +6811,7 @@ def plot_clusters(ax, embedding, labels, colors, cluster_centers, plot_outlines,
                     hull = ConvexHull(cluster_data)
                     for simplex in hull.simplices:
                         if plot_outlines:
-                            plt.plot(hull.points[simplex, 0], hull.points[simplex, 1], color=color, linewidth=4)
+                            ax.plot(hull.points[simplex, 0], hull.points[simplex, 1], color=color, linewidth=4)
                 except Exception:
                     pass
         if plot_points:
@@ -6786,10 +6819,16 @@ def plot_clusters(ax, embedding, labels, colors, cluster_centers, plot_outlines,
         else:
             scatter = ax.scatter(cluster_data[:, 0], cluster_data[:, 1], s=dot_size, c=[color], alpha=0, label=f'Cluster {cluster_label if cluster_label != -1 else "Noise"}')
         ax.text(center[0], center[1], str(cluster_label), fontsize=12, ha='center', va='center')
-    plt.legend(loc='best', fontsize=int(figuresize * 0.75))
-    plt.xlabel('UMAP Dimension 1', fontsize=int(figuresize * 0.75))
-    plt.ylabel('UMAP Dimension 2', fontsize=int(figuresize * 0.75))
-    plt.tick_params(axis='both', which='major', labelsize=int(figuresize * 0.75))
+    legend = ax.legend(loc='best', fontsize=int(figuresize * 0.75))
+    if legend is not None:
+        legend.get_frame().set_facecolor(ax.get_facecolor())
+        legend.get_frame().set_edgecolor(ax.spines['left'].get_edgecolor())
+        for text in legend.get_texts():
+            text.set_color(ax.xaxis.label.get_color())
+    ax.set_xlabel('UMAP Dimension 1', fontsize=int(figuresize * 0.75))
+    ax.set_ylabel('UMAP Dimension 2', fontsize=int(figuresize * 0.75))
+    ax.tick_params(
+        axis='both', which='major', labelsize=int(figuresize * 0.75))
 
 def plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, plot_by_cluster, remove_image_canvas, verbose):
     """Overlay sample images from ``image_paths`` on the UMAP embedding in ``ax``."""
@@ -6846,7 +6885,7 @@ def remove_canvas(img):
         raise ValueError(f"Unsupported image mode: {img.mode}")
     return img_data_with_alpha
 
-def plot_clusters_grid(embedding, labels, image_nr, image_paths, colors, figuresize, black_background, verbose):
+def plot_clusters_grid(embedding, labels, image_nr, image_paths, colors, figuresize, black_background, verbose, theme_colors=None):
     """Plot a grid of example images per cluster label discovered in ``labels``."""
     unique_labels = np.unique(labels)
     num_clusters = len(unique_labels[unique_labels != -1])
@@ -6865,20 +6904,25 @@ def plot_clusters_grid(embedding, labels, image_nr, image_paths, colors, figures
             img_array = Image.open(img_path)
             img = np.array(img_array)
             cluster_images[cluster_label].append(img)
-    fig = plot_grid(cluster_images, colors, figuresize, black_background, verbose)
+    fig = plot_grid(
+        cluster_images, colors, figuresize, black_background, verbose,
+        theme_colors=theme_colors)
     return fig
 
-def plot_grid(cluster_images, colors, figuresize, black_background, verbose):
+def plot_grid(cluster_images, colors, figuresize, black_background, verbose, theme_colors=None):
     """Render one column per cluster of representative images with colored borders and labels."""
     num_clusters = len(cluster_images)
     max_figsize = 200  # Set a maximum figure size
     if figuresize * num_clusters > max_figsize:
         figuresize = max_figsize / num_clusters
 
+    plot_colors = _plot_theme_colors(black_background, theme_colors)
     grid_fig, grid_axes = plt.subplots(1, num_clusters, figsize=(figuresize * num_clusters, figuresize), gridspec_kw={'wspace': 0.2, 'hspace': 0})
+    grid_fig.patch.set_facecolor(plot_colors['background'])
     if num_clusters == 1:
         grid_axes = [grid_axes]  # Ensure grid_axes is always iterable
     for cluster_label, axes in zip(cluster_images.keys(), grid_axes):
+        axes.set_facecolor(plot_colors['background'])
         images = cluster_images[cluster_label]
         num_images = len(images)
         grid_size = int(np.ceil(np.sqrt(num_images)))
@@ -6910,7 +6954,10 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose):
     spacing_factor = 0.5  # Adjust this value to control the spacing between labels
     for i, (cluster_label, color) in enumerate(zip(cluster_images.keys(), colors)):
         label_y = 1 - (i + 1) * (spacing_factor / num_clusters)  # Adjust y position for each label
-        grid_fig.text(1.05, label_y, f'Cluster {cluster_label}', verticalalignment='center', fontsize=figuresize, color='black' if not black_background else 'white')
+        grid_fig.text(
+            1.05, label_y, f'Cluster {cluster_label}',
+            verticalalignment='center', fontsize=figuresize,
+            color=plot_colors['foreground'])
         grid_fig.patches.append(plt.Rectangle((1, label_y - 0.02), 0.03, 0.03, transform=grid_fig.transFigure, color=color[:3], clip_on=False))
 
     plt.show()
@@ -7073,6 +7120,22 @@ def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude, 
     :returns: standard-scaled ``ndarray`` of numeric features.
     :raises ValueError: if no numeric columns remain after filtering.
     """
+    explicit_features = column_list or ()
+    excluded_features = (
+        [exclude] if isinstance(exclude, str) else (exclude or ())
+    )
+    allow_unknown = not bool(filter_by or column_list)
+    # Measurement values inserted into SQLite as numeric text make pandas use
+    # object dtype for the whole column. Normalize only losslessly numeric
+    # declared features before the strict schema boundary; malformed text still
+    # raises an actionable ModelFeatureSchemaError.
+    df = schema.coerce_model_feature_types(
+        df,
+        extra_features=explicit_features,
+        exclude=excluded_features,
+        allow_unknown=allow_unknown,
+    )
+
     # Apply filtering based on the `filter_by` parameter
     if filter_by is not None:
         df, _ = filter_dataframe_features(df, channel_of_interest=filter_by, exclude=exclude)
@@ -7085,8 +7148,9 @@ def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude, 
     # because pandas gave it a numeric dtype.
     numeric_data = schema.model_feature_frame(
         df,
-        extra_features=column_list or (),
-        allow_unknown=not bool(filter_by or column_list),
+        extra_features=explicit_features,
+        exclude=excluded_features,
+        allow_unknown=allow_unknown,
     )
     
     # Check if numeric_data is empty
@@ -7168,7 +7232,11 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
     :returns: ``(filtered_df, features)``.
     """
 
-    declared_features = schema.model_feature_columns(df)
+    excluded_features = (
+        [exclude] if isinstance(exclude, str) else (exclude or ())
+    )
+    declared_features = schema.model_feature_columns(
+        df, exclude=excluded_features)
     legacy_non_features = {
         col for col in df.columns
         if '_id' in col or 'count' in col
@@ -7234,7 +7302,7 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
     if isinstance(exclude, list):
         features = [feature for feature in features if feature not in exclude]
     elif isinstance(exclude, str):
-        features.remove(exclude)
+        features = [feature for feature in features if feature != exclude]
 
     filtered_df = df[features]
 

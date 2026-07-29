@@ -90,6 +90,50 @@ def test_declared_object_feature_must_be_numeric():
         schema.model_feature_columns(frame)
 
 
+def test_numeric_text_measurements_are_losslessly_coerced():
+    frame = pd.DataFrame({
+        "cell_channel_0_mode_intensity": ["12.5", " 7 ", None, ""],
+        "object_label": [1, 2, 3, 4],
+    })
+
+    converted = schema.coerce_model_feature_types(frame)
+
+    assert converted is not frame
+    assert converted["cell_channel_0_mode_intensity"].tolist()[:2] == [
+        12.5, 7.0]
+    assert converted["cell_channel_0_mode_intensity"].isna().tolist() == [
+        False, False, True, True]
+    assert schema.model_feature_columns(converted) == [
+        "cell_channel_0_mode_intensity"]
+    # The database frame remains suitable for export/auditing.
+    assert frame["cell_channel_0_mode_intensity"].iloc[0] == "12.5"
+
+
+def test_numeric_coercion_reports_genuinely_invalid_measurements():
+    frame = pd.DataFrame({
+        "cell_channel_0_mode_intensity": ["12.5", "saturated"],
+    })
+
+    with pytest.raises(
+            schema.ModelFeatureSchemaError,
+            match=r"cell_channel_0_mode_intensity.*saturated"):
+        schema.coerce_model_feature_types(frame)
+
+
+def test_excluded_invalid_measurement_does_not_block_model_boundary():
+    frame = pd.DataFrame({
+        "cell_area": [10.0, 12.0],
+        "cell_channel_0_mode_intensity": ["bad", "bad"],
+    })
+
+    converted = schema.coerce_model_feature_types(
+        frame, exclude=["cell_channel_0_mode_intensity"])
+
+    assert converted is frame
+    assert schema.model_feature_columns(
+        converted, exclude=["cell_channel_0_mode_intensity"]) == ["cell_area"]
+
+
 def test_feature_frame_preserves_index_and_column_order():
     frame = _joined_frame()
     frame.index = [10, 20]
