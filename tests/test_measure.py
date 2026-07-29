@@ -26,6 +26,21 @@ def test_get_components_empty_masks():
     assert len(pathogen_df) == 0
 
 
+def test_get_components_omits_empty_relationships():
+    """Parents without children must not create duplicate NaN merge keys."""
+    cell = np.zeros((16, 16), dtype=np.int32)
+    cell[1:7, 1:7] = 1
+    cell[9:15, 9:15] = 2
+    empty = np.zeros_like(cell)
+
+    nucleus_df, pathogen_df = M.get_components(cell, empty, empty)
+
+    assert list(nucleus_df.columns) == ["cell_id", "nucleus"]
+    assert list(pathogen_df.columns) == ["cell_id", "pathogen"]
+    assert nucleus_df.empty
+    assert pathogen_df.empty
+
+
 def test_get_components_maps_to_correct_parents(synth_masks_multi):
     """Every nucleus/pathogen id in the returned mapping should belong to the
     cell it was drawn inside."""
