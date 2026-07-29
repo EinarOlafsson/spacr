@@ -52,7 +52,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
-from PySide6.QtCore import Qt, QThread, Signal
+from PySide6.QtCore import Qt, QThread, QTimer, Signal
 from PySide6.QtWidgets import (
     QCheckBox, QComboBox, QDoubleSpinBox, QFileDialog, QFormLayout, QGroupBox,
     QHBoxLayout, QLabel, QPushButton, QSizePolicy, QSlider, QSpinBox,
@@ -845,6 +845,8 @@ class TimelapsePreviewPanel(QWidget):
         self._pending_signature: Optional[tuple] = None
         self._propagate_cb = None
         self._settings: Dict[str, Any] = {}
+        self._play_timer = QTimer(self)
+        self._play_timer.timeout.connect(self._advance_frame)
         self._build_ui()
         self.setAcceptDrops(True)
         for v in (self._src_view, self._out_view):
@@ -1032,14 +1034,28 @@ class TimelapsePreviewPanel(QWidget):
 
         scrub = QHBoxLayout()
         scrub.addWidget(QLabel("Frame", self))
+        self._play_btn = QPushButton("Play", self)
+        self._play_btn.setEnabled(False)
+        self._play_btn.setToolTip(
+            "Play the preview as a loop. The source and tracked views stay "
+            "synchronised while zoomed or panned.")
+        self._play_btn.clicked.connect(self._toggle_playback)
+        scrub.addWidget(self._play_btn)
         self._frame_slider = QSlider(Qt.Horizontal, self)
         self._frame_slider.setMinimum(0)
         self._frame_slider.setMaximum(0)
         self._frame_slider.valueChanged.connect(self._on_scrub)
         self._frame_label = QLabel("–", self)
         self._frame_label.setStyleSheet("font-family: monospace;")
+        self._play_fps = QSpinBox(self)
+        self._play_fps.setRange(1, 30)
+        self._play_fps.setValue(8)
+        self._play_fps.setSuffix(" fps")
+        self._play_fps.setToolTip("Playback speed; this does not alter data.")
+        self._play_fps.valueChanged.connect(self._update_playback_interval)
         scrub.addWidget(self._frame_slider, 1)
         scrub.addWidget(self._frame_label)
+        scrub.addWidget(self._play_fps)
         root.addLayout(scrub)
 
         self._stats_label = QLabel(
@@ -1086,6 +1102,7 @@ class TimelapsePreviewPanel(QWidget):
 
     def load_sequence(self, path) -> bool:
         """Open ``path`` as the preview sequence. Errors land inline."""
+        self._stop_playback()
         try:
             seq = FrameSequence.open(path, max_frames=self._max_frames.value())
         except Exception as e:
@@ -1101,11 +1118,13 @@ class TimelapsePreviewPanel(QWidget):
             f"Loaded {seq.describe()} — run the preview to segment + link.")
         self._frame_slider.setMaximum(max(0, len(seq) - 1))
         self._frame_slider.setValue(0)
+        self._play_btn.setEnabled(len(seq) > 1)
         self._refresh_canvases()
         return True
 
     def load_masks(self, path) -> bool:
         """Use ready-made label images instead of segmenting."""
+        self._stop_playback()
         try:
             seq = FrameSequence.open(path, max_frames=self._max_frames.value())
         except Exception as e:
@@ -1114,6 +1133,10 @@ class TimelapsePreviewPanel(QWidget):
         self._mask_sequence = seq
         self._masks = None
         self._mask_cache.clear()
+        if self._sequence is None:
+            self._frame_slider.setMaximum(max(0, len(seq) - 1))
+            self._frame_slider.setValue(0)
+        self._play_btn.setEnabled(len(seq) > 1)
         self._status.setText(
             f"Masks: {seq.describe()} — segmentation will be skipped.")
         return True
@@ -1352,6 +1375,7 @@ class TimelapsePreviewPanel(QWidget):
             min_length=int(self._min_len.value()),
             displacement_limit=float(self._displacement.value()))
         self._frame_slider.setMaximum(max(0, n_frames - 1))
+        self._play_btn.setEnabled(n_frames > 1)
         self._status.setText(f"{note} · {n_frames} frames")
         self._stats_label.setText(
             self._stats.summary()
@@ -1366,6 +1390,35 @@ class TimelapsePreviewPanel(QWidget):
 
     def _on_scrub(self, _value: int) -> None:
         self._refresh_canvases()
+
+    def _toggle_playback(self) -> None:
+        """Start or pause looped playback of the loaded preview frames."""
+        if self._play_timer.isActive():
+            self._stop_playback()
+            return
+        if self._frame_slider.maximum() <= 0:
+            return
+        self._update_playback_interval()
+        self._play_timer.start()
+        self._play_btn.setText("Pause")
+
+    def _stop_playback(self) -> None:
+        self._play_timer.stop()
+        if hasattr(self, "_play_btn"):
+            self._play_btn.setText("Play")
+
+    def _update_playback_interval(self, *_args) -> None:
+        fps = max(1, int(self._play_fps.value()))
+        self._play_timer.setInterval(max(1, round(1000 / fps)))
+
+    def _advance_frame(self) -> None:
+        """Advance one frame, wrapping at the end for continuous playback."""
+        last = self._frame_slider.maximum()
+        if last <= 0:
+            self._stop_playback()
+            return
+        current = self._frame_slider.value()
+        self._frame_slider.setValue(0 if current >= last else current + 1)
 
     def _refresh_canvases(self) -> None:
         seq = self._sequence
@@ -1422,6 +1475,7 @@ class TimelapsePreviewPanel(QWidget):
         process, and this panel's worker outlives the emit that produced its
         result by a few instructions.
         """
+        self._stop_playback()
         worker = self._worker
         if worker is not None:
             try:
