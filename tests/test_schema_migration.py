@@ -517,12 +517,16 @@ def test_an_unreadable_field_does_not_stop_the_run(tmp_path, capsys):
     assert S.field_index('fxy') is None      # honestly not a number
 
 
-def test_a_field_that_is_absent_is_an_error_row_not_a_guess(tmp_path, capsys):
-    """Tier three: no token at all. ``f`` alone would merge every such row."""
+def test_a_field_that_is_absent_is_rejected_before_database_write(
+        tmp_path, capsys):
+    """Tier three: no token at all cannot satisfy the object-table contract."""
     root = str(tmp_path)
-    db = _write_object_table(root, 'plate1_A01_', labels=(1,))
-    cell = _read(db, 'cell')
-    assert set(cell['fieldID']) == {'error'}
+    with pytest.raises(
+            S.ObjectTableSchemaError,
+            match=r"cell\.prcf disagrees"):
+        _write_object_table(root, 'plate1_A01_', labels=(1,))
+    assert not os.path.exists(
+        os.path.join(root, 'measurements', 'measurements.db'))
     assert 'Error processing filename' in capsys.readouterr().out
 
 
