@@ -1,0 +1,155 @@
+name: release SpaCR
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: New PEP 440 version (for example 1.4.9.9)
+        required: true
+        type: string
+      target_branch:
+        description: Branch to release
+        required: true
+        type: choice
+        default: spacr-nightly
+        options:
+          - spacr-nightly
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: spacr-release
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    name: Increment repository version
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+      commit_sha: ${{ steps.commit.outputs.commit_sha }}
+      branch: ${{ inputs.target_branch }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.target_branch }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Validate and increment version
+        id: version
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          python -m pip install "packaging>=24"
+          version=$(python packaging/release.py bump "$REQUESTED_VERSION")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+          if curl --proto '=https' --tlsv1.2 --fail --silent \
+              "https://pypi.org/pypi/spacr/$version/json" >/dev/null; then
+            echo "::error::spacr==$version already exists on PyPI."
+            exit 1
+          fi
+          if git rev-parse "refs/tags/v$version" >/dev/null 2>&1; then
+            echo "::error::Git tag v$version already exists."
+            exit 1
+          fi
+
+      - name: Commit version increment
+        id: commit
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          TARGET_BRANCH: ${{ inputs.target_branch }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add setup.py
+          git commit -m "chore(release): bump version to $VERSION"
+          git push origin "HEAD:$TARGET_BRANCH"
+          echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  installers:
+    name: Build and store native installers
+    needs: bump
+    uses: ./.github/workflows/online-installers.yml
+    with:
+      source_ref: ${{ needs.bump.outputs.commit_sha }}
+      target_branch: ${{ needs.bump.outputs.branch }}
+      publish_to_repository: true
+    secrets: inherit
+
+  package:
+    name: Build and validate PyPI distributions
+    needs: [bump, installers]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.installers.outputs.release_commit }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Build wheel and source distribution
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build twine pytest packaging
+          python -m build
+          python -m twine check dist/*
+          python -m pytest tests/test_packaging_metadata.py \
+            tests/test_online_installers.py -q --tb=short
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: pypi-distributions
+          path: dist/*
+          if-no-files-found: error
+
+  publish-pypi:
+    name: Publish to PyPI
+    needs: package
+    runs-on: ubuntu-24.04
+    environment:
+      name: pypi
+      url: https://pypi.org/project/spacr/
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v6
+        with:
+          name: pypi-distributions
+          path: dist
+      - uses: pypa/gh-action-pypi-publish@release/v1
+
+  github-release:
+    name: Publish GitHub release
+    needs: [bump, installers, publish-pypi]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.installers.outputs.release_commit }}
+          fetch-depth: 0
+      - name: Tag released commit and publish release notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.bump.outputs.tag }}
+          RELEASE_SHA: ${{ needs.installers.outputs.release_commit }}
+          VERSION: ${{ needs.bump.outputs.version }}
+        run: |
+          git tag "$RELEASE_TAG" "$RELEASE_SHA"
+          git push origin "$RELEASE_TAG"
+          gh release create "$RELEASE_TAG" \
+            --target "$RELEASE_SHA" \
+            --title "SpaCR $VERSION" \
+            --generate-notes \
+            --verify-tag

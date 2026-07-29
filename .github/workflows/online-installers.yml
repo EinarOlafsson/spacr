@@ -1,15 +1,38 @@
 name: lightweight online installers
 
 on:
+  workflow_call:
+    inputs:
+      source_ref:
+        description: Commit containing the version to build
+        required: false
+        type: string
+        default: ""
+      target_branch:
+        description: Branch that receives spacr/application and README links
+        required: false
+        type: string
+        default: ""
+      publish_to_repository:
+        description: Commit the generated installers into the target branch
+        required: false
+        type: boolean
+        default: false
+    outputs:
+      release_commit:
+        description: Commit containing the collected installers
+        value: ${{ jobs.collect.outputs.commit_sha }}
   workflow_dispatch:
   push:
-    branches: [spacr-codex, spacr-nightly]
+    # Release builds on spacr-nightly call this workflow directly. Keeping the
+    # push trigger on the development branch avoids two collectors racing to
+    # commit the same versioned binaries during a release.
+    branches: [spacr-codex]
     paths:
       - ".github/workflows/online-installers.yml"
       - "packaging/online/**"
+      - "packaging/release.py"
       - "setup.py"
-  release:
-    types: [published]
 
 permissions:
   contents: write
@@ -20,6 +43,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.source_ref || github.sha }}
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
@@ -46,6 +71,8 @@ jobs:
     runs-on: windows-2025
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.source_ref || github.sha }}
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
@@ -55,10 +82,12 @@ jobs:
       - name: Validate PowerShell bootstrap dry run
         shell: powershell
         run: |
+          $VersionMatch = Select-String -Path "setup.py" -Pattern '^VERSION\s*=\s*["'']([^"'']+)'
+          $Version = $VersionMatch.Matches[0].Groups[1].Value
           & .\packaging\online\install_spacr_windows.ps1 `
             -DryRun `
             -InstallRoot (Join-Path $env:RUNNER_TEMP "SpaCR") `
-            -Version "1.4.9.8"
+            -Version $Version
       - name: Build small NSIS web installer
         shell: powershell
         run: .\packaging\online\build_windows_online.ps1
@@ -73,6 +102,8 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.source_ref || github.sha }}
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
@@ -96,25 +127,52 @@ jobs:
           path: dist/online/*macOS*Online.pkg
           if-no-files-found: error
 
-  attach-to-release:
-    name: Attach installers to GitHub release
-    if: github.event_name == 'release'
+  collect:
+    name: Store installers and update README
+    if: >-
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_call' && inputs.publish_to_repository)
     needs: [linux, windows, macos]
     runs-on: ubuntu-24.04
+    outputs:
+      commit_sha: ${{ steps.commit.outputs.commit_sha }}
     steps:
       - uses: actions/checkout@v6
-      - name: Require the matching PyPI release
-        run: |
-          version=$(python3 -c 'import ast,pathlib; t=ast.parse(pathlib.Path("setup.py").read_text()); print(next(ast.literal_eval(n.value) for n in t.body if isinstance(n, ast.Assign) and any(isinstance(x, ast.Name) and x.id == "VERSION" for x in n.targets)))')
-          curl --proto '=https' --tlsv1.2 --fail --silent --show-error \
-            "https://pypi.org/pypi/spacr/$version/json" >/dev/null
-          echo "PyPI spacr==$version is available."
+        with:
+          ref: ${{ inputs.source_ref || github.sha }}
+          fetch-depth: 0
       - uses: actions/download-artifact@v6
         with:
           pattern: spacr-online-*
           path: installers
           merge-multiple: true
-      - name: Upload release assets
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Collect current installers and rewrite README links
         env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh release upload "${{ github.event.release.tag_name }}" installers/* --clobber
+          TARGET_BRANCH: ${{ inputs.target_branch || github.ref_name }}
+        run: |
+          python -m pip install "packaging>=24"
+          python packaging/release.py collect \
+            --source installers \
+            --destination spacr/application \
+            --readme README.rst \
+            --branch "$TARGET_BRANCH"
+      - name: Commit generated application installers
+        id: commit
+        env:
+          TARGET_BRANCH: ${{ inputs.target_branch || github.ref_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.rst spacr/application
+          if git diff --cached --quiet; then
+            echo "Installer files and links are already current."
+          else
+            version=$(python packaging/release.py version)
+            git commit -m "chore(release): add SpaCR $version installers"
+            git push origin "HEAD:$TARGET_BRANCH"
+          fi
+          echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
