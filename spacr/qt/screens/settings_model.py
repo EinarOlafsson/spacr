@@ -30,6 +30,8 @@ from PySide6.QtWidgets import (
     QLabel,
 )
 
+from ..widgets.barcode_regex import BarcodeRegexWidget
+
 
 # ---------------------------------------------------------------------------
 # Settings resolvers per app_key
@@ -150,11 +152,49 @@ _APP_HIDDEN_CATEGORIES: Dict[str, set] = {
     "timelapse": {"Motility (beta)", "Motility Advanced (beta)"},
 }
 
+# Options that are enumerations for one module but not necessarily for every
+# setting with the same generic key.  Keeping these app-scoped avoids turning
+# unrelated ``mode`` fields into sequencing controls.
+_APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
+    "map_barcodes": {
+        "mode": ["paired", "single"],
+        "single_direction": ["R1", "R2"],
+        "comp_type": ["zlib", "lzo", "bzip2", "blosc"],
+    },
+}
+
 
 def get_categories() -> Dict[str, List[str]]:
     """Return the {category_name: [setting keys]} mapping."""
     from spacr.settings import categories
     return categories
+
+
+def categories_for_app(
+    app_key: str,
+    categories: Dict[str, List[str]],
+) -> Dict[str, List[str]]:
+    """Return category keys after applying module-specific relocations.
+
+    Map Barcodes previously showed an ``Advanced`` tab containing only
+    ``n_jobs`` and a ``Model Training`` tab containing only ``test``.  Both
+    controls belong to the sequencing run, but changing the global category
+    table would also move training controls in unrelated modules.
+    """
+    result = {name: list(keys) for name, keys in categories.items()}
+    if app_key != "map_barcodes":
+        return result
+
+    moved = ("n_jobs", "test")
+    for keys in result.values():
+        for key in moved:
+            while key in keys:
+                keys.remove(key)
+    sequencing = result.setdefault("Sequencing", [])
+    for key in moved:
+        if key not in sequencing:
+            sequencing.append(key)
+    return result
 
 
 def get_tooltips() -> Dict[str, str]:
@@ -919,7 +959,7 @@ class SettingsWidgets:
                 self._widgets[key] = widget
 
         # Bucket into sections.
-        cats = get_categories()
+        cats = categories_for_app(self.app_key, get_categories())
         used_keys = set()
         # Categories that don't apply to a given app (e.g. the classify app
         # trains a Torch model, not Cellpose — so it gets no Cellpose tab).
@@ -958,6 +998,15 @@ class SettingsWidgets:
     def _widget_for(self, kind: str, options: Any, default: Any,
                     key: str) -> Optional[QWidget]:
         parent = self._parent
+        app_options = _APP_COMBO_OPTIONS.get(self.app_key, {})
+        if key in app_options:
+            kind = "combo"
+            options = app_options[key]
+        if self.app_key == "map_barcodes" and key == "regex":
+            return BarcodeRegexWidget(
+                value=self._defaults.get(key, default),
+                parent=parent,
+            )
         if kind == "check":
             w = QCheckBox()
             w.setChecked(bool(default))
@@ -1130,7 +1179,10 @@ class SettingsWidgets:
                     w.setCurrentIndex(idx)
                 else:
                     w.setEditText(str(value))
-            elif isinstance(w, (_ListEditor, _ListEdit, _ScalarEdit)):
+            elif isinstance(
+                w,
+                (_ListEditor, _ListEdit, _ScalarEdit, BarcodeRegexWidget),
+            ):
                 w.set_value(value)
             elif isinstance(w, QLineEdit):
                 w.setText("" if value is None else str(value))
@@ -1166,7 +1218,7 @@ class SettingsWidgets:
             if idx >= 0 and w.itemText(idx) == w.currentText():
                 return w.itemData(idx)
             return w.currentText()
-        if isinstance(w, (_ListEditor, _ListEdit)):
+        if isinstance(w, (_ListEditor, _ListEdit, BarcodeRegexWidget)):
             return w.get_value()
         if isinstance(w, _ScalarEdit):
             return w.get_value()
