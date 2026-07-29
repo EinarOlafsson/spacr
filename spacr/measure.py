@@ -1039,8 +1039,16 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None):
     frac_low10 = []
     entropy_intensity = []
 
+    def _masked_intensity(region):
+        """Pixels inside a region across old and new scikit-image names."""
+        try:
+            intensity = region.image_intensity
+        except AttributeError:  # scikit-image 0.22-0.25
+            intensity = region.intensity_image
+        return intensity[region.image]
+
     for region in regions:
-        intens = region.intensity_image[region.image]
+        intens = _masked_intensity(region)
         intens = intens[~np.isnan(intens)]
         if intens.size == 0:
             integrated_intensity.append(np.nan)
@@ -1095,7 +1103,7 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None):
     percentiles = [5, 10, 25, 75, 85, 95]
     for p in percentiles:
         df[f'percentile_{p}'] = [
-            np.percentile(region.intensity_image[region.image], p)
+            np.percentile(_masked_intensity(region), p)
             for region in regions
         ]
     return df

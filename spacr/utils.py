@@ -14,7 +14,17 @@ from skimage import morphology
 from skimage.measure import label, regionprops_table, regionprops
 import skimage.measure as measure
 from skimage.transform import resize as resizescikit
-from skimage.morphology import dilation, square
+from skimage.morphology import dilation
+try:
+    from skimage.morphology import footprint_rectangle
+except ImportError:  # scikit-image 0.22-0.24
+    from skimage.morphology import square as _legacy_square
+
+    def _square_footprint(size):
+        return _legacy_square(size)
+else:
+    def _square_footprint(size):
+        return footprint_rectangle((size, size))
 from skimage.measure import find_contours
 from skimage.segmentation import clear_border, find_boundaries
 from scipy.stats import pearsonr
@@ -1683,7 +1693,7 @@ def _outline_and_overlay(image, rgb_image, mask_dims, outline_colors, outline_th
             cv_contours = [np.flip(contour.astype(int), axis=1) for contour in contours]
             cv2.drawContours(outline, cv_contours, -1, color=255, thickness=outline_thickness) 
 
-        return dilation(outline, square(outline_thickness))
+        return dilation(outline, _square_footprint(outline_thickness))
 
     # Parallel processing
     with ThreadPoolExecutor() as executor:
@@ -5087,8 +5097,8 @@ def extract_boundaries(mask, dilation_radius=1):
     """
     binary_mask = (mask > 0).astype(np.uint8)
     struct_elem = np.ones((dilation_radius*2+1, dilation_radius*2+1))
-    dilated = morphology.binary_dilation(binary_mask, footprint=struct_elem)
-    eroded = morphology.binary_erosion(binary_mask, footprint=struct_elem)
+    dilated = morphology.dilation(binary_mask, footprint=struct_elem)
+    eroded = morphology.erosion(binary_mask, footprint=struct_elem)
     boundary = dilated ^ eroded
     return boundary
 
@@ -7284,7 +7294,8 @@ def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask
             perimeter = region.perimeter
             
             # Dilate the cell to find neighbors
-            dilated_cell = binary_dilation(cell_mask_binary, structure=square(3))
+            dilated_cell = binary_dilation(
+                cell_mask_binary, structure=_square_footprint(3))
             neighbor_cells = np.unique(labeled_cells[dilated_cell])
             neighbor_cells = neighbor_cells[(neighbor_cells != 0) & (neighbor_cells != cell_label)]
             

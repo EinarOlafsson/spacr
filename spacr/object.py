@@ -22,11 +22,39 @@ from skimage.measure import label as sk_label, regionprops
 from scipy.ndimage import distance_transform_edt
 from skimage.filters import (threshold_otsu,threshold_local,frangi,sato,meijering,gaussian,difference_of_gaussians,apply_hysteresis_threshold)
 from skimage.feature import blob_log, blob_dog, peak_local_max
-from skimage.morphology import (remove_small_objects,remove_small_holes,binary_opening,binary_closing,binary_dilation,binary_erosion,disk,skeletonize,white_tophat)
+from skimage.morphology import (
+    closing, dilation, disk, opening, remove_small_holes,
+    remove_small_objects, skeletonize, white_tophat,
+)
 from skimage.exposure import equalize_adapthist, rescale_intensity
 from skimage.restoration import rolling_ball
 
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
+
+
+def _remove_objects_smaller_than(binary, min_size):
+    """Remove components with area strictly below ``min_size``.
+
+    scikit-image 0.26 renamed ``min_size`` to ``max_size`` and changed the
+    boundary from ``<`` to ``<=``. Passing ``min_size - 1`` preserves spaCR's
+    historical threshold exactly. The fallback keeps compatibility with the
+    declared 0.22-0.25 range.
+    """
+    threshold = max(0, int(min_size) - 1)
+    try:
+        return remove_small_objects(binary, max_size=threshold)
+    except TypeError:
+        return remove_small_objects(binary, min_size=int(min_size))
+
+
+def _fill_holes_smaller_than(binary, area_threshold):
+    """Fill holes with area strictly below ``area_threshold``."""
+    threshold = max(0, int(area_threshold) - 1)
+    try:
+        return remove_small_holes(binary, max_size=threshold)
+    except TypeError:
+        return remove_small_holes(
+            binary, area_threshold=int(area_threshold))
 
 def merge_split_filter_masks(masks, intensity_images, settings, object_type, batch_filenames=None):
     """Apply merge/split/filter operations directly to in-memory masks.
@@ -1921,11 +1949,12 @@ def _segment_unet(img_batch, model, settings):
             pred = pred.sigmoid().cpu().numpy()[0, 0]
             binary = pred > threshold
 
-            binary = remove_small_objects(binary, min_size=settings['organelle_min_size'])
+            binary = _remove_objects_smaller_than(
+                binary, settings['organelle_min_size'])
 
             if do_skeleton:
                 skeleton = skeletonize(binary)
-                skeleton = binary_dilation(skeleton, disk(1))
+                skeleton = dilation(skeleton, disk(1))
                 masks.append(sk_label(skeleton))
             else:
                 masks.append(sk_label(binary))
@@ -2003,8 +2032,9 @@ def _segment_spots(img, method, settings):
         raise ValueError(f"Unsupported spot method: {method}")
 
     # --- Morphological cleanup ---
-    binary = binary_opening(binary, disk(1))
-    binary = remove_small_objects(binary, min_size=settings['organelle_min_size'])
+    binary = opening(binary, disk(1))
+    binary = _remove_objects_smaller_than(
+        binary, settings['organelle_min_size'])
 
     # --- Watershed to split touching spots ---
     if use_watershed:
@@ -2107,12 +2137,13 @@ def _segment_network(img, method, settings):
         raise ValueError(f"Unsupported network method: {method}")
 
     morph_r = max(settings['organelle_morph_radius'] // 2, 1)
-    binary = binary_closing(binary, disk(morph_r))
-    binary = remove_small_objects(binary, min_size=settings['organelle_min_size'])
+    binary = closing(binary, disk(morph_r))
+    binary = _remove_objects_smaller_than(
+        binary, settings['organelle_min_size'])
 
     if settings['organelle_skeletonize']:
         skeleton = skeletonize(binary)
-        skeleton = binary_dilation(skeleton, disk(1))
+        skeleton = dilation(skeleton, disk(1))
         return sk_label(skeleton)
 
     return sk_label(binary)
@@ -2151,12 +2182,13 @@ def _network_ridge(img, settings):
         t = threshold_otsu(enhanced)
         binary = enhanced > t
 
-    binary = binary_closing(binary, disk(1))
-    binary = remove_small_objects(binary, min_size=settings['organelle_min_size'])
+    binary = closing(binary, disk(1))
+    binary = _remove_objects_smaller_than(
+        binary, settings['organelle_min_size'])
 
     if settings['organelle_skeletonize']:
         skeleton = skeletonize(binary)
-        skeleton = binary_dilation(skeleton, disk(1))
+        skeleton = dilation(skeleton, disk(1))
         return sk_label(skeleton)
 
     return sk_label(binary)
@@ -2182,12 +2214,13 @@ def _network_hysteresis(img, settings):
     binary = apply_hysteresis_threshold(smooth, low, high)
 
     morph_r = max(settings['organelle_morph_radius'] // 2, 1)
-    binary = binary_closing(binary, disk(morph_r))
-    binary = remove_small_objects(binary, min_size=settings['organelle_min_size'])
+    binary = closing(binary, disk(morph_r))
+    binary = _remove_objects_smaller_than(
+        binary, settings['organelle_min_size'])
 
     if settings['organelle_skeletonize']:
         skeleton = skeletonize(binary)
-        skeleton = binary_dilation(skeleton, disk(1))
+        skeleton = dilation(skeleton, disk(1))
         return sk_label(skeleton)
 
     return sk_label(binary)
@@ -2216,13 +2249,14 @@ def _segment_irregular(img, method, settings):
         raise ValueError(f"Unsupported irregular method: {method}")
 
     selem = disk(morph_r)
-    binary = binary_closing(binary, selem)
-    binary = binary_opening(binary, selem)
+    binary = closing(binary, selem)
+    binary = opening(binary, selem)
 
     if fill_area > 0:
-        binary = remove_small_holes(binary, area_threshold=fill_area)
+        binary = _fill_holes_smaller_than(binary, fill_area)
 
-    binary = remove_small_objects(binary, min_size=settings['organelle_min_size'])
+    binary = _remove_objects_smaller_than(
+        binary, settings['organelle_min_size'])
 
     labeled = _watershed_split(binary, smooth)
     return labeled
@@ -2274,8 +2308,9 @@ def _segment_ring(img, method, settings):
         raise ValueError(f"Unsupported ring method: {method}")
 
     # Cleanup edges
-    binary_edges = binary_closing(binary_edges, disk(1))
-    binary_edges = remove_small_objects(binary_edges, min_size=max(settings['organelle_min_size'] // 4, 3))
+    binary_edges = closing(binary_edges, disk(1))
+    binary_edges = _remove_objects_smaller_than(
+        binary_edges, max(settings['organelle_min_size'] // 4, 3))
 
     # Step 3: Fill rings to get solid objects
     if fill_method == 'flood':
@@ -2414,4 +2449,3 @@ def _postprocess_masks(masks, min_size=10, max_size=None, remove_border=False):
         processed.append(mask)
 
     return processed
-
