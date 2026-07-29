@@ -14,9 +14,9 @@ MINOR:
     (``p-val`` -> ``p_val``). ``spacr/plot.py`` indexes the dashed names
     directly, so a fresh install would have raised ``KeyError`` inside every
     paired statistical test.
-  * ``scikit-image<1.0`` admitted 0.27, which removes
-    ``skimage.morphology.square`` — imported at ``spacr/utils.py`` module
-    scope, so its removal is an ImportError, not a warning.
+  * ``scikit-image<1.0`` admitted removals before their replacements had been
+    adopted. spaCR now uses ``footprint_rectangle`` and ``max_size`` with
+    compatibility fallbacks, and admits 0.27 under a `<0.28` audit gate.
 The third ceiling found in that audit was ``statsmodels<1.0``: it admitted
 0.15, which removes the lowercase ``links.logit`` alias. spaCR has since
 switched to ``links.Logit``. A source-level regression test below keeps that
@@ -121,30 +121,16 @@ def test_pingouin_cap_excludes_the_column_rename():
         )
 
 
-def test_scikit_image_cap_excludes_the_square_removal():
-    """``skimage.morphology.square`` is removed in 0.26 -> 0.27.
-
-    The import at ``spacr/utils.py`` is module scope, so removal is an
-    ImportError for every consumer of ``spacr.utils``, not a warning at the
-    two call sites.
-    """
+def test_scikit_image_bound_follows_the_morphology_api_migration():
+    """The 0.27 removals are gone and the next minor remains an audit gate."""
     utils = _src("utils.py")
     imports_square = re.search(
         r"^from skimage\.morphology import .*\bsquare\b", utils, re.MULTILINE
     )
-
-    if imports_square:
-        assert not _admits("scikit-image", "0.27.0"), (
-            "spacr/utils.py imports `square` from skimage.morphology at module "
-            "scope, but the scikit-image pin admits 0.27, where it is removed "
-            "(deprecated 0.25, `removed_version='0.27'`). Use "
-            "`skimage.morphology.footprint_rectangle` before widening the cap."
-        )
-    else:
-        pytest.fail(
-            "spacr/utils.py no longer imports skimage.morphology.square — "
-            "widen the scikit-image cap past 0.27 and delete this branch."
-        )
+    assert imports_square is None
+    assert "footprint_rectangle" in utils
+    assert _admits("scikit-image", "0.27.0")
+    assert not _admits("scikit-image", "0.28.0")
 
 
 def test_statsmodels_uses_the_nondeprecated_logit_link_class():

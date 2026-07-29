@@ -150,13 +150,11 @@ dependencies = [
     # Meta never published SAM to PyPI. spaCR imports it in zero files, and
     # cellpose already depends on segment_anything itself. It was an
     # unpinned, unattributed name in the supply chain for no benefit.
-    # Ceiling LOWERED from the decorative `<1.0`. `skimage.morphology.square`,
-    # imported at module scope in spacr/utils.py:14 and used at utils.py:1589
-    # and utils.py:7139, is deprecated since 0.25 and removed in 0.27
-    # (footprints.py: `removed_version="0.27"`, use `footprint_rectangle`).
-    # 0.26 still imports it with a DeprecationWarning, so `<0.27` is the last
-    # version that works, not the first that warns.
-    'scikit-image>=0.22.0,<0.27',
+    # spaCR uses the replacement APIs introduced before 0.27:
+    # `footprint_rectangle`, `max_size`, `opening`, `closing` and `dilation`.
+    # Compatibility fallbacks retain 0.22-0.24 support without importing the
+    # aliases removed in 0.27. Keep the next minor as the explicit audit gate.
+    'scikit-image>=0.22.0,<0.28',
     # Floor RAISED from 1.4.1, which admitted a resolve that crashes:
     # spacr/utils.py:6247 calls `TSNE(..., max_iter=1000)`, and `max_iter` did
     # not exist on TSNE before scikit-learn 1.5.0 (it was `n_iter`). On 1.4.x
