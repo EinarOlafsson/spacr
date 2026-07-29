@@ -400,8 +400,13 @@ def get_components(cell_mask, nucleus_mask, pathogen_mask):
     nucleus_df = pd.DataFrame(list(cell_to_nucleus.items()), columns=['cell_id', 'nucleus'])
     pathogen_df = pd.DataFrame(list(cell_to_pathogen.items()), columns=['cell_id', 'pathogen'])
     # Explode lists
-    nucleus_df = nucleus_df.explode('nucleus')
-    pathogen_df = pathogen_df.explode('pathogen')
+    # ``explode`` turns an empty child list into a row whose child key is NaN.
+    # Those rows describe no relationship and duplicate the NaN merge key once
+    # per parent, which violates the one-child/one-parent contract downstream.
+    nucleus_df = nucleus_df.explode('nucleus').dropna(
+        subset=['nucleus']).reset_index(drop=True)
+    pathogen_df = pathogen_df.explode('pathogen').dropna(
+        subset=['pathogen']).reset_index(drop=True)
     return nucleus_df, pathogen_df
 
 def _calculate_zernike(mask, df, degree=8):
