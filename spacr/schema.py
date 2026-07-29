@@ -143,6 +143,10 @@ class ObjectTableSchemaError(SchemaError):
     """An object-table frame violates its declared column or row contract."""
 
 
+class ModelFeatureSchemaError(SchemaError):
+    """A declared model feature cannot be represented as numeric input."""
+
+
 # ---------------------------------------------------------------------------
 # The canonical key names
 # ---------------------------------------------------------------------------
@@ -1261,6 +1265,18 @@ OBJECT_TABLE_SCHEMAS = MappingProxyType({
     'pathogen': ObjectTableSchema('pathogen', 'pathogen', 'cell_id'),
 })
 
+#: Feature-dictionary families that are measurements rather than identity or
+#: provenance. Every model path uses this shared boundary.
+MODEL_FEATURE_FAMILIES = frozenset({
+    'morphology', 'intensity', 'texture', 'correlation', 'moment',
+})
+
+#: Derived numeric measurements that intentionally lack an object prefix.
+DERIVED_MODEL_FEATURES = frozenset({
+    'field_focus_score',
+    'recruitment',
+})
+
 
 def object_table_schema(table: str) -> ObjectTableSchema:
     """Return the canonical schema for ``table``.
@@ -1273,6 +1289,102 @@ def object_table_schema(table: str) -> ObjectTableSchema:
         raise ObjectTableSchemaError(
             f'{table!r} has no canonical object-table schema; expected one of '
             f'{list(CANONICAL_OBJECT_TABLES)}.') from exc
+
+
+def is_provenance_column(name: Any) -> bool:
+    """Return whether ``name`` is identity, annotation, or run provenance."""
+    from .feature_dict import META_COLUMNS, OBJECT_TYPES, parse_column
+
+    text = str(name)
+    if canonical_column_name(text) in META_COLUMNS:
+        return True
+    if any(
+            text in contract.identifier_columns
+            for contract in OBJECT_TABLE_SCHEMAS.values()):
+        return True
+    if parse_column(text).family == 'meta':
+        return True
+
+    # Joined object tables suffix overlapping columns. The suffix does not
+    # turn measurement_ndim_nucleus or object_label_pathogen into features.
+    suffixes = tuple(f'_{obj}' for obj in OBJECT_TYPES) + ('_x', '_y')
+    for suffix in suffixes:
+        if text.endswith(suffix):
+            base = text[:-len(suffix)]
+            if base and canonical_column_name(base) in META_COLUMNS:
+                return True
+    return False
+
+
+def model_feature_columns(
+        frame,
+        *,
+        extra_features=(),
+        exclude=(),
+        allow_unknown: bool = False,
+) -> list[str]:
+    """Select numeric model inputs by schema role, never by dtype alone.
+
+    A column is eligible when the feature dictionary identifies a measurement,
+    when it belongs to an object-table measurement namespace, or when the
+    caller explicitly names it in ``extra_features``. Identity and provenance
+    are always excluded—even if SQLite/pandas represents them as numbers.
+    ``allow_unknown`` is for generic statistics over user-created frames;
+    database-backed model paths should retain the strict default.
+
+    :raises ModelFeatureSchemaError: if a declared feature is non-numeric.
+    """
+    import pandas as pd
+    from pandas.api.types import is_bool_dtype, is_numeric_dtype
+
+    from .feature_dict import OBJECT_TYPES, parse_column
+
+    if not isinstance(frame, pd.DataFrame):
+        raise ModelFeatureSchemaError(
+            f'Model features must be selected from a pandas DataFrame, got '
+            f'{type(frame).__name__}.')
+
+    explicit = {str(column) for column in extra_features}
+    blocked = {str(column) for column in exclude}
+    selected: list[str] = []
+    for column in frame.columns:
+        name = str(column)
+        if name in blocked or is_provenance_column(name):
+            continue
+
+        entry = parse_column(name)
+        object_namespace = any(
+            name.startswith(f'{object_type}_')
+            for object_type in OBJECT_TYPES
+        ) or name.startswith('cells_')
+        declared = (
+            name in explicit
+            or name in DERIVED_MODEL_FEATURES
+            or entry.family in MODEL_FEATURE_FAMILIES
+            or (entry.family == 'unknown' and object_namespace)
+            or (allow_unknown and entry.family == 'unknown')
+        )
+        if not declared:
+            continue
+
+        series = frame[column]
+        if is_bool_dtype(series.dtype):
+            # pandas/numpy numeric selectors historically omitted bools.
+            continue
+        if not is_numeric_dtype(series.dtype):
+            if allow_unknown and entry.family == 'unknown' and not (
+                    name in explicit or object_namespace):
+                continue
+            raise ModelFeatureSchemaError(
+                f'Declared model feature {name!r} must be numeric, got '
+                f'{series.dtype}. Convert or exclude it before fitting.')
+        selected.append(column)
+    return selected
+
+
+def model_feature_frame(frame, **kwargs):
+    """Return ``frame`` restricted to :func:`model_feature_columns`."""
+    return frame.loc[:, model_feature_columns(frame, **kwargs)].copy()
 
 
 def table_key_columns(table: str, *, timelapse: bool = False) -> Tuple[str, ...]:

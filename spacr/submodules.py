@@ -37,6 +37,8 @@ from natsort import natsorted
 
 from torch.utils.data import Dataset
 
+from . import schema
+
 class CellposeLazyDataset(Dataset):
     """Lazy image/label dataset for Cellpose training and inference.
 
@@ -1626,8 +1628,13 @@ def interpret_vision_model(settings=None):
         # Now merge DataFrames
         merged_df = pd.merge(df, scores_df, on=['plateID', 'rowID', 'columnID', 'fieldID', 'object_label'], how='inner')
 
-        # Separate numerical features and the score column
-        X = merged_df.select_dtypes(include='number').drop(columns=[settings['score_column']])
+        # Select measurements by schema role, not every numeric column.
+        # Object labels and acquisition provenance are numeric in many
+        # databases but must never be learned by the classifier.
+        X = schema.model_feature_frame(
+            merged_df,
+            exclude=[settings['score_column']],
+        )
         y = merged_df[settings['score_column']]
 
         return X, y, merged_df

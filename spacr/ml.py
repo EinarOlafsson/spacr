@@ -3058,8 +3058,13 @@ def interpret_vision_model(settings=None):
         _report_fan_out(df, merged_df, join_cols,
                         left_name='object', right_name='scores')
 
-        # Separate numerical features and the score column
-        X = merged_df.select_dtypes(include='number').drop(columns=[settings['score_column']])
+        # Model inputs come from the measurement schema. Numeric identity and
+        # provenance columns (object_label, measurement_ndim, voxel sizes,
+        # etc.) are not biological features.
+        X = schema.model_feature_frame(
+            merged_df,
+            exclude=[settings['score_column']],
+        )
         y = merged_df[settings['score_column']]
 
         return X, y, merged_df
