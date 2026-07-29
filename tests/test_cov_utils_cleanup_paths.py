@@ -14,6 +14,7 @@ no plotting.
 from __future__ import annotations
 
 import os
+import io
 import tarfile
 import types
 
@@ -354,6 +355,25 @@ def test_extract_tar_bz2_files_reports_corrupt_archive(tmp_path, capsys):
     # the destination folder is created before the failure, and stays empty
     assert (folder / "broken").is_dir()
     assert os.listdir(folder / "broken") == []
+
+
+def test_extract_tar_bz2_files_rejects_path_traversal(tmp_path, capsys):
+    from spacr.utils import extract_tar_bz2_files
+
+    folder = tmp_path / "arch"
+    folder.mkdir()
+    archive = folder / "unsafe.tar.bz2"
+    with tarfile.open(archive, "w:bz2") as tar:
+        member = tarfile.TarInfo("../escape.txt")
+        payload = b"must stay inside the extraction folder"
+        member.size = len(payload)
+        tar.addfile(member, io.BytesIO(payload))
+
+    extract_tar_bz2_files(str(folder))
+
+    assert not (folder / "escape.txt").exists()
+    assert not (tmp_path / "escape.txt").exists()
+    assert "Failed to extract unsafe.tar.bz2" in capsys.readouterr().out
 
 
 # ===========================================================================
