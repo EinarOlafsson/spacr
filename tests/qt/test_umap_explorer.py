@@ -1,0 +1,100 @@
+from __future__ import annotations
+
+import sqlite3
+
+import numpy as np
+import pytest
+from PIL import Image
+
+pytest.importorskip("PySide6")
+pytest.importorskip("matplotlib")
+
+from spacr.qt.widgets.umap_explorer import ImageUmapExplorer
+
+
+def _payload(tmp_path):
+    database = tmp_path / "measurements.db"
+    image_paths = []
+    for index, color in enumerate(((255, 0, 0), (0, 255, 0),
+                                   (0, 0, 255), (255, 255, 0))):
+        path = tmp_path / f"object_{index}.png"
+        Image.new("RGB", (24, 24), color).save(path)
+        image_paths.append(path)
+    with sqlite3.connect(database) as connection:
+        connection.execute(
+            "CREATE TABLE png_list "
+            "(png_path TEXT PRIMARY KEY, plateID TEXT)")
+        connection.executemany(
+            "INSERT INTO png_list VALUES (?, 'plate1')",
+            [(str(path),) for path in image_paths],
+        )
+    embedding = np.array([
+        [0.0, 0.0], [0.2, 0.1], [2.0, 2.0], [2.2, 2.1]])
+    return {
+        "embedding": embedding,
+        "labels": np.array([0, 0, 1, 1]),
+        "records": [
+            {
+                "image": path,
+                "display_name": path.name,
+                "db_path": database,
+                "db_png_path": str(path),
+            }
+            for path in image_paths
+        ],
+    }, database
+
+
+def _db_values(database, column="umap_annotation"):
+    with sqlite3.connect(database) as connection:
+        return connection.execute(
+            f'SELECT "{column}" FROM png_list ORDER BY png_path'
+        ).fetchall()
+
+
+def test_click_preview_and_lasso_annotation(qtbot, tmp_path):
+    payload, database = _payload(tmp_path)
+    explorer = ImageUmapExplorer()
+    qtbot.addWidget(explorer)
+    explorer.set_payload(payload)
+
+    explorer.show_point(0)
+    assert not explorer._preview.pixmap().isNull()
+    assert "cluster 0" in explorer._point_label.text()
+
+    explorer._on_lasso([
+        (-0.2, -0.2), (0.5, -0.2), (0.5, 0.5), (-0.2, 0.5)])
+    assert explorer._selected.tolist() == [0, 1]
+    explorer._value.setValue(8)
+    with qtbot.waitSignal(explorer.annotation_finished, timeout=3000) as signal:
+        explorer._write_selected()
+
+    assert signal.args == [2, 0]
+    assert _db_values(database) == [(8,), (8,), (None,), (None,)]
+
+
+def test_cluster_selection_and_propagation(qtbot, tmp_path):
+    payload, database = _payload(tmp_path)
+    explorer = ImageUmapExplorer()
+    qtbot.addWidget(explorer)
+    explorer.set_payload(payload)
+
+    explorer._cluster_box.setCurrentIndex(2)
+    assert explorer._selected.tolist() == [2, 3]
+    with qtbot.waitSignal(explorer.annotation_finished, timeout=3000) as signal:
+        explorer._write_clusters()
+
+    assert signal.args == [4, 0]
+    assert _db_values(database) == [(0,), (0,), (1,), (1,)]
+
+
+def test_rejects_misaligned_payload(qtbot):
+    explorer = ImageUmapExplorer()
+    qtbot.addWidget(explorer)
+
+    with pytest.raises(ValueError, match="equal lengths"):
+        explorer.set_payload({
+            "embedding": [[0, 0], [1, 1]],
+            "labels": [0],
+            "records": [{}, {}],
+        })

@@ -6419,7 +6419,7 @@ def remove_noise(embedding, labels):
     labels = labels[non_noise_indices]
     return embedding, labels
 
-def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors, plot_by_cluster, plot_outlines, plot_points, plot_images, smooth_lines, black_background, figuresize, dot_size, remove_image_canvas, verbose):
+def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors, plot_by_cluster, plot_outlines, plot_points, plot_images, smooth_lines, black_background, figuresize, dot_size, remove_image_canvas, verbose, interactive_payload=None):
     """Plot a 2-D embedding with cluster outlines, points, and optional image overlays.
 
     :returns: matplotlib ``Figure``.
@@ -6432,6 +6432,11 @@ def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors, p
     plot_clusters(ax, embedding, labels, colors, cluster_centers, plot_outlines, plot_points, smooth_lines, figuresize, dot_size, verbose)
     if not image_paths is None and plot_images:
         plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, plot_by_cluster, remove_image_canvas, verbose)
+    if interactive_payload is not None:
+        # The Qt bridge recognises this attribute and keeps the underlying
+        # points/image/database identities instead of flattening the result
+        # into a PNG-only gallery entry.
+        fig._spacr_umap_payload = interactive_payload
     plt.show()
     return fig
 
