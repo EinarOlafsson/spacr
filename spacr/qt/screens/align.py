@@ -714,7 +714,11 @@ class AlignScreen(QWidget):
         self._pending.append((box, on_done))
         worker.error.connect(self._on_worker_error_text)
         worker.finished.connect(self._job_settled)
-        thread.finished.connect(lambda t=thread: self._retire_job(t))
+        # A context-free lambda may run in the emitting worker thread. Use a
+        # bound QObject slot so Qt queues retirement onto this widget's GUI
+        # thread; otherwise active_jobs() can race the thread's final signal
+        # under a loaded full suite.
+        thread.finished.connect(self._retire_finished_job)
         self._busy = True
         self._update_controls()
         thread.start()
@@ -740,6 +744,12 @@ class AlignScreen(QWidget):
         if self._thread is thread:
             self._thread = None
             self._worker = None
+
+    def _retire_finished_job(self) -> None:
+        """Retire the emitting QThread on this widget's GUI thread."""
+        thread = self.sender()
+        if thread is not None:
+            self._retire_job(thread)
 
     def _on_job_error(self, exc: Exception) -> None:
         self._busy = False
