@@ -124,10 +124,11 @@ import numpy as np
 #: not reused for a different-looking sky.
 #:
 #: v2: the sky is exposure-solved against the palette's bare-text limit.
-#: Without this bump every existing user keeps the old, 8-14x too bright
-#: sky forever — the cache is keyed by size, variant and seed, all of
-#: which are unchanged, so nothing else would ever invalidate it.
-CACHE_VERSION = 2
+#: Bump whenever rendered pixels change: v2 introduced the legibility solve;
+#: v3 preserves point-source cores through its final measured safety pass.
+#: Size, variant and seed are otherwise unchanged, so no other cache-key
+#: component would invalidate an older wallpaper.
+CACHE_VERSION = 3
 
 VARIANTS = ("galaxy", "sun", "stars")
 DEFAULT_VARIANT = "galaxy"
@@ -347,6 +348,12 @@ STAR_DENSITY = 2600.0
 #: How many stars get diffraction spikes. Only the very brightest — a
 #: spike on every star reads as a filter, not as a telescope.
 SPIKE_COUNT = 14
+
+# HDR star pixels above this level are point-source cores. They are restored
+# after the final whole-frame legibility solve: dozens of isolated pixels do
+# not move a text-window mean, while dimming them turns the sky uniformly grey.
+STAR_CORE_HDR = 1.0
+STAR_CORE_GAIN = 1.2
 
 
 def _splat(width: int, height: int, xs, ys, fluxes, colors,
@@ -842,7 +849,9 @@ def _measure_probe(arr: np.ndarray, long_edge: int = 480) -> np.ndarray:
 
 
 def _enforce_legibility(arr: np.ndarray,
-                        target: Optional[float] = None) -> np.ndarray:
+                        target: Optional[float] = None,
+                        preserve_mask: Optional[np.ndarray] = None
+                        ) -> np.ndarray:
     """Final measured guarantee: dim ``arr`` until it is under ``target``.
 
     :func:`_compress_highlights` bounds the smooth layers by
@@ -867,7 +876,30 @@ def _enforce_legibility(arr: np.ndarray,
     factor = imagery.solve_dim(measured, target)
     if factor >= 1.0:
         return arr
-    return imagery.dim(arr, factor)
+    mask = None
+    if preserve_mask is not None:
+        mask = np.asarray(preserve_mask, dtype=bool)
+        if mask.shape != arr.shape[:2]:
+            raise ValueError(
+                "preserve_mask must match the image height and width; "
+                f"got {mask.shape} for {arr.shape[:2]}.")
+
+    dimmed = imagery.dim(arr, factor)
+    if mask is None or not mask.any():
+        return dimmed
+
+    # Restoring point sources adds a tiny amount back to the measured window.
+    # Re-solve the non-core pixels until the *composited* output satisfies the
+    # same guarantee; normally this takes one additional iteration.
+    dimmed[mask] = arr[mask]
+    for _ in range(8):
+        measured, _ = imagery.brightest_window(_measure_probe(dimmed))
+        if measured <= target:
+            break
+        correction = imagery.solve_dim(measured, target)
+        dimmed = imagery.dim(dimmed, correction)
+        dimmed[mask] = arr[mask]
+    return dimmed
 
 
 def legibility(variant: str = DEFAULT_VARIANT, width: int = 0,
@@ -953,7 +985,13 @@ def render(width: int, height: int, variant: str = DEFAULT_VARIANT,
     ldr = _apply_tone_curve(hdr, exposure)
     ldr *= _vignette(width, height)[:, :, None]
     arr = np.clip(ldr * 255.0 + 0.5, 0, 255).astype(np.uint8)
-    return _enforce_legibility(arr) if legible else arr
+    star_cores = stars.max(axis=2) >= STAR_CORE_HDR
+    arr[star_cores] = np.clip(
+        arr[star_cores].astype(np.float32) * STAR_CORE_GAIN + 0.5,
+        0, 255).astype(np.uint8)
+    if not legible:
+        return arr
+    return _enforce_legibility(arr, preserve_mask=star_cores)
 
 
 def to_qimage(arr: np.ndarray):
