@@ -1807,11 +1807,18 @@ class AnnotateScreen(QWidget):
 
     def _toggle_annotation(self, slot: int, new_value: int):
         """Mouse semantics: same class again clears, otherwise assign."""
-        if slot >= len(self._page_paths):
+        if not self._slot_is_valid(slot):
             return
         existing = self._current_value(slot)
         resolved = None if existing == new_value else new_value
-        self._set_annotation(slot, resolved)
+        if self._set_annotation(slot, resolved):
+            path = str(self._page_paths[slot][0])
+            # A filesystem path can legally contain line breaks. Escape them
+            # so every click remains one searchable console record.
+            path = path.replace("\r", r"\r").replace("\n", r"\n")
+            self._console.append_stdout(
+                f"path={path} | annotation={resolved}\n"
+            )
 
     # ------------------------------------------------------------------
     # Keyboard-only rapid annotation
