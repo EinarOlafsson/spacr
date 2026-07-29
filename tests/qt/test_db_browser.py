@@ -30,6 +30,7 @@ import os
 import sqlite3
 import threading
 import time
+import warnings
 
 import pytest
 
@@ -2122,6 +2123,20 @@ def test_threaded_query_retires_its_thread(qtbot, qt_theme_applied, measdb):
     assert w._thread is None and w._worker is None
     assert w._pending == {}
     w.close()   # must not abort on a live QThread
+
+
+def test_thread_startup_has_no_signal_disconnect_warning(
+        qtbot, qt_theme_applied, measdb):
+    """The shared worker no longer self-deletes, so DB Browser must not try
+    to disconnect a nonexistent deleteLater slot for every queued query."""
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", RuntimeWarning)
+        w = DbBrowserScreen(threaded=True)
+        qtbot.addWidget(w)
+        w.set_database(measdb.path)
+        qtbot.waitUntil(lambda: not w.is_busy(), timeout=10000)
+        qtbot.waitUntil(lambda: w.active_jobs() == 0, timeout=10000)
+        w.close()
 
 
 def test_overlapping_threaded_jobs_do_not_drop_a_live_thread(

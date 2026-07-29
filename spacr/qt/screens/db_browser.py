@@ -2303,19 +2303,13 @@ class DbBrowserScreen(QWidget):
         """
         box: Dict[str, Any] = {}
         thread, worker = make_thread(partial(_capture_result, fn), box)
-        # `make_thread` wires `worker.finished -> worker.deleteLater`, which
-        # destroys the worker inside the *worker* thread's deferred-delete
-        # flush. That races the GUI thread dropping the same object's last
-        # Python reference in _retire_job: shiboken looks up the dying
-        # wrapper's type dict from the worker thread while CPython is
-        # freeing it here, and the process dies with SIGSEGV inside
-        # `QObject::~QObject -> Sbk_GetPyOverride -> PyDict_GetItem`.
-        # Reproduced 3 runs in 8 with a bare make_thread loop; zero in 8
-        # with this one connection removed. Taking the self-delete back
-        # means the worker is destroyed exactly once, on the GUI thread,
-        # when _retire_job releases it — after `thread.finished` has said
-        # the worker's event loop is over.
-        worker.finished.disconnect(worker.deleteLater)
+        # make_thread deliberately does not connect worker.deleteLater:
+        # Python owns this worker, and _retire_job releases its last strong
+        # reference on the GUI thread after the event loop exits. Do not try
+        # to "defensively" disconnect a slot that is absent — PySide emits a
+        # RuntimeWarning for every job, and signal mutation during native
+        # teardown is precisely the lifecycle race this ownership scheme
+        # avoids. See make_thread's ownership contract.
         # Strong references: PySide6 will not keep the worker alive through
         # the started→run connection alone, and a collected worker means the
         # thread spins forever without ever calling run(). A QThread that
