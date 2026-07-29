@@ -296,18 +296,30 @@ def test_resnet_features_reports_that_it_is_unimplemented(umap_src):
     assert "resnet_features" in str(ei.value)
 
 
-def test_color_by_with_embedding_by_controls_labels_by_metadata(umap_src, monkeypatch):
-    """color_by replaces the cluster labels with a metadata column, whichever
-    way the embedding was fitted."""
+def test_color_by_changes_plot_labels_without_corrupting_exported_clusters(
+        umap_src, monkeypatch):
+    """``color_by`` is a view choice; exported clusters remain algorithmic."""
     import spacr.utils as su
     from spacr.core import generate_image_umap
     monkeypatch.setattr(su, "reduction_and_clustering", FixedReducer())
 
+    plotted = {}
+    real_plot = su.plot_embedding
+
+    def _spy_plot(embedding, image_paths, labels, *args, **kwargs):
+        plotted["labels"] = list(labels)
+        return real_plot(embedding, image_paths, labels, *args, **kwargs)
+
+    monkeypatch.setattr(su, "plot_embedding", _spy_plot)
     out = generate_image_umap(_umap_settings(
         umap_src, embedding_by_controls=True, color_by="columnID",
         col_to_compare="columnID"))
-    assert (out["cluster"] == out["columnID"]).all()
-    assert set(out["cluster"]) == {"c1", "c2"}
+
+    assert plotted["labels"] == list(out["columnID"])
+    assert set(out["cluster"]) == {0}
+    on_disk = pd.read_csv(
+        os.path.join(umap_src, "results", "embedding_results.csv"))
+    assert set(on_disk["cluster"]) == {0}
 
 
 def test_umap_writes_the_embedding_results_csv(umap_src, monkeypatch):

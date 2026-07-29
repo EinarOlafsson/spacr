@@ -753,6 +753,9 @@ def generate_image_umap(settings=None, return_fig=False):
             numeric_data = preprocess_data(all_df, settings['filter_by'], settings['remove_highly_correlated'], settings['log_data'], settings['exclude'])
             embedding, labels, _ = reduction_and_clustering(numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], n_jobs=settings['n_jobs'])
     
+    clusters_found = (
+        len(labels) > 0 and np.any(np.asarray(labels) != -1)
+    )
     if settings['remove_cluster_noise']:
         # Remove noise from the clusters (removes -1 labels from DBSCAN).
         # The frame and the image paths must lose exactly the same rows:
@@ -762,26 +765,18 @@ def generate_image_umap(settings=None, return_fig=False):
         # match length of index (60)" — i.e. this setting was unusable
         # whenever DBSCAN called *some* (but not all) points noise.
         keep = np.asarray(labels) != -1
-        embedding, labels = remove_noise(embedding, labels)
         if keep.any():
+            embedding, labels = remove_noise(embedding, labels)
             if image_paths is not None:
                 image_paths = [p for p, k in zip(image_paths, keep) if k]
             all_df = all_df[keep].reset_index(drop=True)
-        # else: every point was noise, so `labels` is now empty and the
-        # single-cluster fallback further down keeps the frame intact
-        # instead of handing back nothing at all.
+        else:
+            # Every point was noise (or the reducer returned no labels).
+            # Preserve the mutually-aligned rows, embedding and crop paths,
+            # and expose an explicit one-cluster fallback.
+            labels = np.ones(len(all_df), dtype=int)
 
     cluster_labels = np.asarray(labels).copy()
-
-    # Plot the results. color_by replaces the cluster labels with a metadata
-    # column; how the embedding was fitted makes no difference (the two arms
-    # of the if/else this replaces were character-for-character identical).
-    if settings['color_by']:
-        labels = all_df[settings['color_by']]
-
-
-    # Generate colors for the clusters
-    colors = generate_colors(len(np.unique(labels)), settings['black_background'])
 
     # Preserve the point → crop → original database-row identity for the Qt
     # interactive explorer. The ordinary Matplotlib/PDF path simply ignores
@@ -795,6 +790,18 @@ def generate_image_umap(settings=None, return_fig=False):
         raise ValueError(
             "Embedding, cluster labels, and source rows lost alignment: "
             f"{point_count} points but {len(cluster_labels)} labels.")
+
+    # ``color_by`` controls presentation only.  Keep algorithmic cluster
+    # labels as a separate data contract: exporting columnID (or any other
+    # metadata) under the name "cluster" made downstream cluster analysis
+    # silently analyse wells instead of the clusters the reducer found.
+    plot_labels = (
+        all_df[settings['color_by']].reset_index(drop=True)
+        if settings['color_by'] else cluster_labels
+    )
+    colors = generate_colors(
+        len(np.unique(plot_labels)), settings['black_background'])
+
     for point_index, row in rows_for_payload.iterrows():
         image = (image_paths[point_index]
                  if image_paths is not None and point_index < len(image_paths)
@@ -819,9 +826,9 @@ def generate_image_umap(settings=None, return_fig=False):
     }
 
     # Plot the embedding
-    umap_plt = plot_embedding(embedding, image_paths, labels, settings['image_nr'], settings['img_zoom'], colors, settings['plot_by_cluster'], settings['plot_outlines'], settings['plot_points'], settings['plot_images'], settings['smooth_lines'], settings['black_background'], settings['figuresize'], settings['dot_size'], settings['remove_image_canvas'], settings['verbose'], interactive_payload=interactive_payload)
+    umap_plt = plot_embedding(embedding, image_paths, plot_labels, settings['image_nr'], settings['img_zoom'], colors, settings['plot_by_cluster'], settings['plot_outlines'], settings['plot_points'], settings['plot_images'], settings['smooth_lines'], settings['black_background'], settings['figuresize'], settings['dot_size'], settings['remove_image_canvas'], settings['verbose'], interactive_payload=interactive_payload)
     if settings['plot_cluster_grids'] and settings['plot_images']:
-        grid_plt = plot_clusters_grid(embedding, labels, settings['image_nr'], image_paths, colors, settings['figuresize'], settings['black_background'], settings['verbose'])
+        grid_plt = plot_clusters_grid(embedding, plot_labels, settings['image_nr'], image_paths, colors, settings['figuresize'], settings['black_background'], settings['verbose'])
     
     # Save figure as PDF if required
     if settings['save_figure']:
@@ -836,11 +843,9 @@ def generate_image_umap(settings=None, return_fig=False):
             grid_plt.savefig(grid_path, format='pdf')
             print(f'Saved {reduction_method} embedding to {embedding_path} and grid to {grid_path}')
 
-    # Add cluster labels to the dataframe
-    if len(labels) > 0:
-        all_df['cluster'] = labels
-    else:
-        all_df['cluster'] = 1  # Assign a default cluster label
+    # Export the clustering result, never the optional presentation labels.
+    all_df['cluster'] = cluster_labels
+    if not clusters_found:
         print("No clusters found. Consider reducing 'min_samples' or increasing 'eps' for DBSCAN.")
 
     all_df = all_df.drop(
