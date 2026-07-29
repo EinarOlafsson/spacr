@@ -780,12 +780,14 @@ def umap_available() -> Tuple[bool, str]:
     :returns: ``(True, "")`` when available, otherwise ``(False, message)``
         carrying :data:`UMAP_MISSING_MESSAGE`.
     """
+    # Through spacr.utils, never a bare `import umap`: umap's package
+    # __init__ imports umap.parametric_umap -> tensorflow, and TF is not
+    # a spaCR dependency. The lazy wrapper blocks it for that import.
+    from .utils import umap, OptionalDependencyCompatibilityError
     try:
-        # Through spacr.utils, never a bare `import umap`: umap's package
-        # __init__ imports umap.parametric_umap -> tensorflow, and TF is not
-        # a spaCR dependency. The lazy wrapper blocks it for that import.
-        from .utils import umap
         umap.UMAP  # noqa: B018 - forces the deferred import
+    except OptionalDependencyCompatibilityError as exc:
+        return False, str(exc)
     except Exception:
         return False, UMAP_MISSING_MESSAGE
     return True, ""

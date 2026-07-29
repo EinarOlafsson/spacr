@@ -297,7 +297,10 @@ dependencies = [
     # ~1.4 GB *per worker process*, and `umap/__init__.py` pulls
     # `parametric_umap` -> TensorFlow, which spaCR refuses. Three call sites
     # use it: spacr/utils.py:6330 and :7019, spacr/timelapse.py:4157.
-    'umap-learn>=0.5.6,<1.0',
+    # 0.5.10 replaced scikit-learn's removed ``force_all_finite`` argument
+    # with ``ensure_all_finite``. Older UMAP releases fail at fit time with
+    # scikit-learn >=1.8, even though pip can otherwise resolve the pair.
+    'umap-learn>=0.5.10,<1.0',
     # `ttkthemes` REMOVED: zero imports. The Tk GUI is plain tkinter/ttk and
     # the default GUI is PySide6, which has its own theming.
     # Ceiling RAISED. XGBoost 3.0 removed DeviceQuantileDMatrix, `feval`,
@@ -584,7 +587,7 @@ setup(
         # not exist. umap-learn is also a core dependency, pinned identically,
         # so this extra is a no-op for anyone who has spaCR installed at all —
         # it exists to stop a printed instruction being a lie.
-        'umap': ['umap-learn>=0.5.6,<1.0'],
+        'umap': ['umap-learn>=0.5.10,<1.0'],
         'full': ['opencv-python'],
         'qt': [
             'PySide6>=6.6,<7',
