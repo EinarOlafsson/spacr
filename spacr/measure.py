@@ -1065,11 +1065,18 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None):
             frac_low10.append(np.nan)
             entropy_intensity.append(np.nan)
         else:
+            # scipy.stats deliberately returns NaN for a constant sample, but
+            # first emits a RuntimeWarning about catastrophic cancellation.
+            # Uniform segmented objects are ordinary image data, so take the
+            # mathematically-defined shortcut and keep measurement logs clean.
+            has_variation = not np.all(intens == intens[0])
             integrated_intensity.append(np.sum(intens))
             std_intensity.append(np.std(intens))
             median_intensity.append(np.median(intens))
-            skew_intensity.append(skew(intens) if intens.size > 2 else np.nan)
-            kurtosis_intensity.append(kurtosis(intens) if intens.size > 3 else np.nan)
+            skew_intensity.append(
+                skew(intens) if intens.size > 2 and has_variation else np.nan)
+            kurtosis_intensity.append(
+                kurtosis(intens) if intens.size > 3 and has_variation else np.nan)
             # Mode (use the smallest mode value if multimodal).
             # SciPy < 1.11 returned a 1-element array here, SciPy >= 1.11
             # returns a bare scalar. The old code did `mode_val[0]`, which
