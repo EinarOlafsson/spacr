@@ -362,6 +362,20 @@ def test_print_progress_list_batch_size_uses_its_length(capsys):
     assert "operation_type: measure" in out
 
 
+def test_print_progress_zero_workers_keeps_eta_finite(capsys):
+    from spacr.utils import print_progress
+
+    print_progress(
+        2, 10, n_jobs=0, time_ls=[1.0, 3.0], batch_size=0,
+        operation_type="in-process",
+    )
+    out = capsys.readouterr().out
+    assert "Time/image: 2.000sec" in out
+    assert "Time_left: 0.267 min." in out
+    assert "nan" not in out.lower()
+    assert "inf" not in out.lower()
+
+
 def test_print_progress_coerces_numeric_strings_and_floats(capsys):
     """Non-int counters that *can* be coerced go through int()."""
     from spacr.utils import print_progress

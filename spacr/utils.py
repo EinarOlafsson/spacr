@@ -1590,11 +1590,20 @@ def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batc
     time_info = ""
     if time_ls is not None:
         average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
-        time_left = (((files_to_process - files_processed) * average_time) / n_jobs) / 60
+        try:
+            effective_jobs = max(1, int(n_jobs))
+        except (TypeError, ValueError):
+            effective_jobs = 1
+        remaining = max(0, files_to_process - files_processed)
+        time_left = (remaining * average_time / effective_jobs) / 60
         if batch_size is None:
             time_info = f'Time/image: {average_time:.3f}sec, Time_left: {time_left:.3f} min.'
         else:
-            average_time_img = average_time / batch_size
+            try:
+                effective_batch_size = max(1, int(batch_size))
+            except (TypeError, ValueError):
+                effective_batch_size = 1
+            average_time_img = average_time / effective_batch_size
             time_info = f'Time/batch: {average_time:.3f}sec, Time/image: {average_time_img:.3f}sec, Time_left: {time_left:.3f} min.'
     else:
         time_info = None
