@@ -468,6 +468,26 @@ def test_real_mouse_clicks_reach_the_annotation_write_path(qtbot, tile_screen):
     assert screen._page_paths[2][1] is None
 
 
+def test_mouse_click_logs_path_and_annotation_as_one_line(qtbot, tile_screen):
+    """Each click leaves one searchable path/annotation console record."""
+    from PySide6.QtCore import Qt as _Qt
+
+    screen = tile_screen
+    path = str(screen._page_paths[0][0]).replace("\r", r"\r").replace(
+        "\n", r"\n"
+    )
+
+    qtbot.mouseClick(screen._thumbs[0], _Qt.LeftButton)
+    output = screen._console._current_stdout.toPlainText()
+    assert output.splitlines()[-1] == f"path={path} | annotation=1"
+
+    # Clicking the active class again clears it and reports the resulting
+    # annotation, rather than the class that was requested.
+    qtbot.mouseClick(screen._thumbs[0], _Qt.LeftButton)
+    output = screen._console._current_stdout.toPlainText()
+    assert output.splitlines()[-1] == f"path={path} | annotation=None"
+
+
 def test_corner_is_actually_rounded_not_a_frame_over_a_square(qtbot,
                                                               qt_theme_applied):
     """The crop is clipped to the rounded rect, so the corner of the tile
