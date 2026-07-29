@@ -2005,7 +2005,17 @@ def _update_database_with_merged_info(db_path, df, table='png_list', columns=Non
                 print(e)
         
     # Merge the existing DataFrame with the new info based on the 'prcfo' column
-    merged_df = pd.merge(existing_df, df[columns], on='prcfo', how='left')
+    try:
+        merged_df = pd.merge(
+            existing_df,
+            df[columns],
+            on='prcfo',
+            how='left',
+            validate='many_to_one',
+        )
+    except pd.errors.MergeError:
+        conn.close()
+        raise
     
     # Drop the existing table and replace it with the updated DataFrame
     try:
@@ -2383,7 +2393,13 @@ def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folde
             raise ValueError(f"Invalid table_type: {table_type}")
 
         if len(intensity_df) > 0:
-            merged_df = pd.merge(morph_df, intensity_df, on='object_label', how='outer')
+            merged_df = pd.merge(
+                morph_df,
+                intensity_df,
+                on='object_label',
+                how='outer',
+                validate='one_to_one',
+            )
         else:
             merged_df = morph_df.copy()
         merged_df = merged_df.rename(columns={"label_list_x": "label_list_morphology", "label_list_y": "label_list_intensity"})
@@ -6449,7 +6465,12 @@ def merge_dataframes(df, image_paths_df, verbose):
     :returns: merged DataFrame.
     """
     df.set_index('prcfo', inplace=True)
-    df = image_paths_df.merge(df, left_index=True, right_index=True)
+    df = image_paths_df.merge(
+        df,
+        left_index=True,
+        right_index=True,
+        validate='many_to_one',
+    )
     if verbose:
         display(df)
     return df
