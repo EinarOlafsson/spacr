@@ -2500,7 +2500,7 @@ categories = {
     #   * parasite_table / compartment, from "Invasion Assay", which name the
     #     table and compartment the objects are read from. Leaving them there
     #     made the Replication module render a heading called "Invasion Assay".
-    "Measurements": ["save_measurements", "calculate_correlation", "manders_thresholds", "homogeneity", "homogeneity_distances", "radial_dist", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
+    "Measurements": ["save_measurements", "calculate_correlation", "manders_thresholds", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
     "Object Crops": ["save_png", "crop_mode", "png_size", "png_dims", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "save_arrays"],
 
@@ -2566,20 +2566,21 @@ categories = {
     # nuclei_limit / pathogen_limit for "Measurements": all three change what
     # the run produces rather than how it is tuned, and hiding them here is
     # what put them at the bottom of the Classify (CV) dataset settings.
-    "Advanced": ["resume", "strict_errors", "max_failure_rate", "crop_source", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "compression", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens"],
+    "Advanced": ["resume", "strict_errors", "max_failure_rate", "crop_source", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "compression", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "all_to_mip", "upscale", "upscale_factor", "consolidate", "use_sam_pathogen", "use_sam_nucleus", "use_sam_cell", "denoise"],
 
-    # The 3D (Beta) keys lead this list and the 4D (Beta) keys follow them:
-    # `z_stack` and `t_stack` are the two master switches and the rest only
-    # mean anything once one of them is on. `z_axis` is shared -- it names the
-    # z axis for both -- so it is listed once, with the 3D block. They are all
-    # filed here rather than under headings of their own because a new
-    # category with no SECTION_HINTS entry in qt/screens/app_screen.py
-    # silently falls back to a generic tooltip (see
-    # tests/test_settings_categories.py), which is why the 4D keys follow the
-    # 3D precedent rather than opening a "4D (Beta)" section.
-    "Beta": ["z_stack", "z_segmentation_mode", "z_axis", "z_projection", "anisotropy", "voxel_size_z_um", "voxel_size_xy_um", "stitch_threshold",
-             "t_stack", "t_axis_order", "t_axis", "frame_interval_s", "t_track_backend", "t_link_threshold", "t_max_displacement_px", "t_max_displacement_um", "t_project_for_tracking",
-             "all_to_mip", "upscale", "upscale_factor", "consolidate", "distance_gaussian_sigma", "use_sam_pathogen", "use_sam_nucleus", "use_sam_cell", "denoise"],
+    # Experimental volumetric controls are deliberately split by dimensional
+    # contract. `z_axis` lives with 3D because 4D builds on the same z plan;
+    # the 4D panel contains only time-axis and inter-frame tracking controls.
+    "3D Settings (Beta)": [
+        "z_stack", "z_segmentation_mode", "z_axis", "z_projection",
+        "anisotropy", "voxel_size_z_um", "voxel_size_xy_um",
+        "stitch_threshold",
+    ],
+    "4D Settings (Beta)": [
+        "t_stack", "t_axis_order", "t_axis", "frame_interval_s",
+        "t_track_backend", "t_link_threshold", "t_max_displacement_px",
+        "t_max_displacement_um", "t_project_for_tracking",
+    ],
 
     "Motility (beta)": motility_settings,
     "Motility Advanced (beta)": motility_advanced_settings,

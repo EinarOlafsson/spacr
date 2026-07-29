@@ -977,13 +977,11 @@ def test_every_new_key_appears_in_exactly_one_category():
         assert listed.count(key) == 1, f"{key} is categorised {listed.count(key)} times"
 
 
-def test_the_new_keys_follow_the_3d_precedent_into_beta():
-    """A new category with no SECTION_HINTS entry silently loses its tooltip."""
-    beta = S.categories["Beta"]
-    assert set(NEW_4D_KEYS) <= set(beta)
-    assert "4D (Beta)" not in S.categories
-    # The master switch leads its block, as `z_stack` does.
-    assert beta.index("t_stack") == beta.index("stitch_threshold") + 1
+def test_the_new_keys_have_their_own_4d_beta_panel():
+    panel = S.categories["4D Settings (Beta)"]
+    assert set(NEW_4D_KEYS) <= set(panel)
+    assert "t_stack" == panel[0]
+    assert not set(NEW_4D_KEYS) & set(S.categories["3D Settings (Beta)"])
 
 
 def test_every_new_key_is_offered_by_the_mask_and_timelapse_panels():

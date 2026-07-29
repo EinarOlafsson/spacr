@@ -8,11 +8,13 @@ def test_section_maturity_uses_the_least_mature_app_or_category_stage():
     from spacr.qt.screens.app_screen import settings_section_maturity
 
     assert settings_section_maturity("mask", "Paths") == "stable"
-    assert settings_section_maturity("mask", "Beta") == "beta"
+    assert settings_section_maturity("mask", "3D Settings (Beta)") == "beta"
+    assert settings_section_maturity("mask", "4D Settings (Beta)") == "beta"
     assert settings_section_maturity("mask", "Motility (beta)") == "beta"
     assert settings_section_maturity("timelapse", "Paths") == "beta"
     assert settings_section_maturity("invasion", "Paths") == "alpha"
-    assert settings_section_maturity("invasion", "Beta") == "alpha"
+    assert settings_section_maturity(
+        "invasion", "3D Settings (Beta)") == "alpha"
 
 
 def test_section_marks_its_card_header_and_every_setting(qtbot):
@@ -120,6 +122,17 @@ def test_stable_mask_module_keeps_only_experimental_section_beta(
     qtbot.addWidget(screen)
     by_title = {section.title(): section for section in screen.findChildren(Section)}
 
-    assert by_title["BETA"].maturity() == "beta"
+    assert by_title["3D SETTINGS (BETA)"].maturity() == "beta"
+    assert by_title["4D SETTINGS (BETA)"].maturity() == "beta"
+    three_d_labels = {
+        label.text() for label, _widget
+        in by_title["3D SETTINGS (BETA)"]._row_widgets
+    }
+    four_d_labels = {
+        label.text() for label, _widget
+        in by_title["4D SETTINGS (BETA)"]._row_widgets
+    }
+    assert "Z stack" in three_d_labels
+    assert "T stack" in four_d_labels
     assert by_title["PATHS"].maturity() == "stable"
     assert by_title["GENERAL"].maturity() == "stable"
