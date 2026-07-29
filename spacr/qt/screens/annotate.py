@@ -36,13 +36,23 @@ plain per-page fetch is used at query time in this MVP).
 from __future__ import annotations
 
 import os
+from copy import deepcopy
 from collections import deque
-from concurrent.futures import ThreadPoolExecutor
+from functools import partial
 from typing import Deque, Dict, List, Optional, Tuple
 
 from PIL import Image
 from PIL.ImageQt import ImageQt
-from PySide6.QtCore import Qt, QEvent, QRectF, QSize, QThread, QTimer, Signal
+from PySide6.QtCore import (
+    Qt,
+    QEvent,
+    QRectF,
+    QSize,
+    QThread,
+    QTimer,
+    Signal,
+    Slot,
+)
 from PySide6.QtGui import (QAction, QColor, QImage, QKeySequence, QPainter,
                            QPainterPath, QPen, QPixmap, QShortcut)
 from PySide6.QtWidgets import (
@@ -270,13 +280,16 @@ class _PageLoadWorker(QThread):
         self._load_fn = load_fn
 
     def run(self):
-        from concurrent.futures import ThreadPoolExecutor
         try:
-            with ThreadPoolExecutor() as ex:
-                loaded = list(ex.map(self._load_fn, self._paths))
+            loaded = []
+            for row in self._paths:
+                if self.isInterruptionRequested():
+                    return
+                loaded.append(self._load_fn(row))
         except Exception:
             loaded = []
-        self.done.emit(self._gen, loaded)
+        if not self.isInterruptionRequested():
+            self.done.emit(self._gen, loaded)
 
 
 class _Thumbnail(QLabel):
@@ -500,6 +513,59 @@ def _reanchor_png_path(path: str, db_path: str) -> str:
         if os.path.isfile(cand):
             return cand
     return path
+
+
+def _load_thumb_image_worker(row, src, settings):
+    """Load one thumbnail from an immutable page-request snapshot.
+
+    This function deliberately receives no :class:`AnnotateScreen`.  Calling a
+    bound QWidget method from a worker kept the screen wrapper alive after its
+    C++ object had been destroyed and let background threads read settings
+    while the GUI thread replaced them.
+    """
+    if isinstance(row, dict):
+        annotation = row.get("annotation")
+    else:
+        path, annotation = row
+        row = {"png_path": path}
+
+    s = settings
+    if src is not None and getattr(src, "kind", "png") == "merged":
+        try:
+            img = Image.fromarray(src.get(row)).convert("RGB")
+        except Exception:
+            return Image.new("RGB", s.image_size, (30, 30, 30)), annotation
+    else:
+        path = _reanchor_png_path(row.get("png_path"), s.db_path)
+        if not path or not os.path.isfile(path):
+            return Image.new("RGB", s.image_size, color=(20, 20, 20)), annotation
+        try:
+            img = load_crop_image(path, db_path=s.db_path)
+        except Exception:
+            return Image.new("RGB", s.image_size, (30, 30, 30)), annotation
+
+    img = normalize_pil(img, s.percentiles, s.normalize_channels)
+    # Keep the full image for outline detection even when the display filter
+    # hides one of its channels.
+    full_img = img
+    img = filter_channels_pil(img, s.channels)
+    if s.outline:
+        try:
+            img = outline_image(
+                base_img=img,
+                full_img=full_img,
+                outline_channels=s.outline,
+                edge_sigma=s.outline_sigma,
+                edge_thickness=s.edge_thickness,
+                edge_transparency=s.edge_transparency,
+                edge_image=s.edge_image,
+                outline_threshold_factor=s.outline_threshold_factor,
+                object_size=s.object_size,
+                outline_method=getattr(s, "outline_method", "otsu"),
+            )
+        except Exception:
+            pass
+    return img.resize(s.image_size), annotation
 
 
 class _SettingsDialog(QDialog):
@@ -769,8 +835,17 @@ class AnnotateScreen(QWidget):
         self._thumbs: List[_Thumbnail] = []
         self._thumb_pixmaps: List[Optional[QPixmap]] = []
         self._raw_thumb_images: List[Optional[Image.Image]] = []
-        self._page_workers: List[_PageLoadWorker] = []
+        self._page_worker: Optional[_PageLoadWorker] = None
+        self._pending_page_load = None
         self._page_gen = 0
+        self._closing = False
+        # A drag-resize used to launch one QThread (and one inner thread pool)
+        # per geometry event.  Debounce it and keep only the newest page
+        # request so native image/model code never overlaps with itself.
+        self._resize_timer = QTimer(self)
+        self._resize_timer.setSingleShot(True)
+        self._resize_timer.setInterval(150)
+        self._resize_timer.timeout.connect(self._reload_after_resize)
         self._suggested_source = prefs.get_last_source("annotate")
 
         # ── The current tile ───────────────────────────────────────────────
@@ -1120,7 +1195,7 @@ class AnnotateScreen(QWidget):
         self._refresh_focus_marks()
 
     def resizeEvent(self, event):
-        """Re-fit the thumbnail grid when the window resizes."""
+        """Re-fit the thumbnail grid after resize activity settles."""
         super().resizeEvent(event)
         if not getattr(self, "_grid_scroll", None):
             return
@@ -1128,10 +1203,17 @@ class AnnotateScreen(QWidget):
         self._compute_grid_dims()
         new = (self._settings.grid_rows, self._settings.grid_cols)
         if new != prev and self._worker is not None:
-            self._flush_pending()
-            self._rebuild_grid()
-            self._refresh_total()
-            self._load_page()
+            self._resize_timer.start()
+
+    @Slot()
+    def _reload_after_resize(self):
+        """Apply the final geometry after a burst of resize events."""
+        if self._closing or self._worker is None:
+            return
+        self._flush_pending()
+        self._rebuild_grid()
+        self._refresh_total()
+        self._load_page()
 
     # ------------------------------------------------------------------
     # Actions
@@ -1355,6 +1437,8 @@ class AnnotateScreen(QWidget):
             self._total = count_rows(self._settings.db_path, self._settings.image_type)
 
     def _load_page(self):
+        if self._closing:
+            return
         page = self._settings.page_size
         if self._filtered_rows is not None:
             self._page_paths = list(self._filtered_rows[self._offset:self._offset + page])
@@ -1392,23 +1476,56 @@ class AnnotateScreen(QWidget):
         # superseded.
         self._page_gen += 1
         self._page_label.setText(f"Loading {len(self._page_paths)} images…")
-        # No parent — so the widget being torn down can't destroy a still-
-        # running QThread (which aborts the process). Held in a list until it
-        # finishes; dropped in _retire_page_worker.
-        worker = _PageLoadWorker(self._page_gen, list(self._page_paths),
-                                 self._load_thumb_image)
-        worker.done.connect(self._on_page_loaded)
-        worker.finished.connect(lambda w=worker: self._retire_page_worker(w))
-        self._page_workers.append(worker)
+        crop_src = self._crop_source()
+        # Lists inside AnnotateSettings are mutable. Freeze the complete view
+        # configuration now so a Settings change cannot race the decoder.
+        settings = deepcopy(self._settings)
+        request = (self._page_gen, list(self._page_paths), crop_src, settings)
+        self._queue_page_load(request)
+
+    def _queue_page_load(self, request):
+        """Run at most one page QThread, retaining only the newest request."""
+        if self._closing:
+            return
+        worker = self._page_worker
+        # A finished QThread is still owned here until its queued ``finished``
+        # slot runs on the GUI thread. Replacing that reference in the small
+        # gap would let the old slot retire the new live worker.
+        if worker is not None:
+            self._pending_page_load = request
+            return
+        self._start_page_worker(request)
+
+    def _start_page_worker(self, request):
+        gen, paths, crop_src, settings = request
+        load_fn = partial(
+            _load_thumb_image_worker,
+            src=crop_src,
+            settings=settings,
+        )
+        worker = _PageLoadWorker(gen, paths, load_fn)
+        worker.setObjectName(f"annotate-page-{gen}")
+        worker.done.connect(self._on_page_loaded, Qt.QueuedConnection)
+        worker.finished.connect(
+            self._on_page_worker_finished,
+            Qt.QueuedConnection,
+        )
+        self._page_worker = worker
         worker.start()
 
-    def _retire_page_worker(self, worker):
-        try:
-            self._page_workers.remove(worker)
-        except ValueError:
-            pass
-        worker.deleteLater()
+    @Slot()
+    def _on_page_worker_finished(self):
+        """Retire the QThread on the GUI thread and launch the newest request."""
+        worker = self._page_worker
+        self._page_worker = None
+        if worker is not None:
+            worker.deleteLater()
+        if self._pending_page_load is not None and not self._closing:
+            request = self._pending_page_load
+            self._pending_page_load = None
+            self._start_page_worker(request)
 
+    @Slot(int, object)
     def _on_page_loaded(self, gen: int, loaded):
         if gen != self._page_gen:
             return   # superseded by a newer load
@@ -1447,58 +1564,17 @@ class AnnotateScreen(QWidget):
             self._cropsrc_key = key
         return self._cropsrc
 
-    def _load_thumb_image(self, row):
-        # Rows are (png_path, annotation) from the plain page fetch, or a dict
-        # carrying path_name/object_label when the merged source is in play.
-        if isinstance(row, dict):
-            annotation = row.get("annotation")
-        else:
-            path, annotation = row
-            row = {"png_path": path}
-        s = self._settings
+    def _load_thumb_image(self, row, src=None, settings=None):
+        """Compatibility wrapper for direct callers and older tests.
 
-        src = self._crop_source()
-        if src is not None and getattr(src, "kind", "png") == "merged":
-            try:
-                img = Image.fromarray(src.get(row)).convert("RGB")
-            except Exception:
-                return Image.new("RGB", s.image_size, (30, 30, 30)), annotation
-        else:
-            path = _reanchor_png_path(row.get("png_path"), s.db_path)
-            if not path or not os.path.isfile(path):
-                blank = Image.new("RGB", s.image_size, color=(20, 20, 20))
-                return blank, annotation
-            try:
-                # Not Image.open(): crop PNGs are format-versioned, and a
-                # legacy folder has to be un-reversed on load or every "r"/
-                # "g"/"b" control on this screen addresses the wrong stain.
-                img = load_crop_image(path, db_path=s.db_path)
-            except Exception:
-                return Image.new("RGB", s.image_size, (30, 30, 30)), annotation
-        img = normalize_pil(img, s.percentiles, s.normalize_channels)
-        # Full-quality image before channel filter — used as the outline
-        # detection source so outlines still find features on channels the
-        # user has hidden.
-        full_img = img
-        img = filter_channels_pil(img, s.channels)
-        if s.outline:
-            try:
-                img = outline_image(
-                    base_img=img,
-                    full_img=full_img,
-                    outline_channels=s.outline,
-                    edge_sigma=s.outline_sigma,
-                    edge_thickness=s.edge_thickness,
-                    edge_transparency=s.edge_transparency,
-                    edge_image=s.edge_image,
-                    outline_threshold_factor=s.outline_threshold_factor,
-                    object_size=s.object_size,
-                    outline_method=getattr(s, "outline_method", "otsu"),
-                )
-            except Exception:
-                pass   # fall through with base image if outline fails
-        img = img.resize(s.image_size)
-        return img, annotation
+        Page workers call :func:`_load_thumb_image_worker` with snapshots and
+        never retain this bound QWidget method.
+        """
+        if src is None:
+            src = self._crop_source()
+        if settings is None:
+            settings = deepcopy(self._settings)
+        return _load_thumb_image_worker(row, src, settings)
 
     def _image_to_pixmap(self, img: Image.Image) -> QPixmap:
         """Convert one decoded crop to a bare pixmap.
@@ -1905,11 +1981,27 @@ class AnnotateScreen(QWidget):
 
     # ------------------------------------------------------------------
     def closeEvent(self, event):
-        """Flush pending annotations and stop the workers before closing."""
+        """Drain every native/Python worker before Qt destroys this screen."""
+        self._closing = True
+        self._resize_timer.stop()
+        self._pending_page_load = None
         self._flush_pending()
         if self._worker:
             self._worker.stop(wait=True)
+            self._worker = None
         self._page_gen += 1   # invalidate any in-flight results
-        for w in list(self._page_workers):
-            w.wait(4000)
+        worker = self._page_worker
+        if worker is not None:
+            # Do not use a timeout here. Cellpose/PyTorch can remain in native
+            # inference longer than four seconds; letting QWidget destruction
+            # continue in that window is the intermittent SIGSEGV/abort.
+            worker.requestInterruption()
+            worker.wait()
+            self._page_worker = None
+            try:
+                worker.done.disconnect(self._on_page_loaded)
+                worker.finished.disconnect(self._on_page_worker_finished)
+            except (RuntimeError, TypeError):
+                pass
+            worker.deleteLater()
         super().closeEvent(event)

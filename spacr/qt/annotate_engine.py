@@ -131,28 +131,41 @@ def filter_channels_pil(
 
 
 _cellpose_outline_model = None
+# Cellpose/PyTorch model construction and inference enter native code and are
+# not safe to run concurrently through one cached model.  Annotate page loads
+# used to fan out across several QThreads and ThreadPoolExecutors, so two crops
+# could call ``model.eval`` at the same time and take the interpreter down
+# without a Python traceback.  RLock lets _cellpose_foreground call the
+# separately-tested lazy constructor while holding the same guard.
+_cellpose_outline_lock = threading.RLock()
 
 
 def _get_cellpose_outline_model():
     """Lazily build + cache a small Cellpose (SAM) model for outline masks."""
     global _cellpose_outline_model
-    if _cellpose_outline_model is None:
-        from cellpose import models as cp_models
-        try:
-            import torch
-            gpu = torch.cuda.is_available()
-        except Exception:
-            gpu = False
-        _cellpose_outline_model = cp_models.CellposeModel(
-            gpu=gpu, pretrained_model="cpsam", device=None)
-    return _cellpose_outline_model
+    with _cellpose_outline_lock:
+        if _cellpose_outline_model is None:
+            from cellpose import models as cp_models
+            try:
+                import torch
+                gpu = torch.cuda.is_available()
+            except Exception:
+                gpu = False
+            _cellpose_outline_model = cp_models.CellposeModel(
+                gpu=gpu, pretrained_model="cpsam", device=None)
+        return _cellpose_outline_model
 
 
 def _cellpose_foreground(channel_2d) -> "np.ndarray":
     """Return a boolean foreground mask for one channel using Cellpose."""
-    model = _get_cellpose_outline_model()
-    res = model.eval(channel_2d.astype(np.float32),
-                     diameter=None, flow_threshold=0.4, cellprob_threshold=0.0)
+    with _cellpose_outline_lock:
+        model = _get_cellpose_outline_model()
+        res = model.eval(
+            channel_2d.astype(np.float32),
+            diameter=None,
+            flow_threshold=0.4,
+            cellprob_threshold=0.0,
+        )
     mask = res[0]
     if isinstance(mask, list):
         mask = mask[0]
@@ -556,14 +569,30 @@ class SaveWorker:
         self._thread.start()
 
     def stop(self, wait: bool = True) -> None:
-        """Signal the writer to exit; when ``wait`` is True block up to 5 s."""
-        self._terminate = True
-        self._q.put(self._SENTINEL)
+        """Drain queued writes and stop the writer.
+
+        A bounded five-second join used to let the screen disappear while the
+        daemon thread still owned a live SQLite connection.  That is unsafe at
+        application shutdown: CPython can finalize the sqlite extension while
+        the thread is still inside it.  SQLite already bounds lock waits with
+        its 30-second connection timeout, so a requested blocking stop waits
+        for the thread to close its cursor and connection completely.
+        """
+        with self._lock:
+            first_stop = not self._terminate
+            self._terminate = True
+        if first_stop:
+            self._q.put(self._SENTINEL)
         if wait and self._thread:
             try:
-                self._thread.join(timeout=5.0)
+                self._thread.join()
             except Exception:
                 pass
+
+    @property
+    def is_alive(self) -> bool:
+        """Whether the SQLite writer thread is still running."""
+        return bool(self._thread and self._thread.is_alive())
 
     def submit(self, batch: dict) -> None:
         """Enqueue a copy of the batch for saving."""
