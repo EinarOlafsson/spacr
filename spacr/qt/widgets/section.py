@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..theme import SPACING
+from ..theme import SPACING, STAGE_LABEL, STAGE_NOTE
 
 
 class Section(QFrame):
@@ -31,6 +31,9 @@ class Section(QFrame):
         super().__init__(parent)
         self.setObjectName("SectionCard")
         self._expanded = False
+        self._maturity = "stable"
+        self._hint = ""
+        self._row_widgets = []
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
@@ -46,7 +49,7 @@ class Section(QFrame):
         # nowhere. Section headers are not keyboard shortcuts, so the '&' is
         # escaped for display. `title()` still answers with the real text.
         self._title = title.upper()
-        self._header.setText(self._title.replace("&", "&&"))
+        self._refresh_header_text()
         self._header.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self._header.setArrowType(Qt.RightArrow)
         self._header.setCheckable(True)
@@ -79,10 +82,15 @@ class Section(QFrame):
     def add_row(self, label: str, widget: QWidget) -> None:
         """Add a labeled row to the section's form body."""
         self._form.addRow(label, widget)
+        self._row_widgets.append((label, widget))
+        self._apply_maturity(label, setting=True)
+        self._apply_maturity(widget, setting=True)
 
     def add_widget(self, widget: QWidget) -> None:
         """Add a full-width (label-less) widget to the section's form body."""
         self._form.addRow(widget)
+        self._row_widgets.append((None, widget))
+        self._apply_maturity(widget, setting=True)
 
     def title(self) -> str:
         """Return the section's header text, un-escaped."""
@@ -97,7 +105,33 @@ class Section(QFrame):
 
         :param text: tooltip text (plain or HTML; empty clears it).
         """
-        self._header.setToolTip(text or "")
+        self._hint = text or ""
+        self._refresh_tooltip()
+
+    def set_maturity(self, stage: str) -> None:
+        """Colour this section and every setting row by maturity stage.
+
+        ``stable``/``beta``/``alpha`` use the exact hues shown in Home's
+        maturity legend. Unknown values deliberately fall back to stable.
+        """
+        stage = str(stage or "stable").lower()
+        if stage not in STAGE_LABEL:
+            stage = "stable"
+        self._maturity = stage
+        for target in (self, self._header, self._body):
+            self._apply_maturity(target)
+        for label, widget in self._row_widgets:
+            self._apply_maturity(label, setting=True)
+            self._apply_maturity(widget, setting=True)
+        self.setAccessibleDescription(
+            f"{STAGE_LABEL[stage]} maturity settings section"
+        )
+        self._refresh_header_text()
+        self._refresh_tooltip()
+
+    def maturity(self) -> str:
+        """Return ``stable``, ``beta`` or ``alpha`` for this section."""
+        return self._maturity
 
     def set_expanded(self, on: bool) -> None:
         """Expand or collapse the section body programmatically."""
@@ -107,6 +141,33 @@ class Section(QFrame):
     def is_expanded(self) -> bool:
         """Return True when the section body is currently visible."""
         return self._expanded
+
+    def _apply_maturity(self, widget, *, setting: bool = False) -> None:
+        if not isinstance(widget, QWidget):
+            return
+        prop = "settingMaturity" if setting else "maturity"
+        widget.setProperty(prop, self._maturity)
+        style = widget.style()
+        style.unpolish(widget)
+        style.polish(widget)
+
+    def _refresh_header_text(self) -> None:
+        text = self._title.replace("&", "&&")
+        if self._maturity != "stable":
+            text += f"   ·   {STAGE_LABEL[self._maturity].upper()}"
+        self._header.setText(text)
+
+    def _refresh_tooltip(self) -> None:
+        # Stable is the normal case, so preserve existing curated tooltips
+        # byte-for-byte. Beta/alpha need the caution text because their colour
+        # carries information the old tooltip did not.
+        note = (
+            STAGE_NOTE.get(self._maturity, "")
+            if self._maturity != "stable"
+            else ""
+        )
+        parts = [part for part in (self._hint, note) if part]
+        self._header.setToolTip("\n\n".join(parts))
 
     # ------------------------------------------------------------------
     def _on_toggle(self, checked: bool) -> None:
