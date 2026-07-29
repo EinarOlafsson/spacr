@@ -125,8 +125,39 @@ def test_default_channels_are_rgb_and_normalized():
     s = AnnotateSettings()
     assert s.channels == ["r", "g", "b"]
     assert s.normalize_channels == ["r", "g", "b"]
+    assert s.stored_channel_order == "rgb"
     dim = Image.fromarray(
         np.random.RandomState(0).randint(0, 30, (16, 16, 3)).astype("uint8"))
     out = filter_channels_pil(
         normalize_pil(dim, s.percentiles, s.normalize_channels), s.channels)
     assert np.array(out).max() > 200   # stretched to a visible range
+
+
+def test_explicit_rgb_order_does_not_reverse_an_unmarked_standard_png(
+        tmp_path):
+    """Annotate defaults to standard RGB instead of guessing unmarked=BGR."""
+    from spacr.qt.annotate_engine import load_crop_image
+
+    path = tmp_path / "standard.png"
+    rgb = np.zeros((4, 5, 3), dtype=np.uint8)
+    rgb[:, :, 0] = 231
+    rgb[:, :, 2] = 17
+    Image.fromarray(rgb, "RGB").save(path)
+
+    shown = np.asarray(load_crop_image(
+        str(path), stored_channel_order="rgb"))
+    assert np.array_equal(shown, rgb)
+
+
+def test_explicit_legacy_order_is_corrected_to_an_rgb_array(tmp_path):
+    from spacr.qt.annotate_engine import load_crop_image
+
+    path = tmp_path / "legacy.png"
+    intended_rgb = np.zeros((4, 5, 3), dtype=np.uint8)
+    intended_rgb[:, :, 0] = 211
+    intended_rgb[:, :, 2] = 23
+    # A legacy cv2 write is observed by PIL in reversed order.
+    Image.fromarray(intended_rgb[:, :, ::-1], "RGB").save(path)
+    shown = np.asarray(load_crop_image(
+        str(path), stored_channel_order="legacy_bgr"))
+    assert np.array_equal(shown, intended_rgb)

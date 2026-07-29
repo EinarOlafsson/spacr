@@ -542,7 +542,10 @@ def _load_thumb_image_worker(row, src, settings):
         if not path or not os.path.isfile(path):
             return Image.new("RGB", s.image_size, color=(20, 20, 20)), annotation
         try:
-            img = load_crop_image(path, db_path=s.db_path)
+            img = load_crop_image(
+                path, db_path=s.db_path,
+                stored_channel_order=getattr(
+                    s, "stored_channel_order", "rgb"))
         except Exception:
             return Image.new("RGB", s.image_size, (30, 30, 30)), annotation
 
@@ -611,6 +614,23 @@ class _SettingsDialog(QDialog):
         self._channels = QLineEdit(_list_to_csv(settings.channels))
         self._channels.setPlaceholderText("r, g, b (blank = all)")
         form.addRow("Show channels", self._channels)
+
+        self._stored_channel_order = QComboBox()
+        self._stored_channel_order.addItem("RGB (standard)", "rgb")
+        self._stored_channel_order.addItem(
+            "Auto (use spaCR format marker)", "auto")
+        self._stored_channel_order.addItem(
+            "Legacy BGR (old unmarked crops)", "legacy_bgr")
+        current_order = str(
+            getattr(settings, "stored_channel_order", "rgb")).lower()
+        order_index = self._stored_channel_order.findData(current_order)
+        self._stored_channel_order.setCurrentIndex(max(0, order_index))
+        self._stored_channel_order.setToolTip(
+            "Order stored in the PNG file. RGB keeps standard PNG channels "
+            "unchanged. Auto uses spaCR's sidecar/database format marker. "
+            "Legacy BGR repairs crops written by older cv2-based releases. "
+            "After decoding, Annotate always uses RGB arrays.")
+        form.addRow("Stored PNG order", self._stored_channel_order)
 
         self._norm_channels = QLineEdit(_list_to_csv(settings.normalize_channels))
         self._norm_channels.setPlaceholderText("r, g, b (blank = off)")
@@ -778,6 +798,8 @@ class _SettingsDialog(QDialog):
         s.image_size = (size, size)
         s.image_type = self._image_type.text().strip() or None
         s.channels = _csv_to_list(self._channels.text())
+        s.stored_channel_order = str(
+            self._stored_channel_order.currentData() or "rgb")
         s.normalize_channels = _csv_to_list(self._norm_channels.text())
         s.percentiles = (float(self._pct_lo.value()), float(self._pct_hi.value()))
         s.outline = _csv_to_list(self._outline.text())
