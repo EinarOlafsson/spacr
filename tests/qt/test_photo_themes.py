@@ -905,10 +905,12 @@ class TestStylesheet:
         that has nothing to do with scrims — the hairline rim every
         module tile carries, and the three maturity tints its hover
         fills with — and those are translucent in *every* theme on
-        purpose: a tint that is a solid colour is not a tint. So the
-        assertion names them and demands they are the only ones, which
-        is the same guarantee stated precisely rather than a blanket ban
-        that a rule about something else happened to trip.
+        purpose: a tint that is a solid colour is not a tint. Section
+        maturity now uses the same hues for its border and header tint,
+        so those two documented alphas belong to the same allow-list.
+        The assertion names them and demands they are the only ones,
+        which is the same guarantee stated precisely rather than a
+        blanket ban that a rule about something else happened to trip.
         """
         import re
         for name in ("dark", "light"):
@@ -917,6 +919,8 @@ class TestStylesheet:
             for hue in theme.STAGE_HOVER.values():
                 allowed.add(theme.css_color(hue, 0.22))
                 allowed.add(theme.css_color(hue, 0.40))
+                allowed.add(theme.css_color(hue, 0.72))
+                allowed.add(theme.css_color(hue, 0.14))
             found = set(re.findall(r"rgba\([^)]*\)", qss))
             assert found <= allowed, (
                 f"{name} emits translucency the scrim solver did not "
