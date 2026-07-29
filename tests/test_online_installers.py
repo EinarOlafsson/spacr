@@ -131,11 +131,14 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
 
 
 def test_builders_read_version_without_importing_setup_py():
-    for path in (
+    unix_builders = (
         ONLINE / "build_linux_online.sh",
         ONLINE / "build_macos_online.sh",
-        ONLINE / "build_windows_online.ps1",
-    ):
+    )
+    for path in unix_builders:
         source = _text(path)
         assert 'ast.parse' in source
         assert "setup.py --version" not in source
+    windows = _text(ONLINE / "build_windows_online.ps1")
+    assert "Select-String" in windows
+    assert "setup.py --version" not in windows
