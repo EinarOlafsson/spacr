@@ -6,9 +6,41 @@ import numpy as np
 # np.trapz was removed in numpy 2.0; np.trapezoid is the replacement.
 _trapezoid = getattr(np, 'trapezoid', None) or np.trapz
 import pandas as pd
-from cellpose import models as cp_models
-from cellpose import denoise
 from functools import partial
+
+
+class _DeferredModule:
+    """Small module proxy for dependencies used by one distant code path."""
+
+    def __init__(self, name):
+        self.__dict__['_name'] = name
+        self.__dict__['_module'] = None
+
+    def _load(self):
+        module = self.__dict__['_module']
+        if module is None:
+            from importlib import import_module
+            module = import_module(self.__dict__['_name'])
+            self.__dict__['_module'] = module
+        return module
+
+    def __getattr__(self, name):
+        return getattr(self._load(), name)
+
+    def __setattr__(self, name, value):
+        setattr(self._load(), name, value)
+
+    def __repr__(self):
+        state = (
+            'loaded' if self.__dict__['_module'] is not None
+            else 'not yet imported'
+        )
+        return f"<deferred module {self.__dict__['_name']!r} ({state})>"
+
+
+# Only _get_cellpose_model reads this proxy. Database, plotting and embedding
+# callers of utils.py no longer import Cellpose (and its model stack) at all.
+cp_models = _DeferredModule('cellpose.models')
 
 from skimage import morphology
 from skimage.measure import label, regionprops_table, regionprops
