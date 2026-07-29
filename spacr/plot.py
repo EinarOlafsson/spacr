@@ -3064,8 +3064,8 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
 
     # Randomly sample min_count examples from each group in x_column
     balanced_df = retained_rows.groupby(
-        x_column, observed=False
-    ).apply(lambda x: x.sample(min_count, random_state=42)).reset_index(drop=True)
+        x_column, observed=False, group_keys=False
+    ).sample(n=min_count, random_state=42).reset_index(drop=True)
 
     # Create the jitter plot
     plt.figure(figsize=(10, 6))
