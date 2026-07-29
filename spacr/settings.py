@@ -1100,8 +1100,11 @@ def get_map_barcodes_default_settings(settings):
     :returns: the settings dict with defaults applied.
     """
     settings.setdefault('src', 'path')
-    settings.setdefault('grna', '/home/carruthers/Documents/grna_barcodes.csv')
-    settings.setdefault('barcodes', '/home/carruthers/Documents/SCREEN_BARCODES.csv')
+    # These legacy keys are retained for older callers, but their defaults
+    # must be portable. The active Qt workflow uses the corresponding
+    # row_csv/column_csv/grna_csv keys populated from these same resources.
+    settings.setdefault('grna', bundled_barcode_path('grna'))
+    settings.setdefault('barcodes', bundled_barcode_path('column'))
     settings.setdefault('plate_dict', "{'EO1': 'plate1', 'EO2': 'plate2', 'EO3': 'plate3', 'EO4': 'plate4', 'EO5': 'plate5', 'EO6': 'plate6', 'EO7': 'plate7', 'EO8': 'plate8'}")
     settings.setdefault('test', False)
     settings.setdefault('verbose', True)
@@ -1189,7 +1192,9 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('filter_value',['c1', 'c2', 'c3'])
     settings.setdefault('filter_column','columnID')
     settings.setdefault('plateID','plate1')
-    settings.setdefault('metadata_files',['/home/carruthers/Documents/TGGT1_Summary.csv','/home/carruthers/Documents/TGME49_Summary.csv'])
+    # Acquisition-specific annotations cannot have a meaningful machine-wide
+    # default. An empty list makes the optional input explicit and portable.
+    settings.setdefault('metadata_files', [])
     settings.setdefault('volcano','gene')
     settings.setdefault('toxo', True)
 
