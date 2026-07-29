@@ -54,7 +54,7 @@ Values:
   Database Browser to open a read-write connection at all; see
   :func:`get_db_browser_editable`.
 * ``dock_mode``: ``"auto"`` | ``"locked"`` | ``"hidden"`` (default
-  ``"auto"``). Whether the left app dock reveals on hover, is pinned
+  ``"locked"``). Whether the left app dock reveals on hover, is pinned
   open as a permanent column, or is not there at all.
 * ``pane_opacity``: int percent, default ``100``. How solid shared surfaces
   are, or the relative material strength in Glass. Clamped up to
@@ -443,17 +443,16 @@ def scaled_px(base_px: int) -> int:
 # ---------------------------------------------------------------------------
 
 #: ``"auto"``    the 6 px hot strip on the left edge reveals the app list
-#:               on dwell and hides it again. The default, and what the
-#:               app has done since the permanent column was retired.
+#:               on dwell and hides it again.
 #: ``"locked"``  the app list is a real column in the window layout: it
 #:               never slides, never covers the page, and never has to be
-#:               summoned. Costs 220-320 px of width, which is exactly
-#:               why it is a choice and not the default.
+#:               summoned. This is the default; users with narrower screens
+#:               can switch to hover reveal or hide it completely.
 #: ``"hidden"``  no strip, no reveal, no column. Apps stay reachable from
 #:               the spaCR menu, Ctrl+1..9 and the command palette — a
 #:               dock you cannot summon must not be a dead end.
 VALID_DOCK_MODES = ("auto", "locked", "hidden")
-DEFAULT_DOCK_MODE = "auto"
+DEFAULT_DOCK_MODE = "locked"
 
 
 def get_dock_mode() -> str:

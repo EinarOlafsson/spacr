@@ -1257,7 +1257,7 @@ class MainWindow(QMainWindow):
             from .preferences import get_dock_mode
             return get_dock_mode()
         except Exception:
-            return "auto"
+            return "locked"
 
     def apply_dock_mode(self, mode: Optional[str] = None) -> None:
         """Put the app list where the preference says it goes.
