@@ -53,6 +53,22 @@ def test_full_width_section_widgets_receive_the_same_maturity(qtbot):
     assert "ALPHA" in section._header.text()
 
 
+def test_maturity_badge_is_not_duplicated_in_section_header(qtbot):
+    from spacr.qt.widgets.section import Section
+
+    beta = Section("3D Settings (Beta)")
+    qtbot.addWidget(beta)
+    beta.set_maturity("beta")
+    assert beta.title() == "3D SETTINGS (BETA)"
+    assert beta._header.text() == "3D SETTINGS   ·   BETA"
+    assert beta._header.text().count("BETA") == 1
+
+    stage_only = Section("Beta")
+    qtbot.addWidget(stage_only)
+    stage_only.set_maturity("beta")
+    assert stage_only._header.text() == "·   BETA"
+
+
 def test_invalid_maturity_falls_back_to_stable(qtbot):
     from spacr.qt.widgets.section import Section
 
