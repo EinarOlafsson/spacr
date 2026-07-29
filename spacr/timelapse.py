@@ -5929,7 +5929,12 @@ def _select_infection_feature_columns(all_df, pathogen_chan):
     """
     import numpy as np
 
-    numeric_cols = all_df.select_dtypes(include=[np.number]).columns.tolist()
+    # This path accepts user-created tracking measurements, but still applies
+    # the shared provenance schema before its infection-specific filters.
+    numeric_cols = schema.model_feature_columns(
+        all_df,
+        allow_unknown=True,
+    )
     exclude = {
         "frame",
         "timeID",
@@ -6781,7 +6786,7 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
     # Build feature set: {tracked_object}_* only, excluding centroids,
     # non-pathogen channels, degenerate features
     # ------------------------------------------------------------------
-    numeric_cols = cell_level.select_dtypes(include=[np.number, "bool"]).columns.tolist()
+    numeric_cols = schema.model_feature_columns(cell_level)
 
     feature_cols = []
     pattern_obj = re.compile(rf"^{re.escape(obj_prefix)}")

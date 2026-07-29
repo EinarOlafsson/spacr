@@ -7011,8 +7011,14 @@ def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude, 
     if column_list:
         df = df[column_list]
     
-    # Select numerical features
-    numeric_data = df.select_dtypes(include=['number'])
+    # Select declared measurements. Numeric provenance such as object_label,
+    # measurement_ndim and voxel sizes must never enter an embedding merely
+    # because pandas gave it a numeric dtype.
+    numeric_data = schema.model_feature_frame(
+        df,
+        extra_features=column_list or (),
+        allow_unknown=not bool(filter_by or column_list),
+    )
     
     # Check if numeric_data is empty
     if numeric_data.empty:
@@ -7093,20 +7099,22 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
     :returns: ``(filtered_df, features)``.
     """
 
-    count_and_id_columns = [col for col in df.columns if '_id' in col or 'count' in col]
-    if 'pathogen_pathogen' in df.columns:
-        count_and_id_columns.append('pathogen_pathogen')
-    if 'cell_cell' in df.columns:
-        count_and_id_columns.append('cell_cell')
-    if 'nucleus_nucleus' in df.columns:
-        count_and_id_columns.append('nucleus_nucleus')
-    if 'cytoplasm_cytoplasm' in df.columns:
-        count_and_id_columns.append('cytoplasm_cytoplasm')
+    declared_features = schema.model_feature_columns(df)
+    legacy_non_features = {
+        col for col in df.columns
+        if '_id' in col or 'count' in col
+    }
+    count_and_id_columns = [
+        col for col in df.columns
+        if col not in declared_features or col in legacy_non_features
+    ]
+    declared_features = [
+        col for col in declared_features if col not in legacy_non_features]
     
     if verbose:
         print("Columns to remove:", count_and_id_columns)
         
-    df = df.drop(columns=count_and_id_columns)
+    df = df[declared_features].copy()
     
     if not channel_of_interest is None:
         drop_columns = ['channel_1', 'channel_2', 'channel_3', 'channel_4']
@@ -7152,8 +7160,7 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
     after_drop_NaN = len(df.columns)
     print(f"Dropped {before_drop_NaN - after_drop_NaN} columns with NaN values")
 
-    # Select numerical features
-    features = df.select_dtypes(include=[np.number]).columns.tolist()
+    features = schema.model_feature_columns(df)
 
     if isinstance(exclude, list):
         features = [feature for feature in features if feature not in exclude]
@@ -7283,9 +7290,11 @@ def check_normality(series):
 
 def random_forest_feature_importance(all_df, cluster_col='cluster'):
     """Random Forest feature importance."""
-    numeric_features = all_df.select_dtypes(include=[np.number]).columns.tolist()
-    if cluster_col in numeric_features:
-        numeric_features.remove(cluster_col)
+    numeric_features = schema.model_feature_columns(
+        all_df,
+        allow_unknown=True,
+        exclude=[cluster_col],
+    )
 
     X = all_df[numeric_features]
     y = all_df[cluster_col]
@@ -7307,9 +7316,11 @@ def random_forest_feature_importance(all_df, cluster_col='cluster'):
 
 def perform_statistical_tests(all_df, cluster_col='cluster'):
     """Perform ANOVA or Kruskal-Wallis tests depending on normality of features."""
-    numeric_features = all_df.select_dtypes(include=[np.number]).columns.tolist()
-    if cluster_col in numeric_features:
-        numeric_features.remove(cluster_col)
+    numeric_features = schema.model_feature_columns(
+        all_df,
+        allow_unknown=True,
+        exclude=[cluster_col],
+    )
     
     anova_results = []
     kruskal_results = []
