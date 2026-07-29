@@ -1347,7 +1347,7 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
     
     return [fig_1, fig_2]
 
-def interperate_vision_model(settings=None):
+def interpret_vision_model(settings=None):
     """Explain a spacr vision-model score by ranking which morphology / intensity features drive it.
 
     Joins the per-object CNN predictions (``score_column``) with the
@@ -1384,8 +1384,8 @@ def interperate_vision_model(settings=None):
     Example:
         .. code-block:: python
 
-            from spacr.submodules import interperate_vision_model
-            results = interperate_vision_model({
+            from spacr.submodules import interpret_vision_model
+            results = interpret_vision_model({
                 'src': '/data/plate01',
                 'score_column': 'pred',
                 'channels': [0,1,2,3],
@@ -1773,6 +1773,10 @@ def interperate_vision_model(settings=None):
             print(f"Saved {save_path}")
         
     return output
+
+
+# Backward compatibility for the misspelling published in earlier releases.
+interperate_vision_model = interpret_vision_model
 
 
 def analyze_endodyogeny(settings):
