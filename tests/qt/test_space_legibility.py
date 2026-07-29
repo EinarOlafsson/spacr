@@ -400,6 +400,24 @@ class TestEnforceLegibility:
         white = np.full((120, 400, 3), 255, dtype=np.uint8)
         assert space._enforce_legibility(white, target=0.0) is white
 
+    def test_it_preserves_point_sources_without_breaking_window_legibility(self):
+        frame = np.full((120, 400, 3), 120, dtype=np.uint8)
+        frame[60, 200] = 255
+        preserve = np.zeros(frame.shape[:2], dtype=bool)
+        preserve[60, 200] = True
+
+        out = space._enforce_legibility(frame, preserve_mask=preserve)
+
+        assert (out[60, 200] == 255).all()
+        value, _ = imagery.brightest_window(out)
+        assert value <= LIMIT
+
+    def test_preserve_mask_must_match_the_frame(self):
+        frame = np.full((120, 400, 3), 255, dtype=np.uint8)
+        with pytest.raises(ValueError, match="must match"):
+            space._enforce_legibility(
+                frame, preserve_mask=np.zeros((2, 2), dtype=bool))
+
     def test_it_really_fires_inside_render_at_the_sizes_that_need_it(
             self, monkeypatch):
         """The highlight ceiling bounds the smooth layers; the starfield,
