@@ -20,9 +20,11 @@ if (-not $MakeNsis) {
     throw "NSIS is required. Install it with: choco install nsis"
 }
 
-$Version = (
-    python -c 'import ast,pathlib; t=ast.parse(pathlib.Path("setup.py").read_text()); print(next(ast.literal_eval(n.value) for n in t.body if isinstance(n, ast.Assign) and any(isinstance(x, ast.Name) and x.id == "VERSION" for x in n.targets)))'
-).Trim()
+$VersionMatch = Select-String -Path "setup.py" -Pattern '^VERSION\s*=\s*["'']([^"'']+)'
+if (-not $VersionMatch) {
+    throw "Could not read VERSION from setup.py"
+}
+$Version = $VersionMatch.Matches[0].Groups[1].Value
 New-Item -ItemType Directory -Force -Path "dist\online" | Out-Null
 
 Push-Location "packaging\online"
