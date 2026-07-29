@@ -7610,6 +7610,22 @@ def automated_motility_assay(settings):
         motility_dir=motility_dir,
         pathogen_chan=pathogen_chan,
     )
+    if all_df.empty and not all_df_original.empty:
+        # A weak XGBoost model can put every track inside the configured
+        # ambiguous band. Returning an empty successful assay then suppresses
+        # the well summary, correlations and every downstream plot. Preserve
+        # the mask labels as the conservative fallback while keeping the
+        # adjusted schema explicit for callers.
+        print(
+            "[summarise_tracks_from_merged] WARNING: infection-intensity QC "
+            "removed every row; falling back to the original mask labels so "
+            "the assay and well summary remain usable."
+        )
+        all_df = all_df_original.copy(deep=True)
+        all_df["adjusted_infected"] = (
+            all_df["infected"].fillna(False).astype(int))
+        all_df["infection_prob"] = np.nan
+        infection_col = "adjusted_infected"
 
     # ------------------------------------------------------------------
     # XGBoost ambiguous-band filtering (track-level)
