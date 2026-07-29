@@ -2534,12 +2534,14 @@ def ml_analysis(df, channel_of_interest=3, location_column='columnID', positive_
                 df.loc[X_test.index, f'prediction_probability_class_{i}'] = prediction_probabilities_test[:, i]
 
             # Evaluate performance for the current fold
-            fold_report = classification_report(y_test, predictions_test, output_dict=True)
+            fold_report = classification_report(
+                y_test, predictions_test, output_dict=True, zero_division=0)
             fold_metrics.append(pd.DataFrame(fold_report).transpose())
 
             if verbose:
                 print(f"Fold {fold_idx} Classification Report:")
-                print(classification_report(y_test, predictions_test))
+                print(classification_report(
+                    y_test, predictions_test, zero_division=0))
 
         # Aggregate metrics across all folds
         metrics_df = pd.concat(fold_metrics).groupby(level=0).mean()
@@ -2588,9 +2590,11 @@ def ml_analysis(df, channel_of_interest=3, location_column='columnID', positive_
             
         if verbose:
             print("\nClassification Report:")
-            print(classification_report(y_test, predictions_test))
+            print(classification_report(
+                y_test, predictions_test, zero_division=0))
             
-        report_dict = classification_report(y_test, predictions_test, output_dict=True)
+        report_dict = classification_report(
+            y_test, predictions_test, output_dict=True, zero_division=0)
         metrics_df = pd.DataFrame(report_dict).transpose()
         
     perm_importance = permutation_importance(model, X_train, y_train, n_repeats=n_repeats, random_state=random_state, n_jobs=n_jobs)
