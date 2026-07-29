@@ -105,3 +105,90 @@ def test_read_and_merge_data_coalesces_missing_left_stamp_values(monkeypatch):
     assert len(merged) == 1
     for column in MEASUREMENT_STAMP_COLUMNS:
         assert merged.iloc[0][column] == complete[column]
+
+
+def test_read_and_merge_data_rejects_conflicting_acquisition_metadata(
+        monkeypatch):
+    """Incompatible non-null stamps must never be silently kept."""
+    from spacr import io
+
+    cell_stamp = {
+        "measurement_ndim": 3,
+        "measurement_units": "px",
+        "n_z": 5,
+        "voxel_size_z_um": 1.5,
+        "voxel_size_xy_um": 0.25,
+    }
+    cytoplasm_stamp = {
+        **cell_stamp,
+        "measurement_units": "um",
+    }
+    frames = {
+        "cell": _object_frame("cell", cell_stamp),
+        "cytoplasm": _object_frame("cytoplasm", cytoplasm_stamp),
+    }
+
+    monkeypatch.setattr(
+        io,
+        "_read_db",
+        lambda _loc, requested: [frames[table].copy()
+                                 for table in requested],
+    )
+
+    with pytest.raises(
+            io.AcquisitionMetadataConflictError,
+            match=r"measurement_units.*acquisition_conflict"):
+        io._read_and_merge_data(
+            ["unused.db"], ["cell", "cytoplasm"],
+            nuclei_limit=None, pathogen_limit=None,
+        )
+
+
+@pytest.mark.parametrize(
+    ("policy", "expected_units"),
+    [
+        ("prefer_left", "px"),
+        ("prefer_right", "um"),
+    ],
+)
+def test_read_and_merge_data_requires_explicit_conflict_reconciliation(
+        monkeypatch, policy, expected_units):
+    """An explicit policy makes the authoritative table unambiguous."""
+    from spacr import io
+
+    base = {
+        "measurement_ndim": 3,
+        "n_z": 5,
+        "voxel_size_z_um": 1.5,
+        "voxel_size_xy_um": 0.25,
+    }
+    frames = {
+        "cell": _object_frame(
+            "cell", {**base, "measurement_units": "px"}),
+        "cytoplasm": _object_frame(
+            "cytoplasm", {**base, "measurement_units": "um"}),
+    }
+    monkeypatch.setattr(
+        io,
+        "_read_db",
+        lambda _loc, requested: [frames[table].copy()
+                                 for table in requested],
+    )
+
+    merged, _ = io._read_and_merge_data(
+        ["unused.db"], ["cell", "cytoplasm"],
+        nuclei_limit=None, pathogen_limit=None,
+        acquisition_conflict=policy,
+    )
+
+    assert merged.iloc[0]["measurement_units"] == expected_units
+
+
+def test_read_and_merge_data_rejects_unknown_conflict_policy():
+    from spacr import io
+
+    with pytest.raises(ValueError, match="acquisition_conflict"):
+        io._read_and_merge_data(
+            ["unused.db"], ["cell"],
+            acquisition_conflict="guess",
+        )

@@ -2235,6 +2235,16 @@ class CropModeMismatch(ValueError):
     """
 
 
+class AcquisitionMetadataConflictError(ValueError):
+    """Object tables disagree about the acquisition used to measure a row.
+
+    Merging measurements with different dimensionality, units, z-depth, or
+    voxel sizes would leave their numerical features without one physical
+    interpretation. The source tables must be repaired or the caller must
+    explicitly select which table's stamp is authoritative.
+    """
+
+
 def _report_fan_out(left, merged, join_cols, left_name='cell',
                     right_name='png_list'):
     """Raise :class:`JoinFanOut` if ``merged`` grew, naming the offending keys.
@@ -3221,9 +3231,40 @@ def _read_db(db_loc, tables):
 
     return dfs
 
-def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_limit=10, change_plate=False):
+def _read_and_merge_data(
+        locs, tables, verbose=False, nuclei_limit=10, pathogen_limit=10,
+        change_plate=False, acquisition_conflict="raise"):
+    """Read object tables and merge their measurements by parent object.
+
+    Shared acquisition-stamp values are coalesced when one table is missing a
+    value. Conflicting non-null values are rejected by default because features
+    measured with different dimensionality, units, or voxel calibration cannot
+    safely share one row. A caller that has independently established which
+    source is authoritative may explicitly pass ``"prefer_left"`` or
+    ``"prefer_right"``.
+
+    :param locs: measurement database paths.
+    :param tables: tables to read and merge.
+    :param verbose: print table and merge sizes.
+    :param nuclei_limit: maximum nuclei per parent cell, or ``None``.
+    :param pathogen_limit: maximum pathogens per parent cell, or ``None``.
+    :param change_plate: replace plate IDs according to database order.
+    :param acquisition_conflict: ``"raise"`` (default), ``"prefer_left"``,
+        or ``"prefer_right"``.
+    :raises AcquisitionMetadataConflictError: when two non-null acquisition
+        stamps differ under the default policy.
+    :raises ValueError: when ``acquisition_conflict`` is not a known policy.
+    :returns: merged feature frame and the ungrouped object-table frames.
+    """
 
     from .utils import MEASUREMENT_STAMP_COLUMNS, _split_data
+
+    conflict_policies = {"raise", "prefer_left", "prefer_right"}
+    if acquisition_conflict not in conflict_policies:
+        raise ValueError(
+            "acquisition_conflict must be one of "
+            f"{sorted(conflict_policies)}, got {acquisition_conflict!r}."
+        )
 
     pathogen_counts = None
     metadata_key = 'object_label'
@@ -3245,7 +3286,29 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_
                 b = right.loc[common_idx, col]
                 mismatch = a.notna() & b.notna() & a.ne(b)
                 if mismatch.any():
-                    print(f"Warning: {int(mismatch.sum())} mismatched values for shared metadata column {col!r}; keeping the first.")
+                    conflict_index = common_idx[mismatch.to_numpy()]
+                    examples = ", ".join(
+                        f"{index!r}: {a.loc[index]!r} != {b.loc[index]!r}"
+                        for index in conflict_index[:3]
+                    )
+                    count = int(mismatch.sum())
+                    if acquisition_conflict == "raise":
+                        raise AcquisitionMetadataConflictError(
+                            f"{count} conflicting value(s) for acquisition "
+                            f"metadata column {col!r}. Examples: {examples}. "
+                            "These tables were measured under incompatible "
+                            "acquisition settings. Repair or remeasure them, "
+                            "or explicitly pass acquisition_conflict="
+                            "'prefer_left'/'prefer_right' only when that "
+                            "choice is scientifically justified."
+                        )
+                    if acquisition_conflict == "prefer_right":
+                        left.loc[conflict_index, col] = b.loc[conflict_index]
+                    print(
+                        f"Resolved {count} conflicting value(s) for "
+                        f"acquisition metadata column {col!r} with "
+                        f"acquisition_conflict={acquisition_conflict!r}."
+                    )
                 missing_left = a.isna() & b.notna()
                 if missing_left.any():
                     fill_index = common_idx[missing_left.to_numpy()]
