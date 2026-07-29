@@ -626,14 +626,27 @@ def test_dry_run_with_settings_errors_exits_2(capsys, fake_pipeline, tmp_path):
     assert fake_pipeline.calls == []
 
 
-def test_dry_run_on_a_real_module_does_not_import_it(capsys, tmp_path):
-    """--dry-run on `measure` must not import spacr.measure (and so torch)."""
+def test_dry_run_on_a_real_module_does_not_import_it(tmp_path):
+    """--dry-run on ``measure`` must not import it in a fresh interpreter.
+
+    Popping ``spacr.measure`` out of this pytest process left already-collected
+    test modules holding a stale module object.  A later spawn/pickle test then
+    quite correctly found two different ``spacr.measure._measure_crop_core``
+    functions.  Import isolation belongs in a subprocess, just like the other
+    module-census tests in this file.
+    """
     src = tmp_path / "plate"
     (src / "merged").mkdir(parents=True)
     path = _write_csv(tmp_path / "s.csv", [("src", str(src))])
-    sys.modules.pop("spacr.measure", None)
-    cli.main(["measure", "--settings", path, "--dry-run"])
-    assert "spacr.measure" not in sys.modules
+    body = (
+        "import contextlib, io, spacr.cli, sys\n"
+        "buf = io.StringIO()\n"
+        "with contextlib.redirect_stdout(buf):\n"
+        f"    spacr.cli.main(['measure', '--settings', {path!r}, '--dry-run'])\n"
+        "assert 'spacr.measure' not in sys.modules\n"
+    )
+    loaded = _subprocess_modules(_PROBE.format(body=body))
+    assert not loaded["torch"]
 
 
 # ---------------------------------------------------------------------------
