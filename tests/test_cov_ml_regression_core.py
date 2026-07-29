@@ -154,6 +154,7 @@ def test_regression_model_find_best_alpha_rejects_unknown_model(monkeypatch):
 
 def test_regression_model_logit_applies_var_weights():
     from spacr.ml import regression_model
+    from statsmodels.genmod.families.links import Logit
 
     X, y = _fraction_xy(seed=13)
     rng = np.random.default_rng(14)
@@ -164,7 +165,7 @@ def test_regression_model_logit_applies_var_weights():
 
     assert np.allclose(weighted.model.var_weights, weights.to_numpy())
     assert np.allclose(plain.model.var_weights, 1.0)
-    assert type(weighted.model.family.link).__name__ == "logit"
+    assert isinstance(weighted.model.family.link, Logit)
     # Weighting by cell count inflates the effective sample size, so the
     # standard errors must shrink relative to the unweighted fit.
     assert weighted.bse["x"] < plain.bse["x"] / 5
@@ -293,6 +294,7 @@ def test_regression_ols_scales_and_returns_coefficients(tmp_path, capsys):
 
 def test_regression_auto_selects_logit_for_binary_response(tmp_path, capsys):
     from spacr.ml import regression
+    from statsmodels.genmod.families.links import Logit
 
     df = _wells_df(seed=1, dep_kind="binary")
     assert set(df["predictions"].unique()) == {0.0, 1.0}
@@ -307,7 +309,7 @@ def test_regression_auto_selects_logit_for_binary_response(tmp_path, capsys):
     assert "Detected binary data." in out
     assert "Data will not be scaled" in out          # bounded response is left unscaled
     assert type(model.model.family).__name__ == "Binomial"
-    assert type(model.model.family.link).__name__ == "logit"
+    assert isinstance(model.model.family.link, Logit)
     assert len(coef_df) == 13
     assert coef_df["p_value"].between(0, 1).all()
     # dst=None -> nothing is written to disk.
