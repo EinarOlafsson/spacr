@@ -143,6 +143,24 @@ class _TensorFlowIsNotADependency(ImportError):
     """Raised instead of importing TensorFlow inside a spaCR import."""
 
 
+class OptionalDependencyCompatibilityError(ImportError):
+    """An installed optional dependency is too old for spaCR's API contract."""
+
+
+def _distribution_version(name):
+    """Return an installed distribution version without importing its package."""
+    from importlib.metadata import version
+    return version(name)
+
+
+def _release_version(value):
+    """Return the numeric release segment of a PEP 440-style version."""
+    match = re.match(r"^\s*(\d+(?:\.\d+)*)", str(value))
+    if match is None:
+        return ()
+    return tuple(int(part) for part in match.group(1).split("."))
+
+
 class _BlockTensorFlowFinder:
     """``sys.meta_path`` finder that refuses TF-backed imports.
 
@@ -190,29 +208,103 @@ class _LazyModule:
     :param block_roots: import roots refused for the duration of that import.
     """
 
-    def __init__(self, name, block_roots=()):
+    def __init__(self, name, block_roots=(), minimum_distribution=None):
         self.__dict__['_name'] = name
         self.__dict__['_module'] = None
         self.__dict__['_block_roots'] = tuple(block_roots)
+        self.__dict__['_minimum_distribution'] = minimum_distribution
+
+    def reset(self):
+        """Forget the cached module so the next access performs a fresh import.
+
+        This is intentionally narrower than deleting entries from
+        :data:`sys.modules`: other code may legitimately hold the imported
+        package.  The proxy itself returns to its pristine lazy state, which
+        gives dependency probes and tests an explicit, order-independent
+        reset point.
+        """
+        self.__dict__['_module'] = None
 
     def _load(self):
         """Import and cache the wrapped module, blocking ``block_roots``."""
         module = self.__dict__['_module']
+        name = self.__dict__['_name']
+        root = name.split('.', 1)[0]
+
+        minimum = self.__dict__['_minimum_distribution']
+        if minimum is not None:
+            distribution, minimum_version, reason = minimum
+            try:
+                current = _distribution_version(distribution)
+            except Exception:
+                # Let the real import below provide Python's normal missing
+                # package error; this check is specifically about an installed
+                # but unsupported version.
+                current = None
+            if current is not None:
+                current_release = _release_version(current)
+                minimum_release = _release_version(minimum_version)
+                width = max(len(current_release), len(minimum_release))
+                current_release += (0,) * (width - len(current_release))
+                minimum_release += (0,) * (width - len(minimum_release))
+                if current_release < minimum_release:
+                    self.__dict__['_module'] = None
+                    raise OptionalDependencyCompatibilityError(
+                        f"spaCR cannot initialize {distribution} {current}; "
+                        f"version {minimum_version} or newer is required. "
+                        f"{reason} Upgrade with `python -m pip install --upgrade "
+                        f"'{distribution}>={minimum_version},<1.0'`."
+                    )
+
+        # ``sys.modules[root] = None`` is Python's explicit "this import is
+        # unavailable" sentinel.  Respect it even when this proxy succeeded
+        # earlier; otherwise an optional-dependency probe becomes dependent on
+        # which test or application feature happened to touch UMAP first.
+        import sys as _sys
+        if root in _sys.modules and _sys.modules[root] is None:
+            self.__dict__['_module'] = None
+            raise ModuleNotFoundError(
+                f"import of {root!r} halted; None in sys.modules",
+                name=root,
+            )
+
         if module is None:
             from importlib import import_module
+            before = {
+                key for key in _sys.modules
+                if key == root or key.startswith(root + '.')
+            }
             if self.__dict__['_block_roots']:
-                import sys as _sys
                 blocker = _BlockTensorFlowFinder()
                 _sys.meta_path.insert(0, blocker)
                 try:
-                    module = import_module(self.__dict__['_name'])
+                    module = import_module(name)
+                except Exception:
+                    # An import can fail after populating several package
+                    # children. Remove only entries created by this attempt;
+                    # leaving them behind can turn the next attempt into a
+                    # different, misleading failure.
+                    self.__dict__['_module'] = None
+                    for key in tuple(_sys.modules):
+                        if ((key == root or key.startswith(root + '.'))
+                                and key not in before):
+                            _sys.modules.pop(key, None)
+                    raise
                 finally:
                     try:
                         _sys.meta_path.remove(blocker)
                     except ValueError:
                         pass
             else:
-                module = import_module(self.__dict__['_name'])
+                try:
+                    module = import_module(name)
+                except Exception:
+                    self.__dict__['_module'] = None
+                    for key in tuple(_sys.modules):
+                        if ((key == root or key.startswith(root + '.'))
+                                and key not in before):
+                            _sys.modules.pop(key, None)
+                    raise
             self.__dict__['_module'] = module
         return module
 
@@ -237,7 +329,15 @@ class _LazyModule:
 #: ``umap.umap_.UMAP`` and never ``ParametricUMAP``, so the TF-backed roots
 #: are blocked for that import and umap takes its own documented no-TF path.
 #: See :class:`_LazyModule`.
-umap = _LazyModule('umap.umap_', block_roots=_TF_BACKED_ROOTS)
+umap = _LazyModule(
+    'umap.umap_',
+    block_roots=_TF_BACKED_ROOTS,
+    minimum_distribution=(
+        'umap-learn',
+        '0.5.10',
+        "Older releases call scikit-learn's removed `force_all_finite` API.",
+    ),
+)
 
 import logging
 from functools import wraps

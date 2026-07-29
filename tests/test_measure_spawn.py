@@ -261,6 +261,9 @@ def test_utils_does_not_import_umap_at_module_scope():
     TensorFlow. None of it measures anything, and under spawn every worker
     paid for all of it."""
     import spacr.utils as U
+    # Other tests legitimately exercise UMAP first.  Reset the proxy so this
+    # assertion tests its pristine lazy state rather than global test order.
+    U.umap.reset()
     assert isinstance(U.umap, U._LazyModule)
     assert U.umap.__dict__['_module'] is None, 'umap was imported eagerly'
     assert 'not yet imported' in repr(U.umap)

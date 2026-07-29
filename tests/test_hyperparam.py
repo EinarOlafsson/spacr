@@ -899,6 +899,48 @@ class TestUmapMissing:
         assert umap_available() == (True, "")
 
 
+def test_lazy_module_resets_after_a_failed_import(monkeypatch):
+    """A failed optional import must not poison the next successful attempt."""
+    import types
+    from spacr.utils import _LazyModule
+
+    name = "_spacr_test_optional_dependency"
+    proxy = _LazyModule(name)
+    with pytest.raises(ModuleNotFoundError):
+        proxy.answer
+    assert proxy.__dict__["_module"] is None
+
+    module = types.ModuleType(name)
+    module.answer = 42
+    monkeypatch.setitem(sys.modules, name, module)
+    assert proxy.answer == 42
+
+    proxy.reset()
+    assert proxy.__dict__["_module"] is None
+
+
+def test_lazy_module_reports_an_incompatible_installed_version(monkeypatch):
+    """A stale environment should get an upgrade command, not a fit traceback."""
+    import spacr.utils as U
+
+    proxy = U._LazyModule(
+        "umap.umap_",
+        minimum_distribution=(
+            "umap-learn", "0.5.10",
+            "Older releases call scikit-learn's removed API.",
+        ),
+    )
+    monkeypatch.setattr(U, "_distribution_version", lambda _name: "0.5.6")
+
+    with pytest.raises(U.OptionalDependencyCompatibilityError) as exc:
+        proxy.UMAP
+    message = str(exc.value)
+    assert "umap-learn 0.5.6" in message
+    assert "0.5.10" in message
+    assert "pip install --upgrade" in message
+    assert proxy.__dict__["_module"] is None
+
+
 # ---------------------------------------------------------------------------
 # format_search
 # ---------------------------------------------------------------------------
