@@ -137,7 +137,7 @@ def test_npz_to_movie_uint16_is_scaled_to_8bit(tmp_path, fake_writer):
 
 
 def test_npz_to_movie_single_channel_axis_is_expanded(tmp_path, fake_writer):
-    """(H, W, 1) frames take the GRAY2BGR path just like 2-D frames."""
+    """(H, W, 1) frames are RGB internally and encoded at the writer boundary."""
     from spacr.timelapse import _npz_to_movie
 
     frame = np.zeros((64, 64, 1), dtype=np.uint8)
@@ -151,7 +151,7 @@ def test_npz_to_movie_single_channel_axis_is_expanded(tmp_path, fake_writer):
 
 
 def test_npz_to_movie_two_channel_becomes_red_green(tmp_path, fake_writer):
-    """2-channel frames are packed into channel 0/1 with channel 2 left at zero."""
+    """Two RGB planes are converted only when handed to the BGR writer."""
     from spacr.timelapse import _npz_to_movie
 
     frame = np.zeros((64, 64, 2), dtype=np.uint8)
@@ -163,10 +163,9 @@ def test_npz_to_movie_two_channel_becomes_red_green(tmp_path, fake_writer):
     written = fake_writer.instances[0].frames[0]
     assert written.shape == (64, 64, 3)
     assert written.dtype == np.uint8
-    assert written[5, 5, 0] == 111
+    assert written[5, 5, 0] == 0
     assert written[5, 5, 1] == 222
-    # third channel stays empty everywhere the filename text was not drawn
-    assert written[:25, :, 2].max() == 0
+    assert written[5, 5, 2] == 111
 
 
 def test_npz_to_movie_uint16_two_channel_is_scaled_then_packed(tmp_path, fake_writer):
@@ -181,9 +180,9 @@ def test_npz_to_movie_uint16_two_channel_is_scaled_then_packed(tmp_path, fake_wr
 
     written = fake_writer.instances[0].frames[0]
     assert written.dtype == np.uint8
-    assert written[5, 5, 0] == 255
+    assert written[5, 5, 0] == 0
     assert written[5, 5, 1] == pytest.approx(128, abs=1)
-    assert written[:25, :, 2].max() == 0
+    assert written[5, 5, 2] == 255
 
 
 def test_npz_to_movie_three_channel_is_rgb_to_bgr_swapped(tmp_path, fake_writer):

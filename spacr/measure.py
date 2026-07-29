@@ -1581,13 +1581,17 @@ def img_list_to_grid(grid, titles=None):
     n_images = len(grid)
     grid_size = ceil(sqrt(n_images))
     
-    fig, axs = plt.subplots(grid_size, grid_size, figsize=(15, 15), facecolor='black')
+    fig, axs = plt.subplots(
+        grid_size, grid_size, figsize=(15, 15), facecolor='black',
+        squeeze=False)
     
     from matplotlib.patches import FancyBboxPatch
     for i, ax in enumerate(axs.flat):
         if i < n_images:
             image = grid[i]
-            im = ax.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+            # Grid entries are produced from ``png_dims`` in RGB order.  The
+            # OpenCV reversal belongs only at the PNG write boundary above.
+            im = ax.imshow(image)
             ax.axis('off')
             ax.set_facecolor('black')
 

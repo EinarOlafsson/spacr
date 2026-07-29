@@ -35,6 +35,22 @@ def test_augment_single_image(tmp_path):
     assert len(pngs) == 6   # original + 3 rotations + 2 flips
 
 
+def test_augment_single_image_preserves_rgb_semantics(tmp_path):
+    from PIL import Image
+
+    src = tmp_path / "red.png"
+    rgb = np.zeros((8, 8, 3), dtype=np.uint8)
+    rgb[..., 0] = 240
+    Image.fromarray(rgb, mode="RGB").save(src)
+    dst = tmp_path / "out_rgb"
+    dst.mkdir()
+
+    U.augment_single_image((str(src), str(dst)))
+
+    restored = np.asarray(Image.open(dst / "red_original.png").convert("RGB"))
+    assert restored[0, 0].tolist() == [240, 0, 0]
+
+
 def test_augment_images(tmp_path):
     paths = []
     for i in range(2):

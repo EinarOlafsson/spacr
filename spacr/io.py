@@ -44,6 +44,7 @@ from pylibCZIrw import czi as pyczi
 # so a batch that lost 40 of 384 files says so at the end and stamps the
 # artifact it produced, instead of writing a silently-short result.
 from .errors import RunLedger, ConfigurationError, raise_if_strict
+from .image_colors import read_image_rgb
 
 # One definition of what a well is called. spacr.convert imports nothing
 # heavier than spacr.schema, so this costs nothing here, and it is the reason
@@ -978,7 +979,7 @@ def _merge_file(chan_dirs, stack_dir, file_name):
         channels = []
         for i, chan_dir in enumerate(chan_dirs):
             img_path = os.path.join(chan_dir, file_name)
-            img = cv2.imread(img_path, -1)
+            img = read_image_rgb(img_path, cv2.IMREAD_UNCHANGED)
             if img is None:
                 print(f"Warning: Failed to read image {img_path}")
                 continue
