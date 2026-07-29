@@ -27,7 +27,7 @@ import pytest
 
 from spacr import report as rep
 from spacr.qt.screens.report import FIGURE_CAP_RANGE, FORMATS, ReportScreen
-from spacr.qt.theme import PALETTE
+from spacr.qt.theme import DARK_PALETTE
 
 
 # ---------------------------------------------------------------------------
@@ -153,7 +153,7 @@ def _items(widget):
     for i in range(widget._sections.count()):
         item = widget._sections.item(i)
         colour = item.foreground().color().name().lower()
-        out.append((item.text(), colour == PALETTE["fg_dim"].lower()))
+        out.append((item.text(), colour == DARK_PALETTE["fg_dim"].lower()))
     return out
 
 

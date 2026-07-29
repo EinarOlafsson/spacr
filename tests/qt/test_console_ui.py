@@ -106,13 +106,13 @@ def test_ai_toggle_click_flips_state_and_fires_signal(qtbot, qt_theme_applied):
 
 def test_ai_toggle_style_reflects_state(qtbot, qt_theme_applied):
     from spacr.qt.widgets import AiToggleLabel
-    from spacr.qt.theme import PALETTE
+    from spacr.qt.theme import DARK_PALETTE
     lbl = AiToggleLabel()
     qtbot.addWidget(lbl)
     # Off → fg color in stylesheet
-    assert PALETTE["fg"].lower() in lbl.styleSheet().lower()
+    assert DARK_PALETTE["fg"].lower() in lbl.styleSheet().lower()
     lbl.setChecked(True)
-    assert PALETTE["accent"].lower() in lbl.styleSheet().lower()
+    assert DARK_PALETTE["accent"].lower() in lbl.styleSheet().lower()
 
 
 def test_ai_toggle_setchecked_emits_signal(qtbot, qt_theme_applied):

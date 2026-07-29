@@ -70,7 +70,7 @@ class TestPalettes:
     def test_every_theme_resolves_to_a_complete_palette(self):
         """No theme may be missing a role — a KeyError in `palette_for`
         surfaces as a crash somewhere unrelated three screens later."""
-        roles = set(theme.PALETTE) | set(theme.CONSTANT_ROLES)
+        roles = set(theme.DARK_PALETTE) | set(theme.CONSTANT_ROLES)
         for name in theme.THEMES:
             palette = theme.palette_for(name)
             assert roles.issubset(palette), \
