@@ -55,7 +55,7 @@ from PySide6.QtWidgets import (
 from .. import iconset
 from .. import mask_engine as engine
 from .. import prefs
-from ..theme import PALETTE, SPACING
+from ..theme import SPACING, active_palette
 from ..widgets import Card, Divider, EmptyState, Section
 
 LOG = logging.getLogger("spacr.qt.make_masks")
@@ -140,7 +140,7 @@ class _MaskCanvas(QLabel):
         self._zoom_drag_end: Optional[QPoint] = None
 
         self.setAlignment(Qt.AlignCenter)
-        self.setStyleSheet(f"background: {PALETTE['bg']};")
+        self.setStyleSheet(f"background: {active_palette()['bg']};")
         self.setMouseTracking(True)
         self.setMinimumSize(600, 400)
         self._last_pt: Optional[QPoint] = None
@@ -254,7 +254,7 @@ class _MaskCanvas(QLabel):
         if self._zoom_drag_start is None or self._zoom_drag_end is None:
             return
         painter = QPainter(self)
-        pen = QPen(QColor(PALETTE["accent"]))
+        pen = QPen(QColor(active_palette()["accent"]))
         pen.setWidth(2)
         pen.setStyle(Qt.DashLine)
         painter.setPen(pen)

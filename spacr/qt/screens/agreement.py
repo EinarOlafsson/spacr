@@ -74,7 +74,7 @@ from PySide6.QtWidgets import (
 
 from ... import agreement as agree
 from ..bridge import make_thread
-from ..theme import PALETTE, SPACING
+from ..theme import SPACING, active_palette
 from ..widgets import Divider
 from .db_browser import resolve_db_path
 
@@ -335,7 +335,8 @@ class AgreementScreen(QWidget):
         """Report inline. Deliberately never a QMessageBox — a modal dialog
         would hang a headless run (and did, in MakeMasksScreen)."""
         self.last_error = text if error else ""
-        colour = PALETTE["error"] if error else PALETTE["fg_muted"]
+        palette = active_palette()
+        colour = palette["error"] if error else palette["fg_muted"]
         self._status.setStyleSheet(f"color: {colour};")
         self._status.setText(text)
 

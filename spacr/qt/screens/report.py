@@ -47,7 +47,7 @@ from PySide6.QtWidgets import (
 
 from ... import report as rep
 from ..bridge import make_thread
-from ..theme import PALETTE, SPACING
+from ..theme import SPACING, active_palette
 from ..widgets import Divider
 
 __all__ = ["ReportScreen", "FORMATS", "FIGURE_CAP_RANGE"]
@@ -341,8 +341,9 @@ class ReportScreen(QWidget):
         report = self._report
         if report is None:
             return
-        colour = PALETTE.get(_STATUS_COLOURS.get(report.status, "warning"),
-                             PALETTE["fg_muted"])
+        palette = active_palette()
+        colour = palette.get(_STATUS_COLOURS.get(report.status, "warning"),
+                             palette["fg_muted"])
         self._verdict.setStyleSheet(f"color: {colour}; font-weight: 600;")
         self._verdict.setText(report.status_detail)
         for section in report.sections:
@@ -356,12 +357,12 @@ class ReportScreen(QWidget):
             item.setData(Qt.UserRole, section.key)
             item.setFlags(item.flags() & ~Qt.ItemIsSelectable)
             if section.status == rep.STATUS_MISSING:
-                item.setForeground(_brush(PALETTE["fg_dim"]))
+                item.setForeground(_brush(active_palette()["fg_dim"]))
                 item.setToolTip(
                     "This section will still appear in the report, saying "
                     "what was looked for and not found.")
             elif section.status == rep.STATUS_PROBLEM:
-                item.setForeground(_brush(PALETTE["error"]))
+                item.setForeground(_brush(active_palette()["error"]))
             self._sections.addItem(item)
 
     # -- generating --------------------------------------------------------
@@ -512,7 +513,8 @@ class ReportScreen(QWidget):
         """Report inline. Deliberately never a QMessageBox — a modal dialog
         would hang a headless run (and did, in MakeMasksScreen)."""
         self.last_error = text if error else ""
-        colour = PALETTE["error"] if error else PALETTE["fg_muted"]
+        palette = active_palette()
+        colour = palette["error"] if error else palette["fg_muted"]
         self._status.setStyleSheet(f"color: {colour};")
         self._status.setText(text)
 

@@ -175,8 +175,8 @@ class MeasurePreviewPanel(QWidget):
         self._grid_scroll.setWidgetResizable(True)
         self._grid_scroll.setFrameShape(QScrollArea.NoFrame)
         try:
-            from ..theme import PALETTE
-            bg = PALETTE["surface_alt"]
+            from ..theme import active_palette
+            bg = active_palette()["surface_alt"]
         except Exception:
             bg = "#161719"
         self._grid_scroll.viewport().setStyleSheet(f"background: {bg};")

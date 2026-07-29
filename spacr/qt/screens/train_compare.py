@@ -77,7 +77,7 @@ from PySide6.QtWidgets import (
 
 from ... import train_compare as tc
 from ..bridge import make_thread
-from ..theme import PALETTE, SPACING, palette_for
+from ..theme import SPACING, active_palette, palette_for
 from ..widgets import Divider
 
 __all__ = ["TrainCompareScreen", "APP_KEY", "APP_NAME", "APP_SECTION",
@@ -306,7 +306,8 @@ class TrainCompareScreen(QWidget):
     def _set_status(self, text: str, error: bool = False) -> None:
         """Report inline. Never a QMessageBox — a modal hangs a headless run."""
         self.last_error = text if error else ""
-        colour = PALETTE["error"] if error else PALETTE["fg_muted"]
+        palette = active_palette()
+        colour = palette["error"] if error else palette["fg_muted"]
         self._status.setStyleSheet(f"color: {colour};")
         self._status.setText(text)
 
@@ -396,7 +397,8 @@ class TrainCompareScreen(QWidget):
             if run.notes:
                 item.setToolTip("\n".join(run.notes))
             if not run.has_curves:
-                item.setForeground(QBrush(QColor(PALETTE["fg_dim"])))
+                item.setForeground(
+                    QBrush(QColor(active_palette()["fg_dim"])))
             self._runs_list.addItem(item)
         self._runs_list.blockSignals(False)
         self._runs_header.setText(f"Runs found ({len(self._runs)})")
@@ -415,7 +417,8 @@ class TrainCompareScreen(QWidget):
     def _fill_problems(self) -> None:
         lines = [f"! {r.run_id}: {n}" for r in self._runs for n in r.notes]
         if lines:
-            self._problems.setStyleSheet(f"color: {PALETTE['warning']};")
+            self._problems.setStyleSheet(
+                f"color: {active_palette()['warning']};")
             self._problems.setText("\n".join(lines))
         else:
             self._problems.setStyleSheet("")

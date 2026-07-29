@@ -30,7 +30,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..bridge import make_thread, resolve_pipeline_entry
-from ..theme import PALETTE, SPACING
+from ..theme import SPACING, active_palette
 from ..widgets import Card, Divider, Section, UsageBar
 from .settings_model import SettingsWidgets
 
@@ -343,9 +343,10 @@ class AppScreen(QWidget):
             blurb.setMinimumWidth(0)
             blurb.setToolTip(intro_text)
             intro_row.addWidget(blurb)
+            palette = active_palette()
             docs = QLabel(
                 f'<a href="{api_docs_url(app_key)}" '
-                f'style="color:{PALETTE["accent"]};">Docs&nbsp;→</a>')
+                f'style="color:{palette["accent"]};">Docs&nbsp;→</a>')
             docs.setOpenExternalLinks(True)
             docs.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
             intro_row.addWidget(docs)

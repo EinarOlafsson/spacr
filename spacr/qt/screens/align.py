@@ -50,7 +50,7 @@ from PySide6.QtWidgets import (
 
 from ... import align as align_mod
 from ..bridge import make_thread
-from ..theme import PALETTE, SPACING
+from ..theme import SPACING, active_palette
 from ..widgets import Divider
 
 __all__ = [
@@ -73,11 +73,12 @@ def confidence_colour(confidence: float, method: str) -> QColor:
     reads as pale rather than as a different category.
     """
     if method == align_mod.METHOD_NOMINAL:
-        return QColor(PALETTE["warning"])
+        return QColor(active_palette()["warning"])
     if method == align_mod.METHOD_UNREADABLE:
-        return QColor(PALETTE["error"])
-    accent = QColor(PALETTE["accent"])
-    base = QColor(PALETTE["surface_hi"])
+        return QColor(active_palette()["error"])
+    palette = active_palette()
+    accent = QColor(palette["accent"])
+    base = QColor(palette["surface_hi"])
     t = max(0.0, min(1.0, (float(confidence) - 0.3) / 0.7))
     return QColor(
         int(base.red() + (accent.red() - base.red()) * t),
@@ -144,11 +145,12 @@ class TileLayoutWidget(QWidget):
         """Draw the tile rectangles, or the empty-state hint."""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.fillRect(self.rect(), QColor(PALETTE["surface"]))
+        palette = active_palette()
+        painter.fillRect(self.rect(), QColor(palette["surface"]))
 
         rects = self.tile_rects()
         if not rects:
-            painter.setPen(QPen(QColor(PALETTE["fg_dim"])))
+            painter.setPen(QPen(QColor(palette["fg_dim"])))
             painter.drawText(self.rect(), Qt.AlignCenter,
                              "Choose a folder of tiles and press Plan.")
             painter.end()
@@ -170,12 +172,12 @@ class TileLayoutWidget(QWidget):
                 # warning-on-warning is the same colour twice and paints
                 # nothing at all, which is exactly as much help to that
                 # reader as leaving the hatch out.
-                painter.fillRect(rect, QBrush(QColor(PALETTE["surface"]),
+                painter.fillRect(rect, QBrush(QColor(palette["surface"]),
                                               Qt.BDiagPattern))
-            painter.setPen(QPen(QColor(PALETTE["border"]), 1))
+            painter.setPen(QPen(QColor(palette["border"]), 1))
             painter.drawRect(rect)
             if rect.width() > 26 and rect.height() > 14:
-                painter.setPen(QPen(QColor(PALETTE["fg"])))
+                painter.setPen(QPen(QColor(palette["fg"])))
                 painter.drawText(rect, Qt.AlignCenter, str(placement.tile.field))
         painter.end()
 
@@ -435,7 +437,8 @@ class AlignScreen(QWidget):
         """Report inline. Deliberately never a QMessageBox — a modal dialog
         would hang a headless run (and did, in MakeMasksScreen)."""
         self.last_error = text if error else ""
-        colour = PALETTE["error"] if error else PALETTE["fg_muted"]
+        palette = active_palette()
+        colour = palette["error"] if error else palette["fg_muted"]
         self._status.setStyleSheet(f"color: {colour};")
         self._status.setText(text)
 
