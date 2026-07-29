@@ -285,7 +285,7 @@ def check_and_clean_data(df, dependent_variable):
         print(missing_summary)
         
         # Drop rows with missing values in these fields
-        df_cleaned = df.dropna(subset=columns)
+        df_cleaned = df.dropna(subset=columns).copy()
         if df_cleaned.shape[0] < df.shape[0]:
             print(f"Dropped {df.shape[0] - df_cleaned.shape[0]} rows with missing values in {columns}.")
         return df_cleaned
@@ -293,7 +293,7 @@ def check_and_clean_data(df, dependent_variable):
     def ensure_valid_types(df, columns):
         """Ensure that specified columns are categorical."""
         for col in columns:
-            if not pd.api.types.is_categorical_dtype(df[col]):
+            if not isinstance(df[col].dtype, pd.CategoricalDtype):
                 df[col] = pd.Categorical(df[col])
                 print(f"Converted {col} to categorical type.")
         return df
@@ -366,7 +366,8 @@ def check_and_clean_data(df, dependent_variable):
         df_cleaned['cell_count'] = df['cell_count']
 
     # Create a new column 'gene_fraction' that sums the fractions by gene within the same well
-    df_cleaned['gene_fraction'] = df_cleaned.groupby(['prc', 'gene'])['fraction'].transform('sum')
+    df_cleaned['gene_fraction'] = df_cleaned.groupby(
+        ['prc', 'gene'], observed=False)['fraction'].transform('sum')
 
     print("Data is ready for model fitting.")
     return df_cleaned
