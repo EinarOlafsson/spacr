@@ -66,3 +66,42 @@ def test_read_and_merge_data_keeps_one_measurement_stamp(monkeypatch, stamp):
             assert pd.isna(actual)
         else:
             assert actual == expected
+
+
+def test_read_and_merge_data_coalesces_missing_left_stamp_values(monkeypatch):
+    """A later object table supplies provenance absent from the first table."""
+    from spacr import io
+    from spacr.measurement_schema import MEASUREMENT_STAMP_COLUMNS
+
+    complete = {
+        "measurement_ndim": 3,
+        "measurement_units": "um",
+        "n_z": 5,
+        "voxel_size_z_um": 1.5,
+        "voxel_size_xy_um": 0.25,
+    }
+    partial = {
+        "measurement_ndim": 3,
+        "measurement_units": None,
+        "n_z": None,
+        "voxel_size_z_um": None,
+        "voxel_size_xy_um": None,
+    }
+    frames = {
+        "cell": _object_frame("cell", partial),
+        "cytoplasm": _object_frame("cytoplasm", complete),
+    }
+
+    def fake_read_db(_loc, requested_tables):
+        return [frames[table].copy() for table in requested_tables]
+
+    monkeypatch.setattr(io, "_read_db", fake_read_db)
+
+    merged, _ = io._read_and_merge_data(
+        ["unused.db"], ["cell", "cytoplasm"],
+        nuclei_limit=None, pathogen_limit=None,
+    )
+
+    assert len(merged) == 1
+    for column in MEASUREMENT_STAMP_COLUMNS:
+        assert merged.iloc[0][column] == complete[column]

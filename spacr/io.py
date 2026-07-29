@@ -3246,9 +3246,29 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_
                 mismatch = a.notna() & b.notna() & a.ne(b)
                 if mismatch.any():
                     print(f"Warning: {int(mismatch.sum())} mismatched values for shared metadata column {col!r}; keeping the first.")
+                missing_left = a.isna() & b.notna()
+                if missing_left.any():
+                    fill_index = common_idx[missing_left.to_numpy()]
+                    left.loc[fill_index, col] = right.loc[fill_index, col]
 
         right = right.drop(columns=shared)
         return left.merge(right, left_index=True, right_index=True)
+
+    def _split_object_data(frame, group_by, object_type):
+        """Group object data while retaining its complete provenance stamp."""
+        numeric, non_numeric = _split_data(frame, group_by, object_type)
+        stamp_columns = [
+            column for column in MEASUREMENT_STAMP_COLUMNS
+            if column in frame.columns
+        ]
+        if stamp_columns:
+            grouped_stamp = (
+                frame.set_index(group_by)[stamp_columns]
+                .groupby(level=0, sort=False)
+                .first()
+            )
+            numeric = _merge_grouped(numeric, grouped_stamp)
+        return numeric, non_numeric
 
     data_dict = {table: [] for table in tables}
 
@@ -3275,7 +3295,8 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_
         cells = data_dict['cell'].copy()
         cells = cells.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
         cells = cells.assign(prcfo=lambda x: x['prcf'] + '_' + x['object_label'])
-        cells_g_df, metadata = _split_data(cells, 'prcfo', 'object_label')
+        cells_g_df, metadata = _split_object_data(
+            cells, 'prcfo', 'object_label')
         merged_df = cells_g_df.copy()
 
         if verbose:
@@ -3287,13 +3308,15 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_
         cytoplasms = cytoplasms.assign(prcfo=lambda x: x['prcf'] + '_' + x['object_label'])
 
         if 'cell' not in data_dict:
-            merged_df, metadata = _split_data(cytoplasms, 'prcfo', 'object_label')
+            merged_df, metadata = _split_object_data(
+                cytoplasms, 'prcfo', 'object_label')
 
             if verbose:
                 print(f'cytoplasms: {len(cytoplasms)}, cytoplasms grouped: {len(merged_df)}')
 
         else:
-            cytoplasms_g_df, _ = _split_data(cytoplasms, 'prcfo', 'object_label')
+            cytoplasms_g_df, _ = _split_object_data(
+                cytoplasms, 'prcfo', 'object_label')
             merged_df = _merge_grouped(merged_df, cytoplasms_g_df)
 
             if verbose:
@@ -3314,14 +3337,16 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_
                 nucleus = nucleus[nucleus['nucleus_prcfo_count'] <= int(nuclei_limit)]
 
         if all(key not in data_dict for key in ['cell', 'cytoplasm']):
-            merged_df, metadata = _split_data(nucleus, 'prcfo', 'cell_id')
+            merged_df, metadata = _split_object_data(
+                nucleus, 'prcfo', 'cell_id')
             metadata_key = 'cell_id'
 
             if verbose:
                 print(f'nucleus: {len(nucleus)}, nucleus grouped: {len(merged_df)}')
 
         else:
-            nucleus_g_df, _ = _split_data(nucleus, 'prcfo', 'cell_id')
+            nucleus_g_df, _ = _split_object_data(
+                nucleus, 'prcfo', 'cell_id')
             merged_df = _merge_grouped(merged_df, nucleus_g_df)
 
             if verbose:
@@ -3342,14 +3367,16 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_
                 pathogens = pathogens[pathogens['pathogen_prcfo_count'] <= int(pathogen_limit)]
 
         if all(key not in data_dict for key in ['cell', 'cytoplasm', 'nucleus']):
-            merged_df, metadata = _split_data(pathogens, 'prcfo', 'cell_id')
+            merged_df, metadata = _split_object_data(
+                pathogens, 'prcfo', 'cell_id')
             metadata_key = 'cell_id'
 
             if verbose:
                 print(f'pathogens: {len(pathogens)}, pathogens grouped: {len(merged_df)}')
 
         else:
-            pathogens_g_df, _ = _split_data(pathogens, 'prcfo', 'cell_id')
+            pathogens_g_df, _ = _split_object_data(
+                pathogens, 'prcfo', 'cell_id')
             merged_df = _merge_grouped(merged_df, pathogens_g_df)
 
             if verbose:
@@ -3408,7 +3435,7 @@ def _read_and_merge_data(locs, tables, verbose=False, nuclei_limit=10, pathogen_
 
     metadata.set_index('prcfo', inplace=True)
 
-    merged_df = metadata.merge(merged_df, left_index=True, right_index=True)
+    merged_df = _merge_grouped(metadata, merged_df)
     merged_df.drop(columns=['label_list_morphology', 'label_list_intensity'], errors='ignore', inplace=True)
 
     if pathogen_counts is not None:
