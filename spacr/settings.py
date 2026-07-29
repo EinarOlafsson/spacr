@@ -1118,6 +1118,11 @@ def get_train_cellpose_default_settings(settings):
     settings.setdefault('diameter',30)
     settings.setdefault('resize',False)
     settings.setdefault('width_height',[1000,1000])
+    # train_cellpose and CellposeLazyDataset consume these keys directly.
+    # Keeping target_size aligned with the historical width/height default
+    # makes the defaults helper a complete runnable contract.
+    settings.setdefault('target_size', 1000)
+    settings.setdefault('augment', False)
     settings.setdefault('verbose',True)
     return settings
 

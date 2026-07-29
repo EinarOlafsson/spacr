@@ -342,10 +342,6 @@ def test_train_cellpose_plots_the_batch_it_trains_on(tmp_path, cp_stub, monkeypa
     assert [id(a) for a in seen["labels"]] == [id(a) for a in call["train_labels"]]
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: get_train_cellpose_default_settings supplies neither 'target_size' "
-    "nor 'augment', so train_cellpose(settings) raises KeyError for the exact "
-    "settings dict the GUI builds from that defaults function."))
 def test_train_cellpose_runs_on_documented_defaults(tmp_path, cp_stub):
     """train_cellpose must work with only the keys the defaults helper defines."""
     from spacr.settings import get_train_cellpose_default_settings
