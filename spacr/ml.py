@@ -522,7 +522,8 @@ def process_model_coefficients(model, regression_type, X, y, nc, pc, controls):
             'p_value': p_values,
         })
 
-    elif regression_type in ['ols', 'glm', 'logit', 'probit', 'quasi_binomial']:
+    elif regression_type in [
+            'ols', 'glm', 'poisson', 'logit', 'probit', 'quasi_binomial']:
         coefs = model.params
         p_values = model.pvalues
 
@@ -604,35 +605,107 @@ def check_distribution(y, epsilon=1e-6):
     print("Detected non-normally distributed data. Using GLM.")
     return 'glm'
 
+MIN_POISSON_SAMPLES = 8
+
+
+def _validate_poisson_response(y, X=None, minimum_samples=MIN_POISSON_SAMPLES):
+    """Validate a response before fitting a Poisson GLM.
+
+    Poisson endog must contain finite, non-negative integer counts. At least
+    eight observations and one residual degree of freedom are required so
+    family detection and coefficient inference are not performed on an
+    undersized or saturated design.
+
+    :param y: One-dimensional count response.
+    :param X: Optional design matrix used to determine the parameter count.
+    :param minimum_samples: Absolute observation floor.
+    :returns: The validated response as a one-dimensional float array.
+    :raises ValueError: If the response or sample size is invalid.
+    """
+    try:
+        counts = np.asarray(y, dtype=float).reshape(-1)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            "Poisson regression requires numeric count data."
+        ) from exc
+
+    if not np.isfinite(counts).all():
+        raise ValueError(
+            "Poisson regression requires finite count data; remove or impute "
+            "NaN and infinite response values before fitting."
+        )
+    if np.any(counts < 0):
+        raise ValueError(
+            "Poisson regression requires non-negative count data; negative "
+            "response values are not valid counts."
+        )
+    if not np.all(np.isclose(counts, np.rint(counts), rtol=0, atol=1e-8)):
+        raise ValueError(
+            "Poisson regression requires integer count data; use a continuous "
+            "response model for fractional values."
+        )
+    if not np.any(counts > 0):
+        raise ValueError(
+            "Poisson regression requires at least one positive count; an "
+            "all-zero response cannot estimate effects."
+        )
+
+    n_parameters = 0
+    if X is not None:
+        x_shape = np.shape(X)
+        if not x_shape or x_shape[0] != counts.size:
+            raise ValueError(
+                "Poisson regression requires X and y to contain the same "
+                f"number of observations; got {x_shape[0] if x_shape else 0} "
+                f"and {counts.size}."
+            )
+        n_parameters = 1 if len(x_shape) == 1 else int(x_shape[1])
+
+    required = max(int(minimum_samples), n_parameters + 1)
+    if counts.size < required:
+        raise ValueError(
+            "Poisson regression has too few observations: "
+            f"received {counts.size}, but at least {required} are required "
+            f"for {n_parameters} model parameters."
+        )
+    return counts
+
+
 def pick_glm_family_and_link(y):
     """Select the appropriate GLM family and link function based on data."""
-    if np.all((y == 0) | (y == 1)):
+    values = np.asarray(y, dtype=float).reshape(-1)
+
+    if np.all((values == 0) | (values == 1)):
         print("Binary data detected. Using Binomial family with Logit link.")
         return sm.families.Binomial(link=sm.families.links.Logit())
 
-    elif (y > 0).all() and (y < 1).all():
+    elif (values > 0).all() and (values < 1).all():
         print("Data strictly between 0 and 1. Beta regression recommended.")
         raise ValueError("Use BetaModel for this data; GLM is not applicable.")
 
-    elif (y >= 0).all() and (y <= 1).all():
+    elif (values >= 0).all() and (values <= 1).all():
         print("Data between 0 and 1 (including boundaries). Using Quasi-Binomial.")
         return sm.families.Binomial(link=sm.families.links.Logit())
 
-    stat, p_value = normaltest(y)
+    if (values >= 0).all() and np.all(values.astype(int) == values):
+        # Family selection may be used for a short preview without fitting.
+        # The actual GLM boundary below enforces the sample/design minimum.
+        _validate_poisson_response(values, minimum_samples=1)
+        print("Count data detected. Using Poisson with Log link.")
+        return sm.families.Poisson(link=sm.families.links.Log())
+
+    stat, p_value = normaltest(values)
     print(f"Normality test p-value: {p_value:.4f}")
     if p_value > 0.05:
         print("Normally distributed data detected. Using Gaussian with Identity link.")
         return sm.families.Gaussian(link=sm.families.links.Identity())
 
-    if (y >= 0).all() and np.all(y.astype(int) == y):
-        print("Count data detected. Using Poisson with Log link.")
-        return sm.families.Poisson(link=sm.families.links.Log())
-
-    if (y > 0).all() and kstest(y, 'invgauss', args=(1,)).pvalue > 0.05:
+    if ((values > 0).all()
+            and kstest(values, 'invgauss', args=(1,)).pvalue > 0.05):
         print("Inverse Gaussian distribution detected. Using InverseGaussian with Log link.")
         return sm.families.InverseGaussian(link=sm.families.links.Log())
 
-    if (y >= 0).all():
+    if (values >= 0).all():
         print("Overdispersed count data detected. Using Negative Binomial with Log link.")
         return sm.families.NegativeBinomial(link=sm.families.links.Log())
 
@@ -643,14 +716,16 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
                      cov_type=None, weights=None):
     """Dispatch to the requested regression backend and return the fitted model.
 
-    Supports OLS, GLM (auto-family), beta, GLM-binomial with logit/probit
-    link (weighted by ``weights``), Lasso, Ridge and mixed-effects.
+    Supports OLS, GLM (auto-family), explicit Poisson, beta, GLM-binomial
+    with logit/probit link (weighted by ``weights``), Lasso, Ridge and
+    mixed-effects.
     Alpha is cross-validated when ``'auto'`` or ``None`` is supplied.
 
     :param X: Design matrix.
     :param y: Response variable.
     :param regression_type: One of ``'ols'``, ``'glm'``, ``'beta'``,
-        ``'logit'``, ``'probit'``, ``'lasso'``, ``'ridge'``, ``'mixed'``.
+        ``'poisson'``, ``'logit'``, ``'probit'``, ``'lasso'``, ``'ridge'``,
+        ``'mixed'``.
     :param groups: Cluster identifiers for the mixed model.
     :param alpha: Regularisation strength; ``'auto'`` / ``None`` triggers
         internal CV.
@@ -680,11 +755,23 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
             kwargs['var_weights'] = np.asarray(weights).ravel()
         return sm.GLM(y, X, **kwargs).fit()
 
+    def _glm_auto():
+        family = pick_glm_family_and_link(y)
+        if isinstance(family, sm.families.Poisson):
+            _validate_poisson_response(y, X)
+        return sm.GLM(y, X, family=family).fit()
+
+    def _glm_poisson():
+        _validate_poisson_response(y, X)
+        family = sm.families.Poisson(link=sm.families.links.Log())
+        return sm.GLM(y, X, family=family).fit()
+
     use_auto_alpha = alpha is None or (isinstance(alpha, str) and alpha == 'auto')
 
     model_map = {
         'ols':    lambda: sm.OLS(y, X).fit(cov_type=cov_type) if cov_type else sm.OLS(y, X).fit(),
-        'glm':    lambda: sm.GLM(y, X, family=pick_glm_family_and_link(y)).fit(),
+        'glm':    _glm_auto,
+        'poisson': _glm_poisson,
         'beta':   lambda: BetaModel(endog=y, exog=X).fit(),
         # logit and probit on a CONTINUOUS fraction y are routed through GLM-Binomial
         # with var_weights = cell_count. sm.Logit / sm.Probit require binary y.
@@ -703,7 +790,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
     else:
         raise ValueError(f"Unsupported regression type {regression_type}")
 
-    if regression_type == 'glm':
+    if regression_type in ['glm', 'poisson']:
         llf_model = model.llf
         llf_null = model.null_deviance / -2
         print(f"McFadden's R²: {1 - (llf_model / llf_null):.4f}")
@@ -773,7 +860,8 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         # Skip MinMax scaling for any model whose interpretation depends on the
         # original scale (bounded responses, GLM links) or whose design matrix is
         # already 0/1 from one-hot categorical predictors (lasso, ridge).
-        if regression_type in ['beta', 'quasi_binomial', 'logit', 'probit', 'lasso', 'ridge']:
+        if regression_type in ['beta', 'quasi_binomial', 'logit', 'probit',
+                               'poisson', 'lasso', 'ridge']:
             print('Data will not be scaled')
         else:
             X, y = scale_variables(X, y)
