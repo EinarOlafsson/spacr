@@ -480,6 +480,12 @@ def stream_masks_from_stack(
     mask_channel_name: str = "mask",
     keep_npz: bool = False,
     npz_dir: Optional[Path] = None,
+    cellprob_threshold: float = 0.0,
+    flow_threshold: float = 0.4,
+    min_size: int = 15,
+    resample: bool = True,
+    postprocess_settings: Optional[Dict[str, Any]] = None,
+    object_type: str = "cell",
 ) -> List[StackFile]:
     """Batch the field stacks through Cellpose, then append the mask
     channel(s) to the SAME npy files.
@@ -516,15 +522,21 @@ def stream_masks_from_stack(
             "cellpose is required for v2 mask streaming"
         ) from e
 
-    # Cellpose 4.x (SAM era) removed the classic ``Cellpose`` wrapper;
-    # everything now goes through :class:`CellposeModel`. When the
-    # caller asks for ``cpsam`` we load Cellpose-SAM via
-    # ``pretrained_model="cpsam"``; other model names still work via
-    # ``model_type=`` so saved settings from older versions keep going.
-    if model_name == "cpsam":
-        model = cp_models.CellposeModel(gpu=True, pretrained_model="cpsam")
-    else:
-        model = cp_models.CellposeModel(gpu=True, pretrained_model='cpsam')
+    # Resolve legacy names and fine-tuned checkpoint paths through the same
+    # adapter as V1. The old V2 branch silently loaded stock cpsam for every
+    # model_name, so a V1 run using a trained checkpoint could never match.
+    import torch
+    from .utils import _resolve_cellpose_pretrained
+
+    use_gpu = torch.cuda.is_available()
+    device = torch.device("cuda:0" if use_gpu else "cpu")
+    pretrained = _resolve_cellpose_pretrained(
+        model_name, object_type=object_type)
+    model = cp_models.CellposeModel(
+        gpu=use_gpu,
+        pretrained_model=pretrained,
+        device=device,
+    )
 
     # Record the exact model checkpoint hash into the active run
     # journal, if one is open. Downstream reviewers can then trace
@@ -547,37 +559,116 @@ def stream_masks_from_stack(
             **{s.field_id: arr for s, arr in zip(batch, loaded)},
         )
 
-        # Run Cellpose per field (batching across fields inside cellpose
-        # is possible for equal shapes; we keep it per-field for
-        # heterogeneous plates). Timer log makes it easy to spot which
-        # batches spike (cellpose is where the real time goes).
-        masks_per_field: List[np.ndarray] = []
+        # Prepare the same list-of-images batch V1 hands to Cellpose. Besides
+        # being faster, keeping the call boundary identical matters for exact
+        # V1/V2 reproducibility on CPSAM.
+        selected_images: List[np.ndarray] = []
+        for arr in loaded:
+            if arr.ndim == 3:
+                indices = [
+                    int(channel) % arr.shape[-1]
+                    for channel in channels_for_cellpose
+                ]
+                indices = list(dict.fromkeys(indices)) or [0]
+                raw_img = arr[..., indices]
+            else:
+                raw_img = arr.squeeze()
+            selected_images.append(raw_img)
+
+        # V1 segments the percentile-normalised float batch under masks/*.npz,
+        # not the raw uint16 planes later retained in merged/.  V2 deliberately
+        # retains those raw planes, but must still present the same pixels to
+        # Cellpose or small synthetic fields produce materially different
+        # masks.  Reuse V1's normaliser with channel roles remapped onto this
+        # compact Cellpose input (object first, optional nucleus second).
+        if postprocess_settings is not None:
+            from .io import _normalize_img_batch
+
+            selected_images = [
+                image[..., np.newaxis] if image.ndim == 2 else image
+                for image in selected_images
+            ]
+            max_height = max(image.shape[0] for image in selected_images)
+            max_width = max(image.shape[1] for image in selected_images)
+            selected_images = [
+                np.pad(
+                    image,
+                    (
+                        (0, max_height - image.shape[0]),
+                        (0, max_width - image.shape[1]),
+                        (0, 0),
+                    ),
+                )
+                for image in selected_images
+            ]
+            normalization_settings = dict(postprocess_settings)
+            for role in ("cell", "nucleus", "pathogen", "organelle"):
+                normalization_settings[f"{role}_channel"] = None
+            normalization_settings[f"{object_type}_channel"] = 0
+            if object_type == "cell" and selected_images[0].ndim == 3 \
+                    and selected_images[0].shape[-1] > 1:
+                normalization_settings["nucleus_channel"] = 1
+
+            selected_stack = np.stack(selected_images).copy()
+            normalized_stack = _normalize_img_batch(
+                stack=selected_stack,
+                channels=range(selected_stack.shape[-1]),
+                save_dtype=np.float32,
+                settings=normalization_settings,
+            )
+            intensity_per_field = [
+                normalized_stack[index]
+                for index in range(normalized_stack.shape[0])
+            ]
+        else:
+            intensity_per_field = selected_images
+
+        cellpose_images: List[np.ndarray] = []
+        for intensity_img in intensity_per_field:
+            img = np.asarray(intensity_img, dtype=np.float32)
+            maximum = float(img.max()) if img.size else 0.0
+            if maximum > 1:
+                img = img / maximum
+            cellpose_images.append(img)
+
         with Timer(
             f"v2.batch[{batch_start}:{batch_start + len(batch)}] "
             f"cellpose ({len(loaded)} fields)",
             logger="spacr.pipeline_v2",
         ):
-            for arr in loaded:
-                # ``arr`` shape is (H, W, C). CellposeModel.eval on
-                # 4.x wants a 2-D array or (H, W) list of images; we
-                # slice down to the requested channel(s). ``channels``
-                # is legacy — the new API takes ``channel_axis`` +
-                # single-channel input.
-                if arr.ndim == 3 and arr.shape[-1] > 1:
-                    ch_idx = int(channels_for_cellpose[0]) % arr.shape[-1]
-                    img = arr[..., ch_idx]
-                else:
-                    img = arr.squeeze()
-                out = model.eval(img, diameter=diameter)
-                # Cellpose 4 returns (masks, flows, styles) — no diams.
-                m = out[0]
-                if isinstance(m, list):
-                    m = m[0]
-                masks_per_field.append(np.asarray(m).astype(np.uint16))
+            out = model.eval(
+                cellpose_images,
+                batch_size=len(cellpose_images),
+                normalize=False,
+                channel_axis=-1,
+                min_size=int(min_size),
+                progress=True,
+                diameter=diameter,
+                flow_threshold=float(flow_threshold),
+                cellprob_threshold=float(cellprob_threshold),
+                resample=bool(resample),
+            )
+            masks = out[0]
+            if isinstance(masks, np.ndarray) and masks.ndim == 2:
+                masks = [masks]
+            masks_per_field = [
+                np.asarray(mask).astype(np.uint16) for mask in masks
+            ]
+
+        if postprocess_settings is not None:
+            from .object import merge_split_filter_masks
+            masks_per_field = list(merge_split_filter_masks(
+                masks=masks_per_field,
+                intensity_images=intensity_per_field,
+                settings=postprocess_settings,
+                object_type=object_type,
+                batch_filenames=[stack.path.name for stack in batch],
+            ))
 
         # Append the mask channel to each stack file and update
         # the StackFile bookkeeping.
         for sf, arr, mask in zip(batch, loaded, masks_per_field):
+            mask = np.asarray(mask)[:arr.shape[0], :arr.shape[1]]
             combined = np.concatenate(
                 [arr, mask[..., None]], axis=-1
             ).astype(np.uint16)
@@ -626,6 +717,12 @@ def run_v2(
     metadata_type: str = "auto",
     custom_regex: Optional[str] = None,
     keep_npz: bool = False,
+    cellprob_threshold: float = 0.0,
+    flow_threshold: float = 0.4,
+    min_size: int = 15,
+    resample: bool = True,
+    postprocess_settings: Optional[Dict[str, Any]] = None,
+    object_type: str = "cell",
 ) -> Dict[str, Any]:
     """Run the entire v2 pipeline against ``src``. Convenience wrapper.
 
@@ -650,6 +747,12 @@ def run_v2(
         channels_for_cellpose=channels_for_cellpose,
         diameter=diameter, batch_fields=batch_fields,
         keep_npz=keep_npz,
+        cellprob_threshold=cellprob_threshold,
+        flow_threshold=flow_threshold,
+        min_size=min_size,
+        resample=resample,
+        postprocess_settings=postprocess_settings,
+        object_type=object_type,
     )
     return {"mapper": mapper, "stacks": stacks,
             "dst": src / "merged"}
