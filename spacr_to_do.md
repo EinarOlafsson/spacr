@@ -33,7 +33,7 @@ Status: `queued`, `in progress`, `blocked`, or `complete`.
 |---:|---|---|---:|---|---|
 | 6 | DATA-01 | complete | 0.5–1 d | Resolve the V1/V2 segmentation parity xfail. | — |
 | 7 | DATA-04 | complete | 0.5–1 d | Reject or explicitly reconcile conflicting acquisition metadata. | ARCH-07 |
-| 8 | TEST-02 | queued | 0.5–1 d | Treat selected pandas and scikit-learn deprecations as CI errors. | — |
+| 8 | TEST-02 | complete | 0.5–1 d | Treat selected pandas and scikit-learn deprecations as CI errors. | — |
 | 9 | TEST-03 | queued | 1–2 d | Set TIFF photometric and planar configuration consistently. | — |
 | 10 | STAB-04 | queued | 1–2 d | Test minimum and newest supported dependency versions in CI. | STAB-01 |
 | 11 | UI-01 | queued | 1–2 d | Add persisted preferences to show or hide Alpha and Beta modules and settings; both visibility options default to enabled. | — |

@@ -1284,6 +1284,9 @@ def test_measuring_an_object_type_with_no_mask_is_refused(theirs):
 def test_a_label_that_is_not_an_integer_is_counted_and_still_imported(
         theirs, tmp_path):
     frame = pd.read_csv(theirs.table)
+    # The malformed value is intentional, but construct it without relying on
+    # pandas' deprecated implicit int-to-object dtype conversion.
+    frame["ObjectNumber"] = frame["ObjectNumber"].astype(object)
     frame.loc[0, "ObjectNumber"] = "not-a-label"
     frame.to_csv(theirs.table, index=False)
 
