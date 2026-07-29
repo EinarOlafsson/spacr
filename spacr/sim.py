@@ -1439,7 +1439,11 @@ def plot_partial_dependences(df, target='prauc', clean=True, dst=None):
         df = remove_columns_with_single_value(df)
         features = [feature for feature in features if feature in df.columns]
 
-    X = df[features]
+    # scikit-learn 1.7 rejects integer columns for partial dependence because
+    # its evaluation grid is continuous and assigning grid values back into
+    # an integer array would round them. A float view preserves every input
+    # value while making the interpolation contract explicit.
+    X = df[features].astype(float)
     y = df[target]
     
     # Train a model
