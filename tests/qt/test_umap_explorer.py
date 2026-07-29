@@ -98,3 +98,27 @@ def test_rejects_misaligned_payload(qtbot):
             "labels": [0],
             "records": [{}, {}],
         })
+
+
+def test_embedding_matches_container_theme_and_uses_viridis(
+        qtbot, tmp_path, monkeypatch):
+    from matplotlib.colors import to_rgba
+    from spacr.qt import theme
+
+    palette = dict(theme.DARK_PALETTE)
+    palette.update({
+        "surface_alt": "#24272b",
+        "fg": "#ffffff",
+    })
+    monkeypatch.setattr(theme, "active_palette", lambda: palette)
+    payload, _database = _payload(tmp_path)
+    explorer = ImageUmapExplorer()
+    qtbot.addWidget(explorer)
+
+    explorer.set_payload(payload)
+
+    assert explorer._figure.get_facecolor() == to_rgba("#24272b")
+    assert explorer._axes.get_facecolor() == to_rgba("#24272b")
+    assert explorer._axes.spines["left"].get_edgecolor() == to_rgba(
+        "#ffffff")
+    assert explorer._scatter.get_cmap().name == "viridis"

@@ -113,7 +113,8 @@ __all__ = [
     'OBJECT_TABLE_SCHEMAS', 'object_table_schema',
     # pandas
     'add_identity_columns', 'canonicalise_columns',
-    'validate_object_table_frame',
+    'validate_object_table_frame', 'coerce_model_feature_types',
+    'model_feature_columns', 'model_feature_frame',
     # legacy
     'legacy_well_ids', 'legacy_map_wells', 'legacy_safe_int_convert',
 ]
@@ -1316,6 +1317,105 @@ def is_provenance_column(name: Any) -> bool:
     return False
 
 
+def _model_feature_role(
+        name: str,
+        *,
+        explicit: set[str],
+        allow_unknown: bool,
+) -> tuple[bool, bool]:
+    """Return ``(declared, ignore_non_numeric)`` for one model column."""
+    from .feature_dict import OBJECT_TYPES, parse_column
+
+    entry = parse_column(name)
+    object_namespace = any(
+        name.startswith(f'{object_type}_')
+        for object_type in OBJECT_TYPES
+    ) or name.startswith('cells_')
+    declared = (
+        name in explicit
+        or name in DERIVED_MODEL_FEATURES
+        or entry.family in MODEL_FEATURE_FAMILIES
+        or (entry.family == 'unknown' and object_namespace)
+        or (allow_unknown and entry.family == 'unknown')
+    )
+    ignore_non_numeric = (
+        allow_unknown
+        and entry.family == 'unknown'
+        and name not in explicit
+        and not object_namespace
+    )
+    return declared, ignore_non_numeric
+
+
+def coerce_model_feature_types(
+        frame,
+        *,
+        extra_features=(),
+        exclude=(),
+        allow_unknown: bool = False,
+):
+    """Convert numeric strings in declared model features to numeric dtypes.
+
+    SQLite can return a measurement column as ``object`` when values were
+    inserted as text, even if every non-empty value is a valid number. Model
+    boundaries call this helper before strict schema validation so those
+    lossless representations remain usable. A genuinely non-numeric token is
+    never silently changed to missing data: it raises
+    :class:`ModelFeatureSchemaError` with representative values.
+
+    The input frame is returned unchanged when no conversion is needed. A
+    shallow copy is made on the first conversion, so callers do not have their
+    source data mutated and wide database joins do not get copied needlessly.
+    """
+    import pandas as pd
+    from pandas.api.types import is_bool_dtype, is_numeric_dtype
+
+    if not isinstance(frame, pd.DataFrame):
+        raise ModelFeatureSchemaError(
+            f'Model features must be selected from a pandas DataFrame, got '
+            f'{type(frame).__name__}.')
+
+    explicit = {str(column) for column in extra_features}
+    blocked = {str(column) for column in exclude}
+    converted_frame = frame
+    copied = False
+
+    for column in frame.columns:
+        name = str(column)
+        if name in blocked or is_provenance_column(name):
+            continue
+        declared, ignore_non_numeric = _model_feature_role(
+            name, explicit=explicit, allow_unknown=allow_unknown)
+        if not declared:
+            continue
+
+        series = frame[column]
+        if is_bool_dtype(series.dtype) or is_numeric_dtype(series.dtype):
+            continue
+        if ignore_non_numeric:
+            continue
+
+        # Empty strings in SQLite measurement tables represent the same
+        # missing value as NULL. Preserve that distinction before conversion.
+        normalized = series.replace(r'^\s*$', pd.NA, regex=True)
+        numeric = pd.to_numeric(normalized, errors='coerce')
+        invalid = normalized.notna() & numeric.isna()
+        if invalid.any():
+            examples = list(dict.fromkeys(
+                str(value) for value in normalized[invalid].head(3)))
+            raise ModelFeatureSchemaError(
+                f'Declared model feature {name!r} must be numeric, got '
+                f'{series.dtype} with non-numeric value(s) '
+                f'{examples!r}. Convert or exclude it before fitting.')
+
+        if not copied:
+            converted_frame = frame.copy(deep=False)
+            copied = True
+        converted_frame[column] = numeric
+
+    return converted_frame
+
+
 def model_feature_columns(
         frame,
         *,
@@ -1337,8 +1437,6 @@ def model_feature_columns(
     import pandas as pd
     from pandas.api.types import is_bool_dtype, is_numeric_dtype
 
-    from .feature_dict import OBJECT_TYPES, parse_column
-
     if not isinstance(frame, pd.DataFrame):
         raise ModelFeatureSchemaError(
             f'Model features must be selected from a pandas DataFrame, got '
@@ -1352,18 +1450,8 @@ def model_feature_columns(
         if name in blocked or is_provenance_column(name):
             continue
 
-        entry = parse_column(name)
-        object_namespace = any(
-            name.startswith(f'{object_type}_')
-            for object_type in OBJECT_TYPES
-        ) or name.startswith('cells_')
-        declared = (
-            name in explicit
-            or name in DERIVED_MODEL_FEATURES
-            or entry.family in MODEL_FEATURE_FAMILIES
-            or (entry.family == 'unknown' and object_namespace)
-            or (allow_unknown and entry.family == 'unknown')
-        )
+        declared, ignore_non_numeric = _model_feature_role(
+            name, explicit=explicit, allow_unknown=allow_unknown)
         if not declared:
             continue
 
@@ -1372,8 +1460,7 @@ def model_feature_columns(
             # pandas/numpy numeric selectors historically omitted bools.
             continue
         if not is_numeric_dtype(series.dtype):
-            if allow_unknown and entry.family == 'unknown' and not (
-                    name in explicit or object_namespace):
+            if ignore_non_numeric:
                 continue
             raise ModelFeatureSchemaError(
                 f'Declared model feature {name!r} must be numeric, got '

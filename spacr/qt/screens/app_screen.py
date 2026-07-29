@@ -1135,6 +1135,19 @@ class AppScreen(QWidget):
                 {"result": "bad_settings", "error": str(e)})
             QMessageBox.warning(self, "Bad settings", str(e))
             return
+        if self.app_key == "umap":
+            # Resolve GUI colours on the GUI thread and pass plain strings to
+            # the worker. The UMAP canvas sits inside a Card, whose material is
+            # ``surface_alt`` in every theme; matching that color avoids a
+            # black/white rectangle inside dark, light, image, and glass
+            # themes. Avoid reading QApplication/QSettings from the worker.
+            from ..theme import active_palette
+            palette = active_palette()
+            settings["_plot_theme"] = {
+                "background": palette["surface_alt"],
+                "foreground": palette["fg"],
+                "border": palette["fg"],
+            }
 
         # Diagnostic breadcrumb — visible when the user has verbose
         # logging on. Shows exactly which app + entry-point ran and

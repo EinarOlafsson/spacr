@@ -458,16 +458,18 @@ def test_remove_noise_drops_noise_rows():
 # colour helpers / setup_plot
 # ---------------------------------------------------------------------------
 
-def test_generate_colors_prepends_black_for_light_background():
+def test_generate_colors_is_deterministic_viridis_for_every_background():
     from spacr.utils import generate_colors
 
     dark = generate_colors(6, black_background=True)
     light = generate_colors(6, black_background=False)
-    assert dark.shape == (7, 4)
-    assert light.shape == (8, 4)
-    np.testing.assert_allclose(light[0], [0, 0, 0, 1])
-    # the four fixed accent colours come first and are fully opaque
-    np.testing.assert_allclose(dark[0], [155 / 255, 55 / 255, 155 / 255, 1])
+    assert dark.shape == (6, 4)
+    assert light.shape == (6, 4)
+    np.testing.assert_allclose(dark, light)
+    np.testing.assert_allclose(
+        dark[0], matplotlib.colormaps["viridis"](0.08))
+    np.testing.assert_allclose(
+        dark[-1], matplotlib.colormaps["viridis"](0.92))
     assert np.all(dark[:, 3] == 1)
 
 
@@ -493,6 +495,25 @@ def test_setup_plot_applies_theme(black_background):
     assert plt.rcParams["text.color"] == ("white" if black_background else "black")
     assert fig.get_size_inches().tolist() == [4.0, 4.0]
     assert ax.figure is fig
+
+
+def test_setup_plot_uses_gui_container_colors_and_visible_axes():
+    from matplotlib.colors import to_rgba
+    from spacr.utils import setup_plot
+
+    colors = {
+        "background": "#161719",
+        "foreground": "#ffffff",
+        "border": "#ffffff",
+    }
+    fig, ax = setup_plot(
+        4, black_background=False, theme_colors=colors)
+
+    assert fig.get_facecolor() == to_rgba("#161719")
+    assert ax.get_facecolor() == to_rgba("#161719")
+    assert ax.spines["left"].get_edgecolor() == to_rgba("#ffffff")
+    assert ax.xaxis.label.get_color() == "#ffffff"
+    assert ax.yaxis.label.get_color() == "#ffffff"
 
 
 # ---------------------------------------------------------------------------
