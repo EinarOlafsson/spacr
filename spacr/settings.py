@@ -17,6 +17,18 @@ _BUNDLED_BARCODE_FILES = {
 }
 
 
+def _default_worker_count(reserve=0):
+    """Return a usable worker default while leaving ``reserve`` CPU cores free.
+
+    ``os.cpu_count()`` may be ``None`` and small machines or hosted runners
+    commonly expose only two or four cores.  Direct subtraction therefore
+    made the shipped mask default zero on GitHub Actions, after which spaCR's
+    own preflight correctly rejected it.
+    """
+    cores = os.cpu_count() or 1
+    return max(1, int(cores) - max(0, int(reserve)))
+
+
 def bundled_barcode_path(kind):
     """Return the installed CSV path for a bundled barcode reference.
 
@@ -112,7 +124,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('magnification', 20)
     settings.setdefault('custom_regex', None)
     settings.setdefault('metadata_type', 'cellvoyager')
-    settings.setdefault('n_jobs', os.cpu_count()-4)
+    settings.setdefault('n_jobs', _default_worker_count(reserve=4))
     settings.setdefault('randomize', True)
     settings.setdefault('verbose', True)
     settings.setdefault('remove_background_cell', False)
@@ -708,7 +720,7 @@ def get_measure_crop_settings(settings=None):
 
     # Operational settings
     settings.setdefault('plot',False)
-    settings.setdefault('n_jobs', os.cpu_count()-2)
+    settings.setdefault('n_jobs', _default_worker_count(reserve=2))
 
     # Object settings
     settings.setdefault('cell_mask_dim',4)
@@ -785,7 +797,7 @@ def set_default_train_test_model(settings):
     :param settings: dict to fill in place.
     :returns: the settings dict with defaults applied.
     """
-    cores = os.cpu_count()-2
+    cores = _default_worker_count(reserve=2)
 
     settings.setdefault('src','path')
     settings.setdefault('train',True)
@@ -874,7 +886,7 @@ def deep_spacr_defaults(settings):
     :param settings: dict to fill in place.
     :returns: the settings dict with defaults applied.
     """
-    cores = os.cpu_count()-4
+    cores = _default_worker_count(reserve=4)
     
     settings.setdefault('src','path')
     settings.setdefault('dataset_mode','metadata')

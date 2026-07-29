@@ -130,3 +130,18 @@ def test_get_object_settings_returns_dict_per_object_type():
         out = S._get_object_settings(object_type, base)
         assert isinstance(out, dict)
         assert len(out) > 0
+
+
+@pytest.mark.parametrize("reported_cores", [None, 1, 2, 4])
+def test_cpu_derived_worker_defaults_are_always_usable(monkeypatch, reported_cores):
+    """Shipped defaults must not become n_jobs=0 on small CI/user machines."""
+    monkeypatch.setattr(S.os, "cpu_count", lambda: reported_cores)
+
+    factories = (
+        S.set_default_settings_preprocess_generate_masks,
+        S.get_measure_crop_settings,
+        S.set_default_train_test_model,
+        S.deep_spacr_defaults,
+    )
+    for factory in factories:
+        assert factory({})["n_jobs"] >= 1
