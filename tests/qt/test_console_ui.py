@@ -139,6 +139,45 @@ def test_console_panel_input_has_no_send_button(qtbot, qt_theme_applied):
         assert btn.text() != "Send"
 
 
+def test_console_output_uses_open_sans_light_and_readable_leading(
+        qtbot, qt_theme_applied):
+    """Pipeline output is proportional, light-weight, and explicitly spaced."""
+    from PySide6.QtGui import QFont, QTextBlockFormat
+    from spacr.qt.widgets.console_panel import _StdoutBlock
+
+    block = _StdoutBlock("first line\nsecond line")
+    qtbot.addWidget(block)
+
+    assert block.font().family() == "Open Sans"
+    assert block.font().weight() == QFont.Light
+    assert "font-family: 'Open Sans'" in block.styleSheet()
+    assert "font-weight: 300" in block.styleSheet()
+
+    paragraph = block.document().firstBlock().blockFormat()
+    assert (paragraph.lineHeightType()
+            == QTextBlockFormat.ProportionalHeight.value)
+    assert paragraph.lineHeight() == block.LINE_HEIGHT_PERCENT == 145
+
+
+def test_console_font_control_preserves_light_face_and_line_spacing(
+        qtbot, qt_theme_applied):
+    """Changing console size must not reset its family, weight, or leading."""
+    from PySide6.QtGui import QFont
+    from spacr.qt.widgets.console_panel import ConsolePanel, _StdoutBlock
+
+    panel = ConsolePanel()
+    qtbot.addWidget(panel)
+    panel.append_stdout("one\ntwo")
+    panel.set_console_font_pt(14)
+
+    block = panel.findChild(_StdoutBlock)
+    assert block is not None
+    assert block.font().family() == "Open Sans"
+    assert block.font().weight() == QFont.Light
+    assert block.font().pointSize() == 14
+    assert block.document().firstBlock().blockFormat().lineHeight() == 145
+
+
 def test_submit_without_ai_creates_user_banner_and_green_text(qtbot, qt_theme_applied):
     # User input is now rendered as a 'spaCR user' banner + green text block
     # (not a coloured bubble box).

@@ -1820,7 +1820,8 @@ QPlainTextEdit#Console {{
     background-color: {CONSOLE_BG};
     color: #d4d7dc;
     border: 1px solid {P["border_soft"]};
-    font-family: "JetBrains Mono", "Menlo", "Consolas", monospace;
+    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-weight: 300;
     font-size: {F["small"]}px;
     padding: {S["sm"]}px;
     selection-background-color: {P["accent_lo"]};
@@ -2088,17 +2089,21 @@ QLabel#ConsoleTopicLabel {{
     letter-spacing: 0.4px;
     background: transparent;
 }}
-QLabel#ConsoleStdoutBlock {{
+QPlainTextEdit#ConsoleStdoutBlock {{
     color: {P["fg"]};
     background-color: {P["surface_alt"]};
-    font-family: "JetBrains Mono", "Menlo", "Consolas", monospace;
+    border: none;
+    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-weight: 300;
     font-size: {F["small"]}px;
     padding: {S["sm"]}px {S["md"]}px;
 }}
-QLabel#ConsoleStdoutBlockError {{
+QPlainTextEdit#ConsoleStdoutBlockError {{
     color: {P["error"]};
     background-color: {P["surface_alt"]};
-    font-family: "JetBrains Mono", "Menlo", "Consolas", monospace;
+    border: none;
+    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-weight: 300;
     font-size: {F["small"]}px;
     padding: {S["sm"]}px {S["md"]}px;
 }}

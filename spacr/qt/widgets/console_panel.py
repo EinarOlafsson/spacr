@@ -42,11 +42,18 @@ from __future__ import annotations
 from typing import Dict, List, Optional
 
 from PySide6.QtCore import QRect, QSize, Qt, QThread, QTimer, Signal
-from PySide6.QtGui import QFontDatabase, QKeyEvent
+from PySide6.QtGui import (
+    QFont,
+    QFontDatabase,
+    QKeyEvent,
+    QTextBlockFormat,
+    QTextCursor,
+)
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
     QLabel,
+    QPlainTextEdit,
     QScrollArea,
     QSizePolicy,
     QSpinBox,
@@ -220,37 +227,86 @@ class _WorkingDots(QLabel):
 # Stdout block (grows in place while pipeline is running)
 # ---------------------------------------------------------------------------
 
-class _StdoutBlock(QLabel):
-    """Monospace text block that grows in place as pipeline output arrives.
+class _StdoutBlock(QPlainTextEdit):
+    """Readable text block that grows in place as pipeline output arrives.
 
     A single block is reused for a whole stdout run so line breaks do
-    not fragment the console into one QLabel per line.
+    not fragment the console into one widget per line.  A read-only
+    ``QPlainTextEdit`` gives us selectable plain text while also exposing
+    ``QTextBlockFormat``—the reliable Qt API for real line spacing.  QSS
+    does not implement CSS ``line-height`` for a ``QLabel``.
     """
+
+    LINE_HEIGHT_PERCENT = 145
 
     def __init__(self, text: str = "", error: bool = False, parent=None,
                  text_color: Optional[str] = None):
         super().__init__(parent)
         self.setObjectName("ConsoleStdoutBlockError"
                             if error else "ConsoleStdoutBlock")
-        self.setTextFormat(Qt.PlainText)
-        self.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        self.setWordWrap(True)
-        mono = QFontDatabase.systemFont(QFontDatabase.FixedFont)
-        self.setFont(mono)
+        self.setReadOnly(True)
+        self.setFrameShape(QFrame.NoFrame)
+        self.setLineWrapMode(QPlainTextEdit.WidgetWidth)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setTextInteractionFlags(
+            Qt.TextSelectableByMouse | Qt.TextSelectableByKeyboard
+        )
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self._font_pt = 10
+        self._font = QFont("Open Sans", self._font_pt, QFont.Light)
+        self._font.setStyleName("Light")
+        self.setFont(self._font)
+        self.document().setDefaultFont(self._font)
+        self.document().setDocumentMargin(0)
         # Colour the TEXT (not a coloured box): each output type gets its own
         # foreground colour while the block background stays neutral.
         if text_color is None:
             text_color = color_error() if error else color_output()
-        self.setStyleSheet(
-            "QLabel#%s { color: %s; background-color: %s; "
-            "font-family: 'JetBrains Mono','Menlo','Consolas',monospace; "
-            "padding: %dpx %dpx; }" % (
-                self.objectName(), text_color,
-                active_palette()["surface_alt"],
-                SPACING["sm"], SPACING["md"]))
+        self._text_color = text_color
+        self._refresh_style()
         self._buf: List[str] = []
         if text:
             self.append(text)
+
+    def _refresh_style(self) -> None:
+        """Keep inline, theme-aware ink and the user-selected point size."""
+        self.setStyleSheet(
+            "QPlainTextEdit#%s { color: %s; background-color: %s; "
+            "border: none; "
+            "font-family: 'Open Sans','Segoe UI','Helvetica Neue',sans-serif; "
+            "font-weight: 300; font-size: %dpt; "
+            "padding: %dpx %dpx; }" % (
+                self.objectName(), self._text_color,
+                active_palette()["surface_alt"], self._font_pt,
+                SPACING["sm"], SPACING["md"]))
+
+    def _apply_line_spacing(self) -> None:
+        """Apply 145% leading to every paragraph in the plain-text document."""
+        cursor = QTextCursor(self.document())
+        cursor.select(QTextCursor.Document)
+        block_format = QTextBlockFormat()
+        block_format.setLineHeight(
+            float(self.LINE_HEIGHT_PERCENT),
+            QTextBlockFormat.ProportionalHeight.value,
+        )
+        cursor.mergeBlockFormat(block_format)
+
+    def set_console_font_pt(self, pt: int) -> None:
+        """Apply the console size while retaining Open Sans Light."""
+        self._font_pt = int(pt)
+        self._font.setPointSize(self._font_pt)
+        self._font.setWeight(QFont.Light)
+        self._font.setStyleName("Light")
+        self.setFont(self._font)
+        self.document().setDefaultFont(self._font)
+        self._refresh_style()
+        self._apply_line_spacing()
+        self.updateGeometry()
+
+    def text(self) -> str:
+        """Compatibility with the former QLabel-backed output block."""
+        return self.toPlainText()
 
     def append(self, text: str) -> None:
         """Append ``text`` to the block, capping the buffer at 200k chars."""
@@ -260,7 +316,26 @@ class _StdoutBlock(QLabel):
         if len(joined) > 200_000:
             joined = joined[-200_000:]
             self._buf = [joined]
-        self.setText(joined)
+        self.setPlainText(joined)
+        self._apply_line_spacing()
+        self.updateGeometry()
+
+    def sizeHint(self) -> QSize:
+        """Report the full document height; the outer console owns scrolling."""
+        layout = self.document().documentLayout()
+        height = 0.0
+        block = self.document().begin()
+        while block.isValid():
+            height += layout.blockBoundingRect(block).height()
+            block = block.next()
+        chrome = (2 * SPACING["sm"]) + 2
+        return QSize(max(120, super().sizeHint().width()),
+                     max(32, int(round(height)) + chrome))
+
+    def resizeEvent(self, event) -> None:
+        super().resizeEvent(event)
+        self.document().setTextWidth(max(1, self.viewport().width()))
+        self.updateGeometry()
 
 
 # ---------------------------------------------------------------------------
@@ -560,6 +635,8 @@ class ConsolePanel(QWidget):
     def set_console_font_pt(self, pt: int) -> None:
         """Set the console font size and apply it to every existing entry."""
         self._font_pt = int(pt)
+        for block in self._holder.findChildren(_StdoutBlock):
+            block.set_console_font_pt(self._font_pt)
         for lbl in self._holder.findChildren(QLabel):
             f = lbl.font()
             f.setPointSize(self._font_pt)
@@ -567,6 +644,8 @@ class ConsolePanel(QWidget):
 
     def _apply_font(self, w: QWidget) -> None:
         """Apply the current console font size to a newly-created entry."""
+        if isinstance(w, _StdoutBlock):
+            w.set_console_font_pt(getattr(self, "_font_pt", 10))
         for lbl in ([w] if isinstance(w, QLabel) else w.findChildren(QLabel)):
             f = lbl.font()
             f.setPointSize(getattr(self, "_font_pt", 10))
