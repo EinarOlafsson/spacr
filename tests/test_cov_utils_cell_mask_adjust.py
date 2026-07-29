@@ -323,6 +323,27 @@ def test_adjust_cell_masks_non_npy_files_are_ignored(tmp_path):
     assert set(np.unique(out)) == {0, 1}
 
 
+def test_adjust_cell_masks_zero_workers_runs_inline(tmp_path, monkeypatch):
+    """n_jobs=0 is a request for stable inline work, not an automatic pool."""
+    import spacr.utils as U
+
+    folders = _write_triple(tmp_path, n_files=1)
+    monkeypatch.setattr(
+        U, "Pool",
+        lambda *args, **kwargs: pytest.fail("inline work started a process pool"),
+    )
+
+    U.adjust_cell_masks(
+        folders["parasite"],
+        folders["cell"],
+        folders["nuclei"],
+        n_jobs=0,
+    )
+
+    out = np.load(os.path.join(folders["cell"], "f0.npy"))
+    assert set(np.unique(out)) == {0, 1}
+
+
 def test_adjust_cell_masks_warns_on_organelle_count_mismatch(tmp_path, capsys):
     """A short organelle folder prints a warning and processing continues."""
     from spacr.utils import adjust_cell_masks
