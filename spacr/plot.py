@@ -1835,7 +1835,7 @@ def _plot_recruitment(df, df_type, channel_of_interest, columns=None, figuresize
     axes[3].legend(handles, labels, bbox_to_anchor=(1.05, 0.5), loc='center left')
     for i in [0,1,2,3]:
         axes[i].tick_params(axis='both', which='major', labelsize=font)
-        axes[i].set_xticklabels(axes[i].get_xticklabels(), rotation=45)
+        plt.setp(axes[i].get_xticklabels(), rotation=45)
 
     plt.tight_layout()
     plt.show()
@@ -1861,7 +1861,7 @@ def _plot_recruitment(df, df_type, channel_of_interest, columns=None, figuresize
         if ax.get_legend() is not None:
             ax.legend_.remove()
         ax.tick_params(axis='both', which='major', labelsize=font)
-        ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
+        plt.setp(ax.get_xticklabels(), rotation=45)
         if i <= 5:
             ax.set_ylim(1, None)
 
@@ -2669,28 +2669,28 @@ def plot_comparison_results(comparison_results):
     sns.boxplot(data=df_jaccard, x='metric', y='value', ax=axs[0], color='lightgrey')
     sns.stripplot(data=df_jaccard, x='metric', y='value', ax=axs[0], jitter=True, alpha=0.6)
     axs[0].set_title('Jaccard Index by Comparison')
-    axs[0].set_xticklabels(axs[0].get_xticklabels(), rotation=45, horizontalalignment='right')
+    plt.setp(axs[0].get_xticklabels(), rotation=45, horizontalalignment='right')
     axs[0].set_xlabel('Comparison')
     axs[0].set_ylabel('Jaccard Index')
     # Dice Coefficient Plot
     sns.boxplot(data=df_dice, x='metric', y='value', ax=axs[1], color='lightgrey')
     sns.stripplot(data=df_dice, x='metric', y='value', ax=axs[1], jitter=True, alpha=0.6)
     axs[1].set_title('Dice Coefficient by Comparison')
-    axs[1].set_xticklabels(axs[1].get_xticklabels(), rotation=45, horizontalalignment='right')
+    plt.setp(axs[1].get_xticklabels(), rotation=45, horizontalalignment='right')
     axs[1].set_xlabel('Comparison')
     axs[1].set_ylabel('Dice Coefficient')
     # Border F1 scores
     sns.boxplot(data=df_boundary_f1, x='metric', y='value', ax=axs[2], color='lightgrey')
     sns.stripplot(data=df_boundary_f1, x='metric', y='value', ax=axs[2], jitter=True, alpha=0.6)
     axs[2].set_title('Boundary F1 Score by Comparison')
-    axs[2].set_xticklabels(axs[2].get_xticklabels(), rotation=45, horizontalalignment='right')
+    plt.setp(axs[2].get_xticklabels(), rotation=45, horizontalalignment='right')
     axs[2].set_xlabel('Comparison')
     axs[2].set_ylabel('Boundary F1 Score')
     # AP scores plot
     sns.boxplot(data=df_ap, x='metric', y='value', ax=axs[3], color='lightgrey')
     sns.stripplot(data=df_ap, x='metric', y='value', ax=axs[3], jitter=True, alpha=0.6)
     axs[3].set_title('Average Precision by Comparison')
-    axs[3].set_xticklabels(axs[3].get_xticklabels(), rotation=45, horizontalalignment='right')
+    plt.setp(axs[3].get_xticklabels(), rotation=45, horizontalalignment='right')
     axs[3].set_xlabel('Comparison')
     axs[3].set_ylabel('Average Precision')
     
@@ -3079,7 +3079,7 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
     
     # Adjust the position of the x-axis labels to be centered below the data
     ax = plt.gca()
-    ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='center')
+    plt.setp(ax.get_xticklabels(), rotation=45, ha='center')
     
     # Save the plot to a file or display it
     if output_path:
