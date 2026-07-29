@@ -268,8 +268,8 @@ def go_term_enrichment_by_column(significant_df, metadata_path, go_term_columns=
 
     if go_term_columns is None:
         go_term_columns = ['Computed GO Processes', 'Curated GO Components', 'Curated GO Functions', 'Curated GO Processes']
-    significant_df = significant_df.dropna(subset=['n_gene'])
-    significant_df = significant_df[significant_df['n_gene'] != None]
+    significant_df = significant_df.loc[
+        significant_df['n_gene'].notna()].copy()
 
     gene_list = significant_df['n_gene'].to_list()
 
@@ -279,7 +279,8 @@ def go_term_enrichment_by_column(significant_df, metadata_path, go_term_columns=
     metadata['gene_nr'] = split_columns[1]
 
     # Create a subset of metadata with only the rows that contain genes in gene_list (hits)
-    hits_metadata = metadata[metadata['gene_nr'].isin(gene_list)]
+    hits_metadata = metadata.loc[
+        metadata['gene_nr'].isin(gene_list)].copy()
 
     # Create a list to hold results from all columns
     combined_results = []
