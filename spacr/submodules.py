@@ -4151,7 +4151,9 @@ def _invasion_threshold_panels(parasites, wells, max_panels=12, cmap='viridis'):
             fontsize=9)
         axis.set_xlabel('Outside-channel signal')
         axis.set_ylabel('Parasites')
-        axis.legend(fontsize=7)
+        handles, labels = axis.get_legend_handles_labels()
+        if handles:
+            axis.legend(handles, labels, fontsize=7)
 
     for index in range(len(order), len(flat)):
         flat[index].axis('off')
