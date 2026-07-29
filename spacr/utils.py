@@ -355,6 +355,7 @@ import tifffile
 # scope rather than lazily because every key built in this file goes through
 # it and it costs nothing: schema.py is stdlib-only by design.
 from . import schema
+from .tiff_io import write_tiff
 
 
 def _load_image(filepath):
@@ -373,7 +374,7 @@ def _save_image(filepath, img):
     if ext == '.npy':
         np.save(filepath, img)
     else:
-        tifffile.imwrite(filepath, img)
+        write_tiff(filepath, img)
 
 
 def _select_intensity_channel(raw, intensity_channel):

@@ -14,6 +14,8 @@ except Exception:
 from multiprocessing import Pool
 from skimage.transform import resize as resizescikit
 
+from .tiff_io import write_tiff
+
 def parse_cellpose4_output(output):
     """Normalize the return value of ``CellposeModel.eval`` into per-image flow lists.
 
@@ -214,7 +216,7 @@ def identify_masks_finetune(settings):
             if settings['save']:
                 os.makedirs(dst, exist_ok=True)
                 output_filename = os.path.join(dst, image_names[file_index])
-                cv2.imwrite(output_filename, mask)
+                write_tiff(output_filename, mask)
         del images, output, mask, flows
         gc.collect()
     return
@@ -321,7 +323,7 @@ def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellp
                 print_mask_and_flows(stack, mask, flows)
             if save:
                 output_filename = os.path.join(dst, image_names[file_index])
-                cv2.imwrite(output_filename, mask)
+                write_tiff(output_filename, mask)
 
 def check_cellpose_models(settings):
     """Run each stock Cellpose model over ``settings['src']`` for side-by-side comparison.

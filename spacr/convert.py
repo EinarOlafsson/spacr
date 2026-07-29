@@ -106,6 +106,7 @@ import pandas as pd
 
 from . import schema
 from .errors import ConfigurationError, RunLedger
+from .tiff_io import write_tiff
 
 __all__ = [
     'SourceImage',
@@ -1665,9 +1666,7 @@ def _extract(array: np.ndarray, plane: Tuple[int, int, int]) -> np.ndarray:
 
 def _imwrite(path: str, array: np.ndarray) -> None:
     """Write one TIFF. Split out so tests can make a single write fail."""
-    import tifffile
-
-    tifffile.imwrite(path, np.asarray(array))
+    write_tiff(path, np.asarray(array))
 
 
 def _atomic_write(path: str, array: np.ndarray) -> None:

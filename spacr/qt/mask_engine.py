@@ -17,6 +17,8 @@ import imageio.v2 as imageio
 import numpy as np
 from scipy.ndimage import binary_fill_holes, label
 
+from ..tiff_io import write_tiff
+
 
 IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp")
 
@@ -75,7 +77,7 @@ def save_mask(folder: str, filename: str, mask: np.ndarray) -> str:
     labeled, _ = label(mask > 0)
     stem = os.path.splitext(filename)[0]
     save_path = os.path.join(save_dir, stem + ".tif")
-    imageio.imwrite(save_path, labeled.astype(np.uint16))
+    write_tiff(save_path, labeled.astype(np.uint16))
     return save_path
 
 
