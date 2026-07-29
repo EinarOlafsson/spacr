@@ -117,8 +117,10 @@ def normalize_array(arr):
     """
     min_value = np.min(arr)
     max_value = np.max(arr)
-    normalized_arr = (arr - min_value) / (max_value - min_value)
-    return normalized_arr
+    value_range = max_value - min_value
+    if value_range == 0:
+        return np.zeros_like(arr, dtype=float)
+    return (arr - min_value) / value_range
 
 def generate_power_law_distribution(num_elements, coeff):
     """Return a normalized power-law probability vector of length ``num_elements``.
