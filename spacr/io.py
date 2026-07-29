@@ -1,4 +1,4 @@
-import os, re, json, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, cellpose, glob, queue, threading, tifffile, czifile, atexit, datetime, readlif, tempfile
+import os, re, json, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, glob, queue, threading, tifffile, czifile, atexit, datetime, readlif, tempfile
 import numpy as np
 import pandas as pd
 from PIL import Image, ImageOps
@@ -182,7 +182,10 @@ def process_non_tif_non_2D_images(folder):
     return ledger
 
 def _load_images_and_labels(image_files, label_files, invert=False):
-    
+    # Cellpose 4 no longer exposes submodules as attributes of the package
+    # root. Import the IO boundary explicitly, and only when this Cellpose
+    # dataset helper is used.
+    from cellpose import io as cellpose_io
     from .utils import invert_image
     
     images = []
@@ -193,7 +196,7 @@ def _load_images_and_labels(image_files, label_files, invert=False):
 
     if image_files and label_files:
         for img_file, lbl_file in zip(image_files, label_files):
-            image = cellpose.io.imread(img_file)
+            image = cellpose_io.imread(img_file)
             if image is None:
                 print(f"WARNING: Could not load image: {img_file}")
                 continue
@@ -202,7 +205,7 @@ def _load_images_and_labels(image_files, label_files, invert=False):
             if image.max() > 1:
                 image = image / image.max()
 
-            label = cellpose.io.imread(lbl_file)
+            label = cellpose_io.imread(lbl_file)
             if label is None:
                 print(f"WARNING: Could not load label: {lbl_file}")
                 continue
@@ -212,7 +215,7 @@ def _load_images_and_labels(image_files, label_files, invert=False):
 
     elif image_files:
         for img_file in image_files:
-            image = cellpose.io.imread(img_file)
+            image = cellpose_io.imread(img_file)
             if image is None:
                 print(f"WARNING: Could not load image: {img_file}")
                 continue
@@ -224,7 +227,7 @@ def _load_images_and_labels(image_files, label_files, invert=False):
 
     elif label_files:
         for lbl_file in label_files:
-            label = cellpose.io.imread(lbl_file)
+            label = cellpose_io.imread(lbl_file)
             if label is None:
                 print(f"WARNING: Could not load label: {lbl_file}")
                 continue
@@ -243,7 +246,7 @@ def _load_images_and_labels(image_files, label_files, invert=False):
 def _load_normalized_images_and_labels(image_files, label_files, channels=None, percentiles=None,  
                                        invert=False, visualize=False, remove_background=False, 
                                        background=0, Signal_to_noise=10, target_height=None, target_width=None):
-    
+    from cellpose import io as cellpose_io
     from .plot import normalize_and_visualize, plot_resize
     from .utils import invert_image, apply_mask
     from skimage.transform import resize as resizescikit
@@ -276,7 +279,7 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
 
     # Load, normalize, and resize images
     for i, img_file in enumerate(image_files):
-        image = cellpose.io.imread(img_file)
+        image = cellpose_io.imread(img_file)
         orig_dims.append((image.shape[0], image.shape[1]))
 
         if invert:
@@ -335,7 +338,7 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
 
     # Load and resize labels if provided
     if label_files is not None:
-        labels = [resizescikit(cellpose.io.imread(lbl_file), 
+        labels = [resizescikit(cellpose_io.imread(lbl_file),
                                (target_height, target_width) if target_height and target_width else orig_dims[i], 
                                order=0, preserve_range=True, anti_aliasing=False).astype(np.uint8)
                   for i, lbl_file in enumerate(label_files)]
