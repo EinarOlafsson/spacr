@@ -823,6 +823,8 @@ def set_default_train_test_model(settings):
     settings.setdefault('gradient_accumulation',True)
     settings.setdefault('gradient_accumulation_steps',4)
     settings.setdefault('intermedeate_save',True)
+    settings.setdefault('resume_checkpoint','')
+    settings.setdefault('custom_model_path','')
     settings.setdefault('pin_memory',False)
     settings.setdefault('n_jobs',cores)
     settings.setdefault('train_channels',['r','g','b'])
@@ -925,6 +927,7 @@ def deep_spacr_defaults(settings):
     settings.setdefault('gradient_accumulation',True)
     settings.setdefault('gradient_accumulation_steps',4)
     settings.setdefault('intermedeate_save',True)
+    settings.setdefault('resume_checkpoint','')
     settings.setdefault('pin_memory',False)
     settings.setdefault('n_jobs',cores)
     settings.setdefault('train_channels',['r','g','b'])
@@ -976,6 +979,8 @@ def get_train_test_model_settings(settings):
      settings.setdefault('gradient_accumulation', True)
      settings.setdefault('gradient_accumulation_steps', 4)
      settings.setdefault('intermedeate_save',True)
+     settings.setdefault('resume_checkpoint','')
+     settings.setdefault('custom_model_path','')
      settings.setdefault('pin_memory', True)
      settings.setdefault('n_jobs', 30)
      settings.setdefault('augment', True)
@@ -1462,7 +1467,7 @@ expected_types = {
     "use_checkpoint": bool,
     "gradient_accumulation": bool,
     "gradient_accumulation_steps": int,
-    "intermedeate_save": bool,
+    "intermedeate_save": (bool, list, tuple, type(None)),
     "pin_memory": bool,
     "n_jobs": int,
     "augment": bool,
@@ -1544,6 +1549,7 @@ expected_types = {
     "custom_model":bool,
     "png_type":str,
     "custom_model_path":str,
+    "resume_checkpoint":str,
     "generate_training_dataset":bool,
     "normalize":bool,
     "overlay":bool,
@@ -2133,7 +2139,8 @@ tooltips = {
     "save_h5": "(bool) - Also write every annotated read (consensus sequence plus its parsed row/column/gRNA barcodes and IDs) to annotated_reads.h5. The per-well counts in unique_combinations.csv and qc.csv are written either way, so set it False unless you need read-level data; True produces a very large file and compression can dominate runtime. Default True.",
     "comp_type": "(str) - PyTables compression library used when writing annotated_reads.h5, passed to pandas HDFStore as complib: 'zlib', 'lzo', 'bzip2' or 'blosc'. 'blosc' is far faster at similar file size, 'bzip2' is smallest but slowest. Ignored entirely when save_h5 is False. Default 'zlib'.",
     "comp_level": "(int) - complevel passed to the HDF5 store, 0-9. 0 disables compression (fastest write, largest file); higher values shrink annotated_reads.h5 at increasing CPU cost, and at the top of the range saving can take longer than the barcode mapping itself. Ignored when save_h5 is False. Default 5.",
-    "custom_model_path": "(str) - Intended path to a saved classifier checkpoint to fine-tune instead of training from ImageNet weights, but no code in the deep-learning pipeline reads this key - train_test_model builds its backbone purely from model_type and init_weights - so it currently has no effect. For a custom Cellpose segmentation model use custom_model instead. Default ''.",
+    "custom_model_path": "(str) - Path to a trained classifier artifact whose model weights initialize a new fine-tuning run. The optimizer and epoch start fresh. Leave empty to initialize from ImageNet or random weights according to init_weights. Default ''.",
+    "resume_checkpoint": "(str) - Path to a spaCR training artifact to continue exactly: restores model, optimizer, scheduler, epoch, best score and random-generator state. Use custom_model_path instead when only the weights should be reused. Default ''.",
     "normalize": "(bool) - Percentile-normalize each image channel (2nd to 98th percentile, clipped to 0-1) before display or model input; in the activation-map tool this rescales the image the CAM/saliency heatmap is drawn over. Turn it on when raw channels are too dim to read under the overlay. Affects display and input scaling only, never stored pixels. Default True.",
     "overlay": "(bool) - In the batch-grid figures, draw the activation map in the 'jet' colormap at 50 percent alpha over the source image. Turn it off and the grid tiles are left empty apart from the predicted-class label, so keep it on whenever plot is enabled. It never affects the per-object activation PNGs saved to disk, which are always the bare map. Default True.",
     "normalize_input": "(bool) - Apply the same per-channel mean=0.5, std=0.5 normalisation used during training to each image before it enters the model when generating activation maps. Keep it matched to how the model was trained, otherwise inputs are off-distribution and both the predicted classes and the maps are meaningless. Distinct from 'normalize', which only percentile-stretches images for display. Default True.",
@@ -2446,7 +2453,7 @@ motility_advanced_settings = ['reuse_existing_measurements', 'infection_xgb_min_
 #      organelle_channel / organelle_mask_dim sit in General and not in
 #      "Organelle".
 categories = {
-    "Paths": ["src", "grna", "barcodes", "custom_model_path", "dataset", "model_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "score_data", "count_data"],
+    "Paths": ["src", "grna", "barcodes", "custom_model_path", "resume_checkpoint", "dataset", "model_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "score_data", "count_data"],
 
     # 'normalize' moved here from "Advanced". It is a top-level toggle for how
     # every image in the run is scaled, set by seven different modules, and

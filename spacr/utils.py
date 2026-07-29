@@ -6,6 +6,7 @@ import numpy as np
 # np.trapz was removed in numpy 2.0; np.trapezoid is the replacement.
 _trapezoid = getattr(np, 'trapezoid', None) or np.trapz
 import pandas as pd
+from contextlib import contextmanager, nullcontext
 from functools import partial
 
 
@@ -118,6 +119,38 @@ from scipy import ndimage
 from scipy.ndimage import binary_dilation, binary_fill_holes
 
 from skimage.exposure import rescale_intensity
+
+
+@contextmanager
+def _preserve_batchnorm_running_stats(module: nn.Module):
+    """Prevent checkpoint recomputation from updating BatchNorm twice.
+
+    Non-reentrant activation checkpointing replays the forward operation
+    during backward. BatchNorm must still run in training mode for identical
+    gradients, but its running buffers should reflect one batch, not two.
+    """
+    snapshots = []
+    for child in module.modules():
+        if isinstance(child, nn.modules.batchnorm._BatchNorm):
+            for name in ("running_mean", "running_var", "num_batches_tracked"):
+                value = getattr(child, name, None)
+                if value is not None:
+                    snapshots.append((value, value.detach().clone()))
+    try:
+        yield
+    finally:
+        with torch.no_grad():
+            for target, saved in snapshots:
+                target.copy_(saved)
+
+
+def _checkpoint_module(module: nn.Module, function, *args):
+    """Checkpoint ``function`` while preserving stateful normalization buffers."""
+    def contexts():
+        return nullcontext(), _preserve_batchnorm_running_stats(module)
+
+    return checkpoint(function, *args, use_reentrant=False,
+                      context_fn=contexts)
 from sklearn.metrics import auc, precision_recall_curve
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import Lasso, Ridge
@@ -3368,7 +3401,6 @@ class CustomCellClassifier(nn.Module):
 
     def custom_forward(self, x):
         """Return the class logits for a batch ``x`` of shape ``(B, 3, H, W)``."""
-        x.requires_grad = True
         x = self.early_fusion(x)
         x = self.multi_scale_block_1(x)
         x = F.adaptive_avg_pool2d(x, (1, 1)).view(x.size(0), -1)
@@ -3378,8 +3410,7 @@ class CustomCellClassifier(nn.Module):
     def forward(self, x):
         """Forward pass, optionally through activation checkpointing."""
         if self.use_checkpoint:
-            x.requires_grad = True
-            return checkpoint(self.custom_forward, x, use_reentrant=False)
+            return _checkpoint_module(self, self.custom_forward, x)
         else:
             return self.custom_forward(x)
 
@@ -3416,6 +3447,10 @@ class TorchModel(nn.Module):
         """
         super().__init__()
         self.model_name = str(model_name)
+        self.pretrained = bool(pretrained)
+        self.dropout_rate = (
+            float(dropout_rate) if dropout_rate is not None else None
+        )
         self.use_checkpoint = bool(use_checkpoint)
         self.num_classes = int(num_classes)
         self.multilabel = bool(multilabel)
@@ -3542,9 +3577,10 @@ class TorchModel(nn.Module):
             """Run the underlying backbone on ``t`` (used as the checkpoint target)."""
             return self.base_model(t)
 
-        out = checkpoint(
-            forward_fn, x, use_reentrant=False
-        ) if self.use_checkpoint else forward_fn(x)
+        out = (
+            _checkpoint_module(self.base_model, forward_fn, x)
+            if self.use_checkpoint else forward_fn(x)
+        )
 
         # Unwrap common container types
         # Inception* returns namedtuple with .logits (if aux disabled we still may get a container)
@@ -3598,6 +3634,10 @@ class TorchModel_v2(nn.Module):
         """Build the backbone, strip its head, and attach the SPACR classifier."""
         super().__init__()
         self.model_name = model_name
+        self.pretrained = bool(pretrained)
+        self.dropout_rate = (
+            float(dropout_rate) if dropout_rate is not None else None
+        )
         self.use_checkpoint = bool(use_checkpoint)
         self.num_classes = int(num_classes)
         self.multilabel = bool(multilabel)
@@ -3679,8 +3719,8 @@ class TorchModel_v2(nn.Module):
     def _run_backbone(self, x: torch.Tensor) -> torch.Tensor:
         # Wrap for checkpoint (expects a function)
         if self.use_checkpoint:
-            return checkpoint(
-                lambda t: self.base_model(t), x, use_reentrant=False)
+            return _checkpoint_module(
+                self.base_model, lambda t: self.base_model(t), x)
         return self.base_model(x)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -3799,12 +3839,8 @@ class ResNet(nn.Module):
 
     def forward(self, x):
         """Return the flattened single-logit prediction for input batch ``x``."""
-        x.requires_grad = True  # Ensure that the tensor has requires_grad set to True
-
         if self.use_checkpoint:
-            x = checkpoint(
-                self.resnet, x, use_reentrant=False
-            )  # Use checkpointing for just the ResNet part
+            x = _checkpoint_module(self.resnet, self.resnet, x)
         else:
             x = self.resnet(x)
 
@@ -4086,26 +4122,59 @@ def calculate_loss(output, target, prefer_focal=False, gamma=2.0, alpha=1.0, red
     return F.binary_cross_entropy_with_logits(output, target, reduction=reduction)
 
 def pick_best_model(src):
-    """Return the path to the ``.pth`` file in ``src`` with the highest ``epoch/acc`` tag.
+    """Return the strongest checkpoint anywhere below ``src``.
 
-    :param src: directory of checkpoint files named ``..._epoch_<N>_acc_<A>...``.
+    Current artifacts are ranked by their stored validation metric and role;
+    legacy files fall back to their ``_acc_``/``_epoch_`` filename fields.
+
+    :param src: model directory or a checkpoint path.
     :returns: absolute path to the top-ranked checkpoint.
     """
-    all_files = os.listdir(src)
-    pth_files = [f for f in all_files if f.endswith('.pth')]
+    if os.path.isfile(src):
+        return os.path.abspath(src)
+    if not os.path.isdir(src):
+        raise FileNotFoundError(f"Model directory does not exist: {src}")
+    pth_files = sorted(glob.glob(os.path.join(src, "**", "*.pth"),
+                                 recursive=True))
+    if not pth_files:
+        raise FileNotFoundError(f"No .pth model checkpoints found below {src}")
     pattern = re.compile(r'_epoch_(\d+)_acc_(\d+(?:\.\d+)?)')
+    epoch_pattern = re.compile(r'_epoch_(\d+)')
 
     def sort_key(x):
-        """Return ``(accuracy, epoch)`` parsed from a checkpoint filename for sorting."""
-        match = pattern.search(x)
-        if not match:
-            return (0.0, 0)  # Make the primary sorting key float for consistency
-        g1, g2 = match.groups()
-        return (float(g2), int(g1))  # Primary sort by accuracy (g2) and secondary sort by epoch (g1)
-    
-    sorted_files = sorted(pth_files, key=sort_key, reverse=True)
-    best_model = sorted_files[0]
-    return os.path.join(src, best_model)
+        """Return ``(role, accuracy, epoch)`` from metadata or legacy name."""
+        role_rank = 2 if "_best_" in os.path.basename(x) else 0
+        accuracy = float("-inf")
+        epoch = 0
+        try:
+            payload = torch.load(x, map_location="cpu", weights_only=False)
+            if isinstance(payload, dict):
+                role = payload.get("artifact_role")
+                if role == "best":
+                    role_rank = 2
+                elif role == "milestone":
+                    role_rank = 1
+                metrics = payload.get("metrics") or {}
+                value = metrics.get("accuracy")
+                if value is not None and np.isfinite(float(value)):
+                    accuracy = float(value)
+                training = payload.get("training_state") or {}
+                epoch = int(training.get("epoch") or 0)
+        except Exception:
+            # A broken candidate ranks last; loading the selected artifact will
+            # still report the actual corruption rather than hiding it.
+            pass
+        match = pattern.search(os.path.basename(x))
+        if match and not np.isfinite(accuracy):
+            epoch = int(match.group(1))
+            accuracy = float(match.group(2)) / 100.0
+        elif epoch == 0:
+            match = epoch_pattern.search(os.path.basename(x))
+            if match:
+                epoch = int(match.group(1))
+        return role_rank, accuracy, epoch
+
+    return max(pth_files, key=sort_key)
 
 def get_paths_from_db(df, png_df, image_type='cell_png'):
     """Return rows of ``png_df`` whose path contains ``image_type`` and whose ``prcfo`` is in ``df``.

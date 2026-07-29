@@ -23,6 +23,50 @@ from torch.utils.data import DataLoader
 # averaged away silently, and an optional plot that fails must still be
 # visible somewhere other than /dev/null.
 from .errors import RunLedger, ConfigurationError
+from .torch_artifacts import (
+    load_model_artifact,
+    restore_training_state,
+    save_model_artifact,
+)
+
+
+def _empty_device_cache() -> None:
+    """Release accelerator caches without touching unavailable backends."""
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
+
+def _load_inference_model(model_path, device):
+    """Load current or legacy model artifacts and disable training-only recomputation."""
+    model, metadata = load_model_artifact(model_path, map_location=device)
+    for module in model.modules():
+        if hasattr(module, "use_checkpoint"):
+            module.use_checkpoint = False
+    return model.to(device).eval(), metadata
+
+
+def _probability_columns(logits):
+    """Convert binary or multiclass logits into scalar scores and columns."""
+    if logits.ndim == 1 or (logits.ndim == 2 and logits.size(1) == 1):
+        score = torch.sigmoid(logits.reshape(-1))
+        return score, (score >= 0.5).long(), {}
+    probabilities = torch.softmax(logits, dim=1)
+    if probabilities.size(1) == 2:
+        return probabilities[:, 1], probabilities.argmax(dim=1), {}
+    score, predicted = probabilities.max(dim=1)
+    columns = {
+        f"prob_class_{index}": probabilities[:, index]
+        for index in range(probabilities.size(1))
+    }
+    return score, predicted, columns
+
+
+def _unpack_supervised_batch(batch):
+    """Accept loaders yielding ``(images, labels)`` or an additional metadata item."""
+    if not isinstance(batch, (tuple, list)) or len(batch) < 2:
+        raise ValueError(
+            "A supervised data loader must yield at least (images, labels).")
+    return batch[0], batch[1]
 
 def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, n_jobs=10):
     """
@@ -68,47 +112,53 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True, 
             transforms.ToTensor(),
             transforms.CenterCrop(size=(image_size, image_size))])
     
-    # PyTorch 2.6 flipped the ``weights_only`` default to True. spaCR
-    # serialises full model objects (state dict + graph) so we explicitly
-    # request the full-object load. This is safe because model_path is
-    # a file the user themselves just trained + saved.
-    model = torch.load(model_path, weights_only=False)
+    model, _ = _load_inference_model(model_path, device)
 
     print(model)
     
     print(f'Loading dataset in {src} with {len(src)} images')
-    dataset = NoClassDataset(data_dir=src, transform=transform, shuffle=True, load_to_memory=False)
-    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=n_jobs)
+    dataset = NoClassDataset(data_dir=src, transform=transform, shuffle=False,
+                             load_to_memory=False)
+    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False,
+                             num_workers=n_jobs,
+                             pin_memory=(device.type == "cuda"))
     print(f'Loaded {len(src)} images')
     
     result_loc = os.path.splitext(model_path)[0]+datetime.date.today().strftime('%y%m%d')+'_'+os.path.splitext(model_path)[1]+'_test_result.csv'
     print(f'Results wil be saved in: {result_loc}')
     
-    model.eval()
-    model = model.to(device)
     prediction_pos_probs = []
+    predicted_labels = []
+    probability_columns = {}
     filenames_list = []
     time_ls = []
-    with torch.no_grad():
+    with torch.inference_mode():
         for batch_idx, (batch_images, filenames) in enumerate(data_loader, start=1):
             start = time.time()
-            images = batch_images.to(torch.float).to(device)
+            images = batch_images.to(device=device, dtype=torch.float,
+                                     non_blocking=(device.type == "cuda"))
             outputs = model(images)
-            batch_prediction_pos_prob = torch.sigmoid(outputs).cpu().numpy()
-            prediction_pos_probs.extend(batch_prediction_pos_prob.tolist())
+            scores, labels, extra = _probability_columns(outputs)
+            prediction_pos_probs.extend(scores.cpu().tolist())
+            predicted_labels.extend(labels.cpu().tolist())
+            for name, values in extra.items():
+                probability_columns.setdefault(name, []).extend(
+                    values.cpu().tolist())
             filenames_list.extend(filenames)
             stop = time.time()
             duration = stop - start
             time_ls.append(duration)
-            files_processed = batch_idx*batch_size
-            files_to_process = len(data_loader)
+            files_processed = min(batch_idx * batch_size, len(dataset))
+            files_to_process = len(dataset)
             print_progress(files_processed, files_to_process, n_jobs=n_jobs, time_ls=time_ls, batch_size=batch_size, operation_type="Generating predictions")
 
     data = {'path':filenames_list, 'pred':prediction_pos_probs}
+    if probability_columns:
+        data['predicted_label'] = predicted_labels
+        data.update(probability_columns)
     df = pd.DataFrame(data, index=None)
     df.to_csv(result_loc, index=True, header=True, mode='w')
-    torch.cuda.empty_cache()
-    torch.cuda.memory.empty_cache()
+    _empty_device_cache()
     return df
 
 def apply_model_to_tar(settings=None):
@@ -158,8 +208,7 @@ def apply_model_to_tar(settings=None):
         print(f"Loading model from {model_path}")
         print(f"Loading dataset from {tar_path}")
 
-    # <<< key change: allow unpickling of your saved model object >>>
-    model = torch.load(settings['model_path'], map_location=device, weights_only=False)
+    model, _ = _load_inference_model(settings['model_path'], device)
 
     dataset = TarImageDataset(tar_path, transform=transform)
     # A tar built from on-demand crops carries the crop-format marker, so say
@@ -179,7 +228,7 @@ def apply_model_to_tar(settings=None):
     data_loader = DataLoader(
         dataset,
         batch_size=settings['batch_size'],
-        shuffle=True,  # fine for inference; set False if you want deterministic order
+        shuffle=False,
         num_workers=settings['n_jobs'],
         pin_memory=(device.type == 'cuda'),
     )
@@ -190,9 +239,6 @@ def apply_model_to_tar(settings=None):
     dst = os.path.dirname(tar_path)
     result_loc = f'{dst}/{date_name}_{dataset_name}_{model_name}_result.csv'
 
-    model.eval()
-    model = model.to(device)
-
     if settings['verbose']:
         print(model)
         print(f'Generated dataset with {len(dataset)} images')
@@ -202,23 +248,23 @@ def apply_model_to_tar(settings=None):
         print(f'Model loaded to device')
 
     prediction_pos_probs = []
+    predicted_labels = []
+    probability_columns = {}
     filenames_list = []
     time_ls = []
     gc.collect()
-    with torch.no_grad():
+    with torch.inference_mode():
         for batch_idx, (batch_images, filenames) in enumerate(data_loader, start=1):
             start = time.time()
-            images = batch_images.to(torch.float).to(device)
+            images = batch_images.to(device=device, dtype=torch.float,
+                                     non_blocking=(device.type == "cuda"))
             outputs = model(images)
-
-            # robust positive-class probability handling
-            if outputs.ndim == 2 and outputs.size(1) == 2:
-                batch_prediction_pos_prob = torch.softmax(outputs, dim=1)[:, 1].cpu().numpy()
-            else:
-                # assume single-logit binary head
-                batch_prediction_pos_prob = torch.sigmoid(outputs).squeeze(-1).cpu().numpy()
-
-            prediction_pos_probs.extend(batch_prediction_pos_prob.tolist())
+            scores, labels, extra = _probability_columns(outputs)
+            prediction_pos_probs.extend(scores.cpu().tolist())
+            predicted_labels.extend(labels.cpu().tolist())
+            for name, values in extra.items():
+                probability_columns.setdefault(name, []).extend(
+                    values.cpu().tolist())
             filenames_list.extend(filenames)
 
             stop = time.time()
@@ -229,12 +275,20 @@ def apply_model_to_tar(settings=None):
             print_progress(files_processed, files_to_process, n_jobs=settings['n_jobs'],
                            time_ls=time_ls, batch_size=settings['batch_size'], operation_type="Tar dataset")
 
-    df = pd.DataFrame({'path': filenames_list, 'pred': prediction_pos_probs}, index=None)
+    data = {'path': filenames_list, 'pred': prediction_pos_probs}
+    if probability_columns:
+        data['predicted_label'] = predicted_labels
+        data.update(probability_columns)
+    df = pd.DataFrame(data, index=None)
     df = process_vision_results(df, settings['score_threshold'])
+    if probability_columns:
+        # Multiclass predictions are class indices, not a binary threshold on
+        # the winning class's confidence.
+        df['cv_predictions'] = df['predicted_label'].astype(int)
 
     df.to_csv(result_loc, index=True, header=True, mode='w')
     print(f"Saved results to {result_loc}")
-    torch.cuda.empty_cache()
+    _empty_device_cache()
     return df
 
 def _to_numpy_labels(target: torch.Tensor) -> np.ndarray:
@@ -675,6 +729,10 @@ def _cross_validate_model(settings, num_classes):
     src = settings['src']
     dst = settings['dst']
     k = int(settings.get('cross_validation_folds', 0) or 0)
+    if settings.get('resume_checkpoint'):
+        raise ValueError(
+            "resume_checkpoint cannot be shared across cross-validation folds; "
+            "resume an individual fold directly or start a fresh k-fold run.")
 
     fold_loaders, info = generate_cv_loaders(
         src,
@@ -728,6 +786,14 @@ def _cross_validate_model(settings, num_classes):
             plot=settings.get('plot', False),
             tensorboard=settings.get('tensorboard', True),
             early_stopping_patience=settings.get('early_stopping_patience', 0),
+            custom_model_path=settings.get('custom_model_path') or None,
+            preprocessing={
+                'image_size': settings.get('image_size', 224),
+                'normalize': settings.get('normalize', True),
+                'channels': settings.get('train_channels'),
+                'augment': settings.get('augment', False),
+            },
+            classes=list(settings.get('classes') or []),
         )
         if model is None:
             ledger.record_failure(
@@ -833,8 +899,7 @@ def train_test_model(settings):
 
     settings = get_train_test_model_settings(settings)
 
-    torch.cuda.empty_cache()
-    torch.cuda.memory.empty_cache()
+    _empty_device_cache()
     gc.collect()
 
     src = settings['src']
@@ -949,6 +1014,15 @@ def train_test_model(settings):
             plot=settings.get('plot', False),
             tensorboard=settings.get('tensorboard', True),
             early_stopping_patience=settings.get('early_stopping_patience', 0),
+            custom_model_path=settings.get('custom_model_path') or None,
+            resume_checkpoint=settings.get('resume_checkpoint') or None,
+            preprocessing={
+                'image_size': settings.get('image_size', 224),
+                'normalize': settings.get('normalize', True),
+                'channels': settings.get('train_channels'),
+                'augment': settings.get('augment', False),
+            },
+            classes=list(settings.get('classes') or []),
         )
 
         if model is None:
@@ -974,11 +1048,15 @@ def train_test_model(settings):
             verbose=settings['verbose']
         )
 
-        if model is None:
+        if model_path and os.path.isfile(model_path):
+            # Test the checkpoint selected by validation, not the final
+            # in-memory epoch (which may already have overfit).
+            print(f'Loading selected checkpoint for testing: {model_path}')
+            model, _ = _load_inference_model(model_path, torch.device('cpu'))
+        elif model is None:
             model_path = pick_best_model(src + '/model')
             print(f'Best model: {model_path}')
-            model = torch.load(model_path, map_location=lambda storage, loc: storage,
-                               weights_only=False)
+            model, _ = _load_inference_model(model_path, torch.device('cpu'))
 
         model_fldr = dst
         time_now = datetime.date.today().strftime('%y%m%d')
@@ -996,8 +1074,7 @@ def train_test_model(settings):
         accuracy.to_csv(acc_loc, index=True, header=True, mode='w')
         _copy_missclassified(accuracy)
 
-    torch.cuda.empty_cache()
-    torch.cuda.memory.empty_cache()
+    _empty_device_cache()
     gc.collect()
 
     if settings['train']:
@@ -1100,6 +1177,8 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                 image_size=224, plot=False, tensorboard=True,
                 # add early stopping parameters
                 early_stopping_patience=0,  # 0 = disabled; e.g. 20 = stop after 20 epochs without val improvement
+                custom_model_path=None, resume_checkpoint=None,
+                preprocessing=None, classes=None,
                 ):
     """
     Trains a model (supports 2-class and >2-class via CrossEntropy).
@@ -1145,7 +1224,10 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
         logit_adjust_tau=1.0
     )
 
-    model = choose_model(model_type, device, init_weights, dropout_rate,
+    initialization_path = resume_checkpoint or custom_model_path
+    model = choose_model(model_type, device,
+                         False if initialization_path else init_weights,
+                         dropout_rate,
                          use_checkpoint, verbose=verbose, num_classes=head_dim,
                          height=image_size, width=image_size)
     if model is None:
@@ -1154,6 +1236,30 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
         # the caller's `model, model_path = train_model(...)` raise
         # "cannot unpack non-iterable NoneType object", burying this message.
         return None, None
+
+    resume_payload = None
+    if initialization_path:
+        if not os.path.isfile(initialization_path):
+            raise FileNotFoundError(
+                f"Training checkpoint does not exist: {initialization_path}")
+        loaded_model, loaded_payload = load_model_artifact(
+            initialization_path, map_location=device, model=model)
+        loaded_classes = int(getattr(loaded_model, 'num_classes', head_dim))
+        if loaded_classes != head_dim:
+            raise ValueError(
+                f"Checkpoint has {loaded_classes} output classes but this run "
+                f"requests {head_dim}. Use matching classes or train a new head.")
+        model = loaded_model
+        if resume_checkpoint:
+            if loaded_payload.get('optimizer_state_dict') is None:
+                raise ValueError(
+                    "resume_checkpoint is not a resumable spaCR training "
+                    "artifact (optimizer state is missing). Use "
+                    "custom_model_path to fine-tune its weights instead.")
+            resume_payload = loaded_payload
+            print(f"Resuming training state from {resume_checkpoint}")
+        else:
+            print(f"Fine-tuning model weights from {custom_model_path}")
 
     print(f'Loading Model to {device}...')
     model.to(device)
@@ -1200,6 +1306,25 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     else:
         scheduler = None
 
+    start_epoch = 1
+    best_val_acc = -1.0
+    best_model_path = None
+    epochs_without_improvement = 0
+    if resume_payload is not None:
+        training_state = restore_training_state(
+            resume_payload, optimizer=optimizer, scheduler=scheduler)
+        start_epoch = int(training_state.get('epoch') or 0) + 1
+        restored_best = training_state.get('best_metric')
+        if restored_best is not None:
+            best_val_acc = float(restored_best)
+        epochs_without_improvement = int(
+            training_state.get('epochs_without_improvement') or 0)
+        best_model_path = os.path.abspath(resume_checkpoint)
+        if start_epoch > epochs:
+            raise ValueError(
+                f"Checkpoint already completed epoch {start_epoch - 1}, but "
+                f"epochs={epochs}. Increase epochs to continue training.")
+
     accumulated_train_dicts, accumulated_val_dicts, accumulated_test_dicts = [], [], []
     # Full per-epoch history kept for the live training plot (the accumulators
     # above get consumed/cleared by _save_progress each epoch).
@@ -1210,13 +1335,8 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     _curve_ledger = RunLedger('train_model:live_curves')
     tensorboard_writer, _ = _open_tensorboard_writer(dst, tensorboard)
 
-    # track the best validation accuracy and corresponding model path
-    best_val_acc = -1.0
-    best_model_path = None
-    epochs_without_improvement = 0
-
     print('Training ...')
-    for epoch in range(1, epochs + 1):
+    for epoch in range(start_epoch, epochs + 1):
         model.train()
         start_time = time.time()
 
@@ -1277,6 +1397,7 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
         # initialize val_dict to None so the variable always exists for _save_model
         val_dict = None
 
+        is_best = False
         if val_loaders is not None and len(val_loaders) > 0:
             val_dict, _ = evaluate_model_performance(
                 model, val_loaders, epoch,
@@ -1300,6 +1421,7 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
             current_val_acc = val_dict.get('accuracy', 0.0)
             if current_val_acc > best_val_acc:
                 best_val_acc = current_val_acc
+                is_best = True
                 epochs_without_improvement = 0
             else:
                 epochs_without_improvement += 1
@@ -1308,6 +1430,13 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                   f"Train Loss: {train_dict.get('loss', float('nan')):.3f}, "
                   f"Train acc.: {train_dict.get('accuracy', float('nan')):.3f}, "
                   f"Train F1(macro): {train_dict.get('f1_macro', float('nan')):.3f}")
+            current_train_acc = train_dict.get('accuracy', 0.0)
+            if current_train_acc > best_val_acc:
+                best_val_acc = current_train_acc
+                is_best = True
+                epochs_without_improvement = 0
+            else:
+                epochs_without_improvement += 1
 
         try:
             _log_tensorboard_epoch(
@@ -1351,20 +1480,31 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
             accumulated_test_dicts = []
 
         # pass val_dict to _save_model so checkpoint decisions use validation accuracy
+        will_stop = (
+            early_stopping_patience > 0
+            and epochs_without_improvement >= early_stopping_patience
+        )
         model_path = _save_model(model, model_type, train_dict, dst, epoch, epochs,
-                                 intermedeate_save=[0.99, 0.98, 0.95, 0.94],
+                                 intermedeate_save=intermedeate_save,
                                  channels=channels,
-                                 val_dict=val_dict)  # FIX: new argument
+                                 val_dict=val_dict,
+                                 optimizer=optimizer,
+                                 scheduler=scheduler,
+                                 best_metric=best_val_acc,
+                                 is_best=is_best,
+                                 epochs_without_improvement=epochs_without_improvement,
+                                 preprocessing=preprocessing,
+                                 classes=classes,
+                                 force_last=will_stop)
 
         # track the best model path based on validation accuracy
-        if model_path is not None and val_dict is not None:
-            if val_dict.get('accuracy', 0.0) >= best_val_acc:
-                best_model_path = model_path
+        if model_path is not None and is_best:
+            best_model_path = model_path
         elif model_path is not None and best_model_path is None:
             best_model_path = model_path
 
         # early stopping — break if val hasn't improved for `patience` epochs
-        if early_stopping_patience > 0 and epochs_without_improvement >= early_stopping_patience:
+        if will_stop:
             print(f"\nEarly stopping at epoch {epoch}: no val improvement for "
                   f"{early_stopping_patience} epochs. Best val acc: {best_val_acc:.4f}")
             break
@@ -1416,7 +1556,7 @@ def generate_activation_map(settings):
     from .io import TarImageDataset
     from .settings import get_default_generate_activation_map_settings
 
-    torch.cuda.empty_cache()
+    _empty_device_cache()
     gc.collect()
     
     plt.clf()
@@ -1477,8 +1617,7 @@ def generate_activation_map(settings):
         return
 
     # Load the model
-    #model = torch.load(settings['model_path'])
-    model = torch.load(settings['model_path'], map_location=device, weights_only=False)
+    model, _ = _load_inference_model(settings['model_path'], device)
     model.to(device)
     model.eval()
 
@@ -1610,7 +1749,7 @@ def generate_activation_map(settings):
         files_to_process = len(data_loader) * settings['batch_size']
         print_progress(files_processed, files_to_process, n_jobs=n_jobs, time_ls=time_ls, batch_size=settings['batch_size'], operation_type="Generating Activation Maps")
 
-    torch.cuda.empty_cache()
+    _empty_device_cache()
     gc.collect()
     print("Activation map generation complete.")
 
@@ -1782,8 +1921,7 @@ def visualize_integrated_gradients(src, model_path, target_label_idx=0, image_si
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
 
-    #model = torch.load(model_path)
-    model = torch.load(model_path, map_location=device, weights_only=False)
+    model, _ = _load_inference_model(model_path, device)
     model.to(device)
     integrated_gradients = IntegratedGradients(model)
 
@@ -1891,8 +2029,7 @@ def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, cha
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
 
-    #model = torch.load(model_path)
-    model = torch.load(model_path, map_location=device, weights_only=False)
+    model, _ = _load_inference_model(model_path, device)
     model.to(device)
     smooth_grad = SmoothGrad(model)
 
@@ -2144,8 +2281,9 @@ def deep_spacr(settings=None):
             settings['src'] = os.path.dirname(train_path)
 
         print("Training model ...")
-        model_path = train_test_model(settings)
-        settings['model_path'] = model_path
+        training_result = train_test_model(settings)
+        if settings.get('train'):
+            settings['model_path'] = training_result
         # restore original src (so later steps like apply can use the user’s dataset if needed)
         settings['src'] = src_before
         
@@ -2157,6 +2295,9 @@ def deep_spacr(settings=None):
         if not tar_path or not os.path.isabs(tar_path) or not os.path.exists(tar_path):
             print("tar_path not valid/found; generating dataset tar ...")
             tar_path = generate_dataset(settings)
+            if not tar_path or not os.path.isfile(tar_path):
+                raise RuntimeError(
+                    "Dataset generation did not produce a readable tar file.")
             settings['tar_path'] = tar_path
 
         model_path = settings.get('model_path')
@@ -2204,6 +2345,17 @@ def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, devi
     """
     from .utils import TorchModel
 
+    if not teacher_paths:
+        raise ValueError("teacher_paths must contain at least one model.")
+    if data_loader is None or len(data_loader) == 0:
+        raise ValueError("data_loader must contain at least one training batch.")
+    if not 0.0 <= float(alpha) <= 1.0:
+        raise ValueError("alpha must be between 0 and 1.")
+    if float(temperature) <= 0:
+        raise ValueError("temperature must be greater than zero.")
+    if int(epochs) < 1:
+        raise ValueError("epochs must be at least 1.")
+
     # Adjust filename to reflect knowledge-distillation if desired
     if student_save_path.endswith('.pth'):
         base, ext = os.path.splitext(student_save_path)
@@ -2216,32 +2368,35 @@ def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, devi
     print("Loading teacher models:")
     for path in teacher_paths:
         print(f"  Loading teacher: {path}")
-        ckpt = torch.load(path, map_location=device, weights_only=False)
-        if isinstance(ckpt, TorchModel):
-            teacher = ckpt.to(device)
-        elif isinstance(ckpt, dict):
-            # If it's a dict with 'model' inside
-            # We might need to check if it has 'model_name', etc. 
-            # But let's keep it simple: same architecture as the student
-            teacher = TorchModel(
-                model_name=ckpt.get('model_name', student_model_name),
-                pretrained=ckpt.get('pretrained', pretrained),
-                dropout_rate=ckpt.get('dropout_rate', dropout_rate),
-                use_checkpoint=ckpt.get('use_checkpoint', use_checkpoint)
-            ).to(device)
-            teacher.load_state_dict(ckpt['model'])
-        else:
-            raise ValueError(f"Unsupported checkpoint type at {path} (must be TorchModel or dict).")
-
-        teacher.eval()  # For consistent batchnorm, dropout
+        try:
+            teacher, _ = load_model_artifact(path, map_location=device)
+        except ValueError as exc:
+            raise ValueError(
+                f"Unsupported checkpoint type at {path}: {exc}") from exc
+        teacher.to(device).eval()
+        for parameter in teacher.parameters():
+            parameter.requires_grad_(False)
         teachers.append(teacher)
+
+    teacher_classes = {
+        int(getattr(teacher, 'num_classes',
+                    getattr(getattr(teacher, 'spacr_classifier', None),
+                            'out_features', 1)))
+        for teacher in teachers
+    }
+    if len(teacher_classes) != 1:
+        raise ValueError(
+            f"All teachers must have the same output size; found "
+            f"{sorted(teacher_classes)}.")
+    num_classes = teacher_classes.pop()
 
     # -- 2. Initialize the student TorchModel --
     student_model = TorchModel(
         model_name=student_model_name,
         pretrained=pretrained,
         dropout_rate=dropout_rate,
-        use_checkpoint=use_checkpoint
+        use_checkpoint=use_checkpoint,
+        num_classes=num_classes,
     ).to(device)
 
     # You could load a partial checkpoint into the student here if desired.
@@ -2254,8 +2409,11 @@ def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, devi
         student_model.train()
         running_loss = 0.0
 
-        for images, labels in data_loader:
+        for batch in data_loader:
+            images, labels = _unpack_supervised_batch(batch)
             images, labels = images.to(device), labels.to(device)
+            if labels.ndim == 2 and labels.size(1) > 1:
+                labels = labels.argmax(dim=1)
 
             # Forward pass student
             logits_s = student_model(images)         # shape: (B, num_classes)
@@ -2267,13 +2425,22 @@ def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, devi
                 teacher_probs_list = []
                 for tm in teachers:
                     logits_t = tm(images) / temperature
-                    # convert to probabilities
-                    teacher_probs_list.append(F.softmax(logits_t, dim=1))
+                    if num_classes == 1:
+                        positive = torch.sigmoid(logits_t.reshape(-1))
+                        teacher_probs_list.append(
+                            torch.stack((1.0 - positive, positive), dim=1))
+                    else:
+                        teacher_probs_list.append(F.softmax(logits_t, dim=1))
                 # average them
                 teacher_probs_ensemble = torch.mean(torch.stack(teacher_probs_list), dim=0)
 
             # Student probabilities (log-softmax)
-            student_log_probs = F.log_softmax(logits_s_temp, dim=1)
+            if num_classes == 1:
+                flat = logits_s_temp.reshape(-1)
+                student_log_probs = torch.stack(
+                    (F.logsigmoid(-flat), F.logsigmoid(flat)), dim=1)
+            else:
+                student_log_probs = F.log_softmax(logits_s_temp, dim=1)
 
             # Distillation loss => KLDiv
             loss_distill = F.kl_div(
@@ -2284,7 +2451,11 @@ def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, devi
 
             # Real label loss => cross-entropy
             # We can compute this on the raw logits or scaled. Typically raw logits is standard:
-            loss_ce = F.cross_entropy(logits_s, labels)
+            if num_classes == 1:
+                loss_ce = F.binary_cross_entropy_with_logits(
+                    logits_s.reshape(-1), labels.float().reshape(-1))
+            else:
+                loss_ce = F.cross_entropy(logits_s, labels.long().reshape(-1))
 
             # Weighted sum
             loss = alpha * loss_ce + (1 - alpha) * loss_distill
@@ -2298,8 +2469,11 @@ def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, devi
         avg_loss = running_loss / len(data_loader)
         print(f"Epoch [{epoch+1}/{epochs}] - Loss: {avg_loss:.4f}")
 
-    # -- 4. Save final student as a TorchModel --
-    torch.save(student_model, student_save_path)
+    save_model_artifact(
+        student_model, student_save_path,
+        optimizer=optimizer, epoch=epochs,
+        metrics={'distillation_loss': float(avg_loss)},
+        artifact_role='knowledge_distillation')
     print(f"Knowledge-distilled student saved to: {student_save_path}")
 
     return student_model
@@ -2323,7 +2497,9 @@ def model_fusion(model_paths,save_path,device='cpu',model_name='maxvit_t',pretra
         dict keys, or unsupported checkpoint types.
     """
     from .utils import TorchModel
-    
+
+    if not model_paths:
+        raise ValueError("model_paths must contain at least one checkpoint.")
     if save_path.endswith('.pth'):
         save_path_part1, ext = os.path.splitext(save_path)
     else:
@@ -2338,72 +2514,71 @@ def model_fusion(model_paths,save_path,device='cpu',model_name='maxvit_t',pretra
 
     # --- 1. Load the first checkpoint to figure out architecture & hyperparams ---
     print(f"Loading the first model from: {model_paths[0]} to derive architecture")
-    first_ckpt = torch.load(model_paths[0], map_location=device, weights_only=False)
-
-    if isinstance(first_ckpt, dict):
-        # It's a dict with state_dict + possibly metadata
-        # Use any stored metadata if present
-        model_name = first_ckpt.get('model_name', model_name)
-        pretrained = first_ckpt.get('pretrained', pretrained)
-        dropout_rate = first_ckpt.get('dropout_rate', dropout_rate)
-        use_checkpoint = first_ckpt.get('use_checkpoint', use_checkpoint)
-
-        # Initialize the fused model
-        fused_model = TorchModel(
-            model_name=model_name,
-            pretrained=pretrained,
-            dropout_rate=dropout_rate,
-            use_checkpoint=use_checkpoint
-        ).to(device)
-
-        # We'll collect state dicts in a list
-        state_dicts = [first_ckpt['model']]  # the actual weights
-    elif isinstance(first_ckpt, TorchModel):
-        # The checkpoint is directly a TorchModel instance
-        fused_model = first_ckpt.to(device)
-        state_dicts = [fused_model.state_dict()]
-    else:
-        raise ValueError("Unsupported checkpoint format. Must be a dict or a TorchModel instance.")
+    try:
+        fused_model, first_metadata = load_model_artifact(
+            model_paths[0], map_location=device)
+    except ValueError as exc:
+        raise ValueError(
+            "Unsupported checkpoint format. Must be a spaCR artifact, "
+            "legacy state dict, or TorchModel instance.") from exc
+    fused_model = fused_model.to(device)
+    state_dicts = [fused_model.state_dict()]
 
     # --- 2. Load the rest of the checkpoints ---
     for path in model_paths[1:]:
         print(f"Loading model from: {path}")
-        ckpt = torch.load(path, map_location=device, weights_only=False)
-        if isinstance(ckpt, dict):
-            state_dicts.append(ckpt['model'])  # Just the state dict portion
-        elif isinstance(ckpt, TorchModel):
-            state_dicts.append(ckpt.state_dict())
-        else:
-            raise ValueError(f"Unsupported checkpoint format in {path} (must be dict or TorchModel).")
+        try:
+            loaded, _ = load_model_artifact(path, map_location=device)
+        except (ValueError, RuntimeError) as exc:
+            raise ValueError(
+                f"Unsupported checkpoint format in {path}; it must be a "
+                "spaCR artifact, dict or TorchModel with an identical "
+                "architecture.") from exc
+        state_dicts.append(loaded.state_dict())
 
     # --- 3. Verify all state dicts have the same keys ---
     fused_sd = fused_model.state_dict()
     for sd in state_dicts:
-        if fused_sd.keys() != sd.keys():
+        if fused_sd.keys() != sd.keys() or any(
+                fused_sd[key].shape != sd[key].shape for key in fused_sd):
             raise ValueError("All models must have identical architecture/state_dict keys.")
 
     # --- 4. Define aggregator logic ---
     def combine_tensors(tensor_list, mode='mean'):
         """Given a list of Tensors, combine them using the chosen aggregator."""
         # stack along new dimension => shape (num_models, *tensor.shape)
-        stacked = torch.stack(tensor_list, dim=0).float()
+        first = tensor_list[0]
+        if not first.is_floating_point() and not first.is_complex():
+            # Counters such as BatchNorm.num_batches_tracked are state, not
+            # learnable weights. Combining them numerically corrupts their
+            # meaning, so retain the first compatible model's value.
+            return first.clone()
+        stacked = torch.stack(
+            [tensor.to(device=first.device, dtype=torch.float64)
+             for tensor in tensor_list], dim=0)
 
         if mode == 'mean':
-            return stacked.mean(dim=0)
+            combined = stacked.mean(dim=0)
         elif mode == 'geomean':
-            # geometric mean = exp(mean(log(tensor))) 
-            # caution: requires all > 0
-            return torch.exp(torch.log(stacked).mean(dim=0))
+            # Neural weights are signed. Use a signed geometric mean of
+            # magnitudes and preserve the sign of the arithmetic mean.
+            zero = (stacked == 0).any(dim=0)
+            magnitude = torch.exp(
+                torch.log(stacked.abs().clamp_min(torch.finfo(stacked.dtype).tiny))
+                .mean(dim=0))
+            combined = torch.sign(stacked.mean(dim=0)) * magnitude
+            combined = torch.where(zero, torch.zeros_like(combined), combined)
         elif mode == 'median':
-            return stacked.median(dim=0).values
+            combined = stacked.median(dim=0).values
         elif mode == 'sum':
-            return stacked.sum(dim=0)
+            combined = stacked.sum(dim=0)
         elif mode == 'max':
-            return stacked.max(dim=0).values
+            combined = stacked.max(dim=0).values
         elif mode == 'min':
-            return stacked.min(dim=0).values
+            combined = stacked.min(dim=0).values
         else:
             raise ValueError(f"Unsupported aggregator: {mode}")
+        return combined.to(dtype=first.dtype)
 
     # --- 5. Combine the weights ---
     for key in fused_sd.keys():
@@ -2414,9 +2589,12 @@ def model_fusion(model_paths,save_path,device='cpu',model_name='maxvit_t',pretra
     # Load combined weights into the fused model
     fused_model.load_state_dict(fused_sd)
 
-    # --- 6. Save the entire TorchModel object ---
-    torch.save(fused_model, save_path)
-    print(f"Fused model (aggregator='{aggregator}') saved as a full TorchModel to: {save_path}")
+    save_model_artifact(
+        fused_model, save_path,
+        metrics={'aggregator': str(aggregator),
+                 'source_models': len(model_paths)},
+        artifact_role='model_fusion')
+    print(f"Fused model (aggregator='{aggregator}') saved to: {save_path}")
 
     return fused_model
 

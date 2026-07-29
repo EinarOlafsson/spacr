@@ -54,6 +54,8 @@ class _MeanLogitModel(torch.nn.Module):
         logit = x.flatten(1).mean(dim=1, keepdim=True) * LOGIT_SCALE + self.bias
         if self.n_out == 2:
             return torch.cat([-logit, logit], dim=1)
+        if self.n_out == 3:
+            return torch.cat([-logit, torch.zeros_like(logit), logit], dim=1)
         return logit
 
 
@@ -350,3 +352,23 @@ def test_apply_model_to_tar_single_logit_batch_size_one(const_png_tar, tmp_path)
     for path, pred in zip(df["path"], df["pred"]):
         assert pred == pytest.approx(_expected_prob(values[path], normalize=False),
                                      abs=1e-5)
+
+
+def test_apply_model_to_tar_multiclass_emits_class_probabilities(const_png_tar,
+                                                                  tmp_path):
+    """A multiclass head must use softmax and preserve the winning class."""
+    from spacr.deep_spacr import apply_model_to_tar
+
+    tar_path, values = const_png_tar
+    model_path = _save_model(tmp_path / "threeclass.pth", n_out=3)
+    df = apply_model_to_tar(
+        _tar_settings(tar_path, model_path, normalize=False, batch_size=2))
+
+    assert {"prob_class_0", "prob_class_1", "prob_class_2",
+            "predicted_label", "cv_predictions"} <= set(df.columns)
+    probabilities = df[
+        ["prob_class_0", "prob_class_1", "prob_class_2"]
+    ].to_numpy()
+    np.testing.assert_allclose(probabilities.sum(axis=1), 1.0, atol=1e-6)
+    assert df["cv_predictions"].tolist() == df["predicted_label"].tolist()
+    assert np.allclose(df["pred"].to_numpy(), probabilities.max(axis=1))
