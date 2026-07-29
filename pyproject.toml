@@ -49,10 +49,10 @@ name = "spacr"
 #     toolchain exists and fails confusingly where one does not. It has moved
 #     to the `zernike` extra, so a plain `pip install spacr` on 3.13 never
 #     reaches a compiler.
-#   * pylibCZIrw and btrack are native optional features. Both are now loaded
-#     only when their feature is selected. pylibCZIrw has no CPython 3.14
-#     wheel, while btrack's bundled native runtime is not yet qualified there;
-#     neither prevents installing or importing core spaCR.
+#   * pylibCZIrw and btrack are native optional features. Both are loaded only
+#     when their feature is selected. pylibCZIrw has no CPython 3.14 wheel.
+#     btrack 0.7.0 and its bundled tracker are qualified by the blocking 3.14
+#     fast-suite cell; neither package is required to import core spaCR.
 #
 # Python 3.14.1 is excluded because supported torchvision releases explicitly
 # exclude that interpreter patch release. Current 3.14 releases are covered

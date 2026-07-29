@@ -304,8 +304,9 @@ jobs:
 
           # --- Linux x86-64 / 3.14 ------------------------------------------
           # Core spaCR and Qt are blocking on the newest claimed interpreter.
-          # Native features not yet qualified on 3.14 (pylibCZIrw, btrack and
-          # mahotas) are optional and deliberately not installed.
+          # The main test workflow additionally qualifies mahotas and btrack
+          # on 3.14. This compiler-free smoke cell deliberately keeps only
+          # core + Qt; pylibCZIrw remains outside the tested 3.14 profile.
           - label: "Linux x86-64 / py3.14"
             os: ubuntu-24.04
             python-version: "3.14"

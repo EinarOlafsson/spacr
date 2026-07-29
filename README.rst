@@ -524,9 +524,10 @@ Install only the extras needed by your workflow:
 Optional dependency availability varies by Python version. In particular,
 ultrack currently limits ``spacr[all]`` on Python 3.13, and TorchCAM's NumPy
 constraint limits the ``attribution`` extra there. The core package and Qt
-application remain supported. On Python 3.14, btrack and the high-performance
-pylibCZIrw CZI converter remain optional and outside the tested core profile;
-the other timelapse backends and czifile-based CZI reading remain available.
+application remain supported. On Python 3.14, btrack is supported through its
+optional extra. The high-performance pylibCZIrw CZI converter remains optional
+and outside the tested profile. Other timelapse backends and czifile-based CZI
+reading remain available.
 
 The legacy Tk interface remains available as ``spacr-legacy`` but is no
 longer under active development.
