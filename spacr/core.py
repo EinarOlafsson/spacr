@@ -644,6 +644,12 @@ def generate_image_umap(settings=None, return_fig=False):
         _validate_umap_source_db(db_path, tables,
                                  require_png_list=not on_demand)
         df = _read_and_join_tables(db_path, table_names=tables)
+        # Keep the exact update identities before correct_paths re-anchors
+        # png_path for display on this machine. These columns are removed
+        # before the result CSV/DataFrame leaves this function.
+        df['_spacr_umap_db_path'] = db_path
+        df['_spacr_umap_db_png_path'] = (
+            df['png_path'] if 'png_path' in df.columns else None)
         df, image_paths_tmp = correct_paths(df, settings['src'][i])
         if source is not None and settings['plot_images']:
             # No .copy(): _read_and_join_tables hands back a fresh frame that
@@ -765,6 +771,8 @@ def generate_image_umap(settings=None, return_fig=False):
         # single-cluster fallback further down keeps the frame intact
         # instead of handing back nothing at all.
 
+    cluster_labels = np.asarray(labels).copy()
+
     # Plot the results. color_by replaces the cluster labels with a metadata
     # column; how the embedding was fitted makes no difference (the two arms
     # of the if/else this replaces were character-for-character identical).
@@ -775,8 +783,43 @@ def generate_image_umap(settings=None, return_fig=False):
     # Generate colors for the clusters
     colors = generate_colors(len(np.unique(labels)), settings['black_background'])
 
+    # Preserve the point → crop → original database-row identity for the Qt
+    # interactive explorer. The ordinary Matplotlib/PDF path simply ignores
+    # the attached payload.
+    records = []
+    point_count = len(embedding)
+    rows_for_payload = all_df.reset_index(drop=True).iloc[:point_count]
+    if len(cluster_labels) == 0 and point_count:
+        cluster_labels = np.ones(point_count, dtype=int)
+    elif len(cluster_labels) != point_count:
+        raise ValueError(
+            "Embedding, cluster labels, and source rows lost alignment: "
+            f"{point_count} points but {len(cluster_labels)} labels.")
+    for point_index, row in rows_for_payload.iterrows():
+        image = (image_paths[point_index]
+                 if image_paths is not None and point_index < len(image_paths)
+                 else None)
+        db_path = row.get('_spacr_umap_db_path')
+        db_png_path = row.get('_spacr_umap_db_png_path')
+        if pd.isna(db_path):
+            db_path = None
+        if pd.isna(db_png_path):
+            db_png_path = None
+        records.append({
+            'image': image,
+            'display_name': str(image) if image is not None else '',
+            'db_path': db_path,
+            'db_png_path': db_png_path,
+            'prcfo': row.get('prcfo'),
+        })
+    interactive_payload = {
+        'embedding': np.asarray(embedding),
+        'labels': cluster_labels,
+        'records': records,
+    }
+
     # Plot the embedding
-    umap_plt = plot_embedding(embedding, image_paths, labels, settings['image_nr'], settings['img_zoom'], colors, settings['plot_by_cluster'], settings['plot_outlines'], settings['plot_points'], settings['plot_images'], settings['smooth_lines'], settings['black_background'], settings['figuresize'], settings['dot_size'], settings['remove_image_canvas'], settings['verbose'])
+    umap_plt = plot_embedding(embedding, image_paths, labels, settings['image_nr'], settings['img_zoom'], colors, settings['plot_by_cluster'], settings['plot_outlines'], settings['plot_points'], settings['plot_images'], settings['smooth_lines'], settings['black_background'], settings['figuresize'], settings['dot_size'], settings['remove_image_canvas'], settings['verbose'], interactive_payload=interactive_payload)
     if settings['plot_cluster_grids'] and settings['plot_images']:
         grid_plt = plot_clusters_grid(embedding, labels, settings['image_nr'], image_paths, colors, settings['figuresize'], settings['black_background'], settings['verbose'])
     
@@ -799,6 +842,10 @@ def generate_image_umap(settings=None, return_fig=False):
     else:
         all_df['cluster'] = 1  # Assign a default cluster label
         print("No clusters found. Consider reducing 'min_samples' or increasing 'eps' for DBSCAN.")
+
+    all_df = all_df.drop(
+        columns=['_spacr_umap_db_path', '_spacr_umap_db_png_path'],
+        errors='ignore')
 
     # Save the results to a CSV file
     results_dir = os.path.join(settings['src'][0], 'results')

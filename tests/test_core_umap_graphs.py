@@ -162,6 +162,11 @@ def test_generate_image_umap_return_fig(umap_src):
     from spacr.core import generate_image_umap
     fig = generate_image_umap(_umap_settings(umap_src), return_fig=True)
     assert fig is not None
+    payload = fig._spacr_umap_payload
+    assert payload["embedding"].shape == (N_OBJ, 2)
+    assert len(payload["labels"]) == len(payload["records"]) == N_OBJ
+    assert payload["records"][0]["db_path"].endswith("measurements.db")
+    assert payload["records"][0]["db_png_path"].endswith("obj_001.png")
 
 
 # ---------------------------------------------------------------------------

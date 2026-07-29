@@ -736,6 +736,14 @@ class AppScreen(QWidget):
         self._figures_card = Card(title="Figures")
         self._figure_queue = FigureQueue(parent=self._figures_card)
         self._figures_card.body_layout.addWidget(self._figure_queue, 1)
+        self._umap_explorer = None
+        if self.app_key == "umap":
+            from ..widgets import ImageUmapExplorer
+            self._umap_explorer = ImageUmapExplorer(
+                parent=self._figures_card)
+            self._umap_explorer.hide()
+            self._figures_card.body_layout.addWidget(
+                self._umap_explorer, 1)
         self._figures_card.setMinimumHeight(360)
         self._figures_card.hide()
         layout.addWidget(self._figures_card, 1)
@@ -1280,7 +1288,17 @@ class AppScreen(QWidget):
         the pipeline bridge already rendered in its worker thread, so the queue
         can adopt it (cheap) instead of re-rendering on the GUI thread — that's
         what keeps the UI responsive while many figures stream in."""
+        payload = getattr(fig, "_spacr_umap_payload", None)
+        explorer = getattr(self, "_umap_explorer", None)
+        if payload is not None and explorer is not None:
+            explorer.set_payload(payload)
+            self._figure_queue.hide()
+            explorer.show()
+            self._figures_card.show()
+            return
         self._figure_queue.add_figure(fig, prerendered_png=png_path or None)
+        if explorer is None or not explorer.isVisible():
+            self._figure_queue.show()
         self._figures_card.show()
 
     def closeEvent(self, event):
@@ -1306,6 +1324,12 @@ class AppScreen(QWidget):
         if fq is not None:
             try:
                 fq.clear()
+            except Exception:
+                pass
+        explorer = getattr(self, "_umap_explorer", None)
+        if explorer is not None:
+            try:
+                explorer.close()
             except Exception:
                 pass
         super().closeEvent(event)
