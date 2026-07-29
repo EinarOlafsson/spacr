@@ -4741,7 +4741,8 @@ def fishers_odds(df, threshold=0.5, phenotyp_col='mean_pred'):
     # Convert results to DataFrame for easier handling
     results_df = pd.DataFrame(results, columns=['Mutant', 'OddsRatio', 'PValue'])
     # Remove rows with undefined odds ratios or p-values
-    filtered_results_df = results_df.dropna(subset=['OddsRatio', 'PValue'])
+    filtered_results_df = results_df.dropna(
+        subset=['OddsRatio', 'PValue']).copy()
     
     pvalues = filtered_results_df['PValue'].values
 
@@ -4750,7 +4751,7 @@ def fishers_odds(df, threshold=0.5, phenotyp_col='mean_pred'):
         # Apply Benjamini-Hochberg correction
         adjusted_pvalues = multipletests(pvalues, method='fdr_bh')[1]
         # Add adjusted p-values back to the dataframe
-        filtered_results_df['AdjustedPValue'] = adjusted_pvalues
+        filtered_results_df.loc[:, 'AdjustedPValue'] = adjusted_pvalues
         # Filter significant results
         significant_mutants = filtered_results_df[filtered_results_df['AdjustedPValue'] < 0.05]
     else:
