@@ -576,10 +576,10 @@ def plot_histogram(data, x_label, ax, color, title, binwidth=0.01, log=False):
     """
     if not binwidth:
         sns.histplot(data=data, x=x_label, ax=ax, color=color, kde=False, stat='density', 
-                    legend=False, fill=True, element='step', palette='dark')
+                    legend=False, fill=True, element='step')
     else:
         sns.histplot(data=data, x=x_label, ax=ax, color=color, binwidth=binwidth, kde=False, stat='density', 
-                    legend=False, fill=True, element='step', palette='dark')
+                    legend=False, fill=True, element='step')
     if log:
         ax.set_yscale('log')
     ax.set_title(title)
