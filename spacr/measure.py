@@ -27,6 +27,7 @@ from .crops import stamp_crop_folder, to_cv2_bgr
 # at the end of the run, and stamped into measurements.db so a downstream
 # regression cannot silently analyse 344 of 384 wells.
 from .errors import RunLedger, ConfigurationError, raise_if_strict
+from .measurement_schema import MEASUREMENT_STAMP_COLUMNS
 from .resume import plan_measure_resume
 
 
@@ -81,19 +82,6 @@ UNITS_PX_XY = 'px_xy'
 #: 3-D run with a known ``voxel_size_z_um``/``voxel_size_xy_um``. Lengths in
 #: um, areas in um^2, volumes in um^3.
 UNITS_UM = 'um'
-
-#: Provenance stamped onto every measurement row. A reader that sees
-#: ``measurement_ndim == 3`` knows ``cell_area`` is a volume, and
-#: ``measurement_units`` says in which units. ``spacr.feature_dict`` reads the
-#: same names.
-MEASUREMENT_STAMP_COLUMNS = (
-    'measurement_ndim',
-    'measurement_units',
-    'n_z',
-    'voxel_size_z_um',
-    'voxel_size_xy_um',
-)
-
 
 def _ndim_of(mask):
     """Return the number of spatial dimensions of a label mask (2 or 3)."""

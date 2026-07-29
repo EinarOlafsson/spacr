@@ -58,10 +58,14 @@ def test_units_vocabulary_matches_measure():
 
 def test_stamp_columns_match_measure_and_utils():
     from spacr import measure as M
+    from spacr import measurement_schema as schema
     from spacr import utils as U
 
     assert MEASUREMENT_STAMP_COLUMNS == M.MEASUREMENT_STAMP_COLUMNS
     assert MEASUREMENT_STAMP_COLUMNS == U.MEASUREMENT_STAMP_COLUMNS
+    assert MEASUREMENT_STAMP_COLUMNS is M.MEASUREMENT_STAMP_COLUMNS
+    assert MEASUREMENT_STAMP_COLUMNS is U.MEASUREMENT_STAMP_COLUMNS
+    assert MEASUREMENT_STAMP_COLUMNS is schema.MEASUREMENT_STAMP_COLUMNS
 
 
 def test_every_stamp_column_is_documented():

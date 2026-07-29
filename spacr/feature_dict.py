@@ -47,6 +47,8 @@ from typing import Any, Iterable
 
 import pandas as pd
 
+from .measurement_schema import MEASUREMENT_STAMP_COLUMNS
+
 __all__ = [
     "ConditionalUnit",
     "FeatureEntry",
@@ -1593,18 +1595,6 @@ META_COLUMNS: dict[str, PropertyInfo] = {
         "a 3-D run.",
     ),
 }
-
-#: The per-row provenance stamp, in the order :mod:`spacr.measure` declares it.
-#: Mirrors :data:`spacr.measure.MEASUREMENT_STAMP_COLUMNS` and
-#: :data:`spacr.utils.MEASUREMENT_STAMP_COLUMNS`; every name here is also a key
-#: of :data:`META_COLUMNS`.
-MEASUREMENT_STAMP_COLUMNS: tuple[str, ...] = (
-    "measurement_ndim",
-    "measurement_units",
-    "n_z",
-    "voxel_size_z_um",
-    "voxel_size_xy_um",
-)
 
 # Per-object-type parent/child link columns produced by the morphology merge:
 # measure.py:183 (nucleus <- cell_to_nucleus), 194 (pathogen <- cell_to_pathogen)

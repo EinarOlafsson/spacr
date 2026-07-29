@@ -85,6 +85,7 @@ except Exception:
         pass
 from typing import Optional, Any
 from .image_colors import read_image_rgb, write_image_rgb
+from .measurement_schema import MEASUREMENT_STAMP_COLUMNS
 
 from multiprocessing import Pool, cpu_count, set_start_method, get_start_method
 from concurrent.futures import ThreadPoolExecutor
@@ -2261,19 +2262,6 @@ class MeasurementUnitsMismatch(ValueError):
     from. So it is refused here instead.
     """
 
-
-#: Written onto every measurement row by :func:`_merge_and_save_to_database`
-#: from the stamp :func:`spacr.measure.resolve_measurement_spacing` produced.
-#: This is the schema half of the units decision: ``<object>_area`` keeps its
-#: name and a reader learns from ``measurement_ndim`` / ``measurement_units``
-#: what the number in it actually is.
-MEASUREMENT_STAMP_COLUMNS = (
-    'measurement_ndim',
-    'measurement_units',
-    'n_z',
-    'voxel_size_z_um',
-    'voxel_size_xy_um',
-)
 
 #: What an unstamped row is taken to be. Every spaCR release before 3-D
 #: measurement existed could only write 2-D pixel measurements -- a 3-D mask
