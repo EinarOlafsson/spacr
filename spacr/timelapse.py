@@ -143,7 +143,7 @@ def _scmovie(folder_paths):
                 
                 
 def _sort_key(file_path):
-    """
+    r"""
     Returns a sort key for the given file path based on the pattern '(\d+)_([A-Z]\d+)_(\d+)_(\d+).npy'.
     The sort key is a tuple containing the plate, well, field, and time values extracted from the file path.
     If the file path does not match the pattern, a default sort key is returned to sort the file as "earliest" or "lowest".
@@ -154,7 +154,9 @@ def _sort_key(file_path):
     Returns:
         tuple: The sort key tuple containing the plate, well, field, and time values.
     """
-    match = re.search(r'(\d+)_([A-Z]\d+)_(\d+)_(\d+).npy', os.path.basename(file_path))
+    match = re.search(
+        r'(\d+)_([A-Z]\d+)_(\d+)_(\d+)\.npy$',
+        os.path.basename(file_path))
     if match:
         plate, well, field, time = match.groups()
         # Assuming plate, well, and field are to be returned as is and time converted to int for sorting

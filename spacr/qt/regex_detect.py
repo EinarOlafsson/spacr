@@ -261,7 +261,7 @@ def auto_detect_regex(
 
 
 def _synthesise_regex(filenames: Sequence[str]) -> Optional[str]:
-    """Best-effort: build a regex from the common shape of filenames.
+    r"""Best-effort: build a regex from the common shape of filenames.
 
     Recognises Illumina/Yokogawa-style tokens:
         <letter><digits>   → single-letter prefix + digits
