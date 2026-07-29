@@ -1,6 +1,7 @@
 recursive-include spacr/resources/models/cp *
 recursive-include spacr/resources/icons *
 recursive-include spacr/resources/font *
+recursive-include spacr/resources/data *.csv
 # Theme wallpapers: three JPEGs, ~3.9 MB total. Cropped, capped at
 # 3840x2400 and pre-exposed by spacr/qt/imagery.py; the originals
 # (25 MB) are deliberately not shipped.

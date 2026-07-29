@@ -4,6 +4,37 @@ import os, ast
 
 #from spacr_nightly.spacr.build.lib.spacr import settings
 
+
+DEFAULT_BARCODE_REGEX = (
+    r"^(?P<columnID>.{8})TGCTG.*TAAAC"
+    r"(?P<grna>.{20,21})AACTT.*AGAAG(?P<rowID>.{8}).*"
+)
+
+_BUNDLED_BARCODE_FILES = {
+    "column": "barcodes_column.csv",
+    "grna": "barcodes_grna.csv",
+    "row": "barcodes_row.csv",
+}
+
+
+def bundled_barcode_path(kind):
+    """Return the installed CSV path for a bundled barcode reference.
+
+    :param kind: ``'column'``, ``'grna'`` or ``'row'``.
+    :returns: absolute path to the packaged CSV.
+    :raises ValueError: when ``kind`` is not a bundled reference type.
+    """
+    try:
+        filename = _BUNDLED_BARCODE_FILES[str(kind).lower()]
+    except KeyError as exc:
+        choices = ", ".join(_BUNDLED_BARCODE_FILES)
+        raise ValueError(
+            f"Unknown barcode reference {kind!r}; choose {choices}."
+        ) from exc
+    return os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "resources", "data", filename)
+    )
+
 def set_default_plot_merge_settings():
     """Return the default settings dict for plotting merged mask overlays.
 
@@ -2893,13 +2924,13 @@ def set_default_generate_barecode_mapping(settings=None):
     # processors in sequencing.py read match.group('columnID') /
     # match.group('rowID'), so a default regex naming them column/row raised
     # "IndexError: no such group" — the shipped default was unusable.
-    settings.setdefault('regex', '^(?P<columnID>.{8})TGCTG.*TAAAC(?P<grna>.{20,21})AACTT.*AGAAG(?P<rowID>.{8}).*'),
+    settings.setdefault('regex', DEFAULT_BARCODE_REGEX)
     settings.setdefault('target_sequence', 'TGCTGTTTCCAGCATAGCTCTTAAAC')
     settings.setdefault('offset_start', -8)
     settings.setdefault('expected_end', 89)
-    settings.setdefault('column_csv', '/home/carruthers/Documents/column_barcodes.csv')
-    settings.setdefault('grna_csv', '/home/carruthers/Documents/grna_barcodes.csv')
-    settings.setdefault('row_csv', '/home/carruthers/Documents/row_barcodes.csv')
+    settings.setdefault('column_csv', bundled_barcode_path('column'))
+    settings.setdefault('grna_csv', bundled_barcode_path('grna'))
+    settings.setdefault('row_csv', bundled_barcode_path('row'))
     settings.setdefault('save_h5', True)
     settings.setdefault('comp_type', 'zlib')
     settings.setdefault('comp_level', 5)
