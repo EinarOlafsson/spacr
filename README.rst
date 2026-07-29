@@ -436,6 +436,35 @@ recommended for CUDA workflows; macOS and Windows are also supported.
 Installation options
 --------------------
 
+Lightweight installers — no conda or existing Python required
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The recommended desktop downloads are the small online installers attached to
+each `GitHub release <https://github.com/EinarOlafsson/spacr/releases>`_:
+
+* ``SpaCR-<version>-Windows-Online-Setup.exe`` for Windows 10/11;
+* ``SpaCR-<version>-macOS-Universal-Online.pkg`` for Intel and Apple-silicon
+  macOS 11 or newer; and
+* ``SpaCR-<version>-Linux-x86_64-Online.run`` for 64-bit Linux.
+
+No conda installation and no existing Python installation are required. The
+installer downloads a private Python 3.12 runtime, Qt, PyTorch, spaCR, and the
+scientific dependencies during installation. PyTorch automatically selects a
+compatible GPU backend when one is detected and otherwise installs its CPU
+build. The installer download therefore stays small while the installed
+application is complete and isolated from system Python.
+
+On Linux, make the downloaded installer executable before opening it:
+
+.. code-block:: bash
+
+   chmod +x SpaCR-*-Linux-x86_64-Online.run
+   ./SpaCR-*-Linux-x86_64-Online.run
+
+The installer validates spaCR, Qt, PyTorch, and dependency consistency before
+replacing an older installation, so an interrupted update leaves the previous
+working environment in place.
+
 Desktop application from PyPI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

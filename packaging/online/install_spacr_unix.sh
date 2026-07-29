@@ -1,0 +1,311 @@
+#!/usr/bin/env bash
+#
+# Small online installer for Linux and macOS.
+#
+# The file itself contains no Python runtime or scientific dependencies. It
+# downloads a pinned uv bootstrap over TLS, lets uv install a private CPython
+# 3.12 runtime, then resolves spaCR and the appropriate PyTorch backend.
+
+set -Eeuo pipefail
+
+UV_VERSION="0.11.32"
+PYTHON_VERSION="3.12"
+DEFAULT_SPACR_VERSION="@SPACR_VERSION@"
+DEFAULT_EXTRAS="qt,zernike,btrack,czi"
+
+PLATFORM=""
+INSTALL_ROOT=""
+PACKAGE_SPEC="${SPACR_PACKAGE_SPEC:-}"
+SKIP_SYSTEM_DEPS=0
+NO_LAUNCH=0
+DRY_RUN="${SPACR_INSTALL_DRY_RUN:-0}"
+
+usage() {
+    cat <<'EOF'
+Usage: install_spacr_unix.sh [options]
+
+Options:
+  --platform linux|macos  Override automatic platform detection.
+  --install-root PATH     Install into PATH.
+  --package-spec SPEC     Install SPEC instead of the release's spaCR build.
+  --skip-system-deps      Do not install Linux Qt runtime libraries.
+  --no-launch             Do not launch spaCR after installation.
+  --dry-run               Print the resolved plan without downloading.
+  -h, --help              Show this help.
+EOF
+}
+
+while (($#)); do
+    case "$1" in
+        --platform)
+            PLATFORM="${2:?--platform requires linux or macos}"
+            shift 2
+            ;;
+        --install-root)
+            INSTALL_ROOT="${2:?--install-root requires a path}"
+            shift 2
+            ;;
+        --package-spec)
+            PACKAGE_SPEC="${2:?--package-spec requires a requirement}"
+            shift 2
+            ;;
+        --skip-system-deps)
+            SKIP_SYSTEM_DEPS=1
+            shift
+            ;;
+        --no-launch)
+            NO_LAUNCH=1
+            shift
+            ;;
+        --dry-run)
+            DRY_RUN=1
+            shift
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1" >&2
+            usage >&2
+            exit 2
+            ;;
+    esac
+done
+
+if [[ -z "$PLATFORM" ]]; then
+    case "$(uname -s)" in
+        Linux)  PLATFORM="linux" ;;
+        Darwin) PLATFORM="macos" ;;
+        *)
+            echo "Unsupported platform. Use the Windows online installer on Windows." >&2
+            exit 2
+            ;;
+    esac
+fi
+if [[ "$PLATFORM" != "linux" && "$PLATFORM" != "macos" ]]; then
+    echo "Unsupported platform value: $PLATFORM" >&2
+    exit 2
+fi
+
+if [[ -z "$INSTALL_ROOT" ]]; then
+    if [[ "$PLATFORM" == "macos" && "$(id -u)" -eq 0 ]]; then
+        INSTALL_ROOT="/Library/Application Support/SpaCR"
+    else
+        INSTALL_ROOT="${XDG_DATA_HOME:-$HOME/.local/share}/spacr"
+    fi
+fi
+
+case "${INSTALL_ROOT%/}" in
+    ""|"/"|"$HOME"|"/home"|"/Users"|"/Library"|"/usr"|"/usr/local")
+        echo "Refusing unsafe install root: $INSTALL_ROOT" >&2
+        echo "Choose a dedicated spaCR directory." >&2
+        exit 2
+        ;;
+esac
+
+if [[ -z "$PACKAGE_SPEC" ]]; then
+    if [[ "$DEFAULT_SPACR_VERSION" == @*@ ]]; then
+        PACKAGE_SPEC="spacr[$DEFAULT_EXTRAS]"
+    else
+        PACKAGE_SPEC="spacr[$DEFAULT_EXTRAS]==$DEFAULT_SPACR_VERSION"
+    fi
+fi
+
+BOOTSTRAP_DIR="$INSTALL_ROOT/bootstrap"
+PYTHON_DIR="$INSTALL_ROOT/python"
+VENV_DIR="$INSTALL_ROOT/venv"
+CACHE_DIR="$INSTALL_ROOT/cache"
+UV_BIN="$BOOTSTRAP_DIR/uv"
+UV_INSTALL_URL="https://astral.sh/uv/$UV_VERSION/install.sh"
+
+if [[ "$PLATFORM" == "linux" ]]; then
+    USER_BIN_DIR="${XDG_BIN_HOME:-$HOME/.local/bin}"
+    DESKTOP_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
+    LAUNCHER="$USER_BIN_DIR/spacr"
+else
+    USER_BIN_DIR="/usr/local/bin"
+    DESKTOP_DIR=""
+    LAUNCHER="$USER_BIN_DIR/spacr"
+fi
+
+echo "spaCR lightweight online installer"
+echo "  platform:       $PLATFORM"
+echo "  application:    $PACKAGE_SPEC"
+echo "  private Python: $PYTHON_VERSION"
+echo "  install root:   $INSTALL_ROOT"
+echo "  PyTorch:        automatic GPU/CPU selection"
+
+if [[ "$DRY_RUN" == "1" ]]; then
+    echo "DRY RUN: would download $UV_INSTALL_URL"
+    echo "DRY RUN: would create and validate $VENV_DIR"
+    echo "DRY RUN: would install launcher $LAUNCHER"
+    exit 0
+fi
+
+require_command() {
+    if ! command -v "$1" >/dev/null 2>&1; then
+        echo "Required command not found: $1" >&2
+        exit 3
+    fi
+}
+
+require_command curl
+require_command sh
+
+disk_probe="$(dirname "$INSTALL_ROOT")"
+while [[ ! -e "$disk_probe" && "$disk_probe" != "/" ]]; do
+    disk_probe="$(dirname "$disk_probe")"
+done
+available_kb="$(df -Pk "$disk_probe" 2>/dev/null | awk 'NR==2 {print $4}' || true)"
+if [[ "$available_kb" =~ ^[0-9]+$ ]] && ((available_kb < 8 * 1024 * 1024)); then
+    echo "spaCR needs at least 8 GB free while Python, Qt, PyTorch and dependencies install." >&2
+    echo "Only $((available_kb / 1024 / 1024)) GB is available near $INSTALL_ROOT." >&2
+    exit 4
+fi
+
+install_linux_system_dependencies() {
+    [[ "$PLATFORM" == "linux" && "$SKIP_SYSTEM_DEPS" == "0" ]] || return 0
+
+    local elevate=()
+    if [[ "$(id -u)" -ne 0 ]]; then
+        if command -v sudo >/dev/null 2>&1; then
+            elevate=(sudo)
+        else
+            echo "No sudo command was found. Continuing without optional Linux Qt libraries."
+            echo "If spaCR does not start, install your distribution's Qt/XCB/OpenGL runtime packages."
+            return 0
+        fi
+    fi
+
+    echo "Installing the small Linux graphics/runtime prerequisites..."
+    if command -v apt-get >/dev/null 2>&1; then
+        "${elevate[@]}" apt-get update
+        "${elevate[@]}" apt-get install --no-install-recommends -y \
+            libegl1 libgl1 libxkbcommon0 libdbus-1-3 libpulse0 \
+            libx11-xcb1 libxcb-cursor0 libxcb-icccm4 libxcb-image0 \
+            libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-shape0 \
+            libxcb-sync1 libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 \
+            libxkbcommon-x11-0 libnss3 libxcomposite1 libxcursor1 \
+            libxdamage1 libxi6 libxtst6 libsm6 libxext6 libxrender1 ffmpeg
+    elif command -v dnf >/dev/null 2>&1; then
+        "${elevate[@]}" dnf install -y \
+            mesa-libGL mesa-libEGL libxkbcommon libxkbcommon-x11 \
+            libxcb xcb-util-cursor xcb-util-image xcb-util-keysyms \
+            xcb-util-renderutil dbus-libs pulseaudio-libs nss ffmpeg
+    elif command -v zypper >/dev/null 2>&1; then
+        "${elevate[@]}" zypper --non-interactive install \
+            Mesa-libGL1 Mesa-libEGL1 libxkbcommon0 libxkbcommon-x11-0 \
+            libxcb1 libpulse0 libnss3 ffmpeg
+    elif command -v pacman >/dev/null 2>&1; then
+        "${elevate[@]}" pacman -S --needed --noconfirm \
+            libglvnd libxkbcommon-x11 libxcb xcb-util-cursor \
+            xcb-util-image xcb-util-keysyms xcb-util-renderutil \
+            dbus libpulse nss ffmpeg
+    else
+        echo "Unknown Linux package manager; continuing with the libraries already installed."
+    fi
+}
+
+install_linux_system_dependencies
+
+mkdir -p "$BOOTSTRAP_DIR" "$PYTHON_DIR" "$CACHE_DIR"
+installer_tmp="$(mktemp "${TMPDIR:-/tmp}/spacr-uv-installer.XXXXXX")"
+stage_venv="$INSTALL_ROOT/.venv-staging-$$"
+cleanup() {
+    rm -f "$installer_tmp"
+    if [[ -d "$stage_venv" ]]; then
+        rm -rf "$stage_venv"
+    fi
+}
+trap cleanup EXIT
+
+echo "Downloading the pinned uv bootstrap..."
+curl --proto '=https' --tlsv1.2 --fail --silent --show-error --location \
+    "$UV_INSTALL_URL" --output "$installer_tmp"
+UV_UNMANAGED_INSTALL="$BOOTSTRAP_DIR" UV_NO_MODIFY_PATH=1 \
+    sh "$installer_tmp"
+if [[ ! -x "$UV_BIN" ]]; then
+    echo "uv did not install at the expected path: $UV_BIN" >&2
+    exit 5
+fi
+
+export UV_PYTHON_INSTALL_DIR="$PYTHON_DIR"
+export UV_CACHE_DIR="$CACHE_DIR"
+export UV_SYSTEM_CERTS=true
+
+echo "Downloading private Python $PYTHON_VERSION..."
+"$UV_BIN" python install "$PYTHON_VERSION" --managed-python
+
+echo "Creating an isolated spaCR environment..."
+rm -rf "$stage_venv"
+"$UV_BIN" venv "$stage_venv" \
+    --python "$PYTHON_VERSION" --managed-python --relocatable
+
+stage_python="$stage_venv/bin/python"
+
+echo "Downloading spaCR, Qt, PyTorch and scientific dependencies..."
+"$UV_BIN" pip install \
+    --python "$stage_python" \
+    --torch-backend auto \
+    "$PACKAGE_SPEC"
+
+echo "Validating the installation before activating it..."
+"$UV_BIN" pip check --python "$stage_python"
+QT_QPA_PLATFORM=offscreen "$stage_python" -c \
+    "import spacr, PySide6, torch; print('spaCR', spacr.__version__, '| torch', torch.__version__)"
+
+old_venv="$INSTALL_ROOT/.venv-previous"
+rm -rf "$old_venv"
+if [[ -d "$VENV_DIR" ]]; then
+    mv "$VENV_DIR" "$old_venv"
+fi
+mv "$stage_venv" "$VENV_DIR"
+rm -rf "$old_venv"
+
+mkdir -p "$USER_BIN_DIR"
+launcher_tmp="$INSTALL_ROOT/.spacr-launcher-$$"
+cat > "$launcher_tmp" <<EOF
+#!/usr/bin/env sh
+exec "$VENV_DIR/bin/python" -m spacr.qt "\$@"
+EOF
+chmod 755 "$launcher_tmp"
+mv "$launcher_tmp" "$LAUNCHER"
+
+if [[ "$PLATFORM" == "linux" ]]; then
+    mkdir -p "$DESKTOP_DIR"
+    icon_path="$("$VENV_DIR/bin/python" -c \
+        "from pathlib import Path; import spacr; print(Path(spacr.__file__).parent/'resources/icons/logo_spacr.png')")"
+    desktop_tmp="$INSTALL_ROOT/.spacr-desktop-$$"
+    cat > "$desktop_tmp" <<EOF
+[Desktop Entry]
+Type=Application
+Name=spaCR
+Comment=Spatial phenotype analysis of CRISPR screens
+Exec=$LAUNCHER
+Icon=$icon_path
+Terminal=false
+Categories=Science;Education;
+StartupNotify=true
+EOF
+    chmod 644 "$desktop_tmp"
+    mv "$desktop_tmp" "$DESKTOP_DIR/spacr.desktop"
+
+    uninstall_path="$INSTALL_ROOT/uninstall-spacr.sh"
+    cat > "$uninstall_path" <<EOF
+#!/usr/bin/env sh
+set -eu
+rm -f "$LAUNCHER"
+rm -f "$DESKTOP_DIR/spacr.desktop"
+rm -rf "$INSTALL_ROOT"
+echo "spaCR was removed. User-created data and preferences were left in place."
+EOF
+    chmod 755 "$uninstall_path"
+fi
+
+echo
+echo "spaCR installed successfully."
+echo "Launcher: $LAUNCHER"
+if [[ "$PLATFORM" == "linux" && "$NO_LAUNCH" == "0" ]]; then
+    nohup "$LAUNCHER" >/dev/null 2>&1 &
+fi
