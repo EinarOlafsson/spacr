@@ -743,6 +743,7 @@ class AppScreen(QWidget):
         self._figure_queue = FigureQueue(parent=self._figures_card)
         self._figures_card.body_layout.addWidget(self._figure_queue, 1)
         self._umap_explorer = None
+        self._umap_payload_ready = False
         if self.app_key == "umap":
             from ..widgets import ImageUmapExplorer
             self._umap_explorer = ImageUmapExplorer(
@@ -1025,6 +1026,25 @@ class AppScreen(QWidget):
             row.addWidget(self._hp_switch)
             self._on_hyperparam_switch(False)   # start collapsed, like LP
 
+        # Interactive image-UMAP explorer — UMAP only, immediately beside AI.
+        # It starts off so ordinary runs retain the familiar static figure.
+        # Turning it on before or after a run switches the same payload to the
+        # click / image-preview / lasso / database-annotation interface.
+        self._interactive_switch = None
+        if self.app_key == "umap" and self._umap_explorer is not None:
+            self._interactive_switch = AiToggleLabel(
+                text="Interactive",
+                tooltip=(
+                    "Toggle the interactive image UMAP. When ON (blue), "
+                    "click a point to preview its image, draw around a "
+                    "cluster, and write manual or automatic labels to the "
+                    "database."
+                ),
+            )
+            self._interactive_switch.toggled.connect(
+                self._on_interactive_switch)
+            row.addWidget(self._interactive_switch)
+
         # AI toggle + provider dropdown, bottom-right of the actions row.
         # AI switch is a plain clickable text label — white when off,
         # accent blue when on. Chevron next to it exposes the provider
@@ -1208,6 +1228,26 @@ class AppScreen(QWidget):
             if model is not None:
                 self._hyperparam.apply_settings(model.collect())
 
+    def _on_interactive_switch(self, on: bool) -> None:
+        """Switch UMAP results between the static figure and explorer.
+
+        The toggle can be enabled before a run.  In that case the current
+        console/figure layout stays put until a UMAP payload arrives, then
+        :meth:`_on_figure_ready` opens the explorer automatically.
+        """
+        explorer = getattr(self, "_umap_explorer", None)
+        queue = getattr(self, "_figure_queue", None)
+        if explorer is None or queue is None:
+            return
+        if on and getattr(self, "_umap_payload_ready", False):
+            queue.hide()
+            explorer.show()
+            self._figures_card.show()
+            return
+        explorer.hide()
+        if queue.count():
+            queue.show()
+
     def _on_ai_switch(self, on: bool) -> None:
         self._console.set_ai_active(on)
         if on:
@@ -1325,12 +1365,29 @@ class AppScreen(QWidget):
         explorer = getattr(self, "_umap_explorer", None)
         if payload is not None and explorer is not None:
             explorer.set_payload(payload)
-            self._figure_queue.hide()
-            explorer.show()
+            self._umap_payload_ready = True
+            # Keep the ordinary figure too: switching Interactive off should
+            # restore it immediately rather than requiring another UMAP run.
+            self._figure_queue.add_figure(
+                fig, prerendered_png=png_path or None)
+            switch = getattr(self, "_interactive_switch", None)
+            if switch is not None and switch.isChecked():
+                self._figure_queue.hide()
+                explorer.show()
+            else:
+                explorer.hide()
+                self._figure_queue.show()
             self._figures_card.show()
             return
         self._figure_queue.add_figure(fig, prerendered_png=png_path or None)
-        if explorer is None or not explorer.isVisible():
+        switch = getattr(self, "_interactive_switch", None)
+        interactive_open = (
+            explorer is not None
+            and getattr(self, "_umap_payload_ready", False)
+            and switch is not None
+            and switch.isChecked()
+        )
+        if not interactive_open:
             self._figure_queue.show()
         self._figures_card.show()
 
