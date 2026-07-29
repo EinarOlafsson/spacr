@@ -300,6 +300,23 @@ def _multiclass_metrics(y_true: np.ndarray, prob_mat: np.ndarray) -> dict:
     - per-class accuracy (weighted by support)
     - macro average precision (one-vs-rest)
     """
+    C = prob_mat.shape[1]
+    if len(y_true) == 0:
+        # scikit-learn 1.7 rejects empty arrays in confusion_matrix. An empty
+        # validation split is still a valid evaluator result: its metrics are
+        # undefined, its class schema is known, and no fabricated sample
+        # should be introduced merely to make a dependency accept the call.
+        return {
+            "accuracy": float(np.nan),
+            "neg_accuracy": float(np.nan),
+            "pos_accuracy": float(np.nan),
+            "prauc": float(np.nan),
+            "optimal_threshold": float(np.nan),
+            "f1_macro": float(np.nan),
+            "per_class_accuracy": [0.0] * int(C),
+            "num_classes": int(C),
+        }
+
     preds = prob_mat.argmax(axis=1)
     acc = (preds == y_true).mean() if len(y_true) else np.nan
 
@@ -315,7 +332,6 @@ def _multiclass_metrics(y_true: np.ndarray, prob_mat: np.ndarray) -> dict:
     per_class_acc = np.where(row_sums > 0, np.diag(cm) / np.maximum(row_sums, 1), 0.0)
     # Average precision macro (one-vs-rest)
     # Build one-hot y_true
-    C = prob_mat.shape[1]
     y_true_oh = np.zeros((len(y_true), C), dtype=int)
     if len(y_true):
         y_true_oh[np.arange(len(y_true)), y_true] = 1
