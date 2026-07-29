@@ -377,7 +377,9 @@ class TestPaneOpacity:
     def test_an_image_theme_clamps_up_to_the_legible_floor(self):
         for name in theme.IMAGE_THEMES:
             floor = theme.pane_alpha_floor(name)
-            assert 0.0 < floor < 1.0
+            # A sufficiently dark, exposure-bounded backdrop (Glass) can
+            # remain readable with no pane fill at all.
+            assert 0.0 <= floor < 1.0
             assert theme.pane_alpha(name, 0.0) == floor
             assert theme.pane_alpha(name, floor / 2) == floor
             # Above the floor the user's number is honoured exactly.
@@ -392,10 +394,11 @@ class TestPaneOpacity:
             under = theme.scrim_under(name)
             at_floor = theme.composite(palette["surface"], floor, under)
             assert theme.contrast_ratio(palette["fg"], at_floor) >= 4.5
-            below = theme.composite(palette["surface"],
-                                    max(0.0, floor - 0.05), under)
-            assert theme.contrast_ratio(palette["fg"], below) < \
-                theme.contrast_ratio(palette["fg"], at_floor)
+            if floor > 0.0:
+                below = theme.composite(
+                    palette["surface"], max(0.0, floor - 0.05), under)
+                assert theme.contrast_ratio(palette["fg"], below) < \
+                    theme.contrast_ratio(palette["fg"], at_floor)
 
     def test_out_of_range_and_junk_values_are_survivable(self):
         assert theme.pane_alpha("dark", -5) == 0.0
@@ -433,6 +436,29 @@ class TestPaneOpacity:
         qss = page._tabs.styleSheet()
         assert expected in qss
         assert qss == _tab_qss(palette, alpha)
+
+    @pytest.mark.parametrize("name", theme.THEMES)
+    def test_the_preference_controls_shared_module_surfaces(self, name):
+        requested = 0.35
+        palette = theme.palette_for(name)
+        qss = theme.stylesheet(name, surface_opacity=requested)
+        for role in ("surface", "surface_alt", "surface_hi"):
+            alpha = theme.panel_alpha(name, role, requested)
+            expected = theme.css_color(palette[role], alpha)
+            assert expected in qss
+        # Native popup windows never reveal the desktop through themselves.
+        elevated = theme.css_color(
+            palette["surface_alt"],
+            theme.panel_alpha(name, "elevated", requested))
+        assert elevated in qss
+        assert theme.panel_alpha(name, "elevated", requested) == 1.0
+
+    def test_module_surface_opacity_keeps_each_roles_legibility_floor(self):
+        for name in theme.IMAGE_THEMES:
+            for role in ("surface", "surface_alt", "surface_hi", "tile"):
+                alpha = theme.panel_alpha(name, role, 0.0)
+                assert 0.0 <= alpha <= 1.0
+                assert alpha == theme.panel_alpha(name, role, -5.0)
 
 
 # ===========================================================================

@@ -709,7 +709,7 @@ def pane_alpha_floor(theme: str) -> float:
 
 
 def pane_alpha(theme: str, opacity: Optional[float] = None) -> float:
-    """The alpha the Home pane is actually painted at.
+    """The alpha a user-controlled page surface is actually painted at.
 
     The user's ``opacity`` (0..1), clamped up to :func:`pane_alpha_floor`.
     ``None`` means :data:`DEFAULT_PANE_OPACITY`.
@@ -718,6 +718,33 @@ def pane_alpha(theme: str, opacity: Optional[float] = None) -> float:
         opacity = DEFAULT_PANE_OPACITY
     wanted = max(PANE_OPACITY_MIN, min(PANE_OPACITY_MAX, float(opacity)))
     return max(wanted, pane_alpha_floor(theme))
+
+
+def panel_alpha(theme: str, role: str,
+                opacity: Optional[float] = None) -> float:
+    """Apply the page-opacity preference to a shared UI surface role.
+
+    ``None`` preserves the theme's designed scrim, which keeps
+    :func:`stylesheet` useful to callers that have no preferences store.
+    A numeric value is the user's requested alpha and is honoured for every
+    card, settings section, console and preview surface, clamped only where
+    going thinner would make that role's text illegible.
+
+    Popups stay opaque because they are separate native windows; making those
+    translucent reveals the desktop rather than the spaCR backdrop.
+    """
+    if role == "elevated":
+        return 1.0
+    if opacity is None:
+        return scrim_alpha(theme, role)
+    wanted = max(PANE_OPACITY_MIN,
+                 min(PANE_OPACITY_MAX, float(opacity)))
+    colour_role = SCRIM_ROLES.get(role, role)
+    under = (scrim_under(theme) if theme in IMAGE_THEMES
+             else palette_for(theme)["bg"])
+    floor = legible_scrim_floor(
+        theme, role, colour_role=colour_role, under=under)
+    return max(wanted, floor)
 
 
 def palette_for(theme: str = "dark") -> dict:
@@ -1226,7 +1253,8 @@ QMenu, QToolTip, QMessageBox, QComboBox QAbstractItemView {{
 
 
 def stylesheet(theme: str = "dark", font_scale: float = 1.0,
-               background: Optional[str] = None) -> str:
+               background: Optional[str] = None,
+               surface_opacity: Optional[float] = None) -> str:
     """Return the QSS string that styles every custom widget in the app.
 
     :param theme: one of :data:`THEMES`; unknown values fall back to dark.
@@ -1235,6 +1263,8 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
     :param background: path to a background image. Only the themes in
         :data:`IMAGE_THEMES` use it; ``None`` (the default, and what a
         first run mid-generation gets) falls back to a flat gradient.
+    :param surface_opacity: optional user-requested alpha for all shared
+        module surfaces. ``None`` uses the theme's designed scrims.
     """
     base = palette_for(theme)
     S = SPACING
@@ -1245,11 +1275,14 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
     # ``rgba()`` so the background image reads through the panel.
     P = dict(base)
     for role in ("surface", "surface_alt", "surface_hi"):
-        P[role] = css_color(base[role], scrim_alpha(theme, role))
+        P[role] = css_color(
+            base[role], panel_alpha(theme, role, surface_opacity))
     # Opaque variants for the places translucency would be wrong.
-    ELEVATED = css_color(base["surface_alt"], scrim_alpha(theme, "elevated"))
+    ELEVATED = css_color(
+        base["surface_alt"], panel_alpha(theme, "elevated", surface_opacity))
     over_image = theme in IMAGE_THEMES
-    TILE_BG = (css_color(base["surface"], scrim_alpha(theme, "tile"))
+    TILE_BG = (css_color(
+        base["surface"], panel_alpha(theme, "tile", surface_opacity))
                if over_image else "transparent")
     # Scrollbar troughs and the group-box title notch paint over the
     # window; over a photograph they must not be an opaque black block.
