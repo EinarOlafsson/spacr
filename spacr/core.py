@@ -125,17 +125,29 @@ def preprocess_generate_masks(settings):
                                 else [settings['src']]
         for src in srcs:
             channels, channel_names = v2_channels_from_settings(settings)
+            cell_index = (
+                channel_names.index('cell') if 'cell' in channel_names else 0
+            )
+            cellpose_channels = [cell_index]
+            if 'nucleus' in channel_names:
+                cellpose_channels.append(channel_names.index('nucleus'))
             result = run_v2(
                 src,
                 channels=channels,
                 channel_names=channel_names,
                 model_name=settings.get('cell_model_name', 'cpsam'),
-                channels_for_cellpose=(0, 0),
+                channels_for_cellpose=tuple(cellpose_channels),
                 diameter=settings.get('cell_diameter'),
                 batch_fields=int(settings.get('batch_fields', 8)),
                 metadata_type=settings.get('metadata_type', 'auto'),
                 custom_regex=settings.get('custom_regex'),
                 keep_npz=bool(settings.get('keep_npz', False)),
+                cellprob_threshold=float(settings.get('cell_CP_prob', 0.0)),
+                flow_threshold=float(settings.get('cell_FT', 0.4)),
+                min_size=int(settings.get('cell_min_area', 0)),
+                resample=True,
+                postprocess_settings=settings,
+                object_type='cell',
             )
             report_disk_savings(src, result['stacks'])
         return

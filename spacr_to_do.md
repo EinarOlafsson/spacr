@@ -31,7 +31,7 @@ Status: `queued`, `in progress`, `blocked`, or `complete`.
 
 | Order | ID | Status | Effort | Task | Depends on |
 |---:|---|---|---:|---|---|
-| 6 | DATA-01 | queued | 0.5–1 d | Resolve the V1/V2 segmentation parity xfail. | — |
+| 6 | DATA-01 | complete | 0.5–1 d | Resolve the V1/V2 segmentation parity xfail. | — |
 | 7 | DATA-04 | queued | 0.5–1 d | Reject or explicitly reconcile conflicting acquisition metadata. | ARCH-07 |
 | 8 | TEST-02 | queued | 0.5–1 d | Treat selected pandas and scikit-learn deprecations as CI errors. | — |
 | 9 | TEST-03 | queued | 1–2 d | Set TIFF photometric and planar configuration consistently. | — |

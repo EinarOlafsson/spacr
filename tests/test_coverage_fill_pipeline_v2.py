@@ -16,9 +16,13 @@ class _FakeModel:
     def __init__(self, *a, **k):
         self.pretrained_model = k.get("pretrained_model")
     def eval(self, img, diameter=None, **k):
-        m = np.zeros(np.asarray(img).shape[:2], dtype=np.uint16)
-        m[1:4, 1:4] = 1
-        return m, None, None
+        images = img if isinstance(img, list) else [img]
+        masks = []
+        for image in images:
+            m = np.zeros(np.asarray(image).shape[:2], dtype=np.uint16)
+            m[1:4, 1:4] = 1
+            masks.append(m)
+        return masks, None, None
 
 
 @pytest.fixture
@@ -158,6 +162,115 @@ class TestStreamMasks:
         scratch = stacks[0].path.parent / "_scratch"
         assert scratch.exists()
 
+    def test_v1_normalized_pixels_are_passed_to_cellpose(
+            self, tmp_path, monkeypatch):
+        received = []
+
+        class _CaptureModel:
+            def __init__(self, *args, **kwargs):
+                self.pretrained_model = None
+
+            def eval(self, images, **kwargs):
+                received.extend(np.asarray(image).copy() for image in images)
+                return [
+                    np.zeros(np.asarray(image).shape[:2], dtype=np.uint16)
+                    for image in images
+                ], None, None
+
+        monkeypatch.setattr("cellpose.models.CellposeModel", _CaptureModel)
+        plate = _make_plate(tmp_path, channels=2)
+        mapper = PV.FilenameMapper.discover(
+            plate, metadata_type="cellvoyager")
+        stacks = PV.stream_originals_to_stack(
+            plate, mapper, channels=(0, 1))
+        raw = [np.load(stack.path)[..., [1, 0]] for stack in stacks]
+        settings = {
+            "lower_percentile": 2,
+            "background": 100,
+            "Signal_to_noise": 10,
+            "remove_background": False,
+            "cell_background": 100,
+            "cell_Signal_to_noise": 10,
+            "remove_background_cell": False,
+            "nucleus_background": 100,
+            "nucleus_Signal_to_noise": 10,
+            "remove_background_nucleus": False,
+        }
+
+        PV.stream_masks_from_stack(
+            stacks,
+            model_name="cpsam",
+            channels_for_cellpose=(1, 0),
+            batch_fields=2,
+            postprocess_settings=settings,
+            object_type="cell",
+        )
+
+        from spacr.io import _normalize_img_batch
+        normalization_settings = dict(settings)
+        normalization_settings.update({
+            "cell_channel": 0,
+            "nucleus_channel": 1,
+            "pathogen_channel": None,
+            "organelle_channel": None,
+        })
+        expected = _normalize_img_batch(
+            np.stack(raw).copy(),
+            channels=range(2),
+            save_dtype=np.float32,
+            settings=normalization_settings,
+        )
+        assert np.array_equal(np.asarray(received), expected)
+
+    def test_v1_normalization_preserves_heterogeneous_field_shapes(
+            self, tmp_path, _mock_cp):
+        import tifffile
+
+        plate = tmp_path / "plate1"
+        plate.mkdir()
+        rng = np.random.default_rng(4)
+        for field, size in ((1, 8), (2, 12)):
+            for channel in range(2):
+                image = rng.integers(
+                    1, 2000, size=(size, size), dtype=np.uint16)
+                tifffile.imwrite(
+                    plate / (
+                        f"plate1_A01_T01F0{field}L01A01Z01C0{channel}.tif"
+                    ),
+                    image,
+                )
+
+        mapper = PV.FilenameMapper.discover(
+            plate, metadata_type="cellvoyager")
+        stacks = PV.stream_originals_to_stack(
+            plate, mapper, channels=(0, 1))
+        settings = {
+            "lower_percentile": 2,
+            "background": 100,
+            "Signal_to_noise": 10,
+            "remove_background": False,
+            "cell_background": 100,
+            "cell_Signal_to_noise": 10,
+            "remove_background_cell": False,
+            "nucleus_background": 100,
+            "nucleus_Signal_to_noise": 10,
+            "remove_background_nucleus": False,
+        }
+
+        PV.stream_masks_from_stack(
+            stacks,
+            model_name="cpsam",
+            channels_for_cellpose=(1, 0),
+            batch_fields=2,
+            postprocess_settings=settings,
+            object_type="cell",
+        )
+
+        assert [np.load(stack.path).shape for stack in stacks] == [
+            (8, 8, 3),
+            (12, 12, 3),
+        ]
+
 
 class TestResolveRegex:
     def test_custom_without_regex_raises(self, tmp_path):
@@ -206,8 +319,11 @@ class TestStreamMasksEdges:
         class _ListModel:
             def __init__(self, *a, **k): self.pretrained_model = None
             def eval(self, img, diameter=None, **k):
-                m = np.zeros(np.asarray(img).shape[:2], dtype=np.uint16)
-                return [m], None, None
+                images = img if isinstance(img, list) else [img]
+                return [
+                    np.zeros(np.asarray(image).shape[:2], dtype=np.uint16)
+                    for image in images
+                ], None, None
         monkeypatch.setattr("cellpose.models.CellposeModel", _ListModel)
         plate = _make_plate(tmp_path, channels=2)
         mapper = PV.FilenameMapper.discover(plate,

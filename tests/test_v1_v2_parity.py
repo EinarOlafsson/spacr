@@ -65,20 +65,16 @@ def _require_gpu_cellpose():
 # ---------------------------------------------------------------------------
 
 def _collect_v1_cell_masks(root: Path) -> List[np.ndarray]:
-    """Return every 2-D v1 cell mask under ``masks/cell_mask_stack``.
-
-    v1 writes one ``.npy`` per field; each is a 2-D label array where
-    every distinct positive integer is one cell.
-    """
-    stack_dir = root / "masks" / "cell_mask_stack"
+    """Return the cell-mask channel from each retained V1 merged stack."""
+    stack_dir = root / "merged"
     out: List[np.ndarray] = []
     if not stack_dir.is_dir():
         return out
     for p in sorted(stack_dir.glob("*.npy")):
         arr = np.load(p)
-        if arr.ndim == 3:
-            arr = arr[0]
-        out.append(arr.astype(np.int32))
+        if arr.ndim != 3 or arr.shape[-1] <= 4:
+            continue
+        out.append(arr[..., 4].astype(np.int32))
     return out
 
 
@@ -150,16 +146,6 @@ def _synthetic_pair(tmp_path_factory):
 
 @pytest.mark.slow
 @pytest.mark.gpu
-@pytest.mark.xfail(
-    strict=False,
-    reason=(
-        "As of 1.4.3.2 v1 and v2 disagree on the synthetic mask demo "
-        "(ARI ~0.14-0.48 across fields, differing object counts). "
-        "This test is xfailed until the pipelines converge — once they "
-        "match at ARI >= 0.85 on every field, xfail flips to XPASS and "
-        "the test starts guarding regressions."
-    ),
-)
 def test_v1_v2_mask_parity(_synthetic_pair):
     """End-to-end: run both pipelines on the same input and confirm
     the cell masks agree at ARI >= 0.85 on every field."""
@@ -200,11 +186,17 @@ def test_v1_v2_mask_parity(_synthetic_pair):
     run_v2(
         src=v2_dir,
         channels=(0, 1, 2, 3),
-        model_name="cyto",
-        channels_for_cellpose=(0, 1),
-        diameter=None,
+        model_name=v1_settings["cell_model_name"],
+        channels_for_cellpose=(1, 0),
+        diameter=v1_settings["cell_diameter"],
         batch_fields=4,
         metadata_type="cellvoyager",
+        cellprob_threshold=v1_settings["cell_CP_prob"],
+        flow_threshold=v1_settings["cell_FT"],
+        min_size=v1_settings["cell_min_area"],
+        resample=True,
+        postprocess_settings=v1_settings,
+        object_type="cell",
     )
     t_v2 = time.time() - t0
 
@@ -213,7 +205,7 @@ def test_v1_v2_mask_parity(_synthetic_pair):
     # --- compare --------------------------------------------------------
     v1_masks = _collect_v1_cell_masks(v1_dir)
     v2_masks = _collect_v2_cell_masks(v2_dir)
-    assert v1_masks, "v1 produced no cell masks under masks/cell_mask_stack/"
+    assert v1_masks, "v1 produced no cell-mask channels under merged/"
     assert v2_masks, "v2 produced no merged/stack_*.npy with a mask channel"
     assert len(v1_masks) == len(v2_masks), (
         f"different number of fields — v1={len(v1_masks)}, "
