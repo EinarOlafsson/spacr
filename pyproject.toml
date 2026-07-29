@@ -27,7 +27,7 @@ name = "spacr"
 # resolver branches, so 3.9 has its own blocking CI cell rather than being a
 # README-only claim. The three native packaging scripts carry the same floor.
 #
-# The ceiling is now 3.14, and every blocker that held it at 3.13 was closed
+# The ceiling is now 3.15, and every blocker that held it at 3.14 was closed
 # rather than reasoned away. Measured in throwaway conda envs, never in the
 # working one:
 #
@@ -49,18 +49,18 @@ name = "spacr"
 #     toolchain exists and fails confusingly where one does not. It has moved
 #     to the `zernike` extra, so a plain `pip install spacr` on 3.13 never
 #     reaches a compiler.
-#   * pylibCZIrw is NOT a 3.13 blocker: 5.1.1 (inside the declared `<6.0`)
-#     ships cp39-cp313 including manylinux aarch64 and macOS arm64. It stays
-#     in the core deps because spacr/io.py imports it at module scope.
+#   * pylibCZIrw and btrack are native optional features. Both are now loaded
+#     only when their feature is selected. pylibCZIrw has no CPython 3.14
+#     wheel, while btrack's bundled native runtime is not yet qualified there;
+#     neither prevents installing or importing core spaCR.
 #
-# What stops this being `<3.15` rather than `<3.14`: pylibCZIrw publishes no
-# cp314 at any version (checked through 6.1.0), and it is a module-scope
-# import in spacr/io.py. That is the next thing to move, and it is the same
-# shape of change mahotas just had.
+# Python 3.14.1 is excluded because supported torchvision releases explicitly
+# exclude that interpreter patch release. Current 3.14 releases are covered
+# by CI; the upper bound remains an honest guard against an untested 3.15.
 #
 # Every version admitted here has a CI cell — see the classifier note below.
 # ---------------------------------------------------------------------------
-requires-python = ">=3.9,<3.14"
+requires-python = ">=3.9,<3.15,!=3.14.1"
 
 authors = [
     { name = "Einar Birnir Olafsson", email = "olafsson@med.umich.com" },
@@ -99,6 +99,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering :: Bio-Informatics",
     "Topic :: Scientific/Engineering :: Image Recognition",
 ]
@@ -117,8 +118,8 @@ classifiers = [
 #     the dependency list.
 # Declaring them `dynamic` is what PEP 621 provides for exactly this case,
 # and it was verified end-to-end on setuptools 83.0.0: both `pip wheel`
-# (PEP 517) and a direct `python setup.py egg_info` emit
-# `Requires-Python: <3.14,>=3.9` and the classifiers above.
+# (PEP 517) and a direct `python setup.py egg_info` emit the declared
+# `Requires-Python` value and the classifiers above.
 # ---------------------------------------------------------------------------
 dynamic = [
     "version",

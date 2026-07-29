@@ -84,15 +84,15 @@ jobs:
         # all four.
         include:
           - python-version: "3.9"
-            extras: "qt,dev,zernike,attribution"
+            extras: "qt,dev,zernike,attribution,btrack,czi"
           - python-version: "3.10"
-            extras: "qt,dev,zernike,attribution"
+            extras: "qt,dev,zernike,attribution,btrack,czi"
           - python-version: "3.11"
-            extras: "qt,dev,zernike,attribution"
+            extras: "qt,dev,zernike,attribution,btrack,czi"
           - python-version: "3.12"
-            extras: "qt,dev,zernike,attribution"
+            extras: "qt,dev,zernike,attribution,btrack,czi"
           - python-version: "3.13"
-            extras: "qt,dev,zernike"
+            extras: "qt,dev,zernike,btrack,czi"
 
     steps:
       - uses: actions/checkout@v6
@@ -181,7 +181,7 @@ jobs:
     with:
       suite_name: Integration
       python_version: "3.12"
-      extras: "qt,dev,zernike,attribution"
+      extras: "qt,dev,zernike,attribution,btrack,czi"
       marker_expression: "integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui"
       timeout_minutes: 60
 
@@ -191,7 +191,7 @@ jobs:
     with:
       suite_name: Slow
       python_version: "3.12"
-      extras: "qt,dev,zernike,attribution"
+      extras: "qt,dev,zernike,attribution,btrack,czi"
       marker_expression: "(slow or heavy) and not gpu and not network and not nas and not gui"
       timeout_minutes: 90
 
@@ -201,7 +201,7 @@ jobs:
     with:
       suite_name: Qt
       python_version: "3.12"
-      extras: "qt,dev,zernike,attribution"
+      extras: "qt,dev,zernike,attribution,btrack,czi"
       marker_expression: "qt and not slow and not heavy and not gpu and not network and not nas and not gui"
       timeout_minutes: 60
 
@@ -211,7 +211,7 @@ jobs:
     with:
       suite_name: GPU
       python_version: "3.12"
-      extras: "qt,dev,zernike,attribution"
+      extras: "qt,dev,zernike,attribution,btrack,czi"
       marker_expression: "gpu and not gui"
       timeout_minutes: 120
 
@@ -221,7 +221,7 @@ jobs:
     with:
       suite_name: Network
       python_version: "3.12"
-      extras: "qt,dev,zernike,attribution"
+      extras: "qt,dev,zernike,attribution,btrack,czi"
       marker_expression: "network and not nas and not gpu and not gui"
       timeout_minutes: 90
 
@@ -231,7 +231,7 @@ jobs:
     with:
       suite_name: NAS
       python_version: "3.12"
-      extras: "qt,dev,zernike,attribution"
+      extras: "qt,dev,zernike,attribution,btrack,czi"
       marker_expression: "nas and not gpu and not gui"
       timeout_minutes: 90
 
@@ -319,7 +319,7 @@ jobs:
             "torch==2.1.0" "torchvision==0.16.0"
           python -m pip install \
             -c .github/constraints/minimum-py39.txt \
-            -e ".[qt,dev,zernike,attribution]"
+            -e ".[qt,dev,zernike,attribution,btrack,czi]"
           python -m pip check
 
       - name: Verify installed minimum profile

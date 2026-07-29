@@ -38,7 +38,10 @@ import seaborn as sns
 from nd2reader import ND2Reader
 from torchvision import transforms
 from sklearn.model_selection import train_test_split
-from pylibCZIrw import czi as pyczi
+
+# Backward-compatible injection point used by tests and advanced callers.
+# ``None`` means "load the optional reader on first CZI conversion".
+pyczi = None
 
 # Fail-loud accounting. Every per-file skip below is recorded on a RunLedger
 # so a batch that lost 40 of 384 files says so at the end and stamps the
@@ -53,6 +56,21 @@ from .tiff_io import write_tiff
 # they used to carry three hand-written copies of "ABCDEFGHIJKLMNOP" and
 # range(1, 25), which stop at P24.
 from . import convert as _cv
+
+
+def _load_pylibczi():
+    """Load the optional high-performance CZI reader when it is needed."""
+    try:
+        from pylibCZIrw import czi
+    except (ImportError, OSError) as exc:
+        raise ImportError(
+            "High-performance CZI conversion requires pylibCZIrw. "
+            "Install it with `pip install 'spacr[czi]'`. "
+            "Python 3.14 users can continue to use spaCR's czifile-based "
+            "CZI readers until pylibCZIrw publishes a CPython 3.14 wheel."
+        ) from exc
+    return czi
+
 
 def process_non_tif_non_2D_images(folder):
     """Split multi-dimensional or non-TIFF images in ``folder`` into per-channel TIFFs.
@@ -6831,7 +6849,8 @@ def convert_to_yokogawa(folder):
             with ledger.item(file, stage='czi',
                              echo=f"Error processing CZI file {file}"):
                 # Open the CZI in streaming mode
-                with pyczi.open_czi(path) as czidoc:
+                czi_reader = pyczi or _load_pylibczi()
+                with czi_reader.open_czi(path) as czidoc:
 
                     # 1) Global dimension ranges
                     bbox    = czidoc.total_bounding_box
