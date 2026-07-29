@@ -1069,7 +1069,11 @@ def test_a_finished_worker_never_leaves_its_gate_latched():
 # ===========================================================================
 
 @pytest.fixture
-def window(qtbot, qt_theme_applied, _empty_journal):
+def window(qtbot, qt_theme_applied, _empty_journal, monkeypatch):
+    # MainWindow intentionally restores the user's persisted dock mode.  That
+    # is application state, not test input: a developer who prefers a locked
+    # or hidden dock must not change the outcome of the auto-drawer tests.
+    monkeypatch.setattr("spacr.qt.preferences.get_dock_mode", lambda: "auto")
     from spacr.qt.app import MainWindow
     win = MainWindow()
     qtbot.addWidget(win)
