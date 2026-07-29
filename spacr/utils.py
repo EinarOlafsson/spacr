@@ -3265,7 +3265,7 @@ class CustomCellClassifier(nn.Module):
         """Forward pass, optionally through activation checkpointing."""
         if self.use_checkpoint:
             x.requires_grad = True
-            return checkpoint(self.custom_forward, x)
+            return checkpoint(self.custom_forward, x, use_reentrant=False)
         else:
             return self.custom_forward(x)
 
@@ -3428,7 +3428,9 @@ class TorchModel(nn.Module):
             """Run the underlying backbone on ``t`` (used as the checkpoint target)."""
             return self.base_model(t)
 
-        out = checkpoint(forward_fn, x) if self.use_checkpoint else forward_fn(x)
+        out = checkpoint(
+            forward_fn, x, use_reentrant=False
+        ) if self.use_checkpoint else forward_fn(x)
 
         # Unwrap common container types
         # Inception* returns namedtuple with .logits (if aux disabled we still may get a container)
@@ -3563,7 +3565,8 @@ class TorchModel_v2(nn.Module):
     def _run_backbone(self, x: torch.Tensor) -> torch.Tensor:
         # Wrap for checkpoint (expects a function)
         if self.use_checkpoint:
-            return checkpoint(lambda t: self.base_model(t), x)
+            return checkpoint(
+                lambda t: self.base_model(t), x, use_reentrant=False)
         return self.base_model(x)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -3685,7 +3688,9 @@ class ResNet(nn.Module):
         x.requires_grad = True  # Ensure that the tensor has requires_grad set to True
 
         if self.use_checkpoint:
-            x = checkpoint(self.resnet, x)  # Use checkpointing for just the ResNet part
+            x = checkpoint(
+                self.resnet, x, use_reentrant=False
+            )  # Use checkpointing for just the ResNet part
         else:
             x = self.resnet(x)
 
