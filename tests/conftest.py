@@ -733,6 +733,11 @@ def hf_toxo_mito_multi_fields(tmp_path_factory):
       list of Yokogawa CellVoyager TIFFs (as the pipeline expects) plus the
       manifest of what was downloaded.
     """
+    if os.environ.get("SPACR_RUN_PIPELINE_E2E", "").strip().lower() not in {
+        "1", "true", "yes", "on",
+    }:
+        pytest.skip(
+            "set SPACR_RUN_PIPELINE_E2E=1 to run the network/GPU pipeline E2E")
     try:
         from huggingface_hub import hf_hub_download
     except Exception as e:  # pragma: no cover
@@ -793,4 +798,3 @@ def hf_spacr_settings(tmp_path_factory):
             pytest.skip(f"HF download failed for {name}: {e}")
         paths[name] = p
     return paths
-
