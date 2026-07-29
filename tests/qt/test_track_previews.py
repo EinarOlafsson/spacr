@@ -443,6 +443,7 @@ def test_panel_builds_offscreen(qtbot):
     panel = TimelapsePreviewPanel()
     qtbot.addWidget(panel)
     assert panel._frame_slider.maximum() == 0
+    assert panel._play_btn.isEnabled() is False
     assert "Load a sequence" in panel._stats_label.text()
 
 
@@ -635,6 +636,42 @@ def test_scrubbing_renders_each_frame(qtbot, frame_dir, counted_segmentation):
     for t in range(N_FRAMES):
         panel._frame_slider.setValue(t)
         assert panel._frame_label.text() == f"{t + 1}/{N_FRAMES}"
+
+
+def test_playback_advances_wraps_and_pauses(qtbot, frame_dir):
+    from PySide6.QtCore import Qt
+    from spacr.qt.widgets.timelapse_preview import TimelapsePreviewPanel
+
+    panel = TimelapsePreviewPanel()
+    qtbot.addWidget(panel)
+    assert panel.load_sequence(frame_dir) is True
+    assert panel._play_btn.isEnabled() is True
+
+    panel._frame_slider.setValue(panel._frame_slider.maximum())
+    panel._advance_frame()
+    assert panel._frame_slider.value() == 0
+
+    panel._play_fps.setValue(30)
+    qtbot.mouseClick(panel._play_btn, Qt.LeftButton)
+    assert panel._play_timer.isActive()
+    assert panel._play_btn.text() == "Pause"
+    qtbot.waitUntil(lambda: panel._frame_slider.value() > 0, timeout=1000)
+
+    qtbot.mouseClick(panel._play_btn, Qt.LeftButton)
+    assert panel._play_timer.isActive() is False
+    assert panel._play_btn.text() == "Play"
+
+
+def test_close_stops_timelapse_playback(qtbot, frame_dir):
+    from spacr.qt.widgets.timelapse_preview import TimelapsePreviewPanel
+
+    panel = TimelapsePreviewPanel()
+    qtbot.addWidget(panel)
+    panel.load_sequence(frame_dir)
+    panel._toggle_playback()
+    assert panel._play_timer.isActive()
+    panel.close()
+    assert panel._play_timer.isActive() is False
 
 
 def test_remove_transient_keeps_only_full_length_tracks(
