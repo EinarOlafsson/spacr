@@ -2582,8 +2582,17 @@ def _replication_compare_conditions(vacuoles, group_column, buckets,
         right_ladder = right.loc[right['is_power_of_two'], 'doublings'].to_numpy(dtype=float)
 
         if len(left_ladder) and len(right_ladder):
-            statistic, p_value = mannwhitneyu(left_ladder, right_ladder,
-                                              alternative='two-sided')
+            if np.all(left_ladder == left_ladder[0]) and np.all(
+                right_ladder == left_ladder[0]
+            ):
+                # SciPy 1.17 reports NaN when the pooled ranked outcome has
+                # zero variance. The two distributions are exactly identical,
+                # so the defined no-difference result is U=n1*n2/2, p=1.
+                statistic = len(left_ladder) * len(right_ladder) / 2.0
+                p_value = 1.0
+            else:
+                statistic, p_value = mannwhitneyu(
+                    left_ladder, right_ladder, alternative='two-sided')
             # Rank-biserial correlation: +1 means every vacuole in group1 is
             # further along the ladder than every vacuole in group2.
             rank_biserial = 2.0 * statistic / (len(left_ladder) * len(right_ladder)) - 1.0
