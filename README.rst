@@ -67,204 +67,337 @@ Why spaCR?
   CUDA automatically for supported segmentation and deep-learning workloads.
 
 
-Feature maturity
-----------------
+Features
+--------
 
-The maturity label written beside every feature below is the same status used
-by the spaCR home screen and settings panels.
+Core
+~~~~
 
-- **Stable** — established and suitable for routine work.
-- **Beta** — functional and in regular use, but validate it on representative
-  data before production analysis.
-- **Alpha** — available for evaluation; expect workflow and interface changes.
+.. list-table::
+   :header-rows: 1
+   :widths: 20 24 10 46
 
-The established 2D pipeline is the most mature. New 3D and 4D settings remain
-**Beta**, even when they extend a module whose conventional 2D workflow is
-**Stable**.
+   * - Module
+     - Feature
+     - State
+     - Description
+   * - `Core <https://einarolafsson.github.io/spacr/api/spacr/core/index.html>`_
+     - `Image pipeline <https://einarolafsson.github.io/spacr/api/spacr/core/index.html>`_
+     - Stable
+     - Runs the connected image-to-object processing workflow.
+   * - `Qt application <https://einarolafsson.github.io/spacr/api/spacr/qt/app/index.html>`_
+     - `Desktop interface <https://einarolafsson.github.io/spacr/api/spacr/qt/app/index.html>`_
+     - Stable
+     - Provides the modern module-based desktop application.
+   * - `Batch <https://einarolafsson.github.io/spacr/api/spacr/batch/index.html>`_
+     - `Headless execution <https://einarolafsson.github.io/spacr/api/spacr/batch/index.html>`_
+     - Stable
+     - Runs validated modules from scripts, servers, and clusters.
+   * - `Logging <https://einarolafsson.github.io/spacr/api/spacr/logging_util/index.html>`_
+     - `Reproducible runs <https://einarolafsson.github.io/spacr/api/spacr/logging_util/index.html>`_
+     - Stable
+     - Records settings, manifests, journals, progress, and rotating logs.
 
+Data and I/O
+~~~~~~~~~~~~
 
-Main features
--------------
+.. list-table::
+   :header-rows: 1
+   :widths: 20 24 10 46
 
-These modules form the primary image-to-screen workflow.
+   * - Module
+     - Feature
+     - State
+     - Description
+   * - `I/O <https://einarolafsson.github.io/spacr/api/spacr/io/index.html>`_
+     - `Image import <https://einarolafsson.github.io/spacr/api/spacr/io/index.html>`_
+     - Stable
+     - Reads microscopy images and maintains linked project data.
+   * - `I/O <https://einarolafsson.github.io/spacr/api/spacr/io/index.html>`_
+     - `Format converter <https://einarolafsson.github.io/spacr/api/spacr/io/index.html>`_
+     - Alpha
+     - Converts ND2, CZI, LIF, and OME-TIFF acquisitions.
+   * - `I/O <https://einarolafsson.github.io/spacr/api/spacr/io/index.html>`_
+     - `Project import <https://einarolafsson.github.io/spacr/api/spacr/io/index.html>`_
+     - Alpha
+     - Imports external images, masks, tables, and databases.
+   * - `Object data <https://einarolafsson.github.io/spacr/api/spacr/object/index.html>`_
+     - `Object schema <https://einarolafsson.github.io/spacr/api/spacr/object/index.html>`_
+     - Stable
+     - Links images, masks, crops, measurements, and identifiers.
+   * - `I/O <https://einarolafsson.github.io/spacr/api/spacr/io/index.html>`_
+     - `Database browser <https://einarolafsson.github.io/spacr/api/spacr/io/index.html>`_
+     - Alpha
+     - Filters, inspects, and exports project SQLite tables.
+   * - `Stitching <https://einarolafsson.github.io/spacr/api/spacr/spacrops/index.html>`_
+     - `Align and stitch <https://einarolafsson.github.io/spacr/api/spacr/spacrops/index.html>`_
+     - Alpha
+     - Registers tile layouts and writes large stitched canvases.
 
-**Mask — Stable.**
-  Ingest microscopy images, organize channels, generate Cellpose masks for
-  cells, nuclei, pathogens, and organelles, inspect a live preview, and write
-  merged arrays plus segmentation-QC scorecards. 3D and 4D mask paths are
-  **Beta**.
+Segmentation and masks
+~~~~~~~~~~~~~~~~~~~~~~
 
-**Timelapse — Beta.**
-  Segment time series and link objects across frames with IoU, Trackpy,
-  btrack, Trackastra, or optional ultrack backends, with an on-demand track
-  preview.
+.. list-table::
+   :header-rows: 1
+   :widths: 20 24 10 46
 
-**Motility Assay — Beta.**
-  Calculate per-track displacement, velocity, persistence, and infection QC,
-  then summarize motility by well and condition.
+   * - Module
+     - Feature
+     - State
+     - Description
+   * - `Mask <https://einarolafsson.github.io/spacr/api/spacr/core/index.html>`_
+     - `2D mask generation <https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks>`_
+     - Stable
+     - Generates cell, nucleus, pathogen, and organelle masks.
+   * - `Mask <https://einarolafsson.github.io/spacr/api/spacr/core/index.html>`_
+     - `3D mask generation <https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks>`_
+     - Beta
+     - Segments volumetric image stacks.
+   * - `Mask <https://einarolafsson.github.io/spacr/api/spacr/core/index.html>`_
+     - `4D mask generation <https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks>`_
+     - Beta
+     - Segments volumetric time series.
+   * - `Mask <https://einarolafsson.github.io/spacr/api/spacr/core/index.html>`_
+     - `Live preview <https://einarolafsson.github.io/spacr/api/spacr/core/index.html>`_
+     - Stable
+     - Previews segmentation settings before a full run.
+   * - `Cellpose <https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html>`_
+     - `Make masks <https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html>`_
+     - Beta
+     - Creates and edits mask-training datasets.
+   * - `Cellpose <https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html>`_
+     - `Train Cellpose <https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html>`_
+     - Beta
+     - Trains custom segmentation checkpoints.
+   * - `Cellpose <https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html>`_
+     - `Model comparison <https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html>`_
+     - Alpha
+     - Compares masks, counts, and agreement between models.
+   * - `Cellpose <https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html>`_
+     - `Model zoo <https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html>`_
+     - Alpha
+     - Finds, verifies, downloads, and benchmarks checkpoints.
 
-**Measure — Stable.**
-  Capture object morphology, intensity, texture, colocalization, radial,
-  neighborhood, and optional Zernike features; generate linked single-object
-  PNG crops and write measurements to SQLite. New 3D/4D measurement paths are
-  **Beta**.
+Tracking and timelapse
+~~~~~~~~~~~~~~~~~~~~~~
 
-**Annotate — Stable.**
-  Review single-object images in a responsive grid, assign or revise labels,
-  filter records, use AI-assisted console tools, and save annotations directly
-  to the measurements database.
+.. list-table::
+   :header-rows: 1
+   :widths: 20 24 10 46
 
-**Classify (CV) — Stable.**
-  Build image datasets, train and evaluate PyTorch CNN or transformer models,
-  watch live loss and accuracy in TensorBoard, apply models to new objects,
-  and merge predictions back into the database.
+   * - Module
+     - Feature
+     - State
+     - Description
+   * - `Timelapse <https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html>`_
+     - `Object tracking <https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html>`_
+     - Beta
+     - Links objects with IoU, Trackpy, btrack, Trackastra, or ultrack.
+   * - `Timelapse <https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html>`_
+     - `Track preview <https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html>`_
+     - Beta
+     - Shows tracks on demand before full processing.
+   * - `Timelapse <https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html>`_
+     - `Motility assay <https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html#spacr.timelapse.automated_motility_assay>`_
+     - Beta
+     - Summarizes displacement, velocity, persistence, and infection.
 
-**Classify (ML) — Stable.**
-  Train classical models—including logistic regression, random forests,
-  XGBoost, and optional LightGBM/CatBoost—on measurement features with feature
-  selection, cross-validation, interpretation, and screen-level scoring.
+Measurements
+~~~~~~~~~~~~
 
-**Map Barcodes — Stable.**
-  Decode row, column, and gRNA barcodes from FASTQ reads, use bundled barcode
-  references or custom libraries, inspect regex parsing, run sequencing QC,
-  and join guide identities to imaging data.
+.. list-table::
+   :header-rows: 1
+   :widths: 20 24 10 46
 
-**Regression — Stable.**
-  Model screen scores, compare conditions and controls, aggregate guide-level
-  effects, calculate gene-level summaries, and produce statistical figures.
+   * - Module
+     - Feature
+     - State
+     - Description
+   * - `Measure <https://einarolafsson.github.io/spacr/api/spacr/measure/index.html>`_
+     - `2D measurements <https://einarolafsson.github.io/spacr/api/spacr/measure/index.html#spacr.measure.measure_crop>`_
+     - Stable
+     - Measures morphology, intensity, texture, and colocalization.
+   * - `Measure <https://einarolafsson.github.io/spacr/api/spacr/measure/index.html>`_
+     - `3D measurements <https://einarolafsson.github.io/spacr/api/spacr/measure/index.html#spacr.measure.measure_crop>`_
+     - Beta
+     - Measures objects throughout volumetric image stacks.
+   * - `Measure <https://einarolafsson.github.io/spacr/api/spacr/measure/index.html>`_
+     - `4D measurements <https://einarolafsson.github.io/spacr/api/spacr/measure/index.html#spacr.measure.measure_crop>`_
+     - Beta
+     - Measures volumetric objects over time.
+   * - `Measure <https://einarolafsson.github.io/spacr/api/spacr/measure/index.html>`_
+     - `Object crops <https://einarolafsson.github.io/spacr/api/spacr/measure/index.html#spacr.measure.measure_crop>`_
+     - Stable
+     - Writes database-linked single-object images and arrays.
 
+Annotation
+~~~~~~~~~~
 
-Secondary features
-------------------
+.. list-table::
+   :header-rows: 1
+   :widths: 20 24 10 46
 
-Segmentation models
-~~~~~~~~~~~~~~~~~~~
+   * - Module
+     - Feature
+     - State
+     - Description
+   * - `Annotate <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html>`_
+     - `Manual annotation <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html>`_
+     - Stable
+     - Reviews crops and saves labels directly to the database.
 
-**Make Masks — Beta.**
-  Create and edit training masks, then fine-tune Cellpose models against
-  dataset-specific annotations.
+AI and machine learning
+~~~~~~~~~~~~~~~~~~~~~~~
 
-**Train Cellpose — Beta.**
-  Train custom Cellpose checkpoints with configurable optimization,
-  augmentation, validation, and model output.
+.. list-table::
+   :header-rows: 1
+   :widths: 20 24 10 46
 
-**Cellpose Masks — Beta.**
-  Run focused Cellpose mask generation outside the complete preprocessing
-  pipeline.
+   * - Module
+     - Feature
+     - State
+     - Description
+   * - `Computer vision <https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html>`_
+     - `Image classification <https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html>`_
+     - Stable
+     - Trains and applies PyTorch CNN and transformer models.
+   * - `Computer vision <https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html>`_
+     - `Live training metrics <https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html>`_
+     - Beta
+     - Streams loss, accuracy, and training images to TensorBoard.
+   * - `Machine learning <https://einarolafsson.github.io/spacr/api/spacr/ml/index.html>`_
+     - `Measurement classification <https://einarolafsson.github.io/spacr/api/spacr/ml/index.html>`_
+     - Stable
+     - Trains interpretable classical and boosted models.
+   * - `Image UMAP <https://einarolafsson.github.io/spacr/api/spacr/app_umap/index.html>`_
+     - `Interactive embedding <https://einarolafsson.github.io/spacr/api/spacr/app_umap/index.html>`_
+     - Beta
+     - Inspects points, draws clusters, and writes labels to SQLite.
+   * - `Computer vision <https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html>`_
+     - `Activation maps <https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html>`_
+     - Beta
+     - Explains predictions with Captum, SmoothGrad, and TorchCAM.
+   * - `Computer vision <https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html>`_
+     - `Training-run comparison <https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html>`_
+     - Alpha
+     - Compares metrics and settings across model runs.
+   * - `Hyperparameters <https://einarolafsson.github.io/spacr/api/spacr/hyperparam/index.html>`_
+     - `Hyperparameter search <https://einarolafsson.github.io/spacr/api/spacr/hyperparam/index.html>`_
+     - Beta
+     - Searches supported embedding and model settings.
+   * - `Qt AI <https://einarolafsson.github.io/spacr/api/spacr/qt/ai/index.html>`_
+     - `AI-assisted console <https://einarolafsson.github.io/spacr/api/spacr/qt/ai/index.html>`_
+     - Beta
+     - Connects supported modules to local AI command-line tools.
 
-**Model Compare — Alpha.**
-  Apply two Cellpose models to the same fields and compare masks, object
-  counts, and adjusted Rand index differences side by side.
+Sequencing and screen analysis
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Model Zoo — Alpha.**
-  Browse available Cellpose and classifier checkpoints, verify checksums,
-  download models, and benchmark them on representative fields.
+.. list-table::
+   :header-rows: 1
+   :widths: 20 24 10 46
 
-Results, interpretation, and quality control
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   * - Module
+     - Feature
+     - State
+     - Description
+   * - `Sequencing <https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html>`_
+     - `Map barcodes <https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html>`_
+     - Stable
+     - Maps row, column, and gRNA barcodes from FASTQ reads.
+   * - `Statistics <https://einarolafsson.github.io/spacr/api/spacr/sp_stats/index.html>`_
+     - `Regression <https://einarolafsson.github.io/spacr/api/spacr/sp_stats/index.html>`_
+     - Stable
+     - Estimates guide, gene, condition, and control effects.
+   * - `Simulation <https://einarolafsson.github.io/spacr/api/spacr/sim/index.html>`_
+     - `Screen simulation <https://einarolafsson.github.io/spacr/api/spacr/sim/index.html>`_
+     - Stable
+     - Explores pooled-screen designs over parameter grids.
 
-**Plate Viewer — Alpha.**
-  Render any measurement as a plate heatmap and inspect spatial bias and edge
-  effects.
-
-**Annotator Agreement — Alpha.**
-  Calculate Cohen's or Fleiss' kappa between annotation columns and review
-  disagreements.
-
-**Image UMAP — Beta.**
-  Create UMAP or t-SNE embeddings with image glyphs, click points to inspect
-  cells, draw around clusters, assign manual labels, or propagate
-  automatically generated cluster labels to the database.
-
-**Activation — Beta.**
-  Generate model-attribution maps with Captum, SmoothGrad, and optional
-  TorchCAM methods to inspect which image regions drive predictions.
-
-**Training Runs — Alpha.**
-  Overlay loss and accuracy curves from multiple training runs and compare
-  the settings that changed between them.
-
-**Report — Alpha.**
-  Build a self-contained HTML or PDF report containing QC verdicts, figures,
-  statistics, settings, environment information, and package versions.
-
-Specialized biological assays
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**Plaque Assay — Beta.**
-  Detect plaques and quantify their number, area, intensity, and morphology
-  across conditions.
-
-**Recruitment — Stable.**
-  Quantify recruitment of a marker to cells, pathogens, or another measured
-  compartment and compare recruitment across conditions.
-
-**Invasion Assay — Alpha.**
-  Analyze two-color outside/inside staining, distinguish attached from invaded
-  parasites, and calculate invasion efficiency per well.
-
-**Replication Assay — Beta.**
-  Count parasites per vacuole and summarize endodyogeny and replication rates
-  by condition.
-
-
-Other tools
------------
-
-Data preparation and automation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**Align & Stitch — Alpha.**
-  Register arbitrary tile layouts, solve offsets globally, flag fallback
-  placements, and write large stitched canvases incrementally.
-
-**Format Converter — Alpha.**
-  Convert ND2, CZI, LIF, and OME-TIFF acquisitions into spaCR-compatible
-  Yokogawa-style TIFFs after previewing the filename mapping; preserve a map
-  back to source metadata.
-
-**Import Project — Alpha.**
-  Convert third-party images, masks, and CSV/TSV/SQLite measurements into a
-  validated spaCR project with an explicit, reviewable column map.
-
-**Plate Queue — Alpha.**
-  Chain several plates through the same processing sequence.
-
-**Batch Runner — Alpha.**
-  Queue different modules, plates, and settings for unattended execution with
-  validation and dependency-aware failure reporting.
-
-**Database Browser — Alpha.**
-  Browse, filter, inspect, and export ``measurements.db`` without using the
-  SQLite command-line interface.
-
-Headless and specialist commands
+Visualization, QC, and reporting
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Training-only pipeline — Stable.**
-  Run ``spacr-run train_only`` to train and evaluate an existing image dataset
-  without rebuilding crops.
+.. list-table::
+   :header-rows: 1
+   :widths: 20 24 10 46
 
-**Cellpose model sweep — Stable.**
-  Run ``spacr-run cellpose_all`` to compare every available Cellpose model on
-  the same images.
+   * - Module
+     - Feature
+     - State
+     - Description
+   * - `Plotting <https://einarolafsson.github.io/spacr/api/spacr/plot/index.html>`_
+     - `Plate viewer <https://einarolafsson.github.io/spacr/api/spacr/plot/index.html>`_
+     - Alpha
+     - Displays measurement heatmaps and spatial plate effects.
+   * - `Analysis <https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html>`_
+     - `Annotator agreement <https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html>`_
+     - Alpha
+     - Quantifies agreement and exposes conflicting annotations.
+   * - `Report <https://einarolafsson.github.io/spacr/api/spacr/report/index.html>`_
+     - `Analysis report <https://einarolafsson.github.io/spacr/api/spacr/report/index.html>`_
+     - Alpha
+     - Builds HTML or PDF reports with QC and provenance.
 
-**Screen simulation — Stable.**
-  Run ``spacr-run simulation`` to explore pooled-screen designs over parameter
-  grids and estimate expected performance.
+Biological assays
+~~~~~~~~~~~~~~~~~
 
-**Reproducibility tools — Stable.**
-  Use settings validation, run journals, resumable stages, structured logs,
-  manifest checks, and ``spacr-repro`` to inspect or replay recorded runs.
+.. list-table::
+   :header-rows: 1
+   :widths: 20 24 10 46
 
-**AI-assisted console — Beta.**
-  Open the collapsible console in supported modules and use locally installed
-  Claude, Codex, or Gemini command-line providers without storing API keys in
-  spaCR.
+   * - Module
+     - Feature
+     - State
+     - Description
+   * - `Assays <https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html>`_
+     - `Plaque assay <https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_plaques>`_
+     - Beta
+     - Quantifies plaque number, area, intensity, and morphology.
+   * - `Assays <https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html>`_
+     - `Recruitment <https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_recruitment>`_
+     - Stable
+     - Compares marker recruitment between conditions.
+   * - `Toxoplasma analysis <https://einarolafsson.github.io/spacr/api/spacr/toxo/index.html>`_
+     - `Invasion assay <https://einarolafsson.github.io/spacr/api/spacr/toxo/index.html>`_
+     - Alpha
+     - Distinguishes attached and invaded parasites.
+   * - `Assays <https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html>`_
+     - `Replication assay <https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_endodyogeny>`_
+     - Beta
+     - Summarizes parasites per vacuole and replication rates.
 
-**Hyperparameter search — Beta.**
-  Search supported UMAP, computer-vision, and machine-learning settings and
-  compare trial outcomes from the application.
+Automation and specialist tools
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. list-table::
+   :header-rows: 1
+   :widths: 20 24 10 46
+
+   * - Module
+     - Feature
+     - State
+     - Description
+   * - `Batch <https://einarolafsson.github.io/spacr/api/spacr/batch/index.html>`_
+     - `Plate queue <https://einarolafsson.github.io/spacr/api/spacr/batch/index.html>`_
+     - Alpha
+     - Chains several plates through a shared workflow.
+   * - `Batch <https://einarolafsson.github.io/spacr/api/spacr/batch/index.html>`_
+     - `Batch runner <https://einarolafsson.github.io/spacr/api/spacr/batch/index.html>`_
+     - Alpha
+     - Queues modules and reports dependency-aware failures.
+   * - `Computer vision <https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html>`_
+     - `Training-only pipeline <https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html>`_
+     - Stable
+     - Trains an existing image dataset without rebuilding crops.
+   * - `Cellpose <https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html>`_
+     - `Model sweep <https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html>`_
+     - Stable
+     - Compares available Cellpose models on the same images.
+
+Tutorials
+---------
+
+Tutorials are coming soon.
 
 
 Workflow
