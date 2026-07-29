@@ -101,6 +101,146 @@ class _StreamRedirector(io.TextIOBase):
             pass
 
 
+class _ThreadStreamRouter(io.TextIOBase):
+    """Route writes from each worker thread to that worker's console.
+
+    Replacing ``sys.stdout`` independently in overlapping workers is unsafe:
+    the second worker saves the first worker's redirector, and whichever one
+    finishes first restores a stream belonging to the other run. This single
+    process-wide proxy keeps the public stream stable while selecting the
+    destination by thread identity.
+    """
+
+    def __init__(self, original):
+        super().__init__()
+        self.original = original
+        self._targets: Dict[int, List[_StreamRedirector]] = {}
+        self._lock = threading.RLock()
+
+    def register(self, target: _StreamRedirector) -> None:
+        ident = threading.get_ident()
+        with self._lock:
+            self._targets.setdefault(ident, []).append(target)
+
+    def unregister(self, target: _StreamRedirector) -> None:
+        ident = threading.get_ident()
+        with self._lock:
+            stack = self._targets.get(ident, [])
+            if target in stack:
+                stack.remove(target)
+            if not stack:
+                self._targets.pop(ident, None)
+
+    def has_targets(self) -> bool:
+        with self._lock:
+            return bool(self._targets)
+
+    def _target(self):
+        with self._lock:
+            stack = self._targets.get(threading.get_ident(), [])
+            return stack[-1] if stack else self.original
+
+    def write(self, value: str) -> int:
+        return self._target().write(value)
+
+    def flush(self) -> None:
+        try:
+            self._target().flush()
+        except Exception:
+            pass
+
+    @property
+    def encoding(self):
+        return getattr(self.original, "encoding", None)
+
+    def isatty(self) -> bool:
+        return bool(getattr(self.original, "isatty", lambda: False)())
+
+
+_STREAM_ROUTER_LOCK = threading.RLock()
+_STDOUT_ROUTER: Optional[_ThreadStreamRouter] = None
+_STDERR_ROUTER: Optional[_ThreadStreamRouter] = None
+
+
+def _register_worker_streams(
+    target: _StreamRedirector,
+) -> tuple[_ThreadStreamRouter, _ThreadStreamRouter]:
+    """Install/reuse the process routers and register the calling thread."""
+    global _STDOUT_ROUTER, _STDERR_ROUTER
+    with _STREAM_ROUTER_LOCK:
+        if not isinstance(sys.stdout, _ThreadStreamRouter):
+            _STDOUT_ROUTER = _ThreadStreamRouter(sys.stdout)
+            sys.stdout = _STDOUT_ROUTER
+        else:
+            _STDOUT_ROUTER = sys.stdout
+        if not isinstance(sys.stderr, _ThreadStreamRouter):
+            _STDERR_ROUTER = _ThreadStreamRouter(sys.stderr)
+            sys.stderr = _STDERR_ROUTER
+        else:
+            _STDERR_ROUTER = sys.stderr
+        _STDOUT_ROUTER.register(target)
+        _STDERR_ROUTER.register(target)
+        return _STDOUT_ROUTER, _STDERR_ROUTER
+
+
+def _unregister_worker_streams(
+    target: _StreamRedirector,
+    stdout_router: _ThreadStreamRouter,
+    stderr_router: _ThreadStreamRouter,
+) -> None:
+    """Remove the calling worker and restore original streams when idle."""
+    global _STDOUT_ROUTER, _STDERR_ROUTER
+    with _STREAM_ROUTER_LOCK:
+        stdout_router.unregister(target)
+        stderr_router.unregister(target)
+        if not stdout_router.has_targets() and sys.stdout is stdout_router:
+            sys.stdout = stdout_router.original
+            _STDOUT_ROUTER = None
+        if not stderr_router.has_targets() and sys.stderr is stderr_router:
+            sys.stderr = stderr_router.original
+            _STDERR_ROUTER = None
+
+
+_MPL_SHOW_LOCK = threading.RLock()
+_MPL_SHOW_TARGETS: Dict[int, List[Callable[..., Any]]] = {}
+_MPL_ORIGINAL_SHOW: Optional[Callable[..., Any]] = None
+_MPL_MODULE = None
+
+
+def _matplotlib_show_router(*args, **kwargs):
+    with _MPL_SHOW_LOCK:
+        stack = _MPL_SHOW_TARGETS.get(threading.get_ident(), [])
+        target = stack[-1] if stack else _MPL_ORIGINAL_SHOW
+    return target(*args, **kwargs) if target is not None else None
+
+
+def _register_matplotlib_show(plt, target: Callable[..., Any]) -> None:
+    """Route ``plt.show`` by worker thread without cross-run restoration."""
+    global _MPL_ORIGINAL_SHOW, _MPL_MODULE
+    with _MPL_SHOW_LOCK:
+        if not _MPL_SHOW_TARGETS:
+            _MPL_ORIGINAL_SHOW = plt.show
+            _MPL_MODULE = plt
+            plt.show = _matplotlib_show_router
+        _MPL_SHOW_TARGETS.setdefault(threading.get_ident(), []).append(target)
+
+
+def _unregister_matplotlib_show(target: Callable[..., Any]) -> None:
+    global _MPL_ORIGINAL_SHOW, _MPL_MODULE
+    with _MPL_SHOW_LOCK:
+        ident = threading.get_ident()
+        stack = _MPL_SHOW_TARGETS.get(ident, [])
+        if target in stack:
+            stack.remove(target)
+        if not stack:
+            _MPL_SHOW_TARGETS.pop(ident, None)
+        if not _MPL_SHOW_TARGETS and _MPL_MODULE is not None:
+            if _MPL_MODULE.show is _matplotlib_show_router:
+                _MPL_MODULE.show = _MPL_ORIGINAL_SHOW
+            _MPL_ORIGINAL_SHOW = None
+            _MPL_MODULE = None
+
+
 # ---------------------------------------------------------------------------
 # Cooperative pause
 # ---------------------------------------------------------------------------
@@ -231,6 +371,68 @@ def pausable(fn: Callable) -> Callable:
 #: 96" without anything having to be threaded through the pipeline.
 _PROGRESS_RE = re.compile(r"\bProgress:\s*(\d+)\s*/\s*(\d+)")
 
+# Settings that directly control process/thread pools in shipped pipelines.
+# Each is capped to the budget remaining after older active runs. A run with
+# N workers consumes N-1 slots because its own QThread is already one of the
+# concurrently executing units; this gives the requested sequence:
+# second = total - first + 1, then each later run subtracts the extra workers
+# reserved by every older run.
+WORKER_SETTING_KEYS = (
+    "n_jobs",
+    "n_workers",
+    "n_workers_features",
+    "ultrack_n_workers",
+    "infection_xgb_n_jobs",
+)
+
+
+def worker_capacity(total: Optional[int] = None) -> int:
+    """Logical CPU capacity used by the cooperative run allocator."""
+    value = os.cpu_count() if total is None else total
+    try:
+        return max(1, int(value or 1))
+    except (TypeError, ValueError):
+        return 1
+
+
+def available_worker_count(total: Optional[int] = None) -> int:
+    """Workers a newly-started run may use, never fewer than one."""
+    capacity = worker_capacity(total)
+    reserved = sum(
+        max(0, int(getattr(handle, "worker_count", 1)) - 1)
+        for handle in registry().active()
+    )
+    return max(1, capacity - reserved)
+
+
+def apply_worker_budget(
+    settings: Dict[str, Any],
+    total: Optional[int] = None,
+) -> int:
+    """Cap pool settings in-place and return this run's worker allocation.
+
+    ``-1`` and ``None`` mean "all available" in the libraries used by spaCR,
+    so they resolve to the current remaining budget. Explicit smaller values
+    are preserved. The return value is stored on the run handle so the next
+    run sees what this one actually reserved.
+    """
+    available = available_worker_count(total)
+    allocations: List[int] = []
+    for key in WORKER_SETTING_KEYS:
+        if key not in settings:
+            continue
+        raw = settings.get(key)
+        try:
+            requested = int(raw) if raw is not None else available
+        except (TypeError, ValueError):
+            continue
+        if requested <= 0:
+            requested = available
+        resolved = max(1, min(requested, available))
+        settings[key] = resolved
+        allocations.append(resolved)
+    return max(allocations, default=1)
+
 
 class RunHandle(QObject):
     """One in-flight job: what it is, how far along, and its pause gate.
@@ -248,6 +450,7 @@ class RunHandle(QObject):
         self.app_key = app_key or "job"
         self.worker = worker
         self.thread = thread
+        self.worker_count = max(1, int(getattr(worker, "worker_count", 1)))
         self.started_at = time.time()
         #: ``(done, total)`` from the last progress line, or ``None``.
         self.progress: Optional[tuple] = None
@@ -376,7 +579,8 @@ class PipelineWorker(QObject):
     error = Signal(str)
     figure_ready = Signal(object, str)   # (figure, prerendered_png_path or "")
 
-    def __init__(self, fn: Callable[..., Any], settings: Dict[str, Any]):
+    def __init__(self, fn: Callable[..., Any], settings: Dict[str, Any],
+                 worker_count: int = 1):
         """Prepare to run ``fn(settings)`` in a worker thread.
 
         :param fn: pipeline entry point (see :func:`resolve_pipeline_entry`).
@@ -385,6 +589,7 @@ class PipelineWorker(QObject):
         super().__init__()
         self._fn = fn
         self._settings = settings
+        self.worker_count = max(1, int(worker_count))
         #: Latch this worker waits on when the pipeline calls
         #: :func:`checkpoint`. Always present; only *effective* when
         #: :attr:`supports_pause` is True.
@@ -407,11 +612,9 @@ class PipelineWorker(QObject):
 
     def run(self) -> None:
         """Invoked by QThread.started; runs the pipeline function to completion."""
-        old_stdout, old_stderr = sys.stdout, sys.stderr
         _LOCAL.gate = self.gate
         redirect = _StreamRedirector(self.line_ready.emit)
-        sys.stdout = redirect
-        sys.stderr = redirect
+        stdout_router, stderr_router = _register_worker_streams(redirect)
 
         # NOTE: there used to be a background "idle-flush pump" daemon
         # thread here that emitted line_ready periodically. It was
@@ -425,12 +628,11 @@ class PipelineWorker(QObject):
 
         # Intercept matplotlib show() so figures land in the UI instead
         # of a blocking Tk window. `plt.show` gets restored in `finally`.
-        old_show = None
+        capture_show = None
         try:
             import matplotlib
             matplotlib.use("Agg", force=False)
             import matplotlib.pyplot as plt
-            old_show = plt.show
             worker = self
             emitted_ids = set()
             fig_counter = [0]
@@ -466,7 +668,8 @@ class PipelineWorker(QObject):
                     worker.figure_ready.emit(fig, png_path)
                 return None
 
-            plt.show = _capture_show
+            capture_show = _capture_show
+            _register_matplotlib_show(plt, capture_show)
         except Exception:
             plt = None
 
@@ -484,11 +687,12 @@ class PipelineWorker(QObject):
                 redirect.flush()
             except Exception:
                 pass
-            sys.stdout = old_stdout
-            sys.stderr = old_stderr
-            if old_show is not None and plt is not None:
+            _unregister_worker_streams(
+                redirect, stdout_router, stderr_router
+            )
+            if capture_show is not None and plt is not None:
                 try:
-                    plt.show = old_show
+                    _unregister_matplotlib_show(capture_show)
                 except Exception:
                     pass
             # Release the gate before announcing completion: a worker
@@ -669,7 +873,8 @@ def make_thread(
     :returns: an unstarted ``(QThread, PipelineWorker)`` pair.
     """
     thread = QThread()
-    worker = PipelineWorker(fn, settings)
+    allocation = apply_worker_budget(settings)
+    worker = PipelineWorker(fn, settings, worker_count=allocation)
     worker.moveToThread(thread)
     thread.started.connect(worker.run)
     worker.finished.connect(thread.quit)

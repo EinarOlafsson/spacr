@@ -10,8 +10,11 @@ from PySide6.QtCore import QThread, QCoreApplication
 
 from spacr.qt.bridge import (
     PipelineWorker,
+    RunHandle,
     _StreamRedirector,
+    apply_worker_budget,
     make_thread,
+    registry,
 )
 
 
@@ -72,6 +75,41 @@ def test_make_thread_returns_thread_and_worker():
     finally:
         thread.deleteLater()
         worker.deleteLater()
+
+
+def test_concurrent_runs_share_the_cpu_budget_in_start_order():
+    registry().clear()
+    first_worker = PipelineWorker(lambda settings: None, {}, worker_count=6)
+    first = RunHandle("mask", first_worker, None, parent=registry())
+    registry().register(first)
+    try:
+        second_settings = {"n_jobs": -1}
+        second_count = apply_worker_budget(second_settings, total=16)
+        assert second_count == 11
+        assert second_settings["n_jobs"] == 11  # 16 - 6 + 1
+
+        second_worker = PipelineWorker(
+            lambda settings: None, second_settings,
+            worker_count=second_count,
+        )
+        second = RunHandle("measure", second_worker, None, parent=registry())
+        registry().register(second)
+        try:
+            third_settings = {
+                "n_jobs": -1,
+                "n_workers": 8,
+                "infection_xgb_n_jobs": -1,
+            }
+            assert apply_worker_budget(third_settings, total=16) == 1
+            assert third_settings == {
+                "n_jobs": 1,
+                "n_workers": 1,
+                "infection_xgb_n_jobs": 1,
+            }
+        finally:
+            registry().unregister(second)
+    finally:
+        registry().unregister(first)
 
 
 def test_pipeline_worker_reemits_only_live_figures(qtbot, tmp_path):
