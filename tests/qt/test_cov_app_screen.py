@@ -1396,6 +1396,24 @@ class TestRuntimePanels:
         # The propagate callback routes tuned values into the settings panel.
         assert panel._propagate_cb == scr._propagate_live_settings
 
+    @pytest.mark.parametrize("app_key,attr,label", [
+        ("mask", "_live_preview_card", "LP"),
+        ("timelapse", "_timelapse_preview_card", "TP"),
+        ("motility", "_motility_preview_card", "TP"),
+        ("measure", "_measure_preview_card", "MP"),
+    ])
+    def test_every_runtime_preview_has_a_bottom_right_toggle(
+            self, qtbot, app_key, attr, label):
+        scr = _make_screen(qtbot, app_key)
+        card = getattr(scr, attr)
+        assert card.isHidden()
+        assert scr._preview_switch.text() == label
+        assert scr._preview_switch.isChecked() is False
+        scr._preview_switch.setChecked(True)
+        assert not card.isHidden()
+        scr._preview_switch.setChecked(False)
+        assert card.isHidden()
+
     @pytest.mark.parametrize("app_key", ["umap", "classify", "ml_analyze"])
     def test_hyperparam_apps_get_a_search_card(self, qtbot, app_key):
         scr = _make_screen(qtbot, app_key)
