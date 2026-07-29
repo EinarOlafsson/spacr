@@ -120,7 +120,9 @@ def _real_spacr_project(dst, stems=SPACR_STEMS):
                                     dst, stem, "spacr_run")
         nucleus_morph = pd.DataFrame(
             {"label": [1, 2],
-             "cell_id": [f"{stem}_1", f"{stem}_2"],
+             # The canonical child-table parent link is the numeric cell
+             # object label. Field identity is carried separately by prcf.
+             "cell_id": [1, 2],
              "nucleus_area": [9.0 + index, 16.0 + index]})
         nucleus_intensity = pd.DataFrame(
             {"label": [1, 2],
@@ -198,7 +200,7 @@ def test_importing_into_a_project_keeps_the_cell_id_link(theirs, tmp_path):
     dst = tmp_path / "project"
     db = _real_spacr_project(dst)
     before = _read(db, "nucleus")
-    assert list(before["cell_id"]) == [f"{stem}_{n}" for stem in SPACR_STEMS
+    assert list(before["cell_id"]) == [n for _stem in SPACR_STEMS
                                        for n in (1, 2)]
 
     fg.run_import(_plan(theirs, "nucleus", measurement_object="nucleus"),

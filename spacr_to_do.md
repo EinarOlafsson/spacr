@@ -45,7 +45,7 @@ Status: `queued`, `in progress`, `blocked`, or `complete`.
 
 | Order | ID | Status | Effort | Task | Depends on |
 |---:|---|---|---:|---|---|
-| 15 | DATA-02 | queued | 3–5 d | Define an enforceable canonical schema for cell, cytoplasm, nucleus, and pathogen tables. | ARCH-07, DATA-05 |
+| 15 | DATA-02 | complete | 3–5 d | Define an enforceable canonical schema for cell, cytoplasm, nucleus, and pathogen tables. | ARCH-07, DATA-05 |
 | 16 | DATA-10 | queued | 2–4 d | Separate provenance columns from numerical model features using the canonical schema. | DATA-02 |
 | 17 | DATA-06 | queued | 4–7 d | Add database schema versions and an explicit migration framework. | DATA-02 |
 | 18 | DATA-07 | queued | 4–7 d | Make multi-table database writes atomic and transactional. | DATA-02, DATA-06 |

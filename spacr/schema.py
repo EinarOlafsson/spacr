@@ -76,11 +76,13 @@ from __future__ import annotations
 import os
 import re
 from dataclasses import dataclass
+from types import MappingProxyType
 from typing import Any, Dict, Optional, Tuple
 
 __all__ = [
     # errors
     'SchemaError', 'WellParseError', 'KeyParseError',
+    'ObjectTableSchemaError',
     # key names
     'PLATE_KEY', 'ROW_KEY', 'COLUMN_KEY', 'FIELD_KEY', 'TIME_KEY',
     'CHANNEL_KEY', 'SLICE_KEY', 'OBJECT_LABEL_KEY',
@@ -106,8 +108,12 @@ __all__ = [
     'PARENT_OBJECT_TABLES', 'CHILD_OBJECT_TABLES', 'OBJECT_TABLES',
     'ORGANELLE_SUMMARY_TABLES', 'CROP_TABLES', 'MEASUREMENT_TABLES',
     'BOOKKEEPING_TABLES', 'OWNED_TABLES', 'table_key_columns',
+    'CANONICAL_OBJECT_TABLES', 'OBJECT_TABLE_REQUIRED_COLUMNS',
+    'OBJECT_TABLE_OPTIONAL_COLUMNS', 'ObjectTableSchema',
+    'OBJECT_TABLE_SCHEMAS', 'object_table_schema',
     # pandas
     'add_identity_columns', 'canonicalise_columns',
+    'validate_object_table_frame',
     # legacy
     'legacy_well_ids', 'legacy_map_wells', 'legacy_safe_int_convert',
 ]
@@ -131,6 +137,10 @@ class WellParseError(SchemaError):
 
 class KeyParseError(SchemaError):
     """A key token was absent, or was rejected under ``strict=True``."""
+
+
+class ObjectTableSchemaError(SchemaError):
+    """An object-table frame violates its declared column or row contract."""
 
 
 # ---------------------------------------------------------------------------
@@ -1145,6 +1155,126 @@ BOOKKEEPING_TABLES: Tuple[str, ...] = ('settings', 'object_counts')
 OWNED_TABLES: Tuple[str, ...] = MEASUREMENT_TABLES + BOOKKEEPING_TABLES
 
 
+#: The four analysis compartments covered by the canonical object-table
+#: contract. ``organelle`` remains an owned child table but is intentionally
+#: outside this first contract: its per-object table is optional and its
+#: stable public output is the per-parent summary family above.
+CANONICAL_OBJECT_TABLES: Tuple[str, ...] = (
+    'cell', 'cytoplasm', 'nucleus', 'pathogen')
+
+#: Columns every canonical object table carries, in writer order. Time is
+#: conditional and parent links are table-specific, so both live in the
+#: optional/conditional part of :class:`ObjectTableSchema`.
+OBJECT_TABLE_REQUIRED_COLUMNS: Tuple[str, ...] = (
+    OBJECT_LABEL_KEY,
+    PLATE_KEY,
+    ROW_KEY,
+    COLUMN_KEY,
+    FIELD_KEY,
+    PRCF_KEY,
+    'file_name',
+    'path_name',
+)
+
+#: Stable non-feature columns that may be absent in legacy or non-timelapse
+#: tables. Measurement-stamp columns are added by the ``optional_columns``
+#: property from :mod:`spacr.measurement_schema`, keeping their one canonical
+#: definition and preserving this module's dependency-free import boundary.
+OBJECT_TABLE_OPTIONAL_COLUMNS: Tuple[str, ...] = (
+    TIME_KEY,
+    'cell_id',
+    'label_list_morphology',
+    'label_list_intensity',
+)
+
+
+@dataclass(frozen=True)
+class ObjectTableSchema:
+    """Declarative contract for one object measurement table.
+
+    Feature columns are open-ended because channel counts and enabled
+    measurements vary per run, but they are not untyped: a feature written by
+    a table starts with ``<object_type>_`` and is numeric. Unknown annotation
+    or provenance columns remain permitted so older databases and user-added
+    labels are not destroyed by validation.
+
+    :param table: SQLite table name.
+    :param object_type: required feature-column prefix.
+    :param parent_column: optional link to a parent cell.
+    """
+
+    table: str
+    object_type: str
+    parent_column: Optional[str] = None
+
+    @property
+    def required_columns(self) -> Tuple[str, ...]:
+        """Columns every row set of this table must expose."""
+        return OBJECT_TABLE_REQUIRED_COLUMNS
+
+    @property
+    def identifier_columns(self) -> Tuple[str, ...]:
+        """Prefixed link/label columns emitted by morphology measurement."""
+        # measure._morphological_measurements prefixes the child mapping before
+        # _check_integrity runs. These look like ordinary feature names but
+        # are identifiers: feature_dict._LINK_COLUMNS documents the same
+        # distinction. They may use object dtype after DataFrame.explode()
+        # even though every non-null value denotes an integer label.
+        return (
+            f'{self.object_type}_{self.object_type}',
+            f'{self.object_type}_cell_id',
+        )
+
+    @property
+    def optional_columns(self) -> Tuple[str, ...]:
+        """Stable optional metadata, including the shared provenance stamp."""
+        from .measurement_schema import MEASUREMENT_STAMP_COLUMNS
+
+        columns = list(OBJECT_TABLE_OPTIONAL_COLUMNS)
+        if self.parent_column is None:
+            columns.remove('cell_id')
+        return (
+            tuple(columns)
+            + self.identifier_columns
+            + tuple(MEASUREMENT_STAMP_COLUMNS)
+        )
+
+    def row_key_columns(self, *, timelapse: bool = False) -> Tuple[str, ...]:
+        """Return the columns that must be unique within one write batch."""
+        base = TIMEPOINT_KEY_COLUMNS if timelapse else FIELD_KEY_COLUMNS
+        return base + (OBJECT_LABEL_KEY,)
+
+    def feature_column(self, name: Any) -> bool:
+        """Return whether ``name`` belongs to this table's feature namespace."""
+        return str(name).startswith(f'{self.object_type}_')
+
+    def validate(self, frame, *, timelapse: Optional[bool] = None):
+        """Validate and return a canonical-column copy of ``frame``."""
+        return validate_object_table_frame(
+            frame, self.table, timelapse=timelapse)
+
+
+OBJECT_TABLE_SCHEMAS = MappingProxyType({
+    'cell': ObjectTableSchema('cell', 'cell'),
+    'cytoplasm': ObjectTableSchema('cytoplasm', 'cytoplasm'),
+    'nucleus': ObjectTableSchema('nucleus', 'nucleus', 'cell_id'),
+    'pathogen': ObjectTableSchema('pathogen', 'pathogen', 'cell_id'),
+})
+
+
+def object_table_schema(table: str) -> ObjectTableSchema:
+    """Return the canonical schema for ``table``.
+
+    :raises ObjectTableSchemaError: when no canonical contract exists.
+    """
+    try:
+        return OBJECT_TABLE_SCHEMAS[str(table)]
+    except KeyError as exc:
+        raise ObjectTableSchemaError(
+            f'{table!r} has no canonical object-table schema; expected one of '
+            f'{list(CANONICAL_OBJECT_TABLES)}.') from exc
+
+
 def table_key_columns(table: str, *, timelapse: bool = False) -> Tuple[str, ...]:
     """Return the columns that identify a row of ``table``.
 
@@ -1196,6 +1326,227 @@ def canonicalise_columns(df):
             mapping[name] = canonical
             have.add(canonical)
     return df.rename(columns=mapping) if mapping else df.copy()
+
+
+def validate_object_table_frame(
+        frame, table: str, *, timelapse: Optional[bool] = None):
+    """Validate an object-table frame against its canonical contract.
+
+    Validation is deliberately strict at the writer boundary and
+    compatibility-preserving in shape:
+
+    * required identity/provenance columns must exist and be non-null;
+    * labels (and present parent links) must be positive integers;
+    * ``prcf`` must exactly match the component key columns;
+    * one write batch may contain at most one row per object key;
+    * measurement stamps are all present or all absent;
+    * features from another compartment are rejected, and this table's own
+      feature namespace must be numeric.
+
+    Extra columns are allowed because annotation columns are user-defined and
+    historical databases contain extensions. Legacy metadata spellings are
+    canonicalised on the returned copy before validation.
+
+    pandas is imported only when this function is called. Importing
+    :mod:`spacr.schema` itself remains standard-library-only for CLI,
+    multiprocessing, and resume preflight paths.
+
+    :param frame: pandas DataFrame to validate.
+    :param table: one of :data:`CANONICAL_OBJECT_TABLES`.
+    :param timelapse: require/forbid ``timeID``; ``None`` infers it.
+    :returns: canonical-column DataFrame copy.
+    :raises ObjectTableSchemaError: on any contract violation.
+    """
+    import pandas as pd
+    from pandas.api.types import is_numeric_dtype
+
+    if not isinstance(frame, pd.DataFrame):
+        raise ObjectTableSchemaError(
+            f'{table} must be validated from a pandas DataFrame, got '
+            f'{type(frame).__name__}.')
+
+    contract = object_table_schema(table)
+    out = canonicalise_columns(frame)
+
+    duplicated_columns = out.columns[out.columns.duplicated()].tolist()
+    if duplicated_columns:
+        raise ObjectTableSchemaError(
+            f'{table} has duplicated column names: {duplicated_columns}.')
+
+    missing = [
+        column for column in contract.required_columns
+        if column not in out.columns
+    ]
+    if missing:
+        raise ObjectTableSchemaError(
+            f'{table} is missing required canonical column(s) {missing}; '
+            f'got {list(out.columns)}.')
+
+    has_time = TIME_KEY in out.columns
+    if timelapse is True and not has_time:
+        raise ObjectTableSchemaError(
+            f'{table} is a timelapse table but has no {TIME_KEY!r} column.')
+    if timelapse is False and has_time:
+        raise ObjectTableSchemaError(
+            f'{table} is non-timelapse but unexpectedly carries '
+            f'{TIME_KEY!r}.')
+    is_timelapse = has_time if timelapse is None else timelapse
+
+    from .measurement_schema import MEASUREMENT_STAMP_COLUMNS
+
+    stamp_columns = [
+        column for column in MEASUREMENT_STAMP_COLUMNS
+        if column in out.columns
+    ]
+    if stamp_columns and len(stamp_columns) != len(MEASUREMENT_STAMP_COLUMNS):
+        absent = [
+            column for column in MEASUREMENT_STAMP_COLUMNS
+            if column not in out.columns
+        ]
+        raise ObjectTableSchemaError(
+            f'{table} has a partial measurement provenance stamp: present '
+            f'{stamp_columns}, missing {absent}. Write all stamp columns or '
+            f'none for a legacy 2-D table.')
+
+    text_columns = list(FIELD_KEY_COLUMNS) + [
+        PRCF_KEY, 'file_name', 'path_name']
+    if is_timelapse:
+        text_columns.append(TIME_KEY)
+    for column in text_columns:
+        invalid = out[column].isna() | out[column].map(
+            lambda value: not isinstance(value, str) or not value.strip())
+        if invalid.any():
+            examples = out.index[invalid].tolist()[:3]
+            raise ObjectTableSchemaError(
+                f'{table}.{column} must contain non-empty strings; invalid '
+                f'row indexes: {examples}.')
+
+    def _validate_positive_integer(column: str, *, nullable: bool = False):
+        values = out[column]
+        check = values.dropna() if nullable else values
+        if not nullable and values.isna().any():
+            raise ObjectTableSchemaError(
+                f'{table}.{column} must contain positive integer labels and '
+                f'may not contain NULL.')
+        numeric = pd.to_numeric(check, errors='coerce')
+        invalid = (
+            numeric.isna()
+            | numeric.mod(1).ne(0)
+            | numeric.le(0)
+        )
+        if invalid.any():
+            examples = check.loc[invalid].head(3).tolist()
+            raise ObjectTableSchemaError(
+                f'{table}.{column} must contain positive integer labels'
+                f'{" or NULL" if nullable else ""}; invalid values: '
+                f'{examples}.')
+
+    _validate_positive_integer(OBJECT_LABEL_KEY)
+    if contract.parent_column and contract.parent_column in out.columns:
+        _validate_positive_integer(contract.parent_column, nullable=True)
+    for column in contract.identifier_columns:
+        if column in out.columns:
+            _validate_positive_integer(column, nullable=True)
+    if stamp_columns:
+        _validate_positive_integer('measurement_ndim')
+        _validate_positive_integer('n_z')
+        invalid_ndim = ~out['measurement_ndim'].isin((2, 3))
+        if invalid_ndim.any():
+            raise ObjectTableSchemaError(
+                f"{table}.measurement_ndim must be 2 or 3; invalid values: "
+                f"{out.loc[invalid_ndim, 'measurement_ndim'].head(3).tolist()}.")
+        valid_units = {'px', 'px_xy', 'um'}
+        invalid_units = ~out['measurement_units'].isin(valid_units)
+        if invalid_units.any():
+            raise ObjectTableSchemaError(
+                f"{table}.measurement_units must be one of "
+                f"{sorted(valid_units)}; invalid values: "
+                f"{out.loc[invalid_units, 'measurement_units'].head(3).tolist()}.")
+        for column in ('voxel_size_z_um', 'voxel_size_xy_um'):
+            present = out[column].dropna()
+            numeric = pd.to_numeric(present, errors='coerce')
+            invalid = numeric.isna() | numeric.le(0)
+            if invalid.any():
+                raise ObjectTableSchemaError(
+                    f'{table}.{column} must contain positive numeric values '
+                    f'or NULL; invalid values: '
+                    f'{present.loc[invalid].head(3).tolist()}.')
+
+        flat = out['measurement_ndim'].eq(2)
+        invalid_flat = flat & (
+            out['n_z'].ne(1) | out['measurement_units'].ne('px'))
+        if invalid_flat.any():
+            examples = out.loc[
+                invalid_flat,
+                ['measurement_ndim', 'measurement_units', 'n_z'],
+            ].head(3).to_dict(orient='records')
+            raise ObjectTableSchemaError(
+                f'{table} 2-D rows must use measurement_units="px" and '
+                f'n_z=1; invalid rows: {examples}.')
+
+    expected_prcf = (
+        out[PLATE_KEY]
+        + KEY_SEPARATOR + out[ROW_KEY]
+        + KEY_SEPARATOR + out[COLUMN_KEY]
+        + KEY_SEPARATOR + out[FIELD_KEY]
+    )
+    if is_timelapse:
+        expected_prcf = expected_prcf + KEY_SEPARATOR + out[TIME_KEY]
+    mismatch = out[PRCF_KEY].ne(expected_prcf)
+    if mismatch.any():
+        examples = [
+            {
+                'index': index,
+                'stored': out.at[index, PRCF_KEY],
+                'expected': expected_prcf.at[index],
+            }
+            for index in out.index[mismatch][:3]
+        ]
+        raise ObjectTableSchemaError(
+            f'{table}.{PRCF_KEY} disagrees with its component identity '
+            f'columns; examples: {examples}.')
+
+    row_keys = contract.row_key_columns(timelapse=is_timelapse)
+    duplicated = out.duplicated(subset=list(row_keys), keep=False)
+    if duplicated.any():
+        examples = (
+            out.loc[duplicated, list(row_keys)]
+            .drop_duplicates()
+            .head(3)
+            .to_dict(orient='records')
+        )
+        raise ObjectTableSchemaError(
+            f'{table} violates its one-row-per-object key {list(row_keys)}; '
+            f'duplicated keys: {examples}.')
+
+    stable_columns = (
+        set(contract.required_columns)
+        | set(contract.optional_columns)
+    )
+    foreign_prefixes = {
+        name: f'{schema.object_type}_'
+        for name, schema in OBJECT_TABLE_SCHEMAS.items()
+        if name != table
+    }
+    for column in out.columns:
+        if column in stable_columns:
+            continue
+        foreign = [
+            name for name, prefix in foreign_prefixes.items()
+            if str(column).startswith(prefix)
+        ]
+        if foreign:
+            raise ObjectTableSchemaError(
+                f'{table} contains {foreign[0]} feature {column!r}; features '
+                f'must remain in their owning object table.')
+        if contract.feature_column(column):
+            series = out[column]
+            if series.notna().any() and not is_numeric_dtype(series):
+                raise ObjectTableSchemaError(
+                    f'{table} feature {column!r} must be numeric, got '
+                    f'{series.dtype}.')
+
+    return out
 
 
 def add_identity_columns(df, source: str = 'file_name', *,

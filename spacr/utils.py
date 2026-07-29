@@ -2370,6 +2370,9 @@ def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folde
             by the compatibility check.
         :raises MeasurementUnitsMismatch: when ``table_type`` already holds
             rows measured in other units.
+        :raises spacr.schema.ObjectTableSchemaError: when a cell, cytoplasm,
+            nucleus, or pathogen frame violates its canonical identity,
+            provenance, feature-namespace, or cardinality contract.
         """
         morph_df = _check_integrity(morph_df)
         intensity_df = _check_integrity(intensity_df)
@@ -2428,6 +2431,12 @@ def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folde
             cols.insert(i, cols.pop(cols.index(col)))
         merged_df = merged_df[cols]  # rearrange the columns
         if len(merged_df) > 0:
+            if table_type in schema.CANONICAL_OBJECT_TABLES:
+                merged_df = schema.validate_object_table_frame(
+                    merged_df,
+                    table_type,
+                    timelapse=timelapse,
+                )
             db_path = f'{source_folder}/measurements/measurements.db'
             _assert_measurement_units_compatible(db_path, table_type, stamp)
             _append_to_measurements_db(db_path, table_type, merged_df)
