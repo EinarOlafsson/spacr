@@ -5,22 +5,20 @@ directory, then runs the same Mask → Measure → Annotate chain the
 Qt demo menu triggers when the user clicks
 "End-to-end (Mask → Measure → Annotate) real dataset…".
 
-Skipped unless the caller opts in. Two opt-in env vars:
+The suite probes CUDA, Cellpose and Hugging Face automatically. It runs when
+all three are available and skips cleanly otherwise.
 
-  * ``SPACR_HF_E2E_STUB=1`` — use a tiny synthetic dataset built
-    on-the-fly. No network, ~30s on a GPU box. Good for CI +
-    day-to-day.
-  * ``SPACR_HF_E2E_RUN=1``  — actually download the toxo_mito repo +
-    settings pack. ~5-15 min depending on network. Manual bug hunts.
+``SPACR_HF_E2E_STUB=1`` remains as a mode selector: it substitutes a tiny
+synthetic dataset and therefore does not require network access. Without it,
+the real toxo_mito dataset and settings pack are downloaded.
 
-Also marked ``@pytest.mark.slow`` + ``@pytest.mark.network`` for the
-marker-based selectors, but the env-var gate is the primary guard so
-a bare ``pytest tests/`` never triggers a 300-MB download.
+The tests remain marked ``@pytest.mark.slow`` + ``@pytest.mark.network`` for
+reporting and targeted selection.
 
 Example invocations::
 
     SPACR_HF_E2E_STUB=1 pytest tests/test_hf_e2e_integration.py -s
-    SPACR_HF_E2E_RUN=1  pytest tests/test_hf_e2e_integration.py -s
+    pytest tests/test_hf_e2e_integration.py -s
 - Measure and Annotate stages are best-effort — if either bails on
   dataset-shape mismatches the test records the reason and moves on
   rather than failing loudly. The point is to prove the chain is
@@ -38,56 +36,39 @@ import pytest
 
 
 STUB_ENV = "SPACR_HF_E2E_STUB"
-RUN_ENV  = "SPACR_HF_E2E_RUN"
 
 
 def _stubbed_mode() -> bool:
     return os.environ.get(STUB_ENV) == "1"
 
 
-def _explicit_opt_in() -> bool:
-    """True when either env var says "yes go".
-
-    Deliberate: without ONE of these, the tests skip so a plain
-    ``pytest tests/`` never triggers a 300-MB download.
-    """
-    return _stubbed_mode() or os.environ.get(RUN_ENV) == "1"
-
-
 def _require_network():
-    """Skip unless the caller opted in; then verify the network path.
+    """Skip when the real dataset endpoint cannot be reached.
 
     ``SPACR_HF_E2E_STUB=1`` short-circuits the network check entirely
     (stub mode uses a synthetic dataset).
     """
-    if not _explicit_opt_in():
-        pytest.skip(
-            "set SPACR_HF_E2E_STUB=1 for fast stub mode, or "
-            "SPACR_HF_E2E_RUN=1 to hit the real HF endpoint")
     if _stubbed_mode():
         return
-    try:
-        from huggingface_hub import list_repo_files       # noqa: F401
-    except Exception as e:
-        pytest.skip(f"huggingface-hub unavailable: {e}")
-    try:
-        import requests
-        requests.head("https://huggingface.co", timeout=5)
-    except Exception as e:
-        pytest.skip(f"network / huggingface.co unreachable: {e}")
+    from tests.resource_capabilities import (
+        endpoint_available,
+        package_available,
+    )
+    if not package_available("huggingface_hub"):
+        pytest.skip("huggingface-hub unavailable")
+    if not endpoint_available():
+        pytest.skip("network / huggingface.co unreachable")
 
 
 def _require_gpu_cellpose():
-    try:
-        import torch
-    except Exception as e:
-        pytest.skip(f"torch unavailable: {e}")
-    if not torch.cuda.is_available():
+    from tests.resource_capabilities import (
+        cuda_available,
+        package_available,
+    )
+    if not cuda_available():
         pytest.skip("no CUDA — this E2E chain is GPU-only")
-    try:
-        import cellpose                                    # noqa: F401
-    except Exception as e:
-        pytest.skip(f"cellpose unavailable: {e}")
+    if not package_available("cellpose"):
+        pytest.skip("cellpose unavailable")
 
 
 # ---------------------------------------------------------------------------

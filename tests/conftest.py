@@ -570,8 +570,10 @@ def synth_illumina_reads(tmp_path, rng, synth_barcodes):
 #   einarolafsson/toxo_mito       real 4-channel CellVoyager microscopy
 #   einarolafsson/spacr_settings  the reference settings CSVs
 #
-# Tests that use them are marked @pytest.mark.network so they skip in
-# offline CI. Fixtures are session-scoped since the payload is stable.
+# Tests that use them are marked @pytest.mark.network and probe the endpoint
+# automatically. They skip in offline environments and run whenever the
+# Hugging Face service is reachable. Fixtures are session-scoped since the
+# payload is stable.
 #
 # Only 4 TIFFs (one plate/well/field, four channels) are pulled — enough
 # to exercise the metadata extractor, the settings loader, and one mask
@@ -586,6 +588,9 @@ def hf_toxo_mito_field(tmp_path_factory):
       * files: list of absolute file paths (4 TIFFs, one per channel)
       * plate/well/field: the metadata slice picked
     """
+    from tests.resource_capabilities import endpoint_available
+    if not endpoint_available():
+        pytest.skip("network / huggingface.co unreachable")
     try:
         from huggingface_hub import hf_hub_download
     except Exception as e:  # pragma: no cover - import failure
@@ -733,11 +738,17 @@ def hf_toxo_mito_multi_fields(tmp_path_factory):
       list of Yokogawa CellVoyager TIFFs (as the pipeline expects) plus the
       manifest of what was downloaded.
     """
-    if os.environ.get("SPACR_RUN_PIPELINE_E2E", "").strip().lower() not in {
-        "1", "true", "yes", "on",
-    }:
-        pytest.skip(
-            "set SPACR_RUN_PIPELINE_E2E=1 to run the network/GPU pipeline E2E")
+    from tests.resource_capabilities import (
+        cuda_available,
+        endpoint_available,
+        package_available,
+    )
+    if not cuda_available():
+        pytest.skip("no CUDA available for full pipeline test")
+    if not package_available("cellpose"):
+        pytest.skip("cellpose unavailable")
+    if not endpoint_available():
+        pytest.skip("network / huggingface.co unreachable")
     try:
         from huggingface_hub import hf_hub_download
     except Exception as e:  # pragma: no cover
@@ -779,6 +790,9 @@ def hf_toxo_mito_multi_fields(tmp_path_factory):
 @pytest.fixture(scope="session")
 def hf_spacr_settings(tmp_path_factory):
     """Download the two reference settings CSVs from einarolafsson/spacr_settings."""
+    from tests.resource_capabilities import endpoint_available
+    if not endpoint_available():
+        pytest.skip("network / huggingface.co unreachable")
     try:
         from huggingface_hub import hf_hub_download
     except Exception as e:  # pragma: no cover
