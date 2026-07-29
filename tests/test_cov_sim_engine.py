@@ -314,6 +314,14 @@ def test_compute_precision_recall_threshold_column_is_aligned():
     assert S.get_optimum_threshold(pr) == pytest.approx(0.9)
 
 
+def test_compute_precision_recall_defines_zero_over_zero_f1_as_zero():
+    frame = pd.DataFrame({"is_active": [0, 1], "score": [1.0, 0.0]})
+    with np.errstate(all="raise"):
+        result = S.compute_precision_recall(frame)
+    assert np.isfinite(result["f1_score"]).all()
+    assert result["f1_score"][1] == 0.0
+
+
 def test_cell_level_roc_auc_on_perfectly_separable_scores():
     """BUG (fixed): the mis-aligned threshold made the optimum 0.1 instead of
     0.9, so every negative was predicted positive — cm was [[0,5],[0,5]]."""

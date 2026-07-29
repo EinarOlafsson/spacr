@@ -340,7 +340,13 @@ def compute_precision_recall(cell_scores):
     # is "predict nothing positive", so pad at the END — padding at the front
     # shifts every row onto the threshold below it.
     th = np.append(th, 1.0)
-    f1_score = 2 * (pr * re) / (pr + re)
+    denominator = pr + re
+    f1_score = np.divide(
+        2 * pr * re,
+        denominator,
+        out=np.zeros_like(denominator, dtype=float),
+        where=denominator > 0,
+    )
     pr_auc = auc(re, pr)
     cell_pr_dict = {'threshold':th,'precision': pr,'recall': re, 'f1_score':f1_score, 'pr_auc': pr_auc}
     return cell_pr_dict
@@ -509,7 +515,13 @@ def regression_roc_auc(results_df, active_gene_list, control_gene_list, alpha = 
 
     pr, re, th = precision_recall_curve(results_df['active'], results_df['score'])
     th = np.append(th, 1.0)  # pr[i]/re[i] pair with th[i]; the extra point is the "predict nothing" end
-    f1_score = 2 * (pr * re) / (pr + re)
+    denominator = pr + re
+    f1_score = np.divide(
+        2 * pr * re,
+        denominator,
+        out=np.zeros_like(denominator, dtype=float),
+        where=denominator > 0,
+    )
     pr_auc = auc(re, pr)
     reg_pr_dict_df = pd.DataFrame({'threshold':th, 'precision': pr, 'recall': re, 'f1_score':f1_score, 'pr_auc': pr_auc})
 
