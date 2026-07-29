@@ -45,6 +45,7 @@ from pylibCZIrw import czi as pyczi
 # artifact it produced, instead of writing a silently-short result.
 from .errors import RunLedger, ConfigurationError, raise_if_strict
 from .image_colors import read_image_rgb
+from .tiff_io import write_tiff
 
 # One definition of what a well is called. spacr.convert imports nothing
 # heavier than spacr.schema, so this costs nothing here, and it is the reason
@@ -83,7 +84,7 @@ def process_non_tif_non_2D_images(folder):
             suffix += f"_T{t}"
 
         output_filename = os.path.join(folder, f"{base_name}{suffix}.tif")
-        tifffile.imwrite(output_filename, image.astype(dtype))
+        write_tiff(output_filename, image.astype(dtype))
 
     # Function to handle splitting of multi-dimensional images into grayscale channels
     def split_channels(image, folder, base_name, dtype):
@@ -146,7 +147,7 @@ def process_non_tif_non_2D_images(folder):
         """Convert grayscale images that are not in TIFF format to TIFF, preserving bit depth."""
         base_name = os.path.splitext(filename)[0]
         output_filename = os.path.join(folder, f"{base_name}.tif")
-        tifffile.imwrite(output_filename, image.astype(dtype))
+        write_tiff(output_filename, image.astype(dtype))
         print(f"Converted grayscale image {filename} to TIFF with bit depth {dtype}.")
 
     # Supported formats
@@ -2747,12 +2748,14 @@ def save_object_mask(output_folder, filename, mask, compression='lzw'):
     :param compression: lossless codec — ``'lzw'`` | ``'zlib'`` | ``'none'``.
     :returns: the path written.
     """
-    import tifffile
     base = os.path.splitext(os.path.basename(filename))[0]
     out_path = os.path.join(output_folder, base + '.tif')
     comp = None if str(compression).lower() in ('none', '', 'no', 'false') else str(compression).lower()
-    tifffile.imwrite(out_path, np.asarray(mask).astype(np.uint16),
-                     compression=comp)
+    write_tiff(
+        out_path,
+        np.asarray(mask).astype(np.uint16),
+        compression=comp,
+    )
     return out_path
 
 
@@ -3769,7 +3772,7 @@ def convert_numpy_to_tiff(folder_path, limit=None):
         tiff_file_path = os.path.join(tiff_subdir, tiff_filename)
         
         # Save the numpy array as a TIFF file
-        tifffile.imwrite(tiff_file_path, numpy_array)
+        write_tiff(tiff_file_path, numpy_array)
         
         print(f"Converted {filename} to {tiff_filename} and saved in 'tiff' subdirectory.")
     return
@@ -6536,7 +6539,7 @@ def convert_separate_files_to_yokogawa(folder, regex):
 
         new_filename = f"{assigned_well}_T{timeID:04d}F{int(fieldID):03d}L01C{chanID:02d}.tif"
         new_filepath = os.path.join(folder, new_filename)
-        tifffile.imwrite(new_filepath, img_to_save.astype(dtype))
+        write_tiff(new_filepath, img_to_save.astype(dtype))
 
         # Log original filenames involved in MIP or single file rename
         original_files = ";".join(f[0] for f in file_list)
@@ -6630,7 +6633,7 @@ def convert_to_yokogawa(folder):
                                 filename = f"{well}_T{t_idx+1:04d}F{f_idx+1:03d}L01C{c_idx+1:02d}.tif"
                                 filepath = os.path.join(folder, filename)
 
-                                tifffile.imwrite(filepath, mip_image.astype(dtype))
+                                write_tiff(filepath, mip_image.astype(dtype))
                                 rename_log.append({"Original File": file, 
                                                    "Renamed TIFF": filename,
                                                    "ext": ext,
@@ -6700,7 +6703,7 @@ def convert_to_yokogawa(folder):
                                     outpath = os.path.join(folder, fn)
 
                                     # Write with lossless compression
-                                    tifffile.imwrite(
+                                    write_tiff(
                                         outpath,
                                         plane.astype(plane.dtype),
                                         compression='zlib'
@@ -6749,7 +6752,7 @@ def convert_to_yokogawa(folder):
                                 filename = f"{well}_T{t_idx+1:04d}F{image_idx+1:03d}L01C{c_idx+1:02d}.tif"
                                 filepath = os.path.join(folder, filename)
 
-                                tifffile.imwrite(filepath, mip_image.astype(dtype))
+                                write_tiff(filepath, mip_image.astype(dtype))
                                 rename_log.append({"Original File": file, "Renamed TIFF": filename})
 
         ### **Process Standard Image Files (TIFF, PNG, JPEG, BMP)**
@@ -6767,7 +6770,7 @@ def convert_to_yokogawa(folder):
                     if ndim == 2:
                         mip_image = images
                         filename = f"{well}_T0001F001L01C01.tif"
-                        tifffile.imwrite(os.path.join(folder, filename), mip_image)
+                        write_tiff(os.path.join(folder, filename), mip_image)
                         rename_log.append({"Original File": file, "Renamed TIFF": filename})
                         continue
 
@@ -6777,12 +6780,14 @@ def convert_to_yokogawa(folder):
                             for c in range(c_dim):
                                 mip_image = images[c, :, :]
                                 filename = f"{well}_T0001F001L01C{c+1:02d}.tif"
-                                tifffile.imwrite(os.path.join(folder, filename), mip_image)
+                                write_tiff(
+                                    os.path.join(folder, filename), mip_image)
                                 rename_log.append({"Original File": file, "Renamed TIFF": filename})
                         else:  # Z-stack
                             mip_image = np.max(images, axis=0)
                             filename = f"{well}_T0001F001L01C01.tif"
-                            tifffile.imwrite(os.path.join(folder, filename), mip_image)
+                            write_tiff(
+                                os.path.join(folder, filename), mip_image)
                             rename_log.append({"Original File": file, "Renamed TIFF": filename})
 
                     elif ndim == 4:
@@ -6814,7 +6819,8 @@ def convert_to_yokogawa(folder):
                             plane_stack = images[t] if t_axis == 0 else images[:, t]
                             mip_image = np.max(plane_stack, axis=0)
                             filename = f"{well}_T{t+1:04d}F001L01C01.tif"
-                            tifffile.imwrite(os.path.join(folder, filename), mip_image)
+                            write_tiff(
+                                os.path.join(folder, filename), mip_image)
                             rename_log.append({"Original File": file, "Renamed TIFF": filename})
 
                     else:
@@ -6862,8 +6868,8 @@ def process_instruction(entry):
     if entry["augment"]:
         img = apply_augmentation(img, entry["augment"])
         msk = apply_augmentation(msk, entry["augment"])
-    tifffile.imwrite(entry["dst_img"], img)
-    tifffile.imwrite(entry["dst_msk"], msk)
+    write_tiff(entry["dst_img"], img)
+    write_tiff(entry["dst_msk"], msk)
     return 1
 
 def prepare_cellpose_dataset(input_root, augment_data=False, train_fraction=0.8, n_jobs=None):

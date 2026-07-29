@@ -70,11 +70,11 @@ def save_mask(path: PathLike, mask: np.ndarray,
     if fmt in ("tif", "tiff"):
         p = p.with_suffix(f".{fmt}")
         try:
-            import tifffile
+            from .tiff_io import write_tiff
         except Exception:
             LOG.warning("tifffile missing — falling back to npy for %s", p)
             return save_mask(path, mask, fmt="npy")
-        tifffile.imwrite(
+        write_tiff(
             str(p), mask.astype(np.uint16), compression="lzw",
         )
     elif fmt == "npy":

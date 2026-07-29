@@ -32,6 +32,7 @@ from matplotlib_venn import venn2
 # condition together, which is far worse than a plot that refuses to render.
 from .errors import RunLedger, ConfigurationError, raise_if_strict
 from .image_colors import read_image_rgb, write_image_rgb
+from .tiff_io import write_tiff
 
 def plot_image_mask_overlay(
     file,
@@ -246,7 +247,7 @@ def plot_image_mask_overlay(
         for i in range(stack.shape[-1]):
             channel = stack[..., i]
             tiff_path = os.path.join(save_dir, f"{filename}_channel_{i}.tiff")
-            tiff.imwrite(tiff_path, channel.astype(np.uint16), photometric='minisblack')
+            write_tiff(tiff_path, channel.astype(np.uint16))
             print(f"Saved {tiff_path}")
 
     def _filter_object(mask, intensity_image, min_max_area=(0, 10000000), min_max_intensity=(0, 65000), type_='object'):
@@ -586,7 +587,7 @@ def plot_image_mask_overlay_magenta_outlines(
         for i in range(stack.shape[-1]):
             channel = stack[..., i]
             tiff_path = os.path.join(save_dir, f"{filename}_channel_{i}.tiff")
-            tiff.imwrite(tiff_path, channel.astype(np.uint16), photometric='minisblack')
+            write_tiff(tiff_path, channel.astype(np.uint16))
             print(f"Saved {tiff_path}")
 
     def _filter_object(mask, intensity_image, min_max_area=(0, 10000000), min_max_intensity=(0, 65000), type_='object'):

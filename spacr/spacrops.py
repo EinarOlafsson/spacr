@@ -5,6 +5,8 @@ from typing import Optional, Tuple, Dict, Union, List, Pattern, Any
 import matplotlib.pyplot as plt
 import numpy as np
 
+from .tiff_io import write_tiff
+
 class _DiskFeatureStore:
     """Disk-backed feature cache with a bounded in-RAM LRU.
 
@@ -942,7 +944,7 @@ class spacrStitcher:
                 stem = f"{os.path.splitext(os.path.basename(pathA))[0]}__{os.path.splitext(os.path.basename(pathB))[0]}"
                 p_tif = os.path.join(self.outdir, f"{stem}__stitched_full.tif")
                 p_png = os.path.join(self.outdir, f"{stem}__stitched_full.png")
-                tifffile.imwrite(p_tif, _cast(stitched, out_dtype))
+                write_tiff(p_tif, _cast(stitched, out_dtype))
                 plt.imsave(p_png, (stitched - stitched.min()) / (stitched.max() - stitched.min() + 1e-12), cmap="gray")
                 stitched_paths["stitched_full_tif"] = p_tif
                 stitched_paths["stitched_full_png"] = p_png
@@ -1550,7 +1552,11 @@ class spacrStitcher:
     
         # --- Save BigTIFF with axes metadata; choose common dtype over inputs ---
         out_dtype = np.result_type(*in_dtypes) if in_dtypes else np.float32
-        tifffile.imwrite(out_tif, np.asarray(out_stack, dtype=out_dtype, order="C"), metadata={"axes": "CYX"})
+        write_tiff(
+            out_tif,
+            np.asarray(out_stack, dtype=out_dtype, order="C"),
+            metadata={"axes": "CYX"},
+        )
     
         # --- Optional preview (channel 0 min-max normalized, downsampled) ---
         if out_png:
@@ -2009,7 +2015,7 @@ class spacrStitcher:
         out = np.where(wgt > 0, np.divide(canvas, np.maximum(wgt, 1e-6)), 0.0)
     
         out_dtype = np.result_type(*[node_dtype[p] for p in kept_nodes])
-        tifffile.imwrite(out_tif, _cast(out, out_dtype))
+        write_tiff(out_tif, _cast(out, out_dtype))
         if out_png:
             prev = (out - out.min()) / (out.max() - out.min() + 1e-12)
             plt.imsave(out_png, prev, cmap="gray")
@@ -2209,7 +2215,11 @@ class spacrStitcher:
     
             out_stack[ci] = np.where(wgt > 0, np.divide(canvas, np.maximum(wgt, 1e-6)), 0.0)
     
-        tifffile.imwrite(out_tif, _cast(out_stack, out_dtype), metadata={"axes": "CYX"})
+        write_tiff(
+            out_tif,
+            _cast(out_stack, out_dtype),
+            metadata={"axes": "CYX"},
+        )
         return out_tif
 
 class StitchedMultiAligner:
@@ -2673,7 +2683,11 @@ class StitchedMultiAligner:
         # concatenate (float32 workspace) and SAVE using common input dtype
         out = np.concatenate(all_arrays, axis=0)
         out_dtype = _common_dtype(input_dtypes)
-        tifffile.imwrite(out_tif, _cast(out, out_dtype), metadata={"axes": "CYX"})
+        write_tiff(
+            out_tif,
+            _cast(out, out_dtype),
+            metadata={"axes": "CYX"},
+        )
     
         if out_png_preview:
             ref_idx = int(nuclei_channel_indices[0])
