@@ -1833,7 +1833,7 @@ def build_sklearn_model(model_type: str, params: Mapping[str, Any],
     if mt == "logistic_regression":
         from sklearn.linear_model import LogisticRegression
         return LogisticRegression(max_iter=1000, C=1.0 / max(reg_lambda, 1e-9),
-                                  random_state=seed, n_jobs=n_jobs)
+                                  random_state=seed)
     if mt == "gradient_boosting":
         from sklearn.ensemble import HistGradientBoostingClassifier
         return HistGradientBoostingClassifier(
