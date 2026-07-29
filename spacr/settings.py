@@ -799,6 +799,8 @@ def set_default_train_test_model(settings):
     settings.setdefault('image_size',224)
     settings.setdefault('batch_size',64)
     settings.setdefault('epochs',100)
+    settings.setdefault('plot',True)
+    settings.setdefault('tensorboard',True)
     settings.setdefault('val_split',0.1)
     settings.setdefault('learning_rate',0.001)
     settings.setdefault('weight_decay',0.00001)
@@ -899,6 +901,8 @@ def deep_spacr_defaults(settings):
     settings.setdefault('image_size',224)
     settings.setdefault('batch_size',64)
     settings.setdefault('epochs',100)
+    settings.setdefault('plot',True)
+    settings.setdefault('tensorboard',True)
     settings.setdefault('val_split',0.1)
     settings.setdefault('learning_rate',0.001)
     settings.setdefault('weight_decay',0.00001)
@@ -948,7 +952,8 @@ def get_train_test_model_settings(settings):
      settings.setdefault('image_size', 224)
      settings.setdefault('batch_size', 64)
      settings.setdefault('epochs', 100)
-     settings.setdefault('plot', False)
+     settings.setdefault('plot', True)
+     settings.setdefault('tensorboard', True)
      settings.setdefault('val_split', 0.1)
      settings.setdefault('learning_rate', 0.0001)
      settings.setdefault('weight_decay', 0.00001)
@@ -1314,6 +1319,7 @@ expected_types = {
     "skip_mode": str,
     "save": bool,
     "plot": bool,
+    "tensorboard": bool,
     "verbose": bool,
     "cell_mask_dim": int,
     "cell_min_size": int,
@@ -2326,6 +2332,7 @@ tooltips = {
     'custom_measurement': "(str) - Optional measurement-column name intended for class assignment; the Tk dataset dialog collects it but no pipeline code reads the key, so it currently has no effect. To select classes by a measured feature use dataset_mode 'measurement' with measurement_rules instead. Default None.",
     'denoise': "(bool) - Legacy denoising toggle for the mask pipeline: no code reads this key, so it has no effect. To actually denoise, set the per-object restore settings (cell_restore_type / nucleus_restore_type / pathogen_restore_type) to 'denoise', which routes segmentation through Cellpose's CellposeDenoiseModel. Default False.",
     'early_stopping_patience': "(int) - Stop training after this many consecutive epochs in which validation accuracy fails to beat the best value so far; the best checkpoint is still kept. 0 (default) disables it and always runs the full 'epochs' budget. Set 10-20 on long runs to cut wasted epochs once the model plateaus.",
+    'tensorboard': "(bool) - Write live PyTorch loss, accuracy, macro-F1 and learning-rate events to dst/tensorboard while the vision model trains. Open that folder with `tensorboard --logdir PATH` for an interactive dashboard that can compare runs. The in-app zoomable loss/accuracy monitor is controlled separately by plot. Default True.",
     'filter_column': "(str) - Metadata column used to drop control wells before regression: every row whose value appears in filter_value is removed from both the score data and the read counts. Use 'columnID' (default) when controls sit in plate columns, 'rowID' when they sit in rows. In annotate_filter_vision it instead names the score column thresholded by upper_threshold/lower_threshold.",
     'filter_min_max': "(list) - Display-only size filter for plot_merged: one [min_area, max_area] pair in pixels per mask dimension, in the order cell, nucleus, pathogen, e.g. [[500,50000],[100,5000],[10,2000]]. Objects outside a pair are erased from that mask before the overlay is drawn. None (default) keeps every object.",
     'filter_value': "(list) - Values of filter_column whose rows are removed - not kept - before regression, normally the control columns; default ['c1','c2','c3']. Dropping them stops control wells from dominating the gene and gRNA fits. Only list values take effect: a bare string is silently ignored and nothing is filtered.",
@@ -2512,7 +2519,7 @@ categories = {
 
     # Which model, and how it is fitted. 'model_name' and 'custom_model' moved
     # here from "Cellpose" -- they answer the same question 'model_type' does.
-    "Model Training": ["model_type", "model_name", "custom_model", "classes", "train_channels", "image_size", "init_weights", "train", "test", "val_split", "epochs", "optimizer_type", "learning_rate", "schedule", "weight_decay", "dropout_rate", "loss_type", "class_balance", "augment", "amsgrad", "use_checkpoint", "gradient_accumulation", "gradient_accumulation_steps", "pin_memory", "cross_validation_folds", "cv_group_by", "score_threshold", "intermedeate_save"],
+    "Model Training": ["model_type", "model_name", "custom_model", "classes", "train_channels", "image_size", "init_weights", "train", "test", "val_split", "epochs", "optimizer_type", "learning_rate", "schedule", "weight_decay", "dropout_rate", "loss_type", "class_balance", "augment", "amsgrad", "use_checkpoint", "gradient_accumulation", "gradient_accumulation_steps", "pin_memory", "cross_validation_folds", "cv_group_by", "score_threshold", "intermedeate_save", "tensorboard"],
 
     # The classical (non-image) screen classifier fitted on measured features -
     # spacr's "Classify (ML)" module. These knobs used to be split three ways

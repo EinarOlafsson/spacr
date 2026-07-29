@@ -495,8 +495,8 @@ def test_single_logit_binary_head_uses_bce_and_binary_metrics(tmp_path, monkeypa
 # live plotting hook
 # ---------------------------------------------------------------------------
 
-def test_plot_true_emits_one_figure_per_epoch(tmp_path, monkeypatch):
-    """plot=True renders the live train/val curves once per epoch."""
+def test_plot_true_refreshes_one_live_figure(tmp_path, monkeypatch):
+    """plot=True refreshes one monitor instead of retaining every epoch."""
     import matplotlib.pyplot as plt
     from spacr.deep_spacr import train_model
     _use_model(monkeypatch, nn.Sequential(nn.Linear(4, 2)))
@@ -509,7 +509,7 @@ def test_plot_true_emits_one_figure_per_epoch(tmp_path, monkeypatch):
                 val_loaders=_loaders(1), num_classes=2, schedule=None, plot=True)
 
     figs = plt.get_fignums()
-    assert len(figs) == 2                          # one per epoch
+    assert len(figs) == 1
     last = plt.figure(figs[-1])
     assert "epoch 2 / 2" in last._suptitle.get_text()
     # both curves present in the final figure (train + val)
@@ -521,7 +521,7 @@ def test_plot_failure_is_swallowed(tmp_path, monkeypatch):
     from spacr.deep_spacr import train_model
     calls = []
 
-    def boom(train_hist, val_hist, total_epochs):
+    def boom(train_hist, val_hist, total_epochs, figure=None):
         calls.append((len(train_hist), len(val_hist), total_epochs))
         raise RuntimeError("no display")
 
@@ -538,6 +538,65 @@ def test_plot_failure_is_swallowed(tmp_path, monkeypatch):
     assert trained is not None
     # called every epoch, with no val history (val_loaders=None) and growing train history
     assert calls == [(1, 0, 2), (2, 0, 2)]
+
+
+def test_tensorboard_logs_epoch_scalars_and_flushes():
+    """Training and validation metrics use grouped TensorBoard scalar names."""
+    from spacr.deep_spacr import _log_tensorboard_epoch
+
+    class Writer:
+        def __init__(self):
+            self.scalars = []
+            self.flushes = 0
+
+        def add_scalar(self, name, value, epoch):
+            self.scalars.append((name, value, epoch))
+
+        def flush(self):
+            self.flushes += 1
+
+    writer = Writer()
+    _log_tensorboard_epoch(
+        writer,
+        {'loss': 0.3, 'accuracy': 0.8, 'f1_macro': 0.7, 'lr': 1e-4},
+        {'loss': 0.4, 'accuracy': 0.75, 'f1_macro': 0.65},
+        3,
+    )
+
+    assert writer.flushes == 1
+    assert ('loss/train', 0.3, 3) in writer.scalars
+    assert ('accuracy/validation', 0.75, 3) in writer.scalars
+    assert ('f1_macro/validation', 0.65, 3) in writer.scalars
+    assert ('learning_rate', 1e-4, 3) in writer.scalars
+
+
+def test_tensorboard_can_be_disabled_without_importing_backend(tmp_path):
+    from spacr.deep_spacr import _open_tensorboard_writer
+
+    writer, log_dir = _open_tensorboard_writer(tmp_path, enabled=False)
+    assert writer is None
+    assert log_dir == str((tmp_path / 'tensorboard').resolve())
+
+
+def test_tensorboard_writer_creates_readable_event_file(tmp_path):
+    from tensorboard.backend.event_processing.event_accumulator import (
+        EventAccumulator,
+    )
+    from spacr.deep_spacr import (
+        _log_tensorboard_epoch,
+        _open_tensorboard_writer,
+    )
+
+    writer, log_dir = _open_tensorboard_writer(tmp_path, enabled=True)
+    assert writer is not None
+    _log_tensorboard_epoch(
+        writer, {'loss': 0.25, 'accuracy': 0.9, 'lr': 1e-3}, None, 1)
+    writer.close()
+
+    events = EventAccumulator(log_dir)
+    events.Reload()
+    assert 'loss/train' in events.Tags()['scalars']
+    assert events.Scalars('accuracy/train')[0].value == pytest.approx(0.9)
 
 
 # ---------------------------------------------------------------------------

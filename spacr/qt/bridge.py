@@ -436,16 +436,19 @@ class PipelineWorker(QObject):
             fig_counter = [0]
 
             def _capture_show(*args, **kwargs):
-                # Emit each figure only ONCE. The pipeline often leaves figures
-                # open (the "More than 20 figures" matplotlib warning), so a
-                # naive re-scan would re-emit the whole backlog on every show().
+                # Emit ordinary figures only once. Figures explicitly marked
+                # ``_spacr_live_update`` are re-rendered and emitted in place;
+                # this is how the training monitor refreshes without filling
+                # the gallery with one snapshot per epoch.
                 # Render each figure to a PNG HERE, in the worker thread (Agg
                 # savefig touches no Qt) — the expensive part — so the GUI
                 # thread only does a cheap file-move + pixmap load and never
                 # hangs while figures stream in.
                 for num in list(plt.get_fignums()):
                     fig = plt.figure(num)
-                    if id(fig) in emitted_ids:
+                    already_emitted = id(fig) in emitted_ids
+                    if already_emitted and not getattr(
+                            fig, "_spacr_live_update", False):
                         continue
                     emitted_ids.add(id(fig))
                     png_path = ""

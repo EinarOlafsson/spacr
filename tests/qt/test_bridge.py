@@ -72,3 +72,40 @@ def test_make_thread_returns_thread_and_worker():
     finally:
         thread.deleteLater()
         worker.deleteLater()
+
+
+def test_pipeline_worker_reemits_only_live_figures(qtbot, tmp_path):
+    import matplotlib.pyplot as plt
+    plt.close('all')
+
+    live_ids = []
+    static_ids = []
+
+    def _fn(settings):
+        live, _ = plt.subplots()
+        live._spacr_live_update = True
+        static, _ = plt.subplots()
+        plt.show()
+        live.axes[0].plot([0, 1], [0, 1])
+        plt.show()
+        settings['live'] = live
+        settings['static'] = static
+
+    settings = {}
+    worker = PipelineWorker(_fn, settings)
+
+    def receive(fig, png_path):
+        if getattr(fig, '_spacr_live_update', False):
+            live_ids.append(id(fig))
+        else:
+            static_ids.append(id(fig))
+        if png_path:
+            from pathlib import Path
+            Path(png_path).unlink(missing_ok=True)
+
+    worker.figure_ready.connect(receive)
+    worker.run()
+
+    assert live_ids == [id(settings['live']), id(settings['live'])]
+    assert static_ids == [id(settings['static'])]
+    plt.close('all')

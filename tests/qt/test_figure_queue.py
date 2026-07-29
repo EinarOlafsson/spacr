@@ -46,6 +46,23 @@ class TestBasics:
         q.add_figure(fig)   # same object → no new entry
         assert q.count() == 1
 
+    def test_live_figure_refresh_reuses_gallery_slot(self, qtbot, tmp_path):
+        q = FigureQueue()
+        qtbot.addWidget(q)
+        fig = _make_fig(0)
+        q.add_figure(fig)
+        before = Path(q._png_paths[0]).read_bytes()
+
+        replacement = tmp_path / "live.png"
+        updated = _make_fig(99)
+        updated.savefig(replacement, dpi=100)
+        q.add_figure(fig, prerendered_png=str(replacement))
+
+        assert q.count() == 1
+        assert q._list.count() == 1
+        assert Path(q._png_paths[0]).read_bytes() != before
+        assert not replacement.exists()
+
     def test_every_figure_has_a_temp_png(self, qtbot):
         q = FigureQueue()
         qtbot.addWidget(q)

@@ -195,6 +195,12 @@ dependencies = [
     'patsy>=0.5.6,<2.0',
     'shap>=0.45.0,<1.0',
     'torch>=2.0,<3.0',
+    # PyTorch's official SummaryWriter backend. Vision training writes
+    # loss/accuracy/F1/LR events to each run folder for an interactive
+    # TensorBoard dashboard; 2.21 is the release exercised by the Python 3.12
+    # event-file test, while the major-version ceiling avoids an unreviewed
+    # event-file/API break.
+    'tensorboard>=2.21,<3.0',
     # Floor RAISED from `>=0.1`, which was false — torchvision 0.1.6 is from
     # 2017. spacr/utils.py:53 imports `ResNet18_Weights ... ResNet152_Weights`
     # from torchvision.models.resnet at module scope (the multi-weight API,

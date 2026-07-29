@@ -710,6 +710,7 @@ def _cross_validate_model(settings, num_classes):
             num_classes=num_classes,
             image_size=settings.get('image_size', 224),
             plot=settings.get('plot', False),
+            tensorboard=settings.get('tensorboard', True),
             early_stopping_patience=settings.get('early_stopping_patience', 0),
         )
         if model is None:
@@ -930,6 +931,7 @@ def train_test_model(settings):
             num_classes=num_classes,
             image_size=settings.get('image_size', 224),
             plot=settings.get('plot', False),
+            tensorboard=settings.get('tensorboard', True),
             early_stopping_patience=settings.get('early_stopping_patience', 0),
         )
 
@@ -989,20 +991,27 @@ def train_test_model(settings):
     if settings['test']:
         return result_loc
 
-def _plot_training_curves(train_hist, val_hist, total_epochs=None):
-    """Render live loss + accuracy curves for the training run.
+def _plot_training_curves(train_hist, val_hist, total_epochs=None, figure=None):
+    """Render or refresh live loss + accuracy curves for the training run.
 
-    Emits a fresh matplotlib figure via ``plt.show()`` (captured by the GUI
-    bridge) so the user can watch training progress in real time.
+    ``figure`` lets the GUI update one zoomable monitor in place instead of
+    adding an epoch snapshot to the figure gallery every time.  ``plt.show``
+    is captured by the Qt bridge and re-renders figures marked as live.
     """
     import matplotlib.pyplot as plt
     if not train_hist:
-        return
+        return None
     tr_ep = [d.get('epoch', i + 1) for i, d in enumerate(train_hist)]
     tr_loss = [d.get('loss', float('nan')) for d in train_hist]
     tr_acc = [d.get('accuracy', float('nan')) for d in train_hist]
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4))
+    if figure is None:
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4))
+        fig._spacr_live_update = True
+    else:
+        fig = figure
+        fig.clear()
+        ax1, ax2 = fig.subplots(1, 2)
     ax1.plot(tr_ep, tr_loss, marker='o', ms=3, color='#4A9EFF', label='train')
     ax2.plot(tr_ep, tr_acc, marker='o', ms=3, color='#4A9EFF', label='train')
     if val_hist:
@@ -1019,6 +1028,50 @@ def _plot_training_curves(train_hist, val_hist, total_epochs=None):
     fig.suptitle(f'Training — epoch {last}{suffix}')
     plt.tight_layout()
     plt.show()
+    return fig
+
+
+def _open_tensorboard_writer(dst, enabled=True):
+    """Create a PyTorch TensorBoard writer for a training run.
+
+    TensorBoard is a declared dependency, but keeping the import guarded makes
+    old editable environments fail soft and tells the user how to repair them.
+    """
+    log_dir = os.path.abspath(os.path.join(dst, 'tensorboard'))
+    if not enabled:
+        return None, log_dir
+    try:
+        from torch.utils.tensorboard import SummaryWriter
+    except (ImportError, ModuleNotFoundError) as exc:
+        print(
+            "TensorBoard logging is unavailable. Install the current package "
+            "dependencies (or `pip install tensorboard`) to enable it. "
+            f"Details: {exc}"
+        )
+        return None, log_dir
+
+    writer = SummaryWriter(log_dir=log_dir, flush_secs=5)
+    print(f"TensorBoard log: {log_dir}")
+    print(f"Open it with: tensorboard --logdir {log_dir}")
+    return writer, log_dir
+
+
+def _log_tensorboard_epoch(writer, train_dict, val_dict, epoch):
+    """Write the scalar metrics produced by one epoch and flush immediately."""
+    if writer is None:
+        return
+    groups = (('train', train_dict), ('validation', val_dict))
+    for split, metrics in groups:
+        if not metrics:
+            continue
+        for metric in ('loss', 'accuracy', 'f1_macro'):
+            value = metrics.get(metric)
+            if value is not None:
+                writer.add_scalar(f'{metric}/{split}', float(value), epoch)
+    lr = train_dict.get('lr')
+    if lr is not None:
+        writer.add_scalar('learning_rate', float(lr), epoch)
+    writer.flush()
 
 
 def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.0001,
@@ -1028,7 +1081,7 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                 chan_dict=None, schedule=None, loss_type='auto',
                 gradient_accumulation=False, gradient_accumulation_steps=4,
                 channels=None, verbose=False, num_classes=2,
-                image_size=224, plot=False,
+                image_size=224, plot=False, tensorboard=True,
                 # add early stopping parameters
                 early_stopping_patience=0,  # 0 = disabled; e.g. 20 = stop after 20 epochs without val improvement
                 ):
@@ -1135,9 +1188,11 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     # Full per-epoch history kept for the live training plot (the accumulators
     # above get consumed/cleared by _save_progress each epoch).
     live_train_hist, live_val_hist = [], []
+    live_figure = None
     # Kept separate from any training ledger: a failed live plot says nothing
     # about whether the weights are trustworthy.
     _curve_ledger = RunLedger('train_model:live_curves')
+    tensorboard_writer, _ = _open_tensorboard_writer(dst, tensorboard)
 
     # track the best validation accuracy and corresponding model path
     best_val_acc = -1.0
@@ -1238,9 +1293,20 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                   f"Train acc.: {train_dict.get('accuracy', float('nan')):.3f}, "
                   f"Train F1(macro): {train_dict.get('f1_macro', float('nan')):.3f}")
 
+        try:
+            _log_tensorboard_epoch(
+                tensorboard_writer, train_dict, val_dict, epoch)
+        except Exception as exc:
+            print(f"TensorBoard logging disabled after an error: {exc}")
+            try:
+                tensorboard_writer.close()
+            except Exception:
+                pass
+            tensorboard_writer = None
+
         # Live training curves — follow loss/accuracy in real time in the GUI
-        # when plot is enabled. Each epoch emits a fresh figure (the GUI bridge
-        # captures plt.show and routes it to the figure view).
+        # when plot is enabled. Each epoch refreshes the same figure (the GUI
+        # bridge captures plt.show and routes it to the figure view).
         if plot:
             live_train_hist.append(train_dict)
             if val_dict is not None:
@@ -1249,7 +1315,8 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
             # training run. It must not be *invisible* either — the bare
             # `pass` here hid a broken plot for the whole run.
             with _curve_ledger.item(f'epoch_{epoch}', stage='live_curves'):
-                _plot_training_curves(live_train_hist, live_val_hist, epochs)
+                live_figure = _plot_training_curves(
+                    live_train_hist, live_val_hist, epochs, live_figure)
 
         if scheduler and schedule in ('step_lr', 'cosine'):
             # FIX: also step cosine scheduler here
@@ -1305,6 +1372,8 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     # but a run where every live plot failed now says so instead of ending
     # with a silently empty figure pane.
     _curve_ledger.finalize()
+    if tensorboard_writer is not None:
+        tensorboard_writer.close()
 
     # return best_model_path if available, otherwise fall back to last model_path
     final_path = best_model_path if best_model_path is not None else model_path

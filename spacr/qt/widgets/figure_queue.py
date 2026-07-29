@@ -203,6 +203,8 @@ class FigureQueue(QWidget):
         thread, so the UI stays responsive while many figures stream in."""
         if id(fig) in self._fig_index:
             idx = self._fig_index[id(fig)]
+            if prerendered_png and Path(prerendered_png).is_file():
+                self._refresh_live_figure(idx, prerendered_png)
             self.show_index(idx)
             return idx
 
@@ -246,6 +248,28 @@ class FigureQueue(QWidget):
         self._list.setCurrentRow(idx)   # jump to the newest
         self.show_index(idx)
         return idx
+
+    def _refresh_live_figure(self, idx: int, prerendered_png: str) -> None:
+        """Replace one live figure's raster while preserving its gallery slot."""
+        target = Path(self._png_paths[idx])
+        try:
+            shutil.move(prerendered_png, str(target))
+            src_pdf = Path(prerendered_png).with_suffix(".pdf")
+            if src_pdf.is_file():
+                shutil.move(str(src_pdf), str(target.with_suffix(".pdf")))
+            pixmap = QPixmap(str(target))
+            if pixmap.isNull():
+                return
+            pixmap = self._display_pixmap(target, pixmap)
+            self._cache_pixmap(idx, pixmap)
+            item = self._list.item(idx)
+            if item is not None:
+                item.setIcon(QIcon(pixmap.scaled(
+                    140, 90, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
+            if self._current == idx:
+                self._view.set_pixmap(pixmap)
+        except Exception as exc:
+            LOG.info("live figure refresh failed: %s", exc)
 
     def show_index(self, idx: int) -> None:
         if not (0 <= idx < self._count):

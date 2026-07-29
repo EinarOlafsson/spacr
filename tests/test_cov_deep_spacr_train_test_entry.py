@@ -431,7 +431,7 @@ def test_plot_training_curves_with_val_history_and_total_epochs(captured_figs):
     val_hist = [{'epoch': 1, 'loss': 1.1, 'accuracy': 0.3},
                 {'epoch': 2, 'accuracy': 0.7}]        # no 'loss' -> NaN
 
-    _plot_training_curves(train_hist, val_hist, total_epochs=10)
+    fig1 = _plot_training_curves(train_hist, val_hist, total_epochs=10)
 
     assert len(captured_figs) == 1
     fig = captured_figs[0]
@@ -447,3 +447,12 @@ def test_plot_training_curves_with_val_history_and_total_epochs(captured_figs):
     assert ax1.lines[1].get_label() == 'val'
     assert ax1.get_legend() is not None and ax2.get_legend() is not None
     assert fig.texts[0].get_text() == 'Training — epoch 2 / 10'
+
+    # A subsequent epoch redraws the same object so the Qt gallery can refresh
+    # one live monitor rather than append another static snapshot.
+    train_hist.append({'epoch': 3, 'loss': 0.2, 'accuracy': 0.9})
+    fig2 = _plot_training_curves(
+        train_hist, val_hist, total_epochs=10, figure=fig1)
+    assert fig2 is fig1
+    assert fig2._spacr_live_update is True
+    assert list(fig2.axes[0].lines[0].get_xdata()) == [1, 2, 3]
