@@ -346,9 +346,12 @@ def test_model_knowledge_transfer_from_dict_checkpoints(tmp_path, capsys):
     loss_txt = printed.split("Loss: ")[1].split()[0]
     assert np.isfinite(float(loss_txt))
 
-    # The saved object is a usable model, not a bare state dict.
-    reloaded = torch.load(out_path, map_location="cpu", weights_only=False)
+    # The saved artifact reconstructs a usable model and carries training state.
+    from spacr.torch_artifacts import load_model_artifact
+    reloaded, payload = load_model_artifact(out_path, map_location="cpu")
     assert isinstance(reloaded, TorchModel)
+    assert payload["artifact_role"] == "knowledge_distillation"
+    assert payload["optimizer_state_dict"] is not None
     with torch.no_grad():
         logits = reloaded(torch.rand(2, 3, 64, 64))
     assert tuple(logits.shape) == (2, 2)
@@ -391,7 +394,7 @@ def test_model_knowledge_transfer_rejects_unsupported_checkpoint(tmp_path):
         model_knowledge_transfer(
             teacher_paths=[str(bad)],
             student_save_path=str(tmp_path / "s.pth"),
-            data_loader=None,
+            data_loader=_tiny_loader(n=2),
             device="cpu",
             student_model_name=_MODEL,
             pretrained=False,
@@ -443,10 +446,12 @@ def test_model_fusion_dict_checkpoints_every_aggregator(tmp_path, aggregator,
     for k in float_keys:
         assert torch.allclose(sd[k], torch.full_like(sd[k], expected)), k
 
-    # The saved file is the full model object, and it still runs.
-    reloaded = torch.load(tmp_path / f"fused_{aggregator}.pth",
-                          map_location="cpu", weights_only=False)
+    # The saved artifact reconstructs a usable model and records provenance.
+    from spacr.torch_artifacts import load_model_artifact
+    reloaded, payload = load_model_artifact(
+        tmp_path / f"fused_{aggregator}.pth", map_location="cpu")
     assert isinstance(reloaded, TorchModel)
+    assert payload["artifact_role"] == "model_fusion"
 
 
 def test_model_fusion_of_whole_torchmodel_checkpoints(tmp_path):
@@ -502,7 +507,7 @@ def test_model_fusion_rejects_unsupported_later_checkpoint(tmp_path):
     bad = tmp_path / "bad.pth"
     torch.save(("tuple", "checkpoint"), str(bad))
 
-    with pytest.raises(ValueError, match="must be dict or TorchModel"):
+    with pytest.raises(ValueError, match="dict or TorchModel"):
         model_fusion([good, str(bad)], str(tmp_path / "f.pth"), device="cpu",
                      aggregator="mean")
     assert not (tmp_path / "f_mean.pth").exists()

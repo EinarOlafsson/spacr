@@ -3172,10 +3172,10 @@ def read_plot_model_stats(train_file_path, val_file_path ,save=False):
 def _save_model(model, model_type, results_dict, dst, epoch, epochs,
                 intermedeate_save=None,
                 channels=None,
-                # FIX: accept an optional validation dict for checkpoint decisions
-                # WHY: the original used train_dict, so checkpoints reflected memorization
-                #      not generalization — val metrics are the correct signal
-                val_dict=None):
+                val_dict=None, optimizer=None, scheduler=None,
+                best_metric=None, is_best=None,
+                epochs_without_improvement=0, preprocessing=None,
+                classes=None, force_last=False):
     """
     Save the model based on certain conditions during training.
 
@@ -3191,47 +3191,66 @@ def _save_model(model, model_type, results_dict, dst, epoch, epochs,
         channels (list, optional): List of channels used. Defaults to ['r', 'g', 'b'].
     """
     
-    if intermedeate_save is None:
-        intermedeate_save = [0.99, 0.98, 0.95, 0.94]
+    from .torch_artifacts import save_model_artifact
+
     if channels is None:
         channels = ['r', 'g', 'b']
     channels_str = ''.join(channels)
-
-    def save_model_at_threshold(threshold, epoch, suffix=""):
-        """Persist the current model to disk when validation accuracy crosses ``threshold``."""
-        percentile = str(threshold * 100)
-        print(f'Found: {percentile}% accurate model')
-        model_path = f'{dst}/{model_type}_epoch_{str(epoch)}{suffix}_acc_{percentile}_channels_{channels_str}.pth'
-        torch.save(model, model_path)
-        return model_path
-
-    if epoch % 100 == 0 or epoch == epochs:
-        model_path = f'{dst}/{model_type}_epoch_{str(epoch)}_channels_{channels_str}.pth'
-        torch.save(model, model_path)
-        return model_path
-
-    # FIX: use val_dict if available, otherwise fall back to train results_dict
-    # WHY: checkpointing on training accuracy lets the model overfit past the
-    #      val plateau — you save a model that memorized the train set, not the
-    #      one that generalizes best
     check_dict = val_dict if val_dict is not None else results_dict
+    acc = float(check_dict.get('accuracy', float('nan')))
+    common = {
+        'optimizer': optimizer,
+        'scheduler': scheduler,
+        'epoch': epoch,
+        'metrics': check_dict,
+        'best_metric': best_metric,
+        'epochs_without_improvement': epochs_without_improvement,
+        'preprocessing': preprocessing,
+        'classes': classes,
+        'channels': channels,
+    }
 
-    for threshold in intermedeate_save:
-        # FIX: use the generic 'accuracy' key instead of 'neg_accuracy'/'pos_accuracy'
-        # WHY: the original checked results_df['neg_accuracy'] and results_df['pos_accuracy']
-        #      — these keys only exist for binary classification with specific class naming.
-        #      For multiclass (>2 classes), these keys don't exist, so the intermediate
-        #      checkpoint NEVER fires.  You only ever saved at epoch 100/200/etc or the
-        #      final epoch.  Using the generic 'accuracy' key works for any number of classes.
-        acc = check_dict.get('accuracy', 0.0)
-        if acc >= threshold:
-            print(f"Accuracy: {acc:.4f}")
-            model_path = save_model_at_threshold(threshold, epoch)
-            break
-        else:
-            model_path = None
+    saved_best = None
+    if is_best:
+        saved_best = os.path.join(
+            dst, f'{model_type}_best_channels_{channels_str}.pth')
+        save_model_artifact(
+            model, saved_best, artifact_role='best', **common)
+        print(f"Saved new best model at epoch {epoch} "
+              f"(validation accuracy {acc:.4f}): {saved_best}")
 
-    return model_path
+    # ``True`` preserves the historical default thresholds; ``False`` disables
+    # archival snapshots while best/last checkpoints remain available.
+    if intermedeate_save is True or intermedeate_save is None:
+        thresholds = [0.99, 0.98, 0.95, 0.94]
+    elif intermedeate_save is False:
+        thresholds = []
+    else:
+        thresholds = sorted(
+            {float(value) for value in intermedeate_save}, reverse=True)
+
+    # Archive only improving epochs. The old implementation wrote another
+    # file every epoch above a threshold and encoded the threshold (95.0)
+    # instead of the measured accuracy (for example 97.63).
+    saved_archive = None
+    if is_best is not False and np.isfinite(acc):
+        crossed = next((value for value in thresholds if acc >= value), None)
+        if crossed is not None:
+            saved_archive = os.path.join(
+                dst,
+                f'{model_type}_epoch_{epoch}_acc_{acc * 100:.4f}_'
+                f'channels_{channels_str}.pth')
+            save_model_artifact(
+                model, saved_archive, artifact_role='milestone', **common)
+
+    saved_last = None
+    if force_last or epoch % 100 == 0 or epoch == epochs:
+        saved_last = os.path.join(
+            dst, f'{model_type}_last_channels_{channels_str}.pth')
+        save_model_artifact(
+            model, saved_last, artifact_role='last', **common)
+
+    return saved_best or saved_last or saved_archive
 
 
 def _save_progress(dst, train_df, validation_df):

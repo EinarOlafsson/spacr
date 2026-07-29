@@ -143,7 +143,7 @@ def test_train_model_defaults_no_val_writes_csv_and_checkpoint(tmp_path, monkeyp
     trained, path = out
     assert trained is model
     # channels defaulted to ['r', 'g', 'b'] -> filename suffix 'channels_rgb'
-    assert os.path.basename(path) == "resnet18_epoch_1_channels_rgb.pth"
+    assert os.path.basename(path) == "resnet18_best_channels_rgb.pth"
     assert os.path.exists(path)
 
     df = pd.read_csv(dst / "train.csv")
@@ -693,5 +693,46 @@ def test_validation_improvement_resets_patience_counter(tmp_path, monkeypatch, c
     assert "Early stopping" not in out
     assert "Val acc.: 0.800" in out
     # final epoch checkpoint was written and returned
-    assert path == str(dst / "resnet18_epoch_3_channels_rgb.pth")
+    assert path == str(dst / "resnet18_best_channels_rgb.pth")
     assert os.path.exists(path)
+
+
+def test_train_model_resumes_after_saved_epoch_with_optimizer_state(
+        tmp_path, monkeypatch):
+    """A resumable artifact continues at epoch+1 instead of restarting."""
+    from spacr.deep_spacr import train_model
+    from spacr.torch_artifacts import load_model_artifact, save_model_artifact
+
+    original = nn.Sequential(nn.Linear(4, 2))
+    optimizer = torch.optim.Adam(original.parameters(), lr=2e-4)
+    loss = nn.functional.cross_entropy(
+        original(torch.rand(4, 4)), torch.tensor([0, 1, 0, 1]))
+    loss.backward()
+    optimizer.step()
+    resume = tmp_path / "resume.pth"
+    save_model_artifact(
+        original, resume, optimizer=optimizer, epoch=1, best_metric=0.9,
+        epochs_without_improvement=0, artifact_role="best")
+
+    fresh = nn.Sequential(nn.Linear(4, 2))
+    _use_model(monkeypatch, fresh)
+    calls = []
+    _stub_eval(monkeypatch, acc=0.5, calls=calls)
+    _stub_progress(monkeypatch, [])
+    dst = tmp_path / "model"
+    dst.mkdir()
+
+    trained, selected = train_model(
+        str(tmp_path), str(dst), "resnet18", _loaders(1), epochs=2,
+        learning_rate=2e-4, optimizer_type="adam", num_classes=2,
+        schedule=None, resume_checkpoint=str(resume),
+        intermedeate_save=False)
+
+    assert {epoch for epoch, _ in calls} == {2}
+    assert selected == str(resume)
+    last = dst / "resnet18_last_channels_rgb.pth"
+    _, payload = load_model_artifact(
+        last, model=nn.Sequential(nn.Linear(4, 2)))
+    assert payload["training_state"]["epoch"] == 2
+    assert payload["optimizer_state_dict"] is not None
+    assert trained is fresh

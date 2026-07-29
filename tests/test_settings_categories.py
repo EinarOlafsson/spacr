@@ -178,7 +178,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "queue_by_uncertainty", "queue_measure", "queue_diversity",
     "queue_limit",
     # and opt-in resume (spacr.resume).
-    "resume",
+    "resume", "resume_checkpoint",
     # and the attribution methods + their analyses (spacr.attribution).
     "smoothgrad_samples", "smoothgrad_sigma", "occlusion_window",
     "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps",

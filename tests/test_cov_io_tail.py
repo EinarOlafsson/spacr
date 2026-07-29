@@ -126,7 +126,7 @@ def test_save_model_uses_val_dict_not_train_dict(tmp_path):
                           epoch=3, epochs=10,
                           val_dict={"accuracy": 0.995})
     assert path is not None and os.path.isfile(path)
-    assert os.path.basename(path) == "cnn_epoch_3_acc_99.0_channels_rgb.pth"
+    assert os.path.basename(path) == "cnn_epoch_3_acc_99.5000_channels_rgb.pth"
 
 
 # ---------------------------------------------------------------------------
