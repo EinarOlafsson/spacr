@@ -272,13 +272,12 @@ class _StdoutBlock(QPlainTextEdit):
     def _refresh_style(self) -> None:
         """Keep inline, theme-aware ink and the user-selected point size."""
         self.setStyleSheet(
-            "QPlainTextEdit#%s { color: %s; background-color: %s; "
+            "QPlainTextEdit#%s { color: %s; background-color: transparent; "
             "border: none; "
             "font-family: 'Open Sans','Segoe UI','Helvetica Neue',sans-serif; "
             "font-weight: 300; font-size: %dpt; "
             "padding: %dpx %dpx; }" % (
-                self.objectName(), self._text_color,
-                active_palette()["surface_alt"], self._font_pt,
+                self.objectName(), self._text_color, self._font_pt,
                 SPACING["sm"], SPACING["md"]))
 
     def _apply_line_spacing(self) -> None:

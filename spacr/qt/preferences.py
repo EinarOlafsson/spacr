@@ -39,7 +39,7 @@ Values:
   the reader's OS colour scheme. ``"space"`` is a dark theme over a
   generated deep-space background or a deep-field photograph; ``"cell"``
   uses one of the bundled fluorescence micrographs; ``"glass"`` uses
-  translucent blue-grey module surfaces over a built-in depth gradient.
+  neutral layered materials over a built-in light field.
 * ``space_variant``: ``"galaxy"`` | ``"sun"`` | ``"stars"`` (generated)
   or ``"deep_field"`` (photograph).
 * ``cell_variant``: ``"microtubules"`` | ``"filopodia"``.
@@ -55,8 +55,8 @@ Values:
 * ``dock_mode``: ``"auto"`` | ``"locked"`` | ``"hidden"`` (default
   ``"auto"``). Whether the left app dock reveals on hover, is pinned
   open as a permanent column, or is not there at all.
-* ``pane_opacity``: int percent, default ``100``. How solid the rounded
-  panel behind the Home tiles is. Clamped up to
+* ``pane_opacity``: int percent, default ``100``. How solid shared surfaces
+  are, or the relative material strength in Glass. Clamped up to
   :func:`spacr.qt.theme.pane_alpha_floor` at paint time — the
   preference is a request, legibility is not negotiable.
 """
@@ -828,6 +828,11 @@ class PreferencesDialog:
             and the app quietly ignored.
             """
             from .theme import pane_alpha
+            if resolve_effective_theme() == "glass":
+                opacity_value.setText(
+                    f"{v}% material strength — Glass stays translucent "
+                    "by design")
+                return
             actual = pane_alpha(resolve_effective_theme(), v / 100.0)
             shown = int(round(actual * 100))
             opacity_value.setText(
@@ -841,7 +846,9 @@ class PreferencesDialog:
         opacity_slider.setToolTip(
             "How solid cards, settings sections, consoles, previews and the "
             "rounded Home panel are. This applies in every theme, including "
-            "Glass, Space, Cell, Dark and Light. A surface will not go "
+            "Glass, Space, Cell, Dark and Light. In Glass this controls "
+            "material strength while preserving its designed translucency; "
+            "in other themes it is literal surface opacity. A surface will not go "
             "thinner than the point where its text stops clearing WCAG AA "
             "over the background."
         )

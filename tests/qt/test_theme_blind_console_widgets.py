@@ -202,20 +202,18 @@ def test_console_entries_inline_no_colour_from_another_theme(
 
 
 @pytest.mark.parametrize("theme_name", theme.THEMES)
-def test_stdout_block_paints_the_live_theme_surface(qtbot, as_theme,
-                                                    theme_name):
-    """The block fills its own background — with this theme's surface.
+def test_stdout_block_inherits_the_console_material(qtbot, as_theme,
+                                                     theme_name):
+    """Text stays transparent so the parent ConsoleBox material is continuous.
 
-    Inlining the dark ``surface_alt`` put a ``#161719`` box inside the
-    light theme's console: 17.19:1 against the ``#fafafa`` page, i.e. a
-    black rectangle in the middle of a white one.
+    The ConsoleBox already owns the readable surface. Repainting each output
+    block made Glass a stack of opaque strips and previously made Light use a
+    frozen dark fill.
     """
-    palette = as_theme(theme_name)
+    as_theme(theme_name)
     block = cp._StdoutBlock("hello")
     qtbot.addWidget(block)
-    fills = re.findall(r"background-color\s*:\s*(#[0-9a-fA-F]{6})",
-                       block.styleSheet())
-    assert fills == [palette["surface_alt"]]
+    assert "background-color: transparent" in block.styleSheet()
 
 
 @pytest.mark.parametrize("theme_name", theme.THEMES)

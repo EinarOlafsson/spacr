@@ -58,6 +58,38 @@ def test_glass_scrims_are_translucent_and_accessible():
         assert 0.0 < theme.scrim_alpha("glass", role) < 0.88
 
 
+def test_glass_material_is_neutral_not_a_blue_overlay():
+    from spacr.qt import theme
+
+    palette = theme.palette_for("glass")
+    for role in ("surface", "surface_alt", "surface_hi"):
+        channels = theme._channels(palette[role])
+        assert max(channels) - min(channels) <= 12
+    # Colour is selective: the action accent remains visibly blue.
+    accent = theme._channels(palette["accent"])
+    assert accent[2] - accent[0] > 50
+
+
+def test_full_page_opacity_keeps_glass_translucent_by_design():
+    from spacr.qt import theme
+
+    for role in theme.SCRIM_ROLES:
+        designed = theme.scrim_alpha("glass", role)
+        assert theme.panel_alpha("glass", role, 1.0) == designed
+        assert theme.panel_alpha("glass", role, 0.5) <= designed
+    assert theme.pane_alpha("glass", 1.0) == \
+        theme.scrim_alpha("glass", "surface")
+
+
+def test_glass_material_has_highlight_body_and_depth_layers():
+    from spacr.qt import theme
+
+    material = theme.glass_material("#303238", 0.28)
+    assert material.startswith("qlineargradient(")
+    assert material.count("stop:") == 4
+    assert material.count("rgba(") == 4
+
+
 def test_glass_styles_every_module_box_with_rgba_material():
     from spacr.qt import theme
 
@@ -71,6 +103,48 @@ def test_glass_styles_every_module_box_with_rgba_material():
     ):
         rule = _rule(qss, selector)
         assert "rgba(" in rule, f"{selector} remained opaque"
+
+
+def test_glass_adds_neutral_light_field_specular_rims_and_rounding():
+    from spacr.qt import theme
+
+    qss = theme.stylesheet("glass", surface_opacity=1.0)
+    window = _rule(qss, "QMainWindow, QDialog {")
+    assert "qradialgradient" in window
+    assert "#454950" in window
+
+    start = qss.index("QFrame#Card, QFrame#ConsoleBox {")
+    material = qss[start:qss.index("}", start)]
+    assert "qlineargradient" in material
+    assert "rgba(255, 255, 255, 0.270)" in material
+    assert "border-radius: 14px" in material
+
+
+def test_glass_home_pane_uses_the_same_material():
+    from spacr.qt import theme
+    from spacr.qt.widgets.home import _tab_qss
+
+    qss = _tab_qss(
+        theme.palette_for("glass"),
+        theme.pane_alpha("glass", 1.0),
+        glass=True,
+    )
+    pane = _rule(qss, "QTabWidget#HomeTabs::pane {")
+    assert "qlineargradient" in pane
+    assert "rgba(255, 255, 255, 0.270)" in pane
+    assert "border-radius: 14px" in pane
+
+
+def test_glass_preference_explains_material_strength(qtbot):
+    from PySide6.QtWidgets import QLabel
+    from spacr.qt import preferences
+
+    preferences.set_theme("glass")
+    dialog = preferences.PreferencesDialog()
+    qtbot.addWidget(dialog)
+    texts = [label.text() for label in dialog.findChildren(QLabel)]
+    assert any("material strength" in text for text in texts)
+    assert any("stays translucent" in text for text in texts)
 
 
 def test_glass_popups_remain_opaque():
