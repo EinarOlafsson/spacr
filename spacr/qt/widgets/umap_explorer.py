@@ -144,16 +144,28 @@ class ImageUmapExplorer(QWidget):
 
     def _draw_embedding(self) -> None:
         from matplotlib.widgets import LassoSelector
+        from ..theme import active_palette
 
+        palette = active_palette()
+        background = palette["surface_alt"]
+        foreground = palette["fg"]
         self._axes.clear()
+        self._figure.patch.set_facecolor(background)
+        self._axes.set_facecolor(background)
         self._scatter = self._axes.scatter(
             self._embedding[:, 0], self._embedding[:, 1],
-            c=self._labels, cmap="tab20", s=26, alpha=0.75)
+            c=self._labels, cmap="viridis", s=26, alpha=0.75)
         self._axes.set_xlabel("UMAP Dimension 1")
         self._axes.set_ylabel("UMAP Dimension 2")
         self._axes.set_title("Click a point to preview · drag a lasso to select")
+        self._axes.tick_params(axis="both", colors=foreground)
+        self._axes.xaxis.label.set_color(foreground)
+        self._axes.yaxis.label.set_color(foreground)
+        self._axes.title.set_color(foreground)
+        for spine in self._axes.spines.values():
+            spine.set_color(foreground)
         self._selection_artist = self._axes.scatter(
-            [], [], s=70, facecolors="none", edgecolors="#ffffff",
+            [], [], s=70, facecolors="none", edgecolors=foreground,
             linewidths=1.5)
         self._picked_artist = self._axes.scatter(
             [], [], s=110, facecolors="none", edgecolors="#ffcc33",

@@ -346,6 +346,31 @@ def test_preprocess_data_filter_by_channel(capsys):
     assert "Dropped 0 columns with NaN values" in capsys.readouterr().out
 
 
+def test_preprocess_data_accepts_sqlite_numeric_text_measurements(capsys):
+    """Image UMAP measurements stored as SQLite TEXT remain model features."""
+    from spacr.utils import preprocess_data
+
+    frame = pd.DataFrame({
+        "cell_channel_0_mode_intensity": [
+            str(value) for value in np.linspace(2.5, 25.0, 20)
+        ],
+        "object_label": np.arange(20),
+    })
+
+    result = preprocess_data(
+        frame,
+        filter_by="channel_0",
+        remove_highly_correlated=False,
+        log_data=False,
+        exclude=None,
+    )
+
+    assert result.shape == (20, 1)
+    assert np.isfinite(result).all()
+    assert result.mean() == pytest.approx(0.0, abs=1e-12)
+    assert "Dropped 0 columns with NaN values" in capsys.readouterr().out
+
+
 def test_preprocess_data_column_list_subsets_first():
     """column_list narrows the frame before numeric selection."""
     from spacr.utils import preprocess_data
