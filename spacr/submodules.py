@@ -4997,7 +4997,13 @@ def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
 
         # Visualization
         plt.figure(figsize=(10, 6))
-        sns.barplot(x=effect_sizes.index, y=effect_sizes.values, palette="viridis", hue=None, legend=False)
+        sns.barplot(
+            x=effect_sizes.index,
+            y=effect_sizes.values,
+            hue=effect_sizes.index,
+            palette="viridis",
+            legend=False,
+        )
 
         #for i, val in enumerate(effect_sizes.values):
         #    plt.text(i, val + 0.02, f"{val:.2f}", ha='center', va='bottom', fontsize=9)
