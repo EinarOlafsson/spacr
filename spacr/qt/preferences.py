@@ -410,7 +410,7 @@ def set_dock_mode(mode: str) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Page opacity — how solid the rounded box behind Home's tiles is
+# Page opacity — how solid shared page and module surfaces are
 # ---------------------------------------------------------------------------
 
 #: 0 = the box is not painted at all, 100 = solid. Stored as a percent
@@ -453,7 +453,7 @@ def set_pane_opacity(fraction: float) -> None:
 
 
 def effective_pane_alpha() -> float:
-    """The opacity the page panel is actually painted at, this theme.
+    """The opacity a user-controlled page surface is painted at.
 
     The user's request put through :func:`spacr.qt.theme.pane_alpha`.
     One call so the Home page and any test asking "what will it look
@@ -610,8 +610,9 @@ def apply_preferences_to_app(app=None) -> None:
     background = theme_background_path(theme)
 
     apply_qpalette(app, theme=theme)
-    app.setStyleSheet(stylesheet(theme=theme, font_scale=scale,
-                                 background=background))
+    app.setStyleSheet(stylesheet(
+        theme=theme, font_scale=scale, background=background,
+        surface_opacity=get_pane_opacity()))
 
     # Apply the verbose-logger preference too — cheap to re-apply, and
     # this is the one place that runs on every prefs save. Also
@@ -810,7 +811,7 @@ class PreferencesDialog:
         )
         form.addRow("App dock", dock_combo)
 
-        # Page opacity — how solid the rounded box behind Home's tiles is.
+        # Page opacity — shared by Home and every module surface.
         opacity_slider = QSlider(Qt.Horizontal)
         opacity_slider.setRange(0, 100)
         opacity_slider.setSingleStep(5)
@@ -838,11 +839,11 @@ class PreferencesDialog:
         _update_opacity_lbl(opacity_slider.value())
         opacity_value.setWordWrap(True)
         opacity_slider.setToolTip(
-            "How solid the rounded panel behind the Home tiles is. "
-            "Lower it to let the Space or Cell wallpaper through. It "
-            "will not go thinner than the point where the tile names "
-            "stop clearing WCAG AA over the brightest thing that "
-            "background can put behind them."
+            "How solid cards, settings sections, consoles, previews and the "
+            "rounded Home panel are. This applies in every theme, including "
+            "Glass, Space, Cell, Dark and Light. A surface will not go "
+            "thinner than the point where its text stops clearing WCAG AA "
+            "over the background."
         )
         opacity_col = QVBoxLayout()
         opacity_col.addWidget(opacity_slider)
