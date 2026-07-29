@@ -67,6 +67,7 @@ IMPORT_TO_DIST = {
     "PySide6": "PySide6",
     "cv2": "opencv-python-headless",
     "huggingface_hub": "huggingface-hub",
+    "pynvml": "nvidia-ml-py",
     "scikit_posthocs": "scikit-posthocs",
     "skimage": "scikit-image",
     "sklearn": "scikit-learn",
@@ -258,27 +259,12 @@ def test_every_module_scope_import_is_a_CORE_dependency_not_an_extra():
     type the extra — which is a broken install presented as an optional
     feature.
 
-    This test is currently expected to have exactly ONE offender, and it is
-    listed rather than hidden: ``mahotas``. ``spacr/measure.py:12`` does
-    ``from mahotas.features import zernike_moments`` at module scope, and
-    mahotas moved to the ``zernike`` extra on 2026-07-27 because it has never
-    published a cp313 wheel and was forcing a C++ source build on every Python
-    3.13 install. The packaging half of that move is done; the source half —
-    making the Zernike path degrade with an actionable message instead of
-    failing at import — is a change to ``spacr/measure.py``, which the commit
-    that moved the pin does not own.
-
-    **Delete the entry below the moment that guard lands.** Leaving it here
-    once it is fixed turns a precise, temporary exemption into a permanent
-    hole.
+    Mahotas used to be the sole temporary offender after it moved to the
+    ``zernike`` extra. Its import now lives inside the feature boundary, so no
+    exemption remains: any extra-only module-scope import is an immediate
+    packaging error.
     """
-    KNOWN_PENDING = {
-        "mahotas": (
-            "spacr/measure.py:12 imports it at module scope; the guarded/lazy "
-            "rewrite is pending and is tracked as the follow-up to moving the "
-            "pin into the `zernike` extra"
-        ),
-    }
+    KNOWN_PENDING = {}
 
     from packaging.requirements import Requirement
 
