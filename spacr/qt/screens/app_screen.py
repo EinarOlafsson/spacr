@@ -973,22 +973,42 @@ class AppScreen(QWidget):
         self._progress.setFixedWidth(240)
         row.addWidget(self._progress)
 
-        # LP (Live Preview) toggle — Mask app only. Same styling as the
-        # AI switch: white when off, accent blue when on. Toggling
-        # hides / shows the Live Preview card.
+        # Runtime-preview toggle — every app with a preview gets the same
+        # bottom-right control Mask established for Live Preview. Keeping this
+        # in the shared actions row prevents Timelapse, Motility and Measure
+        # from permanently taking half the console merely because their
+        # preview card exists.
         from PySide6.QtWidgets import QMenu, QToolButton
         from ..widgets import AiToggleLabel
-        if getattr(self, "_live_preview", None) is not None:
-            self._lp_switch = AiToggleLabel(
-                text="LP",
-                tooltip=("Click to toggle Live Preview. When ON (blue), "
-                          "the interactive Cellpose preview appears above "
-                          "the console for tuning a sample tile."),
-            )
-            # Default LP OFF so the panel starts collapsed; user opts in.
-            self._lp_switch.toggled.connect(self._on_lp_switch)
-            row.addWidget(self._lp_switch)
-            self._on_lp_switch(False)   # hide the LP card initially
+        preview_controls = {
+            "mask": (
+                "_live_preview_card", "LP",
+                "Click to toggle Live Preview. When ON (blue), the "
+                "interactive Cellpose preview appears above the console."),
+            "timelapse": (
+                "_timelapse_preview_card", "TP",
+                "Click to toggle Track Preview for the timelapse."),
+            "motility": (
+                "_motility_preview_card", "TP",
+                "Click to toggle Track Preview for the motility analysis."),
+            "measure": (
+                "_measure_preview_card", "MP",
+                "Click to toggle Measurement Preview."),
+        }
+        preview_control = preview_controls.get(self.app_key)
+        if preview_control is not None:
+            card_attr, text, tooltip = preview_control
+            if getattr(self, card_attr, None) is not None:
+                self._preview_card_attr = card_attr
+                self._preview_switch = AiToggleLabel(
+                    text=text, tooltip=tooltip)
+                self._preview_switch.toggled.connect(
+                    self._on_preview_switch)
+                row.addWidget(self._preview_switch)
+                # Preserve the public name used by existing Mask integrations.
+                if self.app_key == "mask":
+                    self._lp_switch = self._preview_switch
+                self._on_preview_switch(False)
 
         # Same slot, same behaviour, for the apps that have a hyperparameter
         # search instead of a live preview.
@@ -1157,11 +1177,18 @@ class AppScreen(QWidget):
     # AI toggle + provider menu — sits in the actions row (bottom right)
     # ------------------------------------------------------------------
     def _on_lp_switch(self, on: bool) -> None:
-        """Show/hide the Live Preview card when the LP toggle flips."""
+        """Compatibility route for callers that still name Mask's LP switch."""
         card = getattr(self, "_live_preview_card", None)
         if card is None:
             return
         card.setVisible(on)
+
+    def _on_preview_switch(self, on: bool) -> None:
+        """Show or hide this module's runtime preview card."""
+        attr = getattr(self, "_preview_card_attr", "")
+        card = getattr(self, attr, None) if attr else None
+        if card is not None:
+            card.setVisible(on)
 
     def _on_hyperparam_switch(self, on: bool) -> None:
         """Show/hide the Hyperparameter search card when its toggle flips."""
