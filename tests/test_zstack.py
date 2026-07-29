@@ -653,7 +653,7 @@ def test_every_new_setting_is_categorised_typed_and_documented(key):
     """The invariants tests/test_settings_categories.py pins, per key."""
     categorised = [k for keys in S.categories.values() for k in keys]
     assert categorised.count(key) == 1, "exactly one category"
-    assert key in S.categories["Beta"]
+    assert key in S.categories["3D Settings (Beta)"]
     assert key in S.expected_types
     assert key in S.tooltips
 

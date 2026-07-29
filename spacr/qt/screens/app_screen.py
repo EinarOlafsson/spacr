@@ -115,8 +115,14 @@ SECTION_HINTS = {
                         "across frames when your data has a T axis.",
     "ADVANCED":         "Rarely-touched knobs — batch sizes, worker "
                         "counts, memory tuning, experimental options.",
-    "BETA":             "Experimental features that may change or be "
-                        "removed. Use with caution.",
+    "3D SETTINGS (BETA)":
+                        "Experimental volumetric segmentation controls: "
+                        "z-axis layout, projection or plane stitching, "
+                        "anisotropy and voxel calibration.",
+    "4D SETTINGS (BETA)":
+                        "Experimental time-plus-volume controls: time-axis "
+                        "layout, frame interval, tracking backend and "
+                        "inter-frame linking limits.",
     "MOTILITY (BETA)":  "Beta motility-assay analysis toggle + "
                         "per-object tracking parameters.",
     "MOTILITY ADVANCED (BETA)":
@@ -163,9 +169,8 @@ def settings_section_maturity(app_key: str, title: str) -> str:
     """Return the least-mature stage applying to one settings section.
 
     An alpha or beta module colours every one of its settings. A stable
-    module can still contain an explicitly experimental ``Beta``/``Alpha``
-    category (the 3D/4D mask and measurement controls live in ``Beta``), in
-    which case that section receives the more cautious stage.
+    module can still contain an explicitly experimental ``(Beta)``/``(Alpha)``
+    category, in which case that section receives the more cautious stage.
     """
     from ..app import app_stage
 

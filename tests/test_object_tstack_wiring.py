@@ -835,7 +835,8 @@ def test_every_4d_key_is_declared_typed_and_categorised():
     """The four places a setting has to exist, checked together."""
     for key in FOUR_D_KEYS:
         assert key in S.expected_types, f"{key} has no declared type"
-        assert key in S.categories["Beta"], f"{key} is in no GUI category"
+        assert key in S.categories["4D Settings (Beta)"], (
+            f"{key} is in no GUI category")
         assert key in S.tooltips, f"{key} has no tooltip"
 
     defaults = S.set_default_settings_preprocess_generate_masks({})
