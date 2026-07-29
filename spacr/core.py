@@ -1077,6 +1077,26 @@ def reducer_hyperparameter_search(settings=None, reduction_params=None, dbscan_p
         plt.show()
     return
 
+def _finite_ratio(numerator, denominator):
+    """Divide aligned Series while representing invalid observations as NaN.
+
+    Statistical and plotting code treats infinity as a number, so unchecked
+    intensity ratios can turn a zero denominator into an apparently extreme
+    biological effect.  Missing/non-numeric/non-finite inputs and zero
+    denominators are undefined observations, not zeroes and not infinities.
+    """
+    numerator = pd.to_numeric(numerator, errors='coerce')
+    denominator = pd.to_numeric(denominator, errors='coerce')
+    valid = (
+        np.isfinite(numerator)
+        & np.isfinite(denominator)
+        & denominator.ne(0)
+    )
+    result = pd.Series(np.nan, index=numerator.index, dtype=float)
+    result.loc[valid] = numerator.loc[valid] / denominator.loc[valid]
+    return result
+
+
 def generate_screen_graphs(settings):
     """Build recruitment-metric summary graphs per source and for the combined data.
 
@@ -1114,7 +1134,9 @@ def generate_screen_graphs(settings):
         df = annotate_conditions(df, cells=settings['cells'], cell_loc=None, pathogens=settings['controls'], pathogen_loc=settings['controls_loc'], treatments=None, treatment_loc=None)
         
         # Calculate recruitment metric
-        df['recruitment'] = df['pathogen_channel_1_mean_intensity'] / df['cytoplasm_channel_1_mean_intensity']
+        df['recruitment'] = _finite_ratio(
+            df['pathogen_channel_1_mean_intensity'],
+            df['cytoplasm_channel_1_mean_intensity'])
                 
         # Combine with the overall DataFrame
         all_df = pd.concat([all_df, df], ignore_index=True)

@@ -173,6 +173,21 @@ def test_generate_image_umap_return_fig(umap_src):
 # reducer_hyperparameter_search
 # ---------------------------------------------------------------------------
 
+def test_recruitment_ratio_rejects_invalid_denominators_without_infinity():
+    from spacr.core import _finite_ratio
+
+    numerator = pd.Series(
+        [10, 10, 10, np.inf, "bad"], index=[10, 20, 30, 40, 50])
+    denominator = pd.Series(
+        [2, 0, np.nan, 2, 5], index=[10, 20, 30, 40, 50])
+
+    result = _finite_ratio(numerator, denominator)
+
+    assert list(result.index) == [10, 20, 30, 40, 50]
+    assert result.loc[10] == pytest.approx(5.0)
+    assert result.loc[[20, 30, 40, 50]].isna().all()
+    assert not np.isinf(result).any()
+
 def test_generate_image_umap_plot_images_and_grids(umap_src):
     """plot_images / plot_by_cluster / plot_cluster_grids render the image
     overlays instead of plain points."""
