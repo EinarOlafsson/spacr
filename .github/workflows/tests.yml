@@ -7,15 +7,13 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# The full test suite, on Linux x86-64, across every Python spaCR claims to
-# support. Installs the exact same way as local dev (`pip install -e
-# ".[qt,dev]"` on top of a CPU-only torch) and runs every test in tests/
-# except:
-#   - tests/qt/test_e2e_pipeline.py's `slow` marks (need cellpose models)
-#   - tests/test_gpu_pipeline.py (needs CUDA)
-#   - anything marked `heavy` (long-running)
-# This mirrors what a maintainer runs on their workstation, so a green CI
-# badge and a green local run mean the same thing.
+# The fast suite spans every supported Python. Expensive or environment-aware
+# tests run once on Python 3.12 in distinct integration, slow, Qt, GPU,
+# network, and NAS jobs. The marker expressions form a partition: a supported
+# test belongs to the highest-requirement suite it declares, while GPU,
+# network, and NAS tests decide at runtime whether their resource is actually
+# available. Tests marked ``gui`` belong to the retired Tk interface and are
+# deliberately outside this workflow.
 #
 # Breadth — macOS, Windows, ARM64, the requires-python guard, wheel
 # availability — lives in .github/workflows/compat-matrix.yml, which runs a
@@ -28,8 +26,8 @@ on:
 # classifier, add the cell first.
 
 jobs:
-  tests:
-    name: Newest compatible (ubuntu-24.04, py${{ matrix.python-version }})
+  fast:
+    name: Fast / Newest compatible (ubuntu-24.04, py${{ matrix.python-version }})
     runs-on: ubuntu-24.04
     timeout-minutes: 60
 
@@ -168,23 +166,74 @@ jobs:
           print("low-core defaults, UMAP API, and btrack native library: OK")
           PY
 
-      - name: Run tests (resource tests detect availability)
+      - name: Run fast tests
         env:
           QT_QPA_PLATFORM: offscreen
           PYTHONPATH: ${{ github.workspace }}
         run: |
           python -m pytest tests/ \
-            -m "not slow and not heavy" \
+            -m "not integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui" \
             -v --tb=short
 
-      - name: Run available slow resource integrations
-        env:
-          QT_QPA_PLATFORM: offscreen
-          PYTHONPATH: ${{ github.workspace }}
-        run: |
-          python -m pytest tests/ \
-            -m "(slow or heavy) and (gpu or network or nas)" \
-            -v --tb=short
+  integration:
+    name: Integration
+    uses: ./.github/workflows/_pytest-suite.yml
+    with:
+      suite_name: Integration
+      python_version: "3.12"
+      extras: "qt,dev,zernike,attribution"
+      marker_expression: "integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui"
+      timeout_minutes: 60
+
+  slow:
+    name: Slow
+    uses: ./.github/workflows/_pytest-suite.yml
+    with:
+      suite_name: Slow
+      python_version: "3.12"
+      extras: "qt,dev,zernike,attribution"
+      marker_expression: "(slow or heavy) and not gpu and not network and not nas and not gui"
+      timeout_minutes: 90
+
+  qt:
+    name: Qt
+    uses: ./.github/workflows/_pytest-suite.yml
+    with:
+      suite_name: Qt
+      python_version: "3.12"
+      extras: "qt,dev,zernike,attribution"
+      marker_expression: "qt and not slow and not heavy and not gpu and not network and not nas and not gui"
+      timeout_minutes: 60
+
+  gpu:
+    name: GPU
+    uses: ./.github/workflows/_pytest-suite.yml
+    with:
+      suite_name: GPU
+      python_version: "3.12"
+      extras: "qt,dev,zernike,attribution"
+      marker_expression: "gpu and not gui"
+      timeout_minutes: 120
+
+  network:
+    name: Network
+    uses: ./.github/workflows/_pytest-suite.yml
+    with:
+      suite_name: Network
+      python_version: "3.12"
+      extras: "qt,dev,zernike,attribution"
+      marker_expression: "network and not nas and not gpu and not gui"
+      timeout_minutes: 90
+
+  nas:
+    name: NAS
+    uses: ./.github/workflows/_pytest-suite.yml
+    with:
+      suite_name: NAS
+      python_version: "3.12"
+      extras: "qt,dev,zernike,attribution"
+      marker_expression: "nas and not gpu and not gui"
+      timeout_minutes: 90
 
   minimum-dependencies:
     name: Minimum dependencies (ubuntu-24.04, py3.9)
@@ -274,5 +323,5 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
         run: |
           python -m pytest tests/ \
-            -m "not slow and not heavy" \
+            -m "not integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui" \
             -v --tb=short

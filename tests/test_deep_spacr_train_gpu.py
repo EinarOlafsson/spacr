@@ -1,10 +1,11 @@
 """Coverage for spacr.deep_spacr: a short real training run on GPU plus
 CPU-only unit tests for the metric/label/DB helpers.
 
-The training test is marked gpu+slow (opt-in, skipped in CI). It drives
+The training test is marked gpu+slow. The dedicated GPU CI job selects it
+automatically, and the test skips only when PyTorch cannot use CUDA. It drives
 train_test_model → train_model → evaluate_model_performance →
-test_model_performance end-to-end with a tiny synthetic PNG dataset, 1
-epoch, resnet18, 64px — the whole classify hot path in ~1 minute.
+test_model_performance end-to-end with a tiny synthetic PNG dataset, 1 epoch,
+resnet18, 64px — the whole classify hot path in ~1 minute.
 """
 from __future__ import annotations
 

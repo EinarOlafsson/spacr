@@ -1,9 +1,9 @@
 """CPU-only coverage for :func:`spacr.timelapse._btrack_track_cells`.
 
 The happy paths run the *real* btrack tracker on tiny synthetic label
-stacks (4 frames of 64x64, four blobs drifting one pixel per frame) — the
-btrack example config is fetched from pooch's on-disk cache, so nothing here
-touches the network and the whole module runs in a couple of seconds.
+stacks (4 frames of 64x64, four blobs drifting one pixel per frame). btrack
+fetches its example config registry on first use, so this module belongs to
+the network suite and skips cleanly when that endpoint is unavailable.
 
 Everything that cannot be provoked with real data — the older-btrack
 ``TypeError`` fallback, a GLPK optimiser that blows up, the object-count
@@ -20,6 +20,22 @@ import os
 import numpy as np
 import pandas as pd
 import pytest
+
+pytestmark = pytest.mark.network
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _require_btrack_registry():
+    """The btrack dataset module performs this download during first import."""
+    from tests.resource_capabilities import endpoint_available
+
+    registry = (
+        "https://raw.githubusercontent.com/"
+        "lowe-lab-ucl/btrack-examples/main/registry.txt"
+    )
+    if not endpoint_available(registry):
+        pytest.skip("btrack example registry is unreachable")
+
 
 # ---------------------------------------------------------------------------
 # helpers
