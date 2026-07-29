@@ -270,6 +270,25 @@ def app_stage(key: str) -> str:
     return APP_STAGE.get(key, STAGE_STABLE)
 
 
+def app_is_visible(key: str) -> bool:
+    """Whether ``key`` should appear in module navigation.
+
+    Preferences are imported lazily so this registry remains safe for
+    packaging and headless callers. If preferences cannot be read, preserve
+    the historical all-modules-visible behaviour.
+    """
+    try:
+        from .preferences import maturity_is_visible
+        return maturity_is_visible(app_stage(key))
+    except Exception:
+        return True
+
+
+def visible_apps() -> List[Tuple[str, str, str, str]]:
+    """Registry rows allowed by the Alpha/Beta visibility preferences."""
+    return [row for row in APPS if app_is_visible(row[0])]
+
+
 def home_stages() -> dict:
     """app key → stage, for every app in :data:`APPS`.
 
@@ -280,21 +299,34 @@ def home_stages() -> dict:
     return {row[0]: app_stage(row[0]) for row in APPS}
 
 
-def section_members(section: str) -> List[Tuple[str, str, str, str]]:
+def section_members(
+    section: str,
+    apps: Optional[List[Tuple[str, str, str, str]]] = None,
+) -> List[Tuple[str, str, str, str]]:
     """The ``APPS`` rows a category's tab shows, in registry order."""
-    return [row for row in APPS if row[3] == section]
+    source = APPS if apps is None else apps
+    return [row for row in source if row[3] == section]
 
 
-def home_categories() -> List[Tuple[str, List[str]]]:
+def home_categories(
+    apps: Optional[List[Tuple[str, str, str, str]]] = None,
+) -> List[Tuple[str, List[str]]]:
     """``(section, [app key])`` for every tab after Home, in tab order.
 
     Computed rather than written down, so a section cannot acquire a tab
     it has no apps for or lose one it does.
     """
-    return [(s, [row[0] for row in section_members(s)]) for s in SECTIONS]
+    result = []
+    for section in SECTIONS:
+        rows = section_members(section, apps)
+        if rows:
+            result.append((section, [row[0] for row in rows]))
+    return result
 
 
-def home_bands() -> List[Tuple[str, List[Tuple[str, str, str, str]]]]:
+def home_bands(
+    apps: Optional[List[Tuple[str, str, str, str]]] = None,
+) -> List[Tuple[str, List[Tuple[str, str, str, str]]]]:
     """``(band, rows)`` for the Home tab, in :data:`SECTIONS` order.
 
     The same grouping the tabs use — every app once, under what it is
@@ -305,7 +337,7 @@ def home_bands() -> List[Tuple[str, List[Tuple[str, str, str, str]]]]:
     today; the guard is what stops a heading appearing over nothing the
     day a section's last app is retired.
     """
-    grouped = [(s, section_members(s)) for s in SECTIONS]
+    grouped = [(s, section_members(s, apps)) for s in SECTIONS]
     return [(s, rows) for s, rows in grouped if rows]
 
 
@@ -334,11 +366,12 @@ def make_home_page(parent=None):
     the suite.
     """
     from .widgets.home import HomePage
+    apps = visible_apps()
     return HomePage(
-        APPS, _icon_for_app, parent,
+        apps, _icon_for_app, parent,
         section_notes=SECTION_NOTES,
-        categories=home_categories(),
-        bands=[(s, [r[0] for r in rows]) for s, rows in home_bands()],
+        categories=home_categories(apps),
+        bands=[(s, [r[0] for r in rows]) for s, rows in home_bands(apps)],
         stages=home_stages())
 
 
@@ -481,6 +514,7 @@ class Sidebar(QWidget):
         outer.addWidget(self._scroll, 1)
 
         self._items: list[ElidingPushButton] = []
+        self._section_headers: dict[str, QLabel] = {}
 
         home = self._make_item("Home", "Back to the start page", "__home__")
         home.setIcon(iconset.icon("home"))
@@ -494,6 +528,7 @@ class Sidebar(QWidget):
                 header = QLabel(section)
                 header.setObjectName("SidebarSection")
                 layout.addWidget(header)
+                self._section_headers[section] = header
                 current_section = section
             btn = self._make_item(name, desc, key)
             icon = _icon_for_app(key)
@@ -504,6 +539,23 @@ class Sidebar(QWidget):
             layout.addWidget(btn)
 
         layout.addStretch(1)
+        self.refresh_visibility()
+
+    def refresh_visibility(self) -> None:
+        """Apply Alpha/Beta filters without rebuilding or reparenting the dock."""
+        section_by_key = {key: section for key, _name, _desc, section in APPS}
+        visible_sections = set()
+        for btn in self._items:
+            key = str(btn.property("navKey") or "")
+            if key == "__home__":
+                btn.setVisible(True)
+                continue
+            visible = app_is_visible(key)
+            btn.setVisible(visible)
+            if visible and key in section_by_key:
+                visible_sections.add(section_by_key[key])
+        for section, header in self._section_headers.items():
+            header.setVisible(section in visible_sections)
         self.setFixedWidth(self.fitting_width())
 
     def refresh_icons(self) -> None:
@@ -567,7 +619,8 @@ class Sidebar(QWidget):
         drawer's width.
         """
         from .preferences import scaled_px
-        widest = max((b.sizeHint().width() for b in self._items), default=0)
+        widest = max((b.sizeHint().width() for b in self._items
+                      if not b.isHidden()), default=0)
         return max(scaled_px(self.WIDTH_MIN),
                    min(widest + scaled_px(12), scaled_px(self.WIDTH_MAX)))
 
@@ -705,11 +758,14 @@ class MainWindow(QMainWindow):
         mb = self.menuBar()
 
         app_menu = mb.addMenu("&spaCR")
+        self._app_actions: dict[str, QAction] = {}
         for key, name, desc, section in APPS:
             act = QAction(name, self)
             act.setStatusTip(desc)
             act.triggered.connect(lambda checked=False, k=key: self._on_nav_selected(k))
             app_menu.addAction(act)
+            self._app_actions[key] = act
+        self._refresh_app_action_visibility()
         app_menu.addSeparator()
         act_home = QAction("Home", self)
         act_home.setShortcut(QKeySequence("Ctrl+H"))
@@ -742,6 +798,7 @@ class MainWindow(QMainWindow):
         app_menu.addAction(act_quit)
 
         demo_menu = mb.addMenu("&Demos")
+        self._demo_actions: dict[str, QAction] = {}
         for app_key, label in (
             ("mask",      "Mask demo…"),
             ("measure",   "Measure demo…"),
@@ -757,6 +814,9 @@ class MainWindow(QMainWindow):
             act.triggered.connect(
                 lambda checked=False, k=app_key: self._on_load_demo(k))
             demo_menu.addAction(act)
+            target = self.DEMO_TARGETS.get(app_key, (app_key, ""))[0]
+            self._demo_actions[app_key] = act
+            act.setVisible(app_is_visible(target))
         demo_menu.addSeparator()
         act_e2e = QAction("End-to-end (Mask → Measure → Annotate) real dataset…", self)
         act_e2e.setStatusTip(
@@ -1060,8 +1120,20 @@ class MainWindow(QMainWindow):
         """
         try:
             self._sidebar.refresh_icons()
+            self._sidebar.refresh_visibility()
         except Exception:
             pass
+        try:
+            self._refresh_app_action_visibility()
+        except Exception:
+            pass
+        for screen in getattr(self, "_screens", {}).values():
+            refresh = getattr(screen, "refresh_maturity_visibility", None)
+            if callable(refresh):
+                try:
+                    refresh()
+                except Exception:
+                    pass
         try:
             self.apply_dock_mode()
         except Exception:
@@ -1070,6 +1142,14 @@ class MainWindow(QMainWindow):
             self._rebuild_startup_page()
         except Exception:
             pass
+
+    def _refresh_app_action_visibility(self) -> None:
+        """Keep the spaCR menu in sync with module maturity preferences."""
+        for key, action in getattr(self, "_app_actions", {}).items():
+            action.setVisible(app_is_visible(key))
+        for demo_key, action in getattr(self, "_demo_actions", {}).items():
+            target = self.DEMO_TARGETS.get(demo_key, (demo_key, ""))[0]
+            action.setVisible(app_is_visible(target))
 
     def _rebuild_startup_page(self):
         """Recreate the Home page (e.g. after a font-scale change)."""
