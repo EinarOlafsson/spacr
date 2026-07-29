@@ -31,9 +31,24 @@ FIELDS = ["F001", "F009"]                # 2 fields/well → 8 fields, 2 columns
 
 pytestmark = pytest.mark.slow
 
-_available = os.path.isdir(RAW) and os.path.isfile(MASK_SETTINGS)
+_run_real_e2e = os.environ.get("SPACR_RUN_REAL_E2E", "").strip().lower() in {
+    "1", "true", "yes", "on",
+}
+# Merely stat'ing an unavailable autofs/NAS path can block collection for
+# minutes. Never touch the mount unless the operator explicitly opts in.
+_available = (
+    _run_real_e2e
+    and os.path.isdir(RAW)
+    and os.path.isfile(MASK_SETTINGS)
+)
+_skip_reason = (
+    "NAS plate1 dataset not mounted"
+    if _run_real_e2e
+    else "set SPACR_RUN_REAL_E2E=1 to run the real NAS pipeline"
+)
 _skip = pytest.mark.skipif(not _available,
-                           reason="NAS plate1 dataset not mounted")
+                           reason=_skip_reason)
+_r1_available = _available and os.path.isfile(R1_FASTQ)
 
 
 @pytest.fixture(scope="module")
@@ -178,7 +193,7 @@ def test_stage3_generate_ml_scores(pipeline):
 # ---------------------------------------------------------------------------
 
 @_skip
-@pytest.mark.skipif(not os.path.isfile(R1_FASTQ),
+@pytest.mark.skipif(not _r1_available,
                     reason="R1 fastq not on NAS")
 def test_stage4_sequencing_chunk(pipeline, tmp_path):
     from spacr.sequencing import generate_barecode_mapping
