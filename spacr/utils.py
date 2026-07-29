@@ -4742,7 +4742,7 @@ def model_metrics(model):
     ax[1, 1].scatter(model.fittedvalues, np.sqrt(np.abs(standardized_resid)), edgecolors = 'k', facecolors = 'none')
     ax[1, 1].set_title('Scale-Location')
     ax[1, 1].set_xlabel('Fitted values')
-    ax[1, 1].set_ylabel('$\sqrt{|Standardized Residuals|}$')
+    ax[1, 1].set_ylabel(r'$\sqrt{|Standardized Residuals|}$')
 
     plt.tight_layout()
     plt.show()
