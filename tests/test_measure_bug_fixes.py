@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import os
 import sqlite3
+import warnings
 
 import matplotlib
 matplotlib.use("Agg")
@@ -164,6 +165,27 @@ def test_mode_intensity_picks_the_smallest_value_when_multimodal():
 
     df = M._extended_regionprops_table(mask, img, ["label", "mean_intensity"])
     assert df["mode_intensity"].iloc[0] == pytest.approx(3.0)
+
+
+def test_uniform_intensity_has_undefined_moments_without_runtime_warnings():
+    """A flat object has no standardised third or fourth moment.
+
+    SciPy returns NaN for both values but also warns about catastrophic
+    cancellation.  Uniform regions are valid microscopy data and must not
+    flood a measurement run with numerical warnings.
+    """
+    mask = np.ones((8, 8), np.int32)
+    img = np.full((8, 8), 7.0)
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        df = M._extended_regionprops_table(
+            mask, img, ["label", "mean_intensity"])
+
+    assert not [warning for warning in caught
+                if issubclass(warning.category, RuntimeWarning)]
+    assert np.isnan(df["skew_intensity"].iloc[0])
+    assert np.isnan(df["kurtosis_intensity"].iloc[0])
 
 
 # ===========================================================================
