@@ -1076,11 +1076,6 @@ def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, mas
             "radius was None; automatically set radius=%d (width/20)", radius
         )
 
-    # ------------------------------------------------------------------
-    # btrack configuration and feature definition
-    # ------------------------------------------------------------------
-    CONFIG_FILE = btrack_datasets.cell_config()
-    
     # Shape-based features only (robust + what your config already expects)
     FEATURES = [
         "area",
@@ -1102,6 +1097,40 @@ def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, mas
     )
     n_objects = len(objects)
     logger.info("Extracted %d objects for tracking.", n_objects)
+
+    if n_objects == 0:
+        # Do not construct BayesianTracker for an empty segmentation. Besides
+        # doing no useful work, construction loads btrack's native
+        # ``libtracker`` and can fail on an otherwise valid machine whose
+        # libstdc++ is older than the wheel's build toolchain. Empty input has
+        # a complete, deterministic answer without that native dependency.
+        columns = (
+            "track_id", "frame", "x", "y", "original_label", "file_name",
+            "plateID", "rowID", "columnID", "fieldID", "prcf", "wellID",
+        )
+        final_df = pd.DataFrame({
+            column: pd.Series(dtype=float if column in {
+                "track_id", "frame", "x", "y", "original_label"
+            } else "object")
+            for column in columns
+        })
+        masks = [np.zeros_like(frame) for frame in masks_3D]
+
+        tracks_path = os.path.join(os.path.dirname(src), "tracks")
+        os.makedirs(tracks_path, exist_ok=True)
+        out_csv = os.path.join(
+            tracks_path, f"btrack_tracks_{object_type}_{name}.csv")
+        final_df.to_csv(out_csv, index=False)
+
+        if plot or save:
+            _visualize_and_save_timelapse_stack_with_tracks(
+                masks, final_df, save, src, name, plot, batch_filenames,
+                object_type, mode,
+            )
+        return _masks_to_masks_stack(masks)
+
+    # Fetch/configure the motion model only when there is something to track.
+    CONFIG_FILE = btrack_datasets.cell_config()
 
     # ------------------------------------------------------------------
     # Run the Bayesian tracker
