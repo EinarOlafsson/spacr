@@ -5,7 +5,7 @@ name: compat-matrix
 #
 # spaCR claims Python 3.9-3.13 on Linux, macOS and Windows. Before this
 # workflow existed, exactly one cell of that grid had ever been executed:
-# ubuntu-22.04 / CPython 3.10, in tests.yml. Every other claim in the
+# ubuntu-24.04 / CPython 3.10, in tests.yml. Every other claim in the
 # classifiers, the README and the install docs was inference from wheel
 # metadata — strong inference for "will it install", no evidence at all for
 # "will it run".
@@ -53,9 +53,9 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
           cache: pip
@@ -140,9 +140,9 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
 
@@ -271,7 +271,7 @@ jobs:
           # a red macOS/Windows cell attributable to the platform rather than
           # to this workflow.
           - label: "Linux x86-64 / py3.12 (control)"
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             python-version: "3.12"
             experimental: false
             why: "control"
@@ -291,7 +291,7 @@ jobs:
           # `python-313-installs` job above proves that separately with
           # `--only-binary :all:`.
           - label: "Linux x86-64 / py3.13"
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             python-version: "3.13"
             experimental: false
             why: "newest claimed Python; blocking"
@@ -348,9 +348,9 @@ jobs:
             why: "no MPS support in spacr; CPU-only, and Cellpose MPS is actively overridden"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
@@ -488,7 +488,7 @@ jobs:
     continue-on-error: true
 
     steps:
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 

@@ -29,8 +29,8 @@ on:
 
 jobs:
   tests:
-    name: Full suite (ubuntu-22.04, py${{ matrix.python-version }})
-    runs-on: ubuntu-22.04
+    name: Full suite (ubuntu-24.04, py${{ matrix.python-version }})
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
 
     strategy:
@@ -97,10 +97,10 @@ jobs:
             extras: "qt,dev,zernike"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
@@ -113,8 +113,8 @@ jobs:
             libx11-xcb1 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
             libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-sync1 \
             libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
-            libgl1 libglib2.0-0 libnss3 libxcomposite1 libxcursor1 \
-            libxdamage1 libxi6 libxtst6 libasound2 \
+            libgl1 libglib2.0-0t64 libnss3 libxcomposite1 libxcursor1 \
+            libxdamage1 libxi6 libxtst6 libasound2t64 \
             libsm6 libxext6 libxrender1 ffmpeg
 
       - name: Install spacr (full deps, CPU-only torch)
@@ -147,7 +147,26 @@ jobs:
         run: |
           python -c "import sys; print('python', sys.version)"
           python -m pip list --format=freeze | grep -Ei \
-            '^(numpy|scipy|torch|torchvision|cellpose|mahotas|opencv-python-headless|pillow|psutil|lxml|PySide6|pandas|scikit-image)=' || true
+            '^(numpy|scipy|torch|torchvision|cellpose|mahotas|opencv-python-headless|pillow|psutil|lxml|PySide6|pandas|scikit-image|scikit-learn|umap-learn|btrack)=' || true
+
+      - name: Preflight low-core defaults and native integrations
+        env:
+          QT_QPA_PLATFORM: offscreen
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          python - <<'PY'
+          from spacr.settings import set_default_settings_preprocess_generate_masks
+          settings = set_default_settings_preprocess_generate_masks({})
+          assert settings["n_jobs"] >= 1, settings["n_jobs"]
+
+          from spacr.utils import umap
+          assert umap.UMAP is not None
+
+          import btrack
+          with btrack.BayesianTracker():
+              pass
+          print("low-core defaults, UMAP API, and btrack native library: OK")
+          PY
 
       - name: Run tests (resource tests detect availability)
         env:
