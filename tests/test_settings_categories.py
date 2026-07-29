@@ -219,6 +219,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # class_metadata they belong beside. Filed with "Training Dataset".
     "metadata_item_1_name", "metadata_item_1_value",
     "metadata_item_2_name", "metadata_item_2_value",
+    # Live PyTorch training telemetry and the Cellpose training resize.
+    "tensorboard", "target_size",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six

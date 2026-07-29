@@ -2442,7 +2442,7 @@ categories = {
     # model_type answers, and 'custom_model' under a "Cellpose" heading was the
     # only reason the Classify (CV) panel had an "Other" section at all - that
     # module hides "Cellpose", so its one key fell out of every group.
-    "Cellpose": ["fill_in", "from_scratch", "n_epochs", "width_height", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
+    "Cellpose": ["fill_in", "from_scratch", "n_epochs", "width_height", "target_size", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
 
     "Cell": ["cell_model_name", "cell_diameter", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "adjust_cells", "cell_max_area", "cell_min_area", "cell_remove_border_objects", "cell_min_intensity_percentile", "cell_max_intensity_percentile", "remove_border_cells", "cell_perimeter_fraction", "cell_intensity_merge", "cell_intensity_split", "cell_area_multiplier", "cell_min_distance", "cell_min_object_area", "cell_intensity_threshold_method", "cell_intensity_percentile"],
 
