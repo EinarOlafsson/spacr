@@ -1,4 +1,4 @@
-import cv2, os, re, glob, random, btrack, sqlite3
+import cv2, os, re, glob, random, sqlite3
 import numpy as np
 import pandas as pd
 from collections import defaultdict
@@ -1005,9 +1005,16 @@ def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, mas
 
     import numpy as np
     import pandas as pd
-    import btrack
-    from btrack import datasets as btrack_datasets
-    from btrack.constants import BayesianUpdates
+    try:
+        import btrack
+        from btrack import datasets as btrack_datasets
+        from btrack.constants import BayesianUpdates
+    except (ImportError, OSError) as exc:
+        raise ImportError(
+            "btrack tracking requires the optional btrack dependency. "
+            "Install it with `pip install 'spacr[btrack]'`, or select "
+            "trackpy, Trackastra, or IoU tracking instead."
+        ) from exc
 
     from .plot import _visualize_and_save_timelapse_stack_with_tracks
     from .utils import _masks_to_masks_stack, _map_wells

@@ -15,7 +15,10 @@ ROOT = Path(__file__).resolve().parents[1]
 SETUP = ROOT / "setup.py"
 MINIMUM = ROOT / ".github" / "constraints" / "minimum-py39.txt"
 WORKFLOW = ROOT / ".github" / "workflows" / "tests.yml"
-MINIMUM_EXTRAS = ("qt", "dev", "zernike", "attribution")
+COMPAT_WORKFLOW = ROOT / ".github" / "workflows" / "compat-matrix.yml"
+MINIMUM_EXTRAS = (
+    "qt", "dev", "zernike", "attribution", "btrack", "czi",
+)
 
 
 def _declared_requirements() -> list[Requirement]:
@@ -122,6 +125,9 @@ def test_ci_exercises_minimum_and_newest_dependency_profiles():
     workflow = WORKFLOW.read_text(encoding="utf-8")
     assert "Newest compatible (ubuntu-24.04" in workflow
     assert 'python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]' in workflow
+    compat = COMPAT_WORKFLOW.read_text(encoding="utf-8")
+    assert 'label: "Linux x86-64 / py3.14"' in compat
+    assert 'python-version: "3.14"' in compat
     assert "minimum-dependencies:" in workflow
     assert "-c .github/constraints/minimum-py39.txt" in workflow
     assert "python -m pip check" in workflow

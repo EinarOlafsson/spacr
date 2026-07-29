@@ -3,7 +3,7 @@ name: compat-matrix
 # ---------------------------------------------------------------------------
 # The compatibility grid.
 #
-# spaCR claims Python 3.9-3.13 on Linux, macOS and Windows. Before this
+# spaCR claims Python 3.9-3.14 on Linux, macOS and Windows. Before this
 # workflow existed, exactly one cell of that grid had ever been executed:
 # ubuntu-24.04 / CPython 3.10, in tests.yml. Every other claim in the
 # classifiers, the README and the install docs was inference from wheel
@@ -103,7 +103,7 @@ jobs:
         run: python -m pytest tests/test_packaging_metadata.py -q --no-header
 
   # -------------------------------------------------------------------------
-  # 2. Python 3.13 installs, and installs WITHOUT A COMPILER.
+  # 2. Newest Python versions install, and install WITHOUT A COMPILER.
   #
   # This job is the inversion of the one it replaces. Until 2026-07-27 it was
   # called "3.13 install is refused cleanly" and it was GREEN when pip
@@ -118,11 +118,11 @@ jobs:
   # workflow red the moment requires-python widened — which is exactly what
   # the note in pyproject.toml warned about.
   #
-  # Two assertions, and the second is the one that matters:
+  # Two assertions per interpreter, and the second is the one that matters:
   #
-  #   a) the resolve succeeds on 3.13 at all; and
-  #   b) it succeeds with `--only-binary :all:`, i.e. every package in the
-  #      graph has a cp313 wheel and NOTHING is built from source.
+  #   a) the resolve succeeds at all; and
+  #   b) it succeeds with `--only-binary :all:`, i.e. every compiled package
+  #      in the graph has a compatible wheel and NOTHING is built from source.
   #
   # (b) is the real user-facing promise. The failure mode this whole exercise
   # existed to kill was never "pip refuses" — it was a scientist on a cluster
@@ -131,22 +131,26 @@ jobs:
   # requirement rather than removed it, so (b) is blocking too.
   #
   # Deliberately `--dry-run`: this job answers "does the graph resolve to
-  # wheels", and it must answer in under a minute. The *real* 3.13 install and
-  # import sweep is a cell in the matrix below.
+  # wheels", and it must answer in under a minute. Real install and import
+  # sweeps are cells in the matrix below.
   # -------------------------------------------------------------------------
-  python-313-installs:
-    name: 3.13 installs, from wheels only
+  current-python-installs:
+    name: ${{ matrix.python-version }} installs, from wheels only
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.13", "3.14"]
 
     steps:
       - uses: actions/checkout@v6
 
       - uses: actions/setup-python@v6
         with:
-          python-version: "3.13"
+          python-version: ${{ matrix.python-version }}
 
-      - name: pip must accept spacr on 3.13
+      - name: pip must accept spacr on Python ${{ matrix.python-version }}
         run: |
           python -m pip install --upgrade pip
           set +e
@@ -155,10 +159,10 @@ jobs:
           set -e
           echo "$out"
           if [ $rc -ne 0 ]; then
-            echo "::error::pip refused spacr on Python 3.13. requires-python claims >=3.9,<3.14 and the classifiers claim 3.13."
+            echo "::error::pip refused spacr on Python ${{ matrix.python-version }}, which is claimed by Requires-Python and the classifiers."
             exit 1
           fi
-          echo "OK: pip accepted spacr on 3.13."
+          echo "OK: pip accepted spacr on Python ${{ matrix.python-version }}."
 
       - name: no COMPILED dependency may build from source
         # --only-binary :all: makes pip fail rather than fall back to a source
@@ -197,14 +201,14 @@ jobs:
           set -e
           echo "$out"
           if [ $rc -ne 0 ]; then
-            echo "::error::spacr does not resolve to wheels on Python 3.13 -- something in the graph needs a compiler."
-            echo "::error::Find the package with no cp313 wheel in the log above and move it to an extra, the way mahotas and torchcam were."
+            echo "::error::spacr does not resolve to wheels on Python ${{ matrix.python-version }} -- something in the graph needs a compiler."
+            echo "::error::Find the package without a compatible wheel in the log above and move optional native functionality behind a feature extra."
             exit 1
           fi
           echo "$out" | grep -oE "Would install .*" | tr ' ' '\n' | grep -E "^numpy-" || true
-          echo "OK: every compiled package in the core+qt graph has a cp313 wheel."
+          echo "OK: every compiled package in the core+qt graph has a compatible wheel."
 
-      - name: mahotas and torchcam must NOT be in the core resolve
+      - name: optional native features must NOT be in the core resolve
         # The two packages whose absence from the core install is what makes
         # 3.13 work. If either reappears in `dependencies`, the step above
         # would still pass on a runner that has gcc -- it would just silently
@@ -221,13 +225,13 @@ jobs:
               and any(getattr(t, "id", None) == "dependencies" for t in n.targets)
           )
           names = {re.split(r"[<>=!~;\[ ]", d.strip())[0].lower() for d in deps}
-          back = sorted({"mahotas", "torchcam"} & names)
+          back = sorted({"mahotas", "torchcam", "pylibczirw", "btrack"} & names)
           if back:
               print(f"::error::{back} is back in setup.py's core dependencies. "
-                    f"mahotas has no cp313 wheel at any version and torchcam "
-                    f"declares numpy<2.0.0; either one re-breaks Python 3.13.")
+                    f"One or more optional native features would re-break "
+                    f"the newest supported Python.")
               sys.exit(1)
-          print("OK: mahotas and torchcam are extras-only.")
+          print("OK: optional native features are extras-only.")
           PY
 
   # -------------------------------------------------------------------------
@@ -273,6 +277,7 @@ jobs:
           - label: "Linux x86-64 / py3.12 (control)"
             os: ubuntu-24.04
             python-version: "3.12"
+            extras: "qt,dev,zernike"
             experimental: false
             why: "control"
 
@@ -288,13 +293,25 @@ jobs:
           # spacr.measure and the Zernike features under test on 3.13 instead
           # of quietly untested. The promise that a 3.13 user needs no
           # compiler is a promise about the CORE install, and the
-          # `python-313-installs` job above proves that separately with
+          # `current-python-installs` job above proves that separately with
           # `--only-binary :all:`.
           - label: "Linux x86-64 / py3.13"
             os: ubuntu-24.04
             python-version: "3.13"
+            extras: "qt,dev,zernike"
             experimental: false
             why: "newest claimed Python; blocking"
+
+          # --- Linux x86-64 / 3.14 ------------------------------------------
+          # Core spaCR and Qt are blocking on the newest claimed interpreter.
+          # Native features not yet qualified on 3.14 (pylibCZIrw, btrack and
+          # mahotas) are optional and deliberately not installed.
+          - label: "Linux x86-64 / py3.14"
+            os: ubuntu-24.04
+            python-version: "3.14"
+            extras: "qt,dev"
+            experimental: false
+            why: "newest claimed Python; blocking core and Qt support"
 
           # --- Linux ARM64 --------------------------------------------------
           # Previously expected red, for two reasons that are now both gone:
@@ -312,6 +329,7 @@ jobs:
           - label: "Linux ARM64 / py3.11"
             os: ubuntu-24.04-arm
             python-version: "3.11"
+            extras: "qt,dev,zernike"
             experimental: true
             why: "both known aarch64 blockers (mahotas, psutil<6.0) are resolved; awaiting a first green run before promoting to blocking"
 
@@ -328,6 +346,7 @@ jobs:
           - label: "Windows x86-64 / py3.11"
             os: windows-2022
             python-version: "3.11"
+            extras: "qt,dev,zernike"
             experimental: true
             why: "POSIX assumptions in paths, encodings and multiprocessing"
 
@@ -344,6 +363,7 @@ jobs:
           - label: "macOS arm64 / py3.11"
             os: macos-15
             python-version: "3.11"
+            extras: "qt,dev,zernike"
             experimental: true
             why: "no MPS support in spacr; CPU-only, and Cellpose MPS is actively overridden"
 
@@ -404,9 +424,9 @@ jobs:
         # cell, which would say nothing about the platform. On 3.13 this
         # compiles mahotas from sdist (no cp313 wheel exists); these runners
         # have a toolchain, and the no-compiler promise for the core install
-        # is proved by the `python-313-installs` job instead.
+        # is proved by the `current-python-installs` job instead.
         shell: bash
-        run: python -m pip install -e ".[qt,dev,zernike]"
+        run: python -m pip install -e ".[${{ matrix.extras }}]"
 
       - name: Show the pins that gate this cell
         shell: bash

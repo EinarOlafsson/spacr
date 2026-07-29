@@ -427,7 +427,8 @@ The recommended installation uses an isolated conda environment with Python
    python -m pip install "spacr[qt]"
    spacr
 
-spaCR supports Python **3.9 through 3.13**. Python 3.12 is recommended for
+spaCR supports Python **3.9 through 3.14** (except Python 3.14.1, which is
+excluded by torchvision). Python 3.12 is recommended for
 the broadest combination of optional scientific packages. Linux is
 recommended for CUDA workflows; macOS and Windows are also supported.
 
@@ -484,12 +485,15 @@ Install only the extras needed by your workflow:
    python -m pip install "spacr[attribution]"   # TorchCAM methods
    python -m pip install "spacr[boosting]"      # LightGBM and CatBoost
    python -m pip install "spacr[zernike]"       # Zernike measurements
+   python -m pip install "spacr[btrack]"        # btrack timelapse tracking
    python -m pip install "spacr[czi,nd2,lif]"   # vendor file readers
 
 Optional dependency availability varies by Python version. In particular,
 ultrack currently limits ``spacr[all]`` on Python 3.13, and TorchCAM's NumPy
 constraint limits the ``attribution`` extra there. The core package and Qt
-application remain supported.
+application remain supported. On Python 3.14, btrack and the high-performance
+pylibCZIrw CZI converter remain optional and outside the tested core profile;
+the other timelapse backends and czifile-based CZI reading remain available.
 
 The legacy Tk interface remains available as ``spacr-legacy`` but is no
 longer under active development.

@@ -176,16 +176,17 @@ def test_pyproject_declares_requires_python():
     assert spec.strip(), "requires-python is empty"
 
 
-def test_requires_python_admits_39_through_313_and_nothing_else():
+def test_requires_python_admits_39_through_314_except_3141():
     """The supported range is evidence-bounded, in both directions.
 
     Floor 3.9: this is a supported interpreter in real use. Its resolver
     selects torch 2.8 and the last compatible PySide6, numba, llvmlite,
     pingouin and IPython lines; a blocking CI cell exercises that branch.
 
-    Ceiling <3.14: pylibCZIrw publishes no cp314 wheel at any version (checked
-    through 6.1.0) and ``spacr/io.py`` imports it at module scope, so 3.14
-    would install and then fail to import.
+    Ceiling <3.15: every admitted minor has a blocking CI cell. Native
+    dependencies without CPython 3.14 wheels are optional and lazily loaded.
+    Python 3.14.1 is excluded because torchvision excludes that exact patch
+    release in its own package metadata.
 
     This test used to be called
     ``test_requires_python_admits_310_through_312_and_nothing_else`` and it
@@ -203,14 +204,16 @@ def test_requires_python_admits_39_through_313_and_nothing_else():
     from packaging.version import Version
 
     spec = SpecifierSet(_requires_python())
-    supported = ["3.9", "3.10", "3.11", "3.12", "3.13"]
-    unsupported = ["3.7", "3.8", "3.14"]
+    supported = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+    unsupported = ["3.7", "3.8", "3.14.1", "3.15"]
 
     for v in supported:
-        assert spec.contains(Version(v + ".0")), \
+        version = Version(v if v.count(".") == 2 else v + ".0")
+        assert spec.contains(version), \
             f"requires-python {spec} excludes {v}, which CI runs and the classifiers claim"
     for v in unsupported:
-        assert not spec.contains(Version(v + ".0")), \
+        version = Version(v if v.count(".") == 2 else v + ".0")
+        assert not spec.contains(version), \
             (f"requires-python {spec} admits {v}. If that is intentional, add the "
              f"classifier and the CI cell in the same commit — an untested claim "
              f"is how the 3.13 numpy compiler error reached users.")
@@ -229,7 +232,9 @@ def test_python_classifiers_match_requires_python_exactly():
         and re.fullmatch(r"\s*3\.\d+\s*", c.rsplit("::", 1)[1])
     )
     admitted = sorted(
-        v for v in ("3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14")
+        v for v in (
+            "3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14",
+        )
         if spec.contains(Version(v + ".0"))
     )
     assert claimed == admitted, (
@@ -596,6 +601,19 @@ def test_no_duplicate_core_dependencies():
     assert not dupes, f"duplicate core dependencies: {dupes}"
 
 
+def test_native_features_not_qualified_on_python_314_are_optional():
+    """Core imports must not require native features outside the 3.14 profile."""
+    core = {_name_of(spec) for spec in _core_dependencies()}
+    extras = _extras()
+    for package, extra in (("pylibczirw", "czi"), ("btrack", "btrack")):
+        assert package not in core, (
+            f"{package} is a core dependency again; that blocks Python 3.14"
+        )
+        assert package in {_name_of(spec) for spec in extras[extra]}, (
+            f"{extra!r} no longer provides its optional {package} dependency"
+        )
+
+
 def test_every_extra_is_non_empty_and_well_formed():
     from packaging.requirements import InvalidRequirement, Requirement
     extras = _extras()
@@ -659,7 +677,7 @@ def test_all_extra_is_exactly_the_union_of_what_it_aggregates():
     extras = _extras()
     assert "all" in extras, "the `all` extra disappeared"
     aggregated = ("qt", "tutorial", "trackastra", "ultrack", "boosting",
-                  "czi", "nd2", "lif", "zernike")
+                  "czi", "nd2", "lif", "zernike", "btrack")
     expected = set()
     for name in aggregated:
         assert name in extras, f"`all` claims to aggregate {name!r}, which is gone"
@@ -682,11 +700,9 @@ def test_format_reader_extras_exist():
     aarch64 and macOS arm64); czifile, readlif and nd2reader are pure Python
     and block nothing.
 
-    All four are still in the core deps because spacr/io.py and
-    spacr/measure.py import them at module scope. The extras exist so the day
-    those imports become lazy, removing the core copies is a three-line
-    change, and ``pip install spacr[czi]`` keeps working for anyone who
-    already typed it.
+    pylibCZIrw is now optional and loaded only by the high-performance CZI
+    conversion path, which keeps core installation viable on Python 3.14.
+    The remaining reader extras preserve explicit feature installs.
     """
     extras = _extras()
     for name in ("czi", "nd2", "lif", "zernike"):

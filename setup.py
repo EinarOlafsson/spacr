@@ -176,7 +176,6 @@ dependencies = [
     # `pip install spacr` on 3.13 attempt a C++ source build, which succeeds
     # only where a toolchain happens to exist. Zernike moments are the sole
     # consumer, so the feature moves with the package.
-    'btrack>=0.7.0,<1.0',
     'trackpy>=0.6.2,<1.0',
     # The deprecated lowercase ``links.logit`` alias is no longer used:
     # spacr/ml.py imports and constructs ``Logit``. Keep the existing 0.15
@@ -268,7 +267,6 @@ dependencies = [
     'tifffile>=2023.4.12',
     'nd2reader>=3.3.0, <4.0',
     'czifile',
-    'pylibCZIrw>=5.0.0,<6.0',
     # `aicspylibczi` removed: zero import statements and zero raw-string
     # references anywhere under spacr/. It ships a manylinux x86_64 wheel
     # only — no linux-aarch64, no cp313, no cp314 — and its sdist needs CMake
@@ -621,15 +619,11 @@ setup(
         # ------------------------------------------------------------------
         # File-format extras.
         #
-        # These name the readers for the vendor microscope formats. The three
-        # CZI/ND2/LIF readers are *still* listed in `dependencies` above as
-        # well, because spacr/io.py imports pylibCZIrw, czifile and nd2reader
-        # at module scope — removing them from the core install would turn
-        # `import spacr.io` into an ImportError on every platform, not just
-        # the thin ones. The core copies come out the moment those imports
-        # become lazy/guarded; the diffs live in files this change does not
-        # own. `zernike` is different: mahotas has now LEFT the core list, so
-        # that extra is the only place it is declared.
+        # These name readers for vendor microscope formats. pylibCZIrw is
+        # intentionally optional and imported only when its streaming CZI
+        # converter is selected: it does not yet publish a CPython 3.14
+        # wheel. The pure-Python czifile reader remains in core, so CZI data
+        # is still readable on 3.14.
         #
         # Which of these actually gate the platform matrix (re-verified
         # against the PyPI JSON API on 2026-07-27, not assumed):
@@ -647,10 +641,14 @@ setup(
         #     constrain no platform and no Python version; these extras are
         #     organisational, not load-bearing.
         # ------------------------------------------------------------------
-        'czi': ['pylibCZIrw>=5.0.0,<6.0', 'czifile'],
+        'czi': ['pylibCZIrw>=5.0.0,<7.0', 'czifile'],
         'nd2': ['nd2reader>=3.3.0,<4.0'],
         'lif': ['readlif'],
         'zernike': ['mahotas>=1.4.13,<2.0'],
+        # btrack loads a native tracker library. Keeping it behind a lazy
+        # feature boundary lets the rest of timelapse run on new Python
+        # versions while upstream wheels catch up.
+        'btrack': ['btrack>=0.7.0,<1.0'],
 
         # `pip install spacr[all]` — every optional feature at once, minus
         # four, each for a stated reason:
@@ -713,11 +711,12 @@ setup(
             'ultrack>=0.6,<1.0',
             'catboost>=1.2,<2.0',
             'lightgbm>=4.0,<5.0',
-            'pylibCZIrw>=5.0.0,<6.0',
+            'pylibCZIrw>=5.0.0,<7.0',
             'czifile',
             'nd2reader>=3.3.0,<4.0',
             'readlif',
             'mahotas>=1.4.13,<2.0',
+            'btrack>=0.7.0,<1.0',
         ],
     },
 )
