@@ -4,7 +4,10 @@ from __future__ import annotations
 
 import re
 import subprocess
+import importlib.util
 from pathlib import Path
+
+import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -13,6 +16,16 @@ UNIX = ONLINE / "install_spacr_unix.sh"
 WINDOWS = ONLINE / "install_spacr_windows.ps1"
 NSIS = ONLINE / "spacr_online_installer.nsi"
 WORKFLOW = ROOT / ".github" / "workflows" / "online-installers.yml"
+RELEASE_WORKFLOW = ROOT / ".github" / "workflows" / "release.yml"
+
+
+def _release_module():
+    spec = importlib.util.spec_from_file_location(
+        "spacr_release_helper", ROOT / "packaging" / "release.py")
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def _text(path: Path) -> str:
@@ -119,15 +132,86 @@ def test_unix_bootstrap_parses_and_dry_run_never_downloads(tmp_path):
 
 def test_release_workflow_builds_all_platforms_with_node24_actions():
     workflow = _text(WORKFLOW)
-    assert "branches: [spacr-codex, spacr-nightly]" in workflow
+    assert "branches: [spacr-codex]" in workflow
+    assert "workflow_call:" in workflow
     for job in ("linux:", "windows:", "macos:"):
         assert job in workflow
     assert "actions/checkout@v6" in workflow
     assert "actions/setup-python@v6" in workflow
     assert "actions/upload-artifact@v6" in workflow
     assert "actions/download-artifact@v6" in workflow
-    assert "https://pypi.org/pypi/spacr/$version/json" in workflow
-    assert "gh release upload" in workflow
+    assert "python packaging/release.py collect" in workflow
+    assert "spacr/application" in workflow
+
+
+def test_one_click_release_orders_version_installers_pypi_and_github():
+    workflow = _text(RELEASE_WORKFLOW)
+    assert "workflow_dispatch:" in workflow
+    assert "python packaging/release.py bump" in workflow
+    assert "uses: ./.github/workflows/online-installers.yml" in workflow
+    assert "pypa/gh-action-pypi-publish@release/v1" in workflow
+    assert "environment:" in workflow and "name: pypi" in workflow
+    assert "id-token: write" in workflow
+    assert "gh release create" in workflow
+    assert "needs: [bump, installers, publish-pypi]" in workflow
+
+
+def test_release_helper_bumps_only_to_a_newer_valid_version(tmp_path):
+    helper = _release_module()
+
+    setup = tmp_path / "setup.py"
+    setup.write_text('name = "spacr"\nVERSION = "1.2.3"\n', encoding="utf-8")
+    assert helper.bump_version(setup, "1.2.4") == "1.2.4"
+    assert helper.read_version(setup) == "1.2.4"
+    assert setup.read_text(encoding="utf-8").count("VERSION") == 1
+
+    with pytest.raises(ValueError, match="greater than"):
+        helper.bump_version(setup, "1.2.4")
+    with pytest.raises(ValueError, match="valid Python package version"):
+        helper.bump_version(setup, "not a version")
+
+
+def test_release_helper_collects_current_installers_and_rewrites_links(tmp_path):
+    helper = _release_module()
+
+    version = "2.3.4"
+    setup = tmp_path / "setup.py"
+    setup.write_text(f'VERSION = "{version}"\n', encoding="utf-8")
+    readme = tmp_path / "README.rst"
+    readme.write_text(
+        "Before\n\n.. spacr-installer-links-begin\nold\n"
+        ".. spacr-installer-links-end\n\nAfter\n",
+        encoding="utf-8",
+    )
+    source = tmp_path / "artifacts"
+    source.mkdir()
+    names = [
+        f"SpaCR-{version}-Windows-Online-Setup.exe",
+        f"SpaCR-{version}-macOS-Universal-Online.pkg",
+        f"SpaCR-{version}-Linux-x86_64-Online.run",
+    ]
+    for index, name in enumerate(names):
+        nested = source / f"job-{index}"
+        nested.mkdir()
+        (nested / name).write_bytes(f"installer-{index}".encode())
+    destination = tmp_path / "application"
+    destination.mkdir()
+    old = destination / "SpaCR-1.0.0-Linux-x86_64-Online.run"
+    old.write_bytes(b"old")
+
+    copied = helper.collect_installers(
+        source, destination, readme, setup, branch="spacr-nightly")
+
+    assert {path.name for path in copied} == set(names)
+    assert not old.exists()
+    links = readme.read_text(encoding="utf-8")
+    assert "old" not in links
+    for name in names:
+        assert name in links
+        assert (destination / name).is_file()
+    manifest = (destination / "README.rst").read_text(encoding="utf-8")
+    assert f"Current version: ``{version}``" in manifest
+    assert manifest.count("SHA-256") == 4  # heading + one line per installer
 
 
 def test_builders_read_version_without_importing_setup_py():

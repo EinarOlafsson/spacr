@@ -22,8 +22,52 @@ working spaCR environment.
 | Linux x86-64 | `online/build_linux_online.sh` | `SpaCR-<ver>-Linux-x86_64-Online.run` | `~/.local/share/spacr` |
 
 `.github/workflows/online-installers.yml` builds all three on native GitHub
-runners. A published GitHub release receives the installers as assets
-automatically. A manual workflow run produces downloadable test artifacts.
+runners, collects them under `spacr/application/`, writes SHA-256 hashes, and
+rewrites the download block in `README.rst` to point at the current version.
+The version is always read from `setup.py`.
+
+`packaging/release.py` owns the cross-platform release metadata:
+
+```bash
+# Print the current package version
+python packaging/release.py version
+
+# Validate and increment the one canonical version
+python packaging/release.py bump 1.4.9.9
+
+# After the three native builders have populated dist/online
+python packaging/release.py collect --branch spacr-nightly
+```
+
+The native installers cannot all be generated on one local operating system.
+The GitHub workflow runs each builder on its matching native runner and then
+calls the collection command once all three artifacts exist.
+
+## One-click releases
+
+Run **Actions → release SpaCR → Run workflow**, enter the new version, and
+leave the target as `spacr-nightly`. `.github/workflows/release.yml` then:
+
+1. validates and commits the version increment;
+2. builds Windows, macOS, and Linux installers on native runners;
+3. commits the current installers under `spacr/application/` and updates the
+   README links;
+4. builds and validates the wheel and source distribution;
+5. publishes to PyPI using trusted publishing; and
+6. tags that exact commit and creates the GitHub release.
+
+One-time repository setup:
+
+1. In GitHub **Settings → Actions → General → Workflow permissions**, allow
+   read and write permissions so the workflow can commit the version and
+   installers.
+2. Create a GitHub environment named `pypi`.
+3. On PyPI, add a trusted publisher for owner `EinarOlafsson`, repository
+   `spacr`, workflow `release.yml`, environment `pypi`.
+
+No PyPI API token is stored in GitHub. If `spacr-nightly` has branch
+protection, allow `github-actions[bot]` to push these two release commits or
+replace the direct-push steps with your protected-branch merge policy.
 
 Linux installs the small Qt/OpenGL runtime libraries through apt, dnf, zypper,
 or pacman when available. macOS packages may be signed by setting

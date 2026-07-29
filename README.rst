@@ -439,13 +439,17 @@ Installation options
 Lightweight installers — no conda or existing Python required
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The recommended desktop downloads are the small online installers attached to
-each `GitHub release <https://github.com/EinarOlafsson/spacr/releases>`_:
+The recommended desktop downloads are the small online installers stored in
+``spacr/application``. These links are rewritten automatically whenever a
+new version is built:
 
-* ``SpaCR-<version>-Windows-Online-Setup.exe`` for Windows 10/11;
-* ``SpaCR-<version>-macOS-Universal-Online.pkg`` for Intel and Apple-silicon
-  macOS 11 or newer; and
-* ``SpaCR-<version>-Linux-x86_64-Online.run`` for 64-bit Linux.
+.. spacr-installer-links-begin
+
+* `Current Windows installer <https://github.com/EinarOlafsson/spacr/releases/latest>`_
+* `Current macOS installer <https://github.com/EinarOlafsson/spacr/releases/latest>`_
+* `Current Linux installer <https://github.com/EinarOlafsson/spacr/releases/latest>`_
+
+.. spacr-installer-links-end
 
 No conda installation and no existing Python installation are required. The
 installer downloads a private Python 3.12 runtime, Qt, PyTorch, spaCR, and the
