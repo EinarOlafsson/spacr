@@ -56,14 +56,12 @@ def test_sim_generate_power_law_first_element_largest():
 
 def test_sim_normalize_array_edge_cases():
     from spacr.sim import normalize_array
-    # Single-value array → division by zero would cause NaN.
     arr = np.array([5.0, 5.0, 5.0])
-    try:
+    with np.errstate(all="raise"):
         out = normalize_array(arr)
-        # NaN or all-zero is acceptable — verify the function returns something.
-        assert out.shape == arr.shape
-    except ZeroDivisionError:
-        pass  # documented limitation
+    assert out.shape == arr.shape
+    assert out.dtype == float
+    assert np.array_equal(out, np.zeros(3))
 
 
 # ===========================================================================
