@@ -3087,7 +3087,13 @@ def _group_by_well(df):
     non_numeric_cols = df.select_dtypes(include=['object']).columns
 
     # Apply mean function to numeric columns and first to non-numeric
-    df_grouped = df.groupby(['plateID', 'rowID', 'columnID']).agg({**{col: np.mean for col in numeric_cols}, **{col: 'first' for col in non_numeric_cols}})
+    aggregations = {
+        **{col: 'mean' for col in numeric_cols},
+        **{col: 'first' for col in non_numeric_cols},
+    }
+    df_grouped = df.groupby(
+        ['plateID', 'rowID', 'columnID'], observed=False
+    ).agg(aggregations)
     return df_grouped
 
 ###################################################
