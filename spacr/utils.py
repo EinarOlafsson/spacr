@@ -8587,7 +8587,7 @@ def extract_tar_bz2_files(folder_path):
             # Extract the tar.bz2 file
             try:
                 with tarfile.open(file_path, 'r:bz2') as tar:
-                    tar.extractall(path=extract_folder)
+                    tar.extractall(path=extract_folder, filter='data')
                 print(f"Extracted: {file_name} -> {extract_folder}")
             except Exception as e:
                 print(f"Failed to extract {file_name}: {e}")
