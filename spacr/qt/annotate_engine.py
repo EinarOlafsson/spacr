@@ -57,7 +57,8 @@ def label_to_hex(val: Optional[int]) -> Optional[str]:
 # Image pipeline
 # ---------------------------------------------------------------------------
 
-def load_crop_image(path: str, db_path: Optional[str] = None) -> Image.Image:
+def load_crop_image(path: str, db_path: Optional[str] = None,
+                    stored_channel_order: str = "auto") -> Image.Image:
     """Open one object crop PNG as an 8-bit RGB image, in the corrected order.
 
     Not ``Image.open(path).convert('RGB')``. Crop PNGs come in two formats:
@@ -78,9 +79,24 @@ def load_crop_image(path: str, db_path: Optional[str] = None) -> Image.Image:
         folder carries no sidecar marker.
     :returns: PIL ``Image`` in RGB mode.
     """
-    from ..crops import read_crop_png
+    from ..crops import (
+        CROP_FORMAT_LEGACY_BGR,
+        CROP_FORMAT_RGB,
+        read_crop_png,
+    )
 
-    return Image.fromarray(read_crop_png(path, db_path=db_path))
+    order = str(stored_channel_order or "auto").strip().lower()
+    if order == "rgb":
+        stored_format = CROP_FORMAT_RGB
+    elif order in {"bgr", "legacy_bgr"}:
+        stored_format = CROP_FORMAT_LEGACY_BGR
+    elif order == "auto":
+        stored_format = None
+    else:
+        raise ValueError(
+            "stored_channel_order must be 'rgb', 'auto', or 'legacy_bgr'")
+    return Image.fromarray(
+        read_crop_png(path, fmt=stored_format, db_path=db_path))
 
 
 def normalize_pil(
@@ -305,6 +321,10 @@ class AnnotateSettings:
     percentiles: Tuple[float, float] = (1.0, 99.0)
     normalize_channels: List[str] = field(
         default_factory=lambda: ["r", "g", "b"])
+    # Arrays and PIL/Qt images are always RGB after decode. Explicit RGB is
+    # the safe default for standard PNGs; Auto consults spaCR's format marker,
+    # and Legacy BGR remains available for old unmarked cv2-written crops.
+    stored_channel_order: str = "rgb"  # rgb | auto | legacy_bgr
     measurement: Optional[Any] = None
     threshold: Optional[Any] = None
     threshold_direction: Optional[Any] = None

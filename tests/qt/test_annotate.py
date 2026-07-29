@@ -177,6 +177,20 @@ def test_annotate_screen_constructs(qtbot, qt_theme_applied):
     assert "Ready" in screen._status_label.text() or screen._status_label.text() == ""
 
 
+def test_annotate_settings_expose_rgb_as_the_default_stored_order(
+        qtbot, qt_theme_applied):
+    from spacr.qt.annotate_engine import AnnotateSettings
+    from spacr.qt.screens.annotate import _SettingsDialog
+
+    settings = AnnotateSettings()
+    dialog = _SettingsDialog(settings)
+    qtbot.addWidget(dialog)
+    assert dialog._stored_channel_order.currentData() == "rgb"
+    dialog._stored_channel_order.setCurrentIndex(
+        dialog._stored_channel_order.findData("legacy_bgr"))
+    assert dialog.collect().stored_channel_order == "legacy_bgr"
+
+
 def test_annotate_screen_open_source_loads_page(qtbot, qt_theme_applied,
                                                   synth_annotate_source: Path):
     from spacr.qt.screens.annotate import AnnotateScreen
