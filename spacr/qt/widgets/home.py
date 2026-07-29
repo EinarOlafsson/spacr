@@ -1013,9 +1013,16 @@ class HomePage(QWidget):
 
         col.addWidget(self._build_hero())
 
-        self._banner = RunningBanner(icon_provider, self._names)
-        self._banner.open_requested.connect(self.tile_clicked)
-        col.addWidget(self._banner)
+        # One row per active run, oldest first. Keep ``_banner`` as the first
+        # row for compatibility with integrations that predate concurrent
+        # module runs.
+        self._running_host = QWidget()
+        self._running_layout = QVBoxLayout(self._running_host)
+        self._running_layout.setContentsMargins(0, 0, 0, 0)
+        self._running_layout.setSpacing(SPACING["xs"])
+        self._banners: List[RunningBanner] = []
+        self._banner = self._new_running_banner()
+        col.addWidget(self._running_host)
 
         split = QHBoxLayout()
         split.setContentsMargins(0, 0, 0, 0)
@@ -1042,11 +1049,23 @@ class HomePage(QWidget):
 
         self._ticker = QTimer(self)
         self._ticker.setInterval(1000)
-        self._ticker.timeout.connect(self._banner.refresh)
+        self._ticker.timeout.connect(self._refresh_run_banners)
 
         self._on_runs_changed()
 
     # -- pieces --------------------------------------------------------
+    def _new_running_banner(self) -> RunningBanner:
+        banner = RunningBanner(self._icon_provider, self._names)
+        banner.open_requested.connect(self.tile_clicked)
+        self._running_layout.addWidget(banner)
+        self._banners.append(banner)
+        return banner
+
+    def _refresh_run_banners(self) -> None:
+        for banner in self._banners:
+            if banner.isVisible():
+                banner.refresh()
+
     def _grouping(
         self,
         given: Optional[Sequence[Tuple[str, Sequence[str]]]],
@@ -1436,11 +1455,13 @@ class HomePage(QWidget):
 
     # -- live state ----------------------------------------------------
     def _on_runs_changed(self) -> None:
-        """The set of running jobs changed — reflect it, or clear it."""
+        """Show every active job across the top, oldest first."""
         active = [h for h in self._registry.active() if h.app_key]
-        handle = active[0] if active else None
-        self._banner.bind(handle)
-        if handle is None:
+        while len(self._banners) < len(active):
+            self._new_running_banner()
+        for index, banner in enumerate(self._banners):
+            banner.bind(active[index] if index < len(active) else None)
+        if not active:
             self._ticker.stop()
         elif not self._ticker.isActive():
             self._ticker.start()
