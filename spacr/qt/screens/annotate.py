@@ -68,6 +68,7 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QMenu,
     QMessageBox,
     QPushButton,
     QScrollArea,
@@ -75,6 +76,7 @@ from PySide6.QtWidgets import (
     QSpinBox,
     QSplitter,
     QStackedWidget,
+    QToolButton,
     QVBoxLayout,
     QWidget,
 )
@@ -1040,14 +1042,128 @@ class AnnotateScreen(QWidget):
         self._content_stack.addWidget(self._grid_scroll)
         self._content_stack.setCurrentWidget(self._empty_state)
 
-        outer.addWidget(self._content_stack, 1)
+        # The grid and the optional Console + AI pane share a vertical
+        # splitter.  Annotate starts grid-first; the bottom controls reveal
+        # the console on demand without opening a separate window.
+        self._runtime_splitter = QSplitter(Qt.Vertical, self)
+        self._runtime_splitter.setChildrenCollapsible(False)
+        self._runtime_splitter.addWidget(self._content_stack)
 
-        # Status bar area
+        self._console_wrap = QWidget(self)
+        console_layout = QVBoxLayout(self._console_wrap)
+        console_layout.setContentsMargins(0, 0, 0, 0)
+        console_layout.setSpacing(SPACING["xs"])
+        console_title = QLabel("Console + AI", self._console_wrap)
+        console_title.setObjectName("CardTitle")
+        console_layout.addWidget(console_title)
+        from ..widgets import ConsolePanel
+        self._console = ConsolePanel(
+            active_app_label="Annotate", parent=self._console_wrap)
+        self._console.setMinimumHeight(180)
+        console_layout.addWidget(self._console, 1)
+        self._runtime_splitter.addWidget(self._console_wrap)
+        self._runtime_splitter.setStretchFactor(0, 4)
+        self._runtime_splitter.setStretchFactor(1, 2)
+        self._console_wrap.hide()
+        outer.addWidget(self._runtime_splitter, 1)
+
+        # Status and Console/AI controls stay at the bottom, matching the
+        # generic module screens.
+        bottom = QWidget(self)
+        bottom_row = QHBoxLayout(bottom)
+        bottom_row.setContentsMargins(0, 0, 0, 0)
+        bottom_row.setSpacing(SPACING["sm"])
         self._status_label = QLabel("Ready.")
         self._status_label.setObjectName("SubtitleSmall")
-        outer.addWidget(self._status_label)
+        bottom_row.addWidget(self._status_label, 1)
+
+        self._console_switch = QToolButton(self)
+        self._console_switch.setText("Console ▾")
+        self._console_switch.setCheckable(True)
+        self._console_switch.setCursor(Qt.PointingHandCursor)
+        self._console_switch.setFocusPolicy(Qt.NoFocus)
+        self._console_switch.setToolTip("Show or hide the Console + AI pane.")
+        self._console_switch.toggled.connect(self._on_console_switch)
+        bottom_row.addWidget(self._console_switch)
+
+        from ..widgets import AiToggleLabel
+        self._ai_switch = AiToggleLabel()
+        self._ai_switch.toggled.connect(self._on_ai_switch)
+        bottom_row.addWidget(self._ai_switch)
+
+        self._ai_menu_btn = QToolButton(self)
+        self._ai_menu_btn.setPopupMode(QToolButton.InstantPopup)
+        self._ai_menu_btn.setCursor(Qt.PointingHandCursor)
+        self._ai_menu_btn.setFocusPolicy(Qt.NoFocus)
+        self._ai_menu_btn.setToolTip("Pick provider · Providers…")
+        self._ai_menu_btn.setText("▾")
+        self._ai_menu = QMenu(self._ai_menu_btn)
+        self._ai_menu_btn.setMenu(self._ai_menu)
+        bottom_row.addWidget(self._ai_menu_btn)
+        self._refresh_ai_menu()
+        outer.addWidget(bottom)
 
         self._rebuild_grid()
+
+    def _on_console_switch(self, on: bool) -> None:
+        """Expand or collapse Annotate's merged Console + AI pane."""
+        self._console_wrap.setVisible(on)
+        self._console_switch.setText("Console ▴" if on else "Console ▾")
+        if on:
+            height = max(480, self._runtime_splitter.height())
+            self._runtime_splitter.setSizes(
+                [max(240, int(height * 0.62)), max(180, int(height * 0.38))])
+
+    def _on_ai_switch(self, on: bool) -> None:
+        """Enable chat routing and reveal the console when AI is selected."""
+        self._console.set_ai_active(on)
+        if not on:
+            return
+        if not self._console_switch.isChecked():
+            self._console_switch.setChecked(True)
+        from .. import ai as ai_module
+        if not self._console._current_provider_name:
+            configured = ai_module.configured_providers()
+            if configured:
+                self._console.set_ai_provider(configured[0].name)
+                self._refresh_ai_menu()
+            else:
+                self._console.append_stdout(
+                    "[AI] No vendor CLI installed. Click ▾ next to AI → "
+                    "Providers…\n")
+                self._ai_switch.setChecked(False)
+
+    def _refresh_ai_menu(self) -> None:
+        """Rebuild the provider dropdown beside Annotate's AI button."""
+        from .. import ai as ai_module
+        self._ai_menu.clear()
+        configured = ai_module.configured_providers()
+        current = self._console._current_provider_name
+        if configured:
+            for provider in configured:
+                action = self._ai_menu.addAction(provider.label)
+                action.setCheckable(True)
+                action.setChecked(provider.name == current)
+                action.triggered.connect(
+                    lambda _checked=False, name=provider.name:
+                    self._on_pick_provider(name))
+            self._ai_menu.addSeparator()
+        else:
+            self._ai_menu.addAction(
+                "(no vendor CLI installed)").setEnabled(False)
+            self._ai_menu.addSeparator()
+        action = self._ai_menu.addAction("Providers…")
+        action.triggered.connect(self._on_open_providers_dialog)
+
+    def _on_pick_provider(self, name: str) -> None:
+        self._console.set_ai_provider(name)
+        self._refresh_ai_menu()
+
+    def _on_open_providers_dialog(self) -> None:
+        from ..widgets.ai_chat_panel import _ProvidersDialog
+        dialog = _ProvidersDialog(self)
+        if dialog.exec() == QDialog.Accepted:
+            self._refresh_ai_menu()
 
     # ------------------------------------------------------------------
     # Key legend
@@ -1249,6 +1365,8 @@ class AnnotateScreen(QWidget):
         self._worker.start()
         self._offset = 0
         self._src_label.setText(f"{src}  →  {db_path}")
+        self._console.append_stdout(
+            f"[Annotate] Opened {db_path}\n")
         prefs.push_recent_source("annotate", src)
         # Show the grid page FIRST so its viewport is realized, then defer the
         # grid build + first load to the next event-loop tick. Otherwise
@@ -2004,4 +2122,8 @@ class AnnotateScreen(QWidget):
             except (RuntimeError, TypeError):
                 pass
             worker.deleteLater()
+        try:
+            self._console.shutdown()
+        except Exception:
+            pass
         super().closeEvent(event)
