@@ -7,6 +7,8 @@ controls.
 """
 from __future__ import annotations
 
+import re
+
 from PySide6.QtCore import QSize, Qt, Signal
 from PySide6.QtWidgets import (
     QFormLayout,
@@ -152,9 +154,21 @@ class Section(QFrame):
         style.polish(widget)
 
     def _refresh_header_text(self) -> None:
-        text = self._title.replace("&", "&&")
+        text = self._title
         if self._maturity != "stable":
-            text += f"   ·   {STAGE_LABEL[self._maturity].upper()}"
+            stage = STAGE_LABEL[self._maturity].upper()
+            # Category names historically carried their own ``(BETA)`` or
+            # were simply named ``Beta``. Maturity styling then appended a
+            # second ``· BETA`` badge, producing ``BETA · BETA``. Keep the
+            # original title for configuration lookups, but render one badge.
+            text = re.sub(
+                rf"\s*(?:\(\s*{re.escape(stage)}\s*\)|{re.escape(stage)})\s*$",
+                "",
+                text,
+                flags=re.IGNORECASE,
+            ).strip()
+            text = f"{text}   ·   {stage}" if text else f"·   {stage}"
+        text = text.replace("&", "&&")
         self._header.setText(text)
 
     def _refresh_tooltip(self) -> None:
