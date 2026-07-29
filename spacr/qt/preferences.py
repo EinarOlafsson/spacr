@@ -35,11 +35,11 @@ Public API::
 Values:
 
 * ``theme``: ``"dark"`` | ``"light"`` | ``"space"`` | ``"cell"`` |
-  ``"system"`` (default ``"dark"``). ``"system"`` follows the reader's
-  OS colour scheme. ``"space"`` is a dark theme over a generated
-  deep-space background or a deep-field photograph; ``"cell"`` is a dark
-  theme over one of the bundled fluorescence micrographs — see
-  :mod:`spacr.qt.space` and :mod:`spacr.qt.imagery`.
+  ``"glass"`` | ``"system"`` (default ``"dark"``). ``"system"`` follows
+  the reader's OS colour scheme. ``"space"`` is a dark theme over a
+  generated deep-space background or a deep-field photograph; ``"cell"``
+  uses one of the bundled fluorescence micrographs; ``"glass"`` uses
+  translucent blue-grey module surfaces over a built-in depth gradient.
 * ``space_variant``: ``"galaxy"`` | ``"sun"`` | ``"stars"`` (generated)
   or ``"deep_field"`` (photograph).
 * ``cell_variant``: ``"microtubules"`` | ``"filopodia"``.
@@ -84,7 +84,7 @@ _KEY_PANE_OPACITY = "prefs/pane_opacity"
 #: Themes with a palette of their own — mirrors
 #: :data:`spacr.qt.theme.THEMES`, restated here so importing this module
 #: does not pull in QtGui/QtWidgets.
-PALETTE_THEMES = ("dark", "light", "space", "cell")
+PALETTE_THEMES = ("dark", "light", "space", "cell", "glass")
 
 #: Persisted values. An existing install has ``prefs/theme`` set to one
 #: of dark/light/system/space; those keep resolving exactly as before,
@@ -663,6 +663,7 @@ class PreferencesDialog:
             ("Light", "light"),
             ("Space", "space"),
             ("Cell", "cell"),
+            ("Glass", "glass"),
             ("Follow system", "system"),
         ):
             theme_combo.addItem(label, key)
