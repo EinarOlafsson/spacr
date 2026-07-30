@@ -1,7 +1,7 @@
 SpaCR lightweight installers
 ============================
 
-Current version: ``1.4.9.8``
+Current version: ``1.4.9.9``
 
 These small online installers download a private Python runtime and
 dependencies during installation. SHA-256 hashes:
@@ -9,20 +9,20 @@ dependencies during installation. SHA-256 hashes:
 Windows 10/11
 -------------
 
-* File: ``SpaCR-1.4.9.8-Windows-Online-Setup.exe``
-* Size: ``81635`` bytes
-* SHA-256: ``04d927c7b51ec8254e1c15d0c9b0364c15892d40b1ebb6fdb11d1aaabd6efe87``
+* File: ``SpaCR-1.4.9.9-Windows-Online-Setup.exe``
+* Size: ``81487`` bytes
+* SHA-256: ``d048bddfd069a69a6721b9542eddb21c19d3a6f9dbf8e5a8f4b7fb9ae5afb0de``
 
 macOS 11+ (Intel and Apple silicon)
 -----------------------------------
 
-* File: ``SpaCR-1.4.9.8-macOS-Universal-Online.pkg``
-* Size: ``8046`` bytes
-* SHA-256: ``94b787f94e49442d3fa0c315881012c4ecb3cc0b07f6c3843d1cd00218abc5f6``
+* File: ``SpaCR-1.4.9.9-macOS-Universal-Online.pkg``
+* Size: ``8028`` bytes
+* SHA-256: ``002709dedef2c0cd23a7e35e579fbeee847b98a0dd842ae146a0aff39b4c500d``
 
 64-bit Linux
 ------------
 
-* File: ``SpaCR-1.4.9.8-Linux-x86_64-Online.run``
+* File: ``SpaCR-1.4.9.9-Linux-x86_64-Online.run``
 * Size: ``9782`` bytes
-* SHA-256: ``7c40b2236cb7dd7c4b89501b103ba0d267da7628de9736fe560cf50bb8b82a4b``
+* SHA-256: ``38521e79f35626ec41a097b9aa390d973264ec80377764b6f38e337bd9f4662c``
