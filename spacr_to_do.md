@@ -1,6 +1,6 @@
 # spacr_to_do
 
-This is the ordered engineering backlog for `spacr-codex`. Tasks are arranged
+This is the ordered engineering backlog for `main`. Tasks are arranged
 in dependency waves; within each wave, shorter work comes first. Effort is a
 rough implementation-and-test estimate, not elapsed calendar time.
 
