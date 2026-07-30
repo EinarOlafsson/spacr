@@ -169,6 +169,15 @@ def test_fold_modes_are_the_ones_the_module_accepts():
     assert tuple(value for _label, value in FOLD_MODE_LABELS) == FOLD_MODES
 
 
+def test_empty_canvas_uses_the_active_dark_surface_not_white(screen):
+    """The large pre-overlay canvas must not flash as a white rectangle."""
+    from spacr.qt.theme import active_palette
+
+    expected = _rgb(active_palette()["surface"])
+    assert screen.figure().get_facecolor()[:3] == pytest.approx(expected)
+    assert active_palette()["surface"] in screen._canvas.styleSheet()
+
+
 # ---------------------------------------------------------------------------
 # Discovery
 # ---------------------------------------------------------------------------

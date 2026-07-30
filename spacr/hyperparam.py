@@ -49,6 +49,7 @@ __all__ = [
     "SearchResult",
     "grid_search",
     "random_search",
+    "local_direction_search",
     "umap_search",
     "cv_search",
     "build_folds",
@@ -770,6 +771,174 @@ def random_search(fit_fn: Callable[[Dict[str, Any]], Any],
                        notes=extra_notes)
 
 
+def local_direction_search(
+        fit_fn: Callable[[Dict[str, Any]], Any],
+        start: Mapping[str, Any],
+        *,
+        n_trials: Optional[int] = 100,
+        n_neighbors_step: int = 1,
+        n_neighbors_max: Optional[int] = None,
+        min_dist_step: float = 0.05,
+        min_improvement: float = 0.0,
+        metric: str = "score",
+        higher_is_better: bool = True,
+        on_trial: Optional[Callable[[Trial, int, int], None]] = None,
+        should_stop: Optional[Callable[[], bool]] = None,
+        notes: Optional[Sequence[str]] = None,
+        ) -> SearchResult:
+    """Move through UMAP's parameter plane using scored 2-by-2 neighborhoods.
+
+    The starting point is a *centre*, not a fifth trial.  Around it the search
+    evaluates the four diagonal corners ``(n ± step, d ± step)``.  The
+    highest-scoring corner becomes the next centre.  Later rounds continue only
+    when their best corner improves on the best score already observed.
+
+    ``n_trials`` is the maximum number of complete 2-by-2 rounds (100 when
+    blank/None), not the number of individual fits. ``n_neighbors`` is clamped
+    to 2 and, when supplied, ``n_neighbors_max``; ``min_dist`` is clamped to
+    [0, 1]. Configurations already evaluated are skipped, which matters at
+    either boundary.
+    """
+    required = {"n_neighbors", "min_dist"}
+    missing = required.difference(start)
+    if missing:
+        raise ValueError(
+            "Local UMAP optimization needs one starting value for "
+            f"n_neighbors and min_dist; missing {sorted(missing)}.")
+    try:
+        max_rounds = 100 if n_trials in (None, "") else int(n_trials)
+        n_step = int(n_neighbors_step)
+        d_step = float(min_dist_step)
+        improvement_floor = float(min_improvement)
+        centre_n = int(start["n_neighbors"])
+        centre_d = float(start["min_dist"])
+        maximum_n = (
+            None if n_neighbors_max is None else int(n_neighbors_max))
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            "Local UMAP optimization requires numeric n_neighbors, min_dist, "
+            "and step sizes.") from exc
+    if max_rounds < 1:
+        raise ValueError(
+            "Adaptive UMAP optimization needs n_trials/max rounds of at "
+            "least 1.")
+    if n_step < 1 or d_step <= 0 or improvement_floor < 0:
+        raise ValueError(
+            "Local UMAP optimization steps must be positive and the minimum "
+            "improvement must be zero or greater.")
+    if maximum_n is not None and maximum_n < 2:
+        raise ValueError("n_neighbors_max must be at least 2.")
+    centre_n = max(2, centre_n)
+    if maximum_n is not None:
+        centre_n = min(maximum_n, centre_n)
+    centre_d = min(1.0, max(0.0, centre_d))
+
+    frozen = {k: v for k, v in start.items()
+              if k not in ("n_neighbors", "min_dist")}
+    space = SearchSpace({
+        "n_neighbors": [centre_n],
+        "min_dist": [centre_d],
+        **{key: [value] for key, value in frozen.items()},
+    })
+    result = SearchResult(
+        space=space, metric=metric, higher_is_better=higher_is_better,
+        notes=list(notes or []) + [
+            "Adaptive local optimization: each round scores the four diagonal "
+            f"neighbors at n_neighbors ± {n_step} and min_dist ± {d_step:g}, "
+            "then moves toward the best improving score. The starting values "
+            "define the initial centre and are not fitted as a fifth trial. "
+            f"The search stops after at most {max_rounds} rounds or when the "
+            f"best new score improves by no more than {improvement_floor:g}."
+        ],
+    )
+    seen = set()
+    best_score: Optional[float] = None
+    stopped = False
+
+    rounds_completed = 0
+    for _round_index in range(max_rounds):
+        candidates = []
+        for n_delta in (-n_step, n_step):
+            for d_delta in (-d_step, d_step):
+                params = dict(frozen)
+                candidate_n = max(2, centre_n + n_delta)
+                if maximum_n is not None:
+                    candidate_n = min(maximum_n, candidate_n)
+                params["n_neighbors"] = candidate_n
+                params["min_dist"] = round(
+                    min(1.0, max(0.0, centre_d + d_delta)), 12)
+                key = tuple(sorted(params.items()))
+                if key not in seen:
+                    seen.add(key)
+                    candidates.append(params)
+        if not candidates:
+            break
+        round_trials: List[Trial] = []
+        for params in candidates:
+            if should_stop is not None and should_stop():
+                stopped = True
+                break
+            trial = Trial(params=dict(params), index=len(result.trials))
+            started = time.perf_counter()
+            try:
+                trial.score, trial.extra_metrics = _normalise_outcome(
+                    fit_fn(dict(params)))
+                if trial.score is None:
+                    trial.error = (
+                        "fit function returned no score for this configuration")
+            except Exception as exc:
+                trial.error = f"{type(exc).__name__}: {exc}"
+            trial.duration = time.perf_counter() - started
+            result.trials.append(trial)
+            round_trials.append(trial)
+            if on_trial is not None:
+                on_trial(trial, len(result.trials), max_rounds * 4)
+        if stopped:
+            break
+        rounds_completed += 1
+
+        successful = [trial for trial in round_trials if trial.ok]
+        if not successful:
+            break
+        round_best = successful[0]
+        for trial in successful[1:]:
+            better = (
+                float(trial.score) > float(round_best.score)
+                if higher_is_better
+                else float(trial.score) < float(round_best.score))
+            if better:
+                round_best = trial
+        gain = (
+            float("inf") if best_score is None
+            else (float(round_best.score) - best_score
+                  if higher_is_better
+                  else best_score - float(round_best.score))
+        )
+        improving = gain > improvement_floor
+        if not improving:
+            result.notes.append(
+                "Local optimization stopped because the newest 2-by-2 "
+                f"neighborhood improved the best score by {gain:.4g}, not "
+                f"more than the {improvement_floor:g} stopping threshold.")
+            break
+        best_score = float(round_best.score)
+        centre_n = int(round_best.params["n_neighbors"])
+        centre_d = float(round_best.params["min_dist"])
+
+    if stopped:
+        result.partial = True
+        result.notes.append(
+            f"Search stopped after {len(result.trials)} configurations "
+            f"({rounds_completed} completed rounds; maximum "
+            f"{max_rounds} rounds).")
+    elif rounds_completed == max_rounds:
+        result.notes.append(
+            f"Local optimization reached the maximum of {max_rounds} rounds.")
+    _select_best(result)
+    _append_summary_notes(result, max_rounds * 4)
+    return result
+
+
 # ---------------------------------------------------------------------------
 # UMAP
 # ---------------------------------------------------------------------------
@@ -806,7 +975,17 @@ def _default_umap_embed(features, params: Dict[str, Any], seed: int):
     kwargs.setdefault("n_components", 2)
     kwargs.setdefault("random_state", seed)
     reducer = umap.UMAP(**kwargs)
-    return reducer.fit_transform(features)
+    # umap-learn intentionally disables parallel optimisation when a
+    # random_state is supplied. That is expected for a reproducible search,
+    # but it emits the same warning for every trial and buries useful output.
+    import warnings
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore",
+            message=r"n_jobs value .* overridden to 1 by setting random_state.*",
+            category=UserWarning,
+        )
+        return reducer.fit_transform(features)
 
 
 def _umap_scores(features, embedding, labels, k: int) -> Dict[str, float]:
@@ -849,6 +1028,11 @@ def umap_search(features,
                 labels=None,
                 seed: int = 0,
                 neighbourhood_k: int = 15,
+                adaptive: bool = False,
+                n_trials: Optional[int] = 100,
+                n_neighbors_step: int = 1,
+                min_dist_step: float = 0.05,
+                min_improvement: float = 0.0,
                 embed_fn: Optional[Callable[[Any, Dict[str, Any]], Any]] = None,
                 keep_embeddings: bool = True,
                 on_trial: Optional[Callable[[Trial, int, int], None]] = None,
@@ -870,6 +1054,12 @@ def umap_search(features,
     :param labels: optional class labels; required for ``'silhouette'``.
     :param seed: ``random_state`` for the reducer, so the sweep reproduces.
     :param neighbourhood_k: neighbourhood size for trustworthiness/continuity.
+    :param adaptive: use iterative 2-by-2 local optimization instead of a grid.
+    :param n_trials: maximum complete 2-by-2 rounds in adaptive mode; blank or
+        None means 100.
+    :param n_neighbors_step: local step along the n_neighbors axis.
+    :param min_dist_step: local step along the min_dist axis.
+    :param min_improvement: score gain required to continue after a round.
     :param embed_fn: ``embed_fn(features, params) -> embedding`` override; when
         omitted, umap-learn is used.
     :param keep_embeddings: store each trial's embedding in its extra metrics.
@@ -894,6 +1084,49 @@ def umap_search(features,
             "labels, use 'trustworthiness' or 'continuity'."
         )
 
+    try:
+        n_samples = int(features.shape[0])
+    except (AttributeError, IndexError, TypeError, ValueError):
+        try:
+            n_samples = len(features)
+        except TypeError as exc:
+            raise ValueError(
+                "UMAP features must be a 2-D array-like object.") from exc
+    if n_samples < 3:
+        raise ValueError(
+            "UMAP hyperparameter search needs at least 3 rows after filtering; "
+            f"only {n_samples} remain.")
+
+    # umap-learn otherwise silently truncates every oversized n_neighbors
+    # value to n_samples - 1. Apart from filling the terminal with warnings,
+    # that can make several nominally different trials evaluate the exact same
+    # embedding. Bound and de-duplicate the search before any reducer is fit so
+    # the reported parameters are the parameters that were actually evaluated.
+    maximum_neighbors = n_samples - 1
+    bounded_params = dict(space.params)
+    neighbor_note = ""
+    if "n_neighbors" in bounded_params:
+        requested_neighbors = list(bounded_params["n_neighbors"])
+        effective_neighbors: List[int] = []
+        for raw_value in requested_neighbors:
+            try:
+                value = int(raw_value)
+            except (TypeError, ValueError) as exc:
+                raise ValueError(
+                    "UMAP n_neighbors values must be whole numbers; "
+                    f"got {raw_value!r}.") from exc
+            value = max(2, min(maximum_neighbors, value))
+            if value not in effective_neighbors:
+                effective_neighbors.append(value)
+        if effective_neighbors != requested_neighbors:
+            neighbor_note = (
+                f"n_neighbors was limited to 2…{maximum_neighbors} for the "
+                f"{n_samples} available rows; duplicate effective values were "
+                "evaluated only once.")
+        bounded_params["n_neighbors"] = effective_neighbors
+        space = SearchSpace(bounded_params)
+    implicit_neighbors = min(15, maximum_neighbors)
+
     if embed_fn is None:
         available, message = umap_available()
         if not available:
@@ -912,10 +1145,21 @@ def umap_search(features,
         "Every criterion was computed for every trial, so you can re-rank the "
         "table by a different one and see whether the winner survives.",
     ]
+    if neighbor_note:
+        notes.append(neighbor_note)
+    elif "n_neighbors" not in space.params and implicit_neighbors != 15:
+        notes.append(
+            f"UMAP's default n_neighbors was limited from 15 to "
+            f"{implicit_neighbors} for the {n_samples} available rows.")
 
     def _fit(params: Dict[str, Any]) -> Tuple[float, Dict[str, Any]]:
         """Embed one configuration and score it with every criterion."""
-        embedding = embed_fn(features, dict(params))
+        fit_params = dict(params)
+        # A search may vary only min_dist/metric. Keep UMAP's implicit default
+        # safe for a small dataset too, without adding an unsearched table
+        # column to Trial.params.
+        fit_params.setdefault("n_neighbors", implicit_neighbors)
+        embedding = embed_fn(features, fit_params)
         scores = _umap_scores(features, embedding, labels, neighbourhood_k)
         if metric not in scores:
             raise ValueError(
@@ -927,6 +1171,22 @@ def umap_search(features,
         if keep_embeddings:
             extra["embedding"] = embedding
         return scores[metric], extra
+
+    if adaptive:
+        starts = space.grid()
+        if len(starts) != 1:
+            raise ValueError(
+                "Adaptive UMAP optimization needs exactly one starting value "
+                "for every parameter. Enter a single n_neighbors and a single "
+                "min_dist value.")
+        return local_direction_search(
+            _fit, starts[0], n_trials=n_trials,
+            n_neighbors_step=n_neighbors_step,
+            n_neighbors_max=maximum_neighbors,
+            min_dist_step=min_dist_step,
+            min_improvement=min_improvement, metric=metric,
+            higher_is_better=True, on_trial=on_trial,
+            should_stop=should_stop, notes=notes)
 
     return _run_trials(_fit, space.grid(), space, metric,
                        higher_is_better=True, on_trial=on_trial,
@@ -1156,7 +1416,8 @@ def activation_search(data: ActivationSearchData,
         ``ig_baseline``).
     :param criterion: which criterion ranks the trials.
     :param mode: ``'grid'`` or ``'random'``.
-    :param n_trials: configurations to evaluate when ``mode='random'``.
+    :param n_trials: configurations when ``mode='random'``; maximum complete
+        2-by-2 rounds when adaptive UMAP is enabled.
     :param seed: seed for random sampling.
     :param n_steps: steps in the deletion / insertion curves.
     :param baseline: removal baseline for those curves.
@@ -2031,6 +2292,10 @@ def run_search_for_app(app_key: str,
                        criterion: Optional[str] = None,
                        mode: str = "grid",
                        n_trials: int = 12,
+                       adaptive: bool = False,
+                       n_neighbors_step: int = 1,
+                       min_dist_step: float = 0.05,
+                       min_improvement: float = 0.0,
                        seed: int = 0,
                        n_folds: int = 5,
                        on_trial: Optional[Callable[[Trial, int, int], None]] = None,
@@ -2056,6 +2321,10 @@ def run_search_for_app(app_key: str,
       :data:`APP_CRITERIA` entry.
     :param mode: ``'grid'`` or ``'random'``.
     :param n_trials: configurations to evaluate when ``mode='random'``.
+    :param adaptive: for UMAP only, optimize locally from one starting point.
+    :param n_neighbors_step: adaptive UMAP integer neighborhood increment.
+    :param min_dist_step: adaptive UMAP min_dist increment.
+    :param min_improvement: adaptive UMAP score-gain stopping threshold.
     :param seed: seed for sampling, folds and reducers.
     :param n_folds: cross-validation folds for the supervised apps.
     :param on_trial: progress callback ``(trial, completed, total)``.
@@ -2119,7 +2388,11 @@ def run_search_for_app(app_key: str,
     if app_key == "umap":
         result = umap_search(
             data.features, space, metric=criterion, labels=data.labels,
-            seed=seed, on_trial=on_trial, should_stop=should_stop)
+            seed=seed, adaptive=adaptive, n_trials=n_trials,
+            n_neighbors_step=n_neighbors_step,
+            min_dist_step=min_dist_step,
+            min_improvement=min_improvement,
+            on_trial=on_trial, should_stop=should_stop)
         result.notes = list(data.notes) + list(result.notes)
         return result
 

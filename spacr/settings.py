@@ -840,6 +840,7 @@ def set_default_train_test_model(settings):
     settings.setdefault('verbose',False)
     settings.setdefault('class_balance','none')
     settings.setdefault('cross_validation_folds',0)
+    settings.setdefault('cross_validation_enabled',False)
     settings.setdefault('cv_group_by','well')
     # Fail-loud policy. None means "not set here" and defers to the
     # SPACR_STRICT_ERRORS environment variable, which is how a cluster turns
@@ -884,6 +885,7 @@ def set_generate_training_dataset_defaults(settings):
     settings.setdefault('nuclei_limit',True)
     settings.setdefault('pathogen_limit',True)
     settings.setdefault('png_type','cell_png')
+    settings.setdefault('random_seed',42)
     
     return settings
 
@@ -934,6 +936,11 @@ def deep_spacr_defaults(settings):
     settings.setdefault('use_checkpoint',True)
     settings.setdefault('gradient_accumulation',True)
     settings.setdefault('gradient_accumulation_steps',4)
+    settings.setdefault('label_smoothing',0.1)
+    settings.setdefault('focal_gamma',2.0)
+    settings.setdefault('focal_alpha',None)
+    settings.setdefault('logit_adjust_tau',1.0)
+    settings.setdefault('early_stopping_patience',0)
     settings.setdefault('intermedeate_save',True)
     settings.setdefault('resume_checkpoint','')
     settings.setdefault('pin_memory',False)
@@ -950,8 +957,18 @@ def deep_spacr_defaults(settings):
     settings.setdefault('model_path','')
     settings.setdefault('file_type','cell_png')
     settings.setdefault('generate_training_dataset', True)
+    settings.setdefault('balance_to_smallest', True)
+    settings.setdefault('write_random_annotation_column', False)
+    settings.setdefault('generate_full_dataset', False)
+    settings.setdefault('tar_path','')
+    settings.setdefault('n_top_examples',20)
+    settings.setdefault('random_seed',42)
+    settings.setdefault('crop_source','auto')
+    settings.setdefault('strict_errors',None)
+    settings.setdefault('max_failure_rate',None)
     settings.setdefault('class_balance','none')
     settings.setdefault('cross_validation_folds',0)
+    settings.setdefault('cross_validation_enabled',False)
     settings.setdefault('cv_group_by','well')
     return settings
 
@@ -1000,6 +1017,7 @@ def get_train_test_model_settings(settings):
      settings.setdefault('early_stopping_patience', 0)
      settings.setdefault('class_balance', 'none')
      settings.setdefault('cross_validation_folds', 0)
+     settings.setdefault('cross_validation_enabled', False)
      settings.setdefault('cv_group_by', 'well')
      return settings
 
@@ -1777,6 +1795,13 @@ expected_types = {
     'queue_diversity':str,
     'queue_limit':int,
     'cross_validation_folds':int,
+    'cross_validation_enabled':bool,
+    'generate_full_dataset':bool,
+    'tar_path':str,
+    'n_top_examples':int,
+    'random_seed':int,
+    'balance_to_smallest':bool,
+    'write_random_annotation_column':bool,
     'cv_group_by':str,
     'logit_adjust_tau':float,
     'focal_alpha':( float, type(None)),
@@ -2123,6 +2148,12 @@ tooltips = {
     "sample": "(int, list or None) - Randomly draw this many PNG crops from the database when building the dataset tar instead of using all of them; a list uses its first element, and values above the total are clamped. Use it to build a quick trial dataset or to cap a huge screen. None uses every crop, shuffled. Default None.",
     "file_metadata": "(str, list or None) - Substring filter applied to png_path when pulling crops from the database: only paths containing it are included, and a list matches any one of its entries (OR, not AND). Use it to restrict a dataset to one plate, well or object type, e.g. 'plate1_' or 'cell_png'. None takes every crop. Default None.",
     "apply_model_to_dataset": "(bool) - After training (or straight away when reusing a saved model_path), pack the object PNGs into a tar, run inference over it, copy the n_top_examples most confident images per class into top_examples/, and merge the per-object scores back into measurements.db. Turn it off to only train and evaluate a model without scoring the screen. Default True.",
+    "generate_full_dataset": "(bool) - Build the full unlabelled inference dataset tar from every selected plate independently of training or model application. Apply model to dataset also creates it automatically when needed. API: spacr.io.generate_dataset. Default False.",
+    "tar_path": "(str) - Existing full-dataset tar to reuse for inference. Leave blank to generate one beneath the first plate's datasets folder. Multiple selected plates are combined into one tar. API: spacr.deep_spacr.apply_model_to_tar.",
+    "n_top_examples": "(int) - Number of highest-confidence images saved per predicted class after full-dataset inference. This gives a quick visual check of class meaning and common errors. Default 20.",
+    "random_seed": "(int) - Reproducibility seed shared by labelled train/test splitting, train/validation splitting, and grouped cross-validation folds. Keep it fixed to reproduce a run; change it to test sensitivity to one lucky split. Default 42.",
+    "balance_to_smallest": "(bool) - Downsample every generated training class to the size of the smallest class before writing train/test folders. This removes the dataset prior but discards majority examples; disable it and use class_balance during training to retain all images. Default True.",
+    "write_random_annotation_column": "(bool) - In annotation mode, persist an automatically selected unannotated comparison group into png_list as <column>_random. This makes an automatically generated control class reproducible and auditable. Default False.",
     "train_channels": "(list) - Which colour planes of each object crop the classifier sees, chosen from 'r', 'g' and 'b'. Fewer channels means a smaller input tensor and a model that cannot use the dropped stain, so drop a channel only when it carries no signal for your phenotype. The joined letters also become part of the saved model's filename. Default ['r', 'g', 'b'].",
     "dataset_mode": "(str) - How training classes are defined: 'metadata' splits crops by well metadata (class_metadata or metadata_rules), 'annotation' by the values in one or more annotation columns of png_list, 'measurement' by threshold rules on measured features (measurement_rules). Any other value aborts and returns no dataset. Default 'metadata'.",
     "annotated_classes": "(list) - Currently inert: the Tk 'Generate Dataset' form collects it and the defaults set [1,2], but no code reads settings['annotated_classes']. The two io.py helpers with a same-named parameter (training_dataset_from_annotation and training_dataset_from_annotation_metadata, default (1,2)) have no callers anywhere in the package. The live dataset builder selects classes from dataset_mode instead - annotation_columns/annotation_values under 'annotation', class_metadata or the rule lists under 'metadata'/'measurement'. Default [1,2], with no effect.",
@@ -2377,6 +2408,7 @@ tooltips = {
     'class_balance': "(str) - How skew between the training classes is corrected. 'none' (the default) changes nothing but still prints the per-class counts, the majority-over-minority ratio and a recommendation, so the skew is never invisible. 'weighted_sampler' attaches a WeightedRandomSampler with 1/n weights, drawing every class about equally often; 'sqrt_weighted_sampler' uses 1/sqrt(n) for a gentler pull that avoids showing a tiny class so often the model memorises it; 'weighted_loss' leaves sampling alone and switches loss_type to 'ce_weighted' instead. Resampling is applied to the train loader only - validation and test keep the real prior so their scores stay comparable to the screen.",
     'cross_validation': "(bool) - Score the classifier with 5-fold stratified cross-validation instead of a single train/test split, so every control object receives an out-of-fold prediction and an optimal probability threshold is picked per fold. Gives a far more stable accuracy estimate on small control sets, at roughly 5x the training time. Default True.",
     'cross_validation_folds': "(int) - Number of k-fold splits the vision classifier is trained with in place of the single val_split hold-out. 0 (the default) or 1 keeps today's one random split; 2 or more trains a fresh model per fold, scores each on the fold it never saw, and reports the mean together with the fold-to-fold standard deviation and range - which is the only way to see whether one lucky split was flattering the model. Costs roughly k times the training time. Distinct from 'cross_validation', which is the regression pipeline's own toggle.",
+    'cross_validation_enabled': "(bool) - Enable k-fold validation for Classify. If cross_validation_folds is 0 or 1, enabling this uses 5 folds. Use cv_group_by='plate' to hold out whole plates, or 'well'/'field' for within-plate validation without leaking related crops between training and validation.",
     'cv_group_by': "(str) - Which metadata level is kept intact inside a single fold when cross_validation_folds is active: 'well' (the default and the right choice for object crops), 'field', 'plate', or 'none' for a plain stratified split. Crops from one well share focus, illumination, seeding density and edge effects, so letting them straddle a fold lets the model recognise the well instead of the phenotype and inflates every score. The level is parsed from the crop filename, which spaCR writes as plate_well_field_object.png.",
     'custom_measurement': "(str) - Optional measurement-column name intended for class assignment; the Tk dataset dialog collects it but no pipeline code reads the key, so it currently has no effect. To select classes by a measured feature use dataset_mode 'measurement' with measurement_rules instead. Default None.",
     'denoise': "(bool) - Legacy denoising toggle for the mask pipeline: no code reads this key, so it has no effect. To actually denoise, set the per-object restore settings (cell_restore_type / nucleus_restore_type / pathogen_restore_type) to 'denoise', which routes segmentation through Cellpose's CellposeDenoiseModel. Default False.",
@@ -2402,7 +2434,8 @@ tooltips = {
     'nucleus_intensity_range': "(list) - Two-element [min, max] bound on mean nucleus-channel intensity used by the recruitment analysis to drop rows from the measurement table - it filters measured objects, not masks or normalization. Rows are kept only if min < mean intensity < max (raw units), and each bound is ignored unless it is an int. Default [0, 100000].",
     'nucleus_size_range': "(list) - Two-element [min, max] bound in pixels^2 on nucleus_area, used by the recruitment analysis to drop rows from the measurement table; masks are left untouched. Rows are kept only if min < area < max, and each bound is ignored unless it is an int. Default [0, 100000]; None widens it to [0, 1e100].",
     'offset_start': "(int) - Bases to shift from the start of the target_sequence match to the start of the extracted window; negative values move upstream to capture a barcode preceding the anchor. The start is clamped at position 0, so an over-negative value silently shifts the reading frame and the regex stops matching. Default -8.",
-    'optimizer_type': "(str) - Optimizer that turns gradients into weight updates: 'adamw', 'adam', 'sgd', 'rmsprop', 'nadam', 'radam' or 'adagrad'. 'adamw' decouples weight_decay and is the right default for fine-tuning these backbones; 'sgd' (momentum 0.9, Nesterov) often generalises slightly better but needs a larger learning_rate and more epochs. amsgrad is honoured only by 'adam' and 'adamw'. Default 'adamw'.",
+    'optimizer_type': "(str) - PyTorch optimizer used by deep_spacr.train_model: 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' or 'asgd'. AdamW is the robust fine-tuning default; SGD can generalise better but usually needs more epochs. amsgrad applies only to Adam/AdamW. API: spacr.deep_spacr.train_model(optimizer_type=...). Default 'adamw'.",
+    'schedule': "(str) - Learning-rate scheduler used by spacr.deep_spacr.train_model: 'cosine', 'cosine_warm_restarts', 'reduce_lr_on_plateau', 'step_lr', 'exponential', 'linear', or 'none'. Plateau reacts to validation loss; cosine and linear use the epoch budget; warm restarts periodically raise the rate to escape a narrow minimum. API: train_model(schedule=...). Default 'cosine'.",
     'outlier_detection': "(bool) - After building the regression table, drop gRNAs whose well count falls outside 1.5x the 5th-95th percentile spread, then recompute the per-gRNA tables. This removes gRNAs present in implausibly few or many wells that would otherwise dominate coefficients; disable it if your library is deliberately uneven. Default True.",
     'outline_color': "(str) - Three-letter code choosing which RGB colours the cell, nucleus and pathogen outlines get, in that order: 'rgb', 'bgr', 'gbr' or 'rbg'. Default 'gbr' draws cells green, nuclei blue and pathogens red; any unrecognised string silently falls back to 'rbg'. Change it when an outline colour clashes with a channel.",
     'outline_thickness': "(int) - Width in pixels of the mask outlines on the merged overlay; the contour is drawn at this thickness and then dilated by a square of the same size, so the visible line is roughly twice the value. Raise it for large fields where a 1-2 px outline disappears. Default 3.",
@@ -2473,13 +2506,13 @@ motility_advanced_settings = ['reuse_existing_measurements', 'infection_xgb_min_
 #      organelle_channel / organelle_mask_dim sit in General and not in
 #      "Organelle".
 categories = {
-    "Paths": ["src", "grna", "barcodes", "custom_model_path", "resume_checkpoint", "dataset", "model_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "score_data", "count_data"],
+    "Paths": ["src", "grna", "barcodes", "custom_model_path", "resume_checkpoint", "dataset", "model_path", "tar_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "score_data", "count_data"],
 
     # 'normalize' moved here from "Advanced". It is a top-level toggle for how
     # every image in the run is scaled, set by seven different modules, and
     # burying it under "rarely-touched knobs" was wrong in all of them - not
     # least Classify, where it shapes the training set.
-    "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "channels", "channel_dims", "normalize", "magnification", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "delete_intermediate", "uninfected"],
+    "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "channels", "channel_dims", "normalize", "magnification", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "generate_full_dataset", "delete_intermediate", "uninfected"],
 
     # How Cellpose RUNS. Which model it runs (model_name / custom_model) moved
     # to "Model Training": they are the same question the torch classifier's
@@ -2564,11 +2597,11 @@ categories = {
     # generate_training_dataset is what consumes it, writing the train/ and
     # test/ folders before any model exists. The four metadata_item_* keys had
     # no category at all and printed under "Other".
-    "Training Dataset": ["dataset_mode", "annotation_column", "annotated_classes", "class_metadata", "metadata_type_by", "metadata_item_1_name", "metadata_item_1_value", "metadata_item_2_name", "metadata_item_2_value", "file_metadata", "custom_measurement", "png_type", "file_type", "sample", "size", "test_split"],
+    "Training Dataset": ["dataset_mode", "annotation_column", "annotated_classes", "class_metadata", "metadata_type_by", "metadata_item_1_name", "metadata_item_1_value", "metadata_item_2_name", "metadata_item_2_value", "file_metadata", "custom_measurement", "png_type", "file_type", "sample", "size", "test_split", "balance_to_smallest", "write_random_annotation_column"],
 
     # Which model, and how it is fitted. 'model_name' and 'custom_model' moved
     # here from "Cellpose" -- they answer the same question 'model_type' does.
-    "Model Training": ["model_type", "model_name", "custom_model", "classes", "train_channels", "image_size", "init_weights", "train", "test", "val_split", "epochs", "optimizer_type", "learning_rate", "schedule", "weight_decay", "dropout_rate", "loss_type", "class_balance", "augment", "amsgrad", "use_checkpoint", "gradient_accumulation", "gradient_accumulation_steps", "pin_memory", "cross_validation_folds", "cv_group_by", "score_threshold", "intermedeate_save", "tensorboard"],
+    "Model Training": ["model_type", "model_name", "custom_model", "classes", "train_channels", "image_size", "init_weights", "train", "test", "val_split", "epochs", "optimizer_type", "learning_rate", "schedule", "weight_decay", "dropout_rate", "loss_type", "label_smoothing", "focal_gamma", "focal_alpha", "logit_adjust_tau", "class_balance", "augment", "amsgrad", "use_checkpoint", "gradient_accumulation", "gradient_accumulation_steps", "early_stopping_patience", "pin_memory", "cross_validation_enabled", "cross_validation_folds", "cv_group_by", "score_threshold", "n_top_examples", "random_seed", "intermedeate_save", "tensorboard"],
 
     # The classical (non-image) screen classifier fitted on measured features -
     # spacr's "Classify (ML)" module. These knobs used to be split three ways

@@ -112,6 +112,9 @@ class ReportScreen(QWidget):
 
         self._job_settled.connect(self._on_job_settled)
         self._build_ui()
+        from ..dnd import install_dropzone
+        from ..dnd_handlers import get_handler
+        install_dropzone(self, get_handler("report"), self)
         self._set_status(
             "Choose a run folder — the plate folder holding measurements/, "
             "qc/ and results/ — then Scan.")

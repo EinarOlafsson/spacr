@@ -157,6 +157,9 @@ class TrainCompareScreen(QWidget):
         self.last_error: str = ""
 
         self._build_ui()
+        from ..dnd import install_dropzone
+        from ..dnd_handlers import get_handler
+        install_dropzone(self, get_handler("train_compare"), self)
         self._set_status(
             "Choose the folder your models were trained into (a dataset's "
             "model/ folder, or anything above it), then Scan.")
@@ -252,8 +255,13 @@ class TrainCompareScreen(QWidget):
         # every overlay rather than leaking one per click.
         from matplotlib.figure import Figure
         from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
-        self._figure = Figure(figsize=(7.0, 4.2), tight_layout=True)
+        plot_palette = _active_palette()
+        self._figure = Figure(
+            figsize=(7.0, 4.2), tight_layout=True,
+            facecolor=plot_palette["surface"])
         self._canvas = FigureCanvasQTAgg(self._figure)
+        self._canvas.setStyleSheet(
+            f"background: {plot_palette['surface']};")
         self._canvas.setMinimumHeight(240)
         self._canvas.mpl_connect("pick_event", self._on_pick)
         right.addWidget(self._canvas)
@@ -553,6 +561,7 @@ class TrainCompareScreen(QWidget):
 
     def _clear_plot(self) -> None:
         self._figure.clear()
+        self._figure.set_facecolor(_active_palette()["surface"])
         self._figure.spacr_series_by_label = {}
         self._canvas.draw_idle()
         self._picked.setText("")

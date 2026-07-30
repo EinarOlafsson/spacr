@@ -292,6 +292,9 @@ class ModelCompareScreen(QWidget):
         self.last_error: str = ""
 
         self._build_ui()
+        from ..dnd import install_dropzone
+        from ..dnd_handlers import get_handler
+        install_dropzone(self, get_handler("model_compare"), self)
         self._set_status(
             "Choose a folder of fields, configure both models, then Compare. "
             "Neither model is treated as ground truth.")

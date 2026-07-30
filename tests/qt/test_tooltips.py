@@ -19,8 +19,8 @@ def test_format_tooltip_shows_name_type_and_strips_old_prefix():
     assert "(integer)" in tip
     assert "Expected cell diameter." in tip
     assert "(int) -" not in tip           # old inline type prefix removed
-    assert "href=" not in tip             # the adjacent teal dot is the link
-    assert "ⓘ" not in tip
+    assert 'href="https://einarolafsson.github.io/spacr/api/' in tip
+    assert "Open spaCR API documentation" in tip
 
 
 def test_undescribed_setting_still_typed():
@@ -34,6 +34,7 @@ def test_plain_tooltip_typed():
     p = plain_tooltip("Whether to plot.", "mask", "plot")
     assert p.startswith("Plot (boolean)")
     assert "Whether to plot." in p
+    assert "API: https://einarolafsson.github.io/spacr/api/" in p
 
 
 def test_every_typed_setting_has_a_written_description():
@@ -61,6 +62,7 @@ def test_every_shown_setting_has_a_typed_tooltip(qtbot, qt_theme_applied):
     for key, w in m._widgets.items():
         tip = w.toolTip()
         assert tip, f"{key} has no tooltip"
+        assert "href=" in tip, f"{key} has no API documentation link"
         if "<i>(" in tip:
             typed += 1
     # The large majority of mask settings are in expected_types → typed.

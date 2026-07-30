@@ -652,9 +652,9 @@ def convert_settings_dict_for_gui(settings):
         'model_type': ('combo', torchvision_models, 'resnet50'),
         'compression': ('combo', ['lzw', 'zlib', 'none'], 'lzw'),
         'model_type_ml': ('combo', ['xgboost', 'lightgbm', 'catboost', 'random_forest', 'extra_trees', 'gradient_boosting', 'logistic_regression', 'svm', 'mlp'], 'xgboost'),
-        'optimizer_type': ('combo', ['adamw', 'adam', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad'], 'adamw'),
-        'schedule': ('combo', ['cosine','reduce_lr_on_plateau', 'step_lr'], 'cosine'),
-        'loss_type': ('combo', ['auto', 'cross_entropy', 'label_smoothing', 'focal_loss', 'ce_weighted', 'binary_cross_entropy_with_logits'], 'auto'),
+        'optimizer_type': ('combo', ['adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta', 'asgd'], 'adamw'),
+        'schedule': ('combo', ['cosine', 'cosine_warm_restarts', 'reduce_lr_on_plateau', 'step_lr', 'exponential', 'linear', 'none'], 'cosine'),
+        'loss_type': ('combo', ['auto', 'cross_entropy', 'label_smoothing', 'focal_loss', 'ce_weighted', 'logit_adjust_ce', 'asl', 'binary_cross_entropy_with_logits'], 'auto'),
         # io.CLASS_BALANCE_MODES / io.CV_GROUP_LEVELS — both raise ValueError
         # on anything outside these lists, so free text is not usable here.
         'class_balance': ('combo', ['none', 'weighted_sampler', 'sqrt_weighted_sampler', 'weighted_loss'], 'none'),
