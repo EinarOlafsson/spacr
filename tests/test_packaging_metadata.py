@@ -261,6 +261,33 @@ def test_operating_system_classifiers_are_named_explicitly():
         assert expected in cls, f"missing OS classifier: {expected}"
 
 
+def test_noncommercial_license_metadata_is_explicit_and_not_osi_claimed():
+    """A commercial-use restriction must not be advertised as open source."""
+    data = _toml_loads(_pyproject_text())
+    if data is not None:
+        assert data["project"]["license"] == {"file": "LICENSE"}
+    else:
+        assert re.search(
+            r'^license\s*=\s*\{\s*file\s*=\s*"LICENSE"\s*\}',
+            _pyproject_text(),
+            re.MULTILINE,
+        )
+
+    classifiers = _classifiers()
+    assert "License :: Other/Proprietary License" in classifiers
+    assert not any(
+        classifier.startswith("License :: OSI Approved")
+        for classifier in classifiers
+    )
+
+    license_text = (REPO_ROOT / "LICENSE").read_text(encoding="utf-8")
+    assert license_text.startswith("# PolyForm Noncommercial License 1.0.0")
+    assert "Required Notice: Copyright 2025-2026 Einar Birnir Olafsson." in (
+        license_text
+    )
+    assert "Any noncommercial purpose is a permitted purpose." in license_text
+
+
 # ---------------------------------------------------------------------------
 # 2. Every claimed Python version has a CI cell
 # ---------------------------------------------------------------------------

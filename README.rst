@@ -23,7 +23,7 @@
    :alt: GitHub issues
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: MIT license
+   :alt: PolyForm Noncommercial license
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343317-blue
    :target: https://doi.org/10.5281/zenodo.21343317
    :alt: Zenodo DOI
@@ -825,8 +825,15 @@ Bug reports and focused feature requests are welcome through
 When reporting a failure, include the spaCR version, operating system,
 Python version, module settings, and the relevant log excerpt.
 
-spaCR is released under the
-`MIT License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
+Licensing
+~~~~~~~~~
+
+The current development branch is source-available under the
+`PolyForm Noncommercial License 1.0.0
+<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_. Commercial use
+requires a separate license from the copyright holder. Released versions
+through spaCR 1.4.9.9 remain available under the MIT License that accompanied
+those releases.
 
 Tutorials
 ~~~~~~~~~
