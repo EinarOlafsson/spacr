@@ -8,7 +8,7 @@ import numpy as np
 from PIL import Image
 from PIL.ImageQt import ImageQt
 
-from PySide6.QtCore import Qt, QThread, Signal, Slot
+from PySide6.QtCore import Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
     QComboBox, QDoubleSpinBox, QFormLayout, QLabel, QLineEdit, QPushButton,
@@ -69,6 +69,42 @@ class ImageUmapExplorer(QWidget):
         from matplotlib.backends.backend_qtagg import (
             FigureCanvasQTAgg, NavigationToolbar2QT)
 
+        class _OwnedTimerFigureCanvas(FigureCanvasQTAgg):
+            """Figure canvas whose deferred draw cannot outlive the widget.
+
+            Matplotlib's Qt canvas uses static ``QTimer.singleShot`` calls.
+            Those callbacks are not owned by the canvas and can consequently
+            run after Qt has deleted it. An owned timer is destroyed together
+            with the canvas, so lasso/display updates cannot draw a dangling
+            C++ object.
+            """
+
+            def __init__(self, figure):
+                super().__init__(figure)
+                self._spacr_draw_timer = QTimer(self)
+                self._spacr_draw_timer.setSingleShot(True)
+                self._spacr_draw_timer.timeout.connect(self._spacr_draw)
+
+            def draw_idle(self):
+                self._draw_pending = True
+                if not self._spacr_draw_timer.isActive():
+                    self._spacr_draw_timer.start(0)
+
+            def _spacr_draw(self):
+                if not self._draw_pending:
+                    return
+                self._draw_pending = False
+                try:
+                    self.draw()
+                except RuntimeError:
+                    # Qt may be closing the parent hierarchy in this same
+                    # event-loop turn. There is nothing left to repaint.
+                    return
+
+            def cancel_pending_draw(self):
+                self._spacr_draw_timer.stop()
+                self._draw_pending = False
+
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(6)
@@ -76,7 +112,7 @@ class ImageUmapExplorer(QWidget):
         self._body_splitter = QSplitter(Qt.Horizontal, self)
         self._body_splitter.setChildrenCollapsible(False)
         self._figure = Figure(figsize=(8, 6))
-        self._canvas = FigureCanvasQTAgg(self._figure)
+        self._canvas = _OwnedTimerFigureCanvas(self._figure)
         self._toolbar = NavigationToolbar2QT(self._canvas, self)
         chart = QVBoxLayout()
         chart.addWidget(self._toolbar)
@@ -405,4 +441,11 @@ class ImageUmapExplorer(QWidget):
             worker.requestInterruption()
             worker.wait()
             self._worker = None
+        # FigureCanvasQTAgg implements draw_idle with a zero-delay Qt timer.
+        # Cancel that pending draw before Qt deletes the C++ canvas.
+        if self._lasso is not None:
+            self._lasso.disconnect_events()
+            self._lasso = None
+        if getattr(self, "_canvas", None) is not None:
+            self._canvas.cancel_pending_draw()
         super().closeEvent(event)

@@ -174,3 +174,16 @@ def test_display_controls_update_live_and_scroll_zooms(qtbot, tmp_path):
     })()
     explorer._on_scroll(event)
     assert np.ptp(explorer._axes.get_xlim()) < before
+
+
+def test_close_cancels_a_pending_canvas_draw(qtbot, tmp_path):
+    payload, _database = _payload(tmp_path)
+    explorer = ImageUmapExplorer()
+    qtbot.addWidget(explorer)
+    explorer.set_payload(payload)
+    explorer._canvas._draw_pending = True
+
+    explorer.close()
+
+    assert explorer._canvas._draw_pending is False
+    assert explorer._lasso is None
