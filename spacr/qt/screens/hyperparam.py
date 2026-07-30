@@ -8,7 +8,7 @@ pushes a chosen configuration back into the host screen's settings panel through
 a callback the host registers. Host screens embed it with
 :func:`build_hyperparam_card`, exactly the way the Mask screen embeds the live
 preview, and toggle it with a label reading "Hyperparameter search" where the
-Mask screen's says "LP".
+Mask screen's says "Live".
 
 What it deliberately does *not* do is announce a winner and stop talking. The
 table is ordered by the criterion the user picked, but the panel also draws the
@@ -42,7 +42,7 @@ from ...hyperparam import (
 
 LOG = logging.getLogger("spacr.qt.hyperparam")
 
-#: Label the host screens put on the toggle where the Mask screen says "LP".
+#: Label the host screens put on the toggle where the Mask screen says "Live".
 TOGGLE_TEXT = "Hyperparameter search"
 
 #: Tooltip for that toggle.

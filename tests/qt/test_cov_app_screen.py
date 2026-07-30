@@ -1435,10 +1435,10 @@ class TestRuntimePanels:
         assert panel._propagate_cb == scr._propagate_live_settings
 
     @pytest.mark.parametrize("app_key,attr,label", [
-        ("mask", "_live_preview_card", "LP"),
-        ("timelapse", "_timelapse_preview_card", "TP"),
-        ("motility", "_motility_preview_card", "TP"),
-        ("measure", "_measure_preview_card", "MP"),
+        ("mask", "_live_preview_card", "Live"),
+        ("timelapse", "_timelapse_preview_card", "Live"),
+        ("motility", "_motility_preview_card", "Live"),
+        ("measure", "_measure_preview_card", "Live"),
     ])
     def test_every_runtime_preview_has_a_bottom_right_toggle(
             self, qtbot, app_key, attr, label):

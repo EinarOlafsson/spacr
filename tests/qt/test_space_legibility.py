@@ -90,7 +90,7 @@ class TestTheUnboundedSkyReallyWasIllegible:
         assert any(line.startswith("fg (#ffffff)") for line in failures)
 
     def test_the_ai_toggle_colour_is_among_the_casualties(self):
-        """The reported symptom: the title-bar AI/LP toggle is painted
+        """The reported symptom: the title-bar AI/Live toggle is painted
         with ``accent`` straight onto the wallpaper, and it landed on the
         sun's halo."""
         arr = space.render(1440, 900, "sun", legible=False)
