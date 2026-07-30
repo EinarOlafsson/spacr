@@ -6068,6 +6068,7 @@ def generate_training_dataset(settings):
     class_names = None
     dst_final = None  # last destination
     crop_db_path = None  # last measurements.db, for the crop-format lookup
+    selection_context = []
 
     for i, src in enumerate(settings['src']):
         db_path = os.path.join(src, 'measurements', 'measurements.db')
@@ -6164,6 +6165,10 @@ def generate_training_dataset(settings):
                 # fallback to the object table can hand back a numeric column,
                 # and class_metadata is whatever the settings CSV parsed to.
                 meta_values = png_df[meta_col].astype(str)
+                selection_context.append(
+                    f"{src}: available {meta_col} values are "
+                    f"{sorted(meta_values.dropna().unique().tolist())}"
+                )
                 for cm in class_meta:
                     # One class per entry. An entry may be a single value
                     # ('c1') or a group of values (['c1','c2']) that share one
@@ -6219,8 +6224,35 @@ def generate_training_dataset(settings):
 
     # Nothing to do?
     if not class_path_list or sum(len(x) for x in class_path_list) == 0:
-        print("No class data assembled; aborting.")
-        return None, None
+        details = "\n".join(f"  {line}" for line in selection_context)
+        raise ValueError(
+            "Training-dataset generation selected no crops for any class. "
+            "Check class_metadata against metadata_type_by, or choose an "
+            "annotation/measurement rule that occurs in the database."
+            + (f"\n{details}" if details else "")
+        )
+
+    # Never balance a populated class down to zero merely because another
+    # requested label does not occur. Besides discarding valid crops, the old
+    # behavior wrote a plausible-looking but empty train/test tree and failed
+    # much later in the DataLoader.
+    empty_classes = [
+        name for name, items in zip(class_names or [], class_path_list)
+        if not items
+    ]
+    if empty_classes:
+        counts = ", ".join(
+            f"{name}={len(items)}"
+            for name, items in zip(class_names or [], class_path_list)
+        )
+        details = "\n".join(f"  {line}" for line in selection_context)
+        raise ValueError(
+            "Training-dataset generation cannot balance or train because "
+            f"these classes selected no crops: {empty_classes}. "
+            f"Selected counts: {counts}. Change class_metadata/rules to "
+            "values that exist, or add annotations for the missing class."
+            + (f"\n{details}" if details else "")
+        )
 
     # Balance to smallest (optional)
     class_path_list = _balance_lists(class_path_list)
