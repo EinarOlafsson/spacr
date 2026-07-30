@@ -113,6 +113,26 @@ def test_a_flat_list_setting_gets_one_strip(qapp):
     assert widget.get_value() == ["nc", "pc"]
 
 
+@pytest.mark.parametrize(("app_key", "key", "expected"), [
+    ("mask", "channels", [0, 1, 2, 3]),
+    ("timelapse", "channels", [0, 1, 2, 3]),
+    ("motility", "channels", [0, 1, 2, 3]),
+    ("measure", "channels", [0, 1, 2, 3]),
+    ("activation", "channels", [1, 2, 3]),
+    ("cellpose_masks", "channels", [0, 0]),
+    ("cellpose_all", "channels", [0, 0]),
+    ("recruitment", "channel_dims", [0, 1, 2, 3]),
+    ("classify", "train_channels", ["r", "g", "b"]),
+])
+def test_channel_lists_use_the_manders_style_editor(
+        qapp, app_key, key, expected):
+    model = _model(qapp, app_key)
+    widget = model._widgets[key]
+    assert isinstance(widget, _ListEditor)
+    assert widget.get_value() == expected
+    assert model.collect()[key] == expected
+
+
 def test_src_keeps_its_line_edit(qapp):
     """``src`` is declared ``(str, list)`` but is a path. It has to stay a
     QLineEdit: drag-and-drop, the empty-state banner and the column picker's
