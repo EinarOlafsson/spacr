@@ -51,6 +51,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "align",
     "convert",
     "foreign",
+    "external_masks",
     "resume",
     "zstack",
     "report",
