@@ -352,6 +352,8 @@ def test_screen_builds_offscreen_without_raising(qtbot, qt_theme_applied):
     assert any("read-only" in lbl.text().lower()
                for lbl in w.findChildren(QLabel)), \
         "the screen must tell the user it is read-only"
+    assert w.acceptDrops() is True
+    assert type(w._dnd_handler).__name__ == "DatabaseDropHandler"
 
 
 # ---------------------------------------------------------------------------

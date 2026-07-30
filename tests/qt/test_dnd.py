@@ -139,7 +139,8 @@ def test_map_barcodes_handler_rejects_random_file(tmp_path):
     ("make_masks",   "MakeMasksDropHandler"),
     ("map_barcodes", "MapBarcodesDropHandler"),
     ("umap",         "MeasurementsDropHandler"),
-    ("nonexistent",  "MeasurementsDropHandler"),  # fallback
+    ("db_browser",   "DatabaseDropHandler"),
+    ("nonexistent",  "SourceDropHandler"),  # broad src-field fallback
 ])
 def test_get_handler_returns_expected_class(app_key, expected):
     from spacr.qt.dnd_handlers import get_handler
