@@ -39,6 +39,7 @@ from ...hyperparam import (
     ACTIVATION_CRITERIA, APP_CRITERIA, DEFAULT_SPACES, LOWER_IS_BETTER,
     SearchResult, SearchSpace, Trial, run_search_for_app,
 )
+from ..theme import active_palette
 
 LOG = logging.getLogger("spacr.qt.hyperparam")
 
@@ -224,7 +225,36 @@ def figure_to_pixmap(fig) -> QPixmap:
     return pm
 
 
-def build_panel_figure(result: SearchResult, max_panels: int = MAX_PANELS):
+def _apply_figure_theme(fig, palette: Dict[str, str]) -> None:
+    """Match a Matplotlib result panel to its Qt container palette."""
+    background = palette["surface_alt"]
+    foreground = palette["fg"]
+    muted = palette.get("fg_muted", foreground)
+    border = palette.get("border", muted)
+    fig.patch.set_facecolor(background)
+    for text in fig.texts:
+        text.set_color(foreground)
+    for ax in fig.axes:
+        ax.set_facecolor(background)
+        ax.title.set_color(foreground)
+        ax.xaxis.label.set_color(foreground)
+        ax.yaxis.label.set_color(foreground)
+        ax.tick_params(axis="both", colors=muted)
+        for spine in ax.spines.values():
+            spine.set_color(border)
+        legend = ax.get_legend()
+        if legend is not None:
+            legend.get_frame().set_facecolor(background)
+            legend.get_frame().set_edgecolor(border)
+            for text in legend.get_texts():
+                text.set_color(foreground)
+
+
+def build_panel_figure(
+    result: SearchResult,
+    max_panels: int = MAX_PANELS,
+    palette: Optional[Dict[str, str]] = None,
+):
     """Draw the small-multiples panel for a finished (or partial) sweep.
 
     For a UMAP sweep this is one scatter per trial — the deliverable, because
@@ -241,6 +271,7 @@ def build_panel_figure(result: SearchResult, max_panels: int = MAX_PANELS):
     matplotlib.use("Agg", force=False)
     import matplotlib.pyplot as plt
 
+    palette = dict(palette or active_palette())
     ranked = result.ranked()
     if not ranked:
         return None
@@ -280,6 +311,7 @@ def build_panel_figure(result: SearchResult, max_panels: int = MAX_PANELS):
             f"pointing a high one; they disagree on purpose",
             fontsize=8)
         fig.tight_layout()
+        _apply_figure_theme(fig, palette)
         return fig
 
     embedded = [t for t in ranked if t.extra_metrics.get("embedding") is not None]
@@ -295,8 +327,10 @@ def build_panel_figure(result: SearchResult, max_panels: int = MAX_PANELS):
             ax = axes[i // cols][i % cols]
             ax.set_axis_on()
             emb = trial.extra_metrics["embedding"]
+            point_count = len(emb)
             ax.scatter([p[0] for p in emb], [p[1] for p in emb],
-                       s=4, alpha=0.7)
+                       c=list(range(point_count)), cmap="viridis",
+                       s=4, alpha=0.8, edgecolors="none")
             ax.set_xticks([])
             ax.set_yticks([])
             ax.set_title(f"{format_params(trial.params)}\n"
@@ -307,18 +341,20 @@ def build_panel_figure(result: SearchResult, max_panels: int = MAX_PANELS):
             f"{result.metric} — look at them; the score is not a verdict",
             fontsize=8)
         fig.tight_layout()
+        _apply_figure_theme(fig, palette)
         return fig
 
     fig, ax = plt.subplots(figsize=(6.0, 3.2))
     xs = list(range(1, len(ranked) + 1))
     ys = [float(t.score) for t in ranked]
-    ax.plot(xs, ys, "o-", markersize=4)
+    ax.plot(xs, ys, "o-", markersize=4, color=palette["accent"])
     noise, source = result.noise_level()
     if noise:
         best = ys[0]
         lo = best - noise if result.higher_is_better else best
         hi = best if result.higher_is_better else best + noise
         ax.axhspan(min(lo, hi), max(lo, hi), alpha=0.18,
+                   color=palette["accent"],
                    label=f"within noise ({source})")
         ax.legend(fontsize=7)
     ax.set_xlabel("rank")
@@ -326,6 +362,7 @@ def build_panel_figure(result: SearchResult, max_panels: int = MAX_PANELS):
     ax.set_title(f"{len(ranked)} configurations by {result.metric}",
                  fontsize=9)
     fig.tight_layout()
+    _apply_figure_theme(fig, palette)
     return fig
 
 
