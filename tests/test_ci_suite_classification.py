@@ -71,8 +71,8 @@ def test_marker_expressions_partition_resource_and_structural_suites():
 def test_reusable_suite_auto_detects_resources_and_current_actions():
     workflow = REUSABLE.read_text(encoding="utf-8")
 
-    assert "actions/checkout@v6" in workflow
-    assert "actions/setup-python@v6" in workflow
+    assert "actions/checkout@v7" in workflow
+    assert "actions/setup-python@v7" in workflow
     assert "nvidia-smi" in workflow
     assert "cuda_available" in workflow
     assert "endpoint_available" in workflow
