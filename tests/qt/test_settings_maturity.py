@@ -81,15 +81,14 @@ def test_invalid_maturity_falls_back_to_stable(qtbot):
     assert "STABLE" not in section._header.text()
 
 
-def test_stylesheet_uses_home_stage_hues_for_sections_and_rows():
+def test_stylesheet_uses_home_stage_hues_without_setting_label_stripes():
     from spacr.qt import theme
 
     qss = theme.stylesheet("dark")
     for stage, hue in theme.STAGE_HOVER.items():
         assert f'QFrame#SectionCard[maturity="{stage}"]' in qss
-        assert f'QLabel[settingMaturity="{stage}"]' in qss
+        assert f'QLabel[settingMaturity="{stage}"]' not in qss
         assert f"border-left: 4px solid {hue}" in qss
-        assert f"border-left: 2px solid {hue}" in qss
 
 
 def test_beta_module_colours_every_settings_section(

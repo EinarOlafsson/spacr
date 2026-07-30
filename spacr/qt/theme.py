@@ -1459,11 +1459,6 @@ QPushButton#AppTile[stage="{stage}"]:pressed {{
 QToolButton#SectionHeader[maturity="{stage}"]:hover,
 QToolButton#SectionHeader[maturity="{stage}"]:checked {{
     background-color: {css_color(hue, 0.14)};
-}}
-QLabel[settingMaturity="{stage}"] {{
-    border: none;
-    border-left: 2px solid {hue};
-    padding-left: 6px;
 }}"""
         for stage, hue in STAGE_HOVER.items())
     # Scaled with the font, like every other Python-set size: a 150 %
