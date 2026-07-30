@@ -70,6 +70,13 @@ def test_conda_recipe_is_noarch_and_uses_a_verified_tag_archive():
     assert recipe["extra"]["recipe-maintainers"] == ["EinarOlafsson"]
 
 
+def test_conda_recipe_preserves_the_license_of_its_tagged_source():
+    recipe = yaml.safe_load(RECIPE.read_text(encoding="utf-8"))
+    assert recipe["context"]["version"] in {"1.4.9.8", "1.4.9.9"}
+    assert recipe["about"]["license"] == "MIT"
+    assert recipe["about"]["license_file"] == "LICENSE"
+
+
 def test_conda_forge_bot_tracks_pypi_and_automerge_is_limited_to_versions():
     config = yaml.safe_load(BOT_CONFIG.read_text(encoding="utf-8"))
     assert config["bot"]["automerge"] == "version"

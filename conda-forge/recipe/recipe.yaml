@@ -89,6 +89,9 @@ about:
     spaCR is an end-to-end toolkit for microscopy segmentation,
     measurement, timelapse analysis, computer vision, image embeddings,
     barcode mapping, and integrated perturbation-screen analysis.
+  # Tagged releases through 1.4.9.9 were published under MIT. Change this
+  # field to PolyForm-Noncommercial-1.0.0 when the recipe first targets a
+  # later source archive.
   license: MIT
   license_file: LICENSE
   documentation: https://einarolafsson.github.io/spacr/
