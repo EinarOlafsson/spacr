@@ -145,6 +145,9 @@ class BatchScreen(QWidget):
         self._queue_settled.connect(self._on_queue_settled)
 
         self._build_ui()
+        from ..dnd import install_dropzone
+        from ..dnd_handlers import get_handler
+        install_dropzone(self, get_handler("batch"), self)
         self._refresh_table()
         self._update_controls()
         self._set_status("Add a job: pick a module and the settings file you "

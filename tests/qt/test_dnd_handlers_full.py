@@ -1014,6 +1014,11 @@ def test_classify_accepts_a_data_folder(tmp_path):
     assert ClassifyDropHandler().can_accept(tmp_path) is True
 
 
+def test_classify_accepts_an_existing_train_split(tmp_path):
+    (tmp_path / "train" / "class_a").mkdir(parents=True)
+    assert ClassifyDropHandler().can_accept(tmp_path) is True
+
+
 def test_classify_rejects_a_plain_folder_and_a_file(tmp_path):
     f = tmp_path / "x.txt"
     f.write_text("x")
@@ -1031,6 +1036,34 @@ def test_classify_apply_sets_src(qtbot, screen, tmp_path):
     ClassifyDropHandler().apply(tmp_path, screen)
     assert screen.w("src").text() == str(tmp_path)
     assert f"[drop] classify src = {tmp_path}\n" in screen.log
+
+
+def test_classify_sequential_drops_accumulate_plate_paths(qtbot, tmp_path):
+    class Model:
+        def __init__(self):
+            self.src = []
+
+        def collect(self):
+            return {"src": list(self.src)}
+
+        def set_value_for_key(self, key, value):
+            assert key == "src"
+            self.src = list(value)
+            return True
+
+    screen = Screen({})
+    qtbot.addWidget(screen)
+    screen._settings_model = Model()
+    first = tmp_path / "plate_a"
+    second = tmp_path / "plate_b"
+    (first / "data").mkdir(parents=True)
+    (second / "data").mkdir(parents=True)
+
+    handler = ClassifyDropHandler()
+    handler.apply(first, screen)
+    handler.apply(second, screen)
+
+    assert screen._settings_model.src == [str(first), str(second)]
 
 
 # ---------------------------------------------------------------------------
@@ -1246,9 +1279,126 @@ def test_database_handler_opens_any_supported_shape(tmp_path):
     ("cellpose_masks", MakeMasksDropHandler),
     ("cellpose_all", MakeMasksDropHandler),
     ("db_browser", DatabaseDropHandler),
+    ("foreign", dh.ForeignProjectDropHandler),
+    ("align", dh.AlignDropHandler),
+    ("convert", dh.ConvertDropHandler),
+    ("queue", dh.PlateQueueDropHandler),
+    ("batch", dh.BatchDropHandler),
+    ("model_compare", dh.ImageFieldsDropHandler),
+    ("model_zoo", dh.ModelZooDropHandler),
+    ("plate_view", dh.ResultsDatabaseDropHandler),
+    ("agreement", dh.ResultsDatabaseDropHandler),
+    ("train_compare", dh.TrainingRunsDropHandler),
+    ("report", dh.ReportDropHandler),
 ])
 def test_registry_covers_every_documented_app(key, cls):
     assert type(get_handler(key)) is cls
+
+
+def test_align_and_convert_drops_set_their_sources(tmp_path):
+    image = tmp_path / "tile.tif"
+    image.write_bytes(b"x")
+
+    class Align:
+        def __init__(self):
+            self.settings = None
+
+        def apply_settings(self, settings):
+            self.settings = settings
+
+    class Convert:
+        def __init__(self):
+            self.source = ""
+
+        def set_source(self, source):
+            self.source = source
+
+    align, convert = Align(), Convert()
+    dh.AlignDropHandler().apply(image, align)
+    dh.ConvertDropHandler().apply(image, convert)
+    assert align.settings == {"src": str(tmp_path)}
+    assert convert.source == str(tmp_path)
+
+
+def test_results_handlers_use_each_screens_database_api(tmp_path):
+    db = tmp_path / "measurements.db"
+    db.write_bytes(b"db")
+
+    class Agreement:
+        last_error = ""
+
+        def set_database(self, path):
+            self.path = path
+            return True
+
+    class Plate:
+        last_error = ""
+
+        def open_database(self, path):
+            self.path = path
+            return True
+
+    agreement, plate = Agreement(), Plate()
+    handler = dh.ResultsDatabaseDropHandler()
+    handler.apply(db, agreement)
+    handler.apply(db, plate)
+    assert agreement.path == plate.path == str(db)
+
+
+def test_model_zoo_distinguishes_models_from_benchmark_fields(tmp_path):
+    model_dir = tmp_path / "models"
+    model_dir.mkdir()
+    (model_dir / "custom.CP_model").write_bytes(b"model")
+    fields = tmp_path / "fields"
+    fields.mkdir()
+    (fields / "field.tif").write_bytes(b"image")
+
+    class Zoo:
+        last_error = ""
+
+        def __init__(self):
+            self.scanned = ""
+            self.field_source = ""
+
+        def scan(self, path):
+            self.scanned = path
+            return True
+
+        def set_fields_source(self, path):
+            self.field_source = path
+            return True
+
+    screen = Zoo()
+    handler = dh.ModelZooDropHandler()
+    handler.apply(model_dir, screen)
+    handler.apply(fields, screen)
+    assert screen.scanned == str(model_dir)
+    assert screen.field_source == str(fields)
+
+
+def test_plate_queue_drop_adds_each_settings_snapshot_with_plate_src(tmp_path):
+    plate = tmp_path / "plate_1"
+    settings = plate / "settings"
+    settings.mkdir(parents=True)
+    (settings / "gen_mask_settings.csv").write_text(
+        "Key,Value\nsrc,/old/path\ncell_channel,2\n")
+    (settings / "measure_crop_settings.csv").write_text(
+        "Key,Value\nsrc,/old/path\ncell_mask_dim,3\n")
+
+    class QueueScreen:
+        def __init__(self):
+            self.added = []
+
+        def add_item(self, app_key, values):
+            self.added.append((app_key, values))
+
+    screen = QueueScreen()
+    handler = dh.PlateQueueDropHandler()
+    assert handler.can_accept(plate)
+    handler.apply(plate, screen)
+    assert [app for app, _settings in screen.added] == ["mask", "measure"]
+    assert all(values["src"] == str(plate)
+               for _app, values in screen.added)
 
 
 def test_get_handler_returns_a_fresh_instance_each_call():

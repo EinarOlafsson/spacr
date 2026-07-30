@@ -1808,10 +1808,14 @@ class TestLiveSettingsDialog:
             assert p._lo_pct.isEnabled() and p._hi_pct.isEnabled()
             p._normalise_check.setChecked(False)
             assert not p._lo_pct.isEnabled()
-            assert "Normalise" in p._lo_pct.toolTip()
+            assert p._lo_pct.toolTip() == ""
+            assert "href=" in p._lo_pct._spacr_setting_label.toolTip()
+            assert getattr(
+                p._lo_pct._spacr_setting_label,
+                "_spacr_api_dot", None) is not None
             p._normalise_check.setChecked(True)
             assert p._lo_pct.isEnabled()
-            assert p._lo_pct.toolTip() == ""
+            assert "href=" in p._lo_pct._spacr_setting_label.toolTip()
         finally:
             p._live_settings_dialog.close()
 

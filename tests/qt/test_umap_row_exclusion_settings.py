@@ -43,6 +43,23 @@ def test_umap_plate_section_contains_only_general_exclusion(qtbot):
     assert "Exclude features" in measurement_labels
 
 
+def test_umap_display_embedding_plot_and_advanced_settings_are_panel_sections(
+        qtbot):
+    model = SettingsWidgets("umap")
+    sections = dict(model.build_sections())
+
+    assert {"UMAP Display", "Embedding & Clustering", "Advanced"} <= set(
+        sections)
+    display = {label for label, _widget in sections["UMAP Display"]}
+    embedding = {
+        label for label, _widget in sections["Embedding & Clustering"]}
+    assert {"Point color", "Point alpha", "Plot images",
+            "Plot cluster grids"} <= display
+    assert {"N neighbors", "Min dist", "Clustering", "Eps",
+            "Min samples"} <= embedding
+    assert "https://" in model.plain_tooltip_for("plot_images")
+
+
 def test_exclusion_editor_loads_columns_and_values_from_dropped_source(
     qtbot,
     tmp_path,

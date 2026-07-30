@@ -28,18 +28,20 @@ from io import BytesIO
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 from PySide6.QtCore import Qt, QThread, Signal
-from PySide6.QtGui import QPixmap
+from PySide6.QtGui import QColor, QIcon, QPalette, QPixmap
 from PySide6.QtWidgets import (
-    QAbstractItemView, QComboBox, QGridLayout, QHBoxLayout, QHeaderView,
-    QLabel, QLineEdit, QPushButton, QSizePolicy, QSpinBox, QSplitter,
+    QAbstractItemView, QComboBox, QDialog, QDialogButtonBox, QFormLayout,
+    QGridLayout, QHBoxLayout, QHeaderView, QGroupBox, QLabel, QLineEdit,
+    QPushButton, QScrollArea, QSizePolicy, QSpinBox, QSplitter, QTabWidget,
     QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
+from ..widgets.toggle import Toggle
 
 from ...hyperparam import (
     ACTIVATION_CRITERIA, APP_CRITERIA, DEFAULT_SPACES, LOWER_IS_BETTER,
-    SearchResult, SearchSpace, Trial, run_search_for_app,
+    SearchResult, SearchSpace, Trial, UMAP_CRITERIA, run_search_for_app,
 )
-from ..theme import active_palette
+from ..theme import active_palette, css_color
 
 LOG = logging.getLogger("spacr.qt.hyperparam")
 
@@ -384,6 +386,10 @@ class SearchRequest:
     criterion: str = "trustworthiness"
     mode: str = "grid"
     n_trials: int = 12
+    adaptive: bool = False
+    n_neighbors_step: int = 1
+    min_dist_step: float = 0.05
+    min_improvement: float = 0.0
     seed: int = 0
     n_folds: int = 5
 
@@ -400,6 +406,12 @@ class _SearchWorker(QThread):
         self._request = request
         self._search_fn = search_fn
         self._stop = threading.Event()
+        # QThread.finished is the lifecycle boundary the panel must wait for.
+        # The result signal is emitted just before QThread.run() returns, so it
+        # is too early to drop the final Python reference to this object.
+        self.result: Optional[SearchResult] = None
+        self.error = ""
+        self.completion_ready = False
 
     def request_stop(self) -> None:
         """Ask the sweep to stop after the trial currently in flight."""
@@ -415,14 +427,19 @@ class _SearchWorker(QThread):
         req = self._request
         try:
             fn = self._search_fn or _default_search_fn
-            result = fn(req,
-                        lambda t, done, total: self.trial_ready.emit(
-                            t, done, total),
-                        self._stop.is_set)
-            self.search_done.emit(result, "")
+            self.result = fn(
+                req,
+                lambda t, done, total: self.trial_ready.emit(t, done, total),
+                self._stop.is_set,
+            )
         except Exception as exc:
             LOG.info("hyperparameter search failed: %s", exc, exc_info=True)
-            self.search_done.emit(None, f"{type(exc).__name__}: {exc}")
+            self.error = f"{type(exc).__name__}: {exc}"
+        finally:
+            self.completion_ready = True
+            # Kept for callers that use the private worker directly. The panel
+            # deliberately consumes the stored payload from ``finished``.
+            self.search_done.emit(self.result, self.error)
 
 
 def _default_search_fn(request: SearchRequest, on_trial, should_stop) -> SearchResult:
@@ -430,7 +447,11 @@ def _default_search_fn(request: SearchRequest, on_trial, should_stop) -> SearchR
     return run_search_for_app(
         request.app_key, request.settings, request.space,
         criterion=request.criterion, mode=request.mode,
-        n_trials=request.n_trials, seed=request.seed, n_folds=request.n_folds,
+        n_trials=request.n_trials, adaptive=request.adaptive,
+        n_neighbors_step=request.n_neighbors_step,
+        min_dist_step=request.min_dist_step,
+        min_improvement=request.min_improvement,
+        seed=request.seed, n_folds=request.n_folds,
         on_trial=on_trial, should_stop=should_stop)
 
 
@@ -466,6 +487,8 @@ class HyperparamPanel(QWidget):
         self._search_fn = None
         self._apply_cb: Optional[Callable[[Dict[str, Any]], Any]] = None
         self._value_edits: Dict[str, QLineEdit] = {}
+        self._adaptive_grid_text: Dict[str, str] = {}
+        self._settings_dialog: Optional["UmapSearchSettingsDialog"] = None
         self._build_ui()
 
     # -- construction ------------------------------------------------------
@@ -475,6 +498,17 @@ class HyperparamPanel(QWidget):
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(6)
+
+        self._settings_panel = QGroupBox("Search & Plot Settings")
+        self._settings_panel.setCheckable(True)
+        self._settings_panel.setChecked(True)
+        self._settings_panel.setToolTip(
+            "Search-space, validation, reproducibility and result-plot "
+            "controls. Collapse this drawer to give the results more room.")
+        settings_layout = QVBoxLayout(self._settings_panel)
+        settings_layout.setContentsMargins(8, 8, 8, 8)
+        settings_layout.setSpacing(6)
+        root.addWidget(self._settings_panel)
 
         # -- search space controls
         controls = QWidget()
@@ -501,62 +535,81 @@ class HyperparamPanel(QWidget):
             grid.addWidget(lab, r, 0)
             grid.addWidget(edit, r, 1)
             self._value_edits[key] = edit
-        root.addWidget(controls)
+        settings_layout.addWidget(controls)
 
-        # -- run row
-        row = QHBoxLayout()
-        row.setSpacing(6)
+        # -- run controls. A grid keeps the settings dialog usable at normal
+        # laptop widths; the old single horizontal row forced the popup wider
+        # than the screen and made the first tab/title appear to overlap.
+        run_grid = QGridLayout()
+        run_grid.setContentsMargins(0, 0, 0, 0)
+        run_grid.setHorizontalSpacing(6)
+        run_grid.setVerticalSpacing(6)
 
-        row.addWidget(QLabel("criterion"))
+        run_grid.addWidget(QLabel("criterion"), 0, 0)
         self._criterion = QComboBox()
         self._criterion.addItems(APP_CRITERIA[self.app_key])
         self._criterion.setToolTip(
-            "Which named criterion ranks the trials. Different criteria reward "
-            "different things and routinely pick different winners — that is "
-            "not a bug, it is what 'best' means without a ground truth.")
-        row.addWidget(self._criterion)
+            "The score used to rank trials. Hover here and read the explanation "
+            "below before choosing: each criterion rewards a different kind "
+            "of structure.")
+        self._criterion.currentTextChanged.connect(
+            self._update_criterion_explanation)
+        run_grid.addWidget(self._criterion, 0, 1)
 
-        row.addWidget(QLabel("mode"))
+        run_grid.addWidget(QLabel("mode"), 0, 2)
         self._mode = QComboBox()
         self._mode.addItems(["grid", "random"])
         self._mode.setToolTip(
             "grid evaluates every combination; random samples n trials from "
             "the space with the seed below, which is reproducible.")
-        row.addWidget(self._mode)
+        run_grid.addWidget(self._mode, 0, 3)
 
-        row.addWidget(QLabel("n trials"))
+        self._adaptive = Toggle("Adaptive 2×2")
+        self._adaptive.setVisible(self.app_key == "umap")
+        self._adaptive.setToolTip(
+            "Enable local UMAP optimization. The n_neighbors and min_dist "
+            "fields above become single starting values. API: "
+            "spacr.hyperparam.umap_search(adaptive=True).")
+        self._adaptive.toggled.connect(self._on_adaptive_toggled)
+        run_grid.addWidget(self._adaptive, 0, 4, 1, 2)
+
+        run_grid.addWidget(QLabel("n trials"), 1, 0)
         self._n_trials = QSpinBox()
         self._n_trials.setRange(1, 10_000)
         self._n_trials.setValue(12)
-        self._n_trials.setToolTip("How many configurations random mode draws.")
-        row.addWidget(self._n_trials)
+        self._n_trials.setToolTip(
+            "How many configurations random mode draws. Adaptive mode uses "
+            "the separate maximum-rounds field below. API: n_trials.")
+        run_grid.addWidget(self._n_trials, 1, 1)
 
-        row.addWidget(QLabel("folds"))
+        self._n_folds_label = QLabel("folds")
+        run_grid.addWidget(self._n_folds_label, 1, 2)
         self._n_folds = QSpinBox()
         self._n_folds.setRange(2, 50)
         self._n_folds.setValue(5)
         self._n_folds.setToolTip(
             "Cross-validation folds per trial. Folds are grouped by well, so "
             "crops from one well never straddle a split.")
-        row.addWidget(self._n_folds)
+        run_grid.addWidget(self._n_folds, 1, 3)
         if self.app_key in ("umap", "activation"):
             # Neither app cross-validates: UMAP fits one embedding per trial and
             # Activation attributes an already-trained model, so a fold count
             # would be a control that does nothing.
+            self._n_folds_label.setVisible(False)
             self._n_folds.setVisible(False)
 
-        row.addWidget(QLabel("seed"))
+        run_grid.addWidget(QLabel("seed"), 1, 4)
         self._seed = QSpinBox()
         self._seed.setRange(0, 1_000_000)
         self._seed.setValue(0)
         self._seed.setToolTip(
             "Fixes the sampling, the folds and the reducer, so the same seed "
             "reproduces the same sweep.")
-        row.addWidget(self._seed)
+        run_grid.addWidget(self._seed, 1, 5)
 
         self._run_btn = QPushButton("Run search")
         self._run_btn.clicked.connect(self.run_search)
-        row.addWidget(self._run_btn)
+        run_grid.addWidget(self._run_btn, 2, 0, 1, 2)
 
         self._stop_btn = QPushButton("Stop")
         self._stop_btn.setEnabled(False)
@@ -564,18 +617,125 @@ class HyperparamPanel(QWidget):
             "Stop after the trial in flight. The trials already finished are "
             "kept and the result is marked partial.")
         self._stop_btn.clicked.connect(self.stop_search)
-        row.addWidget(self._stop_btn)
+        run_grid.addWidget(self._stop_btn, 2, 2)
 
-        self._apply_btn = QPushButton("Apply configuration")
+        self._apply_btn = QPushButton("Propagate settings")
         self._apply_btn.setEnabled(False)
         self._apply_btn.setToolTip(
             "Write the selected row's parameters into the settings panel. "
             "Nothing changes until you press this.")
         self._apply_btn.clicked.connect(self.apply_selected)
-        row.addWidget(self._apply_btn)
+        run_grid.addWidget(self._apply_btn, 2, 3, 1, 3)
+        run_grid.setColumnStretch(1, 2)
+        run_grid.setColumnStretch(3, 2)
+        run_grid.setColumnStretch(5, 2)
+        settings_layout.addLayout(run_grid)
 
-        row.addStretch(1)
-        root.addLayout(row)
+        self._criterion_help = QLabel()
+        self._criterion_help.setWordWrap(True)
+        self._criterion_help.setObjectName("HyperparamCriterionHelp")
+        self._criterion_help.setToolTip(
+            "A visible explanation of the selected ranking criterion. UMAP "
+            "has no single score for whether a picture contains meaningful "
+            "biological structure.")
+        settings_layout.addWidget(self._criterion_help)
+        self._update_criterion_explanation(self._criterion.currentText())
+
+        # -- adaptive UMAP controls. Blank means the documented API default.
+        adaptive_row = QHBoxLayout()
+        adaptive_row.setSpacing(6)
+        self._adaptive_controls = QWidget(self)
+        self._adaptive_controls.setObjectName(
+            "UmapHyperparamControls"
+            if self.app_key == "umap" else "HyperparamControls")
+        adaptive_controls_layout = QGridLayout(self._adaptive_controls)
+        adaptive_controls_layout.setContentsMargins(0, 0, 0, 0)
+        adaptive_controls_layout.setHorizontalSpacing(6)
+        adaptive_controls_layout.setVerticalSpacing(6)
+        for index, (label_text, attr, placeholder, tooltip) in enumerate((
+            (
+                "n increment", "_adaptive_n_step", "1",
+                "Integer distance tested on either side of n_neighbors. "
+                "Blank uses 1. API: n_neighbors_step.",
+            ),
+            (
+                "min_dist increment", "_adaptive_d_step", "0.05",
+                "Distance tested on either side of min_dist. Blank uses 0.05. "
+                "API: min_dist_step.",
+            ),
+            (
+                "maximum rounds", "_adaptive_rounds", "100",
+                "Maximum complete 2×2 rounds. Blank uses 100. Search stops "
+                "earlier when a round does not improve the score. "
+                "API: n_trials in adaptive mode.",
+            ),
+            (
+                "minimum improvement", "_adaptive_improvement", "0",
+                "Score gain required to continue. Blank uses 0, so any strict "
+                "improvement continues and a tie/stall stops. "
+                "API: min_improvement.",
+            ),
+        )):
+            label = QLabel(label_text)
+            edit = QLineEdit()
+            edit.setPlaceholderText(placeholder)
+            label.setToolTip(tooltip)
+            edit.setToolTip(tooltip)
+            setattr(self, attr, edit)
+            grid_row, grid_column = divmod(index, 2)
+            adaptive_controls_layout.addWidget(
+                label, grid_row, grid_column * 2)
+            adaptive_controls_layout.addWidget(
+                edit, grid_row, grid_column * 2 + 1)
+        adaptive_controls_layout.setColumnStretch(1, 1)
+        adaptive_controls_layout.setColumnStretch(3, 1)
+        adaptive_row.addWidget(self._adaptive_controls)
+        settings_layout.addLayout(adaptive_row)
+        self._adaptive_controls.setVisible(self.app_key == "umap")
+        self._on_adaptive_toggled(False)
+
+        plot_row = QHBoxLayout()
+        plot_label = QLabel("maximum graph panels")
+        self._max_panels = QSpinBox()
+        self._max_panels.setRange(1, 48)
+        self._max_panels.setValue(MAX_PANELS)
+        self._max_panels.setToolTip(
+            "Maximum successful trials drawn in the result graph. The table "
+            "still contains every trial. API: build_panel_figure(max_panels=…).")
+        plot_label.setToolTip(self._max_panels.toolTip())
+        self._max_panels._spacr_setting_label = plot_label
+        plot_row.addWidget(plot_label)
+        plot_row.addWidget(self._max_panels)
+        plot_row.addStretch(1)
+        settings_layout.addLayout(plot_row)
+
+        # Match Measure Live: keep the card focused on results and put the
+        # complete control set behind a settings button in a separate window.
+        root.removeWidget(self._settings_panel)
+        self._settings_panel.hide()
+        compact_actions = QHBoxLayout()
+        self._compact_run_btn = QPushButton("Run search")
+        self._compact_run_btn.clicked.connect(self.run_search)
+        self._compact_stop_btn = QPushButton("Stop")
+        self._compact_stop_btn.setObjectName("DangerButton")
+        self._compact_stop_btn.setProperty("buttonActionRole", "negative")
+        self._compact_stop_btn.setEnabled(False)
+        self._compact_stop_btn.setToolTip(
+            "Stop after the UMAP trial currently in flight. The completed "
+            "trials are retained and marked as a partial search.")
+        self._compact_stop_btn.clicked.connect(self.stop_search)
+        self._settings_btn = QPushButton(
+            "UMAP settings…" if self.app_key == "umap"
+            else "Search settings…")
+        self._settings_btn.setToolTip(
+            "Open the tabbed search, graph and module settings window. "
+            "This follows Measure Live's Crop settings pattern.")
+        self._settings_btn.clicked.connect(self.open_settings)
+        compact_actions.addWidget(self._compact_run_btn)
+        compact_actions.addWidget(self._compact_stop_btn)
+        compact_actions.addWidget(self._settings_btn)
+        compact_actions.addStretch(1)
+        root.insertLayout(0, compact_actions)
 
         # -- results table + preview
         split = QSplitter(Qt.Horizontal)
@@ -630,6 +790,46 @@ class HyperparamPanel(QWidget):
         """
         self._search_fn = fn
 
+    def open_settings(self) -> None:
+        """Open or focus the tabbed search/module settings window."""
+        dialog = self._settings_dialog
+        if dialog is not None and dialog.isVisible():
+            dialog.raise_()
+            dialog.activateWindow()
+            return
+        dialog = UmapSearchSettingsDialog(self)
+        self._settings_dialog = dialog
+        dialog.finished.connect(self._on_settings_closed)
+        dialog.show()
+
+    def _on_settings_closed(self, *_args) -> None:
+        self._settings_panel.setParent(self)
+        self._settings_panel.hide()
+        self._settings_dialog = None
+
+    def _update_criterion_explanation(self, criterion: str) -> None:
+        """Explain what the selected score calls 'structure'."""
+        if self.app_key == "umap":
+            detail = UMAP_CRITERIA.get(criterion, "")
+            recommendation = {
+                "trustworthiness": (
+                    "Best default for finding local structure without "
+                    "inventing apparent neighbours."),
+                "continuity": (
+                    "Use when preserving existing neighbourhoods matters most; "
+                    "it may crowd unrelated points together."),
+                "silhouette": (
+                    "Use only to test separation of labels you already have; "
+                    "it does not discover unknown structure."),
+            }.get(criterion, "")
+            self._criterion_help.setText(
+                f"{criterion}: {detail} {recommendation}")
+            self._criterion.setToolTip(self._criterion_help.text())
+            return
+        self._criterion_help.setText(
+            f"{criterion} ranks the trials. See the control tooltip and the "
+            "per-trial score tooltips in the results table.")
+
     def apply_settings(self, settings: Dict[str, Any]) -> None:
         """Adopt the host screen's current settings as the search's base.
 
@@ -647,6 +847,90 @@ class HyperparamPanel(QWidget):
             value = self._settings.get(key)
             if value is not None:
                 edit.setText(str(value))
+
+    def _on_adaptive_toggled(self, checked: bool) -> None:
+        """Switch the UMAP fields between grid lists and one local centre."""
+        checked = bool(checked) and self.app_key == "umap"
+        controls = getattr(self, "_adaptive_controls", None)
+        if controls is not None:
+            # Keep labels and their API dots active even when adaptive search
+            # is off; only the value fields are unavailable.
+            controls.setEnabled(True)
+            for edit in (
+                    self._adaptive_n_step, self._adaptive_d_step,
+                    self._adaptive_rounds, self._adaptive_improvement):
+                edit.setEnabled(checked)
+        if hasattr(self, "_mode"):
+            self._mode.setEnabled(not checked)
+        if hasattr(self, "_n_trials"):
+            self._n_trials.setEnabled(not checked)
+        if not checked or not self._value_edits:
+            if not checked and self._adaptive_grid_text:
+                for key, text in self._adaptive_grid_text.items():
+                    if key in self._value_edits:
+                        self._value_edits[key].setText(text)
+            return
+        for key in ("n_neighbors", "min_dist"):
+            edit = self._value_edits.get(key)
+            if edit is None:
+                continue
+            text = edit.text().strip()
+            if "," in text:
+                self._adaptive_grid_text[key] = text
+                value = self._settings.get(key)
+                if value is None:
+                    defaults = DEFAULT_SPACES.get("umap", {}).get(key, ())
+                    value = defaults[0] if defaults else ""
+                edit.setText(str(value))
+
+    def current_adaptive_space(self) -> SearchSpace:
+        """Return one UMAP starting centre, using settings defaults if blank."""
+        params: Dict[str, List[Any]] = {}
+        defaults = {"n_neighbors": 1000, "min_dist": 0.1,
+                    "metric": "euclidean"}
+        kinds = {"n_neighbors": "int", "min_dist": "float", "metric": "str"}
+        for key in ("n_neighbors", "min_dist", "metric"):
+            edit = self._value_edits[key]
+            text = edit.text().strip()
+            if not text:
+                value = self._settings.get(key, defaults[key])
+            else:
+                values = parse_values(text, kinds[key], key)
+                if len(values) != 1:
+                    fallback = self._settings.get(key, defaults[key])
+                    raise ValueError(
+                        "Adaptive 2×2 optimization needs one starting value "
+                        f"for {key}; leave it blank to use {fallback!r}.")
+                value = values[0]
+            params[key] = [value]
+        return SearchSpace(params)
+
+    def adaptive_parameters(self) -> Tuple[int, int, float, float]:
+        """Parse adaptive increments, rounds and convergence threshold."""
+        def _number(edit, default, cast, label):
+            text = edit.text().strip()
+            if not text:
+                return default
+            try:
+                value = cast(text)
+            except (TypeError, ValueError) as exc:
+                raise ValueError(
+                    f"{label} must be a number; leave it blank to use "
+                    f"{default}.") from exc
+            return value
+
+        n_step = _number(self._adaptive_n_step, 1, int,
+                         "n_neighbors increment")
+        d_step = _number(self._adaptive_d_step, 0.05, float,
+                         "min_dist increment")
+        rounds = _number(self._adaptive_rounds, 100, int, "maximum rounds")
+        improvement = _number(
+            self._adaptive_improvement, 0.0, float, "minimum improvement")
+        if n_step < 1 or d_step <= 0 or rounds < 1 or improvement < 0:
+            raise ValueError(
+                "Adaptive increments and maximum rounds must be positive; "
+                "minimum improvement must be zero or greater.")
+        return rounds, n_step, d_step, improvement
 
     # -- search space ------------------------------------------------------
 
@@ -679,8 +963,17 @@ class HyperparamPanel(QWidget):
         if self._worker is not None and self._worker.isRunning():
             self._status.setText("A search is already running.")
             return False
+        adaptive = self.app_key == "umap" and self._adaptive.isChecked()
         try:
-            space = self.current_space()
+            space = (
+                self.current_adaptive_space()
+                if adaptive else self.current_space())
+            if adaptive:
+                rounds, n_step, d_step, improvement = (
+                    self.adaptive_parameters())
+            else:
+                rounds, n_step, d_step, improvement = (
+                    int(self._n_trials.value()), 1, 0.05, 0.0)
         except ValueError as exc:
             self._status.setText(str(exc))
             return False
@@ -691,7 +984,11 @@ class HyperparamPanel(QWidget):
             settings=dict(self._settings),
             criterion=self._criterion.currentText(),
             mode=self._mode.currentText(),
-            n_trials=int(self._n_trials.value()),
+            n_trials=rounds,
+            adaptive=adaptive,
+            n_neighbors_step=n_step,
+            min_dist_step=d_step,
+            min_improvement=improvement,
             seed=int(self._seed.value()),
             n_folds=int(self._n_folds.value()),
         )
@@ -702,13 +999,16 @@ class HyperparamPanel(QWidget):
         self._notes.setText("")
         self._preview.setText("Running…")
         self._preview.setPixmap(QPixmap())
+        search_label = (
+            f"adaptive 2×2 search over at most {request.n_trials} rounds"
+            if request.adaptive
+            else f"{request.mode} search over {space.size()}")
         self._status.setText(
-            f"Running {request.mode} search over {space.size()} "
-            f"configurations, ranked by {request.criterion}…")
+            f"Running {search_label}, ranked by "
+            f"{request.criterion}…")
 
         worker = _SearchWorker(request, self._search_fn, self)
         worker.trial_ready.connect(self._on_trial_ready)
-        worker.search_done.connect(self._on_search_done)
         # NOT worker.deleteLater. `finished` is emitted from inside the worker
         # thread, so scheduling the object's deletion there hands C++ a second
         # owner for an object Python already owns, and the two race — see the
@@ -718,8 +1018,7 @@ class HyperparamPanel(QWidget):
         # panel drops its reference on the GUI thread.
         worker.finished.connect(self._on_worker_finished)
         self._worker = worker
-        self._run_btn.setEnabled(False)
-        self._stop_btn.setEnabled(True)
+        self._set_search_running(True)
         worker.start()
         return True
 
@@ -730,21 +1029,55 @@ class HyperparamPanel(QWidget):
             self._status.setText("No search is running.")
             return
         worker.request_stop()
+        # A stop request is asynchronous: keep the pressed negative button
+        # solid red and prevent repeat requests until the worker exits.
+        from ..button_roles import set_button_busy
+        sender = self.sender()
+        for button in (self._stop_btn, self._compact_stop_btn):
+            button.setEnabled(False)
+            set_button_busy(button, button is sender)
         self._status.setText(
             "Stopping after the trial in flight — the finished trials are "
             "kept and the result is marked partial.")
 
     # -- signal handlers ---------------------------------------------------
 
-    def _on_worker_finished(self) -> None:
-        """Re-enable the controls once the worker's thread body has returned.
+    def _set_search_running(self, running: bool) -> None:
+        """Synchronize every Run/Stop control, including the popup footer."""
+        from ..button_roles import set_button_busy
+        run_buttons = [self._run_btn, self._compact_run_btn]
+        dialog = self._settings_dialog
+        if dialog is not None:
+            footer_run = getattr(dialog, "_run_btn", None)
+            if footer_run is not None:
+                run_buttons.append(footer_run)
+        for button in run_buttons:
+            button.setEnabled(not running)
+        for button in (self._stop_btn, self._compact_stop_btn):
+            set_button_busy(button, False)
+            button.setEnabled(running)
 
-        ``search_done`` normally does this, but a worker that died before
-        emitting it (a hard crash inside a backend, a stop between trials)
-        would otherwise leave Run disabled forever.
+    def _on_worker_finished(self) -> None:
+        """Consume a result only after the QThread has completely exited.
+
+        A worker's result signal is emitted from inside ``run`` and therefore
+        precedes ``QThread.finished``. Clearing ``self._worker`` in that earlier
+        slot let a new search start while the old QThread was still unwinding;
+        repeated UMAP searches could consequently stall or lose their worker.
         """
-        self._run_btn.setEnabled(True)
-        self._stop_btn.setEnabled(False)
+        sender = self.sender()
+        worker = sender if isinstance(sender, _SearchWorker) else self._worker
+        # A stale completion must never re-enable controls belonging to a newer
+        # run. This is defensive now that starts are serialized at ``finished``.
+        if worker is None or worker is not self._worker:
+            return
+        self._worker = None
+        self._set_search_running(False)
+        if not worker.completion_ready:
+            self._on_search_done(
+                None, "Search worker exited without returning a result.")
+            return
+        self._on_search_done(worker.result, worker.error)
 
     def _on_trial_ready(self, trial: Trial, done: int, total: int) -> None:
         """Append one finished trial to the table as the sweep progresses."""
@@ -763,11 +1096,13 @@ class HyperparamPanel(QWidget):
 
     def _on_search_done(self, result: Optional[SearchResult], err: str) -> None:
         """Rebuild the table in ranked order and draw the preview."""
-        self._worker = None
-        self._run_btn.setEnabled(True)
-        self._stop_btn.setEnabled(False)
         if err:
             self._status.setText(f"Search failed: {err}")
+            self._preview.setText("Search failed.")
+            return
+        if result is None:
+            self._status.setText(
+                "Search failed: the worker returned no result.")
             self._preview.setText("Search failed.")
             return
         self._result = result
@@ -910,7 +1245,8 @@ class HyperparamPanel(QWidget):
     def _draw_preview(self, result: SearchResult) -> None:
         """Render the small-multiples panel for a finished sweep."""
         try:
-            fig = build_panel_figure(result)
+            fig = build_panel_figure(
+                result, max_panels=int(self._max_panels.value()))
         except Exception as exc:
             LOG.debug("panel figure failed", exc_info=True)
             self._preview.setText(f"Could not draw the preview: {exc}")
@@ -951,6 +1287,317 @@ class HyperparamPanel(QWidget):
                 worker.wait(3000)
             except Exception:
                 LOG.debug("worker shutdown failed", exc_info=True)
+        super().closeEvent(event)
+
+
+# ---------------------------------------------------------------------------
+# Tabbed settings window — mirrors Measure Live's CropSettingsDialog
+# ---------------------------------------------------------------------------
+
+class UmapSearchSettingsDialog(QDialog):
+    """Tabbed search and UMAP-graph settings for :class:`HyperparamPanel`."""
+
+    def __init__(self, panel: HyperparamPanel):
+        super().__init__(panel)
+        self._panel = panel
+        self._module_model = None
+        self._module_keys = set()
+        self.setObjectName("UmapSearchSettingsDialog")
+        self.setWindowTitle(
+            "UMAP settings" if panel.app_key == "umap"
+            else "Hyperparameter search settings")
+        outer = QVBoxLayout(self)
+        self._tabs = QTabWidget(self)
+        self._tabs.setObjectName("UmapSettingsTabs")
+        outer.addWidget(self._tabs, 1)
+
+        # A group box cannot safely be the tab page itself: its title notch and
+        # frame share the tab pane's top-left origin. Put it on an ordinary
+        # padded page instead, matching Measure Live's settings dialogs.
+        self._search_page = QWidget(self)
+        self._search_page.setObjectName("UmapSearchPage")
+        search_layout = QVBoxLayout(self._search_page)
+        search_layout.setContentsMargins(12, 12, 12, 12)
+        panel._settings_panel.setParent(self._search_page)
+        panel._settings_panel.setObjectName("UmapSearchGroup")
+        panel._settings_panel.setTitle("Hyperparameter Search")
+        panel._settings_panel.setCheckable(False)
+        panel._settings_panel.show()
+        search_layout.addWidget(panel._settings_panel)
+        search_layout.addStretch(1)
+        self._search_scroll = QScrollArea(self)
+        self._search_scroll.setObjectName("UmapSearchScroll")
+        self._search_scroll.setWidgetResizable(True)
+        self._search_scroll.setFrameShape(QScrollArea.NoFrame)
+        self._search_scroll.setWidget(self._search_page)
+        self._tabs.addTab(self._search_scroll, "Search")
+
+        if panel.app_key == "umap":
+            self._build_umap_tabs()
+
+        # The popup has one action row at its foot. The copies embedded in the
+        # Search group were left over from when the panel itself was the whole
+        # window and produced two Runs and two Propagates plus an unnecessary
+        # middle Stop.
+        panel._run_btn.hide()
+        panel._stop_btn.hide()
+        panel._apply_btn.hide()
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Close)
+        close_button = buttons.button(QDialogButtonBox.Close)
+        self._close_btn = close_button
+        if close_button is not None:
+            # Some platform themes put a red X on the standard Close button.
+            # The semantic red outline/text already communicates the action.
+            close_button.setIcon(QIcon())
+        self._run_btn = QPushButton("Run search")
+        self._run_btn.clicked.connect(panel.run_search)
+        buttons.addButton(self._run_btn, QDialogButtonBox.ActionRole)
+        self._propagate = QPushButton("Propagate settings", self)
+        self._propagate.setToolTip(
+            "Copy the current settings in this window into the main UMAP "
+            "module settings once. A selected successful trial overrides the "
+            "corresponding n_neighbors, min_dist and metric values.")
+        self._propagate.clicked.connect(self.propagate_settings)
+        buttons.addButton(self._propagate, QDialogButtonBox.ActionRole)
+        buttons.rejected.connect(self.close)
+        outer.addWidget(buttons)
+        self._run_btn.setEnabled(
+            panel._worker is None or not panel._worker.isRunning())
+
+        palette = active_palette()
+        bg = palette["bg"]
+        field = palette["surface_alt"]
+        fg = palette["fg"]
+        border = palette["border"]
+        # Only this popup: every settings surface is the theme's black canvas;
+        # editable/value fields alone are lifted to dark gray. Do not alter the
+        # application palette.
+        self.setStyleSheet(
+            f"""
+            QDialog#UmapSearchSettingsDialog,
+            QDialog#UmapSearchSettingsDialog QWidget,
+            QDialog#UmapSearchSettingsDialog QWidget#UmapSearchPage,
+            QDialog#UmapSearchSettingsDialog QWidget#UmapSettingsPage,
+            QDialog#UmapSearchSettingsDialog QWidget#UmapHyperparamControls,
+            QDialog#UmapSearchSettingsDialog QGroupBox,
+            QDialog#UmapSearchSettingsDialog QScrollArea,
+            QDialog#UmapSearchSettingsDialog QScrollArea::viewport {{
+                background-color: {bg};
+                color: {fg};
+            }}
+            QDialog#UmapSearchSettingsDialog QTabWidget#UmapSettingsTabs::pane {{
+                background-color: {bg};
+                border: 1px solid {border};
+                top: -1px;
+            }}
+            QDialog#UmapSearchSettingsDialog QTabBar::tab {{
+                background-color: {bg};
+                color: {fg};
+                border: 1px solid {border};
+                padding: 7px 12px;
+                margin-right: 2px;
+            }}
+            QDialog#UmapSearchSettingsDialog QTabBar::tab:selected,
+            QDialog#UmapSearchSettingsDialog QTabBar::tab:hover {{
+                background-color: {bg};
+                color: {fg};
+                border-color: {palette["accent"]};
+            }}
+            QDialog#UmapSearchSettingsDialog QGroupBox#UmapSearchGroup {{
+                background-color: {bg};
+                color: {fg};
+                border: 1px solid {border};
+                margin-top: 18px;
+                padding-top: 10px;
+            }}
+            QDialog#UmapSearchSettingsDialog
+            QGroupBox#UmapSearchGroup::title {{
+                subcontrol-origin: margin;
+                subcontrol-position: top left;
+                left: 10px;
+                padding: 2px 6px;
+                background-color: {bg};
+                color: {fg};
+            }}
+            QDialog#UmapSearchSettingsDialog
+            QGroupBox#UmapSearchGroup QLabel,
+            QDialog#UmapSearchSettingsDialog
+            QWidget#UmapSettingsPage QLabel {{
+                background-color: {bg};
+                color: {fg};
+            }}
+            QDialog#UmapSearchSettingsDialog QLabel:disabled {{
+                background-color: {bg};
+                color: {fg};
+            }}
+            QDialog#UmapSearchSettingsDialog QLineEdit,
+            QDialog#UmapSearchSettingsDialog QSpinBox,
+            QDialog#UmapSearchSettingsDialog QDoubleSpinBox,
+            QDialog#UmapSearchSettingsDialog QComboBox,
+            QDialog#UmapSearchSettingsDialog QTableWidget,
+            QDialog#UmapSearchSettingsDialog QAbstractItemView {{
+                background-color: {field};
+                color: {fg};
+            }}
+            QDialog#UmapSearchSettingsDialog QLineEdit:disabled,
+            QDialog#UmapSearchSettingsDialog QSpinBox:disabled,
+            QDialog#UmapSearchSettingsDialog QDoubleSpinBox:disabled,
+            QDialog#UmapSearchSettingsDialog QComboBox:disabled {{
+                background-color: {field};
+                color: {fg};
+            }}
+            QDialog#UmapSearchSettingsDialog QLineEdit::placeholder {{
+                color: {fg};
+            }}
+            QDialog#UmapSearchSettingsDialog QPushButton {{
+                background-color: {bg};
+                color: {fg};
+            }}
+            QDialog#UmapSearchSettingsDialog
+            QPushButton[buttonActionRole="positive"] {{
+                background-color: transparent;
+                color: {palette["accent"]};
+                border: 1px solid {palette["accent"]};
+            }}
+            QDialog#UmapSearchSettingsDialog
+            QPushButton[buttonActionRole="positive"]:hover {{
+                background-color: {css_color(palette["accent"], 0.18)};
+            }}
+            QDialog#UmapSearchSettingsDialog
+            QPushButton[buttonActionRole="positive"]:pressed,
+            QDialog#UmapSearchSettingsDialog
+            QPushButton[buttonActionRole="positive"][buttonActionBusy="true"] {{
+                background-color: {palette["accent"]};
+                color: {bg};
+            }}
+            QDialog#UmapSearchSettingsDialog
+            QPushButton[buttonActionRole="negative"] {{
+                background-color: transparent;
+                color: {palette["error"]};
+                border: 1px solid {palette["error"]};
+            }}
+            QDialog#UmapSearchSettingsDialog
+            QPushButton[buttonActionRole="negative"]:hover {{
+                background-color: {css_color(palette["error"], 0.18)};
+            }}
+            QDialog#UmapSearchSettingsDialog
+            QPushButton[buttonActionRole="negative"]:pressed,
+            QDialog#UmapSearchSettingsDialog
+            QPushButton[buttonActionRole="negative"][buttonActionBusy="true"] {{
+                background-color: {palette["error"]};
+                color: {bg};
+            }}
+            """
+        )
+        # Some platform styles apply disabled/placeholder opacity after QSS.
+        # Pin every text palette role to white inside this dialog so labels and
+        # field text remain white even when an adaptive control is inactive.
+        white = QColor(fg)
+        for widget in self.findChildren(QWidget):
+            widget_palette = widget.palette()
+            for group in (
+                    QPalette.Active, QPalette.Inactive, QPalette.Disabled):
+                for role in (
+                        QPalette.WindowText, QPalette.Text,
+                        QPalette.ButtonText, QPalette.PlaceholderText):
+                    widget_palette.setColor(group, role, white)
+            widget.setPalette(widget_palette)
+        from .settings_model import install_api_tooltips
+        search_tooltips = {
+            **{
+                widget: key
+                for key, widget in panel._value_edits.items()
+            },
+            panel._criterion: "criterion",
+            panel._mode: "search_mode",
+            panel._adaptive: "adaptive",
+            panel._n_trials: "n_trials",
+            panel._n_folds: "n_folds",
+            panel._seed: "random_seed",
+            panel._adaptive_n_step: "n_neighbors_step",
+            panel._adaptive_d_step: "min_dist_step",
+            panel._adaptive_rounds: "n_trials",
+            panel._adaptive_improvement: "min_improvement",
+            panel._max_panels: "max_panels",
+        }
+        install_api_tooltips(self, panel.app_key, search_tooltips)
+        self.resize(820, 760)
+
+    def _build_umap_tabs(self) -> None:
+        """Materialize every UMAP module category as its own settings tab."""
+        from .settings_model import SettingsWidgets
+
+        self._module_model = SettingsWidgets("umap", parent=self)
+        sections = self._module_model.build_sections()
+        for key, value in self._panel._settings.items():
+            self._module_model.set_value_for_key(key, value)
+        relevant = {
+            "Embedding & Clustering", "Plot", "Advanced", "UMAP Display",
+        }
+        for title, rows in sections:
+            if title not in relevant:
+                continue
+            category_keys = [
+                key for key, widget in self._module_model._widgets.items()
+                if any(widget is row_widget for _label, row_widget in rows)
+            ]
+            self._module_keys.update(category_keys)
+            page = QWidget()
+            page.setObjectName("UmapSettingsPage")
+            form = QFormLayout(page)
+            form.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
+            for label, widget in rows:
+                form.addRow(label, widget)
+            scroll = QScrollArea()
+            scroll.setWidgetResizable(True)
+            scroll.setFrameShape(QScrollArea.NoFrame)
+            scroll.setWidget(page)
+            self._tabs.addTab(scroll, title)
+        # SettingsWidgets materializes every UMAP category with ``self`` as
+        # the initial parent. This popup intentionally shows only the four
+        # graph/embedding categories above. Remove controls from omitted
+        # categories entirely: merely hiding RowExclusionEditor left its
+        # "+ Add exclusion" child eligible for a transient paint at (0, 0),
+        # which is the clipped "Ad…sion" text reported over the Search tab.
+        for key, widget in list(self._module_model._widgets.items()):
+            if key not in self._module_keys:
+                widget.hide()
+                widget.setParent(None)
+                widget.deleteLater()
+                del self._module_model._widgets[key]
+
+    def propagate_settings(self) -> None:
+        callback = self._panel._apply_cb
+        if callback is None:
+            return
+        values = {}
+        if self._module_model is not None:
+            collected = self._module_model.collect()
+            values = {
+                key: collected[key] for key in self._module_keys
+                if key in collected
+            }
+        # One-value search fields are valid module settings. A selected result
+        # is more authoritative and therefore wins.
+        for key, _label, kind in APP_PARAMS[self._panel.app_key]:
+            try:
+                parsed = parse_values(
+                    self._panel._value_edits[key].text(), kind, key)
+            except ValueError:
+                parsed = []
+            if len(parsed) == 1:
+                values[key] = parsed[0]
+        selected = self._panel.selected_params()
+        if selected:
+            values.update(selected)
+        callback(values)
+        self._panel._status.setText(
+            "Propagated UMAP search and graph settings to the module.")
+
+    def closeEvent(self, event):  # noqa: N802
+        self._panel._settings_panel.setParent(self._panel)
+        self._panel._settings_panel.hide()
         super().closeEvent(event)
 
 

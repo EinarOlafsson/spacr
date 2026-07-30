@@ -303,7 +303,10 @@ class TestModelAwareOptions:
         panel._model_box.setCurrentIndex(panel._model_box.findText("cpsam"))
         panel.open_live_settings()
         try:
-            tip = panel._diameter.toolTip()
+            assert panel._diameter.toolTip() == ""
+            label = panel._diameter._spacr_setting_label
+            tip = label.toolTip()
+            assert getattr(label, "_spacr_api_dot", None) is not None
         finally:
             panel._live_settings_dialog.close()
 
@@ -466,6 +469,15 @@ class TestCompartmentSettings:
         p = self._panel(qtbot)
         dlg = LiveSettingsDialog(p)
         qtbot.addWidget(dlg); dlg.show()
+        for widget in dlg._managed_widgets():
+            label = getattr(widget, "_spacr_setting_label", None)
+            if label is not None:
+                assert widget.toolTip() == ""
+                assert "href=" in label.toolTip()
+                assert getattr(label, "_spacr_api_dot", None) is not None
+            else:
+                assert "href=" in widget.toolTip()
+                assert getattr(widget, "_spacr_api_dot", None) is not None
         # object "cell": only the Cell panel is shown.
         p._object_box.setCurrentText("cell")
         dlg.refresh_visibility()

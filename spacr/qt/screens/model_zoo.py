@@ -217,6 +217,9 @@ class ModelZooScreen(QWidget):
         self.last_error: str = ""
 
         self._build_ui()
+        from ..dnd import install_dropzone
+        from ..dnd_handlers import get_handler
+        install_dropzone(self, get_handler("model_zoo"), self)
         self._job_settled.connect(self._on_job_settled)
         self._progress_ticked.connect(self._on_progress)
         self._progress_said.connect(self._on_progress_text)

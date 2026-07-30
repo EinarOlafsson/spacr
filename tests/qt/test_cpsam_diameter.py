@@ -216,7 +216,8 @@ def test_the_dialog_leaves_the_diameter_usable_on_cpsam(qtbot):
     panel.open_live_settings()
     try:
         assert panel._diameter.isEnabled()
-        assert panel._diameter.toolTip() == LP.DIAMETER_TOOLTIP
+        assert "30/diameter" in panel._diameter.toolTip()
+        assert "href=" in panel._diameter.toolTip()
         panel._diameter.setValue(60.0)
     finally:
         panel._live_settings_dialog.close()

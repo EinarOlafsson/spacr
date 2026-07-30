@@ -47,6 +47,142 @@ HINT_STRIP_LINES = 4
 # control <title>."
 SECTION_HINTS = {
     "REPLICATION ASSAY": "How endodyogeny is scored: which column carries the class, how vacuoles are binned by area, and the pixel size used to convert those bins to micrometres.",
+    "DATA & CONTROLS":   "Measurement database, class/control wells and the "
+                         "annotation column used to train the classical model.",
+    "FEATURE PREPARATION":
+                         "Which measurement features enter the model and the "
+                         "variance, correlation, object-count and compartment "
+                         "filters applied before fitting.",
+    "CLASSIFIER & VALIDATION":
+                         "Classical estimator, learning and regularisation "
+                         "parameters, held-out fraction and cross-validation.",
+    "FEATURE SELECTION & IMPORTANCE":
+                         "Feature pruning and repeated permutation-importance "
+                         "settings used to explain the fitted classifier.",
+    "OUTPUT & DATABASE": "Whether and where model scores and selected features "
+                         "are written back to the measurements database.",
+    "PLOTS & HEATMAPS":  "Heatmap feature, grouping, colour map and displayed "
+                         "value range for classical-ML results.",
+    "INPUT & METADATA":  "Image source, channel indices and acquisition "
+                         "metadata needed before segmentation begins.",
+    "WORKFLOW & TEST RUN":
+                         "Which pipeline stages run, whether this is a small "
+                         "test/dry run, and whether an interrupted run resumes.",
+    "IMAGE PREPROCESSING":
+                         "Intensity normalization, projection, scaling, "
+                         "denoising and batching before masks are generated.",
+    "CELL SEGMENTATION": "Model, thresholds and post-processing used to create "
+                         "and refine the cell mask.",
+    "NUCLEUS SEGMENTATION":
+                         "Model, thresholds and post-processing used to create "
+                         "and refine the nucleus mask.",
+    "PATHOGEN SEGMENTATION":
+                         "Model, thresholds and post-processing used to create "
+                         "and refine the pathogen mask.",
+    "ORGANELLE SEGMENTATION":
+                         "Classical, Cellpose or U-Net organelle detection plus "
+                         "its morphology, intensity and size filters.",
+    "QUALITY CONTROL":   "Automatic segmentation checks for implausible object "
+                         "counts, sizes, borders, splits and plate failures.",
+    "VOLUMETRIC PROCESSING (BETA)":
+                         "Z-axis interpretation, projection/stitching and "
+                         "physical voxel calibration for 3-D images.",
+    "TIME AXES & TRACKING (BETA)":
+                         "T-axis interpretation and experimental linking of "
+                         "objects through time-plus-volume data.",
+    "VISUALIZATION & DIAGNOSTICS":
+                         "Diagnostic examples, plot normalization, dimensions "
+                         "and colour maps; these do not alter the masks.",
+    "OUTPUT & STORAGE":  "Saved mask formats, retained intermediates, "
+                         "compression and final object filtering/merging.",
+    "RUNTIME & RELIABILITY":
+                         "Worker count, batches, strict failure limits, "
+                         "verbosity and recovery/runtime behavior.",
+    "INPUT & EXPERIMENT":
+                         "Plate source and experiment identifier for the "
+                         "measurement run.",
+    "MASK & CHANNEL MAPPING":
+                         "Which array planes hold each mask and intensity "
+                         "channel, including cytoplasm and timelapse handling.",
+    "MEASUREMENT FEATURES":
+                         "Morphology, texture, radial and colocalisation "
+                         "features calculated for retained objects.",
+    "OBJECT FILTERING":  "Compartment size, infection and edge-merging rules "
+                         "that decide which objects enter the analysis.",
+    "CROP OUTPUT":       "Which object-centred PNG/raw crops are written, their "
+                         "size, channels, masks, dilation and normalization.",
+    "PREVIEW & DIAGNOSTICS":
+                         "Fast test limits and diagnostic plots used to check "
+                         "a configuration before the full run.",
+    "3D CALIBRATION (BETA)":
+                         "Voxel dimensions and anisotropy used when measuring "
+                         "volumetric data.",
+    "ACQUISITION & AXES":
+                         "Time/Z axis layout, frame timing, projection and "
+                         "physical voxel calibration for the sequence.",
+    "TRACKING SETUP":    "Objects and frame range to track, movie frame rate "
+                         "and whether incomplete tracks are removed.",
+    "TRACKING BACKENDS": "Trackastra, Ultrack and distance/overlap linker "
+                         "selection with backend-specific parameters.",
+    "OBJECTS & CHANNELS":
+                         "Plate source, tracked object and image channels used "
+                         "by the motility assay.",
+    "SPATIAL & TEMPORAL CALIBRATION":
+                         "Pixel size and frame interval that convert movement "
+                         "into physical speed.",
+    "MOTION FILTERING":  "Maximum jumps, straightness and outlier rules used "
+                         "to retain biologically plausible tracks.",
+    "INFECTION CLASSIFICATION":
+                         "Strategy and thresholds used to label tracked cells "
+                         "as infected, uninfected or ambiguous.",
+    "XGBOOST INFECTION MODEL":
+                         "Training, tree, probability and feature settings for "
+                         "the supervised infection classifier.",
+    "INFECTION CLUSTERING":
+                         "Unsupervised infection clusters, feature weighting "
+                         "and minimum separation/quality criteria.",
+    "EMBEDDING SEARCH":  "UMAP and t-SNE search ranges used while separating "
+                         "infection phenotypes.",
+    "MOTILITY PLOTS & QC":
+                         "Axis ranges and diagnostic graphs for infection and "
+                         "track-quality review.",
+    "INPUT TABLES":      "Metadata, score and count tables consumed by the "
+                         "screen-level regression.",
+    "CONTROLS & PLATE DESIGN":
+                         "Plate identifier, control definitions and optional "
+                         "row filtering before regression.",
+    "MODEL & COVARIATES":
+                         "Regression family, response, aggregation, transform, "
+                         "regularisation and covariance structure.",
+    "HIT CALLING & OUTLIERS":
+                         "Minimum evidence, control thresholds and outlier "
+                         "rules used to call screen hits.",
+    "REGRESSION PLOTS":  "Volcano and axis transformation/range settings for "
+                         "regression output figures.",
+    "MODEL & DATA":      "Trained image model, dataset, input channels and "
+                         "object/image dimensions used for attribution.",
+    "ATTRIBUTION METHOD":
+                         "Grad-CAM, saliency, SmoothGrad, occlusion and "
+                         "integrated-gradient method-specific controls.",
+    "ATTRIBUTION VALIDATION":
+                         "Insertion/deletion steps, baseline and model-weight "
+                         "sanity checks for attribution reliability.",
+    "MAP DISPLAY":       "Source/map normalization, overlay and plotting used "
+                         "to render activation maps.",
+    "MAP QUANTIFICATION":
+                         "Channel correlation and Manders thresholds used to "
+                         "quantify what the model attends to.",
+    "OUTPUT & RUNTIME":  "Saving, shuffling, batch size and worker count for "
+                         "activation-map generation.",
+    "ASSAY INPUTS":      "Measurement database, table and compartment used by "
+                         "the replication assay.",
+    "CONDITION METADATA":
+                         "Cell, pathogen and treatment definitions and the "
+                         "columns used to group assay conditions.",
+    "REPLICATION SCORING":
+                         "Class grouping and area-bin configuration used to "
+                         "turn parasites per vacuole into replication rates.",
+    "ASSAY OUTPUT":      "Saved replication results and their plot colour map.",
     "PATHS":            "Source folder + destination folder + which "
                         "sub-folders spaCR should read images from.",
     "GENERAL":          "High-level knobs: metadata source (Yokogawa "
@@ -114,6 +250,11 @@ SECTION_HINTS = {
                         "UMAP/t-SNE reduction of the feature table and the "
                         "clustering run on top of it — neighbourhood size, "
                         "metric, DBSCAN/KMeans parameters, noise handling.",
+    "UMAP DISPLAY":    "Image UMAP presentation and interactive-view layout: "
+                        "point size, colour and opacity, cluster outlines, "
+                        "thumbnail sampling, canvas/sidebar widths and figure "
+                        "saving. These settings feed both the static figure "
+                        "and the interactive explorer.",
     "ACTIVATION MAPS":  "Grad-CAM / saliency settings — attribution method, "
                         "which layer to hook, overlay rendering, and the "
                         "input normalisation used at inference.",

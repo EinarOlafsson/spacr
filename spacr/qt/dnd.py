@@ -123,8 +123,11 @@ class _DropzoneFilter(QObject):
     the :class:`DropHandler` attached to it."""
 
     def __init__(self, target: QWidget):
-        super().__init__(target)   # parent → auto-cleanup
+        # QObject parenting can synchronously deliver a ChildAdded event to
+        # the target.  Set this first so eventFilter is fully initialized even
+        # during super().__init__ (standalone tool screens exposed this race).
         self._target = target
+        super().__init__(target)   # parent → auto-cleanup
 
     def eventFilter(self, obj, event):    # noqa: N802  (Qt naming)
         if obj is not self._target:
@@ -161,8 +164,13 @@ class _DropzoneFilter(QObject):
 
         # Split: CSV → settings import (universal); anything else →
         # per-module handler.
+        # A CSV is a universal settings import only on screens that actually
+        # expose the settings importer.  Special-purpose screens (Plate Queue,
+        # Batch Runner, Import Project) give CSVs their own meaning and must
+        # receive them through their handler instead of losing them to a no-op.
         csvs = [p for p in paths
-                if p.suffix.lower() == ".csv" and p.is_file()]
+                if p.suffix.lower() == ".csv" and p.is_file()
+                and hasattr(screen, "apply_settings_dict")]
         others = [p for p in paths if p not in csvs]
 
         for p in csvs:
@@ -179,9 +187,24 @@ class _DropzoneFilter(QObject):
                 try:
                     handler.apply(p, screen)
                 except Exception as e:
-                    QMessageBox.warning(screen, "Drop failed", str(e))
+                    _report_drop_problem(
+                        screen, p, f"The drop handler failed: {e}",
+                        "Check that the path is readable and that its contents "
+                        "match this module, then try again.",
+                    )
             else:
                 alternatives = handler.suggest_alternatives(p)
+                suggestion = (
+                    "Choose one of the compatible nearby paths shown in the "
+                    "dialog."
+                    if alternatives else
+                    "Open this module's source setting and choose a file or "
+                    "folder matching the required layout."
+                )
+                _report_drop_problem(
+                    screen, p, handler.error_message(p), suggestion,
+                    alternatives=alternatives,
+                )
                 if alternatives:
                     pick = suggest_alternatives_dialog(
                         screen, p, alternatives,
@@ -191,13 +214,106 @@ class _DropzoneFilter(QObject):
                         try:
                             handler.apply(pick, screen)
                         except Exception as e:
-                            QMessageBox.warning(screen, "Drop failed",
-                                                 str(e))
+                            _report_drop_problem(
+                                screen, pick, f"The drop handler failed: {e}",
+                                "Check that the path is readable and try again.",
+                            )
                 else:
                     QMessageBox.information(
                         screen, "Nothing to drop into",
-                        handler.error_message(p),
+                        f"{handler.error_message(p)}\n\nSuggestion: {suggestion}",
                     )
+
+
+def _find_console(screen):
+    """Return the nearest spaCR console, including the host app's console."""
+    console = getattr(screen, "_console", None)
+    if console is not None:
+        return console
+    try:
+        window = screen.window()
+    except Exception:
+        return None
+    console = getattr(window, "_console", None)
+    if console is not None:
+        return console
+    # Standalone tool screens are hosted alongside AppScreens. Prefer the
+    # most recently visited screen so rejected drops never disappear merely
+    # because the tool itself has no embedded console.
+    screens = getattr(window, "_screens", {}) or {}
+    visit_order = list(getattr(window, "_visit_order", []) or [])
+    for key in reversed(visit_order + list(screens)):
+        candidate = screens.get(key)
+        console = getattr(candidate, "_console", None)
+        if console is not None:
+            return console
+    try:
+        from spacr.qt.widgets.console_panel import ConsolePanel
+        consoles = window.findChildren(ConsolePanel)
+        if consoles:
+            return consoles[-1]
+    except Exception:
+        pass
+    return None
+
+
+def _report_drop_problem(screen, path: Path, reason: str, suggestion: str,
+                         alternatives: Sequence[Path] = ()) -> str:
+    """Print an actionable rejected-drop report and optionally ask the AI."""
+    lines = [
+        f"[drop rejected] {path}",
+        f"Reason: {reason}",
+        f"Suggestion: {suggestion}",
+    ]
+    if alternatives:
+        lines.append(
+            "Compatible nearby paths: " +
+            ", ".join(str(item) for item in alternatives)
+        )
+    message = "\n".join(lines) + "\n"
+    LOG.warning(message.rstrip())
+    console = _find_console(screen)
+    displayed_inline = False
+    if console is not None:
+        append = getattr(console, "append_error", None) or getattr(
+            console, "append_stdout", None)
+        if append is not None:
+            append(message)
+            displayed_inline = True
+        try:
+            from spacr.qt.ai.settings import get_route_errors_through_ai
+            provider = console._current_provider()
+            ai_active = getattr(console, "_ai_active", False)
+            if callable(ai_active):
+                ai_active = ai_active()
+            if (get_route_errors_through_ai()
+                    and bool(ai_active)
+                    and provider is not None):
+                console.open_error_flow(
+                    message,
+                    active_app=getattr(screen, "app_key", None),
+                    show_raw=False,
+                )
+        except Exception:
+            LOG.debug("Could not route rejected drop through AI",
+                      exc_info=True)
+    # Standalone tools use a read-only summary/log pane instead of an
+    # AppScreen ConsolePanel. Put the same actionable text there as well.
+    if not displayed_inline:
+        for attr in ("_summary", "_log", "_console_text"):
+            widget = getattr(screen, attr, None)
+            append = getattr(widget, "appendPlainText", None)
+            if callable(append):
+                append(message.rstrip())
+                displayed_inline = True
+                break
+    status = getattr(screen, "_set_status", None)
+    if callable(status):
+        try:
+            status(f"Drop rejected: {reason} Suggestion: {suggestion}")
+        except Exception:
+            pass
+    return message
 
 
 # ---------------------------------------------------------------------------
@@ -250,6 +366,11 @@ def _apply_settings_csv(path: Path, screen) -> None:
                     f"[drop] imported {n} settings from {path.name}\n"
                 )
     except Exception as e:
+        _report_drop_problem(
+            screen, path, f"Settings CSV import failed: {e}",
+            "Export a settings CSV from spaCR, or verify that the file has "
+            "Key/Value or setting_key/setting_value columns.",
+        )
         QMessageBox.warning(screen, "CSV import failed", str(e))
 
 

@@ -33,6 +33,7 @@ from spacr.hyperparam import (
     cv_search,
     format_search,
     grid_search,
+    local_direction_search,
     load_search_data,
     random_search,
     run_search_for_app,
@@ -721,7 +722,127 @@ class TestCvSearchNeverScoresOnTest:
 # UMAP
 # ---------------------------------------------------------------------------
 
+class TestLocalDirectionSearch:
+    def test_first_round_is_the_requested_two_by_two_matrix(self):
+        seen = []
+
+        def fit(params):
+            seen.append(dict(params))
+            return params["n_neighbors"] + params["min_dist"]
+
+        result = local_direction_search(
+            fit, {"n_neighbors": 5, "min_dist": 0.1}, n_trials=1)
+
+        assert seen == [
+            {"n_neighbors": 4, "min_dist": 0.05},
+            {"n_neighbors": 4, "min_dist": 0.15},
+            {"n_neighbors": 6, "min_dist": 0.05},
+            {"n_neighbors": 6, "min_dist": 0.15},
+        ]
+        assert result.best.params == {
+            "n_neighbors": 6, "min_dist": 0.15}
+
+    def test_moves_to_best_corner_and_stops_when_score_no_longer_improves(self):
+        def fit(params):
+            n = params["n_neighbors"]
+            d = params["min_dist"]
+            return -((n - 6) ** 2) - ((d - 0.15) ** 2)
+
+        result = local_direction_search(
+            fit, {"n_neighbors": 5, "min_dist": 0.1}, n_trials=20)
+
+        # Round two is centred on the first round's winner, (6, 0.15).
+        second_round = [trial.params for trial in result.trials[4:8]]
+        assert second_round == [
+            {"n_neighbors": 5, "min_dist": 0.1},
+            {"n_neighbors": 5, "min_dist": 0.2},
+            {"n_neighbors": 7, "min_dist": 0.1},
+            {"n_neighbors": 7, "min_dist": 0.2},
+        ]
+        assert len(result.trials) == 8
+        assert result.best.params == {
+            "n_neighbors": 6, "min_dist": 0.15}
+        assert any("stopping threshold" in note for note in result.notes)
+
+    def test_clamps_boundaries_and_never_repeats_a_configuration(self):
+        result = local_direction_search(
+            lambda params: -params["min_dist"],
+            {"n_neighbors": 2, "min_dist": 0.0}, n_trials=12)
+        keys = [
+            (trial.params["n_neighbors"], trial.params["min_dist"])
+            for trial in result.trials
+        ]
+        assert len(keys) == len(set(keys))
+        assert all(n >= 2 and 0.0 <= d <= 1.0 for n, d in keys)
+
+    def test_requires_both_single_start_coordinates(self):
+        with pytest.raises(ValueError, match="min_dist"):
+            local_direction_search(
+                lambda params: 1.0, {"n_neighbors": 5})
+
+    def test_blank_round_limit_defaults_to_100_but_convergence_stops_early(self):
+        result = local_direction_search(
+            lambda params: -abs(params["n_neighbors"] - 6),
+            {"n_neighbors": 5, "min_dist": 0.1}, n_trials=None)
+        assert len(result.trials) < 400
+        assert any("stopping threshold" in note for note in result.notes)
+
+    def test_minimum_improvement_can_stop_small_score_gains(self):
+        result = local_direction_search(
+            lambda params: params["n_neighbors"] * 0.001,
+            {"n_neighbors": 5, "min_dist": 0.1},
+            n_trials=20, min_improvement=0.01)
+        assert len(result.trials) == 8
+
 class TestUmapCriteria:
+    def test_small_dataset_bounds_and_deduplicates_n_neighbors(self):
+        X = np.arange(30, dtype=float).reshape(6, 5)
+        seen = []
+
+        def embed(features, params):
+            seen.append(params["n_neighbors"])
+            return features[:, :2]
+
+        result = umap_search(
+            X, SearchSpace({"n_neighbors": [5, 15, 50, 100]}),
+            embed_fn=embed)
+
+        assert seen == [5]
+        assert result.space.params["n_neighbors"] == (5,)
+        assert result.trials[0].params["n_neighbors"] == 5
+        assert any("limited to 2…5" in note for note in result.notes)
+        assert any("only once" in note for note in result.notes)
+
+    def test_small_dataset_bounds_umaps_implicit_default(self):
+        X = np.arange(30, dtype=float).reshape(6, 5)
+        seen = []
+
+        result = umap_search(
+            X, SearchSpace({"min_dist": [0.1]}),
+            embed_fn=lambda features, params: (
+                seen.append(params["n_neighbors"]) or features[:, :2]))
+
+        assert result.ok
+        assert seen == [5]
+        assert any("default n_neighbors was limited" in note
+                   for note in result.notes)
+
+    def test_adaptive_search_never_exceeds_the_dataset_limit(self):
+        X = np.arange(30, dtype=float).reshape(6, 5)
+        seen = []
+
+        result = umap_search(
+            X,
+            SearchSpace({"n_neighbors": [1000], "min_dist": [0.1]}),
+            adaptive=True, n_trials=2,
+            embed_fn=lambda features, params: (
+                seen.append(params["n_neighbors"]) or features[:, :2]))
+
+        assert result.ok
+        assert seen
+        assert max(seen) == 5
+        assert min(seen) >= 2
+
     def test_the_criterion_is_named_in_the_result_and_the_report(
             self, tear_and_merge):
         X, _y, tear, merge = tear_and_merge

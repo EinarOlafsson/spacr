@@ -24,6 +24,16 @@ def _make_fig(seed: int = 0):
 
 
 class TestBasics:
+    def test_figure_settings_fields_link_to_api_docs(self, qtbot):
+        from spacr.qt.widgets.figure_queue import _FigureSettingsDialog
+        dialog = _FigureSettingsDialog(_make_fig())
+        qtbot.addWidget(dialog)
+        for widget in (dialog._bg_btn, dialog._fg_btn, dialog._size):
+            assert widget.toolTip() == ""
+            label = widget._spacr_setting_label
+            assert "href=" in label.toolTip()
+            assert getattr(label, "_spacr_api_dot", None) is not None
+
     def test_add_figure_increments_count(self, qtbot):
         q = FigureQueue()
         qtbot.addWidget(q)

@@ -226,9 +226,9 @@ class TestWidgetConstruction:
         for lbl, hint in scr._hint_map.items():
             assert isinstance(lbl, QLabel)
             assert hint, "empty plain hint"
-            assert "<a href=" not in scr._html_tip_map[lbl]
-            assert "ⓘ" not in scr._html_tip_map[lbl]
-            assert "Docs" not in scr._html_tip_map[lbl]
+            assert "<a href=" in scr._html_tip_map[lbl]
+            assert "Open spaCR API documentation" in scr._html_tip_map[lbl]
+            assert "https://" in hint
 
         from spacr.qt.widgets.info_link import InfoLink
         setting_links = [

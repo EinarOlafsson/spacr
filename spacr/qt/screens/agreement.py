@@ -157,6 +157,9 @@ class AgreementScreen(QWidget):
         self._job_settled.connect(self._on_job_settled)
 
         self._build_ui()
+        from ..dnd import install_dropzone
+        from ..dnd_handlers import get_handler
+        install_dropzone(self, get_handler("agreement"), self)
         self._set_status(
             "Choose a measurements.db (or a run folder), tick two or more "
             "annotation columns, then Compute agreement.")

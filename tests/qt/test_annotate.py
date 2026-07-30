@@ -186,6 +186,14 @@ def test_annotate_settings_expose_rgb_as_the_default_stored_order(
     dialog = _SettingsDialog(settings)
     qtbot.addWidget(dialog)
     assert dialog._stored_channel_order.currentData() == "rgb"
+    for widget in (
+            dialog._src_edit, dialog._ann_col, dialog._img_size,
+            dialog._stored_channel_order, dialog._queue_measure,
+            dialog._queue_limit):
+        assert widget.toolTip() == ""
+        label = widget._spacr_setting_label
+        assert "href=" in label.toolTip()
+        assert getattr(label, "_spacr_api_dot", None) is not None
     dialog._stored_channel_order.setCurrentIndex(
         dialog._stored_channel_order.findData("legacy_bgr"))
     assert dialog.collect().stored_channel_order == "legacy_bgr"

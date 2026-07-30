@@ -89,6 +89,18 @@ def test_settings_dialog_has_pipeline_tabs_and_valid_normalize_contract(qtbot):
     assert [tabs.tabText(i) for i in range(tabs.count())] == [
         "General", "Object crops", "Filter settings", "Preview",
     ]
+    for widget in panel._managed_widgets():
+        if widget is panel._propagate_btn:
+            continue
+        assert widget.property("apiTooltipHtml")
+        label = getattr(widget, "_spacr_setting_label", None)
+        if label is not None:
+            assert widget.toolTip() == ""
+            assert "https://" in label.toolTip()
+            assert getattr(label, "_spacr_api_dot", None) is not None
+        else:
+            assert "https://" in widget.toolTip()
+            assert getattr(widget, "_spacr_api_dot", None) is not None
     propagated = panel.settings_for_propagation()
     assert propagated["normalize"] == [1.0, 99.0]
     panel._normalise.setChecked(False)

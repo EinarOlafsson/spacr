@@ -830,9 +830,9 @@ def test_generate_training_dataset_multiple_sources_align_by_index(tmp_path, rng
     out = capsys.readouterr().out
     assert "class name/order mismatch" in out
     assert "annotation column 'beta' not in png_list" in out
-    # the first source targets datasets/training_all, but the *last* source's
-    # destination is the one actually written
-    assert train_dir == os.path.join(src_b, "datasets", "training", "train")
+    # One combined dataset is written beside the first source.
+    assert train_dir == os.path.join(
+        src_a, "datasets", "training_all", "train")
     counts = _class_counts(train_dir, test_dir)
     # alpha_1/alpha_2 collected 10 from each source, beta_* only from A
     assert sorted(counts) == ["alpha_1", "alpha_2", "beta_1", "beta_2"]

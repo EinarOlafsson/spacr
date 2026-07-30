@@ -749,6 +749,7 @@ def _cross_validate_model(settings, num_classes):
         verbose=settings['verbose'],
         group_by=settings.get('cv_group_by', 'well'),
         class_balance=settings.get('class_balance', 'none'),
+        seed=settings.get('random_seed', 42),
     )
 
     rows = []
@@ -759,7 +760,7 @@ def _cross_validate_model(settings, num_classes):
         fold_dst = os.path.join(dst, f'fold_{i}')
         os.makedirs(fold_dst, exist_ok=True)
         print(f"\n--- Fold {i}/{k} ---")
-        model, _ = train_model(
+        model, fold_model_path = train_model(
             src=src,
             dst=fold_dst,
             model_type=settings['model_type'],
@@ -778,6 +779,10 @@ def _cross_validate_model(settings, num_classes):
             intermedeate_save=settings['intermedeate_save'],
             schedule=settings['schedule'],
             loss_type=settings['loss_type'],
+            label_smoothing=settings.get('label_smoothing', 0.1),
+            focal_gamma=settings.get('focal_gamma', 2.0),
+            focal_alpha=settings.get('focal_alpha'),
+            logit_adjust_tau=settings.get('logit_adjust_tau', 1.0),
             gradient_accumulation=settings['gradient_accumulation'],
             gradient_accumulation_steps=settings['gradient_accumulation_steps'],
             channels=settings['train_channels'],
@@ -809,6 +814,8 @@ def _cross_validate_model(settings, num_classes):
         row = {'fold': i,
                'n_train': len(train_loader.dataset),
                'n_val': len(val_loader.dataset)}
+        if fold_model_path:
+            row['model_path'] = str(fold_model_path)
         for key in CV_METRIC_KEYS:
             if key in metrics:
                 row[key] = metrics[key]
@@ -832,6 +839,23 @@ def _cross_validate_model(settings, num_classes):
     fold_df.to_csv(folds_loc, index=False)
     summary_df.to_csv(summary_loc, index=False)
     info['fold_table'].to_csv(split_loc, index=False)
+    model_rows = fold_df[
+        fold_df.get('model_path', pd.Series(index=fold_df.index,
+                                            dtype=object)).notna()
+    ]
+    if not model_rows.empty:
+        if 'accuracy' in model_rows:
+            best_row = model_rows.loc[
+                pd.to_numeric(model_rows['accuracy'],
+                              errors='coerce').idxmax()]
+        elif 'loss' in model_rows:
+            best_row = model_rows.loc[
+                pd.to_numeric(model_rows['loss'], errors='coerce').idxmin()]
+        else:
+            best_row = model_rows.iloc[0]
+        settings['cv_best_model_path'] = str(best_row['model_path'])
+        print(f"Best fold model:   {settings['cv_best_model_path']}")
+    settings['cv_results_path'] = folds_loc
     print(f"\nPer-fold metrics: {folds_loc}")
     print(f"Fold spread:      {summary_loc}")
     print(f"Fold composition: {split_loc}")
@@ -931,6 +955,9 @@ def train_test_model(settings):
         print(balance_msg)
 
     cv_folds = int(settings.get('cross_validation_folds', 0) or 0)
+    if settings.get('cross_validation_enabled') and cv_folds < 2:
+        cv_folds = 5
+        settings['cross_validation_folds'] = cv_folds
     if cv_folds == 1:
         print("cross_validation_folds=1 is not a cross-validation; falling back "
               "to the single train/validation split (val_split="
@@ -985,6 +1012,7 @@ def train_test_model(settings):
             augment=settings['augment'],
             verbose=settings['verbose'],
             class_balance=class_balance,
+            seed=settings.get('random_seed', 42),
         )
 
         model, model_path = train_model(
@@ -1006,6 +1034,10 @@ def train_test_model(settings):
             intermedeate_save=settings['intermedeate_save'],
             schedule=settings['schedule'],
             loss_type=settings['loss_type'],
+            label_smoothing=settings.get('label_smoothing', 0.1),
+            focal_gamma=settings.get('focal_gamma', 2.0),
+            focal_alpha=settings.get('focal_alpha'),
+            logit_adjust_tau=settings.get('logit_adjust_tau', 1.0),
             gradient_accumulation=settings['gradient_accumulation'],
             gradient_accumulation_steps=settings['gradient_accumulation_steps'],
             channels=settings['train_channels'],
@@ -1179,6 +1211,8 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                 early_stopping_patience=0,  # 0 = disabled; e.g. 20 = stop after 20 epochs without val improvement
                 custom_model_path=None, resume_checkpoint=None,
                 preprocessing=None, classes=None,
+                label_smoothing=0.1, focal_gamma=2.0, focal_alpha=None,
+                logit_adjust_tau=1.0,
                 ):
     """
     Trains a model (supports 2-class and >2-class via CrossEntropy).
@@ -1218,10 +1252,10 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
         loss_type=loss_type,
         num_classes=head_dim,
         class_counts=counts,
-        label_smoothing=0.1,
-        focal_gamma=2.0,
-        focal_alpha=None,
-        logit_adjust_tau=1.0
+        label_smoothing=label_smoothing,
+        focal_gamma=focal_gamma,
+        focal_alpha=focal_alpha,
+        logit_adjust_tau=logit_adjust_tau
     )
 
     initialization_path = resume_checkpoint or custom_model_path
@@ -1288,10 +1322,20 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     elif ot == 'radam':
         optimizer = _optim.RAdam(model.parameters(), lr=learning_rate,
                                  weight_decay=weight_decay)
+    elif ot == 'adamax':
+        optimizer = _optim.Adamax(model.parameters(), lr=learning_rate,
+                                  weight_decay=weight_decay)
+    elif ot == 'adadelta':
+        optimizer = _optim.Adadelta(model.parameters(), lr=learning_rate,
+                                    weight_decay=weight_decay)
+    elif ot == 'asgd':
+        optimizer = _optim.ASGD(model.parameters(), lr=learning_rate,
+                                weight_decay=weight_decay)
     else:
         raise ValueError(
             f"Unknown optimizer_type: {optimizer_type!r}. Choose from: "
-            "adamw, adam, adagrad, sgd, rmsprop, nadam, radam.")
+            "adamw, adam, adamax, adagrad, adadelta, asgd, sgd, rmsprop, "
+            "nadam, radam.")
 
     if schedule == 'step_lr':
         scheduler = StepLR(optimizer, step_size=max(1, int(epochs / 5)), gamma=0.75)
@@ -1303,6 +1347,16 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     elif schedule == 'cosine':
         # FIX: new option — cosine annealing
         scheduler = CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-7)
+    elif schedule == 'cosine_warm_restarts':
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
+            optimizer, T_0=max(1, int(epochs / 5)), eta_min=1e-7)
+    elif schedule == 'exponential':
+        scheduler = torch.optim.lr_scheduler.ExponentialLR(
+            optimizer, gamma=0.95)
+    elif schedule == 'linear':
+        scheduler = torch.optim.lr_scheduler.LinearLR(
+            optimizer, start_factor=1.0, end_factor=0.1,
+            total_iters=max(1, epochs))
     else:
         scheduler = None
 
@@ -1463,7 +1517,9 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                 live_figure = _plot_training_curves(
                     live_train_hist, live_val_hist, epochs, live_figure)
 
-        if scheduler and schedule in ('step_lr', 'cosine'):
+        if scheduler and schedule in (
+                'step_lr', 'cosine', 'cosine_warm_restarts',
+                'exponential', 'linear'):
             # FIX: also step cosine scheduler here
             scheduler.step()
 
@@ -2279,26 +2335,47 @@ def deep_spacr(settings=None):
             
             # point training to the newly created train folder by default
             settings['src'] = os.path.dirname(train_path)
+        elif isinstance(settings.get('src'), (list, tuple)):
+            training_sources = [
+                str(path) for path in settings['src'] if str(path).strip()]
+            if len(training_sources) != 1:
+                raise ValueError(
+                    "Training from an existing split needs exactly one dataset "
+                    "root containing train/<class>/ and test/<class>/. To use "
+                    "multiple plate folders, enable Generate training dataset "
+                    "so Classify first combines them into training_all.")
+            settings['src'] = training_sources[0]
 
         print("Training model ...")
         training_result = train_test_model(settings)
         if settings.get('train'):
-            settings['model_path'] = training_result
+            cv_best = settings.get('cv_best_model_path')
+            if cv_best:
+                settings['cv_results_path'] = training_result
+                settings['model_path'] = cv_best
+            else:
+                settings['model_path'] = training_result
         # restore original src (so later steps like apply can use the user’s dataset if needed)
         settings['src'] = src_before
         
-    # 4) apply model to dataset/tar
-    if settings.get('apply_model_to_dataset'):
-        tar_path = settings.get('tar_path')
+    # 3) build the full, unlabelled inference dataset independently of model
+    # application when requested. Applying a model still creates it on demand,
+    # preserving the previous one-switch workflow.
+    tar_path = settings.get('tar_path')
+    needs_tar = settings.get('generate_full_dataset') or settings.get(
+        'apply_model_to_dataset')
+    if needs_tar and (
+            not tar_path or not os.path.isabs(tar_path)
+            or not os.path.exists(tar_path)):
+        print("Generating full dataset tar ...")
+        tar_path = generate_dataset(settings)
+        if not tar_path or not os.path.isfile(tar_path):
+            raise RuntimeError(
+                "Full dataset generation did not produce a readable tar file.")
+        settings['tar_path'] = tar_path
 
-        # if tar_path missing OR invalid, (re)generate it
-        if not tar_path or not os.path.isabs(tar_path) or not os.path.exists(tar_path):
-            print("tar_path not valid/found; generating dataset tar ...")
-            tar_path = generate_dataset(settings)
-            if not tar_path or not os.path.isfile(tar_path):
-                raise RuntimeError(
-                    "Dataset generation did not produce a readable tar file.")
-            settings['tar_path'] = tar_path
+    # 4) apply model to the full dataset/tar
+    if settings.get('apply_model_to_dataset'):
 
         model_path = settings.get('model_path')
         if model_path and os.path.exists(model_path):

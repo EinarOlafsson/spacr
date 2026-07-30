@@ -227,6 +227,9 @@ class AlignScreen(QWidget):
 
         self._job_settled.connect(self._on_job_settled)
         self._build_ui()
+        from ..dnd import install_dropzone
+        from ..dnd_handlers import get_handler
+        install_dropzone(self, get_handler("align"), self)
         self._set_status(
             "Choose a folder of tiles (.npy or .tif) and press Plan. "
             "Planning reads headers and overlap strips only — nothing is "

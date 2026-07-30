@@ -1429,10 +1429,9 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
     TILE_BG = (css_color(
         base["surface"], panel_alpha(theme, "tile", surface_opacity))
                if over_image else "transparent")
-    # Scrollbar troughs and the group-box title notch paint over the
-    # window; over a photograph they must not be an opaque black block.
+    # Scrollbar troughs paint over the window; over a photograph they must not
+    # be an opaque black block. Group-box titles are transparent below.
     TROUGH = "transparent" if over_image else base["bg"]
-    NOTCH = P["surface_alt"] if over_image else base["bg"]
     CONSOLE_BG = (P["surface_alt"] if over_image else "#0a0b0d")
     # The dock never goes through a scrim — see `dock_colour`.
     DOCK_BG = dock_colour(theme)
@@ -1496,6 +1495,15 @@ QToolButton#SectionHeader[maturity="{stage}"]:checked {{
  * whatever container it lives in (surface, surface_alt, hero card,
  * etc). Individual labels can override with their own object name. */
 QLabel {{
+    background: transparent;
+}}
+/* Settings labels are wrapped with a layout-only QWidget so the teal API dot
+ * can sit immediately beside the text. A bare QWidget inherits the window
+ * canvas colour; without this rule that wrapper paints a black rectangle on
+ * the section's dark-gray surface even though the QLabel itself is transparent.
+ * Both wrappers are structural and must show their actual container through. */
+QWidget#SettingLabelWithInfo,
+QWidget#SettingControlWithInfo {{
     background: transparent;
 }}
 /* Grey out text on disabled widgets (e.g. a live-preview compartment panel
@@ -1898,33 +1906,66 @@ QPushButton:disabled {{
     border-color: {P["border_soft"]};
     background-color: {P["surface"]};
 }}
-/* PrimaryButton stays the same colour in dark AND light — users
- * should recognise "Run" (and any other primary action) by hue
- * without their eye having to relearn per theme. The text foreground
- * is white in both themes so contrast holds against #4A9EFF. */
-QPushButton#PrimaryButton {{
-    background-color: {P["button_accent"]};
-    color: {P["button_accent_ink"]};
-    border: none;
+/* Semantic action buttons: outlined at rest, softly tinted on hover, and
+ * solid while pressed or while an asynchronous action remains active.
+ * buttonActionRole is assigned centrally by button_roles.py. */
+QPushButton#PrimaryButton,
+QPushButton[buttonActionRole="positive"] {{
+    background-color: transparent;
+    color: {P["accent"]};
+    border: 1px solid {P["accent"]};
     font-weight: 600;
     padding: {S["sm"]}px {S["lg"]}px;
 }}
-QPushButton#PrimaryButton:hover {{
-    background-color: {P["button_accent_hi"]};
+QPushButton#PrimaryButton:hover,
+QPushButton[buttonActionRole="positive"]:hover {{
+    background-color: {css_color(P["accent"], 0.18)};
+    color: {P["accent"]};
+    border-color: {P["accent"]};
 }}
-QPushButton#PrimaryButton:pressed {{
-    background-color: {P["button_accent_lo"]};
+QPushButton#PrimaryButton:pressed,
+QPushButton[buttonActionRole="positive"]:pressed,
+QPushButton#PrimaryButton[buttonActionBusy="true"],
+QPushButton[buttonActionRole="positive"][buttonActionBusy="true"] {{
+    background-color: {P["accent"]};
+    color: {P["bg"]};
+    border-color: {P["accent"]};
 }}
-QPushButton#DangerButton {{
+QPushButton#DangerButton,
+QPushButton[buttonActionRole="negative"] {{
     background-color: transparent;
     color: {P["error"]};
     border: 1px solid {P["error"]};
     font-weight: 600;
     padding: {S["sm"]}px {S["lg"]}px;
 }}
-QPushButton#DangerButton:hover {{
+QPushButton#DangerButton:hover,
+QPushButton[buttonActionRole="negative"]:hover {{
+    background-color: {css_color(P["error"], 0.18)};
+    color: {P["error"]};
+    border-color: {P["error"]};
+}}
+QPushButton#DangerButton:pressed,
+QPushButton[buttonActionRole="negative"]:pressed,
+QPushButton#DangerButton[buttonActionBusy="true"],
+QPushButton[buttonActionRole="negative"][buttonActionBusy="true"] {{
     background-color: {P["error"]};
     color: {P["bg"]};
+    border-color: {P["error"]};
+}}
+QPushButton[buttonActionRole="positive"]:disabled,
+QPushButton[buttonActionRole="negative"]:disabled {{
+    background-color: transparent;
+}}
+QPushButton[buttonActionRole="positive"][buttonActionBusy="true"]:disabled {{
+    background-color: {P["accent"]};
+    color: {P["bg"]};
+    border-color: {P["accent"]};
+}}
+QPushButton[buttonActionRole="negative"][buttonActionBusy="true"]:disabled {{
+    background-color: {P["error"]};
+    color: {P["bg"]};
+    border-color: {P["error"]};
 }}
 QPushButton#GhostButton {{
     background-color: transparent;
@@ -1946,6 +1987,36 @@ QPushButton#IconButton:hover {{
     color: {P["accent"]};
     background: {P["surface_alt"]};
     border-radius: {R["sm"]}px;
+}}
+/* SQL column pickers are QToolButtons, so they do not inherit the normal
+   QPushButton treatment.  Keep them visually part of the settings card:
+   a dark card-coloured face, a light neutral rim and white text. */
+QWidget#ColumnPickerRow {{
+    background: transparent;
+}}
+QToolButton#ColumnPickerButton {{
+    background-color: {P["surface"]};
+    color: {P["fg"]};
+    border: 1px solid {P["fg_muted"]};
+    border-radius: {R["sm"]}px;
+    padding: {S["xs"]}px {S["sm"]}px;
+    min-height: 22px;
+    font-weight: 500;
+}}
+QToolButton#ColumnPickerButton:hover {{
+    background-color: {P["accent_soft"]};
+    color: {P["fg"]};
+    border-color: {P["accent"]};
+}}
+QToolButton#ColumnPickerButton:pressed {{
+    background-color: {P["accent_lo"]};
+    color: {P["fg"]};
+    border-color: {P["accent_hi"]};
+}}
+QToolButton#ColumnPickerButton:disabled {{
+    background-color: {P["surface"]};
+    color: {P["fg_dim"]};
+    border-color: {P["border"]};
 }}
 
 /* -----------------------------------------------------------------
@@ -2349,7 +2420,10 @@ QGroupBox::title {{
     left: {S["md"]}px;
     top: -{S["xs"]}px;
     padding: 0px {S["xs"]}px;
-    background: {NOTCH};
+    /* The title is text on its owning container, not a separate black notch.
+       Transparency keeps it matched when the same group box is placed on a
+       section card, popup canvas or preview surface. */
+    background: transparent;
 }}
 
 /* -----------------------------------------------------------------

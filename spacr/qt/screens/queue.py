@@ -109,6 +109,9 @@ class QueueScreen(QWidget):
         self._runner: Optional[_QueueRunner] = None
 
         self._build_ui()
+        from ..dnd import install_dropzone
+        from ..dnd_handlers import get_handler
+        install_dropzone(self, get_handler("queue"), self)
         self._refresh_table()
 
         # Poll for elapsed-time updates while the runner is going

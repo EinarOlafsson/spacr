@@ -772,6 +772,35 @@ class _SettingsDialog(QDialog):
         buttons.rejected.connect(self.reject)
         self.layout().addWidget(buttons)
 
+        from .settings_model import install_api_tooltips
+        install_api_tooltips(self, "annotate", {
+            self._src_edit: "src",
+            self._ann_col: "annotation_column",
+            self._img_size: "image_size",
+            self._image_type: "image_type",
+            self._channels: "channels",
+            self._stored_channel_order: "stored_channel_order",
+            self._norm_channels: "normalize_channels",
+            self._pct_lo: "lower_percentile",
+            self._pct_hi: "upper_percentile",
+            self._outline: "outline",
+            self._outline_method: "outline_method",
+            self._out_factor: "outline_threshold_factor",
+            self._out_sigma: "outline_sigma",
+            self._edge_thick: "edge_thickness",
+            self._edge_transp: "edge_transparency",
+            self._edge_image: "edge_image",
+            self._obj_min: "object_min_size",
+            self._obj_max: "object_max_size",
+            self._measurement: "measurement",
+            self._threshold: "threshold",
+            self._threshold_dir: "threshold_direction",
+            self._queue_on: "queue_by_uncertainty",
+            self._queue_measure: "queue_measure",
+            self._queue_diversity: "queue_diversity",
+            self._queue_limit: "queue_limit",
+        })
+
     def _picker_db_path(self) -> str:
         """Where the SQL picker looks — the src folder as it reads right now.
 

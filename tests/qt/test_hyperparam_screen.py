@@ -91,6 +91,95 @@ def make_result(*, partial=False, n=3, metric="trustworthiness",
     return result
 
 
+def test_umap_settings_uses_measure_style_tabbed_dialog(panel, qtbot):
+    """The compact card keeps controls in a separate, propagating tab window."""
+    panel.apply_settings({
+        "n_neighbors": 15, "min_dist": 0.1, "plot_images": True})
+    assert panel._settings_panel.isHidden()
+    assert panel._settings_btn.text().startswith("UMAP settings")
+
+    panel.open_settings()
+    dialog = panel._settings_dialog
+    qtbot.addWidget(dialog)
+    dialog.resize(820, 760)
+    qtbot.wait(1)
+    names = [dialog._tabs.tabText(i)
+             for i in range(dialog._tabs.count())]
+    assert names[0] == "Search"
+    assert {
+        "Embedding & Clustering", "Plot", "Advanced", "UMAP Display",
+    }.issubset(names)
+    # The titled group lives inside a padded page, rather than being mounted
+    # directly into the tab pane where its title notch collides with the first
+    # tab. The popup also owns every gray-surface rule; the application-wide
+    # dark palette remains untouched.
+    assert dialog._tabs.widget(0) is dialog._search_scroll
+    assert panel._settings_panel.parent() is dialog._search_page
+    assert dialog.width() <= 900
+    local_qss = dialog.styleSheet()
+    assert "QTabBar::tab" in local_qss
+    assert "QGroupBox#UmapSearchGroup::title" in local_qss
+    assert "QWidget#UmapHyperparamControls" in local_qss
+    from spacr.qt.theme import active_palette
+    palette = active_palette()
+    assert f"background-color: {palette['bg']}" in local_qss
+    assert f"background-color: {palette['surface_alt']}" in local_qss
+    assert f"color: {palette['fg']}" in local_qss
+    help_widgets = (
+            *panel._value_edits.values(), panel._criterion, panel._mode,
+            panel._adaptive, panel._n_trials, panel._seed,
+            panel._adaptive_n_step, panel._adaptive_d_step,
+            panel._adaptive_rounds, panel._adaptive_improvement,
+            panel._max_panels,
+    )
+    for widget in help_widgets:
+        label = getattr(widget, "_spacr_setting_label", None)
+        if label is not None:
+            assert widget.toolTip() == ""
+            assert "href=" in label.toolTip()
+            assert getattr(label, "_spacr_api_dot", None) is not None
+        else:
+            # Adaptive is a Toggle: its text is both label and control.
+            assert "href=" in widget.toolTip()
+            assert getattr(widget, "_spacr_api_dot", None) is not None
+    for widget in dialog._module_model._widgets.values():
+        label = getattr(widget, "_spacr_setting_label", None)
+        assert label is not None
+        assert widget.toolTip() == ""
+        assert "href=" in label.toolTip()
+        assert getattr(label, "_spacr_api_dot", None) is not None
+
+    # Omitted categories are removed, not merely hidden: their
+    # RowExclusionEditor owned the stray "+ Add exclusion" overlay.
+    assert "exclude_rows" not in dialog._module_model._widgets
+    from PySide6.QtWidgets import QAbstractButton, QPushButton
+    assert not any(
+        "add exclusion" in button.text().lower()
+        for button in dialog.findChildren(QAbstractButton)
+    )
+    assert panel._run_btn.isHidden()
+    assert panel._stop_btn.isHidden()
+    assert panel._apply_btn.isHidden()
+    assert {
+        button.text() for button in dialog.findChildren(QPushButton)
+        if button.isVisible()
+    } == {"Close", "Run search", "Propagate settings"}
+    assert dialog._close_btn.icon().isNull()
+    assert panel._compact_stop_btn.objectName() == "DangerButton"
+    assert panel._compact_stop_btn.property("buttonActionRole") == "negative"
+
+    written = []
+    panel.set_apply_callback(lambda values: written.append(dict(values)))
+    dialog._module_model._widgets["plot_images"].setChecked(False)
+    assert written == []
+    dialog._propagate.click()
+    assert written[-1]["plot_images"] is False
+
+    dialog.close()
+    assert panel._settings_panel.parent() is panel
+    assert panel._settings_panel.isHidden()
+
+
 def scripted_search(scores, *, stop_check_hook=None, fail_at=None):
     """Build an injectable search function that emits ``scores`` as trials.
 
@@ -259,6 +348,15 @@ class TestConstruction:
         assert panel._value_edits["n_neighbors"].text() == "5, 15, 50, 100"
         assert panel._value_edits["min_dist"].text() == "0.0, 0.1, 0.5"
 
+    def test_adaptive_switch_is_available_only_for_umap(
+            self, panel, qtbot, qt_theme_applied):
+        from spacr.qt.widgets.toggle import Toggle
+        assert isinstance(panel._adaptive, Toggle)
+        assert not panel._adaptive.isHidden()
+        ml = HyperparamPanel("ml_analyze")
+        qtbot.addWidget(ml)
+        assert ml._adaptive.isHidden()
+
     def test_criteria_combo_offers_the_apps_criteria(self, panel):
         items = [panel._criterion.itemText(i)
                  for i in range(panel._criterion.count())]
@@ -321,6 +419,27 @@ class TestInlineErrors:
         panel._value_edits["metric"].setText("")
         space = panel.current_space()
         assert set(space.params) == {"n_neighbors"}
+
+    def test_adaptive_mode_requires_one_start_value_per_axis(self, panel):
+        panel._adaptive.setChecked(True)
+        panel._value_edits["n_neighbors"].setText("5, 15")
+        assert panel.run_search() is False
+        assert "one starting value" in panel._status.text()
+
+    def test_blank_adaptive_fields_use_documented_defaults(self, panel):
+        panel._adaptive.setChecked(True)
+        panel._value_edits["n_neighbors"].setText("")
+        panel._value_edits["min_dist"].setText("")
+        panel._value_edits["metric"].setText("")
+        for edit in (
+                panel._adaptive_n_step, panel._adaptive_d_step,
+                panel._adaptive_rounds, panel._adaptive_improvement):
+            edit.setText("")
+        space = panel.current_adaptive_space()
+        assert space.params["n_neighbors"] == (1000,)
+        assert space.params["min_dist"] == (0.1,)
+        assert panel.adaptive_parameters() == (100, 1, 0.05, 0.0)
+
 
     def test_apply_without_a_selection_is_reported_inline(self, panel):
         assert panel.apply_selected() is False
@@ -497,6 +616,28 @@ class TestRunningASearch:
             panel.run_search()
         assert panel._table.rowCount() == 2
 
+    def test_repeated_runs_wait_for_each_worker_to_fully_finish(
+            self, panel, qtbot):
+        """A result arrives just before QThread.finished; do not race them."""
+        self._prep(panel, "5, 15")
+        calls = []
+
+        def search(request, on_trial, should_stop):
+            calls.append(len(calls))
+            return scripted_search([0.9, 0.8])(
+                request, on_trial, should_stop)
+
+        panel.set_search_fn(search)
+        for _ in range(5):
+            with qtbot.waitSignal(panel.search_finished, timeout=5000):
+                assert panel.run_search() is True
+            # search_finished is deliberately emitted only after finished has
+            # retired the worker and made the next run safe.
+            assert panel._worker is None
+            assert panel._run_btn.isEnabled()
+        assert calls == list(range(5))
+        assert panel._table.rowCount() == 2
+
     def test_the_request_carries_the_controls(self, panel, qtbot):
         self._prep(panel, "5, 15")
         captured = {}
@@ -521,6 +662,31 @@ class TestRunningASearch:
         assert req.seed == 11
         assert req.settings["src"] == "/data"
         assert req.space.params["n_neighbors"] == (5, 15)
+
+    def test_adaptive_switch_is_carried_as_a_boolean(self, panel, qtbot):
+        captured = {}
+
+        def _search(request, on_trial, should_stop):
+            captured["request"] = request
+            return SearchResult(space=request.space, metric=request.criterion)
+
+        panel._value_edits["n_neighbors"].setText("5")
+        panel._value_edits["min_dist"].setText("0.1")
+        panel._value_edits["metric"].setText("")
+        panel._adaptive.setChecked(True)
+        panel._adaptive_rounds.setText("16")
+        panel._adaptive_n_step.setText("2")
+        panel._adaptive_d_step.setText("0.025")
+        panel._adaptive_improvement.setText("0.001")
+        panel.set_search_fn(_search)
+        with qtbot.waitSignal(panel.search_finished, timeout=5000):
+            assert panel.run_search()
+        req = captured["request"]
+        assert req.adaptive is True
+        assert req.n_trials == 16
+        assert req.n_neighbors_step == 2
+        assert req.min_dist_step == pytest.approx(0.025)
+        assert req.min_improvement == pytest.approx(0.001)
 
 
 # ---------------------------------------------------------------------------
@@ -548,7 +714,9 @@ class TestStopping:
 
         panel.run_search()
         qtbot.waitUntil(released.is_set, timeout=5000)
-        panel.stop_search()
+        panel._compact_stop_btn.click()
+        assert panel._compact_stop_btn.property("buttonActionBusy") is True
+        assert panel._compact_stop_btn.isEnabled() is False
         gate.set()
         with qtbot.waitSignal(panel.search_finished, timeout=5000):
             pass
@@ -561,6 +729,7 @@ class TestStopping:
         assert panel._table.rowCount() == 2
         assert panel._stop_btn.isEnabled() is False
         assert panel._run_btn.isEnabled() is True
+        assert panel._compact_stop_btn.property("buttonActionBusy") is False
 
     def test_stopping_says_so_immediately(self, panel, qtbot):
         gate = threading.Event()
