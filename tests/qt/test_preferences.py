@@ -25,6 +25,56 @@ def _isolated_qsettings(monkeypatch, qt_theme_applied, tmp_path):
 
 
 # ---------------------------------------------------------------------------
+# Language
+# ---------------------------------------------------------------------------
+
+def test_language_default_is_english(qt_theme_applied):
+    from spacr.qt.preferences import get_language
+
+    assert get_language() == "en"
+
+
+def test_language_roundtrip_and_validation(qt_theme_applied):
+    from spacr.qt.i18n import VALID_LANGUAGE_CODES
+    from spacr.qt.preferences import get_language, set_language
+
+    for code in VALID_LANGUAGE_CODES:
+        set_language(code)
+        assert get_language() == code
+    with pytest.raises(ValueError, match="unknown language"):
+        set_language("klingon")
+
+
+def test_corrupt_language_falls_back_to_english(qt_theme_applied):
+    from PySide6.QtCore import QSettings
+    from spacr.qt.preferences import get_language
+
+    QSettings("spacr", "qt").setValue("prefs/language", "garbage")
+    assert get_language() == "en"
+
+
+def test_preferences_dialog_offers_and_saves_every_language(
+    qtbot, qt_theme_applied,
+):
+    from PySide6.QtWidgets import QComboBox, QDialogButtonBox
+    from spacr.qt.i18n import LANGUAGES
+    from spacr.qt.preferences import PreferencesDialog, get_language
+
+    dlg = PreferencesDialog()
+    qtbot.addWidget(dlg)
+    combo = dlg.findChild(QComboBox, "LanguagePreference")
+    assert combo is not None
+    assert combo.count() == len(LANGUAGES)
+    codes = [combo.itemData(index) for index in range(combo.count())]
+    assert codes == [language.code for language in LANGUAGES]
+
+    combo.setCurrentIndex(codes.index("zh_CN"))
+    buttons = dlg.findChild(QDialogButtonBox)
+    buttons.button(QDialogButtonBox.Save).click()
+    assert get_language() == "zh_CN"
+
+
+# ---------------------------------------------------------------------------
 # Theme
 # ---------------------------------------------------------------------------
 

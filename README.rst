@@ -67,6 +67,9 @@ a SQLite-backed project rather than scattered across unrelated files.
   genotype–phenotype associations.
 - **Desktop and headless operation.** Use the PySide6 application
   interactively or run the same modules on a workstation, server, or cluster.
+- **Ten interface languages.** Switch at runtime between English, Swedish,
+  German, Spanish, Mandarin Chinese, Portuguese, Hindi, Korean, Icelandic,
+  and French from Preferences; scientific terms fall back safely to English.
 - **Live visual feedback.** Preview masks, tracks, timelapse
   frames, training metrics, activation maps, and image embeddings where the
   corresponding module supports them.

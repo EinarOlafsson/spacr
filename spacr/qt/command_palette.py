@@ -63,9 +63,10 @@ class CommandPalette(QDialog):
     """
 
     def __init__(self, window: QMainWindow):
+        from .i18n import tr
         super().__init__(window)
         self._window = window
-        self.setWindowTitle("spaCR — Command palette")
+        self.setWindowTitle(tr("spaCR — Command palette"))
         self.setModal(True)
         # Frameless-ish look — big centred dialog on top of the app.
         self.setMinimumWidth(560)
@@ -76,9 +77,8 @@ class CommandPalette(QDialog):
         outer.setSpacing(0)
 
         self._input = QLineEdit()
-        self._input.setPlaceholderText(
-            "Type to filter — Enter to run, Esc to cancel"
-        )
+        self._input.setPlaceholderText(tr(
+            "Type to filter — Enter to run, Esc to cancel"))
         self._input.setObjectName("CommandInput")
         self._input.setStyleSheet(
             "QLineEdit#CommandInput {"
@@ -107,6 +107,7 @@ class CommandPalette(QDialog):
 
     # -- collection --------------------------------------------------------
     def _collect_commands(self) -> None:
+        from .i18n import tr
         try:
             from .app import app_is_visible, app_stage, visible_apps
             apps = visible_apps()
@@ -126,26 +127,31 @@ class CommandPalette(QDialog):
             # rather than a second set of sections. How finished an app
             # is is a KEYWORD instead: "alpha" is a useful thing to be
             # able to type, and a useless thing to sort a list by.
-            words = [key, desc, section, name.lower(), app_stage(key)]
+            localized_name = tr(name)
+            localized_section = tr(section)
+            words = [
+                key, desc, section, name.lower(), localized_name.lower(),
+                localized_section.lower(), app_stage(key),
+            ]
             self._commands.append(Command(
-                label=f"Go to  {name}",
-                section=f"Apps · {section}",
+                label=tr("Go to  {name}", name=localized_name),
+                section=tr("Apps · {section}", section=localized_section),
                 action=lambda k=key: self._nav(k),
                 keywords=words,
             ))
 
         # Home
         self._commands.append(Command(
-            label="Go to  Home",
-            section="Navigation",
+            label=tr("Go to  {name}", name=tr("Home")),
+            section=tr("Navigation"),
             action=lambda: self._nav("__home__"),
             keywords=["home", "start", "landing"],
         ))
 
         # Preferences
         self._commands.append(Command(
-            label="Open Preferences…",
-            section="Actions",
+            label=tr("Open Preferences…"),
+            section=tr("Actions"),
             action=self._open_preferences,
             keywords=["preferences", "settings", "theme", "font",
                       "colour", "color", "accessibility"],
@@ -153,8 +159,8 @@ class CommandPalette(QDialog):
 
         # Providers dialog
         self._commands.append(Command(
-            label="Open AI Providers…",
-            section="Actions",
+            label=tr("Open AI Providers…"),
+            section=tr("Actions"),
             action=self._open_providers,
             keywords=["providers", "ai", "claude", "chatgpt",
                       "gemini", "llm"],
@@ -162,8 +168,8 @@ class CommandPalette(QDialog):
 
         # Cheat sheet
         self._commands.append(Command(
-            label="Keyboard shortcuts…",
-            section="Help",
+            label=tr("Keyboard shortcuts…"),
+            section=tr("Help"),
             action=self._open_shortcuts,
             keywords=["shortcuts", "keyboard", "help", "cheat",
                       "hotkeys"],

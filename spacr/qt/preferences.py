@@ -1,5 +1,5 @@
 """
-User-facing preferences — theme, font scale, colour-blind mode.
+User-facing preferences — language, theme, font scale and accessibility.
 
 Persistent settings backed by :class:`PySide6.QtCore.QSettings`, so
 they survive app restarts. New knobs can slot in alongside the existing
@@ -18,6 +18,7 @@ Public API::
 
     from spacr.qt.preferences import (
         get_theme, set_theme, get_theme_choice, set_theme_choice,
+        get_language, set_language,
         get_space_variant, set_space_variant,
         get_cell_variant, set_cell_variant,
         get_space_seed, set_space_seed,
@@ -63,6 +64,9 @@ Values:
 * ``show_alpha`` / ``show_beta``: bool, both default ``True``. Control
   whether modules and settings at that maturity are shown. Stable features
   are always visible.
+* ``language``: one of the bundled language codes from
+  :mod:`spacr.qt.i18n`; defaults to English and falls back safely when a
+  persisted value is invalid.
 """
 from __future__ import annotations
 
@@ -76,6 +80,7 @@ _ORG = "spacr"
 _APP = "qt"
 
 _KEY_THEME       = "prefs/theme"
+_KEY_LANGUAGE    = "prefs/language"
 _KEY_FONT_SCALE  = "prefs/font_scale"
 _KEY_CB_MODE     = "prefs/color_blind_mode"
 _KEY_VERBOSE_LOG = "prefs/verbose_logging"
@@ -120,6 +125,32 @@ DEFAULT_PNG_DPI = 300
 
 def _settings() -> QSettings:
     return QSettings(_ORG, _APP)
+
+
+# ---------------------------------------------------------------------------
+# Language
+# ---------------------------------------------------------------------------
+
+def get_language() -> str:
+    """Return the persisted UI language code, falling back to English."""
+    from .i18n import DEFAULT_LANGUAGE, normalize_language
+    raw = _settings().value(_KEY_LANGUAGE, DEFAULT_LANGUAGE)
+    return normalize_language(raw)
+
+
+def set_language(language: str) -> None:
+    """Persist one of the bundled UI languages.
+
+    :raises ValueError: if ``language`` is not a supported language code.
+    """
+    from .i18n import VALID_LANGUAGE_CODES
+    code = str(language or "").strip().replace("-", "_")
+    if code not in VALID_LANGUAGE_CODES:
+        raise ValueError(
+            f"unknown language {language!r}. "
+            f"Choose from {VALID_LANGUAGE_CODES}."
+        )
+    _settings().setValue(_KEY_LANGUAGE, code)
 
 
 # ---------------------------------------------------------------------------
@@ -714,7 +745,7 @@ def color_blind_continuous_cmap() -> str:
 # ---------------------------------------------------------------------------
 
 def apply_preferences_to_app(app=None) -> None:
-    """Re-apply the theme + font scale to a running ``QApplication``.
+    """Re-apply language, theme and font scale to ``QApplication``.
 
     Called at startup from :func:`spacr.qt.app.launch`, and again
     whenever the user changes a preference (via :class:`PreferencesDialog`
@@ -729,6 +760,8 @@ def apply_preferences_to_app(app=None) -> None:
     app = app or QApplication.instance()
     if app is None:
         return
+
+    app.setProperty("spacrLanguage", get_language())
 
     theme = resolve_effective_theme()
     scale = get_font_scale()
@@ -786,24 +819,42 @@ class PreferencesDialog:
             QComboBox, QDialog, QDialogButtonBox, QFormLayout,
             QLabel, QSlider, QVBoxLayout,
         )
+        from .i18n import language_choices, tr
         from .widgets.toggle import Toggle
 
         dlg = QDialog(parent)
-        dlg.setWindowTitle("spaCR — Preferences")
+        dlg.setWindowTitle(tr("spaCR — Preferences"))
         dlg.setMinimumWidth(420)
         outer = QVBoxLayout(dlg)
 
         form = QFormLayout()
 
+        # Language is first so it remains discoverable even on a small screen.
+        language_combo = QComboBox()
+        language_combo.setObjectName("LanguagePreference")
+        for label, key in language_choices():
+            language_combo.addItem(label, key)
+        current_language = get_language()
+        for i in range(language_combo.count()):
+            if language_combo.itemData(i) == current_language:
+                language_combo.setCurrentIndex(i)
+                break
+        language_combo.setToolTip(
+            "Choose the language used by spaCR navigation, Preferences, "
+            "common actions and settings terminology. Untranslated "
+            "scientific terms safely remain in English."
+        )
+        form.addRow(tr("Language"), language_combo)
+
         # Theme
         theme_combo = QComboBox()
         for label, key in theme_choices():
-            theme_combo.addItem(label, key)
+            theme_combo.addItem(tr(label), key)
         current = get_theme_choice()
         for i in range(theme_combo.count()):
             if theme_combo.itemData(i) == current:
                 theme_combo.setCurrentIndex(i); break
-        form.addRow("Theme", theme_combo)
+        form.addRow(tr("Theme"), theme_combo)
 
         # Font scale
         scale_slider = QSlider(Qt.Horizontal)
@@ -823,7 +874,7 @@ class PreferencesDialog:
         scale_row.addWidget(scale_slider)
         scale_row.addWidget(scale_value)
         _wrap = _hbox_wrap(scale_row)
-        form.addRow("Font scale", _wrap)
+        form.addRow(tr("Font scale"), _wrap)
 
         # The left dock — revealed on hover, pinned open, or gone.
         dock_combo = QComboBox()
@@ -832,7 +883,7 @@ class PreferencesDialog:
             ("Locked open",     "locked"),
             ("Hidden",          "hidden"),
         ):
-            dock_combo.addItem(label, key)
+            dock_combo.addItem(tr(label), key)
         current_dock = get_dock_mode()
         for i in range(dock_combo.count()):
             if dock_combo.itemData(i) == current_dock:
@@ -845,7 +896,7 @@ class PreferencesDialog:
             "Hidden: no edge strip and no column. Apps stay reachable "
             "from the spaCR menu, Ctrl+1..9 and Ctrl+K."
         )
-        form.addRow("App dock", dock_combo)
+        form.addRow(tr("App dock"), dock_combo)
 
         # Page opacity — shared by Home and every module surface.
         opacity_slider = QSlider(Qt.Horizontal)
@@ -891,7 +942,7 @@ class PreferencesDialog:
         opacity_col = QVBoxLayout()
         opacity_col.addWidget(opacity_slider)
         opacity_col.addWidget(opacity_value)
-        form.addRow("Page opacity", _hbox_wrap(opacity_col))
+        form.addRow(tr("Page opacity"), _hbox_wrap(opacity_col))
 
         # Colour-blind mode
         cb_combo = QComboBox()
@@ -901,18 +952,18 @@ class PreferencesDialog:
             ("Protanopia (red-green)",   "protanopia"),
             ("Tritanopia (blue-yellow)", "tritanopia"),
         ):
-            cb_combo.addItem(label, key)
+            cb_combo.addItem(tr(label), key)
         current_cb = get_color_blind_mode()
         for i in range(cb_combo.count()):
             if cb_combo.itemData(i) == current_cb:
                 cb_combo.setCurrentIndex(i); break
-        form.addRow("Colour-blind mode", cb_combo)
+        form.addRow(tr("Colour-blind mode"), cb_combo)
 
         # Verbose logging — one toggle, wired at Save time. When on,
         # spaCR + third-party libs (cellpose, torch, PIL, matplotlib)
         # dial their loggers to DEBUG/INFO and every record echoes into
         # the active ConsolePanel. Aimed at bug reports.
-        verbose_check = Toggle("Enable verbose logging")
+        verbose_check = Toggle(tr("Enable verbose logging"))
         verbose_check.setToolTip(
             "When on, every spaCR log record — plus INFO-level chatter "
             "from cellpose, torch, PIL and matplotlib — echoes into "
@@ -920,13 +971,13 @@ class PreferencesDialog:
             "you're triaging a bug."
         )
         verbose_check.setChecked(get_verbose_logging())
-        form.addRow("Diagnostics", verbose_check)
+        form.addRow(tr("Diagnostics"), verbose_check)
 
         # Database Browser — off by default. The browser opens
         # measurements.db with mode=ro; this is the only switch that lets
         # it open a read-write connection at all, and even then the user
         # has to arm edit mode per session and confirm it.
-        db_edit_check = Toggle("Allow editing in the Database Browser")
+        db_edit_check = Toggle(tr("Allow editing in the Database Browser"))
         db_edit_check.setToolTip(
             "Off by default. The Database Browser opens measurements.db "
             "read-only (mode=ro). With this on you can still only edit "
@@ -935,12 +986,12 @@ class PreferencesDialog:
             "no undo — spaCR writes straight into your measurements file."
         )
         db_edit_check.setChecked(get_db_browser_editable())
-        form.addRow("Database Browser", db_edit_check)
+        form.addRow(tr("Database Browser"), db_edit_check)
 
         # Feature maturity. Both are opt-out: existing users and fresh
         # installs continue to see every feature until they choose a quieter,
         # stable-only interface.
-        alpha_check = Toggle("Show Alpha modules and settings")
+        alpha_check = Toggle(tr("Show Alpha modules and settings"))
         alpha_check.setObjectName("ShowAlphaFeatures")
         alpha_check.setToolTip(
             "Hide modules and settings that are built but not yet trusted "
@@ -948,7 +999,7 @@ class PreferencesDialog:
         )
         alpha_check.setChecked(get_show_alpha())
 
-        beta_check = Toggle("Show Beta modules and settings")
+        beta_check = Toggle(tr("Show Beta modules and settings"))
         beta_check.setObjectName("ShowBetaFeatures")
         beta_check.setToolTip(
             "Hide modules and settings that are in regular use but not yet "
@@ -959,7 +1010,7 @@ class PreferencesDialog:
         maturity_col.setContentsMargins(0, 0, 0, 0)
         maturity_col.addWidget(alpha_check)
         maturity_col.addWidget(beta_check)
-        form.addRow("Feature maturity", _hbox_wrap(maturity_col))
+        form.addRow(tr("Feature maturity"), _hbox_wrap(maturity_col))
 
         # Figures — display format (png = lighter / faster, pdf = vector +
         # editable via the figure-settings button) and the PNG resolution.
@@ -970,7 +1021,7 @@ class PreferencesDialog:
         for i in range(fig_format_combo.count()):
             if fig_format_combo.itemData(i) == cur_fmt:
                 fig_format_combo.setCurrentIndex(i); break
-        form.addRow("Figure format", fig_format_combo)
+        form.addRow(tr("Figure format"), fig_format_combo)
 
         png_dpi_combo = QComboBox()
         for dpi in VALID_PNG_DPIS:
@@ -979,7 +1030,7 @@ class PreferencesDialog:
         for i in range(png_dpi_combo.count()):
             if png_dpi_combo.itemData(i) == cur_dpi:
                 png_dpi_combo.setCurrentIndex(i); break
-        form.addRow("PNG resolution", png_dpi_combo)
+        form.addRow(tr("PNG resolution"), png_dpi_combo)
 
         outer.addLayout(form)
 
@@ -996,9 +1047,16 @@ class PreferencesDialog:
         buttons = QDialogButtonBox(
             QDialogButtonBox.Save | QDialogButtonBox.Cancel
         )
+        save_button = buttons.button(QDialogButtonBox.Save)
+        cancel_button = buttons.button(QDialogButtonBox.Cancel)
+        if save_button is not None:
+            save_button.setText(tr("Save"))
+        if cancel_button is not None:
+            cancel_button.setText(tr("Cancel"))
         outer.addWidget(buttons)
 
         def _save():
+            set_language(language_combo.currentData())
             set_theme_choice(theme_combo.currentData())
             set_font_scale(scale_slider.value() / 100.0)
             set_dock_mode(dock_combo.currentData())
