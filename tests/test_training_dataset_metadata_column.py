@@ -230,3 +230,18 @@ def test_class_metadata_arriving_as_a_string_is_parsed(plate):
     train, _ = generate_training_dataset(
         _settings(plate, class_metadata="[['c1'], ['c2']]"))
     assert sorted(os.listdir(train)) == ['c1', 'c2']
+
+
+def test_empty_metadata_class_is_rejected_before_balancing(plate):
+    """A missing class must not balance every populated class down to zero."""
+    from spacr.io import generate_training_dataset
+
+    with pytest.raises(ValueError) as excinfo:
+        generate_training_dataset(
+            _settings(plate, class_metadata=[['c1'], ['c9']]))
+
+    message = str(excinfo.value)
+    assert "c9" in message
+    assert "selected no crops" in message
+    assert "c1=10" in message
+    assert "available columnID values" in message
