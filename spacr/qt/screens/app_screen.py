@@ -1648,6 +1648,7 @@ class AppScreen(QWidget):
                 applied += 1
             except Exception:
                 pass
+        self._settings_model._refresh_contextual_widgets()
         return applied
 
     def _apply_value(self, widget, val):

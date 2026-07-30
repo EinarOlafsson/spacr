@@ -174,6 +174,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Landed alongside the regroup: the fail-loud policy (spacr.errors) and
     # the on-demand crop source (spacr.crops).
     "strict_errors", "max_failure_rate", "crop_source",
+    # and general UMAP row exclusions, replacing lab-specific c1/c2/c3
+    # controls in the settings UI.
+    "exclude_rows",
     # and the active-learning queue (spacr.active_learning).
     "queue_by_uncertainty", "queue_measure", "queue_diversity",
     "queue_limit",
