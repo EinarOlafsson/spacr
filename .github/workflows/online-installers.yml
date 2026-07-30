@@ -149,7 +149,7 @@ jobs:
             --install-root "$RUNNER_TEMP/spacr"
       - name: Install and import the released macOS application
         run: |
-          version=$(python packaging/release.py version)
+          version=$(python -c 'import ast, pathlib; tree = ast.parse(pathlib.Path("setup.py").read_text()); print(next(node.value.value for node in tree.body if isinstance(node, ast.Assign) and any(isinstance(target, ast.Name) and target.id == "VERSION" for target in node.targets) and isinstance(node.value, ast.Constant)))')
           packaging/online/install_spacr_unix.sh \
             --platform macos \
             --package-spec "spacr[qt]==$version" \

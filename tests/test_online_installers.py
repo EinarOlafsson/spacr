@@ -100,6 +100,14 @@ def test_install_is_validated_before_the_previous_environment_is_replaced():
         assert import_check < activate
 
 
+def test_windows_validation_passes_isolated_flag_as_an_argument():
+    """PowerShell must not bind Python's ``-I`` to Invoke-Checked itself."""
+    windows = _text(WINDOWS)
+    assert "Invoke-Checked -Command $StagePython -Arguments @(" in windows
+    assert '"-I"' in windows
+    assert "Invoke-Checked $StagePython -I" not in windows
+
+
 def test_installers_preserve_a_diagnostic_log():
     unix = _text(UNIX)
     windows = _text(WINDOWS)
@@ -187,6 +195,9 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
     assert workflow.count("timeout-minutes: 30") == 3
     assert workflow.count("assert torch.version.cuda is None") == 3
     assert workflow.count("install.log") >= 3
+    macos_job = workflow[workflow.index("  macos:"):workflow.index("  collect:")]
+    assert "ast.parse" in macos_job
+    assert "packaging/release.py version" not in macos_job
 
 
 def test_one_click_release_orders_version_pypi_installers_and_github():

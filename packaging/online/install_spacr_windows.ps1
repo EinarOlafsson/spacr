@@ -131,7 +131,11 @@ try {
     Write-Host "Validating the installation before activating it..." -ForegroundColor Cyan
     Invoke-Checked $UvExe pip check --python $StagePython
     $env:QT_QPA_PLATFORM = "offscreen"
-    Invoke-Checked $StagePython -I -c "import spacr, PySide6, torch; print('spaCR', spacr.__version__, '| torch', torch.__version__)"
+    Invoke-Checked -Command $StagePython -Arguments @(
+        "-I",
+        "-c",
+        "import spacr, PySide6, torch; print('spaCR', spacr.__version__, '| torch', torch.__version__)"
+    )
 
     $OldVenv = Join-Path $InstallRoot ".venv-previous"
     if (Test-Path $OldVenv) {
