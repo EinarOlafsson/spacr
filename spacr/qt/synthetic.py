@@ -38,7 +38,6 @@ from __future__ import annotations
 
 import csv
 import logging
-import os
 import sqlite3
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -254,7 +253,6 @@ def generate_classify_demo(
     (dst / "measurements").mkdir(exist_ok=True)
     (dst / "data").mkdir(exist_ok=True)
     files: List[Path] = []
-    rng = np.random.default_rng(0)
     for i in range(n_crops):
         # Alternate blob patterns to give the classifier something to
         # discriminate (label 1 = dense, label 2 = sparse).

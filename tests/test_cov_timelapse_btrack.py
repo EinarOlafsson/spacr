@@ -27,6 +27,10 @@ pytestmark = pytest.mark.network
 @pytest.fixture(scope="module", autouse=True)
 def _require_btrack_registry():
     """The btrack dataset module performs this download during first import."""
+    pytest.importorskip(
+        "btrack",
+        reason="optional btrack backend is not installed (spacr[btrack])",
+    )
     from tests.resource_capabilities import endpoint_available
 
     registry = (

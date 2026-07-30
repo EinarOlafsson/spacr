@@ -165,8 +165,8 @@ def test_every_app_is_on_exactly_one_subject_tab_and_one_home_band():
         "an app is missing from Home, or drawn on it twice")
 
     staged = [k for k in keys if app_stage(k) != "stable"]
-    assert len(staged) == 22, (
-        f"{len(staged)} apps staged, not 22 — if that is intended, say so "
+    assert len(staged) == 23, (
+        f"{len(staged)} apps staged, not 23 — if that is intended, say so "
         "here; the count is the user\'s list")
 
 

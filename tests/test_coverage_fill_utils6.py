@@ -87,6 +87,11 @@ def test_lasso_reg_lasso_and_ridge():
     assert {"Feature", "Coefficient"} <= set(ridge.columns)
 
 
+def test_lasso_reg_rejects_unknown_regression_type():
+    with pytest.raises(ValueError, match="expected 'lasso' or 'ridge'"):
+        U.lasso_reg(_reg_df(), reg_type="elastic-net")
+
+
 # ---------------------------------------------------------------------------
 # resize_images_and_labels / resize_labels_back
 # ---------------------------------------------------------------------------

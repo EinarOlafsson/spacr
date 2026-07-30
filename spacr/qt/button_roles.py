@@ -127,7 +127,11 @@ def install_button_roles(app=None) -> None:
         return
     event_filter = getattr(app, _FILTER_ATTRIBUTE, None)
     if event_filter is None:
-        event_filter = _SemanticButtonFilter(app)
+        # QApplication is always a QObject in production. Keeping the parent
+        # optional also supports lightweight application adapters used by
+        # embedding hosts and tests; the attribute below retains the filter.
+        parent = app if isinstance(app, QObject) else None
+        event_filter = _SemanticButtonFilter(parent)
         app.installEventFilter(event_filter)
         setattr(app, _FILTER_ATTRIBUTE, event_filter)
     for widget in app.allWidgets():

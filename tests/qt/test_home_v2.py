@@ -20,7 +20,6 @@ from __future__ import annotations
 import hashlib
 import os
 import threading
-import time
 
 import pytest
 
@@ -31,7 +30,6 @@ from PySide6.QtWidgets import QLabel, QPushButton
 from spacr.qt import bridge, iconset
 from spacr.qt.app import (APPS, SECTIONS, _FORCE_GLYPH, _ICON_OVERRIDES,
                           make_home_page, section_members)
-from spacr.qt.widgets.drawer import EdgeDrawer
 from spacr.qt.widgets.home import AppTile, HomePage, PAUSE_UNAVAILABLE
 
 BACKUP_DIR = os.path.join(iconset.RESOURCE_DIR, "backup_icons")
@@ -121,7 +119,6 @@ def _empty_journal(tmp_path, monkeypatch):
 
 @pytest.fixture
 def home(qtbot, qt_theme_applied, _empty_journal):
-    from spacr.qt.app import _icon_for_app
     page = make_home_page()  # the page MainWindow ships
     qtbot.addWidget(page)
     page.resize(1200, 860)
@@ -418,9 +415,7 @@ def test_invasion_and_replication_are_not_the_same_picture(qapp):
 # ---------------------------------------------------------------------------
 
 def test_the_replication_assay_is_a_first_class_module():
-    """``spacr.submodules.analyze_endodyogeny`` existed with no way to
-    reach it: no APPS row, no title, no intro, no dispatch, no settings.
-    Every one of those is asserted here.
+    """The parasites-per-vacuole assay has complete GUI wiring.
 
     It briefly asserted ``row[3] == SECTION_BETA`` while #16i had staging
     as a section. #16j put every app back under what it is *about* and
@@ -442,10 +437,11 @@ def test_the_replication_assay_is_a_first_class_module():
     entry = bridge.resolve_pipeline_entry("replication")
     assert entry is not None
     inner = getattr(entry, "__wrapped__", entry)
-    assert getattr(inner, "__name__", "") == "analyze_endodyogeny"
+    assert getattr(inner, "__name__", "") == "analyze_replication"
 
     settings = resolve_default_settings("replication")
     assert isinstance(settings, dict) and "src" in settings
+    assert settings["vacuole_key"] == "auto"
 
 
 def test_the_replication_screen_opens(qtbot, qt_theme_applied,

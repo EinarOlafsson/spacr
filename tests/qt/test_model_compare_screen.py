@@ -483,6 +483,15 @@ def test_extra_settings_parse_into_typed_values():
 # threading
 # ---------------------------------------------------------------------------
 
+def _load_threaded(qtbot, widget, fields):
+    """Wait for the production asynchronous field loader."""
+    with qtbot.waitSignal(widget.job_finished, timeout=10000) as caught:
+        assert widget.set_source(fields)
+        assert widget.is_busy()
+    assert caught.args == [True]
+    qtbot.waitUntil(lambda: widget.active_jobs() == 0, timeout=10000)
+
+
 def test_the_threaded_path_produces_the_same_report(qtbot, qt_theme_applied,
                                                     fields):
     """Segmentation is minutes, so it cannot run on the GUI thread. The
@@ -491,7 +500,7 @@ def test_the_threaded_path_produces_the_same_report(qtbot, qt_theme_applied,
     widget.set_segment_fn(FakeSegmenter({"A": mask_two_objects(),
                                          "B": mask_split_second()}))
     qtbot.addWidget(widget)
-    assert widget.set_source(fields)
+    _load_threaded(qtbot, widget, fields)
 
     with qtbot.waitSignal(widget.job_finished, timeout=10000) as caught:
         assert widget.compare() is True
@@ -516,7 +525,7 @@ def test_a_worker_traceback_becomes_one_inline_line(qtbot, qt_theme_applied,
 
     widget.set_segment_fn(explode)
     qtbot.addWidget(widget)
-    assert widget.set_source(fields)
+    _load_threaded(qtbot, widget, fields)
 
     with qtbot.waitSignal(widget.job_finished, timeout=10000) as caught:
         widget.compare()
@@ -544,7 +553,7 @@ def test_closing_mid_run_waits_for_the_worker_instead_of_taking_the_process_down
 
     widget.set_segment_fn(slow)
     qtbot.addWidget(widget)
-    assert widget.set_source(fields)
+    _load_threaded(qtbot, widget, fields)
     widget.compare()
     assert widget.is_busy()
 
@@ -574,7 +583,7 @@ def test_a_second_comparison_is_refused_while_one_is_running(qtbot,
     widget.set_segment_fn(FakeSegmenter({"A": mask_two_objects(),
                                          "B": mask_split_second()}))
     qtbot.addWidget(widget)
-    assert widget.set_source(fields)
+    _load_threaded(qtbot, widget, fields)
 
     with qtbot.waitSignal(widget.job_finished, timeout=10000):
         widget.compare()

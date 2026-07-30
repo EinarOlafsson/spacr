@@ -2,6 +2,44 @@
 from __future__ import annotations
 
 
+def test_every_app_api_link_targets_an_existing_module():
+    """Tooltip links must follow the current app registry, not legacy launchers."""
+    import importlib.util
+
+    from spacr.qt.app import APPS
+    from spacr.qt.screens.settings_model import _APP_API_MODULE
+
+    missing = []
+    for app_key, _name, _description, _section in APPS:
+        target = _APP_API_MODULE.get(app_key)
+        if not target:
+            missing.append(f"{app_key}: no API mapping")
+            continue
+        module_name = "spacr." + target.replace("/", ".")
+        if importlib.util.find_spec(module_name) is None:
+            missing.append(f"{app_key}: {module_name} does not exist")
+    assert not missing, "\n".join(missing)
+
+
+def test_pipeline_app_api_links_follow_the_actual_backend():
+    from spacr.cli import INTERACTIVE_ONLY
+    from spacr.qt.app import APPS
+    from spacr.qt.bridge import resolve_pipeline_entry
+    from spacr.qt.screens.settings_model import _APP_API_MODULE
+
+    mismatches = []
+    for app_key, _name, _description, _section in APPS:
+        if app_key in INTERACTIVE_ONLY:
+            continue
+        entry = resolve_pipeline_entry(app_key)
+        real = getattr(entry, "__wrapped__", entry)
+        expected = getattr(real, "__module__", "").removeprefix("spacr.")
+        linked = _APP_API_MODULE[app_key].replace("/", ".")
+        if linked != expected:
+            mismatches.append(f"{app_key}: links {linked}, runs {expected}")
+    assert not mismatches, "\n".join(mismatches)
+
+
 def test_type_hint_from_expected_types():
     from spacr.qt.screens.settings_model import _type_hint
     assert _type_hint("cell_min_area") == "integer"

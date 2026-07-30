@@ -7,11 +7,9 @@ built in conftest.py. No real sequencing data required.
 from __future__ import annotations
 
 import gzip
-import os
 import re
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 import pytest
 
@@ -89,12 +87,6 @@ def test_count_reads_in_fastq_matches_fixture(synth_illumina_reads):
 # right barcodes recoverable via the named groups.
 # ---------------------------------------------------------------------------
 
-# NOTE: spacr.sequencing.process_chunk accesses match.group('columnID') and
-# match.group('rowID'), not 'column' / 'row' (see paired_find_sequence_in_chunk_reads
-# in sequencing.py). The default regex string in settings.py uses the shorter
-# names — that's a pre-existing spacr bug — so tests that call process_chunk
-# must pass a regex with the *ID variants. Tests that only exercise the
-# regex itself use the short form to mirror the default that ships.
 DEFAULT_BARCODE_REGEX = r"^(?P<column>.{8})TGCTG.*TAAAC(?P<grna>.{20,21})AACTT.*AGAAG(?P<row>.{8}).*"
 INTERNAL_BARCODE_REGEX = r"^(?P<columnID>.{8})TGCTG.*TAAAC(?P<grna>.{20,21})AACTT.*AGAAG(?P<rowID>.{8}).*"
 
@@ -258,6 +250,39 @@ def test_process_chunk_end_to_end(synth_illumina_reads, synth_barcodes):
     assert detected_combos.issubset(truth_combos), (
         f"detected barcode combos not in truth: {detected_combos - truth_combos}"
     )
+
+
+def test_process_chunk_accepts_the_shipped_default_group_names(
+        synth_illumina_reads, synth_barcodes):
+    """The public default uses column/row, not the legacy *ID aliases."""
+    paths = synth_barcodes["paths"]
+    r1 = list(_read_fastq_records(synth_illumina_reads["r1_path"]))[:2]
+    r2 = list(_read_fastq_records(synth_illumina_reads["r2_path"]))[:2]
+    df, combinations, qc = SEQ.process_chunk((
+        r1, r2, DEFAULT_BARCODE_REGEX, "TGCTG", -8, 76,
+        paths["column_csv"], paths["grna_csv"], paths["row_csv"], False,
+    ))
+    assert len(df) == 2
+    assert len(combinations) >= 1
+    assert qc["total_reads"].iloc[0] == 2
+
+
+def test_process_chunk_empty_single_end_chunk_is_a_valid_empty_result(
+        synth_barcodes):
+    paths = synth_barcodes["paths"]
+    df, combinations, qc = SEQ.process_chunk((
+        [], DEFAULT_BARCODE_REGEX, "TGCTG", -8, 76,
+        paths["column_csv"], paths["grna_csv"], paths["row_csv"], False,
+    ))
+    assert df.empty
+    assert combinations.empty
+    assert qc["total_reads"].iloc[0] == 0
+
+
+@pytest.mark.parametrize("chunk", [(), ([], "regex")])
+def test_process_chunk_rejects_malformed_argument_tuples(chunk):
+    with pytest.raises(ValueError, match="expects 9 values"):
+        SEQ.process_chunk(chunk)
 
 
 # ---------------------------------------------------------------------------

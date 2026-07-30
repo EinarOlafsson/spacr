@@ -15,7 +15,6 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QLabel,
     QPushButton,
-    QSizePolicy,
     QVBoxLayout,
     QWidget,
 )

@@ -47,13 +47,12 @@ from PySide6.QtCore import (
     Qt,
     QEvent,
     QRectF,
-    QSize,
     QThread,
     QTimer,
     Signal,
     Slot,
 )
-from PySide6.QtGui import (QAction, QColor, QImage, QKeySequence, QPainter,
+from PySide6.QtGui import (QColor, QImage, QKeySequence, QPainter,
                            QPainterPath, QPen, QPixmap, QShortcut)
 from PySide6.QtWidgets import (
     QComboBox,
@@ -62,7 +61,6 @@ from PySide6.QtWidgets import (
     QDoubleSpinBox,
     QFileDialog,
     QFormLayout,
-    QFrame,
     QGridLayout,
     QHBoxLayout,
     QLabel,

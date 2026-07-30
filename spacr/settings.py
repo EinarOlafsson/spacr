@@ -1,3 +1,5 @@
+"""Defaults, types, categories, descriptions, and validation for settings."""
+
 import os, ast
 
 #from wsgiref import types
@@ -1602,6 +1604,13 @@ expected_types = {
     'object_type':str,
     "parasite_table": str,
     "compartment": str,
+    "vacuole_key": str,
+    "vacuole_link_distance": (int, float, type(None)),
+    "vacuole_link_factor": (int, float),
+    "parasite_count_column": (str, type(None)),
+    "max_parasites_per_vacuole": int,
+    "require_host_cell": bool,
+    "non_power_of_two_warn": float,
     "outside_channel": int,
     "total_channel": (int, type(None)),
     "intensity_statistic": str,
@@ -1920,7 +1929,6 @@ tooltips = {
     "delete_intermediate": "(bool) - Legacy force-cleanup switch: when True it overrides keep_intermediate and keep_original_images so stack/, masks/, the numeric per-channel folders and the orig/ raw backup are all removed once merged/ is built. Cleanup is already the default, so this is only needed to beat those keep flags. Deletion is skipped unless every field of view reached merged/. Default False.",
     "save": "(bool or list of bool) - Whether to save masks to disk. Can be a list of three booleans for [cell, nucleus, pathogen] independently.",
     "reduction_method": "(str) - Dimensionality reduction run before clustering and plotting: 'umap' preserves more global structure and can be fitted on controls then applied to all data, 'tsne' emphasises local neighbourhoods and cannot reuse a fitted model. With 'tsne', min_dist is ignored and n_neighbors is used as perplexity. Anything else raises ValueError. Default 'umap'.",
-    "schedule": "(str) - Learning-rate scheduler for classifier training. 'cosine' anneals the LR smoothly from its start value down to 1e-7 across all epochs; 'step_lr' multiplies it by 0.75 every epochs/5 steps; 'reduce_lr_on_plateau' cuts it only when validation loss stops improving. Use cosine for a fixed epoch budget, plateau when the epoch count is uncertain. Default 'cosine'.",
     "test_size": "(float) - Fraction of the labelled single-object rows held out as the test split in the tabular ML classifier; the remainder trains the model. Raise it for a more trustworthy accuracy estimate, lower it when labelled data is scarce and you need the rows for training. Valid 0-1, default 0.2 (20% test).",
     "merge_pathogens": "(bool) - Legacy option that merged two touching pathogen labels into one when their shared boundary exceeded 66% of the smaller object's perimeter, so a single PV split by Cellpose counted once. The current Cellpose-SAM path ignores it - use pathogen_perimeter_fraction instead. Default False.",
     "resize": "(bool or float) - Resize every image to target_height x target_width before running Cellpose, then scale the returned mask back to the original dimensions with nearest-neighbour interpolation so measurements stay in original pixels. Turn it on to bring oversized fields to the scale a model was trained at, or to cut GPU memory. Requires target_height and target_width. Default False (True for plaque analysis).",
@@ -2383,6 +2391,13 @@ tooltips = {
     'outside_threshold': '(float or None) - Fixed cut on the outside-stain statistic, applied to every field and overriding both the automatic method and the control wells. Set it only when you have calibrated it yourself: raising it above the true cut moves attached parasites into the invaded class and inflates invasion efficiency, and nothing moves them back. Control wells, if given, stay on as the reference the QC judges the fixed value against. None derives the cut per field. Default None.',
     'outside_threshold_method': "(str) - How the outside-stain cut is derived from each field's own objects when no fixed value and no control wells are given: 'otsu', 'triangle', 'li', 'yen' or 'mean'. All of them find a split; none of them can tell you a split exists, which is what the bimodality check is for. 'triangle' suits a heavily skewed distribution with a small stained minority, 'otsu' a more balanced one. Default 'otsu'.",
     'parasite_table': "(str) - Table in measurements/measurements.db holding one row per segmented parasite. It is read directly rather than through the usual merge, because that merge collapses pathogen rows onto their host cell and would sum several parasites' stain intensities into a single row. Change it only if measure_crop wrote the parasite objects under a non-standard name. Default 'pathogen'.",
+    'vacuole_key': "(str) - Rule used to group individually segmented parasites into vacuoles. 'auto' prefers an explicit vacuole-ID column, otherwise spatially clusters centroids, then falls back to host cell or one parasite per vacuole with a warning. Set 'spatial', 'cell_id', 'object', or an explicit column name to make that biological assumption reproducible. Default 'auto'.",
+    'vacuole_link_distance': "(float or None) - Maximum centroid-to-centroid distance in pixels for spatially linking parasites into the same vacuole. None derives the distance from median parasite diameter times vacuole_link_factor; set a calibrated value when magnification or segmentation scale varies between plates. Too large merges separate vacuoles and too small splits one rosette. Default None.",
+    'vacuole_link_factor': "(float) - Multiplier applied to the median segmented-parasite diameter when vacuole_link_distance is derived automatically. Increasing it joins wider rosettes but also raises the risk of merging nearby vacuoles; decreasing it does the reverse. It is ignored when an explicit link distance or vacuole-ID column is used. Default 1.5.",
+    'parasite_count_column': "(str or None) - Optional column that already stores the number of parasites represented by each segmented row. When set, the assay sums that column per vacuole instead of counting rows, which is required if one row can represent several parasites. None treats every retained row as one parasite. Default None.",
+    'max_parasites_per_vacuole': "(int) - Largest power-of-two parasite count given its own replication bucket. Counts above it remain visible in a '>N' bucket and non-powers stay in the separate QC bucket; they are never clipped or rounded. Use a power of two large enough for the experiment's duration. Default 16.",
+    'require_host_cell': "(bool) - Drop parasite rows with no valid host-cell link before constructing vacuoles. This prevents extracellular debris and attached parasites from entering a replication readout, but it will also remove real infected cells when cell segmentation or parent assignment failed. The number removed is reported. Default True.",
+    'non_power_of_two_warn': "(float) - Fraction of a well's vacuoles allowed in the non-power-of-two bucket before the well is flagged as unreliable. Three-, five-, or seven-parasite rosettes usually indicate segmentation or vacuole-linking errors, so lowering the threshold makes QC stricter without deleting any observations. Default 0.2.",
     'qc_plot_max_panels': '(int) - Largest number of wells drawn in the threshold-diagnostic figure, taken in sorted well order. It exists so a 384-well plate does not produce a 384-panel figure; the CSVs always carry every well regardless. Default 12.',
     'seed_wells_from_cells': '(bool) - Read the cell table as well, so a well holding host cells but no parasites appears in the results with a zero denominator instead of vanishing from the plate entirely. Switch it off only when the database has no cell table. Default True.',
     'threshold_agreement_tolerance': "(float) - Relative distance a threshold may sit from its reference before the field and well are flagged; the reference is the control-derived cut when controls exist, otherwise the field's own automatic cut. 0.5 means a factor of two. Lower it to catch smaller drifts between a fixed threshold and what the data would have chosen. Default 0.5.",
@@ -2617,11 +2632,16 @@ categories = {
     "Sequencing": ["mode", "single_direction", "signal_direction", "target_sequence", "regex", "offset", "offset_start", "expected_end", "chunk_size", "fill_na", "save_h5", "comp_type", "comp_level"],
 
     "Plot": ["cmap", "figuresize", "normalize_plots", "black_background", "save_figure", "log_x", "log_y", "x_lim", "split_axis_lims", "examples_to_plot", "plot_control", "plot_nr", "nr_imgs", "um_per_pixel", "image_nr", "dot_size", "point_color", "point_alpha", "outline_width", "umap_canvas_width", "umap_sidebar_width", "img_zoom", "row_limit", "color_by", "plot_images", "remove_image_canvas", "plot_points", "plot_outlines", "smooth_lines", "plot_by_cluster", "plot_cluster_grids", "heatmap_feature", "grouping", "min_max", "highlight"],
-    # One heading for the whole invasion assay, ordered the way it is set up:
-    # which channels hold the two stains -> how the outside signal is measured
-    # -> how its threshold is chosen -> what makes that threshold trustworthy
-    # -> which objects count at all -> how wells are grouped and reported.
+    # Replication-specific vacuole assignment and scoring. The shared parasite
+    # area filters and empty-well seeding control remain listed once under
+    # "Invasion Assay"; the Qt app-specific category map presents those shared
+    # keys under Replication's Object Filtering/Scoring sections.
     "Replication Assay": [
+        "vacuole_key", "vacuole_link_distance", "vacuole_link_factor",
+        "parasite_count_column", "max_parasites_per_vacuole",
+        "require_host_cell", "non_power_of_two_warn",
+    ],
+    "Endodyogeny Size Proxy (Legacy)": [
         "class_column", "group_by_class", "um_per_px",
         "min_area_bin", "max_area", "max_bins",
     ],
@@ -2908,7 +2928,7 @@ def generate_fields(variables, scrollable_frame, tick_callback=None):
     for key, (var_type, options, default_value) in variables.items():
         try:
             label, widget, var, frame = create_input_field(scrollable_frame.scrollable_frame, key, row, var_type, options, default_value)
-        except Exception as e:
+        except Exception:
             print(f"Warning: Invalid value for {key}, reverting to {default_value}, var_type: {var_type}({default_value}).")
             type_defaults = {
                 'check': False,
@@ -3180,6 +3200,39 @@ def set_analyze_invasion_defaults(settings):
     settings.setdefault('cmap','viridis')
     settings.setdefault('save',True)
     settings.setdefault('verbose',False)
+    return settings
+
+def set_analyze_replication_defaults(settings):
+    """Populate defaults for the parasites-per-vacuole replication assay.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
+    settings.setdefault('src', 'path')
+    settings.setdefault('parasite_table', 'pathogen')
+    settings.setdefault('compartment', 'pathogen')
+    settings.setdefault('vacuole_key', 'auto')
+    settings.setdefault('vacuole_link_distance', None)
+    settings.setdefault('vacuole_link_factor', 1.5)
+    settings.setdefault('parasite_count_column', None)
+    settings.setdefault('min_parasite_area', 0)
+    settings.setdefault('max_parasite_area', None)
+    settings.setdefault('max_parasites_per_vacuole', 16)
+    settings.setdefault('require_host_cell', True)
+    settings.setdefault('seed_wells_from_cells', True)
+    settings.setdefault('non_power_of_two_warn', 0.2)
+    settings.setdefault('cell_types', ['Hela'])
+    settings.setdefault('cell_plate_metadata', None)
+    settings.setdefault('pathogen_types', ['nc', 'pc'])
+    settings.setdefault('pathogen_plate_metadata', [['c1'], ['c2']])
+    settings.setdefault('treatments', None)
+    settings.setdefault('treatment_plate_metadata', None)
+    settings.setdefault('group_column', 'condition')
+    settings.setdefault('level', 'object')
+    settings.setdefault('change_plate', False)
+    settings.setdefault('cmap', 'viridis')
+    settings.setdefault('save', True)
+    settings.setdefault('verbose', False)
     return settings
 
 def set_analyze_endodyogeny_defaults(settings):

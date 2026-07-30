@@ -1,9 +1,9 @@
+"""Object segmentation, filtering, mask generation, and post-processing."""
 
 import os, gc, torch, time
 import numpy as np
 import pandas as pd
 from multiprocessing import Pool, cpu_count
-import matplotlib.pyplot as plt
 try:
     from IPython.display import display
 except Exception:
@@ -26,7 +26,7 @@ from skimage.morphology import (
     closing, dilation, disk, opening, remove_small_holes,
     remove_small_objects, skeletonize, white_tophat,
 )
-from skimage.exposure import equalize_adapthist, rescale_intensity
+from skimage.exposure import equalize_adapthist
 from skimage.restoration import rolling_ball
 
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
@@ -74,7 +74,6 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
         list of filtered mask arrays (one per FOV).
     """
     import numpy as np
-    from joblib import Parallel, delayed
     from .utils import print_progress, _process_single_fov_in_memory
 
     pf = settings.get(f'{object_type}_perimeter_fraction', settings.get(f'{object_type}_perimiter_fraction', 0))
@@ -176,8 +175,6 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
         )
         return out_mask
 
-    n_jobs = settings.get('n_jobs', 1)
-    
     # Always run serial so progress prints work
     filtered_masks = [
         _run_one(idx, mask, img)
@@ -755,8 +752,6 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     
     average_sizes = []
     average_count = []
-    time_ls = []
-    
     for file_index, path in enumerate(paths):
         name = os.path.basename(path)
         name, ext = os.path.splitext(name)
@@ -1088,8 +1083,7 @@ def generate_cellpose_masks(src, settings, object_type):
     """
     from .utils import _masks_to_masks_stack, _filter_cp_masks, _get_cellpose_channels, _choose_model, all_elements_match, prepare_batch_for_segmentation
     from .io import _create_database, _save_object_counts_to_database, _check_masks, _get_avg_object_size
-    from .timelapse import (_npz_to_movie, _btrack_track_cells, _trackpy_track_cells,
-                            _trackastra_track_cells)
+    from .timelapse import _npz_to_movie, _btrack_track_cells, _trackpy_track_cells
     from .plot import plot_cellpose4_output
     from .settings import set_default_settings_preprocess_generate_masks, _get_object_settings
     from .spacr_cellpose import parse_cellpose4_output
@@ -1179,8 +1173,6 @@ def generate_cellpose_masks(src, settings, object_type):
     
     average_sizes = []
     average_count = []
-    time_ls = []
-    
     for file_index, path in enumerate(paths):
         name = os.path.basename(path)
         name, ext = os.path.splitext(name)
@@ -1433,8 +1425,7 @@ def generate_organelle_masks_sam(src, settings, object_type):
         ``<src>/<object_type>_mask_stack/``.
     """
 
-    from .io import _create_database, _save_object_counts_to_database, _check_masks, _get_avg_object_size
-    from .utils import _masks_to_masks_stack, _filter_cp_masks, prepare_batch_for_segmentation
+    from .io import _create_database, _save_object_counts_to_database, _get_avg_object_size
     from .settings import _set_organelle_defaults
     from.plot import plot_organelle_output
 

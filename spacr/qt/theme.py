@@ -1912,24 +1912,24 @@ QPushButton:disabled {{
 QPushButton#PrimaryButton,
 QPushButton[buttonActionRole="positive"] {{
     background-color: transparent;
-    color: {P["accent"]};
-    border: 1px solid {P["accent"]};
+    color: {P["button_accent"]};
+    border: 1px solid {P["button_accent"]};
     font-weight: 600;
     padding: {S["sm"]}px {S["lg"]}px;
 }}
 QPushButton#PrimaryButton:hover,
 QPushButton[buttonActionRole="positive"]:hover {{
-    background-color: {css_color(P["accent"], 0.18)};
-    color: {P["accent"]};
-    border-color: {P["accent"]};
+    background-color: {css_color(P["button_accent"], 0.18)};
+    color: {P["button_accent"]};
+    border-color: {P["button_accent"]};
 }}
 QPushButton#PrimaryButton:pressed,
 QPushButton[buttonActionRole="positive"]:pressed,
 QPushButton#PrimaryButton[buttonActionBusy="true"],
 QPushButton[buttonActionRole="positive"][buttonActionBusy="true"] {{
-    background-color: {P["accent"]};
-    color: {P["bg"]};
-    border-color: {P["accent"]};
+    background-color: {P["button_accent"]};
+    color: {P["button_accent_ink"]};
+    border-color: {P["button_accent"]};
 }}
 QPushButton#DangerButton,
 QPushButton[buttonActionRole="negative"] {{
@@ -1958,9 +1958,9 @@ QPushButton[buttonActionRole="negative"]:disabled {{
     background-color: transparent;
 }}
 QPushButton[buttonActionRole="positive"][buttonActionBusy="true"]:disabled {{
-    background-color: {P["accent"]};
-    color: {P["bg"]};
-    border-color: {P["accent"]};
+    background-color: {P["button_accent"]};
+    color: {P["button_accent_ink"]};
+    border-color: {P["button_accent"]};
 }}
 QPushButton[buttonActionRole="negative"][buttonActionBusy="true"]:disabled {{
     background-color: {P["error"]};

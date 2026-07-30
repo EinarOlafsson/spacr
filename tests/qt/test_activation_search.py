@@ -13,6 +13,8 @@ for the same reason: a QMessageBox in a headless run hangs the suite forever.
 """
 from __future__ import annotations
 
+import importlib.util
+
 import numpy as np
 import pytest
 
@@ -508,7 +510,13 @@ class TestSearchBackend:
             criterion="deletion_auc", data=data)
         assert result.ok
         assert result.higher_is_better is False
-        assert len(result.successful) == 2
+        if importlib.util.find_spec("torchcam") is None:
+            assert len(result.successful) == 1
+            assert len(result.failed) == 1
+            assert result.failed[0].params["cam_type"] == "gradcam"
+            assert "spacr[attribution]" in result.failed[0].error
+        else:
+            assert len(result.successful) == 2
         for trial in result.successful:
             for key in ("deletion_auc", "insertion_auc", "pointing_game",
                         "sanity_gap"):

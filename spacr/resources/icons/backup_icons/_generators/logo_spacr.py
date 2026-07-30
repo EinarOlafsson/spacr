@@ -615,7 +615,6 @@ def v12_nucleus_orbit(p):
     p.restore()
     dot(p, 0.5, 0.5, 0.175)
     for ang, rr in ((-24 + 0, 0.062), (-24 + 128, 0.050), (-24 + 232, 0.044)):
-        a = math.radians(ang)
         # point on the rotated ellipse
         ex, ey = 0.415 * math.cos(math.radians(0)), 0.185 * math.sin(math.radians(0))
         t = math.radians(ang + 24)
@@ -624,7 +623,6 @@ def v12_nucleus_orbit(p):
         x = 0.5 + ex * ca + ey * sa
         y = 0.5 - ex * sa + ey * ca
         dot(p, x, y, rr)
-    a = math.radians(56)
     t = math.radians(72)
     ex, ey = 0.415 * math.cos(t), 0.185 * math.sin(t)
     ca, sa = math.cos(math.radians(56)), math.sin(math.radians(56))

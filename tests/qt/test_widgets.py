@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from PySide6.QtCore import QPoint, Qt
+from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QLabel, QWidget
 
 from spacr.qt.widgets.card import Card
@@ -117,13 +118,13 @@ def test_toggle_knob_can_be_clicked_in_both_states(qtbot):
     t.resize(50, 24)
     t.show()
 
-    qtbot.mouseClick(
+    QTest.mouseClick(
         t, Qt.LeftButton,
         pos=QPoint(t._minimum_knob_x() + t._knob_d // 2, t.height() // 2),
     )
     assert t.isChecked()
 
-    qtbot.mouseClick(
+    QTest.mouseClick(
         t, Qt.LeftButton,
         pos=QPoint(t._maximum_knob_x() + t._knob_d // 2, t.height() // 2),
     )
@@ -137,29 +138,29 @@ def test_toggle_knob_can_be_dragged_between_states(qtbot):
     t.show()
     y = t.height() // 2
 
-    qtbot.mousePress(
+    QTest.mousePress(
         t, Qt.LeftButton,
         pos=QPoint(t._minimum_knob_x() + t._knob_d // 2, y),
     )
-    qtbot.mouseMove(
+    QTest.mouseMove(
         t,
         pos=QPoint(t._maximum_knob_x() + t._knob_d // 2, y),
     )
-    qtbot.mouseRelease(
+    QTest.mouseRelease(
         t, Qt.LeftButton,
         pos=QPoint(t._maximum_knob_x() + t._knob_d // 2, y),
     )
     assert t.isChecked()
 
-    qtbot.mousePress(
+    QTest.mousePress(
         t, Qt.LeftButton,
         pos=QPoint(t._maximum_knob_x() + t._knob_d // 2, y),
     )
-    qtbot.mouseMove(
+    QTest.mouseMove(
         t,
         pos=QPoint(t._minimum_knob_x() + t._knob_d // 2, y),
     )
-    qtbot.mouseRelease(
+    QTest.mouseRelease(
         t, Qt.LeftButton,
         pos=QPoint(t._minimum_knob_x() + t._knob_d // 2, y),
     )

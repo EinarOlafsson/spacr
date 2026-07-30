@@ -203,15 +203,19 @@ def test_paired_read_chunked_processing(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# save-function error branches (bad/unwritable paths -> except: print)
+# save-function error branches (bad/unwritable paths -> print and raise)
 # ---------------------------------------------------------------------------
 
 def test_save_functions_error_branches(capsys):
     bad = "/nonexistent_dir_xyz/out"
     df = pd.DataFrame({"rowID": ["r1"], "columnID": ["c1"],
                        "grna_name": ["g1"], "count": [5]})
-    SEQ.save_df_to_hdf5(df, bad + ".h5")
-    SEQ.save_unique_combinations_to_csv(df, bad + ".csv")
-    SEQ.save_qc_df_to_csv(pd.DataFrame({"a": [1]}), bad + "_qc.csv")
+    with pytest.raises(Exception):
+        SEQ.save_df_to_hdf5(df, bad + ".h5")
+    with pytest.raises(Exception):
+        SEQ.save_unique_combinations_to_csv(df, bad + ".csv")
+    with pytest.raises(Exception):
+        SEQ.save_qc_df_to_csv(
+            pd.DataFrame({"a": [1]}), bad + "_qc.csv")
     out = capsys.readouterr().out
     assert "Error while saving" in out

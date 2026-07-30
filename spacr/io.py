@@ -1,8 +1,11 @@
-import os, re, json, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, glob, queue, threading, tifffile, czifile, atexit, datetime, readlif, tempfile
+"""Image, dataset, and SQLite input/output helpers used across spaCR."""
+
+import os, re, json, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, glob, queue, threading, tifffile, czifile, atexit, readlif, tempfile, logging
 import numpy as np
 import pandas as pd
 from PIL import Image, ImageOps
 from collections import defaultdict, Counter
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from matplotlib.animation import FuncAnimation
 try:
@@ -21,18 +24,8 @@ from skimage import exposure
 import imageio.v2 as imageio2
 import matplotlib.pyplot as plt
 from io import BytesIO
-try:
-    from IPython.display import display
-except Exception:
-    # IPython may be mid-init (partially imported by another
-    # thread) — use a no-op fallback so importing this module
-    # never blocks. spaCR only calls display() from notebook
-    # contexts anyway; the Qt GUI ignores it.
-    def display(*args, **kwargs):
-        pass
-from multiprocessing import Pool, cpu_count, Process, Queue, Value, Lock
+from multiprocessing import Pool, cpu_count
 from torch.utils.data import Dataset, DataLoader, random_split, Subset, WeightedRandomSampler
-import matplotlib.pyplot as plt
 from torchvision.transforms import ToTensor
 import seaborn as sns 
 from nd2reader import ND2Reader
@@ -46,9 +39,11 @@ pyczi = None
 # Fail-loud accounting. Every per-file skip below is recorded on a RunLedger
 # so a batch that lost 40 of 384 files says so at the end and stamps the
 # artifact it produced, instead of writing a silently-short result.
-from .errors import RunLedger, ConfigurationError, raise_if_strict
+from .errors import RunLedger
 from .image_colors import read_image_rgb
 from .tiff_io import write_tiff
+
+LOG = logging.getLogger(__name__)
 
 # One definition of what a well is called. spacr.convert imports nothing
 # heavier than spacr.schema, so this costs nothing here, and it is the reason
@@ -266,8 +261,8 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
                                        invert=False, visualize=False, remove_background=False, 
                                        background=0, Signal_to_noise=10, target_height=None, target_width=None):
     from cellpose import io as cellpose_io
-    from .plot import normalize_and_visualize, plot_resize
-    from .utils import invert_image, apply_mask
+    from .plot import plot_resize
+    from .utils import invert_image
     from skimage.transform import resize as resizescikit
 
     # Ensure percentiles are valid
@@ -594,17 +589,26 @@ class spacrDataset(Dataset):
             self.shuffle_dataset()
 
         if self.pin_memory:
-            # Use multiprocessing to load images in parallel
-            with Pool(processes=cpu_count()) as pool:
-                self.images = pool.map(self.load_image, self.filenames)
+            # PIL decoding is I/O-heavy and releases the GIL. Threads avoid
+            # forking a live Qt/PyTorch process (unsafe and warned against by
+            # Python 3.13) while still overlapping disk reads and decoding.
+            workers = min(len(self.filenames), 32)
+            with ThreadPoolExecutor(
+                max_workers=workers,
+                thread_name_prefix="spacr-image-load",
+            ) as executor:
+                self.images = list(executor.map(
+                    self.load_image, self.filenames))
         else:
             self.images = None
 
     def load_image(self, img_path):
         """Return the image at ``img_path`` decoded as RGB with EXIF orientation applied."""
-        img = Image.open(img_path).convert('RGB')
-        img = ImageOps.exif_transpose(img)  # Handle image orientation
-        return img
+        # Force decoding while the file is open, then detach the returned
+        # image.  Leaving PIL's lazy decoder/file handle alive in a background
+        # prefetch thread can race interpreter/loader cleanup.
+        with Image.open(img_path) as source:
+            return ImageOps.exif_transpose(source).convert('RGB').copy()
 
     def __len__(self):
         """Return the number of samples in the dataset."""
@@ -665,12 +669,13 @@ class spacrDataLoader(DataLoader):
         self.thread = None
         self.current_batch_index = 0
         self._stop_event = False
+        self._stop_signal = threading.Event()
         self._sentinel = object()
         self._error = None
         self.pin_memory = kwargs.get('pin_memory', False)
         atexit.register(self.cleanup)
 
-    def _preload_next_batches(self, q, iterator):
+    def _preload_next_batches(self, q, iterator, stop_signal):
         """Feed every batch of ``iterator`` into ``q``, then a sentinel
         marking end-of-stream.
 
@@ -680,18 +685,32 @@ class spacrDataLoader(DataLoader):
         """
         try:
             for batch in iterator:
-                if self._stop_event:
+                if stop_signal.is_set():
                     break
                 if self.pin_memory:
                     batch = self._pin_memory_batch(batch)
-                q.put(batch)
+                while not stop_signal.is_set():
+                    try:
+                        q.put(batch, timeout=0.1)
+                        break
+                    except queue.Full:
+                        continue
         except Exception as e:
             # Hand the failure to the consumer instead of swallowing it: a
             # collate/decode error used to look identical to "dataset is
             # empty", which silently trains a model on no data.
             self._error = e
+            LOG.exception("spaCR data preloader failed")
         finally:
-            q.put(self._sentinel)
+            # On normal exhaustion the consumer needs a sentinel. During
+            # cleanup it is deliberately omitted: a full bounded queue must
+            # never strand the producer while the owner is joining it.
+            while not stop_signal.is_set():
+                try:
+                    q.put(self._sentinel, timeout=0.1)
+                    break
+                except queue.Full:
+                    continue
 
     def _pin_memory_batch(self, batch):
         if isinstance(batch, (list, tuple)):
@@ -709,6 +728,7 @@ class spacrDataLoader(DataLoader):
         """
         self.cleanup()
         self._stop_event = False
+        self._stop_signal = threading.Event()
         self._error = None
         self.current_batch_index = 0
         q = queue.Queue(maxsize=max(1, self.preload_batches))
@@ -716,7 +736,11 @@ class spacrDataLoader(DataLoader):
         iterator = iter(super().__iter__())
         self._iterator = iterator
         self.thread = threading.Thread(
-            target=self._preload_next_batches, args=(q, iterator), daemon=True)
+            target=self._preload_next_batches,
+            args=(q, iterator, self._stop_signal),
+            daemon=True,
+            name="spacr-data-preloader",
+        )
         self.thread.start()
         return self
 
@@ -738,15 +762,25 @@ class spacrDataLoader(DataLoader):
     def cleanup(self):
         """Signal the preloader to stop and join the background thread."""
         self._stop_event = True
+        stop_signal = getattr(self, '_stop_signal', None)
+        if stop_signal is not None:
+            stop_signal.set()
         thread = getattr(self, 'thread', None)
         if thread is not None and thread.is_alive():
-            # Drain so a full queue can't block the producer's final put.
-            try:
-                while True:
-                    self.batch_queue.get_nowait()
-            except Exception:
-                pass
-            thread.join(timeout=5)
+            # Drain repeatedly while joining: the producer may finish a decode
+            # after the first drain and briefly refill the bounded queue.
+            deadline = time.monotonic() + 5
+            while thread.is_alive() and time.monotonic() < deadline:
+                try:
+                    while True:
+                        self.batch_queue.get_nowait()
+                except (queue.Empty, AttributeError):
+                    pass
+                thread.join(timeout=0.05)
+            if thread.is_alive():
+                LOG.error(
+                    "Data preloader did not stop within five seconds; "
+                    "the daemon thread will be abandoned")
 
     def __del__(self):
         """Ensure background resources are released on garbage collection."""
@@ -1251,7 +1285,6 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
     channels = [item for item in channels if item is not None]
     paths = []
     time_ls = []
-    index = 0
     channel_stack_loc = os.path.join(os.path.dirname(src), 'channel_stack')
     os.makedirs(channel_stack_loc, exist_ok=True)
     if timelapse:
@@ -1708,6 +1741,23 @@ def _normalize_stack(src, backgrounds=None, remove_backgrounds=None, lower_perce
         name, _ = os.path.splitext(file)
 
         for chan_index, channel in enumerate(range(stack.shape[-1])):
+            n_channels = stack.shape[-1]
+            setting_lists = {
+                "backgrounds": backgrounds,
+                "remove_backgrounds": remove_backgrounds,
+                "signal_to_noise": signal_to_noise,
+                "signal_thresholds": signal_thresholds,
+            }
+            short = {
+                name: len(values) for name, values in setting_lists.items()
+                if len(values) < n_channels
+            }
+            if short:
+                details = ", ".join(
+                    f"{name}={length}" for name, length in short.items())
+                raise ValueError(
+                    f"Normalization stack has {n_channels} channels but "
+                    f"per-channel settings are incomplete ({details}).")
             single_channel = stack[:, :, :, channel]
             background = backgrounds[chan_index]
             signal_threshold = signal_thresholds[chan_index]
@@ -1718,13 +1768,17 @@ def _normalize_stack(src, backgrounds=None, remove_backgrounds=None, lower_perce
             if remove_background:
                 single_channel[single_channel < background] = 0
 
-            # Calculate the global lower and upper percentiles for non-zero pixels
+            # Choose an upper percentile whose global signal clears the
+            # requested threshold. An all-zero channel has no percentile;
+            # leave it untouched and let every frame take the zero-SNR path.
             non_zero_single_channel = single_channel[single_channel != 0]
-            global_lower = np.percentile(non_zero_single_channel, lower_percentile)
-            for upper_p in np.linspace(98, 100, num=100).tolist():
-                global_upper = np.percentile(non_zero_single_channel, upper_p)
-                if global_upper >= signal_threshold:
-                    break
+            upper_p = 98.0
+            if non_zero_single_channel.size:
+                for upper_p in np.linspace(98, 100, num=100).tolist():
+                    global_upper = np.percentile(
+                        non_zero_single_channel, upper_p)
+                    if global_upper >= signal_threshold:
+                        break
             
             # Normalize the pixels in each image to the global percentiles and then dtype.
             arr_2d_normalized = np.zeros_like(single_channel, dtype=single_channel.dtype)
@@ -1800,17 +1854,21 @@ def _normalize_timelapse(src, lower_percentile=2, save_dtype=np.float32):
 
         for chan_index in range(stack.shape[-1]):
             single_channel = stack[:, :, :, chan_index]
-            time_ls = []
             for array_index in range(single_channel.shape[0]):
-                start = time.time()
                 arr_2d = single_channel[array_index]
-                # Calculate the 1% and 98% percentiles for this specific image
-                q_low = np.percentile(arr_2d[arr_2d != 0], lower_percentile)
-                q_high = np.percentile(arr_2d[arr_2d != 0], 98)
-
-                # Rescale intensity based on the calculated percentiles to fill the dtype range
-                arr_2d_rescaled = exposure.rescale_intensity(arr_2d, in_range=(q_low, q_high), out_range='dtype')
-                normalized_stack[array_index, :, :, chan_index] = arr_2d_rescaled
+                non_zero = arr_2d[arr_2d != 0]
+                if non_zero.size:
+                    q_low, q_high = np.percentile(
+                        non_zero, (lower_percentile, 98))
+                    if q_high > q_low:
+                        normalized_stack[array_index, :, :, chan_index] = (
+                            exposure.rescale_intensity(
+                                arr_2d, in_range=(q_low, q_high),
+                                out_range='dtype'))
+                    else:
+                        normalized_stack[array_index, :, :, chan_index] = arr_2d
+                else:
+                    normalized_stack[array_index, :, :, chan_index] = arr_2d
 
                 print(f'channels:{chan_index+1}/{stack.shape[-1]}, arrays:{array_index+1}/{single_channel.shape[0]}', end='\r')
 
@@ -1902,7 +1960,7 @@ def delete_empty_subdirectories(folder_path):
             try:
                 os.rmdir(full_dir_path)
                 print(f"Deleted empty directory: {full_dir_path}")
-            except OSError as e:
+            except OSError:
                 continue
                 # An error occurred, likely because the directory is not empty
                 #print(f"Skipping non-empty directory: {full_dir_path}")
@@ -3339,6 +3397,12 @@ def _read_db(db_loc, tables):
             raise ValueError(f"Invalid table name: {name!r}")
         return '"' + name.replace('"', '""') + '"'
 
+    tables = [tables] if isinstance(tables, str) else list(tables)
+    # Validate the caller's identifiers before a schema migration walks every
+    # table in the database. This keeps the public read API's error stable even
+    # when a malformed table happens to exist in SQLite.
+    for table in tables:
+        _quote_identifier(table)
     ensure_database_schema(db_loc)
 
     dfs = []
@@ -3683,281 +3747,6 @@ def _read_and_merge_data(
 
     return merged_df, obj_df_ls
 
-def _read_and_merge_data_v1(locs, tables, verbose=False, nuclei_limit=10, pathogen_limit=10, change_plate=False):
-
-    from .utils import _split_data
-
-    # keep final integer counts per prcfo for pathogens
-    pathogen_counts = None
-
-    # Column of `metadata` that the grouping key (prcfo) was built from. The
-    # child-only branches key on the PARENT cell ('cell_id'), so rebuilding
-    # metadata's prcfo from 'object_label' further down made the final
-    # metadata/data merge match nothing and silently return zero rows.
-    metadata_key = 'object_label'
-
-    # Initialize an empty dictionary to store DataFrames by table name
-    data_dict = {table: [] for table in tables}
-
-    # Extract plate DataFrames
-    for idx, loc in enumerate(locs):
-        db_dfs = _read_db(loc, tables)
-        if change_plate:
-            # _read_db returns a LIST of DataFrames (one per table) — it was
-            # string-subscripted here, so change_plate=True always raised
-            # TypeError and the feature never worked. Relabel each frame.
-            for df in db_dfs:
-                df['plateID'] = f'plate{idx+1}'
-                df['prc'] = (
-                    df['plateID'].astype(str)
-                    + '_' + df['rowID'].astype(str)
-                    + '_' + df['columnID'].astype(str)
-                )
-        for table, df in zip(tables, db_dfs):
-            data_dict[table].append(df)
-
-    # Concatenate rows across locations for each table
-    for table, dfs in data_dict.items():
-        if dfs:
-            data_dict[table] = pd.concat(dfs, axis=0)
-        if verbose:
-            print(f"{table}: {len(data_dict[table])}")
-
-    # Initialize merged DataFrame with 'cells' if available
-    merged_df = pd.DataFrame()
-
-    # Process each table
-    if 'cell' in data_dict:
-        cells = data_dict['cell'].copy()
-        cells = cells.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
-        cells = cells.assign(prcfo=lambda x: x['prcf'] + '_' + x['object_label'])
-        cells_g_df, metadata = _split_data(cells, 'prcfo', 'object_label')
-        merged_df = cells_g_df.copy()
-        if verbose:
-            print(f'cells: {len(cells)}, cells grouped: {len(cells_g_df)}')
-
-    if 'cytoplasm' in data_dict:
-        cytoplasms = data_dict['cytoplasm'].copy()
-        cytoplasms = cytoplasms.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
-        cytoplasms = cytoplasms.assign(prcfo=lambda x: x['prcf'] + '_' + x['object_label'])
-
-        if 'cell' not in data_dict:
-            merged_df, metadata = _split_data(cytoplasms, 'prcfo', 'object_label')
-
-            if verbose:
-                print(f'nucleus: {len(cytoplasms)}, cytoplasms grouped: {len(merged_df)}')
-
-        else:
-            cytoplasms_g_df, _ = _split_data(cytoplasms, 'prcfo', 'object_label')
-            merged_df = _merge_with_cardinality(
-                merged_df,
-                cytoplasms_g_df,
-                left_index=True,
-                right_index=True,
-                validate='one_to_one',
-                left_name='grouped object data',
-                right_name='grouped cytoplasm data',
-            )
-
-            if verbose:
-                print(f'cytoplasms: {len(cytoplasms)}, cytoplasms grouped: {len(cytoplasms_g_df)}')
-
-    if 'nucleus' in data_dict:
-        nucleus = data_dict['nucleus'].copy()
-        nucleus = nucleus.dropna(subset=['cell_id'])
-        nucleus = nucleus.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
-        nucleus = nucleus.assign(cell_id=lambda x: 'o' + x['cell_id'].astype(int).astype(str))
-        nucleus = nucleus.assign(prcfo=lambda x: x['prcf'] + '_' + x['cell_id'])
-        nucleus['nucleus_prcfo_count'] = nucleus.groupby('prcfo')['prcfo'].transform('count')
-
-        if nuclei_limit is not None:
-            if nuclei_limit is True:
-                nucleus = nucleus[nucleus['nucleus_prcfo_count'] == 1]
-            elif isinstance(nuclei_limit, (float, int)):
-                nucleus = nucleus[nucleus['nucleus_prcfo_count'] <= int(nuclei_limit)]
-
-        if all(key not in data_dict for key in ['cell', 'cytoplasm']):
-            merged_df, metadata = _split_data(nucleus, 'prcfo', 'cell_id')
-            metadata_key = 'cell_id'
-
-            if verbose:
-                print(f'nucleus: {len(nucleus)}, nucleus grouped: {len(merged_df)}')
-
-        else:
-            nucleus_g_df, _ = _split_data(nucleus, 'prcfo', 'cell_id')
-            merged_df = _merge_with_cardinality(
-                merged_df,
-                nucleus_g_df,
-                left_index=True,
-                right_index=True,
-                validate='one_to_one',
-                left_name='grouped object data',
-                right_name='grouped nucleus data',
-            )
-
-            if verbose:
-                print(f'nucleus: {len(nucleus)}, nucleus grouped: {len(nucleus_g_df)}')
-
-    if 'pathogen' in data_dict:
-        pathogens = data_dict['pathogen'].copy()
-        pathogens = pathogens.dropna(subset=['cell_id'])
-        pathogens = pathogens.assign(object_label=lambda x: 'o' + x['object_label'].astype(int).astype(str))
-        pathogens = pathogens.assign(cell_id=lambda x: 'o' + x['cell_id'].astype(int).astype(str))
-        pathogens = pathogens.assign(prcfo=lambda x: x['prcf'] + '_' + x['cell_id'])
-        pathogens['pathogen_prcfo_count'] = pathogens.groupby('prcfo')['prcfo'].transform('count')
-
-        if pathogen_limit is not None:
-            if pathogen_limit is True:
-                pathogens = pathogens[pathogens['pathogen_prcfo_count'] <= 1]
-            elif isinstance(pathogen_limit, (float, int)):
-                pathogens = pathogens[pathogens['pathogen_prcfo_count'] <= int(pathogen_limit)]
-
-        if all(key not in data_dict for key in ['cell', 'cytoplasm', 'nucleus']):
-            merged_df, metadata = _split_data(pathogens, 'prcfo', 'cell_id')
-            metadata_key = 'cell_id'
-
-            if verbose:
-                print(f'pathogens: {len(pathogens)}, pathogens grouped: {len(merged_df)}')
-
-        else:
-            pathogens_g_df, _ = _split_data(pathogens, 'prcfo', 'cell_id')
-            merged_df = _merge_with_cardinality(
-                merged_df,
-                pathogens_g_df,
-                left_index=True,
-                right_index=True,
-                validate='one_to_one',
-                left_name='grouped object data',
-                right_name='grouped pathogen data',
-            )
-
-            if verbose:
-                print(f'pathogens: {len(pathogens)}, pathogens grouped: {len(pathogens_g_df)}')
-
-        # ---- NEW: true integer counts per prcfo after pathogen_limit filter ----
-        pathogen_counts = (
-            pathogens.groupby('prcfo')['prcfo']
-            .size()
-            .rename('pathogen_prcfo_count')
-        )
-        # -----------------------------------------------------------------------
-
-    if 'png_list' in data_dict:
-        from .utils import (PNG_CROP_MODE_BY_ID_COLUMN, PNG_OBJECT_ID_COLUMNS,
-                            object_label_from_png_id)
-
-        png_list = data_dict['png_list'].copy()
-        id_column = PNG_OBJECT_ID_COLUMNS['cell']          # 'cell_id'
-        if id_column not in png_list.columns:
-            # Same contract as _read_and_join_tables, same refusal. This used
-            # to be a bare KeyError('cell_id') raised inside _split_data.
-            present = [c for c in png_list.columns
-                       if c in PNG_CROP_MODE_BY_ID_COLUMN]
-            modes = sorted(PNG_CROP_MODE_BY_ID_COLUMN[c] for c in present)
-            raise CropModeMismatch(
-                f"png_list has no {id_column!r} column, so its crops cannot be "
-                f"keyed onto the objects being merged. It holds "
-                + (f"{', '.join(modes)} crops ({', '.join(present)})"
-                   if present else "no object-id column at all")
-                + ". Re-run the Measure module with 'cell' in crop_mode.")
-        # Rows of another crop mode carry NULL here. _split_data rebuilds
-        # prcfo as prcf + '_' + cell_id, so every one of them collapsed onto
-        # one '<field>_None' key per field, was aggregated together, and then
-        # missed the merge. The right answer came out for the wrong reason --
-        # it depended on str(None) not colliding with a real object id -- and
-        # the rows silently averaged each other on the way. Drop them on
-        # purpose instead.
-        keep = object_label_from_png_id(png_list[id_column]).notna()
-        if not keep.all():
-            print(f"png_list: {int((~keep).sum())} of {len(png_list)} rows are "
-                  f"not usable cell crops (another crop mode, or an object id "
-                  f"that is not a number); they take no part in the merge.")
-            png_list = png_list.loc[keep].copy()
-        png_list_g_df_numeric, png_list_g_df_non_numeric = _split_data(png_list, 'prcfo', id_column)
-        png_list_g_df_non_numeric.drop(
-            columns=['plateID', 'rowID', 'columnID', 'fieldID', 'file_name', 'cell_id', 'prcf'],
-            inplace=True,
-            errors='ignore',
-        )
-        if verbose:
-            print(f'png_list: {len(png_list)}, png_list grouped: {len(png_list_g_df_numeric)}')
-            print(f"Added png_list columns: {png_list_g_df_numeric.columns}, {png_list_g_df_non_numeric.columns}")
-        merged_df = _merge_with_cardinality(
-            merged_df,
-            png_list_g_df_numeric,
-            left_index=True,
-            right_index=True,
-            validate='one_to_one',
-            left_name='grouped object data',
-            right_name='grouped numeric crop data',
-        )
-        merged_df = _merge_with_cardinality(
-            merged_df,
-            png_list_g_df_non_numeric,
-            left_index=True,
-            right_index=True,
-            validate='one_to_one',
-            left_name='grouped object and crop data',
-            right_name='grouped crop metadata',
-        )
-
-    # Add prc (plate row column) and prcfo (plate row column field object) columns
-    metadata = metadata.assign(
-        prc=lambda x: x['plateID'] + '_' + x['rowID'] + '_' + x['columnID']
-    )
-    # metadata_key, not a hard-coded 'object_label': for a child-only merge the
-    # cells per well are the distinct PARENT cells, and prcfo must be rebuilt
-    # from the same column the data was grouped on or the merge below is empty.
-    cells_well = metadata.groupby('prc')[metadata_key].nunique().reset_index(name='cells_per_well')
-    metadata = _merge_with_cardinality(
-        metadata,
-        cells_well,
-        on='prc',
-        validate='many_to_one',
-        left_name='object metadata',
-        right_name='well counts',
-    )
-
-    if 'prcf' in metadata.columns:
-        metadata = metadata.assign(prcfo=lambda x: x['prcf'] + '_' + x[metadata_key])
-    else:
-        metadata = metadata.assign(
-            prcfo=lambda x: (
-                x['plateID'] + '_' + x['rowID'] + '_' + x['columnID'] + '_' + x['fieldID'] + '_' + x[metadata_key]
-            )
-        )
-    metadata.set_index('prcfo', inplace=True)
-
-    # Merge metadata with final merged DataFrame
-    merged_df = _merge_with_cardinality(
-        metadata,
-        merged_df,
-        left_index=True,
-        right_index=True,
-        validate='one_to_one',
-        left_name='object metadata',
-        right_name='grouped object data',
-    )
-    merged_df.drop(columns=['label_list_morphology', 'label_list_intensity'], errors='ignore', inplace=True)
-
-    # ---- NEW: overwrite pathogen_prcfo_count with true integer counts ---------
-    if pathogen_counts is not None:
-        merged_df['pathogen_prcfo_count'] = (
-            merged_df.index.to_series()
-            .map(pathogen_counts)
-            .fillna(0)
-            .astype('Int64')
-        )
-    # ---------------------------------------------------------------------------
-
-    if verbose:
-        print(f'Generated dataframe with: {len(merged_df.columns)} columns and {len(merged_df)} rows')
-
-    # Prepare object DataFrames for output
-    obj_df_ls = [data_dict[table] for table in ['cell', 'cytoplasm', 'nucleus', 'pathogen'] if table in data_dict]
-
-    return merged_df, obj_df_ls
-    
 def _read_mask(mask_path):
     mask = imageio2.imread(mask_path)
     if mask.dtype != np.uint16:
@@ -3977,8 +3766,6 @@ def convert_numpy_to_tiff(folder_path, limit=None):
 
     files = os.listdir(folder_path)
 
-    npy_files = [f for f in files if f.endswith('.npy')]
-    
     # Iterate over all files in the folder
     for i, filename in enumerate(files):
         if limit is not None and i >= limit:
@@ -5847,14 +5634,13 @@ def generate_training_dataset(settings):
     still carries everything the metadata rules select on.
 
     Required helpers:
-      - _read_and_merge_data, _read_db (from .io)
+      - _read_db (from this module)
       - generate_dataset_from_lists(dst, class_data, classes, test_split)
       - save_settings (from .utils)
     """
     import os, random, operator, sqlite3
     import numpy as np
 
-    from .io import _read_and_merge_data, _read_db
     from .utils import save_settings
     from .settings import set_generate_training_dataset_defaults
 
@@ -5948,10 +5734,21 @@ def generate_training_dataset(settings):
         }
         mask = np.ones(len(df), dtype=bool)
         for cond in where:
-            col, op, val = cond['column'], cond['op'], cond.get('value', None)
-            if col not in df.columns or op not in OPS:
-                mask &= False
-                continue
+            if not isinstance(cond, dict):
+                raise ValueError(
+                    f"Dataset selection conditions must be mappings; "
+                    f"received {cond!r}.")
+            col, op = cond.get('column'), cond.get('op')
+            val = cond.get('value', None)
+            if col not in df.columns:
+                raise ValueError(
+                    f"Dataset selection rule references unknown column "
+                    f"{col!r}. Available columns: "
+                    f"{sorted(map(str, df.columns))}.")
+            if op not in OPS:
+                raise ValueError(
+                    f"Dataset selection rule uses unsupported operator "
+                    f"{op!r}. Choose from {sorted(OPS)}.")
             series = df[col]
             if op in ('in','notin'):
                 vals = val if isinstance(val, (list,tuple,set)) else [val]
@@ -5995,9 +5792,6 @@ def generate_training_dataset(settings):
             [CROP_REF_COLUMN] if CROP_REF_COLUMN in df.columns else []
         ) + [c for c in ann_cols if c in df.columns]
         df = df[keep_cols]
-
-        # For lookups by path when writing back random labels
-        df_idx_by_path = {p: i for i, p in enumerate(df['png_path'])}
 
         for col in ann_cols:
             if col not in df.columns:
@@ -6157,7 +5951,14 @@ def generate_training_dataset(settings):
                         parsed = _ast.literal_eval(class_meta.strip())
                     except (ValueError, SyntaxError):
                         parsed = [p.strip() for p in class_meta.split(',') if p.strip()]
-                    class_meta = parsed if isinstance(parsed, (list, tuple)) else [parsed]
+                    class_meta = (
+                        parsed if isinstance(parsed, (list, tuple))
+                        else [parsed]
+                    )
+                if not class_meta:
+                    raise ValueError(
+                        "metadata dataset mode requires at least one "
+                        "class_metadata value.")
                 # The column the class_metadata values are matched against is
                 # the one the user named in 'metadata_type_by'. It used to be
                 # hard-coded to 'condition' -- a column no spaCR writer puts
@@ -6208,6 +6009,10 @@ def generate_training_dataset(settings):
                 # backward compatibility
                 ann_cols = [settings.get('annotation_column')]
             ann_cols = [c for c in (ann_cols or []) if c]
+            if not ann_cols:
+                raise ValueError(
+                    "annotation dataset mode requires at least one "
+                    "annotation_columns entry (or annotation_column).")
             ann_vals = settings.get('annotation_values')  # optional dict {col:[values]}
 
             this_names, this_lists = _annotation_classes_from_columns(
@@ -6224,8 +6029,9 @@ def generate_training_dataset(settings):
                 this_lists.append(_class_items(df_sel))
 
         else:
-            print(f"Invalid dataset_mode: {settings['dataset_mode']}. Use 'metadata'|'annotation'|'measurement'.")
-            return None, None
+            raise ValueError(
+                f"Invalid dataset_mode: {settings['dataset_mode']!r}. Use "
+                "'metadata', 'annotation', or 'measurement'.")
 
         # Initialize global collectors (keep class order of first source)
         if class_path_list is None:
@@ -6849,7 +6655,6 @@ def convert_to_yokogawa(folder):
         """
         return _next_synthetic_yokogawa_well(used_wells, 384)
 
-    filenames = []
     rename_log = []
     csv_path = os.path.join(folder, "rename_log.csv")
     used_wells = set()
@@ -7031,7 +6836,7 @@ def convert_to_yokogawa(folder):
                     ndim = images.ndim
 
                     # Defaults
-                    t_dim = z_dim = c_dim = 1
+                    t_dim = c_dim = 1
 
                     # Determine dimensions more explicitly
                     if ndim == 2:
@@ -7081,7 +6886,6 @@ def convert_to_yokogawa(folder):
                                   f"every timepoint written below is a z-plane "
                                   f"and every projection is over time.")
                         t_dim = images.shape[t_axis]
-                        z_dim = images.shape[1 - t_axis]
                         for t in range(t_dim):
                             plane_stack = images[t] if t_axis == 0 else images[:, t]
                             mip_image = np.max(plane_stack, axis=0)

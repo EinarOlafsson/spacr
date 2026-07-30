@@ -582,6 +582,7 @@ def render(key: str, width: int, height: int):
 # ---------------------------------------------------------------------------
 
 def cache_name(key: str, width: int, height: int) -> str:
+    """Return the versioned cache filename for a photographic background."""
     return f"photo-{key}-{width}x{height}-v{CACHE_VERSION}.jpg"
 
 

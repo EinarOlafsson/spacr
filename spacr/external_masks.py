@@ -28,7 +28,7 @@ import re
 import sqlite3
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -93,6 +93,14 @@ class InputGroup:
 
 @dataclass(frozen=True)
 class MaskMatch:
+    """One label-mask file matched to an intensity-image field.
+
+    :ivar path: Absolute mask-file path.
+    :ivar object_type: spaCR object role such as ``cell`` or ``nucleus``.
+    :ivar stem: Canonical field stem shared with the intensity image.
+    :ivar match: Description of the matching rule that succeeded.
+    """
+
     path: str
     object_type: str
     stem: str
@@ -150,6 +158,16 @@ class ExternalMaskPlan:
 
 @dataclass
 class ExternalMaskResult:
+    """Files and database produced by :func:`prepare_external_masks`.
+
+    :ivar destination: Root of the generated spaCR project.
+    :ivar merged: Paths of merged image/mask arrays.
+    :ivar db_path: Generated measurements database.
+    :ivar tables: Measurement tables written to the database.
+    :ivar data_dir: Generated annotation-crop directory.
+    :ivar plan: Validated read-only plan used for the import.
+    """
+
     destination: str
     merged: List[str]
     db_path: str
@@ -235,7 +253,6 @@ def detect_inputs(paths: Sequence[Any], *, recursive: bool = True
         root = source if source.is_dir() else source.parent
         files = _all_files(source, recursive)
         for path in files:
-            stem = cv._split_ext(path.name)[0]
             relative = (
                 str(path.relative_to(root)) if path != root else path.name)
             evidence = os.path.join(root.name, relative)
@@ -404,6 +421,13 @@ def default_settings(settings: Optional[Mapping[str, Any]] = None
 
 def plan_external_masks(settings: Optional[Mapping[str, Any]] = None
                         ) -> ExternalMaskPlan:
+    """Validate and preview an external image/mask import without writing.
+
+    :param settings: Partial settings mapping accepted by
+        :func:`default_settings`.
+    :returns: Pairing plan containing canonical image mappings, per-object
+        mask matches, warnings, and blocking errors.
+    """
     resolved = default_settings(settings)
     groups = _coerce_groups(
         resolved.get("inputs"), recursive=bool(resolved.get("recursive", True)))

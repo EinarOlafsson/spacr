@@ -110,4 +110,5 @@ Contents
 .. toctree::
    :maxdepth: 2
 
+   module_audit
    api/index

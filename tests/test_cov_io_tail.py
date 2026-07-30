@@ -34,11 +34,6 @@ matplotlib.use("Agg", force=True)
 import matplotlib.pyplot as plt  # noqa: E402
 
 import spacr.io as IO  # noqa: E402
-# spacr.io pulls .utils / .settings in lazily from inside the functions under
-# test; import them at collection time so the heavy import chain is not
-# charged to whichever test happens to run first.
-import spacr.settings  # noqa: E402,F401
-import spacr.utils  # noqa: E402,F401
 
 
 # ---------------------------------------------------------------------------
@@ -605,14 +600,17 @@ def test_generate_training_dataset_named_metadata_rules(tmp_path, rng, monkeypat
 def test_generate_training_dataset_unknown_column_aborts(tmp_path, rng, capsys):
     """A rule naming a column that isn't in png_list selects nothing."""
     src, _ = _build_png_src(tmp_path / "plate1", rng)
-    out = IO.generate_training_dataset(_gtd(src, metadata_rules=[
-        {"name": "ghost", "where": [{"column": "not_a_column", "op": "==",
-                                     "value": 1}]},
-        {"name": "badop", "where": [{"column": "columnID", "op": "~=",
-                                     "value": 1}]},
-    ]))
-    assert out == (None, None)
-    assert "No class data assembled" in capsys.readouterr().out
+    with pytest.raises(ValueError, match="unknown column 'not_a_column'"):
+        IO.generate_training_dataset(_gtd(src, metadata_rules=[
+            {"name": "ghost", "where": [{
+                "column": "not_a_column", "op": "==", "value": 1}]},
+        ]))
+
+    with pytest.raises(ValueError, match="unsupported operator '~='"):
+        IO.generate_training_dataset(_gtd(src, metadata_rules=[
+            {"name": "badop", "where": [{
+                "column": "columnID", "op": "~=", "value": 1}]},
+        ]))
 
 
 def test_generate_training_dataset_unnamed_rules_get_derived_names(tmp_path, rng):
@@ -640,10 +638,9 @@ def test_generate_training_dataset_metadata_mode_with_no_classes(tmp_path, rng, 
     ``tests/test_training_dataset_metadata_column.py``.
     """
     src, _ = _build_png_src(tmp_path / "plate1", rng)
-    out = IO.generate_training_dataset(
-        _gtd(src, metadata_rules=None, class_metadata=[]))
-    assert out == (None, None)
-    assert "No class data assembled" in capsys.readouterr().out
+    with pytest.raises(ValueError, match="requires at least one class_metadata"):
+        IO.generate_training_dataset(
+            _gtd(src, metadata_rules=None, class_metadata=[]))
 
 
 def test_generate_training_dataset_metadata_column_is_missing(tmp_path, rng):
@@ -671,17 +668,17 @@ def test_generate_training_dataset_measurement_rules(tmp_path, rng):
 
 def test_generate_training_dataset_invalid_mode(tmp_path, rng, capsys):
     src, _ = _build_png_src(tmp_path / "plate1", rng, n=4)
-    assert IO.generate_training_dataset(
-        _gtd(src, dataset_mode="nonsense")) == (None, None)
-    assert "Invalid dataset_mode" in capsys.readouterr().out
+    with pytest.raises(ValueError, match="Invalid dataset_mode"):
+        IO.generate_training_dataset(_gtd(src, dataset_mode="nonsense"))
 
 
 def test_generate_training_dataset_annotation_without_columns(tmp_path, rng):
     """No annotation columns at all -> no classes -> clean abort."""
     src, _ = _build_png_src(tmp_path / "plate1", rng, n=4)
-    assert IO.generate_training_dataset(_gtd(
-        src, dataset_mode="annotation", annotation_columns=[],
-        annotation_column=None)) == (None, None)
+    with pytest.raises(ValueError, match="requires at least one annotation"):
+        IO.generate_training_dataset(_gtd(
+            src, dataset_mode="annotation", annotation_columns=[],
+            annotation_column=None))
 
 
 def test_generate_training_dataset_annotation_random_class_written_to_db(tmp_path, rng):
@@ -770,10 +767,10 @@ def test_generate_training_dataset_annotation_positives_without_paths(tmp_path, 
     src, _ = _build_png_src(src_dir, rng, png_paths=paths,
                             extra_cols={"ghost": ghost})
 
-    out = IO.generate_training_dataset(_gtd(
-        src, dataset_mode="annotation", annotation_columns=["ghost"],
-        png_type=""))
-    assert out == (None, None)
+    with pytest.raises(ValueError, match="selected no crops"):
+        IO.generate_training_dataset(_gtd(
+            src, dataset_mode="annotation", annotation_columns=["ghost"],
+            png_type=""))
     assert "0 rows; skipping random class" in capsys.readouterr().out
 
 
