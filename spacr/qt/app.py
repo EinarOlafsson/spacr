@@ -233,6 +233,7 @@ APPS = [
     ("umap",           "Image UMAP",     "Generate UMAP embeddings with image glyphs",                  SECTION_RESULTS),
     ("activation",     "Activation",     "Generate activation maps",                                    SECTION_RESULTS),
     ("train_compare",  "Training Runs",  "Overlay several training runs' curves with their settings diffed side by side", SECTION_RESULTS),
+    ("run_history",    "Run History",    "Search every job's settings, files, warnings, failures and performance", SECTION_RESULTS),
     ("report",         "Report",         "One-click shareable HTML/PDF: QC verdict, figures, stats, settings, versions", SECTION_RESULTS),
     # -- Toxoplasma assays: parasite-specific readouts.
     ("analyze_plaques", "Plaque Assay",  "Analyze plaque assay data",                                   SECTION_TOXO),
@@ -265,7 +266,7 @@ STAGES = (STAGE_ALPHA, STAGE_BETA, STAGE_STABLE)
 #: Signing an app off is deleting its line here. Nothing else moves: the
 #: app is already filed under what it does.
 APP_STAGE = {
-    # -- alpha: built and reachable, not yet trusted end to end (14)
+    # -- alpha: built and reachable, not yet trusted end to end (15)
     "align":           STAGE_ALPHA,
     "model_zoo":       STAGE_ALPHA,
     "convert":         STAGE_ALPHA,
@@ -279,6 +280,7 @@ APP_STAGE = {
     "plate_view":      STAGE_ALPHA,
     "agreement":       STAGE_ALPHA,
     "train_compare":   STAGE_ALPHA,
+    "run_history":     STAGE_ALPHA,
     "report":          STAGE_ALPHA,
     # -- beta: further along, in regular use, still not signed off (9)
     "make_masks":      STAGE_BETA,
@@ -1566,6 +1568,11 @@ class MainWindow(QMainWindow):
         if key == "train_compare":
             from .screens.train_compare import TrainCompareScreen
             return TrainCompareScreen()
+        if key == "run_history":
+            from .screens.run_history import RunHistoryScreen
+            screen = RunHistoryScreen()
+            screen.settings_requested.connect(self._on_train_requested)
+            return screen
         from .screens.app_screen import AppScreen
         screen = AppScreen(app_key=key)
         screen.error_explain_requested.connect(self._on_explain_error)

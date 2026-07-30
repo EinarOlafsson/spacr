@@ -76,6 +76,29 @@ def test_pipeline_worker_automatically_writes_manifest(
     assert manifest["seeds"]["declared"]["random_seed"] == 17
 
 
+def test_read_only_worker_can_explicitly_skip_journal(
+        qtbot, qt_theme_applied, _isolated_worker_journal):
+    worker = PipelineWorker(
+        lambda settings: None, {}, app_key="history_refresh", journal=False,
+    )
+    worker.run()
+    assert list(_isolated_worker_journal.iterdir()) == []
+
+
+def test_pipeline_worker_records_console_warnings(
+        qtbot, qt_theme_applied, _isolated_worker_journal):
+    import json
+
+    def warns(_settings):
+        print("WARNING: low object count")
+
+    PipelineWorker(warns, {}, app_key="measure").run()
+    manifest_path = next(_isolated_worker_journal.glob("*/manifest.json"))
+    manifest = json.loads(manifest_path.read_text())
+    assert manifest["warnings"] == ["WARNING: low object count"]
+    assert "process_cpu_s" in manifest["performance"]
+
+
 def test_pipeline_worker_captures_exception(qtbot, qt_theme_applied):
     def _fn(settings):
         raise RuntimeError("boom")

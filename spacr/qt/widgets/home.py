@@ -633,17 +633,12 @@ class QueuedPanel(Panel):
 
 
 class RecentRunsPanel(Panel):
-    """Last few runs from the run journal; each row navigates.
-
-    Marked ``(beta)``: the journal is written by whichever screens
-    remembered to write to it, so "the last four runs" is the last four
-    *recorded* runs, which is not always the same thing.
-    """
+    """Last few automatically journalled runs; each row navigates."""
 
     run_clicked = Signal(str)
 
     def __init__(self, limit: int = 4, parent=None):
-        super().__init__("Recent runs", parent, beta=True)
+        super().__init__("Recent runs", parent)
         self._limit = limit
         self.refresh()
 
@@ -765,14 +760,10 @@ class SystemPanel(Panel):
 
 
 class TotalsPanel(Panel):
-    """Aggregate journal counts.
-
-    Marked ``(beta)`` for the same reason as :class:`RecentRunsPanel`:
-    it sums the same journal, so it inherits the same gaps.
-    """
+    """Aggregate counts from the automatically complete run journal."""
 
     def __init__(self, parent=None):
-        super().__init__("Totals", parent, beta=True)
+        super().__init__("Totals", parent)
         self.refresh()
 
     def refresh(self) -> None:
