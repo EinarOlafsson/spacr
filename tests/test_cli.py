@@ -35,7 +35,7 @@ PKG_ROOT = REPO_ROOT / "spacr"
 
 
 @pytest.fixture(autouse=True)
-def _clean_cli_state():
+def _clean_cli_state(monkeypatch, tmp_path):
     """Drop the CLI's log handlers and restore the env vars it sets.
 
     ``setup_logging`` binds a handler to whatever ``sys.stdout`` is at the
@@ -44,6 +44,11 @@ def _clean_cli_state():
     monkeypatch cannot undo for us.
     """
     import os
+    from spacr import run_journal
+
+    journal_root = tmp_path / "runs"
+    journal_root.mkdir()
+    monkeypatch.setattr(run_journal, "runs_root", lambda: journal_root)
 
     watched = ("TQDM_DISABLE", "SPACR_NO_PROGRESS", "MPLBACKEND")
     before = {k: os.environ.get(k) for k in watched}

@@ -113,4 +113,5 @@ Contents
    module_audit
    localization
    checkpoint_resume
+   reproducibility_manifests
    api/index
