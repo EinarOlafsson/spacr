@@ -85,3 +85,11 @@ def test_exclusion_editor_round_trips_imported_rules(qtbot, tmp_path):
         "columnID": ["c2"],
         "plateID": ["p2"],
     }
+
+
+def test_umap_none_filter_text_collects_as_no_filter(qtbot):
+    model = SettingsWidgets("umap")
+    model.build_sections()
+
+    assert model.set_value_for_key("filter_by", "None")
+    assert model.collect()["filter_by"] is None
