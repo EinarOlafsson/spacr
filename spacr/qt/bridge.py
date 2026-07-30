@@ -588,6 +588,7 @@ class PipelineWorker(QObject):
         settings: Dict[str, Any],
         worker_count: int = 1,
         app_key: str = "",
+        journal: bool = True,
     ):
         """Prepare to run ``fn(settings)`` in a worker thread.
 
@@ -595,11 +596,14 @@ class PipelineWorker(QObject):
         :param settings: keyword-style dict passed as the sole argument.
         :param worker_count: worker allocation reserved in the run registry.
         :param app_key: optional explicit module name for run-history records.
+        :param journal: create a reproducibility manifest. Set false only for
+            read-only background UI maintenance such as refreshing history.
         """
         super().__init__()
         self._fn = fn
         self._settings = settings
         self._app_key_override = str(app_key or "")
+        self._journal_enabled = bool(journal)
         self.worker_count = max(1, int(worker_count))
         #: Latch this worker waits on when the pipeline calls
         #: :func:`checkpoint`. Always present; only *effective* when
@@ -626,7 +630,18 @@ class PipelineWorker(QObject):
     def run(self) -> None:
         """Invoked by QThread.started; runs the pipeline function to completion."""
         _LOCAL.gate = self.gate
-        redirect = _StreamRedirector(self.line_ready.emit)
+        journal_holder = [None]
+
+        def _forward_output(text: str) -> None:
+            """Emit worker text and retain warning lines in its manifest."""
+            self.line_ready.emit(text)
+            run = journal_holder[0]
+            if run is not None and re.search(
+                r"\b(?:warning|warn)\b", text, flags=re.IGNORECASE,
+            ):
+                run.record_warning(text)
+
+        redirect = _StreamRedirector(_forward_output)
         stdout_router, stderr_router = _register_worker_streams(redirect)
 
         # NOTE: there used to be a background "idle-flush pump" daemon
@@ -690,17 +705,19 @@ class PipelineWorker(QObject):
         journal_run = None
         try:
             from spacr.run_journal import open_run
-            self.line_ready.emit(
-                "Recording reproducibility input hashes…\n"
-            )
-            journal_context = open_run(
-                self.app_key or getattr(self._fn, "__name__", "job"),
-                self._settings,
-            )
-            journal_run = journal_context.__enter__()
-            self.line_ready.emit(
-                f"Reproducibility manifest: {journal_run.dir}\n"
-            )
+            if self._journal_enabled:
+                self.line_ready.emit(
+                    "Recording reproducibility input hashes…\n"
+                )
+                journal_context = open_run(
+                    self.app_key or getattr(self._fn, "__name__", "job"),
+                    self._settings,
+                )
+                journal_run = journal_context.__enter__()
+                journal_holder[0] = journal_run
+                self.line_ready.emit(
+                    f"Reproducibility manifest: {journal_run.dir}\n"
+                )
         except Exception as exc:
             journal_context = None
             journal_run = None
@@ -773,6 +790,7 @@ class PipelineWorker(QObject):
             # left paused would otherwise strand anything that later
             # waits on it, and the job is over either way.
             self.gate.resume()
+            journal_holder[0] = None
             _LOCAL.gate = None
             self.finished.emit(ok)
 
@@ -904,6 +922,8 @@ def make_thread(
     fn: Callable[[Dict[str, Any]], Any],
     settings: Dict[str, Any],
     app_key: str = "",
+    *,
+    journal: bool = True,
 ) -> tuple["QThread", PipelineWorker]:
     """Return ``(thread, worker)`` — the caller connects the worker's signals
     and calls ``thread.start()``.
@@ -945,12 +965,15 @@ def make_thread(
     :param app_key: overrides the key stamped on ``fn`` by
         :func:`resolve_pipeline_entry`. Only needed for ad-hoc jobs that
         want to show up on Home under a name of their own.
+    :param journal: create a reproducibility record. Disable only for
+        read-only UI housekeeping that is not an analysis run.
     :returns: an unstarted ``(QThread, PipelineWorker)`` pair.
     """
     thread = QThread()
     allocation = apply_worker_budget(settings)
     worker = PipelineWorker(
         fn, settings, worker_count=allocation, app_key=app_key,
+        journal=journal,
     )
     worker.moveToThread(thread)
     thread.started.connect(worker.run)
