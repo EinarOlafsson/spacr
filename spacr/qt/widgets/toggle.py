@@ -15,6 +15,9 @@ class Toggle(QCheckBox):
         """Initialize the switch with an optional trailing label."""
         super().__init__(text, parent)
         # Approximately 75% of the original 40 x 22 px switch.
+        # Leave two physical pixels before the track: a track starting at x=0
+        # clips half of its antialiased 1.5 px outline.
+        self._track_x = 2
         self._track_w = 30
         self._track_h = 17
         self._knob_d = 12
@@ -31,16 +34,18 @@ class Toggle(QCheckBox):
     def sizeHint(self) -> "QSize":
         """Return the default checkbox hint widened to fit the switch track."""
         base = super().sizeHint()
-        base.setWidth(self._track_w + self._label_gap + base.width())
+        base.setWidth(
+            self._track_x + self._track_w + self._label_gap + base.width())
         return base
 
     def _minimum_knob_x(self) -> int:
         """Return the knob's left edge in the unchecked position."""
-        return (self._track_h - self._knob_d) // 2
+        return self._track_x + (self._track_h - self._knob_d) // 2
 
     def _maximum_knob_x(self) -> int:
         """Return the knob's left edge in the checked position."""
-        return self._track_w - self._knob_d - self._minimum_knob_x()
+        inset = (self._track_h - self._knob_d) // 2
+        return self._track_x + self._track_w - self._knob_d - inset
 
     # Custom paint — QCheckBox default indicator is hidden via QSS
     # (we override paintEvent so we don't render it at all).
@@ -65,7 +70,8 @@ class Toggle(QCheckBox):
             track_fill.setAlpha(90)
         painter.setBrush(QBrush(track_fill))
         painter.setPen(QPen(state_color, 1.5))
-        track_rect = QRect(0, (self.height() - self._track_h) // 2,
+        track_rect = QRect(self._track_x,
+                           (self.height() - self._track_h) // 2,
                             self._track_w, self._track_h)
         painter.drawRoundedRect(track_rect, self._track_h // 2, self._track_h // 2)
         # Knob
@@ -78,7 +84,7 @@ class Toggle(QCheckBox):
         if self.text():
             painter.setPen(QColor(palette["fg"]))
             painter.drawText(
-                self._track_w + self._label_gap,
+                self._track_x + self._track_w + self._label_gap,
                 (self.height() + painter.fontMetrics().ascent()) // 2 - 2,
                 self.text(),
             )
@@ -120,7 +126,7 @@ class Toggle(QCheckBox):
         if self._dragging:
             target = (
                 self._knob_pos + self._knob_d / 2.0
-                >= self._track_w / 2.0
+                >= self._track_x + self._track_w / 2.0
             )
         else:
             target = not self.isChecked()
