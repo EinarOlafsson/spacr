@@ -10,14 +10,17 @@ a real Qt widget grouped into logical Section boxes based on
 from __future__ import annotations
 
 import ast
+from html import escape
 from typing import Any, Dict, List, Optional, Tuple
 
-from PySide6.QtCore import QPoint, QRect, QSize, Qt, Signal
+from PySide6.QtCore import QEvent, QObject, QPoint, QRect, QSize, Qt, Signal
 from PySide6.QtGui import QIntValidator, QDoubleValidator
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
+    QFormLayout,
     QFrame,
+    QGridLayout,
     QLayout,
     QLineEdit,
     QSizePolicy,
@@ -111,7 +114,9 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
         from spacr.external_masks import default_settings
         return default_settings({})
     if app_key == "classify":
-        return deep_spacr_defaults(settings={})
+        settings = deep_spacr_defaults(settings={})
+        settings["src"] = []
+        return settings
     if app_key == "umap":
         settings = set_default_umap_image_settings(settings={})
         # The original controls describe one lab's c1/c2/c3 plate convention.
@@ -185,6 +190,296 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
 }
 
 
+# App-specific category layouts. ``@Name`` expands the corresponding legacy
+# category; plain entries are individual setting keys. The backend settings
+# dictionaries remain unchanged — this controls only the order and grouping in
+# Qt, just like the Classify (CV) regroup below.
+_APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
+    "ml_analyze": (
+        ("Data & Controls", (
+            "src", "location_column", "positive_control", "negative_control",
+            "annotation_column",
+        )),
+        ("Feature Preparation", (
+            "channel_of_interest", "exclude", "nuclei_limit",
+            "pathogen_limit", "remove_highly_correlated_features",
+            "remove_low_variance_features", "minimum_cell_count",
+        )),
+        ("Classifier & Validation", (
+            "model_type_ml", "n_estimators", "learning_rate", "test_size",
+            "cross_validation", "reg_alpha", "reg_lambda",
+        )),
+        ("Feature Selection & Importance", (
+            "prune_features", "top_features", "n_repeats",
+        )),
+        ("Output & Database", ("save_to_db",)),
+        ("Plots & Heatmaps", (
+            "cmap", "heatmap_feature", "grouping", "min_max",
+        )),
+        ("Runtime & Reliability", ("verbose", "n_jobs")),
+    ),
+    "mask": (
+        ("Input & Metadata", (
+            "src", "cell_channel", "nucleus_channel", "pathogen_channel",
+            "organelle_channel", "channels", "magnification",
+            "metadata_type", "custom_regex",
+        )),
+        ("Workflow & Test Run", (
+            "preprocess", "masks", "test_mode", "test_images", "resume",
+            "dry_run",
+        )),
+        ("Image Preprocessing", (
+            "normalize", "lower_percentile", "randomize", "batch_fields",
+            "all_to_mip", "upscale", "upscale_factor", "consolidate",
+            "denoise",
+        )),
+        ("Cell Segmentation", ("@Cell",)),
+        ("Nucleus Segmentation", ("@Nucleus",)),
+        ("Pathogen Segmentation", ("@Pathogen",)),
+        ("Organelle Segmentation", ("@Organelle",)),
+        ("Quality Control", ("@Segmentation QC",)),
+        ("Volumetric Processing (Beta)", ("@3D Settings (Beta)",)),
+        ("Time Axes & Tracking (Beta)", ("@4D Settings (Beta)",)),
+        ("Visualization & Diagnostics", (
+            "plot", "cmap", "figuresize", "normalize_plots",
+            "examples_to_plot",
+        )),
+        ("Output & Storage", (
+            "save", "delete_intermediate", "keep_intermediate",
+            "keep_original_images", "save_original_images", "keep_npz",
+            "compression", "filter", "merge_pathogens",
+        )),
+        ("Runtime & Reliability", (
+            "strict_errors", "max_failure_rate", "verbose", "n_jobs",
+            "batch_size", "pipeline_style", "diameter_estimate_n_fields",
+        )),
+    ),
+    "measure": (
+        ("Input & Experiment", ("src", "experiment")),
+        ("Mask & Channel Mapping", (
+            "channels", "cell_mask_dim", "nucleus_mask_dim",
+            "pathogen_mask_dim", "organelle_mask_dim", "cytoplasm",
+            "timelapse", "timelapse_objects",
+        )),
+        ("Measurement Features", (
+            "save_measurements", "calculate_correlation",
+            "manders_thresholds", "homogeneity", "homogeneity_distances",
+            "radial_dist", "distance_gaussian_sigma",
+        )),
+        ("Object Filtering", (
+            "uninfected", "cell_min_size", "cytoplasm_min_size",
+            "nucleus_min_size", "pathogen_min_size", "organelle_min_size",
+            "merge_edge_pathogen_cells",
+        )),
+        ("Crop Output", (
+            "save_png", "save_arrays", "crop_mode", "png_size", "png_dims",
+            "dialate_pngs", "dialate_png_ratios", "use_bounding_box",
+            "normalize", "normalize_by",
+        )),
+        ("Preview & Diagnostics", ("plot", "test_mode", "test_nr")),
+        ("3D Calibration (Beta)", (
+            "anisotropy", "voxel_size_z_um", "voxel_size_xy_um",
+        )),
+        ("Runtime & Reliability", (
+            "resume", "strict_errors", "max_failure_rate", "dry_run",
+            "verbose", "n_jobs",
+        )),
+    ),
+    "timelapse": (
+        ("Input & Metadata", (
+            "src", "cell_channel", "nucleus_channel", "pathogen_channel",
+            "organelle_channel", "channels", "magnification",
+            "metadata_type", "custom_regex",
+        )),
+        ("Acquisition & Axes", (
+            "timelapse", "t_stack", "t_axis_order", "t_axis",
+            "frame_interval_s", "z_stack", "z_segmentation_mode", "z_axis",
+            "z_projection", "anisotropy", "voxel_size_z_um",
+            "voxel_size_xy_um", "stitch_threshold",
+        )),
+        ("Image Preprocessing", (
+            "normalize", "lower_percentile", "randomize", "batch_fields",
+            "all_to_mip", "upscale", "upscale_factor", "consolidate",
+            "denoise",
+        )),
+        ("Cell Segmentation", ("@Cell",)),
+        ("Nucleus Segmentation", ("@Nucleus",)),
+        ("Pathogen Segmentation", ("@Pathogen",)),
+        ("Organelle Segmentation", ("@Organelle",)),
+        ("Quality Control", ("@Segmentation QC",)),
+        ("Tracking Setup", (
+            "timelapse_objects", "timelapse_frame_limits",
+            "timelapse_remove_transient", "fps",
+        )),
+        ("Tracking Backends", (
+            "timelapse_mode", "trackastra_model", "trackastra_linking",
+            "ultrack_max_distance", "ultrack_division_weight",
+            "ultrack_contour_sigma", "ultrack_n_workers",
+            "timelapse_displacement", "timelapse_memory",
+            "t_track_backend", "t_link_threshold",
+            "t_max_displacement_px", "t_max_displacement_um",
+            "t_project_for_tracking",
+        )),
+        ("Visualization & Diagnostics", (
+            "plot", "cmap", "figuresize", "normalize_plots",
+            "examples_to_plot",
+        )),
+        ("Output & Storage", (
+            "save", "delete_intermediate", "keep_intermediate",
+            "keep_original_images", "save_original_images", "keep_npz",
+            "compression", "filter", "merge_pathogens",
+        )),
+        ("Runtime & Reliability", (
+            "preprocess", "masks", "test_mode", "test_images", "resume",
+            "strict_errors", "max_failure_rate", "dry_run", "verbose",
+            "n_jobs", "batch_size", "pipeline_style",
+            "diameter_estimate_n_fields",
+        )),
+    ),
+    "motility": (
+        ("Objects & Channels", (
+            "src", "tracked_object", "cell_channel", "nucleus_channel",
+            "pathogen_channel", "channels",
+        )),
+        ("Spatial & Temporal Calibration", (
+            "seconds_per_frame", "pixels_per_um",
+        )),
+        ("Motion Filtering", (
+            "max_displacement", "straightness_threshold",
+            "straightness_filter", "zscore_thresh",
+        )),
+        ("Infection Classification", (
+            "infection_intensity_strategy", "infection_intensity_qc_scope",
+            "infection_intensity_mode", "infection_intensity_n_bins",
+            "db_table_name", "reuse_existing_measurements",
+            "infection_xgb_proba_column", "infection_xgb_drop_ambiguous",
+            "infection_xgb_ambiguous_low", "infection_xgb_ambiguous_high",
+        )),
+        ("XGBoost Infection Model", (
+            "infection_xgb_min_cells_per_class",
+            "infection_xgb_n_estimators", "infection_xgb_max_depth",
+            "infection_xgb_learning_rate", "infection_xgb_subsample",
+            "infection_xgb_colsample_bytree", "infection_xgb_reg_lambda",
+            "infection_xgb_random_state", "infection_xgb_n_jobs",
+            "infection_xgb_proba_threshold", "infection_xgb_margin",
+            "infection_xgb_top_features",
+        )),
+        ("Infection Clustering", (
+            "infection_pca_n_clusters", "infection_pca_random_state",
+            "infection_pca_pathogen_weight", "infection_pca_log_intensity",
+            "infection_pca_min_silhouette",
+            "infection_pca_min_gt_separation", "infection_pca_max_cells",
+        )),
+        ("Embedding Search", (
+            "infection_pca_umap_search",
+            "infection_pca_umap_n_neighbors_grid",
+            "infection_pca_umap_min_dist_grid",
+            "infection_pca_umap_n_neighbors",
+            "infection_pca_umap_min_dist", "infection_pca_tsne_search",
+            "infection_pca_tsne_perplexity_grid",
+            "infection_pca_tsne_learning_rate_grid",
+            "infection_pca_tsne_perplexity",
+        )),
+        ("Motility Plots & QC", (
+            "motility_ylim", "motility_xlim",
+            "infection_intensity_qc_graphs",
+        )),
+        ("Runtime & Reliability", ("n_jobs",)),
+    ),
+    "regression": (
+        ("Input Tables", ("metadata_files", "score_data", "count_data")),
+        ("Controls & Plate Design", (
+            "plateID", "positive_control", "negative_control", "controls",
+            "filter_column", "filter_value",
+        )),
+        ("Model & Covariates", (
+            "regression_type", "dependent_variable", "agg_type", "transform",
+            "alpha", "cov_type", "random_row_column_effects",
+        )),
+        ("Hit Calling & Outliers", (
+            "min_cell_count", "fraction_threshold", "target_unique_count",
+            "outlier_detection", "threshold_method", "threshold_multiplier",
+            "min_n", "toxo",
+        )),
+        ("Regression Plots", (
+            "volcano", "log_x", "log_y", "x_lim", "split_axis_lims",
+        )),
+        ("Runtime & Reliability", ("strict_errors", "max_failure_rate")),
+    ),
+    "activation": (
+        ("Model & Data", (
+            "dataset", "model_path", "model_type", "image_size",
+            "object_type", "channels",
+        )),
+        ("Attribution Method", (
+            "cam_type", "target_layer", "smoothgrad_samples",
+            "smoothgrad_sigma", "occlusion_window", "occlusion_stride",
+            "ig_steps", "ig_baseline",
+        )),
+        ("Attribution Validation", (
+            "attribution_steps", "attribution_baseline", "sanity_check",
+        )),
+        ("Map Display", (
+            "normalize", "normalize_input", "overlay", "plot",
+        )),
+        ("Map Quantification", ("correlation", "manders_thresholds")),
+        ("Output & Runtime", (
+            "save", "shuffle", "batch_size", "n_jobs",
+        )),
+    ),
+    "replication": (
+        ("Assay Inputs", ("src", "tables", "compartment")),
+        ("Condition Metadata", (
+            "cell_types", "cell_plate_metadata", "pathogen_types",
+            "pathogen_plate_metadata", "treatments",
+            "treatment_plate_metadata", "group_column", "level",
+            "change_plate",
+        )),
+        ("Object Filtering", (
+            "nuclei_limit", "pathogen_limit", "um_per_px", "min_area_bin",
+            "max_area",
+        )),
+        ("Replication Scoring", (
+            "class_column", "group_by_class", "max_bins",
+        )),
+        ("Assay Output", ("cmap", "save")),
+        ("Runtime & Reliability", ("verbose",)),
+    ),
+}
+
+
+def _categories_from_spec(
+    source: Dict[str, List[str]],
+    spec: Tuple[Tuple[str, Tuple[str, ...]], ...],
+) -> Dict[str, List[str]]:
+    """Expand one app layout and retain future settings under a named bucket."""
+    ordered: Dict[str, List[str]] = {}
+    assigned = set()
+    available = {key for keys in source.values() for key in keys}
+    for title, tokens in spec:
+        keys: List[str] = []
+        for token in tokens:
+            candidates = (
+                source.get(token[1:], [])
+                if token.startswith("@") else [token]
+            )
+            for key in candidates:
+                if key in available and key not in assigned:
+                    assigned.add(key)
+                    keys.append(key)
+        ordered[title] = keys
+
+    remaining = []
+    for keys in source.values():
+        for key in keys:
+            if key not in assigned:
+                assigned.add(key)
+                remaining.append(key)
+    if remaining:
+        ordered["Additional Settings"] = remaining
+    return ordered
+
+
 def get_categories() -> Dict[str, List[str]]:
     """Return the {category_name: [setting keys]} mapping."""
     from spacr.settings import categories
@@ -238,7 +533,53 @@ def categories_for_app(
                 while key in keys:
                     keys.remove(key)
         result["UMAP Display"] = list(display)
-    if app_key in ("measure", "external_masks"):
+    if app_key in _APP_CATEGORY_SPECS:
+        result = _categories_from_spec(result, _APP_CATEGORY_SPECS[app_key])
+    if app_key == "classify":
+        ordered = {
+            "Plate Sources & Workflow": [
+                "src", "experiment", "generate_training_dataset", "train",
+                "test"],
+            "Labels & Classes": [
+                "dataset_mode", "classes", "annotation_column",
+                "annotated_classes", "class_metadata", "metadata_type_by",
+                "metadata_item_1_name", "metadata_item_1_value",
+                "metadata_item_2_name", "metadata_item_2_value",
+                "custom_measurement"],
+            "Crops & Dataset Split": [
+                "tables", "channel_of_interest", "png_type", "file_type",
+                "crop_source", "size", "test_split", "balance_to_smallest",
+                "write_random_annotation_column"],
+            "Model Architecture": [
+                "model_type", "custom_model", "custom_model_path",
+                "resume_checkpoint", "train_channels", "image_size",
+                "normalize", "dropout_rate", "init_weights", "use_checkpoint"],
+            "Optimization & Loss": [
+                "optimizer_type", "learning_rate", "weight_decay", "amsgrad",
+                "schedule", "loss_type", "class_balance", "label_smoothing",
+                "focal_gamma", "focal_alpha", "logit_adjust_tau", "epochs",
+                "batch_size", "augment", "gradient_accumulation",
+                "gradient_accumulation_steps", "early_stopping_patience"],
+            "Validation": [
+                "val_split", "cross_validation_enabled",
+                "cross_validation_folds", "cv_group_by", "score_threshold"],
+            "Full Dataset & Inference": [
+                "generate_full_dataset", "apply_model_to_dataset",
+                "tar_path", "dataset", "file_metadata", "sample",
+                "model_path", "n_top_examples"],
+            "Monitoring & Runtime": [
+                "plot", "tensorboard", "intermedeate_save", "pin_memory",
+                "random_seed", "n_jobs", "verbose", "strict_errors",
+                "max_failure_rate"],
+        }
+        moved = {key for keys in ordered.values() for key in keys}
+        leftovers = []
+        for keys in result.values():
+            leftovers.extend(key for key in keys if key not in moved)
+        if leftovers:
+            ordered["Additional Settings"] = list(dict.fromkeys(leftovers))
+        result = ordered
+    if app_key == "external_masks":
         filter_keys = (
             "uninfected", "cell_min_size", "cytoplasm_min_size",
             "nucleus_min_size", "pathogen_min_size", "organelle_min_size",
@@ -291,6 +632,8 @@ _APP_API_MODULE = {
     "make_masks": "spacr_cellpose",
     "train_cellpose": "spacr_cellpose",
     "cellpose_masks": "spacr_cellpose",
+    "figure": "plot",
+    "ai": "qt/ai",
 }
 
 
@@ -350,15 +693,20 @@ def _strip_type_prefix(text: str) -> str:
 
 
 def format_tooltip(text: str, app_key: str, key: str = "") -> str:
-    """Return a standardised HTML tooltip: ``Name (type)`` + description."""
-    body = " ".join(_strip_type_prefix(text).split())
-    header = _humanize(key)
-    th = _type_hint(key)
+    """Return a typed HTML tooltip ending in a clickable API-doc link."""
+    body = escape(" ".join(_strip_type_prefix(text).split()))
+    header = escape(_humanize(key))
+    th = escape(_type_hint(key))
     if header and th:
         header = f"<b>{header}</b> <i>({th})</i>"
     elif header:
         header = f"<b>{header}</b>"
-    parts = [p for p in (header, body) if p]
+    if not body:
+        body = f"Controls {escape(_humanize(key).lower())}." if key else \
+            "Controls this setting."
+    url = escape(api_docs_url(app_key), quote=True)
+    link = f'<a href="{url}">Open spaCR API documentation</a>'
+    parts = [p for p in (header, body, link) if p]
     return "<br>".join(parts)
 
 
@@ -370,7 +718,226 @@ def plain_tooltip(text: str, app_key: str, key: str = "") -> str:
     name = _humanize(key)
     head = f"{name} ({th})" if (name and th) else name
     parts = [p for p in (head, body) if p]
-    return " — ".join(parts)
+    summary = " — ".join(parts)
+    url = api_docs_url(app_key)
+    return f"{summary} — API: {url}" if summary else f"API: {url}"
+
+
+class _ApiTooltipFilter(QObject):
+    """Show rich setting help in the clickable sticky tooltip."""
+
+    def eventFilter(self, watched, event):  # noqa: N802 (Qt naming)
+        html = watched.property("apiTooltipHtml")
+        if not html:
+            return False
+        if event.type() == QEvent.Enter:
+            from ..widgets.hover_tooltip import HoverTooltip
+            HoverTooltip.instance().show_for(watched, str(html))
+        elif event.type() == QEvent.Leave:
+            from ..widgets.hover_tooltip import HoverTooltip
+            HoverTooltip.instance().start_hide()
+        elif event.type() == QEvent.ToolTip:
+            # Suppress the native tooltip: it disappears when the pointer moves
+            # toward its link, whereas HoverTooltip is intentionally clickable.
+            return True
+        return False
+
+
+def attach_api_tooltip(
+    widget: QWidget,
+    app_key: str,
+    key: str,
+    description: str = "",
+    _descriptions: Optional[Dict[str, str]] = None,
+) -> str:
+    """Attach typed, linked API help metadata to one setting widget."""
+    descriptions = _descriptions if _descriptions is not None else get_tooltips()
+    body = descriptions.get(key) or description or widget.property(
+        "apiTooltipDescription") or widget.toolTip()
+    body = str(body or f"Controls {_humanize(key).lower()}.")
+    html = format_tooltip(body, app_key, key)
+    widget.setProperty("settingsAppKey", app_key)
+    widget.setProperty("settingKey", key)
+    widget.setProperty("apiTooltipDescription", body)
+    widget.setProperty("apiTooltipHtml", html)
+    widget.setToolTip(html)
+    widget.setToolTipDuration(-1)
+    return html
+
+
+def install_api_tooltips(
+    owner: QWidget,
+    app_key: str,
+    widget_keys: Optional[Dict[QWidget, str]] = None,
+) -> None:
+    """Give every mapped/generated popup setting label consistent API help.
+
+    ``SettingsWidgets`` controls are discovered through their ``settingKey``
+    property. Hand-built Live/Crop/Search controls are supplied in
+    ``widget_keys``. Descriptive help belongs to the label, not the editable
+    field; a compact teal dot immediately beside that label opens the API page.
+    """
+    event_filter = getattr(owner, "_api_tooltip_filter", None)
+    if event_filter is None:
+        event_filter = _ApiTooltipFilter(owner)
+        owner._api_tooltip_filter = event_filter
+
+    mapped = dict(widget_keys or {})
+    for widget in owner.findChildren(QWidget):
+        if widget.property("settingHelpLabel"):
+            continue
+        key = widget.property("settingKey")
+        if key and widget not in mapped:
+            mapped[widget] = str(key)
+    descriptions = get_tooltips()
+    for widget, key in mapped.items():
+        # Explicitly hidden controls are not settings in this popup. Decorating
+        # one would create a visible wrapper/dot with a hidden field at (0, 0),
+        # recreating the very kind of orphan overlay this helper should avoid.
+        if widget.isHidden():
+            continue
+        html = attach_api_tooltip(
+            widget, app_key, key, _descriptions=descriptions)
+        label = _setting_label_for_field(owner, widget)
+        if label is None:
+            # A one-widget form row (usually a Toggle/QCheckBox) carries its
+            # own visible label. Keep hover help on its text and put the same
+            # teal API dot immediately after the combined label/control.
+            widget.installEventFilter(event_filter)
+            _add_api_dot_to_combined_control(
+                owner, widget, app_key, key, html)
+            continue
+
+        label.setCursor(Qt.WhatsThisCursor)
+        label.setProperty("settingHelpLabel", True)
+        label.setProperty("settingsAppKey", app_key)
+        label.setProperty("settingKey", key)
+        label.setProperty("apiTooltipHtml", html)
+        label.setToolTip(html)
+        label.setToolTipDuration(-1)
+        label.installEventFilter(event_filter)
+
+        # The editor itself remains quiet on hover. Keep its metadata so tests,
+        # integrations and a later re-parenting pass can still identify it.
+        widget.setToolTip("")
+        widget.removeEventFilter(event_filter)
+        _add_api_dot_to_label(label, app_key, key, html)
+
+
+def _setting_label_for_field(owner: QWidget, field: QWidget) -> Optional[QWidget]:
+    """Find the visual label immediately to the left of a popup field."""
+    remembered = getattr(field, "_spacr_setting_label", None)
+    if isinstance(remembered, QWidget):
+        try:
+            remembered.objectName()
+            if remembered.window() is owner.window():
+                return remembered
+        except RuntimeError:
+            pass
+
+    for form in owner.findChildren(QFormLayout):
+        label = form.labelForField(field)
+        if isinstance(label, QWidget):
+            field._spacr_setting_label = label
+            return label
+
+    # Hand-built search panels use compact grids rather than QFormLayout.
+    # Select the nearest widget to the field's left on the same row.
+    for grid in owner.findChildren(QGridLayout):
+        index = grid.indexOf(field)
+        if index < 0:
+            continue
+        row, column, _row_span, _column_span = grid.getItemPosition(index)
+        for candidate_column in range(column - 1, -1, -1):
+            item = grid.itemAtPosition(row, candidate_column)
+            candidate = item.widget() if item is not None else None
+            if isinstance(candidate, QLabel):
+                field._spacr_setting_label = candidate
+                return candidate
+    return None
+
+
+def _add_api_dot_to_label(
+    label: QWidget,
+    app_key: str,
+    key: str,
+    html: str,
+) -> None:
+    """Place one clickable teal API dot immediately to a setting label's right."""
+    if bool(label.property("settingApiDotInstalled")):
+        return
+    parent = label.parentWidget()
+    layout = parent.layout() if parent is not None else None
+    if layout is None:
+        return
+
+    from ..widgets.info_link import InfoLink
+    host = QWidget(parent)
+    host.setObjectName("SettingLabelWithInfo")
+    row = QHBoxLayout(host)
+    row.setContentsMargins(0, 0, 0, 0)
+    row.setSpacing(4)
+    row.addStretch(1)
+    replaced = layout.replaceWidget(label, host)
+    if replaced is None:
+        host.deleteLater()
+        return
+    label.setParent(host)
+    row.addWidget(label)
+    dot = InfoLink(
+        api_docs_url(app_key),
+        tooltip=f"Open API reference for {_humanize(key)}",
+        parent=host,
+    )
+    dot.setObjectName("SettingInfoLink")
+    dot.setProperty("apiTooltipHtml", html)
+    row.addWidget(dot)
+    label.setProperty("settingApiDotInstalled", True)
+    label._spacr_api_dot = dot
+
+
+def _add_api_dot_to_combined_control(
+    owner: QWidget,
+    field: QWidget,
+    app_key: str,
+    key: str,
+    html: str,
+) -> None:
+    """Add an API dot after a Toggle/QCheckBox that is its own row label."""
+    existing = getattr(field, "_spacr_api_dot", None)
+    if isinstance(existing, QWidget):
+        try:
+            if existing.window() is owner.window():
+                return
+        except RuntimeError:
+            pass
+    parent = field.parentWidget()
+    layout = parent.layout() if parent is not None else None
+    if layout is None:
+        return
+
+    from ..widgets.info_link import InfoLink
+    host = QWidget(parent)
+    host.setObjectName("SettingControlWithInfo")
+    row = QHBoxLayout(host)
+    row.setContentsMargins(0, 0, 0, 0)
+    row.setSpacing(4)
+    replaced = layout.replaceWidget(field, host)
+    if replaced is None:
+        host.deleteLater()
+        return
+    field.setParent(host)
+    row.addWidget(field)
+    dot = InfoLink(
+        api_docs_url(app_key),
+        tooltip=f"Open API reference for {_humanize(key)}",
+        parent=host,
+    )
+    dot.setObjectName("SettingInfoLink")
+    dot.setProperty("apiTooltipHtml", html)
+    row.addWidget(dot)
+    row.addStretch(1)
+    field._spacr_api_dot = dot
 
 
 # ---------------------------------------------------------------------------
@@ -1034,6 +1601,9 @@ class SettingsWidgets:
             widget = self._widget_for(kind, options, default, key)
             if widget is not None:
                 tip = format_tooltip(self._tooltips.get(key, ""), self.app_key, key)
+                widget.setProperty("settingsAppKey", self.app_key)
+                widget.setProperty("settingKey", key)
+                widget.setProperty("apiTooltipHtml", tip)
                 widget.setToolTip(tip)
                 widget.setToolTipDuration(-1)  # respect system default (persistent)
                 self._widgets[key] = widget

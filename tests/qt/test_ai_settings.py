@@ -116,3 +116,14 @@ def test_providers_dialog_has_settings_tab(qtbot, qt_theme_applied):
     labels = [tabwidget.tabText(i) for i in range(tabwidget.count())]
     assert "Providers" in labels
     assert "Settings" in labels
+    for widget in (
+            dlg._speed_combo, dlg._auto_issue_chk, dlg._route_errors_chk,
+            dlg._gh_token, dlg._prompt_edit):
+        label = getattr(widget, "_spacr_setting_label", None)
+        if label is not None:
+            assert widget.toolTip() == ""
+            assert "href=" in label.toolTip()
+            assert getattr(label, "_spacr_api_dot", None) is not None
+        else:
+            assert "href=" in widget.toolTip()
+            assert getattr(widget, "_spacr_api_dot", None) is not None

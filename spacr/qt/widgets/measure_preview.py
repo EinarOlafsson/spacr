@@ -806,6 +806,45 @@ class CropSettingsDialog(QDialog):
         buttons.rejected.connect(self.close)
         outer.addWidget(buttons)
         panel._refresh_control_gates()
+        from ..screens.settings_model import install_api_tooltips
+        widget_keys = {
+            panel._experiment: "experiment",
+            panel._measurement_channels: "channels",
+            panel._object_box: "crop_mode",
+            panel._mask_dims["cell"]: "cell_mask_dim",
+            panel._mask_dims["nucleus"]: "nucleus_mask_dim",
+            panel._mask_dims["pathogen"]: "pathogen_mask_dim",
+            panel._mask_dims["organelle"]: "organelle_mask_dim",
+            panel._cytoplasm: "cytoplasm",
+            panel._plot: "plot",
+            panel._test_mode: "test_mode",
+            panel._timelapse: "timelapse",
+            panel._save_png: "save_png",
+            panel._save_arrays: "save_arrays",
+            panel._crop_width: "png_size",
+            panel._crop_height: "png_size",
+            panel._lock_aspect: "lock_aspect_ratio",
+            panel._png_dims: "png_dims",
+            panel._use_bbox: "use_bounding_box",
+            panel._buffer: "bounding_box_padding",
+            panel._normalise: "normalize",
+            panel._lo_pct: "lower_percentile",
+            panel._hi_pct: "upper_percentile",
+            panel._normalize_by: "normalize_by",
+            panel._dilate: "dialate_pngs",
+            panel._dilate_ratio: "dialate_png_ratios",
+            panel._uninfected: "uninfected",
+            panel._merge_edge_pathogen_cells:
+                "merge_edge_pathogen_cells",
+            panel._max_area: "preview_max_area",
+            panel._max_crops: "preview_max_crops",
+            panel._group_cells: "preview_group_cells",
+        }
+        for name, widget in panel._crop_mode_checks.items():
+            widget_keys[widget] = "crop_mode"
+        for name, widget in panel._min_sizes.items():
+            widget_keys[widget] = f"{name}_min_size"
+        install_api_tooltips(self, "measure", widget_keys)
         self.resize(620, 720)
 
     def closeEvent(self, event):

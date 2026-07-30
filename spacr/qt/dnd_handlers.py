@@ -49,7 +49,7 @@ from .dnd import (
 # have their own _open_source / _open_folder methods.
 # ---------------------------------------------------------------------------
 
-def _set_src_on(screen, path: str) -> bool:
+def _set_src_on(screen, path) -> bool:
     """Best-effort set the screen's source path.
 
     Tries three shapes:
@@ -71,6 +71,17 @@ def _set_src_on(screen, path: str) -> bool:
         try:
             model = screen._settings_model
             if model.set_value_for_key("src", path):
+                return True
+        except Exception:
+            pass
+        try:
+            widget = screen._settings_model._widgets.get("src")
+            if hasattr(widget, "setText"):
+                if isinstance(path, (list, tuple)):
+                    text = str(path[0]) if len(path) == 1 else repr(list(path))
+                else:
+                    text = str(path)
+                widget.setText(text)
                 return True
         except Exception:
             pass
@@ -486,16 +497,33 @@ class ClassifyDropHandler(DropHandler):
         if not path.is_dir():
             return False
         return (path / "measurements" / "measurements.db").is_file() \
-               or (path / "data").is_dir()
+               or (path / "data").is_dir() \
+               or (path / "train").is_dir()
 
     def error_message(self, path: Path) -> str:
         return ("Classify needs a plate folder with either "
-                "measurements/measurements.db or a data/ subfolder of "
-                "cropped PNGs.")
+                "measurements/measurements.db, a data/ crop folder, or an "
+                "existing dataset root containing train/<class>/ folders. "
+                "Run Measure with object-crop output enabled if the plate has "
+                "no measurements database or crops yet.")
 
     def apply(self, path: Path, screen) -> None:
-        _set_src_on(screen, str(path))
+        paths = []
+        try:
+            current = screen._settings_model.collect().get("src")
+            if isinstance(current, (list, tuple)):
+                paths.extend(str(item) for item in current if str(item).strip())
+            elif current and str(current).strip() not in ("", "path"):
+                paths.append(str(current))
+        except Exception:
+            pass
+        value = str(path)
+        if value not in paths:
+            paths.append(value)
+        _set_src_on(screen, paths)
         _log(screen, f"[drop] classify src = {path}\n")
+        if len(paths) > 1:
+            _log(screen, f"[drop] classify plates = {paths}\n")
 
 
 # ---------------------------------------------------------------------------
@@ -692,6 +720,326 @@ class ExternalMasksDropHandler(DropHandler):
 
 
 # ---------------------------------------------------------------------------
+# Tool and results screens — these are not SettingsWidgets/AppScreens, so
+# each handler calls the screen's small public configuration API directly.
+# ---------------------------------------------------------------------------
+
+_MODEL_SUFFIXES = (
+    ".cp_model", ".pth", ".pt", ".ckpt", ".onnx", ".h5", ".keras",
+)
+_IMAGE_SUFFIXES = {
+    ".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp", ".czi", ".nd2",
+    ".lif", ".npy", ".npz",
+}
+
+
+def _contains_suffix(folder: Path, suffixes, *, recursive: bool = False) -> bool:
+    iterator = folder.rglob("*") if recursive else folder.iterdir()
+    try:
+        return any(
+            child.is_file()
+            and any(child.name.lower().endswith(ext) for ext in suffixes)
+            for child in iterator
+        )
+    except OSError:
+        return False
+
+
+def _settings_files(path: Path) -> List[Path]:
+    """Settings snapshots directly associated with a dropped plate."""
+    roots = [path / "settings", path] if path.is_dir() else []
+    found: List[Path] = []
+    for root in roots:
+        if not root.is_dir():
+            continue
+        found.extend(sorted(
+            child for child in root.iterdir()
+            if child.is_file() and child.suffix.lower() == ".csv"
+            and "setting" in child.name.lower()
+        ))
+    return list(dict.fromkeys(found))
+
+
+def _module_from_settings(path: Path, default: str = "mask") -> str:
+    """Infer a runnable GUI module from spaCR's settings snapshot name."""
+    stem = path.stem.lower()
+    aliases = (
+        ("measure_crop", "measure"),
+        ("crop_measure", "measure"),
+        ("gen_masks", "mask"),
+        ("gen_mask", "mask"),
+        ("train_test", "classify"),
+        ("ml_analyze", "ml_analyze"),
+        ("map_barcodes", "map_barcodes"),
+        ("regression", "regression"),
+        ("recruitment", "recruitment"),
+        ("annotate", "annotate"),
+        ("classify", "classify"),
+        ("measure", "measure"),
+        ("mask", "mask"),
+    )
+    for token, module in aliases:
+        if token in stem:
+            return module
+    return default
+
+
+class ForeignProjectDropHandler(DropHandler):
+    """Populate Import Project from image folders, tables and mapping files."""
+
+    def accepts_multiple(self) -> bool:
+        return True
+
+    def can_accept(self, path: Path) -> bool:
+        return path.is_dir() or (
+            path.is_file() and path.suffix.lower() in
+            (_IMAGE_SUFFIXES | {".csv", ".tsv", ".xlsx", ".xls",
+                               ".parquet", ".json"})
+        )
+
+    def error_message(self, path: Path) -> str:
+        return ("Import Project accepts an image/mask folder, an image file, "
+                "a CSV/TSV/Excel/Parquet measurement table, or a JSON mapping.")
+
+    def apply(self, path: Path, screen) -> None:
+        suffix = path.suffix.lower()
+        is_mapping_csv = False
+        if path.is_file() and suffix == ".csv":
+            try:
+                header = {
+                    value.strip().lower()
+                    for value in path.open(
+                        "r", encoding="utf-8", errors="replace"
+                    ).readline().split(",")
+                }
+                is_mapping_csv = {
+                    "source", "target", "transform", "unit_in", "unit_out",
+                    "note",
+                }.issubset(header)
+            except OSError:
+                pass
+        if (path.is_file() and (suffix == ".json" or is_mapping_csv)
+                and hasattr(screen, "load_mapping")):
+            if screen.load_mapping(str(path)) is False:
+                raise ValueError(f"Could not load mapping {path}.")
+            return
+        if path.is_file() and suffix in {".csv", ".tsv", ".xlsx", ".xls",
+                                        ".parquet"}:
+            screen.set_measurements(str(path))
+            return
+        if path.is_dir() and any(
+                token in path.name.lower()
+                for token in ("mask", "label", "segmentation")):
+            try:
+                object_type = str(screen._object_box.currentData())
+            except Exception:
+                object_type = "cell"
+            if screen.add_mask_folder(object_type, str(path)) is False:
+                raise ValueError(f"Could not add mask folder {path}.")
+            return
+        source = path.parent if path.is_file() else path
+        screen.set_images(str(source))
+
+
+class AlignDropHandler(DropHandler):
+    """Use a dropped image folder (or one tile) as Align & Stitch input."""
+
+    def can_accept(self, path: Path) -> bool:
+        return (path.is_dir() and _contains_suffix(path, _IMAGE_SUFFIXES)) or (
+            path.is_file() and path.suffix.lower() in _IMAGE_SUFFIXES)
+
+    def error_message(self, path: Path) -> str:
+        return "Align & Stitch needs a folder containing microscopy tiles."
+
+    def apply(self, path: Path, screen) -> None:
+        source = path.parent if path.is_file() else path
+        screen.apply_settings({"src": str(source)})
+
+
+class ConvertDropHandler(DropHandler):
+    """Use a dropped microscopy container or folder as converter input."""
+
+    def can_accept(self, path: Path) -> bool:
+        return path.is_dir() or (
+            path.is_file() and path.suffix.lower() in _IMAGE_SUFFIXES)
+
+    def error_message(self, path: Path) -> str:
+        return ("Format Converter accepts a microscopy image/container or a "
+                "folder containing ND2, CZI, LIF, OME-TIFF or image files.")
+
+    def apply(self, path: Path, screen) -> None:
+        screen.set_source(str(path.parent if path.is_file() else path))
+
+
+class PlateQueueDropHandler(DropHandler):
+    """Queue plate folders that carry spaCR settings snapshots."""
+
+    def accepts_multiple(self) -> bool:
+        return True
+
+    def can_accept(self, path: Path) -> bool:
+        return (
+            path.is_file() and path.suffix.lower() == ".csv"
+        ) or (
+            path.is_dir() and bool(_settings_files(path))
+        )
+
+    def error_message(self, path: Path) -> str:
+        return ("Plate Queue accepts a plate folder containing settings/*.csv "
+                "snapshots, or a plate-list CSV with an src column.")
+
+    def apply(self, path: Path, screen) -> None:
+        if path.is_file():
+            from .plate_queue import import_plates_from_csv
+            items = import_plates_from_csv(path, base_settings={},
+                                           app_key="mask")
+            if not items:
+                raise ValueError(
+                    f"{path.name} contains no plate rows with an src value.")
+            for item in items:
+                screen.queue().add(item)
+            screen._refresh_table()
+            screen.queue_size_changed.emit(len(screen.queue()))
+            return
+
+        from spacr.utils import load_settings
+        added = 0
+        for settings_path in _settings_files(path):
+            try:
+                settings = load_settings(
+                    str(settings_path), setting_key="Key",
+                    setting_value="Value")
+            except Exception:
+                try:
+                    settings = load_settings(str(settings_path))
+                except Exception:
+                    continue
+            if not isinstance(settings, dict):
+                continue
+            settings["src"] = str(path)
+            screen.add_item(
+                _module_from_settings(settings_path), settings)
+            added += 1
+        if not added:
+            raise ValueError(f"No readable settings snapshots found in {path}.")
+
+
+class BatchDropHandler(DropHandler):
+    """Load queue files or add dropped settings snapshots as jobs."""
+
+    def accepts_multiple(self) -> bool:
+        return True
+
+    def can_accept(self, path: Path) -> bool:
+        if path.is_file():
+            return path.suffix.lower() in {".csv", ".json", ".yaml", ".yml"}
+        return path.is_dir() and bool(_settings_files(path))
+
+    def error_message(self, path: Path) -> str:
+        return ("Batch Runner accepts a saved JSON/YAML queue, a settings CSV, "
+                "or a plate folder containing settings snapshots.")
+
+    def apply(self, path: Path, screen) -> None:
+        if path.is_file() and path.suffix.lower() in {".json", ".yaml", ".yml"}:
+            if not screen.load_queue_from(str(path)):
+                raise ValueError(getattr(screen, "last_error", "")
+                                 or f"Could not load {path}.")
+            return
+        candidates = [path] if path.is_file() else _settings_files(path)
+        added = 0
+        for settings_path in candidates:
+            if screen.add_job(
+                    module=_module_from_settings(settings_path),
+                    settings=str(settings_path)):
+                added += 1
+        if not added:
+            raise ValueError(f"No runnable settings jobs found in {path}.")
+
+
+class ImageFieldsDropHandler(DropHandler):
+    """Image-folder input shared by Model Compare."""
+
+    def can_accept(self, path: Path) -> bool:
+        return (path.is_dir() and _contains_suffix(path, _IMAGE_SUFFIXES)) or (
+            path.is_file() and path.suffix.lower() in _IMAGE_SUFFIXES)
+
+    def error_message(self, path: Path) -> str:
+        return "Drop a folder containing microscopy fields."
+
+    def apply(self, path: Path, screen) -> None:
+        source = path.parent if path.is_file() else path
+        if screen.set_source(str(source)) is False:
+            raise ValueError(getattr(screen, "last_error", "")
+                             or f"Could not load fields from {source}.")
+
+
+class ModelZooDropHandler(DropHandler):
+    """Scan checkpoints, or use image-only folders as benchmark fields."""
+
+    def can_accept(self, path: Path) -> bool:
+        return path.is_dir() or (
+            path.is_file()
+            and (path.name.lower().endswith(_MODEL_SUFFIXES)
+                 or path.suffix.lower() in _IMAGE_SUFFIXES)
+        )
+
+    def error_message(self, path: Path) -> str:
+        return "Drop a model/checkpoint folder or a folder of test fields."
+
+    def apply(self, path: Path, screen) -> None:
+        source = path.parent if path.is_file() else path
+        is_model = (
+            path.is_file() and path.name.lower().endswith(_MODEL_SUFFIXES)
+        ) or _contains_suffix(source, _MODEL_SUFFIXES, recursive=True)
+        if is_model:
+            screen.scan(str(source))
+        elif screen.set_fields_source(str(source)) is False:
+            raise ValueError(getattr(screen, "last_error", "")
+                             or f"Could not load fields from {source}.")
+
+
+class ResultsDatabaseDropHandler(DatabaseDropHandler):
+    """Database input for Plate Viewer and Annotator Agreement."""
+
+    def apply(self, path: Path, screen) -> None:
+        opener = getattr(screen, "set_database", None)
+        if not callable(opener):
+            opener = getattr(screen, "open_database", None)
+        if not callable(opener):
+            raise TypeError("This screen cannot open a database.")
+        if opener(str(path)) is False:
+            raise ValueError(getattr(screen, "last_error", "")
+                             or f"Could not open {path}.")
+
+
+class TrainingRunsDropHandler(DropHandler):
+    def can_accept(self, path: Path) -> bool:
+        return path.is_dir()
+
+    def error_message(self, path: Path) -> str:
+        return "Training Runs accepts a folder containing model training runs."
+
+    def apply(self, path: Path, screen) -> None:
+        if screen.scan(str(path)) is False:
+            raise ValueError(getattr(screen, "last_error", "")
+                             or f"Could not scan {path}.")
+
+
+class ReportDropHandler(DropHandler):
+    def can_accept(self, path: Path) -> bool:
+        return path.is_dir()
+
+    def error_message(self, path: Path) -> str:
+        return "Report accepts a completed spaCR run folder."
+
+    def apply(self, path: Path, screen) -> None:
+        screen.set_source(str(path))
+        if screen.scan() is False:
+            raise ValueError(getattr(screen, "last_error", "")
+                             or f"Could not scan {path}.")
+
+
+# ---------------------------------------------------------------------------
 # Registry
 # ---------------------------------------------------------------------------
 
@@ -714,6 +1062,17 @@ _HANDLERS = {
     "cellpose_masks":  MakeMasksDropHandler,
     "cellpose_all":    MakeMasksDropHandler,
     "db_browser":      DatabaseDropHandler,
+    "foreign":         ForeignProjectDropHandler,
+    "align":           AlignDropHandler,
+    "convert":         ConvertDropHandler,
+    "queue":           PlateQueueDropHandler,
+    "batch":           BatchDropHandler,
+    "model_compare":   ImageFieldsDropHandler,
+    "model_zoo":       ModelZooDropHandler,
+    "plate_view":      ResultsDatabaseDropHandler,
+    "agreement":       ResultsDatabaseDropHandler,
+    "train_compare":   TrainingRunsDropHandler,
+    "report":          ReportDropHandler,
 }
 
 
@@ -725,3 +1084,5 @@ def get_handler(app_key: str) -> DropHandler:
     """
     cls = _HANDLERS.get(app_key, SourceDropHandler)
     return cls()
+    def accepts_multiple(self) -> bool:
+        return True

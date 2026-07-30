@@ -163,6 +163,18 @@ KEYS_BEFORE_REGROUP = frozenset({
 #: module but had no category, so they rendered ungrouped. Extending this set
 #: is fine; it exists so that "the union grew" is always a deliberate act.
 KEYS_ADDED_BY_REGROUP = frozenset({
+    "balance_to_smallest",
+    "cross_validation_enabled",
+    "generate_full_dataset",
+    "early_stopping_patience",
+    "focal_alpha",
+    "focal_gamma",
+    "label_smoothing",
+    "logit_adjust_tau",
+    "n_top_examples",
+    "random_seed",
+    "tar_path",
+    "write_random_annotation_column",
     # Replication Assay: the six keys set_analyze_endodyogeny_defaults returns
     # that no category listed, so they landed in "Other" until the assay got a
     # category of its own. The backend has existed since #21; only the app
@@ -606,7 +618,10 @@ def test_every_qt_section_hint_names_a_real_category():
     # Qt may make app-scoped relocations without changing the category map
     # shared with the legacy UI (Measure's Filter settings is one).
     from spacr.qt.screens.settings_model import categories_for_app
-    for app_key in ("measure", "map_barcodes", "umap"):
+    for app_key in (
+        "measure", "external_masks", "map_barcodes", "umap", "ml_analyze", "mask",
+        "timelapse", "motility", "regression", "activation", "replication",
+    ):
         known.update(
             c.upper().strip()
             for c in categories_for_app(app_key, S.categories)
@@ -633,12 +648,13 @@ def _rendered_sections(app_key):
     would bucket them -- including the trailing "Other"."""
     pytest.importorskip("PySide6")
     from spacr.qt.screens.settings_model import (
-        _APP_HIDDEN_CATEGORIES, resolve_default_settings,
+        _APP_HIDDEN_CATEGORIES, categories_for_app,
+        resolve_default_settings,
     )
     defaults = resolve_default_settings(app_key)
     hidden = _APP_HIDDEN_CATEGORIES.get(app_key, set())
     used, sections = set(), []
-    for name, keys in S.categories.items():
+    for name, keys in categories_for_app(app_key, S.categories).items():
         if name in hidden:
             continue
         rows = [k for k in keys if k in defaults and k not in used]
@@ -649,6 +665,69 @@ def _rendered_sections(app_key):
     if leftover:
         sections.append(("Other", leftover))
     return sections
+
+
+@pytest.mark.parametrize(
+    ("app_key", "expected"),
+    [
+        ("ml_analyze", [
+            "Data & Controls", "Feature Preparation",
+            "Classifier & Validation", "Feature Selection & Importance",
+            "Output & Database", "Plots & Heatmaps",
+            "Runtime & Reliability",
+        ]),
+        ("mask", [
+            "Input & Metadata", "Workflow & Test Run", "Image Preprocessing",
+            "Cell Segmentation", "Nucleus Segmentation",
+            "Pathogen Segmentation", "Organelle Segmentation",
+            "Quality Control", "Volumetric Processing (Beta)",
+            "Time Axes & Tracking (Beta)", "Visualization & Diagnostics",
+            "Output & Storage", "Runtime & Reliability",
+        ]),
+        ("measure", [
+            "Input & Experiment", "Mask & Channel Mapping",
+            "Measurement Features", "Object Filtering", "Crop Output",
+            "Preview & Diagnostics", "3D Calibration (Beta)",
+            "Runtime & Reliability",
+        ]),
+        ("timelapse", [
+            "Input & Metadata", "Acquisition & Axes", "Image Preprocessing",
+            "Cell Segmentation", "Nucleus Segmentation",
+            "Pathogen Segmentation", "Organelle Segmentation",
+            "Quality Control", "Tracking Setup", "Tracking Backends",
+            "Visualization & Diagnostics", "Output & Storage",
+            "Runtime & Reliability",
+        ]),
+        ("motility", [
+            "Objects & Channels", "Spatial & Temporal Calibration",
+            "Motion Filtering", "Infection Classification",
+            "XGBoost Infection Model", "Infection Clustering",
+            "Embedding Search", "Motility Plots & QC",
+            "Runtime & Reliability",
+        ]),
+        ("regression", [
+            "Input Tables", "Controls & Plate Design", "Model & Covariates",
+            "Hit Calling & Outliers", "Regression Plots",
+            "Runtime & Reliability",
+        ]),
+        ("activation", [
+            "Model & Data", "Attribution Method", "Attribution Validation",
+            "Map Display", "Map Quantification", "Output & Runtime",
+        ]),
+        ("replication", [
+            "Assay Inputs", "Condition Metadata", "Object Filtering",
+            "Replication Scoring", "Assay Output", "Runtime & Reliability",
+        ]),
+    ],
+)
+def test_requested_modules_use_workflow_ordered_categories(app_key, expected):
+    """Every module-specific map is ordered and accounts for each key once."""
+    sections = _rendered_sections(app_key)
+    assert [name for name, _keys in sections] == expected
+    rendered_keys = [key for _name, keys in sections for key in keys]
+    from spacr.qt.screens.settings_model import resolve_default_settings
+    assert rendered_keys == list(dict.fromkeys(rendered_keys))
+    assert set(rendered_keys) == set(resolve_default_settings(app_key))
 
 
 @pytest.mark.parametrize("app_key", sorted(GUI_MODULE_DEFAULTS))

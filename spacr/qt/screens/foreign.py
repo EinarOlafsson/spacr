@@ -262,6 +262,9 @@ class ForeignScreen(QWidget):
         self._job_settled.connect(self._on_job_settled)
         self._progress.connect(self._on_progress)
         self._build_ui()
+        from ..dnd import install_dropzone
+        from ..dnd_handlers import get_handler
+        install_dropzone(self, get_handler("foreign"), self)
         self._set_status(
             "Choose their images, their mask folder(s) and their measurement "
             "table, then Preview. Nothing is written until you press Import.")
