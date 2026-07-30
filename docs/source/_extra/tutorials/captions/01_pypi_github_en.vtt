@@ -1,0 +1,22 @@
+WEBVTT
+
+00:00.000 --> 00:09.700
+Welcome to spaCR. The two main public starting points are the Python Package Index, usually called PyPI, and the spaCR repository on GitHub.
+
+00:10.150 --> 00:23.975
+PyPI is the authoritative page for the current packaged release. The header shows the released version, its publication status, and the pip command. We will use that command in the dedicated pip installation tutorial.
+
+00:24.525 --> 00:40.325
+The project links on the left connect PyPI to the documentation, homepage, issue tracker, and source code. The description below summarizes spaCR's microscopy, segmentation, measurement, classification, sequencing, and regression workflows.
+
+00:40.875 --> 00:55.350
+GitHub is where the source code and development history live. Use the Code tab to browse files, Issues to report a problem or request a feature, Discussions for longer questions, and Actions to inspect automated builds and tests.
+
+00:55.900 --> 01:09.725
+The Releases panel contains the downloadable desktop installers and release notes. The repository also contains notebooks, documentation sources, packaging files, tests, and the spaCR Python package itself.
+
+01:10.275 --> 01:29.275
+The branch selector tells you which version of the source you are viewing. Main represents the released development line, while nightly contains the newest changes being prepared and tested. Nightly can change quickly, so most users should begin with the packaged release and use nightly only when they specifically need newer work.
+
+01:30.175 --> 01:45.450
+In short, use PyPI for the current Python release, GitHub Releases for desktop installers, and the GitHub repository for source code, issues, and development branches. Next, we will install spaCR in an isolated Conda environment.
