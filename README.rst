@@ -80,8 +80,7 @@ a SQLite-backed project rather than scattered across unrelated files.
 Workflow at a glance
 ~~~~~~~~~~~~~~~~~~~~
 
-`Open the interactive HTML walkthrough
-<https://einarolafsson.github.io/spacr/tutorials/>`_.
+|Tutorials|
 
 .. image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/flow_chart_v3.png
    :alt: spaCR workflow and output organization
