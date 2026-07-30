@@ -133,25 +133,15 @@ jobs:
           echo "branch=$TARGET_BRANCH" >> "$GITHUB_OUTPUT"
           echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-  installers:
-    name: Build and store native installers
-    if: needs.bump.outputs.release_required == 'true'
-    needs: bump
-    uses: ./.github/workflows/online-installers.yml
-    with:
-      source_ref: ${{ needs.bump.outputs.commit_sha }}
-      target_branch: ${{ needs.bump.outputs.branch }}
-      publish_to_repository: true
-    secrets: inherit
-
   package:
     name: Build and validate PyPI distributions
-    needs: [bump, installers]
+    if: needs.bump.outputs.release_required == 'true'
+    needs: bump
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: ${{ needs.installers.outputs.release_commit }}
+          ref: ${{ needs.bump.outputs.commit_sha }}
 
       - uses: actions/setup-python@v6
         with:
@@ -190,16 +180,58 @@ jobs:
           path: dist
       - uses: pypa/gh-action-pypi-publish@release/v1
 
+  verify-pypi:
+    name: Verify release is available on PyPI
+    if: >-
+      always() &&
+      needs.bump.result == 'success' &&
+      needs.package.result == 'success' &&
+      (needs.publish-pypi.result == 'success' ||
+       needs.publish-pypi.result == 'skipped')
+    needs: [bump, package, publish-pypi]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Wait for the immutable PyPI release
+        env:
+          VERSION: ${{ needs.bump.outputs.version }}
+        run: |
+          for attempt in $(seq 1 18); do
+            status=$(curl --proto '=https' --tlsv1.2 --silent \
+              --retry 3 --retry-all-errors --output /dev/null \
+              --write-out '%{http_code}' \
+              "https://pypi.org/pypi/spacr/$VERSION/json")
+            if [ "$status" = "200" ]; then
+              echo "spacr $VERSION is available on PyPI."
+              exit 0
+            fi
+            echo "Attempt $attempt/18: PyPI returned HTTP $status; retrying."
+            sleep 10
+          done
+          echo "::error::spacr $VERSION was not available on PyPI after 3 minutes."
+          exit 1
+
+  installers:
+    name: Build and store native installers
+    if: needs.bump.outputs.release_required == 'true'
+    needs: [bump, verify-pypi]
+    uses: ./.github/workflows/online-installers.yml
+    with:
+      source_ref: ${{ needs.bump.outputs.commit_sha }}
+      target_branch: ${{ needs.bump.outputs.branch }}
+      publish_to_repository: true
+    secrets: inherit
+
   github-release:
     name: Publish GitHub release
     if: >-
       always() &&
       needs.bump.result == 'success' &&
-      needs.installers.result == 'success' &&
       needs.package.result == 'success' &&
       (needs.publish-pypi.result == 'success' ||
-       needs.publish-pypi.result == 'skipped')
-    needs: [bump, installers, package, publish-pypi]
+       needs.publish-pypi.result == 'skipped') &&
+      needs.verify-pypi.result == 'success' &&
+      needs.installers.result == 'success'
+    needs: [bump, package, publish-pypi, verify-pypi, installers]
     runs-on: ubuntu-24.04
     permissions:
       contents: write
