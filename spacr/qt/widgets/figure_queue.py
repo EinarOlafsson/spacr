@@ -494,6 +494,12 @@ class _FigureSettingsDialog(QDialog):
         bb.accepted.connect(self._apply_and_accept)
         bb.rejected.connect(self.reject)
         form.addRow(bb)
+        from ..screens.settings_model import install_api_tooltips
+        install_api_tooltips(self, "figure", {
+            self._bg_btn: "figure_background",
+            self._fg_btn: "figure_text_color",
+            self._size: "figure_text_size",
+        })
 
     def _pick(self, attr, btn):
         from PySide6.QtWidgets import QColorDialog

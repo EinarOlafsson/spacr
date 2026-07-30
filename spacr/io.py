@@ -5693,7 +5693,8 @@ def generate_cv_loaders(src, n_splits, mode='train', image_size=224, batch_size=
 def generate_loaders(src, mode='train', image_size=224, batch_size=32,
                      classes=None, n_jobs=None, validation_split=0.0,
                      pin_memory=False, normalize=False, channels=None,
-                     augment=False, verbose=False, class_balance='none'):
+                     augment=False, verbose=False, class_balance='none',
+                     seed=42):
     """Build ``spacrDataLoader`` objects for training, validation, or testing.
 
     Reads class subfolders under ``src/<mode>``, applies the requested
@@ -5716,6 +5717,7 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
         leaves sampling untouched; the sampler modes attach a
         ``WeightedRandomSampler`` to the TRAIN loader only. The skew is
         reported either way.
+    :param seed: Reproducible train/validation split and loader order.
     :returns: For ``mode='train'``, a tuple of loaders and a plot handle;
         for ``mode='test'``, the test loader (plus optional metadata).
     :raises ValueError: if ``class_balance`` is not a recognised mode.
@@ -5757,7 +5759,9 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
         val_size = len(data) - train_size
         if not augment:
             print(f'Train data:{train_size}, Validation data:{val_size}')
-        train_dataset, val_dataset = random_split(data, [train_size, val_size])
+        generator = torch.Generator().manual_seed(int(seed))
+        train_dataset, val_dataset = random_split(
+            data, [train_size, val_size], generator=generator)
 
         if augment:
             print(f'Data before augmentation: Train: {len(train_dataset)}, Validation:{len(val_dataset)}')
@@ -5780,6 +5784,7 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
         train_loaders = DataLoader(train_dataset, batch_size=batch_size,
                                    shuffle=(sampler is None),
                                    sampler=sampler,
+                                   generator=generator,
                                    num_workers=num_workers,  # FIX: was hardcoded to 1
                                    pin_memory=pin_memory,
                                    persistent_workers=use_persistent)
@@ -5859,6 +5864,7 @@ def generate_training_dataset(settings):
     png_type = settings.get('png_type', 'cell_png')
     tables = settings.get('tables') or ['cell', 'nucleus', 'pathogen', 'cytoplasm']
     write_rand_col = bool(settings.get('write_random_annotation_column', False))
+    rng = random.Random(int(settings.get('random_seed', 42)))
 
     # Limits for merge helper
     if 'nucleus' not in tables:
@@ -5965,7 +5971,7 @@ def generate_training_dataset(settings):
         out = []
         for paths in list_of_lists:
             if len(paths) > size:
-                out.append(random.sample(paths, size))
+                out.append(rng.sample(paths, size))
             else:
                 out.append(paths)
         return out
@@ -6037,7 +6043,7 @@ def generate_training_dataset(settings):
 
                 # Sample negatives
                 if len(unann_paths) >= pos_n:
-                    rand_paths = random.sample(unann_paths, pos_n)
+                    rand_paths = rng.sample(unann_paths, pos_n)
                 else:
                     # Not enough; sample all unannotated (and we’ll balance later anyway)
                     rand_paths = unann_paths
@@ -6077,19 +6083,19 @@ def generate_training_dataset(settings):
     # --- main assembly across sources ---------------------------------------
     class_path_list = None
     class_names = None
-    dst_final = None  # last destination
+    # A multi-plate run writes one combined dataset beside the first plate.
+    # Previously ``dst_final`` was overwritten on every iteration, so the
+    # advertised ``training_all`` destination was abandoned and the combined
+    # files unexpectedly landed below the final plate.
+    first_src = settings['src'][0]
+    dst_final = _ensure_unique_dir(os.path.join(
+        first_src, 'datasets',
+        'training_all' if len(settings['src']) > 1 else 'training'))
     crop_db_path = None  # last measurements.db, for the crop-format lookup
     selection_context = []
 
     for i, src in enumerate(settings['src']):
         db_path = os.path.join(src, 'measurements', 'measurements.db')
-
-        if len(settings['src']) > 1 and i == 0:
-            dst = os.path.join(src, 'datasets', 'training_all')
-        else:
-            dst = os.path.join(src, 'datasets', 'training')
-        dst = _ensure_unique_dir(dst)
-        dst_final = dst
 
         object_type = crop_object_type(png_type)
         png_df = _load_png_table(db_path, object_type)
@@ -6279,6 +6285,7 @@ def generate_training_dataset(settings):
         classes=final_names,
         test_split=settings['test_split'],
         db_path=crop_db_path,
+        random_seed=settings.get('random_seed', 42),
     )
 
     # expose actual disk classes for downstream training
@@ -6514,7 +6521,7 @@ def _write_class_item(item, dst_dir):
 
 
 def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
-                                db_path=None):
+                                db_path=None, random_seed=42):
     """Put the crops listed per class into ``dst/train/<class>`` and ``dst/test/<class>``.
 
     An entry may be a **path**, which is copied byte for byte exactly as
@@ -6538,6 +6545,7 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
         Default ``0.1``.
     :param db_path: optional ``measurements.db`` consulted for the crop format
         of a source folder that carries no sidecar.
+    :param random_seed: Reproducible per-class train/test split seed.
     :returns: ``(train_dir, test_dir)`` tuple of the top-level split paths.
     :raises ValueError: if ``len(class_data) != len(classes)``.
     """
@@ -6586,7 +6594,9 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
             # list still matches the tree, and let the summary below flag it.
             print(f"Class {cls!r} selected no crops; its folders are empty.")
             continue
-        train_data, test_data = train_test_split(data, test_size=test_split, shuffle=True, random_state=42)
+        train_data, test_data = train_test_split(
+            data, test_size=test_split, shuffle=True,
+            random_state=int(random_seed))
 
         # Write train files
         for item in train_data:

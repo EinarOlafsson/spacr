@@ -28,7 +28,7 @@ from spacr.qt import dnd as dnd_mod
 from spacr.qt.dnd import (
     DropHandler, has_images_in, find_image_folders_nearby, install_dropzone,
     sample_image_names, suggest_alternatives_dialog, _apply_settings_csv,
-    _mime_has_local_paths, _mime_local_paths,
+    _mime_has_local_paths, _mime_local_paths, _report_drop_problem,
 )
 
 
@@ -217,6 +217,42 @@ def test_drophandler_defaults(tmp_path):
     assert h.error_message(tmp_path / "plate01") == \
         "This module can't use 'plate01'."
     assert h.accepts_multiple() is False
+
+
+def test_rejected_drop_logs_reason_suggestion_and_routes_to_ai(
+        qtbot, monkeypatch, tmp_path):
+    class AIConsole:
+        _ai_active = True
+
+        def __init__(self):
+            self.errors = []
+            self.ai = []
+
+        def append_error(self, text):
+            self.errors.append(text)
+
+        def _current_provider(self):
+            return object()
+
+        def open_error_flow(self, text, **kwargs):
+            self.ai.append((text, kwargs))
+
+    screen = QWidget()
+    qtbot.addWidget(screen)
+    screen.app_key = "convert"
+    screen._console = AIConsole()
+    monkeypatch.setattr(
+        "spacr.qt.ai.settings.get_route_errors_through_ai", lambda: True)
+
+    message = _report_drop_problem(
+        screen, tmp_path / "bad.txt", "not a microscopy image",
+        "drop an ND2, CZI, LIF, TIFF or image folder")
+
+    assert "Reason: not a microscopy image" in message
+    assert "Suggestion: drop an ND2" in message
+    assert screen._console.errors == [message]
+    assert screen._console.ai[0][0] == message
+    assert screen._console.ai[0][1]["active_app"] == "convert"
 
 
 # ---------------------------------------------------------------------------
@@ -489,6 +525,17 @@ def test_a_directory_named_dot_csv_goes_to_the_handler(zone, tmp_path, msgbox):
     _drop(w, [fake])
     assert h.applied == [fake]
     assert w.applied == []
+
+
+def test_csv_reaches_special_screen_handler_when_no_settings_importer(
+        zone, tmp_path, msgbox):
+    """Queue/Batch/Import Project assign their own meaning to CSV drops."""
+    csv = _write_settings_csv(tmp_path / "plates.csv", [("src", "/plate")])
+    h = RecordingHandler(accept=True)
+    owner = QWidget()
+    w = zone(h, screen=owner)
+    _drop(w, [csv])
+    assert h.applied == [csv]
 
 
 # ---------------------------------------------------------------------------

@@ -11,7 +11,7 @@ from PIL.ImageQt import ImageQt
 from PySide6.QtCore import Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
-    QComboBox, QDoubleSpinBox, QFormLayout, QLabel, QLineEdit, QPushButton,
+    QComboBox, QFormLayout, QLabel, QLineEdit, QPushButton,
     QSpinBox, QSplitter, QVBoxLayout, QWidget,
 )
 
@@ -111,14 +111,18 @@ class ImageUmapExplorer(QWidget):
 
         self._body_splitter = QSplitter(Qt.Horizontal, self)
         self._body_splitter.setChildrenCollapsible(False)
-        self._figure = Figure(figsize=(8, 6))
+        from ..theme import active_palette
+        surface = active_palette()["surface"]
+        self._figure = Figure(figsize=(8, 6), facecolor=surface)
         self._canvas = _OwnedTimerFigureCanvas(self._figure)
+        self._canvas.setStyleSheet(f"background: {surface};")
         self._toolbar = NavigationToolbar2QT(self._canvas, self)
         chart = QVBoxLayout()
         chart.addWidget(self._toolbar)
         chart.addWidget(self._canvas, 1)
         chart_wrap = QWidget(self)
         chart_wrap.setLayout(chart)
+        chart_wrap.setStyleSheet(f"background: {surface};")
         self._body_splitter.addWidget(chart_wrap)
 
         side = QVBoxLayout()
@@ -132,26 +136,6 @@ class ImageUmapExplorer(QWidget):
         side.addWidget(self._point_label)
 
         form = QFormLayout()
-        self._point_size = QSpinBox(self)
-        self._point_size.setRange(1, 10_000)
-        self._point_size.valueChanged.connect(self._apply_display_controls)
-        form.addRow("Point size", self._point_size)
-        self._point_color = QLineEdit("cluster", self)
-        self._point_color.setPlaceholderText("cluster, viridis, or #RRGGBB")
-        self._point_color.editingFinished.connect(
-            self._apply_display_controls)
-        form.addRow("Point color", self._point_color)
-        self._point_alpha = QDoubleSpinBox(self)
-        self._point_alpha.setRange(0.0, 1.0)
-        self._point_alpha.setSingleStep(0.05)
-        self._point_alpha.valueChanged.connect(self._apply_display_controls)
-        form.addRow("Point opacity", self._point_alpha)
-        self._outline_width = QDoubleSpinBox(self)
-        self._outline_width.setRange(0.1, 20.0)
-        self._outline_width.setSingleStep(0.1)
-        self._outline_width.valueChanged.connect(
-            self._apply_display_controls)
-        form.addRow("Line width", self._outline_width)
         self._cluster_box = QComboBox(self)
         self._cluster_box.currentIndexChanged.connect(self._select_cluster)
         form.addRow("Select cluster", self._cluster_box)
@@ -181,45 +165,22 @@ class ImageUmapExplorer(QWidget):
         side.addStretch(1)
         side_wrap = QWidget(self)
         side_wrap.setLayout(side)
+        side_wrap.setStyleSheet(f"background: {surface};")
         self._body_splitter.addWidget(side_wrap)
         root.addWidget(self._body_splitter, 1)
 
         self._axes = self._figure.add_subplot(111)
+        self._axes.set_facecolor(surface)
         self._scatter = None
         self._selection_artist = None
         self._picked_artist = None
         self._lasso = None
         self._canvas.mpl_connect("button_press_event", self._on_click)
         self._canvas.mpl_connect("scroll_event", self._on_scroll)
-        self._load_display_controls()
-
-    def _load_display_controls(self) -> None:
-        controls = (
-            (self._point_size, int(self._display["point_size"])),
-            (self._point_alpha, float(self._display["point_alpha"])),
-            (self._outline_width, float(self._display["outline_width"])),
-        )
-        for control, value in controls:
-            control.blockSignals(True)
-            control.setValue(value)
-            control.blockSignals(False)
-        self._point_color.blockSignals(True)
-        self._point_color.setText(str(self._display["point_color"]))
-        self._point_color.blockSignals(False)
         self._body_splitter.setSizes([
             int(self._display["canvas_width"]),
             int(self._display["sidebar_width"]),
         ])
-
-    def _apply_display_controls(self, *_args) -> None:
-        self._display.update({
-            "point_size": self._point_size.value(),
-            "point_color": self._point_color.text().strip() or "cluster",
-            "point_alpha": self._point_alpha.value(),
-            "outline_width": self._outline_width.value(),
-        })
-        if len(self._embedding):
-            self._draw_embedding()
 
     def set_payload(self, payload: Dict) -> None:
         """Load the arrays/records attached by ``generate_image_umap``."""
@@ -238,7 +199,10 @@ class ImageUmapExplorer(QWidget):
             for key in self._display:
                 if key in display and display[key] is not None:
                     self._display[key] = display[key]
-            self._load_display_controls()
+            self._body_splitter.setSizes([
+                int(self._display["canvas_width"]),
+                int(self._display["sidebar_width"]),
+            ])
         self._selected = np.empty(0, dtype=int)
         self._picked = None
         self._draw_embedding()

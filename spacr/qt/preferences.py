@@ -716,6 +716,10 @@ def apply_preferences_to_app(app=None) -> None:
     app.setStyleSheet(stylesheet(
         theme=theme, font_scale=scale, background=background,
         surface_opacity=get_pane_opacity()))
+    # Run/Propagate and Stop/Close-style buttons are tagged centrally,
+    # including QDialogButtonBox buttons created after startup.
+    from .button_roles import install_button_roles
+    install_button_roles(app)
 
     # Apply the verbose-logger preference too — cheap to re-apply, and
     # this is the one place that runs on every prefs save. Also

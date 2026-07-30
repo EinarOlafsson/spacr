@@ -1636,6 +1636,34 @@ class LiveSettingsDialog(QDialog):
                 p._outline_colour, p._outline_thickness,
                 ] + p._all_compartment_widgets()
 
+    def _install_api_tooltips(self) -> None:
+        """Attach linked Mask API help to every setting in this popup."""
+        from ..screens.settings_model import install_api_tooltips
+
+        p = self._panel
+        widget_keys = {
+            p._model_box: "model_name",
+            p._object_box: "object_type",
+            p._cell_channel: "cell_channel",
+            p._nucleus_channel: "nucleus_channel",
+            p._diameter: "cell_diameter",
+            p._flow: "cell_FT",
+            p._prob: "cell_CP_prob",
+            p._normalise_check: "normalize",
+            p._lo_pct: "lower_percentile",
+            p._hi_pct: "upper_percentile",
+            p._outline_colour: "outline_color",
+            p._outline_thickness: "outline_thickness",
+            p._common_widgets["signal_to_noise"]: "cell_Signal_to_noise",
+            p._common_widgets["remove_background"]: "remove_background_cell",
+            p._common_widgets["background"]: "cell_background",
+            p._adjust_cells: "adjust_cells",
+        }
+        for compartment, fields in p._compartment_widgets.items():
+            for suffix, widget in fields.items():
+                widget_keys[widget] = f"{compartment}_{suffix}"
+        install_api_tooltips(self, "mask", widget_keys)
+
     def refresh_visibility(self):
         """Grey out settings that don't apply to the current selection.
 
@@ -1702,6 +1730,7 @@ class LiveSettingsDialog(QDialog):
         # view), so they stay enabled.
         for w in (p._outline_colour, p._outline_thickness):
             w.setEnabled(True)
+        self._install_api_tooltips()
 
     def closeEvent(self, event):
         """Re-hide the state widgets so the compact layout stays clean."""

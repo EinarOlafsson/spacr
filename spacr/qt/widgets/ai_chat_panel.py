@@ -120,6 +120,14 @@ class _ProvidersDialog(QDialog):
         refresh_btn.clicked.connect(self.accept)
         close_btn.clicked.connect(self.reject)
         outer.addWidget(buttons)
+        from ..screens.settings_model import install_api_tooltips
+        install_api_tooltips(self, "ai", {
+            self._speed_combo: "response_speed",
+            self._auto_issue_chk: "auto_file_issues",
+            self._route_errors_chk: "route_errors_through_ai",
+            self._gh_token: "github_token",
+            self._prompt_edit: "system_prompt",
+        })
 
     # -- Providers tab -------------------------------------------------
     def _build_providers_tab(self) -> QWidget:
