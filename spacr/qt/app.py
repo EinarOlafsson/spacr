@@ -768,6 +768,10 @@ class MainWindow(QMainWindow):
         if initial_app:
             self._on_nav_selected(initial_app)
 
+        # Apply the persisted language after every startup widget exists.
+        # New lazy screens are translated separately when first constructed.
+        self.refresh_language()
+
         # First-launch tour — coach-marks over the home layout the
         # first time this user boots spacr. State stored in QSettings,
         # so subsequent launches are silent. Delayed a beat so the
@@ -1151,7 +1155,7 @@ class MainWindow(QMainWindow):
         self.refresh_theme()
 
     def refresh_theme(self) -> None:
-        """Rebuild everything the stylesheet alone cannot restyle.
+        """Rebuild everything preferences cannot update through QSS alone.
 
         Three things do not follow a ``setStyleSheet`` call: the Home
         tiles set sizes/margins from the font scale in Python, every
@@ -1186,6 +1190,19 @@ class MainWindow(QMainWindow):
             self._rebuild_startup_page()
         except Exception:
             pass
+        self.refresh_language()
+        try:
+            self._sidebar.refresh_visibility()
+        except Exception:
+            pass
+
+    def refresh_language(self) -> None:
+        """Apply the persisted language to existing static UI text."""
+        try:
+            from .i18n import retranslate_widget_tree
+            retranslate_widget_tree(self)
+        except Exception:
+            LOG.exception("Could not apply the selected UI language")
 
     def _refresh_app_action_visibility(self) -> None:
         """Keep the spaCR menu in sync with module maturity preferences."""
@@ -1460,6 +1477,11 @@ class MainWindow(QMainWindow):
         if key not in self._screens:
             self._screens[key] = self._build_screen(key)
             self._stack.addWidget(self._screens[key])
+            try:
+                from .i18n import retranslate_widget_tree
+                retranslate_widget_tree(self._screens[key])
+            except Exception:
+                LOG.exception("Could not translate the %s screen", key)
         self._stack.setCurrentWidget(self._screens[key])
         # Move this app to the end of the visit list. Revisiting an app
         # has to count as the most recent visit — otherwise "Add current
@@ -1469,9 +1491,10 @@ class MainWindow(QMainWindow):
             self._visit_order.remove(key)
         self._visit_order.append(key)
         # Find nice display name
-        name = next((n for k, n, _d, _s in APPS if k == key), key)
+        from .i18n import tr
+        name = tr(next((n for k, n, _d, _s in APPS if k == key), key))
         self._status_app_label.setText(name)
-        self.statusBar().showMessage(f"Opened {name}", 2000)
+        self.statusBar().showMessage(tr("Opened {name}", name=name), 2000)
 
     def _on_zoo_compare_requested(self, request: dict) -> None:
         """Open Model Compare preloaded with the two models the zoo selected.

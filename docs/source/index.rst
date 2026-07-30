@@ -111,4 +111,5 @@ Contents
    :maxdepth: 2
 
    module_audit
+   localization
    api/index

@@ -168,6 +168,7 @@ tutorial_colab.ipynb
 !/docs/source/
 /docs/source/*
 !/docs/source/module_audit.rst
+!/docs/source/localization.rst
 !/docs/source/_extra/
 !/docs/source/_extra/**
 
