@@ -1410,8 +1410,6 @@ def render(fn, size=SIZE):
 
 
 def alpha_coverage(img):
-    from PIL import Image
-    import io
     buf = img.constBits().tobytes()
     w, h = img.width(), img.height()
     stride = img.bytesPerLine()
@@ -1459,6 +1457,7 @@ def contact_sheet(pngs, out_path, bg, fg, cols=5, ink=None):
 
 def main(outdir=None):
     app = QGuiApplication.instance() or QGuiApplication(sys.argv[:1])
+    app.processEvents()
     here = os.path.dirname(os.path.abspath(__file__))
     outdir = outdir or os.path.abspath(os.path.join(here, ".."))
     report = []

@@ -983,3 +983,13 @@ def test_save_results_without_summary_df(tmp_path):
     assert (out / f"{stem}.pdf").is_file()
     assert (out / f"{stem}_stats.csv").is_file()
     assert not (out / f"{stem}_summary.csv").exists()
+
+
+def test_significance_marker_boundaries():
+    """All conventional p-value bands, including the strongest, are stable."""
+    from spacr.plot import _significance_marker
+
+    assert _significance_marker(0.001) == "***"
+    assert _significance_marker(0.01) == "**"
+    assert _significance_marker(0.05) == "*"
+    assert _significance_marker(0.051) == "ns"

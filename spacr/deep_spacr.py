@@ -1,13 +1,13 @@
+"""PyTorch dataset generation, classification, inference, and attribution."""
+
 import os, torch, time, gc, datetime, logging
 torch.backends.cudnn.benchmark = True
 import numpy as np
 import pandas as pd
 from torch.optim import Adagrad, AdamW
-from torch.optim.lr_scheduler import StepLR
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 from PIL import Image
-from sklearn.metrics import auc, precision_recall_curve
 from IPython.display import display
 from multiprocessing import cpu_count
 import torch.optim as optim
@@ -22,7 +22,7 @@ from torch.utils.data import DataLoader
 # Fail-loud accounting: a cross-validation fold that dies must not be
 # averaged away silently, and an optional plot that fails must still be
 # visible somewhere other than /dev/null.
-from .errors import RunLedger, ConfigurationError
+from .errors import RunLedger
 from .torch_artifacts import (
     load_model_artifact,
     restore_training_state,
@@ -436,7 +436,7 @@ def evaluate_model_performance(model, loader, epoch, loss_type='auto',
         ``loss``, ``epoch`` and ``Accuracy``. ``probs`` is shape
         ``(N,)`` for binary or ``(N, C)`` for multiclass.
     """
-    from .utils import calculate_loss, build_loss  # build_loss only used if loss_fn is None
+    from .utils import build_loss
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.eval().to(device)
@@ -600,8 +600,6 @@ def test_model_performance(loaders, model, loader_name_list, epoch, loss_type):
     Wrapper kept for API compatibility with your caller.
     Returns (summary_metrics_dataframe, per_file_results_dataframe)
     """
-    start_time = time.time()
-
     data_dict, _, _, results_df = test_model_core(
         model=model,
         loader=loaders,
@@ -2592,8 +2590,6 @@ def model_fusion(model_paths,save_path,device='cpu',model_name='maxvit_t',pretra
     :raises ValueError: on unsupported ``aggregator``, mismatched state
         dict keys, or unsupported checkpoint types.
     """
-    from .utils import TorchModel
-
     if not model_paths:
         raise ValueError("model_paths must contain at least one checkpoint.")
     if save_path.endswith('.pth'):

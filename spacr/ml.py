@@ -1,13 +1,14 @@
+"""Classical machine-learning and regression analysis pipelines."""
+
 import os, sys, re
 import pandas as pd
 import numpy as np
-from scipy import stats, test
+from scipy import stats
 from scipy.stats import shapiro
 from math import pi
 
 from sklearn.linear_model import Lasso, Ridge, LassoCV, RidgeCV
 from sklearn.metrics import mean_squared_error
-import numpy as np
 
 import matplotlib.pyplot as plt
 try:
@@ -27,12 +28,9 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.genmod.families import Binomial
 from statsmodels.genmod.families.links import Logit
 from statsmodels.othermod.betareg import BetaModel
-from scipy.special import gammaln, psi, expit
-from sklearn.linear_model import Lasso, Ridge
 from sklearn.preprocessing import FunctionTransformer
 from patsy import dmatrices
 
-from sklearn.metrics import classification_report
 from sklearn.model_selection import StratifiedKFold
 from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.model_selection import train_test_split
@@ -47,9 +45,7 @@ from xgboost import XGBClassifier
 
 from . import schema
 
-import numpy as np
 from scipy.stats import kstest, normaltest
-import statsmodels.api as sm
 
 import matplotlib
 
@@ -972,9 +968,9 @@ def perform_regression(settings):
         ``count_data`` input.
     """
     from .plot import plot_plates, plot_data_from_csv
-    from .utils import merge_regression_res_with_metadata, save_settings, calculate_shortest_distance, correct_metadata
+    from .utils import merge_regression_res_with_metadata, save_settings, correct_metadata
     from .settings import get_perform_regression_default_settings
-    from .toxo import go_term_enrichment_by_column, custom_volcano_plot, plot_gene_phenotypes, plot_gene_heatmaps
+    from .toxo import custom_volcano_plot, plot_gene_phenotypes, plot_gene_heatmaps
     from .sequencing import graph_sequencing_stats
 
     def _perform_regression_read_data(settings):
@@ -1995,7 +1991,7 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
     :raises ValueError: on missing identifiers, unsupported ``agg_type``
         or unrecognised ``invert_dependent_variable``.
     """
-    from .utils import calculate_shortest_distance, correct_metadata
+    from .utils import correct_metadata
     df = df.reset_index(drop=True)
     if 'prcfo' in df.columns:
         df = df.loc[:, ~df.columns.duplicated()].copy()

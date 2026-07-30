@@ -5,13 +5,12 @@ monkeypatch. Everything else is exercised for real.
 """
 from __future__ import annotations
 
+import threading
 from pathlib import Path
 
 import numpy as np
 import pytest
 import tifffile
-
-from PySide6.QtCore import Qt
 
 from spacr.qt.widgets import live_preview
 
@@ -190,6 +189,23 @@ class TestPanel:
         qtbot.addWidget(panel)
         assert panel.load_image(tmp_path / "missing.tif") is False
         assert "failed" in panel._status.text().lower()
+
+    def test_async_source_decode_runs_off_the_gui_thread(
+            self, qtbot, monkeypatch, sample_tif):
+        panel = live_preview.LivePreviewPanel()
+        qtbot.addWidget(panel)
+        gui_thread = threading.current_thread()
+        observed = {}
+
+        def fake_load(path):
+            observed["thread"] = threading.current_thread()
+            return np.ones((8, 8), dtype=np.uint16)
+
+        monkeypatch.setattr(live_preview, "load_preview_image", fake_load)
+        assert panel.load_source_async(sample_tif)
+        qtbot.waitUntil(lambda: panel._image is not None, timeout=5000)
+        assert observed["thread"] is not gui_thread
+        assert panel._image_path == sample_tif
 
     def test_apply_settings_copies_values(self, qtbot):
         panel = live_preview.LivePreviewPanel()
@@ -445,6 +461,8 @@ class TestAppScreenIntegration:
         scr = AppScreen("mask")
         qtbot.addWidget(scr)
         scr._autoload_live_preview(str(tmp_path))
+        qtbot.waitUntil(
+            lambda: scr._live_preview._image is not None, timeout=5000)
         assert scr._live_preview._image is not None
 
 

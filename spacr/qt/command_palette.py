@@ -27,10 +27,10 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Callable, List, Optional
+from typing import Callable, List, Optional
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QAction, QIcon, QKeyEvent
+from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import (
     QDialog, QLineEdit, QListWidget, QListWidgetItem, QMainWindow,
     QVBoxLayout,

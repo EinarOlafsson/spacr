@@ -54,12 +54,12 @@ def test_map_barcodes_category_relocation_is_scoped_and_non_mutating():
         "Model Training": ["test", "epochs"],
     }
     mapped = categories_for_app("map_barcodes", source)
-    classify = categories_for_app("classify", source)
+    report = categories_for_app("report", source)
 
     assert mapped["Sequencing"] == ["mode", "n_jobs", "test"]
     assert mapped["Advanced"] == ["verbose"]
     assert mapped["Model Training"] == ["epochs"]
-    assert classify == source
+    assert report == source
     assert source["Advanced"] == ["n_jobs", "verbose"]
     assert source["Model Training"] == ["test", "epochs"]
 

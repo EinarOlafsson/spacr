@@ -1,3 +1,5 @@
+"""Entry point and application shell for spaCR's legacy Tk interface."""
+
 import tkinter as tk
 from tkinter import ttk
 from multiprocessing import set_start_method

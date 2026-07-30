@@ -39,9 +39,10 @@ Design notes:
   difference", which reads as "the models are equivalent" rather than "you
   changed nothing". So the screen shows what actually reached each model,
   marks what was dropped, and says so in a banner above the numbers.
-* **Off the GUI thread.** Segmentation is minutes, not milliseconds, so the run
-  goes through :func:`spacr.qt.bridge.make_thread` like every other spaCR job.
-  Tests pass ``threaded=False``, which runs the same code inline.
+* **Off the GUI thread.** Loading fields and segmentation can both be slow on
+  a plate or NAS path, so they go through :func:`spacr.qt.bridge.make_thread`
+  like every other spaCR job. Tests pass ``threaded=False``, which runs the
+  same code inline.
 * **No modal dialogs on any error path.** A folder with no images, a model that
   will not load, a field of the wrong shape — all of it lands in the inline
   status label. A QMessageBox hangs a headless run.
@@ -289,6 +290,7 @@ class ModelCompareScreen(QWidget):
         # collected while still running takes the process down with it. Same
         # idiom as AgreementScreen._jobs.
         self._jobs: List[tuple] = []
+        self._pending: List[tuple] = []
         self.last_error: str = ""
 
         self._build_ui()
@@ -505,7 +507,7 @@ class ModelCompareScreen(QWidget):
         return True
 
     def set_source(self, folder: str) -> bool:
-        """Load the first N fields out of ``folder``.
+        """Load the first N fields out of ``folder`` without blocking Qt.
 
         Every failure here is a normal state — a mistyped path, a folder of
         CSVs, an empty plate — so it lands in the status label and returns
@@ -513,21 +515,31 @@ class ModelCompareScreen(QWidget):
 
         :param folder: a directory of ``.tif`` / ``.png`` / ``.npy`` / ``.npz``
             fields.
-        :returns: True when at least one field loaded.
+        :returns: with ``threaded=False``, True when at least one field loaded;
+            otherwise True once the load job starts.
         """
+        if self._busy:
+            self._set_status("Another Model Compare job is already running.",
+                             error=True)
+            return False
         self._clear_results()
         self._folder = ""
         self._field_names = []
         self._images = []
-        try:
-            names, images = mc.load_fields(folder,
-                                           n_fields=int(self._fields_box.value()))
-        except Exception as e:
-            self._set_status(str(e) or e.__class__.__name__, error=True)
-            self._update_controls()
-            return False
+        source = os.fspath(folder)
+        n_fields = int(self._fields_box.value())
 
-        self._folder = os.fspath(folder)
+        def _job():
+            names, images = mc.load_fields(source, n_fields=n_fields)
+            return source, names, images
+
+        self._set_status(f"Loading up to {n_fields} field(s) from {source}…")
+        return self._run_job(_job, self._apply_loaded_fields, operation="load")
+
+    def _apply_loaded_fields(self, result) -> None:
+        """Install a field-loading result on the GUI thread."""
+        source, names, images = result
+        self._folder = source
         self._field_names = names
         self._images = images
         self._path_edit.setText(self._folder)
@@ -536,7 +548,6 @@ class ModelCompareScreen(QWidget):
             f"Loaded {len(images)} field(s) from {self._folder}: "
             f"{', '.join(names)}. Configure both models and press Compare.")
         self._update_controls()
-        return True
 
     def _reload(self) -> None:
         """Re-read the folder after the field count changed."""
@@ -600,7 +611,8 @@ class ModelCompareScreen(QWidget):
         self._set_status(
             f"Segmenting {len(images)} field(s) with {config_a.name} and "
             f"{config_b.name}…")
-        return self._run_job(_job, self._apply_result)
+        return self._run_job(
+            _job, self._apply_result, operation="comparison")
 
     def _apply_result(self, report: mc.ComparisonReport) -> None:
         self._report = report
@@ -790,7 +802,8 @@ class ModelCompareScreen(QWidget):
     # -- job plumbing ------------------------------------------------------
 
     def _run_job(self, fn: Callable[[], Any],
-                 on_done: Callable[[Any], None]) -> bool:
+                 on_done: Callable[[Any], None],
+                 operation: str = "job") -> bool:
         """Run ``fn`` off the GUI thread and hand its result to ``on_done``.
 
         Mirrors ``AgreementScreen._run_job``: one threading idiom for the whole
@@ -802,7 +815,7 @@ class ModelCompareScreen(QWidget):
             try:
                 on_done(fn())
             except Exception as e:
-                self._on_job_error(e)
+                self._on_job_error(e, operation)
                 ok = False
             self._update_controls()
             self.job_finished.emit(ok)
@@ -815,25 +828,32 @@ class ModelCompareScreen(QWidget):
 
         thread, worker = make_thread(_job, box)
         self._jobs.append((thread, worker))
+        self._pending.append((box, on_done, operation))
         worker.error.connect(self._on_worker_error_text)
-
-        def _finished(ok: bool) -> None:
-            self._busy = False
-            if ok:
-                try:
-                    on_done(box.get("result"))
-                except Exception as e:
-                    self._on_job_error(e)
-                    ok = False
-            self._update_controls()
-            self.job_finished.emit(ok)
-
-        worker.finished.connect(_finished)
+        # Bound QWidget method: Qt queues this back onto the GUI thread.
+        # A closure is invoked directly on PipelineWorker's thread and must
+        # never update labels/tables.
+        worker.finished.connect(self._on_job_settled)
         thread.finished.connect(lambda t=thread: self._retire_job(t))
         self._busy = True
         self._update_controls()
         thread.start()
         return True
+
+    def _on_job_settled(self, ok: bool) -> None:
+        """Apply the oldest worker result on the GUI thread."""
+        self._busy = False
+        box, on_done, operation = (
+            self._pending.pop(0) if self._pending else ({}, None, "job"))
+        ok = bool(ok)
+        if ok and on_done is not None:
+            try:
+                on_done(box.get("result"))
+            except Exception as exc:
+                self._on_job_error(exc, operation)
+                ok = False
+        self._update_controls()
+        self.job_finished.emit(ok)
 
     def _retire_job(self, thread) -> None:
         """Release *this* job's refs once its own event loop has exited."""
@@ -854,11 +874,16 @@ class ModelCompareScreen(QWidget):
                 line = candidate.strip()
                 break
         self._clear_results()
-        self._set_status(f"Comparison failed: {line}", error=True)
+        operation = self._pending[0][2] if self._pending else "job"
+        self._set_status(
+            f"{operation.capitalize()} failed: {line or 'unknown error'}",
+            error=True)
 
-    def _on_job_error(self, exc: Exception) -> None:
+    def _on_job_error(self, exc: Exception, operation: str = "job") -> None:
         self._clear_results()
-        self._set_status(f"Comparison failed: {exc}", error=True)
+        message = str(exc) or exc.__class__.__name__
+        self._set_status(
+            f"{operation.capitalize()} failed: {message}", error=True)
 
     # -- enablement --------------------------------------------------------
 

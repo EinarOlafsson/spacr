@@ -54,6 +54,15 @@ def test_theme_recovers_from_corrupt_value(qt_theme_applied):
     assert get_theme() == "dark"
 
 
+def test_figure_png_dpi_roundtrip_and_validation(qt_theme_applied):
+    from spacr.qt.preferences import get_figure_png_dpi, set_figure_png_dpi
+
+    set_figure_png_dpi(600)
+    assert get_figure_png_dpi() == 600
+    with pytest.raises(ValueError, match="unknown PNG resolution"):
+        set_figure_png_dpi(72)
+
+
 def test_resolve_effective_theme_dark_and_light(qt_theme_applied):
     from spacr.qt.preferences import (
         resolve_effective_theme, set_theme,

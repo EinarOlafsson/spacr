@@ -172,7 +172,7 @@ def export_run(run_dir: Any,
     if not run_dir.is_dir():
         raise FileNotFoundError(f"no such run folder: {run_dir}")
     manifest = _read_manifest(run_dir)
-    settings = _read_settings(run_dir)
+    _read_settings(run_dir)  # Validate that the recorded settings exist and parse.
     app_key = manifest.get("app_key", "unknown")
 
     cells: List[Dict[str, Any]] = []

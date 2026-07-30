@@ -14,7 +14,6 @@ from html import escape
 from typing import Any, Dict, List, Optional, Tuple
 
 from PySide6.QtCore import QEvent, QObject, QPoint, QRect, QSize, Qt, Signal
-from PySide6.QtGui import QIntValidator, QDoubleValidator
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -71,7 +70,6 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
         deep_spacr_defaults,
         set_default_generate_barecode_mapping,
         set_default_umap_image_settings,
-        get_map_barcodes_default_settings,
         get_analyze_recruitment_default_settings,
         get_check_cellpose_models_default_settings,
         get_analyze_plaque_settings,
@@ -80,6 +78,7 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
         get_train_cellpose_default_settings,
         get_default_generate_activation_map_settings,
         get_timelapse_settings,
+        set_analyze_replication_defaults,
     )
     if app_key == "mask":
         # Timelapse tracking and the automated motility assay are first-class
@@ -148,8 +147,7 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
     if app_key == "invasion":
         return set_analyze_invasion_defaults(settings={})
     if app_key == "replication":
-        from spacr.settings import set_analyze_endodyogeny_defaults
-        return set_analyze_endodyogeny_defaults(settings={})
+        return set_analyze_replication_defaults(settings={})
     if app_key == "analyze_plaques":
         return get_analyze_plaque_settings(settings={})
     if app_key in ("annotate", "make_masks"):
@@ -428,7 +426,11 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
     ),
     "replication": (
-        ("Assay Inputs", ("src", "tables", "compartment")),
+        ("Assay Inputs", ("src", "parasite_table", "compartment")),
+        ("Vacuole Assignment", (
+            "vacuole_key", "vacuole_link_distance", "vacuole_link_factor",
+            "parasite_count_column", "require_host_cell",
+        )),
         ("Condition Metadata", (
             "cell_types", "cell_plate_metadata", "pathogen_types",
             "pathogen_plate_metadata", "treatments",
@@ -436,11 +438,11 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "change_plate",
         )),
         ("Object Filtering", (
-            "nuclei_limit", "pathogen_limit", "um_per_px", "min_area_bin",
-            "max_area",
+            "min_parasite_area", "max_parasite_area",
         )),
         ("Replication Scoring", (
-            "class_column", "group_by_class", "max_bins",
+            "max_parasites_per_vacuole", "non_power_of_two_warn",
+            "seed_wells_from_cells",
         )),
         ("Assay Output", ("cmap", "save")),
         ("Runtime & Reliability", ("verbose",)),
@@ -617,21 +619,38 @@ def get_tooltips() -> Dict[str, str]:
 DOCS_API_BASE = "https://einarolafsson.github.io/spacr/api"
 
 _APP_API_MODULE = {
-    "mask": "app_mask",
-    "measure": "app_measure",
+    "align": "align",
+    "convert": "convert",
+    "foreign": "foreign",
+    "queue": "qt/plate_queue",
+    "batch": "batch",
+    "db_browser": "qt/screens/db_browser",
+    "mask": "core",
+    "measure": "measure",
     "external_masks": "external_masks",
-    "annotate": "app_annotate",
-    "classify": "app_classify",
-    "map_barcodes": "app_sequencing",
-    "umap": "app_umap",
-    "timelapse": "timelapse",
+    "annotate": "qt/screens/annotate",
+    "classify": "deep_spacr",
+    "map_barcodes": "sequencing",
+    "umap": "core",
+    "timelapse": "core",
     "motility": "timelapse",
     "ml_analyze": "ml",
-    "regression": "sp_stats",
+    "regression": "ml",
     "activation": "deep_spacr",
-    "make_masks": "spacr_cellpose",
-    "train_cellpose": "spacr_cellpose",
+    "make_masks": "qt/screens/make_masks",
+    "train_cellpose": "submodules",
     "cellpose_masks": "spacr_cellpose",
+    "cellpose_all": "spacr_cellpose",
+    "model_compare": "model_compare",
+    "model_zoo": "model_zoo",
+    "plate_view": "plate_qc",
+    "agreement": "agreement",
+    "train_compare": "train_compare",
+    "report": "report",
+    "recruitment": "submodules",
+    "analyze_plaques": "submodules",
+    "invasion": "submodules",
+    "replication": "submodules",
     "figure": "plot",
     "ai": "qt/ai",
 }
@@ -836,10 +855,20 @@ def _setting_label_for_field(owner: QWidget, field: QWidget) -> Optional[QWidget
             pass
 
     for form in owner.findChildren(QFormLayout):
-        label = form.labelForField(field)
-        if isinstance(label, QWidget):
-            field._spacr_setting_label = label
-            return label
+        # A form field is often a wrapper QWidget containing an editor and a
+        # Browse button (or two numeric editors). QFormLayout only knows the
+        # wrapper, so walk the editor's parent chain before concluding that it
+        # is a label-less combined control. Otherwise its tooltip and API dot
+        # end up beside the editor instead of on the form label.
+        candidate: Optional[QWidget] = field
+        while isinstance(candidate, QWidget):
+            label = form.labelForField(candidate)
+            if isinstance(label, QWidget):
+                field._spacr_setting_label = label
+                return label
+            if candidate is owner:
+                break
+            candidate = candidate.parentWidget()
 
     # Hand-built search panels use compact grids rather than QFormLayout.
     # Select the nearest widget to the field's left on the same row.
@@ -1376,6 +1405,23 @@ class _ListEditor(QWidget):
         nested = bool(value) and all(
             isinstance(item, (list, tuple)) for item in value)
         self._rebuild(nested, value)
+
+    def text(self) -> str:
+        """Return a line-edit-compatible textual representation.
+
+        A single path is returned without list punctuation for compatibility
+        with callers that treated ``src`` as a ``QLineEdit`` before it became
+        a multi-plate setting. Multiple values use their unambiguous Python
+        representation.
+        """
+        value = self.get_value()
+        if isinstance(value, (list, tuple)) and len(value) == 1:
+            return str(value[0])
+        return "" if value is None else str(value)
+
+    def setText(self, value: str) -> None:  # noqa: N802 - QLineEdit contract
+        """Accept the legacy ``QLineEdit.setText`` API."""
+        self.set_value(value)
 
     # -- shape -----------------------------------------------------------
     def _rebuild(self, nested: bool, value) -> None:

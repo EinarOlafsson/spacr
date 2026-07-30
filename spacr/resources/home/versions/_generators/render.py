@@ -178,7 +178,7 @@ def load_audit() -> Dict[Tuple[int, str], Dict[str, list]]:
 def build_sheet(specs: Sequence[dict], theme: str = "dark",
                 cols: int = 5, thumb_w: int = 440) -> str:
     """Compose all thirty renders into one numbered grid. Returns the path."""
-    from PIL import Image, ImageDraw, ImageFont
+    from PIL import Image, ImageDraw
 
     thumb_h = int(round(thumb_w * common.CANVAS_H / common.CANVAS_W))
     pad, label_h = 16, 26

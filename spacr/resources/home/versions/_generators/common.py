@@ -284,6 +284,7 @@ USE_COUNTS = {
     "queue": 71, "batch": 64, "map_barcodes": 59, "regression": 52,
     "convert": 47, "umap": 41, "make_masks": 38, "timelapse": 33,
     "model_zoo": 29, "cellpose_masks": 27, "align": 24, "foreign": 21,
+    "external_masks": 20,
     "agreement": 19, "activation": 17, "train_compare": 15,
     "model_compare": 13, "motility": 11, "recruitment": 9,
     "analyze_plaques": 8, "invasion": 6, "replication": 6,
@@ -305,7 +306,7 @@ def cats_current() -> "List[Tuple[str, List[str]]]":
 
 
 CATS_BROAD3 = [
-    ("Prepare", ["convert", "align", "foreign", "make_masks",
+    ("Prepare", ["convert", "align", "foreign", "external_masks", "make_masks",
                  "train_cellpose", "cellpose_masks", "model_zoo"]),
     ("Run", ["mask", "timelapse", "motility", "measure", "annotate",
              "classify", "ml_analyze", "map_barcodes", "regression",
@@ -317,7 +318,8 @@ CATS_BROAD3 = [
 ]
 
 CATS_STAGE5 = [
-    ("Acquire", ["convert", "align", "foreign", "queue", "batch",
+    ("Acquire", ["convert", "align", "foreign", "external_masks",
+                 "queue", "batch",
                  "db_browser"]),
     ("Segment", ["mask", "timelapse", "cellpose_masks", "make_masks",
                  "train_cellpose", "model_zoo", "model_compare"]),
@@ -338,8 +340,8 @@ CATS_NARROW8 = [
                           "train_compare"]),
     ("Screens & reports", ["map_barcodes", "regression", "umap",
                            "plate_view", "report"]),
-    ("Import & batch",   ["convert", "align", "foreign", "queue", "batch",
-                          "db_browser"]),
+    ("Import & batch",   ["convert", "align", "foreign", "external_masks",
+                          "queue", "batch", "db_browser"]),
     ("Toxoplasma",       ["analyze_plaques", "recruitment", "invasion",
                           "replication"]),
 ]
@@ -347,7 +349,8 @@ CATS_NARROW8 = [
 CATS_QUESTIONS = [
     ("I have images. Where are my objects?",
      ["mask", "timelapse", "cellpose_masks", "make_masks", "train_cellpose",
-      "model_zoo", "model_compare", "align", "convert", "foreign"]),
+      "model_zoo", "model_compare", "align", "convert", "foreign",
+      "external_masks"]),
     ("I have objects. What are they like?",
      ["measure", "annotate", "motility", "analyze_plaques", "recruitment",
       "invasion", "replication", "agreement"]),

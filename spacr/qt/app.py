@@ -6,13 +6,15 @@ QApplication bootstrap + MainWindow.
 """
 from __future__ import annotations
 
+import logging
 import os
 import sys
 import threading
+import traceback
 from typing import List, Optional, Tuple
 
-from PySide6.QtCore import Qt, QSize
-from PySide6.QtGui import QAction, QIcon, QKeySequence, QPixmap
+from PySide6.QtCore import Qt, QSize, QThread, Signal
+from PySide6.QtGui import QAction, QIcon, QKeySequence
 from PySide6.QtWidgets import (
     QApplication,
     QFrame,
@@ -20,7 +22,6 @@ from PySide6.QtWidgets import (
     QLabel,
     QMainWindow,
     QMessageBox,
-    QPushButton,
     QScrollArea,
     QStackedWidget,
     QStatusBar,
@@ -37,6 +38,36 @@ from . import iconset
 # because it named `PALETTE` it fired the deprecation warning on every
 # `import spacr.qt.app` for a value nobody read.
 from .widgets.eliding import ElidingPushButton
+
+LOG = logging.getLogger(__name__)
+
+
+class _UpdateWorker(QThread):
+    """Run one updater operation without blocking the GUI event loop.
+
+    :param operation: stable operation name used in error messages.
+    :param fn: zero-argument callable whose return value is emitted.
+    :param parent: Qt owner; normally the :class:`MainWindow`.
+    """
+
+    succeeded = Signal(object)
+    failed = Signal(str, str)
+
+    def __init__(self, operation, fn, parent=None):
+        super().__init__(parent)
+        self.operation = str(operation)
+        self._fn = fn
+
+    def run(self) -> None:
+        """Execute the operation and surface every exception."""
+        try:
+            result = self._fn()
+        except Exception:
+            details = traceback.format_exc()
+            LOG.exception("Updater %s failed", self.operation)
+            self.failed.emit(self.operation, details)
+            return
+        self.succeeded.emit(result)
 
 
 class _PipelinePreloader:
@@ -88,10 +119,9 @@ class _PipelinePreloader:
             import importlib
             importlib.import_module(mod)
         except Exception:
-            # Never fail loud — this is a background optimisation, and a
-            # spacr module that can't import today isn't a bug we should
-            # turn into a crash.
-            pass
+            # Preloading is optional, but an import failure still belongs in
+            # the diagnostic log so a later first-use failure has context.
+            LOG.debug("Could not preload %s", mod, exc_info=True)
         # 50 ms between imports so Qt drains its event queue (repaints,
         # input) before the next potentially-blocking import.
         QTimer.singleShot(50, self._step)
@@ -235,7 +265,7 @@ STAGES = (STAGE_ALPHA, STAGE_BETA, STAGE_STABLE)
 #: Signing an app off is deleting its line here. Nothing else moves: the
 #: app is already filed under what it does.
 APP_STAGE = {
-    # -- alpha: built and reachable, not yet trusted end to end (13)
+    # -- alpha: built and reachable, not yet trusted end to end (14)
     "align":           STAGE_ALPHA,
     "model_zoo":       STAGE_ALPHA,
     "convert":         STAGE_ALPHA,
@@ -645,6 +675,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self, initial_app: Optional[str] = None):
         super().__init__()
+        self._closing = False
         self.setWindowTitle("spaCR")
         self.setMinimumSize(1200, 720)
 
@@ -1186,52 +1217,90 @@ class MainWindow(QMainWindow):
     def _check_for_updates(self):
         """Query PyPI/GitHub in a background thread, prompt to upgrade.
 
-        The GUI thread stays responsive: the network call runs on a
-        Qt worker thread, and the ``UpdateInfo`` result gets marshalled
-        back via a signal.
+        Both the network call and an accepted ``pip`` upgrade run on
+        :class:`_UpdateWorker`; only dialogs and status updates run here.
         """
-        from PySide6.QtCore import QThread, Signal
         try:
-            from spacr.updater import check_for_updates, run_pip_upgrade
+            from spacr.updater import check_for_updates
         except Exception as e:
+            LOG.exception("Could not import the spaCR updater")
             QMessageBox.warning(self, "Updates",
                                 f"Update check unavailable: {e}")
             return
 
-        class _Worker(QThread):
-            done = Signal(object)
-            def run(self_):
-                self_.done.emit(check_for_updates())
-
         self.statusBar().showMessage("Checking for updates…", 4000)
-        worker = _Worker(self)
-        def _on_done(info):
-            if info.error and not info.latest_release:
-                QMessageBox.warning(self, "Updates",
-                    f"Couldn't reach update server:\n{info.error}")
-                return
-            if info.upgrade_available:
-                msg = (f"A new version is available.\n\n"
-                       f"Installed: {info.installed_version}\n"
-                       f"Latest:    {info.latest_release}\n\n"
-                       f"Run pip install --upgrade spacr now?")
-                if QMessageBox.question(self, "Update available", msg
-                        ) == QMessageBox.Yes:
-                    rc = run_pip_upgrade()
-                    if rc == 0:
-                        QMessageBox.information(self, "Updates",
-                            "Upgrade finished. Restart spaCR to use it.")
-                    else:
-                        QMessageBox.warning(self, "Updates",
-                            f"pip returned exit code {rc}. "
-                            "Check the terminal for details.")
-            else:
-                QMessageBox.information(self, "Updates",
-                    f"You're on {info.installed_version}. No updates.")
-        worker.done.connect(_on_done)
+        self._start_update_worker(
+            "check", check_for_updates, self._on_update_check_done)
+
+    def _start_update_worker(self, operation, fn, on_done) -> None:
+        """Start one updater callable and retain it until shutdown."""
+        worker = _UpdateWorker(operation, fn, self)
+        worker.succeeded.connect(on_done)
+        worker.failed.connect(self._on_update_worker_failed)
         worker.finished.connect(worker.deleteLater)
         worker.start()
         self._update_worker = worker
+
+    def _on_update_check_done(self, info) -> None:
+        """Handle an :class:`spacr.updater.UpdateInfo` on the GUI thread."""
+        if self._closing:
+            LOG.debug("Discarding an update result during shutdown")
+            return
+        if info.error and not info.latest_release:
+            QMessageBox.warning(
+                self, "Updates",
+                f"Couldn't reach update server:\n{info.error}")
+            return
+        if not info.upgrade_available:
+            QMessageBox.information(
+                self, "Updates",
+                f"You're on {info.installed_version}. No updates.")
+            return
+
+        msg = (f"A new version is available.\n\n"
+               f"Installed: {info.installed_version}\n"
+               f"Latest:    {info.latest_release}\n\n"
+               f"Run pip install --upgrade spacr now?")
+        if QMessageBox.question(
+                self, "Update available", msg) != QMessageBox.Yes:
+            return
+        try:
+            from spacr.updater import run_pip_upgrade
+        except Exception as exc:
+            LOG.exception("Could not import the spaCR upgrade helper")
+            QMessageBox.warning(
+                self, "Updates", f"Upgrade unavailable: {exc}")
+            return
+        self.statusBar().showMessage("Upgrading spaCR…", 4000)
+        self._start_update_worker(
+            "upgrade", run_pip_upgrade, self._on_upgrade_done)
+
+    def _on_upgrade_done(self, return_code) -> None:
+        """Report a completed package upgrade on the GUI thread."""
+        if self._closing:
+            LOG.debug("Discarding an upgrade result during shutdown")
+            return
+        if return_code == 0:
+            QMessageBox.information(
+                self, "Updates",
+                "Upgrade finished. Restart spaCR to use it.")
+        else:
+            QMessageBox.warning(
+                self, "Updates",
+                f"pip returned exit code {return_code}. "
+                "Check the terminal for details.")
+
+    def _on_update_worker_failed(self, operation: str, details: str) -> None:
+        """Report an updater exception instead of losing it in a QThread."""
+        if self._closing:
+            LOG.debug("Updater %s failed during shutdown:\n%s",
+                      operation, details)
+            return
+        last = next(
+            (line for line in reversed(details.splitlines()) if line.strip()),
+            "unknown error")
+        label = "Update check" if operation == "check" else "Upgrade"
+        QMessageBox.warning(self, "Updates", f"{label} failed:\n{last}")
 
     # -- shutdown ----------------------------------------------------------
     def closeEvent(self, event):
@@ -1239,6 +1308,7 @@ class MainWindow(QMainWindow):
         BEFORE Qt starts destroying widgets. Prevents the
         'QThread: Destroyed while thread is still running / Aborted'
         crash on quit."""
+        self._closing = True
         from .widgets.console_panel import ConsolePanel
         for panel in self.findChildren(ConsolePanel):
             try:
@@ -1525,14 +1595,19 @@ class MainWindow(QMainWindow):
             try:
                 self._apply_seed_value(w, value)
             except Exception:
-                pass
+                LOG.warning(
+                    "Could not seed %s.%s with %r",
+                    target_key, key, value, exc_info=True)
 
     @staticmethod
     def _apply_seed_value(w: QWidget, value) -> None:
         from PySide6.QtWidgets import (
             QCheckBox, QComboBox, QDoubleSpinBox, QLineEdit, QSpinBox,
         )
-        if isinstance(w, QCheckBox):
+        setter = getattr(w, "set_value", None)
+        if callable(setter):
+            setter(value)
+        elif isinstance(w, QCheckBox):
             w.setChecked(bool(value))
         elif isinstance(w, QSpinBox):
             w.setValue(int(float(value)))
@@ -1589,7 +1664,8 @@ def launch(argv: Optional[list[str]] = None) -> int:
         from PySide6.QtGui import QImageReader
         QImageReader.setAllocationLimit(0)
     except Exception:
-        pass
+        LOG.debug("This Qt build does not expose QImageReader allocation "
+                  "limits", exc_info=True)
 
     # Bundle Open Sans (Regular + Light + SemiBold) so the app renders
     # the same on every OS regardless of what fonts the user has
@@ -1602,10 +1678,13 @@ def launch(argv: Optional[list[str]] = None) -> int:
     from .preferences import apply_preferences_to_app
     apply_preferences_to_app(app)
 
-    # Every launch drops a "spaCR started" line into
-    # ~/.spacr/logs/spacr-YYYYMMDD.log so a subsequent bug report has
-    # a clear timeline start. See spacr.qt.verbose_logger.current_log_file
-    # for the path.
+    # Real Python logging → rotating file + Qt signal so ConsolePanel
+    # can render records inline. Set it up before the launch breadcrumb and
+    # MainWindow construction so neither is lost.
+    from .logging_util import setup_logging
+    setup_logging()
+
+    # Every launch drops a timeline marker into the diagnostic log.
     import logging as _lg
     import sys as _sys
     from .verbose_logger import current_log_file
@@ -1613,12 +1692,6 @@ def launch(argv: Optional[list[str]] = None) -> int:
         "spaCR launched (python=%s.%s.%s, log=%s)",
         _sys.version_info.major, _sys.version_info.minor,
         _sys.version_info.micro, current_log_file())
-
-    # Real Python logging → rotating file + Qt signal so ConsolePanel
-    # can render records inline. Must be set up before MainWindow so
-    # child widgets can log at construct time.
-    from .logging_util import setup_logging
-    setup_logging()
 
     win = MainWindow(initial_app=initial_app)
     win.show()
@@ -1634,7 +1707,7 @@ def launch(argv: Optional[list[str]] = None) -> int:
             for mod in ("spacr.settings", "spacr.gui_utils"):
                 importlib.import_module(mod)
         except Exception:
-            pass
+            LOG.debug("Could not prewarm GUI settings imports", exc_info=True)
     threading.Thread(target=_prewarm, name="spacr-prewarm",
                      daemon=True).start()
 
@@ -1648,14 +1721,15 @@ def launch(argv: Optional[list[str]] = None) -> int:
             try:
                 panel.shutdown()
             except Exception:
-                pass
+                LOG.debug("Could not shut down a console panel",
+                          exc_info=True)
         # Also kill any subprocess still tracked by a provider
         try:
             from . import ai as _ai
             for p in _ai.list_providers():
                 p.cancel_stream()
         except Exception:
-            pass
+            LOG.debug("Could not cancel every AI provider", exc_info=True)
     app.aboutToQuit.connect(_drain_ai)
 
     return app.exec()

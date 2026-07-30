@@ -961,7 +961,7 @@ def _detect_layout(entries: Sequence[Tuple[str, Tuple[str, ...]]]) -> str:
 
 def _keys_for(parts: Tuple[str, ...], layout: str, src_name: str) -> Tuple[str, str, str]:
     """Return ``(plate key, well key, extra field prefix)`` for one file."""
-    dirs, name = list(parts[:-1]), parts[-1]
+    dirs = list(parts[:-1])
     if layout == 'flat':
         return src_name, DEFAULT_WELL, ''
     if layout == 'well':

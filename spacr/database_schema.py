@@ -17,7 +17,7 @@ import os
 import re
 import sqlite3
 from dataclasses import dataclass
-from typing import Callable, Iterable, Optional, Sequence, Tuple
+from typing import Callable, Optional, Sequence, Tuple
 
 __all__ = [
     "CURRENT_SCHEMA_VERSION",

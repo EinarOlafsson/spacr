@@ -934,7 +934,9 @@ class TestStylesheet:
         fills with — and those are translucent in *every* theme on
         purpose: a tint that is a solid colour is not a tint. Section
         maturity now uses the same hues for its border and header tint,
-        so those two documented alphas belong to the same allow-list.
+        so those documented alphas belong to the same allow-list. The
+        semantic Run/Propagate and Stop/Close buttons likewise use an
+        explicitly requested 18% blue/red hover tint.
         The assertion names them and demands they are the only ones,
         which is the same guarantee stated precisely rather than a
         blanket ban that a rule about something else happened to trip.
@@ -942,7 +944,12 @@ class TestStylesheet:
         import re
         for name in ("dark", "light"):
             qss = theme.stylesheet(name)
-            allowed = {theme.css_color(theme.rim_colour(name), 0.35)}
+            palette = theme.palette_for(name)
+            allowed = {
+                theme.css_color(theme.rim_colour(name), 0.35),
+                theme.css_color(palette["button_accent"], 0.18),
+                theme.css_color(palette["error"], 0.18),
+            }
             for hue in theme.STAGE_HOVER.values():
                 allowed.add(theme.css_color(hue, 0.22))
                 allowed.add(theme.css_color(hue, 0.40))

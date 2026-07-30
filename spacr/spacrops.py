@@ -1,7 +1,9 @@
+"""Feature-based alignment, stitching, and crop-generation utilities."""
+
 import os, re, csv, math, time, hashlib, threading, shutil, zipfile, cv2, tifffile
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from collections import OrderedDict, defaultdict
-from typing import Optional, Tuple, Dict, Union, List, Pattern, Any
+from collections import OrderedDict
+from typing import Optional, Tuple, Dict, Union, List, Any
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -953,8 +955,6 @@ class spacrStitcher:
                     msg_thr = self.score_threshold if score_threshold is None else score_threshold
                     print(f"[stitch_pair] score {score:.3f} < threshold {msg_thr} → no stitch")
     
-        metaA = self._parse_meta(pathA); metaB = self._parse_meta(pathB)
-    
         # optional full-res metrics (unchanged)
         edge_zncc_full = ""
         fg_corr = ""
@@ -1711,8 +1711,6 @@ class spacrStitcher:
 
         # Gather per-direction best candidate edges
         best_per_node_dir: Dict[Tuple[str,str], Tuple[float, str, str, np.ndarray]] = {}
-        all_cand: List[Tuple[str, str, float, np.ndarray, str]] = []
-
         for r in rows:
             sc = float(r["score"]) if r["score"] != "" else -np.inf
             if not np.isfinite(sc) or sc < float(min_score):
@@ -3483,7 +3481,7 @@ def align_image_to_stitch(
     :returns: mapping ``{well: {'mosaic': path, 'align_folder': path, 'manifest_csv': path}}``.
     """
     import os, re, shutil
-    from typing import Dict, List, Optional
+    from typing import Dict, List
 
     # ---------- helpers ----------
     def _scan_tifs(root: str, recursive: bool, exts: tuple) -> List[str]:
@@ -3571,7 +3569,7 @@ def align_image_to_stitch(
         well_align_srcs = by_well_align[well]
         # make a light per-well link folder so paths are clean/reproducible
         link_well = os.path.join(links_root, well)
-        link_paths = _symlink_list(well_align_srcs, link_well)
+        _symlink_list(well_align_srcs, link_well)
 
         crops_dir = os.path.join(os.path.dirname(mosaic_path), "crops_20x")
         os.makedirs(crops_dir, exist_ok=True)
@@ -3620,10 +3618,6 @@ def ops_preprocess(settings):
         (per-genotype align results) and ``npy_out_root`` (npy output root path).
     """
     import os
-    import numpy as np  # noqa: F401  (likely used when you add npy writing)
-    import pandas as pd  # noqa: F401  (keep if you use it later)
-    from tifffile import imread  # noqa: F401
-
     # Fill in defaults for all stitching / alignment-related keys
     settings = get_preprocess_ops_settings(settings)
 

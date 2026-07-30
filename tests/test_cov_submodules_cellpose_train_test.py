@@ -86,6 +86,7 @@ def cp_stub(monkeypatch):
 
     monkeypatch.setattr(SUB.cp_models, "CellposeModel", _FakeCellposeModel)
     monkeypatch.setattr(SUB.train_cp, "train_seg", _fake_train_seg)
+    monkeypatch.setattr(SUB, "_cellpose_use_gpu", lambda: True)
     return rec
 
 
@@ -465,7 +466,7 @@ def test_test_cellpose_model_handles_empty_masks(tmp_path, cp_stub, monkeypatch)
         _label_image(32, [(1, (2, 10, 2, 10)), (2, (18, 28, 18, 28))]),
         _label_image(32, []),        # nothing at all in the ground truth
     ]
-    written = _write_pairs(tmp_path, "test", labels)
+    _write_pairs(tmp_path, "test", labels)
     cp_stub["preds"] = [np.zeros((32, 32), dtype=np.uint16) for _ in labels]
 
     shown = {}

@@ -1,3 +1,5 @@
+"""Legacy launcher that opens the Measure module."""
+
 from .gui import MainApp
 
 def start_measure_app():

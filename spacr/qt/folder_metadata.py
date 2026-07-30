@@ -24,7 +24,7 @@ import logging
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 LOG = logging.getLogger("spacr.qt.folder_metadata")
 

@@ -26,11 +26,9 @@ from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
     QDialogButtonBox,
-    QFormLayout,
     QHBoxLayout,
     QLabel,
     QLineEdit,
-    QMessageBox,
     QPushButton,
     QScrollArea,
     QStackedWidget,
@@ -42,7 +40,6 @@ from PySide6.QtWidgets import (
 
 from .. import ai as ai_module
 from .. import iconset
-from ..ai import keys as ai_keys
 from ..ai import settings as ai_settings
 from ..ai.providers import ChatProvider
 from ..ai.worker import StreamWorker, make_stream_thread

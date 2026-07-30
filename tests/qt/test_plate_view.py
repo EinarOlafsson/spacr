@@ -27,6 +27,7 @@ import pandas as pd
 import pytest
 
 from PySide6.QtCore import QPoint, Qt
+from PySide6.QtTest import QTest
 
 from spacr import plate_qc as pqc
 from spacr.qt.screens.plate_view import (
@@ -341,8 +342,9 @@ def test_recompute_before_a_render_reports_inline(screen):
 def test_clicking_a_well_reports_that_exact_well(rendered, frame, qtbot):
     grid = _sized_grid(rendered)
     with qtbot.waitSignal(grid.well_clicked, timeout=1000) as blocker:
-        qtbot.mouseClick(grid, Qt.LeftButton,
-                         pos=grid.cell_rect(3, 7).center().toPoint())
+        QTest.mouseClick(
+            grid, Qt.LeftButton,
+            pos=grid.cell_rect(3, 7).center().toPoint())
     assert blocker.args == [3, 7]
 
     text = rendered.well_info_text()
@@ -356,8 +358,9 @@ def test_clicking_a_well_reports_that_exact_well(rendered, frame, qtbot):
 
 def test_clicking_an_edge_well_says_it_is_the_edge(rendered, qtbot):
     grid = _sized_grid(rendered)
-    qtbot.mouseClick(grid, Qt.LeftButton,
-                     pos=grid.cell_rect(1, 1).center().toPoint())
+    QTest.mouseClick(
+        grid, Qt.LeftButton,
+        pos=grid.cell_rect(1, 1).center().toPoint())
     assert rendered.well_info_text().startswith("A01 ")
     assert "outer ring (edge)" in rendered.well_info_text()
 
@@ -366,8 +369,9 @@ def test_clicking_a_dropped_well_says_blank_not_zero(rendered, qtbot):
     rendered._min_count_box.setValue(3)
     grid = _sized_grid(rendered)
     row, col = THIN_WELLS[0]
-    qtbot.mouseClick(grid, Qt.LeftButton,
-                     pos=grid.cell_rect(row, col).center().toPoint())
+    QTest.mouseClick(
+        grid, Qt.LeftButton,
+        pos=grid.cell_rect(row, col).center().toPoint())
     text = rendered.well_info_text()
     assert text.startswith(pqc.well_id(row, col))
     assert "blank" in text
@@ -391,7 +395,7 @@ def test_clicks_in_the_margins_hit_no_well(rendered, qtbot):
     assert grid.well_at(QPoint(grid.width() - 1,
                                grid.height() - 1)) is None      # past the grid
     before = grid.selected_well()
-    qtbot.mouseClick(grid, Qt.LeftButton, pos=QPoint(2, 2))
+    QTest.mouseClick(grid, Qt.LeftButton, pos=QPoint(2, 2))
     assert grid.selected_well() == before
 
 

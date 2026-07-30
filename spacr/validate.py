@@ -112,9 +112,10 @@ APP_FUNCTIONS: Dict[str, str] = {
     "regression": "spacr.ml.perform_regression",
     "recruitment": "spacr.submodules.analyze_recruitment",
     "invasion": "spacr.submodules.analyze_invasion",
-    "replication": "spacr.submodules.analyze_endodyogeny",
+    "replication": "spacr.submodules.analyze_replication",
+    "endodyogeny": "spacr.submodules.analyze_endodyogeny",
     "analyze_plaques": "spacr.submodules.analyze_plaques",
-    "convert": "spacr.io.process_non_tif_non_2D_images",
+    "convert": "spacr.convert.convert_folder",
     "simulation": "spacr.sim.run_multiple_simulations",
 }
 
@@ -130,6 +131,8 @@ APP_ALIASES: Dict[str, str] = {
     "train": "classify",
     "generate_image_umap": "umap",
     "embedding": "umap",
+    "analyze_replication": "replication",
+    "analyze_endodyogeny": "endodyogeny",
 }
 
 # Apps whose ``src`` is a plate folder that must already contain
@@ -139,8 +142,9 @@ APP_ALIASES: Dict[str, str] = {
 # open it the same way: analyze_invasion via spacr.io._read_db and
 # analyze_endodyogeny via spacr.io._read_and_merge_data, both on
 # ``os.path.join(src, 'measurements/measurements.db')``.
-DB_APPS = frozenset({"umap", "ml_analyze", "regression", "recruitment", "activation",
-                     "classify", "invasion", "replication"})
+DB_APPS = frozenset({"umap", "ml_analyze", "regression", "recruitment",
+                     "activation", "classify", "invasion", "replication",
+                     "endodyogeny"})
 
 # Apps that read the merged/*.npy stacks produced by the mask pipeline.
 MERGED_APPS = frozenset({"measure"})
@@ -1161,6 +1165,48 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
                         ERROR, key,
                         f"crop_mode asks for {mode} crops but {key} is None, so no {mode} mask is read.",
                         f"Set {key} to the plane holding the {mode} mask, or drop '{mode}' from crop_mode."))
+
+    if app == "replication":
+        maximum = _as_int(settings.get("max_parasites_per_vacuole"))
+        if maximum is not None and (
+                maximum < 1 or maximum & (maximum - 1)):
+            problems.append(Problem(
+                ERROR, "max_parasites_per_vacuole",
+                f"max_parasites_per_vacuole={maximum} is not a positive "
+                "power of two.",
+                "Use 1, 2, 4, 8, 16, ... so every named bucket follows the "
+                "endodyogeny doubling ladder."))
+        factor = _numeric(settings.get("vacuole_link_factor"))
+        if factor is not None and factor <= 0:
+            problems.append(Problem(
+                ERROR, "vacuole_link_factor",
+                f"vacuole_link_factor={factor:g} cannot derive a positive "
+                "spatial linking distance.",
+                "Use a positive multiplier such as 1.5, or set "
+                "vacuole_link_distance explicitly."))
+        distance = _numeric(settings.get("vacuole_link_distance"))
+        if distance is not None and distance <= 0:
+            problems.append(Problem(
+                ERROR, "vacuole_link_distance",
+                f"vacuole_link_distance={distance:g} must be positive.",
+                "Give the maximum within-vacuole centroid distance in pixels, "
+                "or leave it blank to derive it from parasite diameter."))
+        fraction = _numeric(settings.get("non_power_of_two_warn"))
+        if fraction is not None and not 0 <= fraction <= 1:
+            problems.append(Problem(
+                ERROR, "non_power_of_two_warn",
+                f"non_power_of_two_warn={fraction:g} is not a fraction.",
+                "Use a value between 0 and 1; 0.2 flags wells above 20%."))
+        minimum_area = _numeric(settings.get("min_parasite_area"))
+        maximum_area = _numeric(settings.get("max_parasite_area"))
+        if (minimum_area is not None and maximum_area is not None
+                and maximum_area < minimum_area):
+            problems.append(Problem(
+                ERROR, "max_parasite_area",
+                f"max_parasite_area={maximum_area:g} is below "
+                f"min_parasite_area={minimum_area:g}.",
+                "Raise the maximum or lower the minimum so at least one "
+                "parasite size can pass the filter."))
 
     return problems
 

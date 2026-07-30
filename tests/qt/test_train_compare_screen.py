@@ -20,6 +20,7 @@ The properties pinned:
 from __future__ import annotations
 
 import os
+import threading
 
 import numpy as np
 import pytest
@@ -463,6 +464,25 @@ def test_a_threaded_scan_settles_and_lists_the_same_runs(qtbot,
     assert len(w.run_rows()) == 4
     qtbot.waitUntil(lambda: w.active_jobs() == 0, timeout=15000)
     assert not w.is_busy()
+    w.close()
+
+
+def test_a_threaded_scan_applies_results_on_the_gui_thread(
+        qtbot, qt_theme_applied, run_root, monkeypatch):
+    """Worker completion must never mutate Qt widgets from its QThread."""
+    w = TrainCompareScreen(threaded=True)
+    qtbot.addWidget(w)
+    applied_on = []
+    original = w._apply_runs
+
+    def _record(result):
+        applied_on.append(threading.current_thread())
+        return original(result)
+
+    monkeypatch.setattr(w, "_apply_runs", _record)
+    with qtbot.waitSignal(w.job_finished, timeout=15000):
+        assert w.scan(run_root) is True
+    assert applied_on == [threading.main_thread()]
     w.close()
 
 

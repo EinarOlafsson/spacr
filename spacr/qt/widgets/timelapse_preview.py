@@ -404,7 +404,6 @@ def backend_available(mode: str) -> Tuple[bool, str]:
 
 def _tracks_from_features(tracks_df, features):
     """Attach centroids to a track table that only carries labels."""
-    import pandas as pd  # noqa: F401  (pandas is already a hard dependency)
     cols = ["frame", "original_label", "x", "y"]
     return tracks_df.merge(features[cols], on=["frame", "original_label"],
                            how="left")

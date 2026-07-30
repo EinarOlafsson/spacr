@@ -727,7 +727,7 @@ def test_run_neutralises_plt_show(fake_pipeline, fake_settings, monkeypatch):
     seen = {}
 
     def _show_a_figure(settings):
-        fig = plt.figure()
+        plt.figure()
         seen["before"] = len(plt.get_fignums())
         plt.show()
         seen["after"] = len(plt.get_fignums())
@@ -772,18 +772,20 @@ def test_import_entry_failure_exits_2(capsys, monkeypatch, fake_settings):
     assert "could not import" in capsys.readouterr().err
 
 
-def test_folder_call_style_passes_src_positionally(monkeypatch, tmp_path):
-    """`convert` takes a bare folder, not a settings dict."""
+def test_convert_call_style_passes_the_complete_settings_dict():
+    """CLI and Qt must run the same mapped, collision-safe converter."""
     got = []
     module = cli.MODULES["convert"]
-    cli._call_entry(module, lambda folder: got.append(folder), {"src": "/data"})
-    assert got == ["/data"]
+    settings = {"src": "/data", "z_handling": "keep"}
+    cli._call_entry(module, lambda value: got.append(value), settings)
+    assert got == [settings]
 
 
-def test_folder_call_style_rejects_a_list_src():
+def test_convert_module_resolves_its_own_defaults():
     module = cli.MODULES["convert"]
-    with pytest.raises(cli.SettingsError, match="single folder"):
-        cli._call_entry(module, lambda folder: None, {"src": ["/a", "/b"]})
+    assert module.call_style == "settings"
+    assert module.defaults_entry == "spacr.convert:default_settings"
+    assert cli.module_defaults(module)["z_handling"] == "keep"
 
 
 def test_run_that_calls_sys_exit_propagates_the_code(fake_pipeline, fake_settings,

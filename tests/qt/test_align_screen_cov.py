@@ -31,6 +31,7 @@ import pytest
 
 from PySide6.QtCore import QObject, QPoint, Qt, Signal
 from PySide6.QtGui import QColor, QPixmap
+from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QFileDialog
 
 from spacr import align as align_mod
@@ -268,7 +269,7 @@ def test_clicking_between_the_tiles_reports_the_void(screen, tile_folder,
     assert not any(r.contains(corner) for r in rects.values())
 
     with qtbot.waitSignal(view.tile_clicked, timeout=5000) as blocker:
-        qtbot.mouseClick(view, Qt.LeftButton, pos=corner)
+        QTest.mouseClick(view, Qt.LeftButton, pos=corner)
     assert blocker.args[0] == -1
     assert screen.tile_info_text() == ""
 

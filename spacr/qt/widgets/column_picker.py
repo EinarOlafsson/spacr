@@ -55,7 +55,7 @@ import difflib
 import os
 import re
 import sqlite3
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Callable, List, Optional, Sequence, Tuple
 from urllib.parse import quote as _urlquote
 
 from PySide6.QtCore import Qt, Signal

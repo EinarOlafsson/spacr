@@ -66,8 +66,6 @@ Values:
 """
 from __future__ import annotations
 
-from typing import Optional
-
 from PySide6.QtCore import QSettings
 
 # ---------------------------------------------------------------------------
@@ -129,11 +127,16 @@ def _settings() -> QSettings:
 # ---------------------------------------------------------------------------
 
 def get_figure_format() -> str:
+    """Return the saved figure format, falling back to ``pdf``."""
     raw = str(_settings().value(_KEY_FIG_FORMAT, DEFAULT_FIG_FORMAT)).lower()
     return raw if raw in VALID_FIG_FORMATS else DEFAULT_FIG_FORMAT
 
 
 def set_figure_format(fmt: str) -> None:
+    """Persist a supported figure format.
+
+    :raises ValueError: if ``fmt`` is not ``png`` or ``pdf``.
+    """
     if fmt not in VALID_FIG_FORMATS:
         raise ValueError(f"unknown figure format {fmt!r}. "
                           f"Choose from {VALID_FIG_FORMATS}.")
@@ -141,6 +144,7 @@ def set_figure_format(fmt: str) -> None:
 
 
 def get_figure_png_dpi() -> int:
+    """Return the saved PNG resolution, or the 300-DPI default."""
     try:
         raw = int(_settings().value(_KEY_FIG_PNG_DPI, DEFAULT_PNG_DPI))
     except (TypeError, ValueError):
@@ -149,7 +153,16 @@ def get_figure_png_dpi() -> int:
 
 
 def set_figure_png_dpi(dpi: int) -> None:
-    _settings().setValue(_KEY_FIG_PNG_DPI, int(dpi))
+    """Persist one of :data:`VALID_PNG_DPIS`.
+
+    :raises ValueError: if ``dpi`` is not a supported resolution.
+    """
+    dpi = int(dpi)
+    if dpi not in VALID_PNG_DPIS:
+        raise ValueError(
+            f"unknown PNG resolution {dpi!r}. Choose from {VALID_PNG_DPIS}."
+        )
+    _settings().setValue(_KEY_FIG_PNG_DPI, dpi)
 
 
 # Figure colours. Stored as hex strings; "auto" (the default) follows the app
@@ -177,11 +190,13 @@ def get_figure_colors() -> tuple:
 
 
 def set_figure_colors(bg: str, fg: str) -> None:
+    """Persist background and text colour tokens for generated figures."""
     _settings().setValue(_KEY_FIG_BG, bg)
     _settings().setValue(_KEY_FIG_FG, fg)
 
 
 def get_figure_text_size() -> int:
+    """Return the saved figure font size; zero leaves Matplotlib unchanged."""
     try:
         return int(_settings().value(_KEY_FIG_TEXT_SIZE, 0))
     except (TypeError, ValueError):
@@ -189,6 +204,7 @@ def get_figure_text_size() -> int:
 
 
 def set_figure_text_size(size: int) -> None:
+    """Persist a figure font size; zero delegates sizing to Matplotlib."""
     _settings().setValue(_KEY_FIG_TEXT_SIZE, int(size))
 
 
@@ -197,11 +213,16 @@ def set_figure_text_size(size: int) -> None:
 # ---------------------------------------------------------------------------
 
 def get_theme() -> str:
+    """Return the saved application theme, or the default when invalid."""
     raw = str(_settings().value(_KEY_THEME, DEFAULT_THEME))
     return raw if raw in VALID_THEMES else DEFAULT_THEME
 
 
 def set_theme(theme: str) -> None:
+    """Persist a supported application theme.
+
+    :raises ValueError: if ``theme`` is not in :data:`VALID_THEMES`.
+    """
     if theme not in VALID_THEMES:
         raise ValueError(f"unknown theme {theme!r}. "
                           f"Choose from {VALID_THEMES}.")
@@ -287,6 +308,7 @@ def get_space_variant() -> str:
 
 
 def set_space_variant(variant: str) -> None:
+    """Persist a supported procedural or photographic Space variant."""
     valid = space_variants()
     if variant not in valid:
         raise ValueError(f"unknown space variant {variant!r}. "
@@ -302,6 +324,7 @@ def get_cell_variant() -> str:
 
 
 def set_cell_variant(variant: str) -> None:
+    """Persist one of the bundled Cell-theme microscopy variants."""
     from .imagery import CELL_VARIANTS
     if variant not in CELL_VARIANTS:
         raise ValueError(f"unknown cell variant {variant!r}. "
@@ -319,6 +342,7 @@ def get_space_seed() -> int:
 
 
 def set_space_seed(seed: int) -> None:
+    """Persist the deterministic seed used for procedural backgrounds."""
     _settings().setValue(_KEY_SPACE_SEED, int(seed))
 
 
@@ -410,6 +434,7 @@ def resolve_effective_theme() -> str:
 # ---------------------------------------------------------------------------
 
 def get_font_scale() -> float:
+    """Return the saved UI font scale, clamped to supported bounds."""
     try:
         raw = float(_settings().value(_KEY_FONT_SCALE,
                                         DEFAULT_FONT_SCALE))
@@ -419,6 +444,7 @@ def get_font_scale() -> float:
 
 
 def set_font_scale(scale: float) -> None:
+    """Persist a UI font scale after clamping it to supported bounds."""
     scale = float(scale)
     scale = max(FONT_SCALE_MIN, min(FONT_SCALE_MAX, scale))
     _settings().setValue(_KEY_FONT_SCALE, scale)
@@ -462,6 +488,7 @@ def get_dock_mode() -> str:
 
 
 def set_dock_mode(mode: str) -> None:
+    """Persist a valid left-navigation dock mode."""
     if mode not in VALID_DOCK_MODES:
         raise ValueError(f"unknown dock mode {mode!r}. "
                           f"Choose from {VALID_DOCK_MODES}.")
@@ -527,11 +554,13 @@ def effective_pane_alpha() -> float:
 # ---------------------------------------------------------------------------
 
 def get_color_blind_mode() -> str:
+    """Return the active colour-vision mode, falling back to ``off``."""
     raw = str(_settings().value(_KEY_CB_MODE, DEFAULT_CB_MODE))
     return raw if raw in VALID_CB_MODES else DEFAULT_CB_MODE
 
 
 def set_color_blind_mode(mode: str) -> None:
+    """Persist a supported colour-vision mode."""
     if mode not in VALID_CB_MODES:
         raise ValueError(f"unknown CB mode {mode!r}. "
                           f"Choose from {VALID_CB_MODES}.")
@@ -565,6 +594,7 @@ def get_verbose_logging() -> bool:
 
 
 def set_verbose_logging(on: bool) -> None:
+    """Persist whether package-wide diagnostic tracing is enabled."""
     _settings().setValue(_KEY_VERBOSE_LOG, bool(on))
 
 

@@ -52,6 +52,8 @@ HEADLESS_ONLY = {
                   "folder; the Classify button runs the whole pipeline",
     "cellpose_all": "benchmarks every Cellpose model on one folder; Model Zoo "
                     "is the interactive version of the same question",
+    "endodyogeny": "the legacy area-derived size proxy remains headless; the "
+                   "Replication button runs the parasite-count assay",
     "simulation": "the pooled-screen simulator, which has no GUI screen at all",
 }
 
@@ -148,23 +150,10 @@ def test_every_validate_entry_is_an_app_or_a_headless_only_module():
 # and the entries have to name the same function
 # ---------------------------------------------------------------------------
 
-# `convert` is the one place the three registries disagree, and it is a real
-# divergence rather than an oversight in this test: the Qt Format Converter
-# runs spacr.convert.convert_folder (settings dict, preview, map file back to
-# the originals) while spacr-run and validate still name the older
-# spacr.io.process_non_tif_non_2D_images, which takes a bare folder. Moving the
-# CLI onto convert_folder also changes its call_style, which two tests in
-# tests/test_cli.py pin; it is reported rather than done here.
-KNOWN_DIVERGENCES = {
-    "convert": "Qt runs spacr.convert.convert_folder; cli/validate still name "
-               "spacr.io.process_non_tif_non_2D_images",
-}
-
-
 @pytest.mark.parametrize("app_key", APP_KEYS)
 def test_the_registries_name_the_same_function(app_key):
     """Validating against one function and running another is not validation."""
-    if app_key in cli.INTERACTIVE_ONLY or app_key in KNOWN_DIVERGENCES:
+    if app_key in cli.INTERACTIVE_ONLY:
         return
     names = {}
     qt_name = _qt_entry_name(app_key)
@@ -209,7 +198,9 @@ def _real_plate(root):
     for index, stem in enumerate(("plate1_A01_1", "plate1_A01_2")):
         pathogen_morph = pd.DataFrame(
             {"label": [1, 2],
-             "cell_id": [f"{stem}_1", f"{stem}_2"],
+             # Object-table parent ids are labels within this field; the
+             # writer adds the field/plate identity separately as ``prcf``.
+             "cell_id": [1, 2],
              "pathogen_area": [500.0 + index, 1100.0 + index]})
         pathogen_intensity = pd.DataFrame(
             {"label": [1, 2],
@@ -271,8 +262,9 @@ def test_the_new_modules_are_listed(capsys):
     ("analyze_invasion", "invasion"),
     ("Invasion-Assay", "invasion"),
     ("replication", "replication"),
-    ("analyze_endodyogeny", "replication"),
-    ("endodyogeny", "replication"),
+    ("analyze_replication", "replication"),
+    ("analyze_endodyogeny", "endodyogeny"),
+    ("endodyogeny", "endodyogeny"),
     ("import_project", "foreign"),
 ])
 def test_the_new_names_resolve_the_way_a_pasted_script_spells_them(spelling,
@@ -432,11 +424,26 @@ def test_foreign_preflight_says_what_is_missing(tmp_path):
     assert "src" not in named
 
 
-def test_replication_is_not_wired_to_analyze_replication():
-    """``analyze_replication`` counts parasites per vacuole; the Replication
-    Assay app is the size-proxy ``analyze_endodyogeny``. Aliasing one to the
-    other would swap the assay without changing a single number's name."""
-    import spacr.submodules as submodules
-    assert hasattr(submodules, "analyze_replication")
-    assert cli.MODULES["replication"].func_name == "analyze_endodyogeny"
-    assert cli.resolve_module("analyze_replication") is None
+def test_replication_uses_counts_and_keeps_the_size_proxy_explicit():
+    """The visible assay counts parasites; the legacy proxy stays named."""
+    assert cli.MODULES["replication"].func_name == "analyze_replication"
+    assert cli.MODULES["endodyogeny"].func_name == "analyze_endodyogeny"
+    assert cli.resolve_module("analyze_replication").key == "replication"
+    assert cli.resolve_module("analyze_endodyogeny").key == "endodyogeny"
+
+
+@pytest.mark.parametrize(("key", "value"), [
+    ("max_parasites_per_vacuole", 12),
+    ("vacuole_link_factor", 0),
+    ("vacuole_link_distance", -1),
+    ("non_power_of_two_warn", 1.2),
+])
+def test_replication_preflight_rejects_invalid_scoring_settings(key, value):
+    """Scientifically invalid knobs fail before database loading."""
+    from spacr.settings import set_analyze_replication_defaults
+    from spacr.validate import validate_settings
+
+    settings = set_analyze_replication_defaults({})
+    settings[key] = value
+    problems = validate_settings(settings, "replication")
+    assert any(p.setting == key and p.is_error for p in problems)

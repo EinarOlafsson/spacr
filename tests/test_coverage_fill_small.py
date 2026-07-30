@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import builtins
 from pathlib import Path
+import sys
 
 import numpy as np
 import pytest
@@ -199,6 +200,7 @@ class TestMaskIO:
             if name == "tifffile":
                 raise ImportError("no tifffile")
             return real_import(name, *a, **k)
+        monkeypatch.delitem(sys.modules, "spacr.tiff_io", raising=False)
         monkeypatch.setattr(builtins, "__import__", _no_tifffile)
         p = mask_io.save_mask(str(tmp_path / "m"),
                               np.zeros((8, 8), np.uint16), fmt="tif")

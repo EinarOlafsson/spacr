@@ -1,4 +1,6 @@
-import os, io, sys, ast, ctypes, ast, sqlite3, requests, time, traceback, torch, cv2
+"""Shared helpers for spaCR's legacy Tk graphical interface."""
+
+import os, io, sys, ast, ctypes, sqlite3, requests, time, traceback, torch, cv2
 import tkinter as tk
 from tkinter import ttk
 import matplotlib
@@ -776,14 +778,14 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
     :raises ValueError: if ``settings_type`` is not a recognised module.
     """
     from .core import generate_image_umap, preprocess_generate_masks
-    from .spacr_cellpose import identify_masks_finetune, check_cellpose_models, compare_cellpose_masks
+    from .spacr_cellpose import identify_masks_finetune, check_cellpose_models
     from .submodules import analyze_recruitment
     from .ml import generate_ml_scores, perform_regression
     from .submodules import train_cellpose, analyze_plaques
-    from .io import process_non_tif_non_2D_images, generate_cellpose_train_test, generate_dataset
+    from .io import process_non_tif_non_2D_images
     from .measure import measure_crop
     from .sim import run_multiple_simulations
-    from .deep_spacr import deep_spacr, apply_model_to_tar
+    from .deep_spacr import deep_spacr
     from .sequencing import generate_barecode_mapping
     
     process_stdout_stderr(q)
@@ -1044,8 +1046,6 @@ def display_gif_in_plot_frame(gif_path, parent_frame):
 
     # Get the aspect ratio of the GIF
     gif_width, gif_height = gif.size
-    gif_aspect_ratio = gif_width / gif_height
-
     # Create a label to display the GIF and configure it to fill the parent_frame
     label = tk.Label(parent_frame, bg="black")
     label.grid(row=0, column=0, sticky="nsew")  # Expands in all directions (north, south, east, west)

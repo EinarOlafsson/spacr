@@ -1,3 +1,5 @@
+"""Per-object morphology and intensity measurement pipeline."""
+
 import os, cv2, time, sqlite3, traceback, shutil
 import numpy as np
 import pandas as pd
@@ -11,23 +13,26 @@ from skimage.segmentation import find_boundaries
 from skimage.feature import graycomatrix, graycoprops
 from skimage import morphology, measure, filters
 from skimage.util import img_as_bool
-from skimage.filters import gaussian, threshold_otsu
-from skimage.measure import label as sk_label, regionprops_table
 import matplotlib.pyplot as plt
 from math import ceil, sqrt
 
-from . import settings
 # The crop PNG format lives in spacr.crops: the writer's channel order
 # (to_cv2_bgr), the folder marker (stamp_crop_folder) and the reader that
 # undoes the legacy order all have to agree, so they live in one place.
 # spacr.crops imports nothing from spacr and nothing heavy, so this costs the
 # measure path nothing.
 from .crops import stamp_crop_folder, to_cv2_bgr
+# Backward-compatible public module binding used by downstream extensions.
+from . import settings as _settings_module
+settings = _settings_module
+# Public compatibility alias: measurement writers and downstream feature
+# dictionaries historically import this constant from ``spacr.measure``.
+from . import measurement_schema as _measurement_schema
+MEASUREMENT_STAMP_COLUMNS = _measurement_schema.MEASUREMENT_STAMP_COLUMNS
 # Fail-loud accounting: a field that fails to measure is recorded, summarised
 # at the end of the run, and stamped into measurements.db so a downstream
 # regression cannot silently analyse 344 of 384 wells.
 from .errors import RunLedger, ConfigurationError, raise_if_strict
-from .measurement_schema import MEASUREMENT_STAMP_COLUMNS
 from .resume import plan_measure_resume
 
 
@@ -1665,14 +1670,7 @@ def save_and_add_image_to_grid(png_channels, img_path, grid, plot=False):
         if png_channels.dtype == np.uint16:
             png_channels = (png_channels / 256).astype(np.uint8)
         
-        # Get the filename without the extension
-        filename = os.path.splitext(os.path.basename(img_path))[0]
-        
-        # Add the label to the image
-        #labeled_image = cv2.putText(png_channels.copy(), filename, (10, 30), 
-        #                            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-        
-        # Add the labeled image to the grid
+        # Add the image to the diagnostic grid.
         grid.append(png_channels)
     
     return grid
@@ -1978,7 +1976,7 @@ def _measure_crop_core(index, time_ls, file, settings):
                         _ = _merge_and_save_to_database(organelle_df, organelle_intensity_df, 'organelle', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
 
             if settings['cytoplasm']:
-                cytoplasm_merged_df = _merge_and_save_to_database(cytoplasm_df, cytoplasm_intensity_df, 'cytoplasm', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
+                _merge_and_save_to_database(cytoplasm_df, cytoplasm_intensity_df, 'cytoplasm', source_folder, file_name, settings['experiment'], settings['timelapse'], stamp=units_stamp)
 
             if settings.get('summarize_organelles_by') is not None:
                 if "cell" in settings['summarize_organelles_by']:
@@ -2277,7 +2275,7 @@ def measure_crop(settings):
 
     from .io import _save_settings_to_db
     from .timelapse import _timelapse_masks_to_gif
-    from .utils import measure_test_mode, print_progress, delete_intermedeate_files, save_settings, format_path_for_system, normalize_src_path
+    from .utils import measure_test_mode, print_progress, save_settings, format_path_for_system, normalize_src_path
     from .settings import get_measure_crop_settings
     
     
@@ -2286,8 +2284,7 @@ def measure_crop(settings):
         settings['save_png'] = False
 
     if not isinstance(settings['src'], (str, list)):
-        ValueError(f'src must be a string or a list of strings')
-        return
+        raise ValueError('src must be a string or a list of strings')
     
     settings['src'] = normalize_src_path(settings['src'])
     
@@ -2302,7 +2299,6 @@ def measure_crop(settings):
             
             source_folder = format_path_for_system(source_folder)
             settings['src'] = source_folder
-            src = source_folder
 
             settings = get_measure_crop_settings(settings)
             settings = measure_test_mode(settings)

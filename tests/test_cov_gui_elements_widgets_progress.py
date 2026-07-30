@@ -156,13 +156,6 @@ def test_progressbar_set_label_position_maps_the_label(tk_root):
     assert int(info['columnspan']) == int(bar.grid_info()['columnspan'])
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: spacrProgressBar.set_label_position reads grid_info()['rowID'] "
-           "/ ['columnID'], which are never keys of Tk's grid_info() (they are "
-           "'row'/'column'), so the label is always pinned to row 1/column 0 "
-           "instead of directly beneath the progress bar.",
-)
 def test_progressbar_label_sits_directly_beneath_the_bar(tk_root):
     """The label must land one row below the bar, in the bar's column."""
     bar = ge.spacrProgressBar(tk_root, label=True)

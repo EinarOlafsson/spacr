@@ -371,26 +371,36 @@ _MODULE_LIST: Tuple[Module, ...] = (
     ),
     Module(
         key="replication",
-        summary="Endodyogeny: bin pathogen size by log2 doublings and test the bins per group.",
-        entry="spacr.submodules:analyze_endodyogeny",
-        defaults="set_analyze_endodyogeny_defaults",
+        summary="Count parasites per vacuole and compare replication distributions.",
+        entry="spacr.submodules:analyze_replication",
+        defaults="set_analyze_replication_defaults",
         validate_key="replication",
         requires=("src — plate folder holding measurements/measurements.db",
+                  "one row per segmented parasite with centroids or a "
+                  "vacuole-ID column",
                   "cell_types / pathogen_types / treatments and their "
-                  "*_plate_metadata well maps, which define group_column",
-                  "um_per_px — the pixel size the bins are computed in"),
-        writes=("<src>/results/analyze_endodyogeny/data.csv, "
-                "chi_squared_results.csv, chi_squared_pairwise_results.csv",
-                "<src>/results/analyze_endodyogeny/chi_squared_results.pdf",
-                "<src>/settings/analyze_endodyogeny.csv"),
-        note=("save defaults to False, and headless there is nobody to look at "
-              "the figure — pass --set save=True or a batch run writes nothing. "
-              "This is the SIZE-PROXY readout: rows come from "
-              "spacr.io._read_and_merge_data collapsed onto the host cell, so a "
-              "bin is a doubling of area**1.5 summed over every parasite in that "
-              "cell, not a parasite count. Use spacr.submodules"
-              ".analyze_replication when the parasites are individually "
-              "resolvable."),
+                  "*_plate_metadata well maps, which define group_column"),
+        writes=("<src>/results/analyze_replication/vacuole_counts.csv, "
+                "well_distribution.csv, condition_summary.csv and tests",
+                "<src>/results/analyze_replication/"
+                "parasites_per_vacuole_*.pdf",
+                "<src>/settings/analyze_replication.csv"),
+        note=("The counting unit is a vacuole, not a host cell. Check the "
+              "reported vacuole_key and non-power-of-two QC fraction before "
+              "quoting the result."),
+    ),
+    Module(
+        key="endodyogeny",
+        summary="Legacy size proxy: bin pathogen area-derived volume by doublings.",
+        entry="spacr.submodules:analyze_endodyogeny",
+        defaults="set_analyze_endodyogeny_defaults",
+        validate_key="endodyogeny",
+        requires=("src — plate folder holding measurements/measurements.db",
+                  "um_per_px — pixel calibration used by the size bins"),
+        writes=("<src>/results/analyze_endodyogeny/ — proxy tables and plots",),
+        note=("This is not a parasite count: pathogen areas are collapsed onto "
+              "host cells. Use `spacr-run replication` when individual "
+              "parasites are resolvable."),
     ),
     Module(
         key="analyze_plaques",
@@ -431,16 +441,15 @@ _MODULE_LIST: Tuple[Module, ...] = (
     ),
     Module(
         key="convert",
-        summary="Split non-TIFF / multi-dimensional images into per-channel 2-D TIFFs.",
-        entry="spacr.io:process_non_tif_non_2D_images",
+        summary="Convert vendor images into mapped, collision-safe Yokogawa TIFFs.",
+        entry="spacr.convert:convert_folder",
         defaults=None,
+        defaults_entry="spacr.convert:default_settings",
         validate_key="convert",
         requires=("src — folder of images to convert",),
-        writes=("one grayscale .tif per (channel, Z, T) beside each input image",),
-        call_style="folder",
-        note=("This entry point takes a bare folder, not a settings dict — the CLI "
-              "passes settings['src']. Both GUIs call it as fn(settings=...), which "
-              "raises TypeError, so 'convert' has never actually worked from a GUI."),
+        writes=("<dst>/ — Yokogawa TIFFs, conversion_map.csv, and a run ledger",),
+        note=("The default keeps every Z plane. Set z_handling='max' or "
+              "'first' only when lossy projection is intentional."),
     ),
     Module(
         key="simulation",
@@ -481,12 +490,8 @@ ALIASES: Dict[str, str] = {
     "analyze_recruitment": "recruitment",
     "analyze_invasion": "invasion",
     "invasion_assay": "invasion",
-    # NOT 'analyze_replication': that is a different function in
-    # spacr.submodules, which counts parasites per vacuole. The Replication
-    # Assay app runs analyze_endodyogeny, the size-proxy readout, and pointing
-    # one name at the other would silently swap the assay.
-    "analyze_endodyogeny": "replication",
-    "endodyogeny": "replication",
+    "analyze_replication": "replication",
+    "analyze_endodyogeny": "endodyogeny",
     "replication_assay": "replication",
     "import_project": "foreign",
     "foreign_import": "foreign",

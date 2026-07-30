@@ -1,4 +1,6 @@
-import os, gc, torch, time, random, cv2
+"""Cellpose model evaluation, comparison, and mask-generation workflows."""
+
+import os, gc, torch, time, random
 import numpy as np
 import pandas as pd
 from cellpose import models as cp_models

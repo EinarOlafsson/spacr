@@ -1013,6 +1013,8 @@ class ResultsDatabaseDropHandler(DatabaseDropHandler):
 
 
 class TrainingRunsDropHandler(DropHandler):
+    """Accept a directory and asynchronously scan it for training runs."""
+
     def can_accept(self, path: Path) -> bool:
         return path.is_dir()
 
@@ -1026,6 +1028,8 @@ class TrainingRunsDropHandler(DropHandler):
 
 
 class ReportDropHandler(DropHandler):
+    """Accept a completed spaCR run folder and scan its report inputs."""
+
     def can_accept(self, path: Path) -> bool:
         return path.is_dir()
 

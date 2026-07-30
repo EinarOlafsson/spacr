@@ -1,4 +1,6 @@
-import os, threading, time, sqlite3, webbrowser, random, cv2, json
+"""Widgets and interactive tools for spaCR's legacy Tk interface."""
+
+import os, threading, sqlite3, webbrowser, random, cv2, json
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as tkFont
@@ -7,25 +9,15 @@ from tkinter import font
 from queue import Queue
 from tkinter import Label, Frame, Button
 import numpy as np
-import pandas as pd
-from PIL import Image, ImageOps, ImageTk, ImageDraw, ImageFont, ImageEnhance
-from concurrent.futures import ThreadPoolExecutor
+from PIL import Image, ImageTk, ImageDraw, ImageFont, ImageEnhance
 from IPython.display import display, HTML
 import imageio.v2 as imageio
 from collections import deque
-from skimage.filters import threshold_otsu
 from skimage.exposure import rescale_intensity
 from skimage.draw import polygon, line
 from skimage.transform import resize
-from skimage.morphology import dilation, disk
-from skimage.segmentation import find_boundaries
-from skimage.util import img_as_ubyte
-from scipy.ndimage import binary_fill_holes, label, gaussian_filter
-from tkinter import ttk, scrolledtext
-from sklearn.model_selection import train_test_split
-from sympy import root
-from xgboost import XGBClassifier
-from sklearn.metrics import classification_report, confusion_matrix
+from scipy.ndimage import binary_fill_holes, label
+from tkinter import scrolledtext
 from screeninfo import get_monitors
 
 fig = None
@@ -151,7 +143,6 @@ def restart_gui_app(root):
         
         # Import and launch a new instance of the application
         from .gui import gui_app
-        new_root = tk.Tk()  # Create a fresh Tkinter root instance
         gui_app()
     except Exception as e:
         print(f"Error restarting GUI application: {e}")
@@ -321,8 +312,6 @@ def apply_theme(style, parent_frame=None, containers=None, widgets=None,
         'header': font_size + 2,
         'title':  font_size + 6,
     }
-    font_style = tkFont.Font(family=font_family, size=font_size)
-
     if font_family == 'OpenSans':
         font_loader = spacrFont(font_name='OpenSans', font_style='Regular', font_size=12)
     else:
@@ -645,7 +634,6 @@ class spacrContainer(tk.Frame):
 
     def perform_resize(self, event):
         """Update pane sizes while a sash is being dragged."""
-        sash = event.widget
         delta = (event.y_root - self.start_pos) if self.orient == tk.VERTICAL else (event.x_root - self.start_pos)
         new_size = self.start_size + delta
 
@@ -949,7 +937,12 @@ class spacrCombo(tk.Frame):
         self.dropdown_menu.wm_overrideredirect(True)
         self.dropdown_menu.configure(bg=self.inactive_color)
         
-        x, y, width, height = self.winfo_rootx(), self.winfo_rooty(), self.winfo_width(), self.winfo_height()
+        x, y, width, height = (
+            self.winfo_rootx(),
+            self.winfo_rooty(),
+            self.winfo_width(),
+            self.winfo_height(),
+        )
         
         for index, value in enumerate(self.values):
             display_text = value if value is not None else 'None'
@@ -1104,7 +1097,7 @@ class spacrDropdownMenu(tk.Frame):
 
     def post_menu(self):
         """Post the popup menu just below the button."""
-        x, y, width, height = self.winfo_rootx(), self.winfo_rooty(), self.winfo_width(), self.winfo_height()
+        x, y, height = self.winfo_rootx(), self.winfo_rooty(), self.winfo_height()
         self.menu.post(x, y + height)
 
     def on_select(self, option):
@@ -1217,9 +1210,10 @@ class spacrProgressBar(ttk.Progressbar):
     def set_label_position(self):
         """Grid the status label directly beneath the progress bar."""
         if self.label and self.progress_label:
-            row_info = self.grid_info().get('rowID', 0)
-            col_info = self.grid_info().get('columnID', 0)
-            col_span = self.grid_info().get('columnspan', 1)
+            geometry = self.grid_info()
+            row_info = geometry.get('row', 0)
+            col_info = geometry.get('column', 0)
+            col_span = geometry.get('columnspan', 1)
             self.progress_label.grid(row=row_info + 1, column=col_info, columnspan=col_span, pady=5, padx=5, sticky='ew')
 
     def update_label(self):
@@ -2083,7 +2077,8 @@ class spacrCard(tk.Frame):
         self.border_color = style_out.get('border_color', style_out['inactive_color'])
         self.muted_color = style_out.get('muted_color', style_out['fg_color'])
         self.fg_color = style_out['fg_color']
-        spacing = style_out.get('spacing', {'sm': 8, 'md': 12, 'lg': 16})
+        spacing = style_out.get(
+            'spacing', {'xs': 4, 'sm': 8, 'md': 12, 'lg': 16, 'xl': 24})
         font_loader = style_out.get('font_loader')
         font_sizes = style_out.get('font_sizes', {'header': style_out['font_size'] + 2,
                                                     'body':   style_out['font_size']})
@@ -2519,6 +2514,7 @@ class ModifyMaskApp:
         self.drawing = False
         self.zoom_active = False
         self.magic_wand_active = False
+        self.erase_active = False
         self.brush_active = False
         self.dividing_line_active = False
         self.dividing_line_coords = []
@@ -2711,7 +2707,7 @@ class ModifyMaskApp:
             self.zoom_mask = self.mask[y0:y1, x0:x1]
             original_mask_area = self.mask.shape[0] * self.mask.shape[1]
             zoom_mask_area = self.zoom_mask.shape[0] * self.zoom_mask.shape[1]
-            if original_mask_area > 0:
+            if zoom_mask_area > 0:
                 self.zoom_scale = original_mask_area/zoom_mask_area
             # Resize the zoomed image and mask to fit the canvas
             canvas_height = self.canvas.winfo_height()
@@ -3174,7 +3170,6 @@ class ModifyMaskApp:
         """Run a magic-wand add (left) or erase (right) at the click position."""
         x, y = event.x, event.y
         tolerance = int(self.magic_wand_tolerance.get())
-        maximum = int(self.max_pixels_entry.get())
         action = 'add' if event.num == 1 else 'erase'
         if self.zoom_active:
             self.magic_wand_zoomed((x, y), tolerance, action)
@@ -3644,7 +3639,7 @@ class AnnotateApp:
     def open_umap_window(self):
         """Open a settings + live-plot window for image UMAP + hyperparam search."""
         import tkinter as tk
-        from tkinter import ttk, messagebox
+        from tkinter import ttk
         import threading
         import ast
 
@@ -4386,7 +4381,6 @@ class AnnotateApp:
         if updated:
             current_index = self.index
             self.prefilter_paths_annotations()
-            max_index = len(self.filtered_paths_annotations) - 1
             self.index = min(current_index, max(0, max(len(self.filtered_paths_annotations) - self.grid_rows * self.grid_cols, 0)))
             self.load_images()
 
@@ -4553,7 +4547,14 @@ class AnnotateApp:
 
             df[self.annotation_column] = None
             
-            print(f"df after merge: {len(df)} rows, columns include png_path: {'png_path' in df.columns}, cell_area range: {df['cell_area'].min()}..{df['cell_area'].max()}")
+            area_detail = ""
+            if 'cell_area' in df.columns:
+                area_detail = (
+                    f", cell_area range: {df['cell_area'].min()}.."
+                    f"{df['cell_area'].max()}")
+            print(
+                f"df after merge: {len(df)} rows, columns include png_path: "
+                f"{'png_path' in df.columns}{area_detail}")
 
             if structure == 'scalar':
                 df = self._apply_threshold(df, self.measurement, self.threshold, self.threshold_direction)
@@ -5720,7 +5721,7 @@ class AnnotateApp:
         defaults['annotation_column'] = self.annotation_column or defaults.get('annotation_column')
 
         # keep your app-wide style usage
-        style_out = set_dark_style(ttk.Style())
+        set_dark_style(ttk.Style())
         bg = self.bg_color
         fg = self.fg_color
         font = self.font_style
@@ -5788,6 +5789,7 @@ class AnnotateApp:
                     child.configure(state=state)
                 except Exception:
                     pass
+                _set_disabled_state(child, disabled)
 
         # ======================================================================
         # TAB 1: Generate training dataset
@@ -6400,6 +6402,8 @@ def modify_figure_properties(fig, scale_x=None, scale_y=None, line_width=None, f
             ax.set_xlim(x_lim)
         if y_lim is not None:
             ax.set_ylim(y_lim)
+        if title is not None:
+            ax.set_title(title)
 
         # Set grid visibility only
         ax.grid(grid)

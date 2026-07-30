@@ -175,12 +175,14 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "random_seed",
     "tar_path",
     "write_random_annotation_column",
-    # Replication Assay: the six keys set_analyze_endodyogeny_defaults returns
-    # that no category listed, so they landed in "Other" until the assay got a
-    # category of its own. The backend has existed since #21; only the app
-    # entry and this category were missing.
+    # The legacy size-proxy settings remain grouped explicitly even though the
+    # visible Replication module now runs the parasites-per-vacuole assay.
     "class_column", "group_by_class", "um_per_px",
     "min_area_bin", "max_area", "max_bins",
+    # Count-based replication assay.
+    "vacuole_key", "vacuole_link_distance", "vacuole_link_factor",
+    "parasite_count_column", "max_parasites_per_vacuole",
+    "require_host_cell", "non_power_of_two_warn",
     "batch_fields", "fill_na", "keep_npz", "pipeline_style", "plateID",
     "save_original_images",
     # Landed alongside the regroup: the fail-loud policy (spacr.errors) and
@@ -715,8 +717,9 @@ def _rendered_sections(app_key):
             "Map Display", "Map Quantification", "Output & Runtime",
         ]),
         ("replication", [
-            "Assay Inputs", "Condition Metadata", "Object Filtering",
-            "Replication Scoring", "Assay Output", "Runtime & Reliability",
+            "Assay Inputs", "Vacuole Assignment", "Condition Metadata",
+            "Object Filtering", "Replication Scoring", "Assay Output",
+            "Runtime & Reliability",
         ]),
     ],
 )

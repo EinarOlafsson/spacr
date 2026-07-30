@@ -57,6 +57,7 @@ from pathlib import Path
 from typing import Any, Callable, Optional
 
 from PySide6.QtCore import QCoreApplication, QObject, Signal
+from shiboken6 import isValid
 
 
 # ---------------------------------------------------------------------------
@@ -70,6 +71,13 @@ _file_handler: "Optional[RotatingFileHandler]" = None
 _ATTACHED_LOGGERS = ("spacr", "spacr.qt", "spacr.pipeline_v2",
                         "spacr.qt.plate_queue", "spacr.qt.hf_download",
                         "spacr.updater", "spacr.trace")
+
+
+def _drop_console_target(ref=None) -> None:
+    """Forget a destroyed console without disturbing a newer target."""
+    global _console_ref
+    if ref is None or _console_ref is ref:
+        _console_ref = None
 
 
 # ---------------------------------------------------------------------------
@@ -174,6 +182,12 @@ class _ConsoleRelay(QObject):
         target = _console_ref() if _console_ref is not None else None
         if target is None:
             return
+        # A weak reference only detects Python collection. PySide can keep the
+        # wrapper alive after Qt has deleted the underlying C++ QWidget; calling
+        # a method on that zombie can segfault rather than raise RuntimeError.
+        if not isValid(target):
+            _drop_console_target(_console_ref)
+            return
         append = getattr(target, "append_stdout", None)
         if append is None:
             return
@@ -243,7 +257,12 @@ def register_console_target(panel: Any) -> None:
     global _console_ref
     _ensure_handler()
     _ensure_relay()
-    _console_ref = weakref.ref(panel)
+    target_ref = weakref.ref(panel)
+    _console_ref = target_ref
+    destroyed = getattr(panel, "destroyed", None)
+    if destroyed is not None:
+        destroyed.connect(
+            lambda *_args, ref=target_ref: _drop_console_target(ref))
 
 
 def apply_verbose_logging(on: bool) -> None:
@@ -262,6 +281,17 @@ def apply_verbose_logging(on: bool) -> None:
         file_handler.setLevel(level)
     for name in _ATTACHED_LOGGERS:
         logging.getLogger(name).setLevel(level)
+    # Cover internal helpers and class methods too.  Entry-point decorators
+    # alone miss most of a pipeline; the package-level profiler filters to
+    # spacr source files and is completely removed when verbose mode is off.
+    from ..logging_util import (
+        disable_function_trace,
+        enable_function_trace,
+    )
+    if on:
+        enable_function_trace()
+    else:
+        disable_function_trace()
     if on:
         # Nudge cellpose's own logger to INFO so its "loaded model X"
         # breadcrumbs come through. We deliberately DO NOT touch

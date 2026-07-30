@@ -1,11 +1,11 @@
-import os
+"""Toxoplasma-specific visualisation helpers."""
+
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 from adjustText import adjust_text
 import pandas as pd
 from scipy.stats import fisher_exact
-from matplotlib.gridspec import GridSpec
 
 def custom_volcano_plot(
     data_path,

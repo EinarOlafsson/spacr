@@ -134,14 +134,21 @@ def test_channel_lists_use_the_manders_style_editor(
 
 
 def test_src_keeps_its_line_edit(qapp):
-    """``src`` is declared ``(str, list)`` but is a path. It has to stay a
-    QLineEdit: drag-and-drop, the empty-state banner and the column picker's
-    ``_settings_src_path`` all test for one."""
+    """Single-plate modules keep the compact path editor."""
     from PySide6.QtWidgets import QLineEdit
-    for app_key in ("mask", "measure", "classify"):
+    for app_key in ("mask", "measure"):
         widget = _model(qapp, app_key)._widgets["src"]
         assert isinstance(widget, QLineEdit), app_key
         assert not isinstance(widget, _ListEditor), app_key
+
+
+def test_classify_src_accepts_an_arbitrary_number_of_plates(qapp):
+    """Classify supports typing or dropping several plate paths."""
+    widget = _model(qapp, "classify")._widgets["src"]
+    assert isinstance(widget, _ListEditor)
+    widget.set_value(["/data/plate-a", "/data/plate-b", "/data/plate-c"])
+    assert widget.get_value() == [
+        "/data/plate-a", "/data/plate-b", "/data/plate-c"]
 
 
 def test_a_list_declared_key_with_a_placeholder_string_default_is_left_alone(qapp):

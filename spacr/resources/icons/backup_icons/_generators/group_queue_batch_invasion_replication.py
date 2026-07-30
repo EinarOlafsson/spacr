@@ -42,7 +42,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from _draw import N, W_FINE, W_MAIN, W_SEC, Cv, contact_sheet, render  # noqa: E402
+from _draw import W_FINE, W_MAIN, W_SEC, contact_sheet, render  # noqa: E402
 
 DARK_BG = "#14161a"
 LIGHT_BG = "#f5f6f8"

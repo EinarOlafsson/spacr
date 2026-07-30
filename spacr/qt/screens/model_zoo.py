@@ -689,25 +689,38 @@ class ModelZooScreen(QWidget):
         self._segment_fn = fn
 
     def set_fields_source(self, folder: str) -> bool:
-        """Load the fields the benchmark will run on.
+        """Load benchmark fields without blocking the GUI thread.
 
         :param folder: a folder of ``.tif`` / ``.png`` / ``.npy`` / ``.npz``.
-        :returns: True when at least one field loaded; on failure the reason is
-            in the status label and this returns False.
+        :returns: with ``threaded=False``, True when at least one field loaded;
+            otherwise True once the load starts. On failure the reason is in
+            the status label.
         """
         from ... import model_compare as mc
 
+        if self._busy:
+            self._set_status("Another Model Zoo job is already running.",
+                             error=True)
+            return False
         self._images = []
         self._field_names = []
         self._fields_folder = ""
-        try:
-            names, images = mc.load_fields(
-                folder, n_fields=int(self._fields_box.value()))
-        except Exception as e:
-            self._set_status(str(e) or e.__class__.__name__, error=True)
-            self._update_controls()
-            return False
-        self._fields_folder = os.fspath(folder)
+        source = os.fspath(folder)
+        n_fields = int(self._fields_box.value())
+
+        def _job():
+            names, images = mc.load_fields(source, n_fields=n_fields)
+            return source, names, images
+
+        self._set_status(f"Loading up to {n_fields} field(s) from {source}…")
+        return self._run_job(
+            _job, self._apply_loaded_fields,
+            on_error=self._on_fields_failed)
+
+    def _apply_loaded_fields(self, result) -> None:
+        """Install loaded benchmark fields on the GUI thread."""
+        source, names, images = result
+        self._fields_folder = source
         self._field_names = names
         self._images = images
         self._fields_edit.setText(self._fields_folder)
@@ -715,7 +728,12 @@ class ModelZooScreen(QWidget):
             f"Loaded {len(images)} field(s) from {self._fields_folder}: "
             f"{', '.join(names)}.")
         self._update_controls()
-        return True
+
+    def _on_fields_failed(self, message: str) -> None:
+        """Report a field-loading failure inline."""
+        self._set_status(
+            f"Could not load benchmark fields: {message}", error=True)
+        self._update_controls()
 
     def fields_folder(self) -> str:
         """The loaded field folder, or ``''``."""

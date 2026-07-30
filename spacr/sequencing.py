@@ -1,4 +1,6 @@
-import os, gzip, re, time, gzip
+"""FASTQ barcode decoding, consensus generation, and mapping pipeline."""
+
+import os, gzip, re, time
 import pandas as pd
 from multiprocessing import Pool, cpu_count, Queue, Process
 from Bio.Seq import Seq
@@ -56,6 +58,20 @@ def map_sequences_to_names(csv_file, sequences, rc):
         return ''.join([complement_dict[base] for base in reverse_seq])
     
     df = pd.read_csv(csv_file)
+    required = {"sequence", "name"}
+    missing = required.difference(df.columns)
+    if missing:
+        raise ValueError(
+            f"Barcode mapping {csv_file!r} is missing required column(s): "
+            f"{', '.join(sorted(missing))}.")
+    duplicate_sequences = df["sequence"].dropna().duplicated(keep=False)
+    if duplicate_sequences.any():
+        examples = sorted(
+            df.loc[duplicate_sequences, "sequence"].astype(str).unique())[:5]
+        raise ValueError(
+            f"Barcode mapping {csv_file!r} contains duplicate sequences; "
+            f"each sequence must identify exactly one name. Examples: "
+            f"{', '.join(examples)}.")
     if rc:
         df['sequence'] = df['sequence'].apply(rev_comp)
     
@@ -71,7 +87,8 @@ def save_df_to_hdf5(df, hdf5_file, key='df', comp_type='zlib', comp_level=5):
     :param key: dataset key inside the store. Default ``'df'``.
     :param comp_type: compression library. Default ``'zlib'``.
     :param comp_level: compression level 0-9. Default ``5``.
-    :returns: None. Errors are printed instead of raised.
+    :returns: None.
+    :raises Exception: after printing context, when the HDF5 write fails.
     """
     try:
         with pd.HDFStore(hdf5_file, 'a', complib=comp_type, complevel=comp_level) as store:
@@ -81,13 +98,15 @@ def save_df_to_hdf5(df, hdf5_file, key='df', comp_type='zlib', comp_level=5):
             store.put(key, df, format='table')
     except Exception as e:
         print(f"Error while saving DataFrame to HDF5: {e}")
+        raise
 
 def save_unique_combinations_to_csv(unique_combinations, csv_file):
     """Append per-``(rowID, columnID, grna_name)`` counts to a CSV, summing duplicates.
 
     :param unique_combinations: DataFrame with ``rowID``, ``columnID``, ``grna_name`` and numeric count columns.
     :param csv_file: destination CSV path (created if absent).
-    :returns: None. Errors are printed instead of raised.
+    :returns: None.
+    :raises Exception: after printing context, when the CSV write fails.
     """
     try:
         try:
@@ -103,13 +122,15 @@ def save_unique_combinations_to_csv(unique_combinations, csv_file):
         unique_combinations.to_csv(csv_file, index=True)
     except Exception as e:
         print(f"Error while saving unique combinations to CSV: {e}")
+        raise
 
 def save_qc_df_to_csv(qc_df, qc_csv_file):
     """Append a QC DataFrame to a CSV, summing element-wise when the file already exists.
 
     :param qc_df: numeric QC metrics (e.g. missing counts, total reads).
     :param qc_csv_file: destination CSV path.
-    :returns: None. Errors are printed instead of raised.
+    :returns: None.
+    :raises Exception: after printing context, when the CSV write fails.
     """
     try:
         try:
@@ -123,6 +144,7 @@ def save_qc_df_to_csv(qc_df, qc_csv_file):
         qc_df.to_csv(qc_csv_file, index=False)
     except Exception as e:
         print(f"Error while saving QC DataFrame to CSV: {e}")
+        raise
 
 def extract_sequence_and_quality(sequence, quality, start, end):
     """Return the ``[start:end]`` slice of a sequence and its paired quality string.
@@ -184,6 +206,9 @@ def process_chunk(chunk_data):
     with the named-group ``regex``, and maps each barcode to its ID via
     the reference CSVs.
 
+    The regex may use the public ``column``/``row`` group names from the
+    shipped defaults or the legacy internal ``columnID``/``rowID`` aliases.
+
     :param chunk_data: 9-tuple for single-end
         ``(r1_chunk, regex, target_sequence, offset_start, expected_end,
         column_csv, grna_csv, row_csv, fill_na)`` or 10-tuple for paired-end
@@ -192,15 +217,63 @@ def process_chunk(chunk_data):
         reads (``read``, per-barcode sequences and IDs), per-triplet counts,
         and a NaN/total-reads QC row.
     """
+    if not isinstance(chunk_data, (tuple, list)) or len(chunk_data) not in (9, 10):
+        raise ValueError(
+            "process_chunk expects 9 values for single-end reads or 10 "
+            f"values for paired-end reads; received "
+            f"{len(chunk_data) if hasattr(chunk_data, '__len__') else 'an unknown count'}.")
+
+    regex_obj = re.compile(chunk_data[2] if len(chunk_data) == 10 else chunk_data[1])
+    group_names = set(regex_obj.groupindex)
+    column_group = "columnID" if "columnID" in group_names else "column"
+    row_group = "rowID" if "rowID" in group_names else "row"
+    missing_groups = [
+        canonical for canonical, alternatives in (
+            ("column/columnID", {"column", "columnID"}),
+            ("row/rowID", {"row", "rowID"}),
+            ("grna", {"grna"}),
+        )
+        if not group_names.intersection(alternatives)
+    ]
+    if missing_groups:
+        raise ValueError(
+            "Barcode regex is missing required named group(s): "
+            + ", ".join(missing_groups) + ".")
+
+    def _parse_record(record, label):
+        """Validate and split one four-line FASTQ record."""
+        lines = str(record).splitlines()
+        if len(lines) != 4:
+            raise ValueError(
+                f"{label} FASTQ record must have exactly four lines; "
+                f"received {len(lines)}.")
+        header, sequence, separator, quality = lines
+        if not header.startswith("@") or not separator.startswith("+"):
+            raise ValueError(
+                f"{label} is not a valid FASTQ record (expected @ header "
+                "and + separator).")
+        if len(sequence) != len(quality):
+            raise ValueError(
+                f"{label} sequence and quality lengths differ "
+                f"({len(sequence)} != {len(quality)}).")
+        return sequence, quality
+
     def paired_find_sequence_in_chunk_reads(r1_chunk, r2_chunk, target_sequence, offset_start, expected_end, regex):
         """Return consensus reads and their parsed row/column/gRNA barcodes for paired-end chunks."""
         consensus_sequences, columns, grnas, rows = [], [], [], []
         consensus_seq = None
+        if len(r1_chunk) != len(r2_chunk):
+            raise ValueError(
+                "Paired FASTQ chunks contain different read counts: "
+                f"R1={len(r1_chunk)}, R2={len(r2_chunk)}.")
         
-        for r1_lines, r2_lines in zip(r1_chunk, r2_chunk):
-            _, r1_sequence, _, r1_quality = r1_lines.split('\n')
-            _, r2_sequence, _, r2_quality = r2_lines.split('\n')
+        for index, (r1_lines, r2_lines) in enumerate(zip(r1_chunk, r2_chunk)):
+            r1_sequence, r1_quality = _parse_record(
+                r1_lines, f"R1 record {index + 1}")
+            r2_sequence, r2_quality = _parse_record(
+                r2_lines, f"R2 record {index + 1}")
             r2_sequence = reverse_complement(r2_sequence)
+            r2_quality = r2_quality[::-1]
 
             r1_pos = r1_sequence.find(target_sequence)
             r2_pos = r2_sequence.find(target_sequence)
@@ -232,9 +305,9 @@ def process_chunk(chunk_data):
                         #print(f"r2_seq: {r2_seq}")
                         #print(f"consensus_sequences: {consensus_sequences}")
                         
-                        column_sequence = match.group('columnID')
+                        column_sequence = match.group(column_group)
                         grna_sequence = match.group('grna')
-                        row_sequence = match.group('rowID')
+                        row_sequence = match.group(row_group)
                         columns.append(column_sequence)
                         grnas.append(grna_sequence)
                         rows.append(row_sequence)
@@ -244,7 +317,7 @@ def process_chunk(chunk_data):
 
         if len(consensus_sequences) == 0:
             print(f"WARNING: No sequences matched {regex} in chunk")
-            print(f"Are bacode sequences in the correct orientation?")
+            print("Are barcode sequences in the correct orientation?")
             print(f"Is {consensus_seq} compatible with {regex} ?")
             
             if consensus_seq:
@@ -260,9 +333,11 @@ def process_chunk(chunk_data):
         """Return R1 windows and their parsed row/column/gRNA barcodes for single-end chunks."""
 
         consensus_sequences, columns, grnas, rows = [], [], [], []
+        consensus_seq = None
 
-        for r1_lines in r1_chunk:
-            _, r1_sequence, _, r1_quality = r1_lines.split('\n')
+        for index, r1_lines in enumerate(r1_chunk):
+            r1_sequence, r1_quality = _parse_record(
+                r1_lines, f"R1 record {index + 1}")
             
             # Find the target sequence in R1
             r1_pos = r1_sequence.find(target_sequence)
@@ -288,19 +363,19 @@ def process_chunk(chunk_data):
                     match = re.match(regex, consensus_seq)
                     if match:
                         consensus_sequences.append(consensus_seq)
-                        column_sequence = match.group('columnID')
+                        column_sequence = match.group(column_group)
                         grna_sequence = match.group('grna')
-                        row_sequence = match.group('rowID')
+                        row_sequence = match.group(row_group)
                         columns.append(column_sequence)
                         grnas.append(grna_sequence)
                         rows.append(row_sequence)
 
         if len(consensus_sequences) == 0:
             print(f"WARNING: No sequences matched {regex} in chunk")
-            print(f"Are bacode sequences in the correct orientation?")
+            print("Are barcode sequences in the correct orientation?")
             print(f"Is {consensus_seq} compatible with {regex} ?")
 
-            if len(consensus_seq) >= expected_end:
+            if consensus_seq and len(consensus_seq) >= expected_end:
                 consensus_seq_rc = reverse_complement(consensus_seq)
                 match = re.match(regex, consensus_seq_rc)
                 if match:
@@ -310,9 +385,12 @@ def process_chunk(chunk_data):
 
     if len(chunk_data) == 10:
         r1_chunk, r2_chunk, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, fill_na = chunk_data
-    if len(chunk_data) == 9:
+    else:
         r1_chunk, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, fill_na = chunk_data
         r2_chunk = None
+
+    if int(expected_end) <= 0:
+        raise ValueError("expected_end must be a positive integer.")
 
     if r2_chunk is None:
         consensus_sequences, columns, grnas, rows = single_find_sequence_in_chunk_reads(r1_chunk, target_sequence, offset_start, expected_end, regex)
@@ -378,6 +456,55 @@ def saver_process(save_queue, hdf5_file, save_h5, unique_combinations_csv, qc_cs
         save_unique_combinations_to_csv(unique_combinations, unique_combinations_csv)
         save_qc_df_to_csv(qc_df, qc_csv_file)
 
+
+def _chunk_worker_count(n_jobs):
+    """Return a valid process count while preserving three CPUs when possible."""
+    if n_jobs is None:
+        return max(1, cpu_count() - 3)
+    count = int(n_jobs)
+    if count < 1:
+        raise ValueError(f"n_jobs must be at least 1; received {n_jobs!r}.")
+    return count
+
+
+def _validate_chunk_size(chunk_size):
+    """Return ``chunk_size`` as a positive integer."""
+    size = int(chunk_size)
+    if size < 1:
+        raise ValueError(
+            f"chunk_size must be at least 1; received {chunk_size!r}.")
+    return size
+
+
+def _finish_saver(save_queue, save_process, timeout=60):
+    """Stop the writer and fail the run when output persistence failed."""
+    save_queue.put("STOP")
+    save_process.join(timeout)
+    if save_process.is_alive():
+        save_process.terminate()
+        save_process.join(5)
+        raise RuntimeError(
+            "Sequencing output writer did not stop within "
+            f"{timeout} seconds and was terminated.")
+    if save_process.exitcode not in (0, None):
+        raise RuntimeError(
+            "Sequencing output writer failed with exit code "
+            f"{save_process.exitcode}; one or more output files may be "
+            "incomplete. See the worker traceback above.")
+
+
+def _abort_chunk_workers(pool, save_queue, save_process):
+    """Best-effort cleanup after a read-processing exception."""
+    pool.terminate()
+    pool.join()
+    if save_process.is_alive():
+        save_queue.put("STOP")
+        save_process.join(10)
+    if save_process.is_alive():
+        save_process.terminate()
+        save_process.join(5)
+
+
 def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, save_h5, comp_type, comp_level, hdf5_file, unique_combinations_csv, qc_csv_file, chunk_size=10000, n_jobs=None, test=False, fill_na=False):
     """Chunked paired-end FASTQ processing: extract, decode and stream barcodes to disk.
 
@@ -408,9 +535,12 @@ def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
     """
     from .utils import count_reads_in_fastq, print_progress
 
-    # Use cpu_count minus 3 cores if n_jobs isn't specified
-    if n_jobs is None:
-        n_jobs = cpu_count() - 3
+    n_jobs = _chunk_worker_count(n_jobs)
+    chunk_size = _validate_chunk_size(chunk_size)
+    for label, path in (("R1", r1_file), ("R2", r2_file)):
+        if not path or not os.path.isfile(path):
+            raise FileNotFoundError(
+                f"{label} FASTQ file does not exist: {path!r}.")
 
     chunk_count = 0
     time_ls = []
@@ -418,7 +548,7 @@ def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
     if not test:
         print(f'Calculating read count for {r1_file}...')
         total_reads = count_reads_in_fastq(r1_file)
-        chunks_nr = int(total_reads / chunk_size)+1
+        chunks_nr = (total_reads + chunk_size - 1) // chunk_size
     else:
         total_reads = chunk_size
         chunks_nr = 1
@@ -437,7 +567,6 @@ def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
     print(f'Chunk size: {chunk_size}')
 
     with gzip.open(r1_file, 'rt') as r1, gzip.open(r2_file, 'rt') as r2:
-        fastq_iter = zip(r1, r2)
         while True:
             start_time = time.time()
             r1_chunk = []
@@ -448,8 +577,15 @@ def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
                 r1_lines = [r1.readline().strip() for _ in range(4)]
                 r2_lines = [r2.readline().strip() for _ in range(4)]
 
-                # Break if we've reached the end of either file
-                if not r1_lines[0] or not r2_lines[0]:
+                # Paired files must end together; truncating to the shorter
+                # input silently changes per-well counts.
+                r1_done, r2_done = not r1_lines[0], not r2_lines[0]
+                if r1_done != r2_done:
+                    _abort_chunk_workers(pool, save_queue, save_process)
+                    raise ValueError(
+                        "Paired FASTQ files contain different read counts; "
+                        "one file ended before the other.")
+                if r1_done:
                     break
 
                 r1_chunk.append('\n'.join(r1_lines))
@@ -465,7 +601,11 @@ def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
             # Process chunks in parallel-
             result = pool.apply_async(process_chunk, (chunk_data,))
 
-            df, unique_combinations, qc_df = result.get()
+            try:
+                df, unique_combinations, qc_df = result.get()
+            except BaseException:
+                _abort_chunk_workers(pool, save_queue, save_process)
+                raise
             save_queue.put((df, unique_combinations, qc_df))
 
             end_time = time.time()
@@ -474,7 +614,7 @@ def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
             print_progress(files_processed=chunk_count, files_to_process=chunks_nr, n_jobs=n_jobs, time_ls=time_ls, batch_size=chunk_size, operation_type="Mapping Barcodes")
 
             if test:
-                print(f'First 1000 lines in chunk 1')
+                print('First 1000 lines in chunk 1')
                 print(df[:100])
                 break
 
@@ -482,9 +622,7 @@ def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
     pool.close()
     pool.join()
 
-    # Send stop signal to saver process
-    save_queue.put("STOP")
-    save_process.join()
+    _finish_saver(save_queue, save_process)
 
 def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, save_h5, comp_type, comp_level, hdf5_file, unique_combinations_csv, qc_csv_file, chunk_size=10000, n_jobs=None, test=False, fill_na=False):
     """Chunked single-end FASTQ processing: extract, decode and stream barcodes to disk.
@@ -512,9 +650,11 @@ def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
     """
     from .utils import count_reads_in_fastq, print_progress
 
-    # Use cpu_count minus 3 cores if n_jobs isn't specified
-    if n_jobs is None:
-        n_jobs = cpu_count() - 3
+    n_jobs = _chunk_worker_count(n_jobs)
+    chunk_size = _validate_chunk_size(chunk_size)
+    if not r1_file or not os.path.isfile(r1_file):
+        raise FileNotFoundError(
+            f"R1 FASTQ file does not exist: {r1_file!r}.")
 
     chunk_count = 0
     time_ls = []
@@ -522,7 +662,7 @@ def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
     if not test:
         print(f'Calculating read count for {r1_file}...')
         total_reads = count_reads_in_fastq(r1_file)
-        chunks_nr = int(total_reads / chunk_size) + 1
+        chunks_nr = (total_reads + chunk_size - 1) // chunk_size
     else:
         total_reads = chunk_size
         chunks_nr = 1
@@ -563,7 +703,11 @@ def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
             # Process chunks in parallel
             result = pool.apply_async(process_chunk, (chunk_data,))
             
-            df, unique_combinations, qc_df = result.get()
+            try:
+                df, unique_combinations, qc_df = result.get()
+            except BaseException:
+                _abort_chunk_workers(pool, save_queue, save_process)
+                raise
 
             # Queue the results for saving
             save_queue.put((df, unique_combinations, qc_df))
@@ -574,7 +718,7 @@ def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
             print_progress(files_processed=chunk_count, files_to_process=chunks_nr, n_jobs=n_jobs, time_ls=time_ls, batch_size=chunk_size, operation_type="Mapping Barcodes")
 
             if test:
-                print(f'First 1000 lines in chunk 1')
+                print('First 1000 lines in chunk 1')
                 print(df[:100])
                 break
 
@@ -582,9 +726,7 @@ def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
     pool.close()
     pool.join()
 
-    # Send stop signal to saver process
-    save_queue.put("STOP")
-    save_process.join()
+    _finish_saver(save_queue, save_process)
 
 def generate_barecode_mapping(settings=None):
     """Turn a folder of pooled-screen FASTQ files into per-well sgRNA count tables usable by :func:`spacr.ml.perform_regression`.

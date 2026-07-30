@@ -1,7 +1,10 @@
+"""Cellpose training and domain-specific analysis pipeline entry points."""
+
 import seaborn as sns
-import os, random, sqlite3, re, string, time, shutil, itertools
+import os, random, sqlite3, re, time, shutil, itertools
 import pandas as pd
 import numpy as np
+import torch
 
 from skimage.measure import regionprops, label
 from skimage.transform import resize as sk_resize, rotate
@@ -10,9 +13,7 @@ from skimage.exposure import rescale_intensity
 import cellpose
 from cellpose import models as cp_models
 from cellpose import train as train_cp
-from cellpose import models as cp_models
 from cellpose import io as cp_io
-from cellpose import train as train_cp
 from cellpose.metrics import aggregated_jaccard_index
 from cellpose.metrics import average_precision
 
@@ -31,13 +32,23 @@ from math import pi
 from scipy.stats import chi2_contingency
 
 from sklearn.metrics import mean_absolute_error
-from skimage.measure import regionprops, label as sklabel 
+from skimage.measure import label as sklabel
 import matplotlib.pyplot as plt
 from natsort import natsorted
 
 from torch.utils.data import Dataset
 
 from . import schema
+
+
+def _cellpose_use_gpu() -> bool:
+    """Return whether Cellpose can use CUDA, falling back safely to CPU."""
+    try:
+        return bool(torch.cuda.is_available())
+    except Exception as exc:
+        print(f"Warning: CUDA probe failed; Cellpose will use CPU: {exc}")
+        return False
+
 
 class CellposeLazyDataset(Dataset):
     """Lazy image/label dataset for Cellpose training and inference.
@@ -204,7 +215,9 @@ def train_cellpose(settings):
 
     save_settings(settings, name=model_name)
 
-    model = cp_models.CellposeModel(gpu=True, pretrained_model='cpsam')
+    model = cp_models.CellposeModel(
+        gpu=_cellpose_use_gpu(), pretrained_model='cpsam'
+    )
 
     #train_image_files = sorted([os.path.join(img_src, f) for f in os.listdir(img_src) if f.endswith('.tif')])
     #train_label_files = sorted([os.path.join(mask_src, f) for f in os.listdir(mask_src) if f.endswith('.tif')])
@@ -340,7 +353,9 @@ def test_cellpose_model(settings):
 
     test_dataset = CellposeLazyDataset(test_image_files, test_label_files, settings, randomize=False, augment=False)
 
-    model = cp_models.CellposeModel(gpu=True, pretrained_model=settings['model_path'])
+    model = cp_models.CellposeModel(
+        gpu=_cellpose_use_gpu(), pretrained_model=settings['model_path']
+    )
 
     batch_size = settings['batch_size']
     scores = []
@@ -551,7 +566,9 @@ def apply_cellpose_model(settings):
     dummy_labels = [image_files[0]] * len(image_files)
     dataset = CellposeLazyDataset(image_files, dummy_labels, settings, randomize=False, augment=False)
 
-    model = cp_models.CellposeModel(gpu=True, pretrained_model=settings['model_path'])
+    model = cp_models.CellposeModel(
+        gpu=_cellpose_use_gpu(), pretrained_model=settings['model_path']
+    )
     batch_size = settings['batch_size']
     measurements = []
     
@@ -1050,8 +1067,6 @@ def count_phenotypes(settings):
     grouped_unique_count = df.groupby(['plateID', 'rowID', 'columnID'])[settings['annotation_column']].nunique(dropna=True).reset_index(name='unique_count')
     display(grouped_unique_count)
 
-    save_path = os.path.join(settings['src'], 'phenotype_counts.csv')
-
     # Group by plate, row, and column, then count the occurrences of each unique value
     grouped_counts = df.groupby(['plateID', 'rowID', 'columnID', 'value']).size().reset_index(name='count')
 
@@ -1488,8 +1503,6 @@ def interpret_vision_model(settings=None):
             else:
                 return None
 
-        from .plot import spacrGraph
-
         df[name] = df['feature'].apply(lambda x: find_feature_class(x, feature_groups))
 
         if name == 'channel':
@@ -1737,37 +1750,6 @@ def interpret_vision_model(settings=None):
             [extract_compartment_channel(feat) for feat in shap_df.columns], 
             names=['compartment', 'channel']
         )
-        
-        # Aggregate SHAP values by compartment and channel
-        shap_features = shap_df.abs().T
-        compartment_mean = (
-            shap_features.groupby(level='compartment').mean().mean(axis=1))
-        channel_mean = (
-            shap_features.groupby(level='channel').mean().mean(axis=1))
-
-        # Calculate combined importance for each pair of compartments and channels
-        combined_compartment = {}
-        for i, comp1 in enumerate(compartment_mean.index):
-            for comp2 in compartment_mean.index[i+1:]:
-                combined_compartment[f"{comp1} + {comp2}"] = shap_df.loc[:, (comp1, slice(None))].abs().mean().mean() + \
-                                                              shap_df.loc[:, (comp2, slice(None))].abs().mean().mean()
-        
-        combined_channel = {}
-        for i, chan1 in enumerate(channel_mean.index):
-            for chan2 in channel_mean.index[i+1:]:
-                combined_channel[f"{chan1} + {chan2}"] = shap_df.loc[:, (slice(None), chan1)].abs().mean().mean() + \
-                                                          shap_df.loc[:, (slice(None), chan2)].abs().mean().mean()
-
-        # Prepare values and labels for radar charts
-        all_compartment_importance = list(compartment_mean.values) + list(combined_compartment.values())
-        all_compartment_labels = list(compartment_mean.index) + list(combined_compartment.keys())
-
-        all_channel_importance = list(channel_mean.values) + list(combined_channel.values())
-        all_channel_labels = list(channel_mean.index) + list(combined_channel.keys())
-
-        # Create radar plots for compartments and channels
-        #create_extended_radar_plot(all_compartment_importance, all_compartment_labels, "SHAP Importance by Compartment (Individual and Combined)")
-        #create_extended_radar_plot(all_channel_importance, all_channel_labels, "SHAP Importance by Channel (Individual and Combined)")
         
         output['shap'] = shap_df
         
@@ -4093,8 +4075,8 @@ def _invasion_stacked_bars(settings, parasites, group_column, prc_column,
                 loc='upper left')
 
     if denominators:
-        for position, label in enumerate(axes.get_xticklabels()):
-            total = denominators.get(label.get_text())
+        for position, tick_label in enumerate(axes.get_xticklabels()):
+            total = denominators.get(tick_label.get_text())
             if total is None:
                 continue
             axes.text(position, 1.02, f'n={int(total)}', ha='center',
@@ -5043,4 +5025,4 @@ def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
     
     # Perform analysis
     correlation_matrix = _analyze_and_visualize_grna_correlation(df, grna_list, save_folder, save)
-    effect_sizes = _compute_effect_sizes(correlation_matrix, grna_dict, save_folder, save)
+    _compute_effect_sizes(correlation_matrix, grna_dict, save_folder, save)

@@ -1,3 +1,5 @@
+"""Time-series tracking, motility analysis, and trajectory utilities."""
+
 import cv2, os, re, glob, random, sqlite3
 import numpy as np
 import pandas as pd
@@ -11,11 +13,6 @@ import trackpy as tp
 from skimage.measure import regionprops_table
 from scipy.signal import find_peaks
 from scipy.optimize import curve_fit, linear_sum_assignment
-from xgboost import XGBClassifier
-from sklearn.model_selection import train_test_split
-
-from multiprocessing import Pool, cpu_count
-import logging
 
 # np.trapz was REMOVED in numpy 2.0 and np.trapezoid is its replacement. The
 # old fallback here was already dead: scipy.integrate.trapz went in SciPy 1.14
@@ -26,9 +23,6 @@ try:
 except ImportError:                     # numpy < 2.0
     from numpy import trapz
     
-import matplotlib.pyplot as plt
-
-import logging
 from spacr import schema
 from spacr.image_colors import read_image_rgb, rgb_to_cv2
 from spacr.utils import debug
@@ -228,7 +222,6 @@ def _timelapse_masks_to_gif(folder_path, mask_channels, object_types):
     for key, file_list in organized_files.items():
         # Generate the name for the GIF based on plate, well, field
         name = f'{key[0]}_{key[1]}_{key[2]}'
-        save_path_gif = os.path.join(gif_folder, f'timelapse_masks_{name}.gif')
 
         for i, mask_channel in enumerate(mask_channels):
             object_type = object_types[i]
@@ -393,11 +386,10 @@ def _find_optimal_search_range(features, initial_search_range=500, increment=10,
     for attempt in range(max_attempts):
         try:
             # Attempt to link features with the current search range
-            tracks_df = tp.link(features, search_range=optimal_search_range, memory=memory)
+            tp.link(features, search_range=optimal_search_range, memory=memory)
             print(f"Success with search_range={optimal_search_range}")
             return optimal_search_range
-        except Exception as e:
-            #print(f"SubnetOversizeException with search_range={optimal_search_range}: {e}")
+        except Exception:
             optimal_search_range -= increment
             print(f'Retrying with displacement value: {optimal_search_range}', end='\r', flush=True)
     min_range = initial_search_range-(max_attempts*increment)
@@ -1978,7 +1970,6 @@ def _make_intensity_motility_panel(
     pca_data = settings.get("infection_pca_data", None)
     xgb_data = settings.get("infection_xgb_importance", None)
 
-    has_hist = hist_data is not None
     has_pca = pca_data is not None
     has_xgb = xgb_data is not None
 
@@ -3655,8 +3646,6 @@ def _smooth_tracks_and_features(df, max_displacement=50.0, zscore_thresh=3.0):
     - Smooths a subset of scalar cell_* features using a z-score heuristic.
     """
     import numpy as np
-    import pandas as pd
-
     if df.empty:
         print("[_smooth_tracks_and_features] Input DataFrame is empty.")
         return df
@@ -4080,7 +4069,6 @@ def _infection_qc_pca_clustering(
     - settings['infection_intensity_qc_panel_path'] = None
     """
     import os
-    import numpy as np
     import pandas as pd
 
     from sklearn.preprocessing import StandardScaler
@@ -4893,7 +4881,6 @@ def _apply_infection_intensity_qc(
         infection status.
     """
     import os
-    import numpy as np
     import pandas as pd
 
     # Reset QC payloads by default; strategy helpers will overwrite if used
@@ -6621,11 +6608,9 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
     -------
     all_df, infection_col='adjusted_infected'
     """
-    import os
     import re
     import numpy as np
     import pandas as pd
-    import matplotlib.pyplot as plt
 
     try:
         import xgboost as xgb
@@ -7369,8 +7354,6 @@ def automated_motility_assay(settings):
     :raises ValueError: when ``settings['db_table_name']`` names a spaCR-owned
         table; see :func:`_validate_db_table_name`.
     """
-    import matplotlib.pyplot as plt  # noqa: F401 (used in helpers)
-    from matplotlib import patches  # noqa: F401 (used in helpers)
     import numpy as np
     import pandas as pd
     import os

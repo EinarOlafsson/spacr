@@ -1020,6 +1020,7 @@ def cache_dir() -> Path:
 
 
 def cache_name(width: int, height: int, variant: str, seed: int) -> str:
+    """Return the versioned cache filename for a procedural background."""
     return f"space-{variant}-{width}x{height}-s{seed}-v{CACHE_VERSION}.png"
 
 
@@ -1167,6 +1168,7 @@ CREDITS_FILE = "credits.json"
 
 
 def imagery_dir() -> Path:
+    """Return the cache directory containing downloaded NASA imagery."""
     return cache_dir() / "nasa"
 
 

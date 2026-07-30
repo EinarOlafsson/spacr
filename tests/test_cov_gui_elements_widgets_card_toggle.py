@@ -240,12 +240,6 @@ def test_card_without_font_loader_uses_a_family_tuple(tk_root, monkeypatch):
     assert card.style_out["font_loader"] is None
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: spacrCard's fallback spacing dict is {'sm','md','lg'} but the "
-           "title branch reads spacing['xs'] -> KeyError for any style dict "
-           "without a 'spacing' key",
-)
 def test_card_fallback_spacing_dict_supports_a_title(tk_root, monkeypatch):
     """A style dict with no 'spacing' key must still build a titled card.
 

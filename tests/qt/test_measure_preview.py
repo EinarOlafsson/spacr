@@ -127,10 +127,10 @@ def test_measure_filter_settings_are_a_separate_section(qtbot):
     screen = AppScreen("measure")
     qtbot.addWidget(screen)
     titles = [section.title() for section in screen._settings_sections]
-    assert "FILTER SETTINGS" in titles
+    assert "OBJECT FILTERING" in titles
     filter_section = next(
         section for section in screen._settings_sections
-        if section.title() == "FILTER SETTINGS"
+        if section.title() == "OBJECT FILTERING"
     )
     labels = {
         label.text() for label, _widget in filter_section._row_widgets

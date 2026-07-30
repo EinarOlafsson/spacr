@@ -41,8 +41,10 @@ from __future__ import annotations
 import logging
 import logging.handlers
 import os
+import sys
+import threading
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Any, Callable, Iterable, Optional
 
 # ---------------------------------------------------------------------------
 # Configurable constants
@@ -77,6 +79,18 @@ _INITIALISED: bool = False
 _SESSION_LEVEL: int = logging.INFO
 _LOG_PATH: Optional[Path] = None
 
+# Function-level DEBUG tracing is opt-in.  A profile hook is used instead of
+# decorating thousands of functions: it also covers private helpers, class
+# methods and functions imported after the preference is enabled.  The hook
+# filters by filename before touching logging, so third-party calls are only a
+# couple of string comparisons and normal (non-debug) operation pays nothing.
+_TRACE_ROOT = os.path.realpath(os.path.dirname(__file__)) + os.sep
+_TRACE_THIS_FILE = os.path.realpath(__file__)
+_TRACE_ENABLED: bool = False
+_TRACE_STATE = threading.local()
+_PREVIOUS_SYS_PROFILE = None
+_PREVIOUS_THREAD_PROFILE = None
+
 
 # ---------------------------------------------------------------------------
 # Paths
@@ -85,9 +99,14 @@ _LOG_PATH: Optional[Path] = None
 def log_dir() -> Path:
     """Return the folder where spacr log files live.
 
-    :returns: ``~/.spacr/logs`` — created if it does not exist.
+    ``SPACR_LOG_DIR`` overrides the default, which is useful for portable
+    installs, read-only home directories and test/embedding hosts.
+
+    :returns: the configured directory, otherwise ``~/.spacr/logs``.
     """
-    root = Path.home() / ".spacr" / "logs"
+    override = os.environ.get("SPACR_LOG_DIR", "").strip()
+    root = Path(override).expanduser() if override else (
+        Path.home() / ".spacr" / "logs")
     root.mkdir(parents=True, exist_ok=True)
     return root
 
@@ -149,15 +168,25 @@ def setup_logging(level: Optional[int] = None,
     # is the only way records below `level` reach the handlers.
     logging.getLogger("spacr").setLevel(level)
 
-    file_h = logging.handlers.RotatingFileHandler(
-        resolved_path,
-        maxBytes=MAX_BYTES,
-        backupCount=BACKUP_COUNT,
-        encoding="utf-8",
-    )
-    file_h.setLevel(level)
-    file_h.setFormatter(logging.Formatter(FILE_FORMAT))
-    root.addHandler(file_h)
+    try:
+        file_h = logging.handlers.RotatingFileHandler(
+            resolved_path,
+            maxBytes=MAX_BYTES,
+            backupCount=BACKUP_COUNT,
+            encoding="utf-8",
+        )
+    except OSError as exc:
+        # Logging is diagnostic infrastructure; a read-only home directory
+        # must not prevent analysis from starting. Keep failures visible on
+        # stderr when the requested file cannot be opened.
+        sys.stderr.write(
+            f"spaCR could not open diagnostic log {resolved_path}: {exc}\n")
+        file_h = None
+        stream = True
+    if file_h is not None:
+        file_h.setLevel(level)
+        file_h.setFormatter(logging.Formatter(FILE_FORMAT))
+        root.addHandler(file_h)
 
     if stream:
         stream_h = logging.StreamHandler()
@@ -217,6 +246,7 @@ def enable_debug() -> None:
     logging.getLogger("spacr").setLevel(logging.DEBUG)
     for h in logging.getLogger().handlers:
         h.setLevel(logging.DEBUG)
+    enable_function_trace()
 
 
 def disable_debug() -> None:
@@ -227,6 +257,96 @@ def disable_debug() -> None:
     logging.getLogger("spacr").setLevel(_SESSION_LEVEL)
     for h in logging.getLogger().handlers:
         h.setLevel(_SESSION_LEVEL)
+    disable_function_trace()
+
+
+# ---------------------------------------------------------------------------
+# Opt-in function/class tracing
+# ---------------------------------------------------------------------------
+
+def function_trace_enabled() -> bool:
+    """Return whether spaCR function-level DEBUG tracing is active.
+
+    The trace is controlled by :func:`enable_function_trace`,
+    :func:`disable_function_trace`, and the GUI's *Verbose logging*
+    preference.  It never records arguments or return values, which avoids
+    copying large arrays and keeps API keys or filesystem metadata out of the
+    diagnostic log.
+    """
+    return _TRACE_ENABLED
+
+
+def _trace_profile(frame, event, arg):
+    """Profile-hook implementation used by :func:`enable_function_trace`.
+
+    Only Python ``call`` and ``return`` events for files inside the installed
+    :mod:`spacr` package are recorded.  The logger implementation itself is
+    excluded to prevent recursion.
+    """
+    if event not in {"call", "return"}:
+        return
+    filename = os.path.realpath(frame.f_code.co_filename)
+    if not filename.startswith(_TRACE_ROOT) or filename == _TRACE_THIS_FILE:
+        return
+    if getattr(_TRACE_STATE, "busy", False):
+        return
+    _TRACE_STATE.busy = True
+    try:
+        module = frame.f_globals.get("__name__", "spacr")
+        qualname = getattr(
+            frame.f_code, "co_qualname", frame.f_code.co_name)
+        marker = "→" if event == "call" else "←"
+        logging.getLogger("spacr.trace").debug(
+            "%s %s.%s", marker, module, qualname)
+    except Exception:
+        # A tracing aid must never alter the code it observes.
+        pass
+    finally:
+        _TRACE_STATE.busy = False
+
+
+def enable_function_trace() -> None:
+    """Trace every spaCR Python function and method at DEBUG level.
+
+    The hook is installed for the calling thread, all future Python threads,
+    and—on Python 3.12+—threads that already exist.  Calls outside the spaCR
+    package are ignored.  Repeated calls are idempotent.
+
+    This is intentionally verbose and has measurable overhead, so the GUI
+    enables it only while *Verbose logging* is switched on.  Normal operation
+    has no profile hook installed.
+    """
+    global _TRACE_ENABLED, _PREVIOUS_SYS_PROFILE, _PREVIOUS_THREAD_PROFILE
+    if _TRACE_ENABLED:
+        return
+    _PREVIOUS_SYS_PROFILE = sys.getprofile()
+    get_thread_profile = getattr(threading, "getprofile", None)
+    _PREVIOUS_THREAD_PROFILE = (
+        get_thread_profile() if get_thread_profile is not None else None)
+    _TRACE_ENABLED = True
+    set_all = getattr(threading, "setprofile_all_threads", None)
+    if set_all is not None:
+        set_all(_trace_profile)
+    else:
+        sys.setprofile(_trace_profile)
+        threading.setprofile(_trace_profile)
+
+
+def disable_function_trace() -> None:
+    """Remove spaCR's function trace and restore prior profile hooks."""
+    global _TRACE_ENABLED, _PREVIOUS_SYS_PROFILE, _PREVIOUS_THREAD_PROFILE
+    if not _TRACE_ENABLED:
+        return
+    _TRACE_ENABLED = False
+    set_all = getattr(threading, "setprofile_all_threads", None)
+    if set_all is not None:
+        set_all(_PREVIOUS_THREAD_PROFILE)
+        sys.setprofile(_PREVIOUS_SYS_PROFILE)
+    else:
+        threading.setprofile(_PREVIOUS_THREAD_PROFILE)
+        sys.setprofile(_PREVIOUS_SYS_PROFILE)
+    _PREVIOUS_SYS_PROFILE = None
+    _PREVIOUS_THREAD_PROFILE = None
 
 
 # ---------------------------------------------------------------------------
@@ -253,7 +373,6 @@ def disable_debug() -> None:
 
 import functools
 import time
-from typing import Any, Callable, Optional
 
 TimingCallable = Callable[..., Any]
 
