@@ -133,6 +133,10 @@ On Linux, make the downloaded installer executable before opening it:
    chmod +x SpaCR-*-Linux-x86_64-Online.run
    ./SpaCR-*-Linux-x86_64-Online.run
 
+On macOS, open the downloaded ``.pkg``. If Gatekeeper blocks the current beta
+installer because it is not notarized, open **System Settings → Privacy &
+Security** and choose **Open Anyway** for spaCR, then run the package again.
+
 The installer validates spaCR, Qt, PyTorch, and dependency consistency before
 replacing an older installation, so an interrupted update leaves the previous
 working environment in place. A complete diagnostic log is retained as
