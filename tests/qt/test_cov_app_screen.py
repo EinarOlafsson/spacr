@@ -179,9 +179,9 @@ class TestWidgetConstruction:
         for key, w in widgets.items():
             kinds.setdefault(type(w).__name__, []).append(key)
 
-        # bool -> QCheckBox, int -> QSpinBox, float -> QDoubleSpinBox,
+        # bool -> Toggle, int -> QSpinBox, float -> QDoubleSpinBox,
         # enumerated -> QComboBox, str/None -> _ScalarEdit.
-        for kind in ("QCheckBox", "QSpinBox", "QDoubleSpinBox",
+        for kind in ("Toggle", "QSpinBox", "QDoubleSpinBox",
                      "QComboBox", "_ScalarEdit"):
             assert kinds.get(kind), f"no {kind} built for the mask app"
 

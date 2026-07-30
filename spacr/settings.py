@@ -731,11 +731,13 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('cell_mask_dim',4)
     settings.setdefault('nucleus_mask_dim',5)
     settings.setdefault('pathogen_mask_dim',6)
+    settings.setdefault('organelle_mask_dim',None)
     settings.setdefault('cytoplasm',False)
     settings.setdefault('uninfected',True)
     settings.setdefault('cell_min_size',0)
     settings.setdefault('nucleus_min_size',0)
     settings.setdefault('pathogen_min_size',0)
+    settings.setdefault('organelle_min_size',0)
     settings.setdefault('cytoplasm_min_size',0)
     settings.setdefault('merge_edge_pathogen_cells', True)
     

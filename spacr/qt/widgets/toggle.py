@@ -1,8 +1,8 @@
 """Toggle — QCheckBox styled as an iOS-style switch."""
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, QPropertyAnimation, QRect, QSize, Property
-from PySide6.QtGui import QPainter, QColor, QBrush, QPen
+from PySide6.QtCore import Property, QPropertyAnimation, QRect, QSize, Qt
+from PySide6.QtGui import QBrush, QColor, QPainter, QPen
 from PySide6.QtWidgets import QCheckBox
 
 from ..theme import active_palette
@@ -39,19 +39,24 @@ class Toggle(QCheckBox):
         palette = active_palette()
         # Track
         checked = self.isChecked()
-        track_color = (QColor(palette["accent"]) if checked
-                       else QColor(palette["surface_alt"]))
-        painter.setBrush(QBrush(track_color))
-        painter.setPen(QPen(QColor(palette["border"]), 1))
+        state_color = QColor(
+            palette["button_accent"] if checked else palette["fg_dim"])
+        if not self.isEnabled():
+            state_color.setAlpha(110)
+        track_fill = QColor(
+            palette["accent_soft"] if checked else palette["surface_alt"])
+        if not self.isEnabled():
+            track_fill.setAlpha(90)
+        painter.setBrush(QBrush(track_fill))
+        painter.setPen(QPen(state_color, 2))
         track_rect = QRect(0, (self.height() - self._track_h) // 2,
                             self._track_w, self._track_h)
         painter.drawRoundedRect(track_rect, self._track_h // 2, self._track_h // 2)
         # Knob
-        pad = (self._track_h - self._knob_d) // 2
         knob_x = int(self._knob_pos)
         knob_y = (self.height() - self._knob_d) // 2
         painter.setPen(Qt.NoPen)
-        painter.setBrush(QBrush(QColor("#ffffff")))
+        painter.setBrush(QBrush(state_color))
         painter.drawEllipse(QRect(knob_x, knob_y, self._knob_d, self._knob_d))
         # Label
         if self.text():
@@ -65,6 +70,10 @@ class Toggle(QCheckBox):
     def _start_anim(self, _state):
         pad = (self._track_h - self._knob_d) // 2
         end_x = float(self._track_w - self._knob_d - pad if self.isChecked() else pad)
+        if not self.isVisible():
+            self._anim.stop()
+            self._set_knob_pos(end_x)
+            return
         self._anim.stop()
         self._anim.setStartValue(self._knob_pos)
         self._anim.setEndValue(end_x)

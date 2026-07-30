@@ -61,7 +61,6 @@ from urllib.parse import quote as _urlquote
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QAbstractItemView,
-    QCheckBox,
     QComboBox,
     QDialog,
     QDialogButtonBox,
@@ -80,6 +79,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from .toggle import Toggle
 
 __all__ = [
     "ColumnPickerButton",
@@ -517,8 +517,8 @@ class ColumnPickerDialog(QDialog):
         self._status.setWordWrap(True)
         outer.addWidget(self._status)
 
-        self._confirm = QCheckBox("Create it anyway — the new name is deliberate",
-                                  self)
+        self._confirm = Toggle(
+            "Create it anyway — the new name is deliberate", self)
         self._confirm.setVisible(False)
         self._confirm.toggled.connect(lambda _on: self._evaluate())
         outer.addWidget(self._confirm)
@@ -722,7 +722,7 @@ class ColumnPickerDialog(QDialog):
         """Return the existing column the typed name resembles, or ``""``."""
         return self._near
 
-    def confirm_box(self) -> QCheckBox:
+    def confirm_box(self) -> Toggle:
         """Return the "create it anyway" checkbox (visible only on a near-miss)."""
         return self._confirm
 

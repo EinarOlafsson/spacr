@@ -600,6 +600,14 @@ def test_every_category_has_a_qt_section_hint():
 def test_every_qt_section_hint_names_a_real_category():
     hints = _section_hints()
     known = {c.upper().strip() for c in S.categories}
+    # Qt may make app-scoped relocations without changing the category map
+    # shared with the legacy UI (Measure's Filter settings is one).
+    from spacr.qt.screens.settings_model import categories_for_app
+    for app_key in ("measure", "map_barcodes", "umap"):
+        known.update(
+            c.upper().strip()
+            for c in categories_for_app(app_key, S.categories)
+        )
     dead = sorted(set(hints) - known)
     assert not dead, (
         f"SECTION_HINTS entries that match no settings section: {dead}"

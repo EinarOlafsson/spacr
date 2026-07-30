@@ -220,6 +220,16 @@ def test_timelapse_settings_group_is_none_safe_and_unshared():
     assert "__probe__" not in b
 
 
+def test_timelapse_objects_uses_the_standard_list_editor(qtbot):
+    from spacr.qt.screens.settings_model import SettingsWidgets, _ListEditor
+    model = SettingsWidgets("timelapse")
+    model.build_sections()
+    widget = model._widgets["timelapse_objects"]
+    assert isinstance(widget, _ListEditor)
+    widget.set_value(["cell", "nucleus"])
+    assert model.collect()["timelapse_objects"] == ["cell", "nucleus"]
+
+
 def test_motility_settings_group_carries_its_own_source_folder():
     """It used to inherit `src` from the mask dict it was merged into."""
     out = S.get_automated_motility_assay_default_settings({})

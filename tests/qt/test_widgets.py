@@ -1,6 +1,8 @@
 """Construction + basic interactions for reusable Qt widgets."""
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from PySide6.QtCore import Qt
@@ -67,6 +69,29 @@ def test_toggle_toggling(qtbot):
     assert t.isChecked()
     t.setChecked(False)
     assert not t.isChecked()
+
+
+def test_all_settings_booleans_use_switches(qtbot):
+    from spacr.qt.screens.settings_model import SettingsWidgets
+    model = SettingsWidgets("measure")
+    model.build_sections()
+    boolean_widgets = [
+        widget for key, widget in model._widgets.items()
+        if isinstance(model._defaults.get(key), bool)
+    ]
+    assert boolean_widgets
+    assert all(isinstance(widget, Toggle) for widget in boolean_widgets)
+
+
+def test_qt_boolean_controls_do_not_construct_plain_checkboxes():
+    qt_root = Path(__file__).resolve().parents[2] / "spacr" / "qt"
+    offenders = []
+    for path in qt_root.rglob("*.py"):
+        if path.name == "toggle.py":
+            continue
+        if "QCheckBox(" in path.read_text(encoding="utf-8"):
+            offenders.append(path.relative_to(qt_root).as_posix())
+    assert not offenders, f"plain checkbox controls remain: {offenders}"
 
 
 @pytest.mark.parametrize("pct,expected", [
