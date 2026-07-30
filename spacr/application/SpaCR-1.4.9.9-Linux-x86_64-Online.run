@@ -12,6 +12,11 @@ UV_VERSION="0.11.32"
 PYTHON_VERSION="3.12"
 DEFAULT_SPACR_VERSION="1.4.9.9"
 DEFAULT_EXTRAS="qt,zernike,btrack,czi"
+# SHAP 0.52 leaves these dependencies unbounded and uv can otherwise select
+# 2021 source releases whose metadata admits Python 3.12 but build scripts do
+# not. Keep the released 1.4.9.9 wheel installable even though PyPI artifacts
+# are immutable; setup.py carries the same guards for subsequent releases.
+RESOLVER_GUARDS=("numba>=0.60,<1.0" "llvmlite>=0.43,<1.0")
 
 PLATFORM=""
 INSTALL_ROOT=""
@@ -135,6 +140,7 @@ echo "  application:    $PACKAGE_SPEC"
 echo "  private Python: $PYTHON_VERSION"
 echo "  install root:   $INSTALL_ROOT"
 echo "  PyTorch:        automatic GPU/CPU selection"
+echo "  resolver guards: ${RESOLVER_GUARDS[*]}"
 
 if [[ "$DRY_RUN" == "1" ]]; then
     echo "DRY RUN: would download $UV_INSTALL_URL"
@@ -248,7 +254,8 @@ echo "Downloading spaCR, Qt, PyTorch and scientific dependencies..."
 "$UV_BIN" pip install \
     --python "$stage_python" \
     --torch-backend auto \
-    "$PACKAGE_SPEC"
+    "$PACKAGE_SPEC" \
+    "${RESOLVER_GUARDS[@]}"
 
 echo "Validating the installation before activating it..."
 "$UV_BIN" pip check --python "$stage_python"
