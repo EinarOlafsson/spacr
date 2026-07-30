@@ -663,6 +663,37 @@ class TestRunningASearch:
         assert req.settings["src"] == "/data"
         assert req.space.params["n_neighbors"] == (5, 15)
 
+    def test_each_run_refreshes_the_host_settings_snapshot(self, panel, qtbot):
+        """A source dropped after opening the panel reaches the next search."""
+        self._prep(panel, "5, 15")
+        current = {"src": "/before"}
+        captured = []
+
+        def _search(request, on_trial, should_stop):
+            captured.append(dict(request.settings))
+            return SearchResult(space=request.space, metric=request.criterion)
+
+        panel.set_settings_provider(lambda: dict(current))
+        panel.set_search_fn(_search)
+        current["src"] = "/dropped-after-opening"
+        with qtbot.waitSignal(panel.search_finished, timeout=5000):
+            assert panel.run_search()
+
+        assert captured[-1]["src"] == "/dropped-after-opening"
+        assert panel._settings["src"] == "/dropped-after-opening"
+
+    def test_a_broken_settings_provider_is_reported_inline(self, panel):
+        self._prep(panel, "5")
+
+        def _broken():
+            raise RuntimeError("settings vanished")
+
+        panel.set_settings_provider(_broken)
+        assert panel.run_search() is False
+        assert "Could not read the current module settings" in \
+            panel._status.text()
+        assert "settings vanished" in panel._status.text()
+
     def test_adaptive_switch_is_carried_as_a_boolean(self, panel, qtbot):
         captured = {}
 

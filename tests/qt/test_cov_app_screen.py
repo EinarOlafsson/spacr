@@ -300,7 +300,8 @@ class TestCategoryGrouping:
         """Tracking and the motility assay are separate modules now."""
         scr = _make_screen(qtbot, "mask")
         titles = _section_titles(scr)
-        assert "PATHS" in titles and "CELL" in titles
+        assert "INPUT & METADATA" in titles
+        assert "CELL SEGMENTATION" in titles
         for gone in ("TIMELAPSE", "MOTILITY (BETA)",
                      "MOTILITY ADVANCED (BETA)"):
             assert gone not in titles
@@ -310,9 +311,10 @@ class TestCategoryGrouping:
         assert "motility_analysis" not in keys
 
     def test_measure_still_shows_timelapse_category(self, qtbot):
-        """The suppression is per-app, not global."""
+        """Measure keeps its timelapse controls in the channel-mapping group."""
         scr = _make_screen(qtbot, "measure")
-        assert "TIMELAPSE" in _section_titles(scr)
+        assert "MASK & CHANNEL MAPPING" in _section_titles(scr)
+        assert "timelapse" in scr._settings_model._widgets
 
     def test_classify_hides_cellpose_and_needs_no_other_bucket(self, qtbot):
         """It used to assert ``titles[-1] == "OTHER"``.
@@ -321,8 +323,8 @@ class TestCategoryGrouping:
         trailing bucket ``build_sections`` emits for keys in no category at
         all. Classify rendered one holding exactly ``custom_model``, because
         that key was filed under "Cellpose" and Classify hides Cellpose. The
-        key now lives in "Model Training" beside ``model_type``, which is the
-        question it answers, so there is nothing left to bucket.
+        key now lives in "Model Architecture" beside ``model_type``, which is
+        the question it answers, so there is nothing left to bucket.
 
         The escape hatch itself still works and is covered by
         ``test_uncategorised_keys_still_land_in_other`` below.
@@ -332,14 +334,21 @@ class TestCategoryGrouping:
         assert "CELLPOSE" not in titles
         assert "OTHER" not in titles
         assert "custom_model" in scr._settings_model._widgets
-        assert "MODEL TRAINING" in titles
+        assert "MODEL ARCHITECTURE" in titles
+        assert "OPTIMIZATION & LOSS" in titles
 
     def test_uncategorised_keys_still_land_in_other(self, qtbot, monkeypatch):
         """The bucket is a safety net, not a section anyone should see."""
-        import spacr.settings as S
-        trimmed = {name: [k for k in keys if k != "epochs"]
-                   for name, keys in S.categories.items()}
-        monkeypatch.setattr(S, "categories", trimmed)
+        from spacr.qt.screens import settings_model as sm
+        real = sm.categories_for_app
+
+        def without_epochs(app_key, categories):
+            return {
+                name: [key for key in keys if key != "epochs"]
+                for name, keys in real(app_key, categories).items()
+            }
+
+        monkeypatch.setattr(sm, "categories_for_app", without_epochs)
         scr = _make_screen(qtbot, "classify")
         titles = _section_titles(scr)
         assert titles[-1] == "OTHER"
@@ -354,7 +363,8 @@ class TestCategoryGrouping:
         """Curated blurbs are used verbatim; anything else gets the generic."""
         scr = _make_screen(qtbot, "classify")
         by_title = {s.title(): s for s in _sections(scr)}
-        assert by_title["PATHS"]._header.toolTip() == SECTION_HINTS["PATHS"]
+        assert by_title["PLATE SOURCES & WORKFLOW"]._header.toolTip() == (
+            "Settings that control plate sources & workflow.")
         # It used to read the generic sentence off Classify's "OTHER"
         # section; Classify no longer has one (see
         # test_classify_hides_cellpose_and_needs_no_other_bucket), so the
@@ -737,7 +747,7 @@ class TestEmptyStateAndSrc:
         assert len(buttons) == 1
         btn = buttons[0]
         assert btn.table == COLUMN_TABLES["annotation_column"] == "png_list"
-        scr._settings_model._widgets["src"].setText("/data/plate9")
+        scr._settings_model.set_value_for_key("src", ["/data/plate9"])
         assert btn.db_path() == "/data/plate9"
 
     def test_non_column_fields_get_no_picker(self, qtbot):
@@ -1467,6 +1477,27 @@ class TestRuntimePanels:
         # Opening it seeds the search from the panel's current settings.
         assert scr._hyperparam._settings["src"] == \
             scr._settings_model.collect()["src"]
+
+    def test_umap_search_reads_src_changed_while_panel_is_already_open(
+            self, qtbot):
+        """Typing or dropping a path after opening Search must not go stale."""
+        from spacr.hyperparam import SearchResult
+
+        scr = _make_screen(qtbot, "umap")
+        scr._hp_switch.setChecked(True)
+        captured = {}
+
+        def _search(request, _on_trial, _should_stop):
+            captured["src"] = request.settings.get("src")
+            return SearchResult(
+                space=request.space, metric=request.criterion)
+
+        scr._hyperparam.set_search_fn(_search)
+        scr._settings_model.set_value_for_key(
+            "src", "/data/dropped-after-search-opened")
+        with qtbot.waitSignal(scr._hyperparam.search_finished, timeout=5000):
+            assert scr._hyperparam.run_search()
+        assert captured["src"] == "/data/dropped-after-search-opened"
 
     def test_hyperparam_switch_without_a_settings_model(self, qtbot):
         scr = _make_screen(qtbot, "umap")
