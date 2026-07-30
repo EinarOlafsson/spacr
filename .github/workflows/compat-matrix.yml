@@ -100,7 +100,9 @@ jobs:
         # These import nothing from spacr; they read setup.py and
         # pyproject.toml as data. That is why they can run in a job with no
         # scientific stack installed.
-        run: python -m pytest tests/test_packaging_metadata.py -q --no-header
+        run: >-
+          python -m pytest --noconftest
+          tests/test_packaging_metadata.py -q --no-header
 
   # -------------------------------------------------------------------------
   # 2. Newest Python versions install, and install WITHOUT A COMPILER.
@@ -396,6 +398,11 @@ jobs:
             sudo apt-get install --no-install-recommends -y "$pkg" || \
               echo "skip: $pkg not available on this release"
           done
+
+      - name: Install OpenMP runtime (macOS only)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: brew install libomp
 
       - name: Install CPU-only torch (Linux, Windows)
         if: runner.os != 'macOS'
