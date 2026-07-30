@@ -500,6 +500,7 @@ _NAME_TO_GLYPH = {
     "regression":      "fa5s.wave-square",
     "recruitment":     "fa5s.crosshairs",
     "activation":      "fa5s.bolt",
+    "run_history":     "fa5s.history",
     "analyze_plaques": "fa5s.microscope",
     "train_cellpose":  "fa5s.brain",
     "cellpose_masks":  "fa5s.shapes",

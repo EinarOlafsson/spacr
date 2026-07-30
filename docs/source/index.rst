@@ -114,4 +114,5 @@ Contents
    localization
    checkpoint_resume
    reproducibility_manifests
+   run_history
    api/index
