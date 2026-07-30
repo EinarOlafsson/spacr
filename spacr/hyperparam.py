@@ -1730,6 +1730,11 @@ def load_search_data(app_key: str, settings: Mapping[str, Any]) -> SearchData:
             f"first so there is a measurements table to search over."
         )
 
+    from .row_exclusions import exclude_matching_rows
+    frame, exclusion_notes = exclude_matching_rows(
+        frame, settings.get("exclude_rows"))
+    notes.extend(exclusion_notes)
+
     row_limit = settings.get("row_limit")
     if row_limit and len(frame) > int(row_limit):
         frame = frame.sample(n=int(row_limit), random_state=42)

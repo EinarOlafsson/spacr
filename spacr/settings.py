@@ -644,6 +644,7 @@ def set_default_umap_image_settings(settings=None):
     settings.setdefault('n_jobs', -1)
     settings.setdefault('color_by', None)
     settings.setdefault('exclude_conditions', None)
+    settings.setdefault('exclude_rows', None)
     settings.setdefault('analyze_clusters', False)
     settings.setdefault('resnet_features', False)
     settings.setdefault('verbose',True)
@@ -1534,6 +1535,7 @@ expected_types = {
     "mix":str,
     "model_type_ml":str,
     "exclude_conditions":list,
+    "exclude_rows": (dict, type(None)),
     "remove_highly_correlated_features":bool,
     'barcode_coordinates':list,  # This is a list of lists 
     'reverse_complement':bool,
@@ -1988,8 +1990,9 @@ tooltips = {
     "eps": "(float) - DBSCAN neighbourhood radius, expressed in the units of the UMAP/t-SNE embedding and measured with the 'metric' setting: two points are neighbours if they lie within this distance. Raise it to merge fragments into fewer, larger clusters and leave less noise; lower it to split clusters and push more points to noise (-1). Ignored when clustering is 'kmeans'. Default 0.9.",
     "epochs": "(int) - Number of full passes over the training set. It also sets the learning-rate schedule horizon - cosine anneals over exactly this many epochs and step_lr drops every epochs/5 - so changing it rescales the schedule. A checkpoint is always written on the final epoch and every 100th. Raise it for small datasets and use early_stopping_patience to cut runs short. Default 100.",
     "examples_to_plot": "(int) - How many randomly chosen merged image stacks are rendered as segmentation-overlay previews after mask generation (in timelapse mode, per-channel panels instead). Raise it to check outlines and normalization across more fields of view, at the cost of render time and larger PDFs; 0 skips previews entirely. Default 1.",
-    "exclude": "(str or list) - Names of measurement columns to drop from the feature set before UMAP embedding or ML training, applied after the channel_of_interest selection. Use it to remove features that leak the label or swamp the embedding. It does not filter wells or conditions - use exclude_conditions for that. Default None keeps every feature.",
+    "exclude": "(str or list) - Names of measurement columns to drop from the feature set before UMAP embedding or ML training, applied after the channel_of_interest selection. Use it to remove features that leak the label or swamp the embedding. It does not filter database rows; use exclude_rows for that. Default None keeps every feature.",
     "exclude_conditions": "(list) - Condition labels dropped from the image UMAP input, matched against the cond column that map_condition derives from the pos, neg and mix column IDs; the only possible entries are 'neg', 'pos', 'mix' and 'screen'. A bare string is accepted and wrapped in a list. Use it to embed screen wells only. Default None.",
+    "exclude_rows": "(dict or None) - General UMAP row exclusions. Choose one or more database columns, then check the values whose rows should be removed. Rules are combined with OR, so a row matching any selected column/value pair is excluded. Default None keeps every row.",
     "experiment": "(str) - Free-text run label. Its real effect is naming the exported PNG dataset tar as <YYMMDD>_<experiment>.tar (a random-numbered variant is used if that name already exists), so give each screen a distinct value to avoid confusing dataset tars. It is also passed to the measurement-database writer but not stored there. Defaults vary by pipeline: 'exp', 'exp.' or 'experiment_1'.",
     "figuresize": "(int) - Base figure size in inches; figures are built square as figuresize x figuresize and font sizes are derived from it (legend, axis labels and ticks at 0.75x, overlay text at 0.5x). Raise it when text is unreadable at publication scale, lower it to fit panels on screen. Default 10; cluster grids cap total width at 200 inches.",
     "filter_by": "(str) - Restricts the feature matrix before dimensionality reduction: only columns matching this channel are kept and the other channel_1-channel_4 columns are dropped. Accepts 'channel_0'-'channel_3', an int, a list of channel numbers, or 'morphology' to keep only shape features (area, eccentricity, Zernike moments, ...). None disables filtering. Default 'channel_0'.",
@@ -2553,7 +2556,7 @@ categories = {
     # change_plate came from "Invasion Assay", where they were shared with the
     # replication assay and so gave that module a heading named after an assay
     # it does not run.
-    "Plate Layout & Controls": ["plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "nucleus_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control", "negative_control", "controls", "pc", "nc", "pc_loc", "nc_loc", "pos", "neg", "mix", "exclude_conditions", "filter_column", "filter_value", "target", "metadata_types"],
+    "Plate Layout & Controls": ["plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "nucleus_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control", "negative_control", "controls", "pc", "nc", "pc_loc", "nc_loc", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "metadata_types"],
 
     # How the labelled set is assembled, in the order it is assembled:
     # which rule defines a class -> what the classes are -> which crops ->

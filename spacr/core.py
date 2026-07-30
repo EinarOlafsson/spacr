@@ -672,6 +672,13 @@ def generate_image_umap(settings=None, return_fig=False):
         all_df = pd.concat([all_df, df], axis=0)
         #image_paths.extend(image_paths_tmp)
 
+    from .row_exclusions import exclude_matching_rows
+    all_df, exclusion_notes = exclude_matching_rows(
+        all_df, settings.get("exclude_rows"))
+    if settings.get("verbose"):
+        for note in exclusion_notes:
+            print(note)
+
     all_df['cond'] = all_df['columnID'].apply(map_condition, neg=settings['neg'], pos=settings['pos'], mix=settings['mix'])
 
     if settings['exclude_conditions']:
@@ -999,6 +1006,13 @@ def reducer_hyperparameter_search(settings=None, reduction_params=None, dbscan_p
     for db_path in db_paths:
         df = _read_and_join_tables(db_path, table_names=tables)
         all_df = pd.concat([all_df, df], axis=0)
+
+    from .row_exclusions import exclude_matching_rows
+    all_df, exclusion_notes = exclude_matching_rows(
+        all_df, settings.get("exclude_rows"))
+    if settings.get("verbose"):
+        for note in exclusion_notes:
+            print(note)
 
     all_df['cond'] = all_df['columnID'].apply(map_condition, neg=settings['neg'], pos=settings['pos'], mix=settings['mix'])
 

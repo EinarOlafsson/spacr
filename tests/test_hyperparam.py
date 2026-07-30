@@ -1362,7 +1362,9 @@ class TestLoadSearchDataFromDb:
 
     def test_umap_gets_features_and_no_labels(self, measurements_src):
         data = load_search_data("umap", self._settings(measurements_src))
-        assert data.features.shape == (40, 4)
+        # Provenance identifiers such as object_label are deliberately kept
+        # out of the model matrix.
+        assert data.features.shape == (40, 3)
         assert data.labels is None
         assert data.frame is not None
 
@@ -1371,7 +1373,7 @@ class TestLoadSearchDataFromDb:
             "ml_analyze",
             self._settings(measurements_src, positive_control="c2",
                            negative_control="c1", location_column="columnID"))
-        assert data.features.shape == (40, 4)
+        assert data.features.shape == (40, 3)
         assert sorted(np.bincount(data.labels).tolist()) == [20, 20]
         assert data.groups is not None
         assert data.groups[0] == "p1_r0_c1"
@@ -1385,6 +1387,19 @@ class TestLoadSearchDataFromDb:
         assert data.features.shape[0] == 10
         assert any("Sub-sampled to 10" in n for n in data.notes)
         assert any("rank configurations differently" in n for n in data.notes)
+
+    def test_umap_row_exclusions_match_the_real_run(self, measurements_src):
+        data = load_search_data(
+            "umap",
+            self._settings(
+                measurements_src,
+                exclude_rows={"columnID": ["c1"]},
+            ),
+        )
+        assert data.features.shape[0] == 20
+        assert set(data.frame["columnID"]) == {"c2"}
+        assert any("columnID" in note and "20 row(s)" in note
+                   for note in data.notes)
 
     def test_an_annotation_column_wins_over_the_controls(self,
                                                         measurements_src):
