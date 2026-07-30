@@ -30,8 +30,8 @@ from ..theme import FONT_SIZE, active_palette
 class AiToggleLabel(QLabel):
     """Clickable text label that behaves like a QCheckBox toggle.
 
-    Originally the "AI" switch, now also used for the "LP" (live
-    preview) toggle. Every consumer gets the same on-blue / off-white
+    Originally the "AI" switch, now also used for the "Live" preview
+    toggle. Every consumer gets the same on-blue / off-white
     visual so the row of toggles reads consistently.
 
     :param text: label text (default ``"AI"`` for back-compat).

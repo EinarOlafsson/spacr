@@ -34,7 +34,7 @@ def test_umap_has_interactive_toggle_immediately_beside_ai(
 
     toggle = screen._interactive_switch
     assert toggle is not None
-    assert toggle.text() == "Interactive"
+    assert toggle.text() == "Live"
     assert toggle.isChecked() is False
     assert "click a point" in toggle.toolTip().lower()
 

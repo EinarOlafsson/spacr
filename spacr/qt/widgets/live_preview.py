@@ -1569,7 +1569,7 @@ class LiveSettingsDialog(QDialog):
         self._run_btn.setDefault(True)
         self._run_btn.clicked.connect(self._panel.run_preview)
         buttons.addButton(self._run_btn, QDialogButtonBox.ActionRole)
-        # Propagate toggle — when on (blue, like the AI / LP toggles), edits
+        # Propagate toggle — when on (blue, like the AI / Live toggles), edits
         # here are pushed into the main settings panel so tuning in the live
         # preview updates the run configuration.
         self._propagate_btn = QPushButton("Propagate settings")

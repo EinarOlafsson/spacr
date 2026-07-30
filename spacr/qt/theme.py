@@ -1078,7 +1078,7 @@ def image_contrast_failures(theme: str, under: str) -> List[str]:
 # Theme-invariant colour roles
 # ---------------------------------------------------------------------------
 # The user should be able to recognise interactive controls by colour
-# regardless of theme. If the AI/LP toggle went accent-blue in dark and
+# regardless of theme. If the AI/Live toggle went accent-blue in dark and
 # a different accent-blue in light, that recognition breaks. These keys
 # resolve to the SAME value in both DARK_PALETTE and LIGHT_PALETTE so
 # button / toggle styling can rely on them.

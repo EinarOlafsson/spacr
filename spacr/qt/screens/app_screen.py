@@ -1042,26 +1042,26 @@ class AppScreen(QWidget):
         from ..widgets import AiToggleLabel
         preview_controls = {
             "mask": (
-                "_live_preview_card", "LP",
+                "_live_preview_card",
                 "Click to toggle Live Preview. When ON (blue), the "
                 "interactive Cellpose preview appears above the console."),
             "timelapse": (
-                "_timelapse_preview_card", "TP",
+                "_timelapse_preview_card",
                 "Click to toggle Track Preview for the timelapse."),
             "motility": (
-                "_motility_preview_card", "TP",
+                "_motility_preview_card",
                 "Click to toggle Track Preview for the motility analysis."),
             "measure": (
-                "_measure_preview_card", "MP",
+                "_measure_preview_card",
                 "Click to toggle Measurement Preview."),
         }
         preview_control = preview_controls.get(self.app_key)
         if preview_control is not None:
-            card_attr, text, tooltip = preview_control
+            card_attr, tooltip = preview_control
             if getattr(self, card_attr, None) is not None:
                 self._preview_card_attr = card_attr
                 self._preview_switch = AiToggleLabel(
-                    text=text, tooltip=tooltip)
+                    text="Live", tooltip=tooltip)
                 self._preview_switch.toggled.connect(
                     self._on_preview_switch)
                 row.addWidget(self._preview_switch)
@@ -1078,7 +1078,7 @@ class AppScreen(QWidget):
                                             tooltip=TOGGLE_TOOLTIP)
             self._hp_switch.toggled.connect(self._on_hyperparam_switch)
             row.addWidget(self._hp_switch)
-            self._on_hyperparam_switch(False)   # start collapsed, like LP
+            self._on_hyperparam_switch(False)   # start collapsed, like Live
 
         # Interactive image-UMAP explorer — UMAP only, immediately beside AI.
         # It starts off so ordinary runs retain the familiar static figure.
@@ -1087,7 +1087,7 @@ class AppScreen(QWidget):
         self._interactive_switch = None
         if self.app_key == "umap" and self._umap_explorer is not None:
             self._interactive_switch = AiToggleLabel(
-                text="Interactive",
+                text="Live",
                 tooltip=(
                     "Toggle the interactive image UMAP. When ON (blue), "
                     "click a point to preview its image, draw around a "
@@ -1769,8 +1769,8 @@ def _build_live_preview_card(host):
     to any layout.
 
     The Mask app screen embeds this into a QSplitter alongside the
-    console so the two panels can be resized against each other. LP
-    starts hidden and is shown when the user clicks the LP toggle.
+    console so the two panels can be resized against each other. The panel
+    starts hidden and is shown when the user clicks the Live toggle.
     """
     from ..widgets.live_preview import LivePreviewPanel
     card = Card(title="Live preview")
