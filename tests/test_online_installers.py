@@ -161,6 +161,8 @@ def test_one_click_release_orders_version_pypi_installers_and_github():
     assert "pypa/gh-action-pypi-publish@release/v1" in workflow
     assert "environment:" in workflow and "name: pypi" in workflow
     assert "id-token: write" in workflow
+    assert '"setuptools>=64"' in workflow
+    assert "python -m pytest --noconftest" in workflow
     assert "gh release create" in workflow
     assert "gh release upload" in workflow
     assert "release-assets/*" in workflow
