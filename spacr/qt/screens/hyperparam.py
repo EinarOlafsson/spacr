@@ -392,6 +392,7 @@ class SearchRequest:
     min_improvement: float = 0.0
     seed: int = 0
     n_folds: int = 5
+    resume: bool = False
 
 
 class _SearchWorker(QThread):
@@ -452,7 +453,8 @@ def _default_search_fn(request: SearchRequest, on_trial, should_stop) -> SearchR
         min_dist_step=request.min_dist_step,
         min_improvement=request.min_improvement,
         seed=request.seed, n_folds=request.n_folds,
-        on_trial=on_trial, should_stop=should_stop)
+        on_trial=on_trial, should_stop=should_stop,
+        resume=request.resume)
 
 
 # ---------------------------------------------------------------------------
@@ -610,9 +612,19 @@ class HyperparamPanel(QWidget):
             "reproduces the same sweep.")
         run_grid.addWidget(self._seed, 1, 5)
 
+        self._resume = Toggle("Resume checkpoint")
+        self._resume.setVisible(self.app_key == "umap")
+        self._resume.setToolTip(
+            "Continue the compatible search checkpoint stored in the current "
+            "project. Completed trials and embeddings are loaded; an "
+            "interrupted adaptive round evaluates only its missing corners. "
+            "Input data and material search settings must match. API: "
+            "spacr.hyperparam.umap_search(resume=True).")
+        run_grid.addWidget(self._resume, 2, 0, 1, 3)
+
         self._run_btn = QPushButton("Run search")
         self._run_btn.clicked.connect(self.run_search)
-        run_grid.addWidget(self._run_btn, 2, 0, 1, 2)
+        run_grid.addWidget(self._run_btn, 3, 0, 1, 2)
 
         self._stop_btn = QPushButton("Stop")
         self._stop_btn.setEnabled(False)
@@ -620,7 +632,7 @@ class HyperparamPanel(QWidget):
             "Stop after the trial in flight. The trials already finished are "
             "kept and the result is marked partial.")
         self._stop_btn.clicked.connect(self.stop_search)
-        run_grid.addWidget(self._stop_btn, 2, 2)
+        run_grid.addWidget(self._stop_btn, 3, 2)
 
         self._apply_btn = QPushButton("Propagate settings")
         self._apply_btn.setEnabled(False)
@@ -628,7 +640,7 @@ class HyperparamPanel(QWidget):
             "Write the selected row's parameters into the settings panel. "
             "Nothing changes until you press this.")
         self._apply_btn.clicked.connect(self.apply_selected)
-        run_grid.addWidget(self._apply_btn, 2, 3, 1, 3)
+        run_grid.addWidget(self._apply_btn, 3, 3, 1, 3)
         run_grid.setColumnStretch(1, 2)
         run_grid.setColumnStretch(3, 2)
         run_grid.setColumnStretch(5, 2)
@@ -1020,6 +1032,7 @@ class HyperparamPanel(QWidget):
             min_improvement=improvement,
             seed=int(self._seed.value()),
             n_folds=int(self._n_folds.value()),
+            resume=self.app_key == "umap" and self._resume.isChecked(),
         )
         self._result = None
         self._live_trials = []
@@ -1544,6 +1557,7 @@ class UmapSearchSettingsDialog(QDialog):
             panel._n_trials: "n_trials",
             panel._n_folds: "n_folds",
             panel._seed: "random_seed",
+            panel._resume: "resume_search",
             panel._adaptive_n_step: "n_neighbors_step",
             panel._adaptive_d_step: "min_dist_step",
             panel._adaptive_rounds: "n_trials",
