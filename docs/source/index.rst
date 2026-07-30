@@ -112,4 +112,5 @@ Contents
 
    module_audit
    localization
+   checkpoint_resume
    api/index

@@ -118,6 +118,8 @@ def test_it_builds_offscreen_with_nothing_selected(screen):
     assert not screen.can_convert()
     assert "Preview" in screen.status_text()
     assert screen.last_error == ""
+    assert not screen.resume_enabled()
+    assert "field" in screen._resume.toolTip().lower()
 
 
 def test_the_option_choices_are_the_ones_the_converter_understands(screen):
@@ -345,6 +347,24 @@ def test_converting_writes_the_files_the_preview_promised(screen, run1, tmp_path
         sorted(promised)
     assert "Converted 8 file(s)" in screen.status_text()
     assert "conversion_map.csv" in screen.status_text()
+
+
+def test_resume_switch_reuses_the_converter_field_checkpoint(
+        screen, run1, tmp_path):
+    dst = str(tmp_path / "out")
+    screen.set_source(run1)
+    screen.set_destination(dst)
+    screen.preview()
+    screen.run_convert()
+
+    screen.set_resume(True)
+    screen.preview()
+    assert screen.run_convert()
+
+    assert screen.resume_enabled()
+    assert screen.result().n_written == 0
+    assert len(screen.result().resumed_fields) == 4
+    assert "Resumed 4 completed field" in screen.summary_text()
 
 
 def test_the_summary_names_what_was_skipped_and_where_the_map_went(
