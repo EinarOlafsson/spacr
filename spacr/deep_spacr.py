@@ -2136,59 +2136,73 @@ def save_top_class_examples(df, tar_path, dst, n=20, classes=None):
     """Extract the ``n`` most confident images per class from a tar into class-labelled folders.
 
     For binary classification, class 0 keeps the lowest ``pred`` scores
-    and class 1 keeps the highest.
+    and class 1 keeps the highest. Multiclass output is ranked using the
+    corresponding ``prob_class_<index>`` column.
 
     :param df: DataFrame with columns ``path`` (tar member name) and
-        ``pred`` (probability).
+        ``pred`` (probability). Multiclass results also contain
+        ``predicted_label`` and one ``prob_class_<index>`` column per class.
     :param tar_path: Tar archive containing the images.
     :param dst: Output root; ``dst/class_<label>/`` subfolders are
         created.
     :param n: Number of images to keep per class. Default ``20``.
-    :param classes: Explicit class labels. Default ``[0, 1]``.
+    :param classes: Optional display labels, in model-output order. When
+        omitted, multiclass labels are inferred from the probability columns;
+        binary output defaults to ``[0, 1]``.
     :returns: ``dst`` — for chaining.
     """
-    import os, tarfile
-    from io import BytesIO
-    from PIL import Image
+    import os
+    import re
+    import tarfile
 
-    # -- default to binary labels if the caller doesn't specify --
-    if classes is None:
-        classes = [0, 1]
+    if 'path' not in df.columns or 'pred' not in df.columns:
+        raise ValueError(
+            "Top-example export requires prediction columns 'path' and 'pred'.")
+    if int(n) < 1:
+        raise ValueError("n must be at least 1 when exporting top examples.")
+    n = int(n)
 
-    # -- collect the tar member names we need to extract --
-    paths_to_extract = set()
+    probability_columns = []
+    for column in df.columns:
+        match = re.fullmatch(r'prob_class_(\d+)', str(column))
+        if match:
+            probability_columns.append((int(match.group(1)), column))
+    probability_columns.sort()
 
-    for cls in classes:
-        # For binary: class 0 → lowest pred, class 1 → highest pred
-        # For multiclass this would need per-class probability columns;
-        # keeping it binary-friendly for now.
-        if cls == 0:
-            # sort ascending: values closest to 0 come first
-            top = df.nsmallest(n, 'pred')
-        else:
-            # sort descending: values closest to 1 come first
-            top = df.nlargest(n, 'pred')
+    # Build each folder's selection once. ``classes`` contains human-readable
+    # labels, whereas the probability-column suffix is the model-output index.
+    selections = []
+    if probability_columns:
+        labels = list(classes) if classes is not None else [
+            index for index, _column in probability_columns
+        ]
+        if len(labels) != len(probability_columns):
+            raise ValueError(
+                f"Received {len(labels)} class labels for "
+                f"{len(probability_columns)} model outputs.")
+        for label, (_index, probability_column) in zip(
+                labels, probability_columns):
+            selections.append(
+                (label, df.nlargest(n, probability_column)))
+    else:
+        labels = list(classes) if classes is not None else [0, 1]
+        if len(labels) != 2:
+            raise ValueError(
+                "More than two class labels require multiclass probability "
+                "columns named prob_class_0, prob_class_1, ... .")
+        selections = [
+            (labels[0], df.nsmallest(n, 'pred')),
+            (labels[1], df.nlargest(n, 'pred')),
+        ]
 
-        # create the class subfolder
-        cls_dir = os.path.join(dst, f'class_{cls}')
-        os.makedirs(cls_dir, exist_ok=True)
-
-        # remember which member names belong to this class
-        for _, row in top.iterrows():
-            paths_to_extract.add(row['path'])
-
-    # -- build a lookup: tar member name → list of (class, dest_path) --
-    # (an image could theoretically appear in both extremes for a
-    #  degenerate model, so we use a list)
+    # Build a lookup: tar member name → list of destination paths. An image can
+    # legitimately appear at both binary extremes in a one-row result.
     member_destinations = {}
-
-    for cls in classes:
-        if cls == 0:
-            top = df.nsmallest(n, 'pred')
-        else:
-            top = df.nlargest(n, 'pred')
-
-        cls_dir = os.path.join(dst, f'class_{cls}')
+    for label, top in selections:
+        safe_label = re.sub(r'[^A-Za-z0-9._-]+', '_', str(label)).strip('_')
+        safe_label = safe_label or 'unnamed'
+        cls_dir = os.path.join(dst, f'class_{safe_label}')
+        os.makedirs(cls_dir, exist_ok=True)
         for _, row in top.iterrows():
             fname = os.path.basename(row['path'])
             dest_file = os.path.join(cls_dir, fname)
@@ -2199,7 +2213,10 @@ def save_top_class_examples(df, tar_path, dst, n=20, classes=None):
     with tarfile.open(tar_path, 'r') as tar:
         for member in tar.getmembers():
             if member.name in member_destinations:
-                img_bytes = tar.extractfile(member).read()
+                source = tar.extractfile(member)
+                if source is None:
+                    continue
+                img_bytes = source.read()
                 for dest_file in member_destinations[member.name]:
                     with open(dest_file, 'wb') as f:
                         f.write(img_bytes)
@@ -2386,7 +2403,9 @@ def deep_spacr(settings=None):
             # dst sits next to the tar file, in a subfolder called 'top_examples'
             examples_dst = os.path.join(os.path.dirname(tar_path), 'top_examples')
             n_examples = settings.get('n_top_examples', 20)
-            save_top_class_examples(df, tar_path, examples_dst, n=n_examples)
+            save_top_class_examples(
+                df, tar_path, examples_dst, n=n_examples,
+                classes=settings.get('classes'))
 
             # -- NEW: merge predictions back into the measurements database --
             # settings['src'] can be a string or list; use the first entry
