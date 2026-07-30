@@ -7,15 +7,20 @@ Python, Qt, PyTorch, CUDA, or the scientific stack. During installation they:
 
 1. download a pinned standalone `uv` bootstrap over TLS;
 2. download a private managed CPython 3.12 runtime;
-3. detect the available PyTorch accelerator and choose CUDA/AMD/Intel or CPU;
-4. install `spacr[qt,zernike,btrack,czi]` in a private environment;
+3. install the portable CPU/MPS PyTorch build by default;
+4. install `spacr[qt]` in a private environment;
 5. run `pip check` and import spaCR, Qt, and PyTorch before activating it; and
 6. create the platform's normal application launcher and uninstaller.
 
 No existing system Python is modified. A failed update preserves the previous
-working spaCR environment.
+working spaCR environment. Windows offers NVIDIA acceleration as an optional
+installer component; Linux users can request accelerator auto-detection with
+``--torch-backend auto``. The CPU default avoids an accidental multi-gigabyte
+CUDA download and works on every supported machine. Apple's standard PyTorch
+wheel retains Metal Performance Shaders (MPS) support.
 
-The bootstrap also supplies compatible Numba/llvmlite floors. This prevents
+Each bootstrap writes ``install.log`` under its private installation root and
+supplies compatible Numba/llvmlite floors. This prevents
 SHAP's unbounded transitive requirements from resolving to obsolete source
 releases that advertise Python 3.12 compatibility but reject it while building.
 
@@ -26,9 +31,11 @@ releases that advertise Python 3.12 compatibility but reject it while building.
 | Linux x86-64 | `online/build_linux_online.sh` | `SpaCR-<ver>-Linux-x86_64-Online.run` | `~/.local/share/spacr` |
 
 `.github/workflows/online-installers.yml` builds all three on native GitHub
-runners, collects them under `spacr/application/`, writes SHA-256 hashes, and
-rewrites the download block in `README.rst` to point at immutable assets on
-the matching GitHub release. The version is always read from `setup.py`.
+runners, performs a real CPU installation and import check on every operating
+system, collects the installers under `spacr/application/`, writes SHA-256
+hashes, and rewrites the download block in `README.rst` to point at immutable
+assets on the matching GitHub release. The version is always read from
+`setup.py`.
 
 `packaging/release.py` owns the cross-platform release metadata:
 

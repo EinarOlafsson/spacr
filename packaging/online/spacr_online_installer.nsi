@@ -1,5 +1,6 @@
 !include "MUI2.nsh"
 !include "LogicLib.nsh"
+!include "Sections.nsh"
 
 !ifndef VERSION
   !define VERSION "0.0.0"
@@ -20,18 +21,30 @@ SetCompressor /SOLID lzma
 
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_DIRECTORY
+!insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
 !insertmacro MUI_LANGUAGE "English"
 
-Section "spaCR" SecSpaCR
+Section /o "NVIDIA GPU acceleration (large download)" SecGpu
+SectionEnd
+
+Section "spaCR desktop application" SecSpaCR
+  SectionIn RO
   SetOutPath "$TEMP\spaCR-online-installer"
   File "install_spacr_windows.ps1"
 
+  StrCpy $1 "cpu"
+  SectionGetFlags ${SecGpu} $2
+  IntOp $2 $2 & ${SF_SELECTED}
+  ${If} $2 != 0
+    StrCpy $1 "auto"
+  ${EndIf}
+
   DetailPrint "Downloading Python, Qt, PyTorch and spaCR. This can take several minutes."
-  nsExec::ExecToLog 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$TEMP\spaCR-online-installer\install_spacr_windows.ps1" -InstallRoot "$INSTDIR" -Version "${VERSION}"'
+  nsExec::ExecToLog 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$TEMP\spaCR-online-installer\install_spacr_windows.ps1" -InstallRoot "$INSTDIR" -Version "${VERSION}" -TorchBackend "$1"'
   Pop $0
   ${If} $0 != 0
     MessageBox MB_ICONSTOP "spaCR installation failed with exit code $0. The existing installation, if any, was preserved."
