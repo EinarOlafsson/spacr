@@ -266,6 +266,9 @@ class _StdoutBlock(QPlainTextEdit):
         self._text_color = text_color
         self._refresh_style()
         self._buf: List[str] = []
+        self._user_height: Optional[int] = None
+        self._height_handle = _BlockHeightHandle(self)
+        self._height_handle.show()
         if text:
             self.append(text)
 
@@ -321,6 +324,9 @@ class _StdoutBlock(QPlainTextEdit):
 
     def sizeHint(self) -> QSize:
         """Report the full document height; the outer console owns scrolling."""
+        if self._user_height is not None:
+            return QSize(
+                max(120, super().sizeHint().width()), self._user_height)
         layout = self.document().documentLayout()
         height = 0.0
         block = self.document().begin()
@@ -334,7 +340,74 @@ class _StdoutBlock(QPlainTextEdit):
     def resizeEvent(self, event) -> None:
         super().resizeEvent(event)
         self.document().setTextWidth(max(1, self.viewport().width()))
+        handle_height = self._height_handle.sizeHint().height()
+        self._height_handle.setGeometry(
+            0, max(0, self.height() - handle_height),
+            self.width(), handle_height,
+        )
+        self._height_handle.raise_()
         self.updateGeometry()
+
+    def set_user_height(self, height: int) -> None:
+        """Pin this section to a user-selected height."""
+        self._user_height = max(48, min(4000, int(height)))
+        self.setFixedHeight(self._user_height)
+        self.updateGeometry()
+
+    def reset_user_height(self) -> None:
+        """Return to automatic document-height sizing."""
+        self._user_height = None
+        self.setMinimumHeight(0)
+        self.setMaximumHeight(16_777_215)
+        self.updateGeometry()
+
+
+class _BlockHeightHandle(QFrame):
+    """Thin drag handle along a console section's lower edge."""
+
+    HEIGHT = 7
+
+    def __init__(self, block: _StdoutBlock):
+        super().__init__(block)
+        self._block = block
+        self._press_y: Optional[float] = None
+        self._start_height = 0
+        self.setObjectName("ConsoleSectionResizeHandle")
+        self.setCursor(Qt.SizeVerCursor)
+        self.setFixedHeight(self.HEIGHT)
+        self.setToolTip(
+            "Drag to resize this console section. Double-click for auto height."
+        )
+
+    def sizeHint(self) -> QSize:
+        return QSize(80, self.HEIGHT)
+
+    def mousePressEvent(self, event) -> None:
+        if event.button() == Qt.LeftButton:
+            self._press_y = event.globalPosition().y()
+            self._start_height = self._block.height()
+            event.accept()
+            return
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event) -> None:
+        if self._press_y is not None and event.buttons() & Qt.LeftButton:
+            delta = event.globalPosition().y() - self._press_y
+            self._block.set_user_height(self._start_height + int(delta))
+            event.accept()
+            return
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event) -> None:
+        self._press_y = None
+        super().mouseReleaseEvent(event)
+
+    def mouseDoubleClickEvent(self, event) -> None:
+        if event.button() == Qt.LeftButton:
+            self._block.reset_user_height()
+            event.accept()
+            return
+        super().mouseDoubleClickEvent(event)
 
 
 # ---------------------------------------------------------------------------
