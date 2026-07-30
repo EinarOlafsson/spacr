@@ -227,6 +227,15 @@ class TestWidgetConstruction:
             assert isinstance(lbl, QLabel)
             assert hint, "empty plain hint"
             assert "<a href=" in scr._html_tip_map[lbl]
+            assert "ⓘ" in scr._html_tip_map[lbl]
+            assert "Docs" not in scr._html_tip_map[lbl]
+
+        from spacr.qt.widgets.info_link import InfoLink
+        setting_links = [
+            link for link in scr.findChildren(InfoLink)
+            if link.objectName() == "SettingInfoLink"
+        ]
+        assert len(setting_links) == len(scr._settings_model._widgets)
 
     def test_a_row_widget_the_model_does_not_own_keeps_its_own_tooltip(
             self, qtbot, monkeypatch):
@@ -253,11 +262,19 @@ class TestWidgetConstruction:
         assert len(scr._hint_map) == len(scr._settings_model._widgets)
 
     def test_header_shows_title_and_intro_blurb(self, qtbot):
+        from spacr.qt.widgets.info_link import InfoLink
+
         scr = _make_screen(qtbot, "mask")
         texts = [w.text() for w in scr.findChildren(QLabel)]
         assert APP_TITLES["mask"] in texts
         assert APP_INTROS["mask"] in texts
         assert "Configure settings, then press Run." in texts
+        module_links = [
+            link for link in scr.findChildren(InfoLink)
+            if link.objectName() == "ModuleInfoLink"
+        ]
+        assert len(module_links) == 1
+        assert not any("Docs" in text for text in texts)
 
     def test_unknown_app_key_titles_itself_and_has_no_blurb(self, qtbot):
         """An app key with no APP_TITLES/APP_INTROS entry still constructs."""

@@ -24,6 +24,7 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QStackedWidget,
     QStatusBar,
+    QStyle,
     QVBoxLayout,
     QWidget,
 )
@@ -827,10 +828,20 @@ class MainWindow(QMainWindow):
 
         help_menu = mb.addMenu("&Help")
         act_tutorial = QAction("Tutorial (web)", self)
+        act_tutorial.setIcon(
+            self.style().standardIcon(
+                QStyle.StandardPixmap.SP_MessageBoxInformation
+            )
+        )
         act_tutorial.triggered.connect(
             lambda: self._open_url("https://einarolafsson.github.io/spacr/tutorial/"))
         help_menu.addAction(act_tutorial)
         act_docs = QAction("Documentation (web)", self)
+        act_docs.setIcon(
+            self.style().standardIcon(
+                QStyle.StandardPixmap.SP_MessageBoxInformation
+            )
+        )
         act_docs.triggered.connect(
             lambda: self._open_url("https://einarolafsson.github.io/spacr/index.html"))
         help_menu.addAction(act_docs)
