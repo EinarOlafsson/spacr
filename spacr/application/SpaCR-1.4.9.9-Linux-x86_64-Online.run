@@ -303,7 +303,7 @@ mv "$launcher_tmp" "$LAUNCHER"
 if [[ "$PLATFORM" == "linux" ]]; then
     mkdir -p "$DESKTOP_DIR"
     icon_path="$("$VENV_DIR/bin/python" -I -c \
-        "from pathlib import Path; import spacr; print(Path(spacr.__file__).parent/'resources/icons/logo_spacr.png')")"
+        "from pathlib import Path; import spacr; d=Path(spacr.__file__).parent/'resources/icons'; p=d/'app_icon.png'; print(p if p.is_file() else d/'logo_spacr.png')")"
     desktop_tmp="$INSTALL_ROOT/.spacr-desktop-$$"
     cat > "$desktop_tmp" <<EOF
 [Desktop Entry]
