@@ -53,8 +53,11 @@ def test_info_link_is_icon_only_and_opens_its_url(qtbot, monkeypatch):
     )
     link = InfoLink("https://example.test/docs")
     qtbot.addWidget(link)
-    assert link.text() in ("", "i")
-    assert link.accessibleName() == "Open documentation"
+    assert link.text() == ""
+    assert link.icon().isNull()
+    assert link._dot_diameter == 7.0
+    assert link.size().width() == 14
+    assert link.accessibleName() == "Open API reference"
     link.click()
     assert opened == ["https://example.test/docs"]
 

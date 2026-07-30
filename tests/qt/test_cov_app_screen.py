@@ -226,8 +226,8 @@ class TestWidgetConstruction:
         for lbl, hint in scr._hint_map.items():
             assert isinstance(lbl, QLabel)
             assert hint, "empty plain hint"
-            assert "<a href=" in scr._html_tip_map[lbl]
-            assert "ⓘ" in scr._html_tip_map[lbl]
+            assert "<a href=" not in scr._html_tip_map[lbl]
+            assert "ⓘ" not in scr._html_tip_map[lbl]
             assert "Docs" not in scr._html_tip_map[lbl]
 
         from spacr.qt.widgets.info_link import InfoLink
@@ -236,6 +236,9 @@ class TestWidgetConstruction:
             if link.objectName() == "SettingInfoLink"
         ]
         assert len(setting_links) == len(scr._settings_model._widgets)
+        for link in setting_links:
+            assert link.toolTip()
+            assert "/api/" in link.url()
 
     def test_a_row_widget_the_model_does_not_own_keeps_its_own_tooltip(
             self, qtbot, monkeypatch):

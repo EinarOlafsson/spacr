@@ -254,17 +254,36 @@ def get_tooltips() -> Dict[str, str]:
 # API doc link per app
 # ---------------------------------------------------------------------------
 
-DOCS_BASE = "https://einarolafsson.github.io/spacr/index.html"
+DOCS_API_BASE = "https://einarolafsson.github.io/spacr/api"
+
+_APP_API_MODULE = {
+    "mask": "app_mask",
+    "measure": "app_measure",
+    "annotate": "app_annotate",
+    "classify": "app_classify",
+    "map_barcodes": "app_sequencing",
+    "umap": "app_umap",
+    "timelapse": "timelapse",
+    "motility": "timelapse",
+    "ml_analyze": "ml",
+    "regression": "sp_stats",
+    "activation": "deep_spacr",
+    "make_masks": "spacr_cellpose",
+    "train_cellpose": "spacr_cellpose",
+    "cellpose_masks": "spacr_cellpose",
+}
 
 
 def api_docs_url(app_key: str) -> str:
     """Return the spacr documentation URL for a given app.
 
-    The published docs don't yet split into per-function anchors, so
-    we point every setting at the docs landing page. Users can search
-    from there and don't hit 404s.
+    Known app keys land on their module page. New or UI-only modules fall
+    back to the generated API index rather than the documentation homepage.
     """
-    return DOCS_BASE
+    module = _APP_API_MODULE.get(app_key)
+    if module:
+        return f"{DOCS_API_BASE}/spacr/{module}/index.html"
+    return f"{DOCS_API_BASE}/index.html"
 
 
 _TYPE_NAMES = {int: "integer", float: "float", bool: "boolean",
@@ -311,15 +330,8 @@ def _strip_type_prefix(text: str) -> str:
 
 
 def format_tooltip(text: str, app_key: str, key: str = "") -> str:
-    """Return a standardised HTML tooltip: ``Name (type)`` + description +
-    an information-icon link. The type is derived from expected_types so every
-    setting — even one with no written description — shows a typed tip.
-
-    Plain <br> line breaks + a plain <a> footer render reliably on every Qt
-    build we've tested.
-    """
+    """Return a standardised HTML tooltip: ``Name (type)`` + description."""
     body = " ".join(_strip_type_prefix(text).split())
-    url = api_docs_url(app_key)
     header = _humanize(key)
     th = _type_hint(key)
     if header and th:
@@ -327,25 +339,18 @@ def format_tooltip(text: str, app_key: str, key: str = "") -> str:
     elif header:
         header = f"<b>{header}</b>"
     parts = [p for p in (header, body) if p]
-    joined = "<br>".join(parts)
-    info = (
-        f'<a href="{url}" title="Open documentation" '
-        'style="text-decoration:none;">ⓘ</a>'
-    )
-    return f"{joined}<br>{info}" if joined else info
+    return "<br>".join(parts)
 
 
 def plain_tooltip(text: str, app_key: str, key: str = "") -> str:
     """Same content as `format_tooltip` but plain text — used by the
     hover-follows footer at the bottom of each AppScreen."""
     body = " ".join(_strip_type_prefix(text).split())
-    url = api_docs_url(app_key)
     th = _type_hint(key)
     name = _humanize(key)
     head = f"{name} ({th})" if (name and th) else name
     parts = [p for p in (head, body) if p]
-    joined = " — ".join(parts)
-    return f"{joined}   ·  ⓘ" if joined else "ⓘ"
+    return " — ".join(parts)
 
 
 # ---------------------------------------------------------------------------
