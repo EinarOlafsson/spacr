@@ -49,12 +49,13 @@ Run **Actions → release SpaCR → Run workflow**, enter the new version, and
 leave the target as `main`. `.github/workflows/release.yml` then:
 
 1. validates and commits the version increment;
-2. builds Windows, macOS, and Linux installers on native runners;
-3. commits the current installers under `spacr/application/` and updates the
-   README links;
-4. builds and validates the wheel and source distribution;
-5. publishes to PyPI using trusted publishing; and
-6. tags that exact commit, creates the GitHub release, and attaches the three
+2. builds and validates the wheel and source distribution;
+3. publishes to PyPI using trusted publishing and waits until that immutable
+   version is available from the PyPI API;
+4. builds Windows, macOS, and Linux installers on native runners;
+5. commits the current installers under `spacr/application/` and updates the
+   README links; and
+6. tags that exact installer commit, creates the GitHub release, and attaches the three
    installers, wheel, source distribution, and SHA-256 manifest.
 
 GitHub displays manual ``workflow_dispatch`` buttons from the default branch,
@@ -64,7 +65,9 @@ pushing that commit to `main` automatically runs
 steps 2-6 for the already-incremented version. Rerunning the same version is
 safe: an existing PyPI artifact is not uploaded twice, existing release
 assets are replaced, and an existing tag must already point to the exact
-release commit.
+release commit. Installers are never generated until PyPI confirms the exact
+version, so their online bootstrap can immediately install the package they
+name.
 
 One-time repository setup:
 
