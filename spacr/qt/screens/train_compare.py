@@ -451,7 +451,14 @@ class TrainCompareScreen(QWidget):
         return [self._metric_combo.itemText(i)
                 for i in range(self._metric_combo.count())]
 
-    def metric(self) -> str:
+    def selected_metric(self) -> str:
+        """Return the metric selected for the comparison plot.
+
+        This deliberately must not be named ``metric``. ``QWidget`` inherits
+        ``QPaintDevice.metric(PaintDeviceMetric)``, which Qt calls while
+        laying out and painting the widget. A no-argument Python override here
+        used to raise during ``show()`` and could take the whole GUI down.
+        """
         return self._metric_combo.currentText()
 
     def set_metric(self, name: str) -> bool:
@@ -573,8 +580,9 @@ class TrainCompareScreen(QWidget):
         pal = _active_palette()
         self._figure.clear()
         ax = self._figure.add_subplot(111)
-        metric = self.metric() or (self._comparison.metrics[0]
-                                   if self._comparison.metrics else "accuracy")
+        metric = self.selected_metric() or (
+            self._comparison.metrics[0]
+            if self._comparison.metrics else "accuracy")
         tc.plot_curves(self._comparison, metric, ax=ax)
         self._style_axes(ax, pal)
         self._canvas.draw_idle()
@@ -706,7 +714,7 @@ class TrainCompareScreen(QWidget):
             self._picked.setText("")
             return ""
         run = next((r for r in self._runs if r.run_id == series.run_id), None)
-        metric = self.metric()
+        metric = self.selected_metric()
         lo, hi = series.epoch_range()
         bits = [f"{series.label}",
                 f"epochs {lo}–{hi}" if lo != hi else f"epoch {hi}"]
