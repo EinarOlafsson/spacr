@@ -33,10 +33,10 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.source_ref || github.sha }}
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Build versioned .run installer
@@ -65,7 +65,7 @@ jobs:
           test -s "$RUNNER_TEMP/spacr/install.log"
           "$RUNNER_TEMP/spacr/venv/bin/python" -I -c \
             "import spacr, PySide6, torch; assert torch.version.cuda is None"
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: spacr-online-linux
           path: dist/online/*Linux*x86_64*Online.run
@@ -76,10 +76,10 @@ jobs:
     runs-on: windows-2025
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.source_ref || github.sha }}
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Install NSIS
@@ -114,7 +114,7 @@ jobs:
       - name: Build small NSIS web installer
         shell: powershell
         run: .\packaging\online\build_windows_online.ps1
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: spacr-online-windows
           path: dist/online/*Windows*Online-Setup.exe
@@ -125,10 +125,10 @@ jobs:
     runs-on: macos-15
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.source_ref || github.sha }}
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Build small .pkg web installer
@@ -160,7 +160,7 @@ jobs:
           test -s "$RUNNER_TEMP/spacr/install.log"
           "$RUNNER_TEMP/spacr/venv/bin/python" -I -c \
             "import spacr, PySide6, torch; assert torch.version.cuda is None"
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: spacr-online-macos
           path: dist/online/*macOS*Online.pkg
@@ -176,16 +176,16 @@ jobs:
     outputs:
       commit_sha: ${{ steps.commit.outputs.commit_sha }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.source_ref || github.sha }}
           fetch-depth: 0
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v8
         with:
           pattern: spacr-online-*
           path: installers
           merge-multiple: true
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Collect current installers and rewrite README links

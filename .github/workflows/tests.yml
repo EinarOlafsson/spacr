@@ -97,10 +97,10 @@ jobs:
             extras: "qt,dev,zernike,btrack"
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
@@ -252,9 +252,9 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
@@ -295,7 +295,7 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       # Python 3.9 is the oldest supported interpreter. Its constraints file
       # pins every lower-bounded direct dependency (and every extra installed
@@ -303,7 +303,7 @@ jobs:
       # above intentionally has no constraints and therefore exercises the
       # newest compatible resolution on all five supported interpreters.
       - name: Set up Python 3.9
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.9"
           cache: pip

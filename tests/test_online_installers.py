@@ -182,10 +182,10 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
     assert "\n  push:" not in workflow
     for job in ("linux:", "windows:", "macos:"):
         assert job in workflow
-    assert "actions/checkout@v6" in workflow
-    assert "actions/setup-python@v6" in workflow
-    assert "actions/upload-artifact@v6" in workflow
-    assert "actions/download-artifact@v6" in workflow
+    assert "actions/checkout@v7" in workflow
+    assert "actions/setup-python@v7" in workflow
+    assert "actions/upload-artifact@v7" in workflow
+    assert "actions/download-artifact@v8" in workflow
     assert "python packaging/release.py collect" in workflow
     assert "spacr/application" in workflow
     for platform in ("Linux", "Windows", "macOS"):
