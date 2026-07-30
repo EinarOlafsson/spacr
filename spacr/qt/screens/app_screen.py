@@ -360,7 +360,7 @@ class AppScreen(QWidget):
             intro_row.addWidget(blurb)
             info = InfoLink(
                 api_docs_url(app_key),
-                tooltip=f"Information about {APP_TITLES.get(app_key, app_key)}",
+                tooltip=intro_text,
                 parent=header,
             )
             info.setObjectName("ModuleInfoLink")
@@ -574,7 +574,7 @@ class AppScreen(QWidget):
                     from .settings_model import api_docs_url
                     info = InfoLink(
                         api_docs_url(self.app_key),
-                        tooltip=f"Information about {label}",
+                        tooltip=self._settings_model.tooltip_for(field_key),
                         parent=section,
                     )
                     info.setObjectName("SettingInfoLink")
