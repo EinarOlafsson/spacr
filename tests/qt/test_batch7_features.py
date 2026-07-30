@@ -2,7 +2,7 @@
 
 * Preferences menu entry on the &spaCR menu.
 * Cellpose-SAM as the default model in the Live Preview panel.
-* "LP" toggle label next to the AI toggle on the Mask app screen.
+* "Live" toggle label next to the AI toggle on the Mask app screen.
 * End-to-end demo entry on the &Demos menu (confirm popup →
   folder picker → HF download → chained mask/measure/annotate).
 
@@ -150,7 +150,7 @@ class TestLivePreviewModelDefault:
 
 
 # ---------------------------------------------------------------------------
-# LP toggle label on Mask app
+# Live toggle label on Mask app
 # ---------------------------------------------------------------------------
 
 class TestLpToggle:
@@ -159,7 +159,7 @@ class TestLpToggle:
         scr = AppScreen("mask")
         qtbot.addWidget(scr)
         assert getattr(scr, "_lp_switch", None) is not None
-        assert scr._lp_switch.text() == "LP"
+        assert scr._lp_switch.text() == "Live"
 
     def test_other_screens_have_no_lp_switch(self, qtbot):
         from spacr.qt.screens.app_screen import AppScreen

@@ -7,7 +7,7 @@ Two measured symptoms, both on the light theme:
 
 * :class:`~spacr.qt.widgets.ai_toggle_label.AiToggleLabel` inked its OFF
   state ``#ffffff`` onto the light page's ``#fafafa`` — **1.04:1**. The
-  "AI" and "LP" switches in the bottom-right of every AppScreen were
+  "AI" and "Live" switches in the bottom-right of every AppScreen were
   invisible until you clicked one.
 * :class:`~spacr.qt.widgets.console_panel._Bubble` inked its text
   ``#ffffff`` on a bubble the app stylesheet fills with the *light*
