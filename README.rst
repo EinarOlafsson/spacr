@@ -445,9 +445,9 @@ new version is built:
 
 .. spacr-installer-links-begin
 
-* `Windows 10/11: download SpaCR 1.4.9.8 <https://github.com/EinarOlafsson/spacr/raw/spacr-codex/spacr/application/SpaCR-1.4.9.8-Windows-Online-Setup.exe>`_
-* `macOS 11+ (Intel and Apple silicon): download SpaCR 1.4.9.8 <https://github.com/EinarOlafsson/spacr/raw/spacr-codex/spacr/application/SpaCR-1.4.9.8-macOS-Universal-Online.pkg>`_
-* `64-bit Linux: download SpaCR 1.4.9.8 <https://github.com/EinarOlafsson/spacr/raw/spacr-codex/spacr/application/SpaCR-1.4.9.8-Linux-x86_64-Online.run>`_
+* `Windows 10/11: download SpaCR 1.4.9.8 <https://github.com/EinarOlafsson/spacr/releases/download/v1.4.9.8/SpaCR-1.4.9.8-Windows-Online-Setup.exe>`_
+* `macOS 11+ (Intel and Apple silicon): download SpaCR 1.4.9.8 <https://github.com/EinarOlafsson/spacr/releases/download/v1.4.9.8/SpaCR-1.4.9.8-macOS-Universal-Online.pkg>`_
+* `64-bit Linux: download SpaCR 1.4.9.8 <https://github.com/EinarOlafsson/spacr/releases/download/v1.4.9.8/SpaCR-1.4.9.8-Linux-x86_64-Online.run>`_
 
 .. spacr-installer-links-end
 
@@ -492,14 +492,14 @@ Latest development branch
 
    git clone https://github.com/EinarOlafsson/spacr.git
    cd spacr
-   git switch spacr-nightly
+   git switch nightly
    python -m pip install -e ".[qt]"
 
 Conda environments
 ~~~~~~~~~~~~~~~~~~
 
 The native conda-forge recipe is ready in
-`conda-forge/recipe <https://github.com/EinarOlafsson/spacr/tree/spacr-codex/conda-forge/recipe>`_.
+`conda-forge/recipe <https://github.com/EinarOlafsson/spacr/tree/main/conda-forge/recipe>`_.
 Conda-forge requires a one-time reviewed onboarding pull request before the
 package name becomes available. After that review, every PyPI release is
 detected, tested, and published by the conda-forge update bot:
@@ -509,7 +509,7 @@ detected, tested, and published by the conda-forge update bot:
    conda install -c conda-forge spacr
 
 The short one-time maintainer procedure is documented in
-`conda-forge/README.md <https://github.com/EinarOlafsson/spacr/blob/spacr-codex/conda-forge/README.md>`_.
+`conda-forge/README.md <https://github.com/EinarOlafsson/spacr/blob/main/conda-forge/README.md>`_.
 
 Optional capabilities
 ~~~~~~~~~~~~~~~~~~~~~

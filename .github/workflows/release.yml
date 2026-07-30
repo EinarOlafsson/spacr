@@ -2,7 +2,7 @@ name: release SpaCR
 
 on:
   push:
-    branches: [spacr-codex, spacr-nightly]
+    branches: [main]
     paths:
       - "setup.py"
   workflow_dispatch:
@@ -15,10 +15,9 @@ on:
         description: Branch to release
         required: true
         type: choice
-        default: spacr-codex
+        default: main
         options:
-          - spacr-codex
-          - spacr-nightly
+          - main
 
 permissions:
   contents: write

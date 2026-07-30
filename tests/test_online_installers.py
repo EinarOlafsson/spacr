@@ -147,7 +147,7 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
 def test_one_click_release_orders_version_installers_pypi_and_github():
     workflow = _text(RELEASE_WORKFLOW)
     assert "workflow_dispatch:" in workflow
-    assert "branches: [spacr-codex, spacr-nightly]" in workflow
+    assert "branches: [main]" in workflow
     assert '"setup.py"' in workflow
     assert "python packaging/release.py bump" in workflow
     assert "--allow-current" in workflow
@@ -216,7 +216,7 @@ def test_release_helper_collects_current_installers_and_rewrites_links(tmp_path)
     old.write_bytes(b"old")
 
     copied = helper.collect_installers(
-        source, destination, readme, setup, branch="spacr-nightly")
+        source, destination, readme, setup, branch="nightly")
 
     assert {path.name for path in copied} == set(names)
     assert not old.exists()
@@ -229,7 +229,7 @@ def test_release_helper_collects_current_installers_and_rewrites_links(tmp_path)
             f"v{version}/{name}"
         ) in links
         assert (destination / name).is_file()
-    assert "/raw/spacr-nightly/" not in links
+    assert "/raw/nightly/" not in links
     manifest = (destination / "README.rst").read_text(encoding="utf-8")
     assert f"Current version: ``{version}``" in manifest
     assert manifest.count("SHA-256") == 4  # heading + one line per installer

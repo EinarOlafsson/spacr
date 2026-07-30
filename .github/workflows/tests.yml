@@ -2,7 +2,7 @@ name: tests
 
 on:
   push:
-    branches: [main, nightly, spacr-nightly, "**"]
+    branches: [main, nightly, "**"]
   pull_request:
     branches: [main]
   workflow_dispatch:
